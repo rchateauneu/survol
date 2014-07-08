@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<title>Center</title>
+	</head>
+<script>
+function myGetTime() {
+    var dd = new Date();
+    var hh = dd.getHours();
+    var mm = dd.getMinutes();
+    var ss = dd.getSeconds();
+    alert("The time is now: " + hh + ":" + mm + ":" + ss);
+}
+
+function TimeAsString() {
+    var dd = new Date();
+    var hh = dd.getHours();
+    var mm = dd.getMinutes();
+    var ss = dd.getSeconds();
+    return "Time=" + hh + ":" + mm + ":" + ss;
+}
+
+</script>
+	<body>
+		Hello resultat merge rdf<br>
+		<script>document.write( TimeAsString() );</script><br>
+
+		<form>
+			<p><button onClick="myGetTime(); return true;" >Pouet</button> to show time.</p>
+		</form>
+
+	</body>
+</html>

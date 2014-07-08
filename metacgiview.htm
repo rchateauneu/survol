@@ -1,0 +1,145 @@
+<html>
+	<head>
+		<title>List of custom cgis</title>
+	</head>
+	<body>
+		This does not work with Opera.
+		<a href="merge_rdf_inputs_graphviz_only.htm">Merge RDF inputs to GraphViz diagram</a>
+		<br>
+		<a href="merge_rdf_inputs.htm">Merge RDF inputs to different diagrams</a>
+		<br>
+		<form name="DynCgiForm" method="POST">
+
+		<br>List of custom CGIs as sent by gui_dyncgi.py:<br>
+		<div id="DynContent"></div>
+
+		<script src="revjslib.js"></script>
+		<script src="jquery.js"></script>
+		<script src="javascript:DynCgi()"></script>
+		<script type="text/javascript">
+
+		function ListSelectedUrls()
+		{
+			var params="";
+
+			for(i=0; i<document.DynCgiForm.elements.length; i++)
+			{
+				if(
+					( document.DynCgiForm.elements[i].type=="checkbox")
+					&& ( document.DynCgiForm.elements[i].checked ) )
+				{
+					params = params + "&name=" + encodeURI( document.DynCgiForm.elements[i].value );
+				}
+			}
+
+			return params;
+		}
+
+		function DeleteSelectedUrls()
+		{
+			var params=ListSelectedUrls();
+			if( params == "" )
+			{
+				alert("No URL to delete");
+				return false;
+			}
+
+			/* This executes this CGI script and displays the result in a HTML object. */
+			var urlParamsDeletion = DynCgi()
+			+ "?action=delete"
+			+ params
+			;
+
+			document.getElementById("DeletedUrls").setAttribute('data',urlParamsDeletion);
+
+			return true;
+		}
+
+		
+
+		// Creation of a free-form url. Mostly for testing purpose of bookmarks editing.
+		function CreateUrl()
+		{
+			urlName = document.DynCgiForm.UrlName.value;
+			if( urlName == "" )
+			{
+				alert("The name of the url should not be empty");
+				return false;
+			}
+
+			// my_engine = "http://127.0.0.1:2468/htbin/internals/gui_create_svg_from_several_rdfs.py";
+			urlEngineShort = document.DynCgiForm.UrlEngine.value;
+			urlEngine = LocalHost() + "/internals/" + urlEngineShort;
+
+			// http://DuoLnx:8642/htbin/sources/cgi_mysql.py
+			urlAddr = document.DynCgiForm.UrlAddr.value;
+			if( urlAddr == "" )
+			{
+				alert("The url address is empty.");
+				return false;
+			}
+
+
+			var urlParamsCreation = DynCgi()
+			+ "?action=create"
+			+ "&name=" + encodeURI( urlName )
+			+ "&engine=" + encodeURI( urlEngine )
+			+ "&url=" + encodeURI( urlAddr )
+			;
+
+			alert("Url=" + urlParamsCreation );
+
+			document.getElementById("CreatedUrl").setAttribute('data',urlParamsCreation);
+			return true;
+		}
+		</script>
+
+		<script src="favorites_urls.js"></script>
+		<script language="javascript">
+			function ProcessBookmarksMetas()
+			{
+				ProcessBookmarks(metas);
+			}
+
+			jQuery.getScript( DynCgi(), ProcessBookmarksMetas );
+		</script>
+
+
+		<br>Certains liens n'arrivent pas a etre detruits.
+		<br>
+		<a href="#" onclick="DeleteSelectedUrls();return true;">Delete selected urls</a>
+		<br>
+		Creation URL format libre:<br>
+		Name:<input type="text" name="UrlName"><br>
+		Url (There should be several urls according to the engine and it should be possible to drop an url there):<br>
+		<input type="text" name="UrlAddr"><br>
+
+		Exemple of engine: my_engine = "http://127.0.0.1:2468/htbin/internals/gui_create_svg_from_several_rdfs.py";<br>
+		Engines should be in a special directory, or have a special name.
+		<SELECT name="UrlEngine">
+			<OPTION VALUE="gui_create_svg_from_several_rdfs.py">Create svg from several RDF files</OPTION>
+			<OPTION VALUE="gui_accumulate.py">Accumulate RDF data</OPTION>
+		</SELECT>
+
+		<a href="#" onclick="CreateUrl();return true;">Create url</a>
+		</form>
+
+		<br>Must allow to select a directory: To delete it (and its content),
+		or to import a favorite pages at this level.	
+
+		<br>
+		This is the result after the deletion of a custom url.
+		In fact the type of this object should not be svg.
+		Also, we should rather refresh the list of URLs.
+		<br>
+		<object id="DeletedUrls" type="html" width="800" height="800">
+			No url deleted yet
+		</object>
+		<br>
+		Result of the creation of a URL. We do not really know what to display<br>
+		<object id="CreatedUrl" type="html" width="800" height="800">
+			No url deleted yet
+		</object>
+		<br>End of document
+	</body>
+	</html>

@@ -1,0 +1,241 @@
+<html>
+
+	<head>
+		<title>Stand-alone browser version 2</title>
+
+<script src="revjslib.js"></script>
+<script>
+
+
+// This is called asynchronously when the list of SLP urls arrives.
+function FillSlpUrlsTable()
+{
+	// alert("InScript");
+	var slpTable = "";
+	slpTable += '<table border=1>';
+
+	slpTable += '<tr>';
+	slpTable += '	<td colspan="3">SLP data sources</td>';
+	slpTable += '	<td>Display as RDF</td>';
+	slpTable += '	<td>Display as Json in Javascript</td>';
+	slpTable += '</tr>';
+
+	for( var i = 0; i < slps.length; ++i)
+	{
+		rdf_url = slps[i][1];
+		slpTable += '<tr>';
+		slpTable += '	<td><input type="checkbox" name="' + slps[i][3] + '" value="' + rdf_url + '"></td>';
+		slpTable += '	<td>' + slps[i][0] + '</td>';
+		slpTable += '	<td>' + slps[i][2] + '</td>';
+		slpTable += '	<td><a href="' + rdf_url + '">' + rdf_url + '</a></td>';
+		json_url = "display_rdf_to_json.htm?rdf_url=" + encodeURIComponent( rdf_url ); 
+		slpTable += '	<td><a href="' + json_url + '">' + rdf_url + '</a></td>';
+		slpTable += '</tr>';
+	}
+	slpTable += '</table>';
+
+	$("#SlpUrlsDynTable").html(slpTable);
+}
+
+function MakeInputsListSlp()
+{
+	var params="";
+
+	/* alert("len="+document.SlpForm.elements.length); */
+	for(i=0; i<document.SlpForm.elements.length; i++)
+	{
+		/* alert("i="+i); */
+		if(
+			( document.SlpForm.elements[i].type=="checkbox")
+			&& ( document.SlpForm.elements[i].checked ) )
+		{
+			params = params + "&url=" + encodeURI( document.SlpForm.elements[i].value );
+		}
+	}
+
+	return params;
+}
+
+// There is a similar function with the same name, in metacgiview.htm, for test purpose.
+function CreateUrl()
+{
+	var params=MakeInputsListSlp();
+	var nam = document.SlpForm.UrlName.value;
+	if( nam == "" )
+	{
+		alert("Name of new url should not be empty");
+		return false;
+	}
+	if( params == "" )
+	{
+		alert("No URL selected when creating " + nam);
+		return false;
+	}
+
+	/* Upper limit because of performances. */
+	params = params + "&maxnodes=" + document.SlpForm.MaxNodes.value;
+
+	/* The type of graphviz visualisation is not relevant here*/
+
+	/* This executes this CGI script and displays the result in a HTML object. */
+	var urlparams_creation = DynCgi()
+	+ "?action=create"
+	+ "&name=" + nam
+	+ "&engine=" + RvgsToRdf()
+	+ params
+	;
+
+	document.getElementById("CreatedUrls").setAttribute('data',urlparams_creation);
+
+	return true;
+}
+
+function MergeRdfSources()
+{
+	var params=MakeInputsListSlp();
+	if( params == "" )
+	{
+		alert("No url selected when merging RDF sources");
+		return false;
+	}
+
+	/* Upper limit because of performances. */
+	params = params + "&maxnodes=" + document.SlpForm.MaxNodes.value;
+
+	/* Type of graphviz visualisation */
+	params = params + "&viztype=" + document.SlpForm.VizType.value;
+
+	/* The merge script: We can choose which one for testing purpose. */
+	params = params + "&rdfmerger=" + document.SlpForm.RdfMerger.value;
+
+	/* The tool which transforms RDF documents into DOT documents. 
+	Theoretically it should not have any parameters, for the moment. */
+	params = params + "&rdftodot=" + document.SlpForm.RdfToDot.value;
+
+	params = params + "&dottosvg=" + document.SlpForm.DotToSvg.value;
+
+	/* This executes this CGI script and displays the result in a HTML object. */
+
+	/* http://127.0.0.1:2468/htbin/internals/gui_create_svg_from_several_rdfs.py?url=http://DuoLnx:8642/htbin/sources/cgi_sockets.py */
+	var urlparams_plain = RvgsToSvg() + "?dummy=none" + params;
+
+	// alert( "urlparams_plain=" + urlparams_plain );
+
+	document.getElementById("ObjectSvg").setAttribute('data',urlparams_plain);
+
+	return true;
+}
+
+</script>
+
+	</head>
+	<body>
+	<form name="SlpForm" method="POST">
+		<div id="SlpUrlsDynTable"></div>This one used by slp_urls.js
+
+		<script src="jquery.js"></script>
+		<script language="javascript">
+			slp_list_url = SlpMenu();
+
+			$.getScript(slp_list_url, FillSlpUrlsTable);
+
+			/* We assume that some or all of these URLs are in fact bookmarks pages which contain
+			the URLs that we want. The advantage is that when we create a dynamic CGI
+			with a specific set of CGI parameters, it is not necessary to register it with
+			SLP or any other exposing mechanism.
+
+			What must be done is:
+			- Expose remote bookmarks.
+			- Expose local bookmarks.
+			- Have a way to distinguish  normal URL from bookmarks.
+			*/
+
+
+			/* TODO: We should not display the links here, ideally,
+			but create them here, and display them elsewhere.
+			But, for ergonomy, we will call the CGI script for merging,
+			we will also add some parameters for choosing the display parameters,
+			it will be possible to choose a name for the new URL,
+			and also delete an URL if it is dynamic.
+
+			On va faire un nouveau script HTML qui appelera un nouveau script de merge.
+			Ce nouveau script de merge aura un affichage modulaire.
+
+			Aussi: Un autre script qui va appliquer une requete SPARQL au resultat d'un script
+			CGI RDF. En entree, il n'y aura qu'une seul URL.
+			*/
+
+		</script>
+		<br>
+		TODO: Should also display our URLs. Grouped by scripts.
+		Reusing the URLs created by our script should rather be discouraged.
+		<div id="DoesNotWork___CreatedUrls"></div>
+		<br>
+		<a href="#" onclick="MergeRdfSources();return true;">Merge RDF sources with Graphviz</a>
+		<br>
+		Max nodes:
+		<SELECT name="MaxNodes">
+			<OPTION VALUE="10">10</OPTION>
+			<OPTION VALUE="100">100</OPTION>
+			<OPTION VALUE="1000">1000</OPTION>
+			<OPTION VALUE="10000">10000</OPTION>
+		</SELECT>
+
+		<br>
+		RDF merger
+		<SELECT name="RdfMerger">
+			<OPTION VALUE="PythonRdfMerge">Python RDF merge</OPTION>
+			<OPTION VALUE="JenaRdfMerge">Jena RDF merge</OPTION>
+		</SELECT>
+
+		<br>
+		RDF to DOT translation
+		<SELECT name="RdfToDot">
+			<OPTION VALUE="PerlRdfToDot">RDF to Dot in Perl with rdfdot</OPTION>
+			<OPTION VALUE="JenaToolsRdfToDot">RDF to Dot with JenaTools</OPTION>
+		</SELECT>
+
+		<br>
+		SVG generation from Dot
+		<SELECT name="DotToSvg">
+			<OPTION VALUE="DotToSvgServer">Server side</OPTION>
+			<OPTION VALUE="DotToSvgClient">Client side</OPTION>
+		</SELECT>
+
+		<br> This parameter applies only if the translation from Dot to Svg is done with Graphviz, on the server:
+		<SELECT name="VizType">
+			<OPTION VALUE="dot">dot: Hierarchical</OPTION>
+			<OPTION VALUE="neato">neato: OK if not too large.</OPTION>
+			<OPTION VALUE="fdp" selected="selected">fdp: Similar to neato, but handles larger graphs</OPTION>
+			<OPTION VALUE="sfdp">sfdp: Multiscale version of fdp</OPTION>
+			<OPTION VALUE="twopi">twopi: Radial layout</OPTION>
+			<OPTION VALUE="circo">circo: Circular layout</OPTION>
+		</SELECT>
+
+		<br>
+		Name:<input type="text" name="UrlName">
+		<br>
+		<a href="#" onclick="CreateUrl();return true;">Create url with these inputs and this name</a>
+		<br>
+	<br>
+	</form>
+
+	<a href="metacgiview.htm" >List meta-cgis</a>
+
+<br>This is the SVG file created by GraphViz<br>
+<object id="ObjectSvg" type="svg+xml" data="http://127.0.0.1:1234/RDF/svc_rdf_to_svg.py" width="800" height="800">
+  alt : <a href="from_rdf.svg">from_rdf.svg</a>
+</object>
+
+<br>
+
+This is where we display the list of created URLs<br>
+<object id="CreatedUrls" type="svg+xml" width="800" height="800">
+  alt : <a href="xxxx.json">xxxx.json</a>
+</object>
+<br>
+
+<br>
+<a href="javascript:RdfSources()">List of RDF sources</a>
+	</body>
+</html>

@@ -1,0 +1,302 @@
+On va peut-etre revenir a UPNP mais cette fois-ci en Perl et surtout bien separer
+la declaration des serveurs d'une part, et les calculs d'autre part.
+
+Mettre dans des directory separes les programmes de calculs, et l'affichage.
+
+Les fichiers de sortie, output.rdf etc... vont etre en parametres.
+
+Eventuellement, on peut conjointement publier en SLP et en UPNP.
+
+Bien separer les fonctionnalites en programmes differents car on a perdu
+trop de temps a trouver le langage parfait qui permet UPNP et RDF, fonctionne partout de la
+meme facon etc...
+
+Donc on separe en processes differents qui tournent avec des langages interpretes idealement.
+
+Est-ce que on pourrait faire du UNPN avec drag-n-drop, pour le merge ?
+
+On part de l'interface actuelle, en javascript.
+
+Voir si on pourrait avoir un frontal devant le merge,
+qui permettrait de lancer le merge avec du javascript.
+Oui: Il suffit d'avoir un serveur web qui puisse activer le merge avec le bon URL.
+
+Javascript devra peut-etre uploader les fichiers, ce qui nous dispenserait d'avoir un serveur local.
+Pas urgent mais on se laisse la possiblite de cette architecture, ou tout est decouple
+d'une machine a l'autre, d'un process a l'autre, sans avoir forcement besoin de demarrer
+des serveurs.
+
+=============================================
+Si SLP, on peut utiliser les attributs pour dire quel genre d'info est stockee,
+quel est l'index etc...
+D'un autre cote ca nous oblige a coller a SLP.
+
+Peut-etre utiliser nmap qui peut renvoyer des infos interessantes sur le reseau ?
+
+Eventuellement RDP (Remote Desktop Protocol) pour avoir une liste de processes sur les
+machines Windows.
+
+Transformer une operation de merge en une source d'informations: Il suffit de lister
+son URL, enregistrer ses parametres et declarer avec SLP par exemple.
+
+=============================================
+http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
+
+HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes. 
+
+=============================================
+RDF en javascript.
+
+
+Peut etre avoir optionnellement, pour chaque CGI, un serveur SOAP,
+compatible avec UPNP?
+Et qui permettrait d'ajuster les parametres.
+=============================================
+UDP:
+Etablir la correlation entre:
+* Des trames UDP venant d'un certain process, vers une adresse multicast donnée (Ou
+bien eventuellement on regroupe) et un port donné.
+* Des processes qui manifestent une certaine activité quand cette trame
+arrive. Comme cette trame est traitée dans du code utilisateur,
+et pas forcement dansune librairie donnée, on ne peut que se referer
+a l'activité CPU.
+
+Toutefois, on peut s'aider de lsof/netstat pour reduire le nombre
+de processes possibles?
+
+On pourrait se connecter a tous les messages TIBCO et verifier les processes 
+qui reagissent. Ca revient au meme probleme:
+- Des evenements d'une part (Trames UDP ou n'importe quoi d'autre
+associés soit a une adresse IP ou bien un sujet tibco)
+- D'autre part la reactivite des processes.
+
+Voir si on pourrait maquetter avec gdb, ptrace etc...
+=============================================
+
+Utiliser Octave pour creer des plots 3D ? Ou plutot d3.js,
+on essaye d'en faire le plus possible dans le browser.
+Autre aspect (C'est du bla-bla marketing mais facile a expliquer et
+permet d'y mettre de jolies choses):
+- RDF pour la logique
+- Et puis le plan numerique: Notamment periodicite.
+
+
+On voudrait integrer ceci: On prend un CSV quelconque et on genere
+un graphe. Ca, c'est l'equivalent de "rdfdot", la transformation en quelque chose de visible.
+http://d3-generator.com/
+
+Mais on veut aussi permettre de faire des traitements numeriques sur les CSV,
+style moyenne, somme etc... qui eux-memes generent d'autres CSV.
+
+Bref: On va avoir des liens qui generent du CSV, eventuellement en continu.
+On utilise le mime type: text/csv, pour appeler le bon programme.
+
+On pourrait associer un predicat RDF a un nom de colonne CSV.
+Et une valeur CSV a un litteral associé a ce predicat.
+=> Modifier les valeurs d'un fichier dot grace a un CSV.
+=> Et creer un petit RDF representant le header d'un CSV.
+
+Par exemple, le resultat d'un "ps -ef" peut creer un RDF.
+
+Du coup, transformer des triples RDF en CSV.
+Et aussi, lire un CSV et, en javascript, mettre a jour
+le RDF et donc les fichiers .dot et SVG.
+Par exemple pour reconstituer des evenements,
+visualiser un vmstat dans un graphe SVG.
+
+============================================
+http://www.w3.org/TR/rdf-mt/
+
+Il faut s'assurer que le merge permet par exemple que processes ayant le meme 
+pid se retrouvent fusionnes.
+Si ce n'est pas le cas, il faut une regle permettant de construire le meme URN
+par exemple pour le meme pid.
+
+Quelles sont les regles du merge en RDF ????
+
+http://www.w3.org/TR/rdf-mt/
+
+To merge N-Triples documents it is necessary to check if the same nodeID
+is used in two or more documents, and to replace it with a distinct nodeID
+in each of them, before merging the documents.
+
+Ca veut dire qu'il ne faut surtout pas creer des blank nodes en esperant que
+le merge de RDF sera capable de les fusionner.
+==============================================
+Details sur les CSV et les mime-type:
+http://stackoverflow.com/questions/398237/how-to-use-the-csv-mime-type
+
+http://stackoverflow.com/questions/15457752/proper-syntax-for-optional-header-parameter-for-text-csv-mimetype
+
+http://blog.teksol.info/2009/04/06/returning-csv-data-to-the-browser-revisited.html
+text/csv; charset=UTF-8; header=present
+
+==============================================
+Periodicite: On en revient a notre probleme de snapshot CPU+memoire
+qui determine tout.
+
+On pourrait faire simple, se focaliser sur /proc,
+mais faire des traitements complexes derriere.
+
+==============================================
+SLP
+http.rdf
+http.csv
+==============================================
+Quelles requetes simples peut-on faire en RDF+Javascript ?
+* Tout ce qui concerne un process ou une socket?
+
+==============================================
+Generer du SNMP pour MRTG?
+
+============================================
+Avec DOT, on peut, je crois representer des graphes imbriques.
+S'en servir pour mettre representer la hierarchie des sous-processes
+sans modifier le dessin d'ensemble.
+
+============================================
+Dans KDE, dessin des rectangles emboités pour representer des 
+grandeurs imbriquees: Treemap: http://bl.ocks.org/mbostock/4063582
+Ou des cercles:
+http://bl.ocks.org/mbostock/4063530
+
+La aussi, on peut mettre notre connaissance des OS.
+Par exemple decomposer un executable en ses librairies (Visualiser ldd),
+au point de vue de la taille mais aussi du temps passe dans le code.
+Ou un dtrace.
+Ou un strace en prenant en compte la creation des sous-processes.
+============================================
+Doit-on exprimer l'imbrication de facon generique ou bien
+en s'appuyant sur du RDF?
+* Processes.
+* Fichiers (Avec l'exception des links symboliques ou hards).
+* Eventuellement les reseaux (Mais on ne sait pas faire pour le moment)
+* Pas les user-groups.
+
+============================================
+Detecter des dependances:
+ Echantillonner l'etat des processes.
+grep  "State:[   ]*[A-RT-Z]" /proc/*/status
+
+Correler avec d'autres evenements.
+http://www.mathworks.com/matlabcentral/answers/60725
+
+https://en.wikipedia.org/wiki/Mutual_information
+
+Arriver a correler un network storm avec l'activité de tel ou tel process.
+============================================
+Liens entre les pages de visualisation.
+
+On doit avoir sur une meme page des listes de CGI qu'on peut fusionner
+soit en RDF soit en CVS et peut etre un melange des deux.
+
+Mais peut-on melanger tous les liens ensemble?
+
+Exemple:
+CGI qui affiche la liste des processes,
+et un autre la liste des segments de memoire dans un process
+https://www.kernel.org/doc/Documentation/filesystems/proc.txt
+cat /proc/self/maps
+
+b55bc000-b56fa000 r--s 00000000 08:01 412045     /var/tmp/kdecache-rchateau/ksycoca
+b56fa000-b571d000 r-xp 00000000 08:01 35037      /usr/lib/kde3/konq_sidebartree_dirtree.so
+ r = read
+ w = write
+ x = execute
+ s = shared
+ p = private (copy on write)
+
+Comment visualiser cette page pour un process seulement?
+============================================
+On a une liste de visualiseurs.
+En entree on choisit un CGI.
+Si c'est un CGI CVS, il faur choisir les colonnes (Au moins)
+Si RDF, choisir le predicat.
+
+============================================
+Un CGI facile: On relie les processes aux librairies
+auxquelles ils sont linkes.
+- Si plusieurs versions, on relie les versions entre elles.
+- Ca traverse les machines (Mais ce serait bien de regrouper
+les processes de la meme machine dans une seule boite)
+- Comment se concentrer sur certaines librairies seulement?
+Il faudrait un premier filtre qui cree un CGI avec ces parametres.
+Ce CGI serait reinjecte dans la visualisation.
+
+
+============================================
+Creation de vues CGI sur un CGI RDF:
+On stocke:
+- Un CGI
+- Des predicats RDF et les valeurs qu'on garde
+
+============================================
+Creation de vues CGI sur un CGI CVS:
+Pour le creer, on coche un CGI existant (Drop down list)
+et des noms de colonnes.
+On donne aussi un nom,
+et la forme appelle alors un CGI avec ces parametres,
+et qui va le declarer a SLP.
+
+============================================
+A quoi ca sert d'utiliser le format CSV pour des snapshots quand RDF
+rend parfaitement le meme service?
+
+Le seul interet du format CSV est pour des donnees en continu,
+mais c est quelque chose de particulier que d3 ne couvre a priori pas.
+
+On peut aussi avoir en quelqe sorte des donnees en continu en RDF,
+il suffit de rappeler le meme script. Non: L'interet du CSV est
+pour des donnees en continu sans polling.
+Mais nous, on se concentre sur la logique des processes.
+
+============================================
+Utiliser la commande top en mode batch: Ca fera un fichier CSV.
+Attention aux processes qui disparaissent.
+Afficher avec d3, style MRTG.
+============================================
+Tout afficher sur un process, dans le but de savoir a quoi il sert.
+============================================
+Avec lsof et autres, savoir les devices auxquels les processes sont
+connectes (terminaux, disques)
+Et du coup, dire quel process empeche de dismounter un device.
+============================================
+Ajouter un plugin a Nagios ???
+C'est a dire qu'on ajouterait un adapteur a nos scripts CGI
+pour en faire des plugins Nagios.
+============================================
+Choisir des parametres pour graphviz, mais aussi
+permettre d'afficher du RDF avec d3.
+Donc bien separer le merge de la visualisation?
+Au lieu de renvoyer du SVG, on renverra du Javascript
+avec des appels D3?
+============================================
+Les bookmarks ont un titre qui contient des slahes permettant de definir des sous-niveaux.
+Pour le renommage, on detruit un ancien nom et construit un nouveau,
+c'est la commande update.
+On doit donc associer un titre arborescent avec un sous-objet
+dans un arbre en json.
+============================================
+Meta-CGI
+Accumuler des triplets d'un cgi rdf.
+Ca permet de "moyenner" des snapshots.
+============================================
+Apparemment, on ne peut pas ajouter de meta-data a un fichier RDF.
+L'objectif etait de donner un rapport d'execution d'un URL,
+a l'URL appelant. Notamment, on voulait permettre au sous-url
+de faire des filtrages de donnees, lourds en CPU et memoire, par exemple
+isoler uniquement les triplets relatifs a un noeud particulier.
+Le faire au plus bas niveau possible est tres profitable. Et donc,
+si le sous-url n'est pas capable de le faire, faire le filtrage
+dans l'URL appelant, ce qui est plus couteux.
+Aussi, dire explicitement a l'URL appelant que telle ou telle requete n'est pas possible.
+
+Autre approche pour signaler des erreurs:
+On renvoie les messages directement dans le document RDF, ce qui fait que 
+l'utilisateur ne peut pas les eviter.
+Par exemple, en creant des nodes artificiels. Mais il faudrait que ca aie un sens,
+ce qui est parfois possible.
+Autrement dit, on integre les erreurs dans les donnees normales, traitees normalement.
+Ca a l'avantage de ne jamais les perdre.
+============================================
+

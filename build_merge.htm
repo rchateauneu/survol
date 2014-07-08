@@ -1,0 +1,154 @@
+<html>
+	<head>
+		<title>Drag and drop RDF URNs</title>
+	<script type="text/javascript">
+
+
+function SimpleSlpUrlsTable()
+{
+	// alert("InScript");
+	var slpTable = "";
+	slpTable += '<table border=1>';
+
+	slpTable += '<tr>';
+	slpTable += '	<td>Display as RDF</td>';
+	slpTable += '</tr>';
+
+	for( var i = 0; i < slps.length; ++i)
+	{
+		rdf_url = slps[i][1];
+		slpTable += '<tr>';
+		slpTable += '	<td><a href="' + rdf_url + '">' + rdf_url + '</a></td>';
+		slpTable += '</tr>';
+	}
+	slpTable += '</table>';
+
+	$("#SlpUrlsDynTable").html(slpTable);
+}
+
+
+
+/* This is not finished of course */
+function AddUrl()
+{
+	var contUrls = document.getElementById("containerUrls");
+	var input = document.createElement("input");
+	input.type = "text";
+	input.name = "CopyPasteUrl";
+	var elemBr = document.createElement("br");
+	contUrls.insertBefore(elemBr, contUrls.firstChild);
+	contUrls.insertBefore(input, contUrls.firstChild);
+}
+
+// C'est peut-etre une erreur de permettre des fichiers parcequ'il faudrait soit
+// les recharger a chaque fois, soit les stocker sur le serveur.
+// Mais on pourrait peut-etre aussi avoir des liens referencant des fichiers locaux?
+// On laisse ce probleme en attente, rien d'urgent.
+function AddFile()
+{
+	var contFiles = document.getElementById("containerFiles");
+	var input = document.createElement("input");
+	input.type = "file";
+	input.name = "UploadFile";
+	var elemBr = document.createElement("br");
+	contFiles.insertBefore(elemBr, contFiles.firstChild);
+	contFiles.insertBefore(input, contFiles.firstChild);
+}
+
+/* TODO: Faire fonctionner ceci pour tous les inputs. */
+function CheckFile(inputNam)
+{
+	var val=document.getElementById(inputNam).value;
+	var str=val.toUpperCase();
+        suffix=".RDF";
+	if( str.indexOf(suffix, str.length - suffix.length) == -1 )
+	{
+		alert('File type not allowed,\nAllowed file: *.RDF');
+		document.getElementById(inputNam).value='';
+        }
+}
+
+// Exemple d'URL final: http://127.0.0.1:2468/htbin/internals/gui_create_svg_from_several_rdfs.py?url=http://DuoLnx:8642/htbin/sources/cgi_sockets.py
+function CreateFullUrls()
+{
+	var target_url = RvgsToSvg();
+	var cgi_params = "?dummy=none";
+
+	var contUrls = document.getElementsByName("CopyPasteUrl");
+	alert("nb=" + contUrls.length );
+	for( var idx = 0; idx < contUrls.length; ++idx )
+	{
+		var inp = contUrls[idx];
+		alert("name=" + inp.name + " " + inp.type );
+		if( inp.name == "CopyPasteUrl" )
+		{
+			cgi_params += "&url=" + encodeURI(inp.value);
+		}
+	}
+	target_url += cgi_params;
+	alert( target_url );
+	return 0;
+}
+
+	</script>
+	</head>
+	<body>
+		Le but de cette page html est de construire un lien de fusion de documents RDF,
+		en permettant de charger des fichiers RDF, mais aussi de faire du copy-paste
+		d'autres liens.<br>
+		C'est un exercice de Javascript qui permet aussi de tester d'autres types
+		d'interface, et de tester les CGIs de traitement.<br>
+		Eventuellement, lister les liens SLP, les bookmarks.
+
+
+		On devrait peut-etre utiliser un autre script que gui_create_svg_from_several_rdfs.py
+		afin de charger les fichiers etc...
+
+		<form name="MyForm" enctype="multipart/form-data" onsubmit="CreateFullUrls();" method="post">
+
+		<div id="SlpUrlsDynTable">This div displqys the RDF sources exposed by SLP</div>
+
+		<script src="jquery.js"></script>
+		<script language="javascript">
+			slp_list_url = LocalHost() + "/htbin/internals/gui_slpmenu.py";
+			$.getScript(slp_list_url, SimpleSlpUrlsTable);
+		</script>
+		<br>
+
+		<!-- MAX_FILE_SIZE doit précéder le champ input de type file -->
+		<input type="hidden" name="MAX_FILE_SIZE" value="3000000" />
+		<!-- Le nom de l'élément input détermine le nom dans le tableau $_FILES -->
+
+		<div id="containerUrls">
+		<input type="text" name="CopyPasteUrl" value="Copier/coller un url">
+		<a href="#" onClick="AddUrl()">Ajouter un autre url</a>
+		</div><br/>
+
+
+		Envoyez ce fichier : <br>
+		<input id="firstFile" type="file" accept="xml/rdf" onChange="CheckFile('firstFile')" />
+		<a href="#" onClick="AddFile()" >Ajouter un autre fichier</a>
+		<div id="containerFiles"/>
+
+		<br><input type="submit" value="Envoyer le fichier" />
+		</form>
+		<br>
+
+		Normallement, le lien cible va recuperer tous les inputs.
+		On va temporairement creer un CGI specifique, capable de lister les fichiers.
+
+		Il faut pouvoir effacer des champs de saisie.
+
+		Aussi: Quand on droppe un lien sur un input, on peut en ajouter un nouveau
+		a la fin. Ou bien une icone magique qui cree un input quand on droppe
+		un URL dessus.
+
+		Puis: Quand on droppe un fichier, transformer le Input en upload de file.
+		Eventuellement on cree un inputFile hidden.
+		Apparemment, voici ce que contient un inputText quand on y droppe un nom
+		de fichier: "Copier/coller un urlfile:///home/rchateau/AprilMobilite.20140206.pdf"
+		avec aussi un petit truc sale a la fin de la chaine.
+		Pas trop raffiné pour le moment, tout de meme.
+
+	</body>
+</html>

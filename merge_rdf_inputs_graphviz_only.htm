@@ -1,0 +1,163 @@
+<html>
+
+	<head>
+		<title>Stand-alone browser</title>
+		<script src="revjslib.js"></script>
+<script>
+// Creates a CGI arguments list with the selected URLs.	
+// Used for creating and storing a new bookùark, or merging several URLs.
+function MakeInputsListSlp()
+{
+	var params="";
+
+	for(i=0; i<document.SlpForm.elements.length; i++)
+	{
+		if(
+			( document.SlpForm.elements[i].type=="checkbox")
+			&& ( document.SlpForm.elements[i].checked ) )
+		{
+			// Why not this: encodeURI( document.SlpForm.elements[i].value );
+			params = params + "&url=" + document.SlpForm.elements[i].value;
+		}
+	}
+
+	return params;
+}
+
+function CreateUrl()
+{
+	var params=MakeInputsListSlp();
+	var nam = document.SlpForm.UrlName.value;
+	if( nam == "" )
+	{
+		alert("Name of new url should not be empty");
+		return false;
+	}
+	if( params == "" )
+	{
+		alert("No URL selected when creating " + nam);
+		return false;
+	}
+
+	/* This executes this CGI script and displays the result in a HTML object. */
+	var urlparams_creation = DynCgi()
+	+ "?action=create"
+	+ params
+	+ "&name=" + nam
+	+ "&engine=" + RvgsToSvg()
+	;
+
+	document.getElementById("CreatedUrls").setAttribute('data',urlparams_creation);
+
+	return true;
+}
+
+function MergeRdfSources()
+{
+	var params=MakeInputsListSlp();
+	if( params == "" )
+	{
+		alert("No url selected when merging RDF sources");
+		return false;
+	}
+
+	/* This executes this CGI script and displays the result in a HTML object. */
+
+	/* http://127.0.0.1:2468/htbin/internals/gui_create_svg_from_several_rdfs.py?url=http://DuoLnx:8642/htbin/sources/cgi_sockets.py */
+	var urlparams_plain = RvgsToSvg() + "?dummy=none" + params;
+
+	// alert( "urlparams_plain=" + urlparams_plain );
+
+	document.getElementById("ObjectSvg").setAttribute('data',urlparams_plain);
+
+	return true;
+}
+
+</script>
+<script src="jquery.js"></script>
+<script language="javascript">
+	// This displaythe URL lists exposed by SLP.
+	function FillFromSlp()
+	{
+		slpTab = '<table border=1>';
+		for( var i = 0; i < slps.length; ++i)
+		{
+			slpTab += '<tr>';
+			slpTab += '	<td><input type="checkbox" name="' + slps[i][3] + '" value="' + slps[i][1] + '"></td>';
+			slpTab += '	<td>' + slps[i][0] + '</td>';
+			slpTab += '	<td>' + slps[i][2] + '</td>';
+			url = RvgsToSvg() + "?dummy=none" + "&url=" + slps[i][1];
+			slpTab += '	<td><a href="' + url + '">' + slps[i][1] + '</a></td>';
+			slpTab += '	<td><a href="' + slps[i][1] + '">RDF</a></td>';
+			slpTab += '</tr>';
+		}
+		slpTab += '</table>';
+
+		$("#SlpUrlsDynTab").html(slpTab);
+	}
+
+	jQuery.getScript( SlpMenu(), FillFromSlp );
+
+	/* TODO: We should not display the links here, ideally,
+	but create them here, and display them elsewhere.
+	But, for ergonomy, we will call the CGI script for merging,
+	we will also add some parameters for choosing the display parameters,
+	it will be possible to choose a name for the new URL,
+	and also delete an URL if it is dynamic.
+
+	On va faire un nouveau script HTML qui appelera un nouveau script de merge.
+	Ce nouveau script de merge aura un affichage modulaire.
+
+	Aussi: Un autre script qui va appliquer une requete SPARQL au resultat d'un script
+	CGI RDF. En entree, il n'y aura qu'une seul URL.
+	*/
+
+</script>
+
+	</head>
+	<body>
+		<form name="SlpForm" method="POST">
+		<div id="SlpUrlsDynTab"></div>
+
+		<br>
+		TODO: Should also display our URLs. Grouped by scripts.
+		Reusing the URLs created by our script should rather be discouraged.
+		<div id="DoesNotWork___CreatedUrls"></div><br>
+		<br>List of custom CGIs as sent by gui_dyncgi.py. We should also use them in new urls.<br>
+		<div id="DynContent"></div>
+		<br>
+		<script language="javascript" src="favorites_urls.js"></script>
+		<script language="javascript">
+			function ProcessBookmarksMetas()
+			{
+				ProcessBookmarks(metas);
+			}
+
+			jQuery.getScript( DynCgi(), ProcessBookmarksMetas );
+		</script>
+		<a href="#" onclick="MergeRdfSources();return true;">Merge bookmarked RDF sources with Graphviz</a>
+		<br>
+		Name:<input type="text" name="UrlName">
+		<br>
+		<a href="#" onclick="CreateUrl();return true;">Create url with these inputs and this name</a>
+		<br>
+	<br>
+	</form>
+
+	<a href="metacgiview.htm" >List meta-cgis</a>
+
+	<br>Add an inference engine, loads RDF files and displays them as bookmarks?
+	<br>
+<object id="ObjectSvg" type="svg+xml" data="http://127.0.0.1:1234/RDF/svc_rdf_to_svg.py" width="800" height="800">
+  alt : <a href="from_rdf.svg">from_rdf.svg</a>
+</object>
+
+<br>
+
+<object id="CreatedUrls" type="svg+xml" width="800" height="800">
+  alt : <a href="xxxx.json">xxxx.json</a>
+</object>
+<br>
+
+	</body>
+</html>

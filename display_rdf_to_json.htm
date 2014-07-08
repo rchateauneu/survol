@@ -1,0 +1,125 @@
+<html>
+	<header>
+	<title>Display RDF as Json</title>
+	</header>
+	<body>
+		On recoit un url en RDF sur notre URL, et on fait tout en javascript.<br>
+		Il faut aller charger cet URL et l'afficher grace a une librairie RDF en Javascript.<br>
+		Bref: On affiche cette page avec du javascript, qui va au chargement aller chercher l'URL en RDF.
+		Au passage, ca montre bien que le RDF engine et le DOT engine doivent communiquer avec un URL,
+		pas un fichier.
+		Et puis on va etudier et transformer le graphe RDF et l'afficher avec D3.
+		Ou aussi bien avec webgraphviz si on arrive a transformer le RDF en DOT, en Javascript.
+		Autant que je m'en souvienne, ca ne fonctionne pas encore.
+		
+		Autre solution additionnelle a celle-ci: On utilisera Webgraphviz :
+		On cree un nouvel engin de transformation de RDF en MIME:
+		On conserve donc la transformation de RDF en DOT, faite sur le server, en Java ou en Perl.
+		Et ensuite seulement, on fabrique une page contenant le DOT immergé dans la page
+		et on en fait du SVG.
+
+		<script src="jquery.js"></script>
+		<script src="jquery.rdfquery.rules-1.0.js"></script>
+
+		<script language="javascript">
+			function ProcessRdfData(string_data)
+			{
+				// alert( string_data );
+				parser = new DOMParser();
+				data = parser.parseFromString( string_data, "text/xml" );
+				var rdf = $.rdf().load(data, {});
+
+  				rdf
+      					.each(function () { alert('Scottish: ' + str(fifi) ); })
+					.end();
+
+				/* alert("After:" + $(rdf) ); */
+				// alert("After="+ typeof(rdf) );
+
+				var node, txtnodes;
+				nodewalk = function(node, str) 
+				{
+				// 	alert("str=" + str );
+					if (typeof str != 'array') str = [];
+					for (var i = 0; i < node.length; i++) {
+  					if (node[i].hasChildNodes() && 'SCRIPT' !== node[i].nodeName)
+    					str = nodewalk(node[i].childNodes,str);
+  					if (3 === node[i].nodeType)
+					str.push(node[i]);
+					}
+					return str;
+				}
+				/* txtnodes = nodewalk(document.getElementsByTagName('body')[0]); */
+				txtnodes = nodewalk(rdf);
+				// alert("txt="+txtnodes);
+
+
+				/*
+				$.parseXML(rdf);
+				new XMLSerializer().serializeToString($rdf);
+
+				var xmlText = new XMLSerializer().serializeToString(rdf);
+				var xmlTextNode = document.createTextNode(xmlText);
+				var parentDiv = document.getElementById('SomeDiv');
+				parentDiv.appendChild(xmlTextNode);	
+				*/
+
+				/*
+  				rdf
+  					.where('?person rdf:Description ?fifi')
+      					.each(function () { alert('Scottish: ' + str(fifi) ); })
+					.end();
+				*/
+
+				/*
+				Erreur : uncaught exception: Bad Triple: Property ns1:description is not a resource: Malformed Resource: Bad format for resource Malformed CURIE: No namespace binding for ns1 in CURIE ns1:description
+				*/
+			}
+
+			function getQueryParams(qs)
+			{
+				qs = qs.split("+").join(" ");
+
+				var params = {}, tokens,
+				re = /[?&]?([^=]+)=([^&]*)/g;
+
+				while (tokens = re.exec(qs))
+				{
+					params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+				}
+
+				return params;
+			}
+
+			// alert(document.location.search);
+			var query = getQueryParams(document.location.search);
+			// alert(query.rdf_url);
+
+			if( typeof( query.rdf_url ) == "undefined" )
+			{
+				alert("Nothing to display");
+			}
+
+
+			$.ajax({
+				url : query.rdf_url,
+				success : ProcessRdfData
+			});
+
+			/*
+			Most browsers (except Firefox, as far as I know) don't support loading local XML files 
+			stored on your computer (i.e. files that are not provided using a web server)
+			with AJAX due to security reasons.
+			So if you tested your script locally (using file:///) in Chrome, it will not work.
+			*/
+
+		</script>
+
+		<div id="RDF_url"></div>
+		<div id="RdfContent"></div>
+		<div id="SomeDiv"></div>
+
+
+	</body>
+</html>
+

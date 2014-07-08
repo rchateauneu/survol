@@ -1,0 +1,97 @@
+<html>
+	<head>
+	</head>
+
+	<body>
+		Liste des services : http.rdf<br>
+
+<form name="myform" method="POST">
+<table border=1>
+	
+	<tr>
+		<td><input type="checkbox" name="label_0" value="http://192.168.1.64:8642/htbin/cgi_memmap.py"></td>
+		<td>http.rdf</td>
+		<td>,en,65535,65535</td>
+		<td><a href="http://192.168.1.64:8642/htbin/cgi_memmap.py">http://192.168.1.64:8642/htbin/cgi_memmap.py</a></td>
+		</tr>
+        
+	<tr>
+		<td><input type="checkbox" name="label_1" value="http://192.168.1.64:8642/htbin/cgi_mysql.py"></td>
+		<td>http.rdf</td>
+		<td>,en,65535,65535</td>
+		<td><a href="http://192.168.1.64:8642/htbin/cgi_mysql.py">http://192.168.1.64:8642/htbin/cgi_mysql.py</a></td>
+		</tr>
+        
+	<tr>
+		<td><input type="checkbox" name="label_2" value="http://192.168.1.64:8642/htbin/cgi_openfiles.py"></td>
+		<td>http.rdf</td>
+		<td>,en,65535,65535</td>
+		<td><a href="http://192.168.1.64:8642/htbin/cgi_openfiles.py">http://192.168.1.64:8642/htbin/cgi_openfiles.py</a></td>
+		</tr>
+        
+	<tr>
+		<td><input type="checkbox" name="label_3" value="http://192.168.1.64:8642/htbin/cgi_pidstree.py"></td>
+		<td>http.rdf</td>
+		<td>,en,65535,65535</td>
+		<td><a href="http://192.168.1.64:8642/htbin/cgi_pidstree.py">http://192.168.1.64:8642/htbin/cgi_pidstree.py</a></td>
+		</tr>
+        
+	<tr>
+		<td><input type="checkbox" name="label_4" value="http://192.168.1.64:8642/htbin/cgi_sockets.py"></td>
+		<td>http.rdf</td>
+		<td>,en,65535,65535</td>
+		<td><a href="http://192.168.1.64:8642/htbin/cgi_sockets.py">http://192.168.1.64:8642/htbin/cgi_sockets.py</a></td>
+		</tr>
+        </table>
+
+<a href="#" onclick="CgiPy();return true;">CgiPy</a>
+<br>
+
+</form>
+<br>
+Charger la fenetre graphique dans une autre thread et avec un time out.
+Alleger les urn des processes mais mettre un vrai url avec un serveur.
+
+On pourrait aussi lister les types de proprietes et cliquer celles qu'on 
+veut afficher. Ca permet de faire un filtre transversal.
+
+Et meme eventuellement un filtre sur les valeurs de tel ou tel predicat,
+mais ca ne peut marcher qu'avec les litteraux. N'allons pas trop loin
+dans cette direction, ca sera plutot le travail de Protege. Ici, on fait quelque
+chose de simple. Verifier aussi que nos fichiers RDF sont compatibles
+avec OWL.
+</body>
+
+<script>
+function CgiPy()
+{
+	var params=""
+	nbsel=0
+	for(i=0; i<document.myform.elements.length; i++)
+	{
+		if(
+			( document.myform.elements[i].type=="checkbox")
+			&& ( document.myform.elements[i].checked ) )
+		{
+			params = params + document.myform.elements[i].value + ';';
+			++nbsel
+		}
+	}
+
+	if(nbsel == 0)
+	{
+		alert("No url selected");
+		return false;
+	}
+	var urlparams_droite = '../RDF/svc_merge_rdf_files.py' + '?' + encodeURIComponent(params);
+	javascript:top.frames['droite'].location.href = urlparams_droite;
+
+	var urlparams_centre = '../RDF/svc_rdf_to_svg.py';
+	javascript:top.frames['centre'].location.href = urlparams_centre;
+
+	return true;
+}
+
+</script>
+
+</html>
