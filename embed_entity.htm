@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Experimentation: Embed SVG document generated in Python, in a DIV tag</title>
+</head>
+<body>
+
+<script type="javascript">
+alert('a');
+</script>
+
+
+Peut-etre pourrait-on aussi utiliser les DIV pour melanger Python et HTML ? autre chose: S'assurer que nos URLs
+sont faciles a reproduire en WSGI. En fait c est plutot une iframe ?
+On ne pourra pas acceder le contenu de la iframe en Javascript if it is cross-domain,
+mais justement on s'en fout car on a un seul serveur.
+
+This contains a SVG document generated on the fly:<br>
+
+<iframe src="htbin/entity.py" width="100%" height="600" id="entity_iframe" onload="PrintContent()">
+     <p>Your browser does not support iframes.</p>
+</iframe>
+
+On peut ajouter des url qui appeleront du java script etc...<br>
+Lister le contenu de ce document.
+
+<div id="OurComments">
+</div>
+
+
+<script>
+// window.alert(5 + 6);
+
+// We should wait until the iframe is loaded
+function PrintContent()
+{
+	// return
+	var divComments = document.getElementById('OurComments');
+
+	divComments.innerHTML = ""
+	divComments.innerHTML += "Conclusion:<br>";
+	var iframe = document.getElementById('entity_iframe');
+	divComments.innerHTML += "type iframe="+iframe.contentDocument.contentType + "<br>";
+
+	/* The document we are pointing to. Depends on the browser */
+	var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+	
+	var listNodes = iframeDocument.getElementsByClassName('node');
+	divComments.innerHTML += "Nodes:" + listNodes.length + "<br>";
+	for( var ixNode = 0; ixNode < listNodes.length; ixNode++ )
+	{
+		node = listNodes[ixNode]
+		divComments.innerHTML += ixNode + "= " + node.id + "<br>";
+	}
+	
+	divComments.innerHTML += "<br><br>";
+
+	var listEdges = iframeDocument.getElementsByClassName('edge');
+	divComments.innerHTML += "Edges:" + listEdges.length + "<br>";
+	for( var ixEdge = 0; ixEdge < listEdges.length; ixEdge++ )
+	{
+		edge = listEdges[ixEdge]
+		divComments.innerHTML += ixEdge + "= " + edge.id + "<br>";
+	}
+
+	
+	divComments.innerHTML += "<br><br>";
+	
+}
+
+// alert('a');
+var iframe = document.getElementById('entity_iframe');
+if ( iframe )
+{
+	/* The document we are pointing to. Depends on the browser */
+	var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+	var divComments = document.getElementById('OurComments');
+	divComments.innerHTML += "Before TimeOut<br>";
+
+	// If we do this immediately, the content of the frane is not loaded and still points to the main document.
+	// setTimeout(PrintContent, 1000);
+	
+
+	/* Oui mais c'est un document en SVG ? */
+	// var iBody = iframeDocument.body.innerHTML;
+}
+else
+{
+	alert("iframe is null");
+}
+
+
+</script>
+
+
+
+</body>
+</html>

@@ -1,6 +1,8 @@
 <html>
 	<head>
 		<title>Drag and drop RDF URNs</title>
+	<script src="jquery.js"></script>
+	<script src="revjslib.js"></script>
 	<script type="text/javascript">
 
 
@@ -79,7 +81,7 @@ function CreateFullUrls()
 	for( var idx = 0; idx < contUrls.length; ++idx )
 	{
 		var inp = contUrls[idx];
-		alert("name=" + inp.name + " " + inp.type );
+		alert("name=" + inp.name + " type=" + inp.type + " value=" + inp.value );
 		if( inp.name == "CopyPasteUrl" )
 		{
 			cgi_params += "&url=" + encodeURI(inp.value);
@@ -87,7 +89,9 @@ function CreateFullUrls()
 	}
 	target_url += cgi_params;
 	alert( target_url );
-	return 0;
+	document.getElementById("ObjectSvg").setAttribute('data',target_url);
+
+	return true;
 }
 
 	</script>
@@ -106,9 +110,8 @@ function CreateFullUrls()
 
 		<form name="MyForm" enctype="multipart/form-data" onsubmit="CreateFullUrls();" method="post">
 
-		<div id="SlpUrlsDynTable">This div displqys the RDF sources exposed by SLP</div>
+		<div id="SlpUrlsDynTable">This div displays the RDF sources exposed by SLP</div>
 
-		<script src="jquery.js"></script>
 		<script language="javascript">
 			slp_list_url = LocalHost() + "/htbin/internals/gui_slpmenu.py";
 			$.getScript(slp_list_url, SimpleSlpUrlsTable);
@@ -120,17 +123,17 @@ function CreateFullUrls()
 		<!-- Le nom de l'élément input détermine le nom dans le tableau $_FILES -->
 
 		<div id="containerUrls">
-		<input type="text" name="CopyPasteUrl" value="Copier/coller un url">
+		<input type="text" name="CopyPasteUrl" value="">
 		<a href="#" onClick="AddUrl()">Ajouter un autre url</a>
 		</div><br/>
 
 
-		Envoyez ce fichier : <br>
+		Envoyer ce fichier (Pour le moment ca ne marche pas): <br>
 		<input id="firstFile" type="file" accept="xml/rdf" onChange="CheckFile('firstFile')" />
 		<a href="#" onClick="AddFile()" >Ajouter un autre fichier</a>
 		<div id="containerFiles"/>
 
-		<br><input type="submit" value="Envoyer le fichier" />
+		<br><input type="submit" value="Fusionner les URLs" />
 		</form>
 		<br>
 
@@ -147,8 +150,20 @@ function CreateFullUrls()
 		Eventuellement on cree un inputFile hidden.
 		Apparemment, voici ce que contient un inputText quand on y droppe un nom
 		de fichier: "Copier/coller un urlfile:///home/rchateau/AprilMobilite.20140206.pdf"
-		avec aussi un petit truc sale a la fin de la chaine.
-		Pas trop raffiné pour le moment, tout de meme.
+		avec aussi un petit artefact a la fin de la chaine: Donc, il faudra nettoyer.
+
+
+		<br><br>This is the SVG file created by GraphViz<br>
+		Actuellement on n'arrive pas a y afficher le SVG<br>
+		Pourtant le getElementById() fonctionne.<br>
+		Peut-etre a cause de la securite si c 'est un autre domaine, sous-domaine, port ou protocol ???<br>
+		Et quand on charge l'URL dans firefox, ca affiche le SVG.
+	<object id="ObjectSvg" type="svg+xml" data="xxxxx" width="800" height="800">
+  	alt : <a href="yyyyyy">xxxxx</a>
+	</object>
+
+
+	<br><br>End of page.
 
 	</body>
 </html>

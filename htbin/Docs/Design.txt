@@ -1,0 +1,613 @@
+http://tw.rpi.edu/web/tool/vraer
+Voir si on pourrait avoir un frontal devant le merge,
+qui permettrait de lancer le merge avec du javascript.
+Oui: Il suffit d'avoir un serveur web qui puisse activer le merge avec le bon URL.
+
+Javascript devra peut-etre uploader les fichiers, ce qui nous dispenserait d'avoir un serveur local.
+Pas urgent mais on se laisse la possiblite de cette architecture, ou tout est decouple
+d'une machine a l'autre, d'un process a l'autre, sans avoir forcement besoin de demarrer
+des serveurs.
+
+============================================================================================================
+
+Transformer une operation de merge en une source d'informations: Il suffit de lister
+son URL, enregistrer ses parametres et declarer avec SLP par exemple.
+
+============================================================================================================
+De facon generale, toute action doit pouvoir etre faite avec deux outils differents ou plus.
+C'est pour ca qu'il faut pouvoir utiliser les scripts en ligne de commande.
+============================================================================================================
+Quand il y a de longues listes d'objets, on peut les rassembler par ordre alphabetique mais aussi les
+classifier avec les distance de Levenshtein pour faire des gros clusters.
+Ou bien detecterun prefix identique.
+============================================================================================================
+Protocole permettant de debugger des processes a distance.
+RDF: Microsoft Visual Studio Remote Debugging Monitor
+MSVSMON.EXE
+Faire la meme chose  avec gdb qui je crois permet la meme chose.
+
+Voir aussi comment appeler des fonctions de l’API, en Python.
+
+============================================================================================================
+============================================================================================================
+
+http://www.w3.org/TR/rdf-mt/
+
+Il faut s'assurer que le merge permet par exemple que processes ayant le meme 
+pid se retrouvent fusionnes.
+Si ce n'est pas le cas, il faut une regle permettant de construire le meme URN
+par exemple pour le meme pid.
+
+Quelles sont les regles du merge en RDF ????
+
+To merge N-Triples documents it is necessary to check if the same nodeID
+is used in two or more documents, and to replace it with a distinct nodeID
+in each of them, before merging the documents.
+
+Ca veut dire qu'il ne faut surtout pas creer des blank nodes en esperant que
+le merge de RDF sera capable de les fusionner.
+============================================================================================================
+Avec DOT, on peut, je crois representer des graphes imbriques.
+S'en servir pour mettre representer la hierarchie des sous-processes
+sans modifier le dessin d'ensemble.
+
+============================================================================================================
+Doit-on exprimer l'imbrication de facon generique ou bien
+en s'appuyant sur du RDF?
+* Processes.
+* Fichiers (Avec l'exception des links symboliques ou hards).
+* Eventuellement les reseaux (Mais on ne sait pas faire pour le moment)
+* Pas les user-groups.
+
+============================================================================================================
+Ajouter un plugin a Nagios ???
+C'est a dire qu'on ajouterait un adapteur a nos scripts CGI
+pour en faire des plugins Nagios.
+
+============================================================================================================
+Mais les meta-data en RDF, c'est tout simplement du RDF ?
+
+Autre approche pour signaler des erreurs:
+On renvoie les messages directement dans le document RDF, ce qui fait que 
+l'utilisateur ne peut pas les eviter.
+Par exemple, en creant des nodes artificiels. Mais il faudrait que ca aie un sens,
+ce qui est parfois possible.
+Autrement dit, on integre les erreurs dans les donnees normales, traitees normalement.
+Ca a l'avantage de ne jamais les perdre.
+============================================================================================================
+
+Pour le edit mode:
+Probleme: On ne peut pas garder les valeurs des mots-clefs comme CGI dans l'URL..
+peut-etre tester "xx=main" de facon a ce que nos sous-scripts puisse editer leur parametres ?
+
+AUSSI: On peut tester le Referer pour avoir tel ou tel comportement:
+Selon qu'on est appele de tel ou tel script, on va generer du RDF ou autre chose ?
+
+============================================================================================================
+
+Certaines relations sont plus visibles, representees avec des boites plutot qu'avec des aretes. 
+
+Trouver un moyen de controller le SVG a partir du RDF: listes, arbres etc;..
+Par exemple, on sait que les pids sont forcement arborescent, donc on pourrati forcer une presentation.
+Ou bien, y a-t-il des "hints" dans le langage dot ?
+
+Ce qui est une liste de listes et a coup sur un DAG peut-etre transforme en record, surtout si c’est pas profond.
+Faut juste parcourir certaines proprietes d’une certaines facon.
+Et traiter autrement les nœuds qui font de boucles (Les mettre dans un nœud normal ou un autre record et meme on s’en fiche)
+Mais on n’ajoute pas les aretes quand elles sont implicites dans le DAG.
+Meme approche pour HTML.
+ 
+• Pourquoi on ne voit pas londata001 et londata002 avec Net view ?
+• Le resultat d’un browse (net view, tnsnames etc… : Ne pas les relier a la machine principale si pas de raison particuliere.
+• Peut-on voir les imprimantes et les scanners ? L’idee est de faire au moins comme le network browser de Windows.
+ 
+http://stackoverflow.com/questions/9869799/service-location-protocol-slp-binding-in-python
+Python library for service discovery using SSDP or UPnP?
+ 
+Donc, difficulte: Il faut non seulement publier des URL, mais aussi les categoriser avec un type: "", "process", "file", etc...
+Peuit-etre peut-on ajouter un mot-clef?
+ 
+On peut peut-etre changer le format:
+ 
+SLP ne va publier que le sommet de l'arbre, et on peut interroger pour avoir les listes de scripts, un peu comme le parcours de directories:
+SLP publie http:/machine:host/
+ 
+Alors: http:/machine:host/ renvoie une liste d'URLS, idem http:/machine:host/BY_process, http:/machine:host/BY_file etc...
+et pour vraiment se simplifier la vie, ca renvoie une page HTML qu'on va parser.
+ 
+Est-ce necessaire ??? Non! C'est necessaire uniquement pour fabriquer une liste d'URL pour une entite,
+mais c'est déjà renvoye par le RDF
+ 
+============================================================================================================
+ 
+http://stackoverflow.com/questions/243616/visualization-tools-for-huge-graphs
+Mais pourquoi pas, mettre a jour un SVG avec du Javascript ???
+ 
+Et il faudrait quelques convertisseurs pour pouvoir regarder n’importe quel source RDF dans des logiciels de visualisation de graph.
+Autrement dit, par exemple, on choisit un url complexe, et on le paste dans un convertisseur,
+et ca fabrique immediatement un fichier a downloader ?
+En meme temps, ca nous fera travailler le drag’n’drop.
+Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, « DOT », « GraphML » etc..
+et quand on drag dessus un url RDF, ça fait la conversion. Pas idéal mais à force de petits outils, on aura toute la souplesse necessaire.
+ 
+Note : On ne peut pas lister les sources qui ont besoin d’un argument (pid, file etc..)
+On ne le liste qu’indirectement quand on fabrique un RDF a partir d’une source sans argument.
+  
+http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html
+http://nlp.fi.muni.cz/projekty/visualbrowser/index.html
+ 
+… et dans les softs de visualisation de RDF, sont-ils capables d’utiliser l’URN d’un vertex quand il génère du RDF ? J’en doute.
+ 
+On retrace l’historique de chaque fichier, on associe chaque entite a un intervalle de temps,
+ce qui permet de reconstruire l’état du système a un instant donne.
+Du coup, si on retrouve la meme entite dans plusieurs sources RDF, on peut avoir son intervalle de vie total.
+  
+Fabriquer du DOT intelligemment au lieu de betement créer des aretes :
+Ceci afin de faure quelque chose de plus joli.
+Notamment, detecter les arbres (Sous-fichiers dans un directory).
+ 
+Idem pour l’arbres des modules : On essaie de rassembler les vertices dans des classes.
+ 
+============================================================================================================
+Les modules Linux devraient avoir un type a part (Heritant de file) ?
+On retombe dans le cas des object COM qui sont des fichiers mais aussi autre chose.
+Si on les fait heriter des fichiers en les mettant dans le meme directory,
+ca empeche de creer des sous-dir pour regrouper des fonctionnalites.
+Faudrait-il a voir a part, une arborescence?
+Ou bien ecrire "module:file" ou "module:file,memmap" etc...
+Idem "dir:file", "dll:file", "service:process"
+Ou "service,process" ce qui simplifierait le traitement?
+============================================================================================================
+
+SLP ne va publier que le sommet de l'arbre, et on peut interroger pour avoir les listes de scripts,
+un peu comme le parcours de directories: SLP publie http:/machine:host/
+Alors: http:/machine:host/ renvoie une liste d'URLS, idem http:/machine:host/BY_process, http:/machine:host/BY_file etc...
+et pour vraiment se simplifier la vie, ca renvoie une page HTML qu'on va parser.
+Est-ce necessaire ??? Non! C'est necessaire uniquement pour fabriquer une liste d'URL pour une entite,
+mais c'est déjà renvoye par le RDF
+ 
+============================================================================================================
+ 
+Visualiser du RDF (Nexus, RDF Gravity http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html )
+http://swui.semanticweb.org/swui06/papers/Karger/Pathetic_Fallacy.html
+Remarques intéressantes mais ne nous concerne pas car on veut vraiment visualiser le graphe.
+ 
+  
+L’interface est vraiment horrible, or il faudra bien a un moment ou a un autre avoir quelque chose de présentable.
+Donc il faut pouvoir rentrer dans un ou plusieurs frameworks.
+
+http://stackoverflow.com/questions/3428419/integrating-existing-pages-in-a-zend-framework-application
+ 
+http://www.legacysoftware.co.uk/faq.php
+www.st.ewi.tudelft.nl/~arie/phds/Kuipers.pdf
+
+
+http://code.google.com/p/canviz/
+http://www.webgraphviz.com/
+
+============================================================================================================
+Changer formes et couleurs des shapes en fonction d'attributs.
+  Pour Graphviz
+  Et en Javascript aussi.
+  Et aussi en HTML, d'ailleurs.
+
+Taille fichier.
+Pourcentage CPU
+Etat socket.
+Fichier ou directory.
+ 
+============================================================================================================
+ 
+Pour l'affichage des flux, on peut encore simplifier: 
+Quand le script en Python, charge de renvoyer un snapshot, est lance,
+il va créer une query vers le vrai serveur qui est en train de tourner
+En background: Il ne fait q'une redirection. Et donc ce petit script n'a comme role que de
+- Par sa seule presence dans l'arborescence des scripts, permettre de le trouver.
+- Rediriger la requete vers ce serveur, et d'abord le lancer s'il n'est pas present.
+Mais a part ca, on pourrait fort bien l'appeler directement. Si on pouvait enregistrer des URL dans SLP,
+par categories, ca reviendrait au meme.
+Il y a une erreur de conception dans la facon dont on va chercher les scripts par categorie,
+par rapport a ceux qui sont enregistres dans SLP.
+On peut peut-etre changer le format:
+SLP ne va publier que le sommet de l'arbre, et on peut interroger pour avoir les listes de scripts,
+un peu comme le parcours de directories: SLP publie http:/machine:host/
+Alors: http:/machine:host/ renvoie une liste d'URLS, idem http:/machine:host/BY_process,
+http:/machine:host/BY_file etc... et pour vraiment se simplifier la vie, ca renvoie une page HTML qu'on va parser.
+Est-ce necessaire ??? Non! C'est necessaire uniquement pour fabriquer une liste d'URL pour une entite,
+mais c'est déjà renvoye par le RDF
+============================================================================================================
+ 
+ 
+• Retour sur les points d’entrée dans les DLL/so : On parle bien d’un point d’entree dans une DLL donnée :
+Pas forcement, c’est une abstraction. En revanche, permettre d’instrumenter la combinaison : symbole+fichier.
+
+On veut, a partir d’un graphe qui affiche des ressources, progresser d’une ressource a l’autre.
+Autrement dit, quand on clique sur un nœud, on voudrait aller chercher tous les cgi
+(Sauf ceux du document courant), les exécuter, ne garder que les arêtes aboutissant a notre noeud,
+et fusionner avec l’URL (Avant rdf=>dot) qui a abouti a l’affichage courant.
+ 
+============================================================================================================
+ 
+https://gephi.org/2009/rich-svg-export/
+https://gephi.org/toolkit/
+http://gephi.org/users/supported-graph-formats/
+Ca montre bien qu’il ne faut pas trop s’attacher a un format intermediaire, a part RDF et les formats MIME.
+Donc, avoir des chaines de traitement bien modulaires.
+
+Mais pourquoi pas, mettre a jour un SVG avec du Javascript ?
+Pas possible apparemment avec le SVG cree par DOT.
+
+Le plus crucial est le traitement RDF.
+Et il faudrait quelques convertisseurs pour pouvoir regarder n’importe quel source RDF dans des logiciels de visualisation de graph.
+Autrement dit, par exemple, on choisit un url complexe, et on le paste dans un convertisseur,
+et ca fabrique immediatement un fichier a downloader ? En meme temps, ca nous fera travailler le drag’n’drop.
+Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, « DOT », « GraphML » etc
+et quand on drag dessus un url RDF, ça fait la conversion. Pas idéal mais à force de petits outils, on aura toute la souplesse necessaire.
+
+Est-ce qu’on pourrait utiliser ceci pour nos besoins ???
+http://cytoscape.org/what_is_cytoscape.html
+Nos sources pourrait certes generer directement du GraphML ? C’est tentant, mais on perdrait toute possibilite d’inference.
+Tester absolument ceux-la :
+http://www.mkbergman.com/414/large-scale-rdf-graph-visualization-tools/
+http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html
+http://nlp.fi.muni.cz/projekty/visualbrowser/index.html
+… et dans les softs de visualisation de RDF, sont-ils capables d’utiliser l’URN d’un vertex quand il génère du RDF ? J’en doute.
+ 
+ 
+Premiere phase est un operateur rdf=>rdf
+Construire le graphe des operateurs rdf=>rdf a partir des bookmarks : Autre facon de visualiser les book-marks : On en fait un RDF.
+Google sur les RDF
+Longueur maxi d’un URL ? Pouvoir le décomposer facilement en sous-URL.
+Ainsi, l’affichage d’une page est la composition d’un opérateur fabriquant du RDF (Eventuellement un simple url),
+compose avec un opérateur transformant du RDF en quelque chose d’affichable (Eventuellement du RDF)
+ 
+Il faudrait un framework qui puisse utiliser des url existants.
+ 
+http://www.academia.edu/1424450/A_Software_Reverse_Engineering_Methodology_For_Legacy_Modernization
+ 
+============================================================================================================
+
+Allouer dynamiquement les ports des sub-servers !!!
+
+============================================================================================================
+
+Representation: Visio VSD
+============================================================================================================
+
+S'arranger pour que copier/coller un nom de fichier dans la saisie de entity, fonctionne.
+Il faut que ce soit utilisable de plusieurs facons, et robuste.
+
+Dans Oracle, si utilisateur remote, il faut ajouter le host si different du host courant ? Idem
+les icones doivent etre differentes ?
+
+============================================================================================================
+Icone pour un directory entier (Pingouin de Linux etc...)
+Et les utiliser dans les SVG.
+
+============================================================================================================
+
+import rlcompleter, readline
+readline.parse_and_bind('tab:complete')
+ 
+http://blog.e-shell.org/221
+ 
+Ya plus qu’a le mettre dans le autologin si ca exste en python.
+  
+============================================================================================================
+Notre javascript: Rajouter un menu ou on peut cocher toutes les proprietes,
+reaffichage immediat.
+Idem: Ajouter un menu de tick-box pour les categories d'objets: On les cache ou pas.
+On va reutiliser la meme logique en texte et en graphique.
+
+Que fait-on pour les objets ? Ce serait bien de selectionner deux objets
+ou sujets, et visualiser le lien entre les deux.
+
+============================================================================================================
+On voulait ajouter un time-stamp aux literaux. Pourquoi ne pas leur ajouter
+aussi un attribut graphique ?
+Ou: Pour les literaux discrets, on batit a la volee une table et on leur attribue
+des couleurs. Mais il faudrait que ce soit toujours les memes couleurs,
+ou a peu pres toujours les memes.
+Comment faire ? Il faudrait reutiliser la table precedente en la completant.
+Ou bien attribuer les couleurs aux literaux en conservant
+l'ordre d'apparition des literaux.
+============================================================================================================
+
+Dans KDE, dessin des rectangles emboités pour representer des 
+grandeurs imbriquees: Treemap: http://bl.ocks.org/mbostock/4063582
+Ou des cercles:
+http://bl.ocks.org/mbostock/4063530
+
+Choisir des parametres pour graphviz, mais aussi
+permettre d'afficher du RDF avec d3.
+Donc bien separer le merge de la visualisation?
+Au lieu de renvoyer du SVG, on renverra du Javascript
+avec des appels D3?
+
+Ceux qui fonctionnent sur le vieux navigateur.
+Autant etre conservateur. Il nous faut un modele tres general.
+Mais idealement il faut melanger des types de graphes differents.
+
+Arbre:
+http://mbostock.github.io/d3/talk/20111116/force-collapsible.html
+Arbre:
+http://mbostock.github.io/d3/talk/20111018/tree.html
+Reseau avec zoom: Pratique pour nos arbres
+http://bost.ocks.org/mike/fisheye/
+Pratique a cause du placement, mais peut-on attraper les noeuds ?
+http://bl.ocks.org/MoritzStefaner/1377729
+
+Eventuellement ca pourrait servir a creer des arbres d'URL RDF:
+http://bl.ocks.org/benzguo/4370043
+
+http://orgo.stolarsky.com/
+
+Ce genre d'affichage peut servir.
+http://www.jasondavies.com/collatz-graph/
+
+http://www.redotheweb.com/DependencyWheel/
+Eventuellement ceci car ça rejoint nos preoccupations.
+Voir comment on peut le merger au milieu d'un reseau 
+d'objets differents.
+
+
+http://tw.rpi.edu/web/tool/vraer
+
+Adding and removing nodes:
+http://stackoverflow.com/questions/11606214/adding-and-removing-nodes-in-d3js-force-graph
+============================================================================================================
+
+
+Voir comment on peut associer un ID a chaque noeud.
+C'est du json si j'ai bonne memoire.
+
+Inclure le js, comme ça ce sera fait.
+
+============================================================================================================
+L'algo qu'on veut modifier pour mettre des tableaux en SVG:
+L'utiliser pour mettre des arbres au milieu d'un graphe.
+Et aussi le rendre debrayable.
+En fonction des proprietes, ca marche ou pas.
+Ca ne doit pas etre obligatoire.
+
+============================================================================================================
+PYWIN
+
+http://timgolden.me.uk/pywin32-docs/contents.html
+
+http://timgolden.me.uk/pywin32-docs/win32pipe__GetNamedPipeClientProcessId_meth.html
+http://timgolden.me.uk/pywin32-docs/contents.html
+http://timgolden.me.uk/pywin32-docs/win32net__NetGetDCName_meth.html
+
+http://timgolden.me.uk/pywin32-docs/win32file__TransmitFile_meth.html
+
+Lister les objects COM ?
+http://www.boddie.org.uk/python/COM.html
+
+==========================================================================================
+
+Fichiers: Choisir une icone en fonction de l'extension d'un nom de fichier. Afficher les images.
+
+============================================================================================================
+Trouver un moyen d'aller, a partir des fichiers, vers d'autres entites.
+Par exemple, BY_file/file_stat.py doit afficher le proprietaire du fichier.
+
+Idealement les processes qui y accedent ?
+
+============================================================================================================
+
+entity.py?xid=hostname
+
+Si machine courante, afficher aussi le contenu de "top".
+
+Sinon, ajouter traceroute.
+Afficher aussi les interfaces reseau.
+Les serveurs DNS?
+
+
+BY_hostname/hostname_nmap.py?xid=hostname:192.168.1.67 affiche plein de sockets et puis c'est tout.
+Y a-t-il vraiment de l'information?
+
+============================================================================================================
+Pas de lien dans:
+com_type_libraries.py
+... et donc on ne voit rien en javascript !! Zut !!!
+============================================================================================================
+Dans la page javascript, pas moyen de mettre la redirection de "top":
+
+Error loading:http://127.0.0.1:23456/?xid=:&mode=rdf:error
+
+============================================================================================================
+Affiche pas bien le nom du groupe.
+http://127.0.0.1/PythonStyle/htbin/entity.py?xid=group:HelpServicesGroup&mode=svg
+
+============================================================================================================
+
+ For shared libs, directories etc... and other files "subclasses", maybe we could have subtypes written as:
+"file.dll" or "file.dir" and according create the subdirectories of scripts:
+BY_file.BY_dll etc...
+
+============================================================================================================
+
+Utiliser samba_shares.py pour afficher dans BY_hostname les shares Samba proposés par une machine.
+
+Afficher le(s) point(s) de montage d'un partage samba.
+
+============================================================================================================
+
+Dans la page d'un groupe, mettre lien vers la page de tous les groupes.
+Idem process et user.
+
+Il faut aussi pointer vers le haut, equivalent de ".." !!!
+OUI: Dans le cartouche, on met le lien "TOP" qui envoie vers le niveau tout en haut
+selon le cas (process=>process Init, user => liste des users, fichier => "/", etc...).
+Different du niveau au-dessus que nous faisons deja.
+
+Mettre un lien plausible pour chaque icone de objtypes.py .
+Par exemple, ca peut etre BY_<types>/index.py
+
+Et on utilisera le meme lien dans tous les scripts du meme directory.
+
+Chaque index.py va essayer depointer vers un script de sources/top , a moins que ce soit l'inverse ?
+Et donc, entity.py irait balayer tous les directory BY_<*>/index.py ? Et donc ferait la meme chose
+que obj_types ?
+
+OU BIEN: Dans top, on a renomme des scripts index_<type>.py.
+
+Dans les scripts qui sont deja sous 'top', le 'index' est simplement 'entity.py'.
+Ca ne peut pas toujours fonctionner.
+Ca n'est pas remonter d'un niveau dans des objets lies, mais au contraire
+lister tous les objets de ce type.
+
+Type             Script quelconque                                  index.py
+addr             ??
+com_type_lib     Les typelib.
+file             Directory au-dessus                       
+group            Les groupes                                        hostname de la machine.
+hostname         Ou machines ethernet ? Ou interfaces ?
+oracle_db        Le tnsnames.ora ?                                  hostname machine
+oracle_schema    Les schemas de la bdd du schema.
+oracle_session   Les sessions du schema courant.
+oracle_table     Les tables du schema courant.                      schemas de la bdd courante.
+oracle_view      Les views du schema courant.                       schemas de la bdd courante.
+partition        Les partitions de la machine courante.             hostname machine.
+process          Process au-dessus                                  idem
+service          Idem services. Peut-etre le niveau d'en haut ?
+smbfile          les smbshr de la machine.
+smbserver        IMPOSSIBLE. Sauf si machine courante ?
+smbshr           Les shares de la machine courante ?
+user             Les utilisateurs de la machine courante.
+
+Mais quand on liste tous les objets d'un type (Cad dans un script index.py)
+le lien "home" ne peut pas etre le meme
+Si IMPOSSIBLE, vers quoi va pointer le lien "Home" des scripts ?
+Par exemple, pour les schemas, il faut pointer vers la liste des schemas de la bdd
+du schema courant. Donc, on peut s'en sortir si index.py?id=xxx . 
+Mais attention, car le meme index sera appele par entity.py, sans ID.
+Meme chose a partir de objtypes.py.
+On peut s'en sortir en jouant a nouveau sur les nom de scripts:
+BY_<type>/index.py    Affiche tous les objets de type <type>, sans argument.
+BY_?<type>/home.py?xid=<type>:<id>    Affiche le parent et les siblings de l'objet <type>:<id>
+
+Il faut aussi creer une nouvelle propriete: rdf_parent, mais on peut aussi reutiliser rdf_data
+si on ne veut pas encombrer le cartouche.
+Du reste, on pourrait mettre les rdf_data dans le cartouche?
+Si rien du tout, on prend "entity.py" ?
+
+Oui, mais si on veut dans le cas general, afficher le "parent" de l'objet ? C'est autre chose,
+car par exemple la liste des services n'est pas le "parent" d'un service.
+Ici: On veut ajouter un lien similaire a rdf_data, qu'on va peut-etre afficher dans le cartouche.
+
+Exemple oracle_view
+A partir de la view, on veut aller pointer vers BY_oracle_schema/oracle_schema_views .
+Mais il faut calculer le entity_type, ce qui est specifique a ce type.
+Afin de donner de la generalite, on pourrait renommer BY_oracle_schema/oracle_schema_views en 
+BY_oracle_schema/container.oracle_view.py et donc lib_entity_oracle_view.py aurait juste
+besoin d'etre capable d'extraire le schema d'un view id.
+De meme on aurait dans BY_group/container.user.py .
+
+On pourrait tout aussi bien utiliser RDF qui est fait pour ca.
+============================================================================================================
+Feeder: Pas plus de 1000 elements dans la queue (C'est une option) et on garde
+les derniers arrives. On veut eviter de saturer la machine.
+Ajouter menu pour voir les caches et les vider.
+Et lister tous les feeders.
+
+SubServer pourrait heriter de CgiEnv: Ca permettrait de passer des variables plus facilement.
+============================================================================================================
+
+Ajouter des infos dans la legende comme quand pas vraiment un message d'erreur.
+Ou bien des warnings.
+
+============================================================================================================
+
+Visualisation en HTML: On ameliore la presentation ! (Et on vire entity_list.py)
+
+
+On deplace la visu en HTML dans un nouveau fichier de librairie, ca allegera le code.
+
+Quand on clique « fusion », ça appelle la fusion avec « url=… ».
+On ajoute des tick box ? En plus des ticks box, il y a un drop-down html/rdf/svg
+
+Eventuellement on va chercher les tick boxes dans toutes les fenetres en HTML.
+
+Donc, la fusion fonctionne en html ou rdf etc… La legende permet de changer le mode.
+
+Utiliser des frames ?
+
+Pas suffisant de fusionner des urls dans une page seulement, bien entendu.
+
+Peut-on ajouter une page dans un frameset en faisant du drag and drop ? 
+
+Ou alors une frame set fait de trois frames :
+•	La page courante, entity.py
+•	Une frame qui permet de cliquer « fusionner », et qui contient la liste des liens selectionnes dans chaque entity.py visite.
+•	La frame du resultat de la fusion.
+
+Quand on coche un lien dans un entity.py en HTML, ca rajoute une ligne dans la frame de fusion. Quand on clique cette ligne, ca ramene ce lien dans la page courante (Ou plutot le entity.py qui y correspond ?)
+
+Si on ne permet pas de cliquer les urls dans une page en html, mais qu’on fait uniquement du drag’n’drop dans un frameset, ca permet d’utiliser les mêmes urls.
+
+Meme pas besoin de frameset : On repart de la fenêtre existante : Drag’n’drop de liens, click « Fusion », on peut rééditer la liste d’urls (Avec un logo de poubelle), on peut cliquer individuellement sur les liens.
+
+http://www.w3schools.com/jsref/event_ondrop.asp
+<div ondrop="myFunction(event)"></div>
+Execute a JavaScript when a draggable element is dropped in a <div> element:
+
+A la limite on pourrait meme fusionner immediatement, des le drop. En revanche, trouver un moyen propre de virer les urls.
+
+http://stackoverflow.com/questions/21143504/drag-and-drop-how-to-get-the-url-of-image-being-dropped-if-image-is-a-link-not
+
+
+============================================================================================================
+
+https://infosonic.wordpress.com/2008/04/21/using-mrtg-to-monitor-records-in-a-mysql-table/
+
+RRD data store ? http://en.wikipedia.org/wiki/RRDtool
+
+============================================================================================================
+
+
+Quand on affiche les fichiers ou autres, dans une table html,
+voir si on ne pourrait pas ajouter des petites infos 'Taille des fichiers, pid du process etc...)
+
+Visualisation en HTML: On ameliore la presentation ! (Et on vire entity_list.py)
+
+
+
+============================================================================================================
+Pour les fichiers, trouver un moyen de sauter une etape:
+Donc avoir les scripts mais aussi un ou deux liens preferentiels.
+
+C'est comme si EntityUri() rendait un lien different.
+Ou bien que entity.py?xid=file:xx.yyy appelle en fait  
+sources_types/file/file_directory.py?xid=file:xx.yyy
+mais garde un lien vers le "vrai" entity.py ?
+
+Ou bien deux frames:
+* Une contenant les scripts de entity.py.
+* Une autre qui contient l'execution de file_directory.py
+Autrement dit: Si on est dans la frame de navigation, entity.py appelle file_directory.py.
+Sinon ca procede comme d'habitude.
+Ou bien: Pour les directory, on appelle toujours file_directory.
+
+AUSSI: Ne pas afficher file_directory.py si ce n'est pas un directory, justement.
+
+Autres explorations:
+Sous-processes.
+
+Autre possibilite: On ajoute dans les informations, un lien vers le script de navigation.
+Mais le texte d'information devra etre raccourci.
+
+Autrement dit: Pour certains types, on peut mettre dans les infos, pas seulement un literal,
+mais aussi un lien vers un script. Surtout pas (Actuellement) un lien vers une entite
+car ca casserait la logique d'associer un icone SVG a chaque entite afin d'avoir un graphe.
+
+Aussi: C'est lie a l'affichage , dans les listes de fichiers, de petites infos, sur une autre colonne.
+
+
+============================================================================================================
+
+Sous Windows, lister les applications, comme dans le Task Manager (A nouveau, quelle dommage qu'on
+n'ait pas d'icones avec Graphviz)
+============================================================================================================

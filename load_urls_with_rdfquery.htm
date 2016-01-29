@@ -1,0 +1,201 @@
+<html>
+	<head>
+		<title>Drag and drop RDF URNs</title>
+	<script src="jquery.js"></script>
+	<script src="revjslib.js"></script>
+	<script type="text/javascript">
+
+
+function SimpleSlpUrlsTable()
+{
+	// alert("InScript");
+	var slpTable = "";
+	slpTable += '<table border=1>';
+
+	slpTable += '<tr>';
+	slpTable += '	<td>Display as RDF</td>';
+	slpTable += '</tr>';
+
+	for( var i = 0; i < slps.length; ++i)
+	{
+		rdf_url = slps[i][1];
+		slpTable += '<tr>';
+		slpTable += '	<td><a href="' + rdf_url + '">' + rdf_url + '</a></td>';
+		slpTable += '</tr>';
+	}
+	slpTable += '</table>';
+
+	$("#SlpUrlsDynTable").html(slpTable);
+}
+
+// Called when loading  a RDF url.
+function ProcessRdfXml( string_data )
+{
+	alert( "ProcessRdfXml" );
+	parser = new DOMParser();
+	data = parser.parseFromString( string_data, "text/xml" );
+	var rdf = $.rdf().load(data, {});
+
+	var json = rdf.dump();
+	alert("Json=" + json );
+}
+
+// http://www.html5rocks.com/en/tutorials/cors/
+function LoadCORS(urlCors)
+{
+	$.ajax({
+
+		// The 'type' property sets the HTTP method.
+		// A value of 'PUT' or 'DELETE' will trigger a preflight request.
+		type: 'GET',
+
+		// The URL to make the request to.
+		url: urlCors,
+
+		// The 'contentType' property sets the 'Content-Type' header.
+		// The JQuery default for this property is
+		// 'application/x-www-form-urlencoded; charset=UTF-8', which does not trigger
+		// a preflight. If you set this value to anything other than
+		// application/x-www-form-urlencoded, multipart/form-data, or text/plain,
+		// you will trigger a preflight request.
+		contentType: 'rdf/xml',
+
+		xhrFields: {
+			// The 'xhrFields' property sets additional fields on the XMLHttpRequest.
+			// This can be used to set the 'withCredentials' property.
+			// Set the value to 'true' if you'd like to pass cookies to the server.
+			// If this is enabled, your server must respond with the header
+			// 'Access-Control-Allow-Credentials: true'.
+			withCredentials: false
+		},
+
+		headers: {
+			// Set any custom headers here.
+			// If you set any non-simple headers, your server must include these
+			// headers in the 'Access-Control-Allow-Headers' response header.
+		},
+
+		success: function() {
+			 // Here's where you handle a successful response.
+			alert("OK");
+		},
+
+		error: function() {
+    			// Here's where you handle an error response.
+    			// Note that if the error was due to a CORS issue,
+    			// this function will still fire, but there won't be any additional
+			// information about the error.
+
+			// THIS IS WHAT WE HAVE NOW.
+			// http://www.html5rocks.com/en/tutorials/cors/
+			alert("Bling Dzong");
+		}
+});
+
+}
+
+
+// Exemple d'URL final: http://127.0.0.1:2468/htbin/internals/gui_create_svg_from_several_rdfs.py?url=http://DuoLnx:8642/htbin/sources/cgi_sockets.py
+function CreateFullUrls()
+{
+	var target_url = RvgsToSvg();
+	var cgi_params = "?dummy=none";
+
+	// There is only one element of this name, at the moment.
+	// This, because we want to load RdfQuery only.
+	var contUrls = document.getElementsByName("CopyPasteUrl");
+	alert("nb=" + contUrls.length );
+	for( var idx = 0; idx < contUrls.length; ++idx )
+	{
+		var inp = contUrls[idx];
+		alert("name=" + inp.name + " type=" + inp.type + " value=" + inp.value );
+		if( inp.name == "CopyPasteUrl" )
+		{
+			cgi_params += "&url=" + encodeURI(inp.value);
+		}
+	}
+	target_url += cgi_params;
+	alert( target_url );
+
+	// jQuery.get( target_url, ProcessRdfXml );
+	// $.get( target_url, ProcessRdfXml );
+	/*
+	var jqxhr = $.get( target_url, function( data ) {alert("ljhlkjhlkjh");}  )
+		.done(function() {
+			alert( "second success" );
+		})
+		.fail(function() {
+			alert( "error" );
+		})
+		.always(function() {
+			alert( "finished" );
+		});
+
+	alert( "After JQuery:" + $.ajaxError() );
+	alert( "After JQuery:" + jqxhr.error() );
+
+	*/
+
+	LoadCORS( target_url );
+
+	// document.getElementById("ObjectSvg").setAttribute('data',target_url);
+
+	return true;
+}
+
+	</script>
+	</head>
+	<body>
+		This pages tries to load RDF urls with RDF query and also merges them on the server side.
+        Also, it uses SLP to locate URLs.
+
+		<form name="MyForm" enctype="multipart/form-data" onsubmit="CreateFullUrls();" method="post">
+
+		<div id="SlpUrlsDynTable">This div displays the RDF sources exposed by SLP</div>
+
+		<script language="javascript">
+			slp_list_url = LocalHost() + "/htbin/internals/gui_slpmenu.py";
+			// alert("slp_list_url="+slp_list_url)
+			$.getScript(slp_list_url, SimpleSlpUrlsTable);
+		</script>
+		<br>
+
+		</script>
+		<div id="supportedCORS">
+		</div><br/>
+		<script language="javascript">
+			if( $.support.cors )
+			{
+				txtSuppCORS = "CORS is supported";
+			}
+			else
+			{
+				txtSuppCORS = "CORS is NOT supported";
+			}
+			$("#supportedCORS").html(txtSuppCORS);
+		</script>
+		<br>
+
+		<div id="containerUrls">
+		<input type="text" name="CopyPasteUrl" value="">
+		</div><br/>
+
+		<br><input type="submit" value="Fusionner les URLs" />
+		</form>
+		<br>
+
+		<br><br>This is the SVG file created by GraphViz<br>
+		Actuellement on n'arrive pas a y afficher le SVG<br>
+		Pourtant le getElementById() fonctionne.<br>
+		Et quand on charge l'URL dans firefox, ca affiche le SVG.
+		Ark, Ajax refuse de charger des urls externes pour des raisons de securite.....<br>
+		Voir http://enable-cors.org/server_apache.html
+	<object id="ObjectSvg" type="svg+xml" data="xxxxx" width="800" height="800">
+  	alt : <a href="yyyyyy">xxxxx</a>
+	</object>
+
+
+	<br><br>End of page.
+
+	</body>
+</html>

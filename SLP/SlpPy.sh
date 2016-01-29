@@ -25,7 +25,8 @@ trap control_c SIGINT
 
 # Two CGI servers because they are not reentrant. This one is needed by the SLP server.
 export CgiPortSourcesOnly=8642
-export CgiPortSources=8642/htbin
+# export CgiPortSources=8642/htbin
+export CgiPortSources=8642
 # This one is used only internally.
 export CgiPortInternalsOnly=2468
 export CgiPortInternals=2468

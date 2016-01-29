@@ -1,0 +1,47 @@
+PRESENTATION:
+Quand on investigue une application ou un systeme d’infmoration existant (debug amelioration …)
+on accumule des infos heterogenes : Resultats de commandes, fichiers de configuraiton ou de log, 
+..
+On met ces resultats en corresponmdance avec RDF.
+RDF= ?
+Si on utilise un format unique, homogene, ces correspondances se font automatiquement etc…
+JE LE SENS PAS AUJOURD’HUI…
+
+Affiche toutes les informations disponibles
+sur le fonctionnement des applications, dans un format unique RDF.
+ 
+
+Combine des informations heterogenes:
+- Infos techniques.
+- JUSTEMENT, IL FAUT LE PROUVER.
+
+Aisement extensible pour extraire davantage d'informations.
+
+==========================================================================================
+Fichiers statiques ou serveurs HTTP envoyant des fichiers RDF.
+Créer une ontologie de process, fichier, machine, etc…
+On les browse, on choisit les sources d’infos, ce qu’on va injecter dans des moteurs d’inferences.
+Les moteurs d’inference crachent aussi du RDF.
+Par-dessus, un scheduler qui va relancer regulierement les moteurs d’inferences.
+Et qui connait les dependances.
+Semantic web.
+
+==========================================================================================
+ Permet aussi de tester la securite du site web.
+
+CIBLE :
+Manager, education, agence de consulting.
+ 
+==========================================================================================
+Permet de naviguer dans un systeme d'information: On passe des fichiers
+aux processes aux machines aux BDD etc...
+
+Toujours mettre quelque chose à cliquer, "a raconter", ne jamais envoyer dans une impasse.
+ 
+==========================================================================================
+Nom: Survol.
+IS-Navi
+Browsys: Existe deja.
+BrowsIS etc...
+Overview.
+==========================================================================================

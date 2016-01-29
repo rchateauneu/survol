@@ -1,0 +1,252 @@
+============================================================================================================
+processes etc... sur machine remote:
+https://technet.microsoft.com/en-us/sysinternals/bb896649
+
+psfile et commande "net file".
+pstools : Quel protocole ?
+
+Remote Process Explorer utilise WMI.
+
+Read More: https://www.raymond.cc/blog/remote-process-explorer-normally-cost-75-now-free-for-personal-use/ 
+Windows Management Instrumentation (WMI)
+
+http://timgolden.me.uk/python/wmi/cookbook.html
+import wmi
+c = wmi.WMI ("some_other_machine")
+
+============================================================================================================
+http://www.blog.pythonlibrary.org/2010/10/03/how-to-find-and-list-all-running-processes-with-python/
+processes = WMI.InstancesOf('Win32_Process')
+ 
+============================================================================================================
+import wmi
+c = wmi.WMI ()
+
+for process in c.Win32_Process (name="notepad.exe"):
+  print process.ProcessId, process.Name
+
+============================================================================================================
+Show all automatic services which are not running:
+
+import wmi
+c = wmi.WMI ()
+
+stopped_services = c.Win32_Service (StartMode="Auto", State="Stopped")
+if stopped_services:
+  for s in stopped_services:
+    print s.Caption, "service is not running"
+else:
+  print "No auto services stopped"
+Show the percentage free space for each fixed disk:
+import wmi
+c = wmi.WMI ()
+
+for disk in c.Win32_LogicalDisk (DriveType=3):
+  print disk.Caption, "%0.2f%% free" % (100.0 * long (disk.FreeSpace) / long (disk.Size))
+============================================================================================================
+Pour Linux proposer la meme chose avec ssh,
+where Windows can also be a client.
+This, if the Linux does not have a WMI server.
+============================================================================================================
+
+
+
+There is also a WMI client for Linux: wmic.
+============================================================================================================
+wmi-client-wrapper
+https://pypi.python.org/pypi/wmi-client-wrapper
+====================================================
+impacket: Pas l'air tres simple.
+https://code.google.com/p/impacket/source/browse/trunk/examples/wmiquery.py
+====================================================
+
+OpenLMI is open-source project aiming to improve management of Linux systems using WBEM standards.
+
+============================================================================================================
+PyWBEM: 
+Avec WMI, on a deja commencé a transformer les messages WBEM en RDF.
+Peut-etre pourrait-on generaliser ca?
+On a reflechi a laisser tomber RDF pour plutot faire un WBEM augmente.
+Certes, mais WBEM ne vient pas avec un format de fichier.
+Et rien ne sait le lire a part les clients WBEM.
+En revanche peut-etre pourrait-on reprendre les noms des classes WBEM?
+============================================================================================================
+http://www.dmtf.org/standards/cim
+
+============================================================================================================
+Ports standard pour WBEM ?
+From the Windows install guide (page 28 here),
+it also lists these ports and protocols,
+but I'm not sure how many are always needed.
+    TCP 2301, 2381, 5988, 5989, 22 (SSH), 80
+    UDP 161 (SNMP)
+    ICMP
+
+C'est exactement ce qu'on veut, helas.
+
+Idealement:
+* On devrait avoir des plug-ins generant du CIM.
+* On devrait afficher du CIM et en faire du SVG.
+* On laisse tomber RDF: Sauf que ca permet de fusionner des documents:
+Est-ce que CIM sait faire ca ?
+L'interet de RDF est que c'est une vrai base de donnees.
+Idealement il faudrait pouvoir transformer du CIM et RDF et vice-versa.
+
+Transformation de WBEM en RDF?
+
+Schemas CIM.
+http://dmtf.org/standards/cim/cim_schema_v2430
+
+On pourrait recuperer les noms de classes.
+
+http://en.wikipedia.org/wiki/CIM-XML#CIM-XML_and_XML-CIM
+http://schemas.dmtf.org/wbem/cim-html/2.43.0/
+============================================================================================================
+Les uri sont maintenant fait de : "url wmi (avec port etc... moniker)" + "/" + "Class.Id=value"
+
+Mais ca ne suffira pas pour afficher car ce n'est pas du html.
+En revanche ca contient toutes les infos dont on a besoin.
+
+Pour fusionner les URLs, il y a des regles specifiques aux classes.
+
+============================================================================================================
+On aurait du mettre en ligne le Python: Maintenant on est parti dans une autre direction.
+============================================================================================================
+http://www.blog.pythonlibrary.org/2010/10/03/how-to-find-and-list-all-running-processes-with-python/
+processes = WMI.InstancesOf('Win32_Process')
+ 
+Ajouter le parametre pour nm et ldd, et verifier comment on peut utiliser en ligne de commande avec parametres.
+Créer des urls PID, FILE, DLL etc…                              
+  
+( WMI = candidat au remplacement de SNMP )
+Integrer des providers WMI a des applications existantes ? Notamment que les objects de l’application soient des objects WMI  (CMI) ?
+http://doc.opensuse.org/products/draft/SLES/SLES-admin_sd_draft/cha.wbem.html
+Small Footprint CIM Broker
+============================================================================================================
+
+
+If you like the CIM schema then you should see about converting it to RDF. RDF uses the same primitive data types as XSD so this should be straightforward.
+
+Here's a tool that claims to convert XSD schemas to OWL:
+
+http://www.incunabulum.de/projects/it/xsdimport
+
+Another one is here
+
+http://rhizomik.net/html/redefer/#XSD2OWL
+
+Note that the meaning of an XSD schema is radically different than an OWL schema.
+An XSD schema is primarily concerned with validation,
+whereas an OWL schema is concerned with inferring new facts based on the facts we already know.
+Both schema languages serve a secondary purpose of documentation,
+and based on that you should be able to autogenerate an RDF vocabulary that suits your needs.
+============================================================================================================
+Pour Windows, on peut utiliser WMI :
+processes = WMI.InstancesOf('Win32_Process')
+ 
+http://technet.microsoft.com/fr-fr/library/dd315379.aspx
+Get-WmiObject –List   -ComputerName 192.168.1.28
+http://technet.microsoft.com/en-us/library/ee176860.aspx
+ 
+http://publib.boulder.ibm.com/infocenter/idm/v2r1/index.jsp?topic=/com.ibm.db2tools.fpeic.doc.ug/fpeic171.html
+Enabling CIM server on Linux
+Liste des tables :
+Get-WmiObject -List | Where{$_.name -match "^Win32"} | Sort Name | Format-Table name
+Connections reseau:
+Get-WmiObject -Query "SELECT Name from Win32_NetworkConnection"
+============================================================================================================
+Ca sera surement plus leger que wmi et en plus ce sera portable.
+
+powerCIM is a tool which makes (python) scripting in Common Information Model
+(i.e. writing CIM clients) as easy as possible.
+Currently its an experimental code which might be refactored.
+
+https://en.opensuse.org/PowerCIM
+
+PyWBEM is a pure-Python library for performing client operations using the WBEM CIM-XML protocol.
+http://pywbem.sourceforge.net/
+============================================================================================================
+
+http://www.openlmi.org/SLPDiscovery
+
+slptool findsrvs service:wbem
+service:wbem:https://192.168.122.13:5989,60870
+service:wbem:https://[fe80::5054:ff:fe33:13e8]:5989,60870
+
+============================================================================================================
+
+Au lieu de fournir du RDF que personne ne connait, on se comporte comme un serveur WBEM.
+Du coup, on fabrique des infos WBEM meme quand il n'y en a pas.
+Et aussi, on fait des operations complexes sur du WBEM (Sommes, detection de correlations, differences etc...)
+Il faut pouvoir reutiliser nos plugins comme providers de servers WBEM.
+Du coup, ca serait peut-etre plus simple de:
+* Laisser tomber rdf qui ne peut communiquer qu'avec Protege, et encore, on n'a pas teste.
+* fabriquer en interne un moteur qui permette de fusionner des objects WBEM (Oh etrange, il utilise RDF).
+* Pas grand'chose a casser: Il faut explorer SLP (Du reste, tester avec Windows et rechercher avec nmap),
+et explorer un server.
+* Peut-etre changer toute la logique des URLS ? Est-ce que WBEM definit un URL pour ses objets ?
+
+=> Mixer WBEM:
+On aggrege et fusionne des sources WBEM et on en fait un nouveau provider WBEM
+
+=> Navigateur WBEM:
+On utilise SVG.
+
+=> Providers WBEM:
+
+Si on passe par WMI, pourra-t-on "passer un argument" a un provider pour eviter de lister tous les 
+objects d'une classe ? Exemple: Toutes les threads de tous les processes.
+============================================================================================================
+
+WBEM also includes additional technologies such as CIM Query Language [3],
+WBEM Discovery using SLP [4] and WBEM URI mapping [5]
+
+Pour manipuler du CIMOM, comme c'est du XML, pas besoin d'une librairie particuliere a part XML.
+Idealement le faire avec SAX.
+
+============================================================================================================
+On a aussi les URLs, ca fait partie de la norme:
+
+WBEM URI Mapping
+WBEM Uniform Resource Identifiers (URI) Mapping is used by WBEM protocols for mapping between the CIM Naming and the URI format. The WBEM URI is a compact string of characters to identify a CIM element. The WBEM URI is defined as follows.
+Scheme”://”[<userinfo>”@”]<host>[“:”<port>”/”]”/”<namespace>”/:”<model path>
+
+
+bender:5988/root/cimv2:PG_OperatingSystem.CreationClassName="CIM_OperatingSystem",CSCreationClassName="CIM_ComputerSystem",CSName="localhost",Name="SuSE Distribution"
+http://www.dmtf.org/sites/default/files/standards/documents/DSP0207_1.0.1.pdf
+
+WBEM URI Examples
+Untyped Model Path
+//www.acme.com/root/cimv2
+//www.acme.com/root/cimv2:CIM_RegisteredProfile
+https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile
+https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
+Typed Model Path
+//www.acme.com/root/cimv2/(namespace)
+https://jdd:test@acme.com:5959/cimv2/(class)CIM_RegisteredProfile
+https://jdd:test@acme.com:5959/cimv2/(instance)CIM_RegisteredProfile.InstanceID=(string)"acme:1"
+https://jdd:test@acme.com:5959/cimv2/(qualifierType)Abstract 
+http://sblim.sourceforge.net/doc/LWE-2005-02-WBEMSystemMgmt.pdf
+
+============================================================================================================
+Si on refait un front-end WBEM, on pourra interpreter les URLSs ? Non, justement, il faut pouvoir les
+filtrer. Ou alors il faut que ca pointe sur nous.
+Mais on perd l'URI d'origine de l'objet CIM.
+
+Ce sont des URLs mais il faut les traiter comme des URNs ?!?!
+
+Mais ce sont des URIs, et ca ne specifie pas d'interface, ca doit etre en parametre d'un GUI ?!?
+
+============================================================================================================
+
+
+openlmi
+
+https://fedorahosted.org/openlmi/wiki/ProviderTutorialImplementationPython
+
+http://www.opengroup.org/software/omi
+
+http://www.openlmi.org/client
+
+============================================================================================================
+

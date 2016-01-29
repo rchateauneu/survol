@@ -1,0 +1,175 @@
+============================================================================================================
+Quid des operateurs de RDF ? Moyenne, difference etc... ?
+Il n'est pas trop tard, evidemment. Il faudrait reutiliser
+la logique de libweb.
+
+============================================================================================================
+http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
+
+HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes. 
+
+============================================================================================================
+UDP:
+Etablir la correlation entre:
+* Des trames UDP venant d'un certain process, vers une adresse multicast donnée (Ou
+bien eventuellement on regroupe) et un port donné.
+* Des processes qui manifestent une certaine activité quand cette trame
+arrive. Comme cette trame est traitée dans du code utilisateur,
+et pas forcement dansune librairie donnée, on ne peut que se referer
+a l'activité CPU.
+
+Toutefois, on peut s'aider de lsof/netstat pour reduire le nombre
+de processes possibles?
+
+On pourrait se connecter a tous les messages TIBCO et verifier les processes 
+qui reagissent. Ca revient au meme probleme:
+- Des evenements d'une part (Trames UDP ou n'importe quoi d'autre
+associés soit a une adresse IP ou bien un sujet tibco)
+- D'autre part la reactivite des processes.
+
+Voir si on pourrait maquetter avec gdb, ptrace etc...
+============================================================================================================
+
+Utiliser la sortie de MRTG ? Un adapteur SNMP 
+
+============================================================================================================
+Faire la meme chose que Oracle mais avec odbc ?
+http://timgolden.me.uk/pywin32-docs/odbc__odbc_meth.html
+
+https://pypi.python.org/pypi/pypcap
+ 
+============================================================================================================
+strace fournit comme information des fonctions mais aussi des fichiers et des adresses IP.
+Meme chose avec GDB: On peut analyser les connections aux bases de donnees.
+Notion de PID abstrait: Autrement dit, on peut fusionner les informations non pas d'un PID precis, mais celui qui execute telle commande. C'est precisement la que l'accumulation de donnees est interessante, d'autant qu'on peut snapshotter des processes a la volee. Peut-etre qu'un operateur RDF permet ceci.
+ 
+============================================================================================================
+
+Extraire de doxygen:
+* les chaines de caracteres, les fopen, sockets etc...: On relie ca aux fichiers
+* L'arbre d'appel des fonctions: On relie ca aux resultats de strace et des shared-libraries.
+ 
+http://www.stack.nl/~dimitri/doxygen/manual/customize.html#xmlgenerator
+                                                  GENERATE_XML to YES
+Fabriquer le fichier de config pour doxygen.
+Pour l’outil, on lui fournit un directory ou se trouve un makefile. Ou bien un doxyfile.
+L’important est le parseur.
+Et aussi la possiblite d’aggreger.
+Memes noms de noeuds que dans strace.
+============================================================================================================
+Peut etre que tous les scripts qui dependent d'une fonctionnalite particuliere (OS, librairies) pourrait etre dans le meme directory.
+Optionnellement, on aurait un condition.py qui serait execute par rootrdf.py et entity.py : Comme ca on ne testerait qu'une fois.
+
+ODBC data sources:
+http://timgolden.me.uk/pywin32-docs/odbc__SQLDataSources_meth.html
+http://timgolden.me.uk/pywin32-docs/win32api__GetDllDirectory_meth.html
+http://timgolden.me.uk/pywin32-docs/win32api__GetLogicalDriveStrings_meth.html
+et GetLogicalDrives
+ 
+S'il y a une URL ftp autant s'en servir:
+http://timgolden.me.uk/pywin32-docs/win32inet__FtpOpenFile_meth.html
+http://timgolden.me.uk/pywin32-docs/win32inet__InternetOpenUrl_meth.html
+http://timgolden.me.uk/pywin32-docs/win32net__NetGroupEnum_meth.html
+http://timgolden.me.uk/pywin32-docs/win32net__NetGroupGetUsers_meth.html
+http://timgolden.me.uk/pywin32-docs/win32net__NetShareEnum_meth.html
+http://timgolden.me.uk/pywin32-docs/win32net__NetUserGetGroups_meth.html
+http://timgolden.me.uk/pywin32-docs/win32process__EnumProcessModules_meth.html
+arborescence des services:
+http://stackoverflow.com/questions/9869799/service-location-protocol-slp-binding-in-python
+Python library for service discovery using SSDP or UPnP?
+============================================================================================================
+
+Visualiser du RDF (Nexus, RDF Gravity http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html )
+http://swui.semanticweb.org/swui06/papers/Karger/Pathetic_Fallacy.html
+Remarques intéressantes mais ne nous concerne pas car on veut vraiment visualiser le graphe.
+ 
+============================================================================================================
+Fabriquer le reseau des appels avec la relation “Fonction X appelle fonction Y »
+Alleger avec la relation « class X appelle class Y » et « fichier X appelle fichier Y »
+On peut l’extraire a la volee avec strace.
+Ou bien utiliser un parseur.
+Ce qui est important est de réduire la taille du graphe.
+Idem pour l’arbres des modules : On essaie de rassembler les vertices dans des classes.
+============================================================================================================
+Charger des descriptions UML ou Rational Rose 
+
+http://stackoverflow.com/questions/7930199/standard-uml-file-format
+============================================================================================================
+pyelf pour parser un executable.
+
+pysmb pour lire le contenu d'un disque SMB.
+
+On a apparemment en standard, la librairie ftplib:
+
+Donc il faut creer l'objet "server ftp" et l'objet "fichier sur server ftp".
+
+Un peu similaire a la differenciation des fichiers en sous-classes (executable etc...):
+la, la classe "addresse" se subdivise en differentes sortes de serveurs,
+qui appellent donc des scripts entierement differents.
+
+============================================================================================================
+Python et INotify
+
+http://pyinotify.sourceforge.net/
+
+On monitore un directory dans un sous-process.
+Apparemment c est une catastrophe:
+http://www.serpentine.com/blog/2008/01/04/why-you-should-not-use-pyinotify/
+
+http://stackoverflow.com/questions/182197/how-do-i-watch-a-file-for-changes-using-python
+
+Portable:
+
+https://pypi.python.org/pypi/watchdog
+
+Malheureusement pas moyen semble-t-il de recuperer le pid.
+
+Aussi, on pourrait mettre a jour l'affichage des directories en javascript.
+
+============================================================================================================
+
+Ce serait commode de surveiller les processes qui lancent un executable precis.
+
+Il faudrait une specification abstraite des processes: "exec=xxx"
+Ca reviendrait a une requete RDF executee sur tous les processes et dont on n'afficherait
+que le resultat. Autrement dit, on ne publie pas le RDF en entree:
+On surveille les evenements, on fabrique du RDF a la volee,
+on applique la query SPARQL dont on publie le resultat.
+
+============================================================================================================
+Avec lsof et autres, savoir les devices auxquels les processes sont
+connectes (terminaux, disques)
+Et du coup, dire quel process empeche de dismounter un device.
+============================================================================================================
+Peut-etre utiliser CQL (Ou son implementation WQL) pour fabriquer des sources specifiques (Avec moins de donnees)?
+============================================================================================================
+============================================================================================================
+http://127.0.0.1/PythonStyle/htbin/sources/BY_file/cgi_directory.py?entity_id=C%3A%5CWINDOWS%5Csystem32%5Cwinlogon.exe
+Pas terrible.
+Permettre de remonter comme dans cgi_stat.py
+
+Type des fichiers: Infos renvoyees par filemagic ou python-magic.
+ 
+Entity.py doit etre un peu plus subtil, peut-etre:
+• Pour les directories, il faudrait immediatement afficher les sous-fichiers, en plus des scripts.
+•  Pour les processes, idem, sous-processes.
+Donc entity.py peut , pour une entite, executer un script et fusionner avec les NOMS des autres scripts du directory.
+Ca revient a dire que pour afficher un directory de scripts, ya des scripts qu’on execute, et d’autres dont on affiche le nom. On fait ca avec le nom du script, peut-etre. 
+============================================================================================================
+RUP IBM
+http://www.ibm.com/developerworks/rational/library/sep06/dugerdil/
+
+http://stackoverflow.com/questions/5419978/net-using-ibm-mq-without-full-mq-client-install
+Only the two dlls amq*.dll are necessary with .net.
+amqmdnet.dll and amqmdxcs.dll
+Maybe they could be easily wrapped in Python?
+
+https://zato.io/blog/posts/the-splendid-state-of-python-and-websphere-mq-programming.html
+============================================================================================================
+
+En attendant de regler le probleme pyWbem, tout ce que je peux faire est de trouver des idees de CGI.
+Yawn a l'air de faire la meme chose que nous. Ne reste que:
+* Ajouter une fenetre graphique.
+* Ajouter des providers.
+
+Ah si: On peut faire du javascript.

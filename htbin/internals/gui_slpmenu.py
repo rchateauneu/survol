@@ -47,6 +47,7 @@ def MakeCacheSlp(filDes):
 arguments = cgi.FieldStorage()
 
 # Validity in seconds.
+# HARDCODE_LIMIT
 try:
 	cache_validity = arguments["validity"].value
 except KeyError:
@@ -67,6 +68,7 @@ best_stamp = 0
 
 for fil in possible_caches:
 	# print("fil=" + fil )
+	# Reads the time-stamp at the end of the cache filename.
 	timstamp_str = fil[ len(glob_prefix) : ]
 	timstamp_int = int( timstamp_str )
 	if timstamp_int > best_stamp:
@@ -85,8 +87,10 @@ if best_stamp < nowSeconds - cache_validity:
 	MakeCacheSlp(filDes)
 	filDes.close()
 
+# TODO: If the file is empty, maybe the validity could be shorter?
+
 filDes = open(best_cache, 'r')
-print filDes.read()
+print( filDes.read() )
 
 # The file descriptor might be stdout
 # in case we cannot write to a temporary file.

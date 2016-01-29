@@ -1,0 +1,119 @@
+
+csv
+
+COMMENT MANIPULER DES DONNEES TEMPORELLES ?
+Par exemple: TOP: On ne sait pas quoi en faire pour le moment.
+
+Utiliser Octave pour creer des plots 3D ? Ou plutot d3.js,
+on essaye d'en faire le plus possible dans le browser.
+Autre aspect (C'est du bla-bla marketing mais facile a expliquer et
+permet d'y mettre de jolies choses):
+- RDF pour la logique
+- Et puis le plan numerique: Notamment periodicite.
+
+http://d3-generator.com/
+
+On pourrait associer un predicat RDF a un nom de colonne CSV.
+Et une valeur CSV a un litteral associé a ce predicat.
+=> Modifier les valeurs d'un fichier dot grace a un CSV.
+=> Et creer un petit RDF representant le header d'un CSV.
+
+Par exemple, le resultat d'un "ps -ef" peut creer un RDF.
+
+Du coup, transformer des triples RDF en CSV.
+Et aussi, lire un CSV et, en javascript, mettre a jour
+le RDF et donc les fichiers .dot et SVG.
+Par exemple pour reconstituer des evenements,
+visualiser un vmstat dans un graphe SVG.
+
+------------------------------------------------------------------------------------------------------------
+Detecter des dependances:
+ Echantillonner l'etat des processes.
+grep  "State:[   ]*[A-RT-Z]" /proc/*/status
+
+Correler avec d'autres evenements.
+http://www.mathworks.com/matlabcentral/answers/60725
+
+https://en.wikipedia.org/wiki/Mutual_information
+
+Arriver a correler un network storm avec l'activité de tel ou tel process.
+
+Dans le tuple des feeder, il y aura toujours un timestamp.
+Ca va permettre des les trier dans le bon ordre en SVG, et surtout,
+de tracer des graphes, mais aussi de detecter des correlations entre
+des signaux non reliés.
+
+Autrement dit, on injecte tous les literaux dans une boite noire
+qui va detecter les correlations, etablir des seuils, classifier etc...
+
+Peut-etre utiliser une propriete specifique pour signaler ca, au lieu de property_information ?
+On stockera un time-stamp dans les queues.
+
+Trouver un moyen de stocker les suites de chiffres avec time-stamp,
+en faire des URLS qu'on met dans le triplet RDF.
+On met a jour continuement ces chiffres.
+Ainsi, on accumule les donnees.
+Il faudrait memoriser des vecteurs.
+entity_type+entity_id+property+time_stamp+valeur.
+On n'affiche en RDF que la derniere valeur (Sorte de update au lieu de add).
+Ou bien simplement le lien qui contient les donnees.
+Ca pourrait etre simplement un CSV, ou bien un graphique en SVG,
+qu'on va mettre a jour a chaque nouvelle donnee.
+
+En tout cas un format:
+* Qu'on peut rapidement mettre a jour.
+* Facile a visualiser dans un navigateur
+* Qui permet de faire des traitements statistiques.
+
+Eventuellement, stocker dans du CSV, mais le lien sera un script
+qui prendra ce CSV en parametre. Ou plusieurs, pour faire des correlations.
+
+Pourrait-on nourrir un serveur SNMP ? Mais il faut qu'il soit capable de 
+rejouer une sequence de chiffres.
+
+Pourrait-on avoir comme argument d'URL, pour les properties Literal:
+entity_type+entity_id+property ?
+
+RDF n est pas capable de representer des vecteurs de chiffres.
+------------------------------------------------------------------------------------------------------------
+On stocke dans l'equivalent de fichier CSV.
+De l'exterieur, on associe un URL qui renvoie pour chaque type+id+property,
+une suite de doublons timestamp+valeur, au format MIME text/csv.
+Au moins, ca permet d'afficher de facon standard, dans Excel.
+Mais on a aussi des scripts qui prennent un ou plusieurs URL csv et fotn des statistiques (correlations)
+des graphes etc...
+C'est a dire a nouveau le concept de fusion, mais pour données CSV.
+
+============================================================================================================
+Details sur les CSV et les mime-type:
+http://stackoverflow.com/questions/398237/how-to-use-the-csv-mime-type
+
+http://stackoverflow.com/questions/15457752/proper-syntax-for-optional-header-parameter-for-text-csv-mimetype
+
+http://blog.teksol.info/2009/04/06/returning-csv-data-to-the-browser-revisited.html
+text/csv; charset=UTF-8; header=present
+
+
+============================================================================================================
+
+http://stackoverflow.com/questions/15069348/create-hyperlink-to-csv-file-and-use-application-to-open-file?lq=1
+
+If you want backup options, you can set multiple mime types.
+text/csv, application/csv, application/excel, application/vnd.ms-excel, application/vnd.msexcel
+
+RFC 4180 says you can respond with text/csv; header=present or header=absent to indicate if the files contains column headers.
+
+Format standard pour le temps.
+
+Il faut "servir" ces fichiers pour pouvoir envoyer le type MIME.
+
+Peut-on lancer Excel avec deux fichiers en entrée ? Et un script pour corréler ?
+
+Content-Type: text/csv; name="filename.csv"
+Content-Disposition: attachment; filename="filename.csv"
+============================================================================================================
+https://infosonic.wordpress.com/2008/04/21/using-mrtg-to-monitor-records-in-a-mysql-table/
+
+RRD data store ? http://en.wikipedia.org/wiki/RRDtool
+
+

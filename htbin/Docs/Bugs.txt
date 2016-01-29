@@ -1,0 +1,148 @@
+RESOLUS:
+
+oracle_view_dependencies.py et oracle_table_dependencies.py avec serveur Python sont affiches en texte.
+C'est quand 0on utilise le serveur en Python qui liste les scripts au lancement.
+
+============================================================================================================
+Quand on clique "top" en html, c'est affiché en svg. Donc le mode n'est pas transmis au subserver.
+
+
+
+Virer entity_list.py qui n'apporte rien par rapport a entity.py en mode html Le virer aussi des menus.
+
+Trouver un moyen de merger les liens selectionnes.
+
+Dans l'affichage SMP, pas loyen de remonter d'un niveau.
+Supprimer les DRH a la fin des fichiers sur une machine Windows.
+
+============================================================================================================
+[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1] Premature end of script headers: cgi_socket_tcpdump.py
+[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1]   File
+"C:/Documents and Settings/Remi/My
+Documents/Reverse/PythonStyle/htbin/sources/BY_addr/cgi_socket_tcpdump.py",
+line 11\r
+[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1]     On va
+surveiller ce qui se passe sur une socket specifique.\r
+[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1]         ^\r
+[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1] SyntaxError:
+invalid syntax\r
+[Fri Nov 21 07:30:06 2014] [error] [client 127.0.0.1] CgiEnv info=Socket information\r
+ 
+
+
+============================================================================================================
+http://127.0.0.1/PythonStyle/htbin/sources/BY_hostname/win32_NetShareEnum.py?xid=hostname:192.168.1.67
+
+uncode les noms des fichiers et folders sinon tres moche (Mais ça marche)
+============================================================================================================
+
+LAYOUT_LIST: Virer cette icone, mais en revanche essayer d'afficher le type de layout dans la legende.
+Mais d'ou ca vient ?
+============================================================================================================
+Events update:
+curr_dir=C:\\Documents and Settings\\Remi\\My Documents\\Reverse\\PythonStyle\\htbin/sources_types/file
+
+
+http://127.0.0.1/PythonStyle/htbin/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
+com_type_lib deconne un peu:
+<g id="a_node4_5"><a
+xlink:href="http://127.0.0.1:80/PythonStyle/htbin/entity_list.py?xid=com_type_lib:C:\WINDOWS\system32<TABLE>angWrbk.dll"
+xlink:title="script">
+=> Pour graphviz, "\L" = "TABLE". Ce quon a fait est de remplacer les \ par des / pour les memmap. 
+Le faire pour tout le monde ou bien "escape".
+
+Quand un script a besoin d'un utilitaire qui n'est pas installé,
+donner le lien dand un message d'erreur élaboré: Une page qui s'appelle xxx.doc par exemple.
+============================================================================================================
+pc.property_information:
+Il y a peut-etre confusion entre titre et detail.
+Le titre doit etre unique et venir en premier, c'est "info".
+On peut avoir autant de details qu'on veut.
+
+Dans rdfquery_text.htm les urls sont du style:
+http://192.168.1.68/~rchateau/RevPython/htbin/entity.py?mode=rdf&_=1422714547625&mode=svg
+... et ensuite ca deconne car on s'attend a ce que cgi.args["mode"] renvoie un seul element.
+
+============================================================================================================
+
+Quand on a un timeout (Pour les subserver), apres ca ne repond plus du tout.
+[Thu Feb 12 16:27:00 2015] [error] [client 127.0.0.1] (70007)The timeout specified has expired: ap_content_length_filter: apr_bucket_read() failed, referer: http://127.0.0.1/PythonStyle/htbin/entity.py
+
+Verifier si on peut relancer le feeder ?
+Ce serait bien si on pouvait rediriger automatiquement ?
+Ou bien forcer au rechargement ?
+SVG n'a pas de meta refresh.
+
+Toutefois: Au lieu de rediriger, on pourrait envoyer un page HTML qui contient un DIV avec comme URL,
+le lien vers du SVG (Avec le port special) et le meta-refresh qui va recharger toutes les X minutes,
+comme ca on est jamais en timeout.
+
+Et on met un peu de sauce sur la page HTML pour voir ou on en est.
+Attention car ce ne sera plus une page SVG, donc on ne peut pas la refiler autre part.
+Et donc la redirection ne doit etre utilisee que pour les navigateurs.
+Est-ce que le lien d'origine fonctionne et est capable de redemarrer le feeder ?
+
+============================================================================================================
+Quand nmap renvoie le port http, on doit pouvoir cliquer dessus et ne pas arriver sur 
+entity.py avec adresse: Ou bien, dans le entity.py, si le port est 80, on doit avoir le lien html_data.
+
+============================================================================================================
+le nmap qui interroge les ports ne devrait pas etre limite a 127.0.0.1 mais au contraire le sous-reseau. 
+============================================================================================================
+Ajouter la commande:
+
+nmap -oX - -T5 192.168.1.0/24
+
+Tres rapide et complete apparemment:
+http://www.cyberciti.biz/networking/nmap-command-examples-tutorials/
+============================================================================================================
+
+
+Ajouter dans chaque fichier dans CgiEnv une fonction booleenne pour
+permettre ou interdire le script: filter=is_linux
+
+=> Si le filtre est false, on met un message d'erreur.
+Et on en met la valeur dans le cache de facon a ne pas afficher le script.
+Idem dans chaque directory, on peut mettre une fonction de filtre.
+
+Dans chaque script, mettre un texte de documentation,
+qui sera affiche notamment en cas d'erreur.
+
+Ca deconne probablement a cause du tilda: Tester avec des noms de fichiers tres longs ?
+http://127.0.0.1/PythonStyle/htbin/entity.py?xid=file:C%3A%5CDOCUME~1%5CRemi%5CLOCALS~1%5CTemp%5CSkype%5CDbTemp%5Ctemp-968iZH8Qs4gRIszFZIEJETGX
+
+
+
+file_directory sur un ficheir qui n'est pas un directory:
+http://127.0.0.1/PythonStyle/htbin/sources_types/file/file_directory.py?xid=file:C%3A%5CDocuments%20and%20Settings%5CRemi%5CApplication%20Data%5CSkype%5Cshared_dynco%5Cdc.db
+Ca n'affiche rien: Soit on ne propose pas la focntion, soit on  met un message d'information.
+
+http://127.0.0.1:4444/infoqueues
+Sous XP ca affiche en texte, ca doit ajouter une cochonnerie au debut.
+# TODO: Est-ce vraiment necessaire ?????????????
+# Peut-etre oui, a cause des sockets ?
+def WrtAsUtf(out,str):
+	out.write( str.encode('utf-8') )
+Peut-etre ca, mais pas certain car autre erreur. Voir deja si ca casse Win8.
+		# Python 3.2.3 (Donc Win8)
+		# self.wfile.write( str.encode() )
+		self.wfile.write( str.encode('utf-8') )
+
+
+
+
+win_directory_changes se plante
+
+DataSkypeshared_dyncodc.db pid=4884
+(srv)ReqHnd:2015-03-11 06:27:21 p=4180 Getting queue entityId=C:Documents and SettingsRemiApplication DataSkypeshared_dyncodc.db
+(srv)ReqHnd:2015-03-11 06:27:21 p=4180 Getting pid
+(srv)ReqHnd:2015-03-11 06:27:21 p=4180 pidFeeder 4884 not there.
+
+
+Quand entity=file:xxx, toujours ajouter le directory au-dessus sinon c'est pas commode.
+
+
+
+
+http://127.0.0.1/PythonStyle/htbin/entity.py?xid=com_type_lib_entry,coclass:C:\WINDOWS\System32\comsnap.dll_(6)
+Ca n'affiche rien.

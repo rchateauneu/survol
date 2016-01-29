@@ -1,0 +1,76 @@
+<html>
+<head><title></title></head>
+
+<body>
+
+    <p>Survol access page</p>
+
+<table border="1">
+<tr><td><a href="build_merge.htm">Builds a URL for merging RDF sources on the server</a></td>
+    <td>Builds in Javascript the url which merges several RDF urls, in Python. Probably deprecated</td></tr>
+<tr><td><a href="rdfquery_text.htm">RDF to Javascript text display</a></td>
+    <td>This loads a RDF URL with RDFQuery and displays it with Javascript</td></tr>
+<tr><td><a href="rdfquery_d3.htm">RDF to D3 display</a></td>
+    <td>This loads a RDF URL with RDFQuery and displays it with D3</td></tr>
+<tr><td><a href="load_urls_with_rdfquery.htm">load_urls_with_rdfquery.htm</a></td>
+    <td>Tries to load URLs with rdfquery. Uses also SLP, but it would be better to embed the small WBEM server
+    written in Python, and convert our RDF data into WBEM. Or do everything in WBEM,
+        but it does not have an internal representation</td></tr>
+<tr><td><a href="merge_rdf_inputs.htm">merge_rdf_inputs.htm</a></td>
+    <td>Allows to merge several RDRF urls exposed with SLP</td></tr>
+<tr><td><a href="merge_rdf_inputs_graphviz_only.htm">merge_rdf_inputs_graphviz_only.htm</a></td>
+    <td>Allows to merge several RDRF urls exposed with SLP. Probably deprecated</td></tr>
+<tr><td><a href="metacgiview.htm">metacgiview.htm</a></td>
+    <td>Manages a list of bookmarks. Allows to create more and merge RDF urls. Probably deprecated</td></tr>
+<tr><td><a href="htbin/entity.py">Entry point</a></td>
+    <td>Entry point of dynamic objects description pages</td></tr>
+<tr><td><a href="htbin/objtypes.py">Object classes</a></td>
+    <td>Available types of objects available on this host</td></tr>
+<tr><td><a href="htbin/cache_control.py">Cache control</a></td>
+    <td>Cache control. There is an internal cache containing the declaration of each script.
+        Maybe each script could send MOF data, and we would parse MOF on the fly ?</td></tr>
+<tr><td><a href="htbin/task_control.py">Subtasks control</a></td>
+    <td>Subtasks control. Not very convenient because of Apache time-out, so we should use WSGI for this kind of things,</td></tr>
+<tr><td><a href="htbin/internals/print.py">CGI variables</a></td>
+    <td>Print CGI variables and various internal data. Development only</td></tr>
+<tr><td><a href="embed_entity.htm">Entry point embedded in HTML</a></td>
+    <td>Entry point of dynamic objects description pages, in a DIV HTML tag</td></tr>
+</table>
+<br />
+
+    <p>WBEM tests</p>
+
+<table border="1">
+<tr><td><a href="wbem/Login.py">PYWBEM</a></td><td>WBEM login</td></tr>
+<tr><td><a href="wbem/EnumNamespaces.py?url=http://127.0.0.1">PYWBEM (Local)</a></td><td>Enumerate WBEM namespaces</td></tr>
+<tr><td><a href="wbem/EnumNamespaces.py?url=http://192.168.1.88">PYWBEM (Fedora)</a></td><td>Enumerate WBEM namespaces</td></tr>
+<tr><td><a href="wbem/slp_discovery.py">SLP discovery</a></td><td>Browse WBEM servers</td></tr>
+</table>
+
+Creer une page avec un "div" qui contient entity.py et voir si quand on clique dessus ca reste dans le div:
+Ca permettra de completer cette page et ajoutant des liens autour du div.
+
+Avantage de RDF: C'est fait pour des reseaux. Et ca a ete teste avec plusieurs langages.
+Autre avantage: Ca donne une definition claire du produit.
+Touytefois, si on peut, c'est pas mal de rendre nos donnees accessibles en CIM-XML,
+pour l'orthogonalite.
+On n'a pas besoin des fonctions, et de tout l'aspect "Management" de CIM.
+On ne veut partager totalement que les noms et donc les URLs.
+Pour nos aretes, il faut pointer vers les proprietes de CIM (Ou les associations).
+
+<br> Maintenant, on se fait plaisir. C'est fort modeste:
+
+<img src="Images/logo-wbem.png"  />
+<img src="Images/opengroupLogo.png"  />
+<img src="Images/OpenLMI Logo with slogan_2.png"  />
+<img src="Images/openlmi-logo_full-color_light-bg.png"  />
+<img src="Images/openwbem.png"  />
+<img src="Images/pegicon2.gif"  />
+<img src="Images/prod-JSERVER-sm.png"  />
+<img src="Images/prod-SDK-sm.png"  />
+<img src="Images/prod-WAVE-sm.png"  />
+<img src="Images/prod-WW-sm.png"  />
+
+
+</body>
+</html>
