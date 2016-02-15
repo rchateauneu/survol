@@ -6,6 +6,7 @@ import sys
 import subprocess
 import psutil
 import rdflib
+import lib_util
 import lib_common
 import lib_entities.lib_entity_CIM_Process
 import lib_entities.lib_entity_symbol

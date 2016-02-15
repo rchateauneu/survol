@@ -93,7 +93,7 @@ def IsLocalAddress(anHostNam):
 # socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
 # socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
 def SameHostOrLocal( srv, entHost ):
-	if ( entHost == srv ) or ( ( entHost is None or entHost == "" ) and ( localIP == srv ) ) or ( entHost == "*"):
+	if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ) or ( entHost == "*"):
 		# We might add credentials.
 		# sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME\n" % ( entHost, localIP, srv ) )
 		return True
@@ -518,7 +518,7 @@ def OntologyClassKeys(entity_type):
 	except KeyError:
 		pass
 
-	# On renvoie "Id" seulement si une classe a nous, sinon on ne renvoie rien du tout.
+	# If this class is in our ontology but has no defined properties.
 	if entity_type in ObjectTypes():
 		# Default single key for our specific classes.
 		return [ "Id" ]

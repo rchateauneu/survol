@@ -18,6 +18,8 @@ try:
 
 	psapi = windll.psapi
 	kernel = windll.kernel32
+except NameError:
+	lib_common.ErrorMessageHtml("Python module windll should be installed")
 except ImportError:
 	lib_common.ErrorMessageHtml("Python module ctypes should be installed")
 

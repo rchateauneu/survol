@@ -15,12 +15,14 @@ except ImportError:
 # Just a reminder of what can be done on Linux.
 # https://pypi.python.org/pypi/wmi-client-wrapper
 
-if lib_util.isPlatformLinux:
-	import wmi_client_wrapper as wmilnx
+if False:
 
-	wmic = wmilnx.WmiClientWrapper( username="Administrator", password="password", host="192.168.1.149", )
+	if lib_util.isPlatformLinux:
+		import wmi_client_wrapper as wmilnx
 
-	output = wmic.query("SELECT * FROM Win32_Processor")
+		wmic = wmilnx.WmiClientWrapper( username="Administrator", password="password", host="192.168.1.149", )
+
+		output = wmic.query("SELECT * FROM Win32_Processor")
 
 ################################################################################
 

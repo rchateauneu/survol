@@ -14,6 +14,7 @@ except ImportError:
 
 ################################################################################
 
+# TODO: Make this dynamic, less hard-coded.
 def UriToTitle(uprs):
 	# Maybe an external URI sending data in RDF, HTML etc...
 	# We could also load the URL and gets its title if it is in HTML.

@@ -29,7 +29,7 @@ except Exception:
 		connects = proc_obj.connections('all')
 	except Exception:
 		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Error:")
+		lib_common.ErrorMessageHtml("Error:"+str(exc))
 
 lib_common.PsutilAddSocketToGraph(node_process,connects,grph)
 

@@ -1451,7 +1451,7 @@ class CgiEnv():
 
 		return paramVal
 
-	# TODO: Make this faster and simpler.
+	# This is used for compatibility with the legacy scripts, which has a single id.
 	# Now all parameters must have a key. As a transition, GetId() will return the value of
 	# the value of an unique key-value pair.
 	# If this class is not in DMTF, we might need some sort of data dictionary.
@@ -1465,6 +1465,17 @@ class CgiEnv():
 			splitKV = lib_util.SplitMoniker(self.m_entity_id)
 			sys.stderr.write("GetId splitKV=%s\n" % ( str( splitKV ) ) )
 
+			# If this class is defined in our ontology, then we know
+			# what is the first property.
+			entOnto = lib_util.OntologyClassKeys(self.m_entity_type)
+			if entOnto:
+				keyFirst = entOnto[0]
+				# Only if this mandatory key is in the dict.
+				try:
+					return splitKV[keyFirst]
+				except KeyError:
+					# This is a desperate case...
+					pass
 			# Returns the first value but this is not reliable at all.
 			for key in splitKV:
 				return splitKV[key]

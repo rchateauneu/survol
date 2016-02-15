@@ -118,7 +118,7 @@ def WbemServersList():
 # On pourrait aussi bien avoir deux fonctions differentes.
 # Maybe entity_namespace does not have the right separator, slash or backslash.
 def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
-	sys.stderr.write("GetWbemUrls %s %s %s %s\n" % (entity_host, entity_namespace, entity_type, entity_id))
+	sys.stderr.write("GetWbemUrls h=%s ns=%s t=%s i=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
 	wbem_urls_list = []
 
 	entity_ip_addr = lib_util.EntHostToIpReally(entity_host)
