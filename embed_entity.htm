@@ -32,6 +32,18 @@ Lister le contenu de ce document.
 <script>
 // window.alert(5 + 6);
 
+function MakeTransparent(evt)
+{
+	evt.target.setAttribute('opacity', '0.5');
+	// evt.target.setAttributeNS(null,"opacity","0.5");
+}
+function MakeOpaque(evt)
+{
+	evt.target.setAttribute('opacity', '1');
+	// evt.target.setAttributeNS(null,"opacity","1");
+}
+
+
 // We should wait until the iframe is loaded
 function PrintContent()
 {
@@ -50,8 +62,40 @@ function PrintContent()
 	divComments.innerHTML += "Nodes:" + listNodes.length + "<br>";
 	for( var ixNode = 0; ixNode < listNodes.length; ixNode++ )
 	{
-		node = listNodes[ixNode]
-		divComments.innerHTML += ixNode + "= " + node.id + "<br>";
+		var node = listNodes[ixNode]
+		var title = node.getElementsByTagName("title")[0].textContent;
+
+		divComments.innerHTML += ixNode + "= " + node.id + " " + title + "<br>";
+
+
+		// Now looks for the subnode which contains the string and the url.
+		var listSubNodes = node.getElementsByTagName("g");
+		for( var ixSubNode = 0; ixSubNode < listSubNodes.length; ixSubNode++ )
+		{
+			var subNode = listSubNodes[ixSubNode];
+			// <g id="a_node30_31"><
+
+			// var text = subNode.getElementsByTagName("text");
+
+			if (subNode.id)
+			{
+				var textNode = subNode.getElementsByTagName("text")[0]; // .textContent;
+
+				if( textNode )
+				{
+					var txtContent = textNode.textContent;
+					divComments.innerHTML += "&nbsp;&nbsp;&nbsp;" + ixSubNode + "= " + subNode.id + " : " + txtContent + "<br>";
+				}
+			}
+		}
+
+		// svgItem.setAttribute("onmouseover", "parent.doNodeData('"+name+"')");
+		// onmouseover="evt.target.setAttribute('opacity', '0.5');"
+		// node.setAttribute("onmouseover", "MakeTransparent(evt);");
+		// node.setAttribute("onmouseout", "MakeOpaque(evt);");
+		node.setAttribute("onmouseover", "evt.target.setAttribute('opacity', '0.5');");
+		node.setAttribute("onmouseout", "evt.target.setAttribute('opacity', '1');");
+
 	}
 	
 	divComments.innerHTML += "<br><br>";
@@ -60,8 +104,12 @@ function PrintContent()
 	divComments.innerHTML += "Edges:" + listEdges.length + "<br>";
 	for( var ixEdge = 0; ixEdge < listEdges.length; ixEdge++ )
 	{
-		edge = listEdges[ixEdge]
-		divComments.innerHTML += ixEdge + "= " + edge.id + "<br>";
+		var edge = listEdges[ixEdge];
+
+		var title = edge.getElementsByTagName("title")[0].textContent;
+
+		// 19= edge17 nd_19->nd_11
+		divComments.innerHTML += ixEdge + "= " + edge.id + "  " + title + "<br>";
 	}
 
 	
@@ -93,6 +141,9 @@ else
 
 
 </script>
+
+<br>
+http://www.graphviz.org/content/how-insert-javascript-action-generated-svg
 
 
 

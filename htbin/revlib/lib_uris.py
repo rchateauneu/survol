@@ -18,34 +18,108 @@ import rdflib
 # notre machine, essaye de deduire quelque chose des discovery.
 # Il suppose le numero de port du remote host mais on peut l'editer.
 
+# Convertir le moniker en moniker WBEM et "NOUS" et ajouter liens.
+# En plus, on va creer un entity_all.py qui synthetise les trois.
+# Il faut donc avoir un format unique pour les xid, cad les moniker.
+# On a donc une table qui passe du host netbios vers l url WBEM. Et s'il y a plusieurs urls WBEM ?
+# Netbios ou bien adresse IP ?
+# On suppose que les classes sont uniques quelque soit le namespace,
+# et qu'une classe ne peut pas apparaitre dans plusieurs namespaces (Meme supposition pour WMI).
+# Pour chaque serveur WBEM et peut etre aussi pour chaque machine WMI (Ou bien chaque version ?)
+# on a un dictionnaire qui pointe de la classe vers le namespace.
+# Pour chaque classe, on definit aussi les classes de bases qu on peut investiguer.
+#
+#
+# On ne peut pas comparer directement, de totue facon, des accounts WMI et WBEM.
+# Mais notre ontologie doit faire la jonction avec WMI d'une part,
+# et WBEM d'autre part (Si Linux).
+# Une possibilite est de dupliquer nos directories.
+# En ce qui nous concerne, 2/3 du code est specifique Linux.
+#
+# Quand on veut aller d'un objet portable (Process) vers un qui nest pas
+# portacle comme un user, il faut choisir dynamiquement le type:
+# Par exemple ici, Win32_UserAccount ou bien LMI_Account, qui n ont pas d ancetre commun.
+# Ou bien Win32_Group et LMI_Group.
+# On ne sait pas encore faire. Limitons-nous pour le moment aux cas sans ambiguites.
+#
+#
+#
+# Jusqu'ou remonter ?
+# Un critere peut etre de remonter d abord dans notre classe, tant qu'on trouve notre propriete,
+# en l'occurence "Handle". Au-dessus, ca n'aurait pas de sens.
+# On peut selectionner les processes dans WIN et WBEM uniquement a partir de la classe CIM_Process.
+# Donc: On cherche la classe de base la plus elevee qui a toujours nos criteres.
+# Ensuite on cherche le namespace de cette classe dans le serveur d'en face (WMI ou WBEM),
+# on ajoute les memes criteres. Puis on fait la recherche.
+# Pour chaque type de serveur, il faudrait une fonction qui renvoie du RDF.
+#
+# ====================================================================================
+#
+# Peut etre que entity_id pourrait etre soit une valeur unique: Si une seule clef,
+# ou bien un dictionnaire de paires clef-valeur.
+# Ne nous pressons pas: Dans un premier temps:
+# * Remplacer cimom=xxx par le moniker (En effet, c etait une erreur).
+# * Remplacer nos classes par des classes DMTF, avec mecanismes a rajouter.
+
+
+
 class LocalBox:
 
 	def MakeTheNode(self, entity_type, entity_id):
 		return self.MakeTheNodeFromScript( "/entity.py", entity_type, entity_id)
 
 	def MakeTheNodeFromScript(self, path, entity_type, entity_id):
-		url = self.TypeMake( path, entity_type ) + entity_id
+		url = lib_util.uriRoot + path + "?xid=" + self.TypeMake() + entity_type + "." + entity_id
 		return rdflib.term.URIRef( url )
 
-	def UriMake(self, entity_type, *entity_id_arr):
+	def BuildEntity(self, entity_type, *entity_id_arr):
 		#sys.stderr.write("UriMake entity_id_arr=%s\n" % str(entity_id_arr) )
 		keys = lib_util.OntologyClassKeys(entity_type)
 		#sys.stderr.write("UriMake keys=%s\n" % str(keys) )
 		if len(keys) != len(entity_id_arr):
 			sys.stderr.write("Different lens:%s and %s\n" % (str(keys),str(entity_id_arr)))
 		entity_id = ",".join( "%s=%s" % kwItems for kwItems in zip( keys, entity_id_arr ) )
-		#sys.stderr.write("UriMake entity_id=%s\n" % entity_id)
+		return entity_id
+
+	def UriMake(self, entity_type, *entity_id_arr):
+		entity_id = self.BuildEntity( entity_type, *entity_id_arr )
 		return self.MakeTheNode( entity_type, entity_id )
+
+	def UriMakeFromScript(self, path, entity_type, *entity_id_arr):
+		entity_id = self.BuildEntity( entity_type, *entity_id_arr )
+		return self.MakeTheNodeFromScript( path, entity_type, entity_id )
 
 	def UriMakeFromDict(self, entity_type, entity_id_dict):
 		entity_id = ",".join( "%s=%s" % kwItems for kwItems in entity_id_dict.items() )
 		return self.MakeTheNode( entity_type, entity_id )
 
-	def TypeMake(self, path, entity_type):
-		return lib_util.uriRoot + path + "?xid=" + entity_type + "."
+	# This is a virtual method.
+	def TypeMake(self):
+		return ""
 
 	###################################################################################
 
+	# >>> wmi.WMI().Win32_Process()[0].derivation()
+	# (u'CIM_Process', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
+	#
+	# OpenLMI:
+	# CIM_ManagedElement 	Instance Names 	Instances
+	# |--- CIM_ManagedSystemElement 	Instance Names 	Instances
+	# |    |--- CIM_LogicalElement
+	# |    |    |--- CIM_EnabledLogicalElement 	Instance Names 	Instances
+	# |    |    |    |--- CIM_Process 	Instance Names 	Instances
+	# |    |    |    |    |--- CIM_UnixProcess 	Instance Names 	Instances
+	# |    |    |    |    |    |--- TUT_UnixProcess 	Instance Names 	Instances
+	#
+	# OpenPegasus/Windows:
+	# CIM_ManagedElement 	Instance Names 	Instances
+	# |--- CIM_ManagedSystemElement 	Instance Names 	Instances
+	# |    |--- CIM_LogicalElement 	Instance Names 	Instances
+	# |    |    |--- CIM_EnabledLogicalElement 	Instance Names 	Instances
+	# |    |    |    |--- CIM_Process 	Instance Names 	Instances
+	# |    |    |    |    |--- PG_UnixProcess 	Instance Names 	Instances
+	#
+	# Quant a nous: "process" qui deviendra CIM_Process.
 	def PidUri(self,pid):
 		return self.UriMake('CIM_Process',str(pid))
 
@@ -71,6 +145,36 @@ class LocalBox:
 		return self.UriMake("CIM_ComputerSystem",hostName)
 
 	# TODO: THIS WILL NOT WORK IF REMOTE LIB, BECAUSE IT WRAPS A RemoteXXX
+	#
+	# >>> wmi.WMI().CIM_DataFile.derivation()
+	# (u'CIM_LogicalFile', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
+	# >>> wmi.WMI().Win32_Directory.derivation()
+	# (u'CIM_Directory', u'CIM_LogicalFile', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
+	#
+	# OpenLMI:
+	# CIM_ManagedElement 	Instance Names 	Instances
+	# |--- CIM_ManagedSystemElement 	Instance Names 	Instances
+	# |    |--- CIM_LogicalElement 	Instance Names 	Instances
+	# |    |    |--- CIM_UnixFile 	Instance Names 	Instances
+	# |    |    |    |--- LMI_UnixFile 	Instance Names 	Instances
+	# |    |    |--- CIM_LogicalFile 	Instance Names 	Instances
+	# |    |    |    |--- CIM_DataFile 	Instance Names 	Instances
+	# |    |    |    |    |--- LMI_DataFile 	Instance Names 	Instances
+	# |    |    |    |    |--- LMI_UnixSocket 	Instance Names 	Instances
+	# |    |    |    |--- CIM_DeviceFile 	Instance Names 	Instances
+	# |    |    |    |    |--- CIM_UnixDeviceFile 	Instance Names 	Instances
+	# |    |    |    |    |    |--- LMI_UnixDeviceFile 	Instance Names 	Instances
+	# |    |    |    |--- CIM_Directory 	Instance Names 	Instances
+	# |    |    |    |    |--- CIM_UnixDirectory 	Instance Names 	Instances
+	# |    |    |    |    |    |--- LMI_UnixDirectory 	Instance Names 	Instances
+	# |    |    |    |--- CIM_FIFOPipeFile 	Instance Names 	Instances
+	# |    |    |    |    |--- LMI_FIFOPipeFile 	Instance Names 	Instances
+	# |    |    |    |--- CIM_SymbolicLink 	Instance Names 	Instances
+	# |    |    |    |    |--- LMI_SymbolicLink 	Instance Names 	Instances
+	#
+	# OpenPegasus/Windows:
+	# Rien
+	#
 	def SharedLibUri(self,soname):
 		return self.UriMake("file", lib_util.EncodeUri(soname) )
 
@@ -130,8 +234,23 @@ class LocalBox:
 	# XML Parsing Error: not well-formed
 	# Location: http://127.0.0.1/Survol/htbin/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
 	def FileUri(self,path):
+		# There might be an Unicode error.
+		# pathUnicode = path.encode('unicode')
 		# It must starts with a slash except on Windows.
 		return self.UriMake("file", lib_util.EncodeUri(path))
+
+		# TODO: Consider this might be even be more powerful.
+		# u'some string'.encode('ascii', 'xmlcharrefreplace')
+
+
+
+	def FileUriDirectory(self,dirNam):
+		return self.UriMakeFromScript('/sources_types/file/file_directory.py', "file", lib_util.EncodeUri(dirNam) )
+
+	# TODO: Renvoyer NULL si type MIME invalide ?
+	# Ou bien une icone ?
+	def FileUriMime(self,filNam):
+		return self.UriMakeFromScript('/file_to_mime.py', "file", lib_util.EncodeUri(filNam) )
 
 	def OracleDbUri(self,dbName):
 		return self.UriMakeFromDict("oracle_db", { "Db" : dbName } )
@@ -187,18 +306,52 @@ class LocalBox:
 		# "xid=memmap:C:\Program Files (x86)Memory mapsoogle\Chrome\Application\39.0.2171.95<TABLE>ocales\fr.pak"
 		return self.UriMake("memmap",memmap_path.replace('\\','/') )
 
+	# Win32_Account:	Domain	Name
+	#
+	# >>> wmi.WMI().Win32_UserAccount()[0].derivation()
+	# (u'Win32_Account', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
+	# >>> wmi.WMI().Win32_Group()[0].derivation()
+	# (u'Win32_Account', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
+	#
+	# CIM_Account: 	CreationClassName 	Name 	SystemCreationClassName 	SystemName 	Namespace
+	#
+	# OpenLMI:
+	# CIM_ManagedElement 	Instance Names 	Instances
+	# |--- CIM_ManagedSystemElement 	Instance Names 	Instances
+	# |    |--- CIM_LogicalElement
+	# |    |    |--- CIM_EnabledLogicalElement 	Instance Names 	Instances
+	# |    |    |    |--- CIM_Account 	Instance Names 	Instances
+	# |    |    |    |    |--- LMI_Account 	Instance Names 	Instances
+	#
+	# CIM_ManagedElement 	Instance Names 	Instances
+	# |--- CIM_Collection 	Instance Names 	Instances
+	# |    |--- CIM_Group 	Instance Names 	Instances
+	# |    |    |--- LMI_Group 	Instance Names 	Instances
+	#
+	# OpenPegasus/Windows:
+	# CIM_Account et CIM_Group pas definis sur OpenPegasus
+	#
+	# WMI:
+	# Win32_Group: "Distributed COM users","Guests", "Backup Operators" etc...
+	# Win32_Account: Win32_Group + Win32_SystemAccount + Win32_UserAccount
+	# Win32_UserAccount: "Administrator","Guest","HomeGroupUser$","rchateau"
+	# Win32_SystemAccount : Tres intern a Windows, on peut laisser de cote.
+	# Win32_GroupUser: "HomeUsers", "Administrator" : Associaton entre Win32_Group et un accoujnt
+	#
+	# Quant a nous: "group" et "user"
 	def UserUri(self,username):
 		# If Unix "CIM_UnixUser"
 		# If Windows "CIM_Win32User"
 		if lib_util.isPlatformLinux:
 			userTp = "user"
 		elif lib_util.isPlatformWindows:
-			userTp = "user"
+			userTp = "Win32_UserAccount"
 		else:
 			userTp = "user"
 		return self.UriMake(userTp,username)
 
 	def GroupUri(self,groupname):
+		# CIM_GroupAccount ?
 		return self.UriMake("group",groupname)
 
 	def OdbcDsnUri(self,dsn):
@@ -214,15 +367,12 @@ class LocalBox:
 		return self.UriMake("com_type_lib", lib_util.EncodeUri(fileName) )
 
 
-
-
-
 gUriGen = LocalBox()
 
 class RemoteBox (LocalBox):
 	def __init__(self,mach):
 		self.m_mach = mach
 
-	def TypeMake(self, path, entity_type):
-		return lib_util.uriRoot + path + "?xid=" + self.m_mach + "@" + entity_type + "."
+	def TypeMake(self):
+		return self.m_mach + "@"
 

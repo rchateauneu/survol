@@ -12,13 +12,11 @@
 #
 #The command completed successfully.
 
-import re
-import os
 import sys
 import subprocess
 
 import rdflib
-
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -26,7 +24,7 @@ cgiEnv = lib_common.CgiEnv( "SMB informations returned by NET SHARE")
 # Ex: "//LONW00052257.euro.net.intra/D$"
 smbShr = cgiEnv.GetId()
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("NET command on Windows only")
 
 
@@ -54,7 +52,7 @@ for lin in lines:
 
 #print("Path+"+shrPath)
 
-mountNode = lib_common.gUriGen.FileUri( "//" + lib_common.hostName + "/" + shrPath )
+mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrPath )
 grph.add( ( nodeSmbShr, pc.property_smbmount, mountNode ) )
 
 cgiEnv.OutCgiRdf(grph)

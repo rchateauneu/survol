@@ -7,6 +7,7 @@ Gets processes running on a local or remote Windows machine, using WMI library.
 
 import sys
 import rdflib
+import lib_util
 import lib_common
 from lib_common import pc
 
@@ -19,7 +20,7 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("wmi library cannot be imported")
 
-#if not 'win' in sys.platform:
+#if not lib_util.isPlatformWindows:
 #	lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
 # We could import lib_entities.lib_entity_CIM_Process but at the moment, psutil is not needed,
@@ -31,7 +32,7 @@ grph = rdflib.Graph()
 # If running on the local machine, pass the host as None otherwise authorization is checked
 # just like a remote machine, which means User Account Control (UAC) disabling,
 # and maybe setting LocalAccountTokenFilterPolicy=1
-if machineName == lib_common.hostName:
+if machineName == lib_util.currentHostname:
 	machName_or_None = None
 else:
 	machName_or_None = machineName

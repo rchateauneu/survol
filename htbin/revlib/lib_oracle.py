@@ -114,15 +114,15 @@ def AddDependency( grph, row, nodeRoot, oraDatabase, direction ):
 		nodeObject = lib_common.gUriGen.OracleSynonymUri( oraDatabase , depOwner, depName )
 	elif depType == "TYPE":
 		# TODO: Create a type.
-		grph.add( ( nodeRoot, rdflib.Literal("Type"), rdflib.Literal( depOwner + ":" + depName) ) )
+		grph.add( ( nodeRoot, lib_common.MakeProp("Type"), rdflib.Literal( depOwner + ":" + depName) ) )
 		return
 	elif depType == "SEQUENCE":
 		# TODO: Create a type.
-		grph.add( ( nodeRoot, rdflib.Literal("Sequence"), rdflib.Literal( depOwner + ":" + depName) ) )
+		grph.add( ( nodeRoot, lib_common.MakeProp("Sequence"), rdflib.Literal( depOwner + ":" + depName) ) )
 		return
 	elif depType == "LIBRARY":
 		# TODO: Create a type.
-		grph.add( ( nodeRoot, rdflib.Literal("Library"), rdflib.Literal( depOwner + ":" + depName) ) )
+		grph.add( ( nodeRoot, lib_common.MakeProp("Library"), rdflib.Literal( depOwner + ":" + depName) ) )
 		return
 	else:
 		lib_common.ErrorMessageHtml("Unknown dependency depType=%s depName=%s" % ( depType, depName ) )
@@ -136,7 +136,7 @@ def AddDependency( grph, row, nodeRoot, oraDatabase, direction ):
 
 def AddLiteralNotNone(grph,node,txt,data):
 	if data != None:
-		grph.add( ( node, rdflib.Literal(txt), rdflib.Literal(data) ) )
+		grph.add( ( node, lib_common.MakeProp(txt), rdflib.Literal(data) ) )
 
 # This returns an IP address.
 def OraMachineToIp(oraMachine):

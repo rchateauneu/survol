@@ -4,7 +4,7 @@ import sys
 import re
 import subprocess
 import socket
-
+import lib_util
 import lib_common
 
 # arp -a
@@ -91,7 +91,7 @@ def GetArpEntriesLinux():
 		yield( linSplit )
 
 def GetArpEntries():
-	if 'win' in sys.platform:
+	if lib_util.isPlatformWindows:
 		return GetArpEntriesWindows()
 	if 'linux' in sys.platform:
 		return GetArpEntriesLinux()

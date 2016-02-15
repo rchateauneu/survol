@@ -36,7 +36,7 @@ listBuses = [ "system", "session" ]
 
 for busName in listBuses:
 	uriBus = lib_util.EntityUri( "dbus_bus", busName )
-	grph.add( ( lib_common.nodeMachine, rdflib.Literal("DBus"), uriBus ) )
+	grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("DBus"), uriBus ) )
 	
 
 cgiEnv.OutCgiRdf(grph)

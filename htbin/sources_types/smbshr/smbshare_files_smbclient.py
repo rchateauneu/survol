@@ -20,6 +20,7 @@ import sys
 import rdflib
 
 import lib_smbclient
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -30,7 +31,7 @@ cgiEnv = lib_common.CgiEnv(
 	"",
 	{ paramkeyPassword : "" } )
 
-if 'win' in sys.platform:
+if lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
 smbShr = cgiEnv.GetId()

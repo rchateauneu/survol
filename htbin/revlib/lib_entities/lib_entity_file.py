@@ -4,6 +4,7 @@ import datetime
 import rdflib
 import lib_common
 import lib_util
+import lib_uris
 from lib_properties import pc
 
 def AddMagic( grph, filNode, entity_ids_arr ):
@@ -59,7 +60,7 @@ def AddHtml( grph, filNode, filNam ):
 	# En fait il faut juste servir le contenu du fichier, peut-etre avec le bon mime-type en effet.
 	# On ne le met pas dans le directory "htbin/sources_types/file" car il ne doit pas etre tout le
 	# temps liste, car il renvoie du html et pds du rdf
-	url_mime = lib_util.Scriptize('/file_to_mime.py', "file", lib_util.EncodeUri(filNam) )
+	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
 	grph.add( ( filNode, pc.property_html_data, rdflib.term.URIRef(url_mime) ) )
 
 	# IMAGES DO NOT WORK YET.

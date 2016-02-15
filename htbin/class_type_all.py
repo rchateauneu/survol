@@ -19,6 +19,10 @@ cgiEnv = lib_common.CgiEnv("Generalised class", can_process_remote = True)
 # entity_type = cgiEnv.m_entity_type
 ( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()
 
+# Just in case ...
+if nameSpace == "/":
+	nameSpace = ""
+
 entity_host = cgiEnv.GetHost()
 entity_id = cgiEnv.m_entity_id
 
@@ -41,29 +45,31 @@ objtypeNode = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
 grph.add( ( rootNode, pc.property_rdf_data_nolist, objtypeNode ) )
 
 # This try to find a correct url for an entity type, without an entity id.
-# TODO: Donner plusieurs types d'enumerations possibles
-try:
-	baseFilNam = "/sources_top/enumerate." + className + ".py"
-	# WHY IS IT UNUSED?
-	indexFilNam = lib_util.gblTopScripts + baseFilNam
-	info = os.stat(indexFilNam)
-	localClassUrl = lib_util.ScriptizeCimom( baseFilNam, className, "", entity_host )
-except Exception:
-	# If there is no script to enumerate all objects of a given type.
-	# exc = sys.exc_info()[1]
-	# Sinon, entity.py devra gerer le probleme.
-	localClassUrl = lib_util.ScriptizeCimom( baseFilNam, entity_type, "", entity_host )
+# TODO: Donner plusieurs types d'enumerations possibles.
+# At the moment, we just expect a file called "enumerate.<entity>.py"
+enumerateScript = "enumerate." + className + ".py"
+# sys.stderr.write("enumerateScript=%s\n" % enumerateScript)
+baseDir = lib_util.gblTopScripts + "/sources_top"
+for dirpath, dirnames, filenames in os.walk( baseDir ):
+	# sys.stderr.write("dirpath=%s\n" % dirpath)
+	for filename in [f for f in filenames if f == enumerateScript ]:
 
-localClassNode =  rdflib.term.URIRef( localClassUrl )
-grph.add( ( rootNode, lib_common.pc.property_directory, localClassNode ) )
+		shortDir = dirpath[ len(lib_util.gblTopScripts) : ]
+		fullScriptNam = os.path.join(shortDir, filename).replace('\\','/')
+		sys.stderr.write("fullScriptNam=%s\n" % fullScriptNam)
+
+		# TODO: Maybe remove the beginning of the file.
+		localClassUrl = lib_util.ScriptizeCimom( fullScriptNam, className, "", entity_host )
+
+		localClassNode =  rdflib.term.URIRef( localClassUrl )
+		grph.add( ( rootNode, lib_common.pc.property_directory, localClassNode ) )
 
 # Maybe some of these servers are not able to display anything about this object.
-wbem_servers_desc_list = lib_wbem.GetWbemUrls( entity_host, nameSpace, className, entity_id )
+wbemNamespace = nameSpace.replace("\\","/")
+wbem_servers_desc_list = lib_wbem.GetWbemUrls( entity_host, wbemNamespace, className, entity_id )
 for url_server in wbem_servers_desc_list:
 	wbemNode = rdflib.term.URIRef(url_server[0])
 	grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
-	# EntHostToIp
-	# wbemHostNode = lib_common.gUriGen.HostnameUri( "url_server" )
 
 	# Representation de cette classe dans WBEM.
 	# TODO: AJOUTER LIEN VERS L EDITEUR DE CLASSE, PAS SEULEMENT LE SERVEUR WBEM.
@@ -73,19 +79,34 @@ for url_server in wbem_servers_desc_list:
 	# TODO: Yawn server ??
 	grph.add( ( wbemNode, pc.property_wbem_server, rdflib.Literal( url_server[1] ) ) )
 
-wmiurl = lib_wmi.GetWmiUrl( entity_host, nameSpace, entity_type, entity_id )
+	# Now adds the description of the class.
+	connWbem = lib_wbem.WbemConnection(entity_host)
+	klaDescrip = lib_wbem.WbemClassDescription(connWbem,className,wbemNamespace)
+	grph.add( ( wbemNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
+
+wmiurl = lib_wmi.GetWmiUrl( entity_host, nameSpace, className, entity_id )
 if not wmiurl is None:
-	sys.stderr.write("entity_host=%s nameSpace=%s entity_type=%s className=%s wmiurl=%s\n" % ( entity_host, nameSpace, entity_type, className, str(wmiurl) ) )
+	# There might be "http:" or the port number around the host.
+	# hostOnly = lib_util.EntHostToIp(entity_host)
+	# sys.stderr.write("entity_host=%s nameSpace=%s entity_type=%s className=%s wmiurl=%s\n" % ( entity_host, nameSpace, entity_type, className, str(wmiurl) ) )
 	wmiNode = rdflib.term.URIRef(wmiurl)
 	grph.add( ( rootNode, pc.property_wmi_data, wmiNode ) )
 
-	wmiClassUrl = lib_wmi.ClassUrl(nameSpace,entity_host,className)
-	sys.stderr.write("wmiClassUrl=%s\n" % str(wmiClassUrl) )
-	wmiClassNode = rdflib.term.URIRef( wmiClassUrl )
-	grph.add( ( wmiNode, rdflib.Literal("Class edition"), wmiClassNode ) )
+	try:
+		# TODO: Shame, we just did it in GetWmiUrl.
+		ipOnly = lib_util.EntHostToIp(entity_host)
+		connWmi = lib_wmi.WmiConnect(ipOnly,nameSpace)
+		lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiNode, className )
+	except Exception:
+		exc = sys.exc_info()[1]
+		grph.add( ( wmiNode, lib_common.MakeProp("Error"), rdflib.Literal(str(exc)) ) )
 
 
 
+	#wmiClassUrl = lib_wmi.ClassUrl(nameSpace,hostOnly,className)
+	#sys.stderr.write("wmiClassUrl=%s\n" % str(wmiClassUrl) )
+	#wmiClassNode = rdflib.term.URIRef( wmiClassUrl )
+	#grph.add( ( wmiNode, lib_common.MakeProp("Class_edition"), wmiClassNode ) )
 
 cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
 

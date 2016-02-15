@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import rdflib
+import socket
 
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 try:
@@ -57,6 +58,51 @@ def UriRootHelper():
 uriRoot = UriRootHelper()
 
 ################################################################################
+# Aucune idee pourquoi on fait ce traitement.
+def HostName():
+	socketGetHostNam = socket.gethostname()
+	if socketGetHostNam.find('.')>=0:
+		# 'rchateau-HP'
+		name=socketGetHostNam
+	else:
+		# 'rchateau-HP.home'
+		name=socket.gethostbyaddr(socketGetHostNam)[0]
+	return name
+
+
+# hostName
+currentHostname = HostName()
+
+# Attention car il pourrait y avor plusieurs adresses IP.
+localIP = socket.gethostbyname(currentHostname)
+
+def IsLocalAddress(anHostNam):
+	# Maybe entity_host="http://192.168.1.83:5988"
+	hostOnly = EntHostToIp(anHostNam)
+	if hostOnly in [ None, "", "localhost", "127.0.0.1", currentHostname ]:
+		return True
+
+	ipOnly = socket.gethostbyname(hostOnly)
+
+	if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
+		return True
+
+	return False
+
+# Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
+# socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
+# socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
+def SameHostOrLocal( srv, entHost ):
+	if ( entHost == srv ) or ( ( entHost is None or entHost == "" ) and ( localIP == srv ) ) or ( entHost == "*"):
+		# We might add credentials.
+		# sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME\n" % ( entHost, localIP, srv ) )
+		return True
+	else:
+		# sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s Different\n" % ( entHost, localIP, srv ) )
+		return False
+
+################################################################################
+
 
 # TODO: SUPPRIMER LA REFERENCE ABSOLUE !!!!!!!
 
@@ -83,8 +129,14 @@ def EncodeUri(anStr):
 	# sys.stderr.write("EncodeUri str=%s\n" % str(anStr) )
 
 	strTABLE = anStr.replace("\\L","\\\\L")
+
 	# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
-	return quote(strTABLE,'')
+	if sys.version_info >= (3,):
+		return quote(strTABLE,'')
+	else:
+		# UnicodeDecodeError: 'ascii' codec can't decode byte 0xe9 in position 32
+		# strTABLE = unicode( strTABLE, 'utf-8')
+		return quote(strTABLE,'ascii')
 
 ################################################################################
 
@@ -118,7 +170,10 @@ gblTopScripts = TopScriptsFunc()
 
 ################################################################################
 
-# Depending on the category, entity_host can have several forms:
+# Depending on the category, entity_host can have several forms.
+# The name is misleading because it returns a host name,
+# Which might or might not be an IP.
+# TODO: Must be very fast !
 def EntHostToIp(entity_host):
 	# WBEM: http://192.168.1.88:5988
 	#       https://jdd:test@acme.com:5959
@@ -126,17 +181,25 @@ def EntHostToIp(entity_host):
 	# TODO: Not sure this will work with IPV6
 	mtch_host_wbem = re.match( "https?://([^/:]*).*", entity_host )
 	if mtch_host_wbem:
-		sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wbem.group(1) )
+		#sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wbem.group(1) )
 		return mtch_host_wbem.group(1)
 
 	# WMI : \\RCHATEAU-HP
 	mtch_host_wmi = re.match( r"\\\\([-0-9A-Za-z_\.]*)", entity_host )
 	if mtch_host_wmi:
-		sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wmi.group(1) )
+		#sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wmi.group(1) )
 		return mtch_host_wmi.group(1)
 
 	# sys.stderr.write("EntHostToIp Custom=%s\n" % entity_host )
 	return entity_host
+
+# TODO: Coalesce with EntHostToIp
+def EntHostToIpReally(entity_host):
+	try:
+		hostOnly = EntHostToIp(entity_host)
+		return socket.gethostbyname(hostOnly)
+	except Exception:
+		return hostOnly
 
 # BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
 # TODO: Should also parse the namespace.
@@ -145,8 +208,6 @@ def ParseXid(xid ):
 	# TODO: Suppress subtyping, not used at the moment.
 	# If suffixed with "/", it means namespaces.
 	# A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
-	# mtch_entity = re.match( regexPrefix + "([-0-9A-Za-z_\.]+[-0-9A-Za-z_\\\.]*@)?([a-z0-9A-Z_,/]*)\.(.*)", xid )
-	# mtch_entity = re.match( regexPrefix + r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_,]*)\.(.*)", xid )
 	mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_,]*)\.(.*)", xid )
 	if mtch_entity:
 		if mtch_entity.group(1) == None:
@@ -205,7 +266,7 @@ def ParseXid(xid ):
 # '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
 # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
 def ParseNamespaceType(ns_entity_type):
-	sys.stderr.write("ParseEntityType entity_type=%s\n" % ns_entity_type )
+	# sys.stderr.write("ParseEntityType entity_type=%s\n" % ns_entity_type )
 	nsSplit = ns_entity_type.split(":")
 	if len(nsSplit) == 1:
 		entity_namespace = ""
@@ -267,7 +328,7 @@ def EntityUri(entity_type,*entity_ids):
 	return EntityUriDupl( entity_type, *entity_ids )
 
 def EntityUriDupl(entity_type,*entity_ids,**extra_args):
-	sys.stderr.write("EntityUriDupl %s\n" % str(entity_ids))
+	# sys.stderr.write("EntityUriDupl %s\n" % str(entity_ids))
 
 	keys = OntologyClassKeys(entity_type)
 
@@ -276,8 +337,7 @@ def EntityUriDupl(entity_type,*entity_ids,**extra_args):
 	entity_id = ",".join( "%s=%s" % pairKW for pairKW in zip( keys, entity_ids ) )
 	
 	# Extra arguments, differentiating duplicates.
-	entity_id += "".join( ",%s=%s" % ( extArg, extra_args[extArg] ) for extArg in extra_args )
-
+	entity_id += "," + ",".join( "%s=%s" % ( extArg, extra_args[extArg] ) for extArg in extra_args )
 
 	url = Scriptize("/entity.py", entity_type, entity_id )
 	return rdflib.term.URIRef( url )
@@ -409,14 +469,14 @@ def ObjectTypesNoCache():
 		if dir != "__pycache__":
 			yield dir
 
-
 glbObjectTypes = None
 
+# TODO: Should concatenate this to localOntology. Default value is "Id".
 def ObjectTypes():
 	global glbObjectTypes
 
 	if glbObjectTypes is None:
-		glbObjectTypes = list( ObjectTypesNoCache() )
+		glbObjectTypes = set( ObjectTypesNoCache() )
 		sys.stderr.write("ObjectTypes glbObjectTypes="+str(glbObjectTypes)+"\n")
 
 	return glbObjectTypes
@@ -434,6 +494,7 @@ localOntology = {
 	"CIM_ComputerSystem"  : ( ["Name"], ),
 	"CIM_Process"         : ( ["Handle"], ),
 	"Win32_Service"       : ( ["Name"],                      isPlatformWindows ),
+	"Win32_UserAccount"   : ( ["Name"],                      isPlatformWindows ),
 	"dbus_bus"            : ( ["Bus"],                       isPlatformLinux ),
 	"dbus_connection"     : ( ["Bus","Connect"],             isPlatformLinux ),
 	"dbus_object"         : ( ["Bus","Connect","Obj"],       isPlatformLinux ),
@@ -448,19 +509,21 @@ localOntology = {
 	"oracle_view"         : ( ["Db","Schema","View"], )
 }
 
-# The keys must match the DMTF standard. It might contain a namespace.
+# The key must match the DMTF standard. It might contain a namespace.
+# TODO: Replace this by a single lookup in a single dict
+# TODO: ... made of localOntology added to the directory of types.
 def OntologyClassKeys(entity_type):
-	# entity_type_nons = 
 	try:
 		return localOntology[ entity_type ][0]
 	except KeyError:
 		pass
 
-	# On renvoie "Id" seulement si une classe a nous, sinon on renvoie rien du tout.
+	# On renvoie "Id" seulement si une classe a nous, sinon on ne renvoie rien du tout.
 	if entity_type in ObjectTypes():
 		# Default single key for our specific classes.
 		return [ "Id" ]
 
+	# This could be replaced by a single lookup.
 	return []
 
 # Some classes exist on some platforms only.
@@ -534,3 +597,4 @@ def SplitMonikToWQL(splitMonik,className):
 
 	sys.stderr.write("Query=%s\n" % aQry )
 	return aQry
+

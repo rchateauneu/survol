@@ -39,6 +39,7 @@ import lib_patterns
 import lib_properties
 import lib_naming
 from lib_properties import pc
+from lib_properties import MakeProp
 
 import collections
 import rdflib
@@ -61,23 +62,6 @@ def TimeStamp():
 	return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
 ################################################################################
-
-# Aucune idee pourquoi on fait ce traitement.
-def HostName():
-	socketGetHostNam = socket.gethostname()
-	if socketGetHostNam.find('.')>=0:
-		# 'rchateau-HP'
-		name=socketGetHostNam
-	else:
-		# 'rchateau-HP.home'
-		name=socket.gethostbyaddr(socketGetHostNam)[0]
-	return name
-
-hostName = HostName()
-
-# Attention car il pourrait y avor plusieurs adresses IP.
-localIP = socket.gethostbyname(hostName)
-
 
 # Apache http://127.0.0.1/PythonStyle/htbin/internals/print.py
 # Entity http://127.0.0.1/PythonStyle/htbin/entity.py
@@ -167,12 +151,13 @@ def DeserializeScriptInfo(urlScript):
 def AnonymousPidNode(host):
 	return rdflib.BNode()
 
-nodeMachine = gUriGen.HostnameUri( hostName )
+nodeMachine = gUriGen.HostnameUri( lib_util.currentHostname )
 
 ################################################################################
 
 # This applies to Linux and KDE only. Temporary.
-# We want to avoid too many processes to display.
+# We want to avoid too many processes to display, when debugging.
+# Could be reused if we want to focus on some processes only.
 uselessProcesses = [ 'bash', 'gvim', 'konsole' ]
 
 def UselessProc(proc):
@@ -189,38 +174,58 @@ def UselessProc(proc):
 ################################################################################
 
 maxHtmlTitleLen = 50
-		
+withBrDelim = '<BR ALIGN="LEFT" />'
+
 # Inserts "<BR/>" in a HTML string so it is wrapped in a HTML label.
 def StrWithBr(str):
 	lenStr = len(str)
 	if lenStr < maxHtmlTitleLen:
 		return str
-	cnt = 0
+
+	# splt = re.findall(r"[\w']+", str)
+	splt = str.split(" ")
+	totLen = 0
 	resu = ""
-	for chr in str:
-		if chr == ' ' and cnt > maxHtmlTitleLen:
-			resu += "<BR/> "
-			cnt = 0
-		else:
-			resu += chr
-			cnt += 1
+	currLine = ""
+	for currStr in splt:
+		subLen = len(currStr)
+		if totLen + subLen < maxHtmlTitleLen:
+			currLine += " " + currStr
+			totLen += subLen
+			continue
+		if resu != "":
+			resu += withBrDelim
+		resu += currLine
+		currLine = currStr
+		totLen = subLen
+
+	if resu != "":
+		resu += withBrDelim
+	resu += currLine
+	#cnt = 0
+	#resu = ""
+	#for chr in str:
+	#	if chr == ' ' and cnt > maxHtmlTitleLen:
+	#		resu += '<BR ALIGN="LEFT" /> '
+	#		cnt = 0
+	#	else:
+	#		resu += chr
+	#		cnt += 1
 	return resu
 
 ################################################################################
 
-# This is temporary because only old graphviz versions dot not implement that.
-def DotGraphAttrib(str,ch):
-	if sys.version_info >= (3,):
-		return "<%s>%s</%s>" % ( ch, str, ch )
-	else:
-		return str
+# TODO: Set the right criteria for an old Graphviz version.
+new_graphiz = True # sys.version_info >= (3,)
 
+# This is temporary because only old graphviz versions dot not implement that.
 def DotBold(str):
-	return DotGraphAttrib( str, 'b' )
+	return "<b>%s</b>" % str if new_graphiz else str
 
 def DotUL(str):
-	return DotGraphAttrib( str, 'u' )
+	return "<u>%s</u>" % str if new_graphiz else str
 
+################################################################################
 
 # Static data for dot conversion.
 # Taken from rdf2dot, in module rdflib.
@@ -273,6 +278,12 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 		# stream.write(" layout=\"dot\"; \n")
 		# stream.write(" splines=\"ortho\"; \n")
 		# stream.write(" rankdir=\"LR\"; \n")
+	elif layout_style == "LAYOUT_SPLINE":
+		# Win32_Services, many interconnections.
+		dot_layout = "fdp"
+		# stream.write(" splines=\"curved\"; \n") # About as fast as straight lines
+		stream.write(" splines=\"spline\"; \n") # Slower than "curved" but acceptable.
+		# stream.write(" splines=\"compound\"; \n") ### TRES LENT
 	else:
 		dot_layout = "fdp" # Faster than "dot"
 		# TODO: Maybe we could use the number of elements len(grph)  ?
@@ -375,6 +386,29 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
   }
  	""")
 
+# Returns a string for an URL different from "entity.py" etc...
+# TODO: Ca serait mieux de passer le texte avec la property.
+def ExternalToTitle(extUrl):
+	if re.match( ".*/yawn/.*", extUrl ):
+		return "Yawn"
+
+	if re.match( ".*/objtypes_wbem.py.*", extUrl ):
+		return "Subtypes"
+
+	if re.match( ".*/file_directory.py.*", extUrl ):
+		return "Subdir"
+
+	if re.match( ".*/file_to_mime.py.*", extUrl ):
+		return "MIME"
+		# "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Icons.16x16\fileicons.chromefans.org\divx.png"
+		# This cannot work this way.
+		# return '<IMG SRC="Icons.16x16/fileicons.chromefans.org/divx.png" />'
+
+	if re.match( ".*/dir_to_html.py.*", extUrl ):
+		return "DIR"
+
+	return "CGIPROP"
+
 
 # Used for transforming into SVG format.
 def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
@@ -391,6 +425,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 	# Edge label.
 	# Transforms "http://primhillcomputers.com/ontologies/ppid" into "ppid"
+	# TODO: Beware, a CGI parameter might be there. CGIPROP
 	def qname(x, grph):
 		try:
 			q = grph.compute_qname(x)
@@ -400,8 +435,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		except:
 			return x
 
-	def color(prop):
-		return lib_properties.color(prop)
+		return lib_properties.prop_color(prop)
 
 	# Display in the DOT node the list of its literal properties.
 	def FieldsToHtmlVertical(grph, the_fields):
@@ -411,14 +445,17 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		for ( key, val ) in sorted(the_fields):
 			# This should come first.
 			if key == pc.property_information:
-				currTd = "<td align='left' colspan='2'>%s</td>" % val
+				# Completely left-aligned.
+				val = StrWithBr(val)
+				currTd = "<td align='left' balign='left' colspan='2'>%s</td>" % val
 			elif key in [ pc.property_html_data, pc.property_rdf_data_nolist ] :
 				urlTxt = lib_naming.ParseEntityUri(val)[0]
-				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, urlTxt )
+				splitTxt = StrWithBr(urlTxt)
+				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, splitTxt )
 			else:
 				val = StrWithBr(val)
 				key_qname = qname( key, grph )
-				currTd = "<td align='left' valign='top'><b>%s</b></td><td align='left'>%s</td>" % ( key_qname, val )
+				currTd = "<td align='left' valign='top'>%s</td><td align='left' balign='left'>%s</td>" % ( DotBold(key_qname), val )
 
 			props[idx] = currTd
 			idx += 1
@@ -446,10 +483,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	logfil.write( TimeStamp()+" Rdf2Dot: First pass\n" )
 	logfil.flush()
 
-	# La, on affiche les aretes normales.
-	# If too many nodes, it will loop for ever.
-	# This safety check allows to detect the problem.
-	grCount = 0
 	for subj, prop, obj in grph:
 
 		if prop in PropsAsLists:
@@ -462,35 +495,45 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 			continue
 
-		# TODO: Nodes in tables are display faster, so they should not be taken into account.
-		# NOTE: With file_directory, if the display is incomplete, it is not displayed in one
-		# HTML matrix but in independent nodes.
-		grCount += 1
-		# HARDCODE_LIMIT
-		if grCount >= 100000:
-			logfil.write( "Rdf2Dot: grCount=%d\n" % grCount )
-			logfil.flush()
-			sys.stderr.write("===================== Too many nodes. Loop end. =====================")
-			break
-
 		subjNam = node(subj)
 
+		#prop pourra etre un dictionnaire, mais ca n est pas standard:
+		#prop = {"title":"lkjlkj","bidirect": True}
+		# Ou alors un UriRef mais avec des parametres CGI: "http://primhillcomputers.com/ontologies/socket_end?dir=bi&title=Socket"
+		# "http://primhillcomputers.com/ontologies/html_data?title=Yawn"
+		# On va splitter "prop" et on le recree sans ses parametres CGI.
+		# TODO: CGIPROP
+
 		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
+
+			# TODO: CGIPROP. On extrait le script, uniquement.
+			# Ou bien on extrait une propriete du style "is_html" ou "is_rdf_script".
+			# "is_rdf_scritp", ce n est pas une autre entity.py, c'est un autre script.
+			# TODO: MAIS ALORS, POURQUOI NE PAS PARSER LE SCRIPT ????
+			# TODO: SI CA CONTIENT entity.py, C EST UNE REFERENCE,
+			# TODO: SINON C EST DU SUB-RDF.
+			# POUR LES NOMMER, ON PEUT HARD-CODER, CAR Y EN A PAS BEAUCOUP.
+
+			prp_col = lib_properties.prop_color(prop)
 
 			# TODO: All commutative relation have bidirectional arrows.
 			# We filter with the property so it is much faster.
 			# At the moment, only one property can be bidirectional.
+			# TODO: CGIPROP. On extrait la propriete "edge_style" ??
+			# TODO: Mais la c est different car on fusionne deux aretes ....
 			if prop == pc.property_socket_end:
 				objNam = node(obj)
 				if ( obj, prop, subj ) in grph :
 					if subjNam < objNam:
-						stream.write(pattEdgeBiDir % (subjNam, objNam, color(prop), qname(prop, grph)))
+						stream.write(pattEdgeBiDir % (subjNam, objNam, prp_col, qname(prop, grph)))
 				else:
 					# One connection only: We cannot see the other.
-					stream.write(pattEdgeOrien % (subjNam, objNam, color(prop), qname(prop, grph)))
+					stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
 			elif prop in [ pc.property_html_data , pc.property_rdf_data_nolist, pc.property_image ]:
+				# TODO: Il suffit de tester si obj est un url de la forme "entity.py" ???
 				# HTML and images urls can be "flattened" because the nodes have no descendants.
 				# Do not create a node for this.
+				# TODO: CGIPROP: Peut-on avoir plusieurs html ou sub-rdf ?? Il faut !
 				fieldsSet[subj].append( ( prop, obj ) )
 			else:
 				objNam = node(obj)
@@ -500,7 +543,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 					# Syntax with colon required by DOT.
 					subjNam = "rec_" + ListedLeavesToRootLabels[ subjNam ] + ":" + subjNam
 
-				stream.write(pattEdgeOrien % (subjNam, objNam, color(prop), qname(prop, grph)))
+				stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
 		elif obj == None:
 			# No element created in nodes[]
 			fieldsSet[subj].append((prop, "Null" ))
@@ -508,13 +551,12 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# For Literals. No element created in nodes[]
 			# Literals can be processed according to their type.
 			# Some specific properties cannot have children so they can be stored as literals?
-			# Les proprietes comme "pid", on devrait plutot afficher le lien vers le
-			# process, dans la table ???
+			# Les proprietes comme "pid", on devrait plutot afficher le lien vers le process, dans la table ???
 			# Les URLs de certaines proprietes sont affichees en colonnes.
 			# Ou bien pour ces proprietes, on recree un entity.py ??
 			fieldsSet[subj].append( ( prop, cgi.escape(obj) ) )
 
-	logfil.write( TimeStamp()+" Rdf2Dot: grCount=%d Replacing vectors: PropsAsLists=%d.\n" % ( grCount, len( PropsAsLists ) ) )
+	logfil.write( TimeStamp()+" Rdf2Dot: Replacing vectors: PropsAsLists=%d.\n" % ( len( PropsAsLists ) ) )
 	logfil.flush()
 
 	# Maintenant, on remplace chaque vecteur par un seul gros objet, contenant une table HTML.
@@ -522,7 +564,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		logfil.write( TimeStamp()+" Rdf2Dot: listed_props_by_subj=%d.\n" % ( len( listed_props_by_subj ) ) )
 		logfil.flush()
 
-		# TODO: Avoid creation of temporary list.
+		# TODO: Avoid creation of temporary list. "for k, v in six.iteritems(d):"
 		for subj, nodLst in list( listed_props_by_subj.items() ):
 			subjNam = node(subj)
 
@@ -536,20 +578,16 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 
 			# Probleme avec les champs:
-			# Faire une premiere passe et reperer les fields, detecter les noms
-			# des colonnes, leur attribuer un ordre et un indice.
+			# Faire une premiere passe et reperer les fields, detecter les noms des colonnes, leur attribuer ordre et indice.
 			# Seconde passe pour batir les lignes.
 			# Donc on ordonne toutes les colonnes (Donner un nom conventionnel aux "...")
 			# Pour chaque field: les prendre dans le sens du header et quand il y a un trou, colonne vide.
-			# Inutile de trier les field, mais il faut d'abord avoir une liste complete
-			# des champs, ordonnee dans le bon sens.
+			# Inutile de trier les field, mais il d'abord avoir une liste complete des champs, dans le bon sens.
 			# CA SUPPOSE QUE DANS FIELDSSET LES KEYS SONT UNIQUES.
-			# SI ON NE PEUT PAS, ALORS ON METTRA DES LISTES.
-			# MAIS CETTE CONTRAINTE SIMPLIFIE L'AFFICHAGE.
+			# SI ON NE PEUT PAS, ALORS ON METTRA DES LISTES. MAIS CETTE CONTRAINTE SIMPLIFIE L'AFFICHAGE.
 
 			# DOMMAGE QU ON SCANNE LES OBJETS DEUX FOIS UNIQUEMENT POUR AVOIR LES NOMS DES CHAMPS !!!!!!!!!!!!!
-			# HEURISTIQUE: ON pourrait s'arreter aux dix premiers.
-
+			# TODO: HEURISTIQUE: ON pourrait s'arreter aux dix premiers. Ou bien faire le tri avant ?
 			# Unique columns of the descendant of this subject.
 			rawFieldsKeys = set()
 			for obj in nodLst:
@@ -557,23 +595,38 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				for fld in fieldsSet[obj]:
 					rawFieldsKeys.add( fld[0] )
 
-			# Some properties must come at the beginning of the columns of the header, with first indices.
-			fieldsKeysOrdered = []
-			for fldPriority in [ pc.property_information, pc.property_html_data, pc.property_rdf_data_nolist ]:
+			# sys.stderr.write("rawFieldsKeys BEFORE =%s\n" % str(rawFieldsKeys) )
+
+			# Mandatory properties must come at the beginning of the columns of the header, with first indices.
+			# BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absente.
+			# S il y a du html ou du RDF, on veut que ca vienne en premier.
+			fieldsKeysOrdered = [ "UNUSED_PLACEHOLDER_FOR_INFORMATION"]
+			for fldPriority in [ pc.property_html_data, pc.property_rdf_data_nolist ]:
 				try:
-					# Must always be appended.
-					# BUT IF THERE IS NO html_data, IS IT WORTH ?
-					fieldsKeysOrdered.append( fldPriority )
+					# Must always be appended. BUT IF THERE IS NO html_data, IS IT WORTH ?
+					# TODO: Remove if not HTML and no sub-rdf. CGIPROP
+
+					# If the property is never used, exception then next property.
 					rawFieldsKeys.remove( fldPriority )
+					fieldsKeysOrdered.append( fldPriority )
+				except KeyError:
+					pass
+
+			# This one is always removed because its content is concatenated at the first column.
+			for fldToRemove in [ pc.property_information ]:
+				try:
+					rawFieldsKeys.remove( fldToRemove )
 				except KeyError:
 					pass
 
 			# TODO: Remove columns when the corresponding property (For example "html",
 			# "sub-rdf", "image" never has a value.
-			# OU ALORS: Ne pas les afficher quand ca n'a pas de sens comme par exemple les scripts.
+			# OU/ET ALORS: Ne pas les afficher quand ca n'a pas de sens comme par exemple les scripts.
 
-			# Normal sort of what is left.
+			# Appends rest of properties, sorted.
 			fieldsKeys = fieldsKeysOrdered + sorted(rawFieldsKeys)
+
+			# sys.stderr.write("fieldsKeys=%s\n" % str(fieldsKeys) )
 
 			# This assumes that the header columns are sorted.
 			keyIndices = dict()
@@ -595,6 +648,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 					(subObjNam, subEntityGraphicClass, subEntityId) = lib_naming.ParseEntityUri( obj )
 				except UnicodeEncodeError:
 					sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( obj ) )
+					(subObjNam, subEntityGraphicClass, subEntityId) = ("Utf problem1","Utf problem2","Utf problem3")
 		
 				# Attention, on ne peut pas utiliser <b> avec les anciennes versions.
 				numKeys = len(keyIndices)
@@ -603,9 +657,12 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				if numKeys == 0:
 					numKeys=1
 
+				# Some columns might not have a value.
 				columns = ["<td></td>"] * numKeys
 
+				# Just used for the vertical order of lines, one line per object.
 				title = ""
+				# TODO: CGIPROP. This is not a dict, the same key can appear several times ?
 				for ( key, val ) in fieldsSet[obj]:
 
 					if key == pc.property_information:
@@ -613,31 +670,58 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						title += val
 						continue
 
-					if key in [ pc.property_html_data, pc.property_rdf_data_nolist ] :
-						# TODO: get the text with ParseEntityUri if property_rdf_data_nolist
-						tmp = '<td href="%s" align="left" >TAGADA...</td>' % val
-					elif key == pc.property_image:
-						# TODO: Should do something with images.
-						tmp = '<td><img src="%s"  scale="true" /></td>' % val
-					elif val.isnumeric(): 
-						tmp = "<td align='right'>%s</td>" % val
-					else:
-						# Wraps the string if too long. Can happen only with a literal.
-						tmp = "<td align='left'>%s</td>" % StrWithBr(val)
-
 					idxKey = keyIndices[key]
 
-					columns[ idxKey ] = tmp
+					if key in [ pc.property_html_data, pc.property_rdf_data_nolist ] :
+						# TODO: get the text with ParseEntityUri if property_rdf_data_nolist
+						# Ou alors: Eviter d afficher toujours le meme texte ou bien repeter l autre lien.
+						# Il faut plutot afficher quelque chose de specifique, par exemple
+						# l'extension de fichier si file_to_mime.py ?
+						# C est utilise dans trois cas:
+						# HTML:
+						#   - Afficher le contenu du fichier en tant que type MIME. On aimerait une icone.
+						#   - Ou bien le type de lien, par exemple "Yawn"
+						# SUB-RDF:
+						#   - Afficher le sous-directory.
+						#   - Afficher les sous-classes si classe WBEM ou WMI.
+						# Ou bien passer l info, qui doit etre courte, avec la chaine ?
+						#
+						# TODO: CGIPROP
+						# Les liens externes peuvent etre affiches de plusieurs facons:
+						# - Une colonne par titre de lien: "YAWN", "Sub-dir", "sub-classes","MIME" ...
+						#   Oui mais que met-on pour visualiser le lien dans la celleue ? On repete ?
+						# - Une seule colonne, et on concatene les liens externes: Ca prend moins de place.
+						# => DONC, A FAIRE:
+						# - On se garde la possibilite d avoir plusieurs colonnes avec traitement special.
+						# - On extrait de l'url le texte du lien, de facon predefinie, ce qui est possible
+						#   car c est nous qui les ajoutons.
+						# - Un objet peut avoir plusieurs pc.property_html_data, pc.property_rdf_data_nolist
+
+						valTitle = ExternalToTitle(val)
+						# We insert a table because there might be several links.
+						# columns[ idxKey ] = '<td href="%s" align="left" >CGIPROP...</td>' % val
+						# We insert a table because there might be several links.
+						# TODO: NOT FOR THE MOMENT SO IT IS NOT USEFUL.
+						columns[ idxKey ] = '<td><table border="0"><tr><td href="%s" align="left" >%s</td></tr></table></td>' % ( val , valTitle )
+
+					elif key == pc.property_image:
+						# TODO: Should do something with images.
+						columns[ idxKey ] = '<td><img src="%s"  scale="true" /></td>' % val
+					elif val.isnumeric(): 
+						columns[ idxKey ] = "<td align='right'>%s</td>" % val
+					else:
+						# Wraps the string if too long. Can happen only with a literal.
+						columns[ idxKey ] = "<td align='left'>%s</td>" % StrWithBr(val)
+
 
 				# The title has colspan=2, and the table two columns.
 				if title == "":
-					columns[0] = '<td port="%s" href="%s" colspan="2" rowspan="%d" align="LEFT" >%s</td>' \
-						% ( subObjId, subNodUri, 1, subObjNam )
+					columns[0] = '<td port="%s" href="%s" colspan="2" align="LEFT" >%s</td>' \
+						% ( subObjId, subNodUri, subObjNam )
 					title_key = subObjNam
 				else:
-					columns[0] = '<td port="%s" href="%s" colspan="1" rowspan="%d" align="LEFT" >%s</td>' \
-						'<td align="LEFT" >%s</td>' \
-						% ( subObjId, subNodUri, 1, title, subObjNam )
+					columns[0] = '<td port="%s" href="%s" align="LEFT" >%s</td><td align="LEFT" >%s</td>' \
+						% ( subObjId, subNodUri, title, subObjNam )
 					title_key = title
 
 				# Several scripts might have the same help text, so add a number.
@@ -651,8 +735,12 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 					title_uniq = "%s/%d" % ( title_key, title_idx )
 					title_idx += 1
 
+				# TODO: L'ordre est base sur les chaines mais devrait etre base sur
+				# TODO: ... contenu. Exemple:
+				# "(TUT_UnixProcess) Handle=10" vient avant "(TUT_UnixProcess) Handle=2"
+				# title_uniq devrait etre plutot la liste des proprietes.
 				dictLines[ title_uniq ] = "".join( columns )
-	
+
 			# Replace the first column by more useful information.
 			header = "<td colspan='2' border='1'>" + DotBold("%d element(s)" % len(nodLst) ) + "</td>"
 			for key in fieldsKeys[1:]:
@@ -672,15 +760,17 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# ATTENTION: entity_graphic_class doit etre du type des URI contenus dans la table,
 			# pas le contenant !!
 			try:
-				# This arbitrary take the last class. Maybe we could use it to change the style
-				# of each line.
+				# This arbitrarily take the last class. Maybe use it to change the style of each line.
 				# Also, if these are subclasses of files, we could use a "folder" as shape.
-				table_graphic_class = subEntityGraphicClass
-			except Exception:
-				# If this is not defined.
+				# Priority for the title.
 				table_graphic_class = entity_graphic_class
+			except Exception:
+				# If this is not defined, take the last processed row.
+				table_graphic_class = subEntityGraphicClass
 
-			lib_patterns.WritePatterned( stream, table_graphic_class,  subjNamTab, "help text", "BLUE", labB, numFields, labText, dictLines )
+			# TODO: Le titre est le contenu ne sont pas forcement de la meme classe.
+			labTextWithBr= StrWithBr( labText )
+			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, "help text", "BLUE", labB, numFields, labTextWithBr, dictLines )
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. nodes=%d\n" % len(nodes) )
 	logfil.flush()
@@ -1114,7 +1204,6 @@ def GuessDisplayMode(log):
 	log.write("Default mode=%s\n"% (mode) )
 	return mode
 
-
 ################################################################################
 
 def MakeDotLayout(dot_layout, collapsed_properties ):
@@ -1208,11 +1297,9 @@ class CgiEnv():
 			return
 
 		# Maybe entity_host="http://192.168.1.83:5988"
-		hostOnly = lib_util.EntHostToIp(self.m_entity_host)
+		# hostOnly = lib_util.EntHostToIp(self.m_entity_host)
 
-		ipOnly = socket.gethostbyname(hostOnly)
-
-		if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
+		if lib_util.IsLocalAddress(self.m_entity_host):
 			return
 
 		ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % ( sys.argv[0], self.m_entity_host ) )
@@ -1369,14 +1456,14 @@ class CgiEnv():
 	# the value of an unique key-value pair.
 	# If this class is not in DMTF, we might need some sort of data dictionary.
 	def GetId(self):
-		# sys.stderr.write("GetId self.m_entity_id=%s\n" % ( str( self.m_entity_id ) ) )
+		sys.stderr.write("GetId self.m_entity_id=%s\n" % ( str( self.m_entity_id ) ) )
 		try:
 			# If this is a top-level url, no object type, therefore no id.
 			if self.m_entity_type == "":
 				return ""
 
 			splitKV = lib_util.SplitMoniker(self.m_entity_id)
-			# sys.stderr.write("GetId splitKV=%s\n" % ( str( splitKV ) ) )
+			sys.stderr.write("GetId splitKV=%s\n" % ( str( splitKV ) ) )
 
 			# Returns the first value but this is not reliable at all.
 			for key in splitKV:
@@ -1420,20 +1507,6 @@ class CgiEnv():
 def ErrorMessageHtml(message):
 	lib_util.InfoMessageHtml(message)
 	sys.exit(0)
-
-################################################################################
-
-# Beware: lib_common.hostName="Unknown-30-b5-c2-02-0c-b5-2.home"
-# socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
-# socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
-def SameHostOrLocal( srv, entHost ):
-	if ( entHost == srv ) or ( ( entHost is None or entHost == "" ) and ( localIP == srv ) ) or ( entHost == "*"):
-		# We might add credentials.
-		sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME\n" % ( entHost, localIP, srv ) )
-		return True
-	else:
-		sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s Different\n" % ( entHost, localIP, srv ) )
-		return False
 
 ################################################################################
 
@@ -1720,13 +1793,11 @@ def PsutilAddSocketToGraph(node_process,connects,grph):
 # 
 # http://serverfault.com/questions/371150/any-difference-between-domain-username-and-usernamedomain-local
 def FormatUser(usrnam):
-	try:
-		shortnam = usrnam.split('\\')[1]
-		# BEWARE: WE ARE LOSING THE DOMAIN NAME.
-	except IndexError:
-		shortnam = usrnam
-	
-	return shortnam + "@" + hostName
+	# BEWARE: WE ARE LOSING THE DOMAIN NAME.
+	shortnam = usrnam.split('\\')[-1]
+
+	# return shortnam + "@" + lib_util.currentHostname
+	return shortnam
 
 ################################################################################
 # How to display RDF files ?

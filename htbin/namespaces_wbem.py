@@ -12,15 +12,11 @@ import rdflib
 from lib_properties import pc
 
 cgiEnv = lib_common.CgiEnv("WBEM namespaces", can_process_remote = True)
-# entity_type = cgiEnv.m_entity_type
-# entity_id = cgiEnv.GetId()
 entity_host = cgiEnv.GetHost()
 
 cimomUrl = cgiEnv.GetHost()
 
 grph = rdflib.Graph()
-
-# rootNode = lib_util.RootUri()
 
 # There is no consensus on the WBEM class for namespaces,
 # so we have ours which must be correctly mapped.
@@ -28,7 +24,6 @@ namespace_class = "wbem_namespace"
 rootNode = lib_util.EntityUri(namespace_class,"")
 
 connWbem = lib_wbem.WbemConnection(cimomUrl)
-
 
 try:
 	nsd = lib_wbem.EnumNamespacesCapabilities(connWbem)

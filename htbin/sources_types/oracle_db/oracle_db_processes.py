@@ -66,9 +66,9 @@ for row in result:
 	sessProgram = row[10]
 
 	nodeSession = lib_common.gUriGen.OracleSessionUri( cgiEnv.m_oraDatabase, str(row[0]) )
-	grph.add( ( nodeSession, rdflib.Literal("Oracle user"), rdflib.Literal(oraUsername) ) )
-	grph.add( ( nodeSession, rdflib.Literal("Schema"), rdflib.Literal(schemaName) ) )
-	grph.add( ( nodeSession, rdflib.Literal("Program"), rdflib.Literal(sessProgram) ) )
+	grph.add( ( nodeSession, lib_common.MakeProp("Oracle user"), rdflib.Literal(oraUsername) ) )
+	grph.add( ( nodeSession, lib_common.MakeProp("Schema"), rdflib.Literal(schemaName) ) )
+	grph.add( ( nodeSession, lib_common.MakeProp("Program"), rdflib.Literal(sessProgram) ) )
 
 	if schemaName != None:
 		nodeSchema = lib_common.gUriGen.OracleSchemaUri(cgiEnv.m_oraDatabase, str(schemaName) )
@@ -77,14 +77,14 @@ for row in result:
 
 	sys.stderr.write("user_proc_id=%s user_machine=%s\n" % (user_proc_id,user_machine))
 	node_process = lib_common.RemoteBox(user_machine).PidUri( sessPid )
-	grph.add( ( node_process, rdflib.Literal("System Pid"), rdflib.Literal(user_proc_id) ) )
-	grph.add( ( node_process, rdflib.Literal("Oracle Pid"), rdflib.Literal(process_pid) ) )
-	grph.add( ( node_process, rdflib.Literal("Terminal"), rdflib.Literal(procTerminal) ) )
+	grph.add( ( node_process, lib_common.MakeProp("SystemPid"), rdflib.Literal(user_proc_id) ) )
+	grph.add( ( node_process, lib_common.MakeProp("OraclePid"), rdflib.Literal(process_pid) ) )
+	grph.add( ( node_process, lib_common.MakeProp("Terminal"), rdflib.Literal(procTerminal) ) )
 	grph.add( ( nodeSession, pc.property_oracle_session, node_process ) )
 
 	if sessOsuser != None:
 		nodeOsUser = lib_common.RemoteBox(user_machine).UserUri(sessOsuser)
-		grph.add( ( nodeOsUser, rdflib.Literal("Os user"), rdflib.Literal(sessOsuser) ) )
+		grph.add( ( nodeOsUser, lib_common.MakeProp("OsUser"), rdflib.Literal(sessOsuser) ) )
 		grph.add( ( node_process, pc.property_user, nodeOsUser ) )
 
 cgiEnv.OutCgiRdf(grph)

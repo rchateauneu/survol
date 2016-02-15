@@ -11,7 +11,7 @@ from lib_properties import pc
 
 cgiEnv = lib_common.CgiEnv("Windows network device")
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("This works only on Windows platforms")
 
 grph = rdflib.Graph()

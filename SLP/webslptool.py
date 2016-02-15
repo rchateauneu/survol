@@ -17,7 +17,7 @@ def PrintTime():
 
 PORT_NUMBER = 1234
 
-# Specialised htpp server which pares its input html file and replaces
+# Specialised htpp server which parses its input html file and replaces
 # templates by SLP values.
 
 class SlpService:

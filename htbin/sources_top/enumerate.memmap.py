@@ -9,7 +9,7 @@ import re
 import sys
 import psutil
 import rdflib
-
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -83,7 +83,7 @@ def GoodMap(path):
 	# OLB: data types and constants referenced by MS Office components.
 	# NLS: language translation information to convert between different character sets.
 	# TODO: This list in a drop-down menu.
-	if 'win' in sys.platform:
+	if lib_util.isPlatformWindows:
 		fileExtension = os.path.splitext(path)[1]
 		if fileExtension.upper() in [ ".DLL", ".EXE", ".PYD", ".TTF", ".TTC", ".NLS", ".OLB" ]:
 			return ""
@@ -118,7 +118,7 @@ def GoodMap(path):
 ################################################################################
 
 # Not really useful.
-grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_common.hostName ) ) )
+grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_util.currentHostname ) ) )
 
 def FunctionProcess(mapToProc,proc):
 	# The process might have left in the meantime.

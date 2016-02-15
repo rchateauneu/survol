@@ -5,12 +5,13 @@ import subprocess
 import re
 import sys
 import rdflib
+import lib_util
 import lib_common
 from lib_properties import pc
 
 # Returns symbols associated to a DLL.
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("DLL files are on Windows platforms only")
 
 # Trouver un moyen de passer un parametre a un cgi :

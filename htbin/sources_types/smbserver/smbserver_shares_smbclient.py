@@ -39,7 +39,7 @@ from lib_properties import pc
 cgiEnv = lib_common.CgiEnv("Shares of a Samba server")
 smbServer = cgiEnv.GetId()
 
-if 'win' in sys.platform:
+if lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
 grph = rdflib.Graph()

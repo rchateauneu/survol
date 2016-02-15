@@ -11,7 +11,7 @@ from lib_properties import pc
 cgiEnv = lib_common.CgiEnv("Enumeration of network shares")
 hostname = cgiEnv.GetId()
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
 try:
@@ -33,7 +33,7 @@ while 1:
 		# If running on the local machine, pass the host as None otherwise authorization is checked
 		# just like a remote machine, which means User Account Control (UAC) disabling,
 		# and maybe setting LocalAccountTokenFilterPolicy=1
-		if hostname == lib_common.hostName:
+		if hostname == lib_util.currentHostname:
 			hostname_or_None = None
 		else:
 			hostname_or_None = hostname

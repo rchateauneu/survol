@@ -1,13 +1,10 @@
 #!/usr/bin/python
 
 import sys
-import re
-import socket
-import struct
 import rdflib
 import subprocess
 import xml.dom.minidom
-
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -18,7 +15,7 @@ cgiEnv = lib_common.CgiEnv(
 		"http://nmap.org/images/nmap-logo-64px.png"
 		)
 
-# socket.gethostbyname(lib_common.hostName) Renvoie "127.0.0.1"
+# socket.gethostbyname(lib_util.currentHostname) Renvoie "127.0.0.1"
 
 # http://stackoverflow.com/questions/3698901/retrieving-netmask-for-interfaces-with-multiple-ip-addresses-using-python
 #
@@ -48,12 +45,12 @@ cgiEnv = lib_common.CgiEnv(
 
 
 # Calculates a mask, similar to "192.168.1.0/24"
-#hostAddr = socket.gethostbyname(lib_common.hostName)
+#hostAddr = socket.gethostbyname(lib_util.currentHostname)
 #hostSplit = hostAddr.split('.')
 #hostSplit[3] = "0"
 #netMask = '.'.join( hostSplit ) + "/24"
 #
-#sys.stderr.write("hostName=%s hostAddr=%s netMask=%s\n" % ( lib_common.hostName, hostAddr, netMask ) )
+#sys.stderr.write("hostName=%s hostAddr=%s netMask=%s\n" % ( lib_util.currentHostname, hostAddr, netMask ) )
 
 netMask = "192.168.1.0/24"
 

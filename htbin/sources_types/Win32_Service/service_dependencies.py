@@ -5,6 +5,7 @@
 import os
 import sys
 import rdflib
+import lib_util
 import lib_common
 from lib_common import pc
 
@@ -22,7 +23,7 @@ serviceHost = cgiEnv.GetHost()
 
 # TODO: Apparently it hangs.
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
 import lib_entities.lib_entity_Win32_Service
@@ -55,6 +56,18 @@ for subServiceNameOut in serviceDict["depends_out"]:
 	subServiceNodeOut = lib_entities.lib_entity_Win32_Service.DictServiceToNode( grph, subServiceDictOut, serviceHost )
 	grph.add( (subServiceNodeOut, pc.property_service, serviceNode ) )
 
+# TODO: Utiliser les aretes plus intelligemment:
+# Changer les couleurs.
+# Mettre plus d'infos dans le nom.
+# Les rendre bidirectionnelles sans avoir besoin d'un traitement particulier.
+# Exemple de syntaxe: Type;Titre;Couleur;Taille;Fleches
+# Exemple: sous-process;Pid=123;Red:1;SinpleArrow
+#          socket;Telnet;Green;BidirectionnalArrow
+# On permet la transition en commencant par le type, comme maintenant.
+# Ou bien: Type;k1=v1;k2=v2
+
 # cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
-cgiEnv.OutCgiRdf(grph)
+# cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+
   

@@ -12,10 +12,10 @@ from lib_properties import pc
 
 cgiEnv = lib_common.CgiEnv("Windows local groups", platform_regex = "win", can_process_remote = True)
 server = cgiEnv.GetId()
-if server in ["localhost","127.0.0.1"]:
+if lib_util.IsLocalAddress( server ):
 	server = None
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
 try:

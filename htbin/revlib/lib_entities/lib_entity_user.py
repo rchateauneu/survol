@@ -29,19 +29,18 @@ def LoadEtcPasswd():
 # This must add information about the user.
 def AddInfo(grph,node,entity_ids_arr):
 	usrNam = entity_ids_arr[0]
-	if "linux" in sys.platform:
+
+	try:
 		usersList = LoadEtcPasswd()
+		userSplit = usersList[ usrNam ]
+		grph.add( ( node, pc.property_information, rdflib.Literal( userSplit[4] ) ) )
 
-		try:
-			userSplit = usersList[ usrNam ]
-			grph.add( ( node, pc.property_information, rdflib.Literal( userSplit[4] ) ) )
+		# We insert this link to the home directory because it should not
+		# imply an access to the file itself, so it cannot fail.
+		homeDir = userSplit[5]
+		homeDirNode = lib_common.gUriGen.FileUri( homeDir )
 
-			# We insert this link to the home directory because it should not 
-			# imply an access to the file itself, so it cannot fail.
-			homeDir = userSplit[5]
-			homeDirNode = lib_common.gUriGen.FileUri( homeDir )
+		grph.add( ( node, pc.property_directory, homeDirNode ) )
 
-			grph.add( ( node, pc.property_directory, homeDirNode ) )
-
-		except KeyError:
-			grph.add( ( node, pc.property_information, rdflib.Literal( "No information available" ) ) )
+	except KeyError:
+		grph.add( ( node, pc.property_information, rdflib.Literal( "No information available" ) ) )

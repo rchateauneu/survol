@@ -17,7 +17,7 @@ try:
 except Exception:
 	lib_common.ErrorMessageHtml("Must provide a pid")
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("This works only on Windows platforms")
 
 grph = rdflib.Graph()

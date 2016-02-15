@@ -1,6 +1,7 @@
 import os
 import sys
 import socket
+import rdflib
 import lib_util
 import lib_common
 
@@ -33,8 +34,9 @@ def WmiAllNamespacesUrl(hostname):
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True, True, True )
 	return wmiInstanceUrl
 
-def NamespaceUrl(nskey,cimomUrl):
-	wmiMoniker = BuildWmiMoniker( cimomUrl, nskey )
+# Beware: The class indicates the starting point for displaying the classes of the namespace.
+def NamespaceUrl(nskey,cimomUrl,classNam=""):
+	wmiMoniker = BuildWmiMoniker( cimomUrl, nskey, classNam )
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True, True )
 	return wmiInstanceUrl
 
@@ -54,10 +56,15 @@ def WmiConnect(machWithBackSlashes,wmiNamspac):
 	# sys.stderr.write("WmiConnect cimom=%s cleanMachNam=%s wmiNamspace=%s\n" % ( machWithBackSlashes, cleanMachNam, wmiNamspac ) )
 
 	# WMI does not do local connection with the local IP.
-	machIP = socket.gethostbyname(cleanMachNam)
+	try:
+		machIP = socket.gethostbyname(cleanMachNam)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Cannot connect to WMI server:%s" % cleanMachNam)
+
 	# sys.stderr.write("WmiConnect machIP=%s\n" % ( machIP ) )
 
-	if lib_common.SameHostOrLocal( machIP, "*" ):
+	if lib_util.SameHostOrLocal( machIP, "*" ):
 		connWMI = wmi.WMI(namespace=wmiNamspac)
 	else:
 		connWMI = wmi.WMI(machIP,namespace=wmiNamspac)
@@ -87,12 +94,13 @@ def WmiGetClassKeys( wmiNameSpace, wmiClass, cimomSrv ):
 
 # Normally we must find the right namespace, but default value is OK most of times.
 def BuildWmiNamespaceClass( entity_namespace, entity_type ):
+	# TODO: Change this default namespace.
 	wmiNamespace = "root\\CIMV2"
 	# Normally we should check if this class is defined in this cimom. For the moment, we assume, yes.
 	return ( wmiNamespace, entity_type, wmiNamespace + ":" + entity_type )
 
 
-def WmiBuildMonikerPath( entity_namespace, entity_type, entity_id, cimomSrv ):
+def WmiBuildMonikerPath( entity_namespace, entity_type, entity_id ):
 	wmiNameSpace, wmiClass, fullClassPth = BuildWmiNamespaceClass( entity_namespace, entity_type )
 
 	# sys.stderr.write("WmiBuildMonikerPath wmiNameSpace=%s entity_namespace=%s entity_id=%s\n" % (wmiNameSpace, entity_namespace, str(entity_id)))
@@ -102,7 +110,7 @@ def WmiBuildMonikerPath( entity_namespace, entity_type, entity_id, cimomSrv ):
 def WmiInstanceUrl( entity_namespace, entity_type, entity_id, entity_host):
 	# sys.stderr.write("WmiInstanceUrl %s %s %s %s\n" % (entity_namespace, entity_type, entity_id, entity_host))
 
-	wmiFullPath = WmiBuildMonikerPath( entity_namespace, entity_type, entity_id, entity_host )
+	wmiFullPath = WmiBuildMonikerPath( entity_namespace, entity_type, entity_id )
 
 	if wmiFullPath is None:
 		return None
@@ -125,7 +133,7 @@ def NormalHostName(entity_host):
 		# Typically returns "RCHATEAU-HP".
 		# Could also use platform.node() or socket.gethostname() or os.environ["COMPUTERNAME"]
 		entity_host = socket.gethostname()
-	return entity_host
+	return lib_util.EntHostToIp(entity_host)
 
 ################################################################################
 
@@ -139,7 +147,7 @@ def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 
 	entity_host = NormalHostName(entity_host)
 
-	sys.stderr.write("GetWmiUrl %s %s %s %s\n" % (entity_host, entity_namespace, entity_type, entity_id))
+	# sys.stderr.write("GetWmiUrl %s %s %s %s\n" % (entity_host, entity_namespace, entity_type, entity_id))
 
 	# TODO: entity_host = NONE si current.
 
@@ -149,5 +157,23 @@ def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 	else:
 		wmiUrl = WmiInstanceUrl( entity_namespace, entity_type, entity_id, entity_host)
 
+	# sys.stderr.write("GetWmiUrl %s %s %s %s wmiUrl=%s\n" % (entity_host, entity_namespace, entity_type, entity_id, wmiUrl))
 	return wmiUrl
+
+def WmiTooManyInstances(className):
+	# Shoudl also take their base classes.
+	return className in ['Win32_ComputerSystem','PG_ComputerSystem','CIM_UnitaryComputerSystem',
+						 'CIM_ComputerSystem','CIM_System','CIM_LogicalElement','Win32_UserAccount',
+						 'Win32_Group', 'CIM_ManagedSystemElement']
+
+
+def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className ):
+	try:
+		klassQuals = getattr( connWmi, className ).qualifiers
+		for klaQualKey in klassQuals :
+			klaQualVal = klassQuals[klaQualKey]
+			grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), rdflib.Literal(klaQualVal) ) )
+	except Exception:
+		exc = sys.exc_info()[1]
+		grph.add( ( wmiClassNode, lib_common.MakeProp("Error"), rdflib.Literal(str(exc)) ) )
 

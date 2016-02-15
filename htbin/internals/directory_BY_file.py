@@ -18,7 +18,7 @@ import urllib
 
 arguments = cgi.FieldStorage()
 
-if 'win' in sys.platform:
+if lib_util.isPlatformWindows:
 	import string
 	from ctypes import windll
 
@@ -45,7 +45,7 @@ print("""Content-type: text/html
 
 print("Cwd="+os.getcwd()+"<br>")
 
-if 'win' in sys.platform:
+if lib_util.isPlatformWindows:
 	drvs = get_drives()
 	for dev in drvs:
 		url = os.environ['SCRIPT_NAME'] + "?rootdir=" + dev
@@ -55,7 +55,7 @@ if 'win' in sys.platform:
 try:
 	rootdir = arguments["rootdir"].value
 except KeyError:
-	if 'win' in sys.platform:
+	if lib_util.isPlatformWindows:
 		rootdir = "C:"
 	else:
 		rootdir = "/"

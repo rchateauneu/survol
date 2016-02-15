@@ -6,11 +6,9 @@ import os
 import re
 import sys
 import time
-import rdflib
 import socket
 import binascii
-import subprocess
-# import pwd
+import lib_util
 import lib_common
 from lib_properties import pc
 import lib_webserv
@@ -81,7 +79,7 @@ def PromiscuousEngineWin(sharedTupleQueue,entityId):
 
 	# prevent socket from being left in TIME_WAIT state, enabling reuse
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	s.bind((lib_common.hostName, 0))
+	s.bind((lib_util.currentHostname, 0))
 	
 	# Include IP headers
 	s.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
@@ -148,7 +146,7 @@ def PromiscuousEngineLinux(sharedTupleQueue,entityId):
 ################################################################################
 
 def PromiscuousEngine(sharedTupleQueue,entityId):
-	if "win" in sys.platform:
+	if lib_util.isPlatformWindows:
 		PromiscuousEngineWin(sharedTupleQueue,entityId)
 	else:
 		PromiscuousEngineLinux(sharedTupleQueue,entityId)

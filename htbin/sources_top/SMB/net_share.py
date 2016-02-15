@@ -26,10 +26,9 @@
 
 import sys
 import re
-import socket
 import rdflib
 import subprocess
-
+import lib_util
 import lib_common
 from lib_properties import pc
 import lib_smb
@@ -38,7 +37,7 @@ cgiEnv = lib_common.CgiEnv("NET SHARE",lib_smb.icon)
 
 # TODO: Should test Linux instead ? 
 # TODO: The command "net" exists on Linux !!!!
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("NET command on Windows only")
 
 grph = rdflib.Graph()
@@ -91,10 +90,10 @@ for lin in lines:
 	
 	# http://127.0.0.1:80/PythonStyle/htbin/entity_list.py?type=hostname&id=LONW00052257.euro.net.intra
 
-	shareNode = lib_common.gUriGen.SmbShareUri( "//" + lib_common.hostName + "/" + shrNam )
+	shareNode = lib_common.gUriGen.SmbShareUri( "//" + lib_util.currentHostname + "/" + shrNam )
 	grph.add( ( lib_common.nodeMachine, pc.property_smbshare, shareNode ) )
 
-	# mountNode = lib_common.gUriGen.FileUri( "//" + lib_common.hostName + "/" + shrRes )
+	# mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrRes )
 	mountNode = lib_common.gUriGen.FileUri( shrRes )
 	grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
 

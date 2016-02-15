@@ -181,7 +181,7 @@ def parse_all(text):
 #
 #	# For tests, if Oracle is not there, or if we do not want to use the real tnanames.ora.
 #	# Strange logic for the base directory !!!
-#	if 'win' in sys.platform:
+#	if lib_util.isPlatformWindows:
 #		# "SimpleHTTP/0.6 Python/3.2.3": getcwd=D:\Projects\Divers\Reverse\PythonStyle
 #		server_software = os.environ["SERVER_SOFTWARE"]
 #		if server_software == "SimpleHTTP/0.6 Python/3.2.3":
@@ -200,7 +200,7 @@ def parse_all(text):
 #	# return "TestData/tnsnames_BIG.ora"
 #	return dflttnsnam
 #
-#	if 'win' in sys.platform:
+#	if lib_util.isPlatformWindows:
 #		tnsnam = FindTnsNamesWindows()
 #		if tnsnam == "":
 #			tnsnam = dflttnsnam

@@ -8,7 +8,7 @@ from lib_properties import pc
 
 # TODO: https://docs.python.org/2/library/pwd.html might be simpler.
 
-cgiEnv = lib_common.CgiEnv("Users on a Linux platform")
+cgiEnv = lib_common.CgiEnv("Users on a Linux platform (/etc/passwd)")
 
 if not 'linux' in sys.platform:
 	lib_common.ErrorMessageHtml("/etc/passwd for Linux only")

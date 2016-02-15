@@ -32,9 +32,11 @@ rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WMI" )
 if nameSpace[0:5] == "root\\":
 	nameSpace = nameSpace[5:]
 else:
-	lib_common.ErrorMessageHtml("cimomUrl=%s Cannot truncate nameSpace=%s\n" % ( cimomUrl, nameSpace ) )
+	lib_common.ErrorMessageHtml("cimomUrl=%s Cannot truncate nameSpace=%s entity_namespace_type=%s\n" % ( cimomUrl, nameSpace, entity_namespace_type ) )
 
 connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
+
+lib_wmi.WmiAddClassQualifiers( grph, connWmi, rootNode, className )
 
 # Inutilisable pour:
 # root/CIMV2/CIM_LogicalFile
@@ -44,6 +46,12 @@ connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
 # pour aller aux elements suivants ou precedents. Notons que ca revient a creer des scripts artificiels.
 
 # Et aussi, revenir vers l'arborescence des classes dans ce namespace.
+
+# lib_common.ErrorMessageHtml("Too many elements in className=%s\n" % ( className ) )
+
+# Il y a d autres classes hardcodees de cette facon.
+if lib_wmi.WmiTooManyInstances( className ):
+	lib_common.ErrorMessageHtml("Too many elements in className=%s\n" % ( className ) )
 
 try:
 	wmiClass = getattr( connWmi, className )

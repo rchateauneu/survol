@@ -16,6 +16,7 @@
 import os
 import sys
 import rdflib
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -46,7 +47,7 @@ for lin in mysql_resu:
 	sys.stderr.write("host="+mysql_host+"\n")
 
 	mysql_addr_arr = mysql_host.split(':')
-	mysql_id_node = rdflib.term.URIRef('urn://' + lib_common.hostName + '/mysql/' + str(mysql_id) )
+	mysql_id_node = rdflib.term.URIRef('urn://' + lib_util.currentHostname + '/mysql/' + str(mysql_id) )
 	if len(mysql_addr_arr) == 2:
 		socketNode = lib_common.gUriGen.AddrUri( mysql_addr_arr[0], mysql_addr_arr[1] )
 		# BEWARE: mysql_id_node is not a process. But why not after all.
@@ -56,7 +57,7 @@ for lin in mysql_resu:
 		sql_task_node = socketNode
 
 	else:
-		dummy_local_process = lib_common.AnonymousPidNode(lib_common.hostName)
+		dummy_local_process = lib_common.AnonymousPidNode(lib_util.currentHostname)
 		grph.add( ( dummy_local_process, pc.property_mysql_id, mysql_id_node ) )
 		sql_task_node = dummy_local_process
 
@@ -68,7 +69,7 @@ for lin in mysql_resu:
 # Mais idealement il faudrait le tester.
 # TODO: CHECK IF THIS IS THE RIGHT PORT NUMBER.
 
-phpmyadminUrl = "http://" + lib_common.hostName + "/phpmyadmin/"
+phpmyadminUrl = "http://" + lib_util.currentHostname + "/phpmyadmin/"
 phpmyadminNode = rdflib.term.URIRef( phpmyadminUrl )
 grph.add( ( lib_common.nodeMachine, pc.property_html_data, phpmyadminNode ) )
 

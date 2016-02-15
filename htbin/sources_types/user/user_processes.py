@@ -6,6 +6,7 @@
 import sys
 import psutil
 import rdflib
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -13,6 +14,9 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
 cgiEnv = lib_common.CgiEnv("User processes")
 userNameWithHost = cgiEnv.GetId()
+
+if not lib_util.isPlatformLinux:
+	lib_common.ErrorMessageHtml("Linux only")
 
 # Usernames have the syntax user@host
 # Example: UK936025@LONW00052257.euro.net.intra
@@ -22,7 +26,7 @@ userName = userSplit[0]
 # TODO: Should factorize this code.
 if len( userSplit ) > 1:
 	userHost = userSplit[1]
-	if userHost != lib_common.hostName:
+	if userHost != lib_util.currentHostname:
 		# TODO: Should interrogate other host with "finger" protocol.
 		lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)
 
@@ -55,20 +59,9 @@ for proc in psutil.process_iter():
 	# procUsername=NT AUTHORITY\\SYSTEM
 	# procUsername=EURO\\UK936025
 	# procUsername=NT AUTHORITY\\SYSTEM
-	if "lin" in sys.platform:
-		# if procUsername + "@" + lib_common.hostName != userName:
-		if procUsername != userName:
-			continue
-
-	if "win" in sys.platform:
-		if procUsername != userName:
-			# On Windows, second chance with only the second part of the user.
-			try:
-				userShort = procUsername.split('\\')[1]
-			except IndexError:
-				userShort = procUsername
-			if userShort != userName:
-				continue
+	# if procUsername + "@" + lib_util.currentHostname != userName:
+	if procUsername != userName:
+		continue
 
 	if lib_common.UselessProc(proc):
 		continue
@@ -86,9 +79,6 @@ for proc in psutil.process_iter():
 	grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
 	grph.add( ( node_process, pc.property_pid, rdflib.Literal(pid) ) )
 	# grph.add( ( node_process, pc.property_information, rdflib.Literal(procUsername) ) )
-
-# We avoid duplicating the edges. Why would the RFD merge do?
-############ grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
 
 cgiEnv.OutCgiRdf(grph)
 

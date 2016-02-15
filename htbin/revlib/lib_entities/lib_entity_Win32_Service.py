@@ -88,7 +88,7 @@ def BuildSrvDict( hscm, machineName ):
 # This is really a hack but ok for prototyping. Why? Performances ?
 # tmplog because a timeout prevents Apache log to display sys.stderr.
 def BuildSrvNetwork( machineName ):
-	sys.stderr.write("BuildSrvNetwork machineName=%s localhost=%s\n" % (machineName,lib_common.hostName))
+	sys.stderr.write("BuildSrvNetwork machineName=%s localhost=%s\n" % (machineName,lib_util.currentHostname))
 
 	machName_or_None, imper = lib_win32.MakeImpersonate(machineName)
 
@@ -218,7 +218,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		if keySrv == "ProcessId":
 			if int(valSrv) != 0:
 				nodeProc = lib_common.gUriGen.PidUri(valSrv)
-				grph.add( (node,rdflib.Literal(keySrv), nodeProc ) )
+				grph.add( (node,lib_common.MakeProp(keySrv), nodeProc ) )
 		elif keySrv == "ServiceType":
 			svcTypSrc = ""
 			svcTypInt = int(valSrv)
@@ -231,7 +231,7 @@ def AddInfo(grph,node,entity_ids_arr):
 			if svcTypInt & win32service.SERVICE_WIN32: svcTypSrc += "WIN32 "
 			if svcTypInt & win32service.SERVICE_INTERACTIVE_PROCESS: svcTypSrc += "INTERACTIVE_PROCESS "
 
-			grph.add( (node,rdflib.Literal(keySrv), rdflib.Literal(svcTypSrc) ) )
+			grph.add( (node,lib_common.MakeProp(keySrv), rdflib.Literal(svcTypSrc) ) )
 
 		elif keySrv == "CurrentState":
 			statesArray = (
@@ -249,9 +249,9 @@ def AddInfo(grph,node,entity_ids_arr):
 				if valSrv == getattr(win32service, srvStatVar):
 					srcStatSrc = srvStatVar
 					break
-			grph.add( (node,rdflib.Literal(keySrv), rdflib.Literal(srcStatSrc) ) )
+			grph.add( (node,lib_common.MakeProp(keySrv), rdflib.Literal(srcStatSrc) ) )
 
 		else:
-			grph.add( (node,rdflib.Literal(keySrv), rdflib.Literal(valSrv) ) )
+			grph.add( (node,lib_common.MakeProp(keySrv), rdflib.Literal(valSrv) ) )
 
 	return

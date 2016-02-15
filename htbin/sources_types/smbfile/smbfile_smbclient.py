@@ -30,7 +30,7 @@ cgiEnv = lib_common.CgiEnv(
 	"",
 	{ paramkeyPassword : "" } )
 
-if 'win' in sys.platform:
+if lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
 # Top directory, not just the share name.

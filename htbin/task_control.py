@@ -111,7 +111,7 @@ def MakeProcDictLinux():
 # But by directly listing the processes, we are safe from a bug in registering
 # logic. Also it helps debugging sub-servers.
 def MakeProcDict():
-	if "win" in sys.platform:
+	if lib_util.isPlatformWindows:
 		return MakeProcDictWindows()
 	else:
 		return MakeProcDictLinux()

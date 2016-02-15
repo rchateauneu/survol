@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Portal for all WBEM related things.
+WBEM servers.
 """
 
 import rdflib
@@ -26,7 +26,5 @@ for ( url_wbem, wbemHost ) in wbem_urls_list:
 
 	hostNode = lib_common.gUriGen.HostnameUri( wbemHost )
 	grph.add( ( hostNode, pc.property_information, wbemNode ) )
-	# On mettra le port ou autres donnees venant de SLP.
-	# grph.add( ( hostNode, pc.property_information, rdflib.Literal(linSplit[2]) ) )
 
 cgiEnv.OutCgiRdf(grph)

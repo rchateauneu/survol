@@ -31,7 +31,7 @@ import lib_smb
 cgiEnv = lib_common.CgiEnv("Samba shares",lib_smb.icon)
 
 # TODO: Should test Linux instead ?
-if 'win' in sys.platform:
+if lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("smbtree not available on Windows")
 
 grph = rdflib.Graph()

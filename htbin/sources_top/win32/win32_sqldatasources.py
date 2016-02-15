@@ -1,15 +1,14 @@
 #!/usr/bin/python
 
-import os
 import sys
-# import socket
 import rdflib
+import lib_util
 import lib_common
 from lib_properties import pc
 
 cgiEnv = lib_common.CgiEnv("ODBC Data sources")
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("ODBC Data sources only on Windows platforms")
 
 try:

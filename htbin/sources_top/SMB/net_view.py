@@ -26,7 +26,7 @@ import lib_smb
 
 cgiEnv = lib_common.CgiEnv("NET VIEW",lib_smb.icon)
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("NET command on Windows only")
 
 grph = rdflib.Graph()

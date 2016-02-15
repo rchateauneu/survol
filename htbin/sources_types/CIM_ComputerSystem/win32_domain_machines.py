@@ -6,15 +6,16 @@ import os
 import sys
 import socket
 import rdflib
+import lib_util
 import lib_common
 from lib_properties import pc
 
 cgiEnv = lib_common.CgiEnv("Windows domain machines")
 machineName = cgiEnv.GetId()
-if machineName in ["127.0.0.1", "localhost"]:
+if lib_util.IsLocalAddress( machineName ):
 	machineName = None
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
 try:

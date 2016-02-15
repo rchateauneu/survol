@@ -7,6 +7,7 @@ import re
 import sys
 import time
 import rdflib
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -59,7 +60,7 @@ def TcpDumpEnqueue(theQ, line):
 			theQ.put( ('ArpWho' , spl[3], spl[5] ) )
 
 def GetTcmpDumpCommand():
-	if "win" in sys.platform:
+	if lib_util.isPlatformWindows:
 		return "WinDump"
 	else:
 		# Option -n so no conversion of addresses and port numbers.

@@ -40,12 +40,12 @@ class LookupThread(threading.Thread):
 			if hstAddr != hostName:
 				grph.add( ( hostNode, pc.property_information, rdflib.Literal(hstAddr) ) )
 			if linSplit[1] != "":
-				grph.add( ( hostNode, rdflib.Literal("MAC"), rdflib.Literal(linSplit[1]) ) )
+				grph.add( ( hostNode, lib_common.MakeProp("MAC"), rdflib.Literal(linSplit[1]) ) )
 			if linSplit[2] != "":
-				grph.add( ( hostNode, rdflib.Literal("ARP type"), rdflib.Literal(linSplit[2]) ) )
+				grph.add( ( hostNode, lib_common.MakeProp("ARP_type"), rdflib.Literal(linSplit[2]) ) )
 			# TODO: Create network interface class.
 			if linSplit[3] != "":
-				grph.add( ( hostNode, rdflib.Literal("Interface"), rdflib.Literal(linSplit[3]) ) )
+				grph.add( ( hostNode, lib_common.MakeProp("Interface"), rdflib.Literal(linSplit[3]) ) )
 		# Some throttling, in case there are thousands of nodes.
 		# time.sleep(0.01)
 

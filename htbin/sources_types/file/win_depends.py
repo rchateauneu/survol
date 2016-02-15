@@ -9,6 +9,8 @@ import re
 import sys
 import time
 import rdflib
+import lib_util
+import lib_win32
 import lib_common
 from lib_properties import pc
 
@@ -33,14 +35,7 @@ from lib_properties import pc
 cgiEnv = lib_common.CgiEnv("DLL dependencies (Windows)")
 win_module = cgiEnv.GetId()
 
-if not 'win' in sys.platform:
-	lib_common.ErrorMessageHtml("DLL files are on Windows platforms only")
-
-if os.path.isdir(win_module):
-	lib_common.ErrorMessageHtml("File '" + win_module + "' must be a plain file")
-
-if not os.path.isfile(win_module):
-	lib_common.ErrorMessageHtml("File '" + win_module + "' does not exist")
+lib_win32.CheckWindowsModule(win_module)
 
 # This has to be in the path. Is it the 32 bits or 64 bits one ?
 depends_bin = "depends.exe"

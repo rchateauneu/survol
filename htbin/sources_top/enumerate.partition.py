@@ -8,6 +8,7 @@ import sys
 import socket
 import rdflib
 import psutil
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -47,7 +48,7 @@ for part in psutil.disk_partitions():
 
 
 	# Prendre en compte le disque, l'utiliser pour iostat.
-	if "lin" in sys.platform:
+	if lib_util.isPlatformLinux:
 		pass
 
 cgiEnv.OutCgiRdf(grph)

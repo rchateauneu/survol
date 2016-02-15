@@ -9,7 +9,7 @@ from lib_common import pc
 
 cgiEnv = lib_common.CgiEnv("Windows domain machines")
 
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
 try:

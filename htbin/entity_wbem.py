@@ -33,15 +33,29 @@ cimomUrl = cgiEnv.GetHost()
 ( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 sys.stderr.write("nameSpace=%s className=%s\n" % (nameSpace,className))
 
+if nameSpace == "":
+	nameSpace = "root/cimv2"
+	sys.stderr.write("Setting namespace to default value\n")
+
+
 if className == "":
 	lib_common.ErrorMessageHtml("No class name. entity_id=%s" % entity_id)
 
+grph = rdflib.Graph()
+
+conn = lib_wbem.WbemConnection(cimomUrl)
+
 rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WBEM" )
+klaDescrip = lib_wbem.WbemClassDescription(conn,className,nameSpace)
+grph.add( ( rootNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
 
 splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )
 
-conn = lib_wbem.WbemConnection(cimomUrl)
 sys.stderr.write("nameSpace=%s className=%s cimomUrl=%s\n" %(nameSpace,className,cimomUrl))
+
+# conn = pywbem.WBEMConnection("http://192.168.1.88:5988",("pegasus","toto"))
+# conn.ExecQuery("WQL","select * from CIM_System","root/cimv2")
+
 
 # If ExecQuery is not supported like on OpenPegasus, try to build one instance.
 def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
@@ -80,7 +94,7 @@ def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 	except:
 		exc = sys.exc_info()[1]
 		# lib_common.ErrorMessageHtml("msgExcFirst="+msgExcFirst+" wbemInstName=" + str(wbemInstName) + ". ns="+nameSpace+". Caught:"+str(exc))
-		sys.stderr.write("WbemNoQueryOneInst wbemInstName=" + str(wbemInstName) + ". ns="+nameSpace+". Caught:"+str(exc) + "\n")
+		sys.stderr.write("WbemNoQueryOneInst wbemInstName=" + str(wbemInstName) + ". ns="+nameSpace+".\nCaught:"+str(exc) + "\n")
 		return None
 
 # If ExecQuery is not supported like on OpenPegasus, read all instances and filters the good ones. VERY SLOW.
@@ -141,9 +155,6 @@ if instLists is None:
 # HARDCODE_LIMIT
 maxCnt = 7000
 
-# TODO: ET AUSSI ALLER CHERCHER L INFO SUR LA CLASSES COMME LE FAIT YAWN.
-
-grph = rdflib.Graph()
 
 # HELAS, ON A UN PROBLEME D OBJECTS DUPLIQUES:
 # 'CSCreationClassName'   CIM_UnitaryComputerSystem Linux_ComputerSystem
@@ -154,14 +165,6 @@ numInsts = len(instLists)
 
 # If there are duplicates, adds a property which we hope is different.
 propDiscrim = "CreationClassName"
-
-# If the moniker comes straight out WBEM, values are surrounded by parentheses.
-# Otherwise, not, because we forgot them. It might be good to always add them. Will see.
-#def ChopEnclosingParentheses(wrd):
-#	if len(wrd) > 0 and wrd[0] == '"' and wrd[-1] == '"':
-#		return wrd[1:-1]
-#	else:
-#		return wrd
 
 # TODO!! WHAT OF THIS IS NOT THE RIGHT ORDER ???
 # Remove the double-quotes around the argument. WHAT IF THEY ARE NOT THERE ??
@@ -174,32 +177,40 @@ for anInst in instLists:
 	dictInst = dict(anInst)
 
 	# This differentiates several instance with the same properties.
-	#if numInsts > 1:
-	#	# TODO: Should check if this property is different for all instances !!!
-	#	extraArgs = { propDiscrim : dictInst[ propDiscrim ] }
-	#	uriInst = lib_util.EntityUriDupl( className, *arrVals, **extraArgs )
-	#else:
-	#	uriInst = lib_util.EntityUri( className, *arrVals )
+
 
 	if numInsts > 1:
 		# TODO: Should check if this property is different for all instances !!!
 		withExtraArgs = { propDiscrim : dictInst[ propDiscrim ] }
 		allArgs = splitMonik.copy()
 		allArgs.update(withExtraArgs)
-		uriInst = lib_util.EntityUriFromDict( className, allArgs  )
+		dictProps = allArgs
 	else:
-		uriInst = lib_util.EntityUriFromDict( className, splitMonik  )
+		dictProps = splitMonik
 
-	# PEUT-ETRE UTILISER LA VERITABLE CLASSE,
-	# MAIS IL FAUT PART LA SUITE ATTEINDRE LA CLASSE DE BASE.
-	grph.add( ( rootNode, rdflib.Literal(className), uriInst ) )
+	# uriInst = lib_util.EntityUriFromDict( className, dictProps  )
+	# uriInst = lib_common.RemoteBox(cimomUrl).UriMakeFromDict(className, dictProps)
 
+	hostOnly = lib_util.EntHostToIp(cimomUrl)
+	if lib_util.IsLocalAddress(hostOnly):
+		uriInst = lib_common.gUriGen.UriMakeFromDict(className, dictProps)
+	else:
+		uriInst = lib_common.RemoteBox(hostOnly).UriMakeFromDict(className, dictProps)
+
+	# PEUT-ETRE UTILISER LA VERITABLE CLASSE, MAIS IL FAUT PART LA SUITE ATTEINDRE LA CLASSE DE BASE.
+	grph.add( ( rootNode, lib_common.MakeProp(className), uriInst ) )
+
+	# None properties are not printed.
 	for inameKey in dictInst:
 		# Do not print twice values which are in the name.
 		if inameKey in splitMonik:
 			continue
 		inameVal = dictInst[inameKey]
 		# TODO: If this is a reference, create a Node !!!!!!!
-		grph.add( ( uriInst, rdflib.Literal(inameKey), rdflib.Literal(inameVal) ) )
+		if not inameVal is None:
+			grph.add( ( uriInst, lib_common.MakeProp(inameKey), rdflib.Literal(inameVal) ) )
+
+
+	# TODO: Appeler la methode Associators(). Idem References().
 
 cgiEnv.OutCgiRdf(grph)

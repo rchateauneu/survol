@@ -3,7 +3,7 @@
 import sys
 import psutil
 import rdflib
-
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -46,7 +46,7 @@ sys.stderr.flush()
 ################################################################################
 
 # Maybe this is done in another CGI. What happens when merging ?
-grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_common.hostName ) ) )
+grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_util.currentHostname ) ) )
 
 
 reportSharedAccessOnly = False

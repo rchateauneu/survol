@@ -29,7 +29,7 @@ cgiEnv = lib_common.CgiEnv("NET USE",lib_smb.icon)
 
 # TODO: Should test Linux instead ? 
 # TODO: The command "net" exists on Linux !!!!
-if not 'win' in sys.platform:
+if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("NET command on Windows only")
 
 grph = rdflib.Graph()

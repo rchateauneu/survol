@@ -5,10 +5,10 @@
 import re
 import sys
 import subprocess
-import psutil
 import rdflib
 
 import lib_common
+import lib_util
 from lib_properties import pc
 
 cgiEnv = lib_common.CgiEnv("Groups of a Linux user")
@@ -23,7 +23,7 @@ userName = userSplit[0]
 
 if len( userSplit ) > 1:
 	userHost = userSplit[1]
-	if userHost != lib_common.hostName:
+	if userHost != lib_util.currentHostname:
 		# TODO: Should interrogate other host with "finger" protocol.
 		lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)
 

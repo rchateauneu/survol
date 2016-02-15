@@ -30,33 +30,9 @@ cgiEnv = lib_common.CgiEnv("WMI instance", can_process_remote=True)
 
 cimomUrl = cgiEnv.GetHost()
 
-# ON CHANGE TOUT A PARTIR D ICI:
-# ON RETIRE LE HOST ET ON APPELLE WmiConnect(0 qui gere le cas ou c est la machine courante
-# >>> w = wmi.WMI()
-# >>> for x in w.query("select * from CIM_ComputerSystem where Name='rchateau-hp'"):  print x
-# On gere les doublons.
-# Exactement comme entity_wbem.
-# Note: Le moniker accepte les classes de base donc de toute facon ca aurait ete.
-# JE NE COMPRENDS PAS COMMENT CA A PU MARCHER JUSQU ICI.
-
-# l affichage des proprietes est specifique a WMI , et donc la construcito d'un objet.
-# on ne peut donc pas factoriser.
-
-# On prend tout en meme temps car ca simplifie, mais par ailleurs on a besoin des elements separes.
-# cgiMoniker = '\\\\RCHATEAU-HP\\root\\CIMV2:Win32_Process.Handle="3100"'
-# cgiMoniker = '\\\\RCHATEAU-HP\\root\\CIMV2:Win32_NetworkAdapter.DeviceID="0"'
-
 sys.stderr.write("cimomUrl=%s nameSpace=%s className=%s\n" % ( cimomUrl, nameSpace, className) )
 
-rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WMI" )
-
 grph = rdflib.Graph()
-
-# Ca ne marche pas s'il y a un host !!
-# cgiMoniker=\\WORKGROUP\RCHATEAU-HP\root\CIMV2:CIM_Process.Handle=7120 Caught:
-
-# cgiMoniker='root\\CIMV2:CIM_System.Name="RCHATEAU-HP"'
-# cgiMoniker='root\\CIMV2:CIM_Process.Handle="4796"'
 
 sys.stderr.write("cgiEnv.m_entity_id=%s\n" % cgiEnv.m_entity_id)
 
@@ -91,33 +67,26 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi):
 
 		# TODO: Add all usual Python types.
 		if isinstance( value, ( unicode, int) ):
-			# grph.add( ( wmiInstanceNode, rdflib.Literal(prp), rdflib.Literal( value ) ) )
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
-			grph.add( ( wmiInstanceNode, rdflib.Literal(prp), rdflib.Literal( str(value).replace('\\','\\\\') ) ) )
+			grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( str(value).replace('\\','\\\\') ) ) )
 		elif isinstance( value, ( tuple) ):
-			# grph.add( ( wmiInstanceNode, rdflib.Literal(prp), rdflib.Literal( value ) ) )
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
-			cleanTuple = " ; ".join( [ oneVal.replace('\\','\\\\') for oneVal in value ] )
-			grph.add( ( wmiInstanceNode, rdflib.Literal(prp), rdflib.Literal( cleanTuple ) ) )
+			cleanTuple = " ; ".join( [ str(oneVal).replace('\\','\\\\') for oneVal in value ] )
+			grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( cleanTuple ) ) )
 		elif value is None:
-			grph.add( ( wmiInstanceNode, rdflib.Literal(prp), rdflib.Literal( "None" ) ) )
+			grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( "None" ) ) )
 		else:
 			try:
 				refMoniker = str( value.path() )
 				refInstanceUrl = lib_util.EntityUrlFromMoniker( refMoniker )
 				refInstanceNode = rdflib.term.URIRef(refInstanceUrl)
-				grph.add( ( wmiInstanceNode, rdflib.Literal(prp), refInstanceNode ) )
+				grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), refInstanceNode ) )
 			except AttributeError:
 				exc = sys.exc_info()[1]
-				grph.add( ( wmiInstanceNode, rdflib.Literal(prp), rdflib.Literal( str(exc) ) ) )
+				grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( str(exc) ) ) )
 
-	wmiSubNode = wmiInstanceNode
-	for clss in objWmi.derivation():
-		wmiClassNode = lib_util.EntityClassNode( clss, nameSpace, cimomUrl, "WMI" )
-		grph.add( ( wmiClassNode, pc.property_subclass, wmiSubNode ) )
-		wmiSubNode = wmiClassNode
 
 # Better use references() because it gives much more information.
 #for assoc in objWmi.associators():
@@ -125,7 +94,7 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi):
 #	sys.stderr.write("assocMoniker=[%s]\n" % assocMoniker )
 #	assocInstanceUrl = lib_util.EntityUrlFromMoniker( assocMoniker )
 #	assocInstanceNode = rdflib.term.URIRef(assocInstanceUrl)
-#	grph.add( ( wmiInstanceNode, rdflib.Literal("assoc"), assocInstanceNode ) )
+#	grph.add( ( wmiInstanceNode, lib_common.MakeProp("assoc"), assocInstanceNode ) )
 
 
 """
@@ -173,7 +142,8 @@ def EqualMonikers( monikA, monikB ):
 	# Maybe we could simply make a case-insensitive string comparison.
 	return splitA[0].upper() == splitB[0].upper() and splitA[1:].upper() == splitB[1:].upper()
 
-# Dont do this on a Win32_ComputerSystem object; it will take all day and kill your machine!
+# Dont do this on a Win32_ComputerSystem object and several other classes; it is VERY SLOW !
+# TODO: Test with a small data set.
 def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
 	for objRef in objWmi.references():
 		literalKeyValue = dict()
@@ -193,16 +163,23 @@ def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
 						lib_common.ErrorMessageHtml("Inconsistency:"+refMoniker + " != " + cgiMoniker )
 					refInstanceUrl = lib_util.EntityUrlFromMoniker( refMoniker )
 					refInstanceNode = rdflib.term.URIRef(refInstanceUrl)
-					grph.add( ( wmiInstanceNode, rdflib.Literal(keyPrp), refInstanceNode ) )
+					grph.add( ( wmiInstanceNode, lib_common.MakeProp(keyPrp), refInstanceNode ) )
 			except AttributeError:
 				# Then it is a literal attribute.
 				# TODO: Maybe we could test if the type is an instance.
-				literalKeyValue[ keyPrp ] = str(valPrp)
+				# Beware: UnicodeEncodeError: 'ascii' codec can't encode character u'\\u2013'
+				try:
+					literalKeyValue[ keyPrp ] = str(valPrp)
+				except UnicodeEncodeError:
+					literalKeyValue[ keyPrp ] = "UnicodeEncodeError"
+
 
 		# Now the literal properties are attached to the other node.
 		if refInstanceNode != None:
 			for keyLitt in literalKeyValue:
-				grph.add( ( refInstanceNode, rdflib.Literal(keyLitt), rdflib.Literal( literalKeyValue[ keyLitt ] ) ) )
+				grph.add( ( refInstanceNode, lib_common.MakeProp(keyLitt), rdflib.Literal( literalKeyValue[ keyLitt ] ) ) )
+
+
 
 
 # Try to read the moniker, which is much faster,
@@ -225,8 +202,48 @@ for objWmi in objList:
 	# c est a dire une deduplication adaptee avec creation d URL. Je me comprends.
 	DispWmiProperties(grph,wmiInstanceNode,objWmi)
 
-	if className not in ['Win32_ComputerSystem','PG_ComputerSystem','CIM_UnitaryComputerSystem','CIM_ComputerSystem','CIM_System','CIM_LogicalElement']:
-		DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker)
+	# TODO: Pour ces classes, l'attente est tres longue. Rather create another link.
+	# rchref = wmi.WMI().query("select * from Win32_UserAccount where Name='rchateau'")[0].references()
+	# Several minutes for 139 elements.
+	if not lib_wmi.WmiTooManyInstances( className ):
+		try:
+			DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker)
+		except:
+			exc = sys.exc_info()[1]
+			sys.stderr.write("Exception=%s\n" % str(exc) )
+	else:
+		grph.add( ( wmiInstanceNode, lib_common.MakeProp("REFERENCES"), rdflib.Literal( "DISABLED" ) ) )
+
+
+
+
+# rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WMI" )
+
+# Adds the qualifiers of this class.
+klassObj = getattr( connWmi, className )
+
+wmiSubNode = wmiInstanceNode
+
+# It always work even if there is no object.
+for baseKlass in klassObj.derivation():
+	wmiClassNode = lib_util.EntityClassNode( baseKlass, nameSpace, cimomUrl, "WMI" )
+	grph.add( ( wmiClassNode, pc.property_subclass, wmiSubNode ) )
+
+	lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiClassNode, baseKlass )
+	#baseKlassQuals = getattr( connWmi, baseKlass ).qualifiers
+	#for klaQualKey in baseKlassQuals :
+	#	klaQualVal = baseKlassQuals[klaQualKey]
+	#	grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), rdflib.Literal(klaQualVal) ) )
+	wmiSubNode = wmiClassNode
+
+#grph.add( ( rootNode, lib_common.MakeProp(className), wmiInstanceNode ) )
+#
+#for clss in objWmi.derivation():
+#	wmiClassNode = lib_util.EntityClassNode( clss, nameSpace, cimomUrl, "WMI" )
+#	grph.add( ( wmiClassNode, pc.property_subclass, wmiSubNode ) )
+#	wmiSubNode = wmiClassNode
+
+
 
 # TODO: Embetant car il faut le faire pour toutes les classes.
 # Et en plus on perd le nom de la propriete.
@@ -234,141 +251,6 @@ for objWmi in objList:
 # 'PartComponent' for 'root\\cimv2:CIM_Datafile'
 # 'Element' for 'root\\cimv2:Win32_DCOMApplication'
 # 'Antecedent' for 'CIM_DataFile'
-# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[rdflib.Literal('PartComponent'),rdflib.Literal('Element')])
-cgiEnv.OutCgiRdf(grph,"",[rdflib.Literal('PartComponent'),rdflib.Literal('Element'),rdflib.Literal('Antecedent')])
+cgiEnv.OutCgiRdf(grph,"",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+# cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
 
-"""
-Convertir le moniker en moniker WBEM et "NOUS" et ajouter liens.
-En plus, on va creer un entity_all.py qui synthetise les trois.
-Il faut donc avoir un format unique pour les xid, cad les moniker.
-On a donc une table qui passe du host netbios vers l url WBEM. Et s'il y a plusieurs urls WBEM ?
-Netbios ou bien adresse IP ?
-On suppose que les classes sont uniques quelque soit le namespace,
-et qu'une classe ne peut pas apparaitre dans plusieurs namespaces (Meme supposition pour WMI).
-Pour chaque serveur WBEM et peut etre aussi pour chaque machine WMI (Ou bien chaque version ?)
-on a un dictionnaire qui pointe de la classe vers le namespace.
-Pour chaque classe, on definit aussi les classes de bases qu on peut investiguer.
-
-
-====================================================================================
->>> wmi.WMI().Win32_Process()[0].derivation()
-(u'CIM_Process', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
-
-OpenLMI:
-CIM_ManagedElement 	Instance Names 	Instances
-|--- CIM_ManagedSystemElement 	Instance Names 	Instances
-|    |--- CIM_LogicalElement
-|    |    |--- CIM_EnabledLogicalElement 	Instance Names 	Instances
-|    |    |    |--- CIM_Process 	Instance Names 	Instances
-|    |    |    |    |--- CIM_UnixProcess 	Instance Names 	Instances
-|    |    |    |    |    |--- TUT_UnixProcess 	Instance Names 	Instances
-
-OpenPegasus/Windows:
-CIM_ManagedElement 	Instance Names 	Instances
-|--- CIM_ManagedSystemElement 	Instance Names 	Instances
-|    |--- CIM_LogicalElement 	Instance Names 	Instances
-|    |    |--- CIM_EnabledLogicalElement 	Instance Names 	Instances
-|    |    |    |--- CIM_Process 	Instance Names 	Instances
-|    |    |    |    |--- PG_UnixProcess 	Instance Names 	Instances
-
-Quant a nous: "process" qui deviendra CIM_Process.
-
-====================================================================================
-Win32_Account:	Domain	Name
-
->>> wmi.WMI().Win32_UserAccount()[0].derivation()
-(u'Win32_Account', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
->>> wmi.WMI().Win32_Group()[0].derivation()
-(u'Win32_Account', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
-
-CIM_Account: 	CreationClassName 	Name 	SystemCreationClassName 	SystemName 	Namespace
-
-OpenLMI:
-CIM_ManagedElement 	Instance Names 	Instances
-|--- CIM_ManagedSystemElement 	Instance Names 	Instances
-|    |--- CIM_LogicalElement
-|    |    |--- CIM_EnabledLogicalElement 	Instance Names 	Instances
-|    |    |    |--- CIM_Account 	Instance Names 	Instances
-|    |    |    |    |--- LMI_Account 	Instance Names 	Instances
-
-CIM_ManagedElement 	Instance Names 	Instances
-|--- CIM_Collection 	Instance Names 	Instances
-|    |--- CIM_Group 	Instance Names 	Instances
-|    |    |--- LMI_Group 	Instance Names 	Instances
-
-OpenPegasus/Windows:
-CIM_Account et CIM_Group pas definis sur OpenPegasus
-
-WMI:
-Win32_Group: "Distributed COM users","Guests", "Backup Operators" etc...
-Win32_Account: Win32_Group + Win32_SystemAccount + Win32_UserAccount
-Win32_UserAccount: "Administrator","Guest","HomeGroupUser$","rchateau"
-Win32_SystemAccount : Tres intern a Windows, on peut laisser de cote.
-Win32_GroupUser: "HomeUsers", "Administrator" : Associaton entre Win32_Group et un accoujnt
-
-Quant a nous: "group" et "user"
-
-On ne peut pas comparer directement, de totue facon, des accounts WMI et WBEM.
-Mais notre ontologie doit faire la jonction avec WMI d'une part,
-et WBEM d'autre part (Si Linux).
-Une possibilite est de dupliquer nos directories.
-En ce qui nous concerne, 2/3 du code est specifique Linux.
-
-Quand on veut aller d'un objet portable (Process) vers un qui nest pas
-portacle comme un user, il faut choisir dynamiquement le type:
-Par exemple ici, Win32_UserAccount ou bien LMI_Account, qui n ont pas d ancetre commun.
-Ou bien Win32_Group et LMI_Group.
-On ne sait pas encore faire. Limitons-nous pour le moment aux cas sans ambiguites.
-
-
-====================================================================================
-
->>> wmi.WMI().CIM_DataFile.derivation()
-(u'CIM_LogicalFile', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
->>> wmi.WMI().Win32_Directory.derivation()
-(u'CIM_Directory', u'CIM_LogicalFile', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
-
-OpenLMI:
-CIM_ManagedElement 	Instance Names 	Instances
-|--- CIM_ManagedSystemElement 	Instance Names 	Instances
-|    |--- CIM_LogicalElement 	Instance Names 	Instances
-|    |    |--- CIM_UnixFile 	Instance Names 	Instances
-|    |    |    |--- LMI_UnixFile 	Instance Names 	Instances
-|    |    |--- CIM_LogicalFile 	Instance Names 	Instances
-|    |    |    |--- CIM_DataFile 	Instance Names 	Instances
-|    |    |    |    |--- LMI_DataFile 	Instance Names 	Instances
-|    |    |    |    |--- LMI_UnixSocket 	Instance Names 	Instances
-|    |    |    |--- CIM_DeviceFile 	Instance Names 	Instances
-|    |    |    |    |--- CIM_UnixDeviceFile 	Instance Names 	Instances
-|    |    |    |    |    |--- LMI_UnixDeviceFile 	Instance Names 	Instances
-|    |    |    |--- CIM_Directory 	Instance Names 	Instances
-|    |    |    |    |--- CIM_UnixDirectory 	Instance Names 	Instances
-|    |    |    |    |    |--- LMI_UnixDirectory 	Instance Names 	Instances
-|    |    |    |--- CIM_FIFOPipeFile 	Instance Names 	Instances
-|    |    |    |    |--- LMI_FIFOPipeFile 	Instance Names 	Instances
-|    |    |    |--- CIM_SymbolicLink 	Instance Names 	Instances
-|    |    |    |    |--- LMI_SymbolicLink 	Instance Names 	Instances
-
-OpenPegasus/Windows:
-Rien
-
-====================================================================================
-
-Jusqu'ou remonter ?
-Un critere peut etre de remonter d abord dans notre classe, tant qu'on trouve notre propriete,
-en l'occurence "Handle". Au-dessus, ca n'aurait pas de sens.
-On peut selectionner les processes dans WIN et WBEM uniquement a partir de la classe CIM_Process.
-Donc: On cherche la classe de base la plus elevee qui a toujours nos criteres.
-Ensuite on cherche le namespace de cette classe dans le serveur d'en face (WMI ou WBEM),
-on ajoute les memes criteres. Puis on fait la recherche.
-Pour chaque type de serveur, il faudrait une fonction qui renvoie du RDF.
-
-====================================================================================
-
-Peut etre que entity_id pourrait etre soit une valeur unique: Si une seule clef,
-ou bien un dictionnaire de paires clef-valeur.
-Ne nous pressons pas: Dans un premier temps:
-* Remplacer cimom=xxx par le moniker (En effet, c etait une erreur).
-* Remplacer nos classes par des classes DMTF, avec mecanismes a rajouter.
-
-"""
