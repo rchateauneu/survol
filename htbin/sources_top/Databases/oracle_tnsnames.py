@@ -234,7 +234,23 @@ if lib_util.isPlatformWindows:
 
 	# Tested with package _winreg.
 	aReg = winreg.ConnectRegistry(None,winreg.HKEY_LOCAL_MACHINE)
-	aKey = winreg.OpenKey(aReg, r"SOFTWARE\Oracle\KEY_XE")
+	try:
+		aKey = winreg.OpenKey(aReg, r"SOFTWARE\Oracle\KEY_XE")
+		# except WindowsError:
+	except Exception: # Probably WindowsError but we must be portable.
+		# The system cannot find the file specified
+		try:
+			# http://stackoverflow.com/questions/9348951/python-winreg-woes
+			# KEY_WOW64_64KEY 64-bit application on the 64-bit registry view.
+			# KEY_WOW64_32KEY 64-bit application on the 32-bit registry view.
+			# Default is ( *,*, 0, winreg.KEY_READ )
+			aKey = winreg.OpenKey(aReg, r"SOFTWARE\ORACLE\KEY_HOME4",0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+		except Exception: # Probably WindowsError but we must be portable.
+			exc = sys.exc_info()[1]
+			lib_common.ErrorMessageHtml("Caught %s" % str(exc))
+
+
+
 	oraHome = None
 	for i in range(1024):
 		try:
@@ -265,6 +281,8 @@ try:
 	# tnsnam = r"F:\Orac\Config\tnsnames.ora"
 	# tnsnam=F:\Orac\Config\tnsnames.ora err=[Errno 2]
 	# No such file or directory: 'F:\\Orac\\Config\\tnsnames.ora'
+	# Beware that Apache might have no access right to it: 'F:\\Orac\\Config\\tnsnames.ora'
+	sys.stderr.write("tnsnam=%s\n" % tnsnam)
 	myfile = open(tnsnam,"r")
 except Exception:
 	exc = sys.exc_info()[1]

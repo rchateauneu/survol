@@ -178,13 +178,51 @@ class LocalBox:
 	def SharedLibUri(self,soname):
 		return self.UriMake("file", lib_util.EncodeUri(soname) )
 
+	# TODO: POUR LES DISQUES ET LES PARTITIONS, LES HIERARCHIES SE CROISENT, SANS PLUS.
+	# Y PENSER DANS class_type_all.py
+
 	# For a partition. Display the mount point and IO performance.
+	# WMI
+	#	CIM_ManagedSystemElement
+	#		CIM_LogicalElement
+	#			CIM_LogicalDevice
+	#				CIM_StorageExtent
+	# |   |   |    |--- CIM_DiskPartition
+	# |   |   |    |    |--- Win32_DiskPartition
+	#
+	# OpenLMI:
+	# |--- CIM_LogicalElement
+	# |   |--- CIM_LogicalDevice
+	# |   |   |--- CIM_GenericDiskPartition
+	# |   |   |    |--- CIM_DiskPartition
+	# |   |   |    |    |--- LMI_DiskPartition
 	def DiskPartitionUri(self,disk_name):
-		return self.UriMake("partition",disk_name)
+		return self.UriMake("CIM_LogicalDisk",disk_name)
 
 	# For a hard-disk.
+	# WMI
+	#	CIM_ManagedSystemElement
+	#		CIM_LogicalElement
+	#			CIM_LogicalDevice,
+	#				CIM_MediaAccessDevice
+	# |   |   |    |--- CIM_DiskDrive
+	# |   |   |    |    |--- Win32_DiskDrive
+	#
+	#
+	# OpenPegasus: Rien
+	# OpenLMI:
+	# |--- CIM_LogicalElement
+	# |   |--- CIM_LogicalDevice
+	# |   |   |--- CIM_StorageExtent
+	# |   |   |   |--- CIM_MediaPartition
+	# |   |   |   |   |--- CIM_MediaAccessDevice
+	# |   |   |   |   |    |--- CIM_CDROMDrive
+	# |   |   |   |   |    |--- CIM_DVDDrive
+	# |   |   |   |   |    |--- CIM_DiskDrive
+	# |   |   |   |   |    |    |--- LMI_DiskDrive
+	#
 	def DiskUri(self,disk_name):
-		return self.UriMake("disk",disk_name)
+		return self.UriMake("CIM_DiskDrive",disk_name)
 
 	# smbshare has the form "//HOST/SHARE"
 	def SmbShareUri(self,smbshare):

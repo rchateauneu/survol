@@ -14,8 +14,6 @@ import importlib
 
 import lib_util
 import lib_common
-import lib_wbem
-import lib_wmi
 from lib_properties import pc
 
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process

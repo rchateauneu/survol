@@ -803,7 +803,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# TODO: Probleme ici: La chaine est deja codee pour HTML ce qui en rend le parsing different
 			# TODO: ... de celui d'un URL deja decode. DOMMAGE: On quote puis unquote !!!
 			# (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( obj )
-			(labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( urllib.unquote(obj) )
+			(labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
 		except UnicodeEncodeError:
 			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( obj ) )
 
@@ -1831,3 +1831,13 @@ def FormatUser(usrnam):
 
 # Premier bug: Dans file_directory, les sous-noeuds correspondant aux scripts
 # ne pointent pas vers leur parent.
+
+################################################################################
+
+# http://www.graphviz.org/Gallery/directed/cluster.html
+
+# Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
+# des objets qui ont une propriete commune (Threads d un process,
+# fichiers dans un dir, de facon recursive, methodes dans une classe),
+# Ca evite meme de devoir tracer des aretes !!!
+# ou tout simplement le host, comme container: subgraphes, clusters.

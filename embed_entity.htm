@@ -25,22 +25,53 @@ This contains a SVG document generated on the fly:<br>
 On peut ajouter des url qui appeleront du java script etc...<br>
 Lister le contenu de ce document.
 
-<div id="OurComments">
-</div>
+
+<table>
+	<tr>
+		<td><div id="OurComments">
+</div></td>
+
+		<td valign="top">
+			<table id="myTable" border="1">
+    <thead>
+        <tr>
+            <th>RDF links</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>aaaaa</td>
+        </tr>
+    </tbody>
+</table></td>
+
+	</tr>
+
+</table>
 
 
 <script>
-// window.alert(5 + 6);
 
-function MakeTransparent(evt)
+function ProcessClick(theTxt,theUrl)
 {
-	evt.target.setAttribute('opacity', '0.5');
-	// evt.target.setAttributeNS(null,"opacity","0.5");
-}
-function MakeOpaque(evt)
-{
-	evt.target.setAttribute('opacity', '1');
-	// evt.target.setAttributeNS(null,"opacity","1");
+	// alert("Another "+theTxt);
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+
+	// Insert a row in the table at the last row
+	var newRow = tableRef.insertRow(tableRef.rows.length);
+
+	// Insert a cell in the row at index 0
+	var newCell0 = newRow.insertCell(0);
+
+	// Append a text node to the cell
+	var newText = document.createTextNode(theTxt)
+	newCell0.appendChild(newText);
+
+	var newCell1 = newRow.insertCell(1);
+
+	// Append a text node to the cell
+	var newText = document.createTextNode(theUrl)
+	newCell1.appendChild(newText);
 }
 
 
@@ -57,7 +88,7 @@ function PrintContent()
 
 	/* The document we are pointing to. Depends on the browser */
 	var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-	
+
 	var listNodes = iframeDocument.getElementsByClassName('node');
 	divComments.innerHTML += "Nodes:" + listNodes.length + "<br>";
 	for( var ixNode = 0; ixNode < listNodes.length; ixNode++ )
@@ -79,23 +110,42 @@ function PrintContent()
 
 			if (subNode.id)
 			{
-				var textNode = subNode.getElementsByTagName("text")[0]; // .textContent;
+				/*
+				5= node22 nd_30
+				1= a_node22_7 : RpcEptMapper
+				*/
+   				var textNode = subNode.getElementsByTagName("text")[0]; // .textContent;
 
 				if( textNode )
 				{
+					var hrefUrl = subNode.getElementsByTagName("a")[0].getAttribute("xlink:href");
 					var txtContent = textNode.textContent;
-					divComments.innerHTML += "&nbsp;&nbsp;&nbsp;" + ixSubNode + "= " + subNode.id + " : " + txtContent + "<br>";
+					divComments.innerHTML += "&nbsp;&nbsp;&nbsp;" + ixSubNode + "= " + subNode.id + " : " + txtContent +" L="+hrefUrl + "<br>";
+
+					// Click specifiquement sur le texte
+					textNode.param_Text = txtContent;
+					textNode.param_Url = hrefUrl;
+					myFunc = function (evt)
+					{
+						// alert("Texte="+evt.target.myParam);
+						ProcessClick(evt.target.param_Text,evt.target.param_Url);
+						// Otherwise it is called several times.
+						evt.stopPropagation ? evt.stopPropagation() : (evt.cancelBubble=true);
+					};
+					textNode.addEventListener("click", myFunc);
 				}
 			}
 		}
 
-		// svgItem.setAttribute("onmouseover", "parent.doNodeData('"+name+"')");
-		// onmouseover="evt.target.setAttribute('opacity', '0.5');"
-		// node.setAttribute("onmouseover", "MakeTransparent(evt);");
-		// node.setAttribute("onmouseout", "MakeOpaque(evt);");
 		node.setAttribute("onmouseover", "evt.target.setAttribute('opacity', '0.5');");
 		node.setAttribute("onmouseout", "evt.target.setAttribute('opacity', '1');");
-
+		/*
+		node.myParam = 'This is my parameter';
+		node.addEventListener("click", function (evt) {
+			// alert("Evt="+evt.target.myParam);
+			AnotherAlert("Main:"+evt.target.myParam);
+		});
+		*/
 	}
 	
 	divComments.innerHTML += "<br><br>";

@@ -24,7 +24,11 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("WMI Python library not installed")
 
-cgiEnv = lib_common.CgiEnv("WMI instance", can_process_remote=True)
+paramkeyDisplayNone = "Display none values"
+cgiEnv = lib_common.CgiEnv("WMI instance", can_process_remote=True,
+								parameters = { paramkeyDisplayNone : "0" })
+
+displayNoneValues = cgiEnv.GetParameters( paramkeyDisplayNone ) in ( "1", "Y", "True")
 
 ( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
@@ -76,7 +80,8 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi):
 			cleanTuple = " ; ".join( [ str(oneVal).replace('\\','\\\\') for oneVal in value ] )
 			grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( cleanTuple ) ) )
 		elif value is None:
-			grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( "None" ) ) )
+			if displayNoneValues:
+				grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( "None" ) ) )
 		else:
 			try:
 				refMoniker = str( value.path() )
@@ -214,11 +219,6 @@ for objWmi in objList:
 	else:
 		grph.add( ( wmiInstanceNode, lib_common.MakeProp("REFERENCES"), rdflib.Literal( "DISABLED" ) ) )
 
-
-
-
-# rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WMI" )
-
 # Adds the qualifiers of this class.
 klassObj = getattr( connWmi, className )
 
@@ -230,10 +230,6 @@ for baseKlass in klassObj.derivation():
 	grph.add( ( wmiClassNode, pc.property_subclass, wmiSubNode ) )
 
 	lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiClassNode, baseKlass )
-	#baseKlassQuals = getattr( connWmi, baseKlass ).qualifiers
-	#for klaQualKey in baseKlassQuals :
-	#	klaQualVal = baseKlassQuals[klaQualKey]
-	#	grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), rdflib.Literal(klaQualVal) ) )
 	wmiSubNode = wmiClassNode
 
 #grph.add( ( rootNode, lib_common.MakeProp(className), wmiInstanceNode ) )

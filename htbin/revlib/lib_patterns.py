@@ -26,7 +26,7 @@ pattDict = {
 	"oracle_synonym"                         : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
 	"oracle_table"                           : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
 	"oracle_view"                            : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
-	"partition"                              : ( "box3d",     "#FFCCFF", "#FFCC66", 0, False ),
+	"CIM_LogicalDisk"                        : ( "box3d",     "#FFCCFF", "#FFCC66", 0, False ),
 	"smbfile"                                : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
 	"smbserver"                              : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
 	"smbshr"                                 : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
