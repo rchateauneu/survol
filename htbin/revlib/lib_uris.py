@@ -414,3 +414,6 @@ class RemoteBox (LocalBox):
 	def TypeMake(self):
 		return self.m_mach + "@"
 
+# Ceci est un peu equivalent a:
+# select * from LMI_MountedFileSystem where MountPointPath="/sys/fs/cgroup" and FileSystemSpec="tmpfs"
+# Dictionnaire des properties ?

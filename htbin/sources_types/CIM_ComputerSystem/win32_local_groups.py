@@ -35,10 +35,13 @@ grph = rdflib.Graph()
 # http://www.math.uiuc.edu/~gfrancis/illimath/windows/aszgard_mini/movpy-2.0.0-py2.4.4/movpy/lib/win32/Demos/win32netdemo.py
 servName_or_None, imper = lib_win32.MakeImpersonate(server)
 
-if server == None:
+# if server == None:
+if servName_or_None == None:
 	serverNode = lib_common.nodeMachine
+	serverBox = lib_common.gUriGen
 else:
 	serverNode = lib_common.gUriGen.HostnameUri(server)
+	serverBox = lib_common.RemoteBox(server)
 
 resume = 0
 numMembers = 0
@@ -51,9 +54,11 @@ try:
 
 			# TODO: Not sure about the groupname syntax.
 			groupName = group['name']
-			nodeGroup = lib_common.RemoteBox(server).GroupUri( groupName )
+			sys.stderr.write("groupName=%s\n" % groupName)
+			nodeGroup = serverBox.GroupUri( groupName )
 			grph.add( ( nodeGroup, pc.property_host, serverNode ) )
 			groupComment = group['comment']
+			sys.stderr.write("groupComment=%s\n" % groupComment)
 			if groupComment != "":
 				groupCommentMaxWidth = max( 15, len(groupName) )
 				if len(groupComment) > groupCommentMaxWidth:

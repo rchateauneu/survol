@@ -2,13 +2,33 @@
  * Common Javascript libraries for HTML pages.
  */
 
+// http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
+/*
+function qualifyURL(url)
+{
+    var a = document.createElement('a');
+    a.href = url;
+    return a.cloneNode(false).href;
+}
+*/
 
+// Current dir = http://127.0.0.1/Survol/embed_entity.htm
 function LocalHost()
 {
 	// TODO: Remove this hard-code.
 	// return "http://127.0.0.1:2468/htbin";
 	// On Linux, with Apache:
-	return "http://127.0.0.1/~rchateau/RevPython";
+	/*
+	pathArray = location.href;
+	alert("pathArray="+pathArray);
+	idxHtbin = pathArray.indexOf("/htbin/");
+	return pathArray.substring(0,idxHtbin);
+	*/
+	pathArray = location.href;
+	idxLastSlash = pathArray.lastIndexOf("/");
+	return pathArray.substring(0,idxLastSlash);
+
+	// return "http://127.0.0.1/~rchateau/RevPython";
 }
 
 function RdfSources()
@@ -29,6 +49,7 @@ function DynCgi()
 // This calls GraphViz (dot) to generate a RDF file.
 function RvgsToSvg()
 {
+	// return qualifyURL("/htbin/internals/gui_create_svg_from_several_rdfs.py");
 	return LocalHost() + "/htbin/internals/gui_create_svg_from_several_rdfs.py";
 }
 

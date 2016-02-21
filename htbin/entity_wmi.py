@@ -201,7 +201,7 @@ wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
 wmiInstanceNode = rdflib.term.URIRef(wmiInstanceUrl)
 
 for objWmi in objList:
-	sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
+	# sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
 
 	# TODO: Attendre d'avoir plusieurs objects pour faire la meme chose que wentity_wbem,
 	# c est a dire une deduplication adaptee avec creation d URL. Je me comprends.
@@ -247,6 +247,6 @@ for baseKlass in klassObj.derivation():
 # 'PartComponent' for 'root\\cimv2:CIM_Datafile'
 # 'Element' for 'root\\cimv2:Win32_DCOMApplication'
 # 'Antecedent' for 'CIM_DataFile'
-cgiEnv.OutCgiRdf(grph,"",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
 # cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
 

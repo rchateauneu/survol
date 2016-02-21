@@ -118,12 +118,12 @@ def WbemServersList():
 # On pourrait aussi bien avoir deux fonctions differentes.
 # Maybe entity_namespace does not have the right separator, slash or backslash.
 def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
-	sys.stderr.write("GetWbemUrls h=%s ns=%s t=%s i=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
+	# sys.stderr.write("GetWbemUrls h=%s ns=%s t=%s i=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
 	wbem_urls_list = []
 
 	entity_ip_addr = lib_util.EntHostToIpReally(entity_host)
 
-	sys.stderr.write("GetWbemUrls entity_ip_addr=%s\n" % (entity_ip_addr))
+	# sys.stderr.write("GetWbemUrls entity_ip_addr=%s\n" % (entity_ip_addr))
 
 	# TODO: Ce ne sont pas les bons parametres,
 	# mais une possibilite est de passer les autres, dans un RemoteEntityId.
@@ -206,8 +206,7 @@ def WbemClassDescription(connWbem,entity_type,wbemNamespace):
 
 ################################################################################
 
-# Il y a de la duplication la-dedans.
-# On fera du menage.
+# TODO: Il y a de la duplication la-dedans. On fera du menage.
 
 def NamespacesEnumeration(conn):
 	"""
@@ -283,12 +282,12 @@ def GetCapabilitiesForInstrumentation(conn,namSpac):
 	last_error = AssertionError("No interop namespace found")
 	for interopns in ('root/PG_InterOp', 'root/interop'):
 		try:
-			sys.stderr.write("GetCapabilitiesForInstrumentation namSpac=%s interopns=%s\n" % (namSpac,interopns))
+			# sys.stderr.write("GetCapabilitiesForInstrumentation namSpac=%s interopns=%s\n" % (namSpac,interopns))
 			caps = conn.EnumerateInstances(
 							ClassName='PG_ProviderCapabilities',
 							namespace=interopns,
 							PropertyList=['Namespaces', 'ClassName'])
-			sys.stderr.write("GetCapabilitiesForInstrumentation caps=%s\n" % str(caps))
+			# sys.stderr.write("GetCapabilitiesForInstrumentation caps=%s\n" % str(caps))
 			break
 		except Exception:
 			exc = sys.exc_info()[1]
@@ -347,8 +346,7 @@ def EnumerateInstrumentedClasses(conn,namSpac):
                 if klass.superclass is None and klass.superclass not in deep_dict[start_class]:
                     deep_dict[start_class].append(klass.classname)
                 elif klass.superclass in deep_dict:
-                    if (  klass.classname
-                       not in deep_dict[klass.superclass]):
+                    if klass.classname not in deep_dict[klass.superclass]:
                         deep_dict[klass.superclass].append( klass.classname)
                     break
                 else:
@@ -412,10 +410,10 @@ def GetClassesTreeInstrumented(conn,theNamSpace):
 
 	try:
 		inTreeClass = GetClassesTree(conn,theNamSpace)
-		sys.stderr.write("After GetClassesTree inTreeClass = %d elements\n" % len(inTreeClass))
+		# sys.stderr.write("After GetClassesTree inTreeClass = %d elements\n" % len(inTreeClass))
 		outTreeClass = dict()
 		instrCla = GetCapabilitiesForInstrumentation(conn,theNamSpace)
-		sys.stderr.write("After GetCapabilitiesForInstrumentation instrCla = %d elements\n" % len(instrCla))
+		# sys.stderr.write("After GetCapabilitiesForInstrumentation instrCla = %d elements\n" % len(instrCla))
 		MakeInstrumentedRecu(inTreeClass, outTreeClass, None, theNamSpace, instrCla)
 	except Exception:
 		exc = sys.exc_info()[1]

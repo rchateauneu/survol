@@ -1,14 +1,12 @@
 #!/usr/bin/python
 
-# Ce script CGI affiche la liste des sources RDF
-# pour visualiser un process.
+# Ce script CGI affiche la liste des sources RDF pour visualiser un process.
+# TODO: Est-ce encore utilise ??
 import os
 import re
 import cgi
 import lib_common
 import psutil
-
-# arguments = cgi.FieldStorage()
 
 print("""Content-type: text/html
 

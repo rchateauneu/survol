@@ -6,79 +6,122 @@
 </head>
 <body>
 
-<script type="javascript">
-alert('a');
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+<script>
+// Does it work ? We want to resize the iframe.
+$(function() {
+$( "#demo" ).resizable();
+});
 </script>
 
-
-Peut-etre pourrait-on aussi utiliser les DIV pour melanger Python et HTML ? autre chose: S'assurer que nos URLs
-sont faciles a reproduire en WSGI. En fait c est plutot une iframe ?
-On ne pourra pas acceder le contenu de la iframe en Javascript if it is cross-domain,
-mais justement on s'en fout car on a un seul serveur.
-
-This contains a SVG document generated on the fly:<br>
-
-<iframe src="htbin/entity.py" width="100%" height="600" id="entity_iframe" onload="PrintContent()">
+<div id="demo"  class="ui-widget-content">
+<iframe src="htbin/entity.py" width="100%" height="1000" id="entity_iframe" onload="PrintContent()">
      <p>Your browser does not support iframes.</p>
 </iframe>
-
-On peut ajouter des url qui appeleront du java script etc...<br>
-Lister le contenu de ce document.
-
+</div>
 
 <table>
 	<tr>
-		<td><div id="OurComments">
+		<td width=500"><div id="OurComments">
 </div></td>
 
 		<td valign="top">
-			<table id="myTable" border="1">
+<div id="MergedUrl"></div>
+
+			<table id="myTable" border="1" width="200">
     <thead>
         <tr>
-            <th>RDF links</th>
+            <th colspan="3">RDF links</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>aaaaa</td>
-        </tr>
     </tbody>
-</table></td>
+</table>
+			<br><input type="button" onClick="GotoMerge();" value="Go">&nbsp;<input type="button" onClick="DelSelectedUrls();" value="Del">
+
+		</td>
 
 	</tr>
 
 </table>
 
+<script src="revjslib.js"></script>
+
 
 <script>
 
-function ProcessClick(theTxt,theUrl)
+// When click on a node, display the url and merge the content.
+function ProcessClickNode(theTxt,theUrl)
 {
-	// alert("Another "+theTxt);
 	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
 
 	// Insert a row in the table at the last row
 	var newRow = tableRef.insertRow(tableRef.rows.length);
 
-	// Insert a cell in the row at index 0
-	var newCell0 = newRow.insertCell(0);
+	var checkbox = document.createElement('input');
+	checkbox.type = "checkbox";
+	checkbox.name = "name";
+	checkbox.value = "value";
+	checkbox.id = "id";
+	newRow.insertCell(0).appendChild(checkbox);
 
 	// Append a text node to the cell
-	var newText = document.createTextNode(theTxt)
-	newCell0.appendChild(newText);
+	var newText = document.createTextNode(theTxt);
+	newRow.insertCell(1).appendChild(newText);
 
-	var newCell1 = newRow.insertCell(1);
-
-	// Append a text node to the cell
-	var newText = document.createTextNode(theUrl)
-	newCell1.appendChild(newText);
+	var newText = document.createTextNode(theUrl);
+	newRow.insertCell(2).appendChild(newText);
 }
 
+function UpdateMergeUrl()
+{
+	var divMergedUrl = document.getElementById('MergedUrl');
+	divMergedUrl.innerHTML = RvgsToSvg();
+	var delim = "?url=";
 
-// We should wait until the iframe is loaded
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+	for( var ixRow = 0; ixRow < tableRef.rows.length; ixRow++ )
+	{
+		rowUrl = tableRef.rows[ixRow].cells[2].innerHTML ;
+		/* http://stackoverflow.com/questions/332872/encode-url-in-javascript
+		If you want to pass a URL into a GET parameter of other page, use escape or encodeURIComponent, but not encodeURI.
+		*/
+		rowUrlEncoded = encodeURIComponent(rowUrl);
+		divMergedUrl.innerHTML += delim + rowUrlEncoded ;
+		delim = "&url=";
+	}
+}
+
+// Delete selected rows.
+function DelSelectedUrls()
+{
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+	for( var ixRow = tableRef.rows.length - 1; ixRow >= 0; ixRow-- )
+	{
+		refRow = tableRef.rows[ixRow];
+		refClick = refRow.cells[0].childNodes[0];
+		if( refClick.checked )
+		{
+			tableRef.deleteRow(ixRow);
+		}
+	}
+	UpdateMergeUrl();
+}
+
+function GotoMerge()
+{
+	var divMergedUrl = document.getElementById('MergedUrl');
+	// alert("R=("+divMergedUrl.innerHTML+")");
+	var iframe = document.getElementById('entity_iframe');
+	// location.replace( divMergedUrl.innerHTML );
+	iframe.src = divMergedUrl.innerHTML ;
+}
+
+// This analyses the content of the RDF document.
 function PrintContent()
 {
-	// return
 	var divComments = document.getElementById('OurComments');
 
 	divComments.innerHTML = ""
@@ -86,7 +129,7 @@ function PrintContent()
 	var iframe = document.getElementById('entity_iframe');
 	divComments.innerHTML += "type iframe="+iframe.contentDocument.contentType + "<br>";
 
-	/* The document we are pointing to. Depends on the browser */
+	// The document we are pointing to. Depends on the browser.
 	var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
 
 	var listNodes = iframeDocument.getElementsByClassName('node');
@@ -97,7 +140,6 @@ function PrintContent()
 		var title = node.getElementsByTagName("title")[0].textContent;
 
 		divComments.innerHTML += ixNode + "= " + node.id + " " + title + "<br>";
-
 
 		// Now looks for the subnode which contains the string and the url.
 		var listSubNodes = node.getElementsByTagName("g");
@@ -120,17 +162,18 @@ function PrintContent()
 				{
 					var hrefUrl = subNode.getElementsByTagName("a")[0].getAttribute("xlink:href");
 					var txtContent = textNode.textContent;
-					divComments.innerHTML += "&nbsp;&nbsp;&nbsp;" + ixSubNode + "= " + subNode.id + " : " + txtContent +" L="+hrefUrl + "<br>";
+					divComments.innerHTML += "&nbsp;&nbsp;&nbsp;" + ixSubNode + "= " + subNode.id + " : " + txtContent + "<br>";
 
 					// Click specifiquement sur le texte
 					textNode.param_Text = txtContent;
 					textNode.param_Url = hrefUrl;
+
 					myFunc = function (evt)
 					{
-						// alert("Texte="+evt.target.myParam);
-						ProcessClick(evt.target.param_Text,evt.target.param_Url);
+						ProcessClickNode(evt.target.param_Text,evt.target.param_Url);
 						// Otherwise it is called several times.
 						evt.stopPropagation ? evt.stopPropagation() : (evt.cancelBubble=true);
+						UpdateMergeUrl();
 					};
 					textNode.addEventListener("click", myFunc);
 				}
@@ -139,13 +182,6 @@ function PrintContent()
 
 		node.setAttribute("onmouseover", "evt.target.setAttribute('opacity', '0.5');");
 		node.setAttribute("onmouseout", "evt.target.setAttribute('opacity', '1');");
-		/*
-		node.myParam = 'This is my parameter';
-		node.addEventListener("click", function (evt) {
-			// alert("Evt="+evt.target.myParam);
-			AnotherAlert("Main:"+evt.target.myParam);
-		});
-		*/
 	}
 	
 	divComments.innerHTML += "<br><br>";
@@ -162,39 +198,10 @@ function PrintContent()
 		divComments.innerHTML += ixEdge + "= " + edge.id + "  " + title + "<br>";
 	}
 
-	
 	divComments.innerHTML += "<br><br>";
-	
 }
-
-// alert('a');
-var iframe = document.getElementById('entity_iframe');
-if ( iframe )
-{
-	/* The document we are pointing to. Depends on the browser */
-	var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-
-	var divComments = document.getElementById('OurComments');
-	divComments.innerHTML += "Before TimeOut<br>";
-
-	// If we do this immediately, the content of the frane is not loaded and still points to the main document.
-	// setTimeout(PrintContent, 1000);
-	
-
-	/* Oui mais c'est un document en SVG ? */
-	// var iBody = iframeDocument.body.innerHTML;
-}
-else
-{
-	alert("iframe is null");
-}
-
 
 </script>
-
-<br>
-http://www.graphviz.org/content/how-insert-javascript-action-generated-svg
-
 
 
 </body>

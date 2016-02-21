@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# TODO: Est-ce encore utilise ??
+
 # Ce script CGI affiche la liste des sources RDF
 # pour visualiser un fichier.
 import os

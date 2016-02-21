@@ -18,10 +18,11 @@ import lib_common
 # This CGI script is called as a CGI script by the web page inclusion.htm,
 # and its parameters are input URLs.
 # It merges the input urls into a single RDF document,
-# then transformed into DOT,
-# then displayed.
+# then transformed into DOT, then displayed.
 
-# from optparse import OptionParser
+# Example:
+# http://127.0.0.1/Survol/htbin/internals/gui_create_svg_from_several_rdfs.py?dummy=none&url=http://127.0.0.1/Survol/htbin/objtypes_wmi.py?xid=%255C%255Crchateau-HP%255Croot%255CCli%253A.&url=http://127.0.0.1/Survol/htbin/objtypes_wmi.py?xid=%255C%255Crchateau-HP%255Croot%255CDefault%253A
+
 from rdflib import Graph
 
 # Just for debugging.
@@ -37,6 +38,7 @@ def ConcatOptions( url, key, value ):
 		delim = '?'
 	else:
 		delim = '&'
+		# delim = '&amp;'
 	# return url + delim + urllib.urlencode(key) + '=' + urllib.urlencode(str(value))
 	return url + delim + key + '=' + str(value)
 
@@ -47,17 +49,10 @@ arguments = cgi.FieldStorage()
 PrintTime()
 
 try:
-	maxnodes = arguments["maxnodes"].value
-except KeyError:
-	maxnodes = 10000000
-logfil.write( "maxnodes=" + str(maxnodes) + "\n" )
-
-try:
 	viztype = arguments["viztype"].value
 except KeyError:
-	# viztype = "neato"
-	# circo fdp sfdp dot neato twopi
-	viztype = "neato"
+	viztype = ""
+	# "LAYOUT_RECT", "LAYOUT_TWOPI", "LAYOUT_XXXX", "LAYOUT_SPLINE":
 logfil.write( "viztype=" + viztype + "\n" )
 
 try:
@@ -72,8 +67,9 @@ logfil.write( "dottosvg=" + dottosvg + "\n" )
 # And it could be skipped if there is a single RDF to display, which is not possible yet.
 cnt = 1
 for urlfil in arguments.getlist("url"):
+	complete_url = urlfil
 	# The idea is to avoid that the merging does not work due to the quantity of data.
-	complete_url = ConcatOptions( urlfil, "maxnodes", maxnodes )
+	complete_url = ConcatOptions( complete_url, "mode", "rdf" )
 	logfil.write( "complete_url=" + complete_url + "\n" )
 	logfil.write( "Merging " + urlfil + "\n" )
 
@@ -95,9 +91,10 @@ PrintTime()
 
 logfil.write( "RdfLibToDot. Conversion to dot nb statements=" + str(len(grph)) + "\n" )
 
-# Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style, grph, out_dest )
-# Layout style est FAUX, FAUX, FAUX, FAUX.
-lib_common.Grph2Svg( "Merge", "", "", False, {}, viztype, grph, lib_common.DfltOutDest() )
+# Helas, il faut un routage general et non pas, par exemple: cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_directory] )
+dotLayout = lib_common.MakeDotLayout(viztype, [] )
+
+lib_common.Grph2Svg( "Merge", "", "", False, {}, dotLayout, grph, lib_common.DfltOutDest() )
 
 PrintTime()
 
@@ -109,3 +106,5 @@ logfil.close()
 # Save an URL containing this query.
 # It must be a separate URL, not related to merge.
 # Maybe it is possible to do that with Protege?
+
+# TODO : Mettre le contenu de internals dans revlib ou htbin.
