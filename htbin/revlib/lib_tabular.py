@@ -27,7 +27,7 @@ def AddData( log_strm, grph, node, entity_type, entity_id, header, values ):
 		lenHead = len(header)
 		lenVals = len(values)
 		if lenHead != lenVals:
-			log_strm.write( "Different lens: %d and %d.\n" % ( lenHead , lenVals ) )
+			log_strm.write( "AddData Different lens: %d and %d.\n" % ( lenHead , lenVals ) )
 			return
 		for idx in range( 0 , lenHead ):
 			tmp_property = rdflib.term.URIRef(lib_properties.primns_slash + header[idx])

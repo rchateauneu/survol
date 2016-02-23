@@ -76,8 +76,20 @@ class LocalBox:
 		#sys.stderr.write("UriMake entity_id_arr=%s\n" % str(entity_id_arr) )
 		keys = lib_util.OntologyClassKeys(entity_type)
 		#sys.stderr.write("UriMake keys=%s\n" % str(keys) )
+
 		if len(keys) != len(entity_id_arr):
 			sys.stderr.write("Different lens:%s and %s\n" % (str(keys),str(entity_id_arr)))
+
+		lenKeys = len(keys)
+		lenEntIds = len(entity_id_arr)
+		if lenKeys < lenEntIds:
+			# Append fake temporary keys
+			sys.stderr.write("BuildEntity entity_type=%s Not enough keys:%s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
+			keys += [ "Key_%d" % idx for idx in range(lenKeys,lenEntIds) ]
+		elif lenKeys > lenEntIds:
+			# Not enough values. This is not a problem because of queries returning several objects.
+			sys.stderr.write("BuildEntity entity_type=%s Not enough values:%s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
+			# entity_id_arr += [ "Unknown" ] * ( lenKeys - lenEntIds )
 		entity_id = ",".join( "%s=%s" % kwItems for kwItems in zip( keys, entity_id_arr ) )
 		return entity_id
 
@@ -140,7 +152,7 @@ class LocalBox:
 			hostName = hostDns.split(".")[0]
 		except:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("HostnameUri hostAddr=%s. Caught: %s" % (hostAddr, str(exc) ) )
+			sys.stderr.write("HostnameUri hostAddr=%s. Caught: %s\n" % (hostAddr, str(exc) ) )
 			hostName = hostAddr
 		return self.UriMake("CIM_ComputerSystem",hostName)
 
@@ -393,7 +405,11 @@ class LocalBox:
 		return self.UriMake("group",groupname)
 
 	def OdbcDsnUri(self,dsn):
-		return self.UriMake("odbc_dsn",dsn)
+		return self.UriMake("odbc_dsn" ,lib_util.EncodeUri(dsn))
+
+	# TODO: Depending on the database type, this should vary.
+	def OdbcTableUri(self,tabnam):
+		return self.UriMake("odbc_table" ,lib_util.EncodeUri(tabnam))
 
 	# TODO: At the moment, keys have this structure: {CE4AACFA-3CFD-4028-B2D9-F272314F07C8}
 	# But we need a string to loop in the registry: win32con.HKEY_CLASSES_ROOT, "TypeLib".

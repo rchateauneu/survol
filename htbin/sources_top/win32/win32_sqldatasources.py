@@ -39,5 +39,7 @@ def show_odbc_sources():
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
 		grph.add( (nodeDsn, pc.property_odbc_driver, rdflib.Literal(driver) ) )
 
+show_odbc_sources()
+
 cgiEnv.OutCgiRdf(grph)
 

@@ -38,7 +38,7 @@ def GetArpEntriesWindows():
 		# ['255.255.255.255', 'ff-ff-ff-ff-ff-ff', 'static', '\\r']
 		linSplit = re.findall(r"[^ ]+",lin)
 
-		sys.stderr.write("Split=%s\n"%str(linSplit))
+		# sys.stderr.write("GetArpEntriesWindows Split=%s\n"%str(linSplit))
 
 		# Probably not the best test.
 		if len(linSplit) != 4:
