@@ -18,7 +18,9 @@ def BuildWbemNamespaceClass( entity_namespace, entity_type ):
 	return ( wbemNamespace, entity_type, wbemNamespace + ":" + entity_type )
 
 def BuildWbemMoniker( hostname, namespac = "", classNam = "" ):
-	return hostname + "/" + namespac + ":" + classNam + "."
+	# Sometimes one is null
+	# return hostname + "/" + namespac + ":" + classNam + "."
+	return "%s/%s/%s" % ( hostname, namespac, classNam )
 
 # TODO: Build a moniker with cimom added at the beginning.
 # J ai des doutes sur cette fonction qui est pourtant utilisee deux fois.
@@ -288,7 +290,7 @@ def GetCapabilitiesForInstrumentation(conn,namSpac):
 							ClassName='PG_ProviderCapabilities',
 							namespace=interopns,
 							PropertyList=['Namespaces', 'ClassName'])
-			sys.stderr.write("GetCapabilitiesForInstrumentation caps=%s\n" % str(caps))
+			# sys.stderr.write("GetCapabilitiesForInstrumentation len=%d caps=%s\n" % ( len(caps), str(caps) ) )
 			break
 		except Exception:
 			exc = sys.exc_info()[1]
