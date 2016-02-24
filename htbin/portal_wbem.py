@@ -6,7 +6,10 @@ WBEM servers.
 
 import rdflib
 import lib_common
-import lib_wbem
+try:
+	import lib_wbem
+except ImportError:
+	lib_common.ErrorMessageHtml("WBEM not available")
 from lib_properties import pc
 
 # This can process remote hosts because it does not call any script, just shows them.

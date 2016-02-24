@@ -4,6 +4,7 @@ import os
 import sys
 import socket
 import rdflib
+import lib_util
 import lib_common
 from lib_common import pc
 
@@ -59,7 +60,8 @@ for machine in result:
 	if machine.Name[0] == '$':
 		continue
 
-	sys.stderr.write("machineName="+machine.Name+"\n")
+	# Prefer not to print them because of possible race condition.
+	# sys.stderr.write("machineName="+machine.Name+"\n")
 	nodeMachine = lib_common.gUriGen.HostnameUri( machine.Name )
 	grph.add( (nodeDomain, pc.property_domain, nodeMachine ) )
 	cnt += 1

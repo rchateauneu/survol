@@ -20,7 +20,7 @@ import re
 import socket
 import rdflib
 import subprocess
-
+import lib_util
 import lib_common
 from lib_properties import pc
 import lib_smb

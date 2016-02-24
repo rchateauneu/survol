@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3482586e-b061-4a1f-ae98-c7062a83c658}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>
+    </StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="build_merge.htm" />
+    <Content Include="rdfquery_text.htm" />
+    <Content Include="rdfquery_d3.htm" />
+    <Content Include="load_urls_with_rdfquery.htm" />
+    <Content Include="merge_rdf_inputs.htm" />
+    <Content Include="merge_rdf_inputs_graphviz_only.htm" />
+    <Content Include="metacgiview.htm" />
+    <Content Include="favorites_urls.js" />
+    <Content Include="jquery.js" />
+    <Content Include="jquery.json-2.4.js" />
+    <Content Include="jquery.rdfquery.rules-1.0.js" />
+    <Content Include="revjslib.js" />
+    <Compile Include="Divers\CgiServerPython3.py" />
+    <Compile Include="Divers\cgi_hostname_traceroute.py" />
+    <Compile Include="Divers\webserver.py" />
+    <Content Include="Scripts\CleanPy.sh" />
+    <Content Include="Scripts\KillSubHttpSrv.sh" />
+    <Content Include="Scripts\MakeTar.sh" />
+    <Content Include="SLP\frames_result.htm" />
+    <Content Include="SLP\list_rdf_generators.tmpl.htm" />
+    <Content Include="SLP\list_rdf_generators.tmpl.htm.htm" />
+    <Content Include="SLP\rdf_center.htm" />
+    <Content Include="SLP\rdf_droite.htm" />
+    <Compile Include="SLP\webslptool.py" />
+    <Content Include="TestData\cgi_sockets_rdf.svg" />
+    <Content Include="TestData\PageRanks-Example.svg" />
+    <Content Include="UPNP\index.html" />
+    <Compile Include="UPNP\miranda.Python2.py" />
+    <Compile Include="UPNP\notify_ssdp.py" />
+    <Compile Include="UPNP\socket_upnp.py" />
+    <Compile Include="UPNP\socket_upnp.Python2.py" />
+    <Compile Include="UPNP\ssdp-test.py" />
+    <Compile Include="UPNP\ssdp-test.Python3.py" />
+    <Compile Include="UPNP\ssdp_webserver.py" />
+    <Compile Include="UPNP\upnp-service.py" />
+    <Content Include="index.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Divers" />
+    <Folder Include="Scripts\" />
+    <Folder Include="SLP" />
+    <Folder Include="TestData" />
+    <Folder Include="UPNP" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>

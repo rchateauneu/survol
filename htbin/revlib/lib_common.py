@@ -803,7 +803,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# TODO: Probleme ici: La chaine est deja codee pour HTML ce qui en rend le parsing different
 			# TODO: ... de celui d'un URL deja decode. DOMMAGE: On quote puis unquote !!!
 			# (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( obj )
-			(labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( urllib.unquote(obj) )
+			(labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
 		except UnicodeEncodeError:
 			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( obj ) )
 
@@ -1123,7 +1123,7 @@ def Grph2Rdf(grph, out_dest):
 # THIS IS NOT THE CASE IN HTML AND SVG !!
 
 def OutCgiMode( grph, topUrl, outDest, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
-	sys.stderr.write("OutCgiMode len=%d\n" % ( len(grph) ) ) 
+	# sys.stderr.write("OutCgiMode len=%d\n" % ( len(grph) ) )
 
 	if mode == "html":
 		Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph, outDest)
@@ -1623,7 +1623,9 @@ except ImportError:
 
 # TODO: Avoids creation of a temporary file.
 def Url2Grph(grph,url,logfi = None):
-
+	if logfi == None:
+		logfi = sys.stderr
+	logfi.write( "Url2Grph url=%s\n" % Url2Grph )
 	try:
 		# Horrible hardcode, temporary.
 		if sys.version_info >= (3,1,) and sys.version_info < (3,3,) :
@@ -1636,7 +1638,9 @@ def Url2Grph(grph,url,logfi = None):
 			# TODO: GET RID OF THIS TEMP FILE AND USE urlopen()
 			tmpfilObj = TmpFile("url2graph","rdf")
 			tmpfil = tmpfilObj.Name
+			logfi.write( "Url2Grph tmpfil=%s\n" % tmpfil )
 
+			# TODO: Maybe this is an error message in HTML instead of a RDF document.
 			if sys.version_info >= (3,):
 				urllib.request.urlretrieve (url, tmpfil)
 			else:
@@ -1647,11 +1651,13 @@ def Url2Grph(grph,url,logfi = None):
 	# If so, display the content.
 	except Exception:
 		exc = sys.exc_info()[1]
-		errmsg = "Url2Grph v=" + str(sys.version_info) + " Error url=" + url + "[[[[" + str(exc) + "]]]]" 
-		if logfi != None:
-			logfi.write("Err=[%s]\n" % (errmsg) )
+		errmsg = "Url2Grph v=" + str(sys.version_info) + " Error url=" + url + " EXC=" + str(exc)
+		logfi.write("Err=[%s]\n" % (errmsg) )
 		ErrorMessageHtml( errmsg )
 
+
+# http://127.0.0.1/Survol/htbin/objtypes_wmi.py?xid=\\rchateau-HP\root\Cli%3A.
+#
 		
 ################################################################################
 def Url2Svg(url_rdf):
@@ -1831,3 +1837,13 @@ def FormatUser(usrnam):
 
 # Premier bug: Dans file_directory, les sous-noeuds correspondant aux scripts
 # ne pointent pas vers leur parent.
+
+################################################################################
+
+# http://www.graphviz.org/Gallery/directed/cluster.html
+
+# Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
+# des objets qui ont une propriete commune (Threads d un process,
+# fichiers dans un dir, de facon recursive, methodes dans une classe),
+# Ca evite meme de devoir tracer des aretes !!!
+# ou tout simplement le host, comme container: subgraphes, clusters.

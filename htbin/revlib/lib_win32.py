@@ -59,7 +59,7 @@ def CheckWindowsModule(win_module):
 		lib_common.ErrorMessageHtml("File '" + win_module + "' does not exist")
 
 	filename, file_extension = os.path.splitext(win_module)
-	if not file_extension.upper() in ( 'EXE','DLL' ):
-		lib_common.ErrorMessageHtml("File '" + win_module + "' should be a Windows module")
+	if not file_extension.upper() in ( '.EXE','.DLL' ):
+		lib_common.ErrorMessageHtml("File '" + win_module + "' should be a Windows module. Extension="+file_extension)
 
 

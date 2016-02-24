@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{d2a791a1-a345-49cc-ac11-ee00caf0a4dc}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>tests\combrowse.py</StartupFile>
+    <SearchPath>;C:\Python\3.2.3-0.2;C:\Python\3.2.3-0.2\Lib\site-packages</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments />
+    <InterpreterPath />
+    <InterpreterArguments />
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <InterpreterId>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</InterpreterId>
+    <InterpreterVersion>3.2</InterpreterVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="file_to_mime.py" />
+    <Compile Include="revlib\lib_com_type_lib.py" />
+    <Compile Include="revlib\lib_entity_com_type_lib.py" />
+    <Compile Include="revlib\lib_entity_Win32_Service.py" />
+    <Compile Include="revlib\lib_properties.py" />
+    <Compile Include="revlib\lib_smbclient.py" />
+    <Compile Include="entity.py" />
+    <Compile Include="entity_list.py" />
+    <Compile Include="revlib\lib_tabular.py" />
+    <Compile Include="revlib\lib_util.py" />
+    <Compile Include="sources_top\Linux\cgi_arp_linux.py" />
+    <Compile Include="sources_top\Linux\iostat_all_disks.py" />
+    <Compile Include="sources_top\sockets_promiscuous_mode.py" />
+    <Compile Include="sources_top\nmap_ping_scan.py" />
+    <Compile Include="sources_types\addr\cgi_socket_tcpdump.py" />
+    <Compile Include="sources_types\addr\socket_connected_processes.py" />
+    <Compile Include="sources_types\addr\socket_host.py" />
+    <Compile Include="sources_types\com_registered_type_lib\com_registered_type_lib_versions.py" />
+    <Compile Include="sources_types\com_type_lib\com_type_lib_entries.py" />
+    <Compile Include="sources_types\com_type_lib_entry\com_type_lib_entry_documentation.py" />
+    <Compile Include="sources_top\cgi_arp.py" />
+    <Compile Include="sources_top\cgi_arp_async.py" />
+    <Compile Include="sources_top\Databases\mysql_processlist.py" />
+    <Compile Include="sources_top\Databases\oracle_tnsnames.py" />
+    <Compile Include="sources_top\enumerate.memmap.py" />
+    <Compile Include="sources_top\enumerate.partition.py" />
+    <Compile Include="sources_top\enumerate.process.py" />
+    <Compile Include="sources_top\Linux\etc_group.py" />
+    <Compile Include="sources_top\Linux\etc_mtab.py" />
+    <Compile Include="sources_top\Linux\etc_passwd.py" />
+    <Compile Include="sources_top\Linux\modules_dependencies.py" />
+    <Compile Include="sources_top\nmap_run.py" />
+    <Compile Include="sources_top\open_files.py" />
+    <Compile Include="sources_top\psutil_processes_perf.py" />
+    <Compile Include="sources_top\enumerate.user.py" />
+    <Compile Include="sources_top\SMB\net_share.py" />
+    <Compile Include="sources_top\SMB\net_use.py" />
+    <Compile Include="sources_top\SMB\net_view.py" />
+    <Compile Include="sources_top\SMB\samba_shares.py" />
+    <Compile Include="sources_top\sockets.py" />
+    <Compile Include="sources_top\tcpdump.py" />
+    <Compile Include="sources_top\win32\enumerate.com_type_lib.py" />
+    <Compile Include="sources_top\win32\win32_domain_machines.py" />
+    <Compile Include="sources_top\win32\win32_local_groups.py" />
+    <Compile Include="sources_top\win32\win32_services.py" />
+    <Compile Include="sources_top\win32\win32_sqldatasources.py" />
+    <Compile Include="sources_top\windows_network_devices.py" />
+    <Compile Include="sources_types\disk\linux_disk_partitions.py" />
+    <Compile Include="sources_types\file\win_depends_tree.py" />
+    <Compile Include="sources_types\file\win_directory_changes.py" />
+    <Compile Include="sources_types\hostname\wmi_hostname_partitions.py" />
+    <Compile Include="sources_types\hostname\wmi_hostname_processes.py" />
+    <Compile Include="sources_types\process\win_process_modules.py" />
+    <Compile Include="sources_types\service\service_dependencies.py" />
+    <Compile Include="task_control.py" />
+    <Compile Include="tests_oldies\com_type_lib_versions.py" />
+    <Compile Include="sources_types\group\linux_user_group.py" />
+    <Compile Include="sources_types\hostname\win32_NetShareEnum.py" />
+    <Compile Include="sources_types\oracle_db\oracle_db_schemas.py" />
+    <Compile Include="sources_types\oracle_package_body\oracle_package_body_dependencies.py" />
+    <Compile Include="sources_types\oracle_schema\oracle_schema_tables.py" />
+    <Compile Include="sources_types\oracle_schema\oracle_schema_views.py" />
+    <Compile Include="sources_types\oracle_session\oracle_db_session.py" />
+    <Compile Include="sources_types\oracle_table\oracle_table_dependencies.py" />
+    <Compile Include="sources_types\oracle_view\oracle_view_dependencies.py" />
+    <Compile Include="sources_types\smbfile\smbfile_smbclient.py" />
+    <Compile Include="sources_types\user\user_linux_id.py" />
+    <Compile Include="sources_types\user\user_processes.py" />
+    <Compile Include="tests_oldies\com_type_libraries.py" />
+    <Compile Include="tests_oldies\combrowse.py" />
+    <Compile Include="sources_types\hostname\win32_domain_machines.py" />
+    <Compile Include="sources_types\hostname\win32_local_groups.py" />
+    <Compile Include="sources_types\hostname\win32_hostname_services.py" />
+    <Compile Include="tests_oldies\ctypes_EnumWindows.py" />
+    <Compile Include="tests_oldies\getting_process_information_on_windows.py" />
+    <Compile Include="tests_oldies\packsnifflinux.py" />
+    <Compile Include="tests_oldies\parse_entity.py" />
+    <Compile Include="tests_oldies\tst_pypcap.py" />
+    <Compile Include="tests_oldies\ReadDirectoryChanges.py" />
+    <Compile Include="tests_oldies\snifferCore.py" />
+    <Compile Include="tests_oldies\svc_merge_rdf_files.py" />
+    <Compile Include="tests_oldies\svc_rdf_to_svg.py" />
+    <Compile Include="tests_oldies\TestUnicodeStrings.py" />
+    <Compile Include="objtypes.py" />
+    <Compile Include="cache_control.py" />
+    <Compile Include="tests_oldies\testwnet.py" />
+    <Compile Include="tests_oldies\test_win32wnet.py" />
+    <Compile Include="tests_oldies\win32_EnumProcessModules.py" />
+    <Compile Include="tests_oldies\win32_tests.py" />
+    <Compile Include="tests_oldies\windows_event_log_viewer.py" />
+    <Content Include="Docs\BroadcastEtDiscovery.txt" />
+    <Content Include="Docs\Bugs.txt" />
+    <Content Include="Docs\CommandLineTests.txt" />
+    <Content Include="Docs\CsvDesign.txt" />
+    <Content Include="Docs\DescriptionEtCible.txt" />
+    <Content Include="Docs\Design.txt" />
+    <Content Include="Docs\Installation.txt" />
+    <Compile Include="internals\directory.py" />
+    <Compile Include="internals\directory_BY_file.py" />
+    <Compile Include="internals\directory_BY_process.py" />
+    <Compile Include="internals\gui_bookmark_store.py" />
+    <Compile Include="internals\gui_create_svg_from_several_rdfs.py" />
+    <Compile Include="internals\gui_dyncgi.py" />
+    <Compile Include="internals\gui_slpform.py" />
+    <Compile Include="internals\gui_slpmenu.py" />
+    <Compile Include="internals\print.py" />
+    <Compile Include="internals\rdf2html.py" />
+    <Compile Include="operators\gui_accumulate.py" />
+    <Compile Include="revlib\lib_infocache.py" />
+    <Compile Include="revlib\lib_common.py" />
+    <Compile Include="revlib\lib_patterns.py" />
+    <Compile Include="revlib\lib_oracle.py" />
+    <Compile Include="revlib\lib_smb.py" />
+    <Compile Include="revlib\lib_webserv.py" />
+    <Compile Include="revlib\lib_entity_CIM_Process.py" />
+    <Compile Include="revlib\lib_entity_file.py" />
+    <Compile Include="revlib\lib_entity_symbol.py" />
+    <Compile Include="revlib\lib_entity_user.py" />
+    <Compile Include="sources_types\file\win_depends.py" />
+    <Compile Include="sources_types\file\file_directory.py" />
+    <Compile Include="sources_types\file\win_dumpbin.py" />
+    <Compile Include="sources_types\file\file_symlinks.py" />
+    <Compile Include="sources_types\file\ldd_depends.py" />
+    <Compile Include="sources_types\file\linux_nm.py" />
+    <Compile Include="sources_types\file\file_stat.py" />
+    <Compile Include="sources_types\file\mapping_processes.py" />
+    <Compile Include="sources_types\hostname\hostname_nmap.py" />
+    <Compile Include="sources_types\hostname\hostname_shares_smbclient.py" />
+    <Compile Include="sources_types\memmap\memmap_processes.py" />
+    <Compile Include="sources_types\oracle_db\oracle_db_processes.py" />
+    <Compile Include="sources_types\oracle_db\oracle_db_parse_queries.py" />
+    <Compile Include="sources_types\partition\partition_diskusage.py" />
+    <Compile Include="sources_types\process\win_cdb.py" />
+    <Compile Include="sources_types\process\oracle_process_dbs.py" />
+    <Compile Include="sources_types\process\process_connections.py" />
+    <Compile Include="sources_types\process\process_cwd.py" />
+    <Compile Include="sources_types\process\process_gdbstack.py" />
+    <Compile Include="sources_types\process\process_open_files.py" />
+    <Compile Include="sources_types\process\single_pidstree.py" />
+    <Compile Include="sources_types\process\linux_strace.py" />
+    <Compile Include="sources_types\smbfile\smbfile_pysmb.py" />
+    <Compile Include="sources_types\smbserver\smbserver_shares_smbclient.py" />
+    <Compile Include="sources_types\smbshr\smbshare_files_smbclient.py" />
+    <Compile Include="sources_types\smbshr\smbshare_netshare.py" />
+    <Content Include="Docs\IdeesDeCgi.txt" />
+    <Content Include="Docs\WBEM_idees.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="internals" />
+    <Folder Include="Docs\" />
+    <Folder Include="sources_types\" />
+    <Folder Include="sources_types\addr\" />
+    <Folder Include="sources_types\com_type_lib_entry\dispatch\" />
+    <Folder Include="sources_types\com_type_lib_entry\coclass\" />
+    <Folder Include="sources_types\com_type_lib_entry\enumeration\" />
+    <Folder Include="sources_types\com_type_lib_entry\module\" />
+    <Folder Include="sources_types\disk\" />
+    <Folder Include="sources_types\service\" />
+    <Folder Include="sources_types\user\" />
+    <Folder Include="sources_types\oracle_session\" />
+    <Folder Include="sources_types\group\" />
+    <Folder Include="sources_types\oracle_schema\" />
+    <Folder Include="sources_types\oracle_table\" />
+    <Folder Include="sources_types\oracle_view\" />
+    <Folder Include="sources_types\com_registered_type_lib\" />
+    <Folder Include="sources_types\oracle_package_body\" />
+    <Folder Include="sources_types\oracle_package\" />
+    <Folder Include="sources_types\oracle_synonym\" />
+    <Folder Include="sources_types\com_type_lib\" />
+    <Folder Include="sources_types\com_type_lib_entry\" />
+    <Folder Include="sources_top\" />
+    <Folder Include="sources_top\Databases\" />
+    <Folder Include="sources_top\Linux\" />
+    <Folder Include="sources_top\SMB\" />
+    <Folder Include="sources_top\win32\" />
+    <Folder Include="tests_oldies\" />
+    <Folder Include="operators" />
+    <Folder Include="revlib" />
+    <Folder Include="sources_types\file" />
+    <Folder Include="sources_types\hostname" />
+    <Folder Include="sources_types\memmap" />
+    <Folder Include="sources_types\oracle_db\" />
+    <Folder Include="sources_types\partition" />
+    <Folder Include="sources_types\process" />
+    <Folder Include="sources_types\smbfile" />
+    <Folder Include="sources_types\smbserver" />
+    <Folder Include="sources_types\smbshr" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{2af0f10d-7135-4994-9156-5d01c9c11b7e}\3.2" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>

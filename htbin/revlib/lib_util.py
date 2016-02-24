@@ -112,7 +112,7 @@ def TopUrl( entityType, entityId ):
 			topUrl = uriRoot + "/../index.htm"
 		else:
 			# Same as in objtypes.py
-			if entityId == "":
+			if entityId in ("","Id=") :
 				topUrl = uriRoot + "/entity.py"
 			else:
 				topUrl = EntityUri( entityType, "" )
@@ -337,7 +337,7 @@ def EntityUriDupl(entity_type,*entity_ids,**extra_args):
 	entity_id = ",".join( "%s=%s" % pairKW for pairKW in zip( keys, entity_ids ) )
 	
 	# Extra arguments, differentiating duplicates.
-	entity_id += "," + ",".join( "%s=%s" % ( extArg, extra_args[extArg] ) for extArg in extra_args )
+	entity_id += "".join( ",%s=%s" % ( extArg, extra_args[extArg] ) for extArg in extra_args )
 
 	url = Scriptize("/entity.py", entity_type, entity_id )
 	return rdflib.term.URIRef( url )
@@ -548,8 +548,20 @@ def EntityIdToArray( entity_type, entity_id ):
 
 ################################################################################
 
+# Used for example as the root in entity.py, obj_types.py and class_type_all.py.
+# This is a bit articical but a root node is really needed here.
+# It might contain &mode=svg or whatever, this should be removed.
+
 def RootUri():
 	callingUrl = RequestUri()
+	# TODO: THIS IS A HACK. Here is the reason:
+	# gui_create_svg_from_several_rdfs.py reads URL as RDF documents
+	# and for this reason, it must appends "&mode=rdf" at the end of the URL.
+	# So an ampersand is found in the SVG document, which is misprocessed.
+	callingUrl = callingUrl.replace("&mode=rdf","")
+	# TODO: We could also replace the ampersand by an HTML entity.
+	# this might be necessary of there are useful CGI parameters to keep.
+	callingUrl = callingUrl.replace("&","&amp;")
 	return rdflib.term.URIRef(callingUrl)
 
 ################################################################################

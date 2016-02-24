@@ -169,6 +169,9 @@ def WmiTooManyInstances(className):
 						 'Win32_Group', 'CIM_ManagedSystemElement']
 
 
+# TODO: IL Y A UNE DESCRIPTION DANS LES CLASSES WMI, MAIS OU ?????
+
+
 def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className ):
 	try:
 		klassQuals = getattr( connWmi, className ).qualifiers

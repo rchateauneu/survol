@@ -46,7 +46,13 @@ for versionStr, name in list( versions.items() ):
 
 	# collected = []
 	helpPath = ""
-	key = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib\\%s\\%s" % (clsidstr, versionStr))
+
+	try:
+		key = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib\\%s\\%s" % (clsidstr, versionStr))
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("win32api.RegOpenKey clsidstr="+str(clsidstr)+" versionStr="+str(versionStr)+". Caught:"+str(exc))
+
 
 	try:
 		num = 0

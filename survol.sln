@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "htmlclient", "htmlclient.pyproj", "{3482586E-B061-4A1F-AE98-C7062A83C658}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "htbin", "htbin\htbin.pyproj", "{D2A791A1-A345-49CC-AC11-EE00CAF0A4DC}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "wbem", "wbem\wbem.pyproj", "{C5959B29-A5BC-4964-BAA9-840C7963B098}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3482586E-B061-4A1F-AE98-C7062A83C658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3482586E-B061-4A1F-AE98-C7062A83C658}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2A791A1-A345-49CC-AC11-EE00CAF0A4DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2A791A1-A345-49CC-AC11-EE00CAF0A4DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5959B29-A5BC-4964-BAA9-840C7963B098}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5959B29-A5BC-4964-BAA9-840C7963B098}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5959B29-A5BC-4964-BAA9-840C7963B098}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5959B29-A5BC-4964-BAA9-840C7963B098}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
