@@ -64,13 +64,18 @@ def WmiReadWithQuery( cgiEnv ):
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Query=%s Caught:%s" % ( aQry, str(exc) ) )
 
+# TODO: Add all usual Python types.
+if sys.version_info >= (3,):
+	listTypes = ( str, int, float )
+else:
+	listTypes = ( unicode, int, float )
+
 def DispWmiProperties(grph,wmiInstanceNode,objWmi):
 	for prp in objWmi.properties:
 		# BEWARE, it could be None.
 		value = getattr(objWmi,prp)
 
-		# TODO: Add all usual Python types.
-		if isinstance( value, ( unicode, int) ):
+		if isinstance( value, listTypes ):
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
 			grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( str(value).replace('\\','\\\\') ) ) )
