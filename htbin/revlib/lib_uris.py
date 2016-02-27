@@ -273,7 +273,8 @@ class LocalBox:
 		return self.UriMake("class", symbol_name + "@" + file )
 
 	# The convention for all the entity_ids is that it must return None if this is not of the given type.
-	def SymbolExtract(entity_id):
+	# TODO: This is associated to SymbolUri and is ugly. Change this.
+	def SymbolExtract(self,entity_id):
 		try:
 			return entity_id.split('@')[0:2]
 		except Exception:

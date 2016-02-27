@@ -28,9 +28,11 @@ grph = rdflib.Graph()
 def show_odbc_sources():
 	odbc_iter_code = odbc.SQL_FETCH_FIRST
 	while True:
+		# System DSN only. For users DSN, I do not know.
 		source = odbc.SQLDataSources(odbc_iter_code)
 		if source == None:
 			break
+		# TODO: Prints the description and other data.
 		dsn, driver = source
 		sys.stderr.write("dsn=%s driver=%s\n" % ( dsn, driver) )
 		odbc_iter_code = odbc.SQL_FETCH_NEXT

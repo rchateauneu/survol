@@ -32,19 +32,21 @@ try:
     cursor.tables()
     sys.stderr.write("Tables OK\n")
     rows = cursor.fetchall()
-    sys.stderr.write("Fetch OK\n")
 
-    colList = ( "0", "1", "2", "Type")
+    # http://pyodbc.googlecode.com/git/web/docs.html
+    # Type: 'TABLE','VIEW','SYSTEM TABLE','GLOBAL TEMPORARY','LOCAL TEMPORARY','ALIAS','SYNONYM',
+    # or a data source-specific type name.
+    colList = ( "Catalog", "Schema", "Table", "Type")
 
     for row in rows:
         # TODO: What are the other properties ??
         tabNam = row.table_name
-        sys.stderr.write("tabNam=%s\n" % tabNam)
+        # sys.stderr.write("tabNam=%s\n" % tabNam)
 
         nodTab = lib_common.gUriGen.OdbcTableUri( tabNam )
         grph.add( (nodeDsn, pc.property_odbc_table, nodTab ) )
 
-        for idxCol in range( 0, len(colList)):
+        for idxCol in ( 0, 1, 3):
             grph.add( (nodTab, rdflib.Literal(colList[idxCol]), rdflib.Literal(row[idxCol]) ) )
 
 except Exception:

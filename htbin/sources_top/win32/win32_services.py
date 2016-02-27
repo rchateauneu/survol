@@ -18,5 +18,5 @@ lib_entities.lib_entity_Win32_Service.FullServiceNetwork(grph,None)
 
 # This routing is unreadable.
 # cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
-cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
   

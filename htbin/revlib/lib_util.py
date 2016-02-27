@@ -82,7 +82,14 @@ def IsLocalAddress(anHostNam):
 	if hostOnly in [ None, "", "localhost", "127.0.0.1", currentHostname ]:
 		return True
 
-	ipOnly = socket.gethostbyname(hostOnly)
+	try:
+		ipOnly = socket.gethostbyname(hostOnly)
+	# socket.gaierror
+	except Exception:
+		# Unknown machine
+		exc = sys.exc_info()[1]
+		sys.stderr.write("IsLocalAddress anHostNam=%s:%s\n" % ( anHostNam, str(exc) ) )
+		return False
 
 	if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
 		return True
@@ -112,7 +119,9 @@ def TopUrl( entityType, entityId ):
 			topUrl = uriRoot + "/../index.htm"
 		else:
 			# Same as in objtypes.py
-			if entityId in ("","Id=") :
+			# if entityId in ("","Id=") or entity.endswith("="):
+			# Not reliable: What does it mean to have "Id=" or "Name=" ?
+			if entityId == "" or re.match( "[a-zA-Z_]*=", entityId ):
 				topUrl = uriRoot + "/entity.py"
 			else:
 				topUrl = EntityUri( entityType, "" )

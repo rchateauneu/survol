@@ -82,8 +82,10 @@ sys.stderr.write("Started cdb_cmd=%s\n" % cdb_cmd )
 # Without decode, "TypeError: Type str does not support the buffer API"
 cdb_str =  cdb_output.decode("utf-8")
 
+callDepth = 0
+
 for dot_line in cdb_str.split('\n'):
-	sys.stderr.write("Line=%s\n" % dot_line )
+	# sys.stderr.write("Line=%s\n" % dot_line )
 
 	err_match = re.match(".*parameter is incorrect.*", dot_line )
 	if err_match:
@@ -100,7 +102,9 @@ for dot_line in cdb_str.split('\n'):
 		continue
 
 	# 295cfb0c 00000000 ntdll!RtlInitializeExceptionChain+0x36
-	match_k = re.match( "[0-9a-fA-F]+ [0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line )
+	# Another format, maybe because of a 64 bits machine.
+	# 00000000`02edff90 00000000`00000000 ntdll!RtlUserThreadStart+0x21
+	match_k = re.match( "[`0-9a-fA-F]+ [`0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line )
 	sys.stderr.write("dot_line=%s\n" % dot_line )
 	if match_k:
 		moduleName = match_k.group(1)
@@ -112,13 +116,17 @@ for dot_line in cdb_str.split('\n'):
 		sys.stderr.write("moduleName=%s dllName=%s funcName=%s\n" % ( moduleName, dllName, funcName ) )
 
 		callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
+		grph.add( ( callNodePrev, rdflib.Literal("Depth"), rdflib.Literal(callDepth) ) )
+		callDepth += 1
+		continue
+
 
 sys.stderr.write("Parsed cdb result\n")
 
 
 callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
 
-lib_entities.lib_entity_CIM_Process.AddInfo( grph, procNode, the_pid )
+lib_entities.lib_entity_CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
 
 # http://msdn.microsoft.com/en-us/library/windows/hardware/ff539058(v=vs.85).aspx
 #
@@ -134,5 +142,6 @@ lib_entities.lib_entity_CIM_Process.AddInfo( grph, procNode, the_pid )
 ################################################################################
 
 
-cgiEnv.OutCgiRdf(grph)
+# cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
 
