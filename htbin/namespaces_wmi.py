@@ -21,7 +21,7 @@ WMI classes.
 hardcodedNamespaces = (
 	"aspnet",
 	"CIMV2",
-	"Cli",
+	"Cli", # This does not work on Windows XP
 	"Default",
 	"directory",
 	"HP",
@@ -59,7 +59,15 @@ namespace_class = "wmi_namespace"
 rootNode = lib_util.EntityUri(namespace_class,"")
 
 def SubNamespace( rootNode, grph, nskey ):
-	connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
+	try:
+		connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
+	except wmi.x_wmi:
+		exc = sys.exc_info()[1]
+		# lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
+		sys.stderr.write("WMI: Cannot connect to nskey=%s Caught:%s" % ( nskey , str(exc) ) )
+		return
+
+	# connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
 
 	wmiUrl = lib_wmi.NamespaceUrl( "root\\" + nskey, cimomUrl )
 	wmiNode = rdflib.term.URIRef( wmiUrl )
@@ -69,7 +77,6 @@ def SubNamespace( rootNode, grph, nskey ):
 	for subnamespace in connWMI.__NAMESPACE():
 		SubNamespace( wmiNode, grph, nskey + "\\" + subnamespace.Name )
 
-	return wmiNode
 
 
 ##########  test seulement
@@ -88,12 +95,12 @@ def SubNamespace( rootNode, grph, nskey ):
 
 
 for nskey in hardcodedNamespaces:
-	SubNamespace( rootNode, grph, nskey )
+	# SubNamespace( rootNode, grph, nskey )
 	try:
 		SubNamespace( rootNode, grph, nskey )
-	except wmi.x_wmi:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
+	#except wmi.x_wmi:
+	#	exc = sys.exc_info()[1]
+	#	lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("nskey=%s Caught:%s" % ( nskey , str(exc) ) )
