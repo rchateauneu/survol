@@ -122,7 +122,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 	sub_path = path[ len(curr_dir) : ]
 	for fil in files:
-		if IsTempFile(fil):
+		if IsTempFile(fil) or fil == "__init__.py":
 			continue
 
 		script_path = relative_dir + sub_path + "/" + fil
