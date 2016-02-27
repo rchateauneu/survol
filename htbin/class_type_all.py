@@ -9,7 +9,11 @@ import os
 import rdflib
 import lib_util
 import lib_common
-import lib_wbem
+try:
+	import lib_wbem
+	wbemOk = True
+except ImportError:
+	wbemOk = False
 import lib_wmi
 from lib_properties import pc
 
@@ -36,7 +40,7 @@ rootNode = lib_util.RootUri()
 
 # La, je ne sais pas trop bien quel URL mettre. S'agit-il d'une class CIM ?
 # Mais en principe on veut qu'elles soient homogenes.
-if nameSpace != "" and entity_host != "":
+if wbemOk and nameSpace != "" and entity_host != "":
 	namespaceUrl = lib_wbem.NamespaceUrl(nameSpace,entity_host)
 	namespaceNode = rdflib.term.URIRef( namespaceUrl )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist, namespaceNode ) )
@@ -65,24 +69,25 @@ for dirpath, dirnames, filenames in os.walk( baseDir ):
 		grph.add( ( rootNode, lib_common.pc.property_directory, localClassNode ) )
 
 # Maybe some of these servers are not able to display anything about this object.
-wbemNamespace = nameSpace.replace("\\","/")
-wbem_servers_desc_list = lib_wbem.GetWbemUrls( entity_host, wbemNamespace, className, entity_id )
-for url_server in wbem_servers_desc_list:
-	wbemNode = rdflib.term.URIRef(url_server[0])
-	grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
+if wbemOk:
+	wbemNamespace = nameSpace.replace("\\","/")
+	wbem_servers_desc_list = lib_wbem.GetWbemUrls( entity_host, wbemNamespace, className, entity_id )
+	for url_server in wbem_servers_desc_list:
+		wbemNode = rdflib.term.URIRef(url_server[0])
+		grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
 
-	# Representation de cette classe dans WBEM.
-	# TODO: AJOUTER LIEN VERS L EDITEUR DE CLASSE, PAS SEULEMENT LE SERVEUR WBEM.
+		# Representation de cette classe dans WBEM.
+		# TODO: AJOUTER LIEN VERS L EDITEUR DE CLASSE, PAS SEULEMENT LE SERVEUR WBEM.
 
-	wbemHostNode = lib_common.gUriGen.HostnameUri( url_server[1] )
-	grph.add( ( wbemNode, pc.property_host, wbemHostNode ) )
-	# TODO: Yawn server ??
-	grph.add( ( wbemNode, pc.property_wbem_server, rdflib.Literal( url_server[1] ) ) )
+		wbemHostNode = lib_common.gUriGen.HostnameUri( url_server[1] )
+		grph.add( ( wbemNode, pc.property_host, wbemHostNode ) )
+		# TODO: Yawn server ??
+		grph.add( ( wbemNode, pc.property_wbem_server, rdflib.Literal( url_server[1] ) ) )
 
-	# Now adds the description of the class.
-	connWbem = lib_wbem.WbemConnection(entity_host)
-	klaDescrip = lib_wbem.WbemClassDescription(connWbem,className,wbemNamespace)
-	grph.add( ( wbemNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
+		# Now adds the description of the class.
+		connWbem = lib_wbem.WbemConnection(entity_host)
+		klaDescrip = lib_wbem.WbemClassDescription(connWbem,className,wbemNamespace)
+		grph.add( ( wbemNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
 
 wmiurl = lib_wmi.GetWmiUrl( entity_host, nameSpace, className, entity_id )
 if not wmiurl is None:
