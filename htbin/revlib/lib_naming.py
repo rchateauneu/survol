@@ -56,6 +56,7 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 	if entity_type == "symbol":
 		# This replace HTML entities. This is necessary because these chars are used
 		# in C++ symbols. Anyway, it might be necessary for other entity types.
+		# TODO: Voir SymbolExtract qui fait double-emploi
 		return cgi.escape( entity_id ).split('@')[0]
 
 	if entity_type == "file":

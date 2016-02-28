@@ -74,7 +74,11 @@ def HostName():
 currentHostname = HostName()
 
 # Attention car il pourrait y avor plusieurs adresses IP.
-localIP = socket.gethostbyname(currentHostname)
+try:
+	localIP = socket.gethostbyname(currentHostname)
+except Exception:
+	# Apparently, it happens if the router is down.
+	localIP = "127.0.0.1"
 
 def IsLocalAddress(anHostNam):
 	# Maybe entity_host="http://192.168.1.83:5988"
@@ -289,8 +293,8 @@ def ParseNamespaceType(ns_entity_type):
 ################################################################################
 
 # A bit temporary.
-def ScriptizeCimom(path, entity_type, entity_id, cimom):
-	return uriRoot + path + "?" + EncodeEntityId(cimom + "/" + entity_type,entity_id)
+def ScriptizeCimom(path, entity_type, cimom):
+	return uriRoot + path + "?" + EncodeEntityId(cimom + "/" + entity_type,"")
 
 # Properly encodes type and id into a URL.
 # TODO: Ca va etre un peu un obstacle car ca code vraiment le type d'URL.
@@ -486,7 +490,7 @@ def ObjectTypes():
 
 	if glbObjectTypes is None:
 		glbObjectTypes = set( ObjectTypesNoCache() )
-		sys.stderr.write("ObjectTypes glbObjectTypes="+str(glbObjectTypes)+"\n")
+		# sys.stderr.write("ObjectTypes glbObjectTypes="+str(glbObjectTypes)+"\n")
 
 	return glbObjectTypes
 
@@ -508,6 +512,9 @@ localOntology = {
 	"dbus_connection"     : ( ["Bus","Connect"],             isPlatformLinux ),
 	"dbus_object"         : ( ["Bus","Connect","Obj"],       isPlatformLinux ),
 	"dbus_interface"      : ( ["Bus","Connect","Obj","Itf"], isPlatformLinux ),
+	"odbc_dsn"            : ( ["Dsn"], ),
+	"odbc_table"          : ( ["Dsn", "Table"], ),
+	"odbc_column"         : ( ["Dsn", "Table", "Column"], ),
 	"oracle_db"           : ( ["Db"], ),
 	"oracle_package"      : ( ["Db","Schema","Package"], ),
 	"oracle_package_body" : ( ["Db","Schema","Package"], ),
@@ -607,6 +614,7 @@ def SplitMoniker(xid):
 
 	return resu
 
+# Builds a SQL query.
 def SplitMonikToWQL(splitMonik,className):
 	sys.stderr.write("splitMonik=[%s]\n" % str(splitMonik) )
 	aQry = 'select * from %s ' % className

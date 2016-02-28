@@ -10,3 +10,77 @@ try:
     import pyodbc
 except ImportError:
     lib_common.ErrorMessageHtml("pyodbc Python library not installed")
+
+cgiEnv = lib_common.CgiEnv("Columns for ODBC table")
+
+grph = rdflib.Graph()
+
+dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
+tabNam = cgiEnv.m_entity_id_dict["Table"]
+
+sys.stderr.write("dsn=%s tabNam=%s\n" % (dsnNam, tabNam ) )
+
+nodeDsn = lib_common.gUriGen.OdbcDsnUri( dsnNam )
+nodTab = lib_common.gUriGen.OdbcTableUri( dsnNam, tabNam )
+
+# ('C:\\Program Files (x86)\\Microsoft Visual Studio 8\\Crystal Reports\\Samples\\en\\Databases\\xtreme', None, 'MSysAccessObjects', 'SYSTEM TABLE', None)
+
+try:
+    cnxn = pyodbc.connect("DSN=%s" % dsnNam)
+    sys.stderr.write("Connected: %s\n" % dsnNam)
+    cursor = cnxn.cursor()
+
+    cursor.columns(table=tabNam)
+    sys.stderr.write("Tables OK: %s\n" % dsnNam)
+    rows = cursor.fetchall()
+
+    # http://pyodbc.googlecode.com/git/web/docs.html
+    #
+    # table_cat
+    # table_schem
+    # table_name
+    # column_name
+    # data_type
+    # type_name
+    # column_size
+    # buffer_length
+    # decimal_digits
+    # num_prec_radix
+    # nullable
+    # remarks
+    # column_def
+    # sql_data_type
+    # sql_datetime_sub
+    # char_octet_length
+    # ordinal_position
+    # is_nullable: One of SQL_NULLABLE, SQL_NO_NULLS, SQL_NULLS_UNKNOWN.
+
+    # or a data source-specific type name.
+    colList = ( "Catalog", "Schema", "Table", "Column", "Data type",
+				"Type","Size","Length","Digits", "Radix",
+				"Nullable","Remarks", "Column def", "Sql type", "Datetime sub",
+				"char octet length", "Ordinal", "is nullable")
+
+    for row in rows:
+        # TODO: What are the other properties ??
+        tabNam = row.table_name
+        # sys.stderr.write("tabNam=%s\n" % tabNam)
+
+        nodColumn = lib_common.gUriGen.OdbcColumnUri( dsnNam, tabNam, row[3] )
+        grph.add( (nodTab, pc.property_odbc_column, nodColumn ) )
+
+        for idxCol in ( 5, 11, 12, 13, 17):
+            grph.add( (nodColumn, rdflib.Literal(colList[idxCol]), rdflib.Literal(row[idxCol]) ) )
+
+except Exception:
+    exc = sys.exc_info()[0]
+    lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info()[0] ) ) )
+
+
+# cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_odbc_column] )
+
+
+
+
+# http://www.easysoft.com/developer/languages/python/pyodbc.html

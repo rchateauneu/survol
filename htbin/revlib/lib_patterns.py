@@ -20,6 +20,8 @@ pattDict = {
 	"memmap"                                 : ( "tab",       "#CCFFCC", "#CCFFCC", 0, False ),
 	"odbc_dsn"                               : ( "tab",       "#CCFF11", "#CCFF11", 0, False ),
 	"odbc_table"                             : ( "tab",       "#11FF11", "#CCFF11", 0, False ),
+	"odbc_column"                            : ( "tab",       "#11FF11", "#44FF11", 0, False ),
+	"odbc_procedure"                         : ( "tab",       "#11FF11", "#CC4411", 0, False ),
 	"oracle_db"                              : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
 	"oracle_package"                         : ( "none",      "#FFCC66", "#88BBFF", 0, True ),
 	"oracle_package_body"                    : ( "none",      "#FFCC66", "#CCCCCC", 0, True ),

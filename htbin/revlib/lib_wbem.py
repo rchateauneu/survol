@@ -10,7 +10,7 @@ import lib_credentials
 
 # TODO: Build a moniker with cimom added at the beginning.
 def WbemAllNamespacesUrl(srvr):
-	return lib_util.ScriptizeCimom( '/namespaces_wbem.py', "", "", srvr )
+	return lib_util.ScriptizeCimom( '/namespaces_wbem.py', "", srvr )
 
 def BuildWbemNamespaceClass( entity_namespace, entity_type ):
 	wbemNamespace = entity_namespace

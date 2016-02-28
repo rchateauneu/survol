@@ -63,7 +63,7 @@ for dirpath, dirnames, filenames in os.walk( baseDir ):
 		sys.stderr.write("fullScriptNam=%s\n" % fullScriptNam)
 
 		# TODO: Maybe remove the beginning of the file.
-		localClassUrl = lib_util.ScriptizeCimom( fullScriptNam, className, "", entity_host )
+		localClassUrl = lib_util.ScriptizeCimom( fullScriptNam, className, entity_host )
 
 		localClassNode =  rdflib.term.URIRef( localClassUrl )
 		grph.add( ( rootNode, lib_common.pc.property_directory, localClassNode ) )

@@ -182,7 +182,6 @@ def StrWithBr(str):
 	if lenStr < maxHtmlTitleLen:
 		return str
 
-	# splt = re.findall(r"[\w']+", str)
 	splt = str.split(" ")
 	totLen = 0
 	resu = ""
@@ -193,24 +192,16 @@ def StrWithBr(str):
 			currLine += " " + currStr
 			totLen += subLen
 			continue
-		if resu != "":
+		if resu:
 			resu += withBrDelim
 		resu += currLine
 		currLine = currStr
 		totLen = subLen
 
-	if resu != "":
-		resu += withBrDelim
-	resu += currLine
-	#cnt = 0
-	#resu = ""
-	#for chr in str:
-	#	if chr == ' ' and cnt > maxHtmlTitleLen:
-	#		resu += '<BR ALIGN="LEFT" /> '
-	#		cnt = 0
-	#	else:
-	#		resu += chr
-	#		cnt += 1
+	if currLine:
+		if resu != "":
+			resu += withBrDelim
+		resu += currLine
 	return resu
 
 ################################################################################
@@ -289,7 +280,6 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 		# TODO: Maybe we could use the number of elements len(grph)  ?
 	stream.write(" layout=\"" + dot_layout + "\"; \n")
 
-	# stream.write(" label=\"" + page_title + "\"; \n")
 	stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
 	return dot_layout
 
@@ -580,7 +570,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# Probleme avec les champs:
 			# Faire une premiere passe et reperer les fields, detecter les noms des colonnes, leur attribuer ordre et indice.
 			# Seconde passe pour batir les lignes.
-			# Donc on ordonne toutes les colonnes (Donner un nom conventionnel aux "...")
+			# Donc on ordonne toutes les colonnes.
 			# Pour chaque field: les prendre dans le sens du header et quand il y a un trou, colonne vide.
 			# Inutile de trier les field, mais il d'abord avoir une liste complete des champs, dans le bon sens.
 			# CA SUPPOSE QUE DANS FIELDSSET LES KEYS SONT UNIQUES.
@@ -588,6 +578,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 			# DOMMAGE QU ON SCANNE LES OBJETS DEUX FOIS UNIQUEMENT POUR AVOIR LES NOMS DES CHAMPS !!!!!!!!!!!!!
 			# TODO: HEURISTIQUE: ON pourrait s'arreter aux dix premiers. Ou bien faire le tri avant ?
+			# On bien prendre les colonnes de la premiere ligne, et recommencer si ca ne marche pas.
 			# Unique columns of the descendant of this subject.
 			rawFieldsKeys = set()
 			for obj in nodLst:
@@ -629,11 +620,12 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# sys.stderr.write("fieldsKeys=%s\n" % str(fieldsKeys) )
 
 			# This assumes that the header columns are sorted.
-			keyIndices = dict()
-			numKeys = 0
-			for key in fieldsKeys:
-				keyIndices[key] = numKeys
-				numKeys += 1
+			#keyIndices = dict()
+			#numKeys = 0
+			#for key in fieldsKeys:
+			#	keyIndices[key] = numKeys
+			#	numKeys += 1
+			keyIndices = { key:numKeys for (numKeys,key) in enumerate(fieldsKeys,0) }
 
 			# Apparently, no embedded tables.
 			dictLines = dict()
@@ -757,8 +749,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# TODO: Apparently "BLUE" is not used !
 			numFields = len(fieldsKeys) + 1
 
-			# ATTENTION: entity_graphic_class doit etre du type des URI contenus dans la table,
-			# pas le contenant !!
+			# ATTENTION: entity_graphic_class doit etre du type des URI contenus dans la table, pas le contenant !!
 			try:
 				# This arbitrarily take the last class. Maybe use it to change the style of each line.
 				# Also, if these are subclasses of files, we could use a "folder" as shape.
@@ -771,6 +762,10 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# TODO: Le titre est le contenu ne sont pas forcement de la meme classe.
 			labTextWithBr= StrWithBr( labText )
 			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, "help text", "BLUE", labB, numFields, labTextWithBr, dictLines )
+
+			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
+			# TODO: Si une cellule est identique jusqu a un delimiteur, idem, remplacer par '"'.
+
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. nodes=%d\n" % len(nodes) )
 	logfil.flush()
@@ -814,7 +809,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		# Les ampersand sont doubles intentionnelent car ils ensuite remplaces deux fois.
 		# Ca n'est utilise que temporairement le temps qu'on remplace les arguments CGI par de vrais Monikers WMI.
 		labTextClean = StrWithBr( labText.replace("&amp;amp;"," "))
-		# labTextClean = StrWithBr( labText.replace("&amp;"," "))
 		lib_patterns.WritePatterned( stream, entity_graphic_class, nam, entity_graphic_class, NODECOLOR, labHRef, 2, labTextClean, props )
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Leaving\n" )
