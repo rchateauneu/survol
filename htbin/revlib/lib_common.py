@@ -554,8 +554,17 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		logfil.write( TimeStamp()+" Rdf2Dot: listed_props_by_subj=%d.\n" % ( len( listed_props_by_subj ) ) )
 		logfil.flush()
 
+		# Equivalent to six.iteritems(d)
+		def LocalIterItems(lst):
+			if sys.version_info >= (3,):
+				return lst.items()
+			else:
+				return lst.iteritems()
+			# return list( lst.items() )
+
 		# TODO: Avoid creation of temporary list. "for k, v in six.iteritems(d):"
-		for subj, nodLst in list( listed_props_by_subj.items() ):
+		# for subj, nodLst in list( listed_props_by_subj.items() ):
+		for subj, nodLst in LocalIterItems( listed_props_by_subj ):
 			subjNam = node(subj)
 
 			subjNamTab = "rec_" + subjNam
@@ -583,8 +592,9 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			rawFieldsKeys = set()
 			for obj in nodLst:
 				# One table per node.
-				for fld in fieldsSet[obj]:
-					rawFieldsKeys.add( fld[0] )
+				rawFieldsKeys.update( fld[0] for fld in fieldsSet[obj] )
+				# for fld in fieldsSet[obj]:
+				#	rawFieldsKeys.add( fld[0] )
 
 			# sys.stderr.write("rawFieldsKeys BEFORE =%s\n" % str(rawFieldsKeys) )
 
@@ -620,11 +630,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# sys.stderr.write("fieldsKeys=%s\n" % str(fieldsKeys) )
 
 			# This assumes that the header columns are sorted.
-			#keyIndices = dict()
-			#numKeys = 0
-			#for key in fieldsKeys:
-			#	keyIndices[key] = numKeys
-			#	numKeys += 1
 			keyIndices = { key:numKeys for (numKeys,key) in enumerate(fieldsKeys,0) }
 
 			# Apparently, no embedded tables.
@@ -662,13 +667,10 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						title += val
 						continue
 
-					idxKey = keyIndices[key]
-
 					if key in [ pc.property_html_data, pc.property_rdf_data_nolist ] :
 						# TODO: get the text with ParseEntityUri if property_rdf_data_nolist
 						# Ou alors: Eviter d afficher toujours le meme texte ou bien repeter l autre lien.
-						# Il faut plutot afficher quelque chose de specifique, par exemple
-						# l'extension de fichier si file_to_mime.py ?
+						# Plutot afficher quelque chose de specifique, par exemple l'extension de fichier si file_to_mime.py ?
 						# C est utilise dans trois cas:
 						# HTML:
 						#   - Afficher le contenu du fichier en tant que type MIME. On aimerait une icone.
@@ -691,19 +693,21 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 						valTitle = ExternalToTitle(val)
 						# We insert a table because there might be several links.
-						# columns[ idxKey ] = '<td href="%s" align="left" >CGIPROP...</td>' % val
-						# We insert a table because there might be several links.
+						tmpCell = '<td href="%s" align="left" >%s</td>' % ( val , valTitle )
 						# TODO: NOT FOR THE MOMENT SO IT IS NOT USEFUL.
-						columns[ idxKey ] = '<td><table border="0"><tr><td href="%s" align="left" >%s</td></tr></table></td>' % ( val , valTitle )
+						# tmpCell = '<td><table border="0"><tr><td href="%s" align="left" >%s</td></tr></table></td>' % ( val , valTitle )
 
 					elif key == pc.property_image:
 						# TODO: Should do something with images.
-						columns[ idxKey ] = '<td><img src="%s"  scale="true" /></td>' % val
+						tmpCell = '<td><img src="%s" scale="true" /></td>' % val
 					elif val.isnumeric(): 
-						columns[ idxKey ] = "<td align='right'>%s</td>" % val
+						tmpCell = "<td align='right'>%s</td>" % val
 					else:
 						# Wraps the string if too long. Can happen only with a literal.
-						columns[ idxKey ] = "<td align='left'>%s</td>" % StrWithBr(val)
+						tmpCell = "<td align='left'>%s</td>" % StrWithBr(val)
+
+					idxKey = keyIndices[key]
+					columns[ idxKey ] = tmpCell
 
 
 				# The title has colspan=2, and the table two columns.
