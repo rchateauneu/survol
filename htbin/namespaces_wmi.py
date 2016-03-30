@@ -18,6 +18,7 @@ WMI classes.
 
 # Hard-coded list for the moment because we could not find a way
 # to list "root" subnamespaces with wmi. Not a problem for the moment.
+# http://stackoverflow.com/questions/5332501/how-do-you-query-for-wmi-namespaces
 hardcodedNamespaces = (
 	"aspnet",
 	"CIMV2",
