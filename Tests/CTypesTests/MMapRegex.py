@@ -248,8 +248,6 @@ class MemoryProcessor:
 # 		return result
 #
 
-
-
 if sys.platform == "win32":
 
 	from ctypes import wintypes
@@ -302,8 +300,13 @@ if sys.platform == "win32":
 			MBI_pointer,
 			size)
 
-		assert success, "VirtualQueryEx Failed with success == %s.\n%s" % (success, WinError(GetLastError())[1])
-		assert success == size, "VirtualQueryEx Failed because not all data was written."
+		if not success:
+			print("VirtualQueryEx Failed address=%s, error = %s" % ( str(address), str(ctypes.WinError(ctypes.GetLastError())[1])))
+			return 0
+
+		if success != size:
+			print("VirtualQueryEx Failed because not all data was written.")
+			return 0
 		return PyMEMORY_BASIC_INFORMATION(MBI)
 
 
@@ -322,7 +325,7 @@ if sys.platform == "win32":
 			czero)
 
 		assert success, "ReadMemory Failed with success == %s and address == %s and size == %s.\n%s" % (
-			success, address, size, WinError(GetLastError())[1])
+			success, address, size, ctypes.WinError(ctypes.GetLastError())[1])
 		return cbuffer.raw
 
 	def scan_page(process_handle, page_address, mem_proc_functor):
@@ -355,17 +358,28 @@ if sys.platform == "win32":
 
 	def MemMachine(pidint):
 		kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-		# phandle = windll.kernel32.OpenProcess( \
+
+
 
 		# PROCESS_ALL_ACCESS, # alternative access right for debugging.
-		ACCESS = win32con.PROCESS_VM_READ | win32con.PROCESS_VM_OPERATION | win32con.PROCESS_VM_WRITE | win32con.PROCESS_QUERY_INFORMATION
+		# TODO: NOT SURE I NEED PROCESS_VM_WRITE !
+		# ACCESS = win32con.PROCESS_VM_READ | win32con.PROCESS_VM_OPERATION | win32con.PROCESS_VM_WRITE | win32con.PROCESS_QUERY_INFORMATION
+		ACCESS = win32con.PROCESS_VM_READ | win32con.PROCESS_VM_OPERATION | win32con.PROCESS_QUERY_INFORMATION
 
+		# kernel32.OpenProcess.restype = ctypes.wintypes.HANDLE
+
+		print("pidint=%s" % str(pidint) )
 		phandle = kernel32.OpenProcess( ACCESS, False, pidint)
+		print("phandle=%s" % str(phandle) )
+		# print("GetLastError=%s" % str(ctypes.GetLastError()) )
+
+		# No need to prefix with ctypes on Python 3. Why ?
+		assert phandle, "Failed to open process!\n%s" % ctypes.WinError(ctypes.GetLastError())[1]
+
 
 		is64bits = IsProcess64Bits(phandle)
+		print("is64bits=%d" % is64bits)
 		mem_proc_functor = MemoryProcessor(is64bits)
-
-		assert phandle, "Failed to open process!\n%s" % WinError(GetLastError())[1]
 
 		class SYSTEM_INFO(ctypes.Structure):
 			_fields_ = [
@@ -385,10 +399,33 @@ if sys.platform == "win32":
 		psi = ctypes.byref(si)
 		kernel32.GetSystemInfo(psi)
 
+		print("System Info")
+		# print("%s" % dir(si))
+		for ksi in si._fields_:
+			print("    %-30s %20s" % (ksi[0],str(getattr(si,ksi[0]))) )
+		print("")
+
+		try:
+			arch = {
+				9:"PROCESSOR_ARCHITECTURE_AMD64",
+				5:"PROCESSOR_ARCHITECTURE_ARM",
+				6:"PROCESSOR_ARCHITECTURE_IA64",
+				0:"PROCESSOR_ARCHITECTURE_INTEL",
+				0xffff:"PROCESSOR_ARCHITECTURE_UNKNOWN"
+			}[ getattr(si,"wProcessorArchitecture") ]
+		except KeyError:
+			arch = "Unknown"
+		print("Architecture=%s" % arch )
+
 		# First address of the first page to scan.
 		base_address = si.lpMinimumApplicationAddress
 		# Last address to scan.
 		max_address = si.lpMaximumApplicationAddress
+
+		# TEMP
+		base_address = 65536
+		max_address = 1000000
+
 
 		found = list()
 		page_address = base_address
@@ -403,9 +440,6 @@ if sys.platform == "win32":
 				print("[Warning] Scan ended early because too many addresses were found to hold the target data.")
 				break
 		return
-
-	# JUSTE POUR LES TESTS !!!!!
-	pidint = 12572 # Ramp
 
 else:
 	## Partial interface to ptrace(2), only for PTRACE_ATTACH and PTRACE_DETACH.
@@ -473,8 +507,6 @@ else:
 				# print("%d %d %s" % (addr_beg, addr_end, map.path) )
 				GetMemoryFromProc(pidint, addr_beg, addr_end, mem_proc_functor)
 
-	pidint = 1783
-
 def getdict(struct):
 	result = {}
 	#print struct
@@ -505,6 +537,15 @@ def getdict(struct):
 		result[fieldNam] = value
 	return result
 
+if sys.platform == "win32":
+	# JUSTE POUR LES TESTS !!!!!
+	pidint = 12572 # Ramp
+	pidint = 8864 # Ramp
+else:
+	pidint = 3272
+
+if len(sys.argv) > 0:
+	pidint = int(sys.argv[1])
 
 MemMachine( pidint )
 
