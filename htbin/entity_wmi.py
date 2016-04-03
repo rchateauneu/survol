@@ -70,6 +70,7 @@ if sys.version_info >= (3,):
 else:
 	listTypes = ( unicode, int, float )
 
+# Displays the properties of a WMI object (Not a class).
 def DispWmiProperties(grph,wmiInstanceNode,objWmi):
 	for prp in objWmi.properties:
 		# BEWARE, it could be None.
@@ -197,7 +198,6 @@ def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
 cgiMoniker = cgiEnv.GetParameters("xid")
 sys.stderr.write("cgiMoniker=[%s]\n" % cgiMoniker )
 
-# objList = None
 objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )
 if objList is None:
 	objList = WmiReadWithQuery( cgiEnv )
