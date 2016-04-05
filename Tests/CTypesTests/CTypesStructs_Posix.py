@@ -1,4 +1,6 @@
 import ctypes
+import CTypesStructs
+from CTypesStructs import POINTER_T
 
 class struct_time_t(ctypes.Structure):
 	_pack_ = True # source:False
@@ -19,18 +21,17 @@ class struct_time_t(ctypes.Structure):
 	# "import struct; print 'little' if ord(struct.pack('L', 1)[0]) else 'big'"
 	# 0xA0B70708 stored in the order : 08 07 B7 A0
 	_regex_ = {
-		'tm_sec': "\\x00\\x00\\x00[\\x00-\\x3D]", # 0 .. 61
-		'tm_min': "\\x00\\x00\\x00[\\x00-\\x3B]", # 0 .. 59
-		'tm_hour': "\\x00\\x00\\x00[\\x00-\\x17]", # 0 .. 23
-		'tm_mday': "\\x00\\x00\\x00[\\x01-\\x1F]", # 1 .. 31
-		'tm_mon': "\\x00\\x00\\x00[\\x00-\\x0B]", # 0 .. 11
-		'tm_year': "|".join("\\0x%08x" % i for i in range(0,255)),
-		#	On essaie avec 2016 = 1900 + 116 = 1900 + 64 + 32 + 16 + 4 = 1900 + 0x74
-		'tm_year': "\\x00\\x00\\x00\\x6C", # Why 2008 ??
-		#	'tm_year': "\\x00\\x00\\x00[\\x00-\\xFF]", # 0 .. 255 years should be alright from 1900.
-		'tm_wday': "\\x00\\x00\\x00[\\x00-\\x06]", # 0 .. 6
+		'tm_sec': "[\\x00-\\x3D]\\x00\\x00\\x00", # 0 .. 61
+		'tm_min': "[\\x00-\\x3B]\\x00\\x00\\x00", # 0 .. 59
+		'tm_hour': "[\\x00-\\x17]\\x00\\x00\\x00", # 0 .. 23
+		'tm_mday': "[\\x01-\\x1F]\\x00\\x00\\x00", # 1 .. 31
+		'tm_mon': "[\\x00-\\x0B]\\x00\\x00\\x00", # 0 .. 11
+		# 'tm_year': "[\\x00-\\xFF]\\x00\\x00\\x00", # 0 .. 255 years should be alright from 1900.
+		'tm_year': "[\\x5A-\\x82]\\x00\\x00\\x00", # 1990-2030 years, from 1900: 90-130 => 0x5A - 0x82
+		'tm_wday': "[\\x00-\\x06]\\x00\\x00\\x00", # 0 .. 6
 		#	# Could be expressed with a shorter range.
 		#	'tm_yday': "|".join("\\0x%08x" % i for i in range(0,365)),
+		'tm_isdst': "[\\x00-\\x01]\\x00\\x00\\x00", # 0 .. 1
 	}
 
 
@@ -68,13 +69,6 @@ class struct_iobuf(ctypes.Structure):
 		('_tmpfname', POINTER_T(ctypes.c_char)),
 	]
 
-class struct_stat(ctypes.Structure):
-	_pack_ = True # source:False
-	_fields_ = [
-		('path',   POINTER_T(ctypes.c_char)),
-		('buffer', POINTER_T(None)),
-	]
-
 class struct_addrinfo(ctypes.Structure):
 	_pack_ = True # source:False
 	_fields_ = [
@@ -89,6 +83,6 @@ class struct_addrinfo(ctypes.Structure):
 	]
 
 lstStructs = [ struct_time_t, struct_FixedString, struct_Url,
-			   struct_iobuf, struct_stat, struct_addrinfo ]
-lstStructs = [  ]
+			   struct_iobuf, struct_addrinfo ]
+lstStructs = [ struct_time_t ]
 

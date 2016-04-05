@@ -52,11 +52,12 @@ class MemoryProcessor:
 			def __init__(self,structPatt):
 				self.m_rgxText = MakePattern(structPatt)
 				self.m_rgxComp = re.compile(self.m_rgxText.encode('utf-8'))
-				self.m_result = []
+				self.m_result = {}
 
 		self.m_byStruct = { theStr : DefStruct(theStr) for theStr in CTypesStructs.lstStructs }
 
 
+	# TODO: ON VOUDRAIT AJOUTER LA CONTRAINTE QUE LA MEMOIRE EST ALIGNEE COMME LA STRUCT. COMMENT FAIRE ??
 	def ParseSegment(self,arr):
 		# print("Imported modules:"+str(sorted(sys.modules.keys())))
 		# TODO: Fix this strange behaviour, when instantiating a class of this module.
@@ -68,6 +69,8 @@ class MemoryProcessor:
 
 		for keyStr in self.m_byStruct:
 			structRegex = self.m_byStruct[ keyStr ].m_rgxComp
+
+			# TODO: Check only aligned addresses.
 			matches = structRegex.findall( arr )
 
 			if not matches:
@@ -80,16 +83,12 @@ class MemoryProcessor:
 			# Si ce n est pas une classe predefinie, on cherche dans notre dictionnaire
 			# l'expression reguliere.
 
-			objsList = []
+			dictResult = self.m_byStruct[ keyStr ].m_result
+
 			for mtch in matches:
-				#print("Object creation")
-				#print("type=%s" % type(keyStr))
-				#print("typeAs=%s" % str(keyStr))
-				# anObj = CTypesStructs.keyStr()
+				# TODO: Reject non-aligned addresses.
 				anObj = keyStr()
 				fit = min(len(mtch), ctypes.sizeof(anObj))
-				#print("mtch=%s" % str(mtch))
-				#print("fit=%d" % fit)
 				ctypes.memmove(ctypes.addressof(anObj), mtch, fit)
 
 				# Maybe this object contains pointers.
@@ -101,6 +100,8 @@ class MemoryProcessor:
 
 					# print("Nam="+fieldNam)
 
+					# TODO: Check that the type of the pointer is compatible with its alignment.
+					# TODO: The address just needs to be a multiple of the object size.
 					pointedTypNam = CTypesStructs.PointedType( fieldTyp )
 					# MARCHEPAS ENCORE. VOYPNS D ABORD DES CAS FACILES.
 					if False and pointedTypNam is not None:
@@ -126,12 +127,9 @@ class MemoryProcessor:
 						# Tolerer despointeurs invalides surtout au debut.
 						continue
 
-				objsList.append( ( mtch, anObj ) )
+				dictResult[ ctypes.addressof(anObj) ] = anObj
 
-			print("NbMatches=%d after filter=%d" % ( len(matches), len(objsList) ) )
-
-			# self.m_keyedOccurrences[ keyStr ].extend( objsList )
-			self.m_byStruct[ keyStr ].m_result.extend( objsList )
+			print("Total NbMatches=%d after filter=%d" % ( len(matches), len(dictResult) ) )
 
 
 if sys.platform == "win32":
@@ -483,9 +481,6 @@ if len(sys.argv) > 1:
 
 mem_proc_functor = MemMachine( pidint )
 
-#foundOccurrences = mem_proc_functor.m_keyedOccurrences
-#m_byStruct[ keyStr ].m_result
-
 byStruct = mem_proc_functor.m_byStruct
 
 print("Keys number:%d" % len(byStruct) )
@@ -493,9 +488,17 @@ for keyStr in byStruct:
 	objsList = byStruct[keyStr].m_result
 	print("%0.60s : %d occurences" % (keyStr, len( objsList ) ) )
 
-	for mtch, anObj in objsList[:60]:
-		# print(str((mtch,anObj)))
-		# print(str(mtch))
+	maxCnt = 10
+
+	for addrObj in sorted(objsList):
+		# In case of too many data.
+		maxCnt -= 1
+		if maxCnt == 0:
+			break
+
+		anObj = objsList[ addrObj ]
+		# print(str(dir(mtch)))
+		print("%0.16X"%addrObj)
 		# print(type(mtch))
 		# print("  "+str(anObj.path))
 		# print("  "+str(anObj._fields_))

@@ -2,6 +2,8 @@ import ctypes
 import CTypesStructs
 from CTypesStructs import POINTER_T
 
+# TODO: Structure DEVMODE
+
 class struct_SAFEARRAYBOUND(ctypes.Structure):
 	_pack_ = True # source:False
 	_fields_ = [
@@ -71,4 +73,4 @@ class struct_DISPLAY_DEVICE(ctypes.Structure):
 
 
 lstStructs = [ struct_SAFEARRAY, struct_SAFEARRAYBOUND, struct_IP_ADDRESS_STRING, struct_DISPLAY_DEVICE ]
-lstStructs = [ struct_DISPLAY_DEVICE ]
+lstStructs = [ struct_IP_ADDRESS_STRING ]

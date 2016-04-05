@@ -148,6 +148,8 @@ if False:
 	import CTypesStructs_MQ
 	lstStructs.extend( CTypesStructs_MQ.lstStructs )
 
+import CTypesStructs_Posix
+lstStructs.extend( CTypesStructs_Posix.lstStructs )
 
 ##########################################################################
 	 
