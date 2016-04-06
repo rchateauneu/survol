@@ -20,7 +20,7 @@ def BuildWbemNamespaceClass( entity_namespace, entity_type ):
 def BuildWbemMoniker( hostname, namespac = "", classNam = "" ):
 	# Sometimes one is null
 	# return hostname + "/" + namespac + ":" + classNam + "."
-	return "%s/%s/%s" % ( hostname, namespac, classNam )
+	return "%s/%s:%s." % ( hostname, namespac, classNam )
 
 # TODO: Build a moniker with cimom added at the beginning.
 # J ai des doutes sur cette fonction qui est pourtant utilisee deux fois.

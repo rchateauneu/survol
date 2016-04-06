@@ -64,7 +64,10 @@ for modules_line in modules_file:
 
 		grph.add( ( file_parent, pc.property_module_dep, file_child ) )
 
-# Choose the "dot" layout because "neato" is too slow,
-# and the result is not readable.
-cgiEnv.OutCgiRdf(grph, "LAYOUT_XXXX")
+# Splines are rather slow.
+if maxCnt > 100:
+	layoutType = "LAYOUT_XXX"
+else:
+	layoutType = "LAYOUT_SPLINE"
+cgiEnv.OutCgiRdf(grph, layoutType)
 
