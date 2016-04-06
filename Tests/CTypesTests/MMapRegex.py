@@ -423,22 +423,34 @@ def getdict(struct):
 
 	def get_value(value):
 		# if (type(value) not in [int, long, float, bool]) and not bool(value):
-		if (type(value) not in six.integer_types + ( float, bool ) ) and not bool(value):
-			# it's a null pointer
-			value = None
+		if type(value) == str:
+			value = "__________"
+		elif isinstance(value, ctypes.c_char):
+			value = "=========="
+		elif (type(value) not in six.integer_types + ( float, bool ) ):
+			if hasattr(value, "_type_"):
+				if getattr(value, "_type_") == ctypes.c_char:
+					# value = "String=" + str(getattr(value, "_type_"))
+					# value = "String=" + str(dir(value))
+					# value = str(ctypes.addressof(value))
+					value = ctypes.string_at(ctypes.addressof(value))
+					# value = "String=" + str(value)
+					# value = "String=" + str(value.contents)
+				else:
+					value = "Pointer=" + str(getattr(value, "_type_"))
+			else:
+				value = "Zero"
 		elif hasattr(value, "_length_") and hasattr(value, "_type_"):
 			# Probably an array
-			#print value
-			# print( "TTTTTTTTTT=" + str( dir(getattr(value, "_type_"))))
-			if getattr(value, "_type_") == ctypes.c_ubyte:
-				# print( "CCCCCCC=" + str( getattr(value, "_type_")))
+			if getattr(value, "_type_") in [ ctypes.c_ubyte ]:
 				value = get_string(value)
 			else:
-				# print( "TTTTTTTTTT=" + str( getattr(value, "_type_")))
 				value = get_array(value)
 		elif hasattr(value, "_fields_"):
 			# Probably another struct
 			value = getdict(value)
+		#else:
+		#	value = str(value) + "*type*=" + str( type(value) )
 		return value
 
 	def get_array(array):

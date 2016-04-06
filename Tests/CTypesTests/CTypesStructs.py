@@ -133,6 +133,8 @@ def PointerSize():
 
 lstStructs = [  ]
 
+import CTypesStructs_Posix
+lstStructs.extend( CTypesStructs_Posix.lstStructs )
 
 if sys.platform == "win32":
 	import CTypesStructs_Windows
@@ -147,9 +149,6 @@ if False:
 
 	import CTypesStructs_MQ
 	lstStructs.extend( CTypesStructs_MQ.lstStructs )
-
-import CTypesStructs_Posix
-lstStructs.extend( CTypesStructs_Posix.lstStructs )
 
 ##########################################################################
 	 
