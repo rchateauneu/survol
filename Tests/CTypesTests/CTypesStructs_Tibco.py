@@ -1,4 +1,18 @@
 import ctypes
+import CTypesStructs
+from CTypesStructs import POINTER_T
+
+# C est le hader qui nous interesse, qui contient source et destination.
+# On ne s interesse pas au contenu.
+
+# tibrvlisten -network "190.231.54.20" -service "5420" -daemon "tcp:7500"
+# C:\>tibrvlisten -service "5420" -network ";190.231.54.20" -daemon "tcp:remotehost:7500"  TEST.REPLY
+
+# Un netwrok sniffer peut nous donner ls atrcture des messages.
+# Reste a les scanner dans la memoire du process,
+# si les messages sont suffisamment faciles a identifier.
+
+# http://seclists.org/nmap-dev/2014/q2/522
 
 # Tib
 
