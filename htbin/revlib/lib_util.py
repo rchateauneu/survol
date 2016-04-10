@@ -241,8 +241,10 @@ def ParseXid(xid ):
 	# WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
 	# Beware ! On Windows, namespaces are separated by backslashes.
 	# WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
-	# \\RCHATEAU-HP\root\cimv2%3ACIM_ManagedSystemElement
-	mtch_ent_wmi = re.match( r"\\\\([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
+	# TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
+	# TODO: otherwise graphviz replace "\L" par "<TABLE">
+	# mtch_ent_wmi = re.match( r"\\\\\\([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
+	mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
 	if mtch_ent_wmi:
 		grp = mtch_ent_wmi.groups()
 		( entity_host, entity_type, entity_id_quoted ) = grp
