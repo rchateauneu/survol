@@ -5,6 +5,23 @@ pc = rdflib.Namespace(primns)
 primns_slash = primns + '/'
 
 # If prp contains a space, it is not properly parsed.
+# TODO: The extra parameter is not used yet.
+# On voudrait passer plus d informations avec la propriete.
+# Actuellement:
+# pc.property_smbmount             = MakeProp("smbmount")
+# grph.add( ( wbemInstanceNode, pc.property_smbmount, wbemAssocNode ) )
+# grph.add( ( wbemInstanceNode, lib_common.MakeProp("AnyString"), wbemAssocNode ) )
+#
+# if key == pc.property_information
+# On voudrait idealement:
+# dflib.term.URIRef(primns_slash + "smbmount", key1=val, key2=val2)
+# Et aussi, on n'a pas besoin des URIRef.
+#   rdflib.Literal({"type":"html","title":"yawn","color":"blue"})
+#   rdflib.term.Literal(u"{'color': 'blue', 'type': 'html', 'title': 'yawn'}")
+# Alors on pourrait tout garder pareil sauf les tests d'egalite "html" et "rdf":
+# On teste que la clef est en fait un tableau contenant des proprietes.
+# On pourrait ajouter des infos dans un certain ordre: "information?key=1", "information?key=2",
+# et l ordre naturel conviendra. Ou bien ajouter une fonction de tri dans le sorted.
 def MakeProp(prp,**kvargs):
 	ret = primns_slash + prp
 	if kvargs:
@@ -76,7 +93,7 @@ pc.property_html_data            = MakeProp("html")
 pc.property_wbem_data            = MakeProp("wbem")
 pc.property_wmi_data             = MakeProp("wmi")
 pc.property_csv_data             = MakeProp("csv")
-pc.property_information          = MakeProp("information")
+pc.property_information          = MakeProp("----information") # "----" at the beginning so it comes first. This is a hack !
 pc.property_image                = MakeProp("image")
 pc.property_domain               = MakeProp("domain")
 pc.property_controller           = MakeProp("controller")
@@ -112,17 +129,3 @@ def prop_color(prop):
 		return "ORANGE"
 	return "PURPLE"
 
-# On voudrait passer plus d informations avec la propriete.
-# Actuellement:
-# pc.property_smbmount             = MakeProp("smbmount")
-# grph.add( ( wbemInstanceNode, pc.property_smbmount, wbemAssocNode ) )
-# grph.add( ( wbemInstanceNode, lib_common.MakeProp("AnyString"), wbemAssocNode ) )
-#
-# if key == pc.property_information
-# On voudrait idealement:
-# dflib.term.URIRef(primns_slash + "smbmount", key1=val, key2=val2)
-# Et aussi, on n'a pas besoin des URIRef.
-#   rdflib.Literal({"type":"html","title":"yawn","color":"blue"})
-#   rdflib.term.Literal(u"{'color': 'blue', 'type': 'html', 'title': 'yawn'}")
-# Alors on pourrait tout garder pareil sauf les tests d'egalite "html" et "rdf":
-# On teste que la clef est en fait un tableau contenant des proprietes.
