@@ -234,7 +234,7 @@ for baseKlass in klassObj.derivation():
 	wmiClassNode = lib_util.EntityClassNode( baseKlass, nameSpace, cimomUrl, "WMI" )
 	grph.add( ( wmiClassNode, pc.property_subclass, wmiSubNode ) )
 
-	lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiClassNode, baseKlass )
+	lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiClassNode, baseKlass, False )
 	wmiSubNode = wmiClassNode
 
 #grph.add( ( rootNode, lib_common.MakeProp(className), wmiInstanceNode ) )

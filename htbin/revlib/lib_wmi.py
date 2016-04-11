@@ -4,9 +4,18 @@ import socket
 import rdflib
 import lib_util
 import lib_common
+from lib_properties import pc
 
 try:
 	import wmi
+	import pywintypes
+	import win32com.client
+
+	# http://sawbuck.googlecode.com/svn/trunk/sawbuck/py/etw/generate_descriptor.py
+	# Generate symbols for the WbemScripting module so that we can have symbols
+	# for debugging and use constants throughout the file.
+	# Without this, win32com.client.constants is not available.
+	win32com.client.gencache.EnsureModule('{565783C6-CB41-11D1-8B02-00600806D9B6}',0, 1, 1)
 	wmi_imported = True
 except ImportError:
 	wmi_imported = False
@@ -169,11 +178,50 @@ def WmiTooManyInstances(className):
 						 'Win32_Group', 'CIM_ManagedSystemElement']
 
 
-# TODO: IL Y A UNE DESCRIPTION DANS LES CLASSES WMI, MAIS OU ?????
-
-
-def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className ):
+def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
+	clsObj = getattr( connWmi, classNam )
+	drv = clsObj.derivation()
 	try:
+		baseClass = drv[0]
+	except IndexError:
+		baseClass = ""
+	try:
+		clsList = [ c for c in connWmi.SubclassesOf (baseClass, win32com.client.constants.wbemFlagUseAmendedQualifiers) if classNam == c.Path_.Class ]
+		theCls = clsList[0]
+		return theCls
+	except pywintypes.com_error:
+		return None
+
+def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
+	try:
+		# No need to print this, at the moment.
+		if False:
+			klassDescr = str( dir( getattr( connWmi, className ) ) )
+			grph.add( ( wmiClassNode, lib_common.MakeProp("dir"), rdflib.Literal(klassDescr) ) )
+
+			klassDescr = str( getattr( connWmi, className )._properties )
+			grph.add( ( wmiClassNode, lib_common.MakeProp("_properties"), rdflib.Literal(klassDescr) ) )
+
+			klassDescr = str( getattr( connWmi, className ).properties["Description"] )
+			grph.add( ( wmiClassNode, lib_common.MakeProp("properties.Description"), rdflib.Literal(klassDescr) ) )
+
+			klassDescr = str( getattr( connWmi, className ).property_map )
+			grph.add( ( wmiClassNode, lib_common.MakeProp("property_map"), rdflib.Literal(klassDescr) ) )
+
+		theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
+		if theCls:
+			klassDescr = theCls.Qualifiers_("Description")
+			grph.add( ( wmiClassNode, pc.property_information, rdflib.Literal(klassDescr) ) )
+
+			if withProps:
+				for propObj in theCls.Properties_:
+					propDsc = propObj.Qualifiers_("Description")
+					grph.add( ( wmiClassNode, lib_common.MakeProp(propObj.Name), rdflib.Literal(propDsc) ) )
+
+
+
+		# TODO: The properties are not properly sorted: Some properties should come before others.
+
 		klassQuals = getattr( connWmi, className ).qualifiers
 		for klaQualKey in klassQuals :
 			klaQualVal = klassQuals[klaQualKey]

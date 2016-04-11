@@ -36,7 +36,7 @@ else:
 
 connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
 
-lib_wmi.WmiAddClassQualifiers( grph, connWmi, rootNode, className )
+lib_wmi.WmiAddClassQualifiers( grph, connWmi, rootNode, className, True )
 
 # Inutilisable pour:
 # root/CIMV2/CIM_LogicalFile

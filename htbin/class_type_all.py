@@ -101,10 +101,11 @@ if not wmiurl is None:
 		# TODO: Shame, we just did it in GetWmiUrl.
 		ipOnly = lib_util.EntHostToIp(entity_host)
 		connWmi = lib_wmi.WmiConnect(ipOnly,nameSpace)
-		lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiNode, className )
+		lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiNode, className, False )
 	except Exception:
+		# TODO: If the class is not defined, maybe do not display it.
 		exc = sys.exc_info()[1]
-		grph.add( ( wmiNode, lib_common.MakeProp("Error"), rdflib.Literal(str(exc)) ) )
+		grph.add( ( wmiNode, lib_common.MakeProp("WMI Error"), rdflib.Literal(str(exc)) ) )
 
 
 

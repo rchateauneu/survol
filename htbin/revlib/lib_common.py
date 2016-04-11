@@ -173,12 +173,13 @@ def UselessProc(proc):
 
 ################################################################################
 
-maxHtmlTitleLen = 50
+maxHtmlTitleLenPerCol = 40
 withBrDelim = '<BR ALIGN="LEFT" />'
 
 # Inserts "<BR/>" in a HTML string so it is wrapped in a HTML label.
-def StrWithBr(str):
+def StrWithBr(str, colspan = 1):
 	lenStr = len(str)
+	maxHtmlTitleLen = colspan * maxHtmlTitleLenPerCol
 	if lenStr < maxHtmlTitleLen:
 		return str
 
@@ -316,8 +317,8 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	stream.write("""
   subgraph cluster_01 { 
-    key [shape=none, label=<<table border="0" cellpadding="" cellspacing="0" cellborder="1">
-      <tr><td colspan="2">""" + page_title + """</td></tr>
+    key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">
+      <tr><td colspan="2">""" + DotBold(page_title) + """</td></tr>
  	""")
 
 	# Prints the documentation of the main module, if any.
@@ -328,11 +329,11 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		pass
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
-	stream.write('<tr><td colspan="2" href="' + topUrl + '">' + DotUL("Top") + '</td></tr>')
+	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotUL("Top") + '</td></tr>')
 
 	stream.write("""
-      <tr><td colspan="2">""" + time.strftime("%Y-%m-%d %H:%M:%S") + """</td></tr>
-      <tr><td>Nodes</td><td>""" + str(len(grph)) + """</td></tr>
+      <tr><td align='left' colspan="2">""" + time.strftime("%Y-%m-%d %H:%M:%S") + """</td></tr>
+      <tr><td align='left' >Nodes</td><td>""" + str(len(grph)) + """</td></tr>
  	""")
 
 	# So we can change parameters of this CGI script.
@@ -346,8 +347,8 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
 	# SO THESE LINKS DO NOT WORK ?????
-	stream.write("<tr><td colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>")
-	stream.write("<tr><td colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>")
+	stream.write("<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>")
+	stream.write("<tr><td align='left' colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>")
 
 	if len( parameters ) > 0 :
 		stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "'>" + DotUL( "Parameters edition" ) + "</td></tr>" )
@@ -433,14 +434,14 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		idx = 0
 		# TODO: The sort must put at first, some specific keys.
 		for ( key, val ) in sorted(the_fields):
-			# This should come first.
+			# This should come first, but it does not so we prefix with "----". Hack !
 			if key == pc.property_information:
-				# Completely left-aligned.
-				val = StrWithBr(val)
+				# Completely left-aligned. Col span is 2, approximate ratio.
+				val = StrWithBr(val,2)
 				currTd = "<td align='left' balign='left' colspan='2'>%s</td>" % val
 			elif key in [ pc.property_html_data, pc.property_rdf_data_nolist ] :
 				urlTxt = lib_naming.ParseEntityUri(val)[0]
-				splitTxt = StrWithBr(urlTxt)
+				splitTxt = StrWithBr(urlTxt, 2)
 				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, splitTxt )
 			else:
 				val = StrWithBr(val)
