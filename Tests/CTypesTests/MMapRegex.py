@@ -62,8 +62,8 @@ class MemoryProcessor:
 		# print("Imported modules:"+str(sorted(sys.modules.keys())))
 		# TODO: Fix this strange behaviour, when instantiating a class of this module.
 		# Exception:global name 'CTypesStructs' is not defined
-		if sys.version_info < (3,):
-			import CTypesStructs
+		# if sys.version_info < (3,):
+		import CTypesStructs
 		# print("Processing %d bytes" % len(arr) )
 		# namDisp = ",".join( str(theStr) for theStr in self.m_mapStructs )
 
