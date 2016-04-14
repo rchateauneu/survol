@@ -177,6 +177,9 @@ def RequestUri():
 def TopScriptsFunc():
 	currDir = os.getcwd()
 	idx = currDir.find("htbin")
+	# Maybe not running i Apache but in http.server (Python 3) or SimpleHttpServer (Python 2)
+	if idx == -1:
+		return currDir + "//htbin"
 	return currDir[ : idx + 5 ]
 
 gblTopScripts = TopScriptsFunc()
