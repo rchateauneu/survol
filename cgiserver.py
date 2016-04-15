@@ -5,7 +5,21 @@ import sys
 # If Apache is not available or if we want to run the website
 # with a specific user account.
 
-# TODO: Do this also for Python2
+# In Apache httpd.conf, we have the directive:
+# SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\revlib
+# It is also possible to set it globally in the .profile
+# if not we get the error, for example:  import lib_infocache.
+# sys.path.append('htbin/revlib')
+import os
+pyKey = "PYTHONPATH"
+extraPath = "htbin/revlib"
+try:
+    os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
+except KeyError:
+     os.environ[pyKey] =extraPath
+os.environ.copy()
+
+
 
 
 if sys.version_info[0] < 3:
