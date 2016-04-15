@@ -33,6 +33,19 @@ from lib_properties import pc
 # TODO: HOW TO PROPERLY SET THE PATH ???
 
 cgiEnv = lib_common.CgiEnv("DLL dependencies (Windows)")
+
+
+paramkeyGroupByDirs = "Group by directories"
+
+cgiEnv = lib_common.CgiEnv("DLL dependencies (Windows)",
+								parameters = { paramkeyGroupByDirs : True })
+
+flagGroupByDirs = bool(cgiEnv.GetParameters( paramkeyGroupByDirs ))
+
+
+
+
+
 win_module = cgiEnv.GetId()
 
 lib_win32.CheckWindowsModule(win_module)
@@ -72,16 +85,37 @@ except Exception:
 # E6,"c:\windows\system32\ADVAPI32.DLL",2012-10-18 21:27:04,2012-10-18 21:27:12,876544,A,0x000D9B98,0x000D9B98,x64,Console,"CV",0x000007FF7FF10000,Unknown,0x000DB000,Not Loaded,6.1.7601.22137,6.1.7601.22137,6.1,9.0,6.1,6.1
 # E6,"c:\windows\system32\API-MS-WIN-CORE-CONSOLE-L1-1-0.DLL",2013-08-02 03:12:18,2013-08-02 03:12:52,3072,HA,0x000081B6,0x000081B6,x64,Console,"CV",0x0000000000400000,Unknown,0x00003000,Not Loaded,6.1.7601.18229,6.1.7601.18229,6.1,9.0,6.1,6.1
 
+# Used only if libraries are grouped by directory.
+dirsToNodes = {}
+
 for lin in input_file:
 	# TODO: Beware of commas in file names!!!!! Maybe module shlex ?
 	linargs = lin.split(',')
 	module = linargs[1]
 	# The library filename is enclosed in double-quotes, that we must remove.
-	libNode = lib_common.gUriGen.SharedLibUri( module[1:-1] )
-	grph.add( ( nodeDLL, pc.property_library_depends, libNode ) )
+	modulNam = module[1:-1]
+	libNode = lib_common.gUriGen.SharedLibUri( modulNam )
+
+	# If the libraries are displayed in groups belnging to a dir, this is clearer.
+	if flagGroupByDirs:
+		dirNam = os.path.dirname(modulNam)
+		if dirNam == "":
+			dirNam = "Unspecified dir"
+		try:
+			dirNod = dirsToNodes[ dirNam ]
+		except KeyError:
+			# TODO: Beware, in fact this is a directory.
+			dirNod = lib_common.gUriGen.FileUri( dirNam )
+			grph.add( ( nodeDLL, pc.property_library_depends, dirNod ) )
+			dirsToNodes[ dirNam ] = dirNod
+		grph.add( ( dirNod, pc.property_library_depends, libNode ) )
+	else:
+		grph.add( ( nodeDLL, pc.property_library_depends, libNode ) )
+
 	if linargs[0] != '?':
 		cpu = linargs[8]
-		grph.add( ( nodeDLL, pc.property_library_cpu, rdflib.Literal(cpu) ) )
+		if cpu not in [ "", "CPU" ]:
+			grph.add( ( nodeDLL, pc.property_library_cpu, rdflib.Literal(cpu) ) )
 
 # Temporary file removed by constructor.
 input_file.close()
