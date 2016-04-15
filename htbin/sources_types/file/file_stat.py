@@ -11,7 +11,15 @@ import rdflib
 import psutil
 import lib_entities.lib_entity_file
 import lib_common
+import lib_properties
 from lib_properties import pc
+
+try:
+	import lib_win32
+	FilNamToProperties = lib_win32.getFileProperties
+except ImportError:
+	def FilNamToProperties(filNam):
+		return {}
 
 cgiEnv = lib_common.CgiEnv("File information")
 filNam = cgiEnv.GetId()
@@ -20,6 +28,8 @@ sys.stderr.write("filNam=%s\n" % filNam )
 filNode = lib_common.gUriGen.FileUri(filNam )
 
 grph = rdflib.Graph()
+
+
 
 try:
 	info = os.stat(filNam)
@@ -81,7 +91,7 @@ try:
 except ImportError:
 	pass
 
-# Displays the parent directories/
+# Displays the file and the parent directories/
 currFilNam = filNam
 currNode = filNode
 while True:
@@ -95,8 +105,24 @@ while True:
 	sys.stderr.write("dirPath=%s\n" % dirPath)
 	statPath = os.stat(dirPath)
 	lib_entities.lib_entity_file.AddStatNode( grph, dirNode, statPath )
+
+
+	propDict = FilNamToProperties(currFilNam)
+	for prp in propDict:
+		val = propDict[prp]
+		if val is None:
+			continue
+
+		if isinstance( val, dict ):
+			val = ", ".join( "%s=%s" % (k,val[k]) for k in val )
+		grph.add( ( currNode, lib_properties.MakeProp(prp), rdflib.Literal(val) ) )
+
 	currFilNam = dirPath
 	currNode = dirNode
+
+
+# If windows, print more information: DLL version etc...
+# http://stackoverflow.com/questions/580924/python-windows-file-version-attribute
 
 # cgiEnv.OutCgiRdf(grph)
 cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI")
