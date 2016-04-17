@@ -1,6 +1,6 @@
 import ctypes
-import CTypesStructs
-from CTypesStructs import POINTER_T
+import ctypes_scanner
+from ctypes_scanner import POINTER_T
 
 
 class struct_iobuf(ctypes.Structure):
@@ -18,4 +18,4 @@ class struct_iobuf(ctypes.Structure):
 
 
 lstStructs = [ struct_iobuf ]
-lstStructs = [ ]
+ctypes_scanner.DoAll(lstStructs)

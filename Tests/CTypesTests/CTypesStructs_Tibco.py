@@ -1,6 +1,6 @@
 import ctypes
-import CTypesStructs
-from CTypesStructs import POINTER_T
+import ctypes_scanner
+from ctypes_scanner import POINTER_T
 
 # C est le hader qui nous interesse, qui contient source et destination.
 # On ne s interesse pas au contenu.
@@ -173,3 +173,4 @@ from CTypesStructs import POINTER_T
 #####  VOIR AUSSI LE CONTENU DEtibrv/types.h !!!!
 
 lstStructs = [  ]
+ctypes_scanner.DoAll(lstStructs)

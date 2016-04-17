@@ -1,6 +1,6 @@
 import ctypes
-import CTypesStructs
-from CTypesStructs import POINTER_T
+import ctypes_scanner
+from ctypes_scanner import POINTER_T
 
 class struct_time_t(ctypes.Structure):
 	_pack_ = True # source:False
@@ -109,4 +109,4 @@ class struct_addrinfo(ctypes.Structure):
 
 lstStructs = [ struct_time_t, struct_FixedString, struct_Url ]
 lstStructs = [ struct_addrinfo, struct_time_t ]
-
+ctypes_scanner.DoAll(lstStructs)

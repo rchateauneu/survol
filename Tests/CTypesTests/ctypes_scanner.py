@@ -563,62 +563,100 @@ else:
 				GetMemoryFromProc(pidint, addr_beg, addr_end, mem_proc_functor )
 		return mem_proc_functor
 
-def getdict(struct):
+# def getdict(struct):
+# 	def get_value(value):
+# 		# if (type(value) not in [int, long, float, bool]) and not bool(value):
+# 		if type(value) == str:
+# 			value = "__________"
+# 		elif isinstance(value, ctypes.c_char):
+# 			value = "=========="
+# 		elif (type(value) not in six.integer_types + ( float, bool ) ):
+# 			if hasattr(value, "_type_"):
+# 				if getattr(value, "_type_") == ctypes.c_char:
+# 					# value = "String=" + str(getattr(value, "_type_"))
+# 					# value = "String=" + str(dir(value))
+# 					# value = str(ctypes.addressof(value))
+# 					value = ctypes.string_at(ctypes.addressof(value))
+# 					# value = "String=" + str(value)
+# 					# value = "String=" + str(value.contents)
+# 				else:
+# 					value = "Pointer=" + str(getattr(value, "_type_"))
+# 			else:
+# 				value = "Zero"
+# 		elif hasattr(value, "_length_") and hasattr(value, "_type_"):
+# 			# Probably an array
+# 			if getattr(value, "_type_") in [ ctypes.c_ubyte ]:
+# 				value = get_string(value)
+# 			else:
+# 				value = get_array(value)
+# 		elif hasattr(value, "_fields_"):
+# 			# Probably another struct
+# 			value = getdict(value)
+# 		#else:
+# 		#	value = str(value) + "*type*=" + str( type(value) )
+# 		return value
+#
+# 	def get_array(array):
+# 		ar = []
+# 		for value in array:
+# 			value = get_value(value)
+# 			ar.append(value)
+# 		return ar
+#
+# 	def get_string(array):
+# 		ar = ""
+# 		for value in array:
+# 			value = get_value(value)
+# 			if value == 0:
+# 				break
+# 			ar += chr(value)
+# 		return ar
+#
+# 	result = {}
+# 	for fld in struct._fields_:
+# 		fieldNam = fld[0]
+# 		valAttr = getattr(struct, fieldNam)
+# 		# if the type is not a primitive and it evaluates to False ...
+# 		value = get_value(valAttr)
+# 		result[fieldNam] = value
+# 	return result
 
+def getdict(struct):
 	def get_value(value):
-		# if (type(value) not in [int, long, float, bool]) and not bool(value):
-		if type(value) == str:
-			value = "__________"
-		elif isinstance(value, ctypes.c_char):
-			value = "=========="
-		elif (type(value) not in six.integer_types + ( float, bool ) ):
-			if hasattr(value, "_type_"):
-				if getattr(value, "_type_") == ctypes.c_char:
-					# value = "String=" + str(getattr(value, "_type_"))
-					# value = "String=" + str(dir(value))
-					# value = str(ctypes.addressof(value))
-					value = ctypes.string_at(ctypes.addressof(value))
-					# value = "String=" + str(value)
-					# value = "String=" + str(value.contents)
-				else:
-					value = "Pointer=" + str(getattr(value, "_type_"))
+		if (type(value) in six.integer_types + ( float, bool ) ):
+			return value
+
+		if hasattr(value, "_length_") and hasattr(value, "_type_"):
+			if getattr(value, "_type_") in [ ctypes.c_ubyte, ctypes.c_char ]:
+				ar = "%d:" % getattr(value, "_length_")
+				for vv in value:
+					gvv = get_value(vv)
+					if gvv == 0:
+						break
+					ar += chr(gvv)
+				return ar
 			else:
-				value = "Zero"
-		elif hasattr(value, "_length_") and hasattr(value, "_type_"):
-			# Probably an array
-			if getattr(value, "_type_") in [ ctypes.c_ubyte ]:
-				value = get_string(value)
+				return [ get_value(elt) for elt in value ]
+
+		if hasattr(value, "_type_"):
+			if getattr(value, "_type_") == ctypes.c_char:
+				return ctypes.string_at(ctypes.addressof(value))
 			else:
-				value = get_array(value)
-		elif hasattr(value, "_fields_"):
+				return "Pointer=" + str(getattr(value, "_type_"))
+
+		if hasattr(value, "_fields_"):
 			# Probably another struct
-			value = getdict(value)
-		#else:
-		#	value = str(value) + "*type*=" + str( type(value) )
+			return getdict(value)
+
 		return value
 
-	def get_array(array):
-		ar = []
-		for value in array:
-			value = get_value(value)
-			ar.append(value)
-		return ar
-
-	def get_string(array):
-		ar = ""
-		for value in array:
-			value = get_value(value)
-			if value == 0:
-				break
-			ar += chr(value)
-		return ar
 
 	result = {}
 	for fld in struct._fields_:
 		fieldNam = fld[0]
-		value = getattr(struct, fieldNam)
+		valAttr = getattr(struct, fieldNam)
 		# if the type is not a primitive and it evaluates to False ...
-		value = get_value(value)
+		value = get_value(valAttr)
 		result[fieldNam] = value
 	return result
 
@@ -642,16 +680,36 @@ def ProcessMemoryScan(pidint, lstStructs, maxDisplay):
 				break
 
 			anObj = objsList[ addrObj ]
-			# print(str(dir(mtch)))
 			print("%0.16X"%addrObj)
-			# print(type(mtch))
-			# print("  "+str(anObj.path))
-			# print("  "+str(anObj._fields_))
-			# print(dir(anObj))
-			for fld in anObj._fields_:
-				fldNam = fld[0]
-				print("        " + fldNam + ":" + str(getattr(anObj, fldNam ) ) )
-			print("  "+str(getdict(anObj)))
+			if False:
+				for fld in anObj._fields_:
+					fldNam = fld[0]
+					fldRest = fld[1:]
+					typAttr = type(getattr(anObj, fldNam ))
+					tmpAttr = getattr(anObj, fldNam )
+					strAttr = str(tmpAttr)
+					print("        %-20s: %-60s %-40s"  % ( fldNam , strAttr, typAttr ) )
+					# print("        %s"  % dir( fldNam ) )
+					print("        %s"  % dir( typAttr ) )
+					print("        %s"  % dir( tmpAttr ) )
+
+					if hasattr(tmpAttr, '_length_'):
+						print("        length=%d"  % getattr(tmpAttr, '_length_') )
+					if hasattr(tmpAttr, '_type_'):
+						print("        type=%s"  % getattr(tmpAttr, '_type_') )
+
+
+			def PrintDict(margin,ddd):
+				for k in ddd:
+					v = ddd[k]
+					if isinstance( v, dict ):
+						print("%s %-20s:" % ( margin, k ) )
+						PrintDict(margin+"      ",v)
+					else:
+						print("%s %-20s: %-60s" % ( margin, k , v ) )
+
+			ddd = getdict(anObj)
+			PrintDict("      ",ddd)
 
 
 def DoAll(lstStructs):
@@ -663,7 +721,8 @@ def DoAll(lstStructs):
 	maxDisplay = 10
 	ProcessMemoryScan(pidint, lstStructs, maxDisplay)
 
-# DoAll(CTypesStructs.lstStructs)
+# DoAll(
+# .lstStructs)
 
 # Not used yet but kept as informaitonal purpose.
 # if sys.platform == "win32":

@@ -248,7 +248,7 @@ lstStructs = [ struct_SAFEARRAY,
 			   struct_FILEDESCRIPTOR,
 			   struct_MODULEENTRY32,
 			   struct_FILE_SYSTEM_RECOGNITION_STRUCTURE]
-lstStructs = [ struct_FILE_SYSTEM_RECOGNITION_STRUCTURE ]
+lstStructs = [ struct_FILEDESCRIPTOR ]
 
 
 ctypes_scanner.DoAll(lstStructs)
