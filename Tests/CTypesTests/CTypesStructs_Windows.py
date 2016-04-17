@@ -70,7 +70,182 @@ class struct_DISPLAY_DEVICE(ctypes.Structure):
 		'DeviceKey'   : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{126}",
 	}
 
+# https://msdn.microsoft.com/en-us/library/windows/desktop/ms684225%28v=vs.85%29.aspx
+# typedef struct tagMODULEENTRY32 {
+#   DWORD   dwSize;
+#   DWORD   th32ModuleID;
+#   DWORD   th32ProcessID;
+#   DWORD   GlblcntUsage;
+#   DWORD   ProccntUsage;
+#   BYTE    *modBaseAddr;
+#   DWORD   modBaseSize;
+#   HMODULE hModule;
+#   TCHAR   szModule[MAX_MODULE_NAME32 + 1];
+#   TCHAR   szExePath[MAX_PATH];
+# } MODULEENTRY32, *PMODULEENTRY32;
 
 
-lstStructs = [ struct_SAFEARRAY, struct_SAFEARRAYBOUND, struct_IP_ADDRESS_STRING, struct_DISPLAY_DEVICE ]
-lstStructs = [ struct_IP_ADDRESS_STRING ]
+# Maybe in winappdbg
+MAX_MODULE_NAME32 = 255
+MAX_PATH = 260
+
+class struct_MODULEENTRY32(ctypes.Structure):
+	_pack_ = True # source:False
+	_fields_ = [
+		('dwSize',         ctypes.c_uint32),
+		('th32ModuleID',   ctypes.c_uint32),
+		('th32ProcessID',  ctypes.c_uint32),
+		('GlblcntUsage',   ctypes.c_uint32),
+		('ProccntUsage',   ctypes.c_uint32),
+		('modBaseAddr',    POINTER_T(ctypes.c_uint8)),
+		('modBaseSize',    ctypes.c_uint32),
+		('hModule',        POINTER_T(None)),
+		('szModule',       ctypes.c_uint8 * (MAX_MODULE_NAME32 + 1) ),
+		('szExePath',      ctypes.c_uint8 * MAX_PATH),
+	]
+	# At least two chars for most fields.
+	_regex_ = {
+		'szModule'  : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\.]{254}",
+		'szExePath' : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{258}",
+	}
+
+
+# Recursive structure;
+# http://stackoverflow.com/questions/1228158/python-ctype-recursive-structures
+# class EthercatDatagram(Structure):
+#     pass
+# EthercatDatagram._fields_ = [
+#     ("header", EthercatDatagramHeader),
+#     ("packet_data_length", c_int),
+#     ("packet_data", c_char_p),
+#     ("work_count", c_ushort),
+#     ("next_command", POINTER(EthercatDatagram))]
+
+#
+# https://msdn.microsoft.com/en-us/library/windows/desktop/dd442654%28v=vs.85%29.aspx
+#
+# typedef struct _FILE_SYSTEM_RECOGNITION_STRUCTURE {
+#   UCHAR  Jmp[3];
+#   UCHAR  FsName[8];
+#   UCHAR  MustBeZero[5];
+#   ULONG  Identifier;
+#   USHORT Length;
+#   USHORT Checksum;
+# } FILE_SYSTEM_RECOGNITION_STRUCTURE;
+class struct_FILE_SYSTEM_RECOGNITION_STRUCTURE(ctypes.Structure):
+	_pack_ = True # source:False
+	_fields_ = [
+		('Jmp',         ctypes.c_uint8 * 3 ),
+		('FsName',      ctypes.c_uint8 * 8),
+		('MustBeZero',  ctypes.c_uint8 * 5),
+		('Identifier',  ctypes.c_uint32),
+		('Length',      ctypes.c_uint16),
+		('Checksum',    ctypes.c_uint16),
+	]
+	# At least two chars for most fields.
+	_regex_ = {
+		'szModule'   : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\.]{254}",
+		'FsName'     : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{6}",
+		'MustBeZero' : "\x00\x00\x00\x00\x00",
+	}
+
+# typedef struct tagSIZE {
+#   LONG cx;
+#   LONG cy;
+# } SIZE, *PSIZE;
+class struct_SIZEL(ctypes.Structure):
+	_pack_ = True # source:False
+	_fields_ = [
+		('cx',      ctypes.c_uint32 ),
+		('cy',      ctypes.c_uint32 ),
+	]
+
+
+#
+# typedef struct _POINTL {
+#   LONG x;
+#   LONG y;
+# } POINTL, *PPOINTL;
+class struct_POINTL(ctypes.Structure):
+	_pack_ = True # source:False
+	_fields_ = [
+		('x',      ctypes.c_uint32 ),
+		('y',      ctypes.c_uint32 ),
+	]
+
+#
+# typedef struct _FILETIME {
+#   DWORD dwLowDateTime;
+#   DWORD dwHighDateTime;
+# } FILETIME, *PFILETIME;
+class struct_FILETIME(ctypes.Structure):
+	_pack_ = True # source:False
+	_fields_ = [
+		('dwLowDateTime',       ctypes.c_uint32 ),
+		('dwHighDateTime',      ctypes.c_uint32 ),
+	]
+
+#
+# CLSID
+# typedef struct _GUID {
+#     unsigned long  Data1;
+#     unsigned short Data2;
+#     unsigned short Data3;
+#     unsigned char  Data4[ 8 ];
+# } GUID;
+class struct_GUID(ctypes.Structure):
+	_pack_ = True # source:False
+	_fields_ = [
+		('Data1',  ctypes.c_uint32),
+		('Data2',  ctypes.c_uint16),
+		('Data3',  ctypes.c_uint16),
+		('Data4',  ctypes.c_uint8 * 8),
+	]
+
+#
+# https://msdn.microsoft.com/en-us/library/windows/desktop/bb773288%28v=vs.85%29.aspx
+#
+# typedef struct _FILEDESCRIPTOR {
+#   DWORD    dwFlags;
+#   CLSID    clsid;
+#   SIZEL    sizel;
+#   POINTL   pointl;
+#   DWORD    dwFileAttributes;
+#   FILETIME ftCreationTime;
+#   FILETIME ftLastAccessTime;
+#   FILETIME ftLastWriteTime;
+#   DWORD    nFileSizeHigh;
+#   DWORD    nFileSizeLow;
+#   TCHAR    cFileName[MAX_PATH];
+# } FILEDESCRIPTOR, *LPFILEDESCRIPTOR;
+
+class struct_FILEDESCRIPTOR(ctypes.Structure):
+	_pack_ = True # source:False
+	_fields_ = [
+		('dwFlags',            ctypes.c_uint32),
+		('clsid',              POINTER_T(struct_GUID)),
+		('sizel',              POINTER_T(struct_SIZEL)),
+		('pointl',             POINTER_T(struct_POINTL)),
+		('dwFileAttributes',   ctypes.c_uint32),
+		('ftCreationTime',     POINTER_T(struct_FILETIME)),
+		('ftLastAccessTime',   POINTER_T(struct_FILETIME)),
+		('ftLastWriteTime',    POINTER_T(struct_FILETIME)),
+		('nFileSizeHigh',      ctypes.c_uint32),
+		('nFileSizeLow',       ctypes.c_uint32),
+		('cFileName',          ctypes.c_uint8 * MAX_PATH),
+	]
+	# Realistically, at least two chars for most fields.
+	_regex_ = {
+		'cFileName' : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{258}",
+	}
+
+
+
+lstStructs = [ struct_SAFEARRAY,
+			   struct_SAFEARRAYBOUND,
+			   struct_IP_ADDRESS_STRING,
+			   struct_DISPLAY_DEVICE,
+			   struct_FILEDESCRIPTOR,
+			   struct_MODULEENTRY32,
+			   struct_FILE_SYSTEM_RECOGNITION_STRUCTURE]
+lstStructs = [ struct_FILE_SYSTEM_RECOGNITION_STRUCTURE ]

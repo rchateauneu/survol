@@ -118,6 +118,7 @@ def PointedType(tp):
 
 	return None
 
+# 32 or 64 bits. Pointer size in bytes, on this platform.
 def PointerSize():
 	if isPtr64Target == iPtr64Platform:
 		return ctypes.sizeof(ctypes.c_void_p)
@@ -127,8 +128,21 @@ def PointerSize():
 		else:
 			return 4
 
+################################################################################
 
+# This transforms a range of integer values into a regular expression
+# matching them in a binary buffer.
+# Width is typically one, two or four, but can be anything.
+def ValuesListToRegexp( valList, width ):
+	maxVals = max(valList)
+	if maxVals < 256:
+		subRegEx = "".join( r"\x%02x" % val for val in valList )
+		pad = r"\x00" * ( width - 1 )
+		# Maybe the values are contiguous but we do not care.
+		return "[" + subRegEx + "]" + pad
 
+	# For the moment, the other cases are not treated.
+	raise Exception("Not implemented now")
 ################################################################################
 
 lstStructs = [  ]
