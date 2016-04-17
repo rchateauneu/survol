@@ -20,7 +20,8 @@ node_process = lib_common.gUriGen.PidUri(pid)
 
 try:
 	# Old psutil versions.
-	connects = proc_obj.get_connections('all')
+	# connects = proc_obj.get_connections('all')
+	connects = lib_entity_CIM_Process.PsutilProcConnections(proc_obj,'all')
 # Does not work on recent versions of psutil.
 # except psutil._error.AccessDenied:
 except Exception:

@@ -7,9 +7,9 @@ RDF document containing all sockets of the hostname
 import sys
 import psutil
 import rdflib
+import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
-import lib_common
 from lib_properties import pc
 
 cgiEnv = lib_common.CgiEnv("System-wide sockets")
@@ -24,7 +24,8 @@ for proc in psutil.process_iter():
 		pid = proc.pid
 
 		# TCP sockets only.
-		all_connect = proc.get_connections()
+		# all_connect = proc.get_connections()
+		all_connect = lib_entity_CIM_Process.PsutilProcConnections(proc)
 		if all_connect:
 			node_process = lib_common.gUriGen.PidUri(pid)
 
@@ -44,15 +45,15 @@ for proc in psutil.process_iter():
 			# TODO: MAYBE CREATES ALL THE PROCESSES AND RUN THE THREADS ON THE COMPLETE LIST ???
 			lib_common.PsutilAddSocketToGraphAsync(node_process,all_connect,grph)
 
-	except lib_entity_CIM_Process..AccessDenied:
+	except psutil.AccessDenied:
 		pass
-	except lib_entity_CIM_Process..NoSuchProcess:
+	except psutil.NoSuchProcess:
 		pass
 	except:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Caught:" + str(exc) )
 		raise
 
-cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
 
 

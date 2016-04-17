@@ -18,28 +18,23 @@ grph = rdflib.Graph()
 
 proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(top_pid)
 
+# sys.stderr.write("top_pid=%d\n" % top_pid)
+
 node_process = lib_common.gUriGen.PidUri(top_pid)
-lib_entity_CIM_Process.AddInfo( grph, node_process, str(top_pid) )
+lib_entity_CIM_Process.AddInfo( grph, node_process, [ str(top_pid) ] )
 
 ################################################################################
 
 try:
-	# Old version of psutil
-	fillist = proc_obj.get_open_files()
-# Does not work on recent versions of psutil.
-# except psutil._error.AccessDenied:
+	fillist = lib_entity_CIM_Process.PsutilProcOpenFiles( proc_obj )
 except Exception:
-	# Version 3.2.2 at least.
-	try:
-		fillist = proc_obj.open_files()
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Caught:"+str(exc)+":"+str(proc_obj))
+	exc = sys.exc_info()[1]
+	lib_common.ErrorMessageHtml("Caught:"+str(exc)+":"+str(proc_obj))
 
 for fil in fillist:
 	# TODO: Resolve symbolic links. Do not do that if shared memory.
 	# TODO: AVOIDS THESE TESTS FOR SHARED MEMORY !!!!
-	if lib_common.MeaningLessFile(fil.path):
+	if lib_common.MeaninglessFile(fil.path,True,True):
 		continue
 
 	fileNode = lib_common.gUriGen.FileUri( fil.path )
@@ -47,5 +42,5 @@ for fil in fillist:
 
 # This works but not really necessary because there are not so many files.
 # cgiEnv.OutCgiRdf(grph, "", [pc.property_open_file] )
-cgiEnv.OutCgiRdf(grph )
+cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
 

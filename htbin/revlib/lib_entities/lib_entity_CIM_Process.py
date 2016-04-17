@@ -50,6 +50,12 @@ def PsutilProcToUser(proc):
 	except AccessDenied:
 		return "AccessDenied"
 
+def PsutilProcOpenFiles(proc):
+	try:
+		return proc.get_open_files()
+	except Exception:
+		return proc.open_files()
+
 def PsutilProcToExe(proc):
 	try:
 		try:
@@ -68,6 +74,16 @@ def PsutilProcToCmdline(proc):
 		return "Access denied"
 
 	return ' '.join(cmdArr)
+
+def PsutilProcConnections(proc,kind='inet'):
+	try:
+		cnnct = proc.get_connections(kind)
+	except AttributeError:
+		cnnct = proc.connections(kind)
+	except AccessDenied:
+		return ["Access denied"]
+
+	return cnnct
 
 
 
