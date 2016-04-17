@@ -101,7 +101,8 @@ if entity_type != "":
 	superKlassName = wbemKlass.superclass
 
 	sys.stderr.write("superKlassName=%s\n" % superKlassName)
-	if superKlassName != "":
+	# An empty string or None.
+	if superKlassName:
 		wbemSuperNode = WbemNamespaceNode( superKlassName )
 		grph.add( ( wbemSuperNode, pc.property_cim_subclass, rootNode ) )
 		klaDescrip = lib_wbem.WbemClassDescription(connWbem,superKlassName,wbemNamespace)
