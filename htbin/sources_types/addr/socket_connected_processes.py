@@ -5,8 +5,8 @@ import sys
 import socket
 import psutil
 import rdflib
-
 import lib_common
+import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
 
 cgiEnv = lib_common.CgiEnv("Processes connected to a socket")
@@ -29,14 +29,23 @@ sys.stderr.write("socketName=%s socketAddr=%s\n" % ( socketName, socketAddr ) )
 
 # TODO: If the input address is not "127.0.0.1", there is NO POINT doing this !!
 
-socketPort = int(socketSplit[1])
+# Maybe the port is given as a string, "ssh" or "telnet".
+# See usage of socket.getservbyport
+socketPortString = socketSplit[1]
+try:
+	socketPort = int(socketPortString)
+except ValueError:
+	socketPort = socket.getservbyname(socketPortString)
+
+
 
 for proc in psutil.process_iter():
 	node_process = None
 
 	# All sockets connected to this process.
-	all_connect = proc.get_connections('all')
+	# all_connect = proc.get_connections('all')
 	# all_connect = proc.get_connections()
+	all_connect = lib_entity_CIM_Process.PsutilProcConnections(proc,'all')
 
 	for cnt in all_connect:
 		( larray, rarray ) = lib_common.SocketToPair(cnt)
