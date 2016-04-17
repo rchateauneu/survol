@@ -247,7 +247,7 @@ class LocalBox:
 		return self.UriMake("smbserver", smbserver)
 
 	def SmbFileUri(self,smbshare,smbfile):
-		if smbfile != "" and smbfile[0] != "/":
+		if smbfile and smbfile[0] != "/":
 			fullnam = smbshare + "/" + smbfile
 		else:
 			fullnam = smbshare + smbfile
@@ -292,8 +292,6 @@ class LocalBox:
 
 		# TODO: Consider this might be even be more powerful.
 		# u'some string'.encode('ascii', 'xmlcharrefreplace')
-
-
 
 	def FileUriDirectory(self,dirNam):
 		return self.UriMakeFromScript('/sources_types/file/file_directory.py', "file", lib_util.EncodeUri(dirNam) )
