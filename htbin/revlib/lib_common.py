@@ -1253,6 +1253,13 @@ class CgiEnv():
 	def __init__(self, info = "", url_icon = "", parameters = {}, can_process_remote = False, platform_regex = "" ):
 		# TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
 		sys.stderr.write( "CgiEnv info=%s parameters=%s\n" % ( info, str(parameters) ) )
+
+		# TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
+		# TODO: is removed. Workaround: Any CGI variable added after.
+		# TODO: Also: Several slashes "/" are merged into one.
+		# TODO: Example: "xid=http://192.168.1.83:5988/." becomes "xid=http:/192.168.1.83:5988/"
+		# TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
+		# Maybe a bad collapsing of URL ?
 		sys.stderr.write("QUERY_STRING=%s\n" % os.environ['QUERY_STRING'] )
 		mode = GuessDisplayMode(sys.stderr)
 
@@ -1311,6 +1318,8 @@ class CgiEnv():
 		except KeyError:
 			# See function EditionMode
 			try:
+				return ( "", "", "" )
+				# OBSOLETE ???????
 				entity_type = self.m_arguments["edimodtype"].value
 				monikDelim = ""
 				entity_id = ""
@@ -1384,6 +1393,8 @@ class CgiEnv():
 				print('<td><input type="text" name="%s" value="%s"></td>' % (ediNam,kvVal) )
 				print("</tr>")
 
+		check_boxes_parameters = []
+
 		# Now the parameters specific to the script, if they are not passed also as CGI params.
 		for param_key in self.m_parameters:
 		#	if not param_key in argKeys:
@@ -1391,12 +1402,27 @@ class CgiEnv():
 			print('<td>' + param_key + '</td>')
 			param_val = self.GetParameters( param_key )
 			# TODO: Encode the value.
-			print('<td><input type="text" name="' + param_key + '" value="' + param_val + '"><td>')
+			if isinstance( param_val, bool ):
+				# Beware that unchecked checkboxes are not posted.
+				# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
+				check_boxes_parameters.append( param_key )
+				if param_val:
+					# Will be converted to boolean True.
+					print('<td><input type="checkbox" name="' + param_key + '" value="True" checked><td>')
+				else:
+					# Python converts empty string to False, everything else to True.
+					print('<td><input type="checkbox" name="' + param_key + '" value="True"><td>')
+			else:
+				print('<td><input type="text" name="' + param_key + '" value="' + param_val + '"><td>')
 			print("</tr>")
 
 		print("</table>")
 
+		# Beware that unchecked checkboxes are not posted, so it says that we come from edition mode.
+		# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
+
 		# Now the hidden arguments. Although entity_type can be deduced from the CGI script location.
+		# OBSOLETE ?????
 		print('<input type="hidden" name="edimodtype" value="' + self.m_entity_type + '"><br>')
 
 		for key in argKeys:
@@ -1405,7 +1431,7 @@ class CgiEnv():
 				continue
 
 			# Of course, the mode must not be "edit".
-			if key == "mode":
+			if key in ["mode"]:
 				continue
 
 			# ATTENTION: LES ARGUMENTS SPECIFIQUEMENT EDITABLES NE SONT PAS HIDDEN.
@@ -1434,19 +1460,42 @@ class CgiEnv():
 	# https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
 
 	def GetParameters(self,paramkey):
+		# sys.stderr.write("GetParameters m_arguments=%s\n" % str(self.m_arguments) )
+
+		# Default value if no CGI argument.
+		try:
+			dfltValue = self.m_parameters[paramkey]
+			# sys.stderr.write("GetParameters %s Default=%s\n" % ( paramkey, dfltValue ) )
+			hasDfltVal = True
+		except KeyError:
+			hasDfltVal = False
+
+		# unchecked_hidden
+		hasArgValue = True
 		try:
 			# If the script parameter is passed as a CGI argument.
 			# BEWARE !!! An empty argument triggers an exception !!!
 			paramVal = self.m_arguments[paramkey].value
 			sys.stderr.write("GetParameters %s=%s as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
-			# Default value if no CGI argument.
-			try:
-				paramVal = self.m_parameters[paramkey]
-				sys.stderr.write("GetParameters %s=%s as default\n" % ( paramkey, paramVal ) )
-			except KeyError:
+			sys.stderr.write("GetParameters %s not as CGI\n" % ( paramkey ) )
+			hasArgValue = False
+
+		# Now converts it to the type of the default value. Otherwise untouched.
+		if hasDfltVal:
+			if hasArgValue:
+				paramTyp = type(dfltValue)
+				paramVal = paramTyp( paramVal )
+				sys.stderr.write("GetParameters %s=%s after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
+			else:
+				paramVal = dfltValue
+		else:
+			if not hasArgValue:
+				# sys.stderr.write("paramkey=%s m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
 				lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
-				exit(0)
+
+		# TODO: Beware, empty strings are NOT send by the HTML form,
+		# TODO: so an empty string must be equal to the default value.
 
 		return paramVal
 
@@ -1578,41 +1627,64 @@ class TmpFile:
 	def __del__(self):
 		try:
 			sys.stderr.write("Deleting="+self.Name+"\n")
-			#os.remove(self.Name)
+			os.remove(self.Name)
 		except Exception:
 			ErrorMessageHtml("Cannot delete:"+self.Name)
 		return
 
 ################################################################################
 
-# Used when displaying all files open by a process: There are many of them,
-# so the useless junk could maybe be eliminated.
-# TODO: Should be portable. Rename MeaningLessFile to MeaninglessFile.
-# Or rather make it an option.
-def MeaningLessFile(path):
-	if lib_util.isPlatformWindows:
-		return False
-
-	# Some files are not interesting at all.
-	# TODO: Horrible hard-code for testing only !!!!!!!!!!!!!!!!
-	if ( path == "/home/rchateau/.xsession-errors" ):
-		return 1
-
-	# We could also check if this is really a shared library.
-	# file /lib/libm-2.7.so: ELF 32-bit LSB shared object etc...
-	if path.endswith(".so"):
-		return True
-
-	# Not sure about "M" and "I". Also: Should precompile regexes.
-	for rgx in [ r'/lib/.*\.so\..*', r'/usr/lib/.*\.so\..*' ] :
-		if re.match( rgx, path, re.M|re.I):
+def IsSharedLib(path):
+	if lib_util.isPlatformLinux:
+		# We could also check if this is really a shared library.
+		# file /lib/libm-2.7.so: ELF 32-bit LSB shared object etc...
+		if path.endswith(".so"):
 			return True
 
-	for start in [ '/usr/share/locale/', '/usr/share/fonts/', '/etc/locale/', '/var/cache/fontconfig/', '/usr/lib/jvm/' ] :
-		if path.startswith( start ):
+		# Not sure about "M" and "I". Also: Should precompile regexes.
+		for rgx in [ r'/lib/.*\.so\..*', r'/usr/lib/.*\.so\..*' ] :
+			if re.match( rgx, path, re.M|re.I):
+				return True
+
+		for start in [ '/usr/share/locale/', '/usr/share/fonts/', '/etc/locale/', '/var/cache/fontconfig/', '/usr/lib/jvm/' ] :
+			if path.startswith( start ):
+				return True
+
+	return False
+
+# A file containing fonts and other stuff not usefull to understand how a process works.
+# So by default we do not display them.
+def IsFontsFile(path):
+
+	if lib_util.isPlatformWindows:
+		# sys.stderr.write("IsFontsFile path=%s\n" % path)
+		# return False
+		tmp, fileExt = os.path.splitext(path)
+		# sys.stderr.write("IsFontsFile fileExt=%s\n" % fileExt)
+		return fileExt in [ ".ttf", ".ttc" ]
+
+	elif lib_util.isPlatformLinux:
+		for start in [ '/usr/share/locale/', '/usr/share/fonts/', '/etc/locale/', '/var/cache/fontconfig/', '/usr/lib/jvm/' ] :
+			if path.startswith( start ):
+				return True
+
+	return False
+
+# Used when displaying all files open by a process: There are many of them,
+# so the useless junk could maybe be eliminated.
+# Or rather make it an option.
+def MeaninglessFile(path, removeSharedLibs, removeFontsFile ):
+	if removeSharedLibs:
+		if IsSharedLib(path):
+			return True
+
+	if removeFontsFile:
+		if IsFontsFile(path):
+			# sys.stderr.write("YES MeaninglessFile path=%s\n" % path)
 			return True
 
 	return False
+
 
 ################################################################################
 try:
