@@ -144,6 +144,14 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 
 		theCimom = wbemServer[1]
 
+		# TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
+		# TODO: is removed. Workaround: Any CGI variable added after.
+		# TODO: Also: Several slashes "/" are merged into one.
+		# TODO: Example: "xid=http://192.168.1.83:5988/." becomes "xid=http:/192.168.1.83:5988/"
+		# TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
+		# Maybe a bad collapsing of URL ?
+		theCimom = theCimom.replace("http://","http:%2F%2F").replace("https://","https:%2F%2F")
+
 		# On suppose que les classes sont les memes.
 		if entity_type == "":
 			# TODO: This should rather display all classes for this namespace.
@@ -196,7 +204,7 @@ def WbemClassDescription(connWbem,entity_type,wbemNamespace):
 		wbemKlass = connWbem.GetClass(entity_type, namespace=wbemNamespace, LocalOnly=False, IncludeQualifiers=True)
 	except Exception:
 		exc = sys.exc_info()[1]
-		return "Namespace="+wbemNamespace+" class="+entity_type+". Caught:"+str(exc)
+		return "Error: Namespace="+wbemNamespace+" class="+str(entity_type)+". Caught:"+str(exc)
 	return WbemClassDescrFromClass(wbemKlass)
 	#try:
 	#	wbemKlass = connWbem.GetClass(entity_type, namespace=wbemNamespace, LocalOnly=False, IncludeQualifiers=True)
@@ -243,6 +251,8 @@ def NamespacesEnumeration(conn):
 							  pywbem.CIM_ERR_INVALID_CLASS]:
 					continue
 				else:
+					# Caught local variable 'url_' referenced before assignment
+					#sys.stderr.write("NamespacesEnumeration Caught %s\n"%str(arg[0]))
 					raise
 			if len(nsinsts) > 0:
 				break
