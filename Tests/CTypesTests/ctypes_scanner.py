@@ -8,6 +8,148 @@ import six
 import os
 import re
 
+from six.moves import builtins
+
+
+# required to access _ctypes
+import _ctypes
+
+ctypes._pointer_t_type_cache64 = {}
+def POINTER_64_T(pointee):
+	# a pointer should have the same length as LONG
+	fake_ptr_base_type = ctypes.c_uint64
+	# specific case for c_void_p
+	if pointee is None: # VOID pointer type. c_void_p.
+		pointee = type(None) # ctypes.c_void_p # ctypes.c_ulong
+		clsname = 'c_void'
+	else:
+		clsname = pointee.__name__
+	if clsname in ctypes._pointer_t_type_cache64:
+		return ctypes._pointer_t_type_cache64[clsname]
+	# make template
+	class _T(_ctypes._SimpleCData,):
+		# https://docs.python.org/2/library/ctypes.html?highlight=structure
+		# AttributeError: class must define a '_type_' attribute which must be
+		# a single character string containing one of 'cbBhHiIlLdfuzZqQPXOv?g'.
+		# http://svn.python.org/projects/python/branches/py3k/Modules/_ctypes/cfield.c
+		# _type_ = 'L'
+		_type_ = 'Q' # { 'Q', Q_set, Q_get, &ffi_type_uint64, Q_set_sw, Q_get_sw},
+		_subtype_ = pointee
+		def _sub_addr_(self):
+			return self.value
+		def __repr__(self):
+			return '%s(%d)'%(clsname, self.value)
+		def contents(self):
+			raise TypeError('This is not a ctypes pointer.')
+		def __init__(self, **args):
+			raise TypeError('This is not a ctypes pointer. It is not instanciable.')
+	_class = type('LP_%d_%s'%(8, clsname), (_T,),{})
+	ctypes._pointer_t_type_cache64[clsname] = _class
+	return _class
+
+ctypes._pointer_t_type_cache32 = {}
+def POINTER_32_T(pointee):
+	# a pointer should have the same length as LONG
+	fake_ptr_base_type = ctypes.c_uint32
+	# specific case for c_void_p
+	if pointee is None: # VOID pointer type. c_void_p.
+		pointee = type(None) # ctypes.c_void_p # ctypes.c_ulong
+		clsname = 'c_void'
+	else:
+		clsname = pointee.__name__
+	if clsname in ctypes._pointer_t_type_cache32:
+		return ctypes._pointer_t_type_cache32[clsname]
+	# make template
+	class _T(_ctypes._SimpleCData,):
+		_type_ = 'L'
+		_subtype_ = pointee
+		def _sub_addr_(self):
+			return self.value
+		def __repr__(self):
+			return '%s(%d)'%(clsname, self.value)
+		def contents(self):
+			raise TypeError('This is not a ctypes pointer.')
+		def __init__(self, **args):
+			raise TypeError('This is not a ctypes pointer. It is not instanciable.')
+	_class = type('LP_%d_%s'%(4, clsname), (_T,),{})
+	ctypes._pointer_t_type_cache32[clsname] = _class
+	return _class
+
+c_int128 = ctypes.c_ubyte*16
+c_uint128 = c_int128
+void = None
+if ctypes.sizeof(ctypes.c_longdouble) == 16:
+	c_long_double_t = ctypes.c_longdouble
+else:
+	c_long_double_t = ctypes.c_ubyte*16
+
+# These structs are made to be applied to 32bits or 64 bits processes.
+iPtr64Platform = ctypes.sizeof(ctypes.c_void_p) == 8
+if hasattr(builtins, "CTYPES_POINTER_TARGET_64"):
+	isPtr64Target = builtins.CTYPES_POINTER_TARGET_64
+else:
+	# This should not happen, although we have a backup solution.
+	# TODO: Why ???????????????????????
+	# TODO: Et ca n affiche plus comme avant !!!!!!!!!
+	isPtr64Target = iPtr64Platform
+
+if isPtr64Target == iPtr64Platform:
+	POINTER_T = ctypes.POINTER
+else:
+	if isPtr64Target:
+		POINTER_T = POINTER_64_T
+	else:
+		POINTER_T = POINTER_32_T
+
+#print("iPtr64Platform=%d isPtr64Target=%d" % ( iPtr64Platform, isPtr64Target ) )
+#print("Pointer size:%d" % ctypes.sizeof(POINTER_T(None)) )
+#print("ctypes.c_uint8 size:%d" % ctypes.sizeof(ctypes.c_uint8) )
+#print("ctypes.c_uint64 size:%d" % ctypes.sizeof(ctypes.c_uint64) )
+#print("POINTER_64_T size:%d" % ctypes.sizeof(POINTER_64_T(None)) )
+#print("POINTER_32_T size:%d" % ctypes.sizeof(POINTER_32_T(None)) )
+#print("POINTER_32_T =%s" % str(dir(POINTER_32_T(None))) )
+# exit(0)
+
+# Return the pointed type if this is a pointer, otherwise None.
+def PointedType(tp):
+	tpNam = tp.__name__
+
+	if tpNam.startswith("LP_"):
+		if tpNam.startswith("LP_c_") or tpNam.startswith("LP_4_") or tpNam.startswith("LP_8_"):
+			# print("TRUE:"+tpNam[ 5: ])
+			return tpNam[ 5: ]
+		return None
+
+	if tpNam == "c_void_p":
+		return "void"
+
+	return None
+
+# 32 or 64 bits. Pointer size in bytes, on this platform.
+def PointerSize():
+	if isPtr64Target == iPtr64Platform:
+		return ctypes.sizeof(ctypes.c_void_p)
+	else:
+		if isPtr64Target:
+			return 8
+		else:
+			return 4
+
+################################################################################
+
+# This transforms a range of integer values into a regular expression
+# matching them in a binary buffer.
+# Width is typically one, two or four, but can be anything.
+def ValuesListToRegexp( valList, width ):
+	maxVals = max(valList)
+	if maxVals < 256:
+		subRegEx = "".join( r"\x%02x" % val for val in valList )
+		pad = r"\x00" * ( width - 1 )
+		# Maybe the values are contiguous but we do not care.
+		return "[" + subRegEx + "]" + pad
+
+	# For the moment, the other cases are not treated.
+	raise Exception("Not implemented now")
 ################################################################################
 
 # This transform a ctype class into a binary regular expression.
@@ -40,12 +182,12 @@ def MakePattern(theClass):
 	return pattern
 
 class MemoryProcessor:
-	def __init__(self,is64Bits):
+	def __init__(self,is64Bits,lstStructs):
 		# CA MARCHE AVEC PYTHON3
 		from six.moves import builtins
 		builtins.CTYPES_POINTER_TARGET_64 = is64Bits
 		# print("Importing")
-		import CTypesStructs
+		# import CTypesStructs
 		# print("Imported modules:"+str(sorted(sys.modules.keys())))
 
 		class DefStruct:
@@ -54,7 +196,7 @@ class MemoryProcessor:
 				self.m_rgxComp = re.compile(self.m_rgxText.encode('utf-8'))
 				self.m_result = {}
 
-		self.m_byStruct = { theStr : DefStruct(theStr) for theStr in CTypesStructs.lstStructs }
+		self.m_byStruct = { theStr : DefStruct(theStr) for theStr in lstStructs }
 
 
 	# TODO: ON VOUDRAIT AJOUTER LA CONTRAINTE QUE LA MEMOIRE EST ALIGNEE COMME LA STRUCT. COMMENT FAIRE ??
@@ -63,7 +205,7 @@ class MemoryProcessor:
 		# TODO: Fix this strange behaviour, when instantiating a class of this module.
 		# Exception:global name 'CTypesStructs' is not defined
 		# if sys.version_info < (3,):
-		import CTypesStructs
+		# import CTypesStructs
 		# print("Processing %d bytes" % len(arr) )
 		# namDisp = ",".join( str(theStr) for theStr in self.m_mapStructs )
 
@@ -102,7 +244,8 @@ class MemoryProcessor:
 
 					# TODO: Check that the type of the pointer is compatible with its alignment.
 					# TODO: The address just needs to be a multiple of the object size.
-					pointedTypNam = CTypesStructs.PointedType( fieldTyp )
+					# pointedTypNam = CTypesStructs.PointedType( fieldTyp )
+					pointedTypNam = PointedType( fieldTyp )
 					# MARCHEPAS ENCORE. VOYPNS D ABORD DES CAS FACILES.
 					if False and pointedTypNam is not None:
 						print("pointedTypNam="+str(pointedTypNam))
@@ -116,7 +259,8 @@ class MemoryProcessor:
 							rgb_buffer = ctypes.create_string_buffer(buffer_size)
 							ctypes.memmove(rgb_buffer, getRgbBuffer(), buffer_size)
 						else:
-							pointedTypSiz = CTypesStructs.PointerSize()
+							# pointedTypSiz = CTypesStructs.PointerSize()
+							pointedTypSiz = PointerSize()
 							print("pointedTypSiz="+str(pointedTypSiz	))
 							pointedTyp = type(pointedTypNam)
 							pointedObj = pointedTyp()
@@ -309,7 +453,7 @@ if sys.platform == "win32":
 		print("")
 		return ( si.lpMinimumApplicationAddress, si.lpMaximumApplicationAddress )
 
-	def MemMachine(pidint):
+	def MemMachine(pidint,lstStructs):
 		kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 
 		# PROCESS_ALL_ACCESS, # alternative access right for debugging.
@@ -330,7 +474,7 @@ if sys.platform == "win32":
 
 		is64bits = IsProcess64Bits(phandle)
 		print("is64bits=%d" % is64bits)
-		mem_proc_functor = MemoryProcessor(is64bits)
+		mem_proc_functor = MemoryProcessor(is64bits,lstStructs)
 
 		# First address of the first page, and last address to scan.
 		( base_address , max_address ) = GetAddressRange()
@@ -396,7 +540,7 @@ else:
 		ptrace(False, pidint)
 
 
-	def GetMemMaps(pidint):
+	def GetMemMaps(pidint,lstStructs):
 		# TODO: Replace this by scanning /proc/<pid>/mmaps
 		import psutil
 		p = psutil.Process(pidint)
@@ -409,7 +553,7 @@ else:
 
 	def MemMachine(pidint):
 		# TODO: 64 bits by default :):):) ... Fix this !
-		mem_proc_functor = MemoryProcessor(True)
+		mem_proc_functor = MemoryProcessor(True,lstStructs)
 		memmaps = GetMemMaps(pidint)
 		for map in memmaps:
 			if '[heap]' in map.path:
@@ -478,49 +622,48 @@ def getdict(struct):
 		result[fieldNam] = value
 	return result
 
-if sys.platform == "win32":
-	# JUSTE POUR LES TESTS !!!!!
-	pidint = 12572 # Ramp
-	pidint = 8864 # Ramp
-else:
-	pidint = 3272
+def ProcessMemoryScan(pidint, lstStructs, maxDisplay):
+	print("Pid=%d"%pidint)
+	mem_proc_functor = MemMachine( pidint, lstStructs )
+
+	byStruct = mem_proc_functor.m_byStruct
+
+	print("Keys number:%d" % len(byStruct) )
+	for keyStr in byStruct:
+		objsList = byStruct[keyStr].m_result
+		print("%0.60s : %d occurences" % (keyStr, len( objsList ) ) )
+
+		maxCnt = maxDisplay
+
+		for addrObj in sorted(objsList):
+			# In case of too many data.
+			maxCnt -= 1
+			if maxCnt == 0:
+				break
+
+			anObj = objsList[ addrObj ]
+			# print(str(dir(mtch)))
+			print("%0.16X"%addrObj)
+			# print(type(mtch))
+			# print("  "+str(anObj.path))
+			# print("  "+str(anObj._fields_))
+			# print(dir(anObj))
+			for fld in anObj._fields_:
+				fldNam = fld[0]
+				print("        " + fldNam + ":" + str(getattr(anObj, fldNam ) ) )
+			print("  "+str(getdict(anObj)))
 
 
-# python -m cProfile mmapregex.py
+def DoAll(lstStructs):
+	print("Starting")
+	# python -m cProfile mmapregex.py
+	if len(sys.argv) > 1:
+		pidint = int(sys.argv[1])
 
-if len(sys.argv) > 1:
-	pidint = int(sys.argv[1])
+	maxDisplay = 10
+	ProcessMemoryScan(pidint, lstStructs, maxDisplay)
 
-mem_proc_functor = MemMachine( pidint )
-
-byStruct = mem_proc_functor.m_byStruct
-
-print("Keys number:%d" % len(byStruct) )
-for keyStr in byStruct:
-	objsList = byStruct[keyStr].m_result
-	print("%0.60s : %d occurences" % (keyStr, len( objsList ) ) )
-
-	maxCnt = 10
-
-	for addrObj in sorted(objsList):
-		# In case of too many data.
-		maxCnt -= 1
-		if maxCnt == 0:
-			break
-
-		anObj = objsList[ addrObj ]
-		# print(str(dir(mtch)))
-		print("%0.16X"%addrObj)
-		# print(type(mtch))
-		# print("  "+str(anObj.path))
-		# print("  "+str(anObj._fields_))
-		# print(dir(anObj))
-		for fld in anObj._fields_:
-			fldNam = fld[0]
-			print("        " + fldNam + ":" + str(getattr(anObj, fldNam ) ) )
-		print("  "+str(getdict(anObj)))
-
-
+# DoAll(CTypesStructs.lstStructs)
 
 # Not used yet but kept as informaitonal purpose.
 # if sys.platform == "win32":

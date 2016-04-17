@@ -1,6 +1,6 @@
 import ctypes
-import CTypesStructs
-from CTypesStructs import POINTER_T
+import ctypes_scanner
+from ctypes_scanner import POINTER_T
 
 # TODO: Structure DEVMODE
 
@@ -249,3 +249,6 @@ lstStructs = [ struct_SAFEARRAY,
 			   struct_MODULEENTRY32,
 			   struct_FILE_SYSTEM_RECOGNITION_STRUCTURE]
 lstStructs = [ struct_FILE_SYSTEM_RECOGNITION_STRUCTURE ]
+
+
+ctypes_scanner.DoAll(lstStructs)
