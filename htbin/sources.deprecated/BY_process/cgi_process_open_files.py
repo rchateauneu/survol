@@ -31,7 +31,7 @@ except psutil._error.AccessDenied:
 for fil in fillist:
 	# TODO: Resolve symbolic links. Do not do that if shared memory.
 	# TODO: AVOIDS THESE TESTS FOR SHARED MEMORY !!!!
-	if lib_common.MeaningLessFile(fil.path):
+	if lib_common.MeaninglessFile(fil.path):
 		continue
 
 	fileNode = lib_common.FileUri( fil.path )

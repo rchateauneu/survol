@@ -3,7 +3,7 @@
 import sys
 import psutil
 import rdflib
-
+import lib_entity_CIM_Process
 import lib_common
 from lib_common import pc
 from rdflib import URIRef, BNode, Literal
@@ -16,7 +16,7 @@ def AddPidFileLink(grph,processNode,path):
 
 	# TODO: Resolve symbolic links. Do not do that if shared memory.
 	# TODO: AVOIDS THESE TESTS FOR SHARED MEMORY !!!!
-	if lib_common.MeaningLessFile(path):
+	if lib_common.MeaninglessFile(path):
 		return
 
 	# This because we want to show only the files which are accessed by
@@ -53,8 +53,8 @@ for proc in psutil.process_iter():
 
 		node_process = lib_common.PidUri(pid)
 
-		# Not sure about the access rights needed to investigat other processes...
-		for fil in proc.get_open_files():
+		# Not sure about the access rights needed to investigate other processes...
+		for fil in lib_entity_CIM_Process.PsutilProcOpenFiles( proc ):
 			# This takes into account only files accessed by several processes.
 			# TODO: What about files on a shared drive?
 			AddPidFileLink( grph, node_process, fil.path )

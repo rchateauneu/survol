@@ -4,6 +4,7 @@ import re
 import sys
 import psutil
 import rdflib
+import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
 # This creates a RDF document containing all the sockets of the hostname.
 
@@ -37,7 +38,8 @@ for proc in psutil.process_iter():
 		node_process = lib_common.PidUri(pid)
 
 		# TCP sockets.
-		all_connect = proc.get_connections()
+		# all_connect = proc.get_connections()
+		all_connect = lib_entity_CIM_Process.PsutilProcConnections(proc)
 		if all_connect:
 			# Trop lourd, ca ne sert a rien, dans la mesure ou les processes
 			# ont le meme URI, donc ils DOIVENT etre fusionnes (A verifier).
