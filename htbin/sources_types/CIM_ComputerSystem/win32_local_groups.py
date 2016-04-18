@@ -92,5 +92,5 @@ except Exception:
 	exc = sys.exc_info()[1]
 	lib_common.ErrorMessageHtml("win32 local groups:"+str(exc))
 
-cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
  
