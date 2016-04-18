@@ -8,17 +8,19 @@ import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
 
-
+paramkeyShowSharedLib = "Show shared libraries"
 paramkeyShowFontFiles = "Show font files"
 paramkeyShowNonShared = "Show non shared files"
 
 # TODO: At the moment, only uses false default values for boolean parameters,
 # TODO: because CGI and the CGI lib do not send empty strings.
 cgiEnv = lib_common.CgiEnv("System-wide open files",
-	parameters = { paramkeyShowFontFiles : False,
-				   paramkeyShowNonShared : False }
+	parameters = { paramkeyShowSharedLib : False,
+				   paramkeyShowFontFiles : False,
+	               paramkeyShowNonShared : False }
 )
 
+flagShowSharedLib = bool(cgiEnv.GetParameters( paramkeyShowSharedLib ))
 flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
 flagShowNonShared = bool(cgiEnv.GetParameters( paramkeyShowNonShared ))
 
@@ -83,7 +85,7 @@ for proc in psutil.process_iter():
 		for fil in lib_entity_CIM_Process.PsutilProcOpenFiles( proc ):
 
 			# Some files are not interesting even if accessed by many processes.
-			if lib_common.MeaninglessFile(fil.path, True, not flagShowFontFiles ):
+			if lib_common.MeaninglessFile(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
 				continue
 
 			# Adds the process node only if it has at least one open file.

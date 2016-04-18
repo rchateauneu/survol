@@ -1635,6 +1635,11 @@ class TmpFile:
 ################################################################################
 
 def IsSharedLib(path):
+
+	if lib_util.isPlatformWindows:
+		tmp, fileExt = os.path.splitext(path)
+		return fileExt.upper() in [ ".DLL" ]
+
 	if lib_util.isPlatformLinux:
 		# We could also check if this is really a shared library.
 		# file /lib/libm-2.7.so: ELF 32-bit LSB shared object etc...

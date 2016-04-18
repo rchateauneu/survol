@@ -53,6 +53,8 @@ def PsutilProcToUser(proc):
 def PsutilProcOpenFiles(proc):
 	try:
 		return proc.get_open_files()
+	except AccessDenied:
+		raise
 	except Exception:
 		return proc.open_files()
 
