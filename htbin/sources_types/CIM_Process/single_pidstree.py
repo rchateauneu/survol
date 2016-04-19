@@ -16,7 +16,7 @@ except KeyError:
 grph = rdflib.Graph()
 
 def AddExtraInformationtoProcess(grph,node_process,proc_obj):
-	lib_entity_CIM_Process.AddInfo( grph, node_process, str(proc_obj.pid) )
+	lib_entity_CIM_Process.AddInfo( grph, node_process, [ str(proc_obj.pid) ] )
 
 	usrNam = lib_common.FormatUser( lib_entity_CIM_Process.PsutilProcToUser( proc_obj ) )
 	userNode = lib_common.gUriGen.UserUri(usrNam)
@@ -26,7 +26,7 @@ def AddExtraInformationtoProcess(grph,node_process,proc_obj):
 	if execName != "":
 		execNod = lib_common.gUriGen.FileUri(execName)
 		grph.add( ( node_process, pc.property_runs, execNod ) )
-		lib_entity_file.AddInfo( grph, execNod, execName )
+		lib_entity_file.AddInfo( grph, execNod, [ execName ] )
 
 def tree_subprocesses(proc_obj):    
 	if lib_common.UselessProc(proc_obj):
@@ -64,7 +64,7 @@ def tree_parent_process(proc_obj):
 		node_process = lib_common.gUriGen.PidUri(the_pid)
 		node_pprocess = lib_common.gUriGen.PidUri(the_ppid)
 		grph.add( ( node_pprocess, pc.property_ppid, node_process ) )
-		lib_entity_CIM_Process.AddInfo( grph, node_pprocess, str(the_ppid) )
+		lib_entity_CIM_Process.AddInfo( grph, node_pprocess, [ str(the_ppid) ] )
 
 		AddExtraInformationtoProcess(grph,node_process,proc_obj)
 
