@@ -12,7 +12,15 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv("System-wide sockets")
+paramkeyShowUnconnected = "Show unconnected sockets"
+
+# TODO: At the moment, only uses false default values for boolean parameters,
+# TODO: because CGI and the CGI lib do not send empty strings.
+cgiEnv = lib_common.CgiEnv("System-wide sockets",
+	parameters = { paramkeyShowUnconnected : False }
+)
+
+flagShowUnconnected = bool(cgiEnv.GetParameters( paramkeyShowUnconnected ))
 
 grph = rdflib.Graph()
 
@@ -24,7 +32,6 @@ for proc in psutil.process_iter():
 		pid = proc.pid
 
 		# TCP sockets only.
-		# all_connect = proc.get_connections()
 		all_connect = lib_entity_CIM_Process.PsutilProcConnections(proc)
 		if all_connect:
 			node_process = lib_common.gUriGen.PidUri(pid)
@@ -43,7 +50,7 @@ for proc in psutil.process_iter():
 			# Ou il faudrait un parametre.
 			# lib_common.PsutilAddSocketToGraph(node_process,all_connect,grph)
 			# TODO: MAYBE CREATES ALL THE PROCESSES AND RUN THE THREADS ON THE COMPLETE LIST ???
-			lib_common.PsutilAddSocketToGraphAsync(node_process,all_connect,grph)
+			lib_common.PsutilAddSocketToGraphAsync(node_process,all_connect,grph,flagShowUnconnected)
 
 	except psutil.AccessDenied:
 		pass

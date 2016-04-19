@@ -1819,14 +1819,14 @@ class PsutilAddSocketThread(threading.Thread):
 		# Some throttling, in case there are thousands of nodes.
 		time.sleep(0.001)
 
-def PsutilAddSocketToGraphAsync(node_process,connects,grph):
+def PsutilAddSocketToGraphAsync(node_process,connects,grph,flagShowUnconnected):
 	threadsArr = []
 	grph_lock = threading.Lock()
 
 	for cnt in connects:
-		if( ( cnt.family == 2 )
-		and ( cnt.type == 1 )
-		# and ( cnt.status == 'ESTABLISHED' )
+		if( ( cnt.family == socket.AF_INET )
+		and ( cnt.type == socket.SOCK_STREAM )
+		and ( flagShowUnconnected or ( cnt.status == 'ESTABLISHED' ) )
 		):
 			thr = PsutilAddSocketThread( node_process, cnt, grph, grph_lock )
 			thr.start()
