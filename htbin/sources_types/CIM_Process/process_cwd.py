@@ -31,7 +31,7 @@ except AttributeError:
 	proc_cwd = "Cannot get cwd"
 
 node_process = lib_common.gUriGen.PidUri(top_pid)
-lib_entity_CIM_Process.AddInfo( grph, node_process, str(top_pid) )
+lib_entity_CIM_Process.AddInfo( grph, node_process, [ str(top_pid) ] )
 
 node_cwd = lib_common.gUriGen.FileUri( proc_cwd )
 grph.add( ( node_process, pc.property_cwd, node_cwd ) )

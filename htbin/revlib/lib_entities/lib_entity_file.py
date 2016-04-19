@@ -72,8 +72,8 @@ def AddHtml( grph, filNode, filNam ):
 
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
-def AddInfo(grph,node,entity_id):
-	filNam = entity_id[0]
+def AddInfo(grph,node,entity_ids_arr):
+	filNam = entity_ids_arr[0]
 	if filNam == "":
 		return
 	AddMagic( grph,node,filNam)

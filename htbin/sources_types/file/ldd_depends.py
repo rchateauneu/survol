@@ -20,7 +20,7 @@ def AddDepends(library):
 	grph.add( ( nodeSharedLib, pc.property_library_depends, libNode ) )
 	# This assumes that shared libraries are a special sort of file.
 	# This is true, but not completely used.
-	lib_entities.lib_entity_file.AddInfo( grph, libNode, library )
+	lib_entities.lib_entity_file.AddInfo( grph, libNode, [ library ] )
 
 cgiEnv = lib_common.CgiEnv("Shared library dependencies (Linux)")
 fileSharedLib = cgiEnv.GetId()
@@ -40,7 +40,7 @@ if ( fileSharedLib[0] != '/' ):
 	fileSharedLib = os.getcwd() + '/' + fileSharedLib
 
 nodeSharedLib = lib_common.gUriGen.SharedLibUri( fileSharedLib )
-lib_entities.lib_entity_file.AddInfo( grph, nodeSharedLib, fileSharedLib )
+lib_entities.lib_entity_file.AddInfo( grph, nodeSharedLib, [ fileSharedLib ] )
 
 stream = os.popen("ldd " + fileSharedLib)
 

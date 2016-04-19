@@ -68,7 +68,7 @@ grph = rdflib.Graph()
 proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(the_pid)
 
 procNode = lib_common.gUriGen.PidUri( the_pid )
-lib_entity_CIM_Process.AddInfo( grph, procNode, str(the_pid) )
+lib_entity_CIM_Process.AddInfo( grph, procNode, [ str(the_pid) ] )
 
 ( execName, execErrMsg ) = lib_entity_CIM_Process.PsutilProcToExe( proc_obj )
 if( execName == "" ):
