@@ -20,6 +20,8 @@ import sys
 import rdflib
 
 import lib_smbclient
+import lib_smb
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -33,28 +35,14 @@ cgiEnv = lib_common.CgiEnv(
 if lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
+password = cgiEnv.GetParameters( paramkeyPassword )
+
 # Top directory, not just the share name.
 smbFile= cgiEnv.GetId()
 
-# The SMB file has the form //Device/ShareName/dir1/dir2/dir3/file.
-
-shr_mtch = re.match( "//([^/]+)/([^/]+)/(.*)", smbFile )
-
-if not shr_mtch:
+rootNodeSmb,smbDir,smbShr = lib_smb.SmbBothUriSplit(smbFile)
+if rootNodeSmb is None:
 	lib_common.ErrorMessageHtml("This is not a shared file:"+smbFile)
-
-smbShr = "//" + shr_mtch.group(1) + "/" + shr_mtch.group(2)
-
-smbDir = shr_mtch.group(3)
-
-password = cgiEnv.GetParameters( paramkeyPassword )
-
-# Needed if this is the top directory.
-if smbDir == "" or smbDir == "/" :
-	rootNodeSmb = lib_common.gUriGen.SmbShareUri( smbShr )
-else:
-	# Otherwise it is the directory of the current file.
-	rootNodeSmb = lib_common.gUriGen.SmbFileUri( smbShr, smbDir )
 
 grph = rdflib.Graph()
 
