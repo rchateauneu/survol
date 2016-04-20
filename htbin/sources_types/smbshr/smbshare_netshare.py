@@ -33,7 +33,8 @@ shrMatch = re.match( "/?/([^/]+)/([^/]+)",smbShr)
 if not shrMatch:
 	lib_common.ErrorMessageHtml("Invalid share name:%s"%shrMatch)
 
-shrNam = shrMatch.groups(1)
+#sys.stderr.write("smbShr=%s\n"%smbShr)
+shrNam = shrMatch.group(2)
 
 nodeSmbShr = lib_common.gUriGen.SmbShareUri( smbShr )
 
