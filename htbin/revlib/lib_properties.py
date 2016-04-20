@@ -26,7 +26,10 @@ def MakeProp(prp,**kvargs):
 	ret = primns_slash + prp
 	if kvargs:
 		ret += "?" + "&".join( "%s=%s" for kw in kvargs )
-	return rdflib.term.URIRef( ret )
+	# TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
+	# http://primhillcomputers.com/ontologies/swapnote\ futures
+	# If the space is replaced by "%20", everything before it is erased.
+	return rdflib.term.URIRef( ret.replace(" ","_") )
 
 # TODO: Peut-etre: "pc" devrait etre un objet ou on redefinit l appel d un membre,
 # ce qui permet de creer dynamiquement des proprietes.
