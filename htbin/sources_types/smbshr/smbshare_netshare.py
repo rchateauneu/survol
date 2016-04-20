@@ -12,6 +12,7 @@
 #
 #The command completed successfully.
 
+import re
 import sys
 import subprocess
 
@@ -27,9 +28,13 @@ smbShr = cgiEnv.GetId()
 if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("NET command on Windows only")
 
+# If called fron cgiserver.py, double slashes are collapsed into one.
+shrMatch = re.match( "/?/([^/]+)/([^/]+)",smbShr)
+if not shrMatch:
+	lib_common.ErrorMessageHtml("Invalid share name:%s"%shrMatch)
 
-shrNam = smbShr.split('/')[3]
-	
+shrNam = shrMatch.groups(1)
+
 nodeSmbShr = lib_common.gUriGen.SmbShareUri( smbShr )
 
 grph = rdflib.Graph()
