@@ -1,3 +1,4 @@
+import os
 import sys
 import socket
 import lib_util
@@ -285,6 +286,27 @@ class LocalBox:
 	# XML Parsing Error: not well-formed
 	# Location: http://127.0.0.1/Survol/htbin/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
 	def FileUri(self,path):
+		# if False:
+		# 	# BEN OUI MAIS COMMENT FAIT ON POUR LES DIRECTORIES ?
+		# 	filename, file_extension = os.path.splitext(path)
+		#
+		# 	# Default value.
+		# 	subtype = "file"
+		# 	if lib_util.isPlatformLinux:
+		# 		try:
+		# 			subtype = {".so" : "shrlib"}[ file_extension ]
+		# 		except KeyError:
+		# 			pass
+		# 	elif lib_util.isPlatformLinux:
+		# 		try:
+		# 			subtype = {".DLL" : "shrlib"}[ file_extension.upper() ]
+		# 		except KeyError:
+		# 			pass
+		# 	else:
+		# 		pass
+		# 	if subtype:
+		# 		file = lib_util.ComposeTypes( file, subtype )
+
 		# There might be an Unicode error.
 		# pathUnicode = path.encode('unicode')
 		# It must starts with a slash except on Windows.
@@ -293,8 +315,10 @@ class LocalBox:
 		# TODO: Consider this might be even be more powerful.
 		# u'some string'.encode('ascii', 'xmlcharrefreplace')
 
-	def FileUriDirectory(self,dirNam):
-		return self.UriMakeFromScript('/sources_types/file/file_directory.py', "file", lib_util.EncodeUri(dirNam) )
+	# TODO: Have a special type for directories, dll etc...
+	def DirectoryUri(self,path):
+		# return self.UriMake(lib_util.ComposeTypes( "file", "dir" ), lib_util.EncodeUri(path))
+		return self.UriMake(lib_util.ComposeTypes( "file" ), lib_util.EncodeUri(path))
 
 	# TODO: Renvoyer NULL si type MIME invalide ?
 	# Ou bien une icone ?
@@ -392,6 +416,7 @@ class LocalBox:
 		# If Unix "CIM_UnixUser"
 		# If Windows "CIM_Win32User"
 		if lib_util.isPlatformLinux:
+			# TODO: Replace by LMI_Account on Linux ?
 			userTp = "user"
 		elif lib_util.isPlatformWindows:
 			userTp = "Win32_UserAccount"

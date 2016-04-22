@@ -221,7 +221,8 @@ def EntHostToIpReally(entity_host):
 # TODO: Should also parse the namespace.
 def ParseXid(xid ):
 	# sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
-	# TODO: Suppress subtyping, not used at the moment.
+
+	# The type can be subtypes with a specific char: CharTypesComposer:
 	# If suffixed with "/", it means namespaces.
 	# A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
 	mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_,]*)\.(.*)", xid )
@@ -246,7 +247,6 @@ def ParseXid(xid ):
 	# WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
 	# TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
 	# TODO: otherwise graphviz replace "\L" par "<TABLE">
-	# mtch_ent_wmi = re.match( r"\\\\\\([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
 	mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
 	if mtch_ent_wmi:
 		grp = mtch_ent_wmi.groups()
@@ -395,10 +395,12 @@ def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_host
 
 ################################################################################
 
+CharTypesComposer = ","
+
 # TODO: Find another solution more compatible with WBEM and WMI logic.
 # Used to define subtypes.
 def ComposeTypes(t1,t2):
-	return t1 + "," + t2
+	return t1 + CharTypesComposer + t2
 
 ################################################################################
 
@@ -535,6 +537,8 @@ localOntology = {
 # TODO: ... made of localOntology added to the directory of types.
 def OntologyClassKeys(entity_type):
 	try:
+		# TODO: Temporarily until we do something more interesting, using the subtype.
+		# entity_type = entity_type.split(CharTypesComposer)[0]
 		return localOntology[ entity_type ][0]
 	except KeyError:
 		pass

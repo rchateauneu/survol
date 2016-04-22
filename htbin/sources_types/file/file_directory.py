@@ -35,6 +35,7 @@ from lib_properties import pc
 # Icones de Apache: http://127.0.0.1/icons/folder.gif
 # http://127.0.0.1/icons/sound2.gif
 #
+# TODO: THIS IS BROKEN. DOES NOT MAKE SENSE !
 def UrlDirectory( fullDirPath ):
 	# sys.stderr.write("UrlDirectory fullDirPath=%s\n" % fullDirPath)
 	dirPrefix = "C://Users/rchateau"
@@ -46,6 +47,16 @@ def UrlDirectory( fullDirPath ):
 		#dirNone = lib_common.gUriGen.FileUri( dirUrl )
 		#return dirNone
 	return None
+
+
+# Used only here.
+def UriDirectoryDirectScript(dirNam):
+	return lib_uris.gUriGen.UriMakeFromScript(
+		'/sources_types/file/file_directory.py',
+		"file", # TODO: NOT SURE: lib_util.ComposeTypes("file","dir"),
+		lib_util.EncodeUri(dirNam) )
+
+
 
 cgiEnv = lib_common.CgiEnv("Directory")
 filNam = cgiEnv.GetId()
@@ -73,10 +84,10 @@ if filNam != '/':
 	topdir = '/'.join( splitdir[:-1] )
 	if topdir != "":
 		# sys.stderr.write("topdir=%s\n"%(topdir))
-		topdirNode = lib_common.gUriGen.FileUri(topdir )
+		topdirNode = lib_common.gUriGen.DirectoryUri(topdir )
 		grph.add( ( topdirNode, pc.property_directory, filNode ) )
 
-		url_mime = lib_uris.gUriGen.FileUriDirectory( topdir )
+		url_mime = UriDirectoryDirectScript( topdir )
 		grph.add( ( topdirNode, pc.property_rdf_data_nolist, rdflib.term.URIRef(url_mime) ) )
 
 if os.path.isdir( filNam ):
@@ -93,14 +104,14 @@ if os.path.isdir( filNam ):
 	filNam_slash = filNam + "/"
 	for dir in dirs:
 		fullDirPath = filNam_slash + dir
-		subdirNode = lib_common.gUriGen.FileUri( fullDirPath )
+		subdirNode = lib_common.gUriGen.DirectoryUri( fullDirPath )
 		grph.add( ( filNode, pc.property_directory, subdirNode ) )
 
 		url_dir_node = UrlDirectory( fullDirPath )
 		if not url_dir_node is None:
 			grph.add( ( subdirNode, pc.property_html_data, url_dir_node ) )
 
-		url_mime = lib_uris.gUriGen.FileUriDirectory(fullDirPath)
+		url_mime = UriDirectoryDirectScript(fullDirPath)
 		grph.add( ( subdirNode, pc.property_rdf_data_nolist, rdflib.term.URIRef(url_mime) ) )
 
 		# On peut ajouter des liens en rdf_data mais leur nom est normalement une "info".

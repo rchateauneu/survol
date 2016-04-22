@@ -35,6 +35,11 @@ sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_rem
 if not is_host_remote:
 	entity_host = ""
 
+
+# TODO: Temporarily until we do something more interesting, using the subtype.
+# entity_type = entity_type.split(lib_util.CharTypesComposer)[0]
+
+
 # Each entity type ("process","file" etc... ) can have a small library
 # of its own, for displaying a rdf node of this type.
 # Beware that it is a bit unsafe.
@@ -50,7 +55,8 @@ if entity_type != "":
 		sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
 		entity_module = None
 
-# Directory=/home/rchateau/Developpement/ReverseEngineeringApps/PythonStyle Type=process Id=5256 
+# Directory=/home/rchateau/Developpement/ReverseEngineeringApps/PythonStyle Type=process Id=5256
+# TODO: CharTypesComposer: Ca va retourner une liste de directory du plus bas au plus haut.
 relative_dir = lib_common.SourceDir(entity_type)
 directory = lib_util.gblTopScripts + relative_dir
 
@@ -94,6 +100,58 @@ def IsTempFile(fil):
 # that the current script can process the hostname, then it is an error.
 # Also: This is where we need to "talk" to the other host ?
 # And we must display the node of the host as seen from the local machine.
+
+
+# TODO: CharTypesComposer
+# Actuellement on parcourt toute l'arborescence et on affiche tous les scripts
+# a partir d un directory.
+# Deux changements:
+# - Ne pas afficher certains scripts en fonction de Linux/Windows.
+# - Ne pas descendre dans les sous-directories s'il y a un sous-type.
+# Mais le faire quand meme si le decoupage est plutot un namespace.
+# Comment a la fois utiliser des sous-directories comme types derives
+# et comme namespaces ?
+# Dans le directory principal, on peut n avoir que des names-spaces
+# car un sous-type n a pas de sens. Et on affichera recursivement.
+# Toutefois pour le directory des types,
+# il faut descendre dans les namespaces mais pas dans les sous-types.
+# En fait, pour travailleur naturellement, il faudrait inverser la hierarchie:
+# Que les sous-types pointent vers les types.
+# Peut-etre mettre dans le __init__.py du directory d'un sous-type,
+# une reference vers le type de base. Ou bien se servir du nom ?
+# Avec le separateur un sous-type contiendrait la liste de ses types de base ?
+
+# On peut aussi donner une syntaxe specifique aux sous-directory namespaces,
+# et DirToMenu ne descendra dans les sous-dir que si namespaces.
+# Ou bien: Chaque directory contient dans le __init__.py
+# une fonction qui dit si on peut afficher ou non:
+# Cette fonction prend en parametre le entity_type, os.platform.
+# Seul inconvenient:
+#  - Il faut assigner un role a la classe de base, qui sert de directory de depart.
+#  - La classe de base sert aussi pour la liste des parametres et les couleurs.
+#  - Confusions classe de base et namespace: "oracle,table" et "mysql,table"
+#    Valable pour les couleurs (Ca sert d avoir une couleur commune a tous
+#    les objets d un meme namespace) mais pas pour les parametres evidemment.
+#    Autre confusion si namespaces et classes de base ont la meme structure:
+#    - Impossible d'apparier les hierarchies avec WBEM et WMI. Par exemple on pourrait
+#    deriver localement de CIM_Process.
+#    - Pourrait-on representer la hierarchie user/CIM_Account et user/LMI_Account ?
+# Si on melange sous-types et namespaces, on descend toujours dans les dir des namespaces
+# si la fonction de __init__.py le permet ? Probleme: le nom du type pourrait etre:
+# "linux,file,dir" ou "windows,file,dir" ? ou "file,linux,symlink" ?
+# Ou bien que "symlink" et on parcourerait toujours l arborescence ?
+# Non: Le nom de la sous-classe doit toujours comporter le namespace.
+# OU ALORS: Si namespace, c'est une hierachie a part:
+# portable/sources_types/file/dir
+# portable/sources_top/file/dir
+# oracle/sources_types/table
+# linux/sources_types/user
+# windows_com/enumerate.Win32_Process
+# Avantage: On deplace un namespace en copiant uniquement un directory.
+# Et meme pourquoi ne pas reprendre a tout prix la syntaxe des sous-classes de WMI et WBEM ?
+
+
+
 
 # This lists the scripts and generate RDF nodes.
 def DirToMenu(grph,parentNode,curr_dir,relative_dir):
