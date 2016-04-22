@@ -31,7 +31,7 @@ def UriToTitle(uprs):
 	else:
 		return basna
 
-# TODO: Create a lookup to functions.
+# TODO: Create a lookup from type to functions.
 def EntityArrToLabel(entity_type,entity_ids_arr):
 
 	# Short-cut because one argument is the most common case?

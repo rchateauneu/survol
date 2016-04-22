@@ -1573,6 +1573,7 @@ def SourceDir(entity_type=""):
 	if entity_type == "":
 		return "/sources_top"
 	else:
+		# If subtypes, check the presence of CharTypesComposer
 		return "/sources_types/" + entity_type
 
 
