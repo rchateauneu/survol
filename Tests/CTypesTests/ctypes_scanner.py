@@ -628,13 +628,16 @@ def getdict(struct):
 
 		if hasattr(value, "_length_") and hasattr(value, "_type_"):
 			if getattr(value, "_type_") in [ ctypes.c_ubyte, ctypes.c_char ]:
-				ar = "%d:" % getattr(value, "_length_")
+				strLen = getattr(value, "_length_")
+				ar = ""
 				for vv in value:
 					gvv = get_value(vv)
 					if gvv == 0:
 						break
 					ar += chr(gvv)
-				return ar
+				# Optionaly extends the string
+				ar += " " * ( strLen - len(ar))
+				return "[" + ar + "]"
 			else:
 				return [ get_value(elt) for elt in value ]
 
@@ -717,8 +720,11 @@ def DoAll(lstStructs):
 	# python -m cProfile mmapregex.py
 	if len(sys.argv) > 1:
 		pidint = int(sys.argv[1])
+	if len(sys.argv) > 2:
+		maxDisplay = int(sys.argv[2])
+	else:
+		maxDisplay = 10
 
-	maxDisplay = 10
 	ProcessMemoryScan(pidint, lstStructs, maxDisplay)
 
 # DoAll(

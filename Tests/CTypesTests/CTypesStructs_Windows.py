@@ -144,9 +144,13 @@ class struct_FILE_SYSTEM_RECOGNITION_STRUCTURE(ctypes.Structure):
 	]
 	# At least two chars for most fields.
 	_regex_ = {
-		'szModule'   : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\.]{254}",
 		'FsName'     : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{6}",
 		'MustBeZero' : "\x00\x00\x00\x00\x00",
+		# TODO: Does not work anyway.
+		# Must contain the value 0x53525346 arranged in little-endian byte order.
+		# https://technet.microsoft.com/fr-fr/dd442654
+		# 'Identifier' : "\x53\x52\x53\x46",
+		# 'Identifier' : "\x46\x53\x52\x53",
 	}
 
 # typedef struct tagSIZE {
@@ -201,6 +205,10 @@ class struct_GUID(ctypes.Structure):
 		('Data3',  ctypes.c_uint16),
 		('Data4',  ctypes.c_uint8 * 8),
 	]
+	# Realistically, at least two chars for most fields.
+	_regex_ = {
+		# 'Data4' : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{6}",
+	}
 
 #
 # https://msdn.microsoft.com/en-us/library/windows/desktop/bb773288%28v=vs.85%29.aspx
@@ -245,10 +253,12 @@ lstStructs = [ struct_SAFEARRAY,
 			   struct_SAFEARRAYBOUND,
 			   struct_IP_ADDRESS_STRING,
 			   struct_DISPLAY_DEVICE,
+			   struct_FILETIME,
+			   struct_GUID,
 			   struct_FILEDESCRIPTOR,
 			   struct_MODULEENTRY32,
 			   struct_FILE_SYSTEM_RECOGNITION_STRUCTURE]
-lstStructs = [ struct_FILEDESCRIPTOR ]
+lstStructs = [ struct_FILE_SYSTEM_RECOGNITION_STRUCTURE ]
 
 
 ctypes_scanner.DoAll(lstStructs)
