@@ -99,7 +99,8 @@ dictNodes = GetDependencies(win_module,grph)
 nodeDLL = lib_common.gUriGen.FileUri( win_module )
 dictNodes[ win_module ] = nodeDLL
 
-deps_set_main = dictNodes.keys()
+# deps_set_main = dictNodes.keys()
+deps_set_main = dictNodes
 
 deps_sets_dict_deep = { win_module : deps_set_main }
 
@@ -107,7 +108,10 @@ dict_node = {}
 
 
 for module in deps_set_main:
-	deps_sets_dict_deep[ module ] = GetDependencies(module).keys()
+	deps_sets_dict_deep[ module ] = GetDependencies(module) # .keys()
+	sys.stderr.write("key=%s\n" % module)
+	sys.stderr.write("val=%s\n" % str(deps_sets_dict_deep[ module ]))
+sys.stderr.write("\n\n")
 
 deps_sets_dict_shallow = {}
 

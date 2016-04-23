@@ -9,39 +9,12 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv(
-	"TNSNAMES file",
-	"http://docs.oracle.com/javase/7/docs/webnotes/tsg/TSG-VM/html/graphics/smallOracleLogo.gif")
-
-EXAMPLE = """\
-# www.virginia.edu/integratedsystem 1/16/04
-
-# Production 11.0.3 Apps instance
-prod = (DESCRIPTION=		  
-		  (ADDRESS=(PROTOCOL=tcp)(HOST=isp-db.admin.Virginia.EDU)(PORT=1565))
-		  (CONNECT_DATA=(SID=isp01))
-	   )
-# Production 11.0.3 ODS instance
-ods = (DESCRIPTION=		  
-		 (ADDRESS=(PROTOCOL=tcp)
-			  (  HOST =
-						isp-ods.admin.Virginia.EDU   )  # Whitespace test
-				  (PORT=1565))
-		 (CONNECT_DATA=(SID=isp01))
-	  )
-"""
-
-
-###########################################################################################	
-
-grph = rdflib.Graph()
+"""TNSNAMES file"""
 
 
 ###########################################################################################	
 	
-def parse_one(database_dicts,database):
-	global grph
-
+def parse_one(grph,database_dicts,database):
 	# Get the database name and a set of (name, value) pairs.
 	try:
 		name = re.match(r'(\w+)', database).group(1)
@@ -74,7 +47,7 @@ def parse_one(database_dicts,database):
 	grph.add( ( node_addr, pc.property_oracle_db, node_oradb ) )
 
 	
-def parse_all(text):
+def parse_all(grph, text):
 	database_dicts = {}
 
 	# Strip comments and blank lines.
@@ -100,7 +73,7 @@ def parse_all(text):
 				if parens == 0:
 					break
 		
-		parse_one( database_dicts, text[start:c].strip() )
+		parse_one( grph, database_dicts, text[start:c].strip() )
 
 		start = c
 	
@@ -221,72 +194,100 @@ def parse_all(text):
 # Data=C:\oraclexe\app\oracle\product\11.2.0\server
 # "C:\oraclexe\app\oracle\product\11.2.0\server\network\ADMIN\tnsnames.ora"
 
+def Main():
+	cgiEnv = lib_common.CgiEnv(
+		"TNSNAMES file",
+		"http://docs.oracle.com/javase/7/docs/webnotes/tsg/TSG-VM/html/graphics/smallOracleLogo.gif")
 
-if lib_util.isPlatformWindows:
-	try:
-		import winreg
-	except ImportError:
-		sys.stderr.write("winreg not available. Trying _winreg\n")
+	EXAMPLE = """\
+	# www.virginia.edu/integratedsystem 1/16/04
+
+	# Production 11.0.3 Apps instance
+	prod = (DESCRIPTION=
+			  (ADDRESS=(PROTOCOL=tcp)(HOST=isp-db.admin.Virginia.EDU)(PORT=1565))
+			  (CONNECT_DATA=(SID=isp01))
+		   )
+	# Production 11.0.3 ODS instance
+	ods = (DESCRIPTION=
+			 (ADDRESS=(PROTOCOL=tcp)
+				  (  HOST =
+							isp-ods.admin.Virginia.EDU   )  # Whitespace test
+					  (PORT=1565))
+			 (CONNECT_DATA=(SID=isp01))
+		  )
+	"""
+
+	grph = rdflib.Graph()
+
+
+	if lib_util.isPlatformWindows:
 		try:
-			import _winreg as winreg
+			import winreg
 		except ImportError:
-			lib_common.ErrorMessageHtml("No winreg, cannot get tnsnames.ora location")
+			sys.stderr.write("winreg not available. Trying _winreg\n")
+			try:
+				import _winreg as winreg
+			except ImportError:
+				lib_common.ErrorMessageHtml("No winreg, cannot get tnsnames.ora location")
 
-	# Tested with package _winreg.
-	aReg = winreg.ConnectRegistry(None,winreg.HKEY_LOCAL_MACHINE)
-	try:
-		aKey = winreg.OpenKey(aReg, r"SOFTWARE\Oracle\KEY_XE")
-		# except WindowsError:
-	except Exception: # Probably WindowsError but we must be portable.
-		# The system cannot find the file specified
+		# Tested with package _winreg.
+		aReg = winreg.ConnectRegistry(None,winreg.HKEY_LOCAL_MACHINE)
 		try:
-			# http://stackoverflow.com/questions/9348951/python-winreg-woes
-			# KEY_WOW64_64KEY 64-bit application on the 64-bit registry view.
-			# KEY_WOW64_32KEY 64-bit application on the 32-bit registry view.
-			# Default is ( *,*, 0, winreg.KEY_READ )
-			aKey = winreg.OpenKey(aReg, r"SOFTWARE\ORACLE\KEY_HOME4",0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+			aKey = winreg.OpenKey(aReg, r"SOFTWARE\Oracle\KEY_XE")
+			# except WindowsError:
 		except Exception: # Probably WindowsError but we must be portable.
-			exc = sys.exc_info()[1]
-			lib_common.ErrorMessageHtml("Caught %s" % str(exc))
+			# The system cannot find the file specified
+			try:
+				# http://stackoverflow.com/questions/9348951/python-winreg-woes
+				# KEY_WOW64_64KEY 64-bit application on the 64-bit registry view.
+				# KEY_WOW64_32KEY 64-bit application on the 32-bit registry view.
+				# Default is ( *,*, 0, winreg.KEY_READ )
+				aKey = winreg.OpenKey(aReg, r"SOFTWARE\ORACLE\KEY_HOME4",0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+			except Exception: # Probably WindowsError but we must be portable.
+				exc = sys.exc_info()[1]
+				lib_common.ErrorMessageHtml("Caught %s" % str(exc))
 
 
 
-	oraHome = None
-	for i in range(1024):
-		try:
-			regVal=winreg.QueryValueEx(aKey, "ORACLE_HOME")
-			oraHome=regVal[0]
-			sys.stderr.write("FindTnsNamesWindows oraHome=%s\n" % str(oraHome) )
-			break
-		except EnvironmentError:
-			break
-	winreg.CloseKey(aKey)
-	winreg.CloseKey(aReg)
+		oraHome = None
+		for i in range(1024):
+			try:
+				regVal=winreg.QueryValueEx(aKey, "ORACLE_HOME")
+				oraHome=regVal[0]
+				sys.stderr.write("FindTnsNamesWindows oraHome=%s\n" % str(oraHome) )
+				break
+			except EnvironmentError:
+				break
+		winreg.CloseKey(aKey)
+		winreg.CloseKey(aReg)
 
-	if oraHome is None:
-		lib_common.ErrorMessageHtml("No ORACLE_HOME in registry, cannot get tnsnames.ora location")
+		if oraHome is None:
+			lib_common.ErrorMessageHtml("No ORACLE_HOME in registry, cannot get tnsnames.ora location")
 
-	tnsnam = oraHome + "\\network\\ADMIN\\tnsnames.ora"
+		tnsnam = oraHome + "\\network\\ADMIN\\tnsnames.ora"
 
-elif lib_util.isPlatformUnix:
-	tnsnam = ""
+	elif lib_util.isPlatformUnix:
+		tnsnam = ""
 
-else:
-	lib_common.ErrorMessageHtml("No tnsnames.ora")
+	else:
+		lib_common.ErrorMessageHtml("No tnsnames.ora")
 
-###########################################################################################
+	###########################################################################################
 
-try:
-	# Ca ne marche pas du tout, aucune idee pourquoi.
-	# tnsnam = r"F:\Orac\Config\tnsnames.ora"
-	# tnsnam=F:\Orac\Config\tnsnames.ora err=[Errno 2]
-	# No such file or directory: 'F:\\Orac\\Config\\tnsnames.ora'
-	# Beware that Apache might have no access right to it: 'F:\\Orac\\Config\\tnsnames.ora'
-	sys.stderr.write("tnsnam=%s\n" % tnsnam)
-	myfile = open(tnsnam,"r")
-except Exception:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("tnsnam="+tnsnam+" err="+str(exc))
+	try:
+		# Ca ne marche pas du tout, aucune idee pourquoi.
+		# tnsnam = r"F:\Orac\Config\tnsnames.ora"
+		# tnsnam=F:\Orac\Config\tnsnames.ora err=[Errno 2]
+		# No such file or directory: 'F:\\Orac\\Config\\tnsnames.ora'
+		# Beware that Apache might have no access right to it: 'F:\\Orac\\Config\\tnsnames.ora'
+		sys.stderr.write("tnsnam=%s\n" % tnsnam)
+		myfile = open(tnsnam,"r")
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("tnsnam="+tnsnam+" err="+str(exc))
 
-parse_all(myfile.read())
-cgiEnv.OutCgiRdf(grph)
+	parse_all(grph, myfile.read())
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

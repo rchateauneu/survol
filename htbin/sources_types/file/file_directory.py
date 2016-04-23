@@ -57,82 +57,85 @@ def UriDirectoryDirectScript(dirNam):
 		lib_util.EncodeUri(dirNam) )
 
 
+def Main():
+	cgiEnv = lib_common.CgiEnv("Directory")
+	filNam = cgiEnv.GetId()
 
-cgiEnv = lib_common.CgiEnv("Directory")
-filNam = cgiEnv.GetId()
+	# entity_host = cgiEnv.GetHost()
 
-# entity_host = cgiEnv.GetHost()
+	# Maybe this is a disk name, on Windows, such as "A:", "C:" etc...
+	if lib_util.isPlatformWindows :
+		# Remove the trailing backslash.
+		if re.match( r"^[a-zA-Z]:\\$", filNam ):
+			filNam = filNam[:2]
+		# Add a slash at the end, otherwise it does not work.
+		if re.match( "^[a-zA-Z]:$", filNam ):
+			filNam += "/"
 
-# Maybe this is a disk name, on Windows, such as "A:", "C:" etc...
-if lib_util.isPlatformWindows :
-	# Remove the trailing backslash.
-	if re.match( r"^[a-zA-Z]:\\$", filNam ):
-		filNam = filNam[:2]
-	# Add a slash at the end, otherwise it does not work.
-	if re.match( "^[a-zA-Z]:$", filNam ):
-		filNam += "/"
+	sys.stderr.write("filNam=%s\n" % filNam )
 
-sys.stderr.write("filNam=%s\n" % filNam )
+	filNode = lib_common.gUriGen.FileUri(filNam )
 
-filNode = lib_common.gUriGen.FileUri(filNam )
+	grph = rdflib.Graph()
 
-grph = rdflib.Graph()
+	if filNam != '/':
+		# TODO: Does it work on Windows ???
+		splitdir = filNam.split('/')
+		topdir = '/'.join( splitdir[:-1] )
+		if topdir != "":
+			# sys.stderr.write("topdir=%s\n"%(topdir))
+			topdirNode = lib_common.gUriGen.DirectoryUri(topdir )
+			grph.add( ( topdirNode, pc.property_directory, filNode ) )
 
-if filNam != '/':
-	# TODO: Does it work on Windows ???
-	splitdir = filNam.split('/')
-	topdir = '/'.join( splitdir[:-1] )
-	if topdir != "":
-		# sys.stderr.write("topdir=%s\n"%(topdir))
-		topdirNode = lib_common.gUriGen.DirectoryUri(topdir )
-		grph.add( ( topdirNode, pc.property_directory, filNode ) )
+			url_mime = UriDirectoryDirectScript( topdir )
+			grph.add( ( topdirNode, pc.property_rdf_data_nolist, rdflib.term.URIRef(url_mime) ) )
 
-		url_mime = UriDirectoryDirectScript( topdir )
-		grph.add( ( topdirNode, pc.property_rdf_data_nolist, rdflib.term.URIRef(url_mime) ) )
+	if os.path.isdir( filNam ):
+		# sys.stderr.write("filNam=%s\n"%(filNam))
 
-if os.path.isdir( filNam ):
-	# sys.stderr.write("filNam=%s\n"%(filNam))
+		# In case we do not loop at all.
+		dirs = None
+		for subdir, dirs, files in os.walk(filNam):
+			break
 
-	# In case we do not loop at all.
-	dirs = None
-	for subdir, dirs, files in os.walk(filNam):
-		break
+		if dirs == None:
+			lib_common.ErrorMessageHtml("No files in:"+filNam)
 
-	if dirs == None:
-		lib_common.ErrorMessageHtml("No files in:"+filNam)
+		filNam_slash = filNam + "/"
+		for dir in dirs:
+			fullDirPath = filNam_slash + dir
+			subdirNode = lib_common.gUriGen.DirectoryUri( fullDirPath )
+			grph.add( ( filNode, pc.property_directory, subdirNode ) )
 
-	filNam_slash = filNam + "/"
-	for dir in dirs:
-		fullDirPath = filNam_slash + dir
-		subdirNode = lib_common.gUriGen.DirectoryUri( fullDirPath )
-		grph.add( ( filNode, pc.property_directory, subdirNode ) )
+			url_dir_node = UrlDirectory( fullDirPath )
+			if not url_dir_node is None:
+				grph.add( ( subdirNode, pc.property_html_data, url_dir_node ) )
 
-		url_dir_node = UrlDirectory( fullDirPath )
-		if not url_dir_node is None:
-			grph.add( ( subdirNode, pc.property_html_data, url_dir_node ) )
+			url_mime = UriDirectoryDirectScript(fullDirPath)
+			grph.add( ( subdirNode, pc.property_rdf_data_nolist, rdflib.term.URIRef(url_mime) ) )
 
-		url_mime = UriDirectoryDirectScript(fullDirPath)
-		grph.add( ( subdirNode, pc.property_rdf_data_nolist, rdflib.term.URIRef(url_mime) ) )
+			# On peut ajouter des liens en rdf_data mais leur nom est normalement une "info".
+			# Donc en affichage horizontal, il faut aussi virer ce sous-noeud.
+			# C est vraiment un cas special car le noeud "info" du noed "rdf_data" doit etre utilise
+			# comme titre de l'url, et il doit y en avoir un et un seul.
+			# Que se passe--til si le noeud rdf_data pointe vers d'autres noeuds?
+			# On pourrait avoir propriete=rdf_data mais la valeur serait un literal ?
 
-		# On peut ajouter des liens en rdf_data mais leur nom est normalement une "info".
-		# Donc en affichage horizontal, il faut aussi virer ce sous-noeud.
-		# C est vraiment un cas special car le noeud "info" du noed "rdf_data" doit etre utilise
-		# comme titre de l'url, et il doit y en avoir un et un seul.
-		# Que se passe--til si le noeud rdf_data pointe vers d'autres noeuds?
-		# On pourrait avoir propriete=rdf_data mais la valeur serait un literal ?
+		# TODO: Quand c'est un script, verifier qu'on peut l'executer !!!
+		for file in files:
+			fullFilePath = filNam_slash+file
+			# OK WinXP: On remplace d'abord le ampersand, et on encode ensuite, car le remplacement ne marche pas dans l'autre sens.
+			subfilNode = lib_common.gUriGen.FileUri( fullFilePath.replace("&","&amp;" ) )
 
-	# TODO: Quand c'est un script, verifier qu'on peut l'executer !!!
-	for file in files:
-		fullFilePath = filNam_slash+file
-		# OK WinXP: On remplace d'abord le ampersand, et on encode ensuite, car le remplacement ne marche pas dans l'autre sens.
-		subfilNode = lib_common.gUriGen.FileUri( fullFilePath.replace("&","&amp;" ) )
+			grph.add( ( filNode, pc.property_directory, subfilNode ) )
 
-		grph.add( ( filNode, pc.property_directory, subfilNode ) )
+			lib_entities.lib_entity_file.AddStat( grph, subfilNode, fullFilePath )
+			lib_entities.lib_entity_file.AddHtml( grph, subfilNode, fullFilePath )
 
-		lib_entities.lib_entity_file.AddStat( grph, subfilNode, fullFilePath )
-		lib_entities.lib_entity_file.AddHtml( grph, subfilNode, fullFilePath )
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_directory] )
+	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [] )
 
-cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_directory] )
-# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [] )
+if __name__ == '__main__':
+	Main()
 
 

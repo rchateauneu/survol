@@ -183,6 +183,9 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		if IsTempFile(fil) or fil == "__init__.py":
 			continue
 
+		if not fil.endswith(".py"):
+			continue
+
 		script_path = relative_dir + sub_path + "/" + fil
 
 		# sys.stderr.write("DirToMenu encodedEntityId=%s\n" % encodedEntityId)

@@ -25,27 +25,31 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-paramkeyPassword = "Password"
+def Main():
+	paramkeyPassword = "Password"
 
-cgiEnv = lib_common.CgiEnv(
-	"Files on a SMB share, accessed with smbclient",
-	"",
-	{ paramkeyPassword : "" } )
+	cgiEnv = lib_common.CgiEnv(
+		"Files on a SMB share, accessed with smbclient",
+		"",
+		{ paramkeyPassword : "" } )
 
-if lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("smbclient not available on Windows")
+	if lib_util.isPlatformWindows:
+		lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
-password = cgiEnv.GetParameters( paramkeyPassword )
+	password = cgiEnv.GetParameters( paramkeyPassword )
 
-# Top directory, not just the share name.
-smbFile= cgiEnv.GetId()
+	# Top directory, not just the share name.
+	smbFile= cgiEnv.GetId()
 
-rootNodeSmb,smbDir,smbShr = lib_smb.SmbBothUriSplit(smbFile)
-if rootNodeSmb is None:
-	lib_common.ErrorMessageHtml("This is not a shared file:"+smbFile)
+	rootNodeSmb,smbDir,smbShr = lib_smb.SmbBothUriSplit(smbFile)
+	if rootNodeSmb is None:
+		lib_common.ErrorMessageHtml("This is not a shared file:"+smbFile)
 
-grph = rdflib.Graph()
+	grph = rdflib.Graph()
 
-lib_smbclient.AddFromSmbClient( grph, smbDir, smbShr, password, rootNodeSmb )
+	lib_smbclient.AddFromSmbClient( grph, smbDir, smbShr, password, rootNodeSmb )
 
-cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

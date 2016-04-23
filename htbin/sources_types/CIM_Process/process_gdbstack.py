@@ -9,16 +9,8 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 import lib_entities.lib_entity_symbol as lib_entity_symbol
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv(
-	"Process callstack with gdb",
-	"http://www.gnu.org/software/gdb/images/archer.jpg")
-try:
-	the_pid = int(cgiEnv.GetId())
-except KeyError:
-	lib_common.ErrorMessageHtml("Process id should be provided")
-
 # Runs a gdb command and returns the output with some cleanup.
-def RunGdbCommand(command):
+def RunGdbCommand(the_pid,command):
 	tmpGdb = lib_common.TmpFile("gdbstack","gdb")
 	gdbFilNam = tmpGdb.Name
 
@@ -63,18 +55,7 @@ def RunGdbCommand(command):
 
 	return resu
 
-grph = rdflib.Graph()
-
-proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(the_pid)
-
-procNode = lib_common.gUriGen.PidUri( the_pid )
-lib_entity_CIM_Process.AddInfo( grph, procNode, [ str(the_pid) ] )
-
-( execName, execErrMsg ) = lib_entity_CIM_Process.PsutilProcToExe( proc_obj )
-if( execName == "" ):
-	lib_common.ErrorMessageHtml("Cannot gdb:"+execErrMsg)
-
-def CallParse( grph, procNode, callNodePrev, lin ):
+def CallParse( execName, grph, procNode, callNodePrev, lin ):
 	# TODO: See the content of the parenthesis. Can it be the arguments?
 
 	funcName = None
@@ -94,11 +75,11 @@ def CallParse( grph, procNode, callNodePrev, lin ):
 
 	lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, fileName )
 
-def PassThreads(grph, procNode):
+def PassThreads(the_pid, execName, grph, procNode):
 	currThr = -1
 	callNodePrev = None
 
-	lines = RunGdbCommand( "thread apply all bt" )
+	lines = RunGdbCommand( the_pid, "thread apply all bt" )
 
 	for lin in lines:
 		sys.stderr.write("Gdb1:%s\n" % (lin) )
@@ -114,21 +95,21 @@ def PassThreads(grph, procNode):
 		if currThr == -1:
 			continue
 
-		callNodePrev = CallParse( grph, procNode, callNodePrev, lin )
+		callNodePrev = CallParse( execName, grph, procNode, callNodePrev, lin )
 
 		# Reached the end of the call stack.
 		if callNodePrev == None:
 			currThr = -1
 
-def PassNoThreads(grph, procNode):
+def PassNoThreads(the_pid, execName, grph, procNode):
 	callNodePrev = None
 
-	lines = RunGdbCommand( "bt" )
+	lines = RunGdbCommand( the_pid, "bt" )
 
 	for lin in lines:
 		sys.stderr.write("Gdb2:%s\n" % (lin) )
 
-		callNodeNew = CallParse( grph, procNode, callNodePrev, lin )
+		callNodeNew = CallParse( execName, grph, procNode, callNodePrev, lin )
 
 		# Reached the end of the call stack.
 		if callNodeNew == None and callNodePrev != None:
@@ -136,13 +117,35 @@ def PassNoThreads(grph, procNode):
 			break
 		callNodePrev = callNodeNew
 
-PassThreads(grph, procNode)
+def Main():
+	cgiEnv = lib_common.CgiEnv(
+		"Process callstack with gdb",
+		"http://www.gnu.org/software/gdb/images/archer.jpg")
+	try:
+		the_pid = int(cgiEnv.GetId())
+	except KeyError:
+		lib_common.ErrorMessageHtml("Process id should be provided")
 
-# If the command did not return anything, it means that
-# there are no threads, so we fall back to the "classical"
-# gdb output format.
-if len(grph) == 0:
-	PassNoThreads(grph, procNode)
+	grph = rdflib.Graph()
 
-cgiEnv.OutCgiRdf(grph)
+	proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(the_pid)
 
+	procNode = lib_common.gUriGen.PidUri( the_pid )
+	lib_entity_CIM_Process.AddInfo( grph, procNode, [ str(the_pid) ] )
+
+	( execName, execErrMsg ) = lib_entity_CIM_Process.PsutilProcToExe( proc_obj )
+	if( execName == "" ):
+		lib_common.ErrorMessageHtml("Cannot gdb:"+execErrMsg)
+
+	PassThreads(the_pid, execName, grph, procNode)
+
+	# If the command did not return anything, it means that
+	# there are no threads, so we fall back to the "classical"
+	# gdb output format.
+	if len(grph) == 0:
+		PassNoThreads( the_pid, execName, grph, procNode)
+
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

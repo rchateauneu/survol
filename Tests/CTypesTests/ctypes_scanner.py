@@ -212,7 +212,9 @@ class MemoryProcessor:
 		for keyStr in self.m_byStruct:
 			structRegex = self.m_byStruct[ keyStr ].m_rgxComp
 
+			# TODO: Performances:
 			# TODO: Check only aligned addresses.
+			# TODO: Use finditer
 			matches = structRegex.findall( arr )
 
 			if not matches:

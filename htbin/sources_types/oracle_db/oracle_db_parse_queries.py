@@ -7,24 +7,12 @@ import rdflib
 import lib_oracle
 import lib_credentials
 
-grph = rdflib.Graph()
-
 #  NOT DONE YET: THIS PARSES SQL QUERIES AND EXTRACTS THE TABLES
 # THE PARSING WORKS-ISH BUT THIS IS NOT INTEGRATED IN THE 
 # FRAMEWORK.
 # THIS CAN BE RELATED TO A OS PROCESS ...
 # ... OR AN ORACLE SESSION.
 # THEREFORE IT HAS TO GO TO A LIBRARY.
-
-cgiEnv = lib_common.CgiEnv(
-	"Oracle tables",
-	lib_oracle.logo )
-
-database = cgiEnv.GetId()
-
-(oraUser, oraPwd) = lib_credentials.GetCredentials( "Oracle", database )
-
-conn_str = oraUser + "/" + oraPwd + "@" + database
 
 # Returns the index of the end of the sub-expression, that is,
 # the position of the first closing parentheses which is not opened here.
@@ -267,19 +255,37 @@ def oracallback(row):
 		print( row[0], "-", row[1], "-", row[2], "-", sql_text, "-", row[5] )
 		exit(1)
 
-sql_query = """
-SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid
-  FROM v$session sess,
-       v$sql     sql,
-       v$process proc
- WHERE sql.sql_id(+) = sess.sql_id
-   AND sess.type     = 'USER'
-   and sess.paddr = proc.addr
-"""
+def Main():
+	cgiEnv = lib_common.CgiEnv(
+		"Oracle tables",
+		lib_oracle.logo )
 
-# for row in lib_oracle.ExecuteQuery( conn_str,sql_query):
-lib_oracle.CallbackQuery( conn_str,sql_query, oracallback)
-		
+	grph = rdflib.Graph()
+
+	database = cgiEnv.GetId()
+
+	(oraUser, oraPwd) = lib_credentials.GetCredentials( "Oracle", database )
+
+	conn_str = oraUser + "/" + oraPwd + "@" + database
+
+
+
+
+
+
+	sql_query = """
+	SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid
+	  FROM v$session sess,
+		   v$sql     sql,
+		   v$process proc
+	 WHERE sql.sql_id(+) = sess.sql_id
+	   AND sess.type     = 'USER'
+	   and sess.paddr = proc.addr
+	"""
+
+	# for row in lib_oracle.ExecuteQuery( conn_str,sql_query):
+	lib_oracle.CallbackQuery( conn_str,sql_query, oracallback)
+
 # FIXME: THIS MUST SHOW THE SCHEMA WHICH MUST BE ADDED.
 
 #Sql=255: SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid   FROM v$session sess,        v$sql     sql,        v$process proc  WHERE sql.sql_id(+) = sess.sql_id    AND sess.type     = 'USER'    and sess.paddr = proc.addr
@@ -290,3 +296,8 @@ lib_oracle.CallbackQuery( conn_str,sql_query, oracallback)
 #DEPENDS=v$sql
 #select_tables_txt=[v$process proc  WHERE sql.sql_id(+) = sess.sql_id    AND sess.type     = 'USER'    and sess.paddr = proc.addr ]
 #DEPENDS=v$process
+
+if __name__ == '__main__':
+	Main()
+
+

@@ -8,38 +8,16 @@ import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
 
-paramkeyShowSharedLib = "Show shared libraries"
-paramkeyShowFontFiles = "Show font files"
-paramkeyShowNonShared = "Show non shared files"
-
-# TODO: At the moment, only uses false default values for boolean parameters,
-# TODO: because CGI and the CGI lib do not send empty strings.
-cgiEnv = lib_common.CgiEnv("System-wide open files",
-	parameters = { paramkeyShowSharedLib : False,
-				   paramkeyShowFontFiles : False,
-	               paramkeyShowNonShared : False }
-)
-
-flagShowSharedLib = bool(cgiEnv.GetParameters( paramkeyShowSharedLib ))
-flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
-flagShowNonShared = bool(cgiEnv.GetParameters( paramkeyShowNonShared ))
-
-grph = rdflib.Graph()
-
-################################################################################
-
-dictPathToNod = {}
 
 def PathToNod(path):
 	try:
-		return dictPathToNod[path]
+		return Main.dictPathToNod[path]
 	except KeyError:
 		filNod = lib_common.gUriGen.FileUri( path )
-		dictPathToNod[path] = filNod
+		Main.dictPathToNod[path] = filNod
 		return filNod
 
-################################################################################
-# Avoids storing files which are accessed by one process only.
+""" Avoids storing files which are accessed by one process only."""
 def AddPidFileLink(grph,node_process,path):
 
 	# TODO: Resolve symbolic links. Do not do that if shared memory.
@@ -61,53 +39,78 @@ def AddPidFileLink(grph,node_process,path):
 		# Just store the node. Will see later if accessed by more than two process.
 		AddPidFileLink.dictFiles[path] = node_process
 
-AddPidFileLink.dictFiles = {}
+def Main():
+	paramkeyShowSharedLib = "Show shared libraries"
+	paramkeyShowFontFiles = "Show font files"
+	paramkeyShowNonShared = "Show non shared files"
 
-################################################################################
+	# TODO: At the moment, only uses false default values for boolean parameters,
+	# TODO: because CGI and the CGI lib do not send empty strings.
+	cgiEnv = lib_common.CgiEnv("System-wide open files",
+		parameters = { paramkeyShowSharedLib : False,
+					   paramkeyShowFontFiles : False,
+					   paramkeyShowNonShared : False }
+	)
 
-# Maybe this is done in another CGI. What happens when merging ?
-grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_util.currentHostname ) ) )
+	flagShowSharedLib = bool(cgiEnv.GetParameters( paramkeyShowSharedLib ))
+	flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
+	flagShowNonShared = bool(cgiEnv.GetParameters( paramkeyShowNonShared ))
 
-# https://code.google.com/p/psutil/issues/detail?id=340
-# This might hang.
+	grph = rdflib.Graph()
 
-for proc in psutil.process_iter():
-	try:
-		if lib_common.UselessProc(proc):
-			continue
+	################################################################################
 
-		pid = proc.pid
+	Main.dictPathToNod = {}
 
-		node_process = None
-		
-		# http://code.google.com/p/psutil/issues/detail?id=340
-		# https://github.com/giampaolo/psutil/issues/340
-		for fil in lib_entity_CIM_Process.PsutilProcOpenFiles( proc ):
+	AddPidFileLink.dictFiles = {}
 
-			# Some files are not interesting even if accessed by many processes.
-			if lib_common.MeaninglessFile(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
+	# Maybe this is done in another CGI. What happens when merging ?
+	grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_util.currentHostname ) ) )
+
+	# https://code.google.com/p/psutil/issues/detail?id=340
+	# This might hang.
+
+	for proc in psutil.process_iter():
+		try:
+			if lib_common.UselessProc(proc):
 				continue
 
-			# Adds the process node only if it has at least one open file.
-			if node_process == None:
-				node_process = lib_common.gUriGen.PidUri(pid)
-				grph.add( ( node_process, pc.property_pid, rdflib.Literal(pid) ) )
+			pid = proc.pid
 
-			# TODO: What about files on a shared drive?
-			if flagShowNonShared:
-				fileNode = PathToNod( fil.path )
-				grph.add( ( node_process, pc.property_open_file, fileNode ) )
-			else:
-				# This takes into account only files accessed by several processes.
-				AddPidFileLink( grph, node_process, fil.path )
+			node_process = None
 
-	except psutil.AccessDenied:
-		pass
-	except:
-		exc = sys.exc_info()[1]
-		sys.stderr.write("Exception:%s\n"% str(exc))
-		pass
+			# http://code.google.com/p/psutil/issues/detail?id=340
+			# https://github.com/giampaolo/psutil/issues/340
+			for fil in lib_entity_CIM_Process.PsutilProcOpenFiles( proc ):
 
-cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
-# cgiEnv.OutCgiRdf(grph)
+				# Some files are not interesting even if accessed by many processes.
+				if lib_common.MeaninglessFile(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
+					continue
+
+				# Adds the process node only if it has at least one open file.
+				if node_process == None:
+					node_process = lib_common.gUriGen.PidUri(pid)
+					grph.add( ( node_process, pc.property_pid, rdflib.Literal(pid) ) )
+
+				# TODO: What about files on a shared drive?
+				if flagShowNonShared:
+					fileNode = PathToNod( fil.path )
+					grph.add( ( node_process, pc.property_open_file, fileNode ) )
+				else:
+					# This takes into account only files accessed by several processes.
+					AddPidFileLink( grph, node_process, fil.path )
+
+		except psutil.AccessDenied:
+			pass
+		except:
+			exc = sys.exc_info()[1]
+			sys.stderr.write("Exception:%s\n"% str(exc))
+			pass
+
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	# cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()
+
 

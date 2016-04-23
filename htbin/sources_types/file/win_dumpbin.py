@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+"""Returns symbols associated to a DLL"""
+
 import os
 import subprocess
 import re
@@ -8,11 +10,6 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-
-# Returns symbols associated to a DLL.
-
-if not lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("DLL files are on Windows platforms only")
 
 # Trouver un moyen de passer un parametre a un cgi :
 # - Creer des URL qu on injecte dans un fichier dot.
@@ -37,46 +34,52 @@ if not lib_util.isPlatformWindows:
 #   Pas forcement, c est une abstraction. 
 #   En revanche, permettre d instrumenter la combinaison : symbole+fichier.
 
-cgiEnv = lib_common.CgiEnv("dumpbin results")
-dll_file = cgiEnv.GetId()
+def Main():
+	cgiEnv = lib_common.CgiEnv("dumpbin results")
+	dll_file = cgiEnv.GetId()
 
-# This should be a parameter.
-dumpbin_exe = "\"c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/bin/amd64/dumpbin.exe\""
-# dumpbin_exe = "dumpbin.exe"
-# dll_file = "C:/Program Files (x86)/IBM/WebSphere MQ/bin/amqmdnet.dll"
-dumpbin_cmd = [ dumpbin_exe, dll_file, "/exports" ]
+	if not lib_util.isPlatformWindows:
+		lib_common.ErrorMessageHtml("DLL files are on Windows platforms only")
 
-try:
-	dumpbin_pipe = subprocess.Popen(dumpbin_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-except WindowsError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Windows error executing:"+" ".join(dumpbin_cmd)+":"+str(exc))
-	# TODO: "Access is denied". Why ???
+	# This should be a parameter.
+	dumpbin_exe = "\"c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/bin/amd64/dumpbin.exe\""
+	# dumpbin_exe = "dumpbin.exe"
+	# dll_file = "C:/Program Files (x86)/IBM/WebSphere MQ/bin/amqmdnet.dll"
+	dumpbin_cmd = [ dumpbin_exe, dll_file, "/exports" ]
 
-( dumpbin_out, dumpbin_err ) = dumpbin_pipe.communicate()
+	try:
+		dumpbin_pipe = subprocess.Popen(dumpbin_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	except WindowsError:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Windows error executing:"+" ".join(dumpbin_cmd)+":"+str(exc))
+		# TODO: "Access is denied". Why ???
 
-err_asstr = dumpbin_err.decode("utf-8")
-err_lines = err_asstr.split('\n')
+	( dumpbin_out, dumpbin_err ) = dumpbin_pipe.communicate()
 
-lib_common.ErrorMessageHtml("Err="+str(err_lines))
+	err_asstr = dumpbin_err.decode("utf-8")
+	err_lines = err_asstr.split('\n')
 
-# Converts to string for Python3.
-out_asstr = dumpbin_out.decode("utf-8")
-out_lines = out_asstr.split('\n')
+	lib_common.ErrorMessageHtml("Err="+str(err_lines))
 
-grph = rdflib.Graph()
+	# Converts to string for Python3.
+	out_asstr = dumpbin_out.decode("utf-8")
+	out_lines = out_asstr.split('\n')
 
-nodeDLL = lib_common.gUriGen.FileUri( dll_file )
+	grph = rdflib.Graph()
 
-for lin in out_lines:
-	#        362  168 0111B5D0 ?CompareNoCase@AString@ole@@QBEHPBD@Z = ?CompareNoCase@AString@ole@@QBEHPBD@Z (public: int __thiscall ole:
-	matchObj = re.match( r'^ *[0-9A-F]+ *[0-9A-F]+ *[0-9A-F]+ ([^ ]+) = ([^ ]+)', lin )
-	if matchObj:
-		sym = matchObj.group(1)
-		# TODO: Not sure about the file.
-		nodeSymbol = lib_common.gUriGen.SymbolUri(sym, dll_file)
-		grph.add( ( nodeDLL, pc.property_symbol_defined, nodeSymbol ) )
-		# print( "OK :" + matchObj.group(1) )
+	nodeDLL = lib_common.gUriGen.FileUri( dll_file )
 
-cgiEnv.OutCgiRdf(grph)
+	for lin in out_lines:
+		#        362  168 0111B5D0 ?CompareNoCase@AString@ole@@QBEHPBD@Z = ?CompareNoCase@AString@ole@@QBEHPBD@Z (public: int __thiscall ole:
+		matchObj = re.match( r'^ *[0-9A-F]+ *[0-9A-F]+ *[0-9A-F]+ ([^ ]+) = ([^ ]+)', lin )
+		if matchObj:
+			sym = matchObj.group(1)
+			# TODO: Not sure about the file.
+			nodeSymbol = lib_common.gUriGen.SymbolUri(sym, dll_file)
+			grph.add( ( nodeDLL, pc.property_symbol_defined, nodeSymbol ) )
+			# print( "OK :" + matchObj.group(1) )
 
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

@@ -8,4 +8,4 @@ from lib_common import pc
 import rdflib
 
 
-On va surveiller ce qui se passe sur une socket specifique.
+# On va surveiller ce qui se passe sur une socket specifique.

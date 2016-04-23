@@ -12,12 +12,7 @@ import lib_entities.lib_entity_file
 import lib_common
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv("Symbolic link destination (Recursive)")
-file_path = cgiEnv.GetId()
-
-grph = rdflib.Graph()
-
-def DoTheRest( beginning, physical, file_split ):
+def DoTheRest( grph, beginning, physical, file_split ):
 	file_depth = len(file_split)
 
 	if file_depth == 0:
@@ -30,7 +25,7 @@ def DoTheRest( beginning, physical, file_split ):
 		return
 
 	ext = "/" + file_split[0]
-	DoTheRest( beginning + ext, physical + ext, file_split[ 1 : ] )
+	DoTheRest( grph, beginning + ext, physical + ext, file_split[ 1 : ] )
 
 	try:
 		new_begin = beginning + ext
@@ -44,21 +39,29 @@ def DoTheRest( beginning, physical, file_split ):
 		else:
 			full_path = beginning + "/" + lnk_path
 		# print("link=" + lnk_path + "=>" + full_path)
-		DoTheRest( full_path, physical + ext, file_split[ 1 : ] )
+		DoTheRest( grph, full_path, physical + ext, file_split[ 1 : ] )
 	except OSError:
 		# print("Not a symlink:"+beginning)
 		return
 
 ################################################################################
 
-try:
-	file_split = file_path.split('/')
-	# print("file_split=" + str(file_split))
-	# This assumes that file_path is absolute and begins with a slash.
-	DoTheRest( "", "", file_split[ 1: ] )
-except Exception:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Error:"+str(exc))
+def Main():
+	cgiEnv = lib_common.CgiEnv("Symbolic link destination (Recursive)")
+	file_path = cgiEnv.GetId()
 
-cgiEnv.OutCgiRdf(grph)
+	grph = rdflib.Graph()
 
+	try:
+		file_split = file_path.split('/')
+		# print("file_split=" + str(file_split))
+		# This assumes that file_path is absolute and begins with a slash.
+		DoTheRest( grph, "", "", file_split[ 1: ] )
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Error:"+str(exc))
+
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

@@ -51,7 +51,7 @@ grph.add( ( rootNode, pc.property_rdf_data_nolist, objtypeNode ) )
 # This try to find a correct url for an entity type, without an entity id.
 # TODO: Donner plusieurs types d'enumerations possibles.
 # At the moment, we just expect a file called "enumerate.<entity>.py"
-enumerateScript = "enumerate." + className + ".py"
+enumerateScript = "enumerate_" + className + ".py"
 # sys.stderr.write("enumerateScript=%s\n" % enumerateScript)
 baseDir = lib_util.gblTopScripts + "/sources_top"
 for dirpath, dirnames, filenames in os.walk( baseDir ):

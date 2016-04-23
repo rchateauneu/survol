@@ -12,17 +12,6 @@ import lib_entities.lib_entity_CIM_Process
 import lib_entities.lib_entity_symbol
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv("Extract information from a Windows binary with CDB")
-try:
-	the_pid = int(cgiEnv.GetId())
-except Exception:
-	lib_common.ErrorMessageHtml("Must provide a pid")
-
-if not lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("This works only on Windows platforms")
-
-grph = rdflib.Graph()
-
 
 # 76530000 76640000   kernel32   (export symbols)       C:\Windows\syswow64\kernel32.dll
 # 76640000 7670c000   MSCTF      (deferred)
@@ -52,96 +41,112 @@ grph = rdflib.Graph()
 # 295cfb0c 00000000 ntdll!RtlInitializeExceptionChain+0x36
 # 0:160>
 
-# Starts a second session
-cdb_fil = lib_common.TmpFile("CdbCommand","cdb")
-cdb_fd = open(cdb_fil.Name,"w")
-cdb_fd.write("lm\n")
-cdb_fd.write("k\n")
-cdb_fd.write("qd\n")
-cdb_fd.close()
+def Main():
+	cgiEnv = lib_common.CgiEnv("Extract information from a Windows binary with CDB")
+	try:
+		the_pid = int(cgiEnv.GetId())
+	except Exception:
+		lib_common.ErrorMessageHtml("Must provide a pid")
 
-cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
+	if not lib_util.isPlatformWindows:
+		lib_common.ErrorMessageHtml("This works only on Windows platforms")
 
+	grph = rdflib.Graph()
 
-procNode = lib_common.gUriGen.PidUri( the_pid )
-callNodePrev = None
+	# Starts a second session
+	cdb_fil = lib_common.TmpFile("CdbCommand","cdb")
+	cdb_fd = open(cdb_fil.Name,"w")
+	cdb_fd.write("lm\n")
+	cdb_fd.write("k\n")
+	cdb_fd.write("qd\n")
+	cdb_fd.close()
 
-modules_map = {}
-
-sys.stderr.write("Starting cdb_cmd=%s\n" % cdb_cmd )
-try:
-	cdb_pipe = subprocess.Popen(cdb_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-except WindowsError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml( "cdb not available: Caught:%s" % str(exc) )
-
-sys.stderr.write("Started cdb_cmd=%s\n" % cdb_cmd )
-
-( cdb_output, cdb_err ) = cdb_pipe.communicate()
-
-# Without decode, "TypeError: Type str does not support the buffer API"
-cdb_str =  cdb_output.decode("utf-8")
-
-callDepth = 0
-
-for dot_line in cdb_str.split('\n'):
-	# sys.stderr.write("Line=%s\n" % dot_line )
-
-	err_match = re.match(".*parameter is incorrect.*", dot_line )
-	if err_match:
-		lib_common.ErrorMessageHtml("CDB:"+dot_line)
-
-	# 76590000 766a0000   kernel32   (export symbols)       C:\Windows\syswow64\kernel32.dll
-	match_lm = re.match( "[0-9a-fA-F]+ [0-9a-fA-F]+ +([^ ]*) +\(export symbols\) +(.*)", dot_line )
-	sys.stderr.write("dot_line=%s\n" % dot_line )
-	if match_lm:
-		moduleName = match_lm.group(1)
-		dllName = match_lm.group(2).strip().replace("\\","/") # .replace(":","COLON")
-		sys.stderr.write("moduleName=%s dllName=%s\n" % ( moduleName, dllName ) )
-		modules_map[ moduleName ] = dllName
-		continue
-
-	# 295cfb0c 00000000 ntdll!RtlInitializeExceptionChain+0x36
-	# Another format, maybe because of a 64 bits machine.
-	# 00000000`02edff90 00000000`00000000 ntdll!RtlUserThreadStart+0x21
-	match_k = re.match( "[`0-9a-fA-F]+ [`0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line )
-	sys.stderr.write("dot_line=%s\n" % dot_line )
-	if match_k:
-		moduleName = match_k.group(1)
-		try:
-			dllName = modules_map[ moduleName ]
-		except KeyError:
-			dllName = moduleName
-		funcName = match_k.group(2).strip()
-		sys.stderr.write("moduleName=%s dllName=%s funcName=%s\n" % ( moduleName, dllName, funcName ) )
-
-		callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
-		grph.add( ( callNodePrev, rdflib.Literal("Depth"), rdflib.Literal(callDepth) ) )
-		callDepth += 1
-		continue
+	cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
 
 
-sys.stderr.write("Parsed cdb result\n")
+	procNode = lib_common.gUriGen.PidUri( the_pid )
+	callNodePrev = None
+
+	modules_map = {}
+
+	sys.stderr.write("Starting cdb_cmd=%s\n" % cdb_cmd )
+	try:
+		cdb_pipe = subprocess.Popen(cdb_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	except WindowsError:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml( "cdb not available: Caught:%s" % str(exc) )
+
+	sys.stderr.write("Started cdb_cmd=%s\n" % cdb_cmd )
+
+	( cdb_output, cdb_err ) = cdb_pipe.communicate()
+
+	# Without decode, "TypeError: Type str does not support the buffer API"
+	cdb_str =  cdb_output.decode("utf-8")
+
+	callDepth = 0
+
+	for dot_line in cdb_str.split('\n'):
+		# sys.stderr.write("Line=%s\n" % dot_line )
+
+		err_match = re.match(".*parameter is incorrect.*", dot_line )
+		if err_match:
+			lib_common.ErrorMessageHtml("CDB:"+dot_line)
+
+		# 76590000 766a0000   kernel32   (export symbols)       C:\Windows\syswow64\kernel32.dll
+		match_lm = re.match( "[0-9a-fA-F]+ [0-9a-fA-F]+ +([^ ]*) +\(export symbols\) +(.*)", dot_line )
+		sys.stderr.write("dot_line=%s\n" % dot_line )
+		if match_lm:
+			moduleName = match_lm.group(1)
+			dllName = match_lm.group(2).strip().replace("\\","/") # .replace(":","COLON")
+			sys.stderr.write("moduleName=%s dllName=%s\n" % ( moduleName, dllName ) )
+			modules_map[ moduleName ] = dllName
+			continue
+
+		# 295cfb0c 00000000 ntdll!RtlInitializeExceptionChain+0x36
+		# Another format, maybe because of a 64 bits machine.
+		# 00000000`02edff90 00000000`00000000 ntdll!RtlUserThreadStart+0x21
+		match_k = re.match( "[`0-9a-fA-F]+ [`0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line )
+		sys.stderr.write("dot_line=%s\n" % dot_line )
+		if match_k:
+			moduleName = match_k.group(1)
+			try:
+				dllName = modules_map[ moduleName ]
+			except KeyError:
+				dllName = moduleName
+			funcName = match_k.group(2).strip()
+			sys.stderr.write("moduleName=%s dllName=%s funcName=%s\n" % ( moduleName, dllName, funcName ) )
+
+			callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
+			grph.add( ( callNodePrev, rdflib.Literal("Depth"), rdflib.Literal(callDepth) ) )
+			callDepth += 1
+			continue
 
 
-callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
-
-lib_entities.lib_entity_CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
-
-# http://msdn.microsoft.com/en-us/library/windows/hardware/ff539058(v=vs.85).aspx
-#
-# This section describes how to perform basic debugging tasks using
-# the Microsoft Console Debugger (CDB) and Microsoft NT Symbolic Debugger (NTSD).
-# CDB and NTSD are identical in every way, except that NTSD spawns
-# a new text window when it is started, whereas CDB inherits
-# the Command Prompt window from which it was invoked.
-# The instructions in this section are given for CDB,
-# but they work equally well for NTSD. For a discussion
-# of when to use CDB or NTSD, see Debugging Environments.
-
-################################################################################
+	sys.stderr.write("Parsed cdb result\n")
 
 
-# cgiEnv.OutCgiRdf(grph)
-cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
+
+	lib_entities.lib_entity_CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
+
+	# http://msdn.microsoft.com/en-us/library/windows/hardware/ff539058(v=vs.85).aspx
+	#
+	# This section describes how to perform basic debugging tasks using
+	# the Microsoft Console Debugger (CDB) and Microsoft NT Symbolic Debugger (NTSD).
+	# CDB and NTSD are identical in every way, except that NTSD spawns
+	# a new text window when it is started, whereas CDB inherits
+	# the Command Prompt window from which it was invoked.
+	# The instructions in this section are given for CDB,
+	# but they work equally well for NTSD. For a discussion
+	# of when to use CDB or NTSD, see Debugging Environments.
+
+	################################################################################
+
+
+	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+
+if __name__ == '__main__':
+	Main()
+
 

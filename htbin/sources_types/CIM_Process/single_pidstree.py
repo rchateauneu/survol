@@ -7,14 +7,6 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 import lib_entities.lib_entity_file as lib_entity_file
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv("Parent and sub-processes")
-try:
-	root_pid = int(cgiEnv.GetId())
-except KeyError:
-	lib_common.ErrorMessageHtml("Process id should be provided")
-
-grph = rdflib.Graph()
-
 def AddExtraInformationtoProcess(grph,node_process,proc_obj):
 	lib_entity_CIM_Process.AddInfo( grph, node_process, [ str(proc_obj.pid) ] )
 
@@ -28,7 +20,7 @@ def AddExtraInformationtoProcess(grph,node_process,proc_obj):
 		grph.add( ( node_process, pc.property_runs, execNod ) )
 		lib_entity_file.AddInfo( grph, execNod, [ execName ] )
 
-def tree_subprocesses(proc_obj):    
+def tree_subprocesses(grph, proc_obj):
 	if lib_common.UselessProc(proc_obj):
 		return
 
@@ -45,10 +37,10 @@ def tree_subprocesses(proc_obj):
 		node_child = lib_common.gUriGen.PidUri(child.pid)
 		grph.add( ( node_process, pc.property_ppid, node_child ) )
 		AddExtraInformationtoProcess(grph,node_child,child)
-		tree_subprocesses(child)
+		tree_subprocesses(grph, child)
 
 # Recursively add links for the parent processes.
-def tree_parent_process(proc_obj):
+def tree_parent_process(grph, proc_obj):
 	try:
 		the_pid = proc_obj.pid
 		if the_pid == 0 or the_pid == 1:
@@ -69,22 +61,34 @@ def tree_parent_process(proc_obj):
 		AddExtraInformationtoProcess(grph,node_process,proc_obj)
 
 		parent_proc_obj = psutil.Process(the_ppid)
-		tree_parent_process( parent_proc_obj )
+		tree_parent_process( grph, parent_proc_obj )
 	# This exception depends on the version of psutil.
 	except lib_entity_CIM_Process.NoSuchProcess:
 		# Maybe a process has suddenly disappeared. It does not matter.
 		return
 
-proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(root_pid)
+def Main():
+	cgiEnv = lib_common.CgiEnv("Parent and sub-processes")
+	try:
+		root_pid = int(cgiEnv.GetId())
+	except KeyError:
+		lib_common.ErrorMessageHtml("Process id should be provided")
 
-# Sub-processes, recursion.
-tree_subprocesses( proc_obj )
+	grph = rdflib.Graph()
 
-# Now display the parent processes.
-# It could be done in a loop instead of recursive calls.
-tree_parent_process( proc_obj )
+	proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(root_pid)
 
-# This layout style, because the nodes are quite big.
-cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT")
-# cgiEnv.OutCgiRdf(grph)
+	# Sub-processes, recursion.
+	tree_subprocesses( grph, proc_obj )
+
+	# Now display the parent processes.
+	# It could be done in a loop instead of recursive calls.
+	tree_parent_process( grph, proc_obj )
+
+	# This layout style, because the nodes are quite big.
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT")
+	# cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()
 

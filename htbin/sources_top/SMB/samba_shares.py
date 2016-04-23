@@ -28,13 +28,6 @@ import lib_common
 from lib_properties import pc
 import lib_smb
 
-cgiEnv = lib_common.CgiEnv("Samba shares",lib_smb.icon)
-
-# TODO: Should test Linux instead ?
-if lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("smbtree not available on Windows")
-
-grph = rdflib.Graph()
 
 # This returns the IP address of a netbios machine name.
 def NetBiosLookupHelper(machine):
@@ -67,49 +60,59 @@ def NetBiosLookup(machine):
 
 	return addr
 
-smbtree_cmd = [ "smbtree", "-N", "-b", "--debuglevel=0" ]
+def Main():
+	cgiEnv = lib_common.CgiEnv("Samba shares",lib_smb.icon)
 
-smbtree_pipe = subprocess.Popen(smbtree_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	# TODO: Should test Linux instead ?
+	if lib_util.isPlatformWindows:
+		lib_common.ErrorMessageHtml("smbtree not available on Windows")
 
-( smbtree_last_output, smbtree_err ) = smbtree_pipe.communicate()
+	grph = rdflib.Graph()
 
-lines = smbtree_last_output.split('\n')
+	smbtree_cmd = [ "smbtree", "-N", "-b", "--debuglevel=0" ]
 
-for lin in lines:
-	# print(lin)
+	smbtree_pipe = subprocess.Popen(smbtree_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-	tst_domain = re.match( r'^([A-Z]+) *', lin )
-	if tst_domain:
-		domain = tst_domain.group(1)
-		# print( "Domain=" + tst_domain.group(1) )
+	( smbtree_last_output, smbtree_err ) = smbtree_pipe.communicate()
 
-		continue
+	lines = smbtree_last_output.split('\n')
 
-	tst_machine = re.match( r'^[ \t]+\\\\([A-Z0-9_]+)[ \t]+([^\t].*)', lin )
-	if tst_machine:
-		machine = tst_machine.group(1)
-		addr = NetBiosLookup( machine )
-		# print( "Machine=" + tst_machine.group(1) + " Comment=" + tst_machine.group(2) )
+	for lin in lines:
+		# print(lin)
 
-		nodeHost = lib_common.gUriGen.HostnameUri( addr )
-		grph.add( ( nodeHost, pc.property_netbios, lib_common.gUriGen.SmbServerUri(machine) ) )
-		# TODO: Maybe will create a specific node for a domain.
-		grph.add( ( nodeHost, pc.property_domain, lib_common.gUriGen.SmbDomainUri(domain) ) )
+		tst_domain = re.match( r'^([A-Z]+) *', lin )
+		if tst_domain:
+			domain = tst_domain.group(1)
+			# print( "Domain=" + tst_domain.group(1) )
 
-		continue
+			continue
 
-	tst_share = re.match( r'^[ \t]+\\\\([A-Z0-9_]+)\\([^ \t]+)[ \t]+([^\t].*)', lin )
-	if tst_share:
-		machine = tst_share.group(1)
-		share = tst_share.group(2)
+		tst_machine = re.match( r'^[ \t]+\\\\([A-Z0-9_]+)[ \t]+([^\t].*)', lin )
+		if tst_machine:
+			machine = tst_machine.group(1)
+			addr = NetBiosLookup( machine )
+			# print( "Machine=" + tst_machine.group(1) + " Comment=" + tst_machine.group(2) )
 
-		shareNode = lib_common.gUriGen.SmbShareUri( "//" + machine + "/" + share )
-		grph.add( ( nodeHost, pc.property_smbshare, shareNode ) )
+			nodeHost = lib_common.gUriGen.HostnameUri( addr )
+			grph.add( ( nodeHost, pc.property_netbios, lib_common.gUriGen.SmbServerUri(machine) ) )
+			# TODO: Maybe will create a specific node for a domain.
+			grph.add( ( nodeHost, pc.property_domain, lib_common.gUriGen.SmbDomainUri(domain) ) )
 
-		continue
+			continue
 
-# print( smbtree_last_output )
+		tst_share = re.match( r'^[ \t]+\\\\([A-Z0-9_]+)\\([^ \t]+)[ \t]+([^\t].*)', lin )
+		if tst_share:
+			machine = tst_share.group(1)
+			share = tst_share.group(2)
 
+			shareNode = lib_common.gUriGen.SmbShareUri( "//" + machine + "/" + share )
+			grph.add( ( nodeHost, pc.property_smbshare, shareNode ) )
 
-cgiEnv.OutCgiRdf(grph)
+			continue
 
+	# print( smbtree_last_output )
+
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

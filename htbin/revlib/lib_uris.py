@@ -318,7 +318,7 @@ class LocalBox:
 	# TODO: Have a special type for directories, dll etc...
 	def DirectoryUri(self,path):
 		# return self.UriMake(lib_util.ComposeTypes( "file", "dir" ), lib_util.EncodeUri(path))
-		return self.UriMake(lib_util.ComposeTypes( "file" ), lib_util.EncodeUri(path))
+		return self.UriMake( "file" , lib_util.EncodeUri(path))
 
 	# TODO: Renvoyer NULL si type MIME invalide ?
 	# Ou bien une icone ?

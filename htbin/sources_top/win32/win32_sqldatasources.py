@@ -6,8 +6,6 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv("ODBC Data sources")
-
 if not lib_util.isPlatformWindows:
 	lib_common.ErrorMessageHtml("ODBC Data sources only on Windows platforms")
 
@@ -22,10 +20,7 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("Cannot load module odbc")
 
-grph = rdflib.Graph()
-
-
-def show_odbc_sources():
+def show_odbc_sources(grph):
 	odbc_iter_code = odbc.SQL_FETCH_FIRST
 	while True:
 		# System DSN only. For users DSN, I do not know.
@@ -41,7 +36,13 @@ def show_odbc_sources():
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
 		grph.add( (nodeDsn, pc.property_odbc_driver, rdflib.Literal(driver) ) )
 
-show_odbc_sources()
+def Main():
+	cgiEnv = lib_common.CgiEnv("ODBC Data sources")
 
-cgiEnv.OutCgiRdf(grph)
+	grph = rdflib.Graph()
+	show_odbc_sources(grph)
 
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

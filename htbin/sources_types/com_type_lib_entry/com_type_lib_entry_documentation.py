@@ -44,3 +44,5 @@ class HLITypeLibEntry(HLICOM):
         if doc: ret.append(browser.HLIDocString(doc, "Doc"))
         if helpFile: ret.append(HLIHelpFile(    (helpFile, ctx) ))
         return ret
+
+# TODO: Finish this !

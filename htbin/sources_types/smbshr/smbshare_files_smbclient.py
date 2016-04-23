@@ -24,25 +24,29 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-paramkeyPassword = "Password"
+def Main():
+	paramkeyPassword = "Password"
 
-cgiEnv = lib_common.CgiEnv(
-	"SMB shares accessed with smbclient",
-	"",
-	{ paramkeyPassword : "" } )
+	cgiEnv = lib_common.CgiEnv(
+		"SMB shares accessed with smbclient",
+		"",
+		{ paramkeyPassword : "" } )
 
-if lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("smbclient not available on Windows")
+	if lib_util.isPlatformWindows:
+		lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
-smbShr = cgiEnv.GetId()
-password = cgiEnv.GetParameters( paramkeyPassword )
+	smbShr = cgiEnv.GetId()
+	password = cgiEnv.GetParameters( paramkeyPassword )
 
-nodeSmbShr = lib_common.gUriGen.SmbShareUri( smbShr )
+	nodeSmbShr = lib_common.gUriGen.SmbShareUri( smbShr )
 
-grph = rdflib.Graph()
+	grph = rdflib.Graph()
 
-smbDir = ""
+	smbDir = ""
 
-lib_smbclient.AddFromSmbClient( grph, smbDir, smbShr, password, nodeSmbShr )
+	lib_smbclient.AddFromSmbClient( grph, smbDir, smbShr, password, nodeSmbShr )
 
-cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

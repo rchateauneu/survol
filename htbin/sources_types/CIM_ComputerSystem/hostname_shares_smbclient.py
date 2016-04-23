@@ -37,64 +37,67 @@ import rdflib
 import lib_common
 from lib_properties import pc
 
-# This is similar to the script displaying shares for a given SMB server.
-# Maybe in the future it will have to be different, no idea now.
-cgiEnv = lib_common.CgiEnv("Samba shares")
-hostName = cgiEnv.GetId()
+def Main():
+	# This is similar to the script displaying shares for a given SMB server.
+	# Maybe in the future it will have to be different, no idea now.
+	cgiEnv = lib_common.CgiEnv("Samba shares")
+	hostName = cgiEnv.GetId()
 
-grph = rdflib.Graph()
+	grph = rdflib.Graph()
 
-nodeSmbShr = lib_common.gUriGen.SmbServerUri( hostName )
+	nodeSmbShr = lib_common.gUriGen.SmbServerUri( hostName )
 
-smbclient_cmd = [ "smbclient", "-L", hostName, "-N" ]
+	smbclient_cmd = [ "smbclient", "-L", hostName, "-N" ]
 
-try:
-	smbclient_pipe = subprocess.Popen(smbclient_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-# except WindowsError:
-except Exception:
-	lib_common.ErrorMessageHtml("Cannot run command:"+" ".join(smbclient_cmd))
+	try:
+		smbclient_pipe = subprocess.Popen(smbclient_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	# except WindowsError:
+	except Exception:
+		lib_common.ErrorMessageHtml("Cannot run command:"+" ".join(smbclient_cmd))
 
-( smbclient_last_output, smbclient_err ) = smbclient_pipe.communicate()
+	( smbclient_last_output, smbclient_err ) = smbclient_pipe.communicate()
 
-lines = smbclient_last_output.split('\n')
+	lines = smbclient_last_output.split('\n')
 
-modeSharedList = False
-for lin in lines:
-	# print( "l="+lin+"<br>" )
-	# Normally this is only the first line
-	# session setup failed: NT_STATUS_LOGON_FAILURE
-	mtch_net = re.match( "^.*(NT_STATUS_.*)", lin )
-	if mtch_net:
-		# print("OK<br>")
-		lib_common.ErrorMessageHtml("Smb failure: " + mtch_net.group(1) + " to smb share:" + nodeSmbShr)
+	modeSharedList = False
+	for lin in lines:
+		# print( "l="+lin+"<br>" )
+		# Normally this is only the first line
+		# session setup failed: NT_STATUS_LOGON_FAILURE
+		mtch_net = re.match( "^.*(NT_STATUS_.*)", lin )
+		if mtch_net:
+			# print("OK<br>")
+			lib_common.ErrorMessageHtml("Smb failure: " + mtch_net.group(1) + " to smb share:" + nodeSmbShr)
 
-	if re.match("^\sServer\s+Comment", lin):
-		modeSharedList = False
-		continue
+		if re.match("^\sServer\s+Comment", lin):
+			modeSharedList = False
+			continue
 
-	if re.match("^\sWorkgroup\s+Master", lin):
-		modeSharedList = False
-		continue
+		if re.match("^\sWorkgroup\s+Master", lin):
+			modeSharedList = False
+			continue
 
-	if re.match("^\sSharename\s+Type\s+Comment", lin):
-		modeSharedList = True
-		continue
+		if re.match("^\sSharename\s+Type\s+Comment", lin):
+			modeSharedList = True
+			continue
 
-	if re.match ("^\s*----+ +---+ +", lin ):
-		continue
+		if re.match ("^\s*----+ +---+ +", lin ):
+			continue
 
-	# print("m="+str(modeSharedList))
-	# print("l="+lin)
-	if modeSharedList:
-		# The type can be "Disk", "Printer" or "IPC".
-		mtch_share = re.match( "^\s+([^\s]+)\s+Disk\s+(.*)$", lin )
-		if mtch_share:
-			shareName = mtch_share.group(1)
+		# print("m="+str(modeSharedList))
+		# print("l="+lin)
+		if modeSharedList:
+			# The type can be "Disk", "Printer" or "IPC".
+			mtch_share = re.match( "^\s+([^\s]+)\s+Disk\s+(.*)$", lin )
+			if mtch_share:
+				shareName = mtch_share.group(1)
 
-			shareNode = lib_common.gUriGen.SmbShareUri( "//" + hostName + "/" + shareName )
+				shareNode = lib_common.gUriGen.SmbShareUri( "//" + hostName + "/" + shareName )
 
-			grph.add( ( nodeSmbShr, pc.property_smbshare, shareNode ) )
+				grph.add( ( nodeSmbShr, pc.property_smbshare, shareNode ) )
 
-cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph)
 
+if __name__ == '__main__':
+	Main()
 

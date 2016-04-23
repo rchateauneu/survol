@@ -9,21 +9,10 @@ import rdflib
 import lib_common
 from lib_common import pc
 
-cgiEnv = lib_common.CgiEnv("WMI: Remote machine partitions", platform_regex = "win", can_process_remote = True)
-machineName = cgiEnv.GetId()
-
 try:
 	import wmi
 except ImportError:
 	lib_common.ErrorMessageHtml("wmi library cannot be imported")
-
-grph = rdflib.Graph()
-
-try:
-	c = wmi.WMI (machineName)
-except Exception:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("WMI " + machineName + " partitions:" + str(exc) )
 
 # C est particulierement interessant d essayer d unifier notre modele avec WBEM,
 # car nous utilisons WMI qui est une sorte de WBEM. Alors il faut prendre garde
@@ -117,23 +106,37 @@ except Exception:
 #        VolumeSerialNumber = "C8CAF221";
 #};
 
-for physical_disk in c.Win32_DiskDrive ():
-	node_disk = lib_common.gUriGen.DiskUri( physical_disk.Name.replace('\\','/') )
-	grph.add( ( node_disk, pc.property_information, rdflib.Literal( physical_disk.MediaType ) ) )
+def Main():
+	cgiEnv = lib_common.CgiEnv("WMI: Remote machine partitions", platform_regex = "win", can_process_remote = True)
+	machineName = cgiEnv.GetId()
 
-	for partition in physical_disk.associators ("Win32_DiskDriveToDiskPartition"):
-		for logical_disk in partition.associators ("Win32_LogicalDiskToPartition"):
-			# BEWARE: What we call parition is in fact a logical disk.
-			# This is not really important for this application,
-			# as long as there are two levels in a disk description.
-			node_partition = lib_common.gUriGen.DiskPartitionUri( logical_disk.Name )
-			grph.add( ( node_partition, pc.property_information, rdflib.Literal( logical_disk.Description ) ) )
+	grph = rdflib.Graph()
 
-			grph.add( ( node_partition, pc.property_file_system_type, rdflib.Literal(logical_disk.FileSystem) ) )
+	try:
+		c = wmi.WMI (machineName)
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("WMI " + machineName + " partitions:" + str(exc) )
 
-			# The logical disk name is the same as the mount point.
-			grph.add( ( node_partition, pc.property_partition, node_disk ) )
-			grph.add( ( lib_common.gUriGen.FileUri( logical_disk.Name ), pc.property_mount, node_partition ) )
+	for physical_disk in c.Win32_DiskDrive ():
+		node_disk = lib_common.gUriGen.DiskUri( physical_disk.Name.replace('\\','/') )
+		grph.add( ( node_disk, pc.property_information, rdflib.Literal( physical_disk.MediaType ) ) )
 
-cgiEnv.OutCgiRdf(grph)
+		for partition in physical_disk.associators ("Win32_DiskDriveToDiskPartition"):
+			for logical_disk in partition.associators ("Win32_LogicalDiskToPartition"):
+				# BEWARE: What we call parition is in fact a logical disk.
+				# This is not really important for this application,
+				# as long as there are two levels in a disk description.
+				node_partition = lib_common.gUriGen.DiskPartitionUri( logical_disk.Name )
+				grph.add( ( node_partition, pc.property_information, rdflib.Literal( logical_disk.Description ) ) )
+
+				grph.add( ( node_partition, pc.property_file_system_type, rdflib.Literal(logical_disk.FileSystem) ) )
+
+				# The logical disk name is the same as the mount point.
+				grph.add( ( node_partition, pc.property_partition, node_disk ) )
+				grph.add( ( lib_common.gUriGen.FileUri( logical_disk.Name ), pc.property_mount, node_partition ) )
+
+	cgiEnv.OutCgiRdf(grph)
   
+if __name__ == '__main__':
+	Main()
