@@ -1,92 +1,6 @@
-================================================================================
+NECESSARY MODULES:
+==================
 
-Jusqu ici le seul moyen d executer un script sous Apache/Windows est avec le shebang :
-#!C:\Python\3.2.3-0.2\python.exe -u
-#!/usr/bin/python
-Attention au coding:
-  #!/usr/bin/python
-          # -*- coding: latin-1 -*-
-          import os, sys
-          ...
-          #!/usr/bin/python
-          # -*- coding: iso-8859-15 -*-
-          import os, sys
-          ...
-          #!/usr/bin/python
-          # -*- coding: ascii -*-
-          import os, sys
-
-================================================================================
-
-Il faut que Apache lance Python pour tous les URLs qui se terminent par ".py".
-
-http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
-
-J'ai l'impression que Visual studio ma change le registry sans le dire.
-
-Windows7 
-HKEY_CLASSES_ROOT\.py\Shell\ExecCGI\Command : Et la clef Default contient le programme:
-C:\Program Files (x86)\Python32\pythonw.exe -u
-
-On en avait mis un autre, a savoir:
-"C:\Python\3.2.3-0.2\pythonw.exe"
-
-Mais sous WinXP ce serait peut-etre la clef qui est Command.:
-
-20141204
-"C:\Python\3.2.3-0.3\pythonw.exe -u"
-
-================================================================================
-Installation Apache Windows 7:
-
-AddHandler cgi-script .py
-
-Alias /PythonStyle/ "D:/Projects/Divers/Reverse/PythonStyle/"
-
-<Directory "D:\Projects\Divers\Reverse\PythonStyle\htbin">
-    AllowOverride None
-    Options Indexes FollowSymLinks +ExecCGI IncludesNoExec
-	# http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
-	# So the shebang line is not taken into account at all.
-	ScriptInterpreterSource Registry-Strict
-	# ScriptInterpreterSource Registry
-	PassEnv PYTHONPATH
-	SetEnv PYTHONUNBUFFERED 1
-	# Tried this otherwise error when importing module cx_Oracle ... but this does not work.
-	# PassEnv ORAC_HOME
-	# SetEnv ORAC_HOME "D:/Projects/OracleBinTmp/CLNT0010203NEN005"
-    AddOutputFilter Includes html
-    AddHandler type-map var
-    Order allow,deny
-    Allow from all
-    LanguagePriority en cs de es fr it ja ko nl pl pt-br ro sv tr
-    ForceLanguagePriority Prefer Fallback
-</Directory>
-
-
-Cross Requests : So it is possible to haver a static html page which loads
-RDF urls from distant sites.
-# Ok on Linux.
-Header set Access-Control-Allow-Origin "*"
-
-# On Windows: Ensure this:
-LoadModule headers_module modules/mod_headers.so
-...
-<IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin: *
-</IfModule>
-
-================================================================================
-PYTHONPATH
-;C:\Python\3.2.3-0.2;C:\Python\3.2.3-0.2\Lib\site-packages
-
-This is not enough:
-
-# To set pythonpath in httpd.conf
-# Or globally:
-# SetEnv PYTHONPATH "C:\Documents and Settings\Remi\My Documents\Reverse\PythonStyle\htbin\revlib"
-
-================================================================================
 SOME MANDATORY PYTHON LIBRARIES:
 
 For the right Python version.
@@ -122,3 +36,105 @@ Optional: Install wmi
 https://pypi.python.org/pypi/WMI
 
 ================================================================================
+
+AS A SCRIPT:
+============
+
+Installation en tant que script cgiserver.py :
+
+On voudrait pouvoir lancer le site rien qu en cliquant sur cgiserver.py
+
+
+APACHE:
+=======
+
+Mandatory header for all scripts:
+---------------------------------
+
+Jusqu ici le seul moyen d executer un script sous Apache/Windows est avec le shebang :
+#!C:\Python\3.2.3-0.2\python.exe -u
+#!/usr/bin/python
+Attention au coding:
+  #!/usr/bin/python
+          # -*- coding: latin-1 -*-
+          import os, sys
+          ...
+          #!/usr/bin/python
+          # -*- coding: iso-8859-15 -*-
+          import os, sys
+          ...
+          #!/usr/bin/python
+          # -*- coding: ascii -*-
+          import os, sys
+
+================================================================================
+
+
+
+Il faut que Apache lance Python pour tous les URLs qui se terminent par ".py".
+
+http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+
+J'ai l'impression que Visual studio ma change le registry sans le dire.
+
+Windows7 
+HKEY_CLASSES_ROOT\.py\Shell\ExecCGI\Command : Et la clef Default contient le programme:
+C:\Program Files (x86)\Python32\pythonw.exe -u
+
+On en avait mis un autre, a savoir:
+"C:\Python\3.2.3-0.2\pythonw.exe"
+
+Mais sous WinXP ce serait peut-etre la clef qui est Command.:
+
+20141204
+"C:\Python\3.2.3-0.3\pythonw.exe -u"
+
+Installation Apache Windows 7:
+==============================
+
+AddHandler cgi-script .py
+
+Alias /PythonStyle/ "D:/Projects/Divers/Reverse/PythonStyle/"
+
+<Directory "D:\Projects\Divers\Reverse\PythonStyle\htbin">
+    AllowOverride None
+    Options Indexes FollowSymLinks +ExecCGI IncludesNoExec
+	# http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+	# So the shebang line is not taken into account at all.
+	ScriptInterpreterSource Registry-Strict
+	# ScriptInterpreterSource Registry
+	PassEnv PYTHONPATH
+	SetEnv PYTHONUNBUFFERED 1
+	# Tried this otherwise error when importing module cx_Oracle ... but this does not work.
+	# PassEnv ORAC_HOME
+	# SetEnv ORAC_HOME "D:/Projects/OracleBinTmp/CLNT0010203NEN005"
+    AddOutputFilter Includes html
+    AddHandler type-map var
+    Order allow,deny
+    Allow from all
+    LanguagePriority en cs de es fr it ja ko nl pl pt-br ro sv tr
+    ForceLanguagePriority Prefer Fallback
+</Directory>
+
+Cross Requests : So it is possible to haver a static html page which loads
+RDF urls from distant sites.
+# Ok on Linux.
+Header set Access-Control-Allow-Origin "*"
+
+# On Windows: Ensure this:
+LoadModule headers_module modules/mod_headers.so
+...
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin: *
+</IfModule>
+
+================================================================================
+PYTHONPATH
+;C:\Python\3.2.3-0.2;C:\Python\3.2.3-0.2\Lib\site-packages
+
+This is not enough:
+
+# To set pythonpath in httpd.conf
+# Or globally:
+# SetEnv PYTHONPATH "C:\Documents and Settings\Remi\My Documents\Reverse\PythonStyle\htbin\revlib"
+

@@ -10,10 +10,6 @@ import lib_common
 import lib_util
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv("DBUS buses")
-
-grph = rdflib.Graph()
-
 # bus1 = dbus.bus.BusConnection("tcp:host=192.168.0.1,port=1234")
 # Unix-domain socket are filesystem objects, and therefore they can be identified by a filename,
 # so a valid address would be unix:path=/tmp/.hiddensocket.
@@ -32,13 +28,18 @@ grph = rdflib.Graph()
 # bus_obj=dbus.bus.BusConnection("tcp:host=localhost,port=12434")
 # Pour le moment on fait comme ca mais on va rajouter les autres processes.
 
-listBuses = [ "system", "session" ]
+def Main():
+	cgiEnv = lib_common.CgiEnv("DBUS buses")
 
-for busName in listBuses:
-	uriBus = lib_util.EntityUri( "dbus_bus", busName )
-	grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("DBus"), uriBus ) )
-	
+	grph = rdflib.Graph()
 
-cgiEnv.OutCgiRdf(grph)
+	listBuses = [ "system", "session" ]
 
+	for busName in listBuses:
+		uriBus = lib_util.EntityUri( "dbus_bus", busName )
+		grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("DBus"), uriBus ) )
 
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

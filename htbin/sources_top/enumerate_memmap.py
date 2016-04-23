@@ -15,24 +15,16 @@ from lib_properties import pc
 
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
-cgiEnv = lib_common.CgiEnv("Memory maps")
-
-grph = rdflib.Graph()
-
-################################################################################
-
-# TODO: For clarity, this eliminates many memory maps.
-
-uselessLinuxMaps = [ 
-	'/usr/bin/kdeinit', 
-	'/bin/bash', 
-	'/usr/lib/gconv/gconv-modules.cache', 
-	'[stack]', 
-	'[vdso]', 
-	'[heap]', 
-	'[anon]' ]
-
 def FilterPathLinux(path):
+	# TODO: For clarity, this eliminates many memory maps.
+	uselessLinuxMaps = [
+		'/usr/bin/kdeinit',
+		'/bin/bash',
+		'/usr/lib/gconv/gconv-modules.cache',
+		'[stack]',
+		'[vdso]',
+		'[heap]',
+		'[anon]' ]
 
 	# We could also check if this is really a shared library.
 	# file /lib/libm-2.7.so: ELF 32-bit LSB shared object etc...
@@ -106,20 +98,6 @@ def GoodMap(path):
 
 	return path
 
-################################################################################
-
-# Taken from psutil
-
-# http://code.google.com/p/psutil/issues/detail?id=444
-
-# WILL BE ENHANCED LATER: IT WILL CONTAIN THE INODE.
-
-
-################################################################################
-
-# Not really useful.
-grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_util.currentHostname ) ) )
-
 def FunctionProcess(mapToProc,proc):
 	# The process might have left in the meantime.
 	pid = proc.pid
@@ -158,44 +136,54 @@ def FunctionProcess(mapToProc,proc):
 
 	sys.stderr.write( "Leaving maps enumeration\n" )
 			
-mapToProc = {}
+def Main():
+	cgiEnv = lib_common.CgiEnv("Memory maps")
 
-for proc in psutil.process_iter():
+	grph = rdflib.Graph()
 
-	# TODO: Instead, should test psutil version !!!
-	try:
-		FunctionProcess(mapToProc,proc)
-	except lib_entity_CIM_Process.AccessDenied:
-		pass
-	except Exception:
-		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info()[0] ) )
-sys.stderr.write( "Leaving processes enumeration\n" )
+	# Not really useful.
+	grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_util.currentHostname ) ) )
 
-addedProcs = {}
+	mapToProc = {}
 
-# Now display only memory maps with more than one process linked to it.
-for mapPath, procLst in list( mapToProc.items() ):
-	if len(procLst) <= 0 :
-		continue
+	for proc in psutil.process_iter():
 
-	uriMemMap = lib_common.gUriGen.MemMapUri( mapPath )
-
-	for pid in procLst:
+		# TODO: Instead, should test psutil version !!!
 		try:
-			nodeProcess = addedProcs[pid]
-		except KeyError:
-			nodeProcess = lib_common.gUriGen.PidUri(pid)
-			addedProcs[pid] = nodeProcess
+			FunctionProcess(mapToProc,proc)
+		except lib_entity_CIM_Process.AccessDenied:
+			pass
+		except Exception:
+			lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info()[0] ) )
+	sys.stderr.write( "Leaving processes enumeration\n" )
 
-		grph.add( ( nodeProcess, pc.property_memmap, uriMemMap ) )
-sys.stderr.write( "Leaving second maps enumeration\n" )
+	addedProcs = {}
 
-for pid, nodeProcess in list( addedProcs.items() ):
-	grph.add( ( nodeProcess, pc.property_pid, rdflib.Literal(pid) ) )
+	# Now display only memory maps with more than one process linked to it.
+	for mapPath, procLst in list( mapToProc.items() ):
+		if len(procLst) <= 0 :
+			continue
+
+		uriMemMap = lib_common.gUriGen.MemMapUri( mapPath )
+
+		for pid in procLst:
+			try:
+				nodeProcess = addedProcs[pid]
+			except KeyError:
+				nodeProcess = lib_common.gUriGen.PidUri(pid)
+				addedProcs[pid] = nodeProcess
+
+			grph.add( ( nodeProcess, pc.property_memmap, uriMemMap ) )
+	sys.stderr.write( "Leaving second maps enumeration\n" )
+
+	for pid, nodeProcess in list( addedProcs.items() ):
+		grph.add( ( nodeProcess, pc.property_pid, rdflib.Literal(pid) ) )
 
 
-# TODO: Petit bug: Ca duplique les memmap. Forcement, l'affichage en tables
-# suppose que c'est un arbre. Mais c'est plus rapide et plus clair.
-# cgiEnv.OutCgiRdf(grph,"",[pc.property_memmap])
-cgiEnv.OutCgiRdf(grph)
+	# TODO: Petit bug: Ca duplique les memmap. Forcement, l'affichage en tables
+	# suppose que c'est un arbre. Mais c'est plus rapide et plus clair.
+	# cgiEnv.OutCgiRdf(grph,"",[pc.property_memmap])
+	cgiEnv.OutCgiRdf(grph)
 
+if __name__ == '__main__':
+	Main()

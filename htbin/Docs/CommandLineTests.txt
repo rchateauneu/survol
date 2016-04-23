@@ -55,36 +55,3 @@ Python 2.6.5
 
 J'ai essaye de lancer le Python pour Windows, mais ca a planta la session mobaxterm.
 
-================================================================================
-DOS
---------------------------------------------------------------------------------
-D:\Projects\Divers\Reverse\PythonStyle>python htbin\sources\top\cgi_arp.py
-Traceback (most recent call last):
-  File "D:\Projects\Divers\Reverse\PythonStyle\htbin\revlib\lib_common.py", line 120, in PathRoot
-    scriptFilNam = os.environ['SCRIPT_FILENAME']
-  File "C:\Python\3.2.3-0.3\lib\os.py", line 450, in __getitem__
-    value = self._data[self.encodekey(key)]
-KeyError: 'SCRIPT_FILENAME'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "htbin\sources\top\cgi_arp.py", line 26, in <module>
-    import lib_common
-  File "D:\Projects\Divers\Reverse\PythonStyle\htbin\revlib\lib_common.py", line 128, in <module>
-    pathRoot = PathRoot()
-  File "D:\Projects\Divers\Reverse\PythonStyle\htbin\revlib\lib_common.py", line 122, in PathRoot
-    scriptFilNam = os.environ['PATH_TRANSLATED'].replace('\\','/') + os.environ['SCRIPT_NAME']
-  File "C:\Python\3.2.3-0.3\lib\os.py", line 450, in __getitem__
-    value = self._data[self.encodekey(key)]
-KeyError: 'PATH_TRANSLATED'
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
-
-================================================================================
-Linux
-================================================================================
-
-

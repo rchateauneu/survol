@@ -1,0 +1,91 @@
+Ce qu on va faire:
+
+Ik faut pouvoir utiliser Wsgi et donc donner une forme commune.
+
+Tous les scritps doivent etre importables:
+- Ca resoud le probleme de la documentation: On se contentera d importer les fichiers.
+- Cest plus pythonique donc plus facile a comprendre.
+- Ca permet d utiliser wsgi
+
+Approche:
+
+On change les scripts les uns apres les autres,
+leur donner une structure de classe.
+
+Maintenant:
+
+-------------------------------------------------------
+import os
+import lib_common
+from lib_properties import pc
+
+cgiEnv = lib_common.CgiEnv("Registered COM type libraries")
+
+try:
+	import win32api
+	import win32con
+except ImportError:
+	lib_common.ErrorMessageHtml("win32 Python library not installed")
+
+xxxx()
+
+cgiEnv.OutCgiRdf(grph)
+-------------------------------------------------------
+
+Changement banal.
+-------------------------------------------------------
+import os
+import lib_common
+from lib_properties import pc
+
+def TheMain():
+    cgiEnv = lib_common.CgiEnv("Registered COM type libraries")
+
+    try:
+        import win32api
+        import win32con
+    except ImportError:
+        lib_common.ErrorMessageHtml("win32 Python library not installed")
+
+    xxxx()
+
+    cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+    TheMain()
+-------------------------------------------------------
+
+Moins de changement:
+-------------------------------------------------------
+
+"""
+Documentation
+"""
+
+# On se fiche car on ne veut rien definir de global:
+# Ce n est qu un script CGI.
+if __name__ != '__main__':
+    return
+
+# Mais si on est dans WSGI, il sera appele plusieurs fois
+# et donc il ne doit pas y avoir d effet de bord.
+# Je crois que ce n est pas genant par justement WSGI
+# appelle les scripts comme en CGI.
+
+import os
+import lib_common
+from lib_properties import pc
+
+cgiEnv = lib_common.CgiEnv("Registered COM type libraries")
+
+try:
+	import win32api
+	import win32con
+except ImportError:
+	lib_common.ErrorMessageHtml("win32 Python library not installed")
+
+xxxx()
+
+cgiEnv.OutCgiRdf(grph)
+-------------------------------------------------------
+
