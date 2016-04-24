@@ -9,7 +9,9 @@ import sys
 import time
 import rdflib
 import psutil
+import json
 import lib_entities.lib_entity_file
+import lib_util
 import lib_common
 import lib_properties
 from lib_properties import pc
@@ -107,13 +109,18 @@ def Main():
 
 
 		propDict = FilNamToProperties(currFilNam)
-		for prp in propDict:
+		for prp, val in propDict.items():
 			val = propDict[prp]
 			if val is None:
 				continue
 
 			if isinstance( val, dict ):
-				val = ", ".join( "%s=%s" % (k,val[k]) for k in val )
+				# val = ", ".join( "%s=%s" % (k,val[k]) for k in val )
+				val = json.dumps(val)
+				# TODO: Unicode error encoding=ascii
+				# 169	251	A9	10101001	"Copyright"	&#169;	&copy;	Copyright sign
+				# Might contain this: "LegalCopyright Copyright \u00a9 2010"
+				val = val.replace("\\","\\\\")
 			grph.add( ( currNode, lib_properties.MakeProp(prp), rdflib.Literal(val) ) )
 
 		currFilNam = dirPath

@@ -2,6 +2,7 @@
 import socket
 import urllib
 import psutil
+import json
 
 try:
     import simplejson as json
@@ -428,6 +429,35 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 		return lib_properties.prop_color(prop)
 
+	# Recursive key-value display, because the value can also be a dict.
+	def FormatPair(key,val):
+		colFirst = "<td align='left' valign='top'>%s</td>" % DotBold(key)
+		if val is None:
+			colSecond = "<td></td>"
+		else:
+			try:
+				valInt = int(val)
+				colSecond = "<td align='right' balign='left'>%d</td>" % valInt
+			except ValueError:
+				try:
+					decodVal = json.loads(val)
+					if isinstance(decodVal,dict):
+						subTable = ""
+						for subKey,subVal in decodVal.items():
+							subTd = FormatPair(subKey,subVal)
+							if subTd:
+								subTable += "<tr>%s</tr>" % subTd
+						colSecond = "<td align='left' balign='left'><table border='0'>%s</table></td>" % subTable
+						# colSecond = "<td align='left' balign='left'>xyz</td>"
+					elif isinstance(decodVal,list):
+						colSecond = "<td align='left' balign='left'>%s</td>" % "LIST_LIST"
+					else:
+						colSecond = "<td align='left' balign='left'>%s</td>" % val
+				except ValueError:
+					colSecond = "<td align='left' balign='left'>%s</td>" % StrWithBr(val)
+
+		return colFirst + colSecond
+
 	# Display in the DOT node the list of its literal properties.
 	def FieldsToHtmlVertical(grph, the_fields):
 		props = {} 
@@ -444,9 +474,8 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				splitTxt = StrWithBr(urlTxt, 2)
 				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, splitTxt )
 			else:
-				val = StrWithBr(val)
 				key_qname = qname( key, grph )
-				currTd = "<td align='left' valign='top'>%s</td><td align='left' balign='left'>%s</td>" % ( DotBold(key_qname), val )
+				currTd = FormatPair( key_qname, val )
 
 			props[idx] = currTd
 			idx += 1
