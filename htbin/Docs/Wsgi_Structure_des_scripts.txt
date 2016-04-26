@@ -7,85 +7,35 @@ Tous les scritps doivent etre importables:
 - Cest plus pythonique donc plus facile a comprendre.
 - Ca permet d utiliser wsgi
 
-Approche:
-
-On change les scripts les uns apres les autres,
-leur donner une structure de classe.
-
-Maintenant:
+Ce serait peut etre bien de donner aux scripts une structure de classe.
 
 -------------------------------------------------------
-import os
-import lib_common
-from lib_properties import pc
+Par quoi remplacer :
+import lib_entities.lib_entity_Win32_Service
 
-cgiEnv = lib_common.CgiEnv("Registered COM type libraries")
+Logiquement:
 
-try:
-	import win32api
-	import win32con
-except ImportError:
-	lib_common.ErrorMessageHtml("win32 Python library not installed")
+import ns_general.Win32_Service
+ou alors (Peu importe):
+from ns_general import Win32_Service
 
-xxxx()
+Pour lib_uris, le mettre aussi dans le namespace:
 
-cgiEnv.OutCgiRdf(grph)
--------------------------------------------------------
+# lib_common.py
+from lib_uris import *
+import lib_uris
 
-Changement banal.
--------------------------------------------------------
-import os
-import lib_common
-from lib_properties import pc
+nodeSchema = lib_common.gUriGen.OracleSchemaUri(dbNam,schemaNam)
 
-def TheMain():
-    cgiEnv = lib_common.CgiEnv("Registered COM type libraries")
+... deviendrait:
 
-    try:
-        import win32api
-        import win32con
-    except ImportError:
-        lib_common.ErrorMessageHtml("win32 Python library not installed")
+nodeSchema = ns_general.gUriGen.OracleSchemaUri(dbNam,schemaNam)
 
-    xxxx()
+Dans ns_general.__init__.py, on mettrait tout ce qui est relatif aux classes.
 
-    cgiEnv.OutCgiRdf(grph)
+On peut commencer a creer ns_general et progressivement y deplacer ce qui est relatif
+aux classes de ce namespace.
 
-if __name__ == '__main__':
-    TheMain()
--------------------------------------------------------
-
-Moins de changement:
--------------------------------------------------------
-
-"""
-Documentation
-"""
-
-# On se fiche car on ne veut rien definir de global:
-# Ce n est qu un script CGI.
-if __name__ != '__main__':
-    return
-
-# Mais si on est dans WSGI, il sera appele plusieurs fois
-# et donc il ne doit pas y avoir d effet de bord.
-# Je crois que ce n est pas genant par justement WSGI
-# appelle les scripts comme en CGI.
-
-import os
-import lib_common
-from lib_properties import pc
-
-cgiEnv = lib_common.CgiEnv("Registered COM type libraries")
-
-try:
-	import win32api
-	import win32con
-except ImportError:
-	lib_common.ErrorMessageHtml("win32 Python library not installed")
-
-xxxx()
-
-cgiEnv.OutCgiRdf(grph)
--------------------------------------------------------
+Difficulte avec lib_naming.EntityArrToLabel : Il faudrait utiliser le namespace
+pour choisir la bonne fonction dans le bon module.
 
