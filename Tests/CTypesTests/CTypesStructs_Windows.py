@@ -34,10 +34,14 @@ class struct_IP_ADDRESS_STRING(ctypes.Structure):
 		('String', ctypes.c_uint8 * 16),
 	]
 	# Probleme: Ca doit faire moins de 16 caracteres.
-	# TODO: After that, we could add an extra validation on the numbers.
+	# TODO: After that, add an extra validation on the numbers.
 	_regex_ = {
 		# 'String': "\d+\.\d+\.\d+\.\d+",
 		'String': "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}",
+	}
+	# Second-level validation, cannot be done with regular expressions.
+	_validation_ = {
+		'String': ctypes_scanner.ip_address_validation,
 	}
 
 
@@ -85,18 +89,22 @@ class struct_DISPLAY_DEVICE(ctypes.Structure):
 # } MODULEENTRY32, *PMODULEENTRY32;
 
 
-# Maybe in winappdbg
-MAX_MODULE_NAME32 = 255
-MAX_PATH = 260
+# MAX_PATH = 260
+from ctypes.wintypes import MAX_PATH
+print("MAX_PATH=%d"%MAX_PATH)
+
+# MAX_MODULE_NAME32 = 255
+from winappdbg.win32.user32 import MAX_MODULE_NAME32
+print("MAX_MODULE_NAME32=%d"%MAX_MODULE_NAME32)
 
 class struct_MODULEENTRY32(ctypes.Structure):
 	_pack_ = True # source:False
 	_fields_ = [
 		('dwSize',         ctypes.c_uint32),
-		('th32ModuleID',   ctypes.c_uint32),
+		('th32ModuleID',   ctypes.c_uint32), # This member is no longer used, and is always set to one.
 		('th32ProcessID',  ctypes.c_uint32),
-		('GlblcntUsage',   ctypes.c_uint32),
-		('ProccntUsage',   ctypes.c_uint32),
+		('GlblcntUsage',   ctypes.c_uint32), # Module load count, not generally meaningful, usually equal to 0xFFFF.
+		('ProccntUsage',   ctypes.c_uint32), # Module load count, not generally meaningful, usually equal to 0xFFFF.
 		('modBaseAddr',    POINTER_T(ctypes.c_uint8)),
 		('modBaseSize',    ctypes.c_uint32),
 		('hModule',        POINTER_T(None)),
@@ -105,8 +113,12 @@ class struct_MODULEENTRY32(ctypes.Structure):
 	]
 	# At least two chars for most fields.
 	_regex_ = {
-		'szModule'  : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\.]{254}",
-		'szExePath' : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{258}",
+		'szModule'      : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\.]{254}",
+		'szExePath'     : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{258}",
+		# 'th32ModuleID'  : "\x01\x00\x00\x00",
+		'th32ProcessID' : "..\x00\x00",   # Should not be very big.
+		#'GlblcntUsage' : r"\xFF\xFF\x00\x00",
+		#'ProccntUsage' : r"\xFF\xFF\x00\x00",
 	}
 
 
@@ -150,7 +162,7 @@ class struct_FILE_SYSTEM_RECOGNITION_STRUCTURE(ctypes.Structure):
 		# Must contain the value 0x53525346 arranged in little-endian byte order.
 		# https://technet.microsoft.com/fr-fr/dd442654
 		# 'Identifier' : "\x53\x52\x53\x46",
-		# 'Identifier' : "\x46\x53\x52\x53",
+		'Identifier' : "\x46\x53\x52\x53",
 	}
 
 # typedef struct tagSIZE {
@@ -244,9 +256,11 @@ class struct_FILEDESCRIPTOR(ctypes.Structure):
 	]
 	# Realistically, at least two chars for most fields.
 	_regex_ = {
-		'cFileName' : "[a-zA-Z_0-9\.]{2}[\x00a-zA-Z_0-9\..]{258}",
+		'cFileName' : "[a-zA-Z_0-9\.]{10}[\x00a-zA-Z_0-9\..]{250}",
 	}
 
+
+# TODO: To build the list of structures, list all derived classes from this module.
 
 
 lstStructs = [ struct_SAFEARRAY,
@@ -258,7 +272,17 @@ lstStructs = [ struct_SAFEARRAY,
 			   struct_FILEDESCRIPTOR,
 			   struct_MODULEENTRY32,
 			   struct_FILE_SYSTEM_RECOGNITION_STRUCTURE]
-lstStructs = [ struct_FILE_SYSTEM_RECOGNITION_STRUCTURE ]
 
+# This was tried with all running processes: No result.
+# lstStructs = [ struct_FILE_SYSTEM_RECOGNITION_STRUCTURE ]
+
+
+# OK
+lstStructs = [ struct_IP_ADDRESS_STRING ]
+
+# Pas clair.
+lstStructs = [ struct_MODULEENTRY32 ]
+
+lstStructs = [ struct_FILEDESCRIPTOR ]
 
 ctypes_scanner.DoAll(lstStructs)
