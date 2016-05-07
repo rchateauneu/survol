@@ -33,19 +33,12 @@ from lib_properties import pc
 # TODO: HOW TO PROPERLY SET THE PATH ???
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("DLL dependencies (Windows)")
-
-
 	paramkeyGroupByDirs = "Group by directories"
 
 	cgiEnv = lib_common.CgiEnv("DLL dependencies (Windows)",
 									parameters = { paramkeyGroupByDirs : True })
 
 	flagGroupByDirs = bool(cgiEnv.GetParameters( paramkeyGroupByDirs ))
-
-
-
-
 
 	win_module = cgiEnv.GetId()
 
