@@ -100,3 +100,19 @@ def getFileProperties(fname):
         pass
 
     return props
+
+
+# try paths as described in MSDN
+def WindowsCompletePath():
+	path = win32api.GetEnvironmentVariable('PATH')
+	dirs = [os.getcwd(), win32api.GetSystemDirectory(), win32api.GetWindowsDirectory()] + path.split(';')
+
+	dirs_norm = []
+	dirs_l = []
+	for aDir in dirs:
+		aDirLower = aDir.lower()
+		if aDirLower not in dirs_l:
+			dirs_l.append(aDirLower)
+			dirs_norm.append(aDir)
+
+	return dirs_norm

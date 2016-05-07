@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Dependency Walker builds a dependency tree diagram of a Windows module (exe, dll, ocx, sys...)
+Relies on pefile Windows module.
 """
 
 import os
@@ -65,6 +65,7 @@ class EnvPeFile:
 		if maxLevel == 0:
 			return rootNode
 
+		# TODO: Consider a cache for this value. Beware of case for filNam.
 		pe = pefile.PE(filNam)
 
 		try:
@@ -97,7 +98,7 @@ def Main():
 	paramkeyMaximumDepth = "Maximum depth"
 
 	cgiEnv = lib_common.CgiEnv("DLL exports (pefile)",
-									parameters = { paramkeyMaximumDepth : 3 })
+									parameters = { paramkeyMaximumDepth : 4 })
 
 	maxDepth = int(cgiEnv.GetParameters( paramkeyMaximumDepth ))
 

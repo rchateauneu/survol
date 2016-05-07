@@ -6,9 +6,7 @@ Dependency Walker builds a dependency tree diagram of a Windows module (exe, dll
 
 import os
 import os.path
-import re
 import sys
-import time
 import rdflib
 import lib_util
 import lib_win32
@@ -33,30 +31,21 @@ except ImportError:
 
 
 def VersionString (filNam):
-    try:
-    	info = win32api.GetFileVersionInfo (filNam, "\\")
-    	ms = info['FileVersionMS']
-    	ls = info['FileVersionLS']
-    	return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
-    except:
-    	return None
+	try:
+		info = win32api.GetFileVersionInfo (filNam, "\\")
+		ms = info['FileVersionMS']
+		ls = info['FileVersionLS']
+		return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
+	except:
+		return None
 
 class EnvPeFile:
 
 	def __init__(self,grph):
 		self.grph = grph
-		self.path = win32api.GetEnvironmentVariable('PATH')
 
 		# try paths as described in MSDN
-		self.dirs = [os.getcwd(), win32api.GetSystemDirectory(), win32api.GetWindowsDirectory()] + self.path.split(';')
-
-		self.dirs_norm = []
-		dirs_l = []
-		for aDir in self.dirs:
-			aDirLower = aDir.lower()
-			if aDirLower not in dirs_l:
-				dirs_l.append(aDirLower)
-				self.dirs_norm.append(aDir)
+		self.dirs_norm = lib_win32.WindowsCompletePath()
 
 		self.cache_dll_to_imports = dict()
 
@@ -77,8 +66,6 @@ class EnvPeFile:
 				return rootNode
 
 			pe = pefile.PE(filNam)
-
-			# return rootNode
 
 			try:
 				for entry in pe.DIRECTORY_ENTRY_IMPORT:
