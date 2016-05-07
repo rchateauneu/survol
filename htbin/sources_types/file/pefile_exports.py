@@ -1,122 +1,106 @@
 #!/usr/bin/python
 
-"""
-Relies on pefile Windows module.
-"""
+# BEWARE: Do NOT rename it as stat.py otherwise strange errors happen,
+# probably a collision of modules names, with the message:
+# "Fatal Python error: Py_Initialize: can't initialize sys standard streams"
 
 import os
-import os.path
-import re
 import sys
 import time
 import rdflib
-import lib_uris
+import psutil
 import lib_util
-import lib_win32
+import lib_uris
 import lib_common
+import lib_properties
 from lib_properties import pc
 
+# This can work only on Windows and with exe files.
 try:
 	import pefile
 except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Cannot import pefile:"+str(exc))
+	lib_common.ErrorMessageHtml("Module pefile should be installed")
 
-try:
-	import win32api
-except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Cannot import win32api:"+str(exc))
 
-# TODO: MUST TAKE THE GOOD PROCESS PATH, NOT OURS.
-
-def VersionString (filNam):
-    try:
-    	info = win32api.GetFileVersionInfo (filNam, "\\")
-    	ms = info['FileVersionMS']
-    	ls = info['FileVersionLS']
-    	return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
-    except:
-    	return None
-
-class EnvPeFile:
-
-	def __init__(self,grph):
-		self.grph = grph
-		self.path = win32api.GetEnvironmentVariable('PATH')
-
-		# try paths as described in MSDN
-		self.dirs = [os.getcwd(), win32api.GetSystemDirectory(), win32api.GetWindowsDirectory()] + self.path.split(';')
-
-		self.dirs_norm = []
-		dirs_l = []
-		for aDir in self.dirs:
-			aDirLower = aDir.lower()
-			if aDirLower not in dirs_l:
-				dirs_l.append(aDirLower)
-				self.dirs_norm.append(aDir)
-
-	def RecursiveDepends(self,filNam,maxLevel):
-		# sys.stderr.write( "filNam=%s maxLevel=%d\n"%(filNam,maxLevel))
-		rootNode = lib_common.gUriGen.FileUri( filNam )
-		versStr = VersionString(filNam)
-		self.grph.add( ( rootNode, pc.property_information, rdflib.Literal(versStr) ) )
-
-		if maxLevel == 0:
-			return rootNode
-
-		# TODO: Consider a cache for this value. Beware of case for filNam.
-		pe = pefile.PE(filNam)
-
-		try:
-			for entry in pe.DIRECTORY_ENTRY_IMPORT:
-				# sys.stderr.write( "entry.dll=%s\n"%entry.dll)
-
-				# sys.stderr.write("entry=%s\n"%str(entry.struct))
-				for aDir in self.dirs_norm:
-					dllPath = os.path.join(aDir, entry.dll)
-					if os.path.exists(dllPath):
-						subNode = self.RecursiveDepends( dllPath, maxLevel - 1)
-						self.grph.add( ( rootNode, pc.property_library_depends, subNode ) )
-
-						for imp in entry.imports:
-							# sys.stderr.write("\t%s %s\n"% (hex(imp.address), imp.name) )
-							if imp.name is not None:
-								symNode = lib_uris.gUriGen.SymbolUri( imp.name, dllPath )
-								self.grph.add( ( subNode, pc.property_symbol_declared, symNode ) )
-
-						break
-		except AttributeError:
-			# sys.stderr.write("EXCEPTION\n")
-			pass
-
-		return rootNode
+def pefileDecorate( grph, rootNode, pe ):
+	for fileinfo in pe.FileInfo:
+		if fileinfo.Key == 'StringFileInfo':
+			for st in fileinfo.StringTable:
+				for entry in st.entries.items():
+					#UnicodeEncodeError: 'ascii' codec can't encode character u'\xa9' in position 16: ordinal not in range(128)
+					# sys.stderr.write("%s %s\n"% (entry[0], entry[1]) )
+					key = entry[0]
+					val = entry[1]
+					key = key
+					if val is None:
+						val = "None"
+					else:
+						val = val.encode("ascii", errors="replace")
+						# val = val.encode("utf-8", errors="replace")
+					# val = val[:2]
+					sys.stderr.write("%s %s\n"% (key,val) )
+					grph.add( ( rootNode, lib_common.MakeProp(key), rdflib.Literal(val) ) )
+		return
 
 
 def Main():
+	cgiEnv = lib_common.CgiEnv("Pefile exports")
+	filNam = cgiEnv.GetId()
+	sys.stderr.write("filNam=%s\n" % filNam )
 
-	paramkeyMaximumDepth = "Maximum depth"
+	filNode = lib_common.gUriGen.FileUri(filNam )
 
-	cgiEnv = lib_common.CgiEnv("DLL exports (pefile)",
-									parameters = { paramkeyMaximumDepth : 4 })
+	pe = pefile.PE(filNam)
 
-	maxDepth = int(cgiEnv.GetParameters( paramkeyMaximumDepth ))
+	# sys.stderr.write("%s\n" % hex(pe.VS_VERSIONINFO.Length) )
+	# sys.stderr.write("%s\n" % hex(pe.VS_VERSIONINFO.Type) )
+	# sys.stderr.write("%s\n" % hex(pe.VS_VERSIONINFO.ValueLength) )
+	# sys.stderr.write("%s\n" % hex(pe.VS_FIXEDFILEINFO.Signature) )
+	# sys.stderr.write("%s\n" % hex(pe.VS_FIXEDFILEINFO.FileFlags) )
+	# sys.stderr.write("%s\n" % hex(pe.VS_FIXEDFILEINFO.FileOS) )
+	# for fileinfo in pe.FileInfo:
+	# 	if fileinfo.Key == 'StringFileInfo':
+	# 		for st in fileinfo.StringTable:
+	# 			for entry in st.entries.items():
+	# 				#UnicodeEncodeError: 'ascii' codec can't encode character u'\xa9' in position 16: ordinal not in range(128)
+	# 				# sys.stderr.write("%s %s\n"% (entry[0], entry[1]) )
+	# 				key = entry[0]
+	# 				val = entry[1]
+	# 				key = key
+	# 				if val is None:
+	# 					val = "None"
+	# 				else:
+	# 					val = val.encode("ascii", errors="replace")
+	# 					# val = val.encode("utf-8", errors="replace")
+	# 				# val = val[:2]
+	# 				sys.stderr.write("%s %s\n"% (key,val) )
+	# 	elif fileinfo.Key == 'VarFileInfo':
+	# 		for var in fileinfo.Var:
+	# 			sys.stderr.write('%s: %s\n' % var.entry.items()[0] )
+	#
 
-	win_module = cgiEnv.GetId()
 
-	sys.stderr.write("win_module=%s\n"%win_module)
-
-	lib_win32.CheckWindowsModule(win_module)
+	# If the PE file was loaded using the fast_load=True argument, we will need to parse the data directories:
+	# pe.parse_data_directories()
 
 	grph = rdflib.Graph()
 
-	env = EnvPeFile(grph)
+	for exp in pe.DIRECTORY_ENTRY_EXPORT.symbols:
+		# sys.stderr.write("\t%s %s %d\n"% ( hex(pe.OPTIONAL_HEADER.ImageBase + exp.address), exp.name, exp.ordinal ) )
 
-	rootNode = env.RecursiveDepends( win_module, maxDepth )
+		symNode = lib_uris.gUriGen.SymbolUri( exp.name, filNam )
+		grph.add( ( filNode, pc.property_symbol_defined, symNode ) )
+		forward = exp.forwarder
+		if not forward:
+			forward = ""
+		grph.add( ( symNode, lib_common.MakeProp("Forward"), rdflib.Literal(forward) ) )
+		grph.add( ( symNode, lib_common.MakeProp("Address"), rdflib.Literal(hex(exp.address)) ) )
+		grph.add( ( symNode, lib_common.MakeProp("Ordinal"), rdflib.Literal(hex(exp.ordinal)) ) )
+		# grph.add( ( symNode, lib_common.MakeProp("Rest"), rdflib.Literal(dir(exp)) ) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_symbol_declared])
 	# cgiEnv.OutCgiRdf(grph)
+	# cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI")
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_symbol_defined])
 
 if __name__ == '__main__':
 	Main()
-
