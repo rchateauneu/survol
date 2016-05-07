@@ -267,7 +267,7 @@ class LocalBox:
 	# If the file is not defined, this is a system call.
 	# TODO: DOES NOT WORK IF REMOTE SYMBOL.
 	def SymbolUri(self,symbol_name, file = ""):
-		return self.UriMake("symbol", symbol_name + "@" + file )
+		return self.UriMake("symbol", lib_util.EncodeUri( symbol_name + "@" + file ) )
 
 	# Not a very sound concept. We will see later.
 	def ClassUri(self,symbol_name, file = ""):
