@@ -1295,7 +1295,7 @@ class CgiEnv():
 		# Contains the optional arguments, needed by calling scripts.
 		self.m_parameters = parameters
 
-		# TODO: Same here: If this CgiEnv os global, we can store 
+		# TODO: Same here: If this CgiEnv os global, we can store
 		# the page_title which is later read by OutCgiMode.
 		self.m_page_title = info
 
@@ -1437,12 +1437,13 @@ class CgiEnv():
 				check_boxes_parameters.append( param_key )
 				if param_val:
 					# Will be converted to boolean True.
-					print('<td><input type="checkbox" name="' + param_key + '" value="True" checked><td>')
+					print('<td><input type="checkbox" name="' + param_key + '" value="True" checked></td>')
 				else:
 					# Python converts empty string to False, everything else to True.
-					print('<td><input type="checkbox" name="' + param_key + '" value="True"><td>')
+					print('<td><input type="checkbox" name="' + param_key + '" value="True"></td>')
+			# TODO: Check validity if int, float etc...
 			else:
-				print('<td><input type="text" name="' + param_key + '" value="' + param_val + '"><td>')
+				print('<td><input type="text" name="' + param_key + '" value="' + str(param_val) + '"></td>')
 			print("</tr>")
 
 		print("</table>")
