@@ -22,6 +22,11 @@ def relative_url(source, target):
     if su[0]!=tu[0] or su[1]!=tu[1]:
         #scheme (http) or netloc (www.heise.de) are different
         #return absolut path of target
+        print("Retour simple")
+        print("su[0]="+su[0])
+        print("su[1]="+su[1])
+        print("tu[0]="+tu[0])
+        print("tu[1]="+tu[1])
         return target
     su=re.split("/", su[2])
     tu=re.split("/", tu[2])
@@ -71,6 +76,6 @@ if __name__ == "__main__":
     test_relative_url("http://foo/a/b/", "http://foo/c/d", "../../c/d")
     test_relative_url("http://foo/a", "http://foo/b", "b")
     test_relative_url("http://foo/a;para?query#frag", "http://foo/a", "a")
-    test_relative_url("http://foo/a", "http://foo/a;para?query#frag",
-                      "a;para?query#frag")
+    test_relative_url("http://foo/a", "http://foo/a;para?query#frag","a;para?query#frag")
     test_relative_url("a/b", "a/c", "c")
+    test_relative_url("http://127.0.0.1/Survol/htbin/sources_top/enumerate_CIM_Process.py?xid=.", "http://127.0.0.1/Survol/htbin/entity.py?xid=CIM_Process.Handle=328", "../entity.py?xid=CIM_Process.Handle=328")
