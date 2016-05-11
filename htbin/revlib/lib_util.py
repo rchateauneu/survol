@@ -22,7 +22,7 @@ def HttpPrefix():
 
 	# Default values for ease of testing, so CGI scripts can be run as is from command line..
 	try:
-		remote_addr = os.environ['REMOTE_ADDR']
+		remote_addr = os.environ['SERVER_NAME']
 	except KeyError:
 		# For testing only.
 		remote_addr = "127.0.0.1"
