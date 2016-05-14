@@ -103,6 +103,7 @@ class ElfSym:
             fulNam = self.m_name[:firstPar]
             # There might be ") const" at the end.
             if self.m_name.endswith(" const"):
+                # TODO: We are sure that the last token is a class, not a namespace.
                 endIdx = -7
             else:
                 endIdx = -1
@@ -110,13 +111,43 @@ class ElfSym:
             if argsNoParenth == "":
                 self.m_args = [] # Zero argument.
             else:
+                # TODO: Arguments cannot be namespaces. Template parameters also.
                 self.m_args = [ arg.strip() for arg in top_level_split(argsNoParenth,",","<",">") ]
                 
         self.m_splt = top_level_split( fulNam, "::", "<", ">" )
         self.m_short_nam = self.m_splt[-1]
 
+    # Retourne les classes passees comme arguments.
+    def GetArgsClasses(self):
+        sys.stdout.write("Not implemented now\n")
+        # Maybe this is a singleton, not a method.
+        if not self.m_args:
+            return []
+        for arg in self.m_args:
+            continue
+        return []
+
+    # There might be several template parameters.
+    # XMLEnumerator<xercesc_3_1::FieldValueMap>
+    def ExtractTemplatedClasses():
+        sys.stdout.write("Not implemented now\n")
+        return None
+
+    # Classes instantiating this class and nesting classes.
+    # Even the method might be templatised.
+    def GetTmplClasses(self):
+        sys.stdout.write("Not implemented now\n")
+        for cls in self.m_splt:
+            continue
+        return []
+
     def CalcNS(self,setClasses):
         numSplt = len(self.m_splt)
+        # C est un peu incoherent car pour retirer le namespace 
+        # d une classe connue, on prend le prefixe qui n est pas
+        # une classe connue.
+        # En revanche; si tout le nom est inconnu, on suppose
+        # que c est integralement une classe.
 	for idx in range( 0, numSplt ):
             # TODO: Vraiment TRES LENT ....
             tmp = "::".join(self.m_splt[ 0: idx ])
@@ -137,11 +168,32 @@ class ElfSym:
         #print("ns=%s cl=%s sp=%s" % ( str(sym.m_namespace), str(sym.m_class), str(sym.m_splt) ) )
         #print("")
 
+    # xercesc_3_1::NameIdPool<xercesc_3_1::DTDElementDecl>::~NameIdPool()
+    def IsDestructor(self):
+        return self.m_short_nam and self.m_short_nam[0] == "~"
+
+    # xercesc_3_1::NameIdPool<xercesc_3_1::DTDElementDecl>::NameIdPool(unsigned long, unsigned long, xercesc_3_1::MemoryManager*)
+    def IsConstructor(self):
+        if len(self.m_splt) <= 1:
+            return False
+        classNam = self.m_splt[-2]
+        if self.m_short_nam == classNam:
+            return True
+
+        # If this is a template class.
+        classNoTemplate = classNam.split("<")[0]
+        if self.m_short_nam == classNoTemplate:
+            return True
+
+        return False
+
+
     def __str__(self):
         hed = "::".join( self.m_splt[:-1] )
 
         # return 't=%-7s b=%-6s v=%-7s n=%4s V=%s N=%s H=%s E=%s\n' % ( self.m_type, self.m_bind, self.m_vis, self.m_ndx, self.m_vers, self.m_name, hed, nam )
-        return 'N=%s H=%s E=%s A=%s' % ( self.m_name, hed, self.m_short_nam, str(self.m_args) )
+        # return 'NS=%s CL=%s FU=%s A=%s' % ( str(self.m_namespace), str(self.m_class), self.m_short_nam, str(self.m_args) )
+        return 't=%-7s b=%-6s v=%-7s NS=%s CL=%s FU=%s A=%s' % ( self.m_type, self.m_bind, self.m_vis, str(self.m_namespace), str(self.m_class), self.m_short_nam, str(self.m_args) )
 
 def indexStartsWith( str, prefix ):
     l = len(prefix)
@@ -352,6 +404,46 @@ def CalcNamspaces( setClasses, listSyms ):
         sym.CalcNS(setClasses)
 
 
+def GetClassesFromCTorDTor( listSyms ):
+    setMoreClasses = set()
+    for sym in listSyms:
+        # Destructor or constructor.
+        if sym.IsConstructor() or sym.IsDestructor():
+            cls = "::".join( sym.m_splt[:-1] )
+            setMoreClasses.add( cls )
+            # Debugging purpose only should never happen.
+            if cls == 'xercesc_3_1':
+                print("ATTENTION:%s" %   "::".join( sym.m_splt ) )
+                print("ATTENTION:%s" %   sym.m_name )
+                exit(0)
+            continue
+
+        # In the ordered list of classes or namespaces,
+        # if a string is a template, then this prefix and what
+        # follows, can only be class names.
+        isCls = False
+        for idx in range( len(sym.m_splt) - 1 ):
+            if not isCls:
+                if sym.m_splt[idx].find("<") >= 0:
+                    isCls = True
+                else:
+                    continue
+            cls = "::".join( sym.m_splt[ 0 : idx + 1 ] )
+            print("INTERMEDIATE:%s"%cls)
+            setMoreClasses.add( cls )
+
+        # Classes passed as parameters.
+        argsClasses = sym.GetArgsClasses()
+        setMoreClasses.update( argsClasses )
+
+        tmplClasses = sym.GetTmplClasses()
+        setMoreClasses.update( tmplClasses )
+            
+
+        # A template parameter cannot be a namespace.
+
+    return setMoreClasses
+
 def main(stream=None):
 
     if len(sys.argv) == 1:
@@ -368,11 +460,27 @@ def main(stream=None):
 
             listSyms, setClasses = readelf.display_symbol_tables()
 
-            CalcNamspaces( setClasses, listSyms )
-            for sm in listSyms:
-                sys.stdout.write("%s\n" % str(sm) )
+            setMoreClasses = GetClassesFromCTorDTor(listSyms)
 
-            # print(str(sorted(setClasses)))
+            unionClasses = setClasses.union( setMoreClasses )
+
+            # setNamespaces = GetNamespacesHeuristics( unionClasses )
+            # PROBLEM: What is the difference between a namespace
+            # and a non-virtual class with static methods and members only ???
+            # ALSO: The symbol name gives no information about the return type
+            # and the object parameter whose presence would indicate with certainty
+            # a class as opposed to a namespace.
+            CalcNamspaces( unionClasses, listSyms )
+            for sm in listSyms:
+                sys.stdout.write("%s\n" % sm.m_name )
+                sys.stdout.write("%s\n" % str(sm) )
+		sys.stdout.write("\n")
+
+            print(str(sorted(setClasses)))
+            print("")
+            print(str(sorted(setMoreClasses)))
+            print("")
+            print(str(sorted(unionClasses)))
 
         except ELFError as ex:
             sys.stderr.write('ELF error: %s\n' % ex)
