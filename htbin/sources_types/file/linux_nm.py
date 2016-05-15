@@ -1,11 +1,7 @@
 #!/usr/bin/python
 
 import os
-import os.path
 import sys
-import psutil
-import socket
-import urllib
 
 import rdflib
 import lib_nm

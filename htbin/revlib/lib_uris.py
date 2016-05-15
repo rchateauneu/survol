@@ -267,19 +267,21 @@ class LocalBox:
 	# If the file is not defined, this is a system call.
 	# TODO: DOES NOT WORK IF REMOTE SYMBOL.
 	def SymbolUri(self,symbol_name, file = ""):
-		return self.UriMake("symbol", lib_util.EncodeUri( symbol_name + "@" + file ) )
+		# return self.UriMake("symbol", lib_util.EncodeUri( symbol_name + "@" + file ) )
+		return self.UriMakeFromDict("symbol", { "Name" : symbol_name, "File" : file } )
 
-	# Not a very sound concept. We will see later.
-	def ClassUri(self,symbol_name, file = ""):
-		return self.UriMake("class", symbol_name + "@" + file )
+	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
+	def ClassUri(self,class_name, file = ""):
+		# return self.UriMake("class", symbol_name + "@" + file )
+		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : file } )
 
 	# The convention for all the entity_ids is that it must return None if this is not of the given type.
 	# TODO: This is associated to SymbolUri and is ugly. Change this.
-	def SymbolExtract(self,entity_id):
-		try:
-			return entity_id.split('@')[0:2]
-		except Exception:
-			return None
+	#def SymbolExtract(self,entity_id):
+	#	try:
+	#		return entity_id.split('@')[0:2]
+	#	except Exception:
+	#		return None
 
 	# This must be a complete path name.
 	# If there is a backslash-L, it will be replaced by "<TABLE>" in graphviz:

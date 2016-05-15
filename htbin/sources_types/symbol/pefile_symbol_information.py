@@ -44,9 +44,8 @@ def Main():
 	# Filename is optional.
 	symbolFull = cgiEnv.GetId()
 
-	# TODO: Maybe have two fields.
-	# TODO: Temporary syntax.
-	symbol, filNam = symbolFull.split("@")
+	symbol = cgiEnv.m_entity_id_dict["Name"]
+	filNam = cgiEnv.m_entity_id_dict["File"]
 
 	sys.stderr.write("symbol=%s filNam=%s\n"% (symbol,filNam) )
 

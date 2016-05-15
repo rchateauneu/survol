@@ -53,11 +53,10 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 			return "Invalid pid:("+entity_id+")"
 		# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
 
-	if entity_type == "symbol":
+	if entity_type in [ "symbol", "class" ]:
 		# This replace HTML entities. This is necessary because these chars are used
 		# in C++ symbols. Anyway, it might be necessary for other entity types.
-		# TODO: Voir SymbolExtract qui fait double-emploi
-		return cgi.escape( entity_id ).split('@')[0]
+		return cgi.escape( entity_id )
 
 	if entity_type == "file":
 		# A file name can be very long, so it is truncated.
