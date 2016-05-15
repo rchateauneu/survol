@@ -141,6 +141,16 @@ def ExtractTemplatedClassesFromToken(lstCls, cls):
 
 ################################################################################
 
+# xercesc_3_1::SAXParser::startElement(xercesc_3_1::XMLElementDecl const&, unsigned int, unsigned short const*, xercesc_3_1::RefVectorOf<xercesc_3_1::XMLAttr> const&, unsigned long, bool, bool)
+# t=FUNC    b=GLOBAL v=DEFAULT NS=['xercesc_3_1'] CL=['SAXParser'] FU=startElement A=['xercesc_3_1::XMLElementDecl const&', 'unsigned int', 'unsigned short const*', 'xercesc_3_1::RefVectorOf<xercesc_3_1::XMLAttr> const&', 'unsigned long', 'bool', 'bool']
+#
+# On veut eviter de reparser le fichier ELF. On passe le symbol en entier, demangle.
+# En plus, on passe optionnellement le namespace (Car l extraire, de facon incertaine, exige de 
+# connaitre en plus le reste du fichier ELF. ON assimile namespace et classe !!!
+# On passe aussi, optionnellement, les autres parametres (Et encore, on s'en fiche).
+# Il faut reconstruire un ElfSym uniquement avec le symbole.
+
+
 class ElfSym:
     def __init__(self, Type, Bind, Vis, Ndx, Vers, Name ):
         # sys.stdout.write('t=%-7s b=%-6s v=%-7s n=%4s V=%s N=%s\n' % ( Type, Bind, Vis, Ndx, Vers, Name ) )
@@ -262,17 +272,8 @@ def indexStartsWith( str, prefix ):
         return None 
 
 class ReadElf(object):
-    """ display_* methods are used to emit output into the output stream
-    """
-    def __init__(self, file, output):
-        """ file:
-                stream object with the ELF file to read
-
-            output:
-                output stream to write to
-        """
+    def __init__(self, file):
         self.elffile = ELFFile(file)
-        self.output = output
 
         # Lazily initialized if a debug dump is requested
         self._dwarfinfo = None
@@ -362,39 +363,6 @@ class ReadElf(object):
                     result.append( pairNote )
         return result
         
-
-    def _format_hex(self, addr, fieldsize=None, fullhex=False, lead0x=True):
-        """ Format an address into a hexadecimal string.
-
-            fieldsize:
-                Size of the hexadecimal field (with leading zeros to fit the
-                address into. For example with fieldsize=8, the format will
-                be %08x
-                If None, the minimal required field size will be used.
-
-            fullhex:
-                If True, override fieldsize to set it to the maximal size
-                needed for the elfclass
-
-            lead0x:
-                If True, leading 0x is added
-
-            alternate:
-                If True, override lead0x to emulate the alternate
-                hexadecimal form specified in format string with the #
-                character: only non-zero values are prefixed with 0x.
-                This form is used by readelf.
-        """
-
-        s = '0x' if lead0x else ''
-        if fullhex:
-            fieldsize = 8 if self.elffile.elfclass == 32 else 16
-        if fieldsize is None:
-            field = '%x'
-        else:
-            field = '%' + '0%sx' % fieldsize
-        return s + field % addr
-
     def _init_versioninfo(self):
         """ Search and initialize informations about version related sections
             and the kind of versioning used (GNU or Solaris).
@@ -470,11 +438,6 @@ def GetClassesFromCTorDTor( listSyms ):
         if sym.IsConstructor() or sym.IsDestructor():
             cls = "::".join( sym.m_splt[:-1] )
             setMoreClasses.add( cls )
-            # Debugging purpose only should never happen.
-            if cls == 'xercesc_3_1':
-                print("ATTENTION:%s" %   "::".join( sym.m_splt ) )
-                print("ATTENTION:%s" %   sym.m_name )
-                exit(0)
             continue
 
         # In the ordered list of classes or namespaces,
@@ -488,7 +451,6 @@ def GetClassesFromCTorDTor( listSyms ):
                 else:
                     continue
             cls = "::".join( sym.m_splt[ 0 : idx + 1 ] )
-            print("INTERMEDIATE:%s"%cls)
             setMoreClasses.add( cls )
 
         # Classes passed as parameters.

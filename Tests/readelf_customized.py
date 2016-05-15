@@ -3,14 +3,14 @@
 import sys
 import lib_elf
 
-def main(stream=None):
+def main():
 
     if len(sys.argv) == 1:
         fil = "/usr/lib64/libxerces-c-3.1.so"
     else:
         fil = sys.argv[1]
     with open(fil, 'rb') as file:
-        readelf = lib_elf.ReadElf(file, stream or sys.stdout)
+        readelf = lib_elf.ReadElf(file)
         listNotes = readelf.display_notes()
         for pr in listNotes:
             sys.stdout.write("%s %s\n" % pr )
