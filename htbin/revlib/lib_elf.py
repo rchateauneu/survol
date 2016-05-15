@@ -49,6 +49,8 @@ from elftools.dwarf.constants import (
     DW_LNS_copy, DW_LNS_set_file, DW_LNE_define_file)
 from elftools.dwarf.callframe import CIE, FDE
 
+################################################################################
+
 
 # top_level_split( "aa::bb<cc::dd>::ee","::","<",">")
 def top_level_split(instr,delim,bracket_open,bracket_close):
@@ -80,6 +82,64 @@ def top_level_split(instr,delim,bracket_open,bracket_close):
         parts = [""]
     # sys.stdout.write("str=%s parts=%s\n" % ( instr, str(parts) ) )
     return parts
+
+################################################################################
+
+scalarTypes = set( [
+    "bool",
+    "short",
+    "unsigned short",
+    "int",
+    "unsigned int",
+    "long",
+    "unsigned long",
+    "long long",
+    "unsigned long long",
+    "float",
+    "double", ]
+    )
+
+# unsigned short const*
+# xercesc_3_1::ValueStore const*
+# xercesc_3_1::RefVectorOf<xercesc_3_1::XMLAttr> const&
+# bool
+# xercesc_3_1::RefHash2KeysTableBucketElem<xercesc_3_1::ValueVectorOf<xercesc_3_1::SchemaElementDecl*> >**
+
+def ExtractClassesFromType(lstCls, cls):
+    if not cls:
+        return
+    while cls[-1] in "*&":
+        cls = cls[:-1]
+
+    if cls.endswith(" const"):
+        cls = cls[:-6]
+
+    # This is just for the most common cases because it cannot eliminate typedefs.
+    if cls in scalarTypes:
+        return
+
+    lstCls.append( cls )
+
+    # There might also be template parameters.
+    ExtractTemplatedClassesFromToken( lstCls, cls )
+
+# There might be several template parameters.
+# XMLEnumerator<xercesc_3_1::FieldValueMap>
+def ExtractTemplatedClassesFromToken(lstCls, cls):
+    bracketFirst = cls.find("<")
+    if bracketFirst <= 0:
+        return None
+    bracketLast = cls.rfind(">")
+    strTmplArgs = cls[ bracketFirst + 1: bracketLast ]
+
+    # Beware : Add other delimiters if template parameters contain "()"
+    # such as function pointers.
+    tmplArgs = top_level_split( strTmplArgs, ",", "<", ">" )
+    for tmplArg in tmplArgs:
+        ExtractClassesFromType( lstCls, tmplArg )
+
+
+################################################################################
 
 class ElfSym:
     def __init__(self, Type, Bind, Vis, Ndx, Vers, Name ):
@@ -114,29 +174,27 @@ class ElfSym:
         self.m_splt = top_level_split( fulNam, "::", "<", ">" )
         self.m_short_nam = self.m_splt[-1]
 
+    # Returns 
+
     # Retourne les classes passees comme arguments.
     def GetArgsClasses(self):
-        sys.stdout.write("Not implemented now\n")
         # Maybe this is a singleton, not a method.
-        if not self.m_args:
-            return []
-        for arg in self.m_args:
-            continue
-        return []
-
-    # There might be several template parameters.
-    # XMLEnumerator<xercesc_3_1::FieldValueMap>
-    def ExtractTemplatedClasses():
-        sys.stdout.write("Not implemented now\n")
-        return None
+        lstClasses = []
+        if self.m_args:
+            for arg in self.m_args:
+                ExtractClassesFromType(lstClasses,arg)
+        return lstClasses
 
     # Classes instantiating this class and nesting classes.
     # Even the method might be templatised.
+    # Not always needed because if the class can be instantiated,
+    # its symbols might be listed in the ELF file also.
     def GetTmplClasses(self):
-        sys.stdout.write("Not implemented now\n")
+        lstClasses = []
         for cls in self.m_splt:
-            continue
-        return []
+            # Each string is a namespace, a class or a method.
+            ExtractTemplatedClassesFromToken(lstClasses,cls)
+        return lstClasses
 
     def CalcNS(self,setClasses):
         numSplt = len(self.m_splt)
@@ -174,13 +232,17 @@ class ElfSym:
         if len(self.m_splt) <= 1:
             return False
         classNam = self.m_splt[-2]
-        if self.m_short_nam == classNam:
-            return True
 
-        # If this is a template class.
-        classNoTemplate = classNam.split("<")[0]
-        if self.m_short_nam == classNoTemplate:
-            return True
+        idxBracket = classNam.find("<")
+        if idxBracket < 0:
+            # This is not a template class.
+            if self.m_short_nam == classNam:
+                return True
+        else:
+            # If this is a template class.
+            classNoTemplate = classNam[ : idxBracket ]
+            if self.m_short_nam == classNoTemplate:
+                return True
 
         return False
 
@@ -361,7 +423,7 @@ class ReadElf(object):
             self._versioninfo['type'] = 'Solaris'
 
     def _symbol_version(self, nsym):
-        """ Return a dict containing information on the
+        """ Return a dict containing information on the symbol
                    or None if no version information is available
         """
         self._init_versioninfo()
