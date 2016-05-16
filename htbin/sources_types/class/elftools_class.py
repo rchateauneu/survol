@@ -17,17 +17,20 @@ def Main():
 
 	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
 
-	fileSharedLib = cgiEnv.GetId()
+	nameTopClass = cgiEnv.m_entity_id_dict["Name"]
+
+	# An executable, shared library. Maybe static library.
+	fileName = cgiEnv.m_entity_id_dict["File"]
 
 	grph = rdflib.Graph()
 
-	nodeSharedLib = lib_common.gUriGen.FileUri( fileSharedLib )
-
-	nodeGlobalNamespace = lib_common.gUriGen.ClassUri( "__global_namespace", fileSharedLib )
-	grph.add( ( nodeSharedLib, pc.property_member, nodeGlobalNamespace ) )
+	# This expects that the string is not a symbol name but a class or a namespace.
+	# Otherwise we would have scan the list of symbols, to find out.
+	# nodeTopClass = lib_common.gUriGen.ClassUri( nameTopClass, fileSharedLib )
+	nodeSharedLib = lib_common.gUriGen.FileUri( fileName )
 
 	try:
-		readelf = lib_elf.ReadElf(fileSharedLib)
+		readelf = lib_elf.ReadElf(fileName)
 	except Exception:
 		exc = sys.exc_info()[1]		
 		lib_common.ErrorMessageHtml("Caught:"+str(exc))
@@ -37,6 +40,8 @@ def Main():
 		infoMsg = pr[0] + ":" + pr[1]
 		grph.add( ( nodeSharedLib, pc.property_information, rdflib.Literal(infoMsg) ) )
 
+	# TODO: List of classes is not needed.
+	# TODO: Just read the symbols we need.
         listSyms, setClasses = readelf.display_symbol_tables()
 
 	Main.nodesByClass = dict()
@@ -46,7 +51,7 @@ def Main():
 		try:
 			nodeClass = Main.nodesByClass[clsNam]
 		except KeyError:
-			nodeClass = lib_common.gUriGen.ClassUri( clsNam, fileSharedLib )
+			nodeClass = lib_common.gUriGen.ClassUri( clsNam, fileName )
 			# TODO: Create base classes ?
 			Main.nodesByClass[clsNam] = nodeClass
 
@@ -60,9 +65,18 @@ def Main():
 
 	classAlreadyDone = set()
 
+	classPrefix = nameTopClass + "::"
+	lenPrefix = len( nameTopClass.split("::") )
+	maxDepthTotal = maxDepth + lenPrefix
+
 	for sym in listSyms:
+		symName = "::".join(sym.m_splt)
+
+		if not symName.startswith( classPrefix ):
+			continue
+
 		lenSplit = len(sym.m_splt)
-		if lenSplit > maxDepth:
+		if lenSplit > maxDepthTotal:
 			spltShort = sym.m_splt[:maxDepth]
 			# TODO: Do the join only once.
 			joinShort = "::".join(spltShort)
@@ -80,7 +94,7 @@ def Main():
 
 			symNam = sym.m_splt[-1]
 
-			symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symNam), fileSharedLib )
+			symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symNam), fileName )
 			grph.add( ( symNod, lib_common.MakeProp("Version"), rdflib.Literal(sym.m_vers) ) )
 			if lenSplit > 1:
 				clsNod = ClassToNode( sym.m_splt, lenSplit - 1 )
@@ -88,7 +102,9 @@ def Main():
 			else:
 				grph.add( ( nodeGlobalNamespace, pc.property_symbol_defined, symNod ) )
 
+	# TODO: Fix or check this when adding pc.property_member
 	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_member ] )
+	#cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[ pc.property_symbol_defined ] )
 
 
 if __name__ == '__main__':
