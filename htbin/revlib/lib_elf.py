@@ -229,7 +229,7 @@ class ElfSym:
 
 
 	def __str__(self):
-		return 't=%-7s b=%-6s v=%-7s NS=%s CL=%s FU=%s A=%s' % ( self.m_type, self.m_bind, self.m_vis, str(self.m_namespace), str(self.m_class), self.m_short_nam, str(self.m_args) )
+		return 't=%-7s b=%-6s v=%-7s FU=%s A=%s' % ( self.m_type, self.m_bind, self.m_vis, self.m_short_nam, str(self.m_args) )
 
 def indexStartsWith( str, prefix ):
 	l = len(prefix)
