@@ -1,5 +1,6 @@
 import os
 import sys
+import cgi
 import socket
 import lib_util
 import rdflib
@@ -263,25 +264,18 @@ class LocalBox:
 
 	# Purely abstract, because a symbol can be defined in several libraries.
 	# Its use depend on the behaviour of the dynamic linker if it is defined several
-	# times in the same binary.
-	# If the file is not defined, this is a system call.
+	# times in the same binary. If the file is not defined, this is a system call.
 	# TODO: DOES NOT WORK IF REMOTE SYMBOL.
 	def SymbolUri(self,symbol_name, file = ""):
-		# return self.UriMake("symbol", lib_util.EncodeUri( symbol_name + "@" + file ) )
+		# The URL should never contain the chars "<" or ">".
+		symbol_name = cgi.escape(symbol_name)
 		return self.UriMakeFromDict("symbol", { "Name" : symbol_name, "File" : file } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
 	def ClassUri(self,class_name, file = ""):
-		# return self.UriMake("class", symbol_name + "@" + file )
+		# The URL should never contain the chars "<" or ">".
+		class_name = cgi.escape(class_name)
 		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : file } )
-
-	# The convention for all the entity_ids is that it must return None if this is not of the given type.
-	# TODO: This is associated to SymbolUri and is ugly. Change this.
-	#def SymbolExtract(self,entity_id):
-	#	try:
-	#		return entity_id.split('@')[0:2]
-	#	except Exception:
-	#		return None
 
 	# This must be a complete path name.
 	# If there is a backslash-L, it will be replaced by "<TABLE>" in graphviz:
