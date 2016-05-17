@@ -17,6 +17,7 @@ import lib_properties
 from lib_properties import pc
 
 try:
+	import win32api
 	import lib_win32
 	FilNamToProperties = lib_win32.getFileProperties
 except ImportError:

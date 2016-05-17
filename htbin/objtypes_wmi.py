@@ -19,7 +19,7 @@ import lib_wmi
 paramkeyMaxDepth = "Maximum depth"
 
 cgiEnv = lib_common.CgiEnv("WMI classes in namespace", can_process_remote = True,
-								parameters = { paramkeyMaxDepth : "4" })
+								parameters = { paramkeyMaxDepth : 4 })
 
 maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
 

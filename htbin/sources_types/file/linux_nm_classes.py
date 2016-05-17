@@ -2,10 +2,6 @@
 
 import os
 import sys
-import psutil
-import socket
-import urllib
-
 import rdflib
 import lib_nm
 import lib_util

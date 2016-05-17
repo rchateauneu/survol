@@ -9,16 +9,6 @@ import lib_util
 import lib_dbus
 from lib_properties import pc
 
-def GetConnectNode(busAddr,connectName):
-	global connectNameToNode
-
-	try:
-		return connectNameToNode[ connectName ]
-	except KeyError:
-		connectNode = lib_util.EntityUri( "dbus_connection", busAddr, connectName )
-		connectNameToNode[ connectName ] = connectNode
-		return connectNode
-
 def Main():
 	cgiEnv = lib_common.CgiEnv("Bus connections")
 	busAddr = cgiEnv.GetId()
@@ -37,7 +27,16 @@ def Main():
 	localPropDbusConnect = rdflib.Literal("dbus connect")
 	localPropDbusWellKnown = rdflib.Literal("well known")
 
-	connectNameToNode = dict()
+	Main.connectNameToNode = dict()
+
+	def GetConnectNode(busAddr,connectName):
+		try:
+			return Main.connectNameToNode[ connectName ]
+		except KeyError:
+			connectNode = lib_util.EntityUri( "dbus_connection", busAddr, connectName )
+			Main.connectNameToNode[ connectName ] = connectNode
+			return connectNode
+
 	for connectName in theBus.list_names():
 		connectNode = GetConnectNode( busAddr, connectName )
 

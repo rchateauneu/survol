@@ -22,7 +22,7 @@ def HttpPrefix():
 
 	# Default values for ease of testing, so CGI scripts can be run as is from command line..
 	try:
-		remote_addr = os.environ['SERVER_ADDR']
+		remote_addr = os.environ['SERVER_NAME']
 	except KeyError:
 		# For testing only.
 		remote_addr = "127.0.0.1"
@@ -515,6 +515,7 @@ localOntology = {
 	"CIM_Process"         : ( ["Handle"], ),
 	"Win32_Service"       : ( ["Name"],                      isPlatformWindows ),
 	"Win32_UserAccount"   : ( ["Name"],                      isPlatformWindows ),
+	"class"               : ( ["Name","File"], ),
 	"dbus_bus"            : ( ["Bus"],                       isPlatformLinux ),
 	"dbus_connection"     : ( ["Bus","Connect"],             isPlatformLinux ),
 	"dbus_object"         : ( ["Bus","Connect","Obj"],       isPlatformLinux ),
@@ -529,7 +530,8 @@ localOntology = {
 	"oracle_session"      : ( ["Db","Session"], ),
 	"oracle_synonym"      : ( ["Db","Schema","Synonym"], ),
 	"oracle_table"        : ( ["Db","Schema","Table"], ),
-	"oracle_view"         : ( ["Db","Schema","View"], )
+	"oracle_view"         : ( ["Db","Schema","View"], ),
+	"symbol"              : ( ["Name","File"], ),
 }
 
 # The key must match the DMTF standard. It might contain a namespace.

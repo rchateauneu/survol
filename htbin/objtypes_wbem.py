@@ -16,7 +16,7 @@ paramkeyMaxDepth = "Maximum depth"
 # TODO: The type should really be an integer.
 cgiEnv = lib_common.CgiEnv("WBEM classes in namespace",
 				can_process_remote = True,
-				parameters = { paramkeyMaxDepth : "2" })
+				parameters = { paramkeyMaxDepth : 2 })
 
 ( wbemNamespace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 

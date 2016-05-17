@@ -6,7 +6,11 @@ from lib_properties import pc
 # Then in its file, by convention adds information to a node.
 def AddInfo(grph,node,entity_ids_arr):
 	# TODO: Define symbol with two different key/vals, instead of this. Bad syntax !!!
-	( symbole_name, file ) = lib_uris.gUriGen.SymbolExtract( entity_ids_arr[0] )
+	symbole_name = entity_ids_arr[0]
+	try:
+		file = entity_ids_arr[1]
+	except IndexError:
+		file = ""
 
 	# WRONG, TODO: Must check the node ???
 	fileNode = lib_common.gUriGen.FileUri( file )
