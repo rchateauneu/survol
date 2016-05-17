@@ -66,7 +66,7 @@ def FilterPathLinux(path):
 def GoodMap(path):
 
 	# TODO: Should resolve symbolic links, first.
-	if 'linux' in sys.platform:
+	if lib_util.isPlatformLinux:
 		if not FilterPathLinux(path):
 			return ""
 
