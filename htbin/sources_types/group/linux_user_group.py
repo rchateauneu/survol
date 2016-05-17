@@ -2,15 +2,17 @@
 
 import rdflib
 import sys
-
+import lib_util
 import lib_common
 from lib_properties import pc
+
+Usable = lib_util.UsableLinux
 
 def Main():
 	cgiEnv = lib_common.CgiEnv("Users belonging to a Linux group")
 	groupName = cgiEnv.GetId()
 
-	if not 'linux' in sys.platform:
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("/etc/group on Linux only")
 
 	etc_group = open("/etc/group")

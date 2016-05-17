@@ -14,6 +14,8 @@ except ImportError:
 
 import lib_com_type_lib
 
+Usable = lib_util.UsableWindows
+
 cgiEnv = lib_common.CgiEnv("Documentation of a COM type library entry")
 fname_i = cgiEnv.GetId()
 
