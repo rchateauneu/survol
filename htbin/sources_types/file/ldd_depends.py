@@ -28,7 +28,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv("Shared library dependencies (Linux)")
 	fileSharedLib = cgiEnv.GetId()
 
-	if not lib_util.isPlatformLinux::
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("LDD on Linux platform only")
 
 	grph = rdflib.Graph()
