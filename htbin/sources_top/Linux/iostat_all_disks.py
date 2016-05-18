@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import lib_common
-
+import lib_util
 import os
 import re
 import sys
@@ -13,8 +13,7 @@ from lib_properties import pc
 import lib_webserv
 import lib_tabular
 
-if not 'linux' in sys.platform:
-	lib_common.ErrorMessageHtml("iostat command for Linux only")
+Usable = lib_util.UsableLinux
 
 ################################################################################
 
