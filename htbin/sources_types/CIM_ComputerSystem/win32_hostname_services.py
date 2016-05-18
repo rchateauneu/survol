@@ -6,8 +6,7 @@ import lib_util
 import lib_common
 from lib_common import pc
 
-if not lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
+Usable = lib_util.UsableWindows
 
 import lib_entities.lib_entity_Win32_Service
 
