@@ -515,8 +515,19 @@ def ObjectTypes():
 
 ################################################################################
 
-isPlatformLinux = 'lin' in sys.platform
+isPlatformLinux = 'linux' in sys.platform
 isPlatformWindows = 'win' in sys.platform
+
+def UsableLinux():
+	"""Runs on Linux only"""
+	return isPlatformLinux
+
+def UsableWindows():
+	"""Runs on Windows only"""
+	return isPlatformWindows
+
+################################################################################
+
 
 # This overlaps DMTF and never contradicts it.
 # BIENTOT ON N'EN AURA PROBABLEMENT PLUS BESOIN CAR ON VA UTILISER

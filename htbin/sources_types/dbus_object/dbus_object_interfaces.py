@@ -9,6 +9,8 @@ import lib_util
 import lib_dbus
 from lib_properties import pc
 
+Usable = lib_util.UsableLinux
+
 def Main():
 	cgiEnv = lib_common.CgiEnv("Interfaces of a DBUS object")
 	connectionName = cgiEnv.GetId()

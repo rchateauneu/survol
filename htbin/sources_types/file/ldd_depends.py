@@ -6,11 +6,13 @@ import sys
 import psutil
 import socket
 import urllib
-
+import lib_util
 import rdflib
 import lib_entities.lib_entity_file
 import lib_common
 from lib_properties import pc
+
+Usable = lib_util.UsableLinux
 
 def DoNothing():
 	return
@@ -26,7 +28,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv("Shared library dependencies (Linux)")
 	fileSharedLib = cgiEnv.GetId()
 
-	if not 'linux' in sys.platform:
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("LDD on Linux platform only")
 
 	grph = rdflib.Graph()

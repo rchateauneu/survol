@@ -6,6 +6,7 @@ import socket
 import urllib
 import platform
 import rdflib
+import lib_util
 import lib_common
 
 def GetSymbols(fileSharedLib):
@@ -15,7 +16,7 @@ def GetSymbols(fileSharedLib):
 	else:
 		lib_common.ErrorMessageHtml("File %s does not exist" % fileSharedLib)
 
-	if not 'linux' in sys.platform:
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("NM on Linux platform only")
 	nmCmd = "nm -DC " + fileSharedLib
 	sys.stderr.write("Running %s\n" % nmCmd)

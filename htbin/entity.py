@@ -9,20 +9,24 @@ import re
 import sys
 import psutil
 import rdflib
-import lib_infocache
 import importlib
 
-import lib_util
-import lib_common
-from lib_properties import pc
+from revlib import lib_util
+from revlib import lib_common
+from revlib.lib_properties import pc
 
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 import lib_entities.lib_entity_CIM_ComputerSystem as lib_entity_CIM_ComputerSystem
 
+paramkeyShowAll = "Show all scripts"
+
 # This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv("RDF data sources", can_process_remote = True)
+cgiEnv = lib_common.CgiEnv("RDF data sources",
+				can_process_remote = True,
+				parameters = { paramkeyShowAll : False })
 entity_id = cgiEnv.m_entity_id
 entity_host = cgiEnv.GetHost()
+flagShowAll = int(cgiEnv.GetParameters( paramkeyShowAll ))
 
 ( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
@@ -48,8 +52,8 @@ if entity_type != "":
 	sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
 	sys.stderr.write("sys.path="+str(sys.path)+"\n")
 	try:
-		entity_lib = "lib_entities.lib_entity_" + entity_type
-		entity_module = importlib.import_module( ".lib_entity_" + entity_type, "lib_entities")
+		entity_lib = ".lib_entity_" + entity_type
+		entity_module = importlib.import_module( entity_lib, "lib_entities")
 		sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
 	except ImportError:
 		sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
@@ -63,21 +67,6 @@ directory = lib_util.gblTopScripts + relative_dir
 grph = rdflib.Graph()
 
 rootNode = lib_util.RootUri()
-
-################################################################################
-
-g_infoCache = lib_infocache.InfoCache()
-
-# This stores information about scripts.
-def DeserializeScriptInfoCached(key):
-	# Equivalent to lib_common.DeserializeScriptInfo(key)
-	global g_infoCache
-
-	infoDict = g_infoCache.CachedValue(key)
-	if infoDict != None:
-		return infoDict
-	else:
-		return { "info" : "No cached info" }
 
 ################################################################################
 
@@ -96,7 +85,7 @@ def IsTempFile(fil):
 # This should not be the same scripts:
 # Some "normal" scripts are able to use a hostname, but this is very rare.
 # CgiEnv is able to say that. Also, this must be stored in the info cache.
-# If we take the entity_id from CgiEnv without explicitely saying 
+# If we take the entity_id from CgiEnv without explicitely saying
 # that the current script can process the hostname, then it is an error.
 # Also: This is where we need to "talk" to the other host ?
 # And we must display the node of the host as seen from the local machine.
@@ -196,31 +185,38 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 		url_rdf = genObj.MakeTheNodeFromScript( script_path, entity_type, encodedEntityId )
 
-		# TODO: Get the 'info' in an asynchronous loop, and later pick the values.
-		# This is especially efficient when the cache is empty.
-		infoDict = DeserializeScriptInfoCached(url_rdf)
-
-		# sys.stderr.write("info=%s\n" % str(infoDict))
-
-		# Is the script OK for this platform ?
+		#  script_path = "/sources_top/Databases/mysql_processlist"
+		# importlib.import_module( ".lib_entity_" + entity_type, "lib_entities")
 		try:
-			# Contains for example "lin" or "win" if the script can be used on some platforms only.
-			platform_regex = infoDict["platform_regex"]
-			if platform_regex != "":
-				platform_mtch = re.match( ".*" + platform_regex + ".*", sys.platform )
-				if not platform_mtch:
-					sys.stderr.write("No platform match with %s and %s\n" % ( sys.platform, platform_regex ) )
+			# importedMod = importlib.import_module(script_path)
+			# importedMod = importlib.import_module("/sources_top/Databases/mysql_processlist","")
+			# import_module('..mod', 'pkg.subpkg') will import pkg.mod).
+			# TODO: IT DOES NOT START FROM "/revlib". DIFFICULTY WITH PYTHONPATH.
+			# importedMod = importlib.import_module(".mysql_processlist","sources_top.Databases")
+			argFil = "." + fil[:-3]
+			argDir = ( relative_dir + sub_path ).replace("/",".")[1:]
+			sys.stderr.write("argFil=%s argDir=%s\n" % ( argFil, argDir ) )
+			importedMod = importlib.import_module(argFil, argDir )
+		except ImportError:
+			exc = sys.exc_info()[1]
+			sys.stderr.write("Cannot import=%s. Caught: %s\n" % (script_path, str(exc) ) )
+			continue
+
+		# Show only scripts which want to be shown.
+		if not flagShowAll:
+			try:
+				isUsable = importedMod.Usable()
+				if not isUsable:
 					continue
-		except KeyError:
-			# If not regular expression for checking platform, no problem.
-			pass
+			except AttributeError:
+				pass
 
 		# If the entity is on another host, does this work on remote entities ?
 		if is_host_remote:
 			try:
 				# Script can be used on a remote entity.
-				can_process_remote = infoDict["can_process_remote"]
-			except:
+				can_process_remote = importedMod.CanProcessRemote() # infoDict["can_process_remote"]
+			except AttributeError:
 				can_process_remote = False
 
 			if not can_process_remote:
@@ -233,16 +229,20 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		grph.add( ( parentNode, pc.property_rdf_data, rdfNode ) )
 
 		try:
-			grph.add( ( rdfNode, pc.property_information, rdflib.Literal(infoDict["info"]) ) )
-		except KeyError:
-			pass
+			docModu = importedMod.__doc__
+			if len(docModu) > 20:
+				docModu = docModu[0:20] + "..."
+		except:
+			docModu = fil[:-3].replace("_"," ")
+		grph.add( ( rdfNode, pc.property_information, rdflib.Literal(docModu) ) )
+
 		# Adds an optional image URL. TODO: Do something with it.
 		try:
-			urlIcon = infoDict["url_icon"]
+			urlIcon = importedMod.Icon
 			if urlIcon != "":
 				infoUrl = rdflib.term.URIRef( urlIcon )
 				grph.add( ( rdfNode, pc.property_image, infoUrl ) )
-		except KeyError:
+		except AttributeError:
 			pass
 
 
@@ -302,9 +302,9 @@ else:
 	# TODO: Plutot qu'attacher tous les sous-directory a node parent,
 	# ce serait peut-etre mieux d'avoir un seul lien, et d'afficher
 	# les enfants dans une table, un record etc...
-	# OU: Certaines proprietes arborescentes seraient representees en mettant 
+	# OU: Certaines proprietes arborescentes seraient representees en mettant
 	# les objets dans des boites imbriquees: Tables ou records.
-	# Ca peut marcher quand la propriete forme PAR CONSTRUCTION 
+	# Ca peut marcher quand la propriete forme PAR CONSTRUCTION
 	# un DAG (Direct Acyclic Graph) qui serait alors traite de facon specifique.
 	DirToMenu(grph,rootNode,directory,relative_dir)
 

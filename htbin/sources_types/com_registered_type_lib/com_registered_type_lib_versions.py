@@ -6,6 +6,8 @@ import rdflib
 import lib_common
 from lib_properties import pc
 
+Usable = lib_util.UsableWindows
+
 try:
 	import win32con
 	import win32api

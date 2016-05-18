@@ -1,17 +1,23 @@
 #!/usr/bin/python
 
+"""
+Parse /etc/passwd
+"""
+
 import sys
 import rdflib
 import lib_entities.lib_entity_user
 import lib_common
+import lib_util
 from lib_properties import pc
 
-# TODO: https://docs.python.org/2/library/pwd.html might be simpler.
+Usable = lib_util.UsableLinux
 
+# TODO: https://docs.python.org/2/library/pwd.html might be simpler.
 def Main():
 	cgiEnv = lib_common.CgiEnv("Users on a Linux platform (/etc/passwd)")
 
-	if not 'linux' in sys.platform:
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("/etc/passwd for Linux only")
 
 	grph = rdflib.Graph()

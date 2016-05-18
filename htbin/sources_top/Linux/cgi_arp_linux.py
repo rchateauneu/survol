@@ -11,14 +11,14 @@ import socket
 import rdflib
 import socket
 import subprocess
-
+import lib_util
 import lib_common
 from lib_properties import pc
 
 def Main():
 	cgiEnv = lib_common.CgiEnv("ARP command for Linux")
 
-	if not 'linux' in sys.platform:
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("Linux only")
 
 	grph = rdflib.Graph()

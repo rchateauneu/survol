@@ -14,6 +14,8 @@ import lib_win32
 import lib_common
 from lib_properties import pc
 
+Usable = lib_util.UsableWindows
+
 # Returns symbols associated to a DLL or an EXE file.
 
 # depends.exe:

@@ -34,6 +34,8 @@ from lib_properties import pc
 #   Pas forcement, c est une abstraction. 
 #   En revanche, permettre d instrumenter la combinaison : symbole+fichier.
 
+Usable = lib_util.UsableWindows
+
 def Main():
 	cgiEnv = lib_common.CgiEnv("dumpbin results")
 	dll_file = cgiEnv.GetId()

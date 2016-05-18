@@ -10,8 +10,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-if not lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("Windows directory changes")
+Usable = lib_util.UsableWindows
 
 # http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html#use_findfirstchange
 

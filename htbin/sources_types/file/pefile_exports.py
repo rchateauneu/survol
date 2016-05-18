@@ -50,7 +50,11 @@ def Main():
 
 	filNode = lib_common.gUriGen.FileUri(filNam )
 
-	pe = pefile.PE(filNam)
+	try:
+		pe = pefile.PE(filNam)
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % ( filNam, str(exc)))
 
 	# sys.stderr.write("%s\n" % hex(pe.VS_VERSIONINFO.Length) )
 	# sys.stderr.write("%s\n" % hex(pe.VS_VERSIONINFO.Type) )
@@ -85,18 +89,22 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	for exp in pe.DIRECTORY_ENTRY_EXPORT.symbols:
-		# sys.stderr.write("\t%s %s %d\n"% ( hex(pe.OPTIONAL_HEADER.ImageBase + exp.address), exp.name, exp.ordinal ) )
+	try:
+		for exp in pe.DIRECTORY_ENTRY_EXPORT.symbols:
+			# sys.stderr.write("\t%s %s %d\n"% ( hex(pe.OPTIONAL_HEADER.ImageBase + exp.address), exp.name, exp.ordinal ) )
 
-		symNode = lib_uris.gUriGen.SymbolUri( exp.name, filNam )
-		grph.add( ( filNode, pc.property_symbol_defined, symNode ) )
-		forward = exp.forwarder
-		if not forward:
-			forward = ""
-		grph.add( ( symNode, lib_common.MakeProp("Forward"), rdflib.Literal(forward) ) )
-		grph.add( ( symNode, lib_common.MakeProp("Address"), rdflib.Literal(hex(exp.address)) ) )
-		grph.add( ( symNode, lib_common.MakeProp("Ordinal"), rdflib.Literal(hex(exp.ordinal)) ) )
-		# grph.add( ( symNode, lib_common.MakeProp("Rest"), rdflib.Literal(dir(exp)) ) )
+			symNode = lib_uris.gUriGen.SymbolUri( exp.name, filNam )
+			grph.add( ( filNode, pc.property_symbol_defined, symNode ) )
+			forward = exp.forwarder
+			if not forward:
+				forward = ""
+			grph.add( ( symNode, lib_common.MakeProp("Forward"), rdflib.Literal(forward) ) )
+			grph.add( ( symNode, lib_common.MakeProp("Address"), rdflib.Literal(hex(exp.address)) ) )
+			grph.add( ( symNode, lib_common.MakeProp("Ordinal"), rdflib.Literal(hex(exp.ordinal)) ) )
+			# grph.add( ( symNode, lib_common.MakeProp("Rest"), rdflib.Literal(dir(exp)) ) )
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % ( filNam, str(exc)))
 
 	# cgiEnv.OutCgiRdf(grph)
 	# cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI")

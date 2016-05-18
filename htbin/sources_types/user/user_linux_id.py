@@ -11,6 +11,8 @@ import lib_common
 import lib_util
 from lib_properties import pc
 
+Usable = lib_util.UsableLinux
+
 # Parses "500(guest)"
 def ParseIdNam(str):
 	sys.stderr.write("ParseIdNam:"+str+"\n")
@@ -34,7 +36,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv("Groups of a Linux user")
 	userNameWithHost = cgiEnv.GetId()
 
-	if not 'linux' in sys.platform:
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("id command on Linux only")
 
 	# Usernames have the syntax user@host

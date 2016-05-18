@@ -178,7 +178,7 @@ def parse_all(grph, text):
 #		if tnsnam == "":
 #			tnsnam = dflttnsnam
 #
-#	if 'linux' in sys.platform:
+#	if lib_util.isPlatformLinux:
 #		try:
 #			oracle_home = sys.environ['ORACLE_HOME']
 #			tnsnam = oracle_home + '/network/admin/tnsnames.ora'

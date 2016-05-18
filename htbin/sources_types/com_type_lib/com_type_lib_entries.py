@@ -7,6 +7,8 @@ import lib_common
 import lib_util
 from lib_properties import pc
 
+Usable = lib_util.UsableWindows
+
 try:
 	import pythoncom
 	import win32con

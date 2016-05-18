@@ -12,6 +12,8 @@ from lib_properties import pc
 
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
+Usable = lib_util.UsableWindows
+
 def Main():
 	cgiEnv = lib_common.CgiEnv("User processes")
 	userNameWithHost = cgiEnv.GetId()

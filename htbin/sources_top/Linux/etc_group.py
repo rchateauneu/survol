@@ -2,14 +2,14 @@
 
 import sys
 import rdflib
-# import lib_entities.lib_entity_user
+import lib_util
 import lib_common
 from lib_properties import pc
 
 def Main():
 	cgiEnv = lib_common.CgiEnv("Groups on a Linux platform")
 
-	if not 'linux' in sys.platform:
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("/etc/group for Linux only")
 
 	grph = rdflib.Graph()

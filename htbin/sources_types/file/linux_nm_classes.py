@@ -8,16 +8,10 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-
-
+Usable = lib_util.UsableLinux
 
 # TODO: Ca ne fonctionne pas encorer bien mais donne l'occasion de creer le type "class"
 # qu'on va peut-etre reutiliser dans COM, et qui peut servir a structurer la memoire d'un process.
-
-
-
-
-
 
 
 nodesByClass = {}

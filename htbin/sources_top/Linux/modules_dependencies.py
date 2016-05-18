@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import lib_common
-
+import lib_util
 import sys
 import psutil
 import socket
@@ -25,7 +25,7 @@ from lib_properties import pc
 def Main():
 	cgiEnv = lib_common.CgiEnv("Linux modules dependencies")
 
-	if not 'linux' in sys.platform:
+	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("Modules dependencies for Linux only")
 
 	grph = rdflib.Graph()

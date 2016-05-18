@@ -12,7 +12,8 @@ import sys
 # sys.path.append('htbin/revlib')
 import os
 pyKey = "PYTHONPATH"
-extraPath = "htbin/revlib"
+# extraPath = "htbin/revlib"
+extraPath = "htbin;htbin/revlib"
 try:
     os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
 except KeyError:
