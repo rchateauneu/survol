@@ -93,7 +93,7 @@ def GetArpEntriesLinux():
 def GetArpEntries():
 	if lib_util.isPlatformWindows:
 		return GetArpEntriesWindows()
-	if 'linux' in sys.platform:
+	if lib_util.isPlatformLinux:
 		return GetArpEntriesLinux()
 
 	lib_common.ErrorMessageHtml("Undefined platform:"+sys.platform)
