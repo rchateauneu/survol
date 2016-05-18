@@ -70,9 +70,7 @@ def Main():
 		if not sym.m_splt[0].startswith("std"):
 			continue
 
-		symNam = sym.m_splt[-1]
-
-		symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symNam), fileSharedLib )
+		symNod = lib_common.gUriGen.SymbolUri( sym.m_name_demang, fileSharedLib )
 		grph.add( ( symNod, lib_common.MakeProp("Version"), rdflib.Literal(sym.m_vers) ) )
 		lenSplit = len(sym.m_splt)
 		if lenSplit > 1:

@@ -78,9 +78,9 @@ def Main():
 		else:
 			spltShort = sym.m_splt
 
-			symNam = sym.m_splt[-1]
 
-			symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symNam), fileSharedLib )
+			# symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(sym.m_name), fileSharedLib )
+			symNod = lib_common.gUriGen.SymbolUri( sym.m_name_demang, fileSharedLib )
 			grph.add( ( symNod, lib_common.MakeProp("Version"), rdflib.Literal(sym.m_vers) ) )
 			if lenSplit > 1:
 				clsNod = ClassToNode( sym.m_splt, lenSplit - 1 )

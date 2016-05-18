@@ -13,7 +13,7 @@ def Main():
 	paramkeyMaxDepth = "Maximum depth"
 
 	cgiEnv = lib_common.CgiEnv("Parsing ELF files to classes",
-		parameters = { paramkeyMaxDepth : 1 })
+		parameters = { paramkeyMaxDepth : 2 })
 
 	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
 
@@ -69,11 +69,14 @@ def Main():
 	lenPrefix = len( nameTopClass.split("::") )
 	maxDepthTotal = maxDepth + lenPrefix
 
+	# sys.stderr.write("top=%s\n" % nameTopClass)
 	for sym in listSyms:
-		symName = "::".join(sym.m_splt)
+		# symName = "::".join(sym.m_splt)
 
-		if not symName.startswith( classPrefix ):
+		if not sym.m_name.startswith( classPrefix ):
 			continue
+
+		# sys.stderr.write("name=%s\n" % sym.m_name)
 
 		lenSplit = len(sym.m_splt)
 		if lenSplit > maxDepthTotal:
@@ -92,9 +95,9 @@ def Main():
 		else:
 			spltShort = sym.m_splt
 
-			symNam = sym.m_splt[-1]
-
-			symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symNam), fileName )
+			# symNam = sym.m_splt[-1]
+			# symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symNam), fileName )
+			symNod = lib_common.gUriGen.SymbolUri( sym.m_name, fileName )
 			grph.add( ( symNod, lib_common.MakeProp("Version"), rdflib.Literal(sym.m_vers) ) )
 			if lenSplit > 1:
 				clsNod = ClassToNode( sym.m_splt, lenSplit - 1 )

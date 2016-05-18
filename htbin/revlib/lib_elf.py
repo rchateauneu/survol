@@ -152,29 +152,30 @@ def ExtractTemplatedClassesFromToken(lstCls, cls):
 
 
 class ElfSym:
-	def __init__(self, Name, Type=None, Bind=None, Vis=None, Ndx=None, Vers=None ):
+	def __init__(self, NamDemang, NamRaw, Type=None, Bind=None, Vis=None, Ndx=None, Vers=None ):
 		# sys.stdout.write('t=%-7s b=%-6s v=%-7s n=%4s V=%s N=%s\n' % ( Type, Bind, Vis, Ndx, Vers, Name ) )
-		self.m_type = Type
-		self.m_bind = Bind
-		self.m_vis  = Vis
-		self.m_ndx  = Ndx
-		self.m_vers = Vers
-		self.m_name = Name
+		self.m_type        = Type
+		self.m_bind        = Bind
+		self.m_vis         = Vis
+		self.m_ndx         = Ndx
+		self.m_vers        = Vers
+		self.m_name_demang = NamDemang
+		self.m_name_mangle = NamRaw
 
-		firstPar = self.m_name.find("(")
+		firstPar = self.m_name_demang.find("(")
 		if firstPar < 0:
 			# This is a singleton.
-			fulNam = self.m_name
+			fulNam = self.m_name_demang
 			self.m_args = None # Different from zero arguments.
 		else:
-			fulNam = self.m_name[:firstPar]
+			fulNam = self.m_name_demang[:firstPar]
 			# There might be ") const" at the end.
-			if self.m_name.endswith(" const"):
+			if self.m_name_demang.endswith(" const"):
 				# TODO: We are sure that the last token is a class, not a namespace.
 				endIdx = -7
 			else:
 				endIdx = -1
-			argsNoParenth = self.m_name[firstPar+1:endIdx]
+			argsNoParenth = self.m_name_demang[firstPar+1:endIdx]
 			if argsNoParenth == "":
 				self.m_args = [] # Zero argument.
 			else:
@@ -316,6 +317,7 @@ class ReadElf(object):
 					
 				sym = ElfSym(
 					demang,
+					symbol.name,
 					describe_symbol_type(symbol['st_info']['type']),
 					describe_symbol_bind(symbol['st_info']['bind']),
 					describe_symbol_visibility(symbol['st_other']['visibility']),

@@ -143,10 +143,22 @@ def EncodeUri(anStr):
 
 	strTABLE = anStr.replace("\\L","\\\\L")
 
+
+
 	# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 	if sys.version_info >= (3,):
+
+
+		# NORMALLEMENT CA DEVRAIT ETRE FAIT !!!
+		###strTABLE = strTABLE.replace("&",";;;")
+
+
+
 		return quote(strTABLE,'')
 	else:
+
+		# NORMALLEMENT CA DEVRAIT ETRE FAIT !!!
+		###strTABLE = strTABLE.replace("&","%26")
 		# UnicodeDecodeError: 'ascii' codec can't decode byte 0xe9 in position 32
 		# strTABLE = unicode( strTABLE, 'utf-8')
 		return quote(strTABLE,'ascii')

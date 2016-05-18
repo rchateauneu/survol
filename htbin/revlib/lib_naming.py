@@ -6,6 +6,7 @@ import os
 import re
 import lib_patterns
 from lib_entities import lib_entity_CIM_Process
+import base64
 
 try:
 	from urlparse import urlparse
@@ -53,10 +54,40 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 			return "Invalid pid:("+entity_id+")"
 		# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
 
-	if entity_type in [ "symbol", "class" ]:
-		# This replace HTML entities. This is necessary because these chars are used
-		# in C++ symbols. Anyway, it might be necessary for other entity types.
-		return cgi.escape( entity_id )
+	if entity_type == "symbol":
+		# TODO: On voudrait afficher seulement la fonction ou le nom,
+		# mais il faut tronquer hors des delimiteurs.
+		# PROBLEME: Double &kt;&lt !!! 
+		#return entity_id.split("::")[-1]
+		# return entity_id.replace("&amp;","&").replace("&lt;","<")
+		# TODO: Seul le premier argument est affiche, rien apres la virgule.
+		# return entity_id.replace("&amp;","&")
+		try:
+			# Trailing padding.
+			#entity_id = entity_id.replace("*","=")
+			# Must be bytes, not unicode.
+			resu = base64.urlsafe_b64decode(str(entity_id))
+			resu = cgi.escape(resu)
+			return resu
+		except TypeError:
+			exc = sys.exc_info()[1]
+			sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(entity_id,str(exc)))
+			return entity_id
+
+	if entity_type == "class" :
+		# PROBLEME: Double &kt;&lt !!! 
+		# return entity_id
+		try:
+			# Trailing padding.
+			#entity_id = entity_id.replace("*","=")
+			# Must be bytes, not unicode.
+			resu = base64.urlsafe_b64decode(str(entity_id))
+			resu = cgi.escape(resu)
+			return resu
+		except TypeError:
+			exc = sys.exc_info()[1]
+			sys.stderr.write("CANNOT DECODE: class=(%s):%s\n"%(entity_id,str(exc)))
+			return entity_id
 
 	if entity_type == "file":
 		# A file name can be very long, so it is truncated.
