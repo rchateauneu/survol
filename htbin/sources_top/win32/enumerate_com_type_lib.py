@@ -6,11 +6,8 @@ import rdflib
 import lib_common
 from lib_properties import pc
 
-try:
-	import win32api
-	import win32con
-except ImportError:
-	lib_common.ErrorMessageHtml("win32 Python library not installed")
+import win32api
+import win32con
 
 import lib_com_type_lib
 

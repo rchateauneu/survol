@@ -16,10 +16,7 @@ import lib_properties
 from lib_properties import pc
 
 # This can work only on Windows and with exe files.
-try:
-	import pefile
-except ImportError:
-	lib_common.ErrorMessageHtml("Module pefile should be installed")
+import pefile
 
 
 def pefileDecorate( grph, rootNode, pe ):

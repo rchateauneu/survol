@@ -7,19 +7,16 @@ import lib_util
 import lib_common
 from lib_common import pc
 
-if not lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
-
-try:
-	import win32api
-	import win32net
-	import win32netcon
-	import win32security
-except ImportError:
-	lib_common.ErrorMessageHtml("win32 Python library not installed")
+import win32api
+import win32net
+import win32netcon
+import win32security
 
 def Main():
 	cgiEnv = lib_common.CgiEnv("Windows local groups")
+
+	if not lib_util.isPlatformWindows:
+		lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
 	grph = rdflib.Graph()
 

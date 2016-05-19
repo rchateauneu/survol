@@ -4,15 +4,11 @@ import lib_util
 import lib_common
 import lib_credentials
 
-try:
-	import win32api
-	import win32net
-	import win32con
-	import win32netcon
-	import win32security
-except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("win32 Python library not installed:"+str(exc))
+import win32api
+import win32net
+import win32con
+import win32netcon
+import win32security
 
 class Impersonate:
 	def __init__(self,login,password,domain):

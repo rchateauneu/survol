@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-# One node containing the current directory of the process.
+"""
+Oracle databases accessed by process
+"""
 
 import os
 import sys

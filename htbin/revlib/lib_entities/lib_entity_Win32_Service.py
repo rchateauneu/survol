@@ -5,15 +5,12 @@ import lib_common
 from lib_common import pc
 import rdflib
 
-try:
-	# Python for Windows extensions: pywin32
-	# https://sourceforge.net/projects/pywin32/
-	import win32service
-	import win32con
-	import win32api
-	import win32security
-except ImportError:
-	lib_common.ErrorMessageHtml("pywin32 Python library not installed. Go to https://sourceforge.net/projects/pywin32/")
+# Python for Windows extensions: pywin32
+# https://sourceforge.net/projects/pywin32/
+import win32service
+import win32con
+import win32api
+import win32security
 
 import lib_win32
 

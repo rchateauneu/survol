@@ -6,19 +6,10 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-if not lib_util.isPlatformWindows:
-	lib_common.ErrorMessageHtml("ODBC Data sources only on Windows platforms")
+import win32com.client
+import win32net
 
-try:
-	import win32com.client
-	import win32net
-except ImportError:
-	lib_common.ErrorMessageHtml("win32 Python library not installed")
-
-try:
-	import odbc
-except ImportError:
-	lib_common.ErrorMessageHtml("Cannot load module odbc")
+import odbc
 
 def show_odbc_sources(grph):
 	odbc_iter_code = odbc.SQL_FETCH_FIRST
@@ -37,6 +28,9 @@ def show_odbc_sources(grph):
 		grph.add( (nodeDsn, pc.property_odbc_driver, rdflib.Literal(driver) ) )
 
 def Main():
+	if not lib_util.isPlatformWindows:
+		lib_common.ErrorMessageHtml("ODBC Data sources only on Windows platforms")
+
 	cgiEnv = lib_common.CgiEnv("ODBC Data sources")
 
 	grph = rdflib.Graph()

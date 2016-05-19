@@ -12,14 +12,14 @@ logo = "http://docs.oracle.com/javase/7/docs/webnotes/tsg/TSG-VM/html/graphics/s
 # http://stackoverflow.com/questions/13589683/interfaceerror-unable-to-acquire-oracle-environment-handle-oracle-home-is-corr
 # InterfaceError: Unable to acquire Oracle environment handle
 
-try:
-	import cx_Oracle
-except ImportError:
-	# No error signalling because we need some data about Oracle,
-	# even if the lib is not here.
-	if lib_common.GuessDisplayMode(sys.stderr) != "info":
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Cannot import module cx_Oracle:"+str(exc))
+import cx_Oracle
+#try:
+#except ImportError:
+## No error signalling because we need some data about Oracle,
+## even if the lib is not here.
+#if lib_common.GuessDisplayMode(sys.stderr) != "info":
+#	exc = sys.exc_info()[1]
+#	lib_common.ErrorMessageHtml("Cannot import module cx_Oracle:"+str(exc))
 
 def GetOraConnect(conn_str):
 	try:

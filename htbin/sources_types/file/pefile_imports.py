@@ -16,17 +16,9 @@ import lib_win32
 import lib_common
 from lib_properties import pc
 
-try:
-	import pefile
-except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Cannot import pefile:"+str(exc))
+import pefile
 
-try:
-	import win32api
-except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Cannot import win32api:"+str(exc))
+import win32api
 
 # TODO: MUST TAKE THE GOOD PROCESS PATH, NOT OURS.
 

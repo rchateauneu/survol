@@ -10,15 +10,12 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-Usable = lib_util.UsableWindows
-
 # http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html#use_findfirstchange
 
-try:
-	import win32file
-	import win32con
-except ImportError:
-	lib_common.ErrorMessageHtml("win32 Python library not installed")
+import win32file
+import win32con
+
+Usable = lib_util.UsableWindows
 
 
 # Ca marche.

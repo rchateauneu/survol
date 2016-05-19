@@ -188,11 +188,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		#  script_path = "/sources_top/Databases/mysql_processlist"
 		# importlib.import_module( ".lib_entity_" + entity_type, "lib_entities")
 		try:
-			# importedMod = importlib.import_module(script_path)
-			# importedMod = importlib.import_module("/sources_top/Databases/mysql_processlist","")
-			# import_module('..mod', 'pkg.subpkg') will import pkg.mod).
 			# TODO: IT DOES NOT START FROM "/revlib". DIFFICULTY WITH PYTHONPATH.
-			# importedMod = importlib.import_module(".mysql_processlist","sources_top.Databases")
 			argFil = "." + fil[:-3]
 			argDir = ( relative_dir + sub_path ).replace("/",".")[1:]
 			sys.stderr.write("argFil=%s argDir=%s\n" % ( argFil, argDir ) )
@@ -200,6 +196,10 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		except ImportError:
 			exc = sys.exc_info()[1]
 			sys.stderr.write("Cannot import=%s. Caught: %s\n" % (script_path, str(exc) ) )
+			continue
+		except NameError:
+			exc = sys.exc_info()[1]
+			sys.stderr.write("Other error: Cannot import=%s. Caught: %s\n" % (script_path, str(exc) ) )
 			continue
 
 		# Show only scripts which want to be shown.

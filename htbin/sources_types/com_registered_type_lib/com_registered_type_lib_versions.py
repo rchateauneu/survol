@@ -6,15 +6,12 @@ import rdflib
 import lib_common
 from lib_properties import pc
 
-Usable = lib_util.UsableWindows
-
-try:
-	import win32con
-	import win32api
-except ImportError:
-	lib_common.ErrorMessageHtml("win32 Python library not installed")
+import win32con
+import win32api
 
 import lib_com_type_lib
+
+Usable = lib_util.UsableWindows
 
 def Main():
 	cgiEnv = lib_common.CgiEnv("Versions of registered COM type libraries")

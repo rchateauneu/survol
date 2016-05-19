@@ -7,16 +7,13 @@ import lib_common
 import lib_util
 from lib_properties import pc
 
-Usable = lib_util.UsableWindows
-
-try:
-	import pythoncom
-	import win32con
-	import win32api
-except ImportError:
-	lib_common.ErrorMessageHtml("win32 Python library not installed")
+import pythoncom
+import win32con
+import win32api
 
 import lib_com_type_lib
+
+Usable = lib_util.UsableWindows
 
 def Main():
 	cgiEnv = lib_common.CgiEnv("Entries in a COM type library")

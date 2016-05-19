@@ -13,17 +13,9 @@ import lib_win32
 import lib_common
 from lib_properties import pc
 
-try:
-	import pefile
-except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Cannot import pefile:"+str(exc))
+import pefile
 
-try:
-	import win32api
-except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Cannot import win32api:"+str(exc))
+import win32api
 
 # BEWARE: The PATH is different for Apache user and the results are less meaningful.
 # TODO: HOW TO PROPERLY SET THE PATH ???

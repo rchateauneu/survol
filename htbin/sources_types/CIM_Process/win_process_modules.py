@@ -5,21 +5,17 @@
 import os
 import sys
 import rdflib
-
+import lib_util
 import lib_common
 import lib_entities.lib_entity_CIM_Process
 from lib_properties import pc
 
+Usable = lib_util.UsableWindows
 
-try:
-	from ctypes import *
+from ctypes import *
 
-	psapi = windll.psapi
-	kernel = windll.kernel32
-except NameError:
-	lib_common.ErrorMessageHtml("Python module windll should be installed")
-except ImportError:
-	lib_common.ErrorMessageHtml("Python module ctypes should be installed")
+psapi = windll.psapi
+kernel = windll.kernel32
 
 
 def Main():
