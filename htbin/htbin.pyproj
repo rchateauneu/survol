@@ -110,7 +110,6 @@
     <Compile Include="tests_oldies\svc_rdf_to_svg.py" />
     <Compile Include="tests_oldies\TestUnicodeStrings.py" />
     <Compile Include="objtypes.py" />
-    <Compile Include="cache_control.py" />
     <Compile Include="tests_oldies\testwnet.py" />
     <Compile Include="tests_oldies\test_win32wnet.py" />
     <Compile Include="tests_oldies\win32_EnumProcessModules.py" />
