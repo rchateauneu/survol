@@ -4,15 +4,16 @@
 # A clone of 'readelf' in Python, based on the pyelftools library
 # Eli Bendersky (eliben@gmail.com)
 #-------------------------------------------------------------------------------
-import os, sys
-from optparse import OptionParser
+import os
+import sys
+# from optparse import OptionParser
 import string
-
 import demangler
+import lib_symbol
 
 # For running from development directory. It should take precedence over the
 # installed pyelftools.
-sys.path.insert(0, '.')
+# sys.path.insert(0, '.')
 
 
 from elftools import __version__
@@ -49,95 +50,6 @@ from elftools.dwarf.constants import (
 	DW_LNS_copy, DW_LNS_set_file, DW_LNE_define_file)
 from elftools.dwarf.callframe import CIE, FDE
 
-################################################################################
-
-
-# top_level_split( "aa::bb<cc::dd>::ee","::","<",">")
-def top_level_split(instr,delim,bracket_open,bracket_close):
-	parts = []
-	bracket_level = 0
-	current = ""
-	# sys.stdout.write("str=%s delim=%s\n" % ( instr, delim ) )
-	# trick to remove special-case of trailing chars
-	lenInstr = len(instr)
-	idx = 0
-	while idx < lenInstr:
-		# sys.stdout.write("startswith=%d idx=%d cur=%s\n" % ( instr.startswith( delim, idx ), idx, current ))
-		if instr.startswith( delim, idx ) and bracket_level == 0:
-			if current:
-				parts.append(current)
-			current = ""
-			idx += len(delim)
-		else:
-			ch = instr[idx]
-			if ch == bracket_open:
-				bracket_level += 1
-			elif ch == bracket_close:
-				bracket_level -= 1
-			current += ch
-			idx += 1
-	if current:
-		parts.append(current)
-	if not parts:
-		parts = [""]
-	# sys.stdout.write("str=%s parts=%s\n" % ( instr, str(parts) ) )
-	return parts
-
-################################################################################
-
-scalarTypes = set( [
-	"bool",
-	"short",
-	"unsigned short",
-	"int",
-	"unsigned int",
-	"long",
-	"unsigned long",
-	"long long",
-	"unsigned long long",
-	"float",
-	"double", ]
-	)
-
-# unsigned short const*
-# xercesc_3_1::ValueStore const*
-# xercesc_3_1::RefVectorOf<xercesc_3_1::XMLAttr> const&
-# bool
-# xercesc_3_1::RefHash2KeysTableBucketElem<xercesc_3_1::ValueVectorOf<xercesc_3_1::SchemaElementDecl*> >**
-
-def ExtractClassesFromType(lstCls, cls):
-	if not cls:
-		return
-	while cls[-1] in "*&":
-		cls = cls[:-1]
-
-	if cls.endswith(" const"):
-		cls = cls[:-6]
-
-	# This is just for the most common cases because it cannot eliminate typedefs.
-	if cls in scalarTypes:
-		return
-
-	lstCls.append( cls )
-
-	# There might also be template parameters.
-	ExtractTemplatedClassesFromToken( lstCls, cls )
-
-# There might be several template parameters.
-# XMLEnumerator<xercesc_3_1::FieldValueMap>
-def ExtractTemplatedClassesFromToken(lstCls, cls):
-	bracketFirst = cls.find("<")
-	if bracketFirst <= 0:
-		return None
-	bracketLast = cls.rfind(">")
-	strTmplArgs = cls[ bracketFirst + 1: bracketLast ]
-
-	# Beware : Add other delimiters if template parameters contain "()"
-	# such as function pointers.
-	tmplArgs = top_level_split( strTmplArgs, ",", "<", ">" )
-	for tmplArg in tmplArgs:
-		ExtractClassesFromType( lstCls, tmplArg )
-
 
 ################################################################################
 
@@ -162,36 +74,18 @@ class ElfSym:
 		self.m_name_demang = NamDemang
 		self.m_name_mangle = NamRaw
 
-		firstPar = self.m_name_demang.find("(")
-		if firstPar < 0:
-			# This is a singleton.
-			fulNam = self.m_name_demang
-			self.m_args = None # Different from zero arguments.
-		else:
-			fulNam = self.m_name_demang[:firstPar]
-			# There might be ") const" at the end.
-			if self.m_name_demang.endswith(" const"):
-				# TODO: We are sure that the last token is a class, not a namespace.
-				endIdx = -7
-			else:
-				endIdx = -1
-			argsNoParenth = self.m_name_demang[firstPar+1:endIdx]
-			if argsNoParenth == "":
-				self.m_args = [] # Zero argument.
-			else:
-				# TODO: Arguments cannot be namespaces. Template parameters also.
-				self.m_args = [ arg.strip() for arg in top_level_split(argsNoParenth,",","<",">") ]
-				
-		self.m_splt = top_level_split( fulNam, "::", "<", ">" )
+		( fulNam, self.m_args ) = lib_symbol.SymToArgs( self.m_name_demang )
+
+		self.m_splt = lib_symbol.top_level_split( fulNam, "::", "<", ">" )
 		self.m_short_nam = self.m_splt[-1]
 
-	# Retourne les classes passees comme arguments.
+	# Returns list of classes passed as arguments.
 	def GetArgsClasses(self):
 		# Maybe this is a singleton, not a method.
 		lstClasses = []
 		if self.m_args:
 			for arg in self.m_args:
-				ExtractClassesFromType(lstClasses,arg)
+				lib_symbol.ExtractClassesFromType(lstClasses,arg)
 		return lstClasses
 
 	# Classes instantiating this class and nesting classes.
@@ -202,7 +96,7 @@ class ElfSym:
 		lstClasses = []
 		for cls in self.m_splt:
 			# Each string is a namespace, a class or a method.
-			ExtractTemplatedClassesFromToken(lstClasses,cls)
+			lib_symbol.ExtractTemplatedClassesFromToken(lstClasses,cls)
 		return lstClasses
 
 	# xercesc_3_1::NameIdPool<xercesc_3_1::DTDElementDecl>::~NameIdPool()
@@ -403,6 +297,7 @@ class ReadElf(object):
 		symbol_version['index'] = index
 		return symbol_version
 
+# TODO: Not used yet !!!
 def GetClassesFromCTorDTor( listSyms ):
 	setMoreClasses = set()
 	for sym in listSyms:

@@ -274,7 +274,7 @@ class LocalBox:
 		symbol_name = base64.urlsafe_b64encode(symbol_name)#[:-1]
 		# symbol_name = symbol_name.replace("=","*")
 		# sys.stderr.write("symbol_name=%s\n"%symbol_name)
-		return self.UriMakeFromDict("symbol", { "Name" : symbol_name, "File" : file } )
+		return self.UriMakeFromDict("symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(file) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
 	def ClassUri(self,class_name, file = ""):
@@ -284,7 +284,7 @@ class LocalBox:
 		class_name = base64.urlsafe_b64encode(class_name)#[:-1]
 		# class_name = class_name.replace("=","*")
 		# sys.stderr.write("class_name=%s\n"%class_name)
-		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : file } )
+		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(file) } )
 
 	# This must be a complete path name.
 	# If there is a backslash-L, it will be replaced by "<TABLE>" in graphviz:

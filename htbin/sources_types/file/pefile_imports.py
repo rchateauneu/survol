@@ -24,12 +24,12 @@ import win32api
 
 def VersionString (filNam):
     try:
-    	info = win32api.GetFileVersionInfo (filNam, "\\")
-    	ms = info['FileVersionMS']
-    	ls = info['FileVersionLS']
-    	return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
+        info = win32api.GetFileVersionInfo (filNam, "\\")
+        ms = info['FileVersionMS']
+        ls = info['FileVersionLS']
+        return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
     except:
-    	return None
+        return None
 
 class EnvPeFile:
 
@@ -90,7 +90,7 @@ def Main():
 	paramkeyMaximumDepth = "Maximum depth"
 
 	cgiEnv = lib_common.CgiEnv("DLL imports (pefile)",
-									parameters = { paramkeyMaximumDepth : 4 })
+									parameters = { paramkeyMaximumDepth : 3 })
 
 	maxDepth = int(cgiEnv.GetParameters( paramkeyMaximumDepth ))
 

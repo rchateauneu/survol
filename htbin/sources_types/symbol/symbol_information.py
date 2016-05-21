@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Returns minimal informaiton about a Windows symbol, using pefile Python library.
+Windows symbol information.
 """
 
 import os
@@ -11,6 +11,7 @@ import rdflib
 import lib_uris
 import lib_util
 import lib_common
+import base64
 from lib_properties import pc
 
 def Main():
@@ -21,7 +22,10 @@ def Main():
 	# Filename is optional.
 	symbolFull = cgiEnv.GetId()
 
-	symbol = cgiEnv.m_entity_id_dict["Name"]
+	# The symbol is already demangled.
+	symbol_encode = cgiEnv.m_entity_id_dict["Name"]
+	# TODO: This should be packaged in lib_symbol.
+	symbol = base64.urlsafe_b64decode(symbol_encode)
 	filNam = cgiEnv.m_entity_id_dict["File"]
 
 	sys.stderr.write("symbol=%s filNam=%s\n"% (symbol,filNam) )

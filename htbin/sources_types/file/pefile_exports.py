@@ -17,7 +17,7 @@ from lib_properties import pc
 
 # This can work only on Windows and with exe files.
 import pefile
-
+import lib_pefile
 
 def pefileDecorate( grph, rootNode, pe ):
 	for fileinfo in pe.FileInfo:
@@ -87,17 +87,21 @@ def Main():
 	grph = rdflib.Graph()
 
 	try:
+		propForward = lib_common.MakeProp("Forward")
+		propAddress = lib_common.MakeProp("Address")
+		propOrdinal = lib_common.MakeProp("Ordinal")
 		for exp in pe.DIRECTORY_ENTRY_EXPORT.symbols:
 			# sys.stderr.write("\t%s %s %d\n"% ( hex(pe.OPTIONAL_HEADER.ImageBase + exp.address), exp.name, exp.ordinal ) )
 
-			symNode = lib_uris.gUriGen.SymbolUri( exp.name, filNam )
+			decodedSymNam = lib_pefile.UndecorateSymbol(exp.name)
+			symNode = lib_uris.gUriGen.SymbolUri( decodedSymNam, filNam )
 			grph.add( ( filNode, pc.property_symbol_defined, symNode ) )
 			forward = exp.forwarder
 			if not forward:
 				forward = ""
-			grph.add( ( symNode, lib_common.MakeProp("Forward"), rdflib.Literal(forward) ) )
-			grph.add( ( symNode, lib_common.MakeProp("Address"), rdflib.Literal(hex(exp.address)) ) )
-			grph.add( ( symNode, lib_common.MakeProp("Ordinal"), rdflib.Literal(hex(exp.ordinal)) ) )
+			grph.add( ( symNode, propForward, rdflib.Literal(forward) ) )
+			grph.add( ( symNode, propAddress, rdflib.Literal(hex(exp.address)) ) )
+			grph.add( ( symNode, propOrdinal, rdflib.Literal(hex(exp.ordinal)) ) )
 			# grph.add( ( symNode, lib_common.MakeProp("Rest"), rdflib.Literal(dir(exp)) ) )
 	except Exception:
 		exc = sys.exc_info()[1]

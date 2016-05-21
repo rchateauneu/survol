@@ -67,7 +67,10 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 			#entity_id = entity_id.replace("*","=")
 			# Must be bytes, not unicode.
 			resu = base64.urlsafe_b64decode(str(entity_id))
+			# TODO: LE FAIRE AUSSI POUR LES AUTRES SYMBOLES.
 			resu = cgi.escape(resu)
+			#resu = resu.replace("<","X")
+			#resu = resu.replace(">","Y")
 			return resu
 		except TypeError:
 			exc = sys.exc_info()[1]
@@ -275,6 +278,9 @@ def ParseEntityUri(uri):
 	if not lib_util.IsLocalAddress( entity_host ):
 		entity_label += " at " + entity_host
 
-	entity_label = entity_label.replace("&","&amp;")
+	# TODO: ATTENTION !!!! ON L A RETIRE ICI UNIQUEMENT CAR C ETAIT DEJA FAIT
+	# TODO: AVEC LES SYMBOLES. PEUT ETRE LE REMETTRE POUR TOUS LES AUTRES TYPES.
+	# entity_label = entity_label.replace("&","&amp;")
+	# entity_label = entity_label.escape()
 	return ( entity_label, entity_graphic_class, entity_id )
 
