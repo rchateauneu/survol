@@ -48,7 +48,6 @@ import rdflib
 # Functions for creating uris are imported in the global namespace.
 from lib_uris import *
 import lib_uris
-# globals()["gUriGen"] = lib_uris.gUriGen
 
 ################################################################################
 
@@ -156,16 +155,10 @@ nodeMachine = gUriGen.HostnameUri( lib_util.currentHostname )
 
 ################################################################################
 
-# This applies to Linux and KDE only. Temporary.
-# We want to avoid too many processes to display, when debugging.
 # Could be reused if we want to focus on some processes only.
-uselessProcesses = [ 'bash', 'gvim', 'konsole' ]
-
+# proc in [ 'bash', 'gvim', 'konsole' ]
 def UselessProc(proc):
-	if lib_util.isPlatformWindows:
-		return False
-	else:
-		return proc.name in uselessProcesses
+	return False
 
 ################################################################################
 	
@@ -415,6 +408,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			nodes[x] = nodelabel
 			return nodelabel
 
+	# The QName is an abbreviation of URI reference with the namespace function for XML.
 	# Edge label.
 	# Transforms "http://primhillcomputers.com/ontologies/ppid" into "ppid"
 	# TODO: Beware, a CGI parameter might be there. CGIPROP
@@ -486,6 +480,8 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	# TODO: Quand on sera bien rode, on pourra peut-etre fusionner avec node_as_lists[]
 	ListedLeavesToRootLabels = {}
 
+	# This contain, for each node (subject), the related node (object) linked
+	# to it with a property to be displayed in tables instead of individual nodes.
 	listed_props_by_subj = collections.defaultdict(list)
 
 	# TODO: Une premiere passe pour batir l'arbre d'une certaine propriete.
@@ -505,7 +501,9 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 	for subj, prop, obj in grph:
 
+		# Related objects with these properties, are listed in a table, instead of distinct nodes in a graph.
 		if prop in PropsAsLists:
+			# We lose the property, unfortunately.
 			listed_props_by_subj[ subj ].append( obj )
 
 			# Maybe we already entered it: Not a problem.
@@ -580,6 +578,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	logfil.flush()
 
 	# Maintenant, on remplace chaque vecteur par un seul gros objet, contenant une table HTML.
+	# TODO: Unfortunately, the prop is lost.
 	if len( PropsAsLists ) > 0:
 		logfil.write( TimeStamp()+" Rdf2Dot: listed_props_by_subj=%d.\n" % ( len( listed_props_by_subj ) ) )
 		logfil.flush()
@@ -593,7 +592,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# return list( lst.items() )
 
 		# TODO: Avoid creation of temporary list. "for k, v in six.iteritems(d):"
-		# for subj, nodLst in list( listed_props_by_subj.items() ):
 		for subj, nodLst in LocalIterItems( listed_props_by_subj ):
 			subjNam = node(subj)
 
@@ -793,8 +791,24 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				# If this is not defined, take the last processed row.
 				table_graphic_class = subEntityGraphicClass
 
-			# TODO: Le titre est le contenu ne sont pas forcement de la meme classe.
+			# TODO: Le titre et le contenu ne sont pas forcement de la meme classe.
+			# labTextWithBr is the first line of the table containing nodes linked with the
+			# same property. Unfortunately we have lost this property.
+			#if len(PropsAsLists) == 1:
+			#	labTextWithBr = "Property:"
+			#else:
+			#	labTextWithBr = "Properties:"
+			maxLenLab = 10
+			if len( labText ) > maxLenLab:
+				idx = labText[maxLenLab:].find(" ")
+				if idx < 0:
+					idx = maxLenLab
+				labText = labText[:idx]+"..."
+				# sys.stderr.write("labText=%s\n"%labText)
 			labTextWithBr= StrWithBr( labText )
+			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in PropsAsLists )
+			# labTextWithBr= StrWithBr( labText )
+
 			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, "help text", "BLUE", labB, numFields, labTextWithBr, dictLines )
 
 			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
