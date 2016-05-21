@@ -8,7 +8,7 @@ import sys
 # In Apache httpd.conf, we have the directive:
 # SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\revlib
 # It is also possible to set it globally in the .profile
-# if not we get the error, for example:  import lib_infocache.
+# if not we get the error, for example:  import lib_pefile.
 # sys.path.append('htbin/revlib')
 import os
 pyKey = "PYTHONPATH"
