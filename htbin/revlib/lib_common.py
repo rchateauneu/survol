@@ -801,18 +801,20 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			maxLenLab = 10
 			if len( labText ) > maxLenLab:
 				idx = labText.find(" ",maxLenLab)
+				# sys.stderr.write("idx=%d\n"%idx)
 				if idx < 0:
 					idx = maxLenLab
 
 					# BEWARE: This must not fall in the middle of an html entity "&amp;", etc... ...
 					idxSemiColon = labText.find(";",idx)
-					if idx < 0:
+					# sys.stderr.write("idxSemiColon=%d\n"%idxSemiColon)
+					if idxSemiColon < 0:
 						idx = maxLenLab
 					else:
 						idx = idxSemiColon + 1 # Just after the semi-colon.
 
+				# sys.stderr.write("labText=%s idx=%d\n"%(labText,idx))
 				labText = labText[:idx]+"..."
-				# sys.stderr.write("labText=%s\n"%labText)
 			labTextWithBr= StrWithBr( labText )
 			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in PropsAsLists )
 
