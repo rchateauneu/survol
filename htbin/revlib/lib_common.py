@@ -812,7 +812,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						idx = idxSemiColon + 1 # Just after the semi-colon.
 
 				labText = labText[:idx]+"..."
-				sys.stderr.write("labText=%s\n"%labText)
+				# sys.stderr.write("labText=%s\n"%labText)
 			labTextWithBr= StrWithBr( labText )
 			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in PropsAsLists )
 
