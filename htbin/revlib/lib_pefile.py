@@ -15,8 +15,8 @@ def UndecorateSymbol(strSym):
 			break
 		sizBuf *= 2
 
-	# Now, some cleanup.
-	for subStr in [ "__thiscall ", "__cdecl", "class "]:
+	# Now, some cleanup of useless strings. This tries to keep only the semantic information.
+	for subStr in [ "__thiscall ", "__cdecl", "class ","struct "," __ptr64"]:
 		strRaw = strRaw.replace(subStr,"")
 
 	for subStr in [ "private: ", "public: ", "protected: "]:

@@ -12,8 +12,10 @@ import lib_uris
 import lib_util
 import lib_common
 import base64
+import lib_symbol
 from lib_properties import pc
 
+# It does not need the pefile library.
 def Main():
 
 	cgiEnv = lib_common.CgiEnv("Symbol information")
@@ -37,9 +39,12 @@ def Main():
 		filNode = lib_common.gUriGen.FileUri( filNam )
 		grph.add( ( filNode, pc.property_symbol_defined, symNode ) )
 
-	# TODO: Maybe the symbol name can be demangled to a class.
+	( fulNam, lstArgs ) = lib_symbol.SymToArgs(symbol)
+	for arg in lstArgs:
+		argNode = lib_uris.gUriGen.ClassUri( arg, filNam )
+		grph.add( ( symNode, pc.property_argument, argNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_argument] )
 
 if __name__ == '__main__':
 	Main()

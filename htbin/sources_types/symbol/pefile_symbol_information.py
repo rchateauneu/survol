@@ -40,6 +40,21 @@ def VersionString(filNam):
 	except:
 		return None
 
+def FindPESymbol(filNam,symbol):
+	pe = pefile.PE(filNam)
+
+	try:
+		for sym in pe.DIRECTORY_ENTRY_EXPORT.symbols:
+			# sys.stderr.write("sym=%s\n"%sym)
+			# sys.stderr.write("entry=%s\n"%str(entry.struct))
+			# if sym.name.lower() == symbol.lower():
+			if  lib_pefile.UndecorateSymbol( sym.name ) == symbol:
+				return sym
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("FindPESymbol %s %s. Caught:%s" % ( filNam, symbol, str(exc) ) )
+	return None
+
 def Main():
 
 	cgiEnv = lib_common.CgiEnv("Symbol information (pefile)")
@@ -58,7 +73,6 @@ def Main():
 	grph = rdflib.Graph()
 
 	symNode = lib_uris.gUriGen.SymbolUri( symbol, filNam )
-	propArg = lib_common.MakeProp("Argument")
 
 	if filNam:
 		filNode = lib_common.gUriGen.FileUri( filNam )
@@ -66,52 +80,40 @@ def Main():
 		versStr = VersionString(filNam)
 		grph.add( ( filNode, pc.property_information, rdflib.Literal(versStr) ) )
 
-		pe = pefile.PE(filNam)
+		sym = FindPESymbol(filNam,symbol)
+
+		if sym is not None:
+			# docTxt = getattr(sym,"__doc__").replace(r"&#160;","")
+			# Non-breaking space: A0	10100000	 	&#160;	&nbsp;
+			# docTxt = getattr(sym,"__doc__").replace(chr(160),"")
+			# Ca ne marche pas ...
+			docTxt = getattr(sym,"__doc__")
+
+			# This string is filled with spaces and CR which are translated into "&#160;".
+			docTxt = re.sub( '\s+', ' ', docTxt ).strip()
+
+			grph.add( ( symNode, pc.property_information,rdflib.Literal( docTxt ) ) )
+
+			# Possible values are "name","offset","ordinal","forwarder"
+			try:
+				fwrd = getattr(sym,"forwarder")
+				grph.add( ( symNode, lib_common.MakeProp("Forwarder"), rdflib.Literal( fwrd ) ) )
+			except:
+				pass
+
+			try:
+				fwrd = getattr(sym,"ordinal")
+				grph.add( ( symNode, lib_common.MakeProp("Ordinal"), rdflib.Literal( fwrd ) ) )
+			except:
+				pass
+
+			( fulNam, lstArgs ) = lib_symbol.SymToArgs(symbol)
+			for arg in lstArgs:
+				argNode = lib_uris.gUriGen.ClassUri( arg, filNam )
+				grph.add( ( symNode, pc.property_argument, argNode ) )
 
 
-
-		try:
-			for sym in pe.DIRECTORY_ENTRY_EXPORT.symbols:
-				# sys.stderr.write("sym=%s\n"%sym)
-				# sys.stderr.write("entry=%s\n"%str(entry.struct))
-				# if sym.name.lower() == symbol.lower():
-				if  lib_pefile.UndecorateSymbol( sym.name ) == symbol:
-
-					# docTxt = getattr(sym,"__doc__").replace(r"&#160;","")
-					# Non-breaking space: A0	10100000	 	&#160;	&nbsp;
-					# docTxt = getattr(sym,"__doc__").replace(chr(160),"")
-					# Ca ne marche pas ...
-					docTxt = getattr(sym,"__doc__")
-
-					# This string is filled with spaces and CR which are translated into "&#160;".
-					docTxt = re.sub( '\s+', ' ', docTxt ).strip()
-
-					grph.add( ( symNode, pc.property_information,rdflib.Literal( docTxt ) ) )
-
-					# Possible values are "name","offset","ordinal","forwarder"
-					try:
-						fwrd = getattr(sym,"forwarder")
-						grph.add( ( symNode, lib_common.MakeProp("Forwarder"), rdflib.Literal( fwrd ) ) )
-					except:
-						pass
-
-					try:
-						fwrd = getattr(sym,"ordinal")
-						grph.add( ( symNode, lib_common.MakeProp("Ordinal"), rdflib.Literal( fwrd ) ) )
-					except:
-						pass
-
-					( fulNam, lstArgs ) = lib_symbol.SymToArgs(symbol)
-					for arg in lstArgs:
-						argNode = lib_uris.gUriGen.ClassUri( arg, filNam )
-						grph.add( ( symNode, propArg, argNode ) )
-
-					break
-		except AttributeError:
-			sys.stderr.write("No import\n");
-			pass
-
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [propArg] )
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_argument] )
 
 if __name__ == '__main__':
 	Main()
