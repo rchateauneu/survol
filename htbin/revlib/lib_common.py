@@ -800,13 +800,22 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			#	labTextWithBr = "Properties:"
 			maxLenLab = 10
 			if len( labText ) > maxLenLab:
-				idx = labText[maxLenLab:].find(" ")
+				idx = labText.find(" ",maxLenLab)
 				if idx < 0:
 					idx = maxLenLab
+
+					# BEWARE: This must not fall in the middle of an html entity "&amp;", etc... ...
+					idxSemiColon = labText.find(";",idx)
+					if idx < 0:
+						idx = maxLenLab
+					else:
+						idx = idxSemiColon + 1 # Just after the semi-colon.
+
 				labText = labText[:idx]+"..."
-				# sys.stderr.write("labText=%s\n"%labText)
+				sys.stderr.write("labText=%s\n"%labText)
 			labTextWithBr= StrWithBr( labText )
 			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in PropsAsLists )
+
 			# labTextWithBr= StrWithBr( labText )
 
 			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, "help text", "BLUE", labB, numFields, labTextWithBr, dictLines )
