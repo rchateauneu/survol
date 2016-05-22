@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+File stat information
+"""
+
 # BEWARE: Do NOT rename it as stat.py otherwise strange errors happen,
 # probably a collision of modules names, with the message:
 # "Fatal Python error: Py_Initialize: can't initialize sys standard streams"
@@ -25,7 +29,7 @@ except ImportError:
 		return {}
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("File information")
+	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
 	sys.stderr.write("filNam=%s\n" % filNam )
 

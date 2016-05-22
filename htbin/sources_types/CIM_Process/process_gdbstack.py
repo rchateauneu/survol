@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Process callstack with gdb
+"""
+
 import re
 import sys
 import subprocess
@@ -122,7 +126,6 @@ def PassNoThreads(the_pid, execName, grph, procNode):
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(
-		"Process callstack with gdb",
 		"http://www.gnu.org/software/gdb/images/archer.jpg")
 	try:
 		the_pid = int(cgiEnv.GetId())

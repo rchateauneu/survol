@@ -16,7 +16,6 @@ import lib_oracle
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(
-		"Oracle databases accessed by process",
 		lib_oracle.logo
 	)
 

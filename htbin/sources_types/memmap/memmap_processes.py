@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Memory map connected processes
+"""
+
 import re
 import sys
 import psutil
@@ -9,7 +13,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Processes connected to a memory map")
+	cgiEnv = lib_common.CgiEnv()
 	memmapName = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

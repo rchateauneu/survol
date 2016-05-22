@@ -14,7 +14,7 @@ from lib_properties import pc
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("ARP command")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

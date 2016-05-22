@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Windows domain machines
+"""
+
 # http://timgolden.me.uk/python/win32_how_do_i/list_machines_in_a_domain.html
 
 import os
@@ -13,7 +17,7 @@ from lib_properties import pc
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Windows domain machines")
+	cgiEnv = lib_common.CgiEnv()
 	machineName = cgiEnv.GetId()
 	if lib_util.IsLocalAddress( machineName ):
 		machineName = None

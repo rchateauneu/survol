@@ -76,7 +76,7 @@ class EnvPeFile:
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("DLL dependencies with pefile (Windows)")
+	cgiEnv = lib_common.CgiEnv()
 
 	win_module = cgiEnv.GetId()
 

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Samba shares
+"""
+
 #$ smbclient -L DUOLNX -N
 #Anonymous login successful
 #Domain=[MDKGROUP] OS=[Unix] Server=[Samba 3.0.28a]
@@ -40,7 +44,7 @@ from lib_properties import pc
 def Main():
 	# This is similar to the script displaying shares for a given SMB server.
 	# Maybe in the future it will have to be different, no idea now.
-	cgiEnv = lib_common.CgiEnv("Samba shares")
+	cgiEnv = lib_common.CgiEnv()
 	hostName = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

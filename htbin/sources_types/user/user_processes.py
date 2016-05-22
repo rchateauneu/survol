@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-"""Processes belonging to a user, and their subprocesses"""
+"""
+User processes
+"""
 
 
 import sys

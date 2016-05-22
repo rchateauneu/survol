@@ -89,8 +89,7 @@ def Main():
 
 	paramkeyMaximumDepth = "Maximum depth"
 
-	cgiEnv = lib_common.CgiEnv("DLL imports (pefile)",
-									parameters = { paramkeyMaximumDepth : 3 })
+	cgiEnv = lib_common.CgiEnv(	parameters = { paramkeyMaximumDepth : 3 })
 
 	maxDepth = int(cgiEnv.GetParameters( paramkeyMaximumDepth ))
 

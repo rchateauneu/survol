@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Tables for ODBC DSN
+"""
+
 import sys
 import rdflib
 import lib_util
@@ -12,7 +16,7 @@ except ImportError:
     lib_common.ErrorMessageHtml("pyodbc Python library not installed")
 
 def Main():
-    cgiEnv = lib_common.CgiEnv("Tables for ODBC DSN")
+    cgiEnv = lib_common.CgiEnv()
 
     grph = rdflib.Graph()
 

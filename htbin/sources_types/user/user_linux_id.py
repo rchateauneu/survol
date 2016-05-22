@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-# List of open files for one process only.
+"""
+Groups of a Linux user
+"""
 
 import re
 import sys
@@ -33,7 +35,7 @@ def SplitId(str):
 	return resu
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Groups of a Linux user")
+	cgiEnv = lib_common.CgiEnv()
 	userNameWithHost = cgiEnv.GetId()
 
 	if not lib_util.isPlatformLinux:

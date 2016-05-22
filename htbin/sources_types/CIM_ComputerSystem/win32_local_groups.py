@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-#import cgitb
-#cgitb.enable()
+"""
+Windows local groups
+"""
 
 from __future__ import generators
 import sys
@@ -21,7 +22,7 @@ import lib_win32
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Windows local groups", platform_regex = "win", can_process_remote = True)
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 	server = cgiEnv.GetId()
 	if lib_util.IsLocalAddress( server ):
 		server = None

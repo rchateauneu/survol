@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+NET VIEW command
+"""
+
 # http://ss64.com/nt/net_share.html
 
 # D:\Projects\Divers\Reverse\PythonStyle\htbin\sources>net view
@@ -25,7 +29,7 @@ from lib_properties import pc
 import lib_smb
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("NET VIEW",lib_smb.icon)
+	cgiEnv = lib_common.CgiEnv(lib_smb.icon)
 
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("NET command on Windows only")

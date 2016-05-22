@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+COM type library entries
+"""
+
 import os
 import sys
 import rdflib
@@ -16,7 +20,7 @@ import lib_com_type_lib
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Entries in a COM type library")
+	cgiEnv = lib_common.CgiEnv()
 	fname = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

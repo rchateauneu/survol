@@ -42,8 +42,7 @@ def Usable(entity_type,entity_ids_arr):
 def Main():
 	paramkeyGroupByDirs = "Group by directories"
 
-	cgiEnv = lib_common.CgiEnv("DLL dependencies (Windows)",
-									parameters = { paramkeyGroupByDirs : True })
+	cgiEnv = lib_common.CgiEnv(	parameters = { paramkeyGroupByDirs : True })
 
 	flagGroupByDirs = bool(cgiEnv.GetParameters( paramkeyGroupByDirs ))
 

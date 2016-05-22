@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Nmap network exploration results
+"""
+
 import sys
 import re
 import socket
@@ -14,7 +18,6 @@ def Main():
 	paramkeyPortsRange = "Ports Range"
 
 	cgiEnv = lib_common.CgiEnv(
-			"Nmap network exploration results",
 			"http://nmap.org/images/nmap-logo-64px.png",
 			{ paramkeyPortsRange : "22-443" } )
 	hostname = cgiEnv.GetId()

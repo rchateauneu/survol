@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Oracle session details
+"""
+
 import sys
 import lib_oracle
 import rdflib
@@ -28,7 +32,7 @@ from lib_properties import pc
 #
 #	"oracle_session"      : ( ["Db","Session"], ),
 def Main():
-	cgiEnv = lib_oracle.OracleEnv( "Oracle session (Details)" )
+	cgiEnv = lib_oracle.OracleEnv()
 	oraSession = cgiEnv.m_entity_id_dict["Session"]
 	grph = rdflib.Graph()
 	node_oraSession = lib_common.gUriGen.OracleSessionUri( cgiEnv.m_oraDatabase, oraSession )

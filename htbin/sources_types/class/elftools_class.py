@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+ELF files to class
+"""
+
 import os
 import sys
 
@@ -12,7 +16,7 @@ from lib_properties import pc
 def Main():
 	paramkeyMaxDepth = "Maximum depth"
 
-	cgiEnv = lib_common.CgiEnv("Parsing ELF files to classes",
+	cgiEnv = lib_common.CgiEnv(
 		parameters = { paramkeyMaxDepth : 2 })
 
 	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))

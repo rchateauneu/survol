@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Parse /etc/passwd
+/etc/passwd users
 """
 
 import sys
@@ -15,7 +15,7 @@ Usable = lib_util.UsableLinux
 
 # TODO: https://docs.python.org/2/library/pwd.html might be simpler.
 def Main():
-	cgiEnv = lib_common.CgiEnv("Users on a Linux platform (/etc/passwd)")
+	cgiEnv = lib_common.CgiEnv()
 
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("/etc/passwd for Linux only")

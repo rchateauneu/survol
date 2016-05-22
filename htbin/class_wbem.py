@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Display all instances of a given WBEM class
+WBEM class portal: Display all instances of a given WBEM class
 """
 
 import sys
@@ -18,7 +18,7 @@ import pywbem # Might be pywbem or python3-pywbem.
 
 paramkeyMaxInstances = "Max instances"
 # This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv("WBEM class portal", can_process_remote = True,
+cgiEnv = lib_common.CgiEnv(can_process_remote = True,
 								parameters = { paramkeyMaxInstances : "80" })
 
 maxInstances = cgiEnv.GetParameters( paramkeyMaxInstances )

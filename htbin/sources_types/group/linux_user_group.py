@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Linux group users
+"""
+
 import rdflib
 import sys
 import lib_util
@@ -9,7 +13,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Users belonging to a Linux group")
+	cgiEnv = lib_common.CgiEnv()
 	groupName = cgiEnv.GetId()
 
 	if not lib_util.isPlatformLinux:

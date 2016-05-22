@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Documentation of a COM type library entry
+"""
+
 import os
 import sys
 import rdflib
@@ -13,7 +17,7 @@ import lib_com_type_lib
 
 Usable = lib_util.UsableWindows
 
-cgiEnv = lib_common.CgiEnv("Documentation of a COM type library entry")
+cgiEnv = lib_common.CgiEnv()
 fname_i = cgiEnv.GetId()
 
 # Same structure for all entities. This is annoying but too early to have something more generic.

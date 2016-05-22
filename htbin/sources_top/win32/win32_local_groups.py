@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Windows local groups
+"""
+
 from __future__ import generators
 import sys
 import rdflib
@@ -13,7 +17,7 @@ import win32netcon
 import win32security
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Windows local groups")
+	cgiEnv = lib_common.CgiEnv()
 
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")

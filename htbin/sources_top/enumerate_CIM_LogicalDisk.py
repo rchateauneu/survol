@@ -57,7 +57,7 @@ from lib_properties import pc
 # [partition(device='/dev/sda1', mountpoint='/', fstype='ext3', opts='rw'), partition(device='/dev/sda6', mountpoint='/home', fstype='ext3', opts='rw'), partition(device='/dev/sdb1', mountpoint='/samsung', fstype='ext2', opts='rw')]
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Partitions")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

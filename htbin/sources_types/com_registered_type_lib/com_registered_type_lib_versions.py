@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Versions of registered COM type libraries
+"""
+
 import os
 import sys
 import rdflib
@@ -14,7 +18,7 @@ import lib_com_type_lib
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Versions of registered COM type libraries")
+	cgiEnv = lib_common.CgiEnv()
 	clsidstr = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

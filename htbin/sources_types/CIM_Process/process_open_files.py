@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-List of open files for one process only.
+Files opened by process
 """
 
 import sys
@@ -12,7 +12,7 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Files opened by the process")
+	cgiEnv = lib_common.CgiEnv()
 	top_pid = int( cgiEnv.GetId() )
 
 	grph = rdflib.Graph()

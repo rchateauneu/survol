@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Pefile exports
+"""
+
 # BEWARE: Do NOT rename it as stat.py otherwise strange errors happen,
 # probably a collision of modules names, with the message:
 # "Fatal Python error: Py_Initialize: can't initialize sys standard streams"
@@ -41,7 +45,7 @@ def pefileDecorate( grph, rootNode, pe ):
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Pefile exports")
+	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
 	sys.stderr.write("filNam=%s\n" % filNam )
 

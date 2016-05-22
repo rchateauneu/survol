@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Oracle tables
+"""
+
 import re
 import lib_common
 from lib_properties import pc
@@ -257,7 +261,6 @@ def oracallback(row):
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(
-		"Oracle tables",
 		lib_oracle.logo )
 
 	grph = rdflib.Graph()

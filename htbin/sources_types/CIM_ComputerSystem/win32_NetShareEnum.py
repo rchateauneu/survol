@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Network shares
+"""
+
 import os
 import sys
 import socket
@@ -16,7 +20,7 @@ import win32security
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Enumeration of network shares")
+	cgiEnv = lib_common.CgiEnv()
 	hostname = cgiEnv.GetId()
 
 	nodeHost = lib_common.gUriGen.HostnameUri(hostname)

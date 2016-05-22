@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Files on a SMB share, accessed with smbclient
+"""
+
 #$ smbclient -c "ls" -D "My Music"  //192.168.1.67/SharedDocs ""
 #Domain=[PCVERO] OS=[Windows 5.1] Server=[Windows 2000 LAN Manager]
 #  .                                  DR        0  Sat May 18 22:48:01 2013
@@ -29,7 +33,6 @@ def Main():
 	paramkeyPassword = "Password"
 
 	cgiEnv = lib_common.CgiEnv(
-		"Files on a SMB share, accessed with smbclient",
 		"",
 		{ paramkeyPassword : "" } )
 

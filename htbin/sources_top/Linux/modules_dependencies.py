@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Linux modules dependencies
+"""
+
 import lib_common
 import lib_util
 import sys
@@ -25,7 +29,7 @@ Usable = lib_util.UsableLinux
 #
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Linux modules dependencies")
+	cgiEnv = lib_common.CgiEnv()
 
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("Modules dependencies for Linux only")

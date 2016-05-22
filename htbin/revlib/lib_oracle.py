@@ -77,13 +77,13 @@ def OraUri( entity_type, ora_db, ora_part = "", ora_object = "", ora_schema = ""
 	return lib_util.EntityUri( entity_type, ora_schema + "." + ora_object + "." + ora_part + "@" + ora_db )
 
 class OracleEnv (lib_common.CgiEnv):
-	def __init__( self, title ):
+	def __init__( self ):
 		# Problem of old-style vs new-style class.
 
 		# This used to work I think with Python 3
 		# super( OracleEnv, self ).__init__( title, logo )
 
-		lib_common.CgiEnv.__init__( self, title, logo )
+		lib_common.CgiEnv.__init__( self, logo )
 
 		self.m_oraDatabase = self.m_entity_id_dict["Db"]
 

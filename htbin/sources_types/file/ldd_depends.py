@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Shared library dependencies (Linux)
+"""
+
 import os
 import re
 import sys
@@ -25,7 +29,7 @@ def AddDepends(grph, nodeSharedLib, library):
 	lib_entities.lib_entity_file.AddInfo( grph, libNode, [ library ] )
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Shared library dependencies (Linux)")
+	cgiEnv = lib_common.CgiEnv()
 	fileSharedLib = cgiEnv.GetId()
 
 	if not lib_util.isPlatformLinux:

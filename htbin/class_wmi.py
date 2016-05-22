@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Display all instances of a given WMI class
+"WMI class portal
 """
 
 import sys
@@ -14,7 +14,7 @@ import lib_wmi
 from lib_properties import pc
 
 # This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv("WMI class portal", can_process_remote = True)
+cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 grph = rdflib.Graph()
 

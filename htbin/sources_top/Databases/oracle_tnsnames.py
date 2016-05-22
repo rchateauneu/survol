@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+TNSNAMES file
+"""
+
 import os
 import sys
 import re
@@ -8,9 +12,6 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-
-"""TNSNAMES file"""
-
 
 ###########################################################################################	
 	
@@ -196,7 +197,6 @@ def parse_all(grph, text):
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(
-		"TNSNAMES file",
 		"http://docs.oracle.com/javase/7/docs/webnotes/tsg/TSG-VM/html/graphics/smallOracleLogo.gif")
 
 	EXAMPLE = """\

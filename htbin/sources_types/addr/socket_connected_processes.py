@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Processes connected to a socket
+"""
+
 import re
 import sys
 import socket
@@ -10,7 +14,7 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Processes connected to a socket")
+	cgiEnv = lib_common.CgiEnv()
 	socketNam = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

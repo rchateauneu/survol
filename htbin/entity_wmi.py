@@ -7,7 +7,7 @@
 
 
 """
-Display a WMI entity or instance.
+"WMI instance"
 """
 
 import sys
@@ -25,7 +25,7 @@ except ImportError:
 	lib_common.ErrorMessageHtml("WMI Python library not installed")
 
 paramkeyDisplayNone = "Display none values"
-cgiEnv = lib_common.CgiEnv("WMI instance", can_process_remote=True,
+cgiEnv = lib_common.CgiEnv(can_process_remote=True,
 								parameters = { paramkeyDisplayNone : "0" })
 
 displayNoneValues = cgiEnv.GetParameters( paramkeyDisplayNone ) in ( "1", "Y", "True")

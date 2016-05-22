@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Samba shares
+"""
+
 # smbtree -N -b --debuglevel=0
 # MDKGROUP
 #         \\DUOLNX                        Samba Server 3.0.28a DuoLinux
@@ -61,7 +65,7 @@ def NetBiosLookup(machine):
 	return addr
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Samba shares",lib_smb.icon)
+	cgiEnv = lib_common.CgiEnv(lib_smb.icon)
 
 	# TODO: Should test Linux instead ?
 	if lib_util.isPlatformWindows:

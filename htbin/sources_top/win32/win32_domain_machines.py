@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Windows domain machines
+"""
+
 import os
 import sys
 import socket
@@ -16,7 +20,7 @@ def Main():
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
-	cgiEnv = lib_common.CgiEnv("Windows domain machines")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

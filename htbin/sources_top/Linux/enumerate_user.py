@@ -15,7 +15,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Linux users (psutil)")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

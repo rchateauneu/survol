@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-WBEM servers.
+WBEM portal
 """
 
 import rdflib
@@ -13,7 +13,7 @@ except ImportError:
 from lib_properties import pc
 
 # This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv("WBEM portal")
+cgiEnv = lib_common.CgiEnv()
 
 grph = rdflib.Graph()
 

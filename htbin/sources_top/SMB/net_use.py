@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+NET USE command
+"""
+
 # D:\Projects\Divers\Reverse\PythonStyle\htbin\sources>net use
 # New connections will be remembered.
 # 
@@ -26,7 +30,7 @@ from lib_properties import pc
 import lib_smb
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("NET USE",lib_smb.icon)
+	cgiEnv = lib_common.CgiEnv(lib_smb.icon)
 
 	# TODO: Should test Linux instead ?
 	# TODO: The command "net" exists on Linux !!!!

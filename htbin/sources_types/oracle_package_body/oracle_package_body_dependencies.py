@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Oracle package body dependencies
+"""
+
 import sys
 import lib_common
 from lib_properties import pc
@@ -7,7 +11,7 @@ import lib_oracle
 import rdflib
 
 def Main():
-	cgiEnv = lib_oracle.OracleEnv( "Oracle package body dependencies" )
+	cgiEnv = lib_oracle.OracleEnv()
 
 	oraPackageBody = cgiEnv.m_entity_id_dict["Package"]
 	oraSchema = cgiEnv.m_entity_id_dict["Schema"]

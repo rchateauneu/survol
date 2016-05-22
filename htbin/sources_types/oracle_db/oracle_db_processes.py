@@ -1,3 +1,9 @@
+#!/usr/bin/python
+
+"""
+Oracle database's connected processes
+"""
+
 import sys
 import lib_common
 import socket
@@ -6,7 +12,7 @@ import lib_oracle
 import rdflib
 
 def Main():
-	cgiEnv = lib_oracle.OracleEnv( "Oracle database's connected processes" )
+	cgiEnv = lib_oracle.OracleEnv()
 
 	grph = rdflib.Graph()
 

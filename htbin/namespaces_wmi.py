@@ -13,7 +13,7 @@ import lib_wmi
 
 
 """
-WMI classes.
+WMI namespaces.
 """
 
 # Hard-coded list for the moment because we could not find a way
@@ -38,7 +38,7 @@ hardcodedNamespaces = (
 	"subscription" )
 
 
-cgiEnv = lib_common.CgiEnv("WMI namespaces", can_process_remote = True)
+cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 # See differences and similarities between these.
 # entity_host = cgiEnv.GetHost()

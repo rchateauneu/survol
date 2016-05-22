@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+nm command on executables and shared libraries (Linux), with classes
+"""
+
 import os
 import sys
 import rdflib
@@ -80,7 +84,7 @@ def AddUnknown(grph, nodeSharedLib, symbol):
 # The url must be encoded at this stage.
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("nm command on executables and shared libraries (Linux), with classes")
+	cgiEnv = lib_common.CgiEnv()
 	fileSharedLib = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

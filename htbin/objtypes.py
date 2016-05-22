@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Displays all object types
+Object types
 """
 
 import os
@@ -12,7 +12,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv("Object types")
+cgiEnv = lib_common.CgiEnv()
 
 grph = rdflib.Graph()
 

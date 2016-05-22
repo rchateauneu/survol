@@ -137,7 +137,7 @@ def FunctionProcess(mapToProc,proc):
 	sys.stderr.write( "Leaving maps enumeration\n" )
 			
 def Main():
-	cgiEnv = lib_common.CgiEnv("Memory maps")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

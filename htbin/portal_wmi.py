@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Portal for all WMI related things.
+WMI portal
 """
 
 import rdflib
@@ -10,7 +10,7 @@ import lib_common
 from lib_properties import pc
 
 # This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv("WMI portal")
+cgiEnv = lib_common.CgiEnv()
 
 grph = rdflib.Graph()
 

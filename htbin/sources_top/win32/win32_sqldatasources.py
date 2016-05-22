@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+ODBC Data sources
+"""
+
 import sys
 import rdflib
 import lib_util
@@ -31,7 +35,7 @@ def Main():
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("ODBC Data sources only on Windows platforms")
 
-	cgiEnv = lib_common.CgiEnv("ODBC Data sources")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 	show_odbc_sources(grph)

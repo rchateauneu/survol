@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-# One node containing the current directory of the process.
+"""
+Windows process modules
+"""
 
 import os
 import sys
@@ -19,7 +21,7 @@ kernel = windll.kernel32
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Windows process modules")
+	cgiEnv = lib_common.CgiEnv()
 	pid = int( cgiEnv.GetId() )
 
 	# TODO: These are probably in win32com or a similar module.

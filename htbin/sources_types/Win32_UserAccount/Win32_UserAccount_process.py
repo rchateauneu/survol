@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-"""Processes belonging to a user, and their subprocesses"""
-
+"""
+User processes and subprocesses
+"""
 
 import sys
 import psutil
@@ -15,7 +16,7 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("User processes")
+	cgiEnv = lib_common.CgiEnv()
 	userNameWithHost = cgiEnv.GetId()
 
 	if not lib_util.isPlatformWindows:

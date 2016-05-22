@@ -8,6 +8,9 @@ import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
 
+"""
+System-wide open files
+"""
 
 def PathToNod(path):
 	try:
@@ -17,7 +20,7 @@ def PathToNod(path):
 		Main.dictPathToNod[path] = filNod
 		return filNod
 
-""" Avoids storing files which are accessed by one process only."""
+# Avoids storing files which are accessed by one process only.
 def AddPidFileLink(grph,node_process,path):
 
 	# TODO: Resolve symbolic links. Do not do that if shared memory.
@@ -46,7 +49,7 @@ def Main():
 
 	# TODO: At the moment, only uses false default values for boolean parameters,
 	# TODO: because CGI and the CGI lib do not send empty strings.
-	cgiEnv = lib_common.CgiEnv("System-wide open files",
+	cgiEnv = lib_common.CgiEnv(
 		parameters = { paramkeyShowSharedLib : False,
 					   paramkeyShowFontFiles : False,
 					   paramkeyShowNonShared : False }

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Files in directory
+"""
+
 import os
 import re
 import sys
@@ -65,7 +69,7 @@ def UriDirectoryDirectScript(dirNam):
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Directory")
+	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
 
 	# entity_host = cgiEnv.GetHost()

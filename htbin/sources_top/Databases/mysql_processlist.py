@@ -3,6 +3,7 @@
 """
 mysql sessions
 """
+
 # +------+----------------------+---------------------+----+---------+------+-------+------------------+
 # | Id   | User                 | Host                | db | Command | Time | State | Info             |
 # +------+----------------------+---------------------+----+---------+------+-------+------------------+
@@ -24,7 +25,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("mysql sessions","http://www.mysql.fr/common/logos/powered-by-mysql-88x31.png")
+	cgiEnv = lib_common.CgiEnv("http://www.mysql.fr/common/logos/powered-by-mysql-88x31.png")
 
 	grph = rdflib.Graph()
 

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Samba server shares
+"""
+
 #$ smbclient -L DUOLNX -N
 #Anonymous login successful
 #Domain=[MDKGROUP] OS=[Unix] Server=[Samba 3.0.28a]
@@ -37,7 +41,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Shares of a Samba server")
+	cgiEnv = lib_common.CgiEnv()
 	smbServer = cgiEnv.GetId()
 
 	if lib_util.isPlatformWindows:

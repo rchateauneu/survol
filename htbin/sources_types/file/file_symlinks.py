@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Symbolic link destination (Recursive)
+"""
+
 # List of the symbolic links this file point to.
 # It checks if qny of the intermediate directories of the file path
 # is a symbolic link, and therefore make a recursive walk.
@@ -47,7 +51,7 @@ def DoTheRest( grph, beginning, physical, file_split ):
 ################################################################################
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Symbolic link destination (Recursive)")
+	cgiEnv = lib_common.CgiEnv()
 	file_path = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

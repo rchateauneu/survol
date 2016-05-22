@@ -11,7 +11,7 @@ import lib_common
 import rdflib
 from lib_properties import pc
 
-cgiEnv = lib_common.CgiEnv("WBEM namespaces", can_process_remote = True)
+cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 entity_host = cgiEnv.GetHost()
 
 cimomUrl = cgiEnv.GetHost()

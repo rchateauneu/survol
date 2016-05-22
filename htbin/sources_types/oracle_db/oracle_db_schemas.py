@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Oracle database'schemas
+"""
+
 import re
 import sys
 import lib_common
@@ -8,7 +12,7 @@ import lib_oracle
 import rdflib
 
 def Main():
-	cgiEnv = lib_oracle.OracleEnv( "Oracle database'schemas" )
+	cgiEnv = lib_oracle.OracleEnv()
 	# oraDatabase = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

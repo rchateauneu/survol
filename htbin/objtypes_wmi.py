@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-WMI classes of a given namespace
+WMI object types
 """
 
 import sys
@@ -18,7 +18,7 @@ import lib_wmi
 
 paramkeyMaxDepth = "Maximum depth"
 
-cgiEnv = lib_common.CgiEnv("WMI classes in namespace", can_process_remote = True,
+cgiEnv = lib_common.CgiEnv(can_process_remote = True,
 								parameters = { paramkeyMaxDepth : 4 })
 
 maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))

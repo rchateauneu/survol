@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-WBEM classes of a given namespace
+WBEM classes in namespace
 """
 
 import sys
@@ -14,7 +14,7 @@ from lib_properties import pc
 paramkeyMaxDepth = "Maximum depth"
 
 # TODO: The type should really be an integer.
-cgiEnv = lib_common.CgiEnv("WBEM classes in namespace",
+cgiEnv = lib_common.CgiEnv(
 				can_process_remote = True,
 				parameters = { paramkeyMaxDepth : 2 })
 

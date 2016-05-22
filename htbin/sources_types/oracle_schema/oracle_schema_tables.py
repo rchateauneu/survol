@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Oracle tables
+"""
+
 import re
 import sys
 import lib_common
@@ -8,7 +12,7 @@ import lib_oracle
 import rdflib
 
 def Main():
-	cgiEnv = lib_oracle.OracleEnv( "Oracle tables" )
+	cgiEnv = lib_oracle.OracleEnv()
 
 	# BEWARE: There is an implicit dependency on the structure of Oracle schema URI.
 	# ( oraSchema , oraDatabase ) = cgiEnv.GetId().split('@')

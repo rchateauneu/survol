@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Disk usage
+"""
+
 import os
 import sys
 import time
@@ -10,7 +14,7 @@ from lib_properties import pc
 import rdflib
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Disk usage")
+	cgiEnv = lib_common.CgiEnv()
 	partitionNam = cgiEnv.GetId()
 
 	# partitionNode = lib_util.EntityUri('partition', partitionNam )

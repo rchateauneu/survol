@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+DBus object interfaces
+"""
+
 import os
 import sys
 import rdflib
@@ -12,7 +16,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Interfaces of a DBUS object")
+	cgiEnv = lib_common.CgiEnv()
 	connectionName = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

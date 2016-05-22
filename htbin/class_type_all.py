@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Displays data sources for a class
+Generalised class: Displays data sources for a class
 """
 
 import sys
@@ -18,7 +18,7 @@ import lib_wmi
 from lib_properties import pc
 
 # This can process remote hosts because it calls scripts which can access remote data. I hope.
-cgiEnv = lib_common.CgiEnv("Generalised class", can_process_remote = True)
+cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 # entity_type = cgiEnv.m_entity_type
 ( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-List of accessible DBUSes: System, session etc...
+DBus buses
 """
 
 import rdflib
@@ -29,7 +29,7 @@ from lib_properties import pc
 # Pour le moment on fait comme ca mais on va rajouter les autres processes.
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("DBUS buses")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

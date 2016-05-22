@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Symbols in ELF files
+"""
+
 import os
 import sys
 
@@ -9,15 +13,12 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-
-
-
 # This can be run from the command line like this:
 # QUERY_STRING="SHAREDLIB=/usr/lib/libkdecore.so" htbin/sources/cgi_linux_nm.py
 # The url must be encoded at this stage.
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Parsing ELF files")
+	cgiEnv = lib_common.CgiEnv()
 
 	fileSharedLib = cgiEnv.GetId()
 

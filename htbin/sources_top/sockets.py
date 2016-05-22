@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-RDF document containing all sockets of the hostname
+System-wide sockets
 """
 
 import sys
@@ -17,7 +17,7 @@ def Main():
 
 	# TODO: At the moment, only uses false default values for boolean parameters,
 	# TODO: because CGI and the CGI lib do not send empty strings.
-	cgiEnv = lib_common.CgiEnv("System-wide sockets",
+	cgiEnv = lib_common.CgiEnv(
 		parameters = { paramkeyShowUnconnected : False }
 	)
 

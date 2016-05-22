@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Socket information
+"""
+
 import re
 import sys
 import psutil

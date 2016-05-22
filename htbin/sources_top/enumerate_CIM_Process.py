@@ -12,7 +12,7 @@ Processes tree
 """
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Processes tree")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Processes mapping a file into memory
+"""
+
 import re
 import sys
 import psutil
@@ -10,7 +14,7 @@ from lib_properties import pc
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Processes mapping a file into memory")
+	cgiEnv = lib_common.CgiEnv()
 	fileName = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

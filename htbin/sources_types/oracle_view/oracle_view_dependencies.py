@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Oracle view dependencies
+"""
+
 import re
 import sys
 import lib_common
@@ -8,7 +12,7 @@ import lib_oracle
 import rdflib
 
 def Main():
-	cgiEnv = lib_oracle.OracleEnv( "Oracle view dependencies" )
+	cgiEnv = lib_oracle.OracleEnv()
 
 	oraView = cgiEnv.m_entity_id_dict["View"]
 	oraSchema = cgiEnv.m_entity_id_dict["Schema"]

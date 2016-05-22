@@ -49,7 +49,7 @@ class LookupThread(threading.Thread):
 		# time.sleep(0.01)
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("ARP command - Asynchronous DNS lookup")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+SMB informations returned by NET SHARE
+"""
+
 # Output example:
 #> net share C$
 #Share name        C$
@@ -22,7 +26,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv( "SMB informations returned by NET SHARE")
+	cgiEnv = lib_common.CgiEnv()
 	# Ex: "//LONW00052257.euro.net.intra/D$"
 	smbShr = cgiEnv.GetId()
 

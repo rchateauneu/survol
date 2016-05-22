@@ -316,11 +316,11 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
  	""")
 
 	# Prints the documentation of the main module, if any.
-	try:
-		# Maybe the documentation of the script.
-		stream.write('<tr><td colspan="2">' + StrWithBr( sys.modules['__main__'].__doc__ ) + '</td></tr>')
-	except Exception:
-		pass
+	#try:
+	#	# Maybe the documentation of the script.
+	#	stream.write('<tr><td colspan="2">' + StrWithBr( sys.modules['__main__'].__doc__ ) + '</td></tr>')
+	#except Exception:
+	#	pass
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
 	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotUL("Top") + '</td></tr>')
@@ -1304,9 +1304,9 @@ def MakeDotLayout(dot_layout, collapsed_properties ):
 #
 # This parses the CGI environment variables which define an entity.
 class CgiEnv():
-	def __init__(self, info = "", url_icon = "", parameters = {}, can_process_remote = False, platform_regex = "" ):
+	def __init__(self, url_icon = "", parameters = {}, can_process_remote = False ):
 		# TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
-		sys.stderr.write( "CgiEnv info=%s parameters=%s\n" % ( info, str(parameters) ) )
+		sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
 
 		# TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
 		# TODO: is removed. Workaround: Any CGI variable added after.
@@ -1320,24 +1320,23 @@ class CgiEnv():
 		# Contains the optional arguments, needed by calling scripts.
 		self.m_parameters = parameters
 
-		# TODO: Same here: If this CgiEnv os global, we can store
-		# the page_title which is later read by OutCgiMode.
-		self.m_page_title = info
+		# This is a global and can be fetched differently, if needed.
+		self.m_page_title = sys.modules['__main__'].__doc__
 
 		# If we can talk to a remote host to get the desired values.
 		self.m_can_process_remote = can_process_remote
 
 		# This is used to add information to each Python script,
 		# so it can be nicely displayed.
-		if mode == "info":
-			# TODO: Maybe add some information about the parameters ?
-			# And about the arguments, but not in the "info" element,
-			# because this string might be cached.
-			infoDict = { "info" : info, "url_icon" : url_icon, "can_process_remote" : can_process_remote, "platform_regex" : platform_regex }
-			infoDict.update( parameters )
-			SerialiseScriptInfo( infoDict )
-			# TODO: Cannot work with WSGI.
-			sys.exit(0)
+		#if mode == "info":
+		#	# TODO: Maybe add some information about the parameters ?
+		#	# And about the arguments, but not in the "info" element,
+		#	# because this string might be cached.
+		#	infoDict = { "url_icon" : url_icon, "can_process_remote" : can_process_remote }
+		#	infoDict.update( parameters )
+		#	SerialiseScriptInfo( infoDict )
+		#	# TODO: Cannot work with WSGI.
+		#	sys.exit(0)
 
 		self.m_arguments = cgi.FieldStorage()
 

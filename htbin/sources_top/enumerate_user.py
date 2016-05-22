@@ -12,7 +12,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Users")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

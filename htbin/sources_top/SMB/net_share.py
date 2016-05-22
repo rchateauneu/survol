@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+NET SHARE command
+"""
+
 # D:\Projects\Divers\Reverse\PythonStyle\htbin\sources>net share
 #
 # Share name   Resource                        Remark
@@ -34,7 +38,7 @@ from lib_properties import pc
 import lib_smb
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("NET SHARE",lib_smb.icon)
+	cgiEnv = lib_common.CgiEnv(lib_smb.icon)
 
 	# TODO: Should test Linux instead ?
 	# TODO: The command "net" exists on Linux !!!!

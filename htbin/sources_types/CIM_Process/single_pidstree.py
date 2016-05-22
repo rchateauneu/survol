@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Parent and sub-processes
+"""
+
 import psutil
 import rdflib
 import lib_common
@@ -68,7 +72,7 @@ def tree_parent_process(grph, proc_obj):
 		return
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Parent and sub-processes")
+	cgiEnv = lib_common.CgiEnv()
 	try:
 		root_pid = int(cgiEnv.GetId())
 	except KeyError:

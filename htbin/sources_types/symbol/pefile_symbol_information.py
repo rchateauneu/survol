@@ -57,7 +57,7 @@ def FindPESymbol(filNam,symbol):
 
 def Main():
 
-	cgiEnv = lib_common.CgiEnv("Symbol information (pefile)")
+	cgiEnv = lib_common.CgiEnv()
 
 	# "NtOpenObjectAuditAlarm%40C%3A\windows\system32\ntdll.dll"
 	# Filename is optional.

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Gets partitions on a local or remote Windows machine, using WMI library.
+WMI: Remote machine partitions
 """
 
 import sys
@@ -107,7 +107,7 @@ except ImportError:
 #};
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("WMI: Remote machine partitions", platform_regex = "win", can_process_remote = True)
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 	machineName = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

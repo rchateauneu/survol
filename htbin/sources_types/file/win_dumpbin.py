@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-"""Returns symbols associated to a DLL"""
+"""
+Dumpbin symbols associated to a DLL
+"""
 
 import os
 import subprocess
@@ -42,7 +44,7 @@ def Usable(entity_type,entity_ids_arr):
 	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("dumpbin results")
+	cgiEnv = lib_common.CgiEnv()
 	dll_file = cgiEnv.GetId()
 
 	if not lib_util.isPlatformWindows:

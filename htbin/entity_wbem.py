@@ -5,7 +5,7 @@
 # It cannot harm and will be kept.
 
 """
-Display a WBEM instance.
+WBEM instance
 """
 
 import sys
@@ -20,7 +20,7 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("Pywbem Python library not installed")
 
-cgiEnv = lib_common.CgiEnv("WBEM instance", can_process_remote = True)
+cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 entity_id = cgiEnv.GetId()
 if entity_id == "":

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Remote machine Windows services
+"""
+
 import sys
 import rdflib
 import lib_util
@@ -11,7 +15,7 @@ Usable = lib_util.UsableWindows
 import lib_entities.lib_entity_Win32_Service
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Remote machine Windows services")
+	cgiEnv = lib_common.CgiEnv()
 	machineName = cgiEnv.GetId()
 
 	grph = rdflib.Graph()

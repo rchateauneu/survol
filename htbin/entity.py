@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-It receives as CGI arguments, the entity type and its id. Some examples: process/pid, file/path, etc...
+RDF data sources
 """
 
 import os
@@ -21,7 +21,7 @@ import lib_entities.lib_entity_CIM_ComputerSystem as lib_entity_CIM_ComputerSyst
 paramkeyShowAll = "Show all scripts"
 
 # This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv("RDF data sources",
+cgiEnv = lib_common.CgiEnv(
 				can_process_remote = True,
 				parameters = { paramkeyShowAll : False })
 entity_id = cgiEnv.m_entity_id

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+CDB-extracted information from Windows binary
+"""
+
 import os
 import re
 import sys
@@ -44,7 +48,7 @@ Usable = lib_util.UsableWindows
 # 0:160>
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Extract information from a Windows binary with CDB")
+	cgiEnv = lib_common.CgiEnv()
 	try:
 		the_pid = int(cgiEnv.GetId())
 	except Exception:

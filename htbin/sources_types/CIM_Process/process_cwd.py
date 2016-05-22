@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-# One node containing the current directory of the process.
-
-#!/usr/bin/python
+"""
+Current working directory
+"""
 
 import sys
 import psutil
@@ -12,7 +12,7 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Current working directory")
+	cgiEnv = lib_common.CgiEnv()
 	try:
 		top_pid = int( cgiEnv.GetId() )
 	except Exception:

@@ -18,7 +18,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("ARP command for Linux")
+	cgiEnv = lib_common.CgiEnv()
 
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("Linux only")

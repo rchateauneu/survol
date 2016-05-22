@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Mounted disks
+"""
+
 import sys
 import socket
 import rdflib
@@ -10,7 +14,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Mounted disks")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

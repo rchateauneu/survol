@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Windows users
+"""
+
 import sys
 import socket
 import rdflib
@@ -10,7 +14,7 @@ from lib_properties import pc
 # Meme chose que enumerate.user.py mais ca permettra plus facilement de s'affranchir de psutil.
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Windows users")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

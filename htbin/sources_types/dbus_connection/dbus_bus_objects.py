@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+DBus conneciton objects
+"""
+
 import os
 import sys
 import rdflib
@@ -30,7 +34,7 @@ def RecursiveObjWalk(grph,object_path, rootNode):
 			RecursiveObjWalk( grph, new_path, objNode)
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Objects of a DBUS connection")
+	cgiEnv = lib_common.CgiEnv()
 
 	entity_type = "dbus_connection"
 	# entity_id = cgiEnv.m_entity_id

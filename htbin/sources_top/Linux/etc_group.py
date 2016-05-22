@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Groups on a Linux platform
+"""
+
 import sys
 import rdflib
 import lib_util
@@ -9,7 +13,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Groups on a Linux platform")
+	cgiEnv = lib_common.CgiEnv()
 
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("/etc/group for Linux only")

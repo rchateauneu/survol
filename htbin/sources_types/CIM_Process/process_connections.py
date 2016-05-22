@@ -1,12 +1,16 @@
 #!/usr/bin/python
 
+"""
+Socket connections
+"""
+
 import sys
 import rdflib
 import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Socket connections")
+	cgiEnv = lib_common.CgiEnv()
 	pid = int( cgiEnv.GetId() )
 
 	grph = rdflib.Graph()

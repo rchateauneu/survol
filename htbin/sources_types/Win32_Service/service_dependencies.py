@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-"""Dependencies between Windows services"""
+"""
+Windows services
+"""
 
 import os
 import sys
@@ -23,7 +25,7 @@ def TimeStamp():
 	return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') + ":"
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Windows service", platform_regex = "win", can_process_remote = True)
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 	serviceName = cgiEnv.GetId()
 	serviceHost = cgiEnv.GetHost()
 	grph = rdflib.Graph()

@@ -8,6 +8,9 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+"""
+NMap ping scan
+"""
 
 # socket.gethostbyname(lib_util.currentHostname) Renvoie "127.0.0.1"
 
@@ -34,10 +37,6 @@ from lib_properties import pc
 #
 
 
-
-
-
-
 # Calculates a mask, similar to "192.168.1.0/24"
 #hostAddr = socket.gethostbyname(lib_util.currentHostname)
 #hostSplit = hostAddr.split('.')
@@ -50,7 +49,6 @@ def Main():
 	paramkeyPortsRange = "Ports Range"
 
 	cgiEnv = lib_common.CgiEnv(
-			"Nmap ping scan",
 			"http://nmap.org/images/nmap-logo-64px.png"
 			)
 
