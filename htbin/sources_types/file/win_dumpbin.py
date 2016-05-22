@@ -34,7 +34,12 @@ from lib_properties import pc
 #   Pas forcement, c est une abstraction. 
 #   En revanche, permettre d instrumenter la combinaison : symbole+fichier.
 
-Usable = lib_util.UsableWindows
+def Usable(entity_type,entity_ids_arr):
+	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
+		return False
+	fulFileName = entity_ids_arr[0]
+	filename, file_extension = os.path.splitext(fulFileName)
+	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
 
 def Main():
 	cgiEnv = lib_common.CgiEnv("dumpbin results")

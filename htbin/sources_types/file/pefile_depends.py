@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Dependency Walker builds a dependency tree diagram of a Windows module (exe, dll, ocx, sys...)
+Windows module dependencies (exe, dll, ocx, sys...) with pefile
 """
 
 import os

@@ -518,11 +518,11 @@ def ObjectTypes():
 isPlatformLinux = 'linux' in sys.platform
 isPlatformWindows = 'win' in sys.platform
 
-def UsableLinux():
+def UsableLinux(entity_type,entity_ids_arr):
 	"""Runs on Linux only"""
 	return isPlatformLinux
 
-def UsableWindows():
+def UsableWindows(entity_type,entity_ids_arr):
 	"""Runs on Windows only"""
 	return isPlatformWindows
 

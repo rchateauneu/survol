@@ -9,6 +9,8 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+Usable = lib_util.UsableWindows
+
 def Main():
 	cgiEnv = lib_common.CgiEnv("Windows network device")
 

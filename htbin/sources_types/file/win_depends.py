@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Dependency Walker builds a dependency tree diagram of a Windows module (exe, dll, ocx, sys...)
+Windows module dependencies (exe, dll, ocx, sys...) with Dependency Walker
 """
 
 import os
@@ -14,7 +14,12 @@ import lib_win32
 import lib_common
 from lib_properties import pc
 
-Usable = lib_util.UsableWindows
+def Usable(entity_type,entity_ids_arr):
+	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
+		return False
+	fulFileName = entity_ids_arr[0]
+	filename, file_extension = os.path.splitext(fulFileName)
+	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
 
 # Returns symbols associated to a DLL or an EXE file.
 

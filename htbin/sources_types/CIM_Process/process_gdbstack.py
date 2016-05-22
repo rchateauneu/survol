@@ -4,10 +4,13 @@ import re
 import sys
 import subprocess
 import rdflib
+import lib_util
 import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 import lib_entities.lib_entity_symbol as lib_entity_symbol
 from lib_properties import pc
+
+Usable = lib_util.UsableLinux
 
 # Runs a gdb command and returns the output with some cleanup.
 def RunGdbCommand(the_pid,command):

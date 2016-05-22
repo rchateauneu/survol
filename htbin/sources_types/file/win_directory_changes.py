@@ -15,8 +15,11 @@ from lib_properties import pc
 import win32file
 import win32con
 
-Usable = lib_util.UsableWindows
-
+def Usable(entity_type,entity_ids_arr):
+	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
+		return False
+	dirNam = entity_ids_arr[0]
+	return os.path.isdir(dirNam)
 
 # Ca marche.
 # Probleme: En avoir un seul pour tout un disque, ou bien plusieurs ?

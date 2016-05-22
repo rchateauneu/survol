@@ -12,6 +12,8 @@ import lib_entities.lib_entity_CIM_Process
 import lib_entities.lib_entity_symbol
 from lib_properties import pc
 
+Usable = lib_util.UsableWindows
+
 
 # 76530000 76640000   kernel32   (export symbols)       C:\Windows\syswow64\kernel32.dll
 # 76640000 7670c000   MSCTF      (deferred)

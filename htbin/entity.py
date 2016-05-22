@@ -46,7 +46,6 @@ if not is_host_remote:
 
 # Each entity type ("process","file" etc... ) can have a small library
 # of its own, for displaying a rdf node of this type.
-# Beware that it is a bit unsafe.
 entity_module = None
 if entity_type != "":
 	sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
@@ -93,10 +92,7 @@ def IsTempFile(fil):
 
 # TODO: CharTypesComposer
 # Actuellement on parcourt toute l'arborescence et on affiche tous les scripts
-# a partir d un directory.
-# Deux changements:
-# - Ne pas afficher certains scripts en fonction de Linux/Windows.
-# - Ne pas descendre dans les sous-directories s'il y a un sous-type.
+# a partir d un directory. Ne pas descendre dans les sous-directories s'il y a un sous-type.
 # Mais le faire quand meme si le decoupage est plutot un namespace.
 # Comment a la fois utiliser des sous-directories comme types derives
 # et comme namespaces ?
@@ -137,7 +133,7 @@ def IsTempFile(fil):
 # linux/sources_types/user
 # windows_com/enumerate.Win32_Process
 # Avantage: On deplace un namespace en copiant uniquement un directory.
-# Et meme pourquoi ne pas reprendre a tout prix la syntaxe des sous-classes de WMI et WBEM ?
+# Et meme pourquoi ne pas reutiliser la syntaxe des sous-classes de WMI et WBEM ?
 
 
 
@@ -205,7 +201,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		# Show only scripts which want to be shown.
 		if not flagShowAll:
 			try:
-				isUsable = importedMod.Usable()
+				isUsable = importedMod.Usable(entity_type,entity_ids_arr)
 				if not isUsable:
 					continue
 			except AttributeError:
@@ -230,10 +226,12 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 		try:
 			docModu = importedMod.__doc__
-			if len(docModu) > 20:
-				docModu = docModu[0:20] + "..."
+			maxLen = 30
+			if len(docModu) > maxLen:
+				docModu = docModu[0:maxLen] + "..."
 		except:
-			docModu = fil[:-3].replace("_"," ")
+			# If no doc available, just transform the file name.
+			docModu = fil[:-3].replace("_"," ").capitalize()
 		grph.add( ( rdfNode, pc.property_information, rdflib.Literal(docModu) ) )
 
 		# Adds an optional image URL. TODO: Do something with it.
@@ -289,13 +287,15 @@ def AddDefaultScripts(grph,rootNode):
 ################################################################################
 
 if entity_id == "" and entity_type != "":
-	# There is no entity to display.
-	# TODO: Display a help text, or something.
+	# There is no entity to display, but a type is given.
+	# TODO: Display help about this entity type.
 	pass
 else:
 	if entity_module != None:
 		entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 		entity_module.AddInfo( grph, rootNode, entity_ids_arr )
+	else:
+		entity_ids_arr = None
 
 	encodedEntityId=lib_util.EncodeUri(entity_id)
 

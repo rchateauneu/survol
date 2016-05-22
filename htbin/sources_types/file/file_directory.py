@@ -10,6 +10,13 @@ import lib_entities.lib_entity_file
 import lib_util
 from lib_properties import pc
 
+# If this is not a directory, should not be displayed.
+def Usable(entity_type,entity_ids_arr):
+	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
+		return False
+	dirNam = entity_ids_arr[0]
+	return os.path.isdir(dirNam)
+
 # This can work only if the HTTP server allows so.
 # Purely experimental.
 # Apache option:
