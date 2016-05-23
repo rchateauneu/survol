@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-"WMI class portal
+WMI class portal
 """
 
 import sys
