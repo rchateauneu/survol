@@ -17,20 +17,32 @@ def EncodeEntityId(entity_type,entity_id):
 
 ################################################################################
 
-# Must find a way to hard-decode this.
 def HttpPrefix():
 
 	# Default values for ease of testing, so CGI scripts can be run as is from command line..
 	try:
-		remote_addr = os.environ['SERVER_NAME']
+		server_addr = os.environ['SERVER_NAME']
+
+		# This is an attempt to fix a problem when running cgiserver.py:
+		# * The URL is 127.0.0.1:8000/index.htm
+		# * SERVER_NAME="rchateau-hp"
+		# * REMOTE_HOST="rchateau-hp"
+		# * Pinging rchateau-HP [fe80::3c7a:339:64f0:2161%11]
+		try:
+			remote_host = os.environ['REMOTE_HOST']
+			if server_addr == remote_host:
+				server_addr = "127.0.0.1"
+		except KeyError:
+			pass
+
 	except KeyError:
-		# For testing only.
-		remote_addr = "127.0.0.1"
+		# Local use .
+		server_addr = "127.0.0.1"
 	
 	try:
 		server_port = os.environ['SERVER_PORT']
 	except KeyError:
-		# For testing only.
+		# Should not happen.
 		server_port = "8080"
 
 	# BEWARE: Colons are forbidden in URIs apparently !!!
@@ -38,10 +50,9 @@ def HttpPrefix():
 	# "http://127.0.0.1:80/PythonStyle/htbin/entity.py" ... 
 	# does not look like a valid URI, trying to serialize this will break.
 	# But if we do not add "http:" etc... SVG adds its prefix "127.0.0.1" etc...
-	return 'http://' + remote_addr + ':' + server_port 
+	return 'http://' + server_addr + ':' + server_port
 
 
-# Must find a way to hard-decode this.
 def UriRootHelper():
 	try:
 		# SCRIPT_NAME=/PythonStyle/htbin/internals/print.py
