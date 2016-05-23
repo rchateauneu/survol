@@ -187,7 +187,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 			# TODO: IT DOES NOT START FROM "/revlib". DIFFICULTY WITH PYTHONPATH.
 			argFil = "." + fil[:-3]
 			argDir = ( relative_dir + sub_path ).replace("/",".")[1:]
-			sys.stderr.write("argFil=%s argDir=%s\n" % ( argFil, argDir ) )
+			# sys.stderr.write("argFil=%s argDir=%s\n" % ( argFil, argDir ) )
 			importedMod = importlib.import_module(argFil, argDir )
 		except ImportError:
 			exc = sys.exc_info()[1]
