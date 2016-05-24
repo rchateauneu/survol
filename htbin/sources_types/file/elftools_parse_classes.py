@@ -36,12 +36,12 @@ def Main():
 		exc = sys.exc_info()[1]		
 		lib_common.ErrorMessageHtml("Caught:"+str(exc))
 
-        listNotes = readelf.display_notes()
-        for pr in listNotes:
+	listNotes = readelf.display_notes()
+	for pr in listNotes:
 		infoMsg = pr[0] + ":" + pr[1]
 		grph.add( ( nodeSharedLib, pc.property_information, rdflib.Literal(infoMsg) ) )
 
-        listSyms, setClasses = readelf.display_symbol_tables()
+	listSyms, setClasses = readelf.display_symbol_tables()
 
 	Main.nodesByClass = dict()
 
