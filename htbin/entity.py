@@ -188,7 +188,12 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 			argFil = "." + fil[:-3]
 			argDir = ( relative_dir + sub_path ).replace("/",".")[1:]
 			# sys.stderr.write("argFil=%s argDir=%s\n" % ( argFil, argDir ) )
-			importedMod = importlib.import_module(argFil, argDir )
+			if sys.version_info >= (3, ):
+				importedMod = importlib.import_module(argDir + argFil)
+			else:
+				# importlib.import_module("sources_top.Databases.mysql_processlist")
+				importedMod = importlib.import_module(argFil, argDir )
+
 		except ImportError:
 			exc = sys.exc_info()[1]
 			sys.stderr.write("Cannot import=%s. Caught: %s\n" % (script_path, str(exc) ) )
