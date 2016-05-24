@@ -40,9 +40,10 @@ def Main():
 		grph.add( ( filNode, pc.property_symbol_defined, symNode ) )
 
 	( fulNam, lstArgs ) = lib_symbol.SymToArgs(symbol)
-	for arg in lstArgs:
-		argNode = lib_uris.gUriGen.ClassUri( arg, filNam )
-		grph.add( ( symNode, pc.property_argument, argNode ) )
+	if lstArgs:
+		for arg in lstArgs:
+			argNode = lib_uris.gUriGen.ClassUri( arg, filNam )
+			grph.add( ( symNode, pc.property_argument, argNode ) )
 
 	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_argument] )
 
