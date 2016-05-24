@@ -1612,10 +1612,6 @@ class CgiEnv():
 ################################################################################
 
 def ErrorMessageHtml(message):
-	# ffff = open("C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/toto.tmp","w")
-	ffff = open("toto.tmp","w")
-	ffff.write("ERR=%s\n"%str(message))
-	ffff.close()
 	lib_util.InfoMessageHtml(message)
 	sys.exit(0)
 
