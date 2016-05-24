@@ -19,6 +19,7 @@ import lib_util
 import lib_common
 import lib_properties
 from lib_properties import pc
+import mimetypes # In Python standard library.
 
 try:
 	import win32api
@@ -127,6 +128,11 @@ def Main():
 				# Might contain this: "LegalCopyright Copyright \u00a9 2010"
 				val = val.replace("\\","\\\\")
 			grph.add( ( currNode, lib_properties.MakeProp(prp), rdflib.Literal(val) ) )
+
+		mimTy = mimetypes.guess_type(currFilNam)
+		if mimTy:
+			if mimTy[0]:
+				grph.add( ( currNode, lib_properties.MakeProp("Mime type"), rdflib.Literal(str(mimTy)) ) )
 
 		currFilNam = dirPath
 		currNode = dirNode
