@@ -81,10 +81,11 @@ class ElfSym:
 
 	# Returns list of classes passed as arguments.
 	def GetArgsClasses(self):
-		# Maybe this is a singleton, not a method.
 		lstClasses = []
 		if self.m_args:
+			# Maybe this is a singleton, not a method. Or no arguments if this is a "C" symbol.
 			for arg in self.m_args:
+				# Each argument might imply several classes, such as template parameters.
 				lib_symbol.ExtractClassesFromType(lstClasses,arg)
 		return lstClasses
 
