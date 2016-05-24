@@ -1414,27 +1414,13 @@ class CgiEnv():
 		formAction = os.environ['SCRIPT_NAME']
 
 		lib_util.HttpHeader( sys.stdout, "text/html")
-		print("<html>")
-		print("<head></head>")
-		print("<title>Editing parameters</title>")
-	
 		print("""
+		<html>
+		<head></head>
+		<title>Editing parameters</title>
 		<body>
-		On utilise la methode GET pour la forme.
-		ce qui permet de reutiliser l'url et d'en voir tous les arguments.
-		Il y a une taille limite, mais ca nous est egal.<br>
-		PROBLEME: IL FAUT REASSEMBLER ENTITY_TYPE ET ENTITY_ID, EN GENERALISANT, TOUT LE MONIKER, EN XID.
 		""")
 		print('<form name="myform" action="' + formAction + '" method="GET">')
-
-		print("""
-		Mettre les eventuels autres parametres de SCRIPT_NAME en parametres hidden.
-		Ou bien construire dynamiquent un URL qui va etre appele en GET par javascript.
-		Le CgiEnv peut aussi specifier des paremtres eidtables.
-		Il faudrait aussi parser toutes les variables CGI.
-		<br>TODO: NE PAS REEDITER LE MONIKER !!!
-		Ce lien (mode=edit) va apparaitre dans le cartouche.<br><br>
-		""")
 
 		# Names of arguments passed as CGI parameters.
 		argKeys = self.m_arguments.keys()
@@ -1456,7 +1442,6 @@ class CgiEnv():
 
 		# Now the parameters specific to the script, if they are not passed also as CGI params.
 		for param_key in self.m_parameters:
-		#	if not param_key in argKeys:
 			print("<tr>")
 			print('<td>' + param_key + '</td>')
 			param_val = self.GetParameters( param_key )
@@ -1627,6 +1612,10 @@ class CgiEnv():
 ################################################################################
 
 def ErrorMessageHtml(message):
+	# ffff = open("C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/toto.tmp","w")
+	ffff = open("toto.tmp","w")
+	ffff.write("ERR=%s\n"%str(message))
+	ffff.close()
 	lib_util.InfoMessageHtml(message)
 	sys.exit(0)
 
