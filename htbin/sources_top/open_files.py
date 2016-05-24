@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+System-wide open files
+"""
+
 import sys
 import psutil
 import rdflib
@@ -7,10 +11,6 @@ import lib_util
 import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
-
-"""
-System-wide open files
-"""
 
 def PathToNod(path):
 	try:

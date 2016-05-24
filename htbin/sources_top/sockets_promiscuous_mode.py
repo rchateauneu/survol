@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Sockets in promiscuous mode
+"""
+
 # It works also for WindDump.exe, on Windows.
 
 import os

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Windows network device
+"""
+
 import re
 import subprocess
 import sys
@@ -8,10 +12,6 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-
-"""
-Windows network device
-"""
 
 Usable = lib_util.UsableWindows
 

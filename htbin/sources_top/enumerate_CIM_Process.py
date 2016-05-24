@@ -1,15 +1,15 @@
 #!/usr/bin/python
 
+"""
+Processes tree
+"""
+
 import sys
 import psutil
 import rdflib
 import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
-
-"""
-Processes tree
-"""
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()

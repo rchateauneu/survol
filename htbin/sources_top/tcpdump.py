@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+tcpdump and windump
+"""
+
 # It works also for WindDump.exe, on Windows.
 
 import os
