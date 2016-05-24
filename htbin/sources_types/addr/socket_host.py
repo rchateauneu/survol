@@ -38,7 +38,7 @@ def Main():
 		socketTransport = "tcp"
 
 	nodeHost = lib_common.gUriGen.HostnameUri(socketAddr)
-	socketNode = lib_common.gUriGen.AddrUri(socketNam, socketPort )
+	socketNode = lib_common.gUriGen.AddrUri(socketAddr, socketPort )
 
 	grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
 
