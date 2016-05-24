@@ -1321,7 +1321,13 @@ class CgiEnv():
 		self.m_parameters = parameters
 
 		# This is a global and can be fetched differently, if needed.
-		self.m_page_title = sys.modules['__main__'].__doc__
+		try:
+			self.m_page_title = sys.modules['__main__'].__doc__
+			self.m_page_title.strip()
+		except:
+			exc = sys.exc_info()[1]
+			sys.stderr.write("Caught when setting title:"+str(exc))
+			self.m_page_title = "PAGE TITLE NOT SET"
 
 		# If we can talk to a remote host to get the desired values.
 		self.m_can_process_remote = can_process_remote
@@ -1612,6 +1618,9 @@ class CgiEnv():
 		mode = GuessDisplayMode(sys.stderr)
 
 		topUrl = lib_util.TopUrl( self.m_entity_type, self.m_entity_id )
+
+		if self.m_page_title is None:
+			self.m_page_title = "PAGE TITLE SHOULD BE SET"
 
 		OutCgiMode( grph, topUrl, out_dest, mode, self.m_page_title, layoutParams, parameters = self.m_parameters )
 

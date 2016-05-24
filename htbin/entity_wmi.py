@@ -7,7 +7,7 @@
 
 
 """
-"WMI instance"
+WMI instance
 """
 
 import sys

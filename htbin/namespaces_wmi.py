@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+WMI namespaces.
+"""
+
 import sys
 import lib_util
 import lib_common
@@ -10,11 +14,6 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("Python package WMI is not available")
 import lib_wmi
-
-
-"""
-WMI namespaces.
-"""
 
 # Hard-coded list for the moment because we could not find a way
 # to list "root" subnamespaces with wmi. Not a problem for the moment.

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+NMap ping scan
+"""
+
 import sys
 import rdflib
 import subprocess
@@ -7,10 +11,6 @@ import xml.dom.minidom
 import lib_util
 import lib_common
 from lib_properties import pc
-
-"""
-NMap ping scan
-"""
 
 # socket.gethostbyname(lib_util.currentHostname) Renvoie "127.0.0.1"
 
