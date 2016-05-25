@@ -16,6 +16,7 @@ import win32file
 import win32con
 
 def Usable(entity_type,entity_ids_arr):
+	"""Can run on a directory only"""
 	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
 		return False
 	dirNam = entity_ids_arr[0]
