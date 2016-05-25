@@ -58,7 +58,7 @@ def Main():
 
 	# st_dev: device.
 	deviceName = "Device:"+str(info.st_dev)
-	if "linux" in sys.platform:
+	if lib_util.isPlatformLinux:
 		# TODO: How to get the device name on Windows ???
 		for line in file('/proc/mounts'):
 			# lines are device, mountpoint, filesystem, <rest>
