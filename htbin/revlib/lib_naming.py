@@ -55,13 +55,6 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 		# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
 
 	if entity_type == "symbol":
-		# TODO: On voudrait afficher seulement la fonction ou le nom,
-		# mais il faut tronquer hors des delimiteurs.
-		# PROBLEME: Double &kt;&lt !!! 
-		#return entity_id.split("::")[-1]
-		# return entity_id.replace("&amp;","&").replace("&lt;","<")
-		# TODO: Seul le premier argument est affiche, rien apres la virgule.
-		# return entity_id.replace("&amp;","&")
 		try:
 			# Trailing padding.
 			#entity_id = entity_id.replace("*","=")
@@ -69,8 +62,6 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 			resu = base64.urlsafe_b64decode(str(entity_id))
 			# TODO: LE FAIRE AUSSI POUR LES AUTRES SYMBOLES.
 			resu = cgi.escape(resu)
-			#resu = resu.replace("<","X")
-			#resu = resu.replace(">","Y")
 			return resu
 		except TypeError:
 			exc = sys.exc_info()[1]
@@ -120,6 +111,10 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 	if entity_type in [ "oracle_table", "oracle_view", "oracle_package", "oracle_package_body" ]:
 		# The type of some entities can be deduced from their name.
 		return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]
+
+	if entity_type == "sqlite_table":
+		# The type of some entities can be deduced from their name.
+		return entity_ids_arr[1] + "@" + entity_ids_arr[0]
 
 	# General case of a URI created by us and for us.
 	ent_ids_joined = ",".join(entity_ids_arr)

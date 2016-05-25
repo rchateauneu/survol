@@ -360,6 +360,9 @@ class LocalBox:
 	def OracleSynonymUri(self,dbName,schemaName,synonymName):
 		return self.UriMakeFromDict("oracle_synonym", { "Db" : dbName, "Schema" : schemaName, "Synonym" : synonymName } )
 
+	def SqliteTableUri(self,fileName,tableName):
+		return self.UriMakeFromDict("sqlite_table", { "File" : fileName, "Table" : tableName } )
+
 	# This creates a node for a socket, so later it can be merged
 	# with the same socket.
 	# TODO: The URL should do something useful.

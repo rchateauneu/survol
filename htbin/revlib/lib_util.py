@@ -547,13 +547,13 @@ def UsableWindows(entity_type,entity_ids_arr):
 localOntology = {
 	"CIM_ComputerSystem"  : ( ["Name"], ),
 	"CIM_Process"         : ( ["Handle"], ),
-	"Win32_Service"       : ( ["Name"],                      isPlatformWindows ),
-	"Win32_UserAccount"   : ( ["Name"],                      isPlatformWindows ),
+	"Win32_Service"       : ( ["Name"], ),
+	"Win32_UserAccount"   : ( ["Name"], ),
 	"class"               : ( ["Name","File"], ),
-	"dbus_bus"            : ( ["Bus"],                       isPlatformLinux ),
-	"dbus_connection"     : ( ["Bus","Connect"],             isPlatformLinux ),
-	"dbus_object"         : ( ["Bus","Connect","Obj"],       isPlatformLinux ),
-	"dbus_interface"      : ( ["Bus","Connect","Obj","Itf"], isPlatformLinux ),
+	"dbus_bus"            : ( ["Bus"], ),
+	"dbus_connection"     : ( ["Bus","Connect"], ),
+	"dbus_object"         : ( ["Bus","Connect","Obj"], ),
+	"dbus_interface"      : ( ["Bus","Connect","Obj","Itf"], ),
 	"odbc_dsn"            : ( ["Dsn"], ),
 	"odbc_table"          : ( ["Dsn", "Table"], ),
 	"odbc_column"         : ( ["Dsn", "Table", "Column"], ),
@@ -565,6 +565,7 @@ localOntology = {
 	"oracle_synonym"      : ( ["Db","Schema","Synonym"], ),
 	"oracle_table"        : ( ["Db","Schema","Table"], ),
 	"oracle_view"         : ( ["Db","Schema","View"], ),
+	"sqlite_table"        : ( ["File","Table"], ),
 	"symbol"              : ( ["Name","File"], ),
 }
 
