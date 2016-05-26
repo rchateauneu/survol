@@ -181,6 +181,8 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 		url_rdf = genObj.MakeTheNodeFromScript( script_path, entity_type, encodedEntityId )
 
+		errorMsg = None
+
 		#  script_path = "/sources_top/Databases/mysql_processlist"
 		# importlib.import_module( ".lib_entity_" + entity_type, "lib_entities")
 		try:
@@ -193,24 +195,30 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 			else:
 				# importlib.import_module("sources_top.Databases.mysql_processlist")
 				importedMod = importlib.import_module(argFil, argDir )
-
-		except ImportError:
+		except Exception:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("Cannot import=%s. Caught: %s\n" % (script_path, str(exc) ) )
-			continue
-		except NameError:
-			exc = sys.exc_info()[1]
-			sys.stderr.write("Other error: Cannot import=%s. Caught: %s\n" % (script_path, str(exc) ) )
-			continue
+			sys.stderr.write("Cannot import=%s. Caught: %s\n" % (script_path, errorMsg ) )
+			importedMod = None
+			if not flagShowAll:
+				continue
 
-		# Show only scripts which want to be shown.
-		if not flagShowAll:
+		# sys.stderr.write("Module before test:%s\t" %(argFil))
+		if not errorMsg:
+			# Show only scripts which want to be shown.
 			try:
 				isUsable = importedMod.Usable(entity_type,entity_ids_arr)
+				# sys.stderr.write("Module %s : %d\t" %(argFil,isUsable	))
 				if not isUsable:
-					continue
+					errorMsg = importedMod.Usable.__doc__
+					if not errorMsg:
+						errorMsg = importedMod.Usable.__name__
+						if not errorMsg:
+							errorMsg = "No message"
 			except AttributeError:
 				pass
+
+		if not flagShowAll and errorMsg:
+			continue
 
 		# If the entity is on another host, does this work on remote entities ?
 		if is_host_remote:
@@ -234,20 +242,15 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 			maxLen = 30
 			if len(docModu) > maxLen:
 				docModu = docModu[0:maxLen] + "..."
+
 		except:
 			# If no doc available, just transform the file name.
 			docModu = fil[:-3].replace("_"," ").capitalize()
+
 		grph.add( ( rdfNode, pc.property_information, rdflib.Literal(docModu) ) )
 
-		# Adds an optional image URL. TODO: Do something with it.
-		try:
-			urlIcon = importedMod.Icon
-			if urlIcon != "":
-				infoUrl = rdflib.term.URIRef( urlIcon )
-				grph.add( ( rdfNode, pc.property_image, infoUrl ) )
-		except AttributeError:
-			pass
-
+		if errorMsg:
+			grph.add( ( rdfNode, lib_common.MakeProp("Error"), rdflib.Literal(errorMsg) ) )
 
 ################################################################################
 
@@ -296,11 +299,12 @@ if entity_id == "" and entity_type != "":
 	# TODO: Display help about this entity type.
 	pass
 else:
+	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 	if entity_module != None:
-		entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
+		# TODO: Remplacer htbin/lib_entities/lib_entity_CLASS.py par sources_types/CLASS/__init__.py
 		entity_module.AddInfo( grph, rootNode, entity_ids_arr )
 	else:
-		entity_ids_arr = None
+		sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
 
 	encodedEntityId=lib_util.EncodeUri(entity_id)
 
