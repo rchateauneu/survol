@@ -35,6 +35,7 @@ pattDict = {
 	"smbserver"                              : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
 	"smbshr"                                 : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
 	"sqlite_table"                           : ( "none",      "#EEAAAA", "#FFCC66", 0, True ),
+	"sqlite_column"                          : ( "none",      "#11FF11", "#FFCC66", 0, True ),
 	"symbol"                                 : ( "none",      "#99FFCC", "#FFCC66", 0, False ),
 	"user"                                   : ( "octagon",   "#EEAAAA", "#FFCC66", 0, False ),
 	"Win32_Service"                          : ( "component", "#EEAAAA", "#FFCC66", 0, False ),

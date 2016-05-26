@@ -566,6 +566,7 @@ localOntology = {
 	"oracle_table"        : ( ["Db","Schema","Table"], ),
 	"oracle_view"         : ( ["Db","Schema","View"], ),
 	"sqlite_table"        : ( ["File","Table"], ),
+	"sqlite_column"       : ( ["File","Table","Column"], ),
 	"symbol"              : ( ["Name","File"], ),
 }
 

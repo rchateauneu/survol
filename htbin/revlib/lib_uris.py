@@ -363,6 +363,9 @@ class LocalBox:
 	def SqliteTableUri(self,fileName,tableName):
 		return self.UriMakeFromDict("sqlite_table", { "File" : fileName, "Table" : tableName } )
 
+	def SqliteColumnUri(self,fileName,tableName,columnName):
+		return self.UriMakeFromDict("sqlite_column", { "File" : fileName, "Table" : tableName , "Column" : columnName } )
+
 	# This creates a node for a socket, so later it can be merged
 	# with the same socket.
 	# TODO: The URL should do something useful.
