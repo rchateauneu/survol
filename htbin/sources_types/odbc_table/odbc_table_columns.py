@@ -79,7 +79,7 @@ def Main():
 
     except Exception:
         exc = sys.exc_info()[0]
-        lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info()[0] ) ) )
+        lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( exc ) ) )
 
 
     # cgiEnv.OutCgiRdf(grph)
