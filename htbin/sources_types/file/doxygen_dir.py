@@ -332,8 +332,8 @@ MAN_EXTENSION          = .3
 MAN_LINKS              = NO
 GENERATE_XML           = YES
 XML_OUTPUT             = xml
-XML_SCHEMA             =
-XML_DTD                =
+# XML_SCHEMA             =
+# XML_DTD                =
 XML_PROGRAMLISTING     = NO
 GENERATE_DOCBOOK       = NO
 DOCBOOK_OUTPUT         = docbook
@@ -398,7 +398,7 @@ def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT):
 	doxyFILE_PATTERNS = " ".join( "*.%s" % filExt for filExt in fileExtensionsDox )
 
 	# TODO: Create a tmp dir just for this purpose.
-	filCo = myDoxyfile % (doxyOUTPUT_DIRECTORY, doxyINPUT)
+	filCo = myDoxyfile % (doxyOUTPUT_DIRECTORY, doxyINPUT, doxyFILE_PATTERNS)
 
 	tmpDoxyfileObj = lib_common.TmpFile("Doxygen")
 	doxynam = tmpDoxyfileObj.Name
@@ -416,8 +416,8 @@ def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT):
 
 	print(doxygen_command)
 
-	if True:
-		ret = subprocess.call(doxygen_command, stdout=sys.stderr, stderr=sys.stderr, shell=False)
+	ret = subprocess.call(doxygen_command, stdout=sys.stderr, stderr=sys.stderr, shell=False)
+	sys.stderr.write("doxyOUTPUT_DIRECTORY=%s\n" % (doxyOUTPUT_DIRECTORY))
 
 
 
@@ -435,15 +435,16 @@ def Main():
 
 	tmpDirObj = lib_common.TmpFile(prefix=None,suffix=None,subdir="DoxygenXml")
 
-	doxyOUTPUT_DIRECTORY = tmpDirObj.Name # "C:/Windows/Temp/DoxygenXml"
+	doxyOUTPUT_DIRECTORY = tmpDirObj.TmpDirToDel # "C:/Windows/Temp/DoxygenXml"
 
 	RunDoxy(doxyOUTPUT_DIRECTORY, fileParam)
 
-	objectsByLocation = DoTheStuff(doxyOUTPUT_DIRECTORY)
+	doxyResultDir = doxyOUTPUT_DIRECTORY + "/xml"
+	objectsByLocation = DoTheStuff(doxyResultDir)
 	if False:
-		DisplayStuff(doxyOUTPUT_DIRECTORY)
+		DisplayStuff(objectsByLocation)
 
-	CreateObjs(grph,doxyOUTPUT_DIRECTORY)
+	CreateObjs(grph,objectsByLocation)
 
 
 
