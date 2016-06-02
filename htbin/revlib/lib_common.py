@@ -875,41 +875,74 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	stream.write("}\n")
 
 ################################################################################
-def CopyToOutPy3(logfil,svg_out_filnam,out_dest):
-	logfil.write( TimeStamp() + " Output with conversion:%s\n" % svg_out_filnam )
-	logfil.flush()
-	# Windows Python 3.
-	# TODO: AVOID THIS EXPENSIVE CONVERSION !!
-	infil = open(svg_out_filnam,'r',encoding='UTF-8')
+#def CopyToOutPy3(logfil,svg_out_filnam,out_dest):
+#	logfil.write( TimeStamp() + " Output with conversion:%s\n" % svg_out_filnam )
+#	logfil.flush()
+#	# Windows Python 3.
+#	# TODO: AVOID THIS EXPENSIVE CONVERSION !!
+#	infil = open(svg_out_filnam,'r',encoding='UTF-8')
+#
+#	filSz = os.path.getsize(svg_out_filnam)
+#	logfil.write( TimeStamp() + " End of open. filSz=%d\n" % filSz )
+#	logfil.flush()
+#	content = infil.read()
+#	nbOut = out_dest.write( bytes( content, 'UTF-8') )
+#	infil.close()
+#	logfil.write( TimeStamp() + " End of output with conversion: %d chars\n" %nbOut )
+
+def CopyToOutPy3New(logfil,svg_out_filnam,out_dest):
+	# Should be faster but must be tested everywhere.
+	# OK with Python3 and Windows 7.
+	infil = open(svg_out_filnam,'rb')
 
 	filSz = os.path.getsize(svg_out_filnam)
 	logfil.write( TimeStamp() + " End of open. filSz=%d\n" % filSz )
-	logfil.flush()
 	content = infil.read()
-	nbOut = out_dest.write( bytes( content, 'UTF-8') )
+	nbOut = out_dest.write( content, 'UTF-8' )
 	infil.close()
 	logfil.write( TimeStamp() + " End of output with conversion: %d chars\n" %nbOut )
 
-def CopyToOutPyExperimental(logfil,svg_out_filnam,out_dest):
-	time.sleep(10.0)
 
-	logfil.write( TimeStamp() + " Output without conversion EXPERIMENTAL: %s\n" % svg_out_filnam  )
-	logfil.flush()
-	# Linux or Windows Python2.
-	infil = open(svg_out_filnam,'r')
+#def CopyToOutPyExperimental(logfil,svg_out_filnam,out_dest):
+#	time.sleep(10.0)
+#
+#	logfil.write( TimeStamp() + " Output without conversion EXPERIMENTAL: %s\n" % svg_out_filnam  )
+#	logfil.flush()
+#	# Linux or Windows Python2.
+#	infil = open(svg_out_filnam,'r')
+#
+#	filSz = os.path.getsize(svg_out_filnam)
+#	logfil.write( TimeStamp() + " End of codecs open. filSz=%d\n" % filSz )
+#	logfil.flush()
+#
+#	# No idea why but it blocks reading 500kbytes.
+#	logfil.write( TimeStamp() + " After flush. Reading\n" )
+#	strInRead = infil.read()
+#	logfil.write( TimeStamp() + " End of infil read:%d\n" % len(strInRead) )
+#	nbOut = out_dest.write( strInRead )
+#	logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
+#
+#	infil.close()
 
-	filSz = os.path.getsize(svg_out_filnam)
-	logfil.write( TimeStamp() + " End of codecs open. filSz=%d\n" % filSz )
-	logfil.flush()
 
-	# No idea why but it blocks reading 500kbytes.
-	logfil.write( TimeStamp() + " After flush. Reading\n" )
-	strInRead = infil.read()
-	logfil.write( TimeStamp() + " End of infil read:%d\n" % len(strInRead) )
-	nbOut = out_dest.write( strInRead )
-	logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
+# TODO: Test this. https://pypi.python.org/pypi/pysendfile
+#def CopyToOutSendfile(logfil,svg_out_filnam,out_dest):
+#	from sendfile import sendfile
+#	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
+#	logfil.flush()
+#
+#	infil = open(svg_out_filnam,'rb')
+#	filSz = os.path.getsize(svg_out_filnam)
+#
+#	offset = 0
+#
+#	while True:
+#		sent = sendfile(out_dest.fileno(), infil.fileno(), offset, filSz)
+#		if sent == 0:
+#			break  # EOF
+#		offset += sent
 
-	infil.close()
+
 
 def CopyToOutPy2(logfil,svg_out_filnam,out_dest):
 	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
@@ -932,7 +965,7 @@ def CopyToOutPy2(logfil,svg_out_filnam,out_dest):
 
 def CopyToOut(logfil,svg_out_filnam,out_dest):
 	if sys.version_info >= (3,):
-		CopyToOutPy3(logfil,svg_out_filnam,out_dest)
+		CopyToOutPy3New(logfil,svg_out_filnam,out_dest)
 	else:
 		# CopyToOutPyExperimental(logfil,svg_out_filnam,out_dest)
 		# CopyToOutPy3(logfil,svg_out_filnam,out_dest)
