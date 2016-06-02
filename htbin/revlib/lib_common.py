@@ -1632,7 +1632,7 @@ def TryDir(dir):
 		return dir
 	raise Exception("Not a dir:"+dir)
 
-
+# The temp directory as specified by the operating system.
 def TmpDir():
 	try:
 		# Maybe these environment variables are undefined for Apache user.
@@ -1668,18 +1668,52 @@ def TmpDir():
 # This will not change during a process.
 tmpDir = TmpDir()
 		
+# Creates and automatically delete, a file and possibly a dir.
 class TmpFile:
-	def __init__(self,prefix="tmp", suffix="tmp"):
-		self.Name = "%s/%s.%d.%s" % ( tmpDir, prefix, os.getpid(), suffix )
+	def __init__(self,prefix="tmp", suffix="tmp",subdir=None):
+		procPid = os.getpid()
+		currDir = tmpDir
+
+		if subdir:
+			customDir = "/%s.%d" % ( subdir, procPid )
+			currDir += customDir
+			if not os.path.isdir(currDir):
+				os.mkdir(currDir)
+			else:
+				# TODO: Cleanup ??
+				pass
+			self.TmpDirToDel = currDir
+		else:
+			self.TmpDirToDel = None
+
+		if prefix is None or suffix is None:
+			self.Name = None
+			return
+
+		self.Name = "%s/%s.%d.%s" % ( currDir, prefix, procPid, suffix )
 		sys.stderr.write("tmp=%s cwd=%s\n" % ( self.Name, os.getcwd() ) )
 
 	def __del__(self):
 		try:
-			sys.stderr.write("Deleting="+self.Name+"\n")
-			os.remove(self.Name)
+			if self.Name:
+				sys.stderr.write("Deleting="+self.Name+"\n")
+				os.remove(self.Name)
+
+			if self.TmpDirToDel not in [None,"/",""]:
+				sys.stderr.write("About to del %s\n" % self.TmpDirToDel )
+				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
+					for name in files:
+						pass
+						# os.remove(os.path.join(root, name))
+					for name in dirs:
+						pass
+						# os.rmdir(os.path.join(root, name))
+
 		except Exception:
-			ErrorMessageHtml("Cannot delete:"+self.Name)
+			exc = sys.exc_info()[1]
+			ErrorMessageHtml("Caught: %s. TmpDirToDel=%s Name=%s:" % ( str(exc), str(self.TmpDirToDel), str(self.Name) ) )
 		return
+
 
 ################################################################################
 
