@@ -898,7 +898,7 @@ def CopyToOutPy3New(logfil,svg_out_filnam,out_dest):
 	filSz = os.path.getsize(svg_out_filnam)
 	logfil.write( TimeStamp() + " End of open. filSz=%d\n" % filSz )
 	content = infil.read()
-	nbOut = out_dest.write( content, 'UTF-8' )
+	nbOut = out_dest.write( content )
 	infil.close()
 	logfil.write( TimeStamp() + " End of output with conversion: %d chars\n" %nbOut )
 
