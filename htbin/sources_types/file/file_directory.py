@@ -113,7 +113,7 @@ def Main():
 		filNam_slash = filNam + "/"
 		for dir in dirs:
 			fullDirPath = filNam_slash + dir
-			subdirNode = lib_common.gUriGen.DirectoryUri( fullDirPath )
+			subdirNode = lib_common.gUriGen.DirectoryUri( fullDirPath.replace("&","&amp;" ) )
 			grph.add( ( filNode, pc.property_directory, subdirNode ) )
 
 			url_dir_node = UrlDirectory( fullDirPath )
