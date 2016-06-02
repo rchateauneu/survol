@@ -98,7 +98,6 @@ pc.property_wbem_data            = MakeProp("wbem")
 pc.property_wmi_data             = MakeProp("wmi")
 pc.property_csv_data             = MakeProp("csv")
 pc.property_information          = MakeProp("----information") # "----" at the beginning so it comes first. This is a hack !
-pc.property_image                = MakeProp("image")
 pc.property_domain               = MakeProp("domain")
 pc.property_controller           = MakeProp("controller")
 pc.property_service              = MakeProp("service")

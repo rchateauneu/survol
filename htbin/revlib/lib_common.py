@@ -547,7 +547,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				else:
 					# One connection only: We cannot see the other.
 					stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
-			elif prop in [ pc.property_html_data , pc.property_rdf_data_nolist, pc.property_image ]:
+			elif prop in [ pc.property_html_data , pc.property_rdf_data_nolist ]:
 				# TODO: Il suffit de tester si obj est un url de la forme "entity.py" ???
 				# HTML and images urls can be "flattened" because the nodes have no descendants.
 				# Do not create a node for this.
@@ -578,7 +578,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	logfil.flush()
 
 	# Maintenant, on remplace chaque vecteur par un seul gros objet, contenant une table HTML.
-	# TODO: Unfortunately, the prop is lost.
+	# TODO: Unfortunately, the prop is lost, which implies that all children are mixed together.
 	if len( PropsAsLists ) > 0:
 		logfil.write( TimeStamp()+" Rdf2Dot: listed_props_by_subj=%d.\n" % ( len( listed_props_by_subj ) ) )
 		logfil.flush()
@@ -589,7 +589,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				return lst.items()
 			else:
 				return lst.iteritems()
-			# return list( lst.items() )
 
 		# TODO: Avoid creation of temporary list. "for k, v in six.iteritems(d):"
 		for subj, nodLst in LocalIterItems( listed_props_by_subj ):
@@ -621,8 +620,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			for obj in nodLst:
 				# One table per node.
 				rawFieldsKeys.update( fld[0] for fld in fieldsSet[obj] )
-				# for fld in fieldsSet[obj]:
-				#	rawFieldsKeys.add( fld[0] )
 
 			# sys.stderr.write("rawFieldsKeys BEFORE =%s\n" % str(rawFieldsKeys) )
 
@@ -725,10 +722,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						# TODO: NOT FOR THE MOMENT SO IT IS NOT USEFUL.
 						# tmpCell = '<td><table border="0"><tr><td href="%s" align="left" >%s</td></tr></table></td>' % ( val , valTitle )
 
-					elif key == pc.property_image:
-						# TODO: Should do something with images.
-						tmpCell = '<td><img src="%s" scale="true" /></td>' % val
-					elif val.isnumeric(): 
+					elif val.isnumeric():
 						tmpCell = "<td align='right'>%s</td>" % val
 					else:
 						# Wraps the string if too long. Can happen only with a literal.
@@ -761,12 +755,15 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 				# TODO: L'ordre est base sur les chaines mais devrait etre base sur
 				# TODO: ... contenu. Exemple:
-				# "(TUT_UnixProcess) Handle=10" vient avant "(TUT_UnixProcess) Handle=2"
-				# title_uniq devrait etre plutot la liste des proprietes.
+				# TODO: "(TUT_UnixProcess) Handle=10" vient avant "(TUT_UnixProcess) Handle=2"
+				# TODO: title_uniq devrait etre plutot la liste des proprietes.
+				# TODO: By clicking on the coolumn names, we could change the order.
 				dictLines[ title_uniq ] = "".join( columns )
 
 			# Replace the first column by more useful information.
 			header = "<td colspan='2' border='1'>" + DotBold("%d element(s)" % len(nodLst) ) + "</td>"
+
+			# TODO: Replace each column name with a link which sorts the line based on this column.
 			for key in fieldsKeys[1:]:
 				header += "<td border='1'>" + DotBold( qname(key,grph) ) + "</td>"
 			# With an empty key, it comes first after sorting.
@@ -1162,12 +1159,9 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph, out_dest = 
 
 			if isinstance( obj , (rdflib.URIRef, rdflib.BNode)):
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
-				if pred == pc.property_image :
-					WrtAsUtf( out_dest, "<td colspan='2'><img src='" + obj_str + "' alt='Alt image' title='Titre image'></td>")
-				else:
-					WrtAsUtf( out_dest, "<td>" + AntiPredicateUri(str(pred)) + "</td>")
-					url_with_mode = ConcatenateCgi( obj_str, "mode=html" )
-					WrtAsUtf( out_dest, '<td><a href="' + url_with_mode + '">' + obj_title + "</a></td>")
+				WrtAsUtf( out_dest, "<td>" + AntiPredicateUri(str(pred)) + "</td>")
+				url_with_mode = ConcatenateCgi( obj_str, "mode=html" )
+				WrtAsUtf( out_dest, '<td><a href="' + url_with_mode + '">' + obj_title + "</a></td>")
 			else:
 				if pred == pc.property_information :
 					WrtAsUtf( out_dest, '<td colspan="2">' + obj_str + "</td>")

@@ -63,13 +63,6 @@ def AddHtml( grph, filNode, filNam ):
 	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
 	grph.add( ( filNode, pc.property_html_data, rdflib.term.URIRef(url_mime) ) )
 
-	# IMAGES DO NOT WORK YET.
-	# url_icon = "http://127.0.0.1:80/PythonStyle/Icons.16x16/fileicons.chromefans.org/avi.png"
-	# url_icon = "D:/Projects/Divers/Reverse/PythonStyle/Icons.16x16/fileicons.chromefans.org/avi.png"
-	# url_icon = "D:/Projects/Divers/Reverse/PythonStyle/Icons.16x16/fileicons.chromefans.org/grenouille.jpg"
-	# grph.add( ( filNode, pc.property_image, rdflib.term.URIRef(url_icon) ) )
-
-
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
 def AddInfo(grph,node,entity_ids_arr):
