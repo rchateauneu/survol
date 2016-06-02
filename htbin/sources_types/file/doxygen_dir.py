@@ -1,3 +1,7 @@
+"""
+DOxygen parsing
+"""
+
 import os
 import sys
 import six
@@ -42,9 +46,10 @@ def DoTheStuff(outDir):
 
 	for dirName, subdirList, fileList in os.walk(outDir):
 		for fname in fileList:
-
+			sys.stderr.write("fname=%s\n" % fname)
 			xmlPath = dirName + "/" + fname
 			for event, elem in xml.etree.cElementTree.iterparse(xmlPath, events=("start", "end")):
+				sys.stderr.write("elem.tag=%s\n" % elem.tag)
 
 				if event == "start":
 					if elem.tag == "compounddef":
@@ -62,6 +67,8 @@ def DoTheStuff(outDir):
 						memberKind = elem.attrib["kind"]
 						memberStatic = elem.attrib["static"]
 						listTypes = []
+					elif elem.tag == "templateparamlist":
+						memberKind = None
 					elif elem.tag == "name":
 						memberName = elem.text
 					elif elem.tag == "type":
@@ -70,7 +77,9 @@ def DoTheStuff(outDir):
 						# "SafePtr< <ref refid="class_s_t_r_s_index_rule_defaults_1_1_i_data" kindref="compound">STRSIndexRuleDefaults::IData</ref> >"
 						# instead of "SafePtr< STRSIndexRuleDefaults::IData >"
 						# https://docs.python.org/2/library/xml.etree.elementtree.html
-						listTypes.append("".join(elem.itertext()))
+						if memberKind:
+							# Only types list defined in "memberdef"
+							listTypes.append("".join(elem.itertext()))
 
 				elif event == "end":
 					if elem.tag == "memberdef":
@@ -94,41 +103,43 @@ def DoTheStuff(outDir):
 						# break
 	return objectsByLocation
 
-# This is for debugging in command-line mode.
-def DisplayStuff(objectsByLocation):
-	# objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberName] = listTypes
-	for (k1, v1) in six.iteritems(objectsByLocation):
-		print(k1)
-		for (k2, v2) in v1.items():
-			sys.stdout.write("\t")
-			print(k2)
-			for (k3, v3) in v2.items():
-				sys.stdout.write("\t\t")
-				print(k3)
-				for (k4, v4) in v3.items():
-					sys.stdout.write("\t\t\t")
-					print(k4)
-					for (k5, v5) in v4.items():
-						sys.stdout.write("\t\t\t\t")
-						print(k5)
-						sys.stdout.write("\t\t\t\t\t")
-						print(v5)
+def CreateObjs(grph,rootNode,directoryName,objectsByLocation,dispArgs):
+	sys.stderr.write("directoryName=%s num=%d\n"%( directoryName, len(objectsByLocation)))
 
-
-def CreateObjs(grph,objectsByLocation):
 	# objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberName] = listTypes
 	for (locationFile, v1) in six.iteritems(objectsByLocation):
 		for (compounddefKind, v2) in v1.items():
+			sys.stderr.write("compounddefKind=%s\n"%compounddefKind)
 			if compounddefKind in ["struct","class"]:
 				pass
 			for (compoundName, v3) in v2.items():
+				sys.stderr.write("compoundName=%s\n"%compoundName)
+				if compounddefKind == "file":
+					filePath = directoryName + "/" + compoundName
+					nodeFile = lib_common.gUriGen.FileUri( filePath )
+					grph.add( ( rootNode, pc.property_directory, nodeFile ) )
+				else:
+					filePath = ""
+					nodeFile = rootNode
+
 				for (memberKind, v4) in v3.items():
-					if memberKind == "function":
-						pass
-					elif memberKind == "variable":
-						pass
+					sys.stderr.write("memberKind=%s\n"%memberKind)
 					for (memberName, listTypes) in v4.items():
-						pass
+						if memberKind == "function":
+							if( len(listTypes) > 1 ):
+								concatTypes = ",".join(listTypes[1:])
+							else:
+								concatTypes = ""
+							funcName = listTypes[0] + " " + memberName + "(" + concatTypes + ")"
+							nodeFunction = lib_common.gUriGen.SymbolUri( funcName, filePath )
+							if nodeFile:
+								grph.add( ( nodeFile, pc.property_member, nodeFunction ) )
+						elif memberKind == "variable":
+							nodeVariable = lib_common.gUriGen.SymbolUri( memberName, filePath )
+							if nodeFile:
+								grph.add( ( nodeFile, pc.property_member, nodeVariable ) )
+						if dispArgs:
+							pass
 	return
 
 
@@ -414,15 +425,12 @@ def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT):
 
 	doxygen_command = ["doxygen", doxynam]
 
-	print(doxygen_command)
-
 	ret = subprocess.call(doxygen_command, stdout=sys.stderr, stderr=sys.stderr, shell=False)
 	sys.stderr.write("doxyOUTPUT_DIRECTORY=%s\n" % (doxyOUTPUT_DIRECTORY))
 
 
-
 def Main():
-	paramkeyDispArgs = "Display args"
+	paramkeyDispArgs = "Display function arguments"
 
 	cgiEnv = lib_common.CgiEnv(
 		parameters = { paramkeyDispArgs : False })
@@ -441,10 +449,14 @@ def Main():
 
 	doxyResultDir = doxyOUTPUT_DIRECTORY + "/xml"
 	objectsByLocation = DoTheStuff(doxyResultDir)
-	if False:
-		DisplayStuff(objectsByLocation)
 
-	CreateObjs(grph,objectsByLocation)
+	if os.path.isdir(fileParam):
+		directoryName = fileParam
+		rootNode = lib_common.gUriGen.DirectoryUri( directoryName )
+	else:
+		directoryName = os.path.dirname(fileParam)
+		rootNode = lib_common.gUriGen.FileUri( fileParam )
+	CreateObjs(grph,rootNode,directoryName,objectsByLocation,dispArgs)
 
 
 
