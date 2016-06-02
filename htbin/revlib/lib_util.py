@@ -3,6 +3,7 @@ import re
 import sys
 import rdflib
 import socket
+import base64
 
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 try:
@@ -678,3 +679,20 @@ def SplitMonikToWQL(splitMonik,className):
 	sys.stderr.write("Query=%s\n" % aQry )
 	return aQry
 
+def Base64Encode(text):
+	if sys.version_info >= (3,):
+		return base64.urlsafe_b64encode(text.encode('utf-8')).decode('utf-8')
+	else:
+		return base64.urlsafe_b64encode(text)
+
+def Base64Decode(text):
+   try:
+      if sys.version_info >= (3,):
+         resu = base64.urlsafe_b64decode(text.encode('utf-8')).decode('utf-8')
+      else:
+         resu = base64.urlsafe_b64decode(str(text))
+      return resu
+   except Exception:
+      exc = sys.exc_info()[1]
+      sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(text,str(exc)))
+      return text + ":" + str(exc)

@@ -4,7 +4,6 @@ import cgi
 import socket
 import lib_util
 import rdflib
-import base64
 
 ################################################################################
 
@@ -113,6 +112,11 @@ class LocalBox:
 		return ""
 
 	###################################################################################
+
+
+	# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
+
+
 
 	# >>> wmi.WMI().Win32_Process()[0].derivation()
 	# (u'CIM_Process', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
@@ -269,21 +273,13 @@ class LocalBox:
 	# TODO: DOES NOT WORK IF REMOTE SYMBOL.
 	def SymbolUri(self,symbol_name, file = ""):
 		# The URL should never contain the chars "<" or ">".
-		#symbol_name = cgi.escape(symbol_name)
-		#symbol_name = lib_util.EncodeUri(symbol_name)
-		symbol_name = base64.urlsafe_b64encode(symbol_name)#[:-1]
-		# symbol_name = symbol_name.replace("=","*")
-		# sys.stderr.write("symbol_name=%s\n"%symbol_name)
+		symbol_name = lib_util.Base64Encode(symbol_name)
 		return self.UriMakeFromDict("symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(file) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
 	def ClassUri(self,class_name, file = ""):
 		# The URL should never contain the chars "<" or ">".
-		#class_name = cgi.escape(class_name)
-		#class_name = lib_util.EncodeUri(class_name)
-		class_name = base64.urlsafe_b64encode(class_name)#[:-1]
-		# class_name = class_name.replace("=","*")
-		# sys.stderr.write("class_name=%s\n"%class_name)
+		class_name = lib_util.Base64Encode(class_name)
 		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(file) } )
 
 	# This must be a complete path name.

@@ -13,7 +13,6 @@ import lib_uris
 import lib_util
 import lib_win32
 import lib_common
-import base64
 import string
 import lib_pefile
 import lib_symbol
@@ -65,7 +64,7 @@ def Main():
 	# The symbol is already demangled.
 	symbol_encode = cgiEnv.m_entity_id_dict["Name"]
 	# TODO: This should be packaged in lib_symbol.
-	symbol = base64.urlsafe_b64decode(symbol_encode)
+	symbol = lib_util.Base64Decode(symbol_encode)
 	filNam = cgiEnv.m_entity_id_dict["File"]
 
 	sys.stderr.write("symbol=%s filNam=%s\n"% (symbol,filNam) )
@@ -110,6 +109,7 @@ def Main():
 			( fulNam, lstArgs ) = lib_symbol.SymToArgs(symbol)
 			if lstArgs:
 				for arg in lstArgs:
+					# TODO: Order of arguments must not be changed.
 					argNode = lib_uris.gUriGen.ClassUri( arg, filNam )
 					grph.add( ( symNode, pc.property_argument, argNode ) )
 

@@ -6,7 +6,6 @@ import os
 import re
 import lib_patterns
 from lib_entities import lib_entity_CIM_Process
-import base64
 
 try:
 	from urlparse import urlparse
@@ -57,9 +56,7 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 	if entity_type == "symbol":
 		try:
 			# Trailing padding.
-			#entity_id = entity_id.replace("*","=")
-			# Must be bytes, not unicode.
-			resu = base64.urlsafe_b64decode(str(entity_id))
+			resu = lib_util.Base64Decode(entity_id)
 			# TODO: LE FAIRE AUSSI POUR LES AUTRES SYMBOLES.
 			resu = cgi.escape(resu)
 			return resu
@@ -73,9 +70,7 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 		# return entity_id
 		try:
 			# Trailing padding.
-			#entity_id = entity_id.replace("*","=")
-			# Must be bytes, not unicode.
-			resu = base64.urlsafe_b64decode(str(entity_id))
+			resu = lib_util.Base64Decode(entity_id)
 			resu = cgi.escape(resu)
 			return resu
 		except TypeError:
@@ -127,6 +122,9 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 		return ent_ids_joined + " (" + entity_type + ")"
 	else:
 		return ent_ids_joined
+
+	# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
+
 
 # Dans les cas des associations on a pu avoir:
 # entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"

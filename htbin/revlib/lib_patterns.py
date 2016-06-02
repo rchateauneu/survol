@@ -51,6 +51,7 @@ def TypeToPattern(type):
 	try:
 		return pattDict[type]
 	except KeyError:
+		# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
 		return None
 
 def PatternNode(typeFull):

@@ -11,7 +11,6 @@ def find_closing_delimiter(instr,idx,char_open,char_close):
 		elif ch == char_close:
 			bracket_level -= 1
 
-		sys.stderr.write("ch=%s idx=%d bracket_level=%d\n" % ( ch, idx, bracket_level) )
 		if bracket_level == 0:
 			return idx
 		idx += 1
@@ -24,12 +23,10 @@ def top_level_split(instr,delim,bracket_open,bracket_close):
 	parts = []
 	bracket_level = 0
 	current = ""
-	# sys.stdout.write("str=%s delim=%s\n" % ( instr, delim ) )
 	# trick to remove special-case of trailing chars
 	lenInstr = len(instr)
 	idx = 0
 	while idx < lenInstr:
-		# sys.stdout.write("startswith=%d idx=%d cur=%s\n" % ( instr.startswith( delim, idx ), idx, current ))
 		if instr.startswith( delim, idx ) and bracket_level == 0:
 			if current:
 				parts.append(current)
@@ -47,7 +44,6 @@ def top_level_split(instr,delim,bracket_open,bracket_close):
 		parts.append(current)
 	if not parts:
 		parts = [""]
-	# sys.stdout.write("str=%s parts=%s\n" % ( instr, str(parts) ) )
 	return parts
 
 ################################################################################
