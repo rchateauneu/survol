@@ -55,8 +55,6 @@ def UrlDirectory( fullDirPath ):
 		shortpathclean = shortPath.replace("&","&amp;" )
 		dirUrl = "http://127.0.0.1/Maison/" + shortpathclean
 		return rdflib.term.URIRef(dirUrl)
-		#dirNone = lib_common.gUriGen.FileUri( dirUrl )
-		#return dirNone
 	return None
 
 
