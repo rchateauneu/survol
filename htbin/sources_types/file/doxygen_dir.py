@@ -46,10 +46,10 @@ def DoTheStuff(outDir):
 
 	for dirName, subdirList, fileList in os.walk(outDir):
 		for fname in fileList:
-			sys.stderr.write("fname=%s\n" % fname)
+			# sys.stderr.write("fname=%s\n" % fname)
 			xmlPath = dirName + "/" + fname
 			for event, elem in xml.etree.cElementTree.iterparse(xmlPath, events=("start", "end")):
-				sys.stderr.write("elem.tag=%s\n" % elem.tag)
+				# sys.stderr.write("elem.tag=%s\n" % elem.tag)
 
 				if event == "start":
 					if elem.tag == "compounddef":
@@ -103,17 +103,17 @@ def DoTheStuff(outDir):
 						# break
 	return objectsByLocation
 
-def CreateObjs(grph,rootNode,directoryName,objectsByLocation,dispArgs):
-	sys.stderr.write("directoryName=%s num=%d\n"%( directoryName, len(objectsByLocation)))
+def CreateObjs(grph,rootNode,directoryName,objectsByLocation):
+	# sys.stderr.write("directoryName=%s num=%d\n"%( directoryName, len(objectsByLocation)))
 
 	# objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberName] = listTypes
 	for (locationFile, v1) in six.iteritems(objectsByLocation):
 		for (compounddefKind, v2) in v1.items():
-			sys.stderr.write("compounddefKind=%s\n"%compounddefKind)
+			# sys.stderr.write("compounddefKind=%s\n"%compounddefKind)
 			if compounddefKind in ["struct","class"]:
 				pass
 			for (compoundName, v3) in v2.items():
-				sys.stderr.write("compoundName=%s\n"%compoundName)
+				# sys.stderr.write("compoundName=%s\n"%compoundName)
 				if compounddefKind == "file":
 					filePath = directoryName + "/" + compoundName
 					nodeFile = lib_common.gUriGen.FileUri( filePath )
@@ -123,7 +123,7 @@ def CreateObjs(grph,rootNode,directoryName,objectsByLocation,dispArgs):
 					nodeFile = rootNode
 
 				for (memberKind, v4) in v3.items():
-					sys.stderr.write("memberKind=%s\n"%memberKind)
+					# sys.stderr.write("memberKind=%s\n"%memberKind)
 					for (memberName, listTypes) in v4.items():
 						if memberKind == "function":
 							if( len(listTypes) > 1 ):
@@ -138,8 +138,6 @@ def CreateObjs(grph,rootNode,directoryName,objectsByLocation,dispArgs):
 							nodeVariable = lib_common.gUriGen.SymbolUri( memberName, filePath )
 							if nodeFile:
 								grph.add( ( nodeFile, pc.property_member, nodeVariable ) )
-						if dispArgs:
-							pass
 	return
 
 
@@ -232,7 +230,7 @@ WARN_LOGFILE           =
 INPUT                  = %s
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = %s
-RECURSIVE              = NO
+RECURSIVE              = %s
 EXCLUDE                =
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       =
@@ -404,12 +402,12 @@ DOT_CLEANUP            = YES
 """
 
 
-def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT):
+def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
 
 	doxyFILE_PATTERNS = " ".join( "*.%s" % filExt for filExt in fileExtensionsDox )
 
 	# TODO: Create a tmp dir just for this purpose.
-	filCo = myDoxyfile % (doxyOUTPUT_DIRECTORY, doxyINPUT, doxyFILE_PATTERNS)
+	filCo = myDoxyfile % (doxyOUTPUT_DIRECTORY, doxyINPUT, doxyFILE_PATTERNS, doxyRECURSIVE)
 
 	tmpDoxyfileObj = lib_common.TmpFile("Doxygen")
 	doxynam = tmpDoxyfileObj.Name
@@ -430,12 +428,12 @@ def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT):
 
 
 def Main():
-	paramkeyDispArgs = "Display function arguments"
+	paramkeyRecursive = "Recursive exploration"
 
 	cgiEnv = lib_common.CgiEnv(
-		parameters = { paramkeyDispArgs : False })
+		parameters = { paramkeyRecursive : False })
 
-	dispArgs = int(cgiEnv.GetParameters( paramkeyDispArgs ))
+	paramRecursiveExploration = int(cgiEnv.GetParameters( paramkeyRecursive ))
 
 	fileParam = cgiEnv.GetId()
 
@@ -443,9 +441,14 @@ def Main():
 
 	tmpDirObj = lib_common.TmpFile(prefix=None,suffix=None,subdir="DoxygenXml")
 
-	doxyOUTPUT_DIRECTORY = tmpDirObj.TmpDirToDel # "C:/Windows/Temp/DoxygenXml"
+	doxyOUTPUT_DIRECTORY = tmpDirObj.TmpDirToDel
 
-	RunDoxy(doxyOUTPUT_DIRECTORY, fileParam)
+	if paramRecursiveExploration:
+		doxyRECURSIVE = "YES"
+	else:
+		doxyRECURSIVE = "NO"
+
+	RunDoxy(doxyOUTPUT_DIRECTORY, fileParam, doxyRECURSIVE)
 
 	doxyResultDir = doxyOUTPUT_DIRECTORY + "/xml"
 	objectsByLocation = DoTheStuff(doxyResultDir)
@@ -456,7 +459,7 @@ def Main():
 	else:
 		directoryName = os.path.dirname(fileParam)
 		rootNode = lib_common.gUriGen.FileUri( fileParam )
-	CreateObjs(grph,rootNode,directoryName,objectsByLocation,dispArgs)
+	CreateObjs(grph,rootNode,directoryName,objectsByLocation)
 
 
 
