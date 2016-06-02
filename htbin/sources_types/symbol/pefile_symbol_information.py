@@ -18,17 +18,8 @@ import lib_pefile
 import lib_symbol
 from lib_properties import pc
 
-try:
-	import pefile
-except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Cannot import pefile:"+str(exc))
-
-try:
-	import win32api
-except ImportError:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Cannot import win32api:"+str(exc))
+import pefile
+import win32api
 
 def VersionString(filNam):
 	try:
