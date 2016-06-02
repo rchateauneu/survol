@@ -537,6 +537,10 @@ def UsableWindows(entity_type,entity_ids_arr):
 	"""Runs on Windows only"""
 	return isPlatformWindows
 
+def UsableAsynchronousSource(entity_type,entity_ids_arr):
+	"""Asychronous data source"""
+	return False
+
 ################################################################################
 
 

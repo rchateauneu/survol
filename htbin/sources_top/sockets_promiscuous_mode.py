@@ -17,6 +17,8 @@ import lib_common
 from lib_properties import pc
 import lib_webserv
 
+Usable = lib_util.UsableAsynchronousSource
+
 ################################################################################
 
 # This runs in the HTTP server and uses the data from the queue.

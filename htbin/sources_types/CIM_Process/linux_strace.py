@@ -11,7 +11,9 @@ from lib_properties import pc
 
 import lib_webserv
 
-Usable = lib_util.UsableLinux
+def Usable(entity_type,entity_ids_arr):
+	"""Runs on Linux only, in asynchronous mode"""
+	return lib_util.UsableLinux(entity_type,entity_ids_arr) and lib_util.UsableAsynchronousSource(entity_type,entity_ids_arr)
 
 ################################################################################
 

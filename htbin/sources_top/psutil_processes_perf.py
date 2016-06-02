@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
 """
-This scripts displays information about running processes: CPU, memory etc...
-into a RDF document. It can be processed through the
-RDF "integrator" which should calculate averages and extremums of the CPU and memory loads.
+Continuous information about running processes.
 """
 
-import lib_common
+# This scripts displays information about running processes: CPU, memory etc...
+# into a RDF document. It can be processed through the
+# RDF "integrator" which should calculate averages and extremums of the CPU and memory loads.
+
 
 import os
 import re
@@ -14,10 +15,15 @@ import sys
 import time
 import rdflib
 import psutil
+import lib_util
+import lib_common
 from lib_properties import pc
 
 import lib_webserv
 import lib_tabular
+
+Usable = lib_util.UsableAsynchronousSource
+
 
 ################################################################################
 

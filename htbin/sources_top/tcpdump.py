@@ -17,6 +17,8 @@ from lib_properties import pc
 
 import lib_webserv
 
+Usable = lib_util.UsableAsynchronousSource
+
 # TODO: Uses classes instead of functions.
 
 ################################################################################

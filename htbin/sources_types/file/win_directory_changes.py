@@ -16,8 +16,10 @@ import win32file
 import win32con
 
 def Usable(entity_type,entity_ids_arr):
-	"""Can run on a directory only"""
+	"""Can run on a directory only, on Windows, in asynchronous mode"""
 	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
+		return False
+	if not lib_util.UsableAsynchronousSource(entity_type,entity_ids_arr):
 		return False
 	dirNam = entity_ids_arr[0]
 	return os.path.isdir(dirNam)
