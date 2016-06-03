@@ -23,6 +23,8 @@ from lib_properties import pc
 import pefile
 import lib_pefile
 
+Usable = lib_util.UsableWindowsBinary
+
 def pefileDecorate( grph, rootNode, pe ):
 	for fileinfo in pe.FileInfo:
 		if fileinfo.Key == 'StringFileInfo':
@@ -32,14 +34,13 @@ def pefileDecorate( grph, rootNode, pe ):
 					# sys.stderr.write("%s %s\n"% (entry[0], entry[1]) )
 					key = entry[0]
 					val = entry[1]
-					key = key
 					if val is None:
 						val = "None"
 					else:
 						val = val.encode("ascii", errors="replace")
 						# val = val.encode("utf-8", errors="replace")
 					# val = val[:2]
-					sys.stderr.write("%s %s\n"% (key,val) )
+					# sys.stderr.write("%s %s\n"% (key,val) )
 					grph.add( ( rootNode, lib_common.MakeProp(key), rdflib.Literal(val) ) )
 		return
 

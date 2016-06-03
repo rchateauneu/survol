@@ -542,6 +542,16 @@ def UsableAsynchronousSource(entity_type,entity_ids_arr):
 	"""Asychronous data source"""
 	return False
 
+def UsableWindowsBinary(entity_type,entity_ids_arr):
+	if not UsableWindows(entity_type,entity_ids_arr):
+		return False
+	fulFileName = entity_ids_arr[0]
+	if os.path.isdir(fulFileName):
+		return False
+	filename, file_extension = os.path.splitext(fulFileName)
+	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
+	
+	
 ################################################################################
 
 

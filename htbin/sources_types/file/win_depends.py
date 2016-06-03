@@ -14,12 +14,7 @@ import lib_win32
 import lib_common
 from lib_properties import pc
 
-def Usable(entity_type,entity_ids_arr):
-	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
-		return False
-	fulFileName = entity_ids_arr[0]
-	filename, file_extension = os.path.splitext(fulFileName)
-	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
+Usable = lib_util.UsableWindowsBinary
 
 # Returns symbols associated to a DLL or an EXE file.
 

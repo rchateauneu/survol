@@ -14,13 +14,12 @@ import lib_common
 from lib_properties import pc
 
 import pefile
-
 import win32api
+
+Usable = lib_util.UsableWindowsBinary
 
 # BEWARE: The PATH is different for Apache user and the results are less meaningful.
 # TODO: HOW TO PROPERLY SET THE PATH ???
-
-
 
 def VersionString (filNam):
 	try:
