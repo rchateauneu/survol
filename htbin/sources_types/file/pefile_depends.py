@@ -61,10 +61,15 @@ class EnvPeFile:
 
 			try:
 				for entry in pe.DIRECTORY_ENTRY_IMPORT:
+					if sys.version_info >= (3,):
+						entry_dll = entry.dll.encode('utf-8')
+					else:
+						entry_dll = entry.dll
 					# sys.stderr.write("entry.dll=%s\n"%entry.dll)
 					# sys.stderr.write("entry=%s\n"%str(entry.struct))
 					for aDir in self.dirs_norm:
-						dllPath = os.path.join(aDir, entry.dll)
+						# sys.stderr.write("aDir=%s entry_dll=%s\n"%(aDir,entry_dll))
+						dllPath = os.path.join(aDir, entry_dll)
 						if os.path.exists(dllPath):
 							subNode = self.RecursiveDepends( dllPath, maxLevel - 1)
 							self.grph.add( ( rootNode, pc.property_library_depends, subNode ) )
