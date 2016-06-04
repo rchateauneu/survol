@@ -55,11 +55,8 @@ def AddStat( grph, filNode, filNam ):
 # in an embedded HTML table.
 # NON: On stocke les urls vraiment comment des URI.
 def AddHtml( grph, filNode, filNam ):
-	# Get the mime type, maybe with Magic.
-	# Then return a URL with for this mime type.
-	# En fait il faut juste servir le contenu du fichier, peut-etre avec le bon mime-type en effet.
-	# On ne le met pas dans le directory "htbin/sources_types/file" car il ne doit pas etre tout le
-	# temps liste, car il renvoie du html et pds du rdf
+	# Get the mime type, maybe with Magic. Then return a URL with for this mime type.
+	# This is a separated script because it returns HTML data, not RDF.
 	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
 	grph.add( ( filNode, pc.property_html_data, rdflib.term.URIRef(url_mime) ) )
 
