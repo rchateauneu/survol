@@ -63,6 +63,17 @@ def AddHtml( grph, filNode, filNam ):
 	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
 	grph.add( ( filNode, pc.property_html_data, rdflib.term.URIRef(url_mime) ) )
 
+# Display the node of the directory this file is in.
+def AddParentDir( grph, filNode, filNam ):
+	dirPath = os.path.dirname(filNam)
+	if dirPath and dirPath != filNam:
+		dirNode = lib_uris.gUriGen.DirectoryUri(dirPath)
+		# grph.add( ( dirNode, pc.property_directory, filNode ) )
+		# We do not use the property pc.property_directory because it breaks the display.
+		# Also, the direction is inverted so the current file is displayed on the left.
+		grph.add( ( filNode, lib_common.MakeProp("Top directory"), dirNode ) )
+
+
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
 def AddInfo(grph,node,entity_ids_arr):
@@ -72,6 +83,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	AddMagic( grph,node,filNam)
 	AddStat( grph,node,filNam)
 	AddHtml( grph,node,filNam)
+	AddParentDir( grph,node,filNam)
 
 
 
