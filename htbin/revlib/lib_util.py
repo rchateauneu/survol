@@ -445,7 +445,7 @@ def HttpHeader( out_dest, contentType ):
 def CopyFile( mime_type, fileName, outFd ):
 
 	# read and write by chunks, so that it does not use all memory.
-	filDes = open(fileName, 'r')
+	filDes = open(fileName, 'rb')
 
 	HttpHeader( outFd, mime_type )
 
@@ -542,6 +542,7 @@ def UsableAsynchronousSource(entity_type,entity_ids_arr):
 	"""Asychronous data source"""
 	return False
 
+# Tells if a file is executable code or library.
 def UsableWindowsBinary(entity_type,entity_ids_arr):
 	if not UsableWindows(entity_type,entity_ids_arr):
 		return False
@@ -549,6 +550,7 @@ def UsableWindowsBinary(entity_type,entity_ids_arr):
 	if os.path.isdir(fulFileName):
 		return False
 	filename, file_extension = os.path.splitext(fulFileName)
+	# TODO: Must add library type for ELF and PE ?
 	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
 	
 	
