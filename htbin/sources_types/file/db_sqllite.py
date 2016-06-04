@@ -51,6 +51,8 @@ def Main():
 			# Do not print too much information in case there are too many tables.
 			#theCmd = theRow[4]
 			#grph.add( ( tabNod, pc.property_information, rdflib.Literal(theCmd) ) )
+	except sqlite3.DatabaseError:
+		lib_common.ErrorMessageHtml("Sqlite file:%s Caught:%s" % ( dbFilNam, str( sys.exc_info() ) ) )
 	except:
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml("Sqlite file:%s Unexpected error:%s" % ( dbFilNam, str( exc ) ) )
