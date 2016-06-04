@@ -10,6 +10,8 @@ import lib_common
 import lib_util
 from lib_properties import pc
 
+Usable = lib_util.UsableLinux
+
 # bus1 = dbus.bus.BusConnection("tcp:host=192.168.0.1,port=1234")
 # Unix-domain socket are filesystem objects, and therefore they can be identified by a filename,
 # so a valid address would be unix:path=/tmp/.hiddensocket.
