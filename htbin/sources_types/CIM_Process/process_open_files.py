@@ -12,8 +12,17 @@ import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	paramkeyShowSharedLib = "Show shared libraries"
+	paramkeyShowFontFiles = "Show font files"
+
+	cgiEnv = lib_common.CgiEnv(
+		parameters = { paramkeyShowSharedLib : False,
+					   paramkeyShowFontFiles : False }
+	)
 	top_pid = int( cgiEnv.GetId() )
+
+	flagShowSharedLib = bool(cgiEnv.GetParameters( paramkeyShowSharedLib ))
+	flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
 
 	grph = rdflib.Graph()
 
@@ -35,7 +44,7 @@ def Main():
 	for fil in fillist:
 		# TODO: Resolve symbolic links. Do not do that if shared memory.
 		# TODO: AVOIDS THESE TESTS FOR SHARED MEMORY !!!!
-		if lib_common.MeaninglessFile(fil.path,True,True):
+		if lib_common.MeaninglessFile(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
 			continue
 
 		fileNode = lib_common.gUriGen.FileUri( fil.path )
