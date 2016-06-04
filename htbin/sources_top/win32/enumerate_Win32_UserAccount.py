@@ -9,7 +9,12 @@ import socket
 import rdflib
 import psutil
 import lib_common
+import lib_util
 from lib_properties import pc
+
+# Necessary otherwise it is displayed on Linux machines,
+# as it does not import any Windows-specific module.
+Usable = lib_util.UsableWindows
 
 # Meme chose que enumerate.user.py mais ca permettra plus facilement de s'affranchir de psutil.
 
