@@ -44,86 +44,90 @@ def DoTheStuff(outDir):
 
 	objectsByLocation = makehash()
 
+	locationFile = "IMPOSSIBLE_LOCATION"
 	for dirName, subdirList, fileList in os.walk(outDir):
 		for fname in fileList:
-			# sys.stderr.write("fname=%s\n" % fname)
+			#sys.stderr.write("fname=%s\n" % fname)
 			xmlPath = dirName + "/" + fname
-			for event, elem in xml.etree.cElementTree.iterparse(xmlPath, events=("start", "end")):
-				# sys.stderr.write("elem.tag=%s\n" % elem.tag)
+			try:
+				for event, elem in xml.etree.cElementTree.iterparse(xmlPath, events=("start", "end")):
+					# sys.stderr.write("elem.tag=%s\n" % elem.tag)
 
-				if event == "start":
-					if elem.tag == "compounddef":
-						compounddefKind = elem.attrib["kind"]
+					if event == "start":
+						if elem.tag == "compounddef":
+							compounddefKind = elem.attrib["kind"]
+						elif elem.tag == "compoundname":
+							compoundName = elem.text
+						elif elem.tag == "location":
+							locationFile = elem.attrib["file"]
+						elif elem.tag == "sectiondef":
+							sectionKind = elem.attrib["kind"]
+						elif elem.tag == "memberdef":
+							memberKind = elem.attrib["kind"]
+							memberStatic = elem.attrib["static"]
+							listTypes = []
+						elif elem.tag == "templateparamlist":
+							memberKind = None
+						elif elem.tag == "name":
+							memberName = elem.text
+						elif elem.tag == "type":
+							# Can be the return type of the function or one of its arguments, or the variable type.
+							# But this could contain other tags:
+							# "SafePtr< <ref refid="class_s_t_r_s_index_rule_defaults_1_1_i_data" kindref="compound">STRSIndexRuleDefaults::IData</ref> >"
+							# instead of "SafePtr< STRSIndexRuleDefaults::IData >"
+							# https://docs.python.org/2/library/xml.etree.elementtree.html
+							if memberKind:
+								# Only types list defined in "memberdef"
+								listTypes.append("".join(elem.itertext()))
 
-					elif elem.tag == "compoundname":
-						compoundName = elem.text
-
-					elif elem.tag == "location":
-						locationFile = elem.attrib["file"]
-
-					elif elem.tag == "sectiondef":
-						sectionKind = elem.attrib["kind"]
-					elif elem.tag == "memberdef":
-						memberKind = elem.attrib["kind"]
-						memberStatic = elem.attrib["static"]
-						listTypes = []
-					elif elem.tag == "templateparamlist":
-						memberKind = None
-					elif elem.tag == "name":
-						memberName = elem.text
-					elif elem.tag == "type":
-						# Can be the return type of the function or one of its arguments, or the variable type.
-						# But this could contain other tags:
-						# "SafePtr< <ref refid="class_s_t_r_s_index_rule_defaults_1_1_i_data" kindref="compound">STRSIndexRuleDefaults::IData</ref> >"
-						# instead of "SafePtr< STRSIndexRuleDefaults::IData >"
-						# https://docs.python.org/2/library/xml.etree.elementtree.html
-						if memberKind:
-							# Only types list defined in "memberdef"
-							listTypes.append("".join(elem.itertext()))
-
-				elif event == "end":
-					if elem.tag == "memberdef":
-						if memberKind == "function" and \
-								(memberName[0] == '~' or memberName.startswith(
-									"operator") or memberName == compoundName):
-							# No destructor or operator.
-							# TODO: Maybe constructor, depending on arguments ?
-							pass
-						elif memberKind == "variable" and memberStatic == "no":
-							# Only static members.
-							# TODO: Maybe members whose type is a class ? Points somewhere ?
-							pass
-						elif memberKind in ["typedef", "friend", "enum", "define"]:
-							pass
-						else:
-							objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberName] = listTypes
+					elif event == "end":
+						if elem.tag == "memberdef":
+							if memberKind == "function" and \
+									(memberName[0] == '~' or memberName.startswith(
+										"operator") or memberName == compoundName):
+								# No destructor or operator.
+								# TODO: Maybe constructor, depending on arguments ?
+								pass
+							elif memberKind == "variable" and memberStatic == "no":
+								# Only static members.
+								# TODO: Maybe members whose type is a class ? Points somewhere ?
+								pass
+							elif memberKind in ["typedef", "friend", "enum", "define"]:
+								pass
+							else:
+								objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberName] = listTypes
 						# print(event)
 						# print(elem.tag)
 						# print(elem.tag)
 						# break
+			except Exception:
+				exc = sys.exc_info()[1]
+				sys.stderr.write("Caught:%s\n" % str(exc))
+
 	return objectsByLocation
 
 def CreateObjs(grph,rootNode,directoryName,objectsByLocation):
-	# sys.stderr.write("directoryName=%s num=%d\n"%( directoryName, len(objectsByLocation)))
+	#sys.stderr.write("\n\n\n\directoryName=%s num=%d\n\n"%( directoryName, len(objectsByLocation)))
 
-	# objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberName] = listTypes
 	for (locationFile, v1) in six.iteritems(objectsByLocation):
+		#sys.stderr.write("locationFile=%s\n"%locationFile)
+		nodeFile = lib_common.gUriGen.FileUri( locationFile )
+		grph.add( ( rootNode, pc.property_directory, nodeFile ) )
+
 		for (compounddefKind, v2) in v1.items():
-			# sys.stderr.write("compounddefKind=%s\n"%compounddefKind)
-			if compounddefKind in ["struct","class"]:
-				pass
+			#sys.stderr.write("compounddefKind=%s\n"%compounddefKind)
 			for (compoundName, v3) in v2.items():
-				# sys.stderr.write("compoundName=%s\n"%compoundName)
-				if compounddefKind == "file":
-					filePath = directoryName + "/" + compoundName
-					nodeFile = lib_common.gUriGen.FileUri( filePath )
-					grph.add( ( rootNode, pc.property_directory, nodeFile ) )
-				else:
-					filePath = ""
-					nodeFile = rootNode
+				#sys.stderr.write("compoundName=%s\n"%compoundName)
+				#if compounddefKind == "file":
+				#	filePath = directoryName + "/" + compoundName
+				#	nodeFile = lib_common.gUriGen.FileUri( filePath )
+				#	grph.add( ( rootNode, pc.property_directory, nodeFile ) )
+				#else:
+				#	filePath = locationFile
+				#	nodeFile = lib_common.gUriGen.FileUri( filePath )
 
 				for (memberKind, v4) in v3.items():
-					# sys.stderr.write("memberKind=%s\n"%memberKind)
+					#sys.stderr.write("memberKind=%s\n"%memberKind)
 					for (memberName, listTypes) in v4.items():
 						if memberKind == "function":
 							if( len(listTypes) > 1 ):
@@ -131,11 +135,11 @@ def CreateObjs(grph,rootNode,directoryName,objectsByLocation):
 							else:
 								concatTypes = ""
 							funcName = listTypes[0] + " " + memberName + "(" + concatTypes + ")"
-							nodeFunction = lib_common.gUriGen.SymbolUri( funcName, filePath )
+							nodeFunction = lib_common.gUriGen.SymbolUri( funcName, locationFile )
 							if nodeFile:
 								grph.add( ( nodeFile, pc.property_member, nodeFunction ) )
 						elif memberKind == "variable":
-							nodeVariable = lib_common.gUriGen.SymbolUri( memberName, filePath )
+							nodeVariable = lib_common.gUriGen.SymbolUri( memberName, locationFile )
 							if nodeFile:
 								grph.add( ( nodeFile, pc.property_member, nodeVariable ) )
 	return
@@ -220,7 +224,7 @@ SHOW_NAMESPACES        = YES
 FILE_VERSION_FILTER    =
 LAYOUT_FILE            =
 CITE_BIB_FILES         =
-QUIET                  = NO
+QUIET                  = YES
 WARNINGS               = NO
 WARN_IF_UNDOCUMENTED   = NO
 WARN_IF_DOC_ERROR      = NO
@@ -461,7 +465,7 @@ def Main():
 		rootNode = lib_common.gUriGen.FileUri( fileParam )
 	CreateObjs(grph,rootNode,directoryName,objectsByLocation)
 
-
+	# TODO: THE GENERATED GRAPH SHOULD BE MORE SIMILAR TO DOXYGEN'S.
 
 	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_member ] )
 
