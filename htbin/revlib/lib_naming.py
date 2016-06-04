@@ -187,8 +187,10 @@ scripts_to_titles = {
 	"namespaces_wbem.py": "WBEM namespaces ",
 	"namespaces_wmi.py": "WMI namespaces ",
 	"entity.py":"",
+	"entity_list.py":"Display as list (Deprecated)",
 	"entity_wbem.py":"WBEM object",
-	"entity_wmi.py":"WMI object"
+	"entity_wmi.py":"WMI object",
+	"file_to_mime.py":"Mime display"
 }
 
 # Extracts the entity type and id from a URI, coming from a RDF document. This is used
@@ -235,6 +237,7 @@ def ParseEntityUri(uri):
 
 		# Extra information depending on the script.
 		filScript = os.path.basename(uprs.path)
+		# TODO: Consider ExternalToTitle, similar logic with different results.
 		try:
 			extra_title = scripts_to_titles[ filScript ]
 			entity_label = extra_title + " " + entity_label
