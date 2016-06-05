@@ -2,7 +2,7 @@
 import socket
 import urllib
 import psutil
-import json
+import subprocess
 
 try:
     import simplejson as json
@@ -245,7 +245,7 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 	# twopi - radial layouts, after Graham Wills 97. Nodes are placed on concentric circles depending their distance from a given root node.
 	# circo - circular layout, after Six and Tollis 99, Kauffman and Wiese 02. This is suitable for certain diagrams of multiple cyclic structures, such as certain telecommunications networks.
 	# This is a style more than a dot layout.
-	sys.stderr.write("Lay=%s\n" % (layout_style) )
+	# sys.stderr.write("Lay=%s\n" % (layout_style) )
 	if layout_style == "LAYOUT_RECT":
 		dot_layout = "dot"
 		# Very long lists: Or very flat tree.
@@ -255,15 +255,6 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 		# Used specifically for file/file_stat.py : The subdirectories
 		# are vertically stacked.
 		dot_layout = "twopi"
-	elif layout_style == "LAYOUT_XXXX":
-		# Used specifically for modules dependencies on Linux,
-		# which have about 5000 nodes. fdp and neato are far too slow,
-		# and the result is not readable.
-		dot_layout = "twopi"
-		# Very long lists: Or very flat tree.
-		# stream.write(" layout=\"dot\"; \n")
-		# stream.write(" splines=\"ortho\"; \n")
-		# stream.write(" rankdir=\"LR\"; \n")
 	elif layout_style == "LAYOUT_SPLINE":
 		# Win32_Services, many interconnections.
 		dot_layout = "fdp"
@@ -298,11 +289,6 @@ def UrlToSvg(url):
 			return url.replace( "&", "&amp;amp;" )
 
 def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream, grph ):
-
-	# TODO: HOW COULD WE EDIT THE PARAMETERS IN THE SVG DOCUMENT ???????
-
-	# TODO: Lettre Info pour topUrl.
-
 	stream.write("""
   rank=sink;
   rankdir=LR
@@ -315,7 +301,6 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
       <tr><td colspan="2">""" + DotBold(page_title) + """</td></tr>
  	""")
 
-	# Prints the documentation of the main module, if any.
 	#try:
 	#	# Maybe the documentation of the script.
 	#	stream.write('<tr><td colspan="2">' + StrWithBr( sys.modules['__main__'].__doc__ ) + '</td></tr>')
@@ -383,6 +368,15 @@ def ExternalToTitle(extUrl):
 	if re.match( ".*/file_directory.py.*", extUrl ):
 		return "Subdir"
 
+	# TODO: Ca vient de FileUriMime()
+	# Voir scripts_to_titles dans lib_naming.py
+	# "http://127.0.0.1:8000/htbin/file_to_mime.py?xid=file.Id=C%3A%2F%2FUsers%2Frchateau%2FMavica%2FConstantin.20120225.JPG"
+	# Que faire pour extraire le type MIME ?
+	# (1) Extraire le nom du fichier et calculer le type ?
+	# (2) Ou utiliser l extension ? Mais ca revient au meme.
+	# (3) Ou bien une solution plus generale est de mettre dans l'URL un texte:
+	#     "http://127.0.0.1:8000/htbin/file_to_mime.py?txt="Tralala"?xid=file.Id ..."
+	#     Ainsi, ParseEntityUri() et ExternalToTitle() n'auront qu'a trafiquer l'URL.
 	if re.match( ".*/file_to_mime.py.*", extUrl ):
 		return "MIME"
 		# "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Icons.16x16\fileicons.chromefans.org\divx.png"
@@ -939,25 +933,31 @@ def CopyToOutPy3New(logfil,svg_out_filnam,out_dest):
 #			break  # EOF
 #		offset += sent
 
+# def CopyToOutPy2(logfil,svg_out_filnam,out_dest):
+# 	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
+# 	logfil.flush()
+# 	# Linux or Windows Python2.
+# 	import codecs
+# 	infil = codecs.open(svg_out_filnam,'r',encoding='utf8')
+# 	filSz = os.path.getsize(svg_out_filnam)
+# 	logfil.write( TimeStamp() + " End of codecs open. filSz=%d\n" % filSz )
+# 	logfil.flush()
+#
+# 	# No idea why but it blocks reading 500kbytes.
+# 	logfil.write( TimeStamp() + " After flush. Reading\n" )
+# 	strInRead = infil.read()
+# 	logfil.write( TimeStamp() + " End of infil read:%d\n" % len(strInRead) )
+# 	nbOut = out_dest.write( strInRead )
+# 	logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
+# 	infil.close()
 
-
-def CopyToOutPy2(logfil,svg_out_filnam,out_dest):
+def CopyToOutPy2New(logfil,svg_out_filnam,out_dest):
 	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
-	logfil.flush()
-	# Linux or Windows Python2.
-	import codecs
-	infil = codecs.open(svg_out_filnam,'r',encoding='utf8')
-	filSz = os.path.getsize(svg_out_filnam)
-	logfil.write( TimeStamp() + " End of codecs open. filSz=%d\n" % filSz )
-	logfil.flush()
-
-	# No idea why but it blocks reading 500kbytes.
-	logfil.write( TimeStamp() + " After flush. Reading\n" )
+	# OK on Windows Python2. Must be tested on Linux.
+	infil = open(svg_out_filnam,'rb')
 	strInRead = infil.read()
-	logfil.write( TimeStamp() + " End of infil read:%d\n" % len(strInRead) )
 	nbOut = out_dest.write( strInRead )
 	logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
-
 	infil.close()
 
 def CopyToOut(logfil,svg_out_filnam,out_dest):
@@ -967,7 +967,7 @@ def CopyToOut(logfil,svg_out_filnam,out_dest):
 		# CopyToOutPyExperimental(logfil,svg_out_filnam,out_dest)
 		# CopyToOutPy3(logfil,svg_out_filnam,out_dest)
 		# Ca bloque sur des gros fichiers avec Python2 et Windows7.
-		CopyToOutPy2(logfil,svg_out_filnam,out_dest)
+		CopyToOutPy2New(logfil,svg_out_filnam,out_dest)
 	logfil.flush()
 
 ################################################################################
@@ -999,10 +999,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest = None, removeHeader = Fa
 	# dot -Kneato
 
 	# Dot/Graphviz no longer changes PATH at installation. It must be done BEFORE.
-	if lib_util.isPlatformWindows:
-		dot_path = 'dot.exe'
-	else:
-		dot_path = "dot"
+	dot_path = "dot"
 
 	if lib_util.isPlatformLinux:
 		# TODO: This is arbitrary because old Graphviz version.
@@ -1011,32 +1008,15 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest = None, removeHeader = Fa
 		dotFonts = []
 
 	# Old versions of dot need the layout on the command line.
+	# This is maybe a bit faster than os.open because no shell and direct write to the output.
+	svg_command = [ dot_path,"-K",viztype,"-Tsvg",dot_filnam_after,"-o",svg_out_filnam, \
+		"-v","-Goverlap=false" ] + dotFonts
+	msg = "svg_command=" + " ".join(svg_command) + "\n"
+	sys.stderr.write(msg)
+	logfil.write(TimeStamp()+" "+msg)
 
-	dotClassical = False
-	if dotClassical:
-		svg_command = dot_path + " -K" + viztype + " -Tsvg " + dot_filnam_after + " -o " + svg_out_filnam \
-			+ ' '.join(dotFonts) + " -v  -Goverlap=false 2>&1"
-
-		logfil.write( "Dot command:%s\n" % svg_command )
-		# http://www.graphviz.org/doc/info/attrs.html#d:fontname
-		svg_stream = os.popen(svg_command)
-
-		logfil.write( TimeStamp()+" Dot command output:\n" )
-		for svg_line in svg_stream:
-			logfil.write( svg_line )
-		logfil.write( "\n" )
-	else:
-		# This is maybe a bit faster than os.open because no shell and direct write to the output.
-		# This works with Python 3.2 on Windows.
-		import subprocess
-		svg_command = [ dot_path,"-K",viztype,"-Tsvg",dot_filnam_after,"-o",svg_out_filnam, \
-			"-v","-Goverlap=false" ] + dotFonts
-		msg = "svg_command=" + " ".join(svg_command) + "\n"
-		sys.stderr.write(msg)
-		logfil.write(TimeStamp()+" "+msg)
-
-		ret = subprocess.call( svg_command, stdout=logfil, stderr=logfil, shell=False )
-		logfil.write(TimeStamp()+" Process ret=%d\n" % ret)
+	ret = subprocess.call( svg_command, stdout=logfil, stderr=logfil, shell=False )
+	logfil.write(TimeStamp()+" Process ret=%d\n" % ret)
 
 	if not os.path.isfile( svg_out_filnam ):
 		ErrorMessageHtml("SVG file " + svg_out_filnam + " could not be created." )
@@ -1051,10 +1031,8 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest = None, removeHeader = Fa
 	# The test on stdout comes at the end because it does not work on old Python versions.
 	if lib_util.isPlatformWindows and sys.version_info >= (3,4,) and out_dest != sys.stdout.buffer :
 		logfil.write( TimeStamp() + " SVG Header removed\n" )
-		logfil.flush()
 	else:
 		logfil.write( TimeStamp() + " Writing SVG header\n" )
-		logfil.flush()
 		lib_util.HttpHeader( out_dest, "image/svg+xml" )
 
 	# Here, we are sure that the output file is closed.

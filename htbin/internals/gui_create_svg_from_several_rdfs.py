@@ -52,7 +52,7 @@ try:
 	viztype = arguments["viztype"].value
 except KeyError:
 	viztype = ""
-	# "LAYOUT_RECT", "LAYOUT_TWOPI", "LAYOUT_XXXX", "LAYOUT_SPLINE":
+	# "LAYOUT_RECT", "LAYOUT_TWOPI", "LAYOUT_SPLINE":
 logfil.write( "viztype=" + viztype + "\n" )
 
 try:
