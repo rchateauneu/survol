@@ -46,7 +46,8 @@ def Usable(entity_type,entity_ids_arr):
 # Icones de Apache: http://127.0.0.1/icons/folder.gif
 # http://127.0.0.1/icons/sound2.gif
 #
-# TODO: THIS IS BROKEN. DOES NOT MAKE SENSE !
+# TODO: This is hard-coded, and should be replaced by a Python CGI server
+# serving this directory.
 def UrlDirectory( fullDirPath ):
 	# sys.stderr.write("UrlDirectory fullDirPath=%s\n" % fullDirPath)
 	dirPrefix = "C://Users/rchateau"
