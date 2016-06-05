@@ -266,7 +266,7 @@ def Main():
 
 		tnsnam = oraHome + "\\network\\ADMIN\\tnsnames.ora"
 
-	elif lib_util.isPlatformUnix:
+	elif lib_util.isPlatformLinux:
 		tnsnam = ""
 
 	else:
