@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-DBus conneciton objects
+DBus connection objects
 """
 
 import os
