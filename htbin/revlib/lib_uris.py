@@ -327,40 +327,40 @@ class LocalBox:
 		return self.UriMakeFromScript('/file_to_mime.py', "file", lib_util.EncodeUri(filNam) )
 
 	def OracleDbUri(self,dbName):
-		return self.UriMakeFromDict("oracle_db", { "Db" : dbName } )
+		return self.UriMakeFromDict("oracle/db", { "Db" : dbName } )
 
 	def OracleSessionUri(self,dbName,sessionId):
-		return self.UriMakeFromDict("oracle_session", { "Db" : dbName, "Session" : sessionId } )
+		return self.UriMakeFromDict("oracle/session", { "Db" : dbName, "Session" : sessionId } )
 
 	# Beware of the possible confusion with normal users.
 	def OracleSchemaUri(self,dbName,schemaName):
-		return self.UriMakeFromDict("oracle_schema", { "Db" : dbName, "Schema" : schemaName } )
+		return self.UriMakeFromDict("oracle/schema", { "Db" : dbName, "Schema" : schemaName } )
 
 	# Beware of the possible confusion with normal users.
 	def OracleTableUri(self,dbName,schemaName,tableName):
-		return self.UriMakeFromDict("oracle_table", { "Db" : dbName, "Schema" : schemaName, "Table" : tableName } )
+		return self.UriMakeFromDict("oracle/table", { "Db" : dbName, "Schema" : schemaName, "Table" : tableName } )
 
 	# Ambiguity with tables, oracle or normal users.
 	def OracleViewUri(self,dbName,schemaName,viewName):
-		return self.UriMakeFromDict("oracle_view", { "Db" : dbName, "Schema" : schemaName, "View" : viewName } )
+		return self.UriMakeFromDict("oracle/view", { "Db" : dbName, "Schema" : schemaName, "View" : viewName } )
 
 	# Ambiguity with tables, oracle or normal users.
 	def OraclePackageUri(self,dbName,schemaName,packageName):
-		return self.UriMakeFromDict("oracle_package", { "Db" : dbName, "Schema" : schemaName, "Package" : packageName } )
+		return self.UriMakeFromDict("oracle/package", { "Db" : dbName, "Schema" : schemaName, "Package" : packageName } )
 
 	# Ambiguity with tables, oracle or normal users.
 	def OraclePackageBodyUri(self,dbName,schemaName,packageBodyName):
-		return self.UriMakeFromDict("oracle_package_body", { "Db" : dbName, "Schema" : schemaName, "Package" : packageBodyName } )
+		return self.UriMakeFromDict("oracle/package_body", { "Db" : dbName, "Schema" : schemaName, "Package" : packageBodyName } )
 
 	# Ambiguity with tables, oracle or normal users.
 	def OracleSynonymUri(self,dbName,schemaName,synonymName):
-		return self.UriMakeFromDict("oracle_synonym", { "Db" : dbName, "Schema" : schemaName, "Synonym" : synonymName } )
+		return self.UriMakeFromDict("oracle/synonym", { "Db" : dbName, "Schema" : schemaName, "Synonym" : synonymName } )
 
 	def SqliteTableUri(self,fileName,tableName):
-		return self.UriMakeFromDict("sqlite_table", { "File" : fileName, "Table" : tableName } )
+		return self.UriMakeFromDict("sqlite/table", { "File" : fileName, "Table" : tableName } )
 
 	def SqliteColumnUri(self,fileName,tableName,columnName):
-		return self.UriMakeFromDict("sqlite_column", { "File" : fileName, "Table" : tableName , "Column" : columnName } )
+		return self.UriMakeFromDict("sqlite/column", { "File" : fileName, "Table" : tableName , "Column" : columnName } )
 
 	# This creates a node for a socket, so later it can be merged
 	# with the same socket.
@@ -436,26 +436,26 @@ class LocalBox:
 		return self.UriMake("group",groupname)
 
 	def OdbcDsnUri(self,dsnName):
-		return self.UriMakeFromDict("odbc_dsn", { "Dsn" : lib_util.EncodeUri(dsnName) })
+		return self.UriMakeFromDict("odbc/dsn", { "Dsn" : lib_util.EncodeUri(dsnName) })
 
 	# TODO: Depending on the database type, this should vary.
 	def OdbcTableUri(self,dsnName,tableNam):
-		return self.UriMakeFromDict("odbc_table", { "Dsn" : lib_util.EncodeUri(dsnName), "Table" : tableNam })
+		return self.UriMakeFromDict("odbc/table", { "Dsn" : lib_util.EncodeUri(dsnName), "Table" : tableNam })
 
 	def OdbcColumnUri(self,dsnName,tableNam, columnNam):
-		return self.UriMakeFromDict("odbc_column", { "Dsn" : lib_util.EncodeUri(dsnName), "Table" : tableNam, "Column": columnNam })
+		return self.UriMakeFromDict("odbc/column", { "Dsn" : lib_util.EncodeUri(dsnName), "Table" : tableNam, "Column": columnNam })
 
 	def OdbcProcedureUri(self,dsnName,procNam):
-		return self.UriMakeFromDict("odbc_procedure", { "Dsn" : lib_util.EncodeUri(dsnName), "Procedure" : procNam })
+		return self.UriMakeFromDict("odbc/procedure", { "Dsn" : lib_util.EncodeUri(dsnName), "Procedure" : procNam })
 
 	# TODO: At the moment, keys have this structure: {CE4AACFA-3CFD-4028-B2D9-F272314F07C8}
 	# But we need a string to loop in the registry: win32con.HKEY_CLASSES_ROOT, "TypeLib".
 	# What about the other thnigs in combrowse.py ? "Registered Categories" and "Running Objects" ?
 	def ComRegisteredTypeLibUri(self, keyName ):
-		return self.UriMake("com_registered_type_lib", lib_util.EncodeUri(keyName) )
+		return self.UriMake("com/registered_type_lib", lib_util.EncodeUri(keyName) )
 
 	def ComTypeLibUri(self, fileName ):
-		return self.UriMake("com_type_lib", lib_util.EncodeUri(fileName) )
+		return self.UriMake("com/type_lib", lib_util.EncodeUri(fileName) )
 
 
 gUriGen = LocalBox()

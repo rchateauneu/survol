@@ -19,7 +19,7 @@ Usable = lib_util.UsableLinux
 # http://unix.stackexchange.com/questions/203410/how-to-list-all-object-paths-under-a-dbus-service
 def RecursiveObjWalk(grph,object_path, rootNode):
 	sys.stderr.write("RecursiveObjWalk %s\n" % object_path)
-	objNode = lib_util.EntityUri( "dbus_object", Main.busAddr, Main.connectName, object_path )
+	objNode = lib_util.EntityUri( "dbus/object", Main.busAddr, Main.connectName, object_path )
 	grph.add( (rootNode, Main.localPropDbusPath, objNode ) )
 
 	obj = Main.theBus.get_object(Main.connectName, object_path)
@@ -36,7 +36,7 @@ def RecursiveObjWalk(grph,object_path, rootNode):
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	entity_type = "dbus_connection"
+	entity_type = "dbus/connection"
 	# entity_id = cgiEnv.m_entity_id
 	# entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 	# entity_ids_dict = lib_util.SplitMoniker(entity_id)

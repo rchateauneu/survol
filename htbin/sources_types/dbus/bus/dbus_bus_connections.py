@@ -27,7 +27,7 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("busAddr=%s Caught:%s" % ( busAddr, str(exc) ) )
 
-	nodeBus = lib_util.EntityUri( "dbus_bus", busAddr )
+	nodeBus = lib_util.EntityUri( "dbus/bus", busAddr )
 
 	# This property should maybe stored at the central file.
 	localPropDbusConnect = rdflib.Literal("dbus connect")
@@ -39,7 +39,7 @@ def Main():
 		try:
 			return Main.connectNameToNode[ connectName ]
 		except KeyError:
-			connectNode = lib_util.EntityUri( "dbus_connection", busAddr, connectName )
+			connectNode = lib_util.EntityUri( "dbus/connection", busAddr, connectName )
 			Main.connectNameToNode[ connectName ] = connectNode
 			return connectNode
 

@@ -71,7 +71,7 @@ def Main():
 			# donner une forme generale aux fonctions "*Uri" ? Ou bien definir une fonction
 			# qu'on pourrait aller chercher dans globals() ?
 			# Ou systematiquement definir un module, et on utiliserait getattr(module,fonction) ?
-			sub_entity_type = lib_util.ComposeTypes("com_type_lib_entry", typNam.lower() )
+			sub_entity_type = lib_util.ComposeTypes("com/type_lib_entry", typNam.lower() )
 
 			nameComEntryUri = "%s_(%d)" % ( fname, idx )
 

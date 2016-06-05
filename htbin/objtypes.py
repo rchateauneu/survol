@@ -23,10 +23,14 @@ for entity_type in lib_util.ObjectTypes():
 	if not lib_util.OntologyClassAvailable(entity_type):
 		continue
 
-	# sys.stderr.write( "Type=%s\n" % entity_type )
-	entityNode = lib_util.EntityClassNode(entity_type)
+	splitType = entity_type.split("/")
 
-	grph.add( ( rootNode, lib_common.pc.property_directory, entityNode ) )
+	tmpNode = rootNode
+	for tp in splitType:
+		entityNode = lib_util.EntityClassNode(tp)
+		grph.add( ( tmpNode, lib_common.pc.property_directory, entityNode ) )
+		tmpNode = entityNode
+
 
 cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
 

@@ -246,10 +246,11 @@ def EntHostToIpReally(entity_host):
 def ParseXid(xid ):
 	# sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
 
-	# The type can be subtypes with a specific char: CharTypesComposer:
+	# The type can be in several directories separated by slashes.
 	# If suffixed with "/", it means namespaces.
+
 	# A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
-	mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_,]*)\.(.*)", xid )
+	mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_/]*)\.(.*)", xid )
 	if mtch_entity:
 		if mtch_entity.group(1) == None:
 			entity_host = ""
@@ -419,6 +420,7 @@ def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_host
 
 ################################################################################
 
+# Not really used at the moment.
 CharTypesComposer = ","
 
 # TODO: Find another solution more compatible with WBEM and WMI logic.
@@ -506,12 +508,16 @@ def ObjectTypesNoCache():
 	# directory=C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\htbin\\sources_top/sources_types\r:
 	directory = gblTopScripts + "/sources_types"
 	sys.stderr.write("ObjectTypesNoCache directory="+directory+"\n")
-	for path, dirs, files in os.walk(directory):
-		break
 
-	for dir in dirs:
-		if dir != "__pycache__":
-			yield dir
+	ld = len(directory)
+	for path, dirs, files in os.walk(directory):
+		if len(path) == ld:
+			prefix = ""
+		else:
+			prefix = path[ld +1:].replace("\\","/") + "/"
+		for dir in dirs:
+			if dir != "__pycache__":
+				yield prefix + dir
 
 glbObjectTypes = None
 
@@ -567,23 +573,23 @@ localOntology = {
 	"Win32_Service"       : ( ["Name"], ),
 	"Win32_UserAccount"   : ( ["Name"], ),
 	"class"               : ( ["Name","File"], ),
-	"dbus_bus"            : ( ["Bus"], ),
-	"dbus_connection"     : ( ["Bus","Connect"], ),
-	"dbus_object"         : ( ["Bus","Connect","Obj"], ),
-	"dbus_interface"      : ( ["Bus","Connect","Obj","Itf"], ),
-	"odbc_dsn"            : ( ["Dsn"], ),
-	"odbc_table"          : ( ["Dsn", "Table"], ),
-	"odbc_column"         : ( ["Dsn", "Table", "Column"], ),
-	"oracle_db"           : ( ["Db"], ),
-	"oracle_package"      : ( ["Db","Schema","Package"], ),
-	"oracle_package_body" : ( ["Db","Schema","Package"], ),
-	"oracle_schema"       : ( ["Db","Schema"], ),
-	"oracle_session"      : ( ["Db","Session"], ),
-	"oracle_synonym"      : ( ["Db","Schema","Synonym"], ),
-	"oracle_table"        : ( ["Db","Schema","Table"], ),
-	"oracle_view"         : ( ["Db","Schema","View"], ),
-	"sqlite_table"        : ( ["File","Table"], ),
-	"sqlite_column"       : ( ["File","Table","Column"], ),
+	"dbus/bus"            : ( ["Bus"], ),
+	"dbus/connection"     : ( ["Bus","Connect"], ),
+	"dbus/object"         : ( ["Bus","Connect","Obj"], ),
+	"dbus/interface"      : ( ["Bus","Connect","Obj","Itf"], ),
+	"odbc/dsn"            : ( ["Dsn"], ),
+	"odbc/table"          : ( ["Dsn", "Table"], ),
+	"odbc/column"         : ( ["Dsn", "Table", "Column"], ),
+	"oracle/db"           : ( ["Db"], ),
+	"oracle/package"      : ( ["Db","Schema","Package"], ),
+	"oracle/package_body" : ( ["Db","Schema","Package"], ),
+	"oracle/schema"       : ( ["Db","Schema"], ),
+	"oracle/session"      : ( ["Db","Session"], ),
+	"oracle/synonym"      : ( ["Db","Schema","Synonym"], ),
+	"oracle/table"        : ( ["Db","Schema","Table"], ),
+	"oracle/view"         : ( ["Db","Schema","View"], ),
+	"sqlite/table"        : ( ["File","Table"], ),
+	"sqlite/column"       : ( ["File","Table","Column"], ),
 	"symbol"              : ( ["Name","File"], ),
 }
 

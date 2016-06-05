@@ -1626,7 +1626,7 @@ def SourceDir(entity_type=""):
 	if entity_type == "":
 		return "/sources_top"
 	else:
-		# If subtypes, check the presence of CharTypesComposer
+		# entity_type might contain a slash, for example: "slqite/table"
 		return "/sources_types/" + entity_type
 
 
