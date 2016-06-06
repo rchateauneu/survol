@@ -59,14 +59,17 @@ def Main():
 		for dport in dhost.getElementsByTagName('port'):
 			proto = dport.getAttributeNode('protocol').value
 			# port number converted as integer
-			port =  int(dport.getAttributeNode('portid').value)
-			# print("        port=%d" % port)
-			# state of the port
-			#state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
-			#print("        state="+state)
-			# reason
-			#reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
-			#print("        reason="+reason)
+			port = int(dport.getAttributeNode('portid').value)
+			socketNode = lib_common.gUriGen.AddrUri( host, port, proto )
+
+			state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
+			#sys.stderr.write("state="+state+"\n")
+			grph.add( ( socketNode, lib_common.MakeProp("State"), rdflib.Literal(state) ) )
+			
+			reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
+			#sys.stderr.write("reason="+reason)
+			grph.add( ( socketNode, lib_common.MakeProp("Reason"), rdflib.Literal(reason) ) )
+
 			# name if any
 			#for dname in dport.getElementsByTagName('service'):
 			#	name = dname.getAttributeNode('name').value
