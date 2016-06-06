@@ -13,6 +13,8 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+Usable = lib_util.UsableLinuxBinary
+
 # This can be run from the command line like this:
 # QUERY_STRING="SHAREDLIB=/usr/lib/libkdecore.so" htbin/sources/cgi_linux_nm.py
 # The url must be encoded at this stage.

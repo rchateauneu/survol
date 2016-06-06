@@ -13,7 +13,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-Usable = lib_util.UsableLinux
+Usable = lib_util.UsableLinuxBinary
 
 def AddKnown(grph, nodeSharedLib, symbol, file, type):
 	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbol), file )

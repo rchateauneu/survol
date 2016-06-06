@@ -558,6 +558,20 @@ def UsableWindowsBinary(entity_type,entity_ids_arr):
 	filename, file_extension = os.path.splitext(fulFileName)
 	# TODO: Must add library type for ELF and PE ?
 	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
+
+# Applies for nm, dll, elftools.
+def UsableWindowsLinux(entity_type,entity_ids_arr):
+	if not UsableLinux(entity_type,entity_ids_arr):
+		return False
+	fulFileName = entity_ids_arr[0]
+	if os.path.isdir(fulFileName):
+		return False
+	filename, file_extension = os.path.splitext(fulFileName)
+	# TODO: Must add library type for ELF and PE ?
+	if file_extension() in [".so", ".lib"]:
+		return True
+	# TODO: Finish this. Use "magic" module ??
+	return True
 	
 	
 ################################################################################
