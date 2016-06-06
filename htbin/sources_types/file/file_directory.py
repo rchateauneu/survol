@@ -16,8 +16,6 @@ from lib_properties import pc
 
 # If this is not a directory, should not be displayed.
 def Usable(entity_type,entity_ids_arr):
-	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
-		return False
 	dirNam = entity_ids_arr[0]
 	return os.path.isdir(dirNam)
 
