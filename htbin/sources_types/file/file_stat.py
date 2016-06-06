@@ -64,8 +64,16 @@ def Main():
 			# lines are device, mountpoint, filesystem, <rest>
 			# later entries override earlier ones
 			line = [s.decode('string_escape') for s in line.split()[:3]]
-			if os.lstat(line[1]).st_dev == info.st_dev:
-				deviceName = line[1]
+			try:
+				if os.lstat(line[1]).st_dev == info.st_dev:
+					deviceName = line[1]
+					break
+			except OSError:
+				# Beware, index 1, not 0:
+				# "[Errno 13] Permission denied: '/run/user/42/gvfs'"
+				# Better display the error message.
+				exc = sys.exc_info()[1]
+				deviceName=str(exc)
 				break
 
 		deviceNode = lib_common.gUriGen.DiskPartitionUri(deviceName)
