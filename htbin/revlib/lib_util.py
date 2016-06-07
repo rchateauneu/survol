@@ -550,6 +550,7 @@ def UsableAsynchronousSource(entity_type,entity_ids_arr):
 
 # Tells if a file is executable code or library.
 def UsableWindowsBinary(entity_type,entity_ids_arr):
+	"""Windows executable or code file"""
 	if not UsableWindows(entity_type,entity_ids_arr):
 		return False
 	fulFileName = entity_ids_arr[0]
@@ -560,7 +561,8 @@ def UsableWindowsBinary(entity_type,entity_ids_arr):
 	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
 
 # Applies for nm, dll, elftools.
-def UsableWindowsLinux(entity_type,entity_ids_arr):
+def UsableLinuxBinary(entity_type,entity_ids_arr):
+	"""Linux executable or code file"""
 	if not UsableLinux(entity_type,entity_ids_arr):
 		return False
 	fulFileName = entity_ids_arr[0]
