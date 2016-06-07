@@ -154,9 +154,15 @@ class LocalBox:
 		try:
 			# WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
 			# On Linux apparently, Name="Unknown-30-b5-c2-02-0c-b5-2.home"
+			# Beware of a normal address such as: "wb-in-f95.1e100.net"
 			# TODO: Fix this !
 			hostDns = socket.gethostbyaddr(hostAddr)[0]
-			hostName = hostDns.split(".")[0]
+			hostSplit = hostDns.split(".")
+			if len(hostSplit) == 2 and hostSplit[1] == "home":
+				# if isPlatformLinux:
+				hostName = hostSplit[0]
+			else:
+				hostName = hostDns
 		except:
 			exc = sys.exc_info()[1]
 			sys.stderr.write("HostnameUri hostAddr=%s. Caught: %s\n" % (hostAddr, str(exc) ) )

@@ -16,10 +16,11 @@ from lib_properties import pc
 
 def Main():
 	paramkeyPortsRange = "Ports Range"
+	paramkeyGraphDisplay = "Graph display"
 
 	cgiEnv = lib_common.CgiEnv(
 			"http://nmap.org/images/nmap-logo-64px.png",
-			{ paramkeyPortsRange : "22-443" } )
+			{ paramkeyPortsRange : "22-443", paramkeyGraphDisplay: False} )
 
 	# This is just a first experimentation with nmap.
 	# This scans a couple of ports from the current host.
@@ -33,6 +34,8 @@ def Main():
 	args = ["nmap", '-oX', '-', '127.0.0.1', '-p', portsRange ]
 	# C:\Program Files (x86)\Nmap;
 
+	isGraphDisplay = cgiEnv.GetParameters( paramkeyGraphDisplay )
+	
 	try:
 		p = subprocess.Popen(args, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	except WindowsError: # On Windows, this cannot find "FileNotFoundError"
@@ -47,6 +50,8 @@ def Main():
 
 	dom = xml.dom.minidom.parseString(nmap_last_output)
 
+	# sys.stderr.write(str(nmap_last_output))
+	
 	for dhost in dom.getElementsByTagName('host'):
 		host = dhost.getElementsByTagName('address')[0].getAttributeNode('addr').value
 		# print("host="+host)
@@ -64,31 +69,35 @@ def Main():
 			# protocol
 			proto = dport.getAttributeNode('protocol').value
 			# print("        proto="+proto)
-			# port number converted as integer
-			port =  int(dport.getAttributeNode('portid').value)
-			# print("        port=%d" % port)
-			# state of the port
-			#state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
-			#print("        state="+state)
-			# reason
-			#reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
-			#print("        reason="+reason)
-			# name if any
-			#for dname in dport.getElementsByTagName('service'):
-			#	name = dname.getAttributeNode('name').value
-			#	print("            name="+name)
-
-			#for dscript in dport.getElementsByTagName('script'):
-			#	script_id = dscript.getAttributeNode('id').value
-			#	script_out = dscript.getAttributeNode('output').value
-			#	print("script_id="+script_id)
-			#	print("script_out="+script_out)
-
+			port = int(dport.getAttributeNode('portid').value)
 			socketNode = lib_common.gUriGen.AddrUri( host, port, proto )
+
+			if not isGraphDisplay:
+				state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
+				#sys.stderr.write("state="+state+"\n")
+				grph.add( ( socketNode, lib_common.MakeProp("State"), rdflib.Literal(state) ) )
+				
+				reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
+				#sys.stderr.write("reason="+reason)
+				grph.add( ( socketNode, lib_common.MakeProp("Reason"), rdflib.Literal(reason) ) )
+				# name if any
+				#for dname in dport.getElementsByTagName('service'):
+				#	name = dname.getAttributeNode('name').value
+				#	print("            name="+name)
+
+				#for dscript in dport.getElementsByTagName('script'):
+				#	script_id = dscript.getAttributeNode('id').value
+				#	script_out = dscript.getAttributeNode('output').value
+				#	print("script_id="+script_id)
+				#	print("script_out="+script_out)
+
 			# BEWARE: Normally the LHS node should be a process !!!
 			grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	if isGraphDisplay:
+		cgiEnv.OutCgiRdf(grph)
+	else:
+		cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_has_socket])
 
 if __name__ == '__main__':
 	Main()

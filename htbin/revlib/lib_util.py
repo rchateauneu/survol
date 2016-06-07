@@ -550,6 +550,7 @@ def UsableAsynchronousSource(entity_type,entity_ids_arr):
 
 # Tells if a file is executable code or library.
 def UsableWindowsBinary(entity_type,entity_ids_arr):
+	"""Windows executable or code file"""
 	if not UsableWindows(entity_type,entity_ids_arr):
 		return False
 	fulFileName = entity_ids_arr[0]
@@ -558,6 +559,21 @@ def UsableWindowsBinary(entity_type,entity_ids_arr):
 	filename, file_extension = os.path.splitext(fulFileName)
 	# TODO: Must add library type for ELF and PE ?
 	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
+
+# Applies for nm, dll, elftools.
+def UsableLinuxBinary(entity_type,entity_ids_arr):
+	"""Linux executable or code file"""
+	if not UsableLinux(entity_type,entity_ids_arr):
+		return False
+	fulFileName = entity_ids_arr[0]
+	if os.path.isdir(fulFileName):
+		return False
+	filename, file_extension = os.path.splitext(fulFileName)
+	# TODO: Must add library type for ELF and PE ?
+	if file_extension() in [".so", ".lib"]:
+		return True
+	# TODO: Finish this. Use "magic" module ??
+	return True
 	
 	
 ################################################################################

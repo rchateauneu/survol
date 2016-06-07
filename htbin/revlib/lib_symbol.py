@@ -4,6 +4,7 @@ import sys
 def find_closing_delimiter(instr,idx,char_open,char_close):
 	bracket_level = 0
 	lenInstr = len(instr)
+	idx = 0
 	while idx < lenInstr:
 		ch = instr[idx]
 		if ch == char_open:

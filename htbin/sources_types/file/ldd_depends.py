@@ -16,7 +16,7 @@ import lib_entities.lib_entity_file
 import lib_common
 from lib_properties import pc
 
-Usable = lib_util.UsableLinux
+Usable = lib_util.UsableLinuxBinary
 
 def DoNothing():
 	return
