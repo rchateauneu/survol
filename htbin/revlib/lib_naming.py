@@ -187,7 +187,6 @@ scripts_to_titles = {
 	"namespaces_wbem.py": "WBEM namespaces ",
 	"namespaces_wmi.py": "WMI namespaces ",
 	"entity.py":"",
-	"entity_list.py":"Display as list (Deprecated)",
 	"entity_wbem.py":"WBEM object",
 	"entity_wmi.py":"WMI object",
 	"file_to_mime.py":"Mime display"

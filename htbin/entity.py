@@ -317,13 +317,6 @@ else:
 	# un DAG (Direct Acyclic Graph) qui serait alors traite de facon specifique.
 	DirToMenu(grph,rootNode,directory,relative_dir)
 
-# TODO: Use encodedEntityId if is_host_remote ? Or always ?
-
-url_html = lib_util.Scriptize( '/entity_list.py', entity_type, entity_id )
-htmlNode = rdflib.term.URIRef(url_html)
-grph.add( ( rootNode, pc.property_html_data, htmlNode ) )
-
-
 if entity_type != "":
 	lib_entity_CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 

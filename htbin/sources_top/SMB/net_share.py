@@ -93,8 +93,6 @@ def Main():
 		#print("nam="+shrNam)
 		#print("res="+shrRes)
 
-		# http://127.0.0.1:80/PythonStyle/htbin/entity_list.py?type=hostname&id=LONW00052257.euro.net.intra
-
 		shareNode = lib_common.gUriGen.SmbShareUri( "//" + lib_util.currentHostname + "/" + shrNam )
 		grph.add( ( lib_common.nodeMachine, pc.property_smbshare, shareNode ) )
 
