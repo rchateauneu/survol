@@ -45,6 +45,7 @@ def DoTheStuff(outDir):
 	objectsByLocation = makehash()
 
 	locationFile = "IMPOSSIBLE_LOCATION"
+	memberDefinition = "IMPOSSIBLE_DEFINITION"
 	for dirName, subdirList, fileList in os.walk(outDir):
 		for fname in fileList:
 			#sys.stderr.write("fname=%s\n" % fname)
@@ -70,6 +71,8 @@ def DoTheStuff(outDir):
 							memberKind = None
 						elif elem.tag == "name":
 							memberName = elem.text
+						elif elem.tag == "definition":
+							memberDefinition = elem.text
 						elif elem.tag == "type":
 							# Can be the return type of the function or one of its arguments, or the variable type.
 							# But this could contain other tags:
@@ -95,7 +98,12 @@ def DoTheStuff(outDir):
 							elif memberKind in ["typedef", "friend", "enum", "define"]:
 								pass
 							else:
-								objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberName] = listTypes
+								if memberDefinition is None:
+									memberDefinition= memberName
+
+								# TODO: A-t-n vraiment de compounddefKind][compoundName][memberKind]
+								# TODO ... sachant qu on se donne la possibilite d exploser ou pas selon les classes ?
+								objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberDefinition] = listTypes
 						# print(event)
 						# print(elem.tag)
 						# print(elem.tag)
@@ -106,42 +114,45 @@ def DoTheStuff(outDir):
 
 	return objectsByLocation
 
-def CreateObjs(grph,rootNode,directoryName,objectsByLocation):
-	#sys.stderr.write("\n\n\n\directoryName=%s num=%d\n\n"%( directoryName, len(objectsByLocation)))
+def DisplayDefinition(grph,nodeFile,locationFile,symDef,paramExplodeClasses):
+	nodeVariable = lib_common.gUriGen.SymbolUri( symDef, locationFile )
+	if nodeFile:
+		grph.add( ( nodeFile, pc.property_member, nodeVariable ) )
+	return
+
+def CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses):
+	sys.stderr.write("\n\n\n\directoryName=%s num=%d\n\n"%( directoryName, len(objectsByLocation)))
 
 	for (locationFile, v1) in six.iteritems(objectsByLocation):
 		#sys.stderr.write("locationFile=%s\n"%locationFile)
+
+		# TODO: Eventuellement exploser selon les sous-directorys
 		nodeFile = lib_common.gUriGen.FileUri( locationFile )
 		grph.add( ( rootNode, pc.property_directory, nodeFile ) )
 
 		for (compounddefKind, v2) in v1.items():
 			#sys.stderr.write("compounddefKind=%s\n"%compounddefKind)
 			for (compoundName, v3) in v2.items():
-				#sys.stderr.write("compoundName=%s\n"%compoundName)
-				#if compounddefKind == "file":
-				#	filePath = directoryName + "/" + compoundName
-				#	nodeFile = lib_common.gUriGen.FileUri( filePath )
-				#	grph.add( ( rootNode, pc.property_directory, nodeFile ) )
-				#else:
-				#	filePath = locationFile
-				#	nodeFile = lib_common.gUriGen.FileUri( filePath )
-
 				for (memberKind, v4) in v3.items():
 					#sys.stderr.write("memberKind=%s\n"%memberKind)
-					for (memberName, listTypes) in v4.items():
+					for (memberDefinition, listTypes) in v4.items():
 						if memberKind == "function":
 							if( len(listTypes) > 1 ):
 								concatTypes = ",".join(listTypes[1:])
 							else:
 								concatTypes = ""
-							funcName = listTypes[0] + " " + memberName + "(" + concatTypes + ")"
-							nodeFunction = lib_common.gUriGen.SymbolUri( funcName, locationFile )
-							if nodeFile:
-								grph.add( ( nodeFile, pc.property_member, nodeFunction ) )
+							# funcName = listTypes[0] + " " + memberName + "(" + concatTypes + ")"
+							funcName = memberDefinition + "(" + concatTypes + ")"
+							#nodeFunction = lib_common.gUriGen.SymbolUri( funcName, locationFile )
+							#if nodeFile:
+							#	grph.add( ( nodeFile, pc.property_member, nodeFunction ) )
+							DisplayDefinition(grph,nodeFile,locationFile,funcName,paramExplodeClasses)
 						elif memberKind == "variable":
-							nodeVariable = lib_common.gUriGen.SymbolUri( memberName, locationFile )
-							if nodeFile:
-								grph.add( ( nodeFile, pc.property_member, nodeVariable ) )
+							DisplayDefinition(grph,nodeFile,locationFile,memberDefinition,paramExplodeClasses)
+							# nodeVariable = lib_common.gUriGen.SymbolUri( memberName, locationFile )
+							#nodeVariable = lib_common.gUriGen.SymbolUri( memberDefinition, locationFile )
+							#if nodeFile:
+							#	grph.add( ( nodeFile, pc.property_member, nodeVariable ) )
 	return
 
 
@@ -433,11 +444,13 @@ def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
 
 def Main():
 	paramkeyRecursive = "Recursive exploration"
+	paramkeyExplodeClasses = "Explode classes members"
 
 	cgiEnv = lib_common.CgiEnv(
-		parameters = { paramkeyRecursive : False })
+		parameters = { paramkeyRecursive : False, paramkeyExplodeClasses : False })
 
 	paramRecursiveExploration = int(cgiEnv.GetParameters( paramkeyRecursive ))
+	paramExplodeClasses = int(cgiEnv.GetParameters( paramkeyExplodeClasses ))
 
 	fileParam = cgiEnv.GetId()
 
@@ -463,7 +476,7 @@ def Main():
 	else:
 		directoryName = os.path.dirname(fileParam)
 		rootNode = lib_common.gUriGen.FileUri( fileParam )
-	CreateObjs(grph,rootNode,directoryName,objectsByLocation)
+	CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses)
 
 	# TODO: THE GENERATED GRAPH SHOULD BE MORE SIMILAR TO DOXYGEN'S.
 
