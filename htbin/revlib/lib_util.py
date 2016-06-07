@@ -600,6 +600,8 @@ def OntologyClassKeys(entity_type):
 	try:
 		# TODO: Temporarily until we do something more interesting, using the subtype.
 		# entity_type = entity_type.split(CharTypesComposer)[0]
+
+		# TODO: If cannot find it, load the associated module and retry.
 		return localOntology[ entity_type ][0]
 	except KeyError:
 		pass
