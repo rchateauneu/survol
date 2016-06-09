@@ -23,13 +23,21 @@ for entity_type in lib_util.ObjectTypes():
 	if not lib_util.OntologyClassAvailable(entity_type):
 		continue
 
-	splitType = entity_type.split("/")
-
 	tmpNode = rootNode
-	for tp in splitType:
-		entityNode = lib_util.EntityClassNode(tp)
+	idx = 0
+
+	while idx >= 0:
+		nextSlash = entity_type.find( "/", idx + 1 )
+		if nextSlash == -1:
+			intermedType = entity_type
+		else:
+			intermedType = entity_type[ : nextSlash ]
+
+		entityNode = lib_util.EntityClassNode(intermedType)
 		grph.add( ( tmpNode, lib_common.pc.property_directory, entityNode ) )
 		tmpNode = entityNode
+		idx = nextSlash
+
 
 
 cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
