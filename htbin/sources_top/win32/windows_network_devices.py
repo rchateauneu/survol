@@ -2,6 +2,7 @@
 
 """
 Windows network device
+Command wmic logicaldisk
 """
 
 import re
@@ -43,11 +44,6 @@ def Main():
 	# So we have replaced it, but this must be tested.
 	# On Windows, now we get "Type str doesn't support the buffer API"
 	# driveLines = strlist.split('\n')
-
-
-	#import locale
-	#encoding = locale.getdefaultlocale()[1]
-	#driveLines = strlist.decode(encoding).split('\n')
 
 	if sys.version_info >= (3,):
 		strlistStr = str( strlist, encoding='utf8' )
