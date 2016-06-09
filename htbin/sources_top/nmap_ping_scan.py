@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 """
-NMap ping scan
+Nmap ping scan
+LAN ping (256 addresses)
 """
 
 import sys

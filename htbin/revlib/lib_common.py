@@ -295,17 +295,18 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
   node [shape=plaintext]
  	""")
 
+	# The first line is a title, the rest, more explanations.
+	page_title = page_title.strip()
+	page_title_split = page_title.split("\n")
+	page_title_first = page_title_split[0]
+	page_title_rest = " ".join( page_title_split[1:] )
+	page_title_full =  DotBold(page_title_first) + withBrDelim +  page_title_rest
+
 	stream.write("""
   subgraph cluster_01 { 
     key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">
-      <tr><td colspan="2">""" + DotBold(page_title) + """</td></tr>
+      <tr><td colspan="2">""" + page_title_full + """</td></tr>
  	""")
-
-	#try:
-	#	# Maybe the documentation of the script.
-	#	stream.write('<tr><td colspan="2">' + StrWithBr( sys.modules['__main__'].__doc__ ) + '</td></tr>')
-	#except Exception:
-	#	pass
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
 	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotUL("Top") + '</td></tr>')
@@ -451,6 +452,8 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		props = {} 
 		idx = 0
 		# TODO: The sort must put at first, some specific keys.
+		# For example, sources_top/nmap_run.py, the port number as an int (Not a string)
+		# Also, filenames, case-sensitive or not.
 		for ( key, val ) in sorted(the_fields):
 			# This should come first, but it does not so we prefix with "----". Hack !
 			if key == pc.property_information:
@@ -1328,7 +1331,7 @@ class CgiEnv():
 		# This is a global and can be fetched differently, if needed.
 		try:
 			self.m_page_title = sys.modules['__main__'].__doc__
-			self.m_page_title.strip()
+			self.m_page_title = self.m_page_title.strip()
 		except:
 			exc = sys.exc_info()[1]
 			sys.stderr.write("Caught when setting title:"+str(exc))
