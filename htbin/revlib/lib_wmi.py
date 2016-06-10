@@ -175,7 +175,7 @@ def WmiTooManyInstances(className):
 	# Shoudl also take their base classes.
 	return className in ['Win32_ComputerSystem','PG_ComputerSystem','CIM_UnitaryComputerSystem',
 						 'CIM_ComputerSystem','CIM_System','CIM_LogicalElement','Win32_UserAccount',
-						 'Win32_Group', 'CIM_ManagedSystemElement']
+						 'Win32_Group', 'CIM_ManagedSystemElement', 'CIM_Dependency']
 
 
 def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
