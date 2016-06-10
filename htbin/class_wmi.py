@@ -79,6 +79,8 @@ for wmiObj in lstObj:
 		sys.stderr.write("WARNING Empty path wmiObj=%s\n" % str(wmiObj))
 		continue
 
+	# fullPth=\\RCHATEAU-HP\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
+	fullPth = fullPth.replace("&","&amp;")
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( fullPth )
 	wmiInstanceNode = rdflib.term.URIRef(wmiInstanceUrl)
 
