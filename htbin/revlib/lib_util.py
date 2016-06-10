@@ -243,14 +243,26 @@ def EntHostToIpReally(entity_host):
 
 # BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
 # TODO: Should also parse the namespace.
+# TODO: Faudrait savoir, avec ou sans le prop=val ???
+# ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
+# ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
 def ParseXid(xid ):
 	# sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
 
-	# The type can be in several directories separated by slashes.
+	# First, we try to match our terminology.
+	# The type can be in several directories separated by slashes: "oracle/table"
 	# If suffixed with "/", it means namespaces.
 
 	# A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
-	mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_/]*)\.(.*)", xid )
+	# "WORKGROUP\RCHATEAU-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
+	# "WORKGROUP\RCHATEAU-HP@oracle/table.Name=MY_TABLE"
+	# BEWARE: This must NOT match "http://127.0.0.1:8000/htbin/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
+	# that is "http://192.168.1.83:5988/."
+	# mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_/]*)\.(.*)", xid )
+	# Une classe commence par une lettre, pas de / consecutifs.
+	# TODO: Filter when consecutives slashes.
+	mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-zA-Z_][a-z0-9A-Z_/]*)\.(.*)", xid )
+
 	if mtch_entity:
 		if mtch_entity.group(1) == None:
 			entity_host = ""
@@ -270,6 +282,9 @@ def ParseXid(xid ):
 	# WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
 	# Beware ! On Windows, namespaces are separated by backslashes.
 	# WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+	# http://127.0.0.1:8000/htbin/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2\Applications%3A.
+	# http://127.0.0.1:8000/htbin/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
+	# http://127.0.0.1:8000/htbin/entity_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
 	# TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
 	# TODO: otherwise graphviz replace "\L" par "<TABLE">
 	mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
@@ -287,6 +302,8 @@ def ParseXid(xid ):
 
 	# WBEM: https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
 	#       http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate
+	#		"http://127.0.0.1:8000/htbin/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
+	#		"xid=http://192.168.1.88:5988/."
 	mtch_ent_wbem = re.match( "(https?://[^/]*)/([^.]*)(\..*)?", xid )
 	if mtch_ent_wbem:
 		grp = mtch_ent_wbem.groups()
