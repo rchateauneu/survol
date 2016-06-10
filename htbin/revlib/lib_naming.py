@@ -249,8 +249,8 @@ def ParseEntityUri(uri):
 		# This is a bit of a special case which allows to display something if we know only
 		# the type of the entity but its id is undefined. Instead of displaying nothing,
 		# this attempts to display all available entities of this given type.
-		# source_top/enumerate.process.py etc...
-		mtch_enumerate = re.match( "^.*/enumerate\.([a-z0-9A-Z_]*)\.py$", uri )
+		# source_top/enumerate_process.py etc... Not "." because this has a special role in Python.
+		mtch_enumerate = re.match( "^.*/enumerate_([a-z0-9A-Z_]*)\.py$", uri )
 		if mtch_enumerate :
 			entity_graphic_class = mtch_enumerate.group(1)
 			entity_id = ""
@@ -274,7 +274,10 @@ def ParseEntityUri(uri):
 		entity_label = UriToTitle(uprs)
 
 	# Maybe hostname is a CIMOM address.
-	if not lib_util.IsLocalAddress( entity_host ):
+	# TODO: This is repeated soooo many times when displaying in tables.
+	if lib_util.IsLocalAddress( entity_host ):
+		entity_label += " at local host"
+	else:
 		entity_label += " at " + entity_host
 
 	# TODO: ATTENTION !!!! ON L A RETIRE ICI UNIQUEMENT CAR C ETAIT DEJA FAIT
