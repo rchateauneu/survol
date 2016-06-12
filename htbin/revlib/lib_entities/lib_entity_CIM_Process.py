@@ -93,7 +93,7 @@ def PsutilProcConnections(proc,kind='inet'):
 # Then in its file, by convention adds information to a node.
 def AddInfo(grph,node,entity_ids_arr):
 	pidProc = entity_ids_arr[0]
-	sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
+	# sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
 	grph.add( ( node, pc.property_pid, rdflib.Literal(pidProc) ) )
 	try:
 		proc_obj = psutil.Process(int(pidProc))
