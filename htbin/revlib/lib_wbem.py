@@ -439,5 +439,7 @@ def GetClassesTreeInstrumented(conn,theNamSpace):
 def ValidClassWbem(entity_host, className):
 	tpSplit = className.split("_")
 	tpPrefix = tpSplit[0]
-	return tpPrefix in ["CIM","Win32","LMI"]
+	# "PG" is Open Pegasus: http://www.opengroup.org/subjectareas/management/openpegasus
+	# "LMI" is OpenLmi: http://www.openlmi.org/
+	return tpPrefix in ["CIM","PG","LMI"]
 
