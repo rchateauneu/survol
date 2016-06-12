@@ -107,11 +107,11 @@ def CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 def AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	# Maybe some of these servers are not able to display anything about this object.
 
-	if lib_wbem.ValidClassWbem(entity_host, className):
-		if wbemOk:
+	if wbemOk:
+		if lib_wbem.ValidClassWbem(entity_host, className):
 			CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
-	if lib_wbem.ValidClassWmi(entity_host, className):
+	if lib_wmi.ValidClassWmi(entity_host, className):
 		CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
 def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
