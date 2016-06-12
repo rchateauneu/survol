@@ -428,34 +428,56 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 		return lib_properties.prop_color(prop)
 
-	# Recursive key-value display, because the value can also be a dict.
-	def FormatPair(key,val):
-		colFirst = "<td align='left' valign='top'>%s</td>" % DotBold(key)
+	def FormatElement(val,depth=0):
 		if val is None:
-			colSecond = "<td></td>"
-		else:
-			try:
-				valInt = int(val)
-				colSecond = "<td align='right' balign='left'>%d</td>" % valInt
-			except ValueError:
-				try:
-					decodVal = json.loads(val)
-					if isinstance(decodVal,dict):
-						subTable = ""
-						for subKey,subVal in decodVal.items():
-							subTd = FormatPair(subKey,subVal)
-							if subTd:
-								subTable += "<tr>%s</tr>" % subTd
-						colSecond = "<td align='left' balign='left'><table border='0'>%s</table></td>" % subTable
-						# colSecond = "<td align='left' balign='left'>xyz</td>"
-					elif isinstance(decodVal,list):
-						colSecond = "<td align='left' balign='left'>%s</td>" % "LIST_LIST"
-					else:
-						colSecond = "<td align='left' balign='left'>%s</td>" % val
-				except ValueError:
-					colSecond = "<td align='left' balign='left'>%s</td>" % StrWithBr(val)
+			return "<td></td>"
 
+		try:
+			valInt = int(val)
+			return "<td align='right' balign='left'>%d</td>" % valInt
+		except:
+			pass
+
+		if isinstance(val,dict):
+			subTable = ""
+			# TODO: Consider using six.iteritems.
+			for subKey,subVal in val.items():
+				subTd = FormatPair(subKey,subVal, depth + 1)
+				if subTd:
+					subTable += "<tr>%s</tr>" % subTd
+			return "<td align='left' balign='left'><table border='0'>%s</table></td>" % subTable
+
+		# Note: Recursive list are not very visible.
+		if isinstance(val, ( list, tuple ) ):
+			if depth % 2 == 0:
+				subTable = ""
+				for subElement in val:
+					subTd = FormatElement( subElement, depth + 1 )
+					subTable += "<tr>%s</tr>" % subTd
+				return "<td align='left' balign='left'><table border='0'>%s</table></td>" % subTable
+			else:
+				subTable = ""
+				for subElement in val:
+					subTd = FormatElement( subElement, depth + 1 )
+					subTable += subTd
+				return "<td align='left' balign='left'><table border='1'><tr>%s</tr></table></td>" % subTable
+		try:
+			# decodVal = json.loads(val.encode("utf-8"))
+			decodVal = json.loads(val)
+			return FormatElement(decodVal, depth + 1)
+
+		except ValueError:
+			return "<td align='left' balign='left'>%s</td>" % StrWithBr(val)
+		except TypeError:
+			exc = sys.exc_info()[1]
+			return "<td align='left' balign='left'>%s</td>" % StrWithBr(val+" "+str(exc))
+		return "FormatElement failure"
+
+	def FormatPair(key,val,depth=0):
+		colFirst = "<td align='left' valign='top'>%s</td>" % DotBold(key)
+		colSecond = FormatElement(val,depth+1)
 		return colFirst + colSecond
+
 
 	# Display in the DOT node the list of its literal properties.
 	def FieldsToHtmlVertical(grph, the_fields):

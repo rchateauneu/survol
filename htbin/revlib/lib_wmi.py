@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import socket
 import rdflib
 import lib_util
@@ -245,7 +246,9 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 			grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), rdflib.Literal(klaQualVal) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
-		grph.add( ( wmiClassNode, lib_common.MakeProp("Error"), rdflib.Literal(str(exc)) ) )
+
+		errStr = json.dumps(list(exc))
+		grph.add( ( wmiClassNode, lib_common.MakeProp("WMI Error"), rdflib.Literal(errStr) ) )
 
 # Tells if this class for our ontology is in a given WMI server, whatever the namespace is.
 def ValidClassWmi(entity_host, className):
