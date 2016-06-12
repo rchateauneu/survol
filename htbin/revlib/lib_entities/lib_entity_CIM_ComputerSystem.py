@@ -6,7 +6,7 @@ from lib_properties import pc
 
 
 def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_id):
-	# sys.stderr.write("entity_host=%s nameSpace=%s entity_type=%s\n" % (entity_host,nameSpace,entity_type))
+	# sys.stderr.write("AddWbemWmiServers entity_host=%s nameSpace=%s entity_type=%s\n" % (entity_host,nameSpace,entity_type))
 	try:
 	# Maybe some of these servers are not able to display anything about this object.
 		import lib_wbem
@@ -25,7 +25,7 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
 	except ImportError:
 		pass
 
-	if lib_wbem.ValidClassWbem(entity_host, entity_type):
+	if lib_wmi.ValidClassWmi(entity_host, entity_type):
 		# TODO: We may also loop on all machines which may describe this object.
 		wmiurl = lib_wmi.GetWmiUrl( entity_host, nameSpace, entity_type, entity_id )
 		sys.stderr.write("wmiurl=%s\n" % str(wmiurl))
