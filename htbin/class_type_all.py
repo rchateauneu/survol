@@ -107,16 +107,11 @@ def CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 def AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	# Maybe some of these servers are not able to display anything about this object.
 
-	# entity_type = "root\CIMV2:CIM_StatisticalInformation" : Strip the namespace.
-	tpSplit = className.split("_")
-	tpPrefix = tpSplit[0]
-	sys.stderr.write("tpPrefix=%s\n"%tpPrefix)
-
-	if tpPrefix in ["CIM","Win32","LMI"]:
+	if lib_wbem.ValidClassWbem(entity_host, className):
 		if wbemOk:
 			CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
-	if tpPrefix in ["CIM","Win32","WMI"]:
+	if lib_wbem.ValidClassWmi(entity_host, className):
 		CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
 def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):

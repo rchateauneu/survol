@@ -434,3 +434,10 @@ def GetClassesTreeInstrumented(conn,theNamSpace):
 
 	# print("outTreeClass="+str(outTreeClass)+"<br>")
 	return outTreeClass
+
+# Tells if this class for our ontology is in a given WBEM server, whatever the namespace is.
+def ValidClassWbem(entity_host, className):
+	tpSplit = className.split("_")
+	tpPrefix = tpSplit[0]
+	return tpPrefix in ["CIM","Win32","LMI"]
+

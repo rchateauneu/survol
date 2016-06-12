@@ -247,3 +247,8 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 		exc = sys.exc_info()[1]
 		grph.add( ( wmiClassNode, lib_common.MakeProp("Error"), rdflib.Literal(str(exc)) ) )
 
+# Tells if this class for our ontology is in a given WMI server, whatever the namespace is.
+def ValidClassWmi(entity_host, className):
+	tpSplit = className.split("_")
+	tpPrefix = tpSplit[0]
+	return tpPrefix in ["CIM","Win32","WMI"]
