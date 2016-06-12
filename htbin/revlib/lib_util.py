@@ -364,7 +364,13 @@ def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", catego
 	# This is temporary.
 	else:
 		# En fait, on devrait pouvoir simplifier le format, comme avant, si pas de namespace ni de host: "type."
-		monikerClass = entity_host + "@" + entity_namespace + "/:" + entity_type + "."
+		monikerClass = ""
+		if entity_host:
+			monikerClass += entity_host + "@"
+		# Should not happen.
+		if entity_namespace:
+			monikerClass += entity_namespace + "/:"
+		monikerClass += entity_type + "."
 
 	# TODO: Voir aussi EntityUrlFromMoniker.
 

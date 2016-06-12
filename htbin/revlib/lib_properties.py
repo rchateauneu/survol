@@ -91,9 +91,9 @@ pc.property_group                = MakeProp("group")
 pc.property_groupid              = MakeProp("groupid")
 pc.property_file_size            = MakeProp("file_size")
 pc.property_file_device          = MakeProp("file_device")
-pc.property_rdf_data             = MakeProp("rdf")
-pc.property_rdf_data_nolist      = MakeProp("sub-rdf") # Names must all be different
-pc.property_html_data            = MakeProp("html")
+pc.property_rdf_data1            = MakeProp("rdf1")
+pc.property_rdf_data_nolist1     = MakeProp("rdf2")
+pc.property_rdf_data_nolist2     = MakeProp("sub-rdf") # Names must all be different
 pc.property_wbem_data            = MakeProp("wbem")
 pc.property_wmi_data             = MakeProp("wmi")
 pc.property_csv_data             = MakeProp("csv")
@@ -124,9 +124,9 @@ pc.property_subclass             = MakeProp("subclass")
 # TODO: L utiliser pour les colonnes des tables.
 # TODO: Faire varier la couleur en ayant des arguments CGI.
 def prop_color(prop):
-	if prop == pc.property_rdf_data:
+	if prop == pc.property_rdf_data1:
 		return "RED"
-	if prop == pc.property_html_data:
+	if prop == pc.property_rdf_data_nolist1:
 		return "BLUE"
 	if prop == pc.property_socket_end:
 		return "ORANGE"

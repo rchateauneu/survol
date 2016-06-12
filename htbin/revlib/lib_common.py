@@ -3,6 +3,7 @@ import socket
 import urllib
 import psutil
 import subprocess
+import six
 
 try:
     import simplejson as json
@@ -17,7 +18,6 @@ try:
 except ImportError:
 	from urllib.parse import unquote
 	from urllib.parse import urlparse
-
 
 try:
 	# Python 3
@@ -204,7 +204,7 @@ def StrWithBr(str, colspan = 1):
 # TODO: Set the right criteria for an old Graphviz version.
 new_graphiz = True # sys.version_info >= (3,)
 
-# This is temporary because only old graphviz versions dot not implement that.
+# TODO: This is temporary because only old graphviz versions dot not implement that.
 def DotBold(str):
 	return "<b>%s</b>" % str if new_graphiz else str
 
@@ -360,14 +360,31 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 # Returns a string for an URL different from "entity.py" etc...
 # TODO: Ca serait mieux de passer le texte avec la property.
 def ExternalToTitle(extUrl):
-	if re.match( ".*/yawn/.*", extUrl ):
+	# Depending on where we come from, "%2F" instead of "/" ... ugly.
+	if re.match( ".*/yawn/.*", extUrl ) or re.match( ".*%2Fyawn%2F.*", extUrl ):
 		return "Yawn"
 
-	if re.match( ".*/objtypes_wbem.py.*", extUrl ):
-		return "Subtypes"
+	pyNamMtch = re.match( ".*/([^.]+).py.*", extUrl )
+	if pyNamMtch:
+		pyNam = pyNamMtch.group(1)
 
-	if re.match( ".*/file_directory.py.*", extUrl ):
-		return "Subdir"
+		try:
+			# TODO: See lib_naming.scripts_to_titles
+			basNamToTxt = {
+				"objtypes_wbem" : "Subtypes",
+				"file_directory" : "Subdir",
+				"file_to_mime" : "MIME",
+				"objtypes_wmi" : "WMI tree",
+				"objtypes_wbem" : "WBEM hier.",
+				"class_type_all" : "Cross class",
+				"dir_to_html" : "DIR"
+			}
+			return basNamToTxt[pyNam]
+		except:
+			return pyNam.replace("_"," ").capitalize()
+	else:
+		# sys.stderr.write("extUrl=%s\n"%extUrl)
+		return "CGIPROP"
 
 	# TODO: Ca vient de FileUriMime()
 	# Voir scripts_to_titles dans lib_naming.py
@@ -378,16 +395,9 @@ def ExternalToTitle(extUrl):
 	# (3) Ou bien une solution plus generale est de mettre dans l'URL un texte:
 	#     "http://127.0.0.1:8000/htbin/file_to_mime.py?txt="Tralala"?xid=file.Id ..."
 	#     Ainsi, ParseEntityUri() et ExternalToTitle() n'auront qu'a trafiquer l'URL.
-	if re.match( ".*/file_to_mime.py.*", extUrl ):
-		return "MIME"
-		# "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Icons.16x16\fileicons.chromefans.org\divx.png"
-		# This cannot work this way.
-		# return '<IMG SRC="Icons.16x16/fileicons.chromefans.org/divx.png" />'
-
-	if re.match( ".*/dir_to_html.py.*", extUrl ):
-		return "DIR"
-
-	return "CGIPROP"
+	# "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Icons.16x16\fileicons.chromefans.org\divx.png"
+	# This cannot work this way.
+	# return '<IMG SRC="Icons.16x16/fileicons.chromefans.org/divx.png" />'
 
 
 # Used for transforming into SVG format.
@@ -460,7 +470,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				# Completely left-aligned. Col span is 2, approximate ratio.
 				val = StrWithBr(val,2)
 				currTd = "<td align='left' balign='left' colspan='2'>%s</td>" % val
-			elif key in [ pc.property_html_data, pc.property_rdf_data_nolist ] :
+			elif key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ] :
 				urlTxt = lib_naming.ParseEntityUri(val)[0]
 				splitTxt = StrWithBr(urlTxt, 2)
 				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, splitTxt )
@@ -544,7 +554,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				else:
 					# One connection only: We cannot see the other.
 					stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
-			elif prop in [ pc.property_html_data , pc.property_rdf_data_nolist ]:
+			elif prop in [ pc.property_rdf_data_nolist1 , pc.property_rdf_data_nolist2 ]:
 				# TODO: Il suffit de tester si obj est un url de la forme "entity.py" ???
 				# HTML and images urls can be "flattened" because the nodes have no descendants.
 				# Do not create a node for this.
@@ -580,15 +590,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		logfil.write( TimeStamp()+" Rdf2Dot: listed_props_by_subj=%d.\n" % ( len( listed_props_by_subj ) ) )
 		logfil.flush()
 
-		# Equivalent to six.iteritems(d)
-		def LocalIterItems(lst):
-			if sys.version_info >= (3,):
-				return lst.items()
-			else:
-				return lst.iteritems()
-
-		# TODO: Avoid creation of temporary list. "for k, v in six.iteritems(d):"
-		for subj, nodLst in LocalIterItems( listed_props_by_subj ):
+		for subj, nodLst in six.iteritems(listed_props_by_subj):
 			subjNam = node(subj)
 
 			subjNamTab = "rec_" + subjNam
@@ -624,7 +626,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absente.
 			# S il y a du html ou du RDF, on veut que ca vienne en premier.
 			fieldsKeysOrdered = [ "UNUSED_PLACEHOLDER_FOR_INFORMATION"]
-			for fldPriority in [ pc.property_html_data, pc.property_rdf_data_nolist ]:
+			for fldPriority in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ]:
 				try:
 					# Must always be appended. BUT IF THERE IS NO html_data, IS IT WORTH ?
 					# TODO: Remove if not HTML and no sub-rdf. CGIPROP
@@ -689,8 +691,8 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						title += val
 						continue
 
-					if key in [ pc.property_html_data, pc.property_rdf_data_nolist ] :
-						# TODO: get the text with ParseEntityUri if property_rdf_data_nolist
+					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ] :
+						# TODO: get the text with ParseEntityUri if property_rdf_data_nolist2
 						# Ou alors: Eviter d afficher toujours le meme texte ou bien repeter l autre lien.
 						# Plutot afficher quelque chose de specifique, par exemple l'extension de fichier si file_to_mime.py ?
 						# C est utilise dans trois cas:
@@ -711,7 +713,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						# - On se garde la possibilite d avoir plusieurs colonnes avec traitement special.
 						# - On extrait de l'url le texte du lien, de facon predefinie, ce qui est possible
 						#   car c est nous qui les ajoutons.
-						# - Un objet peut avoir plusieurs pc.property_html_data, pc.property_rdf_data_nolist
+						# - Un objet peut avoir plusieurs pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2
 
 						valTitle = ExternalToTitle(val)
 						# We insert a table because there might be several links.
@@ -758,7 +760,12 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				dictLines[ title_uniq ] = "".join( columns )
 
 			# Replace the first column by more useful information.
-			header = "<td colspan='2' border='1'>" + DotBold("%d element(s)" % len(nodLst) ) + "</td>"
+			numNodLst = len(nodLst)
+			if numNodLst == 1:
+				txtElements = "1 element"
+			else:
+				txtElements = "%d elements" % numNodLst
+			header = "<td colspan='2' border='1'>" + DotBold(txtElements) + "</td>"
 
 			# TODO: Replace each column name with a link which sorts the line based on this column.
 			for key in fieldsKeys[1:]:
@@ -784,6 +791,9 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			except Exception:
 				# If this is not defined, take the last processed row.
 				table_graphic_class = subEntityGraphicClass
+
+			# The label might be truncated
+			helpText = "Help:" + labText
 
 			# TODO: Le titre et le contenu ne sont pas forcement de la meme classe.
 			# labTextWithBr is the first line of the table containing nodes linked with the
@@ -814,7 +824,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 			# labTextWithBr= StrWithBr( labText )
 
-			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, "help text", "BLUE", labB, numFields, labTextWithBr, dictLines )
+			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, helpText, "BLUE", labB, numFields, labTextWithBr, dictLines )
 
 			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
 			# TODO: Si une cellule est identique jusqu a un delimiteur, idem, remplacer par '"'.
@@ -824,8 +834,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	logfil.flush()
 
 	# Maintenant on affiche les noeuds qui restent.
-	# TODO: Avoid converting to a list.
-	for obj, nam in list(nodes.items()):
+	for obj, nam in six.iteritems(nodes):
 		# x contains something like: ns1:pid "3280"^^xsd:integer
 		# So this eliminates the namespace and the value type.
 		# TODO: This should removes the double-quotes surrounding the value.

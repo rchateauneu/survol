@@ -15,7 +15,7 @@ except ImportError:
 	lib_common.ErrorMessageHtml("Python package WMI is not available")
 import lib_wmi
 
-# Hard-coded list for the moment because we could not find a way
+# TODO: Hard-coded list for the moment because we could not find a way
 # to list "root" subnamespaces with wmi. Not a problem for the moment.
 # http://stackoverflow.com/questions/5332501/how-do-you-query-for-wmi-namespaces
 hardcodedNamespaces = (

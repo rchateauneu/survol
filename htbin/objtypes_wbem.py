@@ -58,7 +58,7 @@ def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth):
 
 	# The class is the starting point when displaying the class tree of the namespace.
 	wbemNodeSub = WbemNamespaceNode(topclassNam)
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist, rdflib.Literal(wbemNodeSub) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, rdflib.Literal(wbemNodeSub) ) )
 
 
 	# TODO: AJOUTER LE LIEN YAWN. Il y a de fortes chances pour que Yawn soit installe.
@@ -75,7 +75,7 @@ def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth):
 	# TODO: SVG prefixe l'URL qui devient inutilisable.
 	yawnUrl = "http://" + lib_util.EncodeUri(yawnUrl)
 	# yawnUrl = lib_util.EncodeUri(yawnUrl)
-	grph.add( ( wbemNode, pc.property_html_data, rdflib.term.URIRef(yawnUrl) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, rdflib.term.URIRef(yawnUrl) ) )
 
 	try:
 		# TODO: This should be indexed with a en empty string !

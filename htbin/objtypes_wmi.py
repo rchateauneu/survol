@@ -19,7 +19,7 @@ import lib_wmi
 paramkeyMaxDepth = "Maximum depth"
 
 cgiEnv = lib_common.CgiEnv(can_process_remote = True,
-								parameters = { paramkeyMaxDepth : 4 })
+								parameters = { paramkeyMaxDepth : 3 })
 
 maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
 
@@ -42,12 +42,6 @@ except:
 	# x_wmi: Unexpected COM Error (-2147217375, 'OLE error 0x80041021', None, None)
 	lib_common.ErrorMessageHtml("wmiNamespace=%s Caught:%s" % ( wmiNamespace, str(exc) ) )
 
-def WmiNamespaceNode( clsNam ):
-	wmiUrl = lib_wmi.NamespaceUrl( wmiNamespace, cimomUrl, clsNam )
-	return rdflib.term.URIRef( wmiUrl )
-
-rootNode = WmiNamespaceNode(entity_type)
-
 dictClassToNode = dict()
 
 # Manages a cache so nodes are created once only.
@@ -56,12 +50,41 @@ def ClassToNode(clsNam):
 	try:
 		wmiNode = dictClassToNode[ clsNam ]
 	except KeyError:
-		wmiMoniker = lib_wmi.BuildWmiMoniker( cimomUrl, wmiNamespace, clsNam )
-		wmiUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True )
+		wmiUrl = lib_wmi.ClassUrl(wmiNamespace,cimomUrl,clsNam)
 		wmiNode = rdflib.term.URIRef( wmiUrl )
+
 		dictClassToNode[ clsNam ] = wmiNode
 	return wmiNode
 
+def WmiNamespaceNode( clsNam ):
+	# objtypes_wmi.py
+	wmiUrl = lib_wmi.NamespaceUrl( wmiNamespace, cimomUrl, clsNam )
+	return rdflib.term.URIRef( wmiUrl )
+
+rootNode = ClassToNode(entity_type)
+
+# rootNodeNameSpace = WmiNamespaceNode(entity_type)
+# grph.add( ( rootNode, pc.property_rdf_data_nolist2, rdflib.Literal(rootNodeNameSpace) ) )
+# def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
+rootGeneralisedClass = lib_util.EntityClassNode(entity_type,wmiNamespace,cimomUrl,"WMI")
+grph.add( ( rootNode, pc.property_rdf_data_nolist2, rdflib.Literal(rootGeneralisedClass) ) )
+
+# CA MARCHE PAS QUAND ON VIENT D ICI:
+# http://127.0.0.1/Survol/htbin/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_LogicalDevice.
+#
+# KO:
+# http://127.0.0.1/Survol/htbin/class_type_all.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_LogicalDevice.
+# OK:
+# http://127.0.0.1/Survol/htbin/class_type_all.py?xid=http%3A%2F%2F192.168.1.83%3A5988%2Froot%2Fcimv2%3ACIM_LogicalDevice.
+
+
+# CA AUSSI NE MARCHE PAS !!!!!!!!!!!!!!!
+# http://127.0.0.1:8000/htbin/class_type_all.py?xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2Fcimv2%3A.
+
+# FAIRE LA MEME CHOSE DANS objtypes_wbem
+# AUSSI, il faut que wbem_classes aient des liens en plus.
+# Et CGIPROP doit au moins contenir le nom du script.
+# Et eviter les repetiions dans les tables.[
 
 doneNode = set()
 
@@ -71,8 +94,12 @@ def DrawFromThisBase(clsNam,grph,clsDeriv):
 
 	# The class is the starting point when displaying the class tree of the namespace.
 	wmiNodeSub = WmiNamespaceNode(clsNam)
+	grph.add( ( wmiNode, pc.property_rdf_data_nolist1, rdflib.Literal(wmiNodeSub) ) )
 
-	grph.add( ( wmiNode, pc.property_rdf_data_nolist, rdflib.Literal(wmiNodeSub) ) )
+	# TODO: ZUT !!! ON NE PEUT AVOIR QU UN SEUL property_rdf_data_nolist2 !!!!
+	nodeGeneralisedClass = lib_util.EntityClassNode(clsNam,wmiNamespace,cimomUrl,"WMI")
+	grph.add( ( wmiNode, pc.property_rdf_data_nolist2, rdflib.Literal(nodeGeneralisedClass) ) )
+	# grph.add( ( wmiNode, lib_common.MakeProp("Tralala"), rdflib.Literal("xxx") ) )
 
 	doneNode.add( clsNam )
 
@@ -123,7 +150,7 @@ if entity_type == "":
 	for clsNam in connWmi.classes:
 		clsDeriv = GetDerivation(clsNam)
 
-		# Pour limiter la profondeur, on part de la classe X et on en descend pas a plus de N niveaux.
+		# Pour limiter la profondeur, on part de la classe X et on n'en descend pas a plus de N niveaux.
 		if len(clsDeriv) < maxDepth:
 			DrawFromThisBase(clsNam,grph, clsDeriv)
 else:

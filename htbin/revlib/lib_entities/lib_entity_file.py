@@ -58,7 +58,7 @@ def AddHtml( grph, filNode, filNam ):
 	# Get the mime type, maybe with Magic. Then return a URL with for this mime type.
 	# This is a separated script because it returns HTML data, not RDF.
 	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
-	grph.add( ( filNode, pc.property_html_data, rdflib.term.URIRef(url_mime) ) )
+	grph.add( ( filNode, pc.property_rdf_data_nolist1, rdflib.term.URIRef(url_mime) ) )
 
 # Display the node of the directory this file is in.
 def AddParentDir( grph, filNode, filNam ):

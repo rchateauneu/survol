@@ -251,7 +251,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		# Here, we are sure that the script is added.
 		# TODO: If no script is added, should not add the directory?
 		rdfNode = rdflib.term.URIRef(url_rdf)
-		grph.add( ( parentNode, pc.property_rdf_data, rdfNode ) )
+		grph.add( ( parentNode, pc.property_rdf_data1, rdfNode ) )
 
 		try:
 			docModuAll = importedMod.__doc__
@@ -297,24 +297,24 @@ def CurrentUser():
 
 def AddDefaultScripts(grph,rootNode):
 	nodeObjTypes = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
-	grph.add( ( rootNode, pc.property_rdf_data_nolist, nodeObjTypes ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodeObjTypes ) )
 
 	# Gives a general access to WBEM servers.
 	nodePortalWbem = rdflib.term.URIRef( lib_util.uriRoot + '/portal_wbem.py' )
-	grph.add( ( rootNode, pc.property_rdf_data_nolist, nodePortalWbem ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodePortalWbem ) )
 
 	# Gives a general access to WMI servers.
 	nodePortalWmi = rdflib.term.URIRef( lib_util.uriRoot + '/portal_wmi.py')
-	grph.add( ( rootNode, pc.property_rdf_data_nolist, nodePortalWmi ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodePortalWmi ) )
 
 	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
 	grph.add( ( currentNodeHostname, pc.property_information, rdflib.Literal("Current host:"+lib_util.currentHostname) ) )
-	grph.add( ( rootNode, pc.property_rdf_data_nolist, currentNodeHostname ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeHostname ) )
 
 	currUsername = CurrentUser()
 	currentNodeUser = lib_common.gUriGen.UserUri( currUsername )
 	grph.add( ( currentNodeUser, pc.property_information, rdflib.Literal("Current user:"+currUsername) ) )
-	grph.add( ( rootNode, pc.property_rdf_data_nolist, currentNodeUser ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeUser ) )
 
 ################################################################################
 
@@ -347,5 +347,5 @@ if entity_type != "":
 # if entity_type == "":
 AddDefaultScripts(grph,rootNode)
 
-cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data])
+cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data1])
 

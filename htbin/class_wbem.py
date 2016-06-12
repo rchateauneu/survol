@@ -164,7 +164,7 @@ def DisplayAssociatoraAsList(inst_names,rootNode):
 			grph.add( ( wbemInstanceNode, lib_common.MakeProp(keyAssoc), wbemAssocNode ) )
 
 			# On voudrait que la propriete soit un lien mais que ca soit afficher en colonne avec le bon nom, comme in lityeral.
-			# pc.property_html_data ??? pc.property_html_data, pc.property_rdf_data_nolist ?????
+			# pc.property_rdf_data_nolist1 ??? pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ?????
 
 			if False:
 				cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_class_instance,lib_common.MakeProp("Dependent"),lib_common.MakeProp("Antecedent")])

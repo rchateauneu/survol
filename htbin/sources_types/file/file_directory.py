@@ -96,7 +96,7 @@ def Main():
 			grph.add( ( topdirNode, pc.property_directory, filNode ) )
 
 			url_mime = UriDirectoryDirectScript( topdir )
-			grph.add( ( topdirNode, pc.property_rdf_data_nolist, rdflib.term.URIRef(url_mime) ) )
+			grph.add( ( topdirNode, pc.property_rdf_data_nolist2, rdflib.term.URIRef(url_mime) ) )
 
 	if os.path.isdir( filNam ):
 		# sys.stderr.write("filNam=%s\n"%(filNam))
@@ -117,10 +117,10 @@ def Main():
 
 			url_dir_node = UrlDirectory( fullDirPath )
 			if not url_dir_node is None:
-				grph.add( ( subdirNode, pc.property_html_data, url_dir_node ) )
+				grph.add( ( subdirNode, pc.property_rdf_data_nolist1, url_dir_node ) )
 
 			url_mime = UriDirectoryDirectScript(fullDirPath)
-			grph.add( ( subdirNode, pc.property_rdf_data_nolist, rdflib.term.URIRef(url_mime) ) )
+			grph.add( ( subdirNode, pc.property_rdf_data_nolist2, rdflib.term.URIRef(url_mime) ) )
 
 			# On peut ajouter des liens en rdf_data mais leur nom est normalement une "info".
 			# Donc en affichage horizontal, il faut aussi virer ce sous-noeud.

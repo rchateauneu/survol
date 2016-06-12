@@ -76,7 +76,7 @@ def Main():
 
 	phpmyadminUrl = "http://" + lib_util.currentHostname + "/phpmyadmin/"
 	phpmyadminNode = rdflib.term.URIRef( phpmyadminUrl )
-	grph.add( ( lib_common.nodeMachine, pc.property_html_data, phpmyadminNode ) )
+	grph.add( ( lib_common.nodeMachine, pc.property_rdf_data_nolist1, phpmyadminNode ) )
 
 	cgiEnv.OutCgiRdf(grph)
 

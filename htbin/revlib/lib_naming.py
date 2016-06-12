@@ -180,15 +180,15 @@ scripts_to_titles = {
 	"portal_wbem.py": "WBEM server ",
 	"portal_wmi.py": "WMI server ",
 	"class_wbem.py": "WBEM class ",
-	"class_wmi.py": "WMI class ",
+	"class_wmi.py": "WMI's",
 	"class_type_all.py": "Class ",
-	"objtypes_wbem.py": "WBEM classes ",
-	"objtypes_wmi.py": "WMI classes ",
+	"objtypes_wbem.py": "WBEM subclasses of ",
+	"objtypes_wmi.py": "WMI subclasses of ",
 	"namespaces_wbem.py": "WBEM namespaces ",
 	"namespaces_wmi.py": "WMI namespaces ",
 	"entity.py":"",
-	"entity_wbem.py":"WBEM object",
-	"entity_wmi.py":"WMI object",
+	"entity_wbem.py":"WBEM",
+	"entity_wmi.py":"WMI",
 	"file_to_mime.py":"Mime display"
 }
 

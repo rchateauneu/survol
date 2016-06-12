@@ -36,23 +36,30 @@ if False:
 ################################################################################
 
 # TODO: Reprendre tout ca, c;est complique et lent.
+# EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_hostname=False):
+# if is_hostname: 'namespaces_wmi.py','namespaces_wbem.py','entity.py'
+# elif is_namespace: 'objtypes_wmi.py','objtypes_wbem.py','objtypes.py'
+# elif is_class: 'class_wmi.py','class_wbem.py','class_type_all.py'
+# else: 'entity_wmi.py','entity_wbem.py','entity.py'
 
-def BuildWmiMoniker( hostname, namespac = "", classNam = "" ):
-	return "\\\\" + hostname + "\\" + namespac + ":" + classNam + "."
+def BuildWmiMoniker( hostnameWmi, namespac = "", classNam = "" ):
+	return "\\\\" + hostnameWmi + "\\" + namespac + ":" + classNam + "."
 
-def WmiAllNamespacesUrl(hostname):
-	wmiMoniker = BuildWmiMoniker( hostname )
+# namespaces_wmi.py
+def WmiAllNamespacesUrl(hostnameWmi):
+	wmiMoniker = BuildWmiMoniker( hostnameWmi )
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True, True, True )
 	return wmiInstanceUrl
 
-# Beware: The class indicates the starting point for displaying the classes of the namespace.
-def NamespaceUrl(nskey,cimomUrl,classNam=""):
-	wmiMoniker = BuildWmiMoniker( cimomUrl, nskey, classNam )
+# objtypes_wmi.py. Beware: The class indicates the starting point for displaying the classes of the namespace.
+def NamespaceUrl(nskey,hostnameWmi,classNam=""):
+	wmiMoniker = BuildWmiMoniker( hostnameWmi, nskey, classNam )
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True, True )
 	return wmiInstanceUrl
 
-def ClassUrl(nskey,cimomUrl,classNam):
-	wmiMoniker = BuildWmiMoniker( cimomUrl, nskey, classNam )
+# class_wmi.py
+def ClassUrl(nskey,hostnameWmi,classNam):
+	wmiMoniker = BuildWmiMoniker( hostnameWmi, nskey, classNam )
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True )
 	return wmiInstanceUrl
 
@@ -187,6 +194,8 @@ def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
 		baseClass = ""
 	try:
 		clsList = [ c for c in connWmi.SubclassesOf (baseClass, win32com.client.constants.wbemFlagUseAmendedQualifiers) if classNam == c.Path_.Class ]
+		if not clsList:
+			return None
 		theCls = clsList[0]
 		return theCls
 	except pywintypes.com_error:
@@ -206,7 +215,11 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 			grph.add( ( wmiClassNode, lib_common.MakeProp("properties.Description"), rdflib.Literal(klassDescr) ) )
 
 			klassDescr = str( getattr( connWmi, className ).property_map )
-			grph.add( ( wmiClassNode, lib_common.MakeProp("property_map"), rdflib.Literal(klassDescr) ) )
+			# Otherwise it crashes.
+			klassDescrClean = klassDescr.replace("{"," ").replace("}"," ")
+			# sys.stderr.write("klassDescr=%s\n"%klassDescr)
+			grph.add( ( wmiClassNode, lib_common.MakeProp("property_map"), rdflib.Literal(klassDescr.replace("{"," ").replace("}"," ") ) ) )
+
 
 		theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
 		if theCls:
@@ -216,7 +229,11 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 			if withProps:
 				for propObj in theCls.Properties_:
 					propDsc = propObj.Qualifiers_("Description")
-					grph.add( ( wmiClassNode, lib_common.MakeProp(propObj.Name), rdflib.Literal(propDsc) ) )
+					# Prefixes the property with a dot, so sorting displays it at the end.
+					# Surprisingly, the dot becomes invisible.
+					grph.add( ( wmiClassNode, lib_common.MakeProp("."+propObj.Name), rdflib.Literal(propDsc) ) )
+		else:
+			grph.add( ( wmiClassNode, pc.property_information, rdflib.Literal("No description available for %s" % className) ) )
 
 
 
