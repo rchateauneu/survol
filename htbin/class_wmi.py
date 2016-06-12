@@ -20,19 +20,18 @@ grph = rdflib.Graph()
 
 ( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
-entity_host = cgiEnv.GetHost()
-
-# TODO: Fix this, embed the cimom server in the host.
-# cgiUrl="http://192.168.1.88:5988"
-cimomUrl = entity_host
+cimomUrl = cgiEnv.GetHost()
 
 rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WMI" )
+
+# Not sure why, but sometimes backslash replaced by slash, depending where we come from ?
+nameSpace = nameSpace.replace("/","\\")
 
 # Must remove "root\" at the beginning of "root\Cli" or "root\CIMv2"
 if nameSpace[0:5] == "root\\":
 	nameSpace = nameSpace[5:]
 else:
-	lib_common.ErrorMessageHtml("cimomUrl=%s Cannot truncate nameSpace=%s entity_namespace_type=%s\n" % ( cimomUrl, nameSpace, entity_namespace_type ) )
+	lib_common.ErrorMessageHtml("cimomUrl=%s entity_namespace_type=%s nameSpace=%s wrong prefix\n" % ( cimomUrl, nameSpace, entity_namespace_type ) )
 
 connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
 
@@ -57,7 +56,7 @@ try:
 	wmiClass = getattr( connWmi, className )
 except Exception:
 	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("cimomUrl=%s %s nameSpace=%s className=%s Caught:%s\n" % ( cimomUrl, entity_namespace_type, nameSpace, className, str(exc) ) )
+	lib_common.ErrorMessageHtml("cimomUrl=%s tp=%s nameSpace=%s className=%s Caught:%s\n" % ( cimomUrl, entity_namespace_type, nameSpace, className, str(exc) ) )
 
 try:
 	lstObj = wmiClass()
@@ -65,7 +64,11 @@ except Exception:
 	exc = sys.exc_info()[1]
 	lib_common.ErrorMessageHtml("Caught when getting list of %s\n" % className )
 
-sys.stderr.write("className=%s type(wmiClass)=%s len=%d\n" % ( className, str(type(wmiClass)), len( lstObj ) ) )
+numLstObj = len( lstObj )
+sys.stderr.write("className=%s type(wmiClass)=%s len=%d\n" % ( className, str(type(wmiClass)), numLstObj ) )
+
+if numLstObj == 0:
+	grph.add( ( rootNode, pc.property_information, rdflib.Literal("No instances in this class") ) )
 
 for wmiObj in lstObj:
 	# Full natural path: We must try to merge it with WBEM Uris.
