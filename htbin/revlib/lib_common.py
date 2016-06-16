@@ -4,6 +4,7 @@ import urllib
 import psutil
 import subprocess
 import six
+import lib_exports
 
 try:
     import simplejson as json
@@ -51,13 +52,6 @@ import lib_uris
 
 ################################################################################
 
-
-# "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
-def AntiPredicateUri(uri):
-	return uri[ len(lib_properties.primns_slash) : ]
-
-################################################################################
-
 def TimeStamp():
 	return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
@@ -89,18 +83,6 @@ pathRoot = PathRoot()
 
 ################################################################################
 
-# Adds a key value pair at the end of the url with the right delimiter.
-# TODO: Checks that the argument is not already there.
-# TODO: Most of times, it is used for changing the mode.
-def ConcatenateCgi(url,keyvalpair):
-	if url.rfind( '?' ) == -1:
-		return url + "?" + keyvalpair
-	else:
-		return url + "&" + keyvalpair
-
-
-################################################################################
-
 # This is used to call an URL with mode=info as CGI argument. The url returns
 # a Json array describing this URL, for example the title.
 # TODO: As this information rarely changes, it can be cached in a text file.
@@ -111,39 +93,6 @@ def SerialiseScriptInfo(pairs):
 	lib_util.HttpHeader( sys.stdout, infoContentType )
 	sys.stderr.write("strJson=%s\n" % strJson )
 	print(strJson)
-
-# Used for displaying information about scripts.
-# This function must never fail even if the url is broken
-# or returns wrong data.
-def DeserializeScriptInfo(urlScript):
-	# TODO: Consider using ModedUrl("edit")
-	urlModeInfo = ConcatenateCgi( urlScript, "mode=info" )
-	sys.stderr.write("DeserializeScriptInfo:%s\n" % (urlModeInfo) )
-	# Changed in version 2.6: timeout was added.
-	if sys.version_info >= (2,6):
-		try:
-			response = urlopen(urlModeInfo,data=None,timeout=3)
-		except socket.timeout:
-			return { "info" : "Time-out", "Status" : False }
-		# Not accepted on Python 2.7 and Windows.
-		#except urllib.error.HTTPError:
-		#	exc = sys.exc_info()[1]
-		#	# It can be any error but we do not want to be stuck.
-		#	return { "info" : "Warning:" + str(exc), "Status" : False }
-		# It can be "URLError" on Python 3.4 on Windows XP
-		except Exception:
-			exc = sys.exc_info()[1]
-			return { "info" : str(exc), "Status" : False }
-	else:
-		response = urlopen(urlModeInfo)
-
-	url_info = response.info()
-	contentType = url_info['content-type']
-	if contentType != infoContentType:
-		return { "info" : "Unexpected error", "Status" : False }
-
-	content = response.read()
-	return json.loads( content.decode() )
 
 ################################################################################
 
@@ -277,97 +226,6 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 
 	stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
 	return dot_layout
-
-# This is very primitive and maybe should be replaced by a standard function,
-# but lib_util.EncodeUri() replaces "too much", and SVG urls cannot encode an ampersand...
-# The problems comes from "&mode=edit" or "&mode=html" etc...
-# TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
-def UrlToSvg(url):
-	if lib_util.isPlatformWindows:
-		# If one ampersand only, "error on line 28 at column 75: EntityRef: expecting ';'"
-		# when displaying the SVG file.
-		# Windows, Python 3.2, Graphviz 2.36
-		return url.replace( "&", "&amp;amp;" )
-	else:
-		if sys.version_info <= (2,5):
-			# Linux, Python 2.5.  Tested on Mandriva.
-			# Maybe we should do the same as the others.
-			return url.replace( "&", "&amp;" )
-		else:
-			# Tested with Python 2.7 on Fedora.
-			return url.replace( "&", "&amp;amp;" )
-
-def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream, grph ):
-#	stream.write("""
-#  rank=sink;
-#  rankdir=LR
-#  node [shape=plaintext]
-# 	""")
-	stream.write("""
-  node [shape=plaintext]
- 	""")
-
-	# The first line is a title, the rest, more explanations.
-	page_title = page_title.strip()
-	page_title_split = page_title.split("\n")
-	page_title_first = page_title_split[0]
-	page_title_rest = " ".join( page_title_split[1:] )
-	page_title_full =  DotBold(page_title_first) + withBrDelim +  page_title_rest
-
-	stream.write("""
-  subgraph cluster_01 { 
-    key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">
-      <tr><td colspan="2">""" + page_title_full + """</td></tr>
- 	""")
-
-	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
-	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotUL("Top") + '</td></tr>')
-
-	stream.write("""
-      <tr><td align='left' colspan="2">""" + time.strftime("%Y-%m-%d %H:%M:%S") + """</td></tr>
-      <tr><td align='left' >Nodes</td><td>""" + str(len(grph)) + """</td></tr>
- 	""")
-
-	# So we can change parameters of this CGI script.
-	urlEdit = ModedUrl("edit")
-	urlHtml = ModedUrl("html")
-	urlRdf = ModedUrl("rdf")
-
-	urlEditReplaced = UrlToSvg( urlEdit )
-	urlHtmlReplaced = UrlToSvg( urlHtml )
-	urlRdfReplaced = UrlToSvg( urlRdf )
-
-	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
-	# SO THESE LINKS DO NOT WORK ?????
-	stream.write("<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>")
-	stream.write("<tr><td align='left' colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>")
-
-	if len( parameters ) > 0 :
-		stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "'>" + DotUL( "Parameters edition" ) + "</td></tr>" )
-
-	arguments = cgi.FieldStorage()
-	for keyParam,valParam in parameters.items():
-		try:
-			actualParam = arguments[keyParam].value
-		except KeyError:
-			actualParam = valParam
-		stream.write('<tr><td>%s</td><td>%s</td></tr>' % ( keyParam, actualParam ) )
-
-	if errMsg != None:
-		stream.write('<tr><td align="right" colspan="2">%s</td></tr>' % errMsg)
-
-	if isSubServer:
-		urlStop = ModedUrl("stop")
-		urlStopReplaced = UrlToSvg( urlStop )
-		stream.write('<tr><td colspan="2" href="' + urlStopReplaced + '">' + DotUL("Stop subserver") + '</td></tr>' )
-		# TODO: Add an URL for subservers management, instead of simply "stop"
-		# Maybe "mode=ctrl".This will list the feeders with their entity_id.
-		# So they can be selectively stopped.
-
-	stream.write("""
-      </table>>]
-  }
- 	""")
 
 # Returns a string for an URL different from "entity.py" etc...
 # TODO: Ca serait mieux de passer le texte avec la property.
@@ -856,8 +714,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			labTextWithBr= StrWithBr( labText )
 			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in PropsAsLists )
 
-			# labTextWithBr= StrWithBr( labText )
-
 			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, helpText, "BLUE", labB, numFields, labTextWithBr, dictLines )
 
 			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
@@ -939,63 +795,7 @@ def CopyToOutPy3New(logfil,svg_out_filnam,out_dest):
 	infil.close()
 	logfil.write( TimeStamp() + " End of output with conversion: %d chars\n" %nbOut )
 
-
-#def CopyToOutPyExperimental(logfil,svg_out_filnam,out_dest):
-#	time.sleep(10.0)
-#
-#	logfil.write( TimeStamp() + " Output without conversion EXPERIMENTAL: %s\n" % svg_out_filnam  )
-#	logfil.flush()
-#	# Linux or Windows Python2.
-#	infil = open(svg_out_filnam,'r')
-#
-#	filSz = os.path.getsize(svg_out_filnam)
-#	logfil.write( TimeStamp() + " End of codecs open. filSz=%d\n" % filSz )
-#	logfil.flush()
-#
-#	# No idea why but it blocks reading 500kbytes.
-#	logfil.write( TimeStamp() + " After flush. Reading\n" )
-#	strInRead = infil.read()
-#	logfil.write( TimeStamp() + " End of infil read:%d\n" % len(strInRead) )
-#	nbOut = out_dest.write( strInRead )
-#	logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
-#
-#	infil.close()
-
-
 # TODO: Test this. https://pypi.python.org/pypi/pysendfile
-#def CopyToOutSendfile(logfil,svg_out_filnam,out_dest):
-#	from sendfile import sendfile
-#	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
-#	logfil.flush()
-#
-#	infil = open(svg_out_filnam,'rb')
-#	filSz = os.path.getsize(svg_out_filnam)
-#
-#	offset = 0
-#
-#	while True:
-#		sent = sendfile(out_dest.fileno(), infil.fileno(), offset, filSz)
-#		if sent == 0:
-#			break  # EOF
-#		offset += sent
-
-# def CopyToOutPy2(logfil,svg_out_filnam,out_dest):
-# 	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
-# 	logfil.flush()
-# 	# Linux or Windows Python2.
-# 	import codecs
-# 	infil = codecs.open(svg_out_filnam,'r',encoding='utf8')
-# 	filSz = os.path.getsize(svg_out_filnam)
-# 	logfil.write( TimeStamp() + " End of codecs open. filSz=%d\n" % filSz )
-# 	logfil.flush()
-#
-# 	# No idea why but it blocks reading 500kbytes.
-# 	logfil.write( TimeStamp() + " After flush. Reading\n" )
-# 	strInRead = infil.read()
-# 	logfil.write( TimeStamp() + " End of infil read:%d\n" % len(strInRead) )
-# 	nbOut = out_dest.write( strInRead )
-# 	logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
-# 	infil.close()
 
 def CopyToOutPy2New(logfil,svg_out_filnam,out_dest):
 	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
@@ -1018,28 +818,13 @@ def CopyToOut(logfil,svg_out_filnam,out_dest):
 
 ################################################################################
 
-# TODO: Est-ce vraiment necessaire ?????????????
-# Peut-etre oui, a cause des sockets ?
-def WrtAsUtf(out,str):
-	out.write( str.encode('utf-8') )
-
-# Default destination for the RDF, HTML or SVG output.
-def DfltOutDest(out_dest=None):
-	if out_dest == None:
-		if sys.version_info >= (3,):
-			return sys.stdout.buffer
-		else:
-			return sys.stdout
-	else:
-		return out_dest
-
 # TODO: Consider using pygraphviz: Small speedup probably.
 # But the priority is to chase graphes which are too long to route.
 # TODO: Problem: The resulting graph is not deterministic.
 # Should compare the generated DOT files to see of they are identical.
 def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest = None, removeHeader = False):
 	sys.stderr.write("viztype=%s\n"%(viztype) )
-	out_dest = DfltOutDest(out_dest)
+	out_dest = lib_util.DfltOutDest(out_dest)
 	tmpSvgFil = TmpFile("Dot2Svg","svg")
 	svg_out_filnam = tmpSvgFil.Name
 	# dot -Kneato
@@ -1098,7 +883,7 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 	logfil.flush()
 
 	dot_layout = WriteDotHeader( page_title, dot_style['layout_style'], rdfoutfil, grph )
-	WriteDotLegend( page_title, topUrl, error_msg, isSubServer, parameters, rdfoutfil, grph )
+	lib_exports.WriteDotLegend( page_title, topUrl, error_msg, isSubServer, parameters, rdfoutfil, grph )
 	logfil.write( TimeStamp()+" Legend written\n" )
 	logfil.flush()
 	Rdf2Dot( grph, logfil, rdfoutfil, dot_style['collapsed_properties'] )
@@ -1119,110 +904,6 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 
 ################################################################################
 
-# Transforms a RDF graph into a HTML page.
-def Grph2Html( page_title, error_msg, isSubServer, parameters, grph, out_dest = None):
-	out_dest = DfltOutDest(out_dest)
-	# TODO: Est-ce necessaire d'utiliser WrtAsUtf au lieu de print() ?
-	# Peut-etre oui, a cause des sockets?
-	WrtAsUtf( out_dest, "Content-type: text/html\n\n<head>" )
-
-	# TODO: Encode the HTML special characters.
-	WrtAsUtf( out_dest, "<title>" + page_title + "</title>")
-
-	# TODO: Essayer de rassembler les literaux relatifs au memes noeuds, pour faire une belle presentation.
-
-	WrtAsUtf( out_dest, ' </head> <body>')
-
-	WrtAsUtf( out_dest,'<table border="1">')
-
-	WrtAsUtf( out_dest,'<tr><td colspan="3"><a href="' + ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
-
-	for keyParam,valParam in parameters.items():
-		WrtAsUtf( out_dest,'<tr><td>' + keyParam + '</td><td colspan="2">' + valParam + '</td></tr>')
-
-	WrtAsUtf( out_dest,'<tr><td colspan="3"><a href="' + ModedUrl("svg") + '">Content as SVG</a></td></tr>')
-	WrtAsUtf( out_dest,'<tr><td colspan="3"><a href="' + ModedUrl("rdf") + '">Content as RDF</a></td></tr>')
-	WrtAsUtf( out_dest,'<tr><td colspan="3">' + str(len(grph)) + ' nodes</td></tr>')
-
-	if error_msg != None:
-		WrtAsUtf( out_dest,'<tr><td colspan="3"><b>' + error_msg + '</b></td></tr>')
-
-	if isSubServer:
-		WrtAsUtf( out_dest,'<tr><td colspan="3"><a href="' + ModedUrl("stop") + '">Stop subserver</a></td></tr>')
-
-	by_subj = dict()
-	for subj, pred, obj in grph:
-		# No point displaying some keys if there is no value.
-		if pred in [ pc.property_image, pc.property_information ] :
-			if str(obj) == "":
-				continue
-
-		the_tup = ( pred, obj )
-		try:
-			by_subj[ subj ].append( the_tup )
-		except KeyError:
-			by_subj[ subj ] = [ the_tup ]
-
-	for subj, the_tup_list in list( by_subj.items() ):
-
-		subj_str = str(subj)
-		subj_title = lib_naming.ParseEntityUri(subj_str)[0]
-
-		cnt_rows = len( the_tup_list )
-
-		mustWriteColOne = True
-
-		for pred, obj in the_tup_list:
-			WrtAsUtf( out_dest, "<tr>" )
-
-			if mustWriteColOne:
-				WrtAsUtf( out_dest, '<td rowspan="' + str(cnt_rows) + '"><a href="' + subj_str + '">'+ subj_title +"</a></td>")
-				mustWriteColOne = False
-
-			obj_str = str(obj)
-
-			if isinstance( obj , (rdflib.URIRef, rdflib.BNode)):
-				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
-				WrtAsUtf( out_dest, "<td>" + AntiPredicateUri(str(pred)) + "</td>")
-				url_with_mode = ConcatenateCgi( obj_str, "mode=html" )
-				WrtAsUtf( out_dest, '<td><a href="' + url_with_mode + '">' + obj_title + "</a></td>")
-			else:
-				if pred == pc.property_information :
-					WrtAsUtf( out_dest, '<td colspan="2">' + obj_str + "</td>")
-				else:
-					WrtAsUtf( out_dest, '<td>' + AntiPredicateUri(str(pred)) + "</td>")
-					WrtAsUtf( out_dest, '<td>' + obj_str + "</td>")
-
-			WrtAsUtf( out_dest, "</tr>")
-
-	WrtAsUtf( out_dest, " </table> </body> </html> ")
-
-
-################################################################################
-
-# Used by all CGI scripts when they have finished adding triples to the current RDF graph.
-# This just writes a RDF document which can be used as-is by browser,
-# or by another scripts which will process this RDF as input, for example when merging RDF data.
-# Consider adding reformatting when the output is a browser ... if this can be detected !!
-# It is probably possible with the CGI environment variable HTTP_USER_AGENT.
-# Also, the display preference could be stored with the Python library cookielib.
-#
-# AUSSI: On pourrait, sous certaines conditions, transformer la sortie en HTML ou en SVG
-# (Et/ou envoyer du Javascript avec des appels rdfquery pour affichage dans le navigateur)
-# Ca pourrait dependre d'une variable CGI: mode=RDF/HTML etc...
-# Ici: On peut prendre la valeur de "mode" en dissequant l'URL du Referer.
-# Petit probleme toutefois avec Graphviz/Dot sous Windows qui nous fait
-# des soucis quand un Url contient un ampersand.
-#
-def Grph2Rdf(grph, out_dest):
-	WrtAsUtf( out_dest, "Content-type: text/rdf\n\n")
-	# Format support can be extended with plugins,
-	# but 'xml', 'n3', 'nt', 'trix', 'rdfa' are built in.
-
-	grph.serialize( destination = out_dest, format="xml")
-
-################################################################################
-
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
 
@@ -1230,9 +911,11 @@ def OutCgiMode( grph, topUrl, outDest, mode, pageTitle, dotLayout, errorMsg = No
 	# sys.stderr.write("OutCgiMode len=%d\n" % ( len(grph) ) )
 
 	if mode == "html":
-		Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph, outDest)
+		lib_exports.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph, outDest)
+	elif mode == "json":
+		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph, outDest)
 	elif mode == "rdf":
-		Grph2Rdf( grph, outDest)
+		lib_exports.Grph2Rdf( grph, outDest)
 	else: # Or mode = "svg"
 		# Default value, because cannot have several CGI arguments in a SVG document (Bug ?).
 		Grph2Svg( pageTitle, topUrl, errorMsg, isSubServer, parameters, dotLayout, grph, outDest)
@@ -1245,19 +928,6 @@ def GetModeFromUrl(url):
 	if mtch_url:
 		return mtch_url.group(1)
 	return ""
-
-# Current URL but in edition mode.
-# PROBLEM: SI PAS DE ENTITY_ID A EDITER CAR "TOP" ALORS ON REBOUCLE SUR Edit:
-# DONC DETECTER LE TYPE DE L'ENTITE EN FOCNTION DU DIRECTORY ET AUCUN SI "TOP".
-def ModedUrl(otherMode):
-	script = lib_util.RequestUri()
-
-	mtch_url = re.match("(.*[\?\&]mode=)([a-zA-Z0-9]*)(.*)", script)
-	if mtch_url:
-		edtUrl = mtch_url.group(1) + otherMode + mtch_url.group(3)
-	else:
-		edtUrl = ConcatenateCgi( script, "mode=" + otherMode )
-	return edtUrl
 
 # The display mode can come from the previous URL or from a CGI environment.
 def GuessDisplayMode(log):
@@ -1382,18 +1052,6 @@ class CgiEnv():
 
 		# If we can talk to a remote host to get the desired values.
 		self.m_can_process_remote = can_process_remote
-
-		# This is used to add information to each Python script,
-		# so it can be nicely displayed.
-		#if mode == "info":
-		#	# TODO: Maybe add some information about the parameters ?
-		#	# And about the arguments, but not in the "info" element,
-		#	# because this string might be cached.
-		#	infoDict = { "url_icon" : url_icon, "can_process_remote" : can_process_remote }
-		#	infoDict.update( parameters )
-		#	SerialiseScriptInfo( infoDict )
-		#	# TODO: Cannot work with WSGI.
-		#	sys.exit(0)
 
 		self.m_arguments = cgi.FieldStorage()
 
@@ -1650,7 +1308,7 @@ class CgiEnv():
 
 		layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
-		out_dest = DfltOutDest()
+		out_dest = lib_util.DfltOutDest()
 		mode = GuessDisplayMode(sys.stderr)
 
 		topUrl = lib_util.TopUrl( self.m_entity_type, self.m_entity_id )

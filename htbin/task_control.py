@@ -161,7 +161,7 @@ for pid in procDict:
 	subTask = procDict[pid]
 	script = subTask['script']
 	full_url = lib_util.uriRoot + "/" + script
-	dictInfo = lib_common.DeserializeScriptInfo(full_url)
+	dictInfo = "MUST USE __doc__"
 	sys.stderr.write("dictInfo=%s\n" % str(dictInfo) )
 	try:
 		subTask['PortNum'] = str(dictInfo['port_number'])

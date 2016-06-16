@@ -755,3 +755,14 @@ def Base64Decode(text):
       exc = sys.exc_info()[1]
       sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(text,str(exc)))
       return text + ":" + str(exc)
+
+# Default destination for the RDF, HTML or SVG output.
+def DfltOutDest(out_dest=None):
+	if out_dest == None:
+		if sys.version_info >= (3,):
+			return sys.stdout.buffer
+		else:
+			return sys.stdout
+	else:
+		return out_dest
+
