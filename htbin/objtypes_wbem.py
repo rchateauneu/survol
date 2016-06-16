@@ -97,16 +97,23 @@ sys.stderr.write("entity_type=%s\n" % entity_type)
 if entity_type != "":
 	# Now, adds the base classes of this one, at least one one level.
 	wbemKlass = lib_wbem.WbemGetClassObj(connWbem,entity_type,wbemNamespace)
+	if wbemKlass:
+		superKlassName = wbemKlass.superclass
 
-	superKlassName = wbemKlass.superclass
+		sys.stderr.write("superKlassName=%s\n" % superKlassName)
+		# An empty string or None.
+		if superKlassName:
+			wbemSuperNode = WbemNamespaceNode( superKlassName )
+			grph.add( ( wbemSuperNode, pc.property_cim_subclass, rootNode ) )
+			klaDescrip = lib_wbem.WbemClassDescription(connWbem,superKlassName,wbemNamespace)
+			if not klaDescrip:
+				klaDescrip = "Undefined class %s %s" % ( wbemNamespace, superKlassName )
+			grph.add( ( wbemSuperNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
 
-	sys.stderr.write("superKlassName=%s\n" % superKlassName)
-	# An empty string or None.
-	if superKlassName:
-		wbemSuperNode = WbemNamespaceNode( superKlassName )
-		grph.add( ( wbemSuperNode, pc.property_cim_subclass, rootNode ) )
-		klaDescrip = lib_wbem.WbemClassDescription(connWbem,superKlassName,wbemNamespace)
-		grph.add( ( wbemSuperNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
+
+################   def WbemAddBaseClass(grph,connWbem,wbemNode,entity_host, wbemNamespace, entity_type):
+
+
 
 cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_cim_subclass])
 # cgiEnv.OutCgiRdf(grph)

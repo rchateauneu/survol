@@ -224,27 +224,11 @@ for objWmi in objList:
 	else:
 		grph.add( ( wmiInstanceNode, lib_common.MakeProp("REFERENCES"), rdflib.Literal( "DISABLED" ) ) )
 
-# Adds the qualifiers of this class.
-klassObj = getattr( connWmi, className )
+# Adds the class node to the instance.
+wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, cimomUrl, nameSpace, className, lib_common.MakeProp(className) )
 
-wmiSubNode = wmiInstanceNode
-
-# It always work even if there is no object.
-for baseKlass in klassObj.derivation():
-	wmiClassNode = lib_util.EntityClassNode( baseKlass, nameSpace, cimomUrl, "WMI" )
-	grph.add( ( wmiClassNode, pc.property_subclass, wmiSubNode ) )
-
-	lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiClassNode, baseKlass, False )
-	wmiSubNode = wmiClassNode
-
-#grph.add( ( rootNode, lib_common.MakeProp(className), wmiInstanceNode ) )
-#
-#for clss in objWmi.derivation():
-#	wmiClassNode = lib_util.EntityClassNode( clss, nameSpace, cimomUrl, "WMI" )
-#	grph.add( ( wmiClassNode, pc.property_subclass, wmiSubNode ) )
-#	wmiSubNode = wmiClassNode
-
-
+# Now displays the base class, up to the top.
+lib_wmi.WmiAddBaseClasses(grph,connWmi,wmiClassNode,cimomUrl, nameSpace, className)
 
 # TODO: Embetant car il faut le faire pour toutes les classes.
 # Et en plus on perd le nom de la propriete.

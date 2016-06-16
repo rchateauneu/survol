@@ -251,19 +251,28 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 		# Very long lists: Or very flat tree.
 		stream.write(" splines=\"ortho\"; \n")
 		stream.write(" rankdir=\"LR\"; \n")
+	elif layout_style == "LAYOUT_RECT_TB":
+		dot_layout = "dot"
+		# Very long lists: Or very flat tree.
+		stream.write(" splines=\"ortho\"; \n")
+		# stream.write(" rank=\"source\"; \n")
+		stream.write(" rankdir=\"TB\"; \n")
 	elif layout_style == "LAYOUT_TWOPI":
 		# Used specifically for file/file_stat.py : The subdirectories
 		# are vertically stacked.
 		dot_layout = "twopi"
+		stream.write(" rankdir=\"LR\"; \n")
 	elif layout_style == "LAYOUT_SPLINE":
 		# Win32_Services, many interconnections.
 		dot_layout = "fdp"
 		# stream.write(" splines=\"curved\"; \n") # About as fast as straight lines
 		stream.write(" splines=\"spline\"; \n") # Slower than "curved" but acceptable.
+		stream.write(" rankdir=\"LR\"; \n")
 		# stream.write(" splines=\"compound\"; \n") ### TRES LENT
 	else:
 		dot_layout = "fdp" # Faster than "dot"
 		# TODO: Maybe we could use the number of elements len(grph)  ?
+		stream.write(" rankdir=\"LR\"; \n")
 	stream.write(" layout=\"" + dot_layout + "\"; \n")
 
 	stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
@@ -289,9 +298,12 @@ def UrlToSvg(url):
 			return url.replace( "&", "&amp;amp;" )
 
 def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream, grph ):
+#	stream.write("""
+#  rank=sink;
+#  rankdir=LR
+#  node [shape=plaintext]
+# 	""")
 	stream.write("""
-  rank=sink;
-  rankdir=LR
   node [shape=plaintext]
  	""")
 
@@ -1736,7 +1748,7 @@ class TmpFile:
 		try:
 			if self.Name:
 				sys.stderr.write("Deleting="+self.Name+"\n")
-				os.remove(self.Name)
+				# os.remove(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
 				sys.stderr.write("About to del %s\n" % self.TmpDirToDel )

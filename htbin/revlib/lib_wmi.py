@@ -179,13 +179,14 @@ def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 	# sys.stderr.write("GetWmiUrl %s %s %s %s wmiUrl=%s\n" % (entity_host, entity_namespace, entity_type, entity_id, wmiUrl))
 	return wmiUrl
 
+# These classes have too many members to be listed or even counted, let alone displayed.
 def WmiTooManyInstances(className):
-	# Shoudl also take their base classes.
+	# TODO: This list Should also include their base classes.
 	return className in ['Win32_ComputerSystem','PG_ComputerSystem','CIM_UnitaryComputerSystem',
 						 'CIM_ComputerSystem','CIM_System','CIM_LogicalElement','Win32_UserAccount',
 						 'Win32_Group', 'CIM_ManagedSystemElement', 'CIM_Dependency']
 
-
+# TODO: What does it do ?????
 def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
 	clsObj = getattr( connWmi, classNam )
 	drv = clsObj.derivation()
@@ -217,7 +218,7 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 
 			klassDescr = str( getattr( connWmi, className ).property_map )
 			# Otherwise it crashes.
-			klassDescrClean = klassDescr.replace("{"," ").replace("}"," ")
+			# klassDescrClean = klassDescr.replace("{"," ").replace("}"," ")
 			# sys.stderr.write("klassDescr=%s\n"%klassDescr)
 			grph.add( ( wmiClassNode, lib_common.MakeProp("property_map"), rdflib.Literal(klassDescr.replace("{"," ").replace("}"," ") ) ) )
 
@@ -230,15 +231,12 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 			if withProps:
 				for propObj in theCls.Properties_:
 					propDsc = propObj.Qualifiers_("Description")
+					# Properties of different origins should not be mixed.
 					# Prefixes the property with a dot, so sorting displays it at the end.
 					# Surprisingly, the dot becomes invisible.
 					grph.add( ( wmiClassNode, lib_common.MakeProp("."+propObj.Name), rdflib.Literal(propDsc) ) )
 		else:
 			grph.add( ( wmiClassNode, pc.property_information, rdflib.Literal("No description available for %s" % className) ) )
-
-
-
-		# TODO: The properties are not properly sorted: Some properties should come before others.
 
 		klassQuals = getattr( connWmi, className ).qualifiers
 		for klaQualKey in klassQuals :
@@ -246,7 +244,7 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 			grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), rdflib.Literal(klaQualVal) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
-
+		# Dumped in json so that lists can be appropriately deserialized then displayed.
 		errStr = json.dumps(list(exc))
 		grph.add( ( wmiClassNode, lib_common.MakeProp("WMI Error"), rdflib.Literal(errStr) ) )
 
@@ -255,3 +253,32 @@ def ValidClassWmi(entity_host, className):
 	tpSplit = className.split("_")
 	tpPrefix = tpSplit[0]
 	return tpPrefix in ["CIM","Win32","WMI"]
+
+
+def WmiAddClassNode(grph,connWmi,wmiNode,entity_host, nameSpace, className, prop):
+		wmiurl = GetWmiUrl( entity_host, nameSpace, className, "" )
+		if wmiurl is None:
+			return
+
+		wmiClassNode = rdflib.term.URIRef(wmiurl)
+
+		grph.add( ( wmiClassNode, prop, wmiNode ) )
+
+		WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, False )
+		return wmiClassNode
+
+# Adds the list of base classes. Returns the list of pairs (name node),
+# so it can be matched againt another inheritance tree.
+def WmiAddBaseClasses(grph,connWmi,wmiNode,entity_host, nameSpace, className):
+	pairsNameNode = dict()
+	# Adds the qualifiers of this class.
+	klassObj = getattr( connWmi, className )
+
+	wmiSubNode = wmiNode
+
+	# It always work even if there is no object.
+	for baseKlass in klassObj.derivation():
+		wmiClassNode = WmiAddClassNode(grph,connWmi,wmiSubNode,entity_host, nameSpace, baseKlass, pc.property_cim_subclass)
+		pairsNameNode[baseKlass] = wmiClassNode
+		wmiSubNode = wmiClassNode
+	return pairsNameNode

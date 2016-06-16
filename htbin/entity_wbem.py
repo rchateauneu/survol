@@ -47,6 +47,8 @@ conn = lib_wbem.WbemConnection(cimomUrl)
 
 rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WBEM" )
 klaDescrip = lib_wbem.WbemClassDescription(conn,className,nameSpace)
+if not klaDescrip:
+	klaDescrip = "Undefined class %s %s" % ( nameSpace, className )
 grph.add( ( rootNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
 
 splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )

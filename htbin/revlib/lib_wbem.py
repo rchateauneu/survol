@@ -120,7 +120,7 @@ def WbemServersList():
 # On pourrait aussi bien avoir deux fonctions differentes.
 # Maybe entity_namespace does not have the right separator, slash or backslash.
 def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
-	# sys.stderr.write("GetWbemUrls h=%s ns=%s t=%s i=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
+	sys.stderr.write("GetWbemUrls h=%s ns=%s t=%s i=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
 	wbem_urls_list = []
 
 	entity_ip_addr = lib_util.EntHostToIpReally(entity_host)
@@ -139,6 +139,7 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 	# TODO: C EST TOUT LE PROBLEME DU MAPPING DES CLASSES ET PROPERTIES.
 
 	for wbemServer in WbemServersList():
+		# TODO: Horribly slow.
 		if not lib_util.SameHostOrLocal( wbemServer[0], entity_ip_addr ):
 			continue
 
@@ -187,8 +188,9 @@ def WbemGetClassObj(connWbem,entity_type,wbemNamespace):
 		wbemKlass = connWbem.GetClass(entity_type, namespace=wbemNamespace, LocalOnly=False, IncludeQualifiers=True)
 		return wbemKlass
 	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("WbemGetClassObj GetClass: ns="+wbemNamespace+" class="+entity_type+". Caught:"+str(exc))
+		return None
+		# exc = sys.exc_info()[1]
+		# lib_common.ErrorMessageHtml("WbemGetClassObj GetClass: ns="+wbemNamespace+" class="+entity_type+". Caught:"+str(exc))
 
 ################################################################################
 
@@ -203,8 +205,9 @@ def WbemClassDescription(connWbem,entity_type,wbemNamespace):
 	try:
 		wbemKlass = connWbem.GetClass(entity_type, namespace=wbemNamespace, LocalOnly=False, IncludeQualifiers=True)
 	except Exception:
-		exc = sys.exc_info()[1]
-		return "Error: Namespace="+wbemNamespace+" class="+str(entity_type)+". Caught:"+str(exc)
+		return None
+		#exc = sys.exc_info()[1]
+		#return "Error: Namespace="+wbemNamespace+" class="+str(entity_type)+". Caught:"+str(exc)
 	return WbemClassDescrFromClass(wbemKlass)
 	#try:
 	#	wbemKlass = connWbem.GetClass(entity_type, namespace=wbemNamespace, LocalOnly=False, IncludeQualifiers=True)
