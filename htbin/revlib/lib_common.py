@@ -558,7 +558,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				subNodUri = obj.replace('&','&amp;')
 
 				try:
-					(subObjNam, subEntityGraphicClass, subEntityId) = lib_naming.ParseEntityUri( obj )
+					(subObjNam, subEntityGraphicClass, subEntityId) = lib_naming.ParseEntityUriShort( obj )
 				except UnicodeEncodeError:
 					sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( obj ) )
 					(subObjNam, subEntityGraphicClass, subEntityId) = ("Utf problem1","Utf problem2","Utf problem3")
@@ -623,15 +623,15 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 					columns[ idxKey ] = tmpCell
 
 
-				# The title has colspan=2, and the table two columns.
-				if title == "":
-					columns[0] = '<td port="%s" href="%s" colspan="2" align="LEFT" >%s</td>' \
-						% ( subObjId, subNodUri, subObjNam )
-					title_key = subObjNam
-				else:
-					columns[0] = '<td port="%s" href="%s" align="LEFT" >%s</td><td align="LEFT" >%s</td>' \
-						% ( subObjId, subNodUri, title, subObjNam )
+				if title:
 					title_key = title
+				else:
+					title_key = subObjNam
+				# TODO: No need of colspan=2
+
+				columns[0] = '<td port="%s" href="%s" colspan="2" align="LEFT" >%s</td>' \
+					% ( subObjId, subNodUri, title_key )
+
 
 				# Several scripts might have the same help text, so add a number.
 				# "Title" => "Title"
@@ -694,7 +694,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			#	labTextWithBr = "Property:"
 			#else:
 			#	labTextWithBr = "Properties:"
-			maxLenLab = 10
+			maxLenLab = 30
 			if len( labText ) > maxLenLab:
 				idx = labText.find(" ",maxLenLab)
 				# sys.stderr.write("idx=%d\n"%idx)

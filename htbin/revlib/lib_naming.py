@@ -135,7 +135,7 @@ def EntityToLabel(entity_type,entity_ids_concat):
 	# sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
 
 	# Specific case of objtypes.py
-	if entity_ids_concat is None or len(entity_ids_concat) == 0:
+	if not entity_ids_concat:
 		return entity_type
 
 	# TODO: Meme logique foireuse mais robuste, tant que la valeur ne contient pas "=".
@@ -179,9 +179,9 @@ def EntityToLabel(entity_type,entity_ids_concat):
 scripts_to_titles = {
 	"portal_wbem.py": "WBEM server ",
 	"portal_wmi.py": "WMI server ",
-	"class_wbem.py": "WBEM class ",
-	"class_wmi.py": "WMI's",
-	"class_type_all.py": "Class ",
+	"class_wbem.py": "WBEM class",
+	"class_wmi.py": "WMI class",
+	"class_type_all.py": "Generic class",
 	"objtypes_wbem.py": "WBEM subclasses of ",
 	"objtypes_wmi.py": "WMI subclasses of ",
 	"namespaces_wbem.py": "WBEM namespaces ",
@@ -197,7 +197,7 @@ scripts_to_titles = {
 # The returned entity type is used for choosing graphic attributes and gives
 # more information than the simple entity type.
 # uri="http://127.0.0.1:80/Survol/htbin/entity.py?xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
-def ParseEntityUri(uri):
+def ParseEntityUri(uri,longDisplay=True):
 	# sys.stderr.write("ParseEntityUri %s\n"%uri)
 	# Maybe there is a host name before the entity type. It can contain letters, numbers,
 	# hyphens, dots etc... but no ":" or "@".
@@ -213,7 +213,6 @@ def ParseEntityUri(uri):
 	# This works for the scripts:
 	# entity.py            xid=namespace/type:idGetNamespaceType
 	# objtypes_wbem.py     Just extracts the namespace, as it prefixes the type: xid=namespace/type:id
-	entity_host = ""
 
 	if uprs.query.startswith("xid="):
 		# TODO: La chaine contient peut-etre des codages HTML et donc ne peut pas ete parsee !!!!!!
@@ -224,24 +223,31 @@ def ParseEntityUri(uri):
 
 		( namSpac, entity_type_NoNS, _ ) = lib_util.ParseNamespaceType(entity_type)
 
-		if entity_type_NoNS == "" and entity_id == "":
+		if entity_type_NoNS or entity_id:
+			entity_label = EntityToLabel( entity_type_NoNS, entity_id )
+		else:
 			# Only possibility to print something meaningful.
 			entity_label = namSpac
-		else:
-			entity_label = EntityToLabel( entity_type_NoNS, entity_id )
 
 		# Some corner cases: "http://127.0.0.1/Survol/htbin/entity.py?xid=CIM_ComputerSystem.Name="
-		if entity_label == "":
+		if not entity_label:
 			entity_label = entity_type
 
-		# Extra information depending on the script.
-		filScript = os.path.basename(uprs.path)
 		# TODO: Consider ExternalToTitle, similar logic with different results.
-		try:
-			extra_title = scripts_to_titles[ filScript ]
-			entity_label = extra_title + " " + entity_label
-		except KeyError:
-			entity_label = filScript +" "+ entity_label
+		if longDisplay:
+			# Extra information depending on the script.
+			filScript = os.path.basename(uprs.path)
+			try:
+				extra_title = scripts_to_titles[ filScript ]
+				entity_label = extra_title + " " + entity_label
+			except KeyError:
+				entity_label = filScript +" "+ entity_label
+
+			# Maybe hostname is a CIMOM address.
+			if lib_util.IsLocalAddress( entity_host ):
+				entity_label += " at local host"
+			else:
+				entity_label += " at " + entity_host
 
 	# Maybe an internal script, but not entity.py
 	# It has a special entity type as a display parameter
@@ -273,16 +279,11 @@ def ParseEntityUri(uri):
 		entity_id = ""
 		entity_label = UriToTitle(uprs)
 
-	# Maybe hostname is a CIMOM address.
-	# TODO: This is repeated soooo many times when displaying in tables.
-	if lib_util.IsLocalAddress( entity_host ):
-		entity_label += " at local host"
-	else:
-		entity_label += " at " + entity_host
-
 	# TODO: ATTENTION !!!! ON L A RETIRE ICI UNIQUEMENT CAR C ETAIT DEJA FAIT
 	# TODO: AVEC LES SYMBOLES. PEUT ETRE LE REMETTRE POUR TOUS LES AUTRES TYPES.
 	# entity_label = entity_label.replace("&","&amp;")
 	# entity_label = entity_label.escape()
 	return ( entity_label, entity_graphic_class, entity_id )
 
+def ParseEntityUriShort(uri):
+	return ParseEntityUri(uri,False)

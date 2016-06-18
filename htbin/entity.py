@@ -260,7 +260,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 			for docModu in docModuSplit:
 				if docModu != "":
 					sys.stderr.write("DOC="+docModu)
-					maxLen = 30
+					maxLen = 40
 					if len(docModu) > maxLen:
 						docModu = docModu[0:maxLen] + "..."
 					break
