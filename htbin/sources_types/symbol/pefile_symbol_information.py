@@ -21,6 +21,18 @@ from lib_properties import pc
 import pefile
 import win32api
 
+# This can run on a PE file only.
+def Usable(entity_type,entity_ids_arr):
+	"""Can run on a pe file only"""
+
+	try:
+		# This is a bit hard-coded, the file comes second, and is not mandatory.
+		filNam = entity_ids_arr[1]
+		pe = pefile.PE(filNam)
+		return True
+	except Exception:
+		return False
+
 def VersionString(filNam):
 	try:
 		info = win32api.GetFileVersionInfo (filNam, "\\")
@@ -31,9 +43,9 @@ def VersionString(filNam):
 		return None
 
 def FindPESymbol(filNam,symbol):
-	pe = pefile.PE(filNam)
-
 	try:
+		pe = pefile.PE(filNam)
+
 		for sym in pe.DIRECTORY_ENTRY_EXPORT.symbols:
 			# sys.stderr.write("sym=%s\n"%sym)
 			# sys.stderr.write("entry=%s\n"%str(entry.struct))
