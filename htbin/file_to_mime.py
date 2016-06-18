@@ -11,7 +11,12 @@ import re
 import mimetypes
 
 import cgi
-import SimpleHTTPServer
+
+if sys.version_info >= (3, ):
+	pass # import SimpleHTTPServer
+else:
+	# Not sure this is useful at all.
+	import SimpleHTTPServer
 
 import lib_common
 import lib_util
@@ -33,7 +38,10 @@ if mime_type == None:
 
 try:
 	# Read and write by chunks, so that it does not use all memory.
-	lib_util.CopyFile( mime_type, fileName, sys.stdout )
+	# lib_util.CopyFile( mime_type, fileName, sys.stdout )
+	# Tested with Python3.
+	lib_util.CopyFile( mime_type, fileName, lib_util.DfltOutDest() )
+
 except Exception:
 	exc = sys.exc_info()[1]
 	lib_common.ErrorMessageHtml("Reading %s, caught:%s" % ( fileName, str(exc) ) )
