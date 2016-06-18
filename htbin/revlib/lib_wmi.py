@@ -182,9 +182,11 @@ def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 # These classes have too many members to be listed or even counted, let alone displayed.
 def WmiTooManyInstances(className):
 	# TODO: This list Should also include their base classes.
+	# TODO: Have a mechanism to stop the process when it tales too long to return.
 	return className in ['Win32_ComputerSystem','PG_ComputerSystem','CIM_UnitaryComputerSystem',
 						 'CIM_ComputerSystem','CIM_System','CIM_LogicalElement','Win32_UserAccount',
-						 'Win32_Group', 'CIM_ManagedSystemElement', 'CIM_Dependency']
+						 'Win32_Group', 'CIM_ManagedSystemElement', 'CIM_Dependency', 'CIM_LogicalFile',
+						 'CIM_SoftwareElement']
 
 # TODO: What does it do ?????
 def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
