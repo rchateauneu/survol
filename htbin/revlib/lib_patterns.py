@@ -69,11 +69,6 @@ def PatternNode(typeFull):
 	is_rounded = tp[4]
 
 	# TODO: La premiere ligne est moche. Celle par defaut est mieux remplie.
-
-	#return '%s [ shape=' + shape + ', tooltip="%s" style="filled" fillcolor="' + colorfill + '" color=%s label=< <table color="' + '#000000' + '"' + \
-	#	" cellborder='0' cellspacing='0' border='" + str(border) + "'><tr>" + \
-	#	'<td href="%s" bgcolor="' + colorbg + '" colspan="%d">%s</td>' + \
-	#	"</tr>"
 	if is_rounded:
 		style = 'style="rounded,filled"'
 	else:
@@ -83,14 +78,14 @@ def PatternNode(typeFull):
 		'<td href="%s" bgcolor="' + colorbg + '" colspan="%d">%s</td>' + \
 		"</tr>"
 
-def WritePatterned( stream, type, subjNamTab, hlp, col, labHRef, nbCols, labText, props ):
+def WritePatterned( stream, type, subjNamTab, hlp, color, labHRef, nbCols, labText, props ):
 	patt = PatternNode(type)
 
 	# PROBLEME: Le titre et les elements n ont pas forcement les memes couleurs.
 	# Le cadre est celui du titre.
 
 	try:
-		stream.write( patt % ( subjNamTab, hlp, col, labHRef, nbCols, labText ) )
+		stream.write( patt % ( subjNamTab, hlp, color, labHRef, nbCols, labText ) )
 	except UnicodeEncodeError:
 		sys.stderr.write("WritePatterned UnicodeEncodeError: Encoding=%s\n" % sys.getdefaultencoding() )
 		return
