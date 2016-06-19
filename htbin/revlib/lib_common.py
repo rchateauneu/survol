@@ -517,7 +517,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# Mandatory properties must come at the beginning of the columns of the header, with first indices.
 			# BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absente.
 			# S il y a du html ou du RDF, on veut que ca vienne en premier.
-			fieldsKeysOrdered = [ "UNUSED_PLACEHOLDER_FOR_INFORMATION"]
+			fieldsKeysOrdered = []
 			for fldPriority in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ]:
 				try:
 					# Must always be appended. BUT IF THERE IS NO html_data, IS IT WORTH ?
@@ -546,7 +546,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# sys.stderr.write("fieldsKeys=%s\n" % str(fieldsKeys) )
 
 			# This assumes that the header columns are sorted.
-			keyIndices = { key:numKeys for (numKeys,key) in enumerate(fieldsKeys,0) }
+			keyIndices = { key:numKeys for (numKeys,key) in enumerate(fieldsKeys,1) }
 
 			# Apparently, no embedded tables.
 			dictLines = dict()
@@ -564,13 +564,9 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 					(subObjNam, subEntityGraphicClass, subEntityId) = ("Utf problem1","Utf problem2","Utf problem3")
 		
 				# Attention, on ne peut pas utiliser <b> avec les anciennes versions.
-				numKeys = len(keyIndices)
+				numKeys = len(keyIndices)+1
 
-				# TODO: HOW AND WHEN CAN IT HAPPEN ???
-				if numKeys == 0:
-					numKeys=1
-
-				# Some columns might not have a value.
+				# Some columns might not have a value. The first column is for the key.
 				columns = ["<td></td>"] * numKeys
 
 				# Just used for the vertical order of lines, one line per object.
@@ -583,6 +579,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						title += val
 						continue
 
+					# TODO: This is hard-coded.
 					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ] :
 						# TODO: get the text with ParseEntityUri if property_rdf_data_nolist2
 						# Ou alors: Eviter d afficher toujours le meme texte ou bien repeter l autre lien.
@@ -608,16 +605,15 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						# - Un objet peut avoir plusieurs pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2
 
 						valTitle = ExternalToTitle(val)
-						# We insert a table because there might be several links.
 						tmpCell = '<td href="%s" align="left" >%s</td>' % ( val , valTitle )
-						# TODO: NOT FOR THE MOMENT SO IT IS NOT USEFUL.
-						# tmpCell = '<td><table border="0"><tr><td href="%s" align="left" >%s</td></tr></table></td>' % ( val , valTitle )
-
-					elif val.isnumeric():
-						tmpCell = "<td align='right'>%s</td>" % val
 					else:
-						# Wraps the string if too long. Can happen only with a literal.
-						tmpCell = "<td align='left'>%s</td>" % StrWithBr(val)
+						try:
+							float(val)
+							# Not sure this works ...
+							tmpCell = "<td align='right'>%s</td>" % val
+						except:
+							# Wraps the string if too long. Can happen only with a literal.
+							tmpCell = "<td align='left'>%s</td>" % StrWithBr(val)
 
 					idxKey = keyIndices[key]
 					columns[ idxKey ] = tmpCell
@@ -627,10 +623,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 					title_key = title
 				else:
 					title_key = subObjNam
-				# TODO: No need of colspan=2
-
-				columns[0] = '<td port="%s" href="%s" colspan="2" align="LEFT" >%s</td>' \
-					% ( subObjId, subNodUri, title_key )
+				columns[0] = '<td port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
 
 
 				# Several scripts might have the same help text, so add a number.
@@ -657,12 +650,13 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				txtElements = "1 element"
 			else:
 				txtElements = "%d elements" % numNodLst
-			header = "<td colspan='2' border='1'>" + DotBold(txtElements) + "</td>"
+			header = '<td border="1">' + DotBold(txtElements) + "</td>"
 
 			# TODO: Replace each column name with a link which sorts the line based on this column.
-			for key in fieldsKeys[1:]:
+			# for key in fieldsKeys[1:]:
+			for key in fieldsKeys:
 				header += "<td border='1'>" + DotBold( qname(key,grph) ) + "</td>"
-			# With an empty key, it comes first after sorting.
+			# With an empty key, it comes first when sorting.
 			dictLines[""] = header
 
 			# MAYBE SHOULD BE DONE TWICE !!!!! SEE ALSO ELSEWHERE !!!!
@@ -671,8 +665,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# ATTENTION: La forme du record est celle du sujet.
 			# ca veut donc dire qu'on va avoir la meme couleur pour des objets de types
 			# differents s'ils sont dans la meme relation avec un sujet identique ?
-			# TODO: Apparently "BLUE" is not used !
-			numFields = len(fieldsKeys) + 1
+			numFields = len(fieldsKeys)+1
 
 			# ATTENTION: entity_graphic_class doit etre du type des URI contenus dans la table, pas le contenant !!
 			try:
@@ -690,10 +683,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# TODO: Le titre et le contenu ne sont pas forcement de la meme classe.
 			# labTextWithBr is the first line of the table containing nodes linked with the
 			# same property. Unfortunately we have lost this property.
-			#if len(PropsAsLists) == 1:
-			#	labTextWithBr = "Property:"
-			#else:
-			#	labTextWithBr = "Properties:"
 			maxLenLab = 30
 			if len( labText ) > maxLenLab:
 				idx = labText.find(" ",maxLenLab)
@@ -749,7 +738,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		try:
 			# TODO: Probleme ici: La chaine est deja codee pour HTML ce qui en rend le parsing different
 			# TODO: ... de celui d'un URL deja decode. DOMMAGE: On quote puis unquote !!!
-			# (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( obj )
 			(labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
 		except UnicodeEncodeError:
 			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( obj ) )
@@ -761,6 +749,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		# Les ampersand sont doubles intentionnelent car ils ensuite remplaces deux fois.
 		# Ca n'est utilise que temporairement le temps qu'on remplace les arguments CGI par de vrais Monikers WMI.
 		labTextClean = StrWithBr( labText.replace("&amp;amp;"," "))
+		# Two columns because it encompasses the key and the value.
 		lib_patterns.WritePatterned( stream, entity_graphic_class, nam, entity_graphic_class, NODECOLOR, labHRef, 2, labTextClean, props )
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Leaving\n" )
