@@ -7,6 +7,7 @@ import sys
 import time
 import cgi
 import re
+import json
 
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
 def AntiPredicateUri(uri):
@@ -137,12 +138,41 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph, out_dest = 
 	WrtAsUtf( out_dest, " </table> </body> </html> ")
 
 ################################################################################
-# Transforms a RDF graph into a JSON document.
-def Grph2Json( page_title, error_msg, isSubServer, parameters, grph, out_dest = None):
-	WrtAsUtf( out_dest, "Content-type: application/json\n\n" )
-	WrtAsUtf( out_dest, "This is a JSON document\n" )
+# Transforms a RDF graph into a JSON document. From Edouard.
 
-	return
+def Grph2Json(page_title, error_msg, isSubServer, parameters, grph, out_dest=None):
+    WrtAsUtf(out_dest, "Content-type: application/json\n\n")
+
+    links = []
+    nodes = []
+    graph = {}
+
+    by_subj = dict()
+    for subj, pred, obj in grph:
+        the_tup = (pred, obj)
+        try:
+            by_subj[subj].append(the_tup)
+        except KeyError:
+            by_subj[subj] = [the_tup]
+
+    for subj, the_tup_list in list(by_subj.items()):
+        subj_str = str(subj)
+        subj_title = lib_naming.ParseEntityUri(subj_str)[0]
+        nodes.extend([{'id': subj_title}])
+        mustWriteColOne = True
+
+        for pred, obj in the_tup_list:
+            if mustWriteColOne:
+                mustWriteColOne = False
+                obj_str = str(obj)
+            if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
+
+                obj_title = lib_naming.ParseEntityUri(obj_str)[0]
+                links.extend([{'source': subj_title, 'target': obj_title}])
+
+    graph["nodes"] = nodes
+    graph["links"] = links
+    print json.dumps(graph, indent = 2)
 
 ################################################################################
 
