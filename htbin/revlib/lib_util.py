@@ -4,6 +4,8 @@ import sys
 import rdflib
 import socket
 import base64
+import lib_credentials
+import importlib
 
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 try:
@@ -645,6 +647,8 @@ def OntologyClassKeys(entity_type):
 	except KeyError:
 		pass
 
+	# Et si on ne trouve pas chercher dans le module ?? lib_util.GetEntityModule(entity_type).GetFields()
+
 	# If this class is in our ontology but has no defined properties.
 	if entity_type in ObjectTypes():
 		# Default single key for our specific classes.
@@ -766,3 +770,42 @@ def DfltOutDest(out_dest=None):
 	else:
 		return out_dest
 
+# So we try to load only once.
+cacheEntityToModule = dict()
+
+# Maybe we could return an array because of heritage ?
+# Or:  GetEntityModuleFunction(entity_type,functionName):
+# ... which would explore from bottom to top.
+def GetEntityModule(entity_type):
+	sys.stderr.write("GetEntityModule entity_type=%s\n"%entity_type)
+	sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
+	sys.stderr.write("sys.path="+str(sys.path)+"\n")
+
+	try:
+		# Might be None if the module does not exist.
+		return cacheEntityToModule[ entity_type ]
+	except KeyError:
+		pass
+
+	try:
+		# Beware: No directories here, for the moment:
+		# "revlib/lib_entities/lib_entity_dbus_connection.py"
+		entity_lib = ".lib_entity_" + entity_type
+		sys.stderr.write("Loading entity-specific library:"+entity_lib+"\n")
+		entity_module = importlib.import_module( entity_lib, "lib_entities")
+		sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
+	except ImportError:
+		# Here, we want: "sources_types/dbus/connection/__init__.py"
+		# Example: entity_type = "Azure.location"
+		entity_lib = "." + entity_type.replace("/",".")
+		# entity_lib = ".Azure.location"
+		sys.stderr.write("Loading from new hierarchy entity_lib=%s\n:"%entity_lib)
+		try:
+			# entity_module = importlib.import_module( entity_lib, "sources_types")
+			entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
+			sys.stderr.write("Loaded OK from new hierarchy entity_lib=%s\n:"%entity_lib)
+		except ImportError:
+			sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
+			entity_module = None
+
+	return entity_module

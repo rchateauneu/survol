@@ -115,6 +115,11 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 		# The type of some entities can be deduced from their name.
 		return entity_ids_arr[1] + "." + entity_ids_arr[2] + "@" + entity_ids_arr[0]
 
+	# Importer un module ? Idealement il faudrait avoir une map de fonctions
+	# deja pre-remplie qu on completerait au fur et a mesure.
+	# Si on ne trouve pas le module on met la fonction par defaut.
+	# { "file" : sources_types.file.ArrToLabel, ... }
+
 	# General case of a URI created by us and for us.
 	ent_ids_joined = ",".join(entity_ids_arr)
 	if lib_patterns.TypeToPattern( entity_type ) is None:

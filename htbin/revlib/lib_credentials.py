@@ -12,7 +12,6 @@ filNam = "C:/Users/rchateau/SurvolCredentials.json"
 def GetCredentials( credType, credName ):
 	try:
 		credentials = json.load( open(filNam) )
-		print(credentials)
 		arrType = credentials[credType]
 		try:
 			cred = arrType[credName]
@@ -24,3 +23,13 @@ def GetCredentials( credType, credName ):
 	except KeyError:
 		sys.stderr.write("GetCredentials Invalid type credType=%s credName=%s\n" % (credType,credName))
 		return None
+
+def GetCredentialsNames( credType ):
+	try:
+		credentials = json.load( open(filNam) )
+		arrType = credentials[credType]
+		return arrType.keys()
+	except KeyError:
+		sys.stderr.write("GetCredentials Invalid type credType=%s\n" % (credType))
+		return None
+

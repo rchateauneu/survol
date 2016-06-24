@@ -39,24 +39,11 @@ sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_rem
 if not is_host_remote:
 	entity_host = ""
 
-
-# TODO: Temporarily until we do something more interesting, using the subtype.
-# entity_type = entity_type.split(lib_util.CharTypesComposer)[0]
-
-
 # Each entity type ("process","file" etc... ) can have a small library
 # of its own, for displaying a rdf node of this type.
 entity_module = None
 if entity_type != "":
-	sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
-	sys.stderr.write("sys.path="+str(sys.path)+"\n")
-	try:
-		entity_lib = ".lib_entity_" + entity_type
-		entity_module = importlib.import_module( entity_lib, "lib_entities")
-		sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
-	except ImportError:
-		sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
-		entity_module = None
+	entity_module = lib_util.GetEntityModule(entity_type)
 
 # Directory=/home/rchateau/Developpement/ReverseEngineeringApps/PythonStyle Type=process Id=5256
 # TODO: CharTypesComposer: Ca va retourner une liste de directory du plus bas au plus haut.
@@ -324,9 +311,12 @@ if entity_id == "" and entity_type != "":
 	pass
 else:
 	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
-	if entity_module != None:
+	if entity_module:
 		# TODO: Remplacer htbin/lib_entities/lib_entity_CLASS.py par sources_types/CLASS/__init__.py
-		entity_module.AddInfo( grph, rootNode, entity_ids_arr )
+		try:
+			entity_module.AddInfo( grph, rootNode, entity_ids_arr )
+		except AttributeError:
+			sys.stderr.write("No AddInfo for %s %s\n"%( entity_type, entity_id ))
 	else:
 		sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
 

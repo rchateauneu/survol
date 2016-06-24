@@ -3,6 +3,9 @@
 import sys
 import lib_util
 
+# Mettre dans sources_types. etc... ?
+# Il faut que ce soit tres rapide !! lib_util.GetEntityModule(entity_type).AddInfo()
+
 # We could also use dot record nodes.
 # On the other hand, it is convenient to have some control on the final SVG code.
 # NOTE: Could not set bgcolor for the shapes.

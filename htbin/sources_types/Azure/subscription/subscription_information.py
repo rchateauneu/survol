@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Azure locations
+Azure subscription informations
 """
 
 import sys
@@ -17,9 +17,10 @@ from azure.servicemanagement import *
 
 from sources_types import Azure
 from sources_types.Azure import subscription
-from sources_types.Azure import location
 
 Usable = lib_util.UsableWindows
+
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -35,14 +36,14 @@ def Main():
 
 	subscriptionNode = subscription.MakeUri( subscriptionName )
 
-	result = sms.list_locations()
-	for loca in result:
-		locaNode = location.MakeUri( loca.name )
+	# There are a lot of informations
+	grph.add( ( subscriptionNode, lib_common.MakeProp(".cert_file"), rdflib.Literal(sms.cert_file)) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp(".requestid"), rdflib.Literal(sms.requestid)) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp(".x_ms_version"), rdflib.Literal(sms.x_ms_version)) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp("Azure"), rdflib.Literal(str(dir(sms))) ) )
 
-		grph.add( ( subscriptionNode, lib_common.MakeProp("Location"), locaNode ) )
 
 	cgiEnv.OutCgiRdf(grph)
 
 if __name__ == '__main__':
 	Main()
-
