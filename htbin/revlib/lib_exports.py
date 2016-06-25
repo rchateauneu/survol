@@ -172,7 +172,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph, out_dest=Non
 
     graph["nodes"] = nodes
     graph["links"] = links
-    print json.dumps(graph, indent = 2)
+    print( json.dumps(graph, indent = 2) )
 
 ################################################################################
 
