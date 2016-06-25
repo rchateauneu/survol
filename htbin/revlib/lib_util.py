@@ -216,6 +216,10 @@ def TopScriptsFunc():
 
 gblTopScripts = TopScriptsFunc()
 
+# TODO: This is necessary because now we import modules from htbin.
+# TODO: We will also add htbin/revlib so it will not be necessary to set PYTHONPATH in Apache httpd.conf.
+sys.path.append(gblTopScripts)
+sys.stderr.write("sys.path=%s\n"%str(sys.path))
 ################################################################################
 
 # Depending on the category, entity_host can have several forms.
