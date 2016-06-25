@@ -35,8 +35,13 @@ def Main():
 
 	subscriptionNode = subscription.MakeUri( subscriptionName )
 
-	result = sms.list_locations()
-	for loca in result:
+	try:
+		# This throws when running with Apache. OK with cgiserver.py
+		lstLocas = sms.list_locations()
+	except:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+
+	for loca in lstLocas:
 		locaNode = location.MakeUri( loca.name, subscriptionName )
 
 		grph.add( ( subscriptionNode, lib_common.MakeProp("Location"), locaNode ) )

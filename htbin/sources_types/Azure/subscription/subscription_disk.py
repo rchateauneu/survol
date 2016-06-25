@@ -50,7 +50,14 @@ def Main():
 	propDiskLabel = lib_common.MakeProp("Label")
 	propDiskLocation = lib_common.MakeProp("Location")
 	propMediaLink = lib_common.MakeProp("Location")
-	for dsk in sms.list_disks():
+
+	try:
+		# This throws when running with Apache. OK with cgiserver.py
+		lstDisks = sms.list_disks()
+	except:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+
+	for dsk in lstDisks:
 		sys.stderr.write("dsk=%s\n"%str(dir(dsk)))
 		nodeDisk = disk.MakeUri( dsk.name, subscriptionName )
 		grph.add( ( subscriptionNode, propDisk, nodeDisk ) )

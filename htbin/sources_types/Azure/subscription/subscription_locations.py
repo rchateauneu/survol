@@ -35,7 +35,13 @@ def Main():
 
 	subscriptionNode = subscription.MakeUri( subscriptionName )
 
-	result = sms.list_locations()
+	try:
+		# This throws when running with Apache. OK with cgiserver.py
+		lstLocations = sms.list_locations()
+	except:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+
+	result = lstLocations
 	for loca in result:
 		locaNode = location.MakeUri( loca.name, subscriptionName )
 

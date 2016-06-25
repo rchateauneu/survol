@@ -37,8 +37,13 @@ def Main():
 
 	subscriptionNode = subscription.MakeUri( subscriptionName )
 
-	result = sms.list_hosted_services()
-	for srv in result:
+	try:
+		# This throws when running with Apache. OK with cgiserver.py
+		lstSrvs = sms.list_hosted_services()
+	except:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+
+	for srv in lstSrvs:
 		servNode = service.MakeUri( srv.service_name, subscriptionName )
 		grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), servNode ) )
 

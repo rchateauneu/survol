@@ -48,7 +48,14 @@ def Main():
 	#	grph.add( ( subscriptionNode, propOperatingSystem, rdflib.Literal(opsys.family_label)) )
 
 	propOperatingSystemFamily = lib_common.MakeProp("Operating System Family")
-	for opsys in sms.list_operating_system_families():
+
+	try:
+		# This throws when running with Apache. OK with cgiserver.py
+		lstOSes = sms.list_operating_system_families()
+	except:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+
+	for opsys in lstOSes:
 		# sys.stderr.write("opsys=%s\n"%str(dir(opsys)))
 		grph.add( ( subscriptionNode, propOperatingSystemFamily, rdflib.Literal(opsys.label)) )
 
