@@ -22,10 +22,15 @@ def AddInfo(grph,node,entity_ids_arr):
 	# because we could connect to all of them.
 	try:
 		(subscription_id,certificate_path) = lib_credentials.GetCredentials( "Azure", subscriptionName )
+		if not subscription_id:
+			errMsg = "No credential for subscriptionName=%s" % subscriptionName
+			grph.add( ( node, lib_common.MakeProp("Azure Error"), rdflib.Literal(errMsg) ) )
+			return
 		sms = ServiceManagementService(subscription_id, certificate_path)
 	except:
 		exc = sys.exc_info()[1]
-		grph.add( ( node, lib_common.MakeProp("Error"), rdflib.Literal(str(exc)) ) )
+		errMsg = "subscriptionName=%s:%s" % (subscriptionName, str(exc) )
+		grph.add( ( node, lib_common.MakeProp("Azure Error"), rdflib.Literal(errMsg) ) )
 		return
 
 	# There are a lot of informations

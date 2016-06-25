@@ -48,11 +48,10 @@ def Main():
 	sys.stderr.write("srv.hosted_service_properties=%s\n"% str(dir(srv.hosted_service_properties)))
 	sys.stderr.write("srv.hosted_service_properties.extended_properties=%s\n"% str(dir(srv.hosted_service_properties.extended_properties)))
 
-	servNode = service.MakeUri( srv.service_name )
+	servNode = service.MakeUri( srv.service_name, subscriptionName )
 	grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), servNode ) )
 
-	# There will be duplicates.
-	locaNode = location.MakeUri( srv.hosted_service_properties.location )
+	locaNode = location.MakeUri( srv.hosted_service_properties.location, subscriptionName )
 	grph.add( ( servNode, lib_common.MakeProp("Location"), locaNode ) )
 
 	grph.add( ( servNode, pc.property_rdf_data_nolist1, rdflib.term.URIRef(srv.url) ) )

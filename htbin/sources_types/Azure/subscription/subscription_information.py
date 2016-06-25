@@ -42,8 +42,17 @@ def Main():
 	grph.add( ( subscriptionNode, lib_common.MakeProp(".x_ms_version"), rdflib.Literal(sms.x_ms_version)) )
 	grph.add( ( subscriptionNode, lib_common.MakeProp("Azure"), rdflib.Literal(str(dir(sms))) ) )
 
+	#propOperatingSystem = lib_common.MakeProp("Operating System")
+	#for opsys in sms.list_operating_systems():
+	#	sys.stderr.write("opsys=%s\n"%str(dir(opsys)))
+	#	grph.add( ( subscriptionNode, propOperatingSystem, rdflib.Literal(opsys.family_label)) )
 
-	cgiEnv.OutCgiRdf(grph)
+	propOperatingSystemFamily = lib_common.MakeProp("Operating System Family")
+	for opsys in sms.list_operating_system_families():
+		# sys.stderr.write("opsys=%s\n"%str(dir(opsys)))
+		grph.add( ( subscriptionNode, propOperatingSystemFamily, rdflib.Literal(opsys.label)) )
+
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propOperatingSystemFamily])
 
 if __name__ == '__main__':
 	Main()

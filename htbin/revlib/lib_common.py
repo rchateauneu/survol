@@ -57,32 +57,6 @@ def TimeStamp():
 
 ################################################################################
 
-# Apache http://127.0.0.1/PythonStyle/htbin/internals/print.py
-# Entity http://127.0.0.1/PythonStyle/htbin/entity.py
-# SCRIPT_NAME=/PythonStyle/htbin/internals/print.py
-# REMOTE_ADDR=127.0.0.1
-# SERVER_PORT=80
-# SCRIPT_FILENAME=D:/Projects/Divers/Reverse/PythonStyle/htbin/internals/print.py
-# REQUEST_URI=/PythonStyle/htbin/internals/print.py
-#
-# Script http://127.0.0.1:8000/htbin/internals/print.py
-# Entity http://127.0.0.1:8000/htbin/entity.py
-# REMOTE_ADDR=127.0.0.1
-# SERVER_PORT=8000
-# SCRIPT_NAME=/htbin/internals/print.py
-# PATH_TRANSLATED=D:\Projects\Divers\Reverse\PythonStyle
-def PathRoot():
-	# TODO: Check that it returns also the path, on all platforms.
-	scriptFilNam = __file__
-
-	idx = scriptFilNam.find('htbin')
-	root = scriptFilNam[:idx] + 'htbin'
-	return root
-
-pathRoot = PathRoot()
-
-################################################################################
-
 # This is used to call an URL with mode=info as CGI argument. The url returns
 # a Json array describing this URL, for example the title.
 # TODO: As this information rarely changes, it can be cached in a text file.

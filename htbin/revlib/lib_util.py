@@ -4,7 +4,6 @@ import sys
 import rdflib
 import socket
 import base64
-import lib_credentials
 import importlib
 
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
@@ -201,12 +200,19 @@ def RequestUri():
 # SCRIPT_NAME=/Survol/htbin/internals/print.py
 # getcwd=C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\internals
 def TopScriptsFunc():
+	# TODO: Use __file__ which might be faster ??
 	currDir = os.getcwd()
+
+	# TODO: WHY IS IT DISPLAYED TWICE ???? CIRCULAR IMPORT ??
+	sys.stderr.write("TopScriptsFunc currDir=%s\n"%currDir)
+	sys.stderr.write("TopScriptsFunc __file__=%s\n"%__file__)
+
 	idx = currDir.find("htbin")
 	# Maybe not running i Apache but in http.server (Python 3) or SimpleHttpServer (Python 2)
 	if idx == -1:
 		return currDir + "//htbin"
-	return currDir[ : idx + 5 ]
+	else:
+		return currDir[ : idx + 5 ]
 
 gblTopScripts = TopScriptsFunc()
 
@@ -795,15 +801,24 @@ def GetEntityModule(entity_type):
 		entity_module = importlib.import_module( entity_lib, "lib_entities")
 		sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
 	except ImportError:
-		# Here, we want: "sources_types/dbus/connection/__init__.py"
-		# Example: entity_type = "Azure.location"
-		entity_lib = "." + entity_type.replace("/",".")
-		# entity_lib = ".Azure.location"
-		sys.stderr.write("Loading from new hierarchy entity_lib=%s\n:"%entity_lib)
 		try:
-			# entity_module = importlib.import_module( entity_lib, "sources_types")
-			entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
-			sys.stderr.write("Loaded OK from new hierarchy entity_lib=%s\n:"%entity_lib)
+			# Here, we want: "sources_types/Azure/location/__init__.py"
+			# Example: entity_type = "Azure.location"
+			# This works.
+			# entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
+
+			# entity_type_split = ["Azure","subscription"]
+			entity_type_split = entity_type.split("/")
+			if len(entity_type_split) > 1:
+				entity_package = "sources_types." + ".".join(entity_type_split[:-1])
+				entity_name = "." + entity_type_split[-1]
+			else:
+				entity_package = "sources_types"
+				entity_name = entity_type_split
+			sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+			entity_module = importlib.import_module( entity_name, entity_package)
+			sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+
 		except ImportError:
 			sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
 			entity_module = None

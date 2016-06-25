@@ -1,17 +1,26 @@
+import os
 import sys
 import json
+import lib_util
 
-# De facon generale, le user/pwd peut etre dans la ressource et donc la parser est dependant
-# de la librairie, et donc eventuellement il faut charger une librairie et effectuer
-# une fonction specifique. Autre cas, les URLs qui ont une facon standard de coder user/pass.
-# En revanche, si le user/pass n est pas donne, on stocke de la meme facon.
+def CredFilNam():
+	dirNam = lib_util.gblTopScripts
+	# dirNam = lib_common.pathRoot
+	# filNam = "C:/Users/rchateau/SurvolCredentials.json"
+	filNam = dirNam + "/../../SurvolCredentials.json"
+	sys.stderr.write("CredFilNam %s\n"%filNam)
+	return filNam
 
-# TODO: This is a hard-code.
-filNam = "C:/Users/rchateau/SurvolCredentials.json"
+def CredDocument():
+	filNam = CredFilNam()
+	credentials = json.load( open(filNam) )
+	return credentials
+
+# Loaded once only.
+credentials = CredDocument()
 
 def GetCredentials( credType, credName ):
 	try:
-		credentials = json.load( open(filNam) )
 		arrType = credentials[credType]
 		try:
 			cred = arrType[credName]
@@ -26,7 +35,6 @@ def GetCredentials( credType, credName ):
 
 def GetCredentialsNames( credType ):
 	try:
-		credentials = json.load( open(filNam) )
 		arrType = credentials[credType]
 		return arrType.keys()
 	except KeyError:

@@ -39,7 +39,7 @@ def Main():
 
 	result = sms.list_hosted_services()
 	for srv in result:
-		servNode = service.MakeUri( srv.service_name )
+		servNode = service.MakeUri( srv.service_name, subscriptionName )
 		grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), servNode ) )
 
 		# There will be duplicates.

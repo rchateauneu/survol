@@ -37,7 +37,7 @@ def Main():
 
 	result = sms.list_locations()
 	for loca in result:
-		locaNode = location.MakeUri( loca.name )
+		locaNode = location.MakeUri( loca.name, subscriptionName )
 
 		grph.add( ( subscriptionNode, lib_common.MakeProp("Location"), locaNode ) )
 
