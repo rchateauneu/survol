@@ -1,72 +1,209 @@
-<html>
-<head><title></title></head>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Experimentation: Embed SVG document generated in Python, in a DIV tag</title>
+</head>
 <body>
 
-    <p>Survol access page</p>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 
-<table border="1">
-<tr><td><a href="build_merge.htm">Builds a URL for merging RDF sources on the server</a></td>
-    <td>Builds in Javascript the url which merges several RDF urls, in Python. Probably deprecated</td></tr>
-<tr><td><a href="rdfquery_text.htm">RDF to Javascript text display</a></td>
-    <td>This loads a RDF URL with RDFQuery and displays it with Javascript</td></tr>
-<tr><td><a href="rdfquery_d3.htm">RDF to D3 display</a></td>
-    <td>This loads a RDF URL with RDFQuery and displays it with D3</td></tr>
-<tr><td><a href="load_urls_with_rdfquery.htm">load_urls_with_rdfquery.htm</a></td>
-    <td>Tries to load URLs with rdfquery. Uses also SLP, but it would be better to embed the small WBEM server
-    written in Python, and convert our RDF data into WBEM. Or do everything in WBEM,
-        but it does not have an internal representation</td></tr>
-<tr><td><a href="merge_rdf_inputs.htm">merge_rdf_inputs.htm</a></td>
-    <td>Allows to merge several RDRF urls exposed with SLP</td></tr>
-<tr><td><a href="merge_rdf_inputs_graphviz_only.htm">merge_rdf_inputs_graphviz_only.htm</a></td>
-    <td>Allows to merge several RDRF urls exposed with SLP. Probably deprecated</td></tr>
-<tr><td><a href="metacgiview.htm">metacgiview.htm</a></td>
-    <td>Manages a list of bookmarks. Allows to create more and merge RDF urls. Probably deprecated</td></tr>
-<tr><td><a href="htbin/entity.py">Entry point</a></td>
-    <td>Entry point of dynamic objects description pages</td></tr>
-<tr><td><a href="htbin/objtypes.py">Object classes</a></td>
-    <td>Available types of objects available on this host</td></tr>
-<tr><td><a href="htbin/task_control.py">Subtasks control</a></td>
-    <td>Subtasks control. Not very convenient because of Apache time-out, so we should use WSGI for this kind of things,</td></tr>
-<tr><td><a href="htbin/internals/print.py">CGI variables</a></td>
-    <td>Print CGI variables and various internal data. Development only</td></tr>
-<tr><td><a href="embed_entity.htm">Entry point embedded in HTML</a></td>
-    <td>Entry point of dynamic objects description pages, in a DIV HTML tag</td></tr>
+<script>
+// Does it work ? We want to resize the iframe.
+$(function() {
+$( "#demo" ).resizable();
+});
+</script>
+
+<div id="demo"  class="ui-widget-content">
+<iframe src="htbin/entity.py" width="100%" height="1000" id="entity_iframe" onload="PrintContent()">
+     <p>Your browser does not support iframes.</p>
+</iframe>
+</div>
+
+<br>
+<a href="index_technical.htm">Technicalities</a><br>
+<a href="htbin/entity.py">No frame</a><br>
+
+<table>
+	<tr>
+		<td width=500"><div id="OurComments">
+</div></td>
+
+		<td valign="top">
+<div id="MergedUrl"></div>
+
+			<table id="myTable" border="1" width="200">
+    <thead>
+        <tr>
+            <th colspan="3">RDF links</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
 </table>
-<br />
+			<br><input type="button" onClick="GotoMerge();" value="Go">&nbsp;<input type="button" onClick="DelSelectedUrls();" value="Del">
 
-    <p>WBEM tests</p>
+		</td>
 
-<table border="1">
-<tr><td><a href="tests_wbem/Login.py">PYWBEM</a></td><td>WBEM login</td></tr>
-<tr><td><a href="tests_wbem/EnumNamespaces.py?url=http://127.0.0.1">PYWBEM (Local)</a></td><td>Enumerate WBEM namespaces</td></tr>
-<tr><td><a href="tests_wbem/EnumNamespaces.py?url=http://192.168.1.88">PYWBEM (Fedora)</a></td><td>Enumerate WBEM namespaces</td></tr>
-<tr><td><a href="tests_wbem/slp_discovery.py">SLP discovery</a></td><td>Browse WBEM servers</td></tr>
+	</tr>
+
 </table>
 
-Creer une page avec un "div" qui contient entity.py et voir si quand on clique dessus ca reste dans le div:
-Ca permettra de completer cette page et ajoutant des liens autour du div.
+<script src="revjslib.js"></script>
 
-Avantage de RDF: C'est fait pour des reseaux. Et ca a ete teste avec plusieurs langages.
-Autre avantage: Ca donne une definition claire du produit.
-Touytefois, si on peut, c'est pas mal de rendre nos donnees accessibles en CIM-XML,
-pour l'orthogonalite.
-On n'a pas besoin des fonctions, et de tout l'aspect "Management" de CIM.
-On ne veut partager totalement que les noms et donc les URLs.
-Pour nos aretes, il faut pointer vers les proprietes de CIM (Ou les associations).
+<script>
+// When click on a node, display the url and merge the content.
+function ProcessClickNode(theTxt,theUrl)
+{
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
 
-<br> Maintenant, on se fait plaisir. C'est fort modeste:
+	// Insert a row in the table at the last row
+	var newRow = tableRef.insertRow(tableRef.rows.length);
 
-<img src="Images/logo-wbem.png"  />
-<img src="Images/opengroupLogo.png"  />
-<img src="Images/OpenLMI Logo with slogan_2.png"  />
-<img src="Images/openlmi-logo_full-color_light-bg.png"  />
-<img src="Images/openwbem.png"  />
-<img src="Images/pegicon2.gif"  />
-<img src="Images/prod-JSERVER-sm.png"  />
-<img src="Images/prod-SDK-sm.png"  />
-<img src="Images/prod-WAVE-sm.png"  />
-<img src="Images/prod-WW-sm.png"  />
+	var checkbox = document.createElement('input');
+	checkbox.type = "checkbox";
+	checkbox.name = "name";
+	checkbox.value = "value";
+	checkbox.id = "id";
+	newRow.insertCell(0).appendChild(checkbox);
+
+	// Append a text node to the cell
+	var newText = document.createTextNode(theTxt);
+	newRow.insertCell(1).appendChild(newText);
+
+	var newText = document.createTextNode(theUrl);
+	newRow.insertCell(2).appendChild(newText);
+}
+
+function UpdateMergeUrl()
+{
+	var divMergedUrl = document.getElementById('MergedUrl');
+	divMergedUrl.innerHTML = RvgsToSvg();
+	var delim = "?url=";
+
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+	for( var ixRow = 0; ixRow < tableRef.rows.length; ixRow++ )
+	{
+		rowUrl = tableRef.rows[ixRow].cells[2].innerHTML ;
+		/* http://stackoverflow.com/questions/332872/encode-url-in-javascript
+		If you want to pass a URL into a GET parameter of other page, use escape or encodeURIComponent, but not encodeURI.
+		*/
+		rowUrlEncoded = encodeURIComponent(rowUrl);
+		divMergedUrl.innerHTML += delim + rowUrlEncoded ;
+		delim = "&url=";
+	}
+}
+
+// Delete selected rows.
+function DelSelectedUrls()
+{
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+	for( var ixRow = tableRef.rows.length - 1; ixRow >= 0; ixRow-- )
+	{
+		refRow = tableRef.rows[ixRow];
+		refClick = refRow.cells[0].childNodes[0];
+		if( refClick.checked )
+		{
+			tableRef.deleteRow(ixRow);
+		}
+	}
+	UpdateMergeUrl();
+}
+
+function GotoMerge()
+{
+	var divMergedUrl = document.getElementById('MergedUrl');
+	// alert("R=("+divMergedUrl.innerHTML+")");
+	var iframe = document.getElementById('entity_iframe');
+	// location.replace( divMergedUrl.innerHTML );
+	iframe.src = divMergedUrl.innerHTML ;
+}
+
+// This analyses the content of the RDF document.
+function PrintContent()
+{
+	var divComments = document.getElementById('OurComments');
+
+	divComments.innerHTML = ""
+	divComments.innerHTML += "Conclusion:<br>";
+	var iframe = document.getElementById('entity_iframe');
+	divComments.innerHTML += "type iframe="+iframe.contentDocument.contentType + "<br>";
+
+	// The document we are pointing to. Depends on the browser.
+	var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+	var listNodes = iframeDocument.getElementsByClassName('node');
+	divComments.innerHTML += "Nodes:" + listNodes.length + "<br>";
+	for( var ixNode = 0; ixNode < listNodes.length; ixNode++ )
+	{
+		var node = listNodes[ixNode]
+		var title = node.getElementsByTagName("title")[0].textContent;
+
+		divComments.innerHTML += ixNode + "= " + node.id + " " + title + "<br>";
+
+		// Now looks for the subnode which contains the string and the url.
+		var listSubNodes = node.getElementsByTagName("g");
+		for( var ixSubNode = 0; ixSubNode < listSubNodes.length; ixSubNode++ )
+		{
+			var subNode = listSubNodes[ixSubNode];
+			// <g id="a_node30_31"><
+
+			// var text = subNode.getElementsByTagName("text");
+
+			if (subNode.id)
+			{
+				/*
+				5= node22 nd_30
+				1= a_node22_7 : RpcEptMapper
+				*/
+   				var textNode = subNode.getElementsByTagName("text")[0]; // .textContent;
+
+				if( textNode )
+				{
+					var hrefUrl = subNode.getElementsByTagName("a")[0].getAttribute("xlink:href");
+					var txtContent = textNode.textContent;
+					divComments.innerHTML += "&nbsp;&nbsp;&nbsp;" + ixSubNode + "= " + subNode.id + " : " + txtContent + "<br>";
+
+					// Click specifiquement sur le texte
+					textNode.param_Text = txtContent;
+					textNode.param_Url = hrefUrl;
+
+					myFunc = function (evt)
+					{
+						ProcessClickNode(evt.target.param_Text,evt.target.param_Url);
+						// Otherwise it is called several times.
+						evt.stopPropagation ? evt.stopPropagation() : (evt.cancelBubble=true);
+						UpdateMergeUrl();
+					};
+					textNode.addEventListener("click", myFunc);
+				}
+			}
+		}
+
+		node.setAttribute("onmouseover", "evt.target.setAttribute('opacity', '0.5');");
+		node.setAttribute("onmouseout", "evt.target.setAttribute('opacity', '1');");
+	}
+	
+	divComments.innerHTML += "<br><br>";
+
+	var listEdges = iframeDocument.getElementsByClassName('edge');
+	divComments.innerHTML += "Edges:" + listEdges.length + "<br>";
+	for( var ixEdge = 0; ixEdge < listEdges.length; ixEdge++ )
+	{
+		var edge = listEdges[ixEdge];
+
+		var title = edge.getElementsByTagName("title")[0].textContent;
+
+		// 19= edge17 nd_19->nd_11
+		divComments.innerHTML += ixEdge + "= " + edge.id + "  " + title + "<br>";
+	}
+
+	divComments.innerHTML += "<br><br>";
+}
+
+</script>
 
 
 </body>
