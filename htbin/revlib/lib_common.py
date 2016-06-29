@@ -31,7 +31,6 @@ import threading
 import signal
 import sys
 import cgi
-import cgitb
 import os
 import re
 import time
@@ -124,15 +123,11 @@ def StrWithBr(str, colspan = 1):
 
 ################################################################################
 
-# TODO: Set the right criteria for an old Graphviz version.
-new_graphiz = True # sys.version_info >= (3,)
-
-# TODO: This is temporary because only old graphviz versions dot not implement that.
 def DotBold(str):
-	return "<b>%s</b>" % str if new_graphiz else str
+	return "<b>%s</b>" % str
 
 def DotUL(str):
-	return "<u>%s</u>" % str if new_graphiz else str
+	return "<u>%s</u>" % str
 
 ################################################################################
 
@@ -306,7 +301,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 					subTable += subTd
 				return "<td align='left' balign='left'><table border='1'><tr>%s</tr></table></td>" % subTable
 		try:
-			# decodVal = json.loads(val.encode("utf-8"))
 			decodVal = json.loads(val)
 			return FormatElement(decodVal, depth + 1)
 
@@ -321,7 +315,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		colFirst = "<td align='left' valign='top'>%s</td>" % DotBold(key)
 		colSecond = FormatElement(val,depth+1)
 		return colFirst + colSecond
-
 
 	# Display in the DOT node the list of its literal properties.
 	def FieldsToHtmlVertical(grph, the_fields):
@@ -682,9 +675,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
 			# TODO: Si une cellule est identique jusqu a un delimiteur, idem, remplacer par '"'.
 
-
 	logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. nodes=%d\n" % len(nodes) )
-	logfil.flush()
 
 	# Maintenant on affiche les noeuds qui restent.
 	for obj, nam in six.iteritems(nodes):
@@ -843,17 +834,14 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 	dot_filnam_after = tmpDotFil.Name
 	rdfoutfil = open( dot_filnam_after, "w" )
 	logfil.write( TimeStamp()+" Created "+dot_filnam_after+"\n" )
-	logfil.flush()
 
 	dot_layout = WriteDotHeader( page_title, dot_style['layout_style'], rdfoutfil, grph )
 	lib_exports.WriteDotLegend( page_title, topUrl, error_msg, isSubServer, parameters, rdfoutfil, grph )
 	logfil.write( TimeStamp()+" Legend written\n" )
-	logfil.flush()
 	Rdf2Dot( grph, logfil, rdfoutfil, dot_style['collapsed_properties'] )
 	logfil.write( TimeStamp()+" About to close dot file\n" )
-	logfil.flush()
 
-	# Do this because the file is about to be reopened from another process.
+	# BEWARE: Do this because the file is about to be reopened from another process.
 	rdfoutfil.flush()
 	os.fsync( rdfoutfil.fileno() )
 	rdfoutfil.close()
@@ -1255,8 +1243,7 @@ class CgiEnv():
 	# soit par example cimom=http://192.168.1.83:5988  ou bien seulement un nom de machine.
 	# C'est ce que WMI va utiliser. On peut imaginer aussi de mettre un serveur ftp ?
 	# Ou bien un serveur SNMP ?
-	# C est plus un serveur qu un host. Le host est plutot une propriete de l'objet,
-	# pas une clef d'acces.
+	# C est plus un serveur qu un host. Le host est une propriete de l'objet, pas une clef d'acces.
 	# C est ce qui va permettre d acceder au meme fichier par un disque partage et par ftp.
 	def GetHost(self):
 		return self.m_entity_host
@@ -1295,7 +1282,6 @@ def SourceDir(entity_type=""):
 	else:
 		# entity_type might contain a slash, for example: "slqite/table"
 		return "/sources_types/" + entity_type
-
 
 ################################################################################
 
@@ -1417,8 +1403,6 @@ def IsSharedLib(path):
 def IsFontsFile(path):
 
 	if lib_util.isPlatformWindows:
-		# sys.stderr.write("IsFontsFile path=%s\n" % path)
-		# return False
 		tmp, fileExt = os.path.splitext(path)
 		# sys.stderr.write("IsFontsFile fileExt=%s\n" % fileExt)
 		return fileExt in [ ".ttf", ".ttc" ]
@@ -1445,54 +1429,6 @@ def MeaninglessFile(path, removeSharedLibs, removeFontsFile ):
 
 	return False
 
-
-################################################################################
-try:
-	from urllib.request import urlopen
-except ImportError:
-	from urllib import urlopen
-
-# TODO: Avoids creation of a temporary file.
-def Url2Grph(grph,url,logfi = None):
-	if logfi == None:
-		logfi = sys.stderr
-	logfi.write( "Url2Grph url=%s\n" % Url2Grph )
-	try:
-		# Horrible hardcode, temporary.
-		if sys.version_info >= (3,1,) and sys.version_info < (3,3,) :
-			# ZUT !!! VOILA CE QUI ARRIVE AVEC DES REDIRECTIONS.
-			#Unexpected type '<class 'bytes'>' for source 'b'<!DOCTYPE html>\n
-			content = urlopen(url).read()
-			result = grph.parse(content.decode('utf8'))
-
-		else:
-			# TODO: GET RID OF THIS TEMP FILE AND USE urlopen()
-			tmpfilObj = TmpFile("url2graph","rdf")
-			tmpfil = tmpfilObj.Name
-			logfi.write( "Url2Grph tmpfil=%s\n" % tmpfil )
-
-			# TODO: Maybe this is an error message in HTML instead of a RDF document.
-			if sys.version_info >= (3,):
-				urllib.request.urlretrieve (url, tmpfil)
-			else:
-				urllib.urlretrieve (url, tmpfil)
-			grph.parse(tmpfil)
-	# Can be: xml.sax._exceptions.SAXParseException:
-	# Maybe this is a HTML file because of an error.
-	# If so, display the content.
-	except Exception:
-		exc = sys.exc_info()[1]
-		errmsg = "Url2Grph v=" + str(sys.version_info) + " Error url=" + url + " EXC=" + str(exc)
-		logfi.write("Err=[%s]\n" % (errmsg) )
-		ErrorMessageHtml( errmsg )
-
-
-# http://127.0.0.1/Survol/htbin/objtypes_wmi.py?xid=\\rchateau-HP\root\Cli%3A.
-#
-		
-################################################################################
-def Url2Svg(url_rdf):
-	return lib_util.uriRoot + '/internals/gui_create_svg_from_several_rdfs.py?dummy=none&url=' + lib_util.EncodeUri( url_rdf )
 
 ################################################################################
 def KillProc(pid):

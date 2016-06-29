@@ -818,7 +818,7 @@ def GetEntityModule(entity_type):
 				entity_name = "." + entity_type_split[-1]
 			else:
 				entity_package = "sources_types"
-				entity_name = entity_type_split
+				entity_name = entity_type
 			sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
 			entity_module = importlib.import_module( entity_name, entity_package)
 			sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))

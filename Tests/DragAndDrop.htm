@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+  <style type="text/css">
+    #dropbox {
+    border: 3px dashed black;
+    width: 200px;
+    height: 100px;
+}
+img{
+    padding:20px;
+    display:inline;
+}
+p{
+    display:inline;
+    margin-left:-76px;
+}
+#some_more_elements{
+     display:inline;
+}
+  </style>
+
+  <title>Pouet</title>
+
+
+</head>
+
+<body>
+  <div id="dropbox">Drop an Image....</div>
+
+<script type='text/javascript'>//<![CDATA[
+
+// Thanks to kevinfahy:
+// http://stackoverflow.com/a/9496574/1227926
+function getAllElementsWith(tag, attribute, value)
+{
+  var matchingElements = [];
+  var allElements = document.getElementsByTagName(tag);
+  for (var i = 0; i < allElements.length; i++)
+  {
+    if (value.indexOf(allElements[i].getAttribute(attribute)) != -1)
+    {
+      // Element exists with attribute. Add to array.
+      matchingElements.push(allElements[i]);
+    }
+  }
+  return matchingElements;
+}
+
+// onDrop
+function onDrop(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    var imageUrl = evt.dataTransfer.getData("URL");
+
+    alert(imageUrl);
+};
+
+// onDragOver
+function onDragOver(evt){
+    evt.preventDefault();
+}
+
+var dropbox = document.getElementById('dropbox');
+dropbox.addEventListener('drop', onDrop);
+dropbox.addEventListener("dragover", onDragOver, false);
+//]]>
+
+</script>
+
+<a href="http://hotmail.com">Tralala</a>
+
+</body>
+
+</html>
+

@@ -1,8 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+  <style type="text/css">
+    #dropbox {
+    border: 3px dashed black;
+    width: 200px;
+    height: 100px;
+}
+img{
+    padding:20px;
+    display:inline;
+}
+p{
+    display:inline;
+    margin-left:-76px;
+}
+#some_more_elements{
+     display:inline;
+}
+  </style>
+
     <meta charset="UTF-8">
     <title>Experimentation: Embed SVG document generated in Python, in a DIV tag</title>
+
+
 </head>
 <body>
 
@@ -16,40 +38,34 @@ $( "#demo" ).resizable();
 });
 </script>
 
-<div id="demo"  class="ui-widget-content">
 <iframe src="htbin/entity.py" width="100%" height="1000" id="entity_iframe" onload="PrintContent()">
      <p>Your browser does not support iframes.</p>
 </iframe>
-</div>
+
+
+
 
 <br>
-<a href="index_technical.htm">Technicalities</a><br>
-<a href="htbin/entity.py">No frame</a><br>
+<a href="index_technical.htm">Technical URLs etc...</a><br>
+<a href="htbin/entity.py">Raw SVG display without frame</a><br>
+Display report on SVG document:<input type="checkbox" id="CheckDisplayReportOnSvg"><br>
 
 <table>
 	<tr>
-		<td width=500"><div id="OurComments">
-</div></td>
-
+		<td width=500"><div id="OurComments"></div></td>
 		<td valign="top">
 <div id="MergedUrl"></div>
-
-			<table id="myTable" border="1" width="200">
-    <thead>
-        <tr>
-            <th colspan="3">RDF links</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
+			<table id="myTable" border="1" width="400">
+    <thead><tr><th colspan="3">RDF links</th></tr></thead>
+    <tbody></tbody>
 </table>
 			<br><input type="button" onClick="GotoMerge();" value="Go">&nbsp;<input type="button" onClick="DelSelectedUrls();" value="Del">
-
 		</td>
-
 	</tr>
-
 </table>
+
+
+
 
 <script src="revjslib.js"></script>
 
@@ -121,13 +137,51 @@ function GotoMerge()
 	iframe.src = divMergedUrl.innerHTML ;
 }
 
-// This analyses the content of the RDF document.
+function onDrop(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    var imageUrl = evt.dataTransfer.getData("URL");
+
+	// TODO: Get the title of the document.
+    ProcessClickNode("Tralala",imageUrl)
+    UpdateMergeUrl();
+
+    // alert(imageUrl);
+};
+
+function onDragOver(evt)
+{
+    evt.preventDefault(); // Otherwise drag-and-drop does not work.
+}
+
+// This analyses the content of the SVG document being loaded.
 function PrintContent()
 {
+	var tickDispSvgRep = document.getElementById('CheckDisplayReportOnSvg');
 	var divComments = document.getElementById('OurComments');
-
 	divComments.innerHTML = ""
+
+	if(tickDispSvgRep.checked)
+	{
+		PrintReportOnSvgDocument(divComments);
+	}
+	else
+	{
+		divComments.innerHTML += "No report displayed<br>";
+	}
+
+	// Done only after the content is loaded.
+	var myfram = document.getElementById('entity_iframe');
+	myfram.contentWindow.document.addEventListener('drop', onDrop);
+	myfram.contentWindow.document.addEventListener("dragover", onDragOver, true);
+}
+
+// Actually display info about the SVG document when it is loaded.
+// This just counts nodes and edges and displays their names, mostly for testing.
+function PrintReportOnSvgDocument(divComments)
+{
 	divComments.innerHTML += "Conclusion:<br>";
+
 	var iframe = document.getElementById('entity_iframe');
 	divComments.innerHTML += "type iframe="+iframe.contentDocument.contentType + "<br>";
 

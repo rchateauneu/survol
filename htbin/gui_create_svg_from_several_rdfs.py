@@ -11,8 +11,8 @@ import rdflib
 import urllib
 
 import cgi
-import cgitb; cgitb.enable() # Optional; for debugging only
 
+import lib_util
 import lib_common
 
 # This CGI script is called as a CGI script by the web page inclusion.htm,
@@ -25,9 +25,73 @@ import lib_common
 
 from rdflib import Graph
 
+try:
+	from urllib.request import urlopen
+except ImportError:
+	from urllib import urlopen
+
 # Just for debugging.
 logfil = open(lib_common.TmpDir() + "/gui_create_svg_from_several_rdfs.log","w") 
 logfil.write( "Starting logging\n" )
+
+
+################################################################################
+
+# TODO: Avoids creation of a temporary file.
+def Url2Grph(grph,url,logfi = None):
+	if logfi == None:
+		logfi = sys.stderr
+	logfi.write( "Url2Grph url=%s\n" % url )
+	try:
+		# Horrible hardcode, temporary.
+		if sys.version_info >= (3,1,) and sys.version_info < (3,3,) :
+			# ZUT !!! VOILA CE QUI ARRIVE AVEC DES REDIRECTIONS.
+			#Unexpected type '<class 'bytes'>' for source 'b'<!DOCTYPE html>\n
+			content = urlopen(url).read()
+			result = grph.parse(content.decode('utf8'))
+
+		elif sys.version_info >= (3,):
+
+			# TODO: GET RID OF THIS TEMP FILE AND USE urlopen()
+			tmpfilObj = lib_common.TmpFile("url2graph","rdf")
+			tmpfil = tmpfilObj.Name
+			logfi.write( "Url2Grph tmpfil=%s\n" % tmpfil )
+
+			# TODO: Maybe this is an error message in HTML instead of a RDF document.
+			urllib.request.urlretrieve (url, tmpfil)
+
+			# TODO: Detect that it is not a proper RDF file.
+			grph.parse(tmpfil)
+		else:
+
+			# TODO: GET RID OF THIS TEMP FILE AND USE urlopen()
+			tmpfilObj = lib_common.TmpFile("url2graph","rdf")
+			tmpfil = tmpfilObj.Name
+			logfi.write( "Url2Grph tmpfil=%s\n" % tmpfil )
+
+			urllib.urlretrieve (url, tmpfil)
+
+			# TODO: Detect that it is not a proper RDF file.
+			try:
+				grph.parse(tmpfil)
+			except Exception:
+				exc = sys.exc_info()[1]
+				errmsg = "Url2Grph v=" + str(sys.version_info) + " Error url=" + url + " EXC=" + str(exc)
+				logfi.write("Err=[%s]\n" % (errmsg) )
+
+				lib_common.ErrorMessageHtml( errmsg )
+
+	# Can be: xml.sax._exceptions.SAXParseException:
+	# Maybe this is a HTML file because of an error.
+	# If so, display the content.
+	except Exception:
+		exc = sys.exc_info()[1]
+		errmsg = "Url2Grph v=" + str(sys.version_info) + " Error url=" + url + " EXC=" + str(exc)
+		logfi.write("Err=[%s]\n" % (errmsg) )
+		lib_common.ErrorMessageHtml( errmsg )
+
+
+
 
 def PrintTime():
 	global logfil
@@ -73,7 +137,7 @@ for urlfil in arguments.getlist("url"):
 	logfil.write( "complete_url=" + complete_url + "\n" )
 	logfil.write( "Merging " + urlfil + "\n" )
 
-	lib_common.Url2Grph( grph, complete_url, logfil )
+	Url2Grph( grph, complete_url, logfil )
 	lenGrph = len(grph)
 	logfil.write( "After Merge len=" + str(lenGrph) + "\n" )
 	cnt=cnt+1
@@ -94,7 +158,7 @@ logfil.write( "RdfLibToDot. Conversion to dot nb statements=" + str(len(grph)) +
 # Helas, il faut un routage general et non pas, par exemple: cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_directory] )
 dotLayout = lib_common.MakeDotLayout(viztype, [] )
 
-lib_common.Grph2Svg( "Merge", "", "", False, {}, dotLayout, grph, lib_common.DfltOutDest() )
+lib_common.Grph2Svg( "Merge", "", "", False, {}, dotLayout, grph, lib_util.DfltOutDest() )
 
 PrintTime()
 

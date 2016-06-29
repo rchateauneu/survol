@@ -15,6 +15,9 @@ function qualifyURL(url)
 // Current dir = http://127.0.0.1/Survol/embed_entity.htm
 function LocalHost()
 {
+	/*
+	TODO: This returns an empty string when running cgiserver.py
+	*/
 	// TODO: Remove this hard-code.
 	// return "http://127.0.0.1:2468/htbin";
 	// On Linux, with Apache:
@@ -50,7 +53,7 @@ function DynCgi()
 function RvgsToSvg()
 {
 	// return qualifyURL("/htbin/internals/gui_create_svg_from_several_rdfs.py");
-	return LocalHost() + "/htbin/internals/gui_create_svg_from_several_rdfs.py";
+	return LocalHost() + "/htbin/gui_create_svg_from_several_rdfs.py";
 }
 
 // Contains the div ids waiting to be set by the request.
