@@ -13,14 +13,19 @@ def CredFilNam():
 
 def CredDocument():
 	filNam = CredFilNam()
-	credentials = json.load( open(filNam) )
-	return credentials
+	try:
+		credentials = json.load( open(filNam) )
+		return credentials
+	except:
+		return dict()
 
 # Loaded once only.
 credentials = CredDocument()
 
 def GetCredentials( credType, credName ):
 	try:
+		if not credentials:
+			return ('','')
 		arrType = credentials[credType]
 		try:
 			cred = arrType[credName]
