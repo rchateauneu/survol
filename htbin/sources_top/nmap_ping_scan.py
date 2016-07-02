@@ -7,6 +7,7 @@ LAN ping (256 addresses)
 
 import sys
 import rdflib
+import socket
 import subprocess
 import xml.dom.minidom
 import lib_util
@@ -53,8 +54,16 @@ def Main():
 			"http://nmap.org/images/nmap-logo-64px.png"
 			)
 
-	netMask = "192.168.1.0/24"
+	# netMask = "192.168.1.0/24"
 
+	# '10.102.235.173'
+	localIpAddr = socket.gethostbyname(socket.gethostname())
+	
+	splitIpAddr = localIpAddr.split(".")
+	
+	splitIpAddr[3] = "0"
+	netMask = ".".join(splitIpAddr) + "/24"
+	
 	# "sP" is ping scan.
 	# args = ["nmap", '-oX', '-', '-sP', '192.168.1.0/24', ]
 	args = ["nmap", '-oX', '-', '-sP', netMask, ]
@@ -85,20 +94,45 @@ def Main():
 	# <hostnames><hostname name="Unknown-00-18-e7-08-02-81.home" type="PTR" /></hostnames>
 	# </host>
 
+	# Possibly
+	# <address addr="08:2E:5F:13:0E:48" addrtype="mac" vendor="Hewlett Packard"/>
 
 	for dhost in dom.getElementsByTagName('host'):
 		status = dhost.getElementsByTagName('status')[0].getAttributeNode('state').value
+		
+		nodeHost = None
+		addrVendor = None
+		
+		# TODO: This could be an option. Test this.
 		if status != "up":
 			continue
 
-		host = dhost.getElementsByTagName('address')[0].getAttributeNode('addr').value
-		# print("host="+host)
-		nodeHost = lib_common.gUriGen.HostnameUri( host )
+		for addrElement in dhost.getElementsByTagName('address'):
+			# "mac", "ipv4"
+			addrType = addrElement.getAttributeNode('addrtype').value
+			if addrType == "ipv4":
+				host = addrElement.getAttributeNode('addr').value
+				# sys.stderr.write("host=%s\n"%host)
+				nodeHost = lib_common.gUriGen.HostnameUri( host )
+			elif addrType == "mac":
+				try:
+					addrVendor = addrElement.getAttributeNode('vendor').value
+					macAddr = addrElement.getAttributeNode('addr').value
+				except:
+					addrVendor = None
+				
+			
+		if nodeHost:
+			if addrVendor:
+				grph.add( ( nodeHost, lib_common.MakeProp("MAC address"), rdflib.Literal( macAddr ) ) )
+				grph.add( ( nodeHost, lib_common.MakeProp("Vendor"), rdflib.Literal( addrVendor ) ) )
+		
 		for dhostname in dhost.getElementsByTagName('hostname'):
 			hostnam = dhostname.getAttributeNode('name').value
-		#	print("        hostnam="+hostnam)
+			# sys.stderr.write("    hostnam=%s\n"%hostnam)
 			grph.add( ( nodeHost, pc.property_hostname, rdflib.Literal( hostnam ) ) )
 
+				
 	cgiEnv.OutCgiRdf(grph)
 
 if __name__ == '__main__':
