@@ -804,27 +804,33 @@ def GetEntityModule(entity_type):
 		sys.stderr.write("Loading entity-specific library:"+entity_lib+"\n")
 		entity_module = importlib.import_module( entity_lib, "lib_entities")
 		sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
+		return entity_module
 	except ImportError:
-		try:
-			# Here, we want: "sources_types/Azure/location/__init__.py"
-			# Example: entity_type = "Azure.location"
-			# This works.
-			# entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
+		pass
 
-			# entity_type_split = ["Azure","subscription"]
-			entity_type_split = entity_type.split("/")
-			if len(entity_type_split) > 1:
-				entity_package = "sources_types." + ".".join(entity_type_split[:-1])
-				entity_name = "." + entity_type_split[-1]
-			else:
-				entity_package = "sources_types"
-				entity_name = entity_type
-			sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
-			entity_module = importlib.import_module( entity_name, entity_package)
-			sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+	try:
+		# Here, we want: "sources_types/Azure/location/__init__.py"
+		# Example: entity_type = "Azure.location"
+		# This works.
+		# entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
 
-		except ImportError:
-			sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
-			entity_module = None
+		# entity_type_split = ["Azure","subscription"]
+		entity_type_split = entity_type.split("/")
+		if len(entity_type_split) > 1:
+			entity_package = "sources_types." + ".".join(entity_type_split[:-1])
+			entity_name = "." + entity_type_split[-1]
+		else:
+			entity_package = "sources_types"
+			entity_name = entity_type
+		sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+		entity_module = importlib.import_module( entity_name, entity_package)
+		sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+		return entity_module
+
+	except ImportError:
+		pass
+
+	sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
+	entity_module = None
 
 	return entity_module
