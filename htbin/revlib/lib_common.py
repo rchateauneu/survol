@@ -776,9 +776,8 @@ def CopyToOut(logfil,svg_out_filnam,out_dest):
 # But the priority is to chase graphes which are too long to route.
 # TODO: Problem: The resulting graph is not deterministic.
 # Should compare the generated DOT files to see of they are identical.
-def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest = None, removeHeader = False):
+def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest, removeHeader = False):
 	sys.stderr.write("viztype=%s\n"%(viztype) )
-	out_dest = lib_util.DfltOutDest(out_dest)
 	tmpSvgFil = TmpFile("Dot2Svg","svg")
 	svg_out_filnam = tmpSvgFil.Name
 	# dot -Kneato

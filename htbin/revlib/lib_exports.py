@@ -60,8 +60,7 @@ def DotUL(str):
 ################################################################################
 
 # Transforms a RDF graph into a HTML page.
-def Grph2Html( page_title, error_msg, isSubServer, parameters, grph, out_dest = None):
-	out_dest = lib_util.DfltOutDest(out_dest)
+def Grph2Html( page_title, error_msg, isSubServer, parameters, grph, out_dest):
 	# TODO: Est-ce necessaire d'utiliser WrtAsUtf au lieu de print() ?
 	# Peut-etre oui, a cause des sockets?
 	WrtAsUtf( out_dest, "Content-type: text/html\n\n<head>" )
@@ -140,7 +139,7 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph, out_dest = 
 ################################################################################
 # Transforms a RDF graph into a JSON document. From Edouard.
 
-def Grph2Json(page_title, error_msg, isSubServer, parameters, grph, out_dest=None):
+def Grph2Json(page_title, error_msg, isSubServer, parameters, grph, out_dest):
     WrtAsUtf(out_dest, "Content-type: application/json\n\n")
 
     links = []

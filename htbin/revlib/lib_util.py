@@ -771,14 +771,11 @@ def Base64Decode(text):
       return text + ":" + str(exc)
 
 # Default destination for the RDF, HTML or SVG output.
-def DfltOutDest(out_dest=None):
-	if out_dest == None:
-		if sys.version_info >= (3,):
-			return sys.stdout.buffer
-		else:
-			return sys.stdout
+def DfltOutDest():
+	if sys.version_info >= (3,):
+		return sys.stdout.buffer
 	else:
-		return out_dest
+		return sys.stdout
 
 # So we try to load only once.
 cacheEntityToModule = dict()
