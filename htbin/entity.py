@@ -18,42 +18,6 @@ from revlib.lib_properties import pc
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 import lib_entities.lib_entity_CIM_ComputerSystem as lib_entity_CIM_ComputerSystem
 
-paramkeyShowAll = "Show all scripts"
-
-# This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv(
-				can_process_remote = True,
-				parameters = { paramkeyShowAll : False })
-entity_id = cgiEnv.m_entity_id
-entity_host = cgiEnv.GetHost()
-flagShowAll = int(cgiEnv.GetParameters( paramkeyShowAll ))
-
-( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-
-is_host_remote = not lib_util.IsLocalAddress( entity_host )
-
-sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_remote=%r\n" % ( entity_host, entity_type, entity_id, is_host_remote ) )
-
-# It is simpler to have an empty entity_host, if possible.
-# CHAIS PAS. EN FAIT C EST LE CONTRAIRE, IL FAUT METTRE LE HOST
-if not is_host_remote:
-	entity_host = ""
-
-# Each entity type ("process","file" etc... ) can have a small library
-# of its own, for displaying a rdf node of this type.
-entity_module = None
-if entity_type != "":
-	entity_module = lib_util.GetEntityModule(entity_type)
-
-# Directory=/home/rchateau/Developpement/ReverseEngineeringApps/PythonStyle Type=process Id=5256
-# TODO: CharTypesComposer: Ca va retourner une liste de directory du plus bas au plus haut.
-relative_dir = lib_common.SourceDir(entity_type)
-directory = lib_util.gblTopScripts + relative_dir
-
-grph = rdflib.Graph()
-
-rootNode = lib_util.RootUri()
-
 ################################################################################
 
 # Temporary files created by Unix editors or others, littering the dev directories.
@@ -127,6 +91,7 @@ def IsTempFile(fil):
 
 # This lists the scripts and generate RDF nodes.
 def DirToMenu(grph,parentNode,curr_dir,relative_dir):
+
 	# sys.stderr.write("curr_dir=%s\n"%(curr_dir))
 	# In case there is nothing.
 	dirs = None
@@ -305,37 +270,87 @@ def AddDefaultScripts(grph,rootNode):
 
 ################################################################################
 
-if entity_id == "" and entity_type != "":
-	# There is no entity to display, but a type is given.
-	# TODO: Display help about this entity type.
-	pass
-else:
-	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
-	if entity_module:
-		# TODO: Remplacer htbin/lib_entities/lib_entity_CLASS.py par sources_types/CLASS/__init__.py
-		try:
-			entity_module.AddInfo( grph, rootNode, entity_ids_arr )
-		except AttributeError:
-			sys.stderr.write("No AddInfo for %s %s\n"%( entity_type, entity_id ))
+def Main():
+	# They are defined global so that DirToMenu can access them without code change.
+	global is_host_remote
+	global entity_type
+	global entity_id
+	global encodedEntityId
+	global entity_host
+	global entity_ids_arr
+	global flagShowAll
+
+	paramkeyShowAll = "Show all scripts"
+
+	# This can process remote hosts because it does not call any script, just shows them.
+	cgiEnv = lib_common.CgiEnv(
+					can_process_remote = True,
+					parameters = { paramkeyShowAll : False })
+	entity_id = cgiEnv.m_entity_id
+	entity_host = cgiEnv.GetHost()
+	flagShowAll = int(cgiEnv.GetParameters( paramkeyShowAll ))
+
+	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
+
+	is_host_remote = not lib_util.IsLocalAddress( entity_host )
+
+	sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_remote=%r\n" % ( entity_host, entity_type, entity_id, is_host_remote ) )
+
+	# It is simpler to have an empty entity_host, if possible.
+	# CHAIS PAS. EN FAIT C EST LE CONTRAIRE, IL FAUT METTRE LE HOST
+	if not is_host_remote:
+		entity_host = ""
+
+	# Each entity type ("process","file" etc... ) can have a small library
+	# of its own, for displaying a rdf node of this type.
+	entity_module = None
+	if entity_type != "":
+		entity_module = lib_util.GetEntityModule(entity_type)
+
+	# Directory=/home/rchateau/Developpement/ReverseEngineeringApps/PythonStyle Type=process Id=5256
+	# TODO: CharTypesComposer: Ca va retourner une liste de directory du plus bas au plus haut.
+	relative_dir = lib_common.SourceDir(entity_type)
+	directory = lib_util.gblTopScripts + relative_dir
+
+	grph = rdflib.Graph()
+
+	rootNode = lib_util.RootUri()
+
+
+	if entity_id == "" and entity_type != "":
+		# There is no entity to display, but a type is given.
+		# TODO: Display help about this entity type.
+		pass
 	else:
-		sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
+		entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
+		if entity_module:
+			# TODO: Remplacer htbin/lib_entities/lib_entity_CLASS.py par sources_types/CLASS/__init__.py
+			try:
+				entity_module.AddInfo( grph, rootNode, entity_ids_arr )
+			except AttributeError:
+				sys.stderr.write("No AddInfo for %s %s\n"%( entity_type, entity_id ))
+		else:
+			sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
 
-	encodedEntityId=lib_util.EncodeUri(entity_id)
+		encodedEntityId=lib_util.EncodeUri(entity_id)
 
-	# TODO: Plutot qu'attacher tous les sous-directory a node parent,
-	# ce serait peut-etre mieux d'avoir un seul lien, et d'afficher
-	# les enfants dans une table, un record etc...
-	# OU: Certaines proprietes arborescentes seraient representees en mettant
-	# les objets dans des boites imbriquees: Tables ou records.
-	# Ca peut marcher quand la propriete forme PAR CONSTRUCTION
-	# un DAG (Direct Acyclic Graph) qui serait alors traite de facon specifique.
-	DirToMenu(grph,rootNode,directory,relative_dir)
+		# TODO: Plutot qu'attacher tous les sous-directory a node parent,
+		# ce serait peut-etre mieux d'avoir un seul lien, et d'afficher
+		# les enfants dans une table, un record etc...
+		# OU: Certaines proprietes arborescentes seraient representees en mettant
+		# les objets dans des boites imbriquees: Tables ou records.
+		# Ca peut marcher quand la propriete forme PAR CONSTRUCTION
+		# un DAG (Direct Acyclic Graph) qui serait alors traite de facon specifique.
+		DirToMenu(grph,rootNode,directory,relative_dir)
 
-if entity_type != "":
-	lib_entity_CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
+	if entity_type != "":
+		lib_entity_CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 
-# if entity_type == "":
-AddDefaultScripts(grph,rootNode)
+	# if entity_type == "":
+	AddDefaultScripts(grph,rootNode)
 
-cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data1])
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data1])
+
+if __name__ == '__main__':
+	Main()
 
