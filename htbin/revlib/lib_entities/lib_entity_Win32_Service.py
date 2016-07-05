@@ -97,24 +97,32 @@ def BuildSrvNetwork( machineName ):
 	# Now links the services together.
 	for serviceName in dictServiceToNode:
 		# nodeService = dictServiceToNode[ serviceName ]
+		# sys.stderr.write("BuildSrvNetwork serviceName=%s\n" % (serviceName))
 
-		hdnSrv = win32service.OpenService( hscm, serviceName, win32service.SERVICE_ENUMERATE_DEPENDENTS )
-		depSrvLst = win32service.EnumDependentServices( hdnSrv, win32service.SERVICE_STATE_ALL )
+		try:
+			hdnSrv = win32service.OpenService( hscm, serviceName, win32service.SERVICE_ENUMERATE_DEPENDENTS )
+			depSrvLst = win32service.EnumDependentServices( hdnSrv, win32service.SERVICE_STATE_ALL )
 
-		for depSrv in depSrvLst:
-			# sys.stderr.write("depSrv=%s\n" % ( depSrv[0] ) )
-			subServiceName = depSrv[0]
-			try:
-				nodeSubService = dictServiceToNode[ subServiceName ]
-			except KeyError:
-				sys.stderr.write("Main=%s Sub=%s NOT CREATED\n" % ( serviceName, subServiceName ) )
-				continue
+			for depSrv in depSrvLst:
+				# sys.stderr.write("depSrv=%s\n" % ( depSrv[0] ) )
+				subServiceName = depSrv[0]
+				try:
+					nodeSubService = dictServiceToNode[ subServiceName ]
+				except KeyError:
+					sys.stderr.write("Main=%s Sub=%s NOT CREATED\n" % ( serviceName, subServiceName ) )
+					continue
 
-			dictServiceToNode[ subServiceName ]["depends_in"].append( serviceName )
-			dictServiceToNode[ serviceName ]["depends_out"].append( subServiceName )
+				dictServiceToNode[ subServiceName ]["depends_in"].append( serviceName )
+				dictServiceToNode[ serviceName ]["depends_out"].append( subServiceName )
 
-		# NOT SURE ABOUT THIS, NEVER TESTED BUT SEEMS NECESSARY.
-		win32service.CloseServiceHandle(hdnSrv)
+			# NOT SURE ABOUT THIS, NEVER TESTED BUT SEEMS NECESSARY.
+			win32service.CloseServiceHandle(hdnSrv)
+		except:
+			exc = sys.exc_info()
+			sys.stderr.write("BuildSrvNetwork serviceName=%s: Caught: %s\n" % ( serviceName, str(exc) ) )
+			# pywintypes.error: (5, 'OpenService', 'Access is denied.')
+
+			pass
 
 	return dictServiceToNode
 
