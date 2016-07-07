@@ -11,40 +11,12 @@ import lib_common
 import rdflib
 from lib_properties import pc
 
-paramkeyMaxDepth = "Maximum depth"
-
-# TODO: The type should really be an integer.
-cgiEnv = lib_common.CgiEnv(
-				can_process_remote = True,
-				parameters = { paramkeyMaxDepth : 2 })
-
-( wbemNamespace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-
-maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
-
-sys.stderr.write("wbemNamespace=%s entity_type=%s entity_namespace_type=%s maxDepth=%d\n" % (wbemNamespace, entity_type,entity_namespace_type,maxDepth))
-
-cimomUrl = cgiEnv.GetHost()
-
-if str(wbemNamespace) == "":
-	lib_common.ErrorMessageHtml("namespace should not be empty. entity_namespace_type="+entity_namespace_type)
-
-grph = rdflib.Graph()
-
-connWbem = lib_wbem.WbemConnection(cimomUrl)
-
-def WbemNamespaceNode( clsNam ):
+def WbemNamespaceNode( wbemNamespace, cimomUrl, clsNam ):
 	wmiUrl = lib_wbem.NamespaceUrl( wbemNamespace, cimomUrl, clsNam )
 	return rdflib.term.URIRef( wmiUrl )
 
-# entity_type might an empty string.
-rootNode = WbemNamespaceNode(entity_type)
-
-
-sys.stderr.write("cimomUrl=%s entity_type=%s\n" % (cimomUrl,entity_type) )
-
 # topclassNam is None at first call.
-def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth):
+def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth, wbemNamespace, cimomUrl, maxDepth):
 	# sys.stderr.write("topclassNam=%s depth=%d\n" % (topclassNam,depth))
 
 	if depth > maxDepth	:
@@ -57,7 +29,7 @@ def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth):
 	grph.add( ( rootNode, pc.property_cim_subclass, wbemNode ) )
 
 	# The class is the starting point when displaying the class tree of the namespace.
-	wbemNodeSub = WbemNamespaceNode(topclassNam)
+	wbemNodeSub = WbemNamespaceNode(wbemNamespace, cimomUrl, topclassNam)
 	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, rdflib.Literal(wbemNodeSub) ) )
 
 
@@ -82,39 +54,63 @@ def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth):
 		if topclassNam == "":
 			topclassNam = None
 		for cl in tree_classes[topclassNam]:
-			PrintClassRecu(grph, wbemNode, tree_classes, cl.classname, depth)
+			PrintClassRecu(grph, wbemNode, tree_classes, cl.classname, depth, wbemNamespace, cimomUrl, maxDepth)
 	except KeyError:
 		pass # No subclass.
 
-treeClassesFiltered = lib_wbem.GetClassesTreeInstrumented(connWbem,wbemNamespace)
+def Main():
+	paramkeyMaxDepth = "Maximum depth"
 
-# PrintClassRecu(grph, rootNode, treeClassesFiltered, None, 0)
-PrintClassRecu(grph, rootNode, treeClassesFiltered, entity_type, 0)
+	# TODO: The type should really be an integer.
+	cgiEnv = lib_common.CgiEnv(
+					can_process_remote = True,
+					parameters = { paramkeyMaxDepth : 2 })
 
-sys.stderr.write("entity_type=%s\n" % entity_type)
+	( wbemNamespace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
-# If we are not at the top of the tree:
-if entity_type != "":
-	# Now, adds the base classes of this one, at least one one level.
-	wbemKlass = lib_wbem.WbemGetClassObj(connWbem,entity_type,wbemNamespace)
-	if wbemKlass:
-		superKlassName = wbemKlass.superclass
+	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
 
-		sys.stderr.write("superKlassName=%s\n" % superKlassName)
-		# An empty string or None.
-		if superKlassName:
-			wbemSuperNode = WbemNamespaceNode( superKlassName )
-			grph.add( ( wbemSuperNode, pc.property_cim_subclass, rootNode ) )
-			klaDescrip = lib_wbem.WbemClassDescription(connWbem,superKlassName,wbemNamespace)
-			if not klaDescrip:
-				klaDescrip = "Undefined class %s %s" % ( wbemNamespace, superKlassName )
-			grph.add( ( wbemSuperNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
+	sys.stderr.write("wbemNamespace=%s entity_type=%s entity_namespace_type=%s maxDepth=%d\n" % (wbemNamespace, entity_type,entity_namespace_type,maxDepth))
 
+	cimomUrl = cgiEnv.GetHost()
 
-################   def WbemAddBaseClass(grph,connWbem,wbemNode,entity_host, wbemNamespace, entity_type):
+	if str(wbemNamespace) == "":
+		lib_common.ErrorMessageHtml("namespace should not be empty. entity_namespace_type="+entity_namespace_type)
 
+	grph = rdflib.Graph()
 
+	connWbem = lib_wbem.WbemConnection(cimomUrl)
 
-cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_cim_subclass])
-# cgiEnv.OutCgiRdf(grph)
+	# entity_type might an empty string.
+	rootNode = WbemNamespaceNode(wbemNamespace, cimomUrl, entity_type)
 
+	sys.stderr.write("cimomUrl=%s entity_type=%s\n" % (cimomUrl,entity_type) )
+
+	treeClassesFiltered = lib_wbem.GetClassesTreeInstrumented(connWbem,wbemNamespace)
+
+	PrintClassRecu(grph, rootNode, treeClassesFiltered, entity_type, 0, wbemNamespace, cimomUrl, maxDepth)
+
+	sys.stderr.write("entity_type=%s\n" % entity_type)
+
+	# If we are not at the top of the tree:
+	if entity_type != "":
+		# Now, adds the base classes of this one, at least one one level.
+		wbemKlass = lib_wbem.WbemGetClassObj(connWbem,entity_type,wbemNamespace)
+		if wbemKlass:
+			superKlassName = wbemKlass.superclass
+
+			sys.stderr.write("superKlassName=%s\n" % superKlassName)
+			# An empty string or None.
+			if superKlassName:
+				wbemSuperNode = WbemNamespaceNode( wbemNamespace, cimomUrl, superKlassName )
+				grph.add( ( wbemSuperNode, pc.property_cim_subclass, rootNode ) )
+				klaDescrip = lib_wbem.WbemClassDescription(connWbem,superKlassName,wbemNamespace)
+				if not klaDescrip:
+					klaDescrip = "Undefined class %s %s" % ( wbemNamespace, superKlassName )
+				grph.add( ( wbemSuperNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
+
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_cim_subclass])
+	# cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

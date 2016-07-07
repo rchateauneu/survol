@@ -58,14 +58,18 @@ def HttpPrefix():
 def UriRootHelper():
 	try:
 		# SCRIPT_NAME=/PythonStyle/htbin/internals/print.py
+		# SCRIPT_NAME=/htbin/print_environment_variables.py
 		scriptNam=os.environ['SCRIPT_NAME']
+		sys.stderr.write("scriptNam=%s\n"%scriptNam)
 		idx = scriptNam.find('htbin')
 		root = scriptNam[:idx] + 'htbin'
 
 	except KeyError:
 		# If this runs from the command line and not as a CGI script,
 		# then this environment variable is not set.
+		sys.stderr.write("No SCRIPT_NAME\n")
 		root = "/NotRunningAsCgi"
+		root = "/tagada/htbin"
 	return HttpPrefix() + root
 
 uriRoot = UriRootHelper()
@@ -220,6 +224,7 @@ gblTopScripts = TopScriptsFunc()
 # TODO: We will also add htbin/revlib so it will not be necessary to set PYTHONPATH in Apache httpd.conf.
 sys.path.append(gblTopScripts)
 sys.stderr.write("sys.path=%s\n"%str(sys.path))
+
 ################################################################################
 
 # Depending on the category, entity_host can have several forms.
@@ -348,7 +353,6 @@ def ParseNamespaceType(ns_entity_type):
 		entity_type = nsSplit[1]
 	return ( entity_namespace, entity_type, ns_entity_type )
 
-
 ################################################################################
 
 # A bit temporary.
@@ -465,32 +469,20 @@ def ComposeTypes(t1,t2):
 
 ################################################################################
 
-# contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
-def HttpHeader( out_dest, contentType ):
-	stri = "Content-Type: " + contentType + "\n\n"
-	# Python 3.2
-	try:
-		out_dest.write( stri )
-		return
-	except TypeError:
-		pass
-
-	out_dest.write( stri.encode() )
-
-################################################################################
-
-def CopyFile( mime_type, fileName, outFd ):
+def CopyFile( mime_type, fileName ):
 
 	# read and write by chunks, so that it does not use all memory.
 	filDes = open(fileName, 'rb')
 
-	HttpHeader( outFd, mime_type )
+	globalOutMach.HeaderWriter( mime_type )
 
+	outFd = globalOutMach.OutStream()
 	while True:
 		chunk = filDes.read(1000000)
 		if not chunk:
 			break
 		outFd.write( chunk )
+	outFd.flush()
 	filDes.close()
 
 
@@ -500,41 +492,44 @@ def CopyFile( mime_type, fileName, outFd ):
 # MIME document and if this is not RDF, the assumes it's an error 
 # which must be displayed.
 # This is used as a HTML page but also displayed in Javascript in a DIV block.
+# TODO: Change this for WSGI.
 def InfoMessageHtml(message):
-	HttpHeader( sys.stdout, "text/html")
-	print("""
-	<html>
-	<head></head>
-	""")
-	print("<title>Error: Process=" + str(os.getpid()) + "</title>")
-	
-	print("<body>")
+	sys.stderr.write("InfoMessageHtml:%s\n"%message)
+	globalOutMach.HeaderWriter("text/html")
 
-	print("<b>" + message + "</b><br>")
+	sys.stderr.write("InfoMessageHtml:Sending content\n")
+	out_dest = globalOutMach.OutStream()
+	out_dest.write("<html><head></head>")
+	out_dest.write("<title>Error: Process=" + str(os.getpid()) + "</title>")
+	
+	out_dest.write("<body>")
+
+	out_dest.write("<b>" + message + "</b><br>")
 
 	# On Linux it says: "OSError: [Errno 2] No such file or directory"
-	print('<table>')
+	out_dest.write('<table>')
 
 	if sys.version_info >= (3,):
-		print("<tr><td>Login</td><td>" + os.getlogin() + "</td></tr>")
+		out_dest.write("<tr><td>Login</td><td>" + os.getlogin() + "</td></tr>")
 
-	print("<tr><td>Cwd</td><td>" + os.getcwd() + "</td></tr>")
-	print("<tr><td>OS</td><td>" + sys.platform + "</td></tr>")
-	print("<tr><td>Version</td><td>" + sys.version + "</td></tr>")
+	out_dest.write("<tr><td>Cwd</td><td>" + os.getcwd() + "</td></tr>")
+	out_dest.write("<tr><td>OS</td><td>" + sys.platform + "</td></tr>")
+	out_dest.write("<tr><td>Version</td><td>" + sys.version + "</td></tr>")
 	
 	#print('<tr><td colspan="2"><b>Environment variables</b></td></tr>')
 	#for key, value in os.environ.items():
 	#	print("<tr><td>"+key+"</td><td>"+value+"</td></tr>")
-	print('</table>')
+	out_dest.write('</table>')
 
 	envsUrl = uriRoot + "/internals/print.py"
-	print('Check <a href="' + envsUrl + '"">environment variables</a>.<br>')
+	out_dest.write('Check <a href="' + envsUrl + '"">environment variables</a>.<br>')
 	homeUrl = uriRoot + "/../index.htm"
-	print('<a href="' + homeUrl + '"">Return home</a>.<br>')
+	out_dest.write('<a href="' + homeUrl + '"">Return home</a>.<br>')
 
-	print("""
+	out_dest.write("""
 	</body></html>
 	""")
+	sys.stderr.write("InfoMessageHtml:Leaving\n")
 
 ################################################################################
 
@@ -770,12 +765,75 @@ def Base64Decode(text):
       sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(text,str(exc)))
       return text + ":" + str(exc)
 
+################################################################################
+
+if sys.version_info >= (3,):
+	outputHttp = sys.stdout.buffer
+else:
+	outputHttp = sys.stdout
+
+################################################################################
+
+# This is for WSGI compatibility.
+class OutputMachineCgi:
+	def __init__(self):
+		sys.stderr.write("OutputMachineCgi creation\n")
+
+	def HeaderWriter(self,mimeType):
+		sys.stderr.write("OutputMachineCgi.HeaderWriter:%s\n"%mimeType)
+		HttpHeaderClassic(outputHttp,mimeType)
+
+	def OutStream(self):
+		return outputHttp
+
+# WSGI changes this to another object with same interface.
+# Overriden in wsgiserver.py.
+globalOutMach = OutputMachineCgi()
+
+################################################################################
+
 # Default destination for the RDF, HTML or SVG output.
 def DfltOutDest():
-	if sys.version_info >= (3,):
-		return sys.stdout.buffer
-	else:
-		return sys.stdout
+	# return outputHttp
+	return globalOutMach.OutStream()
+
+# For asynchronous display.
+# TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
+def SetDefaultOutput(wFile):
+	outputHttp = wFile
+
+# contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
+def HttpHeaderClassic( out_dest, contentType ):
+	sys.stderr.write("HttpHeader:%s\n"%contentType)
+	# TODO: out_dest should always be the default output.
+
+	stri = "Content-Type: " + contentType + "\n\n"
+	# Python 3.2
+	try:
+		out_dest.write( stri )
+		return
+	except TypeError:
+		pass
+
+	out_dest.write( stri.encode() )
+
+#def HttpHeader( out_dest, contentType ):
+#	globalOutMach.OutStream()
+
+
+# TODO: Est-ce vraiment necessaire ?????????????
+# Peut-etre oui, a cause des sockets ?
+def WrtAsUtf(str):
+	out_dest = DfltOutDest()
+
+	# TODO: try to make this faster. Should be conditional just like HttpHeader.
+	out_dest.write( str.encode('utf-8') )
+
+def WrtHeader(mimeType):
+	globalOutMach.HeaderWriter(mimeType)
+	# HttpHeader(DfltOutDest(),mimeType)
+
+################################################################################
 
 # So we try to load only once.
 cacheEntityToModule = dict()

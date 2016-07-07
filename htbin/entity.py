@@ -310,6 +310,8 @@ def Main():
 	# Directory=/home/rchateau/Developpement/ReverseEngineeringApps/PythonStyle Type=process Id=5256
 	# TODO: CharTypesComposer: Ca va retourner une liste de directory du plus bas au plus haut.
 	relative_dir = lib_common.SourceDir(entity_type)
+	sys.stderr.write("entity: lib_util.gblTopScripts=%s relative_dir=%s\n" % ( lib_util.gblTopScripts, relative_dir ) )
+
 	directory = lib_util.gblTopScripts + relative_dir
 
 	grph = rdflib.Graph()
@@ -353,4 +355,3 @@ def Main():
 
 if __name__ == '__main__':
 	Main()
-

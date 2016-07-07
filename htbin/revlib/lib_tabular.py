@@ -68,6 +68,7 @@ def ServeFile( filepath ):
 	if not re.match( "/Tabular\..*\.csv", filepath ):
 		return False
 
-	lib_util.CopyFile( "text/csv", filePath, sys.stdout )
+	# lib_util.CopyFile( "text/csv", filepath, sys.stdout )
+	lib_util.CopyFile( "text/csv", filepath )
 
 	return True

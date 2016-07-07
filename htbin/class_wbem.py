@@ -16,50 +16,6 @@ from lib_properties import pc
 
 import pywbem # Might be pywbem or python3-pywbem.
 
-paramkeyMaxInstances = "Max instances"
-# This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv(can_process_remote = True,
-								parameters = { paramkeyMaxInstances : "80" })
-
-maxInstances = cgiEnv.GetParameters( paramkeyMaxInstances )
-
-grph = rdflib.Graph()
-
-( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-sys.stderr.write("nameSpace=%s className=%s entity_namespace_type=%s\n" % ( nameSpace, className, entity_namespace_type ) )
-
-entity_host = cgiEnv.GetHost()
-
-rootNode = lib_util.EntityClassNode( className, nameSpace, entity_host, "WBEM" )
-
-# Hard-coded default namespace.
-if nameSpace == "":
-	nameSpace = "root/CIMV2"
-
-try:
-	connWbem = lib_wbem.WbemConnection(entity_host)
-	wbemKlass = connWbem.GetClass(className, namespace=nameSpace, LocalOnly=False, IncludeQualifiers=True)
-except Exception:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("EnumerateInstanceNames: entity_host="+entity_host+" nameSpace="+nameSpace+" className="+className+". Caught:"+str(exc))
-
-klaDescrip = lib_wbem.WbemClassDescrFromClass(wbemKlass)
-grph.add( ( rootNode, pc.property_information, rdflib.Literal("WBEM description: "+klaDescrip ) ) )
-
-# Pour afficher du texte: Remplacer le help statique.
-# offset va etre un parametre. Helas ne pas se fairew d illusions sur "offset"
-
-try:
-	inst_names = connWbem.EnumerateInstanceNames(ClassName=className,namespace=nameSpace)
-except Exception:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("EnumerateInstanceNames: entity_host="+entity_host+" nameSpace="+nameSpace+" className="+className+". Caught:"+str(exc))
-
-try:
-	isAssociation = wbemKlass.qualifiers['Association'].value
-except KeyError:
-	isAssociation = False
-
 
 #EnumerateInstanceNames: nameSpace=root/cimv2 className=TUT_ProcessChild. Caught:(1, u'CIM_ERR_FAILED: cmpi:Traceback (most recent call last):
 #File "/usr/lib64/python2.7/site-packages/cmpi_pywbem_bindings.py", line 82, in __call__
@@ -106,7 +62,7 @@ def AssocReferenceToNode(nameSpace,entity_host,assocInst):
 
 # Display the graph of associations.
 # It can work only if there are only two references in each instance.
-def DisplayAssociatoraAsNetwork(inst_names,rootNode):
+def DisplayAssociatoraAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,maxInstances):
 	maxCnt = 0
 	for iname in inst_names:
 		if maxCnt == maxInstances:
@@ -141,7 +97,7 @@ def DisplayAssociatoraAsNetwork(inst_names,rootNode):
 # Display one line per instance of the class as members were literals.
 # This attemps to display the references as links. Does not really work yet,
 # because "special" properties" have to be used.
-def DisplayAssociatoraAsList(inst_names,rootNode):
+def DisplayAssociatoraAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances):
 	maxCnt = 0
 	for iname in inst_names:
 		if maxCnt == maxInstances:
@@ -166,9 +122,6 @@ def DisplayAssociatoraAsList(inst_names,rootNode):
 			# On voudrait que la propriete soit un lien mais que ca soit afficher en colonne avec le bon nom, comme in lityeral.
 			# pc.property_rdf_data_nolist1 ??? pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ?????
 
-			if False:
-				cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_class_instance,lib_common.MakeProp("Dependent"),lib_common.MakeProp("Antecedent")])
-
 			### TODO: BUG DAND L AFFICHAGE, DESFOIS CA RELIE AU NODE, DESFOIS CA RELIE A UN nd_0
 
 		grph.add( ( rootNode, pc.property_class_instance, wbemInstanceNode ) )
@@ -179,7 +132,7 @@ def DisplayAssociatoraAsList(inst_names,rootNode):
 
 # Display one line per instance of the class. Members are literals
 # because this is not an associator. Still, it works with an associator.
-def DisplayPlainClass(inst_names,rootNode):
+def DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className):
 	maxCnt = 0
 
 	# Ca, c est pour les classes normales.
@@ -196,21 +149,67 @@ def DisplayPlainClass(inst_names,rootNode):
 		grph.add( ( rootNode, pc.property_class_instance, wbemInstanceNode ) )
 
 
+def Main():
+	paramkeyMaxInstances = "Max instances"
+	# This can process remote hosts because it does not call any script, just shows them.
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True,
+									parameters = { paramkeyMaxInstances : "80" })
 
-# It is possible to display an associaiton like a normal class but it is useless.
-if isAssociation:
-	if True:
-		DisplayAssociatoraAsNetwork(inst_names,rootNode)
+	maxInstances = cgiEnv.GetParameters( paramkeyMaxInstances )
+
+	grph = rdflib.Graph()
+
+	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
+	sys.stderr.write("nameSpace=%s className=%s entity_namespace_type=%s\n" % ( nameSpace, className, entity_namespace_type ) )
+
+	entity_host = cgiEnv.GetHost()
+
+	rootNode = lib_util.EntityClassNode( className, nameSpace, entity_host, "WBEM" )
+
+	# Hard-coded default namespace.
+	if nameSpace == "":
+		nameSpace = "root/CIMV2"
+
+	try:
+		connWbem = lib_wbem.WbemConnection(entity_host)
+		wbemKlass = connWbem.GetClass(className, namespace=nameSpace, LocalOnly=False, IncludeQualifiers=True)
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("EnumerateInstanceNames: entity_host="+entity_host+" nameSpace="+nameSpace+" className="+className+". Caught:"+str(exc))
+
+	klaDescrip = lib_wbem.WbemClassDescrFromClass(wbemKlass)
+	grph.add( ( rootNode, pc.property_information, rdflib.Literal("WBEM description: "+klaDescrip ) ) )
+
+	# Pour afficher du texte: Remplacer le help statique.
+	# offset va etre un parametre. Helas ne pas se fairew d illusions sur "offset"
+
+	try:
+		inst_names = connWbem.EnumerateInstanceNames(ClassName=className,namespace=nameSpace)
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("EnumerateInstanceNames: entity_host="+entity_host+" nameSpace="+nameSpace+" className="+className+". Caught:"+str(exc))
+
+	try:
+		isAssociation = wbemKlass.qualifiers['Association'].value
+	except KeyError:
+		isAssociation = False
+
+	# It is possible to display an associaiton like a normal class but it is useless.
+	if isAssociation:
+		if True:
+			DisplayAssociatoraAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,maxInstances)
+		else:
+			DisplayAssociatoraAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances)
 	else:
-		DisplayAssociatoraAsList(inst_names,rootNode)
-else:
-	DisplayPlainClass(inst_names,rootNode)
+		DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className)
 
 
-# TODO: On pourrait rassembler par classes,
-# et aussi afficher les liens d'heritages des classes.
+	# TODO: On pourrait rassembler par classes,
+	# et aussi afficher les liens d'heritages des classes.
 
 
-# cgiEnv.OutCgiRdf(grph)
-cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_class_instance])
+	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_class_instance])
 
+if __name__ == '__main__':
+	Main()

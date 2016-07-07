@@ -24,24 +24,6 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("WMI Python library not installed")
 
-paramkeyDisplayNone = "Display none values"
-cgiEnv = lib_common.CgiEnv(can_process_remote=True,
-								parameters = { paramkeyDisplayNone : "0" })
-
-displayNoneValues = cgiEnv.GetParameters( paramkeyDisplayNone ) in ( "1", "Y", "True")
-
-( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-
-cimomUrl = cgiEnv.GetHost()
-
-sys.stderr.write("cimomUrl=%s nameSpace=%s className=%s\n" % ( cimomUrl, nameSpace, className) )
-
-grph = rdflib.Graph()
-
-sys.stderr.write("cgiEnv.m_entity_id=%s\n" % cgiEnv.m_entity_id)
-
-connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
-
 def WmiReadWithMoniker( cgiEnv, cgiMoniker ):
 	try:
 		# cgiMoniker = cgiEnv.GetXid()[0]
@@ -54,7 +36,7 @@ def WmiReadWithMoniker( cgiEnv, cgiMoniker ):
 		return None
 
 # Maybe reading with the moniker does not work because not all properties.
-def WmiReadWithQuery( cgiEnv ):
+def WmiReadWithQuery( cgiEnv, connWmi, className ):
 	splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )
 	aQry = lib_util.SplitMonikToWQL(splitMonik,className)
 
@@ -71,7 +53,7 @@ else:
 	listTypes = ( unicode, int, float )
 
 # Displays the properties of a WMI object (Not a class).
-def DispWmiProperties(grph,wmiInstanceNode,objWmi):
+def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues):
 	for prp in objWmi.properties:
 		# BEWARE, it could be None.
 		value = getattr(objWmi,prp)
@@ -190,52 +172,70 @@ def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
 			for keyLitt in literalKeyValue:
 				grph.add( ( refInstanceNode, lib_common.MakeProp(keyLitt), rdflib.Literal( literalKeyValue[ keyLitt ] ) ) )
 
+def Main():
+	paramkeyDisplayNone = "Display none values"
+	cgiEnv = lib_common.CgiEnv(can_process_remote=True,
+									parameters = { paramkeyDisplayNone : "0" })
 
+	displayNoneValues = cgiEnv.GetParameters( paramkeyDisplayNone ) in ( "1", "Y", "True")
 
+	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
-# Try to read the moniker, which is much faster,
-# but it does not always work if we do not have all the properties.
-cgiMoniker = cgiEnv.GetParameters("xid")
-sys.stderr.write("cgiMoniker=[%s]\n" % cgiMoniker )
+	cimomUrl = cgiEnv.GetHost()
 
-objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )
-if objList is None:
-	objList = WmiReadWithQuery( cgiEnv )
+	sys.stderr.write("cimomUrl=%s nameSpace=%s className=%s\n" % ( cimomUrl, nameSpace, className) )
 
-wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
-wmiInstanceNode = rdflib.term.URIRef(wmiInstanceUrl)
+	grph = rdflib.Graph()
 
-for objWmi in objList:
-	# sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
+	sys.stderr.write("cgiEnv.m_entity_id=%s\n" % cgiEnv.m_entity_id)
 
-	# TODO: Attendre d'avoir plusieurs objects pour faire la meme chose que wentity_wbem,
-	# c est a dire une deduplication adaptee avec creation d URL. Je me comprends.
-	DispWmiProperties(grph,wmiInstanceNode,objWmi)
+	connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
 
-	# TODO: Pour ces classes, l'attente est tres longue. Rather create another link.
-	# rchref = wmi.WMI().query("select * from Win32_UserAccount where Name='rchateau'")[0].references()
-	# Several minutes for 139 elements.
-	if not lib_wmi.WmiTooManyInstances( className ):
-		try:
-			DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker)
-		except:
-			exc = sys.exc_info()[1]
-			sys.stderr.write("Exception=%s\n" % str(exc) )
-	else:
-		grph.add( ( wmiInstanceNode, lib_common.MakeProp("REFERENCES"), rdflib.Literal( "DISABLED" ) ) )
+	# Try to read the moniker, which is much faster,
+	# but it does not always work if we do not have all the properties.
+	cgiMoniker = cgiEnv.GetParameters("xid")
+	sys.stderr.write("cgiMoniker=[%s]\n" % cgiMoniker )
 
-# Adds the class node to the instance.
-wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, cimomUrl, nameSpace, className, lib_common.MakeProp(className) )
+	objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )
+	if objList is None:
+		objList = WmiReadWithQuery( cgiEnv, connWmi, className )
 
-# Now displays the base class, up to the top.
-lib_wmi.WmiAddBaseClasses(grph,connWmi,wmiClassNode,cimomUrl, nameSpace, className)
+	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
+	wmiInstanceNode = rdflib.term.URIRef(wmiInstanceUrl)
 
-# TODO: Embetant car il faut le faire pour toutes les classes.
-# Et en plus on perd le nom de la propriete.
-# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",['root\\cimv2:CIM_Datafile'])
-# 'PartComponent' for 'root\\cimv2:CIM_Datafile'
-# 'Element' for 'root\\cimv2:Win32_DCOMApplication'
-# 'Antecedent' for 'CIM_DataFile'
-cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
-# cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+	for objWmi in objList:
+		# sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
 
+		# TODO: Attendre d'avoir plusieurs objects pour faire la meme chose que wentity_wbem,
+		# c est a dire une deduplication adaptee avec creation d URL. Je me comprends.
+		DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues)
+
+		# TODO: Pour ces classes, l'attente est tres longue. Rather create another link.
+		# rchref = wmi.WMI().query("select * from Win32_UserAccount where Name='rchateau'")[0].references()
+		# Several minutes for 139 elements.
+		if not lib_wmi.WmiTooManyInstances( className ):
+			try:
+				DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker)
+			except:
+				exc = sys.exc_info()[1]
+				sys.stderr.write("Exception=%s\n" % str(exc) )
+		else:
+			grph.add( ( wmiInstanceNode, lib_common.MakeProp("REFERENCES"), rdflib.Literal( "DISABLED" ) ) )
+
+	# Adds the class node to the instance.
+	wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, cimomUrl, nameSpace, className, lib_common.MakeProp(className) )
+
+	# Now displays the base class, up to the top.
+	lib_wmi.WmiAddBaseClasses(grph,connWmi,wmiClassNode,cimomUrl, nameSpace, className)
+
+	# TODO: Embetant car il faut le faire pour toutes les classes.
+	# Et en plus on perd le nom de la propriete.
+	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",['root\\cimv2:CIM_Datafile'])
+	# 'PartComponent' for 'root\\cimv2:CIM_Datafile'
+	# 'Element' for 'root\\cimv2:Win32_DCOMApplication'
+	# 'Antecedent' for 'CIM_DataFile'
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+	# cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+
+if __name__ == '__main__':
+	Main()

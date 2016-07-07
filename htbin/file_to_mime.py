@@ -12,39 +12,35 @@ import mimetypes
 
 import cgi
 
-if sys.version_info >= (3, ):
-	pass # import SimpleHTTPServer
-else:
-	# Not sure this is useful at all.
-	import SimpleHTTPServer
-
 import lib_common
 import lib_util
 
+def Main():
+	cgiEnv = lib_common.CgiEnv()
 
-cgiEnv = lib_common.CgiEnv()
+	fileName = cgiEnv.GetId()
 
-fileName = cgiEnv.GetId()
+	mime_stuff = mimetypes.guess_type( fileName )
 
-mime_stuff = mimetypes.guess_type( fileName )
+	sys.stderr.write("fileName=%s MIME:%s\n" % (fileName, str(mime_stuff) ) )
 
-sys.stderr.write("fileName=%s MIME:%s\n" % (fileName, str(mime_stuff) ) )
+	mime_type = mime_stuff[0]
 
-mime_type = mime_stuff[0]
+	# It could also be a binary stream.
+	if mime_type == None:
+		lib_common.ErrorMessageHtml("No mime type for %s"%fileName)
 
-# It could also be a binary stream.
-if mime_type == None:
-	lib_common.ErrorMessageHtml("No mime type for %s"%fileName)
+	try:
+		# Read and write by chunks, so that it does not use all memory.
+		# lib_util.CopyFile( mime_type, fileName, sys.stdout )
+		# Tested with Python3.
+		# TODO: Change this with WSGI.
+		lib_util.CopyFile( mime_type, fileName )
 
-try:
-	# Read and write by chunks, so that it does not use all memory.
-	# lib_util.CopyFile( mime_type, fileName, sys.stdout )
-	# Tested with Python3.
-	lib_util.CopyFile( mime_type, fileName, lib_util.DfltOutDest() )
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Reading %s, caught:%s" % ( fileName, str(exc) ) )
 
-except Exception:
-	exc = sys.exc_info()[1]
-	lib_common.ErrorMessageHtml("Reading %s, caught:%s" % ( fileName, str(exc) ) )
-
-sys.stdout.flush()
+if __name__ == '__main__':
+	Main()
 

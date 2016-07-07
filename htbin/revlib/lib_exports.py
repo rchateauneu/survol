@@ -8,15 +8,13 @@ import time
 import cgi
 import re
 import json
+import six
 
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
 def AntiPredicateUri(uri):
 	return uri[ len(lib_properties.primns_slash) : ]
 
-# TODO: Est-ce vraiment necessaire ?????????????
-# Peut-etre oui, a cause des sockets ?
-def WrtAsUtf(out,str):
-	out.write( str.encode('utf-8') )
+################################################################################
 
 # Current URL but in edition mode.
 # PROBLEM: SI PAS DE ENTITY_ID A EDITER CAR "TOP" ALORS ON REBOUCLE SUR Edit:
@@ -59,35 +57,42 @@ def DotUL(str):
 
 ################################################################################
 
+from lib_util import WrtAsUtf
+from lib_util import WrtHeader
+
+################################################################################
+
 # Transforms a RDF graph into a HTML page.
-def Grph2Html( page_title, error_msg, isSubServer, parameters, grph, out_dest):
+def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 	# TODO: Est-ce necessaire d'utiliser WrtAsUtf au lieu de print() ?
 	# Peut-etre oui, a cause des sockets?
-	WrtAsUtf( out_dest, "Content-type: text/html\n\n<head>" )
+	WrtHeader('text/html')
+	# WrtAsUtf( "Content-type: text/html\n\n<head>" )
+	WrtAsUtf( "<head>" )
 
 	# TODO: Encode the HTML special characters.
-	WrtAsUtf( out_dest, "<title>" + page_title + "</title>")
+	WrtAsUtf( "<title>" + page_title + "</title>")
 
 	# TODO: Essayer de rassembler les literaux relatifs au memes noeuds, pour faire une belle presentation.
 
-	WrtAsUtf( out_dest, ' </head> <body>')
+	WrtAsUtf( ' </head> <body>')
 
-	WrtAsUtf( out_dest,'<table border="1">')
+	WrtAsUtf('<table border="1">')
 
-	WrtAsUtf( out_dest,'<tr><td colspan="3"><a href="' + ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
+	WrtAsUtf('<tr><td colspan="3"><a href="' + ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
 
 	for keyParam,valParam in parameters.items():
-		WrtAsUtf( out_dest,'<tr><td>' + keyParam + '</td><td colspan="2">' + valParam + '</td></tr>')
+		WrtAsUtf('<tr><td>' + keyParam + '</td><td colspan="2">' + valParam + '</td></tr>')
 
-	WrtAsUtf( out_dest,'<tr><td colspan="3"><a href="' + ModedUrl("svg") + '">Content as SVG</a></td></tr>')
-	WrtAsUtf( out_dest,'<tr><td colspan="3"><a href="' + ModedUrl("rdf") + '">Content as RDF</a></td></tr>')
-	WrtAsUtf( out_dest,'<tr><td colspan="3">' + str(len(grph)) + ' nodes</td></tr>')
+	WrtAsUtf('<tr><td colspan="3"><a href="' + ModedUrl("svg") + '">Content as SVG</a></td></tr>')
+	WrtAsUtf('<tr><td colspan="3"><a href="' + ModedUrl("rdf") + '">Content as RDF</a></td></tr>')
+	WrtAsUtf('<tr><td colspan="3">' + str(len(grph)) + ' nodes</td></tr>')
 
 	if error_msg != None:
-		WrtAsUtf( out_dest,'<tr><td colspan="3"><b>' + error_msg + '</b></td></tr>')
+		WrtAsUtf('<tr><td colspan="3"><b>' + error_msg + '</b></td></tr>')
 
 	if isSubServer:
-		WrtAsUtf( out_dest,'<tr><td colspan="3"><a href="' + ModedUrl("stop") + '">Stop subserver</a></td></tr>')
+		WrtAsUtf('<tr><td colspan="3"><a href="' + ModedUrl("stop") + '">Stop subserver</a></td></tr>')
 
 	by_subj = dict()
 	for subj, pred, obj in grph:
@@ -112,66 +117,66 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph, out_dest):
 		mustWriteColOne = True
 
 		for pred, obj in the_tup_list:
-			WrtAsUtf( out_dest, "<tr>" )
+			WrtAsUtf( "<tr>" )
 
 			if mustWriteColOne:
-				WrtAsUtf( out_dest, '<td rowspan="' + str(cnt_rows) + '"><a href="' + subj_str + '">'+ subj_title +"</a></td>")
+				WrtAsUtf( '<td rowspan="' + str(cnt_rows) + '"><a href="' + subj_str + '">'+ subj_title +"</a></td>")
 				mustWriteColOne = False
 
 			obj_str = str(obj)
 
 			if isinstance( obj , (rdflib.URIRef, rdflib.BNode)):
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
-				WrtAsUtf( out_dest, "<td>" + AntiPredicateUri(str(pred)) + "</td>")
+				WrtAsUtf( "<td>" + AntiPredicateUri(str(pred)) + "</td>")
 				url_with_mode = ConcatenateCgi( obj_str, "mode=html" )
-				WrtAsUtf( out_dest, '<td><a href="' + url_with_mode + '">' + obj_title + "</a></td>")
+				WrtAsUtf( '<td><a href="' + url_with_mode + '">' + obj_title + "</a></td>")
 			else:
 				if pred == pc.property_information :
-					WrtAsUtf( out_dest, '<td colspan="2">' + obj_str + "</td>")
+					WrtAsUtf( '<td colspan="2">' + obj_str + "</td>")
 				else:
-					WrtAsUtf( out_dest, '<td>' + AntiPredicateUri(str(pred)) + "</td>")
-					WrtAsUtf( out_dest, '<td>' + obj_str + "</td>")
+					WrtAsUtf( '<td>' + AntiPredicateUri(str(pred)) + "</td>")
+					WrtAsUtf( '<td>' + obj_str + "</td>")
 
-			WrtAsUtf( out_dest, "</tr>")
+			WrtAsUtf( "</tr>")
 
-	WrtAsUtf( out_dest, " </table> </body> </html> ")
+	WrtAsUtf( " </table> </body> </html> ")
 
 ################################################################################
 # Transforms a RDF graph into a JSON document. From Edouard.
 
-def Grph2Json(page_title, error_msg, isSubServer, parameters, grph, out_dest):
-    WrtAsUtf(out_dest, "Content-type: application/json\n\n")
+def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
+	WrtHeader('application/json')
 
-    links = []
-    nodes = []
-    graph = {}
+	links = []
+	nodes = []
+	graph = {}
 
-    by_subj = dict()
-    for subj, pred, obj in grph:
-        the_tup = (pred, obj)
-        try:
-            by_subj[subj].append(the_tup)
-        except KeyError:
-            by_subj[subj] = [the_tup]
+	by_subj = dict()
+	for subj, pred, obj in grph:
+		the_tup = (pred, obj)
+		try:
+			by_subj[subj].append(the_tup)
+		except KeyError:
+			by_subj[subj] = [the_tup]
 
-    for subj, the_tup_list in list(by_subj.items()):
-        subj_str = str(subj)
-        subj_title = lib_naming.ParseEntityUri(subj_str)[0]
-        nodes.extend([{'id': subj_title}])
-        mustWriteColOne = True
+	for subj, the_tup_list in list(by_subj.items()):
+		subj_str = str(subj)
+		subj_title = lib_naming.ParseEntityUri(subj_str)[0]
+		nodes.extend([{'id': subj_title}])
+		mustWriteColOne = True
 
-        for pred, obj in the_tup_list:
-            if mustWriteColOne:
-                mustWriteColOne = False
-                obj_str = str(obj)
-            if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
+		for pred, obj in the_tup_list:
+			if mustWriteColOne:
+				mustWriteColOne = False
+				obj_str = str(obj)
+			if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
+				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
+				links.extend([{'source': subj_title, 'target': obj_title}])
 
-                obj_title = lib_naming.ParseEntityUri(obj_str)[0]
-                links.extend([{'source': subj_title, 'target': obj_title}])
+	graph["nodes"] = nodes
+	graph["links"] = links
+	print(json.dumps(graph, indent=2))
 
-    graph["nodes"] = nodes
-    graph["links"] = links
-    print( json.dumps(graph, indent = 2) )
 
 ################################################################################
 
@@ -186,14 +191,13 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph, out_dest):
 # (Et/ou envoyer du Javascript avec des appels rdfquery pour affichage dans le navigateur)
 # Ca pourrait dependre d'une variable CGI: mode=RDF/HTML etc...
 # Ici: On peut prendre la valeur de "mode" en dissequant l'URL du Referer.
-# Petit probleme toutefois avec Graphviz/Dot sous Windows qui nous fait
-# des soucis quand un Url contient un ampersand.
 #
-def Grph2Rdf(grph, out_dest):
-	WrtAsUtf( out_dest, "Content-type: text/rdf\n\n")
+def Grph2Rdf(grph):
+	WrtHeader('text/rdf')
+
 	# Format support can be extended with plugins,
 	# but 'xml', 'n3', 'nt', 'trix', 'rdfa' are built in.
-
+	out_dest = lib_util.DfltOutDest()
 	grph.serialize( destination = out_dest, format="xml")
 
 

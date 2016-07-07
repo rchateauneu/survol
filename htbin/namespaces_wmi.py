@@ -36,29 +36,7 @@ hardcodedNamespaces = (
 	"ServiceModel",
 	"subscription" )
 
-
-cgiEnv = lib_common.CgiEnv(can_process_remote = True)
-
-# See differences and similarities between these.
-# entity_host = cgiEnv.GetHost()
-# entity_host = cgiEnv.GetParameters("xid")
-entity_host = cgiEnv.GetHost()
-
-sys.stderr.write("entity_host=%s\n" % entity_host)
-entity_host = lib_wmi.NormalHostName(entity_host)
-
-cimomUrl = entity_host
-
-sys.stderr.write("cimomUrl=%s\n" % cimomUrl)
-
-grph = rdflib.Graph()
-
-# There is no consensus on the WMI class for namespaces,
-# so we have ours which must be correctly mapped.
-namespace_class = "wmi_namespace"
-rootNode = lib_util.EntityUri(namespace_class,"")
-
-def SubNamespace( rootNode, grph, nskey ):
+def SubNamespace( rootNode, grph, nskey, cimomUrl ):
 	try:
 		connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
 	except wmi.x_wmi:
@@ -75,36 +53,60 @@ def SubNamespace( rootNode, grph, nskey ):
 	grph.add( ( rootNode, pc.property_cim_subnamespace, wmiNode ) )
 
 	for subnamespace in connWMI.__NAMESPACE():
-		SubNamespace( wmiNode, grph, nskey + "\\" + subnamespace.Name )
+		SubNamespace( wmiNode, grph, nskey + "\\" + subnamespace.Name, cimomUrl )
+
+def Main():
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
+
+	# See differences and similarities between these.
+	# entity_host = cgiEnv.GetHost()
+	# entity_host = cgiEnv.GetParameters("xid")
+	entity_host = cgiEnv.GetHost()
+
+	sys.stderr.write("entity_host=%s\n" % entity_host)
+	entity_host = lib_wmi.NormalHostName(entity_host)
+
+	cimomUrl = entity_host
+
+	sys.stderr.write("cimomUrl=%s\n" % cimomUrl)
+
+	grph = rdflib.Graph()
+
+	# There is no consensus on the WMI class for namespaces,
+	# so we have ours which must be correctly mapped.
+	namespace_class = "wmi_namespace"
+	rootNode = lib_util.EntityUri(namespace_class,"")
 
 
 
-##########  test seulement
-# Unexpected COM Error (-2147023174, 'The RPC server is unavailable.', None, None)
+	##########  test seulement
+	# Unexpected COM Error (-2147023174, 'The RPC server is unavailable.', None, None)
 
-# Erreur possible si on se connecte a l adresse courante:
-# 'SWbemLocator', u'User credentials cannot be used for local connections '
+	# Erreur possible si on se connecte a l adresse courante:
+	# 'SWbemLocator', u'User credentials cannot be used for local connections '
 
-# http://timgolden.me.uk/python/wmi/tutorial.html
-# connWMI = lib_wmi.WmiConnect(cimomUrl,"Microsoft")
-# connWMI = wmi.WMI("192.168.1.67",user="rchateau", password="kennwert") # The RPC server is unavailable
-# connWMI = wmi.WMI("192.168.1.78",user="vero", password="wimereux62") # The RPC server is unavailable
-# c = wmi.WMI(namespace="WMI")
-#
-# c = wmi.WMI("MachineB", user=r"MachineB\fred", password="secret")
+	# http://timgolden.me.uk/python/wmi/tutorial.html
+	# connWMI = lib_wmi.WmiConnect(cimomUrl,"Microsoft")
+	# connWMI = wmi.WMI("192.168.1.67",user="rchateau", password="kennwert") # The RPC server is unavailable
+	# connWMI = wmi.WMI("192.168.1.78",user="vero", password="wimereux62") # The RPC server is unavailable
+	# c = wmi.WMI(namespace="WMI")
+	#
+	# c = wmi.WMI("MachineB", user=r"MachineB\fred", password="secret")
 
 
-for nskey in hardcodedNamespaces:
-	# SubNamespace( rootNode, grph, nskey )
-	try:
-		SubNamespace( rootNode, grph, nskey )
-	#except wmi.x_wmi:
-	#	exc = sys.exc_info()[1]
-	#	lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("nskey=%s Caught:%s" % ( nskey , str(exc) ) )
+	for nskey in hardcodedNamespaces:
+		# SubNamespace( rootNode, grph, nskey )
+		try:
+			SubNamespace( rootNode, grph, nskey, cimomUrl )
+		#except wmi.x_wmi:
+		#	exc = sys.exc_info()[1]
+		#	lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
+		except Exception:
+			exc = sys.exc_info()[1]
+			lib_common.ErrorMessageHtml("nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 
-cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_cim_subnamespace])
-# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_cim_subnamespace])
+	# cgiEnv.OutCgiRdf(grph)
 
+if __name__ == '__main__':
+	Main()

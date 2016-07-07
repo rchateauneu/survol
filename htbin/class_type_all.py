@@ -18,30 +18,6 @@ except ImportError:
 import lib_wmi
 from lib_properties import pc
 
-# This can process remote hosts because it calls scripts which can access remote data. I hope.
-cgiEnv = lib_common.CgiEnv(can_process_remote = True)
-
-# entity_type = cgiEnv.m_entity_type
-( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()
-
-# Just in case ...
-if nameSpace == "/":
-	nameSpace = ""
-
-entity_host = cgiEnv.GetHost()
-entity_id = cgiEnv.m_entity_id
-
-# QUERY_STRING=xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2FPG_Internal%3APG_WBEMSLPTemplate
-sys.stderr.write("class_type_all entity_host=%s entity_id=%s\n" % ( entity_host, entity_id ) )
-
-grph = rdflib.Graph()
-
-# TODO: Utiliser la bonne fonction !!!
-rootNode = lib_util.RootUri()
-
-objtypeNode = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
-grph.add( ( rootNode, pc.property_rdf_data_nolist2, objtypeNode ) )
-
 # Now, adds the base classes of this one, at least one one level.
 def WbemAddBaseClass(grph,connWbem,wbemNode,entity_host, wbemNamespace, entity_type):
 	wbemKlass = lib_wbem.WbemGetClassObj(connWbem,entity_type,wbemNamespace)
@@ -214,13 +190,37 @@ def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 			localClassNode =  rdflib.term.URIRef( localClassUrl )
 			grph.add( ( rootNode, lib_common.pc.property_directory, localClassNode ) )
 
+def Main():
+	# This can process remote hosts because it calls scripts which can access remote data. I hope.
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
+	# entity_type = cgiEnv.m_entity_type
+	( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()
 
-CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
+	# Just in case ...
+	if nameSpace == "/":
+		nameSpace = ""
 
-# Do this for each intermediary entity type (Between slashes).
-AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id)
+	entity_host = cgiEnv.GetHost()
+	entity_id = cgiEnv.m_entity_id
 
-cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT_TB")
+	# QUERY_STRING=xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2FPG_Internal%3APG_WBEMSLPTemplate
+	sys.stderr.write("class_type_all entity_host=%s entity_id=%s\n" % ( entity_host, entity_id ) )
 
+	grph = rdflib.Graph()
 
+	# TODO: Utiliser la bonne fonction !!!
+	rootNode = lib_util.RootUri()
+
+	objtypeNode = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, objtypeNode ) )
+
+	CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
+
+	# Do this for each intermediary entity type (Between slashes).
+	AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id)
+
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT_TB")
+
+if __name__ == '__main__':
+	Main()

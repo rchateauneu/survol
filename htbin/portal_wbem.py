@@ -6,28 +6,34 @@ WBEM portal
 
 import rdflib
 import lib_common
+
 try:
 	import lib_wbem
 except ImportError:
 	lib_common.ErrorMessageHtml("WBEM not available")
 from lib_properties import pc
 
-# This can process remote hosts because it does not call any script, just shows them.
-cgiEnv = lib_common.CgiEnv()
+def Main():
 
-grph = rdflib.Graph()
+	# This can process remote hosts because it does not call any script, just shows them.
+	cgiEnv = lib_common.CgiEnv()
 
-( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()
+	grph = rdflib.Graph()
 
-entity_host = cgiEnv.GetHost()
+	( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()
 
-# Maybe some of these servers are not able to display anything about this object.
-# wbem_urls_list = lib_wbem.GetWbemUrls( entity_host, nameSpace, entity_type, "" )
-wbem_urls_list = lib_wbem.GetWbemUrls( "*", nameSpace, entity_type, "" )
-for ( url_wbem, wbemHost ) in wbem_urls_list:
-	wbemNode = rdflib.term.URIRef(url_wbem)
+	entity_host = cgiEnv.GetHost()
 
-	hostNode = lib_common.gUriGen.HostnameUri( wbemHost )
-	grph.add( ( hostNode, pc.property_information, wbemNode ) )
+	# Maybe some of these servers are not able to display anything about this object.
+	# wbem_urls_list = lib_wbem.GetWbemUrls( entity_host, nameSpace, entity_type, "" )
+	wbem_urls_list = lib_wbem.GetWbemUrls( "*", nameSpace, entity_type, "" )
+	for ( url_wbem, wbemHost ) in wbem_urls_list:
+		wbemNode = rdflib.term.URIRef(url_wbem)
 
-cgiEnv.OutCgiRdf(grph)
+		hostNode = lib_common.gUriGen.HostnameUri( wbemHost )
+		grph.add( ( hostNode, pc.property_information, wbemNode ) )
+
+	cgiEnv.OutCgiRdf(grph)
+
+if __name__ == '__main__':
+	Main()

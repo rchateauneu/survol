@@ -142,7 +142,7 @@ class RdfQueue_HTTPRequestHandler(BaseHTTPRequestHandler):
 		self.LogMsg("WriteQueueInformation start path="+self.path)
 		try:
 			# Content
-			lib_util.HttpHeader( self.wfile, "text/html")
+			lib_util.HttpHeaderClassic( self.wfile, "text/html")
 
 
 #patt = """Content-type: text/html
@@ -277,10 +277,13 @@ class RdfQueue_HTTPRequestHandler(BaseHTTPRequestHandler):
 
 			topUrl = lib_util.TopUrl( entityType, entityId )
 
+
+			lib_util.SetDefaultOutput(self.wfile)
+
 			# TODO: How can we pass the edition parameters ? How to change them ?
 			# How to store them ? For the moment, the subservers cannot have any parameter.
 			# Maybe having parameters will imply restarting the feeder and maybe the subserver.
-			lib_common.OutCgiMode( grph, topUrl, self.wfile, mode, self.server.m_page_title, 
+			lib_common.OutCgiMode( grph, topUrl, mode, self.server.m_page_title,
 					self.server.m_dot_layout,errorMsg=errMsg,isSubServer=True)
 
 			self.LogMsg("End of transmission pidFeeder=" + str(pidFeeder) )

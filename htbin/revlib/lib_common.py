@@ -58,12 +58,12 @@ def TimeStamp():
 
 # This is used to call an URL with mode=info as CGI argument. The url returns
 # a Json array describing this URL, for example the title.
-# TODO: As this information rarely changes, it can be cached in a text file.
+# TODO: Reuse this for JSON.
 infoContentType = "application/json"
 
 def SerialiseScriptInfo(pairs):
 	strJson = json.dumps(pairs)
-	lib_util.HttpHeader( sys.stdout, infoContentType )
+	lib_util.HttpHeaderClassic( sys.stdout, infoContentType )
 	sys.stderr.write("strJson=%s\n" % strJson )
 	print(strJson)
 
@@ -722,53 +722,15 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	stream.write("}\n")
 
 ################################################################################
-#def CopyToOutPy3(logfil,svg_out_filnam,out_dest):
-#	logfil.write( TimeStamp() + " Output with conversion:%s\n" % svg_out_filnam )
-#	logfil.flush()
-#	# Windows Python 3.
-#	# TODO: AVOID THIS EXPENSIVE CONVERSION !!
-#	infil = open(svg_out_filnam,'r',encoding='UTF-8')
-#
-#	filSz = os.path.getsize(svg_out_filnam)
-#	logfil.write( TimeStamp() + " End of open. filSz=%d\n" % filSz )
-#	logfil.flush()
-#	content = infil.read()
-#	nbOut = out_dest.write( bytes( content, 'UTF-8') )
-#	infil.close()
-#	logfil.write( TimeStamp() + " End of output with conversion: %d chars\n" %nbOut )
 
-def CopyToOutPy3New(logfil,svg_out_filnam,out_dest):
-	# Should be faster but must be tested everywhere.
-	# OK with Python3 and Windows 7.
-	infil = open(svg_out_filnam,'rb')
-
-	filSz = os.path.getsize(svg_out_filnam)
-	logfil.write( TimeStamp() + " End of open. filSz=%d\n" % filSz )
-	content = infil.read()
-	nbOut = out_dest.write( content )
-	infil.close()
-	logfil.write( TimeStamp() + " End of output with conversion: %d chars\n" %nbOut )
-
-# TODO: Test this. https://pypi.python.org/pypi/pysendfile
-
-def CopyToOutPy2New(logfil,svg_out_filnam,out_dest):
+# Copies a file to standard output.
+def CopyToOut(logfil,svg_out_filnam,out_dest):
 	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
-	# OK on Windows Python2. Must be tested on Linux.
 	infil = open(svg_out_filnam,'rb')
 	strInRead = infil.read()
 	nbOut = out_dest.write( strInRead )
 	logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
 	infil.close()
-
-def CopyToOut(logfil,svg_out_filnam,out_dest):
-	if sys.version_info >= (3,):
-		CopyToOutPy3New(logfil,svg_out_filnam,out_dest)
-	else:
-		# CopyToOutPyExperimental(logfil,svg_out_filnam,out_dest)
-		# CopyToOutPy3(logfil,svg_out_filnam,out_dest)
-		# Ca bloque sur des gros fichiers avec Python2 et Windows7.
-		CopyToOutPy2New(logfil,svg_out_filnam,out_dest)
-	logfil.flush()
 
 ################################################################################
 
@@ -776,7 +738,7 @@ def CopyToOut(logfil,svg_out_filnam,out_dest):
 # But the priority is to chase graphes which are too long to route.
 # TODO: Problem: The resulting graph is not deterministic.
 # Should compare the generated DOT files to see of they are identical.
-def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest, removeHeader = False):
+def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	sys.stderr.write("viztype=%s\n"%(viztype) )
 	tmpSvgFil = TmpFile("Dot2Svg","svg")
 	svg_out_filnam = tmpSvgFil.Name
@@ -817,14 +779,15 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest, removeHeader = False):
 		logfil.write( TimeStamp() + " SVG Header removed\n" )
 	else:
 		logfil.write( TimeStamp() + " Writing SVG header\n" )
-		lib_util.HttpHeader( out_dest, "image/svg+xml" )
+		# lib_util.HttpHeader( out_dest, "image/svg+xml" )
+		lib_util.WrtHeader( "image/svg+xml" )
 
 	# Here, we are sure that the output file is closed.
 	CopyToOut(logfil,svg_out_filnam,out_dest)
 
 ################################################################################
 
-def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style, grph, out_dest ):
+def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style, grph ):
 	tmpLogFil = TmpFile("Grph2Svg","log")
 	logfil = open(tmpLogFil.Name,"w")
 	logfil.write( "Starting logging\n" )
@@ -847,8 +810,10 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 
 	# TODO: No need to tell it twice because it is superseded in the dot file.
 	# TEMP TEMP ONLY WINDOWS AND PYTHON 34
-	removeHeader = isSubServer
-	Dot2Svg( dot_filnam_after, logfil, dot_layout, out_dest, removeHeader )
+
+	out_dest = lib_util.DfltOutDest()
+
+	Dot2Svg( dot_filnam_after, logfil, dot_layout, out_dest )
 	logfil.write( TimeStamp()+" closing log file\n" )
 	logfil.close()
 
@@ -857,18 +822,16 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
 
-def OutCgiMode( grph, topUrl, outDest, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
-	# sys.stderr.write("OutCgiMode len=%d\n" % ( len(grph) ) )
-
+def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
 	if mode == "html":
-		lib_exports.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph, outDest)
+		lib_exports.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "json":
-		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph, outDest)
+		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "rdf":
-		lib_exports.Grph2Rdf( grph, outDest)
+		lib_exports.Grph2Rdf( grph)
 	else: # Or mode = "svg"
 		# Default value, because cannot have several CGI arguments in a SVG document (Bug ?).
-		Grph2Svg( pageTitle, topUrl, errorMsg, isSubServer, parameters, dotLayout, grph, outDest)
+		Grph2Svg( pageTitle, topUrl, errorMsg, isSubServer, parameters, dotLayout, grph )
 
 ################################################################################
 
@@ -935,6 +898,39 @@ def MakeDotLayout(dot_layout, collapsed_properties ):
 
 ################################################################################
 
+# Works if called from Apache, cgiserver.py or wsgiserver.py
+def GetCallingModuleDoc():
+	# This is a global and can be fetched differently, if needed.
+	try:
+		# This does not work when in WSGI mode.
+		page_title = sys.modules['__main__'].__doc__
+		page_title = page_title.strip()
+		return page_title
+	except:
+		pass
+
+	try:
+		# This is a bit of a hack.
+		import inspect
+		frame=inspect.currentframe()
+		frame=frame.f_back.f_back
+		code=frame.f_code
+		filnamCaller = code.co_filename
+		filnamCaller = filnamCaller.replace("\\",".").replace("/",".")
+		filnamCaller = filnamCaller[:-3] # Strings ".py" at the end.
+		htbinIdx = filnamCaller.find("htbin.")
+		filnamCaller = filnamCaller[htbinIdx + 6:]
+
+		# sys.stderr.write("filnamCaller=%s\n" % filnamCaller)
+		moduleCaller = sys.modules[filnamCaller]
+		return moduleCaller.__doc__
+	except:
+		exc = sys.exc_info()[1]
+		sys.stderr.write("Caught when setting title:%s\n"%str(exc))
+		return str(exc)
+
+
+
 # At the moment, we have: xxx.py?xid=process:4588
 # We will have: xxx.py?xid=Win32_Process.Handle="123"
 # ou bien, avec escape():
@@ -991,14 +987,7 @@ class CgiEnv():
 		# Contains the optional arguments, needed by calling scripts.
 		self.m_parameters = parameters
 
-		# This is a global and can be fetched differently, if needed.
-		try:
-			self.m_page_title = sys.modules['__main__'].__doc__
-			self.m_page_title = self.m_page_title.strip()
-		except:
-			exc = sys.exc_info()[1]
-			sys.stderr.write("Caught when setting title:"+str(exc))
-			self.m_page_title = "PAGE TITLE NOT SET"
+		self.m_page_title = GetCallingModuleDoc()
 
 		# If we can talk to a remote host to get the desired values.
 		self.m_can_process_remote = can_process_remote
@@ -1072,7 +1061,8 @@ class CgiEnv():
 		# Maybe we could have that with cgi.
 		formAction = os.environ['SCRIPT_NAME']
 
-		lib_util.HttpHeader( sys.stdout, "text/html")
+		# TODO: Change this for WSGI.
+		lib_util.HttpHeaderClassic( sys.stdout, "text/html")
 		print("""
 		<html>
 		<head></head>
@@ -1257,7 +1247,7 @@ class CgiEnv():
 
 		layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
-		out_dest = lib_util.DfltOutDest()
+		# out_dest = lib_util.DfltOutDest()
 		mode = GuessDisplayMode(sys.stderr)
 
 		topUrl = lib_util.TopUrl( self.m_entity_type, self.m_entity_id )
@@ -1265,12 +1255,15 @@ class CgiEnv():
 		if self.m_page_title is None:
 			self.m_page_title = "PAGE TITLE SHOULD BE SET"
 
-		OutCgiMode( grph, topUrl, out_dest, mode, self.m_page_title, layoutParams, parameters = self.m_parameters )
+		OutCgiMode( grph, topUrl, mode, self.m_page_title, layoutParams, parameters = self.m_parameters )
 
 ################################################################################
 
 def ErrorMessageHtml(message):
 	lib_util.InfoMessageHtml(message)
+	sys.stderr.write("ErrorMessageHtml leaving\n")
+	# TODO: Fix with wsgi which just displays "A server error occurred.  Please contact the administrator."
+	# raise Exception("Tralala")
 	sys.exit(0)
 
 ################################################################################
