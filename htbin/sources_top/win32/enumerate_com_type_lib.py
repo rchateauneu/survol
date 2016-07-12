@@ -24,8 +24,12 @@ def Main():
 		num = 0
 		while True:
 			try:
+				# DO NOT close handle.
+				# (<class 'pywintypes.error'>, error(6, 'RegQueryInfoKey', 'The handle is invalid.')
 				keyName = win32api.RegEnumKey(lib_com_type_lib.key, num)
 			except win32api.error:
+				exc = sys.exc_info()
+				sys.stderr.write("RegEnumKey CAUGHT:%s\n"%str(exc))
 				break
 
 			versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.key, keyName)
@@ -44,7 +48,9 @@ def Main():
 
 			num = num + 1
 	finally:
-		win32api.RegCloseKey(lib_com_type_lib.key)
+		# This avoids:  error(6, 'RegQueryInfoKey', 'The handle is invalid.')
+		sys.stderr.write("DO NOT close handle\n")
+		# win32api.RegCloseKey(lib_com_type_lib.key)
 
 	cgiEnv.OutCgiRdf(grph)
 
