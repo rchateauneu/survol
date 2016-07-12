@@ -119,6 +119,7 @@ pc.property_wbem_server          = MakeProp("wbem_server")
 pc.property_cim_subnamespace     = MakeProp("cim_namespace")
 pc.property_class_instance       = MakeProp("instance")
 pc.property_subclass             = MakeProp("subclass")
+pc.property_cim_subclass         = MakeProp("cim subclass")
 
 # Couleur des aretes.
 # TODO: L utiliser pour les colonnes des tables.
