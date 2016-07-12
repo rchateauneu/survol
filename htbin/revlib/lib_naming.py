@@ -122,7 +122,7 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 
 	# General case of a URI created by us and for us.
 	ent_ids_joined = ",".join(entity_ids_arr)
-	if lib_patterns.TypeToPattern( entity_type ) is None:
+	if lib_patterns.TypeToGraphParams( entity_type ) is None:
 		# If the type does not have a special color, add its name.
 		return ent_ids_joined + " (" + entity_type + ")"
 	else:
@@ -199,9 +199,8 @@ scripts_to_titles = {
 
 # Extracts the entity type and id from a URI, coming from a RDF document. This is used
 # notably when transforming RDF into dot documents.
-# The returned entity type is used for choosing graphic attributes and gives
-# more information than the simple entity type.
-# uri="http://127.0.0.1:80/Survol/htbin/entity.py?xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
+# The returned entity type is used for choosing graphic attributes and gives more information than the simple entity type.
+# (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
 def ParseEntityUri(uri,longDisplay=True):
 	# sys.stderr.write("ParseEntityUri %s\n"%uri)
 	# Maybe there is a host name before the entity type. It can contain letters, numbers,

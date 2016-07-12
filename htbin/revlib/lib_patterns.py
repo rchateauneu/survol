@@ -9,7 +9,9 @@ import lib_util
 # We could also use dot record nodes.
 # On the other hand, it is convenient to have some control on the final SVG code.
 # NOTE: Could not set bgcolor for the shapes.
-pattDict = {
+
+#                                                shape        colorfill  colorbg    border is_rounded
+dictGraphParams = {
 	"addr"                                   : ( "rarrow",    "#FFFF99", "#FFFF99", 0, False ),
 	"CIM_Process"                            : ( "component", "#99FF88", "#99FF88", 0, False ),
 	"com/registered_type_lib"                : ( "none",      "#CC99FF", "#CC99FF", 1, False ),
@@ -45,26 +47,19 @@ pattDict = {
 	"Win32_UserAccount"                      : ( "octagon",   "#EEAAAA", "#FFCC66", 0, True ),
 }
 
-pattNodesDefault = "%s [ shape=none, tooltip=\"%s\" color=%s label=< <table color='#666666'" + \
-	" cellborder='0' cellspacing='0' border='1'><tr>" + \
-	"<td href='%s' bgcolor='#99BB88' colspan='%d'>%s</td>" + \
-	"</tr>"
+dfltGraphParams =                              ( "none",      "#FFFFFF", "#99BB88", 1, False )
 
-def TypeToPattern(type):
+# Returns graphic parameters given a type without namespace.
+def TypeToGraphParams(typeWithoutNS):
 	try:
-		return pattDict[type]
+		return dictGraphParams[typeWithoutNS]
 	except KeyError:
-		# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
-		return None
+		return dfltGraphParams
 
-def PatternNode(typeFull):
-	# Maybe there is a namespace: "/:disk"
-	type = typeFull.split(":")[-1]
+	# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
 
-	tp = TypeToPattern(type)
-	if tp is None:
-		return pattNodesDefault
-
+# Builds a HTML pattern given graphic parameters.
+def BuildPatternNode(tp):
 	shape  = tp[0]
 	colorfill  = tp[1]
 	colorbg  = tp[2]
@@ -76,10 +71,29 @@ def PatternNode(typeFull):
 		style = 'style="rounded,filled"'
 	else:
 		style = 'style="filled"'
+
 	return '%s [ shape=' + shape + ', tooltip="%s", ' + style + ' fillcolor="' + colorfill + '" color=%s label=< <table color="' + '#000000' + '"' + \
 		" cellborder='0' cellspacing='0' border='" + str(border) + "'><tr>" + \
 		'<td href="%s" bgcolor="' + colorbg + '" colspan="%d">%s</td>' + \
 		"</tr>"
+
+dictTypeToPatterns = {}
+
+# Returns a HTML pattern given an entity type.
+def PatternNode(typeFull):
+	# TODO: Three possible syntaxes for the type:
+	# "root\CIMV2:CIM_AssociatedMemory" : WMI class     => Investigate base classes.
+	# "root/CIMV2:CIM_AssociatedMemory" : WBEM class    => Investigate base classes.
+	# "CIM_Process" or "oracle/table"   : Custom class  => Split.
+	# We would need some sort of inheritance chains.
+	try:
+		return dictTypeToPatterns[typeFull]
+	except KeyError:
+		type = typeFull.split(":")[-1]
+		tp = TypeToGraphParams(type)
+		patt = BuildPatternNode(tp)
+		dictTypeToPatterns[typeFull] = patt
+		return patt
 
 def WritePatterned( stream, type, subjNamTab, hlp, color, labHRef, nbCols, labText, props ):
 	patt = PatternNode(type)
