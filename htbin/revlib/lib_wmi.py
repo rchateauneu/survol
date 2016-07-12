@@ -205,6 +205,7 @@ def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
 	except pywintypes.com_error:
 		return None
 
+# This adds information to a WMI class.
 def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 	try:
 		# No need to print this, at the moment.
@@ -232,7 +233,8 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 
 			if withProps:
 				for propObj in theCls.Properties_:
-					propDsc = propObj.Qualifiers_("Description")
+					propDsc = str(propObj.Qualifiers_("Description"))
+
 					# Properties of different origins should not be mixed.
 					# Prefixes the property with a dot, so sorting displays it at the end.
 					# Surprisingly, the dot becomes invisible.
@@ -243,6 +245,8 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 		klassQuals = getattr( connWmi, className ).qualifiers
 		for klaQualKey in klassQuals :
 			klaQualVal = klassQuals[klaQualKey]
+			if isinstance(klaQualVal,tuple):
+				klaQualVal = "{ " + ",".join(klaQualVal) + " }"
 			grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), rdflib.Literal(klaQualVal) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
