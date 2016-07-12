@@ -119,6 +119,12 @@ def BuildSrvNetwork( machineName ):
 			win32service.CloseServiceHandle(hdnSrv)
 		except:
 			exc = sys.exc_info()
+			# With wsgi and maybe cgi, many dependencies not seen. OK with Apache.
+			# Why especially these ones which have a lot of dependencies ?
+			# BuildSrvNetwork serviceName=RpcSs:
+			# BuildSrvNetwork serviceName=RpcEptMapper
+			# BuildSrvNetwork serviceName=DcomLaunch:
+			# BuildSrvNetwork serviceName=pla:
 			sys.stderr.write("BuildSrvNetwork serviceName=%s: Caught: %s\n" % ( serviceName, str(exc) ) )
 			# pywintypes.error: (5, 'OpenService', 'Access is denied.')
 
