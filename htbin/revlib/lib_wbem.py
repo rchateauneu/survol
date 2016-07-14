@@ -29,6 +29,11 @@ def NamespaceUrl(nskey,cimomUrl,classNam=""):
 	wbemInstanceUrl = lib_util.EntityUrlFromMoniker( wbemMoniker, True, True )
 	return wbemInstanceUrl
 
+def ClassUrl(nskey,cimomUrl,classNam):
+	wbemMoniker = BuildWbemMoniker( cimomUrl, nskey, classNam )
+	wbemInstanceUrl = lib_util.EntityUrlFromMoniker( wbemMoniker, True )
+	return wbemInstanceUrl
+
 def WbemBuildMonikerPath( entity_namespace, entity_type, entity_id ):
 	wbemNameSpace, wbemClass, fullClassPth = BuildWbemNamespaceClass( entity_namespace, entity_type )
 	# sys.stderr.write("WbemBuildMonikerPath wbemNameSpace=%s entity_namespace=%s entity_id=%s\n" % (wbemNameSpace, entity_namespace, str(entity_id)))
