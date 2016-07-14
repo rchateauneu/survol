@@ -49,7 +49,7 @@ def Main():
 	propDisk = lib_common.MakeProp("Disk")
 	propDiskLabel = lib_common.MakeProp("Label")
 	propDiskLocation = lib_common.MakeProp("Location")
-	propMediaLink = lib_common.MakeProp("Location")
+	propMediaLink = lib_common.MakeProp("Media Link")
 
 	try:
 		# This throws when running with Apache. OK with cgiserver.py
