@@ -43,10 +43,8 @@ def DrawFromThisBase(rootNode, wmiNamespace, cimomUrl,clsNam,grph,clsDeriv):
 	wmiNodeSub = WmiNamespaceNode(wmiNamespace, cimomUrl,clsNam)
 	grph.add( ( wmiNode, pc.property_rdf_data_nolist1, rdflib.Literal(wmiNodeSub) ) )
 
-	# TODO: ZUT !!! ON NE PEUT AVOIR QU UN SEUL property_rdf_data_nolist2 !!!!
 	nodeGeneralisedClass = lib_util.EntityClassNode(clsNam,wmiNamespace,cimomUrl,"WMI")
 	grph.add( ( wmiNode, pc.property_rdf_data_nolist2, rdflib.Literal(nodeGeneralisedClass) ) )
-	# grph.add( ( wmiNode, lib_common.MakeProp("Tralala"), rdflib.Literal("xxx") ) )
 
 	doneNode.add( clsNam )
 
