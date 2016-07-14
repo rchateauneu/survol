@@ -329,7 +329,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				# Completely left-aligned. Col span is 2, approximate ratio.
 				val = StrWithBr(val,2)
 				currTd = "<td align='left' balign='left' colspan='2'>%s</td>" % val
-			elif key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ] :
+			elif key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
 				urlTxt = lib_naming.ParseEntityUri(val)[0]
 				splitTxt = StrWithBr(urlTxt, 2)
 				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, splitTxt )
@@ -413,7 +413,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				else:
 					# One connection only: We cannot see the other.
 					stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
-			elif prop in [ pc.property_rdf_data_nolist1 , pc.property_rdf_data_nolist2 ]:
+			elif prop in [ pc.property_rdf_data_nolist1 , pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]:
 				# TODO: Il suffit de tester si obj est un url de la forme "entity.py" ???
 				# HTML and images urls can be "flattened" because the nodes have no descendants.
 				# Do not create a node for this.
@@ -485,7 +485,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absente.
 			# S il y a du html ou du RDF, on veut que ca vienne en premier.
 			fieldsKeysOrdered = []
-			for fldPriority in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ]:
+			for fldPriority in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]:
 				try:
 					# Must always be appended. BUT IF THERE IS NO html_data, IS IT WORTH ?
 					# TODO: Remove if not HTML and no sub-rdf. CGIPROP
@@ -547,7 +547,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						continue
 
 					# TODO: This is hard-coded.
-					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ] :
+					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
 						# TODO: get the text with ParseEntityUri if property_rdf_data_nolist2
 						# Ou alors: Eviter d afficher toujours le meme texte ou bien repeter l autre lien.
 						# Plutot afficher quelque chose de specifique, par exemple l'extension de fichier si file_to_mime.py ?

@@ -15,6 +15,22 @@ def WbemNamespaceNode( wbemNamespace, cimomUrl, clsNam ):
 	wmiUrl = lib_wbem.NamespaceUrl( wbemNamespace, cimomUrl, clsNam )
 	return rdflib.term.URIRef( wmiUrl )
 
+# http://pywbem.github.io/yawn/index.html
+# "YAWN stands for "Yet Another WBEM Navigator"
+# and provides a way to access WBEM servers and to navigate between the CIM objects returned."
+# https://github.com/pywbem/yawn
+# TODO: Should check if "Yawn" is running on the target machine.
+def AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode):
+	# We could take lib_util.currentHostname but Yawn is more probably running on a machine where Pegasus is there.
+	cimomNoPort = cimomUrl.split(":")[1]
+
+	# The character "&" must be escaped TWICE ! ...
+	yawnUrl = "http:%s/yawn/GetClass/%s?url=%s&amp;amp;verify=0&amp;amp;ns=%s" % (cimomNoPort,topclassNam,lib_util.EncodeUri(cimomUrl),lib_util.EncodeUri(wbemNamespace))
+
+	# "http://192.168.1.88/yawn/GetClass/CIM_DeviceSAPImplementation?url=http%3A%2F%2F192.168.1.88%3A5988&verify=0&ns=root%2Fcimv2"
+	sys.stderr.write("cimomNoPort=%s yawnUrl=%s\n"%(cimomNoPort,yawnUrl))
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist3, rdflib.term.URIRef(yawnUrl) ) )
+
 # topclassNam is None at first call.
 def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth, wbemNamespace, cimomUrl, maxDepth):
 	# sys.stderr.write("topclassNam=%s depth=%d\n" % (topclassNam,depth))
@@ -23,31 +39,19 @@ def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth, wbemNamespa
 		return
 	depth += 1
 
-	# Unique script for all data source.
-	# sys.stderr.write("PrintClassRecu topclassNam=%s\n" % str(topclassNam) )
-	wbemNode = lib_util.EntityClassNode( topclassNam, wbemNamespace, cimomUrl, "WBEM" )
+	wbemUrl = lib_wbem.ClassUrl( wbemNamespace, cimomUrl, topclassNam )
+	wbemNode = rdflib.term.URIRef( wbemUrl )
+
 	grph.add( ( rootNode, pc.property_cim_subclass, wbemNode ) )
 
 	# The class is the starting point when displaying the class tree of the namespace.
 	wbemNodeSub = WbemNamespaceNode(wbemNamespace, cimomUrl, topclassNam)
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, rdflib.Literal(wbemNodeSub) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, rdflib.Literal(wbemNodeSub) ) )
 
+	nodeGeneralisedClass = lib_util.EntityClassNode(topclassNam,wbemNamespace,cimomUrl,"WBEM")
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, rdflib.Literal(nodeGeneralisedClass) ) )
 
-	# TODO: AJOUTER LE LIEN YAWN. Il y a de fortes chances pour que Yawn soit installe.
-	# http://192.168.1.88/yawn/GetClass/TUT_UnixProcess?url=http%3A%2F%2F192.168.1.88&verify=0&ns=root%2Fcimv2
-	# http://rchateau-hp.home/yawn/GetClass/PG_UnixProcess?url=http://192.168.1.88:5988?verify=0$ns=root/cimv2
-	# TODO: REPARER CECI
-	# yawnUrl = "http://%s/yawn/GetClass/%s?url=%s?verify=0$ns=%s" % (lib_util.currentHostname,topclassNam,cimomUrl,wbemNamespace)
-
-	# We could take lib_util.currentHostname but Yawn is more probably running on a machine where Pegasus is there.
-	cimomNoPort = cimomUrl.split(":")[1]
-	# yawnUrl = "http://%s/yawn/GetClass/%s?url=%s&verify=0&ns=%s" % (cimomNoPort,topclassNam,cimomUrl,wbemNamespace)
-	# yawnUrl = lib_util.EncodeUri(yawnUrl)
-	yawnUrl = "%s/yawn/GetClass/%s?url=%s&verify=0&ns=%s" % (cimomNoPort,topclassNam,cimomUrl,wbemNamespace)
-	# TODO: SVG prefixe l'URL qui devient inutilisable.
-	yawnUrl = "http://" + lib_util.EncodeUri(yawnUrl)
-	# yawnUrl = lib_util.EncodeUri(yawnUrl)
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, rdflib.term.URIRef(yawnUrl) ) )
+	AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode)
 
 	try:
 		# TODO: This should be indexed with a en empty string !
