@@ -7,6 +7,7 @@ Shared memory segments.
 import os
 import re
 import sys
+import six
 import psutil
 import rdflib
 import lib_util
@@ -105,36 +106,32 @@ def FunctionProcess(mapToProc,proc):
 	if lib_common.UselessProc(proc):
 		return
 
-	sys.stderr.write("Pid=%d\n" % pid )
-
-	# BEWARE: THIS HANGS ON WINDOWS 7 FOR SOME PROCESSES !!!
-	# MAYBE RELATED TO get_open_files() ALSO HANGING ?
 	try:
-		all_maps = proc.get_memory_maps()
+		all_maps = lib_entity_CIM_Process.PsutilProcMemmaps(proc)
 	except:
-		sys.stderr.write("Caught exception in get_memory_maps Pid=%d\n" % pid )
+		exc = sys.exc_info()[1]
+		sys.stderr.write("get_memory_maps Pid=%d. Caught %s\n" % (pid,str(exc)) )
 		return
 
 	# This takes into account only maps accessed by several processes.
 	# TODO: What about files on a shared drive?
 	# To make things simple, for the moment mapped memory is processed like files.
 
-	sys.stderr.write("NbMaps=%d\n" % len(all_maps) )
+	# sys.stderr.write("NbMaps=%d\n" % len(all_maps) )
 
 	for map in all_maps:
-		sys.stderr.write("MapPath=%s\n" % map.path)
 		cleanPath = GoodMap( map.path )
 		if cleanPath == "":
 			continue
 
-		sys.stderr.write( "Adding cleanPath=%s\n" % cleanPath )
+		# sys.stderr.write( "Adding cleanPath=%s\n" % cleanPath )
 		try:
 			theList = mapToProc[ cleanPath ]
 			theList.append( pid )
 		except KeyError:
 			mapToProc[ cleanPath ] = [ pid ]
 
-	sys.stderr.write( "Leaving maps enumeration\n" )
+	# sys.stderr.write( "Leaving maps enumeration\n" )
 			
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -155,12 +152,12 @@ def Main():
 			pass
 		except Exception:
 			lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info()[0] ) )
-	sys.stderr.write( "Leaving processes enumeration\n" )
+	# sys.stderr.write( "Leaving processes enumeration\n" )
 
 	addedProcs = {}
 
 	# Now display only memory maps with more than one process linked to it.
-	for mapPath, procLst in list( mapToProc.items() ):
+	for mapPath, procLst in six.iteritems( mapToProc ):
 		if len(procLst) <= 0 :
 			continue
 
@@ -174,16 +171,16 @@ def Main():
 				addedProcs[pid] = nodeProcess
 
 			grph.add( ( nodeProcess, pc.property_memmap, uriMemMap ) )
-	sys.stderr.write( "Leaving second maps enumeration\n" )
+	# sys.stderr.write( "Leaving second maps enumeration\n" )
 
-	for pid, nodeProcess in list( addedProcs.items() ):
+	for pid, nodeProcess in six.iteritems( addedProcs ):
 		grph.add( ( nodeProcess, pc.property_pid, rdflib.Literal(pid) ) )
 
 
 	# TODO: Petit bug: Ca duplique les memmap. Forcement, l'affichage en tables
 	# suppose que c'est un arbre. Mais c'est plus rapide et plus clair.
 	# cgiEnv.OutCgiRdf(grph,"",[pc.property_memmap])
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

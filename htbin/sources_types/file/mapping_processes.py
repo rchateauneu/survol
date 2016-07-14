@@ -11,7 +11,7 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-
+import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -38,17 +38,20 @@ def Main():
 		sys.stderr.write("Pid=%d\n" % pid )
 
 		try:
-			all_maps = proc.get_memory_maps()
+			all_maps = lib_entity_CIM_Process.PsutilProcMemmaps(proc)
 		except:
-			sys.stderr.write("Caught exception in get_memory_maps Pid=%d\n" % pid )
+			exc = sys.exc_info()[1]
+			sys.stderr.write("get_memory_maps Pid=%d. Caught %s\n" % (pid,str(exc)) )
 			continue
 
-		sys.stderr.write("NbMaps=%d\n" % len(all_maps) )
+		# sys.stderr.write("NbMaps=%d\n" % len(all_maps) )
 
 		for map in all_maps:
-			sys.stderr.write("MapPath=%s\n" % map.path)
+			# This, because all Windows paths are "standardized" by us.
+			cleanMapPath = map.path.replace("\\","/")
+			# sys.stderr.write("MapPath=%s cleanMapPath=%s memmapName=%s\n" % (map.path,cleanMapPath,memmapName))
 
-			if map.path == fileName:
+			if cleanMapPath == fileName:
 				# Maybe this is the first mapping we have found.
 				if uriMemMap == None:
 					uriMemMap = lib_common.gUriGen.MemMapUri( fileName )

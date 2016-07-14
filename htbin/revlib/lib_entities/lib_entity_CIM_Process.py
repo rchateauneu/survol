@@ -87,6 +87,15 @@ def PsutilProcConnections(proc,kind='inet'):
 
 	return cnnct
 
+def PsutilProcMemmaps(proc):
+	try:
+		all_maps = proc.memory_maps()
+	except AttributeError:
+		# Old psutil version
+		all_maps = proc.get_memory_maps()
+	return all_maps
+
+################################################################################
 
 
 # Each entity can have such a file with its name as file name.
