@@ -32,7 +32,7 @@ def Main():
 	while True:
 		data, total, resume = win32net.NetLocalGroupEnum(server, 1, resume)
 		for group in data:
-			sys.stderr.write("Group %(name)s:%(comment)s\n" % group)
+			# sys.stderr.write("Group %(name)s:%(comment)s\n" % group)
 
 			# TODO: Not sure about the groupname syntax.
 			groupName = group['name']
@@ -52,7 +52,7 @@ def Main():
 					# Converts Sid to username
 					userName, domain, type = win32security.LookupAccountSid(server, member['sid'])
 					numMembers = numMembers + 1
-					sys.stderr.write("    Member: %s: %s\n" % (userName, member['domainandname']))
+					# sys.stderr.write("    Member: %s: %s\n" % (userName, member['domainandname']))
 					nodeUser = lib_common.gUriGen.UserUri( userName )
 					# TODO: Not sure about the property.
 					# TODO: Not sure about the username syntax.
@@ -62,7 +62,7 @@ def Main():
 		if not resume:
 			break
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()
