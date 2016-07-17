@@ -325,7 +325,8 @@ def Main():
 			try:
 				entity_module.AddInfo( grph, rootNode, entity_ids_arr )
 			except AttributeError:
-				sys.stderr.write("No AddInfo for %s %s\n"%( entity_type, entity_id ))
+				exc = sys.exc_info()[1]
+				sys.stderr.write("No AddInfo for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
 		else:
 			sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
 
