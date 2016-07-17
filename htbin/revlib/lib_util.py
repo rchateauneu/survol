@@ -843,7 +843,7 @@ cacheEntityToModule = dict()
 # ... which would explore from bottom to top.
 def GetEntityModule(entity_type):
 	sys.stderr.write("GetEntityModule entity_type=%s\n"%entity_type)
-	sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
+	# sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
 	sys.stderr.write("sys.path="+str(sys.path)+"\n")
 
 	try:
@@ -876,7 +876,7 @@ def GetEntityModule(entity_type):
 			entity_name = "." + entity_type_split[-1]
 		else:
 			entity_package = "sources_types"
-			entity_name = entity_type
+			entity_name = "." + entity_type
 		sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
 		entity_module = importlib.import_module( entity_name, entity_package)
 		sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
