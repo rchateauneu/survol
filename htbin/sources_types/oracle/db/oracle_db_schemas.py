@@ -13,7 +13,6 @@ import rdflib
 
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
-	# oraDatabase = cgiEnv.GetId()
 
 	grph = rdflib.Graph()
 

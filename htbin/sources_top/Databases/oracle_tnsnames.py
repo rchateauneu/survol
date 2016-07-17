@@ -196,8 +196,7 @@ def parse_all(grph, text):
 # "C:\oraclexe\app\oracle\product\11.2.0\server\network\ADMIN\tnsnames.ora"
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(
-		"http://docs.oracle.com/javase/7/docs/webnotes/tsg/TSG-VM/html/graphics/smallOracleLogo.gif")
+	cgiEnv = lib_common.CgiEnv()
 
 	EXAMPLE = """\
 	# www.virginia.edu/integratedsystem 1/16/04

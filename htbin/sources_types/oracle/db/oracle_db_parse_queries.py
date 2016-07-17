@@ -260,8 +260,7 @@ def oracallback(row):
 		exit(1)
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(
-		lib_oracle.logo )
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 

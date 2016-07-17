@@ -7,8 +7,6 @@ import sys
 import lib_util
 import lib_credentials
 
-logo = "http://docs.oracle.com/javase/7/docs/webnotes/tsg/TSG-VM/html/graphics/smallOracleLogo.gif";
-
 # http://stackoverflow.com/questions/13589683/interfaceerror-unable-to-acquire-oracle-environment-handle-oracle-home-is-corr
 # InterfaceError: Unable to acquire Oracle environment handle
 
@@ -67,8 +65,6 @@ def CallbackQuery(conn_str,sql_query,callback):
 		pass
 	conn.close()
 
-
-
 # BEWARE: There is an implicit dependency on the structure of Oracle schema URI.
 # https://docs.oracle.com/cd/A91202_01/901_doc/server.901/a90125/sql_elements10.htm
 # CREATE SYNONYM emp_table FOR oe.employees@remote.us.oracle.com;
@@ -78,12 +74,7 @@ def OraUri( entity_type, ora_db, ora_part = "", ora_object = "", ora_schema = ""
 
 class OracleEnv (lib_common.CgiEnv):
 	def __init__( self ):
-		# Problem of old-style vs new-style class.
-
-		# This used to work I think with Python 3
-		# super( OracleEnv, self ).__init__( title, logo )
-
-		lib_common.CgiEnv.__init__( self, logo )
+		lib_common.CgiEnv.__init__( self )
 
 		self.m_oraDatabase = self.m_entity_id_dict["Db"]
 
