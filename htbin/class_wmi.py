@@ -81,6 +81,28 @@ def Main():
 
 		if fullPth == "":
 			sys.stderr.write("WARNING Empty path wmiObj=%s\n" % str(wmiObj))
+			# The class Win32_PnPSignedDriver (Maybe others) generates dozens of these messages.
+			# This is not really an issue as this class should be hidden from applications.
+			# WARNING Empty path wmiObj=
+			# instance of Win32_PnPSignedDriver
+			# {
+			# 		ClassGuid = NULL;
+			# 		CompatID = NULL;
+			# 		Description = NULL;
+			# 		DeviceClass = "LEGACYDRIVER";
+			# 		DeviceID = "ROOT\\LEGACY_LSI_FC\\0000";
+			# 		DeviceName = "LSI_FC";
+			# 		DevLoader = NULL;
+			# 		DriverName = NULL;
+			# 		DriverProviderName = NULL;
+			# 		DriverVersion = NULL;
+			# 		FriendlyName = NULL;
+			# 		HardWareID = NULL;
+			# 		InfName = NULL;
+			# 		Location = NULL;
+			# 		Manufacturer = NULL;
+			# 		PDO = NULL;
+			# };
 			continue
 
 		# fullPth=\\RCHATEAU-HP\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
