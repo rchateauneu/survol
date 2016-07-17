@@ -25,7 +25,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("http://www.mysql.fr/common/logos/powered-by-mysql-88x31.png")
+	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
 
