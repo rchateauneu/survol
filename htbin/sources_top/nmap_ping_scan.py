@@ -50,9 +50,7 @@ from lib_properties import pc
 def Main():
 	paramkeyPortsRange = "Ports Range"
 
-	cgiEnv = lib_common.CgiEnv(
-			"http://nmap.org/images/nmap-logo-64px.png"
-			)
+	cgiEnv = lib_common.CgiEnv()
 
 	# netMask = "192.168.1.0/24"
 

@@ -19,7 +19,6 @@ def Main():
 	paramkeyGraphDisplay = "Graph display"
 
 	cgiEnv = lib_common.CgiEnv(
-			"http://nmap.org/images/nmap-logo-64px.png",
 			{ paramkeyPortsRange : "22-443", paramkeyGraphDisplay: False} )
 
 	# This is just a first experimentation with nmap.
