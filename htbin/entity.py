@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-RDF data sources
+Overview
 """
 
 import os
@@ -310,7 +310,7 @@ def Main():
 	# Directory=/home/rchateau/Developpement/ReverseEngineeringApps/PythonStyle Type=process Id=5256
 	# TODO: CharTypesComposer: Ca va retourner une liste de directory du plus bas au plus haut.
 	relative_dir = lib_common.SourceDir(entity_type)
-	sys.stderr.write("entity: lib_util.gblTopScripts=%s relative_dir=%s\n" % ( lib_util.gblTopScripts, relative_dir ) )
+	# sys.stderr.write("entity: lib_util.gblTopScripts=%s relative_dir=%s\n" % ( lib_util.gblTopScripts, relative_dir ) )
 
 	directory = lib_util.gblTopScripts + relative_dir
 
@@ -318,12 +318,7 @@ def Main():
 
 	rootNode = lib_util.RootUri()
 
-
-	if entity_id == "" and entity_type != "":
-		# There is no entity to display, but a type is given.
-		# TODO: Display help about this entity type.
-		pass
-	else:
+	if entity_id != "" or entity_type == "":
 		entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 		if entity_module:
 			# TODO: Remplacer htbin/lib_entities/lib_entity_CLASS.py par sources_types/CLASS/__init__.py
@@ -348,7 +343,6 @@ def Main():
 	if entity_type != "":
 		lib_entity_CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 
-	# if entity_type == "":
 	AddDefaultScripts(grph,rootNode)
 
 	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data1])

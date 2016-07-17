@@ -971,7 +971,7 @@ def GetCallingModuleDoc():
 #
 # This parses the CGI environment variables which define an entity.
 class CgiEnv():
-	def __init__(self, url_icon = "", parameters = {}, can_process_remote = False ):
+	def __init__(self, parameters = {}, can_process_remote = False ):
 		# TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
 		sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
 
@@ -988,6 +988,14 @@ class CgiEnv():
 		self.m_parameters = parameters
 
 		self.m_page_title = GetCallingModuleDoc()
+
+		# Title page contains __doc__ plus object label.
+		callingUrl = lib_util.RequestUri()
+		parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False)
+		if parsedEntityUri[2]:
+			# If there is no object rto display.
+			fullTitle = parsedEntityUri[0]
+			self.m_page_title += " " + fullTitle
 
 		# If we can talk to a remote host to get the desired values.
 		self.m_can_process_remote = can_process_remote
@@ -1009,9 +1017,6 @@ class CgiEnv():
 		if can_process_remote or self.m_entity_host is None:
 			return
 
-		# Maybe entity_host="http://192.168.1.83:5988"
-		# hostOnly = lib_util.EntHostToIp(self.m_entity_host)
-
 		if lib_util.IsLocalAddress(self.m_entity_host):
 			return
 
@@ -1026,7 +1031,6 @@ class CgiEnv():
 			# See function EditionMode
 			try:
 				return ( "", "", "" )
-				# OBSOLETE ???????
 				entity_type = self.m_arguments["edimodtype"].value
 				monikDelim = ""
 				entity_id = ""
