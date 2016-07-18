@@ -31,6 +31,16 @@ from sources_types.python import package
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
+	Main.dictKeyToPckg = dict()
+
+	def KeyToPckgNode(key):
+		try:
+			packageNode = Main.dictKeyToPckg[ key ]
+		except KeyError:
+			packageNode = package.MakeUri( key )
+			Main.dictKeyToPckg[ key ] = packageNode
+		return packageNode
+
 	grph = rdflib.Graph()
 
 	# TODO: What about several Python versions ?
@@ -38,15 +48,27 @@ def Main():
 
 	# TODO: Maybe the version should be part of the key.
 	for pckg in installed_packages:
-		sys.stderr.write("key=%s\n" % (pckg.key) )
+		# sys.stderr.write("key=%s\n" % (pckg.key) )
 
-		packageNode = package.MakeUri( pckg.key )
-
+		packageNode = KeyToPckgNode( pckg.key )
 		grph.add( ( packageNode, lib_common.MakeProp("Version"), rdflib.Literal(pckg.version) ) )
 
-		grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("Python package"), packageNode ) )
+		reqPckg = pckg.requires()
+		if reqPckg:
+			for subReq in pckg.requires():
+				subNode = KeyToPckgNode( subReq.key )
 
-	cgiEnv.OutCgiRdf(grph)
+				# TODO: Should do that on the edge !!!!!
+				# [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
+				# aSpecs = subReq.specs
+				# if aSpecs:
+				#	grph.add( (subNode, lib_common.MakeProp("Condition"), rdflib.Literal( str(aSpecs) ) ) )
+
+				grph.add( (packageNode, lib_common.MakeProp("requires"), subNode ) )
+		else:
+			grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("Python package"), packageNode ) )
+
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

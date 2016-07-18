@@ -52,10 +52,17 @@ def AddInfo(grph,node,entity_ids_arr):
 
 		# >>> pip.get_installed_distributions()[1].requires()
 		# [Requirement.parse('distribute'), Requirement.parse('werkzeug'), Requirement.parse('mako')]
-		strReq = "+".join( [ str(req) for req in good_pckg.requires() ])
-		# "MarkupSafe>=0.9.2"
-		# 
-		grph.add( (node, lib_common.MakeProp("requires"), rdflib.Literal( strReq ) ) )
+		# '_Requirement__hash', '__contains__','__doc__', '__eq__', '__hash__','__init__', '__module__', '__ne__',
+		# '__repr__', '__str__', 'extras','hashCmp', 'key', 'marker_fn', 'parse','project_name', 'specifier', 'specs','unsafe_name'
+		# strReq = "+".join( [ str(dir(req)) for req in good_pckg.requires() ])
+
+		for subReq in good_pckg.requires():
+			subNode = MakeUri( subReq.key )
+			# [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
+			aSpecs = subReq.specs
+			if aSpecs:
+				grph.add( (subNode, lib_common.MakeProp("Condition"), rdflib.Literal( str(aSpecs) ) ) )
+			grph.add( (node, lib_common.MakeProp("requires"), subNode ) )
 
 		grph.add( (node, lib_common.MakeProp("py_version"), rdflib.Literal(good_pckg.py_version) ) )
 		grph.add( (node, lib_common.MakeProp("precedence"), rdflib.Literal(good_pckg.precedence) ) )
