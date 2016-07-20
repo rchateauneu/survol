@@ -46,6 +46,11 @@ def FillOnePackage(grph,node,good_pckg):
 	grph.add( (node, lib_common.MakeProp("py_version"), rdflib.Literal(good_pckg.py_version) ) )
 	grph.add( (node, lib_common.MakeProp("precedence"), rdflib.Literal(good_pckg.precedence) ) )
 	grph.add( (node, lib_common.MakeProp("egg_name"), rdflib.Literal(good_pckg.egg_name()) ) )
+
+	nodeLocation = lib_common.gUriGen.FileUri(good_pckg.location)
+	grph.add( (node, lib_common.MakeProp("Location"),nodeLocation ) )
+
+
 	#grph.add( (node, lib_common.MakeProp("from_filename"), rdflib.Literal(good_pckg.from_filename()) ) )
 	#grph.add( (node, lib_common.MakeProp("from_location"), rdflib.Literal(good_pckg.from_location()) ) )
 
