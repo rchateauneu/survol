@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Windows network device
+Windows network devices
 Command wmic logicaldisk
 """
 
