@@ -1,26 +1,221 @@
 import sys
+import six
 import rdflib
 import psutil
 import lib_common
 import lib_util
 from lib_properties import pc
 
-import wmi
+# import wmi
+
+# http://ashishpython.blogspot.co.uk/2013/12/listing-all-installed-applications-on.html
+
+# This scripts allows to get a list of all installed products in a windows
+# machine. The code uses ctypes becuase there were a number of issues when
+# trying to achieve the same win win32com.client
+from collections import namedtuple
+from ctypes import byref, create_unicode_buffer, windll
+from ctypes.wintypes import DWORD
+from itertools import count
+
+# defined at http://msdn.microsoft.com/en-us/library/aa370101(v=VS.85).aspx
+PROPERTY_BUFFER_SIZE = 256
+ERROR_MORE_DATA = 234
+ERROR_SUCCESS = 0
+
+# http://ashishpython.blogspot.co.uk/2013/12/listing-all-installed-applications-on.html
+# {7818198F-3A26-442D-B34D-1664D3ABC979}
+# Product(Language=u'1033', ProductName=u'Microsoft Visual Studio 2013 Diagnostic Tools - amd64', PackageCode=u'{1B281E27-9648-4A28-9F
+# 58-E515354C096B}', Transforms=u'', AssignmentType=u'1', PackageName=u'PerfTools_CORE_amd64.msi', InstalledProductName=u'Microsoft Vi
+# sual Studio 2013 Diagnostic Tools - amd64', VersionString=u'12.0.31101', RegCompany=u'', RegOwner=u'', ProductID=u'', ProductIcon=u'
+# ', InstallLocation=u'', InstallSource=u'C:\\ProgramData\\Package Cache\\{7818198F-3A26-442D-B34D-1664D3ABC979}v12.0.31101\\packages\
+# \PerfTools_CORE\\amd64\\', InstallDate=u'20150709', Publisher=u'Microsoft Corporation', LocalPackage=u'C:\\windows\\Installer\\8a439
+# 70.msi', HelpLink=u'', HelpTelephone=u'', URLInfoAbout=u'', URLUpdateInfo=u'')
+# {DE0E8FAF-9758-4BFD-A16E-009DB4B8C912}
+
+
+# instance of Win32_Product
+# {
+#         AssignmentType = 1;
+#         Caption = "Microsoft Web Deploy 3.5";
+#         Description = "Microsoft Web Deploy 3.5";
+#         IdentifyingNumber = "{69A998C5-00A9-42CA-AB4E-C31CFFCD9251}";
+#         InstallDate = "20150709";
+#         InstallSource = "C:\\ProgramData\\Package Cache\\{69A998C5-00A9-42CA-AB4E-C31CFFCD9251}v3.1237.1763\\packages\\WebDeploy\\";
+#
+#         InstallState = 5;
+#         Language = "1033";
+#         LocalPackage = "C:\\windows\\Installer\\8a43794.msi";
+#         Name = "Microsoft Web Deploy 3.5";
+#         PackageCache = "C:\\windows\\Installer\\8a43794.msi";
+#         PackageCode = "{28DAC33F-DD0E-4293-9BB0-5585B4D89CB9}";
+#         PackageName = "WebDeploy_x64.msi";
+#         Vendor = "Microsoft Corporation";
+#         Version = "3.1237.1763";
+#         WordCount = 2;
+# };
+
+
+
+# diff properties of a product, not all products have all properties
+# PRODUCT_PROPERTIES = [six.u('Language'),
+#                       six.u('ProductName'),
+#                       six.u('PackageCode'),
+#                       six.u('Transforms'),
+#                       six.u('AssignmentType'),
+#                       six.u('PackageName'),
+#                       six.u('InstalledProductName'),
+#                       six.u('VersionString'),
+#                       six.u('RegCompany'),
+#                       six.u('RegOwner'),
+#                       six.u('ProductID'),
+#                       six.u('ProductIcon'),
+#                       six.u('InstallLocation'),
+#                       six.u('InstallSource'),
+#                       six.u('InstallDate'),
+#                       six.u('Publisher'),
+#                       six.u('LocalPackage'),
+#                       six.u('HelpLink'),
+#                       six.u('HelpTelephone'),
+#                       six.u('URLInfoAbout'),
+#                       six.u('URLUpdateInfo'),]
+PRODUCT_PROPERTIES = [u'Language',
+                      u'ProductName',
+                      u'PackageCode',
+                      u'Transforms',
+                      u'AssignmentType',
+                      u'PackageName',
+                      u'InstalledProductName',
+                      u'VersionString',
+                      u'RegCompany',
+                      u'RegOwner',
+                      u'ProductID',
+                      u'ProductIcon',
+                      u'InstallLocation',
+                      u'InstallSource',
+                      u'InstallDate',
+                      u'Publisher',
+                      u'LocalPackage',
+                      u'HelpLink',
+                      u'HelpTelephone',
+                      u'URLInfoAbout',
+                      u'URLUpdateInfo',]
+
+# class to be used for python users :)
+Product = namedtuple('Product', PRODUCT_PROPERTIES)
+
+
+def get_property_for_product(product, property, buf_size=PROPERTY_BUFFER_SIZE):
+    property_buffer = create_unicode_buffer(buf_size)
+    size = DWORD(buf_size)
+    result = windll.msi.MsiGetProductInfoW(product, property, property_buffer, byref(size))
+    if result == ERROR_MORE_DATA:
+        return get_property_for_product(product, property, 2 * buf_size)
+    elif result == ERROR_SUCCESS:
+        return property_buffer.value
+    else:
+        return str(result)
+        # return None
+
+
+def populate_product(uid):
+    sys.stderr.write("populate_product uid=%s type=%s\n" % (uid,type(uid)))
+    properties = []
+    for property in PRODUCT_PROPERTIES:
+        properties.append(get_property_for_product(uid, property))
+    return Product(*properties)
+
+#	"symbol"              : ( ["Name","File"], ),
+def EntityOntology():
+    return ( ["IdentifyingNumber"], )
 
 # TODO: Is the caption the best key ?
-def MakeUri(productCaption):
-	return lib_common.gUriGen.UriMake("Win32_Product",productCaption)
+def MakeUri(productIdentifyingNumber):
+    return lib_common.gUriGen.UriMake("Win32_Product",productIdentifyingNumber)
 
-# New style of entity-specific code which is now in the
-# module ENTITY.py instead of lib_entities/lib_entity_ENTITY.py
-# which was not a very 'pythonic' architecture.
+def AddInfo(grph,node,entity_ids_arr):
+	productIdentifyingNumber = six.u(entity_ids_arr[0])
+
+	sys.stderr.write("productIdentifyingNumber=%s\n"%str(productIdentifyingNumber))
+	try:
+		winProd = populate_product(productIdentifyingNumber)
+
+		sys.stderr.write("winProd=%s\n"%str(winProd))
+
+		# Windows file name, with backslashes replaced by convention in this software.
+		cleanInstallSource = winProd.InstallSource.replace("\\","/")
+		nodeInstallSource = lib_common.gUriGen.FileUri( cleanInstallSource )
+		grph.add( (node, lib_common.MakeProp("InstallSource"), nodeInstallSource ) )
+
+		nodeLocalPackage = lib_common.gUriGen.FileUri( winProd.LocalPackage )
+		grph.add( (node, lib_common.MakeProp("LocalPackage"), nodeLocalPackage ) )
+
+		if winProd.RegCompany:
+			grph.add( (node, lib_common.MakeProp("Vendor"), rdflib.Literal(winProd.RegCompany) ) )
+		grph.add( (node, lib_common.MakeProp("Version"), rdflib.Literal(winProd.VersionString) ) )
+		grph.add( (node, lib_common.MakeProp("Name"), rdflib.Literal(winProd.ProductName) ) )
+
+		if winProd.RegOwner:
+			grph.add( (node, lib_common.MakeProp("RegOwner"), rdflib.Literal(winProd.RegOwner) ) )
+		if winProd.ProductID:
+			grph.add( (node, lib_common.MakeProp("ProductID"), rdflib.Literal(winProd.ProductID) ) )
+
+		if winProd.ProductIcon:
+			nodeProductIcon = lib_common.gUriGen.FileUri( winProd.ProductIcon )
+			grph.add( (node, lib_common.MakeProp("ProductIcon"), nodeProductIcon ) )
+
+		grph.add( (node, lib_common.MakeProp("PackageName"), rdflib.Literal(winProd.PackageName) ) )
+		grph.add( (node, lib_common.MakeProp("PackageCode"), rdflib.Literal(winProd.PackageCode) ) )
+
+		if winProd.Transforms:
+			grph.add( (node, lib_common.MakeProp("Transforms"), rdflib.Literal(winProd.Transforms) ) )
+		grph.add( (node, lib_common.MakeProp("AssignmentType"), rdflib.Literal(winProd.AssignmentType) ) )
+
+		if winProd.InstallDate:
+			txtDate = winProd.InstallDate[0:4] + "-" + winProd.InstallDate[4:6] + "-" + winProd.InstallDate[6:8]
+			grph.add( (node, lib_common.MakeProp("InstallDate"), rdflib.Literal(txtDate) ) )
+
+		grph.add( (node, lib_common.MakeProp("Publisher"), rdflib.Literal(winProd.Publisher) ) )
+
+		if winProd.HelpLink:
+			grph.add( (node, lib_common.MakeProp("HelpLink"), rdflib.URIRef(winProd.HelpLink) ) )
+		if winProd.HelpTelephone:
+			grph.add( (node, lib_common.MakeProp("HelpTelephone"), rdflib.Literal(winProd.HelpTelephone) ) )
+
+		try:
+			if winProd.URLInfoAbout:
+				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), rdflib.Literal(winProd.URLInfoAbout) ) )
+		except AttributeError:
+			pass
+		try:
+			if winProd.URLUpdateInfo:
+				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), rdflib.Literal(winProd.URLUpdateInfo) ) )
+		except AttributeError:
+			pass
+
+	except Exception:
+		exc = sys.exc_info()[1]
+		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
+
+
 
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
-def AddInfo(grph,node,entity_ids_arr):
+def AddInfo_DEPRECATED(grph,node,entity_ids_arr):
 	productCaption = entity_ids_arr[0]
 
 	try:
+		# http://ashishpython.blogspot.co.uk/2013/12/listing-all-installed-applications-on.html
+		# {7818198F-3A26-442D-B34D-1664D3ABC979}
+		# Product(Language=u'1033', ProductName=u'Microsoft Visual Studio 2013 Diagnostic Tools - amd64', PackageCode=u'{1B281E27-9648-4A28-9F
+		# 58-E515354C096B}', Transforms=u'', AssignmentType=u'1', PackageName=u'PerfTools_CORE_amd64.msi', InstalledProductName=u'Microsoft Vi
+		# sual Studio 2013 Diagnostic Tools - amd64', VersionString=u'12.0.31101', RegCompany=u'', RegOwner=u'', ProductID=u'', ProductIcon=u'
+		# ', InstallLocation=u'', InstallSource=u'C:\\ProgramData\\Package Cache\\{7818198F-3A26-442D-B34D-1664D3ABC979}v12.0.31101\\packages\
+		# \PerfTools_CORE\\amd64\\', InstallDate=u'20150709', Publisher=u'Microsoft Corporation', LocalPackage=u'C:\\windows\\Installer\\8a439
+		# 70.msi', HelpLink=u'', HelpTelephone=u'', URLInfoAbout=u'', URLUpdateInfo=u'')
+		# {DE0E8FAF-9758-4BFD-A16E-009DB4B8C912}
+
+
 		# instance of Win32_Product
 		# {
 		#         AssignmentType = 1;
