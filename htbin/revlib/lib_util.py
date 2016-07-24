@@ -652,7 +652,16 @@ def OntologyClassKeys(entity_type):
 	except KeyError:
 		pass
 
-	# Et si on ne trouve pas chercher dans le module ?? lib_util.GetEntityModule(entity_type).GetFields()
+	# Maybe the ontology is defined in the related module if it exists.
+	entity_module = GetEntityModule(entity_type)
+	if 	entity_module:
+		try:
+			entity_ontology_all = entity_module.EntityOntology()
+			localOntology[ entity_type ] = entity_ontology_all
+			sys.stderr.write("OntologyClassKeys entity_type=%s loaded entity_ontology_all=%s\n" % (entity_type,str(entity_ontology_all)))
+			return entity_ontology_all[0]
+		except AttributeError:
+			pass
 
 	# If this class is in our ontology but has no defined properties.
 	if entity_type in ObjectTypes():
@@ -843,8 +852,12 @@ cacheEntityToModule = dict()
 # ... which would explore from bottom to top.
 def GetEntityModule(entity_type):
 	sys.stderr.write("GetEntityModule entity_type=%s\n"%entity_type)
+
+	if not entity_type:
+		return None
+
 	# sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
-	sys.stderr.write("sys.path="+str(sys.path)+"\n")
+	# sys.stderr.write("sys.path="+str(sys.path)+"\n")
 
 	try:
 		# Might be None if the module does not exist.
