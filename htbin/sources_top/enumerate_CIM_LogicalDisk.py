@@ -65,30 +65,20 @@ def Main():
 		# partition(device='D:\\\\', mountpoint='D:\\\\', fstype='NTFS', opts='rw,fixed')
 		sys.stderr.write("device=%s fstype=%s\n" % (part.device,part.fstype) )
 		sys.stderr.write("All=%s\n" % str(part) )
+		# Replacing backslashes is necessary on Windows.
 		partition_name = part.device.replace('\\','/')
+		nodePartition = lib_common.gUriGen.DiskPartitionUri( partition_name )
+		mount_point = part.mountpoint.replace('\\','/')
+		nodeMount = lib_common.gUriGen.FileUri( mount_point )
 
 		# TODO: Check this list.
-		if part.fstype in [ 'NTFS', 'ext2', 'ext3', 'FAT32' ]:
-			nodeMount = lib_common.gUriGen.DiskPartitionUri( partition_name )
-			grph.add( ( lib_common.gUriGen.FileUri( part.mountpoint ), pc.property_mount, nodeMount ) )
-		elif part.fstype == "":
-			nodeMount = lib_common.gUriGen.FileUri( partition_name )
-		else:
+		if part.fstype != "":
 			# partition(device='T:\\\\', mountpoint='T:\\\\', fstype='', opts='cdrom')
-			nodeMount = lib_common.gUriGen.SmbShareUri( partition_name )
-			grph.add( ( lib_common.gUriGen.FileUri( part.mountpoint ), pc.property_mount, nodeMount ) )
-
+			grph.add( ( nodePartition, pc.property_file_system_type, rdflib.Literal(part.fstype) ) )
+			grph.add( ( nodeMount, pc.property_mount, nodePartition ) )
 
 		if part.opts != "":
-			grph.add( ( nodeMount, pc.property_mount_options,  rdflib.Literal(part.opts) ) )
-
-		if part.fstype != "":
-			grph.add( ( nodeMount, pc.property_file_system_type, rdflib.Literal(part.fstype) ) )
-
-
-		# Prendre en compte le disque, l'utiliser pour iostat.
-		if lib_util.isPlatformLinux:
-			pass
+			grph.add( ( nodePartition, pc.property_mount_options,  rdflib.Literal(part.opts) ) )
 
 	cgiEnv.OutCgiRdf(grph)
 
