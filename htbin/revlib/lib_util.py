@@ -844,32 +844,13 @@ def WrtHeader(mimeType):
 
 ################################################################################
 
-# So we try to load only once.
-cacheEntityToModule = dict()
-
-# Maybe we could return an array because of heritage ?
-# Or:  GetEntityModuleFunction(entity_type,functionName):
-# ... which would explore from bottom to top.
-def GetEntityModule(entity_type):
-	sys.stderr.write("GetEntityModule entity_type=%s\n"%entity_type)
-
-	if not entity_type:
-		return None
-
-	# sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
-	# sys.stderr.write("sys.path="+str(sys.path)+"\n")
-
-	try:
-		# Might be None if the module does not exist.
-		return cacheEntityToModule[ entity_type ]
-	except KeyError:
-		pass
+def GetEntityModuleNoCache(entity_type):
+	sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
 
 	try:
 		# Beware: No directories here, for the moment:
 		# "revlib/lib_entities/lib_entity_dbus_connection.py"
 		entity_lib = ".lib_entity_" + entity_type
-		sys.stderr.write("Loading entity-specific library:"+entity_lib+"\n")
 		entity_module = importlib.import_module( entity_lib, "lib_entities")
 		sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
 		return entity_module
@@ -901,4 +882,24 @@ def GetEntityModule(entity_type):
 	sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
 	entity_module = None
 
+	return entity_module
+
+# So we try to load only once.
+cacheEntityToModule = dict()
+cacheEntityToModule[""] = None
+
+# Maybe we could return an array because of heritage ?
+# Or:  GetEntityModuleFunction(entity_type,functionName):
+# ... which would explore from bottom to top.
+def GetEntityModule(entity_type):
+	# sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
+	# sys.stderr.write("sys.path="+str(sys.path)+"\n")
+
+	try:
+		# Might be None if the module does not exist.
+		return cacheEntityToModule[ entity_type ]
+	except KeyError:
+		pass
+	entity_module = GetEntityModuleNoCache(entity_type)
+	cacheEntityToModule[ entity_type ] = entity_module
 	return entity_module
