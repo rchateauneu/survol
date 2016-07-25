@@ -65,7 +65,7 @@ def NetBiosLookup(machine):
 	return addr
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(lib_smb.icon)
+	cgiEnv = lib_common.CgiEnv()
 
 	# TODO: Should test Linux instead ?
 	if lib_util.isPlatformWindows:

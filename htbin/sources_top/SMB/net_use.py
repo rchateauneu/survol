@@ -30,7 +30,7 @@ from lib_properties import pc
 import lib_smb
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(lib_smb.icon)
+	cgiEnv = lib_common.CgiEnv()
 
 	# TODO: Should test Linux instead ?
 	# TODO: The command "net" exists on Linux !!!!

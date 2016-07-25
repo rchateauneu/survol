@@ -29,7 +29,7 @@ from lib_properties import pc
 import lib_smb
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(lib_smb.icon)
+	cgiEnv = lib_common.CgiEnv()
 
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("NET command on Windows only")

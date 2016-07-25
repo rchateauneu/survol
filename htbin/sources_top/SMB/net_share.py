@@ -38,7 +38,7 @@ from lib_properties import pc
 import lib_smb
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(lib_smb.icon)
+	cgiEnv = lib_common.CgiEnv()
 
 	# TODO: Should test Linux instead ?
 	# TODO: The command "net" exists on Linux !!!!
@@ -97,7 +97,8 @@ def Main():
 		grph.add( ( lib_common.nodeMachine, pc.property_smbshare, shareNode ) )
 
 		# mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrRes )
-		mountNode = lib_common.gUriGen.FileUri( shrRes )
+		shrRes = shrRes.replace("\\","/").strip()
+		mountNode = lib_common.gUriGen.DirectoryUri( shrRes )
 		grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
 
 	cgiEnv.OutCgiRdf(grph)
