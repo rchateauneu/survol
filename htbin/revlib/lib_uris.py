@@ -295,11 +295,7 @@ class LocalBox:
 	# XML Parsing Error: not well-formed
 	# Location: http://127.0.0.1/Survol/htbin/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
 	def FileUri(self,path):
-		if path[-1] == "/":
-			# Not sure this works.
-			return self.UriMake("CIM_Directory", lib_util.EncodeUri(path))
-		else:
-			return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
+		return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
 
 		# TODO: Consider this might be even be more powerful.
 		# u'some string'.encode('ascii', 'xmlcharrefreplace')
