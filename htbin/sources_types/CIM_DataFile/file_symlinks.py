@@ -12,7 +12,7 @@ import os
 import re
 import sys
 import rdflib
-import lib_entities.lib_entity_file
+from sources_types import CIM_DataFile
 import lib_common
 from lib_properties import pc
 
@@ -22,9 +22,9 @@ def DoTheRest( grph, beginning, physical, file_split ):
 	if file_depth == 0:
 		if beginning != physical:
 			nodePhys = lib_common.gUriGen.FileUri( physical )
-			lib_entities.lib_entity_file.AddInfo( grph, nodePhys, [ physical ] )
+			CIM_DataFile.AddInfo( grph, nodePhys, [ physical ] )
 			nodeLink = lib_common.gUriGen.FileUri( beginning )
-			lib_entities.lib_entity_file.AddInfo( grph, nodeLink, [ beginning ] )
+			CIM_DataFile.AddInfo( grph, nodeLink, [ beginning ] )
 			grph.add( ( nodePhys, pc.property_symlink, nodeLink ) )
 		return
 

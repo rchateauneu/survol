@@ -201,7 +201,7 @@ class LocalBox:
 	# Rien
 	#
 	def SharedLibUri(self,soname):
-		return self.UriMake("file", lib_util.EncodeUri(soname) )
+		return self.UriMake("CIM_DataFile", lib_util.EncodeUri(soname) )
 
 	# TODO: POUR LES DISQUES ET LES PARTITIONS, LES HIERARCHIES SE CROISENT, SANS PLUS.
 	# Y PENSER DANS class_type_all.py
@@ -288,36 +288,18 @@ class LocalBox:
 		class_name = lib_util.Base64Encode(class_name)
 		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(file) } )
 
+	# CIM_DeviceFile is common to WMI and WBEM.
+
 	# This must be a complete path name.
 	# If there is a backslash-L, it will be replaced by "<TABLE>" in graphviz:
 	# XML Parsing Error: not well-formed
 	# Location: http://127.0.0.1/Survol/htbin/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
 	def FileUri(self,path):
-		# if False:
-		# 	# BEN OUI MAIS COMMENT FAIT ON POUR LES DIRECTORIES ?
-		# 	filename, file_extension = os.path.splitext(path)
-		#
-		# 	# Default value.
-		# 	subtype = "file"
-		# 	if lib_util.isPlatformLinux:
-		# 		try:
-		# 			subtype = {".so" : "shrlib"}[ file_extension ]
-		# 		except KeyError:
-		# 			pass
-		# 	elif lib_util.isPlatformLinux:
-		# 		try:
-		# 			subtype = {".DLL" : "shrlib"}[ file_extension.upper() ]
-		# 		except KeyError:
-		# 			pass
-		# 	else:
-		# 		pass
-		# 	if subtype:
-		# 		file = lib_util.ComposeTypes( file, subtype )
-
-		# There might be an Unicode error.
-		# pathUnicode = path.encode('unicode')
-		# It must starts with a slash except on Windows.
-		return self.UriMake("file", lib_util.EncodeUri(path))
+		if path[-1] == "/":
+			# Not sure this works.
+			return self.UriMake("CIM_Directory", lib_util.EncodeUri(path))
+		else:
+			return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
 
 		# TODO: Consider this might be even be more powerful.
 		# u'some string'.encode('ascii', 'xmlcharrefreplace')
@@ -325,12 +307,12 @@ class LocalBox:
 	# TODO: Have a special type for directories, dll etc...
 	def DirectoryUri(self,path):
 		# return self.UriMake(lib_util.ComposeTypes( "file", "dir" ), lib_util.EncodeUri(path))
-		return self.UriMake( "file" , lib_util.EncodeUri(path))
+		return self.UriMake( "CIM_Directory" , lib_util.EncodeUri(path))
 
 	# TODO: Renvoyer NULL si type MIME invalide ?
 	# Ou bien une icone ?
 	def FileUriMime(self,filNam):
-		return self.UriMakeFromScript('/file_to_mime.py', "file", lib_util.EncodeUri(filNam) )
+		return self.UriMakeFromScript('/file_to_mime.py', "CIM_DataFile", lib_util.EncodeUri(filNam) )
 
 	def OracleDbUri(self,dbName):
 		return self.UriMakeFromDict("oracle/db", { "Db" : dbName } )

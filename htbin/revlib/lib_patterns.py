@@ -17,9 +17,9 @@ dictGraphParams = {
 	"com/registered_type_lib"                : ( "none",      "#CC99FF", "#CC99FF", 1, False ),
 	"com/type_lib"                           : ( "none",      "#99FF99", "#99FF99", 1, False ),
 	"com/type_lib_entry"                     : ( "none",      "#CCCCCC", "#CCCCCC", 1, False ),
-	lib_util.ComposeTypes("file","dir")      : ( "folder",    "#88BBFF", "#88BBFF", 0, False ),
-	lib_util.ComposeTypes("file","script")   : ( "box",       "#FFFF66", "#FFFF66", 0, False ),
-	"file"                                   : ( "note",      "#88BBFF", "#88BBFF", 0, False ),
+	"CIM_Directory"                          : ( "folder",    "#88BBFF", "#88BBFF", 0, False ),
+	lib_util.ComposeTypes("CIM_DataFile","script")   : ( "box",       "#FFFF66", "#FFFF66", 0, False ), # TODO: DOUTEUX
+	"CIM_DataFile"                           : ( "note",      "#88BBFF", "#88BBFF", 0, False ),
 	"group"                                  : ( "plain",     "#88BBFF", "#88BBFF", 0, False ),
 	"CIM_ComputerSystem"                     : ( "signature", "#CCFFCC", "#CCFFCC", 0, False ),
 	"memmap"                                 : ( "tab",       "#CCFFCC", "#CCFFCC", 0, False ),

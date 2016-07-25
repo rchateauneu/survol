@@ -131,7 +131,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 		full_sub_dir = curr_dir + "/" + dir
 		full_sub_dir = full_sub_dir.replace("\\","/")
-		currDirNode = lib_common.gUriGen.FileUri(full_sub_dir)
+		currDirNode = lib_common.gUriGen.DirectoryUri(full_sub_dir)
 
 		somethingAdded = DirToMenu(grph,currDirNode, full_sub_dir,relative_dir + "/" + dir)
 		if somethingAdded:

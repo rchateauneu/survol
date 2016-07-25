@@ -8,7 +8,7 @@ import psutil
 import rdflib
 import lib_common
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
-import lib_entities.lib_entity_file as lib_entity_file
+from sources_types import CIM_DataFile as lib_entity_file
 from lib_properties import pc
 
 def AddExtraInformationtoProcess(grph,node_process,proc_obj):

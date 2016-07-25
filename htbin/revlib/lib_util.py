@@ -615,6 +615,8 @@ def UsableLinuxBinary(entity_type,entity_ids_arr):
 # ATTENTION A LA VIRGULE
 localOntology = {
 	"CIM_ComputerSystem"  : ( ["Name"], ),
+	"CIM_DataFile"        : ( ["Name"], ),
+	"CIM_Directory"       : ( ["Name"], ),
 	"CIM_Process"         : ( ["Handle"], ),
 	"Win32_Service"       : ( ["Name"], ),
 	"Win32_UserAccount"   : ( ["Name"], ),

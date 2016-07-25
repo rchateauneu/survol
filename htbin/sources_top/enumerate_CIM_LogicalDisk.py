@@ -69,7 +69,7 @@ def Main():
 		partition_name = part.device.replace('\\','/')
 		nodePartition = lib_common.gUriGen.DiskPartitionUri( partition_name )
 		mount_point = part.mountpoint.replace('\\','/')
-		nodeMount = lib_common.gUriGen.FileUri( mount_point )
+		nodeMount = lib_common.gUriGen.DirectoryUri( mount_point )
 
 		# TODO: Check this list.
 		if part.fstype != "":

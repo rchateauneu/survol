@@ -78,22 +78,22 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 			sys.stderr.write("CANNOT DECODE: class=(%s):%s\n"%(entity_id,str(exc)))
 			return entity_id
 
-	if entity_type == "file":
+	if entity_type == "CIM_DataFile":
 		# A file name can be very long, so it is truncated.
 		file_basename = os.path.basename(entity_id)
-		if os.path.isdir(entity_id):
-			entity_graphic_class = lib_util.ComposeTypes("file","dir")
-			if file_basename == "":
-				return entity_id
-			else:
-				# By convention, directory names ends with a "/".
-				return file_basename + "/"
+		if file_basename == "":
+			return entity_id
 		else:
-			# If entity_graphic_class contained the file extension, an icon could be displayed.
-			if file_basename == "":
-				return entity_id
-			else:
-				return file_basename
+			return file_basename
+
+	if entity_type == "CIM_Directory":
+		# A file name can be very long, so it is truncated.
+		file_basename = os.path.basename(entity_id)
+		if file_basename == "":
+			return entity_id
+		else:
+			# By convention, directory names ends with a "/".
+			return file_basename + "/"
 
 	if entity_type in [ "user", "Win32_UserAccount", "addr", "oracle/db", "CIM_ComputerSystem", "smbshr", "com/registered_type_lib", "memmap" ]:
 		# The type of some entities can be deduced from their name.
@@ -268,7 +268,7 @@ def ParseEntityUri(uri,longDisplay=True):
 			# This indicates that a specific script can list all objects of a given entity type.
 			entity_label = entity_graphic_class + " enumeration"
 		else:
-			entity_graphic_class = lib_util.ComposeTypes("file","script")
+			entity_graphic_class = lib_util.ComposeTypes("CIM_DataFile","script") # TODO: DOUTEUX...
 			entity_id = ""
 			entity_label = UriToTitle(uprs)
 

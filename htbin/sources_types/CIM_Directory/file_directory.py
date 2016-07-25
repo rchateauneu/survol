@@ -10,7 +10,7 @@ import sys
 import rdflib
 import lib_uris
 import lib_common
-import lib_entities.lib_entity_file
+from sources_types import CIM_DataFile
 import lib_util
 from lib_properties import pc
 
@@ -60,8 +60,8 @@ def UrlDirectory( fullDirPath ):
 # Used only here.
 def UriDirectoryDirectScript(dirNam):
 	return lib_uris.gUriGen.UriMakeFromScript(
-		'/sources_types/file/file_directory.py',
-		"file", # TODO: NOT SURE: lib_util.ComposeTypes("file","dir"),
+		'/sources_types/CIM_Directory/file_directory.py',
+		"CIM_Directory", # TODO: NOT SURE: lib_util.ComposeTypes("file","dir"),
 		lib_util.EncodeUri(dirNam) )
 
 
@@ -137,8 +137,8 @@ def Main():
 
 			grph.add( ( filNode, pc.property_directory, subfilNode ) )
 
-			lib_entities.lib_entity_file.AddStat( grph, subfilNode, fullFilePath )
-			lib_entities.lib_entity_file.AddHtml( grph, subfilNode, fullFilePath )
+			CIM_DataFile.AddStat( grph, subfilNode, fullFilePath )
+			CIM_DataFile.AddHtml( grph, subfilNode, fullFilePath )
 
 	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_directory] )
 	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [] )

@@ -100,12 +100,14 @@ def Main():
 	grph = rdflib.Graph()
 
 	for puid in get_installed_products_uids():
-		sys.stderr.write("puid=%s\n"%puid)
+		#sys.stderr.write("puid=%s\n"%puid)
 		winProd = Win32_Product.populate_product(puid)
-		try:
-			sys.stderr.write("winProd.InstalledProductName=%s\n"%winProd.InstalledProductName)
-		except:
-			sys.stderr.write("winProd.InstalledProductName=%s\n"%winProd.InstalledProductName.encode("utf-8"))
+		# Must be encode("utf-8") before printing.
+		# "winProd.InstalledProductName=Visual Studio 2012 Ú®ùÞ¡ë SDK - cht"
+		#try:
+		#	sys.stderr.write("winProd.InstalledProductName=%s\n"%winProd.InstalledProductName)
+		#except:
+		#	sys.stderr.write("winProd.InstalledProductName=%s\n"%winProd.InstalledProductName.encode("utf-8"))
 		productNode = Win32_Product.MakeUri( puid )
 
 		try:

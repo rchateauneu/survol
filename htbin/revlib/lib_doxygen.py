@@ -1,7 +1,3 @@
-"""
-DOxygen parsing
-"""
-
 import os
 import sys
 import six
@@ -52,7 +48,8 @@ def DoTheStuff(outDir):
 			xmlPath = dirName + "/" + fname
 			try:
 				for event, elem in xml.etree.cElementTree.iterparse(xmlPath, events=("start", "end")):
-					# sys.stderr.write("elem.tag=%s\n" % elem.tag)
+					#sys.stderr.write("elem.tag=%s\n" % elem.tag)
+					#sys.stderr.write("elem.text=%s\n" % elem.text)
 
 					if event == "start":
 						if elem.tag == "compounddef":
@@ -124,7 +121,7 @@ def CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses
 	sys.stderr.write("\n\n\n\directoryName=%s num=%d\n\n"%( directoryName, len(objectsByLocation)))
 
 	for (locationFile, v1) in six.iteritems(objectsByLocation):
-		#sys.stderr.write("locationFile=%s\n"%locationFile)
+		sys.stderr.write("locationFile=%s\n"%locationFile)
 
 		# TODO: Eventuellement exploser selon les sous-directorys
 		nodeFile = lib_common.gUriGen.FileUri( locationFile )
@@ -133,6 +130,7 @@ def CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses
 		for (compounddefKind, v2) in v1.items():
 			#sys.stderr.write("compounddefKind=%s\n"%compounddefKind)
 			for (compoundName, v3) in v2.items():
+				#sys.stderr.write("compoundName=%s\n"%compoundName)
 				for (memberKind, v4) in v3.items():
 					#sys.stderr.write("memberKind=%s\n"%memberKind)
 					for (memberDefinition, listTypes) in v4.items():
@@ -442,20 +440,7 @@ def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
 	sys.stderr.write("doxyOUTPUT_DIRECTORY=%s\n" % (doxyOUTPUT_DIRECTORY))
 
 
-def Main():
-	paramkeyRecursive = "Recursive exploration"
-	paramkeyExplodeClasses = "Explode classes members"
-
-	cgiEnv = lib_common.CgiEnv(
-		parameters = { paramkeyRecursive : False, paramkeyExplodeClasses : False })
-
-	paramRecursiveExploration = int(cgiEnv.GetParameters( paramkeyRecursive ))
-	paramExplodeClasses = int(cgiEnv.GetParameters( paramkeyExplodeClasses ))
-
-	fileParam = cgiEnv.GetId()
-
-	grph = rdflib.Graph()
-
+def DoxygenMain(paramRecursiveExploration,fileParam):
 	tmpDirObj = lib_common.TmpFile(prefix=None,suffix=None,subdir="DoxygenXml")
 
 	doxyOUTPUT_DIRECTORY = tmpDirObj.TmpDirToDel
@@ -469,19 +454,5 @@ def Main():
 
 	doxyResultDir = doxyOUTPUT_DIRECTORY + "/xml"
 	objectsByLocation = DoTheStuff(doxyResultDir)
+	return objectsByLocation
 
-	if os.path.isdir(fileParam):
-		directoryName = fileParam
-		rootNode = lib_common.gUriGen.DirectoryUri( directoryName )
-	else:
-		directoryName = os.path.dirname(fileParam)
-		rootNode = lib_common.gUriGen.FileUri( fileParam )
-	CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses)
-
-	# TODO: THE GENERATED GRAPH SHOULD BE MORE SIMILAR TO DOXYGEN'S.
-
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_member ] )
-
-
-if __name__ == '__main__':
-	Main()

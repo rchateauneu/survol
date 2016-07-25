@@ -12,7 +12,7 @@ import socket
 import urllib
 import lib_util
 import rdflib
-import lib_entities.lib_entity_file
+from sources_types import CIM_DataFile
 import lib_common
 from lib_properties import pc
 
@@ -26,7 +26,7 @@ def AddDepends(grph, nodeSharedLib, library):
 	grph.add( ( nodeSharedLib, pc.property_library_depends, libNode ) )
 	# This assumes that shared libraries are a special sort of file.
 	# This is true, but not completely used.
-	lib_entities.lib_entity_file.AddInfo( grph, libNode, [ library ] )
+	CIM_DataFile.AddInfo( grph, libNode, [ library ] )
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -47,7 +47,7 @@ def Main():
 		fileSharedLib = os.getcwd() + '/' + fileSharedLib
 
 	nodeSharedLib = lib_common.gUriGen.SharedLibUri( fileSharedLib )
-	lib_entities.lib_entity_file.AddInfo( grph, nodeSharedLib, [ fileSharedLib ] )
+	CIM_DataFile.AddInfo( grph, nodeSharedLib, [ fileSharedLib ] )
 
 	stream = os.popen("ldd " + fileSharedLib)
 

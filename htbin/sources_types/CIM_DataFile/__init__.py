@@ -82,6 +82,3 @@ def AddInfo(grph,node,entity_ids_arr):
 	AddHtml( grph,node,filNam)
 	AddParentDir( grph,node,filNam)
 
-
-
-

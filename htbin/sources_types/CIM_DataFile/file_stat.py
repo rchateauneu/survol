@@ -14,7 +14,7 @@ import time
 import rdflib
 import psutil
 import json
-import lib_entities.lib_entity_file
+from sources_types import CIM_DataFile
 import lib_util
 import lib_common
 import lib_properties
@@ -79,8 +79,8 @@ def Main():
 		deviceNode = lib_common.gUriGen.DiskPartitionUri(deviceName)
 		grph.add( ( filNode, pc.property_file_device, deviceNode ) )
 
-	lib_entities.lib_entity_file.AddStatNode( grph, filNode, info )
-	lib_entities.lib_entity_file.AddMagic( grph, filNode, filNam )
+	CIM_DataFile.AddStatNode( grph, filNode, info )
+	CIM_DataFile.AddMagic( grph, filNode, filNam )
 
 	# st_nlink: number of hard links.
 
@@ -119,7 +119,7 @@ def Main():
 		grph.add( ( dirNode, pc.property_directory, currNode ) )
 		sys.stderr.write("dirPath=%s\n" % dirPath)
 		statPath = os.stat(dirPath)
-		lib_entities.lib_entity_file.AddStatNode( grph, dirNode, statPath )
+		CIM_DataFile.AddStatNode( grph, dirNode, statPath )
 
 
 		propDict = FilNamToProperties(currFilNam)
