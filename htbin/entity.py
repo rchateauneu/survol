@@ -87,9 +87,29 @@ def IsTempFile(fil):
 # Et meme pourquoi ne pas reutiliser la syntaxe des sous-classes de WMI et WBEM ?
 
 
+def FromModuleToDoc(importedMod,fil):
+	try:
+		docModuAll = importedMod.__doc__
+		# Take only the first non-empty line.
+		docModuSplit = docModuAll.split("\n")
+		for docModu in docModuSplit:
+			if docModu 	:
+				# sys.stderr.write("DOC="+docModu)
+				maxLen = 40
+				if len(docModu) > maxLen:
+					docModu = docModu[0:maxLen] + "..."
+				break
+	except:
+		docModu = ""
 
+	if not docModu:
+		# If no doc available, just transform the file name.
+		docModu = fil[:-3].replace("_"," ").capitalize()
+
+	return docModu
 
 # This lists the scripts and generate RDF nodes.
+# Returns True if something was added.
 def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 	# sys.stderr.write("curr_dir=%s\n"%(curr_dir))
@@ -101,7 +121,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 	# Maybe this class is not defined in our ontology.
 	if dirs == None:
 		# sys.stderr.write("No content in "+curr_dir)
-		return
+		return False
 
 	for dir in dirs:
 		# sys.stderr.write("dir=%s\n"%(dir))
@@ -112,27 +132,17 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		full_sub_dir = curr_dir + "/" + dir
 		full_sub_dir = full_sub_dir.replace("\\","/")
 		currDirNode = lib_common.gUriGen.FileUri(full_sub_dir)
-		grph.add( ( parentNode, pc.property_directory, currDirNode ) )
 
+		somethingAdded = DirToMenu(grph,currDirNode, full_sub_dir,relative_dir + "/" + dir)
+		if somethingAdded:
+			grph.add( ( parentNode, pc.property_directory, currDirNode ) )
 
-		# Quand le nom de fichier contient aussi htbin, erreur. Exemple:
-		# http://127.0.0.1:8000/htbin/entity.py?xid=file.Id=C%3A%2FUsers%2Frchateau%2FDeveloppement%2FReverseEngineeringApps%2FPythonStyle%2F%2Fhtbin%2Fsources_top%2FLinux
-		#
-		# Error code 403.
-		# Message: CGI script is not executable ('/htbin/entity.py?xid=file.Id=C%3A%2FUsers%2Frchateau%2FDeveloppement%2FReverseEngineeringApps%2FPythonStyle%2F%2Fhtbin/2Fsources_top%2FLinux').
-		# Error code explanation: 403 = Request forbidden -- authorization will not help.
-		#
-		# Meme result avec Apache et cgiserver.py.
-		# L'erreur se produit avant meme l'execution de entity.py
-		# Quand on insere quelque chose dans la chaine "htbin", ca fonctionne.
-		# Je soupconne que du code detecte cette chaine dans l'URL.
-		#
-		# FIX: FileUri() ne va pas creer un URL quand le fichier fait partie de nos scripts.
-		#
-		DirToMenu(grph,currDirNode, full_sub_dir,relative_dir + "/" + dir)
-
+	# Will still be None if nothing is added.
+	rdfNode = None
 	sub_path = path[ len(curr_dir) : ]
 	for fil in files:
+
+		# We want to list only the usable Python scripts.
 		if IsTempFile(fil) or fil == "__init__.py":
 			continue
 
@@ -205,28 +215,14 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		rdfNode = rdflib.term.URIRef(url_rdf)
 		grph.add( ( parentNode, pc.property_rdf_data1, rdfNode ) )
 
-		try:
-			docModuAll = importedMod.__doc__
-			# Take only the first non-empty line.
-			docModuSplit = docModuAll.split("\n")
-			for docModu in docModuSplit:
-				if docModu != "":
-					sys.stderr.write("DOC="+docModu)
-					maxLen = 40
-					if len(docModu) > maxLen:
-						docModu = docModu[0:maxLen] + "..."
-					break
-		except:
-			docModu = ""
-
-		if not docModu:
-			# If no doc available, just transform the file name.
-			docModu = fil[:-3].replace("_"," ").capitalize()
+		docModu = FromModuleToDoc(importedMod,fil)
 
 		grph.add( ( rdfNode, pc.property_information, rdflib.Literal(docModu) ) )
 
 		if errorMsg:
 			grph.add( ( rdfNode, lib_common.MakeProp("Error"), rdflib.Literal(errorMsg) ) )
+
+	return rdfNode is not None
 
 ################################################################################
 
