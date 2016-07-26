@@ -248,9 +248,7 @@ def ParseEntityUri(uri,longDisplay=True):
 				entity_label = filScript +" "+ entity_label
 
 			# Maybe hostname is a CIMOM address.
-			if lib_util.IsLocalAddress( entity_host ):
-				entity_label += " at local host"
-			else:
+			if not lib_util.IsLocalAddress( entity_host ):
 				entity_label += " at " + entity_host
 
 	# Maybe an internal script, but not entity.py
