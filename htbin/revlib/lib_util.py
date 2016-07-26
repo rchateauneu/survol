@@ -600,7 +600,7 @@ def UsableLinuxBinary(entity_type,entity_ids_arr):
 		return False
 	filename, file_extension = os.path.splitext(fulFileName)
 	# TODO: Must add library type for ELF and PE ?
-	if file_extension() in [".so", ".lib"]:
+	if file_extension in [".so", ".lib"]:
 		return True
 	# TODO: Finish this. Use "magic" module ??
 	return True
