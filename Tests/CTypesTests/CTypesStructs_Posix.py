@@ -45,14 +45,24 @@ class struct_FixedString(ctypes.Structure):
 		'text': "[a-zA-Z_0-9]{6,20}",
 	}
 
-class struct_Url(ctypes.Structure):
+class struct_Url_http(ctypes.Structure):
 	_pack_ = True # source:False
 	_fields_ = [
 		# Length truncates string. Should be variable...
-		('url', ctypes.c_uint8 * 20),
+		('url', ctypes.c_uint8 * 200),
 	]
 	_regex_ = {
-		'url': "http://[a-zA-Z_0-9\.]{6,20}",
+		'url': "http://[a-zA-Z_0-9\.]{6,200}",
+	}
+
+class struct_Url_https(ctypes.Structure):
+	_pack_ = True # source:False
+	_fields_ = [
+		# Length truncates string. Should be variable...
+		('url', ctypes.c_uint8 * 200),
+	]
+	_regex_ = {
+		'url': "https://[a-zA-Z_0-9\.]{6,200}",
 	}
 
 #define APR_PROTO_TCP       6 = 0x06
@@ -107,6 +117,6 @@ class struct_addrinfo(ctypes.Structure):
 
 
 
-lstStructs = [ struct_time_t, struct_FixedString, struct_Url ]
-lstStructs = [ struct_addrinfo, struct_time_t ]
-ctypes_scanner.DoAll(lstStructs)
+lstStructs = [ struct_time_t, struct_FixedString, struct_Url_http, struct_addrinfo, struct_time_t ]
+lstStructs = [ struct_Url_http, struct_Url_https ]
+ctypes_scanner.DoAll(lstStructs,verbose=False)
