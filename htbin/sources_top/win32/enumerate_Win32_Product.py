@@ -103,7 +103,7 @@ def Main():
 		#sys.stderr.write("puid=%s\n"%puid)
 		winProd = Win32_Product.populate_product(puid)
 		# Must be encode("utf-8") before printing.
-		# "winProd.InstalledProductName=Visual Studio 2012 Ú®ùÞ¡ë SDK - cht"
+		# "winProd.InstalledProductName=Visual Studio 2012 CARACTERES BIZARRES SDK - cht"
 		#try:
 		#	sys.stderr.write("winProd.InstalledProductName=%s\n"%winProd.InstalledProductName)
 		#except:
