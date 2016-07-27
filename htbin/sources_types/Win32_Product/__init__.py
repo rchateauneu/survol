@@ -16,7 +16,6 @@ from lib_properties import pc
 from collections import namedtuple
 from ctypes import byref, create_unicode_buffer, windll
 from ctypes.wintypes import DWORD
-from itertools import count
 
 # defined at http://msdn.microsoft.com/en-us/library/aa370101(v=VS.85).aspx
 PROPERTY_BUFFER_SIZE = 256
@@ -119,7 +118,7 @@ def get_property_for_product(product, property, buf_size=PROPERTY_BUFFER_SIZE):
 
 
 def populate_product(uid):
-    sys.stderr.write("populate_product uid=%s type=%s\n" % (uid,type(uid)))
+    # sys.stderr.write("populate_product uid=%s type=%s\n" % (uid,type(uid)))
     properties = []
     for property in PRODUCT_PROPERTIES:
         properties.append(get_property_for_product(uid, property))
