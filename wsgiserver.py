@@ -10,7 +10,7 @@ import importlib
 import wsgiref.simple_server as server
 import cStringIO
 
-# TODO: Verifier qu’on peut lancer en cliquant sur wsgiserver.py ou cgiserver.py
+# TODO: Verifier quon peut lancer en cliquant sur wsgiserver.py ou cgiserver.py
 # TODO: Permettre a wsgiserver.py d afficher les messages d erreurs.
 # TODO: Maintenant que wsgi fonctionne, y adapter les scripts asyncyhrones.
 
