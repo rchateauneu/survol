@@ -11,9 +11,14 @@ import psutil
 import rdflib
 import importlib
 
-from revlib import lib_util
-from revlib import lib_common
-from revlib.lib_properties import pc
+# With Linux, Python2 and cgiserver, it can import it,
+# but after that it cannot "import lib_common"
+# from revlib import lib_util
+# from revlib import lib_common
+# from revlib.lib_properties import pc
+import lib_util
+import lib_common
+from lib_properties import pc
 
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 import lib_entities.lib_entity_CIM_ComputerSystem as lib_entity_CIM_ComputerSystem
