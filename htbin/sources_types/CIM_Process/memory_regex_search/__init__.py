@@ -532,7 +532,7 @@ if sys.platform == "win32":
 
 
 		is64bits = IsProcess64Bits(phandle)
-		print("is64bits=%d" % is64bits)
+		sys.stderr.write("is64bits=%d\n" % is64bits)
 		mem_proc_functor = MemoryProcessor(is64bits,lstStructs)
 
 		# First address of the first page, and last address to scan.
@@ -546,21 +546,21 @@ if sys.platform == "win32":
 			try:
 				next_page = ScanFromPage(phandle, page_address, mem_proc_functor)
 			except ctypes.ArgumentError:
-				print("Address overflow: %s" % str(page_address) )
+				sys.stderr.write("Address overflow: %s\n" % str(page_address) )
 				break
 			except Exception:
 				t, e = sys.exc_info()[:2]
-				print("    Other exception:"+str(e).replace("\n"," "))
+				sys.stderr.write("    Other exception:%s\n"%str(e).replace("\n"," "))
 				break
 
 			page_address = next_page
 
 			if not is64bits and page_address == 0x7FFF0000:
-				print("End of 32bits process memory on Windows")
+				sys.stderr.write("End of 32bits process memory on Windows\n")
 				break
 
 			if len(allFound) >= 1000000:
-				print("[Warning] Scan ended early because too many addresses were found to hold the target data.")
+				sys.stderr.write("[Warning] Scan ended early because too many addresses were found to hold the target data.\n")
 				break
 		# print("MemMachine leaving")
 		return mem_proc_functor
@@ -587,11 +587,11 @@ else:
 			# time.sleep(0.1)
 			filnam = "/proc/%d/mem" % pidint
 			statinfo = os.stat(filnam)
-			print("filnam="+filnam+" stats="+str(statinfo))
+			sys.stderr.write("filnam="+filnam+" stats="+str(statinfo)+"\n")
 			# mem_file = open(filnam, 'r+b', 0)
 			mem_file = open(filnam, 'r', 0)
 			lenAddr = addr_end - addr_beg
-			print("len=%d"%lenAddr)
+			sys.stderr.write("len=%d\n"%lenAddr)
 			if False:
 				# Exception:mmap length is greater than file size
 				# Je crois me souvenir qu on peut empecher un controle de taille ??
@@ -604,7 +604,7 @@ else:
 				mem_proc_functor.ParseSegment( chunk )
 
 		except Exception as exc:
-			print("Exception:"+str(exc))
+			sys.stderr.write("Exception:%s\n"%str(exc))
 			pass
 		ptrace(False, pidint)
 
