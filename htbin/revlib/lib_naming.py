@@ -270,11 +270,12 @@ def ParseEntityUri(uri,longDisplay=True):
 			entity_id = ""
 			entity_label = UriToTitle(uprs)
 
-	elif uri.split(':')[0] in [ "ftp", "http", "urn" ]:
-		# These are standard URLs. More could be added.
+	elif uri.split(':')[0] in [ "ftp", "http", "https", "urn", "mail" ]:
+		# Standard URLs. Example: rdflib.term.URIRef( "http://www.google.com" )
 		entity_graphic_class = ""
 		entity_id = ""
-		entity_label = uri.split('/')[2]
+		# Display the complete URL, otherwise it is not clickable.
+		entity_label = uri # uri.split('/')[2]
 
 	else:
 		entity_graphic_class = ""

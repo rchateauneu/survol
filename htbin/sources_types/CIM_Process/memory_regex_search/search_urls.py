@@ -35,10 +35,31 @@ def Main():
 
 	propHttp = lib_common.MakeProp("HTTP url")
 	try:
-		resu = memory_regex_search.GetRegexMatches(pidint,"http://[a-zA-Z_0-9\.]*")
+		# http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+		# rgxHttp = "http://[a-zA-Z_0-9\.]*"
+		rgxHttp = "http://[a-z_0-9\.]*"
 
+		resu = memory_regex_search.GetRegexMatches(pidint,rgxHttp)
+
+		resuClean = set()
 		for urlHttp in resu:
-			grph.add( (node_process, propHttp, rdflib.Literal(urlHttp) ) )
+			# In memory, we find strings such as "http://adblockplus.orgzzzzzzzzzzzz"
+			# or "http://adblockplus.orgzzzzzzzzzzzz"
+			# "activistpost.netzx"
+			splitDots = urlHttp.split(".")
+			topLevel = splitDots[-1]
+			# Primitive way to remove apparently broken URLs.
+			if( len(topLevel) > 4 ):
+				continue
+			resuClean.add( urlHttp )
+
+
+		for urlHttp in resuClean:
+			# grph.add( (node_process, propHttp, rdflib.Literal(urlHttp) ) )
+			# sys.stderr.write("urlHttp=%s\n"%urlHttp)
+			nodePortalWbem = rdflib.term.URIRef( urlHttp )
+			grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
+
 
 	except Exception:
 		exc = sys.exc_info()[1]
