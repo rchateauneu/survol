@@ -609,7 +609,7 @@ else:
 		ptrace(False, pidint)
 
 
-	def GetMemMaps(pidint,lstStructs):
+	def GetMemMaps(pidint):
 		# TODO: Replace this by scanning /proc/<pid>/mmaps
 		import psutil
 		p = psutil.Process(pidint)
