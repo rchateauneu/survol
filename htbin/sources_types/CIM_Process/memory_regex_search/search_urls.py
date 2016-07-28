@@ -8,15 +8,20 @@ import os
 import sys
 import rdflib
 
-from revlib import lib_util
-from revlib import lib_common
-from revlib.lib_properties import pc
+# Does not work with Apache and Windows: ImportError: No module named revlib
+#from revlib import lib_util
+#from revlib import lib_common
+#from revlib.lib_properties import pc
+
+# This works on Windows, with Apache and cgiserver.py
+import lib_util
+import lib_common
+from lib_properties import pc
 
 import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
 
 from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
-
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
