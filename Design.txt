@@ -1,34 +1,3 @@
-Essai
-
-On va peut-etre revenir a UPNP mais cette fois-ci en Perl et surtout bien separer
-la declaration des serveurs d'une part, et les calculs d'autre part.
-
-Mettre dans des directory separes les programmes de calculs, et l'affichage.
-
-Les fichiers de sortie, output.rdf etc... vont etre en parametres.
-
-Eventuellement, on peut conjointement publier en SLP et en UPNP.
-
-Bien separer les fonctionnalites en programmes differents car on a perdu
-trop de temps a trouver le langage parfait qui permet UPNP et RDF, fonctionne partout de la
-meme facon etc...
-
-Donc on separe en processes differents qui tournent avec des langages interpretes idealement.
-
-Est-ce que on pourrait faire du UNPN avec drag-n-drop, pour le merge ?
-
-On part de l'interface actuelle, en javascript.
-
-Voir si on pourrait avoir un frontal devant le merge,
-qui permettrait de lancer le merge avec du javascript.
-Oui: Il suffit d'avoir un serveur web qui puisse activer le merge avec le bon URL.
-
-Javascript devra peut-etre uploader les fichiers, ce qui nous dispenserait d'avoir un serveur local.
-Pas urgent mais on se laisse la possiblite de cette architecture, ou tout est decouple
-d'une machine a l'autre, d'un process a l'autre, sans avoir forcement besoin de demarrer
-des serveurs.
-
-=============================================
 Si SLP, on peut utiliser les attributs pour dire quel genre d'info est stockee,
 quel est l'index etc...
 D'un autre cote ca nous oblige a coller a SLP.
@@ -45,14 +14,6 @@ son URL, enregistrer ses parametres et declarer avec SLP par exemple.
 http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
 
 HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes. 
-
-=============================================
-RDF en javascript.
-
-
-Peut etre avoir optionnellement, pour chaque CGI, un serveur SOAP,
-compatible avec UPNP?
-Et qui permettrait d'ajuster les parametres.
 =============================================
 UDP:
 Etablir la correlation entre:
@@ -139,15 +100,6 @@ qui determine tout.
 
 On pourrait faire simple, se focaliser sur /proc,
 mais faire des traitements complexes derriere.
-
-==============================================
-SLP
-http.rdf
-http.csv
-==============================================
-Quelles requetes simples peut-on faire en RDF+Javascript ?
-* Tout ce qui concerne un process ou une socket?
-
 ==============================================
 Generer du SNMP pour MRTG?
 
@@ -216,17 +168,6 @@ Si c'est un CGI CVS, il faur choisir les colonnes (Au moins)
 Si RDF, choisir le predicat.
 
 ============================================
-Un CGI facile: On relie les processes aux librairies
-auxquelles ils sont linkes.
-- Si plusieurs versions, on relie les versions entre elles.
-- Ca traverse les machines (Mais ce serait bien de regrouper
-les processes de la meme machine dans une seule boite)
-- Comment se concentrer sur certaines librairies seulement?
-Il faudrait un premier filtre qui cree un CGI avec ces parametres.
-Ce CGI serait reinjecte dans la visualisation.
-
-
-============================================
 Creation de vues CGI sur un CGI RDF:
 On stocke:
 - Un CGI
@@ -253,15 +194,7 @@ pour des donnees en continu sans polling.
 Mais nous, on se concentre sur la logique des processes.
 
 ============================================
-Utiliser la commande top en mode batch: Ca fera un fichier CSV.
-Attention aux processes qui disparaissent.
 Afficher avec d3, style MRTG.
-============================================
-Tout afficher sur un process, dans le but de savoir a quoi il sert.
-============================================
-Avec lsof et autres, savoir les devices auxquels les processes sont
-connectes (terminaux, disques)
-Et du coup, dire quel process empeche de dismounter un device.
 ============================================
 Ajouter un plugin a Nagios ???
 C'est a dire qu'on ajouterait un adapteur a nos scripts CGI
@@ -302,3 +235,9 @@ Autrement dit, on integre les erreurs dans les donnees normales, traitees normal
 Ca a l'avantage de ne jamais les perdre.
 ============================================
 
+IBM MQ Light
+https://developer.ibm.com/answers/questions/14213/how-to-get-vcap-services.html
+BlueMix
+VCAP_SERVICES
+============================================
+Le mode HTML devrait fabriquer un rapport en texte, decrivant la page.
