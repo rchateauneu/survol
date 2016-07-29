@@ -450,7 +450,11 @@ def DoxygenMain(paramRecursiveExploration,fileParam):
 	else:
 		doxyRECURSIVE = "NO"
 
-	RunDoxy(doxyOUTPUT_DIRECTORY, fileParam, doxyRECURSIVE)
+	try:
+		RunDoxy(doxyOUTPUT_DIRECTORY, fileParam, doxyRECURSIVE)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Doxygen: %s\n"%( str(exc) ))
 
 	doxyResultDir = doxyOUTPUT_DIRECTORY + "/xml"
 	objectsByLocation = DoTheStuff(doxyResultDir)
