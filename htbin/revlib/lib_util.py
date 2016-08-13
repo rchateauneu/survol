@@ -69,7 +69,7 @@ def UriRootHelper():
 		# then this environment variable is not set.
 		sys.stderr.write("No SCRIPT_NAME\n")
 		root = "/NotRunningAsCgi"
-		root = "/tagada/htbin"
+		root = "/CannotNotHappen/htbin"
 	return HttpPrefix() + root
 
 uriRoot = UriRootHelper()
