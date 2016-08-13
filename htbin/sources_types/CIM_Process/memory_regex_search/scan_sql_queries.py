@@ -8,7 +8,7 @@ import sys
 import psutil
 import rdflib
 import lib_common
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 from lib_properties import pc
 
 def Usable(entity_type,entity_ids_arr):
@@ -24,9 +24,9 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(the_pid)
+	proc_obj = CIM_Process.PsutilGetProcObj(the_pid)
 	procNode = lib_common.gUriGen.PidUri( the_pid )
-	lib_entity_CIM_Process.AddInfo( grph, procNode, [ str(the_pid) ] )
+	CIM_Process.AddInfo( grph, procNode, [ str(the_pid) ] )
 
 
 """

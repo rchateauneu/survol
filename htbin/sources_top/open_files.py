@@ -9,7 +9,7 @@ import psutil
 import rdflib
 import lib_util
 import lib_common
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 from lib_properties import pc
 
 def PathToNod(path):
@@ -84,7 +84,7 @@ def Main():
 
 			# http://code.google.com/p/psutil/issues/detail?id=340
 			# https://github.com/giampaolo/psutil/issues/340
-			for fil in lib_entity_CIM_Process.PsutilProcOpenFiles( proc ):
+			for fil in CIM_Process.PsutilProcOpenFiles( proc ):
 
 				# Some files are not interesting even if accessed by many processes.
 				if lib_common.MeaninglessFile(fil.path, not flagShowSharedLib, not flagShowFontFiles ):

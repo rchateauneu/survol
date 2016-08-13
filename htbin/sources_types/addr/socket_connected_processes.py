@@ -10,7 +10,7 @@ import socket
 import psutil
 import rdflib
 import lib_common
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 from lib_properties import pc
 
 def Main():
@@ -48,7 +48,7 @@ def Main():
 		# All sockets connected to this process.
 		# all_connect = proc.get_connections('all')
 		# all_connect = proc.get_connections()
-		all_connect = lib_entity_CIM_Process.PsutilProcConnections(proc,'all')
+		all_connect = CIM_Process.PsutilProcConnections(proc,'all')
 
 		for cnt in all_connect:
 			( larray, rarray ) = lib_common.SocketToPair(cnt)

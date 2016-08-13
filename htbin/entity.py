@@ -20,7 +20,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 import lib_entities.lib_entity_CIM_ComputerSystem as lib_entity_CIM_ComputerSystem
 
 ################################################################################
@@ -250,7 +250,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 def CurrentUser():
 	currProc = psutil.Process(os.getpid())
-	return lib_entity_CIM_Process.PsutilProcToUser(currProc)
+	return CIM_Process.PsutilProcToUser(currProc)
 
 def AddDefaultScripts(grph,rootNode):
 	nodeObjTypes = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )

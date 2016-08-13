@@ -7,18 +7,18 @@ Parent and sub-processes
 import psutil
 import rdflib
 import lib_common
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 from sources_types import CIM_DataFile as lib_entity_file
 from lib_properties import pc
 
 def AddExtraInformationtoProcess(grph,node_process,proc_obj):
-	lib_entity_CIM_Process.AddInfo( grph, node_process, [ str(proc_obj.pid) ] )
+	CIM_Process.AddInfo( grph, node_process, [ str(proc_obj.pid) ] )
 
-	usrNam = lib_common.FormatUser( lib_entity_CIM_Process.PsutilProcToUser( proc_obj ) )
+	usrNam = lib_common.FormatUser( CIM_Process.PsutilProcToUser( proc_obj ) )
 	userNode = lib_common.gUriGen.UserUri(usrNam)
 	grph.add( ( userNode, pc.property_owner, node_process ) )
 
-	( execName, execErrMsg ) = lib_entity_CIM_Process.PsutilProcToExe( proc_obj )
+	( execName, execErrMsg ) = CIM_Process.PsutilProcToExe( proc_obj )
 	if execName != "":
 		execNod = lib_common.gUriGen.FileUri(execName)
 		grph.add( ( node_process, pc.property_runs, execNod ) )
@@ -50,7 +50,7 @@ def tree_parent_process(grph, proc_obj):
 		if the_pid == 0 or the_pid == 1:
 			return
 		# Strange, but apparently it can happen.
-		the_ppid = lib_entity_CIM_Process.PsutilProcToPPid(proc_obj)
+		the_ppid = CIM_Process.PsutilProcToPPid(proc_obj)
 		if the_ppid == 0:
 			return
 
@@ -60,14 +60,14 @@ def tree_parent_process(grph, proc_obj):
 		node_process = lib_common.gUriGen.PidUri(the_pid)
 		node_pprocess = lib_common.gUriGen.PidUri(the_ppid)
 		grph.add( ( node_pprocess, pc.property_ppid, node_process ) )
-		lib_entity_CIM_Process.AddInfo( grph, node_pprocess, [ str(the_ppid) ] )
+		CIM_Process.AddInfo( grph, node_pprocess, [ str(the_ppid) ] )
 
 		AddExtraInformationtoProcess(grph,node_process,proc_obj)
 
 		parent_proc_obj = psutil.Process(the_ppid)
 		tree_parent_process( grph, parent_proc_obj )
 	# This exception depends on the version of psutil.
-	except lib_entity_CIM_Process.NoSuchProcess:
+	except CIM_Process.NoSuchProcess:
 		# Maybe a process has suddenly disappeared. It does not matter.
 		return
 
@@ -80,7 +80,7 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(root_pid)
+	proc_obj = CIM_Process.PsutilGetProcObj(root_pid)
 
 	# Sub-processes, recursion.
 	tree_subprocesses( grph, proc_obj )

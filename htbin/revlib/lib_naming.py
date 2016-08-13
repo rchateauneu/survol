@@ -5,7 +5,7 @@ import sys
 import os
 import re
 import lib_patterns
-from lib_entities import lib_entity_CIM_Process
+from sources_types import CIM_Process
 
 try:
 	from urlparse import urlparse
@@ -46,8 +46,8 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 		try:
 			# sys.stderr.write("psutil.Process entity_id=%s\n" % ( entity_id ) )
 			proc_obj = psutil.Process(int(entity_id))
-			return lib_entity_CIM_Process.PsutilProcToName(proc_obj)
-		except lib_entity_CIM_Process.NoSuchProcess:
+			return CIM_Process.PsutilProcToName(proc_obj)
+		except CIM_Process.NoSuchProcess:
 			return "No such process:"+entity_id
 		except ValueError:
 			return "Invalid pid:("+entity_id+")"

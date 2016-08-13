@@ -9,7 +9,7 @@ import sys
 import rdflib
 import lib_util
 import lib_common
-import lib_entities.lib_entity_CIM_Process
+import lib_entities.CIM_Process
 from lib_properties import pc
 
 Usable = lib_util.UsableWindows
@@ -31,7 +31,7 @@ def Main():
 	grph = rdflib.Graph()
 
 	node_process = lib_common.gUriGen.PidUri(pid)
-	exec_node = lib_entities.lib_entity_CIM_Process.AddInfo( grph, node_process, [ pid ] )
+	exec_node = lib_entities.CIM_Process.AddInfo( grph, node_process, [ pid ] )
 
 	#Get handle to the process based on PID
 	hProcess = kernel.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, False, pid)

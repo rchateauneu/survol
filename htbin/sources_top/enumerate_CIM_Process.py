@@ -8,7 +8,7 @@ import sys
 import psutil
 import rdflib
 import lib_common
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 from lib_properties import pc
 
 def Main():
@@ -38,7 +38,7 @@ def Main():
 		procName = proc.name
 
 		pid = proc.pid
-		parent_pid = lib_entity_CIM_Process.PsutilProcToPPid(proc)
+		parent_pid = CIM_Process.PsutilProcToPPid(proc)
 
 		# Built the same way in other RDF documents.
 		node_process = PidToNode(pid)

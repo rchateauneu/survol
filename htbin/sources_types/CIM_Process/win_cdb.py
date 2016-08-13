@@ -12,7 +12,7 @@ import psutil
 import rdflib
 import lib_util
 import lib_common
-import lib_entities.lib_entity_CIM_Process
+import lib_entities.CIM_Process
 import lib_entities.lib_entity_symbol
 from lib_properties import pc
 
@@ -133,7 +133,7 @@ def Main():
 
 	callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
 
-	lib_entities.lib_entity_CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
+	lib_entities.CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
 
 	# http://msdn.microsoft.com/en-us/library/windows/hardware/ff539058(v=vs.85).aspx
 	#

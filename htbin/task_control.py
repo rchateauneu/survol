@@ -7,8 +7,7 @@ import cgi
 
 import lib_util
 import lib_common
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
-
+from sources_types import CIM_Process
 
 print ("""Content-Type: text/html
 
@@ -27,7 +26,7 @@ def MakeProcDictWindows():
 	procDict = dict()
 
 	for proc in psutil.process_iter():
-		procName = lib_entity_CIM_Process.PsutilProcToName(proc)
+		procName = CIM_Process.PsutilProcToName(proc)
 		# procName = proc.name
 
 		# OK pour le process creer par httpd, sous Windows.
@@ -43,10 +42,10 @@ def MakeProcDictWindows():
 		# python.exe	18980	24656	C:\Python\3.2.3-0.3\python.exe	C:\Python\3.2.3-0.3\python.exe -c from multiprocessing.forking import main; main() --multiprocessing-fork 788
 		# python.exe	24656	14680	C:\Python\3.2.3-0.3\python.exe	python D:/Projects/Divers/Reverse/PythonStyle/htbin/sources_top/psutil_processes_perf.py run
 
-		procCmd = lib_entity_CIM_Process.PsutilProcToCmdline(proc)
+		procCmd = CIM_Process.PsutilProcToCmdline(proc)
 
 		pid = proc.pid
-		parent_pid = lib_entity_CIM_Process.PsutilProcToPPid(proc)
+		parent_pid = CIM_Process.PsutilProcToPPid(proc)
 
 		# This differentiates between the feeder and the sub-server.
 		# This test but get better, but it is OK for the moment.
@@ -83,10 +82,10 @@ def MakeProcDictLinux():
 		# apache    8423     1  0 12:36 ?        00:00:00 python /home/rchateau/public_html/RevPython/htbin/sources_top/tcpdump.py run
 		# apache    8426  8423  0 12:36 ?        00:00:00 python /home/rchateau/public_html/RevPython/htbin/sources_top/tcpdump.py run
 
-		procCmd = lib_entity_CIM_Process.PsutilProcToCmdline(proc)
+		procCmd = CIM_Process.PsutilProcToCmdline(proc)
 
 		pid = proc.pid
-		parent_pid = lib_entity_CIM_Process.PsutilProcToPPid(proc)
+		parent_pid = CIM_Process.PsutilProcToPPid(proc)
 
 		# This differentiates between the feeder and the sub-server.
 		# This test but get better, but it is OK for the moment.

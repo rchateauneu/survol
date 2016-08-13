@@ -8,7 +8,7 @@ import sys
 import rdflib
 import lib_common
 from lib_properties import pc
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -16,12 +16,12 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(pid)
+	proc_obj = CIM_Process.PsutilGetProcObj(pid)
 
 	nodeProcess = lib_common.gUriGen.PidUri(pid)
 
 	try:
-		all_maps = lib_entity_CIM_Process.PsutilProcMemmaps(proc_obj)
+		all_maps = CIM_Process.PsutilProcMemmaps(proc_obj)
 	except:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("get_memory_maps Pid=%d. Caught %s\n" % (pid,str(exc)) )

@@ -12,7 +12,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 
 cgiEnv = lib_common.CgiEnv("User processes")
 userNameWithHost = cgiEnv.GetId()
@@ -53,7 +53,7 @@ grph = rdflib.Graph()
 
 for proc in psutil.process_iter():
 
-	procUsername = lib_entity_CIM_Process.PsutilProcToUser(proc)
+	procUsername = CIM_Process.PsutilProcToUser(proc)
 
 	sys.stderr.write("procUsername=%s userName=%s\n" % ( procUsername, userName ) )
 	# procUsername=EURO\\UK936025 userName=UK936025
@@ -71,7 +71,7 @@ for proc in psutil.process_iter():
 	procName = proc.name
 
 	pid = proc.pid
-	parent_pid = lib_entity_CIM_Process.PsutilProcToPPid(proc)
+	parent_pid = CIM_Process.PsutilProcToPPid(proc)
 
 	# Built the same way in other RDF documents.
 	node_process = lib_common.gUriGen.PidUri(pid)

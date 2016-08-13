@@ -7,7 +7,7 @@ Files opened by process
 import sys
 import rdflib
 import lib_common
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 
 from lib_properties import pc
 
@@ -26,17 +26,17 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	proc_obj = lib_entity_CIM_Process.PsutilGetProcObj(top_pid)
+	proc_obj = CIM_Process.PsutilGetProcObj(top_pid)
 
 	# sys.stderr.write("top_pid=%d\n" % top_pid)
 
 	node_process = lib_common.gUriGen.PidUri(top_pid)
-	lib_entity_CIM_Process.AddInfo( grph, node_process, [ str(top_pid) ] )
+	CIM_Process.AddInfo( grph, node_process, [ str(top_pid) ] )
 
 	################################################################################
 
 	try:
-		fillist = lib_entity_CIM_Process.PsutilProcOpenFiles( proc_obj )
+		fillist = CIM_Process.PsutilProcOpenFiles( proc_obj )
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Caught:"+str(exc)+":"+str(proc_obj))

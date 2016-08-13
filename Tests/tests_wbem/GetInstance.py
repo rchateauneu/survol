@@ -419,7 +419,6 @@ print("<br>Finished")
 #
 # Autre probleme pour OracleTableUri: La classe n'existe pas dans WBEM,
 # on n'a pas le provider.
-# On a fait une erreur avec la definition des modules par classes: "revlib/lib_entity_CIM_Process.py" etc...
 # Il est plus pythonique de definir "sources_types/process/__init__.py". En revanche si on importe
 # le module "sources_types/hostname" ca va executer tous les xxx.py qui s'y trouvent ce qu'on ne veut pas faire DU TOUT.
 # On peut peut-etre creer des directories "revlib/process/__init__.py" dans lesquels on mettra aussi la serialization

@@ -8,7 +8,7 @@ import sys
 import psutil
 import rdflib
 import lib_common
-import lib_entities.lib_entity_CIM_Process as lib_entity_CIM_Process
+from sources_types import CIM_Process
 
 from lib_properties import pc
 
@@ -33,7 +33,7 @@ def Main():
 			pid = proc.pid
 
 			# TCP sockets only.
-			all_connect = lib_entity_CIM_Process.PsutilProcConnections(proc)
+			all_connect = CIM_Process.PsutilProcConnections(proc)
 			if all_connect:
 				node_process = lib_common.gUriGen.PidUri(pid)
 
