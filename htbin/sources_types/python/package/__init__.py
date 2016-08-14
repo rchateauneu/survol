@@ -8,6 +8,14 @@ from lib_properties import pc
 import pip
 from sources_types import python
 
+import lib_common
+
+# TODO: Should do that only when excecuting ?? How to make the difference ??
+propPythonVersion = lib_common.MakeProp("Version")
+propPythonRequires = lib_common.MakeProp("Requires")
+propPythonPackage = lib_common.MakeProp("Package")
+
+
 # TODO: Is the caption the best key ?
 def MakeUri(packageKey):
 	return lib_common.gUriGen.UriMake("python/package",packageKey)
@@ -25,7 +33,7 @@ def FillOnePackage(grph,node,good_pckg):
 	# s', 'from_filename', 'from_location', 'get_entry_info', 'get_entry_map', 'has_version', 'hashcmp', 'insert_on', 'key', 'load_entry_p
 	# oint', 'location', 'parsed_version', 'platform', 'precedence', 'project_name', 'py_version', 'requires', 'version']
 
-	grph.add( (node, lib_common.MakeProp("Version"), rdflib.Literal(good_pckg.version) ) )
+	grph.add( (node, propPythonVersion, rdflib.Literal(good_pckg.version) ) )
 	grph.add( (node, lib_common.MakeProp("Platform"), rdflib.Literal(good_pckg.platform) ) )
 	grph.add( (node, lib_common.MakeProp("project_name"), rdflib.Literal(good_pckg.project_name) ) )
 
@@ -78,7 +86,7 @@ def AddInfo(grph,node,entity_ids_arr):
 						if aSpecs:
 							# TODO: This should be displayed on the edge !!!
 							grph.add( (node, lib_common.MakeProp("Condition "+pckg.key), rdflib.Literal( str(aSpecs) ) ) )
-						grph.add( (subNode, lib_common.MakeProp("requires"), node ) )
+						grph.add( (subNode, propPythonRequires, node ) )
 						break
 
 

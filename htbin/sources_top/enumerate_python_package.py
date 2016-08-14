@@ -17,7 +17,6 @@ import pip
 from sources_types import python
 from sources_types.python import package
 
-
 # werkzeug 0.10.4 (c:\python27\lib\site-packages\werkzeug-0.10.4-py2.7.egg)
 #
 # >>> dir(installed_packages[0])
@@ -46,12 +45,13 @@ def Main():
 	# TODO: What about several Python versions ?
 	installed_packages = pip.get_installed_distributions()
 
+
 	# TODO: Maybe the version should be part of the key.
 	for pckg in installed_packages:
 		# sys.stderr.write("key=%s\n" % (pckg.key) )
 
 		packageNode = KeyToPckgNode( pckg.key )
-		grph.add( ( packageNode, lib_common.MakeProp("Version"), rdflib.Literal(pckg.version) ) )
+		grph.add( ( packageNode, package.propPythonVersion, rdflib.Literal(pckg.version) ) )
 
 		reqPckg = pckg.requires()
 		if reqPckg:
@@ -64,9 +64,9 @@ def Main():
 				# if aSpecs:
 				#	grph.add( (subNode, lib_common.MakeProp("Condition"), rdflib.Literal( str(aSpecs) ) ) )
 
-				grph.add( (packageNode, lib_common.MakeProp("requires"), subNode ) )
+				grph.add( (packageNode, package.propPythonRequires, subNode ) )
 		else:
-			grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("Python package"), packageNode ) )
+			grph.add( ( lib_common.nodeMachine, package.propPythonPackage, packageNode ) )
 
 	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
 
