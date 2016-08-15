@@ -132,6 +132,17 @@ def EntityOntology():
 def MakeUri(productIdentifyingNumber):
     return lib_common.gUriGen.UriMake("Win32_Product",productIdentifyingNumber)
 
+propProductInstallSource = lib_common.MakeProp("InstallSource")
+
+def AddInstallSource(grph,node,winProd):
+	# Windows file name, with backslashes replaced by convention in this software.
+	cleanInstallSource = winProd.InstallSource.replace("\\","/")
+
+	cleanInstallSource += winProd.PackageName
+
+	nodeInstallSource = lib_common.gUriGen.FileUri( cleanInstallSource )
+	grph.add( (node, propProductInstallSource, nodeInstallSource ) )
+
 def AddInfo(grph,node,entity_ids_arr):
 	productIdentifyingNumber = six.u(entity_ids_arr[0])
 
@@ -141,10 +152,7 @@ def AddInfo(grph,node,entity_ids_arr):
 
 		sys.stderr.write("winProd=%s\n"%str(winProd))
 
-		# Windows file name, with backslashes replaced by convention in this software.
-		cleanInstallSource = winProd.InstallSource.replace("\\","/")
-		nodeInstallSource = lib_common.gUriGen.FileUri( cleanInstallSource )
-		grph.add( (node, lib_common.MakeProp("InstallSource"), nodeInstallSource ) )
+		AddInstallSource(grph,node,winProd)
 
 		nodeLocalPackage = lib_common.gUriGen.FileUri( winProd.LocalPackage )
 		grph.add( (node, lib_common.MakeProp("LocalPackage"), nodeLocalPackage ) )

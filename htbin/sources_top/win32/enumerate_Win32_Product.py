@@ -71,6 +71,7 @@ def DoRemote(grph,cimomSrv):
 			productNode = Win32_Product.MakeUri( winProd.Caption )
 			grph.add( (productNode, pc.property_information, rdflib.Literal(winProd.Description) ) )
 			grph.add( (productNode, lib_common.MakeProp("IdentifyingNumber"), rdflib.Literal(winProd.IdentifyingNumber) ) )
+			Win32_Product.AddInstallSource(grph,productNode,winProd)
 
 			grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("Win32_Product"), productNode ) )
 
@@ -99,6 +100,11 @@ def Main():
 
 	grph = rdflib.Graph()
 
+	propWin32Version = lib_common.MakeProp("Version")
+	propWin32Product = lib_common.MakeProp("Win32_Product")
+	propWin32Package = lib_common.MakeProp("Package Name")
+	propIdentifyingNumber = lib_common.MakeProp("IdentifyingNumber")
+
 	for puid in get_installed_products_uids():
 		#sys.stderr.write("puid=%s\n"%puid)
 		winProd = Win32_Product.populate_product(puid)
@@ -112,15 +118,18 @@ def Main():
 
 		try:
 			grph.add( (productNode, pc.property_information, rdflib.Literal(winProd.InstalledProductName) ) )
-			grph.add( (productNode, lib_common.MakeProp("Version"), rdflib.Literal(winProd.VersionString) ) )
-			grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("Win32_Product"), productNode ) )
+			grph.add( (productNode, propWin32Version, rdflib.Literal(winProd.VersionString) ) )
+			grph.add( (productNode, propWin32Package, rdflib.Literal(winProd.PackageName) ) )
+			grph.add( (productNode, propIdentifyingNumber, rdflib.Literal(puid) ) )
+
+			grph.add( ( lib_common.nodeMachine, propWin32Product, productNode ) )
 
 		except:
 			exc = sys.exc_info()[1]
 			lib_common.ErrorMessageHtml("Caught:%s"%str(exc))
 
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [propWin32Product] )
 
 if __name__ == '__main__':
 	Main()
