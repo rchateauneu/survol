@@ -4,6 +4,10 @@
 Java properties
 """
 
+# NOT DONE.
+
+# http://jpype.sourceforge.net/
+
 import os
 import os.path
 import sys
@@ -13,6 +17,10 @@ import lib_uris
 import lib_common
 from lib_properties import pc
 
+javaExtensions = {
+	".java" : "Java source",
+	".class": "Compiled Java"}
+
 def Usable(entity_type,entity_ids_arr):
 	"""Can run with Java files only"""
 
@@ -20,7 +28,24 @@ def Usable(entity_type,entity_ids_arr):
 
 	# But probably it is not enough and we should try to open it.
 	filExt = os.path.splitext(filNam)[1]
-	return filExt.upper() in [".JAVA",".CLASS"]
+	return filExt.lower() in javaExtensions
+
+def AddAssociatedFiles(grph,node,filNam):
+	sys.stderr.write("AddAssociatedFiles %s\n"%(filNam))
+	# sys.stderr.write("filNam=%s\n"%filNam)
+	filenameNoExt, file_extension = os.path.splitext(filNam)
+
+	for ext in javaExtensions:
+		filAssocNam = filenameNoExt + ext
+
+		sys.stderr.write("filAssocNam=%s filNam=%s\n"%(filAssocNam,filNam))
+		if filAssocNam.lower() != filNam.lower():
+			if os.path.isfile(filAssocNam):
+				sys.stderr.write("Link filAssocNam=%s filNam=%s\n"%(filAssocNam,filNam))
+				filAssocNode = lib_uris.gUriGen.FileUri(filAssocNam)
+				grph.add( ( node, lib_common.MakeProp(javaExtensions[ext]), filAssocNode ) )
+
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -35,6 +60,13 @@ def Main():
 
 	try:
 		AddAssociatedFiles(grph,filNode,javaFilNam)
+	except:
+		exc = sys.exc_info()[0]
+		lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( javaFilNam, str( exc ) ) )
+
+
+	try:
+		pass
 	except:
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( javaFilNam, str( exc ) ) )
