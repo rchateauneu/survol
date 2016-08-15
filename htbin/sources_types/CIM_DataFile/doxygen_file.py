@@ -12,6 +12,24 @@ import lib_util
 from lib_properties import pc
 import lib_doxygen
 
+doxygenExtensions = [
+	".c",".cc",".cxx",".cpp",".c++",".java",".ii",".ixx",".ipp",".i++",
+	".inl",".idl",".ddl",".odl",
+	".h",".hh",".hxx",".hpp",".h++",
+	".cs",".d",".php",".php4",".php5",".phtml",".inc",
+	".m",".markdown",".md",".mm",".dox",
+	".py",".pyw",
+	".f90",".f",".for",
+	".tcl",".vhd",".vhdl",".ucf",".qsf",".as",".js"
+]
+
+def Usable(entity_type,entity_ids_arr):
+	filNam = entity_ids_arr[0]
+	filExt = os.path.splitext(filNam)[1]
+	if filExt.lower() in doxygenExtensions:
+		return True
+
+	return os.path.isdir(filNam)
 
 def Main():
 	paramkeyRecursive = "Recursive exploration"
