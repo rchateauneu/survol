@@ -87,8 +87,6 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 			AddImportedModules.dictModules[moduFil] = fileNode
 		return fileNode
 
-	cnt = 0
-
 	for moduNam, mod in six.iteritems( finder.modules ):
 		splitNam = moduNam.split(".")
 		# sys.stderr.write("splitNam=%s\n"%str(splitNam))
@@ -96,17 +94,6 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 		moduFil = mod.__file__
 		# sys.stderr.write("moduFil=%s\n"%moduFil)
 
-		# TODO: Modules such as "gc" have no files.
-
-
-		# TODO: Python package !!!!!
-
-
-		#if moduFil is None:
-		#	sys.stderr.write("No file: moduNam=%s\n"%moduNam)
-		#	continue
-
-		# PERF AND TEST
 		if len(splitNam) > maxDepth:
 			continue
 
@@ -127,7 +114,6 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 				parentModuNod = GetModuNode(parentModuNam)
 				grph.add( ( parentModuNod, package.propPythonRequires, moduNod ) )
 				sys.stderr.write("parentModuNam=%s moduNam=%s\n"%(parentModuNam,moduNam))
-			cnt += 1
 
 		if dispFiles and not dispPackages:
 			if moduFil:
@@ -141,13 +127,6 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 					parentModuNam = ".".join(splitNam[:-1])
 					parentModuNod = GetModuNode(parentModuNam)
 					grph.add( ( parentModuNod, package.propPythonRequires, nodeFile ) )
-				cnt += 1
-
-		#if cnt > 10:
-		#	break
-
-	sys.stderr.write("cnt=%d\n" % cnt )
-
 
 def Main():
 	paramkeyMaxDepth = "Maximum depth"
