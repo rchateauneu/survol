@@ -24,6 +24,7 @@ except ImportError:
 
 pyExtensions = {
 	".py" : "Python source",
+	".pyw": "Python Windows source",
 	".pyc": "Compiled Python",
 	".pyo": "Optimised compiled Python",
 	".pyd": "Python DLL"}
@@ -57,7 +58,7 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 	sys.stderr.write("AddImportedModules filNam=%s dispPackages=%d dispFiles=%d\n"%(filNam,dispPackages,dispFiles))
 	filename, file_extension = os.path.splitext(filNam)
 	filextlo = file_extension.lower()
-	if filextlo != ".py":
+	if filextlo not in [".py",".pyw"]:
 		return
 
 	finder = modulefinder.ModuleFinder()
