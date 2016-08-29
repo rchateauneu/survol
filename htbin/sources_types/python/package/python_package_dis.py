@@ -1,0 +1,55 @@
+#!/usr/bin/python
+
+"""
+Python properties
+"""
+
+import os
+import os.path
+import sys
+import six
+import rdflib
+import lib_util
+import lib_uris
+import lib_common
+from lib_properties import pc
+
+from sources_types import python
+from sources_types.python import package
+
+try:
+	import dis
+except ImportError:
+	pass
+
+def Usable(entity_type,entity_ids_arr):
+	"""Can run with Python files only"""
+
+	packageNam = entity_ids_arr[0]
+
+	return False
+
+
+def Main():
+	cgiEnv = lib_common.CgiEnv()
+
+	packageNam = cgiEnv.GetId()
+
+	# sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
+
+	grph = rdflib.Graph()
+
+	# filNode = lib_common.gUriGen.FileUri(pyFilNam)
+	#
+	# try:
+	#
+	# 	AddAssociatedFiles(grph,filNode,pyFilNam)
+	# except:
+	# 	exc = sys.exc_info()[0]
+	# 	lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( pyFilNam, str( exc ) ) )
+	# AddImportedModules(grph,filNode,pyFilNam,maxDepth,dispPackages,dispFiles)
+
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+
+if __name__ == '__main__':
+	Main()

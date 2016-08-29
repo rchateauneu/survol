@@ -55,12 +55,27 @@ def FillOnePackage(grph,node,good_pckg):
 	grph.add( (node, lib_common.MakeProp("precedence"), rdflib.Literal(good_pckg.precedence) ) )
 	grph.add( (node, lib_common.MakeProp("egg_name"), rdflib.Literal(good_pckg.egg_name()) ) )
 
-	nodeLocation = lib_common.gUriGen.FileUri(good_pckg.location)
+	# This might return location="c:\python27\lib\site-packages"
+	# completeLocation = good_pckg.location.replace("\\","/") + "/" + good_pckg.project_name
+	# nodeLocation = lib_common.gUriGen.FileUri(completeLocation)
+	# nodeLocation = lib_common.gUriGen.FileUri(good_pckg.location)
+	# This might return location="c:\python27\lib\site-packages"
+	cleanLocaDir = good_pckg.location.replace("\\","/")
+	nodeLocation = lib_common.gUriGen.DirectoryUri(cleanLocaDir)
 	grph.add( (node, lib_common.MakeProp("Location"),nodeLocation ) )
 
 
 	#grph.add( (node, lib_common.MakeProp("from_filename"), rdflib.Literal(good_pckg.from_filename()) ) )
 	#grph.add( (node, lib_common.MakeProp("from_location"), rdflib.Literal(good_pckg.from_location()) ) )
+
+
+# http://stackoverflow.com/questions/247770/retrieving-python-module-path
+#import imp
+#imp.find_module("os")
+#It gives a tuple with the path in second position:
+#(<open file '/usr/lib/python2.7/os.py', mode 'U' at 0x7f44528d7540>,
+#'/usr/lib/python2.7/os.py',
+#('.py', 'U', 1))
 
 
 # Each entity can have such a file with its name as file name.
@@ -85,6 +100,7 @@ def AddInfo(grph,node,entity_ids_arr):
 						aSpecs = subReq.specs
 						if aSpecs:
 							# TODO: This should be displayed on the edge !!!
+							#grph.add( (node, lib_common.MakeProp("Condition",test=pckg.key), rdflib.Literal( str(aSpecs) ) ) )
 							grph.add( (node, lib_common.MakeProp("Condition "+pckg.key), rdflib.Literal( str(aSpecs) ) ) )
 						grph.add( (subNode, propPythonRequires, node ) )
 						break
