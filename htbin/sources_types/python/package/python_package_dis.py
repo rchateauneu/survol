@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# INTERMEDIARY RELEASE. TO BE FINISHED.
+
 """
 Python properties
 """
