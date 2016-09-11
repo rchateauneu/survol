@@ -425,7 +425,7 @@ def parse_sql_select_inside(select_tables_txt,lili):
 				# Here, the rest of will start by ",", "JOIN", "LEFT AFTER JOIN" etc...
 				#select_tables_txt = remtch_select_table.group(2).lstrip( " \t," )
 				select_tables_txt_with_left_separators = remtch_select_table.group(2)
-				mtch_left_sep = re.match("\s*(,|JOIN|LEFT\s+OUTER\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
+				mtch_left_sep = re.match("\s*(,|JOIN|LEFT\s+OUTER\s+JOIN|FULL\s+OUTER\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
 				if mtch_left_sep:
 					#print("MATCHED JOIN OR COMMA")
 					select_tables_txt=mtch_left_sep.group(2)
