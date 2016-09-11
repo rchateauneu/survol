@@ -191,6 +191,19 @@ SELECT COALESCE(acquisitions.month, investments.month) AS month,
        )investments
     ON acquisitions.month = investments.month
 """: ["TUTORIAL.CRUNCHBASE_ACQUISITIONS","TUTORIAL.CRUNCHBASE_INVESTMENTS"],
+"""
+SELECT department_id, MIN (salary)
+FROM employees
+GROUP BY department_id
+HAVING MIN (salary)  < (SELECT AVG (salary)
+			FROM employees)
+""":["EMPLOYEES"],
+"""
+    SELECT column1 = (SELECT columnname FROM tablename WHERE condition),
+           columnnames
+      FROM tablename
+     WHERE condition
+""":["TABLENAME"],
 }
 
 
@@ -250,6 +263,74 @@ SELECT COALESCE(acquisitions.month, investments.month) AS month,
     ON acquisitions.month = investments.month
  ORDER BY 1 DESC
 """: ["TUTORIAL.CRUNCHBASE_ACQUISITIONS","TUTORIAL.CRUNCHBASE_INVESTMENTS"],
+"""
+    SELECT column-names
+      FROM tablename1
+     WHERE value IN (SELECT column-name
+                       FROM tablename2
+                      WHERE condition)
+""":["TABLENAME1","TABLENAME2"],
+"""
+    SELECT ProductName
+      FROM Product
+     WHERE Id IN (SELECT ProductId
+                    FROM OrderItem
+                   WHERE Quantity > 100)
+""":["ORDERITEM","PRODUCT"],
+"""
+    SELECT FirstName, LastName,
+           OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
+      FROM Customer C
+""":["CUSTOMER","ORDER"],
+"""
+CREATE TABLE student (id INTEGER PRIMARY KEY , name TEXT, age INTEGER)
+""":["STUDENT"],
+"""
+DELETE FROM student WHERE name = 'alan'
+""":["STUDENT"],
+"""
+SELECT first_name, salary, department_id
+FROM employees WHERE salary = (SELECT MIN (salary) FROM employees)
+""":["EMPLOYEES"],
+"""
+SELECT	first_name, department_id
+FROM employees
+WHERE department_id IN (SELECT department_id
+                   	    FROM departments
+                   	    WHERE LOCATION_ID = 100)
+""":["DEPARTMENTS","EMPLOYEES"],
+"""
+SELECT EMPLOYEE_ID, salary, department_id
+FROM   employees E
+WHERE salary > (SELECT AVG(salary)
+                FROM   EMP T
+                WHERE E.department_id = T.department_id)
+""":["EMP","EMPLOYEES"],
+"""
+SELECT first_name, job_id, salary
+FROM emp_history
+WHERE (salary, department_id) in (SELECT salary, department_id
+				  FROM employees
+ 				  WHERE salary BETWEEN 1000 and 2000
+				  AND department_id BETWEEN 10 and 20)
+ORDER BY first_name
+""":["EMP_HISTORY","EMPLOYEES"],
+"SELECT * FROM (SELECT salary, department_id FROM employees WHERE salary BETWEEN 1000 and 2000)":["EMPLOYEES"],
+"""
+select emp_last_name from emp
+where emp_salary < (select job_min_sal from job
+where emp.job_key = job.job_key)
+""":["EMP","JOB"],
+"select book_key from book where exists (select book_key from sales)":["BOOK","SALES"],
+"""
+select book_title from book
+where pub_key in (select pub_key from publisher
+where publisher.pub_key = book.pub_key)
+""":["BOOK","PUBLISHER"],
+"""
+select book_key from book
+where book_key not in (select book_key from sales)
+""":["BOOK","SALES"],
 }
 
 examples["Focus"] = {
