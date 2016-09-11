@@ -268,6 +268,7 @@ schema_rgx = "[A-Za-z_][A-Za-z0-9_$-]*"
 table_rgx = "[A-Za-z_][A-Za-z0-9_$-]*"
 syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
 where_rgx = '\s+WHERE'
+on_rgx = '\s+ON' # This is for the syntax " JOIN ... ON .."
 schema_table_rgx = schema_rgx + '\.' + table_rgx
 
 
@@ -281,15 +282,7 @@ def parse_sql_subselect(select_tables_txt, lili):
 	remtch_subselect = re.match( '^\s*\(\s*SELECT\s+(.*)', select_tables_txt, re.IGNORECASE )
 	if not remtch_subselect:
 		#print("parse_sql_subselect: Simple select="+select_tables_txt)
-		# return parse_sql_select(select_tables_txt,lili)
 		return parse_sql_select_inside(select_tables_txt,lili)
-		#######  RECURSIF
-
-		## le probleme est qu on passe "TAB,(select a from b)"
-
-
-
-		# return parse_sql_select("FROM "+select_tables_txt,lili)
 
 	rest_select = remtch_subselect.group(1)
 	closing_par = closing_parenthesis( rest_select )
@@ -304,17 +297,22 @@ def parse_sql_subselect(select_tables_txt, lili):
 	#print("\nparse_sql_subselect: subqs_rest_comma="+subqs_rest_comma)
 
 	# Now maybe there is a synonym and a parenthesis.
-	remtch_suite = re.match('^\s*' + syno_rgx + '\s*,\s*(.*)', subqs_rest_comma, re.IGNORECASE )
+	#print("Matching join:"+subqs_rest_comma)
+	remtch_suite = re.match('^\s*' + syno_rgx + '\s*(,|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
+	# remtch_suite = re.match('^\s*' + syno_rgx + '\s*,\s*(.*)', subqs_rest_comma, re.IGNORECASE )
 	if remtch_suite:
-		subqs_rest = remtch_suite.group(1)
+		subqs_rest = remtch_suite.group(2)
 		#print("\nparse_sql_subselect (syno and par): subqs_rest="+subqs_rest)
 	else:
-		remtch_suite = re.match('^\s*,\s*(.*)', subqs_rest_comma, re.IGNORECASE )
+		# Maybe just the parenthesis
+		remtch_suite = re.match('^\s*(,|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
+		# remtch_suite = re.match('^\s*,\s*(.*)', subqs_rest_comma, re.IGNORECASE )
 		if remtch_suite:
-			subqs_rest = remtch_suite.group(1)
-			#print("\nparse_sql_subselect (subqs_rest_comma 2): subqs_rest="+subqs_rest)
+			subqs_rest = remtch_suite.group(2)
+			#print("\nparse_sql_subselect (syno): subqs_rest="+subqs_rest)
 		else:
 			# Maybe end of subselect ?
+			#print("\nparse_sql_subselect (syno): end of subselect")
 			remtch_suite = re.match('^\s*' + syno_rgx , subqs_rest_comma, re.IGNORECASE )
 			if remtch_suite:
 				return True
@@ -346,6 +344,13 @@ regex_select_tabs_list = (
 	'^(' + table_rgx + ')\s+' + syno_rgx + where_rgx,
 	'^(' + schema_table_rgx + ')' + where_rgx,
 	'^(' + table_rgx + ')' + where_rgx,
+
+	# This is for the syntax "FROM ... JOIN ... ON ..."
+	'^(' + schema_table_rgx + ')\s+' + syno_rgx + on_rgx,
+	'^(' + table_rgx + ')\s+' + syno_rgx + on_rgx,
+	'^(' + schema_table_rgx + ')' + on_rgx,
+	'^(' + table_rgx + ')' + on_rgx,
+
 	'^(' + schema_table_rgx + ')\s+' + syno_rgx + '(.*)',
 	'^(' + table_rgx + ')\s+' + syno_rgx + '(.*)',
 	'^(' + schema_table_rgx + ')(.*)',
@@ -355,9 +360,32 @@ regex_select_tabs_list = (
 def finder_from(stri, idx):
 	return stri[ idx:idx + 5 ].upper() == "FROM "
 
-# TODO: Should search for "order by "
-def finder_order_by(stri, idx):
-	return stri[ idx:idx + 6 ].upper() == "ORDER "
+def truncate_group_order(rest_select):
+	len_rest_select = len(rest_select)
+
+	# TODO: Should search for "order by "
+	def finder_order_by(stri, idx):
+		return stri[ idx:idx + 6 ].upper() == "ORDER "
+
+	# We do not take into account an ordering statement.
+	idx_order_by = closing_parenthesis( rest_select, finder_order_by )
+	#print("parse_sql_select idx_order_by="+str(idx_order_by)+" len_rest_select="+str(len_rest_select))
+	if idx_order_by != len_rest_select:
+		#print("parse_sql_select bad:"+rest_select)
+		rest_select = rest_select[:idx_order_by]
+
+	# TODO: Should search for "group by "
+	def finder_group_by(stri, idx):
+		return stri[ idx:idx + 6 ].upper() == "GROUP "
+
+	# We do not take into account an ordering statement.
+	idx_group_by = closing_parenthesis( rest_select, finder_group_by )
+	#print("parse_sql_select idx_order_by="+str(idx_group_by)+" len_rest_select="+str(len_rest_select))
+	if idx_group_by != len_rest_select:
+		#print("parse_sql_select bad:"+rest_select)
+		rest_select = rest_select[:idx_group_by]
+
+	return rest_select
 
 def parse_sql_select(rest_select,lili):
 	len_rest_select = len(rest_select)
@@ -370,16 +398,12 @@ def parse_sql_select(rest_select,lili):
 		#print("parse_sql_select bad:"+rest_select)
 		return False
 
-	# We do not take into account an ordering statement.
-	idx_order_by = closing_parenthesis( rest_select, finder_order_by )
-	#print("parse_sql_select idx_order_by="+str(idx_order_by)+" len_rest_select="+str(len_rest_select))
-	if idx_order_by != len_rest_select:
-		#print("parse_sql_select bad:"+rest_select)
-		rest_select = rest_select[:idx_order_by]
+	rest_select = truncate_group_order(rest_select)
 
 	# After "FROM"
 	#print("parse_sql_select idx_from="+str(idx_from))
 	select_tables_txt = rest_select[ idx_from + 5: ]
+	select_tables_txt = select_tables_txt.strip()
 
 	return parse_sql_select_inside(select_tables_txt,lili)
 
@@ -390,14 +414,25 @@ def parse_sql_select_inside(select_tables_txt,lili):
 		for regex_select_table in regex_select_tabs_list:
 			remtch_select_table = re.match( regex_select_table, select_tables_txt, re.IGNORECASE )
 			if remtch_select_table:
-				#print("parse_sql_select_inside remtch_select_table="+remtch_select_table.group(1))
+				#print("parse_sql_select_inside MATCH1="+remtch_select_table.group(1))
+				#print("parse_sql_select_inside MATCH="+remtch_select_table.group(2))
 				#print("regex was:"+regex_select_table)
 				break
 
 		if remtch_select_table:
 			lili.append( remtch_select_table.group(1) )
 			try:
-				select_tables_txt = remtch_select_table.group(2).lstrip( " \t," )
+				# Here, the rest of will start by ",", "JOIN", "LEFT AFTER JOIN" etc...
+				#select_tables_txt = remtch_select_table.group(2).lstrip( " \t," )
+				select_tables_txt_with_left_separators = remtch_select_table.group(2)
+				mtch_left_sep = re.match("\s*(,|JOIN|LEFT\s+OUTER\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
+				if mtch_left_sep:
+					#print("MATCHED JOIN OR COMMA")
+					select_tables_txt=mtch_left_sep.group(2)
+				else:
+					#print("NO JOIN NOR COMMA")
+					select_tables_txt = select_tables_txt_with_left_separators.lstrip( " \t" )
+
 				#print("parse_sql_select Rest select_tables_txt="+select_tables_txt)
 			except IndexError:
 				# Maybe we have matched the regex which indicates the end of the tables list.
@@ -483,83 +518,14 @@ def parse_sql(sql_text,lili):
 
 def extract_sql_tables(sql):
 	sqlClean = sql.replace("\n"," ")
-	lili = []
-	parse_sql(sqlClean,lili)
-	return lili
+	tmpList = []
+	parse_sql(sqlClean,tmpList)
+	# There might be duplicates.
+	tmpList = sorted(set(tmpList))
+	return tmpList
 
 
 
-# import sys
-# import sqlparse
-#
-#
-# from sqlparse.sql import IdentifierList, Identifier
-# from sqlparse.tokens import Keyword, DML
-#
-#
-# def is_subselect(parsed):
-# 	if not parsed.is_group:
-# 		return False
-# 	if hasattr(parsed,'tokens'):
-# 		for item in parsed.tokens:
-# 			if item.ttype is sqlparse.tokens.DML and item.value.upper() == 'SELECT':
-# 				return True
-# 	else:
-# 		return False
-# 	return False
-#
-# ################################################################################
-#
-# def extract_from_part(parsed):
-# 	from_seen = False
-# 	for item in parsed.tokens:
-# 		if from_seen:
-# 			if is_subselect(item):
-# 				for x in extract_from_part(item):
-# 					yield x
-# 			elif item.ttype is sqlparse.tokens.Keyword:
-# 				raise StopIteration
-# 			else:
-# 				yield item
-# 		elif item.ttype is sqlparse.tokens.Keyword and item.value.upper() == 'FROM':
-# 			from_seen = True
-#
-# ################################################################################
-#
-# def extract_table_identifiers(token_stream):
-# 	for item in token_stream:
-# 		if isinstance(item, sqlparse.sql.IdentifierList):
-# 			for identifier in item.get_identifiers():
-# 				yield identifier.get_name()
-# 		elif isinstance(item, sqlparse.sql.Identifier):
-# 			yield item.get_name()
-# 		# It's a bug to check for Keyword here, but in the example
-# 		# above some tables names are identified as keywords...
-# 		elif item.ttype is sqlparse.tokens.Keyword:
-# 			yield item.value
-#
-# ################################################################################
-#
-# # def extract_sql_tables(sql):
-# # 	token_stream = extract_from_part(sql)
-# # 	for tk in token_stream:
-# # 		print("_"+str(tk)+"_")
-# # 	print("===")
-# #
-# # 	return None
-#
-# def OLD_extract_sql_tables(sql,margin=""):
-# 	for tk in sql.tokens:
-# 		print(margin+":"+str(tk))
-# 	#token_stream = extract_from_part(sql)
-# 	#for tk in token_stream:
-# 	#	print("_"+str(tk)+"_")
-# 	#print("===")
-#
-# 	return None
-
-#stream = extract_from_part(sqlparse.parse(sql)[0])
-#return list(extract_table_identifiers(stream))
 
 
 
