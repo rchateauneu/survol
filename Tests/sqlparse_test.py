@@ -142,15 +142,25 @@ SELECT LEFT(sub.date, 2) AS cleaned_month,
  GROUP BY 1,2
  ORDER BY 1,2
 """: ["TUTORIAL.SF_CRIME_INCIDENTS_2014_01"],
-"select * from Students S LEFT OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID":["DBO.ADVISORS","STUDENTS"],
 "select * from Students S JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID":["DBO.ADVISORS","STUDENTS"],
 "select * from Schema.Students S JOIN Advisors A ON S.Advisor_ID=A.Advisor_ID":["ADVISORS","SCHEMA.STUDENTS"],
 "select * from Schema.Students JOIN Advisors ON Advisor_ID=Advisor_ID":["ADVISORS","SCHEMA.STUDENTS"],
 "select * from Schema.Students S JOIN Advisors ON Advisor_ID=Advisor_ID":["ADVISORS","SCHEMA.STUDENTS"],
 "select * from Schema.Students S , Advisors ON Advisor_ID=Advisor_ID":["ADVISORS","SCHEMA.STUDENTS"], # A bit invalid anyway.
-"select * from dbo.Students S LEFT OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID":[],
-"select * from dbo.Students S FULL OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID where A.Advisor_ID is null or S.Student_ID is null": [],
-"select * from dbo.Students S FULL OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID where A.Advisor_ID is null": [],
+"""
+SELECT incidents.*,
+       sub.incidents AS incidents_that_day
+  FROM tutorial.sf_crime_incidents_2014_01 incidents
+  JOIN ( SELECT date,
+          COUNT(incidnt_num) AS incidents
+           FROM tutorial.sf_crime_incidents_2014_01
+          GROUP BY 1
+       ) sub
+    ON incidents.date = sub.date
+ ORDER BY sub.incidents DESC, time
+""": ["TUTORIAL.SF_CRIME_INCIDENTS_2014_01"],
+"select * from Students S LEFT OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID":["DBO.ADVISORS","STUDENTS"],
+"select * from dbo.Students S LEFT OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID":["DBO.ADVISORS","DBO.STUDENTS"],
 }
 
 
@@ -175,6 +185,38 @@ SELECT COUNT(*)
         ON acquisitions.acquired_month = investments.funded_month
 """: [],
 """
+SELECT COUNT(*) AS total_rows
+  FROM (
+        SELECT *
+          FROM tutorial.crunchbase_investments_part1
+         UNION ALL
+        SELECT *
+          FROM tutorial.crunchbase_investments_part2
+       ) sub
+""": [],
+"""
+SELECT *
+  FROM tutorial.crunchbase_investments_part1
+ UNION ALL
+ SELECT *
+   FROM tutorial.crunchbase_investments_part2
+""": [],
+}
+
+examples["Focus"] = {
+"""
+        SELECT acquired_month AS month,
+               COUNT(DISTINCT company_permalink) AS companies_acquired
+          FROM tutorial.crunchbase_acquisitions
+         GROUP BY 1
+""":["TUTORIAL.CRUNCHBASE_ACQUISITIONS"],
+"""
+        SELECT funded_month AS month,
+               COUNT(DISTINCT company_permalink) AS companies_rec_investment
+          FROM tutorial.crunchbase_investments
+         GROUP BY 1
+""":["TUTORIAL.CRUNCHBASE_INVESTMENTS"],
+"""
 SELECT COALESCE(acquisitions.month, investments.month) AS month,
        acquisitions.companies_acquired,
        investments.companies_rec_investment
@@ -192,39 +234,9 @@ SELECT COALESCE(acquisitions.month, investments.month) AS month,
        )investments
     ON acquisitions.month = investments.month
  ORDER BY 1 DESC
-""": [],
-"""
-SELECT COUNT(*) AS total_rows
-  FROM (
-        SELECT *
-          FROM tutorial.crunchbase_investments_part1
-         UNION ALL
-        SELECT *
-          FROM tutorial.crunchbase_investments_part2
-       ) sub
-""": [],
-"""
-SELECT incidents.*,
-       sub.incidents AS incidents_that_day
-  FROM tutorial.sf_crime_incidents_2014_01 incidents
-  JOIN ( SELECT date,
-          COUNT(incidnt_num) AS incidents
-           FROM tutorial.sf_crime_incidents_2014_01
-          GROUP BY 1
-       ) sub
-    ON incidents.date = sub.date
- ORDER BY sub.incidents DESC, time
-""": ["TUTORIAL.SF_CRIME_INCIDENTS_2014_01"],
-"""
-SELECT *
-  FROM tutorial.crunchbase_investments_part1
- UNION ALL
- SELECT *
-   FROM tutorial.crunchbase_investments_part2
-""": [],
-}
-
-examples["Focus"] = {
+""": ["TUTORIAL.CRUNCHBASE_ACQUISITIONS","TUTORIAL.CRUNCHBASE_INVESTMENTS"],
+"select * from dbo.Students S FULL OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID where A.Advisor_ID is null or S.Student_ID is null": ["DBO.ADVISORS","DBO.STUDENTS"],
+"select * from dbo.Students S FULL OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID where A.Advisor_ID is null": ["DBO.ADVISORS","DBO.STUDENTS"],
 }
 
 def DisplayErrs(theDictNam,theDict):
@@ -237,7 +249,7 @@ def DisplayErrs(theDictNam,theDict):
 		vecUp = resVec
 		vecUp.sort()
 		if resuXX != vecUp:
-			++errnum
+			errnum += 1
 			# print("QQQQQQQQQQQQQQQ="+sqlQry)
 			print("Should be="+str(resuXX))
 			# print("Actual is="+str(resVec))
@@ -245,7 +257,8 @@ def DisplayErrs(theDictNam,theDict):
 			print("")
 			print("")
 
-	print("Finished "+theDictNam+" with "+str(errnum)+" errors")
+	lenTot = len(theDict)
+	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
 
 import sys
 if len(sys.argv) == 1:
