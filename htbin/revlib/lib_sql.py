@@ -298,21 +298,19 @@ def parse_sql_subselect(select_tables_txt, lili):
 
 	# Now maybe there is a synonym and a parenthesis.
 	#print("Matching join:"+subqs_rest_comma)
-	remtch_suite = re.match('^\s*' + syno_rgx + '\s*(,|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
-	# remtch_suite = re.match('^\s*' + syno_rgx + '\s*,\s*(.*)', subqs_rest_comma, re.IGNORECASE )
+	remtch_suite = re.match('^\s*' + syno_rgx + '\s*(,|FULL\s+JOIN|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
 	if remtch_suite:
 		subqs_rest = remtch_suite.group(2)
 		#print("\nparse_sql_subselect (syno and par): subqs_rest="+subqs_rest)
 	else:
 		# Maybe just the parenthesis
-		remtch_suite = re.match('^\s*(,|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
-		# remtch_suite = re.match('^\s*,\s*(.*)', subqs_rest_comma, re.IGNORECASE )
+		remtch_suite = re.match('^\s*(,|FULL\s+JOIN|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
 		if remtch_suite:
 			subqs_rest = remtch_suite.group(2)
 			#print("\nparse_sql_subselect (syno): subqs_rest="+subqs_rest)
 		else:
 			# Maybe end of subselect ?
-			#print("\nparse_sql_subselect (syno): end of subselect")
+			#print("\nparse_sql_subselect (syno): end of subselect: subqs_rest_comma="+subqs_rest_comma)
 			remtch_suite = re.match('^\s*' + syno_rgx , subqs_rest_comma, re.IGNORECASE )
 			if remtch_suite:
 				return True
@@ -425,9 +423,9 @@ def parse_sql_select_inside(select_tables_txt,lili):
 				# Here, the rest of will start by ",", "JOIN", "LEFT AFTER JOIN" etc...
 				#select_tables_txt = remtch_select_table.group(2).lstrip( " \t," )
 				select_tables_txt_with_left_separators = remtch_select_table.group(2)
-				mtch_left_sep = re.match("\s*(,|JOIN|LEFT\s+OUTER\s+JOIN|FULL\s+OUTER\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
+				mtch_left_sep = re.match("\s*(,|JOIN|LEFT\s+OUTER\s+JOIN|FULL\s+OUTER\s+JOIN|FULL\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
 				if mtch_left_sep:
-					#print("MATCHED JOIN OR COMMA")
+					print("MATCHED JOIN OR COMMA")
 					select_tables_txt=mtch_left_sep.group(2)
 				else:
 					#print("NO JOIN NOR COMMA")

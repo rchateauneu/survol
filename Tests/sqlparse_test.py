@@ -163,6 +163,34 @@ SELECT incidents.*,
 "select * from dbo.Students S LEFT OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID":["DBO.ADVISORS","DBO.STUDENTS"],
 "select * from dbo.Students S FULL OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID where A.Advisor_ID is null or S.Student_ID is null": ["DBO.ADVISORS","DBO.STUDENTS"],
 "select * from dbo.Students S FULL OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID where A.Advisor_ID is null": ["DBO.ADVISORS","DBO.STUDENTS"],
+"""
+        SELECT acquired_month AS month,
+               COUNT(DISTINCT company_permalink) AS companies_acquired
+          FROM tutorial.crunchbase_acquisitions
+         GROUP BY 1
+""":["TUTORIAL.CRUNCHBASE_ACQUISITIONS"],
+"""
+        SELECT funded_month AS month,
+               COUNT(DISTINCT company_permalink) AS companies_rec_investment
+          FROM tutorial.crunchbase_investments
+         GROUP BY 1
+""":["TUTORIAL.CRUNCHBASE_INVESTMENTS"],
+"""
+SELECT COALESCE(acquisitions.month, investments.month) AS month,
+       acquisitions.companies_acquired,
+       investments.companies_rec_investment
+  FROM (
+        SELECT acquired_month AS month,
+               COUNT(DISTINCT company_permalink) AS companies_acquired
+          FROM tutorial.crunchbase_acquisitions
+       ) acquisitions
+  FULL JOIN (
+        SELECT funded_month AS month,
+               COUNT(DISTINCT company_permalink) AS companies_rec_investment
+          FROM tutorial.crunchbase_investments
+       )investments
+    ON acquisitions.month = investments.month
+""": ["TUTORIAL.CRUNCHBASE_ACQUISITIONS","TUTORIAL.CRUNCHBASE_INVESTMENTS"],
 }
 
 
@@ -203,21 +231,6 @@ SELECT *
  SELECT *
    FROM tutorial.crunchbase_investments_part2
 """: [],
-}
-
-examples["Focus"] = {
-"""
-        SELECT acquired_month AS month,
-               COUNT(DISTINCT company_permalink) AS companies_acquired
-          FROM tutorial.crunchbase_acquisitions
-         GROUP BY 1
-""":["TUTORIAL.CRUNCHBASE_ACQUISITIONS"],
-"""
-        SELECT funded_month AS month,
-               COUNT(DISTINCT company_permalink) AS companies_rec_investment
-          FROM tutorial.crunchbase_investments
-         GROUP BY 1
-""":["TUTORIAL.CRUNCHBASE_INVESTMENTS"],
 """
 SELECT COALESCE(acquisitions.month, investments.month) AS month,
        acquisitions.companies_acquired,
@@ -237,6 +250,9 @@ SELECT COALESCE(acquisitions.month, investments.month) AS month,
     ON acquisitions.month = investments.month
  ORDER BY 1 DESC
 """: ["TUTORIAL.CRUNCHBASE_ACQUISITIONS","TUTORIAL.CRUNCHBASE_INVESTMENTS"],
+}
+
+examples["Focus"] = {
 }
 
 def DisplayErrs(theDictNam,theDict):
