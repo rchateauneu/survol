@@ -204,6 +204,12 @@ HAVING MIN (salary)  < (SELECT AVG (salary)
       FROM tablename
      WHERE condition
 """:["TABLENAME"],
+"""
+DELETE FROM student WHERE name = 'alan'
+""":["STUDENT"],
+"""
+CREATE TABLE student (id INTEGER PRIMARY KEY , name TEXT, age INTEGER)
+""":["STUDENT"],
 }
 
 
@@ -245,25 +251,6 @@ SELECT *
    FROM tutorial.crunchbase_investments_part2
 """: [],
 """
-SELECT COALESCE(acquisitions.month, investments.month) AS month,
-       acquisitions.companies_acquired,
-       investments.companies_rec_investment
-  FROM (
-        SELECT acquired_month AS month,
-               COUNT(DISTINCT company_permalink) AS companies_acquired
-          FROM tutorial.crunchbase_acquisitions
-         GROUP BY 1
-       ) acquisitions
-  FULL JOIN (
-        SELECT funded_month AS month,
-               COUNT(DISTINCT company_permalink) AS companies_rec_investment
-          FROM tutorial.crunchbase_investments
-         GROUP BY 1
-       )investments
-    ON acquisitions.month = investments.month
- ORDER BY 1 DESC
-""": ["TUTORIAL.CRUNCHBASE_ACQUISITIONS","TUTORIAL.CRUNCHBASE_INVESTMENTS"],
-"""
     SELECT column-names
       FROM tablename1
      WHERE value IN (SELECT column-name
@@ -282,12 +269,6 @@ SELECT COALESCE(acquisitions.month, investments.month) AS month,
            OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
       FROM Customer C
 """:["CUSTOMER","ORDER"],
-"""
-CREATE TABLE student (id INTEGER PRIMARY KEY , name TEXT, age INTEGER)
-""":["STUDENT"],
-"""
-DELETE FROM student WHERE name = 'alan'
-""":["STUDENT"],
 """
 SELECT first_name, salary, department_id
 FROM employees WHERE salary = (SELECT MIN (salary) FROM employees)

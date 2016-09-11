@@ -479,6 +479,11 @@ def parse_sql(sql_text,lili):
 		lili.append( remtch_delete.group(1) )
 		return True
 
+	remtch_create_table = re.match( '^CREATE TABLE ([^ ]*)', sql_text, re.IGNORECASE )
+	if remtch_create_table:
+		lili.append( remtch_create_table.group(1) )
+		return True
+
 	remtch_update = re.match( '^UPDATE ([^ ]*)', sql_text, re.IGNORECASE )
 	if remtch_update:
 		lili.append( remtch_update.group(1) )
