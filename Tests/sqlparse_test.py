@@ -210,6 +210,7 @@ DELETE FROM student WHERE name = 'alan'
 """
 CREATE TABLE student (id INTEGER PRIMARY KEY , name TEXT, age INTEGER)
 """:["STUDENT"],
+"SELECT * FROM (SELECT salary, department_id FROM employees WHERE salary BETWEEN 1000 and 2000)":["EMPLOYEES"],
 }
 
 
@@ -296,7 +297,6 @@ WHERE (salary, department_id) in (SELECT salary, department_id
 				  AND department_id BETWEEN 10 and 20)
 ORDER BY first_name
 """:["EMP_HISTORY","EMPLOYEES"],
-"SELECT * FROM (SELECT salary, department_id FROM employees WHERE salary BETWEEN 1000 and 2000)":["EMPLOYEES"],
 """
 select emp_last_name from emp
 where emp_salary < (select job_min_sal from job
