@@ -211,14 +211,71 @@ DELETE FROM student WHERE name = 'alan'
 CREATE TABLE student (id INTEGER PRIMARY KEY , name TEXT, age INTEGER)
 """:["STUDENT"],
 "SELECT * FROM (SELECT salary, department_id FROM employees WHERE salary BETWEEN 1000 and 2000)":["EMPLOYEES"],
+"select cola from tab14 where cold in (select c from tab140)":["TAB14","TAB140"],
+"""
+SELECT column-names FROM tablename1
+WHERE value IN (SELECT column_name FROM tablename2 WHERE condition)
+""":["TABLENAME1","TABLENAME2"],
+"""
+SELECT ProductName FROM Product
+WHERE Id IN (SELECT ProductId FROM OrderItem WHERE Quantity > 100)
+""":["ORDERITEM","PRODUCT"],
+"""
+SELECT first_name, salary, department_id
+FROM employees WHERE salary = (SELECT MIN (salary) FROM employees)
+""":["EMPLOYEES"],
+"""
+SELECT	first_name, department_id FROM employees
+WHERE department_id IN (SELECT department_id
+FROM departments WHERE LOCATION_ID = 100)
+""":["DEPARTMENTS","EMPLOYEES"],
+"""
+SELECT EMPLOYEE_ID, salary, department_id FROM   employees E
+WHERE salary > (SELECT AVG(salary)
+FROM   EMP T WHERE E.department_id = T.department_id)
+""":["EMP","EMPLOYEES"],
+"""
+SELECT first_name, job_id, salary
+FROM emp_history
+WHERE (salary, department_id) in (SELECT salary, department_id
+FROM employees
+WHERE salary BETWEEN 1000 and 2000
+AND department_id BETWEEN 10 and 20)
+ORDER BY first_name
+""":["EMPLOYEES","EMP_HISTORY"],
+"""
+select emp_last_name from emp
+where emp_salary < (select job_min_sal from job
+where emp.job_key = job.job_key)
+""":["EMP","JOB"],
+"select book_key from book where exists (select book_key from sales)":["BOOK","SALES"],
+"""
+select book_title from book
+where pub_key in (select pub_key from publisher
+where publisher.pub_key = book.pub_key)
+""":["BOOK","PUBLISHER"],
+"""
+select book_key from book
+where book_key not in (select book_key from sales)
+""":["BOOK","SALES"],
+"""
+SELECT ProductName, UnitPrice FROM Products
+WHERE CategoryID In (SELECT CategoryID FROM Categories WHERE CategoryName = 'Condiments')
+""":["CATEGORIES","PRODUCTS"],
+"""
+SELECT ProductName, UnitPrice FROM Products
+INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID
+WHERE CategoryName = 'Condiments'
+""":["CATEGORIES","PRODUCTS"],
+"""
+SELECT Products.ProductName, Products.UnitPrice FROM Products
+WHERE (((Products.UnitPrice) > (SELECT AVG([UnitPrice]) From Products)))
+ORDER BY Products.UnitPrice DESC;
+""":["PRODUCTS"],
 }
 
 
-
-
-
 examples["Bad"] = {
-"select cola from tab14 where cold in (select c from tab140)":["TAB14","TAB140"],
 """
 SELECT COALESCE(acquisitions.acquired_month, investments.funded_month) AS month,
        COUNT(DISTINCT acquisitions.company_permalink) AS companies_acquired,
@@ -252,67 +309,19 @@ SELECT *
    FROM tutorial.crunchbase_investments_part2
 """: [],
 """
-    SELECT column-names
-      FROM tablename1
-     WHERE value IN (SELECT column-name
-                       FROM tablename2
-                      WHERE condition)
-""":["TABLENAME1","TABLENAME2"],
+SELECT CompanyName FROM Suppliers AS s
+WHERE EXISTS (SELECT * FROM Products p, Categories c
+WHERE p.SupplierID = s.SupplierID AND p.CategoryID = c.CategoryID AND CategoryName LIKE '*Dairy*')
+""":["CATEGORIES","PRODUCTS"],
 """
-    SELECT ProductName
-      FROM Product
-     WHERE Id IN (SELECT ProductId
-                    FROM OrderItem
-                   WHERE Quantity > 100)
-""":["ORDERITEM","PRODUCT"],
-"""
-    SELECT FirstName, LastName,
-           OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
-      FROM Customer C
+SELECT FirstName, LastName,
+OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
+FROM Customer C
 """:["CUSTOMER","ORDER"],
-"""
-SELECT first_name, salary, department_id
-FROM employees WHERE salary = (SELECT MIN (salary) FROM employees)
-""":["EMPLOYEES"],
-"""
-SELECT	first_name, department_id
-FROM employees
-WHERE department_id IN (SELECT department_id
-                   	    FROM departments
-                   	    WHERE LOCATION_ID = 100)
-""":["DEPARTMENTS","EMPLOYEES"],
-"""
-SELECT EMPLOYEE_ID, salary, department_id
-FROM   employees E
-WHERE salary > (SELECT AVG(salary)
-                FROM   EMP T
-                WHERE E.department_id = T.department_id)
-""":["EMP","EMPLOYEES"],
-"""
-SELECT first_name, job_id, salary
-FROM emp_history
-WHERE (salary, department_id) in (SELECT salary, department_id
-				  FROM employees
- 				  WHERE salary BETWEEN 1000 and 2000
-				  AND department_id BETWEEN 10 and 20)
-ORDER BY first_name
-""":["EMP_HISTORY","EMPLOYEES"],
-"""
-select emp_last_name from emp
-where emp_salary < (select job_min_sal from job
-where emp.job_key = job.job_key)
-""":["EMP","JOB"],
-"select book_key from book where exists (select book_key from sales)":["BOOK","SALES"],
-"""
-select book_title from book
-where pub_key in (select pub_key from publisher
-where publisher.pub_key = book.pub_key)
-""":["BOOK","PUBLISHER"],
-"""
-select book_key from book
-where book_key not in (select book_key from sales)
-""":["BOOK","SALES"],
 }
+
+
+
 
 examples["Focus"] = {
 }

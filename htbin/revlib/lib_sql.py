@@ -337,18 +337,21 @@ def parse_sql_subselect(select_tables_txt, lili):
 	return parse_sql_subselect(subqs_rest,lili)
 
 # To extract the first table of the tables list in a SELECT statement.
-regex_select_tabs_list = (
-	'^(' + schema_table_rgx + ')\s+' + syno_rgx + where_rgx,
-	'^(' + table_rgx + ')\s+' + syno_rgx + where_rgx,
-	'^(' + schema_table_rgx + ')' + where_rgx,
-	'^(' + table_rgx + ')' + where_rgx,
+regex_select_tabs_list_where = (
+	'^(' + schema_table_rgx + ')\s+' + syno_rgx + where_rgx + '(.*)',
+	'^(' + table_rgx + ')\s+' + syno_rgx + where_rgx + '(.*)',
+	'^(' + schema_table_rgx + ')' + where_rgx + '(.*)',
+	'^(' + table_rgx + ')' + where_rgx + '(.*)',
 
-	# This is for the syntax "FROM ... JOIN ... ON ..."
-	'^(' + schema_table_rgx + ')\s+' + syno_rgx + on_rgx,
-	'^(' + table_rgx + ')\s+' + syno_rgx + on_rgx,
-	'^(' + schema_table_rgx + ')' + on_rgx,
-	'^(' + table_rgx + ')' + on_rgx,
+	# TODO: WRONG: This is for the syntax "FROM ... JOIN ... ON ..."
+	# "...INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID WHERE CategoryName = 'Condiments'"
+	'^(' + schema_table_rgx + ')\s+' + syno_rgx + on_rgx + '(.*)',
+	'^(' + table_rgx + ')\s+' + syno_rgx + on_rgx + '(.*)',
+	'^(' + schema_table_rgx + ')' + on_rgx + '(.*)',
+	'^(' + table_rgx + ')' + on_rgx + '(.*)',
+)
 
+regex_select_tabs_list_nowhere = (
 	'^(' + schema_table_rgx + ')\s+' + syno_rgx + '(.*)',
 	'^(' + table_rgx + ')\s+' + syno_rgx + '(.*)',
 	'^(' + schema_table_rgx + ')(.*)',
@@ -405,46 +408,76 @@ def parse_sql_select(rest_select,lili):
 
 	return parse_sql_select_inside(select_tables_txt,lili)
 
+# This parse a where clause, looking for subselects.
+def parse_subselect_from_where(select_tables_txt_where_clause,lili):
+	# print("MAYBE SUBSELECT IN WHERE CLAUSE="+select_tables_txt_where_clause)
+
+	while select_tables_txt_where_clause != "":
+		remtch_subselect = re.match( '^.*\(\s*SELECT\s+(.*)', select_tables_txt_where_clause, re.IGNORECASE )
+		if not remtch_subselect:
+			break
+
+		rest_select = remtch_subselect.group(1)
+		closing_par = closing_parenthesis( rest_select )
+		#print("parse_sql_subselect: closing_par="+str(closing_par)+ " len="+str(len(rest_select) ))
+
+		subq = rest_select[ : closing_par ]
+		select_tables_txt_where_clause = rest_select[ closing_par + 1 : ]
+		#print("\nWHERE SUBSELECT MATCH: subq="+subq)
+
+		if not parse_sql_select( subq,lili ):
+			print("CANNOT PARSE SUBSELECT IN WHERE CLAUSE:"+subq)
+			continue
+
+
 def parse_sql_select_inside(select_tables_txt,lili):
 	#print("select_tables_txt="+select_tables_txt)
 	while select_tables_txt != "":
 		#print("parse_sql_select_inside select_tables_txt=[" + select_tables_txt + "]")
-		for regex_select_table in regex_select_tabs_list:
-			remtch_select_table = re.match( regex_select_table, select_tables_txt, re.IGNORECASE )
-			if remtch_select_table:
-				#print("parse_sql_select_inside MATCH1="+remtch_select_table.group(1))
-				#print("parse_sql_select_inside MATCH="+remtch_select_table.group(2))
-				#print("regex was:"+regex_select_table)
+		for regex_select_table_where in regex_select_tabs_list_where:
+			remtch_select_table_where = re.match( regex_select_table_where, select_tables_txt, re.IGNORECASE )
+			if remtch_select_table_where:
 				break
 
-		if remtch_select_table:
-			lili.append( remtch_select_table.group(1) )
-			try:
-				# Here, the rest of will start by ",", "JOIN", "LEFT AFTER JOIN" etc...
-				#select_tables_txt = remtch_select_table.group(2).lstrip( " \t," )
-				select_tables_txt_with_left_separators = remtch_select_table.group(2)
-				mtch_left_sep = re.match("\s*(,|JOIN|LEFT\s+OUTER\s+JOIN|FULL\s+OUTER\s+JOIN|FULL\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
-				if mtch_left_sep:
-					print("MATCHED JOIN OR COMMA")
-					select_tables_txt=mtch_left_sep.group(2)
-				else:
-					#print("NO JOIN NOR COMMA")
-					select_tables_txt = select_tables_txt_with_left_separators.lstrip( " \t" )
+		if remtch_select_table_where:
+			lili.append( remtch_select_table_where.group(1) )
 
-				#print("parse_sql_select Rest select_tables_txt="+select_tables_txt)
-			except IndexError:
-				# Maybe we have matched the regex which indicates the end of the tables list.
-				select_tables_txt = ""
-		else:
-			# Maybe a sub-query.
-			#print("parse_sql_select_inside Maybe a SubQuery:"+select_tables_txt)
-			if not parse_sql_subselect(select_tables_txt,lili):
-				# print("UNKNOWN")
-				return False
-			# We can end because parse_sql_subselect calls itself.
-			# In fact parse_sql_subselect() is enough.
-			# TODO: Simplify that.
+			select_tables_txt_where_clause = remtch_select_table_where.group(2)
+
+			parse_subselect_from_where(select_tables_txt_where_clause,lili)
+
 			select_tables_txt = ""
+			continue
+
+
+		for regex_select_table_nowhere in regex_select_tabs_list_nowhere:
+			remtch_select_table_nowhere = re.match( regex_select_table_nowhere, select_tables_txt, re.IGNORECASE )
+			if remtch_select_table_nowhere:
+				break
+
+		if remtch_select_table_nowhere:
+			lili.append( remtch_select_table_nowhere.group(1) )
+
+			# Here, the rest of will start by ",", "JOIN", "LEFT AFTER JOIN" etc...
+			select_tables_txt_with_left_separators = remtch_select_table_nowhere.group(2)
+			mtch_left_sep = re.match("\s*(,|JOIN|LEFT\s+OUTER\s+JOIN|FULL\s+OUTER\s+JOIN|FULL\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
+			if mtch_left_sep:
+				# print("MATCHED JOIN OR COMMA")
+				select_tables_txt=mtch_left_sep.group(2)
+			else:
+				#print("NO JOIN NOR COMMA. Simply the end of the string.")
+				select_tables_txt = select_tables_txt_with_left_separators.lstrip( " \t" )
+
+
+		# Maybe a sub-query.
+		#print("parse_sql_select_inside Maybe a SubQuery:"+select_tables_txt)
+		if not parse_sql_subselect(select_tables_txt,lili):
+			# print("UNKNOWN")
+			return False
+		# We can end because parse_sql_subselect calls itself.
+		# In fact parse_sql_subselect() is enough.
+		# TODO: Simplify that.
+		select_tables_txt = ""
 
 	#print("parse_sql_select_inside leaving")
 	return True
@@ -490,7 +523,7 @@ def parse_sql(sql_text,lili):
 		return True
 
 	# FIXME: This will match the last "FROM" even if this is in a sub-query.
-	remtch_select = re.match( '^SELECT +(.*)', sql_text, re.IGNORECASE )
+	remtch_select = re.match( '^SELECT\s+(.*)', sql_text, re.IGNORECASE )
 	if remtch_select:
 		if parse_sql_select( remtch_select.group(1), lili ):
 			return True
@@ -517,6 +550,8 @@ def parse_sql(sql_text,lili):
 
 	return False
 
+
+# On peut appeler ca sql_dependencies et en faire un module a part.
 
 
 def extract_sql_tables(sql):
