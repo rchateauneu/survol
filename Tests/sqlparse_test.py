@@ -294,6 +294,43 @@ WHERE AlbumInfo.band_name = 'Metallica' AND album_tracks <> (SELECT COUNT(*) FRO
 """
 SELECT * FROM AlbumSales WHERE album_gross > ALL (SELECT album_costs FROM AlbumProduction)
 """:["ALBUMPRODUCTION","ALBUMSALES"],
+"""
+SELECT suppliers.supplier_name, subquery1.total_amt
+FROM suppliers,
+(SELECT supplier_id, SUM(orders.amount) AS total_amt
+FROM orders GROUP BY supplier_id) subquery1
+WHERE subquery1.supplier_id = suppliers.supplier_id
+""":["ORDERS","SUPPLIERS"],
+"""
+SELECT e1.last_name, e1.first_name,
+(SELECT MAX(salary) FROM employees e2 WHERE e1.employee_id = e2.employee_id) subquery2
+FROM employees e1
+""":["EMPLOYEES"],
+"""
+SELECT cs.CUSID,dp.DEPID
+FROM CUSTMR cs LEFT OUTER JOIN
+( SELECT DEPID,DEPNAME
+FROM DEPRMNT WHERE dp.DEPADDRESS = 'TOKYO' ) ss
+ON ( ss.DEPID = cs.CUSID AND ss.DEPNAME = cs.CUSTNAME )
+WHERE cs.CUSID != ''
+""":["CUSTMR","DEPRMNT"],
+"""
+SELECT WORKDEPT, MAX(SALARY)
+FROM DSN8A10.EMP
+GROUP BY WORKDEPT
+HAVING MAX(SALARY) < (SELECT AVG(SALARY) FROM DSN8A10.EMP)
+""":["DSN8A10.EMP"],
+"""
+SELECT EMP_ACT.EMPNO, PROJNO
+FROM EMP_ACT
+WHERE EMP_ACT.EMPNO IN
+(SELECT EMPLOYEE.EMPNO FROM EMPLOYEE ORDER BY SALARY DESC FETCH FIRST 3 ROWS ONLY)
+""":["EMPLOYEE","EMP_ACT"],
+"""
+SELECT SalesOrderID, SalesOrderDetailID, LineTotal,
+(SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail WHERE  SalesOrderID = SOD.SalesOrderID)
+AS AverageLineTotal FROM   Sales.SalesOrderDetail SOD
+""":["SALES.SALESORDERDETAIL"],
 }
 
 
@@ -336,16 +373,16 @@ WHERE EXISTS (SELECT * FROM Products p, Categories c
 WHERE p.SupplierID = s.SupplierID AND p.CategoryID = c.CategoryID AND CategoryName LIKE '*Dairy*')
 """:["CATEGORIES","PRODUCTS"],
 """
-SELECT FirstName, LastName,
-OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
-FROM Customer C
-""":["CUSTOMER","ORDER"],
-"""
 UPDATE AlbumInfo SET album_tracks =
 SELECT COUNT(*) FROM Album
 WHERE AlbumInfo.album_name = Album.album_name)
 WHERE AlbumInfo.band_name = 'Metallica'
 """:["ALBUM","ALBUMINFO"],
+"""
+SELECT FirstName, LastName,
+OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
+FROM Customer C
+""":["CUSTOMER","ORDER"],
 """
 SELECT AlbumInfo.album_name, album_tracks,
 (SELECT COUNT(*) FROM Album
@@ -353,6 +390,24 @@ WHERE Album.album_name = AlbumInfo.album_name)
 FROM  AlbumInfo
 WHERE AlbumInfo.band_name = 'Metallica'
 """:["ALBUM","ALBUMINFO"],
+"""
+SELECT SalesOrderID,
+LineTotal,
+(SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS AverageLineTotal, LineTotal - (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS Variance
+FROM   Sales.SalesOrderDetail
+""":["SALES.SALESORDERDETAIL"],
+"""
+SELECT *
+FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
+ORDER BY ORDER OF UTABLE
+""":["T1","T2"],
+"""
+SELECT SalesOrderID, OrderDate, TotalDue,
+(SELECT COUNT(SalesOrderDetailID)
+FROM Sales.SalesOrderDetail
+WHERE SalesOrderID = SO.SalesOrderID) as LineCount
+FROM   Sales.SalesOrderHeader SO
+""":["SALES.SALESORDERHEADER","SALES.SALESORDERDETAIL"],
 }
 
 
