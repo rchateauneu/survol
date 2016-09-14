@@ -272,6 +272,28 @@ SELECT Products.ProductName, Products.UnitPrice FROM Products
 WHERE (((Products.UnitPrice) > (SELECT AVG([UnitPrice]) From Products)))
 ORDER BY Products.UnitPrice DESC;
 """:["PRODUCTS"],
+"""
+SELECT song_name FROM Album
+WHERE band_name = 'Metallica' AND song_name IN
+(SELECT song_name FROM Lyric WHERE song_lyric LIKE '%justice%')
+""":["ALBUM","LYRIC"],
+"""
+SELECT song_name FROM Album
+WHERE album_name = 'And Justice for All' AND band_name = 'Metallica' AND song_name NOT IN
+(SELECT song_name FROM Lyric WHERE song_lyric LIKE '%justice%')
+""":["ALBUM","LYRIC"],
+"""
+SELECT Album.song_name FROM Album
+WHERE Album.band_name = 'Metallica' AND EXISTS
+(SELECT Cover.song_name FROM Cover WHERE Cover.band_name = 'Damage, Inc.' AND Cover.song_name = Album.song_name)
+""":["ALBUM","COVER"],
+"""
+SELECT AlbumInfo.album_name FROM AlbumInfo
+WHERE AlbumInfo.band_name = 'Metallica' AND album_tracks <> (SELECT COUNT(*) FROM Album WHERE Album.album_name = AlbumInfo.album_name)
+""":["ALBUM","ALBUMINFO"],
+"""
+SELECT * FROM AlbumSales WHERE album_gross > ALL (SELECT album_costs FROM AlbumProduction)
+""":["ALBUMPRODUCTION","ALBUMSALES"],
 }
 
 
@@ -318,6 +340,19 @@ SELECT FirstName, LastName,
 OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
 FROM Customer C
 """:["CUSTOMER","ORDER"],
+"""
+UPDATE AlbumInfo SET album_tracks =
+SELECT COUNT(*) FROM Album
+WHERE AlbumInfo.album_name = Album.album_name)
+WHERE AlbumInfo.band_name = 'Metallica'
+""":["ALBUM","ALBUMINFO"],
+"""
+SELECT AlbumInfo.album_name, album_tracks,
+(SELECT COUNT(*) FROM Album
+WHERE Album.album_name = AlbumInfo.album_name)
+FROM  AlbumInfo
+WHERE AlbumInfo.band_name = 'Metallica'
+""":["ALBUM","ALBUMINFO"],
 }
 
 
