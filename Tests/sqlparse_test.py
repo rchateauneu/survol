@@ -390,6 +390,52 @@ SELECT FirstName, LastName,
 OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
 FROM Customer C
 """:["CUSTOMER","ORDER"],
+"""
+SELECT Count(r.id)                       AS cnt_total,
+   (SELECT Count(r1.entity_id)
+    FROM   auto_reminders_members r1
+    WHERE  r1.reminder_id = r.reminder_id
+           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
+                                             101)
+                                             AND
+               CONVERT(DATETIME,
+               '03/28/2013' + ' 23:59:59.997 ', 101)
+           AND r1.action = 'notnow') AS cnt_notnow,
+   (SELECT Count(r1.entity_id)
+    FROM   auto_reminders_members r1
+    WHERE  r1.reminder_id = r.reminder_id
+           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
+                                             101)
+                                             AND
+               CONVERT(DATETIME,
+               '03/28/2013' + ' 23:59:59.997 ', 101)
+           AND r1.action = 'insert') AS cnt_insert,
+   (SELECT Count(r1.entity_id)
+    FROM   auto_reminders_members r1
+    WHERE  r1.reminder_id = r.reminder_id
+           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
+                                             101)
+                                             AND
+               CONVERT(DATETIME,
+               '03/28/2013' + ' 23:59:59.997 ', 101)
+           AND r1.action = 'update') AS cnt_update,
+   (SELECT Count(r1.entity_id)
+    FROM   auto_reminders_members r1
+    WHERE  r1.reminder_id = r.reminder_id
+           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
+                                             101)
+                                             AND
+               CONVERT(DATETIME,
+               '03/28/2013' + ' 23:59:59.997 ', 101)
+           AND r1.action = 'verify') AS cnt_verify
+FROM   auto_reminders_members r
+WHERE  r.reminder_id = 1
+       AND r.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013', 101) AND
+                                            CONVERT(DATETIME,
+                                            '03/28/2013' + ' 23:59:59.997 ', 101
+                                            )
+GROUP  BY r.reminder_id
+""":["AUTO_REMINDERS_MEMBERS"],
 }
 
 
@@ -446,52 +492,6 @@ SELECT *
 FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
 ORDER BY ORDER OF UTABLE
 """:["T1","T2"],
-"""
-SELECT Count(r.id)                       AS cnt_total,
-   (SELECT Count(r1.entity_id)
-    FROM   auto_reminders_members r1
-    WHERE  r1.reminder_id = r.reminder_id
-           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
-                                             101)
-                                             AND
-               CONVERT(DATETIME,
-               '03/28/2013' + ' 23:59:59.997 ', 101)
-           AND r1.action = 'notnow') AS cnt_notnow,
-   (SELECT Count(r1.entity_id)
-    FROM   auto_reminders_members r1
-    WHERE  r1.reminder_id = r.reminder_id
-           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
-                                             101)
-                                             AND
-               CONVERT(DATETIME,
-               '03/28/2013' + ' 23:59:59.997 ', 101)
-           AND r1.action = 'insert') AS cnt_insert,
-   (SELECT Count(r1.entity_id)
-    FROM   auto_reminders_members r1
-    WHERE  r1.reminder_id = r.reminder_id
-           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
-                                             101)
-                                             AND
-               CONVERT(DATETIME,
-               '03/28/2013' + ' 23:59:59.997 ', 101)
-           AND r1.action = 'update') AS cnt_update,
-   (SELECT Count(r1.entity_id)
-    FROM   auto_reminders_members r1
-    WHERE  r1.reminder_id = r.reminder_id
-           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
-                                             101)
-                                             AND
-               CONVERT(DATETIME,
-               '03/28/2013' + ' 23:59:59.997 ', 101)
-           AND r1.action = 'verify') AS cnt_verify
-FROM   auto_reminders_members r
-WHERE  r.reminder_id = 1
-       AND r.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013', 101) AND
-                                            CONVERT(DATETIME,
-                                            '03/28/2013' + ' 23:59:59.997 ', 101
-                                            )
-GROUP  BY r.reminder_id
-""":["AUTO_REMINDERS_MEMBERS"],
 """
 SELECT Count(r.id) AS cnt_total,
   SUM(CASE WHEN r1.action = 'notnow') THEN 1 ELSE 0 END) AS cnt_notnow,
