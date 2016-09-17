@@ -331,6 +331,47 @@ SELECT SalesOrderID, SalesOrderDetailID, LineTotal,
 (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail WHERE  SalesOrderID = SOD.SalesOrderID)
 AS AverageLineTotal FROM   Sales.SalesOrderDetail SOD
 """:["SALES.SALESORDERDETAIL"],
+"""
+SELECT CompanyName FROM Suppliers
+WHERE EXISTS (SELECT * FROM Products p, Categories c
+WHERE p.SupplierID = s.SupplierID AND p.CategoryID = c.CategoryID AND CategoryName LIKE '*Dairy*')
+""":["CATEGORIES","PRODUCTS","SUPPLIERS"],
+"""
+SELECT SalesOrderID, OrderDate, TotalDue,
+(SELECT COUNT(SalesOrderDetailID)
+FROM Sales.SalesOrderDetail
+WHERE SalesOrderID = SO.SalesOrderID) as LineCount
+FROM   Sales.SalesOrderHeader SO
+""":["SALES.SALESORDERDETAIL","SALES.SALESORDERHEADER"],
+"""
+SELECT SalesOrderID, OrderDate, TotalDue,
+(SELECT COUNT(SalesOrderDetailID)
+FROM Sales.SalesOrderDetail
+WHERE SalesOrderID = SO.SalesOrderID)
+FROM   Sales.SalesOrderHeader
+""":["SALES.SALESORDERDETAIL","SALES.SALESORDERHEADER"],
+"""
+SELECT AlbumInfo.album_name, album_tracks,
+(SELECT COUNT(*) FROM Album
+WHERE Album.album_name = AlbumInfo.album_name)
+FROM  AlbumInfo
+WHERE AlbumInfo.band_name = 'Metallica'
+""":["ALBUM","ALBUMINFO"],
+"""
+select
+(select count(*) from taba where taba.col = maintab.maincol),
+(select count(*) from tabb where tabb.col = maintab.maincol),
+(select count(*) from tabc where tabc.col = maintab.maincol)
+from maintab
+where maintab.maincol like "%"
+""":["MAINTAB","TABA","TABB","TABC"],
+"""
+SELECT SalesOrderID, OrderDate,
+    (SELECT MAX(OrdDet.UnitPrice)
+     FROM AdventureWorks.Sales.SalesOrderDetail
+     WHERE SalesOrderID = OrdDet.SalesOrderID)
+FROM AdventureWorks2008R2.Sales.SalesOrderHeader
+""":["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS2008R2.SALES.SALESORDERHEADER"],
 }
 
 
@@ -371,7 +412,7 @@ SELECT *
 SELECT CompanyName FROM Suppliers AS s
 WHERE EXISTS (SELECT * FROM Products p, Categories c
 WHERE p.SupplierID = s.SupplierID AND p.CategoryID = c.CategoryID AND CategoryName LIKE '*Dairy*')
-""":["CATEGORIES","PRODUCTS"],
+""":["CATEGORIES","PRODUCTS","SUPPLIERS"],
 """
 UPDATE AlbumInfo SET album_tracks =
 SELECT COUNT(*) FROM Album
@@ -402,15 +443,83 @@ FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
 ORDER BY ORDER OF UTABLE
 """:["T1","T2"],
 """
-SELECT SalesOrderID, OrderDate, TotalDue,
-(SELECT COUNT(SalesOrderDetailID)
-FROM Sales.SalesOrderDetail
-WHERE SalesOrderID = SO.SalesOrderID) as LineCount
-FROM   Sales.SalesOrderHeader SO
-""":["SALES.SALESORDERHEADER","SALES.SALESORDERDETAIL"],
+SELECT Count(r.id)                       AS cnt_total,
+   (SELECT Count(r1.entity_id)
+    FROM   auto_reminders_members r1
+    WHERE  r1.reminder_id = r.reminder_id
+           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
+                                             101)
+                                             AND
+               CONVERT(DATETIME,
+               '03/28/2013' + ' 23:59:59.997 ', 101)
+           AND r1.action = 'notnow') AS cnt_notnow,
+   (SELECT Count(r1.entity_id)
+    FROM   auto_reminders_members r1
+    WHERE  r1.reminder_id = r.reminder_id
+           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
+                                             101)
+                                             AND
+               CONVERT(DATETIME,
+               '03/28/2013' + ' 23:59:59.997 ', 101)
+           AND r1.action = 'insert') AS cnt_insert,
+   (SELECT Count(r1.entity_id)
+    FROM   auto_reminders_members r1
+    WHERE  r1.reminder_id = r.reminder_id
+           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
+                                             101)
+                                             AND
+               CONVERT(DATETIME,
+               '03/28/2013' + ' 23:59:59.997 ', 101)
+           AND r1.action = 'update') AS cnt_update,
+   (SELECT Count(r1.entity_id)
+    FROM   auto_reminders_members r1
+    WHERE  r1.reminder_id = r.reminder_id
+           AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',
+                                             101)
+                                             AND
+               CONVERT(DATETIME,
+               '03/28/2013' + ' 23:59:59.997 ', 101)
+           AND r1.action = 'verify') AS cnt_verify
+FROM   auto_reminders_members r
+WHERE  r.reminder_id = 1
+       AND r.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013', 101) AND
+                                            CONVERT(DATETIME,
+                                            '03/28/2013' + ' 23:59:59.997 ', 101
+                                            )
+GROUP  BY r.reminder_id
+""":["AUTO_REMINDERS_MEMBERS"],
+"""
+SELECT Count(r.id) AS cnt_total,
+  SUM(CASE WHEN r1.action = 'notnow') THEN 1 ELSE 0 END) AS cnt_notnow,
+  SUM(CASE WHEN r1.action = 'insert') THEN 1 ELSE 0 END) AS cnt_insert,
+  SUM(CASE WHEN r1.action = 'update') THEN 1 ELSE 0 END) AS cnt_update,
+  SUM(CASE WHEN r1.action = 'verify') THEN 1 ELSE 0 END) AS cnt_verify,
+
+FROM   auto_reminders_members r
+WHERE  r.reminder_id = 1
+       AND r.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013', 101) AND
+                                            CONVERT(DATETIME,
+                                            '03/28/2013' + ' 23:59:59.997 ', 101
+                                            )
+GROUP  BY r.reminder_id
+""":["AUTO_REMINDERS_MEMBERS"],
+"""
+SELECT Ord.SalesOrderID, Ord.OrderDate,
+    (SELECT MAX(OrdDet.UnitPrice)
+     FROM AdventureWorks.Sales.SalesOrderDetail AS OrdDet
+     WHERE Ord.SalesOrderID = OrdDet.SalesOrderID) AS MaxUnitPrice
+FROM AdventureWorks2008R2.Sales.SalesOrderHeader AS Ord
+""":["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS.SALES.SALESORDERHEADER"],
 }
 
 
+# """
+# SELECT SalesOrderID, OrderDate,
+#     (SELECT MAX(OrdDet.UnitPrice)
+#      FROM AdventureWorks.Sales.SalesOrderDetail
+#      WHERE SalesOrderID = OrdDet.SalesOrderID)
+# FROM AdventureWorks2008R2.Sales.SalesOrderHeader
+# """:["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS2008R2.SALES.SALESORDERHEADER"],
 
 
 examples["Focus"] = {

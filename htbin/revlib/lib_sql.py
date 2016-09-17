@@ -217,9 +217,10 @@
 # THEREFORE IT HAS TO GO TO A LIBRARY.
 
 import re
+
 # Returns the index of the end of the sub-expression, that is,
 # the position of the first closing parentheses which is not opened here.
-def closing_parenthesis(stri,func = None):
+def closing_parenthesis(stri):
 	nb_par = 0
 	quoted_simple = False
 	quoted_double = False
@@ -257,11 +258,48 @@ def closing_parenthesis(stri,func = None):
 				return idx
 			else:
 				nb_par -= 1
+	return lenStri
 
-		if func != None:
-			if func( stri, idx ):
-				# print("Calling func and returning idx")
-				return idx
+def not_enclosed(stri,substr):
+	nb_par = 0
+	quoted_simple = False
+	quoted_double = False
+	escaped = False
+	lenStri = len(stri)
+	for idx in range( lenStri ):
+		ch = stri[idx]
+
+		if ch == '\\':
+			escaped = True
+			continue
+
+		if escaped:
+			escaped = False
+			continue
+
+		if ch == "'":
+			quoted_simple = not quoted_simple
+			continue
+
+		if quoted_simple:
+			continue
+
+		if ch == '"':
+			quoted_double = not quoted_double
+			continue
+
+		if quoted_double:
+			continue
+
+		if ch == '(':
+			nb_par += 1
+		elif ch == ')':
+			nb_par -= 1
+
+		# This is not very efficient.
+		if nb_par == 0 and stri[idx:idx + len(substr)].upper() == substr:
+			#print("Match substr="+substr+" idx="+str(idx))
+			return idx
 	return lenStri
 
 schema_rgx = "[A-Za-z_][A-Za-z0-9_$-]*"
@@ -270,7 +308,7 @@ syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
 where_rgx = '\s+WHERE'
 on_rgx = '\s+ON' # This is for the syntax " JOIN ... ON .."
 schema_table_rgx = schema_rgx + '\.' + table_rgx
-
+table_with_schemas_rgx = "[A-Za-z_][A-Za-z0-9_$\.-]*"
 
 # TODO: Should probably start by splitting based on UNION, INTERSECT etc...
 # Anyway the syntax is really complicated.
@@ -338,49 +376,66 @@ def parse_sql_subselect(select_tables_txt, lili):
 
 # To extract the first table of the tables list in a SELECT statement.
 regex_select_tabs_list_where = (
-	'^(' + schema_table_rgx + ')\s+' + syno_rgx + where_rgx + '(.*)',
-	'^(' + table_rgx + ')\s+' + syno_rgx + where_rgx + '(.*)',
-	'^(' + schema_table_rgx + ')' + where_rgx + '(.*)',
-	'^(' + table_rgx + ')' + where_rgx + '(.*)',
+	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + where_rgx + '(.*)',
+	'^(' + table_with_schemas_rgx + ')' + where_rgx + '(.*)',
 
 	# TODO: WRONG: This is for the syntax "FROM ... JOIN ... ON ..."
 	# "...INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID WHERE CategoryName = 'Condiments'"
-	'^(' + schema_table_rgx + ')\s+' + syno_rgx + on_rgx + '(.*)',
-	'^(' + table_rgx + ')\s+' + syno_rgx + on_rgx + '(.*)',
-	'^(' + schema_table_rgx + ')' + on_rgx + '(.*)',
-	'^(' + table_rgx + ')' + on_rgx + '(.*)',
+	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + on_rgx + '(.*)',
+	'^(' + table_with_schemas_rgx + ')' + on_rgx + '(.*)',
 )
 
 regex_select_tabs_list_nowhere = (
-	'^(' + schema_table_rgx + ')\s+' + syno_rgx + '(.*)',
-	'^(' + table_rgx + ')\s+' + syno_rgx + '(.*)',
-	'^(' + schema_table_rgx + ')(.*)',
-	'^(' + table_rgx + ')(.*)'
+	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + '(.*)',
+	'^(' + table_with_schemas_rgx + ')(.*)',
 )
 
-def finder_from(stri, idx):
-	return stri[ idx:idx + 5 ].upper() == "FROM "
+# This is the content of the select, the columns.
+def parse_content_select(content_select,lili):
+
+	lenTot = len(content_select)
+
+	while content_select != "":
+		# The index of the first comma, not between quotes or parentheses.
+		idxComma = not_enclosed(content_select, ",")
+		if idxComma == lenTot:
+			select_column = content_select
+			content_select = ""
+		else:
+			select_column = content_select[:idxComma]
+			content_select = content_select[idxComma + 1:]
+
+		# This column might be a subselect.
+		#print("parse_content_select select_column="+select_column)
+		remtch_subselect = re.match( '^\s*\(\s*SELECT\s+(.*)', select_column, re.IGNORECASE )
+		if remtch_subselect:
+			#print("parse_content_select: Simple select="+select_tables_txt)
+
+			rest_select = remtch_subselect.group(1)
+			closing_par = closing_parenthesis( rest_select )
+			#print("parse_content_select: closing_par="+str(closing_par)+ " len="+str(len(rest_select) ))
+
+			subq = rest_select[ : closing_par ]
+			#print("parse_content_select: subq="+subq)
+			if not parse_sql_select( subq,lili ):
+				#print("parse_content_select: FAILED subq="+subq)
+				pass
+
+	return
 
 def truncate_group_order(rest_select):
 	len_rest_select = len(rest_select)
 
-	# TODO: Should search for "order by "
-	def finder_order_by(stri, idx):
-		return stri[ idx:idx + 6 ].upper() == "ORDER "
-
 	# We do not take into account an ordering statement.
-	idx_order_by = closing_parenthesis( rest_select, finder_order_by )
+	idx_order_by = not_enclosed( rest_select, "ORDER " )
 	#print("parse_sql_select idx_order_by="+str(idx_order_by)+" len_rest_select="+str(len_rest_select))
 	if idx_order_by != len_rest_select:
 		#print("parse_sql_select bad:"+rest_select)
 		rest_select = rest_select[:idx_order_by]
 
 	# TODO: Should search for "group by "
-	def finder_group_by(stri, idx):
-		return stri[ idx:idx + 6 ].upper() == "GROUP "
-
 	# We do not take into account an ordering statement.
-	idx_group_by = closing_parenthesis( rest_select, finder_group_by )
+	idx_group_by = not_enclosed( rest_select, "GROUP " )
 	#print("parse_sql_select idx_order_by="+str(idx_group_by)+" len_rest_select="+str(len_rest_select))
 	if idx_group_by != len_rest_select:
 		#print("parse_sql_select bad:"+rest_select)
@@ -393,18 +448,23 @@ def parse_sql_select(rest_select,lili):
 	#print("parse_sql_select:"+rest_select)
 
 	# from_finder = lambda stri, idx: stri[ idx:idx + 5 ].upper() == "FROM "
-	idx_from = closing_parenthesis( rest_select, finder_from )
+	idx_from = not_enclosed( rest_select, "FROM " )
 	#print("parse_sql_select idx_from="+str(idx_from))
 	if idx_from == len_rest_select:
 		#print("parse_sql_select bad:"+rest_select)
 		return False
 
+	# This removes only the end.
 	rest_select = truncate_group_order(rest_select)
 
+	content_select = rest_select[ : idx_from ]
+
+	parse_content_select(content_select,lili)
+
 	# After "FROM"
-	#print("parse_sql_select idx_from="+str(idx_from))
 	select_tables_txt = rest_select[ idx_from + 5: ]
 	select_tables_txt = select_tables_txt.strip()
+	#print("parse_sql_select select_tables_txt="+select_tables_txt)
 
 	return parse_sql_select_inside(select_tables_txt,lili)
 
@@ -449,13 +509,16 @@ def parse_sql_select_inside(select_tables_txt,lili):
 			select_tables_txt = ""
 			continue
 
-
+		#print("regex_select_table_nowhere select_tables_txt="+select_tables_txt)
 		for regex_select_table_nowhere in regex_select_tabs_list_nowhere:
 			remtch_select_table_nowhere = re.match( regex_select_table_nowhere, select_tables_txt, re.IGNORECASE )
 			if remtch_select_table_nowhere:
+				#print("Regex:"+regex_select_table_nowhere)
 				break
 
 		if remtch_select_table_nowhere:
+			#print("Matched1:"+remtch_select_table_nowhere.group(1))
+			#print("Matched2:"+remtch_select_table_nowhere.group(2))
 			lili.append( remtch_select_table_nowhere.group(1) )
 
 			# Here, the rest of will start by ",", "JOIN", "LEFT AFTER JOIN" etc...
