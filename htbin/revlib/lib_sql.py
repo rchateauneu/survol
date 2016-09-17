@@ -297,7 +297,8 @@ def not_enclosed(stri,substr):
 			nb_par -= 1
 
 		# This is not very efficient.
-		if nb_par == 0 and stri[idx:idx + len(substr)].upper() == substr:
+		if nb_par == 0 and re.match( '^' + substr, stri[idx:], re.IGNORECASE ):
+		# if nb_par == 0 and stri[idx:idx + len(substr)].upper() == substr:
 			#print("Match substr="+substr+" idx="+str(idx))
 			return idx
 	return lenStri
@@ -392,7 +393,7 @@ regex_select_tabs_list_nowhere = (
 
 # This is the content of the select, the columns.
 def parse_content_select(content_select,lili):
-
+	#print("parse_content_select content_select="+content_select)
 	lenTot = len(content_select)
 
 	while content_select != "":
@@ -408,8 +409,14 @@ def parse_content_select(content_select,lili):
 		# This column might be a subselect.
 		#print("parse_content_select select_column="+select_column)
 		remtch_subselect = re.match( '^\s*\(\s*SELECT\s+(.*)', select_column, re.IGNORECASE )
+
+		if not remtch_subselect:
+			# Another attept with this syntax:
+			# "Select OrderCount = (SELECT COUNT(Id) FROM Order) FROM Customer C"
+			remtch_subselect = re.match( '^\s*[A-Za-z0-9_$-]+\s*=\s*\(\s*SELECT\s+(.*)', select_column, re.IGNORECASE )
+
 		if remtch_subselect:
-			#print("parse_content_select: Simple select="+select_tables_txt)
+			#print("parse_content_select: Simple select="+select_column)
 
 			rest_select = remtch_subselect.group(1)
 			closing_par = closing_parenthesis( rest_select )
@@ -427,7 +434,7 @@ def truncate_group_order(rest_select):
 	len_rest_select = len(rest_select)
 
 	# We do not take into account an ordering statement.
-	idx_order_by = not_enclosed( rest_select, "ORDER " )
+	idx_order_by = not_enclosed( rest_select, "ORDER\s+BY" )
 	#print("parse_sql_select idx_order_by="+str(idx_order_by)+" len_rest_select="+str(len_rest_select))
 	if idx_order_by != len_rest_select:
 		#print("parse_sql_select bad:"+rest_select)
@@ -470,7 +477,7 @@ def parse_sql_select(rest_select,lili):
 
 # This parse a where clause, looking for subselects.
 def parse_subselect_from_where(select_tables_txt_where_clause,lili):
-	# print("MAYBE SUBSELECT IN WHERE CLAUSE="+select_tables_txt_where_clause)
+	#print("MAYBE SUBSELECT IN WHERE CLAUSE="+select_tables_txt_where_clause)
 
 	while select_tables_txt_where_clause != "":
 		remtch_subselect = re.match( '^.*\(\s*SELECT\s+(.*)', select_tables_txt_where_clause, re.IGNORECASE )
@@ -486,12 +493,12 @@ def parse_subselect_from_where(select_tables_txt_where_clause,lili):
 		#print("\nWHERE SUBSELECT MATCH: subq="+subq)
 
 		if not parse_sql_select( subq,lili ):
-			print("CANNOT PARSE SUBSELECT IN WHERE CLAUSE:"+subq)
+			#print("CANNOT PARSE SUBSELECT IN WHERE CLAUSE:"+subq)
 			continue
 
 
 def parse_sql_select_inside(select_tables_txt,lili):
-	#print("select_tables_txt="+select_tables_txt)
+	#print("parse_sql_select_inside select_tables_txt="+select_tables_txt)
 	while select_tables_txt != "":
 		#print("parse_sql_select_inside select_tables_txt=[" + select_tables_txt + "]")
 		for regex_select_table_where in regex_select_tabs_list_where:

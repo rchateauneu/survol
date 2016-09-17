@@ -385,7 +385,16 @@ LineTotal,
 (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS AverageLineTotal, LineTotal - (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS Variance
 FROM   Sales.SalesOrderDetail
 """:["SALES.SALESORDERDETAIL"],
+"""
+SELECT FirstName, LastName,
+OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
+FROM Customer C
+""":["CUSTOMER","ORDER"],
 }
+
+
+
+
 
 
 examples["Bad"] = {
@@ -507,22 +516,7 @@ FROM AdventureWorks2008R2.Sales.SalesOrderHeader AS Ord
 """:["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS.SALES.SALESORDERHEADER"],
 }
 
-
-# """
-# SELECT SalesOrderID, OrderDate,
-#     (SELECT MAX(OrdDet.UnitPrice)
-#      FROM AdventureWorks.Sales.SalesOrderDetail
-#      WHERE SalesOrderID = OrdDet.SalesOrderID)
-# FROM AdventureWorks2008R2.Sales.SalesOrderHeader
-# """:["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS2008R2.SALES.SALESORDERHEADER"],
-
-
 examples["Focus"] = {
-"""
-SELECT FirstName, LastName,
-OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
-FROM Customer C
-""":["CUSTOMER","ORDER"],
 }
 
 def DisplayErrs(theDictNam,theDict):
