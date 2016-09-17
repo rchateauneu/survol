@@ -372,6 +372,19 @@ SELECT SalesOrderID, OrderDate,
      WHERE SalesOrderID = OrdDet.SalesOrderID)
 FROM AdventureWorks2008R2.Sales.SalesOrderHeader
 """:["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS2008R2.SALES.SALESORDERHEADER"],
+"""
+SELECT AlbumInfo.album_name, album_tracks,
+(SELECT COUNT(*) FROM Album
+WHERE Album.album_name = AlbumInfo.album_name)
+FROM  AlbumInfo
+WHERE AlbumInfo.band_name = 'Metallica'
+""":["ALBUM","ALBUMINFO"],
+"""
+SELECT SalesOrderID,
+LineTotal,
+(SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS AverageLineTotal, LineTotal - (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS Variance
+FROM   Sales.SalesOrderDetail
+""":["SALES.SALESORDERDETAIL"],
 }
 
 
@@ -419,24 +432,6 @@ SELECT COUNT(*) FROM Album
 WHERE AlbumInfo.album_name = Album.album_name)
 WHERE AlbumInfo.band_name = 'Metallica'
 """:["ALBUM","ALBUMINFO"],
-"""
-SELECT FirstName, LastName,
-OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
-FROM Customer C
-""":["CUSTOMER","ORDER"],
-"""
-SELECT AlbumInfo.album_name, album_tracks,
-(SELECT COUNT(*) FROM Album
-WHERE Album.album_name = AlbumInfo.album_name)
-FROM  AlbumInfo
-WHERE AlbumInfo.band_name = 'Metallica'
-""":["ALBUM","ALBUMINFO"],
-"""
-SELECT SalesOrderID,
-LineTotal,
-(SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS AverageLineTotal, LineTotal - (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS Variance
-FROM   Sales.SalesOrderDetail
-""":["SALES.SALESORDERDETAIL"],
 """
 SELECT *
 FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
@@ -523,6 +518,11 @@ FROM AdventureWorks2008R2.Sales.SalesOrderHeader AS Ord
 
 
 examples["Focus"] = {
+"""
+SELECT FirstName, LastName,
+OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
+FROM Customer C
+""":["CUSTOMER","ORDER"],
 }
 
 def DisplayErrs(theDictNam,theDict):
