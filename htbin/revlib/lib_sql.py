@@ -324,7 +324,14 @@ def parse_sql_subselect(select_tables_txt, lili):
 	remtch_subselect = re.match( '^\s*\(\s*SELECT\s+(.*)', select_tables_txt, re.IGNORECASE )
 	if not remtch_subselect:
 		#print("parse_sql_subselect: Simple select="+select_tables_txt)
-		return parse_sql_select_inside(select_tables_txt,lili)
+		#return parse_sql_select_inside(select_tables_txt,lili)
+		remtch_subselect = re.match( '^\s*SELECT\s+(.*)', select_tables_txt, re.IGNORECASE )
+		if not remtch_subselect:
+			#print("parse_sql_subselect: Simple select="+select_tables_txt)
+			return parse_sql_select_inside(select_tables_txt,lili)
+
+
+
 
 	rest_select = remtch_subselect.group(1)
 	closing_par = closing_parenthesis( rest_select )
@@ -378,6 +385,7 @@ def parse_sql_subselect(select_tables_txt, lili):
 
 	remtch_intersect = re.match( '^\s*INTERSECT\s+(.*)', subqs_rest, re.IGNORECASE )
 	if remtch_intersect:
+		#print("INTERSECT="+remtch_intersect.group(1))
 		if not parse_sql_select( remtch_intersect.group(1),lili ):
 			return False
 		return True

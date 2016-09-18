@@ -731,6 +731,59 @@ SET Sales = 500
 WHERE Store_Name = 'Los Angeles'
 AND Txn_Date = 'Jan-08-1999'
 """ : ["STORE_INFORMATION"],
+"""
+SELECT Txn_Date FROM Store_Information
+INTERSECT
+SELECT Txn_Date FROM Internet_Sales
+""" : ["INTERNET_SALES","STORE_INFORMATION"],
+"""
+SELECT Txn_Date FROM Store_Information
+MINUS
+SELECT Txn_Date FROM Internet_Sales
+""" : ["INTERNET_SALES","STORE_INFORMATION"],
+"""
+SELECT COUNT(*)
+      FROM tutorial.crunchbase_acquisitions acquisitions
+      FULL JOIN tutorial.crunchbase_investments investments
+        ON acquisitions.acquired_month = investments.funded_month
+""": ["TUTORIAL.CRUNCHBASE_ACQUISITIONS","TUTORIAL.CRUNCHBASE_INVESTMENTS"],
+"""
+SELECT COALESCE(acquisitions.acquired_month, investments.funded_month) AS month,
+       COUNT(DISTINCT acquisitions.company_permalink) AS companies_acquired,
+       COUNT(DISTINCT investments.company_permalink) AS investments
+  FROM tutorial.crunchbase_acquisitions acquisitions
+  FULL JOIN tutorial.crunchbase_investments investments
+    ON acquisitions.acquired_month = investments.funded_month
+ GROUP BY 1
+""": ["TUTORIAL.CRUNCHBASE_ACQUISITIONS","TUTORIAL.CRUNCHBASE_INVESTMENTS"],
+"""
+SELECT wpoi.order_id As No_Commande
+FROM  wp_woocommerce_order_items AS wpoi
+LEFT JOIN wp_postmeta AS wpp ON wpoi.order_id = wpp.post_id
+                            AND wpp.meta_key = '_shipping_first_name'
+WHERE  wpoi.order_id =2198
+""":["WP_POSTMETA","WP_WOOCOMMERCE_ORDER_ITEMS"],
+"""
+select y.CategoryID,
+    y.CategoryName,
+    round(x.actual_unit_price, 2) as \"Actual Avg Unit Price\",
+    round(y.planned_unit_price, 2) as \"Would-Like Avg Unit Price\"
+from
+(
+    select avg(a.UnitPrice) as actual_unit_price, c.CategoryID
+    from order_details as a
+    inner join products as b on b.ProductID = a.ProductID
+    inner join categories as c on b.CategoryID = c.CategoryID
+    group by c.CategoryID
+) as x
+inner join
+(
+    select a.CategoryID, b.CategoryName, avg(a.UnitPrice) as planned_unit_price
+    from products as a
+    inner join categories as b on b.CategoryID = a.CategoryID
+    group by a.CategoryID
+) as y on x.CategoryID = y.CategoryID
+""":["CATEGORIES","ORDER_DETAILS","PRODUCTS"],
 }
 
 
@@ -743,6 +796,66 @@ AND Txn_Date = 'Jan-08-1999'
 
 examples["Focus"] = {
 }
+
+
+
+
+
+
+
+
+
+examples["Bad"] = {
+"""
+SELECT COUNT(*) AS total_rows
+  FROM (
+        SELECT *
+          FROM tutorial.crunchbase_investments_part1
+         UNION ALL
+        SELECT *
+          FROM tutorial.crunchbase_investments_part2
+       ) sub
+""": [],
+"""
+SELECT *
+  FROM tutorial.crunchbase_investments_part1
+ UNION ALL
+ SELECT *
+   FROM tutorial.crunchbase_investments_part2
+""": [],
+"""
+UPDATE AlbumInfo SET album_tracks =
+SELECT COUNT(*) FROM Album
+WHERE AlbumInfo.album_name = Album.album_name)
+WHERE AlbumInfo.band_name = 'Metallica'
+""":["ALBUM","ALBUMINFO"],
+"""
+SELECT *
+FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
+ORDER BY ORDER OF UTABLE
+""":["T1","T2"],
+
+"""
+SELECT Txn_Date FROM Store_Information
+UNION ALL
+SELECT Txn_Date FROM Internet_Sales
+""" : ["INTERNET_SALES","STORE_INFORMATION"],
+"""
+INSERT INTO Store_Information (Store_Name, Sales, Txn_Date)
+SELECT Store_Name, SUM(Sales), Txn_Date
+FROM Sales_Data
+GROUP BY Store_Name, Txn_Date
+""" : ["SALES_DATA","STORE_INFORMATION"],
+"""
+SELECT Store_Name, CASE Store_Name
+  WHEN 'Los Angeles' THEN Sales * 2
+  WHEN 'San Diego' THEN Sales * 1.5
+  ELSE Sales
+  END
+'New Sales',Txn_Date FROM Store_Information
+""" : ["SALES","STORE_INFORMATION"],
+}
+
 
 
 
@@ -778,113 +891,4 @@ else:
 		DisplayErrs(a,examples[a])
 
 print("Fini")
-
-
-
-
-
-
-
-examples["Bad"] = {
-"""
-SELECT COALESCE(acquisitions.acquired_month, investments.funded_month) AS month,
-       COUNT(DISTINCT acquisitions.company_permalink) AS companies_acquired,
-       COUNT(DISTINCT investments.company_permalink) AS investments
-  FROM tutorial.crunchbase_acquisitions acquisitions
-  FULL JOIN tutorial.crunchbase_investments investments
-    ON acquisitions.acquired_month = investments.funded_month
- GROUP BY 1
-""": [],
-"""
-SELECT COUNT(*)
-      FROM tutorial.crunchbase_acquisitions acquisitions
-      FULL JOIN tutorial.crunchbase_investments investments
-        ON acquisitions.acquired_month = investments.funded_month
-""": [],
-"""
-SELECT COUNT(*) AS total_rows
-  FROM (
-        SELECT *
-          FROM tutorial.crunchbase_investments_part1
-         UNION ALL
-        SELECT *
-          FROM tutorial.crunchbase_investments_part2
-       ) sub
-""": [],
-"""
-SELECT *
-  FROM tutorial.crunchbase_investments_part1
- UNION ALL
- SELECT *
-   FROM tutorial.crunchbase_investments_part2
-""": [],
-"""
-UPDATE AlbumInfo SET album_tracks =
-SELECT COUNT(*) FROM Album
-WHERE AlbumInfo.album_name = Album.album_name)
-WHERE AlbumInfo.band_name = 'Metallica'
-""":["ALBUM","ALBUMINFO"],
-"""
-SELECT *
-FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
-ORDER BY ORDER OF UTABLE
-""":["T1","T2"],
-"""
-SELECT wpoi.order_id As No_Commande
-FROM  wp_woocommerce_order_items AS wpoi
-LEFT JOIN wp_postmeta AS wpp ON wpoi.order_id = wpp.post_id
-                            AND wpp.meta_key = '_shipping_first_name'
-WHERE  wpoi.order_id =2198
-""":["WP_WOOCOMMERCE_ORDER_ITEMS","WP_POSTMETA"],
-"""
-select y.CategoryID,
-    y.CategoryName,
-    round(x.actual_unit_price, 2) as \"Actual Avg Unit Price\",
-    round(y.planned_unit_price, 2) as \"Would-Like Avg Unit Price\"
-from
-(
-    select avg(a.UnitPrice) as actual_unit_price, c.CategoryID
-    from order_details as a
-    inner join products as b on b.ProductID = a.ProductID
-    inner join categories as c on b.CategoryID = c.CategoryID
-    group by c.CategoryID
-) as x
-inner join
-(
-    select a.CategoryID, b.CategoryName, avg(a.UnitPrice) as planned_unit_price
-    from products as a
-    inner join categories as b on b.CategoryID = a.CategoryID
-    group by a.CategoryID
-) as y on x.CategoryID = y.CategoryID
-""":["CATEGORIES","ORDER_DETAILS","PRODUCTS"],
-"""
-SELECT Txn_Date FROM Store_Information
-UNION ALL
-SELECT Txn_Date FROM Internet_Sales
-""" : ["INTERNET_SALES","STORE_INFORMATION"],
-"""
-INSERT INTO Store_Information (Store_Name, Sales, Txn_Date)
-SELECT Store_Name, SUM(Sales), Txn_Date
-FROM Sales_Data
-GROUP BY Store_Name, Txn_Date
-""" : ["SALES_DATA","STORE_INFORMATION"],
-"""
-SELECT Txn_Date FROM Store_Information
-INTERSECT
-SELECT Txn_Date FROM Internet_Sales
-""" : ["INTERNET_SALES","STORE_INFORMATION"],
-"""
-SELECT Txn_Date FROM Store_Information
-MINUS
-SELECT Txn_Date FROM Internet_Sales
-""" : ["INTERNET_SALES","STORE_INFORMATION"],
-"""
-SELECT Store_Name, CASE Store_Name
-  WHEN 'Los Angeles' THEN Sales * 2
-  WHEN 'San Diego' THEN Sales * 1.5
-  ELSE Sales
-  END
-'New Sales',Txn_Date FROM Store_Information
-""" : ["SALES","STORE_INFORMATION"],
-}
 
