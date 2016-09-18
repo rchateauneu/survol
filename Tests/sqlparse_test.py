@@ -436,7 +436,349 @@ WHERE  r.reminder_id = 1
                                             )
 GROUP  BY r.reminder_id
 """:["AUTO_REMINDERS_MEMBERS"],
+"""
+select distinct a.CustomerID, a.CompanyName
+from customers as a
+inner join orders as b
+on a.CustomerID = b.CustomerID
+where b.ShipCountry = 'UK'
+""":["CUSTOMERS","ORDERS"],
+"""
+select distinct a.CustomerID, a.CompanyName
+from customers as a
+left join orders as b on a.CustomerID = b.CustomerID
+where b.ShipCountry = 'UK' or b.ShipCountry is null
+""":["CUSTOMERS","ORDERS"],
+"""
+select distinct a.ProductID, a.UnitPrice as Max_unit_price_sold
+from order_details as a
+inner join
+(
+    select ProductID, max(UnitPrice) as Max_unit_price_sold
+    from order_details
+    group by ProductID
+) as b
+on a.ProductID=b.ProductID and a.UnitPrice=b.Max_unit_price_sold
+order by a.ProductID
+""":["ORDER_DETAILS"],
+"""
+select distinct a.ProductID,
+       p.ProductName,
+       a.UnitPrice as Max_unit_price_sold
+from order_details as a
+inner join products as p on a.ProductID = p.ProductID
+where a.UnitPrice =
+(
+    select max(UnitPrice)
+    from order_details as b
+    where a.ProductID = b.ProductID
+)
+order by a.ProductID
+""":["ORDER_DETAILS","PRODUCTS"],
+"""
+select distinct a.ProductID, a.UnitPrice as Max_unit_price_sold
+from order_details as a
+inner join
+(
+    select ProductID, max(UnitPrice) as Max_unit_price_sold
+    from order_details
+    group by ProductID
+) as b
+on a.ProductID=b.ProductID and a.UnitPrice=b.Max_unit_price_sold
+order by a.ProductID
+""":["ORDER_DETAILS"],
+"""
+SELECT Ord.SalesOrderID, Ord.OrderDate,
+    (SELECT MAX(OrdDet.UnitPrice)
+     FROM AdventureWorks.Sales.SalesOrderDetail AS OrdDet
+     WHERE Ord.SalesOrderID = OrdDet.SalesOrderID) AS MaxUnitPrice
+FROM AdventureWorks2008R2.Sales.SalesOrderHeader AS Ord
+""":["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS2008R2.SALES.SALESORDERHEADER"],
+"""
+select x.ProductID,
+    y.ProductName,
+    x.max_unit_price
+from
+(
+    select ProductID, max(UnitPrice) as max_unit_price
+    from order_details
+    group by ProductID
+) as x
+inner join products as y on x.ProductID = y.ProductID
+""":["ORDER_DETAILS","PRODUCTS"],
+"""
+select ProductID,
+       ProductName,
+       concat((UnitsInStock / (select sum(UnitsInStock) from products))*100, '%')
+       as Percent_of_total_units_in_stock
+from products
+order by ProductID
+""":["PRODUCTS"],
+"""
+select ProductID,
+       ProductName,
+       concat((UnitsInStock / 3119)*100, '%')
+       as Percent_of_total_units_in_stock
+from products
+order by ProductID
+""":["PRODUCTS"],
+"""
+select CustomerID, CompanyName
+from customers as a
+where not exists
+(
+    select * from orders as b
+    where a.CustomerID = b.CustomerID
+    and ShipCountry <> 'UK'
+)
+""":["CUSTOMERS","ORDERS"],
+"""
+select CustomerID, CompanyName
+from customers
+where CustomerID in
+(
+    'BONAP',
+    'DRACD',
+    'ERNSH',
+    'LEHMS',
+    'LILAS',
+    'PERIC',
+    'QUEEN',
+    'RATTC',
+    'RICSU',
+    'SIMOB',
+    'TORTU'
+)
+""":["CUSTOMERS"],
+"""
+select a.OrderID,
+       a.CustomerID
+from orders as a
+where
+(
+    select Quantity
+    from order_details as b
+    where a.OrderID = b.OrderID and b.ProductID = 6
+) > 20
+""":["ORDERS","ORDER_DETAILS"],
+"""
+select CustomerID, CompanyName
+from customers as a
+where exists
+(
+    select * from orders as b
+    where a.CustomerID = b.CustomerID
+    and ShipCountry = 'UK'
+)
+""":["CUSTOMERS","ORDERS"],
+"""
+select CustomerID, CompanyName
+from customers
+where CustomerID in
+(
+   select CustomerID
+   from orders
+   where orderDate > '1998-05-01'
+)
+""":["CUSTOMERS","ORDERS"],
+"""
+select EmployeeID, FirstName, LastName, City, Country
+from employees
+where row(City, Country) in
+(select City, Country from customers)
+""":["CUSTOMERS","EMPLOYEES"],
+"""
+select distinct ProductID, UnitPrice as Max_unit_price_sold
+from order_details
+where row(ProductID, UnitPrice) in
+(
+    select ProductID, max(UnitPrice)
+    from order_details
+    group by ProductID
+)
+order by ProductID
+""":["ORDER_DETAILS"],
+"""
+SELECT CompanyName FROM Suppliers AS s
+WHERE EXISTS (SELECT * FROM Products p, Categories c
+WHERE p.SupplierID = s.SupplierID AND p.CategoryID = c.CategoryID AND CategoryName LIKE '*Dairy*')
+""":["CATEGORIES","PRODUCTS","SUPPLIERS"],
+"""
+select distinct a.ProductID,
+       a.UnitPrice as Max_unit_price_sold
+from order_details as a
+where a.UnitPrice =
+(
+    select max(UnitPrice)
+    from order_details as b
+    where a.ProductID = b.ProductID
+)
+order by a.ProductID
+""":["ORDER_DETAILS"],
+"""
+SELECT SUM (Sales) FROM Store_Information
+WHERE Store_Name IN
+(SELECT Store_Name FROM Geography
+WHERE Region_Name = 'West')
+""" : ["GEOGRAPHY","STORE_INFORMATION"],
+"""
+SELECT SUM (a1.Sales) FROM Store_Information a1
+WHERE a1.Store_Name IN
+(SELECT Store_Name FROM Geography a2
+WHERE a2.Store_Name = a1.Store_Name)
+""" : ["GEOGRAPHY","STORE_INFORMATION"],
+"""
+SELECT DECODE (Store_Name,
+  'Los Angeles', 'LA',
+  'San Francisco', 'SF',
+  'San Diego', 'SD',
+  'Others') Area, Sales, Txn_Date
+FROM Store_Information
+""" : ["STORE_INFORMATION"],
+"""
+INSERT INTO USER_TABLE VALUES ('Perry', 'Jonathan')
+""" : ["USER_TABLE"],
+"""
+CREATE TABLE USER_TABLE
+(Userid int PRIMARY KEY IDENTITY(2,1),
+Last_Name nvarchar(50),
+First_Name nvarchar(50))
+""" : ["USER_TABLE"],
+"""
+SELECT a1.Name, a1.Sales, COUNT (a2.Sales) Sales_Rank
+FROM Total_Sales a1, Total_Sales a2
+WHERE a1.Sales < a2.Sales OR (a1.Sales=a2.Sales AND a1.Name = a2.Name)
+GROUP BY a1.Name, a1.Sales
+ORDER BY a1.Sales DESC, a1.Name DESC
+""" : ["TOTAL_SALES"],
+"""
+SELECT Sales Median FROM
+(SELECT a1.Name, a1.Sales, COUNT(a1.Sales) Rank
+FROM Total_Sales a1, Total_Sales a2
+WHERE a1.Sales < a2.Sales OR (a1.Sales=a2.Sales AND a1.Name <= a2.Name)
+group by a1.Name, a1.Sales
+order by a1.Sales desc) a3
+WHERE Rank = (SELECT (COUNT(*)+1) DIV 2 FROM Total_Sales)
+""" : ["TOTAL_SALES"],
+"""
+SELECT a1.Name, a1.Sales, SUM(a2.Sales) Running_Total
+FROM Total_Sales a1, Total_Sales a2
+WHERE a1.Sales <= a2.sales or (a1.Sales=a2.Sales and a1.Name = a2.Name)
+GROUP BY a1.Name, a1.Sales
+ORDER BY a1.Sales DESC, a1.Name DESC
+""" : ["TOTAL_SALES"],
+"""
+SELECT a1.Name, a1.Sales, a1.Sales/(SELECT SUM(Sales) FROM Total_Sales) Pct_To_Total
+FROM Total_Sales a1, Total_Sales a2
+WHERE a1.Sales <= a2.sales or (a1.Sales=a2.Sales and a1.Name = a2.Name)
+GROUP BY a1.Name, a1.Sales
+ORDER BY a1.Sales DESC, a1.Name DESC
+""" : ["TOTAL_SALES"],
+"""
+SELECT a1.Name, a1.Sales, SUM(a2.Sales)/(SELECT SUM(Sales) FROM Total_Sales) Pct_To_Total
+FROM Total_Sales a1, Total_Sales a2
+WHERE a1.Sales <= a2.sales or (a1.Sales=a2.Sales and a1.Name = a2.Name)
+GROUP BY a1.Name, a1.Sales
+ORDER BY a1.Sales DESC, a1.Name DESC
+""" : ["TOTAL_SALES"],
+"""
+SELECT A1.Store_Name, SUM(A2.Sales) SALES
+FROM Geography A1, Store_Information A2
+WHERE A1.Store_Name = A2.Store_Name (+)
+GROUP BY A1.Store_Name
+""" : ["GEOGRAPHY","STORE_INFORMATION"],
+"""
+SELECT A1.Store_Name STORE1, A2.Store_Name STORE2, A2.Sales SALES
+FROM Geography A1
+JOIN Store_Information A2
+""" : ["GEOGRAPHY","STORE_INFORMATION"],
+"""
+SELECT Store_Name, Sales, Txn_Date
+FROM Store_Information
+ORDER BY Sales DESC
+LIMIT 2
+""" : ["STORE_INFORMATION"],
+"""
+SELECT SUM (Sales) FROM Store_Information
+WHERE Store_Name IN
+(SELECT Store_Name FROM Geography
+WHERE Region_Name = 'West')
+""" : ["GEOGRAPHY","STORE_INFORMATION"],
+"""
+SELECT SUM (a1.Sales) FROM Store_Information a1
+WHERE a1.Store_Name IN
+(SELECT Store_Name FROM Geography a2
+WHERE a2.Store_Name = a1.Store_Name)
+""" : ["GEOGRAPHY","STORE_INFORMATION"],
+"""
+SELECT A1.Store_Name Store, SUM(A1.Sales) AS "Total Sales"
+FROM Store_Information AS A1
+GROUP BY A1.Store_Name
+""" : ["STORE_INFORMATION"],
+"""
+SELECT Store_Name, SUM(Sales)
+FROM Store_Information
+GROUP BY Store_Name
+HAVING SUM(Sales) > 1500
+""" : ["STORE_INFORMATION"],
+"""
+DELETE FROM Store_Information
+WHERE Store_Name = 'Los Angeles'
+""" : ["STORE_INFORMATION"],
+"""
+UPDATE Store_Information
+SET Sales = 500
+WHERE Store_Name = 'Los Angeles'
+AND Txn_Date = 'Jan-08-1999'
+""" : ["STORE_INFORMATION"],
 }
+
+
+
+
+
+
+
+
+
+examples["Focus"] = {
+}
+
+
+
+def DisplayErrs(theDictNam,theDict):
+	errnum = 0
+	for sqlQry in theDict:
+		print("\nQUERY="+sqlQry+"\n")
+		resuXX = theDict[sqlQry]
+		resVec = lib_sql.extract_sql_tables(sqlQry)
+		resVec = [ s.upper() for s in resVec]
+		vecUp = resVec
+		vecUp.sort()
+		if resuXX != vecUp:
+			errnum += 1
+			# print("QQQQQQQQQQQQQQQ="+sqlQry)
+			print("Should be="+str(resuXX))
+			# print("Actual is="+str(resVec))
+			print("Result is="+str(vecUp))
+			print("")
+			print("")
+
+	lenTot = len(theDict)
+	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
+
+import sys
+if len(sys.argv) == 1:
+	for key in examples:
+		print(key)
+		DisplayErrs(key,examples[key])
+else:
+	for a in sys.argv[1:]:
+		print(a)
+		DisplayErrs(a,examples[a])
+
+print("Fini")
+
 
 
 
@@ -477,11 +819,6 @@ SELECT *
    FROM tutorial.crunchbase_investments_part2
 """: [],
 """
-SELECT CompanyName FROM Suppliers AS s
-WHERE EXISTS (SELECT * FROM Products p, Categories c
-WHERE p.SupplierID = s.SupplierID AND p.CategoryID = c.CategoryID AND CategoryName LIKE '*Dairy*')
-""":["CATEGORIES","PRODUCTS","SUPPLIERS"],
-"""
 UPDATE AlbumInfo SET album_tracks =
 SELECT COUNT(*) FROM Album
 WHERE AlbumInfo.album_name = Album.album_name)
@@ -493,61 +830,61 @@ FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
 ORDER BY ORDER OF UTABLE
 """:["T1","T2"],
 """
-SELECT Count(r.id) AS cnt_total,
-  SUM(CASE WHEN r1.action = 'notnow') THEN 1 ELSE 0 END) AS cnt_notnow,
-  SUM(CASE WHEN r1.action = 'insert') THEN 1 ELSE 0 END) AS cnt_insert,
-  SUM(CASE WHEN r1.action = 'update') THEN 1 ELSE 0 END) AS cnt_update,
-  SUM(CASE WHEN r1.action = 'verify') THEN 1 ELSE 0 END) AS cnt_verify,
-
-FROM   auto_reminders_members r
-WHERE  r.reminder_id = 1
-       AND r.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013', 101) AND
-                                            CONVERT(DATETIME,
-                                            '03/28/2013' + ' 23:59:59.997 ', 101
-                                            )
-GROUP  BY r.reminder_id
-""":["AUTO_REMINDERS_MEMBERS"],
+SELECT wpoi.order_id As No_Commande
+FROM  wp_woocommerce_order_items AS wpoi
+LEFT JOIN wp_postmeta AS wpp ON wpoi.order_id = wpp.post_id
+                            AND wpp.meta_key = '_shipping_first_name'
+WHERE  wpoi.order_id =2198
+""":["WP_WOOCOMMERCE_ORDER_ITEMS","WP_POSTMETA"],
 """
-SELECT Ord.SalesOrderID, Ord.OrderDate,
-    (SELECT MAX(OrdDet.UnitPrice)
-     FROM AdventureWorks.Sales.SalesOrderDetail AS OrdDet
-     WHERE Ord.SalesOrderID = OrdDet.SalesOrderID) AS MaxUnitPrice
-FROM AdventureWorks2008R2.Sales.SalesOrderHeader AS Ord
-""":["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS.SALES.SALESORDERHEADER"],
+select y.CategoryID,
+    y.CategoryName,
+    round(x.actual_unit_price, 2) as \"Actual Avg Unit Price\",
+    round(y.planned_unit_price, 2) as \"Would-Like Avg Unit Price\"
+from
+(
+    select avg(a.UnitPrice) as actual_unit_price, c.CategoryID
+    from order_details as a
+    inner join products as b on b.ProductID = a.ProductID
+    inner join categories as c on b.CategoryID = c.CategoryID
+    group by c.CategoryID
+) as x
+inner join
+(
+    select a.CategoryID, b.CategoryName, avg(a.UnitPrice) as planned_unit_price
+    from products as a
+    inner join categories as b on b.CategoryID = a.CategoryID
+    group by a.CategoryID
+) as y on x.CategoryID = y.CategoryID
+""":["CATEGORIES","ORDER_DETAILS","PRODUCTS"],
+"""
+SELECT Txn_Date FROM Store_Information
+UNION ALL
+SELECT Txn_Date FROM Internet_Sales
+""" : ["INTERNET_SALES","STORE_INFORMATION"],
+"""
+INSERT INTO Store_Information (Store_Name, Sales, Txn_Date)
+SELECT Store_Name, SUM(Sales), Txn_Date
+FROM Sales_Data
+GROUP BY Store_Name, Txn_Date
+""" : ["SALES_DATA","STORE_INFORMATION"],
+"""
+SELECT Txn_Date FROM Store_Information
+INTERSECT
+SELECT Txn_Date FROM Internet_Sales
+""" : ["INTERNET_SALES","STORE_INFORMATION"],
+"""
+SELECT Txn_Date FROM Store_Information
+MINUS
+SELECT Txn_Date FROM Internet_Sales
+""" : ["INTERNET_SALES","STORE_INFORMATION"],
+"""
+SELECT Store_Name, CASE Store_Name
+  WHEN 'Los Angeles' THEN Sales * 2
+  WHEN 'San Diego' THEN Sales * 1.5
+  ELSE Sales
+  END
+'New Sales',Txn_Date FROM Store_Information
+""" : ["SALES","STORE_INFORMATION"],
 }
 
-examples["Focus"] = {
-}
-
-def DisplayErrs(theDictNam,theDict):
-	errnum = 0
-	for sqlQry in theDict:
-		print("\nQUERY="+sqlQry+"\n")
-		resuXX = theDict[sqlQry]
-		resVec = lib_sql.extract_sql_tables(sqlQry)
-		resVec = [ s.upper() for s in resVec]
-		vecUp = resVec
-		vecUp.sort()
-		if resuXX != vecUp:
-			errnum += 1
-			# print("QQQQQQQQQQQQQQQ="+sqlQry)
-			print("Should be="+str(resuXX))
-			# print("Actual is="+str(resVec))
-			print("Sorted is="+str(vecUp))
-			print("")
-			print("")
-
-	lenTot = len(theDict)
-	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
-
-import sys
-if len(sys.argv) == 1:
-	for key in examples:
-		print(key)
-		DisplayErrs(key,examples[key])
-else:
-	for a in sys.argv[1:]:
-		print(a)
-		DisplayErrs(a,examples[a])
-
-print("Fini")
