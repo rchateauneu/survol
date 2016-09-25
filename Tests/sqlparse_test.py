@@ -52,23 +52,6 @@ examples["Good"] = {
 "select alias1.cola,alias2.colb from tab11 alias1, (select colb from tab22) alias2":["TAB11","TAB22"],
 "select cola from tab11, (select colb from tab22) alias2":["TAB11","TAB22"],
 "select cola,colc,colb from tab14,tab24 alias24":["TAB14","TAB24"],
-"""
-SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid
-  FROM v$session sess,
-	   v$sql     sql,
-	   v$process proc
- WHERE sql.sql_id(+) = sess.sql_id
-   AND sess.type     = 'USER'
-   and sess.paddr = proc.addr
-""":["V$PROCESS","V$SESSION","V$SQL"],
-"""
-SELECT distinct sess.sid, sess.username, sess.schemaname, proc.spid,pid,sess.osuser,sess.machine,sess.process,
-sess.port,proc.terminal,sess.program,proc.tracefile
-  FROM v$session sess,
-	   v$process proc
- WHERE sess.type     = 'USER'
-   and sess.paddr = proc.addr
-""":["V$PROCESS","V$SESSION"],
 "select tab1.cola,tab2.colb,tab3.colc from (select cola from tab1),(select colb from tab2),(select colc from tab3)":["TAB1","TAB2","TAB3"],
 "select cola,tab2.colb,tab3.colc from (select cola from tab1),(select colb from tab2),(select colc from tab3)":["TAB1","TAB2","TAB3"],
 "select ca,tab2.cb,tab3.cc from tab1,(select cb from tab2),(select cc from tab3)":["TAB1","TAB2","TAB3"],
@@ -87,7 +70,6 @@ sess.port,proc.terminal,sess.program,proc.tracefile
 select K.a,K.b from (select H.b from (select G.c from (select F.d from
 (select E.e from A, B, C, D, E), F), G), H), I, J, K order by 1,2;
 """ : ["A","B","C","D","E","F","G","H","I","J","K"],
-"SELECT * FROM table_name": ["TABLE_NAME"],
 "SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees": ["EMPLOYEES"],
 "SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees WHERE City = 'London'": ["EMPLOYEES"],
 "SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees WHERE HireDate >= '1-july-1993'": ["EMPLOYEES"],
@@ -407,11 +389,6 @@ LineTotal,
 (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS AverageLineTotal, LineTotal - (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS Variance
 FROM   Sales.SalesOrderDetail
 """:["SALES.SALESORDERDETAIL"],
-"""
-SELECT FirstName, LastName,
-OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
-FROM Customer C
-""":["CUSTOMER","ORDER"],
 """
 SELECT Count(r.id)                       AS cnt_total,
    (SELECT Count(r1.entity_id)
@@ -787,26 +764,31 @@ inner join
     group by a.CategoryID
 ) as y on x.CategoryID = y.CategoryID
 """:["CATEGORIES","ORDER_DETAILS","PRODUCTS"],
-}
-
-
-
-
-
-
-
-
-
-examples["Focus2"] = {
+"""
+SELECT Store_Name, CASE Store_Name
+  WHEN 'Los Angeles' THEN Sales * 2
+  WHEN 'San Diego' THEN Sales * 1.5
+  ELSE Sales
+  END
+'New Sales',Txn_Date FROM Store_Information
+""" : ["STORE_INFORMATION"],
+"""
+SELECT COUNT(*) AS total_rows
+  FROM (
+        SELECT *
+          FROM tutorial.crunchbase_investments_part1
+         UNION ALL
+        SELECT *
+          FROM tutorial.crunchbase_investments_part2
+       ) sub
+""": ["TUTORIAL.CRUNCHBASE_INVESTMENTS_PART1","TUTORIAL.CRUNCHBASE_INVESTMENTS_PART2"],
 """
 SELECT A1.Store_Name, SUM(A2.Sales) SALES
 FROM Geography A1, Store_Information A2
 WHERE A1.Store_Name = A2.Store_Name (+)
 GROUP BY A1.Store_Name
 """ : ["GEOGRAPHY","STORE_INFORMATION"],
-}
-
-examples["Focus"] = {
+"select cola,colb from (select colb from tab22) alias25,tab11 alias15":["TAB11","TAB22"],
 """
 SELECT *
   FROM tutorial.crunchbase_investments_part1
@@ -828,17 +810,35 @@ ORDER BY ORDER OF UTABLE
 
 
 
+examples["Focus"] = {
+}
+
+
+
 examples["Bad"] = {
+"SELECT * FROM table_name": ["TABLE_NAME"],
 """
-SELECT COUNT(*) AS total_rows
-  FROM (
-        SELECT *
-          FROM tutorial.crunchbase_investments_part1
-         UNION ALL
-        SELECT *
-          FROM tutorial.crunchbase_investments_part2
-       ) sub
-""": [],
+SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid
+  FROM v$session sess,
+	   v$sql     sql,
+	   v$process proc
+ WHERE sql.sql_id(+) = sess.sql_id
+   AND sess.type     = 'USER'
+   and sess.paddr = proc.addr
+""":["V$PROCESS","V$SESSION","V$SQL"],
+"""
+SELECT distinct sess.sid, sess.username, sess.schemaname, proc.spid,pid,sess.osuser,sess.machine,sess.process,
+sess.port,proc.terminal,sess.program,proc.tracefile
+  FROM v$session sess,
+	   v$process proc
+ WHERE sess.type     = 'USER'
+   and sess.paddr = proc.addr
+""":["V$PROCESS","V$SESSION"],
+"""
+SELECT FirstName, LastName,
+OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id)
+FROM Customer C
+""":["CUSTOMER","ORDER"],
 """
 UPDATE AlbumInfo SET album_tracks =
 SELECT COUNT(*) FROM Album
@@ -851,14 +851,6 @@ SELECT Store_Name, SUM(Sales), Txn_Date
 FROM Sales_Data
 GROUP BY Store_Name, Txn_Date
 """ : ["SALES_DATA","STORE_INFORMATION"],
-"""
-SELECT Store_Name, CASE Store_Name
-  WHEN 'Los Angeles' THEN Sales * 2
-  WHEN 'San Diego' THEN Sales * 1.5
-  ELSE Sales
-  END
-'New Sales',Txn_Date FROM Store_Information
-""" : ["SALES","STORE_INFORMATION"],
 }
 
 
@@ -872,6 +864,16 @@ regex_tab_nam = [
 	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + '\s*$',
 	'^(' + table_with_schemas_rgx + ')\s*$',
  ]
+
+def ParseAppend(tok,result,margin):
+	for rgx in regex_tab_nam:
+		remtch = re.match( rgx, tok.value, re.IGNORECASE )
+		if remtch:
+			#print(margin+"Match "+rgx)
+			tabNam = remtch.group(1)
+			result.append( tabNam )
+			return True
+	return False
 
 def IsNoise(tok):
 	return tok.ttype in [sqlparse.tokens.Whitespace,sqlparse.tokens.Punctuation,sqlparse.tokens.Whitespace.Newline]
@@ -892,47 +894,32 @@ def PrintTokens(sqlObj,margin=""):
 			if inFrom:
 				wasFrom = True
 
-			print(margin+"val="+tok.value+" "+str(tok.ttype)+" inFrom="+str(inFrom))
+			#print(margin+"val="+tok.value.strip()+" "+str(tok.ttype)+" inFrom="+str(inFrom)+" type="+str(type(tok)))
 			#continue
 
-			if False:
-				if inFrom:
-					print(margin+"second stage")
-					#tmpArr = PrintTokens(tok,margin)
-					#result.extend(tmpArr)
-
-					# Very special case due to a bug in sqlparse, where a table is named like a keyword.
-					if tok.value.upper() in ["ORDER","TABLE_NAME"] and tok.ttype == sqlparse.tokens.Keyword:
-						result.append( tok.value )
-						break
-
-					for subtok in tok.tokens:
-						if IsNoise(subtok):
-							continue
-						print(margin+"FROM:"+subtok.value+" => "+str(subtok.ttype))
-						for rgx in regex_tab_nam:
-							remtch = re.match( rgx, subtok.value, re.IGNORECASE )
-							if remtch:
-								print(margin+"Match "+rgx)
-								tabNam = remtch.group(1)
-								result.append( tabNam )
-								break
-					break
-
 			if wasFrom:
-				print(tok.ttype)
+				#print(tok.ttype)
 				if tok.ttype is not None:
 					wasFrom = False
 
 			if wasFrom:
-				print("FROM:"+tok.value+" => "+str(tok.ttype))
-				for rgx in regex_tab_nam:
-					remtch = re.match( rgx, tok.value, re.IGNORECASE )
-					if remtch:
-						print("Match "+rgx)
-						tabNam = remtch.group(1)
-						result.append( tabNam )
-						break
+				#print(margin+"FROM:"+tok.value.strip()+" => "+str(tok.ttype)+" type="+str(type(tok)))
+				if isinstance(tok,sqlparse.sql.Identifier):
+					if ParseAppend(tok,result,margin):
+						continue
+				elif isinstance(tok,sqlparse.sql.IdentifierList):
+					for subtok in tok.tokens:
+						if IsNoise(subtok):
+							continue
+						#print(margin+"subtok="+subtok.value)
+						if not ParseAppend(subtok,result,margin):
+							# Subselect ???
+							tmpArr = PrintTokens(subtok,margin)
+							result.extend(tmpArr)
+					continue
+				else:
+					#print("WHAT CAN I DO")
+					pass
 
 			inFrom = ( tok.ttype == sqlparse.tokens.Keyword ) \
 					 and tok.value.upper() in ["FROM","FULL JOIN","INNER JOIN","LEFT OUTER JOIN","LEFT JOIN","JOIN","FULL OUTER JOIN"]
@@ -973,18 +960,19 @@ def DisplayTablesAny(theDictNam,theDict,Func,dispAll):
 			print("Result is="+str(vecUp))
 			print("")
 			print("")
+			exit(1)
 
 	lenTot = len(theDict)
 	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
 
 
 ################################################################################
-DecodeFunc = extract_tables
 DecodeFunc = lib_sql.extract_sql_tables
+DecodeFunc = extract_tables
 
 ################################################################################
-dispAll = False
 dispAll = True
+dispAll = False
 
 if len(sys.argv) == 1:
 	for key in examples:
