@@ -1,4 +1,5 @@
 import sys
+import re
 sys.path.insert(1,r'C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\revlib')
 
 import sqlparse
@@ -6,11 +7,40 @@ import lib_sql
 
 examples = dict()
 
+examples["NoSelect"] = {
+"INSERT INTO table (nom_colonne_1, nom_colonne_2) VALUES ('valeur 1', 'valeur 2')" : ["TABLE"],
+"""
+DELETE FROM student WHERE name = 'alan'
+""":["STUDENT"],
+"""
+CREATE TABLE student (id INTEGER PRIMARY KEY , name TEXT, age INTEGER)
+""":["STUDENT"],
+"""
+INSERT INTO USER_TABLE VALUES ('Perry', 'Jonathan')
+""" : ["USER_TABLE"],
+"""
+CREATE TABLE USER_TABLE
+(Userid int PRIMARY KEY IDENTITY(2,1),
+Last_Name nvarchar(50),
+First_Name nvarchar(50))
+""" : ["USER_TABLE"],
+"""
+DELETE FROM Store_Information
+WHERE Store_Name = 'Los Angeles'
+""" : ["STORE_INFORMATION"],
+"""
+UPDATE Store_Information
+SET Sales = 500
+WHERE Store_Name = 'Los Angeles'
+AND Txn_Date = 'Jan-08-1999'
+""" : ["STORE_INFORMATION"],
+}
+
+
 examples["Good"] = {
 "select aa from bb": ["BB"],
 "select b from a": ["A"],
 "select b*(b+1) from a": ["A"],
-"INSERT INTO table (nom_colonne_1, nom_colonne_2) VALUES ('valeur 1', 'valeur 2')" : ["TABLE"],
 "select cola,colc,colb from tab13 alias13,tab23 alias23":["TAB13","TAB23"],
 "select alias1.cola,colb from tab1 alias1, (select colb from tab2)":["TAB1","TAB2"],
 "select alias25.cola from (select colb from tab22) alias25":["TAB22"],
@@ -195,21 +225,13 @@ SELECT COALESCE(acquisitions.month, investments.month) AS month,
 SELECT department_id, MIN (salary)
 FROM employees
 GROUP BY department_id
-HAVING MIN (salary)  < (SELECT AVG (salary)
-			FROM employees)
+HAVING MIN (salary)  < (SELECT AVG (salary) FROM employees)
 """:["EMPLOYEES"],
 """
-    SELECT column1 = (SELECT columnname FROM tablename WHERE condition),
-           columnnames
-      FROM tablename
-     WHERE condition
+SELECT column1 = (SELECT columnname FROM tablename WHERE condition), columnnames
+FROM tablename
+WHERE condition
 """:["TABLENAME"],
-"""
-DELETE FROM student WHERE name = 'alan'
-""":["STUDENT"],
-"""
-CREATE TABLE student (id INTEGER PRIMARY KEY , name TEXT, age INTEGER)
-""":["STUDENT"],
 "SELECT * FROM (SELECT salary, department_id FROM employees WHERE salary BETWEEN 1000 and 2000)":["EMPLOYEES"],
 "select cola from tab14 where cold in (select c from tab140)":["TAB14","TAB140"],
 """
@@ -636,15 +658,6 @@ SELECT DECODE (Store_Name,
 FROM Store_Information
 """ : ["STORE_INFORMATION"],
 """
-INSERT INTO USER_TABLE VALUES ('Perry', 'Jonathan')
-""" : ["USER_TABLE"],
-"""
-CREATE TABLE USER_TABLE
-(Userid int PRIMARY KEY IDENTITY(2,1),
-Last_Name nvarchar(50),
-First_Name nvarchar(50))
-""" : ["USER_TABLE"],
-"""
 SELECT a1.Name, a1.Sales, COUNT (a2.Sales) Sales_Rank
 FROM Total_Sales a1, Total_Sales a2
 WHERE a1.Sales < a2.Sales OR (a1.Sales=a2.Sales AND a1.Name = a2.Name)
@@ -722,16 +735,6 @@ GROUP BY Store_Name
 HAVING SUM(Sales) > 1500
 """ : ["STORE_INFORMATION"],
 """
-DELETE FROM Store_Information
-WHERE Store_Name = 'Los Angeles'
-""" : ["STORE_INFORMATION"],
-"""
-UPDATE Store_Information
-SET Sales = 500
-WHERE Store_Name = 'Los Angeles'
-AND Txn_Date = 'Jan-08-1999'
-""" : ["STORE_INFORMATION"],
-"""
 SELECT Txn_Date FROM Store_Information
 INTERSECT
 SELECT Txn_Date FROM Internet_Sales
@@ -794,14 +797,34 @@ inner join
 
 
 
-examples["Focus"] = {
+examples["Focus2"] = {
+"""
+SELECT A1.Store_Name, SUM(A2.Sales) SALES
+FROM Geography A1, Store_Information A2
+WHERE A1.Store_Name = A2.Store_Name (+)
+GROUP BY A1.Store_Name
+""" : ["GEOGRAPHY","STORE_INFORMATION"],
 }
 
-
-
-
-
-
+examples["Focus"] = {
+"""
+SELECT *
+  FROM tutorial.crunchbase_investments_part1
+ UNION ALL
+ SELECT *
+   FROM tutorial.crunchbase_investments_part2
+""": ["TUTORIAL.CRUNCHBASE_INVESTMENTS_PART1","TUTORIAL.CRUNCHBASE_INVESTMENTS_PART2"],
+"""
+SELECT Txn_Date FROM Store_Information
+UNION ALL
+SELECT Txn_Date FROM Internet_Sales
+""" : ["INTERNET_SALES","STORE_INFORMATION"],
+"""
+SELECT *
+FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
+ORDER BY ORDER OF UTABLE
+""":["T1","T2"],
+}
 
 
 
@@ -817,29 +840,11 @@ SELECT COUNT(*) AS total_rows
        ) sub
 """: [],
 """
-SELECT *
-  FROM tutorial.crunchbase_investments_part1
- UNION ALL
- SELECT *
-   FROM tutorial.crunchbase_investments_part2
-""": [],
-"""
 UPDATE AlbumInfo SET album_tracks =
 SELECT COUNT(*) FROM Album
 WHERE AlbumInfo.album_name = Album.album_name)
 WHERE AlbumInfo.band_name = 'Metallica'
 """:["ALBUM","ALBUMINFO"],
-"""
-SELECT *
-FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
-ORDER BY ORDER OF UTABLE
-""":["T1","T2"],
-
-"""
-SELECT Txn_Date FROM Store_Information
-UNION ALL
-SELECT Txn_Date FROM Internet_Sales
-""" : ["INTERNET_SALES","STORE_INFORMATION"],
 """
 INSERT INTO Store_Information (Store_Name, Sales, Txn_Date)
 SELECT Store_Name, SUM(Sales), Txn_Date
@@ -857,21 +862,113 @@ SELECT Store_Name, CASE Store_Name
 }
 
 
+################################################################################
 
+syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
+table_with_schemas_rgx = "[A-Za-z_][A-Za-z0-9_$\.-]*"
 
-def DisplayErrs(theDictNam,theDict):
+regex_tab_nam = [
+	'^(' + table_with_schemas_rgx + ')\s+AS\s+' + syno_rgx + '\s*$',
+	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + '\s*$',
+	'^(' + table_with_schemas_rgx + ')\s*$',
+ ]
+
+def IsNoise(tok):
+	return tok.ttype in [sqlparse.tokens.Whitespace,sqlparse.tokens.Punctuation,sqlparse.tokens.Whitespace.Newline]
+
+def PrintTokens(sqlObj,margin=""):
+	result = []
+
+	margin +="    "
+	if hasattr(sqlObj,"tokens"):
+		#print(margin.replace("=","*")+str(sqlObj.value)+" => " +str(sqlObj.ttype))
+
+		inFrom = False
+		wasFrom = False
+		for tok in sqlObj.tokens:
+			if IsNoise(tok):
+				continue
+
+			if inFrom:
+				wasFrom = True
+
+			print(margin+"val="+tok.value+" "+str(tok.ttype)+" inFrom="+str(inFrom))
+			#continue
+
+			if False:
+				if inFrom:
+					print(margin+"second stage")
+					#tmpArr = PrintTokens(tok,margin)
+					#result.extend(tmpArr)
+
+					# Very special case due to a bug in sqlparse, where a table is named like a keyword.
+					if tok.value.upper() in ["ORDER","TABLE_NAME"] and tok.ttype == sqlparse.tokens.Keyword:
+						result.append( tok.value )
+						break
+
+					for subtok in tok.tokens:
+						if IsNoise(subtok):
+							continue
+						print(margin+"FROM:"+subtok.value+" => "+str(subtok.ttype))
+						for rgx in regex_tab_nam:
+							remtch = re.match( rgx, subtok.value, re.IGNORECASE )
+							if remtch:
+								print(margin+"Match "+rgx)
+								tabNam = remtch.group(1)
+								result.append( tabNam )
+								break
+					break
+
+			if wasFrom:
+				print(tok.ttype)
+				if tok.ttype is not None:
+					wasFrom = False
+
+			if wasFrom:
+				print("FROM:"+tok.value+" => "+str(tok.ttype))
+				for rgx in regex_tab_nam:
+					remtch = re.match( rgx, tok.value, re.IGNORECASE )
+					if remtch:
+						print("Match "+rgx)
+						tabNam = remtch.group(1)
+						result.append( tabNam )
+						break
+
+			inFrom = ( tok.ttype == sqlparse.tokens.Keyword ) \
+					 and tok.value.upper() in ["FROM","FULL JOIN","INNER JOIN","LEFT OUTER JOIN","LEFT JOIN","JOIN","FULL OUTER JOIN"]
+
+			tmpArr = PrintTokens(tok,margin)
+			result.extend(tmpArr)
+
+	return result
+
+def extract_tables(sql):
+	statements = list(sqlparse.parse(sql))
+	allTabs = []
+	for sqlQry in statements:
+		result = PrintTokens(sqlQry)
+		uniqRes = sorted(set( res.upper() for res in result))
+		allTabs.extend(uniqRes)
+
+	return allTabs
+
+################################################################################
+
+def DisplayTablesAny(theDictNam,theDict,Func,dispAll):
 	errnum = 0
 	for sqlQry in theDict:
-		print("\nQUERY="+sqlQry+"\n")
-		resuXX = theDict[sqlQry]
-		resVec = lib_sql.extract_sql_tables(sqlQry)
+		if dispAll:
+			print("\nQUERY="+sqlQry+"\n")
+		expectedTables = theDict[sqlQry]
+		resVec = Func(sqlQry)
 		resVec = [ s.upper() for s in resVec]
 		vecUp = resVec
 		vecUp.sort()
-		if resuXX != vecUp:
+		if expectedTables != vecUp:
 			errnum += 1
-			# print("QQQQQQQQQQQQQQQ="+sqlQry)
-			print("Should be="+str(resuXX))
+			if not dispAll:
+				print("\nQUERY="+sqlQry+"\n")
+			print("Should be="+str(expectedTables))
 			# print("Actual is="+str(resVec))
 			print("Result is="+str(vecUp))
 			print("")
@@ -880,15 +977,23 @@ def DisplayErrs(theDictNam,theDict):
 	lenTot = len(theDict)
 	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
 
-import sys
+
+################################################################################
+DecodeFunc = extract_tables
+DecodeFunc = lib_sql.extract_sql_tables
+
+################################################################################
+dispAll = False
+dispAll = True
+
 if len(sys.argv) == 1:
 	for key in examples:
 		print(key)
-		DisplayErrs(key,examples[key])
+		DisplayTablesAny(key,examples[key],DecodeFunc,dispAll)
 else:
 	for a in sys.argv[1:]:
 		print(a)
-		DisplayErrs(a,examples[a])
+		DisplayTablesAny(a,examples[a],DecodeFunc,dispAll)
 
 print("Fini")
 

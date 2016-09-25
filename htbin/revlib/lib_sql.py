@@ -557,7 +557,7 @@ def parse_sql_select_inside(select_tables_txt,lili):
 
 			# Here, the rest of will start by ",", "JOIN", "LEFT AFTER JOIN" etc...
 			select_tables_txt_with_left_separators = remtch_select_table_nowhere.group(2)
-			mtch_left_sep = re.match("\s*(,|JOIN|LEFT\s+JOIN|LEFT\s+OUTER\s+JOIN|FULL\s+OUTER\s+JOIN|FULL\s+JOIN|INNER\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
+			mtch_left_sep = re.match("\s*(,|UNION\s+ALL|JOIN|LEFT\s+JOIN|LEFT\s+OUTER\s+JOIN|FULL\s+OUTER\s+JOIN|FULL\s+JOIN|INNER\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
 			if mtch_left_sep:
 				# print("MATCHED JOIN OR COMMA")
 				select_tables_txt=mtch_left_sep.group(2)
@@ -660,33 +660,37 @@ def extract_sql_tables(sql):
 	return tmpList
 
 
-
-
-
-
 ################################################################################
 
 
 # We need this.
 import sqlparse
+
+
+#Afficher la requete SQL sous la forme d un arbre dont les brqanches sont
+#les sous-requetes. Pour ca, on va d abord utiliser sqlparse et afficher recursivement
+#l arbre genere.
+
+
 ################################################################################
 
-
-# On va changer le type ???
+# These regular expresssions are used to detect SQL queries in plain text.
+# TODO: This is not really appropriate because several regex might be used
+# for the same type of querie. Also, it might be simpler and faster
+# to use dedicated functions for this plain text exploration.
+# For example by searching for "SELECT" then "FROM" etc...
 theRegExs = {
 	"SELECT": "select ",
 	"INSERT": "insert "
 }
-
-
+#
 def SqlRegularExpressions():
 	return theRegExs
 
-
 ################################################################################
-
-def SqlQueryToObjects(sqlQuery):
-	return
+#
+# def SqlQueryToObjects(sqlQuery):
+# 	return
 
 ################################################################################
 ################################################################################
