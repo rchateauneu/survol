@@ -806,8 +806,85 @@ SELECT *
 FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
 ORDER BY ORDER OF UTABLE
 """:["T1","T2"],
+"""
+UPDATE AlbumInfo SET album_tracks =
+SELECT COUNT(*) FROM Album
+WHERE AlbumInfo.album_name = Album.album_name)
+WHERE AlbumInfo.band_name = 'Metallica'
+""":["ALBUM","ALBUMINFO"],
+"""
+UPDATE Sales_Import
+SET Sales_Import.AccountNumber = RAN.AccountNumber
+FROM Sales_Import SI
+INNER JOIN RetrieveAccountNumber RAN
+ON SI.LeadID = RAN.LeadID
+""":["RETRIEVEACCOUNTNUMBER","SALES_IMPORT"],
+"""
+UPDATE Sales_Import SI, RetrieveAccountNumber RAN
+SET SI.AccountNumber = RAN.AccountNumber
+WHERE SI.LeadID = RAN.LeadID
+""":["RETRIEVEACCOUNTNUMBER","SALES_IMPORT"],
+"""
+update foo set    foo.new = (select bar.new
+from bar where foo.key = bar.key)
+where exists (select 1
+from bar where foo.key = bar.key)
+""":["BAR","FOO"],
+"""
+UPDATE Sales_Import SI,RetrieveAccountNumber RAN
+SET SI.AccountNumber = RAN.AccountNumber
+WHERE SI.LeadID = RAN.LeadID
+""":["RETRIEVEACCOUNTNUMBER","SALES_IMPORT"],
+"""
+UPDATE Sales_Import SI
+SET AccountNumber = RAN.AccountNumber
+FROM RetrieveAccountNumber RAN
+WHERE RAN.LeadID = SI.LeadID
+""":["RETRIEVEACCOUNTNUMBER","SALES_IMPORT"],
+"""
+UPDATE Sales_Import
+SET    AccountNumber = (SELECT RetrieveAccountNumber.AccountNumber
+FROM   RetrieveAccountNumber
+WHERE  Sales_Import.leadid =RetrieveAccountNumber.LeadID)
+WHERE Sales_Import.leadid = (SELECT  RetrieveAccountNumber.LeadID
+FROM   RetrieveAccountNumber
+WHERE  Sales_Import.leadid = RetrieveAccountNumber.LeadID)
+""":["RETRIEVEACCOUNTNUMBER","SALES_IMPORT"],
+"""
+UPDATE application SET omts_received_date =
+(SELECT date_created FROM application_history
+WHERE application.id = application_history.application_id AND application_history.application_status_id = 8)
+""":["APPLICATION","APPLICATION_HISTORY"],
+"""
+UPDATE table1 SET table1.column = 'some_new_val' WHERE table1.id IN (
+SELECT * FROM (
+SELECT table1.id FROM  table1
+LEFT JOIN table2 ON ( table2.column = table1.column )
+WHERE table1.column = 'some_expected_val'
+AND table12.column IS NULL
+) AS Xalias )
+""":["TABLE1","TABLE2"],
+"""
+UPDATE table1 SET table1.column = 'some_new_val' WHERE table1.id IN (
+SELECT *
+FROM ( SELECT table1.id FROM  table1 JOIN table2 ON ( table2.column = table1.column )
+		WHERE table1.column = 'some_expected_val'
+) AS Xalias )
+""":["TABLE1","TABLE2"],
+"""
+UPDATE Table1 t1, Table2 t2
+SET t1.column = t2.column WHERE t1.ID = t2.ID
+""":["TABLE1","TABLE2"],
+"""
+UPDATE TableOne
+SET
+field1 =(SELECT TableTwo.field1 FROM TableTwo WHERE TableOne.id=TableTwo.id),
+field2 =(SELECT TableTwo.field2 FROM TableTwo WHERE TableOne.id=TableTwo.id)
+WHERE TableOne.id = (SELECT  TableTwo.id
+FROM   TableTwo
+WHERE  TableOne.id = TableTwo.id)
+""":["TABLEONE","TABLETWO"],
 }
-
 
 
 examples["Focus"] = {
@@ -815,7 +892,24 @@ examples["Focus"] = {
 
 
 
+
 examples["Bad"] = {
+"""
+UPDATE t1 SET t1.column = t2.column
+FROM Table1 t1 INNER JOIN Table2 t2 ON t1.id = t2.id
+""":["TABLE1","TABLE2"],
+"""
+UPDATE t1 SET t1.colmun = t2.column
+FROM Table1 t1, Table2 t2 WHERE t1.ID = t2.ID
+""":["TABLE1","TABLE2"],
+"""
+MERGE INTO Sales_Import
+   USING RetrieveAccountNumber
+      ON Sales_Import.LeadID = RetrieveAccountNumber.LeadID
+WHEN MATCHED THEN
+   UPDATE
+      SET AccountNumber = RetrieveAccountNumber.AccountNumber
+""":[],
 "SELECT * FROM table_name": ["TABLE_NAME"],
 """
 SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid
@@ -853,7 +947,6 @@ GROUP BY Store_Name, Txn_Date
 """ : ["SALES_DATA","STORE_INFORMATION"],
 }
 
-
 ################################################################################
 
 syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
@@ -870,17 +963,15 @@ def ParseAppend(tok,result,margin):
 		remtch = re.match( rgx, tok.value, re.IGNORECASE )
 		if remtch:
 			#print(margin+"Match "+rgx)
-			tabNam = remtch.group(1)
-			result.append( tabNam )
+			result.append( remtch.group(1) )
 			return True
 	return False
 
 def IsNoise(tok):
 	return tok.ttype in [sqlparse.tokens.Whitespace,sqlparse.tokens.Punctuation,sqlparse.tokens.Whitespace.Newline]
 
-def PrintTokens(sqlObj,margin=""):
+def ProcessSelectTokens(sqlObj,margin=""):
 	result = []
-
 	margin +="    "
 	if hasattr(sqlObj,"tokens"):
 		#print(margin.replace("=","*")+str(sqlObj.value)+" => " +str(sqlObj.ttype))
@@ -914,8 +1005,7 @@ def PrintTokens(sqlObj,margin=""):
 						#print(margin+"subtok="+subtok.value)
 						if not ParseAppend(subtok,result,margin):
 							# Subselect ???
-							tmpArr = PrintTokens(subtok,margin)
-							result.extend(tmpArr)
+							result += ProcessSelectTokens(subtok,margin)
 					continue
 				else:
 					#print("WHAT CAN I DO")
@@ -924,16 +1014,89 @@ def PrintTokens(sqlObj,margin=""):
 			inFrom = ( tok.ttype == sqlparse.tokens.Keyword ) \
 					 and tok.value.upper() in ["FROM","FULL JOIN","INNER JOIN","LEFT OUTER JOIN","LEFT JOIN","JOIN","FULL OUTER JOIN"]
 
-			tmpArr = PrintTokens(tok,margin)
-			result.extend(tmpArr)
+			result += ProcessSelectTokens(tok,margin)
 
 	return result
 
-def extract_tables(sql):
+def ProcessUpdateTokens(sqlObj,margin=""):
+	idx = 0
+	keywrdFound = False
+	for idx in range(0,len(sqlObj.tokens)):
+		tok = sqlObj.tokens[idx]
+
+		if IsNoise(tok):
+			continue
+
+		if keywrdFound:
+			result = ProcessSelectTokens( sqlObj)
+
+
+
+			print("updtok="+tok.value)
+			if isinstance(tok,sqlparse.sql.Identifier):
+				if ParseAppend(tok, result, margin):
+					return result
+			elif isinstance(tok, sqlparse.sql.IdentifierList):
+				for subtok in tok.tokens:
+					if IsNoise(subtok):
+						continue
+					# print(margin+"subtok="+subtok.value)
+					if not ParseAppend(subtok, result, margin):
+						# Subselect ???
+						result += ProcessSelectTokens(subtok, margin)
+				return result
+
+		if tok.ttype == sqlparse.tokens.Keyword.DML:
+			if tok.value.upper() != "UPDATE":
+				return ["NonSense"]
+			keywrdFound = True
+
+	return ["Nothing"]
+
+def ProcessDeleteTokens(sqlObj,margin=""):
+	result = []
+
+	margin +="    "
+	return ProcessSelectTokens(sqlObj,margin)
+
+def ProcessInsertTokens(sqlObj,margin=""):
+	result = []
+
+	margin +="    "
+	return ProcessSelectTokens(sqlObj,margin)
+
+def ProcessCreateTokens(sqlObj,margin=""):
+	result = []
+
+	margin +="    "
+	return ProcessSelectTokens(sqlObj,margin)
+
+statementToFunc = {
+		"SELECT":ProcessSelectTokens,
+		"UPDATE":ProcessUpdateTokens,
+		"DELETE":ProcessDeleteTokens,
+		"INSERT":ProcessInsertTokens,
+		"CREATE":ProcessCreateTokens,
+}
+
+def GetStatementType(sqlQry):
+	for tok in sqlQry.tokens:
+		if tok.ttype == sqlparse.tokens.Keyword.DML:
+			return tok.value.upper()
+		pass
+	return ""
+
+def ProcessStatements(sql):
 	statements = list(sqlparse.parse(sql))
 	allTabs = []
 	for sqlQry in statements:
-		result = PrintTokens(sqlQry)
+		if sqlQry.value.strip() == "":
+			continue
+		print(sqlQry.value)
+		queryType = GetStatementType(sqlQry)
+		#print("XX="+queryType)
+		func = statementToFunc[queryType]
+		result = func(sqlQry)
 		uniqRes = sorted(set( res.upper() for res in result))
 		allTabs.extend(uniqRes)
 
@@ -960,7 +1123,7 @@ def DisplayTablesAny(theDictNam,theDict,Func,dispAll):
 			print("Result is="+str(vecUp))
 			print("")
 			print("")
-			exit(1)
+			#exit(1)
 
 	lenTot = len(theDict)
 	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
@@ -968,7 +1131,7 @@ def DisplayTablesAny(theDictNam,theDict,Func,dispAll):
 
 ################################################################################
 DecodeFunc = lib_sql.extract_sql_tables
-DecodeFunc = extract_tables
+DecodeFunc = ProcessStatements
 
 ################################################################################
 dispAll = True
