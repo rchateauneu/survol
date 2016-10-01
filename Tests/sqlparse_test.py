@@ -1191,13 +1191,24 @@ GROUP BY Store_Name, Txn_Date
 
 ################################################################################
 
-def DisplayTablesAny(theDictNam,theDict,Func,dispAll):
+def DispSqlNode(sqlNode,depth):
+	if depth == 0:
+		print( ("\t" * depth) + sqlNode)
+	else:
+		print( ("\t" * depth) + sqlNode.replace("\n"," ").replace("  "," ").replace("  "," "))
+
+def DisplayTablesAny(theDictNam,theDict,dispAll):
 	errnum = 0
 	for sqlQry in theDict:
 		if dispAll:
 			print("\nQUERY="+sqlQry+"\n")
+			lib_sql.DispTreeQuery(sqlQry)
 		expectedTables = theDict[sqlQry]
-		resVec = Func(sqlQry)
+
+		lib_sql.SqlQueryWalkNodes(sqlQry,DispSqlNode)
+		print("")
+
+		resVec = lib_sql.TableDependencies(sqlQry)
 		resVec = [ s.upper() for s in resVec]
 		vecUp = resVec
 		vecUp.sort()
@@ -1215,22 +1226,19 @@ def DisplayTablesAny(theDictNam,theDict,Func,dispAll):
 	lenTot = len(theDict)
 	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
 
-
-################################################################################
-DecodeFunc = lib_sql.ProcessStatements
-
 ################################################################################
 dispAll = True
 dispAll = False
 
+
 if len(sys.argv) == 1:
 	for key in examples:
 		print(key)
-		DisplayTablesAny(key,examples[key],DecodeFunc,dispAll)
+		DisplayTablesAny(key,examples[key],dispAll)
 else:
 	for a in sys.argv[1:]:
 		print(a)
-		DisplayTablesAny(a,examples[a],DecodeFunc,dispAll)
+		DisplayTablesAny(a,examples[a],dispAll)
 
 print("Fini")
 

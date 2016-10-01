@@ -216,12 +216,14 @@ import sqlparse
 syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
 table_with_schemas_rgx = "[A-Za-z_][A-Za-z0-9_$\.-]*"
 
+# This match a table name or a an alias definition.
 regex_tab_nam = [
 	'^(' + table_with_schemas_rgx + ')\s+AS\s+' + syno_rgx + '\s*$',
 	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + '\s*$',
 	'^(' + table_with_schemas_rgx + ')\s*$',
  ]
 
+# The input token contains a table name or an alias definition.
 def ParseAppend(tok,result,margin):
 	for rgx in regex_tab_nam:
 		remtch = re.match( rgx, tok.value, re.IGNORECASE )
@@ -234,9 +236,10 @@ def ParseAppend(tok,result,margin):
 def IsNoise(tok):
 	return tok.ttype in [sqlparse.tokens.Whitespace,sqlparse.tokens.Punctuation,sqlparse.tokens.Whitespace.Newline]
 
-def ProcessSelectTokens(sqlObj,margin=""):
+# The margin is only for debugging and display purpose.
+def ProcessSelectTokens(sqlObj,depth = 0):
 	result = []
-	margin +="    "
+	depth += 1
 	if hasattr(sqlObj,"tokens"):
 		#print(margin.replace("=","*")+str(sqlObj.value)+" => " +str(sqlObj.ttype))
 
@@ -260,16 +263,16 @@ def ProcessSelectTokens(sqlObj,margin=""):
 			if wasFrom:
 				#print(margin+"FROM:"+tok.value.strip()+" => "+str(tok.ttype)+" type="+str(type(tok)))
 				if isinstance(tok,sqlparse.sql.Identifier):
-					if ParseAppend(tok,result,margin):
+					if ParseAppend(tok,result,depth):
 						continue
 				elif isinstance(tok,sqlparse.sql.IdentifierList):
 					for subtok in tok.tokens:
 						if IsNoise(subtok):
 							continue
 						#print(margin+"subtok="+subtok.value)
-						if not ParseAppend(subtok,result,margin):
+						if not ParseAppend(subtok,result,depth):
 							# Subselect ???
-							result += ProcessSelectTokens(subtok,margin)
+							result += ProcessSelectTokens(subtok,depth)
 					continue
 				else:
 					#print("WHAT CAN I DO")
@@ -278,11 +281,11 @@ def ProcessSelectTokens(sqlObj,margin=""):
 			inFrom = ( tok.ttype == sqlparse.tokens.Keyword ) \
 					 and tok.value.upper() in ["FROM","FULL JOIN","INNER JOIN","LEFT OUTER JOIN","LEFT JOIN","JOIN","FULL OUTER JOIN"]
 
-			result += ProcessSelectTokens(tok,margin)
+			result += ProcessSelectTokens(tok,depth)
 
 	return result
 
-def ProcessUpdateTokens(sqlObj,margin=""):
+def ProcessUpdateTokens(sqlObj,depth=0):
 	idx = 0
 	keywrdFound = False
 	for idx in range(0,len(sqlObj.tokens)):
@@ -296,16 +299,16 @@ def ProcessUpdateTokens(sqlObj,margin=""):
 
 			#print("updtok="+tok.value)
 			if isinstance(tok,sqlparse.sql.Identifier):
-				if ParseAppend(tok, result, margin):
+				if ParseAppend(tok, result, depth):
 					return result
 			elif isinstance(tok, sqlparse.sql.IdentifierList):
 				for subtok in tok.tokens:
 					if IsNoise(subtok):
 						continue
 					# print(margin+"subtok="+subtok.value)
-					if not ParseAppend(subtok, result, margin):
+					if not ParseAppend(subtok, result, depth):
 						# Subselect ???
-						result += ProcessSelectTokens(subtok, margin)
+						result += ProcessSelectTokens(subtok, depth)
 				return result
 
 		if tok.ttype == sqlparse.tokens.Keyword.DML:
@@ -315,23 +318,14 @@ def ProcessUpdateTokens(sqlObj,margin=""):
 
 	return ["Nothing"]
 
-def ProcessDeleteTokens(sqlObj,margin=""):
-	result = []
+def ProcessDeleteTokens(sqlObj,depth=0):
+	return ProcessSelectTokens(sqlObj,depth + 1)
 
-	margin +="    "
-	return ProcessSelectTokens(sqlObj,margin)
+def ProcessInsertTokens(sqlObj,depth=0):
+	return ProcessSelectTokens(sqlObj,depth + 1)
 
-def ProcessInsertTokens(sqlObj,margin=""):
-	result = []
-
-	margin +="    "
-	return ProcessSelectTokens(sqlObj,margin)
-
-def ProcessCreateTokens(sqlObj,margin=""):
-	result = []
-
-	margin +="    "
-	return ProcessSelectTokens(sqlObj,margin)
+def ProcessCreateTokens(sqlObj,depth=0):
+	return ProcessSelectTokens(sqlObj,depth + 1)
 
 statementToFunc = {
 		"SELECT":ProcessSelectTokens,
@@ -341,6 +335,7 @@ statementToFunc = {
 		"CREATE":ProcessCreateTokens,
 }
 
+# Returns "SELECT" etc.. based on the query type.
 def GetStatementType(sqlQry):
 	for tok in sqlQry.tokens:
 		if tok.ttype == sqlparse.tokens.Keyword.DML:
@@ -348,17 +343,18 @@ def GetStatementType(sqlQry):
 		pass
 	return ""
 
-def ProcessStatements(sql):
-	statements = list(sqlparse.parse(sql))
+# This returns the list of tables that a query depends on.
+def TableDependencies(sqlQuery):
+	statements = list(sqlparse.parse(sqlQuery))
 	allTabs = []
-	for sqlQry in statements:
-		if sqlQry.value.strip() == "":
+	for sqlObj in statements:
+		if sqlObj.value.strip() == "":
 			continue
-		print(sqlQry.value)
-		queryType = GetStatementType(sqlQry)
+		# print(sqlQry.value)
+		queryType = GetStatementType(sqlObj)
 		#print("XX="+queryType)
 		func = statementToFunc[queryType]
-		result = func(sqlQry)
+		result = func(sqlObj)
 		uniqRes = sorted(set( res.upper() for res in result))
 		allTabs.extend(uniqRes)
 
@@ -366,9 +362,38 @@ def ProcessStatements(sql):
 
 ################################################################################
 
+def IsSubSelect(parsed):
+	if not parsed.is_group:
+		return False
+
+	if not hasattr(parsed,"tokens"):
+		return False
+
+	for item in parsed.tokens:
+		if item.ttype is sqlparse.tokens.Keyword.DML and item.value.upper() == 'SELECT':
+			return True
+	return False
+
 #Afficher la requete SQL sous la forme d un arbre dont les brqanches sont
 #les sous-requetes. Pour ca, on va d abord utiliser sqlparse et afficher recursivement
 #l arbre genere.
+def SqlQueryWalkNodesRecurs(sqlObj,Func,depth):
+	if IsSubSelect(sqlObj):
+		Func( sqlObj.value, depth )
+	depth += 1
+	if hasattr(sqlObj,"tokens"):
+		for tok in sqlObj.tokens:
+			if IsNoise(tok):
+				continue
+
+			SqlQueryWalkNodesRecurs( tok, Func, depth )
+
+def SqlQueryWalkNodes(sqlQuery,Func):
+	statements = list(sqlparse.parse(sqlQuery))
+	for sqlObj in statements:
+		if sqlObj.value.strip() == "":
+			continue
+		SqlQueryWalkNodesRecurs( sqlObj, Func, 0)
 
 
 ################################################################################
