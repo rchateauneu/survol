@@ -207,465 +207,164 @@
 # on ne peut pas en faire grand'chose. Toutefois dans l avenir
 # ne pas s interdire de les exploiter a partir de RDF.
 
-
-
-#  NOT DONE YET: THIS PARSES SQL QUERIES AND EXTRACTS THE TABLES
-# THE PARSING WORKS-ISH BUT THIS IS NOT INTEGRATED IN THE
-# FRAMEWORK.
-# THIS CAN BE RELATED TO A OS PROCESS ...
-# ... OR AN ORACLE SESSION.
-# THEREFORE IT HAS TO GO TO A LIBRARY.
-
 import re
-
-# Returns the index of the end of the sub-expression, that is,
-# the position of the first closing parentheses which is not opened here.
-def closing_parenthesis(stri):
-	nb_par = 0
-	quoted_simple = False
-	quoted_double = False
-	escaped = False
-	lenStri = len(stri)
-	for idx in range( lenStri ):
-		ch = stri[idx]
-
-		if ch == '\\':
-			escaped = True
-			continue
-
-		if escaped:
-			escaped = False
-			continue
-
-		if ch == "'":
-			quoted_simple = not quoted_simple
-			continue
-
-		if quoted_simple:
-			continue
-
-		if ch == '"':
-			quoted_double = not quoted_double
-			continue
-
-		if quoted_double:
-			continue
-
-		if ch == '(':
-			nb_par += 1
-		elif ch == ')':
-			if nb_par == 0:
-				return idx
-			else:
-				nb_par -= 1
-	return lenStri
-
-def not_enclosed(stri,substr):
-	#print("subtr=["+substr+"]")
-	nb_par = 0
-	quoted_simple = False
-	quoted_double = False
-	escaped = False
-	lenStri = len(stri)
-	for idx in range( lenStri ):
-		ch = stri[idx]
-
-		if ch == '\\':
-			escaped = True
-			continue
-
-		if escaped:
-			escaped = False
-			continue
-
-		if ch == "'":
-			quoted_simple = not quoted_simple
-			continue
-
-		if quoted_simple:
-			continue
-
-		if ch == '"':
-			quoted_double = not quoted_double
-			continue
-
-		if quoted_double:
-			continue
-
-		if ch == '(':
-			nb_par += 1
-		elif ch == ')':
-			nb_par -= 1
-
-		#if stri[idx] == "F":
-		#	print("nb_par="+str(nb_par)+" str="+stri[idx:idx+20])
-		# This is not very efficient.
-		if nb_par == 0 and re.match( '^' + substr, stri[idx:], re.IGNORECASE ):
-		# if nb_par == 0 and stri[idx:idx + len(substr)].upper() == substr:
-			#print("Match substr="+substr+" idx="+str(idx))
-			return idx
-	return lenStri
-
-schema_rgx = "[A-Za-z_][A-Za-z0-9_$-]*"
-table_rgx = "[A-Za-z_][A-Za-z0-9_$-]*"
-syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
-where_rgx = '\s+WHERE'
-on_rgx = '\s+ON' # This is for the syntax " JOIN ... ON .."
-# schema_table_rgx = schema_rgx + '\.' + table_rgx
-table_with_schemas_rgx = "[A-Za-z_][A-Za-z0-9_$\.-]*"
-
-# TODO: Should probably start by splitting based on UNION, INTERSECT etc...
-# Anyway the syntax is really complicated.
-def parse_sql_subselect(select_tables_txt, lili):
-	#print("\nparse_sql_subselect="+select_tables_txt)
-
-	# Maybe it is a simple table followed by a comma etc...
-
-	remtch_subselect = re.match( '^\s*\(\s*SELECT\s+(.*)', select_tables_txt, re.IGNORECASE )
-	if not remtch_subselect:
-		#print("parse_sql_subselect: Simple select="+select_tables_txt)
-		#return parse_sql_select_inside(select_tables_txt,lili)
-		remtch_subselect = re.match( '^\s*SELECT\s+(.*)', select_tables_txt, re.IGNORECASE )
-		if not remtch_subselect:
-			#print("parse_sql_subselect: Simple select="+select_tables_txt)
-			return parse_sql_select_inside(select_tables_txt,lili)
-
-
-
-
-	rest_select = remtch_subselect.group(1)
-	closing_par = closing_parenthesis( rest_select )
-	#print("parse_sql_subselect: closing_par="+str(closing_par)+ " len="+str(len(rest_select) ))
-
-	subq = rest_select[ : closing_par ]
-	#print("\nparse_sql_subselect: subq="+subq)
-	if not parse_sql_select( subq,lili ):
-		return False
-
-	subqs_rest_comma = rest_select[ closing_par + 1 : ]
-	#print("\nparse_sql_subselect: subqs_rest_comma="+subqs_rest_comma)
-
-	# Now maybe there is a synonym and a parenthesis.
-	#print("Matching join:"+subqs_rest_comma)
-	remtch_suite = re.match('^\s*' + syno_rgx + '\s*(,|INNER\s+JOIN|FULL\s+JOIN|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
-	if not remtch_suite:
-		remtch_suite = re.match('^\s*AS\s+' + syno_rgx + '\s*(,|INNER\s+JOIN|FULL\s+JOIN|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
-
-
-	if remtch_suite:
-		subqs_rest = remtch_suite.group(2)
-		#print("\nparse_sql_subselect (syno and par): subqs_rest="+subqs_rest)
-	else:
-		# Maybe just the parenthesis
-		remtch_suite = re.match('^\s*(,|INNER\s+JOIN|FULL\s+JOIN|JOIN)\s*(.*)', subqs_rest_comma, re.IGNORECASE )
-		if remtch_suite:
-			subqs_rest = remtch_suite.group(2)
-			#print("\nparse_sql_subselect (syno): subqs_rest="+subqs_rest)
-		else:
-			# Maybe end of subselect ?
-			#print("\nparse_sql_subselect (syno): end of subselect: subqs_rest_comma="+subqs_rest_comma)
-			remtch_suite = re.match('^\s*' + syno_rgx , subqs_rest_comma, re.IGNORECASE )
-			if not remtch_suite:
-				remtch_suite = re.match('^\s*AS\s+' + syno_rgx , subqs_rest_comma, re.IGNORECASE )
-
-			if remtch_suite:
-				return True
-			remtch_suite = re.match('^\s*', subqs_rest_comma, re.IGNORECASE )
-			if remtch_suite:
-				return True
-			return False
-
-	#print("\nparse_sql_subselect: subqs_rest="+subqs_rest)
-
-	remtch_union = re.match( '^\s*UNION\s+(.*)', subqs_rest, re.IGNORECASE )
-	if remtch_union:
-		if not parse_sql_select( remtch_union.group(1),lili ):
-			return False
-		return True
-
-	remtch_intersect = re.match( '^\s*INTERSECT\s+(.*)', subqs_rest, re.IGNORECASE )
-	if remtch_intersect:
-		#print("INTERSECT="+remtch_intersect.group(1))
-		if not parse_sql_select( remtch_intersect.group(1),lili ):
-			return False
-		return True
-
-	remtch_minus = re.match( '^\s*MINUS\s+(.*)', subqs_rest, re.IGNORECASE )
-	if remtch_minus:
-		if not parse_sql_select( remtch_minus.group(1),lili ):
-			return False
-		return True
-
-	#print("Recursive subselect="+subqs_rest)
-	return parse_sql_subselect(subqs_rest,lili)
-
-# To extract the first table of the tables list in a SELECT statement.
-regex_select_tabs_list_where = (
-	'^(' + table_with_schemas_rgx + ')\s+AS\s+' + syno_rgx + where_rgx + '(.*)',
-	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + where_rgx + '(.*)',
-	'^(' + table_with_schemas_rgx + ')' + where_rgx + '(.*)',
-
-	# TODO: WRONG: This is for the syntax "FROM ... JOIN ... ON ..."
-	# "...INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID WHERE CategoryName = 'Condiments'"
-	'^(' + table_with_schemas_rgx + ')\s+AS\s+' + syno_rgx + on_rgx + '(.*)',
-	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + on_rgx + '(.*)',
-	'^(' + table_with_schemas_rgx + ')' + on_rgx + '(.*)',
-)
-
-regex_select_tabs_list_nowhere = (
-	'^(' + table_with_schemas_rgx + ')\s+AS\s+' + syno_rgx + '(.*)',
-	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + '(.*)',
-	'^(' + table_with_schemas_rgx + ')(.*)',
-)
-
-# This is the content of the select, the columns.
-def parse_content_select(content_select,lili):
-	# print("parse_content_select content_select="+content_select)
-	lenTot = len(content_select)
-
-	while content_select != "":
-		# The index of the first comma, not between quotes or parentheses.
-		idxComma = not_enclosed(content_select, ",")
-		if idxComma == lenTot:
-			select_column = content_select
-			content_select = ""
-		else:
-			select_column = content_select[:idxComma]
-			content_select = content_select[idxComma + 1:]
-
-		# This column might be a subselect.
-		#print("parse_content_select select_column="+select_column)
-		remtch_subselect = re.match( '^\s*\(\s*SELECT\s+(.*)', select_column, re.IGNORECASE )
-
-		if not remtch_subselect:
-			# Another attept with this syntax:
-			# "Select OrderCount = (SELECT COUNT(Id) FROM Order) FROM Customer C"
-			remtch_subselect = re.match( '^\s*[A-Za-z0-9_$-]+\s*=\s*\(\s*SELECT\s+(.*)', select_column, re.IGNORECASE )
-
-		if remtch_subselect:
-			#print("parse_content_select: Simple select="+select_column)
-
-			rest_select = remtch_subselect.group(1)
-			closing_par = closing_parenthesis( rest_select )
-			#print("parse_content_select: closing_par="+str(closing_par)+ " len="+str(len(rest_select) ))
-
-			subq = rest_select[ : closing_par ]
-			#print("parse_content_select: subq="+subq)
-			if not parse_sql_select( subq,lili ):
-				#print("parse_content_select: FAILED subq="+subq)
-				pass
-
-	return
-
-def truncate_group_order(rest_select):
-	# print("truncate_group_order rest_select="+rest_select)
-	len_rest_select = len(rest_select)
-
-	# We do not take into account an ordering statement.
-	idx_order_by = not_enclosed( rest_select, "ORDER\s+BY" )
-	#print("parse_sql_select idx_order_by="+str(idx_order_by)+" len_rest_select="+str(len_rest_select))
-	if idx_order_by != len_rest_select:
-		#print("parse_sql_select bad:"+rest_select)
-		rest_select = rest_select[:idx_order_by]
-
-	# TODO: Should search for "group by "
-	# We do not take into account an ordering statement.
-	idx_group_by = not_enclosed( rest_select, "GROUP " )
-	#print("parse_sql_select idx_order_by="+str(idx_group_by)+" len_rest_select="+str(len_rest_select))
-	if idx_group_by != len_rest_select:
-		#print("parse_sql_select bad:"+rest_select)
-		rest_select = rest_select[:idx_group_by]
-
-	return rest_select
-
-def parse_sql_select(rest_select,lili):
-	len_rest_select = len(rest_select)
-	#print("parse_sql_select:"+rest_select)
-
-	idx_from = not_enclosed( rest_select, "FROM\s" )
-	#print("parse_sql_select idx_from="+str(idx_from)+" len="+str(len_rest_select))
-	if idx_from == len_rest_select:
-		print("parse_sql_select bad:"+rest_select)
-		return False
-
-	# This removes only the end.
-	rest_select = truncate_group_order(rest_select)
-
-	content_select = rest_select[ : idx_from ]
-
-	parse_content_select(content_select,lili)
-
-	# After "FROM"
-	select_tables_txt = rest_select[ idx_from + 5: ]
-	select_tables_txt = select_tables_txt.strip()
-	#print("parse_sql_select select_tables_txt="+select_tables_txt)
-
-	return parse_sql_select_inside(select_tables_txt,lili)
-
-# This parse a where clause, looking for subselects.
-def parse_subselect_from_where(select_tables_txt_where_clause,lili):
-	#print("MAYBE SUBSELECT IN WHERE CLAUSE="+select_tables_txt_where_clause)
-
-	while select_tables_txt_where_clause != "":
-		remtch_subselect = re.match( '^.*\(\s*SELECT\s+(.*)', select_tables_txt_where_clause, re.IGNORECASE )
-		if not remtch_subselect:
-			break
-
-		rest_select = remtch_subselect.group(1)
-		closing_par = closing_parenthesis( rest_select )
-		#print("parse_sql_subselect: closing_par="+str(closing_par)+ " len="+str(len(rest_select) ))
-
-		subq = rest_select[ : closing_par ]
-		select_tables_txt_where_clause = rest_select[ closing_par + 1 : ]
-		#print("\nWHERE SUBSELECT MATCH: subq="+subq)
-
-		if not parse_sql_select( subq,lili ):
-			#print("CANNOT PARSE SUBSELECT IN WHERE CLAUSE:"+subq)
-			continue
-
-
-def parse_sql_select_inside(select_tables_txt,lili):
-	#print("parse_sql_select_inside select_tables_txt="+select_tables_txt)
-	while select_tables_txt != "":
-		#print("parse_sql_select_inside select_tables_txt=[" + select_tables_txt + "]")
-		for regex_select_table_where in regex_select_tabs_list_where:
-			remtch_select_table_where = re.match( regex_select_table_where, select_tables_txt, re.IGNORECASE )
-			if remtch_select_table_where:
-				break
-
-		if remtch_select_table_where:
-			lili.append( remtch_select_table_where.group(1) )
-
-			select_tables_txt_where_clause = remtch_select_table_where.group(2)
-
-			parse_subselect_from_where(select_tables_txt_where_clause,lili)
-
-			select_tables_txt = ""
-			continue
-
-		#print("regex_select_table_nowhere select_tables_txt="+select_tables_txt)
-		for regex_select_table_nowhere in regex_select_tabs_list_nowhere:
-			remtch_select_table_nowhere = re.match( regex_select_table_nowhere, select_tables_txt, re.IGNORECASE )
-			if remtch_select_table_nowhere:
-				#print("Regex:"+regex_select_table_nowhere)
-				break
-
-		if remtch_select_table_nowhere:
-			#print("Matched1:"+remtch_select_table_nowhere.group(1))
-			#print("Matched2:"+remtch_select_table_nowhere.group(2))
-			lili.append( remtch_select_table_nowhere.group(1) )
-
-			# Here, the rest of will start by ",", "JOIN", "LEFT AFTER JOIN" etc...
-			select_tables_txt_with_left_separators = remtch_select_table_nowhere.group(2)
-			mtch_left_sep = re.match("\s*(,|UNION\s+ALL|JOIN|LEFT\s+JOIN|LEFT\s+OUTER\s+JOIN|FULL\s+OUTER\s+JOIN|FULL\s+JOIN|INNER\s+JOIN)\s*(.*)",select_tables_txt_with_left_separators, re.IGNORECASE )
-			if mtch_left_sep:
-				# print("MATCHED JOIN OR COMMA")
-				select_tables_txt=mtch_left_sep.group(2)
-			else:
-				#print("NO JOIN NOR COMMA. Simply the end of the string.")
-				select_tables_txt = select_tables_txt_with_left_separators.lstrip( " \t" )
-
-
-		# Maybe a sub-query.
-		#print("parse_sql_select_inside Maybe a SubQuery:"+select_tables_txt)
-		if not parse_sql_subselect(select_tables_txt,lili):
-			# print("UNKNOWN")
-			return False
-		# We can end because parse_sql_subselect calls itself.
-		# In fact parse_sql_subselect() is enough.
-		# TODO: Simplify that.
-		select_tables_txt = ""
-
-	#print("parse_sql_select_inside leaving")
-	return True
-
-
-# Gets a SQL query and extracts the tables it depends on.
-def parse_sql(sql_text,lili):
-	sql_text = sql_text.lstrip( " \t" )
-
-	# This is a stored procedure, we do not process them yet,
-	# although it is possible.
-	remtch_begin = re.match( '^BEGIN .*', sql_text, re.IGNORECASE )
-	if remtch_begin:
-		return True
-
-	remtch_declare = re.match( '^DECLARE .*', sql_text, re.IGNORECASE )
-	if remtch_declare:
-		return True
-
-	# Queries are parsed, but this does not cover all cases.
-	# This assumes that queries are normalised: Uppercases, spaces etc...
-	# TODO: The insert columns
-	remtch_insert = re.match( '^INSERT INTO ([^ ]*)', sql_text, re.IGNORECASE )
-	if remtch_insert:
-		# print("INSERT")
-		lili.append( remtch_insert.group(1) )
-		# TODO: The inserted value might be a sub-query.
-		return True
-
-	remtch_delete = re.match( '^DELETE FROM ([^ ]*)', sql_text, re.IGNORECASE )
-	if remtch_delete:
-		lili.append( remtch_delete.group(1) )
-		return True
-
-	remtch_create_table = re.match( '^CREATE TABLE ([^ ]*)', sql_text, re.IGNORECASE )
-	if remtch_create_table:
-		lili.append( remtch_create_table.group(1) )
-		return True
-
-	remtch_update = re.match( '^UPDATE ([^ ]*)', sql_text, re.IGNORECASE )
-	if remtch_update:
-		lili.append( remtch_update.group(1) )
-		return True
-
-	# FIXME: This will match the last "FROM" even if this is in a sub-query.
-	remtch_select = re.match( '^SELECT\s+(.*)', sql_text, re.IGNORECASE )
-	if remtch_select:
-		if parse_sql_select( remtch_select.group(1), lili ):
-			return True
-
-	remtch_with = re.match( '^WITH ' + table_rgx + ' AS \((.*)', sql_text, re.IGNORECASE )
-	if remtch_with:
-		rest_with = remtch_with.group(1)
-		closing_par = closing_parenthesis( rest_with )
-
-		subqA = rest_with[ : closing_par ]
-
-		# It can only be a SELECT, this is a sub-query, and explicitly mentioned in the regex.
-		# print("\nSubQ1=" + subqA )
-
-		if not parse_sql( subqA ):
-			return False
-
-		# Probably a SELECT, not sure of what WITH accepts as query.
-		subqB = rest_with[ closing_par + 1 : ]
-		# print("\nSubQ2=" + subqB )
-		if not parse_sql( subqB ):
-			return False
-		return True
-
-	return False
-
-
-# On peut appeler ca sql_dependencies et en faire un module a part.
-
-
-def extract_sql_tables(sql):
-	sqlClean = sql.replace("\n"," ")
-	tmpList = []
-	parse_sql(sqlClean,tmpList)
-	# There might be duplicates.
-	tmpList = sorted(set(tmpList))
-	return tmpList
+import sqlparse
 
 
 ################################################################################
 
+syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
+table_with_schemas_rgx = "[A-Za-z_][A-Za-z0-9_$\.-]*"
 
-# We need this.
-import sqlparse
+regex_tab_nam = [
+	'^(' + table_with_schemas_rgx + ')\s+AS\s+' + syno_rgx + '\s*$',
+	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + '\s*$',
+	'^(' + table_with_schemas_rgx + ')\s*$',
+ ]
 
+def ParseAppend(tok,result,margin):
+	for rgx in regex_tab_nam:
+		remtch = re.match( rgx, tok.value, re.IGNORECASE )
+		if remtch:
+			#print(margin+"Match "+rgx)
+			result.append( remtch.group(1) )
+			return True
+	return False
+
+def IsNoise(tok):
+	return tok.ttype in [sqlparse.tokens.Whitespace,sqlparse.tokens.Punctuation,sqlparse.tokens.Whitespace.Newline]
+
+def ProcessSelectTokens(sqlObj,margin=""):
+	result = []
+	margin +="    "
+	if hasattr(sqlObj,"tokens"):
+		#print(margin.replace("=","*")+str(sqlObj.value)+" => " +str(sqlObj.ttype))
+
+		inFrom = False
+		wasFrom = False
+		for tok in sqlObj.tokens:
+			if IsNoise(tok):
+				continue
+
+			if inFrom:
+				wasFrom = True
+
+			#print(margin+"val="+tok.value.strip()+" "+str(tok.ttype)+" inFrom="+str(inFrom)+" type="+str(type(tok)))
+			#continue
+
+			if wasFrom:
+				#print(tok.ttype)
+				if tok.ttype is not None:
+					wasFrom = False
+
+			if wasFrom:
+				#print(margin+"FROM:"+tok.value.strip()+" => "+str(tok.ttype)+" type="+str(type(tok)))
+				if isinstance(tok,sqlparse.sql.Identifier):
+					if ParseAppend(tok,result,margin):
+						continue
+				elif isinstance(tok,sqlparse.sql.IdentifierList):
+					for subtok in tok.tokens:
+						if IsNoise(subtok):
+							continue
+						#print(margin+"subtok="+subtok.value)
+						if not ParseAppend(subtok,result,margin):
+							# Subselect ???
+							result += ProcessSelectTokens(subtok,margin)
+					continue
+				else:
+					#print("WHAT CAN I DO")
+					pass
+
+			inFrom = ( tok.ttype == sqlparse.tokens.Keyword ) \
+					 and tok.value.upper() in ["FROM","FULL JOIN","INNER JOIN","LEFT OUTER JOIN","LEFT JOIN","JOIN","FULL OUTER JOIN"]
+
+			result += ProcessSelectTokens(tok,margin)
+
+	return result
+
+def ProcessUpdateTokens(sqlObj,margin=""):
+	idx = 0
+	keywrdFound = False
+	for idx in range(0,len(sqlObj.tokens)):
+		tok = sqlObj.tokens[idx]
+
+		if IsNoise(tok):
+			continue
+
+		if keywrdFound:
+			result = ProcessSelectTokens( sqlObj)
+
+			#print("updtok="+tok.value)
+			if isinstance(tok,sqlparse.sql.Identifier):
+				if ParseAppend(tok, result, margin):
+					return result
+			elif isinstance(tok, sqlparse.sql.IdentifierList):
+				for subtok in tok.tokens:
+					if IsNoise(subtok):
+						continue
+					# print(margin+"subtok="+subtok.value)
+					if not ParseAppend(subtok, result, margin):
+						# Subselect ???
+						result += ProcessSelectTokens(subtok, margin)
+				return result
+
+		if tok.ttype == sqlparse.tokens.Keyword.DML:
+			if tok.value.upper() != "UPDATE":
+				return ["NonSense"]
+			keywrdFound = True
+
+	return ["Nothing"]
+
+def ProcessDeleteTokens(sqlObj,margin=""):
+	result = []
+
+	margin +="    "
+	return ProcessSelectTokens(sqlObj,margin)
+
+def ProcessInsertTokens(sqlObj,margin=""):
+	result = []
+
+	margin +="    "
+	return ProcessSelectTokens(sqlObj,margin)
+
+def ProcessCreateTokens(sqlObj,margin=""):
+	result = []
+
+	margin +="    "
+	return ProcessSelectTokens(sqlObj,margin)
+
+statementToFunc = {
+		"SELECT":ProcessSelectTokens,
+		"UPDATE":ProcessUpdateTokens,
+		"DELETE":ProcessDeleteTokens,
+		"INSERT":ProcessInsertTokens,
+		"CREATE":ProcessCreateTokens,
+}
+
+def GetStatementType(sqlQry):
+	for tok in sqlQry.tokens:
+		if tok.ttype == sqlparse.tokens.Keyword.DML:
+			return tok.value.upper()
+		pass
+	return ""
+
+def ProcessStatements(sql):
+	statements = list(sqlparse.parse(sql))
+	allTabs = []
+	for sqlQry in statements:
+		if sqlQry.value.strip() == "":
+			continue
+		print(sqlQry.value)
+		queryType = GetStatementType(sqlQry)
+		#print("XX="+queryType)
+		func = statementToFunc[queryType]
+		result = func(sqlQry)
+		uniqRes = sorted(set( res.upper() for res in result))
+		allTabs.extend(uniqRes)
+
+	return allTabs
+
+################################################################################
 
 #Afficher la requete SQL sous la forme d un arbre dont les brqanches sont
 #les sous-requetes. Pour ca, on va d abord utiliser sqlparse et afficher recursivement

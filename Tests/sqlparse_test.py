@@ -884,16 +884,258 @@ WHERE TableOne.id = (SELECT  TableTwo.id
 FROM   TableTwo
 WHERE  TableOne.id = TableTwo.id)
 """:["TABLEONE","TABLETWO"],
+"""
+DELETE FROM WorkRecord2
+       FROM Employee
+Where EmployeeRun=EmployeeNo
+      And Company = '1'
+      AND Date = '2013-05-06'
+""":["EMPLOYEE","WORKRECORD2"],
+"""
+DELETE zpost
+FROM zpost
+INNER JOIN zcomment ON (zpost.zpostid = zcomment.zpostid)
+WHERE zcomment.icomment = "first"
+""":["ZCOMMENT","ZPOST"],
+"""
+DELETE Contact
+FROM Contact
+INNER JOIN Bedrijf ON Bedrijf.IDBedrijf = Contact.IDbedrijf
+""":["BEDRIJF","CONTACT"],
+"""
+DELETE subscribers, subscriptions
+         FROM subscribers INNER JOIN subscriptions
+           ON subscribers.id = subscriptions.subscriber_id
+         INNER JOIN magazines
+           ON subscriptions.magazine_id = magazines.id
+         WHERE subscribers.name='Wes';
+""":["MAGAZINES","SUBSCRIBERS","SUBSCRIPTIONS"],
+"""
+DELETE offices, employees
+FROM offices
+INNER JOIN employees
+      ON employees.officeCode = employees.officeCode
+WHERE offices.officeCode = 5
+""":["EMPLOYEES","OFFICES"],
+"""
+DELETE T1
+FROM T1
+LEFT JOIN T2 ON T1.key = T2.key
+WHERE T2.key IS NULL
+""":["T1","T2"],
+"""
+DELETE customers
+FROM customers
+LEFT JOIN orders ON customers.customerNumber = orders.customerNumber
+WHERE orderNumber IS NULL
+""":["CUSTOMERS","ORDERS"],
+"""
+DELETE Table1
+FROM Table1 t1
+INNER JOIN Table2 t2 ON t1.Col1 = t2.Col1
+WHERE t2.Col3 IN ('Two-Three','Two-Four')
+""":["TABLE1","TABLE2"],
+"""
+DELETE *
+FROM Employees
+WHERE DeptNo IN
+  (SELECT DeptNo
+  FROM Departments
+  WHERE LCase(DeptName) LIKE '*sales*')
+""":["DEPARTMENTS","EMPLOYEES"],
+"""
+DELETE a.*
+FROM Employees AS a INNER JOIN Departments AS b
+ON a.DeptNo = b.DeptNo
+WHERE LCase(b.DeptName) LIKE '*sales*'
+""":["DEPARTMENTS","EMPLOYEES"],
+"""
+DELETE a
+FROM Employees AS a INNER JOIN Departments AS b
+ON a.DeptNo = b.DeptNo
+WHERE LOWER(b.DeptName) LIKE '%sales%'
+""":["DEPARTMENTS","EMPLOYEES"],
+"""
+DELETE a
+FROM Table1 AS a INNER JOIN Table2 AS b
+ON a.id = b.id
+""":["TABLE1","TABLE2"],
+"""
+SELECT name, count(*) AS name_count
+FROM
+(
+  SELECT LCase(Trim(FirstName))& ' ' & LCase(Trim(LastName)) AS Name
+  FROM Employees
+   UNION ALL
+  SELECT LCase(Trim(CustomerName)) AS Name
+  FROM Customers
+) AS a
+GROUP BY name
+""":["CUSTOMERS","EMPLOYEES"],
+"""
+SELECT name, count(*) AS name_count
+FROM
+(
+  SELECT Lower(RTrim(FirstName))+ ' ' + Lower(RTrim(LastName)) AS name
+  FROM Employees
+   UNION ALL
+  SELECT Lower(RTrim(CustomerName)) AS name
+  FROM Customers
+) AS a
+GROUP BY name
+""":["CUSTOMERS","EMPLOYEES"],
+"""
+SELECT a.EmpNo, TRIM(a.FirstName) & ' ' & TRIM(a.LastName) AS EmpName, SUM(b.Salary) AS TotalMoney
+FROM Employees AS a INNER JOIN Employees AS b ON a.EmpNo=b.ManagerNo
+GROUP BY a.EmpNo, TRIM(a.FirstName) & ' ' & TRIM(a.LastName)
+ORDER BY SUM(b.Salary) DESC
+""":["EMPLOYEES"],
+"""
+DELETE * FROM Clients WHERE remove_this = 1
+""":["CLIENTS"],
+"""
+DELETE a.*
+FROM Clients AS a INNER JOIN tmp_Min_Idno AS b ON a.CustomerID = b.CustomerID
+WHERE a.idno <> b.min_id
+""":["CLIENTS","TMP_MIN_IDNO"],
+"""
+UPDATE Clients AS a INNER JOIN tmp_Min_Idno AS b
+ON a.CustomerID=b.CustomerID
+SET a.remove_this = 1
+WHERE a.idno <> b.min_id
+""":["CLIENTS","TMP_MIN_IDNO"],
+"""
+SELECT City_EN, count(*) AS cn
+FROM
+(
+  SELECT City_EN, City_IT
+  FROM Address_Table
+  GROUP BY City_EN, City_IT
+) AS a
+GROUP BY City_EN HAVING count(*) > 1
+""":["ADDRESS_TABLE"],
+"""
+SELECT c.*
+FROM Address_Table AS c INNER JOIN
+(
+  SELECT City_EN, count(*) AS cn
+  FROM
+  (
+    SELECT City_EN, City_IT
+    FROM Address_Table
+    GROUP BY City_EN, City_IT
+  ) AS a
+  GROUP BY City_EN HAVING count(*) > 1
+) AS b ON c.City_EN = b.City_EN
+ORDER BY c.City_EN, c.City_IT
+""":["ADDRESS_TABLE"],
+"""
+SELECT a.CustomerID, c.CustomerName, c.phone1
+FROM ((Invoice AS a INNER JOIN InvLines AS b ON a.DocKey=b.DocKey)
+INNER JOIN Customers AS c ON a.CustomerID = c.CustomerID)
+INNER JOIN
+(
+SELECT a.ItemCode
+FROM (InvLines AS a INNER JOIN Invoice AS b ON a.DocKey=b.DocKey)
+INNER JOIN Customers AS c ON b.CustomerID = c.CustomerID
+WHERE c.CustomerName = 'John Depp'
+GROUP BY a.ItemCode
+) AS d
+ON b.ItemCode = d.ItemCode
+WHERE c.CustomerName <> 'John Depp'
+GROUP BY a.CustomerID, c.CustomerName, c.phone1
+""":["CUSTOMERS","INVLINES","INVOICE"],
+"""
+SELECT a.CustomerID, c.CustomerName, c.phone1
+FROM (Invoice AS a INNER JOIN InvLines AS b ON a.DocKey = b.DocKey)
+INNER JOIN Customers AS c ON a.CustomerID = c.CustomerID
+WHERE c.CustomerName <> 'John Depp' AND b.ItemCode IN
+(
+SELECT a.ItemCode
+FROM (InvLines AS a INNER JOIN Invoice AS b ON a.DocKey = b.DocKey)
+INNER JOIN Customers AS c ON b.CustomerID = c.CustomerID
+WHERE c.CustomerName = 'John Depp'
+GROUP BY a.ItemCode
+)
+GROUP BY a.CustomerID, c.CustomerName, c.phone1
+""":["CUSTOMERS","INVLINES","INVOICE"],
+"""
+DELETE
+FROM    guide_category AS gc
+WHERE   id_guide NOT IN
+        (
+        SELECT  id_guide
+        FROM    guide
+        )
+""":["GUIDE","GUIDE_CATEGORY"],
+"""
+DELETE guide_category
+  WHERE id_guide_category IN (
+        SELECT id_guide_category
+          FROM guide_category AS gc
+     LEFT JOIN guide AS g
+            ON g.id_guide = gc.id_guide
+         WHERE g.title IS NULL
+  )
+""":["GUIDE","GUIDE_CATEGORY"],
+"""
+DELETE
+FROM Contacts
+FROM Contacts, Customers
+WHERE Contacts.Surname = Customers.Surname
+AND Contacts.GivenName = Customers.GivenName
+""":["CONTACTS","CUSTOMERS"],
 }
-
 
 examples["Focus"] = {
 }
 
 
-
-
 examples["Bad"] = {
+"""
+SELECT MIN(a.idno) AS min_id, a.CustomerID
+  INTO tmp_Min_Idno
+FROM
+  (SELECT idno, CustomerID FROM Clients) AS a
+    INNER JOIN
+  (SELECT CustomerID, count(*) AS cn
+   FROM Clients GROUP BY CustomerID
+   HAVING count(*) > 1) AS b
+ON a.CustomerID=b.CustomerID
+GROUP BY a.CustomerID
+""":["CLIENTS","TMP_MIN_IDNO"],
+"""
+DELETE a
+FROM \"dbo\".\"DM_ConformedPerson\" a
+JOIN \"dbo\".\"TST_Fix_DM_ConformedPerson\" z
+ON a.\"Person_SK\" = z.\"Person_SK\"
+WHERE z.\"Person_SK\" <> z.\"MaxSK\"
+""":["\"dbo\".\"DM_ConformedPerson\""],
+"""
+DELETE TOP (5) o
+FROM #orders o
+JOIN #customers c
+    ON c.customer_id = o.customer_id
+WHERE c.last_name = 'jones'
+AND c.first_name = 'alexandria'
+""":["#CUSTOMERS","#ORDERS"],
+"""
+DELETE pgc
+     FROM guide_category pgc
+LEFT JOIN guide g
+       ON g.id_guide = gc.id_guide
+    WHERE g.id_guide IS NULL
+""":[],
+"""
+DELETE px
+FROM #prodextend px
+INNER JOIN #product p ON p.din = px.din
+AND p.pkgSize = px.pkgSize
+INNER JOIN #manu_clients mc ON mc.clientCode = p.clientCode
+""":[],
+"""
+DROP TABLE Table1
+""":["TABLE1"],
 """
 UPDATE t1 SET t1.column = t2.column
 FROM Table1 t1 INNER JOIN Table2 t2 ON t1.id = t2.id
@@ -949,161 +1191,6 @@ GROUP BY Store_Name, Txn_Date
 
 ################################################################################
 
-syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
-table_with_schemas_rgx = "[A-Za-z_][A-Za-z0-9_$\.-]*"
-
-regex_tab_nam = [
-	'^(' + table_with_schemas_rgx + ')\s+AS\s+' + syno_rgx + '\s*$',
-	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + '\s*$',
-	'^(' + table_with_schemas_rgx + ')\s*$',
- ]
-
-def ParseAppend(tok,result,margin):
-	for rgx in regex_tab_nam:
-		remtch = re.match( rgx, tok.value, re.IGNORECASE )
-		if remtch:
-			#print(margin+"Match "+rgx)
-			result.append( remtch.group(1) )
-			return True
-	return False
-
-def IsNoise(tok):
-	return tok.ttype in [sqlparse.tokens.Whitespace,sqlparse.tokens.Punctuation,sqlparse.tokens.Whitespace.Newline]
-
-def ProcessSelectTokens(sqlObj,margin=""):
-	result = []
-	margin +="    "
-	if hasattr(sqlObj,"tokens"):
-		#print(margin.replace("=","*")+str(sqlObj.value)+" => " +str(sqlObj.ttype))
-
-		inFrom = False
-		wasFrom = False
-		for tok in sqlObj.tokens:
-			if IsNoise(tok):
-				continue
-
-			if inFrom:
-				wasFrom = True
-
-			#print(margin+"val="+tok.value.strip()+" "+str(tok.ttype)+" inFrom="+str(inFrom)+" type="+str(type(tok)))
-			#continue
-
-			if wasFrom:
-				#print(tok.ttype)
-				if tok.ttype is not None:
-					wasFrom = False
-
-			if wasFrom:
-				#print(margin+"FROM:"+tok.value.strip()+" => "+str(tok.ttype)+" type="+str(type(tok)))
-				if isinstance(tok,sqlparse.sql.Identifier):
-					if ParseAppend(tok,result,margin):
-						continue
-				elif isinstance(tok,sqlparse.sql.IdentifierList):
-					for subtok in tok.tokens:
-						if IsNoise(subtok):
-							continue
-						#print(margin+"subtok="+subtok.value)
-						if not ParseAppend(subtok,result,margin):
-							# Subselect ???
-							result += ProcessSelectTokens(subtok,margin)
-					continue
-				else:
-					#print("WHAT CAN I DO")
-					pass
-
-			inFrom = ( tok.ttype == sqlparse.tokens.Keyword ) \
-					 and tok.value.upper() in ["FROM","FULL JOIN","INNER JOIN","LEFT OUTER JOIN","LEFT JOIN","JOIN","FULL OUTER JOIN"]
-
-			result += ProcessSelectTokens(tok,margin)
-
-	return result
-
-def ProcessUpdateTokens(sqlObj,margin=""):
-	idx = 0
-	keywrdFound = False
-	for idx in range(0,len(sqlObj.tokens)):
-		tok = sqlObj.tokens[idx]
-
-		if IsNoise(tok):
-			continue
-
-		if keywrdFound:
-			result = ProcessSelectTokens( sqlObj)
-
-
-
-			print("updtok="+tok.value)
-			if isinstance(tok,sqlparse.sql.Identifier):
-				if ParseAppend(tok, result, margin):
-					return result
-			elif isinstance(tok, sqlparse.sql.IdentifierList):
-				for subtok in tok.tokens:
-					if IsNoise(subtok):
-						continue
-					# print(margin+"subtok="+subtok.value)
-					if not ParseAppend(subtok, result, margin):
-						# Subselect ???
-						result += ProcessSelectTokens(subtok, margin)
-				return result
-
-		if tok.ttype == sqlparse.tokens.Keyword.DML:
-			if tok.value.upper() != "UPDATE":
-				return ["NonSense"]
-			keywrdFound = True
-
-	return ["Nothing"]
-
-def ProcessDeleteTokens(sqlObj,margin=""):
-	result = []
-
-	margin +="    "
-	return ProcessSelectTokens(sqlObj,margin)
-
-def ProcessInsertTokens(sqlObj,margin=""):
-	result = []
-
-	margin +="    "
-	return ProcessSelectTokens(sqlObj,margin)
-
-def ProcessCreateTokens(sqlObj,margin=""):
-	result = []
-
-	margin +="    "
-	return ProcessSelectTokens(sqlObj,margin)
-
-statementToFunc = {
-		"SELECT":ProcessSelectTokens,
-		"UPDATE":ProcessUpdateTokens,
-		"DELETE":ProcessDeleteTokens,
-		"INSERT":ProcessInsertTokens,
-		"CREATE":ProcessCreateTokens,
-}
-
-def GetStatementType(sqlQry):
-	for tok in sqlQry.tokens:
-		if tok.ttype == sqlparse.tokens.Keyword.DML:
-			return tok.value.upper()
-		pass
-	return ""
-
-def ProcessStatements(sql):
-	statements = list(sqlparse.parse(sql))
-	allTabs = []
-	for sqlQry in statements:
-		if sqlQry.value.strip() == "":
-			continue
-		print(sqlQry.value)
-		queryType = GetStatementType(sqlQry)
-		#print("XX="+queryType)
-		func = statementToFunc[queryType]
-		result = func(sqlQry)
-		uniqRes = sorted(set( res.upper() for res in result))
-		allTabs.extend(uniqRes)
-
-	return allTabs
-
-################################################################################
-
 def DisplayTablesAny(theDictNam,theDict,Func,dispAll):
 	errnum = 0
 	for sqlQry in theDict:
@@ -1130,8 +1217,7 @@ def DisplayTablesAny(theDictNam,theDict,Func,dispAll):
 
 
 ################################################################################
-DecodeFunc = lib_sql.extract_sql_tables
-DecodeFunc = ProcessStatements
+DecodeFunc = lib_sql.ProcessStatements
 
 ################################################################################
 dispAll = True
