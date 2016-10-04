@@ -119,6 +119,13 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 	# deja pre-remplie qu on completerait au fur et a mesure.
 	# Si on ne trouve pas le module on met la fonction par defaut.
 	# { "file" : sources_types.file.ArrToLabel, ... }
+	entity_module = lib_util.GetEntityModule(entity_type)
+	if 	entity_module:
+		try:
+			entity_name = entity_module.EntityName(entity_ids_arr)
+			return entity_name
+		except AttributeError:
+			pass
 
 	# General case of a URI created by us and for us.
 	ent_ids_joined = ",".join(entity_ids_arr)
