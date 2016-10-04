@@ -1087,9 +1087,6 @@ AND Contacts.GivenName = Customers.GivenName
 """:["CONTACTS","CUSTOMERS"],
 }
 
-examples["Focus"] = {
-}
-
 
 examples["Bad"] = {
 """
@@ -1191,20 +1188,52 @@ GROUP BY Store_Name, Txn_Date
 
 ################################################################################
 
-def DispSqlNode(sqlNode,depth):
+examples["Focus"] = {
+"""
+SELECT *
+FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
+ORDER BY ORDER OF UTABLE
+""":["T1","T2"],
+"""
+SELECT *
+FROM (SELECT * FROM T1 )
+""":["T1"],
+"""
+SELECT *
+FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) )
+""":["T1","T2"],
+"""
+SELECT *
+FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2) )
+""":["T1","T2"],
+"""
+SELECT *
+FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 UNION ALL (SELECT * FROM T3) ) )
+""":["T1","T2","T3"],
+"""
+SELECT *
+FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 UNION ALL (SELECT * FROM T3  UNION ALL (SELECT * FROM T4)) ) )
+""":["T1","T2","T3","T4"],
+}
+
+################################################################################
+
+def DispSqlNode(parentNode,sqlNode,depth):
 	if depth == 0:
-		print( ("\t" * depth) + sqlNode)
+		print( ("\t" * depth) + "DISPN=" + sqlNode)
 	else:
-		print( ("\t" * depth) + sqlNode.replace("\n"," ").replace("  "," ").replace("  "," "))
+		print( ("\t" * depth) + "PARNT="+parentNode.replace("\n"," ").replace("  "," ").replace("  "," "))
+		print( ("\t" * depth) + "DISPN=" + sqlNode.replace("\n"," ").replace("  "," ").replace("  "," "))
 
-def DisplayTablesAny(theDictNam,theDict,dispAll):
+def DisplayTablesAny(theDictNam,theDict):
 	errnum = 0
-	for sqlQry in theDict:
-		if dispAll:
-			print("\nQUERY="+sqlQry+"\n")
-			lib_sql.DispTreeQuery(sqlQry)
-		expectedTables = theDict[sqlQry]
 
+	for sqlQry in theDict:
+		print("_"*40)
+		expectedTables = theDict[sqlQry]
+		sqlQry = sqlQry.replace("\n"," ").replace("  "," ").replace("  "," ")
+
+		print("\nQUERY="+sqlQry+"\n")
 		lib_sql.SqlQueryWalkNodes(sqlQry,DispSqlNode)
 		print("")
 
@@ -1214,8 +1243,7 @@ def DisplayTablesAny(theDictNam,theDict,dispAll):
 		vecUp.sort()
 		if expectedTables != vecUp:
 			errnum += 1
-			if not dispAll:
-				print("\nQUERY="+sqlQry+"\n")
+			print("\nQUERY="+sqlQry+"\n")
 			print("Should be="+str(expectedTables))
 			# print("Actual is="+str(resVec))
 			print("Result is="+str(vecUp))
@@ -1227,18 +1255,15 @@ def DisplayTablesAny(theDictNam,theDict,dispAll):
 	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
 
 ################################################################################
-dispAll = True
-dispAll = False
-
 
 if len(sys.argv) == 1:
 	for key in examples:
 		print(key)
-		DisplayTablesAny(key,examples[key],dispAll)
+		DisplayTablesAny(key,examples[key])
 else:
 	for a in sys.argv[1:]:
 		print(a)
-		DisplayTablesAny(a,examples[a],dispAll)
+		DisplayTablesAny(a,examples[a])
 
 print("Fini")
 

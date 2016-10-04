@@ -377,23 +377,36 @@ def IsSubSelect(parsed):
 #Afficher la requete SQL sous la forme d un arbre dont les brqanches sont
 #les sous-requetes. Pour ca, on va d abord utiliser sqlparse et afficher recursivement
 #l arbre genere.
-def SqlQueryWalkNodesRecurs(sqlObj,Func,depth):
-	if IsSubSelect(sqlObj):
-		Func( sqlObj.value, depth )
-	depth += 1
+def SqlQueryWalkNodesRecurs(parentNode, sqlObj,Func,depth):
+
+	isSub = IsSubSelect(sqlObj)
+	#print("Q="+sqlObj.value+" isSub="+str(isSub))
+	if isSub:
+		strQry = sqlObj.value
+		parFirst = strQry.find("(")
+		if parFirst >= 0:
+			parLast = strQry.rfind(")")
+			strQry = strQry[parFirst+1:parLast]
+		# Func( parentNode, strQry + " " + str(sqlObj.ttype), depth )
+		Func( parentNode, strQry, depth )
+		actualParent = sqlObj.value
+		depth += 1
+	else:
+		actualParent = parentNode
+
 	if hasattr(sqlObj,"tokens"):
 		for tok in sqlObj.tokens:
-			if IsNoise(tok):
-				continue
+			#if IsNoise(tok):
+			#	continue
 
-			SqlQueryWalkNodesRecurs( tok, Func, depth )
+			SqlQueryWalkNodesRecurs( actualParent, tok, Func, depth )
 
 def SqlQueryWalkNodes(sqlQuery,Func):
 	statements = list(sqlparse.parse(sqlQuery))
 	for sqlObj in statements:
 		if sqlObj.value.strip() == "":
 			continue
-		SqlQueryWalkNodesRecurs( sqlObj, Func, 0)
+		SqlQueryWalkNodesRecurs( "", sqlObj, Func, 0)
 
 
 ################################################################################
