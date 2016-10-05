@@ -38,7 +38,7 @@ def Main():
 	for row in result_inv:
 		lib_oracle.AddDependency( grph, row, node_oraPackageBody, cgiEnv.m_oraDatabase, False )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()
