@@ -202,6 +202,33 @@
 # Probleme: We would have to try all of the directories.
 # Practically, a process will be linked to one DB, maybe, exceptionnaly two DBs.
 
+# For SQL Server:
+
+"""
+SELECT * FROM sys.dm_exec_sessions where host_name is not null
+
+SELECT sqltext.TEXT,
+req.session_id,
+req.status,
+req.command,
+req.cpu_time,
+req.total_elapsed_time
+FROM sys.dm_exec_requests req
+CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
+
+#select sqltext.TEXT,* from sys.dm_exec_requests req
+#CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
+
+SELECT sqltext.TEXT,
+req.session_id,
+req.status,
+req.command,
+sess.host_process_id
+FROM sys.dm_exec_requests req, sys.dm_exec_sessions sess
+where sess.session_id = req.session_id
+CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
+
+"""
 ################################################################################
 # Probleme similaire: Des fichiers relatifs. Pour le moment
 # on ne peut pas en faire grand'chose. Toutefois dans l avenir
