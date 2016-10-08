@@ -36,7 +36,9 @@ def Main():
 		lib_oracle.AddLiteralNotNone(grph,nodeView,"Status",row[1])
 		lib_oracle.AddLiteralNotNone(grph,nodeView,"Creation",row[2])
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	# It cannot work if there are too many views.
+	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_oracle_view])
 
 if __name__ == '__main__':
 	Main()

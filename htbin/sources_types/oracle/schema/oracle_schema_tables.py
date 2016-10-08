@@ -27,16 +27,21 @@ def Main():
 	node_oraschema = lib_common.gUriGen.OracleSchemaUri( cgiEnv.m_oraDatabase, oraSchema )
 
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
+	num_tables=len(result)
+	sys.stderr.write("num_tables=%d\n" % num_tables )
 
 	for row in result:
 		tableName = str(row[0])
+		# sys.stderr.write("tableName=%s\n" % tableName )
 		nodeTable = lib_common.gUriGen.OracleTableUri( cgiEnv.m_oraDatabase , oraSchema, tableName )
 		grph.add( ( node_oraschema, pc.property_oracle_table, nodeTable ) )
 
 		lib_oracle.AddLiteralNotNone(grph,nodeTable,"Status",row[1])
 		lib_oracle.AddLiteralNotNone(grph,nodeTable,"Creation",row[2])
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	# It cannot work if there are too many tables.
+	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_oracle_table])
 
 if __name__ == '__main__':
 	Main()
