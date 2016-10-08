@@ -9,6 +9,8 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
+from sources_types import odbc as survol_odbc
+from sources_types.odbc import dsn as survol_dsn
 
 try:
     import pyodbc
@@ -26,8 +28,10 @@ def Main():
 
     nodeDsn = lib_common.gUriGen.OdbcDsnUri( dsnNam )
 
+    ODBC_ConnectString = survol_dsn.MakeOdbcConnectionString(dsnNam)
+
     try:
-        cnxn = pyodbc.connect("DSN=%s" % dsnNam)
+        cnxn = pyodbc.connect(ODBC_ConnectString)
         sys.stderr.write("Connected: %s\n" % dsnNam)
         cursor = cnxn.cursor()
 

@@ -3,7 +3,7 @@
 # Display processes running in this database.
 
 """
-Processes running in ODBC DSN
+Processes running in ODBC DSN (SQL Server only)
 """
 
 import sys
@@ -11,6 +11,8 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
+from sources_types import odbc as survol_odbc
+from sources_types.odbc import dsn as survol_dsn
 
 try:
 	import pyodbc
@@ -21,9 +23,21 @@ except ImportError:
 from sources_types import sqlserver
 from sources_types.sqlserver import session
 
-
 # Depends on the type of odbc_driver: "SQL Server Native Client 11.0", "SQL Server", "Oracle in XE" etc...
+# xid=odbc/dsn.Dsn=MyOracleDataSource , odbc_driver=Oracle in XE
+# xid=odbc/dsn.Dsn=SqlSrvNativeDataSource , odbc_driver=SQL Server Native Client 11.0
+# xid=odbc/dsn.Dsn=SysDataSourceSQLServer , odbc_driver=SQL Server
+def Usable(entity_type,entity_ids_arr):
+	"""SQL Server database only"""
+	dsnNam = entity_ids_arr[0]
+	dbEntityType = survol_dsn.GetDatabaseEntityType(dsnNam)
 
+	return dbEntityType == "sqlserver"
+
+
+
+# Difficulte: C est completement specifique a Sql Server mais on y arrive par ODBC.
+# Pour le moment, on na pas d acces a SqlServer par Python.
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -36,8 +50,9 @@ def Main():
 
 	nodeDsn = lib_common.gUriGen.OdbcDsnUri(dsnNam)
 
+	ODBC_ConnectString = survol_odbc.MakeOdbcConnectionString(dsnNam)
 	try:
-		cnxn = pyodbc.connect("DSN=%s" % dsnNam)
+		cnxn = pyodbc.connect(ODBC_ConnectString)
 		sys.stderr.write("Connected: %s\n" % dsnNam)
 		cursorSessions = cnxn.cursor()
 
@@ -77,7 +92,7 @@ def Main():
 	except Exception:
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml(
-			"nodeDsn=%s Unexpected error:%s" % (dsnNam, str(sys.exc_info()[0])))  # cgiEnv.OutCgiRdf(grph)
+			"nodeDsn=%s Unexpected error:%s" % (dsnNam, str(sys.exc_info())))  # cgiEnv.OutCgiRdf(grph)
 
 	cgiEnv.OutCgiRdf(grph)
 
