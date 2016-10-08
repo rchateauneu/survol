@@ -1,9 +1,13 @@
+import sys
 import lib_common
+import lib_util
 import lib_credentials
 import pyodbc
 from lib_properties import pc
 
 # from sources_types import odbc as survol_odbc
+from sources_types import sqlserver as survol_sqlserver
+from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 
 
 def MakeOdbcConnectionString(dsnNam):
@@ -49,6 +53,7 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	dbEntityType = GetDatabaseEntityTypeFromConnection(cnxn)
 
+	sys.stderr.write("AddInfo dbEntityType=%s\n" % dbEntityType )
 	if dbEntityType == "oracle":
 		# For example "XE".
 		server_name = cnxn.getinfo(pyodbc.SQL_SERVER_NAME)
@@ -56,9 +61,21 @@ def AddInfo(grph,node,entity_ids_arr):
 
 		grph.add( ( node, pc.property_oracle_db, node_oradb ) )
 
-		# sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
+	elif dbEntityType == "sqlserver":
+		# We stick to the DSN because it encloses all the needed information.
+		node_sqlserverdb = survol_sqlserver_dsn.MakeUri( dsnNam )
+
+		grph.add( ( node, pc.property_sqlserver_db, node_sqlserverdb ) )
+		sys.stderr.write("AddInfo dbEntityType=%s ADDING NODE\n" % dbEntityType )
+
 		#grph.add( ( node, pc.property_pid, rdflib.Literal(pidProc) ) )
 
-#	return
+def EntityOntology():
+	return ( ["Dsn"], )
+
+
+def MakeUri(dsnName):
+	return lib_common.gUriGen.UriMakeFromDict("odbc/dsn", { "Dsn" : lib_util.EncodeUri(dsnName) })
+
 
 

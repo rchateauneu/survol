@@ -12,6 +12,9 @@ from lib_properties import pc
 
 import odbc
 
+# from sources_types import odbc as survol_odbc
+from sources_types.odbc import dsn as survol_odbc_dsn
+
 # https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-SQL-Server-from-Windows
 #    {SQL Server} - released with SQL Server 2000
 #    {SQL Native Client} - released with SQL Server 2005 (also known as version 9.0)
@@ -37,7 +40,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 		sys.stderr.write("dsn=%s driver=%s type=%s\n" % ( dsn, driver, dsn_type) )
 		odbc_iter_code = odbc.SQL_FETCH_NEXT
 
-		nodeDsn = lib_common.gUriGen.OdbcDsnUri( dsn )
+		nodeDsn = survol_odbc_dsn.MakeUri( dsn )
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
 		grph.add( (nodeDsn, pc.property_odbc_driver, rdflib.Literal(driver) ) )
 		grph.add( (nodeDsn, propDsnType, littDsnType ) )

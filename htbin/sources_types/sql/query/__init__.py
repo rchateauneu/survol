@@ -26,3 +26,7 @@ def EntityName(entity_ids_arr):
 	resu = cgi.escape(resu)
 	resu = stripblanks(resu)
 	return resu
+
+# Eventuellement on pourrait avoir des mots-clefs indiquant le type de la base
+# de donnees, son nom, les credentials etc...
+# Ca permettrait de repartir des tables vers la base.

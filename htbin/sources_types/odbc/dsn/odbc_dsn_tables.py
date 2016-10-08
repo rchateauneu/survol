@@ -9,8 +9,9 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-from sources_types import odbc as survol_odbc
-from sources_types.odbc import dsn as survol_dsn
+# from sources_types import odbc as survol_odbc
+from sources_types.odbc import dsn as survol_odbc_dsn
+from sources_types.odbc import table as survol_odbc_table
 
 try:
     import pyodbc
@@ -26,12 +27,11 @@ def Main():
 
     sys.stderr.write("dsn=(%s)\n" % dsnNam )
 
-    nodeDsn = lib_common.gUriGen.OdbcDsnUri( dsnNam )
+    nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
 
-    ODBC_ConnectString = survol_dsn.MakeOdbcConnectionString(dsnNam)
+    ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 
     try:
-
         cnxn = pyodbc.connect(ODBC_ConnectString)
         sys.stderr.write("Connected: %s\n" % dsnNam)
         cursor = cnxn.cursor()
@@ -47,7 +47,7 @@ def Main():
             tabNam = row.table_name
             # sys.stderr.write("tabNam=%s\n" % tabNam)
 
-            nodTab = lib_common.gUriGen.OdbcTableUri( dsnNam, tabNam )
+            nodTab = survol_odbc_table.MakeUri( dsnNam, tabNam )
             grph.add( (nodeDsn, pc.property_odbc_table, nodTab ) )
 
             for idxCol in ( 0, 1, 3):

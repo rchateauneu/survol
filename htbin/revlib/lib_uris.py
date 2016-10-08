@@ -419,19 +419,6 @@ class LocalBox:
 		# CIM_GroupAccount ?
 		return self.UriMake("group",groupname)
 
-	def OdbcDsnUri(self,dsnName):
-		return self.UriMakeFromDict("odbc/dsn", { "Dsn" : lib_util.EncodeUri(dsnName) })
-
-	# TODO: Depending on the database type, this should vary.
-	def OdbcTableUri(self,dsnName,tableNam):
-		return self.UriMakeFromDict("odbc/table", { "Dsn" : lib_util.EncodeUri(dsnName), "Table" : tableNam })
-
-	def OdbcColumnUri(self,dsnName,tableNam, columnNam):
-		return self.UriMakeFromDict("odbc/column", { "Dsn" : lib_util.EncodeUri(dsnName), "Table" : tableNam, "Column": columnNam })
-
-	def OdbcProcedureUri(self,dsnName,procNam):
-		return self.UriMakeFromDict("odbc/procedure", { "Dsn" : lib_util.EncodeUri(dsnName), "Procedure" : procNam })
-
 	# TODO: At the moment, keys have this structure: {CE4AACFA-3CFD-4028-B2D9-F272314F07C8}
 	# But we need a string to loop in the registry: win32con.HKEY_CLASSES_ROOT, "TypeLib".
 	# What about the other thnigs in combrowse.py ? "Registered Categories" and "Running Objects" ?

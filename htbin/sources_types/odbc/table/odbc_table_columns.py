@@ -9,6 +9,10 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
+# from sources_types import odbc as survol_odbc
+from sources_types.odbc import dsn as survol_odbc_dsn
+from sources_types.odbc import table as survol_odbc_table
+from sources_types.odbc import column as survol_odbc_column
 
 try:
     import pyodbc
@@ -25,8 +29,8 @@ def Main():
 
     sys.stderr.write("dsn=%s tabNam=%s\n" % (dsnNam, tabNam ) )
 
-    nodeDsn = lib_common.gUriGen.OdbcDsnUri( dsnNam )
-    nodTab = lib_common.gUriGen.OdbcTableUri( dsnNam, tabNam )
+    nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
+    nodTab = survol_odbc_table.MakeUri( dsnNam, tabNam )
 
     # ('C:\\Program Files (x86)\\Microsoft Visual Studio 8\\Crystal Reports\\Samples\\en\\Databases\\xtreme', None, 'MSysAccessObjects', 'SYSTEM TABLE', None)
 
@@ -71,7 +75,7 @@ def Main():
             tabNam = row.table_name
             # sys.stderr.write("tabNam=%s\n" % tabNam)
 
-            nodColumn = lib_common.gUriGen.OdbcColumnUri( dsnNam, tabNam, row[3] )
+            nodColumn = survol_odbc_column.MakeUri( dsnNam, tabNam, row[3] )
             grph.add( (nodTab, pc.property_odbc_column, nodColumn ) )
 
             for idxCol in ( 5, 11, 12, 13, 17):

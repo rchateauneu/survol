@@ -9,8 +9,9 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-from sources_types import odbc as survol_odbc
-from sources_types.odbc import dsn as survol_dsn
+# from sources_types import odbc as survol_odbc
+from sources_types.odbc import dsn as survol_odbc_dsn
+from sources_types.odbc import procedure as survol_odbc_procedure
 
 try:
     import pyodbc
@@ -26,9 +27,9 @@ def Main():
 
     sys.stderr.write("dsn=(%s)\n" % dsnNam )
 
-    nodeDsn = lib_common.gUriGen.OdbcDsnUri( dsnNam )
+    nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
 
-    ODBC_ConnectString = survol_dsn.MakeOdbcConnectionString(dsnNam)
+    ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
@@ -44,7 +45,7 @@ def Main():
             procNam = row[2]
             # sys.stderr.write("tabNam=%s\n" % tabNam)
 
-            nodProc = lib_common.gUriGen.OdbcProcedureUri( dsnNam, procNam )
+            nodProc = survol_odbc_procedure.MakeUri( dsnNam, procNam )
             grph.add( (nodeDsn, pc.property_odbc_procedure, nodProc ) )
 
             for idxCol in (3, 4, 5, 6, 7):
@@ -52,7 +53,7 @@ def Main():
 
     except Exception:
         exc = sys.exc_info()[0]
-        lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info()[0] ) ) )
+        lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info() ) ) )
 
 
     # cgiEnv.OutCgiRdf(grph)

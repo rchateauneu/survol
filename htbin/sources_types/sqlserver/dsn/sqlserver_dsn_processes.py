@@ -3,7 +3,7 @@
 # Display processes running in this database.
 
 """
-Processes running in ODBC DSN (SQL Server only)
+Processes running in SQL Server database (ODBC)
 """
 
 import sys
@@ -11,17 +11,17 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-from sources_types import odbc as survol_odbc
-from sources_types.odbc import dsn as survol_dsn
+# from sources_types import odbc as survol_odbc
+from sources_types.odbc import dsn as survol_odbc_dsn
+# from sources_types import odbc as survol_odbc
+from sources_types.sqlserver import dsn as survol_sqlserver_dsn
+from sources_types import sqlserver
+from sources_types.sqlserver import session
 
 try:
 	import pyodbc
 except ImportError:
 	lib_common.ErrorMessageHtml("pyodbc Python library not installed")
-
-# PROBABLY, THIS SHOULD GO INTO A NEW TYPE sqlserver
-from sources_types import sqlserver
-from sources_types.sqlserver import session
 
 # Depends on the type of odbc_driver: "SQL Server Native Client 11.0", "SQL Server", "Oracle in XE" etc...
 # xid=odbc/dsn.Dsn=MyOracleDataSource , odbc_driver=Oracle in XE
@@ -30,14 +30,9 @@ from sources_types.sqlserver import session
 def Usable(entity_type,entity_ids_arr):
 	"""SQL Server database only"""
 	dsnNam = entity_ids_arr[0]
-	dbEntityType = survol_dsn.GetDatabaseEntityType(dsnNam)
+	dbEntityType = survol_odbc_dsn.GetDatabaseEntityType(dsnNam)
 
 	return dbEntityType == "sqlserver"
-
-
-
-# Difficulte: C est completement specifique a Sql Server mais on y arrive par ODBC.
-# Pour le moment, on na pas d acces a SqlServer par Python.
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -48,9 +43,9 @@ def Main():
 
 	sys.stderr.write("dsn=(%s)\n" % dsnNam)
 
-	nodeDsn = lib_common.gUriGen.OdbcDsnUri(dsnNam)
+	nodeDsn = survol_sqlserver_dsn.MakeUri(dsnNam)
 
-	ODBC_ConnectString = survol_odbc.MakeOdbcConnectionString(dsnNam)
+	ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 	try:
 		cnxn = pyodbc.connect(ODBC_ConnectString)
 		sys.stderr.write("Connected: %s\n" % dsnNam)
