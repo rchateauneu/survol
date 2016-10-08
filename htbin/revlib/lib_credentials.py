@@ -22,6 +22,8 @@ def CredDocument():
 # Loaded once only.
 credentials = CredDocument()
 
+# For example: GetCredentials("Oracle","XE") or GetCredentials("Login","192.168.1.78")
+# It returns the username and the password.
 def GetCredentials( credType, credName ):
 	try:
 		if not credentials:
