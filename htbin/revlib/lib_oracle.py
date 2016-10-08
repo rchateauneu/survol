@@ -69,8 +69,8 @@ def CallbackQuery(conn_str,sql_query,callback):
 # https://docs.oracle.com/cd/A91202_01/901_doc/server.901/a90125/sql_elements10.htm
 # CREATE SYNONYM emp_table FOR oe.employees@remote.us.oracle.com;
 # schema.object_name.object_part@dblink
-def OraUri( entity_type, ora_db, ora_part = "", ora_object = "", ora_schema = ""):
-	return lib_util.EntityUri( entity_type, ora_schema + "." + ora_object + "." + ora_part + "@" + ora_db )
+#def OraUri( entity_type, ora_db, ora_part = "", ora_object = "", ora_schema = ""):
+#	return lib_util.EntityUri( entity_type, ora_schema + "." + ora_object + "." + ora_part + "@" + ora_db )
 
 class OracleEnv (lib_common.CgiEnv):
 	def __init__( self ):
