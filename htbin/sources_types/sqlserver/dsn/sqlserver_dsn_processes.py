@@ -11,11 +11,9 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-# from sources_types import odbc as survol_odbc
 from sources_types.odbc import dsn as survol_odbc_dsn
-# from sources_types import odbc as survol_odbc
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
-from sources_types import sqlserver
+#from sources_types import sqlserver
 from sources_types.sqlserver import session
 
 try:
@@ -27,12 +25,12 @@ except ImportError:
 # xid=odbc/dsn.Dsn=MyOracleDataSource , odbc_driver=Oracle in XE
 # xid=odbc/dsn.Dsn=SqlSrvNativeDataSource , odbc_driver=SQL Server Native Client 11.0
 # xid=odbc/dsn.Dsn=SysDataSourceSQLServer , odbc_driver=SQL Server
-def Usable(entity_type,entity_ids_arr):
-	"""SQL Server database only"""
-	dsnNam = entity_ids_arr[0]
-	dbEntityType = survol_odbc_dsn.GetDatabaseEntityType(dsnNam)
-
-	return dbEntityType == "sqlserver"
+#def Usable(entity_type,entity_ids_arr):
+#	"""SQL Server database only"""
+#	dsnNam = entity_ids_arr[0]
+#	dbEntityType = survol_odbc_dsn.GetDatabaseEntityType(dsnNam)
+#
+#	return dbEntityType == "sqlserver"
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -56,12 +54,6 @@ def Main():
 		FROM sys.dm_exec_sessions where host_name is not null
 		"""
 
-		# for rowSess in cursorSessions.execute(qrySessions)
-
-		#cursorSessions.execute(qrySessions)
-		#fetchSessions = cursorSessions.fetchall()
-		#for rowSess in cursorSessions.columns(table='sys.dm_exec_sessions'):
-
 		for rowSess in cursorSessions.execute(qrySessions):
 			sys.stderr.write("rowSess.session_id=(%s)\n" % rowSess.session_id)
 			nodeSession = session.MakeUri(dsnNam, rowSess.session_id)
@@ -81,9 +73,6 @@ def Main():
 			grph.add((nodeSession, lib_common.MakeProp("nt_domain"), rdflib.Literal(rowSess.nt_domain)))
 			grph.add((nodeSession, lib_common.MakeProp("nt_user_name"), rdflib.Literal(rowSess.nt_user_name)))
 
-		# nodeOsUser = lib_common.RemoteBox(user_machine).UserUri(sessOsuser)
-		# grph.add( ( nodeOsUser, lib_common.MakeProp("OsUser"), rdflib.Literal(sessOsuser) ) )
-
 	except Exception:
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml(
@@ -93,7 +82,5 @@ def Main():
 
 if __name__ == '__main__':
 	Main()
-
-
 
 # http://www.easysoft.com/developer/languages/python/pyodbc.html
