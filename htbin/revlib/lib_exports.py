@@ -31,6 +31,40 @@ def ModedUrl(otherMode):
 
 ################################################################################
 
+maxHtmlTitleLenPerCol = 40
+withBrDelim = '<BR ALIGN="LEFT" />'
+
+# Inserts "<BR/>" in a HTML string so it is wrapped in a HTML label.
+def StrWithBr(str, colspan = 1):
+	lenStr = len(str)
+	maxHtmlTitleLen = colspan * maxHtmlTitleLenPerCol
+	if lenStr < maxHtmlTitleLen:
+		return str
+
+	splt = str.split(" ")
+	totLen = 0
+	resu = ""
+	currLine = ""
+	for currStr in splt:
+		subLen = len(currStr)
+		if totLen + subLen < maxHtmlTitleLen:
+			currLine += " " + currStr
+			totLen += subLen
+			continue
+		if resu:
+			resu += withBrDelim
+		resu += currLine
+		currLine = currStr
+		totLen = subLen
+
+	if currLine:
+		if resu != "":
+			resu += withBrDelim
+		resu += currLine
+	return resu
+
+################################################################################
+
 # Adds a key value pair at the end of the url with the right delimiter.
 # TODO: Checks that the argument is not already there.
 # TODO: Most of times, it is used for changing the mode.
@@ -41,9 +75,6 @@ def ConcatenateCgi(url,keyvalpair):
 		return url + "&" + keyvalpair
 
 ################################################################################
-# TODO: THIS IS DUPLICATED.
-
-withBrDelim = '<BR ALIGN="LEFT" />'
 
 # TODO: Set the right criteria for an old Graphviz version.
 new_graphiz = True # sys.version_info >= (3,)
@@ -237,10 +268,12 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	page_title_rest = " ".join( page_title_split[1:] )
 	page_title_full =  DotBold(page_title_first) + withBrDelim +  page_title_rest
 
+	page_title_full_wrap = StrWithBr(page_title_full,2)
+
 	stream.write("""
   subgraph cluster_01 {
     key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">
-      <tr><td colspan="2">""" + page_title_full + """</td></tr>
+      <tr><td colspan="2">""" + page_title_full_wrap + """</td></tr>
  	""")
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !

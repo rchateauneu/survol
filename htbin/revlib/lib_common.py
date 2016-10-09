@@ -89,48 +89,6 @@ def UselessProc(proc):
 
 ################################################################################
 
-maxHtmlTitleLenPerCol = 40
-withBrDelim = '<BR ALIGN="LEFT" />'
-
-# Inserts "<BR/>" in a HTML string so it is wrapped in a HTML label.
-def StrWithBr(str, colspan = 1):
-	lenStr = len(str)
-	maxHtmlTitleLen = colspan * maxHtmlTitleLenPerCol
-	if lenStr < maxHtmlTitleLen:
-		return str
-
-	splt = str.split(" ")
-	totLen = 0
-	resu = ""
-	currLine = ""
-	for currStr in splt:
-		subLen = len(currStr)
-		if totLen + subLen < maxHtmlTitleLen:
-			currLine += " " + currStr
-			totLen += subLen
-			continue
-		if resu:
-			resu += withBrDelim
-		resu += currLine
-		currLine = currStr
-		totLen = subLen
-
-	if currLine:
-		if resu != "":
-			resu += withBrDelim
-		resu += currLine
-	return resu
-
-################################################################################
-
-def DotBold(str):
-	return "<b>%s</b>" % str
-
-def DotUL(str):
-	return "<u>%s</u>" % str
-
-################################################################################
-
 # Static data for dot conversion.
 # Taken from rdf2dot, in module rdflib.
 
@@ -305,14 +263,14 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			return FormatElement(decodVal, depth + 1)
 
 		except ValueError:
-			return "<td align='left' balign='left'>%s</td>" % StrWithBr(val)
+			return "<td align='left' balign='left'>%s</td>" % lib_exports.StrWithBr(val)
 		except TypeError:
 			exc = sys.exc_info()[1]
-			return "<td align='left' balign='left'>%s</td>" % StrWithBr(val+" "+str(exc))
+			return "<td align='left' balign='left'>%s</td>" % lib_exports.StrWithBr(val+" "+str(exc))
 		return "FormatElement failure"
 
 	def FormatPair(key,val,depth=0):
-		colFirst = "<td align='left' valign='top'>%s</td>" % DotBold(key)
+		colFirst = "<td align='left' valign='top'>%s</td>" % lib_exports.DotBold(key)
 		colSecond = FormatElement(val,depth+1)
 		return colFirst + colSecond
 
@@ -327,11 +285,11 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# This should come first, but it does not so we prefix with "----". Hack !
 			if key == pc.property_information:
 				# Completely left-aligned. Col span is 2, approximate ratio.
-				val = StrWithBr(val,2)
+				val = lib_exports.StrWithBr(val,2)
 				currTd = "<td align='left' balign='left' colspan='2'>%s</td>" % val
 			elif key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
 				urlTxt = lib_naming.ParseEntityUri(val)[0]
-				splitTxt = StrWithBr(urlTxt, 2)
+				splitTxt = lib_exports.StrWithBr(urlTxt, 2)
 				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, splitTxt )
 			else:
 				key_qname = qname( key, grph )
@@ -580,7 +538,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 							tmpCell = "<td align='right'>%s</td>" % val
 						except:
 							# Wraps the string if too long. Can happen only with a literal.
-							tmpCell = "<td align='left'>%s</td>" % StrWithBr(val)
+							tmpCell = "<td align='left'>%s</td>" % lib_exports.StrWithBr(val)
 
 					idxKey = keyIndices[key]
 					columns[ idxKey ] = tmpCell
@@ -617,12 +575,12 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				txtElements = "1 element"
 			else:
 				txtElements = "%d elements" % numNodLst
-			header = '<td border="1">' + DotBold(txtElements) + "</td>"
+			header = '<td border="1">' + lib_exports.DotBold(txtElements) + "</td>"
 
 			# TODO: Replace each column name with a link which sorts the line based on this column.
 			# for key in fieldsKeys[1:]:
 			for key in fieldsKeys:
-				header += "<td border='1'>" + DotBold( qname(key,grph) ) + "</td>"
+				header += "<td border='1'>" + lib_exports.DotBold( qname(key,grph) ) + "</td>"
 			# With an empty key, it comes first when sorting.
 			dictLines[""] = header
 
@@ -667,7 +625,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 				# sys.stderr.write("labText=%s idx=%d\n"%(labText,idx))
 				labText = labText[:idx]+"..."
-			labTextWithBr= StrWithBr( labText )
+			labTextWithBr = lib_exports.StrWithBr( labText )
 			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in PropsAsLists )
 
 			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, helpText, "BLUE", labB, numFields, labTextWithBr, dictLines )
@@ -713,7 +671,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 		# Les ampersand sont doubles intentionnelent car ils ensuite remplaces deux fois.
 		# Ca n'est utilise que temporairement le temps qu'on remplace les arguments CGI par de vrais Monikers WMI.
-		labTextClean = StrWithBr( labText.replace("&amp;amp;"," "))
+		labTextClean = lib_exports.StrWithBr( labText.replace("&amp;amp;"," "))
 		# Two columns because it encompasses the key and the value.
 		lib_patterns.WritePatterned( stream, entity_graphic_class, nam, entity_graphic_class, NODECOLOR, labHRef, 2, labTextClean, props )
 
