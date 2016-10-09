@@ -1184,6 +1184,17 @@ SELECT Store_Name, SUM(Sales), Txn_Date
 FROM Sales_Data
 GROUP BY Store_Name, Txn_Date
 """ : ["SALES_DATA","STORE_INFORMATION"],
+"""
+SELECT sqltext.TEXT,
+req.session_id,
+req.status,
+sess.host_process_id,
+sess.host_name
+FROM sys.dm_exec_requests req
+CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
+, sys.dm_exec_sessions sess
+where sess.session_id = req.session_id
+""" : ["SYS.DM_EXEC_REQUESTS","SYS.DM_EXEC_SESSIONS","SYS.DM_EXEC_SQL_TEXT"],
 }
 
 ################################################################################
