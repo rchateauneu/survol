@@ -265,15 +265,16 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	page_title = page_title.strip()
 	page_title_split = page_title.split("\n")
 	page_title_first = page_title_split[0]
-	page_title_rest = " ".join( page_title_split[1:] )
-	page_title_full =  DotBold(page_title_first) + withBrDelim +  page_title_rest
 
-	page_title_full_wrap = StrWithBr(page_title_full,2)
+	page_title_first_wrapped = StrWithBr(page_title_first,2)
+
+	page_title_rest = " ".join( page_title_split[1:] )
+	page_title_full =  DotBold(page_title_first_wrapped) + withBrDelim +  page_title_rest
 
 	stream.write("""
   subgraph cluster_01 {
     key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">
-      <tr><td colspan="2">""" + page_title_full_wrap + """</td></tr>
+      <tr><td colspan="2">""" + page_title_full + """</td></tr>
  	""")
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
