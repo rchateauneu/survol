@@ -21,17 +21,6 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("pyodbc Python library not installed")
 
-# Depends on the type of odbc_driver: "SQL Server Native Client 11.0", "SQL Server", "Oracle in XE" etc...
-# xid=odbc/dsn.Dsn=MyOracleDataSource , odbc_driver=Oracle in XE
-# xid=odbc/dsn.Dsn=SqlSrvNativeDataSource , odbc_driver=SQL Server Native Client 11.0
-# xid=odbc/dsn.Dsn=SysDataSourceSQLServer , odbc_driver=SQL Server
-#def Usable(entity_type,entity_ids_arr):
-#	"""SQL Server database only"""
-#	dsnNam = entity_ids_arr[0]
-#	dbEntityType = survol_odbc_dsn.GetDatabaseEntityType(dsnNam)
-#
-#	return dbEntityType == "sqlserver"
-
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
