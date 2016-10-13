@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Information about an SQL Server database (ODBC)
+Information about an SQL Server session (ODBC)
 """
 
 import sys
@@ -16,10 +16,6 @@ from sources_types.sqlserver import session
 
 from sources_types import sql
 from sources_types.sql import query
-
-
-
-
 
 def GetInfoConnections(grph,sessionId,nodeSession,cnxn):
 	cursorConnections = cnxn.cursor()

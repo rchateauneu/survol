@@ -1,9 +1,7 @@
 #!/usr/bin/python
 
-# Display processes running in this database.
-
 """
-Processes running in SQL Server database (ODBC)
+Sessions in SQL Server database (ODBC)
 """
 
 import sys
@@ -37,7 +35,7 @@ def Main():
 
 		qrySessions = """
 		SELECT host_name,host_process_id,session_id,program_name,client_interface_name,original_login_name,nt_domain,nt_user_name
-		FROM sys.dm_exec_sessions where host_process_id is not null
+		FROM sys.dm_exec_sessions
 		"""
 
 		propSqlServerSession = lib_common.MakeProp("SqlServer session")
@@ -54,24 +52,29 @@ def Main():
 			nodeSession = session.MakeUri(dsnNam, rowSess.session_id)
 			grph.add((nodeDsn, propSqlServerSession, nodeSession))
 
-			node_process = lib_common.RemoteBox(rowSess.host_name).PidUri(rowSess.host_process_id)
-			grph.add((nodeSession, propSqlServerHostProcess, node_process))
-			grph.add((nodeSession, propSqlServerProgramName, rdflib.Literal(rowSess.program_name)))
-			grph.add((nodeSession, propSqlServerClientInterface, rdflib.Literal(rowSess.client_interface_name)))
+			if rowSess.host_process_id:
+				node_process = lib_common.RemoteBox(rowSess.host_name).PidUri(rowSess.host_process_id)
+				grph.add((nodeSession, propSqlServerHostProcess, node_process))
+
+			if rowSess.program_name:
+				grph.add((nodeSession, propSqlServerProgramName, rdflib.Literal(rowSess.program_name)))
+			if rowSess.client_interface_name:
+				grph.add((nodeSession, propSqlServerClientInterface, rdflib.Literal(rowSess.client_interface_name)))
 
 			# TODO: Make nodes with these:
-
-			grph.add(
-				(nodeSession, propSqlServerOriginalLoginName, rdflib.Literal(rowSess.original_login_name)))
-			grph.add((nodeSession, propSqlServerNTDomain, rdflib.Literal(rowSess.nt_domain)))
-			grph.add((nodeSession, propSqlServerNTUserName, rdflib.Literal(rowSess.nt_user_name)))
+			if rowSess.original_login_name:
+				grph.add((nodeSession, propSqlServerOriginalLoginName, rdflib.Literal(rowSess.original_login_name)))
+			if rowSess.nt_domain:
+				grph.add((nodeSession, propSqlServerNTDomain, rdflib.Literal(rowSess.nt_domain)))
+			if rowSess.nt_user_name:
+				grph.add((nodeSession, propSqlServerNTUserName, rdflib.Literal(rowSess.nt_user_name)))
 
 	except Exception:
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml(
 			"nodeDsn=%s Unexpected error:%s" % (dsnNam, str(sys.exc_info())))  # cgiEnv.OutCgiRdf(grph)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propSqlServerSession,propSqlServerHostProcess])
 
 if __name__ == '__main__':
 	Main()

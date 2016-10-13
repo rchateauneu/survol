@@ -6,15 +6,10 @@ Queries running in SQL Server database (ODBC)
 
 import sys
 import rdflib
-import lib_util
 import lib_common
-from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
-from sources_types import sqlserver
 from sources_types.sqlserver import session
-
-from sources_types import sql
 from sources_types.sql import query
 
 
