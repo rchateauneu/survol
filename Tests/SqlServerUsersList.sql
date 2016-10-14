@@ -1,4 +1,6 @@
-SELECT * FROM sys.dm_exec_sessions where host_name is not null
+SELECT * FROM sys.dm_exec_sessions
+
+/* where host_name is not null and session_id = 53 */
 
 select * from sys.dm_exec_requests
 
@@ -37,8 +39,30 @@ FROM sys.dm_exec_requests req
 CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
 , sys.dm_exec_sessions sess
 where sess.session_id = req.session_id
-*/
+
 
 select * from sys.dm_exec_connections
+*/
+
 
 /* exec sp_columns sys.dm_exec_connections */
+
+/*
+SELECT c.name AS ColName, t.name AS TableName
+FROM sys.columns c
+    JOIN sys.tables t ON c.object_id = t.object_id
+WHERE c.name = 'SESSION_ID' */
+
+/*select * from INFORMATION_SCHEMA.COLUMNS */
+
+/*select COLUMN_NAME from sys.columns*/
+
+/*
+where COLUMN_NAME like '%session%' 
+order by TABLE_NAME
+
+select * from sys.dm_os_waiting_tasks
+*/
+
+
+select * from master.dbo.sysprocesses

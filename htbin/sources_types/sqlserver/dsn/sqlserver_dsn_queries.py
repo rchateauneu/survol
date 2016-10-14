@@ -47,19 +47,19 @@ def Main():
 			where sess.session_id = req.session_id
 		"""
 
-		propSqlQuery = lib_common.MakeProp("Sql query")
-		propHostProcess = lib_common.MakeProp("Host process")
-		propStatus = lib_common.MakeProp("Status")
+		propSqlServerSqlQuery = lib_common.MakeProp("Sql query")
+		propSqlServerHostProcess = lib_common.MakeProp("Host process")
+		propSqlServerStatus = lib_common.MakeProp("Status")
 
 		for rowQry in cursorQueries.execute(qryQueries):
 			sys.stderr.write("rowQry.session_id=(%s)\n" % rowQry.session_id)
 			nodeSession = session.MakeUri(dsnNam, rowQry.session_id)
 
 			nodeSqlQuery = query.MakeUri(rowQry.TEXT)
-			grph.add((nodeSession, propSqlQuery, nodeSqlQuery))
+			grph.add((nodeSession, propSqlServerSqlQuery, nodeSqlQuery))
 			node_process = lib_common.RemoteBox(rowQry.host_name).PidUri(rowQry.host_process_id)
-			grph.add((nodeSession, propHostProcess, node_process))
-			grph.add((nodeSession, propStatus, rdflib.Literal(rowQry.status)))
+			grph.add((nodeSession, propSqlServerHostProcess, node_process))
+			grph.add((nodeSession, propSqlServerStatus, rdflib.Literal(rowQry.status)))
 
 	except Exception:
 		exc = sys.exc_info()[0]
