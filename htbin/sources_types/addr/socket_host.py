@@ -14,7 +14,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("Socket information")
+	cgiEnv = lib_common.CgiEnv()
 	socketNam = cgiEnv.GetId()
 
 	grph = rdflib.Graph()
@@ -37,6 +37,7 @@ def Main():
 	except IndexError:
 		socketTransport = "tcp"
 
+	sys.stderr.write("socketAddr=%s socketPort=%d\n"%(socketAddr,socketPort))
 	nodeHost = lib_common.gUriGen.HostnameUri(socketAddr)
 	socketNode = lib_common.gUriGen.AddrUri(socketAddr, socketPort )
 
