@@ -9,6 +9,7 @@ Processes running in SQL Server database (ODBC)
 import sys
 import rdflib
 import lib_common
+from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.sqlserver import session
@@ -55,6 +56,8 @@ def Main():
 			grph.add((nodeDsn, propSqlServerSession, nodeSession))
 
 			node_process = lib_common.RemoteBox(rowSess.host_name).PidUri(rowSess.host_process_id)
+			grph.add((node_process, pc.property_pid, rdflib.Literal(rowSess.host_process_id)))
+
 			grph.add((nodeSession, propSqlServerHostProcess, node_process))
 			grph.add((nodeSession, propSqlServerProgramName, rdflib.Literal(rowSess.program_name)))
 			grph.add((nodeSession, propSqlServerClientInterface, rdflib.Literal(rowSess.client_interface_name)))

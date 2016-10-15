@@ -7,6 +7,7 @@ Queries running in SQL Server database (ODBC)
 import sys
 import rdflib
 import lib_common
+from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.sqlserver import session
@@ -58,6 +59,8 @@ def Main():
 			nodeSqlQuery = query.MakeUri(rowQry.TEXT)
 			grph.add((nodeSession, propSqlServerSqlQuery, nodeSqlQuery))
 			node_process = lib_common.RemoteBox(rowQry.host_name).PidUri(rowQry.host_process_id)
+			grph.add((node_process, pc.property_pid, rdflib.Literal(rowQry.host_process_id)))
+
 			grph.add((nodeSession, propSqlServerHostProcess, node_process))
 			grph.add((nodeSession, propSqlServerStatus, rdflib.Literal(rowQry.status)))
 
