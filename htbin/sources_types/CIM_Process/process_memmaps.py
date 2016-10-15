@@ -26,17 +26,17 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("get_memory_maps Pid=%d. Caught %s\n" % (pid,str(exc)) )
 
+	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
 	for map in all_maps:
 		# This, because all Windows paths are "standardized" by us.
 		cleanMapPath = map.path.replace("\\","/")
-		# sys.stderr.write("MapPath=%s cleanMapPath=%s memmapName=%s\n" % (map.path,cleanMapPath,memmapName))
 
 		uriMemMap = lib_common.gUriGen.MemMapUri( cleanMapPath )
 
+		grph.add( ( uriMemMap, propMemoryRSS, rdflib.Literal(map.rss) ) )
 		grph.add( ( nodeProcess, pc.property_memmap, uriMemMap ) )
 
-
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()
