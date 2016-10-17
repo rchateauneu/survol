@@ -4,17 +4,17 @@
 CDB-extracted information from Windows binary
 """
 
-import os
+#import os
 import re
 import sys
 import subprocess
-import psutil
+#import psutil
 import rdflib
 import lib_util
 import lib_common
-import lib_entities.CIM_Process
+from sources_types import CIM_Process
 import lib_entities.lib_entity_symbol
-from lib_properties import pc
+#from lib_properties import pc
 
 Usable = lib_util.UsableWindows
 
@@ -133,7 +133,7 @@ def Main():
 
 	callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
 
-	lib_entities.CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
+	CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
 
 	# http://msdn.microsoft.com/en-us/library/windows/hardware/ff539058(v=vs.85).aspx
 	#
