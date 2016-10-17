@@ -30,6 +30,27 @@ def ModedUrl(otherMode):
 	return edtUrl
 
 ################################################################################
+def TruncateInSpace(labText,maxLenLab):
+	if len( labText ) > maxLenLab:
+		idx = labText.find(" ",maxLenLab)
+		# sys.stderr.write("idx=%d\n"%idx)
+		if idx < 0:
+			idx = maxLenLab
+
+			# BEWARE: This must not fall in the middle of an html entity "&amp;", etc... ...
+			idxSemiColon = labText.find(";",idx)
+			# sys.stderr.write("idxSemiColon=%d\n"%idxSemiColon)
+			if idxSemiColon < 0:
+				idx = maxLenLab
+			else:
+				idx = idxSemiColon + 1 # Just after the semi-colon.
+
+		# sys.stderr.write("labText=%s idx=%d\n"%(labText,idx))
+		return labText[:idx]
+	else:
+		return labText
+
+################################################################################
 
 maxHtmlTitleLenPerCol = 40
 withBrDelim = '<BR ALIGN="LEFT" />'

@@ -202,7 +202,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	fieldsSet = collections.defaultdict(list)
 	nodes = {}
 
-	def node(x):
+	def NodeToLabel(x):
 		try:
 			return nodes[x]
 		except KeyError:
@@ -331,13 +331,13 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			listed_props_by_subj[ subj ].append( obj )
 
 			# Maybe we already entered it: Not a problem.
-			namObj = node(obj)
+			namObj = NodeToLabel(obj)
 			# The node in which we are.
-			ListedLeavesToRootLabels[ namObj ] = node(subj)
+			ListedLeavesToRootLabels[ namObj ] = NodeToLabel(subj)
 
 			continue
 
-		subjNam = node(subj)
+		subjNam = NodeToLabel(subj)
 
 		#prop pourra etre un dictionnaire, mais ca n est pas standard:
 		#prop = {"title":"lkjlkj","bidirect": True}
@@ -364,7 +364,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# TODO: CGIPROP. On extrait la propriete "edge_style" ??
 			# TODO: Mais la c est different car on fusionne deux aretes ....
 			if prop == pc.property_socket_end:
-				objNam = node(obj)
+				objNam = NodeToLabel(obj)
 				if ( obj, prop, subj ) in grph :
 					if subjNam < objNam:
 						stream.write(pattEdgeBiDir % (subjNam, objNam, prp_col, qname(prop, grph)))
@@ -378,7 +378,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				# TODO: CGIPROP: Peut-on avoir plusieurs html ou sub-rdf ?? Il faut !
 				fieldsSet[subj].append( ( prop, obj ) )
 			else:
-				objNam = node(obj)
+				objNam = NodeToLabel(obj)
 				# C est la que si subjNam est dans une liste de listed_props_by_subj,
 				# il faut rajouter devant, le nom du record, c est a dire SON subjNam + "_table_rdf_data:".
 				if subjNam in ListedLeavesToRootLabels:
@@ -407,8 +407,8 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		logfil.write( TimeStamp()+" Rdf2Dot: listed_props_by_subj=%d.\n" % ( len( listed_props_by_subj ) ) )
 		logfil.flush()
 
-		for subj, nodLst in six.iteritems(listed_props_by_subj):
-			subjNam = node(subj)
+		for subjUrl, nodLst in six.iteritems(listed_props_by_subj):
+			subjNam = NodeToLabel(subjUrl)
 
 			subjNamTab = "rec_" + subjNam
 			if subjNam in ListedLeavesToRootLabels:
@@ -416,7 +416,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 			stream.write(pattEdgeOrien % (subjNam, subjNamTab, "GREEN", "RDF data"))
 
-			( labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( subj )
+			( labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( subjUrl )
 
 
 			# Probleme avec les champs:
@@ -477,7 +477,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			dictLines = dict()
 			for obj in nodLst:
 				# One table per node.
-				subObjId = node(obj)
+				subObjId = NodeToLabel(obj)
 
 				# Beware "\L" which should not be replaced by "<TABLE>" but this is not the right place.
 				subNodUri = obj.replace('&','&amp;')
@@ -548,8 +548,12 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 					title_key = title
 				else:
 					title_key = subObjNam
-				columns[0] = '<td port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
 
+				# Maybe the first column is a literal ?
+				if subEntityId != "PLAINTEXTONLY":
+					columns[0] = '<td port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
+				else:
+					columns[0] = '<td port="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri )
 
 				# Several scripts might have the same help text, so add a number.
 				# "Title" => "Title"
@@ -585,7 +589,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			dictLines[""] = header
 
 			# MAYBE SHOULD BE DONE TWICE !!!!! SEE ALSO ELSEWHERE !!!!
-			labB = subj.replace('&','&amp;')
+			subjUrlClean = subjUrl.replace('&','&amp;')
 
 			# ATTENTION: La forme du record est celle du sujet.
 			# ca veut donc dire qu'on va avoir la meme couleur pour des objets de types
@@ -608,27 +612,14 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# TODO: Le titre et le contenu ne sont pas forcement de la meme classe.
 			# labTextWithBr is the first line of the table containing nodes linked with the
 			# same property. Unfortunately we have lost this property.
-			maxLenLab = 30
-			if len( labText ) > maxLenLab:
-				idx = labText.find(" ",maxLenLab)
-				# sys.stderr.write("idx=%d\n"%idx)
-				if idx < 0:
-					idx = maxLenLab
-
-					# BEWARE: This must not fall in the middle of an html entity "&amp;", etc... ...
-					idxSemiColon = labText.find(";",idx)
-					# sys.stderr.write("idxSemiColon=%d\n"%idxSemiColon)
-					if idxSemiColon < 0:
-						idx = maxLenLab
-					else:
-						idx = idxSemiColon + 1 # Just after the semi-colon.
-
-				# sys.stderr.write("labText=%s idx=%d\n"%(labText,idx))
-				labText = labText[:idx]+"..."
+			labText = lib_exports.TruncateInSpace(labText,30)
 			labTextWithBr = lib_exports.StrWithBr( labText )
 			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in PropsAsLists )
 
-			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, helpText, "BLUE", labB, numFields, labTextWithBr, dictLines )
+			if entity_id == "PLAINTEXTONLY":
+				subjUrlClean = ""
+
+			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, helpText, "BLUE", subjUrlClean, numFields, labTextWithBr, dictLines )
 
 			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
 			# TODO: Si une cellule est identique jusqu a un delimiteur, idem, remplacer par '"'.
@@ -646,16 +637,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 		props = FieldsToHtmlVertical( grph, fieldsSet[obj])
 
-		#IMPOSSIBLE DE METTRE UN AMPERSAND DANS LE HTML DU FICHIER "dot"
-		# Sauf avec une vieille version de dot, sous Unix.
-		# C'est pourquoi nos URLs n'ont qu'un seul argument, le xid, type et id.
-		# dot - Graphviz version 2.20.3 (Sat Jan 17 00:45:25 UTC 2009)
-		# Mais par ailleurs elle core dump, parfois.
-		# TODO: PEUT-ETRE SUFFIT-IL DE DOUBLER L'AMPERSAND ?!?!?!?  MAYBE DOUBLE amp;amp; ???
-		# TODO: Apparemment ca marche: Les ampersand dans le HTML des fichiers DOT doivent etre doubles:
-		# nd_1 [ shape=none, tooltip="root/CIMV2/" color=black label=< <table color='#666666' cellborder='0'
-		#   cellspacing='0' border='1'><tr>
-		#   <td href='http://127.0.0.1:80/Survol/htbin/objtypes_wmi.py?xid=root/CIMV2/:&amp;amp;cimom=127.0.0.1' bgcolor='#99BB88' colspan='2'>root/CIMV2/  cimom=127.0.0.1</td></tr></table> > ]
 		labHRef = obj.replace('&','&amp;')
 
 		try:

@@ -286,8 +286,10 @@ def ParseEntityUri(uri,longDisplay=True):
 
 	else:
 		entity_graphic_class = ""
-		entity_id = ""
+		entity_id = "PLAINTEXTONLY"
 		entity_label = UriToTitle(uprs)
+		# TODO: " " are replaced by "%20". Why ?
+		entity_label = entity_label.replace("%20"," ")
 
 	# TODO: ATTENTION !!!! ON L A RETIRE ICI UNIQUEMENT CAR C ETAIT DEJA FAIT
 	# TODO: AVEC LES SYMBOLES. PEUT ETRE LE REMETTRE POUR TOUS LES AUTRES TYPES.

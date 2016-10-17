@@ -58,7 +58,7 @@ def TypeToGraphParams(typeWithoutNS):
 
 	# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
 
-# Builds a HTML pattern given graphic parameters.
+# This returns an array of format string which are used to generate HTML code.
 def BuildPatternNode(tp):
 	shape  = tp[0]
 	colorfill  = tp[1]
@@ -72,10 +72,18 @@ def BuildPatternNode(tp):
 	else:
 		style = 'style="filled"'
 
-	return '%s [ shape=' + shape + ', tooltip="%s", ' + style + ' fillcolor="' + colorfill + '" color=%s label=< <table color="' + '#000000' + '"' + \
+	# First element if this is a URI, second element if plain string.
+	fmtWithUri = '%s [ shape=' + shape + ', tooltip="%s", ' + style + ' fillcolor="' + colorfill + '" color=%s label=< <table color="' + '#000000' + '"' + \
 		" cellborder='0' cellspacing='0' border='" + str(border) + "'><tr>" + \
 		'<td href="%s" bgcolor="' + colorbg + '" colspan="%d">%s</td>' + \
 		"</tr>"
+
+	fmtWithNoUri = '%s [ shape=' + shape + ', tooltip="%s", ' + style + ' fillcolor="' + colorfill + '" color=%s label=< <table color="' + '#000000' + '"' + \
+		" cellborder='0' cellspacing='0' border='" + str(border) + "'><tr>" + \
+		'<td bgcolor="' + colorbg + '" colspan="%d">%s</td>' + \
+		"</tr>"
+
+	return [fmtWithUri,fmtWithNoUri]
 
 dictTypeToPatterns = {}
 
@@ -91,26 +99,29 @@ def PatternNode(typeFull):
 	except KeyError:
 		type = typeFull.split(":")[-1]
 		tp = TypeToGraphParams(type)
-		patt = BuildPatternNode(tp)
-		dictTypeToPatterns[typeFull] = patt
-		return patt
+		pattArray = BuildPatternNode(tp)
+		dictTypeToPatterns[typeFull] = pattArray
+		return pattArray
 
-def WritePatterned( stream, type, subjNamTab, hlp, color, labHRef, nbCols, labText, props ):
-	patt = PatternNode(type)
+def WritePatterned( stream, type, subjNamTab, helpText, color, labHRef, numFields, labText, dictLines ):
+	pattArray = PatternNode(type)
 
 	# PROBLEME: Le titre et les elements n ont pas forcement les memes couleurs.
 	# Le cadre est celui du titre.
 
 	try:
-		stream.write( patt % ( subjNamTab, hlp, color, labHRef, nbCols, labText ) )
+		if labHRef != "":
+			stream.write( pattArray[0] % ( subjNamTab, helpText, color, labHRef, numFields, labText) )
+		else:
+			stream.write( pattArray[1] % ( subjNamTab, helpText, color, numFields, labText ) )
 	except UnicodeEncodeError:
 		sys.stderr.write("WritePatterned UnicodeEncodeError: Encoding=%s\n" % sys.getdefaultencoding() )
 		return
 
 	# Maybe the keys will not be string.
-	for key in sorted(props):
+	for key in sorted(dictLines):
 		try:
-			stream.write( "<tr>%s</tr>" % props[key] )
+			stream.write( "<tr>%s</tr>" % dictLines[key] )
 		except UnicodeEncodeError:
 			stream.write( "<tr><td>Unicode error encoding=%s</td></tr>" % sys.getdefaultencoding() )
 
