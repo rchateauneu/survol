@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+__doc__ = "Regular expressions in process memory"
+
 import ctypes
 import platform
 import mmap
