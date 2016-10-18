@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Oracle views
+Oracle types
 """
 
 #import re
@@ -12,7 +12,7 @@ import lib_oracle
 import rdflib
 
 from sources_types.oracle import schema as oracle_schema
-from sources_types.oracle import view as oracle_view
+from sources_types.oracle import type as oracle_type
 
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
@@ -21,7 +21,7 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM DBA_OBJECTS WHERE OBJECT_TYPE = 'VIEW' AND OWNER = '" + oraSchema + "'"
+	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM DBA_OBJECTS WHERE OBJECT_TYPE = 'TYPE' AND OWNER = '" + oraSchema + "'"
 	sys.stderr.write("sql_query=%s\n" % sql_query )
 
 	node_oraschema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, oraSchema )
@@ -29,16 +29,16 @@ def Main():
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	for row in result:
-		viewName = str(row[0])
-		nodeView = oracle_view.MakeUri( cgiEnv.m_oraDatabase , oraSchema, viewName )
-		grph.add( ( node_oraschema, pc.property_oracle_view, nodeView ) )
+		typeName = str(row[0])
+		nodeType = oracle_type.MakeUri( cgiEnv.m_oraDatabase , oraSchema, typeName )
+		grph.add( ( node_oraschema, pc.property_oracle_type, nodeType ) )
 
-		lib_oracle.AddLiteralNotNone(grph,nodeView,"Status",row[1])
-		lib_oracle.AddLiteralNotNone(grph,nodeView,"Creation",row[2])
+		lib_oracle.AddLiteralNotNone(grph,nodeType,"Status",row[1])
+		lib_oracle.AddLiteralNotNone(grph,nodeType,"Creation",row[2])
 
 	# It cannot work if there are too many views.
 	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_oracle_view])
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_oracle_type])
 
 if __name__ == '__main__':
 	Main()

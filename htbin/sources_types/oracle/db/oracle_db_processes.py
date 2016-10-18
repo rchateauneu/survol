@@ -6,10 +6,15 @@ Oracle database's connected processes
 
 import sys
 import lib_common
-import socket
+#import socket
 from lib_properties import pc
 import lib_oracle
 import rdflib
+
+from sources_types.oracle import db as oracle_db
+from sources_types.oracle import session as oracle_session
+from sources_types.oracle import schema as oracle_schema
+
 
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
@@ -46,7 +51,7 @@ def Main():
 	   and sess.paddr = proc.addr
 	"""
 
-	node_oradb = lib_common.gUriGen.OracleDbUri( cgiEnv.m_oraDatabase )
+	node_oradb = oracle_db.MakeUri( cgiEnv.m_oraDatabase )
 
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
@@ -72,13 +77,13 @@ def Main():
 		procTerminal = row[9]
 		sessProgram = row[10]
 
-		nodeSession = lib_common.gUriGen.OracleSessionUri( cgiEnv.m_oraDatabase, str(row[0]) )
+		nodeSession = oracle_session.MakeUri( cgiEnv.m_oraDatabase, str(row[0]) )
 		grph.add( ( nodeSession, lib_common.MakeProp("Oracle user"), rdflib.Literal(oraUsername) ) )
 		grph.add( ( nodeSession, lib_common.MakeProp("Schema"), rdflib.Literal(schemaName) ) )
 		grph.add( ( nodeSession, lib_common.MakeProp("Program"), rdflib.Literal(sessProgram) ) )
 
 		if schemaName != None:
-			nodeSchema = lib_common.gUriGen.OracleSchemaUri(cgiEnv.m_oraDatabase, str(schemaName) )
+			nodeSchema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, str(schemaName) )
 			grph.add( ( nodeSession, pc.property_oracle_schema, nodeSchema ) )
 			grph.add( ( node_oradb, pc.property_oracle_db, nodeSchema ) )
 

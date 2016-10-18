@@ -10,6 +10,8 @@ import lib_common
 from lib_properties import pc
 import lib_oracle
 import rdflib
+from sources_types.oracle import schema as oracle_schema
+from sources_types.oracle import view as oracle_view
 
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
@@ -20,9 +22,9 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	node_oraView = lib_common.gUriGen.OracleViewUri( oraDatabase, oraSchema, oraView )
+	node_oraView = oracle_view.MakeUri( oraDatabase, oraSchema, oraView )
 
-	node_oraSchema = lib_common.gUriGen.OracleSchemaUri( oraDatabase, oraSchema )
+	node_oraSchema = oracle_schema.MakeUri( oraDatabase, oraSchema )
 	grph.add( ( node_oraSchema, pc.property_oracle_view, node_oraView ) )
 
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"

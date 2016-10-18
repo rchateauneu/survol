@@ -10,6 +10,9 @@ import rdflib
 import lib_common
 from lib_properties import pc
 
+from sources_types.oracle import schema as oracle_schema
+from sources_types.oracle import session as oracle_session
+
 
 # Associer a chaque table oracle une classe dynamique (Ce que ne peut pas faire wbem et wmi)
 # C est une autre definition. Eventuellement en parallele.
@@ -35,7 +38,7 @@ def Main():
 	cgiEnv = lib_oracle.OracleEnv()
 	oraSession = cgiEnv.m_entity_id_dict["Session"]
 	grph = rdflib.Graph()
-	node_oraSession = lib_common.gUriGen.OracleSessionUri( cgiEnv.m_oraDatabase, oraSession )
+	node_oraSession = oracle_session.MakeUri( cgiEnv.m_oraDatabase, oraSession )
 
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"
 	sql_query = "select SID,STATUS,USERNAME,SERVER,SCHEMANAME,COMMAND,MACHINE,PORT,OSUSER,PROCESS,SERVICE_NAME,ACTION from V$SESSION where SID='%s'" % oraSession
@@ -51,7 +54,7 @@ def Main():
 		grph.add( ( node_oraSession, lib_common.MakeProp("Server"), rdflib.Literal(row[3]) ) )
 
 		# grph.add( ( node_oraSession, lib_common.MakeProp("Schema"), rdflib.Literal(row[4]) ) )
-		nodeSchema = lib_common.gUriGen.OracleSchemaUri(cgiEnv.m_oraDatabase, str(row[4]) )
+		nodeSchema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, str(row[4]) )
 		grph.add( ( node_oraSession, pc.property_oracle_schema, nodeSchema ) )
 
 		grph.add( ( node_oraSession, lib_common.MakeProp("Command"), rdflib.Literal(row[5]) ) )

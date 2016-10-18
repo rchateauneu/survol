@@ -1,11 +1,12 @@
 import lib_common
+from lib_properties import pc
 
 def EntityOntology():
-	return ( ["Db", "Schema", "Synonym"], )
+	return ( ["Db", "Schema", "Function"], )
 
 # Ambiguity with tables, oracle or normal users.
-def MakeUri(dbName,schemaName,synonymName):
-	return lib_common.gUriGen.UriMakeFromDict("oracle/synonym", { "Db" : dbName, "Schema" : schemaName, "Synonym" : synonymName } )
+def MakeUri(dbName,schemaName,functionName):
+	return lib_common.gUriGen.UriMakeFromDict("oracle/function", { "Db" : dbName, "Schema" : schemaName, "Function" : functionName } )
 
 def AddInfo(grph,node,entity_ids_arr):
 	# TODO: SPECIAL. Imported here to avoid circular inclusions, see oracle/package_body/__init__.py
@@ -15,4 +16,4 @@ def AddInfo(grph,node,entity_ids_arr):
 	argSchema = entity_ids_arr[1]
 
 	node_oraschema = oracle_schema.MakeUri( argDb, argSchema )
-	grph.add( ( node_oraschema, pc.property_oracle_synonym, node ) )
+	grph.add( ( node_oraschema, pc.property_oracle_function, node ) )

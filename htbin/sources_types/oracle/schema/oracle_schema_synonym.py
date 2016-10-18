@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Oracle views
+Oracle synonyms
 """
 
 #import re
@@ -12,7 +12,7 @@ import lib_oracle
 import rdflib
 
 from sources_types.oracle import schema as oracle_schema
-from sources_types.oracle import view as oracle_view
+from sources_types.oracle import synonym as oracle_synonym
 
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
@@ -21,7 +21,7 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM DBA_OBJECTS WHERE OBJECT_TYPE = 'VIEW' AND OWNER = '" + oraSchema + "'"
+	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM DBA_OBJECTS WHERE OBJECT_TYPE = 'SYNONYM' AND OWNER = '" + oraSchema + "'"
 	sys.stderr.write("sql_query=%s\n" % sql_query )
 
 	node_oraschema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, oraSchema )
@@ -29,16 +29,16 @@ def Main():
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	for row in result:
-		viewName = str(row[0])
-		nodeView = oracle_view.MakeUri( cgiEnv.m_oraDatabase , oraSchema, viewName )
-		grph.add( ( node_oraschema, pc.property_oracle_view, nodeView ) )
+		synonymName = str(row[0])
+		nodeSynonym = oracle_synonym.MakeUri( cgiEnv.m_oraDatabase , oraSchema, synonymName )
+		grph.add( ( node_oraschema, pc.property_oracle_synonym, nodeSynonym ) )
 
-		lib_oracle.AddLiteralNotNone(grph,nodeView,"Status",row[1])
-		lib_oracle.AddLiteralNotNone(grph,nodeView,"Creation",row[2])
+		lib_oracle.AddLiteralNotNone(grph,nodeSynonym,"Status",row[1])
+		lib_oracle.AddLiteralNotNone(grph,nodeSynonym,"Creation",row[2])
 
 	# It cannot work if there are too many views.
 	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_oracle_view])
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_oracle_synonym])
 
 if __name__ == '__main__':
 	Main()

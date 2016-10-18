@@ -10,6 +10,8 @@ import lib_common
 from lib_properties import pc
 import lib_oracle
 import rdflib
+from sources_types.oracle import schema as oracle_schema
+from sources_types.oracle import table as oracle_table
 
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
@@ -25,9 +27,9 @@ def Main():
 
 	sys.stderr.write("sql_query=%s\n" % sql_query )
 
-	node_oraTable = lib_common.gUriGen.OracleTableUri( oraDatabase, oraSchema, oraTable )
+	node_oraTable = oracle_table.MakeUri( oraDatabase, oraSchema, oraTable )
 
-	node_oraSchema = lib_common.gUriGen.OracleSchemaUri( oraDatabase, oraSchema )
+	node_oraSchema = oracle_schema.MakeUri( oraDatabase, oraSchema )
 	grph.add( ( node_oraSchema, pc.property_oracle_table, node_oraTable ) )
 
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
