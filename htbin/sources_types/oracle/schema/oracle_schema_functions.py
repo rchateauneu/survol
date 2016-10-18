@@ -29,7 +29,7 @@ def Main():
 	for row in result:
 		functionName = str(row[0])
 		nodeFunction = oracle_function.MakeUri( cgiEnv.m_oraDatabase , oraSchema, functionName )
-		grph.add( ( node_oraschema, pc.property_oracle_view, nodeFunction ) )
+		grph.add( ( node_oraschema, pc.property_oracle_function, nodeFunction ) )
 
 		lib_oracle.AddLiteralNotNone(grph,nodeFunction,"Status",row[1])
 		lib_oracle.AddLiteralNotNone(grph,nodeFunction,"Creation",row[2])
