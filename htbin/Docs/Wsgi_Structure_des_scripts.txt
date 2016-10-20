@@ -25,17 +25,3 @@ Pour lib_uris, le mettre aussi dans le namespace:
 from lib_uris import *
 import lib_uris
 
-nodeSchema = lib_common.gUriGen.OracleSchemaUri(dbNam,schemaNam)
-
-... deviendrait:
-
-nodeSchema = ns_general.gUriGen.OracleSchemaUri(dbNam,schemaNam)
-
-Dans ns_general.__init__.py, on mettrait tout ce qui est relatif aux classes.
-
-On peut commencer a creer ns_general et progressivement y deplacer ce qui est relatif
-aux classes de ce namespace.
-
-Difficulte avec lib_naming.EntityArrToLabel : Il faudrait utiliser le namespace
-pour choisir la bonne fonction dans le bon module.
-
