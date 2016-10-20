@@ -310,36 +310,6 @@ class LocalBox:
 	def FileUriMime(self,filNam):
 		return self.UriMakeFromScript('/file_to_mime.py', "CIM_DataFile", lib_util.EncodeUri(filNam) )
 
-	def OracleDbUri(self,dbName):
-		return self.UriMakeFromDict("oracle/db", { "Db" : dbName } )
-
-	def OracleSessionUri(self,dbName,sessionId):
-		return self.UriMakeFromDict("oracle/session", { "Db" : dbName, "Session" : sessionId } )
-
-	# Beware of the possible confusion with normal users.
-	def OracleSchemaUri(self,dbName,schemaName):
-		return self.UriMakeFromDict("oracle/schema", { "Db" : dbName, "Schema" : schemaName } )
-
-	# Beware of the possible confusion with normal users.
-	def OracleTableUri(self,dbName,schemaName,tableName):
-		return self.UriMakeFromDict("oracle/table", { "Db" : dbName, "Schema" : schemaName, "Table" : tableName } )
-
-	# Ambiguity with tables, oracle or normal users.
-	def OracleViewUri(self,dbName,schemaName,viewName):
-		return self.UriMakeFromDict("oracle/view", { "Db" : dbName, "Schema" : schemaName, "View" : viewName } )
-
-	# Ambiguity with tables, oracle or normal users.
-	def OraclePackageUri(self,dbName,schemaName,packageName):
-		return self.UriMakeFromDict("oracle/package", { "Db" : dbName, "Schema" : schemaName, "Package" : packageName } )
-
-	# Ambiguity with tables, oracle or normal users.
-	def OraclePackageBodyUri(self,dbName,schemaName,packageBodyName):
-		return self.UriMakeFromDict("oracle/package_body", { "Db" : dbName, "Schema" : schemaName, "Package" : packageBodyName } )
-
-	# Ambiguity with tables, oracle or normal users.
-	def OracleSynonymUri(self,dbName,schemaName,synonymName):
-		return self.UriMakeFromDict("oracle/synonym", { "Db" : dbName, "Schema" : schemaName, "Synonym" : synonymName } )
-
 	def SqliteTableUri(self,fileName,tableName):
 		return self.UriMakeFromDict("sqlite/table", { "File" : fileName, "Table" : tableName } )
 

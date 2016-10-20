@@ -13,6 +13,8 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+from sources_types.oracle import db as oracle_db
+
 ###########################################################################################	
 	
 def parse_one(grph,database_dicts,database):
@@ -43,7 +45,7 @@ def parse_one(grph,database_dicts,database):
 		return
 	
 	# Here we should do something better, for example getting more information about this database.
-	node_oradb = lib_common.gUriGen.OracleDbUri( name )
+	node_oradb = oracle_db.MakeUri( name )
 
 	grph.add( ( node_addr, pc.property_oracle_db, node_oradb ) )
 

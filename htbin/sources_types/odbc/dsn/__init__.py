@@ -5,10 +5,9 @@ import lib_credentials
 import pyodbc
 from lib_properties import pc
 
-# from sources_types import odbc as survol_odbc
-from sources_types import sqlserver as survol_sqlserver
+# from sources_types import sqlserver as survol_sqlserver
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
-
+from sources_types.oracle import db as oracle_db
 
 def MakeOdbcConnectionString(dsnNam):
 	pairUsrnamPass = lib_credentials.GetCredentials("ODBC",dsnNam)
@@ -57,7 +56,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	if dbEntityType == "oracle":
 		# For example "XE".
 		server_name = cnxn.getinfo(pyodbc.SQL_SERVER_NAME)
-		node_oradb = lib_common.gUriGen.OracleDbUri( server_name )
+		node_oradb = oracle_db.MakeUri( server_name )
 
 		grph.add( ( node, pc.property_oracle_db, node_oradb ) )
 

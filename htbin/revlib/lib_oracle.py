@@ -7,6 +7,19 @@ import sys
 import lib_util
 import lib_credentials
 
+from sources_types.oracle import table as oracle_table
+from sources_types.oracle import view as oracle_view
+from sources_types.oracle import package as oracle_package
+from sources_types.oracle import package_body as oracle_package_body
+
+from sources_types.oracle import function as oracle_function
+from sources_types.oracle import library as oracle_library
+from sources_types.oracle import procedure as oracle_procedure
+from sources_types.oracle import sequence as oracle_sequence
+from sources_types.oracle import synonym as oracle_synonym
+from sources_types.oracle import trigger as oracle_trigger
+from sources_types.oracle import type as oracle_type
+
 # http://stackoverflow.com/questions/13589683/interfaceerror-unable-to-acquire-oracle-environment-handle-oracle-home-is-corr
 # InterfaceError: Unable to acquire Oracle environment handle
 
@@ -87,34 +100,34 @@ class OracleEnv (lib_common.CgiEnv):
 	def MakeUri(self, entity_type, **kwArgs ):
 		return lib_util.EntityUri( entity_type, { "Db": self.m_oraDatabase }, **kwArgs )
 
-
+# This displays the content of the Oracle table dba_dependencies.
 def AddDependency( grph, row, nodeRoot, oraDatabase, direction ):
 	depOwner = str(row[0])
 	depName = str(row[1])
 	depType = str(row[2])
 
 	if depType == "TABLE":
-		nodeObject = lib_common.gUriGen.OracleTableUri( oraDatabase , depOwner, depName )
+		nodeObject = oracle_table.MakeUri( oraDatabase , depOwner, depName )
 	elif depType == "VIEW":
-		nodeObject = lib_common.gUriGen.OracleViewUri( oraDatabase , depOwner, depName )
+		nodeObject = oracle_view.MakeUri( oraDatabase , depOwner, depName )
 	elif depType == "PACKAGE":
-		nodeObject = lib_common.gUriGen.OraclePackageUri( oraDatabase , depOwner, depName )
+		nodeObject = oracle_package.MakeUri( oraDatabase , depOwner, depName )
 	elif depType == "PACKAGE BODY":
-		nodeObject = lib_common.gUriGen.OraclePackageBodyUri( oraDatabase , depOwner, depName )
+		nodeObject = oracle_package_body.MakeUri( oraDatabase , depOwner, depName )
 	elif depType == "SYNONYM":
-		nodeObject = lib_common.gUriGen.OracleSynonymUri( oraDatabase , depOwner, depName )
+		nodeObject = oracle_synonym.MakeUri( oraDatabase , depOwner, depName )
 	elif depType == "TYPE":
-		# TODO: Create a type.
-		grph.add( ( nodeRoot, lib_common.MakeProp("Type"), rdflib.Literal( depOwner + ":" + depName) ) )
-		return
+		nodeObject = oracle_type.MakeUri( oraDatabase , depOwner, depName )
 	elif depType == "SEQUENCE":
-		# TODO: Create a type.
-		grph.add( ( nodeRoot, lib_common.MakeProp("Sequence"), rdflib.Literal( depOwner + ":" + depName) ) )
-		return
+		nodeObject = oracle_sequence.MakeUri( oraDatabase , depOwner, depName )
 	elif depType == "LIBRARY":
-		# TODO: Create a type.
-		grph.add( ( nodeRoot, lib_common.MakeProp("Library"), rdflib.Literal( depOwner + ":" + depName) ) )
-		return
+		nodeObject = oracle_library.MakeUri( oraDatabase , depOwner, depName )
+	elif depType == "PROCEDURE":
+		nodeObject = oracle_procedure.MakeUri( oraDatabase , depOwner, depName )
+	elif depType == "FUNCTION":
+		nodeObject = oracle_function.MakeUri( oraDatabase , depOwner, depName )
+	elif depType == "TRIGGER":
+		nodeObject = oracle_trigger.MakeUri( oraDatabase , depOwner, depName )
 	else:
 		lib_common.ErrorMessageHtml("Unknown dependency depType=%s depName=%s" % ( depType, depName ) )
 		return

@@ -33,6 +33,8 @@ def Main():
 	# - Or see, among the sockets helpd by the process, which ones are in the tnsnames.ora.
 
 
+	#Ca marche pas et faire la meme chose avec SqlServer.
+
 	# THIS IS NOT FINISHED.
 
 	node_process = lib_common.gUriGen.PidUri(procid)

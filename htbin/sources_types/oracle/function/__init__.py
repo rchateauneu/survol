@@ -17,3 +17,6 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	node_oraschema = oracle_schema.MakeUri( argDb, argSchema )
 	grph.add( ( node_oraschema, pc.property_oracle_function, node ) )
+
+
+# QUELLE EST LA DIFFERENCE ENTRE FONCTIONS ET PROCEDURES ?
