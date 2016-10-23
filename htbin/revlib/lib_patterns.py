@@ -3,9 +3,6 @@
 import sys
 import lib_util
 
-# Mettre dans sources_types. etc... ?
-# Il faut que ce soit tres rapide !! lib_util.GetEntityModule(entity_type).AddInfo()
-
 # We could also use dot record nodes.
 # On the other hand, it is convenient to have some control on the final SVG code.
 # NOTE: Could not set bgcolor for the shapes.
@@ -49,14 +46,45 @@ dictGraphParams = {
 
 dfltGraphParams =                              ( "none",      "#FFFFFF", "#99BB88", 1, False )
 
+
 # Returns graphic parameters given a type without namespace.
+# TODO: Allow to override and inherit specific members of the graphic pattern.
+# Or have a more powerful graphic logic.
 def TypeToGraphParams(typeWithoutNS):
+	# Fastest access from the cache.
 	try:
 		return dictGraphParams[typeWithoutNS]
 	except KeyError:
-		return dfltGraphParams
+		pass
 
-	# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
+	# The tries a specific function in the module.
+	grphPatt = None
+	entity_module = lib_util.GetEntityModule(typeWithoutNS)
+	if entity_module:
+		try:
+			grphPatt = entity_module.GraphicPattern()
+		except AttributeError:
+			# Maybe the function is not defined in this module.
+			pass
+
+	# No module and no function in the module.
+	if not grphPatt:
+		# Then take the upper level module.
+		lastSlash = typeWithoutNS.rfind("/")
+		if lastSlash > 0:
+			# A type can inherit the graphic attributes of the upper level modules.
+			choppedEntityType = typeWithoutNS[:lastSlash]
+			# Recursive access, will happen once only for this type, ever.
+			grphPatt =  TypeToGraphParams(choppedEntityType)
+		else:
+			grphPatt = dfltGraphParams
+
+	# So next time we go straight to it because it will be in the set.
+	dictGraphParams[typeWithoutNS] = grphPatt
+	return grphPatt
+
+
+
 
 # This returns an array of format string which are used to generate HTML code.
 def BuildPatternNode(tp):
