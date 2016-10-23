@@ -187,7 +187,8 @@ def ConcatRegexes(theClass):
 	return pattern
 
 class MemoryProcessorStructs:
-	def __init__(self,is64Bits,lstStructs):
+	# We can have: re_flags=re.IGNORECASE
+	def __init__(self,is64Bits,lstStructs,re_flags):
 		# CA MARCHE AVEC PYTHON3
 		from six.moves import builtins
 		builtins.CTYPES_POINTER_TARGET_64 = is64Bits
@@ -196,9 +197,10 @@ class MemoryProcessorStructs:
 		# print("Imported modules:"+str(sorted(sys.modules.keys())))
 
 		class DefStruct:
-			def __init__(self,structPatt):
+			# We can have flags=re.IGNORECASE
+			def __init__(self,structPatt,re_flags):
 				self.m_rgxText = ConcatRegexes(structPatt)
-				self.m_rgxComp = re.compile(self.m_rgxText.encode('utf-8'))
+				self.m_rgxComp = re.compile(self.m_rgxText.encode('utf-8'),re_flags)
 				self.m_foundStructs = {}
 				# TODO: On pourrait fabriquer une validation supplementaire si on connait
 				# le sens ses types de donnees: Adresse IP, nom d utilisateur etc...
@@ -219,7 +221,7 @@ class MemoryProcessorStructs:
 				# All members validated, or not validation needed.
 				return True
 
-		self.m_byStruct = { theStr : DefStruct(theStr) for theStr in lstStructs }
+		self.m_byStruct = { theStr : DefStruct(theStr,flags) for theStr in lstStructs }
 
 
 	# TODO: ON VOUDRAIT AJOUTER LA CONTRAINTE QUE LA MEMOIRE EST ALIGNEE COMME LA STRUCT. COMMENT FAIRE ??
@@ -304,8 +306,9 @@ class MemoryProcessorStructs:
 ################################################################################
 
 class MemoryProcessorRegex:
-	def __init__(self,is64Bits,aRegex):
-		self.m_rgxComp = re.compile(aRegex.encode('utf-8'))
+	# We can have: flags=re.IGNORECASE
+	def __init__(self,is64Bits,aRegex, re_flags):
+		self.m_rgxComp = re.compile(aRegex.encode('utf-8'),re_flags)
 		self.m_matches = set()
 
 	def ParseSegment(self,bytes_array):
@@ -317,11 +320,12 @@ class MemoryProcessorRegex:
 
 ################################################################################
 
-def MemoryProcessor(is64Bits,lstStructs_or_regex):
+# re flags=re.IGNORECASE
+def MemoryProcessor(is64Bits,lstStructs_or_regex,re_flags):
 	if isinstance(lstStructs_or_regex,list ):
-		return MemoryProcessorStructs(is64Bits,lstStructs_or_regex)
+		return MemoryProcessorStructs(is64Bits,lstStructs_or_regex,re_flags)
 	else:
-		return MemoryProcessorRegex(is64Bits,lstStructs_or_regex)
+		return MemoryProcessorRegex(is64Bits,lstStructs_or_regex,re_flags)
 
 
 ################################################################################
@@ -514,7 +518,7 @@ if sys.platform == "win32":
 
 		return ( si.lpMinimumApplicationAddress, si.lpMaximumApplicationAddress )
 
-	def MemMachine(pidint,lstStructs):
+	def MemMachine(pidint,lstStructs,re_flags):
 		kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 
 		# PROCESS_ALL_ACCESS, # alternative access right for debugging.
@@ -535,7 +539,7 @@ if sys.platform == "win32":
 
 		is64bits = IsProcess64Bits(phandle)
 		sys.stderr.write("is64bits=%d\n" % is64bits)
-		mem_proc_functor = MemoryProcessor(is64bits,lstStructs)
+		mem_proc_functor = MemoryProcessor(is64bits,lstStructs,re_flags)
 
 		# First address of the first page, and last address to scan.
 		( base_address , max_address ) = GetAddressRange()
@@ -622,9 +626,9 @@ else:
 		except AttributeError:
 			return p.memory_maps(grouped=False)
 
-	def MemMachine(pidint,lstStructs):
+	def MemMachine(pidint,lstStructs,re_flags):
 		# TODO: 64 bits by default :):):) ... Fix this !
-		mem_proc_functor = MemoryProcessor(True,lstStructs)
+		mem_proc_functor = MemoryProcessor(True,lstStructs,re_flags)
 		memmaps = GetMemMaps(pidint)
 		for map in memmaps:
 			if '[heap]' in map.path:
@@ -679,8 +683,8 @@ def CTypesStructToDict(struct):
 
 ################################################################################
 
-def GetRegexMatches(pidint,the_regex):
-	mem_proc_functor = MemMachine( pidint, the_regex )
+def GetRegexMatches(pidint,the_regex,re_flags=0):
+	mem_proc_functor = MemMachine( pidint, the_regex,re_flags)
 	return mem_proc_functor.m_matches
 
 ################################################################################
@@ -692,8 +696,8 @@ def ProcessMemoryScan(pidint, lstStructs, maxDisplay,verbose):
 	else:
 		ProcessMemoryScanNonVerbose(pidint, lstStructs, maxDisplay)
 
-def ProcessMemoryScanNonVerbose(pidint, lstStructs, maxDisplay):
-	mem_proc_functor = MemMachine( pidint, lstStructs )
+def ProcessMemoryScanNonVerbose(pidint, lstStructs, maxDisplay,re_flags=0):
+	mem_proc_functor = MemMachine( pidint, lstStructs, re_flags )
 	byStruct = mem_proc_functor.m_byStruct
 
 	dictByStructs = dict()
@@ -725,8 +729,8 @@ def ProcessMemoryScanNonVerbose(pidint, lstStructs, maxDisplay):
 
 	print(dictByStructs)
 
-def ProcessMemoryScanVerbose(pidint, lstStructs, maxDisplay):
-	mem_proc_functor = MemMachine( pidint, lstStructs )
+def ProcessMemoryScanVerbose(pidint, lstStructs, maxDisplay, re_flags = 0):
+	mem_proc_functor = MemMachine( pidint, lstStructs, re_flags )
 	byStruct = mem_proc_functor.m_byStruct
 
 	# print("Keys number:%d" % len(byStruct) )

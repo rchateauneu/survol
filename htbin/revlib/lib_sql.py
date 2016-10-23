@@ -443,9 +443,12 @@ def SqlQueryWalkNodes(sqlQuery,Func):
 # for the same type of querie. Also, it might be simpler and faster
 # to use dedicated functions for this plain text exploration.
 # For example by searching for "SELECT" then "FROM" etc...
+# printables = "[ ,a-z_0-9\.=<>!]*"
+printables = "[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
 theRegExs = {
-	"SELECT": "select ",
-	"INSERT": "insert "
+	"SELECT": "select\s+" + printables + "\s+from\s+" + printables,
+#	"INSERT": "insert\s+" + printables + "\s+into\s+" + printables,
+#	"UPDATE": "update\s+" + printables + "\s+set\s+" + printables,
 }
 #
 def SqlRegularExpressions():
