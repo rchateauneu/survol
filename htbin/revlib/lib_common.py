@@ -1190,7 +1190,6 @@ class CgiEnv():
 
 		layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
-		# out_dest = lib_util.DfltOutDest()
 		mode = GuessDisplayMode(sys.stderr)
 
 		topUrl = lib_util.TopUrl( self.m_entity_type, self.m_entity_id )
