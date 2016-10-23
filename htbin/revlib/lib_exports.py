@@ -273,14 +273,52 @@ def UrlToSvg(url):
 			return url.replace( "&", "&amp;amp;" )
 
 def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream, grph ):
-#	stream.write("""
-#  rank=sink;
-#  rankdir=LR
-#  node [shape=plaintext]
-# 	""")
-	stream.write("""
-  node [shape=plaintext]
- 	""")
+
+	# This allows to enter directly the URL parameters, so we can access directly an object.
+	# This will allow to choose the entity type, and each parameter of the URL (Taken
+	# from the ontology). It also edits the parameters of the current URL.
+	def UrlDirectAccess():
+		return "direct_access.py"
+
+	# This adds links which can display the same content in a different output format.
+	def LegendAddAlternateDisplayLinks(stream):
+		# So we can change parameters of this CGI script.
+		urlHtml = ModedUrl("html")
+		urlJson = ModedUrl("json")
+		urlRdf = ModedUrl("rdf")
+
+		urlHtmlReplaced = UrlToSvg( urlHtml )
+		urlJsonReplaced = UrlToSvg( urlJson )
+		urlRdfReplaced = UrlToSvg( urlRdf )
+
+		# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
+		# SO THESE LINKS DO NOT WORK ?????
+		stream.write("<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>")
+		stream.write("<tr><td align='left' colspan='2' href='" + urlJsonReplaced + "'>" + DotUL("As JSON") + "</td></tr>")
+		stream.write("<tr><td align='left' colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>")
+
+	# This displays the parameters of the URL and a link allowing to edit them.
+	def LegendAddParametersLinks(stream,parameters):
+		if len( parameters ) > 0 :
+			urlEdit = ModedUrl("edit")
+			urlEditReplaced = UrlToSvg( urlEdit )
+			stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "'>" + DotUL( "Parameters edition" ) + "</td></tr>" )
+
+		arguments = cgi.FieldStorage()
+		for keyParam,valParam in parameters.items():
+			try:
+				actualParam = arguments[keyParam].value
+			except KeyError:
+				actualParam = valParam
+			stream.write('<tr><td>%s</td><td>%s</td></tr>' % ( keyParam, actualParam ) )
+
+
+	#	stream.write("""
+	#  rank=sink;
+	#  rankdir=LR
+	#  node [shape=plaintext]
+	# 	""")
+	stream.write("node [shape=plaintext]")
 
 	# The first line is a title, the rest, more explanations.
 	page_title = page_title.strip()
@@ -299,40 +337,23 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
  	""")
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
+	# TODO: The "Top" url should be much more visible.
 	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotUL("Top") + '</td></tr>')
+
+	urlDirectAccess = UrlDirectAccess()
+	stream.write('<tr><td align="left" colspan="2" href="' + urlDirectAccess + '">' + DotUL("Direct access") + '</td></tr>')
 
 	stream.write("""
       <tr><td align='left' colspan="2">""" + time.strftime("%Y-%m-%d %H:%M:%S") + """</td></tr>
-      <tr><td align='left' >Nodes</td><td>""" + str(len(grph)) + """</td></tr>
+ 	""")
+	stream.write("""
+      <tr><td align='left' >RDF Nodes</td><td>""" + str(len(grph)) + """</td></tr>
  	""")
 
-	# So we can change parameters of this CGI script.
-	urlEdit = ModedUrl("edit")
-	urlHtml = ModedUrl("html")
-	urlJson = ModedUrl("json")
-	urlRdf = ModedUrl("rdf")
+	LegendAddAlternateDisplayLinks(stream)
 
-	urlEditReplaced = UrlToSvg( urlEdit )
-	urlHtmlReplaced = UrlToSvg( urlHtml )
-	urlJsonReplaced = UrlToSvg( urlJson )
-	urlRdfReplaced = UrlToSvg( urlRdf )
+	LegendAddParametersLinks(stream,parameters)
 
-	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
-	# SO THESE LINKS DO NOT WORK ?????
-	stream.write("<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>")
-	stream.write("<tr><td align='left' colspan='2' href='" + urlJsonReplaced + "'>" + DotUL("As JSON") + "</td></tr>")
-	stream.write("<tr><td align='left' colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>")
-
-	if len( parameters ) > 0 :
-		stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "'>" + DotUL( "Parameters edition" ) + "</td></tr>" )
-
-	arguments = cgi.FieldStorage()
-	for keyParam,valParam in parameters.items():
-		try:
-			actualParam = arguments[keyParam].value
-		except KeyError:
-			actualParam = valParam
-		stream.write('<tr><td>%s</td><td>%s</td></tr>' % ( keyParam, actualParam ) )
 
 	if errMsg != None:
 		stream.write('<tr><td align="right" colspan="2">%s</td></tr>' % errMsg)
