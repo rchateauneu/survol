@@ -11,6 +11,13 @@ Transformer une operation de merge en une source d'informations: Il suffit de li
 son URL, enregistrer ses parametres et declarer avec SLP par exemple.
 
 =============================================
+Noms:
+Survol
+SysExplain
+AppExplain
+Sys-X-Plain
+
+=============================================
 http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
 
 HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes. 
