@@ -8,11 +8,10 @@ import os
 import os.path
 import sys
 import rdflib
-import lib_util
-import lib_win32
 import lib_common
 from lib_properties import pc
 import sqlite3
+from sources_types.sqlite import table as sqlite_table
 
 def Usable(entity_type,entity_ids_arr):
 	"""Can run on a Sqlite database only"""
@@ -44,7 +43,7 @@ def Main():
 
 		for theRow in cursor.fetchall():
 			theTab = theRow[1]
-			tabNod = lib_common.gUriGen.SqliteTableUri(dbFilNam,theTab)
+			tabNod = sqlite_table.MakeUri(dbFilNam,theTab)
 			grph.add( ( filNode, lib_common.MakeProp("Table"), tabNod ) )
 			theNum = theRow[3]
 			grph.add( ( tabNod, pc.property_information, rdflib.Literal(theNum) ) )

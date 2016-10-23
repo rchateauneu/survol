@@ -310,12 +310,6 @@ class LocalBox:
 	def FileUriMime(self,filNam):
 		return self.UriMakeFromScript('/file_to_mime.py', "CIM_DataFile", lib_util.EncodeUri(filNam) )
 
-	def SqliteTableUri(self,fileName,tableName):
-		return self.UriMakeFromDict("sqlite/table", { "File" : fileName, "Table" : tableName } )
-
-	def SqliteColumnUri(self,fileName,tableName,columnName):
-		return self.UriMakeFromDict("sqlite/column", { "File" : fileName, "Table" : tableName , "Column" : columnName } )
-
 	# This creates a node for a socket, so later it can be merged
 	# with the same socket.
 	# TODO: The URL should do something useful.

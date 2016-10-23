@@ -12,6 +12,12 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+# TODO: Do not display classes as always prefixed by "Generic " such as "Generic class Win32_Product".
+# In the __init__.py, tell if this is also a WMI or WBEM class, maybe add the namespace etc...
+
+# TODO: Display a __doc__ with each class, by importing the module.
+
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 

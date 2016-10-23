@@ -5,3 +5,6 @@ def EntityOntology():
 
 def MakeUri(dbName):
 	return lib_common.gUriGen.UriMakeFromDict("oracle/db", { "Db" : dbName } )
+
+def EntityName(entity_ids_arr):
+	return entity_ids_arr[0]

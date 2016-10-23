@@ -95,25 +95,9 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 			# By convention, directory names ends with a "/".
 			return file_basename + "/"
 
-	if entity_type in [ "user", "Win32_UserAccount", "addr", "oracle/db", "CIM_ComputerSystem", "smbshr", "com/registered_type_lib", "memmap" ]:
+	if entity_type in [ "user", "Win32_UserAccount", "addr", "CIM_ComputerSystem", "smbshr", "com/registered_type_lib", "memmap" ]:
 		# The type of some entities can be deduced from their name.
 		return entity_id
-
-	if entity_type == "oracle/schema":
-		# The type of some entities can be deduced from their name.
-		return entity_ids_arr[0] + "." + entity_ids_arr[1]
-
-	if entity_type in [ "oracle/table", "oracle/view", "oracle/package", "oracle/package_body" ]:
-		# The type of some entities can be deduced from their name.
-		return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]
-
-	if entity_type == "sqlite/table":
-		# The type of some entities can be deduced from their name.
-		return entity_ids_arr[1] + "@" + entity_ids_arr[0]
-
-	if entity_type == "sqlite/column":
-		# The type of some entities can be deduced from their name.
-		return entity_ids_arr[1] + "." + entity_ids_arr[2] + "@" + entity_ids_arr[0]
 
 	# Importer un module ? Idealement il faudrait avoir une map de fonctions
 	# deja pre-remplie qu on completerait au fur et a mesure.

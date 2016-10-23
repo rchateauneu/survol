@@ -625,8 +625,6 @@ localOntology = {
 	"dbus/connection"     : ( ["Bus","Connect"], ),
 	"dbus/object"         : ( ["Bus","Connect","Obj"], ),
 	"dbus/interface"      : ( ["Bus","Connect","Obj","Itf"], ),
-	"sqlite/table"        : ( ["File","Table"], ),
-	"sqlite/column"       : ( ["File","Table","Column"], ),
 	"symbol"              : ( ["Name","File"], ),
 }
 

@@ -11,11 +11,14 @@ def AddInfo(grph,node,entity_ids_arr):
 	grph.add( ( nodeDb, pc.property_oracle_schema, node ) )
 
 def EntityOntology():
-	return ( ["Db", "Schema", "Schema"], )
+	return ( ["Db", "Schema"], )
 
 # Beware of the possible confusion with normal users.
 def MakeUri(dbName,schemaName):
 	return lib_common.gUriGen.UriMakeFromDict("oracle/schema", { "Db" : dbName, "Schema" : schemaName } )
+
+def EntityName(entity_ids_arr):
+	return entity_ids_arr[0] + "." + entity_ids_arr[1]
 
 # SQL> select distinct object_type from dba_objects;
 #
