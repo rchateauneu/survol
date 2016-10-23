@@ -1225,7 +1225,16 @@ FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 UNION ALL (SELECT * FROM T3) 
 SELECT *
 FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 UNION ALL (SELECT * FROM T3  UNION ALL (SELECT * FROM T4)) ) )
 """:["T1","T2","T3","T4"],
+"""
+INSERT OR IGNORE INTO groups (id, name)
+""":["GROUPS"],
+"""
+INSERT OR REPLACE INTO daily_counters VALUES ()
+""":["DAILY_COUNTERS"],
 }
+
+################################################################################
+# TODO: We should make the difference between input and output tables.
 
 ################################################################################
 
