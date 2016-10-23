@@ -4,15 +4,8 @@
 Extract SQL queries from process heap memory
 """
 
-# Scanner la memoire pour chercher des requetes SQL.
-# Mais de quelle BDD ? Oracle ? Odbc ? Sqlite ?
-# Utiliser Sqlparse ?
-# Successfully installed sqlparse-0.1.19
-#
-# On ne cherche pas seulement dans le heap mais aussi dans la memoire
-# des constantes. Ou alors dans le exe et les dlls ? Autant chercher dans la memoire.
-# Il peut y avoir des %s dans les chaines.
-# Peut-etre simplement rechercher les chaines de caracteres et filtrer ensuite.
+# It cans a process heap memory to detect SQL queries.
+# TODO: It should also search in the executable file itself.
 #
 # TODO: Check the database libraries we are linked with: It might give a hint
 # TODO: of the actual database these queries are executing in.
@@ -24,11 +17,8 @@ import re
 import sys
 import rdflib
 import lib_sql
-# import lib_util
 import lib_common
-#from lib_properties import pc
 
-#from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
 from sources_types.sql import query as sql_query
 
@@ -89,6 +79,8 @@ def Main():
 	dictRegexSQL = lib_sql.SqlRegularExpressions()
 
 	arrProps = []
+
+	# TODO: Unfortunately it scans several times the memory process.
 	for rgxKey in dictRegexSQL:
 		rgxSQL = dictRegexSQL[rgxKey]
 		rgxProp = lib_common.MakeProp(rgxKey)

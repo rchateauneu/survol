@@ -401,9 +401,9 @@ def IsSubSelect(parsed):
 			return True
 	return False
 
-#Afficher la requete SQL sous la forme d un arbre dont les brqanches sont
-#les sous-requetes. Pour ca, on va d abord utiliser sqlparse et afficher recursivement
-#l arbre genere.
+# It calls a function on each node, and recursively calls itself.
+# For debugging purpose, so we can display the nodes with a text margin
+# whose length is proportional to the node depth.
 def SqlQueryWalkNodesRecurs(parentNode, sqlObj,Func,depth):
 
 	isSub = IsSubSelect(sqlObj)
@@ -428,6 +428,8 @@ def SqlQueryWalkNodesRecurs(parentNode, sqlObj,Func,depth):
 
 			SqlQueryWalkNodesRecurs( actualParent, tok, Func, depth )
 
+# For debugging purpose only. It allows to visit each node
+# of the SQL query and display it.
 def SqlQueryWalkNodes(sqlQuery,Func):
 	statements = list(sqlparse.parse(sqlQuery))
 	for sqlObj in statements:
@@ -438,28 +440,18 @@ def SqlQueryWalkNodes(sqlQuery,Func):
 
 ################################################################################
 
-# These regular expresssions are used to detect SQL queries in plain text.
-# TODO: This is not really appropriate because several regex might be used
-# for the same type of querie. Also, it might be simpler and faster
-# to use dedicated functions for this plain text exploration.
-# For example by searching for "SELECT" then "FROM" etc...
-# printables = "[ ,a-z_0-9\.=<>!]*"
+# These regular expressions are used to detect SQL queries in plain text,
+# which can be a text file, or the heap memory of a running process.
+# TODO: Maybe have one regular expression only,
+# so we would scan the memory or file content, once only.
 printables = "[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
 theRegExs = {
 	"SELECT": "select\s+" + printables + "\s+from\s+" + printables,
-#	"INSERT": "insert\s+" + printables + "\s+into\s+" + printables,
-#	"UPDATE": "update\s+" + printables + "\s+set\s+" + printables,
+	"INSERT": "insert\s+" + printables + "\s+into\s+" + printables,
+	"UPDATE": "update\s+" + printables + "\s+set\s+" + printables,
 }
 #
 def SqlRegularExpressions():
 	return theRegExs
-
-################################################################################
-#
-# def SqlQueryToObjects(sqlQuery):
-# 	return
-
-################################################################################
-################################################################################
 
 ################################################################################
