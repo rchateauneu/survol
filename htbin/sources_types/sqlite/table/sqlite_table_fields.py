@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Parse Sqlite database
+Columns of Sqlite table.
 """
 
 import os
@@ -10,17 +10,14 @@ import sys
 import rdflib
 import lib_common
 import sqlite3
+from sources_types import sqlite
 from sources_types.sqlite import table as sqlite_table
 from sources_types.sqlite import column as sqlite_column
 
 def Usable(entity_type,entity_ids_arr):
 	"""Can run on a Sqlite database only"""
-
 	filNam = entity_ids_arr[0]
-
-	# But probably it is not enough and we should try to open it.
-	filExt = os.path.splitext(filNam)[1]
-	return filExt.upper() in [".SQLITE",".DB"]
+	return sqlite.IsSqliteDatabase(filNam)
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()

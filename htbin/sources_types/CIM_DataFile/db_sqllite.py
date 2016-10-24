@@ -4,23 +4,20 @@
 Parse Sqlite database
 """
 
-import os
-import os.path
+#import os
+#import os.path
 import sys
 import rdflib
 import lib_common
 from lib_properties import pc
 import sqlite3
+from sources_types import sqlite
 from sources_types.sqlite import table as sqlite_table
 
 def Usable(entity_type,entity_ids_arr):
 	"""Can run on a Sqlite database only"""
-
 	filNam = entity_ids_arr[0]
-
-	# But probably it is not enough and we should try to open it.
-	filExt = os.path.splitext(filNam)[1]
-	return filExt.upper() in [".SQLITE",".DB"]
+	return sqlite.IsSqliteDatabase(filNam)
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
