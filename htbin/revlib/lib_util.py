@@ -7,6 +7,7 @@ import base64
 import importlib
 
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
+# TODO: Use module six.
 try:
 	from urllib import quote,unquote
 except ImportError:
@@ -75,7 +76,9 @@ def UriRootHelper():
 uriRoot = UriRootHelper()
 
 ################################################################################
-# Aucune idee pourquoi on fait ce traitement.
+
+# This returns the hostname as a string. Some special processing because on Windows,
+# the returned hostname seems truncated.
 def HostName():
 	socketGetHostNam = socket.gethostname()
 	if socketGetHostNam.find('.')>=0:
@@ -90,7 +93,7 @@ def HostName():
 # hostName
 currentHostname = HostName()
 
-# Attention car il pourrait y avor plusieurs adresses IP.
+# Beware: The machine might have several IP addresses.
 try:
 	localIP = socket.gethostbyname(currentHostname)
 except Exception:
@@ -131,9 +134,7 @@ def SameHostOrLocal( srv, entHost ):
 
 ################################################################################
 
-
-# TODO: SUPPRIMER LA REFERENCE ABSOLUE !!!!!!!
-
+# Returns the top-level URL.
 def TopUrl( entityType, entityId ):
 	if re.match( ".*/htbin/entity.py.*", os.environ['SCRIPT_NAME'] ):
 		if entityType == "":
@@ -160,21 +161,15 @@ def EncodeUri(anStr):
 
 	strTABLE = anStr.replace("\\L","\\\\L")
 
-
-
 	# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 	if sys.version_info >= (3,):
-
-
-		# NORMALLEMENT CA DEVRAIT ETRE FAIT !!!
+		# THIS SHOULD NORMALLY BE DONE. BUT WHAT ??
 		###strTABLE = strTABLE.replace("&",";;;")
-
-
 
 		return quote(strTABLE,'')
 	else:
 
-		# NORMALLEMENT CA DEVRAIT ETRE FAIT !!!
+		# THIS SHOULD NORMALLY BE DONE. BUT WHAT ??
 		###strTABLE = strTABLE.replace("&","%26")
 		# UnicodeDecodeError: 'ascii' codec can't decode byte 0xe9 in position 32
 		# strTABLE = unicode( strTABLE, 'utf-8')
@@ -562,6 +557,8 @@ def ObjectTypes():
 	return glbObjectTypes
 
 ################################################################################
+
+# These functions are used in scripts, to tell if it is usable or not.
 
 isPlatformLinux = 'linux' in sys.platform
 isPlatformWindows = 'win' in sys.platform
