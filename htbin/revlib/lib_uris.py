@@ -1,6 +1,4 @@
-import os
 import sys
-import cgi
 import socket
 import lib_util
 import rdflib
