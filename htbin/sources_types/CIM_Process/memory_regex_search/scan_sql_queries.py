@@ -20,7 +20,8 @@ import lib_sql
 import lib_common
 
 from sources_types.CIM_Process import memory_regex_search
-from sources_types.sql import query as sql_query
+# from sources_types.sql import query as sql_query
+from sources_types.CIM_Process import embedded_sql_query
 
 # We get strange strings separated by "ZZZZ"
 # "SELECT id FROM moz_favicons WHERE url = ZZZZZZZZSELECT id FROM moz_historyvisits vZZZZZZZZZZZZZZSELECT id FROM moz_historyvisits vZZZZZZZZZZ"
@@ -33,15 +34,11 @@ from sources_types.sql import query as sql_query
 #
 # And sometime we have several times the same because of string manipulation in the heap, I guess.
 #
-#splitZZZ = re.compile("ZZZ*")
-#
 # Beware of the side effect of scanning firefox memory which contains previous execution.
 def ProcessScannedSqlQuery(sqlQry, setQrys):
 	#sys.stderr.write("sqlQry=%s\n"%sqlQry)
 
-	# allQrys = sqlQry.split("ZZZ*")
 	allQrys = re.split("ZZZ*",sqlQry)
-	# allQrys = re.split("ZZZ*",sqlQry)
 
 	for oneQry in allQrys:
 		oneQry.strip()
@@ -53,21 +50,20 @@ def ProcessScannedSqlQuery(sqlQry, setQrys):
 
 		setQrys.add( oneQry )
 
-def GenerateFromSqlQrys(grph, node_process, rgxProp, setQrys):
+def GenerateFromSqlQrys(grph, node_process, rgxProp, setQrys, pidint):
 	for oneQry in setQrys:
 		try:
-			# For the moment, we just print the query.
-			# grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
-
-			nodeSqlQuery = sql_query.MakeUri(oneQry)
-			# grph.add( ( node_process, rgxProp, rdflib.Literal(oneQry) ) )
+			# TODO: The query must come with the PID, so later we can find which database connection it is.
+			# nodeSqlQuery = sql_query.MakeUri(oneQry)
+			nodeSqlQuery = embedded_sql_query.MakeUri(oneQry,pidint)
 			grph.add( ( node_process, rgxProp, nodeSqlQuery ) )
-
 
 		except Exception:
 			exc = sys.exc_info()[1]
-			grph.add( ( node_process, rgxProp, rdflib.Literal("XXYYZZ") ) )
+			grph.add( ( node_process, rgxProp, rdflib.Literal("GenerateFromSqlQrys:"+str(exc)) ) )
 
+# TODO: What is annoying is that it is in a sub-directory, but it does not have
+# TODO: a specific ontology etc ...
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	pidint = int( cgiEnv.GetId() )
@@ -99,7 +95,7 @@ def Main():
 		for sqlQry in matchedSqls:
 			ProcessScannedSqlQuery( sqlQry, setQrys)
 
-		GenerateFromSqlQrys(grph, node_process, rgxProp, setQrys)
+		GenerateFromSqlQrys(grph, node_process, rgxProp, setQrys, pidint)
 
 
 	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",arrProps)

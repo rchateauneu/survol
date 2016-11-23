@@ -13,6 +13,9 @@ from lib_properties import pc
 import pyodbc
 from sources_types.odbc import dsn as survol_odbc_dsn
 
+
+# TODO: Maybe it should be called enumerate_odbc_something ?
+
 # http://code.activestate.com/recipes/578815-printing-list-of-odbc-data-sources-with-pyodbc-mod/
 
 def display_data_sources(grph):

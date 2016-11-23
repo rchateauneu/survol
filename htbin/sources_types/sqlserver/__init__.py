@@ -1,1 +1,24 @@
-__author__="rchateau"
+# import lib_credentials
+import pyodbc
+
+# "ODBC": {
+# 		"MyOracleDataSource" : [ "system", "xxx" ],
+# 		"OraSysDataSrc" : [ "system", "yyy" ]
+# 	},
+
+# We list ODBC sources because this is the only we have, to connect to sqlserver databases.
+# We do not list Oralce dbs so they have to be filtered out.
+
+def DatabaseEnvParams(processId):
+	# lstCredNams = lib_credentials.GetCredentialsNames('Oracle')
+
+	# TODO: We could use the process id to check if the process executable is linked
+	# with the SQLServer shareable library.
+
+	# We do not list sources in lib_credentials because some ODBC sources
+	# can be accessed without pass word (With Windows validation).
+	sources = pyodbc.dataSources()
+	dsnList = ( { "Dsn":dsn } for dsn in sources )
+
+	# Maybe this must be adjusted as key-value pairs ??
+	return ( "sqlserver/query", dsnList )

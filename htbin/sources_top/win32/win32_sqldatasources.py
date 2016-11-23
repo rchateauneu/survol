@@ -12,8 +12,9 @@ from lib_properties import pc
 
 import odbc
 
-# from sources_types import odbc as survol_odbc
 from sources_types.odbc import dsn as survol_odbc_dsn
+
+# TODO: Maybe this script should be renamed enumerate_odbc_something ?
 
 # https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-SQL-Server-from-Windows
 #    {SQL Server} - released with SQL Server 2000

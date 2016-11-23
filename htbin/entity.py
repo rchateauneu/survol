@@ -92,44 +92,6 @@ def IsTempFile(fil):
 # Et meme pourquoi ne pas reutiliser la syntaxe des sous-classes de WMI et WBEM ?
 
 
-def FromModuleToDoc(importedMod,fil):
-	try:
-		docModuAll = importedMod.__doc__
-		# Take only the first non-empty line.
-		docModuSplit = docModuAll.split("\n")
-		docModu = None
-		for docModu in docModuSplit:
-			if docModu 	:
-				# sys.stderr.write("DOC="+docModu)
-				maxLen = 40
-				if len(docModu) > maxLen:
-					docModu = docModu[0:maxLen] + "..."
-				break
-	except:
-		docModu = ""
-
-	if not docModu:
-		# If no doc available, just transform the file name.
-		docModu = fil[:-3].replace("_"," ").capitalize()
-
-	return docModu
-
-# TODO: Instead of creating a directory, should create a specific non-clickable
-# node, and its text should be taken from the __doc__ string of the __init__.py.
-def DirDocNode(argDir,dir):
-	fullModule = argDir + "." + dir
-
-	importedMod = importlib.import_module(fullModule)
-
-	docDir = importedMod.__doc__
-	if not docDir:
-		docDir = dir.capitalize().replace("_"," ")
-	# sys.stderr.write("docDir=%s\n"%docDir)
-
-	currDirNode = rdflib.Literal(docDir)
-
-	return currDirNode
-
 # This lists the scripts and generate RDF nodes.
 # Returns True if something was added.
 def DirToMenu(grph,parentNode,curr_dir,relative_dir):
@@ -160,8 +122,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		full_sub_dir = curr_dir + "/" + dir
 		full_sub_dir = full_sub_dir.replace("\\","/")
 
-		# currDirNode = DirDocNode(full_sub_dir)
-		currDirNode = DirDocNode(argDir,dir)
+		currDirNode = lib_util.DirDocNode(argDir,dir)
 
 		somethingAdded = DirToMenu(grph,currDirNode, full_sub_dir,relative_dir + "/" + dir)
 		if somethingAdded:
@@ -240,9 +201,10 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		rdfNode = rdflib.term.URIRef(url_rdf)
 		grph.add( ( parentNode, pc.property_rdf_data1, rdfNode ) )
 
-		docModu = FromModuleToDoc(importedMod,fil)
+		# Default doc text is file name minus the extension.
+		nodModu = lib_util.FromModuleToDoc(importedMod,fil[:-3])
 
-		grph.add( ( rdfNode, pc.property_information, rdflib.Literal(docModu) ) )
+		grph.add( ( rdfNode, pc.property_information, nodModu ) )
 
 		if errorMsg:
 			grph.add( ( rdfNode, lib_common.MakeProp("Error"), rdflib.Literal(errorMsg) ) )

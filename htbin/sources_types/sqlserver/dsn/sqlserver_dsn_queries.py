@@ -11,7 +11,8 @@ from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.sqlserver import session
-from sources_types.sql import query
+from sources_types.sqlserver import query as sql_query
+# from sources_types.sql import query as sql_query
 
 
 try:
@@ -56,7 +57,11 @@ def Main():
 			sys.stderr.write("rowQry.session_id=(%s)\n" % rowQry.session_id)
 			nodeSession = session.MakeUri(dsnNam, rowQry.session_id)
 
-			nodeSqlQuery = query.MakeUri(rowQry.TEXT)
+			# A bit of cleanup.
+			queryClean = rowQry.TEXT.replace("\n", " ").strip()
+
+			# TODO: Must add connection information so we can go from the tables to sqlserver itself.
+			nodeSqlQuery = sql_query.MakeUri(queryClean,dsnNam)
 			grph.add((nodeSession, propSqlServerSqlQuery, nodeSqlQuery))
 			node_process = lib_common.RemoteBox(rowQry.host_name).PidUri(rowQry.host_process_id)
 			grph.add((node_process, pc.property_pid, rdflib.Literal(rowQry.host_process_id)))

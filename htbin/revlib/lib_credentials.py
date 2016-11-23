@@ -40,6 +40,8 @@ def GetCredentials( credType, credName ):
 		sys.stderr.write("GetCredentials Invalid type credType=%s credName=%s\n" % (credType,credName))
 		return None
 
+# For example, if "credType" == "Oracle", it will returned all databases defined in the credentials file.
+# TODO: For Oracle, consider exploring tnsnames.ora ?
 def GetCredentialsNames( credType ):
 	try:
 		arrType = credentials[credType]

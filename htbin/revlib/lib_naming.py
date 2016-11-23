@@ -106,6 +106,7 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 	entity_module = lib_util.GetEntityModule(entity_type)
 	if 	entity_module:
 		try:
+			# sys.stderr.write("Before calling EntityName: entity_ids_arr=%s\n"%(entity_ids_arr))
 			entity_name = entity_module.EntityName(entity_ids_arr)
 			return entity_name
 		except AttributeError:

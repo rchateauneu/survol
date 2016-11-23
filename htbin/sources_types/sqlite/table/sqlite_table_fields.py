@@ -31,7 +31,7 @@ def Main():
 
 	filNode = lib_common.gUriGen.FileUri(dbFilNam )
 	tabNod = sqlite_table.MakeUri(dbFilNam,tableName)
-	grph.add( ( filNode, lib_common.MakeProp("Table"), tabNod ) )
+	grph.add( ( tabNod, lib_common.MakeProp("Table"), filNode ) )
 
 	con = sqlite3.connect(dbFilNam)
 	cursor = con.cursor()
@@ -40,16 +40,21 @@ def Main():
 	#(0, u'tzid', u'TEXT', 0, None, 0)
 	#(1, u'alias', u'TEXT', 0, None, 0)
 
-	cursor.execute("PRAGMA table_info('%s')" % tableName )
+	try:
+		cursor.execute("PRAGMA table_info('%s')" % tableName )
 
-	propColumn = lib_common.MakeProp("Column")
-	propType = lib_common.MakeProp("Type")
-	for theRow in cursor.fetchall():
-		columnNam = theRow[1]
-		columnNod = sqlite_column.MakeUri(dbFilNam,tableName,columnNam)
-		grph.add( ( tabNod, propColumn, columnNod ) )
-		typeNam = theRow[2]
-		grph.add( ( columnNod, propType, rdflib.Literal(typeNam) ) )
+		propColumn = lib_common.MakeProp("Column")
+		propType = lib_common.MakeProp("Type")
+		for theRow in cursor.fetchall():
+			columnNam = theRow[1]
+			columnNod = sqlite_column.MakeUri(dbFilNam,tableName,columnNam)
+			grph.add( ( tabNod, propColumn, columnNod ) )
+			typeNam = theRow[2]
+			grph.add( ( columnNod, propType, rdflib.Literal(typeNam) ) )
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Error %s:%s"%(dbFilNam,str(exc)))
+
 
 	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propColumn])
 

@@ -328,7 +328,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	page_title_first_wrapped = StrWithBr(page_title_first,2)
 
 	page_title_rest = " ".join( page_title_split[1:] )
-	page_title_full =  DotBold(page_title_first_wrapped) + withBrDelim +  page_title_rest
+	page_title_full =  DotBold(page_title_first_wrapped) + withBrDelim + page_title_rest
 
 	stream.write("""
   subgraph cluster_01 {

@@ -889,3 +889,42 @@ def GetEntityModule(entity_type):
 	entity_module = GetEntityModuleNoCache(entity_type)
 	cacheEntityToModule[ entity_type ] = entity_module
 	return entity_module
+
+################################################################################
+
+# Returns the doc string of a module.
+def FromModuleToDoc(importedMod,filDfltText):
+	try:
+		docModuAll = importedMod.__doc__
+		# Take only the first non-empty line.
+		docModuSplit = docModuAll.split("\n")
+		docModu = None
+		for docModu in docModuSplit:
+			if docModu 	:
+				# sys.stderr.write("DOC="+docModu)
+				maxLen = 40
+				if len(docModu) > maxLen:
+					docModu = docModu[0:maxLen] + "..."
+				break
+	except:
+		docModu = ""
+
+	if not docModu:
+		# If no doc available, just transform the file name.
+		docModu = filDfltText.replace("_"," ").capitalize()
+
+	nodModu = rdflib.Literal(docModu)
+
+	return nodModu
+
+# This creates a non-clickable node. The text is taken from __doc__ if it exists,
+# otherwise the file name is beautifuled.
+def DirDocNode(argDir,dir):
+	sys.stderr.write("DirDocNode argDir=%s dir=%s\n"%(argDir,dir))
+	fullModule = argDir + "." + dir
+
+	importedMod = importlib.import_module(fullModule)
+
+	# Add three characters otherwise it is truncated just like a Python file extension.
+	return FromModuleToDoc(importedMod,dir)
+

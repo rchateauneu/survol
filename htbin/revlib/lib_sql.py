@@ -440,10 +440,10 @@ def SqlQueryWalkNodes(sqlQuery,Func):
 
 ################################################################################
 
-# These regular expressions are used to detect SQL queries in plain text,
-# which can be a text file, or the heap memory of a running process.
+# These regular expressions are used to detect SQL queries in pllain text,
+# which can be a text file, or the heap memory of a running process.l
 # TODO: Maybe have one regular expression only,
-# so we would scan the memory or file content, once only.
+# TODO: so we would scan the memory or file content, once only.
 printables = "[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
 theRegExs = {
 	"SELECT": "select\s+" + printables + "\s+from\s+" + printables,
@@ -454,4 +454,21 @@ theRegExs = {
 def SqlRegularExpressions():
 	return theRegExs
 
+################################################################################
+
+# TODO: Si une query est trouvee dans un fichier, et qu on veut savoir dans quelle
+# TODO: base de donnees elle est utilisee, il faut iterer
+# TODO: sur toutes les bases de donnees de chacun de ces types, en tenant compte aussi
+# TODO: de la syntaxe du SQL.
+# TODO: Si la requete vient de la memoire d un process, on peut verifier en plus
+# TODO: a quelles bases l'executable est linke. Et eventuellement les sockets
+# TODO: du process.
+# TODO: Aussi, si le schema est donne. Car a priori il faut essayer tous
+# TODO: les credentials.
+# TODO: Voir aussi si ce type de BDD fonctionne sur la machine en question, bien entendu.
+listModulesUsingSqlQueries = [
+	"oracle",
+	"sqlserver",
+	"sqlite"
+]
 ################################################################################

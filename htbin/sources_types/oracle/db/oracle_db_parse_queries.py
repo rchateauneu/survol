@@ -9,19 +9,17 @@ Oracle running queries
 
 import sys
 import lib_common
-#from lib_properties import pc
 import rdflib
 import lib_oracle
 import lib_credentials
-#import lib_sql
-#from sources_types import sql
-from sources_types.sql import query
+from sources_types.oracle import query as oracle_query
 from sources_types.oracle import db as oracle_db
 
 class OraCallbackParseQry:
-	def __init__(self,grph,node_oradb, propSqlQuery):
+	def __init__(self,grph,database_name, propSqlQuery):
 		self.m_grph = grph
-		self.m_node_oradb = node_oradb
+		self.m_database_name = database_name
+		self.m_node_oradb = oracle_db.MakeUri( database_name )
 		self.m_propSqlQuery = propSqlQuery
 
 	def oracallback(self,row):
@@ -35,7 +33,7 @@ class OraCallbackParseQry:
 		if len(sql_text) == 1000:
 			sql_text = str(row[4])
 
-		sys.stderr.write("sql_text=%s\n" % sql_text)
+		sys.stderr.write("self.m_database=%s sql_text=%s\n" % (self.m_database_name,sql_text))
 
 		# Mais c est absurde car ici on connait la base de donnees et le schema, et donc
 		# on sait quelle est la nature des dependances. Donc on doit generer
@@ -45,9 +43,11 @@ class OraCallbackParseQry:
 		# entity.py?type=sql/entity?id="select ..."&bdtype=sqlserver&dsn=MySqlServer
 		# ... ou bien pas de bdtype si ca vient d un fichier.
 		# On sort donc de notre modele en ajoutant des mots-clefs libres.
+		# C est a dire que quand on va cliquer sur cet URI (query + autre chose),
+		# on va avoir un script commun (Les dependances, mais les tables meritent un traitement particulier),
+		# et eventuellement des scripts specifiques.
 
-
-		nodeSqlQuery = query.MakeUri(sql_text)
+		nodeSqlQuery = oracle_query.MakeUri(sql_text, self.m_database_name)
 
 		self.m_grph.add( ( self.m_node_oradb, self.m_propSqlQuery, nodeSqlQuery ) )
 
@@ -61,13 +61,12 @@ def Main():
 
 	# database = cgiEnv.GetId()
 	database = cgiEnv.m_oraDatabase
-	node_oradb = oracle_db.MakeUri( database )
 
 	(oraUser, oraPwd) = lib_credentials.GetCredentials( "Oracle", database )
 
 	conn_str = oraUser + "/" + oraPwd + "@" + database
 
-	sql_query = """
+	qrySelect = """
 	SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid
 	  FROM v$session sess,
 		   v$sql     sql,
@@ -79,10 +78,10 @@ def Main():
 
 	propSqlQuery = lib_common.MakeProp("SQL query")
 
-	oraParser = OraCallbackParseQry(grph,node_oradb, propSqlQuery)
+	oraParser = OraCallbackParseQry(grph,database, propSqlQuery)
 
 	# This calls the callback for each retrieved row.
-	lib_oracle.CallbackQuery( conn_str,sql_query, oraParser.oracallback)
+	lib_oracle.CallbackQuery( conn_str,qrySelect, oraParser.oracallback)
 
 	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [propSqlQuery] )
 

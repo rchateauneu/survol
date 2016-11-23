@@ -5,7 +5,6 @@ from sources_types.oracle import db as oracle_db
 def AddInfo(grph,node,entity_ids_arr):
 	# TODO: Ca serait quand meme mieux de passer au AddInfo un dict plutot qu un tableau.
 	dbNam = entity_ids_arr[0]
-	# schemaNam = entity_ids_arr[1]
 	nodeDb = oracle_db.MakeUri(dbNam)
 
 	grph.add( ( nodeDb, pc.property_oracle_schema, node ) )

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Tables dependencies in SQL query
+Tables dependencies in SQLServer query
 """
 
 import lib_common
@@ -10,9 +10,7 @@ import rdflib
 import lib_sql
 from sources_types import sql
 from sources_types.sql import query as sql_query
-from sources_types.sql import sheet
-
-# Practically I do not think it will ever be used except as a "base class".
+from sources_types.sqlserver import query as sqlserver_query
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -28,19 +26,20 @@ def Main():
 	#sqlQuery = lib_util.Base64Decode(sqlQuery_encode)
 
 	sqlQuery = sql_query.GetEnvArgs(cgiEnv)
+	dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
 
-	nodeSqlQuery = sql_query.MakeUri(sqlQuery)
+	nodeSqlQuery = sqlserver_query.MakeUri(sqlQuery,dsnNam)
 
 	propSheetToQuery = lib_common.MakeProp("Table dependency")
 
-	list_of_tables = lib_sql.TableDependencies(sqlQuery)
+	list_of_table_names = lib_sql.TableDependencies(sqlQuery)
 
 	# Based on the pid and the filnam, find which database connection it is.
 
 
-	for tabNam in list_of_tables:
-		nodTab = sheet.MakeUri(tabNam)
+	list_of_nodes = sqlserver_query.QueryToNodesList(sqlQuery,{"Dsn":dsnNam },list_of_table_names)
 
+	for nodTab in list_of_nodes:
 		grph.add( ( nodeSqlQuery, propSheetToQuery, nodTab ) )
 
 	cgiEnv.OutCgiRdf(grph )
