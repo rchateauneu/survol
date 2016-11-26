@@ -51,6 +51,9 @@ def Main():
 			# TODO: Should interrogate other host with "finger" protocol.
 			lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)
 
+	if not userName:
+		lib_common.ErrorMessageHtml("Linux username should not be an empty string")
+
 	grph = rdflib.Graph()
 
 	userNode = lib_common.gUriGen.UserUri( userName )
