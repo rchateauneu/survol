@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Windows symbol information.
+Symbol information.
 """
 
 import os
