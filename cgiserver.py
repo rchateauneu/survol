@@ -12,16 +12,18 @@ import sys
 # sys.path.append('htbin/revlib')
 import os
 pyKey = "PYTHONPATH"
+
+sys.path.append("htbin")
+sys.path.append("htbin/revlib")
+sys.stderr.write("path=%s\n"% str(sys.path))
+
 # extraPath = "htbin/revlib"
-extraPath = "htbin;htbin/revlib"
-try:
-    os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
-except KeyError:
-     os.environ[pyKey] =extraPath
-os.environ.copy()
-
-
-
+#extraPath = "htbin;htbin/revlib"
+#try:
+#    os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
+#except KeyError:
+#     os.environ[pyKey] =extraPath
+#os.environ.copy()
 
 if sys.version_info[0] < 3:
     # Not finished.
