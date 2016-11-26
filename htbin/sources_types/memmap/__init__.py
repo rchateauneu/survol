@@ -27,7 +27,14 @@ def DisplayMappedProcesses(grph,fileName):
 
 	uriMemMap = None
 
-	statinfo = os.stat(fileName)
+	try:
+		statinfo = os.stat(fileName)
+	except Exception:
+		exc = sys.exc_info()[1]
+		grph.add( ( uriMappedFile, lib_common.MakeProp("Error"), rdflib.Literal(str(exc)) ) )
+		return
+
+
 	fileSize = statinfo.st_size
 	grph.add( ( uriMappedFile, lib_common.MakeProp("File size"), rdflib.Literal(fileSize) ) )
 
