@@ -81,9 +81,12 @@ def PsutilProcConnections(proc,kind='inet'):
 	try:
 		cnnct = proc.get_connections(kind)
 	except AttributeError:
-		cnnct = proc.connections(kind)
+		try:
+			cnnct = proc.connections(kind)
+		except AccessDenied:
+			return []
 	except AccessDenied:
-		return ["Access denied"]
+		return []
 
 	return cnnct
 
