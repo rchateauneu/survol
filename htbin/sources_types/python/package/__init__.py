@@ -26,10 +26,7 @@ propPythonPackage = lib_common.MakeProp("Package")
 def MakeUri(packageKey):
 	return lib_common.gUriGen.UriMake("python/package",packageKey)
 
-# New style of entity-specific code which is now in the
-# module ENTITY.py instead of lib_entities/lib_entity_ENTITY.py
-# which was not a very 'pythonic' architecture.
-
+# Display information about a Python package using what is returned by PIP.
 def FillOnePackage(grph,node,good_pckg):
 	# >>> dir(installed_packages[0])
 	# ['PKG_INFO', '__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__ge__', '__getattr__', '__getattribute__',
@@ -96,7 +93,6 @@ def AddInfoFromPip(grph,node,packageKey):
 						aSpecs = subReq.specs
 						if aSpecs:
 							# TODO: This should be displayed on the edge !!!
-							#grph.add( (node, lib_common.MakeProp("Condition",test=pckg.key), rdflib.Literal( str(aSpecs) ) ) )
 							grph.add( (node, lib_common.MakeProp("Condition "+pckg.key), rdflib.Literal( str(aSpecs) ) ) )
 						grph.add( (subNode, propPythonRequires, node ) )
 						break
@@ -123,6 +119,17 @@ def AddInfoFromImport(grph,packageNode,packageKey):
 			grph.add( ( packageNode, pc.property_information, rdflib.Literal(txtDoc) ) )
 	except AttributeError:
 		pass
+
+	propsPackage = {"Author" : "__author__", "Version" : "__version__"}
+
+	for keyProp in propsPackage:
+		valProp = propsPackage[keyProp]
+		try:
+			txtVal = getattr( the_module, valProp )
+			if txtVal:
+				grph.add( ( packageNode, lib_common.MakeProp(keyProp), rdflib.Literal(txtVal) ) )
+		except AttributeError:
+			pass
 
 def AddInfo(grph,node,entity_ids_arr):
 	packageKey = entity_ids_arr[0]
