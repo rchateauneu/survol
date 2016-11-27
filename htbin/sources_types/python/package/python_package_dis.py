@@ -28,16 +28,14 @@ except ImportError:
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-
-	packageNam = cgiEnv.GetId()
-
 	paramkeyMaxDepth = "Maximum depth"
 	paramkeyDispPackages = "Display packages"
 	paramkeyDispFiles = "Display files"
 
 	cgiEnv = lib_common.CgiEnv(
 			{ paramkeyMaxDepth : 1, paramkeyDispPackages: True, paramkeyDispFiles: False} )
+
+	packageNam = cgiEnv.GetId()
 
 	maxDepth = cgiEnv.GetParameters( paramkeyMaxDepth )
 	dispPackages= cgiEnv.GetParameters( paramkeyDispPackages )
