@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Python properties
+Python package dependencies
 """
 
 import os
