@@ -1,22 +1,28 @@
+import os
+import six
 import sys
 import rdflib
-import psutil
+import pip
+import importlib
 import lib_common
-import lib_util
+import lib_uris
 from lib_properties import pc
 
-import pip
-from sources_types import python
+#from sources_types import python
 
-import lib_common
+try:
+	import modulefinder
+except ImportError:
+	pass
 
-# TODO: Should do that only when excecuting ?? How to make the difference ??
+
+# TODO: Should do that only when executing ?? How to make the difference ??
 propPythonVersion = lib_common.MakeProp("Version")
 propPythonRequires = lib_common.MakeProp("Requires")
 propPythonPackage = lib_common.MakeProp("Package")
 
 
-# TODO: Is the caption the best key ?
+# TODO: Is the caption the best key ? Also: It should dependd on the Python version.
 def MakeUri(packageKey):
 	return lib_common.gUriGen.UriMake("python/package",packageKey)
 
@@ -56,17 +62,9 @@ def FillOnePackage(grph,node,good_pckg):
 	grph.add( (node, lib_common.MakeProp("egg_name"), rdflib.Literal(good_pckg.egg_name()) ) )
 
 	# This might return location="c:\python27\lib\site-packages"
-	# completeLocation = good_pckg.location.replace("\\","/") + "/" + good_pckg.project_name
-	# nodeLocation = lib_common.gUriGen.FileUri(completeLocation)
-	# nodeLocation = lib_common.gUriGen.FileUri(good_pckg.location)
-	# This might return location="c:\python27\lib\site-packages"
 	cleanLocaDir = good_pckg.location.replace("\\","/")
 	nodeLocation = lib_common.gUriGen.DirectoryUri(cleanLocaDir)
 	grph.add( (node, lib_common.MakeProp("Location"),nodeLocation ) )
-
-
-	#grph.add( (node, lib_common.MakeProp("from_filename"), rdflib.Literal(good_pckg.from_filename()) ) )
-	#grph.add( (node, lib_common.MakeProp("from_location"), rdflib.Literal(good_pckg.from_location()) ) )
 
 
 # http://stackoverflow.com/questions/247770/retrieving-python-module-path
@@ -80,9 +78,7 @@ def FillOnePackage(grph,node,good_pckg):
 
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
-def AddInfo(grph,node,entity_ids_arr):
-	packageKey = entity_ids_arr[0]
-
+def AddInfoFromPip(grph,node,packageKey):
 	try:
 		# TODO: What about several Python versions ?
 		installed_packages = pip.get_installed_distributions()
@@ -105,10 +101,116 @@ def AddInfo(grph,node,entity_ids_arr):
 						grph.add( (subNode, propPythonRequires, node ) )
 						break
 
-
 	except Exception:
 		exc = sys.exc_info()[1]
 		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
 
+# Displays general information about the module.
+def AddInfoFromImport(grph,packageNode,packageKey):
+	the_module = importlib.import_module( packageKey )
+
+	try:
+		initFilNam = the_module.__file__
+		filNode = lib_common.gUriGen.FileUri(initFilNam)
+		grph.add( ( packageNode, propPythonPackage, filNode ) )
+
+	except AttributeError:
+		pass
+
+	try:
+		txtDoc = the_module.__doc__
+		if txtDoc:
+			grph.add( ( packageNode, pc.property_information, rdflib.Literal(txtDoc) ) )
+	except AttributeError:
+		pass
+
+def AddInfo(grph,node,entity_ids_arr):
+	packageKey = entity_ids_arr[0]
+	sys.stderr.write("AddInfo packageKey=%s\n"%packageKey)
+
+	AddInfoFromPip(grph,node,packageKey)
+
+	AddInfoFromImport(grph,node,packageKey)
+
+
+
+# This adds to a node representing a Python package,
+# a node for each package recursively imported by this one.
+# TODO: At the moment, this is NOT RECURSIVE !!!
+def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
+	sys.stderr.write("AddImportedModules filNam=%s dispPackages=%d dispFiles=%d\n"%(filNam,dispPackages,dispFiles))
+	filename, file_extension = os.path.splitext(filNam)
+	filextlo = file_extension.lower()
+	if filextlo not in [".py",".pyw"]:
+		return
+
+	finder = modulefinder.ModuleFinder()
+	try:
+		finder.run_script(filNam)
+	except TypeError:
+		exc = sys.exc_info()[0]
+		lib_common.ErrorMessageHtml("Error loading Python script %s:%s" % ( filNam, str( exc ) ) )
+
+	AddImportedModules.dictModules = dict()
+
+	# A cache which associates a node to a Python module name.
+	def GetModuNode(moduNam):
+		try:
+			moduNode = AddImportedModules.dictModules[moduNam]
+		except KeyError:
+			moduNode = MakeUri( moduNam )
+			AddImportedModules.dictModules[moduNam] = moduNode
+		return moduNode
+
+	AddImportedModules.dictFiles = dict()
+
+	# A cache which associates a node to a file name.
+	def GetFileNode(moduFil):
+		try:
+			fileNode = AddImportedModules.dictModules[moduFil]
+		except KeyError:
+			fileNode = lib_uris.gUriGen.FileUri(moduFil)
+			AddImportedModules.dictModules[moduFil] = fileNode
+		return fileNode
+
+	for moduNam, mod in six.iteritems( finder.modules ):
+		splitNam = moduNam.split(".")
+		# sys.stderr.write("splitNam=%s\n"%str(splitNam))
+		# sys.stderr.write("mod=%s\n"%str(mod))
+		moduFil = mod.__file__
+		# sys.stderr.write("moduFil=%s\n"%moduFil)
+
+		if len(splitNam) > maxDepth:
+			continue
+
+		if dispPackages:
+			moduNod = GetModuNode(moduNam)
+
+			if dispFiles and moduFil:
+				nodeFile = GetFileNode(moduFil)
+				# nodeFile is the result of rdflib.term.URIRef
+				grph.add( ( moduNod, pc.property_rdf_data_nolist2, nodeFile ) )
+
+			if len(splitNam) == 1:
+				grph.add( ( node, propPythonPackage, moduNod ) )
+				sys.stderr.write("No parent: moduNam=%s\n"%(moduNam))
+			else:
+				parentModuNam = ".".join(splitNam[:-1])
+				parentModuNod = GetModuNode(parentModuNam)
+				grph.add( ( parentModuNod, propPythonRequires, moduNod ) )
+				sys.stderr.write("parentModuNam=%s moduNam=%s\n"%(parentModuNam,moduNam))
+
+		if dispFiles and not dispPackages:
+			if moduFil:
+				nodeFile = GetFileNode(moduFil)
+				if len(splitNam) == 1:
+					# TODO: Should be connected to the module.
+					grph.add( ( node, propPythonPackage, nodeFile ) )
+					# TODO: LE RAJOUTER QUAND MEME SINON ON NE VOIT RIEN !
+					pass
+				else:
+					parentModuNam = ".".join(splitNam[:-1])
+					parentModuNod = GetModuNode(parentModuNam)
+					grph.add( ( parentModuNod, propPythonRequires, nodeFile ) )
 
 
