@@ -45,12 +45,12 @@ def Main():
 
 	sys.stderr.write("packageNam=%s\n"%packageNam)
 
-	# Implicitly, it means there is a __init__.py file.
 	grph = rdflib.Graph()
 
-	tmpPyFil = lib_common.TmpFile("py_stuff","py")
+	tmpPyFil = lib_common.TmpFile("py_package_deps","py")
 	tmpPyFilName = tmpPyFil.Name
 
+	# This creates a temporary file which imports the package.
 	tmpFd = open(tmpPyFilName,"w")
 	tmpFd.write("import %s\n"%packageNam)
 	tmpFd.close()
