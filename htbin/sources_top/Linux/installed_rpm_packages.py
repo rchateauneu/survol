@@ -37,10 +37,7 @@ def Main():
 
 	grph = rdflib.Graph()
 
-
-	listProps = ["epoch", "version", "release", "arch"]
-
-	rpmProps = { propKey: lib_common.MakeProp(propKey) for propKey in listProps }
+	rpmProps = survol_rpm.RpmProps()
 
 	rpmPropName = lib_common.MakeProp("rpm")
 
@@ -49,8 +46,6 @@ def Main():
 		mi = ts.dbMatch()
 		for h in mi:
 			rpmName = h['name']
-			rpmVersion = h['version']
-			rpmRelease = h['release']
 
 			nodeRpm = survol_rpm.MakeUri(rpmName)
 			# Unfortunately, it does not seem to work to force the type.
