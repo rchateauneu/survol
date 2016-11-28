@@ -103,7 +103,10 @@ def AddInfoFromPip(grph,node,packageKey):
 
 # Displays general information about the module.
 def AddInfoFromImport(grph,packageNode,packageKey):
-	the_module = importlib.import_module( packageKey )
+	try:
+		the_module = importlib.import_module( packageKey )
+	except ImportError:
+		lib_common.ErrorMessageHtml("Importing %s: Error %s" % ( packageKey, str( sys.exc_info() ) ) )
 
 	try:
 		initFilNam = the_module.__file__
