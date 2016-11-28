@@ -8,6 +8,7 @@ import rpm
 import sys
 import socket
 import rdflib
+from rdflib.namespace import XSD
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -36,7 +37,12 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	rpmProp = lib_common.MakeProp("rpm")
+
+	listProps = ["epoch", "version", "release", "arch"]
+
+	rpmProps = { propKey: lib_common.MakeProp(propKey) for propKey in listProps }
+
+	rpmPropName = lib_common.MakeProp("rpm")
 
 	try:
 		ts = rpm.TransactionSet()
@@ -47,12 +53,20 @@ def Main():
 			rpmRelease = h['release']
 
 			nodeRpm = survol_rpm.MakeUri(rpmName)
+			# Unfortunately, it does not seem to work to force the type.
+			# TODO: Maybe this is because we later try to convert to a number,
+			# without checking the type of the data ???
+			for propKey in rpmProps:
+				propRpm = rpmProps[propKey]
+				# The value might be None.
+				propVal = h[ propKey ] or ""
+				grph.add( ( nodeRpm, propRpm, rdflib.Literal(propVal, datatype=XSD.string) ) )
 
-			grph.add( ( lib_common.nodeMachine, rpmProp, nodeRpm ) )
+			grph.add( ( lib_common.nodeMachine, rpmPropName, nodeRpm ) )
 	except Exception:
 		lib_common.ErrorMessageHtml("List of RPMs: Error %s" % ( str( sys.exc_info() ) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [rpmPropName])
 
 if __name__ == '__main__':
 	Main()
