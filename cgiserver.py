@@ -13,9 +13,19 @@ import sys
 import os
 pyKey = "PYTHONPATH"
 
-sys.path.append("htbin")
-sys.path.append("htbin/revlib")
-sys.stderr.write("path=%s\n"% str(sys.path))
+if 'win' in sys.platform:
+    # extraPath = "htbin/revlib"
+    extraPath = "htbin;htbin/revlib"
+    try:
+        os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
+    except KeyError:
+         os.environ[pyKey] =extraPath
+    os.environ.copy()
+
+if 'linux' in sys.platform:
+    sys.path.append("htbin")
+    sys.path.append("htbin/revlib")
+    sys.stderr.write("path=%s\n"% str(sys.path))
 
 # extraPath = "htbin/revlib"
 #extraPath = "htbin;htbin/revlib"
