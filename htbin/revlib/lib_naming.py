@@ -179,6 +179,7 @@ scripts_to_titles = {
 	"class_wbem.py": "WBEM class",
 	"class_wmi.py": "WMI class",
 	"class_type_all.py": "Generic class",
+	"objtypes.py": "Classes hierarchy",
 	"objtypes_wbem.py": "WBEM subclasses of ",
 	"objtypes_wmi.py": "WMI subclasses of ",
 	"namespaces_wbem.py": "WBEM namespaces ",
@@ -188,6 +189,25 @@ scripts_to_titles = {
 	"entity_wmi.py":"WMI",
 	"file_to_mime.py":"Mime display"
 }
+
+def KnownScriptToTitle(uprs,entity_host = "",entity_suffix=""):
+	# Extra information depending on the script.
+	filScript = os.path.basename(uprs.path)
+	try:
+		extra_title = scripts_to_titles[ filScript ]
+		entity_label = extra_title
+	except KeyError:
+		entity_label = filScript
+
+	if entity_suffix:
+		entity_label += " "+ entity_suffix
+
+	# Maybe hostname is a CIMOM address.
+	if entity_host:
+		if not lib_util.IsLocalAddress( entity_host ):
+			entity_label += " at " + entity_host
+
+	return entity_label
 
 # Extracts the entity type and id from a URI, coming from a RDF document. This is used
 # notably when transforming RDF into dot documents.
@@ -231,17 +251,7 @@ def ParseEntityUri(uri,longDisplay=True):
 
 		# TODO: Consider ExternalToTitle, similar logic with different results.
 		if longDisplay:
-			# Extra information depending on the script.
-			filScript = os.path.basename(uprs.path)
-			try:
-				extra_title = scripts_to_titles[ filScript ]
-				entity_label = extra_title + " " + entity_label
-			except KeyError:
-				entity_label = filScript +" "+ entity_label
-
-			# Maybe hostname is a CIMOM address.
-			if not lib_util.IsLocalAddress( entity_host ):
-				entity_label += " at " + entity_host
+			entity_label = KnownScriptToTitle(uprs,entity_host,entity_label)
 
 	# Maybe an internal script, but not entity.py
 	# It has a special entity type as a display parameter
@@ -260,7 +270,9 @@ def ParseEntityUri(uri,longDisplay=True):
 		else:
 			entity_graphic_class = lib_util.ComposeTypes("CIM_DataFile","script") # TODO: DOUTEUX...
 			entity_id = ""
-			entity_label = UriToTitle(uprs)
+
+			entity_label = KnownScriptToTitle(uprs)
+			# entity_label = UriToTitle(uprs)
 
 	elif uri.split(':')[0] in [ "ftp", "http", "https", "urn", "mail" ]:
 		# Standard URLs. Example: rdflib.term.URIRef( "http://www.google.com" )

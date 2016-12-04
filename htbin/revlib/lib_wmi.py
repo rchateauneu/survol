@@ -5,6 +5,7 @@ import socket
 import rdflib
 import lib_util
 import lib_common
+import lib_credentials
 from lib_properties import pc
 
 try:
@@ -66,13 +67,17 @@ def ClassUrl(nskey,hostnameWmi,classNam):
 
 ################################################################################
 
-# connWMI = wmi.WMI(cimomUrl,namespace=nskey)
-# TODO: Aller chercher les credentials.
-# c = wmi.WMI("MachineB", user=r"MachineB\fred", password="secret")
-def WmiConnect(machWithBackSlashes,wmiNamspac):
+def GetWmiUserPass(machWithBackSlashes):
 	# WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
-	cleanMachNam = machWithBackSlashes.replace("\\","")
-	# sys.stderr.write("WmiConnect cimom=%s cleanMachNam=%s wmiNamspace=%s\n" % ( machWithBackSlashes, cleanMachNam, wmiNamspac ) )
+	cleanMachNam = machWithBackSlashes.replace("\\","").lower()
+	sys.stderr.write("GetWmiUserPass cimom=%s cleanMachNam=%s\n" % ( machWithBackSlashes, cleanMachNam ) )
+
+	wmiUserPass = lib_credentials.GetCredentials("WMI",cleanMachNam)
+
+	sys.stderr.write("GetWmiUserPass wmiUserPass=%s\n" % ( str(wmiUserPass) ) )
+
+	if wmiUserPass[0]:
+		return cleanMachNam, wmiUserPass[0], wmiUserPass[1]
 
 	# WMI does not do local connection with the local IP.
 	try:
@@ -81,13 +86,47 @@ def WmiConnect(machWithBackSlashes,wmiNamspac):
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Cannot connect to WMI server:%s" % cleanMachNam)
 
-	# sys.stderr.write("WmiConnect machIP=%s\n" % ( machIP ) )
+	sys.stderr.write("GetWmiUserPass machIP=%s\n" % ( machIP ) )
 
-	if lib_util.SameHostOrLocal( machIP, "*" ):
-		connWMI = wmi.WMI(namespace=wmiNamspac)
-	else:
-		connWMI = wmi.WMI(machIP,namespace=wmiNamspac)
+	wmiUserPass = lib_credentials.GetCredentials("WMI",machIP)
+	return machIP, wmiUserPass[0], wmiUserPass[1]
 
+# connWMI = wmi.WMI(cimomUrl,namespace=nskey)
+# TODO: Aller chercher les credentials.
+# c = wmi.WMI("MachineB", user=r"MachineB\fred", password="secret")
+# Thi sworks
+# Before a given version, had to use server="xyz" instead of computer="xyz"
+#c = wmi.WMI(computer="titi",user="titi\\rchateauneu@hotmail.com",password="my_hotmail_pass")
+def WmiConnect(machWithBackSlashes,wmiNamspac):
+	sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
+	# WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
+
+	wmiMachine, wmiUser, wmiPass = GetWmiUserPass(machWithBackSlashes)
+
+	#On part de la (Avec ARP):
+	#http://127.0.0.1:8000/htbin/entity.py?xid=CIM_ComputerSystem.Name=Titi
+
+	#et on a clique la, mais je ne crois pas que ce sot un moniker WMI:
+	#http://127.0.0.1:8000/htbin/entity_wmi.py?xid=\\Titi\root\CIMV2%3ACIM_ComputerSystem.Titi
+
+	wmiMachineIpAddr =  socket.gethostbyaddr(wmiMachine)
+	sys.stderr.write("WmiConnect wmiMachine=%s wmiMachineIpAddr=%s wmiUser=%s wmiPass=%s\n" % ( wmiMachine,wmiMachineIpAddr,wmiUser,wmiPass ) )
+
+	dictParams = {}
+	if wmiNamspac:
+		dictParams['namespace'] = wmiNamspac
+
+	if wmiUser:
+		dictParams['user'] = wmiUser
+		dictParams['password'] = wmiPass
+
+	# if not lib_util.SameHostOrLocal( wmiMachine, "*" ):
+	if not lib_util.SameHostOrLocal( wmiMachine, None ):
+		dictParams['computer'] = wmiMachine
+
+	sys.stderr.write("WmiConnect dictParams=%s\n" % ( str(dictParams) ) )
+
+	connWMI = wmi.WMI(**dictParams)
 	return connWMI
 
 ################################################################################
@@ -166,7 +205,7 @@ def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 
 	entity_host = NormalHostName(entity_host)
 
-	# sys.stderr.write("GetWmiUrl %s %s %s %s\n" % (entity_host, entity_namespace, entity_type, entity_id))
+	# sys.stderr.write("GetWmiUrl NormalHostName=%s ns=%s type=%s id=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
 
 	# TODO: entity_host = NONE si current.
 

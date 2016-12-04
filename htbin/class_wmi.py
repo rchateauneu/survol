@@ -29,12 +29,16 @@ def Main():
 	nameSpace = nameSpace.replace("/","\\")
 
 	# Must remove "root\" at the beginning of "root\Cli" or "root\CIMv2"
-	if nameSpace[0:5] == "root\\":
-		nameSpace = nameSpace[5:]
-	else:
-		lib_common.ErrorMessageHtml("cimomUrl=%s entity_namespace_type=%s nameSpace=%s wrong prefix\n" % ( cimomUrl, nameSpace, entity_namespace_type ) )
+	#if nameSpace[0:5] == "root\\":
+	#	nameSpace = nameSpace[5:]
+	#else:
+	#	lib_common.ErrorMessageHtml("cimomUrl=%s entity_namespace_type=%s nameSpace=%s wrong prefix\n" % ( cimomUrl, nameSpace, entity_namespace_type ) )
 
-	connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
+	# HP Windows 7 ... ET ... Toshiba Windows 8 seulement.
+	# connWmi = lib_wmi.WmiConnect(cimomUrl, nameSpace)
+	# Toshiba Windows 8
+	# connWmi = lib_wmi.WmiConnect(cimomUrl, "root\\" + nameSpace)
+	connWmi = lib_wmi.WmiConnect(cimomUrl, nameSpace)
 
 	lib_wmi.WmiAddClassQualifiers( grph, connWmi, rootNode, className, True )
 

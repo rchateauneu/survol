@@ -12,7 +12,7 @@ from lib_properties import pc
 def Main():
 
 	# This can process remote hosts because it does not call any script, just shows them.
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 	grph = rdflib.Graph()
 

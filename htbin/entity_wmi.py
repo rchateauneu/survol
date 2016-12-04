@@ -11,13 +11,14 @@ WMI instance
 """
 
 import sys
-import psutil
-import socket
+#import psutil
+#import socket
+import six
 import rdflib
 import lib_common
 import lib_wmi
 import lib_util
-from lib_properties import pc
+#from lib_properties import pc
 
 try:
 	import wmi
@@ -46,39 +47,53 @@ def WmiReadWithQuery( cgiEnv, connWmi, className ):
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Query=%s Caught:%s" % ( aQry, str(exc) ) )
 
-# TODO: Add all usual Python types.
-if sys.version_info >= (3,):
-	listTypes = ( str, int, float )
-else:
-	listTypes = ( unicode, int, float )
+# Add all usual Python types.
+listTypes = six.string_types + ( six.text_type, six.binary_type ) + six.integer_types
 
 # Displays the properties of a WMI object (Not a class).
-def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues):
+def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className):
+
+	prpCannotBeDisplayed = {
+		"CIM_ComputerSystem" : ["OEMLogoBitmap"]
+	}
+
 	for prp in objWmi.properties:
-		# BEWARE, it could be None.
-		value = getattr(objWmi,prp)
+		prpProp = lib_common.MakeProp(prp)
+
+		# CIM_ComputerSystem
+		try:
+			doNotDisplay = prp in prpCannotBeDisplayed[className]
+		except KeyError:
+			doNotDisplay = False
+
+		if doNotDisplay:
+			value = "Cannot be displayed"
+		else:
+			# BEWARE, it could be None.
+			value = getattr(objWmi,prp)
+
 
 		if isinstance( value, listTypes ):
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
-			grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( str(value).replace('\\','\\\\') ) ) )
+			grph.add( ( wmiInstanceNode, prpProp, rdflib.Literal( str(value).replace('\\','\\\\') ) ) )
 		elif isinstance( value, ( tuple) ):
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
 			cleanTuple = " ; ".join( [ str(oneVal).replace('\\','\\\\') for oneVal in value ] )
-			grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( cleanTuple ) ) )
+			grph.add( ( wmiInstanceNode, prpProp, rdflib.Literal( cleanTuple ) ) )
 		elif value is None:
 			if displayNoneValues:
-				grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( "None" ) ) )
+				grph.add( ( wmiInstanceNode, prpProp, rdflib.Literal( "None" ) ) )
 		else:
 			try:
 				refMoniker = str( value.path() )
 				refInstanceUrl = lib_util.EntityUrlFromMoniker( refMoniker )
 				refInstanceNode = rdflib.term.URIRef(refInstanceUrl)
-				grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), refInstanceNode ) )
+				grph.add( ( wmiInstanceNode, prpProp, refInstanceNode ) )
 			except AttributeError:
 				exc = sys.exc_info()[1]
-				grph.add( ( wmiInstanceNode, lib_common.MakeProp(prp), rdflib.Literal( str(exc) ) ) )
+				grph.add( ( wmiInstanceNode, prpProp, rdflib.Literal( str(exc) ) ) )
 
 
 # Better use references() because it gives much more information.
@@ -93,7 +108,7 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues):
 """
 Traduire les uri de wbem vers wmi et vers nous etc...
 Les namespaces sont case-sensitive sous Unix au contraire de WMI.
-On doit passer de WMI a WBEM et recioproauement.
+On doit passer de WMI a WBEM et reciproquement.
 Mais en interne, il faut un seul type d'URI sinon ca ne peut pas fusionner.
 On peut avoir une table de mapping en interne pour les machines.
 Pour les namespaces c'est plus complique:
@@ -183,11 +198,9 @@ def Main():
 
 	cimomUrl = cgiEnv.GetHost()
 
-	sys.stderr.write("cimomUrl=%s nameSpace=%s className=%s\n" % ( cimomUrl, nameSpace, className) )
+	sys.stderr.write("cimomUrl=%s ns=%s cls=%s id=%s\n" % ( cimomUrl, nameSpace, className, cgiEnv.m_entity_id) )
 
 	grph = rdflib.Graph()
-
-	sys.stderr.write("cgiEnv.m_entity_id=%s\n" % cgiEnv.m_entity_id)
 
 	connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
 
@@ -208,7 +221,7 @@ def Main():
 
 		# TODO: Attendre d'avoir plusieurs objects pour faire la meme chose que wentity_wbem,
 		# c est a dire une deduplication adaptee avec creation d URL. Je me comprends.
-		DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues)
+		DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className)
 
 		# TODO: Pour ces classes, l'attente est tres longue. Rather create another link.
 		# rchref = wmi.WMI().query("select * from Win32_UserAccount where Name='rchateau'")[0].references()
@@ -220,7 +233,8 @@ def Main():
 				exc = sys.exc_info()[1]
 				sys.stderr.write("Exception=%s\n" % str(exc) )
 		else:
-			grph.add( ( wmiInstanceNode, lib_common.MakeProp("REFERENCES"), rdflib.Literal( "DISABLED" ) ) )
+			# Prefixc with a dot so it is displayed first.
+			grph.add( ( wmiInstanceNode, lib_common.MakeProp(".REFERENCES"), rdflib.Literal( "DISABLED" ) ) )
 
 	# Adds the class node to the instance.
 	wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, cimomUrl, nameSpace, className, lib_common.MakeProp(className) )

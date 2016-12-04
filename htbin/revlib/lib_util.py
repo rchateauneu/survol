@@ -124,12 +124,13 @@ def IsLocalAddress(anHostNam):
 # socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
 # socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
 def SameHostOrLocal( srv, entHost ):
-	if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ) or ( entHost == "*"):
+	# if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ) or ( entHost == "*"):
+	if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ):
 		# We might add credentials.
-		# sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME\n" % ( entHost, localIP, srv ) )
+		sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME\n" % ( entHost, localIP, srv ) )
 		return True
 	else:
-		# sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s Different\n" % ( entHost, localIP, srv ) )
+		sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s Different\n" % ( entHost, localIP, srv ) )
 		return False
 
 ################################################################################
@@ -928,3 +929,12 @@ def DirDocNode(argDir,dir):
 	# Add three characters otherwise it is truncated just like a Python file extension.
 	return FromModuleToDoc(importedMod,dir)
 
+	# Gives a general access to WMI servers.
+def UrlPortalWmi(hostname=None):
+	strUrl = uriRoot + '/portal_wmi.py'
+	if hostname:
+		# The string "portal" is completely artificial, just to have a nice title.
+		strUrl += '?xid=' + hostname + "@portal."
+
+	nodePortalWmi = rdflib.term.URIRef( strUrl )
+	return nodePortalWmi

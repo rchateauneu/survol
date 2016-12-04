@@ -19,26 +19,34 @@ import lib_wmi
 # to list "root" subnamespaces with wmi. Not a problem for the moment.
 # http://stackoverflow.com/questions/5332501/how-do-you-query-for-wmi-namespaces
 hardcodedNamespaces = (
-	"aspnet",
+	"aspnet",        # Not on Toshiba Win8
 	"CIMV2",
-	"Cli", # This does not work on Windows XP
+	"Cli",           # This does not work on Windows XP
 	"Default",
 	"directory",
-	"HP",
+	"Hardware",      # Toshiba Win8
+	"HP",            # Not on Toshiba Win8
 	"Interop",
 	"Microsoft",
+	"msdtc",         # Toshiba Win8
 	"nap",
-	"Policy",
+	"Policy",        # Not on Toshiba Win8
 	"RSOP",
-	"SECURITY",
+	"SECURITY",      # Not on HP Win7
 	"SecurityCenter",
 	"SecurityCenter2",
-	"ServiceModel",
-	"subscription" )
+	"ServiceModel",  # Not on Toshiba Win8 nor HP Win7
+	"StandardCimv2", # Toshiba Win8
+	"subscription",
+	"WMI",           # Toshiba Win8 and HP Win7
+)
+
+
 
 def SubNamespace( rootNode, grph, nskey, cimomUrl ):
 	try:
-		connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
+		# connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
+		connWMI = lib_wmi.WmiConnect(cimomUrl,"root\\" + nskey)
 	except wmi.x_wmi:
 		exc = sys.exc_info()[1]
 		# lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
@@ -52,8 +60,13 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl ):
 
 	grph.add( ( rootNode, pc.property_cim_subnamespace, wmiNode ) )
 
-	for subnamespace in connWMI.__NAMESPACE():
-		SubNamespace( wmiNode, grph, nskey + "\\" + subnamespace.Name, cimomUrl )
+	try:
+		for subnamespace in connWMI.__NAMESPACE():
+			SubNamespace( wmiNode, grph, nskey + "\\" + subnamespace.Name, cimomUrl )
+	except Exception:
+		exc = sys.exc_info()[1]
+		grph.add( ( wmiNode, pc.property_information, rdflib.Literal("Caught:%s" % str(exc) ) ) )
+		# lib_common.ErrorMessageHtml("nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
@@ -96,7 +109,8 @@ def Main():
 
 	for nskey in hardcodedNamespaces:
 		# SubNamespace( rootNode, grph, nskey )
-		try:
+		try: # "root\\" +
+			# SubNamespace( rootNode, grph, nskey, cimomUrl )
 			SubNamespace( rootNode, grph, nskey, cimomUrl )
 		#except wmi.x_wmi:
 		#	exc = sys.exc_info()[1]

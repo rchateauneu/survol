@@ -13,9 +13,6 @@ import importlib
 
 # With Linux, Python2 and cgiserver, it can import it,
 # but after that it cannot "import lib_common"
-# from revlib import lib_util
-# from revlib import lib_common
-# from revlib.lib_properties import pc
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -239,7 +236,7 @@ def AddDefaultScripts(grph,rootNode):
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodePortalWbem ) )
 
 	# Gives a general access to WMI servers.
-	nodePortalWmi = rdflib.term.URIRef( lib_util.uriRoot + '/portal_wmi.py')
+	nodePortalWmi = lib_util.UrlPortalWmi()
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodePortalWmi ) )
 
 	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
