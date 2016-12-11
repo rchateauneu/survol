@@ -248,3 +248,11 @@ BlueMix
 VCAP_SERVICES
 ============================================
 Le mode HTML devrait fabriquer un rapport en texte, decrivant la page.
+
+J ai vu dans les sysinternals tools qu n peut avoir une descriptino d un exe.
+
+Fichiers ouverts d une autre machine (psfile.exe)
+
+kde kioslave
+
+Lister le contenu des RPM
