@@ -21,9 +21,11 @@ class Impersonate:
 		win32security.RevertToSelf()
 		self.m_handle.Close()
 
-# Ca fonctionne pour OpenSCManager.
-# Si on ne le fait pas: "(5, 'NetLocalGroupEnum', 'Access is denied.')"
-# Si on le fait, quelque soit le password: "(127, 'NetLocalGroupEnum', 'The specified procedure could not be found.')"
+# TODO: Ca fonctionne pour OpenSCManager.
+# TODO: Si on ne le fait pas: "(5, 'NetLocalGroupEnum', 'Access is denied.')"
+# TODO: Si on le fait, quelque soit le password: "(127, 'NetLocalGroupEnum', 'The specified procedure could not be found.')"
+# TODO: BEWARE: Apparently it does not work for remote machines before NetShareEnum. When using it,
+# TODO: with another machine etc... we obtain GetUSerName() = "Guest" and of course access denied everywjhere.
 def MakeImpersonate(machineName):
 	sys.stderr.write("MakeImpersonate: machineName=%s\n" % machineName)
 	(usernam,passwd) = lib_credentials.GetCredentials("Login",machineName)

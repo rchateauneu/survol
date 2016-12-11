@@ -36,9 +36,13 @@ def Main():
 			# and maybe setting LocalAccountTokenFilterPolicy=1
 			if hostname == lib_util.currentHostname:
 				hostname_or_None = None
+				level = 2 # 1,2
 			else:
 				hostname_or_None = hostname
-			sharedata, total, shareresume = win32net.NetShareEnum(hostname_or_None, 2, shareresume)
+				level = 1 # 1,2
+
+			sharedata, total, shareresume = win32net.NetShareEnum(hostname_or_None, level, shareresume)
+
 		except Exception:
 			# "Access is denied."
 			exc = sys.exc_info()[1]
@@ -48,15 +52,17 @@ def Main():
 			sys.stderr.write("share=%s\n" % ( str(share) ) )
 			# share={'remark': 'Remote Admin', 'passwd': None, 'current_uses': 0, 'netname': 'ADMIN$', 'max_uses': 4294967295, 'path': 'C:\\\\Windows', 'type': 2147483648, 'permissions': 0}
 			share_netname = share['netname']
-			share_path = share['path']
-			share_remark = share['remark']
+			try:
+				share_path = share['path']
+				share_remark = share['remark']
+			except:
+				share_path = ""
+				share_remark = ""
 
 			shareNode = lib_common.gUriGen.SmbShareUri( "//" + hostname + "/" + share_netname )
 			grph.add( ( nodeHost, pc.property_smbshare, shareNode ) )
 
 			# TODO: Horrible display. Strange because this is encoded in the function.
-			# mountNode = lib_common.gUriGen.FileUri( share_path )
-			# mountNode = lib_common.gUriGen.FileUri( lib_util.EncodeUri(share_path) )
 			mountNode = lib_common.gUriGen.FileUri( share_path.replace('\\','/') )
 
 			grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
