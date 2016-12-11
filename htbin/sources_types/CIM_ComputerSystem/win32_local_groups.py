@@ -77,7 +77,7 @@ def Main():
 							continue
 
 						sys.stderr.write("    Member: %s: %s\n" % (userName, member['domainandname']))
-						nodeUser = lib_common.gUriGen.UserUri( userName )
+						nodeUser = serverBox.UserUri( userName )
 						# TODO: Not sure about the property.
 						# TODO: Not sure about the username syntax.
 						grph.add( (nodeUser, pc.property_group, nodeGroup ) )
