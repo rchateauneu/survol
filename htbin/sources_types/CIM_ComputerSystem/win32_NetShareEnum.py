@@ -4,18 +4,18 @@
 Network shares
 """
 
-import os
+#import os
 import sys
-import socket
+#import socket
 import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
 
-import win32api
+#import win32api
 import win32net
-import win32netcon
-import win32security
+#import win32netcon
+#import win32security
 
 Usable = lib_util.UsableWindows
 

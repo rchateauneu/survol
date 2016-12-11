@@ -256,3 +256,8 @@ Fichiers ouverts d une autre machine (psfile.exe)
 kde kioslave
 
 Lister le contenu des RPM
+
+Logiquement, plein de scripts qui sont dans sources_top devraient etre dans sources_types/CIM_ComputerSystem,
+avec une valeur par defaut pour le host courant.
+Par exemple la liste des processes etc... Sans grande importance: On peut dupliquer ces scripts.
+Entretemps, on pourrait, a partir de sources_top, pointer vers les scripts de CIM_ComputerSystem pour  le host courant.

@@ -372,6 +372,8 @@ class LocalBox:
 			# TODO: Replace by LMI_Account on Linux ?
 			userTp = "user"
 		elif lib_util.isPlatformWindows:
+			# TODO: DEPRECATED But this is called directly from entity.py.
+			# TODO: Should be removed.
 			userTp = "Win32_UserAccount"
 		else:
 			userTp = "user"
@@ -379,6 +381,7 @@ class LocalBox:
 
 	def GroupUri(self,groupname):
 		# CIM_GroupAccount ?
+		# Linux only.
 		return self.UriMake("group",groupname)
 
 	# TODO: At the moment, keys have this structure: {CE4AACFA-3CFD-4028-B2D9-F272314F07C8}

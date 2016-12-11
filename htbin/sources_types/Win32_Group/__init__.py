@@ -15,15 +15,19 @@ import lib_common
 
 
 def EntityOntology():
-	return ( ["Name"], )
+	return ( ["Name","Domain"], )
 
-def MakeUri(groupName):
-	return lib_common.gUriGen.UriMakeFromDict("Win32_Group", { "Name" : groupName } )
+def MakeUri(groupName,domainName):
+	return lib_common.gUriGen.UriMakeFromDict("Win32_Group", { "Name" : groupName, "Domain" : domainName } )
 
 def EntityName(entity_ids_arr):
-	return entity_ids_arr[0]
+	if entity_ids_arr[1]:
+		return entity_ids_arr[1] + "\\\\" + entity_ids_arr[0]
+	else:
+		return entity_ids_arr[0]
 
 def AddInfo(grph,node,entity_ids_arr):
-	groupName = entity_ids_arr[0]
-	nodeGroup = lib_common.gUriGen.FileUri( groupName )
-	grph.add((node,lib_common.MakeProp("Win32_Group"),nodeGroup))
+	# groupName = entity_ids_arr[0]
+	domainName = entity_ids_arr[1]
+	nodeMachine = lib_common.gUriGen.HostnameUri( domainName )
+	grph.add((node,lib_common.MakeProp("Host"), nodeMachine))

@@ -13,23 +13,34 @@ from lib_properties import pc
 
 from sources_types import CIM_Process
 
+# This script can work locally only.
 Usable = lib_util.UsableWindows
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
-	userNameWithHost = cgiEnv.GetId()
 
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("Windows only")
+	# userNameWithHost = cgiEnv.GetId()
+
+
+	userHost = cgiEnv.m_entity_id_dict["Domain"]
+	userName = cgiEnv.m_entity_id_dict["Name"]
 
 	# Usernames have the syntax user@host
 	# Example: UK936025@LONW00052257.euro.net.intra
-	userSplit = userNameWithHost.split('@')
-	userName = userSplit[0]
+	# userSplit = userNameWithHost.split('@')
+	# userName = userSplit[0]
+
+
+
 
 	# TODO: Should factorize this code.
-	if len( userSplit ) > 1:
-		userHost = userSplit[1]
+	#if len( userSplit ) > 1:
+	#	userHost = userSplit[1]
+	#	if userHost != lib_util.currentHostname:
+	#		# TODO: Should interrogate other host with "finger" protocol.
+	#		lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)
+
+	if userHost:
 		if userHost != lib_util.currentHostname:
 			# TODO: Should interrogate other host with "finger" protocol.
 			lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)
