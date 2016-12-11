@@ -18,6 +18,8 @@ def EntityOntology():
 	return ( ["Name","Domain"], )
 
 def MakeUri(groupName,domainName):
+	if domainName is None:
+		domainName = ""
 	return lib_common.gUriGen.UriMakeFromDict("Win32_Group", { "Name" : groupName, "Domain" : domainName } )
 
 def EntityName(entity_ids_arr):

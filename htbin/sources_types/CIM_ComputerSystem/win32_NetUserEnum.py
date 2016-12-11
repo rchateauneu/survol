@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Windo users
+Windows users
 """
 
 #import os
@@ -14,7 +14,7 @@ from lib_properties import pc
 
 #import win32api
 import win32net
-#import win32netcon
+import win32netcon
 #import win32security
 
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
@@ -38,26 +38,31 @@ def Main():
 		hostname_or_None = hostname
 		level = 2 # 1,2
 
-	lstUsers = win32net.NetUserEnum(hostname,level)
+	resumeHandle = 0
 
-	for usrElt in lstUsers:
+	while True:
+		lstUsers, total, resumeHandle = win32net.NetUserEnum(hostname,level,win32netcon.FILTER_NORMAL_ACCOUNT,resumeHandle)
 
-		# {'comment': u'Built-in account for administering the computer/domain', 'workstations': u'', 'country_code': 0L, 'last_logon': 1426
-		# 729970L, 'full_name': u'', 'parms': u'', 'code_page': 0L, 'priv': 2L, 'auth_flags': 0L, 'logon_server': u'\\\\*', 'home_dir': u'', '
-		# usr_comment': u'', 'acct_expires': 4294967295L, 'bad_pw_count': 0L, 'logon_hours': '\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff
-		# \xff\xff\xff\xff\xff\xff\xff\xff\xff', 'password': None, 'units_per_week': 168L, 'last_logoff': 0L, 'name': u'Administrator', 'max_s
-		# torage': 4294967295L, 'num_logons': 11L, 'password_age': 191184801L, 'flags': 66083L, 'script_path': u''},
+		for usrElt in lstUsers:
 
-		userName = usrElt['name']
+			# {'comment': u'Built-in account for administering the computer/domain', 'workstations': u'', 'country_code': 0L, 'last_logon': 1426
+			# 729970L, 'full_name': u'', 'parms': u'', 'code_page': 0L, 'priv': 2L, 'auth_flags': 0L, 'logon_server': u'\\\\*', 'home_dir': u'', '
+			# usr_comment': u'', 'acct_expires': 4294967295L, 'bad_pw_count': 0L, 'logon_hours': '\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff
+			# \xff\xff\xff\xff\xff\xff\xff\xff\xff', 'password': None, 'units_per_week': 168L, 'last_logoff': 0L, 'name': u'Administrator', 'max_s
+			# torage': 4294967295L, 'num_logons': 11L, 'password_age': 191184801L, 'flags': 66083L, 'script_path': u''},
 
-		nodeUser = survol_Win32_UserAccount.MakeUri( userName, hostname )
-		grph.add( ( nodeHost, pc.property_user, nodeUser ) )
+			userName = usrElt['name']
 
-		try:
-			txtComment = usrElt['comment']
-			grph.add( ( nodeUser, pc.property_information, rdflib.Literal(txtComment) ) )
-		except KeyError:
-			pass
+			nodeUser = survol_Win32_UserAccount.MakeUri( userName, hostname )
+			grph.add( ( nodeHost, pc.property_user, nodeUser ) )
+
+			try:
+				txtComment = usrElt['comment']
+				grph.add( ( nodeUser, pc.property_information, rdflib.Literal(txtComment) ) )
+			except KeyError:
+				pass
+		if resumeHandle == 0:
+			break
 
 	cgiEnv.OutCgiRdf(grph)
 
