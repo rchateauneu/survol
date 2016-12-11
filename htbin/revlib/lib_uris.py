@@ -362,7 +362,7 @@ class LocalBox:
 	# Win32_Account: Win32_Group + Win32_SystemAccount + Win32_UserAccount
 	# Win32_UserAccount: "Administrator","Guest","HomeGroupUser$","rchateau"
 	# Win32_SystemAccount : Tres intern a Windows, on peut laisser de cote.
-	# Win32_GroupUser: "HomeUsers", "Administrator" : Associaton entre Win32_Group et un accoujnt
+	# Win32_GroupUser: "HomeUsers", "Administrator" : Association entre Win32_Group et un account
 	#
 	# Quant a nous: "group" et "user"
 	def UserUri(self,username):
