@@ -126,7 +126,11 @@ def WmiConnect(machWithBackSlashes,wmiNamspac):
 
 	sys.stderr.write("WmiConnect dictParams=%s\n" % ( str(dictParams) ) )
 
-	connWMI = wmi.WMI(**dictParams)
+	try:
+		connWMI = wmi.WMI(**dictParams)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Cannot connect to WMI server with params:%s" % str(dictParams))
 	return connWMI
 
 ################################################################################
