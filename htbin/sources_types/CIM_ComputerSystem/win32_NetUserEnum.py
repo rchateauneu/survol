@@ -41,7 +41,12 @@ def Main():
 	resumeHandle = 0
 
 	while True:
-		lstUsers, total, resumeHandle = win32net.NetUserEnum(hostname,level,win32netcon.FILTER_NORMAL_ACCOUNT,resumeHandle)
+		try:
+			lstUsers, total, resumeHandle = win32net.NetUserEnum(hostname,level,win32netcon.FILTER_NORMAL_ACCOUNT,resumeHandle)
+		except:
+			exc = sys.exc_info()[1]
+			lib_common.ErrorMessageHtml("NetUserEnum:"+str(exc))
+
 
 		for usrElt in lstUsers:
 
