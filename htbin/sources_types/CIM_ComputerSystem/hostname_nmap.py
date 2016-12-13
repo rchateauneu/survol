@@ -18,7 +18,6 @@ def Main():
 	paramkeyPortsRange = "Ports Range"
 
 	cgiEnv = lib_common.CgiEnv(
-			"http://nmap.org/images/nmap-logo-64px.png",
 			{ paramkeyPortsRange : "22-443" } )
 	hostname = cgiEnv.GetId()
 
