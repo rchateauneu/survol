@@ -14,6 +14,8 @@ import xml.dom.minidom
 import lib_common
 from lib_properties import pc
 
+from sources_types import addr as survol_addr
+
 def Main():
 	paramkeyPortsRange = "Ports Range"
 
@@ -57,16 +59,16 @@ def Main():
 
 		for dport in dhost.getElementsByTagName('port'):
 			proto = dport.getAttributeNode('protocol').value
+
 			# port number converted as integer
 			port = int(dport.getAttributeNode('portid').value)
 			socketNode = lib_common.gUriGen.AddrUri( host, port, proto )
+			survol_addr.DecorateSocketNode(grph, socketNode, host, port, proto)
 
 			state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
-			#sys.stderr.write("state="+state+"\n")
 			grph.add( ( socketNode, lib_common.MakeProp("State"), rdflib.Literal(state) ) )
 			
 			reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
-			#sys.stderr.write("reason="+reason)
 			grph.add( ( socketNode, lib_common.MakeProp("Reason"), rdflib.Literal(reason) ) )
 
 			# name if any
@@ -80,7 +82,6 @@ def Main():
 			#	print("script_id="+script_id)
 			#	print("script_out="+script_out)
 
-			socketNode = lib_common.gUriGen.AddrUri( host, port, proto )
 			# BEWARE: Normally the LHS node should be a process !!!
 			grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
 

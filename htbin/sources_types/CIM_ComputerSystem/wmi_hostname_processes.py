@@ -79,8 +79,7 @@ def Main():
 	try:
 		c = wmi.WMI (machName_or_None)
 	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("WMI " + machineName + " processes. Caught:" + str(exc) )
+		lib_common.ErrorMessageHtml("WMI " + machineName + " processes. Caught:" + str(sys.exc_info()) )
 
 	# With a dictionary so node are created once only.
 	Main.dictPidToNode = {}

@@ -8,6 +8,7 @@ import sys
 import rdflib
 import lib_common
 from sources_types import CIM_Process
+from sources_types import addr as survol_addr
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -35,7 +36,8 @@ def Main():
 			exc = sys.exc_info()[1]
 			lib_common.ErrorMessageHtml("Error:"+str(exc))
 
-	lib_common.PsutilAddSocketToGraph(node_process,connects,grph)
+	# lib_common.PsutilAddSocketToGraph(node_process,connects,grph)
+	survol_addr.PsutilAddSocketToGraph(node_process,connects,grph)
 
 	cgiEnv.OutCgiRdf(grph)
 

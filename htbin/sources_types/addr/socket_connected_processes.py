@@ -11,6 +11,8 @@ import psutil
 import rdflib
 import lib_common
 from sources_types import CIM_Process
+from sources_types import addr as survol_addr
+
 from lib_properties import pc
 
 def Main():
@@ -83,7 +85,7 @@ def Main():
 		all_connect = CIM_Process.PsutilProcConnections(proc,'all')
 
 		for cnt in all_connect:
-			( larray, rarray ) = lib_common.SocketToPair(cnt)
+			( larray, rarray ) = survol_addr.SocketToPair(cnt)
 
 			try:
 				sys.stderr.write("l[0]=%16s l[1]=%5d r[0]=%16s r[1]=%5d\n"
@@ -106,7 +108,7 @@ def Main():
 					grph.add( ( node_process, pc.property_pid, rdflib.Literal(pid) ) )
 
 				# No need to be asynchronous because this is always the same socket.
-				lib_common.PsutilAddSocketToGraphOne(node_process,cnt,grph)
+				survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
 
 	cgiEnv.OutCgiRdf(grph)
 

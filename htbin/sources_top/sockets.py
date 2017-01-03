@@ -9,6 +9,7 @@ import psutil
 import rdflib
 import lib_common
 from sources_types import CIM_Process
+from sources_types import addr as survol_addr
 
 from lib_properties import pc
 
@@ -50,8 +51,10 @@ def Main():
 				# Un peu plus lent en asynchrone si peu de sockets;
 				# Ou il faudrait un parametre.
 				# lib_common.PsutilAddSocketToGraph(node_process,all_connect,grph)
+				# lib_common.PsutilAddSocketToGraphAsync(node_process,all_connect,grph,flagShowUnconnected)
+
 				# TODO: MAYBE CREATES ALL THE PROCESSES AND RUN THE THREADS ON THE COMPLETE LIST ???
-				lib_common.PsutilAddSocketToGraphAsync(node_process,all_connect,grph,flagShowUnconnected)
+				survol_addr.PsutilAddSocketToGraphAsync(node_process,all_connect,grph,flagShowUnconnected)
 
 		except psutil.AccessDenied:
 			pass

@@ -308,11 +308,11 @@ class LocalBox:
 	def FileUriMime(self,filNam):
 		return self.UriMakeFromScript('/file_to_mime.py', "CIM_DataFile", lib_util.EncodeUri(filNam) )
 
-	# This creates a node for a socket, so later it can be merged
-	# with the same socket.
+	# This creates a node for a socket, so later it can be merged with the same socket.
 	# TODO: The URL should do something useful.
 	# If the port is known, we could wrap the associated service in a Python script.
 	# On the other hand, it forces the usage of a service.
+	# We do not put it in a specific module because it is used everywhere and is unavoidable.
 	def AddrUri(self,addr,port,transport="tcp"):
 		try:
 			portNam = socket.getservbyport( int(port) )
