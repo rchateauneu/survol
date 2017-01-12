@@ -6,5 +6,5 @@ def EntityOntology():
 def MakeUri(fileName,viewName):
 	return lib_common.gUriGen.UriMakeFromDict("sqlite/view", { "File" : fileName, "View" : viewName } )
 
-def EntityName(entity_ids_arr):
+def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[1] + "@" + entity_ids_arr[0]

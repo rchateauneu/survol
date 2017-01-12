@@ -48,7 +48,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	strQuery = entity_ids_arr[0]
 	pid = entity_ids_arr[1]
 
-def EntityName(entity_ids_arr):
+def EntityName(entity_ids_arr,entity_host):
 	thePid = entity_ids_arr[1]
 	# sys.stderr.write("thePid=%s\n"%thePid)
 	sqlQuery = entity_ids_arr[0]

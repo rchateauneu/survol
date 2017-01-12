@@ -37,7 +37,7 @@ def QueryToNodesList(sqlQuery,connectionKW,list_of_tables):
 		nodesList.append( tmpNode )
 	return nodesList
 
-def EntityName(entity_ids_arr):
+def EntityName(entity_ids_arr,entity_host):
 	sqlQuery = entity_ids_arr[0]
 	fileName = entity_ids_arr[1]
 	return sql_query.EntityNameUtil( "File " + fileName, sqlQuery)

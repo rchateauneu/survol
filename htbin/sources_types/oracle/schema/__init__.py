@@ -16,7 +16,7 @@ def EntityOntology():
 def MakeUri(dbName,schemaName):
 	return lib_common.gUriGen.UriMakeFromDict("oracle/schema", { "Db" : dbName, "Schema" : schemaName } )
 
-def EntityName(entity_ids_arr):
+def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[0] + "." + entity_ids_arr[1]
 
 # SQL> select distinct object_type from dba_objects;

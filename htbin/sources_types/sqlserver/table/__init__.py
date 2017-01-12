@@ -16,5 +16,5 @@ def EntityOntology():
 def MakeUri(dsnNam,schemaName,tableName):
 	return lib_common.gUriGen.UriMakeFromDict("sqlserver/table", { "Dsn" : dsnNam, "Schema" : schemaName, "Table" : tableName } )
 
-def EntityName(entity_ids_arr):
+def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]

@@ -18,5 +18,5 @@ def AddInfo(grph,node,entity_ids_arr):
 	node_oraschema = oracle_schema.MakeUri( argDb, argSchema )
 	grph.add( ( node_oraschema, pc.property_oracle_library, node ) )
 
-def EntityName(entity_ids_arr):
+def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]

@@ -7,7 +7,7 @@ def EntityOntology():
 def MakeUri(fileName,tableName):
 	return lib_common.gUriGen.UriMakeFromDict("sqlite/table", { "File" : fileName, "Table" : tableName } )
 
-def EntityName(entity_ids_arr):
+def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[1] + "@" + entity_ids_arr[0]
 
 def AddInfo(grph,node,entity_ids_arr):
