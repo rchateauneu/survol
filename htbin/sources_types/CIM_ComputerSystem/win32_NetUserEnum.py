@@ -4,18 +4,15 @@
 Windows users
 """
 
-#import os
 import sys
-#import socket
 import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
 
-#import win32api
+import lib_win32
 import win32net
 import win32netcon
-#import win32security
 
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
@@ -30,18 +27,34 @@ def Main():
 
 	grph = rdflib.Graph()
 
+	# hostname = "Titi" for example
+	lib_win32.WNetAddConnect(hostname)
+
 
 	if hostname == lib_util.currentHostname:
-		hostname_or_None = None
 		level = 2 # 1,2
 	else:
-		hostname_or_None = hostname
 		level = 2 # 1,2
+
+	sys.stderr.write("hostname=%s level=%d\n" % (hostname,level))
 
 	resumeHandle = 0
 
 	while True:
 		try:
+			# Maintenant, comme tous les autres appels remote a Windows, ca retourne "access denied" vers Titi.
+			# Comme s'il y avait avant une connection implicite.
+			# Ou bien un Impersonate() ? On en a vire un qui ne marchait quand machine locale.
+			# Peut-etre que le process du serveur en beneficiait tout le temps ?
+			# Et meme WMI fonctionnait sans meme entrer le mot de passe.
+			#
+			# Connects a computer to or disconnects a computer from a shared resource, or displays information about computer connections.
+			# The command also controls persistent net connections. Used without parameters, net use retrieves a list of network connections.
+			# net use [{DeviceName | *}] [\\ComputerName\ShareName[\volume]] [{Password | *}]] [/user:[DomainName\]UserName]
+			#  [/user:[DottedDomainName\]UserName] [/user: [UserName@DottedDomainName] [/savecred] [/smartcard] [{/delete | /persistent:{yes | no}}]
+			# Ca marche si on fait ca avant:
+			# net use \\Titi tXXXXXXa /user:Titi\rchateauneu@hotmail.com
+			# https://mail.python.org/pipermail/python-win32/2003-April/000961.html
 			lstUsers, total, resumeHandle = win32net.NetUserEnum(hostname,level,win32netcon.FILTER_NORMAL_ACCOUNT,resumeHandle)
 		except:
 			exc = sys.exc_info()[1]

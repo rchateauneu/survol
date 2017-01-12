@@ -69,7 +69,10 @@ def ClassUrl(nskey,hostnameWmi,classNam):
 
 def GetWmiUserPass(machWithBackSlashes):
 	# WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
-	cleanMachNam = machWithBackSlashes.replace("\\","").lower()
+	# cleanMachNam = machWithBackSlashes.replace("\\","").lower()
+	cleanMachNam = machWithBackSlashes.replace("\\","")
+
+
 	sys.stderr.write("GetWmiUserPass cimom=%s cleanMachNam=%s\n" % ( machWithBackSlashes, cleanMachNam ) )
 
 	wmiUserPass = lib_credentials.GetCredentials("WMI",cleanMachNam)

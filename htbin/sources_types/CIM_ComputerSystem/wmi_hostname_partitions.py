@@ -7,6 +7,8 @@ WMI: Remote machine partitions
 import sys
 import rdflib
 import lib_common
+import lib_util
+import lib_wmi
 from lib_common import pc
 
 try:
@@ -112,14 +114,40 @@ def Main():
 
 	grph = rdflib.Graph()
 
+	if ( machineName == lib_util.currentHostname ) or ( not machineName ):
+		machName_or_None = None
+		serverBox = lib_common.gUriGen
+	else:
+		machName_or_None = machineName
+		serverBox = lib_common.RemoteBox(machineName)
+
 	try:
-		c = wmi.WMI (machineName)
+		loginImplicit = False # IF FACT, WHY SHOULD IT BE SET ????????
+		if loginImplicit or machName_or_None is None:
+			# ESSAYER D UTILISER UNE EVENTUELLE CONNECTION PERSISTENTE ?? Non ca ne marche pas !!!!!
+			cnnct = wmi.WMI (machineName)
+		else:
+			# persistent net connection
+			# On a le probleme "access denied" avec tous les acces remote windows.
+			# Meme probleme ausis avec WMI alors que ca marchait avant.
+			# Comme s'il y avait une connection implicite de rchateau, quand ca marchait, et qu'elle ait disparu maintenant.
+			# Toutefois, ceci fonctionne.
+			# >>> c = wmi.WMI(wmi=wmi.connect_server(server='Titi', namespace="/root/cimv2", user='rchateauneu@hotmail.com', password='xxxx'))
+
+			sys.stderr.write("Explicit WMI connection machineName=%s\n" % ( machineName ) )
+
+			cnnct = lib_wmi.WmiConnect(machineName,"/root/cimv2")
+
+			#(wmiUser,wmiPass) = lib_credentials.GetCredentials("WMI",machineName)
+			#sys.stderr.write("machineName= %wmiUser=%s\n" % ( machineName, wmiUser ) )
+			#cnnct = wmi.WMI(wmi=wmi.connect_server(server=machineName, namespace="/root/cimv2", user=wmiUser, password=wmiPass))
+
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("WMI " + machineName + " partitions:" + str(exc) )
 
-	for physical_disk in c.Win32_DiskDrive ():
-		node_disk = lib_common.gUriGen.DiskUri( physical_disk.Name.replace('\\','/') )
+	for physical_disk in cnnct.Win32_DiskDrive ():
+		node_disk = serverBox.DiskUri( physical_disk.Name.replace('\\','/') )
 		grph.add( ( node_disk, pc.property_information, rdflib.Literal( physical_disk.MediaType ) ) )
 
 		for partition in physical_disk.associators ("Win32_DiskDriveToDiskPartition"):
@@ -127,14 +155,14 @@ def Main():
 				# BEWARE: What we call parition is in fact a logical disk.
 				# This is not really important for this application,
 				# as long as there are two levels in a disk description.
-				node_partition = lib_common.gUriGen.DiskPartitionUri( logical_disk.Name )
+				node_partition = serverBox.DiskPartitionUri( logical_disk.Name )
 				grph.add( ( node_partition, pc.property_information, rdflib.Literal( logical_disk.Description ) ) )
 
 				grph.add( ( node_partition, pc.property_file_system_type, rdflib.Literal(logical_disk.FileSystem) ) )
 
 				# The logical disk name is the same as the mount point.
 				grph.add( ( node_partition, pc.property_partition, node_disk ) )
-				grph.add( ( lib_common.gUriGen.FileUri( logical_disk.Name ), pc.property_mount, node_partition ) )
+				grph.add( ( serverBox.FileUri( logical_disk.Name ), pc.property_mount, node_partition ) )
 
 	cgiEnv.OutCgiRdf(grph)
   

@@ -20,27 +20,21 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 
 	# userNameWithHost = cgiEnv.GetId()
-
-
-	userHost = cgiEnv.m_entity_id_dict["Domain"]
-	userName = cgiEnv.m_entity_id_dict["Name"]
-
 	# Usernames have the syntax user@host
 	# Example: UK936025@LONW00052257.euro.net.intra
 	# userSplit = userNameWithHost.split('@')
 	# userName = userSplit[0]
 
+	userName = cgiEnv.m_entity_id_dict["Name"]
 
-
-
-	# TODO: Should factorize this code.
-	#if len( userSplit ) > 1:
-	#	userHost = userSplit[1]
-	#	if userHost != lib_util.currentHostname:
-	#		# TODO: Should interrogate other host with "finger" protocol.
-	#		lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)
+	try:
+		# Exception if local machine.
+		userHost = cgiEnv.m_entity_id_dict["Domain"]
+	except KeyError:
+		userHost = lib_util.currentHostname
 
 	if userHost:
+		# EST_CE ENCORE VRAI ???
 		if userHost != lib_util.currentHostname:
 			# TODO: Should interrogate other host with "finger" protocol.
 			lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)

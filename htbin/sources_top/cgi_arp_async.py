@@ -62,7 +62,9 @@ def Main():
 		thr.start()
 		lookup_threads.append( thr )
 
-	lib_common.JoinThreads(lookup_threads)
+	for thread in lookup_threads:
+		sys.stderr.write('Joining %s\n' % thread.getName())
+		thread.join()
 
 	cgiEnv.OutCgiRdf(grph)
 

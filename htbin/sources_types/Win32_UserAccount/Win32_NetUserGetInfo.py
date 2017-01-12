@@ -28,20 +28,24 @@ Usable = lib_util.UsableWindows
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	hostName = cgiEnv.m_entity_id_dict["Domain"]
-	userName = cgiEnv.m_entity_id_dict["Name"]
-
-	# if server == None:
-	if hostName == None:
-		serverNode = lib_common.nodeMachine
-	else:
+	try:
+		# Exception if local machine.
+		hostName = cgiEnv.m_entity_id_dict["Domain"]
 		serverNode = lib_common.gUriGen.HostnameUri(hostName)
+	except KeyError:
+		hostName = None
+		serverNode = lib_common.nodeMachine
+
+	userName = cgiEnv.m_entity_id_dict["Name"]
 
 	grph = rdflib.Graph()
 
 	nodeUser = survol_Win32_UserAccount.MakeUri( userName, hostName )
 
-	infoList = win32net.NetUserGetInfo(hostName, userName, 2)
+	try:
+		infoList = win32net.NetUserGetInfo(hostName, userName, 2)
+	except:
+		lib_common.ErrorMessageHtml("Error:"+str(sys.exc_info()))
 
 	for infoKey in infoList:
 

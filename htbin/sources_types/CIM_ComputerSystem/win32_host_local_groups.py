@@ -33,15 +33,23 @@ def Main():
 	grph = rdflib.Graph()
 
 	# http://www.math.uiuc.edu/~gfrancis/illimath/windows/aszgard_mini/movpy-2.0.0-py2.4.4/movpy/lib/win32/Demos/win32netdemo.py
-	servName_or_None, imper = lib_win32.MakeImpersonate(server)
+	# servName_or_None, imper = lib_win32.MakeImpersonate(server)
 
-	# if server == None:
-	if servName_or_None == None:
-		serverNode = lib_common.nodeMachine
-		serverBox = lib_common.gUriGen
+	# hostname = "Titi" for example
+	lib_win32.WNetAddConnect(server)
+
+	# It might be an empty string.
+	if server:
+		servName_or_None = server
 	else:
+		servName_or_None = None
+
+	if servName_or_None:
 		serverNode = lib_common.gUriGen.HostnameUri(server)
 		serverBox = lib_common.RemoteBox(server)
+	else:
+		serverNode = lib_common.nodeMachine
+		serverBox = lib_common.gUriGen
 
 	resume = 0
 	numMembers = 0

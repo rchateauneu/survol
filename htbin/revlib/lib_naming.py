@@ -31,84 +31,109 @@ def UriToTitle(uprs):
 	else:
 		return basna
 
-# TODO: Create a lookup from type to functions.
-def EntityArrToLabel(entity_type,entity_ids_arr):
+################################################################################
 
-	# Short-cut because one argument is the most common case?
+# TODO: These functions might be stored in the associated modules.
+
+def EntityName_CIM_Process(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+
+	if entity_host and entity_host != lib_util.currentHostname:
+		return "process " + str(entity_id) + "@" + entity_host
+
+	# If the process is not there, this is not a problem.
 	try:
-		entity_id = entity_ids_arr[0]
-	except IndexError:
-		entity_id = None
+		# sys.stderr.write("psutil.Process entity_id=%s\n" % ( entity_id ) )
+		proc_obj = psutil.Process(int(entity_id))
+		return CIM_Process.PsutilProcToName(proc_obj)
+	except CIM_Process.NoSuchProcess:
+		return "No such process:"+entity_id
+	except ValueError:
+		return "Invalid pid:("+entity_id+")"
+	# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
 
-	# Nice title depending on the entity type.
-	if entity_type == "CIM_Process":
-		# If the process is not there, this is not a problem.
-		try:
-			# sys.stderr.write("psutil.Process entity_id=%s\n" % ( entity_id ) )
-			proc_obj = psutil.Process(int(entity_id))
-			return CIM_Process.PsutilProcToName(proc_obj)
-		except CIM_Process.NoSuchProcess:
-			return "No such process:"+entity_id
-		except ValueError:
-			return "Invalid pid:("+entity_id+")"
-		# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
-
-	if entity_type == "symbol":
-		try:
-			# Trailing padding.
-			resu = lib_util.Base64Decode(entity_id)
-			# TODO: LE FAIRE AUSSI POUR LES AUTRES SYMBOLES.
-			resu = cgi.escape(resu)
-			return resu
-		except TypeError:
-			exc = sys.exc_info()[1]
-			sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(entity_id,str(exc)))
-			return entity_id
-
-	if entity_type == "class" :
-		# PROBLEME: Double &kt;&lt !!! 
-		# return entity_id
-		try:
-			# Trailing padding.
-			resu = lib_util.Base64Decode(entity_id)
-			resu = cgi.escape(resu)
-			return resu
-		except TypeError:
-			exc = sys.exc_info()[1]
-			sys.stderr.write("CANNOT DECODE: class=(%s):%s\n"%(entity_id,str(exc)))
-			return entity_id
-
-	if entity_type == "CIM_DataFile":
-		# A file name can be very long, so it is truncated.
-		file_basename = os.path.basename(entity_id)
-		if file_basename == "":
-			return entity_id
-		else:
-			return file_basename
-
-	if entity_type == "CIM_Directory":
-		# A file name can be very long, so it is truncated.
-		file_basename = os.path.basename(entity_id)
-		if file_basename == "":
-			return entity_id
-		else:
-			# By convention, directory names ends with a "/".
-			return file_basename + "/"
-
-	# if entity_type in [ "user", "Win32_UserAccount", "addr", "CIM_ComputerSystem", "smbshr", "com/registered_type_lib", "memmap" ]:
-	if entity_type in [ "user", "addr", "CIM_ComputerSystem", "smbshr", "com/registered_type_lib", "memmap" ]:
-		# The type of some entities can be deduced from their name.
+def EntityName_symbol(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	try:
+		# Trailing padding.
+		resu = lib_util.Base64Decode(entity_id)
+		# TODO: LE FAIRE AUSSI POUR LES AUTRES SYMBOLES.
+		resu = cgi.escape(resu)
+		return resu
+	except TypeError:
+		exc = sys.exc_info()[1]
+		sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(entity_id,str(exc)))
 		return entity_id
 
-	# Importer un module ? Idealement il faudrait avoir une map de fonctions
-	# deja pre-remplie qu on completerait au fur et a mesure.
-	# Si on ne trouve pas le module on met la fonction par defaut.
+def EntityName_class(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	# PROBLEME: Double &kt;&lt !!!
+	# return entity_id
+	try:
+		# Trailing padding.
+		resu = lib_util.Base64Decode(entity_id)
+		resu = cgi.escape(resu)
+		return resu
+	except TypeError:
+		exc = sys.exc_info()[1]
+		sys.stderr.write("CANNOT DECODE: class=(%s):%s\n"%(entity_id,str(exc)))
+		return entity_id
+
+def EntityName_CIM_DataFile(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	# A file name can be very long, so it is truncated.
+	file_basename = os.path.basename(entity_id)
+	if file_basename == "":
+		return entity_id
+	else:
+		return file_basename
+
+def EntityName_CIM_Directory(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	# A file name can be very long, so it is truncated.
+	file_basename = os.path.basename(entity_id)
+	if file_basename == "":
+		return entity_id
+	else:
+		# By convention, directory names ends with a "/".
+		return file_basename + "/"
+
+# "user", "addr", "CIM_ComputerSystem", "smbshr", "com/registered_type_lib", "memmap"
+def EntityName_entity_id(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	# The type of some entities can be deduced from their name.
+	return entity_id
+
+DictEntityNameFunctions = {
+	"CIM_Process" : EntityName_CIM_Process,
+	"symbol" : EntityName_symbol,
+	"class" : EntityName_class,
+	"CIM_DataFile" : EntityName_CIM_DataFile,
+	"CIM_Directory" : EntityName_CIM_Directory,
+	"user" : EntityName_entity_id,
+	"addr" : EntityName_entity_id,
+	"CIM_ComputerSystem" : EntityName_entity_id,
+	"smbshr" : EntityName_entity_id,
+	"com/registered_type_lib" : EntityName_entity_id,
+	"memmap" : EntityName_entity_id }
+
+def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
+	global DictEntityNameFunctions
+
+	try:
+		funcEntNam = DictEntityNameFunctions[entity_type]
+		return funcEntNam(entity_ids_arr,entity_host)
+	except KeyError:
+		pass
+
+	# Si on ne trouve pas le module on utilise la fonction par defaut.
 	# { "file" : sources_types.file.ArrToLabel, ... }
 	entity_module = lib_util.GetEntityModule(entity_type)
 	if 	entity_module:
 		try:
 			# sys.stderr.write("Before calling EntityName: entity_ids_arr=%s\n"%(entity_ids_arr))
-			entity_name = entity_module.EntityName(entity_ids_arr)
+			DictEntityNameFunctions[entity_type] = entity_module.EntityName
+			entity_name = entity_module.EntityName(entity_ids_arr,entity_host)
 			return entity_name
 		except AttributeError:
 			pass
@@ -121,7 +146,6 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 	else:
 		return ent_ids_joined
 
-	# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
 
 
 # Dans les cas des associations on a pu avoir:
@@ -129,7 +153,7 @@ def EntityArrToLabel(entity_type,entity_ids_arr):
 # Ca n est pas facile a gerer, on va essayer d'eviter ca en amont, en traitant a part les references et les associations.
 # Ca se compred car elles sont de toutes facons destinees a etre traitees autrement.
 # Notons que SplitMoniker() ne garde que le premier groupe.
-def EntityToLabel(entity_type,entity_ids_concat):
+def EntityToLabel(entity_type,entity_ids_concat, entity_host):
 	# sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
 
 	# Specific case of objtypes.py
@@ -155,7 +179,7 @@ def EntityToLabel(entity_type,entity_ids_concat):
 
 	# sys.stderr.write("EntityToLabel entity_ids_arr=%s\n" % str( entity_ids_arr ) )
 
-	entity_label = EntityArrToLabel(entity_type,entity_ids_arr)
+	entity_label = EntityArrToLabel(entity_type,entity_ids_arr,entity_host)
 	# sys.stderr.write("EntityToLabel entity_label=%s\n" % entity_label )
 
 	# There might be extra properties which are not in our ontology.
@@ -191,7 +215,7 @@ scripts_to_titles = {
 	"file_to_mime.py":"Mime display"
 }
 
-def KnownScriptToTitle(uprs,entity_host = "",entity_suffix=""):
+def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
 	# Extra information depending on the script.
 	filScript = os.path.basename(uprs.path)
 	try:
@@ -241,7 +265,7 @@ def ParseEntityUri(uri,longDisplay=True):
 		( namSpac, entity_type_NoNS, _ ) = lib_util.ParseNamespaceType(entity_type)
 
 		if entity_type_NoNS or entity_id:
-			entity_label = EntityToLabel( entity_type_NoNS, entity_id )
+			entity_label = EntityToLabel( entity_type_NoNS, entity_id, entity_host )
 		else:
 			# Only possibility to print something meaningful.
 			entity_label = namSpac

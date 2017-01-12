@@ -10,6 +10,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+import lib_win32
 import win32net
 
 Usable = lib_util.UsableWindows
@@ -22,6 +23,9 @@ def Main():
 
 	grph = rdflib.Graph()
 
+	# hostname = "Titi" for example
+	lib_win32.WNetAddConnect(hostname)
+
 	# Return the name of the computer, name of the user, and active and idle times for the session.
 	# No special group membership is required for level 0 or level 10 calls.
 	level = 10
@@ -31,14 +35,10 @@ def Main():
 	except Exception:
 		lib_common.ErrorMessageHtml("Hostname="+hostname+". Exception:"+str(sys.exc_info()))
 
-	for machine in sessionList:
-		userName = machine["user_name"]
-
-		grph.add( ( nodeHost, pc.property_information, rdflib.Literal( str(machine) ) ) )
-
-
-	# grph.add( ( nodeHost, pc.property_smbshare, shareNode ) )
-	# grph.add( ( shareNode, pc.property_information, rdflib.Literal(share_remark) ) )
+	for eltLst in sessionList:
+		for keyLst in eltLst:
+			valLst = eltLst[keyLst]
+			grph.add( ( nodeHost, lib_common.MakeProp(keyLst), rdflib.Literal( valLst ) ) )
 
 	cgiEnv.OutCgiRdf(grph)
 

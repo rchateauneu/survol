@@ -9,8 +9,7 @@ import rdflib
 import lib_util
 import lib_common
 from lib_common import pc
-
-Usable = lib_util.UsableWindows
+# import lib_win32
 
 import lib_entities.lib_entity_Win32_Service
 
@@ -19,6 +18,9 @@ def Main():
 	machineName = cgiEnv.GetId()
 
 	grph = rdflib.Graph()
+
+	# hostname = "Titi" for example
+	# lib_win32.WNetAddConnect(machineName)
 
 	try:
 		lib_entities.lib_entity_Win32_Service.FullServiceNetwork(grph,machineName)
