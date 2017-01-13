@@ -185,13 +185,17 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		if is_host_remote:
 			try:
 				# Script can be used on a remote entity.
-				can_process_remote = importedMod.CanProcessRemote() # infoDict["can_process_remote"]
+				can_process_remote = importedMod.CanProcessRemote # infoDict["can_process_remote"]
 			except AttributeError:
 				can_process_remote = False
 
 			if not can_process_remote:
-				sys.stderr.write("Script cannot work on remote entities: %s at %s\n" % ( entity_id , entity_host ) )
-				continue
+				if not errorMsg:
+					errorMsg = "%s is local" % ( argFil[1:] )
+				sys.stderr.write("Script %s %s cannot work on remote entities: %s at %s\n" % ( argDir, argFil, entity_id , entity_host ) )
+
+				if not flagShowAll:
+					continue
 
 		# Here, we are sure that the script is added.
 		# TODO: If no script is added, should not add the directory?
