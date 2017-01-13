@@ -39,7 +39,7 @@ def EntityName_CIM_Process(entity_ids_arr,entity_host):
 	entity_id = entity_ids_arr[0]
 
 	if entity_host and entity_host != lib_util.currentHostname:
-		return "process " + str(entity_id) + "@" + entity_host
+		return "process id " + entity_id # + "@" + entity_host
 
 	# If the process is not there, this is not a problem.
 	try:
