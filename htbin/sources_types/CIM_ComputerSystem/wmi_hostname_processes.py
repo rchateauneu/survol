@@ -104,11 +104,6 @@ def Main():
 	# With a dictionary so node are created once only.
 	Main.dictPidToNode = {}
 
-	if ( machineName == lib_util.currentHostname ) or ( not machineName):
-		serverBox = lib_common.gUriGen
-	else:
-		serverBox = lib_common.RemoteBox(machineName)
-
 	def PidToNode(procId):
 		try:
 			return Main.dictPidToNode[procId]
@@ -124,7 +119,7 @@ def Main():
 		parent_node_process = PidToNode(processProperties.ParentProcessId)
 
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
-		grph.add( ( node_process, pc.property_pid, rdflib.Literal(processProperties.ProcessId) ) )
+		#grph.add( ( node_process, pc.property_pid, rdflib.Literal(processProperties.ProcessId) ) )
 
 		# Si on laisse faire le code, ca va afficher:
 		# No such process:1292 at Titi
@@ -147,9 +142,9 @@ def Main():
 		# dowsVersion = "6.3.9600";\n\tWorkingSetSize = "4096";\n\tWriteOperationCount = "0";\n\tWriteTransferCount = "0";\n};\n'
 
 
-		for prp in ["Caption","Description"]:
-			valProp = getattr(processProperties,prp)
-			grph.add( ( node_process, lib_common.MakeProp(prp), rdflib.Literal(valProp) ) )
+		grph.add( ( node_process, pc.property_information, rdflib.Literal(processProperties.Caption) ) )
+		if processProperties.Caption != processProperties.Description:
+			grph.add( ( node_process, lib_common.MakeProp("Description"), rdflib.Literal(processProperties.Description) ) )
 
 		# AJOUTER LE LIEN WMI ICI ET DANS LA PAGE http://127.0.0.1:8000/htbin/entity.py?xid=Titi@CIM_Process.Handle=6344
 
