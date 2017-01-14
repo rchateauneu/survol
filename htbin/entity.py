@@ -185,7 +185,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 		if is_host_remote:
 			try:
 				# Script can be used on a remote entity.
-				can_process_remote = importedMod.CanProcessRemote # infoDict["can_process_remote"]
+				can_process_remote = importedMod.CanProcessRemote
 			except AttributeError:
 				can_process_remote = False
 
