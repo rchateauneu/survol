@@ -6,6 +6,7 @@
 
 """
 WBEM instance
+Display generic properties of a WBEM object.
 """
 
 import sys
