@@ -79,15 +79,6 @@ def WbemGetClassKeys( wbemNameSpace, wbemClass, cimomSrv ):
 
 ################################################################################
 
-# TODO: Will be stored in the cache filled with SLP discovery, with credentials.
-# http://192.168.1.83:5988 	index 	Namespaces
-# https://192.168.1.83:5989 	index 	Namespaces
-# Should use SLP.
-hardcoded_list_of_wbem_servers = [
-	( "192.168.1.83", "http://192.168.1.83:5988" ),
-	( "192.168.1.88", "http://192.168.1.88:5988" )
-]
-
 # TODO: Unfortunately cannot make SLP work properly.
 def slp_wbem_services():
 	filter = "wbem"
@@ -115,8 +106,25 @@ def slp_wbem_services():
 
 # TODO: Alternate methods to discover WBEM servers:
 # TODO:   - Ping machines with WBEM port numbers 5988 and 5989.
+# TODO: Will be stored in the cache filled with SLP discovery, with credentials.
+# http://192.168.1.83:5988 	index 	Namespaces
+# https://192.168.1.83:5989 	index 	Namespaces
+# Should use SLP.
+# TODO: CHANGE THIS !
 def WbemServersList():
+	hardcoded_list_of_wbem_servers = [
+		( "192.168.1.83", "http://192.168.1.83:5988" ),
+		( "192.168.1.88", "http://192.168.1.88:5988" )
+	]
 	return hardcoded_list_of_wbem_servers
+
+# This returns the WBEM server of a machine.
+# TODO: This should try also the SSL port number 5989,
+# check if credentials are available etc...
+def HostnameToWbemServer(hostname):
+	entity_ip_addr = lib_util.EntHostToIpReally(hostname)
+
+	return "http://" + entity_ip_addr + ":5988"
 
 ################################################################################
 
