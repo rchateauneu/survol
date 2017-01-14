@@ -936,6 +936,24 @@ class CgiEnv():
 			self.m_page_title += " " + fullTitle
 
 		# If we can talk to a remote host to get the desired values.
+
+		# Global CanProcessRemote has precedence over parameter can_process_remote
+		# whcih should probably be deprecated, although they do not have exactly the same role:
+		# * Global CanProcessRemote is used by entity.py to display scripts which have this capability.
+		# * Parameter can_process_remote is used to inform, at execution time, of this capability.
+		# Many scripts are not enumerated by entity.py so a global CanProcessRemote is not necessary.
+		# For clarity, it might be fine to replace the parameter can_process_remote by the global value.
+		# There cannot be nasty consequences except that some scripts might not be displayed
+		# when they should be, and vice-versa.
+		try:
+			globalCanProcessRemote = globals()["CanProcessRemote"]
+		except KeyError:
+			globalCanProcessRemote = False
+
+		if can_process_remote != globalCanProcessRemote:
+			sys.stderr.write("INCONSISTENCY CanProcessRemote\n")
+			can_process_remote = True
+
 		self.m_can_process_remote = can_process_remote
 
 		self.m_arguments = cgi.FieldStorage()
