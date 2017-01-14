@@ -14,7 +14,7 @@ from lib_properties import pc
 
 Usable = lib_util.UsableWindows
 
-# On va virer "can_process_remote = True" et plutot en prendre la valeur dans le module courant.
+# TODO: On va virer "can_process_remote = True" et plutot en prendre la valeur dans le module courant.
 CanProcessRemote = True
 
 def Main():
@@ -35,6 +35,8 @@ def Main():
 
 	cnnct = lib_wmi.WmiConnect(machineName,"/root/cimv2")
 
+	# lstProcs = cnnct.Win32_Process(Handle=pid)
+	# This also works when selecting from class Win32_Process.
 	lstProcs = cnnct.CIM_Process(Handle=pid)
 
 	# instance of Win32_Process
@@ -78,12 +80,46 @@ def Main():
 	#         WriteTransferCount = "0";
 	# };
 
+	# In some circumstances - when the process is local ? - it can display the extra properties:
+
+	#        CommandLine = "\"C:\\Windows\\system32\\SearchFilterHost
+	#        ExecutablePath = "C:\\Windows\\system32\\SearchFilterHos
+
+
 	# There should be one process only.
 	for wmiProc in lstProcs:
 		sys.stderr.write("wmiProc=%s\n" % str(wmiProc))
 		grph.add( ( node_process, pc.property_information, rdflib.Literal( wmiProc.Description ) ) )
 
-		for prpProc in ["ThreadCount","CreationDate","VirtualSize"]:
+		for prpProc in [
+			"CreationDate",
+			"CSName",
+			"HandleCount",
+			"KernelModeTime",
+			"Name",
+			"OSName",
+			"OtherOperationCount",
+			"OtherTransferCount",
+			"PageFaults",
+			"PageFileUsage",
+			"PeakPageFileUsage",
+			"PeakVirtualSize",
+			"PeakWorkingSetSize",
+			"Priority",
+			"PrivatePageCount",
+			"QuotaNonPagedPoolUsage",
+			"QuotaPagedPoolUsage",
+			"QuotaPeakNonPagedPoolUsage",
+			"QuotaPeakPagedPoolUsage",
+			"ReadOperationCount",
+			"ReadTransferCount",
+			"SessionId",
+			"ThreadCount",
+			"UserModeTime",
+			"VirtualSize",
+			"WorkingSetSize",
+			"WriteOperationCount",
+			"WriteTransferCount"]:
 			valProc = getattr(wmiProc, prpProc)
 			grph.add( ( node_process, lib_common.MakeProp(prpProc), rdflib.Literal( valProc ) ) )
 
