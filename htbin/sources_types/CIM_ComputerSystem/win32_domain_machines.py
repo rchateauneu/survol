@@ -64,7 +64,7 @@ def Main():
 	sys.stderr.write("About to loop on machines\n")
 	cnt = 0
 
-	# Sounds like these are the machines in the domaine...
+	# Sounds like these are the machines in the domain...
 	adsi = win32com.client.Dispatch ("ADsNameSpaces")
 	nt = adsi.GetObject ("","WinNT:")
 	result = nt.OpenDSObject ("WinNT://%s" % domainName, "", "", 0)
