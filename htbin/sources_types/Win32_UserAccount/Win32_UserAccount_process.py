@@ -13,8 +13,10 @@ from lib_properties import pc
 
 from sources_types import CIM_Process
 
-# This script can work locally only.
+# This restriction only because the class Win32_UserAccount exists only in WMI.
 Usable = lib_util.UsableWindows
+
+# This script can work locally only.
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
