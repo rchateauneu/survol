@@ -231,16 +231,16 @@ def CurrentUser():
 	currProc = psutil.Process(os.getpid())
 	return CIM_Process.PsutilProcToUser(currProc)
 
-def AddDefaultScripts(grph,rootNode):
+def AddDefaultScripts(grph,rootNode,entity_host):
 	nodeObjTypes = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodeObjTypes ) )
 
-	# Gives a general access to WBEM servers.
-	nodePortalWbem = rdflib.term.URIRef( lib_util.uriRoot + '/portal_wbem.py' )
+	# Gives a general access to WBEM servers. In fact we might iterate on several servers, or none.
+	nodePortalWbem = lib_util.UrlPortalWbem(entity_host)
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodePortalWbem ) )
 
 	# Gives a general access to WMI servers.
-	nodePortalWmi = lib_util.UrlPortalWmi()
+	nodePortalWmi = lib_util.UrlPortalWmi(entity_host)
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodePortalWmi ) )
 
 	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
@@ -328,7 +328,7 @@ def Main():
 	if entity_type != "":
 		lib_entity_CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 
-	AddDefaultScripts(grph,rootNode)
+	AddDefaultScripts(grph,rootNode,entity_host)
 
 	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data1])
 

@@ -63,6 +63,8 @@ except ImportError:
 #        WriteTransferCount = "0";
 #};
 
+CanProcessRemote = True
+
 def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 	machineName = cgiEnv.GetId()
@@ -72,7 +74,7 @@ def Main():
 	# If running on the local machine, pass the host as None otherwise authorization is checked
 	# just like a remote machine, which means User Account Control (UAC) disabling,
 	# and maybe setting LocalAccountTokenFilterPolicy=1
-	if ( machineName == lib_util.currentHostname ) or ( not machineName ):
+	if lib_util.IsLocalAddress( machineName ):
 		machName_or_None = None
 		serverBox = lib_common.gUriGen
 	else:
@@ -80,24 +82,19 @@ def Main():
 		serverBox = lib_common.RemoteBox(machineName)
 
 	try:
-		loginImplicit = False # IF FACT, WHY SHOULD IT BE SET ????????
-		if loginImplicit or machName_or_None is None:
-			# C est ce qu on avait avant que ca se mette a ne plus marcher.
-			cnnct = wmi.WMI (machName_or_None)
-		else:
-			# On a le probleme "access denied" avec tous les acces remote windows.
-			# Meme probleme aussi avec WMI alors que ca marchait avant.
-			# Comme s'il y avait une connection implicite de rchateau, quand ca marchait, et qu'elle ait disparu maintenant.
-			# Toutefois, ceci fonctionne.
-			# >>> c = wmi.WMI(wmi=wmi.connect_server(server='Titi', namespace="/root/cimv2", user='rchateauneu@hotmail.com', password='xxxx'))
+		# On a le probleme "access denied" avec tous les acces remote windows.
+		# Meme probleme aussi avec WMI alors que ca marchait avant.
+		# Comme s'il y avait une connection implicite de rchateau, quand ca marchait, et qu'elle ait disparu maintenant.
+		# Toutefois, ceci fonctionne.
+		# >>> c = wmi.WMI(wmi=wmi.connect_server(server='Titi', namespace="/root/cimv2", user='rchateauneu@hotmail.com', password='xxxx'))
 
-			sys.stderr.write("Explicit WMI connection machineName=%s\n" % ( machineName ) )
+		sys.stderr.write("Explicit WMI connection machineName=%s\n" % ( machineName ) )
 
-			cnnct = lib_wmi.WmiConnect(machineName,"/root/cimv2")
+		cnnct = lib_wmi.WmiConnect(machineName,"/root/cimv2")
 
-			#(wmiUser,wmiPass) = lib_credentials.GetCredentials("WMI",machineName)
-			#sys.stderr.write("machineName= %wmiUser=%s\n" % ( machineName, wmiUser ) )
-			#cnnct = wmi.WMI(wmi=wmi.connect_server(server=machineName, namespace="/root/cimv2", user=wmiUser, password=wmiPass))
+		#(wmiUser,wmiPass) = lib_credentials.GetCredentials("WMI",machineName)
+		#sys.stderr.write("machineName= %wmiUser=%s\n" % ( machineName, wmiUser ) )
+		#cnnct = wmi.WMI(wmi=wmi.connect_server(server=machineName, namespace="/root/cimv2", user=wmiUser, password=wmiPass))
 	except Exception:
 		lib_common.ErrorMessageHtml("WMI " + machineName + " processes. Caught:" + str(sys.exc_info()) )
 

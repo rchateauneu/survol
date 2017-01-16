@@ -22,11 +22,12 @@ import win32net
 
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
-# This script can work locally only.
 Usable = lib_util.UsableWindows
 
+CanProcessRemote = True
+
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 	try:
 		# Exception if local machine.

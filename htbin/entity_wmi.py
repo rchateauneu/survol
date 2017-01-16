@@ -11,14 +11,11 @@ WMI instance
 """
 
 import sys
-#import psutil
-#import socket
 import six
 import rdflib
 import lib_common
 import lib_wmi
 import lib_util
-#from lib_properties import pc
 
 try:
 	import wmi

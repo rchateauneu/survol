@@ -73,11 +73,11 @@ def GetWmiUserPass(machWithBackSlashes):
 	cleanMachNam = machWithBackSlashes.replace("\\","")
 
 
-	sys.stderr.write("GetWmiUserPass cimom=%s cleanMachNam=%s\n" % ( machWithBackSlashes, cleanMachNam ) )
+	#sys.stderr.write("GetWmiUserPass cimom=%s cleanMachNam=%s\n" % ( machWithBackSlashes, cleanMachNam ) )
 
 	wmiUserPass = lib_credentials.GetCredentials("WMI",cleanMachNam)
 
-	sys.stderr.write("GetWmiUserPass wmiUserPass=%s\n" % ( str(wmiUserPass) ) )
+	#sys.stderr.write("GetWmiUserPass wmiUserPass=%s\n" % ( str(wmiUserPass) ) )
 
 	if wmiUserPass[0]:
 		return cleanMachNam, wmiUserPass[0], wmiUserPass[1]
@@ -89,19 +89,16 @@ def GetWmiUserPass(machWithBackSlashes):
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Cannot connect to WMI server:%s" % cleanMachNam)
 
-	sys.stderr.write("GetWmiUserPass machIP=%s\n" % ( machIP ) )
+	#sys.stderr.write("GetWmiUserPass machIP=%s\n" % ( machIP ) )
 
 	wmiUserPass = lib_credentials.GetCredentials("WMI",machIP)
 	return machIP, wmiUserPass[0], wmiUserPass[1]
 
-# connWMI = wmi.WMI(cimomUrl,namespace=nskey)
-# TODO: Aller chercher les credentials.
-# c = wmi.WMI("MachineB", user=r"MachineB\fred", password="secret")
-# Thi sworks
+# This works
 # Before a given version, had to use server="xyz" instead of computer="xyz"
 #c = wmi.WMI(computer="titi",user="titi\\rchateauneu@hotmail.com",password="my_hotmail_pass")
-def WmiConnect(machWithBackSlashes,wmiNamspac):
-	sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
+def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
+	#sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
 	# WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
 
 	wmiMachine, wmiUser, wmiPass = GetWmiUserPass(machWithBackSlashes)
@@ -113,7 +110,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac):
 	#http://127.0.0.1:8000/htbin/entity_wmi.py?xid=\\Titi\root\CIMV2%3ACIM_ComputerSystem.Titi
 
 	wmiMachineIpAddr =  socket.gethostbyaddr(wmiMachine)
-	sys.stderr.write("WmiConnect wmiMachine=%s wmiMachineIpAddr=%s wmiUser=%s wmiPass=%s\n" % ( wmiMachine,wmiMachineIpAddr,wmiUser,wmiPass ) )
+	#sys.stderr.write("WmiConnect wmiMachine=%s wmiMachineIpAddr=%s wmiUser=%s wmiPass=%s\n" % ( wmiMachine,wmiMachineIpAddr,wmiUser,wmiPass ) )
 
 	dictParams = {}
 	if wmiNamspac:
@@ -123,17 +120,24 @@ def WmiConnect(machWithBackSlashes,wmiNamspac):
 		dictParams['user'] = wmiUser
 		dictParams['password'] = wmiPass
 
-	# if not lib_util.SameHostOrLocal( wmiMachine, "*" ):
 	if not lib_util.SameHostOrLocal( wmiMachine, None ):
 		dictParams['computer'] = wmiMachine
 
-	sys.stderr.write("WmiConnect dictParams=%s\n" % ( str(dictParams) ) )
+	#sys.stderr.write("WmiConnect wmiMachine=%s wmiNamspac=%s dictParams=%s\n" % ( wmiMachine, wmiNamspac, str(dictParams) ) )
 
 	try:
 		connWMI = wmi.WMI(**dictParams)
+		#sys.stderr.write("WmiConnect after connection\n" )
 	except:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Cannot connect to WMI server with params:%s" % str(dictParams))
+		dictParams['password'] = "XXXYYYZZZ" # Security.
+		if throw_if_error:
+		# Could not connect, maybe the namespace is wrong.
+			lib_common.ErrorMessageHtml("Cannot connect to WMI server with params:%s.Exc=%s" % (str(dictParams),str(sys.exc_info())))
+		else:
+			sys.stderr.write("Cannot connect to WMI server with params:%s.Exc=%s\n" % (str(dictParams),str(sys.exc_info())))
+			return None
+
+	#sys.stderr.write("WmiConnect returning\n" )
 	return connWMI
 
 ################################################################################

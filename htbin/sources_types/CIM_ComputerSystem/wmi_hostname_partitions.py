@@ -114,7 +114,7 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	if ( machineName == lib_util.currentHostname ) or ( not machineName ):
+	if lib_util.IsLocalAddress( machineName ):
 		machName_or_None = None
 		serverBox = lib_common.gUriGen
 	else:

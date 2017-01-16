@@ -929,12 +929,24 @@ def DirDocNode(argDir,dir):
 	# Add three characters otherwise it is truncated just like a Python file extension.
 	return FromModuleToDoc(importedMod,dir)
 
-	# Gives a general access to WMI servers.
-def UrlPortalWmi(hostname=None):
-	strUrl = uriRoot + '/portal_wmi.py'
+def AppendNotNoneHostname(script,hostname):
+	strUrl = uriRoot + script
 	if hostname:
 		# The string "portal" is completely artificial, just to have a nice title.
 		strUrl += '?xid=' + hostname + "@portal."
+	return strUrl
 
-	nodePortalWmi = rdflib.term.URIRef( strUrl )
-	return nodePortalWmi
+# Point to the WBEM portal for a given machine.
+def UrlPortalWbem(hostname=None):
+	strUrl = AppendNotNoneHostname('/portal_wbem.py',hostname)
+
+	nodePortal = rdflib.term.URIRef( strUrl )
+	return nodePortal
+
+# Point to the WMI portal for a given machine.
+def UrlPortalWmi(hostname=None):
+	strUrl = AppendNotNoneHostname('/portal_wmi.py',hostname)
+
+	nodePortal = rdflib.term.URIRef( strUrl )
+	return nodePortal
+

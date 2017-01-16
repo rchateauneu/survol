@@ -34,17 +34,19 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
+import lib_win32
 
 import win32net
 
 from sources_types import Win32_Group as survol_Win32_Group
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
-# This script can work locally only.
 Usable = lib_util.UsableWindows
 
+CanProcessRemote = True
+
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 	try:
 		# Exception if local machine.
@@ -54,7 +56,17 @@ def Main():
 		hostName = None
 		serverNode = lib_common.nodeMachine
 
+	# hostname = "Titi" for example
+	lib_win32.WNetAddConnect(hostName)
+
+	if hostName and lib_util.IsLocalAddress( hostName ):
+		serverBox = lib_common.gUriGen
+	else:
+		serverBox = lib_common.RemoteBox(hostName)
+
 	userName = cgiEnv.m_entity_id_dict["Name"]
+
+	sys.stderr.write("hostName=%s userName=%s\n" %(hostName,userName))
 
 	grph = rdflib.Graph()
 
@@ -71,6 +83,12 @@ def Main():
 	for groupName in resuList:
 		nodeGroup = survol_Win32_Group.MakeUri( groupName, hostName )
 		grph.add( ( nodeUser, pc.property_group, nodeGroup ) )
+
+		if hostName:
+			nodeGroupRemote = serverBox.UriMakeFromDict("Win32_Group", { "Name" : groupName, "Domain" : hostName } )
+			grph.add( (nodeGroup, pc.property_equivalent, nodeGroupRemote ) )
+
+
 
 	cgiEnv.OutCgiRdf(grph)
 

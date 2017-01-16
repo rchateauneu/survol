@@ -34,7 +34,7 @@ def Main():
 			# If running on the local machine, pass the host as None otherwise authorization is checked
 			# just like a remote machine, which means User Account Control (UAC) disabling,
 			# and maybe setting LocalAccountTokenFilterPolicy=1
-			if hostname == lib_util.currentHostname:
+			if lib_util.IsLocalAddress( hostname ):
 				hostname_or_None = None
 				level = 2 # 1,2
 			else:

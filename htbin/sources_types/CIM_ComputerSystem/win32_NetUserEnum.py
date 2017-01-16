@@ -31,7 +31,7 @@ def Main():
 	lib_win32.WNetAddConnect(hostname)
 
 
-	if hostname == lib_util.currentHostname:
+	if lib_util.IsLocalAddress( hostname ):
 		level = 2 # 1,2
 	else:
 		level = 2 # 1,2

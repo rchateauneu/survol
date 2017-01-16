@@ -46,12 +46,17 @@ hardcodedNamespaces = (
 def SubNamespace( rootNode, grph, nskey, cimomUrl ):
 	try:
 		# connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
-		connWMI = lib_wmi.WmiConnect(cimomUrl,"root\\" + nskey)
+		connWMI = lib_wmi.WmiConnect(cimomUrl,"root\\" + nskey, False)
+		# With the last flag, it does not throw if it cannot connect.
+		if not connWMI:
+			return
 	except wmi.x_wmi:
 		exc = sys.exc_info()[1]
 		# lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 		sys.stderr.write("WMI: Cannot connect to nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 		return
+
+	sys.stderr.write("SubNamespace cimomUrl=%s nskey=%s\n" % (cimomUrl,nskey))
 
 	# connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
 
@@ -117,7 +122,7 @@ def Main():
 		#	lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 		except Exception:
 			exc = sys.exc_info()[1]
-			lib_common.ErrorMessageHtml("nskey=%s Caught:%s" % ( nskey , str(exc) ) )
+			lib_common.ErrorMessageHtml("cimomUrl=%s nskey=%s Caught:%s" % ( cimomUrl, nskey , str(exc) ) )
 
 	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_cim_subnamespace])
 	# cgiEnv.OutCgiRdf(grph)
