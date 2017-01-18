@@ -128,6 +128,7 @@ pc.property_cim_subnamespace     = MakeProp("cim_namespace")
 pc.property_class_instance       = MakeProp("instance")
 pc.property_subclass             = MakeProp("subclass")
 pc.property_cim_subclass         = MakeProp("cim subclass")
+pc.property_equivalent           = MakeProp("equivalent")
 
 # Couleur des aretes.
 # TODO: L utiliser pour les colonnes des tables.
