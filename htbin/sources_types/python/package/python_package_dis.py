@@ -57,7 +57,11 @@ def Main():
 
 	survol_python_package.AddImportedModules(grph,packageNode,tmpPyFilName,maxDepth,dispPackages,dispFiles)
 
-	the_module = importlib.import_module( packageNam )
+	try:
+		the_module = importlib.import_module( packageNam )
+	except:
+		exc = sys.exc_info()[0]
+		lib_common.ErrorMessageHtml("Package:%s Unexpected error:%s" % ( packageNam, str( exc ) ) )
 
 	try:
 		initFilNam = the_module.__file__
