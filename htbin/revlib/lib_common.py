@@ -1306,15 +1306,17 @@ class TmpFile:
 		try:
 			if self.Name:
 				sys.stderr.write("Deleting="+self.Name+"\n")
-				# os.remove(self.Name)
+				os.remove(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
 				sys.stderr.write("About to del %s\n" % self.TmpDirToDel )
 				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
 					for name in files:
+						#os.remove(os.path.join(root, name))
 						pass
 						# os.remove(os.path.join(root, name))
 					for name in dirs:
+						#os.rmdir(os.path.join(root, name))
 						pass
 						# os.rmdir(os.path.join(root, name))
 
