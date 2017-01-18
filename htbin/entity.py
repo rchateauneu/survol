@@ -172,7 +172,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 				if not isUsable:
 					errorMsg = importedMod.Usable.__doc__
 					if not errorMsg:
-						errorMsg = importedMod.Usable.__name__
+						errorMsg = importedMod.__name__ + " not usable"
 						if not errorMsg:
 							errorMsg = "No message"
 			except AttributeError:
