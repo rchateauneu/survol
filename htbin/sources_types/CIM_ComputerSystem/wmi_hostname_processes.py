@@ -74,11 +74,11 @@ def Main():
 	# If running on the local machine, pass the host as None otherwise authorization is checked
 	# just like a remote machine, which means User Account Control (UAC) disabling,
 	# and maybe setting LocalAccountTokenFilterPolicy=1
-	if lib_util.IsLocalAddress( machineName ):
-		machName_or_None = None
+	if not machineName or lib_util.IsLocalAddress( machineName ):
+		machNameNotNone = lib_util.currentHostname
 		serverBox = lib_common.gUriGen
 	else:
-		machName_or_None = machineName
+		machNameNotNone = machineName
 		serverBox = lib_common.RemoteBox(machineName)
 
 	try:
@@ -88,9 +88,9 @@ def Main():
 		# Toutefois, ceci fonctionne.
 		# >>> c = wmi.WMI(wmi=wmi.connect_server(server='Titi', namespace="/root/cimv2", user='rchateauneu@hotmail.com', password='xxxx'))
 
-		sys.stderr.write("Explicit WMI connection machineName=%s\n" % ( machineName ) )
+		sys.stderr.write("Explicit WMI connection machineName=%s\n" % ( machNameNotNone ) )
 
-		cnnct = lib_wmi.WmiConnect(machineName,"/root/cimv2")
+		cnnct = lib_wmi.WmiConnect(machNameNotNone,"/root/cimv2")
 
 		#(wmiUser,wmiPass) = lib_credentials.GetCredentials("WMI",machineName)
 		#sys.stderr.write("machineName= %wmiUser=%s\n" % ( machineName, wmiUser ) )
