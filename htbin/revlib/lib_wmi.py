@@ -101,6 +101,10 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 	#sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
 	# WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
 
+
+	if not machWithBackSlashes or lib_util.IsLocalAddress( machWithBackSlashes ):
+		return wmi.WMI()
+
 	wmiMachine, wmiUser, wmiPass = GetWmiUserPass(machWithBackSlashes)
 
 	#On part de la (Avec ARP):
