@@ -136,6 +136,9 @@ def WindowsCompletePath():
 	return dirs_norm
 
 def WNetAddConnect(machineNameNoBackslash):
+	# Nothing to do if this is the current machine.
+	if not machineNameNoBackslash:
+		return
 	# "titi" ou "Titi" ? Arp retourne "Titi".
 	(usernam,passwd) = lib_credentials.GetCredentials("Login",machineNameNoBackslash)
 
