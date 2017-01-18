@@ -43,7 +43,10 @@ def Main():
 	# >>> conn = pywbem.WBEMConnection("http://192.168.1.88:5988" , ('pe***us','t*t*') )
 	connWbem = lib_wbem.WbemConnection(cimomUrl)
 
-	lstProc = connWbem.EnumerateInstances(ClassName="PG_UnixProcess",namespace="root/cimv2")
+	try:
+		lstProc = connWbem.EnumerateInstances(ClassName="PG_UnixProcess",namespace="root/cimv2")
+	except:
+		lib_common.ErrorMessageHtml("Error:"+str(sys.exc_info()))
 
 	# We should be using the class CMI_Process instead of PG_UnixProcess but it returns the error:
 	# Python 2.7, pywbem.__version__ '0.8.0-dev'
