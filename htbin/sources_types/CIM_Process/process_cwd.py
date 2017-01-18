@@ -22,18 +22,24 @@ def Main():
 
 	proc_obj = CIM_Process.PsutilGetProcObj(top_pid)
 
-	try:
-		proc_cwd = proc_obj.getcwd()
-	except CIM_Process.AccessDenied:
-		lib_common.ErrorMessageHtml("Cannot get current directory: Access denied")
-	except AttributeError:
-		proc_cwd = "Cannot get cwd"
-
 	node_process = lib_common.gUriGen.PidUri(top_pid)
 	CIM_Process.AddInfo( grph, node_process, [ str(top_pid) ] )
 
-	node_cwd = lib_common.gUriGen.FileUri( proc_cwd )
-	grph.add( ( node_process, pc.property_cwd, node_cwd ) )
+	try:
+		proc_cwd = proc_obj.getcwd()
+		proc_msg = None
+	except CIM_Process.AccessDenied:
+		proc_cwd = None
+		proc_msg = "Process %d: Cannot get current working directory: %s" % (top_pid,str(sys.exc_info()))
+	except AttributeError:
+		proc_cwd = proc_obj.cwd()
+		proc_msg = None
+
+	if proc_cwd:
+		node_cwd = lib_common.gUriGen.FileUri( proc_cwd )
+		grph.add( ( node_process, pc.property_cwd, node_cwd ) )
+	else:
+		grph.add( ( node_process, pc.property_information, rdflib.Literal(proc_msg)) )
 
 	cgiEnv.OutCgiRdf(grph)
 
