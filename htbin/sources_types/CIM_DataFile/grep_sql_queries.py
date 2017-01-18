@@ -25,10 +25,12 @@ extensionsSQLSourcesFiles = [
 	".py",".pyw",
 	".f90",".f",".for",
 	".tcl",".as",".js",
-	".sh",".csh",".bash"
+	".sh",".csh",".bash",
+	".sql",".pls",".pks"
 ]
 
 def Usable(entity_type,entity_ids_arr):
+	"""Filename must have proper file extension"""
 	filNam = entity_ids_arr[0]
 	filExt = os.path.splitext(filNam)[1]
 	if filExt.lower() in extensionsSQLSourcesFiles:
@@ -45,7 +47,7 @@ def Usable(entity_type,entity_ids_arr):
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
-	filNam = int( cgiEnv.GetId() )
+	filNam = cgiEnv.GetId()
 
 	grph = rdflib.Graph()
 
