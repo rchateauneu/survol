@@ -64,6 +64,9 @@ def AddHtml( grph, filNode, filNam ):
 def AddParentDir( grph, filNode, filNam ):
 	dirPath = os.path.dirname(filNam)
 	if dirPath and dirPath != filNam:
+		# Possibly trunc last backslash such as in "C:\" as it crashes graphviz !
+		if dirPath[-1] == "\\":
+			dirPath = dirPath[:-1]
 		dirNode = lib_uris.gUriGen.DirectoryUri(dirPath)
 		# grph.add( ( dirNode, pc.property_directory, filNode ) )
 		# We do not use the property pc.property_directory because it breaks the display.
