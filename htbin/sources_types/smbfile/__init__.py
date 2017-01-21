@@ -1,1 +1,3 @@
-__author__ = 'rchateau'
+"""
+Files accessed via Samba protocol
+"""

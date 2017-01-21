@@ -1,3 +1,7 @@
+"""
+Oracle database query
+"""
+
 from sources_types.sql import query as sql_query
 from sources_types.oracle import db as oracle_db
 from sources_types.oracle import table as oracle_table

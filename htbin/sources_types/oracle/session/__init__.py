@@ -1,3 +1,7 @@
+"""
+Oracle session
+"""
+
 import lib_common
 
 def EntityOntology():

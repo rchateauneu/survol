@@ -1,3 +1,7 @@
+"""
+ODBC Data Source Name
+"""
+
 import sys
 import lib_common
 import lib_util

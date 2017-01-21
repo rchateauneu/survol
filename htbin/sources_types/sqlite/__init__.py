@@ -1,3 +1,7 @@
+"""
+sqlite objects
+"""
+
 import os
 import sys
 import rdflib

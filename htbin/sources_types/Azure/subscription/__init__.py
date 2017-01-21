@@ -1,3 +1,7 @@
+"""
+Azure subscription"
+"""
+
 import sys
 import rdflib
 import lib_credentials

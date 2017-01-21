@@ -1,1 +1,3 @@
-__author__ = 'rchateau'
+"""
+Samba protocol server
+"""

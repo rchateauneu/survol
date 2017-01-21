@@ -1,4 +1,7 @@
-# import lib_credentials
+"""
+SqlServer objects
+"""
+
 import pyodbc
 
 # "ODBC": {

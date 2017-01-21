@@ -1,4 +1,6 @@
-__author__ = 'rchateau'
+"""
+Azure cloud location
+"""
 
 import lib_common
 

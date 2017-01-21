@@ -1,3 +1,7 @@
+"""
+Oracle concepts
+"""
+
 import lib_credentials
 
 # "Oracle": {

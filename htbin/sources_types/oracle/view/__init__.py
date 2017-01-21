@@ -1,3 +1,7 @@
+"""
+Oracle database view
+"""
+
 import lib_common
 from lib_properties import pc
 from sources_types.oracle import schema as oracle_schema

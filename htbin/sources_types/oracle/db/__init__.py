@@ -1,3 +1,7 @@
+"""
+Oracle database
+"""
+
 import lib_common
 
 def EntityOntology():

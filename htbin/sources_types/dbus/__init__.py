@@ -1,1 +1,3 @@
-#!/usr/bin/python
+"""
+Desktop Bus concepts
+"""

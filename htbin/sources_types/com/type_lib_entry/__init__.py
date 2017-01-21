@@ -1,1 +1,3 @@
-__author__ = 'rchateau'
+"""
+Component Object Model types library entry
+"""

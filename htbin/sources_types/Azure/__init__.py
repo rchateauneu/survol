@@ -1,4 +1,6 @@
-__author__ = 'rchateau'
+"""
+Azure concepts
+"""
 
 import lib_credentials
 

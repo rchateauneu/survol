@@ -1,3 +1,7 @@
+"""
+Oracle database trigger
+"""
+
 import lib_common
 from lib_properties import pc
 

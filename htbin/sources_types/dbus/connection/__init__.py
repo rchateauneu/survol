@@ -1,1 +1,3 @@
-__author__ = 'rchateau'
+"""
+Desktop Bus connection
+"""

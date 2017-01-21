@@ -1,3 +1,7 @@
+"""
+Open Database Connectivity table column
+"""
+
 import lib_util
 import lib_common
 

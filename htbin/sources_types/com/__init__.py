@@ -1,1 +1,3 @@
-__author__ = 'rchateau'
+"""
+Windows Component Object Model concepts
+"""

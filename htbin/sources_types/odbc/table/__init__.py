@@ -1,3 +1,7 @@
+"""
+Open Database Connectivity table
+"""
+
 import lib_util
 import lib_common
 
