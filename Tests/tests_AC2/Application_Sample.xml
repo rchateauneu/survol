@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<apps>
+    <notification>
+        <notificationrules notifref="AC2-App-Sample-A notification rule">
+            <plugin type="exec">
+                <property key="files" value="C:\AC2\notification.cmd"/>
+            </plugin>
+            <plugin type="exec">
+                <property key="url" value="http://notifications.portal.domain.com/stream="/>
+            </plugin>
+        </notificationrules>
+    </notification>
+    <crontable>
+        <cronrules cronid="AC2-App-Sample-A scheduling">
+            <trigger name="CRON#1"
+                     action="stop"
+                     force="true"
+                     components="A1"
+                     propagate="false"
+                     expression="0 00 * * * ? *"/>
+            <trigger name="CRON#2"
+                     action="start"
+                     force="true"
+                     components="A1"
+                     propagate="true"
+                     expression="0 15 * * * ? *"/>
+            <trigger name="CRON#3" action="stop" expression="0 30 * * * ? *"/>
+            <trigger name="CRON#4"
+                     action="start"
+                     expression="0 45 * * * ? *"/>
+        </cronrules>
+    </crontable>
+    <hosts>
+        <host hostid="LOCAL"
+              host="127.0.0.1"
+              port="12567"/>
+    </hosts>
+    <auths>
+        <auth authid="LOCAL"
+              domain="."
+              password="71pwd@AC2"
+              user="AC2USER"/>
+    </auths>
+    <app name="AC2-App-Sample-A"
+         version="Version-1"
+         notifref="AC2-App-Sample-A notification rule"
+         cronref="AC2-App-Sample-A scheduling">
+        <component name="A1"
+                   description="A1 component"
+                   group="A group"
+                   hostref="LOCAL"
+                   authref="LOCAL"
+                   retryNumber="3"
+                   checkFrequency="20"
+                   redirectoutput="false"
+                   type="file">
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl check app-A
+-component-0"
+                    name="check"/>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl enable appA-component-0"
+                    name="enable"
+                    retryTime="60"/>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl disable app
+-A-component-0"
+                    name="disable"
+                    retryTime="60"/>
+        </component>
+        <component name="A1.1"
+                   description="A1.1 component"
+                   group="A group"
+                   hostref="LOCAL"
+                   authref="LOCAL"
+                   retryNumber="3"
+                   checkFrequency="20"
+                   redirectoutput="false"
+                   type="browser">
+            <father>A1</father>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl check app-A
+-component-1.1"
+                    name="check"/>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl enable appA-component-1.1"
+                    name="enable"
+                    retryTime="60"/>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl disable app
+-A-component-1.1"
+                    name="disable"
+                    retryTime="60"/>
+        </component>
+        <component name="A1.2"
+                   description="A1.2 component"
+                   group="A group"
+                   hostref="LOCAL"
+                   authref="LOCAL"
+                   retryNumber="3"
+                   checkFrequency="20"
+                   redirectoutput="false"
+                   type="cd">
+            <father>A1</father>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl check app-A
+-component-1.2"
+                    name="check"/>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl enable appA-component-1.2"
+                    name="enable"
+                    retryTime="60"/>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl disable app
+-A-component-1.2"
+                    name="disable"
+                    retryTime="60"/>
+        </component>
+        <component name="A1.3"
+                   description="A1.3 component"
+                   group="A group"
+                   hostref="LOCAL"
+                   authref="LOCAL"
+                   retryNumber="3"
+                   checkFrequency="20"
+                   redirectoutput="false"
+                   type="chip">
+            <father>A1</father>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl check app-A
+-component-1.3"
+                    name="check"/>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl enable appA-component-1.3"
+                    name="enable"
+                    retryTime="60"/>
+            <action value="C:\Strawberry\perl\bin\perl.exe C:\AC2\scripts\xcapp-file.pl disable app
+-A-component-1.3"
+                    name="disable"
+                    retryTime="60"/>
+        </component>
+    </app>
+</apps>
