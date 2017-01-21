@@ -630,6 +630,9 @@ localOntology = {
 # TODO: Replace this by a single lookup in a single dict
 # TODO: ... made of localOntology added to the directory of types.
 def OntologyClassKeys(entity_type):
+
+	# sys.stderr.write("OntologyClassKeys %s\n" %entity_type)
+
 	try:
 		# TODO: Temporarily until we do something more interesting, using the subtype.
 		# entity_type = entity_type.split(CharTypesComposer)[0]
@@ -645,7 +648,7 @@ def OntologyClassKeys(entity_type):
 		try:
 			entity_ontology_all = entity_module.EntityOntology()
 			localOntology[ entity_type ] = entity_ontology_all
-			sys.stderr.write("OntologyClassKeys entity_type=%s loaded entity_ontology_all=%s\n" % (entity_type,str(entity_ontology_all)))
+			# sys.stderr.write("OntologyClassKeys entity_type=%s loaded entity_ontology_all=%s\n" % (entity_type,str(entity_ontology_all)))
 			return entity_ontology_all[0]
 		except AttributeError:
 			pass
@@ -660,13 +663,13 @@ def OntologyClassKeys(entity_type):
 
 # Some classes exist on some platforms only.
 # This applies locally only, otherwise the remote machine must be queried by some way.
-def OntologyClassAvailable(entity_type):
-	try:
-		return localOntology[ entity_type ][1]
-	except KeyError:
-		return True
-	except IndexError:
-		return True
+#def OntologyClassAvailable(entity_type):
+#	try:
+#		return localOntology[ entity_type ][1]
+#	except KeyError:
+#		return True
+#	except IndexError:
+#		return True
 
 # Used for calling ArrayInfo. The order of arguments is strict.
 def EntityIdToArray( entity_type, entity_id ):
@@ -832,7 +835,7 @@ def WrtHeader(mimeType):
 ################################################################################
 
 def GetEntityModuleNoCache(entity_type):
-	sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
+	# sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
 
 	try:
 		# Beware: No directories here, for the moment:
@@ -842,6 +845,8 @@ def GetEntityModuleNoCache(entity_type):
 		sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
 		return entity_module
 	except ImportError:
+		exc = sys.exc_info()[1]
+		sys.stderr.write("Loading (%s):%s\n"%(entity_lib,str(exc)))
 		pass
 
 	try:
@@ -864,12 +869,12 @@ def GetEntityModuleNoCache(entity_type):
 		return entity_module
 
 	except ImportError:
+		exc = sys.exc_info()[1]
+		sys.stderr.write("Loading (%s):%s\n"%(entity_package,str(exc)))
 		pass
 
-	sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
-	entity_module = None
-
-	return entity_module
+	# sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
+	return None
 
 # So we try to load only once.
 cacheEntityToModule = dict()

@@ -1,6 +1,7 @@
-#import os
-#import sys
-#import lib_uris
+"""
+RedHat Package Manager
+"""
+
 import rdflib
 from rdflib.namespace import XSD
 

@@ -2,6 +2,7 @@
 
 """
 Object types
+Hierarchy of generic Survol ontology classes.
 """
 
 import os
@@ -27,8 +28,6 @@ def Main():
 
 	# This assumes that we have no namespace.
 	for entity_type in lib_util.ObjectTypes():
-		if not lib_util.OntologyClassAvailable(entity_type):
-			continue
 
 		tmpNode = rootNode
 		idx = 0
@@ -42,6 +41,17 @@ def Main():
 
 			entityNode = lib_util.EntityClassNode(intermedType)
 			grph.add( ( tmpNode, lib_common.pc.property_directory, entityNode ) )
+
+			if intermedType == "rpm":
+				sys.stderr.write("Doc %s\n" %(intermedType))
+
+			entity_module = lib_util.GetEntityModule(intermedType)
+			entDoc = entity_module.__doc__
+			if entDoc:
+				grph.add( ( entityNode, lib_common.pc.property_information, rdflib.Literal(entDoc) ) )
+
+			# TODO: If this is a CIM class, add WMI or WBEM documentation, or add the link.
+
 			tmpNode = entityNode
 			idx = nextSlash
 
