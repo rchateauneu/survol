@@ -1,3 +1,7 @@
+"""
+Sqlite table column
+"""
+
 import lib_common
 
 def EntityOntology():

@@ -1,3 +1,7 @@
+"""
+Sqlserver view
+"""
+
 import lib_common
 from sources_types.sqlserver import schema as sqlserver_schema
 

@@ -1,1 +1,3 @@
-#!/usr/bin/python
+"""
+Callable or data library symbol
+"""

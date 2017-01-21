@@ -215,6 +215,12 @@ def Main():
 	objtypeNode = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, objtypeNode ) )
 
+	# This displays the documentation of the Python module of this entity class.
+	entity_module = lib_util.GetEntityModule(className)
+	entDoc = entity_module.__doc__
+	if entDoc:
+		grph.add( ( rootNode, lib_common.pc.property_information, rdflib.Literal(entDoc) ) )
+
 	CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
 	# Do this for each intermediary entity type (Between slashes).

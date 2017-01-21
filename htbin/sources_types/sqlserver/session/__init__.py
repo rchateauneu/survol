@@ -1,3 +1,7 @@
+"""
+Sqlserver session
+"""
+
 import sys
 import six
 import rdflib

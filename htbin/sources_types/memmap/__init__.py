@@ -1,3 +1,7 @@
+"""
+Shareable memory segment
+"""
+
 import os
 import sys
 import lib_util

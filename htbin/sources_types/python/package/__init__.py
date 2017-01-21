@@ -1,3 +1,7 @@
+"""
+Python package
+"""
+
 import os
 import six
 import sys

@@ -1,3 +1,7 @@
+"""
+Sqlserver query
+"""
+
 from sources_types.sql import query as sql_query
 from sources_types.sqlserver import dsn as sqlserver_dsn
 from sources_types.sqlserver import table as sqlserver_table

@@ -1,3 +1,7 @@
+"""
+Sqlite file
+"""
+
 import lib_common
 
 def EntityOntology():

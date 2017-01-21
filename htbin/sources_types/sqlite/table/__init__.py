@@ -1,3 +1,7 @@
+"""
+Sqlite table
+"""
+
 import lib_common
 from sources_types.sqlite import file as sqlite_file
 

@@ -1,1 +1,4 @@
-__author__ = 'rchateau'
+"""
+Operating system user
+"""
+

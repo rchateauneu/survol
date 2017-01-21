@@ -1,3 +1,7 @@
+"""
+Sqlite query
+"""
+
 from sources_types.sql import query as sql_query
 from sources_types.sqlite import table as sqlite_table
 from sources_types.sqlite import file as sqlite_file
