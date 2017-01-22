@@ -4,17 +4,14 @@
 CDB-extracted information from Windows binary
 """
 
-#import os
 import re
 import sys
 import subprocess
-#import psutil
 import rdflib
 import lib_util
 import lib_common
 from sources_types import CIM_Process
-import lib_entities.lib_entity_symbol
-#from lib_properties import pc
+from sources_types import symbol as survol_symbol
 
 Usable = lib_util.UsableWindows
 
@@ -122,7 +119,7 @@ def Main():
 			funcName = match_k.group(2).strip()
 			sys.stderr.write("moduleName=%s dllName=%s funcName=%s\n" % ( moduleName, dllName, funcName ) )
 
-			callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
+			callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
 			grph.add( ( callNodePrev, rdflib.Literal("Depth"), rdflib.Literal(callDepth) ) )
 			callDepth += 1
 			continue
@@ -131,7 +128,7 @@ def Main():
 	sys.stderr.write("Parsed cdb result\n")
 
 
-	callNodePrev = lib_entities.lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
+	callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
 
 	CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
 

@@ -73,15 +73,19 @@ def Main():
 
 	if not server or lib_util.IsLocalAddress( server ):
 		servName_or_None = None
+		servNameNotNone = lib_util.currentHostname
+		# .home
 		serverNode = lib_common.nodeMachine
 		serverBox = lib_common.gUriGen
 	else:
 		servName_or_None = server
+		servNameNotNone = server
 		serverNode = lib_common.gUriGen.HostnameUri(server)
 		serverBox = lib_common.RemoteBox(server)
 
 	# nodeGroup = serverBox.GroupUri( groupName )
 	nodeGroup = survol_Win32_Group.MakeUri( groupName, servName_or_None )
+	# nodeGroup = survol_Win32_Group.MakeUri( groupName, servNameNotNone )
 
 	try:
 		memberresume = 0
@@ -101,7 +105,9 @@ def Main():
 				sys.stderr.write("    Lookup: %s: %s\n" % (memberName, member['domainandname']))
 				# nodeUser = serverBox.UserUri( userName )
 
-				memberNode = MemberNameToNode(sidUsage,memberName,servName_or_None)
+
+				sys.stderr.write("servNameNotNone=%s\n"%servNameNotNone)
+				memberNode = MemberNameToNode(sidUsage,memberName,servNameNotNone)
 
 				grph.add( (memberNode, pc.property_group, nodeGroup ) )
 				grph.add( (memberNode, lib_common.MakeProp("SID Usage"), rdflib.Literal(SidUsageToString(sidUsage) ) ) )

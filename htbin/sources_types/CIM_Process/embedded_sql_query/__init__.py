@@ -53,5 +53,9 @@ def EntityName(entity_ids_arr,entity_host):
 	# sys.stderr.write("thePid=%s\n"%thePid)
 	sqlQuery = entity_ids_arr[0]
 	resu = lib_util.Base64Decode(sqlQuery)
+
+	# If the query contains double-quotes, it crashes Graphviz
+	resu = resu.replace('"',"'")
+	# resu = resu.replace('"','\\"')
 	return "Pid " + str(thePid) + ":" + resu
 	# return resu

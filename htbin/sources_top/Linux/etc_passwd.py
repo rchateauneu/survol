@@ -6,10 +6,10 @@
 
 import sys
 import rdflib
-import lib_entities.lib_entity_user
 import lib_common
 import lib_util
 from lib_properties import pc
+from sources_types import user as survol_user
 
 Usable = lib_util.UsableLinux
 
@@ -22,7 +22,7 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	usersList = lib_entities.lib_entity_user.LoadEtcPasswd()
+	usersList = survol_user.LoadEtcPasswd()
 
 	# polkituser:x:17:17:system user for policykit:/:/sbin/nologin
 	for userNam, splitLin in list( usersList.items() ):

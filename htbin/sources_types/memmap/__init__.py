@@ -12,6 +12,9 @@ import rdflib
 from lib_properties import pc
 from sources_types import CIM_Process
 
+def EntityOntology():
+	return ( ["Id"],)
+
 
 # A map file is associated to a file.
 def AddInfo(grph,node,entity_ids_arr):

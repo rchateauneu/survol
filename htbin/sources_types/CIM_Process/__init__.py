@@ -100,6 +100,8 @@ def PsutilProcMemmaps(proc):
 
 ################################################################################
 
+def EntityOntology():
+	return ( ["Handle"],)
 
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.

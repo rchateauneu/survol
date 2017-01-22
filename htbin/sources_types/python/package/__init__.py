@@ -12,8 +12,6 @@ import lib_common
 import lib_uris
 from lib_properties import pc
 
-#from sources_types import python
-
 try:
 	import modulefinder
 except ImportError:
@@ -25,6 +23,8 @@ propPythonVersion = lib_common.MakeProp("Version")
 propPythonRequires = lib_common.MakeProp("Requires")
 propPythonPackage = lib_common.MakeProp("Package")
 
+def EntityOntology():
+	return ( ["Id"], )
 
 # TODO: Is the caption the best key ? Also: It should dependd on the Python version.
 def MakeUri(packageKey):

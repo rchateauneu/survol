@@ -18,7 +18,7 @@ import lib_common
 from lib_properties import pc
 
 from sources_types import CIM_Process
-import lib_entities.lib_entity_CIM_ComputerSystem as lib_entity_CIM_ComputerSystem
+from sources_types import CIM_ComputerSystem
 
 ################################################################################
 
@@ -93,7 +93,7 @@ def IsTempFile(fil):
 # Returns True if something was added.
 def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
-	# sys.stderr.write("curr_dir=%s\n"%(curr_dir))
+	sys.stderr.write("curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
 	# In case there is nothing.
 	dirs = None
 	for path, dirs, files in os.walk(curr_dir):
@@ -121,17 +121,28 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 		currDirNode = lib_util.DirDocNode(argDir,dir)
 
-		somethingAdded = DirToMenu(grph,currDirNode, full_sub_dir,relative_dir + "/" + dir)
+		sub_relative_dir = relative_dir + "/" + dir
+
+		sub_entity_class = ".".join( sub_relative_dir.split("/")[2:] )
+		ontoKeys = lib_util.OntologyClassKeys(sub_entity_class)
+		sys.stderr.write("Checked ontology of %s: ontoKeys=%s\n"%(sub_entity_class,str(ontoKeys)))
+
+		# TODO: Beware, if not ontology, returns empty array. Why not returning None ?
+		if ontoKeys != []:
+			sys.stderr.write("Module %s has an ontology so it is a class. Skipping\n"%(sub_relative_dir))
+			# BEWARE: NO MORE DEFAULT ONTOLOGY ["Id"]
+			continue
+
+
+
+		somethingAdded = DirToMenu(grph,currDirNode, full_sub_dir,sub_relative_dir)
 		if somethingAdded:
 			grph.add( ( parentNode, pc.property_directory, currDirNode ) )
 
 	for fil in files:
 
 		# We want to list only the usable Python scripts.
-		if IsTempFile(fil) or fil == "__init__.py":
-			continue
-
-		if not fil.endswith(".py"):
+		if IsTempFile(fil) or not fil.endswith(".py") or fil == "__init__.py":
 			continue
 
 		script_path = relative_dir + sub_path + "/" + fil
@@ -254,6 +265,29 @@ def AddDefaultScripts(grph,rootNode,entity_host):
 
 ################################################################################
 
+#Un module est defini par son ontologie:
+#Quand on itere sur des directories et sous-directories pour en afficher les scripts,
+#il suffit de s'assurer que chaque sous-module a la meme ontologie que le point de depart
+#(On bien n a pas d ontologie, bref, que ce soit coherent avec le point de depart.)
+# De meme dans sources_top: On devrait aller chercher dans scripts_types,
+# les scripts qui n ont pas d'ontologie.
+# Dans entity.py, comme on a une entite (la machine courante),
+# on peut aller chercher les scripts qui ont une ontologie pour ces classes.
+
+# On prend l ontologie du niveau courant ou on se trouve,
+# donne par la entity_class.
+# Si y en a pas (sources_top) et ben y en a pas.
+# Ensuite on liste recursivement les fichiers mais des que l ontologie change,
+# c est a dire, si une ontologie est definie dans un module intermediaire.
+# (Ce qu on voit en chargeant le module implicitement) alors on laisse tomber)
+
+# En plus, dans le entity par defaut, comme on a forcement un user et une machine,
+# on va chercher les scripts de ces deux entites.
+
+# Probleme: On doit aller chercher toutes les entites, charger tous les modules.
+
+################################################################################
+
 def Main():
 	# They are defined global so that DirToMenu can access them without code change.
 	global is_host_remote
@@ -291,9 +325,16 @@ def Main():
 	if entity_type != "":
 		entity_module = lib_util.GetEntityModule(entity_type)
 
-	# Directory=/home/rchateau/Developpement/ReverseEngineeringApps/PythonStyle Type=process Id=5256
-	# TODO: CharTypesComposer: Ca va retourner une liste de directory du plus bas au plus haut.
-	relative_dir = lib_common.SourceDir(entity_type)
+	# Fusionner les deux dans sources_types de facon a ce que AC2 soit dans un seul directory.
+	# Entretemps, peut-on imaginer d avoir deux directories qui pourront par la suite etre fusionnes ??????
+	# On bougerait petit a petit les directories ?
+	# Aussi: J ai la trouille pour les performances.
+	if entity_type:
+		# entity_type might contain a slash, for example: "slqite/table"
+		relative_dir = "/sources_types/" + entity_type
+	else:
+		relative_dir = "/sources_top"
+
 	# sys.stderr.write("entity: lib_util.gblTopScripts=%s relative_dir=%s\n" % ( lib_util.gblTopScripts, relative_dir ) )
 
 	directory = lib_util.gblTopScripts + relative_dir
@@ -305,7 +346,6 @@ def Main():
 	if entity_id != "" or entity_type == "":
 		entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 		if entity_module:
-			# TODO: Remplacer htbin/lib_entities/lib_entity_CLASS.py par sources_types/CLASS/__init__.py
 			try:
 				entity_module.AddInfo( grph, rootNode, entity_ids_arr )
 			except AttributeError:
@@ -326,7 +366,7 @@ def Main():
 		DirToMenu(grph,rootNode,directory,relative_dir)
 
 	if entity_type != "":
-		lib_entity_CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
+		CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 
 	AddDefaultScripts(grph,rootNode,entity_host)
 

@@ -79,16 +79,19 @@ uriRoot = UriRootHelper()
 
 # This returns the hostname as a string. Some special processing because on Windows,
 # the returned hostname seems truncated.
+# See lib_uris.HostnameUri()
 def HostName():
 	socketGetHostNam = socket.gethostname()
+
+	# TODO: CONTRADICTION !!!???
 	if socketGetHostNam.find('.')>=0:
 		# 'rchateau-HP'
 		name=socketGetHostNam
 	else:
 		# 'rchateau-HP.home'
 		name=socket.gethostbyaddr(socketGetHostNam)[0]
+	sys.stderr.write("HostName socketGetHostNam=%s name=%s\n"%(socketGetHostNam,name))
 	return name
-
 
 # hostName
 currentHostname = HostName()
@@ -104,6 +107,7 @@ def IsLocalAddress(anHostNam):
 	# Maybe entity_host="http://192.168.1.83:5988"
 	hostOnly = EntHostToIp(anHostNam)
 	if hostOnly in [ None, "", "localhost", "127.0.0.1", currentHostname ]:
+		sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
 		return True
 
 	try:
@@ -112,12 +116,14 @@ def IsLocalAddress(anHostNam):
 	except Exception:
 		# Unknown machine
 		exc = sys.exc_info()[1]
-		sys.stderr.write("IsLocalAddress anHostNam=%s:%s\n" % ( anHostNam, str(exc) ) )
+		sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
 		return False
 
 	if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
+		sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
 		return True
 
+	sys.stderr.write("IsLocalAddress %s FALSE\n"%anHostNam)
 	return False
 
 # Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
@@ -411,7 +417,7 @@ def EntityUriDupl(entity_type,*entity_ids,**extra_args):
 	keys = OntologyClassKeys(entity_type)
 
 	if len(keys) != len(entity_ids):
-		sys.stderr.write("Different lens:%s and %s\n" % (str(keys),str(entity_ids))) 
+		sys.stderr.write("EntityUriDupl Different lens:%s and %s\n" % (str(keys),str(entity_ids)))
 	entity_id = ",".join( "%s=%s" % pairKW for pairKW in zip( keys, entity_ids ) )
 	
 	# Extra arguments, differentiating duplicates.
@@ -612,18 +618,19 @@ def UsableLinuxBinary(entity_type,entity_ids_arr):
 # DES K-V PAIRS PARTOUT.
 # ATTENTION A LA VIRGULE
 localOntology = {
-	"CIM_ComputerSystem"  : ( ["Name"], ),
-	"CIM_DataFile"        : ( ["Name"], ),
-	"CIM_Directory"       : ( ["Name"], ),
-	"CIM_Process"         : ( ["Handle"], ),
-	"Win32_Service"       : ( ["Name"], ),
-	"Win32_UserAccount"   : ( ["Name"], ),
-	"class"               : ( ["Name","File"], ),
-	"dbus/bus"            : ( ["Bus"], ),
-	"dbus/connection"     : ( ["Bus","Connect"], ),
-	"dbus/object"         : ( ["Bus","Connect","Obj"], ),
-	"dbus/interface"      : ( ["Bus","Connect","Obj","Itf"], ),
-	"symbol"              : ( ["Name","File"], ),
+	#"CIM_ComputerSystem"  : ( ["Name"], ), # Must be defined here, not in the module.
+	#"addr"        : ( ["Id"], ),  # Must be defined here, not in the module.
+	#"CIM_DataFile"        : ( ["Name"], ),
+	#"CIM_Directory"       : ( ["Name"], ),
+	#"CIM_Process"         : ( ["Handle"], ),
+	#"Win32_Service"       : ( ["Name"], ),
+	#"Win32_UserAccount"   : ( ["Name"], ), # Must be defined here, not in the module. Virer lib_entity_Win32_UserAccount !!
+	#"class"               : ( ["Name","File"], ),
+	#"dbus/bus"            : ( ["Bus"], ),
+	#"dbus/connection"     : ( ["Bus","Connect"], ),
+	#"dbus/object"         : ( ["Bus","Connect","Obj"], ),
+	#"dbus/interface"      : ( ["Bus","Connect","Obj","Itf"], ),
+	#"symbol"              : ( ["Name","File"], ), # Must be defined here, not in the module.
 }
 
 # The key must match the DMTF standard. It might contain a namespace.
@@ -631,7 +638,7 @@ localOntology = {
 # TODO: ... made of localOntology added to the directory of types.
 def OntologyClassKeys(entity_type):
 
-	# sys.stderr.write("OntologyClassKeys %s\n" %entity_type)
+	sys.stderr.write("OntologyClassKeys %s\n" %entity_type)
 
 	try:
 		# TODO: Temporarily until we do something more interesting, using the subtype.
@@ -654,9 +661,10 @@ def OntologyClassKeys(entity_type):
 			pass
 
 	# If this class is in our ontology but has no defined properties.
-	if entity_type in ObjectTypes():
-		# Default single key for our specific classes.
-		return [ "Id" ]
+
+	#if entity_type in ObjectTypes():
+	#	# Default single key for our specific classes.
+	#	return [ "Id" ]
 
 	# This could be replaced by a single lookup.
 	return []
@@ -837,17 +845,17 @@ def WrtHeader(mimeType):
 def GetEntityModuleNoCache(entity_type):
 	# sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
 
-	try:
-		# Beware: No directories here, for the moment:
-		# "revlib/lib_entities/lib_entity_dbus_connection.py"
-		entity_lib = ".lib_entity_" + entity_type
-		entity_module = importlib.import_module( entity_lib, "lib_entities")
-		sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
-		return entity_module
-	except ImportError:
-		exc = sys.exc_info()[1]
-		sys.stderr.write("Loading (%s):%s\n"%(entity_lib,str(exc)))
-		pass
+	#try:
+	#	# Beware: No directories here, for the moment:
+	#	# "revlib/lib_entities/lib_entity_dbus_connection.py"
+	#	entity_lib = ".lib_entity_" + entity_type
+	#	entity_module = importlib.import_module( entity_lib, "lib_entities")
+	#	sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
+	#	return entity_module
+	#except ImportError:
+	#	exc = sys.exc_info()[1]
+	#	sys.stderr.write("Loading (%s):%s\n"%(entity_lib,str(exc)))
+	#	pass
 
 	try:
 		# Here, we want: "sources_types/Azure/location/__init__.py"

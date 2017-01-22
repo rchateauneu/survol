@@ -7,6 +7,9 @@ import lib_util
 import lib_uris
 from lib_properties import pc
 
+def EntityOntology():
+	return ( ["Name"], )
+
 def AddMagic( grph, filNode, entity_ids_arr ):
 	filNam = entity_ids_arr[0]
 	try:

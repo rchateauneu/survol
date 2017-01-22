@@ -32,10 +32,24 @@ def Main():
 	try:
 		# Exception if local machine.
 		hostName = cgiEnv.m_entity_id_dict["Domain"]
-		serverNode = lib_common.gUriGen.HostnameUri(hostName)
 	except KeyError:
 		hostName = None
+
+	if not hostName or lib_util.IsLocalAddress( hostName ):
+		serverBox = lib_common.gUriGen
 		serverNode = lib_common.nodeMachine
+		servName_or_None = None
+	else:
+		serverBox = lib_common.RemoteBox(hostName)
+		serverNode = lib_common.gUriGen.HostnameUri(hostName)
+		servName_or_None = hostName
+
+		# hostname = "Titi" for example
+		# lib_win32.WNetAddConnect(hostName)
+
+
+
+
 
 	userName = cgiEnv.m_entity_id_dict["Name"]
 
@@ -44,7 +58,7 @@ def Main():
 	nodeUser = survol_Win32_UserAccount.MakeUri( userName, hostName )
 
 	try:
-		infoList = win32net.NetUserGetInfo(hostName, userName, 2)
+		infoList = win32net.NetUserGetInfo(servName_or_None, userName, 2)
 	except:
 		lib_common.ErrorMessageHtml("Error:"+str(sys.exc_info()))
 

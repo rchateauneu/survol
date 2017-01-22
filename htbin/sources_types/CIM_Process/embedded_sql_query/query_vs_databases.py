@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-FICHIER MAL PLACE !!!! SQL query checked against available databases.
+SQL query checked against available databases.
 """
 
 import sys

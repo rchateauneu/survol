@@ -78,7 +78,7 @@ class LocalBox:
 		#sys.stderr.write("UriMake keys=%s\n" % str(keys) )
 
 		if len(keys) != len(entity_id_arr):
-			sys.stderr.write("Different lens:%s and %s\n" % (str(keys),str(entity_id_arr)))
+			sys.stderr.write("BuildEntity Different lens: entity_type=%s: %s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
 
 		lenKeys = len(keys)
 		lenEntIds = len(entity_id_arr)
@@ -150,6 +150,7 @@ class LocalBox:
 		# OpenPegasus: Idem.
 		# sys.stderr.write("HostnameUri=%s\n" % hostName )
 		try:
+			# See lib_util.HostName()
 			# WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
 			# On Linux apparently, Name="Unknown-30-b5-c2-02-0c-b5-2.home"
 			# Beware of a normal address such as: "wb-in-f95.1e100.net"
@@ -377,7 +378,15 @@ class LocalBox:
 			userTp = "Win32_UserAccount"
 		else:
 			userTp = "user"
-		return self.UriMake(userTp,username)
+
+		splitUser = username.split("\\")
+		if len(splitUser) > 1:
+			userHost = splitUser[0]
+			userOnly = splitUser[1]
+		else:
+			userHost = "LocalHost"
+			userOnly = username
+		return self.UriMake(userTp,userOnly,userHost)
 
 	def GroupUri(self,groupname):
 		# CIM_GroupAccount ?

@@ -51,18 +51,21 @@ def Main():
 	try:
 		# Exception if local machine.
 		hostName = cgiEnv.m_entity_id_dict["Domain"]
-		serverNode = lib_common.gUriGen.HostnameUri(hostName)
 	except KeyError:
 		hostName = None
-		serverNode = lib_common.nodeMachine
 
-	# hostname = "Titi" for example
-	lib_win32.WNetAddConnect(hostName)
-
-	if hostName and lib_util.IsLocalAddress( hostName ):
+	if not hostName or lib_util.IsLocalAddress( hostName ):
 		serverBox = lib_common.gUriGen
+		serverNode = lib_common.nodeMachine
+		servName_or_None = None
 	else:
 		serverBox = lib_common.RemoteBox(hostName)
+		serverNode = lib_common.gUriGen.HostnameUri(hostName)
+		servName_or_None = hostName
+
+		# hostname = "Titi" for example
+		lib_win32.WNetAddConnect(hostName)
+
 
 	userName = cgiEnv.m_entity_id_dict["Name"]
 
@@ -76,7 +79,7 @@ def Main():
 
 	# [(groupName, attribute), ...] = NetUserGetGroups(serverName, userName )
 	try:
-		resuList = win32net.NetUserGetLocalGroups(hostName,userName)
+		resuList = win32net.NetUserGetLocalGroups(servName_or_None,userName)
 	except:
 		lib_common.ErrorMessageHtml("Error:"+str(sys.exc_info()))
 

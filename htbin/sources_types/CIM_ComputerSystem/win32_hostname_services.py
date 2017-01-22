@@ -9,9 +9,7 @@ import rdflib
 import lib_util
 import lib_common
 from lib_common import pc
-# import lib_win32
-
-import lib_entities.lib_entity_Win32_Service
+from sources_types import Win32_Service
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -23,7 +21,7 @@ def Main():
 	# lib_win32.WNetAddConnect(machineName)
 
 	try:
-		lib_entities.lib_entity_Win32_Service.FullServiceNetwork(grph,machineName)
+		Win32_Service.FullServiceNetwork(grph,machineName)
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("win32 "+machineName+" services:"+str(exc))

@@ -1227,15 +1227,6 @@ def ErrorMessageHtml(message):
 
 ################################################################################
 
-def SourceDir(entity_type=""):
-	if entity_type == "":
-		return "/sources_top"
-	else:
-		# entity_type might contain a slash, for example: "slqite/table"
-		return "/sources_types/" + entity_type
-
-################################################################################
-
 def TryDir(dir):
 	if( os.path.isdir(dir) ):
 		return dir
@@ -1443,16 +1434,3 @@ def FormatUser(usrnam):
 
 ################################################################################
 
-
-# Premier bug: Dans file_directory, les sous-noeuds correspondant aux scripts
-# ne pointent pas vers leur parent.
-
-################################################################################
-
-# http://www.graphviz.org/Gallery/directed/cluster.html
-
-# Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
-# des objets qui ont une propriete commune (Threads d un process,
-# fichiers dans un dir, de facon recursive, methodes dans une classe),
-# Ca evite meme de devoir tracer des aretes !!!
-# ou tout simplement le host, comme container: subgraphes, clusters.

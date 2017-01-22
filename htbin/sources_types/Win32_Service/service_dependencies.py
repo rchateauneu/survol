@@ -13,12 +13,9 @@ from lib_common import pc
 
 import time
 import datetime
-
-# TODO: Apparently it hangs.
+from sources_types import Win32_Service
 
 Usable = lib_util.UsableWindows
-
-import lib_entities.lib_entity_Win32_Service
 
 def TimeStamp():
 	ts = time.time()
@@ -33,7 +30,7 @@ def Main():
 	sys.stderr.write("serviceName=%s\n" % ( serviceName ) )
 
 	# Unfortunately we build the complete network for just one service.
-	dictServiceMap = lib_entities.lib_entity_Win32_Service.BuildSrvNetwork( serviceHost )
+	dictServiceMap = Win32_Service.BuildSrvNetwork( serviceHost )
 
 	# BEWARE: Do not print str(dictServiceMap) because it hangs about ten minutes !!!!!!!!!!!!
 	# BEWARE: Do not print str(dictServiceMap) because it hangs about ten minutes !!!!!!!!!!!!
@@ -43,17 +40,17 @@ def Main():
 
 	serviceDict = dictServiceMap[ serviceName ]
 
-	serviceNode = lib_entities.lib_entity_Win32_Service.DictServiceToNode( grph, serviceDict, serviceHost )
+	serviceNode = Win32_Service.DictServiceToNode( grph, serviceDict, serviceHost )
 
 	# There should not be any circular dependency, so no need to create the dependent nodes in advance.
 	for subServiceNameIn in serviceDict["depends_in"]:
 		subServiceDictIn = dictServiceMap[ subServiceNameIn ]
-		subServiceNodeIn = lib_entities.lib_entity_Win32_Service.DictServiceToNode( grph, subServiceDictIn, serviceHost )
+		subServiceNodeIn = Win32_Service.DictServiceToNode( grph, subServiceDictIn, serviceHost )
 		grph.add( (serviceNode, pc.property_service, subServiceNodeIn ) )
 
 	for subServiceNameOut in serviceDict["depends_out"]:
 		subServiceDictOut = dictServiceMap[ subServiceNameOut ]
-		subServiceNodeOut = lib_entities.lib_entity_Win32_Service.DictServiceToNode( grph, subServiceDictOut, serviceHost )
+		subServiceNodeOut = Win32_Service.DictServiceToNode( grph, subServiceDictOut, serviceHost )
 		grph.add( (subServiceNodeOut, pc.property_service, serviceNode ) )
 
 	# TODO: Utiliser les aretes plus intelligemment:

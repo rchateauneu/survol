@@ -9,7 +9,7 @@ import rdflib
 import lib_common
 import lib_util
 from lib_common import pc
-import lib_entities.lib_entity_Win32_Service
+from sources_types import Win32_Service
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -19,7 +19,7 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	lib_entities.lib_entity_Win32_Service.FullServiceNetwork(grph,None)
+	Win32_Service.FullServiceNetwork(grph,None)
 
 	# This routing is unreadable.
 	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")

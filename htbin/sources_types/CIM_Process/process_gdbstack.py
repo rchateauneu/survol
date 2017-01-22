@@ -11,7 +11,7 @@ import rdflib
 import lib_util
 import lib_common
 from sources_types import CIM_Process
-import lib_entities.lib_entity_symbol as lib_entity_symbol
+from sources_types import survol as survol_symbol
 from lib_properties import pc
 
 Usable = lib_util.UsableLinux
@@ -80,7 +80,7 @@ def CallParse( execName, grph, procNode, callNodePrev, lin ):
 			funcName = mtch_call_lib.group(1)
 			fileName = execName
 
-	lib_entity_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, fileName )
+	survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, fileName )
 
 def PassThreads(the_pid, execName, grph, procNode):
 	currThr = -1
