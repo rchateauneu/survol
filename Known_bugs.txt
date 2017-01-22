@@ -17,3 +17,8 @@ When displaying data file, should be able to see it in MIME just like when viewi
 Ca plante graphviz, on ne le detecte pas et eventuellement on affiche un ancien svg
 qui n aurait pas ete zappe.
 Le probleme est le backslash a la fin de la ligne.
+
+
+
+* Dans file_directory, les sous-noeuds correspondant aux scripts ne pointent pas vers leur parent.
+

@@ -10,18 +10,3 @@ Tous les scritps doivent etre importables:
 Ce serait peut etre bien de donner aux scripts une structure de classe.
 
 -------------------------------------------------------
-Par quoi remplacer :
-import lib_entities.lib_entity_Win32_Service
-
-Logiquement:
-
-import ns_general.Win32_Service
-ou alors (Peu importe):
-from ns_general import Win32_Service
-
-Pour lib_uris, le mettre aussi dans le namespace:
-
-# lib_common.py
-from lib_uris import *
-import lib_uris
-

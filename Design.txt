@@ -43,14 +43,8 @@ associés soit a une adresse IP ou bien un sujet tibco)
 Voir si on pourrait maquetter avec gdb, ptrace etc...
 =============================================
 
-Utiliser Octave pour creer des plots 3D ? Ou plutot d3.js,
-on essaye d'en faire le plus possible dans le browser.
-Autre aspect (C'est du bla-bla marketing mais facile a expliquer et
-permet d'y mettre de jolies choses):
-- RDF pour la logique
-- Et puis le plan numerique: Notamment periodicite.
-
-
+Utiliser d3.js pour creer des plots 3D ?
+Ou plutot vis.js qui utilise canvas et est donc plus rapide.
 On voudrait integrer ceci: On prend un CSV quelconque et on genere
 un graphe. Ca, c'est l'equivalent de "rdfdot", la transformation en quelque chose de visible.
 http://d3-generator.com/
@@ -114,6 +108,7 @@ Generer du SNMP pour MRTG?
 Avec DOT, on peut, je crois representer des graphes imbriques.
 S'en servir pour mettre representer la hierarchie des sous-processes
 sans modifier le dessin d'ensemble.
+Aussi, probablement necessaire pour AC2.
 
 ============================================
 Dans KDE, dessin des rectangles emboités pour representer des 
@@ -168,25 +163,16 @@ b56fa000-b571d000 r-xp 00000000 08:01 35037      /usr/lib/kde3/konq_sidebartree_
  p = private (copy on write)
 
 Comment visualiser cette page pour un process seulement?
-============================================
-On a une liste de visualiseurs.
-En entree on choisit un CGI.
-Si c'est un CGI CVS, il faur choisir les colonnes (Au moins)
-Si RDF, choisir le predicat.
 
-============================================
-Creation de vues CGI sur un CGI RDF:
-On stocke:
-- Un CGI
-- Des predicats RDF et les valeurs qu'on garde
+################################################################################
 
-============================================
-Creation de vues CGI sur un CGI CVS:
-Pour le creer, on coche un CGI existant (Drop down list)
-et des noms de colonnes.
-On donne aussi un nom,
-et la forme appelle alors un CGI avec ces parametres,
-et qui va le declarer a SLP.
+# http://www.graphviz.org/Gallery/directed/cluster.html
+
+# Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
+# des objets qui ont une propriete commune (Threads d un process,
+# fichiers dans un dir, de facon recursive, methodes dans une classe),
+# Ca evite meme de devoir tracer des aretes !!!
+# ou tout simplement le host, comme container: subgraphes, clusters.
 
 ============================================
 A quoi ca sert d'utiliser le format CSV pour des snapshots quand RDF
@@ -249,7 +235,7 @@ VCAP_SERVICES
 ============================================
 Le mode HTML devrait fabriquer un rapport en texte, decrivant la page.
 
-J ai vu dans les sysinternals tools qu n peut avoir une descriptino d un exe.
+J ai vu dans les sysinternals tools qu'on peut avoir une description d un exe.
 
 Fichiers ouverts d une autre machine (psfile.exe)
 
@@ -257,7 +243,64 @@ kde kioslave
 
 Lister le contenu des RPM
 
+============================================
+win32net.NetFileEnum
+https://msdn.microsoft.com/fr-fr/library/windows/desktop/bb525378%28v=vs.85%29.aspx
+
+Returns information about some or all open files on a server, depending on the parameters specified.
+
+============================================
+win32net.NetShareGetInfo
+============================================
+NetSessionEnum
+Provides information about sessions established on a server.
+============================================
+win32net.NetSessionGetInfo
+============================================
+win32process.EnumProcesses
+============================================
+win32process.EnumProcessModules
+============================================
+win32ts.ProcessIdToSessionId
+Retrieves the Remote Desktop Services session associated with a specified process.
+============================================
+
+Ajouter les NetGroup aux NetLocalGroup: Quelle est la difference ?
+
 Logiquement, plein de scripts qui sont dans sources_top devraient etre dans sources_types/CIM_ComputerSystem,
 avec une valeur par defaut pour le host courant.
 Par exemple la liste des processes etc... Sans grande importance: On peut dupliquer ces scripts.
 Entretemps, on pourrait, a partir de sources_top, pointer vers les scripts de CIM_ComputerSystem pour  le host courant.
+
+============================================
+
+Pour associer la meme entite vue de deux facons, on crée un lien avec la propriete pc.equivalent_node.
+Par exemple, si on cree une entite avec son lien wmi, on cree aussi le node comme si le hostname
+faisait tourner survol (Ca s'appelle le node canonique decrivant une entite),
+et on relie les deux avec pc.equivalent_node
+
+Exemple: le même processus sur Titi vue avec Wmi de ma machine, et en se connectant sur titi.
+
+Donc, si on va merger, on ajoute un argument cgi will_merge_remote_entities.
+Si positionne, quand on fait un entite remote, on ajoute son node canonique, cad comme si survol tournait sur le node en question.
+Et on relie les deux avec pc.equivalent_node.
+
+Dans le processus de creation dd l affichage, quand on detecte des liens pc.equivalent:
+Si le node canonique marche, car survol est installe sur cette machine, alors on affiche normalement
+s’il ne marche pas car pas de survol, et si le node canonique est connecte a d autres nodes, on le garde mais non clickable.
+Sinon, on n affiche pas le node canonique.
+Pour savoir si survol est installe, on peut utiliser slp ou bien des ports par defaut. On suppose qu il est installe.
+Ou bien, si equivalent a un node tout seul, on l'affiche comme une propriete, afin de ne pas encombrer
+l'affichage.
+
+Seul hic: ce nettoyage intervient lors de la creation du dot: il vaudrait mieux epurer le rdf pour que tous les affichages en beneficient.
+
+Comment definir le node canonique d'une entite qui n'est pas clairement liee a une machine ?
+Est-ce qu'une telle entite existe ?
+
+============================================
+Sur can_remote
+Ca ne sert qu'à planter un script si le remote host est mis.
+Mais le script ne sera pas affiché si test variable globale car aucun n'était affiche maintenant.
+ Les scripts remote sont affiches autrement, sans exploration et ce test est inutile.
+Donc ?
