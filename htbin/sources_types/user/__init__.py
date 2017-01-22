@@ -8,6 +8,10 @@ import psutil
 import lib_common
 from lib_properties import pc
 
+# TODO: Maybe choose other names for Unix ?
+def EntityOntology():
+    return ( ["Name","Domain"], )
+
 
 # TODO: If repetitive calls to this function, keep the result in memory.
 def LoadEtcPasswd():
