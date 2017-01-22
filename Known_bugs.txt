@@ -22,3 +22,9 @@ Le probleme est le backslash a la fin de la ligne.
 
 * Dans file_directory, les sous-noeuds correspondant aux scripts ne pointent pas vers leur parent.
 
+* CIM_LogicalDisk pas defini et n a pas d ontologie tant sous Unix que Windows.
+
+* http://primhillcomputers.ddns.net/Survol/htbin/entity.py?xid=python/package.Id=openlmi-scripts-networking
+Dans les modules Python, impossible d afficher ceux avec des tirets. Qu est ce que ces tirets signifient ?
+Importing openlmi-scripts-networking: Error (, ImportError('No module named openlmi-scripts-networking',), )
+Et d ailleurs l affichage des modules n est pas hierarchique mais a plat.
