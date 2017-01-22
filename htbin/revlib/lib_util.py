@@ -937,7 +937,10 @@ def DirDocNode(argDir,dir):
 	sys.stderr.write("DirDocNode argDir=%s dir=%s\n"%(argDir,dir))
 	fullModule = argDir + "." + dir
 
-	importedMod = importlib.import_module(fullModule)
+	try:
+		importedMod = importlib.import_module(fullModule)
+	except ImportError:
+		return None
 
 	# Add three characters otherwise it is truncated just like a Python file extension.
 	return FromModuleToDoc(importedMod,dir)
