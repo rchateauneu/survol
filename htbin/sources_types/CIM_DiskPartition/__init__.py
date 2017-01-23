@@ -1,1 +1,3 @@
-__author__ = 'rchateau'
+
+def EntityOntology():
+	return ( ["Name"],)

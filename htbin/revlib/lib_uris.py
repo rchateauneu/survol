@@ -221,7 +221,8 @@ class LocalBox:
 	# |   |   |    |--- CIM_DiskPartition
 	# |   |   |    |    |--- LMI_DiskPartition
 	def DiskPartitionUri(self,disk_name):
-		return self.UriMake("CIM_LogicalDisk",disk_name)
+		return self.UriMake("CIM_DiskPartition",disk_name)
+		# return self.UriMake("CIM_LogicalDisk",disk_name)
 
 	# For a hard-disk.
 	# WMI
