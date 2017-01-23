@@ -16,4 +16,4 @@ def AddInfo(grph,node,entity_ids_arr):
 	return
 
 def EntityName(entity_ids_arr,entity_host):
-	return entity_ids_arr[0] + "." + entity_ids_arr[1]
+	return entity_ids_arr[0]

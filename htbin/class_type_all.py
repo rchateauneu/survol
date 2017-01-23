@@ -170,7 +170,8 @@ def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	# At the moment, we just expect a file called "enumerate_<entity>.py"
 	enumerateScript = "enumerate_" + className + ".py"
 	# sys.stderr.write("enumerateScript=%s\n" % enumerateScript)
-	baseDir = lib_util.gblTopScripts + "/sources_top"
+
+	baseDir = lib_util.gblTopScripts + "/sources_types"
 
 	# TODO: Parser en fonction des "/"
 

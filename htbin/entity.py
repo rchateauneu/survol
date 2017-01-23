@@ -330,10 +330,11 @@ def Main():
 	# On bougerait petit a petit les directories ?
 	# Aussi: J ai la trouille pour les performances.
 	if entity_type:
-		# entity_type might contain a slash, for example: "slqite/table"
+		# entity_type might contain a slash, for example: "sqlite/table"
 		relative_dir = "/sources_types/" + entity_type
 	else:
-		relative_dir = "/sources_top"
+		#relative_dir = "/sources_top"
+		relative_dir = "/sources_types"
 
 	# sys.stderr.write("entity: lib_util.gblTopScripts=%s relative_dir=%s\n" % ( lib_util.gblTopScripts, relative_dir ) )
 
