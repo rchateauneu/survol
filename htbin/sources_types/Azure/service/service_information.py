@@ -30,8 +30,8 @@ def Main():
 	# serviceName = cgiEnv.GetId()
 	serviceName = cgiEnv.m_entity_id_dict["Id"]
 
-	# TODO: This should be a parameter.
-	subscriptionName=Azure.DefaultSubscription()
+	# subscriptionName=Azure.DefaultSubscription()
+	subscriptionName = cgiEnv.m_entity_id_dict["Subscription"]
 
 	grph = rdflib.Graph()
 

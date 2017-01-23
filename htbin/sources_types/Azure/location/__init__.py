@@ -4,7 +4,9 @@ Azure cloud location
 
 import lib_common
 
+def EntityOntology():
+	return ( ["Subscription","Location"], )
+
 def MakeUri(locaName, subscriptionName):
-	# partitionNode = lib_common.gUriGen.DiskPartitionUri( partitionNam )
-	return lib_common.gUriGen.UriMake("Azure/location",locaName)
+	return lib_common.gUriGen.UriMakeFromDict("Azure/location", { "Subscription" : subscriptionName, "Location" : locaName } )
 

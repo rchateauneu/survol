@@ -13,8 +13,11 @@ from sources_types import Azure
 from azure import *
 from azure.servicemanagement import *
 
+def EntityOntology():
+	return ( ["Subscription"], )
+
 def MakeUri(subscriptionName):
-	return lib_common.gUriGen.UriMake("Azure/subscription",subscriptionName)
+	return lib_common.gUriGen.UriMakeFromDict("Azure/subscription", { "Subscription" : subscriptionName } )
 
 
 # This display extra information about a subscription.

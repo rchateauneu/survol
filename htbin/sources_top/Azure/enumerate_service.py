@@ -23,14 +23,7 @@ from sources_types.Azure import service
 
 Usable = lib_util.UsableWindows
 
-def Main():
-	cgiEnv = lib_common.CgiEnv()
-
-	grph = rdflib.Graph()
-
-	# En fait ca va etre un parametre.
-	subscriptionName=Azure.DefaultSubscription()
-
+def EnumServices(grph,subscriptionName):
 	(subscription_id,certificate_path) = lib_credentials.GetCredentials( "Azure", subscriptionName )
 
 	sms = ServiceManagementService(subscription_id, certificate_path)
@@ -48,10 +41,20 @@ def Main():
 		grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), servNode ) )
 
 		# There will be duplicates.
-		locaNode = location.MakeUri( srv.hosted_service_properties.location )
+		locaNode = location.MakeUri( srv.hosted_service_properties.location, subscriptionName )
 		grph.add( ( servNode, lib_common.MakeProp("Location"), locaNode ) )
 
 		grph.add( ( servNode, pc.property_rdf_data_nolist1, rdflib.term.URIRef(srv.url) ) )
+
+def Main():
+	cgiEnv = lib_common.CgiEnv()
+
+	grph = rdflib.Graph()
+
+	subscriptions = lib_credentials.GetCredentialsNames( "Azure" )
+
+	for subscriptionName in subscriptions:
+		EnumServices(grph,subscriptionName)
 
 	cgiEnv.OutCgiRdf(grph)
 

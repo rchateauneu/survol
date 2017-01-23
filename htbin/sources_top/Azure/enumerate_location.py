@@ -21,14 +21,7 @@ from sources_types.Azure import location
 
 Usable = lib_util.UsableWindows
 
-def Main():
-	cgiEnv = lib_common.CgiEnv()
-
-	grph = rdflib.Graph()
-
-	# Ca va etre un parametre.
-	subscriptionName=Azure.DefaultSubscription()
-
+def EnumLoca(grph,subscriptionName):
 	(subscription_id,certificate_path) = lib_credentials.GetCredentials( "Azure", subscriptionName )
 
 	sms = ServiceManagementService(subscription_id, certificate_path)
@@ -45,6 +38,16 @@ def Main():
 		locaNode = location.MakeUri( loca.name, subscriptionName )
 
 		grph.add( ( subscriptionNode, lib_common.MakeProp("Location"), locaNode ) )
+
+def Main():
+	cgiEnv = lib_common.CgiEnv()
+
+	grph = rdflib.Graph()
+
+	subscriptions = lib_credentials.GetCredentialsNames( "Azure" )
+
+	for subscriptionName in subscriptions:
+		EnumLoca(grph,subscriptionName)
 
 	cgiEnv.OutCgiRdf(grph)
 

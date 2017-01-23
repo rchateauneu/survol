@@ -29,10 +29,11 @@ def Main():
 
 	# TODO: The subscription will become a parameter with a default value.
 	# serviceName = cgiEnv.GetId()
-	diskName = cgiEnv.m_entity_id_dict["Id"]
+	diskName = cgiEnv.m_entity_id_dict["Disk"]
 
 	# TODO: This should be a parameter.
-	subscriptionName=Azure.DefaultSubscription()
+	subscriptionName = cgiEnv.m_entity_id_dict["Subscription"]
+	# subscriptionName=Azure.DefaultSubscription()
 
 	grph = rdflib.Graph()
 
