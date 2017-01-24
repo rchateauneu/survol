@@ -209,10 +209,6 @@ def TopScriptsFunc():
 	# TODO: Use __file__ which might be faster ??
 	currDir = os.getcwd()
 
-	# TODO: WHY IS IT DISPLAYED TWICE ???? CIRCULAR IMPORT ??
-	sys.stderr.write("TopScriptsFunc currDir=%s\n"%currDir)
-	sys.stderr.write("TopScriptsFunc __file__=%s\n"%__file__)
-
 	idx = currDir.find("htbin")
 	# Maybe not running i Apache but in http.server (Python 3) or SimpleHttpServer (Python 2)
 	if idx == -1:
