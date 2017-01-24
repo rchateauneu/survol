@@ -12,10 +12,8 @@ import lib_common
 import lib_wmi
 from lib_common import pc
 
-try:
-	import wmi
-except ImportError:
-	lib_common.ErrorMessageHtml("wmi library cannot be imported")
+# If it cannot be imported, this is checked when loading the script.
+import wmi
 
 
 #instance of Win32_Process

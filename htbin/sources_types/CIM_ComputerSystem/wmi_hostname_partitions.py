@@ -11,10 +11,8 @@ import lib_util
 import lib_wmi
 from lib_common import pc
 
-try:
-	import wmi
-except ImportError:
-	lib_common.ErrorMessageHtml("wmi library cannot be imported")
+# If this module is not there, the whole sciprt will not be imported.
+import wmi
 
 # C est particulierement interessant d essayer d unifier notre modele avec WBEM,
 # car nous utilisons WMI qui est une sorte de WBEM. Alors il faut prendre garde
