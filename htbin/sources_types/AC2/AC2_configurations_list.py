@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """
 Available AC2 configurations
 """
