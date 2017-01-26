@@ -1,4 +1,6 @@
+#!/usr/bin/python
+
 """
-Display the input and output dependencies of an AC2 component
+AC2 component dependencies
 """
 

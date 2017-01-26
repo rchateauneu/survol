@@ -2,12 +2,14 @@
 AC2 configuration
 """
 
+import os
 import sys
 import lib_common
 import rdflib
 import xml.dom.minidom
 import lib_uris
 from lib_properties import pc
+from sources_types import AC2
 
 from sources_types.AC2 import application as survol_AC2_application
 
@@ -22,7 +24,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	DisplayConfigNodes(grph,node,entity_ids_arr[0])
 
 def EntityName(entity_ids_arr,entity_host):
-	return entity_ids_arr[0]
+	return AC2.ConfigFileNameClean(entity_ids_arr[0])
 
 
 def GetDom(configName):
