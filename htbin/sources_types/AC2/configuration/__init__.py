@@ -15,7 +15,7 @@ def EntityOntology():
 	return ( ["File"], )
 
 # Ambiguity with tables, oracle or normal users.
-def MakeUri(configFilename,componentName):
+def MakeUri(configFilename):
 	return lib_common.gUriGen.UriMakeFromDict("AC2/configuration", { "File" : configFilename } )
 
 def AddInfo(grph,node,entity_ids_arr):
@@ -24,6 +24,15 @@ def AddInfo(grph,node,entity_ids_arr):
 def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[0]
 
+
+def GetDom(configName):
+	# Because of Windows: "C:/AC2\Application_Sample.xml"
+	configFile = configName.replace("\\","/")
+
+	sys.stderr.write("configFile=%s\n"%(configFile))
+
+	dom = xml.dom.minidom.parse(configFile)
+	return dom
 
 # <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 # <apps>
@@ -37,39 +46,40 @@ def EntityName(entity_ids_arr,entity_host):
 #          notifref="AC2-App-Sample-A notification rule"
 #          cronref="AC2-App-Sample-A scheduling">
 def DisplayConfigNodes(grph,configNode,configName):
-	# Because of Windows: "C:/AC2\Application_Sample.xml"
-	configFile = configName.replace("\\","/")
+	dom = GetDom(configName)
 
-	sys.stderr.write("configFile=%s configNode=%s\n"%(configFile,str(configNode)))
-
-	dom = xml.dom.minidom.parse(configFile)
-
+	# TODO: PROBLEME, ON DEVRAIT ALLER CHERCHER LES SOUS-NODES AU LIEU DE TOUT REPARCOURIR !!!!!!!!!!!
 	for elt_apps in dom.getElementsByTagName('apps'):
 		sys.stderr.write("Founds apps\n")
 
-		for elt_app in dom.getElementsByTagName('app'):
-			attr_name = elt_app.getAttributeNode('name').value
-			attr_version = elt_app.getAttributeNode('version').value
-			attr_notifref = elt_app.getAttributeNode('notifref').value
-			attr_cronref = elt_app.getAttributeNode('cronref').value
+		DispApp(dom,grph,configNode,configName)
+		DispHosts(dom,grph,configNode)
 
-			nodeApp = survol_AC2_application.MakeUri(configName,attr_name)
-			grph.add( ( nodeApp, lib_common.MakeProp("version"), rdflib.Literal( attr_version ) ) )
-			grph.add( ( nodeApp, lib_common.MakeProp("notifref"), rdflib.Literal( attr_notifref ) ) )
-			grph.add( ( nodeApp, lib_common.MakeProp("cronref"), rdflib.Literal( attr_cronref ) ) )
+def DispApp(dom,grph,configNode,configName):
+	for elt_app in dom.getElementsByTagName('app'):
+		attr_name = elt_app.getAttributeNode('name').value
+		attr_version = elt_app.getAttributeNode('version').value
+		attr_notifref = elt_app.getAttributeNode('notifref').value
+		attr_cronref = elt_app.getAttributeNode('cronref').value
 
-			grph.add( ( configNode, lib_common.MakeProp("AC2 application"), rdflib.Literal( nodeApp ) ) )
+		nodeApp = survol_AC2_application.MakeUri(configName,attr_name)
+		grph.add( ( nodeApp, lib_common.MakeProp("version"), rdflib.Literal( attr_version ) ) )
+		grph.add( ( nodeApp, lib_common.MakeProp("notifref"), rdflib.Literal( attr_notifref ) ) )
+		grph.add( ( nodeApp, lib_common.MakeProp("cronref"), rdflib.Literal( attr_cronref ) ) )
 
-		for elt_hosts in dom.getElementsByTagName('hosts'):
-			for elt_host in dom.getElementsByTagName('host'):
-				attr_hostid = elt_host.getAttributeNode('hostid').value
-				attr_host = elt_host.getAttributeNode('host').value
-				attr_port = elt_host.getAttributeNode('port').value
+		grph.add( ( configNode, lib_common.MakeProp("AC2 application"), nodeApp ) )
 
-				nodeAddr = lib_common.gUriGen.AddrUri(attr_host,attr_port)
-				grph.add( ( nodeAddr, lib_common.MakeProp("Hostid"), rdflib.Literal( attr_hostid ) ) )
 
-				grph.add( ( configNode, lib_common.MakeProp("AC2 host"), rdflib.Literal( nodeAddr ) ) )
+def DispHosts(dom,grph,configNode):
+	for elt_hosts in dom.getElementsByTagName('hosts'):
+		for elt_host in dom.getElementsByTagName('host'):
+			attr_hostid = elt_host.getAttributeNode('hostid').value
+			attr_host = elt_host.getAttributeNode('host').value
+			attr_port = elt_host.getAttributeNode('port').value
 
+			nodeAddr = lib_common.gUriGen.AddrUri(attr_host,attr_port)
+			grph.add( ( nodeAddr, lib_common.MakeProp("Hostid"), rdflib.Literal( attr_hostid ) ) )
+
+			grph.add( ( configNode, lib_common.MakeProp("AC2 host"), nodeAddr ) )
 
 	return

@@ -1,3 +1,4 @@
 """
-Display the input and ouput dependencies of an AC2 component
+Display the input and output dependencies of an AC2 component
 """
+

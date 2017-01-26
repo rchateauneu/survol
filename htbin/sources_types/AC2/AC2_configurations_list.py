@@ -17,14 +17,11 @@ def Main():
 	grph = rdflib.Graph()
 
 	# List xml config files in the directory given by the environment variable "XCOMP_AC2_BASE" which by default is "C:\AC2"
-
 	envVarNam = "XCOMP_AC2_BASE"
 	try:
 		ac2TopDir = os.environ[envVarNam]
 	except:
-		#lib_common.ErrorMessageHtml("Cannot get environment variable value %s"%envVarNam )
-		# TEMP TEMP
-		ac2TopDir = "C:/AC2"
+		lib_common.ErrorMessageHtml("Cannot get environment variable value %s"%envVarNam )
 
 	nodeTopDir = lib_common.gUriGen.DirectoryUri( ac2TopDir )
 
