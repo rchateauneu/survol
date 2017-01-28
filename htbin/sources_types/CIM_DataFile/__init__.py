@@ -88,3 +88,6 @@ def AddInfo(grph,node,entity_ids_arr):
 	AddHtml( grph,node,filNam)
 	AddParentDir( grph,node,filNam)
 
+	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
+	grph.add( ( node, pc.property_rdf_data_nolist1, rdflib.term.URIRef(url_mime) ) )
+
