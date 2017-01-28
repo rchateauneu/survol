@@ -48,24 +48,26 @@ def ComponentNameToNode(configName,appName,componentName):
 
 ComponentNameToNode.NodeMap = {}
 
-def DisplayComponentsTree(grph,configNode,configName,appNode,ac2App):
+def DisplayComponentsTree(grph,configName,ac2App):
 	dom = AC2_configuration.GetDom(configName)
+
+	configNode = AC2_configuration.MakeUri(configName)
 
 	# TODO: PROBLEME, ON DEVRAIT ALLER CHERCHER LES SOUS-NODES AU LIEU DE TOUT REPARCOURIR !!!!!!!!!!!
 	for elt_apps in dom.getElementsByTagName('apps'):
+		# There should be one only.
 		sys.stderr.write("Founds apps\n")
-
-		# TODO: ERROR: SHOULD FOCUS ON ONE APP ONLY.
 
 		for elt_app in elt_apps.getElementsByTagName('app'):
 			attr_name = elt_app.getAttributeNode('name').value
-			attr_version = elt_app.getAttributeNode('version').value
-			attr_notifref = elt_app.getAttributeNode('notifref').value
-			attr_cronref = elt_app.getAttributeNode('cronref').value
-
 			sys.stderr.write("attr_name=%s\n"%attr_name)
 
+			if attr_name != ac2App:
+				continue
+
 			appNode = AC2_application.MakeUri(configName,attr_name)
+
+			AC2_application.DecorateAppWithXml(grph,appNode,elt_app)
 
 			for elt_component in elt_app.getElementsByTagName('component'):
 				attr_component_name = elt_component.getAttributeNode('name').value
@@ -73,23 +75,19 @@ def DisplayComponentsTree(grph,configNode,configName,appNode,ac2App):
 
 				sys.stderr.write("attr_component_name=%s\n"%attr_component_name)
 
-				attr_component_description = elt_component.getAttributeNode('description')
-				if attr_component_description:
-					grph.add( ( nodeComponent, pc.property_information, rdflib.Literal( attr_component_description.value ) ) )
+				AC2_component.DecorateComponentWithXml(grph,nodeComponent,elt_component)
 
 				fatherFound = False
 				for elt_father in elt_component.getElementsByTagName('father'):
-					# attr_father_name = str(elt_father)
 					attr_father_name = elt_father.firstChild.nodeValue
-					sys.stderr.write("dir=%s\n"%dir(elt_father))
 					sys.stderr.write("attr_father_name=%s\n"%attr_father_name)
 					nodeFather = ComponentNameToNode(configName,attr_name,attr_father_name)
 
-					grph.add( ( nodeFather, lib_common.MakeProp("parent"), nodeComponent ) )
+					grph.add( ( nodeFather, AC2.propParent, nodeComponent ) )
 					fatherFound = True
 
 				if not fatherFound:
-					grph.add( ( appNode, lib_common.MakeProp("parent"), nodeComponent ) )
+					grph.add( ( appNode, AC2.propParent, nodeComponent ) )
 
 def Main():
 
@@ -103,12 +101,9 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	configNode = AC2_configuration.MakeUri(ac2File)
-	appNode = AC2_application.MakeUri(ac2File,ac2App)
+	DisplayComponentsTree(grph,ac2File,ac2App)
 
-	DisplayComponentsTree(grph,configNode,ac2File,appNode,ac2App)
-
-	cgiEnv.OutCgiRdf(grph )
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [AC2.propParent] )
 
 if __name__ == '__main__':
 	Main()

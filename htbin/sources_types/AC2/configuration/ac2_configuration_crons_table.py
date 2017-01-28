@@ -14,6 +14,7 @@ from sources_types.AC2 import cronrules as AC2_cronrules
 from sources_types.AC2 import trigger as AC2_trigger
 from sources_types.AC2 import component as AC2_component
 
+
 # <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 # <apps>
 #    <crontable>
@@ -44,18 +45,26 @@ def DisplayCronsTable(grph,configNode,configName):
 		sys.stderr.write("Founds apps\n")
 
 		DispCrons(dom,grph,configNode,configName)
-		AC2_configuration.DispHosts(dom,grph,configNode)
+		# AC2_configuration.DispHosts(dom,grph,configNode)
 
-propCronRules = lib_common.MakeProp("Cron rules")
-propTrigger = lib_common.MakeProp("Trigger")
-propComponents = lib_common.MakeProp("components")
+# Crons rules and triggers probably mention the unique app in the "apps" tag,
+# but this is not completely clear.
+def GetDefaultApp(dom):
+	for elt_apps in dom.getElementsByTagName('apps'):
+		for elt_app in elt_apps.getElementsByTagName('app'):
+			attr_name = elt_app.getAttributeNode('name').value
+			return attr_name
+
 
 def DispCrons(dom,grph,configNode,configName):
+
+	attr_name = GetDefaultApp(dom)
+
 	for elt_crontable in dom.getElementsByTagName('crontable'):
 		for elt_cronrules in elt_crontable.getElementsByTagName('cronrules'):
 			attr_cronrules_cronid = elt_cronrules.getAttributeNode('cronid').value
 			nodeCronrules = AC2_cronrules.MakeUri(configName,attr_cronrules_cronid)
-			grph.add( ( configNode, propCronRules, nodeCronrules ) )
+			grph.add( ( configNode, AC2.propCronRules, nodeCronrules ) )
 
 			for elt_trigger in elt_cronrules.getElementsByTagName('trigger'):
 				attr_trigger_name = elt_trigger.getAttributeNode('name').value
@@ -75,8 +84,8 @@ def DispCrons(dom,grph,configNode,configName):
 				if attr_trigger_components:
 					componentList = attr_trigger_components.value.split(",")
 					for compNam in componentList:
-						nodeComponent = AC2_component.MakeUri(configName,"hhhhhh",compNam)
-						grph.add( ( nodeTrigger, propComponents, nodeComponent ) )
+						nodeComponent = AC2_component.MakeUri(configName,attr_name,compNam)
+						grph.add( ( nodeTrigger, AC2.propComponents, nodeComponent ) )
 
 				attr_trigger_propagate = elt_trigger.getAttributeNode('propagate')
 				if attr_trigger_propagate:
@@ -87,7 +96,7 @@ def DispCrons(dom,grph,configNode,configName):
 					grph.add( ( nodeTrigger, lib_common.MakeProp("expression"), rdflib.Literal( attr_trigger_expression.value ) ) )
 
 
-				grph.add( ( nodeCronrules, propTrigger, nodeTrigger ) )
+				grph.add( ( nodeCronrules, AC2.propTrigger, nodeTrigger ) )
 
 
 	return
@@ -106,8 +115,9 @@ def Main():
 
 	DisplayCronsTable(grph,configNode,ac2File)
 
-	# cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_argument] )
 	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [propTrigger,propComponents] )
+	# cgiEnv.OutCgiRdf(grph, "LAYOUT_SPLINE", [propTrigger,propComponents] )
+	#cgiEnv.OutCgiRdf(grph, "LAYOUT_SPLINE" )
 
 if __name__ == '__main__':
 	Main()
