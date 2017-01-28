@@ -9,6 +9,7 @@ import rdflib
 import lib_common
 import lib_util
 import lib_uris
+from sources_types import AC2
 from sources_types.AC2 import configuration as AC2_configuration
 from sources_types.AC2 import cronrules as AC2_cronrules
 from sources_types.AC2 import trigger as AC2_trigger
@@ -115,7 +116,7 @@ def Main():
 
 	DisplayCronsTable(grph,configNode,ac2File)
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [propTrigger,propComponents] )
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [AC2.propTrigger,AC2.propComponents] )
 	# cgiEnv.OutCgiRdf(grph, "LAYOUT_SPLINE", [propTrigger,propComponents] )
 	#cgiEnv.OutCgiRdf(grph, "LAYOUT_SPLINE" )
 

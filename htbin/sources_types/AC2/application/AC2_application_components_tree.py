@@ -9,6 +9,7 @@ import rdflib
 import lib_common
 import lib_util
 import lib_uris
+from sources_types import AC2
 from sources_types.AC2 import configuration as AC2_configuration
 from sources_types.AC2 import component as AC2_component
 from sources_types.AC2 import application as AC2_application
