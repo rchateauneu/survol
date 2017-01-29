@@ -634,7 +634,7 @@ localOntology = {
 # TODO: ... made of localOntology added to the directory of types.
 def OntologyClassKeys(entity_type):
 
-	sys.stderr.write("OntologyClassKeys %s\n" %entity_type)
+	# sys.stderr.write("OntologyClassKeys %s\n" %entity_type)
 
 	try:
 		# TODO: Temporarily until we do something more interesting, using the subtype.
