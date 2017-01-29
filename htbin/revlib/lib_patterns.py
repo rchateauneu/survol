@@ -11,9 +11,6 @@ import lib_util
 dictGraphParams = {
 	"addr"                                   : ( "rarrow",    "#FFFF99", "#FFFF99", 0, False ),
 	"CIM_Process"                            : ( "component", "#99FF88", "#99FF88", 0, False ),
-	"com/registered_type_lib"                : ( "none",      "#CC99FF", "#CC99FF", 1, False ),
-	"com/type_lib"                           : ( "none",      "#99FF99", "#99FF99", 1, False ),
-	"com/type_lib_entry"                     : ( "none",      "#CCCCCC", "#CCCCCC", 1, False ),
 	"CIM_Directory"                          : ( "folder",    "#88BBFF", "#88BBFF", 0, False ),
 	# TODO: Not sure that ComposeTypes() will be kept. No real concept nor feature, not really used.
 	lib_util.ComposeTypes("CIM_DataFile","script")   : ( "box",       "#FFFF66", "#FFFF66", 0, False ),
@@ -21,18 +18,6 @@ dictGraphParams = {
 	"group"                                  : ( "plain",     "#88BBFF", "#88BBFF", 0, False ),
 	"CIM_ComputerSystem"                     : ( "signature", "#CCFFCC", "#CCFFCC", 0, False ),
 	"memmap"                                 : ( "tab",       "#CCFFCC", "#CCFFCC", 0, False ),
-	"odbc/dsn"                               : ( "tab",       "#CCFF11", "#CCFF11", 0, False ),
-	"odbc/table"                             : ( "tab",       "#11FF11", "#CCFF11", 0, False ),
-	"odbc/column"                            : ( "tab",       "#11FF11", "#44FF11", 0, False ),
-	"odbc/procedure"                         : ( "tab",       "#11FF11", "#CC4411", 0, False ),
-	"oracle/db"                              : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
-	"oracle/package"                         : ( "none",      "#FFCC66", "#88BBFF", 0, True ),
-	"oracle/package_body"                    : ( "none",      "#FFCC66", "#CCCCCC", 0, True ),
-	"oracle/schema"                          : ( "none",      "#FFCC66", "#CC99FF", 0, True ),
-	"oracle/session"                         : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
-	"oracle/synonym"                         : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
-	"oracle/table"                           : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
-	"oracle/view"                            : ( "none",      "#FFCC66", "#FFCC66", 0, True ),
 	"CIM_LogicalDisk"                        : ( "box3d",     "#FFCCFF", "#FFCC66", 0, False ),
 	"smbfile"                                : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
 	"smbserver"                              : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
@@ -47,42 +32,76 @@ dictGraphParams = {
 
 dfltGraphParams =                              ( "none",      "#FFFFFF", "#99BB88", 1, False )
 
+# shape        colorfill  colorbg    border is_rounded
+# On imagine une fonction par attribut et par module, sous-module etc...
+# sqlite.shape() qui est supersedee par sqlite.table.shape() etc ...
+# Meme chose pour les attributs shape(), colorfill(), colorbg(), border is_rounded
+# On part du nivdeau le plus bas et on remonte jusqu'a trouver la fonction.
+# On met tout dans un cache evidemment.
+# On generalise la logique pour pouvoir l'appliquer a tous les attributs.
+
 
 # Returns graphic parameters given a type without namespace.
-# TODO: Allow to override and inherit specific members of the graphic pattern.
-# Or have a more powerful graphic logic.
+# For example "Win32_Service", "oracle/package"
 def TypeToGraphParams(typeWithoutNS):
 	# Fastest access from the cache.
 	try:
 		return dictGraphParams[typeWithoutNS]
 	except KeyError:
-		pass
+		vecGraph = TypeToGraphParamsNoCache(typeWithoutNS)
+		dictGraphParams[typeWithoutNS] = vecGraph
+	return vecGraph
 
-	# The tries a specific function in the module.
-	grphPatt = None
-	entity_module = lib_util.GetEntityModule(typeWithoutNS)
-	if entity_module:
-		try:
-			grphPatt = entity_module.GraphicPattern()
-		except AttributeError:
-			# Maybe the function is not defined in this module.
-			pass
+# Gets the graphic attributes: Each of them comes form the module of the entity or an upper module.
+# TODO: At the moment, we cannot distinguish between our entites (Defined in our modules) and
+# CIM properties which can only be stored but elsewhere. But CIM classes have no graphic attributes.
+def TypeToGraphParamsNoCache(typeWithoutNS):
 
-	# No module and no function in the module.
-	if not grphPatt:
-		# Then take the upper level module.
-		lastSlash = typeWithoutNS.rfind("/")
-		if lastSlash > 0:
-			# A type can inherit the graphic attributes of the upper level modules.
-			choppedEntityType = typeWithoutNS[:lastSlash]
-			# Recursive access, will happen once only for this type, ever.
-			grphPatt =  TypeToGraphParams(choppedEntityType)
+	vecGraphFunctions = [
+		"Graphic_shape","Graphic_colorfill","Graphic_colorbg","Graphic_border","Graphic_is_rounded"
+	]
+
+	vecProps = []
+	for idxGrph in range(len(vecGraphFunctions)):
+		gFuncName = vecGraphFunctions[idxGrph]
+		grphFunc = TypeToGraphParamsNoCacheOneFunc(typeWithoutNS,gFuncName)
+
+		if grphFunc:
+			grphVal = grphFunc()
 		else:
-			grphPatt = dfltGraphParams
+			# If no such function defined for this module and its ancestors.
+			grphVal = dfltGraphParams[idxGrph]
+		vecProps.append( grphVal )
 
-	# So next time we go straight to it because it will be in the set.
-	dictGraphParams[typeWithoutNS] = grphPatt
-	return grphPatt
+	return vecProps
+
+
+# For example "Graphic_shape" etc... This seeks for a function in this name.
+# This searches in several modules, starting with the module of the entity,
+# then the upper module etc...
+def TypeToGraphParamsNoCacheOneFunc(typeWithoutNS,gFuncName):
+
+	# for the first loop it takes the entire string.
+	lastSlash = len(typeWithoutNS)
+	while lastSlash > 0:
+
+		topModule = typeWithoutNS[:lastSlash]
+		choppedEntityType = typeWithoutNS[:lastSlash]
+
+		# Loa the module of this entity to see if it defines the graphic function.
+		entity_module = lib_util.GetEntityModule(choppedEntityType)
+
+		if entity_module:
+			try:
+				gFuncAddr = getattr(entity_module,gFuncName)
+				return gFuncAddr
+			except AttributeError:
+				pass
+
+		# Then try the upper level module.
+		lastSlash = typeWithoutNS.rfind("/",0,lastSlash)
+
+	return None
 
 
 

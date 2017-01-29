@@ -5,6 +5,9 @@ Oracle sequence
 import lib_common
 from lib_properties import pc
 
+def Graphic_colorbg():
+	return "#99FFFF"
+
 def EntityOntology():
 	return ( ["Db", "Schema", "Sequence"], )
 

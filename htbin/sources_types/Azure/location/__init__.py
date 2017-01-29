@@ -4,6 +4,9 @@ Azure cloud location
 
 import lib_common
 
+def Graphic_colorbg():
+	return "#FF3333"
+
 def EntityOntology():
 	return ( ["Subscription","Location"], )
 

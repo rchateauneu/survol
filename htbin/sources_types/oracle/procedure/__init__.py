@@ -5,6 +5,9 @@ Oracle procedure
 import lib_common
 from lib_properties import pc
 
+def Graphic_colorbg():
+	return "#CC99FF"
+
 def EntityOntology():
 	return ( ["Db", "Schema", "Procedure"], )
 

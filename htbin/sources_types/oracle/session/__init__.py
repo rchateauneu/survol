@@ -4,6 +4,9 @@ Oracle session
 
 import lib_common
 
+def Graphic_colorbg():
+	return "#FFCC66"
+
 def EntityOntology():
 	return ( ["Db", "Schema", "Session"], )
 

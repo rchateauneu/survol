@@ -7,6 +7,9 @@ from lib_properties import pc
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import package as oracle_package
 
+def Graphic_colorbg():
+	return "#CCCCCC"
+
 def EntityOntology():
 	return ( ["Db", "Schema", "PackageBody"], )
 

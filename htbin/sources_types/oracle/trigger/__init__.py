@@ -5,6 +5,9 @@ Oracle database trigger
 import lib_common
 from lib_properties import pc
 
+def Graphic_colorbg():
+	return "#CC3333"
+
 def EntityOntology():
 	return ( ["Db", "Schema", "Trigger"], )
 

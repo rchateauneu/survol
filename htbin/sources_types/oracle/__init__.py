@@ -2,6 +2,26 @@
 Oracle concepts
 """
 
+# All sub-modules in the oracle module share these graphic properties,
+# unless these are superseded in the sub-modules themselves.
+def Graphic_shape():
+	return "none"
+
+def Graphic_colorfill():
+	return "#FFCC66"
+
+def Graphic_colorbg():
+	return "#FFCC66"
+
+def Graphic_border():
+	return 0
+
+def Graphic_is_rounded():
+	return True
+
+
+
+
 import lib_credentials
 
 # "Oracle": {

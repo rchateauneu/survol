@@ -5,6 +5,9 @@ Oracle package
 import lib_common
 from lib_properties import pc
 
+def Graphic_colorbg():
+	return "#88BBFF"
+
 def EntityOntology():
 	return ( ["Db", "Schema", "Package"], )
 

@@ -66,11 +66,6 @@ def Main():
 
 			typNam = HLITypeKinds[infoTyp]
 
-			# TODO: C'est embetant d'avoir les classes representees en tant que nom de directory.
-			# et aussi en tant que fonctions, et d'ailleurs en CamelCase. Il faudrait
-			# donner une forme generale aux fonctions "*Uri" ? Ou bien definir une fonction
-			# qu'on pourrait aller chercher dans globals() ?
-			# Ou systematiquement definir un module, et on utiliserait getattr(module,fonction) ?
 			sub_entity_type = lib_util.ComposeTypes("com/type_lib_entry", typNam.lower() )
 
 			nameComEntryUri = "%s_(%d)" % ( fname, idx )

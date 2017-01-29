@@ -6,6 +6,9 @@ import lib_common
 from lib_properties import pc
 from sources_types.oracle import schema as oracle_schema
 
+def Graphic_colorbg():
+	return "#66CC33"
+
 def AddInfo(grph,node,entity_ids_arr):
 	# TODO: Ca serait quand meme mieux de passer au AddInfo un dict plutot qu un tableau.
 	dbNam = entity_ids_arr[0]

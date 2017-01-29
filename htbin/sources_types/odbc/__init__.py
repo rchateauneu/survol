@@ -16,5 +16,23 @@ Open Database Connectivity concepts
 # ODBC_ConnectString = 'DSN=%s;UID=system;PWD=troulala;DATABASE="XE"' % dsnNam
 # ODBC_ConnectString = 'DSN=%s;UID=system;PWD=troulala' % dsnNam
 
+#	"odbc/dsn"                               : ( "tab",       "#CCFF11", "#CCFF11", 0, False ),
+#	"odbc/table"                             : ( "tab",       "#11FF11", "#CCFF11", 0, False ),
+#	"odbc/column"                            : ( "tab",       "#11FF11", "#44FF11", 0, False ),
+#	"odbc/procedure"                         : ( "tab",       "#11FF11", "#CC4411", 0, False ),
 
 
+def Graphic_shape():
+	return "tab"
+
+def Graphic_colorfill():
+	return "#CCFF11"
+
+def Graphic_colorbg():
+	return "#CCFF11"
+
+def Graphic_border():
+	return 0
+
+def Graphic_is_rounded():
+	return True

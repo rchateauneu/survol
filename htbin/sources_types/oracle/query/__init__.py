@@ -11,9 +11,8 @@ import lib_util
 import lib_common
 import sys
 
-# TODO: What is annoying in this model is, sometimes directories have their own ontology,
-# TODO: and sometimes not. What is the rule ? There is no rule, except that: Objects
-# TODO: are what is instantiated with a path of subdirectories.
+def Graphic_colorbg():
+	return "#CC99FF"
 
 # The result should be ["Query","Db"]
 # We do not know if CIM_Process.EntityOntology() is available.

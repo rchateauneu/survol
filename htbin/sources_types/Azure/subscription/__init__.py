@@ -13,6 +13,9 @@ from sources_types import Azure
 from azure import *
 from azure.servicemanagement import *
 
+def Graphic_colorbg():
+	return "#33CC33"
+
 def EntityOntology():
 	return ( ["Subscription"], )
 

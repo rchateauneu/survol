@@ -4,6 +4,10 @@ Oracle database
 
 import lib_common
 
+def Graphic_colorbg():
+	return "#FFCC66"
+
+
 def EntityOntology():
 	return ( ["Db",], )
 

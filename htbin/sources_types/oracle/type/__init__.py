@@ -5,6 +5,9 @@ Oracle data type
 import lib_common
 from lib_properties import pc
 
+def Graphic_colorbg():
+	return "#CCCC66"
+
 def EntityOntology():
 	return ( ["Db", "Schema", "Type"], )
 

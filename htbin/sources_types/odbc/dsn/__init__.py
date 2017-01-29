@@ -8,10 +8,21 @@ import lib_util
 import lib_credentials
 import pyodbc
 from lib_properties import pc
-
-# from sources_types import sqlserver as survol_sqlserver
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.oracle import db as oracle_db
+import rdflib
+
+def Graphic_colorfill():
+	return "#CCFF11"
+
+def Graphic_colorbg():
+	return "#CCFF11"
+
+def EntityOntology():
+	return ( ["Dsn"], )
+
+def MakeUri(dsnName):
+	return lib_common.gUriGen.UriMakeFromDict("odbc/dsn", { "Dsn" : lib_util.EncodeUri(dsnName) })
 
 def MakeOdbcConnectionString(dsnNam):
 	pairUsrnamPass = lib_credentials.GetCredentials("ODBC",dsnNam)
@@ -52,7 +63,12 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	ODBC_ConnectString = MakeOdbcConnectionString(dsnNam)
 
-	cnxn = pyodbc.connect(ODBC_ConnectString)
+	try:
+		cnxn = pyodbc.connect(ODBC_ConnectString)
+	except:
+		exc = sys.exc_info()[1]
+		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
+		return
 
 	dbEntityType = GetDatabaseEntityTypeFromConnection(cnxn)
 
@@ -72,13 +88,3 @@ def AddInfo(grph,node,entity_ids_arr):
 		sys.stderr.write("AddInfo dbEntityType=%s ADDING NODE\n" % dbEntityType )
 
 		#grph.add( ( node, pc.property_pid, rdflib.Literal(pidProc) ) )
-
-def EntityOntology():
-	return ( ["Dsn"], )
-
-
-def MakeUri(dsnName):
-	return lib_common.gUriGen.UriMakeFromDict("odbc/dsn", { "Dsn" : lib_util.EncodeUri(dsnName) })
-
-
-
