@@ -24,6 +24,7 @@ doxygenExtensions = [
 ]
 
 def Usable(entity_type,entity_ids_arr):
+	"""Not a source file"""
 	filNam = entity_ids_arr[0]
 	filExt = os.path.splitext(filNam)[1]
 	if filExt.lower() in doxygenExtensions:

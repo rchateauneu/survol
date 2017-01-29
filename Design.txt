@@ -304,3 +304,11 @@ Ca ne sert qu'à planter un script si le remote host est mis.
 Mais le script ne sera pas affiché si test variable globale car aucun n'était affiche maintenant.
  Les scripts remote sont affiches autrement, sans exploration et ce test est inutile.
 Donc ?
+============================================
+
+Pour les listes de scripts toujours mettre un fond blanc.
+Pour les listes en general utiliser le mode des liens, pas de l'objet parent ?
+
+Au lieu d afficher "Generic class", mettere si namespace ou bien classe etc...
+Repeter partout la meme chaine, c est pas terrible.
+"class_type_all.py": "Generic class",

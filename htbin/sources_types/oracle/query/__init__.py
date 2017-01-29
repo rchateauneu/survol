@@ -38,10 +38,11 @@ def AddInfo(grph,node,entity_ids_arr):
 
 # For the moment, we assume that these are all table names, without checking.
 # TODO: Find a quick way to check if these are tables or views.
-def QueryToNodesList(sqlQuery,connectionKW,list_of_tables):
+def QueryToNodesList(sqlQuery,connectionKW,list_of_tables,defaultSchemaName=None):
 	nodesList = []
 	# This should be taken from the credentials.
-	defaultSchemaName = "OracleSchema"
+	if not defaultSchemaName:
+		defaultSchemaName = "OracleDefaultSchema"
 	for tabNam in list_of_tables:
 		spltTabNam = tabNam.split(".")
 		if len(spltTabNam) == 2:

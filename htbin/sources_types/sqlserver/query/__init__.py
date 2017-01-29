@@ -37,9 +37,10 @@ def AddInfo(grph,node,entity_ids_arr):
 # This function must have the same signature for all databases.
 # For the moment, we assume that these are all table names, without checking.
 # TODO: Find a quick way to check if these are tables or views.
-def QueryToNodesList(sqlQuery,connectionKW,list_of_tables):
+def QueryToNodesList(sqlQuery,connectionKW,list_of_tables,defaultSchemaName=None):
 	nodesList = []
-	defaultSchemaName = "SqlServerSchema"
+	if not defaultSchemaName:
+		defaultSchemaName = "SqlServerDefaultSchema"
 	for tabNam in list_of_tables:
 		spltTabNam = tabNam.split(".")
 		if len(spltTabNam) == 2:

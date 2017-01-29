@@ -39,7 +39,7 @@ def Main():
 		for prmstr in dir(pyodbc):
 			if not prmstr.startswith("SQL_"):
 				continue
-			sys.stderr.write("prmstr: %s\n" % prmstr)
+			#sys.stderr.write("prmstr: %s\n" % prmstr)
 
 			# Some keywords are not interesting. This is a bit arbitrary.
 			if prmstr in ["SQL_KEYWORDS"]:
@@ -50,7 +50,6 @@ def Main():
 			prop = lib_common.MakeProp(nicestr)
 
 			try:
-				# prm = getattr(pyodbc,"SQL_"+prmstr)
 				prm = getattr(pyodbc,prmstr)
 			# except AttributeError:
 			except:
@@ -75,7 +74,6 @@ def Main():
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info() ) ) )
 
-	# cgiEnv.OutCgiRdf(grph)
 	cgiEnv.OutCgiRdf(grph)
 
 if __name__ == '__main__':

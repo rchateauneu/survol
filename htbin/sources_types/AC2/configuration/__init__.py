@@ -11,6 +11,9 @@ import lib_uris
 from lib_properties import pc
 from sources_types import AC2
 
+def Graphic_colorbg():
+	return "#88CCCC"
+
 def EntityOntology():
 	return ( ["File"], )
 

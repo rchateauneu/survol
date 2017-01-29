@@ -3,7 +3,11 @@ Sqlite table
 """
 
 import lib_common
+from sources_types import sqlite as survol_sqlite
 from sources_types.sqlite import file as sqlite_file
+
+def Graphic_colorbg():
+	return "#FFCC66"
 
 def EntityOntology():
 	return ( ["File","Table"], )
@@ -12,7 +16,7 @@ def MakeUri(fileName,tableName):
 	return lib_common.gUriGen.UriMakeFromDict("sqlite/table", { "File" : fileName, "Table" : tableName } )
 
 def EntityName(entity_ids_arr,entity_host):
-	return entity_ids_arr[1] + "@" + entity_ids_arr[0]
+	return entity_ids_arr[1] + "@" + survol_sqlite.ShortenSqliteFilename(entity_ids_arr[0])
 
 def AddInfo(grph,node,entity_ids_arr):
 	filNam = entity_ids_arr[0]

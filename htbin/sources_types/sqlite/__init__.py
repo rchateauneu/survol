@@ -9,9 +9,22 @@ import lib_common
 from lib_properties import pc
 
 import sqlite3
-from sources_types.sqlite import table as sqlite_table
-from sources_types.sqlite import view as sqlite_view
-from sources_types import CIM_Process
+
+def Graphic_shape():
+	return "none"
+
+def Graphic_colorfill():
+	return "#EEAAAA"
+
+def Graphic_colorbg():
+	return "#FFCC66"
+
+def Graphic_border():
+	return 2
+
+def Graphic_is_rounded():
+	return True
+
 
 # Tells if a file is a sqlite databse.
 def IsSqliteDatabase(filNam):
@@ -22,6 +35,9 @@ def IsSqliteDatabase(filNam):
 # This basically returns a list of the sqlite files accessed by the process.
 # It is used to deduce which sqlite file is accessed by a query.
 def DatabaseEnvParams(processId):
+	# This is imported here to avoid circular references.
+	from sources_types import CIM_Process
+
 	sys.stderr.write("\nDatabaseEnvParams processId=%s\n"%(str(processId)))
 	# Get the list of files open by the process.
 	try:
@@ -46,6 +62,11 @@ def DatabaseEnvParams(processId):
 	return ( "sqlite/query", listArgs )
 
 def AddNodesTablesViews(grph,filNode,dbFilNam):
+
+	# This is imported here to avoid circular references of packages including themselves.
+	from sources_types.sqlite import table as sqlite_table
+	from sources_types.sqlite import view as sqlite_view
+
 	sys.stderr.write("AddNodesTablesViews dbFilNam=%s\n"%(dbFilNam ))
 	try:
 		con = sqlite3.connect(dbFilNam)
@@ -83,4 +104,8 @@ def AddNodesTablesViews(grph,filNode,dbFilNam):
 	except:
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml("Sqlite file:%s Unexpected error:%s" % ( dbFilNam, str( exc ) ) )
+
+# Because sqlite filename are very long so we shorten name when displaying.
+def ShortenSqliteFilename(fileName):
+	return os.path.basename(fileName)
 

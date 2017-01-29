@@ -14,7 +14,7 @@ def Graphic_colorbg():
 	return "#FFCC66"
 
 def Graphic_border():
-	return 0
+	return 2
 
 def Graphic_is_rounded():
 	return True

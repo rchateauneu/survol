@@ -30,6 +30,9 @@ def Main():
 	if mime_type == None:
 		lib_common.ErrorMessageHtml("No mime type for %s"%fileName)
 
+	# TODO: Find a solution for JSON files such as:
+	# "No mime type for C:\Users\rchateau\AppData\Roaming\Mozilla\Firefox\Profiles\gciw4sok.default/dh-ldata.json"
+
 	try:
 		# Read and write by chunks, so that it does not use all memory.
 		# lib_util.CopyFile( mime_type, fileName, sys.stdout )

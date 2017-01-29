@@ -9,6 +9,9 @@ from lib_properties import pc
 from sources_types import AC2
 from sources_types.AC2 import application as AC2_application
 
+def Graphic_colorbg():
+	return "#88BB88"
+
 def EntityOntology():
 	return ( ["File", "App", "Comp"], )
 

@@ -37,6 +37,7 @@ from lib_properties import pc
 #   En revanche, permettre d instrumenter la combinaison : symbole+fichier.
 
 def Usable(entity_type,entity_ids_arr):
+	"""Not a Windows binary or executable file"""
 	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
 		return False
 	fulFileName = entity_ids_arr[0]

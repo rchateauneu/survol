@@ -24,13 +24,6 @@ from sources_types.oracle import type as oracle_type
 # InterfaceError: Unable to acquire Oracle environment handle
 
 import cx_Oracle
-#try:
-#except ImportError:
-## No error signalling because we need some data about Oracle,
-## even if the lib is not here.
-#if lib_common.GuessDisplayMode(sys.stderr) != "info":
-#	exc = sys.exc_info()[1]
-#	lib_common.ErrorMessageHtml("Cannot import module cx_Oracle:"+str(exc))
 
 def GetOraConnect(conn_str):
 	try:
@@ -91,7 +84,7 @@ class OracleEnv (lib_common.CgiEnv):
 
 		self.m_oraDatabase = self.m_entity_id_dict["Db"]
 
-	def ConnectStr(self ):
+	def ConnectStr(self):
 		# TODO: This can be parsed from the schema.
 
 		(oraUser,oraPwd) = lib_credentials.GetCredentials( "Oracle", self.m_oraDatabase )
@@ -99,6 +92,11 @@ class OracleEnv (lib_common.CgiEnv):
 
 	def MakeUri(self, entity_type, **kwArgs ):
 		return lib_util.EntityUri( entity_type, { "Db": self.m_oraDatabase }, **kwArgs )
+
+	def OracleSchema(self):
+		# TODO: This could call GetCredentials once only.
+		(oraUser,oraPwd) = lib_credentials.GetCredentials( "Oracle", self.m_oraDatabase )
+		return oraUser
 
 # This displays the content of the Oracle table dba_dependencies.
 def AddDependency( grph, row, nodeRoot, oraDatabase, direction ):

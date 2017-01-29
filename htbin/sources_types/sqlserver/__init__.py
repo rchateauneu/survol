@@ -4,6 +4,22 @@ SqlServer objects
 
 import pyodbc
 
+def Graphic_shape():
+	return "none"
+
+def Graphic_colorfill():
+	return "#99BB88"
+
+def Graphic_colorbg():
+	return "#99BB88"
+
+def Graphic_border():
+	return 2
+
+def Graphic_is_rounded():
+	return True
+
+
 # "ODBC": {
 # 		"MyOracleDataSource" : [ "system", "xxx" ],
 # 		"OraSysDataSrc" : [ "system", "yyy" ]

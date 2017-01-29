@@ -36,8 +36,8 @@ def Main():
 
 	# Based on the pid and the filnam, find which database connection it is.
 
-
-	list_of_nodes = sqlserver_query.QueryToNodesList(sqlQuery,{"Dsn":dsnNam },list_of_table_names)
+	# What is the schema ??
+	list_of_nodes = sqlserver_query.QueryToNodesList(sqlQuery,{"Dsn":dsnNam },list_of_table_names,dsnNam+":SqlServerSchema")
 
 	for nodTab in list_of_nodes:
 		grph.add( ( nodeSqlQuery, propSheetToQuery, nodTab ) )
