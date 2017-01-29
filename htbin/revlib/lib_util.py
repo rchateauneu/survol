@@ -457,8 +457,9 @@ def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_host
 
 ################################################################################
 
-# Not really used at the moment.
-CharTypesComposer = ","
+# This creates a "derived type", on  the fly.
+# This could fill the various caches: Ontology etc...
+CharTypesComposer = "/"
 
 # TODO: Find another solution more compatible with WBEM and WMI logic.
 # Used to define subtypes.
