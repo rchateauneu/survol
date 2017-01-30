@@ -68,7 +68,7 @@ def Main():
 			infoVal = infoList[infoKey]
 			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), rdflib.Literal(infoVal) ) )
 		except:
-			txtDisp = str( sys.exc_info() )
+			txtDisp = str( sys.exc_info()[1] )
 			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), rdflib.Literal(txtDisp) ) )
 
 
