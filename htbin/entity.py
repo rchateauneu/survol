@@ -129,7 +129,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 		# TODO: Beware, if not ontology, returns empty array. Why not returning None ?
 		if ontoKeys != []:
-			sys.stderr.write("Module %s has an ontology so it is a class. Skipping\n"%(sub_relative_dir))
+			# sys.stderr.write("Module %s has an ontology so it is a class. Skipping\n"%(sub_relative_dir))
 			# BEWARE: NO MORE DEFAULT ONTOLOGY ["Id"]
 			continue
 
