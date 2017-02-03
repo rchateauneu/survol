@@ -89,13 +89,6 @@ def UselessProc(proc):
 
 ################################################################################
 
-# Static data for dot conversion.
-# Taken from rdf2dot, in module rdflib.
-
-EDGECOLOR = "blue"
-NODECOLOR = "black"
-ISACOLOR = "black"
-
 # TODO: Add a tool tip. Also, adapt the color to the context.
 pattEdgeOrien = "\t%s -> %s [ color=%s, label=< <font point-size='10' " + \
 	"color='#336633'>%s</font> > ] ;\n"
@@ -198,16 +191,20 @@ def ExternalToTitle(extUrl):
 
 
 # Used for transforming into SVG format.
-def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
+# If from entity.py, CollapsedProps = pc.property_directory,pc.property_rdf_data1
+def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	fieldsSet = collections.defaultdict(list)
-	nodes = {}
 
-	def NodeToLabel(x):
+	# This maps RDFLIB nodes to DOT label names.
+	dictRdf2Dot = {}
+
+	# This returns the DOT label of a RDFLIB, and creates a new one if necessary.
+	def RdfNodeToDotLabel(x):
 		try:
-			return nodes[x]
+			return dictRdf2Dot[x]
 		except KeyError:
-			nodelabel = "nd_%d" % len(nodes)
-			nodes[x] = nodelabel
+			nodelabel = "nd_%d" % len(dictRdf2Dot)
+			dictRdf2Dot[x] = nodelabel
 			return nodelabel
 
 	# The QName is an abbreviation of URI reference with the namespace function for XML.
@@ -222,7 +219,7 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			return q[2]
 		except:
 			return x
-
+		# Nothing really interesting at the moment, just hardcodes.
 		return lib_properties.prop_color(prop)
 
 	def FormatElement(val,depth=0):
@@ -301,12 +298,11 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 
 	# Ca liste les labels des objects qui apparaissent dans les blocs,
 	# et pointent vers le nom du record.
-	# TODO: Quand on sera bien rode, on pourra peut-etre fusionner avec node_as_lists[]
-	ListedLeavesToRootLabels = {}
+	dictCollapsedObjectLabelsToSubjectLabels = {}
 
 	# This contain, for each node (subject), the related node (object) linked
 	# to it with a property to be displayed in tables instead of individual nodes.
-	listed_props_by_subj = collections.defaultdict(list)
+	dictCollapsedSubjectsToObjectLists = collections.defaultdict(list)
 
 	# TODO: Une premiere passe pour batir l'arbre d'une certaine propriete.
 	# Si pas un DAG, tant pis, ca fera un lien en plus.
@@ -317,54 +313,37 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 	# Et on pourra trier car il y a un ordre.
 	# Donc ca doit etre facile d'ajouter des proprietes affichees comme ca.
 
-	# Exhaustive list of columns of the descendants of each subject.
-	# unique_props_by_subj = collections.defaultdict(set)
-
 	logfil.write( TimeStamp()+" Rdf2Dot: First pass\n" )
-	logfil.flush()
 
 	for subj, prop, obj in grph:
 
-		# Related objects with these properties, are listed in a table, instead of distinct nodes in a graph.
-		if prop in PropsAsLists:
-			# We lose the property, unfortunately.
-			listed_props_by_subj[ subj ].append( obj )
+		# Objects linked with these properties, are listed in a table, instead of distinct nodes in a graph.
+		if prop in CollapsedProperties:
+			# TODO: We lose the property, unfortunately. Should make a map: subject => prop => object ?
+			dictCollapsedSubjectsToObjectLists[ subj ].append( obj )
 
 			# Maybe we already entered it: Not a problem.
-			namObj = NodeToLabel(obj)
-			# The node in which we are.
-			ListedLeavesToRootLabels[ namObj ] = NodeToLabel(subj)
+			namObj = RdfNodeToDotLabel(obj)
+
+			# CollapsedProperties can contain only properties which define a tree,
+			# as visibly the "object" nodes can have one ancestor only.
+			dictCollapsedObjectLabelsToSubjectLabels[ namObj ] = RdfNodeToDotLabel(subj)
 
 			continue
 
-		subjNam = NodeToLabel(subj)
-
-		#prop pourra etre un dictionnaire, mais ca n est pas standard:
-		#prop = {"title":"lkjlkj","bidirect": True}
-		# Ou alors un UriRef mais avec des parametres CGI: "http://primhillcomputers.com/ontologies/socket_end?dir=bi&title=Socket"
-		# "http://primhillcomputers.com/ontologies/html_data?title=Yawn"
-		# On va splitter "prop" et on le recree sans ses parametres CGI.
-		# TODO: CGIPROP
+		subjNam = RdfNodeToDotLabel(subj)
 
 		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
-
-			# TODO: CGIPROP. On extrait le script, uniquement.
-			# Ou bien on extrait une propriete du style "is_html" ou "is_rdf_script".
-			# "is_rdf_scritp", ce n est pas une autre entity.py, c'est un autre script.
-			# TODO: MAIS ALORS, POURQUOI NE PAS PARSER LE SCRIPT ????
-			# TODO: SI CA CONTIENT entity.py, C EST UNE REFERENCE,
-			# TODO: SINON C EST DU SUB-RDF.
-			# POUR LES NOMMER, ON PEUT HARD-CODER, CAR Y EN A PAS BEAUCOUP.
 
 			prp_col = lib_properties.prop_color(prop)
 
 			# TODO: All commutative relation have bidirectional arrows.
-			# We filter with the property so it is much faster.
 			# At the moment, only one property can be bidirectional.
 			# TODO: CGIPROP. On extrait la propriete "edge_style" ??
 			# TODO: Mais la c est different car on fusionne deux aretes ....
+			# ON PEUT DEFINIR L ENSEMBLE DES PROPRIETES QUI SONT FUSIONNEES QUAND A->B et B->A.
 			if prop == pc.property_socket_end:
-				objNam = NodeToLabel(obj)
+				objNam = RdfNodeToDotLabel(obj)
 				if ( obj, prop, subj ) in grph :
 					if subjNam < objNam:
 						stream.write(pattEdgeBiDir % (subjNam, objNam, prp_col, qname(prop, grph)))
@@ -378,12 +357,14 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				# TODO: CGIPROP: Peut-on avoir plusieurs html ou sub-rdf ?? Il faut !
 				fieldsSet[subj].append( ( prop, obj ) )
 			else:
-				objNam = NodeToLabel(obj)
-				# C est la que si subjNam est dans une liste de listed_props_by_subj,
+				objNam = RdfNodeToDotLabel(obj)
+				# C est la que si subjNam est dans une liste de dictCollapsedSubjectsToObjectLists,
 				# il faut rajouter devant, le nom du record, c est a dire SON subjNam + "_table_rdf_data:".
-				if subjNam in ListedLeavesToRootLabels:
+				try:
 					# Syntax with colon required by DOT.
-					subjNam = "rec_" + ListedLeavesToRootLabels[ subjNam ] + ":" + subjNam
+					subjNam = "rec_" + dictCollapsedObjectLabelsToSubjectLabels[ subjNam ] + ":" + subjNam
+				except KeyError:
+					pass
 
 				stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
 		elif obj == None:
@@ -398,26 +379,35 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# Ou bien pour ces proprietes, on recree un entity.py ??
 			fieldsSet[subj].append( ( prop, cgi.escape(obj) ) )
 
-	logfil.write( TimeStamp()+" Rdf2Dot: Replacing vectors: PropsAsLists=%d.\n" % ( len( PropsAsLists ) ) )
-	logfil.flush()
+	logfil.write( TimeStamp()+" Rdf2Dot: Replacing vectors: CollapsedProperties=%d.\n" % ( len( CollapsedProperties ) ) )
 
 	# Maintenant, on remplace chaque vecteur par un seul gros objet, contenant une table HTML.
 	# TODO: Unfortunately, the prop is lost, which implies that all children are mixed together.
-	if len( PropsAsLists ) > 0:
-		logfil.write( TimeStamp()+" Rdf2Dot: listed_props_by_subj=%d.\n" % ( len( listed_props_by_subj ) ) )
-		logfil.flush()
+	if CollapsedProperties :
+		logfil.write( TimeStamp()+" Rdf2Dot: dictCollapsedSubjectsToObjectLists=%d.\n" % ( len( dictCollapsedSubjectsToObjectLists ) ) )
 
-		for subjUrl, nodLst in six.iteritems(listed_props_by_subj):
-			subjNam = NodeToLabel(subjUrl)
+		for subjUrl, nodLst in six.iteritems(dictCollapsedSubjectsToObjectLists):
+			subjNam = RdfNodeToDotLabel(subjUrl)
 
 			subjNamTab = "rec_" + subjNam
-			if subjNam in ListedLeavesToRootLabels:
-				subjNam = "rec_" + ListedLeavesToRootLabels[ subjNam ] + ":" + subjNam
+			try:
+				# TODO: Cette logique ajoute parfois un niveau de noeud inutile.
+				# Plus exactement, ca duplique un noeud.
+				# Ou plus exactement, le noed est represente par deux objects graphiques:
+				# * Un qui a les scripts.
+				# * Un autre qui a la liste HTML qu on fabrique.
+				# => Peut-on imaginer de melanger les deux ??
+				# TODO: Mieux factoriser les "rec_".
+				# Dans WritePatterns: Ajouter le nom du noeud au label.
+				# En fait je crois que "rec_" est inutile ???
+				subjNam = "rec_" + dictCollapsedObjectLabelsToSubjectLabels[ subjNam ] + ":" + subjNam
+			except KeyError:
+				pass
 
+			# Point from the subject to the table containing the objects.
 			stream.write(pattEdgeOrien % (subjNam, subjNamTab, "GREEN", "RDF data"))
 
-			( labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( subjUrl )
-
+			( labText, subjEntityGraphicClass, entity_id) = lib_naming.ParseEntityUri( subjUrl )
 
 			# Probleme avec les champs:
 			# Faire une premiere passe et reperer les fields, detecter les noms des colonnes, leur attribuer ordre et indice.
@@ -471,33 +461,52 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# sys.stderr.write("fieldsKeys=%s\n" % str(fieldsKeys) )
 
 			# This assumes that the header columns are sorted.
-			keyIndices = { key:numKeys for (numKeys,key) in enumerate(fieldsKeys,1) }
+			keyIndices = { nameKey:indexKey for (indexKey,nameKey) in enumerate(fieldsKeys,1) }
+
+			numberKeys = len(keyIndices)+1
 
 			# Apparently, no embedded tables.
-			dictLines = dict()
-			for obj in nodLst:
+			dictHtmlLines = dict()
+			for objUri in nodLst:
 				# One table per node.
-				subObjId = NodeToLabel(obj)
+				subObjId = RdfNodeToDotLabel(obj)
 
 				# Beware "\L" which should not be replaced by "<TABLE>" but this is not the right place.
-				subNodUri = obj.replace('&','&amp;')
+				subNodUri = objUri.replace('&','&amp;')
 
 				try:
-					(subObjNam, subEntityGraphicClass, subEntityId) = lib_naming.ParseEntityUriShort( obj )
+					(subObjNam, subEntityGraphicClass, subEntityId) = lib_naming.ParseEntityUriShort( objUri )
 				except UnicodeEncodeError:
-					sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( obj ) )
+					sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( objUri ) )
 					(subObjNam, subEntityGraphicClass, subEntityId) = ("Utf problem1","Utf problem2","Utf problem3")
-		
-				# Attention, on ne peut pas utiliser <b> avec les anciennes versions.
-				numKeys = len(keyIndices)+1
+
+				# sys.stderr.write("subEntityGraphicClass=%s\n"%subEntityGraphicClass)
+
+				# If this is a script, always displayed on white, even if reletd to a specific entity.
+				# THIS IS REALLY A SHAME BECAUSE WE JUST NEED THE ORIGINAL PROPERTY.
+				if objUri.find("entity.py") < 0:
+					objColor = "#FFFFFF"
+				else:
+					objColor = lib_patterns.EntityClassToColor(subEntityGraphicClass)
+				# This lighter cololor for the first column.
+				objColorLight = lib_patterns.ColorLighter(objColor)
+
+
+				# Some colors a bit clearer ?
+				# Take the original color of the class ?
+				td_bgcolor_plain = '<td BGCOLOR="%s" ' % objColor
+				td_bgcolor_light = '<td BGCOLOR="%s" ' % objColorLight
+				td_bgcolor = td_bgcolor_plain
 
 				# Some columns might not have a value. The first column is for the key.
-				columns = ["<td></td>"] * numKeys
+				columns = [ td_bgcolor + " ></td>" ] * numberKeys # SHOULD NOT HAPPEN
 
 				# Just used for the vertical order of lines, one line per object.
 				title = ""
+
 				# TODO: CGIPROP. This is not a dict, the same key can appear several times ?
-				for ( key, val ) in fieldsSet[obj]:
+				for ( key, val ) in fieldsSet[objUri]:
+					idxKey = keyIndices[key]
 
 					if key == pc.property_information:
 						# This can be a short string only.
@@ -521,26 +530,18 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 						# TODO: CGIPROP
 						# Les liens externes peuvent etre affiches de plusieurs facons:
 						# - Une colonne par titre de lien: "YAWN", "Sub-dir", "sub-classes","MIME" ...
-						#   Oui mais que met-on pour visualiser le lien dans la celleue ? On repete ?
-						# - Une seule colonne, et on concatene les liens externes: Ca prend moins de place.
-						# => DONC, A FAIRE:
-						# - On se garde la possibilite d avoir plusieurs colonnes avec traitement special.
-						# - On extrait de l'url le texte du lien, de facon predefinie, ce qui est possible
-						#   car c est nous qui les ajoutons.
-						# - Un objet peut avoir plusieurs pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2
 
 						valTitle = ExternalToTitle(val)
-						tmpCell = '<td href="%s" align="left" >%s</td>' % ( val , valTitle )
+						tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitle )
 					else:
 						try:
 							float(val)
-							# Not sure this works ...
-							tmpCell = "<td align='right'>%s</td>" % val
+							tmpCell = td_bgcolor + 'align="right">%s</td>' % val
 						except:
 							# Wraps the string if too long. Can happen only with a literal.
-							tmpCell = "<td align='left'>%s</td>" % lib_exports.StrWithBr(val)
+							tmpCell = td_bgcolor + 'align="left">%s</td>' % lib_exports.StrWithBr(val)
 
-					idxKey = keyIndices[key]
+					# idxKey = keyIndices[key]
 					columns[ idxKey ] = tmpCell
 
 
@@ -549,11 +550,12 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				else:
 					title_key = subObjNam
 
+
 				# Maybe the first column is a literal ?
 				if subEntityId != "PLAINTEXTONLY":
-					columns[0] = '<td port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
+					columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
 				else:
-					columns[0] = '<td port="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri )
+					columns[0] = td_bgcolor_light + 'port="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri )
 
 				# Several scripts might have the same help text, so add a number.
 				# "Title" => "Title"
@@ -562,31 +564,35 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 				# Beware that it is quadratic with the number of scripts with identical info.
 				title_idx = 2
 				title_uniq = title_key
-				while title_uniq in dictLines:
+				while title_uniq in dictHtmlLines:
 					title_uniq = "%s/%d" % ( title_key, title_idx )
 					title_idx += 1
 
-				# TODO: L'ordre est base sur les chaines mais devrait etre base sur
-				# TODO: ... contenu. Exemple:
+				# TODO: L'ordre est base sur les chaines mais devrait etre base sur le contenu. Exemple:
 				# TODO: "(TUT_UnixProcess) Handle=10" vient avant "(TUT_UnixProcess) Handle=2"
 				# TODO: title_uniq devrait etre plutot la liste des proprietes.
-				# TODO: By clicking on the coolumn names, we could change the order.
-				dictLines[ title_uniq ] = "".join( columns )
+				# TODO: By clicking on the column names, we could change the order.
+				dictHtmlLines[ title_uniq ] = "".join( columns )
 
 			# Replace the first column by more useful information.
 			numNodLst = len(nodLst)
+
+			# TODO: Compute this once for all.
+			eltNam = subjEntityGraphicClass.split("/")[-1]
+			if not eltNam:
+				# TODO: This is not the right criteria. Must select if we are listing scripts.
+				eltNam = "script"
 			if numNodLst == 1:
-				txtElements = "1 element"
+				txtElements = "1 %s" % eltNam
 			else:
-				txtElements = "%d elements" % numNodLst
+				txtElements = "%d %ss" % ( numNodLst, eltNam )
 			header = '<td border="1">' + lib_exports.DotBold(txtElements) + "</td>"
 
 			# TODO: Replace each column name with a link which sorts the line based on this column.
-			# for key in fieldsKeys[1:]:
 			for key in fieldsKeys:
 				header += "<td border='1'>" + lib_exports.DotBold( qname(key,grph) ) + "</td>"
 			# With an empty key, it comes first when sorting.
-			dictLines[""] = header
+			dictHtmlLines[""] = header
 
 			# MAYBE SHOULD BE DONE TWICE !!!!! SEE ALSO ELSEWHERE !!!!
 			subjUrlClean = subjUrl.replace('&','&amp;')
@@ -596,16 +602,6 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# differents s'ils sont dans la meme relation avec un sujet identique ?
 			numFields = len(fieldsKeys)+1
 
-			# ATTENTION: entity_graphic_class doit etre du type des URI contenus dans la table, pas le contenant !!
-			try:
-				# This arbitrarily take the last class. Maybe use it to change the style of each line.
-				# Also, if these are subclasses of files, we could use a "folder" as shape.
-				# Priority for the title.
-				table_graphic_class = entity_graphic_class
-			except Exception:
-				# If this is not defined, take the last processed row.
-				table_graphic_class = subEntityGraphicClass
-
 			# The label might be truncated
 			helpText = "Help:" + labText
 
@@ -614,37 +610,38 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 			# same property. Unfortunately we have lost this property.
 			labText = lib_exports.TruncateInSpace(labText,30)
 			labTextWithBr = lib_exports.StrWithBr( labText )
-			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in PropsAsLists )
+			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in CollapsedProperties )
 
 			if entity_id == "PLAINTEXTONLY":
 				subjUrlClean = ""
 
-			lib_patterns.WritePatterned( stream, table_graphic_class, subjNamTab, helpText, "BLUE", subjUrlClean, numFields, labTextWithBr, dictLines )
+			# This color is the table's contour.
+			lib_patterns.WritePatterned( stream, subjEntityGraphicClass, subjNamTab, helpText, '"#000000"', subjUrlClean, numFields, labTextWithBr, dictHtmlLines )
 
 			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
 			# TODO: Si une cellule est identique jusqu a un delimiteur, idem, remplacer par '"'.
 
-	logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. nodes=%d\n" % len(nodes) )
+	logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. dictRdf2Dot=%d\n" % len(dictRdf2Dot) )
 
 	# Maintenant on affiche les noeuds qui restent.
-	for obj, nam in six.iteritems(nodes):
+	for objRdfNode, objLabel in six.iteritems(dictRdf2Dot):
 		# x contains something like: ns1:pid "3280"^^xsd:integer
 		# So this eliminates the namespace and the value type.
 		# TODO: This should removes the double-quotes surrounding the value.
 
-		if nam in ListedLeavesToRootLabels :
+		if objLabel in dictCollapsedObjectLabelsToSubjectLabels :
 			continue
 
-		props = FieldsToHtmlVertical( grph, fieldsSet[obj])
+		objPropsAsHtml = FieldsToHtmlVertical( grph, fieldsSet[objRdfNode])
 
-		labHRef = obj.replace('&','&amp;')
+		labHRef = objRdfNode.replace('&','&amp;')
 
 		try:
 			# TODO: Probleme ici: La chaine est deja codee pour HTML ce qui en rend le parsing different
 			# TODO: ... de celui d'un URL deja decode. DOMMAGE: On quote puis unquote !!!
-			(labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
+			(labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( unquote(objRdfNode) )
 		except UnicodeEncodeError:
-			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( obj ) )
+			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( objRdfNode ) )
 
 		# WritePatterned va recevoir un tableau de chaines de la forme "<td>jhh</td><td>jhh</td><td>jhh</td>"
 		# et c est lui qui va mettre des <tr> et </tr> de part et d'autre.
@@ -654,10 +651,11 @@ def Rdf2Dot( grph, logfil, stream, PropsAsLists ):
 		# Ca n'est utilise que temporairement le temps qu'on remplace les arguments CGI par de vrais Monikers WMI.
 		labTextClean = lib_exports.StrWithBr( labText.replace("&amp;amp;"," "))
 		# Two columns because it encompasses the key and the value.
-		lib_patterns.WritePatterned( stream, entity_graphic_class, nam, entity_graphic_class, NODECOLOR, labHRef, 2, labTextClean, props )
+
+		# This color is the object's contour.
+		lib_patterns.WritePatterned( stream, objEntityGraphClass, objLabel, objEntityGraphClass, '"#000000"', labHRef, 2, labTextClean, objPropsAsHtml )
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Leaving\n" )
-	logfil.flush()
 	stream.write("}\n")
 
 ################################################################################
@@ -757,9 +755,9 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 
 ################################################################################
 
+# The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
-
 def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
 	if mode == "html":
 		lib_exports.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph)
@@ -768,7 +766,7 @@ def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSub
 	elif mode == "rdf":
 		lib_exports.Grph2Rdf( grph)
 	else: # Or mode = "svg"
-		# Default value, because cannot have several CGI arguments in a SVG document (Bug ?).
+		# Default value, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
 		Grph2Svg( pageTitle, topUrl, errorMsg, isSubServer, parameters, dotLayout, grph )
 
 ################################################################################
@@ -867,46 +865,6 @@ def GetCallingModuleDoc():
 		sys.stderr.write("Caught when setting title:%s\n"%str(exc))
 		return str(exc)
 
-
-
-# At the moment, we have: xxx.py?xid=process:4588
-# We will have: xxx.py?xid=Win32_Process.Handle="123"
-# ou bien, avec escape():
-# xxx.py?xid=https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
-#
-# CgiEnv.GetParameter() applies only to CGI parameter.
-#
-# http://www.wbemsolutions.com/tutorials/DMTF/wbem-xmlcim.html
-#
-# //www.acme.com/root/cimv2
-# //www.acme.com/root/cimv2:CIM_RegisteredProfile
-# https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile
-# https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
-# 'Win32_SoftwareFeature.IdentifyingNumber="{0862D680-09AA-4B2D-8319-64C7E0BCC88D}",Name="Havana",ProductName="Havana",Version="1.0"'
-# Comparaison avec WBEM Uri: On voit qu'une reference est un URI dans le meme namespace.
-# CIM_IndicationSubscription.Filter=(reference)"CIM_IndicationFilter.SystemCreationClassName=(string)\"CIM_ComputerSystem\",SystemName=(string)\"server001.acme.com\",CreationClassName=(string)\"CIM_IndicationHandlerCIMXML\",Name=(string)\"Filter01\"",Handler=(reference)"CIM_IndicationHandlerCIMXML.SystemCreationClassName=(string)\"CIM_ComputerSystem\",SystemName=(string)\"server001.acme.com\",CreationClassName=(string)\"CIM_IndicationHandlerCIMXML\",Name=(string)\"Handler01\""
-#
-# On peut utiliser urlparse, avec
-#
-# >>> urlparse.urlparse( "https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile")
-# ParseResult(scheme='https', netloc='jdd:test@acme.com:5959', path='/cimv2:CIM_RegisteredProfile')
-#
-# >>> urlparse.urlparse( 'Win32_SoftwareFeature.IdentifyingNumber="{0862D680-09AA-4B2D-8319-64C7E0BCC88D}",Name="Havana",ProductName="Havana",Version="1.0"')
-# ParseResult(scheme='', netloc='', path='Win32_SoftwareFeature.IdentifyingNumber="{0862D680-09AA-4B2D-8319-64C7E0BCC88D}",Name="Havana",ProductName="Havana",Version="1.0"')
-#
-# >>> urlparse.urlparse('https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"')
-# ParseResult(scheme='https', netloc='jdd:test@acme.com:5959', path='/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"')
-#
-# >>> urlparse.urlparse('//127.0.0.1/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"')
-# ParseResult(scheme='', netloc='127.0.0.1', path='/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"')
-#
-# Ou alors, on explose le WBEM Uri pour l'expliciter:
-# xxx.py?scheme=https&netloc=jdd:test@acme.com:5959&namespace=cimv2&class=CIM_RegisteredProfile&InstanceID="acme:1"
-# - On est oblige de parser nous-memes l'URI au lieu de s'en remettre a urlparse.
-# - Ca n'exige pas que WMI et WBEM aient les memes uris. Ca semble etre le cas.
-# - On ne peut pas utiliser l'URI aveuglement.
-# - Collision avec autres variables CGI, melange de variables qui ne sont pas sur le meme plan.
-#
 # This parses the CGI environment variables which define an entity.
 class CgiEnv():
 	def __init__(self, parameters = {}, can_process_remote = False ):
@@ -951,7 +909,7 @@ class CgiEnv():
 			globalCanProcessRemote = False
 
 		if can_process_remote != globalCanProcessRemote:
-			sys.stderr.write("INCONSISTENCY CanProcessRemote\n")
+			sys.stderr.write("INCONSISTENCY CanProcessRemote\n") # ... which is not an issue.
 			can_process_remote = True
 
 		self.m_can_process_remote = can_process_remote
@@ -978,8 +936,8 @@ class CgiEnv():
 
 		ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % ( sys.argv[0], self.m_entity_host ) )
 
-	# We avoid having several CGI arguments because Dot/Graphviz wants
-	# no ampersand "&" in the URLs.
+	# We avoid several CGI arguments because Dot/Graphviz wants no ampersand "&" in the URLs.
+	# This might change because I suspect bugs in old versions of Graphviz.
 	def GetXid(self):
 		try:
 			xid = self.m_arguments["xid"].value
@@ -1167,8 +1125,7 @@ class CgiEnv():
 			splitKV = lib_util.SplitMoniker(self.m_entity_id)
 			sys.stderr.write("GetId splitKV=%s\n" % ( str( splitKV ) ) )
 
-			# If this class is defined in our ontology, then we know
-			# what is the first property.
+			# If this class is defined in our ontology, then we know the first property.
 			entOnto = lib_util.OntologyClassKeys(self.m_entity_type)
 			if entOnto:
 				keyFirst = entOnto[0]
@@ -1296,11 +1253,11 @@ class TmpFile:
 	def __del__(self):
 		try:
 			if self.Name:
-				sys.stderr.write("Deleting="+self.Name+"\n")
-				os.remove(self.Name)
+				sys.stderr.write("NOT Deleting="+self.Name+"\n")
+				######### os.remove(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
-				sys.stderr.write("About to del %s\n" % self.TmpDirToDel )
+				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
 				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
 					for name in files:
 						#os.remove(os.path.join(root, name))

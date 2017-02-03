@@ -5,13 +5,12 @@ import lib_util
 
 # We could also use dot record nodes.
 # On the other hand, it is convenient to have some control on the final SVG code.
-# NOTE: Could not set bgcolor for the shapes.
 
 #                                                shape        colorfill  colorbg    border is_rounded
 dictGraphParams = {
 	"addr"                                   : ( "rarrow",    "#FFFF99", "#FFFF99", 0, False ),
 	"CIM_Process"                            : ( "component", "#99FF88", "#99FF88", 0, False ),
-	"CIM_Directory"                          : ( "folder",    "#88BBFF", "#88BBFF", 0, False ),
+	"CIM_Directory"                          : ( "folder",    "#8899FF", "#8899FF", 0, False ),
 	# TODO: Not sure that ComposeTypes() will be kept. No real concept nor feature, not really used.
 	lib_util.ComposeTypes("CIM_DataFile","script")   : ( "box",       "#FFFF66", "#FFFF66", 0, False ),
 	"CIM_DataFile"                           : ( "note",      "#88BBFF", "#88BBFF", 0, False ),
@@ -30,6 +29,9 @@ dictGraphParams = {
 
 dfltGraphParams =                              ( "none",      "#FFFFFF", "#99BB88", 1, False )
 
+# See this key in lib_common.py.
+dictGraphParams["scripts_list"] = dfltGraphParams
+
 # shape        colorfill  colorbg    border is_rounded
 # On imagine une fonction par attribut et par module, sous-module etc...
 # sqlite.shape() qui est supersedee par sqlite.table.shape() etc ...
@@ -37,6 +39,39 @@ dfltGraphParams =                              ( "none",      "#FFFFFF", "#99BB8
 # On part du nivdeau le plus bas et on remonte jusqu'a trouver la fonction.
 # On met tout dans un cache evidemment.
 # On generalise la logique pour pouvoir l'appliquer a tous les attributs.
+
+# This color is used to generate HTML code in DOT.
+def EntityClassToColor(subEntityGraphicClass):
+	if subEntityGraphicClass:
+		arrAttrs = TypeToGraphParams(subEntityGraphicClass)
+		bgCol = arrAttrs[1]
+		return bgCol
+	else:
+		# If this is a script.
+		return "#FFFFFF"
+
+
+def ColorLighter(objColor):
+	def ColorLighterNocache(objColor):
+		def Lighter(X):
+			dec = int(X,16)
+			if dec < 13:
+				dec +=2
+			elif dec == 14:
+				dec = 15
+			return "0123456789ABCDEF"[dec]
+
+		objColorLight = "#" + Lighter(objColor[1]) + objColor[2] + Lighter(objColor[3]) + objColor[4]  + Lighter(objColor[5]) + objColor[6]
+		return objColorLight
+
+	try:
+		return ColorLighter.CacheMap[objColor]
+	except KeyError:
+		lig = ColorLighterNocache(objColor)
+		ColorLighter.CacheMap[objColor] = lig
+		return lig
+
+ColorLighter.CacheMap = dict()
 
 
 # Returns graphic parameters given a type without namespace.
@@ -101,10 +136,7 @@ def TypeToGraphParamsNoCacheOneFunc(typeWithoutNS,gFuncName):
 
 	return None
 
-
-
-
-# This returns an array of format string which are used to generate HTML code.
+# This returns an array of format strings which are used to generate HTML code.
 def BuildPatternNode(tp):
 	shape  = tp[0]
 	colorfill  = tp[1]
@@ -131,7 +163,8 @@ def BuildPatternNode(tp):
 
 	return [fmtWithUri,fmtWithNoUri]
 
-# TODO: Not sure this is useful as dictGraphParams can fulfil the same need.
+# TODO: We could avoid one stage of cache. But this add extra flexibility
+# if there are more parameters than only the class.
 dictTypeToPatterns = {}
 
 # Returns a HTML pattern given an entity type. Similar to TypeToGraphParams()
@@ -145,9 +178,10 @@ def PatternNode(typeFull):
 	try:
 		return dictTypeToPatterns[typeFull]
 	except KeyError:
+		# This removes the WBEM or WMI namespace.
 		type = typeFull.split(":")[-1]
-		tp = TypeToGraphParams(type)
-		pattArray = BuildPatternNode(tp)
+		arrayGraphParams = TypeToGraphParams(type)
+		pattArray = BuildPatternNode(arrayGraphParams)
 		dictTypeToPatterns[typeFull] = pattArray
 		return pattArray
 
@@ -158,7 +192,7 @@ def WritePatterned( stream, type, subjNamTab, helpText, color, labHRef, numField
 	# Le cadre est celui du titre.
 
 	try:
-		if labHRef != "":
+		if labHRef:
 			stream.write( pattArray[0] % ( subjNamTab, helpText, color, labHRef, numFields, labText) )
 		else:
 			stream.write( pattArray[1] % ( subjNamTab, helpText, color, numFields, labText ) )
