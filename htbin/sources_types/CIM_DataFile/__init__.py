@@ -28,31 +28,29 @@ def AddMagic( grph, filNode, entity_ids_arr ):
 		sys.stderr.write("Type error:%s\n" % (filNam) )
 		return
 
+# Transforms a "stat" date into something which can be printed.
 def IntToDateLiteral(timeStamp):
 	dtStr = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S')
 	return rdflib.Literal(dtStr)
 
-def AddStatNode( grph, filNode, info ):
+# Adds to the node of a file some information taken from a call to stat().
+def AddStatNode( grph, filNode, infoStat ):
 	# st_size: size of file, in bytes.
-	grph.add( ( filNode, pc.property_file_size, rdflib.Literal(info.st_size) ) )
+	grph.add( ( filNode, pc.property_file_size, rdflib.Literal(infoStat.st_size) ) )
 
-	grph.add( ( filNode, pc.property_last_access,          IntToDateLiteral(info.st_atime) ) )
-	grph.add( ( filNode, pc.property_last_change,          IntToDateLiteral(info.st_mtime) ) )
-	grph.add( ( filNode, pc.property_last_metadata_change, IntToDateLiteral(info.st_ctime) ) )
+	grph.add( ( filNode, pc.property_last_access,          IntToDateLiteral(infoStat.st_atime) ) )
+	grph.add( ( filNode, pc.property_last_change,          IntToDateLiteral(infoStat.st_mtime) ) )
+	grph.add( ( filNode, pc.property_last_metadata_change, IntToDateLiteral(infoStat.st_ctime) ) )
 
 def AddStat( grph, filNode, filNam ):
-	statObj = None
 	try:
 		statObj = os.stat(filNam)
+		AddStatNode( grph, filNode, statObj )
 	except Exception:
+		# If there is an error, displays the message.
 		exc = sys.exc_info()[1]
 		msg = str(exc)
-
-	# If there is an error, displays the message.
-	if statObj == None:
 		grph.add( ( filNode, pc.property_information, rdflib.Literal(msg) ) )
-	else:
-		AddStatNode( grph, filNode, statObj )
 
 # BEWARE: This link always as a literal. So it is simpler to display
 # in an embedded HTML table.
