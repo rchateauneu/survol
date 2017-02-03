@@ -69,8 +69,6 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
 
-	# entity_host = cgiEnv.GetHost()
-
 	# Maybe this is a disk name, on Windows, such as "A:", "C:" etc...
 	if lib_util.isPlatformWindows :
 		# Remove the trailing backslash.
@@ -88,10 +86,11 @@ def Main():
 
 	if filNam != '/':
 		# TODO: Does it work on Windows ???
-		splitdir = filNam.split('/')
-		topdir = '/'.join( splitdir[:-1] )
-		if topdir != "":
-			# sys.stderr.write("topdir=%s\n"%(topdir))
+		#splitdir = filNam.split('/')
+		#topdir = '/'.join( splitdir[:-1] )
+		topdir = os.path.dirname(filNam)
+		sys.stderr.write("topdir=%s\n"%(topdir))
+		if topdir:
 			topdirNode = lib_common.gUriGen.DirectoryUri(topdir )
 			grph.add( ( topdirNode, pc.property_directory, filNode ) )
 
