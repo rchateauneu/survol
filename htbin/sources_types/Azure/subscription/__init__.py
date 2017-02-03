@@ -1,5 +1,5 @@
 """
-Azure subscription"
+Azure subscription
 """
 
 import sys
