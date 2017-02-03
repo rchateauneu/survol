@@ -198,12 +198,14 @@ def EntityToLabel(entity_type,entity_ids_concat, entity_host):
 
 
 # TODO: Hard-coded but OK for the moment.
+# Use the "__doc__" string in each file.
 scripts_to_titles = {
 	"portal_wbem.py": "WBEM server ",
 	"portal_wmi.py": "WMI server ",
 	"class_wbem.py": "WBEM class",
 	"class_wmi.py": "WMI class",
 	"class_type_all.py": "Generic class",
+	"file_directory.py": "Directory content",
 	"objtypes.py": "Classes hierarchy",
 	"objtypes_wbem.py": "WBEM subclasses of ",
 	"objtypes_wmi.py": "WMI subclasses of ",
@@ -310,7 +312,7 @@ def ParseEntityUri(uri,longDisplay=True):
 		entity_graphic_class = ""
 		entity_id = "PLAINTEXTONLY"
 		entity_label = UriToTitle(uprs)
-		# TODO: " " are replaced by "%20". Why ?
+		# TODO: " " are replaced by "%20". Why ? So change back.
 		entity_label = entity_label.replace("%20"," ")
 
 	# TODO: ATTENTION !!!! ON L A RETIRE ICI UNIQUEMENT CAR C ETAIT DEJA FAIT
