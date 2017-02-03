@@ -798,7 +798,6 @@ globalOutMach = OutputMachineCgi()
 
 # Default destination for the RDF, HTML or SVG output.
 def DfltOutDest():
-	# return outputHttp
 	return globalOutMach.OutStream()
 
 # For asynchronous display.
@@ -835,24 +834,11 @@ def WrtAsUtf(str):
 
 def WrtHeader(mimeType):
 	globalOutMach.HeaderWriter(mimeType)
-	# HttpHeader(DfltOutDest(),mimeType)
 
 ################################################################################
 
 def GetEntityModuleNoCache(entity_type):
 	# sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
-
-	#try:
-	#	# Beware: No directories here, for the moment:
-	#	# "revlib/lib_entities/lib_entity_dbus_connection.py"
-	#	entity_lib = ".lib_entity_" + entity_type
-	#	entity_module = importlib.import_module( entity_lib, "lib_entities")
-	#	sys.stderr.write("Loaded entity-specific library:"+entity_lib+"\n")
-	#	return entity_module
-	#except ImportError:
-	#	exc = sys.exc_info()[1]
-	#	sys.stderr.write("Loading (%s):%s\n"%(entity_lib,str(exc)))
-	#	pass
 
 	try:
 		# Here, we want: "sources_types/Azure/location/__init__.py"
@@ -860,7 +846,6 @@ def GetEntityModuleNoCache(entity_type):
 		# This works.
 		# entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
 
-		# entity_type_split = ["Azure","subscription"]
 		entity_type_split = entity_type.split("/")
 		if len(entity_type_split) > 1:
 			entity_package = "sources_types." + ".".join(entity_type_split[:-1])
@@ -868,9 +853,9 @@ def GetEntityModuleNoCache(entity_type):
 		else:
 			entity_package = "sources_types"
 			entity_name = "." + entity_type
-		sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+		# sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
 		entity_module = importlib.import_module( entity_name, entity_package)
-		sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+		# sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
 		return entity_module
 
 	except ImportError:
@@ -931,7 +916,7 @@ def FromModuleToDoc(importedMod,filDfltText):
 # This creates a non-clickable node. The text is taken from __doc__ if it exists,
 # otherwise the file name is beautifuled.
 def DirDocNode(argDir,dir):
-	sys.stderr.write("DirDocNode argDir=%s dir=%s\n"%(argDir,dir))
+	# sys.stderr.write("DirDocNode argDir=%s dir=%s\n"%(argDir,dir))
 	fullModule = argDir + "." + dir
 
 	try:
