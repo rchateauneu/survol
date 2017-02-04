@@ -144,7 +144,9 @@ def AddInstallSource(grph,node,winProd):
 	grph.add( (node, propProductInstallSource, nodeInstallSource ) )
 
 def AddInfo(grph,node,entity_ids_arr):
-	productIdentifyingNumber = six.u(entity_ids_arr[0])
+	# BEWARE: "{}" have been stripped because they crash graphviz
+	# ... but they did not in the "past". Why ?
+	productIdentifyingNumber = "{" + six.u(entity_ids_arr[0]) + "}"
 
 	sys.stderr.write("productIdentifyingNumber=%s\n"%str(productIdentifyingNumber))
 	try:
@@ -191,12 +193,14 @@ def AddInfo(grph,node,entity_ids_arr):
 
 		try:
 			if winProd.URLInfoAbout:
-				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), rdflib.Literal(winProd.URLInfoAbout) ) )
+				# This is an URL so we make it clickable
+				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), rdflib.URIRef(winProd.URLInfoAbout) ) )
 		except AttributeError:
 			pass
 		try:
 			if winProd.URLUpdateInfo:
-				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), rdflib.Literal(winProd.URLUpdateInfo) ) )
+				# This is an URL so we make it clickable
+				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), rdflib.URIRef(winProd.URLUpdateInfo) ) )
 		except AttributeError:
 			pass
 
