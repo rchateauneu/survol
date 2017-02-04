@@ -506,8 +506,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 				# TODO: CGIPROP. This is not a dict, the same key can appear several times ?
 				for ( key, val ) in fieldsSet[objUri]:
-					idxKey = keyIndices[key]
-
 					if key == pc.property_information:
 						# This can be a short string only.
 						title += val
@@ -541,9 +539,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 							# Wraps the string if too long. Can happen only with a literal.
 							tmpCell = td_bgcolor + 'align="left">%s</td>' % lib_exports.StrWithBr(val)
 
-					# idxKey = keyIndices[key]
+					idxKey = keyIndices[key]
 					columns[ idxKey ] = tmpCell
-
 
 				if title:
 					title_key = title
@@ -603,7 +600,10 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			numFields = len(fieldsKeys)+1
 
 			# The label might be truncated
-			helpText = "Help:" + labText
+			if subjEntityGraphicClass:
+				helpText = "List of " + subjEntityGraphicClass + " objects in " + labText
+			else:
+				helpText = "List of scripts in " + labText
 
 			# TODO: Le titre et le contenu ne sont pas forcement de la meme classe.
 			# labTextWithBr is the first line of the table containing nodes linked with the
@@ -652,8 +652,13 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		labTextClean = lib_exports.StrWithBr( labText.replace("&amp;amp;"," "))
 		# Two columns because it encompasses the key and the value.
 
+		if objEntityGraphClass:
+			helpText = labTextClean + " is a " + objEntityGraphClass
+		else:
+			helpText = "Script " + labTextClean
+
 		# This color is the object's contour.
-		lib_patterns.WritePatterned( stream, objEntityGraphClass, objLabel, objEntityGraphClass, '"#000000"', labHRef, 2, labTextClean, objPropsAsHtml )
+		lib_patterns.WritePatterned( stream, objEntityGraphClass, objLabel, helpText, '"#000000"', labHRef, 2, labTextClean, objPropsAsHtml )
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Leaving\n" )
 	stream.write("}\n")
