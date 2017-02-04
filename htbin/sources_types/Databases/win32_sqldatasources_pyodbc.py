@@ -13,6 +13,7 @@ from lib_properties import pc
 import pyodbc
 from sources_types.odbc import dsn as survol_odbc_dsn
 
+Usable = lib_util.UsableWindows
 
 # TODO: Maybe it should be called enumerate_odbc_something ?
 
@@ -31,9 +32,6 @@ def display_data_sources(grph):
 		grph.add( (nodeDsn, pc.property_odbc_driver, rdflib.Literal(driver) ) )
 
 def Main():
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("ODBC Data sources only on Windows platforms")
-
 	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()

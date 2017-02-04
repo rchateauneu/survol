@@ -14,6 +14,8 @@ import odbc
 
 from sources_types.odbc import dsn as survol_odbc_dsn
 
+Usable = lib_util.UsableWindows
+
 # TODO: Maybe this script should be renamed enumerate_odbc_something ?
 
 # https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-SQL-Server-from-Windows
@@ -54,9 +56,6 @@ def show_odbc_sources(grph):
 	DisplayDsns(grph,odbc.SQL_FETCH_FIRST_SYSTEM,"System")
 
 def Main():
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("ODBC Data sources only on Windows platforms")
-
 	cgiEnv = lib_common.CgiEnv()
 
 	grph = rdflib.Graph()
