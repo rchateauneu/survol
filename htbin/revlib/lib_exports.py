@@ -107,6 +107,9 @@ def DotBold(str):
 def DotUL(str):
 	return "<u>%s</u>" % str if new_graphiz else str
 
+def DotIt(str):
+	return "<i>%s</i>" % str if new_graphiz else str
+
 ################################################################################
 
 from lib_util import WrtAsUtf
@@ -302,7 +305,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		if len( parameters ) > 0 :
 			urlEdit = ModedUrl("edit")
 			urlEditReplaced = UrlToSvg( urlEdit )
-			stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "'>" + DotUL( "Parameters edition" ) + "</td></tr>" )
+			stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "' align='left'>" + DotBold(DotUL( "Edit parameters" )) + "</td></tr>" )
 
 		arguments = cgi.FieldStorage()
 		for keyParam,valParam in parameters.items():
@@ -310,8 +313,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 				actualParam = arguments[keyParam].value
 			except KeyError:
 				actualParam = valParam
-			stream.write('<tr><td>%s</td><td>%s</td></tr>' % ( keyParam, actualParam ) )
-
+			stream.write('<tr><td>%s:</td><td>%s</td></tr>' % ( keyParam, DotIt(actualParam) ) )
 
 	#	stream.write("""
 	#  rank=sink;
