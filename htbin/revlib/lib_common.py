@@ -649,16 +649,17 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 		# Les ampersand sont doubles intentionnelent car ils ensuite remplaces deux fois.
 		# Ca n'est utilise que temporairement le temps qu'on remplace les arguments CGI par de vrais Monikers WMI.
-		labTextClean = lib_exports.StrWithBr( labText.replace("&amp;amp;"," "))
+		labTextNoAmp = labText.replace("&amp;amp;"," ")
+		labTextClean = lib_exports.StrWithBr( labTextNoAmp)
 		# Two columns because it encompasses the key and the value.
 
 		if objEntityGraphClass:
-			helpText = labTextClean + " is a " + objEntityGraphClass
+			helpText = labTextNoAmp + " is a " + objEntityGraphClass
 		else:
 			if labTextClean.startswith("http"):
-				helpText = "External URL " + labTextClean
+				helpText = "External URL " + labTextNoAmp
 			else:
-				helpText = "Script " + labTextClean
+				helpText = "Script " + labTextNoAmp
 
 		# This color is the object's contour.
 		lib_patterns.WritePatterned( stream, objEntityGraphClass, objLabel, helpText, '"#000000"', labHRef, 2, labTextClean, objPropsAsHtml )
@@ -832,7 +833,7 @@ def GuessDisplayMode(log):
 		pass
 
 	mode = ""
-	log.write("Default mode=%s\n"% (mode) )
+	log.write("GuessDisplayMode: Default mode=%s\n"% (mode) )
 	return mode
 
 ################################################################################
@@ -1262,7 +1263,7 @@ class TmpFile:
 		try:
 			if self.Name:
 				sys.stderr.write("NOT Deleting="+self.Name+"\n")
-				######### os.remove(self.Name)
+				os.remove(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
 				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
