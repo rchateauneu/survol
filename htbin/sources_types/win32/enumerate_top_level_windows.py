@@ -11,11 +11,8 @@ import psutil
 import lib_common
 import lib_util
 from lib_properties import pc
-from sources_types import Win32_Window
 from sources_types import CIM_Process
 
-#import win32api
-#import win32con
 import win32gui
 import win32process
 
@@ -37,26 +34,34 @@ def Main():
 	topWindowsHnd = []
 	win32gui.EnumWindows(windowEnumerationHandler, topWindowsHnd)
 
+	prpProcToWindow = lib_common.MakeProp("Top-level window")
+
+	def PidToNode(pid):
+		try:
+			nodPid = PidToNode.Cache[pid]
+		except KeyError:
+			nodPid = lib_common.gUriGen.PidUri(pid)
+			PidToNode.Cache[pid] = nodPid
+
+			grph.add( (nodPid, pc.property_pid, rdflib.Literal(pid) ) )
+			grph.add( (rootNode, pc.property_host, nodPid ) )
+
+		return nodPid
+
+	PidToNode.Cache = dict()
+
+
 	sys.stdout.write("Len=%d\n"%len(topWindowsHnd))
 
-	# for hwnd in topWindowsHnd:
-	# 	wnText = win32gui.GetWindowText(hwnd)
-	# 	thrId, procId = win32process.GetWindowThreadProcessId(hwnd)
-	# 	sys.stdout.write("id=%d %s \n"%(procId,wnText))
-	#
-	# 	nodeWindow = Win32_Window.MakeUri()
-	#
-	# 	grph.add( (nodeWindow, pc.property_information, rdflib.Literal(winProd.InstalledProductName) ) )
-	# 	grph.add( (productNode, propWin32Version, nodeWindow ) )
-	#
-	# 	grph.add( ( lib_common.nodeMachine, propWin32Product, productNode ) )
-	#
-	# except:
-	# 	exc = sys.exc_info()[1]
-	# 	lib_common.ErrorMessageHtml("Caught:%s"%str(exc))
+	for hwnd in topWindowsHnd:
+		wnText = win32gui.GetWindowText(hwnd)
+		thrId, procId = win32process.GetWindowThreadProcessId(hwnd)
+		nodProcess = PidToNode(procId)
+		sys.stderr.write("procId=%d wnText=%s\n"%(procId,wnText))
+		if wnText:
+			grph.add( (nodProcess, prpProcToWindow, rdflib.Literal(wnText) ) )
 
-
-	cgiEnv.OutCgiRdf(grph )
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [prpProcToWindow])
 
 if __name__ == '__main__':
 	Main()
