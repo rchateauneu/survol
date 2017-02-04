@@ -655,7 +655,10 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		if objEntityGraphClass:
 			helpText = labTextClean + " is a " + objEntityGraphClass
 		else:
-			helpText = "Script " + labTextClean
+			if labTextClean.startswith("http"):
+				helpText = "External URL " + labTextClean
+			else:
+				helpText = "Script " + labTextClean
 
 		# This color is the object's contour.
 		lib_patterns.WritePatterned( stream, objEntityGraphClass, objLabel, helpText, '"#000000"', labHRef, 2, labTextClean, objPropsAsHtml )
