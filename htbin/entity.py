@@ -121,6 +121,10 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir):
 
 		currDirNode = lib_util.DirDocNode(argDir,dir)
 
+		if not currDirNode:
+			sys.stderr.write("currDirNode NONE: argDir=%s dir=%s\n"%(argDir,dir))
+			continue
+
 		sub_relative_dir = relative_dir + "/" + dir
 
 		sub_entity_class = ".".join( sub_relative_dir.split("/")[2:] )
