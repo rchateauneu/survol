@@ -579,10 +579,18 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			if not eltNam:
 				# TODO: This is not the right criteria. Must select if we are listing scripts.
 				eltNam = "script"
-			if numNodLst == 1:
-				txtElements = "1 %s" % eltNam
-			else:
-				txtElements = "%d %ss" % ( numNodLst, eltNam )
+
+
+			def ToPlural(eltNam,numNodLst):
+				if numNodLst == 1:
+					return eltNam
+				if eltNam[-1] == "s":
+					return eltNam + "es"
+				else:
+					return eltNam + "s"
+
+			eltNamPlural = ToPlural(eltNam,numNodLst)
+			txtElements = "%d %s" % ( numNodLst, eltNamPlural )
 			header = '<td border="1">' + lib_exports.DotBold(txtElements) + "</td>"
 
 			# TODO: Replace each column name with a link which sorts the line based on this column.
