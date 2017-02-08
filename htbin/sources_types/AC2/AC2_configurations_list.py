@@ -23,7 +23,8 @@ def Main():
 	except:
 		lib_common.ErrorMessageHtml("Cannot get environment variable value %s"%envVarNam )
 
-	nodeTopDir = lib_common.gUriGen.DirectoryUri( ac2TopDir )
+	# Directory on Windows.
+	nodeTopDir = lib_common.gUriGen.DirectoryUri( ac2TopDir.replace("\\","/") + "/confs")
 
 	rootNode = lib_common.nodeMachine
 
