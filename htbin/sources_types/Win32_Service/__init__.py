@@ -236,6 +236,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		if keySrv == "ProcessId":
 			if int(valSrv) != 0:
 				nodeProc = lib_common.gUriGen.PidUri(valSrv)
+				grph.add( (nodeProc, pc.property_pid, rdflib.Literal(valSrv) ) )
 				grph.add( (node,lib_common.MakeProp(keySrv), nodeProc ) )
 		elif keySrv == "ServiceType":
 			svcTypSrc = ""
