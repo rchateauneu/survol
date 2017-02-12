@@ -32,8 +32,12 @@ def Main():
 		proc_cwd = None
 		proc_msg = "Process %d: Cannot get current working directory: %s" % (top_pid,str(sys.exc_info()))
 	except AttributeError:
-		proc_cwd = proc_obj.cwd()
-		proc_msg = None
+		try:
+			proc_cwd = proc_obj.cwd()
+			proc_msg = None
+		except :
+			proc_cwd = None
+			proc_msg = "Process %d: Cannot get current working directory: %s" % (top_pid,str(sys.exc_info()[1]))
 
 	if proc_cwd:
 		node_cwd = lib_common.gUriGen.FileUri( proc_cwd )
