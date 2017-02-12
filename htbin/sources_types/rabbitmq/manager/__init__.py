@@ -1,5 +1,5 @@
 """
-Oracle database
+RabbitMQ configuration
 """
 
 import lib_common

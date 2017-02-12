@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-RabbitMQ queues on all virtual hosts
+RabbitMQ virtual hosts queues
 """
 
 import sys
@@ -27,7 +27,9 @@ def Main():
 
 	cgiEnv = lib_common.CgiEnv()
 
-	configNam = cgiEnv.GetId()
+	configNam = cgiEnv.m_entity_id_dict["Url"]
+	namVHost = cgiEnv.m_entity_id_dict["VHost"]
+
 
 	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
 
@@ -38,26 +40,20 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	# cl.is_alive()
+	nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
+	grph.add( ( nodeManager, lib_common.MakeProp("virtual host node"), nodVHost ) )
 
-	for quList in cl.get_queues():
+	for quList in cl.get_queues(namVHost):
 		namQueue = quList["name"]
 		sys.stdout.write("q=%s\n"%(namQueue))
 
-		namVHost = quList["vhost"]
-		nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
-
 		nodeQueue = survol_rabbitmq_queue.MakeUri(configNam,namVHost,namQueue)
-
-		grph.add( ( nodeQueue, lib_common.MakeProp("vhost"), rdflib.Literal(namVHost) ) )
-		grph.add( ( nodeQueue, lib_common.MakeProp("vhost node"), nodVHost ) )
 
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"queues",namVHost,namQueue)
 
 		grph.add( ( nodeQueue, lib_common.MakeProp("Management"), rdflib.URIRef(managementUrl) ) )
 
-
-		grph.add( ( nodeManager, lib_common.MakeProp("Queue"), nodeQueue ) )
+		grph.add( ( nodVHost, lib_common.MakeProp("Queue"), nodeQueue ) )
 
 
 	cgiEnv.OutCgiRdf(grph)
