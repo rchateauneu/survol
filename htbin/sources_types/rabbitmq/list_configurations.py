@@ -10,6 +10,7 @@ import lib_common
 import lib_util
 import lib_credentials
 
+from sources_types import rabbitmq
 from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 
 def Main():
