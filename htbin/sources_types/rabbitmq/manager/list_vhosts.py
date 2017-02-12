@@ -48,7 +48,7 @@ def Main():
 	# wledged_details': {u'rate': 0.0}, u'messages_ready_details': {u'rate': 0.0}, u'messages_unacknowledged': 0, u'messages_ready': 0}]
 	for objVHost in cl.get_all_vhosts():
 		namVHost = objVHost["name"]
-		sys.stdout.write("q=%s\n"%(namVHost))
+		sys.stderr.write("q=%s\n"%(namVHost))
 
 		nodeVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
 

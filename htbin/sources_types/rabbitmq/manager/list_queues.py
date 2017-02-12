@@ -42,7 +42,7 @@ def Main():
 
 	for quList in cl.get_queues():
 		namQueue = quList["name"]
-		sys.stdout.write("q=%s\n"%(namQueue))
+		sys.stderr.write("q=%s\n"%(namQueue))
 
 		namVHost = quList["vhost"]
 		nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)

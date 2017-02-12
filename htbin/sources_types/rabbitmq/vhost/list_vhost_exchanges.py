@@ -36,7 +36,7 @@ def Main():
 
 	for objExchange in cl.get_exchanges(namVHost):
 		namExchange = objExchange["name"]
-		sys.stdout.write("namExchange=%s\n"%(namExchange))
+		sys.stderr.write("namExchange=%s\n"%(namExchange))
 
 		nodeExchange = survol_rabbitmq_exchange.MakeUri(configNam,namVHost,namExchange)
 
