@@ -26,7 +26,7 @@ def Graphic_is_rounded():
 # 	},
 
 # We list ODBC sources because this is the only we have, to connect to sqlserver databases.
-# We do not list Oralce dbs so they have to be filtered out.
+# We do not list Oracle dbs so they have to be filtered out.
 
 def DatabaseEnvParams(processId):
 	# lstCredNams = lib_credentials.GetCredentialsNames('Oracle')
@@ -41,3 +41,5 @@ def DatabaseEnvParams(processId):
 
 	# Maybe this must be adjusted as key-value pairs ??
 	return ( "sqlserver/query", dsnList )
+
+# TODO: Add a link to https://sqlwebadmin.codeplex.com/ sqlwebadmin
