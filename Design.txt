@@ -309,6 +309,23 @@ Donc ?
 Pour les listes de scripts toujours mettre un fond blanc.
 Pour les listes en general utiliser le mode des liens, pas de l'objet parent ?
 
-Au lieu d afficher "Generic class", mettere si namespace ou bien classe etc...
-Repeter partout la meme chaine, c est pas terrible.
+============================================
 "class_type_all.py": "Generic class",
+Au lieu d afficher "Generic class", mettre si namespace ou bien classe etc...
+Ou bien "Sub class" ou "virtual class" si pas de direcotyr associe.
+Et dans obj_types.py, en -dessous de CIM_Process, on affiche "Generic class CIM_Process/memory_regex_search"
+alors que c'est un simple module sans ontologie.
+
+============================================
+Pour associer la meme entite vue de deux facons, on cree un lien avec la propriete pc.equivalent
+
+Exemple: le meme process sur Titi vue avec Wmi de ma machine, et en se connectant sur titi.
+
+Donc, si on va merger, on ajoutr ... ?
+
+Types dynamiques: on ajoute "/" et on remplit certains caches.
+Si un type n a pas d ontologie, on peut remonter la hierarchie des modules.
+Idem pour AddInfo. Meme logique que pour les attributs graphiques. Et d'ailleurs utiliser le meme code. Peut etre utiliser ca pour les fichiers, si certaines extensions tres specifiques doivent etre traitees a part.
+Liens symboliques: entite specifique.
+Premiere page: reprendre des elements du desktop pour le look:
+Et pourquoi les scripts AC2 dans  entity n ont pas la bonne couleur ?
