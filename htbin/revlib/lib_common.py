@@ -906,9 +906,20 @@ class CgiEnv():
 		callingUrl = lib_util.RequestUri()
 		parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False)
 		if parsedEntityUri[2]:
-			# If there is no object rto display.
+			# If there is an object to display.
+			# Practically, we are in the script "entity.py" and the single doc string is "Overview"
 			fullTitle = parsedEntityUri[0]
 			self.m_page_title += " " + fullTitle
+
+			# We assume there is an object, and therefore a class and its description.
+			entity_class = parsedEntityUri[1]
+
+			# Similar code in objtypes.py
+			entity_module = lib_util.GetEntityModule(entity_class)
+			entDoc = entity_module.__doc__
+			# The convention is the first line treated as a title.
+			if entDoc:
+				self.m_page_title += "\n" + entDoc
 
 		# If we can talk to a remote host to get the desired values.
 
