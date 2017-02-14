@@ -42,9 +42,6 @@ def Main():
 			entityNode = lib_util.EntityClassNode(intermedType)
 			grph.add( ( tmpNode, lib_common.pc.property_directory, entityNode ) )
 
-			if intermedType == "rpm":
-				sys.stderr.write("Doc %s\n" %(intermedType))
-
 			entity_module = lib_util.GetEntityModule(intermedType)
 			entDoc = entity_module.__doc__
 			if entDoc:
