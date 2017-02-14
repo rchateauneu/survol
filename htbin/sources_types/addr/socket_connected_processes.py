@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Processes connected to a socket
+Processes connected to socket
 """
 
 import re
