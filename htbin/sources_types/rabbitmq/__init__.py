@@ -42,7 +42,7 @@ def ManagementUrlPrefix(configNam,key="vhosts",nameKey1="",nameKey2=""):
 
 	vhostPrefix = prePrefix + key + "/" + effectiveVHost
 
-	if key == "vhosts":
+	if key in ["vhosts","connections"]:
 		return vhostPrefix
 
 	return vhostPrefix + "/" + nameKey2

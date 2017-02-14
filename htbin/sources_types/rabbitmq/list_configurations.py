@@ -2,6 +2,7 @@
 
 """
 List available RabbitMQ configurations
+Configurations detected in the private credentials file.
 """
 
 import sys

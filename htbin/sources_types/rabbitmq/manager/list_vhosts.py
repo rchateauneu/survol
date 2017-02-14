@@ -52,15 +52,15 @@ def Main():
 
 		nodeVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
 
-                try:
-		    grph.add( ( nodeVHost, lib_common.MakeProp("tracing"), rdflib.Literal(objVHost["tracing"]) ) )
-                except KeyError:
-                    pass
+		try:
+			grph.add( ( nodeVHost, lib_common.MakeProp("tracing"), rdflib.Literal(objVHost["tracing"]) ) )
+		except KeyError:
+			pass
 
-                try:
-		    grph.add( ( nodeVHost, lib_common.MakeProp("messages"), rdflib.Literal(objVHost["messages"]) ) )
-                except KeyError:
-                    pass
+		try:
+			grph.add( ( nodeVHost, lib_common.MakeProp("messages"), rdflib.Literal(objVHost["messages"]) ) )
+		except KeyError:
+			pass
 
 		# http://127.0.0.1:12345/#/vhosts//
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"vhosts",namVHost)
@@ -68,7 +68,7 @@ def Main():
 		grph.add( ( nodeVHost, lib_common.MakeProp("Management"), rdflib.URIRef(managementUrl) ) )
 
 
-		grph.add( ( nodeManager, lib_common.MakeProp("VHost"), nodeVHost ) )
+		grph.add( ( nodeManager, lib_common.MakeProp("Virtual host"), nodeVHost ) )
 
 
 	cgiEnv.OutCgiRdf(grph)
