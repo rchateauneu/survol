@@ -340,7 +340,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
 	# TODO: The "Top" url should be much more visible.
-	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotUL("Top") + '</td></tr>')
+	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotUL("Home") + '</td></tr>')
 
 	urlDirectAccess = UrlDirectAccess()
 	stream.write('<tr><td align="left" colspan="2" href="' + urlDirectAccess + '">' + DotUL("Direct access") + '</td></tr>')
