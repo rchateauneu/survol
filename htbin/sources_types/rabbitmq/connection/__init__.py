@@ -20,12 +20,9 @@ def MakeUri(urlName,connectionName):
 def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[0] + "/" + entity_ids_arr[1].replace(">","&gt;")
 
-def AddInfo(grph,node,entity_ids_arr):
-	namConfig = entity_ids_arr[0]
-	namConnection = entity_ids_arr[1]
-
-	# Adds the sockets, as their address is embedded in the connection name,
-	# so no query is needed.
+# Adds the sockets, as their address is embedded in the connection name,
+# so no need to query RabbitMQ library.
+def AddSockets(grph,node,namConnection):
 	namConnectSplit = namConnection.split("->")
 
 	def MakeSocketNode(hostColonPort):
@@ -39,6 +36,12 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	grph.add( ( node, pc.property_has_socket, lsocketNode ) )
 	grph.add( ( lsocketNode, pc.property_socket_end, rsocketNode ) )
+
+def AddInfo(grph,node,entity_ids_arr):
+	namConfig = entity_ids_arr[0]
+	namConnection = entity_ids_arr[1]
+
+	AddSockets(grph,node,namConnection)
 
 	# Then add the manager node.
 	nodeManager = survol_rabbitmq_manager.MakeUri(namConfig)
