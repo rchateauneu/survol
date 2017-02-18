@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Windows services
+Windows service dependencies
 """
 
 import os
