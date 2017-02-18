@@ -59,9 +59,9 @@ def Main():
 	# Starts a second session
 	cdb_fil = lib_common.TmpFile("CdbCommand","cdb")
 	cdb_fd = open(cdb_fil.Name,"w")
-	cdb_fd.write("lm\n")
-	cdb_fd.write("k\n")
-	cdb_fd.write("qd\n")
+	cdb_fd.write("lm\n")  # List loaded modules
+	cdb_fd.write("k\n")   # Display stack backtrace.
+	cdb_fd.write("qd\n")  # Quit and detach.
 	cdb_fd.close()
 
 	cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
@@ -90,6 +90,7 @@ def Main():
 
 	for dot_line in cdb_str.split('\n'):
 		# sys.stderr.write("Line=%s\n" % dot_line )
+		sys.stderr.write("dot_line=%s\n" % dot_line )
 
 		err_match = re.match(".*parameter is incorrect.*", dot_line )
 		if err_match:
@@ -97,7 +98,6 @@ def Main():
 
 		# 76590000 766a0000   kernel32   (export symbols)       C:\Windows\syswow64\kernel32.dll
 		match_lm = re.match( "[0-9a-fA-F]+ [0-9a-fA-F]+ +([^ ]*) +\(export symbols\) +(.*)", dot_line )
-		sys.stderr.write("dot_line=%s\n" % dot_line )
 		if match_lm:
 			moduleName = match_lm.group(1)
 			dllName = match_lm.group(2).strip().replace("\\","/") # .replace(":","COLON")
@@ -109,7 +109,6 @@ def Main():
 		# Another format, maybe because of a 64 bits machine.
 		# 00000000`02edff90 00000000`00000000 ntdll!RtlUserThreadStart+0x21
 		match_k = re.match( "[`0-9a-fA-F]+ [`0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line )
-		sys.stderr.write("dot_line=%s\n" % dot_line )
 		if match_k:
 			moduleName = match_k.group(1)
 			try:
