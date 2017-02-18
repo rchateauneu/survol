@@ -59,6 +59,9 @@ def Main():
 		nodProcess = PidToNode(procId)
 		sys.stderr.write("procId=%d wnText=%s\n"%(procId,wnText))
 		if wnText:
+			# wnText = wnText.encode("ascii" ,errors='replace')
+			# It drops the accent: "Livres, BD, Vidos"
+			wnText = wnText.decode("utf8" ,'ignore')
 			grph.add( (nodProcess, prpProcToWindow, rdflib.Literal(wnText) ) )
 
 	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [prpProcToWindow])
