@@ -228,7 +228,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 		try:
 			valInt = int(val)
-			return "<td align='right' balign='left'>%d</td>" % valInt
+			return "<td align='right' balign='left' border='0'>%d</td>" % valInt
 		except:
 			pass
 
@@ -239,7 +239,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				subTd = FormatPair(subKey,subVal, depth + 1)
 				if subTd:
 					subTable += "<tr>%s</tr>" % subTd
-			return "<td align='left' balign='left'><table border='0'>%s</table></td>" % subTable
+			return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
 
 		# Note: Recursive list are not very visible.
 		if isinstance(val, ( list, tuple ) ):
@@ -248,26 +248,30 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				for subElement in val:
 					subTd = FormatElement( subElement, depth + 1 )
 					subTable += "<tr>%s</tr>" % subTd
-				return "<td align='left' balign='left'><table border='0'>%s</table></td>" % subTable
+				return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
 			else:
 				subTable = ""
 				for subElement in val:
 					subTd = FormatElement( subElement, depth + 1 )
 					subTable += subTd
-				return "<td align='left' balign='left'><table border='1'><tr>%s</tr></table></td>" % subTable
+				return "<td align='left' balign='left' border='0'><table border='0'><tr>%s</tr></table></td>" % subTable
 		try:
 			decodVal = json.loads(val)
 			return FormatElement(decodVal, depth + 1)
 
 		except ValueError:
-			return "<td align='left' balign='left'>%s</td>" % lib_exports.StrWithBr(val)
+			# It is a string which cannot be converted to json.
+			val = cgi.escape(val)
+			return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
 		except TypeError:
-			exc = sys.exc_info()[1]
-			return "<td align='left' balign='left'>%s</td>" % lib_exports.StrWithBr(val+" "+str(exc))
+			# "Expected a string or buffer"
+			# It is not a string, so it could be a datetime.datetime
+			val = cgi.escape(str(val))
+			return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
 		return "FormatElement failure"
 
 	def FormatPair(key,val,depth=0):
-		colFirst = "<td align='left' valign='top'>%s</td>" % lib_exports.DotBold(key)
+		colFirst = "<td align='left' valign='top' border='0'>%s</td>" % lib_exports.DotBold(key)
 		colSecond = FormatElement(val,depth+1)
 		return colFirst + colSecond
 
@@ -290,7 +294,12 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, splitTxt )
 			else:
 				key_qname = qname( key, grph )
-				currTd = FormatPair( key_qname, val )
+				# This assumes: type(val) == 'rdflib.term.Literal'
+				# sys.stderr.write("FORMAT ELEMENT: %s\n" %(dir(val)))
+				if isinstance(val, (rdflib.term.Literal)):
+					currTd = FormatPair( key_qname, val.value )
+				else:
+					currTd = FormatPair( key_qname, val )
 
 			props[idx] = currTd
 			idx += 1
@@ -337,6 +346,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 			prp_col = lib_properties.prop_color(prop)
 
+			# ET EN PLUS CA MARCHE MAL JE CROIS.
 			# TODO: All commutative relation have bidirectional arrows.
 			# At the moment, only one property can be bidirectional.
 			# TODO: CGIPROP. On extrait la propriete "edge_style" ??
@@ -377,7 +387,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# Les proprietes comme "pid", on devrait plutot afficher le lien vers le process, dans la table ???
 			# Les URLs de certaines proprietes sont affichees en colonnes.
 			# Ou bien pour ces proprietes, on recree un entity.py ??
-			fieldsSet[subj].append( ( prop, cgi.escape(obj) ) )
+
+			fieldsSet[subj].append( ( prop, obj ) )
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Replacing vectors: CollapsedProperties=%d.\n" % ( len( CollapsedProperties ) ) )
 
@@ -550,8 +561,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 				# Maybe the first column is a literal ?
 				if subEntityId != "PLAINTEXTONLY":
+					# WE SHOULD PROBABLY ESCAPE HERE TOO.
+					# title_key = cgi.escape(title_key)
 					columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
 				else:
+					subNodUri = cgi.escape(subNodUri)
 					columns[0] = td_bgcolor_light + 'port="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri )
 
 				# Several scripts might have the same help text, so add a number.
@@ -1282,7 +1296,7 @@ class TmpFile:
 		try:
 			if self.Name:
 				sys.stderr.write("NOT Deleting="+self.Name+"\n")
-				os.remove(self.Name)
+				#### os.remove(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
 				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
