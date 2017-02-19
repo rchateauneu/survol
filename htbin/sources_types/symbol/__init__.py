@@ -2,12 +2,28 @@
 Callable or data library symbol
 """
 
+import cgi
 import lib_uris
+import lib_util
 import lib_common
 from lib_properties import pc
 
 def EntityOntology():
 	return ( ["Name","File"], )
+
+def EntityName(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	try:
+		# Trailing padding.
+		resu = lib_util.Base64Decode(entity_id)
+		# TODO: LE FAIRE AUSSI POUR LES AUTRES SYMBOLES.
+		resu = cgi.escape(resu)
+		return resu
+	except TypeError:
+		exc = sys.exc_info()[1]
+		sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(entity_id,str(exc)))
+		return entity_id
+
 
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.

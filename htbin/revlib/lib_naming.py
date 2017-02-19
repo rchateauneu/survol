@@ -33,38 +33,7 @@ def UriToTitle(uprs):
 
 ################################################################################
 
-# TODO: These functions might be stored in the associated modules.
-
-def EntityName_CIM_Process(entity_ids_arr,entity_host):
-	entity_id = entity_ids_arr[0]
-
-	if entity_host and entity_host != lib_util.currentHostname:
-		return "process id " + entity_id # + "@" + entity_host
-
-	# If the process is not there, this is not a problem.
-	try:
-		# sys.stderr.write("psutil.Process entity_id=%s\n" % ( entity_id ) )
-		proc_obj = psutil.Process(int(entity_id))
-		return CIM_Process.PsutilProcToName(proc_obj)
-	except CIM_Process.NoSuchProcess:
-		return "No such process:"+entity_id
-	except ValueError:
-		return "Invalid pid:("+entity_id+")"
-	# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
-
-def EntityName_symbol(entity_ids_arr,entity_host):
-	entity_id = entity_ids_arr[0]
-	try:
-		# Trailing padding.
-		resu = lib_util.Base64Decode(entity_id)
-		# TODO: LE FAIRE AUSSI POUR LES AUTRES SYMBOLES.
-		resu = cgi.escape(resu)
-		return resu
-	except TypeError:
-		exc = sys.exc_info()[1]
-		sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(entity_id,str(exc)))
-		return entity_id
-
+# This is a bit, a special case of our entities.
 def EntityName_class(entity_ids_arr,entity_host):
 	entity_id = entity_ids_arr[0]
 	# PROBLEME: Double &kt;&lt !!!
@@ -79,43 +48,8 @@ def EntityName_class(entity_ids_arr,entity_host):
 		sys.stderr.write("CANNOT DECODE: class=(%s):%s\n"%(entity_id,str(exc)))
 		return entity_id
 
-def EntityName_CIM_DataFile(entity_ids_arr,entity_host):
-	entity_id = entity_ids_arr[0]
-	# A file name can be very long, so it is truncated.
-	file_basename = os.path.basename(entity_id)
-	if file_basename == "":
-		return entity_id
-	else:
-		return file_basename
-
-def EntityName_CIM_Directory(entity_ids_arr,entity_host):
-	entity_id = entity_ids_arr[0]
-	# A file name can be very long, so it is truncated.
-	file_basename = os.path.basename(entity_id)
-	if file_basename == "":
-		return entity_id
-	else:
-		# By convention, directory names ends with a "/".
-		return file_basename + "/"
-
-# "user", "addr", "CIM_ComputerSystem", "smbshr", "com/registered_type_lib", "memmap"
-def EntityName_entity_id(entity_ids_arr,entity_host):
-	entity_id = entity_ids_arr[0]
-	# The type of some entities can be deduced from their name.
-	return entity_id
-
 DictEntityNameFunctions = {
-	"CIM_Process" : EntityName_CIM_Process,
-	"symbol" : EntityName_symbol,
-	"class" : EntityName_class,
-	"CIM_DataFile" : EntityName_CIM_DataFile,
-	"CIM_Directory" : EntityName_CIM_Directory,
-	"user" : EntityName_entity_id,
-	"addr" : EntityName_entity_id,
-	"CIM_ComputerSystem" : EntityName_entity_id,
-	"smbshr" : EntityName_entity_id,
-	"com/registered_type_lib" : EntityName_entity_id,
-	"memmap" : EntityName_entity_id }
+	"class" : EntityName_class }
 
 def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
 	global DictEntityNameFunctions

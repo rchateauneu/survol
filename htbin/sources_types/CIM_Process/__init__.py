@@ -103,6 +103,24 @@ def PsutilProcMemmaps(proc):
 def EntityOntology():
 	return ( ["Handle"],)
 
+def EntityName(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+
+	if entity_host and entity_host != lib_util.currentHostname:
+		return "process id " + entity_id # + "@" + entity_host
+
+	# If the process is not there, this is not a problem.
+	try:
+		# sys.stderr.write("psutil.Process entity_id=%s\n" % ( entity_id ) )
+		proc_obj = psutil.Process(int(entity_id))
+		return PsutilProcToName(proc_obj)
+	except NoSuchProcess:
+		return "No such process:"+entity_id
+	except ValueError:
+		return "Invalid pid:("+entity_id+")"
+	# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
+
+
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
 def AddInfo(grph,node,entity_ids_arr):

@@ -12,6 +12,11 @@ from lib_properties import pc
 def EntityOntology():
     return ( ["Name","Domain"], )
 
+def EntityName(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	# The type of some entities can be deduced from their name.
+	return entity_id
+
 
 # TODO: If repetitive calls to this function, keep the result in memory.
 def LoadEtcPasswd():

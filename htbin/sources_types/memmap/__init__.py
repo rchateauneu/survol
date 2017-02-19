@@ -15,6 +15,10 @@ from sources_types import CIM_Process
 def EntityOntology():
 	return ( ["Id"],)
 
+# This returns a nice name given the parameter of the object.
+def EntityName(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	return entity_id
 
 # A map file is associated to a file.
 def AddInfo(grph,node,entity_ids_arr):

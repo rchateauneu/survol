@@ -10,6 +10,15 @@ from lib_properties import pc
 def EntityOntology():
 	return ( ["Name"], )
 
+def EntityName_CIM_DataFile(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	# A file name can be very long, so it is truncated.
+	file_basename = os.path.basename(entity_id)
+	if file_basename == "":
+		return entity_id
+	else:
+		return file_basename
+
 def AddMagic( grph, filNode, entity_ids_arr ):
 	filNam = entity_ids_arr[0]
 	try:

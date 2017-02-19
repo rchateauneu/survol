@@ -12,6 +12,11 @@ from lib_properties import pc
 def EntityOntology():
 	return ( ["Name"], )
 
+# This returns a nice name given the parameter of the object.
+def EntityName(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	return entity_id
+
 def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_id):
 	# sys.stderr.write("AddWbemWmiServers entity_host=%s nameSpace=%s entity_type=%s\n" % (entity_host,nameSpace,entity_type))
 
