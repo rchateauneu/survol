@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 """
-Processes mapping a file into memory
+Processes mapping this file in memory
 """
 
 import rdflib
 import lib_common
-
+from lib_properties import pc
 from sources_types import memmap
 
 def Main():
@@ -17,7 +17,8 @@ def Main():
 
 	memmap.DisplayMappedProcesses(grph,fileName)
 
-	cgiEnv.OutCgiRdf(grph)
+	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_memmap] )
 
 if __name__ == '__main__':
 	Main()

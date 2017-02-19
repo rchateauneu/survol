@@ -62,21 +62,33 @@ def DisplayMappedProcesses(grph,fileName):
 		except:
 			# Probably psutil.AccessDenied
 			exc = sys.exc_info()[1]
-			sys.stderr.write("get_memory_maps Pid=%d. Caught %s\n" % (pid,str(exc)) )
+			# sys.stderr.write("get_memory_maps Pid=%d. Caught %s\n" % (pid,str(exc)) )
 			continue
+
+		# sys.stderr.write("get_memory_maps OK Pid=%d:%s.\n" % (pid,str(all_maps)) )
 
 		for map in all_maps:
 			# This, because all Windows paths are "standardized" by us.
 			cleanMapPath = map.path.replace("\\","/")
-			# sys.stderr.write("MapPath=%s cleanMapPath=%s memmapName=%s\n" % (map.path,cleanMapPath,memmapName))
 
-			if cleanMapPath == fileName:
+			# MapPath=C:\Windows\System32\KernelBase.dll fileName=c:\windows\system32\API-MS-WIN-CORE-LOCALIZATION-L1-1-0.DLL
+			# sys.stderr.write("Pid=%d MapPath=%s cleanMapPath=%s fileName=%s\n" % (pid,map.path,cleanMapPath,fileName))
+
+			if lib_util.isPlatformWindows:
+				# Horrible conversion due to Windows ...
+				sameFil = map.path.replace("\\","/").lower() == fileName.replace("\\","/").lower()
+			else:
+				sameFil = map.path == fileName
+
+			if sameFil:
+				sys.stderr.write("Pid=%d MapPath=%s cleanMapPath=%s fileName=%s\n" % (pid,map.path,cleanMapPath,fileName))
 				# Maybe this is the first mapping we have found.
 				if uriMemMap == None:
 					uriMemMap = lib_common.gUriGen.MemMapUri( fileName )
 					grph.add( ( uriMappedFile, pc.property_mapped, uriMemMap ) )
 				nodeProcess = lib_common.gUriGen.PidUri(pid)
-				grph.add( ( nodeProcess, pc.property_memmap, uriMemMap ) )
+				# The property is reversed because of display.
+				grph.add( ( uriMemMap, pc.property_memmap, nodeProcess ) )
 				grph.add( ( nodeProcess, pc.property_pid, rdflib.Literal(pid) ) )
 
 				# Displays the RSS only if different from the file size.
