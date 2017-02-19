@@ -589,7 +589,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			numNodLst = len(nodLst)
 
 			# TODO: Compute this once for all.
-			eltNam = subjEntityGraphicClass.split("/")[-1]
+			eltNam = subEntityGraphicClass.split("/")[-1]
 			if not eltNam:
 				# TODO: This is not the right criteria. Must select if we are listing scripts.
 				eltNam = "script"
@@ -608,8 +608,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			header = '<td border="1">' + lib_exports.DotBold(txtElements) + "</td>"
 
 			# TODO: Replace each column name with a link which sorts the line based on this column.
+			# The order of columns could be specified with an extra cgi argument with the columns names.
 			for key in fieldsKeys:
-				header += "<td border='1'>" + lib_exports.DotBold( qname(key,grph) ) + "</td>"
+				columnTitle = qname(key,grph)
+				columnTitle = columnTitle.replace("_"," ").capitalize()
+				header += "<td border='1'>" + lib_exports.DotBold( columnTitle ) + "</td>"
 			# With an empty key, it comes first when sorting.
 			dictHtmlLines[""] = header
 
