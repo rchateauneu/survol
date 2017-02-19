@@ -294,8 +294,6 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		urlJsonReplaced = UrlToSvg( urlJson )
 		urlRdfReplaced = UrlToSvg( urlRdf )
 
-		# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
-		# SO THESE LINKS DO NOT WORK ?????
 		stream.write("<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>")
 		stream.write("<tr><td align='left' colspan='2' href='" + urlJsonReplaced + "'>" + DotUL("As JSON") + "</td></tr>")
 		stream.write("<tr><td align='left' colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>")
@@ -340,7 +338,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
 	# TODO: The "Top" url should be much more visible.
-	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotUL("Home") + '</td></tr>')
+	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotBold(DotUL("Home")) + '</td></tr>')
 
 	urlDirectAccess = UrlDirectAccess()
 	stream.write('<tr><td align="left" colspan="2" href="' + urlDirectAccess + '">' + DotUL("Direct access") + '</td></tr>')
