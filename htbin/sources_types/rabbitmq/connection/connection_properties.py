@@ -40,7 +40,11 @@ def Main():
 
 	grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodConnection ) )
 
-	connectList = cl.get_connection(namConnection)
+	try:
+		connectList = cl.get_connection(namConnection)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Caught:"+str(exc))
 
 	for connectKey in connectList:
 		connectVal = connectList[connectKey]
