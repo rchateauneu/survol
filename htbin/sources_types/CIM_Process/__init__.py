@@ -42,13 +42,13 @@ def PsutilProcToName(proc):
 	except TypeError:
 		return proc.name
 
-def PsutilProcToUser(proc):
+def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
 	try:
 		return proc.username()
 	except TypeError:
 		return proc.username
 	except AccessDenied:
-		return "AccessDenied"
+		return dfltUser
 
 def PsutilProcOpenFiles(proc):
 	try:
