@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-CDB-extracted information from Windows binary
+Windows process call stack
 """
 
 import re
@@ -90,7 +90,6 @@ def Main():
 
 	for dot_line in cdb_str.split('\n'):
 		# sys.stderr.write("Line=%s\n" % dot_line )
-		sys.stderr.write("dot_line=%s\n" % dot_line )
 
 		err_match = re.match(".*parameter is incorrect.*", dot_line )
 		if err_match:
@@ -123,6 +122,7 @@ def Main():
 			callDepth += 1
 			continue
 
+		sys.stderr.write("dot_line=%s\n" % dot_line )
 
 	sys.stderr.write("Parsed cdb result\n")
 
