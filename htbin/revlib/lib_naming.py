@@ -33,23 +33,7 @@ def UriToTitle(uprs):
 
 ################################################################################
 
-# This is a bit, a special case of our entities.
-def EntityName_class(entity_ids_arr,entity_host):
-	entity_id = entity_ids_arr[0]
-	# PROBLEME: Double &kt;&lt !!!
-	# return entity_id
-	try:
-		# Trailing padding.
-		resu = lib_util.Base64Decode(entity_id)
-		resu = cgi.escape(resu)
-		return resu
-	except TypeError:
-		exc = sys.exc_info()[1]
-		sys.stderr.write("CANNOT DECODE: class=(%s):%s\n"%(entity_id,str(exc)))
-		return entity_id
-
-DictEntityNameFunctions = {
-	"class" : EntityName_class }
+DictEntityNameFunctions = {}
 
 def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
 	global DictEntityNameFunctions
