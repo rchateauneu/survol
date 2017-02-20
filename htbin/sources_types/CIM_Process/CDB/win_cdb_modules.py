@@ -13,6 +13,7 @@ import lib_util
 import lib_common
 from sources_types import CIM_Process
 from sources_types import symbol as survol_symbol
+from sources_types.CIM_Process import CDB
 
 Usable = lib_util.UsableWindows
 
@@ -103,25 +104,8 @@ def Main():
 		match_lin = re.match( " *Image path: *(.*)", dot_line )
 		if match_lin:
 
-			# It might be a Known DLL
-			# HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\KnownDLLs"
-			# All KnownDLLs are in the directory HKLM\System\CCS\Control\KnownDLLs\DllDirectory or
-			# HKLM\System\CCS\Control\KnownDLLs\DllDirectory32, respectively "%SystemRoot%\system32"
-			# or "%SystemRoot%\syswow64".
-			def TestIfKnownDll(filNam):
-				if not os.path.isfile(filNam):
-					filNam32 = os.environ['SystemRoot'] + "\\system32\\" + filNam
-					if os.path.isfile(filNam32):
-						return filNam32
-
-					filNam64 = os.environ['SystemRoot'] + "\\syswow64\\" + filNam
-					if os.path.isfile(filNam64):
-						return filNam64
-
-				return filNam
-
 			fileName = match_lin.group(1)
-			fileName = TestIfKnownDll(fileName)
+			fileName = CDB.TestIfKnownDll(fileName)
 			fileName = fileName.strip().replace("\\","/")
 			fileNode = lib_common.gUriGen.FileUri( fileName )
 			grph.add( ( procNode, PropLoadedModule, fileNode ) )

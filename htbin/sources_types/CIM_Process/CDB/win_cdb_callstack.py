@@ -12,6 +12,7 @@ import lib_util
 import lib_common
 from sources_types import CIM_Process
 from sources_types import symbol as survol_symbol
+from sources_types.CIM_Process import CDB
 
 Usable = lib_util.UsableWindows
 
@@ -116,6 +117,8 @@ def Main():
 				dllName = moduleName
 			funcName = match_k.group(2).strip()
 			sys.stderr.write("moduleName=%s dllName=%s funcName=%s\n" % ( moduleName, dllName, funcName ) )
+
+			dllName = CDB.TestIfKnownDll(dllName)
 
 			callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
 			grph.add( ( callNodePrev, rdflib.Literal("Depth"), rdflib.Literal(callDepth) ) )
