@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Imported entries and modules
+PEFile imported entries and modules
 """
 
 import os
@@ -24,15 +24,6 @@ Usable = lib_util.UsableWindowsBinary
 
 # TODO: MUST TAKE THE GOOD PROCESS PATH, NOT OURS.
 
-def VersionString (filNam):
-    try:
-        info = win32api.GetFileVersionInfo (filNam, "\\")
-        ms = info['FileVersionMS']
-        ls = info['FileVersionLS']
-        return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
-    except:
-        return None
-
 class EnvPeFile:
 
 	def __init__(self,grph):
@@ -53,7 +44,7 @@ class EnvPeFile:
 	def RecursiveDepends(self,filNam,maxLevel):
 		# sys.stderr.write( "filNam=%s maxLevel=%d\n"%(filNam,maxLevel))
 		rootNode = lib_common.gUriGen.FileUri( filNam )
-		versStr = VersionString(filNam)
+		versStr = lib_win32.VersionString(filNam)
 		self.grph.add( ( rootNode, pc.property_information, rdflib.Literal(versStr) ) )
 
 		if maxLevel == 0:

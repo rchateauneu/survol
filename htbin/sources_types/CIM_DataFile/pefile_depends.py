@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Windows module dependencies (exe, dll, ocx, sys...) with pefile
+Windows dependencies (exe, dll, ocx, sys...) with pefile
 """
 
 import os
@@ -20,15 +20,6 @@ Usable = lib_util.UsableWindowsBinary
 
 # BEWARE: The PATH is different for Apache user and the results are less meaningful.
 # TODO: HOW TO PROPERLY SET THE PATH ???
-
-def VersionString (filNam):
-	try:
-		info = win32api.GetFileVersionInfo (filNam, "\\")
-		ms = info['FileVersionMS']
-		ls = info['FileVersionLS']
-		return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
-	except:
-		return None
 
 class EnvPeFile:
 
@@ -49,7 +40,7 @@ class EnvPeFile:
 		else:
 			#sys.stderr.write("filNam=%s\n"%filNam)
 			rootNode = lib_common.gUriGen.FileUri( filNam )
-			versStr = VersionString(filNam)
+			versStr = lib_win32.VersionString(filNam)
 			self.grph.add( ( rootNode, pc.property_information, rdflib.Literal(versStr) ) )
 			self.cache_dll_to_imports[filNamLower] = rootNode
 

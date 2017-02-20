@@ -148,3 +148,13 @@ def WNetAddConnect(machineNameNoBackslash):
 
 	## CA MARCHE !!!!!!!!
 	win32wnet.WNetAddConnection2(win32netcon.RESOURCETYPE_ANY, None,machNamWithBackslash, None, usernam,passwd, 0)
+
+def VersionString (filNam):
+    try:
+        info = win32api.GetFileVersionInfo (filNam, "\\")
+        ms = info['FileVersionMS']
+        ls = info['FileVersionLS']
+        return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
+    except:
+        return None
+
