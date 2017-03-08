@@ -1271,6 +1271,7 @@ def TmpDir():
 tmpDir = TmpDir()
 		
 # Creates and automatically delete, a file and possibly a dir.
+# TODO: Consider using the module tempfile.
 class TmpFile:
 	def __init__(self,prefix="tmp", suffix="tmp",subdir=None):
 		procPid = os.getpid()
