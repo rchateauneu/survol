@@ -26,8 +26,6 @@ def Main():
 
 	try:
 		connects = CIM_Process.PsutilProcConnections(proc_obj,'all')
-	# Does not work on recent versions of psutil.
-	# except psutil._error.AccessDenied:
 	except Exception:
 		# Version 3.2.2 at least.
 		try:
@@ -36,7 +34,6 @@ def Main():
 			exc = sys.exc_info()[1]
 			lib_common.ErrorMessageHtml("Error:"+str(exc))
 
-	# lib_common.PsutilAddSocketToGraph(node_process,connects,grph)
 	survol_addr.PsutilAddSocketToGraph(node_process,connects,grph)
 
 	cgiEnv.OutCgiRdf(grph)
