@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Process shared memory segments
+Shared memory segments
 """
 
 import sys
