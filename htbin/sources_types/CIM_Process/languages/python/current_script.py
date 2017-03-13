@@ -65,78 +65,79 @@ Usable = survol_python.Usable
 
 # Find the file, given PYTHONPATH and the process current directory.
 def PyFilNode(proc_obj,filNam,ignoreEnvs):
-	fullFileName = None
+    fullFileName = None
 
-	if os.path.isabs(filNam):
-		fullFileName = filNam
-	else:
-		# Check if the file exists in the current directory.
-		currPwd,errMsg = CIM_Process.PsutilProcCwd(proc_obj)
-		if not currPwd:
-			sys.stderr.write("PyFilNode: %s\n"%errMsg)
-			return None
+    if os.path.isabs(filNam):
+        fullFileName = filNam
+    else:
+        # Check if the file exists in the current directory.
+        currPwd,errMsg = CIM_Process.PsutilProcCwd(proc_obj)
+        if not currPwd:
+            sys.stderr.write("PyFilNode: %s\n"%errMsg)
+            return None
 
-		allDirsToSearch = [ currPwd ]
+        allDirsToSearch = [ currPwd ]
 
-		# With this option, do not use environment variable.
-		if not ignoreEnvs:
-			pathPython = CIM_Process.GetEnvVarProcess("PYTHONPATH",proc_obj.pid)
-			if pathPython:
-				pathPythonSplit = pathPython.split(":")
-				allDirsToSearch += pathPythonSplit
+        # With this option, do not use environment variable.
+        if not ignoreEnvs:
+            pathPython = CIM_Process.GetEnvVarProcess("PYTHONPATH",proc_obj.pid)
+            if pathPython:
+                pathPythonSplit = pathPython.split(":")
+                allDirsToSearch += pathPythonSplit
 
-		# Now tries all possible dirs, starting with current directory.
-		for aDir in allDirsToSearch:
-			fullPath = os.path.join(aDir,filNam)
-			if os.path.isfile(fullPath):
-				fullFileName = fullPath
-				break
+        # Now tries all possible dirs, starting with current directory.
+        for aDir in allDirsToSearch:
+            fullPath = os.path.join(aDir,filNam)
+            if os.path.isfile(fullPath):
+                fullFileName = fullPath
+                break
 
-	if fullFileName:
-		filNode = lib_common.gUriGen.FileUri( fullFileName )
-		return filNode
-	else:
-		return None
+    if fullFileName:
+        filNode = lib_common.gUriGen.FileUri( fullFileName )
+        return filNode
+    else:
+        return None
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	pidProc = int( cgiEnv.GetId() )
+    cgiEnv = lib_common.CgiEnv()
+    pidProc = int( cgiEnv.GetId() )
 
-	grph = rdflib.Graph()
+    grph = rdflib.Graph()
 
-	node_process = lib_common.gUriGen.PidUri(pidProc)
-	proc_obj = psutil.Process(pidProc)
+    node_process = lib_common.gUriGen.PidUri(pidProc)
+    proc_obj = psutil.Process(pidProc)
 
-	# Now we are parsing the command line.
-	cmd_line = CIM_Process.PsutilProcToCmdline(proc_obj)
+    # Now we are parsing the command line.
+    cmd_line = CIM_Process.PsutilProcToCmdline(proc_obj)
 
-	sys.stderr.write("cmd_line=%s\n"%str(cmd_line))
+    sys.stderr.write("cmd_line=%s\n"%str(cmd_line))
 
-	# Similar to split, but ignores white spaces in double quotes.
-	argvArray = re.findall(r'(?:[^\s "]|"(?:\\.|[^"])*")+', cmd_line )
+    # Similar to split, but ignores white spaces in double quotes.
+    argvArray = re.findall(r'(?:[^\s "]|"(?:\\.|[^"])*")+', cmd_line )
 
-	sys.stderr.write("argvArray=%s\n"%str(argvArray))
+    sys.stderr.write("argvArray=%s\n"%str(argvArray))
 
-	argvArgs = " ".join( argvArray[1:] )
+    argvArgs = " ".join( argvArray[1:] )
 
-	sys.stderr.write("argvArgs=%s\n"%argvArgs)
+    sys.stderr.write("argvArgs=%s\n"%argvArgs)
 
-	opts, otherArgs = getopt.getopt(argvArgs,"Bc:dEhim:ORQ:sStuvVW:x3")
+    opts, otherArgs = getopt.getopt(argvArgs,"Bc:dEhim:ORQ:sStuvVW:x3")
 
-	ignoreEnvs = False
-	for opt, arg in opts:
-		if opt == '-E':
-			ignoreEnvs = True
+    ignoreEnvs = False
+    for opt, arg in opts:
+        if opt == '-E':
+            ignoreEnvs = True
 
-	if otherArgs:
-		filNam = otherArgs
-		filNode = PyFilNode(proc_obj,filNam,ignoreEnvs)
-		grph.add( ( node_process, pc.property_runs, filNode ) )
+    if otherArgs:
+        filNam = otherArgs
+        filNode = PyFilNode(proc_obj,filNam,ignoreEnvs)
+        if filNode:
+            grph.add( ( node_process, pc.property_runs, filNode ) )
 
-		sys.stderr.write("filNam=%s\n"%filNam)
+        sys.stderr.write("filNam=%s\n"%filNam)
 
-	cgiEnv.OutCgiRdf(grph)
+    cgiEnv.OutCgiRdf(grph)
 
 if __name__ == '__main__':
-	Main()
+    Main()

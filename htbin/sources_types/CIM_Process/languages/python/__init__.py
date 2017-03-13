@@ -92,11 +92,11 @@ def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
 	]
 
     big_args = ' '.join(["-eval-command='call %s'" % cmd for cmd in gdb_cmds_filout])
-    sys.stdout.write("big_args=%s\n\n" % big_args)
+    sys.stderr.write("big_args=%s\n\n" % big_args)
 
 	# TODO: See process_gdbstack.py which similarly runs a gdb command.
     cmdline = 'gdb -p %d -batch %s' % (my_pid, big_args )
-    sys.stdout.write("cmdline=%s\n\n" % cmdline)
+    sys.stderr.write("cmdline=%s\n\n" % cmdline)
     subprocess.call(cmdline, shell=True)
 
     filOutDat = open(outFilNa,"r")
