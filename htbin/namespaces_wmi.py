@@ -43,10 +43,17 @@ hardcodedNamespaces = (
 
 
 
-def SubNamespace( rootNode, grph, nskey, cimomUrl ):
+def SubNamespace( rootNode, grph, nskey, cimomUrl, nsDepth = 1 ):
+
+	# TODO: VERY PRIMITIVE HARD-CODE TO UNDERSTAND WHY IT RETURNS THE SAME SUB-SUB-NAMESPACES
+	# BEYOND LEVEL TWO.
+	if nsDepth > 2:
+		return
+
 	try:
 		# connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
-		connWMI = lib_wmi.WmiConnect(cimomUrl,"root\\" + nskey, False)
+		# connWMI = lib_wmi.WmiConnect(cimomUrl,"root\\" + nskey, False)
+		connWMI = lib_wmi.WmiConnect(cimomUrl,nskey, False)
 		# With the last flag, it does not throw if it cannot connect.
 		if not connWMI:
 			return
@@ -56,6 +63,8 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl ):
 		sys.stderr.write("WMI: Cannot connect to nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 		return
 
+	# If the mximum level is not controlled, it loops endlessly.
+	# SubNamespace cimomUrl=rchateau-HP nskey=aspnet\Security\Security\Security\Security\Security\Security\Security\Security\Security\Secu
 	sys.stderr.write("SubNamespace cimomUrl=%s nskey=%s\n" % (cimomUrl,nskey))
 
 	# connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
@@ -66,8 +75,14 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl ):
 	grph.add( ( rootNode, pc.property_cim_subnamespace, wmiNode ) )
 
 	try:
-		for subnamespace in connWMI.__NAMESPACE():
-			SubNamespace( wmiNode, grph, nskey + "\\" + subnamespace.Name, cimomUrl )
+		lstNamespaces = connWMI.__NAMESPACE()
+		sys.stderr.write("lstNamespaces=%s\n"%lstNamespaces)
+		# lstNamespaces=[<_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="Security">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPA
+		# CE.Name="power">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="ms_409">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESP
+		# ACE.Name="TerminalServices">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="Applications">]
+
+		for subnamespace in lstNamespaces:
+			SubNamespace( wmiNode, grph, nskey + "\\" + subnamespace.Name, cimomUrl, nsDepth +1 )
 	except Exception:
 		exc = sys.exc_info()[1]
 		grph.add( ( wmiNode, pc.property_information, rdflib.Literal("Caught:%s" % str(exc) ) ) )

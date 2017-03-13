@@ -568,11 +568,11 @@ isPlatformLinux = 'linux' in sys.platform
 isPlatformWindows = 'win' in sys.platform
 
 def UsableLinux(entity_type,entity_ids_arr):
-	"""Runs on Linux only"""
+	"""Linux only"""
 	return isPlatformLinux
 
 def UsableWindows(entity_type,entity_ids_arr):
-	"""Runs on Windows only"""
+	"""Windows only"""
 	return isPlatformWindows
 
 def UsableAsynchronousSource(entity_type,entity_ids_arr):

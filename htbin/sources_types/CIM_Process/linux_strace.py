@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Strace utility stack
+"""
+
 import os
 import re
 import sys
@@ -12,7 +16,7 @@ from lib_properties import pc
 import lib_webserv
 
 def Usable(entity_type,entity_ids_arr):
-	"""Runs on Linux only, in asynchronous mode"""
+	"""Linux, asynchronous mode"""
 	return lib_util.UsableLinux(entity_type,entity_ids_arr) and lib_util.UsableAsynchronousSource(entity_type,entity_ids_arr)
 
 ################################################################################

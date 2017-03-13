@@ -1,5 +1,5 @@
 """
-Windows debugger (CDB)
+CDB Windows debugger
 """
 
 import os

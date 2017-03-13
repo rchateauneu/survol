@@ -39,7 +39,10 @@ def AddInfo(grph,node,entity_ids_arr):
 	fileNode = lib_common.gUriGen.FileUri( file )
 	grph.add( ( fileNode, pc.property_symbol_defined, node ) )
 
-def AddFunctionCall( grph, callNodePrev, procNode, callName, fileName ):
+# This adds a function call which is modelled with a function name and a file.
+# This is used with plain code and with Python.
+# This should include a line number or an address.
+def AddFunctionCall( grph, callNodePrev, procNode, callName, fileName, codeLocation = None ):
 	if callName != None:
 		callNodeNew = lib_common.gUriGen.SymbolUri( callName, fileName )
 		if not callNodePrev is None:
@@ -47,6 +50,12 @@ def AddFunctionCall( grph, callNodePrev, procNode, callName, fileName ):
 			grph.add( ( callNodeNew, pc.property_calls, callNodePrev ) )
 		nodeFile = lib_common.gUriGen.FileUri( fileName )
 		grph.add( ( nodeFile, pc.property_defines, callNodeNew ) )
+
+		# This adds an address or a line number.
+		# TODO: This should make the node unique, therefore a new class should be created.
+		if codeLocation:
+			grph.add( ( callNodeNew, lib_common.MakeProp("Code location"), rdflib.Literal(codeLocation) ) )
+
 		return callNodeNew
 	else:
 		# Top-level function of the process.

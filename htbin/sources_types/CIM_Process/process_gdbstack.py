@@ -26,6 +26,7 @@ def RunGdbCommand(the_pid,command):
 	gdbFil.write("quit\n")
 	gdbFil.close()
 
+	# TODO: See python/__init__.py which also runs a gdb command.
 	gdb_cmd = [ "gdb", "-q", "-p", str(the_pid), "-x", gdbFilNam ]
 	sys.stderr.write( "gdb command=%s\n" % ( " ".join( gdb_cmd ) ) )
 
@@ -80,7 +81,8 @@ def CallParse( execName, grph, procNode, callNodePrev, lin ):
 			funcName = mtch_call_lib.group(1)
 			fileName = execName
 
-	survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, fileName )
+	# TODO: Should add the address or the line number as last parameter.
+	return survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, fileName )
 
 def PassThreads(the_pid, execName, grph, procNode):
 	currThr = -1

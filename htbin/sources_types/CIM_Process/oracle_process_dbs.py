@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Oracle databases accessed by process
+Oracle databases accessed
 """
 
 import os

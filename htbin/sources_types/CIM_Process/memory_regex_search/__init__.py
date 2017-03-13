@@ -1,6 +1,7 @@
 #!/usr/bin/python
-
-__doc__ = "Regular expressions in process memory"
+"""
+Regex matching in heap
+"""
 
 import ctypes
 import platform

@@ -306,10 +306,6 @@ Mais le script ne sera pas affiché si test variable globale car aucun n'était 
 Donc ?
 ============================================
 
-Pour les listes de scripts toujours mettre un fond blanc.
-Pour les listes en general utiliser le mode des liens, pas de l'objet parent ?
-
-============================================
 "class_type_all.py": "Generic class",
 Au lieu d afficher "Generic class", mettre si namespace ou bien classe etc...
 Ou bien "Sub class" ou "virtual class" si pas de direcotyr associe.
@@ -329,3 +325,135 @@ Idem pour AddInfo. Meme logique que pour les attributs graphiques. Et d'ailleurs
 Liens symboliques: entite specifique.
 Premiere page: reprendre des elements du desktop pour le look:
 Et pourquoi les scripts AC2 dans  entity n ont pas la bonne couleur ?
+
+============================================
+Pour un process afficher l environnement et essayer d associer quelque chose,
+probablement un fichier.
+Notamment pour le PATH.
+
+========================================================================================================================
+========================================================================================================================
+
+Trier les processes en fonction du langage.
+
+Donc tenir compte du langage. Ce qui permet d'analyser intelligemment les variables d environnement.
+
+Et on peut donner une couleur differente aux processes, trouvee dans les __init__.py.
+
+Interpreteurs: Sous unix, utiliser le shebang.
+
+On a un sous-directory par interpreteur, cad par type de process, avec des scripts specifiques:
+
+* CIM_Process/perl
+* CIM_Process/python
+* CIM_Process/erlang
+* CIM_Process/java
+* CIM_Process/shell
+
+La fonction Usable() verifie dans la ligne de commande, si l'interpreteur correspond:
+"java","perl", "bash" etc...
+
+Ce qui fait que meme pour du shell, on peut proposer des scripts car on connait le contexte.
+Exemple: Analyser la ligne de commande et en extraire les noms de fichiers.
+
+
+========================================================================================================================
+Perl:
+On l implemente en Perl appele par du Python car de toute facon Perl est necessaire.
+
+(1) http://metacpan.org/pod/App::Stacktrace
+"perl-stacktrace prints Perl stack traces of Perl threads for a given Perl process.
+For each Perl frame, the full file name and line number are printed."
+
+$ perl-stacktrace 24077
+0x00d73416 in __kernel_vsyscall ()
+/usr/local/bin/cpan:11
+/usr/local/lib/perl5/5.12.2/App/Cpan.pm:364
+/usr/local/lib/perl5/5.12.2/App/Cpan.pm:295
+/usr/local/lib/perl5/5.12.2/CPAN.pm:339
+/usr/local/lib/perl5/5.12.2/Term/ReadLine.pm:198
+
+Tout en haut, comme les packages Python, on pourrait lister les modules Perl (Style CPAN).
+Et donc creer un directory "Langages".
+
+========================================================================================================================
+
+Python:
+
+(1) $ sudo pip install pyrasite
+https://news.ycombinator.com/item?id=3014484 It uses gdb
+$ echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope # If YAMA activated, see below.
+$ pyrasite-shell 16262
+>>> globals()
+>>> print(db_session)
+>>> run_some_local_function()
+>>> some_existing_local_variable = 'new value'
+# Le process n est pas interrompu. On peut modifier les variables ! Marche que sous Linux.
+
+
+Plusieurs scripts possibles:
+- Afficher les globales.
+- afficher la pile et les locales a chaque niveau.
+- Afficher les modules et leurs variables.
+
+Pour un symbole Python, le fichier est un fichier Python.
+
+Les globales sont: process+module+nom autrement dit: pid+symbole.
+Si le module est un fichier python, on deduit que c'est une variable python.
+
+Symbole partage par plusieurs processes ? Ce serait shared_mem+symbole.
+
+Un module charge par un process, cest davantage qu'un module dans un fichier: Taille memoire etc...
+
+pdb : Cannot interrupt a running process.
+http://stackoverflow.com/questions/4163964/python-is-it-possible-to-attach-a-console-into-a-running-process
+
+(2) Afficher le PYTHON_PATH
+
+
+========================================================================================================================
+Java:
+On l implemente en Java appele par du Python car de toute facon Java est necessaire.
+
+(1) http://stackoverflow.com/questions/376201/debug-a-java-application-without-starting-the-jvm-with-debug-arguments
+http://docs.oracle.com/cd/E19205-01/819-5257/blabw/index.html
+
+Debugging a Program With dbx using the Process ID:
+$ dbx [program_name|program_name{.class | .jar}|-] process_id
+
+(2)http://docs.oracle.com/javase/7/docs/technotes/guides/jvmti/
+Java™ Virtual Machine Tool Interface (JVM TI) is a native programming interface for use by tools.
+It provides both a way to inspect the state and to control the execution of applications
+running in the Java virtual machine (JVM). JVM TI supports the full breadth of tools that need access to JVM state,
+including but not limited to: profiling, debugging, monitoring, thread analysis, and coverage analysis tools.
+
+JVM TI replaces the Java Virtual Machine Profiler Interface (JVMPI)
+and the Java Virtual Machine Debug Interface (JVMDI).
+http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp-spec.html
+
+https://en.wikipedia.org/wiki/Java_Platform_Debugger_Architecture
+========================================================================================================================
+Shell
+
+(1) Regarder l'arborescence des sous-processes. eventuellement on va y trouver la pile des scripts.
+(2) Scanner le script.
+(3) Afficher le PATH
+
+========================================================================================================================
+Erlang
+
+(1) Live inspection of running code without prior instrumentation is a great feature of Erlang
+========================================================================================================================
+Mono
+On l implemente en Mono appele par du Python car de toute facon Mono est necessaire.
+
+(1) The debugger agent is a module inside the mono runtime which offers debugging services to client programs.
+http://www.mono-project.com/docs/advanced/runtime/docs/soft-debugger/
+The client library is a C# assembly which uses the wire protocol to communicate
+with the debugger agent running inside the mono runtime.
+
+========================================================================================================================
+Dans le cas general, afficher les globales si Linux (Mais peut etre aussi Windows si gdb y tourne)
+
+http://stackoverflow.com/questions/6261392/printing-all-global-variables-local-variables
+

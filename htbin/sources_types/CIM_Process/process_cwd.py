@@ -25,19 +25,7 @@ def Main():
 	node_process = lib_common.gUriGen.PidUri(top_pid)
 	CIM_Process.AddInfo( grph, node_process, [ str(top_pid) ] )
 
-	try:
-		proc_cwd = proc_obj.getcwd()
-		proc_msg = None
-	except CIM_Process.AccessDenied:
-		proc_cwd = None
-		proc_msg = "Process %d: Cannot get current working directory: %s" % (top_pid,str(sys.exc_info()))
-	except AttributeError:
-		try:
-			proc_cwd = proc_obj.cwd()
-			proc_msg = None
-		except :
-			proc_cwd = None
-			proc_msg = "Process %d: Cannot get current working directory: %s" % (top_pid,str(sys.exc_info()[1]))
+	proc_cwd,proc_msg = CIM_Process.PsutilProcCwd(proc_obj)
 
 	if proc_cwd:
 		node_cwd = lib_common.gUriGen.FileUri( proc_cwd )

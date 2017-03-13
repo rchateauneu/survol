@@ -98,6 +98,52 @@ def PsutilProcMemmaps(proc):
 		all_maps = proc.get_memory_maps()
 	return all_maps
 
+# Returns the current working directory.
+def PsutilProcCwd(proc):
+	try:
+		proc_cwd = proc.getcwd()
+		proc_msg = None
+	except AccessDenied:
+		proc_cwd = None
+		proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid,str(sys.exc_info()))
+	except AttributeError:
+		try:
+			proc_cwd = proc.cwd()
+			proc_msg = None
+		except :
+			proc_cwd = None
+			proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid,str(sys.exc_info()[1]))
+
+	return (proc_cwd,proc_msg)
+
+################################################################################
+
+# Returns the value of an environment variable of a given process.
+def GetEnvVarMap(thePid):
+	if lib_util.isPlatformLinux:
+		filproc = open("/proc/%d/environ"%thePid)
+		mapEnvs = {}
+		envlin = filproc.readlines()
+		for li in envlin[0].split("\0"):
+			posEqu = li.find("=")
+			mapEnvs[ li[:posEqu] ] = li[posEqu+1:]
+		filproc.close()
+		return mapEnvs
+
+	# https://www.codeproject.com/kb/threads/readprocenv.aspx
+	if lib_util.isPlatformWindows:
+		# TODO: Not implemented yet.
+		return {}
+
+
+	return {}
+
+def GetEnvVarProcess(theEnvVar,thePid):
+	try:
+		return GetEnvVarMap(thePid)[theEnvVar]
+	except KeyError:
+		return None
+
 ################################################################################
 
 def EntityOntology():
