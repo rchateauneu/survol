@@ -64,7 +64,10 @@ def Main():
 		servName_or_None = hostName
 
 		# hostname = "Titi" for example
-		lib_win32.WNetAddConnect(hostName)
+		try:
+			lib_win32.WNetAddConnect(hostName)
+		except:
+			lib_common.ErrorMessageHtml("Error WNetAddConnect %s:%s"%(hostName,str(sys.exc_info())))
 
 
 	userName = cgiEnv.m_entity_id_dict["Name"]
