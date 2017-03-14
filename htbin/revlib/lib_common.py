@@ -120,6 +120,11 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 		# Very long lists: Or very flat tree.
 		stream.write(" splines=\"ortho\"; \n")
 		stream.write(" rankdir=\"LR\"; \n")
+	elif layout_style == "LAYOUT_RECT_RL":
+		dot_layout = "dot"
+		# Very long lists: Or very flat tree.
+		stream.write(" splines=\"ortho\"; \n")
+		stream.write(" rankdir=\"RL\"; \n")
 	elif layout_style == "LAYOUT_RECT_TB":
 		dot_layout = "dot"
 		# Very long lists: Or very flat tree.
