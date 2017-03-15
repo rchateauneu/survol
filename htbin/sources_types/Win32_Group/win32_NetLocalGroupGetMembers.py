@@ -69,7 +69,11 @@ def Main():
 	# http://www.math.uiuc.edu/~gfrancis/illimath/windows/aszgard_mini/movpy-2.0.0-py2.4.4/movpy/lib/win32/Demos/win32netdemo.py
 
 	# hostname = "Titi" for example
-	lib_win32.WNetAddConnect(server)
+	try:
+		lib_win32.WNetAddConnect(server)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Server=%s Caught:%s" % ( server, str(exc) ) )
 
 	if not server or lib_util.IsLocalAddress( server ):
 		servName_or_None = None
