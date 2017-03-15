@@ -36,10 +36,11 @@ def Main():
 		userHost = lib_util.currentHostname
 
 	if userHost:
-		# EST_CE ENCORE VRAI ???
-		if userHost != lib_util.currentHostname:
+		# if userHost != lib_util.currentHostname:
+		if not lib_util.IsLocalAddress( userHost ):
 			# TODO: Should interrogate other host with "finger" protocol.
-			lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)
+			# Cannot get user properties on different host:rchateau-HP than rchateau-HP.home
+			lib_common.ErrorMessageHtml("Cannot get user properties on different host:%s than %s" % ( userHost, lib_util.currentHostname ))
 
 	grph = rdflib.Graph()
 
