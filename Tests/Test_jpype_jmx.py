@@ -48,21 +48,6 @@ def AnotherTest():
 	jpype.shutdownJVM()
 
 
-# class _withJMXConnection(object):
-# 	connection = None
-#
-# 	def __init__(self, fn, url):
-# 		self.fn = fn
-# 		if not _withJMXConnection.connection:
-# 			# set up a jmx connection ...
-# 			jpype.startJVM("libjvm.so", "-Dcom.sun.management.jmxremote.authenticate=false", "-Xms20m", "-Xmx20m")
-# 			jmxurl = jpype.javax.management.remote.JMXServiceURL(url)
-# 			jmxsoc = jpype.javax.management.remote.JMXConnectorFactory.connect(jmxurl)
-# 			_withJMXConnection.connection = jmxsoc.getMBeanServerConnection()
-# 		self.connection = _withJMXConnection.connection
-
-# https://www.snip2code.com/Snippet/1197207/Restcomm-JSS7-SMSC-SIGTRAN-Association-m
-
 
 # Configuration
 if False:
@@ -120,125 +105,176 @@ if False:
 
 # http://stackoverflow.com/questions/516142/does-java-6-open-a-default-port-for-jmx-remote-connections/6985565#6985565
 
-
-def TestLocalOld():
-	# http://stackoverflow.com/questions/13252914/how-to-connect-to-a-local-jmx-server-by-knowing-the-process-id
-	#
-	# public static MBeanServerConnection getLocalMBeanServerConnectionStatic(int pid) {
-	#     try {
-	#         String address = ConnectorAddressLink.importFrom(pid);
-	#         JMXServiceURL jmxUrl = new JMXServiceURL(address);
-	#         return JMXConnectorFactory.connect(jmxUrl).getMBeanServerConnection();
-	#     } catch (IOException e) {
-	#         throw new RuntimeException("Of course you still have to implement a good connection handling");
-	#     }
-	# }
-	pid = 8824
-	# URL = ConnectorAddressLink.importFrom(pid)
-
-	# Package javax.management.remote.ConnectorAddressLink.importFrom is not Callable
-	# URL = javax.management.remote.ConnectorAddressLink.importFrom(pid)
-
-	#from jpype import sun
-
-	URL = javax.management.ConnectorAddressLink.importFrom(pid)
-
-	# jmxurl = javax.management.remote.JMXServiceURL(URL)
-	jmxurl = javax.management.remote.JMXServiceURL(URL)
-
-	# "jmxurl=service:jmx:rmi:///jndi/rmi://localhost:52964/jmxrmi"
-	print("jmxurl=%s"%str(jmxurl))
-
-	# It throws here:
-	jmxsoc = javax.management.remote.JMXConnectorFactory.connect(jmxurl)
-	theconnection = jmxsoc.getMBeanServerConnection()
-
-# from jpype import java
-# from jpype import javax
-
-# from jpype import com
 from jpype import *
+
+
+
+
+def JmxInvestigatePid(pid,jvPckVM):
+	CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress"
+
+	sys.stdout.write("Attaching to pid=%s\n"%pid)
+	if pid == 11996:
+		return
+	# jpype._jexception.AttachNotSupportedExceptionPyRaisable:
+	# com.sun.tools.attach.AttachNotSupportedException:
+	# Unable to attach to 32-bit process running under WOW64
+	try:
+		virtMach = jvPckVM.attach(pid)
+	except:
+		exc = sys.exc_info()
+		sys.stdout.write("Exception:%s\n"%str(exc))
+		#sys.stdout.write("Exception:%s\n"%str(dir(exc)))
+		return
+
+	connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
+
+	if not connectorAddress:
+		fileSeparator = "\\"
+		# agent=C:\Program Files\Java\jre1.8.0_121\lib\management-agent.jar
+		agent = virtMach.getSystemProperties().getProperty("java.home") + fileSeparator + "lib" + fileSeparator + "management-agent.jar"
+		sys.stdout.write("agent=%s\n"%str(agent))
+		virtMach.loadAgent(agent)
+		# agent is started, get the connector address
+		connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
+
+	# "service:jmx:rmi://127.0.0.1/stub/rO0ABXN9AAAAAQ..."
+	# sys.stdout.write("connectorAddress=%s\n"%str(connectorAddress))
+	# sys.stdout.write("connectorAddress=%s\n"%str(dir(connectorAddress)))
+
+	jmxUrl = javax.management.remote.JMXServiceURL(connectorAddress)
+	jmxSoc = javax.management.remote.JMXConnectorFactory.connect(jmxUrl)
+	# This interface represents a way to talk to an MBean server, whether local or remote.
+	# The MBeanServer interface, representing a local MBean server, extends this interface.
+	connectMBean = jmxSoc.getMBeanServerConnection()
+
+	sys.stdout.write("connectMBean=%s\n"%str(connectMBean))
+	# connectMBean=['addNotificationListener', 'class', 'createMBean', 'defaultDomain',
+	#  'delegationSubject', 'domains', 'equals', 'getAttribute', 'getAttributes', 'getClass',
+	#  'getDefaultDomain', 'getDomains', 'getMBeanCount', 'getMBeanInfo', 'getObjectInstance',
+	#  'hashCode', 'invoke', 'isInstanceOf', 'isRegistered', 'mBeanCount', 'notify', 'notifyAll',
+	#  'queryMBeans', 'queryNames', 'removeNotificationListener', 'setAttribute', 'setAttributes',
+	#  'this$0', 'toString', 'unregisterMBean', 'wait']
+
+	sys.stdout.write("connectMBean.getDefaultDomain=%s\n"%str(connectMBean.getDefaultDomain()))
+	sys.stdout.write("connectMBean.getDomains=%s\n"%str(connectMBean.getDomains()))
+
+	allMBeans = connectMBean.queryMBeans(None,None)
+	sys.stdout.write("allMBeans=%s\n"%str(allMBeans))
+
+
+	virtMach.detach()
+
+	# VirtualMachine vm = VirtualMachine.attach(pid);
+	# String connectorAddress = null;
+	# try {
+	#     // get the connector address
+	#     connectorAddress = vm.getAgentProperties().getProperty(CONNECTOR_ADDRESS);
+	#
+	#     // no connector address, so we start the JMX agent
+	#     if (connectorAddress == null) {
+	#        System.out.println("Agent not Started, loading it ...");
+	#        String agent = vm.getSystemProperties().getProperty("java.home") +
+	#            File.separator + "lib" + File.separator + "management-agent.jar";
+	#        vm.loadAgent(agent);
+	#
+	#        // agent is started, get the connector address
+	#        connectorAddress =
+	#            vm.getAgentProperties().getProperty(CONNECTOR_ADDRESS);
+	#     } else {
+	#         System.out.println("JMX Agent already started !");
+	#     }
+	# } finally {
+	#     vm.detach();
+	# }
+	#
+	# System.out.println();
+	# System.out.printf("Connecting to jmx server with connectorAddress : %s%n",connectorAddress);
+	#
+	# // establish connection to connector server
+	# JMXServiceURL url = new JMXServiceURL(connectorAddress);
+	# JMXConnector connector = JMXConnectorFactory.connect(url);
+	#
+	# MBeanServerConnection con = connector.getMBeanServerConnection();
+	#
+	# RuntimeMXBean runtime = ManagementFactory.newPlatformMXBeanProxy(
+	#        con, ManagementFactory.RUNTIME_MXBEAN_NAME, RuntimeMXBean.class);
+	# System.out.printf("Extracted classpath : %s%n",runtime.getClassPath());
+
+
+
+
+
+
+
 
 # http://blog.ippon.fr/2012/02/05/monitorer-une-JVM-en-local/
 def TestLocal():
-	pid = 8824
-
 	dfltPath = jpype.getDefaultJVMPath()
 
 	# getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
 	sys.stdout.write("getDefaultJVMPath=%s\n" % dfltPath)
 
 	osPath = os.environ["PATH"]
-	sys.stdout.write("PATH=%s\n"%osPath)
-	os.environ["PATH"] = osPath + ";C:\\Program Files\\Java\\jdk1.8.0_121\\jre\\bin"
 
-	# attach.dll is in C:\Program Files\Java\jdk1.8.0_121\jre\bin
-	attachPath = "-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/jre/bin"
-	# attachPath = ""
+	# "attach.dll" is not in the jre.
+	#sys.stdout.write("PATH=%s\n"%osPath)
+	pathAttachDll = "C:\\Program Files\\Java\\jdk1.8.0_121\\jre\\bin"
+	os.environ["PATH"] = osPath + ";" + pathAttachDll
 
 	# We need to open tools.jar which is in C:\Program Files\Java\jdk1.8.0_121\lib
-
-	# Can add extra parameters such as: "-ea -Djava.class.path=..."
-	# jpype.startJVM(jvmPath, "-Djava.class.path=/home/di/eclipse_plugins/plugins/*.jar")
-	# jpype.startJVM(dfltPath, "-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/*.jar")
-	jpype.startJVM(dfltPath,attachPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
+	# jpype.startJVM(dfltPath,attachPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
+	jpype.startJVM(dfltPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
 
 	#jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
-	jvPck = jpype.JPackage('com').sun.tools.attach.VirtualMachine
+	jvPckVM = jpype.JPackage('com').sun.tools.attach.VirtualMachine
 
-	sys.stdout.write("jvPck=%s\n"%str(jvPck))
-	sys.stdout.write("jvPck=%s\n"%str(dir(jvPck)))
+	listVMs = jvPckVM.list()
+	sys.stdout.write("VirtualMachine.list=:\n")
+	for oneVM in listVMs:
+		sys.stdout.write("\n%s\n"%oneVM)
+		# sys.stdout.write("\t%s\n"%str(dir(oneVM)))
+		sys.stdout.write("\tid=%s\n"%str(oneVM.id()))
+		sys.stdout.write("\tprovider=%s\n"%str(oneVM.provider()))
+		sys.stdout.write("\tisAttachable=%s\n"%str(oneVM.isAttachable()))
+		JmxInvestigatePid(oneVM.id(),jvPckVM)
 
-	xyz = jvPck.list()
-	sys.stdout.write("jvPck=%s\n"%str(xyz))
 
-	# For convenience, the jpype modules predefines the following JPackages :
-	# java, javax
+	# For convenience, the jpype modules predefines the following JPackages : java, javax
 	# They can be used as is, without needing to resort to the JPackage class.
 	# This packages allows structured access to java packages and classes. It is very similar to a python import statement.
-	# Only the root of the package tree need be declared with the JPackage constructor.  sub-packages will be created on
-	# demand
+	# Only the root of the package tree need be declared with the JPackage constructor. sub-packages will be created on demand
 
-	# vmdList = jpype.com.sun.tools.attach.VirtualMachine.list()
-
-	# toto=<Java package java.com.sun.tools.attach.VirtualMachine>
-	# jvPck = java.com.sun.tools.attach.VirtualMachine
-
-	# Avec ca, dir() imprime plein de trucs.
-	# jvPck = JPackage('org').w3c.dom.Document # .sun.tools.attach.VirtualMachine
-
-	# On pourrait mettre n importe quoi.
-	# jvPck = JPackage('com').sun.tools.attach.VirtualMachine
-	# jvPck = JPackage('com').sun.tools.attach.VirtualMachine
-	#jvPck = JPackage('com.sun.tools.attach.VirtualMachine')
-
-	#sys.stdout.write("jvPck=%s\n"%str(jvPck))
-	#sys.stdout.write("jvPck.__doc__=%s\n"%str(jvPck.__doc__))
-	#sys.stdout.write("jvPck.__dict__=%s\n"%str(jvPck.__dict__))
-	#sys.stdout.write("jvPck=%s\n"%str(dir(jvPck)))
-	#sys.stdout.write("jvPck=%s\n"%str(jvPck()))
-
-	java.lang.System.out.println("Hello World!!")
-
-	#jvPck = JPackage('com').sun.tools.attach.VirtualMachine
+	java.lang.System.out.println("\nHello World!!")
 
 
-	#jvObj = jvPck.VirtualMachine()
-	#sys.stdout.write("jvObj=%s\n"%str(jvObj))
 
-	sys.stdout.write("============================\n")
 
-	# http://www.docjar.com/html/api/com/sun/tools/attach/VirtualMachine.java.html
-	# The list of virtual machine descriptors.
-	vmdListPck = jvPck.list
 
-	# vmdList=<Java package java.com.sun.tools.attach.VirtualMachine.list>
-	sys.stdout.write("vmdListPck=%s\n"%str(vmdListPck))
 
-	# vmdList = vmdListPck()
 	# and you have to shutdown the VM at the end
 	jpype.shutdownJVM()
 
+	# ERRATIC CRASH WHEN LEAVING !!!
+	#
+	# A fatal error has been detected by the Java Runtime Environment:
+	#
+	#  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00000000543d970c, pid=4588, tid=0x0000000000003a20
+	#
+	# JRE version: Java(TM) SE Runtime Environment (8.0_121-b13) (build 1.8.0_121-b13)
+	# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.121-b13 mixed mode windows-amd64 compressed oops)
+	# Problematic frame:
+	# V  [jvm.dll+0x14970c]
+	#
+	# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+	#
+
+# https://nmap.org/nsedoc/scripts/rmi-dumpregistry.html
+# Connects to a remote RMI registry and attempts to dump all of its objects.
+# Mais on peut aussi le faire proprement, peut-etre.
+# Toutefois, utile si on n'a pas les librairies necessaires.
+# Quand on scanne avec nmap, il faudrait envoyer vers la deteciton specifique jmx,
+# ou tout autre script dependant du protocole.
 
 def TestRemote():
 	dfltPath = jpype.getDefaultJVMPath()
@@ -275,6 +311,11 @@ def TestRemote():
 
 	# and you have to shutdown the VM at the end
 	jpype.shutdownJVM()
+
+
+
+
+
 
 def AnotherOtherTest():
 	# Installed with "pip install JPype1"
