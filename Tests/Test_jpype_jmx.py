@@ -105,7 +105,7 @@ if False:
 
 # http://stackoverflow.com/questions/516142/does-java-6-open-a-default-port-for-jmx-remote-connections/6985565#6985565
 
-from jpype import *
+# from jpype import *
 
 
 
@@ -205,39 +205,102 @@ def JmxInvestigatePid(pid,jvPckVM):
 
 
 
-
-
-
-# http://blog.ippon.fr/2012/02/05/monitorer-une-JVM-en-local/
-def TestLocal():
+def JPypeLocalStartJVM():
 	dfltPath = jpype.getDefaultJVMPath()
 
 	# getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
 	sys.stdout.write("getDefaultJVMPath=%s\n" % dfltPath)
 
+	# Now extracts the version, which will be used for the JDK directionary.
+	baseDfltJVM = os.path.dirname(dfltPath)
+	baseJreRelative = os.path.join( baseDfltJVM, "..", ".." )
+
+	baseJreAbs = os.path.abspath(baseJreRelative)
+	# baseJreAbs=C:\Program Files\Java\jre1.8.0_121
+	sys.stdout.write("baseJreAbs=%s\n" % baseJreAbs)
+
+	dirJre = os.path.basename(baseJreAbs)
+	# dirJre=jre1.8.0_121
+	sys.stdout.write("dirJre=%s\n" % dirJre)
+
+	strJre = dirJre[:3]
+	if strJre != "jre":
+		# Our assumption on the directory syntax is wrong.
+		return None
+
+	baseJava = os.path.dirname(baseJreAbs)
+	dirJdk = "jdk" + dirJre[3:]
+
+	JavaDirPrefix = os.path.join( baseJava, dirJdk )
+	# JavaDirPrefix=C:\Program Files\Java\jdk1.8.0_121
+	sys.stdout.write("JavaDirPrefix=%s\n" % JavaDirPrefix)
+
 	osPath = os.environ["PATH"]
+
+	# JavaDirPrefix = "C:\\Program Files\\Java\\jdk1.8.0_121"
 
 	# "attach.dll" is not in the jre.
 	#sys.stdout.write("PATH=%s\n"%osPath)
-	pathAttachDll = "C:\\Program Files\\Java\\jdk1.8.0_121\\jre\\bin"
+	# pathAttachDll = "C:\\Program Files\\Java\\jdk1.8.0_121\\jre\\bin"
+	pathAttachDll = JavaDirPrefix + "\\jre\\bin"
 	os.environ["PATH"] = osPath + ";" + pathAttachDll
 
 	# We need to open tools.jar which is in C:\Program Files\Java\jdk1.8.0_121\lib
 	# jpype.startJVM(dfltPath,attachPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
-	jpype.startJVM(dfltPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
+	# jpype.startJVM(dfltPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
+	jpype.startJVM(dfltPath,"-Djava.class.path=" + JavaDirPrefix + "\\lib\\tools.jar")
 
 	#jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
 	jvPckVM = jpype.JPackage('com').sun.tools.attach.VirtualMachine
 
+	return jvPckVM
+
+def JPypeListVMs(jvPckVM):
+	resuProcs = dict()
 	listVMs = jvPckVM.list()
 	sys.stdout.write("VirtualMachine.list=:\n")
 	for oneVM in listVMs:
+		dicByProps = dict()
 		sys.stdout.write("\n%s\n"%oneVM)
-		# sys.stdout.write("\t%s\n"%str(dir(oneVM)))
+		sys.stdout.write("\t%s\n"%str(dir(oneVM)))
 		sys.stdout.write("\tid=%s\n"%str(oneVM.id()))
+		sys.stdout.write("\tdisplayName=%s\n"%str(oneVM.displayName()))
+		sys.stdout.write("\tgetClass=%s\n"%str(oneVM.getClass()))
 		sys.stdout.write("\tprovider=%s\n"%str(oneVM.provider()))
 		sys.stdout.write("\tisAttachable=%s\n"%str(oneVM.isAttachable()))
-		JmxInvestigatePid(oneVM.id(),jvPckVM)
+		sys.stdout.write("\ttoString=%s\n"%str(oneVM.toString()))
+		# JmxInvestigatePid(oneVM.id(),jvPckVM)
+
+		dicByProps["class"] = oneVM.getClass()
+		dicByProps["provider"] = oneVM.provider()
+		dicByProps["isAttachable"] = oneVM.isAttachable()
+
+		# sun.tools.attach.WindowsAttachProvider@3f99bd52: 8084 sun.tools.jconsole.JConsole
+		dicByProps["toString"] = oneVM.toString()
+
+		# Same as "toString"
+		# dicByProps["str"] = str(oneVM)
+
+		resuProcs[oneVM.id()] = dicByProps
+
+	return resuProcs
+
+
+# http://blog.ippon.fr/2012/02/05/monitorer-une-JVM-en-local/
+def TestLocal():
+	#jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
+	jvPckVM = JPypeLocalStartJVM()
+
+	listVMs = JPypeListVMs(jvPckVM)
+
+	#listVMs = jvPckVM.list()
+	sys.stdout.write("VirtualMachine.list=:\n")
+	for thePid in listVMs:
+		theProcObj = listVMs[thePid]
+		for theKey in theProcObj:
+			theVal = theProcObj[theKey]
+			sys.stdout.write("\t%s = %s\n"%(theKey,theVal))
+		JmxInvestigatePid(thePid,jvPckVM)
 
 
 	# For convenience, the jpype modules predefines the following JPackages : java, javax
