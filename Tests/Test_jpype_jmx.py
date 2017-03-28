@@ -102,37 +102,43 @@ if False:
 
 
 # http://stackoverflow.com/questions/35593185/is-there-a-jmx-service-url-for-local-non-tcp-connections
-
 # http://stackoverflow.com/questions/516142/does-java-6-open-a-default-port-for-jmx-remote-connections/6985565#6985565
 
-# from jpype import *
 
-
-
-
-def JmxInvestigatePid(pid,jvPckVM):
+def JavaJmxPidMBeansAttach(pid,jvPckVM):
 	CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress"
 
+	sys.stdout.write("jvPckVM=%s\n"%str(jvPckVM))
 	sys.stdout.write("Attaching to pid=%s\n"%pid)
-	if pid == 11996:
-		return
+
 	# jpype._jexception.AttachNotSupportedExceptionPyRaisable:
 	# com.sun.tools.attach.AttachNotSupportedException:
 	# Unable to attach to 32-bit process running under WOW64
 	try:
 		virtMach = jvPckVM.attach(pid)
+		sys.stdout.write("virtMach:%s\n"%str(virtMach))
+		vmSysProps = virtMach.getSystemProperties()
 	except:
 		exc = sys.exc_info()
 		sys.stdout.write("Exception:%s\n"%str(exc))
 		#sys.stdout.write("Exception:%s\n"%str(dir(exc)))
 		return
 
+
+	# vmSysProps = virtMach.getSystemProperties()
+	for keySysProp in vmSysProps:
+		valSysProp = vmSysProps[keySysProp]
+		sys.stdout.write("==  %s => %s\n" %(keySysProp,valSysProp))
+
 	connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
 
 	if not connectorAddress:
-		fileSeparator = "\\"
+		# fileSeparator = "\\"
 		# agent=C:\Program Files\Java\jre1.8.0_121\lib\management-agent.jar
-		agent = virtMach.getSystemProperties().getProperty("java.home") + fileSeparator + "lib" + fileSeparator + "management-agent.jar"
+		# agent = virtMach.getSystemProperties().getProperty("java.home") + fileSeparator + "lib" + fileSeparator + "management-agent.jar"
+
+		agent = os.path.join( vmSysProps.getProperty("java.home"), "lib", "management-agent.jar" )
+
 		sys.stdout.write("agent=%s\n"%str(agent))
 		virtMach.loadAgent(agent)
 		# agent is started, get the connector address
@@ -161,6 +167,20 @@ def JmxInvestigatePid(pid,jvPckVM):
 
 	allMBeans = connectMBean.queryMBeans(None,None)
 	sys.stdout.write("allMBeans=%s\n"%str(allMBeans))
+	sys.stdout.write("allMBeans=%s\n"%str(dir(allMBeans)))
+
+	for theMBean in allMBeans:
+		# sys.stdout.write("\toneMBean=%s\n"%str(dir(theMBean)))
+		sys.stdout.write("\toneMBean.objectName=%s\n"%theMBean.objectName)
+		# sys.stdout.write("\toneMBean.name=%s\n"%theMBean.name) # Same as objectName
+		oneMBean = connectMBean.queryMBeans(theMBean.objectName,None)
+		sys.stdout.write("\toneMBean=%s\n"%str(oneMBean))
+		sys.stdout.write("\toneMBean.size=%s\n"%str(oneMBean.size()))
+		#sys.stdout.write("\toneMBean=%s\n"%str(dir(oneMBean)))
+		sys.stdout.write("\n")
+
+	#infoMBean = connectMBean.getMBeanInfo(None,None)
+	#sys.stdout.write("infoMBean=%s\n"%str(infoMBean))
 
 
 	virtMach.detach()
@@ -251,25 +271,34 @@ def JPypeLocalStartJVM():
 	jpype.startJVM(dfltPath,"-Djava.class.path=" + JavaDirPrefix + "\\lib\\tools.jar")
 
 	#jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
-	jvPckVM = jpype.JPackage('com').sun.tools.attach.VirtualMachine
+	VirtualMachine = jpype.JPackage('com').sun.tools.attach.VirtualMachine
 
+	#jvPckVMinstance = VirtualMachine()
+	#tmpId = jvPckVMinstance.id()
+	#sys.stdout.write("jvPckVM.id=%s\n"%str(tmpId))
+
+	jvPckVM = VirtualMachine
 	return jvPckVM
 
 def JPypeListVMs(jvPckVM):
 	resuProcs = dict()
 	listVMs = jvPckVM.list()
+
+	sys.stdout.write("jvPckVM.dir=%s\n"%str(dir(jvPckVM)))
+	sys.stdout.write("jvPckVM.toString=%s\n"%str(jvPckVM))
+	# sys.stdout.write("jvPckVM.getSystemProperties=%s\n"%str(jvPckVM.getSystemProperties()))
 	sys.stdout.write("VirtualMachine.list=:\n")
 	for oneVM in listVMs:
 		dicByProps = dict()
 		sys.stdout.write("\n%s\n"%oneVM)
-		sys.stdout.write("\t%s\n"%str(dir(oneVM)))
+		#sys.stdout.write("\t%s\n"%str(dir(oneVM)))
 		sys.stdout.write("\tid=%s\n"%str(oneVM.id()))
 		sys.stdout.write("\tdisplayName=%s\n"%str(oneVM.displayName()))
 		sys.stdout.write("\tgetClass=%s\n"%str(oneVM.getClass()))
 		sys.stdout.write("\tprovider=%s\n"%str(oneVM.provider()))
 		sys.stdout.write("\tisAttachable=%s\n"%str(oneVM.isAttachable()))
 		sys.stdout.write("\ttoString=%s\n"%str(oneVM.toString()))
-		# JmxInvestigatePid(oneVM.id(),jvPckVM)
+		# JavaJmxPidMBeansAttach(oneVM.id(),jvPckVM)
 
 		dicByProps["class"] = oneVM.getClass()
 		dicByProps["provider"] = oneVM.provider()
@@ -294,13 +323,15 @@ def TestLocal():
 	listVMs = JPypeListVMs(jvPckVM)
 
 	#listVMs = jvPckVM.list()
+	# sys.stdout.write("VirtualMachine.dir=%s\n"%str(dir(listVMs)))
 	sys.stdout.write("VirtualMachine.list=:\n")
 	for thePid in listVMs:
 		theProcObj = listVMs[thePid]
 		for theKey in theProcObj:
 			theVal = theProcObj[theKey]
-			sys.stdout.write("\t%s = %s\n"%(theKey,theVal))
-		JmxInvestigatePid(thePid,jvPckVM)
+			sys.stdout.write("\t#### %s = %s\n"%(theKey,theVal))
+		JavaJmxPidMBeansAttach(thePid,jvPckVM)
+		sys.stdout.write("\n")
 
 
 	# For convenience, the jpype modules predefines the following JPackages : java, javax
