@@ -1,3 +1,4 @@
+import os
 import sys
 import socket
 import lib_util
@@ -300,9 +301,9 @@ class LocalBox:
 		# TODO: Consider this might be even be more powerful.
 		# u'some string'.encode('ascii', 'xmlcharrefreplace')
 
-	# TODO: Have a special type for directories, dll etc...
+	# If path is terminated by a backslash, it must be stripped otherwise things fail.
 	def DirectoryUri(self,path):
-		# return self.UriMake(lib_util.ComposeTypes( "file", "dir" ), lib_util.EncodeUri(path))
+		path = os.path.normpath(path)
 		return self.UriMake( "CIM_Directory" , lib_util.EncodeUri(path))
 
 	# TODO: Renvoyer NULL si type MIME invalide ?
