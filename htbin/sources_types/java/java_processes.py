@@ -20,7 +20,7 @@ def Main():
 	listVMs = survol_java.ListJavaProcesses()
 
 	#listVMs = jvPckVM.list()
-	sys.stdout.write("VirtualMachine.list=:\n")
+	sys.stderr.write("VirtualMachine.list=:\n")
 	for thePid in listVMs:
 		node_process = lib_common.gUriGen.PidUri(thePid)
 		theProcObj = listVMs[thePid]
