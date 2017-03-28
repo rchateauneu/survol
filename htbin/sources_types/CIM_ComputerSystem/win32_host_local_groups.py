@@ -36,7 +36,12 @@ def Main():
 	# servName_or_None, imper = lib_win32.MakeImpersonate(server)
 
 	# hostname = "Titi" for example
-	lib_win32.WNetAddConnect(server)
+	try:
+		lib_win32.WNetAddConnect(server)
+	except:
+		# Maybe the machine is not online.
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml(str(exc))
 
 	# It might be an empty string.
 	if server:
