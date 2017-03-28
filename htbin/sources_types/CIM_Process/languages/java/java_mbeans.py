@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Full thread dump Java HotSpot (TM)
+MBeans
 """
 
 import sys
@@ -15,15 +15,19 @@ from lib_properties import pc
 # Not implemented yet.
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
-    pidInt = int( cgiEnv.GetId() )
+	cgiEnv = lib_common.CgiEnv()
+	pidInt = int( cgiEnv.GetId() )
 
-    grph = rdflib.Graph()
+	grph = rdflib.Graph()
 
-    node_process = lib_common.gUriGen.PidUri(pidInt)
-    proc_obj = psutil.Process(pidInt)
+	node_process = lib_common.gUriGen.PidUri(pidInt)
+	# proc_obj = psutil.Process(pidInt)
 
-    cgiEnv.OutCgiRdf(grph)
+	jmxData = survol_java.GetJavaDataFromJmx(pidInt)
+
+
+
+	cgiEnv.OutCgiRdf(grph)
 
 if __name__ == '__main__':
     Main()

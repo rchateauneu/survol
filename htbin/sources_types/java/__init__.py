@@ -1,3 +1,7 @@
+"""
+Java world
+"""
+
 import os
 import sys
 import jpype
@@ -54,16 +58,129 @@ def JPypeLocalStartJVM():
 	jpype.startJVM(dfltPath,"-Djava.class.path=" + JavaDirPrefix + "\\lib\\tools.jar")
 
 	#jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
-	jvPckVM = jpype.JPackage('com').sun.tools.attach.VirtualMachine
+	VirtualMachine = jpype.JPackage('com').sun.tools.attach.VirtualMachine
 
 	os.environ["PATH"] = pathOriginal
 
-	return jvPckVM
+	return VirtualMachine
 
+# Attaching to a process is riskier, so we do not do it when listing all Java processes.
+# This procedure needs to attache and might fail sometimes.
+def JavaJmxPidMBeansAttach(pid,jvPckVM):
+	CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress"
+
+	dictResult = {}
+
+	sys.stderr.write("Attaching to pid=%s\n"%pid)
+	# jpype._jexception.AttachNotSupportedExceptionPyRaisable:
+	# com.sun.tools.attach.AttachNotSupportedException:
+	# Unable to attach to 32-bit process running under WOW64
+	try:
+		virtMach = jvPckVM.attach(pid)
+	except:
+		exc = sys.exc_info()
+		sys.stderr.write("Exception:%s\n"%str(exc))
+		#sys.stdout.write("Exception:%s\n"%str(dir(exc)))
+		return dictResult
+
+	connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
+
+	if not connectorAddress:
+		# fileSeparator = "\\"
+		# agent=C:\Program Files\Java\jre1.8.0_121\lib\management-agent.jar
+		# agent = virtMach.getSystemProperties().getProperty("java.home") + fileSeparator + "lib" + fileSeparator + "management-agent.jar"
+
+		agent = os.path.join( virtMach.getSystemProperties().getProperty("java.home"), "lib", "management-agent.jar" )
+
+		sys.stderr.write("agent=%s\n"%str(agent))
+		virtMach.loadAgent(agent)
+		# agent is started, get the connector address
+		connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
+
+	dictResult["connector"] = connectorAddress
+
+	# "service:jmx:rmi://127.0.0.1/stub/rO0ABXN9AAAAAQ..."
+	# sys.stdout.write("connectorAddress=%s\n"%str(connectorAddress))
+	# sys.stdout.write("connectorAddress=%s\n"%str(dir(connectorAddress)))
+
+	jmxUrl = javax.management.remote.JMXServiceURL(connectorAddress)
+	jmxSoc = javax.management.remote.JMXConnectorFactory.connect(jmxUrl)
+	# This interface represents a way to talk to an MBean server, whether local or remote.
+	# The MBeanServer interface, representing a local MBean server, extends this interface.
+	connectMBean = jmxSoc.getMBeanServerConnection()
+
+	sys.stderr.write("connectMBean=%s\n"%str(connectMBean))
+	# connectMBean=['addNotificationListener', 'class', 'createMBean', 'defaultDomain',
+	#  'delegationSubject', 'domains', 'equals', 'getAttribute', 'getAttributes', 'getClass',
+	#  'getDefaultDomain', 'getDomains', 'getMBeanCount', 'getMBeanInfo', 'getObjectInstance',
+	#  'hashCode', 'invoke', 'isInstanceOf', 'isRegistered', 'mBeanCount', 'notify', 'notifyAll',
+	#  'queryMBeans', 'queryNames', 'removeNotificationListener', 'setAttribute', 'setAttributes',
+	#  'this$0', 'toString', 'unregisterMBean', 'wait']
+
+	sys.stderr.write("connectMBean.getDefaultDomain=%s\n"%str(connectMBean.getDefaultDomain()))
+	sys.stderr.write("connectMBean.getDomains=%s\n"%str(connectMBean.getDomains()))
+
+	allMBeans = connectMBean.queryMBeans(None,None)
+	# allMBeans=[sun.management.OperatingSystemImpl[java.lang:type=OperatingSystem], sun.management.MemoryManagerImpl[java.
+	sys.stderr.write("allMBeans=%s\n"%str(allMBeans))
+
+	dictResult["allMBeans"] = allMBeans
+
+	virtMach.detach()
+
+	return dictResult
+
+
+
+def JavaJmxSystemProperties(pid):
+	jvPckVM = JPypeLocalStartJVM()
+	try:
+		virtMach = jvPckVM.attach(str(pid))
+	except:
+		exc = sys.exc_info()
+		vmSysProps = {
+			"jvPckVM" : str(jvPckVM),
+			"JMX error" : str(exc),
+			"Pid" : str(pid) }
+		return vmSysProps
+
+	try:
+		gsp = virtMach.getSystemProperties()
+		vmSysProps = {}
+
+		for k in gsp:
+			v = gsp[k]
+			vmSysProps[k] = v
+
+		# J ai tout le temps cette erreur alors que ca marche en programme de test:
+		#
+		# (<type 'exceptions.RuntimeError'>,
+		# RuntimeError('No matching overloads found.
+		# at native\common\jp_method.cpp:117',),
+		# <traceback object at
+		# 0x0000000004ADAC48>\
+
+		virtMach.detach()
+	except:
+		exc = sys.exc_info()
+		vmSysProps = {
+			"VM" : str(virtMach),
+			"JMX error" : str(exc),
+			"Pid" : str(pid) }
+
+	# Shutdown the VM at the end
+	jpype.shutdownJVM()
+	return vmSysProps
+
+
+# This returns a list of processes withoutj attaching to them,
+# so it is simpler and faster.
 def JPypeListVMs(jvPckVM):
 	resuProcs = dict()
 	listVMs = jvPckVM.list()
-	sys.stderr.write("VirtualMachine.list=:\n")
+
+	sys.stderr.write("VirtualMachine.dir=%s\n"%str(dir(listVMs)))
+	# sys.stderr.write("VirtualMachine.list=:\n")
 	for oneVM in listVMs:
 		dicByProps = dict()
 		sys.stderr.write("\n%s\n"%oneVM)
@@ -74,7 +191,7 @@ def JPypeListVMs(jvPckVM):
 		sys.stderr.write("\tprovider=%s\n"%str(oneVM.provider()))
 		sys.stderr.write("\tisAttachable=%s\n"%str(oneVM.isAttachable()))
 		sys.stderr.write("\ttoString=%s\n"%str(oneVM.toString()))
-		# JmxInvestigatePid(oneVM.id(),jvPckVM)
+		# JavaJmxPidMBeansAttach(oneVM.id(),jvPckVM)
 
 		dicByProps["class"] = oneVM.getClass()
 		dicByProps["provider"] = oneVM.provider()
@@ -90,13 +207,34 @@ def JPypeListVMs(jvPckVM):
 
 	return resuProcs
 
+# TODO: This could work on a remote machine if we have the Java RMI port number and user/pass.
 def ListJavaProcesses():
 	jvPckVM = JPypeLocalStartJVM()
 
 	listVMs = JPypeListVMs(jvPckVM)
 
-
-	# and you have to shutdown the VM at the end
+	# Shutdown the VM at the end
 	jpype.shutdownJVM()
 
 	return listVMs
+
+# TODO: This could work on a remote machine if we have the Java RMI port number and user/pass.
+def GetJavaDataFromJmx(thePid):
+	jvPckVM = JPypeLocalStartJVM()
+
+	javaResults = JavaJmxPidMBeansAttach(thePid,jvPckVM)
+
+	# Some extra data to add ??
+	# jvValDict = jvPckVM[thePid]
+	# for jvKey in jvPckVM:
+
+
+	# tourvr un moyen de renvoyer aussi les proproetes sans attach.
+
+
+	# Shutdown the VM at the end
+	jpype.shutdownJVM()
+
+	return javaResults
+
+
