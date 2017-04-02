@@ -42,7 +42,7 @@ def Main():
 			nodeDirectory = lib_common.gUriGen.DirectoryUri(dirNam)
 
 			# TODO: There should be one matrix per box.
-			grph.add( ( nodeDirectory, lib_common.MakeProp("Property"), rdflib.Literal(keyJmxProp) ) )
+			# grph.add( ( nodeDirectory, lib_common.MakeProp("Property"), rdflib.Literal(keyJmxProp) ) )
 
 			grph.add( ( nodeDirectory, propOrder, rdflib.Literal(idxPath) ) )
 			grph.add( ( node_process, rdfProp, nodeDirectory ) )

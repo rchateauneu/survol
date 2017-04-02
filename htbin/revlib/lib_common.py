@@ -5,6 +5,7 @@ import psutil
 import subprocess
 import six
 import lib_exports
+import lib_grammar
 
 try:
     import simplejson as json
@@ -313,10 +314,23 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	# Ca liste les labels des objects qui apparaissent dans les blocs,
 	# et pointent vers le nom du record.
 	dictCollapsedObjectLabelsToSubjectLabels = {}
+	# dictCollapsedObjectLabelsToSubjectLabels = collections.defaultdict(dict)
 
 	# This contain, for each node (subject), the related node (object) linked
 	# to it with a property to be displayed in tables instead of individual nodes.
-	dictCollapsedSubjectsToObjectLists = collections.defaultdict(list)
+	# dictCollapsedSubjectsToObjectLists = collections.defaultdict(list)
+	dictPropsCollapsedSubjectsToObjectLists = {}
+
+	def PropToShortPropNam(collapsProp):
+		shortNam = collapsProp.split("/")[-1]
+		# "sun.boot.class.path"
+	# Graphviz just want letters.
+		return shortNam.replace(".","_")
+
+	for collapsPropObj in CollapsedProperties:
+		collapsPropNam = PropToShortPropNam(collapsPropObj)
+		dictPropsCollapsedSubjectsToObjectLists[collapsPropNam] = collections.defaultdict(list)
+
 
 	# TODO: Une premiere passe pour batir l'arbre d'une certaine propriete.
 	# Si pas un DAG, tant pis, ca fera un lien en plus.
@@ -329,23 +343,43 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	logfil.write( TimeStamp()+" Rdf2Dot: First pass\n" )
 
+	# New intermediary node created.
+	def CollapsedLabel(collapsPropNam,subjNam):
+		return "R_" + collapsPropNam + "_" + subjNam
+
+	# Called mainly from entity.py. If S points vers O, transforms "O" => "R_S:O"
+	# Accordingly we create an edge: "S" => "R_S"
+	def SubjNamFromCollapsed(collapsPropNam,subjNam):
+		#sys.stderr.write("ADDING1 subjNam=%s collapsPropNam=%s\n" % (subjNam,collapsPropNam))
+		collapsedSubjNam = dictCollapsedObjectLabelsToSubjectLabels[ subjNam ][collapsPropNam]
+		#sys.stderr.write("ADDING2 subjNam=%s collapsPropNam=%s\n" % (subjNam,collapsPropNam))
+		newSubjNam = CollapsedLabel( collapsPropNam, collapsedSubjNam ) + ":" + subjNam
+		#sys.stderr.write("ADDED collapsedSubjNam=%s newSubjNam=%s collapsPropNam=%s\n" % (collapsedSubjNam,newSubjNam,collapsPropNam))
+		return newSubjNam
+
 	for subj, prop, obj in grph:
+
+		subjNam = RdfNodeToDotLabel(subj)
 
 		# Objects linked with these properties, are listed in a table, instead of distinct nodes in a graph.
 		if prop in CollapsedProperties:
 			# TODO: We lose the property, unfortunately. Should make a map: subject => prop => object ?
-			dictCollapsedSubjectsToObjectLists[ subj ].append( obj )
+			propNam = PropToShortPropNam(prop)
+			dictPropsCollapsedSubjectsToObjectLists[ propNam ][ subj ].append( obj )
 
 			# Maybe we already entered it: Not a problem.
-			namObj = RdfNodeToDotLabel(obj)
+			objNam = RdfNodeToDotLabel(obj)
 
 			# CollapsedProperties can contain only properties which define a tree,
 			# as visibly the "object" nodes can have one ancestor only.
-			dictCollapsedObjectLabelsToSubjectLabels[ namObj ] = RdfNodeToDotLabel(subj)
+			try:
+				dictCollapsedObjectLabelsToSubjectLabels[ objNam ][ propNam ] = subjNam
+			except KeyError:
+				dictCollapsedObjectLabelsToSubjectLabels[ objNam ] = dict()
+				dictCollapsedObjectLabelsToSubjectLabels[ objNam ][ propNam ] = subjNam
+			#sys.stderr.write("XXXXXX SUBJECT subjNam=%s\n"%subjNam)
 
 			continue
-
-		subjNam = RdfNodeToDotLabel(subj)
 
 		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
 
@@ -377,8 +411,10 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# il faut rajouter devant, le nom du record, c est a dire SON subjNam + "_table_rdf_data:".
 				try:
 					# Syntax with colon required by DOT.
-					subjNam = "rec_" + dictCollapsedObjectLabelsToSubjectLabels[ subjNam ] + ":" + subjNam
+					propNam = PropToShortPropNam(prop)
+					subjNam = SubjNamFromCollapsed(propNam,subjNam)
 				except KeyError:
+					# sys.stderr.write("PASS subjNam=%s objNam=%s\n"%(subjNam,objNam))
 					pass
 
 				stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
@@ -399,29 +435,28 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	# Maintenant, on remplace chaque vecteur par un seul gros objet, contenant une table HTML.
 	# TODO: Unfortunately, the prop is lost, which implies that all children are mixed together.
-	if CollapsedProperties :
+
+	def ProcessCollapsedProperties( propNam ):
+		dictCollapsedSubjectsToObjectLists = dictPropsCollapsedSubjectsToObjectLists[propNam]
 		logfil.write( TimeStamp()+" Rdf2Dot: dictCollapsedSubjectsToObjectLists=%d.\n" % ( len( dictCollapsedSubjectsToObjectLists ) ) )
 
 		for subjUrl, nodLst in six.iteritems(dictCollapsedSubjectsToObjectLists):
 			subjNam = RdfNodeToDotLabel(subjUrl)
 
-			subjNamTab = "rec_" + subjNam
+			subjNamTab = CollapsedLabel(propNam,subjNam)
 			try:
-				# TODO: Cette logique ajoute parfois un niveau de noeud inutile.
-				# Plus exactement, ca duplique un noeud.
+				# TODO: Cette logique ajoute parfois un niveau de noeud inutile. Plus exactement, ca duplique un noeud.
 				# Ou plus exactement, le noed est represente par deux objects graphiques:
 				# * Un qui a les scripts.
 				# * Un autre qui a la liste HTML qu on fabrique.
 				# => Peut-on imaginer de melanger les deux ??
-				# TODO: Mieux factoriser les "rec_".
 				# Dans WritePatterns: Ajouter le nom du noeud au label.
-				# En fait je crois que "rec_" est inutile ???
-				subjNam = "rec_" + dictCollapsedObjectLabelsToSubjectLabels[ subjNam ] + ":" + subjNam
+				subjNam = SubjNamFromCollapsed(propNam,subjNam)
 			except KeyError:
 				pass
 
 			# Point from the subject to the table containing the objects.
-			stream.write(pattEdgeOrien % (subjNam, subjNamTab, "GREEN", "RDF data"))
+			stream.write(pattEdgeOrien % (subjNam, subjNamTab, "GREEN", propNam))
 
 			( labText, subjEntityGraphicClass, entity_id) = lib_naming.ParseEntityUri( subjUrl )
 
@@ -446,7 +481,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# sys.stderr.write("rawFieldsKeys BEFORE =%s\n" % str(rawFieldsKeys) )
 
 			# Mandatory properties must come at the beginning of the columns of the header, with first indices.
-			# BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absente.
+			# BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absentes.
 			# S il y a du html ou du RDF, on veut que ca vienne en premier.
 			fieldsKeysOrdered = []
 			for fldPriority in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]:
@@ -467,10 +502,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				except KeyError:
 					pass
 
-			# TODO: Remove columns when the corresponding property (For example "html",
-			# "sub-rdf", "image" never has a value.
-			# OU/ET ALORS: Ne pas les afficher quand ca n'a pas de sens comme par exemple les scripts.
-
 			# Appends rest of properties, sorted.
 			fieldsKeys = fieldsKeysOrdered + sorted(rawFieldsKeys)
 
@@ -485,7 +516,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			dictHtmlLines = dict()
 			for objUri in nodLst:
 				# One table per node.
-				subObjId = RdfNodeToDotLabel(obj)
+				# subObjId = RdfNodeToDotLabel(obj)
+				subObjId = RdfNodeToDotLabel(objUri)
 
 				# Beware "\L" which should not be replaced by "<TABLE>" but this is not the right place.
 				subNodUri = objUri.replace('&','&amp;')
@@ -507,9 +539,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# This lighter cololor for the first column.
 				objColorLight = lib_patterns.ColorLighter(objColor)
 
-
-				# Some colors a bit clearer ?
-				# Take the original color of the class ?
+				# Some colors a bit clearer ? Or take the original color of the class ?
 				td_bgcolor_plain = '<td BGCOLOR="%s" ' % objColor
 				td_bgcolor_light = '<td BGCOLOR="%s" ' % objColorLight
 				td_bgcolor = td_bgcolor_plain
@@ -529,22 +559,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 					# TODO: This is hard-coded.
 					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
-						# TODO: get the text with ParseEntityUri if property_rdf_data_nolist2
-						# Ou alors: Eviter d afficher toujours le meme texte ou bien repeter l autre lien.
-						# Plutot afficher quelque chose de specifique, par exemple l'extension de fichier si file_to_mime.py ?
-						# C est utilise dans trois cas:
-						# HTML:
-						#   - Afficher le contenu du fichier en tant que type MIME. On aimerait une icone.
-						#   - Ou bien le type de lien, par exemple "Yawn"
-						# SUB-RDF:
-						#   - Afficher le sous-directory.
-						#   - Afficher les sous-classes si classe WBEM ou WMI.
-						# Ou bien passer l info, qui doit etre courte, avec la chaine ?
-						#
-						# TODO: CGIPROP
-						# Les liens externes peuvent etre affiches de plusieurs facons:
-						# - Une colonne par titre de lien: "YAWN", "Sub-dir", "sub-classes","MIME" ...
-
 						valTitle = ExternalToTitle(val)
 						tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitle )
 					else:
@@ -562,7 +576,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 					title_key = title
 				else:
 					title_key = subObjNam
-
 
 				# Maybe the first column is a literal ?
 				if subEntityId != "PLAINTEXTONLY":
@@ -599,16 +612,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# TODO: This is not the right criteria. Must select if we are listing scripts.
 				eltNam = "script"
 
-
-			def ToPlural(eltNam,numNodLst):
-				if numNodLst == 1:
-					return eltNam
-				if eltNam[-1] == "s":
-					return eltNam + "es"
-				else:
-					return eltNam + "s"
-
-			eltNamPlural = ToPlural(eltNam,numNodLst)
+			eltNamPlural = lib_grammar.ToPlural(eltNam,numNodLst)
 			txtElements = "%d %s" % ( numNodLst, eltNamPlural )
 			header = '<td border="1">' + lib_exports.DotBold(txtElements) + "</td>"
 
@@ -640,7 +644,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# same property. Unfortunately we have lost this property.
 			labText = lib_exports.TruncateInSpace(labText,30)
 			labTextWithBr = lib_exports.StrWithBr( labText )
-			labTextWithBr += ": "+",".join( qname(prp,grph) for prp in CollapsedProperties )
+			# labTextWithBr += ": "+",".join( qname(prp,grph) for prp in CollapsedProperties )
+			labTextWithBr += ": "+propNam
+
+
+			sys.stderr.write("labText=%s\n" % labText)
 
 			if entity_id == "PLAINTEXTONLY":
 				subjUrlClean = ""
@@ -651,16 +659,21 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
 			# TODO: Si une cellule est identique jusqu a un delimiteur, idem, remplacer par '"'.
 
+	if CollapsedProperties :
+		for collapsedProp in CollapsedProperties:
+			collapsedPropNam = PropToShortPropNam(collapsedProp)
+			ProcessCollapsedProperties(collapsedPropNam)
+
 	logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. dictRdf2Dot=%d\n" % len(dictRdf2Dot) )
 
-	# Maintenant on affiche les noeuds qui restent.
+	# Now, display the normal nodes, which are not displayed in tables.
 	for objRdfNode, objLabel in six.iteritems(dictRdf2Dot):
-		# x contains something like: ns1:pid "3280"^^xsd:integer
-		# So this eliminates the namespace and the value type.
-		# TODO: This should removes the double-quotes surrounding the value.
-
+		# TODO: Avoids this lookup.
 		if objLabel in dictCollapsedObjectLabelsToSubjectLabels :
+			#sys.stderr.write("Final %s done\n" % objLabel)
 			continue
+		#else:
+		#	sys.stderr.write("Final %s GO\n" % objLabel)
 
 		objPropsAsHtml = FieldsToHtmlVertical( grph, fieldsSet[objRdfNode])
 
