@@ -252,6 +252,15 @@ def AffFileOwner(grph, filNode, filNam):
 		pass
 
 
+# This applies on Linux only. Given an executable,
+# it looks for a Shebang, and returns the string, or nothing.
+# The first element of the string is an interpreter.
+# Now we must use the same logic as CIM_Process/languages,
+# to detect the language and accordingly parse this file
+# by correctly detecting its language.
+def GetShebang(grph, filNode, filNam):
+	return None
+
 
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
