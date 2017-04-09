@@ -1,3 +1,5 @@
+# Consider using the Pythonpackage inflect.
+
 # Win32_ReliabilityRecordses
 # Win32_LogicalFileAccesses
 def ToPlural(eltNam,numNodLst):
