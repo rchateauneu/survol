@@ -886,6 +886,18 @@ def GetEntityModule(entity_type):
 	cacheEntityToModule[ entity_type ] = entity_module
 	return entity_module
 
+def GetScriptModule(currentModule, fil):
+	# TODO: IT DOES NOT START FROM "/revlib". DIFFICULTY WITH PYTHONPATH.
+	subClass = "." + fil[:-3] # Without the ".py" extension.
+	# sys.stderr.write("argFil=%s argDir=%s\n" % ( argFil, argDir ) )
+	if sys.version_info >= (3, ):
+		importedMod = importlib.import_module(currentModule + subClass)
+	else:
+		# importlib.import_module("sources_top.Databases.mysql_processlist")
+		importedMod = importlib.import_module(subClass, currentModule )
+	return importedMod
+
+
 ################################################################################
 
 # Returns the doc string of a module.
