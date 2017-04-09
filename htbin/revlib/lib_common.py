@@ -377,7 +377,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			except KeyError:
 				dictCollapsedObjectLabelsToSubjectLabels[ objNam ] = dict()
 				dictCollapsedObjectLabelsToSubjectLabels[ objNam ][ propNam ] = subjNam
-			#sys.stderr.write("XXXXXX SUBJECT subjNam=%s\n"%subjNam)
 
 			continue
 
@@ -644,11 +643,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# same property. Unfortunately we have lost this property.
 			labText = lib_exports.TruncateInSpace(labText,30)
 			labTextWithBr = lib_exports.StrWithBr( labText )
-			# labTextWithBr += ": "+",".join( qname(prp,grph) for prp in CollapsedProperties )
 			labTextWithBr += ": "+propNam
-
-
-			sys.stderr.write("labText=%s\n" % labText)
 
 			if entity_id == "PLAINTEXTONLY":
 				subjUrlClean = ""
@@ -670,10 +665,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	for objRdfNode, objLabel in six.iteritems(dictRdf2Dot):
 		# TODO: Avoids this lookup.
 		if objLabel in dictCollapsedObjectLabelsToSubjectLabels :
-			#sys.stderr.write("Final %s done\n" % objLabel)
 			continue
-		#else:
-		#	sys.stderr.write("Final %s GO\n" % objLabel)
 
 		objPropsAsHtml = FieldsToHtmlVertical( grph, fieldsSet[objRdfNode])
 
