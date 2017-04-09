@@ -284,6 +284,7 @@ class LocalBox:
 		return self.UriMakeFromDict("symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(file) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
+	# TODO: Move that to class/__init__.py
 	def ClassUri(self,class_name, file = ""):
 		# The URL should never contain the chars "<" or ">".
 		class_name = lib_util.Base64Encode(class_name)
