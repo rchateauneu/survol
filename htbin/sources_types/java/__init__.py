@@ -64,25 +64,26 @@ def JPypeLocalStartJVM():
 
 	return VirtualMachine
 
+
 # Attaching to a process is riskier, so we do not do it when listing all Java processes.
 # This procedure needs to attache and might fail sometimes.
-def JavaJmxPidMBeansAttach(pid,jvPckVM):
+def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
 	CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress"
 
 	dictResult = {}
 
-	sys.stderr.write("Attaching to pid=%s\n"%pid)
+	sys.stderr.write("Attaching to pid=%s type=%s\n"%(pid,type(pid)))
 	# jpype._jexception.AttachNotSupportedExceptionPyRaisable:
 	# com.sun.tools.attach.AttachNotSupportedException:
 	# Unable to attach to 32-bit process running under WOW64
 	try:
-		virtMach = jvPckVM.attach(pid)
+		virtMach = jvPckVM.attach(str(pid))
 	except:
 		exc = sys.exc_info()
 		sys.stderr.write("Exception:%s\n"%str(exc))
-		#sys.stdout.write("Exception:%s\n"%str(dir(exc)))
 		return dictResult
 
+	sys.stderr.write("Attached to pid=%s\n"%pid)
 	connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
 
 	if not connectorAddress:
@@ -109,7 +110,7 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM):
 	# The MBeanServer interface, representing a local MBean server, extends this interface.
 	connectMBean = jmxSoc.getMBeanServerConnection()
 
-	sys.stderr.write("connectMBean=%s\n"%str(connectMBean))
+	# sys.stderr.write("connectMBean=%s\n"%str(connectMBean))
 	# connectMBean=['addNotificationListener', 'class', 'createMBean', 'defaultDomain',
 	#  'delegationSubject', 'domains', 'equals', 'getAttribute', 'getAttributes', 'getClass',
 	#  'getDefaultDomain', 'getDomains', 'getMBeanCount', 'getMBeanInfo', 'getObjectInstance',
@@ -117,20 +118,74 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM):
 	#  'queryMBeans', 'queryNames', 'removeNotificationListener', 'setAttribute', 'setAttributes',
 	#  'this$0', 'toString', 'unregisterMBean', 'wait']
 
-	sys.stderr.write("connectMBean.getDefaultDomain=%s\n"%str(connectMBean.getDefaultDomain()))
-	sys.stderr.write("connectMBean.getDomains=%s\n"%str(connectMBean.getDomains()))
+	# sys.stderr.write("connectMBean.getDefaultDomain=%s\n"%str(connectMBean.getDefaultDomain()))
+	# sys.stderr.write("connectMBean.getDomains=%s\n"%str(connectMBean.getDomains()))
 
-	allMBeans = connectMBean.queryMBeans(None,None)
+	# mbeanObjNam = "com.sun.management:type=HotSpotDiagnostic"
+	if mbeanObjNam:
+		sys.stderr.write("mbeanObjNam=%s\n"%mbeanObjNam)
+		jvxObjNam = javax.management.ObjectName(mbeanObjNam)
+	else:
+		jvxObjNam = None
+
+	# jpype._jexception.MalformedObjectNameExceptionPyRaisable: javax.management.MalformedObjectNameException: Key properties cannot be empty
+	allMBeans = connectMBean.queryMBeans(jvxObjNam,None)
+
 	# allMBeans=[sun.management.OperatingSystemImpl[java.lang:type=OperatingSystem], sun.management.MemoryManagerImpl[java.
 	sys.stderr.write("allMBeans=%s\n"%str(allMBeans))
 
-	dictResult["allMBeans"] = allMBeans
+	vectMBeans = []
 
+	# Gets as much information as possible about this MBean.
+	for eltMBean in allMBeans:
+		mbeanObjectName = eltMBean.getObjectName()
+		oneMBean = {
+			"className" : eltMBean.getClassName(),
+			"objectName" : str(mbeanObjectName)
+		}
+
+		# TODO: To save time, we could do that only if mbeanObjNam is not None.
+		oneMBeanInfo = connectMBean.getMBeanInfo(mbeanObjectName)
+
+		descrMBeanInfo = oneMBeanInfo.getDescriptor()
+		dictMBeanInfoDescr = {}
+		for keyMBeanInfo in descrMBeanInfo.getFieldNames():
+			valMBeanInfo = descrMBeanInfo.getFieldValue(keyMBeanInfo)
+			dictMBeanInfoDescr[keyMBeanInfo] = valMBeanInfo
+		oneMBean["info"] = dictMBeanInfoDescr
+
+		for attr in oneMBeanInfo.getAttributes():
+			sys.stdout.write("\t\tattr=%s\n"%str(attr))
+			sys.stdout.write("\t\tattr.getName()=%s\n"%attr.getName())
+			sys.stdout.write("\t\tattr.getType()=%s\n"%attr.getType())
+			sys.stdout.write("\t\tattr.getDescription()=%s\n"%attr.getDescription())
+
+		attrsMBeanInfo = oneMBeanInfo.getAttributes()
+		dictMBeanInfo = {}
+		for oneAttr in attrsMBeanInfo:
+			keyAttr = oneAttr.getName()
+			# int=<class'jpype._jclass.java.lang.Integer'>\
+			getTp = oneAttr.getType()
+			try:
+				getAttr = connectMBean.getAttribute(mbeanObjectName,keyAttr)
+				# Without a concatenation, it prints "1" instead of boolean True.
+				valAttr = str(getAttr) + " (%s)" % getTp
+			except:
+				valAttr = "N/A"
+			dictMBeanInfo[keyAttr] = valAttr
+		oneMBean["attrs"] = dictMBeanInfo
+
+		vectMBeans.append( oneMBean )
+
+	dictResult["allMBeans"] = vectMBeans
+
+	# When detaching, all the intermediary objects created by connectMBean are deleted.
+	# This is why their content must be stored.
 	virtMach.detach()
 
 	return dictResult
 
-
+# https://www.jtips.info/index.php?title=JMX/Remote
 
 def JavaJmxSystemProperties(pid):
 	jvPckVM = JPypeLocalStartJVM()
@@ -219,22 +274,18 @@ def ListJavaProcesses():
 	return listVMs
 
 # TODO: This could work on a remote machine if we have the Java RMI port number and user/pass.
-def GetJavaDataFromJmx(thePid):
+# If mbeanObjNam is None, returns data for all MBeans.
+def GetJavaDataFromJmx(thePid,mbeanObjNam = None):
 	jvPckVM = JPypeLocalStartJVM()
 
-	javaResults = JavaJmxPidMBeansAttach(thePid,jvPckVM)
+	javaResults = JavaJmxPidMBeansAttach(thePid,jvPckVM,mbeanObjNam)
 
 	# Some extra data to add ??
 	# jvValDict = jvPckVM[thePid]
 	# for jvKey in jvPckVM:
 
-
-	# tourvr un moyen de renvoyer aussi les proproetes sans attach.
-
-
 	# Shutdown the VM at the end
 	jpype.shutdownJVM()
 
 	return javaResults
-
 
