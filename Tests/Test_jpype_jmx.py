@@ -171,12 +171,54 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM):
 
 	for theMBean in allMBeans:
 		# sys.stdout.write("\toneMBean=%s\n"%str(dir(theMBean)))
+
+		# "java.lang:type=MemoryPool,name=PS Survivor Space"
 		sys.stdout.write("\toneMBean.objectName=%s\n"%theMBean.objectName)
+
+		# "java.lang:type=Compilation"
+		sys.stdout.write("\toneMBean.getObjectName=%s\n"%theMBean.getObjectName())
+
+		# "sun.management.CompilationImpl"
+		sys.stdout.write("\toneMBean.getClassName=%s\n"%theMBean.getClassName())
+
+		# idxBracket = jmxMBean.find("[")
+		# clsNam = jmxMBean[:idxBracket]
+		# mbeanName = jmxMBean[idxBracket+1:-1]
+
+
 		# sys.stdout.write("\toneMBean.name=%s\n"%theMBean.name) # Same as objectName
-		oneMBean = connectMBean.queryMBeans(theMBean.objectName,None)
-		sys.stdout.write("\toneMBean=%s\n"%str(oneMBean))
-		sys.stdout.write("\toneMBean.size=%s\n"%str(oneMBean.size()))
-		#sys.stdout.write("\toneMBean=%s\n"%str(dir(oneMBean)))
+		#oneMBean = connectMBean.queryMBeans(theMBean.objectName,None)
+		#sys.stdout.write("\toneMBean=%s\n"%str(oneMBean))
+		#sys.stdout.write("\toneMBean.dir=%s\n"%str(dir(oneMBean)))
+
+
+
+		# getClassName() returns the Java class name of the MBean object;
+		# getConstructors() returns the list of all public constructors in that object;
+		# getAttributes() returns the list of all attributes whose existence is deduced from the presence in the MBean interface of a getName, isName, or setName method that conforms to the conventions for Standard MBeans;
+		# getOperations() returns the list of all methods in the MBean interface that do not represent attributes;
+		# getNotifications() returns an empty array if the MBean does not implement the NotificationBroadcaster interface, otherwise the result of calling NotificationBroadcaster.getNotificationInfo() on it;
+		# getDescriptor() returns a descriptor containing the contents of any descriptor annotations in the MBean interface (see @DescriptorKey). \
+		oneMBeanInfo = connectMBean.getMBeanInfo(theMBean.objectName)
+
+		# sys.stdout.write("\toneMBeanInfo=%s\n"%str(dir(oneMBeanInfo)))
+		sys.stdout.write("\toneMBeanInfo.getConstructors()=%s\n"%str(oneMBeanInfo.getConstructors()))
+		sys.stdout.write("\toneMBeanInfo.getAttributes()=%s\n"%str(oneMBeanInfo.getAttributes()))
+		for attr in oneMBeanInfo.getAttributes():
+			sys.stdout.write("\t\tattr=%s\n"%str(attr))
+			sys.stdout.write("\t\tattr.getName()=%s\n"%attr.getName())
+			sys.stdout.write("\t\tattr.getType()=%s\n"%attr.getType())
+			sys.stdout.write("\t\tattr.getDescription()=%s\n"%attr.getDescription())
+
+		sys.stdout.write("\toneMBeanInfo.getOperations()=%s\n"%str(oneMBeanInfo.getOperations()))
+		sys.stdout.write("\toneMBeanInfo.getNotifications()=%s\n"%str(oneMBeanInfo.getNotifications()))
+		sys.stdout.write("\toneMBeanInfo.getDescriptor()=%s\n"%str(oneMBeanInfo.getDescriptor()))
+		# sys.stdout.write("\toneMBeanInfo.getDescriptor()=%s\n"%str(dir(oneMBeanInfo.getDescriptor())))
+		# https://docs.oracle.com/javase/7/docs/api/javax/management/Descriptor.html
+		sys.stdout.write("\toneMBeanInfo.getDescriptor.names=%s\n"%str(oneMBeanInfo.getDescriptor().names))
+		sys.stdout.write("\toneMBeanInfo.getDescriptor.values=%s\n"%str(oneMBeanInfo.getDescriptor().values))
+		sys.stdout.write("\toneMBeanInfo.getDescriptor.getFieldNames()=%s\n"%str(oneMBeanInfo.getDescriptor().getFieldNames()))
+		sys.stdout.write("\toneMBeanInfo.getDescriptor.getFields()=%s\n"%str(oneMBeanInfo.getDescriptor().getFields()))
 		sys.stdout.write("\n")
 
 	#infoMBean = connectMBean.getMBeanInfo(None,None)
