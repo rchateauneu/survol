@@ -15,7 +15,7 @@ def Usable(entity_type,entity_ids_arr):
     pidProc = entity_ids_arr[0]
     try:
         # Any error, no display.
-    	proc_obj = psutil.Process(int(pidProc))
+        proc_obj = psutil.Process(int(pidProc))
     except:
         return False
 
