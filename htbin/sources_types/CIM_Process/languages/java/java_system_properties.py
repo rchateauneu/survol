@@ -26,7 +26,10 @@ def Main():
 
 	sys.stderr.write("jmxProps=%s\n"%str(jmxProps))
 
-	pathSeparator = jmxProps["path.separator"]
+	try:
+		pathSeparator = jmxProps["path.separator"]
+	except KeyError:
+		pathSeparator = None
 
 	# The properties which should be displayed in matrices instead of individual nodes.
 	propsMatrix = []
