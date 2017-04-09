@@ -75,3 +75,6 @@ def Main():
 
 if __name__ == '__main__':
 	Main()
+
+# https://en.wikipedia.org/wiki/Java_class_file
+# Class files are identified by the following 4 byte header (in hexadecimal): CA FE BA BE (the first 4 entries in the table below).
