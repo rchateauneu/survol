@@ -5,11 +5,47 @@ Java world
 import os
 import sys
 import jpype
+import lib_util
 from jpype import java
 from jpype import javax
 
 # It is possible to return a similar object, but on a remote machine.
 def JPypeLocalStartJVM():
+	if lib_util.isPlatformLinux:
+		return JPypeLocalStartJVMLinux()
+
+	if lib_util.isPlatformWindows:
+		return JPypeLocalStartJVMWindows()
+
+	return None
+
+def JPypeLocalStartJVMLinux():
+	dfltPath = jpype.getDefaultJVMPath()
+
+	# getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
+	sys.stderr.write("getDefaultJVMPath=%s\n" % dfltPath)
+
+	# Now extracts the version, which will be used for the JDK directionary.
+	baseDfltJVM = os.path.dirname(dfltPath)
+	baseJreRelative = os.path.join( baseDfltJVM, "..", ".." )
+
+	baseJreAbs = os.path.abspath(baseJreRelative)
+	# baseJreAbs=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib
+	sys.stderr.write("baseJreAbs=%s\n" % baseJreAbs)
+
+	JavaDirPrefix = os.path.join( baseJreAbs, "../.." )
+
+	# We need to open tools.jar which is in /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/lib/tools.jar
+	# jpype.startJVM(dfltPath,"-Djava.class.path=/usr/lib ... /tools.jar")
+	jpype.startJVM(dfltPath,"-Djava.class.path=" + JavaDirPrefix + "/lib/tools.jar")
+
+	#jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
+	VirtualMachine = jpype.JPackage('com').sun.tools.attach.VirtualMachine
+
+	return VirtualMachine
+
+
+def JPypeLocalStartJVMWindows():
 	dfltPath = jpype.getDefaultJVMPath()
 
 	# getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
@@ -30,6 +66,7 @@ def JPypeLocalStartJVM():
 	strJre = dirJre[:3]
 	if strJre != "jre":
 		# Our assumption on the directory syntax is wrong.
+		sys.stderr.write("Invalid strJre=%s\n" % strJre)
 		return None
 
 	baseJava = os.path.dirname(baseJreAbs)
@@ -155,10 +192,10 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
 		oneMBean["info"] = dictMBeanInfoDescr
 
 		for attr in oneMBeanInfo.getAttributes():
-			sys.stdout.write("\t\tattr=%s\n"%str(attr))
-			sys.stdout.write("\t\tattr.getName()=%s\n"%attr.getName())
-			sys.stdout.write("\t\tattr.getType()=%s\n"%attr.getType())
-			sys.stdout.write("\t\tattr.getDescription()=%s\n"%attr.getDescription())
+			sys.stderr.write("\t\tattr=%s\n"%str(attr))
+			sys.stderr.write("\t\tattr.getName()=%s\n"%attr.getName())
+			sys.stderr.write("\t\tattr.getType()=%s\n"%attr.getType())
+			sys.stderr.write("\t\tattr.getDescription()=%s\n"%attr.getDescription())
 
 		attrsMBeanInfo = oneMBeanInfo.getAttributes()
 		dictMBeanInfo = {}
@@ -224,7 +261,7 @@ def JavaJmxSystemProperties(pid):
 			"Pid" : str(pid) }
 
 	# Shutdown the VM at the end
-	jpype.shutdownJVM()
+	QuietShutdown()
 	return vmSysProps
 
 
@@ -232,6 +269,9 @@ def JavaJmxSystemProperties(pid):
 # so it is simpler and faster.
 def JPypeListVMs(jvPckVM):
 	resuProcs = dict()
+	if not jvPckVM:
+		return resuProcs
+
 	listVMs = jvPckVM.list()
 
 	sys.stderr.write("VirtualMachine.dir=%s\n"%str(dir(listVMs)))
@@ -262,6 +302,15 @@ def JPypeListVMs(jvPckVM):
 
 	return resuProcs
 
+# This fails on Linux.
+def QuietShutdown():
+        # Must redirect the Java output
+	# Shutdown the VM at the end
+	if not lib_util.isPlatformLinux:
+		jpype.shutdownJVM()
+	return
+
+
 # TODO: This could work on a remote machine if we have the Java RMI port number and user/pass.
 def ListJavaProcesses():
 	jvPckVM = JPypeLocalStartJVM()
@@ -269,7 +318,7 @@ def ListJavaProcesses():
 	listVMs = JPypeListVMs(jvPckVM)
 
 	# Shutdown the VM at the end
-	jpype.shutdownJVM()
+	QuietShutdown()
 
 	return listVMs
 
@@ -285,7 +334,7 @@ def GetJavaDataFromJmx(thePid,mbeanObjNam = None):
 	# for jvKey in jvPckVM:
 
 	# Shutdown the VM at the end
-	jpype.shutdownJVM()
+	QuietShutdown()
 
 	return javaResults
 
