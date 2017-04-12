@@ -42,7 +42,17 @@ def Main():
 	# de': u'rabbit@rchateau-HP', u'send_cnt': 69409, u'peer_port': 51532, u'ssl_hash': None, u'host': u'127.0.0.1', u'connected_at': 1486
 	# 974214456L, u'user': u'guest', u'name': u'127.0.0.1:51532 -> 127.0.0.1:5672', u'ssl': False, u'vhost': u'/', u'recv_oct': 1461716, u
 	# 'timeout': 60, u'ssl_key_exchange': None, u'reductions_details': {u'rate': 197.4}}
-	for objConnect in cl.get_connections():
+
+
+	try:
+		#
+		listConnections = cl.get_connections()
+	except:
+		#
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+
+	for objConnect in listConnections:
 		namConnect = objConnect["name"]
 
 		sys.stderr.write("namConnect=%s\n"%(namConnect))

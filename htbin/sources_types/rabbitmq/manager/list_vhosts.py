@@ -46,7 +46,16 @@ def Main():
 	# u'publish_in_details': {u'rate': 0.0}, u'ack': 0, u'publish_in': 0, u'return_unroutable_details': {u'rate': 0.0}, u'get_details': {u
 	# 'rate': 0.0}, u'get_no_ack_details': {u'rate': 0.0}, u'deliver_no_ack_details': {u'rate': 0.0}, u'redeliver': 0}, u'messages_unackno
 	# wledged_details': {u'rate': 0.0}, u'messages_ready_details': {u'rate': 0.0}, u'messages_unacknowledged': 0, u'messages_ready': 0}]
-	for objVHost in cl.get_all_vhosts():
+
+	try:
+		#
+		listVHosts = cl.get_all_vhosts()
+	except:
+		#
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+
+	for objVHost in listVHosts:
 		namVHost = objVHost["name"]
 		sys.stderr.write("q=%s\n"%(namVHost))
 
