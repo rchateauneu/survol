@@ -31,7 +31,15 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	for objExchange in cl.get_exchanges():
+	try:
+		#
+		listExchanges = cl.get_exchanges()
+	except:
+		#
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+
+	for objExchange in listExchanges:
 		namExchange = objExchange["name"]
 		sys.stderr.write("namExchange=%s\n"%(namExchange))
 
