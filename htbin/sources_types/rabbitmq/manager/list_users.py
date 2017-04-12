@@ -41,8 +41,15 @@ def Main():
 
 	#>>> cl.get_users()
 	#[{u'hashing_algorithm': u'rabbit_password_hashing_sha256', u'name': u'guest', u'tags': u'administrator', u'password_hash': u'xxxxxx'}]
+	try:
+		#
+		listUsers = cl.get_users()
+	except:
+		#
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Caught:"+str(exc))
 
- 	for objUser in cl.get_users():
+ 	for objUser in listUsers:
 		namUser = objUser["name"]
 		sys.stderr.write("q=%s\n"%(namUser))
 

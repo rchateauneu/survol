@@ -39,8 +39,15 @@ def Main():
 	grph = rdflib.Graph()
 
 	# cl.is_alive()
+	try:
+		#
+		listQueues = cl.get_queues()
+	except:
+		#
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Caught:"+str(exc))
 
-	for quList in cl.get_queues():
+	for quList in listQueues:
 		namQueue = quList["name"]
 		sys.stderr.write("q=%s\n"%(namQueue))
 

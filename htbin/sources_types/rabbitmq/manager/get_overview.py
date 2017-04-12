@@ -26,7 +26,14 @@ def Main():
 
 	grph = rdflib.Graph()
 
-	lstOverview = cl.get_overview()
+	try:
+		#
+		listOverview = cl.get_overview()
+	except:
+		#
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+
 	for keyOverview in lstOverview:
 		valOverview = lstOverview[keyOverview]
 
