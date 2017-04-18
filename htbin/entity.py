@@ -9,7 +9,6 @@ import re
 import sys
 import psutil
 import rdflib
-import importlib
 
 # With Linux, Python2 and cgiserver, it can import it,
 # but after that it cannot "import lib_common"
@@ -88,12 +87,28 @@ def IsTempFile(fil):
 # Avantage: On deplace un namespace en copiant uniquement un directory.
 # Et meme pourquoi ne pas reutiliser la syntaxe des sous-classes de WMI et WBEM ?
 
+def TestUsability(importedMod,entity_type,entity_ids_arr):
+	try:
+		isUsable = importedMod.Usable(entity_type,entity_ids_arr)
+	except AttributeError:
+		return None
+
+	# sys.stderr.write("Module %s : %d\t" %(argFil,isUsable	))
+	if isUsable:
+		return None
+
+	errorMsg = importedMod.Usable.__doc__
+	if not errorMsg:
+		errorMsg = importedMod.__name__ + " not usable"
+		if not errorMsg:
+			errorMsg = "No message"
+	return errorMsg
 
 # This lists the scripts and generate RDF nodes.
 # Returns True if something was added.
 def DirToMenu(grph,parentNode,curr_dir,relative_dir,depthCall = 1):
 	txtMargin = ( "    " * depthCall )
-	# sys.stderr.write( txtMargin + "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
+	sys.stderr.write( txtMargin + "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
 	# In case there is nothing.
 	dirs = None
 	for path, dirs, files in os.walk(curr_dir):
@@ -109,6 +124,25 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir,depthCall = 1):
 	sub_path = path[ len(curr_dir) : ]
 
 	argDir = ( relative_dir + sub_path ).replace("/",".")[1:]
+
+	# Maybe there is a usability test in the current module.
+	# The goal is to control all scripts in the subdirectories, from here.
+	try:
+		entity_class = ".".join( relative_dir.split("/")[2:] )
+		# sys.stderr.write( txtMargin + "entity_class=%s\n"%(entity_class))
+
+		importedMod = lib_util.GetEntityModule(entity_class)
+		if importedMod:
+			errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
+			# if flagShowAll and errorMsg ???
+			if errorMsg:
+				# Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
+				grph.add( ( parentNode, lib_common.MakeProp("Unusable"), rdflib.Literal(errorMsg) ) )
+				return False
+	except IndexError:
+		# If we are at the top-level, no interest for the module.
+		pass
+
 
 	containsSomething = False
 	for dir in dirs:
@@ -165,14 +199,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir,depthCall = 1):
 		errorMsg = None
 
 		try:
-			# TODO: IT DOES NOT START FROM "/revlib". DIFFICULTY WITH PYTHONPATH.
-			argFil = "." + fil[:-3] # Without the ".py" extension.
-			# sys.stderr.write("argFil=%s argDir=%s\n" % ( argFil, argDir ) )
-			if sys.version_info >= (3, ):
-				importedMod = importlib.import_module(argDir + argFil)
-			else:
-				# importlib.import_module("sources_top.Databases.mysql_processlist")
-				importedMod = importlib.import_module(argFil, argDir )
+			importedMod = lib_util.GetScriptModule(argDir, fil)
 		except Exception:
 			errorMsg = sys.exc_info()[1]
 			sys.stderr.write(txtMargin + "Cannot import=%s. Caught: %s\n" % (script_path, errorMsg ) )
@@ -184,17 +211,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir,depthCall = 1):
 		if not errorMsg:
 			# Show only scripts which want to be shown. Each script can have an optional function
 			# called Usable(): If it is there and returns False, the script is not displayed.
-			try:
-				isUsable = importedMod.Usable(entity_type,entity_ids_arr)
-				# sys.stderr.write("Module %s : %d\t" %(argFil,isUsable	))
-				if not isUsable:
-					errorMsg = importedMod.Usable.__doc__
-					if not errorMsg:
-						errorMsg = importedMod.__name__ + " not usable"
-						if not errorMsg:
-							errorMsg = "No message"
-			except AttributeError:
-				pass
+			errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 
 		if not flagShowAll and errorMsg:
 			continue
@@ -210,7 +227,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir,depthCall = 1):
 			if not can_process_remote:
 				if not errorMsg:
 					errorMsg = "%s is local" % ( argFil[1:] )
-				sys.stderr.write(txtMargin + "Script %s %s cannot work on remote entities: %s at %s\n" % ( argDir, argFil, entity_id , entity_host ) )
+				sys.stderr.write(txtMargin + "Script %s %s cannot work on remote entities: %s at %s\n" % ( currentModule, argFil, entity_id , entity_host ) )
 
 				if not flagShowAll:
 					continue
@@ -327,21 +344,11 @@ def Main():
 	if not is_host_remote:
 		entity_host = ""
 
-	# Each entity type ("process","file" etc... ) can have a small library
-	# of its own, for displaying a rdf node of this type.
-	entity_module = None
-	if entity_type != "":
-		entity_module = lib_util.GetEntityModule(entity_type)
 
-	# Fusionner les deux dans sources_types de facon a ce que AC2 soit dans un seul directory.
-	# Entretemps, peut-on imaginer d avoir deux directories qui pourront par la suite etre fusionnes ??????
-	# On bougerait petit a petit les directories ?
-	# Aussi: J ai la trouille pour les performances.
 	if entity_type:
 		# entity_type might contain a slash, for example: "sqlite/table"
 		relative_dir = "/sources_types/" + entity_type
 	else:
-		#relative_dir = "/sources_top"
 		relative_dir = "/sources_types"
 
 	# sys.stderr.write("entity: lib_util.gblTopScripts=%s relative_dir=%s\n" % ( lib_util.gblTopScripts, relative_dir ) )
@@ -354,12 +361,17 @@ def Main():
 
 	if entity_id != "" or entity_type == "":
 		entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
-		if entity_module:
-			try:
-				entity_module.AddInfo( grph, rootNode, entity_ids_arr )
-			except AttributeError:
-				exc = sys.exc_info()[1]
-				sys.stderr.write("No AddInfo for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
+
+		# Each entity type ("process","file" etc... ) can have a small library
+		# of its own, for displaying a rdf node of this type.
+		if entity_type:
+			entity_module = lib_util.GetEntityModule(entity_type)
+			if entity_module:
+				try:
+					entity_module.AddInfo( grph, rootNode, entity_ids_arr )
+				except AttributeError:
+					exc = sys.exc_info()[1]
+					sys.stderr.write("No AddInfo for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
 		else:
 			sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
 
