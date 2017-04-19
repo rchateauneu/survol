@@ -30,8 +30,8 @@ def Main():
 	nodeBus = lib_util.EntityUri( "dbus/bus", busAddr )
 
 	# This property should maybe stored at the central file.
-	localPropDbusConnect = rdflib.Literal("dbus connect")
-	localPropDbusWellKnown = rdflib.Literal("well known")
+	localPropDbusConnect = lib_common.MakeProp("dbus connect")
+	localPropDbusWellKnown = lib_common.MakeProp("well known")
 
 	Main.connectNameToNode = dict()
 
@@ -48,11 +48,16 @@ def Main():
 
 		try:
 			ownrNam = theBus.get_name_owner(connectName)
-			# sys.stderr.write("connectName=%s ownr=%s\n" % (connectName,ownrNam))
+			sys.stderr.write("connectName=%s ownr=%s\n" % (connectName,ownrNam))
 			if connectName != ownrNam:
 				ownrNode = GetConnectNode( busAddr, ownrNam )
-				grph.add( (ownrNode, localPropDbusWellKnown, connectNode ) )
+				sys.stderr.write("TO CONNECT %s\n" % (connectName))
+
+				# TODO: BUG, Display does not work if "Well Known" property.
+				# grph.add( (ownrNode, localPropDbusWellKnown, connectNode ) )
+				grph.add( (ownrNode, localPropDbusConnect, connectNode ) )
 		except ValueError:
+			sys.stderr.write("22 CONNECT %s\n" % (connectName))
 			grph.add( (nodeBus, localPropDbusConnect, connectNode ) )
 
 
