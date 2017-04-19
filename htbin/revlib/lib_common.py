@@ -324,8 +324,10 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	def PropToShortPropNam(collapsProp):
 		shortNam = collapsProp.split("/")[-1]
 		# "sun.boot.class.path"
-	# Graphviz just want letters.
-		return shortNam.replace(".","_")
+		# Graphviz just want letters.
+		shortNam = shortNam.replace(".","_")
+		shortNam = shortNam.replace(" ","_")
+		return shortNam
 
 	for collapsPropObj in CollapsedProperties:
 		collapsPropNam = PropToShortPropNam(collapsPropObj)
