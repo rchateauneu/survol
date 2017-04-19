@@ -108,7 +108,7 @@ def TestUsability(importedMod,entity_type,entity_ids_arr):
 # Returns True if something was added.
 def DirToMenu(grph,parentNode,curr_dir,relative_dir,depthCall = 1):
 	txtMargin = ( "    " * depthCall )
-	sys.stderr.write( txtMargin + "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
+	# sys.stderr.write( txtMargin + "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
 	# In case there is nothing.
 	dirs = None
 	for path, dirs, files in os.walk(curr_dir):
