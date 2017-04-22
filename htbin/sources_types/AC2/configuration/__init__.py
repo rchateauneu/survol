@@ -36,6 +36,11 @@ def GetDom(configName):
 
 	sys.stderr.write("configFile=%s\n"%(configFile))
 
-	dom = xml.dom.minidom.parse(configFile)
+	try:
+		dom = xml.dom.minidom.parse(configFile)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Cannot parse %s:%s"%(configFile,str(exc)) )
+
 	return dom
 
