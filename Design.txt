@@ -457,3 +457,10 @@ Dans le cas general, afficher les globales si Linux (Mais peut etre aussi Window
 
 http://stackoverflow.com/questions/6261392/printing-all-global-variables-local-variables
 
+========================================================================================================================
+Attach to a running instance of a COM application
+
+Peut-etre Excel ou VBA ? Interroger un process Excel ?
+
+http://timgolden.me.uk/python/win32_how_do_i/attach-to-a-com-instance.html
+========================================================================================================================
