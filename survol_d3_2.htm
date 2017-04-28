@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<html>
+<head>
+</head>
+
+<script src="http://d3js.org/d3.v2.js?2.9.1"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+
+<style>
+
+    .link10 {
+        stroke: #ccc;
+        stroke-width: 3px;
+        stroke-dasharray: 3, 3;
+    }
+    .link1 {
+        stroke: #000;
+        stroke-width: 3px;
+    }
+    .nodetext {
+        pointer-events: none;
+        font: 10px sans-serif;
+    }
+    .node.type1 {
+        fill:brown;
+    }
+    .node.type2 {
+        fill:#337147;
+    }
+    .node.type3 {
+        fill:blue;
+    }
+    .node.type4 {
+        fill:red;
+    }
+    .node.type5 {
+        fill:#1BC9E0;
+    }
+    .node.type6 {
+        fill:#E01B98;
+    }
+    image.circle {
+        cursor:pointer;
+    }
+
+
+    .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%; /* aspect ratio */
+        vertical-align: top;
+        overflow: hidden;
+    }
+
+    .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        top: 10px;
+        left: 0;
+    }
+
+
+</style>
+
+<script>
+
+// Mais pourquoi data est passe en premier ? au lieu de (error,data ) ?
+// Ah peut-etre d2 version 2 au lieu de 4.
+function CreateDisplay(data)
+{
+    //alert(JSON.stringify(data));
+    var win = window,
+        doc = document,
+        elt = doc.documentElement,
+        geb = doc.getElementsByTagName('body')[0],
+        w = win.innerWidth || elt.clientWidth || geb.clientWidth,
+        h = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
+
+
+    // var w = 1560;
+    // var h = 1500;
+
+    // var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
+
+    var vis ;
+
+
+    if( 0 ) {
+        vis = d3.select("body").append("svg:svg")
+            .attr("width", w)
+            .attr("height", h);
+    }
+    else {
+        // http://stackoverflow.com/questions/16265123/resize-svg-when-window-is-resized-in-d3-js
+        // This allows the resizing.
+        vis = d3.select("body")
+           .append("div")
+           .classed("svg-container", true) //container class to make it responsive
+           .append("svg:svg")
+           //responsive SVG needs these 2 attributes and no width and height attr
+           .attr("preserveAspectRatio", "xMinYMin meet")
+           // .attr("viewBox", "0 0 600 400")
+           .attr("viewBox", "0 0 " + w + " " + h)
+           //class to make it responsive
+           .classed("svg-content-responsive", true);
+    }
+
+    vis.append("defs").append("marker")
+        .attr("id", "arrowhead")
+        .attr("refX", 17 + 3) /*must be smarter way to calculate shift*/
+    .attr("refY", 2)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 4)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M 0,0 V 4 L6,2 Z"); //this is actual shape for arrowhead
+
+    var force = self.force = d3.layout.force()
+        .nodes(data.nodes)
+        .links(data.links)
+        .distance(100)
+        .charge(-1000)
+        .size([w, h])
+        .start();
+
+    FillDisplay(vis,data,force);
+}
+
+function FillDisplay(vis,data,force)
+{
+    var link = vis.selectAll("line.link")
+        .data(data.links)
+        .enter().append("svg:line")
+        .attr("class", function (d) { return "link" + d.value + ""; })
+        .attr("x1", function (d) { return d.source.x; })
+        .attr("y1", function (d) { return d.source.y; })
+        .attr("x2", function (d) { return d.target.x; })
+        .attr("y2", function (d) { return d.target.y; })
+        .attr("marker-end", function (d) {
+        if (d.value == 1) {
+            return "url(#arrowhead)"
+        } else {
+            return " "
+        };
+    });
+
+
+    function openLinkSimpleOpen() {
+        return function (d) { window.open(d.slug); }
+    }
+
+    function openLink()
+    {
+        console.log("openLink");
+
+        function LinkOpener(d)
+        {
+            console.log("LinkOpener");
+            function ReopenUrl(err,dataJson)
+            {
+                console.log("ReopenUrl");
+                FillDisplay(vis,data,force);
+            }
+
+            theurl = d.slug + "&mode=json";
+            console.log("LinkOpener theurl="+theurl);
+            d3.json(theurl, ReopenUrl);
+        }
+
+        return LinkOpener;
+    }
+
+
+
+
+    var node = vis.selectAll("g.node")
+        .data(data.nodes)
+        .enter().append("svg:g")
+        .attr("class", function (d) {
+            if (d.entity === "company") {
+               return "company node";
+            } else {
+               return "circle node";
+            }
+        })
+        .call(force.drag);
+
+    // fill:#337147;
+
+    // The class is a CSS style: ".node.type1" etc...
+
+    // HOW TO SET THE FILL COLOR A PART WITH A CSS ?
+
+    d3.selectAll(".company").append("rect")
+        .attr("width", 50)
+        .attr("height", 20)
+        .attr("fill", function (d) { return d.fill; })
+        //.attr("class", function (d) { return "node type" + d.type; })
+        .append("svg:title")
+        .text(function(d) { return d.title; });
+
+    var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
+
+    d3.selectAll(".circle").append("circle")
+        .attr("class", function (d) { return "node type" + d.type; })
+        .attr("r", function (d) { return radius(d.value) || 10; }).call(force.drag);
+
+    node.append("svg:image")
+        .attr("class", "circle")
+        .attr("xlink:href", function (d) { return d.img_href; })
+        .attr("x", "-16px")
+        .attr("y", "-16px")
+        .attr("width", "32px")
+        .attr("height", "32px")
+        .on("click", openLink());
+
+    node.append("svg:text")
+        .attr("class", "nodetext")
+        .attr("dx", 0)
+        .attr("dy", ".35em")
+        .attr("text-anchor", "middle")
+        .text(function (d) { return d.name; });
+
+    force.on("tick", function () {
+        link.attr("x1", function (d) { return d.source.x; })
+            .attr("y1", function (d) { return d.source.y; })
+            .attr("x2", function (d) { return d.target.x; })
+            .attr("y2", function (d) { return d.target.y; });
+
+        node.attr("transform", function (d) {
+            return "translate(" + d.x + "," + d.y + ")";
+        });
+    });
+}
+
+theurl = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
+d3.json(theurl, CreateDisplay);
+
+
+</script>
+
+<body>
+Test D3
+</body>
+</html>
