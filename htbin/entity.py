@@ -137,7 +137,7 @@ def DirToMenu(grph,parentNode,curr_dir,relative_dir,depthCall = 1):
 			# if flagShowAll and errorMsg ???
 			if errorMsg:
 				# Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
-				grph.add( ( parentNode, lib_common.MakeProp("Unusable"), rdflib.Literal(errorMsg) ) )
+				grph.add( ( parentNode, lib_common.MakeProp("Usability"), rdflib.Literal(errorMsg) ) )
 				return False
 	except IndexError:
 		# If we are at the top-level, no interest for the module.
