@@ -321,16 +321,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	# dictCollapsedSubjectsToObjectLists = collections.defaultdict(list)
 	dictPropsCollapsedSubjectsToObjectLists = {}
 
-	def PropToShortPropNam(collapsProp):
-		shortNam = collapsProp.split("/")[-1]
-		# "sun.boot.class.path"
-		# Graphviz just want letters.
-		shortNam = shortNam.replace(".","_")
-		shortNam = shortNam.replace(" ","_")
-		return shortNam
-
 	for collapsPropObj in CollapsedProperties:
-		collapsPropNam = PropToShortPropNam(collapsPropObj)
+		collapsPropNam = lib_exports.PropToShortPropNam(collapsPropObj)
 		dictPropsCollapsedSubjectsToObjectLists[collapsPropNam] = collections.defaultdict(list)
 
 
@@ -366,7 +358,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# Objects linked with these properties, are listed in a table, instead of distinct nodes in a graph.
 		if prop in CollapsedProperties:
 			# TODO: We lose the property, unfortunately. Should make a map: subject => prop => object ?
-			propNam = PropToShortPropNam(prop)
+			propNam = lib_exports.PropToShortPropNam(prop)
 			dictPropsCollapsedSubjectsToObjectLists[ propNam ][ subj ].append( obj )
 
 			# Maybe we already entered it: Not a problem.
@@ -412,7 +404,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# il faut rajouter devant, le nom du record, c est a dire SON subjNam + "_table_rdf_data:".
 				try:
 					# Syntax with colon required by DOT.
-					propNam = PropToShortPropNam(prop)
+					propNam = lib_exports.PropToShortPropNam(prop)
 					subjNam = SubjNamFromCollapsed(propNam,subjNam)
 				except KeyError:
 					# sys.stderr.write("PASS subjNam=%s objNam=%s\n"%(subjNam,objNam))
@@ -658,7 +650,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	if CollapsedProperties :
 		for collapsedProp in CollapsedProperties:
-			collapsedPropNam = PropToShortPropNam(collapsedProp)
+			collapsedPropNam = lib_exports.PropToShortPropNam(collapsedProp)
 			ProcessCollapsedProperties(collapsedPropNam)
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. dictRdf2Dot=%d\n" % len(dictRdf2Dot) )

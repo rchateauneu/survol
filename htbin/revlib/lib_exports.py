@@ -1,4 +1,5 @@
 import lib_properties
+import lib_patterns
 import lib_naming
 import lib_util
 import rdflib
@@ -27,6 +28,9 @@ def ModedUrl(otherMode):
 		edtUrl = mtch_url.group(1) + otherMode + mtch_url.group(3)
 	else:
 		edtUrl = ConcatenateCgi( script, "mode=" + otherMode )
+
+	# TODO: CA DECONNE SI L URL CONTIENT DES BACKSLASHES COMME:
+	# "http://127.0.0.1:8000/htbin/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE"
 	return edtUrl
 
 ################################################################################
@@ -152,7 +156,7 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 	by_subj = dict()
 	for subj, pred, obj in grph:
 		# No point displaying some keys if there is no value.
-		if pred in [ pc.property_image, pc.property_information ] :
+		if pred == pc.property_information :
 			if str(obj) == "":
 				continue
 
@@ -197,40 +201,264 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 	WrtAsUtf( " </table> </body> </html> ")
 
 ################################################################################
-# Transforms a RDF graph into a JSON document. From Edouard.
 
-def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
-	WrtHeader('application/json')
+# def Graphic_shape():
+# 	return "egg"
+#
+# def Graphic_colorfill():
+# 	return "#CCCC33"
+#
+# def Graphic_colorbg():
+# 	return "#CCCC33"
+#
+# def Graphic_border():
+# 	return 0
+#
+# def Graphic_is_rounded():
+# 	return True
+
+#		arrayGraphParams = TypeToGraphParams(type)
+
+NodeJsonNumber = 0
+
+# This models a node as it will be saved to Json.
+class NodeJson:
+	def __init__(self,rdf_node):
+		global NodeJsonNumber
+		subj_str = str(rdf_node)
+
+		( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
+
+		self.m_label = entity_label.strip()
+		self.m_class = entity_graphic_class
+
+		arrayGraphParams = lib_patterns.TypeToGraphParams(self.m_class)
+
+		# "Graphic_shape","Graphic_colorfill","Graphic_colorbg","Graphic_border","Graphic_is_rounded"
+		self.m_color = arrayGraphParams[1]
+
+		self.m_info = dict()
+		self.m_index = NodeJsonNumber
+		NodeJsonNumber += 1 # One more node.
+
+def PropToShortPropNam(collapsProp):
+	shortNam = collapsProp.split("/")[-1]
+	# "sun.boot.class.path"
+	# Graphviz just want letters.
+	shortNam = shortNam.replace(".","_")
+	shortNam = shortNam.replace(" ","_")
+	return shortNam
+
+
+# Transforms a RDF graph into a JSON document. From Edouard.
+# This returns a graph made of Json objects.
+def Grph2JsonFromScript(page_title, error_msg, isSubServer, parameters, grph):
+
+	# It contains a cache because the same nodes appear several times.
+	def NodeToJsonObj(theNod):
+		try:
+			return NodeToJsonObj.dictNod2Json[theNod]
+		except KeyError:
+			# subj_str = str(theNod)
+			jsonObj = NodeJson(theNod)
+			NodeToJsonObj.dictNod2Json[theNod] = jsonObj
+			return jsonObj
+
+	NodeToJsonObj.dictNod2Json = dict()
 
 	links = []
-	nodes = []
-	graph = {}
-
-	by_subj = dict()
 	for subj, pred, obj in grph:
-		the_tup = (pred, obj)
-		try:
-			by_subj[subj].append(the_tup)
-		except KeyError:
-			by_subj[subj] = [the_tup]
+		subjObj = NodeToJsonObj(subj)
+		subj_id = subjObj.m_index
 
-	for subj, the_tup_list in list(by_subj.items()):
-		subj_str = str(subj)
-		subj_title = lib_naming.ParseEntityUri(subj_str)[0]
-		nodes.extend([{'id': subj_title}])
-		mustWriteColOne = True
+		propNam = PropToShortPropNam(pred)
 
-		for pred, obj in the_tup_list:
-			if mustWriteColOne:
-				mustWriteColOne = False
-				obj_str = str(obj)
-			if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
-				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
-				links.extend([{'source': subj_title, 'target': obj_title}])
+		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
+			objObj = NodeToJsonObj(obj)
+			obj_id = objObj.m_index
+			links.extend([{'source': subj_id, 'target': obj_id, 'value': 10}])
+		elif isinstance(obj, (rdflib.Literal)):
+			# sys.stderr.write("lll=%s\n"%pred)
+			subjObj.m_info[propNam] = obj.value
+		else:
+			raise "Cannot happen here"
 
+	numNodes = len(NodeToJsonObj.dictNod2Json)
+	nodes = [None] * numNodes
+	for nod in NodeToJsonObj.dictNod2Json:
+		nodObj = NodeToJsonObj.dictNod2Json[nod]
+		nod_titl = nodObj.m_label
+		nod_id = nodObj.m_index
+        #"name": "Yandex",
+        #"type": 1,
+        #"slug": "www.yandex.com)",
+        #"entity": "company"
+		# nodes.extend([{'name': nod_titl, "type": 3, 'slug': 'www.yandex.ru', 'entity':'company'}])
+		obj_link = nod
+		# sys.stderr.write("lll=%s\n"%nod)
+		# type is only for the color.
+		nodes[nod_id] = {
+			'name': nod_titl,
+			"type": 3,
+			'slug': obj_link,
+			'fill': nodObj.m_color,
+			'entity':'company',
+			'title' : str(nodObj.m_info)
+		}
+
+	graph = {}
 	graph["nodes"] = nodes
 	graph["links"] = links
+
+	WrtHeader('application/json')
 	print(json.dumps(graph, indent=2))
+
+# This returns a tree of scripts, usable as a contextual menu.
+# The RDF content is already created, so this keeps only the nodes related to scripts.
+# TODO: It would be faster to keep only the tree of scripts. The script "entity.py"
+# should have a different output when mode=json.
+# It does not return a network but a tree to be displayed in a contextual menu.
+# It has a completely different layout as a normal RDF transformed into JSON,
+# so probably the URL should be different as well.
+def Grph2JsonAsMenu(page_title, error_msg, isSubServer, parameters, grph):
+	# For each node, the subscripts. Therefore it can only be a directory.
+	NodesToItems = {}
+
+	# Nodes of scripts which have a parent.
+	NodesWithParent = set()
+
+	# Later used to calculate the list of scripts which do not have a parent
+	# directory: They will be displayed at the top of the contextual menu.
+	SubjectNodes = set()
+
+	NodeToMenuJsonObj = dict()
+
+	# The name of each node.
+	NodesToNames = dict()
+
+	for subj, pred, obj in grph:
+		if pred == pc.property_rdf_data1:
+			sys.stderr.write("subj=%s\n"%str(subj))
+			sys.stderr.write("obj=%s\n"%str(obj))
+			try:
+				NodesToItems[subj].append(obj)
+			except KeyError:
+				NodesToItems[subj] = [obj]
+
+			#if isinstance(obj, (rdflib.Literal)):
+			#	sys.stderr.write("subj=%s\n"%str(subj))
+			#	sys.stderr.write("obj.value=%s\n"%obj.value)
+			#	NodesToNames[subj] = obj.value
+
+			# NodesToItems.get(subj, []).append(obj)
+			NodesWithParent.add(obj)
+			SubjectNodes.add(subj)
+		elif pred == pc.property_information:
+			if isinstance(obj, (rdflib.Literal)):
+				sys.stderr.write("subj=%s\n"%str(subj))
+				sys.stderr.write("obj.value=%s\n"%obj.value)
+				NodesToNames[subj] = obj.value
+			else:
+				raise "Cannot happen here also"
+		else:
+			pass
+
+	TopLevelNodes = SubjectNodes - NodesWithParent
+
+	#sys.stderr.write("TopLevelNodes=%s\n"%str(TopLevelNodes))
+
+	#sys.stderr.write("\n")
+	for oneRdfNod in NodesToItems:
+		lstItem = NodesToItems[oneRdfNod]
+		# sys.stderr.write("oneRdfNod=%s l=%d\n"%(oneRdfNod,len(lstItem)))
+	#sys.stderr.write("\n")
+
+	#sys.stderr.write("\n")
+	for oneRdfNod in NodesToNames:
+		nam = NodesToNames[oneRdfNod]
+		# sys.stderr.write("oneRdfNod=%s nam=%s\n"%(oneRdfNod,nam))
+	#sys.stderr.write("\n")
+
+
+
+	def AddStuff(theNodList,depth=0):
+		listJsonItems = {}
+
+		for oneRdfNod in theNodList:
+			#sys.stderr.write("oneRdfNod=%s\n"%oneRdfNod)
+			oneJsonNod = {}
+			oneJsonNod["name"] = NodesToNames.get(oneRdfNod,"No name")
+			# sys.stderr.write( (" " * depth) + "name=%s\n" % (oneJsonNod["name"]) )
+			oneJsonNod["url"] = oneRdfNod
+
+			# Maybe it does not have subitems.
+			try:
+				lstItem = NodesToItems[oneRdfNod]
+				oneJsonNod["items"] = AddStuff(lstItem,depth+1)
+			except KeyError:
+				pass
+
+			listJsonItems[oneRdfNod] = oneJsonNod
+		return listJsonItems
+
+
+	menuJson = AddStuff(TopLevelNodes)
+
+	#sys.stderr.write("menuJson=%s\n"%str(menuJson))
+
+	# There is only one top-level element.
+	for oneMenuKey in menuJson:
+		oneMenuVal = menuJson[oneMenuKey]["items"]
+		break
+
+	#sys.stderr.write("menuJson=%s\n"%str(oneMenuVal))
+
+
+	WrtHeader('application/json')
+	print(json.dumps(oneMenuVal, indent=2))
+
+
+	# menuJson = {
+	# 	"XXXXfold1": {
+	# 		"name": "Sub groupRemote",
+	# 		"items": {
+	# 			"fold1-key1": {"name": "Foo bar"},
+	# 			"fold2": {
+	# 				"name": "Sub group 2",
+	# 				"items": {
+	# 					"fold2-key1": {"name": "alpha"},
+	# 					"fold2-key2": {"name": "bravo"},
+	# 					"fold2-key3": {"name": "charlie"}
+	# 				}
+	# 			},
+	# 			"fold1-key3": {"name": "delta"}
+	# 		}
+	# 	},
+	# 	"YYYfold1a": {
+	# 		"name": "Other groupRemote",
+	# 		"items": {
+	# 			"fold1a-key1": {"name": "echo"},
+	# 			"fold1a-key2": {"name": "foxtrot"},
+	# 			"fold1a-key3": {"name": "golf"}
+	# 		}
+	# 	}
+	# }
+
+
+
+# If this is an "entity", then we return the list of scripts so it can be used
+# in a contextual javascript menu.
+# There is indeed a conceptual difference between:
+# * the entities returned entity.py : These are Python scripts, plus some decorative objects.
+# * A specific Python script which returns unique information, and no urls to other scripts.
+def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
+	# TODO: Hard-code. Must select entity.py only.
+	sys.stderr.write("page_title=%s\n" % page_title)
+	if not page_title.startswith("Overview"):
+		Grph2JsonFromScript(page_title, error_msg, isSubServer, parameters, grph)
+	else:
+		# "http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3812&mode=json"
+		Grph2JsonAsMenu(page_title, error_msg, isSubServer, parameters, grph)
 
 
 ################################################################################
