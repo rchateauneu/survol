@@ -252,7 +252,7 @@ def PropToShortPropNam(collapsProp):
 
 # Transforms a RDF graph into a JSON document. From Edouard.
 # This returns a graph made of Json objects.
-def Grph2JsonFromScript(page_title, error_msg, isSubServer, parameters, grph):
+def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 	# It contains a cache because the same nodes appear several times.
 	def NodeToJsonObj(theNod):
@@ -276,6 +276,7 @@ def Grph2JsonFromScript(page_title, error_msg, isSubServer, parameters, grph):
 		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
 			objObj = NodeToJsonObj(obj)
 			obj_id = objObj.m_index
+			# "value" is for the class, for example ".link10".
 			links.extend([{'source': subj_id, 'target': obj_id, 'value': 10}])
 		elif isinstance(obj, (rdflib.Literal)):
 			# sys.stderr.write("lll=%s\n"%pred)
@@ -298,12 +299,12 @@ def Grph2JsonFromScript(page_title, error_msg, isSubServer, parameters, grph):
 		# sys.stderr.write("lll=%s\n"%nod)
 		# type is only for the color.
 		nodes[nod_id] = {
-			'name': nod_titl,
-			"type": 3,
-			'slug': obj_link,
-			'fill': nodObj.m_color,
-			'entity':'company',
-			'title' : str(nodObj.m_info)
+			'name'        : nod_titl,
+			"type"        : 3,
+			'survol_url'  : obj_link,
+			'fill'        : nodObj.m_color,
+			'entity_class': nodObj.m_class,
+			'title'       : str(nodObj.m_info)
 		}
 
 	graph = {}
@@ -320,7 +321,8 @@ def Grph2JsonFromScript(page_title, error_msg, isSubServer, parameters, grph):
 # It does not return a network but a tree to be displayed in a contextual menu.
 # It has a completely different layout as a normal RDF transformed into JSON,
 # so probably the URL should be different as well.
-def Grph2JsonAsMenu(page_title, error_msg, isSubServer, parameters, grph):
+# Input example: "http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3812&mode=json"
+def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 	# For each node, the subscripts. Therefore it can only be a directory.
 	NodesToItems = {}
 
@@ -338,25 +340,24 @@ def Grph2JsonAsMenu(page_title, error_msg, isSubServer, parameters, grph):
 
 	for subj, pred, obj in grph:
 		if pred == pc.property_rdf_data1:
-			sys.stderr.write("subj=%s\n"%str(subj))
-			sys.stderr.write("obj=%s\n"%str(obj))
+			#sys.stderr.write("subj=%s\n"%str(subj))
+			#sys.stderr.write("obj=%s\n"%str(obj))
 			try:
 				NodesToItems[subj].append(obj)
 			except KeyError:
 				NodesToItems[subj] = [obj]
 
-			#if isinstance(obj, (rdflib.Literal)):
-			#	sys.stderr.write("subj=%s\n"%str(subj))
-			#	sys.stderr.write("obj.value=%s\n"%obj.value)
-			#	NodesToNames[subj] = obj.value
+			if isinstance(obj, (rdflib.Literal)):
+				# This is the name of a subdirectory containing scripts.
+				# sys.stderr.write("obj LITERAL=%s\n"%str(subj))
+				NodesToNames[obj] = obj
 
-			# NodesToItems.get(subj, []).append(obj)
 			NodesWithParent.add(obj)
 			SubjectNodes.add(subj)
 		elif pred == pc.property_information:
 			if isinstance(obj, (rdflib.Literal)):
-				sys.stderr.write("subj=%s\n"%str(subj))
-				sys.stderr.write("obj.value=%s\n"%obj.value)
+				#sys.stderr.write("subj=%s\n"%str(subj))
+				#sys.stderr.write("obj.value=%s\n"%obj.value)
 				NodesToNames[subj] = obj.value
 			else:
 				raise "Cannot happen here also"
@@ -378,8 +379,6 @@ def Grph2JsonAsMenu(page_title, error_msg, isSubServer, parameters, grph):
 		nam = NodesToNames[oneRdfNod]
 		# sys.stderr.write("oneRdfNod=%s nam=%s\n"%(oneRdfNod,nam))
 	#sys.stderr.write("\n")
-
-
 
 	def AddStuff(theNodList,depth=0):
 		listJsonItems = {}
@@ -443,23 +442,6 @@ def Grph2JsonAsMenu(page_title, error_msg, isSubServer, parameters, grph):
 	# 		}
 	# 	}
 	# }
-
-
-
-# If this is an "entity", then we return the list of scripts so it can be used
-# in a contextual javascript menu.
-# There is indeed a conceptual difference between:
-# * the entities returned entity.py : These are Python scripts, plus some decorative objects.
-# * A specific Python script which returns unique information, and no urls to other scripts.
-def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
-	# TODO: Hard-code. Must select entity.py only.
-	sys.stderr.write("page_title=%s\n" % page_title)
-	if not page_title.startswith("Overview"):
-		Grph2JsonFromScript(page_title, error_msg, isSubServer, parameters, grph)
-	else:
-		# "http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3812&mode=json"
-		Grph2JsonAsMenu(page_title, error_msg, isSubServer, parameters, grph)
-
 
 ################################################################################
 

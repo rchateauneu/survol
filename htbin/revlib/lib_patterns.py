@@ -88,6 +88,18 @@ def TypeToGraphParams(typeWithoutNS):
 # Gets the graphic attributes: Each of them comes form the module of the entity or an upper module.
 # TODO: At the moment, we cannot distinguish between our entites (Defined in our modules) and
 # CIM properties which can only be stored but elsewhere. But CIM classes have no graphic attributes.
+
+# Pour tous les attributs graphiques, ce serait mieux d'avoir des CSS avec le nom de la classe
+# qui seraient charges automatiquement a partir de D3 et convertis a la volee pour Graphviz.
+#
+# Certes Grphviz n accepte pas CSS: http://stackoverflow.com/questions/31807719/using-css-classes-in-html-labels-on-graphviz
+# Mais on peut extraire certains attributs a la volee.
+#
+# Donc:
+# (1) Pour le graphisme aller chercher en premier un XXX.css dans le directory de la classe,
+# a cote du __init__.py, et generer les attributs dont on a besoin.
+# (2) Si ya pas de CSS ou bien si des attributs manquent, aller chercher les fonctions dans le module,
+# comme maintenant.
 def TypeToGraphParamsNoCache(typeWithoutNS):
 
 	vecGraphFunctions = [

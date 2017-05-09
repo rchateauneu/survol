@@ -26,6 +26,12 @@
         pointer-events: none;
         font: 10px sans-serif;
     }
+    .tralala {
+        fill:green;
+        font: 30px sans-serif;
+        stroke-width: 3px;
+        stroke-dasharray: 3, 3;
+    }
     .node.type1 {
         fill:brown;
     }
@@ -48,7 +54,6 @@
         cursor:pointer;
     }
 
-
     .svg-container {
         display: inline-block;
         position: relative;
@@ -70,74 +75,107 @@
 
 <script>
 
+var wScreen;
+var hScreen;
+var force = null;
+
+// At startup.
+var url_Start = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
+var theurl = url_Start;
+var theurl = "http://127.0.0.1:8000/htbin/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D2976&mode=json";
+var divSvg = null;
+
 // Mais pourquoi data est passe en premier ? au lieu de (error,data ) ?
 // Ah peut-etre d2 version 2 au lieu de 4.
 function CreateDisplay(data)
 {
+    if( data == null )
+    {
+        alert("Json data is null");
+        return;
+    }
+
     //alert(JSON.stringify(data));
     var win = window,
         doc = document,
         elt = doc.documentElement,
-        geb = doc.getElementsByTagName('body')[0],
-        w = win.innerWidth || elt.clientWidth || geb.clientWidth,
-        h = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
+        geb = doc.getElementsByTagName('body')[0];
+    wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
+    hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
 
+    // http://stackoverflow.com/questions/16265123/resize-svg-when-window-is-resized-in-d3-js
+    // This allows the resizing.
+    divSvg = d3.select("body")
+       .append("div")
+       .classed("svg-container", true) //container class to make it responsive
+       .append("svg:svg")
+       //responsive SVG needs these 2 attributes and no width and height attr
+       .attr("preserveAspectRatio", "xMinYMin meet")
+       .attr("viewBox", "0 0 " + wScreen + " " + hScreen)
+       //class to make it responsive
+       .classed("svg-content-responsive", true);
 
-    // var w = 1560;
-    // var h = 1500;
-
-    // var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
-
-    var vis ;
-
-
-    if( 0 ) {
-        vis = d3.select("body").append("svg:svg")
-            .attr("width", w)
-            .attr("height", h);
-    }
-    else {
-        // http://stackoverflow.com/questions/16265123/resize-svg-when-window-is-resized-in-d3-js
-        // This allows the resizing.
-        vis = d3.select("body")
-           .append("div")
-           .classed("svg-container", true) //container class to make it responsive
-           .append("svg:svg")
-           //responsive SVG needs these 2 attributes and no width and height attr
-           .attr("preserveAspectRatio", "xMinYMin meet")
-           // .attr("viewBox", "0 0 600 400")
-           .attr("viewBox", "0 0 " + w + " " + h)
-           //class to make it responsive
-           .classed("svg-content-responsive", true);
-    }
-
-    vis.append("defs").append("marker")
+    /*
+    divSvg.append("defs").append("marker")
         .attr("id", "arrowhead")
-        .attr("refX", 17 + 3) /*must be smarter way to calculate shift*/
-    .attr("refY", 2)
+        .attr("refX", 17 + 3) // must be smarter way to calculate shift
+        .attr("refY", 2)
         .attr("markerWidth", 6)
         .attr("markerHeight", 4)
         .attr("orient", "auto")
         .append("path")
         .attr("d", "M 0,0 V 4 L6,2 Z"); //this is actual shape for arrowhead
+    */
 
-    var force = self.force = d3.layout.force()
+    force = d3.layout.force();
+
+    FillDisplay(divSvg,data,wScreen,hScreen);
+} // CreateDisplay
+
+function RefillDisplay(data)
+{
+    if( data == null )
+    {
+        alert("Jason data is null");
+        return;
+    }
+
+    console.log("RefillDisplay:"+JSON.stringify(data));
+
+    // CreateDisplay(data);
+
+    // Empty display.
+
+    var node = divSvg.selectAll("g.survol_node")
+        .data([])
+        .exit()
+        .remove();
+
+    // var link = divSvg.selectAll("line.link")
+    var link = divSvg.selectAll(".survol_line")
+        .data([])
+        .exit()
+        .remove();
+
+    FillDisplay(divSvg,data,wScreen,hScreen);
+}
+
+function FillDisplay(divSvg,data,w,h)
+{
+    force
         .nodes(data.nodes)
         .links(data.links)
         .distance(100)
         .charge(-1000)
-        .size([w, h])
+        .size([wScreen, hScreen])
         .start();
 
-    FillDisplay(vis,data,force);
-} // CreateDisplay
-
-function FillDisplay(vis,data,force)
-{
-    var link = vis.selectAll("line.link")
+    // var link = divSvg.selectAll("line.link")
+    var link = divSvg.selectAll(".survol_line")
         .data(data.links)
+        // .enter().append("line.link")
         .enter().append("svg:line")
-        .attr("class", function (d) { return "link" + d.value + ""; })
+        .attr("class", function (d) { return "link" + d.value + " survol_line"; }) // "link10"
         .attr("x1", function (d) { return d.source.x; })
         .attr("y1", function (d) { return d.source.y; })
         .attr("x2", function (d) { return d.target.x; })
@@ -148,9 +186,11 @@ function FillDisplay(vis,data,force)
 
 
     function openLinkSimpleOpen() {
-        return function (d) { window.open(d.slug); }
+        console.log("openLinkSimpleOpen");
+        return function (d) { window.open(d.survol_url); }
     }
 
+    // Left-click on a SVG object.
     function openLink()
     {
         console.log("openLink");
@@ -161,42 +201,48 @@ function FillDisplay(vis,data,force)
             function ReopenUrl(err,dataJson)
             {
                 console.log("ReopenUrl");
-                FillDisplay(vis,data,force);
+                FillDisplay(divSvg,data,force);
             }
 
-            theurl = d.slug + "&mode=json";
+            // This expects a graph, not a contextual menu.
+            theurl = d.survol_url + "&mode=json";
+            theurl = url_Start;
             console.log("LinkOpener theurl="+theurl);
-            d3.json(theurl, ReopenUrl);
+            d3.json(theurl, RefillDisplay);
         }
 
         return LinkOpener;
     }
 
 
+    function NodeLeftClick(d)
+    {
+        console.log("NodeLeftClick");
 
+        // This expects a graph, not a contextual menu.
+        theurl = d.survol_url + "&mode=json";
+        // theurl = url_Start;
+        console.log("LinkOpener theurl="+theurl);
+        alert("theurl="+theurl);
+        d3.json(theurl, RefillDisplay);
+    }
 
-    var node = vis.selectAll("g.node")
+    // Creates one SVG object (Which class ?) for each survol node.
+    var node = divSvg.selectAll("g.node")
         .data(data.nodes)
         .enter().append("svg:g")
-        .attr("class", function (d) {
-            if (d.entity === "company") {
-               return "company node";
-            } else {
-               return "circle node";
-            }
-        })
+        .attr("class", function (d) { return "survol_node node"; }) // Two classes are possible.
         .call(force.drag);
 
     // fill:#337147;
 
     // The class is a CSS style: ".node.type1" etc...
 
-    // HOW TO SET THE FILL COLOR A PART WITH A CSS ?
-
-    d3.selectAll(".company").append("rect")
+    d3.selectAll(".survol_node").append("rect")
         .attr("width", 50)
         .attr("height", 20)
         .attr("fill", function (d) { return d.fill; })
+        .attr("class", function (d) { return d.entity_class; }) // Classes are not defined so colors are OK.
         //.attr("class", function (d) { return "node type" + d.type; })
         .append("svg:title").text(function(d) { return d.title; })
         ;
@@ -207,6 +253,9 @@ function FillDisplay(vis,data,force)
         .attr("class", function (d) { return "node type" + d.type; })
         .attr("r", function (d) { return radius(d.value) || 10; }).call(force.drag);
 
+    // Maybe the click zone on each survol node ???????
+    // Why is it invisible ??
+    // Why not a "mousedown" ??
     node.append("svg:image")
         .attr("class", "circle")
         .attr("xlink:href", function (d) { return d.img_href; })
@@ -214,8 +263,9 @@ function FillDisplay(vis,data,force)
         .attr("y", "-16px")
         .attr("width", "32px")
         .attr("height", "32px")
-        .on("click", openLink());
+        .on("click", NodeLeftClick);
 
+    // This is the text associated to each survol node.
     node.append("svg:text")
         .attr("class", "nodetext")
         .attr("dx", 0)
@@ -223,7 +273,10 @@ function FillDisplay(vis,data,force)
         .attr("text-anchor", "middle")
         .text(function (d) { return d.name; });
 
-    force.on("tick", function () {
+    function tick_function()
+    {
+        // Apply the constraints: On verra plus tard. http://bl.ocks.org/GerHobbelt/3669455
+
         link.attr("x1", function (d) { return d.source.x; })
             .attr("y1", function (d) { return d.source.y; })
             .attr("x2", function (d) { return d.target.x; })
@@ -232,13 +285,15 @@ function FillDisplay(vis,data,force)
         node.attr("transform", function (d) {
             return "translate(" + d.x + "," + d.y + ")";
         });
-    });
+    }
+
+    force.on("tick", tick_function);
 
 
     // This returns the contextual menu.
-    function MakeItems(objKey,objDfd)
+    function MakeContextMenuItems(objKey,objDfd)
     {
-        console.log("MakeItems objKey="+objKey);
+        console.log("MakeContextMenuItems objKey="+objKey);
 
         // https://swisnl.github.io/jQuery-contextMenu/demo/async-promise.html Submenu through promise.
         var menusSurvol = objDfd.promise();
@@ -293,11 +348,14 @@ function FillDisplay(vis,data,force)
         };
 
         return TheItems;
-    } // MakeItems
+    } // MakeContextMenuItems
 
-    function BigFuncDyn(){
+    // Called after the page is loaded. It adds a context menu to each node,
+    // therefore the nodes must be created.
+    function CreateContextMenus(){
+        console.log("CreateContextMenus");
         $.contextMenu({
-            selector: 'g.node',
+            selector: 'g.survol_node',
             build: function($trigger, e) {
                 // this callback is executed every time the menu is to be shown
                 // its results are destroyed every time the menu is hidden
@@ -307,47 +365,53 @@ function FillDisplay(vis,data,force)
 
                 var objectSvg = $trigger["0"]["__data__"];
 
-                var theItems = MakeItems(objectSvg.name,objectSvg.dfd);
+                var theItems = MakeContextMenuItems(objectSvg.name,objectSvg.dfd);
 
                 return {
                     callback: function(key, options) {
                         // This is executed when an option is chosen in a contextual menu.
                         var m = "clicked: " + key;
                         window.console && console.log(m) || alert(m);
+
+                        // This is a Python script, not a contextual menu displayed by "entity.py".
+                        theUrl = key + "&mode=json";
+                        console.log("theUrl="+theUrl);
+                        d3.json(theUrl, RefillDisplay);
+
                     },
                     items: theItems
                 };
             }
         });
-    };
+    }; // CreateContextMenus
 
 
     // When the mouse right button is down, this loads the contextual menu content into the SVG object.
     // When this right button is released, it triggers the contextual menu which finds its content
     // stored in the SVG object.
     $("g.node").mousedown(function(ev){
+        // alert("rc");
 
-        /* Mais si clicke gauche, on va vers le "entity.py" comme d'habitude.
-        car ca donne une vue synthetique de l'objet.
+        /* Si clicke gauche, on va vers le "entity.py".
 
         TODO: Mixer les SVG avec des graphes et des trees.
+
+        A terme, ne pas utiliser le JSON mais charger le fichier CSS dans le directory de la classe.
         */
 
         if(ev.which == 3)
         {
+            // alert("rc3");
             var objectThis = this;
             function GetEntityUrl(jsonData)
             {
                 // console.log("ENTITY="+JSON.stringify(jsonData));
-                // console.log("REBELOTE:"+objectThis.__data__.slug);
-                objectThis.__data__["MENUMENUYYYYYYYYYYYYYYYY"] = jsonData;
+                // console.log("REBELOTE:"+objectThis.__data__.survol_url);
 
                 // Maybe this duplicates the value. Not a problem.
                 objectThis.__data__.contextual_menu_items = jsonData;
 
                 objectThis.__data__.dfd.resolve(jsonData);
-
-                // CA MARCHE A CONDITION QUE LA SOURIS NE SOIT PAS RELACHEE TROP VITE.
             }
 
             // console.log("Before:");
@@ -355,13 +419,13 @@ function FillDisplay(vis,data,force)
             // "{"__data__":{"name":"erlsrv.exe","title":"{u'pid': 3764}","entity":"company","type":3,"slug":"http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3764","fill":"#99FF88","index":13,"weight":2,"x":799.1007978181673,"y":367.4837488000358,"px":799.7278005857847,"py":367.3954435486226},"jQuery11130282863608954682":15}" survol_d3_2.htm:339:1
             // console.log(JSON.stringify(this));
 
-            var urlEntity = this.__data__.slug + "&mode=json";
+            // We expect a contextual menu, not a graph.
+            var urlEntity = this.__data__.survol_url + "&mode=menu";
             console.log("URL:"+urlEntity);
 
             this.__data__.dfd = jQuery.Deferred();
 
             d3.json(urlEntity, GetEntityUrl);
-
 
             // "{"0":{"__data__":{"name":"erlsrv.exe","title":"{u'pid': 3764}","entity":"company","type":3,"slug":"http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3764","fill":"#99FF88","index":13,"weight":2,"x":799.1007978181673,"y":367.4837488000358,"px":799.7278005857847,"py":367.3954435486226},"jQuery11130282863608954682":15},"context":{"__data__":{"name":"erlsrv.exe","title":"{u'pid': 3764}","entity":"company","type":3,"slug":"http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3764","fill":"#99FF88","index":13,"weight":2,"x":799.1007978181673,"y":367.4837488000358,"px":799.7278005857847,"py":367.3954435486226},"jQuery11130282863608954682":15},"length":1}" survol_d3_2.htm:340:1
             // console.log(JSON.stringify($(this)));
@@ -369,18 +433,20 @@ function FillDisplay(vis,data,force)
         }
     });
 
-    $(BigFuncDyn);
+    // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
+    $(CreateContextMenus);
 } // FillDisplay
 
-theurl = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
+// alert("theurl="+theurl);
 d3.json(theurl, CreateDisplay);
 
 /*
-Il faut le faire en deux temps:
-Quand on right-clicke, on va chercher le menu et on met "context menu" ?
-Oui mais il faut plutot etre certain de l'evenement qui vient AVANT le right click. Hover ??
+http://bl.ocks.org/GerHobbelt/3669455
+Rester dans la partie visible : Voir la fonction.
+RDF doit passer la contrainte sur les propriétés: Ajouter des triplets RDF qui expriment le layout hierarchique:
+« Layout »  property  « valeur »
+Mais il n est pas certain que ca suffise quand on a beaucoup d’objets.
 */
-
 
 </script>
 
