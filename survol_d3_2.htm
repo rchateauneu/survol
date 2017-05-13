@@ -26,12 +26,6 @@
         pointer-events: none;
         font: 10px sans-serif;
     }
-    .tralala {
-        fill:green;
-        font: 30px sans-serif;
-        stroke-width: 3px;
-        stroke-dasharray: 3, 3;
-    }
     .node.type1 {
         fill:brown;
     }
@@ -82,18 +76,56 @@ var force = null;
 // At startup.
 var url_Start = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
 var theurl = url_Start;
-var theurl = "http://127.0.0.1:8000/htbin/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D2976&mode=json";
+// var theurl = "http://127.0.0.1:8000/htbin/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D2976&mode=json";
+var theurl = "http://127.0.0.1:8000/htbin/sources_types/enumerate_CIM_LogicalDisk.py?xid=.&mode=json";
 var divSvg = null;
+var globalMustMerge = false;
+
+// This stores the current nodes and links. Maybe there is a simpler way to store them.
+var previousData = null;
+
+
+// Sanity check to ensure that nodes and links are properly matched.
+function CheckGraph(theNam,theData)
+{
+    console.log(theNam+" nodes="+theData.nodes.length+" links="+theData.links.length);
+    for( var ix = 0; ix < theData.links.length; ix++ )
+    {
+        if( theData.links[ix].source == undefined )
+        {
+            console.log("Undefined source ix="+ix);
+        }
+        if( theData.links[ix].source >= theData.nodes.length )
+        {
+            console.log("Too big source ix="+ix+" :"+theData.links[ix].source);
+        }
+        if( theData.links[ix].target == undefined )
+        {
+            console.log("Undefined target ix="+ix);
+        }
+        if( theData.links[ix].target >= theData.nodes.length )
+        {
+            console.log("Too big target ix="+ix+" :"+theData.links[ix].target);
+        }
+
+        console.log("ix="+ix+" source="+theData.links[ix].source+" target="+theData.links[ix].target);
+    }
+    console.log("===============");
+} // CheckGraph
+
+
 
 // Mais pourquoi data est passe en premier ? au lieu de (error,data ) ?
-// Ah peut-etre d2 version 2 au lieu de 4.
+// Ah peut-etre d2 version 2 au lieu de 4 ?
 function CreateDisplay(data)
 {
     if( data == null )
     {
-        alert("Json data is null");
+        alert("CreateDisplay: Json data is null");
         return;
     }
+
+    CheckGraph("new",data);
 
     //alert(JSON.stringify(data));
     var win = window,
@@ -129,23 +161,187 @@ function CreateDisplay(data)
 
     force = d3.layout.force();
 
-    FillDisplay(divSvg,data,wScreen,hScreen);
+    previousData = data;
+    FillDisplay(divSvg,previousData,wScreen,hScreen);
 } // CreateDisplay
 
+// Callback of contextual menu. It receives the JSON menu sent by the server.
 function RefillDisplay(data)
 {
+    CheckGraph("new",data);
     if( data == null )
     {
-        alert("Jason data is null");
+        alert("RefillDisplay: Jason data is null");
         return;
     }
 
-    console.log("RefillDisplay:"+JSON.stringify(data));
+    if( globalMustMerge )
+    {
+        // This creates a new list of nodes with new numbers and without the duplicates.
+        // The links also, are recreated, with new numbers.
+        var previousNodes = previousData.nodes;
+        var prevUrlsToIds = {};
 
-    // CreateDisplay(data);
+        var lenPrevNodes = previousNodes.length;
+        for (var ixNod = 0; ixNod < lenPrevNodes; ixNod++) {
+            var urlNode = previousNodes[ixNod].survol_url;
 
+            // Sanity check:
+            if(prevUrlsToIds[urlNode] != undefined)
+            {
+                alert("prevUrlsToIds[urlNode] undefined. urlNode="+urlNode);
+            }
+
+            // Normally, at this stage, each URL should appear only once.
+            prevUrlsToIds[urlNode] = ixNod;
+        }
+
+        console.log("prevUrlsToIds elements:"+JSON.stringify(prevUrlsToIds));
+
+        // The new numbers of the new nodes are written in the nodes themselves.
+        var newNodes = data.nodes;
+        var lenNewNodes = newNodes.length;
+        for( var ixNod = 0; ixNod < lenNewNodes; ixNod++ )
+        {
+            var newNod = newNodes[ixNod];
+            var urlNode = newNod.survol_url;
+
+            // Sanity check
+            if( urlNode == undefined)
+            {
+                alert("urlNode undefined. ixNod="+ixNod);
+            }
+
+            // Index of the same URL in the current list of nodes.
+            var oldIdx = prevUrlsToIds[urlNode];
+
+            if( oldIdx == undefined )
+            {
+                // Most common case of a new node.
+                idxAppend = previousNodes.length;
+                // newNod.new_index = lenPrevNodes + ixNod;
+                newNod.new_index = idxAppend;
+
+                // Sanity check
+                if( idxAppend < lenPrevNodes )
+                {
+                    alert("idxAppend="+idxAppend);
+                }
+
+                // The new node is copied at the end.
+                previousNodes.push(newNod);
+            }
+            else
+            {
+                // The node already exists, no copy.
+                newNod.new_index = oldIdx;
+
+                // Sanity check
+                if( previousNodes[oldIdx].survol_url != urlNode)
+                {
+                    alert("Inconsistent urls oldIdx="+oldIdx);
+                }
+            }
+        }
+
+        // Now we renumber the edges.
+        var newLinks = data.links;
+        var lenNewLinks = newLinks.length;
+        var previousLinks = previousData.links;
+        for( var ixLnk = 0; ixLnk < lenNewLinks; ixLnk++ )
+        {
+            var newLnk = newLinks[ixLnk];
+
+            idxSourceMapped = newNodes[newLnk.source].new_index;
+
+            // Sanity check
+            if(idxSourceMapped == undefined)
+            {
+                alert("Source undefined newLnk.source="+newLnk.source);
+            }
+
+            //if( idxSourceMapped < lenPrevNodes )
+            //{
+            console.log("Rewire "+ixLnk+" source from "+newLnk.source+" to "+idxSourceMapped);
+            newLnk.source = idxSourceMapped;
+            //}
+
+            idxTargetMapped = newNodes[newLnk.target].new_index;
+
+            // Sanity check
+            if(idxTargetMapped == undefined)
+            {
+                alert("Target undefined newLnk.target="+newLnk.target);
+            }
+
+            //if( idxTargetMapped < lenPrevNodes )
+            //{
+            console.log("Rewire "+ixLnk+" target from "+newLnk.target+" to "+idxTargetMapped);
+            newLnk.target = idxTargetMapped;
+            //}
+
+            // Sanity check
+            if(newLnk.source == undefined)
+            {
+                alert("newLnk.source undefined. ixLnk="+ixLnk);
+            }
+            if(newLnk.target == undefined)
+            {
+                alert("newLnk.target undefined. ixLnk="+ixLnk);
+            }
+
+
+            // If the source and the targets had to be remapped,
+            // it means that the target was already there.
+            // However, we insert it again because it should be rare,
+            // and the duplicated edge might bring more information.
+            previousLinks.push(newLnk);
+        }
+
+        // Now a last pass to remove the duplicate nodes.
+        var ixNod = 0;
+        while(ixNod < lenNewNodes)
+        {
+            var newNod = newNodes[ixNod];
+
+            // Sanity check
+            if(newNod.new_index == undefined)
+            {
+                alert("newNod.new_index undefined ixNod="+ixNod);
+            }
+
+            if(newNod.new_index < lenPrevNodes)
+            {
+                // The node already exists.
+                newNod.new_index = oldIdx;
+                newNodes.splice(ixNod,1); // Beware, this might be slow.
+                console.log("Removing duplicate ixNod="+ixNod);
+                lenNewNodes--;
+            }
+            else
+            {
+                ixNod++;
+            }
+        }
+
+        // Sanity check
+        if(lenNewNodes != data.nodes.length)
+        {
+            alert("Inconsistency lenNewNodes="+lenNewNodes+" data.nodes.length="+data.nodes.length);
+        }
+
+        // Sanity check.
+        CheckGraph("prev",previousData);
+    }
+
+    EmptyDisplay();
+    FillDisplay(divSvg,previousData,wScreen,hScreen,globalMustMerge);
+    globalMustMerge = false;
+} // RefillDisplay
+
+function EmptyDisplay()
+{
     // Empty display.
-
     var node = divSvg.selectAll("g.survol_node")
         .data([])
         .exit()
@@ -156,24 +352,124 @@ function RefillDisplay(data)
         .data([])
         .exit()
         .remove();
-
-    FillDisplay(divSvg,data,wScreen,hScreen);
 }
 
-function FillDisplay(divSvg,data,w,h)
+/* When deleting a node from the contextual menu. Deletes the nodes and its links.
+objectSvg = '{
+    "entity_class":"CIM_DiskPartition",
+    "survol_url":"http://127.0.0.1:8000/htbin/entity.py?xid=CIM_DiskPartition.Name=D:/",
+    "name":"D:/",
+    "title":"{u'file_system': u'NTFS', u'options': u'rw,fixed'}",
+    "type":3,
+    "fill":"#99BB88",
+    "index":1,
+    "weight":1,
+    "x":905.3147595259868,
+    "y":332.8426966164484,
+    "px":905.3147595259868,
+    "py":332.8426966164484,
+    "fixed":0,
+    "dfd":{},
+    "contextual_menu_items":{
+        "http://127.0.0.1:8000/htbin/sources_types/CIM_DiskPartition/partition_diskusage.py?xid=CIM_DiskPartition.Name%3DD%3A%2F":{
+        "url":"http://127.0.0.1:8000/htbin/sources_types/CIM_DiskPartition/partition_diskusage.py?xid=CIM_DiskPartition.Name%3DD%3A%2F",
+        "name":"Disk usage",
+        "$node":{
+            "0":{
+                "jQuery11130594428767766001":26},
+            "length":1},
+        "$input":null,
+        "$label":null}
+    }}'
+*/
+function DeleteSvgNode(objectSvg)
 {
+    // No need of a lookup because it happens just once.
+    goodNode = null;
+    goodNodeIdx = null;
+    for( var ixNod = 0; ixNod < previousData.nodes.length; ixNod++ )
+    {
+        if( previousData.nodes[ixNod].survol_url == objectSvg.survol_url )
+        {
+            goodNodeIdx = ixNod;
+            goodNode = previousData.nodes[ixNod];
+            break;
+        }
+    }
+
+    if(goodNode == null)
+    {
+        alert("Could not find url="+objectSvg.survol_url);
+        return;
+    }
+
+    console.log("DeleteSvgNode goodNodeIdx="+goodNodeIdx);
+
+    // The node is removed and the following node numbers are decremented.
+    // Therefore the links must be updated.
+    previousData.nodes.splice(goodNodeIdx,1);
+
+    var lenLinks = previousData.links.length;
+    var ixLnk = 0;
+    console.log("DeleteSvgNode lenLinks="+lenLinks);
+    while(ixLnk < lenLinks)
+    {
+        objLnk = previousData.links[ixLnk];
+
+        console.log("DeleteSvgNode objLnk.source="+objLnk.source+" objLnk.target="+objLnk.target);
+        console.log("DeleteSvgNode objLnk.source="+JSON.stringify(objLnk.source)+" objLnk.target="+JSON.stringify(objLnk.target));
+
+        // The link is pointing to the node to be deleted.
+        // NOTE: APPARENTLY THE NODE INDICES ARE REPLACED BY THE OBJECT.
+        // if( ( objLnk.source == goodNode ) || ( objLnk.target == goodNode ) )
+        if( ( objLnk.source == goodNode ) || ( objLnk.target == goodNode ) )
+        {
+            console.log("Deleting ixLnk="+ixLnk);
+            previousData.links.splice(ixLnk,1);
+            lenLinks--;
+            continue;
+        }
+
+        console.log("No deletion");
+        /*
+        // If the link is pointing to nodes with an index greater than the one just deleted.
+        if( objLnk.source > goodNode )
+        {
+            console.log("Decrementing source ixLnk="+ixLnk);
+            objLnk.source--;
+        }
+
+        if( objLnk.target > goodNode )
+        {
+            console.log("Decrementing target ixLnk="+ixLnk);
+            objLnk.target--;
+        }
+        */
+
+        ixLnk++;
+    }
+    console.log("DeleteSvgNode previousData.links.length="+previousData.links.length);
+
+    EmptyDisplay();
+    FillDisplay(divSvg,previousData,wScreen,hScreen,globalMustMerge);
+    globalMustMerge = false;
+} // DeleteSvgNode
+
+
+function FillDisplay(divSvg,newData,w,h,mustMerge)
+{
+    console.log("newData.nodes="+newData.nodes.length+" newData.nodes="+newData.nodes.length);
     force
-        .nodes(data.nodes)
-        .links(data.links)
+        .nodes(newData.nodes)
+        .links(newData.links)
         .distance(100)
         .charge(-1000)
         .size([wScreen, hScreen])
         .start();
 
-    // var link = divSvg.selectAll("line.link")
+    // PROBABLEMENT OK POUR AJOUTER DES LINES.
     var link = divSvg.selectAll(".survol_line")
-        .data(data.links)
-        // .enter().append("line.link")
+        .data(newData.links)
         .enter().append("svg:line")
         .attr("class", function (d) { return "link" + d.value + " survol_line"; }) // "link10"
         .attr("x1", function (d) { return d.source.x; })
@@ -182,54 +478,13 @@ function FillDisplay(divSvg,data,w,h)
         .attr("y2", function (d) { return d.target.y; })
         // "Error in parsing value for "markedr-end": This is why I removed this.
         // .attr("marker-end", function (d) { if (d.value == 1) { return "url(#arrowhead)"; } else { return " "; }; })
+        // .append("svg:title").text(function(d) { return d.link_prop; })
         ;
 
-
-    function openLinkSimpleOpen() {
-        console.log("openLinkSimpleOpen");
-        return function (d) { window.open(d.survol_url); }
-    }
-
-    // Left-click on a SVG object.
-    function openLink()
-    {
-        console.log("openLink");
-
-        function LinkOpener(d)
-        {
-            console.log("LinkOpener");
-            function ReopenUrl(err,dataJson)
-            {
-                console.log("ReopenUrl");
-                FillDisplay(divSvg,data,force);
-            }
-
-            // This expects a graph, not a contextual menu.
-            theurl = d.survol_url + "&mode=json";
-            theurl = url_Start;
-            console.log("LinkOpener theurl="+theurl);
-            d3.json(theurl, RefillDisplay);
-        }
-
-        return LinkOpener;
-    }
-
-
-    function NodeLeftClick(d)
-    {
-        console.log("NodeLeftClick");
-
-        // This expects a graph, not a contextual menu.
-        theurl = d.survol_url + "&mode=json";
-        // theurl = url_Start;
-        console.log("LinkOpener theurl="+theurl);
-        alert("theurl="+theurl);
-        d3.json(theurl, RefillDisplay);
-    }
-
     // Creates one SVG object (Which class ?) for each survol node.
+    // CA DEVRAIT ALLER POUR AJOUTER DES NODES.
     var node = divSvg.selectAll("g.node")
-        .data(data.nodes)
+        .data(newData.nodes)
         .enter().append("svg:g")
         .attr("class", function (d) { return "survol_node node"; }) // Two classes are possible.
         .call(force.drag);
@@ -238,6 +493,7 @@ function FillDisplay(divSvg,data,w,h)
 
     // The class is a CSS style: ".node.type1" etc...
 
+    // PROBLEME: Ca va doubler.
     d3.selectAll(".survol_node").append("rect")
         .attr("width", 50)
         .attr("height", 20)
@@ -252,6 +508,15 @@ function FillDisplay(divSvg,data,w,h)
     d3.selectAll(".circle").append("circle")
         .attr("class", function (d) { return "node type" + d.type; })
         .attr("r", function (d) { return radius(d.value) || 10; }).call(force.drag);
+
+    function NodeLeftClick(d)
+    {
+        // This expects a graph, not a contextual menu.
+        theurl = d.survol_url + "&mode=json";
+        console.log("NodeLeftClick theurl="+theurl);
+        alert("theurl="+theurl);
+        d3.json(theurl, RefillDisplay);
+    }
 
     // Maybe the click zone on each survol node ???????
     // Why is it invisible ??
@@ -289,10 +554,18 @@ function FillDisplay(divSvg,data,w,h)
 
     force.on("tick", tick_function);
 
+    /*
+    Afficher quelque chose quand le result "json" est vide.
+    */
+
 
     // This returns the contextual menu.
-    function MakeContextMenuItems(objKey,objDfd)
+    function MakeContextMenuItems(objectSvg)
     {
+        objUrl = objectSvg.survol_url;
+
+        objKey = objectSvg.name;
+        objDfd = objectSvg.dfd;
         console.log("MakeContextMenuItems objKey="+objKey);
 
         // https://swisnl.github.io/jQuery-contextMenu/demo/async-promise.html Submenu through promise.
@@ -302,18 +575,22 @@ function FillDisplay(divSvg,data,w,h)
         des scripts Python specifiques.
         */
 
-        TheItems =
+        TheItems = {};
+
+        TheItems[ objUrl ] =
         {
-            CtxtMenuTitle: {
-                name: objKey
-            },
-            yesno: {
+            name: objKey
+        };
+
+        TheItemsSuite =
+        {
+            "yesno": {
                 name: "Merge graphs",
                 type: 'checkbox',
                 selected: false
             },
-            name: {
-                name: "Text",
+            "name": {
+                name: "Si script, edit params",
                 type: 'text',
                 value: "Hello World",
                 events: {
@@ -325,27 +602,24 @@ function FillDisplay(divSvg,data,w,h)
             },
             "sep1": "---------",
             "SurvolMenu": {
-                name: "Survol",
-                icon: "delete",
+                name: "Related data...",
                 items: menusSurvol,
             },
+            "delete": {
+                "name": "Delete node",
+                "icon": "delete"
+            },
             "xxxxx": {
-                "name": "Sub group",
+                "name": "Sub group 2",
                 "items": {
-                    "fold1-key1": {"name": "Foo bar"},
-                    "fold2": {
-                        "name": "Sub group 2",
-                        "items": {
-                            "edit": {"name": "Edit", "icon": "edit"},
-                            "cut": {"name": "Cut", "icon": "cut"},
-                            "delete": {"name": "Del", "icon": "delete"},
-                            "quit": {"name": "Quit", "icon": "quit"},
-                        }
-                    },
-                    "fold1-key3": {"name": "delta"}
+                    "edit": {"name": "Edit", "icon": "edit"},
+                    "cut": {"name": "Cut", "icon": "cut", disabled: true},
+                    "quit": {"name": "Quit", "icon": "quit"}
                 }
             }
         };
+
+        jQuery.extend(TheItems, TheItemsSuite);
 
         return TheItems;
     } // MakeContextMenuItems
@@ -355,33 +629,92 @@ function FillDisplay(divSvg,data,w,h)
     function CreateContextMenus(){
         console.log("CreateContextMenus");
         $.contextMenu({
+
             selector: 'g.survol_node',
+
             build: function($trigger, e) {
                 // this callback is executed every time the menu is to be shown
                 // its results are destroyed every time the menu is hidden
                 // e is the original contextmenu event, containing e.pageX and e.pageY (amongst other data)
-                // console.log("$trigger="+JSON.stringify($trigger));
-                console.log("$trigger="+JSON.stringify($trigger["0"]["__data__"]));
+                // console.log("$trigger="+JSON.stringify($trigger["0"]["__data__"]));
 
+                // In JSON format, the node on which we have right-clicked.
                 var objectSvg = $trigger["0"]["__data__"];
 
-                var theItems = MakeContextMenuItems(objectSvg.name,objectSvg.dfd);
+                var theItems = MakeContextMenuItems(objectSvg);
 
                 return {
-                    callback: function(key, options) {
-                        // This is executed when an option is chosen in a contextual menu.
-                        var m = "clicked: " + key;
-                        window.console && console.log(m) || alert(m);
+                    // This is executed when an option is chosen in a contextual menu.
+                    callback: function(key, options)
+                    {
+                        if(key == "delete")
+                        {
+                            // TODO: Have a specific callback.
+                            // alert("DELETE "+JSON.stringify(objectSvg));
+                            DeleteSvgNode(objectSvg);
+                        }
+                        else
+                        {
+                            var menuOptions = {};
+                            $.contextMenu.getInputValues(options, menuOptions);
 
-                        // This is a Python script, not a contextual menu displayed by "entity.py".
-                        theUrl = key + "&mode=json";
-                        console.log("theUrl="+theUrl);
-                        d3.json(theUrl, RefillDisplay);
+                            // We will merge the new content with the existing content or not.
+                            globalMustMerge = menuOptions.yesno;
+                            // alert("globalMustMerge="+globalMustMerge);
 
+                            // This is a Python script, but not a contextual menu displayed by "entity.py".
+                            theUrl = key + "&mode=json";
+                            console.log("theUrl="+theUrl);
+                            d3.json(theUrl, RefillDisplay);
+                        }
                     },
                     items: theItems
                 };
             }
+
+
+
+            /*
+            ,
+            opt={
+                "selector":"g.survol_node",
+                "appendTo":null,
+                "trigger":"right", ...
+            */
+            /*
+            events: {
+                show: function(opt) {
+                    // this is the trigger element
+                    var $this = this;
+                    // import states from data store
+                    $.contextMenu.setInputValues(opt, $this.data());
+                    // this basically fills the input commands from an object
+                    // like {name: "foo", yesno: true, radio: "3", &hellip;}
+                },
+                hide: function(opt) {
+                    // this is the trigger element
+                    var $this = this;
+                    // export states to data store
+                    // $.contextMenu.getInputValues(opt, $this.data());
+
+
+                    var menuOptions = {};
+                    $.contextMenu.getInputValues(opt, menuOptions);
+                    globalMustMerge = menuOptions.yesno;
+
+                    // this basically dumps the input commands' values to an object
+                    // like {name: "foo", yesno: true, radio: "3", &hellip;}
+                        $this.data()={
+                            "contextMenu":{
+                                "selector":"g.survol_node",
+                                "appendTo":null,
+                    //alert("tralala="+JSON.stringify(tralala));
+                    // alert("$this.data()="+JSON.stringify($this.data()));
+                    // alert("opt="+JSON.stringify(opt));
+                }
+            }
+            */
+
         });
     }; // CreateContextMenus
 
@@ -414,11 +747,6 @@ function FillDisplay(divSvg,data,w,h)
                 objectThis.__data__.dfd.resolve(jsonData);
             }
 
-            // console.log("Before:");
-
-            // "{"__data__":{"name":"erlsrv.exe","title":"{u'pid': 3764}","entity":"company","type":3,"slug":"http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3764","fill":"#99FF88","index":13,"weight":2,"x":799.1007978181673,"y":367.4837488000358,"px":799.7278005857847,"py":367.3954435486226},"jQuery11130282863608954682":15}" survol_d3_2.htm:339:1
-            // console.log(JSON.stringify(this));
-
             // We expect a contextual menu, not a graph.
             var urlEntity = this.__data__.survol_url + "&mode=menu";
             console.log("URL:"+urlEntity);
@@ -426,10 +754,6 @@ function FillDisplay(divSvg,data,w,h)
             this.__data__.dfd = jQuery.Deferred();
 
             d3.json(urlEntity, GetEntityUrl);
-
-            // "{"0":{"__data__":{"name":"erlsrv.exe","title":"{u'pid': 3764}","entity":"company","type":3,"slug":"http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3764","fill":"#99FF88","index":13,"weight":2,"x":799.1007978181673,"y":367.4837488000358,"px":799.7278005857847,"py":367.3954435486226},"jQuery11130282863608954682":15},"context":{"__data__":{"name":"erlsrv.exe","title":"{u'pid': 3764}","entity":"company","type":3,"slug":"http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3764","fill":"#99FF88","index":13,"weight":2,"x":799.1007978181673,"y":367.4837488000358,"px":799.7278005857847,"py":367.3954435486226},"jQuery11130282863608954682":15},"length":1}" survol_d3_2.htm:340:1
-            // console.log(JSON.stringify($(this)));
-            // console.log("Pouet:");
         }
     });
 

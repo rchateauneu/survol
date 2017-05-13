@@ -801,6 +801,8 @@ def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSub
 		lib_exports.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "json":
 		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
+	elif mode == "menu":
+		lib_exports.Grph2Menu( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "rdf":
 		lib_exports.Grph2Rdf( grph)
 	else: # Or mode = "svg"

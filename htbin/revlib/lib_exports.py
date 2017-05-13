@@ -277,7 +277,8 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			objObj = NodeToJsonObj(obj)
 			obj_id = objObj.m_index
 			# "value" is for the class, for example ".link10".
-			links.extend([{'source': subj_id, 'target': obj_id, 'value': 10}])
+			links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam, 'value': 10}])
+			# links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam }])
 		elif isinstance(obj, (rdflib.Literal)):
 			# sys.stderr.write("lll=%s\n"%pred)
 			subjObj.m_info[propNam] = obj.value
@@ -290,13 +291,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		nodObj = NodeToJsonObj.dictNod2Json[nod]
 		nod_titl = nodObj.m_label
 		nod_id = nodObj.m_index
-        #"name": "Yandex",
-        #"type": 1,
-        #"slug": "www.yandex.com)",
-        #"entity": "company"
-		# nodes.extend([{'name': nod_titl, "type": 3, 'slug': 'www.yandex.ru', 'entity':'company'}])
 		obj_link = nod
-		# sys.stderr.write("lll=%s\n"%nod)
 		# type is only for the color.
 		nodes[nod_id] = {
 			'name'        : nod_titl,
@@ -403,15 +398,15 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 
 	menuJson = AddStuff(TopLevelNodes)
 
-	#sys.stderr.write("menuJson=%s\n"%str(menuJson))
+	# sys.stderr.write("menuJson=%s\n"%str(menuJson))
 
 	# There is only one top-level element.
+	oneMenuVal = {}
 	for oneMenuKey in menuJson:
 		oneMenuVal = menuJson[oneMenuKey]["items"]
 		break
 
 	#sys.stderr.write("menuJson=%s\n"%str(oneMenuVal))
-
 
 	WrtHeader('application/json')
 	print(json.dumps(oneMenuVal, indent=2))
