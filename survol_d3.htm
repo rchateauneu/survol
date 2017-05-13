@@ -5,111 +5,779 @@
 <head>
 </head>
 
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
+
 <style>
 
-.links_style line {
-  stroke: #999;
-  stroke-opacity: 0.6;
-}
+    .link10 {
+        stroke: #ccc;
+        stroke-width: 3px;
+        stroke-dasharray: 3, 3;
+    }
+    .link1 {
+        stroke: #000;
+        stroke-width: 3px;
+    }
+    .nodetext {
+        pointer-events: none;
+        font: 10px sans-serif;
+    }
+    .node.type1 {
+        fill:brown;
+    }
+    .node.type2 {
+        fill:#337147;
+    }
+    .node.type3 {
+        fill:blue;
+    }
+    .node.type4 {
+        fill:red;
+    }
+    .node.type5 {
+        fill:#1BC9E0;
+    }
+    .node.type6 {
+        fill:#E01B98;
+    }
+    image.circle {
+        cursor:pointer;
+    }
 
-.nodes_style circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
+    .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%; /* aspect ratio */
+        vertical-align: top;
+        overflow: hidden;
+    }
+
+    .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        top: 10px;
+        left: 0;
+    }
+
 
 </style>
-<svg width="1500" height="900"></svg>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+
 <script>
 
-function PrepareD3Display()
+var wScreen;
+var hScreen;
+var force = null;
+
+// At startup.
+var url_Start = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
+var theurl = url_Start;
+// var theurl = "htbin/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D2976&mode=json";
+var theurl = "htbin/sources_types/enumerate_CIM_LogicalDisk.py?xid=.&mode=json";
+var divSvg = null;
+var globalMustMerge = false;
+
+// This stores the current nodes and links. Maybe there is a simpler way to store them.
+var previousData = null;
+
+
+// Sanity check to ensure that nodes and links are properly matched.
+function CheckGraph(theNam,theData)
 {
-    var svg = d3.select("svg"),
-      width = +svg.attr("width"),
-      height = +svg.attr("height");
-
-    var color = d3.scaleOrdinal(d3.schemeCategory20);
-
-    var simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id(function(d) { return d.id; }))
-      .force("charge", d3.forceManyBody())
-      .force("center", d3.forceCenter(width / 2, height / 2));
-
-    function dragstarted(d) {
-      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
-    }
-
-    function dragged(d) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
-    }
-
-    function dragended(d) {
-      if (!d3.event.active) simulation.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
-    }
-
-    function LoadFromFunc(error, graph)
+    console.log(theNam+" nodes="+theData.nodes.length+" links="+theData.links.length);
+    for( var ix = 0; ix < theData.links.length; ix++ )
     {
-      if (error) throw error;
+        if( theData.links[ix].source == undefined )
+        {
+            console.log("Undefined source ix="+ix);
+        }
+        if( theData.links[ix].source >= theData.nodes.length )
+        {
+            console.log("Too big source ix="+ix+" :"+theData.links[ix].source);
+        }
+        if( theData.links[ix].target == undefined )
+        {
+            console.log("Undefined target ix="+ix);
+        }
+        if( theData.links[ix].target >= theData.nodes.length )
+        {
+            console.log("Too big target ix="+ix+" :"+theData.links[ix].target);
+        }
 
-      var link = svg.append("g")
-          .attr("class", "links_style")
-        .selectAll("line")
-        .data(graph.links)
-        .enter().append("line")
-          .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+        console.log("ix="+ix+" source="+theData.links[ix].source+" target="+theData.links[ix].target);
+    }
+    console.log("===============");
+} // CheckGraph
 
-      var node = svg.append("g")
-          .attr("class", "nodes_style")
-        .selectAll("circle")
-        .data(graph.nodes)
-        .enter().append("circle")
-          .attr("r", 20)
-          .attr("fill", function(d) { return color(d.group); })
-          .call(d3.drag()
-              .on("start", dragstarted)
-              .on("drag", dragged)
-              .on("end", dragended));
 
-      node.append("title")
-          .text(function(d) { return d.id; });
 
-      simulation
-          .nodes(graph.nodes)
-          .on("tick", ticked);
+// Mais pourquoi data est passe en premier ? au lieu de (error,data ) ?
+// Ah peut-etre d2 version 2 au lieu de 4 ?
+function CreateDisplay(data)
+{
+    if( data == null )
+    {
+        alert("CreateDisplay: Json data is null");
+        return;
+    }
 
-      simulation.force("link")
-          .links(graph.links);
+    CheckGraph("new",data);
 
-      function ticked() {
-        link
-            .attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; });
+    //alert(JSON.stringify(data));
+    var win = window,
+        doc = document,
+        elt = doc.documentElement,
+        geb = doc.getElementsByTagName('body')[0];
+    wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
+    hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
 
-        node
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; });
-      }
-    }; // LoadFromFunc
+    // http://stackoverflow.com/questions/16265123/resize-svg-when-window-is-resized-in-d3-js
+    // This allows the resizing.
+    divSvg = d3.select("body")
+       .append("div")
+       .classed("svg-container", true) //container class to make it responsive
+       .append("svg:svg")
+       //responsive SVG needs these 2 attributes and no width and height attr
+       .attr("preserveAspectRatio", "xMinYMin meet")
+       .attr("viewBox", "0 0 " + wScreen + " " + hScreen)
+       //class to make it responsive
+       .classed("svg-content-responsive", true);
 
-    return LoadFromFunc;
+    /*
+    divSvg.append("defs").append("marker")
+        .attr("id", "arrowhead")
+        .attr("refX", 17 + 3) // must be smarter way to calculate shift
+        .attr("refY", 2)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 4)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M 0,0 V 4 L6,2 Z"); //this is actual shape for arrowhead
+    */
+
+    force = d3.layout.force();
+
+    previousData = data;
+    FillDisplay(divSvg,previousData,wScreen,hScreen);
+} // CreateDisplay
+
+// Callback of contextual menu. It receives the JSON menu sent by the server.
+function RefillDisplay(data)
+{
+    CheckGraph("new",data);
+    if( data == null )
+    {
+        alert("RefillDisplay: Jason data is null");
+        return;
+    }
+
+    if( globalMustMerge )
+    {
+        // This creates a new list of nodes with new numbers and without the duplicates.
+        // The links also, are recreated, with new numbers.
+        var previousNodes = previousData.nodes;
+        var prevUrlsToIds = {};
+
+        var lenPrevNodes = previousNodes.length;
+        for (var ixNod = 0; ixNod < lenPrevNodes; ixNod++) {
+            var urlNode = previousNodes[ixNod].survol_url;
+
+            // Sanity check:
+            if(prevUrlsToIds[urlNode] != undefined)
+            {
+                alert("prevUrlsToIds[urlNode] undefined. urlNode="+urlNode);
+            }
+
+            // Normally, at this stage, each URL should appear only once.
+            prevUrlsToIds[urlNode] = ixNod;
+        }
+
+        console.log("prevUrlsToIds elements:"+JSON.stringify(prevUrlsToIds));
+
+        // The new numbers of the new nodes are written in the nodes themselves.
+        var newNodes = data.nodes;
+        var lenNewNodes = newNodes.length;
+        for( var ixNod = 0; ixNod < lenNewNodes; ixNod++ )
+        {
+            var newNod = newNodes[ixNod];
+            var urlNode = newNod.survol_url;
+
+            // Sanity check
+            if( urlNode == undefined)
+            {
+                alert("urlNode undefined. ixNod="+ixNod);
+            }
+
+            // Index of the same URL in the current list of nodes.
+            var oldIdx = prevUrlsToIds[urlNode];
+
+            if( oldIdx == undefined )
+            {
+                // Most common case of a new node.
+                idxAppend = previousNodes.length;
+                // newNod.new_index = lenPrevNodes + ixNod;
+                newNod.new_index = idxAppend;
+
+                // Sanity check
+                if( idxAppend < lenPrevNodes )
+                {
+                    alert("idxAppend="+idxAppend);
+                }
+
+                // The new node is copied at the end.
+                previousNodes.push(newNod);
+            }
+            else
+            {
+                // The node already exists, no copy.
+                newNod.new_index = oldIdx;
+
+                // Sanity check
+                if( previousNodes[oldIdx].survol_url != urlNode)
+                {
+                    alert("Inconsistent urls oldIdx="+oldIdx);
+                }
+            }
+        }
+
+        // Now we renumber the edges.
+        var newLinks = data.links;
+        var lenNewLinks = newLinks.length;
+        var previousLinks = previousData.links;
+        for( var ixLnk = 0; ixLnk < lenNewLinks; ixLnk++ )
+        {
+            var newLnk = newLinks[ixLnk];
+
+            idxSourceMapped = newNodes[newLnk.source].new_index;
+
+            // Sanity check
+            if(idxSourceMapped == undefined)
+            {
+                alert("Source undefined newLnk.source="+newLnk.source);
+            }
+
+            //if( idxSourceMapped < lenPrevNodes )
+            //{
+            console.log("Rewire "+ixLnk+" source from "+newLnk.source+" to "+idxSourceMapped);
+            newLnk.source = idxSourceMapped;
+            //}
+
+            idxTargetMapped = newNodes[newLnk.target].new_index;
+
+            // Sanity check
+            if(idxTargetMapped == undefined)
+            {
+                alert("Target undefined newLnk.target="+newLnk.target);
+            }
+
+            //if( idxTargetMapped < lenPrevNodes )
+            //{
+            console.log("Rewire "+ixLnk+" target from "+newLnk.target+" to "+idxTargetMapped);
+            newLnk.target = idxTargetMapped;
+            //}
+
+            // Sanity check
+            if(newLnk.source == undefined)
+            {
+                alert("newLnk.source undefined. ixLnk="+ixLnk);
+            }
+            if(newLnk.target == undefined)
+            {
+                alert("newLnk.target undefined. ixLnk="+ixLnk);
+            }
+
+
+            // If the source and the targets had to be remapped,
+            // it means that the target was already there.
+            // However, we insert it again because it should be rare,
+            // and the duplicated edge might bring more information.
+            previousLinks.push(newLnk);
+        }
+
+        // Now a last pass to remove the duplicate nodes.
+        var ixNod = 0;
+        while(ixNod < lenNewNodes)
+        {
+            var newNod = newNodes[ixNod];
+
+            // Sanity check
+            if(newNod.new_index == undefined)
+            {
+                alert("newNod.new_index undefined ixNod="+ixNod);
+            }
+
+            if(newNod.new_index < lenPrevNodes)
+            {
+                // The node already exists.
+                newNod.new_index = oldIdx;
+                newNodes.splice(ixNod,1); // Beware, this might be slow.
+                console.log("Removing duplicate ixNod="+ixNod);
+                lenNewNodes--;
+            }
+            else
+            {
+                ixNod++;
+            }
+        }
+
+        // Sanity check
+        if(lenNewNodes != data.nodes.length)
+        {
+            alert("Inconsistency lenNewNodes="+lenNewNodes+" data.nodes.length="+data.nodes.length);
+        }
+
+        // Sanity check.
+        CheckGraph("prev",previousData);
+    }
+
+    EmptyDisplay();
+    FillDisplay(divSvg,previousData,wScreen,hScreen,globalMustMerge);
+    globalMustMerge = false;
+} // RefillDisplay
+
+function EmptyDisplay()
+{
+    // Empty display.
+    var node = divSvg.selectAll("g.survol_node")
+        .data([])
+        .exit()
+        .remove();
+
+    // var link = divSvg.selectAll("line.link")
+    var link = divSvg.selectAll(".survol_line")
+        .data([])
+        .exit()
+        .remove();
 }
 
+/* When deleting a node from the contextual menu. Deletes the nodes and its links.
+objectSvg = '{
+    "entity_class":"CIM_DiskPartition",
+    "survol_url":"http://127.0.0.1:8000/htbin/entity.py?xid=CIM_DiskPartition.Name=D:/",
+    "name":"D:/",
+    "title":"{u'file_system': u'NTFS', u'options': u'rw,fixed'}",
+    "type":3,
+    "fill":"#99BB88",
+    "index":1,
+    "weight":1,
+    "x":905.3147595259868,
+    "y":332.8426966164484,
+    "px":905.3147595259868,
+    "py":332.8426966164484,
+    "fixed":0,
+    "dfd":{},
+    "contextual_menu_items":{
+        "http://127.0.0.1:8000/htbin/sources_types/CIM_DiskPartition/partition_diskusage.py?xid=CIM_DiskPartition.Name%3DD%3A%2F":{
+        "url":"http://127.0.0.1:8000/htbin/sources_types/CIM_DiskPartition/partition_diskusage.py?xid=CIM_DiskPartition.Name%3DD%3A%2F",
+        "name":"Disk usage",
+        "$node":{
+            "0":{
+                "jQuery11130594428767766001":26},
+            "length":1},
+        "$input":null,
+        "$label":null}
+    }}'
+*/
+function DeleteSvgNode(objectSvg)
+{
+    // No need of a lookup because it happens just once.
+    goodNode = null;
+    goodNodeIdx = null;
+    for( var ixNod = 0; ixNod < previousData.nodes.length; ixNod++ )
+    {
+        if( previousData.nodes[ixNod].survol_url == objectSvg.survol_url )
+        {
+            goodNodeIdx = ixNod;
+            goodNode = previousData.nodes[ixNod];
+            break;
+        }
+    }
 
-loadfrom = PrepareD3Display();
-theurl = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
-d3.json(theurl, loadfrom);
+    if(goodNode == null)
+    {
+        alert("Could not find url="+objectSvg.survol_url);
+        return;
+    }
 
+    console.log("DeleteSvgNode goodNodeIdx="+goodNodeIdx);
+
+    // The node is removed and the following node numbers are decremented.
+    // Therefore the links must be updated.
+    previousData.nodes.splice(goodNodeIdx,1);
+
+    var lenLinks = previousData.links.length;
+    var ixLnk = 0;
+    console.log("DeleteSvgNode lenLinks="+lenLinks);
+    while(ixLnk < lenLinks)
+    {
+        objLnk = previousData.links[ixLnk];
+
+        console.log("DeleteSvgNode objLnk.source="+objLnk.source+" objLnk.target="+objLnk.target);
+        console.log("DeleteSvgNode objLnk.source="+JSON.stringify(objLnk.source)+" objLnk.target="+JSON.stringify(objLnk.target));
+
+        // The link is pointing to the node to be deleted.
+        // NOTE: APPARENTLY THE NODE INDICES ARE REPLACED BY THE OBJECT.
+        // if( ( objLnk.source == goodNode ) || ( objLnk.target == goodNode ) )
+        if( ( objLnk.source == goodNode ) || ( objLnk.target == goodNode ) )
+        {
+            console.log("Deleting ixLnk="+ixLnk);
+            previousData.links.splice(ixLnk,1);
+            lenLinks--;
+            continue;
+        }
+
+        console.log("No deletion");
+        /*
+        // If the link is pointing to nodes with an index greater than the one just deleted.
+        if( objLnk.source > goodNode )
+        {
+            console.log("Decrementing source ixLnk="+ixLnk);
+            objLnk.source--;
+        }
+
+        if( objLnk.target > goodNode )
+        {
+            console.log("Decrementing target ixLnk="+ixLnk);
+            objLnk.target--;
+        }
+        */
+
+        ixLnk++;
+    }
+    console.log("DeleteSvgNode previousData.links.length="+previousData.links.length);
+
+    EmptyDisplay();
+    FillDisplay(divSvg,previousData,wScreen,hScreen,globalMustMerge);
+    globalMustMerge = false;
+} // DeleteSvgNode
+
+
+function FillDisplay(divSvg,newData,w,h,mustMerge)
+{
+    console.log("newData.nodes="+newData.nodes.length+" newData.nodes="+newData.nodes.length);
+    force
+        .nodes(newData.nodes)
+        .links(newData.links)
+        .distance(100)
+        .charge(-1000)
+        .size([wScreen, hScreen])
+        .start();
+
+    // PROBABLEMENT OK POUR AJOUTER DES LINES.
+    var link = divSvg.selectAll(".survol_line")
+        .data(newData.links)
+        .enter().append("svg:line")
+        .attr("class", function (d) { return "link" + d.value + " survol_line"; }) // "link10"
+        .attr("x1", function (d) { return d.source.x; })
+        .attr("y1", function (d) { return d.source.y; })
+        .attr("x2", function (d) { return d.target.x; })
+        .attr("y2", function (d) { return d.target.y; })
+        // "Error in parsing value for "markedr-end": This is why I removed this.
+        // .attr("marker-end", function (d) { if (d.value == 1) { return "url(#arrowhead)"; } else { return " "; }; })
+        // .append("svg:title").text(function(d) { return d.link_prop; })
+        ;
+
+    // Creates one SVG object (Which class ?) for each survol node.
+    // CA DEVRAIT ALLER POUR AJOUTER DES NODES.
+    var node = divSvg.selectAll("g.node")
+        .data(newData.nodes)
+        .enter().append("svg:g")
+        .attr("class", function (d) { return "survol_node node"; }) // Two classes are possible.
+        .call(force.drag);
+
+    // fill:#337147;
+
+    // The class is a CSS style: ".node.type1" etc...
+
+    // PROBLEME: Ca va doubler.
+    d3.selectAll(".survol_node").append("rect")
+        .attr("width", 50)
+        .attr("height", 20)
+        .attr("fill", function (d) { return d.fill; })
+        .attr("class", function (d) { return d.entity_class; }) // Classes are not defined so colors are OK.
+        //.attr("class", function (d) { return "node type" + d.type; })
+        .append("svg:title").text(function(d) { return d.title; })
+        ;
+
+    var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
+
+    d3.selectAll(".circle").append("circle")
+        .attr("class", function (d) { return "node type" + d.type; })
+        .attr("r", function (d) { return radius(d.value) || 10; }).call(force.drag);
+
+    function NodeLeftClick(d)
+    {
+        // This expects a graph, not a contextual menu.
+        theurl = d.survol_url + "&mode=json";
+        console.log("NodeLeftClick theurl="+theurl);
+        alert("theurl="+theurl);
+        d3.json(theurl, RefillDisplay);
+    }
+
+    // Maybe the click zone on each survol node ???????
+    // Why is it invisible ??
+    // Why not a "mousedown" ??
+    node.append("svg:image")
+        .attr("class", "circle")
+        .attr("xlink:href", function (d) { return d.img_href; })
+        .attr("x", "-16px")
+        .attr("y", "-16px")
+        .attr("width", "32px")
+        .attr("height", "32px")
+        .on("click", NodeLeftClick);
+
+    // This is the text associated to each survol node.
+    node.append("svg:text")
+        .attr("class", "nodetext")
+        .attr("dx", 0)
+        .attr("dy", ".35em")
+        .attr("text-anchor", "middle")
+        .text(function (d) { return d.name; });
+
+    function tick_function()
+    {
+        // Apply the constraints: On verra plus tard. http://bl.ocks.org/GerHobbelt/3669455
+
+        link.attr("x1", function (d) { return d.source.x; })
+            .attr("y1", function (d) { return d.source.y; })
+            .attr("x2", function (d) { return d.target.x; })
+            .attr("y2", function (d) { return d.target.y; });
+
+        node.attr("transform", function (d) {
+            return "translate(" + d.x + "," + d.y + ")";
+        });
+    }
+
+    force.on("tick", tick_function);
+
+    /*
+    Afficher quelque chose quand le result "json" est vide.
+    */
+
+
+    // This returns the contextual menu.
+    function MakeContextMenuItems(objectSvg)
+    {
+        objUrl = objectSvg.survol_url;
+
+        objKey = objectSvg.name;
+        objDfd = objectSvg.dfd;
+        console.log("MakeContextMenuItems objKey="+objKey);
+
+        // https://swisnl.github.io/jQuery-contextMenu/demo/async-promise.html Submenu through promise.
+        var menusSurvol = objDfd.promise();
+
+        /* Peut-etre ajouter des URLs specifiques pour WMI et OpenWBEM ce qui justifierait qu'on aie
+        des scripts Python specifiques.
+        */
+
+        TheItems = {};
+
+        TheItems[ objUrl ] =
+        {
+            name: objKey
+        };
+
+        TheItemsSuite =
+        {
+            "yesno": {
+                name: "Merge graphs",
+                type: 'checkbox',
+                selected: false
+            },
+            "name": {
+                name: "Si script, edit params",
+                type: 'text',
+                value: "Hello World",
+                events: {
+                    keyup: function(e) {
+                        // add some fancy key handling here?
+                        window.console && console.log('key: '+ e.keyCode);
+                    }
+                }
+            },
+            "sep1": "---------",
+            "SurvolMenu": {
+                name: "Related data...",
+                items: menusSurvol,
+            },
+            "delete": {
+                "name": "Delete node",
+                "icon": "delete"
+            },
+            "xxxxx": {
+                "name": "Sub group 2",
+                "items": {
+                    "edit": {"name": "Edit", "icon": "edit"},
+                    "cut": {"name": "Cut", "icon": "cut", disabled: true},
+                    "quit": {"name": "Quit", "icon": "quit"}
+                }
+            }
+        };
+
+        jQuery.extend(TheItems, TheItemsSuite);
+
+        return TheItems;
+    } // MakeContextMenuItems
+
+    // Called after the page is loaded. It adds a context menu to each node,
+    // therefore the nodes must be created.
+    function CreateContextMenus(){
+        console.log("CreateContextMenus");
+        $.contextMenu({
+
+            selector: 'g.survol_node',
+
+            build: function($trigger, e) {
+                // this callback is executed every time the menu is to be shown
+                // its results are destroyed every time the menu is hidden
+                // e is the original contextmenu event, containing e.pageX and e.pageY (amongst other data)
+                // console.log("$trigger="+JSON.stringify($trigger["0"]["__data__"]));
+
+                // In JSON format, the node on which we have right-clicked.
+                var objectSvg = $trigger["0"]["__data__"];
+
+                var theItems = MakeContextMenuItems(objectSvg);
+
+                return {
+                    // This is executed when an option is chosen in a contextual menu.
+                    callback: function(key, options)
+                    {
+                        if(key == "delete")
+                        {
+                            // TODO: Have a specific callback.
+                            // alert("DELETE "+JSON.stringify(objectSvg));
+                            DeleteSvgNode(objectSvg);
+                        }
+                        else
+                        {
+                            var menuOptions = {};
+                            $.contextMenu.getInputValues(options, menuOptions);
+
+                            // We will merge the new content with the existing content or not.
+                            globalMustMerge = menuOptions.yesno;
+                            // alert("globalMustMerge="+globalMustMerge);
+
+                            // This is a Python script, but not a contextual menu displayed by "entity.py".
+                            theUrl = key + "&mode=json";
+                            console.log("theUrl="+theUrl);
+                            d3.json(theUrl, RefillDisplay);
+                        }
+                    },
+                    items: theItems
+                };
+            }
+
+
+
+            /*
+            ,
+            opt={
+                "selector":"g.survol_node",
+                "appendTo":null,
+                "trigger":"right", ...
+            */
+            /*
+            events: {
+                show: function(opt) {
+                    // this is the trigger element
+                    var $this = this;
+                    // import states from data store
+                    $.contextMenu.setInputValues(opt, $this.data());
+                    // this basically fills the input commands from an object
+                    // like {name: "foo", yesno: true, radio: "3", &hellip;}
+                },
+                hide: function(opt) {
+                    // this is the trigger element
+                    var $this = this;
+                    // export states to data store
+                    // $.contextMenu.getInputValues(opt, $this.data());
+
+
+                    var menuOptions = {};
+                    $.contextMenu.getInputValues(opt, menuOptions);
+                    globalMustMerge = menuOptions.yesno;
+
+                    // this basically dumps the input commands' values to an object
+                    // like {name: "foo", yesno: true, radio: "3", &hellip;}
+                        $this.data()={
+                            "contextMenu":{
+                                "selector":"g.survol_node",
+                                "appendTo":null,
+                    //alert("tralala="+JSON.stringify(tralala));
+                    // alert("$this.data()="+JSON.stringify($this.data()));
+                    // alert("opt="+JSON.stringify(opt));
+                }
+            }
+            */
+
+        });
+    }; // CreateContextMenus
+
+
+    // When the mouse right button is down, this loads the contextual menu content into the SVG object.
+    // When this right button is released, it triggers the contextual menu which finds its content
+    // stored in the SVG object.
+    $("g.node").mousedown(function(ev){
+        // alert("rc");
+
+        /* Si clicke gauche, on va vers le "entity.py".
+
+        TODO: Mixer les SVG avec des graphes et des trees.
+
+        A terme, ne pas utiliser le JSON mais charger le fichier CSS dans le directory de la classe.
+        */
+
+        if(ev.which == 3)
+        {
+            // alert("rc3");
+            var objectThis = this;
+            function GetEntityUrl(jsonData)
+            {
+                // console.log("ENTITY="+JSON.stringify(jsonData));
+                // console.log("REBELOTE:"+objectThis.__data__.survol_url);
+
+                // Maybe this duplicates the value. Not a problem.
+                objectThis.__data__.contextual_menu_items = jsonData;
+
+                objectThis.__data__.dfd.resolve(jsonData);
+            }
+
+            // We expect a contextual menu, not a graph.
+            var urlEntity = this.__data__.survol_url + "&mode=menu";
+            console.log("URL:"+urlEntity);
+
+            this.__data__.dfd = jQuery.Deferred();
+
+            d3.json(urlEntity, GetEntityUrl);
+        }
+    });
+
+    // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
+    $(CreateContextMenus);
+} // FillDisplay
+
+// alert("theurl="+theurl);
+d3.json(theurl, CreateDisplay);
+
+/*
+http://bl.ocks.org/GerHobbelt/3669455
+Rester dans la partie visible : Voir la fonction.
+RDF doit passer la contrainte sur les propriétés: Ajouter des triplets RDF qui expriment le layout hierarchique:
+« Layout »  property  « valeur »
+Mais il n est pas certain que ca suffise quand on a beaucoup d’objets.
+*/
 
 </script>
 
+
 <body>
 Test D3
+
+
 </body>
 </html>
