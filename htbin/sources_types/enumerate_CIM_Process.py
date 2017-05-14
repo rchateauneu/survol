@@ -33,11 +33,9 @@ def Main():
 
 	# Problem here: There is a second loopkup to get the name of the process.
 	# In the mean time, the process might have disappeared.
-	# Possible solution:
-	# - We create in CIM_Process a global snapshot which is read by EntityName_CIM_Process:
-	#   Instead of iterating over psutil.process_iter(), we iterate over a snapshot created
-	#   by the package CIM_Process, and all itsinternal functions are referring to the same snapshot.
-
+	# Another problem due to Windows is that a parent process might have exit,
+	# although it children processes are not reassigned (As it is the case on Unix).
+	# This is a "non-existent process".
 	for proc in psutil.process_iter():
 		if lib_common.UselessProc(proc):
 			continue
