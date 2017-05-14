@@ -464,3 +464,40 @@ Peut-etre Excel ou VBA ? Interroger un process Excel ?
 
 http://timgolden.me.uk/python/win32_how_do_i/attach-to-a-com-instance.html
 ========================================================================================================================
+Recherche des liens qui peuvent relier deux nodes.
+Soit on clicke deux nodes, soit on les rentre en ligne de commande,
+avec recherche style "class,k1=v1" vers "class,k1=v1".
+On execute les scripts des deux classes en essayant de trouver un lien.
+On accumule les objets et les relations dans un document RDF.
+On peut le faire de facon visuelle et ca ajoute les liens au fur et a mesure dans D3.
+========================================================================================================================
+Memoriser les URLs de l'edition et les afficher en DOT ou HTML.
+Et les sauvegarder dans un format specifique: On revient vers la page de liens !!!
+Ca sera:
+"class,k1=v1" + "class,k1=v1" - "class,k1=v1" + "class,k1=v1" etc ...
+Du coup, ca nous permet de coder le UNDO: En effet, quand on zappe un objet,
+il est defini par sa classe et ses proprietes.
+Il nous faudra un petit lien qui transforme un URL en sa definition JSON:
+primhillcomputers.ddns.net/Survol/htbin/entity.py?xid=rabbitmq/manager.Url=LOCALHOST:12345&mode=definition
+... renverra:
+{
+  "class" : "rabbitmq/manager"
+  "script": null
+  "Url"   : "LOCALHOST:12345"
+}
+
+http://primhillcomputers.ddns.net/Survol/htbin/sources_types/dbus/bus/dbus_bus_connections.py?xid=dbus/bus.Bus%3Dsystem
+... renverra:
+{
+  "class" : "dbus/bus"
+  "script": "dbus/bus/dbus_bus_connections.py"
+  "Url"   : "Bus%3Dsystem"
+}
+
+Et donc il suffit de memoriser ces objets separes par des + et des -.
+Tant pis s'il manque des proprietes, ce qui permet du pattern matching si on remplace "script":null
+par "enumerate...py"
+
+NOTE: Dans l'interface, on devrait permettre de soustraire un script.
+
+========================================================================================================================
