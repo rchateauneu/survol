@@ -375,12 +375,14 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 		# sys.stderr.write("oneRdfNod=%s nam=%s\n"%(oneRdfNod,nam))
 	#sys.stderr.write("\n")
 
+	# The output result must be sorted.
 	def AddStuff(theNodList,depth=0):
 		listJsonItems = {}
 
 		for oneRdfNod in theNodList:
 			#sys.stderr.write("oneRdfNod=%s\n"%oneRdfNod)
 			oneJsonNod = {}
+			# This should be the sort key.
 			oneJsonNod["name"] = NodesToNames.get(oneRdfNod,"No name")
 			# sys.stderr.write( (" " * depth) + "name=%s\n" % (oneJsonNod["name"]) )
 			oneJsonNod["url"] = oneRdfNod
@@ -409,34 +411,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 	#sys.stderr.write("menuJson=%s\n"%str(oneMenuVal))
 
 	WrtHeader('application/json')
-	print(json.dumps(oneMenuVal, indent=2))
-
-
-	# menuJson = {
-	# 	"XXXXfold1": {
-	# 		"name": "Sub groupRemote",
-	# 		"items": {
-	# 			"fold1-key1": {"name": "Foo bar"},
-	# 			"fold2": {
-	# 				"name": "Sub group 2",
-	# 				"items": {
-	# 					"fold2-key1": {"name": "alpha"},
-	# 					"fold2-key2": {"name": "bravo"},
-	# 					"fold2-key3": {"name": "charlie"}
-	# 				}
-	# 			},
-	# 			"fold1-key3": {"name": "delta"}
-	# 		}
-	# 	},
-	# 	"YYYfold1a": {
-	# 		"name": "Other groupRemote",
-	# 		"items": {
-	# 			"fold1a-key1": {"name": "echo"},
-	# 			"fold1a-key2": {"name": "foxtrot"},
-	# 			"fold1a-key3": {"name": "golf"}
-	# 		}
-	# 	}
-	# }
+	print(json.dumps(oneMenuVal, sort_keys = True, indent=2))
 
 ################################################################################
 
