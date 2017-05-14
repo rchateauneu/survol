@@ -161,7 +161,8 @@ def EntityName(entity_ids_arr,entity_host):
 		proc_obj = psutil.Process(int(entity_id))
 		return PsutilProcToName(proc_obj)
 	except NoSuchProcess:
-		return "No such process:"+entity_id
+		# This might be, on Windows, a prent process which exit.
+		return "Non existent process:"+entity_id
 	except ValueError:
 		return "Invalid pid:("+entity_id+")"
 	# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
@@ -205,4 +206,18 @@ def AddInfo(grph,node,entity_ids_arr):
 		exc = sys.exc_info()[1]
 		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
 
+# This should apply to all scripts in the subdirectories: If the process does not exist,
+# they should not be displayed by entity.py
+def Usable(entity_type,entity_ids_arr):
+    """Process must be running"""
+
+    pidProc = entity_ids_arr[0]
+    try:
+        # Any error, no display.
+        proc_obj = psutil.Process(int(pidProc))
+        # sys.stderr.write("============================ Process HERE\n")
+        return True
+    except:
+        # sys.stderr.write("============================ Process NOT HERE\n")
+        return False
 
