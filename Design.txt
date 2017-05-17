@@ -501,3 +501,14 @@ par "enumerate...py"
 NOTE: Dans l'interface, on devrait permettre de soustraire un script.
 
 ========================================================================================================================
+http://svg-whiz.com/svg/table.svg
+
+Ajouter les nodes “infos” que au moins on puisse les voir.
+
+force layout with images and connection thickness
+
+http://bl.ocks.org/mostaphaRoudsari/82f51f01b4619db2f09f
+
+Il faut commencer a penser serieusement a l’affichage des grandeurs:
+Logarithme taille des fichiers.
+Idem taille mémoire process.
