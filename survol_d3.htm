@@ -13,19 +13,25 @@
 
 <style>
 
+    /* This is for the lines because their value=10. Temporary. */
     .link10 {
         stroke: #ccc;
         stroke-width: 3px;
         stroke-dasharray: 3, 3;
     }
+
+    /* Probably not be used now as far as I can tell ... */
     .link1 {
         stroke: #000;
         stroke-width: 3px;
     }
+
     .nodetext {
         pointer-events: none;
         font: 10px sans-serif;
     }
+
+    /* Probably not used. */
     .node.type1 {
         fill:brown;
     }
@@ -44,6 +50,7 @@
     .node.type6 {
         fill:#E01B98;
     }
+
     image.circle {
         cursor:pointer;
     }
@@ -64,6 +71,21 @@
         left: 0;
     }
 
+    /* This is for the tooltips */
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        /*
+        width: 100px;
+        height: 40px;
+        */
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
 
 </style>
 
@@ -81,10 +103,30 @@ L'avantage est qu on peut tout afficher. En revanche, on perd la possibilite d'a
 une requete particulierement interessante. Notons qu en pratique, les requetes combinees ne sont pas encore
 specifiees et seront surement tres differentes.
 
+We wish to pass several parameters so that scripts and objects can be added or substracted,
+with pattern matching possibilities.
+Should we pass the arguments as GET or as a JSON document ?
+This could assume the CGI structure:
+"http://127.0.0.1:8000/survol_d3.htm?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
 
+What about "+"/"-" ??
+
+xxx.htm?xid=(XID1)&script=(SCRIPT1)&operator=+&xid=(XID2)&script=(SCRIPT2)
+
+By default the operator is "+".
+
+And also we need to restore merge_rdf_inputs_graphviz_only.htm,
+in fact it can handle all modes, something like merger.py.
+Its role is to produce a document based on several URLs.
+And we will zap the files *merge*.htm .
+Also, we must transmit to graphic properties for edges: This simply means having a specific object:
+"COLLAPSED_PROPERTY" property "True"
+... ou bien:
+"PROPERTY_LAYOUT" property "Ortho"
+
+paramsCgi = location.search;
+alert("paramsCgi="+paramsCgi);
 */
-
-
 
 var wScreen;
 var hScreen;
@@ -108,11 +150,21 @@ var previousData = null;
 // Sanity check to ensure that nodes and links are properly matched.
 function CheckGraph(theNam,theData)
 {
+    return;
     if(theData == null)
     {
         return;
     }
     console.log(theNam+" nodes="+theData.nodes.length+" links="+theData.links.length);
+
+    console.log("=================");
+    for( var ix = 0; ix < theData.nodes.length; ix++ )
+    {
+        objNod = theData.nodes[ix]
+        console.log("ix="+ix+" "+JSON.stringify(objNod));
+    }
+    console.log("=================");
+
     for( var ix = 0; ix < theData.links.length; ix++ )
     {
         if( theData.links[ix].source == undefined )
@@ -170,13 +222,6 @@ function CreateDisplay(data)
        .attr("viewBox", "0 0 " + wScreen + " " + hScreen)
        //class to make it responsive
        .classed("svg-content-responsive", true)
-       /*
-        .on("contextmenu", function (d, i)
-        {
-            alert("Tagada");
-            d3.event.preventDefault();
-        })
-        */
         ;
 
     /*
@@ -302,7 +347,7 @@ function RefillDisplay(data)
                 alert("Target undefined newLnk.target="+newLnk.target);
             }
 
-            console.log("Rewire "+ixLnk+" target from "+newLnk.target+" to "+idxTargetMapped);
+            // console.log("Rewire "+ixLnk+" target from "+newLnk.target+" to "+idxTargetMapped);
             newLnk.target = idxTargetMapped;
 
             // Sanity check
@@ -484,16 +529,67 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
 
     // fill:#337147;
 
+    // Define the div for the tooltip.
+    // If set globally, it is null here.
+    var divToolTip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0.5)
+        ;
+
+    function DictToTable(theDict)
+    {
+        result = "<table>"
+        for (var key in theDict) {
+            if (theDict.hasOwnProperty(key)) {
+                result += "<tr><td valign='top' align='left'><b>" + key + "</b></td><td valign='top' align='left'>" + theDict[key] + "</td></tr>";
+            }
+        }
+        result += "</table>";
+        return result;
+    }
+
+
     // The class is a CSS style: ".node.type1" etc...
 
     // Adds text inside each "g" object of class "survol_node": http://stackoverflow.com/questions/6725288/svg-text-inside-rect
     d3.selectAll(".survol_node").append("rect")
         .attr("width", 50)
         .attr("height", 20)
-        .attr("fill", function (d) { return d.fill; })
+        .style("stroke-width", 1)
+        .style("stroke", "#000000")
+        .attr("fill", function (d) {
+            // console.log("fill="+d.fill);
+            // #337147
+            return d.fill;
+        })
         .attr("class", function (d) { return d.entity_class; }) // Classes are not defined so colors are OK.
         //.attr("class", function (d) { return "node type" + d.type; })
-        .append("svg:title").text(function(d) { return d.title; })
+        // Ca marche mais c'est moche.
+        //.append("svg:title").text(function(d) { return d.survol_info; })
+        .on("mouseover", function(d)
+            {
+                divToolTip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+
+                // d.survol_info is a dictionary.
+
+                txtToolTip = DictToTable(d.survol_info);
+                divToolTip.html( txtToolTip )
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px")
+                ;
+                console.log("In mouseover d3.event.pageX="+d3.event.pageX+" d3.event.pageY="+d3.event.pageY);
+                // console.log("divToolTip="+JSON.stringify(divToolTip));
+            }
+        )
+        .on("mouseout", function(d)
+            {
+                divToolTip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            }
+        )
         ;
 
     var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
@@ -507,7 +603,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     {
         // This expects a graph, not a contextual menu.
         theurl = d.survol_url + "&mode=json";
-        alert("theurl="+theurl);
+        // alert("theurl="+theurl);
         d3.json(theurl, RefillDisplay);
     }
 
@@ -581,7 +677,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
 
         TheItems = {};
 
-        // This is the title, and it is clickabe.
+        // This is the title, and it is clickable.
         TheItems[ objUrl ] =
         {
             name: objKey
@@ -615,6 +711,10 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
                 "name": "Delete node",
                 "icon": "delete"
             },
+            /*
+            Delete connected to ?? Et from ??
+            Ou alors on delete par type d'aretes ?
+            */
             "delete_connected": {
                 "name": "Delete connected nodes",
                 "icon": "delete"
@@ -677,10 +777,10 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
                 // Its results are destroyed every time the menu is hidden
                 // evt is the original contextmenu event, containing evt.pageX and evt.pageY (amongst other data)
 
-                // evt.stopPropagation();
-
                 // In JSON format, the node on which we have right-clicked.
                 var objectSvg = $trigger["0"]["__data__"];
+
+
 
                 var theItems = MakeContextMenuItems(objectSvg);
 
@@ -745,11 +845,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
             });
         } // AddsDefaultCtxtMenu
 
-        // AddsDefaultCtxtMenu(dfltItms);
-
         d3.json(urlTopLevel, AddsDefaultCtxtMenu);
-
-
     }; // CreateContextMenus
 
 
@@ -757,8 +853,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     // When this right button is released, it triggers the contextual menu which finds its content
     // stored in the SVG object.
     $("g.survol_node").mousedown(function(ev){
-        /* Si clicke gauche, on va vers le "entity.py".
-        */
+        /* Si clicke gauche, on va vers le "entity.py". */
 
         if(ev.which == 3)
         {

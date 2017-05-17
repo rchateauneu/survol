@@ -21,17 +21,7 @@ def AntiPredicateUri(uri):
 # PROBLEM: SI PAS DE ENTITY_ID A EDITER CAR "TOP" ALORS ON REBOUCLE SUR Edit:
 # DONC DETECTER LE TYPE DE L'ENTITE EN FOCNTION DU DIRECTORY ET AUCUN SI "TOP".
 def ModedUrl(otherMode):
-	script = lib_util.RequestUri()
-
-	mtch_url = re.match("(.*[\?\&]mode=)([a-zA-Z0-9]*)(.*)", script)
-	if mtch_url:
-		edtUrl = mtch_url.group(1) + otherMode + mtch_url.group(3)
-	else:
-		edtUrl = ConcatenateCgi( script, "mode=" + otherMode )
-
-	# TODO: CA DECONNE SI L URL CONTIENT DES BACKSLASHES COMME:
-	# "http://127.0.0.1:8000/htbin/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE"
-	return edtUrl
+	return lib_util.RequestUriModed(otherMode)
 
 ################################################################################
 def TruncateInSpace(labText,maxLenLab):
@@ -87,17 +77,6 @@ def StrWithBr(str, colspan = 1):
 			resu += withBrDelim
 		resu += currLine
 	return resu
-
-################################################################################
-
-# Adds a key value pair at the end of the url with the right delimiter.
-# TODO: Checks that the argument is not already there.
-# TODO: Most of times, it is used for changing the mode.
-def ConcatenateCgi(url,keyvalpair):
-	if url.rfind( '?' ) == -1:
-		return url + "?" + keyvalpair
-	else:
-		return url + "&" + keyvalpair
 
 ################################################################################
 
@@ -187,7 +166,7 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 			if isinstance( obj , (rdflib.URIRef, rdflib.BNode)):
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 				WrtAsUtf( "<td>" + AntiPredicateUri(str(pred)) + "</td>")
-				url_with_mode = ConcatenateCgi( obj_str, "mode=html" )
+				url_with_mode = lib_util.ConcatenateCgi( obj_str, "mode=html" )
 				WrtAsUtf( '<td><a href="' + url_with_mode + '">' + obj_title + "</a></td>")
 			else:
 				if pred == pc.property_information :
@@ -259,7 +238,6 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		try:
 			return NodeToJsonObj.dictNod2Json[theNod]
 		except KeyError:
-			# subj_str = str(theNod)
 			jsonObj = NodeJson(theNod)
 			NodeToJsonObj.dictNod2Json[theNod] = jsonObj
 			return jsonObj
@@ -278,7 +256,6 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			obj_id = objObj.m_index
 			# "value" is for the class, for example ".link10".
 			links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam, 'value': 10}])
-			# links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam }])
 		elif isinstance(obj, (rdflib.Literal)):
 			# sys.stderr.write("lll=%s\n"%pred)
 			subjObj.m_info[propNam] = obj.value
@@ -292,6 +269,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		nod_titl = nodObj.m_label
 		nod_id = nodObj.m_index
 		obj_link = nod
+		# sys.stderr.write("nod_titl=%s obj_link=%s\n"%(nod_titl,obj_link))
 		# type is only for the color.
 		nodes[nod_id] = {
 			'name'        : nod_titl,
@@ -299,7 +277,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			'survol_url'  : obj_link,
 			'fill'        : nodObj.m_color,
 			'entity_class': nodObj.m_class,
-			'title'       : str(nodObj.m_info)
+			'survol_info' : nodObj.m_info # This is a dictionary.
 		}
 
 	graph = {}
@@ -455,6 +433,32 @@ def UrlToSvg(url):
 			# Tested with Python 2.7 on Fedora.
 			return url.replace( "&", "&amp;amp;" )
 
+# NOT FINISHED
+# NOT FINISHED
+# NOT FINISHED
+# NOT FINISHED
+# NOT FINISHED
+def UrlToMergeD3():
+	callingUrl = lib_util.RequestUri()
+	return callingUrl
+
+	# Start by removing the mode.
+	# If "htbin/entity.py?xid=lkjlj" replace by "survol_d3.htm?xid=lkjlj"
+	# If "htbin/.../any_script.py?xid=lkjlj" replace by "survol_d3.htm?xid=lkjlj&script=.../any_script.py"
+	#
+	# If we want to merge in the general case, same rule but with "htbin/mergeurls.py" a la place de "survol_d3.htm"
+	# and also the mode must be added.
+	#
+	# Peut etre devrait-on splitter entity.py en deux modules:
+	# * entity_menu.py qui genere l'arborescence des scripts, c est ce qu on envoie en json.
+	# * display_entity.py qui affiche l'objet et son AddInfo(), et c est ce qui est utilise par D3.
+	# Et donc on rebatit entity.py a partir de ces deux elements.
+	# Avantage:
+	# - les menus contextuels sont plus rapides.
+	# - Afficher un objet et son environnement immediat (AddInfo) est plus rapide.
+	# - On met bien a part l'exploration des scripts.
+	# - On retire de RDF, dans une certaine mesure, les scripts.
+
 def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream, grph ):
 
 	# This allows to enter directly the URL parameters, so we can access directly an object.
@@ -469,10 +473,22 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		urlHtml = ModedUrl("html")
 		urlJson = ModedUrl("json")
 		urlRdf = ModedUrl("rdf")
+		urlD3 = UrlToMergeD3()
 
 		urlHtmlReplaced = UrlToSvg( urlHtml )
 		urlJsonReplaced = UrlToSvg( urlJson )
 		urlRdfReplaced = UrlToSvg( urlRdf )
+
+		# We must pass the script and the parameters.
+		#  "http://127.0.0.1:8000/survol_d3.htm?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
+
+		# urlD3 = "http://127.0.0.1:8000/survol_d3.htm?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
+		# REBATIR UN URL.
+		# CA DEPEND SI C EST UN SCRIPT OU BIEN ENTITY.
+		# LE TRAITEMENT DE L URL EST LE MEME SI ON VEUT ENVOYER VERS merge.py:
+		# ON EXTRAIT LE SCRIPT PRINCIPAL ET ON EN FAIT UN ARGUMENT "script=".
+		# MAIS IL FAUT AUSSI DETECTER QUE PEUT-ETRE LE SCRIPT COURANT EST "merge.py"
+		# ET DANS CE CAS IL SUFFIT DE CHANGER LE MODE.
 
 		stream.write("<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>")
 		stream.write("<tr><td align='left' colspan='2' href='" + urlJsonReplaced + "'>" + DotUL("As JSON") + "</td></tr>")

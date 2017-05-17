@@ -186,9 +186,15 @@ def EncodeUri(anStr):
 
 def RequestUri():
 	try:
+		# If url = "http://primhillcomputers.ddns.net/Survol/htbin/print_environment_variables.py"
+		# REQUEST_URI=/Survol/htbin/print_environment_variables.py
 		script = os.environ["REQUEST_URI"]
 	except:
 		# Maybe this is started from a minimal http server.
+		# If url = "http://127.0.0.1:8000/htbin/print_environment_variables.py"
+		# SCRIPT_NAME=/htbin/print_environment_variables.py
+		# QUERY_STRING=
+		#
 		# "/htbin/entity.py"
 		scriptName = os.environ['SCRIPT_NAME'] 
 		# "xid=EURO%5CLONL00111310@process:16580"
@@ -688,19 +694,56 @@ def EntityIdToArray( entity_type, entity_id ):
 
 ################################################################################
 
+# Adds a key value pair at the end of the url with the right delimiter.
+# TODO: Checks that the argument is not already there.
+# TODO: Most of times, it is used for changing the mode.
+def ConcatenateCgi(url,keyvalpair):
+	if url.rfind( '?' ) == -1:
+		return url + "?" + keyvalpair
+	else:
+		return url + "&" + keyvalpair
+
+################################################################################
+
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
 # This is a bit articical but a root node is really needed here.
 # It might contain &mode=svg or whatever, this should be removed.
 
+def RequestUriModed(otherMode):
+	script = HttpPrefix() + RequestUri()
+
+	mtch_url = re.match("(.*)([\?\&])mode=[a-zA-Z0-9]*(.*)", script)
+
+	# mtch_url = re.match("(.*[\?\&]mode=)([a-zA-Z0-9]*)(.*)", script)
+
+	sys.stderr.write("RequestUriModed otherMode=%s\n"%(otherMode))
+	if otherMode:
+		if mtch_url:
+			edtUrl = mtch_url.group(1) + "mode=" + otherMode + mtch_url.group(3)
+		else:
+			edtUrl = ConcatenateCgi( script, "mode=" + otherMode )
+	else:
+		# We want to remove the mode.
+		if mtch_url:
+			if mtch_url.group(2) == '?':
+				# "mode" IS the first argument.
+				if mtch_url.group(3):
+					edtUrl = mtch_url.group(1) + "?" + mtch_url.group(3)[1:]
+				else:
+					edtUrl = mtch_url.group(1)
+			else:
+				# "mode" is NOT the first argument.
+				edtUrl = mtch_url.group(1) + mtch_url.group(3)
+		else:
+			# Nothing to do because it has no cgi arguments.
+			edtUrl = script
+
+	# TODO: CA DECONNE SI L URL CONTIENT DES BACKSLASHES COMME:
+	# "http://127.0.0.1:8000/htbin/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE"
+	return edtUrl
+
 def RootUri():
-	callingUrl = RequestUri()
-	# TODO: THIS IS A HACK. Here is the reason:
-	# gui_create_svg_from_several_rdfs.py reads URL as RDF documents
-	# and for this reason, it must appends "&mode=rdf" at the end of the URL.
-	# So an ampersand is found in the SVG document, which is misprocessed.
-	callingUrl = callingUrl.replace("&mode=rdf","")
-	# TODO: We could also replace the ampersand by an HTML entity.
-	# this might be necessary of there are useful CGI parameters to keep.
+	callingUrl = RequestUriModed("")
 	callingUrl = callingUrl.replace("&","&amp;")
 	return rdflib.term.URIRef(callingUrl)
 

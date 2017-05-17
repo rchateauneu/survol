@@ -455,7 +455,7 @@ def SubServerUrl(PortNum,cgiEnv):
 			entity = "DfltEntity"
 	# The type is not important
 	cgi_args = lib_util.EncodeEntityId("",entity)
-	resu = lib_common.ConcatenateCgi( url, cgi_args )
+	resu = lib_util.ConcatenateCgi( url, cgi_args )
 	GblLog("SubServerUr resu="+resu)
 	return resu
 
@@ -688,7 +688,7 @@ def DoTheJob(TheEngine,Deserializer,AppName,Title,dot_layout = "", collapsed_pro
 	# Do we have to stop the subserver ?
 	if MustStop():
 		# Equivalent to 'ModedUrl("stop")'
-		url_stop = lib_common.ConcatenateCgi( url, "mode=stop" )
+		url_stop = lib_util.ConcatenateCgi( url, "mode=stop" )
 		# TODO: We could also load this URL, this would be nicer.
 		SendRedirection( sys.stdout, url_stop )
 		sys.exit(0)
@@ -696,7 +696,7 @@ def DoTheJob(TheEngine,Deserializer,AppName,Title,dot_layout = "", collapsed_pro
 	mode = lib_common.GuessDisplayMode(sys.stderr)
 	GblLog("mode:"+mode)
 	# Equivalent to 'ModedUrl(mode)'
-	url_mode = lib_common.ConcatenateCgi( url, "mode=" + mode )
+	url_mode = lib_util.ConcatenateCgi( url, "mode=" + mode )
 
 	GblLog("url_mode:"+url_mode)
 	SendRedirection( sys.stdout, url_mode )
