@@ -31,7 +31,10 @@ def Main():
 		node_cwd = lib_common.gUriGen.FileUri( proc_cwd )
 		grph.add( ( node_process, pc.property_cwd, node_cwd ) )
 	else:
-		grph.add( ( node_process, pc.property_information, rdflib.Literal(proc_msg)) )
+		# The PID is added to the message such as "Access denied", so it is specific to the process
+		# and prevents nodes with the same text to be merged in RDF or when displayed in Javascript.
+		msgSpecific = "%s:Pid=%d" % (proc_msg,top_pid)
+		grph.add( ( node_process, pc.property_information, rdflib.Literal(msgSpecific)) )
 
 	cgiEnv.OutCgiRdf(grph)
 
