@@ -546,9 +546,12 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
 
     // Used for the tooltip containg literal nodes pointing to a given node, i.e. information.
     // TODO: This should be recursive.
-    function DictToTable(theDict)
+    function DictToTable(theList,theDict)
     {
         result = "<table>"
+        for (var ix in theList) {
+            result += "<tr><td valign='top' align='left' colspan='2'><b>" + theList[ix] + "</td></tr>";
+        }
         for (var key in theDict) {
             if (theDict.hasOwnProperty(key)) {
                 result += "<tr><td valign='top' align='left'><b>" + key + "</b></td><td valign='top' align='left'>" + theDict[key] + "</td></tr>";
@@ -616,8 +619,9 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
                     .duration(200)
                     .style("opacity", .9);
 
-                // d.survol_info is a dictionary.
-                txtToolTip = DictToTable(d.survol_info);
+                // d.survol_info_dict is a dictionary.
+                txtToolTip = DictToTable(d.survol_info_list,d.survol_info_dict);
+                txtToolTip = d.survol_url;
                 divToolTip.html( txtToolTip )
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px")

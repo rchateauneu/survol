@@ -216,7 +216,10 @@ class NodeJson:
 		# "Graphic_shape","Graphic_colorfill","Graphic_colorbg","Graphic_border","Graphic_is_rounded"
 		self.m_color = arrayGraphParams[1]
 
-		self.m_info = dict()
+
+		# TODO: Display the doc in the module with FromModuleToDoc(importedMod,filDfltText):
+		self.m_info_list = [entity_graphic_class]
+		self.m_info_dict = dict()
 		self.m_index = NodeJsonNumber
 		NodeJsonNumber += 1 # One more node.
 
@@ -257,8 +260,14 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			# "value" is for the class, for example ".link10".
 			links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam, 'value': 10}])
 		elif isinstance(obj, (rdflib.Literal)):
-			# sys.stderr.write("lll=%s\n"%pred)
-			subjObj.m_info[propNam] = obj.value
+			if pred == pc.property_information:
+				subjObj.m_info_list.append( "ff"+str(obj.value) )
+			else:
+				if isinstance(obj.value, six.integer_types) or isinstance(obj.value, six.string_types):
+					subjObj.m_info_dict[propNam] = obj.value
+				else:
+					# If the value cannot be serializable to JSON.
+					subjObj.m_info_dict[propNam] = type(obj.value).__name__
 		else:
 			raise "Cannot happen here"
 
@@ -272,12 +281,13 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# sys.stderr.write("nod_titl=%s obj_link=%s\n"%(nod_titl,obj_link))
 		# type is only for the color.
 		nodes[nod_id] = {
-			'name'        : nod_titl,
-			"type"        : 3,
-			'survol_url'  : obj_link,
-			'fill'        : nodObj.m_color,
-			'entity_class': nodObj.m_class,
-			'survol_info' : nodObj.m_info # This is a dictionary.
+			'name'             : nod_titl,
+			"type"             : 3,
+			'survol_url'       : obj_link,
+			'fill'             : nodObj.m_color,
+			'entity_class'     : nodObj.m_class,
+			'survol_info_list' : nodObj.m_info_list,
+			'survol_info_dict' : nodObj.m_info_dict
 		}
 
 	graph = {}
@@ -433,8 +443,6 @@ def UrlToSvg(url):
 			# Tested with Python 2.7 on Fedora.
 			return url.replace( "&", "&amp;amp;" )
 
-# NOT FINISHED
-# NOT FINISHED
 # NOT FINISHED
 # NOT FINISHED
 # NOT FINISHED
