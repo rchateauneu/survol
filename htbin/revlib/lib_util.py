@@ -586,6 +586,7 @@ def UsableAsynchronousSource(entity_type,entity_ids_arr):
 	return False
 
 # Tells if a file is executable code or library.
+# TODO: This function should be moved to CIM_DataFile/__init__.py
 def UsableWindowsBinary(entity_type,entity_ids_arr):
 	"""Windows executable or code file"""
 	if not UsableWindows(entity_type,entity_ids_arr):
@@ -615,25 +616,12 @@ def UsableLinuxBinary(entity_type,entity_ids_arr):
 	
 ################################################################################
 
-
-# This overlaps DMTF and never contradicts it.
-# BIENTOT ON N'EN AURA PROBABLEMENT PLUS BESOIN CAR ON VA UTILISER
-# DES K-V PAIRS PARTOUT.
-# ATTENTION A LA VIRGULE
+# This describes for each entity type, the list of parameters names needed
+# to define an object of this class. For example:
+# "dbus/connection"     : ( ["Bus","Connect"], ),
+# "dbus/interface"      : ( ["Bus","Connect","Obj","Itf"], ),
+# "symbol"              : ( ["Name","File"], ), # Must be defined here, not in the module.
 localOntology = {
-	#"CIM_ComputerSystem"  : ( ["Name"], ), # Must be defined here, not in the module.
-	#"addr"        : ( ["Id"], ),  # Must be defined here, not in the module.
-	#"CIM_DataFile"        : ( ["Name"], ),
-	#"CIM_Directory"       : ( ["Name"], ),
-	#"CIM_Process"         : ( ["Handle"], ),
-	#"Win32_Service"       : ( ["Name"], ),
-	#"Win32_UserAccount"   : ( ["Name"], ), # Must be defined here, not in the module. Virer lib_entity_Win32_UserAccount !!
-	#"class"               : ( ["Name","File"], ),
-	#"dbus/bus"            : ( ["Bus"], ),
-	#"dbus/connection"     : ( ["Bus","Connect"], ),
-	#"dbus/object"         : ( ["Bus","Connect","Obj"], ),
-	#"dbus/interface"      : ( ["Bus","Connect","Obj","Itf"], ),
-	#"symbol"              : ( ["Name","File"], ), # Must be defined here, not in the module.
 }
 
 # The key must match the DMTF standard. It might contain a namespace.
@@ -663,24 +651,8 @@ def OntologyClassKeys(entity_type):
 		except AttributeError:
 			pass
 
-	# If this class is in our ontology but has no defined properties.
-
-	#if entity_type in ObjectTypes():
-	#	# Default single key for our specific classes.
-	#	return [ "Id" ]
-
 	# This could be replaced by a single lookup.
 	return []
-
-# Some classes exist on some platforms only.
-# This applies locally only, otherwise the remote machine must be queried by some way.
-#def OntologyClassAvailable(entity_type):
-#	try:
-#		return localOntology[ entity_type ][1]
-#	except KeyError:
-#		return True
-#	except IndexError:
-#		return True
 
 # Used for calling ArrayInfo. The order of arguments is strict.
 def EntityIdToArray( entity_type, entity_id ):
@@ -705,10 +677,10 @@ def ConcatenateCgi(url,keyvalpair):
 
 ################################################################################
 
+# In an URL, this replace the CGI parameter "http://....?mode=XXX" by "mode=YYY".
+# If there is no such parameter, then it is removed. If the input parameter is
+# an empty string, then it is removed from the URLs.
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
-# This is a bit articical but a root node is really needed here.
-# It might contain &mode=svg or whatever, this should be removed.
-
 def RequestUriModed(otherMode):
 	script = HttpPrefix() + RequestUri()
 
@@ -716,7 +688,6 @@ def RequestUriModed(otherMode):
 
 	# mtch_url = re.match("(.*[\?\&]mode=)([a-zA-Z0-9]*)(.*)", script)
 
-	sys.stderr.write("RequestUriModed otherMode=%s\n"%(otherMode))
 	if otherMode:
 		if mtch_url:
 			edtUrl = mtch_url.group(1) + "mode=" + otherMode + mtch_url.group(3)
@@ -943,7 +914,8 @@ def GetScriptModule(currentModule, fil):
 
 ################################################################################
 
-# Returns the doc string of a module.
+# Returns the doc string of a module as a literal node. Possibly truncated
+# so it can be displayed.
 def FromModuleToDoc(importedMod,filDfltText):
 	try:
 		docModuAll = importedMod.__doc__
@@ -985,7 +957,7 @@ def DirDocNode(argDir,dir):
 def AppendNotNoneHostname(script,hostname):
 	strUrl = uriRoot + script
 	if hostname:
-		# The string "portal" is completely artificial, just to have a nice title.
+		# The string "portal" is just there to have a nice title.
 		strUrl += '?xid=' + hostname + "@portal."
 	return strUrl
 
