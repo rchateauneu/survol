@@ -191,6 +191,8 @@ def AddInfo(grph,node,entity_ids_arr):
 		# A node is created with the returned string which might as well be
 		# an error message, which must be unique. Otherwise all faulty nodes
 		# would be merged.
+		# TODO: Problem, this node is still clickable. We should return a node
+		# of this smae type, but with a faulty state, which would make it unclickable.
 		user_name = PsutilProcToUser(proc_obj,"User access denied:PID=%s"%pidProc)
 
 		# TODO: Should add the hostname to the user ???
