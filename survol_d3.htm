@@ -51,6 +51,7 @@
         fill:#E01B98;
     }
 
+    /* Probably not used. */
     image.circle {
         cursor:pointer;
     }
@@ -71,7 +72,7 @@
         left: 0;
     }
 
-    /* This is for the tooltips */
+    /* This is for the tooltips. if no "width" and "height", it resizes automatically. */
     div.tooltip {
         position: absolute;
         text-align: center;
@@ -519,9 +520,16 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         // .append("svg:title").text(function(d) { return d.link_prop; })
         ;
 
+    /*
+    for( var ixNod = 0; ixNod < newData.nodes.length; ixNod++ )
+    {
+        newData[ixNod].bbox =
+    }
+    */
+
     // Creates one SVG object (Which class ?) for each survol node.
     // CA DEVRAIT ALLER POUR AJOUTER DES NODES.
-    var node = divSvg.selectAll("g.node")
+    var selectedNodes = divSvg.selectAll("g.node")
         .data(newData.nodes)
         .enter().append("svg:g")
         .attr("class", function (d) { return "survol_node node"; }) // Two classes are possible.
@@ -536,6 +544,8 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .style("opacity", 0.5)
         ;
 
+    // Used for the tooltip containg literal nodes pointing to a given node, i.e. information.
+    // TODO: This should be recursive.
     function DictToTable(theDict)
     {
         result = "<table>"
@@ -551,54 +561,6 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
 
     // The class is a CSS style: ".node.type1" etc...
 
-    // Adds text inside each "g" object of class "survol_node": http://stackoverflow.com/questions/6725288/svg-text-inside-rect
-    d3.selectAll(".survol_node").append("rect")
-        .attr("width", 50)
-        .attr("height", 20)
-        .style("stroke-width", 1)
-        .style("stroke", "#000000")
-        .attr("fill", function (d) {
-            // console.log("fill="+d.fill);
-            // #337147
-            return d.fill;
-        })
-        .attr("class", function (d) { return d.entity_class; }) // Classes are not defined so colors are OK.
-        //.attr("class", function (d) { return "node type" + d.type; })
-        // Ca marche mais c'est moche.
-        //.append("svg:title").text(function(d) { return d.survol_info; })
-        .on("mouseover", function(d)
-            {
-                divToolTip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-
-                // d.survol_info is a dictionary.
-
-                txtToolTip = DictToTable(d.survol_info);
-                divToolTip.html( txtToolTip )
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 28) + "px")
-                ;
-                console.log("In mouseover d3.event.pageX="+d3.event.pageX+" d3.event.pageY="+d3.event.pageY);
-                // console.log("divToolTip="+JSON.stringify(divToolTip));
-            }
-        )
-        .on("mouseout", function(d)
-            {
-                divToolTip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            }
-        )
-        ;
-
-    var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
-
-    // Is that to avoid collisions ?
-    d3.selectAll(".circle").append("circle")
-        .attr("class", function (d) { return "node type" + d.type; })
-        .attr("r", function (d) { return radius(d.value) || 10; }).call(force.drag);
-
     function NodeLeftClick(d)
     {
         // This expects a graph, not a contextual menu.
@@ -607,10 +569,80 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         d3.json(theurl, RefillDisplay);
     }
 
+    function getTextBox(selection) {
+        selection.each(function(d) { d.bbox = this.getBBox(); })
+    }
+
+    // This is the text associated to each survol node.
+    selectedNodes.append("svg:text")
+        .attr("class", "nodetext")
+        .attr("dx", 0)
+        .attr("dy", ".35em")
+        .attr("text-anchor", "middle")
+        .text(function (d) { return d.name; })
+        .call(getTextBox)
+    ;
+
+    // Adds text inside each "g" object of class "survol_node": http://stackoverflow.com/questions/6725288/svg-text-inside-rect
+    // d3.selectAll(".survol_node").append("rect")
+    // Inserts the rect element before the text, which is therefore not hidden.
+    d3.selectAll(".survol_node").insert("rect","text")
+        .attr("x", function(d){return d.bbox.x})
+        .attr("y", function(d){return d.bbox.y})
+        .attr("width", function(d){return d.bbox.width})
+        .attr("height", function(d){return d.bbox.height})
+        // .style("opacity", ".3")
+         /*
+        .attr("width", 50)
+        .attr("height", 20)
+        */
+        .style("stroke-width", 1)
+        .style("stroke", "#000000")
+        // Classes are not defined so fill colors are OK. We will fetch CSS in classes directories.
+        .attr("fill", function (d) {
+            /* #337147 */
+            return d.fill;
+        })
+        .attr("class", function (d) { return d.entity_class; })
+        //.attr("class", function (d) { return "node type" + d.type; })
+        .on("mouseover", function(d)
+            {
+                // http://stackoverflow.com/questions/36326683/d3-js-how-can-i-set-the-cursor-to-hand-when-mouseover-these-elements-on-svg-co
+                // This could as well be done in CSS, but we might wish not change
+                // the pointer if no link is available, i.e. faulty node.
+                d3.select(this).style("cursor", "pointer");
+
+                divToolTip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+
+                // d.survol_info is a dictionary.
+                txtToolTip = DictToTable(d.survol_info);
+                divToolTip.html( txtToolTip )
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px")
+                ;
+                console.log("In mouseover d3.event.pageX="+d3.event.pageX+" d3.event.pageY="+d3.event.pageY);
+            }
+        )
+        .on("mouseout", function(d)
+            {
+                // This could as well be done in CSS.
+                d3.select(this).style("cursor", "default");
+
+                divToolTip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            }
+        )
+        .on("click", NodeLeftClick)
+        ;
+
     // Maybe the click zone on each survol node ???????
     // Why is it invisible ??
     // Why not a "mousedown" ??
-    node.append("svg:image")
+    /*
+    selectedNodes.append("svg:image")
         .attr("class", "circle")
         .attr("xlink:href", function (d) { return d.img_href; })
         .attr("x", "-16px")
@@ -618,14 +650,14 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .attr("width", "32px")
         .attr("height", "32px")
         .on("click", NodeLeftClick);
+    */
 
-    // This is the text associated to each survol node.
-    node.append("svg:text")
-        .attr("class", "nodetext")
-        .attr("dx", 0)
-        .attr("dy", ".35em")
-        .attr("text-anchor", "middle")
-        .text(function (d) { return d.name; });
+    var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
+
+    // Is that to avoid collisions ?
+    d3.selectAll(".circle").append("circle")
+        .attr("class", function (d) { return "node type" + d.type; })
+        .attr("r", function (d) { return radius(d.value) || 10; }).call(force.drag);
 
 
 
@@ -638,7 +670,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
             .attr("x2", function (d) { return d.target.x; })
             .attr("y2", function (d) { return d.target.y; });
 
-        node.attr("transform", function (d) {
+        selectedNodes.attr("transform", function (d) {
             /*
             // Ca fonctionne mais ca n'est pas tres beau.
             var rr = 10;
@@ -652,7 +684,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
 
         // http://mbostock.github.io/d3/talk/20110921/bounding.html
         /*
-        node.attr("cx", function(d) { return d.x = Math.max(r, Math.min(w - r, d.x)); })
+        selectedNodes.attr("cx", function(d) { return d.x = Math.max(r, Math.min(w - r, d.x)); })
             .attr("cy", function(d) { return d.y = Math.max(r, Math.min(h - r, d.y)); });
         */
     }
