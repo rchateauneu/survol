@@ -188,7 +188,11 @@ def AddInfo(grph,node,entity_ids_arr):
 			exec_node = lib_common.gUriGen.FileUri( execName )
 			grph.add( ( node, pc.property_runs, exec_node ) )
 
-		user_name = PsutilProcToUser(proc_obj)
+		# A node is created with the returned string which might as well be
+		# an error message, which must be unique. Otherwise all faulty nodes
+		# would be merged.
+		user_name = PsutilProcToUser(proc_obj,"User access denied:PID=%s"%pidProc)
+
 		# TODO: Should add the hostname to the user ???
 		user_name_host = lib_common.FormatUser( user_name )
 		user_node = lib_common.gUriGen.UserUri(user_name_host)
