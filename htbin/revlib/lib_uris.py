@@ -78,9 +78,6 @@ class LocalBox:
 		keys = lib_util.OntologyClassKeys(entity_type)
 		#sys.stderr.write("UriMake keys=%s\n" % str(keys) )
 
-		if len(keys) != len(entity_id_arr):
-			sys.stderr.write("BuildEntity Different lens: entity_type=%s: %s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
-
 		lenKeys = len(keys)
 		lenEntIds = len(entity_id_arr)
 		if lenKeys < lenEntIds:
@@ -91,7 +88,19 @@ class LocalBox:
 			# Not enough values. This is not a problem because of queries returning several objects.
 			sys.stderr.write("BuildEntity entity_type=%s Not enough values:%s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
 			# entity_id_arr += [ "Unknown" ] * ( lenKeys - lenEntIds )
-		entity_id = ",".join( "%s=%s" % kwItems for kwItems in zip( keys, entity_id_arr ) )
+
+		# C est peut etre ici le probleme car on conserve l ordre ???
+		# zip pas tres rapide.
+		# dict tres rapide et commode.
+		# si on est tributaire de l ordre,
+		# on va forcement se planter de tps en tps/
+		# Qu est ce qu apporte l ordre ?
+		# Au lieu de zip, on aura aussi vite fait de batir un dict.
+
+		# entity_id = ",".join( "%s=%s" % kwItems for kwItems in zip( keys, entity_id_arr ) )
+		# Sorted keys
+		entity_id = ",".join( "%s=%s" % kwItems for kwItems in dict(zip( keys, entity_id_arr ) ).items() )
+
 		return entity_id
 
 	def UriMake(self, entity_type, *entity_id_arr):
@@ -281,6 +290,7 @@ class LocalBox:
 	def SymbolUri(self,symbol_name, file = ""):
 		# The URL should never contain the chars "<" or ">".
 		symbol_name = lib_util.Base64Encode(symbol_name)
+		# TODO: Alphabetical order !!!!
 		return self.UriMakeFromDict("symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(file) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
