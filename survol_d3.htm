@@ -151,6 +151,7 @@ var previousData = null;
 // Sanity check to ensure that nodes and links are properly matched.
 function CheckGraph(theNam,theData)
 {
+    'use strict';
     return;
     if(theData == null)
     {
@@ -196,6 +197,7 @@ function CheckGraph(theNam,theData)
 // Ah peut-etre d2 version 2 au lieu de 4 ?
 function CreateDisplay(data)
 {
+    'use strict';
     if( data == null )
     {
         alert("CreateDisplay: Json data is null");
@@ -260,6 +262,7 @@ function CreateDisplay(data)
 // Callback of contextual menu. It receives the JSON menu sent by the server.
 function RefillDisplay(data)
 {
+    'use strict';
     CheckGraph("new",data);
     if( data == null )
     {
@@ -310,7 +313,7 @@ function RefillDisplay(data)
             if( oldIdx == undefined )
             {
                 // Most common case of a new node.
-                idxAppend = previousNodes.length;
+                var idxAppend = previousNodes.length;
                 // newNod.new_index = lenPrevNodes + ixNod;
                 newNod.new_index = idxAppend;
 
@@ -344,7 +347,7 @@ function RefillDisplay(data)
         {
             var newLnk = newLinks[ixLnk];
 
-            idxSourceMapped = newNodes[newLnk.source].new_index;
+            var idxSourceMapped = newNodes[newLnk.source].new_index;
 
             // Sanity check
             if(idxSourceMapped == undefined)
@@ -354,7 +357,7 @@ function RefillDisplay(data)
 
             newLnk.source = idxSourceMapped;
 
-            idxTargetMapped = newNodes[newLnk.target].new_index;
+            var idxTargetMapped = newNodes[newLnk.target].new_index;
 
             // Sanity check
             if(idxTargetMapped == undefined)
@@ -431,6 +434,7 @@ function RefillDisplay(data)
 
 function EmptyDisplay()
 {
+    'use strict';
     var node = divSvg.selectAll("g.survol_node")
         .data([])
         .exit()
@@ -445,6 +449,7 @@ function EmptyDisplay()
 /* When deleting a node from the contextual menu. Deletes the nodes and its links. */
 function DeleteSvgNode(objectSvg)
 {
+    'use strict';
     // No need of a lookup because it happens just once.
     for( var ixNod = 0; ixNod < previousData.nodes.length; ixNod++ )
     {
@@ -496,6 +501,7 @@ function DeleteSvgNode(objectSvg)
 
 function FillDisplay(divSvg,newData,w,h,mustMerge)
 {
+    'use strict';
     console.log("newData.nodes="+newData.nodes.length+" newData.nodes="+newData.nodes.length);
 
     /*
@@ -562,7 +568,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     // TODO: This should be recursive.
     function DictToTable(theList,theDict)
     {
-        result = "<table>"
+        var result = "<table>"
         for (var ix in theList) {
             result += "<tr><td valign='top' align='left' colspan='2'><b>" + theList[ix] + "</td></tr>";
         }
@@ -634,7 +640,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
                     .style("opacity", .9);
 
                 // d.survol_info_dict is a dictionary.
-                txtToolTip = DictToTable(d.survol_info_list,d.survol_info_dict);
+                var txtToolTip = DictToTable(d.survol_info_list,d.survol_info_dict);
                 divToolTip.html( txtToolTip )
                     .style("left", (d3.event.pageX) + "px")
                     .style("top", (d3.event.pageY - 28) + "px")
@@ -672,7 +678,8 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     // Is that to avoid collisions ?
     d3.selectAll(".circle").append("circle")
         .attr("class", function (d) { return "node type" + d.type; })
-        .attr("r", function (d) { return radius(d.value) || 10; }).call(myForce.drag);
+        .attr("r", function (d) { return radius(d.value) || 10; })
+        .call(myForce.drag);
 
 
 
@@ -709,10 +716,10 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     // This returns the contextual menu for nodes.
     function MakeContextMenuItems(objectSvg)
     {
-        objUrl = objectSvg.survol_url;
+        var objUrl = objectSvg.survol_url;
 
-        objKey = objectSvg.name;
-        objDfd = objectSvg.dfd;
+        var objKey = objectSvg.name;
+        var objDfd = objectSvg.dfd;
         console.log("MakeContextMenuItems objKey="+objKey);
 
         // https://swisnl.github.io/jQuery-contextMenu/demo/async-promise.html Submenu through promise.
@@ -722,7 +729,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         des scripts Python specifiques.
         */
 
-        TheItems = {};
+        var TheItems = {};
 
         // This is the title, and it is clickable.
         TheItems[ objUrl ] =
@@ -731,7 +738,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         };
 
         // By default, results of scripts is merged with the current graph.
-        TheItemsSuite =
+        var TheItemsSuite =
         {
             "yesno": {
                 name: "Merge graphs",
@@ -809,7 +816,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
             globalMustMerge = menuOptions.yesno;
 
             // This is a Python script, but not a contextual menu displayed by "entity.py".
-            theUrl = key + "&mode=json";
+            var theUrl = key + "&mode=json";
             console.log("theUrl="+theUrl);
             d3.json(theUrl, RefillDisplay);
         }
@@ -902,16 +909,17 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     $("g.survol_node").mousedown(function(ev){
         /* Si clicke gauche, on va vers le "entity.py". */
 
+        function GetEntityUrl(jsonData)
+        {
+            // Maybe this duplicates the value. Not a problem.
+            objectThis.__data__.contextual_menu_items = jsonData;
+
+            objectThis.__data__.dfd.resolve(jsonData);
+        }
+
         if(ev.which == 3)
         {
             var objectThis = this;
-            function GetEntityUrl(jsonData)
-            {
-                // Maybe this duplicates the value. Not a problem.
-                objectThis.__data__.contextual_menu_items = jsonData;
-
-                objectThis.__data__.dfd.resolve(jsonData);
-            }
 
             // We expect a contextual menu, not a graph.
             var urlEntity = this.__data__.survol_url + "&mode=menu";
