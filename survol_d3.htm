@@ -212,6 +212,10 @@ function CreateDisplay(data)
     wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
     hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
 
+    var border=1;
+    var bordercolor='black';
+
+
     // http://stackoverflow.com/questions/16265123/resize-svg-when-window-is-resized-in-d3-js
     // This allows the resizing.
     divSvg = d3.select("body")
@@ -223,7 +227,17 @@ function CreateDisplay(data)
        .attr("viewBox", "0 0 " + wScreen + " " + hScreen)
        //class to make it responsive
        .classed("svg-content-responsive", true)
+       .attr("border",border)
         ;
+
+    var borderPath = divSvg.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("height", hScreen)
+        .attr("width", wScreen)
+        .style("stroke", bordercolor)
+        .style("fill", "none")
+        .style("stroke-width", border);
 
     /*
     divSvg.append("defs").append("marker")
@@ -582,7 +596,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .attr("dx", 0)
         .attr("dy", ".35em")
         .attr("text-anchor", "middle")
-        .text(function (d) { return d.name; })
+        .text(function (d) { return d.name; }) // Use tspan and tref ???
         .call(getTextBox)
     ;
 
