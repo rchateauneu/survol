@@ -131,7 +131,7 @@ alert("paramsCgi="+paramsCgi);
 
 var wScreen;
 var hScreen;
-var force = null;
+var myForce = null;
 
 // At startup.
 var theurl = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
@@ -251,7 +251,7 @@ function CreateDisplay(data)
         .attr("d", "M 0,0 V 4 L6,2 Z"); //this is actual shape for arrowhead
     */
 
-    force = d3.layout.force();
+    myForce = d3.layout.force();
 
     previousData = data;
     FillDisplay(divSvg,previousData,wScreen,hScreen);
@@ -506,7 +506,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .size([w *= 2 / 3, h *= 2 / 3]);
     */
 
-    force
+    myForce
         .nodes(newData.nodes)
         .links(newData.links)
         .distance(100)
@@ -547,7 +547,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .data(newData.nodes)
         .enter().append("svg:g")
         .attr("class", function (d) { return "survol_node node"; }) // Two classes are possible.
-        .call(force.drag);
+        .call(myForce.drag);
 
     // fill:#337147;
 
@@ -672,7 +672,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     // Is that to avoid collisions ?
     d3.selectAll(".circle").append("circle")
         .attr("class", function (d) { return "node type" + d.type; })
-        .attr("r", function (d) { return radius(d.value) || 10; }).call(force.drag);
+        .attr("r", function (d) { return radius(d.value) || 10; }).call(myForce.drag);
 
 
 
@@ -704,7 +704,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         */
     }
 
-    force.on("tick", tick_function);
+    myForce.on("tick", tick_function);
 
     // This returns the contextual menu for nodes.
     function MakeContextMenuItems(objectSvg)
