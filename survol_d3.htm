@@ -500,6 +500,55 @@ function DeleteSvgNode(objectSvg)
 } // DeleteSvgNode
 
 
+/*
+function ClearTable(tableName)
+{
+    // This would also remove the header.
+    // $('#DataQueried').empty();
+    var table = document.getElementById(tableName);
+    //or use :  var table = document.all.DataQueried;
+    for (var i = table.rows.length - 1; i > 0; i--) {
+        table.deleteRow(i);
+    }
+}
+*/
+
+
+/* Loads from a URL, a JSON document made of nodes and links.
+After that, updates a table containing the list of loaded URLs. */
+function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
+{
+    function AppendRow(col1,col2,col3)
+    {
+        var newLine = '<tr>'
+            + '<td>' + col1 + '</td>'
+            + '<td>' + col2 + '</td>'
+            + '<td>' + col3 + '</td>'
+            + '</tr>';
+        $('#UrlsList').append(newLine);
+    }
+
+    function LoaderCallback(data)
+    {
+        funcDisplay(data);
+
+        if( ! shouldMerge )
+        {
+            $('#UrlsList').empty();
+            AppendRow("Title","Nodes","Links");
+        }
+
+        /*
+        TODO: Add a tag to each node, so it is possible to hide or delete nodes
+        coming from each URL.
+        */
+
+        AppendRow(data.page_title,data.nodes.length,data.links.length);
+    }
+
+    d3.json(theUrl,LoaderCallback);
+}
+
 function FillDisplay(divSvg,newData,w,h,mustMerge)
 {
     'use strict';
@@ -593,7 +642,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         // This expects a graph, not a contextual menu.
         theurl = d.survol_url + "&mode=json";
         // alert("theurl="+theurl);
-        d3.json(theurl, RefillDisplay);
+        LoadUrlUpdateDisplay(theurl, RefillDisplay,globalMustMerge);
     }
 
     function getTextBox(selection) {
@@ -770,7 +819,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
             // This is a Python script, but not a contextual menu displayed by "entity.py".
             var theUrl = key + "&mode=json";
             console.log("theUrl="+theUrl);
-            d3.json(theUrl, RefillDisplay);
+            LoadUrlUpdateDisplay(theUrl, RefillDisplay,globalMustMerge);
         }
 
 
@@ -874,7 +923,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
 } // FillDisplay
 
 // alert("theurl="+theurl);
-d3.json(theurl, CreateDisplay);
+LoadUrlUpdateDisplay(theurl, CreateDisplay,false);
 
 /*
 http://bl.ocks.org/GerHobbelt/3669455
@@ -889,7 +938,8 @@ Mais il n est pas certain que ca suffise quand on a beaucoup d’objets.
 
 <body>
 Test D3
-
+<!-- We could put these data in a special pop-up. -->
+<table id="UrlsList"></table>
 
 </body>
 </html>

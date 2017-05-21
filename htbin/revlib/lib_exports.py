@@ -291,6 +291,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		}
 
 	graph = {}
+	graph["page_title"] = page_title
 	graph["nodes"] = nodes
 	graph["links"] = links
 
@@ -443,6 +444,9 @@ def UrlToSvg(url):
 			# Tested with Python 2.7 on Fedora.
 			return url.replace( "&", "&amp;amp;" )
 
+# NOT FINISHED
+# NOT FINISHED
+# NOT FINISHED
 # NOT FINISHED
 # NOT FINISHED
 # NOT FINISHED
