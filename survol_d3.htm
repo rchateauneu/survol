@@ -453,6 +453,7 @@ function DeleteSvgNode(objectSvg)
     // No need of a lookup because it happens just once.
     for( var ixNod = 0; ixNod < previousData.nodes.length; ixNod++ )
     {
+        var goodNodeIdx;
         if( previousData.nodes[ixNod].survol_url == objectSvg.survol_url )
         {
             goodNodeIdx = ixNod;
@@ -467,7 +468,7 @@ function DeleteSvgNode(objectSvg)
         return;
     }
 
-    goodNode = previousData.nodes[goodNodeIdx];
+    var goodNode = previousData.nodes[goodNodeIdx];
 
     // The node is removed and the following node numbers are decremented.
     // Therefore the links must be updated.
@@ -478,7 +479,7 @@ function DeleteSvgNode(objectSvg)
     console.log("DeleteSvgNode lenLinks="+lenLinks);
     while(ixLnk < lenLinks)
     {
-        objLnk = previousData.links[ixLnk];
+        var objLnk = previousData.links[ixLnk];
 
         // The link is pointing to the node to be deleted. Each index is replaced by the node itselfs
         // NOTE: APPARENTLY THE NODE INDICES ARE REPLACED BY THE NODE OBJECT.
