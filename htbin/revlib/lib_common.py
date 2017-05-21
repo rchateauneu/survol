@@ -351,7 +351,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		#sys.stderr.write("ADDED collapsedSubjNam=%s newSubjNam=%s collapsPropNam=%s\n" % (collapsedSubjNam,newSubjNam,collapsPropNam))
 		return newSubjNam
 
-	for subj, prop, obj in grph:
+	# This is sorted so the result is deterministic. Very small performance impact.
+	for subj, prop, obj in sorted(grph):
+	# for subj, prop, obj in grph:
 
 		subjNam = RdfNodeToDotLabel(subj)
 
