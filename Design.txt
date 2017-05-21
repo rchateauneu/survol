@@ -512,3 +512,14 @@ http://bl.ocks.org/mostaphaRoudsari/82f51f01b4619db2f09f
 Il faut commencer a penser serieusement a l’affichage des grandeurs:
 Logarithme taille des fichiers.
 Idem taille mémoire process.
+========================================================================================================================
+Mise a jour automatique. Redesign complet, vu ce qu on a fait avec D3.
+Abonnement aux mises a jour pour chaque objet (clases  props).
+Plusieurs abonnements: Survol, WBEM, WMI.
+Peut-etre y a-t-il du natif avec WMI ou WBEM, c est a dire que ca proposerait des URLS sans meme passer par nous.
+On se le permet, c est a dire que pluseurs URLs sont possibles pour chaque node.
+Chaque node affiche a droit a samise a jour, qui peut etrainer la creation de nouveaux nodes,
+et sa propre destruction.
+En cliquant a droite sur un node, on peut s'abonner ou se desabonner, en moderant le rythme
+pour ne pas saturer la machine.
+
