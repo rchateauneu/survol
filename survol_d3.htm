@@ -5,6 +5,7 @@
 <head>
 </head>
 
+<!-- Port to D3 v4 can be done by a specialist. -->
 <script src="http://d3js.org/d3.v3.min.js"></script>
 
 <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
@@ -198,6 +199,11 @@ function CheckGraph(theNam,theData)
 function CreateDisplay(data)
 {
     'use strict';
+
+    function MyZoom() {
+        divSvg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    }
+
     if( data == null )
     {
         alert("CreateDisplay: Json data is null");
@@ -211,35 +217,29 @@ function CreateDisplay(data)
         doc = document,
         elt = doc.documentElement,
         geb = doc.getElementsByTagName('body')[0];
+
+    // First defined and non-zero values.
     wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
     hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
-
-    var border=1;
-    var bordercolor='black';
-
 
     // http://stackoverflow.com/questions/16265123/resize-svg-when-window-is-resized-in-d3-js
     // This allows the resizing.
     divSvg = d3.select("body")
-       .append("div")
-       .classed("svg-container", true) //container class to make it responsive
-       .append("svg:svg")
-       //responsive SVG needs these 2 attributes and no width and height attr
-       .attr("preserveAspectRatio", "xMinYMin meet")
-       .attr("viewBox", "0 0 " + wScreen + " " + hScreen)
-       //class to make it responsive
-       .classed("svg-content-responsive", true)
-       .attr("border",border)
-        ;
+        .append("div")
+        .classed("svg-container", true) //container class to make it responsive
+        .append("svg:svg")
+        //responsive SVG needs these 2 attributes and no width and height attr
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 " + wScreen + " " + hScreen)
 
-    var borderPath = divSvg.append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("height", hScreen)
-        .attr("width", wScreen)
-        .style("stroke", bordercolor)
-        .style("fill", "none")
-        .style("stroke-width", border);
+        // style="border-style:solid;border-width:1px;"
+        .attr("style","border-style:solid;border-width:1px;")
+
+        //class to make it responsive
+        .classed("svg-content-responsive", true)
+        // https://bl.ocks.org/mbostock/3680999
+        .call(d3.behavior.zoom().scaleExtent([0.125, 8]).on("zoom", MyZoom))
+        ;
 
     /*
     divSvg.append("defs").append("marker")
@@ -291,7 +291,7 @@ function RefillDisplay(data)
             prevUrlsToIds[urlNode] = ixNod;
         }
 
-        console.log("prevUrlsToIds elements:"+JSON.stringify(prevUrlsToIds));
+        // console.log("prevUrlsToIds elements:"+JSON.stringify(prevUrlsToIds));
 
         // The new numbers of the new nodes are written in the nodes themselves.
         var newNodes = data.nodes;
@@ -504,13 +504,27 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     'use strict';
     console.log("newData.nodes="+newData.nodes.length+" newData.nodes="+newData.nodes.length);
 
-    /*
-    var force = d3.layout.force()
-        .gravity(0.06)
-        .charge(-150)
-        .linkDistance(40)
-        .size([w *= 2 / 3, h *= 2 / 3]);
-    */
+    function tick_function()
+    {
+        // Apply the constraints: On verra plus tard. http://bl.ocks.org/GerHobbelt/3669455
+
+        link.attr("x1", function (d) { return d.source.x; })
+            .attr("y1", function (d) { return d.source.y; })
+            .attr("x2", function (d) { return d.target.x; })
+            .attr("y2", function (d) { return d.target.y; });
+
+        // http://mbostock.github.io/d3/talk/20110921/bounding.html
+        selectedNodes.attr("transform", function (d) {
+            /*
+            // Ca fonctionne mais ca n'est pas tres beau.
+            var rr = 10;
+            d.x = Math.max(rr, Math.min(w - rr, d.x));
+            d.y = Math.max(rr, Math.min(h - rr, d.y));
+            */
+
+            return "translate(" + d.x + "," + d.y + ")";
+        });
+    }
 
     myForce
         .nodes(newData.nodes)
@@ -519,11 +533,7 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .charge(-1000)
         .linkDistance(100)
         .size([wScreen, hScreen])
-        /*
-        .distance(100)
-        .charge(-1000)
-        .size([wScreen, hScreen])
-        */
+        .on("tick", tick_function)
         .start();
 
     // PROBABLEMENT OK POUR AJOUTER DES LINES.
@@ -539,13 +549,6 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         // .attr("marker-end", function (d) { if (d.value == 1) { return "url(#arrowhead)"; } else { return " "; }; })
         // .append("svg:title").text(function(d) { return d.link_prop; })
         ;
-
-    /*
-    for( var ixNod = 0; ixNod < newData.nodes.length; ixNod++ )
-    {
-        newData[ixNod].bbox =
-    }
-    */
 
     // Creates one SVG object (Which class ?) for each survol node.
     // CA DEVRAIT ALLER POUR AJOUTER DES NODES.
@@ -607,18 +610,12 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     ;
 
     // Adds text inside each "g" object of class "survol_node": http://stackoverflow.com/questions/6725288/svg-text-inside-rect
-    // d3.selectAll(".survol_node").append("rect")
     // Inserts the rect element before the text, which is therefore not hidden.
     d3.selectAll(".survol_node").insert("rect","text")
         .attr("x", function(d){return d.bbox.x})
         .attr("y", function(d){return d.bbox.y})
         .attr("width", function(d){return d.bbox.width})
         .attr("height", function(d){return d.bbox.height})
-        // .style("opacity", ".3")
-         /*
-        .attr("width", 50)
-        .attr("height", 20)
-        */
         .style("stroke-width", 1)
         .style("stroke", "#000000")
         // Classes are not defined so fill colors are OK. We will fetch CSS in classes directories.
@@ -659,20 +656,6 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .on("click", NodeLeftClick)
         ;
 
-    // Maybe the click zone on each survol node ???????
-    // Why is it invisible ??
-    // Why not a "mousedown" ??
-    /*
-    selectedNodes.append("svg:image")
-        .attr("class", "circle")
-        .attr("xlink:href", function (d) { return d.img_href; })
-        .attr("x", "-16px")
-        .attr("y", "-16px")
-        .attr("width", "32px")
-        .attr("height", "32px")
-        .on("click", NodeLeftClick);
-    */
-
     var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
 
     // Is that to avoid collisions ?
@@ -680,38 +663,6 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .attr("class", function (d) { return "node type" + d.type; })
         .attr("r", function (d) { return radius(d.value) || 10; })
         .call(myForce.drag);
-
-
-
-    function tick_function()
-    {
-        // Apply the constraints: On verra plus tard. http://bl.ocks.org/GerHobbelt/3669455
-
-        link.attr("x1", function (d) { return d.source.x; })
-            .attr("y1", function (d) { return d.source.y; })
-            .attr("x2", function (d) { return d.target.x; })
-            .attr("y2", function (d) { return d.target.y; });
-
-        selectedNodes.attr("transform", function (d) {
-            /*
-            // Ca fonctionne mais ca n'est pas tres beau.
-            var rr = 10;
-            d.x = Math.max(rr, Math.min(w - rr, d.x));
-            d.y = Math.max(rr, Math.min(h - rr, d.y));
-            */
-
-            // console.log("d.x="+d.x+" d.y="+d.y);
-            return "translate(" + d.x + "," + d.y + ")";
-        });
-
-        // http://mbostock.github.io/d3/talk/20110921/bounding.html
-        /*
-        selectedNodes.attr("cx", function(d) { return d.x = Math.max(r, Math.min(w - r, d.x)); })
-            .attr("cy", function(d) { return d.y = Math.max(r, Math.min(h - r, d.y)); });
-        */
-    }
-
-    myForce.on("tick", tick_function);
 
     // This returns the contextual menu for nodes.
     function MakeContextMenuItems(objectSvg)
@@ -834,8 +785,6 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
                 // In JSON format, the node on which we have right-clicked.
                 var objectSvg = $trigger["0"]["__data__"];
 
-
-
                 var theItems = MakeContextMenuItems(objectSvg);
 
                 return {
@@ -854,18 +803,6 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
                         else
                         {
                             FromKeyToScript(key, options);
-                            /*
-                            // We will merge the new content with the existing content or not.
-                            var menuOptions = {};
-                            $.contextMenu.getInputValues(options, menuOptions);
-                            globalMustMerge = menuOptions.yesno;
-
-
-                            // This is a Python script, but not a contextual menu displayed by "entity.py".
-                            theUrl = key + "&mode=json";
-                            console.log("theUrl="+theUrl);
-                            d3.json(theUrl, RefillDisplay);
-                            */
                         }
                     },
                     items: theItems
