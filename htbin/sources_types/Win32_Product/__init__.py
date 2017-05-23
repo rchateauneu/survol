@@ -136,7 +136,8 @@ propProductInstallSource = lib_common.MakeProp("InstallSource")
 
 def AddInstallSource(grph,node,winProd):
 	# Windows file name, with backslashes replaced by convention in this software.
-	cleanInstallSource = winProd.InstallSource.replace("\\","/")
+	# cleanInstallSource = winProd.InstallSource.replace("\\","/")
+	cleanInstallSource = winProd.InstallSource
 
 	cleanInstallSource += winProd.PackageName
 

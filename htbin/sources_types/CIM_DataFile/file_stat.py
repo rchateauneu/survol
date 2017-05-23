@@ -22,7 +22,7 @@ from lib_properties import pc
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
-	filNam = filNam.replace("\\","/")
+	#filNam = filNam.replace("\\","/")
 	sys.stderr.write("filNam=%s\n" % filNam )
 
 	filNode = lib_common.gUriGen.FileUri(filNam )

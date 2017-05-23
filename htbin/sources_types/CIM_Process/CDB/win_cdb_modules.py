@@ -106,7 +106,8 @@ def Main():
 
 			fileName = match_lin.group(1)
 			fileName = CDB.TestIfKnownDll(fileName)
-			fileName = fileName.strip().replace("\\","/")
+			#fileName = fileName.strip().replace("\\","/")
+			fileName = fileName.strip()
 			fileNode = lib_common.gUriGen.FileUri( fileName )
 			grph.add( ( procNode, PropLoadedModule, fileNode ) )
 			continue

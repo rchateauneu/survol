@@ -307,6 +307,7 @@ class LocalBox:
 	# XML Parsing Error: not well-formed
 	# Location: http://127.0.0.1/Survol/htbin/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
 	def FileUri(self,path):
+		path = path.replace("\\","/")
 		return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
 
 		# TODO: Consider this might be even be more powerful.
@@ -314,7 +315,24 @@ class LocalBox:
 
 	# If path is terminated by a backslash, it must be stripped otherwise things fail.
 	def DirectoryUri(self,path):
+		# Normalize a pathname by collapsing redundant separators and up-level references
+		# so that A//B, A/B/, A/./B and A/foo/../B all become A/B.
+		# This string manipulation may change the meaning of a path that contains symbolic links.
+		# On Windows, it converts forward slashes to backward slashes.
 		path = os.path.normpath(path)
+		# Backslashes are a real problem everywhere.
+		# On top of that, escaping the backslash is not enough because strings are sometimes truncated for display.
+		# Better have our own "canonical" notation for filenames, so replace them.
+		# If needed, they can always be replaced by a normal slash.
+		#
+		# ATTENTION ! IL Y A UN MOMENT OU CE N EST PAS FAIT ET DONC LA FUSION NE FONCTIONNE PAS
+		# Peut-etre dans les mapped memory segments ?
+		#
+		# To reproduce the problem, for example:
+		# Process: "Current working directory" => Directories separated by backslashes.
+		# then "File Stat information" => Separator is slashes.
+		#
+		path = path.replace("\\","/")
 		return self.UriMake( "CIM_Directory" , lib_util.EncodeUri(path))
 
 	# TODO: Renvoyer NULL si type MIME invalide ?

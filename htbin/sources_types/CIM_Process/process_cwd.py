@@ -28,6 +28,7 @@ def Main():
 	proc_cwd,proc_msg = CIM_Process.PsutilProcCwd(proc_obj)
 
 	if proc_cwd:
+		# proc_cwd = proc_cwd.replace("\\","/") # "Our" normalisation.
 		node_cwd = lib_common.gUriGen.FileUri( proc_cwd )
 		grph.add( ( node_process, pc.property_cwd, node_cwd ) )
 	else:
