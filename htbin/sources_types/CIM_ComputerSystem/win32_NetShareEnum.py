@@ -62,11 +62,14 @@ def Main():
 			shareNode = lib_common.gUriGen.SmbShareUri( "//" + hostname + "/" + share_netname )
 			grph.add( ( nodeHost, pc.property_smbshare, shareNode ) )
 
-			# TODO: Horrible display. Strange because this is encoded in the function.
-			mountNode = lib_common.gUriGen.FileUri( share_path.replace('\\','/') )
+			if share_path:
+				# TODO: Horrible display. Strange because this is encoded in the function.
+				# mountNode = lib_common.gUriGen.FileUri( share_path.replace('\\','/') )
+				mountNode = lib_common.gUriGen.FileUri( share_path )
+				grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
 
-			grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
-			grph.add( ( shareNode, pc.property_information, rdflib.Literal(share_remark) ) )
+			if share_remark:
+				grph.add( ( shareNode, pc.property_information, rdflib.Literal(share_remark) ) )
 
 		if not shareresume:
 			break
