@@ -13,38 +13,42 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	groupName = cgiEnv.GetId()
+    cgiEnv = lib_common.CgiEnv()
+    groupName = cgiEnv.GetId()
 
-	if not lib_util.isPlatformLinux:
-		lib_common.ErrorMessageHtml("/etc/group on Linux only")
+    if not lib_util.isPlatformLinux:
+        lib_common.ErrorMessageHtml("/etc/group on Linux only")
 
-	etc_group = open("/etc/group")
+    etc_group = open("/etc/group")
 
-	grph = rdflib.Graph()
+    grph = rdflib.Graph()
 
-	split_users = []
-	grpNode = lib_common.gUriGen.GroupUri( groupName )
+    split_users = []
+    grpNode = lib_common.gUriGen.GroupUri( groupName )
 
-	grpId = "UnknownGroup:"+groupName
-	for lin_gr in etc_group:
-		split_gr = lin_gr.split(':')
-		try:
-			if split_gr[0] == groupName:
-				users_list = split_gr[3]
-				grpId = split_gr[2]
-				split_users = users_list.split(',')
-				break
-		except IndexError:
-			pass
+    grpId = "UnknownGroup:"+groupName
 
-	grph.add( ( grpNode, pc.property_groupid, rdflib.Literal(grpId) ) )
+    # tcpdump:x:72:
+    # rchateau:x:1000:rchateau
+    for lin_gr in etc_group:
+        split_gr = lin_gr.split(':')
+        try:
+            if split_gr[0] == groupName:
+                users_list = split_gr[3].strip()
+                grpId = split_gr[2]
+                split_users = users_list.split(',')
+                break
+        except IndexError:
+            pass
 
-	for user_name in split_users:
-		user_node = lib_common.gUriGen.UserUri( user_name )
-		grph.add( ( user_node, pc.property_group, grpNode ) )
+    grph.add( ( grpNode, pc.property_groupid, rdflib.Literal(grpId) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+    for user_name in split_users:
+        if user_name:
+            user_node = lib_common.gUriGen.UserUri( user_name )
+            grph.add( ( user_node, pc.property_group, grpNode ) )
+
+    cgiEnv.OutCgiRdf(grph)
 
 if __name__ == '__main__':
-	Main()
+    Main()
