@@ -236,7 +236,7 @@ def PropToShortPropNam(collapsProp):
 # This returns a graph made of Json objects.
 def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
-	# It contains a cache because the same nodes appear several times.
+	# It contains a cache because the same nodes may appear several times.
 	def NodeToJsonObj(theNod):
 		try:
 			return NodeToJsonObj.dictNod2Json[theNod]
