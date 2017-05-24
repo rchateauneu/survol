@@ -158,7 +158,7 @@ def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
 # notably when transforming RDF into dot documents.
 # The returned entity type is used for choosing graphic attributes and gives more information than the simple entity type.
 # (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
-def ParseEntityUri(uri,longDisplay=True):
+def ParseEntityUri(uriWithMode,longDisplay=True):
 	# sys.stderr.write("ParseEntityUri %s\n"%uri)
 	# Maybe there is a host name before the entity type. It can contain letters, numbers,
 	# hyphens, dots etc... but no ":" or "@".
@@ -168,6 +168,11 @@ def ParseEntityUri(uri,longDisplay=True):
 	# from urlparse import urlparse
 	# urlparse("http://127.0.0.1:80/Survol/htbin/entity.py?xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2")
 	# ParseResult(scheme='http', netloc='127.0.0.1:80', path='/Survol/htbin/entity.py', params='', query='xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2', fragment='')
+
+
+	# In the URI, we might have the CGI parameter "&mode=json". It must be removed otherwise
+	# it could be taken in entity_id, and the result of EntityToLabel() would be wrong.
+	uri = lib_util.AnyUriModed(uriWithMode, "")
 
 	uprs = urlparse(uri)
 
