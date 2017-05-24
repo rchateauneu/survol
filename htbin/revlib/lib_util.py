@@ -683,6 +683,9 @@ def ConcatenateCgi(url,keyvalpair):
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
 def RequestUriModed(otherMode):
 	script = HttpPrefix() + RequestUri()
+	return AnyUriModed(script, otherMode)
+
+def AnyUriModed(script, otherMode):
 
 	mtch_url = re.match("(.*)([\?\&])mode=[a-zA-Z0-9]*(.*)", script)
 
