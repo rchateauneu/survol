@@ -444,15 +444,22 @@ def UrlToSvg(url):
 			# Tested with Python 2.7 on Fedora.
 			return url.replace( "&", "&amp;amp;" )
 
-# NOT FINISHED
-# NOT FINISHED
-# NOT FINISHED
-# NOT FINISHED
-# NOT FINISHED
-# NOT FINISHED
+# This returns an URL to the Javascript D3 interface, editing the current data.
 def UrlToMergeD3():
-	callingUrl = lib_util.RequestUri()
-	return callingUrl
+	callingUrl = ModedUrl("")
+	htbinPrefixScript = "/htbin"
+	htbinIdx = callingUrl.find(htbinPrefixScript)
+	urlWithoutHost = callingUrl[htbinIdx:]
+
+	# While we are at it, we needs the beginning of the URL.
+	urlHost = callingUrl[:htbinIdx]
+
+	urlWithoutHostB64 = lib_util.Base64Encode(urlWithoutHost)
+	sys.stderr.write("urlWithoutHostB64=%s\n"%urlWithoutHostB64)
+
+	scriptD3Url = urlHost + "/survol_d3.htm?url=" + urlWithoutHostB64
+	sys.stderr.write("scriptD3Url=%s\n"%scriptD3Url)
+	return scriptD3Url
 
 	# Start by removing the mode.
 	# If "htbin/entity.py?xid=lkjlj" replace by "survol_d3.htm?xid=lkjlj"
@@ -471,6 +478,7 @@ def UrlToMergeD3():
 	# - On met bien a part l'exploration des scripts.
 	# - On retire de RDF, dans une certaine mesure, les scripts.
 
+# In SVG/Graphiz documents, this writes the little square which contains varios informaiton.
 def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream, grph ):
 
 	# This allows to enter directly the URL parameters, so we can access directly an object.
@@ -490,6 +498,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		urlHtmlReplaced = UrlToSvg( urlHtml )
 		urlJsonReplaced = UrlToSvg( urlJson )
 		urlRdfReplaced = UrlToSvg( urlRdf )
+		urlD3Replaced = UrlToSvg( urlD3 )
 
 		# We must pass the script and the parameters.
 		#  "http://127.0.0.1:8000/survol_d3.htm?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
@@ -502,9 +511,12 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		# MAIS IL FAUT AUSSI DETECTER QUE PEUT-ETRE LE SCRIPT COURANT EST "merge.py"
 		# ET DANS CE CAS IL SUFFIT DE CHANGER LE MODE.
 
-		stream.write("<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>")
-		stream.write("<tr><td align='left' colspan='2' href='" + urlJsonReplaced + "'>" + DotUL("As JSON") + "</td></tr>")
-		stream.write("<tr><td align='left' colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>")
+		stream.write(
+			"<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>"
+			"<tr><td align='left' colspan='2' href='" + urlJsonReplaced + "'>" + DotUL("As JSON") + "</td></tr>"
+			"<tr><td align='left' colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>"
+			"<tr><td align='left' colspan='2' href='" + urlD3Replaced + "'>" + DotUL("As D3") + "</td></tr>"
+		)
 
 	# This displays the parameters of the URL and a link allowing to edit them.
 	def LegendAddParametersLinks(stream,parameters):

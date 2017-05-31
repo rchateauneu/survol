@@ -7,6 +7,7 @@
 
 <!-- Port to D3 v4 can be done by a specialist. -->
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="base64.js"></script>
 
 <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -126,21 +127,67 @@ Also, we must transmit to graphic properties for edges: This simply means having
 ... ou bien:
 "PROPERTY_LAYOUT" property "Ortho"
 
-paramsCgi = location.search;
-alert("paramsCgi="+paramsCgi);
 */
+
+/*
+http://127.0.0.1:8000/htbin/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29
+http://127.0.0.1:8000/htbin/entity.py?xid=rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672
+
+// The URLs list is something like that. It is not needed to split the xid.
+[
+    script="sources_types/CIM_DataFile/file_stat.py",
+    xid:"CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29"
+],
+[
+    script="entity.py"
+    xid="rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
+],
+
+
+ou tout simplement:
+[
+    urls:"sources_types/CIM_DataFile/file_stat.py?CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29",
+    url:"entity.py?rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
+],
+
+Ou meme:
+[
+    urls:"http://127.0.0.1:8000/sources_types/CIM_DataFile/file_stat.py?CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29",
+    url:"http://127.0.0.1:8000/entity.py?rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
+],
+
+A terme:
+- En theorie, un URL peut etre utilise sur plusieurs machines et donner le meme resultat si on ajoute le host.
+Donc on pourrait executer le meme script sur plusieurs machines. Ou suivre le meme objet sur plusieurs machines.
+Et donc on reecrirait l'URL.
+- On peut vouloir executer tous les scripts relatifs a un objet (On liste tous les scripts).
+*/
+function GetCgiParams()
+{
+    // console.log("resetParams");
+    var query = window.location.search;
+    var regex = /[?&;](.+?)=([^&;]+)/g;
+    var match;
+
+    var params = [];
+
+    if (query) {
+        while (match = regex.exec(query))
+        {
+            // There might be "=" equal signs in the value of the CGI variable.
+            // "http://127.0.0.1:8000/htbin/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
+            cgiObj = { cgi_key: match[1], cgi_value: decodeURIComponent(match[2])};
+
+            params.push(cgiObj);
+        }
+    }
+    return params;
+}; // GetCgiParams
+
 
 var wScreen;
 var hScreen;
 var myForce = null;
-
-// At startup.
-var theurl = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
-// var theurl = "htbin/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D2976&mode=json";
-// var theurl = "htbin/sources_types/enumerate_CIM_LogicalDisk.py?xid=.&mode=json";
-
-// This returns the top-level options.
-var urlTopLevel = "htbin/entity.py?mode=menu";
 
 var divSvg = null;
 var globalMustMerge = false;
@@ -237,7 +284,7 @@ function CreateDisplay(data)
 
         //class to make it responsive
         .classed("svg-content-responsive", true)
-        // https://bl.ocks.org/mbostock/3680999
+        // SVG Geometric Zooming https://bl.ocks.org/mbostock/3680999
         .call(d3.behavior.zoom().scaleExtent([0.125, 8]).on("zoom", MyZoom))
         ;
 
@@ -255,8 +302,28 @@ function CreateDisplay(data)
 
     myForce = d3.layout.force();
 
+	/*
+	// Temp, to set initial position.
+    for( var ix = 0; ix < data.nodes.length; ix++ )
+    {
+        var objNod = data.nodes[ix]
+        if( ix < 3)
+        {
+            objNod.x = wScreen/2;
+            objNod.y = hScreen/2;
+            objNod.fixed = true;
+        }
+        else
+        {
+            objNod.x = wScreen/2;
+            objNod.y = hScreen/2;
+        }
+    }
+	*/
+
+
     previousData = data;
-    FillDisplay(divSvg,previousData,wScreen,hScreen);
+    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
 } // CreateDisplay
 
 // Callback of contextual menu. It receives the JSON menu sent by the server.
@@ -270,6 +337,7 @@ function RefillDisplay(data)
         return;
     }
 
+    // If we merge the current nodes and links with the new one.
     if( globalMustMerge )
     {
         // This creates a new list of nodes with new numbers and without the duplicates.
@@ -314,7 +382,6 @@ function RefillDisplay(data)
             {
                 // Most common case of a new node.
                 var idxAppend = previousNodes.length;
-                // newNod.new_index = lenPrevNodes + ixNod;
                 newNod.new_index = idxAppend;
 
                 // Sanity check
@@ -428,7 +495,7 @@ function RefillDisplay(data)
     }
 
     EmptyDisplay();
-    FillDisplay(divSvg,previousData,wScreen,hScreen,globalMustMerge);
+    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
     globalMustMerge = false;
 } // RefillDisplay
 
@@ -495,7 +562,7 @@ function DeleteSvgNode(objectSvg)
     console.log("DeleteSvgNode previousData.links.length="+previousData.links.length);
 
     EmptyDisplay();
-    FillDisplay(divSvg,previousData,wScreen,hScreen,globalMustMerge);
+    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
     globalMustMerge = false;
 } // DeleteSvgNode
 
@@ -518,6 +585,8 @@ function ClearTable(tableName)
 After that, updates a table containing the list of loaded URLs. */
 function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 {
+    'use strict';
+
     function AppendRow(col1,col2,col3)
     {
         var newLine = '<tr>'
@@ -530,6 +599,11 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 
     function LoaderCallback(data)
     {
+        if( data == null )
+        {
+            console.log("LoaderCallback: data is null");
+            return;
+        }
         funcDisplay(data);
 
         if( ! shouldMerge )
@@ -546,17 +620,21 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
         AppendRow(data.page_title,data.nodes.length,data.links.length);
     }
 
+    console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
     d3.json(theUrl,LoaderCallback);
-}
+} // LoadUrlUpdateDisplay
 
-function FillDisplay(divSvg,newData,w,h,mustMerge)
+function DisplayD3Layout(divSvg,newData,w,h)
 {
     'use strict';
     console.log("newData.nodes="+newData.nodes.length+" newData.nodes="+newData.nodes.length);
 
     function tick_function()
     {
-        // Apply the constraints: On verra plus tard. http://bl.ocks.org/GerHobbelt/3669455
+        /* Apply the constraints: On verra plus tard.
+        using layout.force to plot tree graphs (where nodes may have multiple parents) - Part 1: pure tree
+        http://bl.ocks.org/GerHobbelt/3669455
+        */
 
         link.attr("x1", function (d) { return d.source.x; })
             .attr("y1", function (d) { return d.source.y; })
@@ -586,7 +664,6 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
         .on("tick", tick_function)
         .start();
 
-    // PROBABLEMENT OK POUR AJOUTER DES LINES.
     var link = divSvg.selectAll(".survol_line")
         .data(newData.links)
         .enter().append("svg:line")
@@ -640,9 +717,9 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     function NodeLeftClick(d)
     {
         // This expects a graph, not a contextual menu.
-        theurl = d.survol_url + "&mode=json";
-        // alert("theurl="+theurl);
-        LoadUrlUpdateDisplay(theurl, RefillDisplay,globalMustMerge);
+        var aUrl = d.survol_url + "&mode=json";
+        // alert("aUrl="+aUrl);
+        LoadUrlUpdateDisplay(aUrl, RefillDisplay,globalMustMerge);
     }
 
     function getTextBox(selection) {
@@ -886,6 +963,9 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
             });
         } // AddsDefaultCtxtMenu
 
+        // This returns the top-level options.
+        var urlTopLevel = "htbin/entity.py?mode=menu";
+
         d3.json(urlTopLevel, AddsDefaultCtxtMenu);
     }; // CreateContextMenus
 
@@ -919,11 +999,91 @@ function FillDisplay(divSvg,newData,w,h,mustMerge)
     });
 
     // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
-    $(CreateContextMenus);
-} // FillDisplay
+    // $(CreateContextMenus);
+    CreateContextMenus();
+} // DisplayD3Layout
 
-// alert("theurl="+theurl);
-LoadUrlUpdateDisplay(theurl, CreateDisplay,false);
+/*
+    function LoadUrlsList()
+    {
+        prms = resetParams();
+    }
+
+    // Related to a change in history ?
+    //window.addEventListener && window.addEventListener('popstate', BuildUrlsList);
+
+    BuildUrlsList();
+
+    console.log("params="+JSON.stringify(BuildUrlsList));
+    // return function(BuildUrlsList) { return params.hasOwnProperty(BuildUrlsList) ? BuildUrlsList[param] : null; }
+    return BuildUrlsList;
+}; // GetCgiParams
+*/
+
+// At startup.
+var theurl = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
+// var theurl = "htbin/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D2976&mode=json";
+// var theurl = "htbin/sources_types/enumerate_CIM_LogicalDisk.py?xid=.&mode=json";
+
+function UrlRelativeToAbsolute(href) {
+    'use strict';
+    var link = document.createElement("a");
+    link.href = href;
+    return (link.protocol+"//"+link.host+link.pathname+link.search+link.hash);
+}
+
+function PreloadUrls(theInputUrls)
+{
+    'use strict';
+    console.log("theInputUrls="+JSON.stringify(theInputUrls));
+
+    var isCreated = false;
+
+    for( var idx in theInputUrls )
+    {
+        var cgiPair = theInputUrls[idx];
+        console.log("cgiPair="+JSON.stringify(cgiPair));
+        if( cgiPair.cgi_key == "url" )
+        {
+            var aUrlB64 = cgiPair.cgi_value;
+            var aUrlRel = Base64.decode(aUrlB64);
+
+            var aUrlNoMode = UrlRelativeToAbsolute(aUrlRel)
+
+            // This reasonably expects that there is at least one CGI argument.
+            var aUrlMode = aUrlNoMode + "&mode=json";
+            console.log("aUrlNoMode="+aUrlNoMode);
+
+            if(isCreated)
+            {
+                // Merge all URLs together.
+                LoadUrlUpdateDisplay(aUrlMode, RefillDisplay,true);
+            }
+            else
+            {
+                LoadUrlUpdateDisplay(aUrlMode, CreateDisplay,false);
+                isCreated = true;
+            }
+        }
+    }
+
+    // If not URL on the command line.
+    if( ! isCreated )
+    {
+        LoadUrlUpdateDisplay(theurl, CreateDisplay,false);
+    }
+}
+
+function RunAfterLoad()
+{
+    // "getParamValue=[{"cgi_key":"toto","cgi_value":"tutu"},{"cgi_key":"titi","cgi_value":"tata"}]"
+    var theInputUrls = GetCgiParams();
+    PreloadUrls(theInputUrls);
+}
+
+// Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
+$(RunAfterLoad);
+
 
 /*
 http://bl.ocks.org/GerHobbelt/3669455
@@ -933,12 +1093,46 @@ RDF doit passer la contrainte sur les propriétés: Ajouter des triplets RDF qui e
 Mais il n est pas certain que ca suffise quand on a beaucoup d’objets.
 */
 
+
+function TstMerge()
+{
+    var tstInputUrls =
+    [
+        {
+            cgi_key : "url",
+            cgi_value : "http://127.0.0.1:8000/htbin/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29"
+        },
+        {
+            cgi_key : "url",
+            cgi_value : "http://127.0.0.1:8000/htbin/entity.py?xid=rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
+        }
+    ];
+    PreloadUrls(tstInputUrls);
+}
+
+/*
+https://stackoverflow.com/questions/36841013/custom-force-directed-symbols-in-d3-tables-as-nodes
+SVG has a group element that you can use to organize what can be an arbitrarily complex node.
+Also, you don't have to use an SVG. You can use D3 to manipulate say, the absolute positioning of HTML table elements.
+
+
+*/
+
 </script>
 
 
 <body>
 Test D3
-<!-- We could put these data in a special pop-up. -->
+<a href="xxxx_merge.py">Printable view (Static SVG)</a><br/>
+
+
+
+<a href="#" onClick="">Test Merge</a>
+<!-- We could put these data in a special pop-up, or a drop-down list.
+- Add a summary at the end.
+- Add a tick box for each line, to hide or delete.
+- Display classes of nodes, on the X axis (optionnaly)
+-->
 <table id="UrlsList"></table>
 
 </body>
