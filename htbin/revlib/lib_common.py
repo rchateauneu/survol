@@ -21,13 +21,6 @@ except ImportError:
 	from urllib.parse import unquote
 	from urllib.parse import urlparse
 
-try:
-	# Python 3
-	from urllib import HTTPError
-except ImportError:
-	# from urllib.error import HTTPError
-	pass
-
 # import threading
 import signal
 import sys
