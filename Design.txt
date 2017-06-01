@@ -514,7 +514,7 @@ Logarithme taille des fichiers.
 Idem taille mémoire process.
 ========================================================================================================================
 Mise a jour automatique. Redesign complet, vu ce qu on a fait avec D3.
-Abonnement aux mises a jour pour chaque objet (clases  props).
+Abonnement aux mises a jour pour chaque objet (classes  props).
 Plusieurs abonnements: Survol, WBEM, WMI.
 Peut-etre y a-t-il du natif avec WMI ou WBEM, c est a dire que ca proposerait des URLS sans meme passer par nous.
 On se le permet, c est a dire que pluseurs URLs sont possibles pour chaque node.
@@ -522,4 +522,21 @@ Chaque node affiche a droit a samise a jour, qui peut etrainer la creation de no
 et sa propre destruction.
 En cliquant a droite sur un node, on peut s'abonner ou se desabonner, en moderant le rythme
 pour ne pas saturer la machine.
-
+========================================================================================================================
+Les aretes:
+On ne peut pas vraiment les rattacher a un module, justement.
+Virer leur definition statique qui ne sert a rien ?
+Avoir par nom d aretes, un fichier CSS. Idealement tout est defini par le CSS?
+On remplace "pc.xxxxx" par un lookup dynamique sur l object pc, avec creation du Node,
+et ca remplacera MakeProp.
+Peut etre que les caracteristiques pourraient etre rattachees aux deux nodes:
+On afficherait une arete differente, selon les classes et proprietes de ses vertex.
+Ex:
+   pid(system) <-> pid(rchateau)   : Affichage arete avec tels parametres.
+========================================================================================================================
+Utiliser les treemaps pour les fichiers (Taille fichier), les process (CPU ou taille memoire) ?
+Mais il faudrait pouvoir melanger avec des nodes.
+Comment mettre en place plusieurs modes d'affichage ?
+========================================================================================================================
+Si on met les nodes en table, il faudrait forcer naturellement une distribution en arbre:
+Les noeuds montants seraient a gauche, les descendants a droite.
