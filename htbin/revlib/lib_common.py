@@ -290,7 +290,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			elif key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
 				urlTxt = lib_naming.ParseEntityUri(val)[0]
 				splitTxt = lib_exports.StrWithBr(urlTxt, 2)
-				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, splitTxt )
+				# The text of the link must be underlined.
+				currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, lib_exports.DotUL(splitTxt) )
 			else:
 				key_qname = qname( key, grph )
 				# This assumes: type(val) == 'rdflib.term.Literal'
