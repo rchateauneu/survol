@@ -55,17 +55,20 @@ def DecorateSocketNode(grph, socketNode, host, port, proto):
 ################################################################################
 
 def JoinThreads(threads):
-	sys.stderr.write("Waiting\n")
+	sys.stderr.write("JoinThreads: %d threads to return.\n" % len(threads))
 	for thread in threads:
-		sys.stderr.write('Joining %s\n' % thread.getName())
+		# sys.stderr.write('Joining %s\n' % thread.getName())
 		thread.join()
 
+# This returns retrieves the host information corresponding to a network address.
+# It might take a long time due to DNS delay, therefore one thread is started per host.
 def GetHost(addr):
 	try:
 		return socket.gethostbyaddr(addr)
 	except socket.herror:
 		return [ addr, [] ]
 
+# Different interfaces according to the Python version.
 def SocketToPair(connect):
 	if sys.version_info >= (3,):
 		larray = connect.local_address
