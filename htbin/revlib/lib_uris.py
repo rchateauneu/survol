@@ -341,7 +341,12 @@ class LocalBox:
 		return self.UriMakeFromScript('/file_to_mime.py', "CIM_DataFile", lib_util.EncodeUri(filNam) )
 
 	# This creates a node for a socket, so later it can be merged with the same socket.
-	# TODO: The URL should do something useful.
+	#
+	# TODO: PROBLEM: How can it be merged with the same address but described "from the other side" ??
+	# TODO: WE MUST ADD IN ITS PROPERTY, THE ALLEGED NODE "FROM THE OTHER SIDE".
+	# MAYBE IT IS NOT ENOUGH (BUT SO ELEGANT), IF THIS IS THE REMOTE NODE, TO USE THE REMOTE HOST,
+	# BECAUSE IT WOULD FORBID ANY INVESTIGATION FROM ANOTHER MACHINE ??
+	#
 	# If the port is known, we could wrap the associated service in a Python script.
 	# On the other hand, it forces the usage of a service.
 	# We do not put it in a specific module because it is used everywhere and is unavoidable.
@@ -355,6 +360,7 @@ class LocalBox:
 		if transport != 'tcp':
 			# This will happen rarely.
 			url += ":" + transport
+		# TODO: THIS IS WHERE WE SHOULD MAYBE ALWAYS USE A RemoteBox().
 		return self.UriMake("addr",url)
 
 	# TODO: Maybe this should be a file, nothing else.
