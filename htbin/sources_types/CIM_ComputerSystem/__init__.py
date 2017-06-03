@@ -3,6 +3,7 @@ Computer
 """
 
 import sys
+import socket
 import rdflib
 import lib_wmi
 import lib_util
@@ -41,7 +42,9 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
 				grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
 				wbemHostNode = lib_common.gUriGen.HostnameUri( url_server[1] )
 				grph.add( ( wbemNode, pc.property_host, wbemHostNode ) )
-				grph.add( ( wbemHostNode, pc.property_information, rdflib.Literal("Url to host") ) )
+
+				# Ca devrait etre dans nmap qui essaye d abord 80, et propose d ouvrir une fenetre.
+				# grph.add( ( wbemHostNode, pc.property_information, rdflib.Literal("Url to host") ) )
 	except ImportError:
 		pass
 
@@ -68,6 +71,12 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
 # The URL is hard-coded but very important because it allows to visit another host with WMI access.
 def AddInfo(grph,node,entity_ids_arr):
     theHostname = entity_ids_arr[0]
+
+    ipv4 = socket.gethostbyname(theHostname)
+    grph.add( ( node, lib_common.MakeProp("IP address"), rdflib.Literal(ipv4) ) )
+
+    fqdn = socket.getfqdn(theHostname)
+    grph.add( ( node, lib_common.MakeProp("FQDN"), rdflib.Literal(fqdn) ) )
 
     nameSpace = ""
     AddWbemWmiServers(grph,node,theHostname, nameSpace, "CIM_ComputerSystem", "Name="+theHostname)
