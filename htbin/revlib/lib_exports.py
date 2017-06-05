@@ -261,7 +261,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam, 'value': 10}])
 		elif isinstance(obj, (rdflib.Literal)):
 			if pred == pc.property_information:
-				subjObj.m_info_list.append( "ff"+str(obj.value) )
+				subjObj.m_info_list.append( str(obj.value) )
 			else:
 				if isinstance(obj.value, six.integer_types) or isinstance(obj.value, six.string_types):
 					subjObj.m_info_dict[propNam] = obj.value
@@ -306,6 +306,9 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 # It has a completely different layout as a normal RDF transformed into JSON,
 # so probably the URL should be different as well.
 # Input example: "http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3812&mode=json"
+
+# TODO: Should add WBEM and WMI ?
+
 def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 	# For each node, the subscripts. Therefore it can only be a directory.
 	NodesToItems = {}
