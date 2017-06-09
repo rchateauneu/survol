@@ -58,8 +58,8 @@ def Main():
 				grph.add( ( lsocketNode, pc.property_information, rdflib.Literal(cnt.status) ) )
 				grph.add( ( lsocketNode, pc.property_socket_end, rsocketNode ) )
 
-				grph.add( ( Main.node_process, pc.property_has_socket, lsocketNode ) )
-				grph.add( ( hostNode, pc.property_has_socket, rsocketNode ) )
+				grph.add( ( Main.node_process, pc.property_has_socket, rsocketNode ) )
+				grph.add( ( hostNode, pc.property_has_socket, lsocketNode ) )
 
 			for cnt in all_connect:
 				if( ( cnt.family == socket.AF_INET )
