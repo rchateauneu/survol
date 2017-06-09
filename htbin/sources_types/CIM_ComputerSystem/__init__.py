@@ -78,5 +78,6 @@ def AddInfo(grph,node,entity_ids_arr):
     fqdn = socket.getfqdn(theHostname)
     grph.add( ( node, lib_common.MakeProp("FQDN"), rdflib.Literal(fqdn) ) )
 
-    nameSpace = ""
-    AddWbemWmiServers(grph,node,theHostname, nameSpace, "CIM_ComputerSystem", "Name="+theHostname)
+	# No need to do that, because it is done in entity.py if mode!=json.
+    # nameSpace = ""
+    # AddWbemWmiServers(grph,node,theHostname, nameSpace, "CIM_ComputerSystem", "Name="+theHostname)
