@@ -98,7 +98,7 @@ pc.property_group                = MakeProp("group")
 pc.property_groupid              = MakeProp("groupid")
 pc.property_file_size            = MakeProp("file_size")
 pc.property_file_device          = MakeProp("file_device")
-pc.property_rdf_data1            = MakeProp("rdf1")
+pc.property_script               = MakeProp("script") # Used only in entity.py and the likes, to attach scripts to a node.
 pc.property_rdf_data_nolist1     = MakeProp("rdf2")    # These three have a special role.
 pc.property_rdf_data_nolist2     = MakeProp("sub-rdf") # Names must all be different
 pc.property_rdf_data_nolist3     = MakeProp("sub-rdf2") # Names must all be different
@@ -134,7 +134,7 @@ pc.property_equivalent           = MakeProp("equivalent")
 # TODO: L utiliser pour les colonnes des tables.
 # TODO: Faire varier la couleur en ayant des arguments CGI.
 def prop_color(prop):
-	if prop == pc.property_rdf_data1:
+	if prop == pc.property_script:
 		return "RED"
 	if prop == pc.property_rdf_data_nolist1:
 		return "BLUE"

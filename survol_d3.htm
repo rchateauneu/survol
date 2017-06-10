@@ -750,15 +750,6 @@ function DisplayD3Layout(divSvg,newData,w,h)
         selection.each(function(d) { d.bbox = this.getBBox(); })
     }
 
-    /*
-    TODO:
-    Caller le texte a gauche.
-    Mettre le nom de la classe dans le tiptool (Car on peut le deduire visuellement)
-    Dans le tiptool, on va chercher AddInfo.
-    Agrandir la sphere a la taille du rectangle (Mais comment le faire ?)
-    */
-
-
     // This is the text associated to each survol node.
     selectedNodes.append("svg:text")
         .attr("class", "nodetext")
@@ -789,53 +780,62 @@ function DisplayD3Layout(divSvg,newData,w,h)
         //.attr("class", function (d) { return "node type" + d.type; })
         .on("mouseover", function(d)
             {
-                // http://stackoverflow.com/questions/36326683/d3-js-how-can-i-set-the-cursor-to-hand-when-mouseover-these-elements-on-svg-co
-                // This could as well be done in CSS, but we might wish not change
-                // the pointer if no link is available, i.e. faulty node.
-                d3.select(this).style("cursor", "pointer");
+                d.is_mouseover = true;
 
-                divToolTip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-
-                // d.survol_info_dict is a dictionary.
-                var txtToolTip = DictToTable(d.survol_info_list,d.survol_info_dict);
-                divToolTip.html( txtToolTip )
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 28) + "px")
-
-				/*
-                var currentEventD3 = d3.event;
-                // Apparemment plein d infos qu on a deja.
-
-                function LoadTooltip(objToolTip)
+                // Loading a URL is very heavy. Maybe we should wait a tenth of seconds to check
+                // if we are still on this node, before loading the tooltip.
+                function IfMouseOver(d,currentEventD3pageX,currentEventD3pageY)
                 {
-                    var txtTooltip = JSON.stringify(objToolTip);
-                    console.log("txtToolTip="+txtTooltip);
-                    // http://stackoverflow.com/questions/36326683/d3-js-how-can-i-set-the-cursor-to-hand-when-mouseover-these-elements-on-svg-co
-                    // This could as well be done in CSS, but we might wish not change
-                    // the pointer if no link is available, i.e. faulty node.
-                    d3.select(this).style("cursor", "pointer");
+                    console.log("MouseOver testing");
+                    if( false == d.is_mouseover ) {
+                        console.log("MouseOver too late");
+                        return;
+                        }
 
-                    divToolTip.transition()
-                        .duration(200)
-                        .style("opacity", .9);
+                    // d.survol_info_dict is a dictionary, and survol_info_list is a list.
+                    // These two members are filled when parsing the input JSON document.
+                    var urlTooltip = d.survol_url.replace("entity.py","entity_info_only.py")+"&mode=json";
 
-                    divToolTip.html( txtTooltip )
-                        .style("left", (currentEventD3.pageX) + "px")
-                        .style("top", (currentEventD3.pageY - 28) + "px");
-                }
-                // d.survol_info_dict is a dictionary, and survol_info_list is a list.
-                // These two members are filled when parsing the input JSON document.
-                var urlTooltip = d.survol_url.replace("entity.py","entity_info_only.py")+"&mode=json";
-                //var txtToolTip = DictToTable(d.survol_info_list,d.survol_info_dict);
-                //LoadTooltip(txtToolTip);
-                d3.json(urlTooltip,LoadTooltip);
-				*/
+                    d3.json(urlTooltip,
+                        function(objTooltip)
+                        {
+                            if( objTooltip == null ) return ;
+                            if( typeof(objTooltip.nodes) == 'undefined' ) return ;
+                            if( typeof(objTooltip.nodes[0]) == 'undefined' ) return ;
+
+                            // THIS MUST BE REPLACED BECAUSE UGLY AND NOT FLEXIBLE.
+                            var objInfo = objTooltip.nodes[0].survol_info_dict
+                            if ( typeof(objInfo) != 'undefined')
+                            {
+                                var txtTooltip = DictToTable([],objInfo);
+                                console.log("txtTooltip="+txtTooltip);
+
+                                // http://stackoverflow.com/questions/36326683/d3-js-how-can-i-set-the-cursor-to-hand-when-mouseover-these-elements-on-svg-co
+                                // This could as well be done in CSS, but we might wish not change the pointer if no link is available, i.e. faulty node.
+                                d3.select(this).style("cursor", "pointer");
+
+                                divToolTip.transition()
+                                    .duration(200)
+                                    .style("opacity", .9);
+
+                                divToolTip.html( txtTooltip )
+                                    .style("left", (currentEventD3pageX) + "px")
+                                    .style("top", (currentEventD3pageY - 28) + "px");
+                            }
+                        }
+                    );
+				} // IfMouseOver
+
+                var currentEventD3 = d3.event;
+
+				setTimeout( function() { IfMouseOver(d,currentEventD3.pageX,currentEventD3.pageY); } , 400 );
             }
         )
         .on("mouseout", function(d)
             {
+            console.log("Resetting MouseOver");
+                d.is_mouseover = false;
+
                 // This could as well be done in CSS.
                 d3.select(this).style("cursor", "default");
 
@@ -865,6 +865,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
     // This returns the contextual menu for nodes.
     function MakeContextMenuItems(objectSvg)
     {
+        // SHOULD CALL entity_info_only.py BUT THE PROBLEM IS THAT IT IS NOT THE ORIGINAL NODE
+        // SO THERE IS A CONFUSION WITH entity.py THAT EVERYTHING RELIES ON.
+        // ALSO, WHEN mode=json WE SHOULD NOT DISPLAY THE WBEM AND WMI LINKS AND THE SCRIPTS.
+        // MAYBE A ANOTHER MODE NEEDED FOR JUST TEXT INFORMATION FOR THE TOOLTIP.
+        // BUT THIS IS VERY HEAVY TO CALL THIS EACH TIME WE HOVER OVER A NODE.
         var objUrl = objectSvg.survol_url;
 
         var objKey = objectSvg.name;
@@ -934,13 +939,13 @@ function DisplayD3Layout(divSvg,newData,w,h)
     {
         var theDfltItems =
         {
-            "JaNein": {
-                name: "Merge graphs",
+            "xxxx": {
+                name: "xxxx",
                 type: 'checkbox',
                 selected: false
             },
-            "xxxxx": {
-                "name": "Sub group 2",
+            "yyyy": {
+                "name": "yyyyy",
                 "items": {
                     "edit": {"name": "Edit", "icon": "edit"},
                     "cut": {"name": "Cut", "icon": "cut", disabled: true},
@@ -957,11 +962,13 @@ function DisplayD3Layout(divSvg,newData,w,h)
     function CreateContextMenus(){
         console.log("CreateContextMenus");
 
+        // Goes to the right URL given the selected key of a contextual menu.
         function FromKeyToScript(key, options)
         {
             // We will merge the new content with the existing content or not.
             var menuOptions = {};
             $.contextMenu.getInputValues(options, menuOptions);
+            // This applies to the two types of contextual menu: Per node or general.
             globalMustMerge = menuOptions.yesno;
 
             // This is a Python script, but not a contextual menu displayed by "entity.py".
@@ -1022,6 +1029,12 @@ function DisplayD3Layout(divSvg,newData,w,h)
             {
                 selector: 'svg',
                 build: function($trigger, evt) {
+
+                    dfltItms["yesno"] = {
+                        name: "Merge graphs",
+                        type: 'checkbox',
+                        selected: false
+                    };
 
                     return {
                         callback: function(key, options)

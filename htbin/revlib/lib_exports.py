@@ -249,6 +249,17 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 	links = []
 	for subj, pred, obj in grph:
+		# This applies only to entity.py : In rendering based on Json, scripts are not displayed as nodes,
+		# but in hierarchical menus. The node must not appear at all.
+
+		# PROBLEME: On voit toujours les nodes !!! Mais sans les aretes !!
+		# C EST PARCE QUE LES NODES DES SCRIPTS CONTIENNENT LEURS PROPRES INFOS.
+		# DONC, QUAND EN MODE JSON, IL FAUT VRAIMNENT NE PAS APPELER entity_dirmenu_only.py, DU TOUT !
+
+		if pred == pc.property_script:
+			sys.stderr.write("continue subj=%s obj=%s\n"%(subj,obj))
+			continue
+
 		subjObj = NodeToJsonObj(subj)
 		subj_id = subjObj.m_index
 
@@ -326,7 +337,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 	NodesToNames = dict()
 
 	for subj, pred, obj in grph:
-		if pred == pc.property_rdf_data1:
+		if pred == pc.property_script:
 			#sys.stderr.write("subj=%s\n"%str(subj))
 			#sys.stderr.write("obj=%s\n"%str(obj))
 			try:

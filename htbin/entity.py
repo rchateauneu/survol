@@ -16,6 +16,12 @@ from lib_properties import pc
 # This script is also used as a module.
 import entity_dirmenu_only # Also used with the CGI parameter mode=menu
 
+
+##### import entity_info_only # Also used with the CGI parameter mode=json
+## WE SHOULD NOT LOAD USELESS STUFF WHEN WE WANT TO DISPLAY ONLY THE NODES IN THE D3 INTERFACE.
+## AND THE LINKS LIKE WBEM OR WMI SHOULD BE PROPERLY DISPLAYED.
+## IN THE CONTEXTUAL MENU ??
+
 from sources_types import CIM_Process
 from sources_types import CIM_ComputerSystem
 
@@ -38,6 +44,17 @@ def CurrentUser():
 	currProc = psutil.Process(os.getpid())
 	return CIM_Process.PsutilProcToUser(currProc)
 
+def AddDefaultNodes(grph,rootNode,entity_host):
+	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
+	grph.add( ( currentNodeHostname, pc.property_information, rdflib.Literal("Current host:"+lib_util.currentHostname) ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeHostname ) )
+
+	currUsername = CurrentUser()
+	currentNodeUser = lib_common.gUriGen.UserUri( currUsername )
+	grph.add( ( currentNodeUser, pc.property_information, rdflib.Literal("Current user:"+currUsername) ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeUser ) )
+
+# TODO: Maybe the property should be property_script ??
 def AddDefaultScripts(grph,rootNode,entity_host):
 	nodeObjTypes = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodeObjTypes ) )
@@ -50,14 +67,6 @@ def AddDefaultScripts(grph,rootNode,entity_host):
 	nodePortalWmi = lib_util.UrlPortalWmi(entity_host)
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodePortalWmi ) )
 
-	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
-	grph.add( ( currentNodeHostname, pc.property_information, rdflib.Literal("Current host:"+lib_util.currentHostname) ) )
-	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeHostname ) )
-
-	currUsername = CurrentUser()
-	currentNodeUser = lib_common.gUriGen.UserUri( currUsername )
-	grph.add( ( currentNodeUser, pc.property_information, rdflib.Literal("Current user:"+currUsername) ) )
-	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeUser ) )
 
 ################################################################################
 
@@ -111,31 +120,35 @@ def Main():
 
 	rootNode = lib_util.RootUri()
 
+	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
+	# entity_info_only.AddInformation(grph,rootNode,entity_id, entity_type)
 
-	if entity_id != "" or entity_type == "":
-		entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
-		# entity_info_only.AddInformation(grph,rootNode,entity_id, entity_type)
+	# Each entity type ("process","file" etc... ) can have a small library
+	# of its own, for displaying a rdf node of this type.
+	if entity_type:
+		entity_module = lib_util.GetEntityModule(entity_type)
+		if entity_module:
+			try:
+				entity_module.AddInfo( grph, rootNode, entity_ids_arr )
+			except AttributeError:
+				exc = sys.exc_info()[1]
+				sys.stderr.write("No AddInfo for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
+	else:
+		sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
 
-		# Each entity type ("process","file" etc... ) can have a small library
-		# of its own, for displaying a rdf node of this type.
-		if entity_type:
-			entity_module = lib_util.GetEntityModule(entity_type)
-			if entity_module:
-				try:
-					entity_module.AddInfo( grph, rootNode, entity_ids_arr )
-				except AttributeError:
-					exc = sys.exc_info()[1]
-					sys.stderr.write("No AddInfo for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
-		else:
-			sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
+	# When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
+	if lib_common.GuessDisplayMode() != "json":
 		entity_dirmenu_only.DirToMenu(grph,rootNode,entity_type,entity_id,is_host_remote,flagShowAll)
 
-	if entity_type != "":
-		CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
+		if entity_type != "":
+			sys.stderr.write("Entering AddWbemWmiServers")
+			CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 
-	AddDefaultScripts(grph,rootNode,entity_host)
+		AddDefaultScripts(grph,rootNode,entity_host)
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data1])
+	AddDefaultNodes(grph,rootNode,entity_host)
+
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_script])
 
 if __name__ == '__main__':
 	Main()

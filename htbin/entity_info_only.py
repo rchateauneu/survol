@@ -13,32 +13,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-# This displays only data nodes about the object, not the script.
-# It is used by entity.py and also by the D3 interface with the CGI parameter mode=json,
-# because this interface does not need the hierarchy of scripts.
-
-################################################################################
-
-#Un module est defini par son ontologie:
-#Quand on itere sur des directories et sous-directories pour en afficher les scripts,
-#il suffit de s'assurer que chaque sous-module a la meme ontologie que le point de depart
-#(On bien n a pas d ontologie, bref, que ce soit coherent avec le point de depart.)
-# De meme dans sources_top: On devrait aller chercher dans scripts_types,
-# les scripts qui n ont pas d'ontologie.
-# Dans entity.py, comme on a une entite (la machine courante),
-# on peut aller chercher les scripts qui ont une ontologie pour ces classes.
-
-# On prend l ontologie du niveau courant ou on se trouve,
-# donne par la entity_class.
-# Si y en a pas (sources_top) et ben y en a pas.
-# Ensuite on liste recursivement les fichiers mais des que l ontologie change,
-# c est a dire, si une ontologie est definie dans un module intermediaire.
-# (Ce qu on voit en chargeant le module implicitement) alors on laisse tomber)
-
-# En plus, dans le entity par defaut, comme on a forcement un user et une machine,
-# on va chercher les scripts de ces deux entites.
-
-# Probleme: On doit aller chercher toutes les entites, charger tous les modules.
+# We want only literal information which can be displayed in a table.
 
 ################################################################################
 
@@ -51,7 +26,39 @@ def AddInformation(grph,rootNode,entity_id, entity_type):
 		entity_module = lib_util.GetEntityModule(entity_type)
 		if entity_module:
 			try:
-				entity_module.AddInfo( grph, rootNode, entity_ids_arr )
+				# On veut garder uniquement les informations textuelles
+				# qu'on peut afficher dans une table. Et en plus ce doit etre tres rapide.
+				# En fait il faudrait virer rdflib, le remplacer
+				# par un simple container.
+				# On peut se roder en passant un pseudo-grph ?
+				class FilterLiteralRdfGraph:
+					#Init with a genuine rdflib graph.
+					def __init__(self,grph,destNode):
+						self.m_grph = grph
+						self.m_node = destNode
+
+					def Filter(self,subjRdf,objRdf):
+						return (subjRdf == self.m_node) and isinstance(objRdf, (rdflib.term.Literal))
+
+					# This filters only literal properties which points to or from our node.
+					# This also ensures that theere is one node only, no links, because
+					# of the way json documents are generated.
+					# THE WHOLE SCRIPT MUST BE REPLACED BY A REAL JSON DOCUMENT,
+					# TRANSFORMED INTO HTML.
+					def add(self,trpl):
+						sys.stderr.write("Trying %s %s %s\n"% trpl)
+						if self.Filter(trpl[0],trpl[2]):
+							sys.stderr.write("Adding %s %s %s\n"%trpl)
+							self.m_grph.add(trpl)
+						if self.Filter(trpl[2],trpl[0]):
+							sys.stderr.write("Adding %s %s %s\n"%trpl)
+							self.m_grph.add((trpl[2],trpl[1],trpl[0]))
+
+				pseudoGraph = FilterLiteralRdfGraph(grph,rootNode)
+
+				entity_module.AddInfo( pseudoGraph, rootNode, entity_ids_arr )
+
+
 			except AttributeError:
 				exc = sys.exc_info()[1]
 				sys.stderr.write("No AddInfo for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
@@ -71,10 +78,9 @@ def Main():
 
 	rootNode = lib_util.RootUri()
 
-	if entity_id != "" or entity_type == "":
-		AddInformation(grph,rootNode,entity_id, entity_type )
+	AddInformation(grph,rootNode,entity_id, entity_type )
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data1])
+	cgiEnv.OutCgiRdf(grph)
 
 if __name__ == '__main__':
 	Main()

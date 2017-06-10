@@ -131,7 +131,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 		if somethingAdded:
 			# CA MARCHE DANS LES DEUX CAS. SI PROPRIETE DIFFERENTE, ON AURA SIMPLEMENT DEUX PAVES, UN POUR LES DIR, L AUTRE POUR LES FICHIERS.
 			# grph.add( ( parentNode, pc.property_directory, currDirNode ) )
-			grph.add( ( parentNode, pc.property_rdf_data1, currDirNode ) )
+			grph.add( ( parentNode, pc.property_script, currDirNode ) )
 		containsSomething = containsSomething | somethingAdded
 
 	for fil in files:
@@ -187,7 +187,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 		# Here, we are sure that the script is added.
 		# TODO: If no script is added, should not add the directory?
 		rdfNode = rdflib.term.URIRef(url_rdf)
-		grph.add( ( parentNode, pc.property_rdf_data1, rdfNode ) )
+		grph.add( ( parentNode, pc.property_script, rdfNode ) )
 
 		# Default doc text is file name minus the ".py" extension.
 		nodModu = lib_util.FromModuleToDoc(importedMod,fil[:-3])
@@ -256,7 +256,7 @@ def Main():
 		# un DAG (Direct Acyclic Graph) qui serait alors traite de facon specifique.
 		DirToMenu(grph,rootNode,entity_type,entity_id,is_host_remote,flagShowAll)
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_rdf_data1])
+	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_script])
 
 if __name__ == '__main__':
 	Main()

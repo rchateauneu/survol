@@ -190,7 +190,7 @@ def ExternalToTitle(extUrl):
 
 
 # Used for transforming into SVG format.
-# If from entity.py, CollapsedProps = pc.property_directory,pc.property_rdf_data1
+# If from entity.py, CollapsedProps = pc.property_directory,pc.property_script
 def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	fieldsSet = collections.defaultdict(list)
 
@@ -815,7 +815,7 @@ def GetModeFromUrl(url):
 	return ""
 
 # The display mode can come from the previous URL or from a CGI environment.
-def GuessDisplayMode(log):
+def GuessDisplayMode(log=sys.stderr):
 	arguments = cgi.FieldStorage()
 	try:
 		try:
@@ -825,7 +825,6 @@ def GuessDisplayMode(log):
 			# hardcode to "info". Consequence of a nasty Javascript bug.
 			mode = "info"
 		if mode != "":
-			log.write( "GuessDisplayMode: From arguments mode=%s\n" % (mode) )
 			return mode
 	except KeyError:
 		pass
@@ -838,12 +837,10 @@ def GuessDisplayMode(log):
 		# TODO: HOW CAN WE COME BACK TO THE FORMER DISPLAY MODE ??
 		if modeReferer != "":
 			if modeReferer == "edit":
-				log.write("GuessDisplayMode: From edit referer %s mode=%s\n" % (referer,modeReferer) )
 				# TODO: Should restore the original edit mode.
 				# EditionMode
 				return ""
 			else:
-				log.write("GuessDisplayMode: From referer %s mode=%s\n" % (referer,modeReferer) )
 				return modeReferer
 
 	except KeyError:
@@ -854,13 +851,11 @@ def GuessDisplayMode(log):
 		script = os.environ["SCRIPT_NAME"]
 		mode = GetModeFromUrl( script )
 		if mode != "":
-			log.write("GuessDisplayMode: From script %s mode=%s\n" % (script,mode) )
 			return mode
 	except KeyError:
 		pass
 
 	mode = ""
-	log.write("GuessDisplayMode: Default mode=%s\n"% (mode) )
 	return mode
 
 ################################################################################
@@ -915,7 +910,7 @@ class CgiEnv():
 		# TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
 		# Maybe a bad collapsing of URL ?
 		sys.stderr.write("QUERY_STRING=%s\n" % os.environ['QUERY_STRING'] )
-		mode = GuessDisplayMode(sys.stderr)
+		mode = GuessDisplayMode()
 
 		# Contains the optional arguments, needed by calling scripts.
 		self.m_parameters = parameters
@@ -1212,7 +1207,7 @@ class CgiEnv():
 
 		layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
-		mode = GuessDisplayMode(sys.stderr)
+		mode = GuessDisplayMode()
 
 		topUrl = lib_util.TopUrl( self.m_entity_type, self.m_entity_id )
 

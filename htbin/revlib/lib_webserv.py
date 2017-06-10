@@ -693,7 +693,7 @@ def DoTheJob(TheEngine,Deserializer,AppName,Title,dot_layout = "", collapsed_pro
 		SendRedirection( sys.stdout, url_stop )
 		sys.exit(0)
 
-	mode = lib_common.GuessDisplayMode(sys.stderr)
+	mode = lib_common.GuessDisplayMode()
 	GblLog("mode:"+mode)
 	# Equivalent to 'ModedUrl(mode)'
 	url_mode = lib_util.ConcatenateCgi( url, "mode=" + mode )
