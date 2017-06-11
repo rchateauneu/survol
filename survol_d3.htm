@@ -199,6 +199,7 @@ var globalMustMerge = false;
 // This stores the current nodes and links. Maybe there is a simpler way to store them.
 var previousData = null;
 
+var divTooltip = null;
 
 // Sanity check to ensure that nodes and links are properly matched.
 function CheckGraph(theNam,theData)
@@ -685,6 +686,12 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
     }
 
     console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
+
+    // Removes immediately tooltip if it is here.
+    if(divTooltip) {
+        divTooltip.style("opacity", 0);
+    }
+
     d3.json(theUrl,LoaderCallback);
 } // LoadUrlUpdateDisplay
 
@@ -762,7 +769,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
     // Define the div for the tooltip.
     // If set globally, it is null here.
-    var divToolTip = d3.select("body").append("div")
+    divTooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0.5)
         ;
@@ -784,19 +791,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         return result;
     }
 
-
-    // The class is a CSS style: ".node.type1" etc...
-
-    function NodeLeftClick(d)
-    {
-        // This expects a graph, not a contextual menu.
-        var aUrl = d.survol_url + "&mode=json";
-        // alert("aUrl="+aUrl);
-        LoadUrlUpdateDisplay(aUrl, RefillDisplay,globalMustMerge);
-    }
-
     // https://bl.ocks.org/mbostock/7555321 Wrapping Long Labels
-
     function addTextLines(selection) {
         selection.each(function(d) {
             var theText = d3.select(this)
@@ -887,11 +882,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
                                 // This could as well be done in CSS, but we might wish not change the pointer if no link is available, i.e. faulty node.
                                 d3.select(this).style("cursor", "pointer");
 
-                                divToolTip.transition()
+                                divTooltip.transition()
                                     .duration(200)
                                     .style("opacity", .9);
 
-                                divToolTip.html( txtTooltip )
+                                divTooltip.html( txtTooltip )
                                     .style("left", (currentEventD3pageX) + "px")
                                     .style("top", (currentEventD3pageY - 28) + "px");
                             }
@@ -912,7 +907,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 // This could as well be done in CSS.
                 d3.select(this).style("cursor", "default");
 
-                divToolTip.transition()
+                divTooltip.transition()
                     .duration(500)
                     .style("opacity", 0);
             }
@@ -920,9 +915,12 @@ function DisplayD3Layout(divSvg,newData,w,h)
         .on("click", function(d)
             {
                 // Removes immediately tooltip if it is here.
-                divToolTip.transition()
-                    .style("opacity", 0);
-                NodeLeftClick(d);
+                // divTooltip.style("opacity", 0);
+
+                // This expects a graph, not a contextual menu.
+                var aUrl = d.survol_url + "&mode=json";
+                // alert("aUrl="+aUrl);
+                LoadUrlUpdateDisplay(aUrl, RefillDisplay,globalMustMerge);
             })
         ;
 
