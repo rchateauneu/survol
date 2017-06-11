@@ -201,6 +201,9 @@ var previousData = null;
 
 var divTooltip = null;
 
+// https://stackoverflow.com/questions/41705135/how-to-disable-mouseover-and-mouseout-event-while-dragging-with-d3
+var isDragging = false;
+
 // Sanity check to ensure that nodes and links are properly matched.
 function CheckGraph(theNam,theData)
 {
@@ -687,6 +690,11 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 
     console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
 
+    if(isDragging) {
+        console.log("NoUrl loading when dragging");
+        return;
+    }
+
     // Removes immediately tooltip if it is here.
     if(divTooltip) {
         divTooltip.style("opacity", 0);
@@ -725,6 +733,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         });
     }
 
+    // It is possible to link nodes by names in D3 v4: https://bl.ocks.org/mbostock/533daf20348023dfdd76
     myForce
         .nodes(newData.nodes)
         .links(newData.links)
@@ -760,10 +769,20 @@ function DisplayD3Layout(divSvg,newData,w,h)
 	When combining drag with other event listeners,
 	stop propagation on the source event to prevent multiple actions.
 	Otherwise, dragging also triggers the click behavior when the mouse is released. */
-    var d3BehDrag = d3.behavior.drag();
-    d3BehDrag.on("dragend", function() {
-        d3.event.sourceEvent.stopPropagation(); // silence other listeners
-    });
+
+    // var d3BehDrag = d3.behavior.drag();
+    var d3BehDrag = myForce.drag();
+    d3BehDrag
+        .on("dragstart", function() {
+            isDragging = true; // This avoids the tooltip when dragging.
+            console.log("Tooltip disabled");
+        })
+        .on("dragend", function() {
+            d3.event.sourceEvent.stopPropagation(); // silence other listeners
+            isDragging = false; // Tooltip when hovering is now allowed.
+            console.log("Tooltip enabled");
+        })
+        ;
 
     // fill:#337147;
 
@@ -848,15 +867,23 @@ function DisplayD3Layout(divSvg,newData,w,h)
         //.attr("class", function (d) { return "node type" + d.type; })
         .on("mouseover", function(d)
             {
+                // No tooltip creation when dragging because it is very CPU-consuming.
+                if(isDragging) {
+                    console.log("No tooltip when dragging");
+                    return;
+                }
                 d.is_mouseover = true;
 
-                // Loading a URL is very heavy. Maybe we should wait a tenth of seconds to check
+                // Loading a URL is very heavy. Maybe we should wait some tenths of seconds to check
                 // if we are still on this node, before loading the tooltip.
                 function IfMouseOver(d,currentEventD3pageX,currentEventD3pageY)
                 {
-                    console.log("MouseOver testing");
                     if( false == d.is_mouseover ) {
                         console.log("MouseOver too late");
+                        return;
+                        }
+                    if( isDragging ) {
+                        console.log("IfMouseOver not when dragging");
                         return;
                         }
 
@@ -867,6 +894,16 @@ function DisplayD3Layout(divSvg,newData,w,h)
                     d3.json(urlTooltip,
                         function(objTooltip)
                         {
+                            if( false == d.is_mouseover ) {
+                                console.log("After tooltip loaded: too late");
+                                return;
+                                }
+
+                            if( isDragging ) {
+                                console.log("No tooltip when dragging");
+                                return;
+                                }
+
                             if( objTooltip == null ) return ;
                             if( typeof(objTooltip.nodes) == 'undefined' ) return ;
                             if( typeof(objTooltip.nodes[0]) == 'undefined' ) return ;
@@ -896,7 +933,8 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
                 var currentEventD3 = d3.event;
 
-				setTimeout( function() { IfMouseOver(d,currentEventD3.pageX,currentEventD3.pageY); } , 400 );
+                // Tooltip starts only after 500 milliseconds.
+				setTimeout( function() { IfMouseOver(d,currentEventD3.pageX,currentEventD3.pageY); } , 500 );
             }
         )
         .on("mouseout", function(d)
@@ -914,6 +952,13 @@ function DisplayD3Layout(divSvg,newData,w,h)
         )
         .on("click", function(d)
             {
+                // TODO: Disabled for the moment because we do not know how to
+                // make it work with drag.
+                // This option is not mandatory because it is still possible to right-click.
+                console.log("CLICK is disabled");
+                return;
+
+
                 // Removes immediately tooltip if it is here.
                 // divTooltip.style("opacity", 0);
 
