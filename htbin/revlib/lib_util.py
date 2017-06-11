@@ -90,7 +90,6 @@ def HostName():
 	else:
 		# 'rchateau-HP.home'
 		name=socket.gethostbyaddr(socketGetHostNam)[0]
-	sys.stderr.write("HostName socketGetHostNam=%s name=%s\n"%(socketGetHostNam,name))
 	return name
 
 # hostName
@@ -107,7 +106,7 @@ def IsLocalAddress(anHostNam):
 	# Maybe entity_host="http://192.168.1.83:5988"
 	hostOnly = EntHostToIp(anHostNam)
 	if hostOnly in [ None, "", "localhost", "127.0.0.1", currentHostname ]:
-		sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
+		# sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
 		return True
 
 	try:
@@ -116,14 +115,14 @@ def IsLocalAddress(anHostNam):
 	except Exception:
 		# Unknown machine
 		exc = sys.exc_info()[1]
-		sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
+		# sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
 		return False
 
 	if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
-		sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
+		# sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
 		return True
 
-	sys.stderr.write("IsLocalAddress %s FALSE\n"%anHostNam)
+	# sys.stderr.write("IsLocalAddress %s FALSE\n"%anHostNam)
 	return False
 
 # Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
@@ -798,7 +797,7 @@ else:
 # This is for WSGI compatibility.
 class OutputMachineCgi:
 	def __init__(self):
-		sys.stderr.write("OutputMachineCgi creation\n")
+		pass
 
 	def HeaderWriter(self,mimeType):
 		sys.stderr.write("OutputMachineCgi.HeaderWriter:%s\n"%mimeType)
@@ -824,7 +823,7 @@ def SetDefaultOutput(wFile):
 
 # contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
 def HttpHeaderClassic( out_dest, contentType ):
-	sys.stderr.write("HttpHeader:%s\n"%contentType)
+	# sys.stderr.write("HttpHeader:%s\n"%contentType)
 	# TODO: out_dest should always be the default output.
 
 	stri = "Content-Type: " + contentType + "\n\n"

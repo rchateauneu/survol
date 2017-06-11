@@ -909,7 +909,7 @@ class CgiEnv():
 		# TODO: ... or "xx.py?xid=smbshr.Id=////WDMyCloudMirror///rchateau" become "xx.py?xid=smbshr.Id=/WDMyCloudMirror/rchateau"
 		# TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
 		# Maybe a bad collapsing of URL ?
-		sys.stderr.write("QUERY_STRING=%s\n" % os.environ['QUERY_STRING'] )
+		# sys.stderr.write("QUERY_STRING=%s\n" % os.environ['QUERY_STRING'] )
 		mode = GuessDisplayMode()
 
 		# Contains the optional arguments, needed by calling scripts.
@@ -952,7 +952,7 @@ class CgiEnv():
 			globalCanProcessRemote = False
 
 		if can_process_remote != globalCanProcessRemote:
-			sys.stderr.write("INCONSISTENCY CanProcessRemote\n") # ... which is not an issue.
+			# sys.stderr.write("INCONSISTENCY CanProcessRemote\n") # ... which is not an issue.
 			can_process_remote = True
 
 		self.m_can_process_remote = can_process_remote
