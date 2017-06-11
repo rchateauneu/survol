@@ -749,6 +749,15 @@ function DisplayD3Layout(divSvg,newData,w,h)
         .attr("class", function (d) { return "survol_node node"; }) // Two classes are possible.
         .call(myForce.drag);
 
+	/* https://stackoverflow.com/questions/30723592/prevent-click-action-when-dragging-a-d3-node
+	When combining drag with other event listeners,
+	stop propagation on the source event to prevent multiple actions.
+	Otherwise, dragging also triggers the click behavior when the mouse is released. */
+    var d3BehDrag = d3.behavior.drag();
+    d3BehDrag.on("dragend", function() {
+        d3.event.sourceEvent.stopPropagation(); // silence other listeners
+    });
+
     // fill:#337147;
 
     // Define the div for the tooltip.
@@ -919,7 +928,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
     var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
 
-    // Is that to avoid collisions ?
+    // Is that to avoid collisions ? Is the drag needed here ?
     d3.selectAll(".circle").append("circle")
         .attr("class", function (d) { return "node type" + d.type; })
         // TODO: No change when it is commented out.
