@@ -533,15 +533,12 @@ function FindIndexFromNode(objectSvg)
         {
             goodNodeIdx = ixNod;
             console.log("FindIndexFromNode found ixNod="+ixNod);
-            break;
+            return goodNodeIdx;
         }
     }
 
-    if(goodNodeIdx == undefined)
-    {
-        alert("Could not find url="+objectSvg.survol_url);
-        return -1;
-    }
+    alert("Could not find url="+objectSvg.survol_url);
+    return -1;
 } // FindIndexFromNode
 
 
