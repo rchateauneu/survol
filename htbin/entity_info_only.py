@@ -46,12 +46,12 @@ def AddInformation(grph,rootNode,entity_id, entity_type):
 					# THE WHOLE SCRIPT MUST BE REPLACED BY A REAL JSON DOCUMENT,
 					# TRANSFORMED INTO HTML.
 					def add(self,trpl):
-						sys.stderr.write("Trying %s %s %s\n"% trpl)
+						# sys.stderr.write("Trying %s %s %s\n"% trpl)
 						if self.Filter(trpl[0],trpl[2]):
-							sys.stderr.write("Adding %s %s %s\n"%trpl)
+							# sys.stderr.write("Adding %s %s %s\n"%trpl)
 							self.m_grph.add(trpl)
 						if self.Filter(trpl[2],trpl[0]):
-							sys.stderr.write("Adding %s %s %s\n"%trpl)
+							# sys.stderr.write("Adding %s %s %s\n"%trpl)
 							self.m_grph.add((trpl[2],trpl[1],trpl[0]))
 
 				pseudoGraph = FilterLiteralRdfGraph(grph,rootNode)
