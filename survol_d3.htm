@@ -5,13 +5,17 @@
 <head>
 </head>
 
-<!-- Port to D3 v4 can be done by a specialist. -->
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<!-- Port to D3 v4 could be done by a specialist. -->
+<!-- src="http://d3js.org/d3.v3.min.js" -->
+<script src="d3.v3.min.js"></script>
 <script src="base64.js"></script>
 
-<link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
+<!-- href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" -->
+<link href="jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+<!--  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js" -->
+<script src="jquery.min.js"></script>
+<!--  src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" -->
+<script src="jquery.contextMenu.js" type="text/javascript"></script>
 
 <style>
 
@@ -514,7 +518,7 @@ function EmptyDisplay()
 } // EmptyDisplay
 
 /* When deleting a node from the contextual menu. Deletes the nodes and its links. */
-function DeleteSvgNode(objectSvg)
+function FindIndexFromNode(objectSvg)
 {
     'use strict';
     // No need of a lookup because it happens just once.
@@ -524,7 +528,7 @@ function DeleteSvgNode(objectSvg)
         if( previousData.nodes[ixNod].survol_url == objectSvg.survol_url )
         {
             goodNodeIdx = ixNod;
-            console.log("DeleteSvgNode found ixNod="+ixNod);
+            console.log("FindIndexFromNode found ixNod="+ixNod);
             break;
         }
     }
@@ -532,9 +536,16 @@ function DeleteSvgNode(objectSvg)
     if(goodNodeIdx == undefined)
     {
         alert("Could not find url="+objectSvg.survol_url);
-        return;
+        return -1;
     }
+} // FindIndexFromNode
 
+
+/* When deleting a node from the contextual menu. Deletes the nodes and its links. */
+function DeleteSvgNode(objectSvg)
+{
+    'use strict';
+    var goodNodeIdx = FindIndexFromNode(objectSvg);
     var goodNode = previousData.nodes[goodNodeIdx];
 
     // The node is removed and the following node numbers are decremented.
@@ -566,20 +577,73 @@ function DeleteSvgNode(objectSvg)
     globalMustMerge = false;
 } // DeleteSvgNode
 
-
-/*
-function ClearTable(tableName)
+// NOT USED YET.
+function MarkToDel(flag)
 {
-    // This would also remove the header.
-    // $('#DataQueried').empty();
-    var table = document.getElementById(tableName);
-    //or use :  var table = document.all.DataQueried;
-    for (var i = table.rows.length - 1; i > 0; i--) {
-        table.deleteRow(i);
+    'use strict';
+    for( var ixNod = 0; ixNod < previousData.nodes.length; ixNod++ )
+    {
+        previousData.nodes[ixNod].to_delete = flag;
+    }
+    for( var ixLnk = 0; ixLnk < previousData.links.length; ixLnk++ )
+    {
+        previousData.links[ixLnk].to_delete = flag;
     }
 }
-*/
 
+// NOT USED YET.
+// There is no direct way to get the edges connected to one node,
+// so this recursively explores the graph and marks objects for deletion.
+function DeleteSvgConnectedNodes(objectSvg)
+{
+    'use strict';
+
+    MarkToDel(false);
+
+    // First, builds for each node, the list of edges starting from it.
+    var dictNodeIdxToEdgesList = {};
+
+    for( var ixLnk = 0; ixLnk < previousData.links.length; ixLnk++ )
+    {
+        var objLnk = previousData.links[ixLnk];
+        /////////// dictNodeIdxToEdgesList[objLnk.source] ..... ixLnk ;
+        /////////// dictNodeIdxToEdgesList[objLnk.target] ..... ixLnk ;
+    }
+
+    var listConnectedNodes = [];
+
+    function RecursAppendConnected(idxNod)
+    {
+        var lstIdxEdges = dictNodeIdxToEdgesList[idxNod];
+        for( var ixEdgeKey in lstIdxEdges )
+        {
+            var ixEdgeIdx = lstIdxEdges[ixEdgeKey];
+            var objLnk = previousData.links[ixEdgeIdx];
+            if( objLnk.to_delete ) {
+                alert("We have a problem");
+            }
+            var idxTargetNod = objLnk.target;
+            if( previousData.nodes[idxTargetNod].to_delete == false )
+            {
+                previousData.nodes[idxTargetNod].to_delete = true;
+                objLnk.to_delete = true;
+                listConnectedNodes.add(idxTargetNod);
+                RecursAppendConnected(idxTargetNod);
+            }
+        }
+    } // RecursAppendConnected
+
+
+    var goodNodeIdx = FindIndexFromNode(objectSvg);
+
+    RecursAppendConnected(goodNodeIdx);
+
+    // Now we just need to delete.
+
+
+    // HONEST: IT WOULD BE SIMPLER IF INDEXING WITH THE URLs ??
+
+} // DeleteSvgConnectedNodes
 
 /* Loads from a URL, a JSON document made of nodes and links.
 After that, updates a table containing the list of loaded URLs. */
@@ -1003,7 +1067,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                         }
                         else if(key == "delete_connected")
                         {
-                            alert("delete connected not implemented yet");
+                            DeleteSvgConnectedNodes(objectSvg);
                         }
                         else
                         {
