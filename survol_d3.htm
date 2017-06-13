@@ -553,24 +553,12 @@ function DeleteSvgNode(objectSvg)
     // Therefore the links must be updated.
     previousData.nodes.splice(goodNodeIdx,1);
 
-    var lenLinks = previousData.links.length;
-    var ixLnk = 0;
-    console.log("DeleteSvgNode lenLinks="+lenLinks);
-    while(ixLnk < lenLinks)
-    {
-        var objLnk = previousData.links[ixLnk];
-
-        // The link is pointing to the node to be deleted. Each index is replaced by the node itselfs
-        // NOTE: APPARENTLY THE NODE INDICES ARE REPLACED BY THE NODE OBJECT.
-        if( ( objLnk.source == goodNode ) || ( objLnk.target == goodNode ) )
-        {
-            previousData.links.splice(ixLnk,1);
-            lenLinks--;
-            continue;
-        }
-
-        ixLnk++;
-    }
+    // The link is pointing to the node to be deleted. Each index is replaced by the node itself
+    // NOTE: APPARENTLY THE NODE INDICES ARE REPLACED BY THE NODE OBJECT.
+    previousData.links = previousData.links.filter(
+        function(objLnk) {
+            return (objLnk.source != goodNode ) && ( objLnk.target != goodNode );
+        });
     console.log("DeleteSvgNode previousData.links.length="+previousData.links.length);
 
     EmptyDisplay();
@@ -578,7 +566,6 @@ function DeleteSvgNode(objectSvg)
     globalMustMerge = false;
 } // DeleteSvgNode
 
-// NOT USED YET.
 function MarkToDel(flag)
 {
     'use strict';
@@ -590,7 +577,7 @@ function MarkToDel(flag)
     {
         previousData.links[ixLnk].to_delete = flag;
     }
-}
+} // MarkToDel
 
 // NOT USED YET.
 // There is no direct way to get the edges connected to one node,
@@ -602,48 +589,61 @@ function DeleteSvgConnectedNodes(objectSvg)
     MarkToDel(false);
 
     // First, builds for each node, the list of edges starting from it.
-    var dictNodeIdxToEdgesList = {};
+    for( var ixNod = 0; ixNod < previousData.nodes.length; ixNod++ )
+    {
+        previousData.nodes[ixNod].indices_links_list = [];
+    }
 
+    // Now target and source point to node object, not indices.
     for( var ixLnk = 0; ixLnk < previousData.links.length; ixLnk++ )
     {
         var objLnk = previousData.links[ixLnk];
-        /////////// dictNodeIdxToEdgesList[objLnk.source] ..... ixLnk ;
-        /////////// dictNodeIdxToEdgesList[objLnk.target] ..... ixLnk ;
+
+        // In this context, the links are bidirectionnal.
+        objLnk.source.indices_links_list.push(ixLnk);
+        objLnk.target.indices_links_list.push(ixLnk);
     }
 
-    var listConnectedNodes = [];
-
-    function RecursAppendConnected(idxNod)
+    // Recursively marked connected nodes for deletion.
+    function RecursAppendConnected(objNod)
     {
-        var lstIdxEdges = dictNodeIdxToEdgesList[idxNod];
+        var lstIdxEdges = objNod.indices_links_list;
+        objNod.to_delete = true;
         for( var ixEdgeKey in lstIdxEdges )
         {
             var ixEdgeIdx = lstIdxEdges[ixEdgeKey];
             var objLnk = previousData.links[ixEdgeIdx];
-            if( objLnk.to_delete ) {
-                alert("We have a problem");
-            }
-            var idxTargetNod = objLnk.target;
-            if( previousData.nodes[idxTargetNod].to_delete == false )
+            var nodOther = null;
+            if( objLnk.target == objNod )
+                nodOther = objLnk.source;
+            else if( objLnk.source == objNod )
+                nodOther = objLnk.target;
+            else alert("We have a problem");
+            if( nodOther.to_delete == false )
             {
-                previousData.nodes[idxTargetNod].to_delete = true;
-                objLnk.to_delete = true;
-                listConnectedNodes.add(idxTargetNod);
-                RecursAppendConnected(idxTargetNod);
+                RecursAppendConnected(nodOther);
             }
         }
     } // RecursAppendConnected
 
-
     var goodNodeIdx = FindIndexFromNode(objectSvg);
+    var goodNode = previousData.nodes[goodNodeIdx];
 
-    RecursAppendConnected(goodNodeIdx);
+    RecursAppendConnected(goodNode);
 
     // Now we just need to delete.
+    // TODO: It may be simpler if indexing with URLs.
 
+    previousData.nodes = previousData.nodes.filter( function(objNod) { return ! objNod.to_delete; });
 
-    // HONEST: IT WOULD BE SIMPLER IF INDEXING WITH THE URLs ??
+    previousData.links = previousData.links.filter( function(objLnk) {
+        return ! ( objLnk.source.to_delete || objLnk.target.to_delete );
+    });
 
+    // Same code as for deleting one node.
+    EmptyDisplay();
+    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    globalMustMerge = false;
 } // DeleteSvgConnectedNodes
 
 /* Loads from a URL, a JSON document made of nodes and links.
