@@ -228,6 +228,7 @@ def encode_reference(obj):
     which can be passed as page parameters).
     @return compressed and encoded object.
     """
+    # TODO: Consider using lib_util.Base64Encode, for portability.
     return base64.urlsafe_b64encode(
             zlib.compress(cPickle.dumps(obj, cPickle.HIGHEST_PROTOCOL)))
 
