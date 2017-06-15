@@ -37,6 +37,8 @@ def AddInformation(grph,rootNode,entity_id, entity_type):
 						self.m_grph = grph
 						self.m_node = destNode
 
+					# If the information is not a literal, we could display the associated name.
+					# Also, consider recursive tables.
 					def Filter(self,subjRdf,objRdf):
 						return (subjRdf == self.m_node) and isinstance(objRdf, (rdflib.term.Literal))
 
