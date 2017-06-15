@@ -110,7 +110,7 @@ def Main():
 				# No need to be asynchronous because this is always the same socket.
 				survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

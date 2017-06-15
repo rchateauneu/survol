@@ -52,7 +52,7 @@ def Main():
 
 	lib_smbclient.AddFromSmbClient( grph, smbDir, smbShr, password, rootNodeSmb )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

@@ -73,7 +73,7 @@ def Main():
 
 	# media_link
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT_TB")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
 
 if __name__ == '__main__':
 	Main()

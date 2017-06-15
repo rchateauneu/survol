@@ -99,7 +99,7 @@ def Main():
 
 		grph.add( ( node_process, rdfProp, rdflib.Literal(valJmxProp) ) )
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", propsMatrix)
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", propsMatrix)
 
 if __name__ == '__main__':
 	Main()

@@ -42,7 +42,7 @@ def Main():
 	for row in result_inv:
 		lib_oracle.AddDependency( grph, row, node_oraView, oraDatabase, False )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 
 if __name__ == '__main__':
 	Main()

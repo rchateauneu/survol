@@ -19,7 +19,7 @@ def Main():
 
 	lib_common.ErrorMessageHtml("Not implemented yet")
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

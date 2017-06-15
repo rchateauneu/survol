@@ -80,7 +80,7 @@ def Main():
 		if part.opts != "":
 			grph.add( ( nodePartition, pc.property_mount_options,  rdflib.Literal(part.opts) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

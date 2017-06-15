@@ -44,8 +44,8 @@ def Main():
 		grph.add( ( node_process, propMBean, nodeClass ) )
 
 	# sys.stderr.write("jmxData=%s\n"%jmxData)
-	# cgiEnv.OutCgiRdf(grph)
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [propMBean])
+	# cgiEnv.OutCgiRdf()
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [propMBean])
 
 if __name__ == '__main__':
     Main()

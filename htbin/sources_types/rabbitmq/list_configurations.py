@@ -44,7 +44,7 @@ def Main():
 			# Log file 	C:/Users/rchateau/AppData/Roaming/RabbitMQ/log/RABBIT~1.LOG
 			# SASL log file 	C:/Users/rchateau/AppData/Roaming/RabbitMQ/log/RABBIT~2.LOG
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

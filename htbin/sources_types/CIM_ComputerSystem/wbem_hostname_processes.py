@@ -95,8 +95,8 @@ def Main():
 					pass
 
 
-	cgiEnv.OutCgiRdf(grph)
-	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
+	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

@@ -89,7 +89,7 @@ def Main():
 			grph.add( ( nodeDLL, pc.property_symbol_defined, nodeSymbol ) )
 			# print( "OK :" + matchObj.group(1) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

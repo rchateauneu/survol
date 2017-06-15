@@ -54,7 +54,7 @@ def Main():
 		grph.add( ( nodeMount, pc.property_mount, lib_common.gUriGen.FileUri( mnt_point ) ) )
 		grph.add( ( nodeMount, pc.property_file_system, rdflib.Literal(mnt_type) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

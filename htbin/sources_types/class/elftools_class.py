@@ -116,8 +116,8 @@ def Main():
 				grph.add( ( nodeGlobalNamespace, pc.property_symbol_defined, symNod ) )
 
 	# TODO: Fix or check this when adding pc.property_member
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_member ] )
-	#cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[ pc.property_symbol_defined ] )
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_member ] )
+	#cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined ] )
 
 
 if __name__ == '__main__':

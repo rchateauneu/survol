@@ -162,7 +162,7 @@ def Main():
 				grph.add( ( node_partition, pc.property_partition, node_disk ) )
 				grph.add( ( serverBox.FileUri( logical_disk.Name ), pc.property_mount, node_partition ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
   
 if __name__ == '__main__':
 	Main()

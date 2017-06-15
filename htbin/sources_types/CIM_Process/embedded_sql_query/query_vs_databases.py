@@ -99,9 +99,9 @@ def Main():
 		except Exception:
 			exc = sys.exc_info()[0]
 			lib_common.ErrorMessageHtml(
-				"Unexpected exception:%s" % ( str(sys.exc_info())))  # cgiEnv.OutCgiRdf(grph)
+				"Unexpected exception:%s" % ( str(sys.exc_info())))  # cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",arrProps)
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",arrProps)
 
 if __name__ == '__main__':
 	Main()

@@ -241,12 +241,12 @@ def Main():
 
 	# TODO: Embetant car il faut le faire pour toutes les classes.
 	# Et en plus on perd le nom de la propriete.
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",['root\\cimv2:CIM_Datafile'])
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT",['root\\cimv2:CIM_Datafile'])
 	# 'PartComponent' for 'root\\cimv2:CIM_Datafile'
 	# 'Element' for 'root\\cimv2:Win32_DCOMApplication'
 	# 'Antecedent' for 'CIM_DataFile'
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+	cgiEnv.OutCgiRdf("LAYOUT_TWOPI",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+	# cgiEnv.OutCgiRdf("LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
 
 if __name__ == '__main__':
 	Main()

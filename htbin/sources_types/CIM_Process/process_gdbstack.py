@@ -153,7 +153,7 @@ def Main():
 	if len(grph) == 0:
 		PassNoThreads( the_pid, execName, grph, procNode)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

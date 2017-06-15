@@ -26,7 +26,7 @@ def Main():
 		grpNode = lib_common.gUriGen.GroupUri( split_gr[0] )
 		grph.add( ( grpNode, pc.property_groupid, rdflib.Literal(grpId) ) )
 
-	cgiEnv.OutCgiRdf( grph )
+	cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':

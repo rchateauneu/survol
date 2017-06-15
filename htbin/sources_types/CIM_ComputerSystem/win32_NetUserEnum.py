@@ -82,7 +82,7 @@ def Main():
 		if resumeHandle == 0:
 			break
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

@@ -132,7 +132,7 @@ def Main():
 			lib_common.ErrorMessageHtml("Caught:%s"%str(exc))
 
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [propWin32Product] )
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [propWin32Product] )
 
 if __name__ == '__main__':
 	Main()

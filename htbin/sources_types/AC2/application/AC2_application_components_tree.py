@@ -104,7 +104,7 @@ def Main():
 
 	DisplayComponentsTree(grph,ac2File,ac2App)
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [AC2.propParent] )
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [AC2.propParent] )
 
 if __name__ == '__main__':
 	Main()

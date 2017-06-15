@@ -35,7 +35,7 @@ def Main():
 	for nodTab in list_of_nodes:
 		grph.add( ( nodeSqlQuery, propSheetToQuery, nodTab ) )
 
-	cgiEnv.OutCgiRdf(grph )
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

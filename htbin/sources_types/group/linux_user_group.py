@@ -48,7 +48,7 @@ def Main():
             user_node = lib_common.gUriGen.UserUri( user_name )
             grph.add( ( user_node, pc.property_group, grpNode ) )
 
-    cgiEnv.OutCgiRdf(grph)
+    cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
     Main()

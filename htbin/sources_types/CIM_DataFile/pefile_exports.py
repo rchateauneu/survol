@@ -112,9 +112,9 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % ( filNam, str(exc)))
 
-	# cgiEnv.OutCgiRdf(grph)
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI")
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_symbol_defined])
+	# cgiEnv.OutCgiRdf()
+	# cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_symbol_defined])
 
 if __name__ == '__main__':
 	Main()

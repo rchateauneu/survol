@@ -81,7 +81,7 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",arrProps)
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",arrProps)
 
 if __name__ == '__main__':
 	Main()

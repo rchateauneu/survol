@@ -148,7 +148,7 @@ def Main():
 
 	AddDefaultNodes(grph,rootNode,entity_host)
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_script])
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_directory,pc.property_script])
 
 if __name__ == '__main__':
 	Main()

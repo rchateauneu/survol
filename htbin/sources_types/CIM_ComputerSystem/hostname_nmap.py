@@ -85,7 +85,7 @@ def Main():
 			# BEWARE: Normally the LHS node should be a process !!!
 			grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

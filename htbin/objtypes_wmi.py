@@ -180,8 +180,8 @@ def Main():
 				# derivation starts by the lowest level to the top.
 				DrawFromThisBase(rootNode, wmiNamespace, cimomUrl, clsNam,grph, clsDeriv[:idxClass])
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_cim_subclass])
-	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_cim_subclass])
+	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

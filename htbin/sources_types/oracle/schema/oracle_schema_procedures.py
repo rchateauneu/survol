@@ -34,7 +34,7 @@ def Main():
 		lib_oracle.AddLiteralNotNone(grph,nodeProcedure,"Status",row[1])
 		lib_oracle.AddLiteralNotNone(grph,nodeProcedure,"Creation",row[2])
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_oracle_procedure])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_oracle_procedure])
 
 if __name__ == '__main__':
 	Main()

@@ -26,9 +26,9 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("win32 "+machineName+" services:"+str(exc))
 
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
-	# cgiEnv.OutCgiRdf(grph)
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
+	# cgiEnv.OutCgiRdf()
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

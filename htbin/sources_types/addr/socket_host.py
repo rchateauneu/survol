@@ -43,7 +43,7 @@ def Main():
 
 	grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

@@ -89,7 +89,7 @@ def Main():
 		grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodeConnect ) )
 
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

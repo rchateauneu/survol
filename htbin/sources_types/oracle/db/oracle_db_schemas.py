@@ -35,7 +35,7 @@ def Main():
 		lib_oracle.AddLiteralNotNone(grph,nodeSchema,"Lock date",row[3])
 		lib_oracle.AddLiteralNotNone(grph,nodeSchema,"Expiry date",row[4])
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 
 if __name__ == '__main__':
 	Main()

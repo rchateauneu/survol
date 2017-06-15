@@ -63,9 +63,9 @@ def Main():
 	# On permet la transition en commencant par le type, comme maintenant.
 	# Ou bien: Type;k1=v1;k2=v2
 
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
-	# cgiEnv.OutCgiRdf(grph)
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
+	# cgiEnv.OutCgiRdf()
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

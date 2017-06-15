@@ -66,7 +66,7 @@ def Main():
 		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
 
 
-	cgiEnv.OutCgiRdf(grph,[propHttp])
+	cgiEnv.OutCgiRdf([propHttp])
 
 if __name__ == '__main__':
 	Main()

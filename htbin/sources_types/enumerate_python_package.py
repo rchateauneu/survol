@@ -68,7 +68,7 @@ def Main():
 		else:
 			grph.add( ( lib_common.nodeMachine, package.propPythonPackage, packageNode ) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

@@ -39,7 +39,7 @@ def Main():
 
 	node_process = lib_common.gUriGen.PidUri(procid)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

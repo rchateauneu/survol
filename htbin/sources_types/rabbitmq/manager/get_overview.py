@@ -45,7 +45,7 @@ def Main():
                 # sys.stderr.write("valClean=%s\n"%valClean)
 		grph.add( ( nodeManager, lib_common.MakeProp(keyOverview), rdflib.Literal(valClean) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

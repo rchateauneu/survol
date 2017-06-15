@@ -70,7 +70,7 @@ def Main():
 		if not resume:
 			break
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

@@ -57,7 +57,7 @@ def Main():
 			grph.add( ( nodeQueue, lib_common.MakeProp(keyBindings), rdflib.Literal(strDisp ) ))
 			sys.stderr.write("keyBindings=%s valBindings=%s\n"%(keyBindings,valBindings))
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

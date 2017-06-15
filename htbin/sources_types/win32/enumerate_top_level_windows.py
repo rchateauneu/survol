@@ -64,7 +64,7 @@ def Main():
 			wnText = wnText.decode("utf8" ,'ignore')
 			grph.add( (nodProcess, prpProcToWindow, rdflib.Literal(wnText) ) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [prpProcToWindow])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [prpProcToWindow])
 
 if __name__ == '__main__':
 	Main()

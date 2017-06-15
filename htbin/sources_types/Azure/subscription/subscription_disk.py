@@ -85,10 +85,10 @@ def Main():
 		nodeLocation = location.MakeUri( dsk.location, subscriptionName )
 		grph.add( ( nodeDisk, propDiskLocation, nodeLocation ) )
 
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propDisk,propDiskLocation,propMediaLink])
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propDisk,propDiskLocation])
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propDisk])
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT_TB")
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[propDisk,propDiskLocation,propMediaLink])
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[propDisk,propDiskLocation])
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[propDisk])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
 
 if __name__ == '__main__':
 	Main()

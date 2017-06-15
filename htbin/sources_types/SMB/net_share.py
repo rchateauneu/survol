@@ -101,7 +101,7 @@ def Main():
 		mountNode = lib_common.gUriGen.DirectoryUri( shrRes )
 		grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

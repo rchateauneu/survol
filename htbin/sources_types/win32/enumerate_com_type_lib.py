@@ -52,7 +52,7 @@ def Main():
 		sys.stderr.write("DO NOT close handle\n")
 		# win32api.RegCloseKey(lib_com_type_lib.key)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

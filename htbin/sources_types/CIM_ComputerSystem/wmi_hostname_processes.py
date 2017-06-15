@@ -151,7 +151,7 @@ def Main():
 		#	exec_node = lib_common.gUriGen.FileUri( exec_name.replace('\\','/') )
 		#	grph.add( ( node_process, pc.property_runs, exec_node ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

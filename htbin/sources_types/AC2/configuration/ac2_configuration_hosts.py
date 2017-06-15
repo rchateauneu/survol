@@ -64,7 +64,7 @@ def Main():
 
 	DispHosts(grph,configNode,ac2File)
 
-	cgiEnv.OutCgiRdf(grph )
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

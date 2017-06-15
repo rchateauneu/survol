@@ -50,7 +50,7 @@ def Main():
 
 	survol_python_package.AddImportedModules(grph,filNode,pyFilNam,maxDepth,dispPackages,dispFiles)
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

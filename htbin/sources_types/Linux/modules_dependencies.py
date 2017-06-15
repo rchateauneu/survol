@@ -76,7 +76,7 @@ def Main():
 		layoutType = "LAYOUT_XXX"
 	else:
 		layoutType = "LAYOUT_SPLINE"
-	cgiEnv.OutCgiRdf(grph, layoutType)
+	cgiEnv.OutCgiRdf( layoutType)
 
 if __name__ == '__main__':
 	Main()

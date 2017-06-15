@@ -40,7 +40,7 @@ def Main():
 		grph.add( ( node_oraPackage,propProcToPackage, procedureNode ) )
 
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE", [propProcToPackage])
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE", [propProcToPackage])
 
 if __name__ == '__main__':
 	Main()

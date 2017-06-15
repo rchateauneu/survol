@@ -82,7 +82,7 @@ def Main():
 
 	AddInformation(grph,rootNode,entity_id, entity_type )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

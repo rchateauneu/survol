@@ -99,7 +99,7 @@ def Main():
 			grph.add( ( nodeOsUser, lib_common.MakeProp("OsUser"), rdflib.Literal(sessOsuser) ) )
 			grph.add( ( node_process, pc.property_user, nodeOsUser ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

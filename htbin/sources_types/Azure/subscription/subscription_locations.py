@@ -47,7 +47,7 @@ def Main():
 
 		grph.add( ( subscriptionNode, lib_common.MakeProp("Location"), locaNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

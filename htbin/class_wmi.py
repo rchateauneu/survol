@@ -120,7 +120,7 @@ def Main():
 
 	# TODO: On pourrait rassembler par classes, et aussi afficher les liens d'heritages des classes.
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_class_instance])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_class_instance])
 
 if __name__ == '__main__':
 	Main()

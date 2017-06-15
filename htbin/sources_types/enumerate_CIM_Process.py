@@ -74,7 +74,7 @@ def Main():
 		# procUsername = lib_common.PsutilProcToUser(proc)
 		# grph.add( ( node_process, pc.property_user, rdflib.Literal(procUsername) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

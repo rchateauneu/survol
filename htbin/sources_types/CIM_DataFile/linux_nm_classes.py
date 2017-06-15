@@ -105,7 +105,7 @@ def Main():
 		cnt += 1
 
 	sys.stderr.write("Nm: Processed %d lines\n" % cnt)
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_symbol_undefined] )
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_symbol_undefined] )
 
 
 if __name__ == '__main__':

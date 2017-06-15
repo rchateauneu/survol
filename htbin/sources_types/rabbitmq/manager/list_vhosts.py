@@ -80,7 +80,7 @@ def Main():
 		grph.add( ( nodeManager, lib_common.MakeProp("Virtual host"), nodeVHost ) )
 
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

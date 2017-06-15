@@ -139,8 +139,8 @@ def Main():
 			exc = sys.exc_info()[1]
 			lib_common.ErrorMessageHtml("cimomUrl=%s nskey=%s Caught:%s" % ( cimomUrl, nskey , str(exc) ) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_cim_subnamespace])
-	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_cim_subnamespace])
+	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

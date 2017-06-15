@@ -139,8 +139,8 @@ def Main():
 
 
 
-	# cgiEnv.OutCgiRdf(grph)
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[PropLoadedModule])
+	# cgiEnv.OutCgiRdf()
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[PropLoadedModule])
 
 if __name__ == '__main__':
 	Main()

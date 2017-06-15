@@ -195,7 +195,7 @@ def Main():
 		lib_common.ErrorMessageHtml("tnsnam="+tnsnam+" err="+str(exc))
 
 	parse_all(grph, myfile.read())
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

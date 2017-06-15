@@ -116,9 +116,9 @@ def Main():
 
 	DisplayCronsTable(grph,configNode,ac2File)
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [AC2.propTrigger,AC2.propComponents] )
-	# cgiEnv.OutCgiRdf(grph, "LAYOUT_SPLINE", [propTrigger,propComponents] )
-	#cgiEnv.OutCgiRdf(grph, "LAYOUT_SPLINE" )
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [AC2.propTrigger,AC2.propComponents] )
+	# cgiEnv.OutCgiRdf( "LAYOUT_SPLINE", [propTrigger,propComponents] )
+	#cgiEnv.OutCgiRdf( "LAYOUT_SPLINE" )
 
 if __name__ == '__main__':
 	Main()

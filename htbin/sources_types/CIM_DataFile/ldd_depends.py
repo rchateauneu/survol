@@ -67,7 +67,7 @@ def Main():
 
 	# The dependencies are flattened which may be is a mistake.
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 
 if __name__ == '__main__':
 	Main()

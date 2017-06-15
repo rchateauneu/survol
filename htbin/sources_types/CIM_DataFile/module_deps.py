@@ -42,7 +42,7 @@ def Main():
 		if ( file_child is None ) and ( moduFilNam == module_name ) :
 			grph.add( ( file_parent, pc.property_information, rdflib.Literal("") ) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

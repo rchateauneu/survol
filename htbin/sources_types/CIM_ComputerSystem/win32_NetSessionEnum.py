@@ -40,7 +40,7 @@ def Main():
 			valLst = eltLst[keyLst]
 			grph.add( ( nodeHost, lib_common.MakeProp(keyLst), rdflib.Literal( valLst ) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

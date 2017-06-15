@@ -216,4 +216,4 @@ for anInst in instLists:
 
 	# TODO: Appeler la methode Associators(). Idem References().
 
-cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf()

@@ -74,7 +74,7 @@ def Main():
 		if not shareresume:
 			break
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

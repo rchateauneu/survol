@@ -155,7 +155,7 @@ PrintTime()
 
 logfil.write( "RdfLibToDot. Conversion to dot nb statements=" + str(len(grph)) + "\n" )
 
-# Helas, il faut un routage general et non pas, par exemple: cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_directory] )
+# Helas, il faut un routage general et non pas, par exemple: cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory] )
 dotLayout = lib_common.MakeDotLayout(viztype, [] )
 
 lib_common.Grph2Svg( "Merge", "", "", False, {}, dotLayout, grph, lib_util.DfltOutDest() )

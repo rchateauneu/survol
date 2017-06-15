@@ -36,7 +36,7 @@ def Main():
 
 	survol_addr.PsutilAddSocketToGraph(node_process,connects,grph)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

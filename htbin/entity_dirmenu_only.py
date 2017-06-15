@@ -256,7 +256,7 @@ def Main():
 		# un DAG (Direct Acyclic Graph) qui serait alors traite de facon specifique.
 		DirToMenu(grph,rootNode,entity_type,entity_id,is_host_remote,flagShowAll)
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_directory,pc.property_script])
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_directory,pc.property_script])
 
 if __name__ == '__main__':
 	Main()

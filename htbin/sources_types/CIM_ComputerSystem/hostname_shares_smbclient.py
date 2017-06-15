@@ -100,7 +100,7 @@ def Main():
 
 				grph.add( ( nodeSmbShr, pc.property_smbshare, shareNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

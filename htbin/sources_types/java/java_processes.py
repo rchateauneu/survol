@@ -37,7 +37,7 @@ def Main():
 
 			grph.add( ( node_process, lib_common.MakeProp(theKey), rdflib.Literal(strVal) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

@@ -71,7 +71,7 @@ def Main():
 		grph.add( ( servNode, lib_common.MakeProp(extProp), rdflib.Literal(extVal) ) )
 
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

@@ -56,7 +56,7 @@ def Main():
 		lib_common.ErrorMessageHtml("Error %s:%s"%(dbFilNam,str(exc)))
 
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propColumn])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propColumn])
 
 if __name__ == '__main__':
 	Main()

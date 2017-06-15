@@ -115,7 +115,7 @@ def Main():
 	# Temporary file removed by constructor.
 	input_file.close()
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

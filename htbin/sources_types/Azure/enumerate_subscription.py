@@ -31,7 +31,7 @@ def Main():
 
 		grph.add( ( rootNode, lib_common.MakeProp("Azure"), subscriptionNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

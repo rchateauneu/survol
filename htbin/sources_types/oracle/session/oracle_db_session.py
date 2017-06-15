@@ -79,7 +79,7 @@ def Main():
 		grph.add( ( node_oraSession, lib_common.MakeProp("Action"), rdflib.Literal(row[11]) ) )
 
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 
 if __name__ == '__main__':
 	Main()

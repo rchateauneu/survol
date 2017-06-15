@@ -33,7 +33,7 @@ def Main():
 			grph.add( ( userNode, pc.property_information, rdflib.Literal( comment ) ) )
 		grph.add( ( userNode, pc.property_information, rdflib.Literal( splitLin[6] ) ) )
 
-	cgiEnv.OutCgiRdf( grph )
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

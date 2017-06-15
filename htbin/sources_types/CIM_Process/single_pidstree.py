@@ -90,8 +90,8 @@ def Main():
 	tree_parent_process( grph, proc_obj )
 
 	# This layout style, because the nodes are quite big.
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT")
-	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT")
+	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

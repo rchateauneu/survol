@@ -21,7 +21,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

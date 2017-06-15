@@ -915,6 +915,8 @@ class CgiEnv():
 		# Contains the optional arguments, needed by calling scripts.
 		self.m_parameters = parameters
 
+		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
+
 		self.m_page_title = GetCallingModuleDoc()
 
 		# Title page contains __doc__ plus object label.
@@ -980,7 +982,9 @@ class CgiEnv():
 		ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % ( sys.argv[0], self.m_entity_host ) )
 
 	def GetGraph(self):
-		return rdflib.Graph()
+		self.m_graph = rdflib.Graph()
+		# When in merge mode, the same object must be always returned.
+		return self.m_graph
 
 	# We avoid several CGI arguments because Dot/Graphviz wants no ampersand "&" in the URLs.
 	# This might change because I suspect bugs in old versions of Graphviz.
@@ -1206,7 +1210,9 @@ class CgiEnv():
 	def GetNamespaceType(self):
 		return lib_util.ParseNamespaceType( self.m_entity_type )
 
-	def OutCgiRdf(self, grph, dot_layout = "", collapsed_properties=[] ):
+	# When in merge mode, these parameters must be aggregated, and used only during
+	# the unique generation of graphic data.
+	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 
 		layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
@@ -1217,7 +1223,7 @@ class CgiEnv():
 		if self.m_page_title is None:
 			self.m_page_title = "PAGE TITLE SHOULD BE SET"
 
-		OutCgiMode( grph, topUrl, mode, self.m_page_title, layoutParams, parameters = self.m_parameters )
+		OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, layoutParams, parameters = self.m_parameters )
 
 ################################################################################
 

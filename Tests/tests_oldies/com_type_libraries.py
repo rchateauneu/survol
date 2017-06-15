@@ -49,4 +49,4 @@ finally:
 		win32api.RegCloseKey(lib_com_type_lib.key)
 
 
-cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf()

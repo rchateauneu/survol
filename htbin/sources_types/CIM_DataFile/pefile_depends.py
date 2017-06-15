@@ -89,8 +89,8 @@ def Main():
 	#for key in env.cache_dll_to_imports:
 	#	sys.stderr.write("Key=%s\n"%key)
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
-	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

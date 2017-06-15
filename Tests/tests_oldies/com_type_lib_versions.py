@@ -97,6 +97,6 @@ for versionStr, name in list( versions.items() ):
 
 
 
-cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf()
 
 

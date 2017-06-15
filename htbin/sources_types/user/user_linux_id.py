@@ -88,7 +88,7 @@ def Main():
 		grph.add( ( grpNode, pc.property_groupid, rdflib.Literal(grpId) ) )
 		grph.add( ( userNode, pc.property_group, grpNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 
 

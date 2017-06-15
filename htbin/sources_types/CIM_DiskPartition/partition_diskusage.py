@@ -27,7 +27,7 @@ def Main():
 	grph.add( ( partitionNode, pc.property_disk_used, rdflib.Literal(dskUsage.used) ) )
 	grph.add( ( partitionNode, pc.property_disk_free, rdflib.Literal(dskUsage.free) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':

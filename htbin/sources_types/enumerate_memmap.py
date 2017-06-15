@@ -179,8 +179,8 @@ def Main():
 
 	# TODO: Petit bug: Ca duplique les memmap. Forcement, l'affichage en tables
 	# suppose que c'est un arbre. Mais c'est plus rapide et plus clair.
-	# cgiEnv.OutCgiRdf(grph,"",[pc.property_memmap])
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	# cgiEnv.OutCgiRdf("",[pc.property_memmap])
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

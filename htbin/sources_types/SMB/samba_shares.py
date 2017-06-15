@@ -116,7 +116,7 @@ def Main():
 
 	# print( smbtree_last_output )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

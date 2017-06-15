@@ -131,7 +131,7 @@ def Main():
 			grph.add( ( nodeHost, pc.property_hostname, rdflib.Literal( hostnam ) ) )
 
 				
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

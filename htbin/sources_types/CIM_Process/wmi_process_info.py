@@ -127,7 +127,7 @@ def Main():
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
 
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

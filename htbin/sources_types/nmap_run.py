@@ -94,9 +94,9 @@ def Main():
 			grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
 
 	if isGraphDisplay:
-		cgiEnv.OutCgiRdf(grph)
+		cgiEnv.OutCgiRdf()
 	else:
-		cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_has_socket])
+		cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_has_socket])
 
 if __name__ == '__main__':
 	Main()

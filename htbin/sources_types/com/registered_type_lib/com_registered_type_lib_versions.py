@@ -110,7 +110,7 @@ def Main():
 		finally:
 			win32api.RegCloseKey(key)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

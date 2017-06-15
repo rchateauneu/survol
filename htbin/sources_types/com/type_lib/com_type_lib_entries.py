@@ -85,7 +85,7 @@ def Main():
 		except pythoncom.com_error:
 			ret.append(browser.MakeHLI("The type info can not be loaded!"))
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 
 if __name__ == '__main__':
 	Main()

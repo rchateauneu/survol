@@ -102,8 +102,8 @@ def Main():
 
 	rootNode = env.RecursiveDepends( win_module, maxDepth )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[pc.property_symbol_declared])
-	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_symbol_declared])
+	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

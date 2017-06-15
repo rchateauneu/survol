@@ -38,8 +38,8 @@ def Main():
 		lib_oracle.AddLiteralNotNone(grph,nodePackageBody,"Creation",row[2])
 
 	# It cannot work if there are too many tables.
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_oracle_package_body])
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_oracle_package_body])
 
 if __name__ == '__main__':
 	Main()

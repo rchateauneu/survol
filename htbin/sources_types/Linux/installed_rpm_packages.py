@@ -61,7 +61,7 @@ def Main():
 	except Exception:
 		lib_common.ErrorMessageHtml("List of RPMs: Error %s" % ( str( sys.exc_info() ) ) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [rpmPropName])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [rpmPropName])
 
 if __name__ == '__main__':
 	Main()

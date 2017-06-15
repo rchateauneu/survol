@@ -110,8 +110,8 @@ def Main():
 			sys.stderr.write("Exception:%s\n"% str(exc))
 			pass
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
-	# cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

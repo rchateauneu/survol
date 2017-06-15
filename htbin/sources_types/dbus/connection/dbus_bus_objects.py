@@ -68,7 +68,7 @@ def Main():
 		lib_common.ErrorMessageHtml("Caught proxies busAddr=%s %s" % (Main. busAddr, str(exc) ) )
 
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

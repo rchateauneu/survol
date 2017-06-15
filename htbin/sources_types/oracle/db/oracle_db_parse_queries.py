@@ -83,7 +83,7 @@ def Main():
 	# This calls the callback for each retrieved row.
 	lib_oracle.CallbackQuery( conn_str,qrySelect, oraParser.oracallback)
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [propSqlQuery] )
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [propSqlQuery] )
 
 
 # TODO: FIXME: THIS MUST SHOW THE SCHEMA WHICH MUST BE ADDED.

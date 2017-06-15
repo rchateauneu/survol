@@ -31,7 +31,7 @@ def Main():
 
 	sqlite.AddNodesTablesViews(grph,sqliteNode,dbFilNam)
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

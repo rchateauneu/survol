@@ -37,7 +37,7 @@ def Main():
 		msgSpecific = "%s:Pid=%d" % (proc_msg,top_pid)
 		grph.add( ( node_process, pc.property_information, rdflib.Literal(msgSpecific)) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

@@ -56,7 +56,7 @@ def Main():
 		grph.add( ( nodVHost, lib_common.MakeProp("Exchange"), nodeExchange ) )
 
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

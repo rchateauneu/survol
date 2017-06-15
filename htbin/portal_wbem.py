@@ -33,7 +33,7 @@ def Main():
 		hostNode = lib_common.gUriGen.HostnameUri( wbemHost )
 		grph.add( ( hostNode, pc.property_information, wbemNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

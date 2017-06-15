@@ -68,9 +68,9 @@ def Main():
 	# If windows, print more information: DLL version etc...
 	# http://stackoverflow.com/questions/580924/python-windows-file-version-attribute
 
-	# cgiEnv.OutCgiRdf(grph)
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_TWOPI")
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT_RL")
+	# cgiEnv.OutCgiRdf()
+	# cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT_RL")
 
 if __name__ == '__main__':
 	Main()

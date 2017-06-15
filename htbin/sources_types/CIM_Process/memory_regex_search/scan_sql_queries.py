@@ -98,7 +98,7 @@ def Main():
 		GenerateFromSqlQrys(grph, node_process, rgxProp, setQrys, pidint)
 
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",arrProps)
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",arrProps)
 
 if __name__ == '__main__':
 	Main()

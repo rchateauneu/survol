@@ -116,7 +116,7 @@ def Main():
 					argNode = lib_uris.gUriGen.ClassUri( arg, filNam )
 					grph.add( ( symNode, pc.property_argument, argNode ) )
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_argument] )
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_argument] )
 
 if __name__ == '__main__':
 	Main()

@@ -139,8 +139,8 @@ def Main():
 			CIM_DataFile.AddStat( grph, subfilNode, fullFilePath )
 			CIM_DataFile.AddHtml( grph, subfilNode, fullFilePath )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_directory] )
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [] )
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory] )
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT", [] )
 
 if __name__ == '__main__':
 	Main()

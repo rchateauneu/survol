@@ -52,7 +52,7 @@ def Main():
 			tmpNode = entityNode
 			idx = nextSlash
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 
 if __name__ == '__main__':
 	Main()

@@ -66,7 +66,7 @@ def Main():
 		sys.stderr.write('Joining %s\n' % thread.getName())
 		thread.join()
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

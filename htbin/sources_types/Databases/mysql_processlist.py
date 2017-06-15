@@ -78,7 +78,7 @@ def Main():
 	phpmyadminNode = rdflib.term.URIRef( phpmyadminUrl )
 	grph.add( ( lib_common.nodeMachine, pc.property_rdf_data_nolist1, phpmyadminNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 # Il faudrait renvoyer vers le site http://localhost/phpmyadmin/ quand on examine 
 

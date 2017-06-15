@@ -27,7 +27,7 @@ def Main():
 		grph.add( ( hostNode, pc.property_information, rdflib.Literal(linSplit[1]) ) )
 		grph.add( ( hostNode, pc.property_information, rdflib.Literal(linSplit[2]) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

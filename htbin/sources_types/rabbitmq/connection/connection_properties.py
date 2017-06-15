@@ -89,7 +89,7 @@ def Main():
 
 	survol_rabbitmq_connection.AddSockets(grph,nodConnection,namConnection)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

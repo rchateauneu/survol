@@ -31,7 +31,7 @@ def Main():
 	else:
 	   lib_common.ErrorMessageHtml("WMI module not installed\n" )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

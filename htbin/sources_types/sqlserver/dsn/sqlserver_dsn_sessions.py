@@ -74,9 +74,9 @@ def Main():
 	except Exception:
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml(
-			"nodeDsn=%s Unexpected error:%s" % (dsnNam, str(sys.exc_info())))  # cgiEnv.OutCgiRdf(grph)
+			"nodeDsn=%s Unexpected error:%s" % (dsnNam, str(sys.exc_info())))  # cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propSqlServerSession,propSqlServerHostProcess])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propSqlServerSession,propSqlServerHostProcess])
 
 if __name__ == '__main__':
 	Main()

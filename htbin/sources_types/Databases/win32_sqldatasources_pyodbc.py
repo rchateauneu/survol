@@ -37,7 +37,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 	display_data_sources(grph)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

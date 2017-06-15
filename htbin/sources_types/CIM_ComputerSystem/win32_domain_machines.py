@@ -85,7 +85,7 @@ def Main():
 			sys.stderr.write("COULD NOT RUN IT TILL THE END\n")
 			break
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

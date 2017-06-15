@@ -94,7 +94,7 @@ def Main():
 		# Reset the line, will read next disk.
 		currLocal = ''
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

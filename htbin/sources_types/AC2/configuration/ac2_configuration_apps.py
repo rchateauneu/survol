@@ -66,8 +66,8 @@ def Main():
 
 	DispApp(grph,configNode,ac2File)
 
-	# cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [pc.property_argument] )
-	cgiEnv.OutCgiRdf(grph )
+	# cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_argument] )
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

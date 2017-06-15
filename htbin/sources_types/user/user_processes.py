@@ -86,7 +86,7 @@ def Main():
 		grph.add( ( node_process, pc.property_pid, rdflib.Literal(pid) ) )
 		# grph.add( ( node_process, pc.property_information, rdflib.Literal(procUsername) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

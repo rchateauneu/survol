@@ -17,8 +17,8 @@ def Main():
 
 	memmap.DisplayMappedProcesses(grph,fileName)
 
-	# cgiEnv.OutCgiRdf(grph)
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_memmap] )
+	# cgiEnv.OutCgiRdf()
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_memmap] )
 
 if __name__ == '__main__':
 	Main()

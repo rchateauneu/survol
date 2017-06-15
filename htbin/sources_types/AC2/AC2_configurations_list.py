@@ -37,7 +37,7 @@ def Main():
 				nodeConfig = lib_common.gUriGen.UriMakeFromDict("AC2/configuration", { "File": fullFileName })
 				grph.add( ( nodeTopDir, lib_common.MakeProp("AC2 configuration"), nodeConfig ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

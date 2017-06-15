@@ -63,7 +63,7 @@ def Main():
 
 	# TODO: The ordering is: 1.1,1.11,1.2, so we should have a special sort function.
 
-	cgiEnv.OutCgiRdf(grph, "LAYOUT_RECT", [ localPropDbusConnect, localPropDbusWellKnown ])
+	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [ localPropDbusConnect, localPropDbusWellKnown ])
 
 if __name__ == '__main__':
 	Main()

@@ -67,7 +67,7 @@ def Main():
 	# http://127.0.0.1/Survol/htbin/sources_types/Win32_Service/service_dependencies.py?xid=Win32_Service.Name%3Dnsi
 
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

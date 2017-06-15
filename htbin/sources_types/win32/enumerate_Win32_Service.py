@@ -22,9 +22,9 @@ def Main():
 	Win32_Service.FullServiceNetwork(grph,None)
 
 	# This routing is unreadable.
-	# cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
-	# cgiEnv.OutCgiRdf(grph)
+	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

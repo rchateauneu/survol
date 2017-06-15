@@ -84,7 +84,7 @@ def Main():
 			lib_common.ErrorMessageHtml("Caught:" + str(exc) )
 			raise
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 
 if __name__ == '__main__':

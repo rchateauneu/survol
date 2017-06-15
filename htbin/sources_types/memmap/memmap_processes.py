@@ -16,7 +16,7 @@ def Main():
 
 	memmap.DisplayMappedProcesses(grph,memmapName)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

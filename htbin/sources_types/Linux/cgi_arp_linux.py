@@ -59,7 +59,7 @@ def Main():
 		grph.add( ( hostNode, pc.property_information, rdflib.Literal(mtch_arp.group(2)) ) )
 		grph.add( ( hostNode, pc.property_information, rdflib.Literal(mtch_arp.group(3)) ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

@@ -47,7 +47,7 @@ def Url2Grph(grph,url,logfi = None):
 			# Tous les scripts ont la meme structure:
 			#    grph = cgiEnv.GetGraph()
 			#    ....
-			#    cgiEnv.OutCgiRdf(grph, AVEC_PARAMETRES)
+			#    cgiEnv.OutCgiRdf( AVEC_PARAMETRES)
 			#
 			# - ON FORCE LA REUTILISATION DU MEME GRAPHE.
 			# - ON CACHE ENCORE PLUS rdflib.
@@ -125,8 +125,8 @@ except KeyError:
 	dottosvg = "DotToSvgServer"
 logfil.write( "dottosvg=" + dottosvg + "\n" )
 
-# There is only one cgiEnv and "cgiEnv.OutCgiRdf(grph)" does not generate anything.
-lib_common.CgiEnvSetGlobal()
+# There is only one cgiEnv and "cgiEnv.OutCgiRdf()" does not generate anything.
+lib_common.CgiEnvSetMergeMode()
 # cgiEnv = lib_common.CgiEnv()
 
 # Only one rdflib Graph object.
@@ -166,5 +166,5 @@ lib_util.GraphSetLocal()
 
 # OutCgiRdf has been called by each script without writing anything,
 # but the specific parameters per script are stored inside.
-cgiEnv.OutCgiRdf(grph)
+cgiEnv.OutCgiRdf()
 

@@ -41,7 +41,7 @@ def Main():
 		uriBus = lib_util.EntityUri( "dbus/bus", busName )
 		grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("DBus"), uriBus ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

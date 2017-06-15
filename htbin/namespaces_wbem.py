@@ -49,7 +49,7 @@ def Main():
 		grph.add( ( wbemNode, pc.property_information, rdflib.Literal(nskey) ) )
 		grph.add( ( wbemNode, pc.property_information, rdflib.Literal(cnt) ) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 
 if __name__ == '__main__':
 	Main()

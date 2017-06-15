@@ -65,7 +65,7 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Error:"+str(exc))
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

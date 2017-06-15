@@ -59,7 +59,7 @@ def Main():
 		# sys.stderr.write("opsys=%s\n"%str(dir(opsys)))
 		grph.add( ( subscriptionNode, propOperatingSystemFamily, rdflib.Literal(opsys.label)) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT",[propOperatingSystemFamily])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propOperatingSystemFamily])
 
 if __name__ == '__main__':
 	Main()

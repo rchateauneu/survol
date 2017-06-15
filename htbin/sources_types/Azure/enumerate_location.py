@@ -49,7 +49,7 @@ def Main():
 	for subscriptionName in subscriptions:
 		EnumLoca(grph,subscriptionName)
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

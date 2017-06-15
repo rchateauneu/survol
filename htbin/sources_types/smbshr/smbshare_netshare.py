@@ -66,7 +66,7 @@ def Main():
 	mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrPath )
 	grph.add( ( nodeSmbShr, pc.property_smbmount, mountNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

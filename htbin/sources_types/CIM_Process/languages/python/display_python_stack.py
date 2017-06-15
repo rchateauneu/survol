@@ -76,7 +76,7 @@ def Main():
         sys.stderr.write("No stack visible\n")
 
 
-    cgiEnv.OutCgiRdf(grph)
+    cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
     Main()

@@ -71,7 +71,7 @@ def Main():
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( javaFilNam, str( exc ) ) )
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

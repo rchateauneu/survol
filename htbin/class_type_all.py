@@ -227,7 +227,7 @@ def Main():
 	# Do this for each intermediary entity type (Between slashes).
 	AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT_TB")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
 
 if __name__ == '__main__':
 	Main()

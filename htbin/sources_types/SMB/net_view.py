@@ -68,7 +68,7 @@ def Main():
 		shareSrvNode = lib_common.gUriGen.SmbServerUri( shrSrv )
 		grph.add( ( lib_common.nodeMachine, pc.property_smbview, shareSrvNode ) )
 
-	cgiEnv.OutCgiRdf(grph)
+	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()

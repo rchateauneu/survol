@@ -51,8 +51,8 @@ def Main():
 		grph.add( ( node_process, pc.property_open_file, fileNode ) )
 
 	# This works but not really necessary because there are not so many files.
-	# cgiEnv.OutCgiRdf(grph, "", [pc.property_open_file] )
-	cgiEnv.OutCgiRdf(grph,"LAYOUT_SPLINE")
+	# cgiEnv.OutCgiRdf( "", [pc.property_open_file] )
+	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
 	Main()

@@ -86,8 +86,8 @@ def Main():
         lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( exc ) ) )
 
 
-    # cgiEnv.OutCgiRdf(grph)
-    cgiEnv.OutCgiRdf(grph,"LAYOUT_RECT", [pc.property_odbc_column] )
+    # cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_odbc_column] )
 
 if __name__ == '__main__':
 	Main()
