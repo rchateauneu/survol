@@ -19,7 +19,7 @@ from sources_types.oracle import schema as oracle_schema
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	#v$process
 	#PID	NUMBER	Oracle process identifier

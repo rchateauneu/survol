@@ -54,7 +54,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	file_path = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	try:
 		file_split = file_path.split('/')

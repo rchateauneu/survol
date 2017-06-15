@@ -14,7 +14,7 @@ from lib_properties import pc
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# With a dictionary so node are created once only.
 	# This attribute belongs to the function (defintion), and not to the function call.

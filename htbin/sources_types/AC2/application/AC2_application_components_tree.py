@@ -100,7 +100,7 @@ def Main():
 
 	sys.stderr.write("ac2File=%s ac2App=%s\n"% (ac2File,ac2App) )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	DisplayComponentsTree(grph,ac2File,ac2App)
 

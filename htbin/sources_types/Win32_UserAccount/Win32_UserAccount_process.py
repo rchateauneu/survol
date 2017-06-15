@@ -42,7 +42,7 @@ def Main():
 			# Cannot get user properties on different host:rchateau-HP than rchateau-HP.home
 			lib_common.ErrorMessageHtml("Cannot get user properties on different host:%s than %s" % ( userHost, lib_util.currentHostname ))
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# It will be possible to transform this into a Json tree by
 	# selecting only the RDF predicate property_ppid.

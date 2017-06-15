@@ -45,7 +45,7 @@ def Main():
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("NET command on Windows only")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	net_share_cmd = [ "net", "share" ]
 

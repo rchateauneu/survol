@@ -25,7 +25,7 @@ def Main():
 	mbeanObjNam = mbeanObjNam.replace("*",",").replace("-","=")
 	# mbeanObjNam = cgi.unescape(mbeanObjNam)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	node_process = lib_common.gUriGen.PidUri(pidInt)
 	# proc_obj = psutil.Process(pidInt)

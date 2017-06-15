@@ -35,7 +35,7 @@ def Main():
 	# cl = Client('localhost:12345', 'guest', 'guest')
 	cl = Client(configNam, creds[0], creds[1])
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# >>> cl.get_all_vhosts()
 	# http://localhost:12345/api/vhosts

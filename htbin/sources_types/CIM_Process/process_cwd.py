@@ -18,7 +18,7 @@ def Main():
 	except Exception:
 		lib_common.ErrorMessageHtml("Must provide a pid")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	proc_obj = CIM_Process.PsutilGetProcObj(top_pid)
 

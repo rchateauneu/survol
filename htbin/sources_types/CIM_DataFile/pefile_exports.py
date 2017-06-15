@@ -89,7 +89,7 @@ def Main():
 	# If the PE file was loaded using the fast_load=True argument, we will need to parse the data directories:
 	# pe.parse_data_directories()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	try:
 		propForward = lib_common.MakeProp("Forward")

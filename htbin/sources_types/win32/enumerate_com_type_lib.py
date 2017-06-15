@@ -18,7 +18,7 @@ import lib_com_type_lib
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	try:
 		num = 0

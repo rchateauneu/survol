@@ -22,7 +22,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	clsidstr = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.key, clsidstr)
 

@@ -110,7 +110,7 @@ def Main():
 
 	sys.stderr.write("ac2File=%s\n"% (ac2File) )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	configNode = AC2_configuration.MakeUri(ac2File)
 

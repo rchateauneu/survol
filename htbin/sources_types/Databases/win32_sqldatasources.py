@@ -58,7 +58,7 @@ def show_odbc_sources(grph):
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 	show_odbc_sources(grph)
 
 	cgiEnv.OutCgiRdf(grph)

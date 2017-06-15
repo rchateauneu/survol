@@ -35,7 +35,7 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc))
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	( nmap_last_output, nmap_err) = p.communicate()
 

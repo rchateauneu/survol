@@ -16,7 +16,7 @@ from lib_properties import pc
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	for linSplit in lib_arp.GetArpEntries():
 		hstAddr, hostName, aliases = lib_arp.GetArpHostAliases(linSplit)

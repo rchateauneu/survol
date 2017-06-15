@@ -17,7 +17,7 @@ Usable = lib_util.UsableLinux
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# [suser(name='Remi', terminal=None, host='0.246.33.0', started=1411052436.0)]
 

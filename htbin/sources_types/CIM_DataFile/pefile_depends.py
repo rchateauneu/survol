@@ -79,7 +79,7 @@ def Main():
 
 	lib_win32.CheckWindowsModule(win_module)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	env = EnvPeFile(grph)
 

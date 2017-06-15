@@ -76,7 +76,7 @@ def Main():
 
 	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	rootNode = lib_util.RootUri()
 

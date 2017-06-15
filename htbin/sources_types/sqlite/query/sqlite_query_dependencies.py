@@ -13,7 +13,7 @@ from sources_types.sqlite import query as sqlite_query
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	sqlQuery = sql_query.GetEnvArgs(cgiEnv)
 	filNam = cgiEnv.m_entity_id_dict["File"]

@@ -125,7 +125,7 @@ def Main():
 		  )
 	"""
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 
 	if lib_util.isPlatformWindows:

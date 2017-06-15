@@ -16,7 +16,7 @@ def Main():
 	cgiEnv = lib_oracle.OracleEnv()
 
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	sqlQuery = sql_query.GetEnvArgs(cgiEnv)
 	dbNam = cgiEnv.m_entity_id_dict["Db"]

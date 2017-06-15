@@ -67,7 +67,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 	machineName = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# If running on the local machine, pass the host as None otherwise authorization is checked
 	# just like a remote machine, which means User Account Control (UAC) disabling,

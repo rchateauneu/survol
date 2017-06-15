@@ -20,7 +20,7 @@ def Main():
 	oraSchema = cgiEnv.m_entity_id_dict["Schema"]
 	oraDatabase = cgiEnv.m_entity_id_dict["Db"]
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY" etc...
 	sql_query = "select owner,name,type from dba_dependencies where REFERENCED_TYPE = 'TABLE' AND REFERENCED_NAME = '" + oraTable + "' and referenced_owner='" + oraSchema + "'"

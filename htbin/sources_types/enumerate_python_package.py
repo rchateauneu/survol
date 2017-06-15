@@ -40,7 +40,7 @@ def Main():
 			Main.dictKeyToPckg[ key ] = packageNode
 		return packageNode
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# TODO: What about several Python versions ?
 	installed_packages = pip.get_installed_distributions()

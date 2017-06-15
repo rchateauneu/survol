@@ -27,7 +27,7 @@ def windowEnumerationHandler(hwnd, topWindowsHnd):
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	rootNode = lib_common.nodeMachine
 

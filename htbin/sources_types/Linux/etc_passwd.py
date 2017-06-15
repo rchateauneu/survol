@@ -20,7 +20,7 @@ def Main():
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("/etc/passwd for Linux only")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	usersList = survol_user.LoadEtcPasswd()
 

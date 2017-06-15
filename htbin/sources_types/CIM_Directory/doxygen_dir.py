@@ -25,7 +25,7 @@ def Main():
 
 	fileParam = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	objectsByLocation = lib_doxygen.DoxygenMain(paramRecursiveExploration,fileParam)
 

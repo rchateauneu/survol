@@ -49,7 +49,7 @@ def EnumServices(grph,subscriptionName):
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	subscriptions = lib_credentials.GetCredentialsNames( "Azure" )
 

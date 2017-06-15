@@ -19,7 +19,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	connectionName = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	cgiEnv.OutCgiRdf(grph)
 

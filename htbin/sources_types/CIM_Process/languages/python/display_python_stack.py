@@ -42,7 +42,7 @@ def Main():
     cgiEnv = lib_common.CgiEnv()
     pid = int( cgiEnv.GetId() )
 
-    grph = rdflib.Graph()
+    grph = cgiEnv.GetGraph()
 
     procNode = lib_common.gUriGen.PidUri(pid)
 

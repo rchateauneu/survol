@@ -902,14 +902,20 @@ def GetEntityModule(entity_type):
 	cacheEntityToModule[ entity_type ] = entity_module
 	return entity_module
 
+# This loads a script as a module. Example:
+# currentModule="sources_types.win32" fil="enumerate_top_level_windows.py"
 def GetScriptModule(currentModule, fil):
 	# TODO: IT DOES NOT START FROM "/revlib". DIFFICULTY WITH PYTHONPATH.
+	# Sanity check
+	if fil[-3:] != ".py":
+		sys.stderr.write("GetScriptModule module=%s fil=%s not a Python script" % ( currentModule, fil ))
+		return None
 	subClass = "." + fil[:-3] # Without the ".py" extension.
-	# sys.stderr.write("argFil=%s argDir=%s\n" % ( argFil, argDir ) )
+	# sys.stderr.write("currentModule=%s fil=%s\n" % ( currentModule, fil ) )
 	if sys.version_info >= (3, ):
+		# Example: importlib.import_module("sources_top.Databases.mysql_processlist")
 		importedMod = importlib.import_module(currentModule + subClass)
 	else:
-		# importlib.import_module("sources_top.Databases.mysql_processlist")
 		importedMod = importlib.import_module(subClass, currentModule )
 	return importedMod
 

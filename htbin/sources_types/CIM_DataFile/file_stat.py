@@ -27,7 +27,7 @@ def Main():
 
 	filNode = lib_common.gUriGen.FileUri(filNam )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	info = CIM_DataFile.GetInfoStat(filNam)
 

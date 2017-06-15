@@ -25,7 +25,7 @@ def Main():
 
 	moduFilNam = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	modudeps = lib_modules.Dependencies()
 

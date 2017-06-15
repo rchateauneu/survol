@@ -51,7 +51,7 @@ class LookupThread(threading.Thread):
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	grph_lock = threading.Lock()
 

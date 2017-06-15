@@ -27,7 +27,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	pidint = int( cgiEnv.GetId() )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# proc_obj = CIM_Process.PsutilGetProcObj(pidint)
 

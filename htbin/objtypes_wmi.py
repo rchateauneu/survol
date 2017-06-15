@@ -112,7 +112,7 @@ def Main():
 	if str(wmiNamespace) == "":
 		lib_common.ErrorMessageHtml("WMI namespace should not be empty. entity_namespace_type="+entity_namespace_type)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	try:
 		connWmi = lib_wmi.WmiConnect(cimomUrl,wmiNamespace)

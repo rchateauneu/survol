@@ -24,7 +24,7 @@ def Main():
 	# http://192.168.1.88
 	machineName = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	cimomUrl = lib_wbem.HostnameToWbemServer(machineName)
 

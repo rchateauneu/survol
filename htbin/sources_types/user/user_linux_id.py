@@ -54,7 +54,7 @@ def Main():
 	if not userName:
 		lib_common.ErrorMessageHtml("Linux username should not be an empty string")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	userNode = lib_common.gUriGen.UserUri( userName )
 

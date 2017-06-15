@@ -32,7 +32,7 @@ def Main():
 	except ImportError:
 		lib_common.ErrorMessageHtml("win32 Python library not installed")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	try:
 		# Parameters:

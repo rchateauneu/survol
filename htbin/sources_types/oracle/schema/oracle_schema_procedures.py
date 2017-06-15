@@ -17,7 +17,7 @@ def Main():
 
 	oraSchema = cgiEnv.m_entity_id_dict["Schema"]
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM DBA_OBJECTS WHERE OBJECT_TYPE = 'PROCEDURE' AND OWNER = '" + oraSchema + "'"
 	sys.stderr.write("sql_query=%s\n" % sql_query )

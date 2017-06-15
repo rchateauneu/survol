@@ -24,7 +24,7 @@ def Main():
 	flagShowSharedLib = bool(cgiEnv.GetParameters( paramkeyShowSharedLib ))
 	flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	proc_obj = CIM_Process.PsutilGetProcObj(top_pid)
 

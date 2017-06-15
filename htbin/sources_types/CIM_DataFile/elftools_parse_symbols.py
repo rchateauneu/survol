@@ -24,7 +24,7 @@ def Main():
 
 	fileSharedLib = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodeSharedLib = lib_common.gUriGen.FileUri( fileSharedLib )
 

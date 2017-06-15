@@ -49,7 +49,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodeFile = lib_common.gUriGen.FileUri(filNam)
 

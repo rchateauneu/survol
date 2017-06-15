@@ -33,7 +33,7 @@ def Main():
 	# subscriptionName=Azure.DefaultSubscription()
 	subscriptionName = cgiEnv.m_entity_id_dict["Subscription"]
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	(subscription_id,certificate_path) = lib_credentials.GetCredentials( "Azure", subscriptionName )
 

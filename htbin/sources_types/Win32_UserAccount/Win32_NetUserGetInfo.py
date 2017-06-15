@@ -53,7 +53,7 @@ def Main():
 
 	userName = cgiEnv.m_entity_id_dict["Name"]
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodeUser = survol_Win32_UserAccount.MakeUri( userName, hostName )
 

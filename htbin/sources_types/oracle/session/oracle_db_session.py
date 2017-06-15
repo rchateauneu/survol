@@ -37,7 +37,7 @@ from sources_types.oracle import session as oracle_session
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
 	oraSession = cgiEnv.m_entity_id_dict["Session"]
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 	node_oraSession = oracle_session.MakeUri( cgiEnv.m_oraDatabase, oraSession )
 
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"

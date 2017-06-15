@@ -22,7 +22,7 @@ def Main():
 
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	try:
 		# TODO: Extends this to have machines as parameters.

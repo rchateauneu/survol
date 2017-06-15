@@ -157,7 +157,7 @@ def Main():
 
 	maxInstances = cgiEnv.GetParameters( paramkeyMaxInstances )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 	sys.stderr.write("nameSpace=%s className=%s entity_namespace_type=%s\n" % ( nameSpace, className, entity_namespace_type ) )

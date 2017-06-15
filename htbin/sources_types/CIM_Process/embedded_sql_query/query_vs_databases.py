@@ -17,7 +17,7 @@ import lib_sql
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	sqlQuery = sql_query.GetEnvArgs(cgiEnv)
 

@@ -22,7 +22,7 @@ def Main():
 	pid = int( cgiEnv.GetId() )
 	machineName = cgiEnv.GetHost()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	if ( machineName == lib_util.currentHostname ) or ( not machineName ):
 		machName_or_None = None

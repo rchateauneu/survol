@@ -20,7 +20,7 @@ def Main():
 	# partitionNode = lib_util.EntityUri('partition', partitionNam )
 	partitionNode = lib_common.gUriGen.DiskPartitionUri( partitionNam )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	dskUsage = psutil.disk_usage(partitionNam)
 

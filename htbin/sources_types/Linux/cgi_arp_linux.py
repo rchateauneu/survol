@@ -23,7 +23,7 @@ def Main():
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("Linux only")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	arp_cmd = [ "/sbin/arp", "-a" ]
 

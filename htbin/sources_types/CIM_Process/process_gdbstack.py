@@ -134,7 +134,7 @@ def Main():
 	except KeyError:
 		lib_common.ErrorMessageHtml("Process id should be provided")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	proc_obj = CIM_Process.PsutilGetProcObj(the_pid)
 

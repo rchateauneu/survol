@@ -14,7 +14,7 @@ import lib_common
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# List xml config files in the directory given by the environment variable "XCOMP_AC2_BASE" which by default is "C:\AC2"
 	envVarNam = "XCOMP_AC2_BASE"

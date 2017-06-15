@@ -42,7 +42,7 @@ if nameSpace == "":
 if className == "":
 	lib_common.ErrorMessageHtml("No class name. entity_id=%s" % entity_id)
 
-grph = rdflib.Graph()
+grph = cgiEnv.GetGraph()
 
 conn = lib_wbem.WbemConnection(cimomUrl)
 

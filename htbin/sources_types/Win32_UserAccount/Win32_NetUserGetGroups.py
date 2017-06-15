@@ -74,7 +74,7 @@ def Main():
 
 	sys.stderr.write("hostName=%s userName=%s\n" %(hostName,userName))
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodeUser = survol_Win32_UserAccount.MakeUri( userName, hostName )
 

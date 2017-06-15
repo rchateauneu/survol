@@ -25,7 +25,7 @@ def Main():
 
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	hostAddr = socket.gethostbyname(hostname)
 	hostNode = lib_common.gUriGen.HostnameUri(hostAddr)

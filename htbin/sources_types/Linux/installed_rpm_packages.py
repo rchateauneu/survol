@@ -35,7 +35,7 @@ from sources_types import rpm as survol_rpm
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	rpmProps = survol_rpm.RpmProps()
 

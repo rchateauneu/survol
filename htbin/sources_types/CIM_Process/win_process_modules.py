@@ -29,7 +29,7 @@ def Main():
 	PROCESS_QUERY_INFORMATION = 0x0400
 	PROCESS_VM_READ = 0x0010
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	node_process = lib_common.gUriGen.PidUri(pid)
 	exec_node = CIM_Process.AddInfo( grph, node_process, [ pid ] )

@@ -31,7 +31,7 @@ Usable = lib_util.UsableWindows
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# subscriptionName=Azure.DefaultSubscription()
 	subscriptionName = cgiEnv.m_entity_id_dict["Subscription"]

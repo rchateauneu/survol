@@ -240,7 +240,7 @@ class RdfQueue_HTTPRequestHandler(BaseHTTPRequestHandler):
 
 			self.send_response(200)
 			
-			grph = rdflib.Graph()
+			grph = cgiEnv.GetGraph()
 
 			self.LogMsg("do_GET Before insertion pidFeeder=%d nbtriples=%d" % ( pidFeeder, len(grph) ) )
 			# Add all the triples stored in the shared queue.

@@ -114,7 +114,7 @@ def Main():
 
 	sys.stderr.write("ac2File=%s ac2App=%s ac2Comp=%s\n"% (ac2File,ac2App,ac2Comp) )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp)
 

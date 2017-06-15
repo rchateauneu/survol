@@ -18,7 +18,7 @@ import lib_com_type_lib
 
 cgiEnv = lib_common.CgiEnv("Registered COM type libraries")
 
-grph = rdflib.Graph()
+grph = cgiEnv.GetGraph()
 
 try:
 		num = 0

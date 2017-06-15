@@ -20,7 +20,7 @@ except ImportError:
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
 

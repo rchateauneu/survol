@@ -16,7 +16,7 @@ def Main():
 
 	cimomUrl = cgiEnv.GetHost()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# There is no consensus on the WBEM class for namespaces,
 	# so we have ours which must be correctly mapped.

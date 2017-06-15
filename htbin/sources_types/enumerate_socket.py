@@ -24,7 +24,7 @@ def Main():
 
 	flagShowUnconnected = bool(cgiEnv.GetParameters( paramkeyShowUnconnected ))
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	for proc in psutil.process_iter():
 		try:

@@ -57,7 +57,7 @@ def Main():
 	cgiEnv = lib_oracle.OracleEnv()
 	# cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# database = cgiEnv.GetId()
 	database = cgiEnv.m_oraDatabase

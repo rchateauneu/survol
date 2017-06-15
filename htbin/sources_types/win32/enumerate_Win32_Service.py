@@ -17,7 +17,7 @@ def Main():
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	Win32_Service.FullServiceNetwork(grph,None)
 

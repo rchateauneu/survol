@@ -15,7 +15,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	socketNam = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	lib_common.ErrorMessageHtml("Not implemented yet")
 

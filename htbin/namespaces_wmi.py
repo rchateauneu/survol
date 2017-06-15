@@ -103,7 +103,7 @@ def Main():
 
 	sys.stderr.write("cimomUrl=%s\n" % cimomUrl)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# There is no consensus on the WMI class for namespaces,
 	# so we have ours which must be correctly mapped.

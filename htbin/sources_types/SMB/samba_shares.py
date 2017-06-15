@@ -71,7 +71,7 @@ def Main():
 	if lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("smbtree not available on Windows")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	smbtree_cmd = [ "smbtree", "-N", "-b", "--debuglevel=0" ]
 

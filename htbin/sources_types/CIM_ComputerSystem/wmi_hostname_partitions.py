@@ -110,7 +110,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 	machineName = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	if lib_util.IsLocalAddress( machineName ):
 		machName_or_None = None

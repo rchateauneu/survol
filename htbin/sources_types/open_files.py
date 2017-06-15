@@ -59,7 +59,7 @@ def Main():
 	flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
 	flagShowNonShared = bool(cgiEnv.GetParameters( paramkeyShowNonShared ))
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	################################################################################
 

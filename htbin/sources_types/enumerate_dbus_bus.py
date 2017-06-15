@@ -33,7 +33,7 @@ Usable = lib_util.UsableLinux
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	listBuses = [ "system", "session" ]
 

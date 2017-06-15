@@ -23,7 +23,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	fname = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	fnameMysteryNode = lib_common.gUriGen.ComTypeLibUri( fname )
 

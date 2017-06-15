@@ -15,7 +15,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	machineName = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# hostname = "Titi" for example
 	# lib_win32.WNetAddConnect(machineName)

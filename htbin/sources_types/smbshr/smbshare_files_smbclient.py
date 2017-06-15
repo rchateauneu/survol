@@ -45,7 +45,7 @@ def Main():
 
 	nodeSmbShr = lib_common.gUriGen.SmbShareUri( smbShr )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	smbDir = ""
 

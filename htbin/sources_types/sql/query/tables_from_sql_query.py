@@ -17,7 +17,7 @@ from sources_types.sql import sheet
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	#pidNum = cgiEnv.m_entity_id_dict["Pid"]
 	#filNam = cgiEnv.m_entity_id_dict["File"]

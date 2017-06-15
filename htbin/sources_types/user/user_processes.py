@@ -36,7 +36,7 @@ def Main():
 			# TODO: Should interrogate other host with "finger" protocol.
 			lib_common.ErrorMessageHtml("Cannot get user properties on different host:" + userHost)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# It will be possible to transform this into a Json tree by
 	# selecting only the RDF predicate property_ppid.

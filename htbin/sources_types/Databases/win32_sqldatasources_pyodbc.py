@@ -34,7 +34,7 @@ def display_data_sources(grph):
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 	display_data_sources(grph)
 
 	cgiEnv.OutCgiRdf(grph)

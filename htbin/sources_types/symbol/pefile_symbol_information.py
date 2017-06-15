@@ -72,7 +72,7 @@ def Main():
 
 	sys.stderr.write("symbol=%s filNam=%s\n"% (symbol,filNam) )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	symNode = lib_uris.gUriGen.SymbolUri( symbol, filNam )
 

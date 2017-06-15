@@ -979,6 +979,9 @@ class CgiEnv():
 
 		ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % ( sys.argv[0], self.m_entity_host ) )
 
+	def GetGraph(self):
+		return rdflib.Graph()
+
 	# We avoid several CGI arguments because Dot/Graphviz wants no ampersand "&" in the URLs.
 	# This might change because I suspect bugs in old versions of Graphviz.
 	def GetXid(self):

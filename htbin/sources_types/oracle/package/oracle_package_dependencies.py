@@ -17,7 +17,7 @@ def Main():
 	oraPackage = cgiEnv.m_entity_id_dict["Package"]
 	oraSchema = cgiEnv.m_entity_id_dict["Schema"]
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	node_oraPackage = oracle_package.MakeUri( cgiEnv.m_oraDatabase, oraSchema, oraPackage )
 

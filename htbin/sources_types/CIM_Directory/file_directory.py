@@ -82,7 +82,7 @@ def Main():
 
 	filNode = lib_common.gUriGen.FileUri(filNam )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	if filNam != '/':
 		# TODO: Does it work on Windows ???

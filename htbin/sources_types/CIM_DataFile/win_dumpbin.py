@@ -75,7 +75,7 @@ def Main():
 	out_asstr = dumpbin_out.decode("utf-8")
 	out_lines = out_asstr.split('\n')
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodeDLL = lib_common.gUriGen.FileUri( dll_file )
 

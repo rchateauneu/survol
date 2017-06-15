@@ -208,7 +208,7 @@ def Main():
 	# QUERY_STRING=xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2FPG_Internal%3APG_WBEMSLPTemplate
 	sys.stderr.write("class_type_all entity_host=%s entity_id=%s\n" % ( entity_host, entity_id ) )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# TODO: Utiliser la bonne fonction !!!
 	rootNode = lib_util.RootUri()

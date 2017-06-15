@@ -24,7 +24,7 @@ def Main():
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# TODO: Try this on a remote machine.
 	server = None # Run on local machine.

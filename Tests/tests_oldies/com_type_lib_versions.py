@@ -16,7 +16,7 @@ import lib_com_type_lib
 cgiEnv = lib_common.CgiEnv("Versions of registered COM type libraries")
 clsidstr = cgiEnv.GetId()
 
-grph = rdflib.Graph()
+grph = cgiEnv.GetGraph()
 
 # key = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib")
 versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.key, clsidstr)

@@ -45,7 +45,7 @@ def Main():
 
 	sys.stderr.write("packageNam=%s\n"%packageNam)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	tmpPyFil = lib_common.TmpFile("py_package_deps","py")
 	tmpPyFilName = tmpPyFil.Name

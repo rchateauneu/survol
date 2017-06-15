@@ -27,7 +27,7 @@ from lib_properties import pc
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	mysql_cmd = "mysqladmin processlist"
 

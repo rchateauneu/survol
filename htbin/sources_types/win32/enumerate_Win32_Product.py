@@ -98,7 +98,7 @@ def get_installed_products_uids():
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	propWin32Version = lib_common.MakeProp("Version")
 	propWin32Product = lib_common.MakeProp("Win32_Product")

@@ -116,7 +116,7 @@ def Main():
 	if not is_host_remote:
 		entity_host = ""
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	rootNode = lib_util.RootUri()
 

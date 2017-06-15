@@ -14,7 +14,7 @@ def Main():
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	entity_type = cgiEnv.m_entity_type
 	entity_host = cgiEnv.GetHost()

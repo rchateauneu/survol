@@ -103,7 +103,7 @@ def Main():
     cgiEnv = lib_common.CgiEnv()
     pidProc = int( cgiEnv.GetId() )
 
-    grph = rdflib.Graph()
+    grph = cgiEnv.GetGraph()
 
     node_process = lib_common.gUriGen.PidUri(pidProc)
     proc_obj = psutil.Process(pidProc)

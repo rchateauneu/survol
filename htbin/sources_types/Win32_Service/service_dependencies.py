@@ -25,7 +25,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 	serviceName = cgiEnv.GetId()
 	serviceHost = cgiEnv.GetHost()
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	sys.stderr.write("serviceName=%s\n" % ( serviceName ) )
 

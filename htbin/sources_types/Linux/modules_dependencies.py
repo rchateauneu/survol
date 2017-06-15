@@ -39,7 +39,7 @@ def Main():
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("Modules dependencies for Linux only")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 
 	# TODO: The dependency network is huge, so we put a limit, for the moment.

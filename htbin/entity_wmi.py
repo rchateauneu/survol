@@ -197,7 +197,7 @@ def Main():
 
 	sys.stderr.write("cimomUrl=%s ns=%s cls=%s id=%s\n" % ( cimomUrl, nameSpace, className, cgiEnv.m_entity_id) )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
 

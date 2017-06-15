@@ -22,7 +22,7 @@ def Main():
 	#	}
 	credList = lib_credentials.GetCredentialsNames( "RabbitMQ" )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	if credList:
 		for configNam in credList:

@@ -30,7 +30,7 @@ def Main():
 	if lib_util.IsLocalAddress( server ):
 		server = None
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# http://www.math.uiuc.edu/~gfrancis/illimath/windows/aszgard_mini/movpy-2.0.0-py2.4.4/movpy/lib/win32/Demos/win32netdemo.py
 	# servName_or_None, imper = lib_win32.MakeImpersonate(server)

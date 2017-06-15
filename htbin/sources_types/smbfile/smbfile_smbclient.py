@@ -48,7 +48,7 @@ def Main():
 	if rootNodeSmb is None:
 		lib_common.ErrorMessageHtml("This is not a shared file:"+smbFile)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	lib_smbclient.AddFromSmbClient( grph, smbDir, smbShr, password, rootNodeSmb )
 

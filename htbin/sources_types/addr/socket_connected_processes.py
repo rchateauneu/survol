@@ -19,7 +19,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	socketNam = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# See AddrUri() to understand the syntax of a socket name.
 	socketSplit = socketNam.split(':')

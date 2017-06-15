@@ -16,7 +16,7 @@ from sources_types.oracle import schema as oracle_schema
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	sql_query = "select username, user_id, account_status, lock_date, expiry_date from dba_users"
 

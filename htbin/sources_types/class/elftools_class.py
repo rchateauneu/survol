@@ -13,6 +13,12 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+# TODO: This does not work for a Java class: Must check the file name and magic number ("CAFEBABE").
+def Usable(entity_type,entity_ids_arr):
+	#dirNam = entity_ids_arr[0]
+	#return os.path.isdir(dirNam)
+	return True
+
 def Main():
 	paramkeyMaxDepth = "Maximum depth"
 
@@ -26,7 +32,7 @@ def Main():
 	# An executable, shared library. Maybe static library.
 	fileName = cgiEnv.m_entity_id_dict["File"]
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# This expects that the string is not a symbol name but a class or a namespace.
 	# Otherwise we would have scan the list of symbols, to find out.

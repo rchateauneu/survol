@@ -17,7 +17,7 @@ import lib_oracle
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	try:
 		procid = int( cgiEnv.GetId() )

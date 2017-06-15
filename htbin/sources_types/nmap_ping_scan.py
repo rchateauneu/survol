@@ -77,7 +77,7 @@ def Main():
 	except FileNotFoundError:
 		lib_common.ErrorMessageHtml("Cannot find nmap")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	(nmap_last_output, nmap_err) = p.communicate()
 

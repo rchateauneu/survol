@@ -54,7 +54,7 @@ def Main():
 
 	# sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	filNode = lib_common.gUriGen.FileUri(javaFilNam)
 

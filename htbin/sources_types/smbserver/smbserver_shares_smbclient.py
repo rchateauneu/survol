@@ -47,7 +47,7 @@ def Main():
 	if lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodeSmbShr = lib_common.gUriGen.SmbServerUri( smbServer )
 

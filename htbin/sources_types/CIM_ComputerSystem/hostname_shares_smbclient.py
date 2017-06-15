@@ -47,7 +47,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	hostName = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodeSmbShr = lib_common.gUriGen.SmbServerUri( hostName )
 

@@ -21,7 +21,7 @@ def Main():
 
     etc_group = open("/etc/group")
 
-    grph = rdflib.Graph()
+    grph = cgiEnv.GetGraph()
 
     split_users = []
     grpNode = lib_common.gUriGen.GroupUri( groupName )

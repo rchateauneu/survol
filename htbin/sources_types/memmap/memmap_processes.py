@@ -12,7 +12,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	memmapName = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	memmap.DisplayMappedProcesses(grph,memmapName)
 

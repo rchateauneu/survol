@@ -56,7 +56,7 @@ def Main():
 
 	sys.stderr.write("Depends command=%s\n"%(command))
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodeDLL = lib_common.gUriGen.FileUri( win_module )
 

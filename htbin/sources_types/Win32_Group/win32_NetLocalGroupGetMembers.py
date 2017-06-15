@@ -64,7 +64,7 @@ def Main():
 	server = cgiEnv.m_entity_id_dict["Domain"]
 	groupName = cgiEnv.m_entity_id_dict["Name"]
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# http://www.math.uiuc.edu/~gfrancis/illimath/windows/aszgard_mini/movpy-2.0.0-py2.4.4/movpy/lib/win32/Demos/win32netdemo.py
 

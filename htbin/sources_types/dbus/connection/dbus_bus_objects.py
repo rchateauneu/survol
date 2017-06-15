@@ -54,7 +54,7 @@ def Main():
 
 	connectNode = lib_util.EntityUri( entity_type, Main.busAddr, Main.connectName )
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	Main.localPropDbusPath = rdflib.Literal("dbus-path")
 

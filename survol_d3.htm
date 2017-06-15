@@ -369,6 +369,10 @@ function RefillDisplay(data)
 
         // console.log("prevUrlsToIds elements:"+JSON.stringify(prevUrlsToIds));
 
+
+// C EST DANS CE COIN QU ON FUSIONNE LES URLS D ORIGINE DES NODES.
+
+
         // The new numbers of the new nodes are written in the nodes themselves.
         var newNodes = data.nodes;
         var lenNewNodes = newNodes.length;
@@ -646,21 +650,21 @@ function DeleteSvgConnectedNodes(objectSvg)
     globalMustMerge = false;
 } // DeleteSvgConnectedNodes
 
+// The list of currently loaded urls. This is also the UNDO list,
+// and therefore will contain "pseudo-urls" meaning that such or such object
+// was adedd or removed.
+var lstLoadedUrls = [];
+
+function PifPof()
+{
+    alert("PifPof");
+}
+
 /* Loads from a URL, a JSON document made of nodes and links.
 After that, updates a table containing the list of loaded URLs. */
 function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 {
     'use strict';
-
-    function AppendRow(col1,col2,col3)
-    {
-        var newLine = '<tr>'
-            + '<td>' + col1 + '</td>'
-            + '<td>' + col2 + '</td>'
-            + '<td>' + col3 + '</td>'
-            + '</tr>';
-        $('#UrlsList').append(newLine);
-    }
 
     function LoaderCallback(data)
     {
@@ -671,19 +675,52 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
         }
         funcDisplay(data);
 
-        if( ! shouldMerge )
-        {
-            $('#UrlsList').empty();
-            AppendRow("Title","Nodes","Links");
+        if( ! shouldMerge ) {
+            lstLoadedUrls = [];
         }
+        var objLoadedUrlNew = {
+            m_loaded_url : theUrl.replace("&mode=json",""),
+            m_loaded_title : data.page_title,
+            m_loaded_nodes_length : data.nodes.length,
+            m_loaded_links_length : data.links.length
+            };
 
-        /*
-        TODO: Add a tag to each node, so it is possible to hide or delete nodes
-        coming from each URL.
-        */
+        lstLoadedUrls.push(objLoadedUrlNew);
 
-        AppendRow(data.page_title,data.nodes.length,data.links.length);
-    }
+        var urlMerge = "htbin/gui_create_svg_from_several_rdfs.py";
+        var cgiDelim = "?url=";
+
+        var urlsHtml = "<table>";
+        urlsHtml += "<tr>";
+        urlsHtml += "<td id='UrlsMerge'>Print layout</td>";
+        urlsHtml += "<td>Nodes</td>";
+        urlsHtml += "<td>Links</td>";
+        urlsHtml += "<td></td>";
+        urlsHtml += "</tr>";
+        for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
+        {
+            var objLoadedUrl = lstLoadedUrls[ixLoaded];
+            urlsHtml += "<tr>";
+            urlsHtml += '<td><a href="' + objLoadedUrl.m_loaded_url + '">' + objLoadedUrl.m_loaded_title + '</a></td>';
+            urlsHtml += "<td>" + objLoadedUrl.m_loaded_nodes_length + "</td>";
+            urlsHtml += "<td>" + objLoadedUrl.m_loaded_links_length + "</td>";
+            urlsHtml += '<td><a href="#" onclick="PifPof()">Del</a></td>';
+            urlsHtml += "</tr>";
+
+            var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
+            urlMerge += cgiDelim + url64safe;
+            cgiDelim = "&url=";
+        }
+        urlsHtml += "<tr>";
+        urlsHtml += "<td><a href='" + urlMerge + "'>Merge</td>";
+        urlsHtml += "<td>" + previousData.nodes.length + "</td>";
+        urlsHtml += "<td>" + previousData.nodes.length + "</td>";
+        urlsHtml += "<td></td>";
+        urlsHtml += "</tr>";
+        urlsHtml += "</table>";
+
+        $(UrlsList).html(urlsHtml);
+    } // LoaderCallback
 
     console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
 
@@ -1032,10 +1069,6 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 "name": "Delete node",
                 "icon": "delete"
             },
-            /*
-            Delete connected to ?? Et from ??
-            Ou alors on delete par type d'aretes ?
-            */
             "delete_connected": {
                 "name": "Delete connected nodes",
                 "icon": "delete"
@@ -1160,8 +1193,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
             });
         } // AddsDefaultCtxtMenu
 
-        // This returns the top-level options.
-        // var urlTopLevel = "htbin/entity.py?mode=menu";
+        // This returns the top-level options as a JSON tree.
         var urlTopLevel = "htbin/entity_dirmenu_only.py?mode=menu";
 
         d3.json(urlTopLevel, AddsDefaultCtxtMenu);
@@ -1194,6 +1226,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
             this.__data__.dfd = jQuery.Deferred();
 
+            // This loads the menu options as a JSON tree.
             d3.json(urlEntity, GetEntityUrl);
         }
     });
@@ -1325,9 +1358,6 @@ Also, you don't have to use an SVG. You can use D3 to manipulate say, the absolu
 Test D3
 <a href="xxxx_merge.py">Printable view (Static SVG)</a><br/>
 
-
-
-<a href="#" onClick="">Test Merge</a>
 <!-- We could put these data in a special pop-up, or a drop-down list.
 - Add a summary at the end.
 - Add a tick box for each line, to hide or delete.

@@ -47,7 +47,7 @@ def Main():
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("This works only on Windows platforms")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# Starts a second session
 	cdb_fil = lib_common.TmpFile("CdbCommand","cdb")

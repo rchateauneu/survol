@@ -20,7 +20,7 @@ def Main():
 	oraSchema = cgiEnv.m_entity_id_dict["Schema"]
 	oraDatabase = cgiEnv.m_entity_id_dict["Db"]
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	node_oraView = oracle_view.MakeUri( oraDatabase, oraSchema, oraView )
 

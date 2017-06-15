@@ -37,7 +37,7 @@ def Main():
 	# cl = Client('localhost:12345', 'guest', 'guest')
 	cl = Client(configNam, creds[0], creds[1])
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
 	grph.add( ( nodeManager, lib_common.MakeProp("virtual host node"), nodVHost ) )

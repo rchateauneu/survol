@@ -35,7 +35,7 @@ def Main():
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("LDD on Linux platform only")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# fileSharedLib = "/usr/lib/libxmlrpc++.so"
 	# This can be srun from the command line like this:

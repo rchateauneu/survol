@@ -81,7 +81,7 @@ def Main():
 	if str(wbemNamespace) == "":
 		lib_common.ErrorMessageHtml("namespace should not be empty. entity_namespace_type="+entity_namespace_type)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	connWbem = lib_wbem.WbemConnection(cimomUrl)
 

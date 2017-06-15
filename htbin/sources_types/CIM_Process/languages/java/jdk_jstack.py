@@ -18,7 +18,7 @@ def Main():
     cgiEnv = lib_common.CgiEnv()
     pidInt = int( cgiEnv.GetId() )
 
-    grph = rdflib.Graph()
+    grph = cgiEnv.GetGraph()
 
     node_process = lib_common.gUriGen.PidUri(pidInt)
     proc_obj = psutil.Process(pidInt)

@@ -18,7 +18,7 @@ def Main():
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("/etc/group for Linux only")
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	for lin_gr in open("/etc/group"):
 		split_gr = lin_gr.split(':')

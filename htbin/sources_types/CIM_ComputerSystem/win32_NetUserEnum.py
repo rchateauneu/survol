@@ -25,7 +25,7 @@ def Main():
 
 	nodeHost = lib_common.gUriGen.HostnameUri(hostname)
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	# hostname = "Titi" for example
 	lib_win32.WNetAddConnect(hostname)

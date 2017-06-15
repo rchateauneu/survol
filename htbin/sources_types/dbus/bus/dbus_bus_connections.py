@@ -19,7 +19,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv()
 	busAddr = cgiEnv.GetId()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	try:
 		theBus = lib_dbus.MakeBusFromAddress( busAddr )

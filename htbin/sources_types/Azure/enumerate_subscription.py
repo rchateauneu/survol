@@ -21,7 +21,7 @@ Usable = lib_util.UsableWindows
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	grph = rdflib.Graph()
+	grph = cgiEnv.GetGraph()
 
 	rootNode = lib_common.nodeMachine
 	subscriptions = lib_credentials.GetCredentialsNames( "Azure" )
