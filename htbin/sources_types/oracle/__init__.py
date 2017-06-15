@@ -20,7 +20,8 @@ def Graphic_is_rounded():
 	return True
 
 
-
+# TODO: Passer d'une table aux processes ou sessions Oracle qui accedent a cette table.
+# Idem pour les autres objets Oracle.
 
 import lib_credentials
 

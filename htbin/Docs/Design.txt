@@ -19,7 +19,12 @@ C'est pour ca qu'il faut pouvoir utiliser les scripts en ligne de commande.
 ============================================================================================================
 Quand il y a de longues listes d'objets, on peut les rassembler par ordre alphabetique mais aussi les
 classifier avec les distance de Levenshtein pour faire des gros clusters.
-Ou bien detecterun prefix identique.
+Ou bien detecter un prefix identique.
+L idee est d amener de l'intelligence empirique:
+- Reperer les chaines identiques aux chiffres pres (On parse en virant les chiffres).
+- Les fichiers identiques a l'extension pres.
+- Reperer les time-stamp dans les noms de fichiers.
+- Les fichiers avec l'extension .pid.
 ============================================================================================================
 Protocole permettant de debugger des processes a distance.
 RDF: Microsoft Visual Studio Remote Debugging Monitor
@@ -28,7 +33,6 @@ Faire la meme chose  avec gdb qui je crois permet la meme chose.
 
 Voir aussi comment appeler des fonctions de l’API, en Python.
 
-============================================================================================================
 ============================================================================================================
 
 http://www.w3.org/TR/rdf-mt/
@@ -611,3 +615,74 @@ Aussi: C'est lie a l'affichage , dans les listes de fichiers, de petites infos, 
 Sous Windows, lister les applications, comme dans le Task Manager (A nouveau, quelle dommage qu'on
 n'ait pas d'icones avec Graphviz)
 ============================================================================================================
+Il faut creer un rect pour la table, comme ca, d3.force fera le placement.
+Implicitement, une arete qui se dirige vers cette matrice va vers chacun des <tr>.
+On va commencer par ca, ca resoud la plupart des cas.
+Mais en plus, des <tr> ayant des aretes qui se dirigent vers d'autres nodes
+vont eux aussi recevoir un rect. Toutefois:
+* Ces rect aurant toujours la meme position relativement a la table: "fixed=True".
+* Il y a a moyen, je crois, de donner le point d'attache sur le rect ou ces aretes se connectent:
+Il faudrait permettre seulement les cotes gauche ou droite.
+
+D'abord, mettre une table
+
+http://bl.ocks.org/AMDS/4a61497182b8fcb05906
+
+Le sort ne fonctionne pas mais on peut au moins commencer avec ca.
+
+
+D'apres cet autre site, on voit bien que c est une fonctionnalite de D3:
+http://bl.ocks.org/biovisualize/1226718
+
+============================================================================================================
+
+"A responsive table will display a horizontal scroll bar if the screen is too small to display the full content. Resize the browser window to see the effect. To create a responsive table, add a container element (like div) with overflow-x:auto around the table element:"
+https://www.w3schools.com/css/tryit.asp?filename=trycss_table_responsive
+
+============================================================================================================
+
+
+Exemple de JQuery pour alleger le style (Mais d3.json fait ca aussi bien):
+
+    $.getJSON("../api/GridType/GetGridTypes", function (objectJson) {}; );
+
+http://api.jquery.com/jQuery.post/
+
+// Assign handlers immediately after making the request,
+// and remember the jqxhr object for this request
+var jqxhr = $.post( "example.php", function() {
+  alert( "success" );
+})
+  .done(function() {
+    alert( "second success" );
+  })
+  .fail(function() {
+    alert( "error" );
+  })
+  .always(function() {
+    alert( "finished" );
+  });
+============================================================================================================
+
+https://stackoverflow.com/questions/10363526/pycharm-running-wayyyy-slow
+Memory upgrade ?
+
+============================================================================================================
+IIS Express et WSGI ??
+============================================================================================================
+Options:
+* Blink connected nodes.
+* Delete nodes par types d'aretes.
+* Delete nodes venant d'un URL.
+============================================================================================================
+Installation sur OVH:
+Python 2.7
+Modules manquants:
+psutil   : Tant pis.
+six      : Peu utilise, heureusement.
+rdflib   : On cree un module de meme nom ou bien on renomme.
+           De toute facon, on sait qu'on est compatible, alors on peut aussi bien
+           renommer et travailler sur une liste de triplets.
+isodate  : Jamais utilise directement, uniquement a travers rdflib.
+
+De4mander a leur forum.
