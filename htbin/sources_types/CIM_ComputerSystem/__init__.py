@@ -65,7 +65,27 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
 				nodePortalWmi = lib_util.UrlPortalWmi(entity_host)
 				grph.add( ( wmiNode, pc.property_rdf_data_nolist2, nodePortalWmi ) )
 
+# g = geocoder.ip('216.58.206.37')
+# g.json
+# {'status': 'OK', 'city': u'Mountain View', 'ok': True, 'encoding': 'utf-8', 'ip': u'216.58.206.37',
+# 'hostname': u'lhr35s10-in-f5.1e100.net', 'provider': 'ipinfo', 'state': u'California', 'location': '216.58.206.37',
+#  'status_code': 200, 'country': u'US', 'lat': 37.4192, 'org': u'AS15169 Google Inc.', 'lng': -122.0574, 'postal': u'94043',
+#  'address': u'Mountain View, California, US'}
+#
+# g = geocoder.ip('192.168.1.22')
+# g.json
+# {'status': 'ERROR - No results found', 'status_code': 200, 'encoding': 'utf-8', 'ip': u'192.168.1.22',
+#  'location': '192.168.1.22', 'provider': 'ipinfo', 'ok': False}
+def AddGeocoder(grph,node,ipv4):
+	try:
+		import geocoder
+	except ImportError:
+		return
 
+	geoc = geocoder.ip(ipv4)
+	for jsonKey,jsonVal in geoc.json.iteritems():
+		# Conversion to str otherwise numbers are displayed as "float".
+	    grph.add( ( node, lib_common.MakeProp(jsonKey), rdflib.Literal(str(jsonVal)) ) )
 
 
 # The URL is hard-coded but very important because it allows to visit another host with WMI access.
@@ -81,3 +101,5 @@ def AddInfo(grph,node,entity_ids_arr):
 	# No need to do that, because it is done in entity.py if mode!=json.
     # nameSpace = ""
     # AddWbemWmiServers(grph,node,theHostname, nameSpace, "CIM_ComputerSystem", "Name="+theHostname)
+
+    AddGeocoder(grph,node,ipv4)
