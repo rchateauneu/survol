@@ -77,6 +77,9 @@
     }
     : function (u) { return btoa(utob(u)) }
     ;
+
+    /* Beware the the padding should be added because b64 strings length
+    should be a multiple of 4. If needed, pad the string with '=' chars. */
     var encode = function(u, urisafe) {
         return !urisafe
             ? _encode(String(u))
