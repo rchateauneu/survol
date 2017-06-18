@@ -326,6 +326,7 @@ def ParseXid(xid ):
 	#		"xid=http://192.168.1.88:5988/."
 	mtch_ent_wbem = re.match( "(https?://[^/]*)/([^.]*)(\..*)?", xid )
 	if mtch_ent_wbem:
+		#sys.stderr.write("mtch_ent_wbem\n")
 		grp = mtch_ent_wbem.groups()
 		( entity_host, entity_type, entity_id_quoted ) = grp
 		# TODO: SAME LOGIC FOR THE TWO OTHER CASES !!!!!!!!!!!!!!
@@ -774,16 +775,22 @@ def Base64Encode(text):
 		return base64.urlsafe_b64encode(text)
 
 def Base64Decode(text):
-   try:
-      if sys.version_info >= (3,):
-         resu = base64.urlsafe_b64decode(text.encode('utf-8')).decode('utf-8')
-      else:
-         resu = base64.urlsafe_b64decode(str(text))
-      return resu
-   except Exception:
-      exc = sys.exc_info()[1]
-      sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(text,str(exc)))
-      return text + ":" + str(exc)
+	# The padding might be missing which is not a problem:
+	# https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
+	missing_padding = len(text) % 4
+	if missing_padding != 0:
+		text += b'='* (4 - missing_padding)
+
+	try:
+		if sys.version_info >= (3,):
+			resu = base64.urlsafe_b64decode(text.encode('utf-8')).decode('utf-8')
+		else:
+			resu = base64.urlsafe_b64decode(str(text))
+		return resu
+	except Exception:
+		exc = sys.exc_info()[1]
+		sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(text,str(exc)))
+		return text + ":" + str(exc)
 
 ################################################################################
 

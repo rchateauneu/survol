@@ -13,13 +13,11 @@ except ImportError:
     import json
 
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
-# Consider using module "six".
+# Consider using module "six", which is unfortunately not in the OVH standard package.
 try:
 	from urllib import unquote
-	from urlparse import urlparse
 except ImportError:
 	from urllib.parse import unquote
-	from urllib.parse import urlparse
 
 # import threading
 import signal
@@ -896,6 +894,54 @@ def GetCallingModuleDoc():
 		sys.stderr.write("Caught when setting title:%s\n"%str(exc))
 		return str(exc)
 
+################################################################################
+
+globalMergeMode = False
+globalCgiEnvList = []
+globalGraph = None
+
+# There is only one cgiEnv and "cgiEnv.OutCgiRdf()" does not generate anything.
+# It is related to WSGI in the extent that global variables should not harm things.
+def CgiEnvMergeMode():
+	global globalMergeMode
+	global globalCgiEnvList
+	global globalGraph
+
+	globalMergeMode = True
+	globalCgiEnvList = []
+	globalGraph = rdflib.Graph()
+
+# OutCgiRdf has been called by each script without writing anything,
+# but the specific parameters per script are stored inside.
+def MergeOutCgiRdf(theMode):
+	global globalMergeMode
+	global globalCgiEnvList
+	global globalGraph
+
+	page_title = ""
+	layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
+	parameters = {}
+	for theCgiEnv in globalCgiEnvList:
+		if page_title:
+			page_title += ","
+		page_title += theCgiEnv.m_page_title
+
+		layoutParams['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
+		layoutParams['collapsed_properties'].extend( theCgiEnv.m_layoutParams['collapsed_properties'] )
+
+		# The dictionaries are merged.
+		parameters.update(theCgiEnv.m_parameters)
+
+	# Eliminate duplicates.
+	layoutParams['collapsed_properties'] = list(set(layoutParams['collapsed_properties']))
+
+	topUrl = lib_util.TopUrl( "", "" )
+
+	# We pass an array of urls instead of a string.
+	OutCgiMode( globalGraph, topUrl, theMode, page_title, layoutParams, parameters )
+
+	return
+
 # This parses the CGI environment variables which define an entity.
 class CgiEnv():
 	def __init__(self, parameters = {}, can_process_remote = False ):
@@ -913,6 +959,7 @@ class CgiEnv():
 		mode = GuessDisplayMode()
 
 		# Contains the optional arguments, needed by calling scripts.
+		global globalCgiEnvParameters
 		self.m_parameters = parameters
 
 		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
@@ -982,8 +1029,12 @@ class CgiEnv():
 		ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % ( sys.argv[0], self.m_entity_host ) )
 
 	def GetGraph(self):
-		self.m_graph = rdflib.Graph()
-		# When in merge mode, the same object must be always returned.
+		global globalMergeMode
+		if globalMergeMode:
+			# When in merge mode, the same object must be always returned.
+			self.m_graph = globalGraph
+		else:
+			self.m_graph = rdflib.Graph()
 		return self.m_graph
 
 	# We avoid several CGI arguments because Dot/Graphviz wants no ampersand "&" in the URLs.
@@ -995,6 +1046,7 @@ class CgiEnv():
 			# See function EditionMode
 			try:
 				return ( "", "", "" )
+				# TODO: Not finished, useless or debugging purpose ?
 				entity_type = self.m_arguments["edimodtype"].value
 				monikDelim = ""
 				entity_id = ""
@@ -1025,6 +1077,7 @@ class CgiEnv():
 	# A terme, on met dans un autre fichier toutes les interactions HTML,
 	# car ca n'appelle pas grand chose d'autre, et est susceptible de grossir.
 	# Ca sera lib_html.
+	# This will never happen in merge mode.
 	def EditionMode(self):
 		# Maybe we could have that with cgi.
 		formAction = os.environ['SCRIPT_NAME']
@@ -1213,8 +1266,9 @@ class CgiEnv():
 	# When in merge mode, these parameters must be aggregated, and used only during
 	# the unique generation of graphic data.
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
+		global globalCgiEnvList
 
-		layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
+		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
 		mode = GuessDisplayMode()
 
@@ -1223,7 +1277,11 @@ class CgiEnv():
 		if self.m_page_title is None:
 			self.m_page_title = "PAGE TITLE SHOULD BE SET"
 
-		OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, layoutParams, parameters = self.m_parameters )
+		if globalMergeMode:
+			# At the end, only one call to OutCgiMode() will be made.
+			globalCgiEnvList.append(self)
+		else:
+			OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
 
 ################################################################################
 

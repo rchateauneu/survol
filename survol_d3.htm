@@ -687,7 +687,7 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 
         lstLoadedUrls.push(objLoadedUrlNew);
 
-        var urlMerge = "htbin/gui_create_svg_from_several_rdfs.py";
+        var urlMerge = "htbin/merge_scripts.py";
         var cgiDelim = "?url=";
 
         var urlsHtml = "<table>";
@@ -700,6 +700,8 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
         for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
         {
             var objLoadedUrl = lstLoadedUrls[ixLoaded];
+            var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
+
             urlsHtml += "<tr>";
             urlsHtml += '<td><a href="' + objLoadedUrl.m_loaded_url + '">' + objLoadedUrl.m_loaded_title + '</a></td>';
             urlsHtml += "<td>" + objLoadedUrl.m_loaded_nodes_length + "</td>";
