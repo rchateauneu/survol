@@ -12,7 +12,7 @@ import json
 def EntityOntology():
 	return ( ["Name"], )
 
-def EntityName_CIM_DataFile(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr,entity_host):
 	entity_id = entity_ids_arr[0]
 	# A file name can be very long, so it is truncated.
 	file_basename = os.path.basename(entity_id)
