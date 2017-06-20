@@ -344,14 +344,16 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		return newSubjNam
 
 	# This is sorted so the result is deterministic. Very small performance impact.
-	for subj, prop, obj in sorted(grph):
-	# for subj, prop, obj in grph:
+	sortedGrph = sorted(grph)
 
-		subjNam = RdfNodeToDotLabel(subj)
+	# TODO: Loop only on the right properties.
+	for subj, prop, obj in sortedGrph:
 
 		# Objects linked with these properties, are listed in a table, instead of distinct nodes in a graph.
 		if prop in CollapsedProperties:
 			# TODO: We lose the property, unfortunately. Should make a map: subject => prop => object ?
+			subjNam = RdfNodeToDotLabel(subj)
+
 			propNam = lib_exports.PropToShortPropNam(prop)
 			dictPropsCollapsedSubjectsToObjectLists[ propNam ][ subj ].append( obj )
 
@@ -361,13 +363,50 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# CollapsedProperties can contain only properties which define a tree,
 			# as visibly the "object" nodes can have one ancestor only.
 			try:
+				# TODO: We should check if a node appears in two tables,
+				# associated to two properties and/or two parent node.
 				dictCollapsedObjectLabelsToSubjectLabels[ objNam ][ propNam ] = subjNam
 			except KeyError:
 				dictCollapsedObjectLabelsToSubjectLabels[ objNam ] = dict()
 				dictCollapsedObjectLabelsToSubjectLabels[ objNam ][ propNam ] = subjNam
 
+	# For getting the node of an object, as it might be in a table.
+	def RdfNodeToDotLabelExtended(obj,prop):
+		objNam = RdfNodeToDotLabel(obj)
+
+		try:
+			dictOfProps = dictCollapsedObjectLabelsToSubjectLabels[ objNam ]
+		except KeyError:
+			# sys.stderr.write("RdfNodeToDotLabelExtended propNam=%s objNam=%s\n"%(propNam,objNam) )
+			return objNam
+
+		# Let's hope there is only one collapsed property for this node. Otherwise, it means
+		# that this node would be displayed in two different tables. It happened...
+		if not prop is None:
+			propNam = lib_exports.PropToShortPropNam(prop)
+			try:
+				# Maybe this property is not collapsed.
+				subjNam = dictOfProps[propNam]
+			except KeyError:
+				prop = None
+
+		# Maybe the property is not known, if the node is the subject.
+		# Or the property is not collapsed.
+		if prop is None:
+			propNam = dictOfProps.keys()[0]
+			# First property available.
+			subjNam = dictOfProps[propNam]
+
+		newObjNam = CollapsedLabel( propNam, subjNam ) + ":" + objNam
+		return newObjNam
+
+	# Now we know that we have seen all nodes in a collapsed property.
+	for subj, prop, obj in sortedGrph:
+		if prop in CollapsedProperties:
 			continue
 
+		# Maybe the subject node belongs to a table, but the property is not known.
+		subjNam = RdfNodeToDotLabelExtended(subj,None)
 		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
 
 			prp_col = lib_properties.prop_color(prop)
@@ -379,7 +418,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# TODO: Mais la c est different car on fusionne deux aretes ....
 			# ON PEUT DEFINIR L ENSEMBLE DES PROPRIETES QUI SONT FUSIONNEES QUAND A->B et B->A.
 			if prop == pc.property_socket_end:
-				objNam = RdfNodeToDotLabel(obj)
+
+				# BEWARE, MAYBE THIS IS A PORT INTO A TABLE. SO IT HAS TO BE PREFIXED BY THE RECORD NAME.
+				objNam = RdfNodeToDotLabelExtended(obj,prop)
 				if ( obj, prop, subj ) in grph :
 					if subjNam < objNam:
 						stream.write(pattEdgeBiDir % (subjNam, objNam, prp_col, qname(prop, grph)))
@@ -393,7 +434,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# TODO: CGIPROP: Peut-on avoir plusieurs html ou sub-rdf ?? Il faut !
 				fieldsSet[subj].append( ( prop, obj ) )
 			else:
-				objNam = RdfNodeToDotLabel(obj)
+				objNam = RdfNodeToDotLabelExtended(obj,prop)
 				# C est la que si subjNam est dans une liste de dictCollapsedSubjectsToObjectLists,
 				# il faut rajouter devant, le nom du record, c est a dire SON subjNam + "_table_rdf_data:".
 				try:
@@ -924,6 +965,7 @@ def MergeOutCgiRdf(theMode):
 	for theCgiEnv in globalCgiEnvList:
 		if page_title:
 			page_title += ","
+		# TODO: Strip the line.
 		page_title += theCgiEnv.m_page_title
 
 		layoutParams['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
@@ -1365,7 +1407,7 @@ class TmpFile:
 		try:
 			if self.Name:
 				sys.stderr.write("NOT Deleting="+self.Name+"\n")
-				os.remove(self.Name)
+				### os.remove(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
 				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
