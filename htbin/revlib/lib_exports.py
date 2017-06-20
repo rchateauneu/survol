@@ -223,6 +223,7 @@ class NodeJson:
 		self.m_index = NodeJsonNumber
 		NodeJsonNumber += 1 # One more node.
 
+# Transforms a RDF property name into a pure alphanum string usable as a DOT label.
 def PropToShortPropNam(collapsProp):
 	shortNam = collapsProp.split("/")[-1]
 	# "sun.boot.class.path"
@@ -555,6 +556,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	stream.write("node [shape=plaintext]")
 
 	# The first line is a title, the rest, more explanations.
+	# The first line also must be wrapped if it is too long.
 	page_title = page_title.strip()
 	page_title_split = page_title.split("\n")
 	page_title_first = page_title_split[0]
