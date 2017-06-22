@@ -11,6 +11,8 @@ import re
 import json
 import six
 
+from six.moves.html_parser import HTMLParser
+
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
 def AntiPredicateUri(uri):
 	return uri[ len(lib_properties.primns_slash) : ]
@@ -291,11 +293,16 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		nod_id = nodObj.m_index
 		obj_link = nod
 		# sys.stderr.write("nod_titl=%s obj_link=%s\n"%(nod_titl,obj_link))
-		# type is only for the color.
+		# The URL must not contain any HTML entities when in a XML or SVG document,
+		# and therefore must be escaped. Therefore they have to be unescaped when transmitted in JSON.
+		# This is especially needed for RabbitMQ because the parameter defining its connection name
+		# has the form: "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
 		nodes[nod_id] = {
-			'name'             : nod_titl,
-			"type"             : 3,
-			'survol_url'       : obj_link,
+			'name'             : HTMLParser().unescape(nod_titl), ## MUST UNESCAPE HTML ENTITIES !
+			"type"             : 3, # This is temporary, for coloring and will be removed.
+			# Theoretically, this URL should be HTML unescaped then CGI escaped.
+			# 'survol_url'       : obj_link,
+			'survol_url'       : HTMLParser().unescape(obj_link),
 			'fill'             : nodObj.m_color,
 			'entity_class'     : nodObj.m_class,
 			'survol_info_list' : nodObj.m_info_list,

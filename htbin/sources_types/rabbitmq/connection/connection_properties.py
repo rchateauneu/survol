@@ -35,8 +35,9 @@ def Main():
 
 	sys.stderr.write("namConnection=%s\n"%(namConnection))
 
-	namConnectionDisplay = namConnection.replace(">","&gt;")
-	nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnectionDisplay)
+	#namConnectionDisplay = namConnection.replace(">","&gt;")
+	#nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnectionDisplay)
+	nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnection)
 
 	grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodConnection ) )
 

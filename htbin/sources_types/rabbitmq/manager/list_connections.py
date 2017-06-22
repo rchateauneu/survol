@@ -57,10 +57,11 @@ def Main():
 
 		sys.stderr.write("namConnect=%s\n"%(namConnect))
 
-		namConnectDisplay = namConnect.replace(">","&gt;")
+		#namConnectDisplay = namConnect.replace(">","&gt;")
 
-		namConnectCgi = namConnect.replace("_","+").replace(">","&gt;")
-		nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnectDisplay)
+		# namConnectCgi = namConnect.replace("_","+").replace(">","&gt;")
+		#nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnectDisplay)
+		nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnect)
 
 		try:
 			grph.add( ( nodeConnect, lib_common.MakeProp("Protocol"), rdflib.Literal(objConnect["protocol"]) ) )
@@ -80,7 +81,8 @@ def Main():
 
 		# '127.0.0.1:51532 -> 127.0.0.1:5672'
 		# http://localhost:12345/#/connections/127.0.0.1%3A51532%20-%3E%20127.0.0.1%3A5672
-		namConnectCgi = namConnectDisplay
+		# namConnectCgi = namConnectDisplay
+		namConnectCgi = namConnect.replace(">","&gt;")
 		sys.stderr.write("namConnectCgi=%s\n"%(namConnectCgi))
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"connections",namConnectCgi)
 

@@ -14,6 +14,9 @@ def EntityOntology():
 	return ( ["Url","Connection"], )
 
 def MakeUri(urlName,connectionName):
+	# Needed because RabbitMQ connecton names are like:
+	# "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
+	connectionName = connectionName.replace(">","&gt;")
 	return lib_common.gUriGen.UriMakeFromDict("rabbitmq/connection", { "Url" : urlName, "Connection" : connectionName } )
 
 # '127.0.0.1:51532 -> 127.0.0.1:5672'
@@ -22,6 +25,7 @@ def EntityName(entity_ids_arr,entity_host):
 
 # Adds the sockets, as their address is embedded in the connection name,
 # so no need to query RabbitMQ library.
+# Example: namConnection = "127.0.0.1::51748 -> 127.0.0.1:5672"
 def AddSockets(grph,node,namConnection):
 	namConnectSplit = namConnection.split("->")
 
