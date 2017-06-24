@@ -5,7 +5,6 @@
 """
 
 import sys
-import rdflib
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -30,8 +29,8 @@ def Main():
 		comment = splitLin[4]
 		# Sometimes the comment equals the user, so nothing to mention.
 		if comment != "" and comment != userNam:
-			grph.add( ( userNode, pc.property_information, rdflib.Literal( comment ) ) )
-		grph.add( ( userNode, pc.property_information, rdflib.Literal( splitLin[6] ) ) )
+			grph.add( ( userNode, pc.property_information, lib_common.NodeLiteral( comment ) ) )
+		grph.add( ( userNode, pc.property_information, lib_common.NodeLiteral( splitLin[6] ) ) )
 
 	cgiEnv.OutCgiRdf()
 

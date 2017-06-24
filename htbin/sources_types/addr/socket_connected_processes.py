@@ -8,7 +8,6 @@ import re
 import sys
 import socket
 import psutil
-import rdflib
 import lib_common
 from sources_types import CIM_Process
 from sources_types import addr as survol_addr
@@ -105,7 +104,7 @@ def Main():
 					# PAS BON: CAR PEUT_ETRE LE PROCESS PARENT EST DANS LA LISTE DES PROCESSES QU ON AJOUTE,
 					# DONC C EST PAS CLAIR. FAUT VERIFIER LA RELATION DE PARENTE.
 					grph.add( ( node_process, pc.property_host, lib_common.nodeMachine ) )
-					grph.add( ( node_process, pc.property_pid, rdflib.Literal(pid) ) )
+					grph.add( ( node_process, pc.property_pid, lib_common.NodeLiteral(pid) ) )
 
 				# No need to be asynchronous because this is always the same socket.
 				survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)

@@ -2,7 +2,6 @@ import lib_common
 import socket
 from lib_properties import pc
 
-import rdflib
 import sys
 import lib_util
 import lib_credentials
@@ -138,7 +137,7 @@ def AddDependency( grph, row, nodeRoot, oraDatabase, direction ):
 
 def AddLiteralNotNone(grph,node,txt,data):
 	if data != None:
-		grph.add( ( node, lib_common.MakeProp(txt), rdflib.Literal(data) ) )
+		grph.add( ( node, lib_common.MakeProp(txt), lib_common.NodeLiteral(data) ) )
 
 # This returns an IP address.
 def OraMachineToIp(oraMachine):

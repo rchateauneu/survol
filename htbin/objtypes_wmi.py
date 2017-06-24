@@ -7,7 +7,6 @@ WMI object types
 import sys
 import lib_util
 import lib_common
-import rdflib
 from lib_properties import pc
 
 try:
@@ -23,7 +22,7 @@ def ClassToNode(wmiNamespace, cimomUrl, clsNam):
 		wmiNode = dictClassToNode[ clsNam ]
 	except KeyError:
 		wmiUrl = lib_wmi.ClassUrl(wmiNamespace,cimomUrl,clsNam)
-		wmiNode = rdflib.term.URIRef( wmiUrl )
+		wmiNode = lib_common.NodeUrl( wmiUrl )
 
 		dictClassToNode[ clsNam ] = wmiNode
 	return wmiNode
@@ -31,7 +30,7 @@ def ClassToNode(wmiNamespace, cimomUrl, clsNam):
 def WmiNamespaceNode( wmiNamespace, cimomUrl, clsNam ):
 	# objtypes_wmi.py
 	wmiUrl = lib_wmi.NamespaceUrl( wmiNamespace, cimomUrl, clsNam )
-	return rdflib.term.URIRef( wmiUrl )
+	return lib_common.NodeUrl( wmiUrl )
 
 doneNode = set()
 
@@ -41,10 +40,10 @@ def DrawFromThisBase(rootNode, wmiNamespace, cimomUrl,clsNam,grph,clsDeriv):
 
 	# The class is the starting point when displaying the class tree of the namespace.
 	wmiNodeSub = WmiNamespaceNode(wmiNamespace, cimomUrl,clsNam)
-	grph.add( ( wmiNode, pc.property_rdf_data_nolist1, rdflib.Literal(wmiNodeSub) ) )
+	grph.add( ( wmiNode, pc.property_rdf_data_nolist1, lib_common.NodeLiteral(wmiNodeSub) ) )
 
 	nodeGeneralisedClass = lib_util.EntityClassNode(clsNam,wmiNamespace,cimomUrl,"WMI")
-	grph.add( ( wmiNode, pc.property_rdf_data_nolist2, rdflib.Literal(nodeGeneralisedClass) ) )
+	grph.add( ( wmiNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(nodeGeneralisedClass) ) )
 
 	doneNode.add( clsNam )
 
@@ -125,10 +124,10 @@ def Main():
 	rootNode = ClassToNode(wmiNamespace, cimomUrl, entity_type)
 
 	# rootNodeNameSpace = WmiNamespaceNode(entity_type)
-	# grph.add( ( rootNode, pc.property_rdf_data_nolist2, rdflib.Literal(rootNodeNameSpace) ) )
+	# grph.add( ( rootNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(rootNodeNameSpace) ) )
 	# def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
 	rootGeneralisedClass = lib_util.EntityClassNode(entity_type,wmiNamespace,cimomUrl,"WMI")
-	grph.add( ( rootNode, pc.property_rdf_data_nolist2, rdflib.Literal(rootGeneralisedClass) ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(rootGeneralisedClass) ) )
 
 	# CA MARCHE PAS QUAND ON VIENT D ICI:
 	# http://127.0.0.1/Survol/htbin/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_LogicalDevice.

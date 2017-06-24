@@ -5,7 +5,6 @@ Windows services
 """
 
 import sys
-import rdflib
 import lib_common
 import lib_util
 from lib_common import pc

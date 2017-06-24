@@ -7,7 +7,6 @@ Files in directory
 import os
 import re
 import sys
-import rdflib
 import lib_uris
 import lib_common
 from sources_types import CIM_DataFile
@@ -53,7 +52,7 @@ def UrlDirectory( fullDirPath ):
 		shortPath = fullDirPath[ len(dirPrefix) : ]
 		shortpathclean = shortPath.replace("&","&amp;" )
 		dirUrl = "http://127.0.0.1/Maison/" + shortpathclean
-		return rdflib.term.URIRef(dirUrl)
+		return lib_common.NodeUrl(dirUrl)
 	return None
 
 
@@ -95,7 +94,7 @@ def Main():
 			grph.add( ( topdirNode, pc.property_directory, filNode ) )
 
 			url_mime = UriDirectoryDirectScript( topdir )
-			grph.add( ( topdirNode, pc.property_rdf_data_nolist2, rdflib.term.URIRef(url_mime) ) )
+			grph.add( ( topdirNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime) ) )
 
 	if os.path.isdir( filNam ):
 		# sys.stderr.write("filNam=%s\n"%(filNam))
@@ -119,7 +118,7 @@ def Main():
 				grph.add( ( subdirNode, pc.property_rdf_data_nolist1, url_dir_node ) )
 
 			url_mime = UriDirectoryDirectScript(fullDirPath)
-			grph.add( ( subdirNode, pc.property_rdf_data_nolist2, rdflib.term.URIRef(url_mime) ) )
+			grph.add( ( subdirNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime) ) )
 
 			# On peut ajouter des liens en rdf_data mais leur nom est normalement une "info".
 			# Donc en affichage horizontal, il faut aussi virer ce sous-noeud.

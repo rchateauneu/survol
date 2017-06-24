@@ -7,7 +7,6 @@ ARP command - Asynchronous DNS lookup
 import sys
 import re
 import socket
-import rdflib
 import threading
 import time
 
@@ -37,14 +36,14 @@ class LookupThread(threading.Thread):
 		with self.grph_lock:
 			hostNode = lib_common.gUriGen.HostnameUri( hostName )
 			if hstAddr != hostName:
-				self.grph.add( ( hostNode, pc.property_information, rdflib.Literal(hstAddr) ) )
+				self.grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral(hstAddr) ) )
 			if self.linSplit[1] != "":
-				self.grph.add( ( hostNode, lib_common.MakeProp("MAC"), rdflib.Literal(self.linSplit[1]) ) )
+				self.grph.add( ( hostNode, lib_common.MakeProp("MAC"), lib_common.NodeLiteral(self.linSplit[1]) ) )
 			if self.linSplit[2] != "":
-				self.grph.add( ( hostNode, lib_common.MakeProp("ARP_type"), rdflib.Literal(self.linSplit[2]) ) )
+				self.grph.add( ( hostNode, lib_common.MakeProp("ARP_type"), lib_common.NodeLiteral(self.linSplit[2]) ) )
 			# TODO: Create network interface class.
 			if self.linSplit[3] != "":
-				self.grph.add( ( hostNode, lib_common.MakeProp("Interface"), rdflib.Literal(self.linSplit[3]) ) )
+				self.grph.add( ( hostNode, lib_common.MakeProp("Interface"), lib_common.NodeLiteral(self.linSplit[3]) ) )
 		# Some throttling, in case there are thousands of nodes.
 		# time.sleep(0.01)
 

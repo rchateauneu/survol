@@ -12,7 +12,6 @@ WMI instance
 
 import sys
 import six
-import rdflib
 import lib_common
 import lib_wmi
 import lib_util
@@ -73,24 +72,24 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className):
 		if isinstance( value, listTypes ):
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
-			grph.add( ( wmiInstanceNode, prpProp, rdflib.Literal( str(value).replace('\\','\\\\') ) ) )
+			grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( str(value).replace('\\','\\\\') ) ) )
 		elif isinstance( value, ( tuple) ):
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
 			cleanTuple = " ; ".join( [ str(oneVal).replace('\\','\\\\') for oneVal in value ] )
-			grph.add( ( wmiInstanceNode, prpProp, rdflib.Literal( cleanTuple ) ) )
+			grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( cleanTuple ) ) )
 		elif value is None:
 			if displayNoneValues:
-				grph.add( ( wmiInstanceNode, prpProp, rdflib.Literal( "None" ) ) )
+				grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( "None" ) ) )
 		else:
 			try:
 				refMoniker = str( value.path() )
 				refInstanceUrl = lib_util.EntityUrlFromMoniker( refMoniker )
-				refInstanceNode = rdflib.term.URIRef(refInstanceUrl)
+				refInstanceNode = lib_common.NodeUrl(refInstanceUrl)
 				grph.add( ( wmiInstanceNode, prpProp, refInstanceNode ) )
 			except AttributeError:
 				exc = sys.exc_info()[1]
-				grph.add( ( wmiInstanceNode, prpProp, rdflib.Literal( str(exc) ) ) )
+				grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( str(exc) ) ) )
 
 
 # Better use references() because it gives much more information.
@@ -98,7 +97,7 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className):
 #	assocMoniker = str( assoc.path() )
 #	sys.stderr.write("assocMoniker=[%s]\n" % assocMoniker )
 #	assocInstanceUrl = lib_util.EntityUrlFromMoniker( assocMoniker )
-#	assocInstanceNode = rdflib.term.URIRef(assocInstanceUrl)
+#	assocInstanceNode = lib_common.NodeUrl(assocInstanceUrl)
 #	grph.add( ( wmiInstanceNode, lib_common.MakeProp("assoc"), assocInstanceNode ) )
 
 
@@ -167,7 +166,7 @@ def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
 						# Inconsistency:\\RCHATEAU-HP\root\cimv2:Win32_LogonSession.LogonId="195361" != \\192.168.1.83\root\CIMV2:CIM_Process.Handle=7120
 						lib_common.ErrorMessageHtml("Inconsistency:"+refMoniker + " != " + cgiMoniker )
 					refInstanceUrl = lib_util.EntityUrlFromMoniker( refMoniker )
-					refInstanceNode = rdflib.term.URIRef(refInstanceUrl)
+					refInstanceNode = lib_common.NodeUrl(refInstanceUrl)
 					grph.add( ( wmiInstanceNode, lib_common.MakeProp(keyPrp), refInstanceNode ) )
 			except AttributeError:
 				# Then it is a literal attribute.
@@ -182,7 +181,7 @@ def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
 		# Now the literal properties are attached to the other node.
 		if refInstanceNode != None:
 			for keyLitt in literalKeyValue:
-				grph.add( ( refInstanceNode, lib_common.MakeProp(keyLitt), rdflib.Literal( literalKeyValue[ keyLitt ] ) ) )
+				grph.add( ( refInstanceNode, lib_common.MakeProp(keyLitt), lib_common.NodeLiteral( literalKeyValue[ keyLitt ] ) ) )
 
 def Main():
 	paramkeyDisplayNone = "Display none values"
@@ -211,7 +210,7 @@ def Main():
 		objList = WmiReadWithQuery( cgiEnv, connWmi, className )
 
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
-	wmiInstanceNode = rdflib.term.URIRef(wmiInstanceUrl)
+	wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
 
 	for objWmi in objList:
 		# sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
@@ -231,7 +230,7 @@ def Main():
 				sys.stderr.write("Exception=%s\n" % str(exc) )
 		else:
 			# Prefixc with a dot so it is displayed first.
-			grph.add( ( wmiInstanceNode, lib_common.MakeProp(".REFERENCES"), rdflib.Literal( "DISABLED" ) ) )
+			grph.add( ( wmiInstanceNode, lib_common.MakeProp(".REFERENCES"), lib_common.NodeLiteral( "DISABLED" ) ) )
 
 	# Adds the class node to the instance.
 	wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, cimomUrl, nameSpace, className, lib_common.MakeProp(className) )

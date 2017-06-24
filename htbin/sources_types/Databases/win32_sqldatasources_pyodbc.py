@@ -5,7 +5,6 @@ ODBC Data sources (pyODBC module)
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -29,7 +28,7 @@ def display_data_sources(grph):
 
 		nodeDsn = survol_odbc_dsn.MakeUri( dsn )
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
-		grph.add( (nodeDsn, pc.property_odbc_driver, rdflib.Literal(driver) ) )
+		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral(driver) ) )
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()

@@ -5,7 +5,6 @@ Tables and views in a Sqlite database
 """
 
 import lib_common
-import rdflib
 from sources_types import sqlite
 from sources_types.sqlite import file as sqlite_file
 

@@ -6,7 +6,6 @@ Installed Python packages
 
 import sys
 import socket
-import rdflib
 import psutil
 import lib_util
 import lib_common
@@ -51,7 +50,7 @@ def Main():
 		# sys.stderr.write("key=%s\n" % (pckg.key) )
 
 		packageNode = KeyToPckgNode( pckg.key )
-		grph.add( ( packageNode, package.propPythonVersion, rdflib.Literal(pckg.version) ) )
+		grph.add( ( packageNode, package.propPythonVersion, lib_common.NodeLiteral(pckg.version) ) )
 
 		reqPckg = pckg.requires()
 		if reqPckg:
@@ -62,7 +61,7 @@ def Main():
 				# [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
 				# aSpecs = subReq.specs
 				# if aSpecs:
-				#	grph.add( (subNode, lib_common.MakeProp("Condition"), rdflib.Literal( str(aSpecs) ) ) )
+				#	grph.add( (subNode, lib_common.MakeProp("Condition"), lib_common.NodeLiteral( str(aSpecs) ) ) )
 
 				grph.add( (packageNode, package.propPythonRequires, subNode ) )
 		else:

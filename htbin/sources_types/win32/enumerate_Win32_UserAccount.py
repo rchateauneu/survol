@@ -6,7 +6,6 @@ Windows users
 
 import sys
 import socket
-import rdflib
 import psutil
 import lib_common
 import lib_util

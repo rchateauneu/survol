@@ -7,7 +7,6 @@ Module dependencies
 import os
 import os.path
 import sys
-import rdflib
 import lib_util
 import lib_common
 import lib_modules
@@ -40,7 +39,7 @@ def Main():
 		# TODO: Ugly trick, otherwise nodes without connections are not displayed.
 		# TODO: I think this is a BUG in the dot file generation. Or in RDF ?...
 		if ( file_child is None ) and ( moduFilNam == module_name ) :
-			grph.add( ( file_parent, pc.property_information, rdflib.Literal("") ) )
+			grph.add( ( file_parent, pc.property_information, lib_common.NodeLiteral("") ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 

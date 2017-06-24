@@ -6,7 +6,6 @@ WMI: Remote machine processes
 
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 import lib_wmi
@@ -114,7 +113,7 @@ def Main():
 		parent_node_process = PidToNode(processProperties.ParentProcessId)
 
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
-		#grph.add( ( node_process, pc.property_pid, rdflib.Literal(processProperties.ProcessId) ) )
+		#grph.add( ( node_process, pc.property_pid, lib_common.NodeLiteral(processProperties.ProcessId) ) )
 
 		# Si on laisse faire le code, ca va afficher:
 		# No such process:1292 at Titi
@@ -137,14 +136,14 @@ def Main():
 		# dowsVersion = "6.3.9600";\n\tWorkingSetSize = "4096";\n\tWriteOperationCount = "0";\n\tWriteTransferCount = "0";\n};\n'
 
 
-		grph.add( ( node_process, pc.property_information, rdflib.Literal(processProperties.Caption) ) )
+		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(processProperties.Caption) ) )
 		if processProperties.Caption != processProperties.Description:
-			grph.add( ( node_process, lib_common.MakeProp("Description"), rdflib.Literal(processProperties.Description) ) )
+			grph.add( ( node_process, lib_common.MakeProp("Description"), lib_common.NodeLiteral(processProperties.Description) ) )
 
 		# AJOUTER LE LIEN WMI ICI ET DANS LA PAGE http://127.0.0.1:8000/htbin/entity.py?xid=Titi@CIM_Process.Handle=6344
 
 		# All the rest is not needed yet, there would be too much things to display.
-		#grph.add( ( node_process, pc.property_command, rdflib.Literal(process.CommandLine) ) )
+		#grph.add( ( node_process, pc.property_command, lib_common.NodeLiteral(process.CommandLine) ) )
 		#
 		#exec_name = process.ExecutablePath
 		#if exec_name != None:

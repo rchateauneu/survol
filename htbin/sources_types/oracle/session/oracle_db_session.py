@@ -6,7 +6,6 @@ Oracle session details
 
 import sys
 import lib_oracle
-import rdflib
 import lib_common
 from lib_properties import pc
 
@@ -49,34 +48,34 @@ def Main():
 	for row in result:
 		sys.stderr.write("SID=%s\n" % row[0] )
 
-		grph.add( ( node_oraSession, lib_common.MakeProp("Status"), rdflib.Literal(row[1]) ) )
-		grph.add( ( node_oraSession, lib_common.MakeProp("Username"), rdflib.Literal(row[2]) ) )
-		grph.add( ( node_oraSession, lib_common.MakeProp("Server"), rdflib.Literal(row[3]) ) )
+		grph.add( ( node_oraSession, lib_common.MakeProp("Status"), lib_common.NodeLiteral(row[1]) ) )
+		grph.add( ( node_oraSession, lib_common.MakeProp("Username"), lib_common.NodeLiteral(row[2]) ) )
+		grph.add( ( node_oraSession, lib_common.MakeProp("Server"), lib_common.NodeLiteral(row[3]) ) )
 
-		# grph.add( ( node_oraSession, lib_common.MakeProp("Schema"), rdflib.Literal(row[4]) ) )
+		# grph.add( ( node_oraSession, lib_common.MakeProp("Schema"), lib_common.NodeLiteral(row[4]) ) )
 		nodeSchema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, str(row[4]) )
 		grph.add( ( node_oraSession, pc.property_oracle_schema, nodeSchema ) )
 
-		grph.add( ( node_oraSession, lib_common.MakeProp("Command"), rdflib.Literal(row[5]) ) )
+		grph.add( ( node_oraSession, lib_common.MakeProp("Command"), lib_common.NodeLiteral(row[5]) ) )
 
 		# This returns an IP address from "WORKGROUP\RCHATEAU-HP"
 		user_machine = lib_oracle.OraMachineToIp(row[6])
 		nodeMachine = lib_common.gUriGen.HostnameUri(user_machine)
-		grph.add( ( nodeMachine, pc.property_information, rdflib.Literal(row[6]) ) )
+		grph.add( ( nodeMachine, pc.property_information, lib_common.NodeLiteral(row[6]) ) )
 
-		grph.add( ( node_oraSession, lib_common.MakeProp("Port"), rdflib.Literal(row[7]) ) )
-		grph.add( ( node_oraSession, lib_common.MakeProp("OsUser"), rdflib.Literal(row[8]) ) )
-		# grph.add( ( node_oraSession, lib_common.MakeProp("Process"), rdflib.Literal(row[9]) ) )
+		grph.add( ( node_oraSession, lib_common.MakeProp("Port"), lib_common.NodeLiteral(row[7]) ) )
+		grph.add( ( node_oraSession, lib_common.MakeProp("OsUser"), lib_common.NodeLiteral(row[8]) ) )
+		# grph.add( ( node_oraSession, lib_common.MakeProp("Process"), lib_common.NodeLiteral(row[9]) ) )
 		sessPidTid = row[9] # 7120:4784
 		sessPid = sessPidTid.split(":")[0]
 		node_process = lib_common.RemoteBox(user_machine).PidUri( sessPid )
-		grph.add( ( node_process, lib_common.MakeProp("Pid"), rdflib.Literal(sessPid) ) )
+		grph.add( ( node_process, lib_common.MakeProp("Pid"), lib_common.NodeLiteral(sessPid) ) )
 		grph.add( ( node_oraSession, pc.property_oracle_session, node_process ) )
 
 		grph.add( ( node_oraSession, lib_common.MakeProp("Hostname"), nodeMachine ) )
 
-		grph.add( ( node_oraSession, lib_common.MakeProp("ServiceName"), rdflib.Literal(row[10]) ) )
-		grph.add( ( node_oraSession, lib_common.MakeProp("Action"), rdflib.Literal(row[11]) ) )
+		grph.add( ( node_oraSession, lib_common.MakeProp("ServiceName"), lib_common.NodeLiteral(row[10]) ) )
+		grph.add( ( node_oraSession, lib_common.MakeProp("Action"), lib_common.NodeLiteral(row[11]) ) )
 
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT")

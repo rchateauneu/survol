@@ -54,7 +54,7 @@ def AddFunctionCall( grph, callNodePrev, procNode, callName, fileName, codeLocat
 		# This adds an address or a line number.
 		# TODO: This should make the node unique, therefore a new class should be created.
 		if codeLocation:
-			grph.add( ( callNodeNew, lib_common.MakeProp("Code location"), rdflib.Literal(codeLocation) ) )
+			grph.add( ( callNodeNew, lib_common.MakeProp("Code location"), lib_common.NodeLiteral(codeLocation) ) )
 
 		return callNodeNew
 	else:

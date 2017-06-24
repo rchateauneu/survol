@@ -2,7 +2,6 @@
 RabbitMQ user
 """
 
-import rdflib
 import lib_common
 from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 

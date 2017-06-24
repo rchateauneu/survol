@@ -7,7 +7,6 @@ Generalised class: Displays data sources for a class
 import os
 import six
 import sys
-import rdflib
 import lib_util
 import lib_common
 try:
@@ -40,13 +39,13 @@ def WbemAddBaseClass(grph,connWbem,wbemNode,entity_host, wbemNamespace, entity_t
 	wbemSuperUrl = wbemSuperUrlsList[0][0]
 	sys.stderr.write("WBEM wbemSuperUrl=%s\n" % wbemSuperUrl)
 
-	wbemSuperNode = rdflib.term.URIRef(wbemSuperUrl)
+	wbemSuperNode = lib_common.NodeUrl(wbemSuperUrl)
 
 	grph.add( ( wbemSuperNode, pc.property_cim_subclass, wbemNode ) )
 	klaDescrip = lib_wbem.WbemClassDescription(connWbem,superKlassName,wbemNamespace)
 	if not klaDescrip:
 		klaDescrip = "Undefined class %s %s" % ( wbemNamespace, superKlassName )
-	grph.add( ( wbemSuperNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
+	grph.add( ( wbemSuperNode, pc.property_information, lib_common.NodeLiteral(klaDescrip ) ) )
 
 	return ( wbemSuperNode, superKlassName )
 
@@ -65,7 +64,7 @@ def CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	wbemNamespace = nameSpace.replace("\\","/")
 	wbem_servers_desc_list = lib_wbem.GetWbemUrls( entity_host, wbemNamespace, className, entity_id )
 	for url_server in wbem_servers_desc_list:
-		wbemNode = rdflib.term.URIRef(url_server[0])
+		wbemNode = lib_common.NodeUrl(url_server[0])
 		grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
 
 		# Le naming est idiot: "rchateau-HP at localhost"
@@ -73,7 +72,7 @@ def CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 		grph.add( ( wbemNode, pc.property_host, wbemHostNode ) )
 
 		# TODO: Add a Yawn server ??
-		grph.add( ( wbemNode, pc.property_wbem_server, rdflib.Literal( url_server[1] ) ) )
+		grph.add( ( wbemNode, pc.property_wbem_server, lib_common.NodeLiteral( url_server[1] ) ) )
 
 		# Now adds the description of the class.
 		connWbem = lib_wbem.WbemConnection(entity_host)
@@ -82,7 +81,7 @@ def CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 		if not klaDescrip:
 			okWbemClass = False
 			klaDescrip = "Undefined class %s %s" % ( wbemNamespace, className )
-		grph.add( ( wbemNode, pc.property_information, rdflib.Literal(klaDescrip) ) )
+		grph.add( ( wbemNode, pc.property_information, lib_common.NodeLiteral(klaDescrip) ) )
 
 		# Maybe this class is not Known in WBEM.
 		try:
@@ -92,7 +91,7 @@ def CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 
 		if okWbemClass and wbemOk and nameSpace != "" and entity_host != "":
 			namespaceUrl = lib_wbem.NamespaceUrl(nameSpace,entity_host,className)
-			namespaceNode = rdflib.term.URIRef( namespaceUrl )
+			namespaceNode = lib_common.NodeUrl( namespaceUrl )
 			grph.add( ( wbemNode, pc.property_information, namespaceNode ) )
 
 	# TODO: This is a bit absurd because we return just one list.
@@ -107,7 +106,7 @@ def CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	# There might be "http:" or the port number around the host.
 	# hostOnly = lib_util.EntHostToIp(entity_host)
 	# sys.stderr.write("entity_host=%s nameSpace=%s entity_type=%s className=%s wmiurl=%s\n" % ( entity_host, nameSpace, entity_type, className, str(wmiurl) ) )
-	wmiNode = rdflib.term.URIRef(wmiurl)
+	wmiNode = lib_common.NodeUrl(wmiurl)
 	grph.add( ( rootNode, pc.property_wmi_data, wmiNode ) )
 
 	# TODO: Shame, we just did it in GetWmiUrl.
@@ -123,11 +122,11 @@ def CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 		pairNameNode = None
 		# TODO: If the class is not defined, maybe do not display it.
 		exc = sys.exc_info()[1]
-		grph.add( ( wmiNode, lib_common.MakeProp("WMI Error"), rdflib.Literal(str(exc)) ) )
+		grph.add( ( wmiNode, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(str(exc)) ) )
 
 	urlNameSpace = lib_wmi.NamespaceUrl(nameSpace,ipOnly,className)
 	# sys.stderr.write("entity_host=%s urlNameSpace=%s\n"%(entity_host,urlNameSpace))
-	grph.add( ( wmiNode, pc.property_information, rdflib.term.URIRef(urlNameSpace) ) )
+	grph.add( ( wmiNode, pc.property_information, lib_common.NodeUrl(urlNameSpace) ) )
 
 	return pairNameNode
 
@@ -188,7 +187,7 @@ def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 			# TODO: Maybe remove the beginning of the file.
 			localClassUrl = lib_util.ScriptizeCimom( fullScriptNam, className, entity_host )
 
-			localClassNode =  rdflib.term.URIRef( localClassUrl )
+			localClassNode =  lib_common.NodeUrl( localClassUrl )
 			grph.add( ( rootNode, lib_common.pc.property_directory, localClassNode ) )
 
 def Main():
@@ -213,14 +212,14 @@ def Main():
 	# TODO: Utiliser la bonne fonction !!!
 	rootNode = lib_util.RootUri()
 
-	objtypeNode = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
+	objtypeNode = lib_common.NodeUrl( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, objtypeNode ) )
 
 	# This displays the documentation of the Python module of this entity class.
 	entity_module = lib_util.GetEntityModule(className)
 	entDoc = entity_module.__doc__
 	if entDoc:
-		grph.add( ( rootNode, lib_common.pc.property_information, rdflib.Literal(entDoc) ) )
+		grph.add( ( rootNode, lib_common.pc.property_information, lib_common.NodeLiteral(entDoc) ) )
 
 	CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 

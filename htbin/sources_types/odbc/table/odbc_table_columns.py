@@ -5,7 +5,6 @@ ODBC table columns
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -79,7 +78,7 @@ def Main():
             grph.add( (nodTab, pc.property_odbc_column, nodColumn ) )
 
             for idxCol in ( 5, 11, 12, 13, 17):
-                grph.add( (nodColumn, rdflib.Literal(colList[idxCol]), rdflib.Literal(row[idxCol]) ) )
+                grph.add( (nodColumn, lib_common.NodeLiteral(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
         exc = sys.exc_info()[0]

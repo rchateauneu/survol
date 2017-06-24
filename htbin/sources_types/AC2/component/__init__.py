@@ -3,7 +3,6 @@ AC2 component
 """
 
 import os
-import rdflib
 import lib_common
 from lib_properties import pc
 from sources_types import AC2
@@ -36,7 +35,7 @@ def EntityName(entity_ids_arr,entity_host):
 def AddPropIfThere(grph,compNode,elt_component,propNamXml,propRdf):
 	attr_xml = elt_component.getAttributeNode(propNamXml)
 	if attr_xml:
-		grph.add( ( compNode, propRdf, rdflib.Literal( attr_xml.value ) ) )
+		grph.add( ( compNode, propRdf, lib_common.NodeLiteral( attr_xml.value ) ) )
 
 def DecorateComponentWithXml(grph,compNode,elt_component):
 

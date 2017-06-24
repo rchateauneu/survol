@@ -1,7 +1,6 @@
 import os
 import sys
 import six
-import rdflib
 import subprocess
 import collections
 import lib_common

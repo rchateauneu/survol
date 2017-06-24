@@ -7,7 +7,6 @@ WMI namespaces.
 import sys
 import lib_util
 import lib_common
-import rdflib
 from lib_properties import pc
 try:
 	import wmi
@@ -70,7 +69,7 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl, nsDepth = 1 ):
 	# connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
 
 	wmiUrl = lib_wmi.NamespaceUrl( "root\\" + nskey, cimomUrl )
-	wmiNode = rdflib.term.URIRef( wmiUrl )
+	wmiNode = lib_common.NodeUrl( wmiUrl )
 
 	grph.add( ( rootNode, pc.property_cim_subnamespace, wmiNode ) )
 
@@ -85,7 +84,7 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl, nsDepth = 1 ):
 			SubNamespace( wmiNode, grph, nskey + "\\" + subnamespace.Name, cimomUrl, nsDepth +1 )
 	except Exception:
 		exc = sys.exc_info()[1]
-		grph.add( ( wmiNode, pc.property_information, rdflib.Literal("Caught:%s" % str(exc) ) ) )
+		grph.add( ( wmiNode, pc.property_information, lib_common.NodeLiteral("Caught:%s" % str(exc) ) ) )
 		# lib_common.ErrorMessageHtml("nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 
 def Main():

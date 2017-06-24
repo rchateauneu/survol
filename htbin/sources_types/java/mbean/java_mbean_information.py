@@ -6,7 +6,6 @@ MBean information
 
 import sys
 import psutil
-import rdflib
 import lib_common
 from sources_types import CIM_Process
 from sources_types import java as survol_java
@@ -50,14 +49,14 @@ def Main():
 
 		# Not sure about the file name
 		nodeClass = survol_mbean.MakeUri( pidInt, clsNam)
-		grph.add( ( nodeClass, lib_common.MakeProp("Object name"), rdflib.Literal(objNam) ) )
+		grph.add( ( nodeClass, lib_common.MakeProp("Object name"), lib_common.NodeLiteral(objNam) ) )
 
 		dictMBeanInfo = jmxMBean["info"]
 		for keyInfo in dictMBeanInfo:
 			valInfo = dictMBeanInfo[keyInfo]
-			grph.add( ( nodeClass, lib_common.MakeProp(keyInfo), rdflib.Literal(valInfo) ) )
+			grph.add( ( nodeClass, lib_common.MakeProp(keyInfo), lib_common.NodeLiteral(valInfo) ) )
 
-		grph.add( ( nodeClass, lib_common.MakeProp("Attributes"), rdflib.Literal(jmxMBean["attrs"]) ) )
+		grph.add( ( nodeClass, lib_common.MakeProp("Attributes"), lib_common.NodeLiteral(jmxMBean["attrs"]) ) )
 
 		grph.add( ( node_process, propMBean, nodeClass ) )
 

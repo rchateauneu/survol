@@ -6,7 +6,6 @@ DOxygen parsing
 
 import os
 import sys
-import rdflib
 import lib_common
 import lib_util
 from lib_properties import pc

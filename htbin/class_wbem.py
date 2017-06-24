@@ -6,7 +6,6 @@ WBEM class portal: Display all instances of a given WBEM class
 
 import sys
 import cgi
-import rdflib
 import urllib
 import lib_util
 import lib_common
@@ -54,7 +53,7 @@ def AssocReferenceToNode(nameSpace,entity_host,assocInst):
 
 	# The association and the references are probably in the same namespace.
 	wbemAssocUrl = lib_wbem.WbemInstanceUrl( nameSpace, assocClass, assoc_entity_id, entity_host )
-	wbemAssocNode = rdflib.term.URIRef(wbemAssocUrl)
+	wbemAssocNode = lib_common.NodeUrl(wbemAssocUrl)
 	return wbemAssocNode
 
 
@@ -110,7 +109,7 @@ def DisplayAssociatoraAsList(grph,inst_names,rootNode,nameSpace,entity_host, cla
 		# TODO: Fix this.
 		entity_id_BIDON = "keykeykey%d" % maxCnt
 		wbemInstanceUrl = lib_wbem.WbemInstanceUrl( nameSpace, className, entity_id_BIDON, entity_host )
-		wbemInstanceNode = rdflib.term.URIRef(wbemInstanceUrl)
+		wbemInstanceNode = lib_common.NodeUrl(wbemInstanceUrl)
 
 		# On va ajouter une colonne par reference.
 		for keyAssoc in iname.keys():
@@ -128,7 +127,7 @@ def DisplayAssociatoraAsList(grph,inst_names,rootNode,nameSpace,entity_host, cla
 
 		# TODO: PAS ICI, on va le mettre dans l ;affichage d une entite.
 		#for key,val in iname.iteritems():
-		#	grph.add( ( wbemInstanceNode, lib_common.MakeProp(key), rdflib.Literal(val) ) )
+		#	grph.add( ( wbemInstanceNode, lib_common.MakeProp(key), lib_common.NodeLiteral(val) ) )
 
 # Display one line per instance of the class. Members are literals
 # because this is not an associator. Still, it works with an associator.
@@ -144,7 +143,7 @@ def DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className)
 		entity_id = ",".join( "%s=%s" % ( k, iname[k] ) for k in iname.keys() )
 		wbemInstanceUrl = lib_wbem.WbemInstanceUrl( nameSpace, className, entity_id, entity_host )
 
-		wbemInstanceNode = rdflib.term.URIRef(wbemInstanceUrl)
+		wbemInstanceNode = lib_common.NodeUrl(wbemInstanceUrl)
 
 		grph.add( ( rootNode, pc.property_class_instance, wbemInstanceNode ) )
 
@@ -178,7 +177,7 @@ def Main():
 		lib_common.ErrorMessageHtml("EnumerateInstanceNames: entity_host="+entity_host+" nameSpace="+nameSpace+" className="+className+". Caught:"+str(exc))
 
 	klaDescrip = lib_wbem.WbemClassDescrFromClass(wbemKlass)
-	grph.add( ( rootNode, pc.property_information, rdflib.Literal("WBEM description: "+klaDescrip ) ) )
+	grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral("WBEM description: "+klaDescrip ) ) )
 
 	# Pour afficher du texte: Remplacer le help statique.
 	# offset va etre un parametre. Helas ne pas se fairew d illusions sur "offset"

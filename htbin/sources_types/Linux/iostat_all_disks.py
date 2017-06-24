@@ -7,7 +7,6 @@ import re
 import sys
 import psutil
 import socket
-import rdflib
 from lib_properties import pc
 
 import lib_webserv
@@ -50,7 +49,7 @@ def IOStatDeserialize( log_strm, grph, tpl):
 			# No idea why doubles are written with a comma. Maybe the locale?
 			qty = float( tpl[idx].replace(",",".") )
 			iostat_pairs[ iostat_header[idx] ] = qty
-			# grph.add( ( deviceNode, iostat_header[idx], rdflib.Literal( qty ) ) )
+			# grph.add( ( deviceNode, iostat_header[idx], lib_common.NodeLiteral( qty ) ) )
 
 		lib_tabular.AddData( log_strm, grph, deviceNode, "disk", tpl[0], iostat_pairs )
 	except IndexError:

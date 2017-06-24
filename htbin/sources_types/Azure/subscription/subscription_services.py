@@ -6,9 +6,7 @@ Azure subscription services
 
 import sys
 import socket
-import rdflib
 import psutil
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -51,7 +49,7 @@ def Main():
 		locaNode = location.MakeUri( srv.hosted_service_properties.location, subscriptionName )
 		grph.add( ( servNode, lib_common.MakeProp("Location"), locaNode ) )
 
-		grph.add( ( servNode, pc.property_rdf_data_nolist1, rdflib.term.URIRef(srv.url) ) )
+		grph.add( ( servNode, pc.property_rdf_data_nolist1, lib_common.NodeUrl(srv.url) ) )
 
 	cgiEnv.OutCgiRdf()
 

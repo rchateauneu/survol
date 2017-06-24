@@ -8,12 +8,11 @@ import sys
 import lib_util
 import lib_wbem
 import lib_common
-import rdflib
 from lib_properties import pc
 
 def WbemNamespaceNode( wbemNamespace, cimomUrl, clsNam ):
 	wmiUrl = lib_wbem.NamespaceUrl( wbemNamespace, cimomUrl, clsNam )
-	return rdflib.term.URIRef( wmiUrl )
+	return lib_common.NodeUrl( wmiUrl )
 
 # http://pywbem.github.io/yawn/index.html
 # "YAWN stands for "Yet Another WBEM Navigator"
@@ -29,7 +28,7 @@ def AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode):
 
 	# "http://192.168.1.88/yawn/GetClass/CIM_DeviceSAPImplementation?url=http%3A%2F%2F192.168.1.88%3A5988&verify=0&ns=root%2Fcimv2"
 	sys.stderr.write("cimomNoPort=%s yawnUrl=%s\n"%(cimomNoPort,yawnUrl))
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist3, rdflib.term.URIRef(yawnUrl) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist3, lib_common.NodeUrl(yawnUrl) ) )
 
 # topclassNam is None at first call.
 def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth, wbemNamespace, cimomUrl, maxDepth):
@@ -40,16 +39,16 @@ def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth, wbemNamespa
 	depth += 1
 
 	wbemUrl = lib_wbem.ClassUrl( wbemNamespace, cimomUrl, topclassNam )
-	wbemNode = rdflib.term.URIRef( wbemUrl )
+	wbemNode = lib_common.NodeUrl( wbemUrl )
 
 	grph.add( ( rootNode, pc.property_cim_subclass, wbemNode ) )
 
 	# The class is the starting point when displaying the class tree of the namespace.
 	wbemNodeSub = WbemNamespaceNode(wbemNamespace, cimomUrl, topclassNam)
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, rdflib.Literal(wbemNodeSub) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, lib_common.NodeLiteral(wbemNodeSub) ) )
 
 	nodeGeneralisedClass = lib_util.EntityClassNode(topclassNam,wbemNamespace,cimomUrl,"WBEM")
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, rdflib.Literal(nodeGeneralisedClass) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(nodeGeneralisedClass) ) )
 
 	AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode)
 
@@ -111,7 +110,7 @@ def Main():
 				klaDescrip = lib_wbem.WbemClassDescription(connWbem,superKlassName,wbemNamespace)
 				if not klaDescrip:
 					klaDescrip = "Undefined class %s %s" % ( wbemNamespace, superKlassName )
-				grph.add( ( wbemSuperNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
+				grph.add( ( wbemSuperNode, pc.property_information, lib_common.NodeLiteral(klaDescrip ) ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_cim_subclass])
 	# cgiEnv.OutCgiRdf()

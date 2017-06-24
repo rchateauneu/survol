@@ -6,7 +6,6 @@ COM type library entries
 
 import os
 import sys
-import rdflib
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -78,8 +77,8 @@ def Main():
 
 			name, doc, ctx, helpFile = tlb.GetDocumentation(idx)
 
-			grph.add( (entryNode, pc.property_information, rdflib.Literal("name=%s" % name) ) )
-			grph.add( (entryNode, pc.property_information, rdflib.Literal("type=%s" % typNam) ) )
+			grph.add( (entryNode, pc.property_information, lib_common.NodeLiteral("name=%s" % name) ) )
+			grph.add( (entryNode, pc.property_information, lib_common.NodeLiteral("type=%s" % typNam) ) )
 			grph.add( (fnameMysteryNode, pc.property_com_entry, entryNode ) )
 
 		except pythoncom.com_error:

@@ -8,7 +8,6 @@ import sys
 import lib_util
 import lib_wbem
 import lib_common
-import rdflib
 from lib_properties import pc
 
 CanProcessRemote = True
@@ -82,15 +81,15 @@ def Main():
 
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
 
-		grph.add( ( node_process, pc.property_information, rdflib.Literal(oneProc["Caption"]) ) )
+		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(oneProc["Caption"]) ) )
 
 		if False:
 			if oneProc["Caption"] != oneProc["Description"]:
-				grph.add( ( node_process, lib_common.MakeProp("Description"), rdflib.Literal(oneProc["Description"]) ) )
+				grph.add( ( node_process, lib_common.MakeProp("Description"), lib_common.NodeLiteral(oneProc["Description"]) ) )
 
 			for prpNam in ["WorkingSetSize","KernelModeTime","ProcessNiceValue","OtherExecutionDescription"]:
 				try:
-					grph.add( ( node_process, lib_common.MakeProp(prpNam), rdflib.Literal(oneProc["prpNam"] ) ) )
+					grph.add( ( node_process, lib_common.MakeProp(prpNam), lib_common.NodeLiteral(oneProc["prpNam"] ) ) )
 				except KeyError:
 					pass
 

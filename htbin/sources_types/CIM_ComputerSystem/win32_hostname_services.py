@@ -5,7 +5,6 @@ Remote machine Windows services
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_common import pc

@@ -7,7 +7,6 @@ Columns of Sqlite table.
 import os
 import os.path
 import sys
-import rdflib
 import lib_common
 import sqlite3
 from sources_types import sqlite
@@ -50,7 +49,7 @@ def Main():
 			columnNod = sqlite_column.MakeUri(dbFilNam,tableName,columnNam)
 			grph.add( ( tabNod, propColumn, columnNod ) )
 			typeNam = theRow[2]
-			grph.add( ( columnNod, propType, rdflib.Literal(typeNam) ) )
+			grph.add( ( columnNod, propType, lib_common.NodeLiteral(typeNam) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Error %s:%s"%(dbFilNam,str(exc)))

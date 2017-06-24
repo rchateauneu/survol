@@ -9,7 +9,6 @@ import sys
 import time
 import lib_common
 from lib_common import pc
-import rdflib
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()

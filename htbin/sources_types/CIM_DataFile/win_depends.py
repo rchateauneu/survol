@@ -8,7 +8,6 @@ import os
 import re
 import sys
 import time
-import rdflib
 import lib_util
 import lib_win32
 import lib_common
@@ -110,7 +109,7 @@ def Main():
 		if linargs[0] != '?':
 			cpu = linargs[8]
 			if cpu not in [ "", "CPU" ]:
-				grph.add( ( nodeDLL, pc.property_library_cpu, rdflib.Literal(cpu) ) )
+				grph.add( ( nodeDLL, pc.property_library_cpu, lib_common.NodeLiteral(cpu) ) )
 
 	# Temporary file removed by constructor.
 	input_file.close()

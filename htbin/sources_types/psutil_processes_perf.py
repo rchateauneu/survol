@@ -13,7 +13,6 @@ import os
 import re
 import sys
 import time
-import rdflib
 import psutil
 import lib_util
 import lib_common
@@ -41,8 +40,8 @@ def TopDeserialize( log_strm, grph, tpl):
 	# Ou alors modifier le node en y ajoutant quelque chose a la fin ?
 	# Par exemple mettre a jour un graphique vers lequel pointerait le RDF ?
 
-	# grph.add( ( node_process, pc.property_cpu, rdflib.Literal(tpl[1]) ) )
-	# grph.add( ( node_process, pc.property_virt, rdflib.Literal(tpl[2]) ) )
+	# grph.add( ( node_process, pc.property_cpu, lib_common.NodeLiteral(tpl[1]) ) )
+	# grph.add( ( node_process, pc.property_virt, lib_common.NodeLiteral(tpl[2]) ) )
 	lib_tabular.AddData( log_strm, grph, node_process, "CIM_Process", pidstr, [ "cpu", "virt" ], tpl[ 1 : 3 ] )
 
 ################################################################################

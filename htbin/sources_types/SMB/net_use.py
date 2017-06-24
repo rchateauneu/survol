@@ -22,7 +22,6 @@ NET USE command
 import sys
 import re
 import socket
-import rdflib
 import subprocess
 import lib_util
 import lib_common

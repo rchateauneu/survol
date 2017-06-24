@@ -6,7 +6,6 @@ LAN ping (256 addresses)
 """
 
 import sys
-import rdflib
 import socket
 import subprocess
 import xml.dom.minidom
@@ -122,13 +121,13 @@ def Main():
 			
 		if nodeHost:
 			if addrVendor:
-				grph.add( ( nodeHost, lib_common.MakeProp("MAC address"), rdflib.Literal( macAddr ) ) )
-				grph.add( ( nodeHost, lib_common.MakeProp("Vendor"), rdflib.Literal( addrVendor ) ) )
+				grph.add( ( nodeHost, lib_common.MakeProp("MAC address"), lib_common.NodeLiteral( macAddr ) ) )
+				grph.add( ( nodeHost, lib_common.MakeProp("Vendor"), lib_common.NodeLiteral( addrVendor ) ) )
 		
 		for dhostname in dhost.getElementsByTagName('hostname'):
 			hostnam = dhostname.getAttributeNode('name').value
 			# sys.stderr.write("    hostnam=%s\n"%hostnam)
-			grph.add( ( nodeHost, pc.property_hostname, rdflib.Literal( hostnam ) ) )
+			grph.add( ( nodeHost, pc.property_hostname, lib_common.NodeLiteral( hostnam ) ) )
 
 				
 	cgiEnv.OutCgiRdf()

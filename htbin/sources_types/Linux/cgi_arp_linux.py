@@ -8,7 +8,6 @@ ARP command for Linux
 import sys
 import re
 import socket
-import rdflib
 import socket
 import subprocess
 import lib_util
@@ -56,8 +55,8 @@ def Main():
 
 		hostName = mtch_arp.group(1)
 		hostNode = lib_common.gUriGen.HostnameUri( hostName )
-		grph.add( ( hostNode, pc.property_information, rdflib.Literal(mtch_arp.group(2)) ) )
-		grph.add( ( hostNode, pc.property_information, rdflib.Literal(mtch_arp.group(3)) ) )
+		grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral(mtch_arp.group(2)) ) )
+		grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral(mtch_arp.group(3)) ) )
 
 	cgiEnv.OutCgiRdf()
 

@@ -8,7 +8,6 @@ import os
 import os.path
 import re
 import sys
-import rdflib
 import lib_sql
 import lib_util
 import lib_common
@@ -75,7 +74,7 @@ def Main():
 				# For the moment, we just print the query.
 				for sqlQry in matchedSqls:
 					# grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
-					grph.add( ( nodeFile, rgxProp, rdflib.Literal(sqlQry) ) )
+					grph.add( ( nodeFile, rgxProp, lib_common.NodeLiteral(sqlQry) ) )
 
 	except Exception:
 		exc = sys.exc_info()[1]

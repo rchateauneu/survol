@@ -6,9 +6,7 @@ Information about an Azure disk
 
 import sys
 import socket
-import rdflib
 import psutil
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -50,25 +48,25 @@ def Main():
 	diskNode = disk.MakeUri( diskName, subscriptionName )
 	grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), diskNode ) )
 
-	# grph.add( ( diskNode, lib_common.MakeProp("xxx"), rdflib.Literal(str(dir(dsk))) ) )
+	# grph.add( ( diskNode, lib_common.MakeProp("xxx"), lib_common.NodeLiteral(str(dir(dsk))) ) )
 
-	grph.add( ( diskNode, lib_common.MakeProp("affinity_group"), rdflib.Literal(dsk.affinity_group)))
-	# grph.add( ( diskNode, lib_common.MakeProp("attached_to"), rdflib.Literal(str(dir(dsk.attached_to)))) )
-	grph.add( ( diskNode, lib_common.MakeProp("has_operating_system"), rdflib.Literal(dsk.has_operating_system)))
-	grph.add( ( diskNode, lib_common.MakeProp("is_corrupted"), rdflib.Literal(dsk.is_corrupted)) )
-	grph.add( ( diskNode, lib_common.MakeProp("label"), rdflib.Literal(dsk.label)) )
-	grph.add( ( diskNode, lib_common.MakeProp("Size"), rdflib.Literal(dsk.logical_disk_size_in_gb)))
-	grph.add( ( diskNode, lib_common.MakeProp("name"), rdflib.Literal(dsk.name)))
-	grph.add( ( diskNode, lib_common.MakeProp("os"), rdflib.Literal(dsk.os)))
-	grph.add( ( diskNode, lib_common.MakeProp("source_image_name"), rdflib.Literal(dsk.source_image_name)))
-	grph.add( ( diskNode, lib_common.MakeProp("media link"), rdflib.URIRef(dsk.media_link)))
+	grph.add( ( diskNode, lib_common.MakeProp("affinity_group"), lib_common.NodeLiteral(dsk.affinity_group)))
+	# grph.add( ( diskNode, lib_common.MakeProp("attached_to"), lib_common.NodeLiteral(str(dir(dsk.attached_to)))) )
+	grph.add( ( diskNode, lib_common.MakeProp("has_operating_system"), lib_common.NodeLiteral(dsk.has_operating_system)))
+	grph.add( ( diskNode, lib_common.MakeProp("is_corrupted"), lib_common.NodeLiteral(dsk.is_corrupted)) )
+	grph.add( ( diskNode, lib_common.MakeProp("label"), lib_common.NodeLiteral(dsk.label)) )
+	grph.add( ( diskNode, lib_common.MakeProp("Size"), lib_common.NodeLiteral(dsk.logical_disk_size_in_gb)))
+	grph.add( ( diskNode, lib_common.MakeProp("name"), lib_common.NodeLiteral(dsk.name)))
+	grph.add( ( diskNode, lib_common.MakeProp("os"), lib_common.NodeLiteral(dsk.os)))
+	grph.add( ( diskNode, lib_common.MakeProp("source_image_name"), lib_common.NodeLiteral(dsk.source_image_name)))
+	grph.add( ( diskNode, lib_common.MakeProp("media link"), lib_common.NodeUrl(dsk.media_link)))
 
 	locaNode = location.MakeUri( dsk.location, subscriptionName )
 	grph.add( ( diskNode, lib_common.MakeProp("Location"), locaNode ) )
 
 	srvNode = service.MakeUri( dsk.attached_to.hosted_service_name, subscriptionName )
-	grph.add( ( srvNode, lib_common.MakeProp("Role"), rdflib.Literal(dsk.attached_to.role_name) ) )
-	grph.add( ( srvNode, lib_common.MakeProp("Deployment"), rdflib.Literal(dsk.attached_to.deployment_name) ) )
+	grph.add( ( srvNode, lib_common.MakeProp("Role"), lib_common.NodeLiteral(dsk.attached_to.role_name) ) )
+	grph.add( ( srvNode, lib_common.MakeProp("Deployment"), lib_common.NodeLiteral(dsk.attached_to.deployment_name) ) )
 	grph.add( ( diskNode, lib_common.MakeProp("Service"), srvNode ) )
 
 	# media_link

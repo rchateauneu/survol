@@ -7,7 +7,6 @@ Python properties
 """
 
 import sys
-import rdflib
 import importlib
 import lib_common
 

@@ -5,8 +5,6 @@ Windows local groups
 """
 
 from __future__ import generators
-#import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_common import pc
@@ -48,7 +46,7 @@ def Main():
 				groupCommentMaxWidth = max( 80, len(groupName) )
 				if len(groupComment) > groupCommentMaxWidth:
 					groupComment = groupComment[:groupCommentMaxWidth] + "..."
-				grph.add( (nodeGroup, pc.property_information, rdflib.Literal(groupComment) ) )
+				grph.add( (nodeGroup, pc.property_information, lib_common.NodeLiteral(groupComment) ) )
 
 			memberresume = 0
 			while True:

@@ -5,7 +5,6 @@ WMI CIM_Process information.
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 import lib_wmi
@@ -89,7 +88,7 @@ def Main():
 	# There should be one process only.
 	for wmiProc in lstProcs:
 		sys.stderr.write("wmiProc=%s\n" % str(wmiProc))
-		grph.add( ( node_process, pc.property_information, rdflib.Literal( wmiProc.Description ) ) )
+		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral( wmiProc.Description ) ) )
 
 		for prpProc in [
 			"CreationDate",
@@ -121,7 +120,7 @@ def Main():
 			"WriteOperationCount",
 			"WriteTransferCount"]:
 			valProc = getattr(wmiProc, prpProc)
-			grph.add( ( node_process, lib_common.MakeProp(prpProc), rdflib.Literal( valProc ) ) )
+			grph.add( ( node_process, lib_common.MakeProp(prpProc), lib_common.NodeLiteral( valProc ) ) )
 
 		parent_node_process = serverBox.PidUri(wmiProc.ParentProcessId)
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )

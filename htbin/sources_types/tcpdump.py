@@ -10,7 +10,6 @@ import os
 import re
 import sys
 import time
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc

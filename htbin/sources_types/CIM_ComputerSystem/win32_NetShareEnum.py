@@ -4,18 +4,12 @@
 Network shares
 """
 
-#import os
 import sys
-#import socket
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
 
-#import win32api
 import win32net
-#import win32netcon
-#import win32security
 
 Usable = lib_util.UsableWindows
 
@@ -69,7 +63,7 @@ def Main():
 				grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
 
 			if share_remark:
-				grph.add( ( shareNode, pc.property_information, rdflib.Literal(share_remark) ) )
+				grph.add( ( shareNode, pc.property_information, lib_common.NodeLiteral(share_remark) ) )
 
 		if not shareresume:
 			break

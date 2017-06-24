@@ -7,7 +7,6 @@ import sys
 import lib_util
 import lib_common
 from lib_common import pc
-import rdflib
 
 # Python for Windows extensions: pywin32
 # https://sourceforge.net/projects/pywin32/
@@ -160,7 +159,7 @@ def DictServiceToNode( grph, serviceDict, machineName = None ):
 	except IndexError:
 		currentStateNam = "Unknown state index"
 
-	grph.add( (nodeService, pc.property_information, rdflib.Literal(serviceDict['DisplayName']) ) )
+	grph.add( (nodeService, pc.property_information, lib_common.NodeLiteral(serviceDict['DisplayName']) ) )
 	# TODO: Change color with the state. ASSOCIATE COLOR TO PAIRS (Property + Literal value) ? SPECIALLY CODED VALUE WITH HTML TAGS ?
 
 	servicePid = serviceDict['ProcessId']
@@ -169,11 +168,11 @@ def DictServiceToNode( grph, serviceDict, machineName = None ):
 	if servicePid != 0:
 		# TODO: Plutot mettre un lien vers le process mais afficher comme un literal.
 		state_string = str(servicePid) + "/" + currentStateNam
-		# grph.add( (nodeService, pc.property_pid, rdflib.Literal(servicePid) ) )
-		grph.add( (nodeService, pc.property_pid, rdflib.Literal(state_string) ) )
+		# grph.add( (nodeService, pc.property_pid, lib_common.NodeLiteral(servicePid) ) )
+		grph.add( (nodeService, pc.property_pid, lib_common.NodeLiteral(state_string) ) )
 	else:
-		# grph.add( (nodeService, pc.property_service_state, rdflib.Literal(currentStateNam) ) )
-		grph.add( (nodeService, pc.property_service_state, rdflib.Literal(currentStateNam) ) )
+		# grph.add( (nodeService, pc.property_service_state, lib_common.NodeLiteral(currentStateNam) ) )
+		grph.add( (nodeService, pc.property_service_state, lib_common.NodeLiteral(currentStateNam) ) )
 	return nodeService
 
 
@@ -236,7 +235,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		if keySrv == "ProcessId":
 			if int(valSrv) != 0:
 				nodeProc = lib_common.gUriGen.PidUri(valSrv)
-				grph.add( (nodeProc, pc.property_pid, rdflib.Literal(valSrv) ) )
+				grph.add( (nodeProc, pc.property_pid, lib_common.NodeLiteral(valSrv) ) )
 				grph.add( (node,lib_common.MakeProp(keySrv), nodeProc ) )
 		elif keySrv == "ServiceType":
 			svcTypSrc = ""
@@ -250,7 +249,7 @@ def AddInfo(grph,node,entity_ids_arr):
 			if svcTypInt & win32service.SERVICE_WIN32: svcTypSrc += "WIN32 "
 			if svcTypInt & win32service.SERVICE_INTERACTIVE_PROCESS: svcTypSrc += "INTERACTIVE_PROCESS "
 
-			grph.add( (node,lib_common.MakeProp(keySrv), rdflib.Literal(svcTypSrc) ) )
+			grph.add( (node,lib_common.MakeProp(keySrv), lib_common.NodeLiteral(svcTypSrc) ) )
 
 		elif keySrv == "CurrentState":
 			statesArray = (
@@ -268,9 +267,9 @@ def AddInfo(grph,node,entity_ids_arr):
 				if valSrv == getattr(win32service, srvStatVar):
 					srcStatSrc = srvStatVar
 					break
-			grph.add( (node,lib_common.MakeProp(keySrv), rdflib.Literal(srcStatSrc) ) )
+			grph.add( (node,lib_common.MakeProp(keySrv), lib_common.NodeLiteral(srcStatSrc) ) )
 
 		else:
-			grph.add( (node,lib_common.MakeProp(keySrv), rdflib.Literal(valSrv) ) )
+			grph.add( (node,lib_common.MakeProp(keySrv), lib_common.NodeLiteral(valSrv) ) )
 
 	return

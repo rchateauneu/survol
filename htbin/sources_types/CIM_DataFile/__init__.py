@@ -1,7 +1,6 @@
 import os
 import sys
 import datetime
-import rdflib
 import lib_common
 import lib_util
 import lib_uris
@@ -34,7 +33,7 @@ def AddMagic( grph, filNode, entity_ids_arr ):
 		ms.load()
 		mtype =  ms.file(filNam)
 		ms.close()
-		grph.add( ( filNode, pc.property_information, rdflib.Literal(mtype) ) )
+		grph.add( ( filNode, pc.property_information, lib_common.NodeLiteral(mtype) ) )
 	except TypeError:
 		sys.stderr.write("Type error:%s\n" % (filNam) )
 		return
@@ -42,12 +41,12 @@ def AddMagic( grph, filNode, entity_ids_arr ):
 # Transforms a "stat" date into something which can be printed.
 def IntToDateLiteral(timeStamp):
 	dtStr = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S')
-	return rdflib.Literal(dtStr)
+	return lib_common.NodeLiteral(dtStr)
 
 # Adds to the node of a file some information taken from a call to stat().
 def AddStatNode( grph, filNode, infoStat ):
 	# st_size: size of file, in bytes.
-	grph.add( ( filNode, pc.property_file_size, rdflib.Literal(infoStat.st_size) ) )
+	grph.add( ( filNode, pc.property_file_size, lib_common.NodeLiteral(infoStat.st_size) ) )
 
 	grph.add( ( filNode, pc.property_last_access,          IntToDateLiteral(infoStat.st_atime) ) )
 	grph.add( ( filNode, pc.property_last_change,          IntToDateLiteral(infoStat.st_mtime) ) )
@@ -61,7 +60,7 @@ def AddStat( grph, filNode, filNam ):
 		# If there is an error, displays the message.
 		exc = sys.exc_info()[1]
 		msg = str(exc)
-		grph.add( ( filNode, pc.property_information, rdflib.Literal(msg) ) )
+		grph.add( ( filNode, pc.property_information, lib_common.NodeLiteral(msg) ) )
 
 # BEWARE: This link always as a literal. So it is simpler to display
 # in an embedded HTML table.
@@ -70,7 +69,7 @@ def AddHtml( grph, filNode, filNam ):
 	# Get the mime type, maybe with Magic. Then return a URL with for this mime type.
 	# This is a separated script because it returns HTML data, not RDF.
 	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
-	grph.add( ( filNode, pc.property_rdf_data_nolist1, rdflib.term.URIRef(url_mime) ) )
+	grph.add( ( filNode, pc.property_rdf_data_nolist1, lib_common.NodeUrl(url_mime) ) )
 
 # Display the node of the directory this file is in.
 def AddParentDir( grph, filNode, filNam ):
@@ -145,14 +144,14 @@ def AddFileProperties(grph,currNode,currFilNam):
 				# 169	251	A9	10101001	"Copyright"	&#169;	&copy;	Copyright sign
 				# Might contain this: "LegalCopyright Copyright \u00a9 2010"
 				val = val.replace("\\","\\\\")
-			grph.add( ( currNode, lib_common.MakeProp(prp), rdflib.Literal(val) ) )
+			grph.add( ( currNode, lib_common.MakeProp(prp), lib_common.NodeLiteral(val) ) )
 	except ImportError:
 		pass
 
 	mimTy = mimetypes.guess_type(currFilNam)
 	if mimTy:
 		if mimTy[0]:
-			grph.add( ( currNode, lib_common.MakeProp("Mime type"), rdflib.Literal(str(mimTy)) ) )
+			grph.add( ( currNode, lib_common.MakeProp("Mime type"), lib_common.NodeLiteral(str(mimTy)) ) )
 
 
 
@@ -204,8 +203,8 @@ def AffFileOwner(grph, filNode, filNam):
 			accountNode = Win32_UserAccount.MakeUri(accountName,domainName)
 
 		# TODO: What can we do with the domain ?
-		grph.add( ( accountNode, lib_common.MakeProp("Domain"), rdflib.Literal(domainName) ) )
-		grph.add( ( accountNode, lib_common.MakeProp("SID"), rdflib.Literal(typNam) ) )
+		grph.add( ( accountNode, lib_common.MakeProp("Domain"), lib_common.NodeLiteral(domainName) ) )
+		grph.add( ( accountNode, lib_common.MakeProp("SID"), lib_common.NodeLiteral(typNam) ) )
 		grph.add( ( accountNode, pc.property_owner, filNode ) )
 
 
@@ -274,5 +273,5 @@ def AddInfo(grph,node,entity_ids_arr):
 	AddParentDir( grph,node,filNam)
 
 	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
-	grph.add( ( node, pc.property_rdf_data_nolist1, rdflib.term.URIRef(url_mime) ) )
+	grph.add( ( node, pc.property_rdf_data_nolist1, lib_common.NodeUrl(url_mime) ) )
 

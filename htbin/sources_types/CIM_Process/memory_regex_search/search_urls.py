@@ -6,7 +6,6 @@ Scan process for HTTP urls.
 
 import os
 import sys
-import rdflib
 
 # Does not work with Apache and Windows: ImportError: No module named revlib
 #from revlib import lib_util
@@ -55,9 +54,9 @@ def Main():
 
 
 		for urlHttp in resuClean:
-			# grph.add( (node_process, propHttp, rdflib.Literal(urlHttp) ) )
+			# grph.add( (node_process, propHttp, lib_common.NodeLiteral(urlHttp) ) )
 			# sys.stderr.write("urlHttp=%s\n"%urlHttp)
-			nodePortalWbem = rdflib.term.URIRef( urlHttp )
+			nodePortalWbem = lib_common.NodeUrl( urlHttp )
 			grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
 
 

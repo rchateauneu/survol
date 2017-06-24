@@ -6,7 +6,6 @@ Azure locations
 
 import sys
 import socket
-import rdflib
 import psutil
 import lib_util
 import lib_common

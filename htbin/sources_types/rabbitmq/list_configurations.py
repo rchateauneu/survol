@@ -6,7 +6,6 @@ Configurations detected in the private credentials file.
 """
 
 import sys
-import rdflib
 import lib_common
 import lib_util
 import lib_credentials
@@ -36,7 +35,7 @@ def Main():
 
 			# http://127.0.0.1:12345/#/
 			managementUrl = rabbitmq.ManagementUrlPrefix(configNam)
-			grph.add( ( nodeAddr, lib_common.MakeProp("Management"), rdflib.URIRef(managementUrl) ) )
+			grph.add( ( nodeAddr, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
 			# TODO: Get and display the log files.
 			# Config file 	c:/Users/rchateau/AppData/Roaming/RabbitMQ/rabbitmq.config

@@ -2,7 +2,6 @@
 AC2 application
 """
 
-import rdflib
 import lib_common
 from lib_properties import pc
 from sources_types import AC2
@@ -29,13 +28,13 @@ def EntityName(entity_ids_arr,entity_host):
 
 def DecorateAppWithXml(grph,appNode,elt_app):
 	attr_version = elt_app.getAttributeNode('version').value
-	grph.add( ( appNode, lib_common.MakeProp("Version"), rdflib.Literal( attr_version ) ) )
+	grph.add( ( appNode, lib_common.MakeProp("Version"), lib_common.NodeLiteral( attr_version ) ) )
 
 	attr_notifref = elt_app.getAttributeNode('notifref').value
-	grph.add( ( appNode, lib_common.MakeProp("Notifref"), rdflib.Literal( attr_notifref ) ) )
+	grph.add( ( appNode, lib_common.MakeProp("Notifref"), lib_common.NodeLiteral( attr_notifref ) ) )
 
 	attr_cronref = elt_app.getAttributeNode('cronref').value
-	grph.add( ( appNode, lib_common.MakeProp("Cronref"), rdflib.Literal( attr_cronref ) ) )
+	grph.add( ( appNode, lib_common.MakeProp("Cronref"), lib_common.NodeLiteral( attr_cronref ) ) )
 
 
 

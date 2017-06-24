@@ -6,7 +6,6 @@ User processes and subprocesses
 
 import sys
 import psutil
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -94,8 +93,8 @@ def Main():
 
 		# We avoid duplicating the edges. Why would the RFD merge do?
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
-		grph.add( ( node_process, pc.property_pid, rdflib.Literal(pid) ) )
-		# grph.add( ( node_process, pc.property_information, rdflib.Literal(procUsername) ) )
+		grph.add( ( node_process, pc.property_pid, lib_common.NodeLiteral(pid) ) )
+		# grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(procUsername) ) )
 
 	# We avoid duplicating the edges. Why would the RFD merge do?
 	############ grph.add( ( node_process, pc.property_ppid, parent_node_process ) )

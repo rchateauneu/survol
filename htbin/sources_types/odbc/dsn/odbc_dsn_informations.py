@@ -5,7 +5,6 @@ Information about an ODBC connection.
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -53,21 +52,21 @@ def Main():
 				prm = getattr(pyodbc,prmstr)
 			# except AttributeError:
 			except:
-				grph.add( (nodeDsn, prop, rdflib.Literal("Unavailable") ) )
+				grph.add( (nodeDsn, prop, lib_common.NodeLiteral("Unavailable") ) )
 				continue
 
 			try:
 				prm_value = cnxn.getinfo(prm)
 			except:
 				#txt = str( sys.exc_info()[1] )
-				#grph.add( (nodeDsn, prop, rdflib.Literal(txt) ) )
+				#grph.add( (nodeDsn, prop, lib_common.NodeLiteral(txt) ) )
 				continue
 
 			try:
-				grph.add( (nodeDsn, prop, rdflib.Literal(prm_value) ) )
+				grph.add( (nodeDsn, prop, lib_common.NodeLiteral(prm_value) ) )
 			except:
 				txt = str( sys.exc_info()[1] )
-				grph.add( (nodeDsn, prop, rdflib.Literal(txt) ) )
+				grph.add( (nodeDsn, prop, lib_common.NodeLiteral(txt) ) )
 				continue
 
 	except Exception:

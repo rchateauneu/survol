@@ -34,7 +34,6 @@ if sys.version_info >= (3,):
 	import _thread as thread
 else:
 	import thread
-import rdflib
 
 if sys.version_info >= (3,):
 	# import http.server

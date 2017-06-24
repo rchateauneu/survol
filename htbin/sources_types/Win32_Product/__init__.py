@@ -1,12 +1,9 @@
 import sys
 import six
-import rdflib
 import psutil
 import lib_common
 import lib_util
 from lib_properties import pc
-
-# import wmi
 
 # http://ashishpython.blogspot.co.uk/2013/12/listing-all-installed-applications-on.html
 
@@ -161,53 +158,53 @@ def AddInfo(grph,node,entity_ids_arr):
 		grph.add( (node, lib_common.MakeProp("LocalPackage"), nodeLocalPackage ) )
 
 		if winProd.RegCompany:
-			grph.add( (node, lib_common.MakeProp("Vendor"), rdflib.Literal(winProd.RegCompany) ) )
-		grph.add( (node, lib_common.MakeProp("Version"), rdflib.Literal(winProd.VersionString) ) )
-		grph.add( (node, lib_common.MakeProp("Name"), rdflib.Literal(winProd.ProductName) ) )
+			grph.add( (node, lib_common.MakeProp("Vendor"), lib_common.NodeLiteral(winProd.RegCompany) ) )
+		grph.add( (node, lib_common.MakeProp("Version"), lib_common.NodeLiteral(winProd.VersionString) ) )
+		grph.add( (node, lib_common.MakeProp("Name"), lib_common.NodeLiteral(winProd.ProductName) ) )
 
 		if winProd.RegOwner:
-			grph.add( (node, lib_common.MakeProp("RegOwner"), rdflib.Literal(winProd.RegOwner) ) )
+			grph.add( (node, lib_common.MakeProp("RegOwner"), lib_common.NodeLiteral(winProd.RegOwner) ) )
 		if winProd.ProductID:
-			grph.add( (node, lib_common.MakeProp("ProductID"), rdflib.Literal(winProd.ProductID) ) )
+			grph.add( (node, lib_common.MakeProp("ProductID"), lib_common.NodeLiteral(winProd.ProductID) ) )
 
 		if winProd.ProductIcon:
 			nodeProductIcon = lib_common.gUriGen.FileUri( winProd.ProductIcon )
 			grph.add( (node, lib_common.MakeProp("ProductIcon"), nodeProductIcon ) )
 
-		grph.add( (node, lib_common.MakeProp("PackageName"), rdflib.Literal(winProd.PackageName) ) )
-		grph.add( (node, lib_common.MakeProp("PackageCode"), rdflib.Literal(winProd.PackageCode) ) )
+		grph.add( (node, lib_common.MakeProp("PackageName"), lib_common.NodeLiteral(winProd.PackageName) ) )
+		grph.add( (node, lib_common.MakeProp("PackageCode"), lib_common.NodeLiteral(winProd.PackageCode) ) )
 
 		if winProd.Transforms:
-			grph.add( (node, lib_common.MakeProp("Transforms"), rdflib.Literal(winProd.Transforms) ) )
-		grph.add( (node, lib_common.MakeProp("AssignmentType"), rdflib.Literal(winProd.AssignmentType) ) )
+			grph.add( (node, lib_common.MakeProp("Transforms"), lib_common.NodeLiteral(winProd.Transforms) ) )
+		grph.add( (node, lib_common.MakeProp("AssignmentType"), lib_common.NodeLiteral(winProd.AssignmentType) ) )
 
 		if winProd.InstallDate:
 			txtDate = winProd.InstallDate[0:4] + "-" + winProd.InstallDate[4:6] + "-" + winProd.InstallDate[6:8]
-			grph.add( (node, lib_common.MakeProp("InstallDate"), rdflib.Literal(txtDate) ) )
+			grph.add( (node, lib_common.MakeProp("InstallDate"), lib_common.NodeLiteral(txtDate) ) )
 
-		grph.add( (node, lib_common.MakeProp("Publisher"), rdflib.Literal(winProd.Publisher) ) )
+		grph.add( (node, lib_common.MakeProp("Publisher"), lib_common.NodeLiteral(winProd.Publisher) ) )
 
 		if winProd.HelpLink:
-			grph.add( (node, lib_common.MakeProp("HelpLink"), rdflib.URIRef(winProd.HelpLink) ) )
+			grph.add( (node, lib_common.MakeProp("HelpLink"), lib_common.NodeUrl(winProd.HelpLink) ) )
 		if winProd.HelpTelephone:
-			grph.add( (node, lib_common.MakeProp("HelpTelephone"), rdflib.Literal(winProd.HelpTelephone) ) )
+			grph.add( (node, lib_common.MakeProp("HelpTelephone"), lib_common.NodeLiteral(winProd.HelpTelephone) ) )
 
 		try:
 			if winProd.URLInfoAbout:
 				# This is an URL so we make it clickable
-				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), rdflib.URIRef(winProd.URLInfoAbout) ) )
+				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), lib_common.NodeUrl(winProd.URLInfoAbout) ) )
 		except AttributeError:
 			pass
 		try:
 			if winProd.URLUpdateInfo:
 				# This is an URL so we make it clickable
-				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), rdflib.URIRef(winProd.URLUpdateInfo) ) )
+				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), lib_common.NodeUrl(winProd.URLUpdateInfo) ) )
 		except AttributeError:
 			pass
 
 	except Exception:
 		exc = sys.exc_info()[1]
-		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
+		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
 
 
 
@@ -274,25 +271,25 @@ def AddInfo_DEPRECATED(grph,node,entity_ids_arr):
 			grph.add( (node, lib_common.MakeProp("LocalPackage"), nodeLocalPackage ) )
 
 			nodePackageCache = lib_common.gUriGen.FileUri( winProd.PackageCache )
-			grph.add( (nodePackageCache, lib_common.MakeProp("PackageName"), rdflib.Literal(winProd.PackageName) ) )
-			grph.add( (nodePackageCache, lib_common.MakeProp("PackageCode"), rdflib.Literal(winProd.PackageCode) ) )
+			grph.add( (nodePackageCache, lib_common.MakeProp("PackageName"), lib_common.NodeLiteral(winProd.PackageName) ) )
+			grph.add( (nodePackageCache, lib_common.MakeProp("PackageCode"), lib_common.NodeLiteral(winProd.PackageCode) ) )
 			grph.add( (node, lib_common.MakeProp("LocalPackage"), nodePackageCache ) )
 
-			grph.add( (node, lib_common.MakeProp("Vendor"), rdflib.Literal(winProd.Vendor) ) )
-			grph.add( (node, lib_common.MakeProp("Version"), rdflib.Literal(winProd.Version) ) )
-			grph.add( (node, lib_common.MakeProp("Name"), rdflib.Literal(winProd.Name) ) )
+			grph.add( (node, lib_common.MakeProp("Vendor"), lib_common.NodeLiteral(winProd.Vendor) ) )
+			grph.add( (node, lib_common.MakeProp("Version"), lib_common.NodeLiteral(winProd.Version) ) )
+			grph.add( (node, lib_common.MakeProp("Name"), lib_common.NodeLiteral(winProd.Name) ) )
 
 			try:
-				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), rdflib.Literal(winProd.URLInfoAbout) ) )
+				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), lib_common.NodeLiteral(winProd.URLInfoAbout) ) )
 			except AttributeError:
 				pass
 			try:
-				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), rdflib.Literal(winProd.URLUpdateInfo) ) )
+				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), lib_common.NodeLiteral(winProd.URLUpdateInfo) ) )
 			except AttributeError:
 				pass
 
 	except Exception:
 		exc = sys.exc_info()[1]
-		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
+		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
 
 

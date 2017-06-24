@@ -4,12 +4,10 @@
 Oracle database'schemas
 """
 
-#import re
 import sys
-#import lib_common
+import lib_common
 from lib_properties import pc
 import lib_oracle
-import rdflib
 from sources_types.oracle import db as oracle_db
 from sources_types.oracle import schema as oracle_schema
 

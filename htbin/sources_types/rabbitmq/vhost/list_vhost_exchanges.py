@@ -5,7 +5,6 @@ RabbitMQ virtual hosts exchanges
 """
 
 import sys
-import rdflib
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -42,7 +41,7 @@ def Main():
 
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"exchanges",namVHost,namExchange)
 
-		grph.add( ( nodeExchange, lib_common.MakeProp("Management"), rdflib.URIRef(managementUrl) ) )
+		grph.add( ( nodeExchange, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
 		grph.add( ( nodVHost, lib_common.MakeProp("Exchange"), nodeExchange ) )
 

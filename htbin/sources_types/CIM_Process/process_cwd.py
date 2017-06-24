@@ -6,7 +6,6 @@ Current working directory
 
 import sys
 import psutil
-import rdflib
 import lib_common
 from sources_types import CIM_Process
 from lib_properties import pc
@@ -35,7 +34,7 @@ def Main():
 		# The PID is added to the message such as "Access denied", so it is specific to the process
 		# and prevents nodes with the same text to be merged in RDF or when displayed in Javascript.
 		msgSpecific = "%s:Pid=%d" % (proc_msg,top_pid)
-		grph.add( ( node_process, pc.property_information, rdflib.Literal(msgSpecific)) )
+		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(msgSpecific)) )
 
 	cgiEnv.OutCgiRdf()
 

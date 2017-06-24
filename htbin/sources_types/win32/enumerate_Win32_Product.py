@@ -6,7 +6,6 @@ Installed Windows applications
 
 import sys
 import socket
-import rdflib
 import psutil
 import lib_common
 import lib_util
@@ -69,8 +68,8 @@ def DoRemote(grph,cimomSrv):
 
 		try:
 			productNode = Win32_Product.MakeUri( winProd.Caption )
-			grph.add( (productNode, pc.property_information, rdflib.Literal(winProd.Description) ) )
-			grph.add( (productNode, lib_common.MakeProp("IdentifyingNumber"), rdflib.Literal(winProd.IdentifyingNumber) ) )
+			grph.add( (productNode, pc.property_information, lib_common.NodeLiteral(winProd.Description) ) )
+			grph.add( (productNode, lib_common.MakeProp("IdentifyingNumber"), lib_common.NodeLiteral(winProd.IdentifyingNumber) ) )
 			Win32_Product.AddInstallSource(grph,productNode,winProd)
 
 			grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("Win32_Product"), productNode ) )
@@ -78,7 +77,7 @@ def DoRemote(grph,cimomSrv):
 		except:
 			exc = sys.exc_info()[1]
 			lib_common.ErrorMessageHtml("Caught:%s"%str(exc))
-			# grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
+			# grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
 
 
 def get_installed_products_uids():
@@ -120,10 +119,10 @@ def Main():
 		productNode = Win32_Product.MakeUri( puid )
 
 		try:
-			grph.add( (productNode, pc.property_information, rdflib.Literal(winProd.InstalledProductName) ) )
-			grph.add( (productNode, propWin32Version, rdflib.Literal(winProd.VersionString) ) )
-			grph.add( (productNode, propWin32Package, rdflib.Literal(winProd.PackageName) ) )
-			grph.add( (productNode, propIdentifyingNumber, rdflib.Literal(puid) ) )
+			grph.add( (productNode, pc.property_information, lib_common.NodeLiteral(winProd.InstalledProductName) ) )
+			grph.add( (productNode, propWin32Version, lib_common.NodeLiteral(winProd.VersionString) ) )
+			grph.add( (productNode, propWin32Package, lib_common.NodeLiteral(winProd.PackageName) ) )
+			grph.add( (productNode, propIdentifyingNumber, lib_common.NodeLiteral(puid) ) )
 
 			grph.add( ( lib_common.nodeMachine, propWin32Product, productNode ) )
 

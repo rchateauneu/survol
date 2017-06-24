@@ -1,5 +1,4 @@
 import sys
-import rdflib
 import psutil
 import lib_common
 import lib_util
@@ -173,16 +172,16 @@ def EntityName(entity_ids_arr,entity_host):
 def AddInfo(grph,node,entity_ids_arr):
 	pidProc = entity_ids_arr[0]
 	# sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
-	grph.add( ( node, pc.property_pid, rdflib.Literal(pidProc) ) )
+	grph.add( ( node, pc.property_pid, lib_common.NodeLiteral(pidProc) ) )
 	try:
 		proc_obj = psutil.Process(int(pidProc))
 
 		cmd_line = PsutilProcToCmdline(proc_obj)
-		grph.add( ( node, pc.property_command, rdflib.Literal(cmd_line) ) )
+		grph.add( ( node, pc.property_command, lib_common.NodeLiteral(cmd_line) ) )
 
 		( execName, execErrMsg ) = PsutilProcToExe(proc_obj)
 		if execName == "":
-			grph.add( ( node, pc.property_runs, rdflib.Literal("Executable error:"+execErrMsg) ) )
+			grph.add( ( node, pc.property_runs, lib_common.NodeLiteral("Executable error:"+execErrMsg) ) )
 			exec_node = None
 		else:
 			exec_node = lib_common.gUriGen.FileUri( execName )
@@ -210,7 +209,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	# AttributeError: 'ModuleWrapper' object has no attribute '_error'
 	except Exception:
 		exc = sys.exc_info()[1]
-		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
+		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
 
 # This should apply to all scripts in the subdirectories: If the process does not exist,
 # they should not be displayed by entity.py

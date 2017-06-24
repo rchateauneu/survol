@@ -4,7 +4,6 @@ import os
 import subprocess
 import re
 import sys
-import rdflib
 import lib_webserv
 import lib_util
 import lib_common
@@ -62,7 +61,7 @@ def WindDirChangeDeserialize( log_strm, grph, tuple):
 	node_path = lib_common.gUriGen.FileUri( full_filename )
 	grph.add( ( intermediate_node, pc.property_directory, node_path ) )
 
-	grph.add( ( node_path, pc.property_notified_file_change, rdflib.Literal(path_change) ) )
+	grph.add( ( node_path, pc.property_notified_file_change, lib_common.NodeLiteral(path_change) ) )
 
 
 ACTIONS = {

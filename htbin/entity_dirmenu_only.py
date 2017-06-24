@@ -8,7 +8,6 @@ import os
 import re
 import sys
 import psutil
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -91,7 +90,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 			# if flagShowAll and errorMsg ???
 			if errorMsg:
 				# Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
-				grph.add( ( parentNode, lib_common.MakeProp("Usability"), rdflib.Literal(errorMsg) ) )
+				grph.add( ( parentNode, lib_common.MakeProp("Usability"), lib_common.NodeLiteral(errorMsg) ) )
 				return False
 	except IndexError:
 		# If we are at the top-level, no interest for the module.
@@ -186,7 +185,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 
 		# Here, we are sure that the script is added.
 		# TODO: If no script is added, should not add the directory?
-		rdfNode = rdflib.term.URIRef(url_rdf)
+		rdfNode = lib_common.NodeUrl(url_rdf)
 		grph.add( ( parentNode, pc.property_script, rdfNode ) )
 
 		# Default doc text is file name minus the ".py" extension.
@@ -195,7 +194,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 		grph.add( ( rdfNode, pc.property_information, nodModu ) )
 
 		if errorMsg:
-			grph.add( ( rdfNode, lib_common.MakeProp("Error"), rdflib.Literal(errorMsg) ) )
+			grph.add( ( rdfNode, lib_common.MakeProp("Error"), lib_common.NodeLiteral(errorMsg) ) )
 
 	# This tells if a script was added in this directory or one of the subdirs.
 	return ( rdfNode is not None ) | containsSomething

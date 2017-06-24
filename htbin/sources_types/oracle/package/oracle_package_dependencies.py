@@ -7,7 +7,7 @@ Oracle package dependencies
 import sys
 from lib_properties import pc
 import lib_oracle
-import rdflib
+import lib_common
 from sources_types.oracle import package as oracle_package
 from sources_types.oracle import schema as oracle_schema
 

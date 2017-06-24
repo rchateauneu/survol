@@ -6,7 +6,6 @@ Tables dependencies in SQLServer query
 
 import lib_common
 import lib_util
-import rdflib
 import lib_sql
 from sources_types import sql
 from sources_types.sql import query as sql_query

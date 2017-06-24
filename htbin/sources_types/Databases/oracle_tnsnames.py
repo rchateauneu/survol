@@ -7,7 +7,6 @@ TNSNAMES file
 import os
 import sys
 import re
-import rdflib
 
 import lib_util
 import lib_common

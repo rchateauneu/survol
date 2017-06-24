@@ -165,7 +165,7 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 
 			obj_str = str(obj)
 
-			if isinstance( obj , (rdflib.URIRef, rdflib.BNode)):
+			if isinstance( obj , (lib_common.NodeUrl, rdflib.BNode)):
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 				WrtAsUtf( "<td>" + AntiPredicateUri(str(pred)) + "</td>")
 				url_with_mode = lib_util.ConcatenateCgi( obj_str, "mode=html" )
@@ -268,12 +268,12 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 		propNam = PropToShortPropNam(pred)
 
-		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
+		if isinstance(obj, (lib_common.NodeUrl, rdflib.BNode)):
 			objObj = NodeToJsonObj(obj)
 			obj_id = objObj.m_index
 			# "value" is for the class, for example ".link10".
 			links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam, 'value': 10}])
-		elif isinstance(obj, (rdflib.Literal)):
+		elif isinstance(obj, (lib_common.NodeLiteral)):
 			if pred == pc.property_information:
 				subjObj.m_info_list.append( str(obj.value) )
 			else:
@@ -353,7 +353,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 			except KeyError:
 				NodesToItems[subj] = [obj]
 
-			if isinstance(obj, (rdflib.Literal)):
+			if isinstance(obj, (lib_common.NodeLiteral)):
 				# This is the name of a subdirectory containing scripts.
 				# sys.stderr.write("obj LITERAL=%s\n"%str(subj))
 				NodesToNames[obj] = obj
@@ -361,7 +361,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 			NodesWithParent.add(obj)
 			SubjectNodes.add(subj)
 		elif pred == pc.property_information:
-			if isinstance(obj, (rdflib.Literal)):
+			if isinstance(obj, (lib_common.NodeLiteral)):
 				#sys.stderr.write("subj=%s\n"%str(subj))
 				#sys.stderr.write("obj.value=%s\n"%obj.value)
 				NodesToNames[subj] = obj.value

@@ -6,7 +6,6 @@ Java processes
 
 import sys
 import psutil
-import rdflib
 import lib_common
 from sources_types import CIM_Process
 from sources_types import java as survol_java
@@ -35,7 +34,7 @@ def Main():
 					strVal = "No value"
 			sys.stderr.write("\t%s = %s\n"%(theKey,strVal))
 
-			grph.add( ( node_process, lib_common.MakeProp(theKey), rdflib.Literal(strVal) ) )
+			grph.add( ( node_process, lib_common.MakeProp(theKey), lib_common.NodeLiteral(strVal) ) )
 
 	cgiEnv.OutCgiRdf()
 

@@ -34,6 +34,9 @@ import lib_naming
 from lib_properties import pc
 from lib_properties import MakeProp
 
+from lib_util import NodeLiteral
+from lib_util import NodeUrl
+
 import collections
 import rdflib
 

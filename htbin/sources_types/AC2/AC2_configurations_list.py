@@ -6,8 +6,6 @@ Available AC2 configurations
 
 import os
 import sys
-import rdflib
-import rdflib
 import lib_util
 import lib_common
 

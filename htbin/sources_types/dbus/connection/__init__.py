@@ -4,7 +4,6 @@ Desktop Bus connection
 
 import sys
 import pwd
-import rdflib
 import lib_dbus
 import lib_common
 import dbus

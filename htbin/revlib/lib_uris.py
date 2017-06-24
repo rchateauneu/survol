@@ -2,7 +2,6 @@ import os
 import sys
 import socket
 import lib_util
-import rdflib
 
 ################################################################################
 
@@ -71,7 +70,7 @@ class LocalBox:
 
 	def MakeTheNodeFromScript(self, path, entity_type, entity_id):
 		url = lib_util.uriRoot + path + "?xid=" + self.TypeMake() + entity_type + "." + entity_id
-		return rdflib.term.URIRef( url )
+		return lib_util.NodeUrl( url )
 
 	def BuildEntity(self, entity_type, *entity_id_arr):
 		#sys.stderr.write("UriMake entity_id_arr=%s\n" % str(entity_id_arr) )

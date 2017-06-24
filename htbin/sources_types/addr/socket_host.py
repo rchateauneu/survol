@@ -8,7 +8,6 @@ import re
 import sys
 import psutil
 import socket
-import rdflib
 
 import lib_common
 from lib_properties import pc

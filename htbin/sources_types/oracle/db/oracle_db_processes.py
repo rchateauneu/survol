@@ -6,10 +6,8 @@ Oracle database's connected processes
 
 import sys
 import lib_common
-#import socket
 from lib_properties import pc
 import lib_oracle
-import rdflib
 
 from sources_types.oracle import db as oracle_db
 from sources_types.oracle import session as oracle_session
@@ -78,9 +76,9 @@ def Main():
 		sessProgram = row[10]
 
 		nodeSession = oracle_session.MakeUri( cgiEnv.m_oraDatabase, str(row[0]) )
-		grph.add( ( nodeSession, lib_common.MakeProp("Oracle user"), rdflib.Literal(oraUsername) ) )
-		grph.add( ( nodeSession, lib_common.MakeProp("Schema"), rdflib.Literal(schemaName) ) )
-		grph.add( ( nodeSession, lib_common.MakeProp("Program"), rdflib.Literal(sessProgram) ) )
+		grph.add( ( nodeSession, lib_common.MakeProp("Oracle user"), lib_common.NodeLiteral(oraUsername) ) )
+		grph.add( ( nodeSession, lib_common.MakeProp("Schema"), lib_common.NodeLiteral(schemaName) ) )
+		grph.add( ( nodeSession, lib_common.MakeProp("Program"), lib_common.NodeLiteral(sessProgram) ) )
 
 		if schemaName != None:
 			nodeSchema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, str(schemaName) )
@@ -89,14 +87,14 @@ def Main():
 
 		sys.stderr.write("user_proc_id=%s user_machine=%s\n" % (user_proc_id,user_machine))
 		node_process = lib_common.RemoteBox(user_machine).PidUri( sessPid )
-		grph.add( ( node_process, lib_common.MakeProp("SystemPid"), rdflib.Literal(user_proc_id) ) )
-		grph.add( ( node_process, lib_common.MakeProp("OraclePid"), rdflib.Literal(process_pid) ) )
-		grph.add( ( node_process, lib_common.MakeProp("Terminal"), rdflib.Literal(procTerminal) ) )
+		grph.add( ( node_process, lib_common.MakeProp("SystemPid"), lib_common.NodeLiteral(user_proc_id) ) )
+		grph.add( ( node_process, lib_common.MakeProp("OraclePid"), lib_common.NodeLiteral(process_pid) ) )
+		grph.add( ( node_process, lib_common.MakeProp("Terminal"), lib_common.NodeLiteral(procTerminal) ) )
 		grph.add( ( nodeSession, pc.property_oracle_session, node_process ) )
 
 		if sessOsuser != None:
 			nodeOsUser = lib_common.RemoteBox(user_machine).UserUri(sessOsuser)
-			grph.add( ( nodeOsUser, lib_common.MakeProp("OsUser"), rdflib.Literal(sessOsuser) ) )
+			grph.add( ( nodeOsUser, lib_common.MakeProp("OsUser"), lib_common.NodeLiteral(sessOsuser) ) )
 			grph.add( ( node_process, pc.property_user, nodeOsUser ) )
 
 	cgiEnv.OutCgiRdf()

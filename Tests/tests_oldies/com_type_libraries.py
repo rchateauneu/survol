@@ -42,7 +42,7 @@ try:
 				# The name will be awful. First we must experiment a bit.
 				typelibNode = lib_common.gUriGen.ComTypeLibUri( keyName )
 				strTypLibName = bestTypLibName + " / " + str(bestVersion)
-				grph.add( (typelibNode, pc.property_information, rdflib.Literal(strTypLibName) ) )
+				grph.add( (typelibNode, pc.property_information, lib_common.NodeLiteral(strTypLibName) ) )
 
 				num = num + 1
 finally:

@@ -9,7 +9,6 @@ import os.path
 import re
 import sys
 import time
-import rdflib
 import lib_uris
 import lib_util
 import lib_win32
@@ -45,7 +44,7 @@ class EnvPeFile:
 		# sys.stderr.write( "filNam=%s maxLevel=%d\n"%(filNam,maxLevel))
 		rootNode = lib_common.gUriGen.FileUri( filNam )
 		versStr = lib_win32.VersionString(filNam)
-		self.grph.add( ( rootNode, pc.property_information, rdflib.Literal(versStr) ) )
+		self.grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(versStr) ) )
 
 		if maxLevel == 0:
 			return rootNode

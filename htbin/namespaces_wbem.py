@@ -8,7 +8,6 @@ import sys
 import lib_util
 import lib_wbem
 import lib_common
-import rdflib
 from lib_properties import pc
 
 def Main():
@@ -43,11 +42,11 @@ def Main():
 		# par exemple pour Oracle. Ce serait simplement un directory.
 		# ATTENTION: Avoir la liste de nos entity_types sera moins immediat.
 		wbemUrl = lib_wbem.NamespaceUrl( nskey, cimomUrl )
-		wbemNode = rdflib.term.URIRef( wbemUrl )
+		wbemNode = lib_common.NodeUrl( wbemUrl )
 
 		grph.add( ( rootNode, pc.property_cim_subnamespace, wbemNode ) )
-		grph.add( ( wbemNode, pc.property_information, rdflib.Literal(nskey) ) )
-		grph.add( ( wbemNode, pc.property_information, rdflib.Literal(cnt) ) )
+		grph.add( ( wbemNode, pc.property_information, lib_common.NodeLiteral(nskey) ) )
+		grph.add( ( wbemNode, pc.property_information, lib_common.NodeLiteral(cnt) ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 

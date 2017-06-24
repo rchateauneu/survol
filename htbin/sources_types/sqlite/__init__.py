@@ -4,7 +4,6 @@ sqlite objects
 
 import os
 import sys
-import rdflib
 import lib_common
 from lib_properties import pc
 
@@ -93,12 +92,12 @@ def AddNodesTablesViews(grph,filNode,dbFilNam):
 				continue
 
 			theRootpage = theRow[3]
-			grph.add( ( nameNod, lib_common.MakeProp("Root page"), rdflib.Literal(theRootpage) ) )
-			grph.add( ( nameNod, lib_common.MakeProp("Type"), rdflib.Literal(theType) ) )
+			grph.add( ( nameNod, lib_common.MakeProp("Root page"), lib_common.NodeLiteral(theRootpage) ) )
+			grph.add( ( nameNod, lib_common.MakeProp("Type"), lib_common.NodeLiteral(theType) ) )
 
 			# Do not print too much information in case there are too many tables.
 			#theCmd = theRow[4]
-			#grph.add( ( tabNod, pc.property_information, rdflib.Literal(theCmd) ) )
+			#grph.add( ( tabNod, pc.property_information, lib_common.NodeLiteral(theCmd) ) )
 	except sqlite3.DatabaseError:
 		lib_common.ErrorMessageHtml("Sqlite file:%s Caught:%s" % ( dbFilNam, str( sys.exc_info() ) ) )
 	except:

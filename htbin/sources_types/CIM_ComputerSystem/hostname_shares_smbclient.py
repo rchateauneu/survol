@@ -36,8 +36,6 @@ import sys
 import cgi        # One of the CGI arguments is the name of the Samba server
 import subprocess
 
-import rdflib
-
 import lib_common
 from lib_properties import pc
 

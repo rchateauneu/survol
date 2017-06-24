@@ -5,7 +5,6 @@ ODBC Data sources (ODBC module)
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -32,7 +31,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 	odbc_iter_code = fetch_code
 
 	propDsnType = lib_common.MakeProp("Source type")
-	littDsnType = rdflib.Literal(dsn_type)
+	littDsnType = lib_common.NodeLiteral(dsn_type)
 
 	while True:
 		source = odbc.SQLDataSources(odbc_iter_code)
@@ -45,7 +44,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 
 		nodeDsn = survol_odbc_dsn.MakeUri( dsn )
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
-		grph.add( (nodeDsn, pc.property_odbc_driver, rdflib.Literal(driver) ) )
+		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral(driver) ) )
 		grph.add( (nodeDsn, propDsnType, littDsnType ) )
 
 

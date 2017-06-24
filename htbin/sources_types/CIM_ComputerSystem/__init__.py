@@ -4,7 +4,6 @@ Computer
 
 import sys
 import socket
-import rdflib
 import lib_wmi
 import lib_util
 import lib_common
@@ -32,19 +31,19 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
 			# sys.stderr.write("url_server=%s\n" % str(url_server))
 
 			if lib_wbem.ValidClassWbem(entity_host, entity_type):
-				wbemNode = rdflib.term.URIRef(url_server[0])
+				wbemNode = lib_common.NodeUrl(url_server[0])
 				if entity_host:
 					txtLiteral = "WBEM url, host=%s class=%s"%(entity_host,entity_type)
 				else:
 					txtLiteral = "WBEM url, current host, class=%s"%(entity_type)
-				grph.add( ( wbemNode, pc.property_information, rdflib.Literal(txtLiteral ) ) )
+				grph.add( ( wbemNode, pc.property_information, lib_common.NodeLiteral(txtLiteral ) ) )
 
 				grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
 				wbemHostNode = lib_common.gUriGen.HostnameUri( url_server[1] )
 				grph.add( ( wbemNode, pc.property_host, wbemHostNode ) )
 
 				# Ca devrait etre dans nmap qui essaye d abord 80, et propose d ouvrir une fenetre.
-				# grph.add( ( wbemHostNode, pc.property_information, rdflib.Literal("Url to host") ) )
+				# grph.add( ( wbemHostNode, pc.property_information, lib_common.NodeLiteral("Url to host") ) )
 	except ImportError:
 		pass
 
@@ -53,13 +52,13 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
 		wmiurl = lib_wmi.GetWmiUrl( entity_host, nameSpace, entity_type, entity_id )
 		# sys.stderr.write("wmiurl=%s\n" % str(wmiurl))
 		if not wmiurl is None:
-			wmiNode = rdflib.term.URIRef(wmiurl)
+			wmiNode = lib_common.NodeUrl(wmiurl)
 			grph.add( ( rootNode, pc.property_wmi_data, wmiNode ) )
 			if entity_host:
 				txtLiteral = "WMI url, host=%s class=%s"%(entity_host,entity_type)
 			else:
 				txtLiteral = "WMI url, current host, class=%s"%(entity_type)
-			grph.add( ( wmiNode, pc.property_information, rdflib.Literal(txtLiteral) ) )
+			grph.add( ( wmiNode, pc.property_information, lib_common.NodeLiteral(txtLiteral) ) )
 
 			if entity_host:
 				nodePortalWmi = lib_util.UrlPortalWmi(entity_host)
@@ -85,7 +84,7 @@ def AddGeocoder(grph,node,ipv4):
 	geoc = geocoder.ip(ipv4)
 	for jsonKey,jsonVal in geoc.json.iteritems():
 		# Conversion to str otherwise numbers are displayed as "float".
-	    grph.add( ( node, lib_common.MakeProp(jsonKey), rdflib.Literal(str(jsonVal)) ) )
+	    grph.add( ( node, lib_common.MakeProp(jsonKey), lib_common.NodeLiteral(str(jsonVal)) ) )
 
 
 # The URL is hard-coded but very important because it allows to visit another host with WMI access.
@@ -93,10 +92,10 @@ def AddInfo(grph,node,entity_ids_arr):
     theHostname = entity_ids_arr[0]
 
     ipv4 = socket.gethostbyname(theHostname)
-    grph.add( ( node, lib_common.MakeProp("IP address"), rdflib.Literal(ipv4) ) )
+    grph.add( ( node, lib_common.MakeProp("IP address"), lib_common.NodeLiteral(ipv4) ) )
 
     fqdn = socket.getfqdn(theHostname)
-    grph.add( ( node, lib_common.MakeProp("FQDN"), rdflib.Literal(fqdn) ) )
+    grph.add( ( node, lib_common.MakeProp("FQDN"), lib_common.NodeLiteral(fqdn) ) )
 
 	# No need to do that, because it is done in entity.py if mode!=json.
     # nameSpace = ""

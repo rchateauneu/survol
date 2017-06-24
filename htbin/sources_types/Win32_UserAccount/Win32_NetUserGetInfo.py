@@ -13,7 +13,6 @@ Windows user information
 # , 'script_path': u''}
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -66,10 +65,10 @@ def Main():
 
 		try:
 			infoVal = infoList[infoKey]
-			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), rdflib.Literal(infoVal) ) )
+			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), lib_common.NodeLiteral(infoVal) ) )
 		except:
 			txtDisp = str( sys.exc_info()[1] )
-			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), rdflib.Literal(txtDisp) ) )
+			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), lib_common.NodeLiteral(txtDisp) ) )
 
 
 

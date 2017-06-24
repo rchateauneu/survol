@@ -5,7 +5,6 @@ RabbitMQ virtual hosts
 """
 
 import sys
-import rdflib
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -62,19 +61,19 @@ def Main():
 		nodeVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
 
 		try:
-			grph.add( ( nodeVHost, lib_common.MakeProp("tracing"), rdflib.Literal(objVHost["tracing"]) ) )
+			grph.add( ( nodeVHost, lib_common.MakeProp("tracing"), lib_common.NodeLiteral(objVHost["tracing"]) ) )
 		except KeyError:
 			pass
 
 		try:
-			grph.add( ( nodeVHost, lib_common.MakeProp("messages"), rdflib.Literal(objVHost["messages"]) ) )
+			grph.add( ( nodeVHost, lib_common.MakeProp("messages"), lib_common.NodeLiteral(objVHost["messages"]) ) )
 		except KeyError:
 			pass
 
 		# http://127.0.0.1:12345/#/vhosts//
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"vhosts",namVHost)
 
-		grph.add( ( nodeVHost, lib_common.MakeProp("Management"), rdflib.URIRef(managementUrl) ) )
+		grph.add( ( nodeVHost, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
 
 		grph.add( ( nodeManager, lib_common.MakeProp("Virtual host"), nodeVHost ) )

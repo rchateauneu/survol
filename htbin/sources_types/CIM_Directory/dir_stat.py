@@ -11,7 +11,6 @@ Directory stat information
 import os
 import sys
 import time
-import rdflib
 import psutil
 import json
 from sources_types import CIM_DataFile

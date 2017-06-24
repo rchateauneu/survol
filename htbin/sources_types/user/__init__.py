@@ -3,7 +3,6 @@ Operating system user
 """
 
 import sys
-import rdflib
 import psutil
 import lib_common
 from lib_properties import pc
@@ -29,7 +28,7 @@ def LoadEtcPasswd():
 		splitLin = lin.split(':')
 
 		# Comments might contain UTF8 accents.
-		# grph.add( ( userNode, pc.property_information, rdflib.Literal( splitLin[4].encode('utf-8') ) ) )
+		# grph.add( ( userNode, pc.property_information, lib_common.NodeLiteral( splitLin[4].encode('utf-8') ) ) )
 		try:
 			txt = splitLin[4].encode('utf-8')
 		except UnicodeDecodeError:
@@ -46,7 +45,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	try:
 		usersList = LoadEtcPasswd()
 		userSplit = usersList[ usrNam ]
-		grph.add( ( node, pc.property_information, rdflib.Literal( userSplit[4] ) ) )
+		grph.add( ( node, pc.property_information, lib_common.NodeLiteral( userSplit[4] ) ) )
 
 		# We insert this link to the home directory because it should not
 		# imply an access to the file itself, so it cannot fail.
@@ -56,4 +55,4 @@ def AddInfo(grph,node,entity_ids_arr):
 		grph.add( ( node, pc.property_directory, homeDirNode ) )
 
 	except KeyError:
-		grph.add( ( node, pc.property_information, rdflib.Literal( "No information available" ) ) )
+		grph.add( ( node, pc.property_information, lib_common.NodeLiteral( "No information available" ) ) )

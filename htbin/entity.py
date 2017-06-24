@@ -8,7 +8,6 @@ import os
 import re
 import sys
 import psutil
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -46,17 +45,17 @@ def CurrentUser():
 
 def AddDefaultNodes(grph,rootNode,entity_host):
 	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
-	grph.add( ( currentNodeHostname, pc.property_information, rdflib.Literal("Current host:"+lib_util.currentHostname) ) )
+	grph.add( ( currentNodeHostname, pc.property_information, lib_common.NodeLiteral("Current host:"+lib_util.currentHostname) ) )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeHostname ) )
 
 	currUsername = CurrentUser()
 	currentNodeUser = lib_common.gUriGen.UserUri( currUsername )
-	grph.add( ( currentNodeUser, pc.property_information, rdflib.Literal("Current user:"+currUsername) ) )
+	grph.add( ( currentNodeUser, pc.property_information, lib_common.NodeLiteral("Current user:"+currUsername) ) )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeUser ) )
 
 # TODO: Maybe the property should be property_script ??
 def AddDefaultScripts(grph,rootNode,entity_host):
-	nodeObjTypes = rdflib.term.URIRef( lib_util.uriRoot + '/objtypes.py' )
+	nodeObjTypes = lib_common.NodeUrl( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodeObjTypes ) )
 
 	# Gives a general access to WBEM servers. In fact we might iterate on several servers, or none.

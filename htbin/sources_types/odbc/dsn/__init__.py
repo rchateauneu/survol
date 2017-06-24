@@ -10,7 +10,6 @@ import pyodbc
 from lib_properties import pc
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.oracle import db as oracle_db
-import rdflib
 
 def Graphic_colorfill():
 	return "#CCFF11"
@@ -67,7 +66,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		cnxn = pyodbc.connect(ODBC_ConnectString)
 	except:
 		exc = sys.exc_info()[1]
-		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
+		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
 		return
 
 	dbEntityType = GetDatabaseEntityTypeFromConnection(cnxn)
@@ -87,4 +86,4 @@ def AddInfo(grph,node,entity_ids_arr):
 		grph.add( ( node, pc.property_sqlserver_db, node_sqlserverdb ) )
 		sys.stderr.write("AddInfo dbEntityType=%s ADDING NODE\n" % dbEntityType )
 
-		#grph.add( ( node, pc.property_pid, rdflib.Literal(pidProc) ) )
+		#grph.add( ( node, pc.property_pid, lib_common.NodeLiteral(pidProc) ) )

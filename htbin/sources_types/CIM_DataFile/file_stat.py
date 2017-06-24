@@ -11,7 +11,6 @@ File stat information
 import os
 import sys
 import time
-import rdflib
 import psutil
 from sources_types import CIM_DataFile
 import lib_util

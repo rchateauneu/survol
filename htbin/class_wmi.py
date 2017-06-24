@@ -6,7 +6,6 @@ WMI class portal
 
 import sys
 import cgi
-import rdflib
 import urllib
 import lib_util
 import lib_common
@@ -73,7 +72,7 @@ def Main():
 	sys.stderr.write("className=%s type(wmiClass)=%s len=%d\n" % ( className, str(type(wmiClass)), numLstObj ) )
 
 	if numLstObj == 0:
-		grph.add( ( rootNode, pc.property_information, rdflib.Literal("No instances in this class") ) )
+		grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral("No instances in this class") ) )
 
 	for wmiObj in lstObj:
 		# Full natural path: We must try to merge it with WBEM Uris.
@@ -112,7 +111,7 @@ def Main():
 		# fullPth=\\RCHATEAU-HP\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
 		fullPth = fullPth.replace("&","&amp;")
 		wmiInstanceUrl = lib_util.EntityUrlFromMoniker( fullPth )
-		wmiInstanceNode = rdflib.term.URIRef(wmiInstanceUrl)
+		wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
 
 		# infos = lib_wbem_cim.get_inst_info(iname, klass, include_all=True, keys_only=True)
 

@@ -6,9 +6,7 @@ Information about an Azure service
 
 import sys
 import socket
-import rdflib
 import psutil
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -54,21 +52,21 @@ def Main():
 	locaNode = location.MakeUri( srv.hosted_service_properties.location, subscriptionName )
 	grph.add( ( servNode, lib_common.MakeProp("Location"), locaNode ) )
 
-	grph.add( ( servNode, pc.property_rdf_data_nolist1, rdflib.term.URIRef(srv.url) ) )
+	grph.add( ( servNode, pc.property_rdf_data_nolist1, lib_common.NodeUrl(srv.url) ) )
 
-	grph.add( ( servNode, lib_common.MakeProp("deployments"), rdflib.Literal(str(srv.deployments) ) ) )
+	grph.add( ( servNode, lib_common.MakeProp("deployments"), lib_common.NodeLiteral(str(srv.deployments) ) ) )
 
 	# With a dot ".", they come first.
-	grph.add( ( servNode, lib_common.MakeProp(".affinity_group"), rdflib.Literal(srv.hosted_service_properties.affinity_group ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".date_created"), rdflib.Literal(srv.hosted_service_properties.date_created ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".date_last_modified"), rdflib.Literal(srv.hosted_service_properties.date_last_modified ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".description"), rdflib.Literal(srv.hosted_service_properties.description ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".label"), rdflib.Literal(srv.hosted_service_properties.label ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".status"), rdflib.Literal(srv.hosted_service_properties.status ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".affinity_group"), lib_common.NodeLiteral(srv.hosted_service_properties.affinity_group ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".date_created"), lib_common.NodeLiteral(srv.hosted_service_properties.date_created ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".date_last_modified"), lib_common.NodeLiteral(srv.hosted_service_properties.date_last_modified ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".description"), lib_common.NodeLiteral(srv.hosted_service_properties.description ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".label"), lib_common.NodeLiteral(srv.hosted_service_properties.label ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".status"), lib_common.NodeLiteral(srv.hosted_service_properties.status ) ) )
 
 	for extProp in srv.hosted_service_properties.extended_properties:
 		extVal = srv.hosted_service_properties.extended_properties[ extProp ]
-		grph.add( ( servNode, lib_common.MakeProp(extProp), rdflib.Literal(extVal) ) )
+		grph.add( ( servNode, lib_common.MakeProp(extProp), lib_common.NodeLiteral(extVal) ) )
 
 
 	cgiEnv.OutCgiRdf()

@@ -5,7 +5,6 @@ Shared memory segments
 """
 
 import sys
-import rdflib
 import lib_common
 from lib_properties import pc
 from sources_types import CIM_Process
@@ -33,7 +32,7 @@ def Main():
 
 		uriMemMap = lib_common.gUriGen.MemMapUri( cleanMapPath )
 
-		grph.add( ( uriMemMap, propMemoryRSS, rdflib.Literal(map.rss) ) )
+		grph.add( ( uriMemMap, propMemoryRSS, lib_common.NodeLiteral(map.rss) ) )
 		grph.add( ( nodeProcess, pc.property_memmap, uriMemMap ) )
 
 	cgiEnv.OutCgiRdf( "LAYOUT_SPLINE")

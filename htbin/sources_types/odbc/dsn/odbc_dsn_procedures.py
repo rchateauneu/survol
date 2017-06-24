@@ -5,7 +5,6 @@ Procedures for ODBC DSN
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -49,7 +48,7 @@ def Main():
             grph.add( (nodeDsn, pc.property_odbc_procedure, nodProc ) )
 
             for idxCol in (3, 4, 5, 6, 7):
-                grph.add( (nodProc, rdflib.Literal(colList[idxCol]), rdflib.Literal(row[idxCol]) ) )
+                grph.add( (nodProc, lib_common.NodeLiteral(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
         exc = sys.exc_info()[0]

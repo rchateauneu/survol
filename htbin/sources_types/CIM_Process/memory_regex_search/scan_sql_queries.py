@@ -15,7 +15,6 @@ Extract SQL queries from process heap memory
 
 import re
 import sys
-import rdflib
 import lib_sql
 import lib_common
 
@@ -60,7 +59,7 @@ def GenerateFromSqlQrys(grph, node_process, rgxProp, setQrys, pidint):
 
 		except Exception:
 			exc = sys.exc_info()[1]
-			grph.add( ( node_process, rgxProp, rdflib.Literal("GenerateFromSqlQrys:"+str(exc)) ) )
+			grph.add( ( node_process, rgxProp, lib_common.NodeLiteral("GenerateFromSqlQrys:"+str(exc)) ) )
 
 # TODO: What is annoying is that it is in a sub-directory, but it does not have
 # TODO: a specific ontology etc ...

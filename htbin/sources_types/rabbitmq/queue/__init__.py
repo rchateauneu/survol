@@ -3,7 +3,6 @@ RabbitMQ queue
 """
 
 import lib_common
-import rdflib
 from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 from sources_types.rabbitmq import vhost as survol_rabbitmq_vhost
 

@@ -6,7 +6,6 @@ System Properties
 
 import sys
 import psutil
-import rdflib
 import lib_common
 import lib_uris
 from sources_types import CIM_Process
@@ -45,9 +44,9 @@ def Main():
 			nodeDirectory = lib_common.gUriGen.DirectoryUri(dirNam)
 
 			# TODO: There should be one matrix per box.
-			# grph.add( ( nodeDirectory, lib_common.MakeProp("Property"), rdflib.Literal(keyJmxProp) ) )
+			# grph.add( ( nodeDirectory, lib_common.MakeProp("Property"), lib_common.NodeLiteral(keyJmxProp) ) )
 
-			grph.add( ( nodeDirectory, propOrder, rdflib.Literal(idxPath) ) )
+			grph.add( ( nodeDirectory, propOrder, lib_common.NodeLiteral(idxPath) ) )
 			grph.add( ( node_process, rdfProp, nodeDirectory ) )
 			idxPath += 1
 
@@ -90,14 +89,14 @@ def Main():
 
 		# HTTP URLs
 		if keyJmxProp in ["java.vendor.url","java.vendor.url.bug"]:
-			nodeJavaUrl = rdflib.term.URIRef( valJmxProp )
+			nodeJavaUrl = lib_common.NodeUrl( valJmxProp )
 			grph.add( ( node_process, rdfProp, nodeJavaUrl ) )
 			continue
 
 		# Maybe a Java package ?????
 		# "sun.java.command"
 
-		grph.add( ( node_process, rdfProp, rdflib.Literal(valJmxProp) ) )
+		grph.add( ( node_process, rdfProp, lib_common.NodeLiteral(valJmxProp) ) )
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", propsMatrix)
 

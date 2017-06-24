@@ -11,7 +11,6 @@ Pefile exports
 import os
 import sys
 import time
-import rdflib
 import psutil
 import lib_util
 import lib_uris
@@ -41,7 +40,7 @@ def pefileDecorate( grph, rootNode, pe ):
 						# val = val.encode("utf-8", errors="replace")
 					# val = val[:2]
 					# sys.stderr.write("%s %s\n"% (key,val) )
-					grph.add( ( rootNode, lib_common.MakeProp(key), rdflib.Literal(val) ) )
+					grph.add( ( rootNode, lib_common.MakeProp(key), lib_common.NodeLiteral(val) ) )
 		return
 
 
@@ -104,10 +103,10 @@ def Main():
 			forward = exp.forwarder
 			if not forward:
 				forward = ""
-			grph.add( ( symNode, propForward, rdflib.Literal(forward) ) )
-			grph.add( ( symNode, propAddress, rdflib.Literal(hex(exp.address)) ) )
-			grph.add( ( symNode, propOrdinal, rdflib.Literal(hex(exp.ordinal)) ) )
-			# grph.add( ( symNode, lib_common.MakeProp("Rest"), rdflib.Literal(dir(exp)) ) )
+			grph.add( ( symNode, propForward, lib_common.NodeLiteral(forward) ) )
+			grph.add( ( symNode, propAddress, lib_common.NodeLiteral(hex(exp.address)) ) )
+			grph.add( ( symNode, propOrdinal, lib_common.NodeLiteral(hex(exp.ordinal)) ) )
+			# grph.add( ( symNode, lib_common.MakeProp("Rest"), lib_common.NodeLiteral(dir(exp)) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % ( filNam, str(exc)))

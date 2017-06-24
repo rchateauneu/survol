@@ -7,7 +7,6 @@ SQL query checked against available databases.
 import sys
 import lib_common
 import lib_util
-import rdflib
 from sources_types.sql import query as sql_query
 from sources_types.CIM_Process import embedded_sql_query
 import lib_sql

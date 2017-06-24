@@ -5,7 +5,6 @@ Python package
 import os
 import six
 import sys
-import rdflib
 import pip
 import importlib
 import lib_common
@@ -40,9 +39,9 @@ def FillOnePackage(grph,node,good_pckg):
 	# s', 'from_filename', 'from_location', 'get_entry_info', 'get_entry_map', 'has_version', 'hashcmp', 'insert_on', 'key', 'load_entry_p
 	# oint', 'location', 'parsed_version', 'platform', 'precedence', 'project_name', 'py_version', 'requires', 'version']
 
-	grph.add( (node, propPythonVersion, rdflib.Literal(good_pckg.version) ) )
-	grph.add( (node, lib_common.MakeProp("Platform"), rdflib.Literal(good_pckg.platform) ) )
-	grph.add( (node, lib_common.MakeProp("project_name"), rdflib.Literal(good_pckg.project_name) ) )
+	grph.add( (node, propPythonVersion, lib_common.NodeLiteral(good_pckg.version) ) )
+	grph.add( (node, lib_common.MakeProp("Platform"), lib_common.NodeLiteral(good_pckg.platform) ) )
+	grph.add( (node, lib_common.MakeProp("project_name"), lib_common.NodeLiteral(good_pckg.project_name) ) )
 
 	# >>> pip.get_installed_distributions()[1].requires()
 	# [Requirement.parse('distribute'), Requirement.parse('werkzeug'), Requirement.parse('mako')]
@@ -55,12 +54,12 @@ def FillOnePackage(grph,node,good_pckg):
 		# [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
 		aSpecs = subReq.specs
 		if aSpecs:
-			grph.add( (subNode, lib_common.MakeProp("Condition"), rdflib.Literal( str(aSpecs) ) ) )
+			grph.add( (subNode, lib_common.MakeProp("Condition"), lib_common.NodeLiteral( str(aSpecs) ) ) )
 		grph.add( (node, lib_common.MakeProp("requires"), subNode ) )
 
-	grph.add( (node, lib_common.MakeProp("py_version"), rdflib.Literal(good_pckg.py_version) ) )
-	grph.add( (node, lib_common.MakeProp("precedence"), rdflib.Literal(good_pckg.precedence) ) )
-	grph.add( (node, lib_common.MakeProp("egg_name"), rdflib.Literal(good_pckg.egg_name()) ) )
+	grph.add( (node, lib_common.MakeProp("py_version"), lib_common.NodeLiteral(good_pckg.py_version) ) )
+	grph.add( (node, lib_common.MakeProp("precedence"), lib_common.NodeLiteral(good_pckg.precedence) ) )
+	grph.add( (node, lib_common.MakeProp("egg_name"), lib_common.NodeLiteral(good_pckg.egg_name()) ) )
 
 	# This might return location="c:\python27\lib\site-packages"
 	cleanLocaDir = good_pckg.location.replace("\\","/")
@@ -97,13 +96,13 @@ def AddInfoFromPip(grph,node,packageKey):
 						aSpecs = subReq.specs
 						if aSpecs:
 							# TODO: This should be displayed on the edge !!!
-							grph.add( (node, lib_common.MakeProp("Condition "+pckg.key), rdflib.Literal( str(aSpecs) ) ) )
+							grph.add( (node, lib_common.MakeProp("Condition "+pckg.key), lib_common.NodeLiteral( str(aSpecs) ) ) )
 						grph.add( (subNode, propPythonRequires, node ) )
 						break
 
 	except Exception:
 		exc = sys.exc_info()[1]
-		grph.add( ( node, pc.property_information, rdflib.Literal(str(exc)) ) )
+		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
 
 # Displays general information about the module.
 def AddInfoFromImport(grph,packageNode,packageKey):
@@ -123,7 +122,7 @@ def AddInfoFromImport(grph,packageNode,packageKey):
 	try:
 		txtDoc = the_module.__doc__
 		if txtDoc:
-			grph.add( ( packageNode, pc.property_information, rdflib.Literal(txtDoc) ) )
+			grph.add( ( packageNode, pc.property_information, lib_common.NodeLiteral(txtDoc) ) )
 	except AttributeError:
 		pass
 
@@ -134,7 +133,7 @@ def AddInfoFromImport(grph,packageNode,packageKey):
 		try:
 			txtVal = getattr( the_module, valProp )
 			if txtVal:
-				grph.add( ( packageNode, lib_common.MakeProp(keyProp), rdflib.Literal(txtVal) ) )
+				grph.add( ( packageNode, lib_common.MakeProp(keyProp), lib_common.NodeLiteral(txtVal) ) )
 		except AttributeError:
 			pass
 
@@ -202,7 +201,7 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 
 			if dispFiles and moduFil:
 				nodeFile = GetFileNode(moduFil)
-				# nodeFile is the result of rdflib.term.URIRef
+				# nodeFile is the result of lib_common.NodeUrl
 				grph.add( ( moduNod, pc.property_rdf_data_nolist2, nodeFile ) )
 
 			if len(splitNam) == 1:

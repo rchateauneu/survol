@@ -1,7 +1,6 @@
 import sys
 import re
 import os
-import rdflib
 import lib_common
 import lib_util
 import lib_properties
@@ -30,8 +29,8 @@ def AddData( log_strm, grph, node, entity_type, entity_id, header, values ):
 			log_strm.write( "AddData Different lens: %d and %d.\n" % ( lenHead , lenVals ) )
 			return
 		for idx in range( 0 , lenHead ):
-			tmp_property = rdflib.term.URIRef(lib_properties.primns_slash + header[idx])
-			grph.add( ( node, tmp_property, rdflib.Literal(values[idx]) ) )
+			tmp_property = lib_common.NodeUrl(lib_properties.primns_slash + header[idx])
+			grph.add( ( node, tmp_property, lib_common.NodeLiteral(values[idx]) ) )
 	return
 
 	# Constraint on the entity id which must be stored in a file name.
@@ -59,7 +58,7 @@ def AddData( log_strm, grph, node, entity_type, entity_id, header, values ):
 	url_csv = TabularUrl( entity_type, entity_id, header )
 
 	# Afficher les csv_data dans le bloc du node, surtout ne pas creer un lien.
-	grph.add( ( node, pc.property_csv_data, rdflib.term.URIRef(url_csv) ) )
+	grph.add( ( node, pc.property_csv_data, lib_common.NodeUrl(url_csv) ) )
 
 	return
 

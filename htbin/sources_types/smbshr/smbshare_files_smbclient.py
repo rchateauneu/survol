@@ -21,8 +21,6 @@ import re
 import os
 import sys
 
-import rdflib
-
 import lib_smbclient
 import lib_util
 import lib_common

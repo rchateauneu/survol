@@ -7,7 +7,6 @@ Symbols in ELF files
 import os
 import sys
 
-import rdflib
 import lib_elf
 import lib_util
 import lib_common
@@ -37,7 +36,7 @@ def Main():
 	listNotes = readelf.display_notes()
 	for pr in listNotes:
 		infoMsg = pr[0] + ":" + pr[1]
-		grph.add( ( nodeSharedLib, pc.property_information, rdflib.Literal(infoMsg) ) )
+		grph.add( ( nodeSharedLib, pc.property_information, lib_common.NodeLiteral(infoMsg) ) )
 
 	listSyms, setClasses = readelf.display_symbol_tables()
 
@@ -74,7 +73,7 @@ def Main():
 			continue
 
 		symNod = lib_common.gUriGen.SymbolUri( sym.m_name_demang, fileSharedLib )
-		grph.add( ( symNod, lib_common.MakeProp("Version"), rdflib.Literal(sym.m_vers) ) )
+		grph.add( ( symNod, lib_common.MakeProp("Version"), lib_common.NodeLiteral(sym.m_vers) ) )
 		lenSplit = len(sym.m_splt)
 		if lenSplit > 1:
 			clsNod = ClassToNode( sym.m_splt, lenSplit - 1 )

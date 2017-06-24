@@ -4,7 +4,6 @@
 WBEM portal
 """
 
-import rdflib
 import lib_common
 
 try:
@@ -28,7 +27,7 @@ def Main():
 	# wbem_urls_list = lib_wbem.GetWbemUrls( entity_host, nameSpace, entity_type, "" )
 	wbem_urls_list = lib_wbem.GetWbemUrls( "*", nameSpace, entity_type, "" )
 	for ( url_wbem, wbemHost ) in wbem_urls_list:
-		wbemNode = rdflib.term.URIRef(url_wbem)
+		wbemNode = lib_common.NodeUrl(url_wbem)
 
 		hostNode = lib_common.gUriGen.HostnameUri( wbemHost )
 		grph.add( ( hostNode, pc.property_information, wbemNode ) )

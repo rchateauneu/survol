@@ -8,7 +8,6 @@ import os
 import re
 import sys
 import psutil
-import rdflib
 import lib_util
 import lib_common
 import getopt

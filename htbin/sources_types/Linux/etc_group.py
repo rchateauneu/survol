@@ -5,7 +5,6 @@ Groups on a Linux platform
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -24,7 +23,7 @@ def Main():
 		split_gr = lin_gr.split(':')
 		grpId = split_gr[2]
 		grpNode = lib_common.gUriGen.GroupUri( split_gr[0] )
-		grph.add( ( grpNode, pc.property_groupid, rdflib.Literal(grpId) ) )
+		grph.add( ( grpNode, pc.property_groupid, lib_common.NodeLiteral(grpId) ) )
 
 	cgiEnv.OutCgiRdf()
 

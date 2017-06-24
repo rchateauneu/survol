@@ -2,7 +2,6 @@ import os
 import sys
 import json
 import socket
-import rdflib
 import lib_util
 import lib_common
 import lib_credentials
@@ -265,25 +264,25 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 		# No need to print this, at the moment.
 		if False:
 			klassDescr = str( dir( getattr( connWmi, className ) ) )
-			grph.add( ( wmiClassNode, lib_common.MakeProp("dir"), rdflib.Literal(klassDescr) ) )
+			grph.add( ( wmiClassNode, lib_common.MakeProp("dir"), lib_common.NodeLiteral(klassDescr) ) )
 
 			klassDescr = str( getattr( connWmi, className )._properties )
-			grph.add( ( wmiClassNode, lib_common.MakeProp("_properties"), rdflib.Literal(klassDescr) ) )
+			grph.add( ( wmiClassNode, lib_common.MakeProp("_properties"), lib_common.NodeLiteral(klassDescr) ) )
 
 			klassDescr = str( getattr( connWmi, className ).properties["Description"] )
-			grph.add( ( wmiClassNode, lib_common.MakeProp("properties.Description"), rdflib.Literal(klassDescr) ) )
+			grph.add( ( wmiClassNode, lib_common.MakeProp("properties.Description"), lib_common.NodeLiteral(klassDescr) ) )
 
 			klassDescr = str( getattr( connWmi, className ).property_map )
 			# Otherwise it crashes.
 			# klassDescrClean = klassDescr.replace("{"," ").replace("}"," ")
 			# sys.stderr.write("klassDescr=%s\n"%klassDescr)
-			grph.add( ( wmiClassNode, lib_common.MakeProp("property_map"), rdflib.Literal(klassDescr.replace("{"," ").replace("}"," ") ) ) )
+			grph.add( ( wmiClassNode, lib_common.MakeProp("property_map"), lib_common.NodeLiteral(klassDescr.replace("{"," ").replace("}"," ") ) ) )
 
 
 		theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
 		if theCls:
 			klassDescr = theCls.Qualifiers_("Description")
-			grph.add( ( wmiClassNode, pc.property_information, rdflib.Literal(klassDescr) ) )
+			grph.add( ( wmiClassNode, pc.property_information, lib_common.NodeLiteral(klassDescr) ) )
 
 			if withProps:
 				for propObj in theCls.Properties_:
@@ -292,21 +291,21 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 					# Properties of different origins should not be mixed.
 					# Prefixes the property with a dot, so sorting displays it at the end.
 					# Surprisingly, the dot becomes invisible.
-					grph.add( ( wmiClassNode, lib_common.MakeProp("."+propObj.Name), rdflib.Literal(propDsc) ) )
+					grph.add( ( wmiClassNode, lib_common.MakeProp("."+propObj.Name), lib_common.NodeLiteral(propDsc) ) )
 		else:
-			grph.add( ( wmiClassNode, pc.property_information, rdflib.Literal("No description available for %s" % className) ) )
+			grph.add( ( wmiClassNode, pc.property_information, lib_common.NodeLiteral("No description available for %s" % className) ) )
 
 		klassQuals = getattr( connWmi, className ).qualifiers
 		for klaQualKey in klassQuals :
 			klaQualVal = klassQuals[klaQualKey]
 			if isinstance(klaQualVal,tuple):
 				klaQualVal = "{ " + ",".join(klaQualVal) + " }"
-			grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), rdflib.Literal(klaQualVal) ) )
+			grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), lib_common.NodeLiteral(klaQualVal) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
 		# Dumped in json so that lists can be appropriately deserialized then displayed.
 		errStr = json.dumps(list(exc))
-		grph.add( ( wmiClassNode, lib_common.MakeProp("WMI Error"), rdflib.Literal(errStr) ) )
+		grph.add( ( wmiClassNode, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(errStr) ) )
 
 # Tells if this class for our ontology is in a given WMI server, whatever the namespace is.
 def ValidClassWmi(entity_host, className):
@@ -320,7 +319,7 @@ def WmiAddClassNode(grph,connWmi,wmiNode,entity_host, nameSpace, className, prop
 		if wmiurl is None:
 			return
 
-		wmiClassNode = rdflib.term.URIRef(wmiurl)
+		wmiClassNode = lib_common.NodeUrl(wmiurl)
 
 		grph.add( ( wmiClassNode, prop, wmiNode ) )
 

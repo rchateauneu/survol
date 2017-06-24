@@ -55,7 +55,7 @@ def Main():
 				propRpm = rpmProps[propKey]
 				# The value might be None.
 				propVal = h[ propKey ] or ""
-				grph.add( ( nodeRpm, propRpm, rdflib.Literal(propVal, datatype=XSD.string) ) )
+				grph.add( ( nodeRpm, propRpm, lib_common.NodeLiteral(propVal, datatype=XSD.string) ) )
 
 			grph.add( ( lib_common.nodeMachine, rpmPropName, nodeRpm ) )
 	except Exception:

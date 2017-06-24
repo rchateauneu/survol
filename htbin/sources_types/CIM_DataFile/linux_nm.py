@@ -7,7 +7,6 @@ nm command on executables and shared libraries (Linux)
 import os
 import sys
 
-import rdflib
 import lib_nm
 import lib_util
 import lib_common
@@ -18,7 +17,7 @@ Usable = lib_util.UsableLinuxBinary
 def AddKnown(grph, nodeSharedLib, symbol, file, type):
 	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbol), file )
 	grph.add( ( nodeSharedLib, pc.property_symbol_defined, symbolNode ) )
-	grph.add( ( symbolNode, pc.property_symbol_type, rdflib.Literal(type) ) )
+	grph.add( ( symbolNode, pc.property_symbol_type, lib_common.NodeLiteral(type) ) )
 
 def AddUnknown(grph, nodeSharedLib, symbol):
 	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbol), "*" )

@@ -3,7 +3,6 @@ Windows user account
 """
 
 import sys
-import rdflib
 import psutil
 import lib_common
 from lib_properties import pc

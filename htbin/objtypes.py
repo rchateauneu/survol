@@ -7,7 +7,6 @@ Hierarchy of generic Survol ontology classes.
 
 import os
 import sys
-import rdflib
 
 import lib_util
 import lib_common
@@ -45,7 +44,7 @@ def Main():
 			entity_module = lib_util.GetEntityModule(intermedType)
 			entDoc = entity_module.__doc__
 			if entDoc:
-				grph.add( ( entityNode, lib_common.pc.property_information, rdflib.Literal(entDoc) ) )
+				grph.add( ( entityNode, lib_common.pc.property_information, lib_common.NodeLiteral(entDoc) ) )
 
 			# TODO: If this is a CIM class, add WMI or WBEM documentation, or add the link.
 

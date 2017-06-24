@@ -9,7 +9,6 @@ import lib_util
 import sys
 import psutil
 import socket
-import rdflib
 import lib_modules
 
 from lib_properties import pc
@@ -69,7 +68,7 @@ def Main():
 		# TODO: Ugly trick, otherwise nodes without connections are not displayed.
 		# TODO: I think this is a BUG in the dot file generation. Or in RDF ?...
 		if file_child is None:
-			grph.add( ( file_parent, pc.property_information, rdflib.Literal("") ) )
+			grph.add( ( file_parent, pc.property_information, lib_common.NodeLiteral("") ) )
 
 	# Splines are rather slow.
 	if maxCnt > 100:

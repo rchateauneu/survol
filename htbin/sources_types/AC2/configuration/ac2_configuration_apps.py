@@ -5,7 +5,6 @@ Configuration applications
 """
 
 import sys
-import rdflib
 import lib_common
 import lib_util
 import lib_uris
@@ -43,9 +42,9 @@ def DispApp(grph,configNode,configName):
 		attr_cronref = elt_app.getAttributeNode('cronref').value
 
 		nodeApp = AC2_application.MakeUri(configName,attr_name)
-		grph.add( ( nodeApp, lib_common.MakeProp("version"), rdflib.Literal( attr_version ) ) )
-		grph.add( ( nodeApp, lib_common.MakeProp("notifref"), rdflib.Literal( attr_notifref ) ) )
-		grph.add( ( nodeApp, lib_common.MakeProp("cronref"), rdflib.Literal( attr_cronref ) ) )
+		grph.add( ( nodeApp, lib_common.MakeProp("version"), lib_common.NodeLiteral( attr_version ) ) )
+		grph.add( ( nodeApp, lib_common.MakeProp("notifref"), lib_common.NodeLiteral( attr_notifref ) ) )
+		grph.add( ( nodeApp, lib_common.MakeProp("cronref"), lib_common.NodeLiteral( attr_cronref ) ) )
 
 		grph.add( ( configNode, lib_common.MakeProp("AC2 application"), nodeApp ) )
 

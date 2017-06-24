@@ -11,7 +11,6 @@ import psutil
 import lib_util
 import lib_common
 from lib_properties import pc
-import rdflib
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -24,8 +23,8 @@ def Main():
 
 	dskUsage = psutil.disk_usage(partitionNam)
 
-	grph.add( ( partitionNode, pc.property_disk_used, rdflib.Literal(dskUsage.used) ) )
-	grph.add( ( partitionNode, pc.property_disk_free, rdflib.Literal(dskUsage.free) ) )
+	grph.add( ( partitionNode, pc.property_disk_used, lib_common.NodeLiteral(dskUsage.used) ) )
+	grph.add( ( partitionNode, pc.property_disk_free, lib_common.NodeLiteral(dskUsage.free) ) )
 
 	cgiEnv.OutCgiRdf()
 

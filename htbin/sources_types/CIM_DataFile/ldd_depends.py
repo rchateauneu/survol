@@ -11,7 +11,6 @@ import psutil
 import socket
 import urllib
 import lib_util
-import rdflib
 from sources_types import CIM_DataFile
 import lib_common
 from lib_properties import pc

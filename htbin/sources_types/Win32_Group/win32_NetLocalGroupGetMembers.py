@@ -6,7 +6,6 @@ Members of a Windows local group
 
 from __future__ import generators
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -114,8 +113,8 @@ def Main():
 				memberNode = MemberNameToNode(sidUsage,memberName,servNameNotNone)
 
 				grph.add( (memberNode, pc.property_group, nodeGroup ) )
-				grph.add( (memberNode, lib_common.MakeProp("SID Usage"), rdflib.Literal(SidUsageToString(sidUsage) ) ) )
-				grph.add( (memberNode, lib_common.MakeProp("Security Identifier"), rdflib.Literal(member['sid']) ) )
+				grph.add( (memberNode, lib_common.MakeProp("SID Usage"), lib_common.NodeLiteral(SidUsageToString(sidUsage) ) ) )
+				grph.add( (memberNode, lib_common.MakeProp("Security Identifier"), lib_common.NodeLiteral(member['sid']) ) )
 
 				if servName_or_None:
 					nodeMemberRemote = MemberNameToNodeRemote(sidUsage,memberName,servName_or_None,serverBox)

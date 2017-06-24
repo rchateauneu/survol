@@ -6,7 +6,6 @@ Oracle procedures in a package
 
 import sys
 import lib_common
-import rdflib
 from lib_properties import pc
 import lib_oracle
 from sources_types.oracle import package as oracle_package

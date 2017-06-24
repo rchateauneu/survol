@@ -11,7 +11,6 @@ Symbolic link destination (Recursive)
 import os
 import re
 import sys
-import rdflib
 from sources_types import CIM_DataFile
 import lib_common
 from lib_properties import pc

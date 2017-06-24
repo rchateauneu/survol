@@ -6,7 +6,6 @@ Documentation of a COM type library entry
 
 import os
 import sys
-import rdflib
 import lib_common
 from lib_properties import pc
 

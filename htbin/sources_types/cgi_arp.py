@@ -6,7 +6,6 @@ ARP Command
 
 import sys
 import re
-import rdflib
 
 import lib_common
 import lib_arp
@@ -23,9 +22,9 @@ def Main():
 
 		hostNode = lib_common.gUriGen.HostnameUri( hostName )
 		if hstAddr != hostName:
-			grph.add( ( hostNode, pc.property_information, rdflib.Literal(hstAddr) ) )
-		grph.add( ( hostNode, pc.property_information, rdflib.Literal(linSplit[1]) ) )
-		grph.add( ( hostNode, pc.property_information, rdflib.Literal(linSplit[2]) ) )
+			grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral(hstAddr) ) )
+		grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral(linSplit[1]) ) )
+		grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral(linSplit[2]) ) )
 
 	cgiEnv.OutCgiRdf()
 

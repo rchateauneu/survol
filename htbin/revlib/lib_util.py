@@ -15,6 +15,14 @@ except ImportError:
 
 ################################################################################
 
+def NodeLiteral(value):
+	return rdflib.Literal(value)
+
+def NodeUrl(url):
+	return rdflib.term.URIRef(url)
+
+################################################################################
+
 def EncodeEntityId(entity_type,entity_id):
 	return "xid=%s.%s" % ( entity_type, entity_id )
 
@@ -397,7 +405,7 @@ def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", catego
 	url = uriRoot + "/class_type_all.py?xid=" + EncodeUri(monikerClass)
 
 	# sys.stdout.write("EntityClassUrl url=%s\n" % url)
-	return rdflib.term.URIRef( url )
+	return lib_common.NodeUrl( url )
 	# return url
 
 ################################################################################
@@ -407,7 +415,7 @@ def EntityUriFromDict(entity_type,entity_ids_kvp):
 	entity_id = ",".join( "%s=%s" % ( pairKW, entity_ids_kvp[pairKW] ) for pairKW in entity_ids_kvp )
 
 	url = Scriptize("/entity.py", entity_type, entity_id )
-	return rdflib.term.URIRef( url )
+	return lib_common.NodeUrl( url )
 
 # This is the most common case. Shame we call the slower function.
 def EntityUri(entity_type,*entity_ids):
@@ -426,7 +434,7 @@ def EntityUriDupl(entity_type,*entity_ids,**extra_args):
 	entity_id += "".join( ",%s=%s" % ( extArg, extra_args[extArg] ) for extArg in extra_args )
 
 	url = Scriptize("/entity.py", entity_type, entity_id )
-	return rdflib.term.URIRef( url )
+	return lib_common.NodeUrl( url )
 
 ################################################################################
 
@@ -719,7 +727,7 @@ def AnyUriModed(script, otherMode):
 def RootUri():
 	callingUrl = RequestUriModed("")
 	callingUrl = callingUrl.replace("&","&amp;")
-	return rdflib.term.URIRef(callingUrl)
+	return lib_common.NodeUrl(callingUrl)
 
 ################################################################################
 
@@ -951,7 +959,7 @@ def FromModuleToDoc(importedMod,filDfltText):
 		# If no doc available, just transform the file name.
 		docModu = filDfltText.replace("_"," ").capitalize()
 
-	nodModu = rdflib.Literal(docModu)
+	nodModu = lib_common.NodeLiteral(docModu)
 
 	return nodModu
 
@@ -980,13 +988,13 @@ def AppendNotNoneHostname(script,hostname):
 def UrlPortalWbem(hostname=None):
 	strUrl = AppendNotNoneHostname('/portal_wbem.py',hostname)
 
-	nodePortal = rdflib.term.URIRef( strUrl )
+	nodePortal = lib_common.NodeUrl( strUrl )
 	return nodePortal
 
 # Point to the WMI portal for a given machine.
 def UrlPortalWmi(hostname=None):
 	strUrl = AppendNotNoneHostname('/portal_wmi.py',hostname)
 
-	nodePortal = rdflib.term.URIRef( strUrl )
+	nodePortal = lib_common.NodeUrl( strUrl )
 	return nodePortal
 

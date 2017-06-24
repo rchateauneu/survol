@@ -5,7 +5,6 @@ AC2 configuration
 import os
 import sys
 import lib_common
-import rdflib
 import xml.dom.minidom
 import lib_uris
 from lib_properties import pc

@@ -6,7 +6,6 @@ nm command on executables and shared libraries (Linux), with classes
 
 import os
 import sys
-import rdflib
 import lib_nm
 import lib_util
 import lib_common
@@ -74,7 +73,7 @@ def AddSymbolInClass( grph, nodeSharedLib, symbol, file, prop ):
 
 def AddKnown(grph, nodeSharedLib, symbol, file, type):
 	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbol, file, pc.property_symbol_defined )
-	grph.add( ( symbolNode, pc.property_symbol_type, rdflib.Literal(type) ) )
+	grph.add( ( symbolNode, pc.property_symbol_type, lib_common.NodeLiteral(type) ) )
 
 def AddUnknown(grph, nodeSharedLib, symbol):
 	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbol, "*", pc.property_symbol_undefined )

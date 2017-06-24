@@ -3,7 +3,6 @@
 import os
 import sys
 import time
-import rdflib
 import cgi
 import lib_util
 import lib_common

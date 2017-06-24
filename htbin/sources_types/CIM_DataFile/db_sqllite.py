@@ -4,12 +4,8 @@
 Parse Sqlite database
 """
 
-#import os
-#import os.path
 import sys
-import rdflib
 import lib_common
-#from lib_properties import pc
 from sources_types import sqlite
 from sources_types.sqlite import file as sqlite_file
 

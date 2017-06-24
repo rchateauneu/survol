@@ -7,7 +7,6 @@ Windows dependencies (exe, dll, ocx, sys...) with pefile
 import os
 import os.path
 import sys
-import rdflib
 import lib_util
 import lib_win32
 import lib_common
@@ -41,7 +40,7 @@ class EnvPeFile:
 			#sys.stderr.write("filNam=%s\n"%filNam)
 			rootNode = lib_common.gUriGen.FileUri( filNam )
 			versStr = lib_win32.VersionString(filNam)
-			self.grph.add( ( rootNode, pc.property_information, rdflib.Literal(versStr) ) )
+			self.grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(versStr) ) )
 			self.cache_dll_to_imports[filNamLower] = rootNode
 
 			if maxLevel == 0:

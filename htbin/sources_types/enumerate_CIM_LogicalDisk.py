@@ -6,7 +6,6 @@ Disk partitions
 
 import sys
 import socket
-import rdflib
 import psutil
 import lib_util
 import lib_common
@@ -74,11 +73,11 @@ def Main():
 		# TODO: Check this list.
 		if part.fstype != "":
 			# partition(device='T:\\\\', mountpoint='T:\\\\', fstype='', opts='cdrom')
-			grph.add( ( nodePartition, pc.property_file_system_type, rdflib.Literal(part.fstype) ) )
+			grph.add( ( nodePartition, pc.property_file_system_type, lib_common.NodeLiteral(part.fstype) ) )
 			grph.add( ( nodeMount, pc.property_mount, nodePartition ) )
 
 		if part.opts != "":
-			grph.add( ( nodePartition, pc.property_mount_options,  rdflib.Literal(part.opts) ) )
+			grph.add( ( nodePartition, pc.property_mount_options,  lib_common.NodeLiteral(part.opts) ) )
 
 	cgiEnv.OutCgiRdf()
 

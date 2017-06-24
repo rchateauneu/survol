@@ -4,7 +4,6 @@
 Linux group users
 """
 
-import rdflib
 import sys
 import lib_util
 import lib_common
@@ -41,7 +40,7 @@ def Main():
         except IndexError:
             pass
 
-    grph.add( ( grpNode, pc.property_groupid, rdflib.Literal(grpId) ) )
+    grph.add( ( grpNode, pc.property_groupid, lib_common.NodeLiteral(grpId) ) )
 
     for user_name in split_users:
         if user_name:

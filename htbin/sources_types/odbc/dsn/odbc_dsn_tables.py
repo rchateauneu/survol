@@ -5,7 +5,6 @@ Tables for ODBC DSN
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -51,7 +50,7 @@ def Main():
             grph.add( (nodeDsn, pc.property_odbc_table, nodTab ) )
 
             for idxCol in ( 0, 1, 3):
-                grph.add( (nodTab, rdflib.Literal(colList[idxCol]), rdflib.Literal(row[idxCol]) ) )
+                grph.add( (nodTab, lib_common.NodeLiteral(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
         sys.stderr.write("tabNam=%s\n" % str(sys.exc_info()))

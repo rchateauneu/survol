@@ -7,7 +7,6 @@ Groups of a Linux user
 import re
 import sys
 import subprocess
-import rdflib
 
 import lib_common
 import lib_util
@@ -80,12 +79,12 @@ def Main():
 
 	userId = ParseIdNam( firstSplit[0] )[0]
 
-	grph.add( ( userNode, pc.property_userid, rdflib.Literal(userId) ) )
+	grph.add( ( userNode, pc.property_userid, lib_common.NodeLiteral(userId) ) )
 
 	for grpStr in firstSplit[2].split(','):
 		(grpId,grpNam) = ParseIdNam(grpStr)
 		grpNode = lib_common.gUriGen.GroupUri(grpNam)
-		grph.add( ( grpNode, pc.property_groupid, rdflib.Literal(grpId) ) )
+		grph.add( ( grpNode, pc.property_groupid, lib_common.NodeLiteral(grpId) ) )
 		grph.add( ( userNode, pc.property_group, grpNode ) )
 
 	cgiEnv.OutCgiRdf()

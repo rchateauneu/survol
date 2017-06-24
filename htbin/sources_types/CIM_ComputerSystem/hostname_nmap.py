@@ -7,7 +7,6 @@ Nmap network exploration results
 import sys
 import re
 import socket
-import rdflib
 import subprocess
 import xml.dom.minidom
 
@@ -55,7 +54,7 @@ def Main():
 		nodeHost = lib_common.gUriGen.HostnameUri( host )
 		for dhostname in dhost.getElementsByTagName('hostname'):
 			hostnam = dhostname.getAttributeNode('name').value
-			grph.add( ( nodeHost, pc.property_hostname, rdflib.Literal( hostnam ) ) )
+			grph.add( ( nodeHost, pc.property_hostname, lib_common.NodeLiteral( hostnam ) ) )
 
 		for dport in dhost.getElementsByTagName('port'):
 			proto = dport.getAttributeNode('protocol').value
@@ -66,10 +65,10 @@ def Main():
 			survol_addr.DecorateSocketNode(grph, socketNode, host, port, proto)
 
 			state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
-			grph.add( ( socketNode, lib_common.MakeProp("State"), rdflib.Literal(state) ) )
+			grph.add( ( socketNode, lib_common.MakeProp("State"), lib_common.NodeLiteral(state) ) )
 			
 			reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
-			grph.add( ( socketNode, lib_common.MakeProp("Reason"), rdflib.Literal(reason) ) )
+			grph.add( ( socketNode, lib_common.MakeProp("Reason"), lib_common.NodeLiteral(reason) ) )
 
 			# name if any
 			#for dname in dport.getElementsByTagName('service'):

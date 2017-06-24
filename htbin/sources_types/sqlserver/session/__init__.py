@@ -4,7 +4,6 @@ Sqlserver session
 
 import sys
 import six
-import rdflib
 import lib_common
 from lib_properties import pc
 
@@ -54,12 +53,12 @@ def AddInfo(grph,node,entity_ids_arr):
 		""" % sessionId
 
 		for rowConnections in cursorConnections.execute(qryConnections):
-			grph.add( (node, lib_common.MakeProp("Net transport"), rdflib.Literal(rowConnections.net_transport) ) )
-			grph.add( (node, lib_common.MakeProp("Protocol type"), rdflib.Literal(rowConnections.protocol_type) ) )
-			grph.add( (node, lib_common.MakeProp("Auth scheme"), rdflib.Literal(rowConnections.auth_scheme) ) )
-			grph.add( (node, lib_common.MakeProp("Connect time"), rdflib.Literal(rowConnections.connect_time) ) )
-			grph.add( (node, lib_common.MakeProp("Last read"), rdflib.Literal(rowConnections.last_read) ) )
-			grph.add( (node, lib_common.MakeProp("Last write"), rdflib.Literal(rowConnections.last_write) ) )
+			grph.add( (node, lib_common.MakeProp("Net transport"), lib_common.NodeLiteral(rowConnections.net_transport) ) )
+			grph.add( (node, lib_common.MakeProp("Protocol type"), lib_common.NodeLiteral(rowConnections.protocol_type) ) )
+			grph.add( (node, lib_common.MakeProp("Auth scheme"), lib_common.NodeLiteral(rowConnections.auth_scheme) ) )
+			grph.add( (node, lib_common.MakeProp("Connect time"), lib_common.NodeLiteral(rowConnections.connect_time) ) )
+			grph.add( (node, lib_common.MakeProp("Last read"), lib_common.NodeLiteral(rowConnections.last_read) ) )
+			grph.add( (node, lib_common.MakeProp("Last write"), lib_common.NodeLiteral(rowConnections.last_write) ) )
 
 			if rowConnections.net_transport == "TCP":
 				lsocketNode = lib_common.gUriGen.AddrUri( rowConnections.local_net_address, rowConnections.local_tcp_port )

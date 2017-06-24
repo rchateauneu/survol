@@ -4,8 +4,6 @@
 DBus buses
 """
 
-import rdflib
-
 import lib_common
 import lib_util
 from lib_properties import pc

@@ -6,9 +6,7 @@ Azure available subscriptions
 
 import sys
 import socket
-import rdflib
 import psutil
-import rdflib
 import lib_util
 import lib_common
 import lib_credentials

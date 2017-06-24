@@ -5,7 +5,6 @@ AC2 component state / status script.
 """
 
 import sys
-import rdflib
 import lib_common
 import lib_util
 import lib_uris

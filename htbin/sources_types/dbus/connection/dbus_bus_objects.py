@@ -6,7 +6,6 @@ DBus connection objects
 
 import os
 import sys
-import rdflib
 import dbus
 import lib_common
 import lib_util
@@ -56,7 +55,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	Main.localPropDbusPath = rdflib.Literal("dbus-path")
+	Main.localPropDbusPath = lib_common.NodeLiteral("dbus-path")
 
 	try:
 		RecursiveObjWalk( grph, "/", connectNode )

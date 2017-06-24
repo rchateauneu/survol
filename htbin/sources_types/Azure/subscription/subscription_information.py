@@ -6,7 +6,6 @@ Azure subscription informations
 
 import sys
 import socket
-import rdflib
 import psutil
 import lib_util
 import lib_common
@@ -37,15 +36,15 @@ def Main():
 	subscriptionNode = subscription.MakeUri( subscriptionName )
 
 	# There are a lot of informations
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".cert_file"), rdflib.Literal(sms.cert_file)) )
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".requestid"), rdflib.Literal(sms.requestid)) )
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".x_ms_version"), rdflib.Literal(sms.x_ms_version)) )
-	grph.add( ( subscriptionNode, lib_common.MakeProp("Azure"), rdflib.Literal(str(dir(sms))) ) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp(".cert_file"), lib_common.NodeLiteral(sms.cert_file)) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp(".requestid"), lib_common.NodeLiteral(sms.requestid)) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp(".x_ms_version"), lib_common.NodeLiteral(sms.x_ms_version)) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp("Azure"), lib_common.NodeLiteral(str(dir(sms))) ) )
 
 	#propOperatingSystem = lib_common.MakeProp("Operating System")
 	#for opsys in sms.list_operating_systems():
 	#	sys.stderr.write("opsys=%s\n"%str(dir(opsys)))
-	#	grph.add( ( subscriptionNode, propOperatingSystem, rdflib.Literal(opsys.family_label)) )
+	#	grph.add( ( subscriptionNode, propOperatingSystem, lib_common.NodeLiteral(opsys.family_label)) )
 
 	propOperatingSystemFamily = lib_common.MakeProp("Operating System Family")
 
@@ -57,7 +56,7 @@ def Main():
 
 	for opsys in lstOSes:
 		# sys.stderr.write("opsys=%s\n"%str(dir(opsys)))
-		grph.add( ( subscriptionNode, propOperatingSystemFamily, rdflib.Literal(opsys.label)) )
+		grph.add( ( subscriptionNode, propOperatingSystemFamily, lib_common.NodeLiteral(opsys.label)) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propOperatingSystemFamily])
 

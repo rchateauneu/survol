@@ -4,7 +4,6 @@
 Processes mapping this file in memory
 """
 
-import rdflib
 import lib_common
 from lib_properties import pc
 from sources_types import memmap

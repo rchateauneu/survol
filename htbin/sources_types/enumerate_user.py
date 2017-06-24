@@ -6,7 +6,6 @@ Users
 
 import sys
 import socket
-import rdflib
 import psutil
 import lib_common
 from lib_properties import pc

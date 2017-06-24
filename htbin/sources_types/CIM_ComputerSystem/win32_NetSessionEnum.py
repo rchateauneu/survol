@@ -5,7 +5,6 @@ Windows sessions established on a server
 """
 
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -38,7 +37,7 @@ def Main():
 	for eltLst in sessionList:
 		for keyLst in eltLst:
 			valLst = eltLst[keyLst]
-			grph.add( ( nodeHost, lib_common.MakeProp(keyLst), rdflib.Literal( valLst ) ) )
+			grph.add( ( nodeHost, lib_common.MakeProp(keyLst), lib_common.NodeLiteral( valLst ) ) )
 
 	cgiEnv.OutCgiRdf()
 

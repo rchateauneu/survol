@@ -9,7 +9,6 @@ import re
 import sys
 import six
 import psutil
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -139,7 +138,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	# Not really useful.
-	grph.add( ( lib_common.nodeMachine, pc.property_hostname, rdflib.Literal( lib_util.currentHostname ) ) )
+	grph.add( ( lib_common.nodeMachine, pc.property_hostname, lib_common.NodeLiteral( lib_util.currentHostname ) ) )
 
 	mapToProc = {}
 
@@ -174,7 +173,7 @@ def Main():
 	# sys.stderr.write( "Leaving second maps enumeration\n" )
 
 	for pid, nodeProcess in six.iteritems( addedProcs ):
-		grph.add( ( nodeProcess, pc.property_pid, rdflib.Literal(pid) ) )
+		grph.add( ( nodeProcess, pc.property_pid, lib_common.NodeLiteral(pid) ) )
 
 
 	# TODO: Petit bug: Ca duplique les memmap. Forcement, l'affichage en tables

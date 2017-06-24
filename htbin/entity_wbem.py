@@ -12,7 +12,6 @@ Display generic properties of a WBEM object.
 import sys
 import lib_common
 import lib_util
-import rdflib
 from lib_properties import pc
 
 try:
@@ -50,7 +49,7 @@ rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WBEM" )
 klaDescrip = lib_wbem.WbemClassDescription(conn,className,nameSpace)
 if not klaDescrip:
 	klaDescrip = "Undefined class %s %s" % ( nameSpace, className )
-grph.add( ( rootNode, pc.property_information, rdflib.Literal(klaDescrip ) ) )
+grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(klaDescrip ) ) )
 
 splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )
 
@@ -211,7 +210,7 @@ for anInst in instLists:
 		inameVal = dictInst[inameKey]
 		# TODO: If this is a reference, create a Node !!!!!!!
 		if not inameVal is None:
-			grph.add( ( uriInst, lib_common.MakeProp(inameKey), rdflib.Literal(inameVal) ) )
+			grph.add( ( uriInst, lib_common.MakeProp(inameKey), lib_common.NodeLiteral(inameVal) ) )
 
 
 	# TODO: Appeler la methode Associators(). Idem References().

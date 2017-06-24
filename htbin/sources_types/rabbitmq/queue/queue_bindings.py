@@ -5,7 +5,6 @@ RabbitMQ queue bindings
 """
 
 import sys
-import rdflib
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -54,7 +53,7 @@ def Main():
 		for keyBindings in sublstBindings:
 			valBindings = sublstBindings[keyBindings]
 			strDisp = str(valBindings).replace("{","").replace("}","")
-			grph.add( ( nodeQueue, lib_common.MakeProp(keyBindings), rdflib.Literal(strDisp ) ))
+			grph.add( ( nodeQueue, lib_common.MakeProp(keyBindings), lib_common.NodeLiteral(strDisp ) ))
 			sys.stderr.write("keyBindings=%s valBindings=%s\n"%(keyBindings,valBindings))
 
 	cgiEnv.OutCgiRdf()

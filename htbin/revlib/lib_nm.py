@@ -5,7 +5,6 @@ import psutil
 import socket
 import urllib
 import platform
-import rdflib
 import lib_util
 import lib_common
 

@@ -6,7 +6,6 @@ Versions of registered COM type libraries
 
 import os
 import sys
-import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -38,8 +37,8 @@ def Main():
 		#strVersion = "Version=%.1f" % ( versionStr )
 		#nodeDllVersionNode = lib_common.gUriGen.FileUri( "DLL" + name )
 		#versionNode = lib_common.gUriGen.FileUri( name )
-		#grph.add( (versionNode, pc.property_information, rdflib.Literal("name="+name) ) )
-		#grph.add( (versionNode, pc.property_information, rdflib.Literal(strVersion) ) )
+		#grph.add( (versionNode, pc.property_information, lib_common.NodeLiteral("name="+name) ) )
+		#grph.add( (versionNode, pc.property_information, lib_common.NodeLiteral(strVersion) ) )
 		#grph.add( (typelibNode, pc.property_com_version, versionStr ) )
 
 
@@ -98,8 +97,8 @@ def Main():
 							# ret.append(HLITypeLib(fname, "Type Library" + extraDesc))
 
 							fnameMysteryNode = lib_common.gUriGen.ComTypeLibUri( fname )
-							grph.add( (fnameMysteryNode, pc.property_information, rdflib.Literal("lcid=%d"%lcid) ) )
-							grph.add( (fnameMysteryNode, pc.property_information, rdflib.Literal("platform="+platform) ) )
+							grph.add( (fnameMysteryNode, pc.property_information, lib_common.NodeLiteral("lcid=%d"%lcid) ) )
+							grph.add( (fnameMysteryNode, pc.property_information, lib_common.NodeLiteral("platform="+platform) ) )
 							grph.add( (typelibNode, pc.property_com_version, fnameMysteryNode ) )
 
 							lcidnum = lcidnum + 1

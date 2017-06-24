@@ -16,7 +16,7 @@ primns_slash = primns + '/'
 # On voudrait idealement:
 # dflib.term.URIRef(primns_slash + "smbmount", key1=val, key2=val2)
 # Et aussi, on n'a pas besoin des URIRef.
-#   rdflib.Literal({"type":"html","title":"yawn","color":"blue"})
+#   lib_common.NodeLiteral({"type":"html","title":"yawn","color":"blue"})
 #   rdflib.term.Literal(u"{'color': 'blue', 'type': 'html', 'title': 'yawn'}")
 # Alors on pourrait tout garder pareil sauf les tests d'egalite "html" et "rdf":
 # On teste que la clef est en fait un tableau contenant des proprietes.
@@ -29,7 +29,7 @@ def MakeProp(prp,**kvargs):
 	# TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
 	# http://primhillcomputers.com/ontologies/swapnote\ futures
 	# If the space is replaced by "%20", everything before it is erased.
-	return rdflib.term.URIRef( ret.replace(" ","_") )
+	return rdflib.URIRef( ret.replace(" ","_") )
 
 # TODO: Peut-etre: "pc" devrait etre un objet ou on redefinit l appel d un membre,
 # ce qui permet de creer dynamiquement des proprietes.

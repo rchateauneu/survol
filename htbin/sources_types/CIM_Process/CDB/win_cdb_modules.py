@@ -8,7 +8,6 @@ import re
 import os
 import sys
 import subprocess
-import rdflib
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -115,19 +114,19 @@ def Main():
 		match_lin = re.match( " *CompanyName: *(.*)", dot_line )
 		if match_lin:
 			companyName = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("Company Name"), rdflib.Literal(companyName) ) )
+			grph.add( ( fileNode, lib_common.MakeProp("Company Name"), lib_common.NodeLiteral(companyName) ) )
 			continue
 
 		match_lin = re.match( " *File OS: *(.*)", dot_line )
 		if match_lin:
 			fileOS = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("File OS"), rdflib.Literal(fileOS) ) )
+			grph.add( ( fileNode, lib_common.MakeProp("File OS"), lib_common.NodeLiteral(fileOS) ) )
 			continue
 
 		match_lin = re.match( " *FileDescription: *(.*)", dot_line )
 		if match_lin:
 			fileDescription = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("Description"), rdflib.Literal(fileDescription) ) )
+			grph.add( ( fileNode, lib_common.MakeProp("Description"), lib_common.NodeLiteral(fileDescription) ) )
 			continue
 
 		# sys.stderr.write("dot_line=%s\n" % dot_line )

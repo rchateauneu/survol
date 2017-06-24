@@ -6,7 +6,6 @@ Tables dependencies in an Oracle query
 
 import lib_oracle
 import lib_common
-import rdflib
 import lib_sql
 from sources_types.sql import query as sql_query
 from sources_types.oracle import query as oracle_query

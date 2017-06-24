@@ -6,7 +6,6 @@ Processes tree
 
 import sys
 import psutil
-import rdflib
 import lib_common
 from sources_types import CIM_Process
 from lib_properties import pc
@@ -60,10 +59,10 @@ def Main():
 
 		# We avoid duplicating the edges. Why would the RDF merge do?
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
-		grph.add( ( node_process, pc.property_pid, rdflib.Literal(pid) ) )
+		grph.add( ( node_process, pc.property_pid, lib_common.NodeLiteral(pid) ) )
 		usrNam = CIM_Process.PsutilProcToUser(proc,None)
 		if usrNam:
-			grph.add( ( node_process, pc.property_user, rdflib.Literal(usrNam) ) )
+			grph.add( ( node_process, pc.property_user, lib_common.NodeLiteral(usrNam) ) )
 
 		# TODO: Add the username as a property ? Change the color with the username ?
 		# Pour les couleurs, on pourrait imaginer d'aller chercher les icones des utilisateurs
@@ -72,7 +71,7 @@ def Main():
 		# Si c'est un process oracle, on prend les couleurs de notre package Oracle etc...
 
 		# procUsername = lib_common.PsutilProcToUser(proc)
-		# grph.add( ( node_process, pc.property_user, rdflib.Literal(procUsername) ) )
+		# grph.add( ( node_process, pc.property_user, lib_common.NodeLiteral(procUsername) ) )
 
 	cgiEnv.OutCgiRdf()
 
