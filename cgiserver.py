@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+YappiProfile = False
+try:
+    import yappi
+except ImportError:
+    YappiProfile = False
 import sys
 
 # If Apache is not available or if we want to run the website
@@ -35,6 +40,18 @@ if 'linux' in sys.platform:
 #     os.environ[pyKey] =extraPath
 #os.environ.copy()
 
+def ServerForever(server):
+    if YappiProfile:
+        try:
+            yappi.start()
+            server.serve_forever()
+        except KeyboardInterrupt:
+            print("Leaving")
+            yappi.get_func_stats().print_all()
+            yappi.get_thread_stats().print_all()
+    else:
+        server.serve_forever()
+
 if sys.version_info[0] < 3:
     # Not finished.
     import CGIHTTPServer
@@ -59,7 +76,9 @@ if sys.version_info[0] < 3:
     handler.cgi_directories = [ 'htbin' ]
     print("Cgi directories=%s" % handler.cgi_directories)
     server = HTTPServer(('localhost', 8000), handler)
-    server.serve_forever()
+
+    ServerForever(server)
+
 else:
     from http.server import CGIHTTPRequestHandler, HTTPServer
     class MyCGIHTTPServer(CGIHTTPRequestHandler):
