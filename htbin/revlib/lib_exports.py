@@ -165,7 +165,7 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 
 			obj_str = str(obj)
 
-			if isinstance( obj , (lib_common.NodeUrl, rdflib.BNode)):
+			if isinstance( obj , (rdflib.URIRef, rdflib.BNode)):
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 				WrtAsUtf( "<td>" + AntiPredicateUri(str(pred)) + "</td>")
 				url_with_mode = lib_util.ConcatenateCgi( obj_str, "mode=html" )
@@ -268,14 +268,19 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 		propNam = PropToShortPropNam(pred)
 
-		if isinstance(obj, (lib_common.NodeUrl, rdflib.BNode)):
+		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
 			objObj = NodeToJsonObj(obj)
 			obj_id = objObj.m_index
 			# "value" is for the class, for example ".link10".
 			links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam, 'value': 10}])
-		elif isinstance(obj, (lib_common.NodeLiteral)):
+		elif isinstance(obj, (rdflib.Literal)):
 			if pred == pc.property_information:
-				subjObj.m_info_list.append( str(obj.value) )
+				try:
+					subjObj.m_info_list.append( str(obj.value) )
+				except UnicodeEncodeError:
+					# 'ascii' codec can't encode character u'\xf3' in position 17: ordinal not in range(128)
+					# https://stackoverflow.com/questions/9942594/unicodeencodeerror-ascii-codec-cant-encode-character-u-xa0-in-position-20
+					subjObj.m_info_list.append( obj.value.encode('utf-8') )
 			else:
 				if isinstance(obj.value, six.integer_types) or isinstance(obj.value, six.string_types):
 					subjObj.m_info_dict[propNam] = obj.value
@@ -353,7 +358,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 			except KeyError:
 				NodesToItems[subj] = [obj]
 
-			if isinstance(obj, (lib_common.NodeLiteral)):
+			if isinstance(obj, (rdflib.Literal)):
 				# This is the name of a subdirectory containing scripts.
 				# sys.stderr.write("obj LITERAL=%s\n"%str(subj))
 				NodesToNames[obj] = obj
@@ -361,7 +366,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 			NodesWithParent.add(obj)
 			SubjectNodes.add(subj)
 		elif pred == pc.property_information:
-			if isinstance(obj, (lib_common.NodeLiteral)):
+			if isinstance(obj, (rdflib.Literal)):
 				#sys.stderr.write("subj=%s\n"%str(subj))
 				#sys.stderr.write("obj.value=%s\n"%obj.value)
 				NodesToNames[subj] = obj.value
@@ -476,11 +481,20 @@ def UrlToMergeD3():
 	# While we are at it, we needs the beginning of the URL.
 	urlHost = callingUrl[:htbinIdx]
 
-	urlWithoutHostB64 = lib_util.Base64Encode(urlWithoutHost)
-	sys.stderr.write("urlWithoutHostB64=%s\n"%urlWithoutHostB64)
+	sys.stderr.write("UrlToMergeD3 urlWithoutHost=%s\n"%urlWithoutHost)
 
-	scriptD3Url = urlHost + "/survol_d3.htm?url=" + urlWithoutHostB64
-	sys.stderr.write("scriptD3Url=%s\n"%scriptD3Url)
+	# Maybe this URL is already a merge of B64-encoded URLs:
+	# urlWithoutHost="/htbin/merge_scripts.py?url=aHR0cDovy4w...LjAuMTo42h0Yml&url=aHR0cD...AuMTo4MDA"
+	htbinPrefixMergeScript = "/htbin/merge_scripts.py"
+	if urlWithoutHost.startswith(htbinPrefixMergeScript):
+		# If so, no need to re-encode.
+		urlWithoutHostB64 = urlWithoutHost[len(htbinPrefixMergeScript):]
+	else:
+		urlWithoutHostB64 = "?url=" + lib_util.Base64Encode(urlWithoutHost)
+	sys.stderr.write("UrlToMergeD3 urlWithoutHostB64=%s\n"%urlWithoutHostB64)
+
+	scriptD3Url = urlHost + "/survol_d3.htm" + urlWithoutHostB64
+	sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
 	return scriptD3Url
 
 	# Start by removing the mode.

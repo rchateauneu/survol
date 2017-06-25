@@ -405,7 +405,7 @@ def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", catego
 	url = uriRoot + "/class_type_all.py?xid=" + EncodeUri(monikerClass)
 
 	# sys.stdout.write("EntityClassUrl url=%s\n" % url)
-	return lib_common.NodeUrl( url )
+	return NodeUrl( url )
 	# return url
 
 ################################################################################
@@ -415,7 +415,7 @@ def EntityUriFromDict(entity_type,entity_ids_kvp):
 	entity_id = ",".join( "%s=%s" % ( pairKW, entity_ids_kvp[pairKW] ) for pairKW in entity_ids_kvp )
 
 	url = Scriptize("/entity.py", entity_type, entity_id )
-	return lib_common.NodeUrl( url )
+	return NodeUrl( url )
 
 # This is the most common case. Shame we call the slower function.
 def EntityUri(entity_type,*entity_ids):
@@ -434,7 +434,7 @@ def EntityUriDupl(entity_type,*entity_ids,**extra_args):
 	entity_id += "".join( ",%s=%s" % ( extArg, extra_args[extArg] ) for extArg in extra_args )
 
 	url = Scriptize("/entity.py", entity_type, entity_id )
-	return lib_common.NodeUrl( url )
+	return NodeUrl( url )
 
 ################################################################################
 
@@ -727,7 +727,7 @@ def AnyUriModed(script, otherMode):
 def RootUri():
 	callingUrl = RequestUriModed("")
 	callingUrl = callingUrl.replace("&","&amp;")
-	return lib_common.NodeUrl(callingUrl)
+	return NodeUrl(callingUrl)
 
 ################################################################################
 
@@ -959,7 +959,7 @@ def FromModuleToDoc(importedMod,filDfltText):
 		# If no doc available, just transform the file name.
 		docModu = filDfltText.replace("_"," ").capitalize()
 
-	nodModu = lib_common.NodeLiteral(docModu)
+	nodModu = NodeLiteral(docModu)
 
 	return nodModu
 
@@ -988,13 +988,13 @@ def AppendNotNoneHostname(script,hostname):
 def UrlPortalWbem(hostname=None):
 	strUrl = AppendNotNoneHostname('/portal_wbem.py',hostname)
 
-	nodePortal = lib_common.NodeUrl( strUrl )
+	nodePortal = NodeUrl( strUrl )
 	return nodePortal
 
 # Point to the WMI portal for a given machine.
 def UrlPortalWmi(hostname=None):
 	strUrl = AppendNotNoneHostname('/portal_wmi.py',hostname)
 
-	nodePortal = lib_common.NodeUrl( strUrl )
+	nodePortal = NodeUrl( strUrl )
 	return nodePortal
 

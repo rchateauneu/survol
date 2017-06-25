@@ -11,8 +11,6 @@ dictGraphParams = {
 	"addr"                                   : ( "rarrow",    "#FFFF99", "#FFFF99", 0, False ),
 	"CIM_Process"                            : ( "component", "#99FF88", "#99FF88", 0, False ),
 	"CIM_Directory"                          : ( "folder",    "#8899FF", "#8899FF", 0, False ),
-	# TODO: Not sure that ComposeTypes() will be kept. No real concept nor feature, not really used.
-	lib_util.ComposeTypes("CIM_DataFile","script")   : ( "box",       "#FFFF66", "#FFFF66", 0, False ),
 	"CIM_DataFile"                           : ( "note",      "#88BBFF", "#88BBFF", 0, False ),
 	"group"                                  : ( "plain",     "#88BBFF", "#88BBFF", 0, False ),
 	"CIM_ComputerSystem"                     : ( "signature", "#CCFFCC", "#CCFFCC", 0, False ),
