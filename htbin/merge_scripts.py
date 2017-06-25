@@ -44,20 +44,26 @@ for urlfil in arguments.getlist("url"):
 	else:
 		cgiQueryString = ""
 
-	if urlNoArgs.startswith("http://"):
-		# url="http://127.0.0.1:8000/htbin/sources_types/oracle/db/oracle_db_schemas.py?xid=oracle/db.Db%3DXE"
-		# uprs = urlparse(url)
-		# ParseResult(scheme='http', netloc='127.0.0.1:8000', path='/htbin/sources_types/oracle/db/oracle_db_schemas.py', params='', query='xid=oracle/db.Db%3DXE', fragment='')
-		urlParsed = urlparse(urlNoArgs)
+	#if urlNoArgs.startswith("http://"):
+	#	# url="http://127.0.0.1:8000/htbin/sources_types/oracle/db/oracle_db_schemas.py?xid=oracle/db.Db%3DXE"
+	#	# uprs = urlparse(url)
+	#	# ParseResult(scheme='http', netloc='127.0.0.1:8000', path='/htbin/sources_types/oracle/db/oracle_db_schemas.py', params='', query='xid=oracle/db.Db%3DXE', fragment='')
+	#	urlParsed = urlparse(urlNoArgs)
+#
+#		# The CGI arguments will be injected in the cgiEnv object before calling the script.
+	#	urlPath = urlParsed.path
+	#	urlPathShort = urlPath[7:]
+	#elif complete_url.startswith("htbin/"):
+	#	urlPath = urlNoArgs
+	#	urlPathShort = urlPath[6:]
+	#else:
+	#	sys.stderr.write("SHOULD NOT HAPPEN url=%s\n"%complete_url)
 
-		# The CGI arguments will be injected in the cgiEnv object before calling the script.
-		urlPath = urlParsed.path
-		urlPathShort = urlPath[7:]
-	elif complete_url.startswith("htbin/"):
-		urlPath = urlNoArgs
-		urlPathShort = urlPath[6:]
-	else:
+
+	idxHtbin = urlNoArgs.find("/htbin/")
+	if idxHtbin == -1:
 		sys.stderr.write("SHOULD NOT HAPPEN url=%s\n"%complete_url)
+	urlPathShort = urlNoArgs[idxHtbin+7:]
 
 	urlDirNam = os.path.dirname(urlPathShort)
 	moduNam = urlDirNam.replace("/",".")
