@@ -1268,11 +1268,24 @@ function DisplayD3Layout(divSvg,newData,w,h)
 // At startup.
 var theurl = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
 
+/* The calling URL might as well be:
+http://192.168.1.88/Survol/htbin/entity.py?xid=smbshr.Id=////WDMyCloudMirror/rchateau
+http://127.0.0.1:8000/htbin/sources_types/CIM_Directory/file_directory.py?xid=file.Id%3DC%3A\windows\system32
+*/
+
 function UrlRelativeToAbsolute(href) {
     'use strict';
     var link = document.createElement("a");
+
+    /*
     link.href = href;
     return (link.protocol+"//"+link.host+link.pathname+link.search+link.hash);
+    */
+    var idxRel = href.indexOf("htbin/");
+    var idxAbs = link.href.indexOf("htbin/");
+
+    console.log("beg="+ link.href.substring(0,idxAbs) + " end="+ href.substring(idxRel) );
+    return link.href.substring(0,idxAbs) + href.substring(idxRel);
 }
 
 function BuildSubUrlsListFromCgi(cgiArgs)
