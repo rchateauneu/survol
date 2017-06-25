@@ -574,6 +574,7 @@ function DeleteSvgNode(objectSvg)
 
     EmptyDisplay();
     DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    console.log("DeleteSvgNode reset globalMustMerge");
     globalMustMerge = false;
 } // DeleteSvgNode
 
@@ -654,6 +655,7 @@ function DeleteSvgConnectedNodes(objectSvg)
     // Same code as for deleting one node.
     EmptyDisplay();
     DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    console.log("DeleteSvgConnectedNodes reset globalMustMerge");
     globalMustMerge = false;
 } // DeleteSvgConnectedNodes
 
@@ -673,20 +675,24 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 {
     'use strict';
 
-    function LoaderCallback(data)
+    if( ! shouldMerge ) {
+        lstLoadedUrls = [];
+    }
+
+    // This is called by a JSON document loaded from a Python script.
+    function LoaderCallback(data, funcDisplay, urlJson)
     {
+        console.log("LoaderCallback urlJson="+urlJson);
         if( data == null )
         {
             console.log("LoaderCallback: data is null");
             return;
         }
+        // This merges the new data with the current one.
         funcDisplay(data);
 
-        if( ! shouldMerge ) {
-            lstLoadedUrls = [];
-        }
         var objLoadedUrlNew = {
-            m_loaded_url : theUrl.replace("&mode=json",""),
+            m_loaded_url : urlJson.replace("&mode=json",""),
             m_loaded_title : data.page_title,
             m_loaded_nodes_length : data.nodes.length,
             m_loaded_links_length : data.links.length
@@ -707,7 +713,7 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
         for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
         {
             var objLoadedUrl = lstLoadedUrls[ixLoaded];
-            var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
+            console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
 
             urlsHtml += "<tr>";
             urlsHtml += '<td><a href="' + objLoadedUrl.m_loaded_url + '">' + objLoadedUrl.m_loaded_title + '</a></td>';
@@ -721,9 +727,9 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
             cgiDelim = "&url=";
         }
         urlsHtml += "<tr>";
-        urlsHtml += "<td><a href='" + urlMerge + "'>Merge</td>";
+        urlsHtml += "<td><a href='" + urlMerge + "'>Merged print-out</td>";
         urlsHtml += "<td>" + previousData.nodes.length + "</td>";
-        urlsHtml += "<td>" + previousData.nodes.length + "</td>";
+        urlsHtml += "<td>" + previousData.links.length + "</td>";
         urlsHtml += "<td></td>";
         urlsHtml += "</tr>";
         urlsHtml += "</table>";
@@ -733,7 +739,7 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 
     /* TODO: If theUrl="http://127.0.0.1:8000/htbin/merge_scripts.py?url=aHRiaW4vc...",
     then parse the URLs, and load each of them. */
-    console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
+    console.log("LoadUrlUpdateDisplay theUrl="+theUrl+" shouldMerge="+shouldMerge);
 
     if(isDragging) {
         console.log("NoUrl loading when dragging");
@@ -745,33 +751,11 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
         divTooltip.style("opacity", 0);
     }
 
-    var idxScriptStart = theUrl.indexOf(pyMergeScript);
-    console.log("idxScriptStart="+idxScriptStart);
-    if( idxScriptStart == -1 ) {
-        d3.json(theUrl,LoaderCallback);
-    } else {
-        /* theUrl = "/htbin/merge_scripts.py?url=aHR0cDov...uZG93cw&url=aHR0cDovLzE...QSUyRg&mode=json" */
-        var idxScriptEnd = idxScriptStart + pyMergeScript.length;
-        console.log("cgiArgs="+cgiArgs);
-        var cgiArgs = theUrl.substring( idxScriptEnd + 1 );
-        var splitCgiArgs = cgiArgs.split("&");
-        for(var kvpIdx in splitCgiArgs)
+    d3.json(theUrl,
+        function(data)
         {
-            var kvp = splitCgiArgs[kvpIdx];
-            console.log("kvp="+kvp);
-            var splitKVP = kvp.split("=");
-            if( splitKVP.length == 2)
-            {
-                if(splitKVP[0] == "url")
-                {
-                    // BEWARE !!! MAYBE NO FIRST ARGUMENT !!!
-                    var aUrlRel = Base64.decode(splitKVP[1]) + "&mode=json";
-                    console.log("aUrlRel="+aUrlRel);
-                    d3.json(aUrlRel,LoaderCallback);
-                }
-            }
-        } // for
-    }
+            LoaderCallback(data,funcDisplay,theUrl);
+        });
 
 } // LoadUrlUpdateDisplay
 
@@ -1280,27 +1264,9 @@ function DisplayD3Layout(divSvg,newData,w,h)
     CreateContextMenus();
 } // DisplayD3Layout
 
-/*
-    function LoadUrlsList()
-    {
-        prms = resetParams();
-    }
-
-    // Related to a change in history ?
-    //window.addEventListener && window.addEventListener('popstate', BuildUrlsList);
-
-    BuildUrlsList();
-
-    console.log("params="+JSON.stringify(BuildUrlsList));
-    // return function(BuildUrlsList) { return params.hasOwnProperty(BuildUrlsList) ? BuildUrlsList[param] : null; }
-    return BuildUrlsList;
-}; // GetCgiParams
-*/
 
 // At startup.
 var theurl = "htbin/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
-// var theurl = "htbin/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D2976&mode=json";
-// var theurl = "htbin/sources_types/enumerate_CIM_LogicalDisk.py?xid=.&mode=json";
 
 function UrlRelativeToAbsolute(href) {
     'use strict';
@@ -1309,54 +1275,114 @@ function UrlRelativeToAbsolute(href) {
     return (link.protocol+"//"+link.host+link.pathname+link.search+link.hash);
 }
 
-function PreloadUrls(theInputUrls)
+function BuildSubUrlsListFromCgi(cgiArgs)
 {
     'use strict';
-    console.log("theInputUrls="+JSON.stringify(theInputUrls));
+    var splitCgiArgs = cgiArgs.split("&");
+    var arrUrls = [];
 
-    var isCreated = false;
+    for(var kvpIdx in splitCgiArgs)
+    {
+        var kvp = splitCgiArgs[kvpIdx];
+        var splitKVP = kvp.split("=");
+        if( splitKVP.length == 2)
+        {
+            if(splitKVP[0] == "url")
+            {
+                arrUrls.push(splitKVP[1]);
+            }
+        }
+    }
+    return arrUrls;
+} // BuildSubUrlsListFromCgi
+
+function BuildSubUrlsListFromJson(theInputUrls)
+{
+    'use strict';
+    var arrUrls = [];
 
     for( var idx in theInputUrls )
     {
         var cgiPair = theInputUrls[idx];
-        console.log("cgiPair="+JSON.stringify(cgiPair));
         if( cgiPair.cgi_key == "url" )
         {
-            var aUrlB64 = cgiPair.cgi_value;
-            var aUrlRel = Base64.decode(aUrlB64);
+            arrUrls.push(cgiPair.cgi_value);
+        }
+    }
+    return arrUrls;
+} // BuildSubUrlsListFromJson
+
+var globalIsCreated = false;
+
+function PreloadUrlsArray(urlsArray)
+{
+    'use strict';
+
+    function FuncDisplay(data)
+    {
+        console.log("FuncDisplay aUrlMode="+aUrlMode+" globalIsCreated="+globalIsCreated);
+        if(globalIsCreated)
+        {
+            // Merge all URLs together.
+            globalMustMerge = true;
+            RefillDisplay(data);
+        }
+        else
+        {
+            CreateDisplay(data);
+            globalIsCreated = true;
+        }
+    }
+
+    var numUrls = 0;
+    for( var idx in urlsArray )
+    {
+        var aUrlB64 = urlsArray[idx];
+        var aUrlRel = Base64.decode(aUrlB64);
+
+        var idxScriptStart = aUrlRel.indexOf(pyMergeScript);
+        console.log("PreloadUrlsArray idx="+idx+" idxScriptStart="+idxScriptStart+" globalIsCreated="+globalIsCreated+" aUrlRel="+aUrlRel);
+        if( idxScriptStart != -1 ) {
+            var idxScriptEnd = idxScriptStart + pyMergeScript.length;
+            var cgiArgs = aUrlRel.substring( idxScriptEnd + 1 );
+
+            var arrUrls = BuildSubUrlsListFromCgi(cgiArgs);
+            PreloadUrlsArray(arrUrls);
+
+            numUrls += arrUrls.length;
+        } else {
 
             var aUrlNoMode = UrlRelativeToAbsolute(aUrlRel)
 
             // This reasonably expects that there is at least one CGI argument.
             var aUrlMode = aUrlNoMode + "&mode=json";
-            console.log("aUrlNoMode="+aUrlNoMode);
 
-            if(isCreated)
-            {
-                // Merge all URLs together.
-                LoadUrlUpdateDisplay(aUrlMode, RefillDisplay,true);
-            }
-            else
-            {
-                LoadUrlUpdateDisplay(aUrlMode, CreateDisplay,false);
-                isCreated = true;
-            }
+            LoadUrlUpdateDisplay(aUrlMode, FuncDisplay, true);
+            numUrls += 1;
         }
     }
+    return numUrls;
+} // PreloadUrlsArray
 
-    // If not URL on the command line.
-    if( ! isCreated )
-    {
-        LoadUrlUpdateDisplay(theurl, CreateDisplay,false);
-    }
-}
 
 function RunAfterLoad()
 {
     // "getParamValue=[{"cgi_key":"toto","cgi_value":"tutu"},{"cgi_key":"titi","cgi_value":"tata"}]"
     var theInputUrls = GetCgiParams();
-    PreloadUrls(theInputUrls);
-}
+
+    var urlsArray = BuildSubUrlsListFromJson(theInputUrls);
+
+    globalIsCreated = false;
+    var numUrls = PreloadUrlsArray(urlsArray);
+
+    // If not URL on the command line.
+    if( numUrls == 0 )
+    {
+        console.log("No URL to preload");
+        LoadUrlUpdateDisplay(theurl, CreateDisplay,false);
+    }
+
+} // RunAfterLoad
 
 // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
 $(RunAfterLoad);
