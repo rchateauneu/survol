@@ -32,7 +32,6 @@ def Main():
 	paramkeyPassword = "Password"
 
 	cgiEnv = lib_common.CgiEnv(
-		"",
 		{ paramkeyPassword : "" } )
 
 	if lib_util.isPlatformWindows:
