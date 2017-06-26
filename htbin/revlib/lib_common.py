@@ -975,10 +975,17 @@ def MergeOutCgiRdf(theMode):
 		layoutParams['collapsed_properties'].extend( theCgiEnv.m_layoutParams['collapsed_properties'] )
 
 		# The dictionaries are merged.
-		parameters.update(theCgiEnv.m_parameters)
+
+		try:
+			parameters.update(theCgiEnv.m_parameters)
+		except ValueError:
+			errorMsg = sys.exc_info()[1]
+			sys.stderr.write("Error:%s Parameters:%s\n"%(errorMsg,str(theCgiEnv.m_parameters)))
 
 	# Eliminate duplicates.
-	layoutParams['collapsed_properties'] = list(set(layoutParams['collapsed_properties']))
+	myList = layoutParams['collapsed_properties']
+	mySet = set(myList)
+	layoutParams['collapsed_properties'] = list(mySet)
 
 	topUrl = lib_util.TopUrl( "", "" )
 
