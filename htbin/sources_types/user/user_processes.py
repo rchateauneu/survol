@@ -17,7 +17,7 @@ Usable = lib_util.UsableLinux
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv("User processes")
+	cgiEnv = lib_common.CgiEnv()
 	userNameWithHost = cgiEnv.GetId()
 
 	if not lib_util.isPlatformLinux:
