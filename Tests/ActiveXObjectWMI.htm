@@ -1,0 +1,86 @@
+<html>
+<head>
+
+<script>
+/*
+On garde "notre" wmi en Python car ca marche avec tous les browsers.
+On donne la possibilite de surfer uniquement avec WMI
+mais avec nos scripts en plus, de facon transparente.
+Pour les infos WMI, peut-etre les ajouter dans right-click.
+
+On peut recreer un explorateur, exactement comme en Python.
+Trouver un moyen de retraduire ca en Python quand on va basculer dans le mode Print.
+Peut-etre des combinaisons de:
+index_wmi.py?CLASS.key=val,key=val
+ET:
+enumerate_wmi.py?CLASS.key=val,key=val
+Du reste, il faudrait transformer et generaliser:
+enumerate_CIM_Process.py en "enumerate.py?xid=CIM_Process."
+qui va appeler enumerate_CIM_Process.py ?
+
+Difference en entity.py et enumerate.py ?
+enumerate.py affiche moins d'infos
+*/
+
+/*
+
+Google Chrome users can download IE Tab extension that acts as Internet Explorer emulator. It helps enable ActiveX controls in Google Chrome as it emulates IE by using the IE rendering engine directly within Chrome.Firefox users can install ff-activex-host plugin to enable ActiveX controls in the browser.
+
+https://stackoverflow.com/questions/7022568/activexobject-in-firefox-or-chrome-not-ie
+*/
+function DoWmiProcesses()
+{
+	// This object is a Microsoft extension and is supported in Internet Explorer only,
+	// not in Windows 8.x Store apps.
+	var loc = new ActiveXObject("WbemScripting.SWbemLocator");
+	var svc = loc.ConnectServer(".", "root\\cimv2");
+	coll = svc.ExecQuery("select * from Win32_Process");
+	var items = new Enumerator(coll);
+
+	while (!items.atEnd())
+	{
+	    console.log("===========");
+		var obj = items.item();
+		
+		// Some properties are known in advance.
+		console.log(obj.Name);
+
+		// https://stackoverflow.com/questions/973016/jscript-enumerator-and-list-of-properties
+		var colProps = new Enumerator(obj.Properties_);
+		for ( ; !colProps.atEnd(); colProps.moveNext()) { 
+			var p = colProps.item();
+			console.log("    "+p.Name + ": " + p.Value);
+		}
+		
+		items.moveNext();
+	}
+}
+
+function DoWmiPrinters()
+{
+	/*
+	GetObject function is not supported in Internet Explorer 9 (standards mode) or later.
+	*/
+
+	var query = GetObject("winmgmts:").ExecQuery("SELECT Name, Status FROM Win32_Printer");
+	var colPrinters = new Enumerator(query);
+
+	for ( ; !colPrinters.atEnd(); colPrinters.moveNext()) { 
+		var oPrinter = colPrinters.item();
+
+		// Enumerate WMI object properties
+		var colProps = new Enumerator(oPrinter.Properties_);
+		for ( ; !colProps.atEnd(); colProps.moveNext()) { 
+			var p = colProps.item();
+			console.log(p.Name + ": " + p.Value);
+		}
+	}
+}
+
+DoWmiProcesses()
+DoWmiPrinters();
+</script>
+</head>
+<body>
+</body>
+</html>

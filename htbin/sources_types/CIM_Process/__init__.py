@@ -20,8 +20,7 @@ def PsutilGetProcObj(pid):
 	try:
 		return psutil.Process(pid)
 	except NoSuchProcess:
-		lib_util.InfoMessageHtml("No such process:"+str(pid))
-		sys.exit(0)
+		lib_util.ErrorMessageHtml("No such process:"+str(pid))
 
 
 ################################################################################
