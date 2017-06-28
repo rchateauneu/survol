@@ -957,40 +957,39 @@ def CgiEnvMergeMode():
 
 # OutCgiRdf has been called by each script without writing anything,
 # but the specific parameters per script are stored inside.
-def MergeOutCgiRdf(theMode):
+def MergeOutCgiRdf(theMode,cumulatedError):
 	global globalMergeMode
 	global globalCgiEnvList
 	global globalGraph
 
-	page_title = ""
+	page_title = "Merge of %d scripts\n" % len(globalCgiEnvList)
+	delim_title = ""
 	layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
-	parameters = {}
+	cgiParams = {}
 	for theCgiEnv in globalCgiEnvList:
-		if page_title:
-			page_title += ","
-		# TODO: Strip the line.
-		page_title += theCgiEnv.m_page_title
+
+		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgiEnv.m_page_title)
+		page_title += delim_title + page_title_first + " (" + page_title_rest + ")"
+		delim_title = ", "
 
 		layoutParams['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
 		layoutParams['collapsed_properties'].extend( theCgiEnv.m_layoutParams['collapsed_properties'] )
 
-		# The dictionaries are merged.
-
+		# The dictionaries of parameters are merged.
 		try:
-			parameters.update(theCgiEnv.m_parameters)
+			cgiParams.update(theCgiEnv.m_parameters)
 		except ValueError:
 			errorMsg = sys.exc_info()[1]
 			sys.stderr.write("Error:%s Parameters:%s\n"%(errorMsg,str(theCgiEnv.m_parameters)))
 
-	# Eliminate duplicates.
+	# Eliminate duplicates in the list of collapsed properties.
 	myList = layoutParams['collapsed_properties']
 	mySet = set(myList)
 	layoutParams['collapsed_properties'] = list(mySet)
 
 	topUrl = lib_util.TopUrl( "", "" )
 
-	# We pass an array of urls instead of a string.
-	OutCgiMode( globalGraph, topUrl, theMode, page_title, layoutParams, parameters )
+	OutCgiMode( globalGraph, topUrl, theMode, page_title, layoutParams, errorMsg = cumulatedError, parameters = cgiParams)
 
 	return
 
@@ -1337,12 +1336,26 @@ class CgiEnv():
 
 ################################################################################
 
+globalErrorMessageEnabled = True
+
+# Used when merging several scripts, otherwise there is no way to find
+# which scripts produced an error.
+def ErrorMessageEnable(flag):
+	global globalErrorMessageEnabled
+	globalErrorMessageEnabled = flag
+
 def ErrorMessageHtml(message):
-	lib_util.InfoMessageHtml(message)
-	sys.stderr.write("ErrorMessageHtml leaving\n")
-	# TODO: Fix with wsgi which just displays "A server error occurred.  Please contact the administrator."
-	# raise Exception("Tralala")
-	sys.exit(0)
+	sys.stderr.write("ErrorMessageHtml globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+	if globalErrorMessageEnabled:
+		sys.stderr.write("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+		lib_util.InfoMessageHtml(message)
+		# TODO: Fix with wsgi which just displays "A server error occurred.  Please contact the administrator."
+		# raise Exception("Tralala")
+		sys.exit(0)
+	else:
+		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
+		sys.stderr.write("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+		raise Exception("ErrorMessageHtml %s\n"%message)
 
 ################################################################################
 

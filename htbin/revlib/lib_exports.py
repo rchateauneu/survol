@@ -520,6 +520,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	# This allows to enter directly the URL parameters, so we can access directly an object.
 	# This will allow to choose the entity type, and each parameter of the URL (Taken
 	# from the ontology). It also edits the parameters of the current URL.
+	# TODO: MUST FINISH THIS.
 	def UrlDirectAccess():
 		return "direct_access.py"
 
@@ -578,14 +579,13 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	# The first line is a title, the rest, more explanations.
 	# The first line also must be wrapped if it is too long.
-	page_title = page_title.strip()
-	page_title_split = page_title.split("\n")
-	page_title_first = page_title_split[0]
+	# TODO: Mettre cette logique de separation ailleurs car on en a besoin si Merge.
+
+	(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(page_title)
 
 	page_title_first_wrapped = StrWithBr(page_title_first,2)
-
-	page_title_rest = " ".join( page_title_split[1:] )
-	page_title_full =  DotBold(page_title_first_wrapped) + withBrDelim + page_title_rest
+	page_title_rest_wrapped = StrWithBr(page_title_rest,2)
+	page_title_full =  DotBold(page_title_first_wrapped) + withBrDelim + page_title_rest_wrapped
 
 	stream.write("""
   subgraph cluster_01 {
@@ -611,9 +611,10 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	LegendAddParametersLinks(stream,parameters)
 
-
-	if errMsg != None:
-		stream.write('<tr><td align="right" colspan="2">%s</td></tr>' % errMsg)
+	# The error message could be None or an empty string.
+	if errMsg:
+		fullErrMsg = DotBold("Error: ") + errMsg
+		stream.write('<tr><td align="left"  balign="left" colspan="2">%s</td></tr>' % StrWithBr(fullErrMsg,2))
 
 	if isSubServer:
 		urlStop = ModedUrl("stop")

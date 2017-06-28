@@ -994,7 +994,22 @@ def UrlPortalWbem(hostname=None):
 # Point to the WMI portal for a given machine.
 def UrlPortalWmi(hostname=None):
 	strUrl = AppendNotNoneHostname('/portal_wmi.py',hostname)
-
 	nodePortal = NodeUrl( strUrl )
 	return nodePortal
 
+# This is used to split a string made of several lines separated by a "\n",
+# following multi-line DocString convention.
+# "Multi-line docstrings consist of a summary line just like a one-line docstring,
+# followed by a blank line, followed by a more elaborate description.
+# The summary line may be used by automatic indexing tools;
+# it is important that it fits on one line and is separated from the rest of the docstring by a blank line.
+# The summary line may be on the same line as the opening quotes or on the next line.
+# The entire docstring is indented the same as the quotes at its first line (see example below)."
+# The only difference is that the blank line is not needed, but can be there.
+def SplitTextTitleRest(title):
+	title_split = title.strip().split("\n")
+
+	page_title_first = title_split[0].strip()
+	page_title_rest = " ".join( title_split[1:] ).strip()
+
+	return (page_title_first,page_title_rest)

@@ -26,6 +26,8 @@ lib_common.CgiEnvMergeMode()
 
 arguments = cgi.FieldStorage()
 
+cumulatedError = ""
+
 for urlfil in arguments.getlist("url"):
 	# The parameters are coded in base64, although we leave the possibility not to encode them,
 	# for compatibility with test scripts.
@@ -44,26 +46,11 @@ for urlfil in arguments.getlist("url"):
 	else:
 		cgiQueryString = ""
 
-	#if urlNoArgs.startswith("http://"):
-	#	# url="http://127.0.0.1:8000/htbin/sources_types/oracle/db/oracle_db_schemas.py?xid=oracle/db.Db%3DXE"
-	#	# uprs = urlparse(url)
-	#	# ParseResult(scheme='http', netloc='127.0.0.1:8000', path='/htbin/sources_types/oracle/db/oracle_db_schemas.py', params='', query='xid=oracle/db.Db%3DXE', fragment='')
-	#	urlParsed = urlparse(urlNoArgs)
-#
-#		# The CGI arguments will be injected in the cgiEnv object before calling the script.
-	#	urlPath = urlParsed.path
-	#	urlPathShort = urlPath[7:]
-	#elif complete_url.startswith("htbin/"):
-	#	urlPath = urlNoArgs
-	#	urlPathShort = urlPath[6:]
-	#else:
-	#	sys.stderr.write("SHOULD NOT HAPPEN url=%s\n"%complete_url)
-
-
-	idxHtbin = urlNoArgs.find("/htbin/")
+	# The URL might be absolute or relative.
+	idxHtbin = urlNoArgs.find("htbin/")
 	if idxHtbin == -1:
 		sys.stderr.write("SHOULD NOT HAPPEN url=%s\n"%complete_url)
-	urlPathShort = urlNoArgs[idxHtbin+7:]
+	urlPathShort = urlNoArgs[idxHtbin+6:]
 
 	urlDirNam = os.path.dirname(urlPathShort)
 	moduNam = urlDirNam.replace("/",".")
@@ -89,11 +76,17 @@ for urlfil in arguments.getlist("url"):
 		# "xid=EURO%5CLONL00111310@process:16580"
 		os.environ['QUERY_STRING'] = cgiQueryString
 
+		lib_common.ErrorMessageEnable(False)
 		importedMod.Main()
 	except Exception:
 		errorMsg = sys.exc_info()[1]
 		sys.stderr.write("Caught %s when executing Main in moduNam=%s urlFilNam=%s\n"%(errorMsg,moduNam,urlFilNam))
+		if cumulatedError != "":
+			cumulatedError += ", "
+		cumulatedError += urlFilNam + ":" + str(errorMsg)
+
 		continue
+	lib_common.ErrorMessageEnable(True)
 
 os.environ["REQUEST_URI"] = origReqUri
 
@@ -107,5 +100,8 @@ theMode = lib_common.GuessDisplayMode()
 
 # OutCgiRdf has been called by each script without writing anything,
 # but the specific parameters per script are stored inside.
-lib_common.MergeOutCgiRdf(theMode)
+
+# TESTER AVEC CA:
+# http://127.0.0.1:8000/htbin/merge_scripts.py?url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9ob3N0LnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBc3No&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fQ29tcHV0ZXJTeXN0ZW0vaG9zdG5hbWVfbm1hcC5weT94aWQ9Q0lNX0NvbXB1dGVyU3lzdGVtLk5hbWUlM0RVbmtub3duLTMwLWI1LWMyLTAyLTBjLWI1LTI&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9ob3N0LnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBc3ZybG9j&url=aHRiaW4vZW50aXR5LnB5P3hpZD1zbWJzaHIuSWQ9Ly8vL1dETXlDbG91ZE1pcnJvci9yY2hhdGVhdQ&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fQ29tcHV0ZXJTeXN0ZW0vY29ubmVjdGVkX3NvY2tldHMucHk_eGlkPUNJTV9Db21wdXRlclN5c3RlbS5OYW1lJTNEVW5rbm93bi0zMC1iNS1jMi0wMi0wYy1iNS0y&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fQ29tcHV0ZXJTeXN0ZW0vaG9zdG5hbWVfbm1hcC5weT94aWQ9Q0lNX0NvbXB1dGVyU3lzdGVtLk5hbWUlM0RVbmtub3duLTMwLWI1LWMyLTAyLTBjLWI1LTI&url=aHRiaW4vc291cmNlc190eXBlcy9ncm91cC9saW51eF91c2VyX2dyb3VwLnB5P3hpZD1ncm91cC5OYW1lJTNEYXBhY2hl&url=aHRiaW4vc291cmNlc190eXBlcy91c2VyL3VzZXJfbGludXhfaWQucHk_eGlkPXVzZXIuRG9tYWluJTNETG9jYWxIb3N0JTJDTmFtZSUzRGFwYWNoZQ&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBdGVsbmV0&url=aHRiaW4vc291cmNlc190eXBlcy91c2VyL3VzZXJfcHJvY2Vzc2VzLnB5P3hpZD11c2VyLkRvbWFpbiUzRExvY2FsSG9zdCUyQ05hbWUlM0RhcGFjaGU&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fUHJvY2Vzcy9wcm9jZXNzX2N3ZC5weT94aWQ9Q0lNX1Byb2Nlc3MuSGFuZGxlJTNEMTQ3MDU&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBc3No&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fUHJvY2Vzcy9wcm9jZXNzX2N3ZC5weT94aWQ9Q0lNX1Byb2Nlc3MuSGFuZGxlJTNEMTQ3MDU&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBdGVsbmV0&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBdGVsbmV0&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBc3No&url=aHR0cDovLzE5Mi4xNjguMS44ODo4MC9TdXJ2b2wvaHRiaW4vZW50aXR5LnB5P3hpZD1DSU1fUHJvY2Vzcy5IYW5kbGU9MjA1MTI
+lib_common.MergeOutCgiRdf(theMode,cumulatedError)
 
