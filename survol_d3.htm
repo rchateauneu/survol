@@ -937,7 +937,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 function IfMouseOver(d,currentEventD3pageX,currentEventD3pageY)
                 {
                     if( false == d.is_mouseover ) {
-                        console.log("MouseOver too late");
+                        // console.log("MouseOver too late");
                         return;
                         }
                     if( isDragging ) {
@@ -1001,7 +1001,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         )
         .on("mouseout", function(d)
             {
-            console.log("Resetting MouseOver");
+                // console.log("Resetting MouseOver");
                 d.is_mouseover = false;
 
                 // This could as well be done in CSS.
