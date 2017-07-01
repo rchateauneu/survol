@@ -66,9 +66,13 @@ def Main():
 		sys.stderr.write("All=%s\n" % str(part) )
 		# Replacing backslashes is necessary on Windows.
 		partition_name = part.device.replace('\\','/')
+
+		# This does not really work on Windows because WMI expects
+		# something like 'Win32_DiskPartition.DeviceID="Disk #0.Partition #0"'
 		nodePartition = lib_common.gUriGen.DiskPartitionUri( partition_name )
 		mount_point = part.mountpoint.replace('\\','/')
 		nodeMount = lib_common.gUriGen.DirectoryUri( mount_point )
+
 
 		# TODO: Check this list.
 		if part.fstype != "":
