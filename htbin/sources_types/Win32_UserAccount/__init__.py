@@ -1,8 +1,10 @@
 import lib_common
+import lib_uris
 
 def EntityOntology():
 	return ( ["Name","Domain"], )
 
+# BEWARE: Very close to lib_uris.UserUri
 def MakeUri(userName,domainName):
 	return lib_common.gUriGen.UriMakeFromDict("Win32_UserAccount", { "Name" : userName, "Domain" : domainName } )
 
