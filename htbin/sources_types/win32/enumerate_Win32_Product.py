@@ -115,7 +115,7 @@ def Main():
 		#	sys.stderr.write("winProd.InstalledProductName=%s\n"%winProd.InstalledProductName.encode("utf-8"))
 
 		# BEWARE: WE STRIP THE "{}" AROUND THE PUID
-		puid = puid[1:-1]
+		############  NOT ANYMORE puid = puid[1:-1]
 		productNode = Win32_Product.MakeUri( puid )
 
 		try:

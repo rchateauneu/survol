@@ -144,7 +144,9 @@ def AddInstallSource(grph,node,winProd):
 def AddInfo(grph,node,entity_ids_arr):
 	# BEWARE: "{}" have been stripped because they crash graphviz
 	# ... but they did not in the "past". Why ?
-	productIdentifyingNumber = "{" + six.u(entity_ids_arr[0]) + "}"
+	##### NOT ANYMORE BECAUSE OF WMI productIdentifyingNumber = "{" + six.u(entity_ids_arr[0]) + "}"
+	productIdentifyingNumber = six.u(entity_ids_arr[0])
+
 
 	sys.stderr.write("productIdentifyingNumber=%s\n"%str(productIdentifyingNumber))
 	try:
