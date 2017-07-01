@@ -61,6 +61,19 @@ import lib_util
 # * Remplacer cimom=xxx par le moniker (En effet, c etait une erreur).
 # * Remplacer nos classes par des classes DMTF, avec mecanismes a rajouter.
 
+# See lib_util.HostName()
+# WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
+# On Linux apparently, Name="Unknown-30-b5-c2-02-0c-b5-2.home"
+# Beware of a normal address such as: "wb-in-f95.1e100.net"
+# TODO: Fix this !
+def TruncateHostname(hostDns):
+	hostSplit = hostDns.split(".")
+	if len(hostSplit) == 2 and hostSplit[1] == "home":
+		# if isPlatformLinux:
+		hostName = hostSplit[0]
+	else:
+		hostName = hostDns
+	return hostName
 
 
 class LocalBox:
@@ -159,18 +172,7 @@ class LocalBox:
 		# OpenPegasus: Idem.
 		# sys.stderr.write("HostnameUri=%s\n" % hostName )
 		try:
-			# See lib_util.HostName()
-			# WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
-			# On Linux apparently, Name="Unknown-30-b5-c2-02-0c-b5-2.home"
-			# Beware of a normal address such as: "wb-in-f95.1e100.net"
-			# TODO: Fix this !
-			hostDns = socket.gethostbyaddr(hostAddr)[0]
-			hostSplit = hostDns.split(".")
-			if len(hostSplit) == 2 and hostSplit[1] == "home":
-				# if isPlatformLinux:
-				hostName = hostSplit[0]
-			else:
-				hostName = hostDns
+			hostName = TruncateHostname(hostDns)
 		except:
 			exc = sys.exc_info()[1]
 			sys.stderr.write("HostnameUri hostAddr=%s. Caught: %s\n" % (hostAddr, str(exc) ) )
@@ -420,7 +422,8 @@ class LocalBox:
 			userHost = splitUser[0]
 			userOnly = splitUser[1]
 		else:
-			userHost = "LocalHost"
+			# This transforms "rchateau-hp.home" into "rchateau-hp"
+			userHost = TruncateHostname(lib_util.currentHostname)
 			userOnly = username
 		return self.UriMake(userTp,userOnly,userHost)
 
