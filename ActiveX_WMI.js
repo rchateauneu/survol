@@ -33,15 +33,15 @@ function UrlToWQL(objUrl)
 	var posDot = strXid.indexOf(".");
 	if(posDot == -1)
 	{
-		console.log("No class in URL");
+		// console.log("No class in URL");
 		return "";
 	}
 
 	var strClass = strXid.substr(0,posDot);
-	console.log("strClass="+strClass);
+	// console.log("strClass="+strClass);
 
 	var strProperties = strXid.substr(posDot+1);
-	console.log("strProperties="+strProperties);
+	// console.log("strProperties="+strProperties);
 
 	var arrProperties = strProperties.split(",");
 
@@ -49,19 +49,19 @@ function UrlToWQL(objUrl)
 	queryDelim = " where ";
 
 	for (var ixProp = 0; ixProp < arrProperties.length; ixProp++) {
-		console.log("arrProperties[ixProp]="+arrProperties[ixProp]);
+		// console.log("arrProperties[ixProp]="+arrProperties[ixProp]);
 		var kvSplit = arrProperties[ixProp].split("=");
-		console.log("kvSplit.length="+kvSplit.length);
+		// console.log("kvSplit.length="+kvSplit.length);
 		if( kvSplit.length != 2 )
 		{
 			console.log("Key-value pair bad syntax:"+arrProperties[ixProp]);
 			continue;
 		}
-		console.log("kvSplit[0]="+kvSplit[0]);
-		console.log("kvSplit[1]="+kvSplit[1]);
+		// console.log("kvSplit[0]="+kvSplit[0]);
+		// console.log("kvSplit[1]="+kvSplit[1]);
 		queryWQL += queryDelim + kvSplit[0] + "=" + "'" + kvSplit[1] + "'";
 		queryDelim = " and ";
-		console.log("queryWQL="+queryWQL);
+		// console.log("queryWQL="+queryWQL);
 	}
 
 	return queryWQL;
@@ -110,17 +110,17 @@ function ActiveX_WMI_Data(objUrl)
 	// IE and Windows only.
 	if( ! isIEorEDGE())
 	{
-		console.log("ActiveX_WMI_Data Not IE");
+		// console.log("ActiveX_WMI_Data Not IE");
 		return {};
 	}
-	console.log("ActiveX_WMI_Data IE");
+	// console.log("ActiveX_WMI_Data IE");
 
 	var wqlQuery = 	UrlToWQL(objUrl);
 	if(wqlQuery == "")
 	{
 		return {};
 	}
-	console.log("wqlQuery="+wqlQuery);
+	// console.log("wqlQuery="+wqlQuery);
 
 	// This object is a Microsoft extension and is supported in Internet Explorer only,
 	// not in Windows 8.x Store apps.
@@ -158,7 +158,7 @@ function ActiveX_WMI_Data(objUrl)
 				objDict[propWmi.Name] = propWmi.Value;
 			} else if (typVal === "object") {
 				var strObj = ObjectToString(propWmi.Value);
-				console.log("    "+propWmi.Name + ": " + "object" + strObj);
+				console.log("    "+propWmi.Name + ": " + "object:" + strObj);
 				objDict[propWmi.Name] = strObj;
 			} else {
 				console.log("    "+propWmi.Name + ": " + " Unknown type");
