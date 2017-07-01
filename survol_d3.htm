@@ -17,6 +17,8 @@
 <!--  src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" -->
 <script src="jquery.contextMenu.js" type="text/javascript"></script>
 
+<script src="ActiveX_WMI.js"></script>
+
 <style>
 
     /* This is for the lines because their value=10. Temporary. */
@@ -1050,11 +1052,12 @@ function DisplayD3Layout(divSvg,newData,w,h)
         console.log("objUrl="+objUrl);
 
         var objKey = objectSvg.name;
-        var objDfd = objectSvg.dfd;
+
+        var objDeferScripts = objectSvg.defer_scripts;
         console.log("MakeContextMenuItems objKey="+objKey);
 
         // https://swisnl.github.io/jQuery-contextMenu/demo/async-promise.html Submenu through promise.
-        var menusSurvol = objDfd.promise();
+        var menusSurvol = objDeferScripts.promise();
 
         /* Peut-etre ajouter des URLs specifiques pour WMI et OpenWBEM ce qui justifierait qu'on aie
         des scripts Python specifiques.
@@ -1089,9 +1092,22 @@ function DisplayD3Layout(divSvg,newData,w,h)
             },
             "sep1": "---------",
             "SurvolMenu": {
-                name: "Related data...",
+                name: "Scripts...",
                 items: menusSurvol,
-            },
+            }
+        };
+        jQuery.extend(TheItems, TheItemsSuite);
+
+        console.log("Calling ActiveX_WMI_JContextMenu objUrl="+objUrl);
+        var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl);
+        console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
+        if( TheItemsSuiteActiveX != [] )
+        {
+            jQuery.extend(TheItems, TheItemsSuiteActiveX);
+        }
+
+        var TheItemsSuiteDels =
+        {
             "delete_node": {
                 "name": "Delete node",
                 "icon": "delete"
@@ -1101,8 +1117,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 "icon": "delete"
             }
         };
-
-        jQuery.extend(TheItems, TheItemsSuite);
+        jQuery.extend(TheItems, TheItemsSuiteDels);
 
         return TheItems;
     } // MakeContextMenuItems
@@ -1202,7 +1217,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
             {
                 selector: 'svg',
                 build: function($trigger, evt) {
-
+                    // This adds an extra item to the menu returned by a Python script.
                     dfltItms["yesno"] = {
                         name: "Merge graphs",
                         type: 'checkbox',
@@ -1239,7 +1254,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
             // Maybe this duplicates the value. Not a problem.
             objectThis.__data__.contextual_menu_items = jsonData;
 
-            objectThis.__data__.dfd.resolve(jsonData);
+            objectThis.__data__.defer_scripts.resolve(jsonData);
         }
 
         if(ev.which == 3)
@@ -1252,7 +1267,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
             var urlEntity = this.__data__.survol_url.replace("entity.py","entity_dirmenu_only.py") + "&mode=menu";
             console.log("URL:"+urlEntity);
 
-            this.__data__.dfd = jQuery.Deferred();
+            this.__data__.defer_scripts = jQuery.Deferred();
 
             // This loads the menu options as a JSON tree.
             d3.json(urlEntity, GetEntityUrl);
