@@ -7,6 +7,7 @@ Members of a Windows local group
 from __future__ import generators
 import sys
 import lib_util
+import lib_uris
 import lib_common
 from lib_properties import pc
 
@@ -76,7 +77,9 @@ def Main():
 
 	if not server or lib_util.IsLocalAddress( server ):
 		servName_or_None = None
-		servNameNotNone = lib_util.currentHostname
+
+		# So it is compatible with WMI.
+		servNameNotNone = lib_uris.TruncateHostname(lib_util.currentHostname)
 		# .home
 		serverNode = lib_common.nodeMachine
 		serverBox = lib_common.gUriGen
@@ -87,8 +90,8 @@ def Main():
 		serverBox = lib_common.RemoteBox(server)
 
 	# nodeGroup = serverBox.GroupUri( groupName )
-	nodeGroup = survol_Win32_Group.MakeUri( groupName, servName_or_None )
-	# nodeGroup = survol_Win32_Group.MakeUri( groupName, servNameNotNone )
+	# nodeGroup = survol_Win32_Group.MakeUri( groupName, servName_or_None )
+	nodeGroup = survol_Win32_Group.MakeUri( groupName, servNameNotNone )
 
 	try:
 		memberresume = 0
