@@ -27,7 +27,11 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	hostAddr = socket.gethostbyname(hostname)
-	hostNode = lib_common.gUriGen.HostnameUri(hostAddr)
+
+	# hostNode = lib_common.gUriGen.HostnameUri(hostAddr)
+	# BEWARE: The rule whether we use the host name or the host IP is not very clear !
+	# The IP address would be unambiguous but less clear.
+	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 	# serverBox = lib_common.RemoteBox(hostAddr)
 
 	# Similar code in "enumerate_sockets.py"
