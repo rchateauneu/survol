@@ -172,7 +172,7 @@ class LocalBox:
 		# OpenPegasus: Idem.
 		# sys.stderr.write("HostnameUri=%s\n" % hostName )
 		try:
-			hostName = TruncateHostname(hostDns)
+			hostName = TruncateHostname(hostAddr)
 		except:
 			exc = sys.exc_info()[1]
 			sys.stderr.write("HostnameUri hostAddr=%s. Caught: %s\n" % (hostAddr, str(exc) ) )
