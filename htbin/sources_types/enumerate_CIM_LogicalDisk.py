@@ -67,12 +67,26 @@ def Main():
 		# Replacing backslashes is necessary on Windows.
 		partition_name = part.device.replace('\\','/')
 
-		# This does not really work on Windows because WMI expects
-		# something like 'Win32_DiskPartition.DeviceID="Disk #0.Partition #0"'
-		nodePartition = lib_common.gUriGen.DiskPartitionUri( partition_name )
+		# BEWARE: This is not very clear.
+		if lib_util.isPlatformWindows:
+			# DeviceID     : X:
+			# DriveType    : 4
+			# ProviderName : \\192.168.1.81\rchateau
+			# FreeSpace    : 170954825728
+			# Size         : 2949169561600
+			# VolumeName   : rchateau
+			#
+			# WMI does not want a backslash at the end: "C:".
+			partition_name = partition_name.replace("/","")
+			# We could as well take "Win32_LogicalDisk" because it inherits from "CIM_LogicalDisk"
+			nodePartition = lib_common.gUriGen.UriMake("CIM_LogicalDisk",partition_name)
+		else:
+			# This does not really work on Windows because WMI expects
+			# something like 'Win32_DiskPartition.DeviceID="Disk #0.Partition #0"'
+			nodePartition = lib_common.gUriGen.DiskPartitionUri( partition_name )
+
 		mount_point = part.mountpoint.replace('\\','/')
 		nodeMount = lib_common.gUriGen.DirectoryUri( mount_point )
-
 
 		# TODO: Check this list.
 		if part.fstype != "":
