@@ -1,0 +1,2 @@
+def EntityOntology():
+	return ( ["DeviceID"],)
