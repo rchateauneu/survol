@@ -521,8 +521,8 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	# This will allow to choose the entity type, and each parameter of the URL (Taken
 	# from the ontology). It also edits the parameters of the current URL.
 	# TODO: MUST FINISH THIS.
-	def UrlDirectAccess():
-		return "direct_access.py"
+	#def UrlDirectAccess():
+	#	return "direct_access.py"
 
 	# This adds links which can display the same content in a different output format.
 	def LegendAddAlternateDisplayLinks(stream):
@@ -597,15 +597,15 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	# TODO: The "Top" url should be much more visible.
 	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotBold(DotUL("Home")) + '</td></tr>')
 
-	urlDirectAccess = UrlDirectAccess()
-	stream.write('<tr><td align="left" colspan="2" href="' + urlDirectAccess + '">' + DotUL("Direct access") + '</td></tr>')
+	#urlDirectAccess = UrlDirectAccess()
+	#stream.write('<tr><td align="left" colspan="2" href="' + urlDirectAccess + '">' + DotUL("Direct access") + '</td></tr>')
 
-	stream.write("""
-      <tr><td align='left' colspan="2">""" + time.strftime("%Y-%m-%d %H:%M:%S") + """</td></tr>
- 	""")
-	stream.write("""
-      <tr><td align='left' >RDF Nodes</td><td>""" + str(len(grph)) + """</td></tr>
- 	""")
+	#stream.write("""
+    #  <tr><td align='left' colspan="2">""" + time.strftime("%Y-%m-%d %H:%M:%S") + """</td></tr>
+ 	#""")
+	#stream.write("""
+    #  <tr><td align='left' >RDF Nodes</td><td>""" + str(len(grph)) + """</td></tr>
+ 	#""")
 
 	LegendAddAlternateDisplayLinks(stream)
 
