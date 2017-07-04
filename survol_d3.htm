@@ -1106,7 +1106,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
         console.log("Calling ActiveX_WMI_JContextMenu objUrl="+objUrl);
         var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl);
-        console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
+        // console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
         if( TheItemsSuiteActiveX != [] )
         {
             jQuery.extend(TheItems, TheItemsSuiteActiveX);
@@ -1151,8 +1151,9 @@ function DisplayD3Layout(divSvg,newData,w,h)
      }
 
 
-    // Called after the page is loaded. It adds a context menu to each node,
-    // therefore the nodes must be created.
+    /* Called after the page is loaded. It adds a context menu to each node,
+    therefore the nodes must be created. A lot of information here:
+    https://github.layalk.net/jQuery-contextMenu/docs.html */
     function CreateContextMenus(){
         console.log("CreateContextMenus");
 
