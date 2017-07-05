@@ -34,6 +34,25 @@ function UrlToWQL(strClass,dictProperties)
 	return queryWQL;
 } // UrlToWQL
 
+function UrlToAssociatorsWQL(strClass,dictProperties)
+{
+	console.log("UrlToWQL: strClass="+strClass);
+
+	queryAssocWQL = "ASSOCIATORS OF {" + strClass;
+	queryDelim = ".";
+
+	for( keyProp in dictProperties) {
+		var valProp = dictProperties[keyProp];
+		queryAssocWQL += queryDelim + keyProp + "=" + "'" + valProp + "'";
+		queryDelim = ",";
+		// console.log("UrlToWQL queryWQL="+queryWQL);
+	}
+	queryAssocWQL += "}";
+
+	return queryAssocWQL;
+} // UrlToAssociatorsWQL
+
+
 function ObjectToString(objDict) {
 	var strObj = "";
 	var delim = "";
@@ -75,7 +94,7 @@ function ActiveX_WMI_Data(svcWbem,wqlQuery)
 	var coll = svcWbem.ExecQuery(wqlQuery);
 	var items = new Enumerator(coll);
 
-	console.log("Connection OK");
+	console.log("ActiveX_WMI_Data Connection OK");
 
 	/*
 	Normally, it should return only one object, but we expect everything.
@@ -120,12 +139,74 @@ function ActiveX_WMI_Data(svcWbem,wqlQuery)
 	return dictObjects;
 } // ActiveX_WMI_Data
 
+function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl)
+{
+	console.log("CallbackAssociatorsWMI wqlQueryAssociators="+wqlQueryAssociators);
+	var funcAssoc = function(key, options)
+	{
+		alert("key="+key);
+		var coll = svcWbem.ExecQuery(wqlQueryAssociators);
+		var items = new Enumerator(coll);
+
+		console.log("CallbackAssociatorsWMI Connection OK");
+
+		/*
+		Normally, it should return only one object, but we expect everything.
+		TODO: There should be a time-out.
+		*/
+		for ( ; !items.atEnd();items.moveNext())
+		{
+			var objWmiAssocs = items.item();
+			// See "objWmiAssocs.Derivation_" which contains the base classes.
+			console.log("objWmiAssocs.Path_.Class_="+objWmiAssocs.Path_.Class);
+			// '\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"'
+			console.log("objWmiAssocs.Path_.Path="+objWmiAssocs.Path_.Path);
+			// 'Win32_ComputerSystem.Name="RCHATEAU-HP"'
+			console.log("objWmiAssocs.Path_.RelPath="+objWmiAssocs.Path_.RelPath);
+
+			var colProps = new Enumerator(objWmiAssocs.Properties_);
+			for ( ; !colProps.atEnd(); colProps.moveNext()) {
+				//console.log("Before item:");
+				var propWmi = colProps.item();
+				//console.log("After item:");
+				console.log("   Name:"+propWmi.Name);
+				// var typVal = typeof propWmi.Value;
+			}
+
+
+
+
+			/*
+			TODO: Call RefillDisplay, add links with objUrl,
+			create urls for the new nodes,
+			create a function which transform a "pure WMI" object into ours.
+
+
+			Ca ne fonctionne pas !!!
+			ASSOCIATORS OF {CIM_LogicalDisk.DeviceID='C:'}
+
+			Car en realite c est un Win32_LogicalDisk.
+			Donc il faut se debrouiller pour prendre la VRAIE CLASSE !!
+			Elle est probablement dans les Properties_
+			*/
+
+
+
+
+
+		}
+		console.log("CallbackAssociatorsWMI Finished");
+	};
+	return funcAssoc;
+}
+
+
 /* This returns a dictionary of objects indexed by their WMI name.
 Here, we should normally expect at most one object.
 This build a menu whose structure depends on the number of objects, for clarity.
 After that, one just needs to append it to contextMenu object:
 "https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" */
-function ActiveX_WMI_ConvertObjToMenuItems(dictObjects)
+function ActiveX_WMI_ConvertObjToMenuItems(dictObjects,callbackAssocs)
 {
 	var numObj = Object.keys(dictObjects).length;
 	console.log("numObj="+numObj);
@@ -137,16 +218,21 @@ function ActiveX_WMI_ConvertObjToMenuItems(dictObjects)
 	function ObjDictToItem(objDict) {
 		var objItem = {};
 
+		objItem["assocs"] = {
+					name: "Associators...",
+					callback: callbackAssocs
+				};
+		objItem["sep3"] = "-------";
+
 		for (var propKey in objDict) {
 			if (objDict.hasOwnProperty(propKey) ) {
 				var propVal = objDict[propKey];
 				propName = propKey + "=" + propVal
 				// console.log("propName="+propName);
 
-				// Is it really used ??? Why this icon ??
+				// TODO: Why this icon ??
 				var subSubObj = { "name": propName, "icon" : "edit"}
 
-				// { "Plik" : { "name": "aaaa", "icon" : "edit"} }
 				objItem[propKey] = subSubObj;
 			}
 		}
@@ -328,7 +414,7 @@ function ConnectWbemServer(hostName, strClass, dictProperties)
 }
 
 
-function ActiveX_WMI_JContextMenu(objUrl)
+function ActiveX_WMI_JContextMenu(objUrl,objectSvg)
 {
 	// IE and Windows only.
 	if( ! isIEorEDGE())
@@ -346,12 +432,12 @@ function ActiveX_WMI_JContextMenu(objUrl)
 		return {};
 	}
 
-	var wqlQuery = UrlToWQL(remoteXid.m_class,remoteXid.m_dict_properties);
-	if(wqlQuery == "")
-	{
-		return {};
-	}
-	console.log("ActiveX_WMI_JContextMenu wqlQuery="+wqlQuery);
+	var wqlQuerySelect = UrlToWQL(remoteXid.m_class,remoteXid.m_dict_properties);
+	console.log("ActiveX_WMI_JContextMenu wqlQuerySelect="+wqlQuerySelect);
+
+	// TODO: This can return associators for one object only ??
+	var wqlQueryAssociators = UrlToAssociatorsWQL(remoteXid.m_class,remoteXid.m_dict_properties);
+	console.log("ActiveX_WMI_JContextMenu wqlQueryAssociators="+wqlQueryAssociators);
 
 	var TheFullSubItems = {};
 
@@ -359,12 +445,18 @@ function ActiveX_WMI_JContextMenu(objUrl)
 	try {
 		svcWbem = svcWbemObject.m_funcLocat();
 
-		// var svcWbem = ConnectWbemServer(remoteXid.m_remote_machine,remoteXid.m_class,remoteXid.m_dict_properties);
-		var dictObjects = ActiveX_WMI_Data(svcWbem,wqlQuery);
+		var dictObjects = ActiveX_WMI_Data(svcWbem,wqlQuerySelect);
 
-		var TheItemsSuiteActiveXSubItems = ActiveX_WMI_ConvertObjToMenuItems(dictObjects);
+		var callbackAssocs = CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl);
+
+		var TheItemsSuiteActiveXSubItems = ActiveX_WMI_ConvertObjToMenuItems(dictObjects,callbackAssocs);
 
 		jQuery.extend(TheFullSubItems,TheItemsSuiteActiveXSubItems);
+
+		// TODO: BEWARE: One object only ??
+		var funcAssociators = function(options,key) {
+			alert("AssocKey="+key);
+			};
 	}
 	catch(excep)
 	{
@@ -535,8 +627,8 @@ function ActiveX_WMI_JCtxtMenuGlobal( funcD3Displayer )
 	// IE and Windows only.
 	if( ! isIEorEDGE())
 	{
-		// console.log("ActiveX_WMI_JCtxtMenuGlobal Not IE");
-		return {};
+		console.log("ActiveX_WMI_JCtxtMenuGlobal Not IE");
+		return null;
 	}
 	// console.log("ActiveX_WMI_JCtxtMenuGlobal IE");
 	
@@ -557,14 +649,4 @@ function ActiveX_WMI_JCtxtMenuGlobal( funcD3Displayer )
 
 	return globCtxtMenu;
 } // ActiveX_WMI_JCtxtMenuGlobal
-
-/* This returns a menu made of a WMI query, ... the associations !! */
-function ActiveX_WMI_JContextMenuLocal()
-{
-	console.log("Not implemented yet");
-	console.log("Not implemented yet");
-	console.log("Not implemented yet");
-	console.log("Not implemented yet");
-	return [];
-}
 

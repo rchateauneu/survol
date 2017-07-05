@@ -1142,16 +1142,6 @@ function DisplayD3Layout(divSvg,newData,w,h)
 			jQuery.extend(TheItems, TheItemsScripts);
 		}
 
-		if(objUrl) {
-			console.log("Calling ActiveX_WMI_JContextMenu objUrl="+objUrl);
-			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl);
-			// console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
-			if( TheItemsSuiteActiveX != [] )
-			{
-				jQuery.extend(TheItems, TheItemsSuiteActiveX);
-			}
-		}
-
 		// objectSvg contains the original object created from the WMI command.
 		// But it might also simply contain the attribute taken from the URL ?
 		// Or we should parse the URL and add the properties into it (and the class),
@@ -1159,15 +1149,28 @@ function DisplayD3Layout(divSvg,newData,w,h)
 		// Problem with Base64 ? But why not detecting on the fly if a string is Base64-encoded ??
 		// PROBLEM: We have lost the class used from the query. This is not:
 		// "CreationClassName, "CSCreationClassname", "OSCreationClassName".
+		// Or is it in "entity_class" ?
 		// TODO: Should add it.
+		if(objUrl) {
+			console.log("Calling ActiveX_WMI_JContextMenu objUrl="+objUrl);
+			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg);
+			// console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
+			if( TheItemsSuiteActiveX != [] )
+			{
+				jQuery.extend(TheItems, TheItemsSuiteActiveX);
+			}
+		}
+
+        /*
 		console.log("Calling ActiveX_WMI_JContextMenu objectSvg="+objectSvg);
 		var TheItemsLocalActiveX = ActiveX_WMI_JContextMenuLocal(objectSvg);
 		// console.log("Called ActiveX_WMI_JContextMenu objUrl="+objectSvg);
 		if( TheItemsLocalActiveX != [] )
 		{
+            TheItems["sep3"] = "---------";
 			jQuery.extend(TheItems, TheItemsLocalActiveX);
 		}
-
+        */
 		
         var TheItemsSuiteDels =
         {
@@ -1285,8 +1288,9 @@ function DisplayD3Layout(divSvg,newData,w,h)
 					console.log("ActiveX_WMI_JCtxtMenuGlobal before");
 					var activeXDefaultMenus = ActiveX_WMI_JCtxtMenuGlobal(RefillDisplay);
 					console.log("ActiveX_WMI_JCtxtMenuGlobal after");
-					if( activeXDefaultMenus != {} )
+					if( activeXDefaultMenus )
 					{
+					    console.log("activeXDefaultMenus="+JSON.stringify(activeXDefaultMenus));
         				dfltItms["sep2"] = "---------";
 
 						dfltItms["wmiglobal"] = {
