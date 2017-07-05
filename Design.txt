@@ -226,13 +226,13 @@ Par exemple, en creant des nodes artificiels. Mais il faudrait que ca aie un sen
 ce qui est parfois possible.
 Autrement dit, on integre les erreurs dans les donnees normales, traitees normalement.
 Ca a l'avantage de ne jamais les perdre.
-============================================
+========================================================================================================================
 
 IBM MQ Light
 https://developer.ibm.com/answers/questions/14213/how-to-get-vcap-services.html
 BlueMix
 VCAP_SERVICES
-============================================
+========================================================================================================================
 Le mode HTML devrait fabriquer un rapport en texte, decrivant la page.
 
 J ai vu dans les sysinternals tools qu'on peut avoir une description d un exe.
@@ -243,27 +243,27 @@ kde kioslave
 
 Lister le contenu des RPM
 
-============================================
+========================================================================================================================
 win32net.NetFileEnum
 https://msdn.microsoft.com/fr-fr/library/windows/desktop/bb525378%28v=vs.85%29.aspx
 
 Returns information about some or all open files on a server, depending on the parameters specified.
 
-============================================
+========================================================================================================================
 win32net.NetShareGetInfo
-============================================
+========================================================================================================================
 NetSessionEnum
 Provides information about sessions established on a server.
-============================================
+========================================================================================================================
 win32net.NetSessionGetInfo
-============================================
+========================================================================================================================
 win32process.EnumProcesses
-============================================
+========================================================================================================================
 win32process.EnumProcessModules
-============================================
+========================================================================================================================
 win32ts.ProcessIdToSessionId
 Retrieves the Remote Desktop Services session associated with a specified process.
-============================================
+========================================================================================================================
 
 Ajouter les NetGroup aux NetLocalGroup: Quelle est la difference ?
 
@@ -272,7 +272,7 @@ avec une valeur par defaut pour le host courant.
 Par exemple la liste des processes etc... Sans grande importance: On peut dupliquer ces scripts.
 Entretemps, on pourrait, a partir de sources_top, pointer vers les scripts de CIM_ComputerSystem pour  le host courant.
 
-============================================
+========================================================================================================================
 
 Pour associer la meme entite vue de deux facons, on crée un lien avec la propriete pc.equivalent_node.
 Par exemple, si on cree une entite avec son lien wmi, on cree aussi le node comme si le hostname
@@ -304,7 +304,7 @@ Ca ne sert qu'à planter un script si le remote host est mis.
 Mais le script ne sera pas affiché si test variable globale car aucun n'était affiche maintenant.
  Les scripts remote sont affiches autrement, sans exploration et ce test est inutile.
 Donc ?
-============================================
+========================================================================================================================
 
 "class_type_all.py": "Generic class",
 Au lieu d afficher "Generic class", mettre si namespace ou bien classe etc...
@@ -312,7 +312,7 @@ Ou bien "Sub class" ou "virtual class" si pas de direcotyr associe.
 Et dans obj_types.py, en -dessous de CIM_Process, on affiche "Generic class CIM_Process/memory_regex_search"
 alors que c'est un simple module sans ontologie.
 
-============================================
+========================================================================================================================
 Pour associer la meme entite vue de deux facons, on cree un lien avec la propriete pc.equivalent
 
 Exemple: le meme process sur Titi vue avec Wmi de ma machine, et en se connectant sur titi.
@@ -326,12 +326,11 @@ Liens symboliques: entite specifique.
 Premiere page: reprendre des elements du desktop pour le look:
 Et pourquoi les scripts AC2 dans  entity n ont pas la bonne couleur ?
 
-============================================
+========================================================================================================================
 Pour un process afficher l environnement et essayer d associer quelque chose,
 probablement un fichier.
 Notamment pour le PATH.
 
-========================================================================================================================
 ========================================================================================================================
 
 Trier les processes en fonction du langage.
@@ -540,3 +539,128 @@ Comment mettre en place plusieurs modes d'affichage ?
 ========================================================================================================================
 Si on met les nodes en table, il faudrait forcer naturellement une distribution en arbre:
 Les noeuds montants seraient a gauche, les descendants a droite.
+========================================================================================================================
+
+On accumule les nodes d un url. Transparence en fonction du nombre d occurences.
+
+Drag'n'drop de liens.
+
+Créer du JSON pour D3 qui contienne eventuellement des positions calculees par graphviz, Ce qui pourrait accelerer le routage.
+
+Il faut flagguer tous les nœuds avec le numero du script qui les a crees, sachant qu'ils peuvent etre dans plusieurs scripts.
+
+Si D3, on ne tiendrait pas compte des attributs "tree" de la meme facon mais on pourrait tagger des nodes
+comme étant la racine d'un arbre pour les proprietes donnees.
+Il faut ajouter cette information dans le json.
+
+========================================================================================================================
+JMX et Java
+JMX et Java
+http://stackoverflow.com/questions/35593185/is-there-a-jmx-service-url-for-local-non-tcp-connections
+
+http://stackoverflow.com/questions/516142/does-java-6-open-a-default-port-for-jmx-remote-connections/6985565#6985565
+========================================================================================================================
+
+https://lwn.net/Articles/725725/
+
+WMI for Linux ?
+
+https://wiki.ubuntu.com/Kernel/Reference/WMI
+
+De toute facon ce n'est pas encore en userspace alors on s'en fout.
+
+========================================================================================================================
+https://en.wikipedia.org/wiki/Windows_Script_Host
+
+https://stackoverflow.com/questions/6288580/does-there-exist-a-way-by-which-i-can-use-wmi-classes-in-java
+Javascript is available under Windows Scripting Host (WSH). With it, it is fairly easy to access WMI:
+
+var loc = new ActiveXObject("WbemScripting.SWbemLocator");
+var svc = loc.ConnectServer(".", "root\\cimv2");
+coll = svc.ExecQuery("select * from Win32_Process");
+var items = new Enumerator(coll);
+
+while (!items.atEnd())
+{
+    WScript.Echo(items.item().Name);
+    items.moveNext();
+}
+
+========================================================================================================================
+Utiliser FileAPI pour des infos read-only sur les fichiers.
+https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications
+========================================================================================================================
+
+Détecter dans la mémoire d’un process, dans des fichiers, des sockets, Chaine de connexion ODBC.
+
+Il peut y avoir des espaces de part et d’autre du « ; ». Il faudrait utiliser les memes moteurs de recherche quelque soit le domaine :
+- URLs
+- Noms de fichiers
+- requêtes SQL
+- Chaines de connexion ODBC
+
+…/…
+Domaines de recherche (Pour certains domaines, on doit caler le debut de la recherche :
+Cellule CSV, tag HTML, champ table SQL … Pour d’autres, on cherche vraiment en vrac).
+- Fichiers (A priori, tous)
+- Mémoire process.
+- Socket (Mais c est une recherche au fil de l’eau)
+- Peut-être champs de bases de données ?
+
+Voir aussi https://en.wikipedia.org/wiki/Entity_Framework, ADO.NET
+
+
+RECHERCHE DE CHAINES DE CONNEXION OLE DB
+
+https://www.connectionstrings.com/formating-rules-for-connection-strings/
+
+Plein d’exemples ici : https://www.connectionstrings.com/html-table/
+
+
+Donc on cherche des paires clef-valeur, séparées par « ; ». Certains parametres vont entrainer la creation de nœuds (C’est meme le but de l’operation).
+
+
+
+Provider = SQLOLEDB.1; Initial Catalog = scnXYZliv; Persist Security Info = False; Data Source = HOSTNAME\SC4NXYZ;User ID=yyyyy;Password=xxxxx;Trusted_Connection=False;
+
+Provider=Microsoft.Jet.OLEDB.4.0;Data Source=http://www.websitewithhtmltable.com/tablepage.html;Extended Properties="HTML Import;HDR=YES;IMEX=1";
+
+DRIVER={Empress ODBC Interface [Default]};Server=serverName;Port=6322;UID=userName;PWD=password;Database=dbName;
+
+Driver={CData ODBC Driver for Exchange 2015};Server='https://outlook.office365.com/EWS/Exchange.asmx';Platform='Exchange_Online';User='myUser@mydomain.onmicrosoft.com';Password='myPassword';
+
+DRIVER={InterSystems ODBC};SERVER=myServerAddress;PORT=12345;DATABASE=myDataBase;
+PROTOCOL=TCP;STATIC CURSORS=1;UID=myUsername;PWD=myPassword;
+
+DRIVER={InterSystems ODBC};SERVER=myServerAddress;PORT=12345;DATABASE=myDataBase;
+UID=myUsername;PWD=myPassword;
+
+Provider=MSDASQL;DRIVER=Ingres;SRVR=xxxxx;DB=xxxxx;Persist Security Info=False;
+Uid=myUsername;Pwd=myPassword;SELECTLOOPS=N;Extended Properties="SERVER=xxxxx;
+DATABASE=xxxxx;SERVERTYPE=INGRES";
+
+========================================================================================================================
+Base whois
+localisation geographique
+https://www.ripe.net/manage-ips-and-asns/db/support/querying-the-ripe-database
+ip-api.com/docs/api:json
+
+========================================================================================================================
+On garde "notre" wmi en Python car ca marche avec tous les browsers.
+On donne la possibilite de surfer uniquement avec WMI
+mais avec nos scripts en plus, de facon transparente.
+Pour les infos WMI, peut-etre les ajouter dans right-click.
+
+On peut recreer un explorateur, exactement comme en Python.
+Trouver un moyen de retraduire ca en Python quand on va basculer dans le mode Print.
+Peut-etre des combinaisons de:
+index_wmi.py?CLASS.key=val,key=val
+ET:
+enumerate_wmi.py?CLASS.key=val,key=val
+Du reste, il faudrait transformer et generaliser:
+enumerate_CIM_Process.py en "enumerate.py?xid=CIM_Process."
+qui va appeler enumerate_CIM_Process.py ?
+
+Difference en entity.py et enumerate.py ?
+enumerate.py affiche moins d'infos
+========================================================================================================================

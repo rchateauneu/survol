@@ -87,31 +87,36 @@ function ActiveX_WMI_Data(svcWbem,wqlQuery)
 		var objWmi = items.item();
 		
 		// Some properties always exist.
-		console.log("=========== " + objWmi.Name);
+		//console.log("=========== " + objWmi.Name);
 
 		var objDict = {};
 
 		// https://stackoverflow.com/questions/973016/jscript-enumerator-and-list-of-properties
 		var colProps = new Enumerator(objWmi.Properties_);
 		for ( ; !colProps.atEnd(); colProps.moveNext()) { 
+			//console.log("Before item:");
 			var propWmi = colProps.item();
+			//console.log("After item:");
+			//console.log("Name:"+propWmi.Name);
 			var typVal = typeof propWmi.Value;
 			if ( (typVal === "string") ||(typVal === "boolean") ||(typVal === "number") ) {
-				console.log("    "+propWmi.Name + ": " + propWmi.Value);
+				//console.log("    "+propWmi.Name + ": " + propWmi.Value);
 				objDict[propWmi.Name] = propWmi.Value;
 			} else if (typVal === "object") {
 				var strObj = ObjectToString(propWmi.Value);
-				console.log("    "+propWmi.Name + ": " + "object:" + strObj);
+				//console.log("    "+propWmi.Name + ": " + "object:" + strObj);
 				objDict[propWmi.Name] = strObj;
 			} else {
-				console.log("    "+propWmi.Name + ": " + " Unknown type");
+				//console.log("    "+propWmi.Name + ": " + " Unknown type");
 				objDict[propWmi.Name] = "Unknown "+typVal;
 			}
+			//console.log("After:");
 		}
 		dictObjects[objWmi.Name] = objDict;
 		items.moveNext();
 	}
 
+	console.log("ActiveX_WMI_Data leaving");
 	return dictObjects;
 } // ActiveX_WMI_Data
 
@@ -138,6 +143,7 @@ function ActiveX_WMI_ConvertObjToMenuItems(dictObjects)
 				propName = propKey + "=" + propVal
 				// console.log("propName="+propName);
 
+				// Is it really used ??? Why this icon ??
 				var subSubObj = { "name": propName, "icon" : "edit"}
 
 				// { "Plik" : { "name": "aaaa", "icon" : "edit"} }
@@ -217,6 +223,7 @@ function SplitRemoteXid(objUrl)
 		dictProperties[kvSplit[0]] = kvSplit[1];
 	}
 
+	// TODO: Extract a possible machine name from the XID before the arrobas "@".
 	return {
 		m_remote_machine: "",
 		m_class: strClass,
@@ -227,9 +234,11 @@ function SplitRemoteXid(objUrl)
 // This tells if this is the host where the brwoser is running.
 function IsBrowserHostname(hostNam)
 {
-	return true;
+	//return true;
 	// NO, THIS DOES NOT WORK.
-	return (hostNam == "localhost") || (hostNam = "127.0.0.1");
+	var isLocal = (hostNam == "localhost") || (hostNam == "127.0.0.1") || (hostNam == "");
+	console.log("IsBrowserHostname hostNam="+hostNam+" isLocal="+isLocal);
+	return isLocal;
 }
 
 /*
@@ -250,7 +259,7 @@ function GetUserPass(hostName)
 	// To fill input commands with values from a map:
 	 // $.contextMenu.getInputValues(opt, {m_username: "foo", m_password: "bar"});
 
-	console.log("globalCredentials="+globalCredentials);
+	console.log("GetUserPass hostName="+hostName+" globalCredentials="+ObjectToString(globalCredentials));
 	var userPass = globalCredentials[hostName];
 
 	return {
@@ -292,19 +301,23 @@ function CreateWbemConnector(hostName){
 // Depending on the object parameters, this chooses the connector to Wbem.
 function ConnectWbemServer(hostName, strClass, dictProperties)
 {
-	console.log("hostName="+hostName+" strClass="+strClass);
+	console.log("ConnectWbemServer hostName="+hostName+" strClass="+strClass);
+
+	// If a machine name given in the XID before "@".
 	if(hostName != "" ) {
-		console.log("ConnectWbemServer: WMI connect to hostName:"+hostName);
+		console.log("ConnectWbemServer: WMI connect to explicit hostName:"+hostName);
 		return CreateWbemConnector(hostName);
 		// svcWbem = wbemLocat.ConnectServer(hostName, "root\\cimv2", "rchateauneu@hotmail.com", "troulala");
 	}
 
+	// Possibly other cases depending on the class name.
 	var wmiHostname = dictProperties["Name"];
+	console.log("ConnectWbemServer: strClass="+strClass+" wmiHostname="+wmiHostname);
 	if( ( strClass == "CIM_ComputerSystem") && ( ! IsBrowserHostname(wmiHostname) ))
 	{
-		var wmiHostname = dictProperties["Name"];
-		console.log("ConnectWbemServer: WMI connect to CIM_ComputerSystem:"+wmiHostname);
-		return CreateWbemConnector(wmiHostname);
+		var remoteHostname = dictProperties["Name"];
+		console.log("ConnectWbemServer: WMI connect to CIM_ComputerSystem remoteHostname="+remoteHostname);
+		return CreateWbemConnector(remoteHostname);
 		// svcWbem = wbemLocat.ConnectServer(wmiHostname, "root\\cimv2", "rchateauneu@hotmail.com", "troulala");
 	}
 
@@ -377,15 +390,15 @@ function ActiveX_WMI_JContextMenu(objUrl)
 			"remote_user": {
 				name: "Username",
 				type: 'text',
-				value: "Hello World"
+				value: ""
 			},
 			"remote_pass": {
 				name: "Password",
 				type: 'text',
-				value: "Hello World"
+				value: ""
 			},
 			"submit": {
-				name: "Something Clickable",
+				name: "Enter",
 				callback: function(key, options) {
 						/* The runtime options are passed to most callbacks on registration. giving
 						the ability to access DOM elements and configuration dynamically.
@@ -408,7 +421,7 @@ function ActiveX_WMI_JContextMenu(objUrl)
 						//console.log("inpValues="+inpValues);
 
 						$.contextMenu.getInputValues(options, this.data());
-						console.log("this.data()="+this.data());
+						console.log("this.data()="+ObjectToString(this.data()));
 						var remUser = this.data().remote_user;
 						var remPass = this.data().remote_pass;
 
@@ -416,6 +429,7 @@ function ActiveX_WMI_JContextMenu(objUrl)
 							"stored_remote_user" : remUser,
 							"stored_remote_pass" : remPass,
 						};
+						console.log("globalCredentials="+ObjectToString(globalCredentials));
 
 					}
 			}
@@ -423,7 +437,7 @@ function ActiveX_WMI_JContextMenu(objUrl)
 		var TheItemsUserPass =
 		{
 			"ActiveXObjectWMI": {
-				"name": "ActiveX WMI",
+				"name": "ActiveX Authentication",
 				"items": TheItemsUserPassSub
 			}
 		};
@@ -439,4 +453,118 @@ function ActiveX_WMI_JContextMenu(objUrl)
 	};
 
 	return TheItemsSuiteActiveX;
+} // ActiveX_WMI_JContextMenu
+
+// This returns a network compatible with D3.
+// It cannot be generalised for all classes.
+function GlobalMenu_CIM_Process()
+{
+	console.log("GlobalMenu_CIM_Process entering");
+
+	var svcWbemObject = ConnectWbemServer("", "CIM_Process", {} );
+
+	try {
+		svcWbem = svcWbemObject.m_funcLocat();
+
+		var wqlQuery = UrlToWQL("CIM_Process", {});
+		var dictObjects = ActiveX_WMI_Data(svcWbem,wqlQuery);
+	}
+	catch(excep)
+	{
+		// Cannot connect.
+		console.log("ActiveX_WMI_JContextMenu caught:" + excep);
+		return {
+			"nodes": [],
+			"links": []
+		};
+	}
+
+	console.log("GlobalMenu_CIM_Process Creating graph");
+	
+	var netNodes = [];
+	var pidTOidx = {};
+	
+	// One item per object.
+	var idxObj = 0;
+	for( var keyObj in dictObjects) {
+		var oneObj = dictObjects[keyObj];
+		var procId = oneObj["ProcessId"];
+		pidTOidx[procId] = idxObj;
+		//console.log("oneObj procId="+procId+" keyObj="+keyObj+" idxObj="+idxObj);
+		
+		// This member is mandatory for D3.
+		oneObj["name"] = oneObj["Caption"];
+		oneObj["type"] = 3; // Temporary hard-code.
+		oneObj["fill"] = "#FF7147" ;
+		oneObj["entity_class"] = "CIM_ComputerSystem";
+		// This is necessary otherwise cannot merge.
+		oneObj["survol_url"] = "http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=" + procId;
+
+		netNodes[idxObj] = oneObj;
+		idxObj++;
+	}
+		
+	var netLinks = [];
+
+	// Now creates the links.
+	for( var idxNod in netNodes) {
+		var oneNod = netNodes[idxNod];
+		var prntProcId = oneNod["ParentProcessId"];
+		var idxPrntPid = pidTOidx[prntProcId];
+		if( idxPrntPid) {
+			// console.log("oneNod prntProcId="+prntProcId+" idxPrntPid="+idxPrntPid);
+			netLinks.push( {
+				source: parseInt(idxNod),
+				target: idxPrntPid,
+				link_prop: "Sub-process",
+				value: 10 // This is a temporary hard-code.
+				});
+			//console.log("Inserted idxPrntPid"+idxPrntPid);
+		}
+	}
+		
+	console.log("GlobalMenu_CIM_Process leaving");
+	return {
+		"nodes": netNodes,
+		"links": netLinks
+	};
+} // GlobalMenu_CIM_Process
+
+function ActiveX_WMI_JCtxtMenuGlobal( funcD3Displayer )
+{
+	// IE and Windows only.
+	if( ! isIEorEDGE())
+	{
+		// console.log("ActiveX_WMI_JCtxtMenuGlobal Not IE");
+		return {};
+	}
+	// console.log("ActiveX_WMI_JCtxtMenuGlobal IE");
+	
+	var globCtxtMenu = 
+	{
+		"theFirst": {
+			name: "Local processes",
+			callback: function(key, options) {
+				
+					/////     D ABORD CACHER LE MENU
+				
+					var data = GlobalMenu_CIM_Process();
+					console.log("data.nodes="+data.nodes.length+" data.links="+data.links.length);
+					funcD3Displayer(data);
+				}
+		}
+	};
+
+	return globCtxtMenu;
+} // ActiveX_WMI_JCtxtMenuGlobal
+
+/* This returns a menu made of a WMI query, ... the associations !! */
+function ActiveX_WMI_JContextMenuLocal()
+{
+	console.log("Not implemented yet");
+	console.log("Not implemented yet");
+	console.log("Not implemented yet");
+	console.log("Not implemented yet");
+	return [];
 }
+
