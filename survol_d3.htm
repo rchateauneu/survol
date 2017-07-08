@@ -687,6 +687,57 @@ function PifPof()
     alert("PifPof");
 }
 
+console.log("Initializing windowObjectReference");
+var windowObjectReference = "123";
+
+function RefreshSummaryWindow()
+{
+    console.log("RefreshSummaryWindow lstLoadedUrls.length="+lstLoadedUrls.length);
+    var urlMerge = pyMergeScript;
+    var cgiDelim = "?url=";
+
+    var urlsHtml = "<table>";
+    urlsHtml += "<tr>";
+    urlsHtml += "<td id='UrlsMerge'>Print layout</td>";
+    urlsHtml += "<td>Nodes</td>";
+    urlsHtml += "<td>Links</td>";
+    urlsHtml += "<td></td>";
+    urlsHtml += "</tr>";
+    for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
+    {
+        var objLoadedUrl = lstLoadedUrls[ixLoaded];
+        console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
+
+        urlsHtml += "<tr>";
+        urlsHtml += '<td><a href="' + objLoadedUrl.m_loaded_url + '" target="NAMENAME">' + objLoadedUrl.m_loaded_title + '</a></td>';
+        urlsHtml += "<td>" + objLoadedUrl.m_loaded_nodes_length + "</td>";
+        urlsHtml += "<td>" + objLoadedUrl.m_loaded_links_length + "</td>";
+        urlsHtml += '<td><a href="#" onclick="PifPof()">Del</a></td>';
+        urlsHtml += "</tr>";
+
+        var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
+        urlMerge += cgiDelim + url64safe;
+        cgiDelim = "&url=";
+    }
+    urlsHtml += "<tr>";
+    urlsHtml += "<td><a href='" + urlMerge + "'>Merged print-out</td>";
+    urlsHtml += "<td>" + previousData.nodes.length + "</td>";
+    urlsHtml += "<td>" + previousData.links.length + "</td>";
+    urlsHtml += "<td></td>";
+    urlsHtml += "</tr>";
+    urlsHtml += "</table>";
+
+    // Not needed anymore.
+    // $(UrlsList).html(urlsHtml);
+
+    // Maybe the window is not open yet.
+    if(windowObjectReference.document)
+    {
+        windowObjectReference.document.body.innerHTML = urlsHtml;
+    }
+
+} // RefreshSummaryWindow
+
 /* Loads from a URL, a JSON document made of nodes and links.
 After that, updates a table containing the list of loaded URLs. */
 function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
@@ -715,45 +766,11 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
             m_loaded_nodes_length : data.nodes.length,
             m_loaded_links_length : data.links.length
             };
-
         lstLoadedUrls.push(objLoadedUrlNew);
 
-        var urlMerge = pyMergeScript;
-        var cgiDelim = "?url=";
-
-        var urlsHtml = "<table>";
-        urlsHtml += "<tr>";
-        urlsHtml += "<td id='UrlsMerge'>Print layout</td>";
-        urlsHtml += "<td>Nodes</td>";
-        urlsHtml += "<td>Links</td>";
-        urlsHtml += "<td></td>";
-        urlsHtml += "</tr>";
-        for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
-        {
-            var objLoadedUrl = lstLoadedUrls[ixLoaded];
-            console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
-
-            urlsHtml += "<tr>";
-            urlsHtml += '<td><a href="' + objLoadedUrl.m_loaded_url + '">' + objLoadedUrl.m_loaded_title + '</a></td>';
-            urlsHtml += "<td>" + objLoadedUrl.m_loaded_nodes_length + "</td>";
-            urlsHtml += "<td>" + objLoadedUrl.m_loaded_links_length + "</td>";
-            urlsHtml += '<td><a href="#" onclick="PifPof()">Del</a></td>';
-            urlsHtml += "</tr>";
-
-            var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
-            urlMerge += cgiDelim + url64safe;
-            cgiDelim = "&url=";
-        }
-        urlsHtml += "<tr>";
-        urlsHtml += "<td><a href='" + urlMerge + "'>Merged print-out</td>";
-        urlsHtml += "<td>" + previousData.nodes.length + "</td>";
-        urlsHtml += "<td>" + previousData.links.length + "</td>";
-        urlsHtml += "<td></td>";
-        urlsHtml += "</tr>";
-        urlsHtml += "</table>";
-
-        $(UrlsList).html(urlsHtml);
+        RefreshSummaryWindow();
     } // LoaderCallback
+
 
     /* TODO: If theUrl="http://127.0.0.1:8000/htbin/merge_scripts.py?url=aHRiaW4vc...",
     then parse the URLs, and load each of them. */
@@ -863,12 +880,12 @@ function DisplayD3Layout(divSvg,newData,w,h)
     d3BehDrag
         .on("dragstart", function() {
             isDragging = true; // This avoids the tooltip when dragging.
-            console.log("Tooltip disabled");
+            // console.log("Tooltip disabled");
         })
         .on("dragend", function() {
             d3.event.sourceEvent.stopPropagation(); // silence other listeners
             isDragging = false; // Tooltip when hovering is now allowed.
-            console.log("Tooltip enabled");
+            // console.log("Tooltip enabled");
         })
         ;
 
@@ -971,7 +988,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                         return;
                         }
                     if( isDragging ) {
-                        console.log("IfMouseOver not when dragging");
+                        // console.log("IfMouseOver not when dragging");
                         return;
                         }
 
@@ -1052,11 +1069,10 @@ function DisplayD3Layout(divSvg,newData,w,h)
         .on("click", function(d)
             {
                 // TODO: Disabled for the moment because we do not know how to
-                // make it work with drag.
+                // make it work with drag. Consider double-click ??
                 // This option is not mandatory because it is still possible to right-click.
                 console.log("CLICK is disabled");
                 return;
-
 
                 // Removes immediately tooltip if it is here.
                 // divTooltip.style("opacity", 0);
@@ -1497,6 +1513,20 @@ function PreloadUrlsArray(urlsArray)
     return numUrls;
 } // PreloadUrlsArray
 
+/* This opens the summary list in a separate window.
+It displays the URL which were loaded, how to delete them, how many nodes and links etc... */
+function openRequestedPopup() {
+    console.log("openRequestedPopup setting windowObjectReference");
+    windowObjectReference = window.open(
+        "", // this.href,
+        'targetWindow',
+        'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=250'
+    );
+
+    windowObjectReference.document.body.innerHTML = "HTML HTML HTML";
+    windowObjectReference.focus();
+    RefreshSummaryWindow();
+}
 
 function RunAfterLoad()
 {
@@ -1515,6 +1545,10 @@ function RunAfterLoad()
         LoadUrlUpdateDisplay(theurl, CreateDisplay,false);
     }
 	console.log("RunAfterLoad finished")
+
+	$(IdHrefSummary).on("click", openRequestedPopup);
+
+	window.name = "NAMENAME";
 } // RunAfterLoad
 
 // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
@@ -1550,16 +1584,16 @@ function TstMerge()
 https://stackoverflow.com/questions/36841013/custom-force-directed-symbols-in-d3-tables-as-nodes
 SVG has a group element that you can use to organize what can be an arbitrarily complex node.
 Also, you don't have to use an SVG. You can use D3 to manipulate say, the absolute positioning of HTML table elements.
-
-
 */
 
 </script>
 
 </head>
 
-<body>
-Survol. <i>Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface</i>
+<a>
+Survol. <i>Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface.</i>
+<a href="#" id="IdHrefSummary">Summary</a>&nbsp;
+<a href="htbin/entity.py">Print layout</a>
 <!-- We could put these data in a special pop-up, or a drop-down list.
 - Add a summary at the end.
 - Add a tick box for each line, to hide or delete.
