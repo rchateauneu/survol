@@ -690,8 +690,23 @@ function PifPof()
 console.log("Initializing windowObjectReference");
 var windowObjectReference = "123";
 
+gblWindowName = "SurvolMainWindowName";
+
 function RefreshSummaryWindow()
 {
+    // TODO: Fix the relative URL
+    function HrefTarget(url,title) {
+        if( url.substring(0,4) != "http" ) {
+            url = "http://127.0.0.1/Survol/" + url;
+        }
+
+        return '<td><a href="' + url + '" target="'
+            + gblWindowName
+            + '">'
+            + title
+            + '</a></td>';
+    }
+
     console.log("RefreshSummaryWindow lstLoadedUrls.length="+lstLoadedUrls.length);
     var urlMerge = pyMergeScript;
     var cgiDelim = "?url=";
@@ -709,7 +724,7 @@ function RefreshSummaryWindow()
         console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
 
         urlsHtml += "<tr>";
-        urlsHtml += '<td><a href="' + objLoadedUrl.m_loaded_url + '" target="NAMENAME">' + objLoadedUrl.m_loaded_title + '</a></td>';
+        urlsHtml += HrefTarget(objLoadedUrl.m_loaded_url,objLoadedUrl.m_loaded_title);
         urlsHtml += "<td>" + objLoadedUrl.m_loaded_nodes_length + "</td>";
         urlsHtml += "<td>" + objLoadedUrl.m_loaded_links_length + "</td>";
         urlsHtml += '<td><a href="#" onclick="PifPof()">Del</a></td>';
@@ -719,16 +734,22 @@ function RefreshSummaryWindow()
         urlMerge += cgiDelim + url64safe;
         cgiDelim = "&url=";
     }
+
+    // console.log("urlMerge="+urlMerge);
     urlsHtml += "<tr>";
-    urlsHtml += "<td><a href='" + urlMerge + "'>Merged print-out</td>";
+    urlsHtml += HrefTarget(urlMerge,"Merged print-out");
     urlsHtml += "<td>" + previousData.nodes.length + "</td>";
     urlsHtml += "<td>" + previousData.links.length + "</td>";
     urlsHtml += "<td></td>";
     urlsHtml += "</tr>";
+
     urlsHtml += "</table>";
 
     // Not needed anymore.
     // $(UrlsList).html(urlsHtml);
+    // <table id="UrlsList"></table>
+    // We could put these data in a special pop-up, or a drop-down list.
+    // Display classes of nodes, on the X axis (optionnaly)
 
     // Maybe the window is not open yet.
     if(windowObjectReference.document)
@@ -1548,7 +1569,7 @@ function RunAfterLoad()
 
 	$(IdHrefSummary).on("click", openRequestedPopup);
 
-	window.name = "NAMENAME";
+	window.name = gblWindowName;
 } // RunAfterLoad
 
 // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
@@ -1564,22 +1585,6 @@ Mais il n est pas certain que ca suffise quand on a beaucoup d’objets.
 */
 
 
-function TstMerge()
-{
-    var tstInputUrls =
-    [
-        {
-            cgi_key : "url",
-            cgi_value : "http://127.0.0.1:8000/htbin/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29"
-        },
-        {
-            cgi_key : "url",
-            cgi_value : "http://127.0.0.1:8000/htbin/entity.py?xid=rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
-        }
-    ];
-    PreloadUrls(tstInputUrls);
-}
-
 /*
 https://stackoverflow.com/questions/36841013/custom-force-directed-symbols-in-d3-tables-as-nodes
 SVG has a group element that you can use to organize what can be an arbitrarily complex node.
@@ -1594,12 +1599,6 @@ Also, you don't have to use an SVG. You can use D3 to manipulate say, the absolu
 Survol. <i>Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface.</i>
 <a href="#" id="IdHrefSummary">Summary</a>&nbsp;
 <a href="htbin/entity.py">Print layout</a>
-<!-- We could put these data in a special pop-up, or a drop-down list.
-- Add a summary at the end.
-- Add a tick box for each line, to hide or delete.
-- Display classes of nodes, on the X axis (optionnaly)
--->
-<table id="UrlsList"></table>
 
 </body>
 </html>
