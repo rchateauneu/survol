@@ -697,7 +697,14 @@ function RefreshSummaryWindow()
     // TODO: Fix the relative URL
     function HrefTarget(url,title) {
         if( url.substring(0,4) != "http" ) {
-            url = "http://127.0.0.1/Survol/" + url;
+            posHtbin = window.location.href.indexOf("survol_d3.htm");
+            if(posHtbin==-1) {
+                console.log("HrefTarget: "+window.location.href);
+                return "Error HrefTarget: "+window.location.href;
+            }
+            hrefPrefix = window.location.href.substring(0,posHtbin);
+            // hrefPrefix = "http://127.0.0.1/Survol/" for example.
+            url = hrefPrefix + url;
         }
 
         return '<td><a href="' + url + '" target="'
