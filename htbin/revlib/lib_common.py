@@ -174,7 +174,7 @@ def ExternalToTitle(extUrl):
 			return pyNam.replace("_"," ").capitalize()
 	else:
 		# sys.stderr.write("extUrl=%s\n"%extUrl)
-		return "CGIPROP"
+		return "Literal:"+extUrl
 
 	# TODO: Ca vient de FileUriMime()
 	# Voir scripts_to_titles dans lib_naming.py
