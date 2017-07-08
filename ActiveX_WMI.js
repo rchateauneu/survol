@@ -139,48 +139,85 @@ function ActiveX_WMI_Data(svcWbem,wqlQuery)
 	return dictObjects;
 } // ActiveX_WMI_Data
 
-function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl)
+// relPath = "CIM_Process.Handle=12345"
+function FillObjD3(oneObj,objName,objClass,relPath)
+{
+	oneObj["name"] = objName;
+	oneObj["type"] = 3; // Temporary hard-code.
+	oneObj["fill"] = "#FF7147" ;
+	oneObj["entity_class"] = objClass;
+	// This is necessary otherwise cannot merge.
+	oneObj["survol_url"] = "http://127.0.0.1:8000/htbin/entity.py?xid=" + relPath;
+}
+
+/* This returns a callback which is called when the user clicks "Associators..." */
+function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl,objectSvg,funcD3Displayer)
 {
 	console.log("CallbackAssociatorsWMI wqlQueryAssociators="+wqlQueryAssociators);
+
 	var funcAssoc = function(key, options)
 	{
-		alert("key="+key);
+		// alert("key="+key);
 		var coll = svcWbem.ExecQuery(wqlQueryAssociators);
 		var items = new Enumerator(coll);
 
-		console.log("CallbackAssociatorsWMI Connection OK");
+		console.log("CallbackAssociatorsWMI Callback: Connection OK");
 
-		/*
-		Normally, it should return only one object, but we expect everything.
-		TODO: There should be a time-out.
-		*/
+		// All associators nodes point to this one.
+		var netNodes = [ objectSvg ];
+		var netLinks = [];
+		var idxObj = 1;
+
+		// Loops on each object of the associators, add a link to the input object..
 		for ( ; !items.atEnd();items.moveNext())
 		{
 			var objWmiAssocs = items.item();
-			// See "objWmiAssocs.Derivation_" which contains the base classes.
-			console.log("objWmiAssocs.Path_.Class_="+objWmiAssocs.Path_.Class);
+			// See "objWmiAssocs.Derivation_" which contains the base classes:
+			// CIM_UnitaryComputerSystem, CIM_ComputerSystem, CIM_System, etc...
+
+			console.log("objWmiAssocs.Path_.Class_="+objWmiAssocs.Path_.Class); // Win32_ComputerSystem
+
 			// '\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"'
+			// Most of times, we must explore Derivation_ to find a super-class defined in our terminology.
 			console.log("objWmiAssocs.Path_.Path="+objWmiAssocs.Path_.Path);
+
 			// 'Win32_ComputerSystem.Name="RCHATEAU-HP"'
 			console.log("objWmiAssocs.Path_.RelPath="+objWmiAssocs.Path_.RelPath);
 
+			// We have to create an object name, just like whet the Python scripts do.
+			var objectName = "Object:" + propWmi.Name;
+
+			// TODO: Maybe we could add some properties ?
+			var oneObj = {};
+			FillObjD3(oneObj,objectName,objWmiAssocs.Path_.Class,objWmiAssocs.Path_.RelPath);
+
 			var colProps = new Enumerator(objWmiAssocs.Properties_);
 			for ( ; !colProps.atEnd(); colProps.moveNext()) {
-				//console.log("Before item:");
 				var propWmi = colProps.item();
-				//console.log("After item:");
 				console.log("   Name:"+propWmi.Name);
-				// var typVal = typeof propWmi.Value;
+				if(propWmi.IsArray) {
+					console.log("   Name:"+JSON.stringify(propWmi.Value));
+				} else {
+					console.log("   Name:"+propWmi.Value);
+				}
+				console.log("   Name:"+propWmi.IsLocal);
+				console.log("   Name:"+propWmi.IsArray);
+				console.log("   Name:"+propWmi.CIMType);
+				console.log("   Name:"+propWmi.Origin);
 			}
 
-
-
+			var propertyLink = "XYZ";
+			netNodes[idxObj] = oneObj;
+			netLinks.push( {
+				source: 0,
+				target: idxObj,
+				link_prop: propertyLink,
+				value: 10 // This is a temporary hard-code.
+				});
+			idxObj++;
 
 			/*
 			TODO: Call RefillDisplay, add links with objUrl,
-			create urls for the new nodes,
-			create a function which transform a "pure WMI" object into ours.
-
 
 			Ca ne fonctionne pas !!!
 			ASSOCIATORS OF {CIM_LogicalDisk.DeviceID='C:'}
@@ -189,12 +226,15 @@ function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl)
 			Donc il faut se debrouiller pour prendre la VRAIE CLASSE !!
 			Elle est probablement dans les Properties_
 			*/
-
-
-
-
-
 		}
+
+		var dataGraphD3 = {
+			"nodes": netNodes,
+			"links": netLinks
+		};
+
+		funcD3Displayer(dataGraphD3);
+
 		console.log("CallbackAssociatorsWMI Finished");
 	};
 	return funcAssoc;
@@ -414,7 +454,7 @@ function ConnectWbemServer(hostName, strClass, dictProperties)
 }
 
 
-function ActiveX_WMI_JContextMenu(objUrl,objectSvg)
+function ActiveX_WMI_JContextMenu(objUrl,objectSvg,funcD3Displayer)
 {
 	// IE and Windows only.
 	if( ! isIEorEDGE())
@@ -447,7 +487,7 @@ function ActiveX_WMI_JContextMenu(objUrl,objectSvg)
 
 		var dictObjects = ActiveX_WMI_Data(svcWbem,wqlQuerySelect);
 
-		var callbackAssocs = CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl);
+		var callbackAssocs = CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl,objectSvg,funcD3Displayer);
 
 		var TheItemsSuiteActiveXSubItems = ActiveX_WMI_ConvertObjToMenuItems(dictObjects,callbackAssocs);
 
@@ -585,12 +625,7 @@ function GlobalMenu_CIM_Process()
 		//console.log("oneObj procId="+procId+" keyObj="+keyObj+" idxObj="+idxObj);
 		
 		// This member is mandatory for D3.
-		oneObj["name"] = oneObj["Caption"];
-		oneObj["type"] = 3; // Temporary hard-code.
-		oneObj["fill"] = "#FF7147" ;
-		oneObj["entity_class"] = "CIM_ComputerSystem";
-		// This is necessary otherwise cannot merge.
-		oneObj["survol_url"] = "http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=" + procId;
+		FillObjD3(oneObj,oneObj["Caption"],"CIM_ComputerSystem","CIM_Process.Handle=" + procId);
 
 		netNodes[idxObj] = oneObj;
 		idxObj++;

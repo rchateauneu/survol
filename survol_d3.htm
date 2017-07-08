@@ -1153,7 +1153,10 @@ function DisplayD3Layout(divSvg,newData,w,h)
 		// TODO: Should add it.
 		if(objUrl) {
 			console.log("Calling ActiveX_WMI_JContextMenu objUrl="+objUrl);
-			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg);
+
+			// This creates a clickable item which calls RefillDisplay with the associators objects
+			// transformed into a JSON graph.
+			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg,RefillDisplay);
 			// console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
 			if( TheItemsSuiteActiveX != [] )
 			{
@@ -1556,6 +1559,7 @@ Also, you don't have to use an SVG. You can use D3 to manipulate say, the absolu
 </head>
 
 <body>
+Survol. <i>Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface</i>
 <!-- We could put these data in a special pop-up, or a drop-down list.
 - Add a summary at the end.
 - Add a tick box for each line, to hide or delete.
