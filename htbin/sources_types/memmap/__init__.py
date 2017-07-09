@@ -15,9 +15,16 @@ def EntityOntology():
 	return ( ["Id"],)
 
 # This returns a nice name given the parameter of the object.
+# Same logic as CIM_DataFile.
+# TODO: How to display the full path ?
 def EntityName(entity_ids_arr,entity_host):
 	entity_id = entity_ids_arr[0]
-	return entity_id
+	# A file name can be very long, so it is truncated.
+	file_basename = os.path.basename(entity_id)
+	if file_basename == "":
+		return entity_id
+	else:
+		return file_basename
 
 # A map file is associated to a file.
 def AddInfo(grph,node,entity_ids_arr):
