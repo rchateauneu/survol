@@ -117,6 +117,7 @@ def PsutilProcCwd(proc):
 ################################################################################
 
 # Returns the value of an environment variable of a given process.
+# TODO: Apparently, it exists in psutil.Process().environ() ??
 def GetEnvVarMap(thePid):
 	if lib_util.isPlatformLinux:
 		filproc = open("/proc/%d/environ"%thePid)
