@@ -18,7 +18,7 @@ import lib_util
 import lib_common
 import lib_properties
 from lib_properties import pc
-import mimetypes # In Python standard library.
+# import mimetypes # In Python standard library.
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
