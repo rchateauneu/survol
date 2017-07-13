@@ -111,6 +111,7 @@ def slp_wbem_services():
 # https://192.168.1.83:5989 	index 	Namespaces
 # Should use SLP.
 # TODO: CHANGE THIS !
+# TODO: Emulate the protocol with Jquery and Javascript, if it is HTTP.
 def WbemServersList():
 	hardcoded_list_of_wbem_servers = [
 		( "192.168.1.83", "http://192.168.1.83:5988" ),
