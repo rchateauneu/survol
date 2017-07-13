@@ -5,7 +5,7 @@ import lib_common
 import lib_util
 import lib_uris
 from lib_properties import pc
-import mimetypes
+import lib_mime
 import json
 
 def EntityOntology():
@@ -148,7 +148,7 @@ def AddFileProperties(grph,currNode,currFilNam):
 	except ImportError:
 		pass
 
-	mimTy = mimetypes.guess_type(currFilNam)
+	mimTy = lib_mime.FilenameToMime(currFilNam)
 	if mimTy:
 		if mimTy[0]:
 			grph.add( ( currNode, lib_common.MakeProp("Mime type"), lib_common.NodeLiteral(str(mimTy)) ) )

@@ -8,10 +8,8 @@
 import os
 import sys
 import re
-import mimetypes
-
 import cgi
-
+import lib_mime
 import lib_common
 import lib_util
 
@@ -20,7 +18,7 @@ def Main():
 
 	fileName = cgiEnv.GetId()
 
-	mime_stuff = mimetypes.guess_type( fileName )
+	mime_stuff = lib_mime.FilenameToMime( fileName )
 
 	sys.stderr.write("fileName=%s MIME:%s\n" % (fileName, str(mime_stuff) ) )
 
