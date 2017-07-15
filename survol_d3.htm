@@ -833,6 +833,15 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 	}
 } // LoadUrlUpdateDisplay
 
+function AppendCgiToUrl(url,cgipair)
+{
+	console.log("AppendCgiToUrl url="+url);
+	if( url.indexOf("?") < 0 )
+		return url + "?" + cgipair;
+	else
+		return url + "&" + cgipair;
+}
+
 function DisplayD3Layout(divSvg,newData,w,h)
 {
     'use strict';
@@ -1029,7 +1038,8 @@ function DisplayD3Layout(divSvg,newData,w,h)
 						
                     // d.survol_info_dict is a dictionary, and survol_info_list is a list.
                     // These two members are filled when parsing the input JSON document.
-                    var urlTooltip = d.survol_url.replace("entity.py","entity_info_only.py")+"&mode=json";
+                    var urlReplaced = d.survol_url.replace("entity.py","entity_info_only.py");
+                    var urlTooltip = AppendCgiToUrl(urlReplaced,"mode=json");
 
                     // "urlTooltip=http://127.0.0.1:8000/htbin/entity_info_only.py?xid=rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51759 -&gt; 127.0.0.1:5672&mode=json"
 
@@ -1106,7 +1116,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 // divTooltip.style("opacity", 0);
 
                 // This expects a graph, not a contextual menu.
-                var aUrl = d.survol_url + "&mode=json";
+                var aUrl = AppendCgiToUrl( d.survol_url, "mode=json");
                 console.log("aUrl="+aUrl);
                 LoadUrlUpdateDisplay(aUrl, RefillDisplay,globalMustMerge);
             })
@@ -1274,7 +1284,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
             globalMustMerge = menuOptions.yesno;
 
             // This is a Python script, but not a contextual menu displayed by "entity.py".
-            var theUrl = key + "&mode=json";
+            var theUrl = AppendCgiToUrl( key, "mode=json");
             console.log("FromKeyToScript theUrl="+theUrl);
             LoadUrlUpdateDisplay(theUrl, RefillDisplay,globalMustMerge);
         }
@@ -1532,7 +1542,7 @@ function PreloadUrlsArray(urlsArray)
             var aUrlNoMode = UrlRelativeToAbsolute(aUrlRel)
 
             // This reasonably expects that there is at least one CGI argument.
-            var aUrlMode = aUrlNoMode + "&mode=json";
+            var aUrlMode = AppendCgiToUrl( aUrlNoMode, "mode=json");
 
             LoadUrlUpdateDisplay(aUrlMode, FuncDisplay, true);
             numUrls += 1;
