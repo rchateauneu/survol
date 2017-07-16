@@ -86,7 +86,8 @@ class LocalBox:
 		return lib_util.NodeUrl( url )
 
 	def BuildEntity(self, entity_type, *entity_id_arr):
-		#sys.stderr.write("UriMake entity_id_arr=%s\n" % str(entity_id_arr) )
+		# sys.stderr.write("BuildEntity type=%s id_arr=%s Caller=%s\n" % (entity_type, str(entity_id_arr), sys._getframe(1).f_code.co_name ) )
+
 		keys = lib_util.OntologyClassKeys(entity_type)
 		#sys.stderr.write("UriMake keys=%s\n" % str(keys) )
 
@@ -336,9 +337,13 @@ class LocalBox:
 		path = path.replace("\\","/")
 		return self.UriMake( "CIM_Directory" , lib_util.EncodeUri(path))
 
+	# This URL opens a HTTP window. A specific Python script is needed to display a file
+	# which is normally not accessible from a HTTP server.
 	# TODO: Renvoyer NULL si type MIME invalide ?
-	# Ou bien une icone ?
+	# TODO: Display an icon ?
 	def FileUriMime(self,filNam):
+		# This enforces the normal class of the object. Processing the special case of this link
+		# is made by detecting the script name.
 		return self.UriMakeFromScript('/file_to_mime.py', "CIM_DataFile", lib_util.EncodeUri(filNam) )
 
 	# This creates a node for a socket, so later it can be merged with the same socket.
