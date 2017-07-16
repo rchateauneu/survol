@@ -300,6 +300,7 @@ def ParseXid(xid ):
 		entity_type = mtch_entity.group(2)
 		entity_id_quoted = mtch_entity.group(3)
 
+		# Everything which comes after the dot which follows the class name.
 		entity_id = unquote(entity_id_quoted)
 
 		return ( entity_type, entity_id, entity_host )
@@ -323,6 +324,7 @@ def ParseXid(xid ):
 			entity_id = ""
 			# sys.stderr.write("WMI Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
 		else:
+			# Remove the dot which comes after the class name.
 			entity_id = unquote(entity_id_quoted)[1:]
 			# sys.stderr.write("WMI Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
@@ -342,6 +344,7 @@ def ParseXid(xid ):
 			entity_id = ""
 			# sys.stderr.write("WBEM Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
 		else:
+			# Remove the dot which comes after the class name.
 			entity_id = unquote(entity_id_quoted)[1:]
 			# sys.stderr.write("WBEM Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
@@ -636,8 +639,7 @@ localOntology = {
 # TODO: Replace this by a single lookup in a single dict
 # TODO: ... made of localOntology added to the directory of types.
 def OntologyClassKeys(entity_type):
-
-	# sys.stderr.write("OntologyClassKeys %s\n" %entity_type)
+	# sys.stderr.write("OntologyClassKeys entity_type=%s Caller=%s\n"%(entity_type, sys._getframe(1).f_code.co_name))
 
 	try:
 		# TODO: Temporarily until we do something more interesting, using the subtype.
@@ -891,7 +893,7 @@ def GetEntityModuleNoCache(entity_type):
 
 	except ImportError:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("Loading (%s):%s\n"%(entity_package,str(exc)))
+		sys.stderr.write("GetEntityModuleNoCache entity_type=%sLoading (%s):%s\n"%(entity_type,entity_package,str(exc)))
 		pass
 
 	# sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
@@ -907,6 +909,7 @@ cacheEntityToModule[""] = None
 def GetEntityModule(entity_type):
 	# sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
 	# sys.stderr.write("sys.path="+str(sys.path)+"\n")
+	# sys.stderr.write("GetEntityModule entity_type=%s Caller=%s\n"%(entity_type, sys._getframe(1).f_code.co_name))
 
 	try:
 		# Might be None if the module does not exist.
