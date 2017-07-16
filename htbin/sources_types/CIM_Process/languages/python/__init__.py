@@ -124,3 +124,5 @@ def ExecInPythonDebugger(thePid, vecInstructions):
     return objResu
 
 
+# Print the stack content with this:
+# sys._getframe(1).f_code.co_name
