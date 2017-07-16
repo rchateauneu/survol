@@ -2,7 +2,7 @@
 
 """Display MIME content"""
 
-# It receives as CGI arguments, the entity type which must be "file", and the filename.
+# It receives as CGI arguments, the entity type which is "HttpUrl_MimeDocument", and the filename.
 # It must then return the content of the file, with the right MIME type,
 
 import os
@@ -16,6 +16,8 @@ import lib_util
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
+	# The class "HttpUrl_MimeDocument" is not defined yet but it does not matter.
+	# Will create CSS files.
 	fileName = cgiEnv.GetId()
 
 	mime_stuff = lib_mime.FilenameToMime( fileName )
