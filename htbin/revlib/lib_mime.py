@@ -1,4 +1,5 @@
 import os
+import sys
 
 try:
 	import mimetypes
@@ -7,16 +8,24 @@ except ImportError:
 	mimelib_present = False
 
 def FilenameToMime(pathName):
+	sys.stderr.write("FilenameToMime pathName=%s\n"%pathName)
+
+	# Some types might not be well processed.
+	fileName, fileExt = os.path.splitext(pathName)
+	extUpper = fileExt.upper()
+
+	if extUpper in [".LOG"]:
+		return ['text/plain', None]
+
 	if mimelib_present:
 		# For example: ('text/plain', None)
 		return mimetypes.guess_type( pathName )
 	else:
 		# Last chance if module is not available.
-		fileName, fileExt = os.path.splitext(pathName)
 		# TODO: This can easily be completed.
-		if fileExt.upper() in [".JPG",".JPEG"]:
+		if extUpper in [".JPG",".JPEG"]:
 			return ['image/jpeg', None]
-		if fileExt.upper() in [".TXT",".LOG"]:
+		if extUpper in [".TXT"]:
 			return ['image/jpeg', None]
 
 		mime_stuff = [None]
