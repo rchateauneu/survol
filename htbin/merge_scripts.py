@@ -9,10 +9,10 @@ import lib_common
 
 try:
 	from urllib import unquote
-	from urlparse import urlparse
+	#from urlparse import urlparse
 except ImportError:
 	from urllib.parse import unquote
-	from urllib.parse import urlparse
+	#from urllib.parse import urlparse
 
 # This CGI script is called as a CGI script,
 # and its parameters are input URLs in Base64UrlSafe format.
