@@ -1270,7 +1270,7 @@ class CgiEnv():
 	# the value of an unique key-value pair.
 	# If this class is not in DMTF, we might need some sort of data dictionary.
 	def GetId(self):
-		sys.stderr.write("GetId self.m_entity_id=%s\n" % ( str( self.m_entity_id ) ) )
+		sys.stderr.write("GetId m_entity_type=%s m_entity_id=%s\n" % ( self.m_entity_type, str( self.m_entity_id ) ) )
 		try:
 			# If this is a top-level url, no object type, therefore no id.
 			if self.m_entity_type == "":
