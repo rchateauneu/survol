@@ -58,9 +58,13 @@ def UrlDirectory( fullDirPath ):
 
 # Used only here.
 def UriDirectoryDirectScript(dirNam):
+	sys.stderr.write("UriDirectoryDirectScript=%s\n"%dirNam)
+
+	# This should rather have the property pc.property_script, but it must be listed with the files.
 	return lib_uris.gUriGen.UriMakeFromScript(
 		'/sources_types/CIM_Directory/file_directory.py',
 		"CIM_Directory", # TODO: NOT SURE: lib_util.ComposeTypes("file","dir"),
+		# pc.property_script,
 		lib_util.EncodeUri(dirNam) )
 
 
@@ -77,16 +81,22 @@ def Main():
 		if re.match( "^[a-zA-Z]:$", filNam ):
 			filNam += "/"
 
-	sys.stderr.write("filNam=%s\n" % filNam )
-
-	filNode = lib_common.gUriGen.FileUri(filNam )
+	# filNode = lib_common.gUriGen.FileUri(filNam )
+	filNode = lib_common.gUriGen.DirectoryUri(filNam )
 
 	grph = cgiEnv.GetGraph()
 
-	if filNam != '/':
-		# TODO: Does it work on Windows ???
-		#splitdir = filNam.split('/')
-		#topdir = '/'.join( splitdir[:-1] )
+	if lib_util.isPlatformLinux:
+		isTopDirectory = filNam == '/'
+	elif lib_util.isPlatformWindows:
+		# Should be "E:/" but in case it would be "E:".
+		isTopDirectory = ( len(filNam) == 2 and filNam[1] == ':' ) or ( len(filNam) == 3 and filNam[1:3] == ':/' )
+	else:
+		isTopDirectory = False
+
+	sys.stderr.write("file_directory.py filNam=%s isTopDirectory=%d\n" % (filNam,isTopDirectory) )
+
+	if not isTopDirectory:
 		topdir = os.path.dirname(filNam)
 		sys.stderr.write("topdir=%s\n"%(topdir))
 		if topdir:

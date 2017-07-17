@@ -8,10 +8,17 @@ import sys
 import time
 import cgi
 import re
+import os
 import json
 import six
 
 from six.moves.html_parser import HTMLParser
+
+try:
+	from urlparse import urlparse
+except ImportError:
+	from urllib.parse import urlparse
+
 
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
 def AntiPredicateUri(uri):
@@ -234,8 +241,22 @@ def PropToShortPropNam(collapsProp):
 	shortNam = shortNam.replace(" ","_")
 	return shortNam
 
+# Only some scripts are exported to Json.
+def ScriptForJson(url):
+	# The only internal script accepted.
+	if( url.find("htbin/entity.py") >= 0):
+		return True
 
-# Transforms a RDF graph into a JSON document. From Edouard.
+	# TODO: Maybe pass portal_wbem.py and portal_wmi.py ??
+
+	# Other scripts are forbidden.
+	if( url.find("htbin/") >= 0):
+		return False
+
+	# Foreign scripts are OK.
+	return True
+
+# Transforms a RDF graph into a JSON document.
 # This returns a graph made of Json objects.
 def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
@@ -263,16 +284,28 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			sys.stderr.write("continue subj=%s obj=%s\n"%(subj,obj))
 			continue
 
+		# Normal data scripts are not accepted. This should apply only to file_directory.py and file_to_mime.py
+		if not ScriptForJson(subj):
+			continue
+
+		if not ScriptForJson(obj):
+			continue
+
 		subjObj = NodeToJsonObj(subj)
 		subj_id = subjObj.m_index
 
 		propNam = PropToShortPropNam(pred)
 
+		# TODO: BUG: If several nodes for the same properties, only the last one is kept.
 		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
 			objObj = NodeToJsonObj(obj)
 			obj_id = objObj.m_index
 			# "value" is for the class, for example ".link10".
 			links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam, 'value': 10}])
+
+			# TODO: Add the name corresponding to the URL, in m_info_dict so that some elements
+			# of the tooltip would be clickable. On the other hand, one just need to merge
+			# the nodes relative to the object, by right-clicking.
 		elif isinstance(obj, (rdflib.Literal)):
 			if pred == pc.property_information:
 				try:
@@ -290,6 +323,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		else:
 			raise "Cannot happen here"
 
+	# Now, this creates the nodes sent as json objects.
 	numNodes = len(NodeToJsonObj.dictNod2Json)
 	nodes = [None] * numNodes
 	for nod in NodeToJsonObj.dictNod2Json:
@@ -302,14 +336,22 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# and therefore must be escaped. Therefore they have to be unescaped when transmitted in JSON.
 		# This is especially needed for RabbitMQ because the parameter defining its connection name
 		# has the form: "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
+
+		# HTTP_MIME_URL
+		the_survol_nam = HTMLParser().unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
+		the_survol_url = HTMLParser().unescape(obj_link)
+
 		nodes[nod_id] = {
-			'name'             : HTMLParser().unescape(nod_titl), ## MUST UNESCAPE HTML ENTITIES !
+			'name'             : the_survol_nam,
 			"type"             : 3, # This is temporary, for coloring and will be removed.
 			# Theoretically, this URL should be HTML unescaped then CGI escaped.
 			# 'survol_url'       : obj_link,
-			'survol_url'       : HTMLParser().unescape(obj_link),
+			#'x'       : 500,
+			#'y'       : 500,
+			#'number'  : 50,
+			'survol_url'       : the_survol_url,
 			'fill'             : nodObj.m_color,
-			'entity_class'     : nodObj.m_class,
+			'entity_class'     : nodObj.m_class, # TODO: Maybe not needed because also in the URL ?
 			'survol_info_list' : nodObj.m_info_list,
 			'survol_info_dict' : nodObj.m_info_dict
 		}

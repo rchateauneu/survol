@@ -161,7 +161,7 @@ def ExternalToTitle(extUrl):
 		try:
 			# TODO: See lib_naming.scripts_to_titles
 			basNamToTxt = {
-				"objtypes_wbem" : "Subtypes",
+				"objtypes_wbem" : "Subtypes", # This key is duplicated !!!!
 				"file_directory" : "Subdir",
 				"file_to_mime" : "MIME",
 				"objtypes_wmi" : "WMI tree",

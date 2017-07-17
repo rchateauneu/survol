@@ -1149,27 +1149,46 @@ function DisplayD3Layout(divSvg,newData,w,h)
             name: objKey
         };
 
-        // By default, results of scripts is merged with the current graph.
-        var TheItemsSuite =
+        // If CIM_DataFile, this creates a MIME link on the fly.
+        function urlCIM_DataFileToMime(url)
         {
-            "yesno": {
-                name: "Merge graphs",
-                type: 'checkbox',
-                selected: true
-            },
-            "name": {
-                name: "Si script, edit params",
-                type: 'text',
-                value: "Hello World",
-                events: {
-                    keyup: function(e) {
-                        // add some fancy key handling here?
-                        window.console && console.log('key: '+ e.keyCode);
+            if(url.indexOf("htbin/entity.py?xid=CIM_DataFile.") < 0)
+                return null;
+            return url.replace("htbin/entity.py","htbin/file_to_mime.py");
+        }
+
+        var urlMime = urlCIM_DataFileToMime(objUrl);
+        if(urlMime) {
+			TheItems[urlMime] = {
+                    "name": "Mime Display",
+                    "icon": "paste"
+			};
+        }
+
+        // Not needed if this is an external URL.
+        if( objUrl.indexOf("htbin/") >= 0 ) {
+            // By default, results of scripts is merged with the current graph.
+            var TheItemsSuite =
+            {
+                "yesno": {
+                    name: "Merge graphs",
+                    type: 'checkbox',
+                    selected: true
+                },
+                "name": {
+                    name: "Parameters (In progress...)",
+                    type: 'text',
+                    value: "Hello World",
+                    events: {
+                        keyup: function(e) {
+                            // add some fancy key handling here?
+                            window.console && console.log('key: '+ e.keyCode);
+                        }
                     }
                 }
-            }
-		};
-        jQuery.extend(TheItems, TheItemsSuite);
+            };
+            jQuery.extend(TheItems, TheItemsSuite);
+        }
 
 		// Maybe there are Python scripts for this object.
 		if(objDeferScripts) {
@@ -1279,6 +1298,21 @@ function DisplayD3Layout(divSvg,newData,w,h)
             LoadUrlUpdateDisplay(theUrl, RefillDisplay,globalMustMerge);
         }
 
+        // For an URL which returns HTML and to be opened in its own window.
+        // Similar to ScriptForJson in Python.
+        function PlainNonEntityUrl(url)
+        {
+            if( url.indexOf("htbin/file_to_mime.py") >= 0 )
+            {
+                return true;
+            }
+            if( url.indexOf("htbin/") >= 0 )
+            {
+                return false;
+            }
+            // This is a foreign URL
+            return true;
+        }
 
         $.contextMenu(
         {
@@ -1309,6 +1343,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
                         }
                         else
                         {
+                            if( PlainNonEntityUrl(key) )
+                            {
+                                window.open(key, '_blank','location=yes,height=570,width=520,scrollbars=yes,status=yes');
+                                return;
+                            }
                             FromKeyToScript(key, options);
                         }
                     },
@@ -1407,8 +1446,18 @@ function DisplayD3Layout(divSvg,newData,w,h)
         {
             var objectThis = this;
 
-			// If this done was defined from a Python script.
+			// If this was defined from a Python script.
 			if(this.__data__.survol_url) {
+				console.log("Right click on URL="+this.__data__.survol_url);
+				if(this.__data__.survol_url.indexOf("entity.py") < 0) {
+				    /*
+				    Very special case of the execution of file_directory.py : It returns CIM_DataFile and
+				    CIM_Directory, but also links to file_directory.py with the entity type CIM_Directory.
+				    So these nodes become also clickable.
+				    */
+				    console.log("Should not happen: only entity.py is clickable");
+				    return;
+				}
 				// We expect a contextual menu in JSON format, not a graph.
 				// TODO: Have a script which returns only the menu tree in json, without the intermediate
 				// step of RDF encoding.
@@ -1596,6 +1645,7 @@ Mais il n est pas certain que ca suffise quand on a beaucoup d’objets.
 https://stackoverflow.com/questions/36841013/custom-force-directed-symbols-in-d3-tables-as-nodes
 SVG has a group element that you can use to organize what can be an arbitrarily complex node.
 Also, you don't have to use an SVG. You can use D3 to manipulate say, the absolute positioning of HTML table elements.
+Ajouter le lien de merge.
 */
 
 </script>

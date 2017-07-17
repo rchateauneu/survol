@@ -4,6 +4,9 @@
 WBEM portal
 """
 
+
+### CA MARCHE PLUS !!
+
 import lib_common
 
 try:
