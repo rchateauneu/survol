@@ -27,7 +27,7 @@ def Main():
 
 	try:
 		#
-		listOverview = cl.get_overview()
+		lstOverview = cl.get_overview()
 	except:
 		#
 		exc = sys.exc_info()[1]
@@ -37,11 +37,11 @@ def Main():
 		valOverview = lstOverview[keyOverview]
 
 		# grph.add( ( nodeManager, lib_common.MakeProp(keyOverview), lib_common.NodeLiteral(valOverview) ) )
-                valClean = valOverview
-                # Otherwise it does not work as these chars should be espaced.
-                # TODO: Nice display for Python lists and dicts.
-                valClean = str(valClean).replace("{","").replace("}","")
-                # sys.stderr.write("valClean=%s\n"%valClean)
+		valClean = valOverview
+		# Otherwise it does not work as these chars should be espaced.
+		# TODO: Nice display for Python lists and dicts.
+		valClean = str(valClean).replace("{","").replace("}","")
+		# sys.stderr.write("valClean=%s\n"%valClean)
 		grph.add( ( nodeManager, lib_common.MakeProp(keyOverview), lib_common.NodeLiteral(valClean) ) )
 
 	cgiEnv.OutCgiRdf()
