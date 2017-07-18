@@ -81,10 +81,14 @@ def AddGeocoder(grph,node,ipv4):
 	except ImportError:
 		return
 
-	geoc = geocoder.ip(ipv4)
-	for jsonKey,jsonVal in geoc.json.iteritems():
-		# Conversion to str otherwise numbers are displayed as "float".
-	    grph.add( ( node, lib_common.MakeProp(jsonKey), lib_common.NodeLiteral(str(jsonVal)) ) )
+	try:
+		geoc = geocoder.ip(ipv4)
+		for jsonKey,jsonVal in geoc.json.iteritems():
+			# Conversion to str otherwise numbers are displayed as "float".
+			grph.add( ( node, lib_common.MakeProp(jsonKey), lib_common.NodeLiteral(str(jsonVal)) ) )
+	except Exception:
+		# This might be a simple time-out.
+		return
 
 
 # The URL is hard-coded but very important because it allows to visit another host with WMI access.
