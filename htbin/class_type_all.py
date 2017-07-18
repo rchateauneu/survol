@@ -112,7 +112,8 @@ def CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	# TODO: Shame, we just did it in GetWmiUrl.
 	ipOnly = lib_util.EntHostToIp(entity_host)
 	try:
-		connWmi = lib_wmi.WmiConnect(ipOnly,nameSpace)
+		# It simply returns if it cannot connect.
+		connWmi = lib_wmi.WmiConnect(ipOnly,nameSpace,False)
 		lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiNode, className, False )
 
 		# Now displays the base classes, to the top of the inheritance tree.
