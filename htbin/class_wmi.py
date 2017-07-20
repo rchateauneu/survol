@@ -79,7 +79,14 @@ def Main():
 		# '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'
 		# https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
 
-		fullPth = str( wmiObj.path() )
+		try:
+			fullPth = str( wmiObj.path() )
+		except UnicodeEncodeError:
+			# UnicodeEncodeError: 'ascii' codec can't encode characters in position 104-108: ordinal not in range(128)
+			exc = sys.exc_info()[1]
+			sys.stderr.write("Exception %s\n"%str(exc))
+			continue
+
 		# sys.stderr.write("fullPth=%s\n" % fullPth)
 
 		if fullPth == "":
