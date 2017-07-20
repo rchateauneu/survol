@@ -23,6 +23,7 @@ except ImportError:
 cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 entity_id = cgiEnv.GetId()
+sys.stderr.write("entity_id=%s\n" % (entity_id))
 if entity_id == "":
 	lib_common.ErrorMessageHtml("No entity_id")
 
@@ -31,7 +32,7 @@ if entity_id == "":
 cimomUrl = cgiEnv.GetHost()
 
 ( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-sys.stderr.write("nameSpace=%s className=%s\n" % (nameSpace,className))
+sys.stderr.write("cimomUrl=%s nameSpace=%s className=%s\n" % (cimomUrl,nameSpace,className))
 
 if nameSpace == "":
 	nameSpace = "root/cimv2"
@@ -63,6 +64,7 @@ sys.stderr.write("nameSpace=%s className=%s cimomUrl=%s\n" %(nameSpace,className
 def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
 	aQry = lib_util.SplitMonikToWQL(splitMonik,className)
 	# aQry = 'select * from CIM_System'
+	# aQry = 'select * from CIM_ComputerSystem'
 	try:
 		# This does not work on OpenPegasus.
 		return conn.ExecQuery("WQL", aQry, nameSpace)
@@ -146,17 +148,11 @@ def WbemNoQueryFilterInstances( conn, className, splitMonik, nameSpace ):
 
 
 instLists = WbemPlainExecQuery( conn, className, splitMonik, nameSpace )
+sys.stderr.write("instLists=%s\n"%str(instLists))
 if instLists is None:
 	instLists = WbemNoQueryOneInst( conn, className, splitMonik, nameSpace )
 	if instLists is None:
 		instLists = WbemNoQueryFilterInstances( conn, className, splitMonik, nameSpace )
-
-# ATTENTION: Si les lignes de titres sont trop longues, graphviz supprime des lignes de la table HTML !!!!!!! ????
-# ET CA NE TIEN TPAS LA CHARGE !!!!!!!!!!!!!!!
-# maxCnt = 70
-# HARDCODE_LIMIT
-maxCnt = 7000
-
 
 # HELAS, ON A UN PROBLEME D OBJECTS DUPLIQUES:
 # 'CSCreationClassName'   CIM_UnitaryComputerSystem Linux_ComputerSystem
@@ -214,5 +210,6 @@ for anInst in instLists:
 
 
 	# TODO: Appeler la methode Associators(). Idem References().
+
 
 cgiEnv.OutCgiRdf()
