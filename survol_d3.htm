@@ -106,7 +106,7 @@
 
 <script>
 /*
-AJOUTER:
+TODO:
 - Undo edition.
 - Mixer les SVG avec des graphes et des trees.
   Ou bien lier les nodes de facon rigide, matricielle. On les mettrait dans une classe specifique.
@@ -697,6 +697,7 @@ function RefreshSummaryWindow()
     // TODO: Fix the relative URL
     function HrefTarget(url,title) {
         if( url.substring(0,4) != "http" ) {
+            // TODO: Replace by the script name.
             posHtbin = window.location.href.indexOf("survol_d3.htm");
             if(posHtbin==-1) {
                 console.log("HrefTarget: "+window.location.href);
@@ -1662,10 +1663,15 @@ Ajouter le lien de merge.
 
 </head>
 
-<a>
-Survol. <i>Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface.</i>
-<a href="#" id="IdHrefSummary">Summary</a>&nbsp;
-<a href="htbin/entity.py">Print layout</a>
+
+
+
+<table border="0" width="100%"><tr>
+    <td>Survol. <i>Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface.</i></td>
+    <td align="right"><a href="#" id="IdHrefSummary">Summary</a>&nbsp;
+<a href="htbin/entity.py">Print layout</a>&nbsp;
+<a href="index_technical.htm">Test links</a></td>
+</tr></table>
 
 </body>
 </html>
