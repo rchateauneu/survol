@@ -25,31 +25,47 @@ def AnonymizeArr(splitFilnam):
 	resu = [ strForbidden if tok.isdigit() else tok for tok in splitFilnam ]
 	return resu
 
-# Do not take into account the file extension.
-# Zap specific keywords: i386 etc...
+# TODO: PERFORMANCES:
+# On peut plutot cluseriser en une seule passe en partant de la premiere version du code:
+#         for wrd in lstWords:
+#                 wrdSplit = re.split("[-\.0-9]+",wrd)
+#
+#                 lenWrds = len(wrdSplit)
+#                 if lenWrds == 1:
+#                         colsList = range( lenWrds )
+#                 else:
+#                         # There is also a specific index for the extension, if it exists,
+#                         colsList = [-1]
+#                         # The last element must go ONLY in the index labelled "-1".
+#                         colsList.extend( range( lenWrds -1) )
+#
+#                 # The same word is indexed by each of its columns.
+#                 for ixCol in colsList:
+#                         try:
+#                                 dictClusters = dictClustersArrays[ixCol]
+#                         except KeyError:
+#                                 # Add the missing element.
+#                                 dictClustersArrays[ixCol] = {}
+#                                 dictClusters = dictClustersArrays[ixCol]
+#
+#                         wrkKey = wrdSplit[ixCol]
+#
+#                         try:
+#                                 dictClusters[wrkKey].append(wrd)
+#                         except KeyError:
+#                                 dictClusters[wrkKey] = [wrd]
+#
+# Quand on evalue chaque index, on peut voir s'il manque des objets
+# car il n'avaient pas assez de token: On compte les objects indexes,
+# et on fait la difference avec le nombre total.
+# Cest plus rapide car une seule passe est necessaire, et moins de stockage.
 
-def clusterize(lstWords):
-	print(sorted(lstWords))
-
-	dictClusters = {}
-
-	for wrd in lstWords:
-		# The key is calculated by removing everythign which is very important.
-		wrkKey = re.sub("[-\.0-9]+","_",wrd)
-
-		try:
-			dictClusters[wrkKey].append(wrd)
-		except KeyError:
-			dictClusters[wrkKey] = [wrd]
-
-	print("")
-	print(sorted(dictClusters))
-
-	print("")
-	print(sorted(dictClusters.keys()))
 
 
-# Ou alors, algorithme plus progressif: On tokeize et on essaye de rassembler
+
+
+
+# On tokenize et on essaye de rassembler
 # les mots dont tous les tokens sont identiques, sauf un, puis sauf deux etc...
 # en choisissant le minimum de tokens pour les plus grands clusters possibles.
 # Et/Ou: Choisir un token, puis un autre.
@@ -57,6 +73,9 @@ def clusterize(lstWords):
 #
 # A la premiere passe, on choisit la colonne dont l'index est le plus petit
 # mais avec au moins une clef (On peut peut-etre calculer l entropie).
+#
+# Selon le contexte, on pourrait traiter a part des most specifiques: i386, debug etc...
+#
 def all_clusts(lstWords):
 	print(sorted(lstWords))
 
@@ -71,6 +90,7 @@ def all_clusts(lstWords):
 			maxCols = lenWrds
 		dictSplits[wrd] = wrdSplit
 
+	# L'ajout de "-1" ne vaut que pour les noms de fichiers.
 	allColsList = list( range( maxCols ) ) + [-1]
 	print("")
 	print("allColsList=%s"%str(allColsList))
@@ -87,9 +107,7 @@ def all_clusts(lstWords):
 			lastCol = 1
 		else:
 			# There is also a specific index for the extension, if it exists,
-			# colsList = [-1]
 			# The last element must go ONLY in the index labelled "-1".
-			# colsList.extend( range( lenWrds -1) )
 			colsList = list( range( lenWrds -1) ) + [-1]
 			lastCol = lenWrds -1
 
@@ -123,12 +141,6 @@ def all_clusts(lstWords):
 	return dictClustersArrays
 
 
-# Grouper des objets ayant un oarent commun, par proximite de leur qu on rempkace par une regex.
-# La propriete passe de key=value a key~regex ou key~=regex ou key=~regex.
-# On utilise alors enumerate.py au lieu de entity.py.
-# La partie interessante est de clusteriser des listes de chaines et de mettre les bonnes regex: nombres, respecter les delimiteurs.
-# Ca permet d afficher bcp d objets.
-
 def cluster_maxsize(dictClusters):
 	maxSz = 0
 	for keyWrd in dictClusters:
@@ -142,8 +154,7 @@ def clusterize_kol(lstWords):
 
 	# Now choose the most selective index.
 	# The goal might be to detect significant patterns (Entropy ?),
-	# or simply to reduce the number of elements at each level,
-	# to facilite display.
+	# or simply to reduce the number of elements at each level, to facilite display.
 	# Simple criteria: This chooses the index whose max category is the smallest.
 	bestKey = None
 	minMaxSz = 999999999
