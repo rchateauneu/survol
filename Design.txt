@@ -555,7 +555,6 @@ Il faut ajouter cette information dans le json.
 
 ========================================================================================================================
 JMX et Java
-JMX et Java
 http://stackoverflow.com/questions/35593185/is-there-a-jmx-service-url-for-local-non-tcp-connections
 
 http://stackoverflow.com/questions/516142/does-java-6-open-a-default-port-for-jmx-remote-connections/6985565#6985565
@@ -591,13 +590,14 @@ Utiliser FileAPI pour des infos read-only sur les fichiers.
 https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications
 ========================================================================================================================
 
-Détecter dans la mémoire d’un process, dans des fichiers, des sockets, Chaine de connexion ODBC.
+Détecter dans la mémoire d’un process, dans des fichiers, des sockets.
 
-Il peut y avoir des espaces de part et d’autre du « ; ». Il faudrait utiliser les memes moteurs de recherche quelque soit le domaine :
+Il faudrait utiliser les memes moteurs de recherche quelque soit le domaine :
 - URLs
 - Noms de fichiers
 - requêtes SQL
 - Chaines de connexion ODBC
+- clefs du registry: HKEY_CLASSES_ROOT, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_USERS, HKEY_CURRENT_CONFIG
 
 …/…
 Domaines de recherche (Pour certains domaines, on doit caler le debut de la recherche :
@@ -609,17 +609,15 @@ Cellule CSV, tag HTML, champ table SQL … Pour d’autres, on cherche vraiment 
 
 Voir aussi https://en.wikipedia.org/wiki/Entity_Framework, ADO.NET
 
-
 RECHERCHE DE CHAINES DE CONNEXION OLE DB
 
 https://www.connectionstrings.com/formating-rules-for-connection-strings/
 
+
 Plein d’exemples ici : https://www.connectionstrings.com/html-table/
 
-
-Donc on cherche des paires clef-valeur, séparées par « ; ». Certains parametres vont entrainer la creation de nœuds (C’est meme le but de l’operation).
-
-
+Donc on cherche des paires clef-valeur, séparées par « ; ». Il peut y avoir des espaces de part et d’autre du « ; ».
+Certains parametres vont entrainer la creation de nœuds (C’est meme le but de l’operation).
 
 Provider = SQLOLEDB.1; Initial Catalog = scnXYZliv; Persist Security Info = False; Data Source = HOSTNAME\SC4NXYZ;User ID=yyyyy;Password=xxxxx;Trusted_Connection=False;
 
@@ -646,6 +644,16 @@ https://www.ripe.net/manage-ips-and-asns/db/support/querying-the-ripe-database
 ip-api.com/docs/api:json
 
 ========================================================================================================================
+Eviter de faire une solution cherchant un probleme:
+
+Survol:
+"Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface."
+
+Pour l interface, on va reprendre le minimalisme de Google.
+
+========================================================================================================================
+Renommer "xid=" en "path=" et "entity.py" en "cimobj.py" ou qq chose comme ca.
+========================================================================================================================
 On garde "notre" wmi en Python car ca marche avec tous les browsers.
 On donne la possibilite de surfer uniquement avec WMI
 mais avec nos scripts en plus, de facon transparente.
@@ -660,7 +668,164 @@ enumerate_wmi.py?CLASS.key=val,key=val
 Du reste, il faudrait transformer et generaliser:
 enumerate_CIM_Process.py en "enumerate.py?xid=CIM_Process."
 qui va appeler enumerate_CIM_Process.py ?
+Pouvoir, pour chaque classe, appeler les trois enumerate.
+Pour tout objet, on doit pouvoir enumerer les objets de cette classe (Ajouter les liens)
+Tenir compte aussi de la clusterization.
 
 Difference en entity.py et enumerate.py ?
 enumerate.py affiche moins d'infos
 ========================================================================================================================
+
+
+// Dans Chrome:
+try
+{
+    d3.json(theUrl,
+        // Est-ce que d3.json verifie la signature de la function ??? JUSTE TESTER POUR VOIR SI MARCHE EN TEMPS NORMAL.
+        function(error,data)
+        {
+            if(error)
+            {
+                console.log("Caught:"+error);
+                var data = { nodes: [], links: [] };
+            }
+            LoaderCallback(data,funcDisplay,theUrl);
+
+Tester si on detecte les erreurs en mettant de mauvaises requetes WQL.
+
+        // Adds a context menu for the background.
+        function AddsDefaultCtxtMenu(dfltItms)
+        {
+// Si Ni WMI ni python fonctionnent.
+            if( dfltItms == null ) {
+                dfltItms = {};
+            }
+
+========================================================================================================================
+Reverse-engineer WBEM et le reproduire avec Ajax ?
+Mais il faudra du cross-request.
+
+http://www.wbemsolutions.com/tutorials/snia/SMI/Technical/cim-xml.html
+
+« CIM-XML is the protocol that is used by SMI-S 1.1.0 to exchange CIM and WBEM information between a Client and a WBEM Agent. CIM-XML uses xmlCIM as the payload and HTTP as the transport. Currently, both HTTP 1.0 and 1.1 are supported. SMI-S 1.1.0 chose CIM-XML because it required by WBEM. Moreover, HTTP is a widely supported protocol that is usable by almost all existing infrastructures and over the Internet.”
+
+Using HTTP, SMI-S 1.1.0 can leverage the existing HTTP mechanisms to define extension headers. A SMI-S 1.1.0 WBEM Agent is required to support the HTTP operations of POST and MPOST. The CIM Operations over HTTP Specification v1.2 defines specific extension headers for a Client request and a WBEM Agent response. Different extension header are defined for single versus multiple (i.e., batch) operations.
+The example below shows several CIM-XML extension headers for a GetClass operation on the root/cimv2 namespace
+
+M-POST /cimom HTTP/1.0
+Content-Type: text/xml;charset=UTF-8
+Accept: text/xml, application/xml
+Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=48
+48-CIMProtocolVersion: 1.0
+48-CIMOperation: MethodCall
+48-CIMMethod: GetClass
+48-CIMObject: root%2Fcimv2
+User-Agent: Java1.2.1
+Host: edoc5-pc
+Content-length: 445
+<?xml version="1.0" encoding="UTF-8"?>
+
+https://www.synology.com/en-uk/releaseNote/SynoSmisProvider?model=DS1515
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+Access-Control-Allow-Origin: *
+
+Voir avec Jeremie F, demonstration SMI-S.
+========================================================================================================================
+
+Ajuster la trajectoire du placement des nodes de D3.
+Controler le rythme de la trajectoire de facon "musicale"
+========================================================================================================================
+Micropython
+https://forum.pycom.io/
+Wipy
+========================================================================================================================
+Mieux integrer WMI et WBEM ?
+Peut-etre les considerer comme scripts, toujours utilisables ?
+========================================================================================================================
+Clusterizer.
+============
+
+# Grouper des objets ayant un parent commun, par proximite de leur qu on rempkace par une regex.
+# La propriete passe de key=value a key~regex ou key~=regex ou key=~regex.
+# On utilise alors enumerate.py au lieu de entity.py.
+# La partie interessante est de clusteriser des listes de chaines
+# et de mettre les bonnes regex: nombres, respecter les delimiteurs.
+# Ca permet d afficher bcp d objets.
+#
+# On dit qu'on clusterize certaines proprietes.
+# Ca entraine alors qu'on les traite en listes (comme maintenant)
+# mais qu'on va remplacer des chaines par un lien vers enumerate?Name="regexp"
+# Dans enumerate, "=" veut dire "match" ?
+# WQL permet de faire du pattern matching.
+# https://msdn.microsoft.com/en-us/library/aa392263%28v=vs.85%29.aspx
+#
+#  []    Any one character within the specified range ([a-f]) or set ([abcdef]).
+#  ^	 Any one character not within the range ([^a-f]) or set ([^abcdef].)
+#  %	 Any string of 0 (zero) or more characters.
+#        The following example finds all instances where "Win"
+#        is found anywhere in the class name: SELECT * FROM meta_class WHERE __Class LIKE "%Win%"
+#  _     (underscore) Any one character. Any literal underscore used
+#        in the query string must be escaped by placing it inside [] (square brackets).
+#
+# L'important que qu'une syntaxe speciale s'applique uniquement
+# enumerate.py et donc ne pollue pas les autres.
+# Quoique ce serait bien de pouvoir generaliser.
+# On peut regler la profondeur de la clusterization: Quand on met le node avec enumerate,
+# on rajoute alors la liste de ses noeuds, eux-memes clusterises avec une nouvelle regex.
+# Va-t-on fusionner les regex ? Ou bien ecrit-on enumerate.py?Classe.Name=%.txt&Name=toto.%
+# Ce qui donnerait: "select from Classe where Name like "%.txt" and Name like "toto.%" "
+# Il faut aussi trouver un module Python qui nous permette d'appliquer ces patterns.
+# Ca ressemble a des patterns SQL augmentes de regex. Comme c'est nous qui les fabriquons,
+# on peut les transformer sans probleme.
+#
+# A nouveau: L'idee est d'afficher facilement un tres grand nombre d'objets.
+# Ca doit marcher aussi meme s'ils ne pointent pas vers un ancetre commun:
+# L'objet "enumerate" sera alors un gros pave avec les attributs de sa class.
+#
+# On devrait pouvoir inhiber la clusterisation avec les parametres.
+#
+# On peut appliquer ca:
+# - Aux fichiers.
+# - Win32_Product.
+# - Memoire partagee.
+# - Users (Mais y a pas beaucoup)
+#
+
+La clusterization est une passe qui vient apres la creation du reseau
+mais avant la generation du json ou bien du DOT.
+
+La clusterisation dans DOT ne peut s'appliquer qu'au script courant. Dans D3,
+on peut garder la reference aux scripts qui ont cree un node.
+Donc, enumerate.py va recevoir l'url (le script) qui permet de fabriquer ces nodes,
+la classe, et un ou plusieurs Key=patterns.
+Quand on va afficher, on va restreindre, dans l'execution de ce script,
+les noeuds de cette classe qui satisfont cette propriete.
+Mais on va afficher les noeuds d'autres classes, probablement.
+Si pas de script, on va chercher le enumerate_<class>.py.
+A nouveau, on n'utilise pas WBEM et WMI comme sources de nodes, et c'est dommage.
+
+Clusterization a la volee dans D3:
+==================================
+
+On choisit une classe et on clusterize les noeuds de cette classe.
+Ca se fait avec la fenetre des URLS: On affiche derriere chaque URL
+la liste des classes dont des objets de cet URL sont representants.
+A condition qu'il y en aie suffisamment, peut-etre une dizaine d'objets, peu importe.
+Le lien vers chaque classe pointe vers enumerate.py mais il y a une passe
+de suppression des nodes:
+On remplace ces noeuds par un "enumerate.py" avec le bon pattern.
+Le enumerate recoit tous les liens que recevaient les noeuds avant.
+Oui mais le enumerate doit forcement permettre de reconstituer ces noeuds.
+Ce n'est possible que si connait le script qui les a fabriques.
+Et ca doit etre le meme.
+Donc il faut garder la trace des scripts qui ont permis de fabriquer un node.
+Et on ne peut clusteriser que des nodes d'une meme classe et issus
+du meme script. Eventuellement avec d'autres liens en commun
+(Par exemple tous les nodes du meme scripts, de la meme classe et ayant le meme lien,
+mais ca peut eventuellement etre nocif).
+Les liens seront partages mais il faut imprimer leur valence, le nombre
+de nodes vers lesquels ils pointent: Juste un entier.
+
+========================================================================================================================
+

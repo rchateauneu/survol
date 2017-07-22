@@ -18,7 +18,9 @@ Ca plante graphviz, on ne le detecte pas et eventuellement on affiche un ancien 
 qui n aurait pas ete zappe.
 Le probleme est le backslash a la fin de la ligne.
 
-
+* Le texte des Usable ne doit pas contenir de "<>":
+def Usable(entity_type,entity_ids_arr):
+	"""Psutil version >= 4.0.0"""
 
 * Dans file_directory, les sous-noeuds correspondant aux scripts ne pointent pas vers leur parent.
 
@@ -28,3 +30,8 @@ Le probleme est le backslash a la fin de la ligne.
 Dans les modules Python, impossible d afficher ceux avec des tirets. Qu est ce que ces tirets signifient ?
 Importing openlmi-scripts-networking: Error (, ImportError('No module named openlmi-scripts-networking',), )
 Et d ailleurs l affichage des modules n est pas hierarchique mais a plat.
+
+* Probleme affichage "Usability MS-Dos Batch processes" et "Usability Python processes"
+dans http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3604.
+C est quand tout un directory de scripts n est pas affiche a cause de Usable() dans le __init__.py :
+ Ca a l'air de fonctionmer.
