@@ -55,6 +55,7 @@ def AddDefaultNodes(grph,rootNode,entity_host):
 
 # TODO: Maybe the property should be property_script ??
 def AddDefaultScripts(grph,rootNode,entity_host):
+	sys.stderr.write("AddDefaultScripts entity_host=%s\n"%entity_host)
 	nodeObjTypes = lib_common.NodeUrl( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodeObjTypes ) )
 
@@ -137,13 +138,17 @@ def Main():
 
 	# When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
 	if lib_common.GuessDisplayMode() != "json":
-		entity_dirmenu_only.DirToMenu(grph,rootNode,entity_type,entity_id,is_host_remote,flagShowAll)
+		entity_dirmenu_only.DirToMenu(grph,rootNode,entity_type,entity_id,entity_host,flagShowAll)
 
 		if entity_type != "":
 			sys.stderr.write("Entering AddWbemWmiServers")
 			CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 
 		AddDefaultScripts(grph,rootNode,entity_host)
+
+		# Special case if we are displaying a machine, we might as well try to connect to it.
+		if entity_type == "CIM_ComputerSystem":
+			AddDefaultScripts(grph,rootNode,entity_id)
 
 	AddDefaultNodes(grph,rootNode,entity_host)
 

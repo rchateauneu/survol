@@ -40,7 +40,7 @@ def DirMenuReport(depthCall,strMsg):
 	sys.stderr.write(txtMargin + strMsg)
 
 # TODO: Only return json data, and this script will only return json, nothing else.
-def DirToMenu(grph,parentNode,entity_type,entity_id,is_host_remote,flagShowAll):
+def DirToMenu(grph,parentNode,entity_type,entity_id,entity_host,flagShowAll):
 	encodedEntityId=lib_util.EncodeUri(entity_id)
 	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 
@@ -52,13 +52,14 @@ def DirToMenu(grph,parentNode,entity_type,entity_id,is_host_remote,flagShowAll):
 
 	directory = lib_util.gblTopScripts + relative_dir
 
-	DirToMenuAux(grph,parentNode,directory,relative_dir,entity_type,entity_ids_arr,encodedEntityId,is_host_remote,flagShowAll,depthCall = 1)
+	DirToMenuAux(grph,parentNode,directory,relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall = 1)
 
 
 
 # This lists the scripts and generate RDF nodes.
 # Returns True if something was added.
-def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_arr,encodedEntityId,is_host_remote,flagShowAll,depthCall = 1):
+def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall = 1):
+	sys.stderr.write("DirToMenuAux entity_host=%s\n"%(entity_host) )
 	# DirMenuReport( depthCall, "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
 	# In case there is nothing.
 	dirs = None
@@ -125,7 +126,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 			# BEWARE: NO MORE DEFAULT ONTOLOGY ["Id"]
 			continue
 
-		somethingAdded = DirToMenuAux(grph,currDirNode, full_sub_dir,sub_relative_dir,entity_type,entity_ids_arr,encodedEntityId,is_host_remote,flagShowAll,depthCall + 1)
+		somethingAdded = DirToMenuAux(grph,currDirNode, full_sub_dir,sub_relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall + 1)
 		# This adds the directory name only if it contains a script.
 		if somethingAdded:
 			# CA MARCHE DANS LES DEUX CAS. SI PROPRIETE DIFFERENTE, ON AURA SIMPLEMENT DEUX PAVES, UN POUR LES DIR, L AUTRE POUR LES FICHIERS.
@@ -141,7 +142,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 		script_path = relative_dir_sub_path + "/" + fil
 
 		# DirMenuReport( depthCall, "DirToMenu encodedEntityId=%s\n" % encodedEntityId)
-		if is_host_remote:
+		if entity_host:
 			genObj = lib_common.RemoteBox(entity_host)
 		else:
 			genObj = lib_common.gUriGen
@@ -168,7 +169,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 			continue
 
 		# If the entity is on another host, does this work on remote entities ?
-		if is_host_remote:
+		if entity_host:
 			try:
 				# Script can be used on a remote entity.
 				can_process_remote = importedMod.CanProcessRemote
@@ -177,8 +178,8 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 
 			if not can_process_remote:
 				if not errorMsg:
-					errorMsg = "%s is local" % ( argFil[1:] )
-				DirMenuReport( depthCall, "Script %s %s cannot work on remote entities: %s at %s\n" % ( currentModule, argFil, entity_id , entity_host ) )
+					errorMsg = "%s is local" % ( entity_host )
+				DirMenuReport( depthCall, "Script %s %s cannot work on remote entities: %s at %s\n" % ( argDir, fil, encodedEntityId , entity_host ) )
 
 				if not flagShowAll:
 					continue
@@ -230,14 +231,10 @@ def Main():
 
 	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
-	is_host_remote = not lib_util.IsLocalAddress( entity_host )
-
-	sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_remote=%r\n" % ( entity_host, entity_type, entity_id, is_host_remote ) )
-
-	# It is simpler to have an empty entity_host, if possible.
-	# CHAIS PAS. EN FAIT C EST LE CONTRAIRE, IL FAUT METTRE LE HOST
-	if not is_host_remote:
+	if lib_util.IsLocalAddress( entity_host ):
 		entity_host = ""
+
+	sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s\n" % ( entity_host, entity_type, entity_id ) )
 
 	grph = cgiEnv.GetGraph()
 
@@ -253,7 +250,7 @@ def Main():
 		# les objets dans des boites imbriquees: Tables ou records.
 		# Ca peut marcher quand la propriete forme PAR CONSTRUCTION
 		# un DAG (Direct Acyclic Graph) qui serait alors traite de facon specifique.
-		DirToMenu(grph,rootNode,entity_type,entity_id,is_host_remote,flagShowAll)
+		DirToMenu(grph,rootNode,entity_type,entity_id,entity_host,flagShowAll)
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_directory,pc.property_script])
 

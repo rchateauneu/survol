@@ -990,7 +990,7 @@ def AppendNotNoneHostname(script,hostname):
 # Point to the WBEM portal for a given machine.
 def UrlPortalWbem(hostname=None):
 	strUrl = AppendNotNoneHostname('/portal_wbem.py',hostname)
-
+	sys.stderr.write("UrlPortalWbem strUrl=%s\n"%strUrl)
 	nodePortal = NodeUrl( strUrl )
 	return nodePortal
 

@@ -12,15 +12,22 @@ import lib_credentials
 def WbemAllNamespacesUrl(srvr):
 	return lib_util.ScriptizeCimom( '/namespaces_wbem.py', "", srvr )
 
-def BuildWbemNamespaceClass( entity_namespace, entity_type ):
-	wbemNamespace = entity_namespace
+def BuildWbemNamespaceClass( wbemNamespace, entity_type ):
 	# Normally we should check if this class is defined in this cimom. For the moment, we assume, yes.
-	return ( wbemNamespace, entity_type, wbemNamespace + ":" + entity_type )
+	# But the namespace is not taken into account if it is empty.
+	if wbemNamespace:
+		return ( wbemNamespace, entity_type, wbemNamespace + ":" + entity_type )
+	else:
+		return ( wbemNamespace, entity_type, entity_type )
 
 def BuildWbemMoniker( hostname, namespac = "", classNam = "" ):
 	# Sometimes one is null
-	# return hostname + "/" + namespac + ":" + classNam + "."
-	return "%s/%s:%s." % ( hostname, namespac, classNam )
+	# Apparently the namespace is not correctly parsed. It should not matter as it is optional.
+	# This also helps when this is a common class between WBEM, WMI and Survol.
+	if namespac:
+		return "%s/%s:%s." % ( hostname, namespac, classNam )
+	else:
+		return "%s/%s." % ( hostname, classNam )
 
 # TODO: Build a moniker with cimom added at the beginning.
 # J ai des doutes sur cette fonction qui est pourtant utilisee deux fois.
