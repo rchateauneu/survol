@@ -172,6 +172,9 @@ def Main():
 			grph.add( ( nodeProcess, pc.property_memmap, uriMemMap ) )
 	# sys.stderr.write( "Leaving second maps enumeration\n" )
 
+	# TODO: They could also be displayed based on the hierarchy of their
+	# associated file in the directory tree.
+
 	for pid, nodeProcess in six.iteritems( addedProcs ):
 		grph.add( ( nodeProcess, pc.property_pid, lib_common.NodeLiteral(pid) ) )
 
