@@ -151,7 +151,7 @@ function FillObjD3(oneObj,objName,objClass,relPath)
 }
 
 /* This returns a callback which is called when the user clicks "Associators..." */
-function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl,objectSvg,funcD3Displayer)
+function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objectSvg,funcD3Displayer)
 {
 	console.log("CallbackAssociatorsWMI wqlQueryAssociators="+wqlQueryAssociators);
 
@@ -233,12 +233,12 @@ function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl,objectSvg,fun
 			"links": netLinks
 		};
 
-		funcD3Displayer(dataGraphD3);
+		funcD3Displayer("CallbackAssociatorsWMI.url",dataGraphD3);
 
 		console.log("CallbackAssociatorsWMI Finished");
 	};
 	return funcAssoc;
-}
+} // CallbackAssociatorsWMI
 
 
 /* This returns a dictionary of objects indexed by their WMI name.
@@ -487,7 +487,7 @@ function ActiveX_WMI_JContextMenu(objUrl,objectSvg,funcD3Displayer)
 
 		var dictObjects = ActiveX_WMI_Data(svcWbem,wqlQuerySelect);
 
-		var callbackAssocs = CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objUrl,objectSvg,funcD3Displayer);
+		var callbackAssocs = CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objectSvg,funcD3Displayer);
 
 		var TheItemsSuiteActiveXSubItems = ActiveX_WMI_ConvertObjToMenuItems(dictObjects,callbackAssocs);
 
@@ -677,7 +677,7 @@ function ActiveX_WMI_JCtxtMenuGlobal( funcD3Displayer )
 				
 					var data = GlobalMenu_CIM_Process();
 					console.log("data.nodes="+data.nodes.length+" data.links="+data.links.length);
-					funcD3Displayer(data);
+					funcD3Displayer("ActiveX_WMI_JCtxtMenuGlobal.url",data);
 				}
 		}
 	};
