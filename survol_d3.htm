@@ -718,16 +718,16 @@ function DeleteNodesFromScript(event)
         // The URL can be something like "htbin/sources_types/enumerate_CIM_Process.py?xid=."
         // It should be identical to what is stored in the nodes.
         objUrlStr = objLoadedUrl.m_loaded_url;
-        console.log("DeleteNodesFromScript DelScript:"+objUrlStr);
+        // console.log("DeleteNodesFromScript DelScript:"+objUrlStr);
 
         for( var ixNd = 0; ixNd < previousData.nodes.length; ixNd++ )
         {
             objNod = previousData.nodes[ixNd];
-            console.log("ixNd="+ixNd+" node="+JSON.stringify(objNod));
+            // console.log("ixNd="+ixNd+" node="+JSON.stringify(objNod));
 
             // If the node was created by this script.
             idxIn = objNod.survol_input_scripts.indexOf(objUrlStr);
-            console.log("idxIn="+idxIn);
+            // console.log("idxIn="+idxIn);
             if ( idxIn >= 0 )
             {
                 // If the node was created only by this script, the delete it.
@@ -746,123 +746,30 @@ function DeleteNodesFromScript(event)
         // Maybe we could refresh the display at each node ?
         EmptyDisplay();
         DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
-        console.log("DeleteSvgNode reset globalMustMerge");
+        console.log("DeleteNodesFromScript reset globalMustMerge");
         globalMustMerge = false;
 
         RefreshSummaryWindow();
     } // If delete nodes exclusive from a script.
-}
+} // DeleteNodesFromScript
 
 console.log("Initializing windowObjectReference");
 
 // Declare it but with an invalid value.
-var windowObjectReference = "123";
+var windowObjectReference = null;
 
 gblWindowName = "SurvolMainWindowName";
 
 /* This is called when a URL is loaded. It updates the little Summary window. */
 function RefreshSummaryWindow()
 {
-    // TODO: Fix the relative URL
-    function HrefTarget(url,title) {
-        if( url.substring(0,4) != "http" ) {
-            // TODO: Replace by the script name.
-            posHtbin = window.location.href.indexOf("survol_d3.htm");
-            if(posHtbin==-1) {
-                console.log("HrefTarget: "+window.location.href);
-                return "Error HrefTarget: "+window.location.href;
-            }
-            hrefPrefix = window.location.href.substring(0,posHtbin);
-            // hrefPrefix = "http://127.0.0.1/Survol/" for example.
-            url = hrefPrefix + url;
-        }
-
-        return '<td><a href="' + url + '" target="'
-            + gblWindowName
-            + '">'
-            + title
-            + '</a></td>';
+    if(windowObjectReference) {
+        console.log("RefreshSummaryWindow: Sending message to summary window lstLoadedUrls.length="+lstLoadedUrls.length);
+        windowObjectReference.postMessage(lstLoadedUrls,"*");
+    } else {
+        console.log("RefreshSummaryWindow: Summary window not created");
     }
-
-    console.log("RefreshSummaryWindow lstLoadedUrls.length="+lstLoadedUrls.length);
-    var urlMerge = pyMergeScript;
-    var cgiDelim = "?url=";
-
-    var urlsHtml = "";
-
-    urlsHtml += "<html>";
-
-    urlsHtml += [
-        "<head>",
-        "<title>",
-        "Summary",
-        "</title>",
-        "</head>"
-    ].join("\n");
-
-    urlsHtml += "<body>";
-
-    urlsHtml += "<table>";
-
-    urlsHtml += [
-        "<tr>",
-        "<td id='UrlsMerge'>Print layout</td>",
-        "<td>Nodes</td>",
-        "<td>Links</td>",
-        "<td></td>",
-        "</tr>"
-    ].join("\n");
-
-    for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
-    {
-        var objLoadedUrl = lstLoadedUrls[ixLoaded];
-        console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
-
-        // This array is sent as a message to the main window which executes a function.
-        var msgToSend = "['DelScript'," + ixLoaded + "]";
-        var funcOnClk = "self.opener.postMessage("+msgToSend+",'*');";
-
-        urlsHtml += [
-            "<tr>",
-            HrefTarget(objLoadedUrl.m_loaded_url,objLoadedUrl.m_loaded_title),
-            "<td>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
-            "<td>" + objLoadedUrl.m_loaded_links_length + "</td>",
-            '<td><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
-            "</tr>"
-        ].join("\n");
-
-        var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
-        urlMerge += cgiDelim + url64safe;
-        cgiDelim = "&url=";
-    }
-
-    // console.log("urlMerge="+urlMerge);
-    urlsHtml += [
-        "<tr>",
-        HrefTarget(urlMerge,"Merged print-out"),
-        "<td>" + previousData.nodes.length + "</td>",
-        "<td>" + previousData.links.length + "</td>",
-        "<td></td>",
-        "</tr>"
-    ].join("\n");
-
-    urlsHtml += "</table>";
-
-    urlsHtml += "</body>";
-    urlsHtml += "</html>";
-
-    // Not needed anymore.
-    // $(UrlsList).html(urlsHtml);
-    // <table id="UrlsList"></table>
-    // We could put these data in a special pop-up, or a drop-down list.
-    // Display classes of nodes, on the X axis (optionnaly)
-
-    // Maybe the window is not open yet.
-    if(windowObjectReference.document)
-    {
-        windowObjectReference.document.body.innerHTML = urlsHtml;
-    }
-
+    return;
 } // RefreshSummaryWindow
 
 // Add the origin URL to each node.
@@ -1491,7 +1398,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                         {
                             if( PlainNonEntityUrl(key) )
                             {
-                                window.open(key, '_blank','location=yes,height=570,width=520,scrollbars=yes,status=yes');
+                                window.open(key, '_blank','location=no,height=570,width=520,scrollbars=yes,status=yes');
                                 return;
                             }
                             FromKeyToScript(key, options);
@@ -1739,20 +1646,33 @@ function PreloadUrlsArray(urlsArray)
 /* This opens the summary list in a separate window.
 It displays the URL which were loaded, how to delete them, how many nodes and links etc... */
 function openRequestedPopup() {
-    console.log("openRequestedPopup setting windowObjectReference");
-    windowObjectReference = window.open(
-        "", // this.href,
-        'targetWindow',
-        'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=350,height=250'
-    );
-
-    windowObjectReference.document.body.innerHTML = "HTML HTML HTML";
-    windowObjectReference.focus();
-
-    // So the summary window can send messages whcih are executed in the main window.
+    // So the summary window can send messages which are executed in the main window.
+    // TODO: Should do it once only.
     window.addEventListener("message", DeleteNodesFromScript, false);
 
-    RefreshSummaryWindow();
+    if(windowObjectReference == null)
+    {
+        console.log("openRequestedPopup creating windowObjectReference");
+        windowObjectReference = window.open(
+            "summary.htm", // this.href,
+            'targetWindow',
+            'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=450,height=300'
+        );
+
+        windowObjectReference.onload = function() {
+            // alert("After create");
+            RefreshSummaryWindow();
+        };
+
+    } else {
+        console.log("openRequestedPopup windowObjectReference created");
+    }
+
+    windowObjectReference.focus();
+
+
+
+    // RefreshSummaryWindow();
 }
 
 function RunAfterLoad()
@@ -1806,7 +1726,7 @@ Ajouter le lien de merge.
 
 
 <table border="0" width="100%"><tr>
-    <td>Survol. <i>Understanding legacy applications. Based on WMI/WBEM, with a Web interface.</i></td>
+    <td>Survol. <i>Understanding legacy applications. Based on WMI/WBEM, with a Web interface. &copy; Primhill Computers 2017</i></td>
     <td align="right"><a href="#" id="IdHrefSummary">Summary</a>&nbsp;
 <a href="htbin/entity.py">Print layout</a>&nbsp;
 <a href="help.htm">Help</a>

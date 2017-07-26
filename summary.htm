@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<html>
+<head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="base64.js"></script>
+
+
+    <script type="text/javascript">
+
+
+// This merges the URLs given as CGI parameters, b64-encoded.
+// It then displays in SVG or any mode, just like the other Python scripts.
+// THIS IS DUPLICATED.
+var pyMergeScript = "htbin/merge_scripts.py";
+
+// THIS IS DUPLICATED.
+gblWindowName = "SurvolMainWindowName";
+
+/* This is called when a URL is loaded. It updates the little Summary window. */
+function SummaryRefreshSummaryWindow(lstLoadedUrls)
+{
+    // TODO: Fix the relative URL
+    function HrefTarget(url,title) {
+        if( url.substring(0,4) != "http" ) {
+            // TODO: Replace by the script name.
+            posHtbin = window.location.href.indexOf("summary.htm");
+            if(posHtbin==-1) {
+                console.log("HrefTarget: "+window.location.href);
+                return "Error HrefTarget: "+window.location.href;
+            }
+            hrefPrefix = window.location.href.substring(0,posHtbin);
+            // hrefPrefix = "http://127.0.0.1/Survol/" for example.
+            url = hrefPrefix + url;
+        }
+
+        return '<td><a href="' + url + '" target="'
+            + gblWindowName
+            + '">'
+            + title
+            + '</a></td>';
+    }
+
+    console.log("SummaryRefreshSummaryWindow lstLoadedUrls.length="+lstLoadedUrls.length);
+    var urlMerge = pyMergeScript;
+    var cgiDelim = "?url=";
+
+    var urlsHtml = "";
+
+    urlsHtml += "<table>";
+
+    urlsHtml += [
+        "<tr>",
+        "<td id='UrlsMerge'>Print layout</td>",
+        "<td>Nodes</td>",
+        "<td>Links</td>",
+        "<td></td>",
+        "<td>Refresh rate</td>",
+        "</tr>"
+    ].join("\n");
+
+    for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
+    {
+        var objLoadedUrl = lstLoadedUrls[ixLoaded];
+        console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
+
+        // This array is sent as a message to the main window which executes a function.
+        var msgToSend = "['DelScript'," + ixLoaded + "]";
+        var funcOnClk = "self.opener.postMessage("+msgToSend+",'*');";
+
+        urlsHtml += [
+            "<tr>",
+            HrefTarget(objLoadedUrl.m_loaded_url,objLoadedUrl.m_loaded_title),
+            "<td>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
+            "<td>" + objLoadedUrl.m_loaded_links_length + "</td>",
+            '<td><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
+            '<td>Rate=?</td>',
+            "</tr>"
+        ].join("\n");
+
+        var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
+        urlMerge += cgiDelim + url64safe;
+        cgiDelim = "&url=";
+    }
+
+    console.log("urlMerge="+urlMerge);
+    // On va envoyer le total quelque part.
+    urlsHtml += [
+        "<tr>",
+        HrefTarget(urlMerge,"Merged print-out"),
+        "<td>" + "previousData.nodes.length" + "</td>",
+        "<td>" + "previousData.links.length" + "</td>",
+        "<td></td>",
+        "</tr>"
+    ].join("\n");
+
+    urlsHtml += "</table>";
+
+	$(SummaryTable).html( urlsHtml );
+
+	console.log("urlsHtml.length="+urlsHtml.length);
+
+
+    // Maybe the window is not open yet.
+    //if(windowObjectReference.document)
+    //{
+    //    windowObjectReference.document.body.innerHTML = urlsHtml;
+    //}
+
+} // SummaryRefreshSummaryWindow
+
+function ProcessIncomingMessage(event)
+{
+    // event={"isTrusted":false}
+    // "DelScript:0"
+    msgSent = event.data;
+    // "http://192.168.1.83"
+    msgOrig = event.origin;
+    console.log("ProcessIncomingMessage msgSent="+msgSent+" msgOrig="+msgOrig+" event="+JSON.stringify(event));
+
+    SummaryRefreshSummaryWindow(msgSent);
+}
+
+function SummaryInit()
+{
+    window.addEventListener("message", ProcessIncomingMessage, false);
+    console.log("SummaryInit done");
+}
+
+// Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
+$(SummaryInit);
+
+window.addEventListener("message", ProcessIncomingMessage, false);
+
+    </script>
+
+
+
+
+    <title>Summary</title>
+    </head>
+</head>
+<body>
+List of loaded urls<br/>
+<div id="SummaryTable"></div>
+<br/><br/>&copy; Primhill Computers 2017
+</body>
+</html>
