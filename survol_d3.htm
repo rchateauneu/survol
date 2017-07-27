@@ -765,6 +765,9 @@ function RefreshSummaryWindow()
 {
     if(windowObjectReference) {
         console.log("RefreshSummaryWindow: Sending message to summary window lstLoadedUrls.length="+lstLoadedUrls.length);
+        lstLoadedUrls.number_nodes = previousData.nodes.length;
+        lstLoadedUrls.number_links = previousData.links.length;
+
         windowObjectReference.postMessage(lstLoadedUrls,"*");
     } else {
         console.log("RefreshSummaryWindow: Summary window not created");
@@ -1650,15 +1653,16 @@ function openRequestedPopup() {
     // TODO: Should do it once only.
     window.addEventListener("message", DeleteNodesFromScript, false);
 
-    if(windowObjectReference == null)
+    if( (windowObjectReference == null) || (windowObjectReference.closed))
     {
         console.log("openRequestedPopup creating windowObjectReference");
         windowObjectReference = window.open(
             "summary.htm", // this.href,
             'targetWindow',
-            'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=450,height=300'
+            'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,directories=no,width=550,height=300'
         );
 
+        // There is a sort of race condition: The summary window id sometimes gets blanked after it is filled.
         windowObjectReference.onload = function() {
             // alert("After create");
             RefreshSummaryWindow();
@@ -1669,8 +1673,6 @@ function openRequestedPopup() {
     }
 
     windowObjectReference.focus();
-
-
 
     // RefreshSummaryWindow();
 }

@@ -49,15 +49,15 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
 
     var urlsHtml = "";
 
-    urlsHtml += "<table>";
+    urlsHtml += "<table border='1' width='100%'>";
 
     urlsHtml += [
         "<tr>",
-        "<td id='UrlsMerge'>Print layout</td>",
-        "<td>Nodes</td>",
-        "<td>Links</td>",
-        "<td></td>",
-        "<td>Refresh rate</td>",
+        "<td id='UrlsMerge'><b>Print layout</b></td>",
+        "<td><b>Nodes</b></td>",
+        "<td><b>Links</b></td>",
+        "<td><b>Refresh rate</b></td>",
+        "<td><b>Delete</b></td>",
         "</tr>"
     ].join("\n");
 
@@ -69,14 +69,15 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
         // This array is sent as a message to the main window which executes a function.
         var msgToSend = "['DelScript'," + ixLoaded + "]";
         var funcOnClk = "self.opener.postMessage("+msgToSend+",'*');";
+        var namRate = "RefreshRate_" + ixLoaded;
 
         urlsHtml += [
             "<tr>",
             HrefTarget(objLoadedUrl.m_loaded_url,objLoadedUrl.m_loaded_title),
-            "<td>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
-            "<td>" + objLoadedUrl.m_loaded_links_length + "</td>",
+            "<td align='right'>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
+            "<td align='right'>" + objLoadedUrl.m_loaded_links_length + "</td>",
+            '<td><input type="number" min="0" width="20" name="' + namRate + '"></td>',
             '<td><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
-            '<td>Rate=?</td>',
             "</tr>"
         ].join("\n");
 
@@ -90,8 +91,9 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
     urlsHtml += [
         "<tr>",
         HrefTarget(urlMerge,"Merged print-out"),
-        "<td>" + "previousData.nodes.length" + "</td>",
-        "<td>" + "previousData.links.length" + "</td>",
+        "<td align='right'><b>" + lstLoadedUrls.number_nodes + "</b></td>",
+        "<td align='right'><b>" + lstLoadedUrls.number_links + "</b></td>",
+        "<td></td>",
         "<td></td>",
         "</tr>"
     ].join("\n");
@@ -101,13 +103,6 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
 	$(SummaryTable).html( urlsHtml );
 
 	console.log("urlsHtml.length="+urlsHtml.length);
-
-
-    // Maybe the window is not open yet.
-    //if(windowObjectReference.document)
-    //{
-    //    windowObjectReference.document.body.innerHTML = urlsHtml;
-    //}
 
 } // SummaryRefreshSummaryWindow
 
@@ -139,12 +134,11 @@ window.addEventListener("message", ProcessIncomingMessage, false);
 
 
 
-    <title>Summary</title>
+    <title>Survol summary</title>
     </head>
 </head>
 <body>
-List of loaded urls<br/>
+Loaded scripts. &copy; Primhill Computers 2017 <br/>
 <div id="SummaryTable"></div>
-<br/><br/>&copy; Primhill Computers 2017
 </body>
 </html>
