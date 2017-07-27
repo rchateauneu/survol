@@ -261,8 +261,12 @@ class LocalBox:
 	def DiskUri(self,disk_name):
 		return self.UriMake("CIM_DiskDrive",disk_name)
 
-	# smbshare has the form "//HOST/SHARE"
+	# smbshare has the form "//HOST/SHARE" ... but there is a bug in the HTTP server
+	# we are using, as it collapses duplicated slashes "//" into one.
 	def SmbShareUri(self,smbshare):
+		if smbshare[0:2] == "//":
+			# Maybe we should cgiescape the whole string.
+			smbshare = "%2F%2F" + smbshare[2:]
 		return self.UriMake("smbshr", smbshare)
 
 	# TODO: IN FACT THIS IS SIMPLY A MACHINE. MAYBE WE SHOULD SUBCLASS TYPES ?????
