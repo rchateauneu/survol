@@ -829,3 +829,26 @@ de nodes vers lesquels ils pointent: Juste un entier.
 
 ========================================================================================================================
 
+Faire un URL a partir d’une query WQL: Oui dans une certaine mesure, c’est possible.
+Pour les associators, on cree un autre script ?? associators_wmi.py ?xid=CLASS.Key1=Val1,Key2=Val2
+Ou bien on decrete que entity_wmi.py et entity_wbem.py renvoie les associators ?
+CIM operations over HTTP CIM-XML
+
+http://www.dmtf.org/sites/default/files/standards/documents/DSP0200_1.3.1.pdf
+A partir de Javascript. Le probleme est que ca ne renvoie pas du JSON.
+
+JSONP ?
+Sauver les mots de passe comme on le fait avec WMI (Qu’il faudra d’ailleurs terminer).
+
+«Geographical Visualisation of CIM Networks Using Google APIs”
+« IEC 61968 classes for geographical data”
+Si on veut afficher des donnees D£ avec du KML:
+·         On s’arrange pour que les distances soient raisonnables en fonction de ce qu’on veut afficher :
+·         Tout ce qui concerne un ordinateur tient dans une boite de 30cm*30cm
+·         Distances entre machines : 1m si dans un LAN.
+
+Revenir sur SLP et OpenPegasus :
+https://github.com/xenserver/openpegasus/tree/master/pegasus/src
+
+https://github.com/brunolauze
+Bruno Lauze.
