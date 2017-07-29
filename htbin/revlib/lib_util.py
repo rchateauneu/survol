@@ -666,13 +666,18 @@ def OntologyClassKeys(entity_type):
 
 # Used for calling ArrayInfo. The order of arguments is strict.
 def EntityIdToArray( entity_type, entity_id ):
-	# sys.stderr.write("EntityIdToArray type=%s id=%s\n" % ( entity_type , entity_id ) )
 	ontoKeys = OntologyClassKeys(entity_type)
 	dictIds = SplitMoniker( entity_id )
 	# sys.stderr.write("EntityIdToArray dictIds=%s\n" % ( str(dictIds) ) )
 	# For the moment, this assumes that all keys are here.
 	# Later, drop this constraint and allow WQL queries.
-	return [ dictIds[ aKey ] for aKey in ontoKeys ]
+	try:
+		return [ dictIds[ aKey ] for aKey in ontoKeys ]
+	except KeyError:
+		sys.stderr.write("EntityIdToArray missing key: type=%s id=%s onto=%s\n"
+						 % ( entity_type , entity_id, str(ontoKeys) ) )
+		raise
+
 
 ################################################################################
 
