@@ -8,7 +8,7 @@ def Graphic_colorbg():
 	return "#FFCC66"
 
 def EntityOntology():
-	return ( ["Db", "Schema", "Session"], )
+	return ( ["Db", "Session"], )
 
 def MakeUri(dbName,sessionId):
 	return lib_common.gUriGen.UriMakeFromDict("oracle/session", { "Db" : dbName, "Session" : sessionId } )
