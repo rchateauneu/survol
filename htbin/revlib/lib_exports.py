@@ -243,8 +243,11 @@ def PropToShortPropNam(collapsProp):
 
 # Only some scripts are exported to Json.
 def ScriptForJson(url):
-	# The only internal script accepted.
+	# The two only internal scripts accepted.
 	if( url.find("htbin/entity.py") >= 0):
+		return True
+
+	if( url.find("htbin/entity_info_only.py") >= 0):
 		return True
 
 	# TODO: Maybe pass portal_wbem.py and portal_wmi.py ??
@@ -325,6 +328,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 	# Now, this creates the nodes sent as json objects.
 	numNodes = len(NodeToJsonObj.dictNod2Json)
+	sys.stderr.write("Grph2Json numNodes=%d\n"%numNodes)
 	nodes = [None] * numNodes
 	for nod in NodeToJsonObj.dictNod2Json:
 		nodObj = NodeToJsonObj.dictNod2Json[nod]
