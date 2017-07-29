@@ -19,6 +19,19 @@ var pyMergeScript = "htbin/merge_scripts.py";
 // THIS IS DUPLICATED.
 gblWindowName = "SurvolMainWindowName";
 
+function PostMessageChangeRate(value,ixLoaded)
+{
+    console.log("PostMessageChangeRate value="+value+" ixLoaded="+ixLoaded);
+    self.opener.postMessage( ['ChangeRate',value,ixLoaded], '*');
+}
+
+function PostMessageDelScript(ixLoaded)
+{
+    // This array is sent as a message to the main window which delete the URL.
+    console.log("PostMessageDelScript ixLoaded="+ixLoaded);
+    self.opener.postMessage( ['DelScript',ixLoaded] ,'*');
+}
+
 /* This is called when a URL is loaded. It updates the little Summary window. */
 function SummaryRefreshSummaryWindow(lstLoadedUrls)
 {
@@ -41,7 +54,7 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
             + '">'
             + title
             + '</a></td>';
-    }
+    } // HrefTarget
 
     console.log("SummaryRefreshSummaryWindow lstLoadedUrls.length="+lstLoadedUrls.length);
     var urlMerge = pyMergeScript;
@@ -66,17 +79,17 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
         var objLoadedUrl = lstLoadedUrls[ixLoaded];
         console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
 
-        // This array is sent as a message to the main window which executes a function.
-        var msgToSend = "['DelScript'," + ixLoaded + "]";
-        var funcOnClk = "self.opener.postMessage("+msgToSend+",'*');";
-        var namRate = "RefreshRate_" + ixLoaded;
+        // This is sent to the main window, to update the refresh rate of this URL.
+        var funcOnChange = "PostMessageChangeRate(this.value," + ixLoaded + ");";
+
+        var funcOnClk = "PostMessageDelScript(" + ixLoaded + ");";
 
         urlsHtml += [
             "<tr>",
             HrefTarget(objLoadedUrl.m_loaded_url,objLoadedUrl.m_loaded_title),
             "<td align='right'>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
             "<td align='right'>" + objLoadedUrl.m_loaded_links_length + "</td>",
-            '<td><input type="number" min="0" width="20" name="' + namRate + '"></td>',
+            '<td><input type="number" min="0" width="10" onchange="'+funcOnChange+'">mn</td>',
             '<td><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
             "</tr>"
         ].join("\n");
