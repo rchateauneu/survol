@@ -21,6 +21,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(
 			{ paramkeyPortsRange : "22-443" } )
 	hostname = cgiEnv.GetId()
+	nodeHost = lib_common.gUriGen.HostnameUri( hostname )
 
 	# This is just a first experimentation with nmap.
 	# Ideally, the port range could be changed in edit mode of this script.
@@ -45,24 +46,33 @@ def Main():
 		lib_common.ErrorMessageHtml("XML error:"+nmap_last_output+", caught:" + str(exc) )
 
 	for dhost in dom.getElementsByTagName('host'):
-		host = dhost.getElementsByTagName('address')[0].getAttributeNode('addr').value
+		nodeIP = dhost.getElementsByTagName('address')[0].getAttributeNode('addr').value
 		# print("host="+host)
 		# Probleme: Ni l'adresse IP ni le nom ne sont uniques pour une machines.
 		# En realite une machine peut avoir plusieurs interfaces reseau, et chaque
 		# interface reseau peut avoir plusieurs noms. Mais une machine peut donner
 		# le meme nom a plusieurs adresses IP.
-		nodeHost = lib_common.gUriGen.HostnameUri( host )
+		# nodeIP = lib_common.gUriGen.HostnameUri( host )
+
+		grph.add( ( nodeHost, lib_common.MakeProp("IP"), lib_common.NodeLiteral( nodeIP ) ) )
+		# PAS EXACTEMENT nodeHost: Ca affiche l IP (192.168.1.76) mais il faudrait "Titi"
+		### nodeHost = lib_common.gUriGen.HostnameUri(hostname)
+		# Et donc ca duplique le node.
+
 		for dhostname in dhost.getElementsByTagName('hostname'):
-			hostnam = dhostname.getAttributeNode('name').value
-			grph.add( ( nodeHost, pc.property_hostname, lib_common.NodeLiteral( hostnam ) ) )
+			sub_hostnam = dhostname.getAttributeNode('name').value
+
+			# grph.add( ( nodeHost, pc.property_hostname, lib_common.NodeLiteral( sub_hostnam ) ) )
+			# It should be the same as the main hostname, which is taken as reference to avoid ambiguities.
+			grph.add( ( nodeHost, lib_common.MakeProp("Hostname"), lib_common.NodeLiteral( sub_hostnam ) ) )
 
 		for dport in dhost.getElementsByTagName('port'):
 			proto = dport.getAttributeNode('protocol').value
 
 			# port number converted as integer
 			port = int(dport.getAttributeNode('portid').value)
-			socketNode = lib_common.gUriGen.AddrUri( host, port, proto )
-			survol_addr.DecorateSocketNode(grph, socketNode, host, port, proto)
+			socketNode = lib_common.gUriGen.AddrUri( hostname, port, proto )
+			survol_addr.DecorateSocketNode(grph, socketNode, hostname, port, proto)
 
 			state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
 			grph.add( ( socketNode, lib_common.MakeProp("State"), lib_common.NodeLiteral(state) ) )

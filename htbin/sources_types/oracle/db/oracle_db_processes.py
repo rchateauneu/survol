@@ -6,6 +6,7 @@ Oracle database's connected processes
 
 import sys
 import lib_common
+import lib_util
 from lib_properties import pc
 import lib_oracle
 
@@ -68,6 +69,7 @@ def Main():
 
 		# This returns an IP address from "WORKGROUP\RCHATEAU-HP"
 		user_machine = lib_oracle.OraMachineToIp(row[6])
+		theMachineBox = lib_common.MachineBox(user_machine)
 
 		# Process and Thread id of the CLIENT program, executing sqlplus.exe for example.
 		sessPidTid = row[7] # 7120:4784
@@ -86,14 +88,16 @@ def Main():
 			grph.add( ( node_oradb, pc.property_oracle_db, nodeSchema ) )
 
 		sys.stderr.write("user_proc_id=%s user_machine=%s\n" % (user_proc_id,user_machine))
-		node_process = lib_common.RemoteBox(user_machine).PidUri( sessPid )
+		# node_process = lib_common.RemoteBox(user_machine).PidUri( sessPid )
+		node_process = theMachineBox.PidUri( sessPid )
 		grph.add( ( node_process, lib_common.MakeProp("SystemPid"), lib_common.NodeLiteral(user_proc_id) ) )
 		grph.add( ( node_process, lib_common.MakeProp("OraclePid"), lib_common.NodeLiteral(process_pid) ) )
 		grph.add( ( node_process, lib_common.MakeProp("Terminal"), lib_common.NodeLiteral(procTerminal) ) )
 		grph.add( ( nodeSession, pc.property_oracle_session, node_process ) )
 
 		if sessOsuser != None:
-			nodeOsUser = lib_common.RemoteBox(user_machine).UserUri(sessOsuser)
+			sys.stderr.write("user_machine=%s sessOsuser=%s\n"%(user_machine,sessOsuser))
+			nodeOsUser = theMachineBox.UserUri(sessOsuser)
 			grph.add( ( nodeOsUser, lib_common.MakeProp("OsUser"), lib_common.NodeLiteral(sessOsuser) ) )
 			grph.add( ( node_process, pc.property_user, nodeOsUser ) )
 

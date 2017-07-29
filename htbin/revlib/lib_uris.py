@@ -460,6 +460,15 @@ class RemoteBox (LocalBox):
 	def TypeMake(self):
 		return self.m_mach + "@"
 
+# mach could be an IP address, a machine name, None, "localhost" etc...
+def MachineBox(mach):
+	if lib_util.IsLocalAddress(mach):
+		theMachineBox = LocalBox()
+	else:
+		theMachineBox = RemoteBox(mach)
+	return theMachineBox
+
+
 # Ceci est un peu equivalent a:
 # select * from LMI_MountedFileSystem where MountPointPath="/sys/fs/cgroup" and FileSystemSpec="tmpfs"
 # Dictionnaire des properties ?
