@@ -852,3 +852,44 @@ https://github.com/xenserver/openpegasus/tree/master/pegasus/src
 
 https://github.com/brunolauze
 Bruno Lauze.
+
+========================================================================================================================
+
+Refresh rate en minutes: Pour afficher la lente disparition des objets, au lieu de deleter,
+on fait baisser un compteur et on detruit seulement si le compteur passe a zero.
+L’affichage des aretes tient compte des compteurs des liens.
+Quand on cree un node, on met son compteur au maxi ou bien on increment s’il existe déjà ?
+
+Remplacer un node : Refresh, en plusieurs passes :
+Chaque node recoit un timestamp de la dernière fois ou il a été vu.
+- On vire un node qui n'a pas été vu depuis X minutes, parmi tous les nodes appartenant au script (Exclusivement ou pas).
+- Ce delai tient compte du taux de rafraichissement ?
+- Si on voit un node, on met a jour son timestamp (Valable pour tous les scripts quel que soit le chargement)
+- L'affichage du node et des links est plus transparent selon le nombre de generation ou on n'a pas vu le node.
+- L'interet est de ne pas faire brutalement disparaitre un objet. Mais ca ne s'applique que s'il y a un rafraichissement automatique.
+
+Evidemment on affiche ce timestamp (A propos, reparer le tooltip).
+Du coup, ca cree un historique des objets en fonctions des scripts qui leur ont donne des links.
+L'historique est fait des links successifs et des objets de l'autre cote, qui ont disparu.
+Ex: Pour un fichier, on va avoir la suite des process qui ont ouvert ce fichier, avec le timestamp.
+Ca cree un log. On peut imaginer de relier ca avec le resultat du parsing de vrais logfiles.
+Et aussi le resultat de strace (truss). Event de Windows, Oracle etc…
+
+Attention si on rafraichit un script qui va prendre une partie d’un log comme strace :
+Ne plus voir un objet dans N lignes de log ne veut pas dire que l’objet a disparu.
+En revanche, il faut bien les detruire a un moment ou un autre.
+Ou alors on le cree, mais on ne detruit pas les objets vus il y a longtemps, et crees par notre script.
+Autrement dit, differencier les scripts qui donnent un etat (et donc peuvent constater qu’un node n’existe plus pour ce script), des scripts qui donnent une suite d evenements.
+
+========================================================================================================================
+Reseau neuronaux etc...
+
+Applications: Qualifier un binaire: compilateur, langage d'origine, style de programmation
+
+Python packages for neural net: https://www.tensorflow.org/get_started/mnist/pros
+
+Python wrapper: https://keras.io/
+Site dedie a l AI: https://www.kaggle.com/petrosgk/1st-try-with-keras-0-918-lb
+
+image processing: http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_tutorials.html
+========================================================================================================================

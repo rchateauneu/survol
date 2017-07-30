@@ -19,10 +19,10 @@ var pyMergeScript = "htbin/merge_scripts.py";
 // THIS IS DUPLICATED.
 gblWindowName = "SurvolMainWindowName";
 
-function PostMessageChangeRate(value,ixLoaded)
+function PostMessageChangeRate(ixLoaded,value)
 {
-    console.log("PostMessageChangeRate value="+value+" ixLoaded="+ixLoaded);
-    self.opener.postMessage( ['ChangeRate',value,ixLoaded], '*');
+    console.log("PostMessageChangeRate ixLoaded="+ixLoaded+" value="+value);
+    self.opener.postMessage( ['ChangeRate',ixLoaded,value], '*');
 }
 
 function PostMessageDelScript(ixLoaded)
@@ -80,7 +80,7 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
         console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
 
         // This is sent to the main window, to update the refresh rate of this URL.
-        var funcOnChange = "PostMessageChangeRate(this.value," + ixLoaded + ");";
+        var funcOnChange = "PostMessageChangeRate(" + ixLoaded + ", this.value);";
 
         var funcOnClk = "PostMessageDelScript(" + ixLoaded + ");";
 

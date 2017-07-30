@@ -4,6 +4,8 @@
 <html>
 <head>
 
+    <title>Survol</title>
+
 <!-- Port to D3 v4 could be done by a specialist. -->
 <!-- src="http://d3js.org/d3.v3.min.js" -->
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -262,9 +264,7 @@ function CheckGraph(theNam,theData)
 
 
 
-// Mais pourquoi data est passe en premier ? au lieu de (error,data ) ?
-// Ah peut-etre d2 version 2 au lieu de 4 ?
-function CreateDisplay(data)
+function D3DisplayCreation()
 {
     'use strict';
 
@@ -272,15 +272,6 @@ function CreateDisplay(data)
         divSvg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     }
 
-    if( data == null )
-    {
-        alert("CreateDisplay: Json data is null");
-        return;
-    }
-
-    CheckGraph("new",data);
-
-    //alert(JSON.stringify(data));
     var win = window,
         doc = document,
         elt = doc.documentElement,
@@ -309,46 +300,221 @@ function CreateDisplay(data)
         .call(d3.behavior.zoom().scaleExtent([0.125, 8]).on("zoom", MyZoom))
         ;
 
-    /*
-    divSvg.append("defs").append("marker")
-        .attr("id", "arrowhead")
-        .attr("refX", 17 + 3) // must be smarter way to calculate shift
-        .attr("refY", 2)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 4)
-        .attr("orient", "auto")
-        .append("path")
-        .attr("d", "M 0,0 V 4 L6,2 Z"); //this is actual shape for arrowhead
-    */
-
     myForce = d3.layout.force();
+} // D3DisplayCreation
 
-	/*
-	// Temp, to set initial position.
-    for( var ix = 0; ix < data.nodes.length; ix++ )
+// Mais pourquoi data est passe en premier ? au lieu de (error,data ) ?
+// Ah peut-etre d2 version 3 au lieu de 4 ?
+function CreateDisplay(data)
+{
+    if( data == null )
     {
-        var objNod = data.nodes[ix]
-        if( ix < 3)
-        {
-            objNod.x = wScreen/2;
-            objNod.y = hScreen/2;
-            objNod.fixed = true;
-        }
-        else
-        {
-            objNod.x = wScreen/2;
-            objNod.y = hScreen/2;
-        }
+        alert("CreateDisplay: Json data is null");
+        return;
     }
-	*/
+
+    // CheckGraph("new",data);
+    D3DisplayCreation();
 
     // Brand new graph, no need to merge.
     previousData = data;
     DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
 } // CreateDisplay
 
+/* Called when adding a new url and merge it to the existing nodes and links. */
+function RefillDisplayMerge(data)
+{
+    // This creates a new list of nodes with new numbers and without the duplicates.
+    // The links also, are recreated, with new numbers.
+    var previousNodes = previousData.nodes;
+    var prevUrlsToIds = {};
+
+    var lenPrevNodes = previousNodes.length;
+    var maxAlerts = 3;
+    for (var ixNod = 0; ixNod < lenPrevNodes; ixNod++) {
+        var urlNode = previousNodes[ixNod].survol_url;
+        // console.log("RefillDisplay(1) urlNode="+urlNode);
+
+        // Sanity check:
+        if(prevUrlsToIds[urlNode] != undefined)
+        {
+            // Not too many alerts.
+            if(maxAlerts > 0)
+            {
+                alert("ixNod="+ixNod+" prevUrlsToIds[urlNode] undefined. urlNode="+urlNode);
+                maxAlerts--;
+            }
+        }
+
+        // Normally, at this stage, each URL should appear only once.
+        prevUrlsToIds[urlNode] = ixNod;
+    }
+
+    // console.log("prevUrlsToIds elements:"+JSON.stringify(prevUrlsToIds));
+
+    // The new numbers of the new nodes are written in the nodes themselves.
+    var newNodes = data.nodes;
+    var lenNewNodes = newNodes.length;
+    for( var ixNod = 0; ixNod < lenNewNodes; ixNod++ )
+    {
+        var newNod = newNodes[ixNod];
+        var urlNode = newNod.survol_url;
+        console.log("RefillDisplay(2) urlNode="+urlNode);
+
+        // Sanity check
+        if( urlNode == undefined)
+        {
+            alert("urlNode undefined. ixNod="+ixNod);
+        }
+
+        // Index of the same URL in the current list of nodes.
+        var oldIdx = prevUrlsToIds[urlNode];
+
+        if( oldIdx == undefined )
+        {
+            // Most common case of a new node.
+            var idxAppend = previousNodes.length;
+            newNod.new_index = idxAppend;
+
+            // Sanity check
+            if( idxAppend < lenPrevNodes )
+            {
+                alert("idxAppend="+idxAppend);
+            }
+
+            // The new node is copied at the end.
+            previousNodes.push(newNod);
+        }
+        else
+        {
+            // The node already exists, no copy, but this merge the input scripts lists.
+            newNod.new_index = oldIdx;
+
+            if( previousNodes[oldIdx].survol_input_scripts == undefined )
+            {
+                alert("Previous node should have input scripts");
+                return;
+            }
+
+            if( newNod.survol_input_scripts == undefined )
+            {
+                alert("New node should have input scripts");
+                return;
+            }
+
+            previousNodes[oldIdx].survol_input_scripts
+                = previousNodes[oldIdx].survol_input_scripts.concat(newNod.survol_input_scripts)
+
+            // Sanity check
+            if( previousNodes[oldIdx].survol_url != urlNode)
+            {
+                alert("Inconsistent urls oldIdx="+oldIdx);
+            }
+        }
+    }
+
+    // Now we renumber the edges.
+    var newLinks = data.links;
+    var lenNewLinks = newLinks.length;
+    var previousLinks = previousData.links;
+    for( var ixLnk = 0; ixLnk < lenNewLinks; ixLnk++ )
+    {
+        var newLnk = newLinks[ixLnk];
+
+        var idxSourceMapped = newNodes[newLnk.source].new_index;
+
+        // Sanity check
+        if(idxSourceMapped == undefined)
+        {
+            alert("Source undefined newLnk.source="+newLnk.source);
+        }
+
+        newLnk.source = idxSourceMapped;
+
+        var idxTargetMapped = newNodes[newLnk.target].new_index;
+
+        // Sanity check
+        if(idxTargetMapped == undefined)
+        {
+            alert("Target undefined newLnk.target="+newLnk.target);
+        }
+
+        // console.log("Rewire "+ixLnk+" target from "+newLnk.target+" to "+idxTargetMapped);
+        newLnk.target = idxTargetMapped;
+
+        // Sanity check
+        if(newLnk.source == undefined)
+        {
+            alert("newLnk.source undefined. ixLnk="+ixLnk);
+        }
+        if(newLnk.target == undefined)
+        {
+            alert("newLnk.target undefined. ixLnk="+ixLnk);
+        }
+
+        // If the source and the targets had to be remapped,
+        // it means that the target was already there.
+        // However, we insert it again because it should be rare,
+        // and the duplicated edge might bring more information.
+        previousLinks.push(newLnk);
+    }
+
+    // Now a last pass to remove the duplicate nodes.
+    var ixNod = 0;
+    while(ixNod < lenNewNodes)
+    {
+        var newNod = newNodes[ixNod];
+
+        // Sanity check
+        if(newNod.new_index == undefined)
+        {
+            alert("newNod.new_index undefined ixNod="+ixNod);
+        }
+
+        if(newNod.new_index < lenPrevNodes)
+        {
+            // The node already exists.
+            newNod.new_index = oldIdx;
+            newNodes.splice(ixNod,1); // Beware, this might be slow.
+            console.log("Removing duplicate ixNod="+ixNod);
+            lenNewNodes--;
+        }
+        else
+        {
+            ixNod++;
+        }
+    }
+
+    // Sanity check
+    if(lenNewNodes != data.nodes.length)
+    {
+        alert("Inconsistency lenNewNodes="+lenNewNodes+" data.nodes.length="+data.nodes.length);
+    }
+
+    // Sanity check.
+    CheckGraph("prev",previousData);
+} // RefillDisplayMerge
+
+/* Called when reloading the content of a script which was previously loaded. */
+function RefillDisplayRefresh(theUrl,data)
+{
+    /*
+    NON, car si un noeud re-apparait, il a peut-etre de nouveaux links qu'il ne faut pas virer.
+
+    (1) On merge mais on tagge specialement les noeuds qu'on trouve deja. Avec le time-stamp.
+    Exactement comme quand on merge mais les noeuds qui sont la sont time-stampes.
+
+    (2) On boucle sur les nodes de previous mais qui viennent du meme script
+    et on vire ceux qui n'ont pas le nouveau time-stamp ainsi que leurs aretes.
+    If they come from several URLs, maybe keep them if one of the other URLs is automatically refreshed
+    and has any precedence. TODO: To be discussed.
+
+
+    */
+} // RefillDisplayRefresh
+
 // Callback of contextual menu. It receives the JSON menu sent by the server.
-function RefillDisplay(data)
+function RefillDisplay(theUrl,data)
 {
     'use strict';
 	console.log("RefillDisplay entering globalMustMerge="+globalMustMerge);
@@ -359,189 +525,31 @@ function RefillDisplay(data)
         return;
     }
 
-    // If we merge the current nodes and links with the new one.
-    if( globalMustMerge )
+    if( previousData == null )
     {
-        // This creates a new list of nodes with new numbers and without the duplicates.
-        // The links also, are recreated, with new numbers.
-        var previousNodes = previousData.nodes;
-        var prevUrlsToIds = {};
-
-        var lenPrevNodes = previousNodes.length;
-        var maxAlerts = 3;
-        for (var ixNod = 0; ixNod < lenPrevNodes; ixNod++) {
-            var urlNode = previousNodes[ixNod].survol_url;
-            console.log("RefillDisplay(1) urlNode="+urlNode);
-
-            // Sanity check:
-            if(prevUrlsToIds[urlNode] != undefined)
-            {
-                // Not too many alerts.
-                if(maxAlerts > 0)
-                {
-                    alert("ixNod="+ixNod+" prevUrlsToIds[urlNode] undefined. urlNode="+urlNode);
-                    maxAlerts--;
-                }
-            }
-
-            // Normally, at this stage, each URL should appear only once.
-            prevUrlsToIds[urlNode] = ixNod;
-        }
-
-        // console.log("prevUrlsToIds elements:"+JSON.stringify(prevUrlsToIds));
-
-        // The new numbers of the new nodes are written in the nodes themselves.
-        var newNodes = data.nodes;
-        var lenNewNodes = newNodes.length;
-        for( var ixNod = 0; ixNod < lenNewNodes; ixNod++ )
-        {
-            var newNod = newNodes[ixNod];
-            var urlNode = newNod.survol_url;
-            console.log("RefillDisplay(2) urlNode="+urlNode);
-
-            // Sanity check
-            if( urlNode == undefined)
-            {
-                alert("urlNode undefined. ixNod="+ixNod);
-            }
-
-            // Index of the same URL in the current list of nodes.
-            var oldIdx = prevUrlsToIds[urlNode];
-
-            if( oldIdx == undefined )
-            {
-                // Most common case of a new node.
-                var idxAppend = previousNodes.length;
-                newNod.new_index = idxAppend;
-
-                // Sanity check
-                if( idxAppend < lenPrevNodes )
-                {
-                    alert("idxAppend="+idxAppend);
-                }
-
-                // The new node is copied at the end.
-                previousNodes.push(newNod);
-            }
-            else
-            {
-                // The node already exists, no copy, but this merge the input scripts lists.
-                newNod.new_index = oldIdx;
-
-                if( previousNodes[oldIdx].survol_input_scripts == undefined )
-                {
-                    alert("Previous node should have input scripts");
-                    return;
-                }
-
-                if( newNod.survol_input_scripts == undefined )
-                {
-                    alert("New node should have input scripts");
-                    return;
-                }
-
-                previousNodes[oldIdx].survol_input_scripts
-                    = previousNodes[oldIdx].survol_input_scripts.concat(newNod.survol_input_scripts)
-
-
-                // Sanity check
-                if( previousNodes[oldIdx].survol_url != urlNode)
-                {
-                    alert("Inconsistent urls oldIdx="+oldIdx);
-                }
-            }
-        }
-
-        // Now we renumber the edges.
-        var newLinks = data.links;
-        var lenNewLinks = newLinks.length;
-        var previousLinks = previousData.links;
-        for( var ixLnk = 0; ixLnk < lenNewLinks; ixLnk++ )
-        {
-            var newLnk = newLinks[ixLnk];
-
-            var idxSourceMapped = newNodes[newLnk.source].new_index;
-
-            // Sanity check
-            if(idxSourceMapped == undefined)
-            {
-                alert("Source undefined newLnk.source="+newLnk.source);
-            }
-
-            newLnk.source = idxSourceMapped;
-
-            var idxTargetMapped = newNodes[newLnk.target].new_index;
-
-            // Sanity check
-            if(idxTargetMapped == undefined)
-            {
-                alert("Target undefined newLnk.target="+newLnk.target);
-            }
-
-            // console.log("Rewire "+ixLnk+" target from "+newLnk.target+" to "+idxTargetMapped);
-            newLnk.target = idxTargetMapped;
-
-            // Sanity check
-            if(newLnk.source == undefined)
-            {
-                alert("newLnk.source undefined. ixLnk="+ixLnk);
-            }
-            if(newLnk.target == undefined)
-            {
-                alert("newLnk.target undefined. ixLnk="+ixLnk);
-            }
-
-
-            // If the source and the targets had to be remapped,
-            // it means that the target was already there.
-            // However, we insert it again because it should be rare,
-            // and the duplicated edge might bring more information.
-            previousLinks.push(newLnk);
-        }
-
-        // Now a last pass to remove the duplicate nodes.
-        var ixNod = 0;
-        while(ixNod < lenNewNodes)
-        {
-            var newNod = newNodes[ixNod];
-
-            // Sanity check
-            if(newNod.new_index == undefined)
-            {
-                alert("newNod.new_index undefined ixNod="+ixNod);
-            }
-
-            if(newNod.new_index < lenPrevNodes)
-            {
-                // The node already exists.
-                newNod.new_index = oldIdx;
-                newNodes.splice(ixNod,1); // Beware, this might be slow.
-                console.log("Removing duplicate ixNod="+ixNod);
-                lenNewNodes--;
-            }
-            else
-            {
-                ixNod++;
-            }
-        }
-
-        // Sanity check
-        if(lenNewNodes != data.nodes.length)
-        {
-            alert("Inconsistency lenNewNodes="+lenNewNodes+" data.nodes.length="+data.nodes.length);
-        }
-
-        // Sanity check.
-        CheckGraph("prev",previousData);
+        console.log("previousData is null");
+        previousData = data;
+    }
+    // If we merge the current nodes and links with the new one.
+    else if( globalMustMerge == true )
+    {
+        RefillDisplayMerge(data);
+    }
+    else if(globalMustMerge == MergeRefreshMode )
+    {
+        RefillDisplayRefresh(theUrl,data);
     }
     else
     {
         // If this is not a merge but a brand new URLs.
+        console.log("Brand new url");
         previousData = data;
     }
 
 	console.log("RefillDisplay before EmptyDisplay");
+
     EmptyDisplay();
+
 	console.log("RefillDisplay before DisplayD3Layout");
     DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
     globalMustMerge = false;
@@ -560,6 +568,8 @@ function EmptyDisplay()
         .data([])
         .exit()
         .remove();
+
+    // previousData = null;
 } // EmptyDisplay
 
 /* When deleting a node from the contextual menu. Deletes the nodes and its links. */
@@ -627,7 +637,6 @@ function MarkToDel(flag)
     }
 } // MarkToDel
 
-// NOT USED YET.
 // There is no direct way to get the edges connected to one node,
 // so this recursively explores the graph and marks objects for deletion.
 function DeleteSvgConnectedNodes(objectSvg)
@@ -695,72 +704,135 @@ function DeleteSvgConnectedNodes(objectSvg)
     globalMustMerge = false;
 } // DeleteSvgConnectedNodes
 
-// The list of currently loaded urls. This is also the UNDO list,
+////////////////////////////////////////////////////////////////////////////////
+
+// The list of currently loaded urls.
+// TODO: This is also the UNDO list,
 // and therefore will contain "pseudo-urls" meaning that such or such object
 // was added or removed.
 var lstLoadedUrls = [];
 
+// We do not add methods because the object must be cloned when sent as a message.
+function lstLoadedUrls_DeleteAll()
+{
+    for( var idxUrl = 0; idxUrl < lstLoadedUrls.length; idxUrl++ )
+    {
+        lstLoadedUrls_DeleteOne(0);
+    }
+}
+
+// Deletes an URL in the list and cancels the timer if needed.
+function lstLoadedUrls_DeleteOne(idxUrl)
+{
+    lstLoadedUrls_TimerSet(idxUrl);
+    lstLoadedUrls.splice(idxUrl,1);
+}
+
+var MergeRefreshMode = 2;
+
+// When the url is deleted, the timer must also be cleared.
+function TimerRefreshUrl(objLoadedUrl)
+{
+    console.log("TimerRefreshUrl m_loaded_url="+objLoadedUrl.m_loaded_url);
+
+    globalMustMerge = MergeRefreshMode;
+
+    // TODO: Finish this !!
+    LoadUrlUpdateDisplay(objLoadedUrl.m_loaded_url, RefillDisplay,globalMustMerge);
+}
+
+function lstLoadedUrls_TimerSet(idxUrl,newRate)
+{
+    console.log("TimerSet idxUrl="+idxUrl+" newRate="+newRate);
+    if( lstLoadedUrls[idxUrl].m_timer_refresh != undefined )
+    {
+        clearInterval(lstLoadedUrls[idxUrl].m_timer_refresh);
+    }
+    if((newRate != undefined) && (newRate != 0))
+    {
+        lstLoadedUrls[idxUrl].m_timer_refresh = setInterval( TimerRefreshUrl, newRate * 60 * 1000, lstLoadedUrls[idxUrl] );
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 /* This is called when clicking "Del" on the Summary little window. */
-function DeleteNodesFromScript(event)
+function ProcessSummaryWindowDel(idxUrl)
+{
+    objLoadedUrl = lstLoadedUrls[idxUrl];
+    // The URL can be something like "htbin/sources_types/enumerate_CIM_Process.py?xid=."
+    // It should be identical to what is stored in the nodes.
+    objUrlStr = objLoadedUrl.m_loaded_url;
+    // console.log("ProcessSummaryWindowDel DelScript:"+objUrlStr);
+
+    for( var ixNd = 0; ixNd < previousData.nodes.length; ixNd++ )
+    {
+        objNod = previousData.nodes[ixNd];
+        // console.log("ixNd="+ixNd+" node="+JSON.stringify(objNod));
+
+        // If the node was created by this script.
+        idxIn = objNod.survol_input_scripts.indexOf(objUrlStr);
+        // console.log("idxIn="+idxIn);
+        if ( idxIn >= 0 )
+        {
+            // If the node was created only by this script, the delete it.
+            if( objNod.survol_input_scripts.length == 1 ) {
+                DeleteD3NodeFromIndex(ixNd);
+                ixNd--; // One node less.
+            } else {
+                // Otherwise just remove the URL.
+                objNod.survol_input_scripts.splice( idxIn, 1 );
+            }
+        }
+    } // Loop on nodes.
+
+    lstLoadedUrls_DeleteOne(idxUrl);
+
+    // Maybe we could refresh the display at each node ?
+    EmptyDisplay();
+    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    console.log("ProcessSummaryWindowMessages reset globalMustMerge");
+    globalMustMerge = false;
+
+    RefreshSummaryWindow();
+} // ProcessSummaryWindowDel
+
+/* Messages received from the Summary window are made of a vector: The first element is a string
+which indicates the type of operation. */
+function ProcessSummaryWindowMessages(event)
 {
     // event={"isTrusted":false}
     // "DelScript:0"
-    msgSent = event.data;
+    var msgSent = event.data;
     // "http://192.168.1.83"
-    msgOrig = event.origin;
+    var msgOrig = event.origin;
+    var keyWord = msgSent[0];
     console.log("msgSent="+msgSent+" msgOrig="+msgOrig+" event="+JSON.stringify(event));
-    console.log("msgSent[0]="+msgSent[0]);
 
-    if(msgSent[0] == 'DelScript')
+    if(keyWord == 'ChangeRate')
+    {
+        var idxUrl = msgSent[1];
+        var newRate = msgSent[2];
+        console.log("newRate="+newRate+" idxUrl="+idxUrl);
+
+        lstLoadedUrls_TimerSet(idxUrl,newRate);
+    } else if(keyWord == 'DelScript')
     {
         idxUrl = msgSent[1];
-        objLoadedUrl = lstLoadedUrls[idxUrl];
-        // The URL can be something like "htbin/sources_types/enumerate_CIM_Process.py?xid=."
-        // It should be identical to what is stored in the nodes.
-        objUrlStr = objLoadedUrl.m_loaded_url;
-        // console.log("DeleteNodesFromScript DelScript:"+objUrlStr);
-
-        for( var ixNd = 0; ixNd < previousData.nodes.length; ixNd++ )
-        {
-            objNod = previousData.nodes[ixNd];
-            // console.log("ixNd="+ixNd+" node="+JSON.stringify(objNod));
-
-            // If the node was created by this script.
-            idxIn = objNod.survol_input_scripts.indexOf(objUrlStr);
-            // console.log("idxIn="+idxIn);
-            if ( idxIn >= 0 )
-            {
-                // If the node was created only by this script, the delete it.
-                if( objNod.survol_input_scripts.length == 1 ) {
-                    DeleteD3NodeFromIndex(ixNd);
-                    ixNd--; // One node less.
-                } else {
-                    // Otherwise just remove the URL.
-                    objNod.survol_input_scripts.splice( idxIn, 1 );
-                }
-            }
-        } // Loop on nodes.
-
-        lstLoadedUrls.splice(idxUrl,1);
-
-        // Maybe we could refresh the display at each node ?
-        EmptyDisplay();
-        DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
-        console.log("DeleteNodesFromScript reset globalMustMerge");
-        globalMustMerge = false;
-
-        RefreshSummaryWindow();
+        ProcessSummaryWindowDel(idxUrl);
     } // If delete nodes exclusive from a script.
-} // DeleteNodesFromScript
+
+} // ProcessSummaryWindowMessages
 
 console.log("Initializing windowObjectReference");
 
 // Declare it but with an invalid value.
 var windowObjectReference = null;
 
+/* Internal of the window. */
 gblWindowName = "SurvolMainWindowName";
 
-/* This is called when a URL is loaded. It updates the little Summary window. */
+/* This is called when a URL is loaded. It updates the little Summary window
+by sending as a message the list of loaded urls. */
 function RefreshSummaryWindow()
 {
     if(windowObjectReference) {
@@ -775,7 +847,9 @@ function RefreshSummaryWindow()
     return;
 } // RefreshSummaryWindow
 
-// Add the origin URL to each node.
+/* Add the origin URL to each node. This is used for example to selectively delete nodes
+coming from a specific URL, or to refresh the result of an URL. Note that URL and scripts
+have the same meaning in this file: Python scripts returning JSON data and invoked as HTTP URLs. */
 function NodeSetInputScript(urlObj,theData)
 {
     // Maybe could use a regular expression.
@@ -788,24 +862,20 @@ function NodeSetInputScript(urlObj,theData)
 
         // We know that the object is freshly loaded, so we can create a new list.
         objNod.survol_input_scripts = [urlObjRaw];
+
+        // TODO: Add timestamp.
     }
 } // NodeSetInputScript
 
-// Each node remembers the script which created it.
-// funcDisplay is RefillDisplay or CreateDisplay.
-function NodeRememberScript(funcDisplay)
+/* Each node remembers the script which created it. */
+function RememberCallback(urlObj, data)
 {
-    function RememberCallback(urlObj, data)
-    {
-        console.log("RememberCallback urlObj="+urlObj+" NumNodes="+data.nodes.length);
-        NodeSetInputScript(urlObj,data)
+    console.log("RememberCallback urlObj="+urlObj+" NumNodes="+data.nodes.length);
+    NodeSetInputScript(urlObj,data)
 
-        // Now process the new nodes. Duplicate nodes will have two sources or more.
-        funcDisplay(data);
-    }
-
-    return RememberCallback;
-} // NodeRememberScript
+    // Now process the new nodes. Duplicate nodes will have two sources or more.
+    RefillDisplay(urlObj, data);
+}
 
 
 
@@ -815,32 +885,42 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 {
     'use strict';
 
-    if( ! shouldMerge ) {
-        lstLoadedUrls = [];
+    if( shouldMerge == 0 ) {
+        // Each element must be properly destroyed.
+        lstLoadedUrls_DeleteAll();
     }
 
     // This is called by a JSON document loaded from a Python script.
-    function LoaderCallback(data, funcDisplay, urlJson)
+    function LoaderCallback(data)
     {
-        console.log("LoaderCallback urlJson="+urlJson);
+        console.log("LoaderCallback theUrl="+theUrl);
         if( data == null )
         {
             console.log("LoaderCallback: data is null");
             return;
         }
+        if( data.survol_error != undefined )
+        {
+            alert("Error:"+data.survol_error);
+            return;
+        }
 
         // This merges the new data with the current one.
         // Each node remembers the script which created it.
-        NodeSetInputScript(urlJson,data);
-        funcDisplay(data);
+        NodeSetInputScript(theUrl,data);
+        funcDisplay(theUrl,data);
 
-        var objLoadedUrlNew = {
-            m_loaded_url : urlJson.replace("&mode=json",""),
-            m_loaded_title : data.page_title,
-            m_loaded_nodes_length : data.nodes.length,
-            m_loaded_links_length : data.links.length
-            };
-        lstLoadedUrls.push(objLoadedUrlNew);
+        // If refresh, do not change the list of loaded urls.
+        if( globalMustMerge != MergeRefreshMode )
+        {
+            var objLoadedUrlNew = {
+                m_loaded_url : theUrl.replace("&mode=json",""),
+                m_loaded_title : data.page_title,
+                m_loaded_nodes_length : data.nodes.length,
+                m_loaded_links_length : data.links.length
+                };
+            lstLoadedUrls.push(objLoadedUrlNew);
+        }
 
         RefreshSummaryWindow();
     } // LoaderCallback
@@ -862,11 +942,7 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 
 	try
 	{
-		d3.json(theUrl,
-			function(data)
-			{
-				LoaderCallback(data,funcDisplay,theUrl);
-			});
+		d3.json(theUrl, LoaderCallback );
 	}
 	catch(exc)
 	{
@@ -875,7 +951,7 @@ function LoadUrlUpdateDisplay(theUrl,funcDisplay,shouldMerge)
 			nodes: [],
 			links: []
 		};
-		LoaderCallback(emptyData,funcDisplay,theUrl);
+		LoaderCallback(emptyData);
 	}
 } // LoadUrlUpdateDisplay
 
@@ -918,8 +994,8 @@ function DisplayD3Layout(divSvg,newData,w,h)
         });
     }
 
-	console.log("newData.nodes"+JSON.stringify(newData.nodes));
-	console.log("newData.links"+JSON.stringify(newData.links));
+	// console.log("newData.nodes"+JSON.stringify(newData.nodes));
+	// console.log("newData.links"+JSON.stringify(newData.links));
 	
     // It is possible to link nodes by names in D3 v4: https://bl.ocks.org/mbostock/533daf20348023dfdd76
     myForce
@@ -963,12 +1039,13 @@ function DisplayD3Layout(divSvg,newData,w,h)
     d3BehDrag
         .on("dragstart", function() {
             isDragging = true; // This avoids the tooltip when dragging.
-            // console.log("Tooltip disabled");
+            // Tooltip ne fonctionne plus !!!
+            console.log("Tooltip disabled");
         })
         .on("dragend", function() {
             d3.event.sourceEvent.stopPropagation(); // silence other listeners
             isDragging = false; // Tooltip when hovering is now allowed.
-            // console.log("Tooltip enabled");
+            console.log("Tooltip enabled");
         })
         ;
 
@@ -996,7 +1073,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         }
         result += "</table>";
         return result;
-    }
+    } // DictToTable
 
     // https://bl.ocks.org/mbostock/7555321 Wrapping Long Labels
     function addTextLines(selection) {
@@ -1019,7 +1096,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
             // info_list
             // theText.append("tspan").attr("x", 0).attr("dy", 1 + "em").text(d.name);
         })
-    }
+    } // addTextLines
 
     function getTextBox(selection) {
         selection.each(function(d) { d.bbox = this.getBBox(); })
@@ -1067,11 +1144,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 function IfMouseOver(d,currentEventD3pageX,currentEventD3pageY)
                 {
                     if( false == d.is_mouseover ) {
-                        // console.log("MouseOver too late");
+                        console.log("MouseOver too late");
                         return;
                         }
                     if( isDragging ) {
-                        // console.log("IfMouseOver not when dragging");
+                        console.log("IfMouseOver not when dragging");
                         return;
                         }
 
@@ -1089,18 +1166,24 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
                     // "urlTooltip=http://127.0.0.1:8000/htbin/entity_info_only.py?xid=rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51759 -&gt; 127.0.0.1:5672&mode=json"
 
-                    console.log("urlTooltip="+urlTooltip);
+                    console.log("Loading urlTooltip="+urlTooltip);
 
                     d3.json(urlTooltip,
                         function(objTooltip)
                         {
+                            console.log("Callback urlTooltip="+urlTooltip+ " objTooltip="+JSON.stringify(objTooltip));
+                            if( objTooltip.survol_error != undefined )
+                            {
+                                alert("Error:"+objTooltip.survol_error);
+                                return;
+                            }
                             if( false == d.is_mouseover ) {
-                                // console.log("After tooltip loaded: too late");
+                                console.log("After tooltip loaded: too late");
                                 return;
                                 }
 
                             if( isDragging ) {
-                                // console.log("No tooltip when dragging");
+                                console.log("No tooltip when dragging");
                                 return;
                                 }
 
@@ -1275,7 +1358,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
 			// This creates a clickable item which calls RefillDisplay with the associators objects
 			// transformed into a JSON graph.
-			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg, NodeRememberScript(RefillDisplay) );
+			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg, RememberCallback );
 			// console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
 			if( TheItemsSuiteActiveX != [] )
 			{
@@ -1310,7 +1393,8 @@ function DisplayD3Layout(divSvg,newData,w,h)
         return TheItems;
     } // MakeContextMenuItems
 
-    // This returns the contextual menu for the background.
+    /* This returns the contextual menu for the background.
+    It is immediately superseded, and the sample data are here just for documentation. */
     function MakeDefaultContextMenuItems(objectSvg)
     {
         var theDfltItems =
@@ -1330,7 +1414,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
             }
         };
         return theDfltItems;
-     }
+     } // MakeDefaultContextMenuItems
 
 
     /* Called after the page is loaded. It adds a context menu to each node,
@@ -1368,7 +1452,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
             }
             // This is a foreign URL
             return true;
-        }
+        } // PlainNonEntityUrl
 
         $.contextMenu(
         {
@@ -1422,13 +1506,18 @@ function DisplayD3Layout(divSvg,newData,w,h)
         function AddsDefaultCtxtMenu(dfltItms)
         {
             console.log("AddsDefaultCtxtMenu entering");
+            if( dfltItms.survol_error != undefined )
+            {
+                alert("Error:"+dfltItms.survol_error);
+                return;
+            }
             $.contextMenu(
             {
                 selector: 'svg',
                 build: function($trigger, evt) {
 					// This does not need the Python HTTP server.
 					console.log("ActiveX_WMI_JCtxtMenuGlobal before");
-					var activeXDefaultMenus = ActiveX_WMI_JCtxtMenuGlobal( NodeRememberScript(RefillDisplay) );
+					var activeXDefaultMenus = ActiveX_WMI_JCtxtMenuGlobal( RememberCallback );
 					console.log("ActiveX_WMI_JCtxtMenuGlobal after");
 					if( activeXDefaultMenus )
 					{
@@ -1477,8 +1566,6 @@ function DisplayD3Layout(divSvg,newData,w,h)
                     }
 				};
 
-
-
 			AddsDefaultCtxtMenu(emptyItems);
 		}
     }; // CreateContextMenus
@@ -1492,6 +1579,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
         function GetEntityUrl(jsonData)
         {
+            if( jsonData.error != undefined )
+            {
+                alert("Error:"+jsonData.error);
+                return;
+            }
             // Maybe this duplicates the value. Not a problem.
             objectThis.__data__.contextual_menu_items = jsonData;
 
@@ -1600,21 +1692,13 @@ function PreloadUrlsArray(urlsArray)
 {
     'use strict';
 
-    function FuncDisplay(data)
+    function FuncDisplay(theUrl,data)
     {
-        console.log("FuncDisplay aUrlMode="+aUrlMode+" globalIsCreated="+globalIsCreated);
-        if(globalIsCreated)
-        {
-            // Merge all URLs together.
-            globalMustMerge = true;
-            RefillDisplay(data);
-        }
-        else
-        {
-            CreateDisplay(data);
-            globalIsCreated = true;
-        }
-    }
+        globalMustMerge = true;
+        RefillDisplay(theUrl,data);
+    } // FuncDisplay
+
+    D3DisplayCreation();
 
     var numUrls = 0;
     for( var idx in urlsArray )
@@ -1639,9 +1723,18 @@ function PreloadUrlsArray(urlsArray)
             // This reasonably expects that there is at least one CGI argument.
             var aUrlMode = AppendCgiToUrl( aUrlNoMode, "mode=json");
 
-            LoadUrlUpdateDisplay(aUrlMode, FuncDisplay, true);
+            // LoadUrlUpdateDisplay(aUrlMode, FuncDisplay, true);
+            LoadUrlUpdateDisplay(aUrlMode, FuncDisplay, globalMustMerge);
             numUrls += 1;
         }
+    }
+
+    // If not URL on the command line.
+    if( numUrls == 0 )
+    {
+        console.log("No URL to preload");
+        // globalMustMerge is initialised to false.
+        LoadUrlUpdateDisplay(theurl, RefillDisplay,globalMustMerge);
     }
     return numUrls;
 } // PreloadUrlsArray
@@ -1651,7 +1744,7 @@ It displays the URL which were loaded, how to delete them, how many nodes and li
 function openRequestedPopup() {
     // So the summary window can send messages which are executed in the main window.
     // TODO: Should do it once only.
-    window.addEventListener("message", DeleteNodesFromScript, false);
+    window.addEventListener("message", ProcessSummaryWindowMessages, false);
 
     if( (windowObjectReference == null) || (windowObjectReference.closed))
     {
@@ -1687,12 +1780,6 @@ function RunAfterLoad()
     globalIsCreated = false;
     var numUrls = PreloadUrlsArray(urlsArray);
 
-    // If not URL on the command line.
-    if( numUrls == 0 )
-    {
-        console.log("No URL to preload");
-        LoadUrlUpdateDisplay(theurl, CreateDisplay,false);
-    }
 	console.log("RunAfterLoad finished")
 
 	$(IdHrefSummary).on("click", openRequestedPopup);
