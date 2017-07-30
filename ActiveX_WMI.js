@@ -1,5 +1,5 @@
 function isIEorEDGE(){
-	console.log("appName="+navigator.appName+ " appVersion="+navigator.appVersion);
+	console.log("isIEorEDGE appName="+navigator.appName+ " appVersion="+navigator.appVersion);
 	if (navigator.appName == 'Microsoft Internet Explorer'){
 		return true;
 	}
@@ -7,6 +7,9 @@ function isIEorEDGE(){
 		if(navigator.appVersion.indexOf('Edge') > -1)
 			return true;
 		if(navigator.appVersion.indexOf('Trident') > -1)
+			return true;
+		// Chrome can run ActiveXObject.
+		if(navigator.appVersion.indexOf('Chrome') > -1)
 			return true;
 	}
 	return false;
@@ -175,7 +178,17 @@ function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objectSvg,funcD3Disp
 			// See "objWmiAssocs.Derivation_" which contains the base classes:
 			// CIM_UnitaryComputerSystem, CIM_ComputerSystem, CIM_System, etc...
 
-			console.log("objWmiAssocs.Path_.Class_="+objWmiAssocs.Path_.Class); // Win32_ComputerSystem
+			 // Class	"Win32_ComputerSystem"
+			 console.log("objWmiAssocs.Path_.Class="+objWmiAssocs.Path_.Class);
+
+			// Path	"\\\\RCHATEAU-HP\\root\\cimv2:Win32_ComputerSystem.Name=\"RCHATEAU-HP\""
+			console.log("objWmiAssocs.Path_.Path="+objWmiAssocs.Path_.Path);
+
+			// RelPath	"Win32_ComputerSystem.Name=\"RCHATEAU-HP\""
+			console.log("objWmiAssocs.Path_.RelPath="+objWmiAssocs.Path_.RelPath);
+
+			// DisplayName	"WINMGMTS:{authenticationLevel=pktPrivacy,impersonationLevel=impersonate}!\\\\RCHATEAU-HP\\root\\cimv2:Win32_ComputerSystem.Name=\"RCHATEAU-HP\""
+			console.log("objWmiAssocs.Path_.DisplayName="+objWmiAssocs.Path_.DisplayName);
 
 			// '\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"'
 			// Most of times, we must explore Derivation_ to find a super-class defined in our terminology.
@@ -184,8 +197,8 @@ function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objectSvg,funcD3Disp
 			// 'Win32_ComputerSystem.Name="RCHATEAU-HP"'
 			console.log("objWmiAssocs.Path_.RelPath="+objWmiAssocs.Path_.RelPath);
 
-			// We have to create an object name, just like whet the Python scripts do.
-			var objectName = "Object:" + propWmi.Name;
+			// We have to create an object name, just like what the Python scripts do.
+			var objectName = objWmiAssocs.Path_.RelPath;
 
 			// TODO: Maybe we could add some properties ?
 			var oneObj = {};
@@ -240,6 +253,9 @@ function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objectSvg,funcD3Disp
 	return funcAssoc;
 } // CallbackAssociatorsWMI
 
+
+// TODO: tester with firefox plugin.
+// TODO: Implement credentials of another machine.
 
 /* This returns a dictionary of objects indexed by their WMI name.
 Here, we should normally expect at most one object.
@@ -453,7 +469,7 @@ function ConnectWbemServer(hostName, strClass, dictProperties)
 	//return svcWbem;
 }
 
-
+/* This returns a JSON menu compatible with the library JContextMenu. */
 function ActiveX_WMI_JContextMenu(objUrl,objectSvg,funcD3Displayer)
 {
 	// IE and Windows only.
