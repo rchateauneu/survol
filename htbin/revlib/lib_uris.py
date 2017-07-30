@@ -366,6 +366,12 @@ class LocalBox:
 		except socket.error:
 			portNam = str(port)
 
+		# addr could be "LOCALHOST"
+		if lib_util.IsLocalAddress(addr):
+			# hostName, aliases, _ = socket.gethostbyaddr(hstAddr)
+			# TODO: Should use the actual IP address.
+			addr = "127.0.0.1"
+
 		url = addr + ':' + portNam
 		if transport != 'tcp':
 			# This will happen rarely.
