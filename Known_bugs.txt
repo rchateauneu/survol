@@ -35,3 +35,5 @@ Et d ailleurs l affichage des modules n est pas hierarchique mais a plat.
 dans http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3604.
 C est quand tout un directory de scripts n est pas affiche a cause de Usable() dans le __init__.py :
  Ca a l'air de fonctionmer.
+
+ * Chrome does not display correctly D3 and its frame when zooming.
