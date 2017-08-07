@@ -246,7 +246,7 @@ function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objectSvg,funcD3Disp
 			"links": netLinks
 		};
 
-		funcD3Displayer("CallbackAssociatorsWMI.url",dataGraphD3);
+		funcD3Displayer(options, "CallbackAssociatorsWMI.url",dataGraphD3);
 
 		console.log("CallbackAssociatorsWMI Finished");
 	};
@@ -693,7 +693,7 @@ function ActiveX_WMI_JCtxtMenuGlobal( funcD3Displayer )
 				
 					var data = GlobalMenu_CIM_Process();
 					console.log("data.nodes="+data.nodes.length+" data.links="+data.links.length);
-					funcD3Displayer("ActiveX_WMI_JCtxtMenuGlobal.url",data);
+					funcD3Displayer(options, "ActiveX_WMI_JCtxtMenuGlobal.url",data);
 				}
 		}
 	};

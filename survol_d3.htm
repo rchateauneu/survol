@@ -834,6 +834,7 @@ function TimerRefreshUrl(objLoadedUrl)
 function lstLoadedUrls_TimerSet(idxUrl,newRate)
 {
     console.log("TimerSet idxUrl="+idxUrl+" newRate="+newRate);
+    lstLoadedUrls[idxUrl].m_refresh_rate = newRate;
     if( lstLoadedUrls[idxUrl].m_timer_refresh != undefined )
     {
         clearInterval(lstLoadedUrls[idxUrl].m_timer_refresh);
@@ -980,14 +981,17 @@ function NodeSetInputScript(urlObj,theData)
     return currTimeStamp;
 } // NodeSetInputScript
 
-/* Each node remembers the script which created it. */
-function RememberCallback(urlObj, data)
+/* Each node remembers the script which created it.
+The "options" parameter comes from contextMenu which passes it to the callback. */
+function RememberCallback(options, urlObj, data)
 {
     console.log("RememberCallback urlObj="+urlObj+" NumNodes="+data.nodes.length);
     var currTimeStamp = NodeSetInputScript(urlObj,data)
 
-    // TODO: FIX THIS !
-    shouldMerge = false;
+    var menuOptions = {};
+    $.contextMenu.getInputValues(options, menuOptions);
+    // This applies to the two types of contextual menu: Per node or general.
+    shouldMerge = menuOptions.yesno;
 
     // Now process the new nodes. Duplicate nodes will have two sources or more.
     RefillDisplay(urlObj, data, shouldMerge, currTimeStamp );
@@ -1506,8 +1510,6 @@ function DisplayD3Layout(divSvg,newData,w,h)
 			// This creates a clickable item which calls RefillDisplay with the associators objects
 			// transformed into a JSON graph.
 
-            // TODO: FIX THIS WITH A GLOBAL.
-			// var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg, CreateRememberCallback(menuOptions.yesno) );
 			var TheItemsSuiteActiveX = ActiveX_WMI_JContextMenu(objUrl,objectSvg, RememberCallback );
 
 			// console.log("Called ActiveX_WMI_JContextMenu objUrl="+objUrl);
@@ -1517,17 +1519,6 @@ function DisplayD3Layout(divSvg,newData,w,h)
 			}
 		}
 
-        /*
-		console.log("Calling ActiveX_WMI_JContextMenu objectSvg="+objectSvg);
-		var TheItemsLocalActiveX = ActiveX_WMI_JContextMenuLocal(objectSvg);
-		// console.log("Called ActiveX_WMI_JContextMenu objUrl="+objectSvg);
-		if( TheItemsLocalActiveX != [] )
-		{
-            TheItems["sep3"] = "---------";
-			jQuery.extend(TheItems, TheItemsLocalActiveX);
-		}
-        */
-		
         var TheItemsSuiteDels =
         {
             "delete_node": {
@@ -1668,8 +1659,6 @@ function DisplayD3Layout(divSvg,newData,w,h)
 					// This does not need the Python HTTP server.
 					console.log("ActiveX_WMI_JCtxtMenuGlobal before");
 
-                    // TODO: FIX THIS
-					// var activeXDefaultMenus = ActiveX_WMI_JCtxtMenuGlobal( CreateRememberCallback(menuOptions.yesno) );
 					var activeXDefaultMenus = ActiveX_WMI_JCtxtMenuGlobal( RememberCallback );
 
 					console.log("ActiveX_WMI_JCtxtMenuGlobal after");
