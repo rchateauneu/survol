@@ -84,12 +84,18 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
 
         var funcOnClk = "PostMessageDelScript(" + ixLoaded + ");";
 
+        // Current value of the refresh rate.
+        var rateValue = 0;
+        if( objLoadedUrl.m_refresh_rate != undefined ) {
+            rateValue = objLoadedUrl.m_refresh_rate;
+        }
+
         urlsHtml += [
             "<tr>",
             HrefTarget(objLoadedUrl.m_loaded_url,objLoadedUrl.m_loaded_title),
             "<td align='right'>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
             "<td align='right'>" + objLoadedUrl.m_loaded_links_length + "</td>",
-            '<td><input type="number" min="0" width="10" onchange="'+funcOnChange+'">mn</td>',
+            '<td><input type="number" min="0" width="10" onchange="'+  funcOnChange + '" value="' + rateValue + '">mn</td>',
             '<td><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
             "</tr>"
         ].join("\n");
