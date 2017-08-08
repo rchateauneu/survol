@@ -539,7 +539,7 @@ def UrlToMergeD3():
 		urlWithoutHostB64 = "?url=" + lib_util.Base64Encode(urlWithoutHost)
 	sys.stderr.write("UrlToMergeD3 urlWithoutHostB64=%s\n"%urlWithoutHostB64)
 
-	scriptD3Url = urlHost + "/survol_d3.htm" + urlWithoutHostB64
+	scriptD3Url = urlHost + "/survol.htm" + urlWithoutHostB64
 	sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
 	return scriptD3Url
 
