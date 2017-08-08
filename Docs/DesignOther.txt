@@ -893,3 +893,15 @@ Site dedie a l AI: https://www.kaggle.com/petrosgk/1st-try-with-keras-0-918-lb
 
 image processing: http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_tutorials.html
 ========================================================================================================================
+Choisir l icone:
+Extension du fichier
+
+Editeur
+Langage de developpement pour les dll et .exe, les fonctions, les .obj.
+
+========================================================================================================================
+http://www.ntcore.com/pedetective.php
+http://bob.droppages.com/projects/peid
+https://reverseengineering.stackexchange.com/questions/3362/how-to-know-in-which-language-technology-program-exe-is-written
+
+https://www.logilab.org/project/pyreverse
