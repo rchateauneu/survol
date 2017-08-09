@@ -128,6 +128,52 @@ Peut-etre ca, mais pas certain car autre erreur. Voir deja si ca casse Win8.
 		# self.wfile.write( str.encode() )
 		self.wfile.write( str.encode('utf-8') )
 
+* http://127.0.0.1:8000/htbin/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2FUsers%2Frchateau%2FDeveloppement%2FReverseEngineeringApps%2FPythonStyle%2Fhtbin
+Faulty link, probably because it contains "htbin"
+
+* http://127.0.0.1:8000/htbin/entity.py?xid=python/package.Id=azure-storage
+Importing azure-storage: Error (, ImportError('No module named azure-storage',), )
+
+* http://127.0.0.1:8000/htbin/class_type_all.py?xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2Fcimv2%3ACIM_Indication.
+Cannot connect to WMI server with params:{'password': 'XXXYYYZZZ', 'computer': '192.168.1.88', 'namespace': 'root/cimv2'}.Exc=(, x_wmi(), )
+Should not use WMI on a Linux password. Maybe check the port number.
+
+* http://127.0.0.1:8000/htbin/entity.py?xid=CIM_DataFile.
+When displaying data file, should be able to see it in MIME just like when viewing directories.
+
+# Cleanup TmpDirToDel (Quand on affiche du doxygen)
+
+* http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Directory.Name=C%3A\
+Ca plante graphviz, on ne le detecte pas et eventuellement on affiche un ancien svg
+qui n aurait pas ete zappe.
+Le probleme est le backslash a la fin de la ligne.
+
+* Le texte des Usable ne doit pas contenir de "<>":
+def Usable(entity_type,entity_ids_arr):
+	"""Psutil version >= 4.0.0"""
+
+* Dans file_directory, les sous-noeuds correspondant aux scripts ne pointent pas vers leur parent.
+
+* CIM_LogicalDisk pas defini et n a pas d ontologie tant sous Unix que Windows.
+
+* http://primhillcomputers.ddns.net/Survol/htbin/entity.py?xid=python/package.Id=openlmi-scripts-networking
+Dans les modules Python, impossible d afficher ceux avec des tirets. Qu est ce que ces tirets signifient ?
+Importing openlmi-scripts-networking: Error (, ImportError('No module named openlmi-scripts-networking',), )
+Et d ailleurs l affichage des modules n est pas hierarchique mais a plat.
+
+* Probleme affichage "Usability MS-Dos Batch processes" et "Usability Python processes"
+dans http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3604.
+C est quand tout un directory de scripts n est pas affiche a cause de Usable() dans le __init__.py :
+ Ca a l'air de fonctionmer.
+
+* Chrome does not display correctly D3 and its frame when zooming.
+
+* Dans la page javascript, pas moyen de mettre la redirection de "top":
+Error loading:http://127.0.0.1:23456/?xid=:&mode=rdf:error
+
+* Affiche pas bien le nom du groupe.: http://127.0.0.1/PythonStyle/htbin/entity.py?xid=group:HelpServicesGroup&mode=svg
+
+
 
 
 

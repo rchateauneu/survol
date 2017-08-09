@@ -147,7 +147,7 @@ ce qui permet de reconstruire l’état du système a un instant donne.
 Du coup, si on retrouve la meme entite dans plusieurs sources RDF, on peut avoir son intervalle de vie total.
   
 Fabriquer du DOT intelligemment au lieu de betement créer des aretes :
-Ceci afin de faure quelque chose de plus joli.
+Ceci afin de faire quelque chose de plus joli.
 Notamment, detecter les arbres (Sous-fichiers dans un directory).
  
 Idem pour l’arbres des modules : On essaie de rassembler les vertices dans des classes.
@@ -271,10 +271,6 @@ http://www.academia.edu/1424450/A_Software_Reverse_Engineering_Methodology_For_L
  
 ============================================================================================================
 
-Allouer dynamiquement les ports des sub-servers !!!
-
-============================================================================================================
-
 Representation: Visio VSD
 ============================================================================================================
 
@@ -283,10 +279,6 @@ Il faut que ce soit utilisable de plusieurs facons, et robuste.
 
 Dans Oracle, si utilisateur remote, il faut ajouter le host si different du host courant ? Idem
 les icones doivent etre differentes ?
-
-============================================================================================================
-Icone pour un directory entier (Pingouin de Linux etc...)
-Et les utiliser dans les SVG.
 
 ============================================================================================================
 
@@ -361,13 +353,6 @@ Adding and removing nodes:
 http://stackoverflow.com/questions/11606214/adding-and-removing-nodes-in-d3js-force-graph
 ============================================================================================================
 
-
-Voir comment on peut associer un ID a chaque noeud.
-C'est du json si j'ai bonne memoire.
-
-Inclure le js, comme ça ce sera fait.
-
-============================================================================================================
 L'algo qu'on veut modifier pour mettre des tableaux en SVG:
 L'utiliser pour mettre des arbres au milieu d'un graphe.
 Et aussi le rendre debrayable.
@@ -390,9 +375,6 @@ http://www.boddie.org.uk/python/COM.html
 
 ==========================================================================================
 
-Fichiers: Choisir une icone en fonction de l'extension d'un nom de fichier. Afficher les images.
-
-============================================================================================================
 Trouver un moyen d'aller, a partir des fichiers, vers d'autres entites.
 Par exemple, BY_file/file_stat.py doit afficher le proprietaire du fichier.
 
@@ -411,19 +393,6 @@ Les serveurs DNS?
 
 BY_hostname/hostname_nmap.py?xid=hostname:192.168.1.67 affiche plein de sockets et puis c'est tout.
 Y a-t-il vraiment de l'information?
-
-============================================================================================================
-Pas de lien dans:
-com_type_libraries.py
-... et donc on ne voit rien en javascript !! Zut !!!
-============================================================================================================
-Dans la page javascript, pas moyen de mettre la redirection de "top":
-
-Error loading:http://127.0.0.1:23456/?xid=:&mode=rdf:error
-
-============================================================================================================
-Affiche pas bien le nom du groupe.
-http://127.0.0.1/PythonStyle/htbin/entity.py?xid=group:HelpServicesGroup&mode=svg
 
 ============================================================================================================
 
@@ -565,7 +534,6 @@ http://stackoverflow.com/questions/21143504/drag-and-drop-how-to-get-the-url-of-
 
 ============================================================================================================
 
-https://infosonic.wordpress.com/2008/04/21/using-mrtg-to-monitor-records-in-a-mysql-table/
 
 RRD data store ? http://en.wikipedia.org/wiki/RRDtool
 
@@ -686,3 +654,910 @@ rdflib   : On cree un module de meme nom ou bien on renomme.
 isodate  : Jamais utilise directement, uniquement a travers rdflib.
 
 De4mander a leur forum.
+
+
+Si SLP, on peut utiliser les attributs pour dire quel genre d'info est stockee,
+quel est l'index etc...
+D'un autre cote ca nous oblige a coller a SLP.
+
+Peut-etre utiliser nmap qui peut renvoyer des infos interessantes sur le reseau ?
+
+Eventuellement RDP (Remote Desktop Protocol) pour avoir une liste de processes sur les
+machines Windows.
+
+Transformer une operation de merge en une source d'informations: Il suffit de lister
+son URL, enregistrer ses parametres et declarer avec SLP par exemple.
+
+=============================================
+Noms:
+Survol
+SysExplain
+AppExplain
+Sys-X-Plain
+
+=============================================
+http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
+
+HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes.
+=============================================
+UDP:
+Etablir la correlation entre:
+* Des trames UDP venant d'un certain process, vers une adresse multicast donnée (Ou
+bien eventuellement on regroupe) et un port donné.
+* Des processes qui manifestent une certaine activité quand cette trame
+arrive. Comme cette trame est traitée dans du code utilisateur,
+et pas forcement dansune librairie donnée, on ne peut que se referer
+a l'activité CPU.
+
+Toutefois, on peut s'aider de lsof/netstat pour reduire le nombre
+de processes possibles?
+
+On pourrait se connecter a tous les messages TIBCO et verifier les processes
+qui reagissent. Ca revient au meme probleme:
+- Des evenements d'une part (Trames UDP ou n'importe quoi d'autre
+associés soit a une adresse IP ou bien un sujet tibco)
+- D'autre part la reactivite des processes.
+
+Voir si on pourrait maquetter avec gdb, ptrace etc...
+=============================================
+
+Utiliser d3.js pour creer des plots 3D ?
+Ou plutot vis.js qui utilise canvas et est donc plus rapide.
+On voudrait integrer ceci: On prend un CSV quelconque et on genere
+un graphe. Ca, c'est l'equivalent de "rdfdot", la transformation en quelque chose de visible.
+http://d3-generator.com/
+
+Mais on veut aussi permettre de faire des traitements numeriques sur les CSV,
+style moyenne, somme etc... qui eux-memes generent d'autres CSV.
+
+Bref: On va avoir des liens qui generent du CSV, eventuellement en continu.
+On utilise le mime type: text/csv, pour appeler le bon programme.
+
+On pourrait associer un predicat RDF a un nom de colonne CSV.
+Et une valeur CSV a un litteral associé a ce predicat.
+=> Modifier les valeurs d'un fichier dot grace a un CSV.
+=> Et creer un petit RDF representant le header d'un CSV.
+
+Par exemple, le resultat d'un "ps -ef" peut creer un RDF.
+
+Du coup, transformer des triples RDF en CSV.
+Et aussi, lire un CSV et, en javascript, mettre a jour
+le RDF et donc les fichiers .dot et SVG.
+Par exemple pour reconstituer des evenements,
+visualiser un vmstat dans un graphe SVG.
+
+============================================
+http://www.w3.org/TR/rdf-mt/
+
+Il faut s'assurer que le merge permet par exemple que processes ayant le meme
+pid se retrouvent fusionnes.
+Si ce n'est pas le cas, il faut une regle permettant de construire le meme URN
+par exemple pour le meme pid.
+
+Quelles sont les regles du merge en RDF ????
+
+http://www.w3.org/TR/rdf-mt/
+
+To merge N-Triples documents it is necessary to check if the same nodeID
+is used in two or more documents, and to replace it with a distinct nodeID
+in each of them, before merging the documents.
+
+Ca veut dire qu'il ne faut surtout pas creer des blank nodes en esperant que
+le merge de RDF sera capable de les fusionner.
+==============================================
+Details sur les CSV et les mime-type:
+http://stackoverflow.com/questions/398237/how-to-use-the-csv-mime-type
+
+http://stackoverflow.com/questions/15457752/proper-syntax-for-optional-header-parameter-for-text-csv-mimetype
+
+http://blog.teksol.info/2009/04/06/returning-csv-data-to-the-browser-revisited.html
+text/csv; charset=UTF-8; header=present
+
+==============================================
+Periodicite: On en revient a notre probleme de snapshot CPU+memoire
+qui determine tout.
+
+On pourrait faire simple, se focaliser sur /proc,
+mais faire des traitements complexes derriere.
+
+============================================
+Avec DOT, on peut, je crois representer des graphes imbriques.
+S'en servir pour mettre representer la hierarchie des sous-processes
+sans modifier le dessin d'ensemble.
+Aussi, probablement necessaire pour AC2.
+
+============================================
+Dans KDE, dessin des rectangles emboités pour representer des
+grandeurs imbriquees: Treemap: http://bl.ocks.org/mbostock/4063582
+Ou des cercles:
+http://bl.ocks.org/mbostock/4063530
+
+La aussi, on peut mettre notre connaissance des OS.
+Par exemple decomposer un executable en ses librairies (Visualiser ldd),
+au point de vue de la taille mais aussi du temps passe dans le code.
+Ou un dtrace.
+Ou un strace en prenant en compte la creation des sous-processes.
+============================================
+Doit-on exprimer l'imbrication de facon generique ou bien
+en s'appuyant sur du RDF?
+* Processes.
+* Fichiers (Avec l'exception des links symboliques ou hards).
+* Eventuellement les reseaux (Mais on ne sait pas faire pour le moment)
+* Pas les user-groups.
+
+============================================
+Detecter des dependances:
+ Echantillonner l'etat des processes.
+grep  "State:[   ]*[A-RT-Z]" /proc/*/status
+
+Correler avec d'autres evenements.
+http://www.mathworks.com/matlabcentral/answers/60725
+
+https://en.wikipedia.org/wiki/Mutual_information
+
+Arriver a correler un network storm avec l'activité de tel ou tel process.
+============================================
+Liens entre les pages de visualisation.
+
+On doit avoir sur une meme page des listes de CGI qu'on peut fusionner
+soit en RDF soit en CVS et peut etre un melange des deux.
+
+Mais peut-on melanger tous les liens ensemble?
+
+Exemple:
+CGI qui affiche la liste des processes,
+et un autre la liste des segments de memoire dans un process
+https://www.kernel.org/doc/Documentation/filesystems/proc.txt
+cat /proc/self/maps
+
+b55bc000-b56fa000 r--s 00000000 08:01 412045     /var/tmp/kdecache-rchateau/ksycoca
+b56fa000-b571d000 r-xp 00000000 08:01 35037      /usr/lib/kde3/konq_sidebartree_dirtree.so
+ r = read
+ w = write
+ x = execute
+ s = shared
+ p = private (copy on write)
+
+Comment visualiser cette page pour un process seulement?
+
+################################################################################
+
+# http://www.graphviz.org/Gallery/directed/cluster.html
+
+# Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
+# des objets qui ont une propriete commune (Threads d un process,
+# fichiers dans un dir, de facon recursive, methodes dans une classe),
+# Ca evite meme de devoir tracer des aretes !!!
+# ou tout simplement le host, comme container: subgraphes, clusters.
+
+============================================
+A quoi ca sert d'utiliser le format CSV pour des snapshots quand RDF
+rend parfaitement le meme service?
+
+Le seul interet du format CSV est pour des donnees en continu,
+mais c est quelque chose de particulier que d3 ne couvre a priori pas.
+
+On peut aussi avoir en quelqe sorte des donnees en continu en RDF,
+il suffit de rappeler le meme script. Non: L'interet du CSV est
+pour des donnees en continu sans polling.
+Mais nous, on se concentre sur la logique des processes.
+
+============================================
+Choisir des parametres pour graphviz, mais aussi
+permettre d'afficher du RDF avec d3.
+Donc bien separer le merge de la visualisation?
+Au lieu de renvoyer du SVG, on renverra du Javascript
+avec des appels D3?
+============================================
+Les bookmarks ont un titre qui contient des slashes permettant de definir des sous-niveaux.
+Pour le renommage, on detruit un ancien nom et construit un nouveau,
+c'est la commande update.
+On doit donc associer un titre arborescent avec un sous-objet
+dans un arbre en json.
+============================================
+Meta-CGI
+Accumuler des triplets d'un cgi rdf.
+Ca permet de "moyenner" des snapshots.
+============================================
+Apparemment, on ne peut pas ajouter de meta-data a un fichier RDF.
+L'objectif etait de donner un rapport d'execution d'un URL,
+a l'URL appelant. Notamment, on voulait permettre au sous-url
+de faire des filtrages de donnees, lourds en CPU et memoire, par exemple
+isoler uniquement les triplets relatifs a un noeud particulier.
+Le faire au plus bas niveau possible est tres profitable. Et donc,
+si le sous-url n'est pas capable de le faire, faire le filtrage
+dans l'URL appelant, ce qui est plus couteux.
+Aussi, dire explicitement a l'URL appelant que telle ou telle requete n'est pas possible.
+
+Autre approche pour signaler des erreurs:
+On renvoie les messages directement dans le document RDF, ce qui fait que
+l'utilisateur ne peut pas les eviter.
+Par exemple, en creant des nodes artificiels. Mais il faudrait que ca aie un sens,
+ce qui est parfois possible.
+Autrement dit, on integre les erreurs dans les donnees normales, traitees normalement.
+Ca a l'avantage de ne jamais les perdre.
+========================================================================================================================
+
+IBM MQ Light
+https://developer.ibm.com/answers/questions/14213/how-to-get-vcap-services.html
+BlueMix
+VCAP_SERVICES
+========================================================================================================================
+Le mode HTML devrait fabriquer un rapport en texte, decrivant la page.
+
+J ai vu dans les sysinternals tools qu'on peut avoir une description d un exe.
+
+Fichiers ouverts d une autre machine (psfile.exe)
+
+kde kioslave
+
+Lister le contenu des RPM
+
+========================================================================================================================
+win32net.NetFileEnum
+https://msdn.microsoft.com/fr-fr/library/windows/desktop/bb525378%28v=vs.85%29.aspx
+
+Returns information about some or all open files on a server, depending on the parameters specified.
+
+========================================================================================================================
+win32net.NetShareGetInfo
+========================================================================================================================
+NetSessionEnum
+Provides information about sessions established on a server.
+========================================================================================================================
+win32net.NetSessionGetInfo
+========================================================================================================================
+win32process.EnumProcesses
+========================================================================================================================
+win32process.EnumProcessModules
+========================================================================================================================
+win32ts.ProcessIdToSessionId
+Retrieves the Remote Desktop Services session associated with a specified process.
+========================================================================================================================
+
+Ajouter les NetGroup aux NetLocalGroup: Quelle est la difference ?
+
+Logiquement, plein de scripts qui sont dans sources_top devraient etre dans sources_types/CIM_ComputerSystem,
+avec une valeur par defaut pour le host courant.
+Par exemple la liste des processes etc... Sans grande importance: On peut dupliquer ces scripts.
+Entretemps, on pourrait, a partir de sources_top, pointer vers les scripts de CIM_ComputerSystem pour  le host courant.
+
+========================================================================================================================
+
+Pour associer la meme entite vue de deux facons, on crée un lien avec la propriete pc.equivalent_node.
+Par exemple, si on cree une entite avec son lien wmi, on cree aussi le node comme si le hostname
+faisait tourner survol (Ca s'appelle le node canonique decrivant une entite),
+et on relie les deux avec pc.equivalent_node
+
+Exemple: le même processus sur Titi vue avec Wmi de ma machine, et en se connectant sur titi.
+
+Donc, si on va merger, on ajoute un argument cgi will_merge_remote_entities.
+Si positionne, quand on fait un entite remote, on ajoute son node canonique, cad comme si survol tournait sur le node en question.
+Et on relie les deux avec pc.equivalent_node.
+
+Dans le processus de creation dd l affichage, quand on detecte des liens pc.equivalent:
+Si le node canonique marche, car survol est installe sur cette machine, alors on affiche normalement
+s’il ne marche pas car pas de survol, et si le node canonique est connecte a d autres nodes, on le garde mais non clickable.
+Sinon, on n affiche pas le node canonique.
+Pour savoir si survol est installe, on peut utiliser slp ou bien des ports par defaut. On suppose qu il est installe.
+Ou bien, si equivalent a un node tout seul, on l'affiche comme une propriete, afin de ne pas encombrer
+l'affichage.
+
+Seul hic: ce nettoyage intervient lors de la creation du dot: il vaudrait mieux epurer le rdf pour que tous les affichages en beneficient.
+
+Comment definir le node canonique d'une entite qui n'est pas clairement liee a une machine ?
+Est-ce qu'une telle entite existe ?
+
+============================================
+Sur can_remote
+Ca ne sert qu'à planter un script si le remote host est mis.
+Mais le script ne sera pas affiché si test variable globale car aucun n'était affiche maintenant.
+ Les scripts remote sont affiches autrement, sans exploration et ce test est inutile.
+Donc ?
+========================================================================================================================
+
+"class_type_all.py": "Generic class",
+Au lieu d afficher "Generic class", mettre si namespace ou bien classe etc...
+Ou bien "Sub class" ou "virtual class" si pas de direcotyr associe.
+Et dans obj_types.py, en -dessous de CIM_Process, on affiche "Generic class CIM_Process/memory_regex_search"
+alors que c'est un simple module sans ontologie.
+
+========================================================================================================================
+Pour associer la meme entite vue de deux facons, on cree un lien avec la propriete pc.equivalent
+
+Exemple: le meme process sur Titi vue avec Wmi de ma machine, et en se connectant sur titi.
+
+Donc, si on va merger, on ajoutr ... ?
+
+Types dynamiques: on ajoute "/" et on remplit certains caches.
+Si un type n a pas d ontologie, on peut remonter la hierarchie des modules.
+Idem pour AddInfo. Meme logique que pour les attributs graphiques. Et d'ailleurs utiliser le meme code. Peut etre utiliser ca pour les fichiers, si certaines extensions tres specifiques doivent etre traitees a part.
+Liens symboliques: entite specifique.
+Premiere page: reprendre des elements du desktop pour le look:
+Et pourquoi les scripts AC2 dans  entity n ont pas la bonne couleur ?
+
+========================================================================================================================
+Pour un process afficher l environnement et essayer d associer quelque chose,
+probablement un fichier.
+Notamment pour le PATH.
+
+========================================================================================================================
+
+Trier les processes en fonction du langage.
+
+Donc tenir compte du langage. Ce qui permet d'analyser intelligemment les variables d environnement.
+
+Et on peut donner une couleur differente aux processes, trouvee dans les __init__.py.
+
+Interpreteurs: Sous unix, utiliser le shebang.
+
+On a un sous-directory par interpreteur, cad par type de process, avec des scripts specifiques:
+
+* CIM_Process/perl
+* CIM_Process/python
+* CIM_Process/erlang
+* CIM_Process/java
+* CIM_Process/shell
+
+La fonction Usable() verifie dans la ligne de commande, si l'interpreteur correspond:
+"java","perl", "bash" etc...
+
+Ce qui fait que meme pour du shell, on peut proposer des scripts car on connait le contexte.
+Exemple: Analyser la ligne de commande et en extraire les noms de fichiers.
+
+
+========================================================================================================================
+Perl:
+On l implemente en Perl appele par du Python car de toute facon Perl est necessaire.
+
+(1) http://metacpan.org/pod/App::Stacktrace
+"perl-stacktrace prints Perl stack traces of Perl threads for a given Perl process.
+For each Perl frame, the full file name and line number are printed."
+
+$ perl-stacktrace 24077
+0x00d73416 in __kernel_vsyscall ()
+/usr/local/bin/cpan:11
+/usr/local/lib/perl5/5.12.2/App/Cpan.pm:364
+/usr/local/lib/perl5/5.12.2/App/Cpan.pm:295
+/usr/local/lib/perl5/5.12.2/CPAN.pm:339
+/usr/local/lib/perl5/5.12.2/Term/ReadLine.pm:198
+
+Tout en haut, comme les packages Python, on pourrait lister les modules Perl (Style CPAN).
+Et donc creer un directory "Langages".
+
+========================================================================================================================
+
+Python:
+
+(1) $ sudo pip install pyrasite
+https://news.ycombinator.com/item?id=3014484 It uses gdb
+$ echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope # If YAMA activated, see below.
+$ pyrasite-shell 16262
+>>> globals()
+>>> print(db_session)
+>>> run_some_local_function()
+>>> some_existing_local_variable = 'new value'
+# Le process n est pas interrompu. On peut modifier les variables ! Marche que sous Linux.
+
+
+Plusieurs scripts possibles:
+- Afficher les globales.
+- afficher la pile et les locales a chaque niveau.
+- Afficher les modules et leurs variables.
+
+Pour un symbole Python, le fichier est un fichier Python.
+
+Les globales sont: process+module+nom autrement dit: pid+symbole.
+Si le module est un fichier python, on deduit que c'est une variable python.
+
+Symbole partage par plusieurs processes ? Ce serait shared_mem+symbole.
+
+Un module charge par un process, cest davantage qu'un module dans un fichier: Taille memoire etc...
+
+pdb : Cannot interrupt a running process.
+http://stackoverflow.com/questions/4163964/python-is-it-possible-to-attach-a-console-into-a-running-process
+
+(2) Afficher le PYTHON_PATH
+
+
+========================================================================================================================
+Java:
+On l implemente en Java appele par du Python car de toute facon Java est necessaire.
+
+(1) http://stackoverflow.com/questions/376201/debug-a-java-application-without-starting-the-jvm-with-debug-arguments
+http://docs.oracle.com/cd/E19205-01/819-5257/blabw/index.html
+
+Debugging a Program With dbx using the Process ID:
+$ dbx [program_name|program_name{.class | .jar}|-] process_id
+
+(2)http://docs.oracle.com/javase/7/docs/technotes/guides/jvmti/
+Java™ Virtual Machine Tool Interface (JVM TI) is a native programming interface for use by tools.
+It provides both a way to inspect the state and to control the execution of applications
+running in the Java virtual machine (JVM). JVM TI supports the full breadth of tools that need access to JVM state,
+including but not limited to: profiling, debugging, monitoring, thread analysis, and coverage analysis tools.
+
+JVM TI replaces the Java Virtual Machine Profiler Interface (JVMPI)
+and the Java Virtual Machine Debug Interface (JVMDI).
+http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp-spec.html
+
+https://en.wikipedia.org/wiki/Java_Platform_Debugger_Architecture
+========================================================================================================================
+Shell
+
+(1) Regarder l'arborescence des sous-processes. eventuellement on va y trouver la pile des scripts.
+(2) Scanner le script.
+(3) Afficher le PATH
+
+========================================================================================================================
+Erlang
+
+(1) Live inspection of running code without prior instrumentation is a great feature of Erlang
+========================================================================================================================
+Mono
+On l implemente en Mono appele par du Python car de toute facon Mono est necessaire.
+
+(1) The debugger agent is a module inside the mono runtime which offers debugging services to client programs.
+http://www.mono-project.com/docs/advanced/runtime/docs/soft-debugger/
+The client library is a C# assembly which uses the wire protocol to communicate
+with the debugger agent running inside the mono runtime.
+
+========================================================================================================================
+Dans le cas general, afficher les globales si Linux (Mais peut etre aussi Windows si gdb y tourne)
+
+http://stackoverflow.com/questions/6261392/printing-all-global-variables-local-variables
+
+========================================================================================================================
+Attach to a running instance of a COM application
+
+Peut-etre Excel ou VBA ? Interroger un process Excel ?
+
+http://timgolden.me.uk/python/win32_how_do_i/attach-to-a-com-instance.html
+========================================================================================================================
+Recherche des liens qui peuvent relier deux nodes.
+Soit on clicke deux nodes, soit on les rentre en ligne de commande,
+avec recherche style "class,k1=v1" vers "class,k1=v1".
+On execute les scripts des deux classes en essayant de trouver un lien.
+On accumule les objets et les relations dans un document RDF.
+On peut le faire de facon visuelle et ca ajoute les liens au fur et a mesure dans D3.
+========================================================================================================================
+Memoriser les URLs de l'edition et les afficher en DOT ou HTML.
+Et les sauvegarder dans un format specifique: On revient vers la page de liens !!!
+Ca sera:
+"class,k1=v1" + "class,k1=v1" - "class,k1=v1" + "class,k1=v1" etc ...
+Du coup, ca nous permet de coder le UNDO: En effet, quand on zappe un objet,
+il est defini par sa classe et ses proprietes.
+Il nous faudra un petit lien qui transforme un URL en sa definition JSON:
+primhillcomputers.ddns.net/Survol/htbin/entity.py?xid=rabbitmq/manager.Url=LOCALHOST:12345&mode=definition
+... renverra:
+{
+  "class" : "rabbitmq/manager"
+  "script": null
+  "Url"   : "LOCALHOST:12345"
+}
+
+http://primhillcomputers.ddns.net/Survol/htbin/sources_types/dbus/bus/dbus_bus_connections.py?xid=dbus/bus.Bus%3Dsystem
+... renverra:
+{
+  "class" : "dbus/bus"
+  "script": "dbus/bus/dbus_bus_connections.py"
+  "Url"   : "Bus%3Dsystem"
+}
+
+Et donc il suffit de memoriser ces objets separes par des + et des -.
+Tant pis s'il manque des proprietes, ce qui permet du pattern matching si on remplace "script":null
+par "enumerate...py"
+
+NOTE: Dans l'interface, on devrait permettre de soustraire un script.
+
+========================================================================================================================
+http://svg-whiz.com/svg/table.svg
+
+Ajouter les nodes “infos” que au moins on puisse les voir.
+
+force layout with images and connection thickness
+
+http://bl.ocks.org/mostaphaRoudsari/82f51f01b4619db2f09f
+
+Il faut commencer a penser serieusement a l’affichage des grandeurs:
+Logarithme taille des fichiers.
+Idem taille mémoire process.
+========================================================================================================================
+Mise a jour automatique. Redesign complet, vu ce qu on a fait avec D3.
+Abonnement aux mises a jour pour chaque objet (classes  props).
+Plusieurs abonnements: Survol, WBEM, WMI.
+Peut-etre y a-t-il du natif avec WMI ou WBEM, c est a dire que ca proposerait des URLS sans meme passer par nous.
+On se le permet, c est a dire que pluseurs URLs sont possibles pour chaque node.
+Chaque node affiche a droit a samise a jour, qui peut etrainer la creation de nouveaux nodes,
+et sa propre destruction.
+En cliquant a droite sur un node, on peut s'abonner ou se desabonner, en moderant le rythme
+pour ne pas saturer la machine.
+========================================================================================================================
+Les aretes:
+On ne peut pas vraiment les rattacher a un module, justement.
+Virer leur definition statique qui ne sert a rien ?
+Avoir par nom d aretes, un fichier CSS. Idealement tout est defini par le CSS?
+On remplace "pc.xxxxx" par un lookup dynamique sur l object pc, avec creation du Node,
+et ca remplacera MakeProp.
+Peut etre que les caracteristiques pourraient etre rattachees aux deux nodes:
+On afficherait une arete differente, selon les classes et proprietes de ses vertex.
+Ex:
+   pid(system) <-> pid(rchateau)   : Affichage arete avec tels parametres.
+========================================================================================================================
+Utiliser les treemaps pour les fichiers (Taille fichier), les process (CPU ou taille memoire) ?
+Mais il faudrait pouvoir melanger avec des nodes.
+Comment mettre en place plusieurs modes d'affichage ?
+========================================================================================================================
+Si on met les nodes en table, il faudrait forcer naturellement une distribution en arbre:
+Les noeuds montants seraient a gauche, les descendants a droite.
+========================================================================================================================
+
+On accumule les nodes d un url. Transparence en fonction du nombre d occurences.
+
+Drag'n'drop de liens.
+
+Créer du JSON pour D3 qui contienne eventuellement des positions calculees par graphviz, Ce qui pourrait accelerer le routage.
+
+Il faut flagguer tous les nœuds avec le numero du script qui les a crees, sachant qu'ils peuvent etre dans plusieurs scripts.
+
+Si D3, on ne tiendrait pas compte des attributs "tree" de la meme facon mais on pourrait tagger des nodes
+comme étant la racine d'un arbre pour les proprietes donnees.
+Il faut ajouter cette information dans le json.
+
+========================================================================================================================
+JMX et Java
+http://stackoverflow.com/questions/35593185/is-there-a-jmx-service-url-for-local-non-tcp-connections
+
+http://stackoverflow.com/questions/516142/does-java-6-open-a-default-port-for-jmx-remote-connections/6985565#6985565
+========================================================================================================================
+
+https://lwn.net/Articles/725725/
+
+WMI for Linux ?
+
+https://wiki.ubuntu.com/Kernel/Reference/WMI
+
+De toute facon ce n'est pas encore en userspace alors on s'en fout.
+
+========================================================================================================================
+https://en.wikipedia.org/wiki/Windows_Script_Host
+
+https://stackoverflow.com/questions/6288580/does-there-exist-a-way-by-which-i-can-use-wmi-classes-in-java
+Javascript is available under Windows Scripting Host (WSH). With it, it is fairly easy to access WMI:
+
+var loc = new ActiveXObject("WbemScripting.SWbemLocator");
+var svc = loc.ConnectServer(".", "root\\cimv2");
+coll = svc.ExecQuery("select * from Win32_Process");
+var items = new Enumerator(coll);
+
+while (!items.atEnd())
+{
+    WScript.Echo(items.item().Name);
+    items.moveNext();
+}
+
+========================================================================================================================
+Utiliser FileAPI pour des infos read-only sur les fichiers.
+https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications
+========================================================================================================================
+
+Détecter dans la mémoire d’un process, dans des fichiers, des sockets.
+
+Il faudrait utiliser les memes moteurs de recherche quelque soit le domaine :
+- URLs
+- Noms de fichiers
+- requêtes SQL
+- Chaines de connexion ODBC
+- clefs du registry: HKEY_CLASSES_ROOT, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_USERS, HKEY_CURRENT_CONFIG
+
+…/…
+Domaines de recherche (Pour certains domaines, on doit caler le debut de la recherche :
+Cellule CSV, tag HTML, champ table SQL … Pour d’autres, on cherche vraiment en vrac).
+- Fichiers (A priori, tous)
+- Mémoire process.
+- Socket (Mais c est une recherche au fil de l’eau)
+- Peut-être champs de bases de données ?
+
+Voir aussi https://en.wikipedia.org/wiki/Entity_Framework, ADO.NET
+
+RECHERCHE DE CHAINES DE CONNEXION OLE DB
+
+https://www.connectionstrings.com/formating-rules-for-connection-strings/
+
+
+Plein d’exemples ici : https://www.connectionstrings.com/html-table/
+
+Donc on cherche des paires clef-valeur, séparées par « ; ». Il peut y avoir des espaces de part et d’autre du « ; ».
+Certains parametres vont entrainer la creation de nœuds (C’est meme le but de l’operation).
+
+Provider = SQLOLEDB.1; Initial Catalog = scnXYZliv; Persist Security Info = False; Data Source = HOSTNAME\SC4NXYZ;User ID=yyyyy;Password=xxxxx;Trusted_Connection=False;
+
+Provider=Microsoft.Jet.OLEDB.4.0;Data Source=http://www.websitewithhtmltable.com/tablepage.html;Extended Properties="HTML Import;HDR=YES;IMEX=1";
+
+DRIVER={Empress ODBC Interface [Default]};Server=serverName;Port=6322;UID=userName;PWD=password;Database=dbName;
+
+Driver={CData ODBC Driver for Exchange 2015};Server='https://outlook.office365.com/EWS/Exchange.asmx';Platform='Exchange_Online';User='myUser@mydomain.onmicrosoft.com';Password='myPassword';
+
+DRIVER={InterSystems ODBC};SERVER=myServerAddress;PORT=12345;DATABASE=myDataBase;
+PROTOCOL=TCP;STATIC CURSORS=1;UID=myUsername;PWD=myPassword;
+
+DRIVER={InterSystems ODBC};SERVER=myServerAddress;PORT=12345;DATABASE=myDataBase;
+UID=myUsername;PWD=myPassword;
+
+Provider=MSDASQL;DRIVER=Ingres;SRVR=xxxxx;DB=xxxxx;Persist Security Info=False;
+Uid=myUsername;Pwd=myPassword;SELECTLOOPS=N;Extended Properties="SERVER=xxxxx;
+DATABASE=xxxxx;SERVERTYPE=INGRES";
+
+========================================================================================================================
+Base whois
+localisation geographique
+https://www.ripe.net/manage-ips-and-asns/db/support/querying-the-ripe-database
+ip-api.com/docs/api:json
+
+========================================================================================================================
+Eviter de faire une solution cherchant un probleme:
+
+Survol:
+"Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface."
+
+Pour l interface, on va reprendre le minimalisme de Google.
+
+========================================================================================================================
+Renommer "xid=" en "path=" et "entity.py" en "cimobj.py" ou qq chose comme ca.
+========================================================================================================================
+On garde "notre" wmi en Python car ca marche avec tous les browsers.
+On donne la possibilite de surfer uniquement avec WMI
+mais avec nos scripts en plus, de facon transparente.
+Pour les infos WMI, peut-etre les ajouter dans right-click.
+
+On peut recreer un explorateur, exactement comme en Python.
+Trouver un moyen de retraduire ca en Python quand on va basculer dans le mode Print.
+Peut-etre des combinaisons de:
+index_wmi.py?CLASS.key=val,key=val
+ET:
+enumerate_wmi.py?CLASS.key=val,key=val
+Du reste, il faudrait transformer et generaliser:
+enumerate_CIM_Process.py en "enumerate.py?xid=CIM_Process."
+qui va appeler enumerate_CIM_Process.py ?
+Pouvoir, pour chaque classe, appeler les trois enumerate.
+Pour tout objet, on doit pouvoir enumerer les objets de cette classe (Ajouter les liens)
+Tenir compte aussi de la clusterization.
+
+Difference en entity.py et enumerate.py ?
+enumerate.py affiche moins d'infos
+========================================================================================================================
+
+
+// Dans Chrome:
+try
+{
+    d3.json(theUrl,
+        // Est-ce que d3.json verifie la signature de la function ??? JUSTE TESTER POUR VOIR SI MARCHE EN TEMPS NORMAL.
+        function(error,data)
+        {
+            if(error)
+            {
+                console.log("Caught:"+error);
+                var data = { nodes: [], links: [] };
+            }
+            LoaderCallback(data,funcDisplay,theUrl);
+
+Tester si on detecte les erreurs en mettant de mauvaises requetes WQL.
+
+        // Adds a context menu for the background.
+        function AddsDefaultCtxtMenu(dfltItms)
+        {
+// Si Ni WMI ni python fonctionnent.
+            if( dfltItms == null ) {
+                dfltItms = {};
+            }
+
+========================================================================================================================
+Reverse-engineer WBEM et le reproduire avec Ajax ?
+Mais il faudra du cross-request.
+
+http://www.wbemsolutions.com/tutorials/snia/SMI/Technical/cim-xml.html
+
+« CIM-XML is the protocol that is used by SMI-S 1.1.0 to exchange CIM and WBEM information between a Client and a WBEM Agent. CIM-XML uses xmlCIM as the payload and HTTP as the transport. Currently, both HTTP 1.0 and 1.1 are supported. SMI-S 1.1.0 chose CIM-XML because it required by WBEM. Moreover, HTTP is a widely supported protocol that is usable by almost all existing infrastructures and over the Internet.”
+
+Using HTTP, SMI-S 1.1.0 can leverage the existing HTTP mechanisms to define extension headers. A SMI-S 1.1.0 WBEM Agent is required to support the HTTP operations of POST and MPOST. The CIM Operations over HTTP Specification v1.2 defines specific extension headers for a Client request and a WBEM Agent response. Different extension header are defined for single versus multiple (i.e., batch) operations.
+The example below shows several CIM-XML extension headers for a GetClass operation on the root/cimv2 namespace
+
+M-POST /cimom HTTP/1.0
+Content-Type: text/xml;charset=UTF-8
+Accept: text/xml, application/xml
+Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=48
+48-CIMProtocolVersion: 1.0
+48-CIMOperation: MethodCall
+48-CIMMethod: GetClass
+48-CIMObject: root%2Fcimv2
+User-Agent: Java1.2.1
+Host: edoc5-pc
+Content-length: 445
+<?xml version="1.0" encoding="UTF-8"?>
+
+https://www.synology.com/en-uk/releaseNote/SynoSmisProvider?model=DS1515
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+Access-Control-Allow-Origin: *
+
+Voir avec Jeremie F, demonstration SMI-S.
+========================================================================================================================
+
+Ajuster la trajectoire du placement des nodes de D3.
+Controler le rythme de la trajectoire de facon "musicale"
+========================================================================================================================
+Micropython
+https://forum.pycom.io/
+Wipy
+========================================================================================================================
+Mieux integrer WMI et WBEM ?
+Peut-etre les considerer comme scripts, toujours utilisables ?
+========================================================================================================================
+Clusterizer.
+============
+
+# Grouper des objets ayant un parent commun, par proximite de leur qu on rempkace par une regex.
+# La propriete passe de key=value a key~regex ou key~=regex ou key=~regex.
+# On utilise alors enumerate.py au lieu de entity.py.
+# La partie interessante est de clusteriser des listes de chaines
+# et de mettre les bonnes regex: nombres, respecter les delimiteurs.
+# Ca permet d afficher bcp d objets.
+#
+# On dit qu'on clusterize certaines proprietes.
+# Ca entraine alors qu'on les traite en listes (comme maintenant)
+# mais qu'on va remplacer des chaines par un lien vers enumerate?Name="regexp"
+# Dans enumerate, "=" veut dire "match" ?
+# WQL permet de faire du pattern matching.
+# https://msdn.microsoft.com/en-us/library/aa392263%28v=vs.85%29.aspx
+#
+#  []    Any one character within the specified range ([a-f]) or set ([abcdef]).
+#  ^	 Any one character not within the range ([^a-f]) or set ([^abcdef].)
+#  %	 Any string of 0 (zero) or more characters.
+#        The following example finds all instances where "Win"
+#        is found anywhere in the class name: SELECT * FROM meta_class WHERE __Class LIKE "%Win%"
+#  _     (underscore) Any one character. Any literal underscore used
+#        in the query string must be escaped by placing it inside [] (square brackets).
+#
+# L'important que qu'une syntaxe speciale s'applique uniquement
+# enumerate.py et donc ne pollue pas les autres.
+# Quoique ce serait bien de pouvoir generaliser.
+# On peut regler la profondeur de la clusterization: Quand on met le node avec enumerate,
+# on rajoute alors la liste de ses noeuds, eux-memes clusterises avec une nouvelle regex.
+# Va-t-on fusionner les regex ? Ou bien ecrit-on enumerate.py?Classe.Name=%.txt&Name=toto.%
+# Ce qui donnerait: "select from Classe where Name like "%.txt" and Name like "toto.%" "
+# Il faut aussi trouver un module Python qui nous permette d'appliquer ces patterns.
+# Ca ressemble a des patterns SQL augmentes de regex. Comme c'est nous qui les fabriquons,
+# on peut les transformer sans probleme.
+#
+# A nouveau: L'idee est d'afficher facilement un tres grand nombre d'objets.
+# Ca doit marcher aussi meme s'ils ne pointent pas vers un ancetre commun:
+# L'objet "enumerate" sera alors un gros pave avec les attributs de sa class.
+#
+# On devrait pouvoir inhiber la clusterisation avec les parametres.
+#
+# On peut appliquer ca:
+# - Aux fichiers.
+# - Win32_Product.
+# - Memoire partagee.
+# - Users (Mais y a pas beaucoup)
+#
+
+La clusterization est une passe qui vient apres la creation du reseau
+mais avant la generation du json ou bien du DOT.
+
+La clusterisation dans DOT ne peut s'appliquer qu'au script courant. Dans D3,
+on peut garder la reference aux scripts qui ont cree un node.
+Donc, enumerate.py va recevoir l'url (le script) qui permet de fabriquer ces nodes,
+la classe, et un ou plusieurs Key=patterns.
+Quand on va afficher, on va restreindre, dans l'execution de ce script,
+les noeuds de cette classe qui satisfont cette propriete.
+Mais on va afficher les noeuds d'autres classes, probablement.
+Si pas de script, on va chercher le enumerate_<class>.py.
+A nouveau, on n'utilise pas WBEM et WMI comme sources de nodes, et c'est dommage.
+
+Clusterization a la volee dans D3:
+==================================
+
+On choisit une classe et on clusterize les noeuds de cette classe.
+Ca se fait avec la fenetre des URLS: On affiche derriere chaque URL
+la liste des classes dont des objets de cet URL sont representants.
+A condition qu'il y en aie suffisamment, peut-etre une dizaine d'objets, peu importe.
+Le lien vers chaque classe pointe vers enumerate.py mais il y a une passe
+de suppression des nodes:
+On remplace ces noeuds par un "enumerate.py" avec le bon pattern.
+Le enumerate recoit tous les liens que recevaient les noeuds avant.
+Oui mais le enumerate doit forcement permettre de reconstituer ces noeuds.
+Ce n'est possible que si connait le script qui les a fabriques.
+Et ca doit etre le meme.
+Donc il faut garder la trace des scripts qui ont permis de fabriquer un node.
+Et on ne peut clusteriser que des nodes d'une meme classe et issus
+du meme script. Eventuellement avec d'autres liens en commun
+(Par exemple tous les nodes du meme scripts, de la meme classe et ayant le meme lien,
+mais ca peut eventuellement etre nocif).
+Les liens seront partages mais il faut imprimer leur valence, le nombre
+de nodes vers lesquels ils pointent: Juste un entier.
+
+========================================================================================================================
+
+Faire un URL a partir d’une query WQL: Oui dans une certaine mesure, c’est possible.
+Pour les associators, on cree un autre script ?? associators_wmi.py ?xid=CLASS.Key1=Val1,Key2=Val2
+Ou bien on decrete que entity_wmi.py et entity_wbem.py renvoie les associators ?
+CIM operations over HTTP CIM-XML
+
+http://www.dmtf.org/sites/default/files/standards/documents/DSP0200_1.3.1.pdf
+A partir de Javascript. Le probleme est que ca ne renvoie pas du JSON.
+
+JSONP ?
+Sauver les mots de passe comme on le fait avec WMI (Qu’il faudra d’ailleurs terminer).
+
+«Geographical Visualisation of CIM Networks Using Google APIs”
+« IEC 61968 classes for geographical data”
+Si on veut afficher des donnees D£ avec du KML:
+·         On s’arrange pour que les distances soient raisonnables en fonction de ce qu’on veut afficher :
+·         Tout ce qui concerne un ordinateur tient dans une boite de 30cm*30cm
+·         Distances entre machines : 1m si dans un LAN.
+
+Revenir sur SLP et OpenPegasus :
+https://github.com/xenserver/openpegasus/tree/master/pegasus/src
+
+https://github.com/brunolauze
+Bruno Lauze.
+
+========================================================================================================================
+
+Refresh rate en minutes: Pour afficher la lente disparition des objets, au lieu de deleter,
+on fait baisser un compteur et on detruit seulement si le compteur passe a zero.
+L’affichage des aretes tient compte des compteurs des liens.
+Quand on cree un node, on met son compteur au maxi ou bien on increment s’il existe déjà ?
+
+Remplacer un node : Refresh, en plusieurs passes :
+Chaque node recoit un timestamp de la dernière fois ou il a été vu.
+- On vire un node qui n'a pas été vu depuis X minutes, parmi tous les nodes appartenant au script (Exclusivement ou pas).
+- Ce delai tient compte du taux de rafraichissement ?
+- Si on voit un node, on met a jour son timestamp (Valable pour tous les scripts quel que soit le chargement)
+- L'affichage du node et des links est plus transparent selon le nombre de generation ou on n'a pas vu le node.
+- L'interet est de ne pas faire brutalement disparaitre un objet. Mais ca ne s'applique que s'il y a un rafraichissement automatique.
+
+Evidemment on affiche ce timestamp (A propos, reparer le tooltip).
+Du coup, ca cree un historique des objets en fonctions des scripts qui leur ont donne des links.
+L'historique est fait des links successifs et des objets de l'autre cote, qui ont disparu.
+Ex: Pour un fichier, on va avoir la suite des process qui ont ouvert ce fichier, avec le timestamp.
+Ca cree un log. On peut imaginer de relier ca avec le resultat du parsing de vrais logfiles.
+Et aussi le resultat de strace (truss). Event de Windows, Oracle etc…
+
+Attention si on rafraichit un script qui va prendre une partie d’un log comme strace :
+Ne plus voir un objet dans N lignes de log ne veut pas dire que l’objet a disparu.
+En revanche, il faut bien les detruire a un moment ou un autre.
+Ou alors on le cree, mais on ne detruit pas les objets vus il y a longtemps, et crees par notre script.
+Autrement dit, differencier les scripts qui donnent un etat (et donc peuvent constater qu’un node n’existe plus pour ce script), des scripts qui donnent une suite d evenements.
+
+========================================================================================================================
+Reseau neuronaux etc...
+
+Applications: Qualifier un binaire: compilateur, langage d'origine, style de programmation
+
+Python packages for neural net: https://www.tensorflow.org/get_started/mnist/pros
+
+Python wrapper: https://keras.io/
+Site dedie a l AI: https://www.kaggle.com/petrosgk/1st-try-with-keras-0-918-lb
+
+image processing: http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_tutorials.html
+========================================================================================================================
+Choisir l icone:
+
+Utiliser l'extension du fichier, ou le type MIME.
+
+Utiliser pour les dll et .exe, les fonctions, les .obj,
+l'icone du langage de developpement qui a ete utilise.
+
+Icone pour un directory entier (Pingouin de Linux etc...)
+Et les utiliser dans les SVG.
+
+Calculer un thumbnail si le fichier est une image.
+
+========================================================================================================================
+http://www.ntcore.com/pedetective.php
+http://bob.droppages.com/projects/peid
+https://reverseengineering.stackexchange.com/questions/3362/how-to-know-in-which-language-technology-program-exe-is-written
+
+https://www.logilab.org/project/pyreverse

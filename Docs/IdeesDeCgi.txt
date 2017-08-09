@@ -31,6 +31,7 @@ Voir si on pourrait maquetter avec gdb, ptrace etc...
 ============================================================================================================
 
 Utiliser la sortie de MRTG ? Un adapteur SNMP 
+https://infosonic.wordpress.com/2008/04/21/using-mrtg-to-monitor-records-in-a-mysql-table/
 
 ============================================================================================================
 Faire la meme chose que Oracle mais avec odbc ?
@@ -41,7 +42,8 @@ https://pypi.python.org/pypi/pypcap
 ============================================================================================================
 strace fournit comme information des fonctions mais aussi des fichiers et des adresses IP.
 Meme chose avec GDB: On peut analyser les connections aux bases de donnees.
-Notion de PID abstrait: Autrement dit, on peut fusionner les informations non pas d'un PID precis, mais celui qui execute telle commande. C'est precisement la que l'accumulation de donnees est interessante, d'autant qu'on peut snapshotter des processes a la volee. Peut-etre qu'un operateur RDF permet ceci.
+Notion de PID abstrait: Autrement dit, on peut fusionner les informations non pas d'un PID precis,
+mais celui qui execute telle commande. C'est precisement la que l'accumulation de donnees est interessante, d'autant qu'on peut snapshotter des processes a la volee. Peut-etre qu'un operateur RDF permet ceci.
  
 ============================================================================================================
 
@@ -143,7 +145,6 @@ Et du coup, dire quel process empeche de dismounter un device.
 ============================================================================================================
 Peut-etre utiliser CQL (Ou son implementation WQL) pour fabriquer des sources specifiques (Avec moins de donnees)?
 ============================================================================================================
-============================================================================================================
 http://127.0.0.1/PythonStyle/htbin/sources/BY_file/cgi_directory.py?entity_id=C%3A%5CWINDOWS%5Csystem32%5Cwinlogon.exe
 Pas terrible.
 Permettre de remonter comme dans cgi_stat.py
@@ -167,9 +168,8 @@ Maybe they could be easily wrapped in Python?
 https://zato.io/blog/posts/the-splendid-state-of-python-and-websphere-mq-programming.html
 ============================================================================================================
 
-En attendant de regler le probleme pyWbem, tout ce que je peux faire est de trouver des idees de CGI.
 Yawn a l'air de faire la meme chose que nous. Ne reste que:
 * Ajouter une fenetre graphique.
 * Ajouter des providers.
+============================================================================================================
 
-Ah si: On peut faire du javascript.
