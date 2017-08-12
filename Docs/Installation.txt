@@ -138,3 +138,54 @@ This is not enough:
 # Or globally:
 # SetEnv PYTHONPATH "C:\Documents and Settings\Remi\My Documents\Reverse\PythonStyle\htbin\revlib"
 
+================================================================================
+
+Comme Apache veut ses scripts dans un directory special, et qu on veut aussi les installer normallement
+(Donc dans le dossier Python), on est oblige d’utilise des symlinks.
+
+Mais peut-etre que le directory « htbin » pourrait avoir un autre nom ?
+
+Probleme toutefois : Si le symlink ne s’appelle pas « htbin », les indexOf sur les urls ne fonctionneront pas.
+Donc il faut absolument virer « htbin/ » du code quand on cherche dans un url, car ce n’est pas fiable.
+
+Pourquoi met-on « htbin » dans le PATH ? Ca ne devrait etre utile que pour les deux scripts cgi et wgsi.
+En tout cas, il est normal de n’y mettre que les scripts utilises en CGI.
+
+
+Les scripts cgiserver.py et wsgiserver.py (webserver.py ? Le virer ?) devraient aller dans un directory specifique.
+
+Ce n’est pas installe par
+
+
+Tout ce qui est html et js devrait aller dans un directory different, html : Ce n’est pas installe par setup.py et est complement independant du Python.
+
+On voudrait que les css soient utilisés cote serveur et cote client.
+Tester que les pages html peuvent etre utilisees sans serveur http (Cross-site ?)
+
+Ce que doit faire l’installation :
+-          Mettre sources_types, revlib ( mais aussi quelques scripts de htbin, bien que ce soit commode de faire une exception pour eux ), dans les modules appelables. Les scripts de htbin devront maintenant specifier explicitement from survol etc… Renommer « /htbin/ » en « /survol/ », virer « htbin » des paths.
+-          Copier les html et js dans un dossier pas trop loin des deux scripts.
+-          Transformer les deux scripts cgi et wsgi en .exe lances en double-cliquant (Ouverture d’un browser). Ils vont explicitement « from survol import … » et exposent, indépendamment ou concurremment, les htm et les py.
+-          Installer les html/js d’une part, les les scripts de « /survol/ » d’autre part, dans Apache, ou IIS, indépendamment : On peut avoir l’un sans l’autre. On peut aussi, probablement, avoir les html sans serveur (Mais c’est du cross-site ?)
+
+Installations Apache:
+-          Pour le html, rien de special mais il faudra acceder aux CSS.
+-          Pour les scripts, on voudrait que Apache pointe sur le directory d’installation de Python.
+
+
+https://docs.python.org/2.7/distutils/setupscript.html#installing-additional-files
+
+
+
+setup(...,
+      data_files=[('bitmaps', ['bm/b1.gif', 'bm/b2.gif']),
+                  ('config', ['cfg/data.cfg']),
+                  ('/etc/init.d', ['init-script'])]
+     )
+
+
+
+
+
+
+

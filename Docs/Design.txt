@@ -1561,3 +1561,38 @@ http://bob.droppages.com/projects/peid
 https://reverseengineering.stackexchange.com/questions/3362/how-to-know-in-which-language-technology-program-exe-is-written
 
 https://www.logilab.org/project/pyreverse
+
+========================================================================================================================
+
+FAIRE DU MENAGE :
+=================
+
+Virer bookmakrs, d3v2, Scripts etc…
+On peut virer « operators/gui_accumulate », le mettre dans Tests ou oldies.
+Idem le contenu de « internals ». C’est confus.
+Images, icons, RDF, SLP, UPNP, Tests doivent aller dans Experimental.
+
+Ajouter des pages CSS dynamiquement.
+https://stackoverflow.com/questions/4847313/dynamically-add-css-to-page-via-javascript
+
+Modifier ActiveX de facon a tester la creation locale d objets.
+On veut que les memes css soient accessibles cote serveur et cote client,
+mais qu eventuellement le serveur ne soit pas deploye:
+
+On deploierait uniquement le client qui utiliserait javascript et aurait
+une liste pre-etablie de serveurs.
+Ca revient a devoir deployer deux fois, sauf qu'on peut ruser:
+survol/html/ : html et js
+survol/css/ : css
+survol/htbin/ : python
+Du cote client, on peut alors ne deployer que html et css ?
+Mais ca ne va pas, car on veut tout regrouper ...
+Et quid des images qu'on veut eventuellemetn avoir cote client et serveur ?
+Si on veut deployer en client-only, on peut imaginer de copier la meme hierarchie mais sans les fichiers py.
+Ce serait alors transparent pour js, selon que la page html est locale ou sur un serveur.
+Toujours est-il qu'il faut qu'on charge les CSS a la volee.
+Mais ca veut dire qu'on ne tient plus compte des couleurs quand on fabrique du json ? Ben oui, car les attributs peuvent etre tres complexes,
+et il faut laisser toute latitude au graphisme.
+=> Python met une couleur si on a.
+=> Javascript de toute facon utilise le CSS s'il est la.
+A terme, Python parsera le javascript pour generer le DOT.
