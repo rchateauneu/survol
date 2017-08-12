@@ -7,8 +7,8 @@
 # Et meme supprimer peut-etre htlib ce qui est tres embetant.
 #
 # On veut remplacer:
-# http://primhillcomputers.ddns.net/Survol/htbin/entity.py
-# http://127.0.0.1:8000/htbin/entity.py
+# http://primhillcomputers.ddns.net/Survol/survol/entity.py
+# http://127.0.0.1:8000/survol/entity.py
 #
 # par:
 # http://primhillcomputers.ddns.net/survol/entity.py
@@ -19,10 +19,16 @@
 # Ce qui est plus embetant est qu'en supprimant htlib et revlib on se retrouve
 # avec plein de fichiers dans le meme dossier ???
 #
-# Detecter la presence de "/htbin/" n'est pas fiable.
+# Detecter la presence de "/survol/" n'est pas fiable.
 #
 
+import sys
+
+# Consider setuptools.setup
 from distutils.core import setup
+from setuptools import find_packages
+
+sys.stdout.write("Packages=%s\n"%find_packages())
 
 setup(name='survol',
       version='1.0dev',
@@ -30,7 +36,8 @@ setup(name='survol',
       author='Remi Chateauneu',
       author_email='remi.chateauneu@primhillcomputers.com',
       url='http://www.primhillcomputers.com/survol',
-      package_dir = {'survol': 'htbin'},
+	  packages=find_packages(),
+      package_dir = {"survol": "survol"},
 	  requires=['rdflib','cgi','six'],
 	  scripts=['cgiserver.py','wsgiserver.py','webserver.py'],
 	  data_files=['*.htm','*.js','*.css','Docs/*.txt'],

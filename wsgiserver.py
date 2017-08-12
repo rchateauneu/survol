@@ -81,24 +81,26 @@ def application_ok(environ, start_response):
 	for key in ["QUERY_STRING","SERVER_PORT"]:
 		os.environ[key] = environ[key]
 	# This environment variable is parsed in UriRootHelper
-	os.environ["SCRIPT_NAME"] = "/htbin/"
-	os.environ["PYTHONPATH"] = "htbin"
+	os.environ["SCRIPT_NAME"] = "/survol/"
+	os.environ["PYTHONPATH"] = "survol" # Not needed if installed ??
 	os.environ.copy()
 
 	pathInfo = environ['PATH_INFO']
 
-	# If "http://127.0.0.1:8000/htbin/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
-	# then "/htbin/sources_top/enumerate_CIM_LogicalDisk.py"
+	# If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
+	# then "/survol/sources_top/enumerate_CIM_LogicalDisk.py"
 	sys.stderr.write("pathInfo=%s\n"%pathInfo)
 
 	pathInfo = pathInfo.replace("/",".")
-	htbinIndex = pathInfo.find("htbin.")
+
+	modulePrefix = "survol."
+	htbinIndex = pathInfo.find(modulePrefix)
 
 	# This is not a Python file. Most probably a html file.
 	if htbinIndex < 0:
 		return app_serve_file(pathInfo, start_response)
 
-	pathInfo = pathInfo[htbinIndex + 6:-3] # "Strips ".py" at the end.
+	pathInfo = pathInfo[htbinIndex + len(modulePrefix):-3] # "Strips ".py" at the end.
 
 	# ["sources_top","enumerate_CIM_LogicalDisk"]
 	splitPathInfo = pathInfo.split(".")
@@ -164,8 +166,8 @@ cnt=0
 
 port = 9000
 
-sys.path.append("htbin")
-sys.path.append("htbin/revlib")
+sys.path.append("survol")
+sys.path.append("survol/revlib")
 sys.stderr.write("path=%s\n"% str(sys.path))
 
 

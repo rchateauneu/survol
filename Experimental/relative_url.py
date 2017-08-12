@@ -78,4 +78,4 @@ if __name__ == "__main__":
     test_relative_url("http://foo/a;para?query#frag", "http://foo/a", "a")
     test_relative_url("http://foo/a", "http://foo/a;para?query#frag","a;para?query#frag")
     test_relative_url("a/b", "a/c", "c")
-    test_relative_url("http://127.0.0.1/Survol/htbin/sources_top/enumerate_CIM_Process.py?xid=.", "http://127.0.0.1/Survol/htbin/entity.py?xid=CIM_Process.Handle=328", "../entity.py?xid=CIM_Process.Handle=328")
+    test_relative_url("http://127.0.0.1/Survol/survol/sources_top/enumerate_CIM_Process.py?xid=.", "http://127.0.0.1/Survol/survol/entity.py?xid=CIM_Process.Handle=328", "../entity.py?xid=CIM_Process.Handle=328")

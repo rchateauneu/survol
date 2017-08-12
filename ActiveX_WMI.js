@@ -86,8 +86,6 @@ Firefox users can install ff-activex-host plugin to enable ActiveX controls in t
 
 https://stackoverflow.com/questions/7022568/activexobject-in-firefox-or-chrome-not-ie
 
-objUrl="http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=376"
-
 The class might not exist in WMI. In this case, this returns NULL.
 
 It returns a dictionary of objects, indexed by their WMI name.
@@ -150,7 +148,7 @@ function FillObjD3(oneObj,objName,objClass,relPath)
 	oneObj["fill"] = "#FF7147" ;
 	oneObj["entity_class"] = objClass;
 	// This is necessary otherwise cannot merge.
-	oneObj["survol_url"] = "http://127.0.0.1:8000/htbin/entity.py?xid=" + relPath;
+	oneObj["survol_url"] = "http://127.0.0.1:8000/survol/entity.py?xid=" + relPath;
 }
 
 /* This returns a callback which is called when the user clicks "Associators..." */

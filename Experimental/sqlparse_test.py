@@ -1,6 +1,6 @@
 import sys
 import re
-sys.path.insert(1,r'C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\revlib')
+sys.path.insert(1,r'C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\revlib')
 
 import sqlparse
 import lib_sql

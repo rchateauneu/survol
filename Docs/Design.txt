@@ -1127,7 +1127,7 @@ Ca sera:
 Du coup, ca nous permet de coder le UNDO: En effet, quand on zappe un objet,
 il est defini par sa classe et ses proprietes.
 Il nous faudra un petit lien qui transforme un URL en sa definition JSON:
-primhillcomputers.ddns.net/Survol/htbin/entity.py?xid=rabbitmq/manager.Url=LOCALHOST:12345&mode=definition
+primhillcomputers.ddns.net/Survol/survol/entity.py?xid=rabbitmq/manager.Url=LOCALHOST:12345&mode=definition
 ... renverra:
 {
   "class" : "rabbitmq/manager"
@@ -1135,7 +1135,7 @@ primhillcomputers.ddns.net/Survol/htbin/entity.py?xid=rabbitmq/manager.Url=LOCAL
   "Url"   : "LOCALHOST:12345"
 }
 
-http://primhillcomputers.ddns.net/Survol/htbin/sources_types/dbus/bus/dbus_bus_connections.py?xid=dbus/bus.Bus%3Dsystem
+http://primhillcomputers.ddns.net/Survol/survol/sources_types/dbus/bus/dbus_bus_connections.py?xid=dbus/bus.Bus%3Dsystem
 ... renverra:
 {
   "class" : "dbus/bus"
@@ -1584,7 +1584,7 @@ une liste pre-etablie de serveurs.
 Ca revient a devoir deployer deux fois, sauf qu'on peut ruser:
 survol/html/ : html et js
 survol/css/ : css
-survol/htbin/ : python
+survol/survol/ : python
 Du cote client, on peut alors ne deployer que html et css ?
 Mais ca ne va pas, car on veut tout regrouper ...
 Et quid des images qu'on veut eventuellemetn avoir cote client et serveur ?

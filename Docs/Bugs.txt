@@ -19,7 +19,7 @@ Supprimer les DRH a la fin des fichiers sur une machine Windows.
 [Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1] Premature end of script headers: cgi_socket_tcpdump.py
 [Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1]   File
 "C:/Documents and Settings/Remi/My
-Documents/Reverse/PythonStyle/htbin/sources/BY_addr/cgi_socket_tcpdump.py",
+Documents/Reverse/PythonStyle/survol/sources/BY_addr/cgi_socket_tcpdump.py",
 line 11\r
 [Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1]     On va
 surveiller ce qui se passe sur une socket specifique.\r
@@ -31,7 +31,7 @@ invalid syntax\r
 
 
 ============================================================================================================
-http://127.0.0.1/PythonStyle/htbin/sources/BY_hostname/win32_NetShareEnum.py?xid=hostname:192.168.1.67
+http://127.0.0.1/PythonStyle/survol/sources/BY_hostname/win32_NetShareEnum.py?xid=hostname:192.168.1.67
 
 uncode les noms des fichiers et folders sinon tres moche (Mais ça marche)
 ============================================================================================================
@@ -40,13 +40,13 @@ LAYOUT_LIST: Virer cette icone, mais en revanche essayer d'afficher le type de l
 Mais d'ou ca vient ?
 ============================================================================================================
 Events update:
-curr_dir=C:\\Documents and Settings\\Remi\\My Documents\\Reverse\\PythonStyle\\htbin/sources_types/file
+curr_dir=C:\\Documents and Settings\\Remi\\My Documents\\Reverse\\PythonStyle\\survol/sources_types/file
 
 
-http://127.0.0.1/PythonStyle/htbin/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
+http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
 com_type_lib deconne un peu:
 <g id="a_node4_5"><a
-xlink:href="http://127.0.0.1:80/PythonStyle/htbin/entity_list.py?xid=com_type_lib:C:\WINDOWS\system32<TABLE>angWrbk.dll"
+xlink:href="http://127.0.0.1:80/PythonStyle/survol/entity_list.py?xid=com_type_lib:C:\WINDOWS\system32<TABLE>angWrbk.dll"
 xlink:title="script">
 => Pour graphviz, "\L" = "TABLE". Ce quon a fait est de remplacer les \ par des / pour les memmap. 
 Le faire pour tout le monde ou bien "escape".
@@ -60,13 +60,13 @@ Le titre doit etre unique et venir en premier, c'est "info".
 On peut avoir autant de details qu'on veut.
 
 Dans rdfquery_text.htm les urls sont du style:
-http://192.168.1.68/~rchateau/RevPython/htbin/entity.py?mode=rdf&_=1422714547625&mode=svg
+http://192.168.1.68/~rchateau/RevPython/survol/entity.py?mode=rdf&_=1422714547625&mode=svg
 ... et ensuite ca deconne car on s'attend a ce que cgi.args["mode"] renvoie un seul element.
 
 ============================================================================================================
 
 Quand on a un timeout (Pour les subserver), apres ca ne repond plus du tout.
-[Thu Feb 12 16:27:00 2015] [error] [client 127.0.0.1] (70007)The timeout specified has expired: ap_content_length_filter: apr_bucket_read() failed, referer: http://127.0.0.1/PythonStyle/htbin/entity.py
+[Thu Feb 12 16:27:00 2015] [error] [client 127.0.0.1] (70007)The timeout specified has expired: ap_content_length_filter: apr_bucket_read() failed, referer: http://127.0.0.1/PythonStyle/survol/entity.py
 
 Verifier si on peut relancer le feeder ?
 Ce serait bien si on pouvait rediriger automatiquement ?
@@ -109,12 +109,12 @@ Dans chaque script, mettre un texte de documentation,
 qui sera affiche notamment en cas d'erreur.
 
 Ca deconne probablement a cause du tilda: Tester avec des noms de fichiers tres longs ?
-http://127.0.0.1/PythonStyle/htbin/entity.py?xid=file:C%3A%5CDOCUME~1%5CRemi%5CLOCALS~1%5CTemp%5CSkype%5CDbTemp%5Ctemp-968iZH8Qs4gRIszFZIEJETGX
+http://127.0.0.1/PythonStyle/survol/entity.py?xid=file:C%3A%5CDOCUME~1%5CRemi%5CLOCALS~1%5CTemp%5CSkype%5CDbTemp%5Ctemp-968iZH8Qs4gRIszFZIEJETGX
 
 
 
 file_directory sur un ficheir qui n'est pas un directory:
-http://127.0.0.1/PythonStyle/htbin/sources_types/file/file_directory.py?xid=file:C%3A%5CDocuments%20and%20Settings%5CRemi%5CApplication%20Data%5CSkype%5Cshared_dynco%5Cdc.db
+http://127.0.0.1/PythonStyle/survol/sources_types/file/file_directory.py?xid=file:C%3A%5CDocuments%20and%20Settings%5CRemi%5CApplication%20Data%5CSkype%5Cshared_dynco%5Cdc.db
 Ca n'affiche rien: Soit on ne propose pas la focntion, soit on  met un message d'information.
 
 http://127.0.0.1:4444/infoqueues
@@ -128,22 +128,22 @@ Peut-etre ca, mais pas certain car autre erreur. Voir deja si ca casse Win8.
 		# self.wfile.write( str.encode() )
 		self.wfile.write( str.encode('utf-8') )
 
-* http://127.0.0.1:8000/htbin/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2FUsers%2Frchateau%2FDeveloppement%2FReverseEngineeringApps%2FPythonStyle%2Fhtbin
+* http://127.0.0.1:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2FUsers%2Frchateau%2FDeveloppement%2FReverseEngineeringApps%2FPythonStyle%2Fhtbin
 Faulty link, probably because it contains "htbin"
 
-* http://127.0.0.1:8000/htbin/entity.py?xid=python/package.Id=azure-storage
+* http://127.0.0.1:8000/survol/entity.py?xid=python/package.Id=azure-storage
 Importing azure-storage: Error (, ImportError('No module named azure-storage',), )
 
-* http://127.0.0.1:8000/htbin/class_type_all.py?xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2Fcimv2%3ACIM_Indication.
+* http://127.0.0.1:8000/survol/class_type_all.py?xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2Fcimv2%3ACIM_Indication.
 Cannot connect to WMI server with params:{'password': 'XXXYYYZZZ', 'computer': '192.168.1.88', 'namespace': 'root/cimv2'}.Exc=(, x_wmi(), )
 Should not use WMI on a Linux password. Maybe check the port number.
 
-* http://127.0.0.1:8000/htbin/entity.py?xid=CIM_DataFile.
+* http://127.0.0.1:8000/survol/entity.py?xid=CIM_DataFile.
 When displaying data file, should be able to see it in MIME just like when viewing directories.
 
 # Cleanup TmpDirToDel (Quand on affiche du doxygen)
 
-* http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Directory.Name=C%3A\
+* http://127.0.0.1:8000/survol/entity.py?xid=CIM_Directory.Name=C%3A\
 Ca plante graphviz, on ne le detecte pas et eventuellement on affiche un ancien svg
 qui n aurait pas ete zappe.
 Le probleme est le backslash a la fin de la ligne.
@@ -156,13 +156,13 @@ def Usable(entity_type,entity_ids_arr):
 
 * CIM_LogicalDisk pas defini et n a pas d ontologie tant sous Unix que Windows.
 
-* http://primhillcomputers.ddns.net/Survol/htbin/entity.py?xid=python/package.Id=openlmi-scripts-networking
+* http://primhillcomputers.ddns.net/Survol/survol/entity.py?xid=python/package.Id=openlmi-scripts-networking
 Dans les modules Python, impossible d afficher ceux avec des tirets. Qu est ce que ces tirets signifient ?
 Importing openlmi-scripts-networking: Error (, ImportError('No module named openlmi-scripts-networking',), )
 Et d ailleurs l affichage des modules n est pas hierarchique mais a plat.
 
 * Probleme affichage "Usability MS-Dos Batch processes" et "Usability Python processes"
-dans http://127.0.0.1:8000/htbin/entity.py?xid=CIM_Process.Handle=3604.
+dans http://127.0.0.1:8000/survol/entity.py?xid=CIM_Process.Handle=3604.
 C est quand tout un directory de scripts n est pas affiche a cause de Usable() dans le __init__.py :
  Ca a l'air de fonctionmer.
 
@@ -171,7 +171,7 @@ C est quand tout un directory de scripts n est pas affiche a cause de Usable() d
 * Dans la page javascript, pas moyen de mettre la redirection de "top":
 Error loading:http://127.0.0.1:23456/?xid=:&mode=rdf:error
 
-* Affiche pas bien le nom du groupe.: http://127.0.0.1/PythonStyle/htbin/entity.py?xid=group:HelpServicesGroup&mode=svg
+* Affiche pas bien le nom du groupe.: http://127.0.0.1/PythonStyle/survol/entity.py?xid=group:HelpServicesGroup&mode=svg
 
 
 
@@ -190,5 +190,5 @@ Quand entity=file:xxx, toujours ajouter le directory au-dessus sinon c'est pas c
 
 
 
-http://127.0.0.1/PythonStyle/htbin/entity.py?xid=com_type_lib_entry,coclass:C:\WINDOWS\System32\comsnap.dll_(6)
+http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib_entry,coclass:C:\WINDOWS\System32\comsnap.dll_(6)
 Ca n'affiche rien.

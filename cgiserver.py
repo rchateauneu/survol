@@ -14,13 +14,17 @@ import sys
 # SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\revlib
 # It is also possible to set it globally in the .profile
 # if not we get the error, for example:  import lib_pefile.
-# sys.path.append('htbin/revlib')
+# sys.path.append('survol/revlib')
 import os
 pyKey = "PYTHONPATH"
 
+# Several problems with this script.
+# * It fails if a page is called suvol.htm
+# * It collapses repeated slashes "///" into one "/".
+
 if 'win' in sys.platform:
-    # extraPath = "htbin/revlib"
-    extraPath = "htbin;htbin/revlib"
+    # extraPath = "survol/revlib"
+    extraPath = "survol;survol/revlib"
     try:
         os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
     except KeyError:
@@ -28,12 +32,12 @@ if 'win' in sys.platform:
     os.environ.copy()
 
 if 'linux' in sys.platform:
-    sys.path.append("htbin")
-    sys.path.append("htbin/revlib")
+    sys.path.append("survol")
+    sys.path.append("survol/revlib")
     sys.stderr.write("path=%s\n"% str(sys.path))
 
-# extraPath = "htbin/revlib"
-#extraPath = "htbin;htbin/revlib"
+# extraPath = "survol/revlib"
+#extraPath = "survol;survol/revlib"
 #try:
 #    os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
 #except KeyError:
@@ -73,7 +77,7 @@ if sys.version_info[0] < 3:
     server = BaseHTTPServer.HTTPServer
     handler = MyCGIHTTPServer
 
-    handler.cgi_directories = [ 'htbin' ]
+    handler.cgi_directories = [ "survol" ]
     print("Cgi directories=%s" % handler.cgi_directories)
     server = HTTPServer(('localhost', 8000), handler)
 

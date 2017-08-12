@@ -9,11 +9,11 @@ SlpRegCgi()
 	Host=`hostname -i`
 	echo ${KeyWord}ing CGIs
 	# cd ..
-	for fil in htbin/sources/cgi_*.py
+	for fil in survol/sources_types/cgi_*.py
 	do
 		basna=`basename $fil`
 		# echo SLP Base=$basna
-		Svc="service:http.rdf://${Host}:${CgiPortSources}/htbin/sources/${basna},en,65535"
+		Svc="service:http.rdf://${Host}:${CgiPortSources}/survol/sources/${basna},en,65535"
 		# Svc="service:http.rdf://${Host}:${CgiPortSources}/sources/${basna},en,65535"
 		echo slptool $KeyWord $Svc
 		slptool $KeyWord $Svc

@@ -145,7 +145,7 @@ Et du coup, dire quel process empeche de dismounter un device.
 ============================================================================================================
 Peut-etre utiliser CQL (Ou son implementation WQL) pour fabriquer des sources specifiques (Avec moins de donnees)?
 ============================================================================================================
-http://127.0.0.1/PythonStyle/htbin/sources/BY_file/cgi_directory.py?entity_id=C%3A%5CWINDOWS%5Csystem32%5Cwinlogon.exe
+http://127.0.0.1/PythonStyle/survol/sources/BY_file/cgi_directory.py?entity_id=C%3A%5CWINDOWS%5Csystem32%5Cwinlogon.exe
 Pas terrible.
 Permettre de remonter comme dans cgi_stat.py
 

@@ -95,7 +95,7 @@ function LoadCORS(urlCors)
 }
 
 
-// Exemple d'URL final: http://127.0.0.1:2468/htbin/internals/gui_create_svg_from_several_rdfs.py?url=http://DuoLnx:8642/htbin/sources/cgi_sockets.py
+// Exemple d'URL final: http://127.0.0.1:2468/survol/internals/gui_create_svg_from_several_rdfs.py?url=http://DuoLnx:8642/survol/sources/cgi_sockets.py
 function CreateFullUrls()
 {
 	var target_url = RvgsToSvg();
@@ -154,7 +154,7 @@ function CreateFullUrls()
 		<div id="SlpUrlsDynTable">This div displays the RDF sources exposed by SLP</div>
 
 		<script language="javascript">
-			slp_list_url = LocalHost() + "/htbin/internals/gui_slpmenu.py";
+			slp_list_url = LocalHost() + "/survol/internals/gui_slpmenu.py";
 			// alert("slp_list_url="+slp_list_url)
 			$.getScript(slp_list_url, SimpleSlpUrlsTable);
 		</script>

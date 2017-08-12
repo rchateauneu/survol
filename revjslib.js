@@ -18,42 +18,31 @@ function LocalHost()
 	/*
 	TODO: This returns an empty string when running cgiserver.py
 	*/
-	// TODO: Remove this hard-code.
-	// return "http://127.0.0.1:2468/htbin";
-	// On Linux, with Apache:
-	/*
-	pathArray = location.href;
-	alert("pathArray="+pathArray);
-	idxHtbin = pathArray.indexOf("/htbin/");
-	return pathArray.substring(0,idxHtbin);
-	*/
 	pathArray = location.href;
 	idxLastSlash = pathArray.lastIndexOf("/");
 	return pathArray.substring(0,idxLastSlash);
-
-	// return "http://127.0.0.1/~rchateau/RevPython";
 }
 
 function RdfSources()
 {
-	return LocalHost() + "/htbin/internals/directory.py";
+	return LocalHost() + "/survol/internals/directory.py";
 }
 
 function SlpMenu()
 {
-	return LocalHost() + "/htbin/internals/gui_slpmenu.py";
+	return LocalHost() + "/survol/internals/gui_slpmenu.py";
 }
 
 function DynCgi()
 {
-	return LocalHost() + "/htbin/internals/gui_dyncgi.py";
+	return LocalHost() + "/survol/internals/gui_dyncgi.py";
 }
 
 // This calls GraphViz (dot) to generate a RDF file.
 function RvgsToSvg()
 {
-	// return qualifyURL("/htbin/internals/gui_create_svg_from_several_rdfs.py");
-	return LocalHost() + "/htbin/gui_create_svg_from_several_rdfs.py";
+	// return qualifyURL("/survol/internals/gui_create_svg_from_several_rdfs.py");
+	return LocalHost() + "/survol/gui_create_svg_from_several_rdfs.py";
 }
 
 // Contains the div ids waiting to be set by the request.
@@ -125,9 +114,9 @@ function SetIdWithUrlInfo(the_url_info,title_id)
 // It shortens the link to make a nice print string.
 
 // If it is one of our urls, we might get "info" informations.
-var regex_htbin = new RegExp( ".*/htbin/(.*)" );
+var regex_htbin = new RegExp( ".*/survol/(.*)" );
 
-var regex_entity = new RegExp( ".*/htbin/entity.py\\?.*xid=(.*):(.*)&?" );
+var regex_entity = new RegExp( ".*/survol/entity.py\\?.*xid=(.*):(.*)&?" );
 
 var rdf_node_id = 1;
 
@@ -148,7 +137,7 @@ function RdfNodeToHRef(node)
 	else
 	{
 		// Horrible hack because not sure of why this happens.
-		//   file:/~rchateau/RevPython/htbin/entity.py?mode=rdf&_=1416074608413
+		//   file:/~rchateau/RevPython/survol/entity.py?mode=rdf&_=1416074608413
 		if ( node_value.substring( 0, 6 ) == "file:/" )
 		{
 			node_value = "http://localhost/" + node_value.substring( 6 );
@@ -159,7 +148,7 @@ function RdfNodeToHRef(node)
 
 		// TODO: Other strings to shorten:
 		// "?xid=file:%2Fhome%2Frchateau%2FDeveloppement%2FReverseEngineeringApps ..."
-		// "http://192.168.1.68:80/~rchateau/RevPython/htbin/sources/top/tcpdump.py?xid=:"
+		// "http://192.168.1.68:80/~rchateau/RevPython/survol/sources/top/tcpdump.py?xid=:"
 
 		// If this is an URL to an entity, try to display the id.
 		if ( res_entity )
