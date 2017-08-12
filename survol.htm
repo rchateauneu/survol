@@ -47,7 +47,10 @@
         font: 10px sans-serif;
     }
 
-    /* Probably not used. */
+    /* Probably not used.
+    https://css-tricks.com/multiple-class-id-selectors/
+    This selects all elements with the class name type1 that are descendents of the element with a class of node.
+    */
     .node.type1 {
         fill:brown;
     }
@@ -65,6 +68,34 @@
     }
     .node.type6 {
         fill:#E01B98;
+    }
+
+    // https://css-tricks.com/multiple-class-id-selectors/
+    // This selects all elements with the class name CIM_ComputerSystem that are descendents of the element with a class of node.
+    .CIM_ComputerSystem {
+        fill:#E01B98;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        // opacity: 0.5;
+        border: 8px;
+    }
+
+    .CIM_LogicalDisk {
+        // fill:#1BC9E0; // Ca marche
+        font: 20px sans-serif;
+        background: lightsteelblue;
+        // opacity: 0.5;
+        border: 8px;
+    }
+
+    .CIM_Process {
+        // fill:#E01B98; // Ca marche
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        opacity: 0.5; // Ca marche
+        border: 8px;
+        // rx: 10; // Ca marche pas.
+        // ry: 10;
     }
 
     /* Probably not used. */
@@ -1177,7 +1208,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
     var selectedNodes = divSvg.selectAll("g.node")
         .data(newData.nodes)
         .enter().append("svg:g")
-        .attr("class", function (d) { return "survol_node node"; }) // Two classes are possible.
+        .attr("class", function (d)
+            {
+                return "survol_node node " + d.entity_class;
+            }
+        ) // Several classes are possible.
         .call(myForce.drag);
 
 	/* https://stackoverflow.com/questions/30723592/prevent-click-action-when-dragging-a-d3-node
@@ -1255,6 +1290,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
     // This is the text associated to each survol node.
     selectedNodes.append("svg:text")
+        // .attr("class", "nodetext " + d.entity_class) // Ca marche pas.
         .attr("class", "nodetext")
         .attr("dx", 0)
         .attr("dy", ".35em")
@@ -1270,6 +1306,13 @@ function DisplayD3Layout(divSvg,newData,w,h)
     d3.selectAll(".survol_node").insert("rect","text")
         .attr("x", function(d){return d.bbox.x})
         .attr("y", function(d){return d.bbox.y})
+
+        // Ces attributs vont refleter un calcul car on peut toujours les appliquer.
+        // Bizarrement, pas moyen d'overrider rx et ry avec CSS.
+        .attr("rx", 5) // Pas moyen d'overrider ca avec CSS
+        .attr("ry", 5)
+        .attr("opacity", 1)
+
         .attr("width", function(d){return d.bbox.width})
         .attr("height", function(d){return d.bbox.height})
         .style("stroke-width", 1)
@@ -1277,10 +1320,10 @@ function DisplayD3Layout(divSvg,newData,w,h)
         // Classes are not defined so fill colors are OK. We will fetch CSS in classes directories.
         .attr("fill", function (d) {
             /* #337147 */
-            return d.fill;
+            return d.survol_fill;
         })
         .attr("class", function (d) { return d.entity_class; })
-        //.attr("class", function (d) { return "node type" + d.type; })
+        //.attr("class", function (d) { return "node type" + d.survol_type; })
         .on("mouseover", function(d)
             {
                 // No tooltip creation when dragging because it is very CPU-consuming.
@@ -1406,7 +1449,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
     // Is that to avoid collisions ? Is the drag needed here ?
     d3.selectAll(".circle").append("circle")
-        .attr("class", function (d) { return "node type" + d.type; })
+        .attr("class", function (d) { return "node type" + d.survol_type; })
         // TODO: No change when it is commented out.
         //.attr("r", function (d) { return radius(d.value) || 10; })
         .call(myForce.drag);

@@ -347,14 +347,14 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 		nodes[nod_id] = {
 			'name'             : the_survol_nam,
-			"type"             : 3, # This is temporary, for coloring and will be removed.
+			"survol_type"      : 3, # This is temporary, for coloring and will be removed.
 			# Theoretically, this URL should be HTML unescaped then CGI escaped.
 			# 'survol_url'       : obj_link,
 			#'x'       : 500,
 			#'y'       : 500,
 			#'number'  : 50,
 			'survol_url'       : the_survol_url,
-			'fill'             : nodObj.m_color,
+			'survol_fill'      : nodObj.m_color,
 			'entity_class'     : nodObj.m_class, # TODO: Maybe not needed because also in the URL ?
 			'survol_info_list' : nodObj.m_info_list,
 			'survol_info_dict' : nodObj.m_info_dict
