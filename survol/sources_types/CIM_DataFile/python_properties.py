@@ -43,11 +43,10 @@ def Main():
 
 	try:
 		survol_python.AddAssociatedFiles(grph,filNode,pyFilNam)
+		survol_python_package.AddImportedModules(grph,filNode,pyFilNam,maxDepth,dispPackages,dispFiles)
 	except:
 		exc = sys.exc_info()[0]
 		lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( pyFilNam, str( exc ) ) )
-
-	survol_python_package.AddImportedModules(grph,filNode,pyFilNam,maxDepth,dispPackages,dispFiles)
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
