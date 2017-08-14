@@ -45,8 +45,9 @@ def IntToDateLiteral(timeStamp):
 
 # Adds to the node of a file some information taken from a call to stat().
 def AddStatNode( grph, filNode, infoStat ):
-	# st_size: size of file, in bytes.
-	grph.add( ( filNode, pc.property_file_size, lib_common.NodeLiteral(infoStat.st_size) ) )
+	# st_size: size of file, in bytes. The SI unit is mentioned.
+	sizUnit = lib_util.AddSIUnit(infoStat.st_size, "B")
+	grph.add( ( filNode, pc.property_file_size, lib_common.NodeLiteral(sizUnit) ) )
 
 	grph.add( ( filNode, pc.property_last_access,          IntToDateLiteral(infoStat.st_atime) ) )
 	grph.add( ( filNode, pc.property_last_change,          IntToDateLiteral(infoStat.st_mtime) ) )

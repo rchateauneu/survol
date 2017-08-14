@@ -114,6 +114,20 @@ def PsutilProcCwd(proc):
 
 	return (proc_cwd,proc_msg)
 
+# https://pythonhosted.org/psutil/
+# rss: this is the non-swapped physical memory a process has used.
+# On UNIX it matches "top" RES column (see doc).
+# On Windows this is an alias for wset field and it matches "Mem Usage" column of taskmgr.exe.
+def PsutilResidentSetSize(proc):
+	return lib_util.AddSIUnit(proc.memory_info().rss,"B")
+
+# https://pythonhosted.org/psutil/
+# vms: this is the total amount of virtual memory used by the process.
+# On UNIX it matches "top" VIRT column (see doc).
+# On Windows this is an alias for pagefile field and it matches "Mem Usage" "VM Size" column of taskmgr.exe.
+def PsutilVirtualMemorySize(proc):
+	return lib_util.AddSIUnit(proc.memory_info().vms,"B")
+
 ################################################################################
 
 # Returns the value of an environment variable of a given process.
@@ -198,6 +212,12 @@ def AddInfo(grph,node,entity_ids_arr):
 		user_name_host = lib_common.FormatUser( user_name )
 		user_node = lib_common.gUriGen.UserUri(user_name_host)
 		grph.add( ( node, pc.property_user, user_node ) )
+
+		szResidSetSz = PsutilResidentSetSize(proc_obj)
+		grph.add( ( node, lib_common.MakeProp("Resident Set Size"), lib_common.NodeLiteral(szResidSetSz) ) )
+
+		szVirstMemSz = PsutilVirtualMemorySize(proc_obj)
+		grph.add( ( node, lib_common.MakeProp("Virtual Memory Size"), lib_common.NodeLiteral(szVirstMemSz) ) )
 
 		# TODO: Add the current directory of the process ?
 

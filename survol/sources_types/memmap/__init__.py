@@ -51,9 +51,8 @@ def DisplayMappedProcesses(grph,fileName):
 		grph.add( ( uriMappedFile, lib_common.MakeProp("Error"), lib_common.NodeLiteral(str(exc)) ) )
 		return
 
-
-	fileSize = statinfo.st_size
-	grph.add( ( uriMappedFile, lib_common.MakeProp("File size"), lib_common.NodeLiteral(fileSize) ) )
+	fileSize = lib_util.AddSIUnit(statinfo.st_size, "B")
+	grph.add( ( uriMappedFile, pc.property_file_size, lib_common.NodeLiteral(fileSize) ) )
 
 	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
 	for proc in psutil.process_iter():
@@ -98,7 +97,7 @@ def DisplayMappedProcesses(grph,fileName):
 				grph.add( ( nodeProcess, pc.property_pid, lib_common.NodeLiteral(pid) ) )
 
 				# Displays the RSS only if different from the file size.
-				if map.rss != fileSize:
+				if map.rss != statinfo.st_size:
 					grph.add( ( nodeProcess, propMemoryRSS, lib_common.NodeLiteral(map.rss) ) )
 
 

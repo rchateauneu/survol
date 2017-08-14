@@ -28,6 +28,16 @@ def EncodeEntityId(entity_type,entity_id):
 
 ################################################################################
 
+# unitSI = "B", "b", "B/s" for example.
+# TODO: We need a way to describe a number of items, without unit.
+# This is different from an integer ID which should always be displayed "as is",
+# just like a string.
+# We might have units such as "B/B" which are without dimensions.
+def AddSIUnit(number, unitSI):
+	return str(number) + unitSI
+
+################################################################################
+
 def HttpPrefix():
 
 	# Default values for ease of testing, so CGI scripts can be run as is from command line..
