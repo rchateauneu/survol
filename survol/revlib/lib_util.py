@@ -34,7 +34,10 @@ def EncodeEntityId(entity_type,entity_id):
 # just like a string.
 # We might have units such as "B/B" which are without dimensions.
 def AddSIUnit(number, unitSI):
-	return str(number) + unitSI
+	if unitSI:
+		return str(number) + " " + unitSI
+	else:
+		return str(number)
 
 ################################################################################
 
