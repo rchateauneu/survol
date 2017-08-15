@@ -258,6 +258,33 @@ def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
 	except pywintypes.com_error:
 		return None
 
+# This returns the map of units for all properties of a class.
+def WmiDictPropertiesUnit(connWmi, className):
+	theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
+
+	mapPropUnits = {}
+
+	# Another approach
+	#for qual in propObj.Qualifiers_:
+	#	sys.stderr.write("        qual=%s => %s \n"%(qual.Name,qual.Value))
+	for propObj in theCls.Properties_:
+		try:
+			# sys.stderr.write("    propObj.Qualifiers_('Description')=%s\n"%str(propObj.Qualifiers_("Description")))
+			# sys.stderr.write("    propObj.Qualifiers_('Units')=%s\n"%str(propObj.Qualifiers_("Units")))
+			propNam = propObj.Name # 'str(propObj.Qualifiers_("DisplayName"))'
+			unitNam = str(propObj.Qualifiers_("Units"))
+			mapPropUnits[propNam] = unitNam
+			sys.stderr.write("WmiDictPropertiesUnit propNam=%s unitNam=%s\n"%(propNam,unitNam))
+
+		# except pywintypes.com_error:
+		except :
+			exc = sys.exc_info()[1]
+			#sys.stderr.write("WmiDictPropertiesUnit propNam=%s caught:%s \n"%(propNam,str(exc)))
+
+	return mapPropUnits
+
+
+
 # This adds information to a WMI class.
 def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 	try:
@@ -282,7 +309,14 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 		theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
 		if theCls:
 			klassDescr = theCls.Qualifiers_("Description")
-			grph.add( ( wmiClassNode, pc.property_information, lib_common.NodeLiteral(klassDescr) ) )
+			# Beware, klassDescr is of type "instance".
+			strKlassDescr = str(klassDescr)
+
+			# This might be a value with broken HTML tags such as:
+			# "CIM_DataFile is a type ... <B>The behavior ... e returned.<B>"
+			strKlassDescr = strKlassDescr.replace("<B>","")
+
+			grph.add( ( wmiClassNode, pc.property_information, lib_common.NodeLiteral(strKlassDescr) ) )
 
 			if withProps:
 				for propObj in theCls.Properties_:
