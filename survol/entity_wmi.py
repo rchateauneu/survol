@@ -44,39 +44,64 @@ def WmiReadWithQuery( cgiEnv, connWmi, className ):
 		lib_common.ErrorMessageHtml("Query=%s Caught:%s" % ( aQry, str(exc) ) )
 
 # Add all usual Python types.
-listTypes = six.string_types + ( six.text_type, six.binary_type ) + six.integer_types
+scalarDataTypes = six.string_types + ( six.text_type, six.binary_type ) + six.integer_types
+
+
+# This is a hard-coded list of properties which cannot be displayed.
+# They should be stored in the class directory.
+prpCannotBeDisplayed = {
+	# TODO: Convert this into an image.
+	"CIM_ComputerSystem" : ["OEMLogoBitmap"]
+}
 
 # Displays the properties of a WMI object (Not a class).
-def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className):
+def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,mapPropUnits):
 
-	prpCannotBeDisplayed = {
-		"CIM_ComputerSystem" : ["OEMLogoBitmap"]
-	}
+	for prpName in objWmi.properties:
+		prpProp = lib_common.MakeProp(prpName)
 
-	for prp in objWmi.properties:
-		prpProp = lib_common.MakeProp(prp)
+		try:
+			valUnit = mapPropUnits[prpName]
+		except KeyError:
+			valUnit = ""
 
 		# CIM_ComputerSystem
 		try:
-			doNotDisplay = prp in prpCannotBeDisplayed[className]
+			doNotDisplay = prpName in prpCannotBeDisplayed[className]
 		except KeyError:
 			doNotDisplay = False
 
 		if doNotDisplay:
+			sys.stderr.write("Cannot display:%s\n"%str(getattr(objWmi,prpName)))
 			value = "Cannot be displayed"
 		else:
 			# BEWARE, it could be None.
-			value = getattr(objWmi,prp)
+			value = getattr(objWmi,prpName)
 
 
-		if isinstance( value, listTypes ):
+		if isinstance( value, scalarDataTypes ):
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
-			grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( str(value).replace('\\','\\\\') ) ) )
+			# TODO: Why not CGI escaping ?
+			valueReplaced = str(value).replace('\\','\\\\')
+
+			if valUnit:
+				valueReplaced = lib_util.AddSIUnit( valueReplaced, valUnit )
+			grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( valueReplaced ) ) )
 		elif isinstance( value, ( tuple) ):
 			# Special backslash replacement otherwise:
 			# "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
-			cleanTuple = " ; ".join( [ str(oneVal).replace('\\','\\\\') for oneVal in value ] )
+			# TODO: Why not CGI escaping ?
+			tupleReplaced = [ str(oneVal).replace('\\','\\\\') for oneVal in value ]
+
+			# tuples are displayed as tokens separated by ";". Examples:
+			#
+			# CIM_ComputerSystem.OEMStringArray
+			#" ABS 70/71 60 61 62 63; ;FBYTE#2U3E3X47676J6S6b727H7M7Q7T7W7m8D949RaBagapaqb3bmced3.fH;; BUILDID#13WWHCHW602#SABU#DABU;"
+			#
+			# CIM_ComputerSystem.Roles
+			# "LM_Workstation ; LM_Server ; SQLServer ; NT ; Potential_Browser ; Master_Browser"
+			cleanTuple = " ; ".join( tupleReplaced )
 			grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( cleanTuple ) ) )
 		elif value is None:
 			if displayNoneValues:
@@ -212,12 +237,14 @@ def Main():
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
 	wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
 
+	mapPropUnits = lib_wmi.WmiDictPropertiesUnit(connWmi, className)
+
 	for objWmi in objList:
 		# sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
 
 		# TODO: Attendre d'avoir plusieurs objects pour faire la meme chose que wentity_wbem,
 		# c est a dire une deduplication adaptee avec creation d URL. Je me comprends.
-		DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className)
+		DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,mapPropUnits)
 
 		# TODO: Pour ces classes, l'attente est tres longue. Rather create another link.
 		# rchref = wmi.WMI().query("select * from Win32_UserAccount where Name='rchateau'")[0].references()
