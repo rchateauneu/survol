@@ -259,6 +259,14 @@ def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
 		return None
 
 # This returns the map of units for all properties of a class.
+# https://msdn.microsoft.com/en-us/library/aa393650%28v=vs.85%29.aspx
+#
+# "All CIM-compliant implementations must handle a standard set of qualifiers.
+# Units
+# Data type: string
+# Applies to: properties, methods, parameters
+# Type of unit in which the associated data item is expressed. The default is NULL.
+# For example, a size data item might have a value of "bytes" for Units."
 def WmiDictPropertiesUnit(connWmi, className):
 	theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
 
