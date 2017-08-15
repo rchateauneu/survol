@@ -174,32 +174,10 @@ mais c'est déjà renvoye par le RDF
  
 Visualiser du RDF (Nexus, RDF Gravity http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html )
 http://swui.semanticweb.org/swui06/papers/Karger/Pathetic_Fallacy.html
-Remarques intéressantes mais ne nous concerne pas car on veut vraiment visualiser le graphe.
- 
-  
-L’interface est vraiment horrible, or il faudra bien a un moment ou a un autre avoir quelque chose de présentable.
-Donc il faut pouvoir rentrer dans un ou plusieurs frameworks.
 
-http://stackoverflow.com/questions/3428419/integrating-existing-pages-in-a-zend-framework-application
- 
 http://www.legacysoftware.co.uk/faq.php
 www.st.ewi.tudelft.nl/~arie/phds/Kuipers.pdf
 
-
-http://code.google.com/p/canviz/
-http://www.webgraphviz.com/
-
-============================================================================================================
-Changer formes et couleurs des shapes en fonction d'attributs.
-  Pour Graphviz
-  Et en Javascript aussi.
-  Et aussi en HTML, d'ailleurs.
-
-Taille fichier.
-Pourcentage CPU
-Etat socket.
-Fichier ou directory.
- 
 ============================================================================================================
  
 Pour l'affichage des flux, on peut encore simplifier: 
@@ -222,7 +200,7 @@ mais c'est déjà renvoye par le RDF
 ============================================================================================================
  
  
-• Retour sur les points d’entrée dans les DLL/so : On parle bien d’un point d’entree dans une DLL donnée :
+Retour sur les points d’entrée dans les DLL/so : On parle bien d’un point d’entree dans une DLL donnée :
 Pas forcement, c’est une abstraction. En revanche, permettre d’instrumenter la combinaison : symbole+fichier.
 
 On veut, a partir d’un graphe qui affiche des ressources, progresser d’une ressource a l’autre.
@@ -308,11 +286,6 @@ Comment faire ? Il faudrait reutiliser la table precedente en la completant.
 Ou bien attribuer les couleurs aux literaux en conservant
 l'ordre d'apparition des literaux.
 ============================================================================================================
-
-Dans KDE, dessin des rectangles emboités pour representer des 
-grandeurs imbriquees: Treemap: http://bl.ocks.org/mbostock/4063582
-Ou des cercles:
-http://bl.ocks.org/mbostock/4063530
 
 Choisir des parametres pour graphviz, mais aussi
 permettre d'afficher du RDF avec d3.
@@ -513,15 +486,17 @@ Pas suffisant de fusionner des urls dans une page seulement, bien entendu.
 Peut-on ajouter une page dans un frameset en faisant du drag and drop ? 
 
 Ou alors une frame set fait de trois frames :
-•	La page courante, entity.py
-•	Une frame qui permet de cliquer « fusionner », et qui contient la liste des liens selectionnes dans chaque entity.py visite.
-•	La frame du resultat de la fusion.
+- La page courante, entity.py
+- Une frame qui permet de cliquer « fusionner », et qui contient la liste des liens selectionnes dans chaque entity.py visite.
+- La frame du resultat de la fusion.
 
-Quand on coche un lien dans un entity.py en HTML, ca rajoute une ligne dans la frame de fusion. Quand on clique cette ligne, ca ramene ce lien dans la page courante (Ou plutot le entity.py qui y correspond ?)
+Quand on coche un lien dans un entity.py en HTML, ca rajoute une ligne dans la frame de fusion.
+Quand on clique cette ligne, ca ramene ce lien dans la page courante (Ou plutot le entity.py qui y correspond ?)
 
 Si on ne permet pas de cliquer les urls dans une page en html, mais qu’on fait uniquement du drag’n’drop dans un frameset, ca permet d’utiliser les mêmes urls.
 
-Meme pas besoin de frameset : On repart de la fenêtre existante : Drag’n’drop de liens, click « Fusion », on peut rééditer la liste d’urls (Avec un logo de poubelle), on peut cliquer individuellement sur les liens.
+Meme pas besoin de frameset : On repart de la fenêtre existante : Drag’n’drop de liens, click « Fusion »,
+on peut rééditer la liste d’urls (Avec un logo de poubelle), on peut cliquer individuellement sur les liens.
 
 http://www.w3schools.com/jsref/event_ondrop.asp
 <div ondrop="myFunction(event)"></div>
@@ -531,21 +506,9 @@ A la limite on pourrait meme fusionner immediatement, des le drop. En revanche, 
 
 http://stackoverflow.com/questions/21143504/drag-and-drop-how-to-get-the-url-of-image-being-dropped-if-image-is-a-link-not
 
-
 ============================================================================================================
-
 
 RRD data store ? http://en.wikipedia.org/wiki/RRDtool
-
-============================================================================================================
-
-
-Quand on affiche les fichiers ou autres, dans une table html,
-voir si on ne pourrait pas ajouter des petites infos 'Taille des fichiers, pid du process etc...)
-
-Visualisation en HTML: On ameliore la presentation ! (Et on vire entity_list.py)
-
-
 
 ============================================================================================================
 Pour les fichiers, trouver un moyen de sauter une etape:
@@ -604,11 +567,12 @@ http://bl.ocks.org/biovisualize/1226718
 
 ============================================================================================================
 
-"A responsive table will display a horizontal scroll bar if the screen is too small to display the full content. Resize the browser window to see the effect. To create a responsive table, add a container element (like div) with overflow-x:auto around the table element:"
+"A responsive table will display a horizontal scroll bar if the screen is too small to display the full content.
+Resize the browser window to see the effect. To create a responsive table,
+add a container element (like div) with overflow-x:auto around the table element:"
 https://www.w3schools.com/css/tryit.asp?filename=trycss_table_responsive
 
 ============================================================================================================
-
 
 Exemple de JQuery pour alleger le style (Mais d3.json fait ca aussi bien):
 
@@ -701,8 +665,6 @@ associés soit a une adresse IP ou bien un sujet tibco)
 Voir si on pourrait maquetter avec gdb, ptrace etc...
 =============================================
 
-Utiliser d3.js pour creer des plots 3D ?
-Ou plutot vis.js qui utilise canvas et est donc plus rapide.
 On voudrait integrer ceci: On prend un CSV quelconque et on genere
 un graphe. Ca, c'est l'equivalent de "rdfdot", la transformation en quelque chose de visible.
 http://d3-generator.com/
@@ -778,14 +740,6 @@ au point de vue de la taille mais aussi du temps passe dans le code.
 Ou un dtrace.
 Ou un strace en prenant en compte la creation des sous-processes.
 ============================================
-Doit-on exprimer l'imbrication de facon generique ou bien
-en s'appuyant sur du RDF?
-* Processes.
-* Fichiers (Avec l'exception des links symboliques ou hards).
-* Eventuellement les reseaux (Mais on ne sait pas faire pour le moment)
-* Pas les user-groups.
-
-============================================
 Detecter des dependances:
  Echantillonner l'etat des processes.
 grep  "State:[   ]*[A-RT-Z]" /proc/*/status
@@ -820,15 +774,15 @@ b56fa000-b571d000 r-xp 00000000 08:01 35037      /usr/lib/kde3/konq_sidebartree_
 
 Comment visualiser cette page pour un process seulement?
 
-################################################################################
+============================================
 
-# http://www.graphviz.org/Gallery/directed/cluster.html
+http://www.graphviz.org/Gallery/directed/cluster.html
 
-# Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
-# des objets qui ont une propriete commune (Threads d un process,
-# fichiers dans un dir, de facon recursive, methodes dans une classe),
-# Ca evite meme de devoir tracer des aretes !!!
-# ou tout simplement le host, comme container: subgraphes, clusters.
+Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
+des objets qui ont une propriete commune (Threads d un process,
+fichiers dans un dir, de facon recursive, methodes dans une classe),
+Ca evite meme de devoir tracer des aretes !!!
+ou tout simplement le host, comme container: subgraphes, clusters.
 
 ============================================
 A quoi ca sert d'utiliser le format CSV pour des snapshots quand RDF
@@ -1158,9 +1112,21 @@ force layout with images and connection thickness
 
 http://bl.ocks.org/mostaphaRoudsari/82f51f01b4619db2f09f
 
+========================================================================================================================
 Il faut commencer a penser serieusement a l’affichage des grandeurs:
 Logarithme taille des fichiers.
 Idem taille mémoire process.
+
+Changer formes et couleurs des shapes en fonction d'attributs.
+  Pour Graphviz
+  Et en Javascript aussi.
+  Et aussi en HTML, d'ailleurs.
+
+Taille fichier.
+Pourcentage CPU
+Etat socket.
+Fichier ou directory.
+
 ========================================================================================================================
 Mise a jour automatique. Redesign complet, vu ce qu on a fait avec D3.
 Abonnement aux mises a jour pour chaque objet (classes  props).
@@ -1259,6 +1225,7 @@ Cellule CSV, tag HTML, champ table SQL … Pour d’autres, on cherche vraiment 
 
 Voir aussi https://en.wikipedia.org/wiki/Entity_Framework, ADO.NET
 
+========================================================================================================================
 RECHERCHE DE CHAINES DE CONNEXION OLE DB
 
 https://www.connectionstrings.com/formating-rules-for-connection-strings/
