@@ -270,6 +270,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
 		return "FormatElement failure"
 
+	# Prints a key-value pair as two TD tags, to go in an HTML table.
 	def FormatPair(key,val,depth=0):
 		colFirst = "<td align='left' valign='top' border='0'>%s</td>" % lib_exports.DotBold(key)
 		colSecond = FormatElement(val,depth+1)
