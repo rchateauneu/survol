@@ -91,7 +91,8 @@ def Main():
 
 		setQrys = set()
 
-		for sqlQry in matchedSqls:
+		for sqlIdx in matchedSqls:
+			sqlQry = matchedSqls[sqlIdx]
 			ProcessScannedSqlQuery( sqlQry, setQrys)
 
 		GenerateFromSqlQrys(grph, node_process, rgxProp, setQrys, pidint)

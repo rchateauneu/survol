@@ -226,7 +226,7 @@ class MemoryProcessorStructs:
 
 
 	# TODO: ON VOUDRAIT AJOUTER LA CONTRAINTE QUE LA MEMOIRE EST ALIGNEE COMME LA STRUCT. COMMENT FAIRE ??
-	def ParseSegment(self,bytes_array):
+	def ParseSegment(self,addr_beg, bytes_array):
 		# print("Imported modules:"+str(sorted(sys.modules.keys())))
 		# TODO: Fix this strange behaviour, when instantiating a class of this module.
 		# Exception:global name 'CTypesStructs' is not defined
@@ -309,14 +309,22 @@ class MemoryProcessorStructs:
 class MemoryProcessorRegex:
 	# We can have: flags=re.IGNORECASE
 	def __init__(self,is64Bits,aRegex, re_flags):
+		sys.stderr.write("aRegex=%s\n"%aRegex)
 		self.m_rgxComp = re.compile(aRegex.encode('utf-8'),re_flags)
-		self.m_matches = set()
+		# self.m_matches = set()
+		self.m_matches = dict()
 
-	def ParseSegment(self,bytes_array):
+	def ParseSegment(self,addr_beg, bytes_array):
 
 		# TODO: Use finditer
-		mtch = self.m_rgxComp.findall( bytes_array )
-		self.m_matches.update( mtch )
+		# mtch = self.m_rgxComp.findall( bytes_array )
+		# self.m_matches.update( mtch )
+
+		# The result is a dictionary whose key is the offset.
+		# We assume that this offset can only be unique in the segment.
+		for mtch in self.m_rgxComp.finditer(bytes_array):
+			memOffset = addr_beg + mtch.start()
+			self.m_matches[ memOffset ] = mtch.group()
 
 
 ################################################################################
@@ -445,7 +453,7 @@ if sys.platform == "win32":
 		page_bytes = ReadMemory(process_handle, base_address, region_size)
 		#print("After ReadMemory")
 
-		mem_proc_functor.ParseSegment(page_bytes)
+		mem_proc_functor.ParseSegment(base_address,page_bytes)
 
 		del page_bytes  # free the buffer
 		# print("ScanFromPage leaving")
@@ -603,12 +611,12 @@ else:
 				# Exception:mmap length is greater than file size
 				# Je crois me souvenir qu on peut empecher un controle de taille ??
 				mm = mmap.mmap(mem_file.fileno(), lenAddr, access=mmap.ACCESS_READ, offset = addr_beg)
-				mem_proc_functor.ParseSegment( mm.something)
+				mem_proc_functor.ParseSegment(addr_beg, mm.something)
 			else:
 				# Must read exactly the section, otherwise "Input/output error"
 				mem_file.seek(addr_beg)  # seek to region start
 				chunk = mem_file.read(lenAddr)  # read region contents
-				mem_proc_functor.ParseSegment( chunk )
+				mem_proc_functor.ParseSegment(addr_beg, chunk )
 
 		except Exception as exc:
 			sys.stderr.write("Exception:%s\n"%str(exc))
@@ -684,6 +692,7 @@ def CTypesStructToDict(struct):
 
 ################################################################################
 
+# This returns all the strings matching the regular expression.
 def GetRegexMatches(pidint,the_regex,re_flags=0):
 	mem_proc_functor = MemMachine( pidint, the_regex,re_flags)
 	return mem_proc_functor.m_matches

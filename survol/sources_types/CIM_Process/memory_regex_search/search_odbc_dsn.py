@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Scan process memory for ODBC dsns
+Scan process memory for ODBC Data Source Names (DSN)
 """
 
 import os
@@ -13,6 +13,7 @@ from lib_properties import pc
 
 from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
+from sources_types.odbc import dsn as survol_odbc_dsn
 
 # ODBC conneciton strings, on Windows only.
 Usable = lib_util.UsableWindows
@@ -25,14 +26,90 @@ def Main():
 
 	node_process = lib_common.gUriGen.PidUri(pidint)
 
+
+
+
+
+
+# "Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes;"
+# 34515015 = "Driver={SQL Server}"
+# 34515035 = "Server=.\SQLEXPRESS"
+# 34515055 = "Database=ExpressDB"
+# 34515074 = "Trusted_Connection=yes"
+# 35634903 = "Driver={SQL Server}"
+# 35634923 = "Server=.\SQLEXPRESS"
+# 35634943 = "Database=ExpressDB"
+# 35634962 = "Trusted_Connection=yes"
+
 	try:
-		rgxDSN = "PROVIDER *= *[a-zA-Z0-9._]|Driver *= \{[^}]*\}*"
+		mapRgxODBC = {
+			"PROVIDER"           : "[ a-zA-Z0-9._]+",
+			"DRIVER"             : "\{[^}]*\}",
+			"DATABASE"           : "[ a-zA-Z0-9._]+",
+			"SERVER"             : "[- a-zA-Z0-9\._\\\]+",
+			"PROTOCOL"           : "[a-zA-Z]+",
+			"PORT"               : "[0-9]+",
+			"DB"                 : "[a-zA-Z0-9._]*",
+			"DATA SOURCE"        : "[a-zA-Z_0-9\\/]+",
+			"TRUSTED_CONNECTION" : "[a-zA-Z]*"
+		}
 
-		resu = memory_regex_search.GetRegexMatches(pidint,rgxDSN, re.IGNORECASE)
+		# Not letter, then the keyword, then "=", then the value regex, then possibly the delimiter.
+		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + mapRgxODBC[key] + " *" for key in mapRgxODBC ])
+		# rgxDSN = "|".join([ "[^a-zA-Z_ ]" + key + " *= *" + mapRgxODBC[key] + " *" for key in mapRgxODBC ])
+		# rgxDSN = "|".join([ "[^a-zA-Z_ ]" + key + " *= *" + mapRgxODBC[key] + " *" for key in mapRgxODBC ])
+		# rgxDSN = "|".join([ key + " *= *" + mapRgxODBC[key] + " *;?" for key in mapRgxODBC ])
+		sys.stderr.write("rgxDSN=%s\n"%rgxDSN)
 
-		for dsnODBC in resu:
-			sys.stderr.write("dsnODBC=%s\n"%dsnODBC)
-			grph.add( ( node_process, pc.property_rdf_data_nolist1, lib_common.NodeLiteral(dsnODBC) ) )
+		resuMatches = memory_regex_search.GetRegexMatches(pidint,rgxDSN, re.IGNORECASE)
+
+		for matchedOffset in resuMatches:
+			matchedStr = resuMatches[matchedOffset]
+			dsnToken = str(matchedOffset) + " = " + matchedStr + " = " + str(matchedOffset + len(matchedStr))
+			sys.stderr.write("dsnODBC=%s\n"%dsnToken)
+
+		sortedKeys = sorted(resuMatches.keys())
+		aggregDsns = dict()
+		lastOffset = 0
+		currOffset = 0
+		for theOff in sortedKeys:
+			currMtch = resuMatches[theOff]
+			nextOffset = theOff + len(currMtch)
+			sys.stderr.write("lastOffset=%d nextOffset=%d currMtch=%s\n"%(lastOffset,nextOffset,currMtch))
+			#if lastOffset == 0:
+			#	lastOffset = nextOffset
+			#	aggregDsns[lastOffset] = currMtch
+			#	continue
+			if lastOffset == theOff:
+				aggregDsns[currOffset] += currMtch
+			else:
+				# This starts a new DSN string.
+				currOffset = theOff
+				aggregDsns[currOffset] = currMtch
+			lastOffset = nextOffset
+
+		# TODO: Eliminate aggrehated strings containing one or two tokens,
+		# because they cannot be genuine DSNs.
+		# 29812569: SERVER=\RCHATEAU-HP
+		# 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+		# 34801013: SERVER=\RCHATEAU-HP
+		# 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+
+		for aggregOffset in aggregDsns:
+			# Do not take the character before the keyword.
+			aggregDSN = aggregDsns[aggregOffset]
+			sys.stderr.write("aggregOffset=%s\n"%aggregOffset)
+			# dsnToken = str(matchedOffset) + " = " + matchedStr[1:]
+			dsnFull = str(aggregOffset) + ": " + aggregDSN
+			sys.stderr.write("dsnFull=%s\n"%dsnFull)
+			grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(dsnFull) ) )
+
+			nodeDsn = survol_odbc_dsn.MakeUri( aggregDSN )
+			grph.add( (node_process, pc.property_odbc_dsn, nodeDsn ) )
+			grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral("Le driver") ) )
+
+
+		# TODO: Instead of just displaying the DSN, connect to it, list tables etc...
 
 	except Exception:
 		exc = sys.exc_info()[1]

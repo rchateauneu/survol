@@ -27,13 +27,14 @@ def Main():
 		# rgxHttp = "http://[a-zA-Z_0-9\.]*"
 		rgxHttp = "http://[a-z_0-9\.]*"
 
-		resu = memory_regex_search.GetRegexMatches(pidint,rgxHttp)
+		resuUrls = memory_regex_search.GetRegexMatches(pidint,rgxHttp)
 
 		resuClean = set()
 
 		# The URLs which are detected in the process memory might be broken, invalid etc...
 		# Only some of them are in valid strings. The other may come from deallocated memory etc...
-		for urlHttp in resu:
+		for urlIdx in resuUrls:
+			urlHttp = resuUrls[urlIdx]
 			# In memory, we find strings such as "http://adblockplus.orgzzzzzzzzzzzz"
 			# or "http://adblockplus.orgzzzzzzzzzzzz"
 			# "activistpost.netzx"
