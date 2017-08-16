@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Scan process memory for ODBC Data Source Names (DSN)
+Scan process memory for ODBC connection strings
 """
 
 import os
@@ -15,7 +15,7 @@ from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
 from sources_types.odbc import dsn as survol_odbc_dsn
 
-# ODBC conneciton strings, on Windows only.
+# ODBC connection strings, on Windows only.
 Usable = lib_util.UsableWindows
 
 def Main():
@@ -25,11 +25,6 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	node_process = lib_common.gUriGen.PidUri(pidint)
-
-
-
-
-
 
 # "Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes;"
 # 34515015 = "Driver={SQL Server}"
@@ -104,6 +99,10 @@ def Main():
 			sys.stderr.write("dsnFull=%s\n"%dsnFull)
 			grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(dsnFull) ) )
 
+			### NO! Confusion between DSN and connection string.
+			# All the existing code does: ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
+			# which basically creates "DSN=dsvNam;PWD=..." but here we already have the connection string.
+			# TODO: Should we assimilate both ???
 			nodeDsn = survol_odbc_dsn.MakeUri( aggregDSN )
 			grph.add( (node_process, pc.property_odbc_dsn, nodeDsn ) )
 			grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral("Le driver") ) )
@@ -146,3 +145,16 @@ if __name__ == '__main__':
 # Provider=MSDASQL;DRIVER=Ingres;SRVR=xxxxx;DB=xxxxx;Persist Security Info=False;
 # Uid=myUsername;Pwd=myPassword;SELECTLOOPS=N;Extended Properties="SERVER=xxxxx;
 # DATABASE=xxxxx;SERVERTYPE=INGRES";
+
+# A DSN (Data Source Name) is an identifier which defines a data source for an ODBC driver.
+# It consists of information such as: Database name, Directory, Database driver, User ID, Password
+#
+# A connection string specifies information about a data source and the means of connecting to it.
+# It is passed in code to an underlying driver or provider in order to initiate the connection
+#
+# DSN use in a connection string
+#
+# Example
+# Data Source=myServerAddress;Initial Catalog=myDataBase;User Id=myUsername;Password=myPassword;
+#
+# myServerAddress is a DSN and whole string is called Connection String

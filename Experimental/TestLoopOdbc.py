@@ -17,7 +17,7 @@ while True:
         #  datetime.datetime(2015, 7, 30, 22, 3, 47, 197000), False, False, False, 0, None, 2, False, True, False, False,
         #  False, False, False, 0, False, False, 0, u'TABLE', False)
         print(row)
-    time.sleep(10)
+    time.sleep(120)
 
 cnxn.close()
 
