@@ -175,7 +175,7 @@ def EntityName(entity_ids_arr,entity_host):
 		return PsutilProcToName(proc_obj)
 	except NoSuchProcess:
 		# This might be, on Windows, a prent process which exit.
-		return "Non existent process:"+entity_id
+		return "Non-existent process:"+entity_id
 	except ValueError:
 		return "Invalid pid:("+entity_id+")"
 	# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
