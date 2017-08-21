@@ -1064,6 +1064,10 @@ class CgiEnv():
 		(self.m_entity_type,self.m_entity_id,self.m_entity_host) = self.GetXid()
 		self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
 
+		# Depending on the caller module, maybe the arguments should be 64decoded. See "sql/query".
+		# As the entity type is available, it is possible to import it and check if it encodes it arguments.
+		# See presence of source_types.sql.query.DecodeCgiArg(keyWord,cgiArg) for example.
+
 		# This is probably too generous to indicate a local host.
 		self.TestRemoteIfPossible(can_process_remote)
 
@@ -1432,7 +1436,7 @@ class TmpFile:
 		try:
 			if self.Name:
 				sys.stderr.write("NOT Deleting="+self.Name+"\n")
-				### os.remove(self.Name)
+				os.remove(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
 				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
