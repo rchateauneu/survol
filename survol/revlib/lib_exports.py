@@ -59,13 +59,13 @@ maxHtmlTitleLenPerCol = 40
 withBrDelim = '<BR ALIGN="LEFT" />'
 
 # Inserts "<BR/>" in a HTML string so it is wrapped in a HTML label.
-def StrWithBr(str, colspan = 1):
-	lenStr = len(str)
+def StrWithBr(aStr, colspan = 1):
+	lenStr = len(aStr)
 	maxHtmlTitleLen = colspan * maxHtmlTitleLenPerCol
 	if lenStr < maxHtmlTitleLen:
-		return str
+		return aStr
 
-	splt = str.split(" ")
+	splt = aStr.split(" ")
 	totLen = 0
 	resu = ""
 	currLine = ""
@@ -303,8 +303,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
 			objObj = NodeToJsonObj(obj)
 			obj_id = objObj.m_index
-			# "value" is for the class, for example ".link10".
-			links.extend([{'source': subj_id, 'target': obj_id, 'link_prop': propNam, 'value': 10}])
+			links.extend([{'source': subj_id, 'target': obj_id, 'survol_link_prop': propNam}])
 
 			# TODO: Add the name corresponding to the URL, in m_info_dict so that some elements
 			# of the tooltip would be clickable. On the other hand, one just need to merge
