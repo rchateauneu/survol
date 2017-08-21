@@ -22,7 +22,7 @@ except ImportError:
 	wmi_imported = False
 
 ################################################################################
-# Just a reminder of what can be done on Linux.
+# TODO: Just a reminder that WMI can run on Linux, in a certain extent.
 # https://pypi.python.org/pypi/wmi-client-wrapper
 
 if False:
@@ -35,13 +35,6 @@ if False:
 		output = wmic.query("SELECT * FROM Win32_Processor")
 
 ################################################################################
-
-# TODO: Reprendre tout ca, c;est complique et lent.
-# EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_hostname=False):
-# if is_hostname: 'namespaces_wmi.py','namespaces_wbem.py','entity.py'
-# elif is_namespace: 'objtypes_wmi.py','objtypes_wbem.py','objtypes.py'
-# elif is_class: 'class_wmi.py','class_wbem.py','class_type_all.py'
-# else: 'entity_wmi.py','entity_wbem.py','entity.py'
 
 def BuildWmiMoniker( hostnameWmi, namespac = "", classNam = "" ):
 	return "\\\\" + hostnameWmi + "\\" + namespac + ":" + classNam + "."
@@ -105,12 +98,6 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 		return wmi.WMI()
 
 	wmiMachine, wmiUser, wmiPass = GetWmiUserPass(machWithBackSlashes)
-
-	#On part de la (Avec ARP):
-	#http://127.0.0.1:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=Titi
-
-	#et on a clique la, mais je ne crois pas que ce sot un moniker WMI:
-	#http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\Titi\root\CIMV2%3ACIM_ComputerSystem.Titi
 
 	wmiMachineIpAddr =  socket.gethostbyaddr(wmiMachine)
 	#sys.stderr.write("WmiConnect wmiMachine=%s wmiMachineIpAddr=%s wmiUser=%s wmiPass=%s\n" % ( wmiMachine,wmiMachineIpAddr,wmiUser,wmiPass ) )
