@@ -1,7 +1,4 @@
 # ---------- Forwarded message ----------
-# From: Remi CHATEAUNEU <remi.chateauneu@uk.bnpparibas.com>
-# Date: Wed, Mar 29, 2017 at 2:07 PM
-# Subject: CLR status / Idees Survol
 # To: "remi.chateauneu@gmail.com" <remi.chateauneu@gmail.com>
 #
 # http://stackoverflow.com/questions/2080046/how-to-check-if-a-program-is-using-net
