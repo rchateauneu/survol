@@ -1,5 +1,4 @@
 # ---------- Forwarded message ----------
-# From: Remi CHATEAUNEU <remi.chateauneu@uk.bnpparibas.com>
 # Date: Wed, Mar 29, 2017 at 2:07 PM
 # Subject: CLR status / Idees Survol
 # To: "remi.chateauneu@gmail.com" <remi.chateauneu@gmail.com>
