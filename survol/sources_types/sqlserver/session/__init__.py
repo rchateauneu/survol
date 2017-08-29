@@ -20,7 +20,7 @@ except ImportError:
 
 # This is called by OntologyClassKeys(entity_type) when it needs the parameters f an tneity type.
 def EntityOntology():
-	return ( ["Dsn","SessionId"], )
+	return ( [survol_sqlserver_dsn.CgiPropertyDsn(),"SessionId"], )
 
 def MakeUri(dsn,sessionId):
 	return lib_common.gUriGen.UriMake("sqlserver/session",dsn,sessionId)

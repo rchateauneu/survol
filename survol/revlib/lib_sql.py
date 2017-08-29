@@ -467,8 +467,10 @@ def SqlRegularExpressions():
 # TODO: les credentials.
 # TODO: Voir aussi si ce type de BDD fonctionne sur la machine en question, bien entendu.
 listModulesUsingSqlQueries = [
-	"oracle",
-	"sqlserver",
-	"sqlite"
+	("sources_types.oracle","__init__.py"),
+	("sources_types.sqlserver","__init__.py"),
+	("sources_types.sqlite","__init__.py"),
+	("sources_types.odbc.dsn","__init__.py"),
+	("sources_types.CIM_Process.memory_regex_search","search_connection_strings.py")
 ]
 ################################################################################

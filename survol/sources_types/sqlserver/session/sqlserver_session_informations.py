@@ -14,9 +14,6 @@ from sources_types import sqlserver
 from sources_types.sqlserver import session
 from sources_types.sqlserver import query as sqlserver_query
 
-#from sources_types import sql
-#from sources_types.sql import query as sql_query
-
 def GetInfoConnections(grph,sessionId,nodeSession,cnxn):
 	sys.stderr.write("GetInfoConnections\n")
 	cursorConnections = cnxn.cursor()
@@ -97,7 +94,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
+	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 	sessionId = cgiEnv.m_entity_id_dict["SessionId"]
 
 	sys.stderr.write("dsn=(%s) sessionId=%s\n" % (dsnNam,sessionId))

@@ -686,7 +686,17 @@ def EntityIdToArray( entity_type, entity_id ):
 	# For the moment, this assumes that all keys are here.
 	# Later, drop this constraint and allow WQL queries.
 	try:
-		return [ dictIds[ aKey ] for aKey in ontoKeys ]
+		def DecodeCgiArg(aKey):
+			sys.stderr.write("DecodeCgiArg aKey=%s type=%s\n"%(aKey,type(aKey)))
+			aValRaw = dictIds[ aKey ]
+			try:
+				valDecod = aKey.ValueDecode(aValRaw)
+				sys.stderr.write("DecodeCgiArg aKey=%s valDecod=%s\n"%(aKey,valDecod))
+				return valDecod
+			except AttributeError:
+				return aValRaw
+		return [ DecodeCgiArg( aKey ) for aKey in ontoKeys ]
+		# return [ dictIds[ aKey ] for aKey in ontoKeys ]
 	except KeyError:
 		sys.stderr.write("EntityIdToArray missing key: type=%s id=%s onto=%s\n"
 						 % ( entity_type , entity_id, str(ontoKeys) ) )
@@ -912,7 +922,7 @@ def GetEntityModuleNoCache(entity_type):
 
 	except ImportError:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("GetEntityModuleNoCache entity_type=%sLoading (%s):%s\n"%(entity_type,entity_package,str(exc)))
+		sys.stderr.write("GetEntityModuleNoCache entity_type=%s Loading (%s):%s\n"%(entity_type,entity_package,str(exc)))
 		pass
 
 	# sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")

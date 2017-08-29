@@ -10,6 +10,7 @@ import lib_sql
 from sources_types import sql
 from sources_types.sql import query as sql_query
 from sources_types.sqlserver import query as sqlserver_query
+from sources_types.odbc import dsn as survol_odbc_dsn
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -25,7 +26,7 @@ def Main():
 	#sqlQuery = lib_util.Base64Decode(sqlQuery_encode)
 
 	sqlQuery = sql_query.GetEnvArgs(cgiEnv)
-	dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
+	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
 	nodeSqlQuery = sqlserver_query.MakeUri(sqlQuery,dsnNam)
 

@@ -4,10 +4,49 @@ import cgi
 import lib_util
 import lib_common
 
+# This behaves like a string plus some properties for serialization.
+class CgiPropertyB64(str):
+	# Python 2
+	def __new__(cls,propName):
+		#obj = str.__new__(self, propName)
+		#return obj
+		return super(CgiPropertyB64, cls).__new__(cls, propName)
+
+	# Python 3
+	#def __new__(cls,propName):
+	#	obj = str.__new__(self, propName)
+	#	return obj
+
+	#def __new__(cls, content):
+	#	return super().__new__(cls, content.upper())
+
+
+	def ValueEncode(self,valueClear):
+		return lib_util.Base64Encode(valueClear)
+
+	def ValueDecode(self,valueCoded):
+		return lib_util.Base64Decode(valueCoded)
+
+	def ValueDisplay(self,valueClear):
+		return cgi.escape(valueClear)
+
+
+class CgiPropertyQuery(CgiPropertyB64):
+	#def __init__(self):
+	#	#pass
+	#	super(CgiPropertyQuery, self).__init__("Query")
+	#	# super(CgiPropertyQuery, cls).__new__(cls, propName)
+
+	# Python 2
+	def __new__(cls):
+		return super(CgiPropertyQuery, cls).__new__(cls, "Query")
+
+
+
 # This array will be concatenated to other strings, depending of the origin of the query: database,
 # process memory, file content.
 def EntityOntology():
-	return ( ["Query",], )
+	return ( [CgiPropertyQuery(),], )
 
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
 # encode as HTML entities. This is not visible as EntityName() does the reverse decoding.
@@ -17,6 +56,8 @@ def MakeUri(strQuery,derivedEntity = "sql/query", **kwargs):
 	# sys.stderr.write("derivedEntity=%s strQuery=%s kwargs=%s\n"%(derivedEntity,strQuery,str(kwargs)))
 	strQueryEncoded = lib_util.Base64Encode(strQuery)
 	# The result might be: { "Query" : strQueryEncoded, "Pid" : thePid  }
+
+	# Rather CgiPropertyQuery() instead of "Query"
 	allKeyedArgs = { "Query" : strQueryEncoded }
 	allKeyedArgs.update( kwargs )
 	# Maybe we could take the calling module as derived entity ?

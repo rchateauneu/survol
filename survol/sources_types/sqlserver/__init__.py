@@ -3,6 +3,7 @@ SqlServer objects
 """
 
 import pyodbc
+from sources_types import odbc as survol_odbc
 
 def Graphic_shape():
 	return "none"
@@ -28,16 +29,27 @@ def Graphic_is_rounded():
 # We list ODBC sources because this is the only we have, to connect to sqlserver databases.
 # We do not list Oracle dbs so they have to be filtered out.
 
+#
 def DatabaseEnvParams(processId):
-	# lstCredNams = lib_credentials.GetCredentialsNames('Oracle')
-
 	# TODO: We could use the process id to check if the process executable is linked
 	# with the SQLServer shareable library.
 
 	# We do not list sources in lib_credentials because some ODBC sources
 	# can be accessed without pass word (With Windows validation).
 	sources = pyodbc.dataSources()
-	dsnList = ( { "Dsn":dsn } for dsn in sources )
+	# {
+	# 	'MyNativeSqlServerDataSrc': 'SQL Server Native Client 11.0',
+	# 	'Excel Files': 'Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)',
+	# 	'SqlSrvNativeDataSource': 'SQL Server Native Client 11.0',
+	# 	'mySqlServerDataSource': 'SQL Server',
+	# 	'MyOracleDataSource': 'Oracle in XE',
+	# 	'SysDataSourceSQLServer': 'SQL Server',
+	# 	'dBASE Files': 'Microsoft Access dBASE Driver (*.dbf, *.ndx, *.mdx)',
+	# 	'OraSysDataSrc' : 'Oracle in XE',
+	# 	'MS Access Database': 'Microsoft Access Driver (*.mdb, *.accdb)'
+	# }
+
+	dsnList = ( { survol_odbc.CgiPropertyDsn(): "DSN=" + dsn } for dsn in sources )
 
 	# Maybe this must be adjusted as key-value pairs ??
 	return ( "sqlserver/query", dsnList )

@@ -125,7 +125,19 @@ class LocalBox:
 		return self.MakeTheNodeFromScript( path, entity_type, entity_id )
 
 	def UriMakeFromDict(self, entity_type, entity_id_dict):
-		entity_id = ",".join( "%s=%s" % kwItems for kwItems in entity_id_dict.items() )
+		def UriPairEncode(keyIt,valIt):
+			try:
+				# Maybe this is a derived type from str, encoding the value.
+				encodedVal = keyIt.ValueEncode(valIt)
+				# sys.stderr.write("UriPairEncode keyIt=%s typ=%s encodedVal=%s\n"%(keyIt,type(keyIt),encodedVal))
+				return (keyIt,encodedVal)
+			except AttributeError:
+				# sys.stderr.write("UriPairEncode keyIt=%s typ=%s\n"%(keyIt,type(keyIt)))
+				# This is a plain str, no value encoding.
+				return (keyIt,valIt)
+
+		entity_id = ",".join( "%s=%s" % UriPairEncode(*kwItems) for kwItems in entity_id_dict.items() )
+		# sys.stderr.write("UriMakeFromDict entity_id=%s\n"%entity_id)
 		return self.MakeTheNode( entity_type, entity_id )
 
 	# This is a virtual method.

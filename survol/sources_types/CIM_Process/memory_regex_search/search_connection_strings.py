@@ -13,19 +13,35 @@ from lib_properties import pc
 
 from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
+from sources_types import odbc as survol_odbc
 from sources_types.odbc import dsn as survol_odbc_dsn
 
 # ODBC connection strings, on Windows only.
 Usable = lib_util.UsableWindows
 
-def Main():
-	cgiEnv = lib_common.CgiEnv()
-	pidint = int( cgiEnv.GetId() )
+# aRegex=[; ]*PIPENAME *= *\w+ *|[; ]*SSLKEY *= *[^=]+ *|[; ]*CONNECTIONRESET *= *[a-zA-Z01]* *|[; ]*DBA PRIVILEGE *= *[^=]+ *|[; ]*EN
+# CRYPT *= *[a-zA-Z01]* *|[; ]*OPTION *= *[^=]+ *|[; ]*FILEDSN *= *[^=]+ *|[; ]*IGNORE PREPARE *= *[a-zA-Z01]* *|[; ]*CHARSET *= *\w+
+# *|[; ]*DB *= *[a-zA-Z0-9._]* *|[; ]*STMT *= *[^=]+ *|[; ]*CERTIFICATE THUMBPRINT *= *[0-9a-fA-F]+ *|[; ]*INCR POOL SIZE *= *\d+ *|[;
+#  ]*USEUSAGEADVISOR *= *[a-zA-Z01]* *|[; ]*SHARED MEMORY NAME *= *\w+ *|[; ]*USER *= *\w+ *|[; ]*OLDGUIDS *= *[a-zA-Z01]* *|[; ]*CERT
+# IFICATEPASSWORD *= *.+ *|[; ]*SERVER *= *[- a-zA-Z0-9\._\\]+ *|[; ]*CERTIFICATEFILE *= *[^=]+ *|[; ]*PORT *= *\d+ *|[; ]*LOCALE IDEN
+# TIFIER *= *\d+ *|[; ]*PROVIDER *= *[ a-zA-Z0-9._]+ *|[; ]*EXCLUSIVE *= *[a-zA-Z01]* *|[; ]*PROCEDURECACHESIZE *= *\d+ *|[; ]*MINIMUM
+# POOLSIZE *= *\d+ *|[; ]*SSLCERT *= *[^=]+ *|[; ]*CERTIFICATE STORE LOCATION *= *\w+ *|[; ]*DEFAULTTABLECACHEAGE *= *\d+ *|[; ]*ALLOW
+# ZERODATETIME *= *[a-zA-Z01]* *|[; ]*MAXIMUMPOOLSIZE *= *\d+ *|[; ]*JET OLEDB:DATABASE PASSWORD *= *.+ *|[; ]*MODE *= *[a-zA-Z ]+ *|[
+# ; ]*CACHESERVERPROPERTIES *= *[a-zA-Z01]* *|[; ]*CHECKPARAMETERS *= *[a-zA-Z01]* *|[; ]*DECR POOL SIZE *= *\d+ *|[; ]*OLEDBKEY[12] *
+# = *[^=]+ *|[; ]*KEEPALIVE *= *\d+ *|[; ]*OSAUTHENT *= *[a-zA-Z01]* *|[; ]*LOAD BALANCING *= *[a-zA-Z01]* *|[; ]*USEPROCEDUREBODIES *
+# = *[a-zA-Z01]* *|[; ]*COMMAND LOGGING *= *[a-zA-Z01]* *|[; ]*PROTOCOL *= *\w+ *|[; ]*SYSTEMDB *= *[^=]+ *|[; ]*EXTENDEDANSISQL *= *[
+# a-zA-Z01]* *|[; ]*REMOTE SERVER *= *[^=]+ *|[; ]*PERSIST SECURITY INFO *= *[a-zA-Z01]* *|[; ]*DRIVER *= *\{[^}]*\} *|[; ]*EXTENDED P
+# ROPERTIES *= *[^=]+ *|[; ]*DSN *= *\w+ *|[; ]*MIN POOL SIZE *= *\d+ *|[; ]*SSLVERIFY *= *[a-zA-Z01]* *|[; ]*ALLOWUSERVARIABLES *= *[
+# a-zA-Z01]* *|[; ]*USECOMPRESSION *= *[a-zA-Z01]* *|[; ]*SSLMODE *= *\w+ *|[; ]*AUTOENLIST *= *[a-zA-Z01]* *|[; ]*PASSWORD *= *.+ *|[
+# ; ]*UID *= *\w+ *|[; ]*USEPERFORMANCEMONITOR *= *[a-zA-Z01]* *|[; ]*ODBCKEY[12] *= *[^=]+ *|[; ]*DATABASE *= *[ a-zA-Z0-9._]+ *|[; ]
+# *DATA SOURCE *= *[a-zA-Z_0-9\/]+ *|[; ]*SOCKET *= *[^=]+ *|[; ]*TRUSTED_CONNECTION *= *[a-zA-Z01]* *|[; ]*CACHETYPE *= *[a-zA-Z]+ *|
+# [; ]*USER ID *= *\w+ *|[; ]*DEFAULT COMMAND TIMEOUT *= *\d+ *|[; ]*CONNECTION TIMEOUT *= *\d+ *|[; ]*POOLING *= *[a-zA-Z01]* *|[; ]*
+# MAX POOL SIZE *= *\d+ *|[; ]*ALLOWBATCH *= *[a-zA-Z01]* *|[; ]*SQLSERVERMODE *= *[a-zA-Z01]* *|[; ]*PWD *= *.+ *|[; ]*USEAFFECTEDROW
+# S *= *[a-zA-Z01]* *|[; ]*INITIAL CATALOG *= *[^=]+ *|[; ]*CONVERTZERODATETIME *= *[a-zA-Z01]* *|[; ]*DBQ *= *[^=]+ *|[; ]*TABLECACHE
+#  *= *[a-zA-Z01]* *|[; ]*INTEGRATEDSECURITY *= *[a-zA-Z01]* *|[; ]*CONNECTION ?LIFETIME *= *\d+ *
 
-	grph = cgiEnv.GetGraph()
 
-	node_process = lib_common.gUriGen.PidUri(pidint)
-
+def GetAggregDsns(pidint):
 # "Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes;"
 # 34515015 = "Driver={SQL Server}"
 # 34515035 = "Server=.\SQLEXPRESS"
@@ -37,24 +53,17 @@ def Main():
 # 35634962 = "Trusted_Connection=yes"
 
 	try:
-		mapRgxODBC = {
-			"PROVIDER"           : "[ a-zA-Z0-9._]+",
-			"DRIVER"             : "\{[^}]*\}",
-			"DATABASE"           : "[ a-zA-Z0-9._]+",
-			"SERVER"             : "[- a-zA-Z0-9\._\\\]+",
-			"PROTOCOL"           : "[a-zA-Z]+",
-			"PORT"               : "[0-9]+",
-			"DB"                 : "[a-zA-Z0-9._]*",
-			"DATA SOURCE"        : "[a-zA-Z_0-9\\/]+",
-			"TRUSTED_CONNECTION" : "[a-zA-Z]*"
-		}
 
 		# Not letter, then the keyword, then "=", then the value regex, then possibly the delimiter.
-		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + mapRgxODBC[key] + " *" for key in mapRgxODBC ])
-		# rgxDSN = "|".join([ "[^a-zA-Z_ ]" + key + " *= *" + mapRgxODBC[key] + " *" for key in mapRgxODBC ])
-		# rgxDSN = "|".join([ "[^a-zA-Z_ ]" + key + " *= *" + mapRgxODBC[key] + " *" for key in mapRgxODBC ])
-		# rgxDSN = "|".join([ key + " *= *" + mapRgxODBC[key] + " *;?" for key in mapRgxODBC ])
+		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
+		# This works also. Both are very slow.
+		# rgxDSN = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
 		sys.stderr.write("rgxDSN=%s\n"%rgxDSN)
+
+
+		# TODO: OPTIONALLY ADD NON-ASCII CHAR AT THE VERY BEGINNING. SLIGHTLY SAFER AND FASTER.
+		# rgxDSN = "[^a-zA-Z]" + regDSN
+
 
 		resuMatches = memory_regex_search.GetRegexMatches(pidint,rgxDSN, re.IGNORECASE)
 
@@ -90,23 +99,18 @@ def Main():
 		# 34801013: SERVER=\RCHATEAU-HP
 		# 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
 
-		for aggregOffset in aggregDsns:
-			# Do not take the character before the keyword.
-			aggregDSN = aggregDsns[aggregOffset]
-			sys.stderr.write("aggregOffset=%s\n"%aggregOffset)
-			# dsnToken = str(matchedOffset) + " = " + matchedStr[1:]
-			dsnFull = str(aggregOffset) + ": " + aggregDSN
-			sys.stderr.write("dsnFull=%s\n"%dsnFull)
-			grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(dsnFull) ) )
+		return aggregDsns
 
-			### NO! Confusion between DSN and connection string.
-			# All the existing code does: ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
-			# which basically creates "DSN=dsvNam;PWD=..." but here we already have the connection string.
-			# TODO: Should we assimilate both ???
-			nodeDsn = survol_odbc_dsn.MakeUri( aggregDSN )
-			grph.add( (node_process, pc.property_odbc_dsn, nodeDsn ) )
-			grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral("Le driver") ) )
+		# Last pass after aggregation:
+		# If several tokens were aggregated and are still separated by a few chars (20, 30 etc...),
+		# we can assume that they are part of the same connection string,
+		# especially they contain complementary keywords (UID them PWD etc...)
+		# So, it does not really matter if some rare keywords are not known.
+		# We could have a last pass to extract these keywords: Although we are by definition unable
+		# able to use their content explicitely, a complete connection string can still be used
+		# to connect to ODBC.
 
+		# http://www.dofactory.com/reference/connection-strings
 
 		# TODO: Instead of just displaying the DSN, connect to it, list tables etc...
 
@@ -114,7 +118,65 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
 
+
+
+
+def Main():
+	cgiEnv = lib_common.CgiEnv()
+	pidint = int( cgiEnv.GetId() )
+
+	grph = cgiEnv.GetGraph()
+
+	aggregDsns = GetAggregDsns(pidint)
+
+	node_process = lib_common.gUriGen.PidUri(pidint)
+
+
+	# TODO: Eliminate aggrehated strings containing one or two tokens,
+	# because they cannot be genuine DSNs.
+	# 29812569: SERVER=\RCHATEAU-HP
+	# 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+	# 34801013: SERVER=\RCHATEAU-HP
+	# 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+
+	for aggregOffset in aggregDsns:
+		# Do not take the character before the keyword.
+		aggregDSN = aggregDsns[aggregOffset]
+		sys.stderr.write("aggregOffset=%s\n"%aggregOffset)
+		dsnFull = str(aggregOffset) + ": " + aggregDSN
+		sys.stderr.write("dsnFull=%s\n"%dsnFull)
+		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(dsnFull) ) )
+
+		### NO! Confusion between DSN and connection string.
+		# All the existing code does: ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
+		# which basically creates "DSN=dsvNam;PWD=..." but here we already have the connection string.
+		# TODO: Should we assimilate both ???
+		nodeDsn = survol_odbc_dsn.MakeUri( aggregDSN )
+		grph.add( (node_process, pc.property_odbc_dsn, nodeDsn ) )
+		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral("Le driver") ) )
+
+
+
 	cgiEnv.OutCgiRdf()
+
+# This is used by query_vs_databases.py, to associate connection strigns with queries found in memory.
+def DatabaseEnvParams(processId):
+
+	dsnList = []
+	aggregDsns = GetAggregDsns(int(processId))
+
+	for aggregOffset in aggregDsns:
+		# Do not take the character before the keyword.
+		aggDSN = aggregDsns[aggregOffset]
+
+		# TODO: Passwords are not crypted here, so decrypting will not work.
+
+		dsnList.append( { survol_odbc.CgiPropertyDsn(): aggDSN } )
+
+	# Should be odbc.
+	return ( "sqlserver/query", dsnList )
+
+
 
 if __name__ == '__main__':
 	Main()
@@ -146,6 +208,7 @@ if __name__ == '__main__':
 # Uid=myUsername;Pwd=myPassword;SELECTLOOPS=N;Extended Properties="SERVER=xxxxx;
 # DATABASE=xxxxx;SERVERTYPE=INGRES";
 
+# https://www.sqlservercentral.com/Forums/Topic1101451-392-1.aspx
 # A DSN (Data Source Name) is an identifier which defines a data source for an ODBC driver.
 # It consists of information such as: Database name, Directory, Database driver, User ID, Password
 #

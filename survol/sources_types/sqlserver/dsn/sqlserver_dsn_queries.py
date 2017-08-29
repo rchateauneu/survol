@@ -11,7 +11,6 @@ from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.sqlserver import session
 from sources_types.sqlserver import query as sql_query
-# from sources_types.sql import query as sql_query
 
 
 try:
@@ -24,7 +23,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
+	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
 	sys.stderr.write("dsn=(%s)\n" % dsnNam)
 

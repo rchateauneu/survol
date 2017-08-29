@@ -32,13 +32,19 @@ def Main():
 	arrProps = []
 
 	# "oracle", "sqlserver", "sqlite" etc ...
-	for namDbType in lib_sql.listModulesUsingSqlQueries :
-		sys.stderr.write("namDbType=%s\n"%namDbType)
+	for ( namDbType, scriptNam ) in lib_sql.listModulesUsingSqlQueries :
+		sys.stderr.write("\nnamDbType=%s scriptNam=%s\n"%(namDbType,scriptNam))
 		# TODO: We should check if the syntax of the query is conformant to the database.
 		# TODO: We should check if the process is linked with this database.
 
+		lib_util.GetScriptModule
+
+		moduleDbType = lib_util.GetScriptModule(namDbType, scriptNam)
+		nodeTypeDb = lib_util.FromModuleToDoc(moduleDbType,scriptNam[:-3])
+
+
+
 		# This creates a non-clickable node. TODO: DOES NOT WORK ??
-		nodeTypeDb = lib_util.DirDocNode("sources_types",namDbType)
 
 		propTypeThisDb = lib_common.MakeProp(namDbType)
 		arrProps.append(propTypeThisDb)
@@ -47,8 +53,8 @@ def Main():
 		try:
 
 			# Now transforms the list of tables or views into nodes for this database.
-			moduleDbType = lib_util.GetEntityModule(namDbType)
 			if not moduleDbType:
+				sys.stderr.write("No module for namDbType=%s\n"%namDbType)
 				continue
 
 			try:
@@ -65,27 +71,35 @@ def Main():
 			if not dbTp_envParams:
 				continue
 
+
 			queryEntity = dbTp_envParams[0]
+			moduleQueryEntity = lib_util.GetEntityModule(queryEntity)
+			if not moduleQueryEntity:
+				# Should not happen, otherwise how can we get the parameters for this ?
+				sys.stderr.write("queryEntity=%s. No module\n"%queryEntity)
+				continue
+
 			listArgs = dbTp_envParams[1]
 
 			# For example ( "oracle/query", ( { "Db":"XE" } ) )
 			for connectionKW in listArgs:
-				sys.stderr.write("connectionKW=%s\n"%connectionKW)
 
-				moduleQueryEntity = lib_util.GetEntityModule(queryEntity)
-				if not moduleQueryEntity:
-					# Should not happen, otherwise how can we get the parameters for this ?
-					continue
+				# sys.stderr.write("queryEntity=%s connectionKW=%s\n"%(queryEntity,connectionKW))
+
 
 				try:
 					# HELAS ON FAIT LE TRAVAIL DEUX FOIS, DE TESTER SI LES SHEETS SONT DES TABLES OU DES VIEWS.
 					# Il faudrait un mode degrade ou on ne fait que tester.
 					# "oracle.query.QueryToNodesList()" defined in "oracle/query/__init__.py"
+					# sys.stderr.write("queryEntity=%s moduleQueryEntity=%s\n"%(queryEntity,str(moduleQueryEntity)))
 					listTableNodes = moduleQueryEntity.QueryToNodesList(sqlQuery,connectionKW,list_of_tables)
 				except Exception:
+					exc = sys.exc_info()[0]
+					sys.stderr.write("queryEntity=%s Caught %s\n"%(queryEntity,str(exc)))
 					continue
 
 				if not listTableNodes:
+					sys.stderr.write("No nodes\n")
 					continue
 
 				# We know this is a valid query for this connection, so we add a link to it.

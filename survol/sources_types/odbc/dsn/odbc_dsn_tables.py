@@ -8,7 +8,6 @@ import sys
 import lib_util
 import lib_common
 from lib_properties import pc
-# from sources_types import odbc as survol_odbc
 from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.odbc import table as survol_odbc_table
 
@@ -22,7 +21,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
+    dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
     sys.stderr.write("dsn=(%s)\n" % dsnNam )
 

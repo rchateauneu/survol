@@ -21,7 +21,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
+	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
 	sys.stderr.write("dsn=(%s)\n" % dsnNam)
 

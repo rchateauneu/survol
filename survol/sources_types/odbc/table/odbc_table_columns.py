@@ -8,7 +8,6 @@ import sys
 import lib_util
 import lib_common
 from lib_properties import pc
-# from sources_types import odbc as survol_odbc
 from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.odbc import table as survol_odbc_table
 from sources_types.odbc import column as survol_odbc_column
@@ -23,7 +22,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    dsnNam = cgiEnv.m_entity_id_dict["Dsn"]
+    dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
     tabNam = cgiEnv.m_entity_id_dict["Table"]
 
     sys.stderr.write("dsn=%s tabNam=%s\n" % (dsnNam, tabNam ) )
@@ -33,8 +32,10 @@ def Main():
 
     # ('C:\\Program Files (x86)\\Microsoft Visual Studio 8\\Crystal Reports\\Samples\\en\\Databases\\xtreme', None, 'MSysAccessObjects', 'SYSTEM TABLE', None)
 
+    ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
+
     try:
-        cnxn = pyodbc.connect("DSN=%s" % dsnNam)
+        cnxn = pyodbc.connect(ODBC_ConnectString)
         sys.stderr.write("Connected: %s\n" % dsnNam)
         cursor = cnxn.cursor()
 

@@ -42,7 +42,8 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 		sys.stderr.write("dsn=%s driver=%s type=%s\n" % ( dsn, driver, dsn_type) )
 		odbc_iter_code = odbc.SQL_FETCH_NEXT
 
-		nodeDsn = survol_odbc_dsn.MakeUri( dsn )
+		# This creates a connection string.
+		nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
 		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral(driver) ) )
 		grph.add( (nodeDsn, propDsnType, littDsnType ) )

@@ -9,11 +9,13 @@ def AddInfo(grph,node,entity_ids_arr):
 	grph.add( ( nodeDsn, lib_common.MakeProp("Sqlserver DSN"), node ) )
 
 def EntityOntology():
-	return ( ["Dsn", "Schema"], )
+	return ( [sqlserver_dsn.CgiPropertyDsn(), "Schema"], )
+
+
 
 # Beware of the possible confusion with normal users.
 def MakeUri(dsnName,schemaName):
-	return lib_common.gUriGen.UriMakeFromDict("sqlserver/schema", { "Dsn" : dsnName, "Schema" : schemaName } )
+	return lib_common.gUriGen.UriMakeFromDict("sqlserver/schema", { sqlserver_dsn.CgiPropertyDsn() : dsnName, "Schema" : schemaName } )
 
 def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[0] + "." + entity_ids_arr[1]
