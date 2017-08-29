@@ -1,7 +1,6 @@
 import os
 import os.path
 import sys
-import psutil
 import socket
 import urllib
 import platform

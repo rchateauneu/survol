@@ -7,7 +7,6 @@ Overview
 import os
 import re
 import sys
-import psutil
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -39,16 +38,12 @@ from sources_types import CIM_ComputerSystem
 
 ################################################################################
 
-def CurrentUser():
-	currProc = psutil.Process(os.getpid())
-	return CIM_Process.PsutilProcToUser(currProc)
-
 def AddDefaultNodes(grph,rootNode,entity_host):
 	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
 	grph.add( ( currentNodeHostname, pc.property_information, lib_common.NodeLiteral("Current host:"+lib_util.currentHostname) ) )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeHostname ) )
 
-	currUsername = CurrentUser()
+	currUsername = CIM_Process.GetCurrentUser()
 	currentNodeUser = lib_common.gUriGen.UserUri( currUsername )
 	grph.add( ( currentNodeUser, pc.property_information, lib_common.NodeLiteral("Current user:"+currUsername) ) )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeUser ) )

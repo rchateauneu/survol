@@ -5,7 +5,6 @@ System Properties
 """
 
 import sys
-import psutil
 import lib_common
 import lib_uris
 from sources_types import CIM_Process

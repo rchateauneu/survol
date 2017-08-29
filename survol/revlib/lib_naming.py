@@ -1,5 +1,4 @@
 import lib_util
-import psutil
 import cgi
 import sys
 import os

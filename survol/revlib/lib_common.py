@@ -1,7 +1,6 @@
 
 import socket
 import urllib
-import psutil
 import subprocess
 import six
 import lib_exports

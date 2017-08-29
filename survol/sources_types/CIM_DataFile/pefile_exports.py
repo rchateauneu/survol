@@ -11,7 +11,6 @@ Pefile exports
 import os
 import sys
 import time
-import psutil
 import lib_util
 import lib_uris
 import lib_common

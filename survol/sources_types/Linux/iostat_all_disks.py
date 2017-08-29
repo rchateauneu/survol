@@ -5,7 +5,6 @@ import lib_util
 import os
 import re
 import sys
-import psutil
 import socket
 from lib_properties import pc
 

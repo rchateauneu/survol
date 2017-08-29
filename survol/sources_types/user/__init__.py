@@ -3,7 +3,6 @@ Operating system user
 """
 
 import sys
-import psutil
 import lib_common
 from lib_properties import pc
 

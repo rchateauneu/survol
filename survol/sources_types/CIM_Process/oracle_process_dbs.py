@@ -6,8 +6,6 @@ Oracle databases accessed
 
 import os
 import sys
-import psutil
-
 import lib_common
 from lib_properties import pc
 

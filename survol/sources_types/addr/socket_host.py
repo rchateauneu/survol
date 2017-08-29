@@ -6,7 +6,6 @@ Socket information
 
 import re
 import sys
-import psutil
 import socket
 
 import lib_common

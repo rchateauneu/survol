@@ -1,3 +1,4 @@
+import os
 import sys
 import psutil
 import lib_common
@@ -16,12 +17,18 @@ except ImportError:
 	from psutil._error import AccessDenied
 
 # Very often, a process vanishes quickly so this error happens often.
-def PsutilGetProcObj(pid):
+def PsutilGetProcObj(pid = 0):
 	try:
+		if pid == 0:
+			pid = os.getpid()
 		return psutil.Process(pid)
 	except NoSuchProcess:
 		lib_common.ErrorMessageHtml("No such process:"+str(pid))
 
+# If psutil is not available, consider "getpass.getuser()"
+def GetCurrentUser():
+	currProc = PsutilGetProcObj()
+	return PsutilProcToUser(currProc)
 
 ################################################################################
 # These functions because of differences between psutil versions.

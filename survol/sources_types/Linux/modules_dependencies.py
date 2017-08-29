@@ -7,7 +7,6 @@ Linux modules dependencies
 import lib_common
 import lib_util
 import sys
-import psutil
 import socket
 import lib_modules
 

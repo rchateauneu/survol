@@ -1,6 +1,5 @@
 import sys
 import six
-import psutil
 import lib_common
 import lib_util
 from lib_properties import pc

@@ -7,7 +7,6 @@ Shared library dependencies (Linux)
 import os
 import re
 import sys
-import psutil
 import socket
 import urllib
 import lib_util
