@@ -30,6 +30,10 @@ def GetCurrentUser():
 	currProc = PsutilGetProcObj()
 	return PsutilProcToUser(currProc)
 
+# This isolates
+def ProcessIter():
+	return psutil.process_iter()
+
 ################################################################################
 # These functions because of differences between psutil versions.
 

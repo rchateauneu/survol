@@ -8,11 +8,9 @@ import os
 import re
 import sys
 import six
-import psutil
 import lib_util
 import lib_common
 from lib_properties import pc
-
 from sources_types import CIM_Process
 
 def FilterPathLinux(path):
@@ -142,7 +140,7 @@ def Main():
 
 	mapToProc = {}
 
-	for proc in psutil.process_iter():
+	for proc in CIM_Process.ProcessIter():
 
 		# TODO: Instead, should test psutil version !!!
 		try:

@@ -15,7 +15,7 @@ import socket
 import psutil
 
 from six.moves import builtins
-
+from sources_types import CIM_Process
 
 # required to access _ctypes
 import _ctypes
@@ -792,7 +792,7 @@ def DoAll(lstStructs,verbose=True):
 		pidint = int(sys.argv[1])
 		ProcessMemoryScan(pidint, lstStructs, maxDisplay,verbose)
 	else:
-		for i in psutil.process_iter():
+		for i in CIM_Process.ProcessIter():
 			print("Pid=%d name=%s" % ( i.pid, i.name() ) )
 			try:
 				ProcessMemoryScan(i.pid, lstStructs, maxDisplay,verbose)

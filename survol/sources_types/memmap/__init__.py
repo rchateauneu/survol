@@ -6,7 +6,6 @@ import os
 import sys
 import lib_util
 import lib_common
-import psutil
 
 from lib_properties import pc
 from sources_types import CIM_Process
@@ -55,7 +54,7 @@ def DisplayMappedProcesses(grph,fileName):
 	grph.add( ( uriMappedFile, pc.property_file_size, lib_common.NodeLiteral(fileSize) ) )
 
 	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
-	for proc in psutil.process_iter():
+	for proc in CIM_Process.ProcessIter():
 
 		if lib_common.UselessProc(proc):
 			continue
