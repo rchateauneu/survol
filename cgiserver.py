@@ -51,7 +51,8 @@ if 'win' in sys.platform:
     # This is necessary for revlib which is otherwise not found.
     pyKey = "PYTHONPATH"
     # extraPath = "survol/revlib"
-    extraPath = "survol;survol/revlib"
+    # extraPath = "survol;survol/revlib"
+    extraPath = "survol"
     try:
         os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
     except KeyError:
@@ -61,7 +62,7 @@ if 'win' in sys.platform:
 # This also works on Windows and Python 3.
 if 'linux' in sys.platform:
     sys.path.append("survol")
-    sys.path.append("survol/revlib")
+    # sys.path.append("survol/revlib")
     sys.stderr.write("path=%s\n"% str(sys.path))
 
 #sys.path.append("survol")

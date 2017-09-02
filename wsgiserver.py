@@ -167,7 +167,7 @@ cnt=0
 port = 9000
 
 sys.path.append("survol")
-sys.path.append("survol/revlib")
+# sys.path.append("survol/revlib")
 sys.stderr.write("path=%s\n"% str(sys.path))
 
 
