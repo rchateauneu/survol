@@ -1,0 +1,3 @@
+include Docs/*
+include */htm
+include */js

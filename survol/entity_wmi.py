@@ -11,7 +11,6 @@ WMI instance
 """
 
 import sys
-import six
 import lib_common
 import lib_wmi
 import lib_util
@@ -44,7 +43,7 @@ def WmiReadWithQuery( cgiEnv, connWmi, className ):
 		lib_common.ErrorMessageHtml("Query=%s Caught:%s" % ( aQry, str(exc) ) )
 
 # Add all usual Python types.
-scalarDataTypes = six.string_types + ( six.text_type, six.binary_type ) + six.integer_types
+scalarDataTypes = lib_common.six_string_types + ( lib_common.six_text_type, lib_common.six_binary_type ) + lib_common.six_integer_types
 
 
 # This is a hard-coded list of properties which cannot be displayed.

@@ -2,7 +2,6 @@
 import socket
 import urllib
 import subprocess
-import six
 import lib_exports
 import lib_grammar
 
@@ -18,7 +17,6 @@ try:
 except ImportError:
 	from urllib.parse import unquote
 
-# import threading
 import signal
 import sys
 import cgi
@@ -42,6 +40,37 @@ import rdflib
 # Functions for creating uris are imported in the global namespace.
 from lib_uris import *
 import lib_uris
+
+################################################################################
+
+# This avoids needing the "six" module which is not always available.
+# On some environments, it is a hassle to import it.
+if sys.version_info >= (3,):
+	def six_iteritems(array):
+			return array.items()
+
+	def six_u(aStr):
+		return aStr
+
+	six_string_types = str,
+	six_integer_types = int,
+	#six_class_types = type
+	six_text_type = str
+	six_binary_type = bytes
+
+	# from six.moves import builtins
+else:
+	def six_iteritems(array):
+		return array.iteritems()
+
+	def six_u(aStr):
+		return unicode(aStr.replace(r'\\', r'\\\\'), "unicode_escape")
+
+	six_string_types = basestring,
+	six_integer_types = (int, long)
+	#six_class_types = (type, types.ClassType)
+	six_text_type = unicode
+	six_binary_type = str
 
 ################################################################################
 
@@ -471,7 +500,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		dictCollapsedSubjectsToObjectLists = dictPropsCollapsedSubjectsToObjectLists[propNam]
 		logfil.write( TimeStamp()+" Rdf2Dot: dictCollapsedSubjectsToObjectLists=%d.\n" % ( len( dictCollapsedSubjectsToObjectLists ) ) )
 
-		for subjUrl, nodLst in six.iteritems(dictCollapsedSubjectsToObjectLists):
+		for subjUrl, nodLst in six_iteritems(dictCollapsedSubjectsToObjectLists):
+		# for subjUrl, nodLst in six.iteritems(dictCollapsedSubjectsToObjectLists):
 			subjNam = RdfNodeToDotLabel(subjUrl)
 
 			subjNamTab = CollapsedLabel(propNam,subjNam)
@@ -694,7 +724,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. dictRdf2Dot=%d\n" % len(dictRdf2Dot) )
 
 	# Now, display the normal nodes, which are not displayed in tables.
-	for objRdfNode, objLabel in six.iteritems(dictRdf2Dot):
+	# for objRdfNode, objLabel in six.iteritems(dictRdf2Dot):
+	for objRdfNode, objLabel in six_iteritems(dictRdf2Dot):
 		# TODO: Avoids this lookup.
 		if objLabel in dictCollapsedObjectLabelsToSubjectLabels :
 			continue

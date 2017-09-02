@@ -9,7 +9,6 @@ Python properties
 import os
 import os.path
 import sys
-import six
 import lib_util
 import lib_uris
 import lib_common

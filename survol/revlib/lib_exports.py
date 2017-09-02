@@ -10,9 +10,21 @@ import cgi
 import re
 import os
 import json
-import six
 
-from six.moves.html_parser import HTMLParser
+#import six
+#from six.moves.html_parser import HTMLParser
+# When the new Python 3 name is a package, the components of the name are separated by underscores.
+# For example, html.parser becomes html_parser
+try:
+	# Python 3
+	#import html
+	#from html import parser
+	#from html.parser import HTMLParser
+	from HTMLParser import HTMLParser
+except AttributeError: # ImportError:
+	# Python2 ?
+	import html_parser
+	from html_parser import HTMLParser
 
 try:
 	from urlparse import urlparse
@@ -317,7 +329,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 					# https://stackoverflow.com/questions/9942594/unicodeencodeerror-ascii-codec-cant-encode-character-u-xa0-in-position-20
 					subjObj.m_info_list.append( obj.value.encode('utf-8') )
 			else:
-				if isinstance(obj.value, six.integer_types) or isinstance(obj.value, six.string_types):
+				if isinstance(obj.value, lib_common.six_integer_types) or isinstance(obj.value, lib_common.six_string_types):
 					subjObj.m_info_dict[propNam] = obj.value
 				else:
 					# If the value cannot be serializable to JSON.

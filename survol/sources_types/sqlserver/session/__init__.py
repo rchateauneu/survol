@@ -3,7 +3,6 @@ Sqlserver session
 """
 
 import sys
-import six
 import lib_common
 from lib_properties import pc
 
@@ -27,8 +26,8 @@ def MakeUri(dsn,sessionId):
 
 
 def AddInfo(grph,node,entity_ids_arr):
-	dsnNam = six.u(entity_ids_arr[0])
-	sessionId = six.u(entity_ids_arr[1])
+	dsnNam = lib_common.six_u(entity_ids_arr[0])
+	sessionId = lib_common.six_u(entity_ids_arr[1])
 
 	nodeDsn = survol_sqlserver_dsn.MakeUri(dsnNam)
 

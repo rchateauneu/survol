@@ -7,7 +7,6 @@ Shared memory segments.
 import os
 import re
 import sys
-import six
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -154,7 +153,7 @@ def Main():
 	addedProcs = {}
 
 	# Now display only memory maps with more than one process linked to it.
-	for mapPath, procLst in six.iteritems( mapToProc ):
+	for mapPath, procLst in lib_common.six_iteritems( mapToProc ):
 		if len(procLst) <= 0 :
 			continue
 
@@ -173,7 +172,7 @@ def Main():
 	# TODO: They could also be displayed based on the hierarchy of their
 	# associated file in the directory tree.
 
-	for pid, nodeProcess in six.iteritems( addedProcs ):
+	for pid, nodeProcess in lib_common.six_iteritems( addedProcs ):
 		grph.add( ( nodeProcess, pc.property_pid, lib_common.NodeLiteral(pid) ) )
 
 

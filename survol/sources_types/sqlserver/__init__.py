@@ -2,6 +2,9 @@
 SqlServer objects
 """
 
+# https://www.haidongji.com/2010/10/25/list-all-database-files-in-a-sql-server-instance-with-python-and-pyodbc/
+# List all database files in a SQL Server instance with Python and pyodbc
+
 import pyodbc
 from sources_types import odbc as survol_odbc
 

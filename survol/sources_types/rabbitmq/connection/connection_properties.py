@@ -7,7 +7,6 @@ RabbitMQ connection properties
 import sys
 import lib_common
 import lib_credentials
-from six import string_types
 from lib_properties import pc
 from pyrabbit.api import Client
 from sources_types import rabbitmq
@@ -62,7 +61,7 @@ def Main():
 			pass
 		else:
 
-			if isinstance(connectVal, string_types):
+			if isinstance(connectVal, lib_common.six_string_types):
 				connectVal = connectVal.replace(">","@") # .replace("{","@").replace("}","@")
 
 				sys.stderr.write("connectKey=%s connectVal=%s\n"%(connectKey,connectVal))
