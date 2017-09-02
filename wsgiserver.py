@@ -157,20 +157,18 @@ def application(environ, start_response):
 		sys.stderr.write("CAUGHT:%s\n"%str(exc))
 		return the_dflt(environ, start_response)
 
+def RunWsgi():
+	cnt=0
 
-cnt=0
+	port = 9000
 
-# SetPathOS()
-# SetPath(os.environ)
+	httpd = server.make_server('', port, application)
+	print "Serving HTTP on port %i..." % port
+	# Respond to requests until process is killed
+	httpd.serve_forever()
 
-port = 9000
-
-sys.path.append("survol")
-sys.path.append("survol/revlib")
-sys.stderr.write("path=%s\n"% str(sys.path))
-
-
-httpd = server.make_server('', port, application)
-print "Serving HTTP on port %i..." % port
-# Respond to requests until process is killed
-httpd.serve_forever()
+if __name__ == '__main__':
+    sys.path.append("survol")
+    sys.path.append("survol/revlib")
+    sys.stderr.write("path=%s\n"% str(sys.path))
+	RunWsgiServer()

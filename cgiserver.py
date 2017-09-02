@@ -19,6 +19,8 @@ import getopt
 import os
 pyKey = "PYTHONPATH"
 
+# TODO: Add an option for launching a browser.
+
 # Several problems with this script.
 # * It fails if a page is called survol.htm
 # * It collapses repeated slashes "///" into one "/".
@@ -59,32 +61,35 @@ def ServerForever(server):
     else:
         server.serve_forever()
 
-# Default value
-port_number = 8000
 
 def Usage():
 	print("Survol HTTP server")
 
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hp:v", ["help", "port="])
+    opts, args = getopt.getopt(sys.argv[1:], "hp:b:v", ["help", "port=","browser=","verbose"])
 except getopt.GetoptError as err:
     # print help information and exit:
     print(err)  # will print something like "option -a not recognized"
     Usage()
     sys.exit(2)
-output = None
+
 verbose = False
+port_number = 8000
+browser_name = None
+
 for anOpt, aVal in opts:
-    if anOpt == "-v":
+    if anOpt == ("-v", "--verbose"):
         verbose = True
+    elif anOpt in ("-p", "--port"):
+        port_number = int(aVal)
+    elif anOpt in ("-b", "--browser"):
+        browser_name = aVal
     elif anOpt in ("-h", "--help"):
         usage()
         sys.exit()
-    elif anOpt in ("-p", "--port"):
-        port_number = int(aVal)
     else:
-        assert False, "unhandled option"
+        assert False, "Unhandled option"
 
 print("Opening port %d" % port_number)
 
