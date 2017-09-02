@@ -4,6 +4,7 @@
 
 import os
 import re
+import six
 import sys
 import importlib
 import wsgiref.simple_server as server
@@ -157,18 +158,20 @@ def application(environ, start_response):
 		sys.stderr.write("CAUGHT:%s\n"%str(exc))
 		return the_dflt(environ, start_response)
 
-def RunWsgiServer():
-	cnt=0
 
-	port = 9000
+cnt=0
 
-	httpd = server.make_server('', port, application)
-	print "Serving HTTP on port %i..." % port
-	# Respond to requests until process is killed
-	httpd.serve_forever()
+# SetPathOS()
+# SetPath(os.environ)
 
-if __name__ == '__main__':
-    sys.path.append("survol")
-    sys.path.append("survol/revlib")
-    sys.stderr.write("path=%s\n"% str(sys.path))
-    RunWsgiServer()
+port = 9000
+
+sys.path.append("survol")
+sys.path.append("survol/revlib")
+sys.stderr.write("path=%s\n"% str(sys.path))
+
+
+httpd = server.make_server('', port, application)
+print "Serving HTTP on port %i..." % port
+# Respond to requests until process is killed
+httpd.serve_forever()
