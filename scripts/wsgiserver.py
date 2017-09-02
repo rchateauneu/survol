@@ -157,7 +157,7 @@ def application(environ, start_response):
 		sys.stderr.write("CAUGHT:%s\n"%str(exc))
 		return the_dflt(environ, start_response)
 
-def RunWsgi():
+def RunWsgiServer():
 	cnt=0
 
 	port = 9000
@@ -171,4 +171,4 @@ if __name__ == '__main__':
     sys.path.append("survol")
     sys.path.append("survol/revlib")
     sys.stderr.write("path=%s\n"% str(sys.path))
-	RunWsgiServer()
+    RunWsgiServer()
