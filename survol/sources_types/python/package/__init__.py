@@ -185,7 +185,7 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 			AddImportedModules.dictModules[moduFil] = fileNode
 		return fileNode
 
-	for moduNam, mod in lib_common.six_iteritems( finder.modules ):
+	for moduNam, mod in lib_util.six_iteritems( finder.modules ):
 		splitNam = moduNam.split(".")
 		# sys.stderr.write("splitNam=%s\n"%str(splitNam))
 		# sys.stderr.write("mod=%s\n"%str(mod))

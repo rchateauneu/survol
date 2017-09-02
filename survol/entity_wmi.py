@@ -43,7 +43,7 @@ def WmiReadWithQuery( cgiEnv, connWmi, className ):
 		lib_common.ErrorMessageHtml("Query=%s Caught:%s" % ( aQry, str(exc) ) )
 
 # Add all usual Python types.
-scalarDataTypes = lib_common.six_string_types + ( lib_common.six_text_type, lib_common.six_binary_type ) + lib_common.six_integer_types
+scalarDataTypes = lib_util.six_string_types + ( lib_util.six_text_type, lib_util.six_binary_type ) + lib_util.six_integer_types
 
 
 # This is a hard-coded list of properties which cannot be displayed.

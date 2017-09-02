@@ -143,7 +143,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	# BEWARE: "{}" have been stripped because they crash graphviz
 	# ... but they did not in the "past". Why ?
 	##### NOT ANYMORE BECAUSE OF WMI productIdentifyingNumber = "{" + six.u(entity_ids_arr[0]) + "}"
-	productIdentifyingNumber = lib_common.six_u(entity_ids_arr[0])
+	productIdentifyingNumber = lib_util.six_u(entity_ids_arr[0])
 
 
 	sys.stderr.write("productIdentifyingNumber=%s\n"%str(productIdentifyingNumber))

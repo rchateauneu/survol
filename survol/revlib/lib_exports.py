@@ -329,7 +329,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 					# https://stackoverflow.com/questions/9942594/unicodeencodeerror-ascii-codec-cant-encode-character-u-xa0-in-position-20
 					subjObj.m_info_list.append( obj.value.encode('utf-8') )
 			else:
-				if isinstance(obj.value, lib_common.six_integer_types) or isinstance(obj.value, lib_common.six_string_types):
+				if isinstance(obj.value, lib_util.six_integer_types) or isinstance(obj.value, lib_util.six_string_types):
 					subjObj.m_info_dict[propNam] = obj.value
 				else:
 					# If the value cannot be serializable to JSON.

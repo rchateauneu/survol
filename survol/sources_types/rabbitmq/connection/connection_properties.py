@@ -61,7 +61,7 @@ def Main():
 			pass
 		else:
 
-			if isinstance(connectVal, lib_common.six_string_types):
+			if isinstance(connectVal, lib_util.six_string_types):
 				connectVal = connectVal.replace(">","@") # .replace("{","@").replace("}","@")
 
 				sys.stderr.write("connectKey=%s connectVal=%s\n"%(connectKey,connectVal))

@@ -153,7 +153,7 @@ def AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id):
 
 	# Match the two inheritance trees.
 	if pairNameNodeWbem and pairNameNodeWmi:
-		for ( baseClsNam, nodeWbem ) in lib_common.six_iteritems( pairNameNodeWbem ):
+		for ( baseClsNam, nodeWbem ) in lib_util.six_iteritems( pairNameNodeWbem ):
 			try:
 				nodeWmi = pairNameNodeWmi[baseClsNam]
 			except KeyError:
