@@ -48,8 +48,12 @@ def ServerForever(server):
         server.serve_forever()
 
 
-def Usage():
-    print("Survol HTTP server")
+def Usage(progNam):
+    print("Survol HTTP server: %s"%progNam)
+    print("    -p,--port=<number>      TCP/IP port number")
+    # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+    print("    -b,--browser=<program>  Starts a browser")
+    print("    -v,--verbose            Verbose mode")
 
 # Setup creates a binary script which directly calls this function.
 # This changes the current directory, so that URLs can point to plain Python scripts.
@@ -128,7 +132,7 @@ def RunCgiServerInternal():
         elif anOpt in ("-b", "--browser"):
             browser_name = aVal
         elif anOpt in ("-h", "--help"):
-            usage()
+            Usage(sys.argv[0])
             sys.exit()
         else:
             assert False, "Unhandled option"
@@ -146,6 +150,31 @@ def RunCgiServerInternal():
     print("Opening port %d" % port_number)
     print("sys.path=%s"% str(sys.path))
     print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+
+    # Starts a thread which will starts the browser.
+    if browser_name:
+        # Import only if needed.
+        import threading
+        import time
+        import subprocess
+
+        def StartBrowserProcess():
+            theUrl = "http://127.0.0.1"
+            if port_number:
+                if port_number != 80:
+                    theUrl += ":%d" % port_number
+            theUrl += "/index.htm"
+
+            print("About to start browser: %s %s"%(browser_name,theUrl))
+
+            # Leaves a bit of time so the HTTP server can start.
+            time.sleep(5)
+
+            subprocess.check_call([browser_name, theUrl])
+
+        threading.Thread(target=StartBrowserProcess).start()
+        print("Browser thread started")
+
 
     if sys.version_info[0] < 3:
         import CGIHTTPServer
