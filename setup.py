@@ -30,34 +30,38 @@ from setuptools import find_packages
 
 sys.stdout.write("Packages=%s\n"%find_packages())
 
-setup(name='survol',
-      version='1.0dev',
-      description='Understanding legacy applications',
-      author='Remi Chateauneu',
-      author_email='remi.chateauneu@primhillcomputers.com',
-      url='http://www.primhillcomputers.com/survol',
-	  packages=find_packages(),
-      package_dir = {"survol": "survol"},
-	  requires=['rdflib','cgi','six'],
-	  scripts=['cgiserver.py','wsgiserver.py','webserver.py'],
-	  data_files=['*.htm','*.js','*.css','Docs/*.txt'],
-      classifiers=[
-          'Development Status :: 3 - Alpha',
-          'Environment :: Web Environment',
-          'Intended Audience :: Developers',
-          'Intended Audience :: System Administrators',
-		  'Intended Audience :: Education',
-		  'Intended Audience :: Information Technology',
-          'License :: OSI Approved :: Python Software Foundation License',
-          'Operating System :: MacOS :: MacOS X',
-          'Operating System :: Microsoft :: Windows',
-          'Operating System :: POSIX',
-          'Programming Language :: Python',
-		  'Programming Language :: JavaScript',
-          'Topic :: Software Development :: Bug Tracking',
-		  'Topic :: Education',
-		  'Topic :: Software Development :: Documentation',
-		  'Topic :: System :: Systems Administration',
-		  'Topic :: Documentation'
-          ]
-	  )
+#	  data_files=['*.htm','*.js','*.css','Docs/*.txt'],
+
+setup(
+    name='survol',
+    version='1.0dev',
+    description='Understanding legacy applications',
+    author='Remi Chateauneu',
+    author_email='remi.chateauneu@primhillcomputers.com',
+    url='http://www.primhillcomputers.com/survol.htm',
+    packages=find_packages(),
+    package_dir = {"survol": "survol"},
+    include_package_data=True,
+    entry_points = { 'console_scripts': [ 'survol_cgiserver = survol.scripts.cgiserver:RunCgiServer']},
+    requires=['rdflib','cgi','six'],
+    # scripts=['cgiserver.py','wsgiserver.py','webserver.py'],
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'Intended Audience :: Education',
+        'Intended Audience :: Information Technology',
+        'License :: OSI Approved :: Python Software Foundation License',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
+        'Programming Language :: JavaScript',
+        'Topic :: Software Development :: Bug Tracking',
+        'Topic :: Education',
+        'Topic :: Software Development :: Documentation',
+        'Topic :: System :: Systems Administration',
+        'Topic :: Documentation'
+    ]
+    )
