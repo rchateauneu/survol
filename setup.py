@@ -32,6 +32,21 @@ sys.stdout.write("Packages=%s\n"%find_packages())
 
 #	  data_files=['*.htm','*.js','*.css','Docs/*.txt'],
 
+# Must add htm and js files. Which directory ?
+# Problem because the HTTP server, in the cgiserver.py configuration,
+# is pointing directory to the Python packages.
+# => Copy ui/Images into survol/Images and make a Python data directory.
+# ui is also an independant static HTML/Javascript website.
+#
+# What is the traditional way to install html files ?
+# And the easiest way to install them in Apache or any other HTTP server ?
+#
+# We should deliver two installers:
+# * setup.py which installs the agent and also the UI while we are at it.
+# * a simple static HTML website installer, using only "ui" directory.
+#
+# Docs is not copied anywhere.
+
 setup(
     name='survol',
     version='1.0dev',
@@ -42,7 +57,10 @@ setup(
     packages=find_packages(),
     package_dir = {"survol": "survol"},
     include_package_data=True,
-    entry_points = { 'console_scripts': [ 'survol_cgiserver = survol.scripts.cgiserver:RunCgiServer']},
+    entry_points = { 'console_scripts': [
+        'survol_cgiserver = survol.scripts.cgiserver:RunCgiServer',
+        'survol_wsgiserver = survol.scripts.wsgiserver:RunWsgiServer',
+    ]},
     requires=['rdflib','cgi','six'],
     # scripts=['cgiserver.py','wsgiserver.py','webserver.py'],
     classifiers=[
