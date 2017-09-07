@@ -29,11 +29,24 @@
 
 <style>
 
-    /* This is for the lines because their value=10. Temporary. */
-    .link10 {
-        stroke: #ccc;
-        stroke-width: 3px;
-        stroke-dasharray: 3, 3;
+    .survol_line {
+        stroke: #111111;
+        // stroke-width: 1px; // Ca marche.
+        stroke-width: 1;
+        // stroke-dasharray: 4, 1; // Ca marche.
+    }
+
+    // For some links. CA NE MARCHE PAS.
+    .ppid {
+        stroke: #111111;
+        stroke-width: 5px;
+        stroke-dasharray: 4, 1;
+    }
+
+    // Ca marche.
+    .nodetext {
+        pointer-events: none;
+        font: 10px sans-serif;
     }
 
     /* Probably not be used now as far as I can tell ... */
@@ -92,7 +105,7 @@
         // fill:#E01B98; // Ca marche
         font: 12px sans-serif;
         background: lightsteelblue;
-        opacity: 0.5; // Ca marche
+        /* opacity: 0.9; // Ca marche */
         border: 8px;
         // rx: 10; // Ca marche pas.
         // ry: 10;
