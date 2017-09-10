@@ -101,8 +101,8 @@ def Main():
 					# This takes into account only files accessed by several processes.
 					AddPidFileLink( grph, node_process, fil.path )
 
-		except psutil.AccessDenied:
-			pass
+		# except psutil.AccessDenied:
+		#	pass
 		except:
 			exc = sys.exc_info()[1]
 			sys.stderr.write("Exception:%s\n"% str(exc))
