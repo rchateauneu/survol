@@ -6,19 +6,27 @@
 
     <title>Survol</title>
 
-<!-- Port to D3 v4 could be done by a specialist. -->
-<!-- src="http://d3js.org/d3.v3.min.js" -->
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="base64.js"></script>
-
-<!-- href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" -->
-<link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 <!--  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js" -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<!--  src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" -->
-<script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
+<XXscript src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></XXscript>
+<script src="js/jquery.min.js"></script>
 
-<script src="ActiveX_WMI.js"></script>
+
+<!-- Port to D3 v4 could be done by a specialist. -->
+
+    <!-- src="http://d3js.org/d3.v3.min.js" -->
+<XXscript src="http://d3js.org/d3.v3.min.js"></XXscript>
+<script src="js/d3.v3.min.js"></script>
+<script src="js/base64.js"></script>
+
+    <!-- href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" -->
+<XXlink href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+<link href="js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+
+    <!--  src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" -->
+<XXscript src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></XXscript>
+<script src="js/jquery.contextMenu.js" type="text/javascript"></script>
+
+<script src="js/ActiveX_WMI.js"></script>
 
 <script type="text/javascript">
 // Ca marche mais on en n'a pas besoin.
@@ -256,7 +264,7 @@ var divTooltip = null;
 
 // This merges the URLs given as CGI parameters, b64-encoded.
 // It then displays in SVG or any mode, just like the other Python scripts.
-var pyMergeScript = "survol/merge_scripts.py";
+var pyMergeScript = "../survol/merge_scripts.py";
 
 
 // https://stackoverflow.com/questions/41705135/how-to-disable-mouseover-and-mouseout-event-while-dragging-with-d3
@@ -1750,7 +1758,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         } // AddsDefaultCtxtMenu
 
         // This returns the top-level options as a JSON tree.
-        var urlTopLevel = "survol/entity_dirmenu_only.py?mode=menu";
+        var urlTopLevel = "../survol/entity_dirmenu_only.py?mode=menu";
 
 		try {
 			d3.json(urlTopLevel, AddsDefaultCtxtMenu);
@@ -1826,7 +1834,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
 
 // At startup.
-var urlInit = "survol/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
+var urlInit = "../survol/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
 
 /* The calling URL might as well be:
 http://192.168.1.88/Survol/survol/entity.py?xid=smbshr.Id=////WDMyCloudMirror/rchateau
@@ -2008,7 +2016,7 @@ Ajouter le lien de merge.
 <table border="0" width="100%"><tr>
     <td>Survol. <i>Understanding legacy applications. Based on WMI/WBEM, with a Web interface. &copy; Primhill Computers 2017</i></td>
     <td align="right"><a href="#" id="IdHrefSummary">Summary</a>&nbsp;
-<a href="survol/entity.py">Print layout</a>&nbsp;
+<a href="../survol/entity.py">Print layout</a>&nbsp;
 <a href="help.htm">Help</a>
 <a href="configuration.htm">Configuration</a>
         <a href="index_technical.htm">Test links</a>
