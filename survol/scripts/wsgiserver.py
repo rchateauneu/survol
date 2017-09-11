@@ -4,7 +4,6 @@
 
 import os
 import re
-import six
 import sys
 import importlib
 import wsgiref.simple_server as server
