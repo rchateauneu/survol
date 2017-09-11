@@ -1,6 +1,10 @@
 NECESSARY MODULES:
 ==================
 
+Avoid six and rdflib.
+
+rdflib must be optional only.
+
 SOME MANDATORY PYTHON LIBRARIES:
 
 For the right Python version.
