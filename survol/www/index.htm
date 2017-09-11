@@ -7,24 +7,25 @@
     <title>Survol</title>
 
 <!--  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js" -->
-<XXscript src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></XXscript>
-<script src="js/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<xxscript src="js/jquery.min.js"></xxscript>
 
 
 <!-- Port to D3 v4 could be done by a specialist. -->
 
     <!-- src="http://d3js.org/d3.v3.min.js" -->
-<XXscript src="http://d3js.org/d3.v3.min.js"></XXscript>
-<script src="js/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<xxscript src="js/d3.v3.min.js"></xxscript>
 <script src="js/base64.js"></script>
+<script src="js/revjslib.js"></script>
 
     <!-- href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" -->
-<XXlink href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
-<link href="js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+<link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+<xxlink href="js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 
     <!--  src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" -->
-<XXscript src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></XXscript>
-<script src="js/jquery.contextMenu.js" type="text/javascript"></script>
+<script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
+<xxscript src="js/jquery.contextMenu.js" type="text/javascript"></xxscript>
 
 <script src="js/ActiveX_WMI.js"></script>
 
@@ -261,11 +262,6 @@ var divSvg = null;
 var previousData = null;
 
 var divTooltip = null;
-
-// This merges the URLs given as CGI parameters, b64-encoded.
-// It then displays in SVG or any mode, just like the other Python scripts.
-var pyMergeScript = "../survol/merge_scripts.py";
-
 
 // https://stackoverflow.com/questions/41705135/how-to-disable-mouseover-and-mouseout-event-while-dragging-with-d3
 var isDragging = false;
@@ -988,9 +984,6 @@ console.log("Initializing windowObjectReference");
 
 // Declare it but with an invalid value.
 var windowObjectReference = null;
-
-/* Internal of the window. */
-gblWindowName = "SurvolMainWindowName";
 
 /* This is called when a URL is loaded. It updates the little Summary window
 by sending as a message the list of loaded urls. */
@@ -1758,7 +1751,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         } // AddsDefaultCtxtMenu
 
         // This returns the top-level options as a JSON tree.
-        var urlTopLevel = "../survol/entity_dirmenu_only.py?mode=menu";
+        var urlTopLevel = url_survol_prefix + "entity_dirmenu_only.py?mode=menu";
 
 		try {
 			d3.json(urlTopLevel, AddsDefaultCtxtMenu);
@@ -1834,27 +1827,12 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
 
 // At startup.
-var urlInit = "../survol/sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
+var urlInit = url_survol_prefix + "sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
 
 /* The calling URL might as well be:
 http://192.168.1.88/Survol/survol/entity.py?xid=smbshr.Id=////WDMyCloudMirror/rchateau
 http://127.0.0.1:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=file.Id%3DC%3A\windows\system32
 */
-
-function UrlRelativeToAbsolute(href) {
-    'use strict';
-    var link = document.createElement("a");
-
-    /*
-    link.href = href;
-    return (link.protocol+"//"+link.host+link.pathname+link.search+link.hash);
-    */
-    var idxRel = href.indexOf("survol/");
-    var idxAbs = link.href.indexOf("survol/");
-
-    console.log("beg="+ link.href.substring(0,idxAbs) + " end="+ href.substring(idxRel) );
-    return link.href.substring(0,idxAbs) + href.substring(idxRel);
-}
 
 function BuildSubUrlsListFromCgi(cgiArgs)
 {
@@ -1919,7 +1897,7 @@ function PreloadUrlsArray(urlsArray)
             numUrls += arrUrls.length;
         } else {
 
-            var aUrlNoMode = UrlRelativeToAbsolute(aUrlRel)
+            var aUrlNoMode = aUrlRel;
 
             // This reasonably expects that there is at least one CGI argument.
             var aUrlMode = AppendCgiToUrl( aUrlNoMode, "mode=json");
@@ -2016,7 +1994,7 @@ Ajouter le lien de merge.
 <table border="0" width="100%"><tr>
     <td>Survol. <i>Understanding legacy applications. Based on WMI/WBEM, with a Web interface. &copy; Primhill Computers 2017</i></td>
     <td align="right"><a href="#" id="IdHrefSummary">Summary</a>&nbsp;
-<a href="../survol/entity.py">Print layout</a>&nbsp;
+<a href="../entity.py">Print layout</a>&nbsp;
 <a href="help.htm">Help</a>
 <a href="configuration.htm">Configuration</a>
         <a href="index_technical.htm">Test links</a>

@@ -47,11 +47,13 @@ for urlfil in arguments.getlist("url"):
 		cgiQueryString = ""
 
 	# The URL might be absolute or relative.
-	urlPrefix = "survol/"
+	# urlPrefix = "survol/"
+	urlPrefix = "sources_types/"
 	idxHtbin = urlNoArgs.find(urlPrefix)
 	if idxHtbin == -1:
-		sys.stderr.write("SHOULD NOT HAPPEN url=%s\n"%complete_url)
-	urlPathShort = urlNoArgs[idxHtbin+len(urlPrefix):]
+		sys.stderr.write("merge: SHOULD NOT HAPPEN url=%s\n"%complete_url)
+	# urlPathShort = urlNoArgs[idxHtbin+len(urlPrefix):]
+	urlPathShort = urlNoArgs[idxHtbin:]
 
 	urlDirNam = os.path.dirname(urlPathShort)
 	moduNam = urlDirNam.replace("/",".")

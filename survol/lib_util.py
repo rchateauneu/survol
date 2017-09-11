@@ -196,7 +196,7 @@ def SameHostOrLocal( srv, entHost ):
 def TopUrl( entityType, entityId ):
 	if re.match( ".*/survol/entity.py.*", os.environ['SCRIPT_NAME'] ):
 		if entityType == "":
-			topUrl = uriRoot + "/../index.htm"
+			topUrl = uriRoot + "/../index.htm" # A VERIFIER.
 		else:
 			# Same as in objtypes.py
 			# if entityId in ("","Id=") or entity.endswith("="):
@@ -584,7 +584,7 @@ def InfoMessageHtml(message):
 
 	envsUrl = uriRoot + "/internals/print.py"
 	out_dest.write('Check <a href="' + envsUrl + '"">environment variables</a>.<br>')
-	homeUrl = uriRoot + "/../index.htm"
+	homeUrl = uriRoot + "/../index.htm" # A VERIFIER.
 	out_dest.write('<a href="' + homeUrl + '"">Return home</a>.<br>')
 
 	out_dest.write("""

@@ -12,6 +12,20 @@ function qualifyURL(url)
 }
 */
 
+////////////////////////////////////////////////////////////////////////////////
+
+url_survol_prefix = "../"
+
+// This merges the URLs given as CGI parameters, b64-encoded.
+// It then displays in SVG or any mode, just like the other Python scripts.
+var pyMergeScript = url_survol_prefix + "merge_scripts.py";
+
+// This is the name of the main window which display index.htm.
+// It is needed by Summary.htm which posts messages to it.
+gblWindowName = "SurvolMainWindowName";
+
+////////////////////////////////////////////////////////////////////////////////
+
 // Current dir = http://127.0.0.1/Survol/embed_entity.htm
 function LocalHost()
 {

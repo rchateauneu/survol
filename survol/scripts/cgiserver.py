@@ -23,7 +23,7 @@ except ImportError:
 # if not we get the error, for example:  import lib_pefile.
 # sys.path.append('survol/revlib')
 
-# Several problems with this script.
+# Several problems with this script, probably due to the Python class.
 # * It fails if a page is called survol.htm
 # * It collapses repeated slashes "///" into one "/".
 
@@ -47,6 +47,13 @@ def ServerForever(server):
     else:
         server.serve_forever()
 
+# Different specific cases:
+# * In development mode, one process serves the HTML files of the UI and the Python files of the Agent,
+#   all of them stored in the same directory. No cross-site scripting needed.
+# * When deployed, acts as an Agent by running CGI scripts from lib-packages Python installed modules.
+# * When deployed, acts as an Agent by running the single Python CGI script which imports installed modules.
+# * When deployed, acts as a UI by running the HTML pages from the installation directory,
+#   or from the directory defined by distutils or pkg_resources.
 
 def Usage(progNam):
     print("Survol HTTP server: %s"%progNam)
@@ -163,7 +170,7 @@ def RunCgiServerInternal():
             if port_number:
                 if port_number != 80:
                     theUrl += ":%d" % port_number
-            theUrl += "/index.htm"
+            theUrl += "/survol/www/index.htm"
 
             print("About to start browser: %s %s"%(browser_name,theUrl))
 
@@ -175,6 +182,8 @@ def RunCgiServerInternal():
         threading.Thread(target=StartBrowserProcess).start()
         print("Browser thread started")
 
+    # https://stackoverflow.com/questions/32241082/python-access-control-allow-origin
+    # CORS Cross-site scripting must be activated.
 
     if sys.version_info[0] < 3:
         import CGIHTTPServer
@@ -203,6 +212,7 @@ def RunCgiServerInternal():
                     self.cgi_info = head, tail
                     return True
                 else:
+                    print("is_cgi NOT")
                     return False
                 # is_cgi pathOnly=/survol/entity.py fileExtension=.py
                 # is_cgi YES head=/survol tail=entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS
@@ -266,4 +276,10 @@ def RunCgiServerInternal():
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
     # and not use the installed packages.
+    # Here are the directories:
+    # www/index.htm
+    # www/js/base64.js
+    #
+    # In this mode, we assume that the Python scripts are here, on the same server.
+    # survol/entity.py
     RunCgiServerInternal()
