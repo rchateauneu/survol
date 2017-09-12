@@ -3,14 +3,8 @@
 import os
 import sys
 
-# Creation of the package:
-# python setup.py sdist
-#
-# Installation:
-# scripts\activate
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
-#
-#
+
 
 # Consider setuptools.setup
 from distutils.core import setup
