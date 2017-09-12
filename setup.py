@@ -25,8 +25,8 @@ class InstallCommand(install):
     # The html files can be copied at any place.
     # For example at ~/public_html on Unix, i.e. "Users Dir feature of Apache".
     user_options = install.user_options + [
-        ('port=', 'p', 'Port number'),
-        ('www=', 'w', 'Destination directory of the Web UI'),
+        ('port=', 'p', 'CGI server port number'),
+        ('www=', 'w', 'Web UI destination directory'),
     ]
 
     def initialize_options(self):
@@ -139,7 +139,7 @@ extra_files = package_files('survol/www')
 
 setup(
     name='survol',
-    version='1.0dev',
+    version='1.0.dev0',
     description='Understanding legacy applications',
     author='Remi Chateauneu',
     author_email='remi.chateauneu@primhillcomputers.com',
