@@ -24,7 +24,26 @@ D:\Projects\Divers\Reverse\PythonStyle\htbin\revlib
 
 (??) Install psutil
 https://pypi.python.org/pypi/psutil
+========================================================================================================================
+%USERPROFILE%\.pypirc
 
+[distutils]
+index-servers=
+  pypi
+  pypitest
+
+[pypi]
+repository=https://pypi.python.org/pypi
+username=rchateauneu
+password=*********
+
+[pypitest]
+repository=https://test.pypi.org/legacy/
+username=rchateauneu
+password=*********
+
+Upload on Pypi test:
+python setup.py sdist upload -r pypitest
 ========================================================================================================================
 Optional: Install win32
 
