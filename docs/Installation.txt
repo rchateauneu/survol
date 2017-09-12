@@ -25,7 +25,7 @@ D:\Projects\Divers\Reverse\PythonStyle\htbin\revlib
 (??) Install psutil
 https://pypi.python.org/pypi/psutil
 
-================================================================================
+========================================================================================================================
 Optional: Install win32
 
 Problem when importing win32api.dll
@@ -35,11 +35,11 @@ win32 Python library not installed:DLL load failed: The specified module could n
 http://stackoverflow.com/questions/22490233/win32com-import-error-python-3-4
 
 python C:\Python34\Scripts\pywin32_postinstall.py -install
-================================================================================
+========================================================================================================================
 Optional: Install wmi
 https://pypi.python.org/pypi/WMI
 
-================================================================================
+========================================================================================================================
 
 AS A SCRIPT:
 ============
@@ -71,9 +71,7 @@ Attention au coding:
           # -*- coding: ascii -*-
           import os, sys
 
-================================================================================
-
-
+========================================================================================================================
 
 Il faut que Apache lance Python pour tous les URLs qui se terminent par ".py".
 
@@ -132,7 +130,7 @@ LoadModule headers_module modules/mod_headers.so
     Header set Access-Control-Allow-Origin: *
 </IfModule>
 
-================================================================================
+========================================================================================================================
 PYTHONPATH
 ;C:\Python\3.2.3-0.2;C:\Python\3.2.3-0.2\Lib\site-packages
 
@@ -142,7 +140,7 @@ This is not enough:
 # Or globally:
 # SetEnv PYTHONPATH "C:\Documents and Settings\Remi\My Documents\Reverse\PythonStyle\htbin\revlib"
 
-================================================================================
+========================================================================================================================
 
 Comme Apache veut ses scripts dans un directory special, et qu on veut aussi les installer normallement
 (Donc dans le dossier Python), on est oblige d’utilise des symlinks.
@@ -179,17 +177,50 @@ Installations Apache:
 
 https://docs.python.org/2.7/distutils/setupscript.html#installing-additional-files
 
+========================================================================================================================
+On utilise setup:
+
+python setup.py sdist
+
+Test avec virtual env:
+
+cd testarea:
+scripts/activate
+
+pip install survol-1.0.dev0.zip --upgrade
+
+# Creation of the package:
+# python setup.py sdist
+#
+# Installation:
+# scripts\activate
+# pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
+#
+========================================================================================================================
+How to start:
+survol_cgiserver -h
+
+Survol HTTP server: C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\testarea\Scripts\survol_cgiserver
+    -p,--port=<number>      TCP/IP port number
+    -b,--browser=<program>  Starts a browser
+    -v,--verbose            Verbose mode
+
+survol_cgiserver -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+survol_cgiserver -b "C:\Program Files\Internet Explorer\iexplore.exe"
+
+========================================================================================================================
+https://realfavicongenerator.net
+
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="theme-color" content="#ffffff">
 
 
-setup(...,
-      data_files=[('bitmaps', ['bm/b1.gif', 'bm/b2.gif']),
-                  ('config', ['cfg/data.cfg']),
-                  ('/etc/init.d', ['init-script'])]
-     )
 
 
 
-
-
-
+========================================================================================================================
 
