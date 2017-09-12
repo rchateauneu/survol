@@ -1,7 +1,4 @@
 http://tw.rpi.edu/web/tool/vraer
-Voir si on pourrait avoir un frontal devant le merge,
-qui permettrait de lancer le merge avec du javascript.
-Oui: Il suffit d'avoir un serveur web qui puisse activer le merge avec le bon URL.
 
 Javascript devra peut-etre uploader les fichiers, ce qui nous dispenserait d'avoir un serveur local.
 Pas urgent mais on se laisse la possiblite de cette architecture, ou tout est decouple
@@ -17,21 +14,12 @@ son URL, enregistrer ses parametres et declarer avec SLP par exemple.
 De facon generale, toute action doit pouvoir etre faite avec deux outils differents ou plus.
 C'est pour ca qu'il faut pouvoir utiliser les scripts en ligne de commande.
 ============================================================================================================
-Quand il y a de longues listes d'objets, on peut les rassembler par ordre alphabetique mais aussi les
-classifier avec les distance de Levenshtein pour faire des gros clusters.
-Ou bien detecter un prefix identique.
-L idee est d amener de l'intelligence empirique:
-- Reperer les chaines identiques aux chiffres pres (On parse en virant les chiffres).
-- Les fichiers identiques a l'extension pres.
-- Reperer les time-stamp dans les noms de fichiers.
-- Les fichiers avec l'extension .pid.
-============================================================================================================
 Protocole permettant de debugger des processes a distance.
 RDF: Microsoft Visual Studio Remote Debugging Monitor
 MSVSMON.EXE
 Faire la meme chose  avec gdb qui je crois permet la meme chose.
 
-Voir aussi comment appeler des fonctions de l’API, en Python.
+Voir aussi comment appeler des fonctions de l'API, en Python.
 
 ============================================================================================================
 
@@ -95,15 +83,15 @@ Trouver un moyen de controller le SVG a partir du RDF: listes, arbres etc;..
 Par exemple, on sait que les pids sont forcement arborescent, donc on pourrati forcer une presentation.
 Ou bien, y a-t-il des "hints" dans le langage dot ?
 
-Ce qui est une liste de listes et a coup sur un DAG peut-etre transforme en record, surtout si c’est pas profond.
-Faut juste parcourir certaines proprietes d’une certaines facon.
-Et traiter autrement les nœuds qui font de boucles (Les mettre dans un nœud normal ou un autre record et meme on s’en fiche)
-Mais on n’ajoute pas les aretes quand elles sont implicites dans le DAG.
+Ce qui est une liste de listes et a coup sur un DAG peut-etre transforme en record, surtout si c'est pas profond.
+Faut juste parcourir certaines proprietes d'une certaines facon.
+Et traiter autrement les nœuds qui font de boucles (Les mettre dans un nœud normal ou un autre record et meme on s'en fiche)
+Mais on n'ajoute pas les aretes quand elles sont implicites dans le DAG.
 Meme approche pour HTML.
  
 • Pourquoi on ne voit pas londata001 et londata002 avec Net view ?
-• Le resultat d’un browse (net view, tnsnames etc… : Ne pas les relier a la machine principale si pas de raison particuliere.
-• Peut-on voir les imprimantes et les scanners ? L’idee est de faire au moins comme le network browser de Windows.
+• Le resultat d'un browse (net view, tnsnames etc... : Ne pas les relier a la machine principale si pas de raison particuliere.
+• Peut-on voir les imprimantes et les scanners ? L'idee est de faire au moins comme le network browser de Windows.
  
 http://stackoverflow.com/questions/9869799/service-location-protocol-slp-binding-in-python
 Python library for service discovery using SSDP or UPnP?
@@ -127,30 +115,30 @@ mais c'est déjà renvoye par le RDF
 http://stackoverflow.com/questions/243616/visualization-tools-for-huge-graphs
 Mais pourquoi pas, mettre a jour un SVG avec du Javascript ???
  
-Et il faudrait quelques convertisseurs pour pouvoir regarder n’importe quel source RDF dans des logiciels de visualisation de graph.
+Et il faudrait quelques convertisseurs pour pouvoir regarder n'importe quel source RDF dans des logiciels de visualisation de graph.
 Autrement dit, par exemple, on choisit un url complexe, et on le paste dans un convertisseur,
 et ca fabrique immediatement un fichier a downloader ?
-En meme temps, ca nous fera travailler le drag’n’drop.
-Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, « DOT », « GraphML » etc..
+En meme temps, ca nous fera travailler le drag'n'drop.
+Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, "DOT", "GraphML" etc..
 et quand on drag dessus un url RDF, ça fait la conversion. Pas idéal mais à force de petits outils, on aura toute la souplesse necessaire.
  
-Note : On ne peut pas lister les sources qui ont besoin d’un argument (pid, file etc..)
-On ne le liste qu’indirectement quand on fabrique un RDF a partir d’une source sans argument.
+Note : On ne peut pas lister les sources qui ont besoin d'un argument (pid, file etc..)
+On ne le liste qu'indirectement quand on fabrique un RDF a partir d'une source sans argument.
   
 http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html
 http://nlp.fi.muni.cz/projekty/visualbrowser/index.html
  
-… et dans les softs de visualisation de RDF, sont-ils capables d’utiliser l’URN d’un vertex quand il génère du RDF ? J’en doute.
+... et dans les softs de visualisation de RDF, sont-ils capables d'utiliser l'URN d'un vertex quand il génère du RDF ? J'en doute.
  
-On retrace l’historique de chaque fichier, on associe chaque entite a un intervalle de temps,
-ce qui permet de reconstruire l’état du système a un instant donne.
+On retrace l'historique de chaque fichier, on associe chaque entite a un intervalle de temps,
+ce qui permet de reconstruire l'état du système a un instant donne.
 Du coup, si on retrouve la meme entite dans plusieurs sources RDF, on peut avoir son intervalle de vie total.
   
 Fabriquer du DOT intelligemment au lieu de betement créer des aretes :
 Ceci afin de faire quelque chose de plus joli.
 Notamment, detecter les arbres (Sous-fichiers dans un directory).
  
-Idem pour l’arbres des modules : On essaie de rassembler les vertices dans des classes.
+Idem pour l'arbres des modules : On essaie de rassembler les vertices dans des classes.
  
 ============================================================================================================
 Les modules Linux devraient avoir un type a part (Heritant de file) ?
@@ -200,48 +188,48 @@ mais c'est déjà renvoye par le RDF
 ============================================================================================================
  
  
-Retour sur les points d’entrée dans les DLL/so : On parle bien d’un point d’entree dans une DLL donnée :
-Pas forcement, c’est une abstraction. En revanche, permettre d’instrumenter la combinaison : symbole+fichier.
+Retour sur les points d'entrée dans les DLL/so : On parle bien d'un point d'entree dans une DLL donnée :
+Pas forcement, c'est une abstraction. En revanche, permettre d'instrumenter la combinaison : symbole+fichier.
 
-On veut, a partir d’un graphe qui affiche des ressources, progresser d’une ressource a l’autre.
+On veut, a partir d'un graphe qui affiche des ressources, progresser d'une ressource a l'autre.
 Autrement dit, quand on clique sur un nœud, on voudrait aller chercher tous les cgi
 (Sauf ceux du document courant), les exécuter, ne garder que les arêtes aboutissant a notre noeud,
-et fusionner avec l’URL (Avant rdf=>dot) qui a abouti a l’affichage courant.
+et fusionner avec l'URL (Avant rdf=>dot) qui a abouti a l'affichage courant.
  
 ============================================================================================================
  
 https://gephi.org/2009/rich-svg-export/
 https://gephi.org/toolkit/
 http://gephi.org/users/supported-graph-formats/
-Ca montre bien qu’il ne faut pas trop s’attacher a un format intermediaire, a part RDF et les formats MIME.
+Ca montre bien qu'il ne faut pas trop s'attacher a un format intermediaire, a part RDF et les formats MIME.
 Donc, avoir des chaines de traitement bien modulaires.
 
 Mais pourquoi pas, mettre a jour un SVG avec du Javascript ?
 Pas possible apparemment avec le SVG cree par DOT.
 
 Le plus crucial est le traitement RDF.
-Et il faudrait quelques convertisseurs pour pouvoir regarder n’importe quel source RDF dans des logiciels de visualisation de graph.
+Et il faudrait quelques convertisseurs pour pouvoir regarder n'importe quel source RDF dans des logiciels de visualisation de graph.
 Autrement dit, par exemple, on choisit un url complexe, et on le paste dans un convertisseur,
-et ca fabrique immediatement un fichier a downloader ? En meme temps, ca nous fera travailler le drag’n’drop.
-Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, « DOT », « GraphML » etc
+et ca fabrique immediatement un fichier a downloader ? En meme temps, ca nous fera travailler le drag'n'drop.
+Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, "DOT", "GraphML" etc
 et quand on drag dessus un url RDF, ça fait la conversion. Pas idéal mais à force de petits outils, on aura toute la souplesse necessaire.
 
-Est-ce qu’on pourrait utiliser ceci pour nos besoins ???
+Est-ce qu'on pourrait utiliser ceci pour nos besoins ???
 http://cytoscape.org/what_is_cytoscape.html
-Nos sources pourrait certes generer directement du GraphML ? C’est tentant, mais on perdrait toute possibilite d’inference.
+Nos sources pourrait certes generer directement du GraphML ? C'est tentant, mais on perdrait toute possibilite d'inference.
 Tester absolument ceux-la :
 http://www.mkbergman.com/414/large-scale-rdf-graph-visualization-tools/
 http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html
 http://nlp.fi.muni.cz/projekty/visualbrowser/index.html
-… et dans les softs de visualisation de RDF, sont-ils capables d’utiliser l’URN d’un vertex quand il génère du RDF ? J’en doute.
+... et dans les softs de visualisation de RDF, sont-ils capables d'utiliser l'URN d'un vertex quand il génère du RDF ? J'en doute.
  
  
 Premiere phase est un operateur rdf=>rdf
 Construire le graphe des operateurs rdf=>rdf a partir des bookmarks : Autre facon de visualiser les book-marks : On en fait un RDF.
 Google sur les RDF
-Longueur maxi d’un URL ? Pouvoir le décomposer facilement en sous-URL.
-Ainsi, l’affichage d’une page est la composition d’un opérateur fabriquant du RDF (Eventuellement un simple url),
-compose avec un opérateur transformant du RDF en quelque chose d’affichable (Eventuellement du RDF)
+Longueur maxi d'un URL ? Pouvoir le décomposer facilement en sous-URL.
+Ainsi, l'affichage d'une page est la composition d'un opérateur fabriquant du RDF (Eventuellement un simple url),
+compose avec un opérateur transformant du RDF en quelque chose d'affichable (Eventuellement du RDF)
  
 Il faudrait un framework qui puisse utiliser des url existants.
  
@@ -265,7 +253,7 @@ readline.parse_and_bind('tab:complete')
  
 http://blog.e-shell.org/221
  
-Ya plus qu’a le mettre dans le autologin si ca exste en python.
+Ya plus qu'a le mettre dans le autologin si ca exste en python.
   
 ============================================================================================================
 Notre javascript: Rajouter un menu ou on peut cocher toutes les proprietes,
@@ -472,12 +460,12 @@ Visualisation en HTML: On ameliore la presentation ! (Et on vire entity_list.py)
 
 On deplace la visu en HTML dans un nouveau fichier de librairie, ca allegera le code.
 
-Quand on clique « fusion », ça appelle la fusion avec « url=… ».
+Quand on clique "fusion", ça appelle la fusion avec "url=...".
 On ajoute des tick box ? En plus des ticks box, il y a un drop-down html/rdf/svg
 
 Eventuellement on va chercher les tick boxes dans toutes les fenetres en HTML.
 
-Donc, la fusion fonctionne en html ou rdf etc… La legende permet de changer le mode.
+Donc, la fusion fonctionne en html ou rdf etc... La legende permet de changer le mode.
 
 Utiliser des frames ?
 
@@ -487,16 +475,16 @@ Peut-on ajouter une page dans un frameset en faisant du drag and drop ?
 
 Ou alors une frame set fait de trois frames :
 - La page courante, entity.py
-- Une frame qui permet de cliquer « fusionner », et qui contient la liste des liens selectionnes dans chaque entity.py visite.
+- Une frame qui permet de cliquer "fusionner", et qui contient la liste des liens selectionnes dans chaque entity.py visite.
 - La frame du resultat de la fusion.
 
 Quand on coche un lien dans un entity.py en HTML, ca rajoute une ligne dans la frame de fusion.
 Quand on clique cette ligne, ca ramene ce lien dans la page courante (Ou plutot le entity.py qui y correspond ?)
 
-Si on ne permet pas de cliquer les urls dans une page en html, mais qu’on fait uniquement du drag’n’drop dans un frameset, ca permet d’utiliser les mêmes urls.
+Si on ne permet pas de cliquer les urls dans une page en html, mais qu'on fait uniquement du drag'n'drop dans un frameset, ca permet d'utiliser les mêmes urls.
 
-Meme pas besoin de frameset : On repart de la fenêtre existante : Drag’n’drop de liens, click « Fusion »,
-on peut rééditer la liste d’urls (Avec un logo de poubelle), on peut cliquer individuellement sur les liens.
+Meme pas besoin de frameset : On repart de la fenêtre existante : Drag'n'drop de liens, click "Fusion",
+on peut rééditer la liste d'urls (Avec un logo de poubelle), on peut cliquer individuellement sur les liens.
 
 http://www.w3schools.com/jsref/event_ondrop.asp
 <div ondrop="myFunction(event)"></div>
@@ -775,16 +763,6 @@ b56fa000-b571d000 r-xp 00000000 08:01 35037      /usr/lib/kde3/konq_sidebartree_
 Comment visualiser cette page pour un process seulement?
 
 ============================================
-
-http://www.graphviz.org/Gallery/directed/cluster.html
-
-Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
-des objets qui ont une propriete commune (Threads d un process,
-fichiers dans un dir, de facon recursive, methodes dans une classe),
-Ca evite meme de devoir tracer des aretes !!!
-ou tout simplement le host, comme container: subgraphes, clusters.
-
-============================================
 A quoi ca sert d'utiliser le format CSV pour des snapshots quand RDF
 rend parfaitement le meme service?
 
@@ -891,7 +869,7 @@ Et on relie les deux avec pc.equivalent_node.
 
 Dans le processus de creation dd l affichage, quand on detecte des liens pc.equivalent:
 Si le node canonique marche, car survol est installe sur cette machine, alors on affiche normalement
-s’il ne marche pas car pas de survol, et si le node canonique est connecte a d autres nodes, on le garde mais non clickable.
+s'il ne marche pas car pas de survol, et si le node canonique est connecte a d autres nodes, on le garde mais non clickable.
 Sinon, on n affiche pas le node canonique.
 Pour savoir si survol est installe, on peut utiliser slp ou bien des ports par defaut. On suppose qu il est installe.
 Ou bien, si equivalent a un node tout seul, on l'affiche comme une propriete, afin de ne pas encombrer
@@ -1113,7 +1091,7 @@ force layout with images and connection thickness
 http://bl.ocks.org/mostaphaRoudsari/82f51f01b4619db2f09f
 
 ========================================================================================================================
-Il faut commencer a penser serieusement a l’affichage des grandeurs:
+Il faut commencer a penser serieusement a l'affichage des grandeurs:
 Logarithme taille des fichiers.
 Idem taille mémoire process.
 
@@ -1206,7 +1184,7 @@ Utiliser FileAPI pour des infos read-only sur les fichiers.
 https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications
 ========================================================================================================================
 
-Détecter dans la mémoire d’un process, dans des fichiers, des sockets.
+Détecter dans la mémoire d'un process, dans des fichiers, des sockets.
 
 Il faudrait utiliser les memes moteurs de recherche quelque soit le domaine :
 - URLs
@@ -1215,12 +1193,12 @@ Il faudrait utiliser les memes moteurs de recherche quelque soit le domaine :
 - Chaines de connexion ODBC
 - clefs du registry: HKEY_CLASSES_ROOT, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_USERS, HKEY_CURRENT_CONFIG
 
-…/…
+.../...
 Domaines de recherche (Pour certains domaines, on doit caler le debut de la recherche :
-Cellule CSV, tag HTML, champ table SQL … Pour d’autres, on cherche vraiment en vrac).
+Cellule CSV, tag HTML, champ table SQL ... Pour d'autres, on cherche vraiment en vrac).
 - Fichiers (A priori, tous)
 - Mémoire process.
-- Socket (Mais c est une recherche au fil de l’eau)
+- Socket (Mais c est une recherche au fil de l'eau)
 - Peut-être champs de bases de données ?
 
 Voir aussi https://en.wikipedia.org/wiki/Entity_Framework, ADO.NET
@@ -1231,10 +1209,10 @@ RECHERCHE DE CHAINES DE CONNEXION OLE DB
 https://www.connectionstrings.com/formating-rules-for-connection-strings/
 
 
-Plein d’exemples ici : https://www.connectionstrings.com/html-table/
+Plein d'exemples ici : https://www.connectionstrings.com/html-table/
 
-Donc on cherche des paires clef-valeur, séparées par « ; ». Il peut y avoir des espaces de part et d’autre du « ; ».
-Certains parametres vont entrainer la creation de nœuds (C’est meme le but de l’operation).
+Donc on cherche des paires clef-valeur, séparées par ";". Il peut y avoir des espaces de part et d'autre du ";".
+Certains parametres vont entrainer la creation de nœuds (C'est meme le but de l'operation).
 
 Provider = SQLOLEDB.1; Initial Catalog = scnXYZliv; Persist Security Info = False; Data Source = HOSTNAME\SC4NXYZ;User ID=yyyyy;Password=xxxxx;Trusted_Connection=False;
 
@@ -1324,9 +1302,17 @@ Mais il faudra du cross-request.
 
 http://www.wbemsolutions.com/tutorials/snia/SMI/Technical/cim-xml.html
 
-« CIM-XML is the protocol that is used by SMI-S 1.1.0 to exchange CIM and WBEM information between a Client and a WBEM Agent. CIM-XML uses xmlCIM as the payload and HTTP as the transport. Currently, both HTTP 1.0 and 1.1 are supported. SMI-S 1.1.0 chose CIM-XML because it required by WBEM. Moreover, HTTP is a widely supported protocol that is usable by almost all existing infrastructures and over the Internet.”
+"CIM-XML is the protocol that is used by SMI-S 1.1.0 to exchange CIM and WBEM information
+between a Client and a WBEM Agent. CIM-XML uses xmlCIM as the payload and HTTP as the transport.
+Currently, both HTTP 1.0 and 1.1 are supported. SMI-S 1.1.0 chose CIM-XML because it required by WBEM.
+Moreover,
+HTTP is a widely supported protocol that is usable by almost all existing infrastructures and over the Internet."
 
-Using HTTP, SMI-S 1.1.0 can leverage the existing HTTP mechanisms to define extension headers. A SMI-S 1.1.0 WBEM Agent is required to support the HTTP operations of POST and MPOST. The CIM Operations over HTTP Specification v1.2 defines specific extension headers for a Client request and a WBEM Agent response. Different extension header are defined for single versus multiple (i.e., batch) operations.
+Using HTTP, SMI-S 1.1.0 can leverage the existing HTTP mechanisms to define extension headers.
+A SMI-S 1.1.0 WBEM Agent is required to support the HTTP operations of POST and MPOST.
+The CIM Operations over HTTP Specification v1.2 defines specific extension headers
+for a Client request and a WBEM Agent response.
+Different extension header are defined for single versus multiple (i.e., batch) operations.
 The example below shows several CIM-XML extension headers for a GetClass operation on the root/cimv2 namespace
 
 M-POST /cimom HTTP/1.0
@@ -1360,93 +1346,8 @@ Wipy
 Mieux integrer WMI et WBEM ?
 Peut-etre les considerer comme scripts, toujours utilisables ?
 ========================================================================================================================
-Clusterizer.
-============
 
-# Grouper des objets ayant un parent commun, par proximite de leur qu on rempkace par une regex.
-# La propriete passe de key=value a key~regex ou key~=regex ou key=~regex.
-# On utilise alors enumerate.py au lieu de entity.py.
-# La partie interessante est de clusteriser des listes de chaines
-# et de mettre les bonnes regex: nombres, respecter les delimiteurs.
-# Ca permet d afficher bcp d objets.
-#
-# On dit qu'on clusterize certaines proprietes.
-# Ca entraine alors qu'on les traite en listes (comme maintenant)
-# mais qu'on va remplacer des chaines par un lien vers enumerate?Name="regexp"
-# Dans enumerate, "=" veut dire "match" ?
-# WQL permet de faire du pattern matching.
-# https://msdn.microsoft.com/en-us/library/aa392263%28v=vs.85%29.aspx
-#
-#  []    Any one character within the specified range ([a-f]) or set ([abcdef]).
-#  ^	 Any one character not within the range ([^a-f]) or set ([^abcdef].)
-#  %	 Any string of 0 (zero) or more characters.
-#        The following example finds all instances where "Win"
-#        is found anywhere in the class name: SELECT * FROM meta_class WHERE __Class LIKE "%Win%"
-#  _     (underscore) Any one character. Any literal underscore used
-#        in the query string must be escaped by placing it inside [] (square brackets).
-#
-# L'important que qu'une syntaxe speciale s'applique uniquement
-# enumerate.py et donc ne pollue pas les autres.
-# Quoique ce serait bien de pouvoir generaliser.
-# On peut regler la profondeur de la clusterization: Quand on met le node avec enumerate,
-# on rajoute alors la liste de ses noeuds, eux-memes clusterises avec une nouvelle regex.
-# Va-t-on fusionner les regex ? Ou bien ecrit-on enumerate.py?Classe.Name=%.txt&Name=toto.%
-# Ce qui donnerait: "select from Classe where Name like "%.txt" and Name like "toto.%" "
-# Il faut aussi trouver un module Python qui nous permette d'appliquer ces patterns.
-# Ca ressemble a des patterns SQL augmentes de regex. Comme c'est nous qui les fabriquons,
-# on peut les transformer sans probleme.
-#
-# A nouveau: L'idee est d'afficher facilement un tres grand nombre d'objets.
-# Ca doit marcher aussi meme s'ils ne pointent pas vers un ancetre commun:
-# L'objet "enumerate" sera alors un gros pave avec les attributs de sa class.
-#
-# On devrait pouvoir inhiber la clusterisation avec les parametres.
-#
-# On peut appliquer ca:
-# - Aux fichiers.
-# - Win32_Product.
-# - Memoire partagee.
-# - Users (Mais y a pas beaucoup)
-#
-
-La clusterization est une passe qui vient apres la creation du reseau
-mais avant la generation du json ou bien du DOT.
-
-La clusterisation dans DOT ne peut s'appliquer qu'au script courant. Dans D3,
-on peut garder la reference aux scripts qui ont cree un node.
-Donc, enumerate.py va recevoir l'url (le script) qui permet de fabriquer ces nodes,
-la classe, et un ou plusieurs Key=patterns.
-Quand on va afficher, on va restreindre, dans l'execution de ce script,
-les noeuds de cette classe qui satisfont cette propriete.
-Mais on va afficher les noeuds d'autres classes, probablement.
-Si pas de script, on va chercher le enumerate_<class>.py.
-A nouveau, on n'utilise pas WBEM et WMI comme sources de nodes, et c'est dommage.
-
-Clusterization a la volee dans D3:
-==================================
-
-On choisit une classe et on clusterize les noeuds de cette classe.
-Ca se fait avec la fenetre des URLS: On affiche derriere chaque URL
-la liste des classes dont des objets de cet URL sont representants.
-A condition qu'il y en aie suffisamment, peut-etre une dizaine d'objets, peu importe.
-Le lien vers chaque classe pointe vers enumerate.py mais il y a une passe
-de suppression des nodes:
-On remplace ces noeuds par un "enumerate.py" avec le bon pattern.
-Le enumerate recoit tous les liens que recevaient les noeuds avant.
-Oui mais le enumerate doit forcement permettre de reconstituer ces noeuds.
-Ce n'est possible que si connait le script qui les a fabriques.
-Et ca doit etre le meme.
-Donc il faut garder la trace des scripts qui ont permis de fabriquer un node.
-Et on ne peut clusteriser que des nodes d'une meme classe et issus
-du meme script. Eventuellement avec d'autres liens en commun
-(Par exemple tous les nodes du meme scripts, de la meme classe et ayant le meme lien,
-mais ca peut eventuellement etre nocif).
-Les liens seront partages mais il faut imprimer leur valence, le nombre
-de nodes vers lesquels ils pointent: Juste un entier.
-
-========================================================================================================================
-
-Faire un URL a partir d’une query WQL: Oui dans une certaine mesure, c’est possible.
+Faire un URL a partir d'une query WQL: Oui dans une certaine mesure, c'est possible.
 Pour les associators, on cree un autre script ?? associators_wmi.py ?xid=CLASS.Key1=Val1,Key2=Val2
 Ou bien on decrete que entity_wmi.py et entity_wbem.py renvoie les associators ?
 CIM operations over HTTP CIM-XML
@@ -1455,12 +1356,12 @@ http://www.dmtf.org/sites/default/files/standards/documents/DSP0200_1.3.1.pdf
 A partir de Javascript. Le probleme est que ca ne renvoie pas du JSON.
 
 JSONP ?
-Sauver les mots de passe comme on le fait avec WMI (Qu’il faudra d’ailleurs terminer).
+Sauver les mots de passe comme on le fait avec WMI (Qu'il faudra d'ailleurs terminer).
 
 «Geographical Visualisation of CIM Networks Using Google APIs”
-« IEC 61968 classes for geographical data”
+"IEC 61968 classes for geographical data”
 Si on veut afficher des donnees D£ avec du KML:
-·         On s’arrange pour que les distances soient raisonnables en fonction de ce qu’on veut afficher :
+·         On s'arrange pour que les distances soient raisonnables en fonction de ce qu'on veut afficher :
 ·         Tout ce qui concerne un ordinateur tient dans une boite de 30cm*30cm
 ·         Distances entre machines : 1m si dans un LAN.
 
@@ -1474,8 +1375,8 @@ Bruno Lauze.
 
 Refresh rate en minutes: Pour afficher la lente disparition des objets, au lieu de deleter,
 on fait baisser un compteur et on detruit seulement si le compteur passe a zero.
-L’affichage des aretes tient compte des compteurs des liens.
-Quand on cree un node, on met son compteur au maxi ou bien on increment s’il existe déjà ?
+L'affichage des aretes tient compte des compteurs des liens.
+Quand on cree un node, on met son compteur au maxi ou bien on increment s'il existe déjà ?
 
 Remplacer un node : Refresh, en plusieurs passes :
 Chaque node recoit un timestamp de la dernière fois ou il a été vu.
@@ -1483,32 +1384,23 @@ Chaque node recoit un timestamp de la dernière fois ou il a été vu.
 - Ce delai tient compte du taux de rafraichissement ?
 - Si on voit un node, on met a jour son timestamp (Valable pour tous les scripts quel que soit le chargement)
 - L'affichage du node et des links est plus transparent selon le nombre de generation ou on n'a pas vu le node.
-- L'interet est de ne pas faire brutalement disparaitre un objet. Mais ca ne s'applique que s'il y a un rafraichissement automatique.
+- L'interet est de ne pas faire brutalement disparaitre un objet.
+  Mais ca ne s'applique que s'il y a un rafraichissement automatique.
 
 Evidemment on affiche ce timestamp (A propos, reparer le tooltip).
 Du coup, ca cree un historique des objets en fonctions des scripts qui leur ont donne des links.
 L'historique est fait des links successifs et des objets de l'autre cote, qui ont disparu.
 Ex: Pour un fichier, on va avoir la suite des process qui ont ouvert ce fichier, avec le timestamp.
 Ca cree un log. On peut imaginer de relier ca avec le resultat du parsing de vrais logfiles.
-Et aussi le resultat de strace (truss). Event de Windows, Oracle etc…
+Et aussi le resultat de strace (truss). Event de Windows, Oracle etc...
 
-Attention si on rafraichit un script qui va prendre une partie d’un log comme strace :
-Ne plus voir un objet dans N lignes de log ne veut pas dire que l’objet a disparu.
+Attention si on rafraichit un script qui va prendre une partie d'un log comme strace :
+Ne plus voir un objet dans N lignes de log ne veut pas dire que l'objet a disparu.
 En revanche, il faut bien les detruire a un moment ou un autre.
 Ou alors on le cree, mais on ne detruit pas les objets vus il y a longtemps, et crees par notre script.
-Autrement dit, differencier les scripts qui donnent un etat (et donc peuvent constater qu’un node n’existe plus pour ce script), des scripts qui donnent une suite d evenements.
+Autrement dit, differencier les scripts qui donnent un etat
+(et donc peuvent constater qu'un node n'existe plus pour ce script), des scripts qui donnent une suite d evenements.
 
-========================================================================================================================
-Reseau neuronaux etc...
-
-Applications: Qualifier un binaire: compilateur, langage d'origine, style de programmation
-
-Python packages for neural net: https://www.tensorflow.org/get_started/mnist/pros
-
-Python wrapper: https://keras.io/
-Site dedie a l AI: https://www.kaggle.com/petrosgk/1st-try-with-keras-0-918-lb
-
-image processing: http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_tutorials.html
 ========================================================================================================================
 Choisir l icone:
 
@@ -1534,10 +1426,8 @@ https://www.logilab.org/project/pyreverse
 FAIRE DU MENAGE :
 =================
 
-Virer bookmakrs, d3v2, Scripts etc…
-On peut virer « operators/gui_accumulate », le mettre dans Tests ou oldies.
-Idem le contenu de « internals ». C’est confus.
-Images, icons, RDF, SLP, UPNP, Tests doivent aller dans Experimental.
+Virer d3v2, Scripts etc...
+On peut virer "operators/gui_accumulate", le mettre dans Tests ou oldies.
 
 Ajouter des pages CSS dynamiquement.
 https://stackoverflow.com/questions/4847313/dynamically-add-css-to-page-via-javascript
@@ -1558,7 +1448,8 @@ Et quid des images qu'on veut eventuellemetn avoir cote client et serveur ?
 Si on veut deployer en client-only, on peut imaginer de copier la meme hierarchie mais sans les fichiers py.
 Ce serait alors transparent pour js, selon que la page html est locale ou sur un serveur.
 Toujours est-il qu'il faut qu'on charge les CSS a la volee.
-Mais ca veut dire qu'on ne tient plus compte des couleurs quand on fabrique du json ? Ben oui, car les attributs peuvent etre tres complexes,
+Mais ca veut dire qu'on ne tient plus compte des couleurs quand on fabrique du json ?
+Ben oui, car les attributs peuvent etre tres complexes,
 et il faut laisser toute latitude au graphisme.
 => Python met une couleur si on a.
 => Javascript de toute facon utilise le CSS s'il est la.
@@ -1568,16 +1459,19 @@ A terme, Python parsera le javascript pour generer le DOT.
 ========================================================================================================================
 
 Voir si ODBC est utilisable/utilise sous Linux. Pyodbc est portable mais ne sait pas acceder toutes les BDD bien entendu.
-ODBC a besoin d’un driver pour chaque DBMS. Il faut refleter ca :
+ODBC a besoin d'un driver pour chaque DBMS. Il faut refleter ca :
 
-• odbc devrait permettre de créer des tables oracle.
-• On ne devrait pas avoir besoin de « odbc/table » etc sauf comme table par defaut si on n’a pas le provider. Je crois que c’est le cas.
-• « oracle/table » et « sqlserver/table » devraient pointer vers « odbc/table » d’une facon ou d’une autre. Ou en tout cas l’inverse.
+* odbc devrait permettre de creer des tables oracle.
+* On ne devrait pas avoir besoin de "odbc/table" etc sauf comme table par defaut si on n'a pas le provider.
+  Je crois que c'est le cas.
+* "oracle/table" et "sqlserver/table" devraient pointer vers "odbc/table" d'une facon ou d'une autre.
+  Ou en tout cas leinverse.
 
 
 https://stackoverflow.com/questions/401358/how-do-i-create-a-dsn-for-odbc-in-linux
 
-For unixODBC, DSNs are listed in /usr/local/etc/odbc.ini. Installed ODBC drivers will be listed in /usr/local/etc/odbcinst.ini
+For unixODBC, DSNs are listed in /usr/local/etc/odbc.ini.
+Installed ODBC drivers will be listed in /usr/local/etc/odbcinst.ini
 
 Donc, avoir la liste des DSN est un concept portable.
 
@@ -1590,101 +1484,117 @@ DBCName=208.199.59.208
 Username=
 
 Donc, le DSN est bien un lookup dans la liste des DSN.
-Et pourtant le mot-clef « DSN= » est admis dans les connections strings.
+Et pourtant le mot-clef "DSN=" est admis dans les connections strings.
 
-On pourrait dire que si le parametre CGI est crypte, alors c’est une connection string.
-Sinon c’est un DSN, exactement comme maintenant.
-C’est different de b64, il faut reellement crypter, car confidentialite.
-Et quand on decrypte pour l’affichage, il faut remplacer le mot de passe par « **** » par exemple.
+On pourrait dire que si le parametre CGI est crypte, alors c'est une connection string.
+Sinon c'est un DSN, exactement comme maintenant.
+C'est different de b64, il faut reellement crypter, car confidentialite.
+Et quand on decrypte pour l'affichage, il faut remplacer le mot de passe par "****" par exemple.
 
-Peut-on avoir des DSN qui pointent les uns vers les autres avec  DSN=xxx ou FILEDSN=yyy
-Difference entre « OLE DB connector » et « Connection String » ? Ca a l’air d’etre la meme chose.
+Peut-on avoir des DSN qui pointent les uns vers les autres avec DSN=xxx ou FILEDSN=yyy
+Difference entre "OLE DB connector" et "Connection String" ? Ca a l'air d'etre la meme chose.
 
-« For some reason there’s no WMI class or other COM object designed to retrieve System DSNs. But that’s OK: because this information is stored in the registry we can still write a script to grab and return the DSNs. As you might expect, that’s exactly what the preceding script does: it opens the registry, zips down to HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\ODBC DATA SOURCES, and then returns the names and values of the all the registry entries found there.”
+"For some reason there's no WMI class or other COM object designed to retrieve System DSNs.
+But that's OK: because this information is stored in the registry we can still write a script to grab and return the DSNs.
+As you might expect, that's exactly what the preceding script does:
+it opens the registry, zips down to HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\ODBC DATA SOURCES,
+and then returns the names and values of the all the registry entries found there."
 
 https://blogs.technet.microsoft.com/heyscriptingguy/2005/07/25/how-can-i-retrieve-a-list-of-the-system-dsns-on-a-computer/
 
-On dirait vraiment qu’abusivement, DSN est pris pour “connection string stockee avec un label – ou pas stockee”. Ca nous arrange.
+On dirait vraiment qu'abusivement, DSN est pris pour "connection string stockee avec un label – ou pas stockee".
+Ca nous arrange.
 Il faudrait trouver qq chose pour stocker la chaine DSN ou bien la connection string ?
-Le type d’objet « odbc/dsn » signifie « le synonyme d’un DSN ».
+Le type d'objet "odbc/dsn" signifie "le synonyme d'un DSN".
 
-On a besoin d’un dossier SQL server, bien qu’on utilise ODBC : Tout simplement car on fait des requetes qui ne peuvent fonctionner que avec SQLServer.
-Par ailleurs, on est certain que ca genere des tables, vues etc… purement sqlserver.
+On a besoin d'un dossier SQL server, bien qu'on utilise ODBC :
+Tout simplement car on fait des requetes qui ne peuvent fonctionner que avec SQLServer.
+Par ailleurs, on est certain que ca genere des tables, vues etc... purement sqlserver.
 
 Toutefois, avoir sqlserver/dsn est redondant : On voudrait utiliser odbc/dsn.
 Par ailleurs, plus tard, si on a un acces natif sqlserver, on voudrait utiliser les memes queries.
 
 On peut les mettre dans sqlserver/__init__.py.
-Mais il faudrait deux types de scripts, ceux qui prennent « dsn= » (odbc) et les autres ?
-Ou alors : On utilise une connection string avec le parametre « dsn », MAIS …  on se reserve le droit, selon la connection-string,
+Mais il faudrait deux types de scripts, ceux qui prennent "dsn=" (odbc) et les autres ?
+Ou alors : On utilise une connection string avec le parametre "dsn",
+MAIS ...  on se reserve le droit, selon la connection-string,
 localement, de fabriquer la connection nous-meme :
 
-Dans sqlserver/__init__.py on cree la connection avec le parametre « Dsn= » et si on ne sait pas faire,
+Dans sqlserver/__init__.py on cree la connection avec le parametre "Dsn=" et si on ne sait pas faire,
 
 On va créer une connection grace a odbc/__init__.py : Du coup, pyodbc ne sera importe que dans odbc/__init__.py
 
 Donc on met dans odbc/
-·         La connection si la conneciton string n’a pas Driver et qu on n a que pyODBC.
-·         Idem tables etc…
-·         La liste des DSN car c est du ODBC (Dans les registres).
+* La connection si la connection string n'a pas Driver et qu on n'a que pyODBC.
+* Idem tables etc...
+* La liste des DSN car c est du ODBC (Dans les registres).
 
-En principe, sqlserver/tables etc.. aurait plus de sens si on était en natif. Malgre tout, c’est déjà necessaire a cause des requetes particulieres.
+En principe, sqlserver/tables etc.. aurait plus de sens si on etait en natif.
+Malgre tout, c'est deja necessaire a cause des requetes particulieres.
 
 Pour le scan qui renvoie du DSN ODBC, on va aller utiliser les requetes odbc/dsn : On a juste besoin du format special
 Pour coder et crypter les dsn.
-« MY_ECHO_DSN »
+"MY_TRUC_DSN"
 
-Ou « UID=xxx;PWD=yyy;DRIVER=zzz »
+Ou "UID=xxx;PWD=yyy;DRIVER=zzz"
 
 Penser a JDBC:
 jdbc:odbc:DRIVER=Microsoft Access Driver (*.mdb, *.accdb);DBQ=
 jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=
 
-DSN-Less ODBC simply means that instead of storing connection information (like server, database, etc.) in a file or the Windows Registry, you have plunked them into a connect string, which is then associated with some data object, like an Access linked table. Here is an example of the connect string generated by my tutorial:
+DSN-Less ODBC simply means that instead of storing connection information (like server, database, etc.)
+in a file or the Windows Registry, you have plunked them into a connect string,
+which is then associated with some data object, like an Access linked table.
+Here is an example of the connect string generated by my tutorial:
     ODBC;DRIVER={SQL Server};SERVER=cliff;DATABASE=pubs;UID=sa;PWD=;
 http://www.databasejournal.com/features/mssql/article.php/10894_1491011_2
 
 Sous Unix:
-“Connections to a data source can be made via a connection string without referring to a data source name (DSN-less connections). This is done by specifying the "DRIVER=" keyword instead of the "DSN=" keyword in a connection string, as outlined in the ODBC specification. A file named odbcinst.ini must exist when the driver encounters DRIVER= in a connection string.”
+"Connections to a data source can be made via a connection string without referring to a data source name (DSN-less connections).
+This is done by specifying the "DRIVER=" keyword instead of the "DSN=" keyword in a connection string,
+as outlined in the ODBC specification.
+A file named odbcinst.ini must exist when the driver encounters DRIVER= in a connection string."
 http://media.datadirect.com/download/docs/odbc/allodbc/index.html#page/odbc/dsn-less-connections.html
 
 Bref: Ce qui nous reste a faire:
-·         Ajouter « DSN= » quand on affiche les listes.
-·         Arranger MakeConnectionString pour mieux filtrer.
-·         Crypter la connexion string et ne jamais afficher le mot de passe.
-·         Ajouter bien plus de mots-clefs.
+* Ajouter "DSN=" quand on affiche les listes.
+* Arranger MakeConnectionString pour mieux filtrer.
+* Crypter la connexion string et ne jamais afficher le mot de passe.
+* Ajouter bien plus de mots-clefs.
 
-ADO est capable de faire un lookup dans le registry. Faut-il garder cette possibilite en n’ajoutant pas DSN= au debut ?
+ADO est capable de faire un lookup dans le registry. Faut-il garder cette possibilite en n'ajoutant pas DSN= au debut ?
 
-« The .NET Framework Data Provider for SQL Server uses its own protocol to communicate with SQL Server. Therefore, it does not support the use of an ODBC data source name (DSN) when connecting to SQL Server because it does not add an ODBC layer.”
+"The .NET Framework Data Provider for SQL Server uses its own protocol to communicate with SQL Server.
+Therefore, it does not support the use of an ODBC data source name (DSN) when connecting to SQL Server
+because it does not add an ODBC layer."
 
 https://stackoverflow.com/questions/15025055/server-vs-data-source-in-connection-string
-·         Data Source
-·         Server
-·         Address
-·         Addr
-·         Network Address
+* Data Source
+* Server
+* Address
+* Addr
+* Network Address
 
 https://msdn.microsoft.com/en-gb/library/system.data.sqlclient.sqlconnection.connectionstring.aspx
 
 Tres complet:
 http://www.dofactory.com/reference/connection-strings
-Quand il y a Dsn, c’est un DSN… (On peut devoir ajouter USD et PASSWD)
-Sinon, on n’a pas forcement driver : ca peut etre aussi ien DataBase.
+Quand il y a Dsn, c'est un DSN... (On peut devoir ajouter USD et PASSWD)
+Sinon, on n'a pas forcement driver : ca peut etre aussi ien DataBase.
 
-Du coup, ca donne la possiblite d’interroger un fichier XLS avec ODBC :
+Du coup, ca donne la possiblite d'interroger un fichier XLS avec ODBC :
 ConnectionString =
 1.  "Driver={Microsoft Excel Driver (*.xls)};" +
 2.  "Driverid=790;" +
 3.  "Dbq=C:\MyPath\SpreadSheet.xls;" +
 4.  "DefaultDir=C:\MyPath;";
 
-… ou texte/csv :
+... ou texte/csv :
 1.  conn.ConnectionString =
 2.   "Driver={Microsoft Text Driver (*.txt; *.csv)};" +
 3.   "Dbq=C:\MyPath\;" +
 4.   "Extensions=asc,csv,tab,txt;";
-… etc …
+... etc ...
 
 
 
@@ -1700,13 +1610,13 @@ C'est  MakeOdbcConnectionString qui fera cette analyse.
 * On peut mettre dans le Dsn une connection string.
 * Le DSN actuel est recode (eventuellement) en "DSN=dsn"
 * On encode64 le 'DSN' de facon transparente,
-c est obligatoire a cause des mots de passe.
+c'est obligatoire a cause des mots de passe.
 Ce qui est dommage est que la meme table peut etre designee
 de facons differentes, non reductibles: avec le DSN
 et avec la connection string.
 Le DSN ou la connection string devraient probablement etre des entites a part ?
 La connect string est une abstraction, mais ca peut decrire aussi
-precisement la facon d acceder a un objet de BDD.
+precisement la facon d'acceder a un objet de BDD.
 Oui, on peut dire que c'est une connection abstraite.
 
 A faire en meme temps: Lister toutes les BDD sql server, et pas grace au DSN retourne par ODBC.
@@ -1717,21 +1627,20 @@ Qu'une table existe uniquement a travers ODBC
 (Car on ne connait pas forcement la base) aussi.
 Il faudrait passer de la table avec DSN a la table d'une base de donnees.
 Et aussi de la table+dsn a la table+connection_string,
-Apparemment (A verifie) la conneciton a une BDD ne se faiot pas avec un DSN
+Apparemment (A verifier) la connection a une BDD ne se fait pas avec un DSN
 mais avec une connection string.
 Toutefois, on peut imaginer de garder l objet abstrait DSN+table
-qui pointe vers differents BDD selon la config de la machine.
-Mais il faudrait differencer "table abstraite DSN (ODBC ?)" d'une
+qui pointe vers differentes BDD selon la config de la machine.
+Mais il faudrait differencier "table abstraite DSN (ODBC ?)" d'une
 "table concrete, connection string, acceedee eventuellement avec ODBC mais pas seulement"
 
 Liste des DSN :
-Je me demande si on a vraiment besoin de « odbc/dsn » : Ce n’est pas un objet,
+Je me demande si on a vraiment besoin de "odbc/dsn" : Ce n'est pas un objet,
 Mais juste un pointeur vers une connection string.
 
  List all database files in a SQL Server instance with Python and pyodbc”
 
-
-======================================================
+============================================================================================================
 
 DSN encoding:
 
@@ -1746,14 +1655,12 @@ On remplace cgiEnv.m_entity_id_dict[] par une classe qui calcule le module coura
 Et voit s'il faut decoder tel ou tel argument. Sinon valeur existante.
 Meme logique d'import que l'affichage donc ca devrait marcher.
 
-
-======================================================
+============================================================================================================
 ENCODAGE TRANSPARENT DES ARGUMENTS CGI
-
 
 On veut qu un parametre CGI soit encode/decode de facon transparente.
 On ajouterait une fonction speciale ? Mais il faudrait la mettre dans tous
-Les modules qui utilisent « dsn= » : « odbc/table », « odbc/view », « sqlserver/table » etc…
+Les modules qui utilisent "dsn=" : "odbc/table", "odbc/view", "sqlserver/table" etc...
 
 import sys
 
@@ -1780,7 +1687,7 @@ def ExecuteTest():
 if __name__ == "__main__":
     ExecuteTest()
 
-======================================================
+============================================================================================================
 import sys
 import inspect
 import importlib
@@ -1819,8 +1726,8 @@ def TestFunnyArray():
                 print("funArrLoca[%d]=%s"%(idx,funArrLoca[idx]))
 
 
-=================================================================
-Database web admin. Urls permettant d’acceder a une base de donnees.
+============================================================================================================
+Database web admin. Urls permettant d'acceder a une base de donnees.
 
 https://docs.oracle.com/cd/B25329_01/doc/admin.102/b25107/getstart.htm#BABHJAGE
 
@@ -1833,7 +1740,7 @@ you would access the Database Home Page at this URL:
 http://127.0.0.1:8080/apex
 
 Pour aller directement a la page d'une table, essayer:@
-« Navigating Using Breadcrumbs Breadcrumbs (also called locator links) appear at the top of every page in the Oracle Database XE graphical user interface.
+"Navigating Using Breadcrumbs Breadcrumbs (also called locator links) appear at the top of every page in the Oracle Database XE graphical user interface.
 Each breadcrumb trail indicates where the current page is in the hierarchy of pages.
 You can use breadcrumbs to instantly link to the previous page or to any of the pages above the current page in the hierarchy.
 In the following example, which is taken from the Query Builder page, clicking Home takes you to the Database Home Page"
@@ -1855,17 +1762,15 @@ SqlServer
 http://sqlwebadmin.codeplex.com/
 " The SQL Server Web Data Administrator enables you to easily manage your SQL Server data, wherever you are."
 
-=================================================================
-Ne pas oublier la clusterization. On pourrait experimenter avec les listes de fichiers,
-Avec parametre.
-
-=================================================================
-Ecarer les infos sans importance:
+============================================================================================================
+Ecarter les infos sans importance:
 Options dans les scripts:
 
 Processes:
-Option « Hide system software » ON par defaut ?
+Option "Hide system software" ON par defaut ?
 Virer si les executables sont dans /usr/bin ou C:\Windows
 
 Shared memory :
-« Hide system DLLs »
+"Hide system DLLs"
+
+============================================================================================================

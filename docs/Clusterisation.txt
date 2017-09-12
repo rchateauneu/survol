@@ -1,0 +1,126 @@
+============================================================================================================
+Quand il y a de longues listes d'objets, on peut les rassembler par ordre alphabetique mais aussi les
+classifier avec les distance de Levenshtein pour faire des gros clusters.
+Ou bien detecter un prefix identique.
+L idee est d amener de l'intelligence empirique:
+- Reperer les chaines identiques aux chiffres pres (On parse en virant les chiffres).
+- Les fichiers identiques a l'extension pres.
+- Reperer les time-stamp dans les noms de fichiers.
+- Les fichiers avec l'extension .pid.
+
+============================================================================================================
+
+http://www.graphviz.org/Gallery/directed/cluster.html
+
+Pour tirer parti des blocs (sous-reseaux) dans graphviz, on pourrait regrouper
+des objets qui ont une propriete commune (Threads d un process,
+fichiers dans un dir, de facon recursive, methodes dans une classe),
+Ca evite meme de devoir tracer des aretes !!!
+ou tout simplement le host, comme container: subgraphes, clusters.
+
+
+============================================================================================================
+
+# Grouper des objets ayant un parent commun, par proximite de leur qu on remplace par une regex.
+# La propriete passe de key=value a key~regex ou key~=regex ou key=~regex.
+# On utilise alors enumerate.py au lieu de entity.py.
+# La partie interessante est de clusteriser des listes de chaines
+# et de mettre les bonnes regex: nombres, respecter les delimiteurs.
+# Ca permet d afficher bcp d objets.
+#
+# On dit qu'on clusterize certaines proprietes.
+# Ca entraine alors qu'on les traite en listes (comme maintenant)
+# mais qu'on va remplacer des chaines par un lien vers enumerate?Name="regexp"
+# Dans enumerate, "=" veut dire "match" ?
+# WQL permet de faire du pattern matching.
+# https://msdn.microsoft.com/en-us/library/aa392263%28v=vs.85%29.aspx
+#
+#  []    Any one character within the specified range ([a-f]) or set ([abcdef]).
+#  ^	 Any one character not within the range ([^a-f]) or set ([^abcdef].)
+#  %	 Any string of 0 (zero) or more characters.
+#        The following example finds all instances where "Win"
+#        is found anywhere in the class name: SELECT * FROM meta_class WHERE __Class LIKE "%Win%"
+#  _     (underscore) Any one character. Any literal underscore used
+#        in the query string must be escaped by placing it inside [] (square brackets).
+#
+# L'important que qu'une syntaxe speciale s'applique uniquement
+# enumerate.py et donc ne pollue pas les autres.
+# Quoique ce serait bien de pouvoir generaliser.
+# On peut regler la profondeur de la clusterization: Quand on met le node avec enumerate,
+# on rajoute alors la liste de ses noeuds, eux-memes clusterises avec une nouvelle regex.
+# Va-t-on fusionner les regex ? Ou bien ecrit-on enumerate.py?Classe.Name=%.txt&Name=toto.%
+# Ce qui donnerait: "select from Classe where Name like "%.txt" and Name like "toto.%" "
+# Il faut aussi trouver un module Python qui nous permette d'appliquer ces patterns.
+# Ca ressemble a des patterns SQL augmentes de regex. Comme c'est nous qui les fabriquons,
+# on peut les transformer sans probleme.
+#
+# A nouveau: L'idee est d'afficher facilement un tres grand nombre d'objets.
+# Ca doit marcher aussi meme s'ils ne pointent pas vers un ancetre commun:
+# L'objet "enumerate" sera alors un gros pave avec les attributs de sa class.
+#
+# On devrait pouvoir inhiber la clusterisation avec les parametres.
+#
+# On peut appliquer ca:
+# - Aux fichiers.
+# - Win32_Product.
+# - Memoire partagee.
+# - Users (Mais y a pas beaucoup)
+#
+
+La clusterization est une passe qui vient apres la creation du reseau
+mais avant la generation du json ou bien du DOT.
+
+La clusterisation dans DOT ne peut s'appliquer qu'au script courant. Dans D3,
+on peut garder la reference aux scripts qui ont cree un node.
+Donc, enumerate.py va recevoir l'url (le script) qui permet de fabriquer ces nodes,
+la classe, et un ou plusieurs Key=patterns.
+Quand on va afficher, on va restreindre, dans l'execution de ce script,
+les noeuds de cette classe qui satisfont cette propriete.
+Mais on va afficher les noeuds d'autres classes, probablement.
+Si pas de script, on va chercher le enumerate_<class>.py.
+A nouveau, on n'utilise pas WBEM et WMI comme sources de nodes, et c'est dommage.
+
+Clusterization a la volee dans D3:
+==================================
+
+On choisit une classe et on clusterize les noeuds de cette classe.
+Ca se fait avec la fenetre des URLS: On affiche derriere chaque URL
+la liste des classes dont des objets de cet URL sont representants.
+A condition qu'il y en aie suffisamment, peut-etre une dizaine d'objets, peu importe.
+Le lien vers chaque classe pointe vers enumerate.py mais il y a une passe
+de suppression des nodes:
+On remplace ces noeuds par un "enumerate.py" avec le bon pattern.
+Le enumerate recoit tous les liens que recevaient les noeuds avant.
+Oui mais le enumerate doit forcement permettre de reconstituer ces noeuds.
+Ce n'est possible que si connait le script qui les a fabriques.
+Et ca doit etre le meme.
+Donc il faut garder la trace des scripts qui ont permis de fabriquer un node.
+Et on ne peut clusteriser que des nodes d'une meme classe et issus
+du meme script. Eventuellement avec d'autres liens en commun
+(Par exemple tous les nodes du meme scripts, de la meme classe et ayant le meme lien,
+mais ca peut eventuellement etre nocif).
+Les liens seront partages mais il faut imprimer leur valence, le nombre
+de nodes vers lesquels ils pointent: Juste un entier.
+
+============================================================================================================
+
+Idealement, la clusterisation est un parametre optionnel qui s'applique a chaque script,
+comme les parametres de scripts normaux. On peut l editer de la meme facon.
+clusterisation.classe.champ=<methode de clusterisation>
+Ca vaut dire que tous les descendants d'un meme object, qui sont du type "classe",
+et qui font partie du meme cluster defini par le pattern, sont affiches par un seul objet
+qui est un script d'enumeration. Cet objet est defini par un pattern.
+
+C'est la methode de clusterisation qui definit l'ensemble des patterns.
+Chaque ensemble des patterns definit une partition des objects.
+Si un object est filtre par deux patterns differents, il faut detromper.
+Mais a la limite, tant pis si on objet apparait dans deux clusters.
+
+Exemples de methodes de clusterisation:
+* Extension du fichier.
+* Premieres lettres.
+Il faudrait des methodes de clusterisation qui s'appliquent partout et toujours ?
+En pratique, elles sont forcement specialisees pour un type de chaine.
+Et meme peut-etre, les attacher a une classe.
+Ca permettrait de toujours pouvoir proposer une clusterisation des qu'on a plein d'objets
+de cette classe et descendants du meme parent.

@@ -93,7 +93,12 @@ Ou bien utiliser un parseur.
 Ce qui est important est de réduire la taille du graphe.
 Idem pour l’arbres des modules : On essaie de rassembler les vertices dans des classes.
 ============================================================================================================
-Charger des descriptions UML ou Rational Rose 
+Prendre le code d'une fonction et faire le graphe des jumps. Pour alleger, ne considerer que les jumps
+de plus de N octets qui en principe donnent le structure generale.
+Plus un jump est eloigne, plus il est a grande echelle.
+Les objets seraient des "points d'entree" dansle code.
+============================================================================================================
+Charger des descriptions UML ou Rational Rose
 
 http://stackoverflow.com/questions/7930199/standard-uml-file-format
 ============================================================================================================
@@ -171,5 +176,16 @@ https://zato.io/blog/posts/the-splendid-state-of-python-and-websphere-mq-program
 Yawn a l'air de faire la meme chose que nous. Ne reste que:
 * Ajouter une fenetre graphique.
 * Ajouter des providers.
-============================================================================================================
 
+========================================================================================================================
+Reseau neuronaux etc...
+
+Applications: Qualifier un binaire: compilateur, langage d'origine, style de programmation
+
+Python packages for neural net: https://www.tensorflow.org/get_started/mnist/pros
+
+Python wrapper: https://keras.io/
+Site dedie a l AI: https://www.kaggle.com/petrosgk/1st-try-with-keras-0-918-lb
+
+image processing: http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_tutorials.html
+============================================================================================================
