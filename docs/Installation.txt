@@ -44,6 +44,10 @@ password=*********
 
 Upload on Pypi test:
 python setup.py sdist upload -r pypitest
+
+Install into virtualenv:
+(testarea) ...\testarea>pip uninstall survol
+(testarea) ...\testarea>pip install -i https://testpypi.python.org/pypi survol
 ========================================================================================================================
 Optional: Install win32
 
