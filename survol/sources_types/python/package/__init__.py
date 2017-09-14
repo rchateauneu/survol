@@ -8,6 +8,7 @@ import pip
 import importlib
 import lib_common
 import lib_uris
+import lib_util
 from lib_properties import pc
 
 try:
