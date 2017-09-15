@@ -1,7 +1,11 @@
-import rdflib
+import lib_kbase
 
 primns = "http://primhillcomputers.com/ontologies"
-pc = rdflib.Namespace(primns)
+
+#import rdflib
+#pc = rdflib.Namespace(primns)
+pc = lib_kbase.MakeNamespace(primns)
+
 primns_slash = primns + '/'
 
 # If prp contains a space, it is not properly parsed.
@@ -29,7 +33,8 @@ def MakeProp(prp,**kvargs):
 	# TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
 	# http://primhillcomputers.com/ontologies/swapnote\ futures
 	# If the space is replaced by "%20", everything before it is erased.
-	return rdflib.URIRef( ret.replace(" ","_") )
+	url = ret.replace(" ","_")
+	return lib_kbase.MakeNodeUrl( url )
 
 # TODO: Peut-etre: "pc" devrait etre un objet ou on redefinit l appel d un membre,
 # ce qui permet de creer dynamiquement des proprietes.

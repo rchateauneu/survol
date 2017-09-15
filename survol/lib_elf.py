@@ -160,14 +160,14 @@ class ReadElf(object):
 			if section['sh_entsize'] == 0:
 				continue
 
-			for nsym, symbol in enumerate(section.iter_symbols()):
+			for nsym, symbolobj in enumerate(section.iter_symbols()):
 
 				version_info = ''
 				# readelf doesn't display version info for Solaris versioning
 				if (section['sh_type'] == 'SHT_DYNSYM' and
 						self._versioninfo['type'] == 'GNU'):
 					version = self._symbol_version(nsym)
-					if (version['name'] != symbol.name and
+					if (version['name'] != symbolobj.name and
 						version['index'] not in ('VER_NDX_LOCAL',
 												 'VER_NDX_GLOBAL')):
 						if version['filename']:
@@ -180,7 +180,7 @@ class ReadElf(object):
 							else:
 								version_info = '@@%(name)s' % version
 
-				demang = demangler.demangle(symbol.name)
+				demang = demangler.demangle(symbolobj.name)
 
 				nnn = indexStartsWith( demang, "vtable for " )
 				if nnn:
@@ -212,11 +212,11 @@ class ReadElf(object):
 					
 				sym = ElfSym(
 					demang,
-					symbol.name,
-					describe_symbol_type(symbol['st_info']['type']),
-					describe_symbol_bind(symbol['st_info']['bind']),
-					describe_symbol_visibility(symbol['st_other']['visibility']),
-					describe_symbol_shndx(symbol['st_shndx']),
+					symbolobj.name,
+					describe_symbol_type(symbolobj['st_info']['type']),
+					describe_symbol_bind(symbolobj['st_info']['bind']),
+					describe_symbol_visibility(symbolobj['st_other']['visibility']),
+					describe_symbol_shndx(symbolobj['st_shndx']),
 					version_info )
 
 				listSyms.append( sym )
@@ -274,8 +274,8 @@ class ReadElf(object):
 				nsym >= self._versioninfo['versym'].num_symbols()):
 			return None
 
-		symbol = self._versioninfo['versym'].get_symbol(nsym)
-		index = symbol.entry['ndx']
+		symbolobj = self._versioninfo['versym'].get_symbol(nsym)
+		index = symbolobj.entry['ndx']
 		if not index in ('VER_NDX_LOCAL', 'VER_NDX_GLOBAL'):
 			index = int(index)
 

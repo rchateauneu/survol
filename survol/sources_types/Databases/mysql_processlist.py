@@ -60,10 +60,11 @@ def Main():
 			# Otherwise, the merging will not bring anything.
 			sql_task_node = socketNode
 
-		else:
-			dummy_local_process = lib_common.AnonymousPidNode(lib_util.currentHostname)
-			grph.add( ( dummy_local_process, pc.property_mysql_id, mysql_id_node ) )
-			sql_task_node = dummy_local_process
+		# TODO: Here, we only know that another process from anothere machine is connected here.
+		#else:
+		#	dummy_local_process = lib_common.AnonymousPidNode(lib_util.currentHostname)
+		#	grph.add( ( dummy_local_process, pc.property_mysql_id, mysql_id_node ) )
+		#	sql_task_node = dummy_local_process
 
 		if mysql_command != "":
 			grph.add( ( sql_task_node, pc.property_information, lib_common.NodeLiteral(mysql_command) ) )

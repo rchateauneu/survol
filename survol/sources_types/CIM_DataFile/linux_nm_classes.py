@@ -20,9 +20,9 @@ Usable = lib_util.UsableLinuxBinary
 nodesByClass = {}
 
 # The symbols must have been demangled.
-def ExtractClass(symbol):
+def ExtractClass(symbolnam):
 	# Should be very close to the end.
-	last_par_close = symbol.rfind( ")" )
+	last_par_close = symbolnam.rfind( ")" )
 	if last_par_close == -1:
 		return ""
 
@@ -32,33 +32,33 @@ def ExtractClass(symbol):
 	while cnt != 0:
 		if last_par_open == 0:
 			return ""
-		if symbol[last_par_open] == ")":
+		if symbolnam[last_par_open] == ")":
 			cnt += 1
-		elif symbol[last_par_open] == "(":
+		elif symbolnam[last_par_open] == "(":
 			cnt -= 1
 		last_par_open -= 1
 
 
 	# double_colon = symbol.rfind( "::", last_par_open )
-	without_signature = symbol[ : last_par_open + 1 ]
+	without_signature = symbolnam[ : last_par_open + 1 ]
 	double_colon = without_signature.rfind( "::" )
 	if double_colon == -1:
 		return ""
 
-	last_space = symbol[ : double_colon ].rfind( " " )
+	last_space = symbolnam[ : double_colon ].rfind( " " )
 	if last_space == -1 :
 		last_space = 0
 
 	# classNam = symbol[ double_colon + 1 : last_par_open ]
-	classNam = symbol[ last_space : double_colon ]
-	sys.stderr.write( "symbol=%s without_signature=%s classNam=%s\n" % ( symbol, without_signature, classNam ) )
+	classNam = symbolnam[ last_space : double_colon ]
+	sys.stderr.write( "symbol=%s without_signature=%s classNam=%s\n" % ( symbolnam, without_signature, classNam ) )
 	return classNam
 
 
-def AddSymbolInClass( grph, nodeSharedLib, symbol, file, prop ):
-	symClass = ExtractClass( symbol )
+def AddSymbolInClass( grph, nodeSharedLib, symbolnam, file, prop ):
+	symClass = ExtractClass( symbolnam )
 
-	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbol), file )
+	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbolnam), file )
 	if symClass != "":
 		try:
 			nodeClass = nodesByClass[symClass]
@@ -71,12 +71,12 @@ def AddSymbolInClass( grph, nodeSharedLib, symbol, file, prop ):
 		grph.add( ( nodeSharedLib, prop, symbolNode ) )
 	return symbolNode
 
-def AddKnown(grph, nodeSharedLib, symbol, file, type):
-	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbol, file, pc.property_symbol_defined )
+def AddKnown(grph, nodeSharedLib, symbolnam, file, type):
+	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbolnam, file, pc.property_symbol_defined )
 	grph.add( ( symbolNode, pc.property_symbol_type, lib_common.NodeLiteral(type) ) )
 
-def AddUnknown(grph, nodeSharedLib, symbol):
-	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbol, "*", pc.property_symbol_undefined )
+def AddUnknown(grph, nodeSharedLib, symbolnam):
+	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbolnam, "*", pc.property_symbol_undefined )
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()

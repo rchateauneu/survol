@@ -3,10 +3,11 @@ Callable or data library symbol
 """
 
 import cgi
+import lib_properties
+from lib_properties import pc
 import lib_uris
 import lib_util
 import lib_common
-from lib_properties import pc
 
 def EntityOntology():
 	return ( ["Name","File"], )

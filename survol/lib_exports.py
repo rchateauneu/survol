@@ -1,8 +1,8 @@
-import lib_properties
+import lib_kbase
 import lib_patterns
 import lib_naming
 import lib_util
-import rdflib
+import lib_properties
 from lib_properties import pc
 import sys
 import time
@@ -184,7 +184,7 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 
 			obj_str = str(obj)
 
-			if isinstance( obj , (rdflib.URIRef, rdflib.BNode)):
+			if lib_kbase.IsLink( obj ):
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 				WrtAsUtf( "<td>" + AntiPredicateUri(str(pred)) + "</td>")
 				url_with_mode = lib_util.ConcatenateCgi( obj_str, "mode=html" )
@@ -312,7 +312,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		propNam = PropToShortPropNam(pred)
 
 		# TODO: BUG: If several nodes for the same properties, only the last one is kept.
-		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
+		if lib_kbase.IsLink(obj):
 			objObj = NodeToJsonObj(obj)
 			obj_id = objObj.m_index
 			links.extend([{'source': subj_id, 'target': obj_id, 'survol_link_prop': propNam}])
@@ -320,7 +320,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			# TODO: Add the name corresponding to the URL, in m_info_dict so that some elements
 			# of the tooltip would be clickable. On the other hand, one just need to merge
 			# the nodes relative to the object, by right-clicking.
-		elif isinstance(obj, (rdflib.Literal)):
+		elif lib_kbase.IsLiteral(obj):
 			if pred == pc.property_information:
 				try:
 					subjObj.m_info_list.append( str(obj.value) )
@@ -415,7 +415,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 			except KeyError:
 				NodesToItems[subj] = [obj]
 
-			if isinstance(obj, (rdflib.Literal)):
+			if lib_kbase.IsLiteral(obj):
 				# This is the name of a subdirectory containing scripts.
 				# sys.stderr.write("obj LITERAL=%s\n"%str(subj))
 				NodesToNames[obj] = obj
@@ -423,7 +423,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 			NodesWithParent.add(obj)
 			SubjectNodes.add(subj)
 		elif pred == pc.property_information:
-			if isinstance(obj, (rdflib.Literal)):
+			if lib_kbase.IsLiteral(obj):
 				#sys.stderr.write("subj=%s\n"%str(subj))
 				#sys.stderr.write("obj.value=%s\n"%obj.value)
 				NodesToNames[subj] = obj.value

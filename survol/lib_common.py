@@ -2,8 +2,6 @@
 import socket
 import urllib
 import subprocess
-import lib_exports
-import lib_grammar
 
 try:
     import simplejson as json
@@ -24,18 +22,21 @@ import os
 import re
 import time
 
+import lib_kbase
 import lib_util
 import lib_patterns
 import lib_properties
 import lib_naming
+import lib_properties
 from lib_properties import pc
 from lib_properties import MakeProp
+import lib_exports
+import lib_grammar
 
 from lib_util import NodeLiteral
 from lib_util import NodeUrl
 
 import collections
-import rdflib
 
 # Functions for creating uris are imported in the global namespace.
 from lib_uris import *
@@ -60,10 +61,6 @@ def SerialiseScriptInfo(pairs):
 	print(strJson)
 
 ################################################################################
-
-# Here, should create a connection to the hostname.
-def AnonymousPidNode(host):
-	return rdflib.BNode()
 
 nodeMachine = gUriGen.HostnameUri( lib_util.currentHostname )
 
@@ -295,7 +292,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				key_qname = qname( key, grph )
 				# This assumes: type(val) == 'rdflib.term.Literal'
 				# sys.stderr.write("FORMAT ELEMENT: %s\n" %(dir(val)))
-				if isinstance(val, (rdflib.term.Literal)):
+				if lib_kbase.IsLiteral(val):
 					currTd = FormatPair( key_qname, val.value )
 				else:
 					currTd = FormatPair( key_qname, val )
@@ -408,7 +405,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 		# Maybe the subject node belongs to a table, but the property is not known.
 		subjNam = RdfNodeToDotLabelExtended(subj,None)
-		if isinstance(obj, (rdflib.URIRef, rdflib.BNode)):
+		if lib_kbase.IsLink(obj):
 
 			prp_col = lib_properties.prop_color(prop)
 
@@ -952,7 +949,7 @@ def CgiEnvMergeMode():
 
 	globalMergeMode = True
 	globalCgiEnvList = []
-	globalGraph = rdflib.Graph()
+	globalGraph = lib_kbase.MakeGraph()
 
 # OutCgiRdf has been called by each script without writing anything,
 # but the specific parameters per script are stored inside.
@@ -1088,7 +1085,7 @@ class CgiEnv():
 			# When in merge mode, the same object must be always returned.
 			self.m_graph = globalGraph
 		else:
-			self.m_graph = rdflib.Graph()
+			self.m_graph = lib_kbase.MakeGraph()
 		return self.m_graph
 
 	# We avoid several CGI arguments because Dot/Graphviz wants no ampersand "&" in the URLs.

@@ -10,7 +10,7 @@ import sys
 import lib_util
 import lib_common
 from lib_properties import pc
-from sources_types import symbol as survol_symbol
+from sources_types import linker_symbol as survol_symbol
 from sources_types import CIM_Process
 from sources_types.CIM_Process.languages import python as survol_python
 

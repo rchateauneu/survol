@@ -309,7 +309,7 @@ class LocalBox:
 		# The URL should never contain the chars "<" or ">".
 		symbol_name = lib_util.Base64Encode(symbol_name)
 		# TODO: Alphabetical order !!!!
-		return self.UriMakeFromDict("symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(file) } )
+		return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(file) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
 	# TODO: Move that to class/__init__.py

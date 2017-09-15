@@ -10,7 +10,7 @@ import subprocess
 import lib_util
 import lib_common
 from sources_types import CIM_Process
-from sources_types import symbol as survol_symbol
+from sources_types import linker_symbol as survol_symbol
 from sources_types.CIM_Process import CDB
 
 Usable = lib_util.UsableWindows

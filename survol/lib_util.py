@@ -1,7 +1,7 @@
 import os
 import re
 import sys
-import rdflib
+import lib_kbase
 import socket
 import base64
 import importlib
@@ -47,10 +47,10 @@ else:
 ################################################################################
 
 def NodeLiteral(value):
-	return rdflib.Literal(value)
+	return lib_kbase.MakeNodeLiteral(value)
 
 def NodeUrl(url):
-	return rdflib.term.URIRef(url)
+	return lib_kbase.MakeNodeUrl(url)
 
 ################################################################################
 

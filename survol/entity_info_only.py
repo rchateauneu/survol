@@ -7,7 +7,7 @@ Overview
 import os
 import re
 import sys
-import rdflib
+import lib_kbase
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -39,7 +39,7 @@ def AddInformation(grph,rootNode,entity_id, entity_type):
 					# If the information is not a literal, we could display the associated name.
 					# Also, consider recursive tables.
 					def Filter(self,subjRdf,objRdf):
-						return (subjRdf == self.m_node) and isinstance(objRdf, (rdflib.term.Literal))
+						return (subjRdf == self.m_node) and lib_kbase.IsLiteral((objRdf))
 
 					# This filters only literal properties which points to or from our node.
 					# This also ensures that theere is one node only, no links, because

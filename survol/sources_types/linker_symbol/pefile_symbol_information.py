@@ -41,7 +41,7 @@ def VersionString(filNam):
 	except:
 		return None
 
-def FindPESymbol(filNam,symbol):
+def FindPESymbol(filNam,symbolNam):
 	try:
 		pe = pefile.PE(filNam)
 
@@ -49,11 +49,11 @@ def FindPESymbol(filNam,symbol):
 			# sys.stderr.write("sym=%s\n"%sym)
 			# sys.stderr.write("entry=%s\n"%str(entry.struct))
 			# if sym.name.lower() == symbol.lower():
-			if  lib_pefile.UndecorateSymbol( sym.name ) == symbol:
+			if  lib_pefile.UndecorateSymbol( sym.name ) == symbolNam:
 				return sym
 	except Exception:
 		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("FindPESymbol %s %s. Caught:%s" % ( filNam, symbol, str(exc) ) )
+		lib_common.ErrorMessageHtml("FindPESymbol %s %s. Caught:%s" % ( filNam, symbolNam, str(exc) ) )
 	return None
 
 def Main():
@@ -66,14 +66,14 @@ def Main():
 	# The symbol is already demangled.
 	symbol_encode = cgiEnv.m_entity_id_dict["Name"]
 	# TODO: This should be packaged in lib_symbol.
-	symbol = lib_util.Base64Decode(symbol_encode)
+	symbolNam = lib_util.Base64Decode(symbol_encode)
 	filNam = cgiEnv.m_entity_id_dict["File"]
 
-	sys.stderr.write("symbol=%s filNam=%s\n"% (symbol,filNam) )
+	sys.stderr.write("symbol=%s filNam=%s\n"% (symbolNam,filNam) )
 
 	grph = cgiEnv.GetGraph()
 
-	symNode = lib_uris.gUriGen.SymbolUri( symbol, filNam )
+	symNode = lib_uris.gUriGen.SymbolUri( symbolNam, filNam )
 
 	if filNam:
 		filNode = lib_common.gUriGen.FileUri( filNam )
@@ -81,7 +81,7 @@ def Main():
 		versStr = VersionString(filNam)
 		grph.add( ( filNode, pc.property_information, lib_common.NodeLiteral(versStr) ) )
 
-		sym = FindPESymbol(filNam,symbol)
+		sym = FindPESymbol(filNam,symbolNam)
 
 		if sym is not None:
 			# docTxt = getattr(sym,"__doc__").replace(r"&#160;","")
@@ -108,7 +108,7 @@ def Main():
 			except:
 				pass
 
-			( fulNam, lstArgs ) = lib_symbol.SymToArgs(symbol)
+			( fulNam, lstArgs ) = lib_symbol.SymToArgs(symbolNam)
 			if lstArgs:
 				for arg in lstArgs:
 					# TODO: Order of arguments must not be changed.

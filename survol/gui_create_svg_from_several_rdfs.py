@@ -6,8 +6,7 @@ import sys
 import time
 import subprocess
 from subprocess import Popen, PIPE
-import rdflib
-
+import lib_kbase
 import urllib
 
 import cgi
@@ -22,8 +21,6 @@ import lib_common
 
 # Example:
 # http://127.0.0.1/Survol/survol/internals/gui_create_svg_from_several_rdfs.py?dummy=none&url=http://127.0.0.1/Survol/survol/objtypes_wmi.py?xid=%255C%255Crchateau-HP%255Croot%255CCli%253A.&url=http://127.0.0.1/Survol/survol/objtypes_wmi.py?xid=%255C%255Crchateau-HP%255Croot%255CDefault%253A
-
-from rdflib import Graph
 
 try:
 	from urllib.request import urlopen
@@ -106,7 +103,7 @@ def ConcatOptions( url, key, value ):
 	# return url + delim + urllib.urlencode(key) + '=' + urllib.urlencode(str(value))
 	return url + delim + key + '=' + str(value)
 
-grph = Graph()
+grph = lib_kbase.MakeGraph()
 
 arguments = cgi.FieldStorage()
 

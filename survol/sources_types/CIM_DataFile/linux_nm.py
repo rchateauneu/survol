@@ -14,13 +14,13 @@ from lib_properties import pc
 
 Usable = lib_util.UsableLinuxBinary
 
-def AddKnown(grph, nodeSharedLib, symbol, file, type):
-	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbol), file )
+def AddKnown(grph, nodeSharedLib, symbolnam, file, type):
+	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbolnam), file )
 	grph.add( ( nodeSharedLib, pc.property_symbol_defined, symbolNode ) )
 	grph.add( ( symbolNode, pc.property_symbol_type, lib_common.NodeLiteral(type) ) )
 
-def AddUnknown(grph, nodeSharedLib, symbol):
-	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbol), "*" )
+def AddUnknown(grph, nodeSharedLib, symbolnam):
+	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbolnam), "*" )
 	grph.add( ( nodeSharedLib, pc.property_symbol_undefined, symbolNode ) )
 
 def Main():

@@ -2,9 +2,9 @@
 Windows user account
 """
 
-import sys
-import lib_common
-from lib_properties import pc
+#import sys
+#import lib_common
+#from lib_properties import pc
 
 def EntityOntology():
 	return ( ["Name"],)
