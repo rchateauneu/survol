@@ -1,3 +1,5 @@
+Various notes about installation.
+
 NECESSARY MODULES:
 ==================
 
@@ -165,27 +167,9 @@ This is not enough:
 
 ========================================================================================================================
 
+
 Comme Apache veut ses scripts dans un directory special, et qu on veut aussi les installer normallement
 (Donc dans le dossier Python), on est oblige d’utilise des symlinks.
-
-Mais peut-etre que le directory « htbin » pourrait avoir un autre nom ?
-
-Probleme toutefois : Si le symlink ne s’appelle pas « htbin », les indexOf sur les urls ne fonctionneront pas.
-Donc il faut absolument virer « htbin/ » du code quand on cherche dans un url, car ce n’est pas fiable.
-
-Pourquoi met-on « htbin » dans le PATH ? Ca ne devrait etre utile que pour les deux scripts cgi et wgsi.
-En tout cas, il est normal de n’y mettre que les scripts utilises en CGI.
-
-
-Les scripts cgiserver.py et wsgiserver.py (webserver.py ? Le virer ?) devraient aller dans un directory specifique.
-
-Ce n’est pas installe par
-
-
-Tout ce qui est html et js devrait aller dans un directory different, html : Ce n’est pas installe par setup.py et est complement independant du Python.
-
-On voudrait que les css soient utilisés cote serveur et cote client.
-Tester que les pages html peuvent etre utilisees sans serveur http (Cross-site ?)
 
 Ce que doit faire l’installation :
 -          Mettre sources_types, revlib ( mais aussi quelques scripts de htbin, bien que ce soit commode de faire une exception pour eux ), dans les modules appelables. Les scripts de htbin devront maintenant specifier explicitement from survol etc… Renommer « /htbin/ » en « /survol/ », virer « htbin » des paths.
@@ -201,8 +185,7 @@ Installations Apache:
 https://docs.python.org/2.7/distutils/setupscript.html#installing-additional-files
 
 ========================================================================================================================
-On utilise setup:
-
+Installation with setup.py:
 python setup.py sdist
 
 Test avec virtual env:
@@ -220,7 +203,7 @@ pip install survol-1.0.dev0.zip --upgrade
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
 #
 ========================================================================================================================
-How to start:
+How to start our CGI server:
 survol_cgiserver -h
 
 Survol HTTP server: C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\testarea\Scripts\survol_cgiserver
@@ -232,6 +215,8 @@ survol_cgiserver -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
 survol_cgiserver -b "C:\Program Files\Internet Explorer\iexplore.exe"
 
 ========================================================================================================================
+Adding favicon
+
 https://realfavicongenerator.net
 
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -241,6 +226,43 @@ https://realfavicongenerator.net
 <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
 <meta name="theme-color" content="#ffffff">
 
+========================================================================================================================
+Install on OVH.
+
+Many Python modules are available in the ovh package: six, rdflib, psutil
+
+~/survol is the GIT repository
+~/www is the HTML root
+~/cgi-bin contains the CVGI scripts.
+
+##########
+In ~/cgi-bin, a CGI script imports the survol Python package. It is not stored into CGI (But is very small).
+Called with http://www.primhillcomputers.com/cgi-bin/survol.py
+Same logic for http://www.primhillcomputers.com/cgi-bin/test.py
+
+$ cat ~/cgi-bin/survol.py
+#!/usr/bin/python
+
+from survol import scripts
+from survol.scripts import survolcgi
+
+if __name__ == '__main__':
+        survolcgi.SurvolCgi()
+
+##########
+In ~/cgi-bin, a symbolic link points to the survol repository, so it can be imported:
+ls -l ~/survol/survol survol
+
+A symbolic link so that ~/www points to the HTML pages in survol GIT repository:
+ln -s ~/survol/survol/www/ www/ui
+
+So the javascript entry point is:
+http://www.primhillcomputers.com/ui/index.htm
+
+##########
+Surprisingly, it works... It should not, as following symbolic links in a cgi directory is not very safe.
+
+http://www.primhillcomputers.com/cgi-bin/survol/print_environment_variables.py
 
 
 
