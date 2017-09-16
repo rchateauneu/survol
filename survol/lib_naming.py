@@ -4,7 +4,6 @@ import sys
 import os
 import re
 import lib_patterns
-from sources_types import CIM_Process
 
 try:
 	from urlparse import urlparse
