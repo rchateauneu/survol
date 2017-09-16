@@ -156,7 +156,10 @@ def RunCgiServerInternal():
 
     print("Opening port %d" % port_number)
     print("sys.path=%s"% str(sys.path))
-    print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+    try:
+        print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+    except KeyError:
+        print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
 
     # Starts a thread which will starts the browser.
     if browser_name:
