@@ -194,7 +194,11 @@ def SameHostOrLocal( srv, entHost ):
 
 # Returns the top-level URL.
 def TopUrl( entityType, entityId ):
-	if re.match( ".*/survol/entity.py.*", os.environ['SCRIPT_NAME'] ):
+	try:
+		scriptNam = os.environ['SCRIPT_NAME']
+	except KeyError:
+		scriptNam = "Hello.py"
+	if re.match( ".*/survol/entity.py.*", scriptNam ):
 		if entityType == "":
 			topUrl = uriRoot + "/../index.htm" # A VERIFIER.
 		else:
@@ -235,22 +239,34 @@ def EncodeUri(anStr):
 
 ################################################################################
 
+# OVH
+# REQUEST_URI=/cgi-bin/survol/print_environment_variables.py
+# SCRIPT_FILENAME=/home/primhilltc/cgi-bin/survol/print_environment_variables.py
+# REQUEST_URI=/cgi-bin/survol/print_environment_variables.py
+
 def RequestUri():
 	try:
 		# If url = "http://primhillcomputers.ddns.net/Survol/survol/print_environment_variables.py"
 		# REQUEST_URI=/Survol/survol/print_environment_variables.py
+		sys.stderr.write("RequestUri\n")
+		for k in os.environ:
+			sys.stderr.write("    k=%s v=%s\n"%(k,os.environ[k]))
 		script = os.environ["REQUEST_URI"]
-	except:
+		sys.stderr.write("RequestUri script=%s\n"%script)
+	except KeyError:
 		# Maybe this is started from a minimal http server.
 		# If url = "http://127.0.0.1:8000/survol/print_environment_variables.py"
 		# SCRIPT_NAME=/survol/print_environment_variables.py
 		# QUERY_STRING=
 		#
 		# "/survol/entity.py"
-		scriptName = os.environ['SCRIPT_NAME'] 
-		# "xid=EURO%5CLONL00111310@process:16580"
-		queryString = os.environ['QUERY_STRING'] 
-		script = scriptName + "?" + queryString
+		try:
+			scriptName = os.environ['SCRIPT_NAME'] 
+			# "xid=EURO%5CLONL00111310@process:16580"
+			queryString = os.environ['QUERY_STRING'] 
+			script = scriptName + "?" + queryString
+		except KeyError:
+			script = "tralala"
 	return script
 
 ################################################################################
