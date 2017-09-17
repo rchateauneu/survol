@@ -14,7 +14,11 @@ function qualifyURL(url)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-url_survol_prefix = "../"
+// This special case because hosting on OVH is specific.
+if( window.location.hostname == "www.primhillcomputers.com" )
+	url_survol_prefix = "../cgi-bin/survol/";
+else
+	url_survol_prefix = "../";
 
 // This merges the URLs given as CGI parameters, b64-encoded.
 // It then displays in SVG or any mode, just like the other Python scripts.

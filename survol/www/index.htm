@@ -1838,6 +1838,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
 
 // At startup.
+// var urlInit = url_survol_prefix + "sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
 var urlInit = url_survol_prefix + "sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
 
 /* The calling URL might as well be:
@@ -1958,6 +1959,12 @@ function openRequestedPopup() {
     // RefreshSummaryWindow();
 }
 
+function openPrintLayout() {
+    var urlPrintLayout = url_survol_prefix + "entity.py";
+
+    location.href = urlPrintLayout;
+}
+
 function RunAfterLoad()
 {
     // "getParamValue=[{"cgi_key":"toto","cgi_value":"tutu"},{"cgi_key":"titi","cgi_value":"tata"}]"
@@ -1968,11 +1975,13 @@ function RunAfterLoad()
     globalIsCreated = false;
     var numUrls = PreloadUrlsArray(urlsArray);
 
-	console.log("RunAfterLoad finished")
+    console.log("RunAfterLoad finished")
 
-	$(IdHrefSummary).on("click", openRequestedPopup);
+    $(IdHrefSummary).on("click", openRequestedPopup);
 
-	window.name = gblWindowName;
+    $(IdPrintLayout).on("click", openPrintLayout);
+
+    window.name = gblWindowName;
 } // RunAfterLoad
 
 // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
@@ -1983,8 +1992,8 @@ $(RunAfterLoad);
 http://bl.ocks.org/GerHobbelt/3669455
 Rester dans la partie visible : Voir la fonction.
 RDF doit passer la contrainte sur les propriétés: Ajouter des triplets RDF qui expriment le layout hierarchique:
-« Layout »  property  « valeur »
-Mais il n est pas certain que ca suffise quand on a beaucoup d’objets.
+"Layout"  property  "valeur"
+Mais il n est pas certain que ca suffise quand on a beaucoup d'objets.
 */
 
 
@@ -2005,7 +2014,7 @@ Ajouter le lien de merge.
 <table border="0" width="100%"><tr>
     <td>Survol. <i>Understanding legacy applications. Based on WMI/WBEM, with a Web interface. &copy; Primhill Computers 2017</i></td>
     <td align="right"><a href="#" id="IdHrefSummary">Summary</a>&nbsp;
-<a href="../entity.py">Print layout</a>&nbsp;
+    <a href="#" id="IdPrintLayout">Print layout</a>
 <a href="help.htm">Help</a>
 <a href="configuration.htm">Configuration</a>
         <a href="index_technical.htm">Test links</a>
