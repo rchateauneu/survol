@@ -1066,9 +1066,13 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
     }
 
     // This is called by a JSON document loaded from a Python script.
-    function LoaderCallback(data)
+    function LoaderCallback(error,data)
     {
-        console.log("LoaderCallback theUrl="+theUrl);
+        console.log("LoaderCallback theUrl="+theUrl+" error="+error);
+        if(error) {
+            alert("LoaderCallback: error="+error);
+        }
+
         if( data == null )
         {
             console.log("LoaderCallback: data is null");
@@ -1154,7 +1158,7 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
 			nodes: [],
 			links: []
 		};
-		LoaderCallback(emptyData);
+		LoaderCallback(null,emptyData);
 	}
 } // LoadUrlUpdateDisplay
 
@@ -1389,8 +1393,13 @@ function DisplayD3Layout(divSvg,newData,w,h)
                     console.log("Loading urlTooltip="+urlTooltip);
 
                     d3.json(urlTooltip,
-                        function(objTooltip)
+                        function(error,objTooltip)
                         {
+                            if(error)
+                            {
+                                alert("IfMouseOver: error="+error);
+                                return;
+                            }
                             console.log("Callback urlTooltip="+urlTooltip+ " objTooltip="+JSON.stringify(objTooltip));
                             if( objTooltip.survol_error != undefined )
                             {
@@ -1713,9 +1722,12 @@ function DisplayD3Layout(divSvg,newData,w,h)
         Therefore it is built asynchronously. */
 
         // Adds a context menu for the background.
-        function AddsDefaultCtxtMenu(dfltItms)
+        function AddsDefaultCtxtMenu(error,dfltItms)
         {
             console.log("AddsDefaultCtxtMenu entering");
+            if(error) {
+                alert("AddsDefaultCtxtMenu error="+error);
+            }
             if( dfltItms.survol_error != undefined )
             {
                 alert("Error:"+dfltItms.survol_error);
@@ -1778,7 +1790,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                     }
 				};
 
-			AddsDefaultCtxtMenu(emptyItems);
+			AddsDefaultCtxtMenu(null, emptyItems);
 		}
     }; // CreateContextMenus
 
@@ -1789,8 +1801,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
     $("g.survol_node").mousedown(function(ev){
         /* Si clicke gauche, on va vers le "entity.py". */
 
-        function GetEntityUrl(jsonData)
+        function GetEntityUrl(error,jsonData)
         {
+            if(error) {
+                alert("GetEntityUrl error="+error);
+            }
             if( jsonData.error != undefined )
             {
                 alert("Error:"+jsonData.error);
