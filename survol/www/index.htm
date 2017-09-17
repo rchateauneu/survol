@@ -1144,6 +1144,7 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
 
 	try
 	{
+		// The Python script might fail.
 		d3.json(theUrl, LoaderCallback );
 	}
 	catch(exc)
@@ -1839,6 +1840,10 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
 // At startup.
 // var urlInit = url_survol_prefix + "sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
+
+// Afficher le message d'erreur:
+// "GET XHR http://www.primhillcomputers.com/cgi-bin/survol/sources_types/enumerate_CIM_Process.py [HTTP/1.1 500 Internal Server Error 62ms]"
+
 var urlInit = url_survol_prefix + "sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
 
 /* The calling URL might as well be:
