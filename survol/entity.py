@@ -4,6 +4,9 @@
 Overview
 """
 
+import cgitb
+cgitb.enable()
+
 import os
 import re
 import sys
@@ -20,7 +23,13 @@ import entity_dirmenu_only # Also used with the CGI parameter mode=menu
 ## AND THE LINKS LIKE WBEM OR WMI SHOULD BE PROPERLY DISPLAYED.
 ## IN THE CONTEXTUAL MENU ??
 
-from sources_types import CIM_Process
+try:
+	from sources_types import CIM_Process
+	FunctionGetUser = CIM_Process.GetCurrentUser
+except ImportError:
+	import getpass
+	FunctionGetUser = getpass.getuser
+
 from sources_types import CIM_ComputerSystem
 
 ################################################################################
@@ -43,7 +52,7 @@ def AddDefaultNodes(grph,rootNode,entity_host):
 	grph.add( ( currentNodeHostname, pc.property_information, lib_common.NodeLiteral("Current host:"+lib_util.currentHostname) ) )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeHostname ) )
 
-	currUsername = CIM_Process.GetCurrentUser()
+	currUsername = FunctionGetUser()
 	currentNodeUser = lib_common.gUriGen.UserUri( currUsername )
 	grph.add( ( currentNodeUser, pc.property_information, lib_common.NodeLiteral("Current user:"+currUsername) ) )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeUser ) )
