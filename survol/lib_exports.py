@@ -141,7 +141,7 @@ def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 	WrtAsUtf('<tr><td colspan="3"><a href="' + ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
 
 	for keyParam,valParam in parameters.items():
-		WrtAsUtf('<tr><td>' + keyParam + '</td><td colspan="2">' + valParam + '</td></tr>')
+		WrtAsUtf('<tr><td>' + keyParam + '</td><td colspan="2">' + str(valParam) + '</td></tr>')
 
 	WrtAsUtf('<tr><td colspan="3"><a href="' + ModedUrl("svg") + '">Content as SVG</a></td></tr>')
 	WrtAsUtf('<tr><td colspan="3"><a href="' + ModedUrl("rdf") + '">Content as RDF</a></td></tr>')
