@@ -7,6 +7,19 @@ from cgi import escape
 # as modules. It is necessary for some HTTP server setups where it is not possible
 # to call a Python program as CGI script.
 #
+# It is called from OVH cgi-bin/survolcgi.py script, this way:
+# #!/usr/bin/python
+# 
+# 
+# from survol import scripts
+# from survol.scripts import survolcgi
+# 
+# if __name__ == '__main__':
+#         survolcgi.SurvolCgi()
+#
+#
+#
+#
 # It might be compiled into an exe, or renamed into xxx.cgi.
 # It works for example this way:
 #
