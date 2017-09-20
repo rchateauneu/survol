@@ -709,8 +709,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# et c est lui qui va mettre des <tr> et </tr> de part et d'autre.
 		# Ca evite des concatenations. Dans le cas de "Vertical", on va donc renvoyer un tableau"
 
-		# Les ampersand sont doubles intentionnelent car ils ensuite remplaces deux fois.
-		# Ca n'est utilise que temporairement le temps qu'on remplace les arguments CGI par de vrais Monikers WMI.
+		# Ampersand are intentionnally doubled, because later on they are replaced twice.
+		# That is, interpreted twice as HTML entities.
+		# This might be temporary until we replace CGI arguments by genuine WMI Monikers.
 		labTextNoAmp = labText.replace("&amp;amp;"," ")
 		labTextNoAmp = labTextNoAmp.strip()
 		labTextClean = lib_exports.StrWithBr( labTextNoAmp)
