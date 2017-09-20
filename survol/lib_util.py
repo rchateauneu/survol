@@ -1,3 +1,6 @@
+import cgitb
+cgitb.enable()
+
 import os
 import re
 import sys
@@ -248,11 +251,11 @@ def RequestUri():
 	try:
 		# If url = "http://primhillcomputers.ddns.net/Survol/survol/print_environment_variables.py"
 		# REQUEST_URI=/Survol/survol/print_environment_variables.py
-		sys.stderr.write("RequestUri\n")
-		for k in os.environ:
-			sys.stderr.write("    k=%s v=%s\n"%(k,os.environ[k]))
+		#sys.stderr.write("RequestUri\n")
+		#for k in os.environ:
+		#	sys.stderr.write("    key=%s val=%s\n"%(k,os.environ[k]))
 		script = os.environ["REQUEST_URI"]
-		sys.stderr.write("RequestUri script=%s\n"%script)
+		#sys.stderr.write("RequestUri script=%s\n"%script)
 	except KeyError:
 		# Maybe this is started from a minimal http server.
 		# If url = "http://127.0.0.1:8000/survol/print_environment_variables.py"
@@ -266,7 +269,7 @@ def RequestUri():
 			queryString = os.environ['QUERY_STRING'] 
 			script = scriptName + "?" + queryString
 		except KeyError:
-			script = "tralala"
+			script = "RequestUri: No value"
 	return script
 
 ################################################################################
@@ -1010,7 +1013,11 @@ def GetScriptModule(currentModule, fil):
 		# Example: importlib.import_module("sources_top.Databases.mysql_processlist")
 		importedMod = importlib.import_module(currentModule + subClass)
 	else:
-		importedMod = importlib.import_module(subClass, currentModule )
+		if currentModule:
+			importedMod = importlib.import_module(subClass, currentModule )
+		else:
+			# Just the file name without the extension ".py"
+			importedMod = importlib.import_module(fil[:-3] )
 	return importedMod
 
 
