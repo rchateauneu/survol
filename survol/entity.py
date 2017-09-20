@@ -4,9 +4,6 @@
 Overview
 """
 
-import cgitb
-cgitb.enable()
-
 import os
 import re
 import sys
