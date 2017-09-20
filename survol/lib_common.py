@@ -712,6 +712,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# Les ampersand sont doubles intentionnelent car ils ensuite remplaces deux fois.
 		# Ca n'est utilise que temporairement le temps qu'on remplace les arguments CGI par de vrais Monikers WMI.
 		labTextNoAmp = labText.replace("&amp;amp;"," ")
+		labTextNoAmp = labTextNoAmp.strip()
 		labTextClean = lib_exports.StrWithBr( labTextNoAmp)
 		# Two columns because it encompasses the key and the value.
 
@@ -1430,7 +1431,7 @@ class TmpFile:
 		try:
 			if self.Name:
 				sys.stderr.write("NOT Deleting="+self.Name+"\n")
-				# os.remove(self.Name)
+				os.remove(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
 				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
