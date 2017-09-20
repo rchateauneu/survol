@@ -75,15 +75,13 @@ def TruncateHostname(hostDns):
 		hostName = hostDns
 	return hostName
 
-xidCgiDelimiter = "?xid="
-
 class LocalBox:
 
 	def MakeTheNode(self, entity_type, entity_id):
 		return self.MakeTheNodeFromScript( "/entity.py", entity_type, entity_id)
 
 	def MakeTheNodeFromScript(self, path, entity_type, entity_id):
-		url = lib_util.uriRoot + path + xidCgiDelimiter + self.TypeMake() + entity_type + "." + entity_id
+		url = lib_util.uriRoot + path + lib_util.xidCgiDelimiter + self.TypeMake() + entity_type + "." + entity_id
 		return lib_util.NodeUrl( url )
 
 	def BuildEntity(self, entity_type, *entity_id_arr):

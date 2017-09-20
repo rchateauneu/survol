@@ -76,8 +76,8 @@ def SurvolCgi():
 	# See the function lib_uris.MakeTheNodeFromScript()
 	lib_util.uriRoot = lib_util.HttpPrefix() + "/survol/survolcgi.py?script="
 	# lib_uris.xidCgiDelimiter = "?xid="
-	lib_uris.xidCgiDelimiter = "&amp;xid="
-	lib_uris.xidCgiDelimiter = "&amp;amp;xid="
+	# lib_util.xidCgiDelimiter = "&amp;xid="
+	lib_util.xidCgiDelimiter = "&amp;amp;xid="
 
 	arguments = cgi.FieldStorage()
 

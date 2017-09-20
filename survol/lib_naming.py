@@ -133,6 +133,42 @@ scripts_to_titles = {
 	"file_to_mime.py":"Mime display"
 }
 
+# Called when using the specific CGI script.
+def ParseEntitySurvolUri(uprs,longDisplay):
+	# sys.stderr.write("KnownScriptToTitle filScript=%s uprs=%s\n"%(filScript,str(uprs)))
+	# uprs=ParseResult(
+	#   scheme=u'http',
+	#   netloc=u'127.0.0.1:8000',
+	#   path=u'/survol/survolcgi.py',
+	#   params='',
+	#   query=u'script=/entity.py&amp;amp;xid=Win32_UserAccount.Domain=rchateau-HP,Name=rchateau',
+	#   fragment='')
+	# Maybe the script is run in the CGI script.
+	# If so, we have to rebuild a valid URL.
+	spltCgiArgs = uprs.query.split("&amp;amp;")
+	queryRebuild = ""
+	queryDelim = "?"
+	scriptRebuilt = None
+	for oneSplt in spltCgiArgs:
+		spltKV = oneSplt.split("=")
+		# sys.stderr.write("spltKV=%s\n"%spltKV)
+		if spltKV[0] == "script":
+			scriptRebuilt = "=".join(spltKV[1:])
+		else:
+			queryRebuild += queryDelim + oneSplt
+			queryDelim = "&"
+
+	if scriptRebuilt:
+		urlRebuilt = uprs.scheme + "://" + uprs.netloc + scriptRebuilt + queryRebuild
+		# sys.stderr.write("ParseEntitySurvolUri urlRebuilt=%s\n"%(urlRebuilt))
+
+		# ( labText, subjEntityGraphicClass, entity_id)
+		return ParseEntityUri(urlRebuilt, longDisplay)
+	else:
+		return ( "Incomplete CGI script", "Unknown subjEntityGraphicClass", "Unknown entity_id" )
+
+
+
 def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
 	# Extra information depending on the script.
 	filScript = os.path.basename(uprs.path)
@@ -140,7 +176,7 @@ def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
 		extra_title = scripts_to_titles[ filScript ]
 		entity_label = extra_title
 	except KeyError:
-		entity_label = filScript
+		entity_label = filScript + "..."
 
 	if entity_suffix:
 		entity_label += " "+ entity_suffix
@@ -157,7 +193,8 @@ def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
 # The returned entity type is used for choosing graphic attributes and gives more information than the simple entity type.
 # (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
 def ParseEntityUri(uriWithMode,longDisplay=True):
-	# sys.stderr.write("ParseEntityUri %s\n"%uri)
+	#sys.stderr.write("ParseEntityUri uriWithMode=%s\n"%uriWithMode)
+
 	# Maybe there is a host name before the entity type. It can contain letters, numbers,
 	# hyphens, dots etc... but no ":" or "@".
 	# THIS CANNOT WORK WITH IPV6 ADDRESSES...
@@ -173,6 +210,10 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 	uri = lib_util.AnyUriModed(uriWithMode, "")
 
 	uprs = urlparse(uri)
+
+	filScript = os.path.basename(uprs.path)
+	if filScript == "survolcgi.py":
+		return ParseEntitySurvolUri(uprs,longDisplay)
 
 	# This works for the scripts:
 	# entity.py            xid=namespace/type:idGetNamespaceType

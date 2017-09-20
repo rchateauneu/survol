@@ -446,6 +446,8 @@ def Scriptize(path, entity_type, entity_id):
 
 ################################################################################
 
+xidCgiDelimiter = "?xid="
+
 def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
 	if entity_type is None:
 		entity_type = ""
@@ -469,7 +471,9 @@ def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", catego
 
 	# TODO: Voir aussi EntityUrlFromMoniker.
 
-	url = uriRoot + "/class_type_all.py?xid=" + EncodeUri(monikerClass)
+	# lib_uris.xidCgiDelimiter
+	# url = uriRoot + "/class_type_all.py?xid=" + EncodeUri(monikerClass)
+	url = uriRoot + "/class_type_all.py" + xidCgiDelimiter + EncodeUri(monikerClass)
 
 	# sys.stdout.write("EntityClassUrl url=%s\n" % url)
 	return NodeUrl( url )
@@ -529,7 +533,9 @@ def EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname):
 def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_hostname=False):
 	scriptPath = EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname)
 
-	url = uriRoot + "/" + scriptPath + "?xid=" + EncodeUri(monikerEntity)
+	sys.stderr.write("EntityUrlFromMoniker scriptPath=%s\n"%scriptPath)
+	# url = uriRoot + "/" + scriptPath + "?xid=" + EncodeUri(monikerEntity)
+	url = uriRoot + "/" + scriptPath + xidCgiDelimiter + EncodeUri(monikerEntity)
 	return url
 
 # Full natural path: We must try to merge it with WBEM Uris.
@@ -1067,7 +1073,9 @@ def AppendNotNoneHostname(script,hostname):
 	strUrl = uriRoot + script
 	if hostname:
 		# The string "portal" is just there to have a nice title.
-		strUrl += '?xid=' + hostname + "@portal."
+		# xidCgiDelimiter
+		# strUrl += '?xid=' + hostname + "@portal."
+		strUrl += xidCgiDelimiter + hostname + "@portal."
 	return strUrl
 
 # Point to the WBEM portal for a given machine.
