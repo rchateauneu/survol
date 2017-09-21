@@ -122,6 +122,18 @@ from lib_util import WrtHeader
 ################################################################################
 
 # Transforms a RDF graph into a HTML page.
+#
+# Report structure.
+# Group objects by class.
+# For class, display the number of objects and the list of these objects.
+# For each object, the list of literal attributes in a table.
+# Then the list of property then objects. Gather triplets by properties.
+# Have little text for each property and the inverted property ?
+# Maybe try to simplify this list by reverting the triplets.
+#
+#
+#
+#
 def Grph2Html( page_title, error_msg, isSubServer, parameters, grph):
 	# TODO: Est-ce necessaire d'utiliser WrtAsUtf au lieu de print() ?
 	# Peut-etre oui, a cause des sockets?
