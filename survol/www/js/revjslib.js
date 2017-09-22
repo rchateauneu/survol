@@ -14,15 +14,32 @@ function qualifyURL(url)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// This special case because hosting on OVH is specific.
-if( window.location.hostname == "www.primhillcomputers.com" )
-	url_survol_prefix = "../cgi-bin/survol/";
-else
-	url_survol_prefix = "../";
+function AddUrlPrefix(urlQuery, cgiArgs )
+{
+	var ixPrim = window.location.hostname.indexOf("primhillcomputers.com");
+	// This special case because hosting on OVH is specific.
+	if( ixPrim >= 0 )
+		// http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/sources_types/Linux/etc_passwd.py&mode=json
+		// url_survol_prefix = "../cgi-bin/survol/";
+		url_survol_prefix = "../cgi-bin/survol/survolcgi.py?script=/";
+	else
+		url_survol_prefix = "../";
+
+	var fullUrl =  url_survol_prefix + urlQuery;
+
+	if( cgiArgs != "")
+		if( ixPrim >= 0 )
+			fullUrl += "&";
+		else
+			fullUrl += "?";
+		fullUrl += cgiArgs;
+
+	return fullUrl;
+}
 
 // This merges the URLs given as CGI parameters, b64-encoded.
 // It then displays in SVG or any mode, just like the other Python scripts.
-var pyMergeScript = url_survol_prefix + "merge_scripts.py";
+var pyMergeScript = AddUrlPrefix( "merge_scripts.py", "" );
 
 // This is the name of the main window which display index.htm.
 // It is needed by Summary.htm which posts messages to it.
