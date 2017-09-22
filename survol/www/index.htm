@@ -1060,6 +1060,8 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
 {
     'use strict';
 
+    console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
+
     if( shouldMerge == false ) {
         // Each element must be properly destroyed.
         lstLoadedUrls_DeleteAll();
@@ -1070,7 +1072,7 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
     {
         console.log("LoaderCallback theUrl="+theUrl+" error="+error);
         if(error) {
-            alert("LoaderCallback: error="+error);
+            alert("LoaderCallback: theUrl="+theUrl+" error="+error);
         }
 
         if( data == null )
@@ -1376,15 +1378,19 @@ function DisplayD3Layout(divSvg,newData,w,h)
                         return;
                         }
 
-					// This object probably comes from WMI only.
-					// TODO: We could still have a URL and rather check if a server is here ??
-					if( ! d.survol_url ) {
+                    // This object probably comes from WMI only.
+                    // TODO: We could still have a URL and rather check if a server is here ??
+                    if( ! d.survol_url ) {
                         console.log("No script data without URL");
                         return;
                         }
 						
                     // d.survol_info_dict is a dictionary, and survol_info_list is a list.
                     // These two members are filled when parsing the input JSON document.
+
+                    // On OVH, we have this URL:
+                    // d.survol_url=http://www.primhillcomputers.com:80/survol/survolcgi.py?script=/entity.py&amp;xid=user.Domain=ovh.net,Name=lp
+                    console.log("IfMouseOver d.survol_url="+d.survol_url);
                     var urlReplaced = d.survol_url.replace("entity.py","entity_info_only.py");
                     var urlTooltip = AppendCgiToUrl(urlReplaced,"mode=json");
 
@@ -1441,12 +1447,12 @@ function DisplayD3Layout(divSvg,newData,w,h)
                             }
                         }
                     );
-				} // IfMouseOver
+                } // IfMouseOver
 
                 var currentEventD3 = d3.event;
 
                 // Tooltip starts only after 500 milliseconds.
-				setTimeout( function() { IfMouseOver(d,currentEventD3.pageX,currentEventD3.pageY); } , 500 );
+                setTimeout( function() { IfMouseOver(d,currentEventD3.pageX,currentEventD3.pageY); } , 500 );
             }
         )
         .on("mouseout", function(d)
@@ -1498,7 +1504,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         // MAYBE A ANOTHER MODE NEEDED FOR JUST TEXT INFORMATION FOR THE TOOLTIP.
         // BUT THIS IS VERY HEAVY TO CALL THIS EACH TIME WE HOVER OVER A NODE.
         var objUrl = objectSvg.survol_url;
-        console.log("objUrl="+objUrl);
+        console.log("MakeContextMenuItems objUrl="+objUrl);
 
         var objKey = objectSvg.name;
 
@@ -1775,7 +1781,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         } // AddsDefaultCtxtMenu
 
         // This returns the top-level options as a JSON tree.
-        var urlTopLevel = url_survol_prefix + "entity_dirmenu_only.py?mode=menu";
+        var urlTopLevel = AddUrlPrefix( "entity_dirmenu_only.py", "mode=menu");
 
 		try {
 			d3.json(urlTopLevel, AddsDefaultCtxtMenu);
@@ -1821,29 +1827,29 @@ function DisplayD3Layout(divSvg,newData,w,h)
         {
             var objectThis = this;
 
-			// If this was defined from a Python script.
-			if(this.__data__.survol_url) {
-				console.log("Right click on URL="+this.__data__.survol_url);
-				if(this.__data__.survol_url.indexOf("entity.py") < 0) {
-				    /*
-				    Very special case of the execution of file_directory.py : It returns CIM_DataFile and
-				    CIM_Directory, but also links to file_directory.py with the entity type CIM_Directory.
-				    So these nodes become also clickable.
-				    */
-				    console.log("Should not happen: only entity.py is clickable");
-				    return;
-				}
-				// We expect a contextual menu in JSON format, not a graph.
-				// TODO: Have a script which returns only the menu tree in json, without the intermediate
-				// step of RDF encoding.
-				var urlEntity = this.__data__.survol_url.replace("entity.py","entity_dirmenu_only.py") + "&mode=menu";
-				console.log("URL:"+urlEntity);
+            // If this was defined from a Python script.
+            if(this.__data__.survol_url) {
+                console.log("Right click on URL="+this.__data__.survol_url);
+                if(this.__data__.survol_url.indexOf("entity.py") < 0) {
+                    /*
+                    Very special case of the execution of file_directory.py : It returns CIM_DataFile and
+                    CIM_Directory, but also links to file_directory.py with the entity type CIM_Directory.
+                    So these nodes become also clickable.
+                    */
+                    console.log("Should not happen: only entity.py is clickable");
+                    return;
+                }
+                // We expect a contextual menu in JSON format, not a graph.
+                // TODO: Have a script which returns only the menu tree in json, without the intermediate
+                // step of RDF encoding.
+                var urlEntity = this.__data__.survol_url.replace("entity.py","entity_dirmenu_only.py") + "&mode=menu";
+                console.log("urlEntity:"+urlEntity);
 
-				this.__data__.defer_scripts = jQuery.Deferred();
+                this.__data__.defer_scripts = jQuery.Deferred();
 
-				// This loads the menu options as a JSON tree.
-				d3.json(urlEntity, GetEntityUrl);
-			}
+                // This loads the menu options as a JSON tree.
+                d3.json(urlEntity, GetEntityUrl);
+            }
         }
     });
 
@@ -1852,14 +1858,14 @@ function DisplayD3Layout(divSvg,newData,w,h)
     CreateContextMenus();
 } // DisplayD3Layout
 
+// At startup. This special case because hosting on OVH is specific.
+var urlInit = null;
+var ixPrim = window.location.hostname.indexOf("primhillcomputers.com");
+if( ixPrim >= 0 )
+    urlInit = AddUrlPrefix( "sources_types/Linux/etc_passwd.py", "xid=.&mode=json");
+else
+    urlInit = AddUrlPrefix( "sources_types/enumerate_CIM_Process.py", "xid=.&mode=json");
 
-// At startup.
-// var urlInit = url_survol_prefix + "sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
-
-// Afficher le message d'erreur:
-// "GET XHR http://www.primhillcomputers.com/cgi-bin/survol/sources_types/enumerate_CIM_Process.py [HTTP/1.1 500 Internal Server Error 62ms]"
-
-var urlInit = url_survol_prefix + "sources_types/enumerate_CIM_Process.py?xid=.&mode=json";
 
 /* The calling URL might as well be:
 http://192.168.1.88/Survol/survol/entity.py?xid=smbshr.Id=////WDMyCloudMirror/rchateau
@@ -1980,7 +1986,7 @@ function openRequestedPopup() {
 }
 
 function openPrintLayout() {
-    var urlPrintLayout = url_survol_prefix + "entity.py";
+    var urlPrintLayout = AddUrlPrefix( "entity.py", "" );
 
     location.href = urlPrintLayout;
 }
