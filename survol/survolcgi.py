@@ -5,6 +5,10 @@ import sys
 import cgi
 from cgi import escape
 
+
+# sys.path.append("/homez.85/primhilltc/survol/survol")
+sys.path.append("survol")
+
 import lib_util
 import lib_uris
 
