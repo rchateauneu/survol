@@ -165,7 +165,7 @@ def ParseEntitySurvolUri(uprs,longDisplay):
 		# ( labText, subjEntityGraphicClass, entity_id)
 		return ParseEntityUri(urlRebuilt, longDisplay)
 	else:
-		return ( "Incomplete CGI script", "Unknown subjEntityGraphicClass", "Unknown entity_id" )
+		return ( "Incomplete CGI script:"+str(uprs), "Unknown subjEntityGraphicClass", "Unknown entity_id" )
 
 
 
