@@ -53,6 +53,8 @@ def NodeLiteral(value):
 	return lib_kbase.MakeNodeLiteral(value)
 
 def NodeUrl(url):
+	# TODO: Apparently, it is called twice, which is not detected
+	# because MakeNodeUrl returns the same string.
 	return lib_kbase.MakeNodeUrl(url)
 
 ################################################################################
@@ -101,14 +103,16 @@ def HttpPrefix():
 		server_port = os.environ['SERVER_PORT']
 	except KeyError:
 		# Should not happen.
-		server_port = "8080"
+		server_port = "80"
 
 	# BEWARE: Colons are forbidden in URIs apparently !!!
 	# Due to a very strange bug which displays:
 	# "http://127.0.0.1:80/PythonStyle/survol/entity.py" ...
 	# does not look like a valid URI, trying to serialize this will break.
 	# But if we do not add "http:" etc... SVG adds its prefix "127.0.0.1" etc...
-	return 'http://' + server_addr + ':' + server_port
+	prfx = 'http://' + server_addr + ':' + server_port
+	sys.stderr.write("HttpPrefix server_addr=%s prfx=%s\n"%(server_addr,prfx))
+	return prfx
 
 
 def UriRootHelper():
@@ -116,9 +120,14 @@ def UriRootHelper():
 		# SCRIPT_NAME=/PythonStyle/survol/internals/print.py
 		# SCRIPT_NAME=/survol/print_environment_variables.py
 		scriptNam=os.environ['SCRIPT_NAME']
-		sys.stderr.write("scriptNam=%s\n"%scriptNam)
 		idx = scriptNam.find('survol')
-		root = scriptNam[:idx] + 'survol'
+		sys.stderr.write("UriRootHelper scriptNam=%s idx=%d\n"%(scriptNam,idx))
+		if idx >= 0:
+			root = scriptNam[:idx] + 'survol'
+		else:
+			# Should not happen.
+			root = "/CANNOT_HAPPEN/" + scriptNam
+		sys.stderr.write("UriRootHelper scriptNam=%s root=%s\n"%(scriptNam,root))
 
 	except KeyError:
 		# If this runs from the command line and not as a CGI script,
@@ -126,7 +135,9 @@ def UriRootHelper():
 		sys.stderr.write("No SCRIPT_NAME\n")
 		root = "/NotRunningAsCgi"
 		root = "/CannotNotHappen"
-	return HttpPrefix() + root
+	urh = HttpPrefix() + root
+	sys.stderr.write("UriRootHelper urh=%s\n"%urh)
+	return urh
 
 uriRoot = UriRootHelper()
 
@@ -287,11 +298,18 @@ def TopScriptsFunc():
 
 	urlPrefix = "survol"
 	idx = currDir.find(urlPrefix)
-	# Maybe not running i Apache but in http.server (Python 3) or SimpleHttpServer (Python 2)
+	sys.stderr.write("TopScriptsFunc currDir=%s idx=%s\n"%(currDir,idx))
+
+	# Maybe not running in Apache but in http.server (Python 3) or SimpleHttpServer (Python 2)
 	if idx == -1:
 		return currDir + "//" + urlPrefix
 	else:
-		return currDir[ : idx + len(urlPrefix) ]
+		# Maybe this is OVH with survolcgi.py: currDir=/home/primhilltc/survol/survol
+		# BEWARE: This is a bit dodgy, not sure what do do.
+		if currDir.endswith("survol/survol"):
+			return currDir
+		else:
+			return currDir[ : idx + len(urlPrefix) ]
 
 gblTopScripts = TopScriptsFunc()
 
