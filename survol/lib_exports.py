@@ -262,6 +262,12 @@ def ScriptForJson(url):
 	if( url.find("survol/entity_info_only.py") >= 0):
 		return True
 
+	if( url.find("survol/survolcgi.py?script=/entity.py") >= 0):
+		return True
+
+	if( url.find("survol/survolcgi.py?script=/entity_info_only.py") >= 0):
+		return True
+
 	# TODO: Maybe pass portal_wbem.py and portal_wmi.py ??
 
 	# Other scripts are forbidden.
@@ -355,6 +361,9 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# HTTP_MIME_URL
 		the_survol_nam = HTMLParser().unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
 		the_survol_url = HTMLParser().unescape(obj_link)
+
+		# Hack, specific to OVH.
+		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
 
 		nodes[nod_id] = {
 			'name'             : the_survol_nam,
