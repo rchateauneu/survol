@@ -78,7 +78,7 @@ def SurvolCgi():
 	# We must change the prefix of all displayed links so thatr instead of being "dirname/script.py?xid=abc",
 	# they will be "survolcgi.py?script=dirname/script.py?xid=abc"
 	# See the function lib_uris.MakeTheNodeFromScript()
-	lib_util.uriRoot = lib_util.HttpPrefix() + "/survol/survolcgi.py?script="
+	lib_util.uriRoot = lib_util.HttpPrefix() + "/cgi-bin/survol/survolcgi.py?script="
 	# lib_uris.xidCgiDelimiter = "?xid="
 	# lib_util.xidCgiDelimiter = "&amp;xid="
 	lib_util.xidCgiDelimiter = "&amp;amp;xid="
