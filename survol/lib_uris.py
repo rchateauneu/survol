@@ -82,6 +82,8 @@ class LocalBox:
 
 	def MakeTheNodeFromScript(self, path, entity_type, entity_id):
 		url = lib_util.uriRoot + path + lib_util.xidCgiDelimiter + self.TypeMake() + entity_type + "." + entity_id
+		# Depending on the code path, NodeUrl is sometimes called recursively, which is not detected
+		# because its conversion to a string returns the same URL.
 		return lib_util.NodeUrl( url )
 
 	def BuildEntity(self, entity_type, *entity_id_arr):
