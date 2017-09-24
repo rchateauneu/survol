@@ -919,9 +919,9 @@ class OutputMachineCgi:
 	def __init__(self):
 		pass
 
-	def HeaderWriter(self,mimeType):
-		sys.stderr.write("OutputMachineCgi.HeaderWriter:%s\n"%mimeType)
-		HttpHeaderClassic(outputHttp,mimeType)
+	def HeaderWriter(self,mimeType,extraArgs= None):
+		sys.stderr.write("OutputMachineCgi.WriteHeadContentType:%s\n"%mimeType)
+		HttpHeaderClassic(outputHttp,mimeType,extraArgs)
 
 	def OutStream(self):
 		return outputHttp
@@ -942,11 +942,15 @@ def SetDefaultOutput(wFile):
 	outputHttp = wFile
 
 # contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
-def HttpHeaderClassic( out_dest, contentType ):
+def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 	# sys.stderr.write("HttpHeader:%s\n"%contentType)
 	# TODO: out_dest should always be the default output.
 
 	stri = "Content-Type: " + contentType + "\n\n"
+	if extraArgs:
+		for linArg in extraArgs:
+			stri = linArg + "\n\n"
+
 	# Python 3.2
 	try:
 		out_dest.write( stri )
@@ -968,8 +972,8 @@ def WrtAsUtf(str):
 	# TODO: try to make this faster. Should be conditional just like HttpHeader.
 	out_dest.write( str.encode('utf-8') )
 
-def WrtHeader(mimeType):
-	globalOutMach.HeaderWriter(mimeType)
+def WrtHeader(mimeType,extraArgs = None):
+	globalOutMach.HeaderWriter(mimeType,extraArgs)
 
 ################################################################################
 

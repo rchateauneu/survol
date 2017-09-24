@@ -397,7 +397,20 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 	graph["nodes"] = nodes
 	graph["links"] = links
 
-	WrtHeader('application/json')
+	# What must be avoided: Cross-Origin Request Blocked:
+	# The Same Origin Policy disallows reading the remote resource at
+	# http://192.168.0.17/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.&mode=json.
+	# (Reason: CORS header 'Access-Control-Allow-Origin' missing)
+
+	# https://stackoverflow.com/questions/5027705/error-in-chrome-content-type-is-not-allowed-by-access-control-allow-headers
+	# header('Access-Control-Allow-Origin: *');
+	# header('Access-Control-Allow-Methods: POST,GET,OPTIONS');
+	# header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
+	WrtHeader('application/json', [
+			'Access-Control-Allow-Origin: *',
+			'Access-Control-Allow-Methods: POST,GET,OPTIONS',
+			'Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept'
+		] )
 	print(json.dumps(graph, indent=2))
 
 # This returns a tree of scripts, usable as a contextual menu.
