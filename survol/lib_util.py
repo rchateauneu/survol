@@ -946,10 +946,11 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 	# sys.stderr.write("HttpHeader:%s\n"%contentType)
 	# TODO: out_dest should always be the default output.
 
-	stri = "Content-Type: " + contentType + "\n\n"
+	stri = "Content-Type: " + contentType + "\n"
 	if extraArgs:
 		for linArg in extraArgs:
-			stri = linArg + "\n\n"
+			stri += linArg + "\n"
+	stri += "\n"
 
 	# Python 3.2
 	try:
