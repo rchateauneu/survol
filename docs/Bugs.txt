@@ -6,38 +6,10 @@ C'est quand 0on utilise le serveur en Python qui liste les scripts au lancement.
 ============================================================================================================
 Quand on clique "top" en html, c'est affiché en svg. Donc le mode n'est pas transmis au subserver.
 
-
-
-Virer entity_list.py qui n'apporte rien par rapport a entity.py en mode html Le virer aussi des menus.
-
-Trouver un moyen de merger les liens selectionnes.
-
-Dans l'affichage SMP, pas loyen de remonter d'un niveau.
-Supprimer les DRH a la fin des fichiers sur une machine Windows.
-
-============================================================================================================
-[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1] Premature end of script headers: cgi_socket_tcpdump.py
-[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1]   File
-"C:/Documents and Settings/Remi/My
-Documents/Reverse/PythonStyle/survol/sources/BY_addr/cgi_socket_tcpdump.py",
-line 11\r
-[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1]     On va
-surveiller ce qui se passe sur une socket specifique.\r
-[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1]         ^\r
-[Fri Nov 21 07:30:04 2014] [error] [client 127.0.0.1] SyntaxError:
-invalid syntax\r
-[Fri Nov 21 07:30:06 2014] [error] [client 127.0.0.1] CgiEnv info=Socket information\r
- 
-
-
 ============================================================================================================
 http://127.0.0.1/PythonStyle/survol/sources/BY_hostname/win32_NetShareEnum.py?xid=hostname:192.168.1.67
 
 uncode les noms des fichiers et folders sinon tres moche (Mais ça marche)
-============================================================================================================
-
-LAYOUT_LIST: Virer cette icone, mais en revanche essayer d'afficher le type de layout dans la legende.
-Mais d'ou ca vient ?
 ============================================================================================================
 Events update:
 curr_dir=C:\\Documents and Settings\\Remi\\My Documents\\Reverse\\PythonStyle\\survol/sources_types/file
@@ -96,22 +68,13 @@ nmap -oX - -T5 192.168.1.0/24
 Tres rapide et complete apparemment:
 http://www.cyberciti.biz/networking/nmap-command-examples-tutorials/
 ============================================================================================================
-
-
-Ajouter dans chaque fichier dans CgiEnv une fonction booleenne pour
-permettre ou interdire le script: filter=is_linux
-
-=> Si le filtre est false, on met un message d'erreur.
-Et on en met la valeur dans le cache de facon a ne pas afficher le script.
-Idem dans chaque directory, on peut mettre une fonction de filtre.
-
-Dans chaque script, mettre un texte de documentation,
-qui sera affiche notamment en cas d'erreur.
+Automatic refresh when displaying the processes tree:
+- Some links are there without nodes.
+- Impossible to delete the nodes of this url (When clicking Del in the summary window)
+============================================================================================================
 
 Ca deconne probablement a cause du tilda: Tester avec des noms de fichiers tres longs ?
 http://127.0.0.1/PythonStyle/survol/entity.py?xid=file:C%3A%5CDOCUME~1%5CRemi%5CLOCALS~1%5CTemp%5CSkype%5CDbTemp%5Ctemp-968iZH8Qs4gRIszFZIEJETGX
-
-
 
 file_directory sur un ficheir qui n'est pas un directory:
 http://127.0.0.1/PythonStyle/survol/sources_types/file/file_directory.py?xid=file:C%3A%5CDocuments%20and%20Settings%5CRemi%5CApplication%20Data%5CSkype%5Cshared_dynco%5Cdc.db
@@ -173,8 +136,9 @@ Error loading:http://127.0.0.1:23456/?xid=:&mode=rdf:error
 
 * Affiche pas bien le nom du groupe.: http://127.0.0.1/PythonStyle/survol/entity.py?xid=group:HelpServicesGroup&mode=svg
 
-
-
+* There can only be one summary window because they all have the same name.
+At least when it is the same machine.
+This must be changed otherwise cannot drag'n'drop between several windows.
 
 
 win_directory_changes se plante
