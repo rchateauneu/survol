@@ -49,19 +49,6 @@ def TimeStamp():
 
 ################################################################################
 
-# This is used to call an URL with mode=info as CGI argument. The url returns
-# a Json array describing this URL, for example the title.
-# TODO: Reuse this for JSON.
-infoContentType = "application/json"
-
-def SerialiseScriptInfo(pairs):
-	strJson = json.dumps(pairs)
-	lib_util.HttpHeaderClassic( sys.stdout, infoContentType )
-	sys.stderr.write("strJson=%s\n" % strJson )
-	print(strJson)
-
-################################################################################
-
 nodeMachine = gUriGen.HostnameUri( lib_util.currentHostname )
 
 ################################################################################
