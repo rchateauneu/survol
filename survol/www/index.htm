@@ -4,11 +4,6 @@
 <html>
 <head>
 
-    <title>Survol</title>
-
-
-
-
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -51,19 +46,19 @@
 
     .survol_line {
         stroke: #111111;
-        // stroke-width: 1px; // Ca marche.
+        /* stroke-width: 1px; */ /* This works. */
         stroke-width: 1;
-        // stroke-dasharray: 4, 1; // Ca marche.
+        /* stroke-dasharray: 4, 1; */ /* This works. */
     }
 
-    // For some links. CA NE MARCHE PAS.
+    /* For some links. IT DOES NOT WORK. */
     .ppid {
         stroke: #111111;
         stroke-width: 5px;
         stroke-dasharray: 4, 1;
     }
 
-    // Ca marche.
+    /* This works. */
     .nodetext {
         pointer-events: none;
         font: 10px sans-serif;
@@ -103,32 +98,33 @@
         fill:#E01B98;
     }
 
-    // https://css-tricks.com/multiple-class-id-selectors/
-    // This selects all elements with the class name CIM_ComputerSystem that are descendents of the element with a class of node.
+    /* https://css-tricks.com/multiple-class-id-selectors/ */
+    /* This selects all elements with the class name CIM_ComputerSystem
+    that are descendents of the element with a class of node. */
     .CIM_ComputerSystem {
-        fill:#E01B98;
+        /* fill:#E01B98; */
         font: 12px sans-serif;
         background: lightsteelblue;
-        // opacity: 0.5;
+        /* opacity: 0.5; */
         border: 8px;
     }
 
     .CIM_LogicalDisk {
-        // fill:#1BC9E0; // Ca marche
+        /* fill:#1BC9E0; */ /* This works. */
         font: 20px sans-serif;
         background: lightsteelblue;
-        // opacity: 0.5;
+        /* opacity: 0.5; */
         border: 8px;
     }
 
     .CIM_Process {
-        // fill:#E01B98; // Ca marche
+        /* fill:#E01B98; */ /* This works. */
         font: 12px sans-serif;
         background: lightsteelblue;
-        /* opacity: 0.9; // Ca marche */
+        /* opacity: 0.9; */ /* This works. */
         border: 8px;
-        // rx: 10; // Ca marche pas.
-        // ry: 10;
+        /* rx: 10; */ /* This works. */
+        /* ry: 10; */
     }
 
     /* Probably not used. */
@@ -321,6 +317,51 @@ function CheckGraph(theNam,theData)
 } // CheckGraph
 
 
+/*
+Where does the URL come from ? The URL can independently come from several sources:
+- Python script URLs from SVG print layout. Just need to reformat them on the fly.
+- Python script URLs listed in the summary window. Just reformat them on the fly.
+- Vairous URLs from other systems: do the necessary conversion and creation of nodes:
+  HTTP or FTP urls etc... Of course WBEM urls from Yawn or elsewhere ?
+- We must find a way to display Json URLs, from D3 display.
+  Maybe they could be just the title of the node.
+  Possibly, there would be a onClick, which might do nothing, but still it would be
+  an Url and as such, draggable and dropable. Given that D3 already uses drag-and-drop,
+  which is not easy to change, and possibly incompatible between v3 and v4.
+  Do that later.
+*/
+function onDrop(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    var droppedUrl = evt.dataTransfer.getData("URL");
+
+    console.log("onDrop droppedUrl="+droppedUrl);
+    alert("onDrop droppedUrl="+droppedUrl);
+
+    var adaptedUrl = null;
+
+    /* The URL can be a Python script:
+    http://127.0.0.1:8000/survol/sources_types/odbc/table/odbc_table_columns.py?xid=odbc/table.Dsn%3DDSN~MyNativeSqlServerDataSrc%2CTable%3DCOLUMN_DOMAIN_USAGE
+    This detection is not very reliable, but the only bad consequence is loading badly-formatted Json data.
+    */
+    ixSourcesTypes = droppedUrl.indexOf("/sources_types/");
+    if(ixSourcesTypes >= 0) {
+        adaptedUrl = AppendCgiToUrl(droppedUrl,"mode=json");
+    }
+
+    if(adaptedUrl) {
+        /* If the URL has the right style, it is added. This always merges. */
+        LoadUrlUpdateDisplay(adaptedUrl,true);
+    }
+
+
+
+};
+
+function onDragOver(evt){
+    console.log("onDrag evt="+JSON.stringify(evt))
+    evt.preventDefault();
+}
 
 function D3DisplayCreation()
 {
@@ -330,10 +371,13 @@ function D3DisplayCreation()
         divSvg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     }
 
-    var win = window,
-        doc = document,
-        elt = doc.documentElement,
-        geb = doc.getElementsByTagName('body')[0];
+    var win = window;
+    var doc = document;
+    var elt = doc.documentElement;
+    var geb = doc.getElementsByTagName('body')[0];
+
+    geb.addEventListener('drop', onDrop);
+    geb.addEventListener('dragover', onDragOver, false);
 
     // First defined and non-zero values.
     wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
@@ -770,6 +814,7 @@ function DeleteSvgNode(objectSvg)
     EmptyDisplay();
     DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
     console.log("DeleteSvgNode reset globalMustMerge");
+    // BEWARE: On IE / Edge: Not defined.
     globalMustMerge = false;
 } // DeleteSvgNode
 
@@ -810,7 +855,7 @@ function DeleteSvgConnectedNodes(objectSvg)
         objLnk.target.indices_links_list.push(ixLnk);
     }
 
-    // Recursively marked connected nodes for deletion.
+    // Recursively marks connected nodes for deletion.
     function RecursAppendConnected(objNod)
     {
         var lstIdxEdges = objNod.indices_links_list;
@@ -838,7 +883,7 @@ function DeleteSvgConnectedNodes(objectSvg)
     RecursAppendConnected(goodNode);
 
     // Now we just need to delete.
-    // TODO: It may be simpler if indexing with URLs.
+    // TODO: It may be simpler if the nodes container is indexed with URL, instead of an array.
 
     previousData.nodes = previousData.nodes.filter( function(objNod) { return ! objNod.to_delete; });
 
@@ -856,9 +901,8 @@ function DeleteSvgConnectedNodes(objectSvg)
 ////////////////////////////////////////////////////////////////////////////////
 
 // The list of currently loaded urls.
-// TODO: This is also the UNDO list,
-// and therefore will contain "pseudo-urls" meaning that such or such object
-// was added or removed.
+// TODO: This could also be the UNDO list, and therefore will contain "pseudo-urls"
+// meaning that such or such object was added or removed.
 var lstLoadedUrls = [];
 
 // We do not add methods because the object must be cloned when sent as a message.
@@ -1296,8 +1340,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
     // https://bl.ocks.org/mbostock/7555321 Wrapping Long Labels
     function addTextLines(selection) {
         selection.each(function(d) {
-            var theText = d3.select(this)
+            var theText = d3.select(this);
+            // This is the first line of the box.
             theText.text(null).append("tspan").attr("x", 0).text(d.name);
+
+            // Now it displays one line for each information about the node.
             var cntLine = 0;
 
             for (var ix in d.survol_info_list) {
@@ -2008,6 +2055,8 @@ function RunAfterLoad()
     $(IdPrintLayout).on("click", openPrintLayout);
 
     window.name = gblWindowName;
+
+    document.title = "Survol " + NiceHostname();
 } // RunAfterLoad
 
 // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
@@ -2032,13 +2081,15 @@ Ajouter le lien de merge.
 
 </script>
 
+    <title>Survol</title>
+
 </head>
 
-
+<body>
 
 
 <table border="0" width="100%"><tr>
-    <td><a href="index.htm">Survol</a><i> Understanding legacy applications. Based on WMI/WBEM, with a Web interface. &copy; Primhill Computers 2017</i></td>
+    <td><a href="index.htm">Survol</a> <i>Unearthing LegacyWare. Based on CIM/WMI/WBEM, with a web ui. &copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017</i></td>
     <td align="right"><a href="#" id="IdHrefSummary">Summary</a>&nbsp;
     <a href="#" id="IdPrintLayout">Print layout</a>
 <a href="help.htm">Help</a>
