@@ -487,6 +487,12 @@ function MergeDatabanks( rdfDataBank, newRdfDb )
 	}
 }
 
-
+// To be displayed in title.
+function NiceHostname()
+{
+	if (location.hostname == "127.0.0.1")
+		return "localhost";
+	return location.hostname;
+}
 ////////////////////////////////////////////////////////////////////////////////
 

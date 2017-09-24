@@ -134,17 +134,16 @@ function SummaryInit()
 {
     window.addEventListener("message", ProcessIncomingMessage, false);
     console.log("SummaryInit done");
+    document.title = "Survol summary " + NiceHostname();
 }
 
 // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
 $(SummaryInit);
 
+// TODO: Maybe this shoudl go in the SummaryInit ??
 window.addEventListener("message", ProcessIncomingMessage, false);
 
     </script>
-
-
-
 
     <title>Survol summary</title>
     </head>
