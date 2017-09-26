@@ -1335,7 +1335,19 @@ def ErrorMessageEnable(flag):
 
 def ErrorMessageHtml(message):
 	sys.stderr.write("ErrorMessageHtml globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+
 	if globalErrorMessageEnabled:
+		# If we are in Json mode, this returns a special json document with the error message.
+		try:
+			qry = os.environ["QUERY_STRING"]
+			isJson = qry.endswith("mode=json")
+			if isJson:
+				lib_exports.WriteJsonError(message)
+				sys.exit(0)
+			
+		except KeyError:
+			pass
+
 		sys.stderr.write("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
 		lib_util.InfoMessageHtml(message)
 		# TODO: Fix with wsgi which just displays "A server error occurred.  Please contact the administrator."

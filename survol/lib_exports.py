@@ -302,6 +302,16 @@ def WriteJsonHeader():
 			'Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept'
 		] )
 
+# This is a standard for returning errors.
+# http://labs.omniti.com/labs/jsend
+def WriteJsonError(message):
+	jsonErr = {}
+	jsonErr["status"] = "error"
+	jsonErr["message"] = message
+
+	WriteJsonHeader()
+	print(json.dumps(jsonErr, indent=2))
+
 
 # Transforms a RDF graph into a JSON document.
 # This returns a graph made of Json objects.
