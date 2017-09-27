@@ -1125,7 +1125,7 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
     {
         console.log("LoaderCallback theUrl="+theUrl+" error="+error);
         if(error) {
-            alert("LoaderCallback: theUrl="+theUrl+" error="+error);
+            alert("LoaderCallback: theUrl="+theUrl+" error="+JSON.stringify(error));
         }
 
         if( data == null )
@@ -1133,6 +1133,15 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
             console.log("LoaderCallback: data is null");
             return;
         }
+
+	console.log("data="+JSON.stringify(data));
+	if( data.status == "error" )
+	{
+		alert("Error agent:"+data.message);
+		return;
+	}
+
+
         if( data.survol_error != undefined )
         {
             alert("Error:"+data.survol_error);
