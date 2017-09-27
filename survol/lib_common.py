@@ -1363,8 +1363,8 @@ def ErrorMessageHtml(message):
 def SubProcPOpen(command):
 	try:
 		retPipe = subprocess.Popen(command, bufsize=100000, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	except subprocess.OSError:
-		ErrorMessageHtml("Cannot run "+command)
+	except OSError:
+		ErrorMessageHtml("Cannot run "+" ".join(command))
 
 	# For windows_network_devices we need shell=True but it is unsafe.
 	# drivelist = lib_common.SubProcPOpen('wmic logicaldisk get name,description,ProviderName', shell=True, stdout=subprocess.PIPE)
