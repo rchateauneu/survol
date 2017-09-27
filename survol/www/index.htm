@@ -336,7 +336,6 @@ function onDrop(evt) {
     var droppedUrl = evt.dataTransfer.getData("URL");
 
     console.log("onDrop droppedUrl="+droppedUrl);
-    alert("onDrop droppedUrl="+droppedUrl);
 
     var adaptedUrl = null;
 
@@ -351,7 +350,17 @@ function onDrop(evt) {
 
     if(adaptedUrl) {
         /* If the URL has the right style, it is added. This always merges. */
+        /*
+        Nodes from various hostnames must have something specifically visible,
+        when it is different from the current host.
+        The host is extracted from the url.
+        Maybe a specific css could be loaded from this remote machine.
+        */
         LoadUrlUpdateDisplay(adaptedUrl,true);
+    }
+    else
+    {
+        alert("Cannot drop url:"+droppedUrl);
     }
 
 
@@ -930,7 +939,7 @@ function TimerRefreshUrl(objLoadedUrl)
 
     urlJson = AppendCgiToUrl(objLoadedUrl.m_loaded_url,"mode=json");
 
-    // TODO: Finish this !!
+    // TODO: Finish this !! Doing what ??? ...
     LoadUrlUpdateDisplay(urlJson, MergeRefreshMode );
 }
 
@@ -1138,6 +1147,13 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
         if( IsLoadedUrl(theUrl) ) {
             actualMergeMode = MergeRefreshMode;
         }
+
+        /*
+        Here, we must set a specific graphic attribute for this machine.
+        This attribute is set to the loaded nodes.
+        Or, we create a dictionary mapping host names to graphic attributes.
+        
+        */
 
         RefillDisplay(theUrl,data, actualMergeMode, currTimeStamp);
 
