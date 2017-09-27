@@ -7,7 +7,6 @@ LAN ping (256 addresses)
 
 import sys
 import socket
-import subprocess
 import xml.dom.minidom
 import lib_util
 import lib_common
@@ -69,7 +68,7 @@ def Main():
 
 	try:
 		# The program nmap must be in the PATH.
-		p = subprocess.Popen(args, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		p = lib_common.SubProcPOpen(args)
 	except WindowsError: # On Windows, this cannot find "FileNotFoundError"
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc)+". Maybe a dependency problem")

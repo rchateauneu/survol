@@ -22,7 +22,6 @@ NET USE command
 import sys
 import re
 import socket
-import subprocess
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -40,7 +39,7 @@ def Main():
 
 	net_use_cmd = [ "net", "use" ]
 
-	net_use_pipe = subprocess.Popen(net_use_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	net_use_pipe = lib_common.SubProcPOpen(net_use_cmd)
 
 	( net_use_last_output, net_use_err ) = net_use_pipe.communicate()
 

@@ -34,8 +34,7 @@ import re
 import os
 import sys
 import cgi        # One of the CGI arguments is the name of the Samba server
-import subprocess
-
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -52,7 +51,7 @@ def Main():
 	smbclient_cmd = [ "smbclient", "-L", hostName, "-N" ]
 
 	try:
-		smbclient_pipe = subprocess.Popen(smbclient_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		smbclient_pipe = lib_common.SubProcPOpen(smbclient_cmd)
 	# except WindowsError:
 	except Exception:
 		lib_common.ErrorMessageHtml("Cannot run command:"+" ".join(smbclient_cmd))

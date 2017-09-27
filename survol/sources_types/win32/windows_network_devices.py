@@ -6,7 +6,6 @@ Command wmic logicaldisk
 """
 
 import re
-import subprocess
 import sys
 import lib_util
 import lib_common
@@ -34,7 +33,7 @@ def Main():
 	# Nothing is done for Linux because this is a different logic,
 	# so there is no point emulating the same behaviour.
 
-	drivelist = subprocess.Popen('wmic logicaldisk get name,description,ProviderName', shell=True, stdout=subprocess.PIPE)
+	drivelist = lib_common.SubProcPOpen('wmic logicaldisk get name,description,ProviderName')
 	drivelisto, err = drivelist.communicate()
 	strlist = drivelisto
 	# This was the original line tested on Python 3 on Windows, but on Linux we get:

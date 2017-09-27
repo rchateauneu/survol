@@ -2,7 +2,6 @@
 
 import sys
 import re
-import subprocess
 import socket
 import lib_util
 import lib_common
@@ -21,7 +20,7 @@ import lib_common
 def GetArpEntriesWindows():
 	arp_cmd = [ "arp", "-a" ]
 
-	arp_pipe = subprocess.Popen(arp_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	arp_pipe = lib_common.SubProcPOpen(arp_cmd)
 
 	( arp_last_output, arp_err ) = arp_pipe.communicate()
 
@@ -61,7 +60,7 @@ def GetArpEntriesWindows():
 def GetArpEntriesLinux():
 	arp_cmd = [ "/sbin/arp", "-an" ]
 
-	arp_pipe = subprocess.Popen(arp_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	arp_pipe = lib_common.SubProcPOpen(arp_cmd)
 
 	( arp_last_output, arp_err ) = arp_pipe.communicate()
 

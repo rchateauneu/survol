@@ -7,9 +7,8 @@ Nmap network exploration results
 import sys
 import re
 import socket
-import subprocess
 import xml.dom.minidom
-
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -35,7 +34,7 @@ def Main():
 	isGraphDisplay = cgiEnv.GetParameters( paramkeyGraphDisplay )
 	
 	try:
-		p = subprocess.Popen(args, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		p = lib_common.SubProcPOpen(args)
 	except WindowsError: # On Windows, this cannot find "FileNotFoundError"
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc)+". Maybe a dependency problem")

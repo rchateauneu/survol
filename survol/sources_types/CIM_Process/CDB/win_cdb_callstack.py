@@ -6,7 +6,6 @@ Windows process call stack
 
 import re
 import sys
-import subprocess
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -74,7 +73,7 @@ def Main():
 
 	sys.stderr.write("Starting cdb_cmd=%s\n" % cdb_cmd )
 	try:
-		cdb_pipe = subprocess.Popen(cdb_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
 	except WindowsError:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml( "cdb not available: Caught:%s" % str(exc) )

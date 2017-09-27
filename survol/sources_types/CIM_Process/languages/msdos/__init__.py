@@ -4,7 +4,6 @@ import json
 import psutil
 import lib_util
 import tempfile
-import subprocess
 from sources_types import CIM_Process
 
 # This tells if this is a Python process, by checking if this runs a python interpreter.

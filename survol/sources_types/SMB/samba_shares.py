@@ -25,7 +25,6 @@ Samba shares
 import sys
 import re
 import socket
-import subprocess
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -36,7 +35,7 @@ import lib_smb
 def NetBiosLookupHelper(machine):
 	nmblookup_cmd = [ "nmblookup", "--debuglevel=0", machine ]
 
-	nmblookup_pipe = subprocess.Popen(nmblookup_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	nmblookup_pipe = lib_common.SubProcPOpen(nmblookup_cmd)
 
 	( nmblookup_last_output, nmblookup_err ) = nmblookup_pipe.communicate()
 
@@ -74,7 +73,7 @@ def Main():
 
 	smbtree_cmd = [ "smbtree", "-N", "-b", "--debuglevel=0" ]
 
-	smbtree_pipe = subprocess.Popen(smbtree_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	smbtree_pipe = lib_common.SubProcPOpen(smbtree_cmd)
 
 	( smbtree_last_output, smbtree_err ) = smbtree_pipe.communicate()
 

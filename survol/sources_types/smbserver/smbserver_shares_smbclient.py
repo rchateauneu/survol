@@ -33,8 +33,6 @@ Samba server shares
 import re
 import os
 import sys
-import subprocess
-
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -58,7 +56,7 @@ def Main():
 	# print("Command="+str(smbclient_cmd))
 	# print("<br>")
 
-	smbclient_pipe = subprocess.Popen(smbclient_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	smbclient_pipe = lib_common.SubProcPOpen(smbclient_cmd)
 
 	( smbclient_last_output, smbclient_err ) = smbclient_pipe.communicate()
 

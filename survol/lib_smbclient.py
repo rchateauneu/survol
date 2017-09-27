@@ -1,6 +1,6 @@
 import re
 import sys
-import subprocess
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -36,7 +36,7 @@ def AddFromSmbClient( grph, smbDir, smbShr, passWrd, rootNode ):
 	# This print is temporary until we know how to display smb-shared files.
 	sys.stderr.write( "Command=%s\n" % str(smbclient_cmd) )
 
-	smbclient_pipe = subprocess.Popen(smbclient_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	smbclient_pipe = lib_common.SubProcPOpen(smbclient_cmd)
 
 	( smbclient_last_output, smbclient_err ) = smbclient_pipe.communicate()
 

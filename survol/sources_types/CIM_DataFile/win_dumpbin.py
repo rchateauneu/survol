@@ -5,7 +5,6 @@ Dumpbin symbols associated to a DLL
 """
 
 import os
-import subprocess
 import re
 import sys
 import lib_util
@@ -57,7 +56,7 @@ def Main():
 	dumpbin_cmd = [ dumpbin_exe, dll_file, "/exports" ]
 
 	try:
-		dumpbin_pipe = subprocess.Popen(dumpbin_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		dumpbin_pipe = lib_common.SubProcPOpen(dumpbin_cmd)
 	except WindowsError:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Windows error executing:"+" ".join(dumpbin_cmd)+":"+str(exc))

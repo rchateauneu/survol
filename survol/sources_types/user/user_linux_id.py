@@ -6,8 +6,6 @@ Groups of a Linux user
 
 import re
 import sys
-import subprocess
-
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -59,7 +57,7 @@ def Main():
 
 	id_cmd = [ "id", userName ]
 
-	id_pipe = subprocess.Popen(id_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	id_pipe = lib_common.SubProcPOpen(id_cmd)
 
 	( id_last_output, id_err ) = id_pipe.communicate()
 

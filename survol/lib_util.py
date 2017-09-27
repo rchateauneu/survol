@@ -1130,3 +1130,4 @@ def SplitTextTitleRest(title):
 	page_title_rest = " ".join( title_split[1:] ).strip()
 
 	return (page_title_first,page_title_rest)
+

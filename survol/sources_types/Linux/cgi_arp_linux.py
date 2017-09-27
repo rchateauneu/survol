@@ -9,7 +9,6 @@ import sys
 import re
 import socket
 import socket
-import subprocess
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -26,7 +25,7 @@ def Main():
 
 	arp_cmd = [ "/sbin/arp", "-a" ]
 
-	arp_pipe = subprocess.Popen(arp_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	arp_pipe = lib_common.SubProcPOpen(arp_cmd)
 
 	( arp_last_output, arp_err ) = arp_pipe.communicate()
 

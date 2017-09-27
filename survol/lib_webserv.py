@@ -22,8 +22,7 @@ except ImportError:
 	
 import time
 import datetime
-import subprocess
-
+import lib_util
 import lib_tabular
 
 # http://rhodesmill.org/brandon/2010/python-multiprocessing-linux-windows/
@@ -652,9 +651,9 @@ def DoTheJob(TheEngine,Deserializer,AppName,Title,dot_layout = "", collapsed_pro
 			# Do not pipe the output otherwise it would not run in the background.
 
 			# Si necessaire, on pourrait lancer un process avec l'user root ?
-			# sub_proc = subprocess.Popen( [ "python", AppName, run_word ] )
+			# sub_proc = lib_common.SubProcPOpen( [ "python", AppName, run_word ] )
 			# Share standard error.
-			sub_proc = subprocess.Popen( [ "python", AppName, run_word ], stderr=sys.stderr )
+			sub_proc = lib_common.SubProcPOpen( [ "python", AppName, run_word ], stderr=sys.stderr )
 
 			GblLog("Started sub http server:" + AppName + " subpid=" + str(sub_proc.pid) )
 

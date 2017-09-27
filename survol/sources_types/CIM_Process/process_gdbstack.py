@@ -6,7 +6,6 @@ Process callstack with gdb
 
 import re
 import sys
-import subprocess
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -30,7 +29,7 @@ def RunGdbCommand(the_pid,command):
 	sys.stderr.write( "gdb command=%s\n" % ( " ".join( gdb_cmd ) ) )
 
 	try:
-		gdb_pipe = subprocess.Popen(gdb_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		gdb_pipe = lib_common.SubProcPOpen(gdb_cmd)
 	#except FileNotFoundError:
 	#	lib_common.ErrorMessageHtml("gdb is not available")
 	except Exception:

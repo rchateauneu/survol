@@ -4,7 +4,6 @@ import json
 import psutil
 import lib_util
 import tempfile
-import subprocess
 from sources_types import CIM_Process
 
 # This tells if this is a Python process, by checking if this runs a python interpreter.
@@ -97,7 +96,11 @@ def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
 	# TODO: See process_gdbstack.py which similarly runs a gdb command.
     cmdline = 'gdb -p %d -batch %s' % (my_pid, big_args )
     sys.stderr.write("cmdline=%s\n\n" % cmdline)
-    subprocess.call(cmdline, shell=True)
+
+    # TODO: Must use lib_common.SubProcPOpen
+    # TODO is shell=True necessary ?????
+    # subprocess.call(cmdline, shell=True)
+    SubProcCall(cmdline)
 
     filOutDat = open(outFilNa,"r")
     vecResult = filOutDat.readlines();

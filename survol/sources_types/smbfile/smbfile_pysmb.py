@@ -3,8 +3,7 @@
 import re
 import os
 import sys
-import subprocess
-
+import lib_util
 import lib_common
 import lib_smb
 from lib_properties import pc

@@ -7,9 +7,8 @@ Nmap network exploration results
 import sys
 import re
 import socket
-import subprocess
 import xml.dom.minidom
-
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -30,7 +29,7 @@ def Main():
 
 	# NOTE: This is completely similar to the script in the sources directory.
 	try:
-		p = subprocess.Popen(args, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		p = lib_common.SubProcPOpen(args)
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc))

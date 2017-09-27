@@ -1,6 +1,5 @@
 import os
 import sys
-import subprocess
 import collections
 import lib_common
 import lib_util
@@ -434,7 +433,8 @@ def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
 
 	doxygen_command = ["doxygen", doxynam]
 
-	ret = subprocess.call(doxygen_command, stdout=sys.stderr, stderr=sys.stderr, shell=False)
+	# TODO: Use lib_common.SubProcPOpen
+	ret = lib_common.SubProcCall(doxygen_command)
 	sys.stderr.write("doxyOUTPUT_DIRECTORY=%s\n" % (doxyOUTPUT_DIRECTORY))
 
 

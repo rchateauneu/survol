@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os
-import subprocess
 import re
 import sys
 import lib_webserv

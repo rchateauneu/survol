@@ -1360,6 +1360,23 @@ def ErrorMessageHtml(message):
 
 ################################################################################
 
+def SubProcPOpen(command):
+	try:
+		retPipe = subprocess.Popen(command, bufsize=100000, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	except subprocess.OSError:
+		ErrorMessageHtml("Cannot run "+command)
+
+	# For windows_network_devices we need shell=True but it is unsafe.
+	# drivelist = lib_common.SubProcPOpen('wmic logicaldisk get name,description,ProviderName', shell=True, stdout=subprocess.PIPE)
+	return retPipe
+
+def SubProcCall(command):
+	# For doxygen, we should need shell=True but this is NOT safe.
+	ret = subprocess.call(command, stdout=sys.stderr, stderr=sys.stderr, shell=False)
+	return ret
+
+################################################################################
+
 def TryDir(dir):
 	if( os.path.isdir(dir) ):
 		return dir

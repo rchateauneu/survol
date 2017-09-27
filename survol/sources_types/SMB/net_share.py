@@ -30,7 +30,6 @@ NET SHARE command
 
 import sys
 import re
-import subprocess
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -48,7 +47,7 @@ def Main():
 
 	net_share_cmd = [ "net", "share" ]
 
-	net_share_pipe = subprocess.Popen(net_share_cmd, bufsize=100000, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	net_share_pipe = lib_common.SubProcPOpen(net_share_cmd)
 
 	( net_share_last_output, net_share_err ) = net_share_pipe.communicate()
 
