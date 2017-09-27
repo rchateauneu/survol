@@ -4,8 +4,6 @@ import os
 import re
 import sys
 import time
-import subprocess
-from subprocess import Popen, PIPE
 import lib_kbase
 import urllib
 
