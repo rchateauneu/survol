@@ -12,8 +12,6 @@ import os
 import re
 import socket
 
-import psutil
-
 from six.moves import builtins
 from sources_types import CIM_Process
 
@@ -626,8 +624,7 @@ else:
 
 	def GetMemMaps(pidint):
 		# TODO: Replace this by scanning /proc/<pid>/mmaps
-		import psutil
-		p = psutil.Process(pidint)
+		p = CIM_Process.PsutilGetProcObj(pidint)
 
 		# Depending on psutil version.
 		try:

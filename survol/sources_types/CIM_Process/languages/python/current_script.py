@@ -7,7 +7,6 @@ Current script
 import os
 import re
 import sys
-import psutil
 import lib_util
 import lib_common
 import getopt
@@ -105,7 +104,7 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     node_process = lib_common.gUriGen.PidUri(pidProc)
-    proc_obj = psutil.Process(pidProc)
+    proc_obj = CIM_Process.PsutilGetProcObj(int(pidProc))
 
     # Now we are parsing the command line.
     cmd_line = CIM_Process.PsutilProcToCmdline(proc_obj)
