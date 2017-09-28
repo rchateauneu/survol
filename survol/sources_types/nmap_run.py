@@ -33,13 +33,13 @@ def Main():
 
 	isGraphDisplay = cgiEnv.GetParameters( paramkeyGraphDisplay )
 	
-	try:
-		p = lib_common.SubProcPOpen(args)
-	except WindowsError: # On Windows, this cannot find "FileNotFoundError"
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc)+". Maybe a dependency problem")
-	except FileNotFoundError:
-		lib_common.ErrorMessageHtml("Cannot find nmap")
+	#try:
+	p = lib_common.SubProcPOpen(args)
+	#except WindowsError: # On Windows, this cannot find "FileNotFoundError"
+	#	exc = sys.exc_info()[1]
+	#	lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc)+". Maybe a dependency problem")
+	#except FileNotFoundError:
+	#	lib_common.ErrorMessageHtml("Cannot find nmap")
 
 	grph = cgiEnv.GetGraph()
 
