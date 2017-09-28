@@ -1,7 +1,6 @@
 import os
 import sys
 import json
-import psutil
 import lib_util
 import tempfile
 from sources_types import CIM_Process
@@ -14,7 +13,7 @@ def Usable(entity_type,entity_ids_arr):
     pidProc = entity_ids_arr[0]
     try:
         # Any error, no display.
-        proc_obj = psutil.Process(int(pidProc))
+        proc_obj = CIM_Process.PsutilGetProcObj(int(pidProc))
     except:
         return False
 

@@ -1,143 +1,11 @@
 import os
 import sys
-import psutil
+# import psutil
 import lib_common
 import lib_util
 from lib_properties import pc
 
-################################################################################
-
-# Different exceptions depending on psutil version.
-try:
-	# Which psutil version ?
-	from psutil import NoSuchProcess
-	from psutil import AccessDenied
-except ImportError:
-	from psutil._error import NoSuchProcess
-	from psutil._error import AccessDenied
-
-# Very often, a process vanishes quickly so this error happens often.
-def PsutilGetProcObj(pid = 0):
-	try:
-		if pid == 0:
-			pid = os.getpid()
-		return psutil.Process(pid)
-	except NoSuchProcess:
-		lib_common.ErrorMessageHtml("No such process:"+str(pid))
-
-# If psutil is not available, consider "getpass.getuser()"
-def GetCurrentUser():
-	currProc = PsutilGetProcObj()
-	return PsutilProcToUser(currProc)
-
-# This isolates
-def ProcessIter():
-	return psutil.process_iter()
-
-################################################################################
-# These functions because of differences between psutil versions.
-
-def PsutilProcToPPid(proc):
-	try:
-		return proc.ppid()
-	except TypeError:
-		# psutil "0.7.0" 2009
-		return proc.ppid
-
-def PsutilProcToName(proc):
-	try:
-		# WinXP, old version
-		return proc.name()
-	except TypeError:
-		return proc.name
-
-def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
-	try:
-		return proc.username()
-	except TypeError:
-		return proc.username
-	except AccessDenied:
-		return dfltUser
-
-def PsutilProcOpenFiles(proc):
-	try:
-		return proc.get_open_files()
-	except AccessDenied:
-		raise
-	except Exception:
-		return proc.open_files()
-
-def PsutilProcToExe(proc):
-	try:
-		try:
-			return ( proc.exe(), "" )
-		except TypeError:
-			return ( proc.exe, "" )
-	except AccessDenied:
-		return ( "", "Access denied" )
-
-def PsutilProcToCmdline(proc):
-	try:
-		cmdArr = proc.cmdline()
-	except TypeError:
-		cmdArr = proc.cmdline
-	except AccessDenied:
-		return "Access denied"
-
-	return ' '.join(cmdArr)
-
-def PsutilProcConnections(proc,kind='inet'):
-	try:
-		cnnct = proc.get_connections(kind)
-	except AttributeError:
-		try:
-			cnnct = proc.connections(kind)
-		except AccessDenied:
-			return []
-	except AccessDenied:
-		return []
-
-	return cnnct
-
-def PsutilProcMemmaps(proc):
-	try:
-		all_maps = proc.memory_maps()
-	except AttributeError:
-		# Old psutil version
-		all_maps = proc.get_memory_maps()
-	return all_maps
-
-# Returns the current working directory.
-def PsutilProcCwd(proc):
-	try:
-		proc_cwd = proc.getcwd()
-		proc_msg = None
-	except AccessDenied:
-		proc_cwd = None
-		proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid,str(sys.exc_info()))
-	except AttributeError:
-		try:
-			proc_cwd = proc.cwd()
-			proc_msg = None
-		except :
-			proc_cwd = None
-			proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid,str(sys.exc_info()[1]))
-
-	return (proc_cwd,proc_msg)
-
-# https://pythonhosted.org/psutil/
-# rss: this is the non-swapped physical memory a process has used.
-# On UNIX it matches "top" RES column (see doc).
-# On Windows this is an alias for wset field and it matches "Mem Usage" column of taskmgr.exe.
-def PsutilResidentSetSize(proc):
-	return lib_util.AddSIUnit(proc.memory_info().rss,"B")
-
-# https://pythonhosted.org/psutil/
-# vms: this is the total amount of virtual memory used by the process.
-# On UNIX it matches "top" VIRT column (see doc).
-# On Windows this is an alias for pagefile field and it matches "Mem Usage" "VM Size" column of taskmgr.exe.
-def PsutilVirtualMemorySize(proc):
-	return lib_util.AddSIUnit(proc.memory_info().vms,"B")
+from lib_psutil import *
 
 ################################################################################
 
@@ -182,7 +50,7 @@ def EntityName(entity_ids_arr,entity_host):
 	# If the process is not there, this is not a problem.
 	try:
 		# sys.stderr.write("psutil.Process entity_id=%s\n" % ( entity_id ) )
-		proc_obj = psutil.Process(int(entity_id))
+		proc_obj = PsutilGetProcObjNoThrow(int(entity_id))
 		return PsutilProcToName(proc_obj)
 	except NoSuchProcess:
 		# This might be, on Windows, a prent process which exit.
@@ -199,7 +67,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	# sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
 	grph.add( ( node, pc.property_pid, lib_common.NodeLiteral(pidProc) ) )
 	try:
-		proc_obj = psutil.Process(int(pidProc))
+		proc_obj = PsutilGetProcObjNoThrow(int(pidProc))
 
 		cmd_line = PsutilProcToCmdline(proc_obj)
 		grph.add( ( node, pc.property_command, lib_common.NodeLiteral(cmd_line) ) )
@@ -250,7 +118,7 @@ def Usable(entity_type,entity_ids_arr):
     pidProc = entity_ids_arr[0]
     try:
         # Any error, no display.
-        proc_obj = psutil.Process(int(pidProc))
+        proc_obj = PsutilGetProcObjNoThrow(int(pidProc))
         # sys.stderr.write("============================ Process HERE\n")
         return True
     except:

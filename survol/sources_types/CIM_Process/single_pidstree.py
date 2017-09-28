@@ -4,7 +4,6 @@
 Parent and sub-processes
 """
 
-import psutil
 import lib_common
 from sources_types import CIM_Process
 from sources_types import CIM_DataFile as lib_entity_file
@@ -63,7 +62,7 @@ def tree_parent_process(grph, proc_obj):
 
 		AddExtraInformationtoProcess(grph,node_process,proc_obj)
 
-		parent_proc_obj = psutil.Process(the_ppid)
+		parent_proc_obj = CIM_Process.PsutilGetProcObj(int(the_ppid))
 		tree_parent_process( grph, parent_proc_obj )
 	# This exception depends on the version of psutil.
 	except CIM_Process.NoSuchProcess:
