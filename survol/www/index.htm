@@ -812,6 +812,9 @@ function DeleteD3NodeFromIndex(goodNodeIdx)
     console.log("DeleteD3NodeFromIndex previousData.links.length="+previousData.links.length);
 }
 
+// Attempt to fix the "use strict"problem with Edge..
+globalMustMerge = false;
+
 /* When deleting a node from the contextual menu. Deletes the nodes and its links. */
 function DeleteSvgNode(objectSvg)
 {
