@@ -49,7 +49,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		# We insert this link to the home directory because it should not
 		# imply an access to the file itself, so it cannot fail.
 		homeDir = userSplit[5]
-		homeDirNode = lib_common.gUriGen.FileUri( homeDir )
+		homeDirNode = lib_common.gUriGen.DirectoryUri( homeDir )
 
 		grph.add( ( node, pc.property_directory, homeDirNode ) )
 
