@@ -8,7 +8,7 @@ import lib_util
 ################################################################################
 
 try:
-	import Xpsutil
+	import psutil
 
 	# Different exceptions depending on psutil version.
 	try:
@@ -115,14 +115,14 @@ except ImportError:
 
 		def name(self):
 			try:
-				return int(self.m_props["Name"])
+				return self.m_props["Name"]
 			except KeyError:
 				return ""
 
 		def username(self):
 			# Uid: 31896      31896   31896   31896
 			try:
-				uid = int(self.m_props["Uid"]).split(" ")[0]
+				uid = self.m_props["Uid"].split(" ")[0]
 				return str(uid)
 			except KeyError:
 				return "nobody"
@@ -172,7 +172,7 @@ except ImportError:
 
 	def ProcessIter():
 		listProcs = glob.glob('/proc/[0-9]*')
-		listPids = [ aProc.split("/")[2] for aProc in listProcs ]
+		listPids = [ MyProcObj(int(aProc.split("/")[2])) for aProc in listProcs ]
 		return listPids
 
 

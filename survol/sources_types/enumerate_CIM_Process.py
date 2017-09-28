@@ -47,7 +47,7 @@ def Main():
 		# s', 'suspend', 'terminate', 'threads', 'username', 'wait']'
 		# sys.stderr.write("proc=%s\n"%str(dir(proc)))
 
-		procName = proc.name
+		procName = CIM_Process.PsutilProcToName(proc)
 
 		pid = proc.pid
 		parent_pid = CIM_Process.PsutilProcToPPid(proc)
