@@ -139,7 +139,7 @@ extra_files = package_files('survol/www')
 
 setup(
     name='survol',
-    version='1.0.dev0',
+    version='1.0.dev1',
     description='Understanding legacy applications',
     author='Remi Chateauneu',
     author_email='remi.chateauneu@primhillcomputers.com',

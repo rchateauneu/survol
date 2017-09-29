@@ -3,15 +3,15 @@ Various notes about installation.
 NECESSARY MODULES:
 ==================
 
-Avoid six and rdflib.
-
+TODO: Change the code to avoid Python modules six, rdflib, and psutil
+which are not available on OVH (Mutualised hosting)
 rdflib must be optional only.
 
 SOME MANDATORY PYTHON LIBRARIES:
 
 For the right Python version.
 
-(OK) install pyparsing  https://pypi.python.org/pypi/pyparsing/2.0.3#downloads
+(OK) install pyparsing https://pypi.python.org/pypi/pyparsing/2.0.3#downloads
 Install the Zip, it is probably easier.
 python setup.py install
 
@@ -26,7 +26,14 @@ D:\Projects\Divers\Reverse\PythonStyle\htbin\revlib
 
 (??) Install psutil
 https://pypi.python.org/pypi/psutil
+
 ========================================================================================================================
+CREATION OF A SOURCE DISTRIBUTION, UPLOAD ON PYPI:
+This command creates a sdist which can be later uploaded on pypi.
+python setup.py sdist
+
+========================================================================================================================
+Local file in C:\Users\rchateau:
 %USERPROFILE%\.pypirc
 
 [distutils]
@@ -186,7 +193,6 @@ https://docs.python.org/2.7/distutils/setupscript.html#installing-additional-fil
 
 ========================================================================================================================
 Installation with setup.py:
-python setup.py sdist
 
 Test avec virtual env:
 
