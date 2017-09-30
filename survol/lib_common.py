@@ -820,7 +820,9 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 # THIS IS NOT THE CASE IN HTML AND SVG !!
 def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
 	if mode == "html":
-		lib_exports.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph)
+		# Used rarely and perfoamcne not very important.
+		import lib_export_html
+		lib_export_html.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "json":
 		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "menu":
