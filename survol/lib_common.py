@@ -804,9 +804,6 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 	os.fsync( rdfoutfil.fileno() )
 	rdfoutfil.close()
 
-	# TODO: No need to tell it twice because it is superseded in the dot file.
-	# TEMP TEMP ONLY WINDOWS AND PYTHON 34
-
 	out_dest = lib_util.DfltOutDest()
 
 	Dot2Svg( dot_filnam_after, logfil, dot_layout, out_dest )
@@ -818,11 +815,18 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 # The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
-def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
+# def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
+def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
+	grph = theCgi.m_graph
+	pageTitle = theCgi.m_page_title
+	dotLayout = theCgi.m_layoutParams
+	parameters = theCgi.m_parameters
+
 	if mode == "html":
-		# Used rarely and perfoamcne not very important.
+		# Used rarely and performance not very important.
 		import lib_export_html
-		lib_export_html.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph)
+		lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer)
+		# lib_export_html.Grph2Html( pageTitle, topUrl, errorMsg, isSubServer, parameters, grph)
 	elif mode == "json":
 		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "menu":
@@ -976,7 +980,21 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	topUrl = lib_util.TopUrl( "", "" )
 
-	OutCgiMode( globalGraph, topUrl, theMode, page_title, layoutParams, errorMsg = cumulatedError, parameters = cgiParams)
+	# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
+
+	class CgiInterface(object):
+		pass
+
+	pseudoCgi = CgiInterface()
+	pseudoCgi.m_graph = globalGraph
+	pseudoCgi.m_page_title = page_title
+	pseudoCgi.m_layoutParams = layoutParams
+	pseudoCgi.m_parameters = cgiParams
+
+	# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
+
+	# OutCgiMode( globalGraph, topUrl, theMode, page_title, layoutParams, errorMsg = cumulatedError, parameters = cgiParams)
+	OutCgiMode( pseudoCgi, topUrl, theMode, errorMsg = cumulatedError )
 
 	return
 
@@ -997,7 +1015,7 @@ class CgiEnv():
 		mode = GuessDisplayMode()
 
 		# Contains the optional arguments, needed by calling scripts.
-		global globalCgiEnvParameters
+		# global globalCgiEnvParameters
 		self.m_parameters = parameters
 
 		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
@@ -1323,7 +1341,9 @@ class CgiEnv():
 			# At the end, only one call to OutCgiMode() will be made.
 			globalCgiEnvList.append(self)
 		else:
-			OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
+			# def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
+			# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
+			OutCgiMode( self, topUrl, mode )
 
 ################################################################################
 

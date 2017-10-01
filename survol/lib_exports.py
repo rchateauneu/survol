@@ -607,16 +607,6 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	# TODO: The "Top" url should be much more visible.
 	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotBold(DotUL("Home")) + '</td></tr>')
 
-	#urlDirectAccess = UrlDirectAccess()
-	#stream.write('<tr><td align="left" colspan="2" href="' + urlDirectAccess + '">' + DotUL("Direct access") + '</td></tr>')
-
-	#stream.write("""
-    #  <tr><td align='left' colspan="2">""" + time.strftime("%Y-%m-%d %H:%M:%S") + """</td></tr>
- 	#""")
-	#stream.write("""
-    #  <tr><td align='left' >RDF Nodes</td><td>""" + str(len(grph)) + """</td></tr>
- 	#""")
-
 	LegendAddAlternateDisplayLinks(stream)
 
 	LegendAddParametersLinks(stream,parameters)
