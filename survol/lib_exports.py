@@ -597,9 +597,19 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 	page_title_rest_wrapped = StrWithBr(page_title_rest,2)
 	page_title_full =  DotBold(page_title_first_wrapped) + withBrDelim + page_title_rest_wrapped
 
+	# The string subgraph_cluster_key is displayed in a SVG box, when merging scripts with merge_scripts.py.
+	# Another very specific bug:
+	# 'C:\\Program Files (x86)subgraph_cluster_keyETGEAR\\WNDA3100v3\\WNDA3100v3.EXE'
+	# This URL works in SVG mode:
+	# survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE
+	# But not in HTML mode, and the error message is:
+	# The system cannot find the path specified: 'C:\\Program Files (x86)subgraph_cluster_keyETGEAR\\WNDA3100v3\\WNDA3100v3.EXE'
+	# ... that is: "\N" is replaced by subgraph_cluster_key.
+	# When the filename is entered by slashes, it works fine.
+	#
 	stream.write("""
   subgraph cluster_01 {
-    key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">
+    subgraph_cluster_key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">
       <tr><td colspan="2">""" + page_title_full + """</td></tr>
  	""")
 
