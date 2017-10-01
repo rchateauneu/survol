@@ -1,4 +1,6 @@
-# Transforms a RDF graph into a HTML page.
+"""
+	Transforms an internal graph into a HTML page.
+"""
 
 import sys
 import lib_util
@@ -13,6 +15,9 @@ from lib_util import WrtAsUtf
 from lib_util import WrtHeader
 
 def WriteParameters(parameters):
+	"""
+		This displays the parameters of the script and provide an URL to edit them.
+	"""
 	WrtAsUtf('<table border="1">')
 
 	WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
@@ -21,17 +26,24 @@ def WriteParameters(parameters):
 		WrtAsUtf('<tr><td>' + keyParam + '</td><td colspan="2">' + str(valParam) + '</td></tr>')
 	WrtAsUtf('</table>')
 
-def WriteOtherUrls(grph):
+def WriteOtherUrls():
+	"""
+		This displays the URL to view the same document, in other ouput formats.
+	"""
 	WrtAsUtf('<table border="1">')
 	WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("svg") + '">Content as SVG</a></td></tr>')
 	WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("rdf") + '">Content as RDF</a></td></tr>')
-	WrtAsUtf('<tr><td colspan="3">' + str(len(grph)) + ' nodes</td></tr>')
 	WrtAsUtf('</table>')
 
 
-# Similar to entity.py
-def WriteScriptsTree(theCgi):
 
+def WriteScriptsTree(theCgi):
+	"""
+		This displays the tree of accessible Python scripts for the current object.
+		It is dsiplayed as a recusive tab. A similar logic is used in entity.y
+		(Where the tree is displayed as a tree of SVG nodes) and in index.htm
+		(With a contextual menu).
+	"""
 	flagShowAll = False
 	rootNode = None
 
@@ -56,13 +68,15 @@ def WriteScriptsTree(theCgi):
 	sys.stderr.write("dictScripts %d\n"%len(dictScripts))
 
 
-	# Top-level should always be none.
-	# TODO: Have another version which formats all cells the same way.
-	# For this, have a first pass which counts, at each node, the number of sub-nodes.
-	# Then a second pass which uses thiese counts and the current depth,
-	# to calculate the rowspan and colspan of each cell.
-	# Although elegant, it is not garanteed to work.
 	def DisplayLevelTable(subj,depthMenu=1):
+		"""
+			Top-level should always be none.
+			TODO: Have another version which formats all cells the same way.
+			For this, have a first pass which counts, at each node, the number of sub-nodes.
+			Then a second pass which uses thiese counts and the current depth,
+			to calculate the rowspan and colspan of each cell.
+			Although elegant, it is not garanteed to work.
+		"""
 		WrtAsUtf('<table border="1">')
 		try:
 			mapProps = dictScripts[subj]
@@ -139,6 +153,12 @@ def WriteScriptsTree(theCgi):
 
 
 def WriteAllObjects(error_msg,isSubServer,grph):
+	"""
+		This displays all the objects returend by this scripts.
+		Other scripts are not here, so we do not have to eliminate them.
+		This is therefore simpler than in the SVG (Graphviz) output,
+		where all objects are mixed together.
+	"""
 	WrtAsUtf('<table border="1">')
 
 	if error_msg != None:
@@ -147,61 +167,81 @@ def WriteAllObjects(error_msg,isSubServer,grph):
 	if isSubServer:
 		WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>')
 
-	by_subj = dict()
-	for subj, pred, obj in grph:
+
+	# This groups data by subject, then predicate, then object.
+	dictSubjPropObj = dict()
+
+	# TODO: Group objects by type.
+	for aSubj, aPred, anObj in grph:
 		# No point displaying some keys if there is no value.
-		if pred == pc.property_information :
-			if str(obj) == "":
+		if aPred == pc.property_information :
+			if str(anObj) == "":
 				continue
 
-		the_tup = ( pred, obj )
 		try:
-			by_subj[ subj ].append( the_tup )
+			dictPred = dictSubjPropObj[aSubj]
+			try:
+				dictPred[aPred].append(anObj)
+			except KeyError:
+				dictPred[aPred] = [ anObj ]
 		except KeyError:
-			by_subj[ subj ] = [ the_tup ]
+			dictSubjPropObj[aSubj] = { aPred : [ anObj ] }
 
-	for subj, the_tup_list in list( by_subj.items() ):
 
-		subj_str = str(subj)
+	for aSubj in dictSubjPropObj:
+		dictPred = dictSubjPropObj[aSubj]
+
+		subj_str = str(aSubj)
 		subj_title = lib_naming.ParseEntityUri(subj_str)[0]
 
-		cnt_rows = len( the_tup_list )
+		# Total number of lines.
+		cntPreds = 0
+		for aPred in dictPred:
+			lstObjs = dictPred[aPred]
+			cntPreds += len(lstObjs)
 
-		mustWriteColOne = True
+		mustWriteColOneSubj = True
 
-		for pred, obj in the_tup_list:
-			WrtAsUtf( "<tr>" )
+		for aPred in dictPred:
+			lstObjs = dictPred[aPred]
 
-			if mustWriteColOne:
-				WrtAsUtf( '<td rowspan="' + str(cnt_rows) + '"><a href="' + subj_str + '">'+ subj_title +"</a></td>")
-				mustWriteColOne = False
+			predStr = lib_exports.AntiPredicateUri(str(aPred))
+			cntObjs = len(lstObjs)
+			mustWriteColOnePred = True
 
-			obj_str = str(obj)
+			for anObj in lstObjs:
 
-			if lib_kbase.IsLink( obj ):
-				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
-				WrtAsUtf( "<td>" + lib_exports.AntiPredicateUri(str(pred)) + "</td>")
-				url_with_mode = lib_util.ConcatenateCgi( obj_str, "mode=html" )
-				WrtAsUtf( '<td><a href="' + url_with_mode + '">' + obj_title + "</a></td>")
-			else:
-				if pred == pc.property_information :
-					WrtAsUtf( '<td colspan="2">' + obj_str + "</td>")
+				WrtAsUtf( "<tr>" )
+
+				if mustWriteColOneSubj:
+					WrtAsUtf( '<td rowspan="' + str(cntPreds) + '"><a href="' + subj_str + '">'+ subj_title + "</a></td>")
+					mustWriteColOneSubj = False
+
+				if mustWriteColOnePred:
+					if aPred != pc.property_information :
+						WrtAsUtf( '<td rowspan="' + str(cntObjs) + '">'+ predStr + "</td>")
+					mustWriteColOnePred = False
+
+				obj_str = str(anObj)
+
+				if lib_kbase.IsLink( anObj ):
+					obj_title = lib_naming.ParseEntityUri(obj_str)[0]
+					url_with_mode = lib_util.ConcatenateCgi( obj_str, "mode=html" )
+					WrtAsUtf( '<td><a href="' + url_with_mode + '">' + obj_title + "</a></td>")
 				else:
-					WrtAsUtf( '<td>' + lib_exports.AntiPredicateUri(str(pred)) + "</td>")
-					WrtAsUtf( '<td>' + obj_str + "</td>")
+					if aPred == pc.property_information :
+						WrtAsUtf( '<td colspan="2">' + obj_str + "</td>")
+					else:
+						WrtAsUtf( '<td>' + obj_str + "</td>")
 
-			WrtAsUtf( "</tr>")
+				WrtAsUtf( "</tr>")
 
 	WrtAsUtf( " </table>")
 
-# pseudoCgi.m_graph = globalGraph
-# pseudoCgi.m_page_title = page_title
-# pseudoCgi.m_layoutParams = layoutParams
-# pseudoCgi.m_parameters = cgiParams
-		# lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer)
-		# lib_export_html.Grph2Html( pageTitle, topUrl, errorMsg, isSubServer, parameters, grph)
-# def Grph2Html( page_title, topUrl, error_msg, isSubServer, parameters, grph):
 def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
+	"""
+		This transforms an internal data graph into a HTML document.
+	"""
 	page_title = theCgi.m_page_title
 	grph = theCgi.m_graph
 	parameters = theCgi.m_parameters
@@ -214,17 +254,17 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 
 	WrtAsUtf( ' </head> <body>')
 
-	WrtAsUtf("Parameters<br/>")
+	WrtAsUtf("<br/>Script parameters<br/>")
 	WriteParameters(parameters)
 
 	# grph_scripts, grph_noscripts = SplitGrphOnScripts(grph)
-	WrtAsUtf("Other urls<br/>")
-	WriteOtherUrls(grph)
+	WrtAsUtf("<br/>Other urls related to this object<br/>")
+	WriteOtherUrls()
 
-	WrtAsUtf("All objects<br/>")
+	WrtAsUtf("<br/>Objects returned by this script<br/>")
 	WriteAllObjects(error_msg,isSubServer,grph)
 
-	WrtAsUtf("Scripts tree<br/>")
+	WrtAsUtf("<br/>Related scripts<br/>")
 	WriteScriptsTree(theCgi)
 
 	WrtAsUtf( "</body> </html> ")
