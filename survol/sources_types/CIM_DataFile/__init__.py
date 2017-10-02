@@ -1,3 +1,7 @@
+"""
+Standard data file.
+"""
+
 import os
 import sys
 import datetime

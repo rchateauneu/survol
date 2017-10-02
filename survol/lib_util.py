@@ -1052,9 +1052,11 @@ def GetScriptModule(currentModule, fil):
 
 ################################################################################
 
-# Returns the doc string of a module as a literal node. Possibly truncated
-# so it can be displayed.
 def FromModuleToDoc(importedMod,filDfltText):
+	"""
+		Returns the doc string of a module as a literal node. Possibly truncated
+		so it can be displayed.
+	"""
 	try:
 		docModuAll = importedMod.__doc__
 		# Take only the first non-empty line.

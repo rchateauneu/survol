@@ -897,9 +897,12 @@ def MakeDotLayout(dot_layout, collapsed_properties ):
 
 ################################################################################
 
-# Works if called from Apache, cgiserver.py or wsgiserver.py
 def GetCallingModuleDoc():
-	# This is a global and can be fetched differently, if needed.
+	"""
+		Works if called from Apache, cgiserver.py or wsgiserver.py
+		This is a global and can be fetched differently, if needed.
+		It returns the whole content.
+	"""
 	try:
 		# This does not work when in WSGI mode.
 		page_title = sys.modules['__main__'].__doc__
@@ -1020,7 +1023,11 @@ class CgiEnv():
 
 		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
 
-		self.m_page_title = GetCallingModuleDoc()
+		docModuAll = GetCallingModuleDoc()
+
+		# Take only the first non-empty line. See lib_util.FromModuleToDoc()
+		docModuSplit = docModuAll.split("\n")
+		self.m_page_title = docModuSplit[0]
 
 		# Title page contains __doc__ plus object label.
 		callingUrl = lib_util.RequestUri()
