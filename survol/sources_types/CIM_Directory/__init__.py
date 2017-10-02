@@ -1,3 +1,8 @@
+"""
+Standard directory
+"""
+
+
 import os
 from sources_types import CIM_DataFile
 

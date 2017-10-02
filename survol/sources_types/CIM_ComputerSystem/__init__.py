@@ -1,5 +1,7 @@
 """
-Computer
+Computer system
+
+It has a special status as considered to be able to run an Survol agent, answer to WMI or WBEM requests etc...
 """
 
 import sys
