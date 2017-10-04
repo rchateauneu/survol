@@ -993,10 +993,10 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	pseudoCgi.m_page_title = page_title
 	pseudoCgi.m_layoutParams = layoutParams
 	pseudoCgi.m_parameters = cgiParams
+	pseudoCgi.m_entity_type = ""
+	pseudoCgi.m_entity_id = ""
+	pseudoCgi.m_entity_host = ""
 
-	# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
-
-	# OutCgiMode( globalGraph, topUrl, theMode, page_title, layoutParams, errorMsg = cumulatedError, parameters = cgiParams)
 	OutCgiMode( pseudoCgi, topUrl, theMode, errorMsg = cumulatedError )
 
 	return
