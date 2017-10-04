@@ -1,3 +1,8 @@
+"""
+Windows group
+"""
+
+import sys
 import lib_common
 
 # NetGroupEnum
@@ -30,6 +35,8 @@ def EntityName(entity_ids_arr,entity_host):
 
 def AddInfo(grph,node,entity_ids_arr):
 	# groupName = entity_ids_arr[0]
+	sys.stderr.write("Win32_Group.AddInfo entity_ids_arr=%s\n"%str(entity_ids_arr))
 	domainName = entity_ids_arr[1]
-	nodeMachine = lib_common.gUriGen.HostnameUri( domainName )
-	grph.add((node,lib_common.MakeProp("Host"), nodeMachine))
+	if domainName != "NT SERVICE":
+		nodeMachine = lib_common.gUriGen.HostnameUri( domainName )
+		grph.add((node,lib_common.MakeProp("Host"), nodeMachine))

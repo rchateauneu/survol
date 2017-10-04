@@ -2061,9 +2061,13 @@ function openRequestedPopup() {
 }
 
 function openPrintLayout() {
-    var urlPrintLayout = AddUrlPrefix( "entity.py", "" );
-
+    var urlPrintLayout = ConcatenateMergeUrl(lstLoadedUrls,"");
     location.href = urlPrintLayout;
+}
+
+function openHtmlLayout() {
+    var urlHtmlLayout = ConcatenateMergeUrl(lstLoadedUrls, "mode=html");
+    location.href = urlHtmlLayout;
 }
 
 function RunAfterLoad()
@@ -2081,6 +2085,7 @@ function RunAfterLoad()
     $(IdHrefSummary).on("click", openRequestedPopup);
 
     $(IdPrintLayout).on("click", openPrintLayout);
+    $(IdHtmlLayout).on("click", openHtmlLayout);
 
     window.name = gblWindowName;
 
@@ -2120,6 +2125,7 @@ Ajouter le lien de merge.
     <td><a href="index.htm">Survol</a> <i>Unearthing LegacyWare. Based on CIM/WMI/WBEM, with a web ui. &copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017</i></td>
     <td align="right"><a href="#" id="IdHrefSummary">Tools</a>&nbsp;
     <a href="#" id="IdPrintLayout">SVG</a>
+    <a href="#" id="IdHtmlLayout">HTML</a>
 <a href="configuration.htm">Setup</a>
 <a href="help.htm">Help</a>
     </td>

@@ -39,7 +39,7 @@ def DirMenuReport(depthCall,strMsg):
 	sys.stderr.write(txtMargin + strMsg)
 
 # TODO: Only return json data, and this script will only return json, nothing else.
-def DirToMenu(grph,parentNode,entity_type,entity_id,entity_host,flagShowAll):
+def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagShowAll):
 	encodedEntityId=lib_util.EncodeUri(entity_id)
 	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 
@@ -51,14 +51,14 @@ def DirToMenu(grph,parentNode,entity_type,entity_id,entity_host,flagShowAll):
 
 	directory = lib_util.gblTopScripts + relative_dir
 
-	DirToMenuAux(grph,parentNode,directory,relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall = 1)
+	DirToMenuAux(callbackGrphAdd,parentNode,directory,relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall = 1)
 
 
 
 # This lists the scripts and generate RDF nodes.
 # Returns True if something was added.
-def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall = 1):
-	sys.stderr.write("DirToMenuAux entity_host=%s\n"%(entity_host) )
+def DirToMenuAux(callbackGrphAdd,parentNode,curr_dir,relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall = 1):
+	# sys.stderr.write("DirToMenuAux entity_host=%s\n"%(entity_host) )
 	# DirMenuReport( depthCall, "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
 	# In case there is nothing.
 	dirs = None
@@ -90,7 +90,7 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 			# if flagShowAll and errorMsg ???
 			if errorMsg:
 				# Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
-				grph.add( ( parentNode, lib_common.MakeProp("Usability"), lib_common.NodeLiteral(errorMsg) ) )
+				callbackGrphAdd( ( parentNode, lib_common.MakeProp("Usability"), lib_common.NodeLiteral(errorMsg) ),depthCall )
 				return False
 	except IndexError:
 		# If we are at the top-level, no interest for the module.
@@ -125,12 +125,12 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 			# BEWARE: NO MORE DEFAULT ONTOLOGY ["Id"]
 			continue
 
-		somethingAdded = DirToMenuAux(grph,currDirNode, full_sub_dir,sub_relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall + 1)
+		somethingAdded = DirToMenuAux(callbackGrphAdd,currDirNode, full_sub_dir,sub_relative_dir,entity_type,entity_ids_arr,encodedEntityId,entity_host,flagShowAll,depthCall + 1)
 		# This adds the directory name only if it contains a script.
 		if somethingAdded:
 			# CA MARCHE DANS LES DEUX CAS. SI PROPRIETE DIFFERENTE, ON AURA SIMPLEMENT DEUX PAVES, UN POUR LES DIR, L AUTRE POUR LES FICHIERS.
 			# grph.add( ( parentNode, pc.property_directory, currDirNode ) )
-			grph.add( ( parentNode, pc.property_script, currDirNode ) )
+			callbackGrphAdd( ( parentNode, pc.property_script, currDirNode ), depthCall )
 		containsSomething = containsSomething | somethingAdded
 
 	for fil in files:
@@ -186,15 +186,15 @@ def DirToMenuAux(grph,parentNode,curr_dir,relative_dir,entity_type,entity_ids_ar
 		# Here, we are sure that the script is added.
 		# TODO: If no script is added, should not add the directory?
 		rdfNode = lib_common.NodeUrl(url_rdf)
-		grph.add( ( parentNode, pc.property_script, rdfNode ) )
+		callbackGrphAdd( ( parentNode, pc.property_script, rdfNode ), depthCall )
 
 		# Default doc text is file name minus the ".py" extension.
 		nodModu = lib_util.FromModuleToDoc(importedMod,fil[:-3])
 
-		grph.add( ( rdfNode, pc.property_information, nodModu ) )
+		callbackGrphAdd( ( rdfNode, pc.property_information, nodModu ), depthCall )
 
 		if errorMsg:
-			grph.add( ( rdfNode, lib_common.MakeProp("Error"), lib_common.NodeLiteral(errorMsg) ) )
+			callbackGrphAdd( ( rdfNode, lib_common.MakeProp("Error"), lib_common.NodeLiteral(errorMsg) ), depthCall )
 
 	# This tells if a script was added in this directory or one of the subdirs.
 	return ( rdfNode is not None ) | containsSomething
@@ -249,7 +249,11 @@ def Main():
 		# les objets dans des boites imbriquees: Tables ou records.
 		# Ca peut marcher quand la propriete forme PAR CONSTRUCTION
 		# un DAG (Direct Acyclic Graph) qui serait alors traite de facon specifique.
-		DirToMenu(grph,rootNode,entity_type,entity_id,entity_host,flagShowAll)
+
+		def CallbackGrphAdd( tripl, depthCall ):
+			grph.add(tripl)
+
+		DirToMenu(CallbackGrphAdd,rootNode,entity_type,entity_id,entity_host,flagShowAll)
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_directory,pc.property_script])
 

@@ -43,10 +43,18 @@ def Main():
 	# TODO: What about several Python versions ?
 	installed_packages = pip.get_installed_distributions()
 
+	cnt = 0
 
 	# TODO: Maybe the version should be part of the key.
 	for pckg in installed_packages:
-		# sys.stderr.write("key=%s\n" % (pckg.key) )
+		cnt += 1
+
+		sys.stderr.write("cnt=%d key=%s\n" % (cnt,pckg.key) )
+
+		# With this module, "dot" crashes...
+		# TODO: WHY ?????
+		if pckg.key in ["aff4-snappy"]:
+			continue
 
 		packageNode = KeyToPckgNode( pckg.key )
 		grph.add( ( packageNode, package.propPythonVersion, lib_common.NodeLiteral(pckg.version) ) )

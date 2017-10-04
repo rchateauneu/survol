@@ -50,8 +50,6 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
     } // HrefTarget
 
     console.log("SummaryRefreshSummaryWindow lstLoadedUrls.length="+lstLoadedUrls.length);
-    var urlMerge = pyMergeScript;
-    var cgiDelim = "?url=";
 
     var urlsHtml = "";
 
@@ -92,13 +90,10 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
             '<td><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
             "</tr>"
         ].join("\n");
-
-        var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
-        urlMerge += cgiDelim + url64safe;
-        cgiDelim = "&url=";
     }
 
-    console.log("urlMerge="+urlMerge);
+    var urlMerge = ConcatenateMergeUrl(lstLoadedUrls,"");
+
     // On va envoyer le total quelque part.
     urlsHtml += [
         "<tr>",
@@ -145,7 +140,7 @@ window.addEventListener("message", ProcessIncomingMessage, false);
 
     </script>
 
-    <title>Survol summary</title>
+    <title>Survol tools</title>
     </head>
 </head>
 <body>

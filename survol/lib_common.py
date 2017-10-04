@@ -804,9 +804,6 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 	os.fsync( rdfoutfil.fileno() )
 	rdfoutfil.close()
 
-	# TODO: No need to tell it twice because it is superseded in the dot file.
-	# TEMP TEMP ONLY WINDOWS AND PYTHON 34
-
 	out_dest = lib_util.DfltOutDest()
 
 	Dot2Svg( dot_filnam_after, logfil, dot_layout, out_dest )
@@ -818,9 +815,18 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 # The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
-def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
+# def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
+def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
+	grph = theCgi.m_graph
+	pageTitle = theCgi.m_page_title
+	dotLayout = theCgi.m_layoutParams
+	parameters = theCgi.m_parameters
+
 	if mode == "html":
-		lib_exports.Grph2Html( pageTitle, errorMsg, isSubServer, parameters, grph)
+		# Used rarely and performance not very important.
+		import lib_export_html
+		lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer)
+		# lib_export_html.Grph2Html( pageTitle, topUrl, errorMsg, isSubServer, parameters, grph)
 	elif mode == "json":
 		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "menu":
@@ -891,9 +897,12 @@ def MakeDotLayout(dot_layout, collapsed_properties ):
 
 ################################################################################
 
-# Works if called from Apache, cgiserver.py or wsgiserver.py
 def GetCallingModuleDoc():
-	# This is a global and can be fetched differently, if needed.
+	"""
+		Works if called from Apache, cgiserver.py or wsgiserver.py
+		This is a global and can be fetched differently, if needed.
+		It returns the whole content.
+	"""
 	try:
 		# This does not work when in WSGI mode.
 		page_title = sys.modules['__main__'].__doc__
@@ -974,7 +983,21 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	topUrl = lib_util.TopUrl( "", "" )
 
-	OutCgiMode( globalGraph, topUrl, theMode, page_title, layoutParams, errorMsg = cumulatedError, parameters = cgiParams)
+	# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
+
+	class CgiInterface(object):
+		pass
+
+	pseudoCgi = CgiInterface()
+	pseudoCgi.m_graph = globalGraph
+	pseudoCgi.m_page_title = page_title
+	pseudoCgi.m_layoutParams = layoutParams
+	pseudoCgi.m_parameters = cgiParams
+	pseudoCgi.m_entity_type = ""
+	pseudoCgi.m_entity_id = ""
+	pseudoCgi.m_entity_host = ""
+
+	OutCgiMode( pseudoCgi, topUrl, theMode, errorMsg = cumulatedError )
 
 	return
 
@@ -995,12 +1018,16 @@ class CgiEnv():
 		mode = GuessDisplayMode()
 
 		# Contains the optional arguments, needed by calling scripts.
-		global globalCgiEnvParameters
+		# global globalCgiEnvParameters
 		self.m_parameters = parameters
 
 		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
 
-		self.m_page_title = GetCallingModuleDoc()
+		docModuAll = GetCallingModuleDoc()
+
+		# Take only the first non-empty line. See lib_util.FromModuleToDoc()
+		docModuSplit = docModuAll.split("\n")
+		self.m_page_title = docModuSplit[0]
 
 		# Title page contains __doc__ plus object label.
 		callingUrl = lib_util.RequestUri()
@@ -1321,7 +1348,9 @@ class CgiEnv():
 			# At the end, only one call to OutCgiMode() will be made.
 			globalCgiEnvList.append(self)
 		else:
-			OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
+			# def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
+			# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
+			OutCgiMode( self, topUrl, mode )
 
 ################################################################################
 

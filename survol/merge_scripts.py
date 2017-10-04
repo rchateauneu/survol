@@ -26,6 +26,10 @@ lib_common.CgiEnvMergeMode()
 
 arguments = cgi.FieldStorage()
 
+# The display mode is yaken now, otherwise the CGI arguments are later destroyed, in this script.
+theMode = lib_common.GuessDisplayMode()
+sys.stderr.write("merge_scripts.py theMode=%s\n"%(theMode))
+
 cumulatedError = ""
 
 for urlfil in arguments.getlist("url"):
@@ -92,14 +96,6 @@ for urlfil in arguments.getlist("url"):
 	lib_common.ErrorMessageEnable(True)
 
 os.environ["REQUEST_URI"] = origReqUri
-
-# Default value for output mode.
-try:
-	theMode = arguments["mode"].value
-except KeyError:
-	theMode = "svg"
-
-theMode = lib_common.GuessDisplayMode()
 
 # OutCgiRdf has been called by each script without writing anything,
 # but the specific parameters per script are stored inside.

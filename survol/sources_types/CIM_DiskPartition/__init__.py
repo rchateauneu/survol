@@ -1,3 +1,7 @@
+"""
+Standard disk partition, associated to a CIM_DiskDrive.
+Each partition can be mounted and then associated to a CIM_LogicalDisk.
+"""
 
 def Graphic_shape():
 	return "box3d"

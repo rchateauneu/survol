@@ -2,6 +2,8 @@
 
 """
 File stat information
+
+This returns general informaton about a non-directory data file.
 """
 
 # BEWARE: Do NOT rename it as stat.py otherwise strange errors happen,

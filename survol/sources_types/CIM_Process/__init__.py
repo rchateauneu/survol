@@ -1,6 +1,9 @@
+"""
+Standard process. Uniquely associated to a CIM_ComputerSystem and a parent CIM_Process.
+"""
+
 import os
 import sys
-# import psutil
 import lib_common
 import lib_util
 from lib_properties import pc

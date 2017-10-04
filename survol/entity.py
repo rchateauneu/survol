@@ -138,11 +138,16 @@ def Main():
 		sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
 
 	# When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
-	if lib_common.GuessDisplayMode() != "json":
-		entity_dirmenu_only.DirToMenu(grph,rootNode,entity_type,entity_id,entity_host,flagShowAll)
+	if lib_common.GuessDisplayMode() not in ["json","html"]:
+	# if lib_common.GuessDisplayMode() in ["rdf", None]:
+
+		def CallbackGrphAdd( tripl, depthCall ):
+			grph.add(tripl)
+
+		entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,entity_id,entity_host,flagShowAll)
 
 		if entity_type != "":
-			sys.stderr.write("Entering AddWbemWmiServers")
+			sys.stderr.write("Entering AddWbemWmiServers\n")
 			CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 
 		AddDefaultScripts(grph,rootNode,entity_host)

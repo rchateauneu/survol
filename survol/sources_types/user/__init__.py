@@ -1,5 +1,5 @@
 """
-Operating system user
+Non-Windows computer user account
 """
 
 import sys
