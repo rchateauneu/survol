@@ -964,15 +964,6 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 #def HttpHeader( out_dest, contentType ):
 #	globalOutMach.OutStream()
 
-
-# TODO: Est-ce vraiment necessaire ?????????????
-# Peut-etre oui, a cause des sockets ?
-def WrtAsUtf(str):
-	out_dest = DfltOutDest()
-
-	# TODO: try to make this faster. Should be conditional just like HttpHeader.
-	out_dest.write( str.encode('utf-8') )
-
 def WrtHeader(mimeType,extraArgs = None):
 	globalOutMach.HeaderWriter(mimeType,extraArgs)
 

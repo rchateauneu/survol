@@ -198,7 +198,7 @@ def ScriptForJson(url):
 #
 # https://stackoverflow.com/questions/5027705/error-in-chrome-content-type-is-not-allowed-by-access-control-allow-headers
 def WriteJsonHeader():
-	WrtHeader('application/json', [
+	lib_util.WrtHeader('application/json', [
 			'Access-Control-Allow-Origin: *',
 			'Access-Control-Allow-Methods: POST,GET,OPTIONS',
 			'Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept'
@@ -448,7 +448,7 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 # Ici: On peut prendre la valeur de "mode" en dissequant l'URL du Referer.
 #
 def Grph2Rdf(grph):
-	WrtHeader('text/rdf')
+	lib_util.WrtHeader('text/rdf')
 
 	# Format support can be extended with plugins,
 	# but 'xml', 'n3', 'nt', 'trix', 'rdfa' are built in.

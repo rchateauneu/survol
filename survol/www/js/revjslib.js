@@ -16,6 +16,7 @@ function qualifyURL(url)
 
 function AddUrlPrefix(urlQuery, cgiArgs )
 {
+	console.log("AddUrlPrefix urlQuery="+urlQuery);
 	var ixPrim = window.location.hostname.indexOf("primhillcomputers.com");
 	// This special case because hosting on OVH is specific.
 	if( ixPrim >= 0 )
@@ -23,27 +24,73 @@ function AddUrlPrefix(urlQuery, cgiArgs )
 		// url_survol_prefix = "../cgi-bin/survol/";
 		url_survol_prefix = "../cgi-bin/survol/survolcgi.py?script=/";
 	else
+		// url_survol_prefix = "../"; // CE QU ON AVAIT AVANT
 		url_survol_prefix = "../";
 
 	var fullUrl =  url_survol_prefix + urlQuery;
 
-	if( cgiArgs != "")
-		if( ixPrim >= 0 )
+	console.log("AddUrlPrefix fullUrl="+fullUrl);
+
+	if( cgiArgs != "") {
+		var ixQuest = fullUrl.indexOf("?");
+		if( ixQuest >= 0 )
 			fullUrl += "&";
 		else
 			fullUrl += "?";
 		fullUrl += cgiArgs;
+		}
 
 	return fullUrl;
 }
 
 // This merges the URLs given as CGI parameters, b64-encoded.
 // It then displays in SVG or any mode, just like the other Python scripts.
-var pyMergeScript = AddUrlPrefix( "merge_scripts.py", "" );
+// var pyMergeScript = AddUrlPrefix( "merge_scripts.py", "" );
+var pyMergeScript = "merge_scripts.py";
 
 // This is the name of the main window which display index.htm.
 // It is needed by Summary.htm which posts messages to it.
 gblWindowName = "SurvolMainWindowName";
+
+////////////////////////////////////////////////////////////////////////////////
+
+/*
+This takes as input an array which defines several urls simultaneously
+present in a D£ window. This array might come from the main window
+or the summary (tool) window.
+*/
+function ConcatenateMergeUrl(lstLoadedUrls,cgiArgs)
+{
+	var urlFull;
+
+	/* If there is one element, we might as well simply return it.
+	It is a frequent case. */
+	console.log("ConcatenateMergeUrl lstLoadedUrls.length="+ lstLoadedUrls.length);
+	if( lstLoadedUrls.length == 1 )
+	{
+		urlFull = lstLoadedUrls[0].m_loaded_url;
+	}
+	else
+	{
+		var urlMerge = pyMergeScript;
+		var cgiDelim = "?url=";
+
+		for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
+		{
+			var objLoadedUrl = lstLoadedUrls[ixLoaded];
+			console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
+
+			var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);
+			urlMerge += cgiDelim + url64safe;
+			cgiDelim = "&url=";
+		}
+	    console.log("ConcatenateMergeUrl urlMerge="+urlMerge);
+    	urlFull = AddUrlPrefix(urlMerge,cgiArgs);
+    }
+
+    console.log("ConcatenateMergeUrl urlFull="+urlFull);
+    return urlFull;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
