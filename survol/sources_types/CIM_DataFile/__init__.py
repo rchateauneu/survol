@@ -24,8 +24,7 @@ def EntityName(entity_ids_arr,entity_host):
 	else:
 		return file_basename
 
-def AddMagic( grph, filNode, entity_ids_arr ):
-	filNam = entity_ids_arr[0]
+def AddMagic( grph, filNode, filNam ):
 	try:
 		import magic
 	except ImportError:
@@ -191,7 +190,14 @@ def AffFileOwner(grph, filNode, filNam):
 
 		#print "I am", win32api.GetUserNameEx (win32con.NameSamCompatible)
 
-		sd = win32security.GetFileSecurity (filNam, win32security.OWNER_SECURITY_INFORMATION)
+		try:
+			sd = win32security.GetFileSecurity (filNam, win32security.OWNER_SECURITY_INFORMATION)
+		except:
+			exc = sys.exc_info()[1]
+			msg = str(exc)
+			grph.add( ( filNode, pc.property_owner, lib_common.NodeLiteral(msg) ) )
+			return
+
 		owner_sid = sd.GetSecurityDescriptorOwner ()
 		accountName, domainName, typeCode = win32security.LookupAccountSid (None, owner_sid)
 		typNam = SID_CodeToName(typeCode)
@@ -210,7 +216,7 @@ def AffFileOwner(grph, filNode, filNam):
 		# TODO: What can we do with the domain ?
 		grph.add( ( accountNode, lib_common.MakeProp("Domain"), lib_common.NodeLiteral(domainName) ) )
 		grph.add( ( accountNode, lib_common.MakeProp("SID"), lib_common.NodeLiteral(typNam) ) )
-		grph.add( ( accountNode, pc.property_owner, filNode ) )
+		grph.add( ( filNode, pc.property_owner, accountNode ) )
 
 
 	def AddFileOwnerLinux(grph, filNode, filNam):
@@ -240,8 +246,6 @@ def AffFileOwner(grph, filNode, filNam):
 			pass
 
 		return
-
-	sys.stderr.write("AddFileOwner %s\n"%filNam)
 
 	try:
 		if lib_util.isPlatformWindows:
