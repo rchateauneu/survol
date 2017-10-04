@@ -153,8 +153,8 @@ def Main():
 		# TODO: Should we assimilate both ???
 		nodeDsn = survol_odbc_dsn.MakeUri( aggregDSN )
 		grph.add( (node_process, pc.property_odbc_dsn, nodeDsn ) )
-		# Fix this
-		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral("Le driver") ) )
+		# Fix this message.
+		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral("ODBC driver") ) )
 
 
 
