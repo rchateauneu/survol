@@ -1,0 +1,29 @@
+body {
+    background-color: lightblue;
+}
+
+h1 {
+    color: navy;
+    margin-left: 20px;
+}
+
+h2 {
+    color: navy;
+    margin-left: 10px;
+}
+
+/*
+td {
+    color: white;
+    margin-left: 20px;
+}
+*/
+
+td.other_urls {
+    background-color: lavender;
+    margin-left: 20px;
+}
+
+table.other_urls {
+    color: blue;
+}
