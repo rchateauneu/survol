@@ -14,6 +14,20 @@ function qualifyURL(url)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+function AddUrlCgiArg(urlQuery, cgiArgs )
+{
+	if( cgiArgs != "") {
+		var ixQuest = urlQuery.indexOf("?");
+		if( ixQuest >= 0 )
+			urlQuery += "&";
+		else
+			urlQuery += "?";
+		urlQuery += cgiArgs;
+		}
+
+	return urlQuery;
+}
+
 function AddUrlPrefix(urlQuery, cgiArgs )
 {
 	console.log("AddUrlPrefix urlQuery="+urlQuery);
@@ -31,14 +45,7 @@ function AddUrlPrefix(urlQuery, cgiArgs )
 
 	console.log("AddUrlPrefix fullUrl="+fullUrl);
 
-	if( cgiArgs != "") {
-		var ixQuest = fullUrl.indexOf("?");
-		if( ixQuest >= 0 )
-			fullUrl += "&";
-		else
-			fullUrl += "?";
-		fullUrl += cgiArgs;
-		}
+	fullUrl = AddUrlCgiArg(fullUrl, cgiArgs );
 
 	return fullUrl;
 }
@@ -69,6 +76,7 @@ function ConcatenateMergeUrl(lstLoadedUrls,cgiArgs)
 	if( lstLoadedUrls.length == 1 )
 	{
 		urlFull = lstLoadedUrls[0].m_loaded_url;
+		urlFull = AddUrlCgiArg(urlFull, cgiArgs );
 	}
 	else
 	{

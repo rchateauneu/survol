@@ -14,24 +14,20 @@
 
 <!--  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js" -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<xxscript src="js/jquery.min.js"></xxscript>
 
 
 <!-- Port to D3 v4 could be done by a specialist. -->
 
     <!-- src="http://d3js.org/d3.v3.min.js" -->
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<xxscript src="js/d3.v3.min.js"></xxscript>
 <script src="js/base64.js"></script>
 <script src="js/revjslib.js"></script>
 
     <!-- href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" -->
 <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
-<xxlink href="js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 
     <!--  src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" -->
 <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
-<xxscript src="js/jquery.contextMenu.js" type="text/javascript"></xxscript>
 
 <script src="js/ActiveX_WMI.js"></script>
 
@@ -58,7 +54,7 @@
         stroke-dasharray: 4, 1;
     }
 
-    /* This works. */
+    /* This works.*/
     .nodetext {
         pointer-events: none;
         font: 10px sans-serif;
@@ -98,9 +94,17 @@
         fill:#E01B98;
     }
 
-    /* https://css-tricks.com/multiple-class-id-selectors/ */
-    /* This selects all elements with the class name CIM_ComputerSystem
-    that are descendents of the element with a class of node. */
+    /* https://css-tricks.com/multiple-class-id-selectors/
+    This selects all elements with the class name CIM_ComputerSystem
+    that are descendents of the element with a class of node.
+
+    <g xmlns="http://www.w3.org/2000/svg" class="survol_node node CIM_ComputerSystem" transform="translate(1265.99 562.223)">
+        <rect class="CIM_ComputerSystem" style="stroke: #000000; stroke-width: 1;" opacity="1" x="-29.46" y="-5.55" width="58.92" height="11.5" rx="5" ry="5" />
+        <text class="nodetext" text-anchor="middle" dx="0" dy="0.35em">
+            <tspan x="0">vsnp2std.exe</tspan>
+        </text>
+    </g>
+    */
     .CIM_ComputerSystem {
         /* fill:#E01B98; */
         font: 12px sans-serif;
@@ -1407,6 +1411,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
     // Adds text inside each "g" object of class "survol_node": http://stackoverflow.com/questions/6725288/svg-text-inside-rect
     // Inserts the rect element before the text, which is therefore not hidden.
+    // The node must be in "survol_node" and with the class
     d3.selectAll(".survol_node").insert("rect","text")
         .attr("x", function(d){return d.bbox.x})
         .attr("y", function(d){return d.bbox.y})
@@ -1424,8 +1429,14 @@ function DisplayD3Layout(divSvg,newData,w,h)
         // Classes are not defined so fill colors are OK. We will fetch CSS in classes directories.
         .attr("fill", function (d) {
             /* #337147 */
-            return d.survol_fill;
+            if(d.survol_fill)
+                // Returned by the Python script.
+                return d.survol_fill;
+            else
+                // Default value which applies for ActiveX if there is no CSS.
+                return "#E0E0E0";
         })
+        // This allows to apply a CSS with the same name.
         .attr("class", function (d) { return d.entity_class; })
         //.attr("class", function (d) { return "node type" + d.survol_type; })
         .on("mouseover", function(d)
@@ -1473,15 +1484,34 @@ function DisplayD3Layout(divSvg,newData,w,h)
                     d3.json(urlTooltip,
                         function(error,objTooltip)
                         {
+                            function DisplayTooltipDiv(theTooltipText)
+                            {
+                                console.log("DisplayTooltipDiv theTooltipText="+theTooltipText);
+
+                                // http://stackoverflow.com/questions/36326683/d3-js-how-can-i-set-the-cursor-to-hand-when-mouseover-these-elements-on-svg-co
+                                // This could as well be done in CSS, but we might wish not change the pointer if no link is available, i.e. faulty node.
+                                d3.select(this).style("cursor", "pointer");
+
+                                divTooltip.transition()
+                                    .duration(200)
+                                    .style("opacity", .9);
+
+                                divTooltip.html( theTooltipText )
+                                    .style("left", (currentEventD3pageX) + "px")
+                                    .style("top", (currentEventD3pageY - 28) + "px");
+                            }
+
                             if(error)
                             {
-                                alert("IfMouseOver: error="+error);
+                                errMsg = "Tooltip error:" + error;
+                                DisplayTooltipDiv(errMsg);
                                 return;
                             }
                             console.log("Callback urlTooltip="+urlTooltip+ " objTooltip="+JSON.stringify(objTooltip));
                             if( objTooltip.survol_error != undefined )
                             {
-                                alert("Error:"+objTooltip.survol_error);
+                                errMsg = "Tooltip objTooltip.survol_error="+objTooltip.survol_error;
+                                DisplayTooltipDiv(errMsg);
                                 return;
                             }
                             if( false == d.is_mouseover ) {
@@ -1503,19 +1533,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                             if ( typeof(objInfo) != 'undefined')
                             {
                                 var txtTooltip = DictToTable([],objInfo);
-                                console.log("txtTooltip="+txtTooltip);
-
-                                // http://stackoverflow.com/questions/36326683/d3-js-how-can-i-set-the-cursor-to-hand-when-mouseover-these-elements-on-svg-co
-                                // This could as well be done in CSS, but we might wish not change the pointer if no link is available, i.e. faulty node.
-                                d3.select(this).style("cursor", "pointer");
-
-                                divTooltip.transition()
-                                    .duration(200)
-                                    .style("opacity", .9);
-
-                                divTooltip.html( txtTooltip )
-                                    .style("left", (currentEventD3pageX) + "px")
-                                    .style("top", (currentEventD3pageY - 28) + "px");
+                                DisplayTooltipDiv(txtTooltip);
                             }
                         }
                     );
@@ -1874,10 +1892,9 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
 
     // When the mouse right button is down, this loads the contextual menu content into the SVG object.
-    // When this right button is released, it triggers the contextual menu which finds its content
-    // stored in the SVG object.
+    // Releasing the right button triggers the contextual menu whose content is in the SVG object.
     $("g.survol_node").mousedown(function(ev){
-        /* Si clicke gauche, on va vers le "entity.py". */
+        // If left click, it should call entity.py.
 
         function GetEntityUrl(error,jsonData)
         {
