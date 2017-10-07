@@ -62,6 +62,10 @@ def WbemAddBaseClasses(grph,connWbem,wbemNode,entity_host, wbemNamespace, entity
 def CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	wbemNamespace = nameSpace.replace("\\","/")
 	wbem_servers_desc_list = lib_wbem.GetWbemUrls( entity_host, wbemNamespace, className, entity_id )
+
+	# If there are no servers.
+	pairNameNode = None
+
 	for url_server in wbem_servers_desc_list:
 		wbemNode = lib_common.NodeUrl(url_server[0])
 		grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
