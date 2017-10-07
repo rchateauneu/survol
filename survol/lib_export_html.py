@@ -314,7 +314,11 @@ def WriteAllObjects(grph):
 
 
 	for entity_graphic_class in dictClassSubjPropObj:
-		WrtAsUtf("<h3/>Class %s<h2/>"%entity_graphic_class)
+
+		# EntityClassUrl(entity_graphic_class, entity_namespace = "", entity_host = "", category = ""):
+		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
+
+		WrtAsUtf("<h3/>Class <a href='%s'>%s</a><h2/>"%(urlClass,entity_graphic_class))
 		dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
 
 		DispClassObjects(dictSubjPropObj)
@@ -418,8 +422,10 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	WrtAsUtf("<h2/>Objects<h2/>")
 	WriteAllObjects(grph)
 
-	WrtAsUtf("<h2/>Related scripts<h2/>")
-	WriteScriptsTree(theCgi)
+	# Scripts do not apply when displaying a class.
+	if(theCgi.m_entity_type == "") or (theCgi.m_entity_id!=""):
+		WrtAsUtf("<h2/>Related scripts<h2/>")
+		WriteScriptsTree(theCgi)
 
 	WrtAsUtf("<h2/>Script parameters<h2/>")
 	WriteParameters(parameters)
