@@ -32,28 +32,25 @@ def WriteScriptInformation(topUrl,theCgi):
 	# It does not matter because this is very fast.
 	callingUrl = lib_util.RequestUri()
 	parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
-	if parsedEntityUri[2]:
-		# If there is an object to display.
-		# Practically, we are in the script "entity.py" and the single doc string is "Overview"
-		fullTitle = parsedEntityUri[0]
-	else:
-		fullTitle = "NO TITLE"
-	WrtAsUtf('<h1>'+fullTitle+'</h1>'+'<br/><br/>')
+	sys.stderr.write("parsedEntityUri=%s\n"%str(parsedEntityUri))
+	#if parsedEntityUri[2]:
+	#	# If there is an object to display.
+	#	# Practically, we are in the script "entity.py" and the single doc string is "Overview"
+	#	fullTitle = parsedEntityUri[0]
+	#else:
+	#	fullTitle = "NO TITLE"
+	fullTitle = parsedEntityUri[0]
+	WrtAsUtf('<h1>'+fullTitle+'</h1>')
 
 	# This is the entire content, not only the first line.
 	theDoc = lib_common.GetCallingModuleDoc()
 	theDoc = theDoc.replace("\n","<br>")
-	WrtAsUtf('<i><h2>%s</h2></i><br>'%(theDoc))
-
-	# WrtAsUtf('m_entity_id_dict: %s<br>'%(str(theCgi.m_entity_id_dict)))
-
-	#( labText, subjEntityGraphicClass, entity_id) = lib_naming.ParseEntityUri( topUrl )
-	#WrtAsUtf('labText: %s: %s<br>'%(labText,entity_id))
+	WrtAsUtf('<i><h2>%s</h2></i>'%(theDoc))
 
 	if theCgi.m_entity_type:
 		# WrtAsUtf('m_entity_id: %s<br>'%(theCgi.m_entity_id))
 
-		WrtAsUtf('<table border=1>')
+		WrtAsUtf('<table class="table_script_information">')
 
 		entity_module = lib_util.GetEntityModule(theCgi.m_entity_type)
 		entDoc = entity_module.__doc__
@@ -91,7 +88,7 @@ def WriteParameters(parameters):
 	"""
 		This displays the parameters of the script and provide an URL to edit them.
 	"""
-	WrtAsUtf('<table border="1">')
+	WrtAsUtf('<table class="table_script_parameters">')
 
 	WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
 
@@ -113,7 +110,7 @@ def WriteOtherUrls():
 		This displays the URL to view the same document, in other ouput formats.
 	"""
 
-	WrtAsUtf('<table border="1" class="other_urls">')
+	WrtAsUtf('<table class="other_urls">')
 
 	WrtAsUtf("""
 	<tr>
@@ -182,7 +179,7 @@ def WriteScriptsTree(theCgi):
 			to calculate the rowspan and colspan of each cell.
 			Although elegant, it is not garanteed to work.
 		"""
-		WrtAsUtf('<table border="1">')
+		WrtAsUtf('<table class="table_scripts_titles">')
 		try:
 			mapProps = dictScripts[subj]
 		except KeyError:
@@ -224,7 +221,7 @@ def WriteScriptsTree(theCgi):
 				lstObjs = mapProps[oneProp]
 
 				WrtAsUtf('<td>')
-				WrtAsUtf('<table>')
+				WrtAsUtf('<table class="table_scripts_links">')
 				for oneObj in lstObjs:
 					if oneObj is None:
 						continue
@@ -257,7 +254,20 @@ def WriteScriptsTree(theCgi):
 	#	AddDefaultScripts(grph,rootNode,entity_id)
 
 
-def WriteAllObjects(error_msg,isSubServer,grph):
+def WriteErrors(error_msg,isSubServer):
+	if (error_msg != None) or isSubServer:
+		# TODO: Use style-sheets.
+		WrtAsUtf('<table border="0">')
+
+		if error_msg != None:
+			WrtAsUtf('<tr><td colspan="3" bgcolor="#DDDDDD"><b>' + error_msg + '</b></td></tr>')
+
+		if isSubServer:
+			WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>')
+		WrtAsUtf( " </table><br>")
+
+
+def WriteAllObjects(grph):
 	"""
 		This displays all the objects returend by this scripts.
 		Other scripts are not here, so we do not have to eliminate them.
@@ -265,18 +275,9 @@ def WriteAllObjects(error_msg,isSubServer,grph):
 		where all objects are mixed together.
 	"""
 
-	# TODO: Use style-sheets.
-	WrtAsUtf('<table border="0">')
-
-	if error_msg != None:
-		WrtAsUtf('<tr><td colspan="3" bgcolor="#DDDDDD"><b>' + error_msg + '</b></td></tr>')
-
-	if isSubServer:
-		WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>')
-
 
 	# This groups data by subject, then predicate, then object.
-	dictSubjPropObj = dict()
+	dictClassSubjPropObj = dict()
 
 	# TODO: Group objects by type, then display the count, some info about each type etc...
 	for aSubj, aPred, anObj in grph:
@@ -285,25 +286,49 @@ def WriteAllObjects(error_msg,isSubServer,grph):
 			if str(anObj) == "":
 				continue
 
-		try:
-			dictPred = dictSubjPropObj[aSubj]
-			try:
-				dictPred[aPred].append(anObj)
-			except KeyError:
-				dictPred[aPred] = [ anObj ]
-		except KeyError:
-			dictSubjPropObj[aSubj] = { aPred : [ anObj ] }
+		subj_str = str(aSubj)
+		( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
 
+		try:
+			dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
+			try:
+				dictPred = dictSubjPropObj[aSubj]
+				try:
+					dictPred[aPred].append(anObj)
+				except KeyError:
+					# First time this object has this predicate.
+					dictPred[aPred] = [ anObj ]
+			except KeyError:
+				# First time we see this object.
+				dictSubjPropObj[aSubj] = { aPred : [ anObj ] }
+		except KeyError:
+			# First object of this class.
+			dictClassSubjPropObj[entity_graphic_class] = { aSubj: { aPred : [ anObj ] } }
+
+	# Group objects by class.
+	# Display list of classes with an indexs and a link to the class.
+	# "NO TITLE" is wrong
+	# Trier par le nom.
+
+	# Ajouter mode "difference": On recalcule periodiquement et on affiche la difference.
+
+
+	for entity_graphic_class in dictClassSubjPropObj:
+		WrtAsUtf("<h3/>Class %s<h2/>"%entity_graphic_class)
+		dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
+
+		DispClassObjects(dictSubjPropObj)
+
+def DispClassObjects(dictSubjPropObj):
 	listPropsTdDoubleColSpan = [pc.property_information,pc.property_rdf_data_nolist2,pc.property_rdf_data_nolist1]
 
-
+	WrtAsUtf('<table class="class_objects">')
 	for aSubj in dictSubjPropObj:
 		dictPred = dictSubjPropObj[aSubj]
 
 		subj_str = str(aSubj)
-
-
 		( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
+
 		arrayGraphParams = lib_patterns.TypeToGraphParams(entity_graphic_class)
 		# "Graphic_shape","Graphic_colorfill","Graphic_colorbg","Graphic_border","Graphic_is_rounded"
 		colorClass = arrayGraphParams[1]
@@ -333,7 +358,7 @@ def WriteAllObjects(error_msg,isSubServer,grph):
 					WrtAsUtf(
 						'<td rowspan="' + str(cntPreds) + '">'
 						+'<a href="' + subj_str + '">'+ subj_title + "</a>"
-						+ " (" + entity_graphic_class + ")"
+						# + " (" + entity_graphic_class + ")"
 						+ "</td>")
 					mustWriteColOneSubj = False
 
@@ -388,8 +413,10 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 
 	WriteScriptInformation(topUrl,theCgi)
 
-	WrtAsUtf("<h2/>Objects returned by this script<h2/>")
-	WriteAllObjects(error_msg,isSubServer,grph)
+	WriteErrors(error_msg,isSubServer)
+
+	WrtAsUtf("<h2/>Objects<h2/>")
+	WriteAllObjects(grph)
 
 	WrtAsUtf("<h2/>Related scripts<h2/>")
 	WriteScriptsTree(theCgi)
