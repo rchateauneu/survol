@@ -270,9 +270,10 @@ def GetShebang(grph, filNode, filNam):
 	return None
 
 
-# Each entity can have such a file with its name as file name.
-# Then in its file, by convention adds information to a node.
 def AddInfo(grph,node,entity_ids_arr):
+	"""
+		This creates a couple of nodes about a file.
+	"""
 	filNam = entity_ids_arr[0]
 	if filNam == "":
 		return
@@ -280,7 +281,3 @@ def AddInfo(grph,node,entity_ids_arr):
 	AddStat( grph,node,filNam)
 	AddHtml( grph,node,filNam)
 	AddParentDir( grph,node,filNam)
-
-	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
-	grph.add( ( node, pc.property_rdf_data_nolist1, lib_common.NodeUrl(url_mime) ) )
-
