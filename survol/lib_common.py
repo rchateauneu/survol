@@ -128,7 +128,7 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 	stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
 	return dot_layout
 
-# Returns a string for an URL different from "entity.py" etc...
+# Returns a string for an URL which might be different from "entity.py" etc...
 # TODO: Ca serait mieux de passer le texte avec la property.
 def ExternalToTitle(extUrl):
 	# Depending on where we come from, "%2F" instead of "/" ... ugly.
@@ -138,6 +138,11 @@ def ExternalToTitle(extUrl):
 	pyNamMtch = re.match( ".*/([^.]+).py.*", extUrl )
 	if pyNamMtch:
 		pyNam = pyNamMtch.group(1)
+
+		# After all, the script might be entity
+		if pyNam == "entity":
+			(objNam, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( extUrl )
+			return objNam
 
 		try:
 			# TODO: See lib_naming.scripts_to_titles
@@ -203,13 +208,22 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# Nothing really interesting at the moment, just hardcodes.
 		return lib_properties.prop_color(prop)
 
-	def FormatElement(val,depth=0):
+	def FormatElementAux(val,depth=0):
 		if val is None:
-			return "<td></td>"
+			# return "<td></td>"
+			return ""
 
 		try:
-			valInt = int(val)
-			return "<td align='right' balign='left' border='0'>%d</td>" % valInt
+			int(val)
+			# return "<td align='right' balign='left' border='0'>%d</td>" % valInt
+			return val
+		except:
+			pass
+
+		try:
+			float(val)
+			# return "<td align='right' balign='left' border='0'>%d</td>" % valInt
+			return val
 		except:
 			pass
 
@@ -220,7 +234,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				subTd = FormatPair(subKey,subVal, depth + 1)
 				if subTd:
 					subTable += "<tr>%s</tr>" % subTd
-			return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
+			# return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
+			return "<table border='0'>%s</table>" % subTable
 
 		# Note: Recursive list are not very visible.
 		if isinstance(val, ( list, tuple ) ):
@@ -229,27 +244,43 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				for subElement in val:
 					subTd = FormatElement( subElement, depth + 1 )
 					subTable += "<tr>%s</tr>" % subTd
-				return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
+				# return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
+				return "<table border='0'>%s</table>" % subTable
 			else:
 				subTable = ""
 				for subElement in val:
 					subTd = FormatElement( subElement, depth + 1 )
 					subTable += subTd
-				return "<td align='left' balign='left' border='0'><table border='0'><tr>%s</tr></table></td>" % subTable
+				# return "<td align='left' balign='left' border='0'><table border='0'><tr>%s</tr></table></td>" % subTable
+				return "<table border='0'><tr>%s</tr></table>" % subTable
+
 		try:
 			decodVal = json.loads(val)
-			return FormatElement(decodVal, depth + 1)
+			return FormatElementAux(decodVal, depth + 1)
 
 		except ValueError:
 			# It is a string which cannot be converted to json.
-			val = cgi.escape(val)
-			return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
+			val = cgi.escape(val) # +"OOOOO"+str(type(val))
+			# return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
+			return lib_exports.StrWithBr(val)
 		except TypeError:
 			# "Expected a string or buffer"
 			# It is not a string, so it could be a datetime.datetime
 			val = cgi.escape(str(val))
-			return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
+			# return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
+			return lib_exports.StrWithBr(val)
 		return "FormatElement failure"
+
+	def FormatElement(val,depth=0):
+		if lib_kbase.IsLink(val):
+			valTitle = ExternalToTitle(val)
+			# '<td href="%s" align="left" colspan="2">%s</td>' % ( a,b )
+			valTitleUL = lib_exports.DotUL(valTitle)
+			return "<td align='left' balign='left' border='0' href='%s'>%s</td>" % (val,valTitleUL )
+
+		resStr = FormatElementAux(val,depth)
+		return "<td align='left' balign='left' border='0'>%s</td>" % resStr
+
 
 	# Prints a key-value pair as two TD tags, to go in an HTML table.
 	def FormatPair(key,val,depth=0):
@@ -572,8 +603,25 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 					# TODO: This is hard-coded.
 					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
-						valTitle = ExternalToTitle(val)
-						tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitle )
+						#valTitle = ExternalToTitle(val)
+						#tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitle )
+
+						# In fact, it might also be an internal URL with "entity.py"
+						if lib_kbase.IsLiteral(val):
+							if isinstance( val.value, (list, tuple )):
+								strHtml = FormatElementAux(val.value)
+								sys.stderr.write("val.value=%s\n"%strHtml)
+								# strHtml = "<table border='0'><tr><td align='left' balign='left' border='0'>valTitle</td></tr><tr><td align='left' balign='left' border='0'>valTitle</td></tr></table>"
+								# strHtml = "<table><tr><td>valTitle</td></tr><tr><td>valTitle</td></tr></table>"
+								#strHtml = "TOTO"
+								tmpCell = td_bgcolor + 'align="left">%s</td>' % strHtml
+							else:
+								tmpCell = td_bgcolor + 'align="left">%s</td>' % val.value
+						else:
+							valTitle = ExternalToTitle(val)
+							valTitleUL = lib_exports.DotUL(valTitle)
+							tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitleUL )
+
 					else:
 						try:
 							float(val)
