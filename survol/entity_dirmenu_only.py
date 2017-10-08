@@ -2,6 +2,9 @@
 
 """
 Scripts hierarchy
+
+It is used by entity.py as a module, but also as a script with the CGI parameter mode=menu,
+by the D3 interface, to build contextual right-click menu.
 """
 
 import os
@@ -11,9 +14,8 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-# This script is used by entity.py as a module, but also as a script with the CGI parameter mode=menu,
-# by the D3 interface, to build contextual right-click menu.
-
+# PROBLEM: When an entire directory is not Usable because the file __init__.py
+# has a function Usable which returns False, then it still displays a directory, alone.
 def TestUsability(importedMod,entity_type,entity_ids_arr):
 	try:
 		isUsable = importedMod.Usable(entity_type,entity_ids_arr)
@@ -33,8 +35,8 @@ def TestUsability(importedMod,entity_type,entity_ids_arr):
 
 # TODO: CharTypesComposer
 
-# This is used for debugging only.
 def DirMenuReport(depthCall,strMsg):
+	"""For debugging purpose only."""
 	txtMargin = ( "    " * depthCall )
 	sys.stderr.write(txtMargin + strMsg)
 
@@ -89,8 +91,10 @@ def DirToMenuAux(callbackGrphAdd,parentNode,curr_dir,relative_dir,entity_type,en
 			errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 			# if flagShowAll and errorMsg ???
 			if errorMsg:
-				# Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
-				callbackGrphAdd( ( parentNode, lib_common.MakeProp("Usability"), lib_common.NodeLiteral(errorMsg) ),depthCall )
+				# If set to True, the directory is displayed even if all its scripts
+				# are not usable. Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
+				if False:
+					callbackGrphAdd( ( parentNode, lib_common.MakeProp("Usability"), lib_common.NodeLiteral(errorMsg) ),depthCall )
 				return False
 	except IndexError:
 		# If we are at the top-level, no interest for the module.
