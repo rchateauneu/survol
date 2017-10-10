@@ -1433,7 +1433,9 @@ def ErrorMessageHtml(message):
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
 		sys.stderr.write("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
-		raise Exception("ErrorMessageHtml %s\n"%message)
+		# It might be displayed in a HTML document.
+		messageClean = cgi.escape(message)
+		raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)
 
 ################################################################################
 
