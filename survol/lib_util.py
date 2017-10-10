@@ -206,15 +206,16 @@ def SameHostOrLocal( srv, entHost ):
 
 ################################################################################
 
-# Returns the top-level URL.
 def TopUrl( entityType, entityId ):
+	""" This returns the top-level URL"""
 	try:
 		scriptNam = os.environ['SCRIPT_NAME']
 	except KeyError:
 		scriptNam = "Hello.py"
 	if re.match( ".*/survol/entity.py.*", scriptNam ):
 		if entityType == "":
-			topUrl = uriRoot + "/../index.htm" # A VERIFIER.
+			# topUrl = uriRoot + "/../index.htm" # A VERIFIER.
+			topUrl = uriRoot + "/entity.py"
 		else:
 			# Same as in objtypes.py
 			# if entityId in ("","Id=") or entity.endswith("="):
