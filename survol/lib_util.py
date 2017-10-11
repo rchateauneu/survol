@@ -111,7 +111,7 @@ def HttpPrefix():
 	# does not look like a valid URI, trying to serialize this will break.
 	# But if we do not add "http:" etc... SVG adds its prefix "127.0.0.1" etc...
 	prfx = 'http://' + server_addr + ':' + server_port
-	sys.stderr.write("HttpPrefix server_addr=%s prfx=%s\n"%(server_addr,prfx))
+	# sys.stderr.write("HttpPrefix server_addr=%s prfx=%s\n"%(server_addr,prfx))
 	return prfx
 
 
