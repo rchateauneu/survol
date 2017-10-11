@@ -809,7 +809,7 @@ def AnyUriModed(script, otherMode):
 
 	if otherMode:
 		if mtch_url:
-			edtUrl = mtch_url.group(1) + "mode=" + otherMode + mtch_url.group(3)
+			edtUrl = mtch_url.group(1) + mtch_url.group(2) + "mode=" + otherMode + mtch_url.group(3)
 		else:
 			edtUrl = ConcatenateCgi( script, "mode=" + otherMode )
 	else:
