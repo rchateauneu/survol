@@ -2,6 +2,8 @@
 
 """
 Disk partitions
+
+CIM_LogicalDisk objects.
 """
 
 import sys

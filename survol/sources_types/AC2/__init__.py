@@ -5,6 +5,20 @@ AC2 classes
 import os
 import lib_common
 
+envVarNam = "XCOMP_AC2_BASE"
+
+def Usable(entity_type,entity_ids_arr):
+	"""
+	The environment variable XCOMP_AC2_BASE must be defined
+	"""
+	try:
+		ac2TopDir = os.environ[envVarNam]
+		return True
+	except:
+		return False
+		lib_common.ErrorMessageHtml("Cannot get environment variable value %s"%envVarNam )
+
+
 def Graphic_shape():
 	return "none"
 

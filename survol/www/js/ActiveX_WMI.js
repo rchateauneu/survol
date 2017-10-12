@@ -144,10 +144,19 @@ function ActiveX_WMI_Data(svcWbem,wqlQuery)
 function FillObjD3(oneObj,objName,objClass,relPath)
 {
 	oneObj["name"] = objName;
-	oneObj["type"] = 3; // Temporary hard-code.
-	oneObj["fill"] = "#FF7147" ;
+	// oneObj["type"] = 3; // Temporary hard-code.
+	oneObj["fill"] = "#112233" ;
+
 	oneObj["entity_class"] = objClass;
-	// This is necessary otherwise cannot merge.
+	// StyleActiveX
+	// oneObj["entity_class"] = "StyleActiveX";
+
+	/* This is necessary so it can merge with the same objects, defined by Python scripts
+	run by the Agent on the same current machine.
+	Problem: This assumes a port number and a specific URL,
+	but in reality, the web hosting can be very different.
+	Maybe we could detect and store it with a HTTP query ?
+	Or allow to configure it, on the client side ? */
 	oneObj["survol_url"] = "http://127.0.0.1:8000/survol/entity.py?xid=" + relPath;
 }
 
@@ -639,7 +648,7 @@ function GlobalMenu_CIM_Process()
 		//console.log("oneObj procId="+procId+" keyObj="+keyObj+" idxObj="+idxObj);
 		
 		// This member is mandatory for D3.
-		FillObjD3(oneObj,oneObj["Caption"],"CIM_ComputerSystem","CIM_Process.Handle=" + procId);
+		FillObjD3(oneObj,oneObj["Caption"],"CIM_Process","CIM_Process.Handle=" + procId);
 
 		netNodes[idxObj] = oneObj;
 		idxObj++;
@@ -671,6 +680,55 @@ function GlobalMenu_CIM_Process()
 	};
 } // GlobalMenu_CIM_Process
 
+function GlobalMenu_CIM_LogicalDisk()
+{
+	console.log("GlobalMenu_CIM_LogicalDisk entering");
+
+	var svcWbemObject = ConnectWbemServer("", "CIM_LogicalDisk", {} );
+
+	try {
+		svcWbem = svcWbemObject.m_funcLocat();
+
+		var wqlQuery = UrlToWQL("CIM_LogicalDisk", {});
+		var dictObjects = ActiveX_WMI_Data(svcWbem,wqlQuery);
+	}
+	catch(excep)
+	{
+		// Cannot connect.
+		console.log("GlobalMenu_CIM_LogicalDisk caught:" + excep);
+		return {
+			"nodes": [],
+			"links": []
+		};
+	}
+
+	console.log("GlobalMenu_CIM_LogicalDisk Creating graph");
+
+	var netNodes = [];
+
+	// One item per object.
+	var idxObj = 0;
+	for( var keyObj in dictObjects) {
+		var oneObj = dictObjects[keyObj];
+		var devId = oneObj["DeviceID"];
+		//console.log("oneObj procId="+procId+" keyObj="+keyObj+" idxObj="+idxObj);
+
+		// This member is mandatory for D3.
+		FillObjD3(oneObj,oneObj["Caption"],"CIM_LogicalDisk","CIM_LogicalDisk.DeviceID=" + devId);
+
+		netNodes[idxObj] = oneObj;
+		idxObj++;
+	}
+
+	var netLinks = [];
+
+	console.log("GlobalMenu_CIM_LogicalDisk leaving");
+	return {
+		"nodes": netNodes,
+		"links": netLinks
+	};
+} // GlobalMenu_CIM_LogicalDisk
+
 function ActiveX_WMI_JCtxtMenuGlobal( funcD3Displayer )
 {
 	// IE and Windows only.
@@ -683,13 +741,19 @@ function ActiveX_WMI_JCtxtMenuGlobal( funcD3Displayer )
 	
 	var globCtxtMenu = 
 	{
+		/////     D ABORD CACHER LE MENU
 		"theFirst": {
 			name: "Local processes",
 			callback: function(key, options) {
-				
-					/////     D ABORD CACHER LE MENU
-				
 					var data = GlobalMenu_CIM_Process();
+					console.log("data.nodes="+data.nodes.length+" data.links="+data.links.length);
+					funcD3Displayer(options, "ActiveX_WMI_JCtxtMenuGlobal.url",data);
+				}
+		},
+		"theSecond": {
+			name: "Logical disks",
+			callback: function(key, options) {
+					var data = GlobalMenu_CIM_LogicalDisk();
 					console.log("data.nodes="+data.nodes.length+" data.links="+data.links.length);
 					funcD3Displayer(options, "ActiveX_WMI_JCtxtMenuGlobal.url",data);
 				}

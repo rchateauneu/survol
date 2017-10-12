@@ -59,12 +59,27 @@ def Main():
 		envVal = envsDict[envKey]
 		sys.stderr.write("envKey=%s envVal=%s\n"%(envKey,envVal))
 		nodeEnvNam = lib_util.NodeLiteral(envKey)
-		if envKey in ["PATH"]:
+
+		# When a file or a directory displayed with a node,
+		# its name is shortened so it can fit into the table.,
+		# so it is less visible.
+
+		# Some are probably for Windows only.
+		if envKey in ["PATH","PSMODULEPATH","PYPATH"]:
 			valSplit = envVal.split(separatorPath)
-			for filNam in valSplit:
-				nodFil = lib_common.gUriGen.DirectoryUri(filNam)
-				# FileUri
-				grph.add((nodeEnvNam,pc.property_directory,nodFil))
+			nodFilArr = [lib_common.gUriGen.DirectoryUri(filNam) for filNam in valSplit]
+			nodFilArrNod = lib_util.NodeLiteral(nodFilArr)
+			#for filNam in valSplit:
+			#	nodFil = lib_common.gUriGen.DirectoryUri(filNam)
+			grph.add((nodeEnvNam,pc.property_rdf_data_nolist2,nodFilArrNod))
+		elif os.path.isdir(envVal):
+			nodFil = lib_common.gUriGen.DirectoryUri(envVal)
+			#grph.add((nodeEnvNam,pc.property_directory,nodFil))
+			grph.add((nodeEnvNam,pc.property_rdf_data_nolist2,nodFil))
+		elif os.path.exists(envVal):
+			nodFil = lib_common.gUriGen.FileUri(envVal)
+			grph.add((nodeEnvNam,pc.property_rdf_data_nolist2,nodFil))
+			#grph.add((nodeEnvNam,pc.property_directory,nodFil))
 		else:
 			# TODO: Beware that "\L" is transformed into "<TABLE>" by Graphviz !!!
 			envValClean = envVal.replace(">","_").replace("<","_").replace("&","_").replace("\\","_")

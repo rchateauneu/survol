@@ -111,7 +111,7 @@ def HttpPrefix():
 	# does not look like a valid URI, trying to serialize this will break.
 	# But if we do not add "http:" etc... SVG adds its prefix "127.0.0.1" etc...
 	prfx = 'http://' + server_addr + ':' + server_port
-	sys.stderr.write("HttpPrefix server_addr=%s prfx=%s\n"%(server_addr,prfx))
+	# sys.stderr.write("HttpPrefix server_addr=%s prfx=%s\n"%(server_addr,prfx))
 	return prfx
 
 
@@ -206,15 +206,16 @@ def SameHostOrLocal( srv, entHost ):
 
 ################################################################################
 
-# Returns the top-level URL.
 def TopUrl( entityType, entityId ):
+	""" This returns the top-level URL"""
 	try:
 		scriptNam = os.environ['SCRIPT_NAME']
 	except KeyError:
 		scriptNam = "Hello.py"
 	if re.match( ".*/survol/entity.py.*", scriptNam ):
 		if entityType == "":
-			topUrl = uriRoot + "/../index.htm" # A VERIFIER.
+			# topUrl = uriRoot + "/../index.htm" # A VERIFIER.
+			topUrl = uriRoot + "/entity.py"
 		else:
 			# Same as in objtypes.py
 			# if entityId in ("","Id=") or entity.endswith("="):
@@ -466,7 +467,7 @@ def Scriptize(path, entity_type, entity_id):
 
 xidCgiDelimiter = "?xid="
 
-def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
+def EntityClassUrl(entity_type, entity_namespace = "", entity_host = "", category = ""):
 	if entity_type is None:
 		entity_type = ""
 
@@ -478,7 +479,7 @@ def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", catego
 		monikerClass = "\\\\" + entity_host + "\\" + entity_namespace + ":" + entity_type + "."
 	# This is temporary.
 	else:
-		# En fait, on devrait pouvoir simplifier le format, comme avant, si pas de namespace ni de host: "type."
+		# We could simplify the format, if no namespace nor hostname.
 		monikerClass = ""
 		if entity_host:
 			monikerClass += entity_host + "@"
@@ -487,15 +488,16 @@ def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", catego
 			monikerClass += entity_namespace + "/:"
 		monikerClass += entity_type + "."
 
-	# TODO: Voir aussi EntityUrlFromMoniker.
+	# TODO: See also EntityUrlFromMoniker.
 
-	# lib_uris.xidCgiDelimiter
-	# url = uriRoot + "/class_type_all.py?xid=" + EncodeUri(monikerClass)
 	url = uriRoot + "/class_type_all.py" + xidCgiDelimiter + EncodeUri(monikerClass)
+	return url
+
+def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
+	url = EntityClassUrl(entity_type, entity_namespace, entity_host, category)
 
 	# sys.stdout.write("EntityClassUrl url=%s\n" % url)
 	return NodeUrl( url )
-	# return url
 
 ################################################################################
 # TODO: What about the namespace ?
@@ -755,13 +757,14 @@ def OntologyClassKeys(entity_type):
 # Used for calling ArrayInfo. The order of arguments is strict.
 def EntityIdToArray( entity_type, entity_id ):
 	ontoKeys = OntologyClassKeys(entity_type)
+	sys.stderr.write("EntityIdToArray entity_type=%s entity_id=%s\n"%(entity_type,entity_id))
 	dictIds = SplitMoniker( entity_id )
 	# sys.stderr.write("EntityIdToArray dictIds=%s\n" % ( str(dictIds) ) )
 	# For the moment, this assumes that all keys are here.
 	# Later, drop this constraint and allow WQL queries.
 	try:
 		def DecodeCgiArg(aKey):
-			sys.stderr.write("DecodeCgiArg aKey=%s type=%s\n"%(aKey,type(aKey)))
+			sys.stderr.write("DecodeCgiArg aKey=%s type=%s dictIds=%s\n"%(aKey,type(aKey),str(dictIds)))
 			aValRaw = dictIds[ aKey ]
 			try:
 				valDecod = aKey.ValueDecode(aValRaw)
@@ -806,7 +809,7 @@ def AnyUriModed(script, otherMode):
 
 	if otherMode:
 		if mtch_url:
-			edtUrl = mtch_url.group(1) + "mode=" + otherMode + mtch_url.group(3)
+			edtUrl = mtch_url.group(1) + mtch_url.group(2) + "mode=" + otherMode + mtch_url.group(3)
 		else:
 			edtUrl = ConcatenateCgi( script, "mode=" + otherMode )
 	else:
@@ -946,7 +949,7 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 	# sys.stderr.write("HttpHeader:%s\n"%contentType)
 	# TODO: out_dest should always be the default output.
 
-	stri = "Content-Type: " + contentType + "\n"
+	stri = "Content-Type: " + contentType + "; charset=utf-8\n"
 	if extraArgs:
 		for linArg in extraArgs:
 			stri += linArg + "\n"

@@ -10,8 +10,6 @@ import lib_util
 from lib_properties import pc
 from sources_types import user as survol_user
 
-Usable = lib_util.UsableLinux
-
 # TODO: https://docs.python.org/2/library/pwd.html might be simpler.
 def Main():
 	cgiEnv = lib_common.CgiEnv()
