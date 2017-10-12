@@ -951,34 +951,42 @@ def GetCallingModuleDoc():
 		This is a global and can be fetched differently, if needed.
 		It returns the whole content.
 	"""
-	try:
-		# This does not work when in WSGI mode.
-		page_title = sys.modules['__main__'].__doc__
-		page_title = page_title.strip()
-		return page_title
-	except:
-		pass
 
-	try:
-		# This is a bit of a hack.
-		import inspect
-		frame=inspect.currentframe()
-		frame=frame.f_back.f_back
-		code=frame.f_code
-		filnamCaller = code.co_filename
-		filnamCaller = filnamCaller.replace("\\",".").replace("/",".")
-		filnamCaller = filnamCaller[:-3] # Strings ".py" at the end.
-		modulePrefix = "survol."
-		htbinIdx = filnamCaller.find(modulePrefix)
-		filnamCaller = filnamCaller[htbinIdx + len(modulePrefix):]
+	sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
 
-		# sys.stderr.write("filnamCaller=%s\n" % filnamCaller)
-		moduleCaller = sys.modules[filnamCaller]
-		return moduleCaller.__doc__
-	except:
-		exc = sys.exc_info()[1]
-		sys.stderr.write("Caught when setting title:%s\n"%str(exc))
-		return str(exc)
+	if globalMergeMode:
+		try:
+			# This is a bit of a hack.
+			import inspect
+			frame=inspect.currentframe()
+			frame=frame.f_back.f_back
+			code=frame.f_code
+			filnamCaller = code.co_filename
+			filnamCaller = filnamCaller.replace("\\",".").replace("/",".")
+			filnamCaller = filnamCaller[:-3] # Strings ".py" at the end.
+			modulePrefix = "survol."
+			htbinIdx = filnamCaller.find(modulePrefix)
+			filnamCaller = filnamCaller[htbinIdx + len(modulePrefix):]
+
+			sys.stderr.write("GetCallingModuleDoc  filnamCaller=%s\n" % filnamCaller)
+			moduleCaller = sys.modules[filnamCaller]
+			theDoc = moduleCaller.__doc__.strip()
+			sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
+			return theDoc
+		except:
+			exc = sys.exc_info()[1]
+			sys.stderr.write("GetCallingModuleDoc  Caught when setting title:%s\n"%str(exc))
+			return str(exc)
+	else:
+		try:
+			# This does not work when in WSGI mode, nor when merging.
+			sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
+			page_title = sys.modules['__main__'].__doc__
+			page_title = page_title.strip()
+			return page_title
+		except:
+			return "No doc"
+
 
 ################################################################################
 
@@ -1004,14 +1012,16 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	global globalCgiEnvList
 	global globalGraph
 
-	page_title = "Merge of %d scripts\n" % len(globalCgiEnvList)
+	page_title = "Merge of %d scripts:\n" % len(globalCgiEnvList)
 	delim_title = ""
 	layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
 	cgiParams = {}
 	for theCgiEnv in globalCgiEnvList:
-
+		# theCgiEnv.m_page_title contains just the first line.
 		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgiEnv.m_page_title)
-		page_title += delim_title + page_title_first + " (" + page_title_rest + ")"
+		page_title += delim_title + page_title_first
+		if page_title_rest:
+			page_title += " (" + page_title_rest + ")"
 		delim_title = ", "
 
 		layoutParams['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
@@ -1066,7 +1076,6 @@ class CgiEnv():
 		mode = GuessDisplayMode()
 
 		# Contains the optional arguments, needed by calling scripts.
-		# global globalCgiEnvParameters
 		self.m_parameters = parameters
 
 		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
@@ -1079,6 +1088,8 @@ class CgiEnv():
 
 		# Title page contains __doc__ plus object label.
 		callingUrl = lib_util.RequestUri()
+		self.m_calling_url = callingUrl
+		sys.stderr.write("CgiEnv m_page_title=%s m_calling_url=%s\n"%(self.m_page_title,self.m_calling_url))
 		parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False)
 		if parsedEntityUri[2]:
 			# If there is an object to display.
@@ -1382,6 +1393,8 @@ class CgiEnv():
 	# the unique generation of graphic data.
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 		global globalCgiEnvList
+		sys.stderr.write("OutCgiRdf globalMergeMode=%d len(globalCgiEnvList)=%d\n"%(globalMergeMode,len(globalCgiEnvList)))
+		sys.stderr.write("OutCgiRdf m_calling_url=%s m_page_title=%s\n"%(self.m_calling_url,self.m_page_title))
 
 		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
