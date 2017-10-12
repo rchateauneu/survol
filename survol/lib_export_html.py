@@ -22,7 +22,7 @@ def WrtAsUtf(str):
 	out_dest.write( str.encode('utf-8') )
 
 
-def WriteScriptInformation(topUrl,theCgi):
+def WriteScriptInformation(theCgi):
 	"""
 		This displays general information about this script and the object if there is one.
 	"""
@@ -31,21 +31,40 @@ def WriteScriptInformation(topUrl,theCgi):
 	# This is already called in lib_common, when creating CgiEnv.
 	# It does not matter because this is very fast.
 	callingUrl = lib_util.RequestUri()
-	parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
-	sys.stderr.write("parsedEntityUri=%s\n"%str(parsedEntityUri))
-	#if parsedEntityUri[2]:
-	#	# If there is an object to display.
-	#	# Practically, we are in the script "entity.py" and the single doc string is "Overview"
-	#	fullTitle = parsedEntityUri[0]
-	#else:
-	#	fullTitle = "NO TITLE"
-	fullTitle = parsedEntityUri[0]
-	WrtAsUtf('<h1>'+fullTitle+'</h1>')
+	( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
+	sys.stderr.write("entity_label=%s entity_graphic_class=%s entity_id=%s\n"%( entity_label, entity_graphic_class, entity_id ))
+
+	WrtAsUtf('<table class="list_of_merged_scripts">')
+	if len(lib_common.globalCgiEnvList):
+		sys.stderr.write("lib_common.globalCgiEnvList=%s\n"%str(lib_common.globalCgiEnvList))
+		# This step is dedicated to the merging of several scripts.
+
+		WrtAsUtf("<tr align=left><td colspan=2 align=left><b>Merge of %d scripts</b></td></tr>"%len(lib_common.globalCgiEnvList))
+		for aCgiEnv in lib_common.globalCgiEnvList:
+			sys.stderr.write("aCgiEnv=%s\n"%str(aCgiEnv))
+			sys.stderr.write("aCgiEnv.m_page_title=%s\n"%str(aCgiEnv.m_page_title))
+			sys.stderr.write("aCgiEnv.m_calling_url=%s\n"%str(aCgiEnv.m_calling_url))
+			(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(aCgiEnv.m_page_title)
+			WrtAsUtf("<tr><td><a href='%s'>%s</td><td><i>%s</i></td></tr>"%(aCgiEnv.m_calling_url,page_title_first,page_title_rest))
+
+
+		# Voir theCgiEnv.m_page_title dans MergeOutCgiRdf()
+		# On pourrait lister les scripts mais ce serait aussi interessant de le faire en mode SVG,
+		# dans la legende.
+	else:
+		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgi.m_page_title)
+		WrtAsUtf("<tr><td colspan=2>%s</td></tr>"%(page_title_first))
+		if page_title_rest:
+			WrtAsUtf("<tr><td colspan=2>%s</td></tr>"%(page_title_rest))
+		#WrtAsUtf("<tr align=left><td colspan=2 align=left><b>%s</b></td></tr>"%theCgi.m_page_title.strip())
+
+	WrtAsUtf('</table>')
 
 	# This is the entire content, not only the first line.
-	theDoc = lib_common.GetCallingModuleDoc()
-	theDoc = theDoc.replace("\n","<br>")
-	WrtAsUtf('<i><h2>%s</h2></i>'%(theDoc))
+	#theDoc = lib_common.GetCallingModuleDoc()
+	#theDoc = theDoc.replace("\n","<br>")
+	#WrtAsUtf('<i><h2>NON  C ESR PAS LE BON %s</h2></i>'%(theDoc))
+	#WrtAsUtf('<i><h2>NON  C ESR PAS LE BON %s</h2></i>'%(theCgi.m_page_title))
 
 	if theCgi.m_entity_type:
 		# WrtAsUtf('m_entity_id: %s<br>'%(theCgi.m_entity_id))
@@ -58,14 +77,16 @@ def WriteScriptInformation(topUrl,theCgi):
 			entDoc = ""
 		# WrtAsUtf('Module class: %s: %s<br>'%(theCgi.m_entity_type,entDoc))
 
+		urlClass = lib_util.EntityClassUrl(theCgi.m_entity_type)
+
 		WrtAsUtf(
 		"""
 		<tr>
-			<td>%s</td>
+			<td><a href='%s'>%s</a></td>
 			<td>%s</td>
 		</tr>
 		"""
-		% ( theCgi.m_entity_type, entDoc ))
+		% ( urlClass, theCgi.m_entity_type, entDoc ))
 
 		for keyProp in theCgi.m_entity_id_dict:
 			keyVal = theCgi.m_entity_id_dict[keyProp]
@@ -105,12 +126,17 @@ def WriteParameters(parameters):
 
 	WrtAsUtf('</table>')
 
-def WriteOtherUrls():
+def WriteOtherUrls(topUrl):
 	"""
 		This displays the URL to view the same document, in other ouput formats.
 	"""
 
 	WrtAsUtf('<table class="other_urls">')
+
+	if topUrl:
+		WrtAsUtf("""
+		<tr><td align="left" colspan="2"><a href="%s"><b>Home</b></a></td></tr>
+		""" % topUrl )
 
 	WrtAsUtf("""
 	<tr>
@@ -255,15 +281,16 @@ def WriteScriptsTree(theCgi):
 
 
 def WriteErrors(error_msg,isSubServer):
-	if (error_msg != None) or isSubServer:
+	if error_msg or isSubServer:
 		# TODO: Use style-sheets.
 		WrtAsUtf('<table border="0">')
 
-		if error_msg != None:
-			WrtAsUtf('<tr><td colspan="3" bgcolor="#DDDDDD"><b>' + error_msg + '</b></td></tr>')
+		if error_msg:
+			WrtAsUtf('<tr><td bgcolor="#DDDDDD" align="center" color="#FF0000"><b></b></td></tr>')
+			WrtAsUtf('<tr><td bgcolor="#DDDDDD"><b>ERROR MESSAGE:%s</b></td></tr>' % error_msg)
 
 		if isSubServer:
-			WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>')
+			WrtAsUtf('<tr><td><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>')
 		WrtAsUtf( " </table><br>")
 
 
@@ -415,23 +442,26 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 
 	WrtAsUtf('<body>')
 
-	WriteScriptInformation(topUrl,theCgi)
+	WriteScriptInformation(theCgi)
 
 	WriteErrors(error_msg,isSubServer)
 
 	WrtAsUtf("<h2/>Objects<h2/>")
 	WriteAllObjects(grph)
 
+	if len(parameters) > 0:
+		WrtAsUtf("<h2/>Script parameters<h2/>")
+		WriteParameters(parameters)
+
+	WrtAsUtf("<h2/>Other related urls<h2/>")
+	WriteOtherUrls(topUrl)
+
 	# Scripts do not apply when displaying a class.
+	# TODO: When in a enumerate script such as enumerate_CIM_LogicalDisk.py,
+	# it should assume the same: No id but a class.
 	if(theCgi.m_entity_type == "") or (theCgi.m_entity_id!=""):
-		WrtAsUtf("<h2/>Related scripts<h2/>")
+		WrtAsUtf("<h2/>Related data scripts<h2/>")
 		WriteScriptsTree(theCgi)
-
-	WrtAsUtf("<h2/>Script parameters<h2/>")
-	WriteParameters(parameters)
-
-	WrtAsUtf("<h2/>Other urls related to this object<h2/>")
-	WriteOtherUrls()
 
 	WrtAsUtf("</body>")
 
