@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Merge data from several sources
+"""
+
 import os
 import sys
 import time
@@ -37,7 +41,6 @@ for urlfil in arguments.getlist("url"):
 	# for compatibility with test scripts.
 
 	# "survol/sources_types/enumerate_CIM_Process.py?xid=."
-	complete_url = urlfil
 	complete_url = lib_util.Base64Decode(urlfil)
 
 	sys.stderr.write("complete_url=%s\n"%complete_url)
@@ -56,8 +59,9 @@ for urlfil in arguments.getlist("url"):
 	idxHtbin = urlNoArgs.find(urlPrefix)
 	if idxHtbin == -1:
 		sys.stderr.write("merge: SHOULD NOT HAPPEN url=%s\n"%complete_url)
-	# urlPathShort = urlNoArgs[idxHtbin+len(urlPrefix):]
-	urlPathShort = urlNoArgs[idxHtbin:]
+		urlPathShort = "INVALID_MERGED_URL"
+	else:
+		urlPathShort = urlNoArgs[idxHtbin:]
 
 	urlDirNam = os.path.dirname(urlPathShort)
 	moduNam = urlDirNam.replace("/",".")
@@ -89,7 +93,7 @@ for urlfil in arguments.getlist("url"):
 		errorMsg = sys.exc_info()[1]
 		sys.stderr.write("Caught %s when executing Main in moduNam=%s urlFilNam=%s\n"%(errorMsg,moduNam,urlFilNam))
 		if cumulatedError != "":
-			cumulatedError += ", "
+			cumulatedError += " ; "
 		cumulatedError += urlFilNam + ":" + str(errorMsg)
 
 		continue
