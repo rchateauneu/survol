@@ -65,3 +65,11 @@ table.table_scripts_links {
     background-color: lightgrey;
     border-collapse: collapse;
 }
+
+.list_of_merged_scripts {
+    color: navy;
+    background-color: lightgrey;
+    border-collapse: collapse;
+    font-size: 150%;
+    margin-left: 20px;
+}
