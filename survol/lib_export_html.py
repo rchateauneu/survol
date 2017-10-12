@@ -111,14 +111,14 @@ def WriteParameters(parameters):
 	"""
 	WrtAsUtf('<table class="table_script_parameters">')
 
-	WrtAsUtf('<tr><td colspan="3"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
+	WrtAsUtf('<tr><td colspan="2"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
 
 	for keyParam,valParam in parameters.items():
 		WrtAsUtf(
 		"""
 		<tr>
+			<td><b>%s</b></td>
 			<td>%s</td>
-			<td colspan="2">%s</td>
 		</tr>
 		"""
 		% ( keyParam, str(valParam) ))
@@ -310,7 +310,14 @@ def WriteAllObjects(grph):
 	for aSubj, aPred, anObj in grph:
 		# No point displaying some keys if there is no value.
 		if aPred == pc.property_information :
-			if str(anObj) == "":
+			try:
+				if str(anObj) == "":
+					continue
+			# 'ascii' codec can't encode character u'\xf3' in position 17: ordinal not in range(128)
+			# u'SDK de comprobaci\xf3n de Visual Studio 2012 - esn'
+			except UnicodeEncodeError:
+				exc = sys.exc_info()[1]
+				sys.stderr.write("Exception %s\n"%str(exc))
 				continue
 
 		subj_str = str(aSubj)
