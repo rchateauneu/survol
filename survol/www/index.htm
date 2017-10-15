@@ -2076,6 +2076,12 @@ function openRequestedPopup() {
 
 function openPrintLayout() {
     var urlPrintLayout = ConcatenateMergeUrl(lstLoadedUrls,"");
+    if( location.href.indexOf("primhillcomputers.com") > 0 )
+    {
+        // This is because graphviz does not run on OVH hosting, for the moment.
+        alert("SVG display and Graphviz not yet available on this platform");
+        return false;
+    }
     location.href = urlPrintLayout;
 }
 
