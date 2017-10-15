@@ -123,10 +123,10 @@ scripts_to_titles = {
 	"class_type_all.py": "Generic class",
 	"file_directory.py": "Directory content",
 	"objtypes.py": "Classes hierarchy",
-	"objtypes_wbem.py": "WBEM subclasses of ",
-	"objtypes_wmi.py": "WMI subclasses of ",
-	"namespaces_wbem.py": "WBEM namespaces ",
-	"namespaces_wmi.py": "WMI namespaces ",
+	"objtypes_wbem.py": "WBEM subclasses",
+	"objtypes_wmi.py": "WMI subclasses",
+	"namespaces_wbem.py": "WBEM namespaces",
+	"namespaces_wmi.py": "WMI namespaces",
 	"entity.py":"",
 	"entity_wbem.py":"WBEM",
 	"entity_wmi.py":"WMI",
@@ -179,7 +179,7 @@ def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
 		entity_label = filScript + "..."
 
 	if entity_suffix:
-		entity_label += " "+ entity_suffix
+		entity_label = entity_suffix + " ("+ entity_label+")"
 
 	# Maybe hostname is a CIMOM address.
 	if entity_host:
