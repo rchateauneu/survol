@@ -112,27 +112,6 @@ def EntityToLabel(entity_type,entity_ids_concat, entity_host):
 
 	return entity_label
 
-
-# TODO: Hard-coded but OK for the moment.
-# Use the "__doc__" string in each file.
-scripts_to_titles = {
-	"portal_wbem.py": "WBEM server ",
-	"portal_wmi.py": "WMI server ",
-	"class_wbem.py": "WBEM class",
-	"class_wmi.py": "WMI class",
-	"class_type_all.py": "Generic class",
-	"file_directory.py": "Directory content",
-	"objtypes.py": "Classes hierarchy",
-	"objtypes_wbem.py": "WBEM subclasses",
-	"objtypes_wmi.py": "WMI subclasses",
-	"namespaces_wbem.py": "WBEM namespaces",
-	"namespaces_wmi.py": "WMI namespaces",
-	"entity.py":"",
-	"entity_wbem.py":"WBEM",
-	"entity_wmi.py":"WMI",
-	"file_to_mime.py":"Mime display"
-}
-
 # Called when using the specific CGI script.
 def ParseEntitySurvolUri(uprs,longDisplay):
 	# sys.stderr.write("KnownScriptToTitle filScript=%s uprs=%s\n"%(filScript,str(uprs)))
@@ -168,18 +147,39 @@ def ParseEntitySurvolUri(uprs,longDisplay):
 		return ( "Incomplete CGI script:"+str(uprs), "Unknown subjEntityGraphicClass", "Unknown entity_id" )
 
 
+# TODO: Hard-coded but OK for the moment.
+# Use the "__doc__" string in each file.
+scripts_to_titles = {
+	"portal_wbem.py": "WBEM server ",
+	"portal_wmi.py": "WMI server ",
+	"class_wbem.py": "WBEM class",
+	"class_wmi.py": "WMI class",
+	"class_type_all.py": "Generic class",
+	"file_directory.py": "Directory content",
+	"objtypes.py": "Classes hierarchy",
+	"objtypes_wbem.py": "WBEM subclasses",
+	"objtypes_wmi.py": "WMI subclasses",
+	"namespaces_wbem.py": "WBEM namespaces",
+	"namespaces_wmi.py": "WMI namespaces",
+	"entity.py":"",
+	"entity_wbem.py":"WBEM",
+	"entity_wmi.py":"WMI",
+	"file_to_mime.py":"Mime display"
+}
 
 def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
 	# Extra information depending on the script.
 	filScript = os.path.basename(uprs.path)
 	try:
-		extra_title = scripts_to_titles[ filScript ]
-		entity_label = extra_title
+		entity_label = scripts_to_titles[ filScript ]
 	except KeyError:
 		entity_label = filScript + "..."
 
 	if entity_suffix:
-		entity_label = entity_suffix + " ("+ entity_label+")"
+		if entity_label:
+			entity_label = entity_suffix + " ("+ entity_label+")"
+		else:
+			entity_label = entity_suffix
 
 	# Maybe hostname is a CIMOM address.
 	if entity_host:
