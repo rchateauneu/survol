@@ -469,7 +469,7 @@ def ParseXid(xid ):
 		ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
 		ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
 	"""
-	sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
+	# sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
 
 	# First, we try to match our terminology.
 	# The type can be in several directories separated by slashes: "oracle/table"
