@@ -21,6 +21,9 @@ def GetMacVendor(macAddress):
 		It returns something like: "Hewlett Packard"|"B0:5A:DA"|"11445 Compaq Center Drive,Houston 77070,US"|"B05ADA000000"|"B05ADAFFFFFF"|"US"|"MA-L"
 	"""
 	urlMac = "https://macvendors.co/api/%s/pipe" % macAddress
+	if macAddress in ["","FF-FF-FF-FF-FF-FF"]:
+		return None
+
 	try:
 		#sys.stderr.write("urlMac=%s\n"%urlMac)
 
@@ -39,7 +42,7 @@ def GetMacVendor(macAddress):
 		exc = sys.exc_info()[1]
 		#sys.stderr.write("Caught %s\n"%str(exc))
 		# Any error returns a none strng: Thisinformation is not that important.
-		return None
+		return "Cannot determine vendor"
 
 # TODO: Add an option to make it asynchronous or synchronous or without DNS.
 # Otherwise we must maintain several versions.
@@ -59,8 +62,12 @@ class LookupThread(threading.Thread):
 		threading.Thread.__init__(self)
 
 	def run(self):
-
-		hstAddr, hostName, aliases = lib_arp.GetArpHostAliases(self.linSplit)
+		hstAddr, hostName, aliases = lib_arp.GetArpHostAliases(self.linSplit[0])
+		topDig = hstAddr.split(".")[0]
+		macAddress = self.linSplit[1].upper()
+		ncCompany = GetMacVendor(macAddress)
+		arpType = self.linSplit[2]
+		hostItf = self.linSplit[3].split()
 
 		# Now we create a node in rdflib, and we need a mutex for that.
 		with self.grph_lock:
@@ -68,14 +75,14 @@ class LookupThread(threading.Thread):
 				lstIpAddrs = self.map_hostnames_ipcount[hostName]
 
 				if hstAddr in lstIpAddrs:
-					sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s AGAIN num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
+					#sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s AGAIN num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
 					return
 
 				lstIpAddrs.add(hstAddr)
 				labelExt = "_%d" % len(lstIpAddrs)
-				sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s OTHER num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
+				#sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s OTHER num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
 			except KeyError:
-				sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s FIRST num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
+				#sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s FIRST num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
 				self.map_hostnames_ipcount[hostName] = {hstAddr}
 				labelExt = ""
 
@@ -83,25 +90,19 @@ class LookupThread(threading.Thread):
 			if hstAddr != hostName:
 				self.grph.add( ( hostNode, lib_common.MakeProp("IP address"+labelExt), lib_common.NodeLiteral(hstAddr) ) )
 
-			topDig = hstAddr.split(".")[0]
 			if topDig == "224":
 				# TODO: Check multicast detection.
 				self.grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral("Multicast") ) )
 			else:
-				macAddress = self.linSplit[1].upper()
-				if macAddress not in ["","FF-FF-FF-FF-FF-FF"]:
+				if ncCompany:
 					self.grph.add( ( hostNode, lib_common.MakeProp("MAC"+labelExt), lib_common.NodeLiteral(macAddress) ) )
-					ncCompany = GetMacVendor(macAddress)
-					if ncCompany:
-						self.grph.add( ( hostNode, lib_common.MakeProp("Vendor"+labelExt), lib_common.NodeLiteral(ncCompany) ) )
+					self.grph.add( ( hostNode, lib_common.MakeProp("Vendor"+labelExt), lib_common.NodeLiteral(ncCompany) ) )
 
 			# static/dynamic
-			arpType = self.linSplit[2]
 			if arpType != "":
 				self.grph.add( ( hostNode, lib_common.MakeProp("ARP_type"), lib_common.NodeLiteral(arpType) ) )
 
 			# TODO: Create network interface class.
-			hostItf = self.linSplit[3].split()
 			if hostItf:
 				self.grph.add( ( hostNode, lib_common.MakeProp("Interface"), lib_common.NodeLiteral(hostItf) ) )
 
@@ -117,7 +118,15 @@ def Main():
 
 	lookup_threads = []
 
+	setIps = set()
+
 	for linSplit in lib_arp.GetArpEntries():
+		ipAddr = linSplit[0]
+		# Remove possible duplicates.
+		if ipAddr in setIps:
+			continue
+		setIps.add(ipAddr)
+		sys.stderr.write("linSplit=%s\n"%str(linSplit))
 		thr = LookupThread( linSplit, grph, grph_lock, map_hostnames_ipcount )
 		thr.start()
 		lookup_threads.append( thr )
