@@ -40,10 +40,10 @@ def DrawFromThisBase(rootNode, wmiNamespace, cimomUrl,clsNam,grph,clsDeriv):
 
 	# The class is the starting point when displaying the class tree of the namespace.
 	wmiNodeSub = WmiNamespaceNode(wmiNamespace, cimomUrl,clsNam)
-	grph.add( ( wmiNode, pc.property_rdf_data_nolist1, lib_common.NodeLiteral(wmiNodeSub) ) )
+	grph.add( ( wmiNode, pc.property_rdf_data_nolist1, wmiNodeSub ) )
 
 	nodeGeneralisedClass = lib_util.EntityClassNode(clsNam,wmiNamespace,cimomUrl,"WMI")
-	grph.add( ( wmiNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(nodeGeneralisedClass) ) )
+	grph.add( ( wmiNode, pc.property_rdf_data_nolist2, nodeGeneralisedClass) )
 
 	doneNode.add( clsNam )
 
@@ -127,7 +127,7 @@ def Main():
 	# grph.add( ( rootNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(rootNodeNameSpace) ) )
 	# def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
 	rootGeneralisedClass = lib_util.EntityClassNode(entity_type,wmiNamespace,cimomUrl,"WMI")
-	grph.add( ( rootNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(rootGeneralisedClass) ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, rootGeneralisedClass ) )
 
 	# CA MARCHE PAS QUAND ON VIENT D ICI:
 	# http://127.0.0.1/Survol/survol/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_LogicalDevice.

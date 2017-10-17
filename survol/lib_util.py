@@ -352,26 +352,19 @@ def EntHostToIpReally(entity_host):
 	except Exception:
 		return hostOnly
 
-# BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
-# TODO: Should also parse the namespace.
-# TODO: Faudrait savoir, avec ou sans le prop=val ???
-# ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
-# ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
-def ParseXid(xid ):
-	# sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
+################################################################################
 
-	# First, we try to match our terminology.
-	# The type can be in several directories separated by slashes: "oracle/table"
-	# If suffixed with "/", it means namespaces.
-
-	# A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
-	# "WORKGROUP\RCHATEAU-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
-	# "WORKGROUP\RCHATEAU-HP@oracle/table.Name=MY_TABLE"
-	# BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
-	# that is "http://192.168.1.83:5988/."
-	# mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_/]*)\.(.*)", xid )
-	# Une classe commence par une lettre, pas de / consecutifs.
-	# TODO: Filter when consecutives slashes.
+def ParseXidLocal(xid ):
+	"""
+		A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
+		"WORKGROUP\RCHATEAU-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
+		"WORKGROUP\RCHATEAU-HP@oracle/table.Name=MY_TABLE"
+		BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
+		that is "http://192.168.1.83:5988/."
+		mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_/]*)\.(.*)", xid )
+		A class name starts with a letter. There are no consecutives slashes "/".
+		TODO: Filter when consecutives slashes.
+	"""
 	mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-zA-Z_][a-z0-9A-Z_/]*)\.(.*)", xid )
 
 	if mtch_entity:
@@ -388,21 +381,31 @@ def ParseXid(xid ):
 
 		return ( entity_type, entity_id, entity_host )
 
-	# Apparently it is not a problem for the plain old entities.
-	xid = unquote(xid)
+	return None
 
-	# WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
-	# Beware ! On Windows, namespaces are separated by backslashes.
-	# WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
-	# http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2\Applications%3A.
-	# http://127.0.0.1:8000/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
-	# http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
-	# TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
-	# TODO: otherwise graphviz replace "\L" par "<TABLE">
-	mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
+def ParseXidWMI(xid ):
+	"""
+		WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+		Beware ! On Windows, namespaces are separated by backslashes.
+		WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+		http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2\Applications%3A.
+		http://127.0.0.1:8000/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
+		http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
+		TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
+		TODO: otherwise graphviz replace "\L" par "<TABLE">
+	"""
+
+	# This matches for example 'root\cimv2:Win32_Process.Handle="0"'
+	wmi_regex_local_part = r"([a-zA-Z0-9_]+)\\([^.]*)(\..*)"
+
+	# mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
+	mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\" + wmi_regex_local_part, xid )
 	if mtch_ent_wmi:
 		grp = mtch_ent_wmi.groups()
-		( entity_host, entity_type, entity_id_quoted ) = grp
+		entity_host = grp[0]
+		entity_type = grp[1] + "\\" + grp[2]
+		entity_id_quoted = grp[3]
+		# ( entity_host, entity_type, entity_id_quoted ) = grp
 		if entity_id_quoted is None:
 			entity_id = ""
 			# sys.stderr.write("WMI Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
@@ -413,10 +416,33 @@ def ParseXid(xid ):
 
 		return ( entity_type, entity_id, entity_host )
 
-	# WBEM: https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
-	#       http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate
-	#		"http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
-	#		"xid=http://192.168.1.88:5988/."
+	# WMI : Maybe the host is missing, and implicitely the local machine.
+	# http://127.0.0.1:8000/survol/class_type_all.py?xid=root\CIMV2:Win32_Process.
+	mtch_ent_wmi = re.match( wmi_regex_local_part, xid )
+	if mtch_ent_wmi:
+		grp = mtch_ent_wmi.groups()
+		entity_host = ""
+		entity_type = grp[0] + "\\" + grp[1]
+		entity_id_quoted = grp[2]
+		if entity_id_quoted is None:
+			entity_id = ""
+			# sys.stderr.write("WMI Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
+		else:
+			# Remove the dot which comes after the class name.
+			entity_id = unquote(entity_id_quoted)[1:]
+			# sys.stderr.write("WMI Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
+
+		return ( entity_type, entity_id, entity_host )
+
+	return None
+
+def ParseXidWBEM(xid ):
+	"""
+		https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
+		http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate
+		"http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
+		"xid=http://192.168.1.88:5988/."
+	"""
 	mtch_ent_wbem = re.match( "(https?://[^/]*)/([^.]*)(\..*)?", xid )
 	if mtch_ent_wbem:
 		#sys.stderr.write("mtch_ent_wbem\n")
@@ -433,8 +459,41 @@ def ParseXid(xid ):
 
 		return ( entity_type, entity_id, entity_host )
 
+	return None
+
+def ParseXid(xid ):
+	"""
+		BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
+		TODO: Should also parse the namespace.
+		TODO: Faudrait savoir, avec ou sans le prop=val ???
+		ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
+		ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
+	"""
+	# sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
+
+	# First, we try to match our terminology.
+	# The type can be in several directories separated by slashes: "oracle/table"
+	# If suffixed with "/", it means namespaces.
+
+	entity_triplet = ParseXidLocal(xid )
+	if entity_triplet:
+		return entity_triplet
+
+	# Apparently it is not a problem for the plain old entities.
+	xid = unquote(xid)
+
+	entity_triplet = ParseXidWMI(xid )
+	if entity_triplet:
+		return entity_triplet
+
+	entity_triplet = ParseXidWBEM(xid )
+	if entity_triplet:
+		return entity_triplet
+
 	# sys.stderr.write( "ParseXid=%s RETURNS NOTHING\n" % (xid) )
 	return ( "", "", "" )
+
+################################################################################
 
 # TODO: Would probably be faster by searching for the last "/".
 # MUST BE VERY FAST.

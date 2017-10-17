@@ -222,7 +222,11 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
+	try:
+		connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Cannot connect to WMI server %s with namespace %s: %s" % ( cimomUrl,nameSpace, str(exc) ) )
 
 	# Try to read the moniker, which is much faster,
 	# but it does not always work if we do not have all the properties.
@@ -272,6 +276,9 @@ def Main():
 	# 'Antecedent' for 'CIM_DataFile'
 	cgiEnv.OutCgiRdf("LAYOUT_TWOPI",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
 	# cgiEnv.OutCgiRdf("LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+
+# TODO: Must add a link to our URL, entity.py etc...
+# TODO: Must also add a link to associators.
 
 if __name__ == '__main__':
 	Main()

@@ -24,7 +24,6 @@ def GetArpEntriesWindows():
 
 	( arp_last_output, arp_err ) = arp_pipe.communicate()
 
-	# TODO/ Should be a generator !
 	# Converts to string for Python3.
 	asstr = arp_last_output.decode("utf-8")
 	lines = asstr.split('\n')
@@ -97,10 +96,8 @@ def GetArpEntries():
 
 	lib_common.ErrorMessageHtml("Undefined platform:"+sys.platform)
 
-
-
-def GetArpHostAliases(linSplit):
-	hstAddr = linSplit[0]
+def GetArpHostAliases(hstAddr):
+	"""This must be thread-safe"""
 	try:
 		hostName, aliases, _ = socket.gethostbyaddr(hstAddr)
 	except socket.herror:
