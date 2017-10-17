@@ -439,10 +439,16 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	WrtAsUtf( "<title>" + page_title + "</title>")
 
 	# The href must be absolute so it will work with any script.
-	# However we must calculate its prefix.
+	# We must calculate its prefix.
+	# In the mean time, this solution adapts to our three kind of different hosting types:
+	# - OVH mutialised hosting, with a specific CGI script survol.cgi
+	# - With the Python class HttpServer as Web server.
+	# - Hosted with Apache.
 	WrtAsUtf(
 		"""
+		<link rel='stylesheet' type='text/css' href=/ui/css/html_exports.css>
 		<link rel='stylesheet' type='text/css' href='/survol/www/css/html_exports.css'>
+		<link rel='stylesheet' type='text/css' href='../survol/www/css/html_exports.css'>
 		""")
 
 	WrtAsUtf('</head>')
