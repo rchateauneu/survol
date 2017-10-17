@@ -954,7 +954,9 @@ def GetCallingModuleDoc():
 
 	sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
 
-	if globalMergeMode:
+	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
+
+	if True or globalMergeMode:
 		try:
 			# This is a bit of a hack.
 			import inspect
@@ -968,24 +970,37 @@ def GetCallingModuleDoc():
 			htbinIdx = filnamCaller.find(modulePrefix)
 			filnamCaller = filnamCaller[htbinIdx + len(modulePrefix):]
 
-			sys.stderr.write("GetCallingModuleDoc  filnamCaller=%s\n" % filnamCaller)
-			moduleCaller = sys.modules[filnamCaller]
+			# Even more hacky, just for OVH hosting.
+			if modeOVH:
+				# Then it starts again with "survol."
+				filnamCaller = filnamCaller[ len(modulePrefix): ]
+			sys.stderr.write("GetCallingModuleDoc filnamCaller=%s\n" % filnamCaller)
+			try:
+				moduleCaller = sys.modules[filnamCaller]
+			except:
+				return filnamCaller + ":No doc"
+
 			theDoc = moduleCaller.__doc__.strip()
 			sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
 			return theDoc
 		except:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("GetCallingModuleDoc  Caught when setting title:%s\n"%str(exc))
-			return str(exc)
+			sys.stderr.write("GetCallingModuleDoc Caught when getting doc:%s\n"%str(exc))
+			return "Caught when getting doc:"+str(exc)
 	else:
 		try:
 			# This does not work when in WSGI mode, nor when merging.
-			sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
-			page_title = sys.modules['__main__'].__doc__
-			page_title = page_title.strip()
-			return page_title
+			mainModu = sys.modules['__main__']
+			sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% mainModu.__name__ )
+			page_title = mainModu.__doc__
+			if page_title:
+				page_title = page_title.strip()
+				return page_title
+			else:
+				return "No doc"
 		except:
-			return "No doc"
+			exc = sys.exc_info()[1]
+			return "GetCallingModuleDoc (Caught %s)" % str(exc)
 
 
 ################################################################################
