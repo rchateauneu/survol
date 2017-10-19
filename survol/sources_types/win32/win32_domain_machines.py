@@ -16,9 +16,6 @@ import win32net
 import pywintypes
 
 def Main():
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
-
 	cgiEnv = lib_common.CgiEnv()
 
 	grph = cgiEnv.GetGraph()

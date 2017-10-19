@@ -1,1 +1,4 @@
-__author__ = 'rchateau'
+import lib_util
+
+# Necessary otherwise it is displayed on Linux machines.
+Usable = lib_util.UsableWindows

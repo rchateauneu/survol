@@ -13,6 +13,8 @@ import entity_dirmenu_only
 import lib_properties
 from lib_properties import pc
 
+def UrlInHtmlMode(anUrl):
+	return lib_util.ConcatenateCgi( anUrl, "mode=html" )
 
 # Needed because of sockets.
 def WrtAsUtf(str):
@@ -75,10 +77,9 @@ def WriteScriptInformation(theCgi):
 		entDoc = entity_module.__doc__
 		if not entDoc:
 			entDoc = ""
-		# WrtAsUtf('Module class: %s: %s<br>'%(theCgi.m_entity_type,entDoc))
 
 		urlClass = lib_util.EntityClassUrl(theCgi.m_entity_type)
-
+		urlClass_with_mode = UrlInHtmlMode( urlClass )
 		WrtAsUtf(
 		"""
 		<tr>
@@ -86,7 +87,7 @@ def WriteScriptInformation(theCgi):
 			<td>%s</td>
 		</tr>
 		"""
-		% ( urlClass, theCgi.m_entity_type, entDoc ))
+		% ( urlClass_with_mode, theCgi.m_entity_type, entDoc ))
 
 		for keyProp in theCgi.m_entity_id_dict:
 			keyVal = theCgi.m_entity_id_dict[keyProp]
@@ -134,9 +135,10 @@ def WriteOtherUrls(topUrl):
 	WrtAsUtf('<table class="other_urls">')
 
 	if topUrl:
+		topUrl_with_mode = UrlInHtmlMode( topUrl )
 		WrtAsUtf("""
 		<tr><td align="left" colspan="2"><a href="%s"><b>Home</b></a></td></tr>
-		""" % topUrl )
+		""" % topUrl_with_mode )
 
 	WrtAsUtf("""
 	<tr>
@@ -236,7 +238,7 @@ def WriteScriptsTree(theCgi):
 			subj_str = str(subj)
 			WrtAsUtf("<td rowspan='%d'>"%len(mapProps))
 			if lib_kbase.IsLink( subj ):
-				url_with_mode = lib_util.ConcatenateCgi( subj_str, "mode=html" )
+				url_with_mode = UrlInHtmlMode( subj_str )
 				WrtAsUtf( '<a href="' + url_with_mode + '">' + subj_uniq_title + "</a>")
 			else:
 				WrtAsUtf( subj_str )
@@ -293,6 +295,8 @@ def WriteErrors(error_msg,isSubServer):
 			WrtAsUtf('<tr><td><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>')
 		WrtAsUtf( " </table><br>")
 
+# Quand les objects ont les memes colonnes, on pourrait afficher simplement une seule table
+# au lieu de repeter les memes libelles.
 
 def WriteAllObjects(grph):
 	"""
@@ -349,10 +353,9 @@ def WriteAllObjects(grph):
 
 	for entity_graphic_class in dictClassSubjPropObj:
 
-		# EntityClassUrl(entity_graphic_class, entity_namespace = "", entity_host = "", category = ""):
 		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
-
-		WrtAsUtf("<h3/>Class <a href='%s'>%s</a><h2/>"%(urlClass,entity_graphic_class))
+		urlClass_with_mode = UrlInHtmlMode( urlClass )
+		WrtAsUtf("<h3/>Class <a href='%s'>%s</a><h2/>"%(urlClass_with_mode,entity_graphic_class))
 		dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
 
 		DispClassObjects(dictSubjPropObj)
@@ -393,9 +396,10 @@ def DispClassObjects(dictSubjPropObj):
 				WrtAsUtf( '<tr bgcolor="' + colorClass + '">' )
 
 				if mustWriteColOneSubj:
+					subj_str_with_mode = UrlInHtmlMode( subj_str )
 					WrtAsUtf(
 						'<td rowspan="' + str(cntPreds) + '">'
-						+'<a href="' + subj_str + '">'+ subj_title + "</a>"
+						+'<a href="' + subj_str_with_mode + '">'+ subj_title + "</a>"
 						# + " (" + entity_graphic_class + ")"
 						+ "</td>")
 					mustWriteColOneSubj = False
@@ -415,7 +419,7 @@ def DispClassObjects(dictSubjPropObj):
 
 				if lib_kbase.IsLink( anObj ):
 					obj_title = lib_naming.ParseEntityUri(obj_str)[0]
-					url_with_mode = lib_util.ConcatenateCgi( obj_str, "mode=html" )
+					url_with_mode = UrlInHtmlMode( obj_str )
 					WrtAsUtf( '<td colSpan="%d"><a href="%s">%s</a></td>' % (colSpan,url_with_mode,obj_title))
 				else:
 					WrtAsUtf( '<td colspan="%d">%s</td>' %(colSpan,obj_str))

@@ -20,11 +20,7 @@ from itertools import count
 UID_BUFFER_SIZE = 39
 ERROR_NO_MORE_ITEMS = 259
 
-# Necessary otherwise it is displayed on Linux machines,
-# as it does not import any Windows-specific module.
-Usable = lib_util.UsableWindows
-
-# Meme chose que enumerate.user.py mais ca permettra plus facilement de s'affranchir de psutil.
+# Similar to enumerate_user.py but uses less the module psutil.
 
 # http://stackoverflow.com/questions/2077902/proper-reliable-way-to-get-all-installed-windows-programs-in-python
 # Not used yet, very slow.
