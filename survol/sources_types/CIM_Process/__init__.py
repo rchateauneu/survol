@@ -62,6 +62,11 @@ def EntityName(entity_ids_arr,entity_host):
 		return "Invalid pid:("+entity_id+")"
 	# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
 
+def AddLinuxCGroup(node,grph):
+	if not lib_util.LinuxPlatform:
+		return
+
+	# cat /proc/self/cgroup
 
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
@@ -93,6 +98,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		# TODO: Should add the hostname to the user ???
 		user_name_host = lib_common.FormatUser( user_name )
 		user_node = lib_common.gUriGen.UserUri(user_name_host)
+		sys.stderr.write("================== user_node=%s\n"%str(user_node))
 		grph.add( ( node, pc.property_user, user_node ) )
 
 		szResidSetSz = PsutilResidentSetSize(proc_obj)
@@ -100,6 +106,8 @@ def AddInfo(grph,node,entity_ids_arr):
 
 		szVirstMemSz = PsutilVirtualMemorySize(proc_obj)
 		grph.add( ( node, lib_common.MakeProp("Virtual Memory Size"), lib_common.NodeLiteral(szVirstMemSz) ) )
+
+		AddLinuxCGroup(node,grph)
 
 		# TODO: Add the current directory of the process ?
 
