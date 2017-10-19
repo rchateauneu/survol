@@ -15,3 +15,6 @@ def EntityOntology():
 def EntityName(entity_ids_arr,entity_host):
 	entity_id = entity_ids_arr[0]
 	return entity_id
+
+def MakeUri(cgroupNam):
+	return lib_common.gUriGen.UriMakeFromDict("Linux/cgroup",{ "Name":cgroupNam })
