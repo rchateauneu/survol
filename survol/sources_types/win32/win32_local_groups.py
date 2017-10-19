@@ -18,9 +18,6 @@ from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
-
 	grph = cgiEnv.GetGraph()
 
 	# TODO: Try this on a remote machine.

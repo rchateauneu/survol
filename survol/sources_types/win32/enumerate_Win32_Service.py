@@ -13,9 +13,6 @@ from sources_types import Win32_Service
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("win32 Python library only on Windows platforms")
-
 	grph = cgiEnv.GetGraph()
 
 	Win32_Service.FullServiceNetwork(grph,None)
