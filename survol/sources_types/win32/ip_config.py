@@ -104,7 +104,6 @@
 #    DHCP Enabled. . . . . . . . . . . : No
 #    Autoconfiguration Enabled . . . . : Yes
 
-
 import subprocess
 
 mapIpconfigs = dict()
