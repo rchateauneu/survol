@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
+import cgi
+import cgitb
+cgitb.enable()
+
 import os
 import sys
-import cgi
 from cgi import escape
 
 
@@ -94,6 +97,7 @@ def SurvolCgi():
 		scriptPlain = scriptB64
 	except KeyError:
 		scriptPlain = "entity.py"
+		printf("\nForce script to entity.py\n")
 		# In case there are several mode arguments,
 		# hardcode to "info". Consequence of a nasty Javascript bug.
 
@@ -112,6 +116,10 @@ def SurvolCgi():
 		currentModule = ""
 		scriptFileName = scriptSplit[0]
 
+	# Maybe there are CGI arguments, we get rid of them.
+	# scriptFileName=merge_scripts.py?url=aHR0cDovL3d3dy5...
+	scriptFileName = scriptFileName.split("?")[0]
+
 	#currentModule = ""
 	#scriptFileName = "entity.py"
 
@@ -124,7 +132,10 @@ def SurvolCgi():
 	# This works with currentModule="survol" and scriptFileName="entity.py" . REALLY ???
 	impMod = lib_util.GetScriptModule(currentModule, scriptFileName)
 
-	impMod.Main()
+	if impMod:
+		impMod.Main()
+	else:
+		print("\n\nCannot get mode:currentModule=%s scriptFileName=%s\n"%(currentModule,scriptFileName))
 
 
 if __name__ == '__main__':
