@@ -39,12 +39,15 @@ def Main():
 		# Sometimes the comment equals the user, so nothing to mention.
 		if comment != "" and comment != userNam:
 			grph.add( ( userNode, pc.property_information, lib_common.NodeLiteral( comment ) ) )
-		if splitLin[5]:
-			homeNode = lib_common.gUriGen.DirectoryUri( splitLin[5] )
-			grph.add( ( userNode, pc.property_information, homeNode ) )
+		homePath = splitLin[5]
+		if homePath:
+			if homePath == "/nonexistent":
+				grph.add( ( userNode, pc.property_information, lib_common.NodeLiteral(homePath) ) )
+			else:
+				homeNode = lib_common.gUriGen.DirectoryUri( homePath )
+				grph.add( ( userNode, pc.property_information, homeNode ) )
 		execName = splitLin[6].strip()
 		if execName:
-			pass
 			if execName == "/bin/false":
 				grph.add( ( userNode, pc.property_information, lib_common.NodeLiteral(execName) ) )
 			else:
