@@ -124,7 +124,12 @@ def ParseEntitySurvolUri(uprs,longDisplay):
 	#   fragment='')
 	# Maybe the script is run in the CGI script.
 	# If so, we have to rebuild a valid URL.
-	spltCgiArgs = uprs.query.split("&amp;amp;")
+	uprsQuery = uprs.query
+	# Apparently the URL might contain "&amp;amp;" and "&" playing the same role.
+	# It does not matter as it is purely cosmetic.
+	uprsQuery = uprsQuery.replace("&amp;amp;","&")
+	spltCgiArgs = uprsQuery.split("&")
+	#spltCgiArgs = uprsQuery.split("&amp;amp;")
 	queryRebuild = ""
 	queryDelim = "?"
 	scriptRebuilt = None
