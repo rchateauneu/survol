@@ -5,8 +5,6 @@ import sys
 import cgi
 from cgi import escape
 
-
-# sys.path.append("/homez.85/primhilltc/survol/survol")
 sys.path.append("survol")
 
 import lib_util
@@ -23,13 +21,6 @@ import lib_uris
 # It is called from OVH cgi-bin/survolcgi.py script, this way:
 # #!/usr/bin/python
 # 
-# 
-# from survol import scripts
-# from survol.scripts import survolcgi
-# 
-# if __name__ == '__main__':
-#         survolcgi.SurvolCgi()
-#
 # It might be compiled into an exe, or renamed into xxx.cgi.
 # It works for example this way:
 #
@@ -54,33 +45,12 @@ def SurvolTestCgi():
 		print("%s\t%s" % (escape(k), escape(os.environ[k])))
 	print("</pre>")
 
-# from lib_util import uriRoot as lib_util_uriRoot
-# from lib_uris import xidCgiDelimiter as lib_uris_xidCgiDelimiter
-
 def SurvolCgi():
-
-	#def RedefinedMakeTheNodeFromScript(self, path, entity_type, entity_id):
-	#	sys.stderr.write("RedefinedMakeTheNodeFromScript\n")
-	#	# sys.stderr.write("lib_util.uriRoot=%s\n"%lib_util.uriRoot)
-	#	url = lib_util.HttpPrefix() + "/cgi-bin/survolcgi.py?script=" + path + "&xid=" + self.TypeMake() + entity_type + "." + entity_id
-	#	return lib_util.NodeUrl( url )
-
-	#import types
-
-	#objLocalBox = lib_uris.LocalBox()
-	#objLocalBox.MakeTheNodeFromScript  = types.MethodType(RedefinedMakeTheNodeFromScript, objLocalBox)
-
-
-
-	# global lib_util_uriRoot
-	# global lib_uris_xidCgiDelimiter
 
 	# We must change the prefix of all displayed links so thatr instead of being "dirname/script.py?xid=abc",
 	# they will be "survolcgi.py?script=dirname/script.py?xid=abc"
 	# See the function lib_uris.MakeTheNodeFromScript()
 	lib_util.uriRoot = lib_util.HttpPrefix() + "/cgi-bin/survol/survolcgi.py?script="
-	# lib_uris.xidCgiDelimiter = "?xid="
-	# lib_util.xidCgiDelimiter = "&amp;xid="
 	lib_util.xidCgiDelimiter = "&amp;amp;xid="
 
 	arguments = cgi.FieldStorage()
@@ -108,16 +78,8 @@ def SurvolCgi():
 		currentModule = ".".join(scriptSplit[:-1])
 		scriptFileName = scriptSplit[-1]
 	else:
-		# currentModule = "survol"
 		currentModule = ""
 		scriptFileName = scriptSplit[0]
-
-	#currentModule = ""
-	#scriptFileName = "entity.py"
-
-	# CA MARCHE
-	#currentModule = "sources_types"
-	#scriptFileName = "enumerate_CIM_Process.py"
 
 	sys.stderr.write("currentModule=%s scriptFileName=%s\n"%(currentModule,scriptFileName))
 
@@ -125,7 +87,6 @@ def SurvolCgi():
 	impMod = lib_util.GetScriptModule(currentModule, scriptFileName)
 
 	impMod.Main()
-
 
 if __name__ == '__main__':
     SurvolCgi()
