@@ -51,18 +51,14 @@ def Main():
 				filnam = str(tab).replace('\\','/')[2:-1]
 			else:
 				filnam = tab
+			# The same filename might appear several times.
+			sys.stderr.write("idx=%d retLen=%d filnam=%s\n"%(idx,retLen,filnam))
 
 			if idx > 0:
 				libNode = lib_common.gUriGen.SharedLibUri( filnam )
-				grph.add( ( exec_node, pc.property_library_depends, libNode ) )
+				grph.add( ( node_process, pc.property_library_depends, libNode ) )
 
 		kernel.CloseHandle(hProcess)
-
-	# Quelque chose deconne la dedans car ca reste bloque alors meme
-	# que le svg est correct. Meme resultat avec IE.
-	# Pour un svg qui n est pas tres grand, et dont le contenu est correct.
-	# http://127.0.0.1/Survol/survol/sources_types/Win32_Service/service_dependencies.py?xid=Win32_Service.Name%3Dnsi
-
 
 	cgiEnv.OutCgiRdf()
 
