@@ -59,6 +59,7 @@ def NodeUrl(url):
 
 ################################################################################
 
+# See xidCgiDelimiter = "?xid="
 def EncodeEntityId(entity_type,entity_id):
 	return "xid=%s.%s" % ( entity_type, entity_id )
 
@@ -664,9 +665,10 @@ def InfoMessageHtml(message):
 
 	sys.stderr.write("InfoMessageHtml:Sending content\n")
 	out_dest = globalOutMach.OutStream()
-	out_dest.write("<html><head></head>")
-	out_dest.write("<title>Error: Process=" + str(os.getpid()) + "</title>")
-	
+	out_dest.write(
+		"<html><head><title>Error: Process=%s</title></head>"
+		% str(os.getpid()) )
+
 	out_dest.write("<body>")
 
 	out_dest.write("<b>" + message + "</b><br>")
@@ -675,11 +677,11 @@ def InfoMessageHtml(message):
 	out_dest.write('<table>')
 
 	if sys.version_info >= (3,):
-		out_dest.write("<tr><td>Login</td><td>" + os.getlogin() + "</td></tr>")
+		out_dest.write("<tr><td>Login</td><td>%s</td></tr>"%os.getlogin())
 
-	out_dest.write("<tr><td>Cwd</td><td>" + os.getcwd() + "</td></tr>")
-	out_dest.write("<tr><td>OS</td><td>" + sys.platform + "</td></tr>")
-	out_dest.write("<tr><td>Version</td><td>" + sys.version + "</td></tr>")
+	out_dest.write("<tr><td>Cwd</td><td>%s</td></tr>" % os.getcwd())
+	out_dest.write("<tr><td>OS</td><td>%s</td></tr>"%sys.platform)
+	out_dest.write("<tr><td>Version</td><td>%s</td></tr>"%sys.version)
 	
 	#print('<tr><td colspan="2"><b>Environment variables</b></td></tr>')
 	#for key, value in os.environ.items():
@@ -687,9 +689,9 @@ def InfoMessageHtml(message):
 	out_dest.write('</table>')
 
 	envsUrl = uriRoot + "/internals/print.py"
-	out_dest.write('Check <a href="' + envsUrl + '"">environment variables</a>.<br>')
-	homeUrl = uriRoot + "/../index.htm" # A VERIFIER.
-	out_dest.write('<a href="' + homeUrl + '"">Return home</a>.<br>')
+	out_dest.write('Check <a href="%s">environment variables</a>.<br>'%envsUrl)
+	homeUrl = uriRoot + "/../index.htm" # TODO: Check this
+	out_dest.write('<a href="%s">Return home</a>.<br>'%homeUrl)
 
 	out_dest.write("""
 	</body></html>
