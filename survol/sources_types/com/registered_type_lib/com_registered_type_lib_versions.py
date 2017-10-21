@@ -25,7 +25,7 @@ def Main():
 
 	versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.key, clsidstr)
 
-	typelibNode = lib_common.gUriGen.ComRegisteredTypeLibUri( clsidstr )
+	# typelibNode = lib_common.gUriGen.ComRegisteredTypeLibUri( clsidstr )
 
 	###################  VOIR Win32_ComClass !!!!
 
