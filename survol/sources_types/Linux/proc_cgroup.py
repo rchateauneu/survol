@@ -26,6 +26,10 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	for lin_cg in open("/proc/cgroups"):
+		# Just in case there would be a comment.
+		lin_cg = lin_cg.strip()
+		if lin_cg.startswith("#"):
+			continue
 		split_cg = lin_cg.split('\t')
 		subsys_name = split_cg[0]
 		hierarchy = split_cg[1]
