@@ -63,7 +63,7 @@ def EntityName(entity_ids_arr,entity_host):
 	# sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
 
 def AddLinuxCGroup(node,grph):
-	if not lib_util.LinuxPlatform:
+	if not lib_util.isPlatformLinux:
 		return
 
 	# cat /proc/self/cgroup
@@ -72,6 +72,7 @@ def AddLinuxCGroup(node,grph):
 # Then in its file, by convention adds information to a node.
 def AddInfo(grph,node,entity_ids_arr):
 	pidProc = entity_ids_arr[0]
+	exec_node = None
 	# sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
 	grph.add( ( node, pc.property_pid, lib_common.NodeLiteral(pidProc) ) )
 	try:
@@ -111,15 +112,16 @@ def AddInfo(grph,node,entity_ids_arr):
 
 		# TODO: Add the current directory of the process ?
 
-		# Needed for other operations.
-		return exec_node
-
 	# except psutil._error.NoSuchProcess:
 	# Cannot use this exception on some psutil versions
 	# AttributeError: 'ModuleWrapper' object has no attribute '_error'
 	except Exception:
 		exc = sys.exc_info()[1]
 		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
+
+	# Needed for other operations.
+	return exec_node
+
 
 # This should apply to all scripts in the subdirectories: If the process does not exist,
 # they should not be displayed by entity.py
