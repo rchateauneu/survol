@@ -10,9 +10,14 @@ key = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib")
 
 def ComKeyAllNameVersion(key, keyName):
 	result = {}
-	# sys.stderr.write("keyName=%s\n" % keyName)
+	sys.stderr.write("ComKeyAllNameVersion key=%s keyName=%s\n" % (key,keyName) )
 
-	subKey = win32api.RegOpenKey(key, keyName)
+	try:
+		subKey = win32api.RegOpenKey(key, keyName)
+	except:
+		exc = sys.exc_info()
+		lib_common.ErrorMessageHtml("ComKeyAllNameVersion key=%s keyName=%s. Error:%s"%(key,keyName,str(exc)))
+
 	try:
 			subNum = 0
 			bestVersion = 0.0
