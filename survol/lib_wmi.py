@@ -90,12 +90,14 @@ def GetWmiUserPass(machWithBackSlashes):
 # Before a given version, had to use server="xyz" instead of computer="xyz"
 #c = wmi.WMI(computer="titi",user="titi\\rchateauneu@hotmail.com",password="my_hotmail_pass")
 def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
-	#sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
+	sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
 	# WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
 
 
 	if not machWithBackSlashes or lib_util.IsLocalAddress( machWithBackSlashes ):
-		return wmi.WMI()
+		sys.stderr.write("WmiConnect Local connect\n")
+		# return wmi.WMI()
+		return wmi.WMI(find_classes=False)
 
 	wmiMachine, wmiUser, wmiPass = GetWmiUserPass(machWithBackSlashes)
 
@@ -113,7 +115,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 	if not lib_util.SameHostOrLocal( wmiMachine, None ):
 		dictParams['computer'] = wmiMachine
 
-	#sys.stderr.write("WmiConnect wmiMachine=%s wmiNamspac=%s dictParams=%s\n" % ( wmiMachine, wmiNamspac, str(dictParams) ) )
+	sys.stderr.write("WmiConnect wmiMachine=%s wmiNamspac=%s dictParams=%s\n" % ( wmiMachine, wmiNamspac, str(dictParams) ) )
 
 	try:
 		connWMI = wmi.WMI(**dictParams)
@@ -135,7 +137,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 # Returns the list of a keys of a given WBEM class. This is is used if the key is not given
 # for an entity. This could be stored in a cache for better performance.
 def WmiGetClassKeys( wmiNameSpace, wmiClass, cimomSrv ):
-	# sys.stderr.write("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s\n" % (wmiNameSpace, wmiClass, cimomSrv ))
+	sys.stderr.write("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s\n" % (wmiNameSpace, wmiClass, cimomSrv ))
 
 	try:
 		# TODO: Choose the namespace, remove "root\\" at the beginning.
@@ -355,17 +357,25 @@ def WmiAddClassNode(grph,connWmi,wmiNode,entity_host, nameSpace, className, prop
 		WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, False )
 		return wmiClassNode
 
+def WmiBaseClasses(connWmi, className):
+	"""
+		This returns the base classes of a WMI class.
+	"""
+	# Adds the qualifiers of this class.
+	klassObj = getattr( connWmi, className )
+
+	# It always work even if there is no object.
+	return klassObj.derivation()
+
 # Adds the list of base classes. Returns the list of pairs (name node),
 # so it can be matched againt another inheritance tree.
 def WmiAddBaseClasses(grph,connWmi,wmiNode,entity_host, nameSpace, className):
 	pairsNameNode = dict()
-	# Adds the qualifiers of this class.
-	klassObj = getattr( connWmi, className )
 
 	wmiSubNode = wmiNode
 
 	# It always work even if there is no object.
-	for baseKlass in klassObj.derivation():
+	for baseKlass in WmiBaseClasses( connWmi, className ):
 		wmiClassNode = WmiAddClassNode(grph,connWmi,wmiSubNode,entity_host, nameSpace, baseKlass, pc.property_cim_subclass)
 		pairsNameNode[baseKlass] = wmiClassNode
 		wmiSubNode = wmiClassNode

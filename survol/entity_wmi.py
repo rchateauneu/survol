@@ -1,11 +1,5 @@
 #!/usr/bin/python
 
-# TEMPORARILLY USED BECAUSE WE MIGHT USE ONLY THE SAME SCRIPT FOR EVERYONE.
-# This is experimental to ensure that we can process WMI objects,
-# in a plain WMI context: Keys, monikers etc...
-# It cannot harm and will be kept. Contains many notes.
-
-
 """
 WMI instance
 """
@@ -21,18 +15,23 @@ except ImportError:
 	lib_common.ErrorMessageHtml("WMI Python library not installed")
 
 def WmiReadWithMoniker( cgiEnv, cgiMoniker ):
+	"""
+		This returns an array of the single object read wrom WMI with the moniker.
+		Or null if no such object exists.
+	"""
 	try:
-		# cgiMoniker = cgiEnv.GetXid()[0]
-		# lib_common.ErrorMessageHtml("cgiMoniker=%s" % ( cgiMoniker ) )
-		objWmi = wmi.WMI(moniker=cgiMoniker)
+		objWmi = wmi.WMI(moniker=cgiMoniker,find_classes=False)
 		return [ objWmi ]
 	except Exception:
 		exc = sys.exc_info()[1]
 		sys.stderr.write("cgiMoniker=%s Caught:%s\n" % ( cgiMoniker, str(exc) ) )
 		return None
 
-# Maybe reading with the moniker does not work because not all properties.
 def WmiReadWithQuery( cgiEnv, connWmi, className ):
+	"""
+		Maybe reading with the moniker does not work because not all properties.
+		This splits the moniker into key value paris, and uses a WQL query.
+	"""
 	splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )
 	aQry = lib_util.SplitMonikToWQL(splitMonik,className)
 
@@ -53,8 +52,11 @@ prpCannotBeDisplayed = {
 	"CIM_ComputerSystem" : ["OEMLogoBitmap"]
 }
 
-# Displays the properties of a WMI object (Not a class).
 def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,mapPropUnits):
+	"""
+		Displays the properties of a WMI object (Not a class),
+		then sticks them to the WMI object node.
+	"""
 
 	for prpName in objWmi.properties:
 		prpProp = lib_common.MakeProp(prpName)
@@ -115,6 +117,66 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,ma
 				exc = sys.exc_info()[1]
 				grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( str(exc) ) ) )
 
+def ImportSurvolModuleFromWmiClass(connWmi, className):
+	allBaseClasses = ( className, ) + lib_wmi.WmiBaseClasses(connWmi, className)
+	for theClassAscending in allBaseClasses:
+		# Maybe there is a module without ontology.
+		# In this case, try a base class. This is what does this function.
+		ontoKeys = lib_util.OntologyClassKeys(theClassAscending)
+		if len(ontoKeys):
+			return ( theClassAscending, ontoKeys )
+	return None,None
+
+def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
+	"""
+		Must find the url of the object in the Survol terminoloy equivalent to this one in WMI.
+		This does not care the namespace which is set to root/cimv2 anyway.
+		The reason is that it is the most common one, and the others seem to be used
+		for very technical purpose.
+	"""
+
+	# The first step is to iterate on the base classes until there is one of the Survol classes.
+	( survolEquivalentClass, ontoKeys ) = ImportSurvolModuleFromWmiClass(connWmi, className)
+
+	# This class nor any of its base classes exists in Survol.
+	if survolEquivalentClass is None:
+		return
+
+	setSurvolUrls = set()
+
+	for objWmi in objList:
+		# sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
+
+		propValuesArray = []
+
+		# For each property of the survol ontology, picks the value returned by WMI.
+		# Replace missing values by an empty string.
+		for survKey in ontoKeys:
+			try:
+				wmiVal = getattr(objWmi,survKey)
+			except KeyError:
+				sys.stderr.write("AddSurvolObjectFromWmi className=%s no value for key=%s\n"%(className,survKey))
+				wmiVal = ""
+			propValuesArray.append(wmiVal)
+
+		entityModule = lib_util.GetEntityModule(survolEquivalentClass)
+
+		# Maybe there is a special function for encoding these arguments.
+		try:
+			urlSurvol = entityModule.MakeUri(*propValuesArray)
+		except:
+			# Otherwise, general case.
+			urlSurvol = lib_common.gUriGen.UriMake(survolEquivalentClass,*propValuesArray)
+
+		setSurvolUrls.add(urlSurvol)
+
+	# There might potentially be several Survol objects for these several WMI objects.
+	# It depends on the properties, as Survol takes only a subset of them.
+	propWmi2Survol = lib_common.MakeProp("WMI equivalent")
+	for urlSurvol in setSurvolUrls:
+		grph.add( ( wmiInstanceNode, propWmi2Survol, urlSurvol ) )
+	return
+
 
 # Better use references() because it gives much more information.
 #for assoc in objWmi.associators():
@@ -135,6 +197,32 @@ Pour les namespaces c'est plus complique:
 Il faut utiliser la classe qui mappe vers son namespaces.
 Donc on garde pour WBEM et WMI le mapping classe=>namespace.
 Ce mapping est fait au premier appel, et on s'en sert aussi pour l affichage.
+
+
+
+Ajouter un lien vers l'objet de notre terminologie Survol.
+Probleme:
+
+On part d'un CIM_NetworkAdapter renvoye par ip_cpnfig.py
+http://127.0.0.1:8000/survol/entity.py?xid=CIM_NetworkAdapter.Name=NETGEAR%20WNDA3100v3%20N600%20Wireless%20Dual%20Band%20USB%20Adapter
+
+On peut cliquer sur l'objet WMI correspondant. Heureusement, il accepte la clef Name:
+http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_NetworkAdapter.Name%3DNETGEAR%20WNDA3100v3%20N600%20Wireless%20Dual%20Band%20USB%20Adapter
+
+A cet emplacement, pas moyen de revenir vers l'objet Survol. Mais voyons la classe:
+http://127.0.0.1:8000/survol/class_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3ACIM_NetworkAdapter.
+
+Ca affiche tous les objets de cette classe, mais:
+(1) Leur classe reelle est Win32_NetworkAdapter
+(2) La clef est DeviceID (Et d'ailleurs l'affichage est moche).
+
+Si on edite un objet:
+http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\RCHATEAU-HP\root\cimv2%3AWin32_NetworkAdapter.DeviceID%3D%2212%22
+
+Pas moyen de revenir vers Survol. Pour cela, il faut:
+(1) Remonter les classes de base jusqu'a trouver une classe Survol dont on prend la ou les clefs.
+(2) Remplir ces clefs avec les valeurs de l'objet WMI
+(3) et batir l'URL.
 
 """
 # TESTS:
@@ -235,13 +323,18 @@ def Main():
 
 	objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )
 	if objList is None:
+		# If no object associated with the moniker, then tries a WQL query which might return several objects.
 		objList = WmiReadWithQuery( cgiEnv, connWmi, className )
 
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
+
+	# Possible problem because this associates a single URL with possibly several objects ??
 	wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
 
+	# This returns the map of units for all properties of a class.
 	mapPropUnits = lib_wmi.WmiDictPropertiesUnit(connWmi, className)
 
+	# We do not know what to do of the WQL query returns several WMI objects.
 	for objWmi in objList:
 		# sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
 
@@ -267,6 +360,9 @@ def Main():
 
 	# Now displays the base class, up to the top.
 	lib_wmi.WmiAddBaseClasses(grph,connWmi,wmiClassNode,cimomUrl, nameSpace, className)
+
+	# Now tries to find the equivalent object in the Survol terminology.
+	AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList)
 
 	# TODO: Embetant car il faut le faire pour toutes les classes.
 	# Et en plus on perd le nom de la propriete.
