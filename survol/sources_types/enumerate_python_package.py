@@ -52,7 +52,7 @@ def Main():
 		sys.stderr.write("cnt=%d key=%s\n" % (cnt,pckg.key) )
 
 		# With this module, "dot" crashes...
-		# TODO: WHY ?????
+		# TODO: WHY IS THIS BROKEN ?????
 		if pckg.key in ["aff4-snappy"]:
 			continue
 
