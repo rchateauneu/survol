@@ -478,15 +478,15 @@ def UrlToSvg(url):
 # This returns an URL to the Javascript D3 interface, editing the current data.
 def UrlToMergeD3():
 	callingUrl = ModedUrl("")
-	sys.stderr.write("UrlToMergeD3 callingUrl=%s\n"%(callingUrl))
+	#sys.stderr.write("UrlToMergeD3 callingUrl=%s\n"%(callingUrl))
 	htbinPrefixScript = "/survol"
 	htbinIdx = callingUrl.find(htbinPrefixScript)
 	urlWithoutHost = callingUrl[htbinIdx:]
-	sys.stderr.write("UrlToMergeD3 urlWithoutHost=%s\n"%(urlWithoutHost))
+	#sys.stderr.write("UrlToMergeD3 urlWithoutHost=%s\n"%(urlWithoutHost))
 
 	# While we are at it, we needs the beginning of the URL.
 	urlHost = callingUrl[:htbinIdx]
-	sys.stderr.write("UrlToMergeD3 urlHost=%s\n"%(urlHost))
+	#sys.stderr.write("UrlToMergeD3 urlHost=%s\n"%(urlHost))
 
 	# Maybe this URL is already a merge of B64-encoded URLs:
 	# urlWithoutHost="/survol/merge_scripts.py?url=aHR0cDovy4w...LjAuMTo42h0Yml&url=aHR0cD...AuMTo4MDA"
@@ -501,10 +501,10 @@ def UrlToMergeD3():
 		# of where the useful part of the URL starts.
 		# This works on Linux with Apache.
 		urlWithoutHostB64 = "?url=" + lib_util.Base64Encode(callingUrl)
-	sys.stderr.write("UrlToMergeD3 urlWithoutHostB64=%s\n"%urlWithoutHostB64)
+	#sys.stderr.write("UrlToMergeD3 urlWithoutHostB64=%s\n"%urlWithoutHostB64)
 
 	scriptD3Url = urlHost + "/survol/www/index.htm" + urlWithoutHostB64
-	sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
+	#sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
 	return scriptD3Url
 
 	# Start by removing the mode.
