@@ -197,47 +197,29 @@ def RunCgiServerInternal():
             def is_cgi(self):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
-                print("is_cgi collapsed_path=%s"%collapsed_path)
+                # print("is_cgi collapsed_path=%s"%collapsed_path)
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
-                print("is_cgi pathOnly=%s"%pathOnly)
+                # print("is_cgi pathOnly=%s"%pathOnly)
 
                 fileName, fileExtension = os.path.splitext(pathOnly)
 
-                print("is_cgi pathOnly=%s fileExtension=%s"%(pathOnly,fileExtension))
+                # print("is_cgi pathOnly=%s fileExtension=%s"%(pathOnly,fileExtension))
 
                 urlPrefix = "/survol/"
                 if fileExtension == ".py" and pathOnly.startswith(urlPrefix):
                     dir_sep_index = len(urlPrefix)-1
                     head, tail = collapsed_path[:dir_sep_index], collapsed_path[dir_sep_index + 1:]
-                    print("is_cgi YES head=%s tail=%s"%(head, tail))
+                    # print("is_cgi YES head=%s tail=%s"%(head, tail))
                     self.cgi_info = head, tail
                     return True
                 else:
-                    print("is_cgi NOT")
+                    # print("is_cgi NOT")
                     return False
-                # is_cgi pathOnly=/survol/entity.py fileExtension=.py
-                # is_cgi YES head=/survol tail=entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS
-                #
-                # is_cgi pathOnly=/survol/sources_types/odbc/table/odbc_table_columns.py fileExtension=.py
-                # is_cgi YES head=/survol tail=sources_types/odbc/table/odbc_table_columns.py?xid=odbc/table.Dsn%3DDSN%7EMyNativeSqlServerDataSrc%2CTable%3DVIEWS
-                #for path in self.cgi_directories:
-                #    if path in collapsed_path:
-                #        dir_sep_index = collapsed_path.rfind(path) + len(path)
-                #        head, tail = collapsed_path[:dir_sep_index], collapsed_path[dir_sep_index + 1:]
-                #        print("is_cgi YES head=%s tail=%s"%(head, tail))
-                #        self.cgi_info = head, tail
-                #        return True
-                #print("is_cgi NOT collapsed_path=%s"%collapsed_path)
-                #return False
 
         server = BaseHTTPServer.HTTPServer
         handler = MyCGIHTTPServer
-
-        # Is this really necessary ?
-        #handler.cgi_directories = [ "survol" ]
-        #print("Cgi directories=%s" % handler.cgi_directories)
 
         server = HTTPServer(('localhost', port_number), handler)
 
