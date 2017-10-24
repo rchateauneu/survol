@@ -1,7 +1,7 @@
 """
 	Transforms an internal graph into a HTML page.
 """
-
+import os
 import sys
 import lib_util
 import lib_common
@@ -106,26 +106,34 @@ def WriteScriptInformation(theCgi):
 
 
 # TODO: Fix this.
-def WriteParameters(parameters):
+def WriteParameters(theCgi):
 	"""
 		This displays the parameters of the script and provide an URL to edit them.
 	"""
-	WrtAsUtf('<table class="table_script_parameters">')
 
-	WrtAsUtf('<tr><td colspan="2"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
+	import lib_edition_parameters
 
-	for keyParam,valParam in parameters.items():
-		WrtAsUtf(
-		"""
-		<tr>
-			<td><b>%s</b></td>
-			<td>%s</td>
-		</tr>
-		"""
-		% ( keyParam, str(valParam) ))
+	formAction = os.environ['SCRIPT_NAME']
 
+	lib_edition_parameters.FormEditionParameters(formAction,theCgi)
 
-	WrtAsUtf('</table>')
+	# parameters = theCgi.m_parameters
+
+	#WrtAsUtf('<table class="table_script_parameters">')
+	#
+	#WrtAsUtf('<tr><td colspan="2"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
+	#
+	#for keyParam,valParam in parameters.items():
+	#	WrtAsUtf(
+	#	"""
+	#	<tr>
+	#		<td><b>%s</b></td>
+	#		<td>%s</td>
+	#	</tr>
+	#	"""
+	#	% ( keyParam, str(valParam) ))
+	#
+	#WrtAsUtf('</table>')
 
 def WriteOtherUrls(topUrl):
 	"""
@@ -447,7 +455,6 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	"""
 	page_title = theCgi.m_page_title
 	grph = theCgi.m_graph
-	parameters = theCgi.m_parameters
 
 	lib_util.WrtHeader('text/html')
 	WrtAsUtf( "<head>" )
@@ -473,9 +480,9 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	WrtAsUtf("<h2/>Objects<h2/>")
 	WriteAllObjects(grph)
 
-	if len(parameters) > 0:
+	if len(theCgi.m_parameters) > 0:
 		WrtAsUtf("<h2/>Script parameters<h2/>")
-		WriteParameters(parameters)
+		WriteParameters(theCgi)
 
 	# Scripts do not apply when displaying a class.
 	# TODO: When in a enumerate script such as enumerate_CIM_LogicalDisk.py,

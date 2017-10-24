@@ -4,6 +4,7 @@ cgitb.enable()
 import os
 import re
 import sys
+import cgi
 import lib_kbase
 import socket
 import base64
@@ -277,10 +278,11 @@ def RequestUri():
 		#
 		# "/survol/entity.py"
 		try:
-			scriptName = os.environ['SCRIPT_NAME'] 
+			script = os.environ['SCRIPT_NAME']
 			# "xid=EURO%5CLONL00111310@process:16580"
-			queryString = os.environ['QUERY_STRING'] 
-			script = scriptName + "?" + queryString
+			queryString = os.environ['QUERY_STRING']
+			if queryString:
+				script += "?" + queryString
 		except KeyError:
 			script = "RequestUri: No value"
 	return script
@@ -897,6 +899,59 @@ def RootUri():
 	callingUrl = RequestUriModed("")
 	callingUrl = callingUrl.replace("&","&amp;")
 	return NodeUrl(callingUrl)
+
+################################################################################
+
+# Extracts the mode from an URL.
+def GetModeFromUrl(url):
+	mtch_url = re.match(".*[\?\&]mode=([a-zA-Z0-9]*).*", url)
+	if mtch_url:
+		return mtch_url.group(1)
+	return ""
+
+# The display mode can come from the previous URL or from a CGI environment.
+def GuessDisplayMode():
+	arguments = cgi.FieldStorage()
+	try:
+		try:
+			mode = arguments["mode"].value
+		except AttributeError:
+			# In case there are several mode arguments,
+			# hardcode to "info". Consequence of a nasty Javascript bug.
+			mode = "info"
+		if mode != "":
+			return mode
+	except KeyError:
+		pass
+
+	try:
+		# HTTP_REFERER=http://127.0.0.1/PythonStyle/print.py?mode=xyz
+		referer = os.environ["HTTP_REFERER"]
+		modeReferer = GetModeFromUrl( referer )
+		# If we come from the edit form, we should not come back to id.
+		# TODO: HOW CAN WE COME BACK TO THE FORMER DISPLAY MODE ??
+		if modeReferer != "":
+			if modeReferer == "edit":
+				# TODO: Should restore the original edit mode.
+				# EditionMode
+				return ""
+			else:
+				return modeReferer
+
+	except KeyError:
+		pass
+
+	try:
+		# When called from another module, cgi.FieldStorage might not work.
+		script = os.environ["SCRIPT_NAME"]
+		mode = GetModeFromUrl( script )
+		if mode != "":
+			return mode
+	except KeyError:
+		pass
+
+	mode = ""
+	return mode
 
 ################################################################################
 

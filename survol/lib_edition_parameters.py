@@ -1,0 +1,91 @@
+import sys
+import lib_util
+
+def FormEditionParameters(formActionNoMode,theCgi):
+	"""
+	This creates a HTML form for editing parameters of a script.
+	"""
+
+	#mode = lib_util.GuessDisplayMode()
+
+	# formAction = lib_util.AnyUriModed(formActionNoMode,mode)
+	formAction = formActionNoMode
+	sys.stderr.write("FormEditionParameters formActionNoMode=%s formAction=%s\n"%(formAction,formActionNoMode))
+	print('<form name="myform" action="' + formAction + '" method="GET">')
+
+	# argKeys are the names of arguments passed as CGI parameters.
+	argKeys = theCgi.m_arguments.keys()
+
+	print('<table class="table_script_parameters">')
+
+	if theCgi.m_entity_type != "":
+		print('<tr><td colspan=2>' + theCgi.m_entity_type + '</td>')
+		for kvKey in theCgi.m_entity_id_dict:
+			# TODO: Encode the value.
+			kvVal = theCgi.m_entity_id_dict[kvKey]
+			print("<tr>")
+			print('<td>' + kvKey + '</td>')
+			ediNam = "edimodargs_" + kvKey
+			print('<td><input type="text" name="%s" value="%s"></td>' % (ediNam,kvVal) )
+			print("</tr>")
+
+	check_boxes_parameters = []
+
+	# Now the parameters specific to the script, if they are not passed also as CGI params.
+	for param_key in theCgi.m_parameters:
+		print("<tr>")
+		print('<td>' + param_key + '</td>')
+		param_val = theCgi.GetParameters( param_key )
+		# TODO: Encode the value.
+		if isinstance( param_val, bool ):
+			# Beware that unchecked checkboxes are not posted.
+			# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
+			check_boxes_parameters.append( param_key )
+			if param_val:
+				# Will be converted to boolean True.
+				print('<td><input type="checkbox" name="' + param_key + '" value="True" checked></td>')
+			else:
+				# Python converts empty string to False, everything else to True.
+				print('<td><input type="checkbox" name="' + param_key + '" value="True"></td>')
+		# TODO: Check validity if int, float etc...
+		else:
+			print('<td><input type="text" name="' + param_key + '" value="' + str(param_val) + '"></td>')
+		print("</tr>")
+
+	print("<tr><td colspan=2>")
+	# Beware that unchecked checkboxes are not posted, so it says that we come from edition mode.
+	# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
+
+	# Now the hidden arguments. Although entity_type can be deduced from the CGI script location.
+	# OBSOLETE ?????
+	print('<input type="hidden" name="edimodtype" value="' + theCgi.m_entity_type + '">')
+
+	for key in argKeys:
+		# These keys are processed differently.
+		if key in theCgi.m_parameters:
+			continue
+
+		# Of course, the mode must not be "edit".
+		if key in ["mode"]:
+			continue
+
+		# ATTENTION: LES ARGUMENTS SPECIFIQUEMENT EDITABLES NE SONT PAS HIDDEN.
+		# QUESTION: COMMENT EDITER UNE LISTE D'ARGUMENTS?
+		# ET MEME COMMENT SAVOIR QUE C'EST UNE LISTE ?
+		# IDEE: ON PASSE A CgiEnv UNE KEY QUI TERMINE PAR [].
+		argList = theCgi.m_arguments.getlist(key)
+		if len(argList) == 1:
+			# TODO: Values should be encoded.
+			print('<input type="hidden" name="' + key + '" value="'+argList[0] + '">')
+		else:
+			for val in argList:
+				# Note the "[]" to pass several values.
+				print('<input type="hidden" name="' + key + '[]" value="'+val + '">')
+
+	print('<input type="submit" value="Submit">')
+	print("</form>")
+
+	print("</td></tr>")
+	print("</table>")
+
+	return
