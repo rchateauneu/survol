@@ -26,11 +26,10 @@ import lib_common
 from lib_properties import pc
 import lib_smb
 
+Usable = lib_smb.UsableNetCommands
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
-
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("NET command on Windows only")
 
 	grph = cgiEnv.GetGraph()
 
