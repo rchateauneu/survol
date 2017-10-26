@@ -17,10 +17,10 @@ import json
 # For example, html.parser becomes html_parser
 try:
 	# Python 3
-	#import html
-	#from html import parser
-	#from html.parser import HTMLParser
-	from HTMLParser import HTMLParser
+	import html
+	from html import parser
+	from html.parser import HTMLParser
+	#from HTMLParser import HTMLParser
 except AttributeError: # ImportError:
 	# Python2 ?
 	import html_parser

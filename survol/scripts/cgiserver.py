@@ -23,18 +23,6 @@ except ImportError:
 # if not we get the error, for example:  import lib_pefile.
 # sys.path.append('survol/revlib')
 
-# Several problems with this script, probably due to the Python class.
-# * It fails if a page is called survol.htm
-# * It collapses repeated slashes "///" into one "/".
-
-# extraPath = "survol/revlib"
-#extraPath = "survol;survol/revlib"
-#try:
-#    os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
-#except KeyError:
-#     os.environ[pyKey] =extraPath
-#os.environ.copy()
-
 def ServerForever(server):
     if YappiProfile:
         try:
@@ -89,18 +77,12 @@ def RunCgiServer():
     else:
         print("No python path to set")
 
-    #os.chdir(curPth)
-    #print("new cwd=%s"% (os.getcwd()))
-
-
 # It is also possible to call the script from command line.
 def RunCgiServerInternal():
 
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
         # This is necessary for revlib which is otherwise not found.
-        # extraPath = "survol/revlib"
-        # extraPath = "survol;survol/revlib"
         extraPath = "survol"
         try:
             os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + ";" + extraPath
@@ -111,13 +93,6 @@ def RunCgiServerInternal():
     # This also works on Windows and Python 3.
     if 'linux' in sys.platform:
         sys.path.append("survol")
-        # sys.path.append("survol/revlib")
-
-    #sys.path.append("survol")
-    #sys.path.append("tralala")
-    #sys.path.append("survol/revlib")
-    #sys.stderr.write("Sys.PathA=%s\n"%str(sys.path))
-
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hp:b:v", ["help", "port=","browser=","verbose"])
@@ -144,16 +119,8 @@ def RunCgiServerInternal():
         else:
             assert False, "Unhandled option"
 
-    # os.chdir("..")
     currDir = os.getcwd()
-    #sys.path.append(os.path.join(currDir,"survol"))
-    #sys.path.append(os.path.join(currDir,"survol","revlib"))
-#    sys.path.append("survol")
-#    sys.path.append("survol/revlib")
     print("cwd=%s path=%s"% (currDir, str(sys.path)))
-
-
-
     print("Opening port %d" % port_number)
     print("sys.path=%s"% str(sys.path))
     try:
