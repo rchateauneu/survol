@@ -359,7 +359,7 @@ def WriteAllObjects(grph):
 	# Ajouter mode "difference": On recalcule periodiquement et on affiche la difference.
 
 
-	for entity_graphic_class in dictClassSubjPropObj:
+	for entity_graphic_class in sorted(dictClassSubjPropObj):
 
 		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
 		urlClass_with_mode = UrlInHtmlMode( urlClass )
