@@ -90,12 +90,13 @@ def HttpPrefix():
 		# * SERVER_NAME="rchateau-hp"
 		# * REMOTE_HOST="rchateau-hp"
 		# * Pinging rchateau-HP [fe80::3c7a:339:64f0:2161%11]
-		try:
-			remote_host = os.environ['REMOTE_HOST']
-			if server_addr == remote_host:
-				server_addr = "127.0.0.1"
-		except KeyError:
-			pass
+		#try:
+		#	remote_host = os.environ['REMOTE_HOST']
+		#	sys.stderr.write("HTTPPrefix remote_host=%s\n" % remote_host)
+		#	if server_addr == remote_host:
+		#		server_addr = "127.0.0.1"
+		#except KeyError:
+		#	pass
 
 	except KeyError:
 		# Local use .
@@ -300,6 +301,12 @@ def TopScriptsFunc():
 	# TODO: Use __file__ which might be faster ??
 	currDir = os.getcwd()
 
+	# TODO: Should search for the right directory ?
+	# This simply looks for "survol" if it contains "sources_types".
+	# (1) Looks for sources_types. If yes, exists.
+	# (2) Looks for survol. If not. exit with failure.
+	# (3) iF YES, CD TO IT, THEN GOTO (1).
+
 	urlPrefix = "survol"
 	idx = currDir.find(urlPrefix)
 	sys.stderr.write("TopScriptsFunc currDir=%s idx=%s\n"%(currDir,idx))
@@ -312,6 +319,9 @@ def TopScriptsFunc():
 		# BEWARE: This is a bit dodgy, not sure what do do.
 		if currDir.endswith("survol/survol"):
 			return currDir
+		elif currDir.endswith("Survol\\survol"):
+			# Win10, Py3:  currDir="C:\\Users\\rchat\\Survol\\survol"
+			return currDir + "\\survol"
 		else:
 			return currDir[ : idx + len(urlPrefix) ]
 
@@ -666,36 +676,36 @@ def InfoMessageHtml(message):
 	globalOutMach.HeaderWriter("text/html")
 
 	sys.stderr.write("InfoMessageHtml:Sending content\n")
-	out_dest = globalOutMach.OutStream()
-	out_dest.write(
+	WrtAsUtf(
 		"<html><head><title>Error: Process=%s</title></head>"
 		% str(os.getpid()) )
 
-	out_dest.write("<body>")
+	WrtAsUtf("<body>")
 
-	out_dest.write("<b>" + message + "</b><br>")
+	WrtAsUtf("<b>" + message + "</b><br>")
 
 	# On Linux it says: "OSError: [Errno 2] No such file or directory"
-	out_dest.write('<table>')
+	WrtAsUtf('<table>')
 
 	if sys.version_info >= (3,):
-		out_dest.write("<tr><td>Login</td><td>%s</td></tr>"%os.getlogin())
+		WrtAsUtf("<tr><td>Login</td><td>%s</td></tr>"%os.getlogin())
 
-	out_dest.write("<tr><td>Cwd</td><td>%s</td></tr>" % os.getcwd())
-	out_dest.write("<tr><td>OS</td><td>%s</td></tr>"%sys.platform)
-	out_dest.write("<tr><td>Version</td><td>%s</td></tr>"%sys.version)
+	WrtAsUtf("<tr><td>Cwd</td><td>%s</td></tr>" % os.getcwd())
+	WrtAsUtf("<tr><td>OS</td><td>%s</td></tr>"%sys.platform)
+	WrtAsUtf("<tr><td>Version</td><td>%s</td></tr>"%sys.version)
 	
-	#print('<tr><td colspan="2"><b>Environment variables</b></td></tr>')
-	#for key, value in os.environ.items():
-	#	print("<tr><td>"+key+"</td><td>"+value+"</td></tr>")
-	out_dest.write('</table>')
+	WrtAsUtf('</table>')
 
-	envsUrl = uriRoot + "/internals/print.py"
-	out_dest.write('Check <a href="%s">environment variables</a>.<br>'%envsUrl)
-	homeUrl = uriRoot + "/../index.htm" # TODO: Check this
-	out_dest.write('<a href="%s">Return home</a>.<br>'%homeUrl)
+	# http://desktop-ni99v8e:8000/survol/www/configuration.htm
+	# envsUrl = uriRoot + "/www/configuration.htm"
+	configUrl = uriRoot + "/edit_configuration.py"
+	WrtAsUtf('<a href="%s">Setup</a>.<br>'%configUrl)
+	envsUrl = uriRoot + "/print_environment_variables.py"
+	WrtAsUtf('<a href="%s">Environment variables</a>.<br>'%envsUrl)
+	homeUrl = TopUrl( "", "" )
+	WrtAsUtf('<a href="%s">Return home</a>.<br>'%homeUrl)
 
-	out_dest.write("""
+	WrtAsUtf("""
 	</body></html>
 	""")
 	sys.stderr.write("InfoMessageHtml:Leaving\n")
@@ -1010,13 +1020,15 @@ def Base64Decode(text):
 	# The padding might be missing which is not a problem:
 	# https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
 	missing_padding = len(text) % 4
-	if missing_padding != 0:
-		text += b'='* (4 - missing_padding)
 
 	try:
 		if sys.version_info >= (3,):
+			if missing_padding != 0:
+				text += '=' * (4 - missing_padding)
 			resu = base64.urlsafe_b64decode(text.encode('utf-8')).decode('utf-8')
 		else:
+			if missing_padding != 0:
+				text += b'=' * (4 - missing_padding)
 			resu = base64.urlsafe_b64decode(str(text))
 		return resu
 	except Exception:
@@ -1054,6 +1066,11 @@ globalOutMach = OutputMachineCgi()
 # Default destination for the RDF, HTML or SVG output.
 def DfltOutDest():
 	return globalOutMach.OutStream()
+
+# Needed also because of sockets.
+def WrtAsUtf(str):
+	# TODO: try to make this faster. Should be conditional just like HttpHeader.
+	outputHttp.write( str.encode('utf-8') )
 
 # For asynchronous display.
 # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
