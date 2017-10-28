@@ -22,14 +22,14 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	# hostname = "Titi" for example
-	lib_win32.WNetAddConnect(hostname)
-
 	# Return the name of the computer, name of the user, and active and idle times for the session.
 	# No special group membership is required for level 0 or level 10 calls.
 	level = 10
 
 	try:
+		# hostname = "Titi" for example
+		lib_win32.WNetAddConnect(hostname)
+
 		sessionList = win32net.NetSessionEnum(level, hostname)
 	except Exception:
 		lib_common.ErrorMessageHtml("Hostname="+hostname+". Exception:"+str(sys.exc_info()))
