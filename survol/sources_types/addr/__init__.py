@@ -67,14 +67,16 @@ def GetHost(addr):
 	except socket.herror:
 		return [ addr, [] ]
 
-# Different interfaces according to the Python version.
+# Different interfaces according to the psutil version.
 def SocketToPair(connect):
-	if sys.version_info >= (3,):
-		larray = connect.local_address
-		rarray = connect.remote_address
-	else:
+	try:
 		larray = connect.laddr
 		rarray = connect.raddr
+	except AttributeError:
+		# Old psutil versions.
+		sys.stderr.write("OLD PSUTIL\n")
+		larray = connect.local_address
+		rarray = connect.remote_address
 	return (larray,rarray)
 
 # This asynchronously adds a RDF relation between a process and a socket.
@@ -138,19 +140,14 @@ def PsutilAddSocketToGraphOne(node_process,connect,grph):
 	and ( connect.type == 1 )
 	# and ( connect.status == 'ESTABLISHED' )
 	):
-		# Not sure of this test, maybe this rather depends on the psutil version.
-		if sys.version_info >= (3,):
-			lsocketNode = lib_common.gUriGen.AddrUri( connect.local_address[0], connect.local_address[1] )
-			try:
-				rsocketNode = lib_common.gUriGen.AddrUri( connect.remote_address[0], connect.remote_address[1] )
-			except IndexError:
-				rsocketNode = None
-		else:
-			lsocketNode = lib_common.gUriGen.AddrUri( connect.laddr[0], connect.laddr[1] )
-			try:
-				rsocketNode = lib_common.gUriGen.AddrUri( connect.raddr[0], connect.raddr[1] )
-			except IndexError:
-				rsocketNode = None
+
+		(larray,rarray) = SocketToPair(connect)
+		lsocketNode = lib_common.gUriGen.AddrUri( larray[0], larray[1] )
+		try:
+			rsocketNode = lib_common.gUriGen.AddrUri( rarray[0],rarray[1] )
+		except IndexError:
+			rsocketNode = None
+
 
 		# Il faudrait plutot une relation commutative.
 		if rsocketNode != None:
