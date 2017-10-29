@@ -80,26 +80,29 @@ def AddSIUnit(number, unitSI):
 ################################################################################
 
 def HttpPrefix():
-
+	# The server name must be the same, whatever the HTTP server is.
+	
 	# Default values for ease of testing, so CGI scripts can be run as is from command line..
-	try:
-		server_addr = os.environ['SERVER_NAME']
+	#try:
+	#	server_addr = os.environ['SERVER_NAME']
+	#	sys.stderr.write("HttpPrefix SERVER_NAME server_addr=%s\n"%(server_addr))
 
-		# This is an attempt to fix a problem when running cgiserver.py:
-		# * The URL is 127.0.0.1:8000/index.htm
-		# * SERVER_NAME="rchateau-hp"
-		# * REMOTE_HOST="rchateau-hp"
-		# * Pinging rchateau-HP [fe80::3c7a:339:64f0:2161%11]
-		try:
-			remote_host = os.environ['REMOTE_HOST']
-			if server_addr == remote_host:
-				server_addr = "127.0.0.1"
-		except KeyError:
-			pass
-
-	except KeyError:
-		# Local use .
-		server_addr = "127.0.0.1"
+	#	# This is an attempt to fix a problem when running cgiserver.py:
+	#	# * The URL is 127.0.0.1:8000/index.htm
+	#	# * SERVER_NAME="rchateau-hp"
+	#	# * REMOTE_HOST="rchateau-hp"
+	#	# * Pinging rchateau-HP [fe80::3c7a:339:64f0:2161%11]
+	#	try:
+	#		remote_host = os.environ['REMOTE_HOST']
+	#		sys.stderr.write("HttpPrefix REMOTE_HOST remote_host=%s\n"%(remote_host))
+	#		if server_addr == remote_host:
+	#			server_addr = "127.0.0.1"
+	#	except KeyError:
+	#		pass
+	#
+	#except KeyError:
+	#	# Local use .
+	#	server_addr = "127.0.0.1"
 	
 	try:
 		server_port = os.environ['SERVER_PORT']
