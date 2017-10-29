@@ -15,16 +15,12 @@ import json
 #from six.moves.html_parser import HTMLParser
 # When the new Python 3 name is a package, the components of the name are separated by underscores.
 # For example, html.parser becomes html_parser
-try:
-	# Python 3
+if sys.version_info[0] >= 3:
 	import html
 	from html import parser
 	from html.parser import HTMLParser
-	#from HTMLParser import HTMLParser
-except AttributeError: # ImportError:
-	# Python2 ?
-	import html_parser
-	from html_parser import HTMLParser
+else:
+	from HTMLParser import HTMLParser
 
 try:
 	from urlparse import urlparse
