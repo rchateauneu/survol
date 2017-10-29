@@ -12,17 +12,10 @@ import lib_kbase
 import entity_dirmenu_only
 import lib_properties
 from lib_properties import pc
+from lib_util import WrtAsUtf
 
 def UrlInHtmlMode(anUrl):
 	return lib_util.ConcatenateCgi( anUrl, "mode=html" )
-
-# Needed because of sockets.
-def WrtAsUtf(str):
-	out_dest = lib_util.DfltOutDest()
-
-	# TODO: try to make this faster. Should be conditional just like HttpHeader.
-	out_dest.write( str.encode('utf-8') )
-
 
 def WriteScriptInformation(theCgi):
 	"""
@@ -359,7 +352,7 @@ def WriteAllObjects(grph):
 	# Ajouter mode "difference": On recalcule periodiquement et on affiche la difference.
 
 
-	for entity_graphic_class in dictClassSubjPropObj:
+	for entity_graphic_class in sorted(dictClassSubjPropObj):
 
 		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
 		urlClass_with_mode = UrlInHtmlMode( urlClass )

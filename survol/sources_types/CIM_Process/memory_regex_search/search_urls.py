@@ -38,6 +38,7 @@ def Main():
 			# In memory, we find strings such as "http://adblockplus.orgzzzzzzzzzzzz"
 			# or "http://adblockplus.orgzzzzzzzzzzzz"
 			# "activistpost.netzx"
+			urlHttp=str(urlHttp) # On Python3, this is a bytes array.
 			splitDots = urlHttp.split(".")
 			topLevel = splitDots[-1]
 			# Primitive way to remove apparently broken URLs.

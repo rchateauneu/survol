@@ -43,8 +43,12 @@ def Main():
 
 	envProp = lib_common.MakeProp("environment")
 
-	# Psutil version after 4.0.0
-	envsDict = objProc.environ()
+	try:
+		# Psutil version after 4.0.0
+		envsDict = objProc.environ()
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Error:" + str(exc))
 
 	node_process = lib_common.gUriGen.PidUri(procid)
 

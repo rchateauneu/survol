@@ -9,6 +9,8 @@ except ImportError:
 import sys
 import getopt
 import os
+import socket
+
 try:
 	from urlparse import urlparse
 except ImportError:
@@ -102,6 +104,13 @@ def RunCgiServerInternal():
         Usage()
         sys.exit(2)
 
+    # It must be the same address whether it is local or guessed from another machine.
+    # Equivalent to os.environ['SERVER_NAME']
+    # server_addr = "rchateau-HP"
+    # server_addr = "DESKTOP-NI99V8E"
+	# Otherwise it would be 'localhost'.
+    server_addr = socket.gethostname()
+
     verbose = False
     port_number = 8000
     browser_name = None
@@ -134,6 +143,9 @@ def RunCgiServerInternal():
         import threading
         import time
         import subprocess
+
+        # TODO: https://docs.python.org/2/library/webbrowser.html
+        # Use the webbrowser module.
 
         def StartBrowserProcess():
             theUrl = "http://127.0.0.1"
@@ -188,7 +200,7 @@ def RunCgiServerInternal():
         server = BaseHTTPServer.HTTPServer
         handler = MyCGIHTTPServer
 
-        server = HTTPServer(('localhost', port_number), handler)
+        server = HTTPServer((server_addr, port_number), handler)
 
         ServerForever(server)
 
@@ -204,25 +216,17 @@ def RunCgiServerInternal():
                 # https://stackoverflow.com/questions/17618084/python-cgihttpserver-default-directories
                 self.cgi_info = '', self.path[1:]
                 # So it always work.
-                return True
+                uprs = urlparse(self.path)
+                pathOnly = uprs.path
+                # print("is_cgi pathOnly=%s"%pathOnly)
 
-                # HOW CAN IT WORK ALTHOUGH THE PATH SHOULD NOT CONTAIN "cgi-bin" PR "/htin"
-                # TODO: What is the equivalent of _url_collapse_path ?
-                if True:
-                    collapsed_path = self.path
-                else:
-                    collapsed_path = _url_collapse_path(self.path)
+                fileName, fileExtension = os.path.splitext(pathOnly)
+                return fileExtension == ".py"
 
-                for path in self.cgi_directories:
-                    if path in collapsed_path:
-                        dir_sep_index = collapsed_path.rfind(path) + len(path)
-                        head, tail = collapsed_path[:dir_sep_index], collapsed_path[dir_sep_index + 1:]
-                        self.cgi_info = head, tail
-                        return True
-                return False
+
 
         handler = MyCGIHTTPServer
-        server = HTTPServer(('localhost', port_number), handler)
+        server = HTTPServer((server_addr, port_number), handler)
         server.serve_forever()
 
 if __name__ == '__main__':

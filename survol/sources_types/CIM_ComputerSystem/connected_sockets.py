@@ -76,15 +76,8 @@ def Main():
 							AssociateWithSockets( grph, rarray, larray )
 
 
-
-		except psutil.AccessDenied:
-			pass
-		except psutil.NoSuchProcess:
-			pass
 		except:
-			exc = sys.exc_info()[1]
-			lib_common.ErrorMessageHtml("Caught:" + str(exc) )
-			raise
+			pass
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
