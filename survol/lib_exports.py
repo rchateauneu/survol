@@ -499,7 +499,14 @@ def UrlToMergeD3():
 		urlWithoutHostB64 = "?url=" + lib_util.Base64Encode(callingUrl)
 	#sys.stderr.write("UrlToMergeD3 urlWithoutHostB64=%s\n"%urlWithoutHostB64)
 
-	scriptD3Url = urlHost + "/survol/www/index.htm" + urlWithoutHostB64
+	# Special case for OVH mutualised hosting.
+	if urlHost.find("primhillcomputers.com") >= 0:
+		d3UrlDir = "/../ui"
+	else:
+		d3UrlDir = "/survol/www"
+
+	scriptD3Url = urlHost + d3UrlDir + "/index.htm" + urlWithoutHostB64
+	#scriptD3Url = urlHost + "/survol/www/index.htm" + urlWithoutHostB64
 	#sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
 	return scriptD3Url
 

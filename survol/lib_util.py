@@ -1,3 +1,10 @@
+# https://bugs.python.org/issue8704
+# If there is a Python problem on OVH mutualised hosting, it returns:
+# Response header name '<!--' contains invalid characters, aborting request,
+# If the CGI script crashes before finishing the headers, cgitb will emit invalid HTTP headers before showing the error message.
+# The workaround is to put: HttpProtocolOptions Unsafe line into the apache .conf
+
+
 import cgitb
 cgitb.enable()
 
