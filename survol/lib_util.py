@@ -98,6 +98,10 @@ def HttpPrefix():
 		#except KeyError:
 		#	pass
 
+		#os.environ['REMOTE_ADDR']=127.0.0.1
+		#os.environ['SERVER_NAME']=rchateau-HP
+		#os.environ['REMOTE_HOST']=rchateau-HP
+
 	except KeyError:
 		# Local use .
 		server_addr = "127.0.0.1"
@@ -239,7 +243,10 @@ def TopUrl( entityType, entityId ):
 def EncodeUri(anStr):
 	# sys.stderr.write("EncodeUri str=%s\n" % str(anStr) )
 
-	strTABLE = anStr.replace("\\L","\\\\L")
+	if anStr:
+		strTABLE = anStr.replace("\\L","\\\\L")
+	else:
+		strTABLE = ""
 
 	# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 	if sys.version_info >= (3,):
@@ -625,7 +632,7 @@ def EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname):
 def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_hostname=False):
 	scriptPath = EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname)
 
-	sys.stderr.write("EntityUrlFromMoniker scriptPath=%s\n"%scriptPath)
+	# sys.stderr.write("EntityUrlFromMoniker scriptPath=%s\n"%scriptPath)
 	# url = uriRoot + "/" + scriptPath + "?xid=" + EncodeUri(monikerEntity)
 	url = uriRoot + "/" + scriptPath + xidCgiDelimiter + EncodeUri(monikerEntity)
 	return url
