@@ -67,7 +67,7 @@ def SurvolCgi():
 		scriptPlain = scriptB64
 	except KeyError:
 		scriptPlain = "entity.py"
-		printf("\nForce script to entity.py\n")
+		print("\nForce script to entity.py\n")
 		# In case there are several mode arguments,
 		# hardcode to "info". Consequence of a nasty Javascript bug.
 
