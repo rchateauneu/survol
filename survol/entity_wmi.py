@@ -79,6 +79,15 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,ma
 			# BEWARE, it could be None.
 			value = getattr(objWmi,prpName)
 
+		# Some specific properties match a Survol class,
+		# so it is possible to add a specific node.
+		# THIS WORKS BUT IT IS NOT NICE, AS A SEPARATE NODE.
+		# We would like to have a clickable URL displayed in a table TD.
+		if prpName == "GUID":
+			# Example: "{CF185B35-1F88-46CF-A6CE-BDECFBB59B4F}"
+			nodeGUID = lib_common.gUriGen.ComTypeLibUri( value )
+			grph.add( ( wmiInstanceNode, prpProp, nodeGUID ) )
+			continue
 
 		if isinstance( value, scalarDataTypes ):
 			# Special backslash replacement otherwise:
@@ -186,45 +195,6 @@ def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
 #	assocInstanceNode = lib_common.NodeUrl(assocInstanceUrl)
 #	grph.add( ( wmiInstanceNode, lib_common.MakeProp("assoc"), assocInstanceNode ) )
 
-
-"""
-Traduire les uri de wbem vers wmi et vers nous etc...
-Les namespaces sont case-sensitive sous Unix au contraire de WMI.
-On doit passer de WMI a WBEM et reciproquement.
-Mais en interne, il faut un seul type d'URI sinon ca ne peut pas fusionner.
-On peut avoir une table de mapping en interne pour les machines.
-Pour les namespaces c'est plus complique:
-Il faut utiliser la classe qui mappe vers son namespaces.
-Donc on garde pour WBEM et WMI le mapping classe=>namespace.
-Ce mapping est fait au premier appel, et on s'en sert aussi pour l affichage.
-
-
-
-Ajouter un lien vers l'objet de notre terminologie Survol.
-Probleme:
-
-On part d'un CIM_NetworkAdapter renvoye par ip_cpnfig.py
-http://127.0.0.1:8000/survol/entity.py?xid=CIM_NetworkAdapter.Name=NETGEAR%20WNDA3100v3%20N600%20Wireless%20Dual%20Band%20USB%20Adapter
-
-On peut cliquer sur l'objet WMI correspondant. Heureusement, il accepte la clef Name:
-http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_NetworkAdapter.Name%3DNETGEAR%20WNDA3100v3%20N600%20Wireless%20Dual%20Band%20USB%20Adapter
-
-A cet emplacement, pas moyen de revenir vers l'objet Survol. Mais voyons la classe:
-http://127.0.0.1:8000/survol/class_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3ACIM_NetworkAdapter.
-
-Ca affiche tous les objets de cette classe, mais:
-(1) Leur classe reelle est Win32_NetworkAdapter
-(2) La clef est DeviceID (Et d'ailleurs l'affichage est moche).
-
-Si on edite un objet:
-http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\RCHATEAU-HP\root\cimv2%3AWin32_NetworkAdapter.DeviceID%3D%2212%22
-
-Pas moyen de revenir vers Survol. Pour cela, il faut:
-(1) Remonter les classes de base jusqu'a trouver une classe Survol dont on prend la ou les clefs.
-(2) Remplir ces clefs avec les valeurs de l'objet WMI
-(3) et batir l'URL.
-
-"""
 # TESTS:
 # OK
 # wmi.WMI(moniker='root\CIMV2:CIM_ComputerSystem.Name="rchateau-hp"')

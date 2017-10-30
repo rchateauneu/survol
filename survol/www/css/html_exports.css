@@ -43,6 +43,7 @@ table.table_script_parameters {
     color: red;
     background-color: white;
     border-collapse: collapse;
+    margin-left: 20px;
 }
 
 table.other_urls {

@@ -1,7 +1,7 @@
 """
 	Transforms an internal graph into a HTML page.
 """
-
+import os
 import sys
 import lib_util
 import lib_common
@@ -12,17 +12,10 @@ import lib_kbase
 import entity_dirmenu_only
 import lib_properties
 from lib_properties import pc
+from lib_util import WrtAsUtf
 
 def UrlInHtmlMode(anUrl):
 	return lib_util.ConcatenateCgi( anUrl, "mode=html" )
-
-# Needed because of sockets.
-def WrtAsUtf(str):
-	out_dest = lib_util.DfltOutDest()
-
-	# TODO: try to make this faster. Should be conditional just like HttpHeader.
-	out_dest.write( str.encode('utf-8') )
-
 
 def WriteScriptInformation(theCgi):
 	"""
@@ -106,26 +99,34 @@ def WriteScriptInformation(theCgi):
 
 
 # TODO: Fix this.
-def WriteParameters(parameters):
+def WriteParameters(theCgi):
 	"""
 		This displays the parameters of the script and provide an URL to edit them.
 	"""
-	WrtAsUtf('<table class="table_script_parameters">')
 
-	WrtAsUtf('<tr><td colspan="2"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
+	import lib_edition_parameters
 
-	for keyParam,valParam in parameters.items():
-		WrtAsUtf(
-		"""
-		<tr>
-			<td><b>%s</b></td>
-			<td>%s</td>
-		</tr>
-		"""
-		% ( keyParam, str(valParam) ))
+	formAction = os.environ['SCRIPT_NAME']
 
+	lib_edition_parameters.FormEditionParameters(formAction,theCgi)
 
-	WrtAsUtf('</table>')
+	# parameters = theCgi.m_parameters
+
+	#WrtAsUtf('<table class="table_script_parameters">')
+	#
+	#WrtAsUtf('<tr><td colspan="2"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
+	#
+	#for keyParam,valParam in parameters.items():
+	#	WrtAsUtf(
+	#	"""
+	#	<tr>
+	#		<td><b>%s</b></td>
+	#		<td>%s</td>
+	#	</tr>
+	#	"""
+	#	% ( keyParam, str(valParam) ))
+	#
+	#WrtAsUtf('</table>')
 
 def WriteOtherUrls(topUrl):
 	"""
@@ -295,8 +296,8 @@ def WriteErrors(error_msg,isSubServer):
 			WrtAsUtf('<tr><td><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>')
 		WrtAsUtf( " </table><br>")
 
-# Quand les objects ont les memes colonnes, on pourrait afficher simplement une seule table
-# au lieu de repeter les memes libelles.
+# TODO: When the objects have the same column names, displaying could be optimised
+# into a single table without repetition of the same titles.
 
 def WriteAllObjects(grph):
 	"""
@@ -346,12 +347,12 @@ def WriteAllObjects(grph):
 	# Group objects by class.
 	# Display list of classes with an indexs and a link to the class.
 	# "NO TITLE" is wrong
-	# Trier par le nom.
 
+	# TODO: Create a "difference mode". Periodic display, of only the difference between successive data sets.
 	# Ajouter mode "difference": On recalcule periodiquement et on affiche la difference.
 
 
-	for entity_graphic_class in dictClassSubjPropObj:
+	for entity_graphic_class in sorted(dictClassSubjPropObj):
 
 		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
 		urlClass_with_mode = UrlInHtmlMode( urlClass )
@@ -364,16 +365,24 @@ def DispClassObjects(dictSubjPropObj):
 	listPropsTdDoubleColSpan = [pc.property_information,pc.property_rdf_data_nolist2,pc.property_rdf_data_nolist1]
 
 	WrtAsUtf('<table class="class_objects">')
-	for aSubj in dictSubjPropObj:
-		dictPred = dictSubjPropObj[aSubj]
 
+	# The subjects must be sorted by their title.
+	lstTuplesSubjects = []
+	for aSubj in dictSubjPropObj:
 		subj_str = str(aSubj)
 		( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
+		lstTuplesSubjects.append((aSubj,subj_str,subj_title, entity_graphic_class, entity_id))
+	# Sorted by the title of the subject, which is the third value of the tuple.
+	lstTuplesSubjects.sort(key=lambda tup: tup[2])
+
+	# Now it iterates on the sorted list.
+	# This reuses all the intermediate values.
+	for aSubj,subj_str,subj_title, entity_graphic_class, entity_id in lstTuplesSubjects:
+		dictPred = dictSubjPropObj[aSubj]
 
 		arrayGraphParams = lib_patterns.TypeToGraphParams(entity_graphic_class)
 		# "Graphic_shape","Graphic_colorfill","Graphic_colorbg","Graphic_border","Graphic_is_rounded"
 		colorClass = arrayGraphParams[1]
-
 
 		# Total number of lines.
 		cntPreds = 0
@@ -383,7 +392,10 @@ def DispClassObjects(dictSubjPropObj):
 
 		mustWriteColOneSubj = True
 
-		# TODO: The second sort key should be the value.
+		subj_str_with_mode = UrlInHtmlMode( subj_str )
+
+		# The predicates, i.e. the properties associated a subject with an object,
+		# must be alphabetically sorted.
 		for aPred in sorted(dictPred):
 			lstObjs = dictPred[aPred]
 
@@ -391,26 +403,29 @@ def DispClassObjects(dictSubjPropObj):
 			cntObjs = len(lstObjs)
 			mustWriteColOnePred = True
 
+			# The objects must be sorted by title.
+			lstTuplesObjs = []
 			for anObj in lstObjs:
+				obj_str = str(anObj)
+				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
+				lstTuplesObjs.append((anObj,obj_str,obj_title))
+			# Sorted by the title of the object, which is the third value of the tuple.
+			lstTuplesObjs.sort(key=lambda tup: tup[2])
 
-				WrtAsUtf( '<tr bgcolor="' + colorClass + '">' )
+			for anObj,obj_str,obj_title in lstTuplesObjs:
+
+				WrtAsUtf( '<tr bgcolor="%s">' % colorClass )
 
 				if mustWriteColOneSubj:
-					subj_str_with_mode = UrlInHtmlMode( subj_str )
 					WrtAsUtf(
-						'<td rowspan="' + str(cntPreds) + '">'
-						+'<a href="' + subj_str_with_mode + '">'+ subj_title + "</a>"
-						# + " (" + entity_graphic_class + ")"
-						+ "</td>")
+						'<td rowspan="%s"><a href="%s">%s</a></td>'
+						% (str(cntPreds), subj_str_with_mode, subj_title ) )
 					mustWriteColOneSubj = False
 
 				if mustWriteColOnePred:
-					# if aPred != pc.property_information :
 					if aPred not in listPropsTdDoubleColSpan :
-						WrtAsUtf( '<td rowspan="' + str(cntObjs) + '">'+ predStr + "</td>")
+						WrtAsUtf( '<td rowspan="%s">%s</td>' % (str(cntObjs), predStr) )
 					mustWriteColOnePred = False
-
-				obj_str = str(anObj)
 
 				if aPred in listPropsTdDoubleColSpan:
 					colSpan = 2
@@ -418,7 +433,6 @@ def DispClassObjects(dictSubjPropObj):
 					colSpan = 1
 
 				if lib_kbase.IsLink( anObj ):
-					obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 					url_with_mode = UrlInHtmlMode( obj_str )
 					WrtAsUtf( '<td colSpan="%d"><a href="%s">%s</a></td>' % (colSpan,url_with_mode,obj_title))
 				else:
@@ -434,13 +448,12 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	"""
 	page_title = theCgi.m_page_title
 	grph = theCgi.m_graph
-	parameters = theCgi.m_parameters
 
 	lib_util.WrtHeader('text/html')
 	WrtAsUtf( "<head>" )
 
 	# TODO: Encode HTML special characters.
-	WrtAsUtf( "<title>" + page_title + "</title>")
+	WrtAsUtf( "<title>%s</title>" % page_title)
 
 	# The href must be absolute so it will work with any script.
 	# We must calculate its prefix.
@@ -466,12 +479,9 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	WrtAsUtf("<h2/>Objects<h2/>")
 	WriteAllObjects(grph)
 
-	if len(parameters) > 0:
+	if len(theCgi.m_parameters) > 0:
 		WrtAsUtf("<h2/>Script parameters<h2/>")
-		WriteParameters(parameters)
-
-	WrtAsUtf("<h2/>Other related urls<h2/>")
-	WriteOtherUrls(topUrl)
+		WriteParameters(theCgi)
 
 	# Scripts do not apply when displaying a class.
 	# TODO: When in a enumerate script such as enumerate_CIM_LogicalDisk.py,
@@ -479,6 +489,9 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	if(theCgi.m_entity_type == "") or (theCgi.m_entity_id!=""):
 		WrtAsUtf("<h2/>Related data scripts<h2/>")
 		WriteScriptsTree(theCgi)
+
+	WrtAsUtf("<h2/>Other related urls<h2/>")
+	WriteOtherUrls(topUrl)
 
 	WrtAsUtf("</body>")
 

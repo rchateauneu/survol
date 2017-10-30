@@ -17,10 +17,10 @@ import json
 # For example, html.parser becomes html_parser
 try:
 	# Python 3
-	#import html
-	#from html import parser
-	#from html.parser import HTMLParser
-	from HTMLParser import HTMLParser
+	import html
+	from html import parser
+	from html.parser import HTMLParser
+	#from HTMLParser import HTMLParser
 except AttributeError: # ImportError:
 	# Python2 ?
 	import html_parser
@@ -478,15 +478,15 @@ def UrlToSvg(url):
 # This returns an URL to the Javascript D3 interface, editing the current data.
 def UrlToMergeD3():
 	callingUrl = ModedUrl("")
-	sys.stderr.write("UrlToMergeD3 callingUrl=%s\n"%(callingUrl))
+	#sys.stderr.write("UrlToMergeD3 callingUrl=%s\n"%(callingUrl))
 	htbinPrefixScript = "/survol"
 	htbinIdx = callingUrl.find(htbinPrefixScript)
 	urlWithoutHost = callingUrl[htbinIdx:]
-	sys.stderr.write("UrlToMergeD3 urlWithoutHost=%s\n"%(urlWithoutHost))
+	#sys.stderr.write("UrlToMergeD3 urlWithoutHost=%s\n"%(urlWithoutHost))
 
 	# While we are at it, we needs the beginning of the URL.
 	urlHost = callingUrl[:htbinIdx]
-	sys.stderr.write("UrlToMergeD3 urlHost=%s\n"%(urlHost))
+	#sys.stderr.write("UrlToMergeD3 urlHost=%s\n"%(urlHost))
 
 	# Maybe this URL is already a merge of B64-encoded URLs:
 	# urlWithoutHost="/survol/merge_scripts.py?url=aHR0cDovy4w...LjAuMTo42h0Yml&url=aHR0cD...AuMTo4MDA"
@@ -501,7 +501,7 @@ def UrlToMergeD3():
 		# of where the useful part of the URL starts.
 		# This works on Linux with Apache.
 		urlWithoutHostB64 = "?url=" + lib_util.Base64Encode(callingUrl)
-	sys.stderr.write("UrlToMergeD3 urlWithoutHostB64=%s\n"%urlWithoutHostB64)
+	#sys.stderr.write("UrlToMergeD3 urlWithoutHostB64=%s\n"%urlWithoutHostB64)
 
 	# Special case for OVH mutualised hosting.
 	if urlHost.find("primhillcomputers.com") >= 0:
@@ -510,7 +510,8 @@ def UrlToMergeD3():
 		d3UrlDir = "/survol/www"
 
 	scriptD3Url = urlHost + d3UrlDir + "/index.htm" + urlWithoutHostB64
-	sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
+	#scriptD3Url = urlHost + "/survol/www/index.htm" + urlWithoutHostB64
+	#sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
 	return scriptD3Url
 
 	# Start by removing the mode.

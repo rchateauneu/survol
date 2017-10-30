@@ -20,9 +20,6 @@ from sources_types.Linux import cgroup as survol_cgroup
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	if not lib_util.isPlatformLinux:
-		lib_common.ErrorMessageHtml("/etc/group for Linux only")
-
 	grph = cgiEnv.GetGraph()
 
 	for lin_cg in open("/proc/cgroups"):

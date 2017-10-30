@@ -6,7 +6,7 @@ import lib_common
 from lib_properties import pc
 
 def Graphic_colorbg():
-	return "#996666"
+	return "#3cb44b"
 
 
 def EntityOntology():

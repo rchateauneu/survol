@@ -273,7 +273,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	def FormatElement(val,depth=0):
 		if lib_kbase.IsLink(val):
-			valTitle = ExternalToTitle(val)
+			valTitle = "COMM MNOP "+ExternalToTitle(val)
 			# '<td href="%s" align="left" colspan="2">%s</td>' % ( a,b )
 			valTitleUL = lib_exports.DotUL(valTitle)
 			return "<td align='left' balign='left' border='0' href='%s'>%s</td>" % (val,valTitleUL )
@@ -618,7 +618,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 							else:
 								tmpCell = td_bgcolor + 'align="left">%s</td>' % val.value
 						else:
-							valTitle = ExternalToTitle(val)
+							#### valTitle = "COMM RSTU "+ExternalToTitle(val)
+							valTitle = lib_naming.ParseEntityUri( val )[0]
+
 							valTitleUL = lib_exports.DotUL(valTitle)
 							tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitleUL )
 
@@ -887,59 +889,6 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 
 ################################################################################
 
-# Extracts the mode from an URL.
-def GetModeFromUrl(url):
-	mtch_url = re.match(".*[\?\&]mode=([a-zA-Z0-9]*).*", url)
-	if mtch_url:
-		return mtch_url.group(1)
-	return ""
-
-# The display mode can come from the previous URL or from a CGI environment.
-def GuessDisplayMode(log=sys.stderr):
-	arguments = cgi.FieldStorage()
-	try:
-		try:
-			mode = arguments["mode"].value
-		except AttributeError:
-			# In case there are several mode arguments, 
-			# hardcode to "info". Consequence of a nasty Javascript bug.
-			mode = "info"
-		if mode != "":
-			return mode
-	except KeyError:
-		pass
-
-	try:
-		# HTTP_REFERER=http://127.0.0.1/PythonStyle/print.py?mode=xyz
-		referer = os.environ["HTTP_REFERER"]
-		modeReferer = GetModeFromUrl( referer )
-		# If we come from the edit form, we should not come back to id.
-		# TODO: HOW CAN WE COME BACK TO THE FORMER DISPLAY MODE ??
-		if modeReferer != "":
-			if modeReferer == "edit":
-				# TODO: Should restore the original edit mode.
-				# EditionMode
-				return ""
-			else:
-				return modeReferer
-
-	except KeyError:
-		pass
-
-	try:
-		# When called from another module, cgi.FieldStorage might not work.
-		script = os.environ["SCRIPT_NAME"]
-		mode = GetModeFromUrl( script )
-		if mode != "":
-			return mode
-	except KeyError:
-		pass
-
-	mode = ""
-	return mode
-
-################################################################################
-
 def MakeDotLayout(dot_layout, collapsed_properties ):
 	return { 'layout_style': dot_layout, 'collapsed_properties':collapsed_properties }
 
@@ -1088,7 +1037,7 @@ class CgiEnv():
 		# TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
 		# Maybe a bad collapsing of URL ?
 		# sys.stderr.write("QUERY_STRING=%s\n" % os.environ['QUERY_STRING'] )
-		mode = GuessDisplayMode()
+		mode = lib_util.GuessDisplayMode()
 
 		# Contains the optional arguments, needed by calling scripts.
 		self.m_parameters = parameters
@@ -1146,6 +1095,7 @@ class CgiEnv():
 		self.m_arguments = cgi.FieldStorage()
 
 		(self.m_entity_type,self.m_entity_id,self.m_entity_host) = self.GetXid()
+		sys.stderr.write("CgiEnv m_entity_type=%s m_entity_id=%s m_entity_host=%s\n"%(self.m_entity_type,self.m_entity_id,self.m_entity_host))
 		self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
 
 		# Depending on the caller module, maybe the arguments should be 64decoded. See "sql/query".
@@ -1214,14 +1164,12 @@ class CgiEnv():
 	# En RDF, voir si on peut ajouter un cartouche dans un coin du dessin.
 	# http://stackoverflow.com/questions/3499056/making-a-legend-key-in-graphviz
 	# On peut meme utiliser la meme legende ou presque.
-
-	# A terme, on met dans un autre fichier toutes les interactions HTML,
-	# car ca n'appelle pas grand chose d'autre, et est susceptible de grossir.
-	# Ca sera lib_html.
-	# This will never happen in merge mode.
 	def EditionMode(self):
+		import lib_edition_parameters
+
 		# Maybe we could have that with cgi.
 		formAction = os.environ['SCRIPT_NAME']
+		sys.stderr.write("EditionMode formAction=%s\n"%formAction)
 
 		# TODO: Change this for WSGI.
 		lib_util.HttpHeaderClassic( sys.stdout, "text/html")
@@ -1231,80 +1179,9 @@ class CgiEnv():
 		<title>Editing parameters</title>
 		<body>
 		""")
-		print('<form name="myform" action="' + formAction + '" method="GET">')
 
-		# Names of arguments passed as CGI parameters.
-		argKeys = self.m_arguments.keys()
+		lib_edition_parameters.FormEditionParameters(formAction,self)
 
-		print("<table>")
-
-		if self.m_entity_type != "":
-			print('<tr><td colspan=2>' + self.m_entity_type + '</td>')
-			for kvKey in self.m_entity_id_dict:
-				# TODO: Encode the value.
-				kvVal = self.m_entity_id_dict[kvKey]
-				print("<tr>")
-				print('<td>' + kvKey + '</td>')
-				ediNam = "edimodargs_" + kvKey
-				print('<td><input type="text" name="%s" value="%s"></td>' % (ediNam,kvVal) )
-				print("</tr>")
-
-		check_boxes_parameters = []
-
-		# Now the parameters specific to the script, if they are not passed also as CGI params.
-		for param_key in self.m_parameters:
-			print("<tr>")
-			print('<td>' + param_key + '</td>')
-			param_val = self.GetParameters( param_key )
-			# TODO: Encode the value.
-			if isinstance( param_val, bool ):
-				# Beware that unchecked checkboxes are not posted.
-				# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
-				check_boxes_parameters.append( param_key )
-				if param_val:
-					# Will be converted to boolean True.
-					print('<td><input type="checkbox" name="' + param_key + '" value="True" checked></td>')
-				else:
-					# Python converts empty string to False, everything else to True.
-					print('<td><input type="checkbox" name="' + param_key + '" value="True"></td>')
-			# TODO: Check validity if int, float etc...
-			else:
-				print('<td><input type="text" name="' + param_key + '" value="' + str(param_val) + '"></td>')
-			print("</tr>")
-
-		print("</table>")
-
-		# Beware that unchecked checkboxes are not posted, so it says that we come from edition mode.
-		# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
-
-		# Now the hidden arguments. Although entity_type can be deduced from the CGI script location.
-		# OBSOLETE ?????
-		print('<input type="hidden" name="edimodtype" value="' + self.m_entity_type + '"><br>')
-
-		for key in argKeys:
-			# These keys are processed differently.
-			if key in self.m_parameters:
-				continue
-
-			# Of course, the mode must not be "edit".
-			if key in ["mode"]:
-				continue
-
-			# ATTENTION: LES ARGUMENTS SPECIFIQUEMENT EDITABLES NE SONT PAS HIDDEN.
-			# QUESTION: COMMENT EDITER UNE LISTE D'ARGUMENTS?
-			# ET MEME COMMENT SAVOIR QUE C'EST UNE LISTE ?
-			# IDEE: ON PASSE A CgiEnv UNE KEY QUI TERMINE PAR [].
-			argList = self.m_arguments.getlist(key)
-			if len(argList) == 1:
-				# TODO: Values should be encoded.
-				print('<input type="hidden" name="' + key + '" value="'+argList[0] + '"><br>')
-			else:
-				for val in argList:
-					# Note the "[]" to pass several values.
-					print('<input type="hidden" name="' + key + '[]" value="'+val + '"><br>')
-
-		print('<input type="submit" value="Submit">')
-		print("</form>")
 		print("</body>")
 		print("</html>")
 		sys.exit(0)
@@ -1413,7 +1290,7 @@ class CgiEnv():
 
 		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
-		mode = GuessDisplayMode()
+		mode = lib_util.GuessDisplayMode()
 
 		topUrl = lib_util.TopUrl( self.m_entity_type, self.m_entity_id )
 

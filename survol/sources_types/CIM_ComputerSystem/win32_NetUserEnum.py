@@ -26,9 +26,12 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	# hostname = "Titi" for example
-	lib_win32.WNetAddConnect(hostname)
-
+	try:
+		# hostname = "Titi" for example
+		lib_win32.WNetAddConnect(hostname)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("NetUserEnum:" + str(exc))
 
 	if lib_util.IsLocalAddress( hostname ):
 		level = 2 # 1,2

@@ -23,11 +23,11 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.key, clsidstr)
+	versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.TypeLibRegistryKey, clsidstr)
 
 	# typelibNode = lib_common.gUriGen.ComRegisteredTypeLibUri( clsidstr )
 
-	###################  VOIR Win32_ComClass !!!!
+	###################  See Win32_ComClass !!!!
 
 	for versionStr, name in list( versions.items() ):
 		sys.stderr.write("Vers=%s Name=%s\n" % (versionStr,name) )

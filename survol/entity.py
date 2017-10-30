@@ -138,7 +138,7 @@ def Main():
 		sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
 
 	# When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
-	if lib_common.GuessDisplayMode() not in ["json","html"]:
+	if lib_util.GuessDisplayMode() not in ["json","html"]:
 	# if lib_common.GuessDisplayMode() in ["rdf", None]:
 
 		def CallbackGrphAdd( tripl, depthCall ):

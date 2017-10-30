@@ -9,6 +9,8 @@ except ImportError:
 import sys
 import getopt
 import os
+import socket
+
 try:
 	from urlparse import urlparse
 except ImportError:
@@ -22,18 +24,6 @@ except ImportError:
 # It is also possible to set it globally in the .profile
 # if not we get the error, for example:  import lib_pefile.
 # sys.path.append('survol/revlib')
-
-# Several problems with this script, probably due to the Python class.
-# * It fails if a page is called survol.htm
-# * It collapses repeated slashes "///" into one "/".
-
-# extraPath = "survol/revlib"
-#extraPath = "survol;survol/revlib"
-#try:
-#    os.environ[pyKey] = os.environ[pyKey] + ";" + extraPath
-#except KeyError:
-#     os.environ[pyKey] =extraPath
-#os.environ.copy()
 
 def ServerForever(server):
     if YappiProfile:
@@ -89,18 +79,12 @@ def RunCgiServer():
     else:
         print("No python path to set")
 
-    #os.chdir(curPth)
-    #print("new cwd=%s"% (os.getcwd()))
-
-
 # It is also possible to call the script from command line.
 def RunCgiServerInternal():
 
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
         # This is necessary for revlib which is otherwise not found.
-        # extraPath = "survol/revlib"
-        # extraPath = "survol;survol/revlib"
         extraPath = "survol"
         try:
             os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + ";" + extraPath
@@ -111,13 +95,6 @@ def RunCgiServerInternal():
     # This also works on Windows and Python 3.
     if 'linux' in sys.platform:
         sys.path.append("survol")
-        # sys.path.append("survol/revlib")
-
-    #sys.path.append("survol")
-    #sys.path.append("tralala")
-    #sys.path.append("survol/revlib")
-    #sys.stderr.write("Sys.PathA=%s\n"%str(sys.path))
-
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hp:b:v", ["help", "port=","browser=","verbose"])
@@ -126,6 +103,13 @@ def RunCgiServerInternal():
         print(err)  # will print something like "option -a not recognized"
         Usage()
         sys.exit(2)
+
+    # It must be the same address whether it is local or guessed from another machine.
+    # Equivalent to os.environ['SERVER_NAME']
+    # server_addr = "rchateau-HP"
+    # server_addr = "DESKTOP-NI99V8E"
+	# Otherwise it would be 'localhost'.
+    server_addr = socket.gethostname()
 
     verbose = False
     port_number = 8000
@@ -144,16 +128,8 @@ def RunCgiServerInternal():
         else:
             assert False, "Unhandled option"
 
-    # os.chdir("..")
     currDir = os.getcwd()
-    #sys.path.append(os.path.join(currDir,"survol"))
-    #sys.path.append(os.path.join(currDir,"survol","revlib"))
-#    sys.path.append("survol")
-#    sys.path.append("survol/revlib")
     print("cwd=%s path=%s"% (currDir, str(sys.path)))
-
-
-
     print("Opening port %d" % port_number)
     print("sys.path=%s"% str(sys.path))
     try:
@@ -167,6 +143,9 @@ def RunCgiServerInternal():
         import threading
         import time
         import subprocess
+
+        # TODO: https://docs.python.org/2/library/webbrowser.html
+        # Use the webbrowser module.
 
         def StartBrowserProcess():
             theUrl = "http://127.0.0.1"
@@ -197,49 +176,31 @@ def RunCgiServerInternal():
             def is_cgi(self):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
-                print("is_cgi collapsed_path=%s"%collapsed_path)
+                # print("is_cgi collapsed_path=%s"%collapsed_path)
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
-                print("is_cgi pathOnly=%s"%pathOnly)
+                # print("is_cgi pathOnly=%s"%pathOnly)
 
                 fileName, fileExtension = os.path.splitext(pathOnly)
 
-                print("is_cgi pathOnly=%s fileExtension=%s"%(pathOnly,fileExtension))
+                # print("is_cgi pathOnly=%s fileExtension=%s"%(pathOnly,fileExtension))
 
                 urlPrefix = "/survol/"
                 if fileExtension == ".py" and pathOnly.startswith(urlPrefix):
                     dir_sep_index = len(urlPrefix)-1
                     head, tail = collapsed_path[:dir_sep_index], collapsed_path[dir_sep_index + 1:]
-                    print("is_cgi YES head=%s tail=%s"%(head, tail))
+                    # print("is_cgi YES head=%s tail=%s"%(head, tail))
                     self.cgi_info = head, tail
                     return True
                 else:
-                    print("is_cgi NOT")
+                    # print("is_cgi NOT")
                     return False
-                # is_cgi pathOnly=/survol/entity.py fileExtension=.py
-                # is_cgi YES head=/survol tail=entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS
-                #
-                # is_cgi pathOnly=/survol/sources_types/odbc/table/odbc_table_columns.py fileExtension=.py
-                # is_cgi YES head=/survol tail=sources_types/odbc/table/odbc_table_columns.py?xid=odbc/table.Dsn%3DDSN%7EMyNativeSqlServerDataSrc%2CTable%3DVIEWS
-                #for path in self.cgi_directories:
-                #    if path in collapsed_path:
-                #        dir_sep_index = collapsed_path.rfind(path) + len(path)
-                #        head, tail = collapsed_path[:dir_sep_index], collapsed_path[dir_sep_index + 1:]
-                #        print("is_cgi YES head=%s tail=%s"%(head, tail))
-                #        self.cgi_info = head, tail
-                #        return True
-                #print("is_cgi NOT collapsed_path=%s"%collapsed_path)
-                #return False
 
         server = BaseHTTPServer.HTTPServer
         handler = MyCGIHTTPServer
 
-        # Is this really necessary ?
-        #handler.cgi_directories = [ "survol" ]
-        #print("Cgi directories=%s" % handler.cgi_directories)
-
-        server = HTTPServer(('localhost', port_number), handler)
+        server = HTTPServer((server_addr, port_number), handler)
 
         ServerForever(server)
 
@@ -255,25 +216,17 @@ def RunCgiServerInternal():
                 # https://stackoverflow.com/questions/17618084/python-cgihttpserver-default-directories
                 self.cgi_info = '', self.path[1:]
                 # So it always work.
-                return True
+                uprs = urlparse(self.path)
+                pathOnly = uprs.path
+                # print("is_cgi pathOnly=%s"%pathOnly)
 
-                # HOW CAN IT WORK ALTHOUGH THE PATH SHOULD NOT CONTAIN "cgi-bin" PR "/htin"
-                # TODO: What is the equivalent of _url_collapse_path ?
-                if True:
-                    collapsed_path = self.path
-                else:
-                    collapsed_path = _url_collapse_path(self.path)
+                fileName, fileExtension = os.path.splitext(pathOnly)
+                return fileExtension == ".py"
 
-                for path in self.cgi_directories:
-                    if path in collapsed_path:
-                        dir_sep_index = collapsed_path.rfind(path) + len(path)
-                        head, tail = collapsed_path[:dir_sep_index], collapsed_path[dir_sep_index + 1:]
-                        self.cgi_info = head, tail
-                        return True
-                return False
+
 
         handler = MyCGIHTTPServer
-        server = HTTPServer(('localhost', port_number), handler)
+        server = HTTPServer((server_addr, port_number), handler)
         server.serve_forever()
 
 if __name__ == '__main__':

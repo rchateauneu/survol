@@ -9,9 +9,20 @@ import lib_util
 
 def BuildCredDocument():
 	def CredFilNam():
+		filNamOnly = "SurvolCredentials.json"
+		try:
+			return os.environ["HOME"] + "/" + filNamOnly
+		except KeyError:
+			pass
+
+		try:
+			return os.environ["HOMEPATH"] + "\\" + filNamOnly
+		except KeyError:
+			pass
+
 		dirNam = lib_util.gblTopScripts
 
-		filNam = dirNam + "/../../SurvolCredentials.json"
+		filNam = dirNam + "/../../" + filNamOnly
 
 		return filNam
 
@@ -76,5 +87,14 @@ def GetCredentialsNames( credType ):
 		return arrType.keys()
 	except KeyError:
 		sys.stderr.write("GetCredentials Invalid type credType=%s\n" % (credType))
+		return None
+
+def GetCredentialsTypes():
+	"""Returns the various credential types taken form the confidential file: """
+	try:
+		credentials = CredDocument()
+		return credentials.keys()
+	except KeyError:
+		sys.stderr.write("GetCredentials Invalid document\n")
 		return None
 

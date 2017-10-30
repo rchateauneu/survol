@@ -33,6 +33,8 @@ def Main():
 		propComClass = lib_common.MakeProp("COM class")
 		for classIdx in resuComClasses:
 			comClassId = resuComClasses[classIdx]
+			# On Python3, this is a bytes which must be converted to str.
+			comClassId = str(comClassId)
 
 			# comClass = "{DB7A405D-208F-4E88-BA0A-132ACFA0B5B6}" for example.
 			typelibNode = lib_common.gUriGen.ComRegisteredTypeLibUri( comClassId )

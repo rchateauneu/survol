@@ -280,10 +280,8 @@ def WmiDictPropertiesUnit(connWmi, className):
 
 	return mapPropUnits
 
-
-
-# This adds information to a WMI class.
 def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
+	"""This adds information to a WMI class."""
 	try:
 		# No need to print this, at the moment.
 		if False:
@@ -331,6 +329,15 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 			klaQualVal = klassQuals[klaQualKey]
 			if isinstance(klaQualVal,tuple):
 				klaQualVal = "{ " + ",".join(klaQualVal) + " }"
+
+			# Some specific properties match an entity class, so we can create a node.
+			# IT WORKS BUT IT IS NOT NICE AS IT IS A SEPARATE NODE.
+			# We would like to have a clickable URL displayed in a table TD.
+			if klaQualKey == "UUID":
+				nodeUUID = lib_common.gUriGen.ComTypeLibUri( klaQualVal )
+				grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), nodeUUID ) )
+				continue
+
 			grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), lib_common.NodeLiteral(klaQualVal) ) )
 	except Exception:
 		exc = sys.exc_info()[1]

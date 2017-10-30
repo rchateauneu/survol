@@ -14,9 +14,6 @@ from sources_types import user as survol_user
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
-	if not lib_util.isPlatformLinux:
-		lib_common.ErrorMessageHtml("/etc/passwd for Linux only")
-
 	grph = cgiEnv.GetGraph()
 
 

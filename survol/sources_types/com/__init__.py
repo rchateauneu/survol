@@ -10,10 +10,10 @@ def Graphic_shape():
 	return "box"
 
 def Graphic_colorfill():
-	return "#CC99FF"
+	return "#C0C0C0"
 
 def Graphic_colorbg():
-	return "#CC99FF"
+	return "#C0C0C0"
 
 def Graphic_border():
 	return 0

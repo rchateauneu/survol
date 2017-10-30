@@ -269,7 +269,7 @@ class RdfQueue_HTTPRequestHandler(BaseHTTPRequestHandler):
 
 			self.LogMsg("After insertion pidFeeder=%d nbtriples=%d" % ( pidFeeder, len(grph) ) )
 
-			mode = lib_common.GetModeFromUrl(self.path)
+			mode = lib_util.GetModeFromUrl(self.path)
 
 			self.LogMsg("GetModeFromUrl=" + mode )
 
@@ -691,7 +691,7 @@ def DoTheJob(TheEngine,Deserializer,AppName,Title,dot_layout = "", collapsed_pro
 		SendRedirection( sys.stdout, url_stop )
 		sys.exit(0)
 
-	mode = lib_common.GuessDisplayMode()
+	mode = lib_util.GuessDisplayMode()
 	GblLog("mode:"+mode)
 	# Equivalent to 'ModedUrl(mode)'
 	url_mode = lib_util.ConcatenateCgi( url, "mode=" + mode )

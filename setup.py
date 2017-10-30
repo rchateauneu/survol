@@ -156,7 +156,7 @@ setup(
         'survol_wsgiserver = survol.scripts.wsgiserver:RunWsgiServer',
         'survol_cgiscript = survol.scripts.survolcgi:SurvolCgi',
     ]},
-    requires=['rdflib','cgi','six'],
+    requires=['rdflib'],
     cmdclass={
         'install': InstallCommand,
     },

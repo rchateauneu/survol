@@ -6,7 +6,7 @@ from lib_properties import pc
 import win32con
 import win32api
 
-key = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib")
+TypeLibRegistryKey = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib")
 
 def ComKeyAllNameVersion(key, keyName):
 	result = {}

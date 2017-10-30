@@ -1,6 +1,10 @@
 import re
 import lib_common
 
+def UsableNetCommands(entity_type,entity_ids_arr):
+    """NET command must be available. This can be the case on Linux."""
+    return True
+
 def SmbBothUriSplit(smbBoth):
     shr_mtch = re.match( "//([^/]+)/([^/]+)/(.*)", smbBoth )
 
