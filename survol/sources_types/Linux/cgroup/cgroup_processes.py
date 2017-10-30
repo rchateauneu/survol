@@ -33,7 +33,7 @@ def Main():
 		procId = int(lin_cg)
 		procNode = lib_common.gUriGen.PidUri(procId)
 
-		grph.add( ( cgrpNode, propCGroup, procNode ) )
+		grph.add( ( cgroupNode, propCGroup, procNode ) )
 
 	# This lists processes in a table instead of scattered nodes.
 	# This is because there might be a lot of processes.
