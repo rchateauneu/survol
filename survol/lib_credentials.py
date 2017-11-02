@@ -60,6 +60,8 @@ CredDocument.credentials = None
 # For example: GetCredentials("Oracle","XE") or GetCredentials("Login","192.168.1.78")
 # It returns the username and the password.
 def GetCredentials( credType, credName ):
+	if credName is None:
+		credName = ""
 	credentials = CredDocument()
 	sys.stderr.write("GetCredentials credType=%s credName=%s credentials=%d elements\n" % (credType,credName,len(credentials)))
 	try:
@@ -80,6 +82,7 @@ def GetCredentials( credType, credName ):
 
 	# We must convert the machine names to uppercase because this is "sometimes" done by Windows.
 	# Might be a problem if several entries are identical except the case.
+	keyVal = credentials[credType]
 	arrTypeUpper = { subKey.upper() : keyVal[subKey] for subKey in arrType }
 
 	credNameUpper = credName.upper()
