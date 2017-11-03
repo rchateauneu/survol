@@ -457,19 +457,7 @@ def Grph2Rdf(grph):
 # The problems comes from "&mode=edit" or "&mode=html" etc...
 # TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
 def UrlToSvg(url):
-	if lib_util.isPlatformWindows:
-		# If one ampersand only, "error on line 28 at column 75: EntityRef: expecting ';'"
-		# when displaying the SVG file.
-		# Windows, Python 3.2, Graphviz 2.36
-		return url.replace( "&", "&amp;amp;" )
-	else:
-		if sys.version_info <= (2,5):
-			# Linux, Python 2.5.  Tested on Mandriva.
-			# Maybe we should do the same as the others.
-			return url.replace( "&", "&amp;" )
-		else:
-			# Tested with Python 2.7 on Fedora.
-			return url.replace( "&", "&amp;amp;" )
+	return url.replace( "&", "&amp;amp;" )
 
 # This returns an URL to the Javascript D3 interface, editing the current data.
 def UrlToMergeD3():
@@ -570,10 +558,17 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	# This displays the parameters of the URL and a link allowing to edit them.
 	def LegendAddParametersLinks(stream,parameters):
-		if len( parameters ) > 0 :
+		stream.write("<tr>")
+		urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
+		stream.write("<td href='"+urlEdtConfiguration+"' align='left'>" + DotBold(DotUL( "Setup" )) + "</td>")
+		urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
+		stream.write("<td href='"+urlEdtCredentials+"' align='left'>" + DotBold(DotUL( "Credentials" )) + "</td>")
+		stream.write("</tr>" )
+
+		if parameters :
 			urlEdit = ModedUrl("edit")
 			urlEditReplaced = UrlToSvg( urlEdit )
-			stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "' align='left'>" + DotBold(DotUL( "Edit parameters" )) + "</td></tr>" )
+			stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "' align='left'>" + DotBold(DotUL( "Edit script parameters" )) + "</td></tr>" )
 
 		arguments = cgi.FieldStorage()
 		for keyParam,valParam in parameters.items():
