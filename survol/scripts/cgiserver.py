@@ -47,10 +47,11 @@ def ServerForever(server):
 
 def Usage(progNam):
     print("Survol HTTP server: %s"%progNam)
-    print("    -p,--port=<number>      TCP/IP port number")
+    print("    -a,--address=<IP address> TCP/IP address")
+    print("    -p,--port=<number>        TCP/IP port number")
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
-    print("    -b,--browser=<program>  Starts a browser")
-    print("    -v,--verbose            Verbose mode")
+    print("    -b,--browser=<program>    Starts a browser")
+    print("    -v,--verbose              Verbose mode")
 
 # Setup creates a binary script which directly calls this function.
 # This changes the current directory, so that URLs can point to plain Python scripts.
@@ -79,6 +80,34 @@ def RunCgiServer():
     else:
         print("No python path to set")
 
+# https://docs.python.org/2/library/webbrowser.html
+def StartsWebrowser(browser_name,theUrl):
+    """This starts a browser with the specific module to do it"""
+
+    import webbrowser
+
+    # TODO: Parses the argument from the parameter
+    webbrowser.open(theUrl, new=0, autoraise=True)
+
+def StartsBrowser(browser_name,theUrl):
+    """This starts a browser whose executable is given on the command line"""
+    # Import only if needed.
+    import threading
+    import time
+    import subprocess
+
+    def StartBrowserProcess():
+
+        print("About to start browser: %s %s"%(browser_name,theUrl))
+
+        # Leaves a bit of time so the HTTP server can start.
+        time.sleep(5)
+
+        subprocess.check_call([browser_name, theUrl])
+
+    threading.Thread(target=StartBrowserProcess).start()
+    print("Browser thread started")
+
 # It is also possible to call the script from command line.
 def RunCgiServerInternal():
 
@@ -97,7 +126,7 @@ def RunCgiServerInternal():
         sys.path.append("survol")
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hp:b:v", ["help", "port=","browser=","verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -108,7 +137,7 @@ def RunCgiServerInternal():
     # Equivalent to os.environ['SERVER_NAME']
     # server_addr = "rchateau-HP"
     # server_addr = "DESKTOP-NI99V8E"
-	# Otherwise it would be 'localhost'.
+    # It is possible to force this address to "localhost" or "127.0.0.1" for example.
     server_addr = socket.gethostname()
 
     verbose = False
@@ -118,6 +147,8 @@ def RunCgiServerInternal():
     for anOpt, aVal in opts:
         if anOpt == ("-v", "--verbose"):
             verbose = True
+        elif anOpt in ("-a", "--address"):
+            server_addr = aVal
         elif anOpt in ("-p", "--port"):
             port_number = int(aVal)
         elif anOpt in ("-b", "--browser"):
@@ -130,7 +161,7 @@ def RunCgiServerInternal():
 
     currDir = os.getcwd()
     print("cwd=%s path=%s"% (currDir, str(sys.path)))
-    print("Opening port %d" % port_number)
+    print("Opening %s:%d" % (server_addr,port_number))
     print("sys.path=%s"% str(sys.path))
     try:
         print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
@@ -139,30 +170,18 @@ def RunCgiServerInternal():
 
     # Starts a thread which will starts the browser.
     if browser_name:
-        # Import only if needed.
-        import threading
-        import time
-        import subprocess
 
-        # TODO: https://docs.python.org/2/library/webbrowser.html
-        # Use the webbrowser module.
+        theUrl = "http://" + server_addr
+        if port_number:
+            if port_number != 80:
+                theUrl += ":%d" % port_number
+        theUrl += "/survol/www/index.htm"
 
-        def StartBrowserProcess():
-            theUrl = "http://127.0.0.1"
-            if port_number:
-                if port_number != 80:
-                    theUrl += ":%d" % port_number
-            theUrl += "/survol/www/index.htm"
-
-            print("About to start browser: %s %s"%(browser_name,theUrl))
-
-            # Leaves a bit of time so the HTTP server can start.
-            time.sleep(5)
-
-            subprocess.check_call([browser_name, theUrl])
-
-        threading.Thread(target=StartBrowserProcess).start()
-        print("Browser thread started")
+        if browser_name.startswith("webbrowser"):
+            StartsWebrowser(browser_name,theUrl)
+        else:
+            StartsBrowser(browser_name,theUrl)
+        print("Browser thread started to:"+theUrl)
 
     # https://stackoverflow.com/questions/32241082/python-access-control-allow-origin
     # CORS Cross-site scripting must be activated.
