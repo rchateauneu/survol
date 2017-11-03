@@ -8,6 +8,7 @@ Also, it servers JSON queries from the HTML pages doing the same features, but i
 import os
 import sys
 import cgi
+import lib_common
 import lib_util
 import lib_credentials
 
@@ -51,14 +52,12 @@ def CreateCredentialsMap():
 
 
 
-def FormUpdateCredentials(formAction,credMap):
+def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
     Wrt("""
     <form method="post" action="%s" name="ServerCredentials">
     """%(formAction))
 
-    Wrt("""
-    <table>
-    """)
+    # Wrt("""<table>""")
 
     Wrt("""<tr>
     <td>Resource</td>
@@ -81,60 +80,89 @@ def FormUpdateCredentials(formAction,credMap):
             # Read-only access rights are enough.
             cred = credNams[credName]
 
-            Wrt("""<tr>
-            <td>%s</td>
-            <td>%s</td>
-            <td><input name="%s" value="%s"></td>
-            <td><input type="checkbox" name="%s"></td>
-            </tr>
-            """%(credName,cred[0],cred[2],cred[1],cred[3]))
+            try:
+                # Maybe we can create a URL for a credName of a given credType.
+                # For example a machine name if 'Login', a database if 'Oracle',
+                # an access to a WBEM server if 'WBEM' etc...
+                nodeGenerator = credTypesWellKnown[credType]
+                credNameUrl = nodeGenerator(credName)
+            except:
+                # Maybe the key is not defined ...
+                # ... or the generator does not work
+                exc = sys.exc_info()[1]
+                sys.stderr.write("nodeGenerator exception:%s\n"%str(exc))
+                credNameUrl = None
 
-    Wrt("""
-    </table>
-    """)
+            if credNameUrl:
+                Wrt("""<tr>
+                <td><a href="%s">%s</a></td>
+                <td>%s</td>
+                <td><input name="%s" value="%s"></td>
+                <td><input type="checkbox" name="%s"></td>
+                </tr>
+                """%(credNameUrl,credName,cred[0],cred[2],cred[1],cred[3]))
+            else:
+                # If no URL can be created. For example of the map misses a function
+                # for a given credential type.
+                Wrt("""<tr>
+                <td>%s</td>
+                <td>%s</td>
+                <td><input name="%s" value="%s"></td>
+                <td><input type="checkbox" name="%s"></td>
+                </tr>
+                """%(credName,cred[0],cred[2],cred[1],cred[3]))
 
+    # Wrt("""</table>""")
+
+    Wrt("""<tr>""")
+    Wrt("""<td colspan=4>""")
     Wrt("""
-    <input value="SubmitCredUpdValue" name="SubmitCredUpdName" type="submit"><br>
+    <input value="Update / delete credential" name="SubmitCredUpdName" type="submit"><br>
     </form>
     """)
+    Wrt("""</td>""")
+    Wrt("""</tr>""")
 
 def FormInsertCredentials(formAction,credTypeList):
     Wrt("""
     <form method="post" action="edit_credentials.py" name="ServerCredentials">
     """)
-    Wrt("""
-    <table>
-    """)
+
+    # Wrt("""<table>""")
+
     credInputAddPrefix = "credentials_add_"
     credInputAddType = credInputAddPrefix + "type"
     credInputAddName = credInputAddPrefix + "name"
     credInputAddUsr = credInputAddPrefix + "usr"
     credInputAddPwd = credInputAddPrefix + "pwd"
 
-    Wrt("""
-    <tr>""")
+    Wrt("""<tr>""")
 
-    Wrt("""<td>Type:<select name="%s">"""%(credInputAddType))
+    Wrt("""<td colspan=4><select name="%s">"""%(credInputAddType))
     for credType in credTypeList:
         Wrt("""<option value='%s'>%s</option>""" % (credType, credType ))
     Wrt("""</select></td>""")
+    Wrt("""</tr>""")
 
+    Wrt("""<tr>""")
     Wrt("""
-    <td>Name:<input name="%s"></td>
-    <td>User:<input name="%s"></td>
-    <td>Password:<input name="%s"></td>
+    <td><input name="%s"></td>
+    <td><input name="%s"></td>
+    <td><input name="%s"></td>
     </tr>
     """ % (credInputAddName,credInputAddUsr,credInputAddPwd))
 
-    Wrt("""
-    </table>
-    """)
+    # Wrt("""</table>""")
 
+    Wrt("""<tr>""")
+    Wrt("""<td colspan=4>""")
     Wrt("""
     <input type="hidden" value="HiddenValue" name="HiddenName">
-    <input value="SubmitCredAddValue" name="SubmitCredAddName" type="submit">
+    <input value="Insert new credential" name="SubmitCredAddName" type="submit">
     </form>
     """)
+    Wrt("""</td>""")
+    Wrt("""</tr>""")
 
 def InsertedCredMap(cgiArguments):
     # Maybe the form tries to insert a new cre3dential
@@ -154,7 +182,7 @@ def InsertedCredMap(cgiArguments):
         lib_credentials.AddCredential(credType,credName,credUsr,credPwd)
 
     except KeyError:
-        Wrt("No add<br>")
+        # Wrt("No add<br>")
         pass
 
 def UpdatedCredMap(cgiArguments):
@@ -197,7 +225,7 @@ def UpdatedCredMap(cgiArguments):
                 # Wrt("Added cred=%s<br>"%str(cred))
 
     except KeyError:
-        Wrt("No upd nor del<br>")
+        # Wrt("No upd nor del<br>")
         credMapOut = credMap
         pass
 
@@ -207,12 +235,62 @@ def UpdatedCredMap(cgiArguments):
     return credMapOut
 
 
+def CredDefinitions():
+    """
+    This returns the list of known credential types and for each of them,
+    a function which creates a URL for a credential resource name.
+    """
+
+    def CredUrlLogin(credName_Machine):
+        """ Return a node given a machine name"""
+        serverNode = lib_common.gUriGen.HostnameUri(credName_Machine)
+        return serverNode
+
+    def CredUrlWMI(credName):
+        # TODO: Finish this
+        return None
+
+    def CredUrlOracle(dbName):
+        from sources_types.oracle import db as oracle_db
+    	node_oradb = oracle_db.MakeUri( dbName )
+        return node_oradb
+
+    def CredUrlWBEM(credName):
+        # TODO: Finish this
+        return None
+
+    def CredUrlRabbitMQ(configNam):
+        from sources_types.rabbitmq import manager as survol_rabbitmq_manager
+    	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
+        return nodeManager
+
+    def CredUrlAzure(credName):
+        # TODO: Finish this
+        return None
+
+    def CredUrlODBC(credName):
+        # TODO: Finish this
+        return None
+
+    # This hard-coded list allows also to create credentials for the first time.
+    credTypesWellKnown = {
+        "Login" : CredUrlLogin,
+        "WMI" : CredUrlWMI,
+        "Oracle" : CredUrlOracle,
+        "WBEM" : CredUrlWBEM,
+        "RabbitMQ" : CredUrlRabbitMQ,
+        "Azure" : CredUrlAzure,
+        "ODBC" : CredUrlODBC,
+    }
+
+    return credTypesWellKnown
+
+
+
 def Main():
     formAction = os.environ['SCRIPT_NAME']
 
     cgiArguments = cgi.FieldStorage()
-
-
 
     lib_util.HttpHeaderClassic(sys.stdout, "text/html")
 
@@ -224,33 +302,23 @@ def Main():
     credFilename = os.path.normpath(lib_credentials.CredFilNam())
 
     Wrt("""
-    <body>Have the same "SURVOL" header<br><br>Edit Survol credentials in %s<br><br>
+    <body><h2>Edit Survol credentials in %s</h2><br>
     """ % credFilename)
 
-    Wrt("Arg=%s<br><br>"%str(cgiArguments))
+    # Wrt("Arg=%s<br><br>"%str(cgiArguments))
 
     InsertedCredMap(cgiArguments)
 
     credMap = UpdatedCredMap(cgiArguments)
 
+    credTypesWellKnown = CredDefinitions()
+
+    Wrt("""<table>""")
     if credMap:
-        FormUpdateCredentials(formAction,credMap)
+        FormUpdateCredentials(formAction,credMap,credTypesWellKnown)
 
-    credTypesWellKnown = [
-        "Login",
-        "WMI",
-        "Oracle",
-        "WBEM",
-        "RabbitMQ",
-        "Azure",
-        "ODBC",
-    ]
-
-    FormInsertCredentials(formAction, credTypesWellKnown)
-
-
-
-
+    FormInsertCredentials(formAction, sorted(credTypesWellKnown.keys()))
+    Wrt("""</table>""")
 
     Wrt("""
     <br><a href="edit_configuration.py">Configuration</a>
