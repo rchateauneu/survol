@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Oracle database'schemas
+Oracle database schemas
 """
 
 import sys
