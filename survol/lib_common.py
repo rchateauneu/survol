@@ -905,7 +905,7 @@ def GetCallingModuleDoc():
 
 	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
 
-	if True or globalMergeMode:
+	if modeOVH or globalMergeMode:
 		try:
 			# This is a bit of a hack.
 			import inspect
