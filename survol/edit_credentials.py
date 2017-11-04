@@ -293,7 +293,7 @@ def Main():
     lib_export_html.DisplayHtmlTextHeader(page_title)
 
     WrtAsUtf("""
-    <body><h2>Edit Survol credentials in %s</h2><br>
+    <body><h2>Edit Survol credentials in %s</h2>
     """ % credFilename)
 
 
@@ -302,15 +302,17 @@ def Main():
     # Remote client=82.45.12.63
 
     currHostNam = socket.gethostname()
-    WrtAsUtf("Hostname=%s<br>"%currHostNam)
-
     currHostAddr = socket.gethostbyname(currHostNam)
-    WrtAsUtf("Host address=%s<br>"%currHostAddr)
-
     addrRemote = os.environ['REMOTE_ADDR']
-    WrtAsUtf("Remote client=%s<br>"%addrRemote)
 
-    if ( currHostAddr != "192.168.0.17" ) and (addrRemote != "82.45.12.63"):
+    WrtAsUtf("""
+    <table border="1">
+    <tr><td><b>Host name</b></td><td>%s</td></tr>
+    <tr><td><b>Host address</b></td><td>%s</td></tr>
+    <tr><td><b>Remote address</b></td><td>%s</td></tr>
+    """ %(currHostNam,currHostAddr,addrRemote))
+
+    if ( currHostAddr != "192.168.0.17" ) and (addrRemote not in ["82.45.12.63","192.168.0.14","127.0.0.1"]):
         WrtAsUtf("<b>ACCESS FORBIDDEN</b><br>")
     else:
         InsertedCredMap(cgiArguments)
