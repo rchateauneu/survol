@@ -264,9 +264,10 @@ def CredDefinitions():
     	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
         return nodeManager
 
-    def CredUrlAzure(credName):
-        # TODO: Finish this
-        return None
+    def CredUrlAzure(subscriptionName):
+        from sources_types.Azure import subscription as azure_subscription
+        subscriptionNode = azure_subscription.MakeUri( subscriptionName )
+        return subscriptionNode
 
     def CredUrlODBC(credName):
         # TODO: Finish this
