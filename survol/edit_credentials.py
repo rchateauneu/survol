@@ -11,20 +11,18 @@ import cgi
 import lib_common
 import lib_util
 import lib_credentials
+import lib_export_html
 
-def Wrt(theStr):
-    sys.stdout.write(theStr)
+from lib_util import WrtAsUtf
+
 
 # This list the content of credentials and assoictes a variable name to each element.
 # This variable name which must be unique, is later used to build a HTML form.
-# We could use the name, but this variable name must be alphanumeric.
 def CreateCredentialsMap():
     credTypeList = lib_credentials.GetCredentialsTypes()
-    # Wrt("credTypeList=%s<br>"%str(credTypeList))
 
     credTypesDict = dict()
 
-    #counterType = 0
     for credType in sorted(credTypeList):
 
         credTypesDict[credType] = dict()
@@ -32,44 +30,35 @@ def CreateCredentialsMap():
         # This is a homogeneous list, for example of machines names, or databases.
         credNams = lib_credentials.GetCredentialsNames( credType )
 
-        #counterName = 0
         for credName in sorted(credNams):
 
             cred = lib_credentials.GetCredentials( credType, credName )
 
-            #formVarPrefix = "var_%d_%d" % (counterCred,counterName)
-            # credTypesDict[credName] = (cred[0],cred[1],formVarPrefix)
             credInputPrefix = credType + "_" + credName + "_" + cred[0]
             credInputPassword = credInputPrefix + "_UPDATE_PASSWORD"
             credInputNameDel = credInputPrefix + "_DELETE_CREDENTIAL"
 
             credTypesDict[credType][credName] = [cred[0],cred[1],credInputPassword,credInputNameDel]
 
-            #counterName += 1
-        #counterCred += 1
-    # Wrt("credTypesDict=%s<br>"%str(credTypesDict))
     return credTypesDict
 
 
-
 def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
-    Wrt("""
+    WrtAsUtf("""
     <form method="post" action="%s" name="ServerCredentials">
     """%(formAction))
 
-    # Wrt("""<table>""")
-
-    Wrt("""<tr>
-    <td>Resource</td>
-    <td>Account</td>
-    <td>Password</td>
-    <td>Del</td>
+    WrtAsUtf("""<tr>
+    <td><b>Resource</b></td>
+    <td><b>Account</b></td>
+    <td><b>Password</b></td>
+    <td><b>Del</b></td>
     </tr>
     """)
 
     for credType in sorted(credMap):
         # This is a type of access: Oracle databse, Linux machine, Windows account etc...
-        Wrt("<tr><td colspan=4><b>%s</b></td></tr>" % (credType))
+        WrtAsUtf("<tr><td colspan=4><b>%s</b></td></tr>" % (credType))
 
         # This is a homogeneous list, for example of machines names, or databases.
         credNams = credMap[ credType ]
@@ -94,7 +83,7 @@ def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
                 credNameUrl = None
 
             if credNameUrl:
-                Wrt("""<tr>
+                WrtAsUtf("""<tr>
                 <td><a href="%s">%s</a></td>
                 <td>%s</td>
                 <td><input name="%s" value="%s"></td>
@@ -104,7 +93,7 @@ def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
             else:
                 # If no URL can be created. For example of the map misses a function
                 # for a given credential type.
-                Wrt("""<tr>
+                WrtAsUtf("""<tr>
                 <td>%s</td>
                 <td>%s</td>
                 <td><input name="%s" value="%s"></td>
@@ -112,23 +101,19 @@ def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
                 </tr>
                 """%(credName,cred[0],cred[2],cred[1],cred[3]))
 
-    # Wrt("""</table>""")
-
-    Wrt("""<tr>""")
-    Wrt("""<td colspan=4>""")
-    Wrt("""
+    WrtAsUtf("""<tr>""")
+    WrtAsUtf("""<td colspan=4>""")
+    WrtAsUtf("""
     <input value="Update / delete credential" name="SubmitCredUpdName" type="submit"><br>
     </form>
     """)
-    Wrt("""</td>""")
-    Wrt("""</tr>""")
+    WrtAsUtf("""</td>""")
+    WrtAsUtf("""</tr>""")
 
 def FormInsertCredentials(formAction,credTypeList):
-    Wrt("""
+    WrtAsUtf("""
     <form method="post" action="edit_credentials.py" name="ServerCredentials">
     """)
-
-    # Wrt("""<table>""")
 
     credInputAddPrefix = "credentials_add_"
     credInputAddType = credInputAddPrefix + "type"
@@ -136,36 +121,37 @@ def FormInsertCredentials(formAction,credTypeList):
     credInputAddUsr = credInputAddPrefix + "usr"
     credInputAddPwd = credInputAddPrefix + "pwd"
 
-    Wrt("""<tr>""")
+    WrtAsUtf("""<tr>""")
+    WrtAsUtf("""<td colspan=4><b>Credentials creation</b></td>""")
+    WrtAsUtf("""</tr>""")
 
-    Wrt("""<td colspan=4><select name="%s">"""%(credInputAddType))
+    WrtAsUtf("""<tr>""")
+    WrtAsUtf("""<td colspan=4><select name="%s">"""%(credInputAddType))
     for credType in credTypeList:
-        Wrt("""<option value='%s'>%s</option>""" % (credType, credType ))
-    Wrt("""</select></td>""")
-    Wrt("""</tr>""")
+        WrtAsUtf("""<option value='%s'>%s</option>""" % (credType, credType ))
+    WrtAsUtf("""</select></td>""")
+    WrtAsUtf("""</tr>""")
 
-    Wrt("""<tr>""")
-    Wrt("""
+    WrtAsUtf("""<tr>""")
+    WrtAsUtf("""
     <td><input name="%s"></td>
     <td><input name="%s"></td>
     <td><input name="%s"></td>
     </tr>
     """ % (credInputAddName,credInputAddUsr,credInputAddPwd))
 
-    # Wrt("""</table>""")
-
-    Wrt("""<tr>""")
-    Wrt("""<td colspan=4>""")
-    Wrt("""
+    WrtAsUtf("""<tr>""")
+    WrtAsUtf("""<td colspan=4>""")
+    WrtAsUtf("""
     <input type="hidden" value="HiddenValue" name="HiddenName">
     <input value="Insert new credential" name="SubmitCredAddName" type="submit">
     </form>
     """)
-    Wrt("""</td>""")
-    Wrt("""</tr>""")
+    WrtAsUtf("""</td>""")
+    WrtAsUtf("""</tr>""")
 
 def InsertedCredMap(cgiArguments):
-    # Maybe the form tries to insert a new cre3dential
+    # This is called if the form tries to insert a new credential
     try:
         cgiArguments["SubmitCredAddName"]
         credType = cgiArguments["credentials_add_type"].value
@@ -173,19 +159,23 @@ def InsertedCredMap(cgiArguments):
         credUsr = cgiArguments["credentials_add_usr"].value
         credPwd = cgiArguments["credentials_add_pwd"].value
 
-        Wrt("credentials_add_type=%s<br>"%credType)
-        Wrt("credentials_add_name=%s<br>"%cgiArguments["credentials_add_name"].value)
-        Wrt("credentials_add_usr=%s<br>"%cgiArguments["credentials_add_usr"].value)
-        Wrt("credentials_add_pwd=%s<br>"%cgiArguments["credentials_add_pwd"].value)
-        Wrt("Finished<br>")
+        #WrtAsUtf("credentials_add_type=%s<br>"%credType)
+        #WrtAsUtf("credentials_add_name=%s<br>"%cgiArguments["credentials_add_name"].value)
+        #WrtAsUtf("credentials_add_usr=%s<br>"%cgiArguments["credentials_add_usr"].value)
+        #WrtAsUtf("credentials_add_pwd=%s<br>"%cgiArguments["credentials_add_pwd"].value)
+        #WrtAsUtf("Finished<br>")
 
         lib_credentials.AddCredential(credType,credName,credUsr,credPwd)
 
     except KeyError:
-        # Wrt("No add<br>")
+        # WrtAsUtf("No add<br>")
         pass
 
 def UpdatedCredMap(cgiArguments):
+    """
+    This takes the list on input cgi variables and uses it to update the passwords
+    or delete entire rows of credentials (user+pass).
+    """
     credMap = CreateCredentialsMap()
 
     credMapOut = dict()
@@ -196,12 +186,12 @@ def UpdatedCredMap(cgiArguments):
         cgiArguments["SubmitCredUpdName"]
 
         for credType in sorted(credMap):
-            # Wrt("credType=%s<br>"%credType)
+            # WrtAsUtf("credType=%s<br>"%credType)
             credMapOut[credType] = dict()
             credNams = credMap[credType]
             for credName in sorted(credNams):
                 cred = credNams[credName]
-                # Wrt("cred=%s<br>"%str(cred))
+                # WrtAsUtf("cred=%s<br>"%str(cred))
 
                 try:
                     # If the "_del" variable is ticked, do not copy the credentials.
@@ -213,19 +203,21 @@ def UpdatedCredMap(cgiArguments):
 
                 try:
                     # If the "_upd" variable is ticked, copy the credentials with a new password.
+                    # BEWARE / TODO / FIXME: If the password is empty, it is not taken into account.
+                    # It does not seem possible to have an empty password.
                     updPassword = cgiArguments[cred[2]].value
                     if updPassword != cred[1]:
                         wasChanged = True
-                        Wrt("Name=%s: Replace %s by %s<br>"%(cred[0],cred[1],updPassword))
+                        #   WrtAsUtf("Name=%s: Replace %s by %s<br>"%(cred[0],cred[1],updPassword))
                         cred[1] = updPassword
                 except:
                     pass
 
                 credMapOut[credType][credName] = cred
-                # Wrt("Added cred=%s<br>"%str(cred))
+                # WrtAsUtf("Added cred=%s<br>"%str(cred))
 
     except KeyError:
-        # Wrt("No upd nor del<br>")
+        # WrtAsUtf("No upd nor del<br>")
         credMapOut = credMap
         pass
 
@@ -246,9 +238,9 @@ def CredDefinitions():
         serverNode = lib_common.gUriGen.HostnameUri(credName_Machine)
         return serverNode
 
-    def CredUrlWMI(credName):
-        # TODO: Finish this
-        return None
+    def CredUrlWMI(hostname):
+        nodeWmi = lib_util.UrlPortalWmi(hostname)
+        return nodeWmi
 
     def CredUrlOracle(dbName):
         from sources_types.oracle import db as oracle_db
@@ -269,9 +261,10 @@ def CredDefinitions():
         subscriptionNode = azure_subscription.MakeUri( subscriptionName )
         return subscriptionNode
 
-    def CredUrlODBC(credName):
-        # TODO: Finish this
-        return None
+    def CredUrlODBC(dsn):
+        from sources_types.odbc import dsn as survol_odbc_dsn
+        nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
+        return nodeDsn
 
     # This hard-coded list allows also to create credentials for the first time.
     credTypesWellKnown = {
@@ -293,20 +286,16 @@ def Main():
 
     cgiArguments = cgi.FieldStorage()
 
-    lib_util.HttpHeaderClassic(sys.stdout, "text/html")
-
-    Wrt("""
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Credentials</title></head>
-    """)
-
     credFilename = os.path.normpath(lib_credentials.CredFilNam())
+    page_title = "Edit Survol credentials in %s" % credFilename
 
-    Wrt("""
+    lib_export_html.DisplayHtmlTextHeader(page_title)
+
+    WrtAsUtf("""
     <body><h2>Edit Survol credentials in %s</h2><br>
     """ % credFilename)
 
-    # Wrt("Arg=%s<br><br>"%str(cgiArguments))
+    # WrtAsUtf("Arg=%s<br><br>"%str(cgiArguments))
 
     InsertedCredMap(cgiArguments)
 
@@ -314,19 +303,20 @@ def Main():
 
     credTypesWellKnown = CredDefinitions()
 
-    Wrt("""<table>""")
+    WrtAsUtf("""<table border="1">""")
     if credMap:
         FormUpdateCredentials(formAction,credMap,credTypesWellKnown)
 
     FormInsertCredentials(formAction, sorted(credTypesWellKnown.keys()))
-    Wrt("""</table>""")
+    WrtAsUtf("""</table>""")
 
-    Wrt("""
+    # The second link is wrong.
+    WrtAsUtf("""
     <br><a href="edit_configuration.py">Configuration</a>
     <br><a href="index.htm">Return to Survol</a>
     """)
 
-    Wrt("""
+    WrtAsUtf("""
     </body></html>""")
 
 if __name__ == '__main__':

@@ -442,13 +442,14 @@ def DispClassObjects(dictSubjPropObj):
 
 	WrtAsUtf( " </table>")
 
-def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
+def DisplayHtmlTextHeader(page_title):
 	"""
-		This transforms an internal data graph into a HTML document.
+	This is the common Survol headers, ideally for all HTML documents.
 	"""
-	page_title = theCgi.m_page_title
-	grph = theCgi.m_graph
-
+	"""
+	:param page_title:
+	:return:
+	"""
 	lib_util.WrtHeader('text/html')
 	WrtAsUtf( "<head>" )
 
@@ -461,6 +462,7 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	# - OVH mutialised hosting, with a specific CGI script survol.cgi
 	# - With the Python class HttpServer as Web server.
 	# - Hosted with Apache.
+
 	WrtAsUtf(
 		"""
 		<link rel='stylesheet' type='text/css' href=/ui/css/html_exports.css>
@@ -469,6 +471,18 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 		""")
 
 	WrtAsUtf('</head>')
+
+
+
+
+def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
+	"""
+		This transforms an internal data graph into a HTML document.
+	"""
+	page_title = theCgi.m_page_title
+	grph = theCgi.m_graph
+
+	DisplayHtmlTextHeader(page_title)
 
 	WrtAsUtf('<body>')
 
