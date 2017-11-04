@@ -8,6 +8,7 @@ Also, it servers JSON queries from the HTML pages doing the same features, but i
 import os
 import sys
 import cgi
+import socket
 import lib_common
 import lib_util
 import lib_credentials
@@ -295,20 +296,35 @@ def Main():
     <body><h2>Edit Survol credentials in %s</h2><br>
     """ % credFilename)
 
-    # WrtAsUtf("Arg=%s<br><br>"%str(cgiArguments))
 
-    InsertedCredMap(cgiArguments)
+    # Hostname=Unknown-30-b5-c2-02-0c-b5-2.home
+    # Host address=192.168.0.17
+    # Remote client=82.45.12.63
 
-    credMap = UpdatedCredMap(cgiArguments)
+    currHostNam = socket.gethostname()
+    WrtAsUtf("Hostname=%s<br>"%currHostNam)
 
-    credTypesWellKnown = CredDefinitions()
+    currHostAddr = socket.gethostbyname(currHostNam)
+    WrtAsUtf("Host address=%s<br>"%currHostAddr)
 
-    WrtAsUtf("""<table border="1">""")
-    if credMap:
-        FormUpdateCredentials(formAction,credMap,credTypesWellKnown)
+    addrRemote = os.environ['REMOTE_ADDR']
+    WrtAsUtf("Remote client=%s<br>"%addrRemote)
 
-    FormInsertCredentials(formAction, sorted(credTypesWellKnown.keys()))
-    WrtAsUtf("""</table>""")
+    if ( currHostAddr != "192.168.0.17" ) and (addrRemote != "82.45.12.63"):
+        WrtAsUtf("<b>ACCESS FORBIDDEN</b><br>")
+    else:
+        InsertedCredMap(cgiArguments)
+
+        credMap = UpdatedCredMap(cgiArguments)
+
+        credTypesWellKnown = CredDefinitions()
+
+        WrtAsUtf("""<table border="1">""")
+        if credMap:
+            FormUpdateCredentials(formAction,credMap,credTypesWellKnown)
+
+        FormInsertCredentials(formAction, sorted(credTypesWellKnown.keys()))
+        WrtAsUtf("""</table>""")
 
     # The second link is wrong.
     WrtAsUtf("""
