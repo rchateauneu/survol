@@ -1,3 +1,6 @@
+# This library helps to generate the output of internal database (RDF-like)
+# to the DOT output format, transformed into SVG by Graphviz.
+
 import lib_kbase
 import lib_patterns
 import lib_naming
@@ -42,6 +45,10 @@ def ModedUrl(otherMode):
 
 ################################################################################
 def TruncateInSpace(labText,maxLenLab):
+	"""
+	This truncates a string to a given length but tries to cut
+	at a space position instead of splitting a word.
+	"""
 	if len( labText ) > maxLenLab:
 		idx = labText.find(" ",maxLenLab)
 		# sys.stderr.write("idx=%d\n"%idx)
@@ -100,7 +107,7 @@ def StrWithBr(aStr, colspan = 1):
 # TODO: Set the right criteria for an old Graphviz version.
 new_graphiz = True # sys.version_info >= (3,)
 
-# TODO: This is temporary because only old graphviz versions dot not implement that.
+# TODO: This is temporary because old graphviz versions dot not implement that.
 def DotBold(str):
 	return "<b>%s</b>" % str if new_graphiz else str
 
