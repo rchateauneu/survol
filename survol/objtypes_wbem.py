@@ -45,10 +45,10 @@ def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth, wbemNamespa
 
 	# The class is the starting point when displaying the class tree of the namespace.
 	wbemNodeSub = WbemNamespaceNode(wbemNamespace, cimomUrl, topclassNam)
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, lib_common.NodeLiteral(wbemNodeSub) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, wbemNodeSub ) )
 
 	nodeGeneralisedClass = lib_util.EntityClassNode(topclassNam,wbemNamespace,cimomUrl,"WBEM")
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(nodeGeneralisedClass) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, nodeGeneralisedClass ) )
 
 	AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode)
 
