@@ -108,14 +108,19 @@ def Main():
 
 	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
-	is_host_remote = not lib_util.IsLocalAddress( entity_host )
-
-	sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_remote=%r\n" % ( entity_host, entity_type, entity_id, is_host_remote ) )
-
+	#is_host_remote = not lib_util.IsLocalAddress( entity_host )
+	#
+	#sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_remote=%r\n" % ( entity_host, entity_type, entity_id, is_host_remote ) )
+	#
 	# It is simpler to have an empty entity_host, if possible.
 	# CHAIS PAS. EN FAIT C EST LE CONTRAIRE, IL FAUT METTRE LE HOST
-	if not is_host_remote:
-		entity_host = ""
+	#if not is_host_remote:
+	#	entity_host = ""
+	#if entity_host:
+	#	entity_host_not_default = entity_host
+	#else:
+	#	# Or lib_util.localIP ??
+	#	entity_host_not_default = lib_util.currentHostname
 
 	grph = cgiEnv.GetGraph()
 
@@ -147,8 +152,12 @@ def Main():
 		entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,entity_id,entity_host,flagShowAll)
 
 		if entity_type != "":
-			sys.stderr.write("Entering AddWbemWmiServers\n")
-			CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
+			sys.stderr.write("Entering AddWbemWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n"%(entity_host, nameSpace, entity_type, entity_id))
+			if entity_host:
+				host_wbem = entity_host
+			else:
+				host_wbem = lib_util.currentHostname
+			CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, host_wbem, nameSpace, entity_type, entity_id)
 
 		AddDefaultScripts(grph,rootNode,entity_host)
 

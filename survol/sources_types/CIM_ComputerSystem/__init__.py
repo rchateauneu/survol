@@ -20,13 +20,13 @@ def EntityName(entity_ids_arr,entity_host):
     return entity_id
 
 def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_id):
-    sys.stderr.write("AddWbemWmiServers entity_host=%s nameSpace=%s entity_type=%s\n" % (entity_host,nameSpace,entity_type))
+    sys.stderr.write("AddWbemWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
 
     try:
     # Maybe some of these servers are not able to display anything about this object.
         import lib_wbem
 
-        wbem_servers_desc_list = lib_wbem.GetWbemUrls( entity_host, nameSpace, entity_type, entity_id )
+        wbem_servers_desc_list = lib_wbem.GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id )
         # sys.stderr.write("wbem_servers_desc_list len=%d\n" % len(wbem_servers_desc_list))
         for url_server in wbem_servers_desc_list:
             # TODO: Filter only entity_host
