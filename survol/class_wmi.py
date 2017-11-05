@@ -37,7 +37,11 @@ def Main():
 	# connWmi = lib_wmi.WmiConnect(cimomUrl, nameSpace)
 	# Toshiba Windows 8
 	# connWmi = lib_wmi.WmiConnect(cimomUrl, "root\\" + nameSpace)
-	connWmi = lib_wmi.WmiConnect(cimomUrl, nameSpace)
+	try:
+		connWmi = lib_wmi.WmiConnect(cimomUrl, nameSpace)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("WMI Connecting to cimomUrl=%s nameSpace=%s Caught:%s\n" % ( cimomUrl, nameSpace, str(exc) ) )
 
 	lib_wmi.WmiAddClassQualifiers( grph, connWmi, rootNode, className, True )
 
