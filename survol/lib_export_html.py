@@ -351,7 +351,7 @@ def WriteAllObjects(grph):
 	# TODO: Create a "difference mode". Periodic display, of only the difference between successive data sets.
 	# Ajouter mode "difference": On recalcule periodiquement et on affiche la difference.
 
-
+	# No need to use natural sort, because these are no filenames or strings containing numbres.
 	for entity_graphic_class in sorted(dictClassSubjPropObj):
 
 		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
@@ -373,7 +373,9 @@ def DispClassObjects(dictSubjPropObj):
 		( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
 		lstTuplesSubjects.append((aSubj,subj_str,subj_title, entity_graphic_class, entity_id))
 	# Sorted by the title of the subject, which is the third value of the tuple.
-	lstTuplesSubjects.sort(key=lambda tup: tup[2])
+
+	# lstTuplesSubjects.sort(key=lambda tup: tup[2])
+	lib_util.natural_sort_list(lstTuplesSubjects,key=lambda tup: tup[2])
 
 	# Now it iterates on the sorted list.
 	# This reuses all the intermediate values.
@@ -396,7 +398,7 @@ def DispClassObjects(dictSubjPropObj):
 
 		# The predicates, i.e. the properties associated a subject with an object,
 		# must be alphabetically sorted.
-		for aPred in sorted(dictPred):
+		for aPred in lib_util.natural_sorted(dictPred):
 			lstObjs = dictPred[aPred]
 
 			predStr = lib_exports.AntiPredicateUri(str(aPred))
@@ -409,8 +411,10 @@ def DispClassObjects(dictSubjPropObj):
 				obj_str = str(anObj)
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 				lstTuplesObjs.append((anObj,obj_str,obj_title))
+
 			# Sorted by the title of the object, which is the third value of the tuple.
-			lstTuplesObjs.sort(key=lambda tup: tup[2])
+			# lstTuplesObjs.sort(key=lambda tup: tup[2])
+			lib_util.natural_sort_list(lstTuplesObjs,key=lambda tup: tup[2])
 
 			for anObj,obj_str,obj_title in lstTuplesObjs:
 
