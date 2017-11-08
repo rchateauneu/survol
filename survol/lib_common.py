@@ -210,19 +210,16 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	def FormatElementAux(val,depth=0):
 		if val is None:
-			# return "<td></td>"
 			return ""
 
 		try:
 			int(val)
-			# return "<td align='right' balign='left' border='0'>%d</td>" % valInt
 			return val
 		except:
 			pass
 
 		try:
 			float(val)
-			# return "<td align='right' balign='left' border='0'>%d</td>" % valInt
 			return val
 		except:
 			pass
@@ -234,7 +231,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				subTd = FormatPair(subKey,subVal, depth + 1)
 				if subTd:
 					subTable += "<tr>%s</tr>" % subTd
-			# return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
 			return "<table border='0'>%s</table>" % subTable
 
 		# Note: Recursive list are not very visible.
@@ -244,14 +240,12 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				for subElement in val:
 					subTd = FormatElement( subElement, depth + 1 )
 					subTable += "<tr>%s</tr>" % subTd
-				# return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
 				return "<table border='0'>%s</table>" % subTable
 			else:
 				subTable = ""
 				for subElement in val:
 					subTd = FormatElement( subElement, depth + 1 )
 					subTable += subTd
-				# return "<td align='left' balign='left' border='0'><table border='0'><tr>%s</tr></table></td>" % subTable
 				return "<table border='0'><tr>%s</tr></table>" % subTable
 
 		try:
@@ -261,13 +255,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		except ValueError:
 			# It is a string which cannot be converted to json.
 			val = cgi.escape(val) # +"OOOOO"+str(type(val))
-			# return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
 			return lib_exports.StrWithBr(val)
 		except TypeError:
 			# "Expected a string or buffer"
 			# It is not a string, so it could be a datetime.datetime
 			val = cgi.escape(str(val))
-			# return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
 			return lib_exports.StrWithBr(val)
 		return "FormatElement failure"
 
@@ -322,11 +314,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	# Ca liste les labels des objects qui apparaissent dans les blocs,
 	# et pointent vers le nom du record.
 	dictCollapsedObjectLabelsToSubjectLabels = {}
-	# dictCollapsedObjectLabelsToSubjectLabels = collections.defaultdict(dict)
 
 	# This contain, for each node (subject), the related node (object) linked
 	# to it with a property to be displayed in tables instead of individual nodes.
-	# dictCollapsedSubjectsToObjectLists = collections.defaultdict(list)
 	dictPropsCollapsedSubjectsToObjectLists = {}
 
 	for collapsPropObj in CollapsedProperties:
@@ -360,6 +350,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		return newSubjNam
 
 	# This is sorted so the result is deterministic. Very small performance impact.
+	# Any order will do as long as the result is always the same.
 	sortedGrph = sorted(grph)
 
 	# TODO: Loop only on the right properties.
@@ -477,7 +468,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Replacing vectors: CollapsedProperties=%d.\n" % ( len( CollapsedProperties ) ) )
 
-	# Maintenant, on remplace chaque vecteur par un seul gros objet, contenant une table HTML.
+	# Now, replaces each vector by a single object containg a HTML table.
 	# TODO: Unfortunately, the prop is lost, which implies that all children are mixed together.
 
 	def ProcessCollapsedProperties( propNam ):
@@ -560,7 +551,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			dictHtmlLines = dict()
 			for objUri in nodLst:
 				# One table per node.
-				# subObjId = RdfNodeToDotLabel(obj)
 				subObjId = RdfNodeToDotLabel(objUri)
 
 				# Beware "\L" which should not be replaced by "<TABLE>" but this is not the right place.
@@ -589,7 +579,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				td_bgcolor = td_bgcolor_plain
 
 				# Some columns might not have a value. The first column is for the key.
-				columns = [ td_bgcolor + " ></td>" ] * numberKeys # SHOULD NOT HAPPEN
+				columns = [ td_bgcolor + " ></td>" ] * numberKeys
 
 				# Just used for the vertical order of lines, one line per object.
 				title = ""
@@ -603,22 +593,16 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 					# TODO: This is hard-coded.
 					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
-						#valTitle = ExternalToTitle(val)
-						#tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitle )
 
 						# In fact, it might also be an internal URL with "entity.py"
 						if lib_kbase.IsLiteral(val):
 							if isinstance( val.value, (list, tuple )):
 								strHtml = FormatElementAux(val.value)
 								sys.stderr.write("val.value=%s\n"%strHtml)
-								# strHtml = "<table border='0'><tr><td align='left' balign='left' border='0'>valTitle</td></tr><tr><td align='left' balign='left' border='0'>valTitle</td></tr></table>"
-								# strHtml = "<table><tr><td>valTitle</td></tr><tr><td>valTitle</td></tr></table>"
-								#strHtml = "TOTO"
 								tmpCell = td_bgcolor + 'align="left">%s</td>' % strHtml
 							else:
 								tmpCell = td_bgcolor + 'align="left">%s</td>' % val.value
 						else:
-							#### valTitle = "COMM RSTU "+ExternalToTitle(val)
 							valTitle = lib_naming.ParseEntityUri( val )[0]
 
 							valTitleUL = lib_exports.DotUL(valTitle)
@@ -643,7 +627,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# Maybe the first column is a literal ?
 				if subEntityId != "PLAINTEXTONLY":
 					# WE SHOULD PROBABLY ESCAPE HERE TOO.
-					# title_key = cgi.escape(title_key)
 					columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
 				else:
 					subNodUri = cgi.escape(subNodUri)
@@ -702,7 +685,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			else:
 				helpText = "List of scripts in " + labText
 
-			# TODO: Le titre et le contenu ne sont pas forcement de la meme classe.
+			# TODO: Le title and the content are not necessarily of the same class.
 			# labTextWithBr is the first line of the table containing nodes linked with the
 			# same property. Unfortunately we have lost this property.
 			labText = lib_exports.TruncateInSpace(labText,30)
@@ -742,9 +725,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		except UnicodeEncodeError:
 			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( objRdfNode ) )
 
-		# WritePatterned va recevoir un tableau de chaines de la forme "<td>jhh</td><td>jhh</td><td>jhh</td>"
-		# et c est lui qui va mettre des <tr> et </tr> de part et d'autre.
-		# Ca evite des concatenations. Dans le cas de "Vertical", on va donc renvoyer un tableau"
+		# WritePatterned receives an list of strings similar to "<td>jhh</td><td>jhh</td><td>jhh</td>"
+		# This function adds <tr> and </tr> on both sides.
+		# This avoids concatenations.
 
 		# Ampersand are intentionnally doubled, because later on they are replaced twice.
 		# That is, interpreted twice as HTML entities.
@@ -876,7 +859,6 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 		# Used rarely and performance not very important.
 		import lib_export_html
 		lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer)
-		# lib_export_html.Grph2Html( pageTitle, topUrl, errorMsg, isSubServer, parameters, grph)
 	elif mode == "json":
 		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "menu":
@@ -1148,7 +1130,6 @@ class CgiEnv():
 						entity_id += monikDelim + monikKey + "=" + monikVal
 						monikDelim = "&"
 
-				# entity_id = self.m_arguments["edimodargs_id"].value
 				return ( entity_type, entity_id, "" )
 			except KeyError:
 				# No host, for the moment.
@@ -1301,8 +1282,6 @@ class CgiEnv():
 			# At the end, only one call to OutCgiMode() will be made.
 			globalCgiEnvList.append(self)
 		else:
-			# def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
-			# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
 			OutCgiMode( self, topUrl, mode )
 
 ################################################################################
@@ -1333,7 +1312,6 @@ def ErrorMessageHtml(message):
 		sys.stderr.write("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
 		lib_util.InfoMessageHtml(message)
 		# TODO: Fix with wsgi which just displays "A server error occurred.  Please contact the administrator."
-		# raise Exception("Tralala")
 		sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
@@ -1351,7 +1329,6 @@ def SubProcPOpen(command):
 		ErrorMessageHtml("Cannot run "+" ".join(command))
 
 	# For windows_network_devices we need shell=True but it is unsafe.
-	# drivelist = lib_common.SubProcPOpen('wmic logicaldisk get name,description,ProviderName', shell=True, stdout=subprocess.PIPE)
 	return retPipe
 
 def SubProcCall(command):
