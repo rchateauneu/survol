@@ -1,121 +1,265 @@
-import os
-import re
-
 import lib_clusters
+import os
 
-# The intention is to experiment with clusterizing algorithms.
+testsArray = {
+"tl": [
+	"ccengine_run_from_directory_tests.cmd",
+	"ccengine_run_test_daemon_unit.cmd",
+	"ccengine_run_test_msg_server.cmd",
+	"ccengine~run_test_params.cmd",
+	"ccengine_run_test_persistence.cmd",
+	"ccenginefirun_testcore.cmd",
+	"ccengine_run_tests.cmd",
+	"ccengine_run_trades.cmd",
+	"ccengine64Bit_run_cceapi_tests.cmd",
+	"cengine64Bit_run_tests.cmd",
+	"ProcessFXTLogFileForCCEngine.cmd",
+	"RunFXTReconciler.cmd",
+	"RunFXTTradeExtracts.cmd",
+	"RunSAS .bat",
+	"ScenarioInvestigation.sh",
+	"tmp_5037.log",
+	"tmp_5038.log",
+	"tmpraw_5037.log",
+	"tmpraw_5038.log",
+	"tmpsort_5037.log",
+	"tmpsort_5038.log",
+	"toto",
+	"fxtImporter_ETS_CDP_Oo00_47_[13720]_debug.log",
+	"cce~find_calc;msg_conn_attempts.cmd",
+	"cce_find_calc_msgs.cmd",
+	"cce_find_non~cce_team_calc_msgs.cmd",
+	"CCEngine_FXTDeal_CC_Calculator.xlsx",
+	"ccengine_run_cce_msg_svr.cmd",
+	"ccengine_run_cceapi_tests.cmd",],
+"t2": [
+	"cpprest14od_2_8.dll",
+	"cpprestl4od_2_9.dll",
+	"cpprestl4od_2_9.pdb",
+	"Echo.dll",
+	"EchoApiCmd.exe",
+	"EchoClient.exe",
+	"EchoCoherence.dll",
+	"EchoXL.dll",
+	"lnk{8D44DD9B-DE84-EBSC-AFFD-5BDO5Ao3F4F6}.tmp"
+	"TestScenarioAnalysis.exe",
+	"TestScenarioAnalysis.idb",
+	"TestScenarioAnalysis.ilk",
+	"TestScenarioAnalysis.pdb",
+	"boost_atomic-vc140-mt-gd-l_60.dll",
+	"boost_chrono~vc140-mt-gd-1_60.dll",
+	"boost_container-vc140-mt-gd-1_60.dll",
+	"boost_context-vc140-mt-gd-1_60.dll",
+	"boost_coroutine-vc140-mt-gd-l_60.dll",
+	"boost_date_time~vc140-mt-gd-1_60.dll",
+	"boost_filesystem-vc140-mt-gd-1_60.dll",
+	"boost_graph-vc140-mt-gd-1_60.dll",
+	"boost_iostreams-vc140-mt-gd-lfl60.dll",
+	"boost_locale-vc140-mt-gd-l_60.dll",
+	"boost_log_setup-vc140-mt-gd-1_60.dll",
+	"boost_log-vc140-mt-gd-1_60.dll",
+	"boost_math_c99f-vc140-mt-gd-1_60.dll",
+	"boost_math_c99l-vc140-mt-gd-l_60.dll",
+	"boost_math~c99-vc140-mt-gd-1_60.dll",
+	"boost_math_tr1f-vc140-mt-gd-l_60.dll",
+	"boost_math_trll-vc140-mt-gd-1_60.dll",
+	"boost_math~trl-vc140-mt-gd-l_60.dll",
+	"boost_prg_exec_monitor~vc140-mt-gd-lfi60.dll",
+	"boost_program;options-vc140-mt-gd-1_60.dll",
+	"boost_python-vc140-mt-gd-l_60.dll",
+	"boost_random-vc140-mt-gd-1_60.dll",
+	"boost_regex-vc140-mt-gd-l_60.dll",
+	"boost_serialization-vc140-mt-gd~1_60.dll",
+	"boost_signals-vc140-mt-gd-lfi60.dll",
+	"boost_system-vc140-mt-gd-1h60.dll",
+	"boost_thread-vc140-mt-gd-l_60.dll",
+	"boost_timer-vc140-mt-gd-l_60.dll",
+	"boost_type_erasure-vc140-mt-gd-l_60.dll",
+	"boost_unit_testfiframework-vc140-mt-gd-1_60.dll",
+	"boost_wave-vc140-mt-gd-l_60.dll",
+	"boost_wserialization-vc140-mt-gd-l_60.dll",
+	"CCE.dll",
+	"CCE.pdb",
+	"cce_echo_ponfiguration.csv",
+	"cce_http_configuration.csv",
+	"cce_msg_configuration.csv",
+	"cce_sas_configuration.csv",
+	"cceflsvc_configuration.csv",
+	"cce_trade_configuration.csv",
+	"CCEApiTest.Build.CppClean.log",
+	"CCEApiTest.exe",
+	"CCEApiTest.idb",
+	"CCEApiTest.ilk",
+	"CCEApiTest.log",
+	"CCEApiTest.pdb",
+	"CCEApiTestMain.obj",
+	"CCEConfigurationTest.csv",
+	"CCEHTTPService.exe",
+	"CCEHTTPService.idb",
+	"CCEHTTPService.ilk",
+	"CCEHTTPService.pdb",
+	"CCEMessageServer.exe",
+	"CCEMessageServer.idb",
+	"CCEMessageServer.ilk",
+	"CCEMessageServer.pdb",
+	"CCEMessageService.exe",
+	"CCEMessageService.idb",
+	"CCEMessageService.ilk",
+	"CCEMessageService.pdb",
+	"CCEScenarioAnalysis.dll",
+	"CCEScenarioAnalysis.idb",
+	"CCEScenarioAnalysis.ilk",
+	"CCEScenarioAnalysis.pdb",
+	"CCEScenarioAnalysisService.exe",
+	"CCEScenarioAnalysisService.idb",
+	"CCEScenarioAnalysisService.ilk",
+	"CCEScenarioAnalysisService.pdb",
+	"CCETest.bsc",
+	"CCETest.exe",
+	"CCETest.pdb",
+	"CCETestCore.exe",
+	"CCETestCore.idb",
+	"CCETestCore.ilk",
+	"CCETestCore.pdb",
+	"CCETestDaemon.exe",
+	"CCETestDaemon.idb",
+	"CCETestDaemon.ilk",
+	"CCETestDaemon.pdb",
+	"CCETestService.exe",
+	"CCETestService.idb",
+	"CCETestService.ilk",
+	"CCETestService.pdb",
+	"CCETrade.bsc",
+	"CCETrade.exe",
+	"CCETrade.pdb",
+	"CCEUnitTest.obj",
+	"Common.Logging.DLL",
+] }
 
-mypath = "C:/tmp"
-mypath = "C:/Users/rchateau/tmp"
-mypath = "C:/Users/rchateau/AppData/Local/Temp"
-
-print("Hello")
-
-# Two typical types of strings to sort:
-# File names:
-# WMI/WBEM moniker (key/value pairs):
-#  Handle=1 CSName=fedora22 OSName=Fedora CSCreationClassName=CIM_UnitaryComputerSystem OSCreationClassName=CIM_OperatingSystem CreationClassName=PG_UnixProcess (WBEM) at http://192.168.0.17:5988
-#  Handle=10 CSName=fedora22 OSName=Fedora CSCreationClassName=CIM_UnitaryComputerSystem OSCreationClassName=CIM_OperatingSystem CreationClassName=PG_UnixProcess (WBEM) at http://192.168.0.17:5988
-#  Handle=100 CSName=fedora22 OSName=Fedora CSCreationClassName=CIM_UnitaryComputerSystem OSCreationClassName=CIM_OperatingSystem CreationClassName=PG_UnixProcess (WBEM) at http://192.168.0.17:5988
-
-# As an example, it takes a list of files.
-onlyfiles = []
-for (dirpath, dirnames, filenames) in os.walk(mypath):
-	onlyfiles.extend(filenames)
-	break
-
-print(onlyfiles)
-
-# def AnonymizeArr(splitFilnam):
-# 	strForbidden = "*"
+#Problems quand on utilise _ comme delimiteur avec tri recursif.
+#depth=1 utilise "boost".
+#Mais depth=2 produit ceci.
+#Malheureusement il faudrait considerer les lignes globalement.
+#Avoir des passes independantes en fonction du delimiteur, ne va pas aider
+#car ca va creer des clusters qui n'existent pas.
 #
-# 	# The file name extension is not taken into account.
-# 	splitFilnam[-1] = strForbidden
+#Faire un pretraitement en chercher si toutes les chaines ont une sous-chains
+#en commun et la retirer ? Tres lent et pas suffisant.
+#Ou alors splitter de facon plus appropriee, de facon hierarchique.
+#On ne se contente pas de l'index numerique. L'index doit exprimer logiquement
+#ou se trouve la sous-chaine.
 #
-# 	# ... no numbers:
-# 	resu = [ strForbidden if tok.isdigit() else tok for tok in splitFilnam ]
-# 	return resu
 
 
 
-# Simple criteria: This chooses the index whose biggest category is the smallest.
-def best_index_mini_maxi(dictClustersArrays):
-	def cluster_maxsize(dictClusters):
-		maxSz = 0
-		for keyWrd in dictClusters:
-			currSz = len(dictClusters[keyWrd])
-			if maxSz < currSz:
-				maxSz = currSz
-		return maxSz
 
-	bestKey = None
-	minMaxSz = 999999999
-	for ixKey in dictClustersArrays:
-		dictClusters = dictClustersArrays[ixKey]
-		print("")
-		print(ixKey)
-		# print(dictClusters)
-		currMax = cluster_maxsize(dictClusters)
-		print("currMax=%d len=%d"%(currMax,len(dictClusters)))
-		if currMax < minMaxSz:
-			minMaxSz = currMax
-			bestKey = ixKey
-	return (bestKey,minMaxSz)
+#On decoupe recursivement mais tous les morceaux sont mis dans le split avec
+#la chaine d'origine:
+#boost_date_time-vc140-mt-gd-l_60.dll
+#d.0" : "boost_date_time-vc"
+#d. 1" : ll_mt_gd_"
+#d.2" : "_11
+#d.3" : ".dll"
+#11: "_0 II : "boost"
+#1" : "date"
+#2" : "time-vc140-mt-gd-1_60.dll"
+#-O" : "boost_datthime"
+#-1" : "VCl40"
+#2" : "mt"
+#3" : "gd"
+#-4" : "l_60.dll"
+#
+#et ensuite:
+#d.0 -0" : "boost_date_time"
+#d.0 -1" : "vc"
+#
+#d.0 -0 _0" : "boost"
+#d.0 -0 _1" : "date"
+#d.0 -O _2" : "time"
+#
+#C est tres gourmand.
+#Est-ce que l'ordre des delimiteurs importe
+#Ou bien devrait-on simplement dire que c'est le X-ieme element pour tel separateur
+#
+#mt
+#boost_atomic-vc140-mt-gd-1_60.dll
+#boost_chrono-vc140-mt-gd-1_60.dll
+#vc
+#boost_date_time-vc140-mt-gd-1_60.dll
+#boost_log_setup-vc140-mt-gd-l_60.dll
 
-# This takes into account the length of the keys: The longer, the better.
+def CreateSolutions(lstWrds):
+	dictClustl = lib_clusters.by_hash(lstWrds)
+	print ("")
+	print("")
+	print("")
+	dictClustersArrays = lib_clusters.by_columns(lstWrds)
+	dictClustersArrays["by_hash"] = dictClustl
+	dictClustersArrAll = dict(dictClustersArrays)
+	for key in dictClustersArrays:
+		crunchedClust = dict(lib_clusters.compress(dictClustersArrays[key]))
+		dictClustersArrAll[key+".compress"] = crunchedClust
+	return dictClustersArrAll
 
-# THIS IS NOT FINISHED.
+#Other parameters:
+#(1) Maximum desired elements.
+#(2) Recursive analysis to X levels.
+#
+#On peut legitimement demander la seconde ou troisieme solution.
+#
+def SelectSolutions(lstWrds,depth=1):
+	dictClustersArrAll = CreateSolutions(lstWrds)
+	print("SelectSolutions depth=%d szWords=%d numClusts=%d\n"%(depth,len(lstWrds),len(dictClustersArrAll)))
+	bstKey = lib_clusters.get_best_crit1(dictClustersArrAll)
+	# Maybe there is no usable solution.
+	if not bstKey:
+		return ( None,None)
+	bestChoice = dictClustersArrAll[bstKey]
+	if depth <= 1:
+		return (bstKey,bestChoice)
 
-def best_index_mini_maxi_ponder(dictClustersArrays):
-	def cluster_maxsize(dictClusters):
-		maxSz = 0
-		for keyWrd in dictClusters:
-			currSz = len(dictClusters[keyWrd])
-			if maxSz < currSz:
-				maxSz = currSz
-		return maxSz
+	depth -= 1
+	bestChoiceRecurs = dict()
 
-	bestKey = None
-	minMaxSz = 999999999
+	for keyClust in bestChoice:
+		lstChoice = bestChoice[keyClust]
+		# This tries to clusterize the sub-list, only if there are many elements.
+		if len(lstChoice) > 3:
+			(bstSubKey,bestSubChoice) = SelectSolutions(lstChoice,depth)
+			if bstSubKey:
+			# Maybe the result is not worth. We should rather use entropy.
+				if len(bestSubChoice) > 2:
+					bestChoiceRecurs[ keyClust + "." + bstSubKey ] = bestSubChoice
+					continue
 
-	# For each column
-	for ixKey in dictClustersArrays:
-		dictClusters = dictClustersArrays[ixKey]
-		print("")
-		print(ixKey)
-		# print(dictClusters)
-		currMax = cluster_maxsize(dictClusters)
-		print("currMax=%d len=%d"%(currMax,len(dictClusters)))
-		if currMax < minMaxSz:
-			minMaxSz = currMax
-			bestKey = ixKey
-	return (bestKey,minMaxSz)
+		# No change: No need to clusterize recursively.
+		bestChoiceRecurs[ keyClust ] = lstChoice
+	return (bstKey,bestChoiceRecurs)
 
-def clusterize_kol(lstWords):
-	dictClustersArrays = lib_clusters.all_clusts(lstWords)
+def TestWords(sampleName,lstWrds):
+	print ("\n\n\n\n" + ("    "*80) +"\n")
+	print("SAMPLE=%s numWrds=%s"%(sampleName,len(lstWrds)))
+	(bstKey,bestChoice) = SelectSolutions(lstWrds,3)
+	print ("")
+	print("BEST=%s"%bstKey)
+	#print(bstIdx)
+	lib_clusters.PrintCluster(bestChoice,False)
 
-	# Now choose the most selective index.
-	# The goal might be to detect significant patterns (Entropy ?),
-	# or simply to reduce the number of elements at each level, to facilite display.
-	# We could also concatenate adjacent columns.
+def TestFix():
+	for key in testsArray:
+		tstArr = testsArray[key]
+		TestWords(key,tstArr)
 
-	(bestKeyMiniMaxi,minMaxSz) = best_index_mini_maxi(dictClustersArrays)
-	print("best_index_mini_maxi bestKey=%s minMaxSz=%d"%(bestKeyMiniMaxi,minMaxSz))
+def TestDir():
+	mypath = "C:/tmp"
+	#onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
-	(bestKeyMiniMaxiPonder,minMaxSzPonder) = best_index_mini_maxi_ponder(dictClustersArrays)
-	print("best_index_mini_maxi_ponder bestKeyMiniMaxiPonder=%s minMaxSzPonder=%d"%(bestKeyMiniMaxiPonder,minMaxSzPonder))
+	onlyfiles = list(set([ fi[2][0] for fi in os.walk(mypath) if fi[2]]))
+	#onlyfiles = onlyfiles[50:100]
+	#print(onlyfiles)
+	#exit(0)
+	TestWords(mypath,onlyfiles)
 
-
-	return dictClustersArrays[bestKeyMiniMaxi]
-
-
-
-print("")
-# clusterize(onlyfiles)
-print("")
-print("")
-print("")
-bstIdx = clusterize_kol(onlyfiles)
-print("")
-print("BEST")
-print(bstIdx)
+TestDir()
+TestFix()
+#TestWords("t2",testsArray["t2"])
