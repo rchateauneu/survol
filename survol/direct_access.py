@@ -11,3 +11,10 @@
 # Select the properties and allow to enter them.
 # Create a WMI query.
 # Same idea in WBEM.
+
+
+
+# Change all parameters specified by the ontology
+# of an entity. We can start from an existing URL.
+# This would be accessible from the eidtion of any object and from the page of a class.
+# The concept works for WMI and WBEM also
