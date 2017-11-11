@@ -564,6 +564,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		)
 
 	# This displays the parameters of the URL and a link allowing to edit them.
+	# It assumes that it writes in the middle of a table with two columns.
 	def LegendAddParametersLinks(stream,parameters):
 		stream.write("<tr>")
 		urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
@@ -584,6 +585,22 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 			except KeyError:
 				actualParam = valParam
 			stream.write('<tr><td>%s:</td><td>%s</td></tr>' % ( keyParam, DotIt(actualParam) ) )
+
+		# We want to display links associated to the parameters.
+		# The use case is "Prev/Next" when paging between many values.
+		# This could be nicely modelled by just specifying special set of values,
+		# and the links would be calculated here.
+		# For example: { "next" : { "index": curr + 80 }, "prev" : { "index": curr - 80 } }
+		# This simplifies the edition in Json.
+		# It might also simplify formatting.
+		# There will be a similar piece of code in Javascript and plain HTML:
+		# (1) The calling script provides the values to CgiEnv.
+		# (2) A method in CgiEnv calculates the URLS and returns a map
+		# of { "label":"urls" }
+
+
+
+
 
 	#	stream.write("""
 	#  rank=sink;
