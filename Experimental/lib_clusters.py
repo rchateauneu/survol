@@ -2,16 +2,6 @@ import re
 import sys
 import math
 
-def AnonymizeArr(splitFilnam):
-	strForbidden = "*"
-
-	#The file name extension is not taken into account.
-	splitFilnam[-l] = strForbidden
-
-	# no numbers:
-	resu = [ strForbidden if tok.isdigit() else tok for tok in splitFilnam ]
-	return resu
-
 # The result of a clusterization is a map of arrays, or maps etc...
 # The key is the string (or the regular expression)
 # which "summarizes" the cluster.
@@ -92,6 +82,9 @@ def word_eligibility(oneWrd):
 #
 # A la premiere passe, on choisit la colonne dont l'index est le plus petit
 # mais avec au moins une clef.
+#
+#
+#
 def by_columns(lstWords):
 	print("all_clusts numWrds=%s"%len(lstWords))
 	allCols = set()

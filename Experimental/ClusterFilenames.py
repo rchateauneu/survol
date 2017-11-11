@@ -6,7 +6,7 @@ testsArray = {
 	"ccengine_run_from_directory_tests.cmd",
 	"ccengine_run_test_daemon_unit.cmd",
 	"ccengine_run_test_msg_server.cmd",
-	"ccengine~run_test_params.cmd",
+	"ccengine_run_test_params.cmd",
 	"ccengine_run_test_persistence.cmd",
 	"ccenginefirun_testcore.cmd",
 	"ccengine_run_tests.cmd",
@@ -26,9 +26,9 @@ testsArray = {
 	"tmpsort_5038.log",
 	"toto",
 	"fxtImporter_ETS_CDP_Oo00_47_[13720]_debug.log",
-	"cce~find_calc;msg_conn_attempts.cmd",
+	"cce_find_calc;msg_conn_attempts.cmd",
 	"cce_find_calc_msgs.cmd",
-	"cce_find_non~cce_team_calc_msgs.cmd",
+	"cce_find_non_cce_team_calc_msgs.cmd",
 	"CCEngine_FXTDeal_CC_Calculator.xlsx",
 	"ccengine_run_cce_msg_svr.cmd",
 	"ccengine_run_cceapi_tests.cmd",],
@@ -47,31 +47,31 @@ testsArray = {
 	"TestScenarioAnalysis.ilk",
 	"TestScenarioAnalysis.pdb",
 	"boost_atomic-vc140-mt-gd-l_60.dll",
-	"boost_chrono~vc140-mt-gd-1_60.dll",
+	"boost_chrono-vc140-mt-gd-1_60.dll",
 	"boost_container-vc140-mt-gd-1_60.dll",
 	"boost_context-vc140-mt-gd-1_60.dll",
 	"boost_coroutine-vc140-mt-gd-l_60.dll",
-	"boost_date_time~vc140-mt-gd-1_60.dll",
+	"boost_date_time-vc140-mt-gd-1_60.dll",
 	"boost_filesystem-vc140-mt-gd-1_60.dll",
 	"boost_graph-vc140-mt-gd-1_60.dll",
-	"boost_iostreams-vc140-mt-gd-lfl60.dll",
+	"boost_iostreams-vc140-mt-gd-l_60.dll",
 	"boost_locale-vc140-mt-gd-l_60.dll",
 	"boost_log_setup-vc140-mt-gd-1_60.dll",
 	"boost_log-vc140-mt-gd-1_60.dll",
 	"boost_math_c99f-vc140-mt-gd-1_60.dll",
 	"boost_math_c99l-vc140-mt-gd-l_60.dll",
-	"boost_math~c99-vc140-mt-gd-1_60.dll",
+	"boost_math_c99-vc140-mt-gd-1_60.dll",
 	"boost_math_tr1f-vc140-mt-gd-l_60.dll",
 	"boost_math_trll-vc140-mt-gd-1_60.dll",
-	"boost_math~trl-vc140-mt-gd-l_60.dll",
-	"boost_prg_exec_monitor~vc140-mt-gd-lfi60.dll",
+	"boost_math_trl-vc140-mt-gd-l_60.dll",
+	"boost_prg_exec_monitor-vc140-mt-gd-l_60.dll",
 	"boost_program;options-vc140-mt-gd-1_60.dll",
 	"boost_python-vc140-mt-gd-l_60.dll",
 	"boost_random-vc140-mt-gd-1_60.dll",
 	"boost_regex-vc140-mt-gd-l_60.dll",
-	"boost_serialization-vc140-mt-gd~1_60.dll",
-	"boost_signals-vc140-mt-gd-lfi60.dll",
-	"boost_system-vc140-mt-gd-1h60.dll",
+	"boost_serialization-vc140-mt-gd-1_60.dll",
+	"boost_signals-vc140-mt-gd-l_60.dll",
+	"boost_system-vc140-mt-gd-1_60.dll",
 	"boost_thread-vc140-mt-gd-l_60.dll",
 	"boost_timer-vc140-mt-gd-l_60.dll",
 	"boost_type_erasure-vc140-mt-gd-l_60.dll",
@@ -150,9 +150,6 @@ testsArray = {
 #ou se trouve la sous-chaine.
 #
 
-
-
-
 #On decoupe recursivement mais tous les morceaux sont mis dans le split avec
 #la chaine d'origine:
 #boost_date_time-vc140-mt-gd-l_60.dll
@@ -187,6 +184,36 @@ testsArray = {
 #vc
 #boost_date_time-vc140-mt-gd-1_60.dll
 #boost_log_setup-vc140-mt-gd-l_60.dll
+
+# Ou plutot:
+# Chaque mot du split[] est equipe des deux delimiteurs avant et apres.
+# D'un index des delimiteurs uniques
+# ainsi que d'un index a l interieur de la sequence de delimiteurs identiques.
+# Exemple:
+# "boost_prg_exec_monitor-vc140-mt-gd-1_60.dll"
+# boost     _  0 0
+# prg     _ _  0 1
+# exec    _ _  0 2
+# monitor _ -  0 3
+# vc      - d  1 0
+# mt      d -  2 0
+# gd      - -  2 `
+#         - d  3 0
+#         d _  4 0
+#         _ d  5 0
+#         d .  6 0
+# dll     .    7 0
+#
+# Ca peut etre aussi pas mal de garder les sequences numeriques.
+# On tourne autour de la meme idee:
+# (1) Indexer des petits segments pour pouvoir matcher ces segments avec d'autres chaines.
+# (2) Mettre ensemble des segmentations d'origine diverses.
+#
+# Ca revient a dire par exemple:
+# - Le deuxieme nombre est ...
+# - un des mots (decoupes avec " ") de la seconde chaine alphanum (decoupee avec ".") est ...
+#
+# On va donc avoir un nouveau word_eligibility.
 
 def CreateSolutions(lstWrds):
 	dictClustl = lib_clusters.by_hash(lstWrds)
