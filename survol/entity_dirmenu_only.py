@@ -33,8 +33,6 @@ def TestUsability(importedMod,entity_type,entity_ids_arr):
 			errorMsg = "No message"
 	return errorMsg
 
-# TODO: CharTypesComposer
-
 def DirMenuReport(depthCall,strMsg):
 	"""For debugging purpose only."""
 	txtMargin = ( "    " * depthCall )
@@ -222,15 +220,13 @@ def DirToMenuAux(callbackGrphAdd,parentNode,curr_dir,relative_dir,entity_type,en
 
 def Main():
 
-	paramkeyShowAll = "Show all scripts"
-
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv(
 					can_process_remote = True,
-					parameters = { paramkeyShowAll : False })
+					parameters = { lib_common.paramkeyShowAll : False })
 	entity_id = cgiEnv.m_entity_id
 	entity_host = cgiEnv.GetHost()
-	flagShowAll = int(cgiEnv.GetParameters( paramkeyShowAll ))
+	flagShowAll = int(cgiEnv.GetParameters( lib_common.paramkeyShowAll ))
 
 	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
