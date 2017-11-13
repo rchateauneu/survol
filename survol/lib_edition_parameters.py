@@ -6,9 +6,6 @@ def FormEditionParameters(formActionNoMode,theCgi):
 	This creates a HTML form for editing parameters of a script.
 	"""
 
-	#mode = lib_util.GuessDisplayMode()
-
-	# formAction = lib_util.AnyUriModed(formActionNoMode,mode)
 	formAction = formActionNoMode
 	sys.stderr.write("FormEditionParameters formActionNoMode=%s formAction=%s\n"%(formAction,formActionNoMode))
 	print('<form name="myform" action="' + formAction + '" method="GET">')
