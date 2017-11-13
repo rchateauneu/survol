@@ -11,9 +11,9 @@ except ImportError:
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 # Consider using module "six", which is unfortunately not in the OVH standard package.
 try:
-	from urllib import unquote
+	from urllib import quote,unquote
 except ImportError:
-	from urllib.parse import unquote
+	from urllib.parse import quote,unquote
 
 import signal
 import sys
@@ -265,8 +265,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	def FormatElement(val,depth=0):
 		if lib_kbase.IsLink(val):
-			valTitle = "COMM MNOP "+ExternalToTitle(val)
-			# '<td href="%s" align="left" colspan="2">%s</td>' % ( a,b )
+			valTitle = "FormatElement "+ExternalToTitle(val)
 			valTitleUL = lib_exports.DotUL(valTitle)
 			return "<td align='left' balign='left' border='0' href='%s'>%s</td>" % (val,valTitleUL )
 
@@ -816,7 +815,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 
 ################################################################################
 
-def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style, grph ):
+def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_style ):
 	tmpLogFil = TmpFile("Grph2Svg","log")
 	logfil = open(tmpLogFil.Name,"w")
 	logfil.write( "Starting logging\n" )
@@ -827,7 +826,7 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 	logfil.write( TimeStamp()+" Created "+dot_filnam_after+"\n" )
 
 	dot_layout = WriteDotHeader( page_title, dot_style['layout_style'], rdfoutfil, grph )
-	lib_exports.WriteDotLegend( page_title, topUrl, error_msg, isSubServer, parameters, rdfoutfil, grph )
+	lib_exports.WriteDotLegend( page_title, topUrl, error_msg, isSubServer, parameters, parameterized_links, rdfoutfil, grph )
 	logfil.write( TimeStamp()+" Legend written\n" )
 	Rdf2Dot( grph, logfil, rdfoutfil, dot_style['collapsed_properties'] )
 	logfil.write( TimeStamp()+" About to close dot file\n" )
@@ -854,6 +853,7 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 	pageTitle = theCgi.m_page_title
 	dotLayout = theCgi.m_layoutParams
 	parameters = theCgi.m_parameters
+	parameterized_links = theCgi.m_parameterized_links
 
 	if mode == "html":
 		# Used rarely and performance not very important.
@@ -867,7 +867,7 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 		lib_exports.Grph2Rdf( grph)
 	else: # Or mode = "svg"
 		# Default value, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
-		Grph2Svg( pageTitle, topUrl, errorMsg, isSubServer, parameters, dotLayout, grph )
+		Grph2Svg( pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout )
 
 ################################################################################
 
@@ -962,6 +962,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	delim_title = ""
 	layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
 	cgiParams = {}
+	cgiParamLinks = {}
 	for theCgiEnv in globalCgiEnvList:
 		# theCgiEnv.m_page_title contains just the first line.
 		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgiEnv.m_page_title)
@@ -973,9 +974,10 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 		layoutParams['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
 		layoutParams['collapsed_properties'].extend( theCgiEnv.m_layoutParams['collapsed_properties'] )
 
-		# The dictionaries of parameters are merged.
+		# The dictionaries of parameters and corresponding links are merged.
 		try:
 			cgiParams.update(theCgiEnv.m_parameters)
+			cgiParamLinks.update(theCgiEnv.m_parameterized_links)
 		except ValueError:
 			errorMsg = sys.exc_info()[1]
 			sys.stderr.write("Error:%s Parameters:%s\n"%(errorMsg,str(theCgiEnv.m_parameters)))
@@ -987,8 +989,6 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	topUrl = lib_util.TopUrl( "", "" )
 
-	# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
-
 	class CgiInterface(object):
 		pass
 
@@ -997,6 +997,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	pseudoCgi.m_page_title = page_title
 	pseudoCgi.m_layoutParams = layoutParams
 	pseudoCgi.m_parameters = cgiParams
+	pseudoCgi.m_parameterized_links = cgiParamLinks
 	pseudoCgi.m_entity_type = ""
 	pseudoCgi.m_entity_id = ""
 	pseudoCgi.m_entity_host = ""
@@ -1005,8 +1006,12 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	return
 
-# This parses the CGI environment variables which define an entity.
+################################################################################
+
 class CgiEnv():
+	"""
+		This class parses the CGI environment variables which define an entity.
+	"""
 	def __init__(self, parameters = {}, can_process_remote = False ):
 		# TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
 		sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
@@ -1023,6 +1028,9 @@ class CgiEnv():
 
 		# Contains the optional arguments, needed by calling scripts.
 		self.m_parameters = parameters
+
+		self.m_parameterized_links = dict()
+
 
 		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
 
@@ -1148,7 +1156,7 @@ class CgiEnv():
 	def EditionMode(self):
 		import lib_edition_parameters
 
-		# Maybe we could have that with cgi.
+		# Maybe we could have that with the cgi module.
 		formAction = os.environ['SCRIPT_NAME']
 		sys.stderr.write("EditionMode formAction=%s\n"%formAction)
 
@@ -1174,7 +1182,7 @@ class CgiEnv():
 	# https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
 
 	def GetParameters(self,paramkey):
-		# sys.stderr.write("GetParameters m_arguments=%s\n" % str(self.m_arguments) )
+		sys.stderr.write("GetParameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
 
 		# Default value if no CGI argument.
 		try:
@@ -1190,9 +1198,9 @@ class CgiEnv():
 			# If the script parameter is passed as a CGI argument.
 			# BEWARE !!! An empty argument triggers an exception !!!
 			paramVal = self.m_arguments[paramkey].value
-			sys.stderr.write("GetParameters %s=%s as CGI\n" % ( paramkey, paramVal ) )
+			sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
-			sys.stderr.write("GetParameters %s not as CGI\n" % ( paramkey ) )
+			sys.stderr.write("GetParameters paramkey='%s' not as CGI\n" % ( paramkey ) )
 			hasArgValue = False
 
 		# Now converts it to the type of the default value. Otherwise untouched.
@@ -1200,12 +1208,12 @@ class CgiEnv():
 			if hasArgValue:
 				paramTyp = type(dfltValue)
 				paramVal = paramTyp( paramVal )
-				sys.stderr.write("GetParameters %s=%s after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
+				sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
 			else:
 				paramVal = dfltValue
 		else:
 			if not hasArgValue:
-				# sys.stderr.write("paramkey=%s m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
+				sys.stderr.write("GetParameters paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
 				lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
 
 		# TODO: Beware, empty strings are NOT send by the HTML form,
@@ -1283,6 +1291,71 @@ class CgiEnv():
 			globalCgiEnvList.append(self)
 		else:
 			OutCgiMode( self, topUrl, mode )
+
+	# Example: cgiEnv.AddParameterizedLinks( "Next", { paramkeyStartIndex : startIndex + maxInstances } )
+	def AddParameterizedLinks( self, urlLabel, paramsMap ):
+		"""This adds the parameters of an URL which points to the same page,
+		but with different CGI parameters. This URLS will displays basically
+		the same things, from the same script."""
+
+		# We want to display links associated to the parameters.
+		# The use case is "Prev/Next" when paging between many values.
+		# This calculates the URLS and returns a map of { "label":"urls" }
+
+		# Copy the existing parameters of the script. This will be updated.
+		prmsCopy = dict()
+		for argK in cgi.FieldStorage():
+			argV = cgi.FieldStorage()[argK].value
+			# sys.stderr.write("AddParameterizedLinks argK=%s argV=%s\n"%(argK,argV))
+			prmsCopy[argK] = quote(argV)
+
+		# Update these parameters with the values specific for this label.
+		for paramKey in paramsMap:
+			# Check that it is a valid parameter.
+			try:
+				self.m_parameters[paramKey]
+			except KeyError:
+				ErrorMessageHrml("Parameter %s should be defined for a link"%paramKey)
+			prmsCopy[paramKey] = paramsMap[paramKey]
+
+		sys.stderr.write("prmsCopy=%s\n"%str(prmsCopy))
+
+		# Now create an URL with these updated params.
+		idxCgi = self.m_calling_url.find("?")
+		if idxCgi < 0:
+			labelledUrl = self.m_calling_url
+		else:
+			labelledUrl = self.m_calling_url[:idxCgi]
+
+		# ENCODING PROBLEM HERE.
+		# ENCODING PROBLEM HERE.
+		# ENCODING PROBLEM HERE.
+		# OK http://127.0.0.1/Survol/survol/class_wbem.py?Start+index=0&Max+instances=800&xid=http%3A%2F%2Fprimhillcomputers.ddns.net%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.&edimodtype=root%2Fcimv2%3APG_UnixProcess
+		# OK http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.
+		# KO http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A//192.168.0.17%3A5988/root/cimv2%3APG_UnixProcess.
+		# Conversion to str() because of integer parameters.
+		kvPairsConcat = "&amp;amp;".join( "%s=%s" % ( paramKey,str(prmsCopy[paramKey]).replace("/","%2F")) for paramKey in prmsCopy )
+		labelledUrl += "?" + kvPairsConcat
+
+		sys.stderr.write("labelledUrl=%s\n"%labelledUrl)
+
+
+		self.m_parameterized_links[urlLabel] = labelledUrl
+
+
+
+################################################################################
+
+# This parameter in the display page of an object (entity.py),
+# indicates if all scripts which can operate on this object, must be displayed,
+# whether they can work or not.
+# By default, it is False.
+# For example, a script running on a Windows platform should not be displayed
+# when running on Linux. Or if a specific Python module is needed,
+# scripts using it should not be displayed. Same if the script has a syntax
+# error. By setting this flag, it is easy to understand which scripts
+# could be used and why they are not displayed.
+paramkeyShowAll = "Show all scripts"
 
 ################################################################################
 

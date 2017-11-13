@@ -42,24 +42,13 @@ def WriteScriptInformation(theCgi):
 			(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(aCgiEnv.m_page_title)
 			WrtAsUtf("<tr><td><a href='%s'>%s</td><td><i>%s</i></td></tr>"%(aCgiEnv.m_calling_url,page_title_first,page_title_rest))
 
-
-		# Voir theCgiEnv.m_page_title dans MergeOutCgiRdf()
-		# On pourrait lister les scripts mais ce serait aussi interessant de le faire en mode SVG,
-		# dans la legende.
 	else:
 		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgi.m_page_title)
 		WrtAsUtf("<tr><td colspan=2>%s</td></tr>"%(page_title_first))
 		if page_title_rest:
 			WrtAsUtf("<tr><td colspan=2>%s</td></tr>"%(page_title_rest))
-		#WrtAsUtf("<tr align=left><td colspan=2 align=left><b>%s</b></td></tr>"%theCgi.m_page_title.strip())
 
 	WrtAsUtf('</table>')
-
-	# This is the entire content, not only the first line.
-	#theDoc = lib_common.GetCallingModuleDoc()
-	#theDoc = theDoc.replace("\n","<br>")
-	#WrtAsUtf('<i><h2>NON  C ESR PAS LE BON %s</h2></i>'%(theDoc))
-	#WrtAsUtf('<i><h2>NON  C ESR PAS LE BON %s</h2></i>'%(theCgi.m_page_title))
 
 	if theCgi.m_entity_type:
 		# WrtAsUtf('m_entity_id: %s<br>'%(theCgi.m_entity_id))
@@ -97,8 +86,6 @@ def WriteScriptInformation(theCgi):
 		WrtAsUtf('</table>')
 
 
-
-# TODO: Fix this.
 def WriteParameters(theCgi):
 	"""
 		This displays the parameters of the script and provide an URL to edit them.
@@ -109,24 +96,6 @@ def WriteParameters(theCgi):
 	formAction = os.environ['SCRIPT_NAME']
 
 	lib_edition_parameters.FormEditionParameters(formAction,theCgi)
-
-	# parameters = theCgi.m_parameters
-
-	#WrtAsUtf('<table class="table_script_parameters">')
-	#
-	#WrtAsUtf('<tr><td colspan="2"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
-	#
-	#for keyParam,valParam in parameters.items():
-	#	WrtAsUtf(
-	#	"""
-	#	<tr>
-	#		<td><b>%s</b></td>
-	#		<td>%s</td>
-	#	</tr>
-	#	"""
-	#	% ( keyParam, str(valParam) ))
-	#
-	#WrtAsUtf('</table>')
 
 def WriteOtherUrls(topUrl):
 	"""
@@ -175,7 +144,9 @@ def WriteScriptsTree(theCgi):
 		(Where the tree is displayed as a tree of SVG nodes) and in index.htm
 		(With a contextual menu).
 	"""
-	flagShowAll = False
+
+	flagShowAll = int(theCgi.GetParameters( lib_common.paramkeyShowAll ))
+
 	rootNode = None
 
 	dictScripts = {}
@@ -193,7 +164,7 @@ def WriteScriptsTree(theCgi):
 		except KeyError:
 			dictScripts[subj] = { prop : [obj ] }
 
-	sys.stderr.write("WriteScriptsTree entity_type=%s\n"%(theCgi.m_entity_type))
+	sys.stderr.write("WriteScriptsTree entity_type=%s flagShowAll=%d\n"%(theCgi.m_entity_type,flagShowAll))
 	entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,theCgi.m_entity_type,theCgi.m_entity_id,theCgi.m_entity_host,flagShowAll)
 
 	sys.stderr.write("dictScripts %d\n"%len(dictScripts))
@@ -240,7 +211,11 @@ def WriteScriptsTree(theCgi):
 			WrtAsUtf("<td rowspan='%d'>"%len(mapProps))
 			if lib_kbase.IsLink( subj ):
 				url_with_mode = UrlInHtmlMode( subj_str )
-				WrtAsUtf( '<a href="' + url_with_mode + '">' + subj_uniq_title + "</a>")
+				if subj_uniq_title:
+					subj_uniq_title_not_none = subj_uniq_title
+				else:
+					subj_uniq_title_not_none = "No title"
+				WrtAsUtf( '<a href="' + url_with_mode + '">' + subj_uniq_title_not_none + "</a>")
 			else:
 				WrtAsUtf( subj_str )
 			WrtAsUtf("</td>")

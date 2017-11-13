@@ -96,31 +96,15 @@ def AddDefaultScripts(grph,rootNode,entity_host):
 
 def Main():
 
-	paramkeyShowAll = "Show all scripts"
-
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv(
 					can_process_remote = True,
-					parameters = { paramkeyShowAll : False })
+					parameters = { lib_common.paramkeyShowAll : False })
 	entity_id = cgiEnv.m_entity_id
 	entity_host = cgiEnv.GetHost()
-	flagShowAll = int(cgiEnv.GetParameters( paramkeyShowAll ))
+	flagShowAll = int(cgiEnv.GetParameters( lib_common.paramkeyShowAll ))
 
 	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-
-	#is_host_remote = not lib_util.IsLocalAddress( entity_host )
-	#
-	#sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_remote=%r\n" % ( entity_host, entity_type, entity_id, is_host_remote ) )
-	#
-	# It is simpler to have an empty entity_host, if possible.
-	# CHAIS PAS. EN FAIT C EST LE CONTRAIRE, IL FAUT METTRE LE HOST
-	#if not is_host_remote:
-	#	entity_host = ""
-	#if entity_host:
-	#	entity_host_not_default = entity_host
-	#else:
-	#	# Or lib_util.localIP ??
-	#	entity_host_not_default = lib_util.currentHostname
 
 	grph = cgiEnv.GetGraph()
 

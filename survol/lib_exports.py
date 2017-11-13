@@ -523,7 +523,7 @@ def UrlToMergeD3():
 	# - On retire de RDF, dans une certaine mesure, les scripts.
 
 # In SVG/Graphiz documents, this writes the little square which contains varios informaiton.
-def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream, grph ):
+def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, parameterized_links, stream, grph ):
 
 	# This allows to enter directly the URL parameters, so we can access directly an object.
 	# This will allow to choose the entity type, and each parameter of the URL (Taken
@@ -565,7 +565,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	# This displays the parameters of the URL and a link allowing to edit them.
 	# It assumes that it writes in the middle of a table with two columns.
-	def LegendAddParametersLinks(stream,parameters):
+	def LegendAddParametersLinks(stream, parameters, parameterized_links):
 		stream.write("<tr>")
 		urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
 		stream.write("<td href='"+urlEdtConfiguration+"' align='left'>" + DotBold(DotUL( "Setup" )) + "</td>")
@@ -598,6 +598,9 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		# (2) A method in CgiEnv calculates the URLS and returns a map
 		# of { "label":"urls" }
 
+		for urlLabel in parameterized_links:
+			paramUrl = parameterized_links[urlLabel]
+			stream.write("<tr><td colspan='2' href='" + paramUrl + "' align='left'>" + DotBold(DotUL( urlLabel )) + "</td></tr>" )
 
 
 
@@ -641,7 +644,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	LegendAddAlternateDisplayLinks(stream)
 
-	LegendAddParametersLinks(stream,parameters)
+	LegendAddParametersLinks(stream,parameters,parameterized_links)
 
 	# The error message could be None or an empty string.
 	if errMsg:
