@@ -1113,6 +1113,19 @@ globalOutMach = OutputMachineCgi()
 
 ################################################################################
 
+# This parameter in the display page of an object (entity.py),
+# indicates if all scripts which can operate on this object, must be displayed,
+# whether they can work or not.
+# By default, it is False.
+# For example, a script running on a Windows platform should not be displayed
+# when running on Linux. Or if a specific Python module is needed,
+# scripts using it should not be displayed. Same if the script has a syntax
+# error. By setting this flag, it is easy to understand which scripts
+# could be used and why they are not displayed.
+paramkeyShowAll = "Show all scripts"
+
+################################################################################
+
 # Default destination for the RDF, HTML or SVG output.
 def DfltOutDest():
 	return globalOutMach.OutStream()

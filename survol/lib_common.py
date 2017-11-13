@@ -65,6 +65,7 @@ def UselessProc(proc):
 
 ################################################################################
 
+# TODO: Take the colors from the CSS html_exports.css
 # TODO: Add a tool tip. Also, adapt the color to the context.
 pattEdgeOrien = "\t%s -> %s [ color=%s, label=< <font point-size='10' " + \
 	"color='#336633'>%s</font> > ] ;\n"
@@ -125,6 +126,7 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 		stream.write(" rankdir=\"LR\"; \n")
 	stream.write(" layout=\"" + dot_layout + "\"; \n")
 
+	# TODO: Take the font from the CSS html_exports.css
 	stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
 	return dot_layout
 
@@ -132,6 +134,7 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 # TODO: Ca serait mieux de passer le texte avec la property.
 def ExternalToTitle(extUrl):
 	# Depending on where we come from, "%2F" instead of "/" ... ugly.
+	# BEWARE: This is completely experimental. See if "Yawn" is actually used.
 	if re.match( ".*/yawn/.*", extUrl ) or re.match( ".*%2Fyawn%2F.*", extUrl ):
 		return "Yawn"
 
@@ -778,6 +781,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 
 	if lib_util.isPlatformLinux:
 		# TODO: This is arbitrary because old Graphviz version.
+		# TODO: Take the fonts from html_exports.css
 		dotFonts = ["-Gfontpath=/usr/share/fonts/TTF", "-Gfontnames=svg", "-Nfontname=VeraBd.ttf","-Efontname=VeraBd.ttf"]
 	else:
 		dotFonts = []
@@ -858,7 +862,7 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 	if mode == "html":
 		# Used rarely and performance not very important.
 		import lib_export_html
-		lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer)
+		lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer, globalCgiEnvList)
 	elif mode == "json":
 		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "menu":
@@ -1144,30 +1148,25 @@ class CgiEnv():
 				return ( "", "", "" )
 		return lib_util.ParseXid( xid )
 	
-	
-	# TODO
-	# Si l'argument n'est pas donne, passer en mode edition.
-	# En plus, on va ajouter un menu (Dans entity ?)
-	# qui permet de lister les scripts par type d'entite.
-	# On rajoute le menu d'edition dans l'affichage HTML.
-	# En RDF, voir si on peut ajouter un cartouche dans un coin du dessin.
+	# TODO: If no arguments, allow to edit it.
+	# TODO: Same font as in SVG mode.
+	# Suggest all available scritps for this entity type.
+	# Add legend in RDF mode:
 	# http://stackoverflow.com/questions/3499056/making-a-legend-key-in-graphviz
-	# On peut meme utiliser la meme legende ou presque.
 	def EditionMode(self):
+		"""This allow to edit the CGI parameters when in SVG (Graphviz) mode"""
+		import lib_export_html
 		import lib_edition_parameters
 
-		# Maybe we could have that with the cgi module.
 		formAction = os.environ['SCRIPT_NAME']
 		sys.stderr.write("EditionMode formAction=%s\n"%formAction)
 
-		# TODO: Change this for WSGI.
-		lib_util.HttpHeaderClassic( sys.stdout, "text/html")
-		print("""
-		<html>
-		<head></head>
-		<title>Editing parameters</title>
-		<body>
-		""")
+		# It uses the same CSS as in HTML mode.
+		lib_export_html.DisplayHtmlTextHeader(self.m_page_title+" - parameters")
+
+		print("<body>")
+
+		print("<h3>%s</h3><br>"%self.m_page_title)
 
 		lib_edition_parameters.FormEditionParameters(formAction,self)
 
@@ -1342,20 +1341,6 @@ class CgiEnv():
 
 		self.m_parameterized_links[urlLabel] = labelledUrl
 
-
-
-################################################################################
-
-# This parameter in the display page of an object (entity.py),
-# indicates if all scripts which can operate on this object, must be displayed,
-# whether they can work or not.
-# By default, it is False.
-# For example, a script running on a Windows platform should not be displayed
-# when running on Linux. Or if a specific Python module is needed,
-# scripts using it should not be displayed. Same if the script has a syntax
-# error. By setting this flag, it is easy to understand which scripts
-# could be used and why they are not displayed.
-paramkeyShowAll = "Show all scripts"
 
 ################################################################################
 

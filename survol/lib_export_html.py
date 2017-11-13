@@ -4,7 +4,6 @@
 import os
 import sys
 import lib_util
-import lib_common
 import lib_exports
 import lib_patterns
 import lib_naming
@@ -17,7 +16,7 @@ from lib_util import WrtAsUtf
 def UrlInHtmlMode(anUrl):
 	return lib_util.ConcatenateCgi( anUrl, "mode=html" )
 
-def WriteScriptInformation(theCgi):
+def WriteScriptInformation(theCgi,gblCgiEnvList):
 	"""
 		This displays general information about this script and the object if there is one.
 	"""
@@ -30,12 +29,12 @@ def WriteScriptInformation(theCgi):
 	sys.stderr.write("entity_label=%s entity_graphic_class=%s entity_id=%s\n"%( entity_label, entity_graphic_class, entity_id ))
 
 	WrtAsUtf('<table class="list_of_merged_scripts">')
-	if len(lib_common.globalCgiEnvList):
-		sys.stderr.write("lib_common.globalCgiEnvList=%s\n"%str(lib_common.globalCgiEnvList))
+	if len(gblCgiEnvList):
+		sys.stderr.write("gblCgiEnvList=%s\n"%str(gblCgiEnvList))
 		# This step is dedicated to the merging of several scripts.
 
-		WrtAsUtf("<tr align=left><td colspan=2 align=left><b>Merge of %d scripts</b></td></tr>"%len(lib_common.globalCgiEnvList))
-		for aCgiEnv in lib_common.globalCgiEnvList:
+		WrtAsUtf("<tr align=left><td colspan=2 align=left><b>Merge of %d scripts</b></td></tr>"%len(gblCgiEnvList))
+		for aCgiEnv in gblCgiEnvList:
 			sys.stderr.write("aCgiEnv=%s\n"%str(aCgiEnv))
 			sys.stderr.write("aCgiEnv.m_page_title=%s\n"%str(aCgiEnv.m_page_title))
 			sys.stderr.write("aCgiEnv.m_calling_url=%s\n"%str(aCgiEnv.m_calling_url))
@@ -145,7 +144,7 @@ def WriteScriptsTree(theCgi):
 		(With a contextual menu).
 	"""
 
-	flagShowAll = int(theCgi.GetParameters( lib_common.paramkeyShowAll ))
+	flagShowAll = int(theCgi.GetParameters( lib_util.paramkeyShowAll ))
 
 	rootNode = None
 
@@ -425,10 +424,7 @@ def DisplayHtmlTextHeader(page_title):
 	"""
 	This is the common Survol headers, ideally for all HTML documents.
 	"""
-	"""
-	:param page_title:
-	:return:
-	"""
+
 	lib_util.WrtHeader('text/html')
 	WrtAsUtf( "<head>" )
 
@@ -454,7 +450,7 @@ def DisplayHtmlTextHeader(page_title):
 
 
 
-def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
+def Grph2Html( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
 	"""
 		This transforms an internal data graph into a HTML document.
 	"""
@@ -465,7 +461,7 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 
 	WrtAsUtf('<body>')
 
-	WriteScriptInformation(theCgi)
+	WriteScriptInformation(theCgi,gblCgiEnvList)
 
 	WriteErrors(error_msg,isSubServer)
 

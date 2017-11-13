@@ -99,10 +99,10 @@ def Main():
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv(
 					can_process_remote = True,
-					parameters = { lib_common.paramkeyShowAll : False })
+					parameters = { lib_util.paramkeyShowAll : False })
 	entity_id = cgiEnv.m_entity_id
 	entity_host = cgiEnv.GetHost()
-	flagShowAll = int(cgiEnv.GetParameters( lib_common.paramkeyShowAll ))
+	flagShowAll = int(cgiEnv.GetParameters( lib_util.paramkeyShowAll ))
 
 	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
