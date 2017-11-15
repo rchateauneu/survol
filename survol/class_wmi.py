@@ -132,5 +132,7 @@ def Main():
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_class_instance])
 
+	# TODO: Prev/Next like class_wbem.py
+
 if __name__ == '__main__':
 	Main()
