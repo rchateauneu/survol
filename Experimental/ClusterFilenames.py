@@ -215,6 +215,8 @@ testsArray = {
 #
 # On va donc avoir un nouveau word_eligibility.
 
+# This returns a map of partitions. The key is the name of the partitionner which created each partition.
+# The input parameter is a list of strings which is partionned with each partitionner.
 def CreateSolutions(lstWrds):
 	dictClustl = lib_clusters.by_hash(lstWrds)
 	print ("")
@@ -230,10 +232,17 @@ def CreateSolutions(lstWrds):
 
 #Other parameters:
 #(1) Maximum desired elements.
-#(2) Recursive analysis to X levels.
+# Depth: Allows recursive analysis to X levels.
 #
-#On peut legitimement demander la seconde ou troisieme solution.
+# Another useful parameter would be the maximum desired number of lists.
+# We would not choose the most selective partion,
+# but the best among the ones which satisfy other constraints.
 #
+# We could ask for, not the best solution, but the second or third,
+# which might give another glimpse into data's meaning.
+#
+# This receives a list of words, partitions it with all know partitionner
+# and selects the best one. If needed, it recursively partitions each list.
 def SelectSolutions(lstWrds,depth=1):
 	dictClustersArrAll = CreateSolutions(lstWrds)
 	print("SelectSolutions depth=%d szWords=%d numClusts=%d\n"%(depth,len(lstWrds),len(dictClustersArrAll)))
@@ -250,7 +259,7 @@ def SelectSolutions(lstWrds,depth=1):
 
 	for keyClust in bestChoice:
 		lstChoice = bestChoice[keyClust]
-		# This tries to clusterize the sub-list, only if there are many elements.
+		# This tries to clusterize the sub-list, only if there are enough elements.
 		if len(lstChoice) > 3:
 			(bstSubKey,bestSubChoice) = SelectSolutions(lstChoice,depth)
 			if bstSubKey:
@@ -263,6 +272,7 @@ def SelectSolutions(lstWrds,depth=1):
 		bestChoiceRecurs[ keyClust ] = lstChoice
 	return (bstKey,bestChoiceRecurs)
 
+# This selects the best paritionner and prints the result.
 def TestWords(sampleName,lstWrds):
 	print ("\n\n\n\n" + ("    "*80) +"\n")
 	print("SAMPLE=%s numWrds=%s"%(sampleName,len(lstWrds)))
@@ -272,11 +282,13 @@ def TestWords(sampleName,lstWrds):
 	#print(bstIdx)
 	lib_clusters.PrintCluster(bestChoice,False)
 
+# This partions sets of fixed data.
 def TestFix():
 	for key in testsArray:
 		tstArr = testsArray[key]
 		TestWords(key,tstArr)
 
+# This partitions the names of temporary files.
 def TestDir():
 	mypath = "C:/tmp"
 	#onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]

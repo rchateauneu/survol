@@ -2,11 +2,12 @@ import re
 import sys
 import math
 
-# The result of a clusterization is a map of arrays, or maps etc...
-# The key is the string (or the regular expression)
-# which "summarizes" the cluster.
-# Ideally it should allow to rebuild it from scratch.
-# Maybe a regex or a combination of these.
+# This prints a partitions of strings list: In our context, this is a map of list of strings.
+# It is possible that instead of a list of strings, this may be a sub-partition.
+# It will be recursively printed.
+# The key is the string (or the regular expression) which "summarizes" the cluster.
+# This key, combined with the partitionning function which created the partition,
+# allows theoretically to rebuild the partition.
 def PrintCluster(mapClus,lenOnly,level = 0):
 	if not mapClus:
 		sys.stdout.write("None\n" )
@@ -29,9 +30,11 @@ def PrintCluster(mapClus,lenOnly,level = 0):
 		else:
 			sys.stdout.write("\nSHOULD NOT HAPPEN %s\n" % (str(val)))
 
+# This associates to each word, a light version, without numbers.
+# It is a partitionner, and as such gets a list of words as arguments,
+# and returns a map of list of strings.
 # TODO: Do not take into account the file extension.
 # TODO: Zap specific keywords: i386 etc...
-# This associates to each word, a light version, without numbers.
 def by_hash(lstWords):
 	dictClusters = {}
 	for wrd in lstWords:
@@ -74,17 +77,17 @@ def word_eligibility(oneWrd):
 		mapCrits[IndexToTag(-1)] = wrdSplit[-1]
 	return mapCrits
 
-# Ou alors, algorithme plus progressif: On tokeize et on essaye de rassembler
-# les mots dont tous les tokens sont identiques, sauf un, puis sauf deux etc...
-# en choisissant le minimum de tokens pour les plus grands clusters possibles.
-# Et/Ou: Choisir un token, puis un autre.
-# Plusieurs index, un par colonne: Ceux qui ont le token K a l;index N
-#
-# A la premiere passe, on choisit la colonne dont l'index est le plus petit
-# mais avec au moins une clef.
-#
-#
-#
+# TODO: Gather strings which are in the same lists for several indices.
+# This would fit this situation:
+#	"boost_math_c99f-vc140-mt-gd-1_60.dll",
+#	"boost_math_c99l-vc140-mt-gd-l_60.dll",
+#	"boost_math_c99-vc140-mt-gd-1_60.dll",
+# These strings are in the categories 'boost' and 'math' but we might as well
+# create the concatenated category 'boost_math'.
+
+# This is not a partitionner: It receives a list of strings but returns a map of maps of strings lists.
+# It is called when choosing the best partitionner and it is faster to do all indices in one go
+# instead of iterating for all possible column indices.
 def by_columns(lstWords):
 	print("all_clusts numWrds=%s"%len(lstWords))
 	allCols = set()
@@ -112,6 +115,76 @@ def by_columns(lstWords):
 		dictClustersArrays[oneCrit] = currPartition
 	return dictClustersArrays
 
+# The function "splitter" can be used to define a split on a specific column.
+# - It is necessary to clusterize several classes.
+# - It would be great to combine a generator and a splitter, so creating all objects
+#   would not be necessary.
+# - No need to specify the class on the URL: It is automatically found by choosing
+#   the best partionning function (aka splitter).
+# - The script creates nodes with partitions. It can force a specific partitionner.
+#
+# It is possible to add CGI parameters to ask partitionning of specific classes:
+# any_script.py?partitioned_class=CIM_Foo&partitioned_class=CIM_Bar
+#
+# The partitionning is made on the caption. Or should we choose one of the properties ?
+#
+# Accordingly, the URL of the nodes of each of these groups will be something like,
+# if a property is used for partitionning:
+# entity.py?xid=CIM_Foo.Name="splitter('.',-1)"['key']
+# When clicking on this, it displays all the objects belonging to this partition.
+#
+# How can we enumerate ? Maybe use another script than entity.py which is not able
+# to rebuild a partition, and possibly sub-partitions it, if there are too many objects.
+# Btw, how to compose partitioners ?
+# This script must for example list the files in a directory, which match a given pattern.
+# But this is closely linked to the originating script, and only this one.
+#
+# How can we link this concept to a WQL query ?
+# Or rather, an associator combined with a WQL select query ?
+#
+def splitter(delim,index):
+	# Must return empty string if IndexError exception.
+	f = lambda aStr : aStr.split(delim)[index]
+	return f
+
+# A partitioner is a function which receives a list of strings
+# and returns the same strings split into maps of lists.
+
+
+# Split on case from lower to upper, which delimitates a word.
+def case_down(index):
+	def function_result(aStr):
+		arrStr = []
+		lastUp = None
+		currWord = ""
+		for ch in aStr:
+			if lastUp:
+				if islower(ch):
+					currWord += ch
+				else:
+					arrStr.append(currWord)
+					currWord = ""
+					lastUp = None
+			else:
+				if isupper(ch):
+					lastUp = ch
+					arrStr.append(currWord)
+					currWord = ch
+				else:
+					currWord += ch
+		return arrStr
+
+	return function_result
+
+
+# Retirer les nombres hexa : split
+# Mais la regex doit tenir compte des caracteres avant et apres ... zut.
+
+
+# This takes a partition, selects keys whihc have are character long,
+# and merge them into the list indexed with an empty string.
+# The list indexed with an empty string contains all strings which could not be clusterized
+# because they are too "different".
 def compress(dictClusters):
 	# Otherwise "RuntimeError: dictionary changed size during iteration"
 	dictKeys = list(dictClusters.keys())
@@ -158,6 +231,7 @@ def cluster_entropy(dictClusters):
 		entr += elt
 	return - entr
 
+# Other ideas of partitions:
 # We could split string if the prefix is an english word:
 # crypt32.pdb
 # cryptbase.pdb
@@ -167,6 +241,7 @@ def cluster_entropy(dictClusters):
 #
 # Or split at transitions between uppercase and lowercase:
 # VsGraphicsHelper.pdb
+
 # Now choose the most selective index.
 # The goal might be to detect significant patterns (Entropy
 # or simply to reduce the number of elements at each level,
@@ -202,3 +277,24 @@ def get_best_crit1(dictClustArrs):
 
 # First pass to split based on hexadecimal numbers.
 
+# Par exemple, des clefs correspondant au split. Rien n’empêche de mettre le code Python.
+#
+# “split(‘.’)[0]”
+# “split(‘[0-9]+’)[1]”
+#
+# On pourrait pondérer l’entropie avec la longueur de la clef. Longueur moyenne car il y en a plusieurs.
+#
+# On peut creuser avec :
+# - Si longueur =1 , on assimile a rien du tout.
+# - Comment comparer deux partitions de longueur moyenne X ?
+#   L’information est proportionnelle a la longueur de chaque clef.
+#   Entre deux partitions qui feraient les memes buckets,
+#   a priori la plus interessante est celle qui prend le plus de caracteres.
+#   En realite il faudrait tenir compte d’une seconde partition.
+#   Mais justement veut raisonner dans tous les cas.
+#
+# Une passe pour concatener les partitions identiques ?
+# Tres rare, vient d’un probleme de delimiteur. On peut s’en apercevoir en comparant les entropies.
+#
+# Si entropie identique, passe supplementaire « des fois que ».
+#
