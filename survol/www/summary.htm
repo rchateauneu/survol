@@ -4,6 +4,7 @@
 <html>
 <head>
 
+    <link rel='stylesheet' type='text/css' href=css/html_exports.css>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="js/base64.js"></script>
     <script src="js/revjslib.js"></script>
@@ -60,7 +61,7 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
         "<td id='UrlsMerge'><b>Print layout</b></td>",
         "<td><b>Nodes</b></td>",
         "<td><b>Links</b></td>",
-        "<td><b>Refresh rate</b></td>",
+        "<td><b>Rate/mn</b></td>",
         "<td><b>Delete</b></td>",
         "</tr>"
     ].join("\n");
@@ -81,13 +82,14 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
             rateValue = objLoadedUrl.m_refresh_rate;
         }
 
+        // https://stackoverflow.com/questions/22709792/html-input-type-number-wont-resize
         urlsHtml += [
             "<tr>",
             HrefTarget(objLoadedUrl.m_loaded_url,objLoadedUrl.m_loaded_title),
-            "<td align='right'>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
-            "<td align='right'>" + objLoadedUrl.m_loaded_links_length + "</td>",
-            '<td><input type="number" min="0" width="10" onchange="'+  funcOnChange + '" value="' + rateValue + '">mn</td>',
-            '<td><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
+            "<td valign=top align='right'>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
+            "<td valign=top align='right'>" + objLoadedUrl.m_loaded_links_length + "</td>",
+            '<td valign=top><input type="number" min="0" style="width: 5em" onchange="'+  funcOnChange + '" value="' + rateValue + '"></td>',
+            '<td valign=top><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
             "</tr>"
         ].join("\n");
     }
@@ -144,7 +146,7 @@ window.addEventListener("message", ProcessIncomingMessage, false);
     </head>
 </head>
 <body>
-Loaded scripts. &copy; Primhill Computers 2017 <br/>
+Loaded scripts. &copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017 <br/>
 <div id="SummaryTable"></div>
 </body>
 </html>

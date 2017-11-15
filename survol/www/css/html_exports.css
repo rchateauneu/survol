@@ -3,8 +3,10 @@ TODO: Use the same font and colors as in SVG (Graphviz) mode.
 Conversely, the DOT generation should pick its parameters from here.
 */
 
+
 body {
-    background-color: lightblue;
+    background-color: white;
+    font-family: Dejavu Sans;
 }
 
 h1 {
