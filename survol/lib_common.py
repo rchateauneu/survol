@@ -317,7 +317,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	# et pointent vers le nom du record.
 	dictCollapsedObjectLabelsToSubjectLabels = {}
 
-	# This contain, for each node (subject), the related node (object) linked
+	# This contains, for each node (subject), the related node (object) linked
 	# to it with a property to be displayed in tables instead of individual nodes.
 	dictPropsCollapsedSubjectsToObjectLists = {}
 
@@ -326,7 +326,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		dictPropsCollapsedSubjectsToObjectLists[collapsPropNam] = collections.defaultdict(list)
 
 
-	# TODO: Une premiere passe pour batir l'arbre d'une certaine propriete.
+	# TODO: (TRANSLATE THIS) Une premiere passe pour batir l'arbre d'une certaine propriete.
 	# Si pas un DAG, tant pis, ca fera un lien en plus.
 	# ON voulait batir des records, mais les nodes dans un record ne peuvent pas
 	# avoir un URL: Donc ca va pas evidemment.
@@ -355,7 +355,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	# Any order will do as long as the result is always the same.
 	sortedGrph = sorted(grph)
 
-	# TODO: Loop only on the right properties.
+	# TODO: Loop only on the "collapsed" properties, the ones whose objects must be displayed
+	# in tables, instead of links  - if only they have a single subject. Otherwise it cannot work.
 	for subj, prop, obj in sortedGrph:
 
 		# Objects linked with these properties, are listed in a table, instead of distinct nodes in a graph.
@@ -420,12 +421,12 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 			prp_col = lib_properties.prop_color(prop)
 
-			# ET EN PLUS CA MARCHE MAL JE CROIS.
+			# TODO: GENERALIZE THIS TO ALL COMMUTATIVE PROPERTIES.
+			# THAT IS: PROPERTIES WHOSE TRIPLES ARE MERGED WHEN
+			# WE HAVE AT THE SAME TIME: (Subj,Prop,Obj) and (Obj,Prop,Subj).
+			# WHEN THIS HAPPENS, THE ARROW MUST BE BIDIRECTIONAL.
 			# TODO: All commutative relation have bidirectional arrows.
 			# At the moment, only one property can be bidirectional.
-			# TODO: CGIPROP. On extrait la propriete "edge_style" ??
-			# TODO: Mais la c est different car on fusionne deux aretes ....
-			# ON PEUT DEFINIR L ENSEMBLE DES PROPRIETES QUI SONT FUSIONNEES QUAND A->B et B->A.
 			if prop == pc.property_socket_end:
 
 				# BEWARE, MAYBE THIS IS A PORT INTO A TABLE. SO IT HAS TO BE PREFIXED BY THE RECORD NAME.
@@ -993,18 +994,26 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	topUrl = lib_util.TopUrl( "", "" )
 
-	class CgiInterface(object):
-		pass
+	#class CgiInterface(object):
+	#	pass
 
-	pseudoCgi = CgiInterface()
+	# pseudoCgi = CgiInterface()
+
+	pseudoCgi = CgiEnv()
 	pseudoCgi.m_graph = globalGraph
 	pseudoCgi.m_page_title = page_title
 	pseudoCgi.m_layoutParams = layoutParams
+	# Not sure this is the best value, but this is usually done.
+	# TODO: We should have a plain map for all m_arguments occurences.
+	pseudoCgi.m_arguments = cgi.FieldStorage()
 	pseudoCgi.m_parameters = cgiParams
 	pseudoCgi.m_parameterized_links = cgiParamLinks
 	pseudoCgi.m_entity_type = ""
 	pseudoCgi.m_entity_id = ""
 	pseudoCgi.m_entity_host = ""
+
+	# It also needs this method:
+	# def GetParameters(self,paramkey):
 
 	OutCgiMode( pseudoCgi, topUrl, theMode, errorMsg = cumulatedError )
 
@@ -1212,8 +1221,9 @@ class CgiEnv():
 				paramVal = dfltValue
 		else:
 			if not hasArgValue:
-				sys.stderr.write("GetParameters paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
-				lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
+				sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
+				# lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
+				paramVal = ""
 
 		# TODO: Beware, empty strings are NOT send by the HTML form,
 		# TODO: so an empty string must be equal to the default value.
@@ -1386,7 +1396,9 @@ def SubProcPOpen(command):
 	except OSError:
 		ErrorMessageHtml("Cannot run "+" ".join(command))
 
-	# For windows_network_devices we need shell=True but it is unsafe.
+	# For the win32/script windows_network_devices.py,
+	# we need shell=True, because it runs the command "wmic",
+	# but this might be a security hole.
 	return retPipe
 
 def SubProcCall(command):
@@ -1415,11 +1427,6 @@ def TmpDir():
 		pass
 
 	if lib_util.isPlatformWindows:
-		try:
-			return TryDir( os.environ["TMP"].replace('\\','/') )
-		except Exception:
-			pass
-
 		try:
 			return TryDir( os.environ["USERPROFILE"].replace('\\','/') + "/AppData/Local/Temp" )
 		except Exception:

@@ -39,6 +39,10 @@ def MakeProp(prp,**kvargs):
 # TODO: Peut-etre: "pc" devrait etre un objet ou on redefinit l appel d un membre,
 # ce qui permet de creer dynamiquement des proprietes.
 
+# Property names with this prefix come first in RDF sorting.
+# This is a convenient way to have "Information" at the top of properties.
+sortPrefix = "----"
+
 # All the properties for creating RDF triples.
 # Names must all be different because they are used as keys.
 pc.property_pid                  = MakeProp("pid")
@@ -110,7 +114,7 @@ pc.property_rdf_data_nolist3     = MakeProp("sub-rdf2") # Names must all be diff
 pc.property_wbem_data            = MakeProp("wbem")
 pc.property_wmi_data             = MakeProp("wmi")
 pc.property_csv_data             = MakeProp("csv")
-pc.property_information          = MakeProp("----information") # "----" at the beginning so it comes first. This is a hack !
+pc.property_information          = MakeProp(sortPrefix + "Information")
 pc.property_domain               = MakeProp("domain")
 pc.property_controller           = MakeProp("controller")
 pc.property_service              = MakeProp("service")

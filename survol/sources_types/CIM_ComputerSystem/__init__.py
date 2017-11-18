@@ -19,12 +19,38 @@ def EntityName(entity_ids_arr,entity_host):
     entity_id = entity_ids_arr[0]
     return entity_id
 
+# This adds the WBEM and WMI urls related to the entity.
 def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_id):
     sys.stderr.write("AddWbemWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
 
+    if entity_host:
+        host_wbem_wmi = entity_host
+    else:
+        host_wbem_wmi = lib_util.currentHostname
+
+    # This receives a map and a RDF property, and must add the correspknding nodes to the rootNode
+    # int the given graph. The same callback signature is used elsewhere to generate HTML tables.
+    def AddWMap(theMap,propData):
+        sys.stderr.write("AddWMap len=%d\n"%len(theMap))
+        for urlSubj in theMap:
+            grph.add( ( rootNode, propData, urlSubj ) )
+            for theProp, urlObj in theMap[urlSubj]:
+                grph.add( ( urlSubj, theProp, urlObj ) )
+
+
+    mapWbem = AddWbemServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    AddWMap(mapWbem,pc.property_wbem_data)
+    mapWmi = AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    AddWMap(mapWmi,pc.property_wmi_data)
+
+def AddWbemServers(entity_host, nameSpace, entity_type, entity_id):
+    sys.stderr.write("AddWbemServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
+
+    mapWbem = dict()
     try:
     # Maybe some of these servers are not able to display anything about this object.
         import lib_wbem
+
 
         wbem_servers_desc_list = lib_wbem.GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id )
         # sys.stderr.write("wbem_servers_desc_list len=%d\n" % len(wbem_servers_desc_list))
@@ -38,33 +64,47 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
                     txtLiteral = "WBEM url, host=%s class=%s"%(entity_host,entity_type)
                 else:
                     txtLiteral = "WBEM url, current host, class=%s"%(entity_type)
-                grph.add( ( wbemNode, pc.property_information, lib_common.NodeLiteral(txtLiteral ) ) )
 
-                grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
                 wbemHostNode = lib_common.gUriGen.HostnameUri( url_server[1] )
-                grph.add( ( wbemNode, pc.property_host, wbemHostNode ) )
+
+                mapWbem[wbemNode] = [
+                    ( pc.property_information, lib_common.NodeLiteral(txtLiteral ) ),
+                    ( pc.property_host, wbemHostNode )
+                ]
 
                 # Ca devrait etre dans nmap qui essaye d abord 80, et propose d ouvrir une fenetre.
                 # grph.add( ( wbemHostNode, pc.property_information, lib_common.NodeLiteral("Url to host") ) )
     except ImportError:
         pass
+    return mapWbem
 
+def AddWmiServers(entity_host, nameSpace, entity_type, entity_id):
+    sys.stderr.write("AddWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
+
+    mapWmi = dict()
     if lib_wmi.ValidClassWmi(entity_host, entity_type):
         # TODO: We may also loop on all machines which may describe this object.
         wmiurl = lib_wmi.GetWmiUrl( entity_host, nameSpace, entity_type, entity_id )
         # sys.stderr.write("wmiurl=%s\n" % str(wmiurl))
-        if not wmiurl is None:
+        if wmiurl:
             wmiNode = lib_common.NodeUrl(wmiurl)
-            grph.add( ( rootNode, pc.property_wmi_data, wmiNode ) )
             if entity_host:
                 txtLiteral = "WMI url, host=%s class=%s"%(entity_host,entity_type)
             else:
                 txtLiteral = "WMI url, current host, class=%s"%(entity_type)
-            grph.add( ( wmiNode, pc.property_information, lib_common.NodeLiteral(txtLiteral) ) )
+
+            mapWmi[wmiNode] = [
+                (pc.property_information, lib_common.NodeLiteral(txtLiteral))
+            ]
 
             if entity_host:
                 nodePortalWmi = lib_util.UrlPortalWmi(entity_host)
-                grph.add( ( wmiNode, pc.property_rdf_data_nolist2, nodePortalWmi ) )
+
+                mapWmi[wmiNode].append(
+                    (pc.property_rdf_data_nolist2, nodePortalWmi)
+                )
+    return mapWmi
+
 
 # g = geocoder.ip('216.58.206.37')
 # g.json

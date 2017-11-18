@@ -168,6 +168,9 @@ def PropToShortPropNam(collapsProp):
 	# Graphviz just want letters.
 	shortNam = shortNam.replace(".","_")
 	shortNam = shortNam.replace(" ","_")
+
+	if shortNam.startswith(lib_properties.sortPrefix):
+		shortNam = shortNam[len(lib_properties.sortPrefix):]
 	return shortNam
 
 # Only some scripts are exported to Json.

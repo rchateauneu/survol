@@ -12,6 +12,12 @@ import entity_dirmenu_only
 import lib_properties
 from lib_properties import pc
 from lib_util import WrtAsUtf
+from sources_types import CIM_ComputerSystem
+
+try:
+	from urllib import unquote
+except ImportError:
+	from urllib.parse import unquote
 
 def UrlInHtmlMode(anUrl):
 	return lib_util.ConcatenateCgi( anUrl, "mode=html" )
@@ -132,6 +138,55 @@ def WriteOtherUrls(topUrl):
 	</tr>
 	""" % urlD3 )
 
+	host_wbem_wmi = lib_util.currentHostname
+
+	# This callback receives a RDF property (WBEM or WMI) and a map
+	# which represents the CIM links associated to the current object.
+	def WMapToHtml(theMap,propData):
+		sys.stderr.write("WMapToHtml len=%d\n"%len(theMap))
+		for urlSubj in theMap:
+			(subjText, subjEntityGraphClass, subjEntityId) = lib_naming.ParseEntityUri( unquote(urlSubj) )
+			WrtAsUtf("<tr>")
+			WrtAsUtf("<td valign='top'><a href='%s'>%s</a></td>"%( str(urlSubj), subjText ) )
+			WrtAsUtf("<td>")
+			WrtAsUtf("<table>")
+			for theProp, urlObj in theMap[urlSubj]:
+				WrtAsUtf("<tr>")
+				propNam = lib_exports.PropToShortPropNam(theProp)
+				WrtAsUtf("<td><i>%s</i></td>"%propNam)
+				if lib_kbase.IsLiteral(urlObj):
+					WrtAsUtf("<td>%s</td>"%( str(urlObj) ) )
+				else:
+					(objText, objEntityGraphClass, objEntityId) = lib_naming.ParseEntityUri( unquote(urlObj) )
+					WrtAsUtf("<td><a href='%s'>%s</a></td>"%( str(urlObj), objText ) )
+				WrtAsUtf("</tr>")
+			WrtAsUtf("</table>")
+			WrtAsUtf("</td>")
+		WrtAsUtf("</tr>")
+
+	# (labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( unquote(objRdfNode) )
+	# propNam = lib_exports.PropToShortPropNam(prop)
+
+
+	callingUrl = lib_util.RequestUri()
+	( entity_label, entity_type, entity_id ) = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
+	nameSpace = ""
+
+	mapWbem = CIM_ComputerSystem.AddWbemServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+	WMapToHtml(mapWbem,pc.property_wbem_data)
+	mapWmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+	WMapToHtml(mapWmi,pc.property_wmi_data)
+
+
+	# TODO: Add these URLs like in entity.py
+	#AddDefaultScripts(grph,rootNode,entity_host)
+
+	# Special case if we are displaying a machine, we might as well try to connect to it.
+	#if entity_type == "CIM_ComputerSystem":
+	#	AddDefaultScripts(grph,rootNode,entity_id)
+
+
+
 	WrtAsUtf('</table>')
 
 
@@ -139,17 +194,27 @@ def WriteOtherUrls(topUrl):
 def WriteScriptsTree(theCgi):
 	"""
 		This displays the tree of accessible Python scripts for the current object.
-		It is dsiplayed as a recusive tab. A similar logic is used in entity.y
+		It is displayed as a recursive table. A similar logic is used in entity.
 		(Where the tree is displayed as a tree of SVG nodes) and in index.htm
 		(With a contextual menu).
 	"""
 
-	flagShowAll = int(theCgi.GetParameters( lib_util.paramkeyShowAll ))
+	flagVal = theCgi.GetParameters( lib_util.paramkeyShowAll )
+	sys.stderr.write("WriteScriptsTree flagVal=%s\n"%flagVal)
+	# This happens when merging scripts.
+	if flagVal == "":
+		flagShowAll = 0
+	else:
+		flagShowAll = int(flagVal)
 
 	rootNode = None
 
 	dictScripts = {}
 
+	# This function is called for each script which applies to the given entity.
+	# It receives a triplet: (subject,property,object) and the depth in the tree.
+	# Here, this simply stores the scripts in a map, which is later used to build
+	# the HTML display. The depth is not used yet.
 	def CallbackGrphAdd( trpl, depthCall ):
 		subj,prop,obj = trpl
 
@@ -244,18 +309,6 @@ def WriteScriptsTree(theCgi):
 		WrtAsUtf( "</table>")
 
 	DisplayLevelTable(None)
-
-	# TODO: Add this.
-	#if entity_type != "":
-	#	sys.stderr.write("Entering AddWbemWmiServers\n")
-	#	CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
-
-	#AddDefaultScripts(grph,rootNode,entity_host)
-
-	# Special case if we are displaying a machine, we might as well try to connect to it.
-	#if entity_type == "CIM_ComputerSystem":
-	#	AddDefaultScripts(grph,rootNode,entity_id)
-
 
 def WriteErrors(error_msg,isSubServer):
 	if error_msg or isSubServer:
@@ -465,21 +518,21 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
 
 	WriteErrors(error_msg,isSubServer)
 
-	WrtAsUtf("<h2/>Objects<h2/>")
+	WrtAsUtf("<h2>Objects</h2>")
 	WriteAllObjects(grph)
 
 	if len(theCgi.m_parameters) > 0:
-		WrtAsUtf("<h2/>Script parameters<h2/>")
+		WrtAsUtf("<h2>Script parameters</h2>")
 		WriteParameters(theCgi)
 
 	# Scripts do not apply when displaying a class.
 	# TODO: When in a enumerate script such as enumerate_CIM_LogicalDisk.py,
 	# it should assume the same: No id but a class.
 	if(theCgi.m_entity_type == "") or (theCgi.m_entity_id!=""):
-		WrtAsUtf("<h2/>Related data scripts<h2/>")
+		WrtAsUtf("<h2>Related data scripts</h2>")
 		WriteScriptsTree(theCgi)
 
-	WrtAsUtf("<h2/>Other related urls<h2/>")
+	WrtAsUtf("<h2>Other related urls</h2>")
 	WriteOtherUrls(topUrl)
 
 	WrtAsUtf("</body>")
