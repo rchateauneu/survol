@@ -21,6 +21,11 @@ def Main():
 	socketSplit = socketNam.split(':')
 	socketAddr = socketSplit[0]
 
+	try:
+		socketHost = socket.gethostbyaddr(socketAddr)[0]
+	except:
+		socketHost = socketAddr
+
 	# Maybe the port is given as a string, "ssh" or "telnet".
 	# See usage of socket.getservbyport
 	socketPortString = socketSplit[1]
@@ -36,7 +41,8 @@ def Main():
 		socketTransport = "tcp"
 
 	sys.stderr.write("socketAddr=%s socketPort=%d\n"%(socketAddr,socketPort))
-	nodeHost = lib_common.gUriGen.HostnameUri(socketAddr)
+	# It uses the host name for the machine but an IP address for the socket.
+	nodeHost = lib_common.gUriGen.HostnameUri(socketHost)
 	socketNode = lib_common.gUriGen.AddrUri(socketAddr, socketPort )
 
 	grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
