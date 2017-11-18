@@ -7,6 +7,7 @@ Conversely, the DOT generation should pick its parameters from here.
 body {
     background-color: white;
     font-family: Dejavu Sans;
+    margin-left: 20px;
 }
 
 h1 {
@@ -16,12 +17,11 @@ h1 {
 
 h2 {
     color: navy;
-    margin-left: 20px;
 }
 
 h3 {
     color: navy;
-    margin-left: 40px;
+    margin-left: 20px;
 }
 
 /*
@@ -43,14 +43,12 @@ table.table_script_information {
     color: black;
     background-color: white;
     border-collapse: collapse;
-    margin-left: 20px;
 }
 
 table.table_script_parameters {
     color: red;
     background-color: white;
     border-collapse: collapse;
-    margin-left: 20px;
 }
 
 table.other_urls {
@@ -59,7 +57,6 @@ table.other_urls {
 
 table.class_objects {
     color: navy;
-    margin-left: 20px;
 }
 
 table.table_scripts_titles {
@@ -79,5 +76,4 @@ table.table_scripts_links {
     background-color: lightgrey;
     border-collapse: collapse;
     font-size: 150%;
-    margin-left: 20px;
 }
