@@ -1,6 +1,9 @@
 import pyodbc
 import time
 
+# The role of this script is to have a process with an ODBC connection,
+# to test the memory scan looking for connecton strings.
+
 # RCHATEAU-HP\SQLEXPRESS
 #
 # User databases: "Insight_v50_0_81912336" and "SQLEXPRESS"

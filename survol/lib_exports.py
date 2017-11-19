@@ -1,3 +1,6 @@
+# This library helps to generate the output of internal database (RDF-like)
+# to the DOT output format, transformed into SVG by Graphviz.
+
 import lib_kbase
 import lib_patterns
 import lib_naming
@@ -42,6 +45,10 @@ def ModedUrl(otherMode):
 
 ################################################################################
 def TruncateInSpace(labText,maxLenLab):
+	"""
+	This truncates a string to a given length but tries to cut
+	at a space position instead of splitting a word.
+	"""
 	if len( labText ) > maxLenLab:
 		idx = labText.find(" ",maxLenLab)
 		# sys.stderr.write("idx=%d\n"%idx)
@@ -100,7 +107,7 @@ def StrWithBr(aStr, colspan = 1):
 # TODO: Set the right criteria for an old Graphviz version.
 new_graphiz = True # sys.version_info >= (3,)
 
-# TODO: This is temporary because only old graphviz versions dot not implement that.
+# TODO: This is temporary because old graphviz versions dot not implement that.
 def DotBold(str):
 	return "<b>%s</b>" % str if new_graphiz else str
 
@@ -161,6 +168,9 @@ def PropToShortPropNam(collapsProp):
 	# Graphviz just want letters.
 	shortNam = shortNam.replace(".","_")
 	shortNam = shortNam.replace(" ","_")
+
+	if shortNam.startswith(lib_properties.sortPrefix):
+		shortNam = shortNam[len(lib_properties.sortPrefix):]
 	return shortNam
 
 # Only some scripts are exported to Json.
@@ -457,19 +467,7 @@ def Grph2Rdf(grph):
 # The problems comes from "&mode=edit" or "&mode=html" etc...
 # TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
 def UrlToSvg(url):
-	if lib_util.isPlatformWindows:
-		# If one ampersand only, "error on line 28 at column 75: EntityRef: expecting ';'"
-		# when displaying the SVG file.
-		# Windows, Python 3.2, Graphviz 2.36
-		return url.replace( "&", "&amp;amp;" )
-	else:
-		if sys.version_info <= (2,5):
-			# Linux, Python 2.5.  Tested on Mandriva.
-			# Maybe we should do the same as the others.
-			return url.replace( "&", "&amp;" )
-		else:
-			# Tested with Python 2.7 on Fedora.
-			return url.replace( "&", "&amp;amp;" )
+	return url.replace( "&", "&amp;amp;" )
 
 # This returns an URL to the Javascript D3 interface, editing the current data.
 def UrlToMergeD3():
@@ -528,7 +526,7 @@ def UrlToMergeD3():
 	# - On retire de RDF, dans une certaine mesure, les scripts.
 
 # In SVG/Graphiz documents, this writes the little square which contains varios informaiton.
-def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream, grph ):
+def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, parameterized_links, stream, grph ):
 
 	# This allows to enter directly the URL parameters, so we can access directly an object.
 	# This will allow to choose the entity type, and each parameter of the URL (Taken
@@ -569,11 +567,19 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 		)
 
 	# This displays the parameters of the URL and a link allowing to edit them.
-	def LegendAddParametersLinks(stream,parameters):
-		if len( parameters ) > 0 :
+	# It assumes that it writes in the middle of a table with two columns.
+	def LegendAddParametersLinks(stream, parameters, parameterized_links):
+		stream.write("<tr>")
+		urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
+		stream.write("<td href='"+urlEdtConfiguration+"' align='left'>" + DotBold(DotUL( "Setup" )) + "</td>")
+		urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
+		stream.write("<td href='"+urlEdtCredentials+"' align='left'>" + DotBold(DotUL( "Credentials" )) + "</td>")
+		stream.write("</tr>" )
+
+		if parameters :
 			urlEdit = ModedUrl("edit")
 			urlEditReplaced = UrlToSvg( urlEdit )
-			stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "' align='left'>" + DotBold(DotUL( "Edit parameters" )) + "</td></tr>" )
+			stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "' align='left'>" + DotBold(DotUL( "Edit script parameters" )) + "</td></tr>" )
 
 		arguments = cgi.FieldStorage()
 		for keyParam,valParam in parameters.items():
@@ -582,6 +588,25 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 			except KeyError:
 				actualParam = valParam
 			stream.write('<tr><td>%s:</td><td>%s</td></tr>' % ( keyParam, DotIt(actualParam) ) )
+
+		# We want to display links associated to the parameters.
+		# The use case is "Prev/Next" when paging between many values.
+		# This could be nicely modelled by just specifying special set of values,
+		# and the links would be calculated here.
+		# For example: { "next" : { "index": curr + 80 }, "prev" : { "index": curr - 80 } }
+		# This simplifies the edition in Json.
+		# It might also simplify formatting.
+		# There will be a similar piece of code in Javascript and plain HTML:
+		# (1) The calling script provides the values to CgiEnv.
+		# (2) A method in CgiEnv calculates the URLS and returns a map
+		# of { "label":"urls" }
+
+		for urlLabel in parameterized_links:
+			paramUrl = parameterized_links[urlLabel]
+			stream.write("<tr><td colspan='2' href='" + paramUrl + "' align='left'>" + DotBold(DotUL( urlLabel )) + "</td></tr>" )
+
+
+
 
 	#	stream.write("""
 	#  rank=sink;
@@ -622,7 +647,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, stream,
 
 	LegendAddAlternateDisplayLinks(stream)
 
-	LegendAddParametersLinks(stream,parameters)
+	LegendAddParametersLinks(stream,parameters,parameterized_links)
 
 	# The error message could be None or an empty string.
 	if errMsg:

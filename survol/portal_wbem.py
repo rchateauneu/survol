@@ -26,13 +26,7 @@ def Main():
 	hostId = cgiEnv.GetId()
 	sys.stderr.write("entity_host=%s entity_type=%s hostname=%s\n"%(entity_host,entity_type,hostId))
 
-	# The coding of another machine soujnds dodgy but is simple a CIM path.
-	if (entity_type == 'CIM_ComputerSystem'):
-		# TODO:  hostId="Unknown-30-b5-c2-02-0c-b5-2" does not work.
-		wbem_urls_list = lib_wbem.GetWbemUrls( hostId, nameSpace, entity_type, "Name=" + hostId + ".home")
-	else:
-		## WHY A STAR ????
-		wbem_urls_list = lib_wbem.GetWbemUrls( "*", nameSpace, entity_type, "" )
+	wbem_urls_list = lib_wbem.GetWbemUrlsTyped( entity_host, nameSpace, entity_type, hostId )
 
 	# Maybe some of these servers are not able to display anything about this object.
 	for ( url_wbem, wbemHost ) in wbem_urls_list:

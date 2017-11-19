@@ -6,9 +6,6 @@ def FormEditionParameters(formActionNoMode,theCgi):
 	This creates a HTML form for editing parameters of a script.
 	"""
 
-	#mode = lib_util.GuessDisplayMode()
-
-	# formAction = lib_util.AnyUriModed(formActionNoMode,mode)
 	formAction = formActionNoMode
 	sys.stderr.write("FormEditionParameters formActionNoMode=%s formAction=%s\n"%(formAction,formActionNoMode))
 	print('<form name="myform" action="' + formAction + '" method="GET">')
@@ -18,6 +15,10 @@ def FormEditionParameters(formActionNoMode,theCgi):
 
 	print('<table class="table_script_parameters">')
 
+	# This is the list of parameters displayed and edited, which should not be
+	# input as hidden arguments.
+	lstEdimodArgs = []
+
 	if theCgi.m_entity_type != "":
 		print('<tr><td colspan=2>' + theCgi.m_entity_type + '</td>')
 		for kvKey in theCgi.m_entity_id_dict:
@@ -26,19 +27,23 @@ def FormEditionParameters(formActionNoMode,theCgi):
 			print("<tr>")
 			print('<td>' + kvKey + '</td>')
 			ediNam = "edimodargs_" + kvKey
+			lstEdimodArgs.append(ediNam)
+			sys.stderr.write("FormEditionParameters ediNam=%s\n"%ediNam)
 			print('<td><input type="text" name="%s" value="%s"></td>' % (ediNam,kvVal) )
 			print("</tr>")
 
 	check_boxes_parameters = []
 
 	# Now the parameters specific to the script, if they are not passed also as CGI params.
+	# param_key is the display string of the variable, and also a HTML form variable name.
 	for param_key in theCgi.m_parameters:
+		sys.stderr.write("FormEditionParameters param_key=%s\n"%param_key)
 		print("<tr>")
 		print('<td>' + param_key + '</td>')
 		param_val = theCgi.GetParameters( param_key )
 		# TODO: Encode the value.
 		if isinstance( param_val, bool ):
-			# Beware that unchecked checkboxes are not posted.
+			# Beware that unchecked checkboxes are not posted, i.e. boolean variables set to False.
 			# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
 			check_boxes_parameters.append( param_key )
 			if param_val:
@@ -57,23 +62,31 @@ def FormEditionParameters(formActionNoMode,theCgi):
 	# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
 
 	# Now the hidden arguments. Although entity_type can be deduced from the CGI script location.
-	# OBSOLETE ?????
-	print('<input type="hidden" name="edimodtype" value="' + theCgi.m_entity_type + '">')
+	# TODO: MAYBE THIS IS NEVER NECESSARY ... ?
+	if not "edimodtype" in argKeys:
+		print('<input type="hidden" name="edimodtype" value="' + theCgi.m_entity_type + '">')
 
 	for key in argKeys:
+		sys.stderr.write("FormEditionParameters key=%s\n"%key)
 		# These keys are processed differently.
 		if key in theCgi.m_parameters:
 			continue
 
-		# Of course, the mode must not be "edit".
-		if key in ["mode"]:
+		# It is explicitely input by the user, so no need of a hidden parameter.
+		if key in lstEdimodArgs:
 			continue
 
-		# ATTENTION: LES ARGUMENTS SPECIFIQUEMENT EDITABLES NE SONT PAS HIDDEN.
-		# QUESTION: COMMENT EDITER UNE LISTE D'ARGUMENTS?
-		# ET MEME COMMENT SAVOIR QUE C'EST UNE LISTE ?
-		# IDEE: ON PASSE A CgiEnv UNE KEY QUI TERMINE PAR [].
+		# BEWARE: The arguments which are editable, are not "hidden".
+		# Hoiw could we edit an argument list ? And how to know that it is a list ?
+		# Maybe we could proceed like CGI variables: If the parameter name ends with "[]".
 		argList = theCgi.m_arguments.getlist(key)
+
+		# Of course, the mode must not be "edit".
+		# Otherwise, it must be stored as a hidden input.
+		if key in ["mode"]:
+			if argList[0] == "edit":
+				continue
+
 		if len(argList) == 1:
 			# TODO: Values should be encoded.
 			print('<input type="hidden" name="' + key + '" value="'+argList[0] + '">')

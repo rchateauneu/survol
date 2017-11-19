@@ -58,7 +58,7 @@ def UrlDirectory( fullDirPath ):
 
 # Used only here.
 def UriDirectoryDirectScript(dirNam):
-	sys.stderr.write("UriDirectoryDirectScript=%s\n"%dirNam)
+	# sys.stderr.write("UriDirectoryDirectScript=%s\n"%dirNam)
 
 	# This should rather have the property pc.property_script, but it must be listed with the files.
 	return lib_uris.gUriGen.UriMakeFromScript(

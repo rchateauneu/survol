@@ -210,8 +210,7 @@ def WritePatterned( stream, type, subjNamTab, helpText, color, labHRef, numField
 		sys.stderr.write("WritePatterned UnicodeEncodeError: Encoding=%s\n" % sys.getdefaultencoding() )
 		return
 
-	# Maybe the keys will not be string.
-	for key in sorted(dictLines):
+	for key in lib_util.natural_sorted(dictLines):
 		try:
 			stream.write( "<tr>%s</tr>" % dictLines[key] )
 		except UnicodeEncodeError:

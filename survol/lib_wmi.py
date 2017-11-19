@@ -112,6 +112,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 		dictParams['user'] = wmiUser
 		dictParams['password'] = wmiPass
 
+	# TODO: THIS DOES NOT MAKE SENSE AND SHOULD BE CHANGED LIKE lib_wbem.py.
 	if not lib_util.SameHostOrLocal( wmiMachine, None ):
 		dictParams['computer'] = wmiMachine
 

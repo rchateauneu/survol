@@ -27,7 +27,7 @@ def AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode):
 	yawnUrl = "http:%s/yawn/GetClass/%s?url=%s&amp;amp;verify=0&amp;amp;ns=%s" % (cimomNoPort,topclassNam,lib_util.EncodeUri(cimomUrl),lib_util.EncodeUri(wbemNamespace))
 
 	# "http://192.168.1.88/yawn/GetClass/CIM_DeviceSAPImplementation?url=http%3A%2F%2F192.168.1.88%3A5988&verify=0&ns=root%2Fcimv2"
-	sys.stderr.write("cimomNoPort=%s yawnUrl=%s\n"%(cimomNoPort,yawnUrl))
+	# sys.stderr.write("cimomNoPort=%s yawnUrl=%s\n"%(cimomNoPort,yawnUrl))
 	grph.add( ( wbemNode, pc.property_rdf_data_nolist3, lib_common.NodeUrl(yawnUrl) ) )
 
 # topclassNam is None at first call.
@@ -45,10 +45,10 @@ def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth, wbemNamespa
 
 	# The class is the starting point when displaying the class tree of the namespace.
 	wbemNodeSub = WbemNamespaceNode(wbemNamespace, cimomUrl, topclassNam)
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, lib_common.NodeLiteral(wbemNodeSub) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, wbemNodeSub ) )
 
 	nodeGeneralisedClass = lib_util.EntityClassNode(topclassNam,wbemNamespace,cimomUrl,"WBEM")
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(nodeGeneralisedClass) ) )
+	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, nodeGeneralisedClass ) )
 
 	AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode)
 

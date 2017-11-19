@@ -23,7 +23,7 @@ def EntityOntology():
 	return ( [ survol_odbc.CgiPropertyDsn() ], )
 
 def MakeUri(dsnName):
-	sys.stderr.write("MakeUri dsnName=%s\n"%dsnName)
+	# sys.stderr.write("MakeUri dsnName=%s\n"%dsnName)
 	return lib_common.gUriGen.UriMakeFromDict("odbc/dsn", { survol_odbc.CgiPropertyDsn() : dsnName })
 
 def EntityName(entity_ids_arr,entity_host):

@@ -11,9 +11,9 @@ except ImportError:
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 # Consider using module "six", which is unfortunately not in the OVH standard package.
 try:
-	from urllib import unquote
+	from urllib import quote,unquote
 except ImportError:
-	from urllib.parse import unquote
+	from urllib.parse import quote,unquote
 
 import signal
 import sys
@@ -65,6 +65,7 @@ def UselessProc(proc):
 
 ################################################################################
 
+# TODO: Take the colors from the CSS html_exports.css
 # TODO: Add a tool tip. Also, adapt the color to the context.
 pattEdgeOrien = "\t%s -> %s [ color=%s, label=< <font point-size='10' " + \
 	"color='#336633'>%s</font> > ] ;\n"
@@ -125,6 +126,7 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 		stream.write(" rankdir=\"LR\"; \n")
 	stream.write(" layout=\"" + dot_layout + "\"; \n")
 
+	# TODO: Take the font from the CSS html_exports.css
 	stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
 	return dot_layout
 
@@ -132,6 +134,7 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 # TODO: Ca serait mieux de passer le texte avec la property.
 def ExternalToTitle(extUrl):
 	# Depending on where we come from, "%2F" instead of "/" ... ugly.
+	# BEWARE: This is completely experimental. See if "Yawn" is actually used.
 	if re.match( ".*/yawn/.*", extUrl ) or re.match( ".*%2Fyawn%2F.*", extUrl ):
 		return "Yawn"
 
@@ -210,19 +213,16 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	def FormatElementAux(val,depth=0):
 		if val is None:
-			# return "<td></td>"
 			return ""
 
 		try:
 			int(val)
-			# return "<td align='right' balign='left' border='0'>%d</td>" % valInt
 			return val
 		except:
 			pass
 
 		try:
 			float(val)
-			# return "<td align='right' balign='left' border='0'>%d</td>" % valInt
 			return val
 		except:
 			pass
@@ -234,7 +234,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				subTd = FormatPair(subKey,subVal, depth + 1)
 				if subTd:
 					subTable += "<tr>%s</tr>" % subTd
-			# return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
 			return "<table border='0'>%s</table>" % subTable
 
 		# Note: Recursive list are not very visible.
@@ -244,14 +243,12 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				for subElement in val:
 					subTd = FormatElement( subElement, depth + 1 )
 					subTable += "<tr>%s</tr>" % subTd
-				# return "<td align='left' balign='left' border='0'><table border='0'>%s</table></td>" % subTable
 				return "<table border='0'>%s</table>" % subTable
 			else:
 				subTable = ""
 				for subElement in val:
 					subTd = FormatElement( subElement, depth + 1 )
 					subTable += subTd
-				# return "<td align='left' balign='left' border='0'><table border='0'><tr>%s</tr></table></td>" % subTable
 				return "<table border='0'><tr>%s</tr></table>" % subTable
 
 		try:
@@ -261,20 +258,17 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		except ValueError:
 			# It is a string which cannot be converted to json.
 			val = cgi.escape(val) # +"OOOOO"+str(type(val))
-			# return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
 			return lib_exports.StrWithBr(val)
 		except TypeError:
 			# "Expected a string or buffer"
 			# It is not a string, so it could be a datetime.datetime
 			val = cgi.escape(str(val))
-			# return "<td align='left' balign='left' border='0'>%s</td>" % lib_exports.StrWithBr(val)
 			return lib_exports.StrWithBr(val)
 		return "FormatElement failure"
 
 	def FormatElement(val,depth=0):
 		if lib_kbase.IsLink(val):
-			valTitle = "COMM MNOP "+ExternalToTitle(val)
-			# '<td href="%s" align="left" colspan="2">%s</td>' % ( a,b )
+			valTitle = "FormatElement "+ExternalToTitle(val)
 			valTitleUL = lib_exports.DotUL(valTitle)
 			return "<td align='left' balign='left' border='0' href='%s'>%s</td>" % (val,valTitleUL )
 
@@ -322,11 +316,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 	# Ca liste les labels des objects qui apparaissent dans les blocs,
 	# et pointent vers le nom du record.
 	dictCollapsedObjectLabelsToSubjectLabels = {}
-	# dictCollapsedObjectLabelsToSubjectLabels = collections.defaultdict(dict)
 
-	# This contain, for each node (subject), the related node (object) linked
+	# This contains, for each node (subject), the related node (object) linked
 	# to it with a property to be displayed in tables instead of individual nodes.
-	# dictCollapsedSubjectsToObjectLists = collections.defaultdict(list)
 	dictPropsCollapsedSubjectsToObjectLists = {}
 
 	for collapsPropObj in CollapsedProperties:
@@ -334,7 +326,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		dictPropsCollapsedSubjectsToObjectLists[collapsPropNam] = collections.defaultdict(list)
 
 
-	# TODO: Une premiere passe pour batir l'arbre d'une certaine propriete.
+	# TODO: (TRANSLATE THIS) Une premiere passe pour batir l'arbre d'une certaine propriete.
 	# Si pas un DAG, tant pis, ca fera un lien en plus.
 	# ON voulait batir des records, mais les nodes dans un record ne peuvent pas
 	# avoir un URL: Donc ca va pas evidemment.
@@ -360,9 +352,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		return newSubjNam
 
 	# This is sorted so the result is deterministic. Very small performance impact.
+	# Any order will do as long as the result is always the same.
 	sortedGrph = sorted(grph)
 
-	# TODO: Loop only on the right properties.
+	# TODO: Loop only on the "collapsed" properties, the ones whose objects must be displayed
+	# in tables, instead of links  - if only they have a single subject. Otherwise it cannot work.
 	for subj, prop, obj in sortedGrph:
 
 		# Objects linked with these properties, are listed in a table, instead of distinct nodes in a graph.
@@ -427,12 +421,12 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 			prp_col = lib_properties.prop_color(prop)
 
-			# ET EN PLUS CA MARCHE MAL JE CROIS.
+			# TODO: GENERALIZE THIS TO ALL COMMUTATIVE PROPERTIES.
+			# THAT IS: PROPERTIES WHOSE TRIPLES ARE MERGED WHEN
+			# WE HAVE AT THE SAME TIME: (Subj,Prop,Obj) and (Obj,Prop,Subj).
+			# WHEN THIS HAPPENS, THE ARROW MUST BE BIDIRECTIONAL.
 			# TODO: All commutative relation have bidirectional arrows.
 			# At the moment, only one property can be bidirectional.
-			# TODO: CGIPROP. On extrait la propriete "edge_style" ??
-			# TODO: Mais la c est different car on fusionne deux aretes ....
-			# ON PEUT DEFINIR L ENSEMBLE DES PROPRIETES QUI SONT FUSIONNEES QUAND A->B et B->A.
 			if prop == pc.property_socket_end:
 
 				# BEWARE, MAYBE THIS IS A PORT INTO A TABLE. SO IT HAS TO BE PREFIXED BY THE RECORD NAME.
@@ -477,7 +471,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 	logfil.write( TimeStamp()+" Rdf2Dot: Replacing vectors: CollapsedProperties=%d.\n" % ( len( CollapsedProperties ) ) )
 
-	# Maintenant, on remplace chaque vecteur par un seul gros objet, contenant une table HTML.
+	# Now, replaces each vector by a single object containg a HTML table.
 	# TODO: Unfortunately, the prop is lost, which implies that all children are mixed together.
 
 	def ProcessCollapsedProperties( propNam ):
@@ -560,7 +554,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			dictHtmlLines = dict()
 			for objUri in nodLst:
 				# One table per node.
-				# subObjId = RdfNodeToDotLabel(obj)
 				subObjId = RdfNodeToDotLabel(objUri)
 
 				# Beware "\L" which should not be replaced by "<TABLE>" but this is not the right place.
@@ -589,7 +582,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				td_bgcolor = td_bgcolor_plain
 
 				# Some columns might not have a value. The first column is for the key.
-				columns = [ td_bgcolor + " ></td>" ] * numberKeys # SHOULD NOT HAPPEN
+				columns = [ td_bgcolor + " ></td>" ] * numberKeys
 
 				# Just used for the vertical order of lines, one line per object.
 				title = ""
@@ -603,22 +596,16 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 					# TODO: This is hard-coded.
 					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
-						#valTitle = ExternalToTitle(val)
-						#tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitle )
 
 						# In fact, it might also be an internal URL with "entity.py"
 						if lib_kbase.IsLiteral(val):
 							if isinstance( val.value, (list, tuple )):
 								strHtml = FormatElementAux(val.value)
 								sys.stderr.write("val.value=%s\n"%strHtml)
-								# strHtml = "<table border='0'><tr><td align='left' balign='left' border='0'>valTitle</td></tr><tr><td align='left' balign='left' border='0'>valTitle</td></tr></table>"
-								# strHtml = "<table><tr><td>valTitle</td></tr><tr><td>valTitle</td></tr></table>"
-								#strHtml = "TOTO"
 								tmpCell = td_bgcolor + 'align="left">%s</td>' % strHtml
 							else:
 								tmpCell = td_bgcolor + 'align="left">%s</td>' % val.value
 						else:
-							#### valTitle = "COMM RSTU "+ExternalToTitle(val)
 							valTitle = lib_naming.ParseEntityUri( val )[0]
 
 							valTitleUL = lib_exports.DotUL(valTitle)
@@ -643,7 +630,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# Maybe the first column is a literal ?
 				if subEntityId != "PLAINTEXTONLY":
 					# WE SHOULD PROBABLY ESCAPE HERE TOO.
-					# title_key = cgi.escape(title_key)
 					columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
 				else:
 					subNodUri = cgi.escape(subNodUri)
@@ -702,7 +688,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			else:
 				helpText = "List of scripts in " + labText
 
-			# TODO: Le titre et le contenu ne sont pas forcement de la meme classe.
+			# TODO: Le title and the content are not necessarily of the same class.
 			# labTextWithBr is the first line of the table containing nodes linked with the
 			# same property. Unfortunately we have lost this property.
 			labText = lib_exports.TruncateInSpace(labText,30)
@@ -742,9 +728,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		except UnicodeEncodeError:
 			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( objRdfNode ) )
 
-		# WritePatterned va recevoir un tableau de chaines de la forme "<td>jhh</td><td>jhh</td><td>jhh</td>"
-		# et c est lui qui va mettre des <tr> et </tr> de part et d'autre.
-		# Ca evite des concatenations. Dans le cas de "Vertical", on va donc renvoyer un tableau"
+		# WritePatterned receives an list of strings similar to "<td>jhh</td><td>jhh</td><td>jhh</td>"
+		# This function adds <tr> and </tr> on both sides.
+		# This avoids concatenations.
 
 		# Ampersand are intentionnally doubled, because later on they are replaced twice.
 		# That is, interpreted twice as HTML entities.
@@ -796,6 +782,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 
 	if lib_util.isPlatformLinux:
 		# TODO: This is arbitrary because old Graphviz version.
+		# TODO: Take the fonts from html_exports.css
 		dotFonts = ["-Gfontpath=/usr/share/fonts/TTF", "-Gfontnames=svg", "-Nfontname=VeraBd.ttf","-Efontname=VeraBd.ttf"]
 	else:
 		dotFonts = []
@@ -833,7 +820,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 
 ################################################################################
 
-def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style, grph ):
+def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_style ):
 	tmpLogFil = TmpFile("Grph2Svg","log")
 	try:
 		logfil = open(tmpLogFil.Name,"w")
@@ -850,7 +837,7 @@ def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style,
 	logfil.write( TimeStamp()+" Created "+dot_filnam_after+"\n" )
 
 	dot_layout = WriteDotHeader( page_title, dot_style['layout_style'], rdfoutfil, grph )
-	lib_exports.WriteDotLegend( page_title, topUrl, error_msg, isSubServer, parameters, rdfoutfil, grph )
+	lib_exports.WriteDotLegend( page_title, topUrl, error_msg, isSubServer, parameters, parameterized_links, rdfoutfil, grph )
 	logfil.write( TimeStamp()+" Legend written\n" )
 	Rdf2Dot( grph, logfil, rdfoutfil, dot_style['collapsed_properties'] )
 	logfil.write( TimeStamp()+" About to close dot file\n" )
@@ -877,12 +864,12 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 	pageTitle = theCgi.m_page_title
 	dotLayout = theCgi.m_layoutParams
 	parameters = theCgi.m_parameters
+	parameterized_links = theCgi.m_parameterized_links
 
 	if mode == "html":
 		# Used rarely and performance not very important.
 		import lib_export_html
-		lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer)
-		# lib_export_html.Grph2Html( pageTitle, topUrl, errorMsg, isSubServer, parameters, grph)
+		lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer, globalCgiEnvList)
 	elif mode == "json":
 		lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "menu":
@@ -891,7 +878,7 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 		lib_exports.Grph2Rdf( grph)
 	else: # Or mode = "svg"
 		# Default value, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
-		Grph2Svg( pageTitle, topUrl, errorMsg, isSubServer, parameters, dotLayout, grph )
+		Grph2Svg( pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout )
 
 ################################################################################
 
@@ -911,7 +898,7 @@ def GetCallingModuleDoc():
 
 	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
 
-	if True or globalMergeMode:
+	if modeOVH or globalMergeMode:
 		try:
 			# This is a bit of a hack.
 			import inspect
@@ -986,6 +973,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	delim_title = ""
 	layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
 	cgiParams = {}
+	cgiParamLinks = {}
 	for theCgiEnv in globalCgiEnvList:
 		# theCgiEnv.m_page_title contains just the first line.
 		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgiEnv.m_page_title)
@@ -997,9 +985,10 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 		layoutParams['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
 		layoutParams['collapsed_properties'].extend( theCgiEnv.m_layoutParams['collapsed_properties'] )
 
-		# The dictionaries of parameters are merged.
+		# The dictionaries of parameters and corresponding links are merged.
 		try:
 			cgiParams.update(theCgiEnv.m_parameters)
+			cgiParamLinks.update(theCgiEnv.m_parameterized_links)
 		except ValueError:
 			errorMsg = sys.exc_info()[1]
 			sys.stderr.write("Error:%s Parameters:%s\n"%(errorMsg,str(theCgiEnv.m_parameters)))
@@ -1011,26 +1000,37 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	topUrl = lib_util.TopUrl( "", "" )
 
-	# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
+	#class CgiInterface(object):
+	#	pass
 
-	class CgiInterface(object):
-		pass
+	# pseudoCgi = CgiInterface()
 
-	pseudoCgi = CgiInterface()
+	pseudoCgi = CgiEnv()
 	pseudoCgi.m_graph = globalGraph
 	pseudoCgi.m_page_title = page_title
 	pseudoCgi.m_layoutParams = layoutParams
+	# Not sure this is the best value, but this is usually done.
+	# TODO: We should have a plain map for all m_arguments occurences.
+	pseudoCgi.m_arguments = cgi.FieldStorage()
 	pseudoCgi.m_parameters = cgiParams
+	pseudoCgi.m_parameterized_links = cgiParamLinks
 	pseudoCgi.m_entity_type = ""
 	pseudoCgi.m_entity_id = ""
 	pseudoCgi.m_entity_host = ""
+
+	# It also needs this method:
+	# def GetParameters(self,paramkey):
 
 	OutCgiMode( pseudoCgi, topUrl, theMode, errorMsg = cumulatedError )
 
 	return
 
-# This parses the CGI environment variables which define an entity.
+################################################################################
+
 class CgiEnv():
+	"""
+		This class parses the CGI environment variables which define an entity.
+	"""
 	def __init__(self, parameters = {}, can_process_remote = False ):
 		# TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
 		sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
@@ -1047,6 +1047,9 @@ class CgiEnv():
 
 		# Contains the optional arguments, needed by calling scripts.
 		self.m_parameters = parameters
+
+		self.m_parameterized_links = dict()
+
 
 		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
 
@@ -1154,37 +1157,31 @@ class CgiEnv():
 						entity_id += monikDelim + monikKey + "=" + monikVal
 						monikDelim = "&"
 
-				# entity_id = self.m_arguments["edimodargs_id"].value
 				return ( entity_type, entity_id, "" )
 			except KeyError:
 				# No host, for the moment.
 				return ( "", "", "" )
 		return lib_util.ParseXid( xid )
 	
-	
-	# TODO
-	# Si l'argument n'est pas donne, passer en mode edition.
-	# En plus, on va ajouter un menu (Dans entity ?)
-	# qui permet de lister les scripts par type d'entite.
-	# On rajoute le menu d'edition dans l'affichage HTML.
-	# En RDF, voir si on peut ajouter un cartouche dans un coin du dessin.
+	# TODO: If no arguments, allow to edit it.
+	# TODO: Same font as in SVG mode.
+	# Suggest all available scritps for this entity type.
+	# Add legend in RDF mode:
 	# http://stackoverflow.com/questions/3499056/making-a-legend-key-in-graphviz
-	# On peut meme utiliser la meme legende ou presque.
 	def EditionMode(self):
+		"""This allow to edit the CGI parameters when in SVG (Graphviz) mode"""
+		import lib_export_html
 		import lib_edition_parameters
 
-		# Maybe we could have that with cgi.
 		formAction = os.environ['SCRIPT_NAME']
 		sys.stderr.write("EditionMode formAction=%s\n"%formAction)
 
-		# TODO: Change this for WSGI.
-		lib_util.HttpHeaderClassic( sys.stdout, "text/html")
-		print("""
-		<html>
-		<head></head>
-		<title>Editing parameters</title>
-		<body>
-		""")
+		# It uses the same CSS as in HTML mode.
+		lib_export_html.DisplayHtmlTextHeader(self.m_page_title+" - parameters")
+
+		print("<body>")
+
+		print("<h3>%s</h3><br>"%self.m_page_title)
 
 		lib_edition_parameters.FormEditionParameters(formAction,self)
 
@@ -1199,7 +1196,7 @@ class CgiEnv():
 	# https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
 
 	def GetParameters(self,paramkey):
-		# sys.stderr.write("GetParameters m_arguments=%s\n" % str(self.m_arguments) )
+		sys.stderr.write("GetParameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
 
 		# Default value if no CGI argument.
 		try:
@@ -1215,9 +1212,9 @@ class CgiEnv():
 			# If the script parameter is passed as a CGI argument.
 			# BEWARE !!! An empty argument triggers an exception !!!
 			paramVal = self.m_arguments[paramkey].value
-			sys.stderr.write("GetParameters %s=%s as CGI\n" % ( paramkey, paramVal ) )
+			sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
-			sys.stderr.write("GetParameters %s not as CGI\n" % ( paramkey ) )
+			sys.stderr.write("GetParameters paramkey='%s' not as CGI\n" % ( paramkey ) )
 			hasArgValue = False
 
 		# Now converts it to the type of the default value. Otherwise untouched.
@@ -1225,13 +1222,14 @@ class CgiEnv():
 			if hasArgValue:
 				paramTyp = type(dfltValue)
 				paramVal = paramTyp( paramVal )
-				sys.stderr.write("GetParameters %s=%s after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
+				sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
 			else:
 				paramVal = dfltValue
 		else:
 			if not hasArgValue:
-				# sys.stderr.write("paramkey=%s m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
-				lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
+				sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
+				# lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
+				paramVal = ""
 
 		# TODO: Beware, empty strings are NOT send by the HTML form,
 		# TODO: so an empty string must be equal to the default value.
@@ -1307,9 +1305,58 @@ class CgiEnv():
 			# At the end, only one call to OutCgiMode() will be made.
 			globalCgiEnvList.append(self)
 		else:
-			# def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
-			# OutCgiMode( self.m_graph, topUrl, mode, self.m_page_title, self.m_layoutParams, parameters = self.m_parameters )
 			OutCgiMode( self, topUrl, mode )
+
+	# Example: cgiEnv.AddParameterizedLinks( "Next", { paramkeyStartIndex : startIndex + maxInstances } )
+	def AddParameterizedLinks( self, urlLabel, paramsMap ):
+		"""This adds the parameters of an URL which points to the same page,
+		but with different CGI parameters. This URLS will displays basically
+		the same things, from the same script."""
+
+		# We want to display links associated to the parameters.
+		# The use case is "Prev/Next" when paging between many values.
+		# This calculates the URLS and returns a map of { "label":"urls" }
+
+		# Copy the existing parameters of the script. This will be updated.
+		prmsCopy = dict()
+		for argK in cgi.FieldStorage():
+			argV = cgi.FieldStorage()[argK].value
+			# sys.stderr.write("AddParameterizedLinks argK=%s argV=%s\n"%(argK,argV))
+			prmsCopy[argK] = quote(argV)
+
+		# Update these parameters with the values specific for this label.
+		for paramKey in paramsMap:
+			# Check that it is a valid parameter.
+			try:
+				self.m_parameters[paramKey]
+			except KeyError:
+				ErrorMessageHrml("Parameter %s should be defined for a link"%paramKey)
+			prmsCopy[paramKey] = paramsMap[paramKey]
+
+		sys.stderr.write("prmsCopy=%s\n"%str(prmsCopy))
+
+		# Now create an URL with these updated params.
+		idxCgi = self.m_calling_url.find("?")
+		if idxCgi < 0:
+			labelledUrl = self.m_calling_url
+		else:
+			labelledUrl = self.m_calling_url[:idxCgi]
+
+		# ENCODING PROBLEM HERE.
+		# ENCODING PROBLEM HERE.
+		# ENCODING PROBLEM HERE.
+		# OK http://127.0.0.1/Survol/survol/class_wbem.py?Start+index=0&Max+instances=800&xid=http%3A%2F%2Fprimhillcomputers.ddns.net%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.&edimodtype=root%2Fcimv2%3APG_UnixProcess
+		# OK http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.
+		# KO http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A//192.168.0.17%3A5988/root/cimv2%3APG_UnixProcess.
+		# Conversion to str() because of integer parameters.
+		kvPairsConcat = "&amp;amp;".join( "%s=%s" % ( paramKey,str(prmsCopy[paramKey]).replace("/","%2F")) for paramKey in prmsCopy )
+		labelledUrl += "?" + kvPairsConcat
+
+		sys.stderr.write("labelledUrl=%s\n"%labelledUrl)
+
+
+		self.m_parameterized_links[urlLabel] = labelledUrl
+
 
 ################################################################################
 
@@ -1339,7 +1386,6 @@ def ErrorMessageHtml(message):
 		sys.stderr.write("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
 		lib_util.InfoMessageHtml(message)
 		# TODO: Fix with wsgi which just displays "A server error occurred.  Please contact the administrator."
-		# raise Exception("Tralala")
 		sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
@@ -1356,8 +1402,9 @@ def SubProcPOpen(command):
 	except OSError:
 		ErrorMessageHtml("Cannot run "+" ".join(command))
 
-	# For windows_network_devices we need shell=True but it is unsafe.
-	# drivelist = lib_common.SubProcPOpen('wmic logicaldisk get name,description,ProviderName', shell=True, stdout=subprocess.PIPE)
+	# For the win32/script windows_network_devices.py,
+	# we need shell=True, because it runs the command "wmic",
+	# but this might be a security hole.
 	return retPipe
 
 def SubProcCall(command):
@@ -1386,11 +1433,6 @@ def TmpDir():
 		pass
 
 	if lib_util.isPlatformWindows:
-		try:
-			return TryDir( os.environ["TMP"].replace('\\','/') )
-		except Exception:
-			pass
-
 		try:
 			return TryDir( os.environ["USERPROFILE"].replace('\\','/') + "/AppData/Local/Temp" )
 		except Exception:

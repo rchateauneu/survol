@@ -26,6 +26,42 @@ except ImportError:
 
 ################################################################################
 
+# Sometimes we have to display many strings of the same type, for example
+# filenames or WMI monikers. These strings are mixes of words and numbers.
+# They do not sort naturally well, because the numbers are lexicographically
+# sorted. The Python module natsort does that.
+# Simple yet flexible natural sorting in Python.
+try:
+	import natsort
+	from natsort import natsort_keygen
+
+	natural_sorted = natsort.natsorted
+
+	def natural_sort_list(one_list,**args):
+
+		natsort_key = natsort_keygen()
+
+		try:
+			orig_key = args['key']
+
+			# one_list.sort(**args)
+			#return
+
+			args['key'] = lambda in_param: natsort_key(orig_key(in_param))
+
+		except KeyError:
+			args['key'] = natsort_key
+		one_list.sort(**args)
+
+except ImportError:
+	sys.stderr.write("WritePatterned Module natsorted not available.")
+	natural_sorted = sorted
+
+	def natural_sort_list(one_list,**args):
+		one_list.sort(**args)
+
+################################################################################
+
 # This avoids needing the "six" module which is not always available.
 # On some environments, it is a hassle to import it.
 if sys.version_info >= (3,):
@@ -1074,6 +1110,19 @@ class OutputMachineCgi:
 # WSGI changes this to another object with same interface.
 # Overriden in wsgiserver.py.
 globalOutMach = OutputMachineCgi()
+
+################################################################################
+
+# This parameter in the display page of an object (entity.py),
+# indicates if all scripts which can operate on this object, must be displayed,
+# whether they can work or not.
+# By default, it is False.
+# For example, a script running on a Windows platform should not be displayed
+# when running on Linux. Or if a specific Python module is needed,
+# scripts using it should not be displayed. Same if the script has a syntax
+# error. By setting this flag, it is easy to understand which scripts
+# could be used and why they are not displayed.
+paramkeyShowAll = "Show all scripts"
 
 ################################################################################
 

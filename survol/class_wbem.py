@@ -56,14 +56,15 @@ def AssocReferenceToNode(nameSpace,entity_host,assocInst):
 	wbemAssocNode = lib_common.NodeUrl(wbemAssocUrl)
 	return wbemAssocNode
 
-
-
-
 # Display the graph of associations.
 # It can work only if there are only two references in each instance.
-def DisplayAssociatoraAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,maxInstances):
+def DisplayAssociatorsAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,maxInstances,startIndex):
 	maxCnt = 0
 	for iname in inst_names:
+		if startIndex > 0:
+			startIndex -= 1
+			continue
+
 		if maxCnt == maxInstances:
 			break
 		maxCnt += 1
@@ -96,9 +97,13 @@ def DisplayAssociatoraAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,m
 # Display one line per instance of the class as members were literals.
 # This attemps to display the references as links. Does not really work yet,
 # because "special" properties" have to be used.
-def DisplayAssociatoraAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances):
+def DisplayAssociatorsAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex):
 	maxCnt = 0
 	for iname in inst_names:
+		if startIndex > 0:
+			startIndex -= 1
+			continue
+
 		if maxCnt == maxInstances:
 			break
 		maxCnt += 1
@@ -106,9 +111,9 @@ def DisplayAssociatoraAsList(grph,inst_names,rootNode,nameSpace,entity_host, cla
 		# On ne met pas les references dans le Moniker car ca fait une syntaxe inutilisable, pour le moment, du style:
 		# wbemInstName=root/CIMv2:TUT_ProcessChild.Parent="root/cimv2:TUT_UnixProcess.Handle="1"",Child="root/cimv2:TUT_UnixProcess.Handle="621"",OSCreationClassName="Linux_OperatingSystem",CSName="Unknown-30-b5-c2-02-0c-b5-2.home",CSCreationClassName="Linux_ComputerSystem",CreationClassName="TUT_UnixProcess",OSName="Unknown-30-b5-c2-02-0c-b5-2.home"
 
-		# TODO: Fix this.
-		entity_id_BIDON = "keykeykey%d" % maxCnt
-		wbemInstanceUrl = lib_wbem.WbemInstanceUrl( nameSpace, className, entity_id_BIDON, entity_host )
+		entity_id = ",".join( "%s=%s" % ( k, iname[k] ) for k in iname.keys() )
+
+		wbemInstanceUrl = lib_wbem.WbemInstanceUrl( nameSpace, className, entity_id, entity_host )
 		wbemInstanceNode = lib_common.NodeUrl(wbemInstanceUrl)
 
 		# On va ajouter une colonne par reference.
@@ -131,12 +136,16 @@ def DisplayAssociatoraAsList(grph,inst_names,rootNode,nameSpace,entity_host, cla
 
 # Display one line per instance of the class. Members are literals
 # because this is not an associator. Still, it works with an associator.
-def DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className):
+def DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex):
 	maxCnt = 0
 
-	# Ca, c est pour les classes normales.
+	# This is for normal classes.
 	for iname in inst_names:
-		if maxCnt == 80:
+		if startIndex > 0:
+			startIndex -= 1
+			continue
+
+		if maxCnt == maxInstances:
 			break
 		maxCnt += 1
 
@@ -150,11 +159,14 @@ def DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className)
 
 def Main():
 	paramkeyMaxInstances = "Max instances"
+	paramkeyStartIndex = "Start index"
+
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True,
-									parameters = { paramkeyMaxInstances : "80" })
+									parameters = { paramkeyMaxInstances : 80, paramkeyStartIndex: 0 })
 
 	maxInstances = cgiEnv.GetParameters( paramkeyMaxInstances )
+	startIndex = cgiEnv.GetParameters( paramkeyStartIndex )
 
 	grph = cgiEnv.GetGraph()
 
@@ -193,14 +205,25 @@ def Main():
 	except KeyError:
 		isAssociation = False
 
-	# It is possible to display an associaiton like a normal class but it is useless.
+	# It is possible to display an association like a normal class but it is useless.
 	if isAssociation:
 		if True:
-			DisplayAssociatoraAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,maxInstances)
+			DisplayAssociatorsAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,maxInstances,startIndex)
 		else:
-			DisplayAssociatoraAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances)
+			DisplayAssociatorsAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex)
 	else:
-		DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className)
+		DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex)
+
+	numInstances = len(inst_names)
+	sys.stderr.write("numInstances=%d startIndex=%d\n"%(numInstances,startIndex))
+
+	# This displays one link on the same page, with specific values of these parameters.
+	# The other parameters are not changed.
+	# TODO, BEWARE: What is the total number of elements ?
+	if startIndex + maxInstances < numInstances:
+		cgiEnv.AddParameterizedLinks( "Next", { paramkeyStartIndex: startIndex + maxInstances } )
+	if startIndex > 0:
+		cgiEnv.AddParameterizedLinks( "Previous", { paramkeyStartIndex: max(startIndex - maxInstances,0) } )
 
 
 	# TODO: On pourrait rassembler par classes,
