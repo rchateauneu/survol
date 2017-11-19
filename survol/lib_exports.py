@@ -566,6 +566,12 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 			"<tr><td align='left' colspan='2' href='" + urlD3Replaced + "'>" + DotUL("As D3") + "</td></tr>"
 		)
 
+		# Link to help page:
+		# http://www.primhillcomputers.com/ui/help.htm
+		# http://rchateau-hp:8000/survol/www/help.htm
+		# http://127.0.0.1/Survol/survol/www/help.htm
+		# http://primhillcomputers.ddns.net/Survol/survol/www/help.htm
+
 	# This displays the parameters of the URL and a link allowing to edit them.
 	# It assumes that it writes in the middle of a table with two columns.
 	def LegendAddParametersLinks(stream, parameters, parameterized_links):
