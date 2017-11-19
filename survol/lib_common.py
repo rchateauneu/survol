@@ -835,7 +835,13 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 
 def Grph2Svg( page_title, topUrl, error_msg, isSubServer, parameters, dot_style, grph ):
 	tmpLogFil = TmpFile("Grph2Svg","log")
-	logfil = open(tmpLogFil.Name,"w")
+	try:
+		logfil = open(tmpLogFil.Name,"w")
+	except:
+		exc = sys.exc_info()[1]
+		sys.stderr.write("Grph2Svg caught %s when opening:%s\n"%(str(exc),tmpLogFil.Name))
+		ErrorMessageHtml("Grph2Svg caught %s when opening:%s\n"%(str(exc),tmpLogFil.Name))
+
 	logfil.write( "Starting logging\n" )
 
 	tmpDotFil = TmpFile("Grph2Dot","dot")
@@ -1448,7 +1454,7 @@ class TmpFile:
 
 		except Exception:
 			exc = sys.exc_info()[1]
-			ErrorMessageHtml("Caught: %s. TmpDirToDel=%s Name=%s:" % ( str(exc), str(self.TmpDirToDel), str(self.Name) ) )
+			sys.stderr.write("__del__.Caught: %s. TmpDirToDel=%s Name=%s\n" % ( str(exc), str(self.TmpDirToDel), str(self.Name) ) )
 		return
 
 
