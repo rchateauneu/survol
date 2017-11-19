@@ -1,5 +1,7 @@
 <html>
-<head><title>Survol technical page</title></head>
+<head><title>Survol technical page</title>
+<link rel='stylesheet' type='text/css' href=css/html_exports.css>
+</head>
 
 <body>
 
@@ -24,7 +26,13 @@
     <td>Available types of objects available on this host</td></tr>
 <tr><td><a href="../survol/task_control.py">Subtasks control</a></td>
     <td>Subtasks control. Not very convenient because of Apache time-out, so we should use WSGI for this kind of things,</td></tr>
-<tr><td><a href="../survol/print_environment_variables.py">CGI variables</a></td>
+
+    <!--
+http://primhillcomputers.ddns.net/Survol/survol/print_environment_variables.py
+http://rchateau-hp:8000/survol/print_environment_variables.py
+http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/print_environment_variables.py
+    -->
+    <tr><td><a href="../survol/print_environment_variables.py">CGI variables</a></td>
     <td>Print CGI variables and various internal data. Development only</td></tr>
 </table>
 <br />
