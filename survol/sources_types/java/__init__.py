@@ -20,6 +20,7 @@ def JPypeLocalStartJVM():
 	return None
 
 def JPypeLocalStartJVMLinux():
+	# Example: '/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib/amd64/server/libjvm.so'
 	dfltPath = jpype.getDefaultJVMPath()
 
 	# getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
@@ -46,6 +47,7 @@ def JPypeLocalStartJVMLinux():
 
 
 def JPypeLocalStartJVMWindows():
+	# u'C:\\Program Files\\Java\\jre1.8.0_121\\bin\\server\\jvm.dll'
 	dfltPath = jpype.getDefaultJVMPath()
 
 	# getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
@@ -265,8 +267,9 @@ def JavaJmxSystemProperties(pid):
 	return vmSysProps
 
 
-# This returns a list of processes withoutj attaching to them,
+# This returns a list of processes without attaching to them,
 # so it is simpler and faster.
+# The result is a map indexed by pids.
 def JPypeListVMs(jvPckVM):
 	resuProcs = dict()
 	if not jvPckVM:
