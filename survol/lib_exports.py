@@ -469,21 +469,41 @@ def Grph2Rdf(grph):
 def UrlToSvg(url):
 	return url.replace( "&", "&amp;amp;" )
 
+htbinPrefixScript = "/survol"
+
+# Link to help page:
+# http://www.primhillcomputers.com/ui/help.htm
+# http://rchateau-hp:8000/survol/www/help.htm
+# http://127.0.0.1/Survol/survol/www/help.htm
+# http://primhillcomputers.ddns.net/Survol/survol/www/help.htm
+def UrlWWW(pageHtml):
+	callingUrl = ModedUrl("")
+	#sys.stderr.write("UrlToMergeD3 callingUrl=%s\n"%(callingUrl))
+	htbinIdx = callingUrl.find(htbinPrefixScript)
+
+	# We needs the beginning of the URL.
+	urlHost = callingUrl[:htbinIdx]
+	#sys.stderr.write("UrlToMergeD3 urlHost=%s\n"%(urlHost))
+
+	# Special case for OVH mutualised hosting.
+	if urlHost.find("primhillcomputers.com") >= 0:
+		d3UrlDir = "/../ui"
+	else:
+		d3UrlDir = "/survol/www"
+
+	scriptD3Url = urlHost + d3UrlDir + "/" + pageHtml
+	#sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
+	return scriptD3Url
+
 # This returns an URL to the Javascript D3 interface, editing the current data.
 def UrlToMergeD3():
 	callingUrl = ModedUrl("")
 	#sys.stderr.write("UrlToMergeD3 callingUrl=%s\n"%(callingUrl))
-	htbinPrefixScript = "/survol"
 	htbinIdx = callingUrl.find(htbinPrefixScript)
 	urlWithoutHost = callingUrl[htbinIdx:]
 	#sys.stderr.write("UrlToMergeD3 urlWithoutHost=%s\n"%(urlWithoutHost))
 
-	# While we are at it, we needs the beginning of the URL.
-	urlHost = callingUrl[:htbinIdx]
-	#sys.stderr.write("UrlToMergeD3 urlHost=%s\n"%(urlHost))
-
 	# Maybe this URL is already a merge of B64-encoded URLs:
-	# urlWithoutHost="/survol/merge_scripts.py?url=aHR0cDovy4w...LjAuMTo42h0Yml&url=aHR0cD...AuMTo4MDA"
 	htbinPrefixMergeScript = "/survol/merge_scripts.py"
 	if urlWithoutHost.startswith(htbinPrefixMergeScript):
 		# If so, no need to re-encode.
@@ -497,35 +517,11 @@ def UrlToMergeD3():
 		urlWithoutHostB64 = "?url=" + lib_util.Base64Encode(callingUrl)
 	#sys.stderr.write("UrlToMergeD3 urlWithoutHostB64=%s\n"%urlWithoutHostB64)
 
-	# Special case for OVH mutualised hosting.
-	if urlHost.find("primhillcomputers.com") >= 0:
-		d3UrlDir = "/../ui"
-	else:
-		d3UrlDir = "/survol/www"
-
-	scriptD3Url = urlHost + d3UrlDir + "/index.htm" + urlWithoutHostB64
-	#scriptD3Url = urlHost + "/survol/www/index.htm" + urlWithoutHostB64
+	scriptD3Url = UrlWWW("index.htm") + urlWithoutHostB64
 	#sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
 	return scriptD3Url
 
-	# Start by removing the mode.
-	# If "survol/entity.py?xid=lkjlj" replace by "survol_d3.htm?xid=lkjlj"
-	# If "survol/.../any_script.py?xid=lkjlj" replace by "survol_d3.htm?xid=lkjlj&script=.../any_script.py"
-	#
-	# If we want to merge in the general case, same rule but with "survol/mergeurls.py" a la place de "survol_d3.htm"
-	# and also the mode must be added.
-	#
-	# Peut etre devrait-on splitter entity.py en deux modules:
-	# * entity_menu.py qui genere l'arborescence des scripts, c est ce qu on envoie en json.
-	# * display_entity.py qui affiche l'objet et son AddInfo(), et c est ce qui est utilise par D3.
-	# Et donc on rebatit entity.py a partir de ces deux elements.
-	# Avantage:
-	# - les menus contextuels sont plus rapides.
-	# - Afficher un objet et son environnement immediat (AddInfo) est plus rapide.
-	# - On met bien a part l'exploration des scripts.
-	# - On retire de RDF, dans une certaine mesure, les scripts.
-
-# In SVG/Graphiz documents, this writes the little square which contains varios informaiton.
+# In SVG/Graphiz documents, this writes the little rectangle which contains various information.
 def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, parameterized_links, stream, grph ):
 
 	# This allows to enter directly the URL parameters, so we can access directly an object.
@@ -548,44 +544,31 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 		urlRdfReplaced = UrlToSvg( urlRdf )
 		urlD3Replaced = UrlToSvg( urlD3 )
 
-		# We must pass the script and the parameters.
-		#  "http://127.0.0.1:8000/survol_d3.htm?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
-
-		# urlD3 = "http://127.0.0.1:8000/survol_d3.htm?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
-		# REBATIR UN URL.
-		# CA DEPEND SI C EST UN SCRIPT OU BIEN ENTITY.
-		# LE TRAITEMENT DE L URL EST LE MEME SI ON VEUT ENVOYER VERS merge.py:
-		# ON EXTRAIT LE SCRIPT PRINCIPAL ET ON EN FAIT UN ARGUMENT "script=".
-		# MAIS IL FAUT AUSSI DETECTER QUE PEUT-ETRE LE SCRIPT COURANT EST "merge.py"
-		# ET DANS CE CAS IL SUFFIT DE CHANGER LE MODE.
-
+		stream.write("<tr><td colspan='4'><table border='0'>")
 		stream.write(
-			"<tr><td align='left' colspan='2' href='" + urlHtmlReplaced + "'>" + DotUL("As HTML") + "</td></tr>"
-			"<tr><td align='left' colspan='2' href='" + urlJsonReplaced + "'>" + DotUL("As JSON") + "</td></tr>"
-			"<tr><td align='left' colspan='2' href='" + urlRdfReplaced + "'>" + DotUL("As RDF") + "</td></tr>"
-			"<tr><td align='left' colspan='2' href='" + urlD3Replaced + "'>" + DotUL("As D3") + "</td></tr>"
+			"<tr>"
+			"<td>(</td>"
+			"<td align='left' href='" + urlHtmlReplaced + "'>" + DotUL("HTML") + "</td>"
+			"<td>,</td>"
+			"<td align='left' href='" + urlJsonReplaced + "'>" + DotUL("JSON") + "</td>"
+			"<td>,</td>"
+			"<td align='left' href='" + urlRdfReplaced + "'>" + DotUL("RDF") + "</td>"
+			"<td>,</td>"
+			"<td align='left' href='" + urlD3Replaced + "'>" + DotUL("D3") + "</td>"
+			"<td>)</td></tr>"
 		)
+		stream.write("</table></td></tr>")
 
-		# Link to help page:
-		# http://www.primhillcomputers.com/ui/help.htm
-		# http://rchateau-hp:8000/survol/www/help.htm
-		# http://127.0.0.1/Survol/survol/www/help.htm
-		# http://primhillcomputers.ddns.net/Survol/survol/www/help.htm
+
 
 	# This displays the parameters of the URL and a link allowing to edit them.
 	# It assumes that it writes in the middle of a table with two columns.
 	def LegendAddParametersLinks(stream, parameters, parameterized_links):
-		stream.write("<tr>")
-		urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
-		stream.write("<td href='"+urlEdtConfiguration+"' align='left'>" + DotBold(DotUL( "Setup" )) + "</td>")
-		urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
-		stream.write("<td href='"+urlEdtCredentials+"' align='left'>" + DotBold(DotUL( "Credentials" )) + "</td>")
-		stream.write("</tr>" )
 
 		if parameters :
 			urlEdit = ModedUrl("edit")
 			urlEditReplaced = UrlToSvg( urlEdit )
-			stream.write("<tr><td colspan='2' href='" + urlEditReplaced + "' align='left'>" + DotBold(DotUL( "Edit script parameters" )) + "</td></tr>" )
+			stream.write("<tr><td colspan='4' href='" + urlEditReplaced + "' align='left'>" + DotBold(DotUL( "Edit script parameters" )) + "</td></tr>" )
 
 		arguments = cgi.FieldStorage()
 		for keyParam,valParam in parameters.items():
@@ -593,7 +576,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 				actualParam = arguments[keyParam].value
 			except KeyError:
 				actualParam = valParam
-			stream.write('<tr><td>%s:</td><td>%s</td></tr>' % ( keyParam, DotIt(actualParam) ) )
+			stream.write('<tr><td colspan="2">%s:</td><td colspan="2">%s</td></tr>' % ( keyParam, DotIt(actualParam) ) )
 
 		# We want to display links associated to the parameters.
 		# The use case is "Prev/Next" when paging between many values.
@@ -609,16 +592,22 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 
 		for urlLabel in parameterized_links:
 			paramUrl = parameterized_links[urlLabel]
-			stream.write("<tr><td colspan='2' href='" + paramUrl + "' align='left'>" + DotBold(DotUL( urlLabel )) + "</td></tr>" )
+			stream.write("<tr><td colspan='4' href='" + paramUrl + "' align='left'>" + DotBold(DotUL( urlLabel )) + "</td></tr>" )
+
+	def LegendFooter():
+
+		urlHelp = UrlToSvg(UrlWWW("help.htm"))
+
+		stream.write("<tr>")
+		stream.write('<td align="left" href="' + topUrl + '">' + DotBold(DotUL("Home")) + '</td>')
+		urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
+		stream.write("<td href='"+urlEdtConfiguration+"' align='left'>" + DotBold(DotUL( "Setup" )) + "</td>")
+		urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
+		stream.write("<td href='"+urlEdtCredentials+"' align='left'>" + DotBold(DotUL( "Credentials" )) + "</td>")
+		stream.write("<td href='"+urlHelp+"' align='left'>" + DotBold(DotUL( "Help" )) + "</td>")
+		stream.write("</tr>" )
 
 
-
-
-	#	stream.write("""
-	#  rank=sink;
-	#  rankdir=LR
-	#  node [shape=plaintext]
-	# 	""")
 	stream.write("node [shape=plaintext]")
 
 	# The first line is a title, the rest, more explanations.
@@ -631,29 +620,15 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 	page_title_rest_wrapped = StrWithBr(page_title_rest,2)
 	page_title_full =  DotBold(page_title_first_wrapped) + withBrDelim + page_title_rest_wrapped
 
-	# The string subgraph_cluster_key is displayed in a SVG box, when merging scripts with merge_scripts.py.
-	# Another very specific bug:
-	# 'C:\\Program Files (x86)subgraph_cluster_keyETGEAR\\WNDA3100v3\\WNDA3100v3.EXE'
-	# This URL works in SVG mode:
-	# survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE
-	# But not in HTML mode, and the error message is:
-	# The system cannot find the path specified: 'C:\\Program Files (x86)subgraph_cluster_keyETGEAR\\WNDA3100v3\\WNDA3100v3.EXE'
-	# ... that is: "\N" is replaced by subgraph_cluster_key.
-	# When the filename is entered by slashes, it works fine.
-	#
 	stream.write("""
   subgraph cluster_01 {
-    subgraph_cluster_key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">
-      <tr><td colspan="2">""" + page_title_full + """</td></tr>
- 	""")
+    subgraph_cluster_key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">""")
 
-	# BEWARE: Port numbers syntax ":8080/" is forbidden in URIs: Strange bug !
-	# TODO: The "Top" url should be much more visible.
-	stream.write('<tr><td align="left" colspan="2" href="' + topUrl + '">' + DotBold(DotUL("Home")) + '</td></tr>')
-
+	stream.write("<tr><td colspan='4'>" + page_title_full + "</td></tr>" )
 	LegendAddAlternateDisplayLinks(stream)
-
 	LegendAddParametersLinks(stream,parameters,parameterized_links)
+
+	LegendFooter()
 
 	# The error message could be None or an empty string.
 	if errMsg:
