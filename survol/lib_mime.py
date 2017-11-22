@@ -10,6 +10,11 @@ except ImportError:
 def FilenameToMime(pathName):
 	sys.stderr.write("FilenameToMime pathName=%s\n"%pathName)
 
+	# On Linux, we want to read text files in the /proc filesystem
+	if pathName.startswith("/proc/"):
+		return ['text/plain', None]
+
+
 	# Some types might not be well processed.
 	fileName, fileExt = os.path.splitext(pathName)
 	extUpper = fileExt.upper()
