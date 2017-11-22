@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
 """
-Connected sockets
-This displays the connected sockets from this host to the local machine.
+RMI registry
 """
 
 import sys
