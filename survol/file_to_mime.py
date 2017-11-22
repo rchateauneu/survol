@@ -47,3 +47,17 @@ def Main():
 if __name__ == '__main__':
 	Main()
 
+# TOOD: Some files in /proc filesystem, on Linux, could be displayed
+# not simply as plain text files, but with links replacing text.
+# Example:
+#
+#  /proc/diskstats
+#  11       0 sr0 0 0 0 0 0 0 0 0 0 0 0
+#   8       0 sda 153201 6874 4387154 1139921 637311 564765 40773896 13580495 0 2700146 14726473
+#
+# /proc/devices
+#Character devices:
+#  4 /dev/vc/0
+#  4 tty
+#
+#  ... etc ...
