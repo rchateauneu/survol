@@ -117,7 +117,11 @@ def Main():
 		if dirs == None:
 			lib_common.ErrorMessageHtml("No files in:"+filNam)
 
-		filNam_slash = filNam + "/"
+		# Special case if top of the filesystem, on Linux.
+		filNam_slash = filNam
+		if filNam != "/":
+			filNam_slash += "/"
+
 		for dir in dirs:
 			fullDirPath = filNam_slash + dir
 			subdirNode = lib_common.gUriGen.DirectoryUri( fullDirPath.replace("&","&amp;" ) )
