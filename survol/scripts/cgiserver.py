@@ -186,6 +186,12 @@ def RunCgiServerInternal():
     # https://stackoverflow.com/questions/32241082/python-access-control-allow-origin
     # CORS Cross-site scripting must be activated.
 
+    # Apache sets these environment variables.
+    # SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
+    # SERVER_NAME=rchateau-hp
+    # SERVER_ADDR=fe80::3c7a:339:64f0:2161
+    # HTTP_HOST=rchateau-hp
+
     if sys.version_info[0] < 3:
         import CGIHTTPServer
         import BaseHTTPServer
