@@ -14,6 +14,9 @@ from lib_properties import pc
 from lib_util import WrtAsUtf
 from sources_types import CIM_ComputerSystem
 
+# Donner le look de Wikipedia
+# Pour voir ajouter des notes associees a un URL.
+
 try:
 	from urllib import unquote
 except ImportError:
@@ -383,7 +386,7 @@ def WriteAllObjects(grph):
 
 		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
 		urlClass_with_mode = UrlInHtmlMode( urlClass )
-		WrtAsUtf("<h3/>Class <a href='%s'>%s</a><h2/>"%(urlClass_with_mode,entity_graphic_class))
+		WrtAsUtf("<h3>Class <a href='%s'>%s</a></h3>"%(urlClass_with_mode,entity_graphic_class))
 		dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
 
 		DispClassObjects(dictSubjPropObj)
