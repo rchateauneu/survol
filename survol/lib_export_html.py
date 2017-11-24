@@ -14,6 +14,13 @@ from lib_properties import pc
 from lib_util import WrtAsUtf
 from sources_types import CIM_ComputerSystem
 
+if sys.version_info[0] >= 3:
+	import html
+	from html import parser
+	from html.parser import HTMLParser
+else:
+	from HTMLParser import HTMLParser
+
 # Donner le look de Wikipedia
 # Pour voir ajouter des notes associees a un URL.
 
@@ -391,6 +398,14 @@ def WriteAllObjects(grph):
 
 		DispClassObjects(dictSubjPropObj)
 
+# Apparently, a problem is that "%" gets transforned into an hexadecimal number, preventing decoding.
+def DesHex(theStr):
+	theStr = HTMLParser().unescape(theStr)
+	return theStr.replace("%25","%").replace("%2F","/").replace("%5C","\\").replace("%3A",":")
+
+# TODO: Scripts should be merged together on demand.
+# This could be achieved by filtering href clicks with javascript. With CSS ?
+
 def DispClassObjects(dictSubjPropObj):
 	listPropsTdDoubleColSpan = [pc.property_information,pc.property_rdf_data_nolist2,pc.property_rdf_data_nolist1]
 
@@ -439,6 +454,7 @@ def DispClassObjects(dictSubjPropObj):
 			lstTuplesObjs = []
 			for anObj in lstObjs:
 				obj_str = str(anObj)
+				obj_str = DesHex(obj_str)
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 				lstTuplesObjs.append((anObj,obj_str,obj_title))
 
