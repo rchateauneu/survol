@@ -417,9 +417,8 @@ def DispClassObjects(dictSubjPropObj):
 		subj_str = str(aSubj)
 		( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
 		lstTuplesSubjects.append((aSubj,subj_str,subj_title, entity_graphic_class, entity_id))
-	# Sorted by the title of the subject, which is the third value of the tuple.
 
-	# lstTuplesSubjects.sort(key=lambda tup: tup[2])
+	# Sorted by the title of the subject, which is the third value of the tuple.
 	lib_util.natural_sort_list(lstTuplesSubjects,key=lambda tup: tup[2])
 
 	# Now it iterates on the sorted list.
@@ -459,7 +458,6 @@ def DispClassObjects(dictSubjPropObj):
 				lstTuplesObjs.append((anObj,obj_str,obj_title))
 
 			# Sorted by the title of the object, which is the third value of the tuple.
-			# lstTuplesObjs.sort(key=lambda tup: tup[2])
 			lib_util.natural_sort_list(lstTuplesObjs,key=lambda tup: tup[2])
 
 			for anObj,obj_str,obj_title in lstTuplesObjs:
