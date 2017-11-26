@@ -2,9 +2,15 @@ import re
 import os
 import sys
 import pywbem # Might be pywbem or python3-pywbem.
+import socket
 import lib_util
 import lib_common
 import lib_credentials
+
+try:
+	from urllib.parse import urlparse
+except ImportError:
+	from urlparse import urlparse
 
 ################################################################################
 
@@ -119,12 +125,20 @@ def slp_wbem_services():
 # Should use SLP.
 # TODO: CHANGE THIS !
 # TODO: Emulate the protocol with Jquery and Javascript, if it is HTTP.
+# But for that, we would need a WBEM server sending Access-Control-Allow-Origin header.
 def WbemServersList():
-	hardcoded_list_of_wbem_servers = [
-		( "192.168.1.83", "http://192.168.1.83:5988" ),
-		( "192.168.1.88", "http://192.168.1.88:5988" )
-	]
-	return hardcoded_list_of_wbem_servers
+	lstWbemServers = []
+	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
+	sys.stderr.write("WbemServersList\n")
+	for urlWbem in credNames:
+		sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
+		# crdNam = "http://192.168.1.83:5988"
+		parsed_url = urlparse( urlWbem )
+		the_host = parsed_url.hostname
+		if the_host:
+			lstWbemServers.append((the_host,urlWbem))
+
+	return lstWbemServers
 
 # This returns the WBEM server of a machine.
 # TODO: This should try also the SSL port number 5989,
@@ -144,7 +158,8 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 	sys.stderr.write("GetWbemUrls h=%s ns=%s t=%s i=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
 	wbem_urls_list = []
 
-	entity_ip_addr = lib_util.EntHostToIpReally(entity_host)
+	# entity_ip_addr = lib_util.EntHostToIpReally(entity_host)
+	entity_ip_addr = entity_host
 
 	# sys.stderr.write("GetWbemUrls entity_ip_addr=%s\n" % (entity_ip_addr))
 
@@ -160,8 +175,9 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 	# TODO: C EST TOUT LE PROBLEME DU MAPPING DES CLASSES ET PROPERTIES.
 
 	for wbemServer in WbemServersList():
-		# TODO: Horribly slow.
-		if not lib_util.SameHostOrLocal( wbemServer[0], entity_ip_addr ):
+		sys.stderr.write("GetWbemUrls wbemServer=%s\n"%str(wbemServer))
+		# If no host specified, returns everything.
+		if ( entity_host ) and ( entity_host.lower() != wbemServer[0].lower() ):
 			continue
 
 		theCimom = wbemServer[1]
@@ -187,6 +203,29 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 			continue
 		wbem_urls_list.append( ( wbemUrl, wbemServer[0] ) )
 
+	return wbem_urls_list
+
+# This also takes into account the entity type.
+# If this is a CIM_ComputerSystem, it tries to connect to its WBEM server.
+# This code is not really mature, but it does not harm.
+def GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id ):
+	sys.stderr.write("GetWbemUrlsTyped entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n"%( entity_host, nameSpace, entity_type, entity_id ))
+	# When displaying the WBEM of a computer, this attempts to point to the server of this distant machine.
+	# The coding of another machine looks dodgy but is simply a CIM path.
+	if (entity_type == 'CIM_ComputerSystem'):
+		# TODO:  hostId="Unknown-30-b5-c2-02-0c-b5-2" does not work.
+		# This return the WBEM servers associated to this machine.
+		if entity_id:
+			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+			xidHost = { sp[0]:sp[1] for sp in [ ss.split("=") for ss in entity_id.split(",") ] }["Name"]
+
+			wbem_urls_list = GetWbemUrls( xidHost, nameSpace, entity_type, entity_id)
+		else:
+			host_alt = lib_util.currentHostname
+			wbem_urls_list = GetWbemUrls( host_alt, nameSpace, entity_type, "Name=" + host_alt + ".home")
+	else:
+		# This returns the current url server of the current machine.
+		wbem_urls_list = GetWbemUrls( entity_host, nameSpace, entity_type, "" )
 	return wbem_urls_list
 
 # conn = pywbem.WBEMConnection("http://192.168.1.83:5988" , ('','') )

@@ -10,22 +10,22 @@ primns_slash = primns + '/'
 
 # If prp contains a space, it is not properly parsed.
 # TODO: The extra parameter is not used yet.
-# On voudrait passer plus d informations avec la propriete.
-# Actuellement:
+# The parameters are intended to pass more information with it.
+# At the moment:
 # pc.property_smbmount             = MakeProp("smbmount")
 # grph.add( ( wbemInstanceNode, pc.property_smbmount, wbemAssocNode ) )
 # grph.add( ( wbemInstanceNode, lib_common.MakeProp("AnyString"), wbemAssocNode ) )
 #
 # if key == pc.property_information
-# On voudrait idealement:
+# Ideally we would like:
 # dflib.term.URIRef(primns_slash + "smbmount", key1=val, key2=val2)
-# Et aussi, on n'a pas besoin des URIRef.
+# Also, no need of URIRef.
 #   lib_common.NodeLiteral({"type":"html","title":"yawn","color":"blue"})
 #   rdflib.term.Literal(u"{'color': 'blue', 'type': 'html', 'title': 'yawn'}")
-# Alors on pourrait tout garder pareil sauf les tests d'egalite "html" et "rdf":
-# On teste que la clef est en fait un tableau contenant des proprietes.
-# On pourrait ajouter des infos dans un certain ordre: "information?key=1", "information?key=2",
-# et l ordre naturel conviendra. Ou bien ajouter une fonction de tri dans le sorted.
+# So we could keep everything identical excel equality tests 2html" and "rdf":
+# It tests that the key is in fact an array containing the properties.
+# We could add information in a given order: "information?key=1", "information?key=2",
+# Natural order should be OK. or add a sort unfction in the call to sorted().
 def MakeProp(prp,**kvargs):
 	ret = primns_slash + prp
 	if kvargs:
@@ -36,8 +36,12 @@ def MakeProp(prp,**kvargs):
 	url = ret.replace(" ","_")
 	return lib_kbase.MakeNodeUrl( url )
 
-# TODO: Peut-etre: "pc" devrait etre un objet ou on redefinit l appel d un membre,
-# ce qui permet de creer dynamiquement des proprietes.
+# TODO: Maybe "pc" could be an object, or redefine a call to a member,
+# which would allow to dynamically create properties.
+
+# Property names with this prefix come first in RDF sorting.
+# This is a convenient way to have "Information" at the top of properties.
+sortPrefix = "----"
 
 # All the properties for creating RDF triples.
 # Names must all be different because they are used as keys.
@@ -104,13 +108,13 @@ pc.property_groupid              = MakeProp("groupid")
 pc.property_file_size            = MakeProp("file_size")
 pc.property_file_device          = MakeProp("file_device")
 pc.property_script               = MakeProp("script") # Used only in entity.py and the likes, to attach scripts to a node.
-pc.property_rdf_data_nolist1     = MakeProp("rdf2")    # These three have a special role.
-pc.property_rdf_data_nolist2     = MakeProp("sub-rdf") # Names must all be different
-pc.property_rdf_data_nolist3     = MakeProp("sub-rdf2") # Names must all be different
+pc.property_rdf_data_nolist1     = MakeProp("Data1") # These three have a special role.
+pc.property_rdf_data_nolist2     = MakeProp("Data2") # Names must all be different
+pc.property_rdf_data_nolist3     = MakeProp("Data3") # Names must all be different
 pc.property_wbem_data            = MakeProp("wbem")
 pc.property_wmi_data             = MakeProp("wmi")
 pc.property_csv_data             = MakeProp("csv")
-pc.property_information          = MakeProp("----information") # "----" at the beginning so it comes first. This is a hack !
+pc.property_information          = MakeProp(sortPrefix + "Information")
 pc.property_domain               = MakeProp("domain")
 pc.property_controller           = MakeProp("controller")
 pc.property_service              = MakeProp("service")

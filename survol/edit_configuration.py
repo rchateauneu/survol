@@ -6,34 +6,32 @@ Also, it servers JSON queries from the HTML pages doing the same features, but i
 """
 
 import sys
+import lib_export_html
+import lib_exports
 
-def Wrt(theStr):
-    sys.stdout.write(theStr)
+from lib_util import WrtAsUtf
 
 def Main():
-    Wrt("""
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Configuration</title></head>
+    lib_export_html.DisplayHtmlTextHeader("Configuration")
+
+    WrtAsUtf("""
+    <body><h2>Edit Survol configuration</h2><br>
     """)
 
-Wrt("""
-<body>Have the same "SURVOL" header<br><br>Edit Survol configuration<br><br>
-""")
+    WrtAsUtf("""
+    <form method="post" action="edit_configuration.py" name="ServerConfiguration">
+    CGI server port number:
+    <input name="server_port" value="8000"><br><br>
+    <input value="Submit configuration" name="Hello" type="submit"><br>
+    </form>
+    """)
 
-Wrt("""
-<form method="post" action="edit_configuration.py" name="ServerConfiguration">
-CGI server port number:
-<input name="server_port" value="8000"><br><br>
-<input value="MySubmit" name="Hello" type="submit"><br>
-</form>
-""")
+    WrtAsUtf('<br><a href="edit_credentials.py">Credentials</a>')
 
-Wrt("""
-<br><a href="edit_credentials.py">Credentials</a>
-""")
-Wrt("""
-<br><a href="index.htm">Return to Survol</a>
-""")
+    urlIndex = lib_exports.UrlWWW("index.htm")
+    WrtAsUtf('<br><a href="' + urlIndex + '">Return to Survol</a>')
 
-Wrt("""
-</body></html>""")
+    WrtAsUtf("</body></html>")
+
+if __name__ == '__main__':
+	Main()

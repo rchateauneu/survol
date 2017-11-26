@@ -41,7 +41,7 @@ Usable = lib_util.UsableWindows
 #  *= *[a-zA-Z01]* *|[; ]*INTEGRATEDSECURITY *= *[a-zA-Z01]* *|[; ]*CONNECTION ?LIFETIME *= *\d+ *
 
 
-def GetAggregDsns(pidint):
+def GetAggregDsns(pidint,mapRgx):
 # "Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes;"
 # 34515015 = "Driver={SQL Server}"
 # 34515035 = "Server=.\SQLEXPRESS"
@@ -55,7 +55,7 @@ def GetAggregDsns(pidint):
 	try:
 
 		# Not letter, then the keyword, then "=", then the value regex, then possibly the delimiter.
-		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
+		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + mapRgx[key] + " *" for key in mapRgx ])
 		# This works also. Both are very slow.
 		# rgxDSN = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
 		sys.stderr.write("rgxDSN=%s\n"%rgxDSN)
@@ -64,7 +64,12 @@ def GetAggregDsns(pidint):
 		# TODO: OPTIONALLY ADD NON-ASCII CHAR AT THE VERY BEGINNING. SLIGHTLY SAFER AND FASTER.
 		# rgxDSN = "[^a-zA-Z]" + regDSN
 
-
+		# Here we receive the matched keywords and their offset in memory.
+		# We try to aggregate them if they are contiguous.
+		# This will work less if we used a smaller set of DSN connecton strings keywords.
+		# This could be fixed with theese remarks:
+		# (1) If the difference of offsets is small.
+		# (2) Try to extensively scan the memory (All DSN keywords) in the interval of detected common keywords.
 		resuMatches = memory_regex_search.GetRegexMatches(pidint,rgxDSN, re.IGNORECASE)
 
 		for matchedOffset in resuMatches:
@@ -122,17 +127,31 @@ def GetAggregDsns(pidint):
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	paramkeyExtensiveScan = "Extensive scan"
+
+	# Beware that unchecked checkboxes are not posted, i.e. boolean variables set to False.
+	# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
+	cgiEnv = lib_common.CgiEnv( parameters = { paramkeyExtensiveScan : False })
 	pidint = int( cgiEnv.GetId() )
 
 	grph = cgiEnv.GetGraph()
 
-	aggregDsns = GetAggregDsns(pidint)
+	paramExtensiveScan = cgiEnv.GetParameters( paramkeyExtensiveScan )
+
+	# By default, uses a small map of possible connection strings keyword.
+	# Otherwise it is very slow to scan the whole process memory.
+	if paramExtensiveScan:
+		mapRgx = survol_odbc.mapRgxODBC
+	else:
+		mapRgx = survol_odbc.mapRgxODBC_Light
+
+	aggregDsns = GetAggregDsns(pidint,mapRgx)
 
 	node_process = lib_common.gUriGen.PidUri(pidint)
 
+	# TODO: Add a parameter to choose between light and heavy connection string definition.
 
-	# TODO: Eliminate aggrehated strings containing one or two tokens,
+	# TODO: Eliminate aggregated strings containing one or two tokens,
 	# because they cannot be genuine DSNs.
 	# 29812569: SERVER=\RCHATEAU-HP
 	# 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
@@ -142,9 +161,8 @@ def Main():
 	for aggregOffset in aggregDsns:
 		# Do not take the character before the keyword.
 		aggregDSN = aggregDsns[aggregOffset]
-		sys.stderr.write("aggregOffset=%s\n"%aggregOffset)
 		dsnFull = str(aggregOffset) + ": " + aggregDSN
-		sys.stderr.write("dsnFull=%s\n"%dsnFull)
+		sys.stderr.write("aggregOffset=%s dsnFull=%s\n"%(aggregOffset,dsnFull))
 		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(dsnFull) ) )
 
 		### NO! Confusion between DSN and connection string.

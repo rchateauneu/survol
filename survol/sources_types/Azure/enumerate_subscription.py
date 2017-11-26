@@ -10,8 +10,7 @@ import lib_util
 import lib_common
 import lib_credentials
 
-from sources_types import Azure
-from sources_types.Azure import subscription
+from sources_types.Azure import subscription as azure_subscription
 
 Usable = lib_util.UsableWindows
 
@@ -23,8 +22,11 @@ def Main():
 	rootNode = lib_common.nodeMachine
 	subscriptions = lib_credentials.GetCredentialsNames( "Azure" )
 
+	# This creates a node for each available Azure subscription,
+	# as they are given, with password, in the credentials file.
+	# From this node, it is possible to access to anything related to it.
 	for subscriptionName in subscriptions:
-		subscriptionNode = subscription.MakeUri( subscriptionName )
+		subscriptionNode = azure_subscription.MakeUri( subscriptionName )
 
 		grph.add( ( rootNode, lib_common.MakeProp("Azure"), subscriptionNode ) )
 

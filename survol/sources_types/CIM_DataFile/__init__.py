@@ -8,6 +8,7 @@ import datetime
 import lib_common
 import lib_util
 import lib_uris
+import lib_properties
 from lib_properties import pc
 import lib_mime
 import json
@@ -72,8 +73,12 @@ def AddStat( grph, filNode, filNam ):
 def AddHtml( grph, filNode, filNam ):
 	# Get the mime type, maybe with Magic. Then return a URL with for this mime type.
 	# This is a separated script because it returns HTML data, not RDF.
-	url_mime = lib_uris.gUriGen.FileUriMime(filNam)
-	grph.add( ( filNode, pc.property_rdf_data_nolist1, lib_common.NodeUrl(url_mime) ) )
+
+	mime_stuff = lib_mime.FilenameToMime( filNam )
+	mime_type = mime_stuff[0]
+
+	if mime_type:
+		lib_mime.AddMimeUrl(grph,filNode, "CIM_DataFile",mime_type,[filNam])
 
 # Display the node of the directory this file is in.
 def AddParentDir( grph, filNode, filNam ):
@@ -281,3 +286,45 @@ def AddInfo(grph,node,entity_ids_arr):
 	AddStat( grph,node,filNam)
 	AddHtml( grph,node,filNam)
 	AddParentDir( grph,node,filNam)
+
+# It receives as CGI arguments, the entity type which is "HttpUrl_MimeDocument", and the filename.
+# It must then return the content of the file, with the right MIME type,
+def DisplayAsMime(grph,node,entity_ids_arr):
+	fileName = entity_ids_arr[0]
+
+	mime_stuff = lib_mime.FilenameToMime( fileName )
+
+	sys.stderr.write("DisplayAsMime fileName=%s MIME:%s\n" % (fileName, str(mime_stuff) ) )
+
+	mime_type = mime_stuff[0]
+
+	# It could also be a binary stream.
+	if mime_type == None:
+		lib_common.ErrorMessageHtml("No mime type for %s"%fileName)
+
+	# TODO: Find a solution for JSON files such as:
+	# "No mime type for C:\Users\rchateau\AppData\Roaming\Mozilla\Firefox\Profiles\gciw4sok.default/dh-ldata.json"
+
+	try:
+		# TODO: Change this with WSGI.
+		lib_util.CopyFile( mime_type, fileName )
+
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("file_to_mime.py Reading fileName=%s, caught:%s" % ( fileName, str(exc) ) )
+
+
+# TODO: Some files in /proc filesystem, on Linux, could be displayed
+# not simply as plain text files, but with links replacing text.
+# Example:
+#
+#  /proc/diskstats
+#  11       0 sr0 0 0 0 0 0 0 0 0 0 0 0
+#   8       0 sda 153201 6874 4387154 1139921 637311 564765 40773896 13580495 0 2700146 14726473
+#
+# /proc/devices
+#Character devices:
+#  4 /dev/vc/0
+#  4 tty
+#
+#  ... etc ...

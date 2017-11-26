@@ -1,3 +1,10 @@
+# https://bugs.python.org/issue8704
+# If there is a Python problem on OVH mutualised hosting, it returns:
+# Response header name '<!--' contains invalid characters, aborting request,
+# If the CGI script crashes before finishing the headers, cgitb will emit invalid HTTP headers before showing the error message.
+# The workaround is to put: HttpProtocolOptions Unsafe line into the apache .conf
+
+
 import cgitb
 cgitb.enable()
 
@@ -16,6 +23,42 @@ try:
 	from urllib import quote,unquote
 except ImportError:
 	from urllib.parse import quote,unquote
+
+################################################################################
+
+# Sometimes we have to display many strings of the same type, for example
+# filenames or WMI monikers. These strings are mixes of words and numbers.
+# They do not sort naturally well, because the numbers are lexicographically
+# sorted. The Python module natsort does that.
+# Simple yet flexible natural sorting in Python.
+try:
+	import natsort
+	from natsort import natsort_keygen
+
+	natural_sorted = natsort.natsorted
+
+	def natural_sort_list(one_list,**args):
+
+		natsort_key = natsort_keygen()
+
+		try:
+			orig_key = args['key']
+
+			# one_list.sort(**args)
+			#return
+
+			args['key'] = lambda in_param: natsort_key(orig_key(in_param))
+
+		except KeyError:
+			args['key'] = natsort_key
+		one_list.sort(**args)
+
+except ImportError:
+	sys.stderr.write("WritePatterned Module natsorted not available.")
+	natural_sorted = sorted
+
+	def natural_sort_list(one_list,**args):
+		one_list.sort(**args)
 
 ################################################################################
 
@@ -97,6 +140,10 @@ def HttpPrefix():
 		#		server_addr = "127.0.0.1"
 		#except KeyError:
 		#	pass
+
+		#os.environ['REMOTE_ADDR']=127.0.0.1
+		#os.environ['SERVER_NAME']=rchateau-HP
+		#os.environ['REMOTE_HOST']=rchateau-HP
 
 	except KeyError:
 		# Local use .
@@ -239,7 +286,10 @@ def TopUrl( entityType, entityId ):
 def EncodeUri(anStr):
 	# sys.stderr.write("EncodeUri str=%s\n" % str(anStr) )
 
-	strTABLE = anStr.replace("\\L","\\\\L")
+	if anStr:
+		strTABLE = anStr.replace("\\L","\\\\L")
+	else:
+		strTABLE = ""
 
 	# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 	if sys.version_info >= (3,):
@@ -625,7 +675,7 @@ def EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname):
 def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_hostname=False):
 	scriptPath = EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname)
 
-	sys.stderr.write("EntityUrlFromMoniker scriptPath=%s\n"%scriptPath)
+	# sys.stderr.write("EntityUrlFromMoniker scriptPath=%s\n"%scriptPath)
 	# url = uriRoot + "/" + scriptPath + "?xid=" + EncodeUri(monikerEntity)
 	url = uriRoot + "/" + scriptPath + xidCgiDelimiter + EncodeUri(monikerEntity)
 	return url
@@ -864,6 +914,16 @@ def ConcatenateCgi(url,keyvalpair):
 	else:
 		return url + "&" + keyvalpair
 
+# This is very primitive and maybe should be replaced by a standard function,
+# but lib_util.EncodeUri() replaces "too much", and SVG urls cannot encode an ampersand...
+# The problems comes from "&mode=edit" or "&mode=html" etc...
+# TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
+def UrlToSvg(url):
+	return url.replace( "&", "&amp;amp;" )
+
+def UrlNoAmp(url):
+	return url.replace("&amp;","&").replace("&amp;","&")
+
 ################################################################################
 
 # In an URL, this replace the CGI parameter "http://....?mode=XXX" by "mode=YYY".
@@ -876,7 +936,8 @@ def RequestUriModed(otherMode):
 
 def AnyUriModed(script, otherMode):
 
-	mtch_url = re.match("(.*)([\?\&])mode=[a-zA-Z0-9]*(.*)", script)
+	# mtch_url = re.match("(.*)([\?\&])mode=[a-zA-Z0-9]*(.*)", script)
+	mtch_url = re.match("(.*)([\?\&])mode=[^\&]*(.*)", script)
 
 	# mtch_url = re.match("(.*[\?\&]mode=)([a-zA-Z0-9]*)(.*)", script)
 
@@ -913,8 +974,21 @@ def RootUri():
 ################################################################################
 
 # Extracts the mode from an URL.
+# https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
 def GetModeFromUrl(url):
-	mtch_url = re.match(".*[\?\&]mode=([a-zA-Z0-9]*).*", url)
+	# sys.stderr.write("lib_util.GetModeFromUrl url=%s\n"%url)
+	# Maybe it contains a MIME type: application/java-archive,
+	# application/vnd.ms-powerpoint, audio/3gpp2, application/epub+zip
+
+#	mtch_url = re.match(".*[\?\&]mode=(mime:[a-zA-Z0-9]*/[-\.a-zA-Z0-9]*).*", url)
+#	if mtch_url:
+#		return mtch_url.group(1)
+#
+#	mtch_url = re.match(".*[\?\&]mode=([a-zA-Z0-9]*).*", url)
+#	if mtch_url:
+#		return mtch_url.group(1)
+
+	mtch_url = re.match(".*[\?\&]mode=([^\&]*).*", url)
 	if mtch_url:
 		return mtch_url.group(1)
 	return ""
@@ -1060,6 +1134,19 @@ class OutputMachineCgi:
 # WSGI changes this to another object with same interface.
 # Overriden in wsgiserver.py.
 globalOutMach = OutputMachineCgi()
+
+################################################################################
+
+# This parameter in the display page of an object (entity.py),
+# indicates if all scripts which can operate on this object, must be displayed,
+# whether they can work or not.
+# By default, it is False.
+# For example, a script running on a Windows platform should not be displayed
+# when running on Linux. Or if a specific Python module is needed,
+# scripts using it should not be displayed. Same if the script has a syntax
+# error. By setting this flag, it is easy to understand which scripts
+# could be used and why they are not displayed.
+paramkeyShowAll = "Show all scripts"
 
 ################################################################################
 

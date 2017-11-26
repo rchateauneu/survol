@@ -4,6 +4,7 @@ Windows group
 
 import sys
 import lib_common
+from lib_common import pc
 
 # NetGroupEnum
 # NetGroupGetInfo
@@ -34,9 +35,20 @@ def EntityName(entity_ids_arr,entity_host):
 		return entity_ids_arr[0]
 
 def AddInfo(grph,node,entity_ids_arr):
-	# groupName = entity_ids_arr[0]
-	sys.stderr.write("Win32_Group.AddInfo entity_ids_arr=%s\n"%str(entity_ids_arr))
+	groupName = entity_ids_arr[0]
+	# sys.stderr.write("Win32_Group.AddInfo entity_ids_arr=%s\n"%str(entity_ids_arr))
 	domainName = entity_ids_arr[1]
+
+	try:
+		import win32net
+
+		dataGroup = win32net.NetLocalGroupGetInfo(None,groupName,1)
+		commentGroup = dataGroup['comment']
+		grph.add((node,pc.property_information, lib_common.NodeLiteral(commentGroup)))
+	except:
+		# Maybe this module cannot be imported.
+		pass
+
 	if domainName != "NT SERVICE":
 		nodeMachine = lib_common.gUriGen.HostnameUri( domainName )
 		grph.add((node,lib_common.MakeProp("Host"), nodeMachine))

@@ -13,7 +13,7 @@ def MakeNodeLiteral(value):
 	return rdflib.Literal(value)
 
 # This returns an object which, whose string conversion is identical to the input string.
-# Beware that it is tometimes called recursively.
+# Beware that it is sometimes called recursively.
 def MakeNodeUrl(url):
 	uriRef = rdflib.term.URIRef(url)
 	# sys.stderr.write("MakeNodeUrl url=%s uriRef=%s\n"%(url,uriRef))

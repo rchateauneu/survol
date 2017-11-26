@@ -1,3 +1,7 @@
+"""
+Resource embedded in a Windows file.
+"""
+
 # https://stackoverflow.com/questions/23263599/how-to-extract-128x128-icon-bitmap-data-from-exe-in-python
 # Use wchar_t function version (FindResourceW rather than FindResourceA)
 from __future__ import unicode_literals
@@ -12,6 +16,10 @@ import pywintypes
 import ctypes
 import ctypes.util
 
+import os
+import lib_common
+import lib_util
+import lib_properties
 
 # https://msdn.microsoft.com/en-us/library/windows/desktop/ms648009%28v=vs.85%29.aspx
 # Predefined resource types:
@@ -37,9 +45,25 @@ import ctypes.util
 # RT_VERSION Version resource.
 # RT_VXD VXD.
 
+def EntityOntology():
+	return ( ["Name","GroupName"], )
+
+# Given a resources characteristics (File name and group), it returns a string suitable for printing.
+def EntityName(entity_ids_arr,entity_host):
+	entity_id = entity_ids_arr[0]
+	group_name = entity_ids_arr[1]
+	# A file name can be very long, so it is truncated.
+	file_basename = os.path.basename(entity_id)
+	if file_basename == "":
+		return entity_id + ":" + group_name
+	else:
+		return file_basename + ":" + group_name
 
 
-def IconToFile(hlib,tmpDirName,group_name):
+
+# The group might be a string or an integer and its type must be kept.
+def IconToFile(hlib,group_name):
+    sys.stderr.write("IconToFile group_name=%s\n"%(str(group_name)))
     libc = ctypes.CDLL(ctypes.util.find_library('c'))
     libc.memcpy.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t]
     libc.memcpy.restype = ctypes.c_char_p
@@ -80,48 +104,66 @@ def IconToFile(hlib,tmpDirName,group_name):
     hcdc.SelectObject(hbmp)
     win32gui.DrawIconEx(hcdc.GetHandleOutput(), 0, 0, hIconRet, bminfo.bmWidth, bminfo.bmHeight, 0, 0, 0x0003)
 
-    # Need temp directory or generate image on the fly, for inclusion into an HTML page.
-    # Temp file visible from HTTP server.
-    # An alternative is to send the file content to a socket stream.
     # MIME type is "image/bmp"
-    imgFilNam = "icon-%03dx%03d-%05d-%03d.bmp" % (bminfo.bmWidth, bminfo.bmHeight, group_name, icon_name)
-    if tmpDirName:
-        imgFilNam = tmpDirName + imgFilNam
+    # The group name might be a number: 110 etc... or a string such as 'ICO_MYCOMPUTER'.
+
+    # This is the prefix of the temporary BMP file name containing the extracted icon.
+    imgFilNamPrefix = "icon-%03dx%03d-%s-%03d" % (bminfo.bmWidth, bminfo.bmHeight, str(group_name), icon_name)
+
+    # The destructor will remove the file.
+    objTempFile = lib_common.TmpFile(imgFilNamPrefix,"bmp")
+
+    imgFilNam = objTempFile.Name
     sys.stderr.write("Generating %s\n"%imgFilNam)
     hbmp.SaveBitmapFile(hcdc, imgFilNam)
     win32gui.DestroyIcon(hIconRet)
-    return imgFilNam
+    return objTempFile
 
-def DispOneIcon(pathName,tmpDirName,group_name):
-    # Using LoadLibrary (rather than CreateFile) is required otherwise
-    # LoadResource, FindResource and others will fail
-    hlib = win32api.LoadLibraryEx(pathName, 0, 2)
-
-    return IconToFile(hlib,tmpDirName,group_name)
-
-# This generates one file per icon, and is used for testing.
-def ExtractIconFromExe(pathName,tmpDirName):
-    # Using LoadLibrary (rather than CreateFile) is required otherwise
-    # LoadResource, FindResource and others will fail
-    hlib = win32api.LoadLibraryEx(pathName, 0, 2)
-
-    # get icon groups, default is the first group
-    icon_groups = win32api.EnumResourceNames(hlib, win32con.RT_GROUP_ICON)
-
-    for group_name in icon_groups:
-        IconToFile(hlib,tmpDirName,group_name)
-
+# For a Windows executable file, it returns the list of resource icons groups it contains.
 def GetIconNamesList(pathName):
     # Using LoadLibrary (rather than CreateFile) is required otherwise
     # LoadResource, FindResource and others will fail
-    hlib = win32api.LoadLibraryEx(pathName, 0, 2)
+	try:
+		hlib = win32api.LoadLibraryEx(pathName, 0, 2)
 
-    # get icon groups, default is the first group
-    icon_groups = win32api.EnumResourceNames(hlib, win32con.RT_GROUP_ICON)
+		# get icon groups, default is the first group
+		iconGroups = win32api.EnumResourceNames(hlib, win32con.RT_GROUP_ICON)
+	except Exception:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("GetIconNamesList pathName=%s caught:%s" % ( pathName, str(exc) ) )
 
-    return icon_groups
+    # Strings and integers.
+	return iconGroups
 
+mimeTypeResource = "image/bmp"
 
-exeName = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
-tmpDirName = ""
-ExtractIconFromExe(exeName,tmpDirName)
+# It receives as CGI arguments, the entity type which is "HttpUrl_MimeDocument", and the filename.
+# It must then return the content of the file, with the right MIME type,
+
+def DisplayAsMime(grph,node,entity_ids_arr):
+
+    fileName = entity_ids_arr[0]
+    groupName = entity_ids_arr[1]
+
+    sys.stderr.write("fileName=%s groupName=%s\n" % (fileName, groupName ) )
+
+    # Using LoadLibrary (rather than CreateFile) is required otherwise
+    # LoadResource, FindResource and others will fail
+    hlib = win32api.LoadLibraryEx(fileName, 0, 2)
+
+    sys.stderr.write("fileName=%s groupName=%s\n"%(fileName,str(groupName)))
+    try:
+        groupName = int(groupName)
+    except:
+        pass
+
+    # The destructor will remove the temporary file.
+    objTempFile = IconToFile(hlib,groupName)
+
+    rsrcFilNam = objTempFile.Name
+
+    try:
+        lib_util.CopyFile( mimeTypeResource, rsrcFilNam )
+    except Exception:
+        exc = sys.exc_info()[1]
+        lib_common.ErrorMessageHtml("DisplayAsMime rsrcFilNam=%s, mime_type=%s caught:%s" % ( rsrcFilNam, mime_type, str(exc) ) )

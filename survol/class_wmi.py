@@ -37,7 +37,11 @@ def Main():
 	# connWmi = lib_wmi.WmiConnect(cimomUrl, nameSpace)
 	# Toshiba Windows 8
 	# connWmi = lib_wmi.WmiConnect(cimomUrl, "root\\" + nameSpace)
-	connWmi = lib_wmi.WmiConnect(cimomUrl, nameSpace)
+	try:
+		connWmi = lib_wmi.WmiConnect(cimomUrl, nameSpace)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("WMI Connecting to cimomUrl=%s nameSpace=%s Caught:%s\n" % ( cimomUrl, nameSpace, str(exc) ) )
 
 	lib_wmi.WmiAddClassQualifiers( grph, connWmi, rootNode, className, True )
 
@@ -127,6 +131,8 @@ def Main():
 	# TODO: On pourrait rassembler par classes, et aussi afficher les liens d'heritages des classes.
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_class_instance])
+
+	# TODO: Prev/Next like class_wbem.py
 
 if __name__ == '__main__':
 	Main()

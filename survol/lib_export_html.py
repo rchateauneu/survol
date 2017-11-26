@@ -4,7 +4,7 @@
 import os
 import sys
 import lib_util
-import lib_common
+import lib_mime
 import lib_exports
 import lib_patterns
 import lib_naming
@@ -13,11 +13,35 @@ import entity_dirmenu_only
 import lib_properties
 from lib_properties import pc
 from lib_util import WrtAsUtf
+from sources_types import CIM_ComputerSystem
 
+if sys.version_info[0] >= 3:
+	import html
+	from html import parser
+	from html.parser import HTMLParser
+else:
+	from HTMLParser import HTMLParser
+
+# Donner le look de Wikipedia
+# Pour voir ajouter des notes associees a un URL.
+
+try:
+	from urllib import unquote
+except ImportError:
+	from urllib.parse import unquote
+
+# This does not change the existing mode if there is one.
+# Otherwise it could erase the MIME type.
 def UrlInHtmlMode(anUrl):
-	return lib_util.ConcatenateCgi( anUrl, "mode=html" )
+	# sys.stderr.write("UrlInHtmlMode anUrl=%s\n"%anUrl)
+	# if anUrl.find("mode=") < 0:
+	urlMode = lib_util.GetModeFromUrl(anUrl)
+	if urlMode:
+		return lib_util.AnyUriModed(anUrl, "html")
+	else:
+		return anUrl
 
-def WriteScriptInformation(theCgi):
+def WriteScriptInformation(theCgi,gblCgiEnvList):
 	"""
 		This displays general information about this script and the object if there is one.
 	"""
@@ -30,36 +54,25 @@ def WriteScriptInformation(theCgi):
 	sys.stderr.write("entity_label=%s entity_graphic_class=%s entity_id=%s\n"%( entity_label, entity_graphic_class, entity_id ))
 
 	WrtAsUtf('<table class="list_of_merged_scripts">')
-	if len(lib_common.globalCgiEnvList):
-		sys.stderr.write("lib_common.globalCgiEnvList=%s\n"%str(lib_common.globalCgiEnvList))
+	if len(gblCgiEnvList):
+		sys.stderr.write("gblCgiEnvList=%s\n"%str(gblCgiEnvList))
 		# This step is dedicated to the merging of several scripts.
 
-		WrtAsUtf("<tr align=left><td colspan=2 align=left><b>Merge of %d scripts</b></td></tr>"%len(lib_common.globalCgiEnvList))
-		for aCgiEnv in lib_common.globalCgiEnvList:
+		WrtAsUtf("<tr align=left><td colspan=2 align=left><b>Merge of %d scripts</b></td></tr>"%len(gblCgiEnvList))
+		for aCgiEnv in gblCgiEnvList:
 			sys.stderr.write("aCgiEnv=%s\n"%str(aCgiEnv))
 			sys.stderr.write("aCgiEnv.m_page_title=%s\n"%str(aCgiEnv.m_page_title))
 			sys.stderr.write("aCgiEnv.m_calling_url=%s\n"%str(aCgiEnv.m_calling_url))
 			(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(aCgiEnv.m_page_title)
 			WrtAsUtf("<tr><td><a href='%s'>%s</td><td><i>%s</i></td></tr>"%(aCgiEnv.m_calling_url,page_title_first,page_title_rest))
 
-
-		# Voir theCgiEnv.m_page_title dans MergeOutCgiRdf()
-		# On pourrait lister les scripts mais ce serait aussi interessant de le faire en mode SVG,
-		# dans la legende.
 	else:
 		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgi.m_page_title)
 		WrtAsUtf("<tr><td colspan=2>%s</td></tr>"%(page_title_first))
 		if page_title_rest:
 			WrtAsUtf("<tr><td colspan=2>%s</td></tr>"%(page_title_rest))
-		#WrtAsUtf("<tr align=left><td colspan=2 align=left><b>%s</b></td></tr>"%theCgi.m_page_title.strip())
 
 	WrtAsUtf('</table>')
-
-	# This is the entire content, not only the first line.
-	#theDoc = lib_common.GetCallingModuleDoc()
-	#theDoc = theDoc.replace("\n","<br>")
-	#WrtAsUtf('<i><h2>NON  C ESR PAS LE BON %s</h2></i>'%(theDoc))
-	#WrtAsUtf('<i><h2>NON  C ESR PAS LE BON %s</h2></i>'%(theCgi.m_page_title))
 
 	if theCgi.m_entity_type:
 		# WrtAsUtf('m_entity_id: %s<br>'%(theCgi.m_entity_id))
@@ -97,8 +110,6 @@ def WriteScriptInformation(theCgi):
 		WrtAsUtf('</table>')
 
 
-
-# TODO: Fix this.
 def WriteParameters(theCgi):
 	"""
 		This displays the parameters of the script and provide an URL to edit them.
@@ -109,24 +120,6 @@ def WriteParameters(theCgi):
 	formAction = os.environ['SCRIPT_NAME']
 
 	lib_edition_parameters.FormEditionParameters(formAction,theCgi)
-
-	# parameters = theCgi.m_parameters
-
-	#WrtAsUtf('<table class="table_script_parameters">')
-	#
-	#WrtAsUtf('<tr><td colspan="2"><a href="' + lib_exports.ModedUrl("edit") + '">CGI parameters edition</a></td></tr>')
-	#
-	#for keyParam,valParam in parameters.items():
-	#	WrtAsUtf(
-	#	"""
-	#	<tr>
-	#		<td><b>%s</b></td>
-	#		<td>%s</td>
-	#	</tr>
-	#	"""
-	#	% ( keyParam, str(valParam) ))
-	#
-	#WrtAsUtf('</table>')
 
 def WriteOtherUrls(topUrl):
 	"""
@@ -164,6 +157,55 @@ def WriteOtherUrls(topUrl):
 	</tr>
 	""" % urlD3 )
 
+	host_wbem_wmi = lib_util.currentHostname
+
+	# This callback receives a RDF property (WBEM or WMI) and a map
+	# which represents the CIM links associated to the current object.
+	def WMapToHtml(theMap,propData):
+		sys.stderr.write("WMapToHtml len=%d\n"%len(theMap))
+		for urlSubj in theMap:
+			(subjText, subjEntityGraphClass, subjEntityId) = lib_naming.ParseEntityUri( unquote(urlSubj) )
+			WrtAsUtf("<tr>")
+			WrtAsUtf("<td valign='top'><a href='%s'>%s</a></td>"%( str(urlSubj), subjText ) )
+			WrtAsUtf("<td>")
+			WrtAsUtf("<table>")
+			for theProp, urlObj in theMap[urlSubj]:
+				WrtAsUtf("<tr>")
+				propNam = lib_exports.PropToShortPropNam(theProp)
+				WrtAsUtf("<td><i>%s</i></td>"%propNam)
+				if lib_kbase.IsLiteral(urlObj):
+					WrtAsUtf("<td>%s</td>"%( str(urlObj) ) )
+				else:
+					(objText, objEntityGraphClass, objEntityId) = lib_naming.ParseEntityUri( unquote(urlObj) )
+					WrtAsUtf("<td><a href='%s'>%s</a></td>"%( str(urlObj), objText ) )
+				WrtAsUtf("</tr>")
+			WrtAsUtf("</table>")
+			WrtAsUtf("</td>")
+		WrtAsUtf("</tr>")
+
+	# (labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( unquote(objRdfNode) )
+	# propNam = lib_exports.PropToShortPropNam(prop)
+
+
+	callingUrl = lib_util.RequestUri()
+	( entity_label, entity_type, entity_id ) = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
+	nameSpace = ""
+
+	mapWbem = CIM_ComputerSystem.AddWbemServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+	WMapToHtml(mapWbem,pc.property_wbem_data)
+	mapWmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+	WMapToHtml(mapWmi,pc.property_wmi_data)
+
+
+	# TODO: Add these URLs like in entity.py
+	#AddDefaultScripts(grph,rootNode,entity_host)
+
+	# Special case if we are displaying a machine, we might as well try to connect to it.
+	#if entity_type == "CIM_ComputerSystem":
+	#	AddDefaultScripts(grph,rootNode,entity_id)
+
+
+
 	WrtAsUtf('</table>')
 
 
@@ -171,15 +213,27 @@ def WriteOtherUrls(topUrl):
 def WriteScriptsTree(theCgi):
 	"""
 		This displays the tree of accessible Python scripts for the current object.
-		It is dsiplayed as a recusive tab. A similar logic is used in entity.y
+		It is displayed as a recursive table. A similar logic is used in entity.
 		(Where the tree is displayed as a tree of SVG nodes) and in index.htm
 		(With a contextual menu).
 	"""
-	flagShowAll = False
+
+	flagVal = theCgi.GetParameters( lib_util.paramkeyShowAll )
+	sys.stderr.write("WriteScriptsTree flagVal=%s\n"%flagVal)
+	# This happens when merging scripts.
+	if flagVal == "":
+		flagShowAll = 0
+	else:
+		flagShowAll = int(flagVal)
+
 	rootNode = None
 
 	dictScripts = {}
 
+	# This function is called for each script which applies to the given entity.
+	# It receives a triplet: (subject,property,object) and the depth in the tree.
+	# Here, this simply stores the scripts in a map, which is later used to build
+	# the HTML display. The depth is not used yet.
 	def CallbackGrphAdd( trpl, depthCall ):
 		subj,prop,obj = trpl
 
@@ -193,7 +247,7 @@ def WriteScriptsTree(theCgi):
 		except KeyError:
 			dictScripts[subj] = { prop : [obj ] }
 
-	sys.stderr.write("WriteScriptsTree entity_type=%s\n"%(theCgi.m_entity_type))
+	sys.stderr.write("WriteScriptsTree entity_type=%s flagShowAll=%d\n"%(theCgi.m_entity_type,flagShowAll))
 	entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,theCgi.m_entity_type,theCgi.m_entity_id,theCgi.m_entity_host,flagShowAll)
 
 	sys.stderr.write("dictScripts %d\n"%len(dictScripts))
@@ -240,7 +294,11 @@ def WriteScriptsTree(theCgi):
 			WrtAsUtf("<td rowspan='%d'>"%len(mapProps))
 			if lib_kbase.IsLink( subj ):
 				url_with_mode = UrlInHtmlMode( subj_str )
-				WrtAsUtf( '<a href="' + url_with_mode + '">' + subj_uniq_title + "</a>")
+				if subj_uniq_title:
+					subj_uniq_title_not_none = subj_uniq_title
+				else:
+					subj_uniq_title_not_none = "No title"
+				WrtAsUtf( '<a href="' + url_with_mode + '">' + subj_uniq_title_not_none + "</a>")
 			else:
 				WrtAsUtf( subj_str )
 			WrtAsUtf("</td>")
@@ -270,18 +328,6 @@ def WriteScriptsTree(theCgi):
 		WrtAsUtf( "</table>")
 
 	DisplayLevelTable(None)
-
-	# TODO: Add this.
-	#if entity_type != "":
-	#	sys.stderr.write("Entering AddWbemWmiServers\n")
-	#	CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
-
-	#AddDefaultScripts(grph,rootNode,entity_host)
-
-	# Special case if we are displaying a machine, we might as well try to connect to it.
-	#if entity_type == "CIM_ComputerSystem":
-	#	AddDefaultScripts(grph,rootNode,entity_id)
-
 
 def WriteErrors(error_msg,isSubServer):
 	if error_msg or isSubServer:
@@ -351,15 +397,23 @@ def WriteAllObjects(grph):
 	# TODO: Create a "difference mode". Periodic display, of only the difference between successive data sets.
 	# Ajouter mode "difference": On recalcule periodiquement et on affiche la difference.
 
-
+	# No need to use natural sort, because these are no filenames or strings containing numbres.
 	for entity_graphic_class in sorted(dictClassSubjPropObj):
 
 		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
 		urlClass_with_mode = UrlInHtmlMode( urlClass )
-		WrtAsUtf("<h3/>Class <a href='%s'>%s</a><h2/>"%(urlClass_with_mode,entity_graphic_class))
+		WrtAsUtf("<h3>Class <a href='%s'>%s</a></h3>"%(urlClass_with_mode,entity_graphic_class))
 		dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
 
 		DispClassObjects(dictSubjPropObj)
+
+# Apparently, a problem is that "%" gets transformed into an hexadecimal number, preventing decoding.
+def DesHex(theStr):
+	theStr = HTMLParser().unescape(theStr)
+	return theStr.replace("%25","%").replace("%2F","/").replace("%5C","\\").replace("%3A",":")
+
+# TODO: Scripts should be merged together on demand.
+# This could be achieved by filtering href clicks with javascript. With CSS ?
 
 def DispClassObjects(dictSubjPropObj):
 	listPropsTdDoubleColSpan = [pc.property_information,pc.property_rdf_data_nolist2,pc.property_rdf_data_nolist1]
@@ -372,8 +426,9 @@ def DispClassObjects(dictSubjPropObj):
 		subj_str = str(aSubj)
 		( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
 		lstTuplesSubjects.append((aSubj,subj_str,subj_title, entity_graphic_class, entity_id))
+
 	# Sorted by the title of the subject, which is the third value of the tuple.
-	lstTuplesSubjects.sort(key=lambda tup: tup[2])
+	lib_util.natural_sort_list(lstTuplesSubjects,key=lambda tup: tup[2])
 
 	# Now it iterates on the sorted list.
 	# This reuses all the intermediate values.
@@ -396,7 +451,7 @@ def DispClassObjects(dictSubjPropObj):
 
 		# The predicates, i.e. the properties associated a subject with an object,
 		# must be alphabetically sorted.
-		for aPred in sorted(dictPred):
+		for aPred in lib_util.natural_sorted(dictPred):
 			lstObjs = dictPred[aPred]
 
 			predStr = lib_exports.AntiPredicateUri(str(aPred))
@@ -407,10 +462,12 @@ def DispClassObjects(dictSubjPropObj):
 			lstTuplesObjs = []
 			for anObj in lstObjs:
 				obj_str = str(anObj)
+				obj_str = DesHex(obj_str)
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 				lstTuplesObjs.append((anObj,obj_str,obj_title))
+
 			# Sorted by the title of the object, which is the third value of the tuple.
-			lstTuplesObjs.sort(key=lambda tup: tup[2])
+			lib_util.natural_sort_list(lstTuplesObjs,key=lambda tup: tup[2])
 
 			for anObj,obj_str,obj_title in lstTuplesObjs:
 
@@ -432,22 +489,44 @@ def DispClassObjects(dictSubjPropObj):
 				else:
 					colSpan = 1
 
-				if lib_kbase.IsLink( anObj ):
-					url_with_mode = UrlInHtmlMode( obj_str )
-					WrtAsUtf( '<td colSpan="%d"><a href="%s">%s</a></td>' % (colSpan,url_with_mode,obj_title))
+				dispMimeUrls = True
+
+				WrtAsUtf( '<td colspan="%d">' %(colSpan))
+				if dispMimeUrls:
+					if lib_kbase.IsLink( anObj ):
+						objStrClean = lib_util.UrlNoAmp(obj_str)
+						mimeType = lib_mime.GetMimeTypeFromUrl(objStrClean)
+						if mimeType:
+							if mimeType.startswith("image/"):
+								WrtAsUtf(
+									"""<a href="%s"><img src="%s" alt="%s" height="42" width="42"></a>"""
+									% (obj_str,obj_str,obj_title)
+								)
+							else:
+								WrtAsUtf( """<a href="%s">%s</a>""" % (obj_str,obj_title) )
+						else:
+							url_with_mode = lib_util.AnyUriModed(subj_str, "html")
+							WrtAsUtf( """<a href="%s">%s</a>""" % (url_with_mode,obj_title) )
+					else:
+						WrtAsUtf( '%s' %(obj_str))
 				else:
-					WrtAsUtf( '<td colspan="%d">%s</td>' %(colSpan,obj_str))
+					if lib_kbase.IsLink( anObj ):
+						url_with_mode = UrlInHtmlMode( obj_str )
+						WrtAsUtf( '<a href="%s">%s</a>' % (url_with_mode,obj_title))
+					else:
+						WrtAsUtf( '%s' %(obj_str))
+
+
+				WrtAsUtf( "</td>")
 
 				WrtAsUtf( "</tr>")
 
 	WrtAsUtf( " </table>")
 
-def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
+def DisplayHtmlTextHeader(page_title):
 	"""
-		This transforms an internal data graph into a HTML document.
+	This is the common Survol headers, ideally for all HTML documents.
 	"""
-	page_title = theCgi.m_page_title
-	grph = theCgi.m_graph
 
 	lib_util.WrtHeader('text/html')
 	WrtAsUtf( "<head>" )
@@ -456,35 +535,54 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer):
 	WrtAsUtf( "<title>%s</title>" % page_title)
 
 	# The href must be absolute so it will work with any script.
-	# However we must calculate its prefix.
+	# We must calculate its prefix.
+	# In the mean time, this solution adapts to our three kind of different hosting types:
+	# - OVH mutialised hosting, with a specific CGI script survol.cgi
+	# - With the Python class HttpServer as Web server.
+	# - Hosted with Apache.
+
 	WrtAsUtf(
 		"""
+		<link rel='stylesheet' type='text/css' href=/ui/css/html_exports.css>
 		<link rel='stylesheet' type='text/css' href='/survol/www/css/html_exports.css'>
+		<link rel='stylesheet' type='text/css' href='../survol/www/css/html_exports.css'>
 		""")
 
 	WrtAsUtf('</head>')
 
+
+
+
+def Grph2Html( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
+	"""
+		This transforms an internal data graph into a HTML document.
+	"""
+	page_title = theCgi.m_page_title
+	grph = theCgi.m_graph
+
+	DisplayHtmlTextHeader(page_title)
+
 	WrtAsUtf('<body>')
 
-	WriteScriptInformation(theCgi)
+	WriteScriptInformation(theCgi,gblCgiEnvList)
 
 	WriteErrors(error_msg,isSubServer)
 
-	WrtAsUtf("<h2/>Objects<h2/>")
+	WrtAsUtf("<h2>Objects</h2>")
 	WriteAllObjects(grph)
 
 	if len(theCgi.m_parameters) > 0:
-		WrtAsUtf("<h2/>Script parameters<h2/>")
+		WrtAsUtf("<h2>Script parameters</h2>")
 		WriteParameters(theCgi)
 
 	# Scripts do not apply when displaying a class.
 	# TODO: When in a enumerate script such as enumerate_CIM_LogicalDisk.py,
 	# it should assume the same: No id but a class.
 	if(theCgi.m_entity_type == "") or (theCgi.m_entity_id!=""):
-		WrtAsUtf("<h2/>Related data scripts<h2/>")
+		WrtAsUtf("<h2>Related data scripts</h2>")
 		WriteScriptsTree(theCgi)
 
-	WrtAsUtf("<h2/>Other related urls<h2/>")
+	WrtAsUtf("<h2>Other related urls</h2>")
 	WriteOtherUrls(topUrl)
 
 	WrtAsUtf("</body>")

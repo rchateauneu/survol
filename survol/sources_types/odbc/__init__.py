@@ -178,6 +178,32 @@ odbcKeysConfidential = [keyWrd for keyWrd in mapRgxODBC if mapRgxODBC[keyWrd] ==
 # Values which do not need to be encoded, making things easier to understand.
 odbcKeysUncoded = [keyWrd for keyWrd in mapRgxODBC if mapRgxODBC[keyWrd] in [rgxAlpha,rgxUser,rgxTrueFalse,rgxHexa,rgxNumber] ]
 
+# This contains the most often used keys in DSN connection strings.
+restrictRgxODBCKeys = [
+	"DATA SOURCE",
+	"DATABASE",
+	"DB",
+	"DRIVER",
+	"DSN",
+	"PROTOCOL",
+	"PROVIDER",
+	"PWD",
+	"REMOTE SERVER",
+	"SERVER",
+	"SHARED MEMORY NAME",
+	"SOCKET",
+	"SQLSERVERMODE",
+	"TRUSTED_CONNECTION",
+	"UID",
+	"USER",
+	"USER ID",
+]
+
+# Only the commonest parameters, to make memory scans faster.
+mapRgxODBC_Light = { key : mapRgxODBC[key] for key in restrictRgxODBCKeys }
+
+# This need a to be not-too-reserved character.
+delimiterConnectionStringODBC = "/" # "-"
 
 # This behaves like a string plus some properties for serialization.
 # So it can be used as a keyword for encoding parameters in the id of an object,
@@ -210,11 +236,17 @@ class CgiPropertyDsn(str):
 			return aKeyWrd.upper() + "~" + aVal
 
 		# return "-".join( KeyValuePairEncode(aKeyW.upper(),vecKeywrd[aKeyW]) for aKeyW in vecKeywrd )
-		return "-".join( KeyValuePairEncode(kvPair) for kvPair in vecKeywrd )
+
+		# Cannot use "-" as it is accepted in server names.
+		return delimiterConnectionStringODBC.join( KeyValuePairEncode(kvPair) for kvPair in vecKeywrd )
 
 	def ValueDecode(self,connectStrCoded):
 		# sys.stderr.write("ValueDecode connectStrCoded=%s\n"%connectStrCoded)
-		vecTokPairs = re.split( "-", connectStrCoded )
+
+		# PROBLEM "SERVER=\RCHATEAU-HP"
+		# SERVER=\\RCHATEAU;Key=Cannot decode:HP
+
+		vecTokPairs = re.split( delimiterConnectionStringODBC, connectStrCoded )
 
 		def TokenDecode(aTok):
 			# sys.stderr.write("TokenDecode aTok=%s\n"%aTok)
@@ -226,7 +258,7 @@ class CgiPropertyDsn(str):
 			try:
 				(aKeyWrd,aVal) = aTok.split("~")
 			except ValueError:
-				return "Key=Cannot decode"
+				return "Key=Cannot decode:"+str(aTok)
 
 			if aKeyWrd in odbcKeysConfidential:
 				aVal = TokenLocalDecode(aVal) # SHOULD BE CRYPTED

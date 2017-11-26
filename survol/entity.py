@@ -31,19 +31,6 @@ from sources_types import CIM_ComputerSystem
 
 ################################################################################
 
-# WHAT TO DO WITH THE HOST ???????
-# This should not be the same scripts:
-# Some "normal" scripts are able to use a hostname, but this is very rare.
-# CgiEnv is able to say that. Also, this must be stored in the info cache.
-# If we take the entity_id from CgiEnv without explicitely saying
-# that the current script can process the hostname, then it is an error.
-# Also: This is where we need to "talk" to the other host ?
-# And we must display the node of the host as seen from the local machine.
-
-
-
-################################################################################
-
 def AddDefaultNodes(grph,rootNode,entity_host):
 	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
 	grph.add( ( currentNodeHostname, pc.property_information, lib_common.NodeLiteral("Current host:"+lib_util.currentHostname) ) )
@@ -71,51 +58,30 @@ def AddDefaultScripts(grph,rootNode,entity_host):
 
 ################################################################################
 
-#Un module est defini par son ontologie:
-#Quand on itere sur des directories et sous-directories pour en afficher les scripts,
-#il suffit de s'assurer que chaque sous-module a la meme ontologie que le point de depart
-#(On bien n a pas d ontologie, bref, que ce soit coherent avec le point de depart.)
-# De meme dans sources_top: On devrait aller chercher dans scripts_types,
-# les scripts qui n ont pas d'ontologie.
-# Dans entity.py, comme on a une entite (la machine courante),
-# on peut aller chercher les scripts qui ont une ontologie pour ces classes.
-
-# On prend l ontologie du niveau courant ou on se trouve,
-# donne par la entity_class.
-# Si y en a pas (sources_top) et ben y en a pas.
-# Ensuite on liste recursivement les fichiers mais des que l ontologie change,
-# c est a dire, si une ontologie est definie dans un module intermediaire.
-# (Ce qu on voit en chargeant le module implicitement) alors on laisse tomber)
-
-# En plus, dans le entity par defaut, comme on a forcement un user et une machine,
-# on va chercher les scripts de ces deux entites.
-
-# Probleme: On doit aller chercher toutes les entites, charger tous les modules.
+# Under the directory sources_types, each module is defined by its ontology,
+# or none. If a module has an ontology, then its represents a class.
+# An ontology is a small list of keywords, each representing an attribute
+# of the object of this class.
+# If a module, in the directory sources_types, has no ontology, then it uses
+# the ontology of the upper directory, or more higher in the hierarchy etc...
+# If, at the end, it still has no ontology, then it does not represent a class
+# but is simply used as a namespace. Fro example: "sources_types/Azure"
+# is not a class in itself but contains all the modules - and the classes - defined
+# by Azure: Location, subscription etc...
 
 ################################################################################
 
 def Main():
 
-	paramkeyShowAll = "Show all scripts"
-
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv(
 					can_process_remote = True,
-					parameters = { paramkeyShowAll : False })
+					parameters = { lib_util.paramkeyShowAll : False })
 	entity_id = cgiEnv.m_entity_id
 	entity_host = cgiEnv.GetHost()
-	flagShowAll = int(cgiEnv.GetParameters( paramkeyShowAll ))
+	flagShowAll = int(cgiEnv.GetParameters( lib_util.paramkeyShowAll ))
 
 	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-
-	is_host_remote = not lib_util.IsLocalAddress( entity_host )
-
-	sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s is_host_remote=%r\n" % ( entity_host, entity_type, entity_id, is_host_remote ) )
-
-	# It is simpler to have an empty entity_host, if possible.
-	# CHAIS PAS. EN FAIT C EST LE CONTRAIRE, IL FAUT METTRE LE HOST
-	if not is_host_remote:
-		entity_host = ""
 
 	grph = cgiEnv.GetGraph()
 
@@ -139,20 +105,24 @@ def Main():
 
 	# When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
 	if lib_util.GuessDisplayMode() not in ["json","html"]:
-	# if lib_common.GuessDisplayMode() in ["rdf", None]:
 
+		# This function is called for each script which applies to the given entity.
+		# It receives a triplet: (subject,property,object) and the depth in the tree.
+		# Here, this simply stores the scripts in a graph. The depth is not used yet,
+		# but can help debugging.
 		def CallbackGrphAdd( tripl, depthCall ):
 			grph.add(tripl)
 
 		entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,entity_id,entity_host,flagShowAll)
 
+		# This adds WBEM and WMI urls related to the current object.
 		if entity_type != "":
-			sys.stderr.write("Entering AddWbemWmiServers\n")
 			CIM_ComputerSystem.AddWbemWmiServers(grph,rootNode, entity_host, nameSpace, entity_type, entity_id)
 
 		AddDefaultScripts(grph,rootNode,entity_host)
 
-		# Special case if we are displaying a machine, we might as well try to connect to it.
+		# Special case if the currententity we are displaying, is a machine,
+		# we might as well try to connect to its WMI or WBEM server, running on this machine.
 		if entity_type == "CIM_ComputerSystem":
 			AddDefaultScripts(grph,rootNode,entity_id)
 

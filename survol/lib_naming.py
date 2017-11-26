@@ -1,4 +1,5 @@
 import lib_util
+import lib_mime
 import cgi
 import sys
 import os
@@ -124,7 +125,13 @@ def ParseEntitySurvolUri(uprs,longDisplay):
 	#   fragment='')
 	# Maybe the script is run in the CGI script.
 	# If so, we have to rebuild a valid URL.
-	spltCgiArgs = uprs.query.split("&amp;amp;")
+	uprsQuery = uprs.query
+	# Apparently the URL might contain "&amp;amp;" and "&" playing the same role.
+	# It does not matter as it is purely cosmetic.
+	# uprsQuery = uprsQuery.replace("&amp;amp;","&")
+	uprsQuery = lib_util.UrlNoAmp(uprsQuery)
+	spltCgiArgs = uprsQuery.split("&")
+	#spltCgiArgs = uprsQuery.split("&amp;amp;")
 	queryRebuild = ""
 	queryDelim = "?"
 	scriptRebuilt = None
@@ -164,12 +171,19 @@ scripts_to_titles = {
 	"entity.py":"",
 	"entity_wbem.py":"WBEM",
 	"entity_wmi.py":"WMI",
-	"file_to_mime.py":"Mime display"
 }
 
-def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
+def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 	# Extra information depending on the script.
-	filScript = os.path.basename(uprs.path)
+
+	# Special display if MIME URL
+	if filScript == "entity_mime.py":
+		if not entity_suffix:
+			entity_suffix = "None"
+		# The Mime type is embedded into the mode, after a "mime:" prefix.
+		entity_label = entity_suffix + " ("+ lib_mime.ModeToMimeType(uriMode)+")"
+		return entity_label
+
 	try:
 		entity_label = scripts_to_titles[ filScript ]
 	except KeyError:
@@ -192,6 +206,7 @@ def KnownScriptToTitle(uprs,entity_host = None,entity_suffix=None):
 # notably when transforming RDF into dot documents.
 # The returned entity type is used for choosing graphic attributes and gives more information than the simple entity type.
 # (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
+# "http://192.168.0.17/yawn/GetClass/CIM_UnixProcess?url=http%3A%2F%2F192.168.0.17%3A5988&amp;amp;verify=0&amp;amp;ns=root%2Fcimv2"
 def ParseEntityUri(uriWithMode,longDisplay=True):
 	#sys.stderr.write("ParseEntityUri uriWithMode=%s\n"%uriWithMode)
 
@@ -200,14 +215,11 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 	# THIS CANNOT WORK WITH IPV6 ADDRESSES...
 	# WE MAY USE SCP SYNTAX: scp -6 osis@\[2001:db8:0:1\]:/home/osis/test.file ./test.file
 
-	# from urlparse import urlparse
-	# urlparse("http://127.0.0.1:80/Survol/survol/entity.py?xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2")
-	# ParseResult(scheme='http', netloc='127.0.0.1:80', path='/Survol/survol/entity.py', params='', query='xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2', fragment='')
-
-
 	# In the URI, we might have the CGI parameter "&mode=json". It must be removed otherwise
 	# it could be taken in entity_id, and the result of EntityToLabel() would be wrong.
-	uri = lib_util.AnyUriModed(uriWithMode, "")
+	uriWithModeClean = lib_util.UrlNoAmp(uriWithMode)
+	uri = lib_util.AnyUriModed(uriWithModeClean, "")
+	uriMode = lib_util.GetModeFromUrl(uriWithModeClean)
 
 	uprs = urlparse(uri)
 
@@ -240,7 +252,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 
 		# TODO: Consider ExternalToTitle, similar logic with different results.
 		if longDisplay:
-			entity_label = KnownScriptToTitle(uprs,entity_host,entity_label)
+			entity_label = KnownScriptToTitle(filScript,uriMode,entity_host,entity_label)
 
 	# Maybe an internal script, but not entity.py
 	# It has a special entity type as a display parameter
@@ -260,7 +272,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 			entity_graphic_class = lib_util.ComposeTypes("CIM_DataFile","script") # TODO: DOUTEUX...
 			entity_id = ""
 
-			entity_label = KnownScriptToTitle(uprs)
+			entity_label = KnownScriptToTitle(filScript,uriMode)
 			# entity_label = UriToTitle(uprs)
 
 	elif uri.split(':')[0] in [ "ftp", "http", "https", "urn", "mail" ]:
@@ -268,7 +280,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 		entity_graphic_class = ""
 		entity_id = ""
 		# Display the complete URL, otherwise it is not clickable.
-		entity_label = uri # uri.split('/')[2]
+		entity_label = uriWithMode # uri # uri.split('/')[2]
 
 	else:
 		entity_graphic_class = ""

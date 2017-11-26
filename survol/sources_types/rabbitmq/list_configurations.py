@@ -25,9 +25,13 @@ def Main():
 
 	if credList:
 		for configNam in credList:
+			sys.stderr.write("configNam=%s\n"%configNam)
 			nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
 
 			hostSplit = configNam.split(":")
+
+			if len(hostSplit) < 2:
+				lib_common.ErrorMessageHtml("RabbitMQ configuration. Port number not defined:%s" % ( configNam ) )
 
 			nodeAddr = lib_common.gUriGen.AddrUri(hostSplit[0],hostSplit[1])
 

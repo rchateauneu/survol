@@ -1,0 +1,1 @@
+# This allows cgi or IIS etc... or wsgi ?
