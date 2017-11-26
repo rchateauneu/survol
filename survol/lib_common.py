@@ -409,7 +409,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# Maybe the property is not known, if the node is the subject.
 		# Or the property is not collapsed.
 		if prop is None:
-			propNam = dictOfProps.keys()[0]
+			# In Python3, keys() is an iterable. No need to create a list.
+			#propNam = list(dictOfProps.keys())[0]
+			#propNam = dictOfProps.keys()[0]
+			for propNam in dictOfProps.keys():
+				break
 			# First property available.
 			subjNam = dictOfProps[propNam]
 
