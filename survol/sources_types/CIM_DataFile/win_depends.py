@@ -51,9 +51,9 @@ def Main():
 
 	tmpFilObj = lib_common.TmpFile("depends")
 	tmpOutFil = tmpFilObj.Name
-	command = depends_bin + " /c /OC: " + tmpOutFil + ' "' + win_module + '"'
+	args = [ depends_bin, "/c","/OC:", tmpOutFil, win_module]
 
-	sys.stderr.write("Depends command=%s\n"%(command))
+	sys.stderr.write("Depends command=%s\n"%str(args))
 
 	grph = cgiEnv.GetGraph()
 
@@ -61,8 +61,9 @@ def Main():
 
 	# TODO: Check the return value.
 	# http://www.dependencywalker.com/help/html/hidr_command_line_help.htm
-	out_lines = os.popen( command )
-	for lin in out_lines:
+	p = lib_common.SubProcPOpen(args)
+	( nmap_last_output, nmap_err) = p.communicate()
+	for lin in nmap_last_output:
 		continue
 		# Wait for the end, otherwise the file will not be ready.
 
