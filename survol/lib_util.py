@@ -946,6 +946,16 @@ def ConcatenateCgi(url,keyvalpair):
 	else:
 		return url + "&" + keyvalpair
 
+# This is very primitive and maybe should be replaced by a standard function,
+# but lib_util.EncodeUri() replaces "too much", and SVG urls cannot encode an ampersand...
+# The problems comes from "&mode=edit" or "&mode=html" etc...
+# TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
+def UrlToSvg(url):
+	return url.replace( "&", "&amp;amp;" )
+
+def UrlNoAmp(url):
+	return url.replace("&amp;","&").replace("&amp;","&")
+
 ################################################################################
 
 # In an URL, this replace the CGI parameter "http://....?mode=XXX" by "mode=YYY".
@@ -958,7 +968,8 @@ def RequestUriModed(otherMode):
 
 def AnyUriModed(script, otherMode):
 
-	mtch_url = re.match("(.*)([\?\&])mode=[a-zA-Z0-9]*(.*)", script)
+	# mtch_url = re.match("(.*)([\?\&])mode=[a-zA-Z0-9]*(.*)", script)
+	mtch_url = re.match("(.*)([\?\&])mode=[^\&]*(.*)", script)
 
 	# mtch_url = re.match("(.*[\?\&]mode=)([a-zA-Z0-9]*)(.*)", script)
 
@@ -995,8 +1006,21 @@ def RootUri():
 ################################################################################
 
 # Extracts the mode from an URL.
+# https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
 def GetModeFromUrl(url):
-	mtch_url = re.match(".*[\?\&]mode=([a-zA-Z0-9]*).*", url)
+	# sys.stderr.write("lib_util.GetModeFromUrl url=%s\n"%url)
+	# Maybe it contains a MIME type: application/java-archive,
+	# application/vnd.ms-powerpoint, audio/3gpp2, application/epub+zip
+
+#	mtch_url = re.match(".*[\?\&]mode=(mime:[a-zA-Z0-9]*/[-\.a-zA-Z0-9]*).*", url)
+#	if mtch_url:
+#		return mtch_url.group(1)
+#
+#	mtch_url = re.match(".*[\?\&]mode=([a-zA-Z0-9]*).*", url)
+#	if mtch_url:
+#		return mtch_url.group(1)
+
+	mtch_url = re.match(".*[\?\&]mode=([^\&]*).*", url)
 	if mtch_url:
 		return mtch_url.group(1)
 	return ""

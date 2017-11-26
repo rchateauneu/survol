@@ -358,7 +358,7 @@ def JPypeListVMs(jvPckVM):
 
 
 # http://blog.ippon.fr/2012/02/05/monitorer-une-JVM-en-local/
-def TestLocal():
+def TestLocal(listOnly):
 	#jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
 	jvPckVM = JPypeLocalStartJVM()
 
@@ -366,14 +366,18 @@ def TestLocal():
 
 	#listVMs = jvPckVM.list()
 	# sys.stdout.write("VirtualMachine.dir=%s\n"%str(dir(listVMs)))
-	sys.stdout.write("VirtualMachine.list=:\n")
+	sys.stdout.write("VirtualMachine.list:\n")
 	for thePid in listVMs:
 		theProcObj = listVMs[thePid]
-		for theKey in theProcObj:
-			theVal = theProcObj[theKey]
-			sys.stdout.write("\t#### %s = %s\n"%(theKey,theVal))
-		JavaJmxPidMBeansAttach(thePid,jvPckVM)
-		sys.stdout.write("\n")
+		if listOnly:
+			# Do not attach to each process.
+			sys.stdout.write("    PID=%s\n"%str(thePid))
+		else:
+			for theKey in theProcObj:
+				theVal = theProcObj[theKey]
+				sys.stdout.write("\t#### %s = %s\n"%(theKey,theVal))
+			JavaJmxPidMBeansAttach(thePid,jvPckVM)
+			sys.stdout.write("\n")
 
 
 	# For convenience, the jpype modules predefines the following JPackages : java, javax
@@ -382,11 +386,6 @@ def TestLocal():
 	# Only the root of the package tree need be declared with the JPackage constructor. sub-packages will be created on demand
 
 	java.lang.System.out.println("\nHello World!!")
-
-
-
-
-
 
 	# and you have to shutdown the VM at the end
 	jpype.shutdownJVM()
@@ -457,10 +456,10 @@ def AnotherOtherTest():
 	# Installed with "pip install JPype1"
 	import jpype
 
-	theLocal = True
+	theLocal = False
 
 	if theLocal:
-		TestLocal()
+		TestLocal(listOnly=True)
 	else:
 		TestRemote()
 

@@ -17,11 +17,12 @@ h1 {
 
 h2 {
     color: navy;
+	border-bottom: 1px solid #8c8b8b;
 }
 
 h3 {
     color: navy;
-    margin-left: 20px;
+    margin-left: 0px;
 }
 
 /*
@@ -32,11 +33,11 @@ td {
 */
 
 table.other_urls {
-    background-color: lavender;
+    background-color: #eeeeee;
 }
 
 td.other_urls {
-    background-color: lavender;
+    background-color: #eeeeee;
 }
 
 table.table_script_information {
@@ -46,9 +47,10 @@ table.table_script_information {
 }
 
 table.table_script_parameters {
-    color: red;
+    color: navy;
     background-color: white;
     border-collapse: collapse;
+    border:1px solid #004993;
 }
 
 table.other_urls {
@@ -61,19 +63,19 @@ table.class_objects {
 
 table.table_scripts_titles {
     color: black;
-    background-color: lightgrey;
     border-collapse: collapse;
+    background-color: #eeeeee;
 }
 
 table.table_scripts_links {
     color: black;
-    background-color: lightgrey;
-    border-collapse: collapse;
+    background-color: #eeeeee;
 }
 
 .list_of_merged_scripts {
     color: navy;
-    background-color: lightgrey;
+    /* background-color: #eeeeee; */
     border-collapse: collapse;
     font-size: 150%;
 }
+
