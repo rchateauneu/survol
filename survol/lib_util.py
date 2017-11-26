@@ -196,17 +196,49 @@ uriRoot = UriRootHelper()
 # This returns the hostname as a string. Some special processing because on Windows,
 # the returned hostname seems truncated.
 # See lib_uris.HostnameUri()
+#
+# socket.gethostname()                 socket.gethostbyaddr(socket.gethostname()) 
+# fedora22                             ('advancedsearch.virginmedia.com', [], ['81.200.64.50'])
+# rchateau-HP                          ('rchateau-HP', [], ['fe80::3c7a:339:64f0:2161'])
+# ssh02.cluster023.gra.hosting.ovh.net ('ssh02.cluster023.gra.hosting.ovh.net', ['ssh02'], ['10.23.90.2'])
+#
+#
+# http://rchateau-hp:8000/survol/print_environment_variables.py
+# SERVER_NAME=rchateau-HP
+#
+# http://rchateau-hp/Survol/survol/print_environment_variables.py
+# SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
+# SERVER_NAME=rchateau-hp
+# SERVER_ADDR=fe80::3c7a:339:64f0:2161
+# HTTP_HOST=rchateau-hp
+#
+# http://primhillcomputers.ddns.net/Survol/survol/print_environment_variables.py
+# SERVER_SOFTWARE=Apache/2.4.18 (Fedora) PHP/5.6.23 mod_wsgi/4.4.8 Python/2.7.10
+# SERVER_NAME=primhillcomputers.ddns.net
+# SERVER_ADDR=192.168.0.17
+# HTTP_HOST=primhillcomputers.ddns.net
+#
+# http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/print_environment_variables.py
+# SERVER_SOFTWARE=Apache
+# SERVER_NAME=www.primhillcomputers.com
+# SERVER_ADDR=5.135.131.70
+# HTTP_HOST=www.primhillcomputers.com
+#
+# It is better to rely on a distributed naming system: DNS or plain IP address.
 def HostName():
-	socketGetHostNam = socket.gethostname()
 
-	# TODO: CONTRADICTION !!!???
-	if socketGetHostNam.find('.')>=0:
-		# 'rchateau-HP'
-		name=socketGetHostNam
-	else:
-		# 'rchateau-HP.home'
-		name=socket.gethostbyaddr(socketGetHostNam)[0]
-	return name
+	return os.environ["SERVER_NAME"]
+
+#	socketGetHostNam = socket.gethostname()
+
+#	# TODO: CONTRADICTION !!!???
+#	if socketGetHostNam.find('.')>=0:
+#		# 'rchateau-HP'
+#		name=socketGetHostNam
+#	else:
+#		# 'rchateau-HP.home'
+#		name=socket.gethostbyaddr(socketGetHostNam)[0]
+#	return name
 
 # hostName
 currentHostname = HostName()
