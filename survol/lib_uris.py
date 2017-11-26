@@ -354,15 +354,6 @@ class LocalBox:
 		path = path.replace("\\","/")
 		return self.UriMake( "CIM_Directory" , lib_util.EncodeUri(path))
 
-	# This URL opens a HTTP window. A specific Python script is needed to display a file
-	# which is normally not accessible from a HTTP server.
-	# TODO: Renvoyer NULL si type MIME invalide ?
-	# TODO: Display an icon ?
-	def FileUriMime(self,filNam):
-		# This enforces the normal class of the object. Processing the special case of this link
-		# is made by detecting the script name.
-		return self.UriMakeFromScript('/file_to_mime.py', "CIM_DataFile", lib_util.EncodeUri(filNam) )
-
 	# This creates a node for a socket, so later it can be merged with the same socket.
 	#
 	# TODO: PROBLEM: How can it be merged with the same address but described "from the other side" ??

@@ -1,5 +1,8 @@
 import os
 import sys
+import lib_util
+import lib_common
+from lib_properties import pc
 
 try:
 	import mimetypes
@@ -35,4 +38,21 @@ def FilenameToMime(pathName):
 
 		mime_stuff = [None]
 
+def AddMimeUrl(grph,filNode, entity_type,mime_type,entity_id_arr):
+	entity_host = None
+	if entity_host:
+		genObj = lib_common.RemoteBox(entity_host)
+	else:
+		genObj = lib_common.gUriGen
 
+	mimeNode = genObj.UriMakeFromScript( '/entity_mime.py', entity_type, *entity_id_arr )
+
+	# So that the MIME type is known without loading the URLs.
+	# Also, it allows to force a specific MIME type.
+	# The MIME type is not coded in the property because it is an attribute of the object.
+
+	# mimeNodeWithMode =  lib_util.AnyUriModed(mimeNode, "mime/" + mime_type)
+	# sys.stderr.write("lib_mime.AddMimeUrl BEFORE mimeNode=%s\n"%(mimeNode))
+	mimeNodeWithMode = mimeNode + "&amp;amp;" + "mode=mime:" + mime_type
+
+	grph.add( ( filNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(mimeNodeWithMode) ) )

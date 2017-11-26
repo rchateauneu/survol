@@ -29,8 +29,16 @@ try:
 except ImportError:
 	from urllib.parse import unquote
 
+# This does not change the existing mode if there is one.
+# Otherwise it could erase the MIME type.
 def UrlInHtmlMode(anUrl):
-	return lib_util.ConcatenateCgi( anUrl, "mode=html" )
+	# return lib_util.ConcatenateCgi( anUrl, "mode=html" )
+	# sys.stderr.write("UrlInHtmlMode anUrl=%s\n"%anUrl)
+	# BETTER USE THE RIGHT FUNCTION
+	if anUrl.find("mode=") < 0:
+		return lib_util.AnyUriModed(anUrl, "html")
+	else:
+		return anUrl
 
 def WriteScriptInformation(theCgi,gblCgiEnvList):
 	"""

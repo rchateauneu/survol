@@ -5,6 +5,7 @@ import lib_kbase
 import lib_patterns
 import lib_naming
 import lib_util
+from lib_util import UrlToSvg
 import lib_properties
 from lib_properties import pc
 import sys
@@ -461,13 +462,6 @@ def Grph2Rdf(grph):
 	out_dest = lib_util.DfltOutDest()
 	grph.serialize( destination = out_dest, format="xml")
 
-
-# This is very primitive and maybe should be replaced by a standard function,
-# but lib_util.EncodeUri() replaces "too much", and SVG urls cannot encode an ampersand...
-# The problems comes from "&mode=edit" or "&mode=html" etc...
-# TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
-def UrlToSvg(url):
-	return url.replace( "&", "&amp;amp;" )
 
 htbinPrefixScript = "/survol"
 
