@@ -1,3 +1,5 @@
+
+// ActiveX is not supported by Edge.
 function isIEorEDGE(){
 	console.log("isIEorEDGE appName="+navigator.appName+ " appVersion="+navigator.appVersion);
 	if (navigator.appName == 'Microsoft Internet Explorer'){
