@@ -921,6 +921,9 @@ def ConcatenateCgi(url,keyvalpair):
 def UrlToSvg(url):
 	return url.replace( "&", "&amp;amp;" )
 
+def UrlNoAmp(url):
+	return url.replace("&amp;","&").replace("&amp;","&")
+
 ################################################################################
 
 # In an URL, this replace the CGI parameter "http://....?mode=XXX" by "mode=YYY".

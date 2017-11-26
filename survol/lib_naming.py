@@ -1,4 +1,5 @@
 import lib_util
+import lib_mime
 import cgi
 import sys
 import os
@@ -127,7 +128,8 @@ def ParseEntitySurvolUri(uprs,longDisplay):
 	uprsQuery = uprs.query
 	# Apparently the URL might contain "&amp;amp;" and "&" playing the same role.
 	# It does not matter as it is purely cosmetic.
-	uprsQuery = uprsQuery.replace("&amp;amp;","&")
+	# uprsQuery = uprsQuery.replace("&amp;amp;","&")
+	uprsQuery = lib_util.UrlNoAmp(uprsQuery)
 	spltCgiArgs = uprsQuery.split("&")
 	#spltCgiArgs = uprsQuery.split("&amp;amp;")
 	queryRebuild = ""
@@ -178,7 +180,8 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 	if filScript == "entity_mime.py":
 		if not entity_suffix:
 			entity_suffix = "None"
-		entity_label = entity_suffix + " ("+uriMode[5:]+")"
+		# The Mime type is embedded into the mode, after a "mime:" prefix.
+		entity_label = entity_suffix + " ("+ lib_mime.ModeToMimeType(uriMode)+")"
 		return entity_label
 
 	try:
@@ -214,7 +217,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 
 	# In the URI, we might have the CGI parameter "&mode=json". It must be removed otherwise
 	# it could be taken in entity_id, and the result of EntityToLabel() would be wrong.
-	uriWithModeClean = uriWithMode.replace("&amp;","&").replace("&amp;","&")
+	uriWithModeClean = lib_util.UrlNoAmp(uriWithMode)
 	uri = lib_util.AnyUriModed(uriWithModeClean, "")
 	uriMode = lib_util.GetModeFromUrl(uriWithModeClean)
 

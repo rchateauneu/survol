@@ -38,6 +38,18 @@ def FilenameToMime(pathName):
 
 		mime_stuff = [None]
 
+# This encodes the Mime type in the mode associated to an Url.
+# The CGI "mode" parameter can be for example:
+# "svg"                 Must be displayed in SVG after conversion to DOT.
+# "rdf"                 Displayed as an RDF document.
+# "html"                Displayed into HTML.
+# "json"                Into JSON, read by a D3 Javascript library.
+# "menu"                Generates a hierarchical menu for Javascript.
+# "edit"                Edition of the other CGI parametgers.
+# "mime:text/plain"     Displayed as a Mime document.
+# "mime:image:bmp"      Same ...
+mimeModePrefix = "mime:"
+
 def AddMimeUrl(grph,filNode, entity_type,mime_type,entity_id_arr):
 	entity_host = None
 	if entity_host:
@@ -53,6 +65,18 @@ def AddMimeUrl(grph,filNode, entity_type,mime_type,entity_id_arr):
 
 	# mimeNodeWithMode =  lib_util.AnyUriModed(mimeNode, "mime/" + mime_type)
 	# sys.stderr.write("lib_mime.AddMimeUrl BEFORE mimeNode=%s\n"%(mimeNode))
-	mimeNodeWithMode = mimeNode + "&amp;amp;" + "mode=mime:" + mime_type
+	mimeNodeWithMode = mimeNode + "&amp;amp;" + "mode=" + mimeModePrefix + mime_type
 
 	grph.add( ( filNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(mimeNodeWithMode) ) )
+
+# If the CGI parameter is for example: "...&mode=
+def ModeToMimeType(urlMode):
+	return urlMode[5:]
+
+def GetMimeTypeFromUrl(url):
+	urlMode = lib_util.GetModeFromUrl(url)
+	if urlMode and urlMode.startswith(mimeModePrefix):
+		return ModeToMimeType(urlMode)
+	else:
+		return ""
+

@@ -4,6 +4,7 @@
 import os
 import sys
 import lib_util
+import lib_mime
 import lib_exports
 import lib_patterns
 import lib_naming
@@ -32,10 +33,10 @@ except ImportError:
 # This does not change the existing mode if there is one.
 # Otherwise it could erase the MIME type.
 def UrlInHtmlMode(anUrl):
-	# return lib_util.ConcatenateCgi( anUrl, "mode=html" )
 	# sys.stderr.write("UrlInHtmlMode anUrl=%s\n"%anUrl)
-	# BETTER USE THE RIGHT FUNCTION
-	if anUrl.find("mode=") < 0:
+	# if anUrl.find("mode=") < 0:
+	urlMode = lib_util.GetModeFromUrl(anUrl)
+	if urlMode:
 		return lib_util.AnyUriModed(anUrl, "html")
 	else:
 		return anUrl
@@ -406,7 +407,7 @@ def WriteAllObjects(grph):
 
 		DispClassObjects(dictSubjPropObj)
 
-# Apparently, a problem is that "%" gets transforned into an hexadecimal number, preventing decoding.
+# Apparently, a problem is that "%" gets transformed into an hexadecimal number, preventing decoding.
 def DesHex(theStr):
 	theStr = HTMLParser().unescape(theStr)
 	return theStr.replace("%25","%").replace("%2F","/").replace("%5C","\\").replace("%3A",":")
@@ -488,11 +489,35 @@ def DispClassObjects(dictSubjPropObj):
 				else:
 					colSpan = 1
 
-				if lib_kbase.IsLink( anObj ):
-					url_with_mode = UrlInHtmlMode( obj_str )
-					WrtAsUtf( '<td colSpan="%d"><a href="%s">%s</a></td>' % (colSpan,url_with_mode,obj_title))
+				dispMimeUrls = True
+
+				WrtAsUtf( '<td colspan="%d">' %(colSpan))
+				if dispMimeUrls:
+					if lib_kbase.IsLink( anObj ):
+						objStrClean = lib_util.UrlNoAmp(obj_str)
+						mimeType = lib_mime.GetMimeTypeFromUrl(objStrClean)
+						if mimeType:
+							if mimeType.startswith("image/"):
+								WrtAsUtf(
+									"""<a href="%s"><img src="%s" alt="%s" height="42" width="42"></a>"""
+									% (obj_str,obj_str,obj_title)
+								)
+							else:
+								WrtAsUtf( """<a href="%s">%s</a>""" % (obj_str,obj_title) )
+						else:
+							url_with_mode = lib_util.AnyUriModed(subj_str, "html")
+							WrtAsUtf( """<a href="%s">%s</a>""" % (url_with_mode,obj_title) )
+					else:
+						WrtAsUtf( '%s' %(obj_str))
 				else:
-					WrtAsUtf( '<td colspan="%d">%s</td>' %(colSpan,obj_str))
+					if lib_kbase.IsLink( anObj ):
+						url_with_mode = UrlInHtmlMode( obj_str )
+						WrtAsUtf( '<a href="%s">%s</a>' % (url_with_mode,obj_title))
+					else:
+						WrtAsUtf( '%s' %(obj_str))
+
+
+				WrtAsUtf( "</td>")
 
 				WrtAsUtf( "</tr>")
 
