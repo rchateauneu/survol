@@ -272,7 +272,7 @@ def WmiDictPropertiesUnit(connWmi, className):
 			propNam = propObj.Name # 'str(propObj.Qualifiers_("DisplayName"))'
 			unitNam = str(propObj.Qualifiers_("Units"))
 			mapPropUnits[propNam] = unitNam
-			sys.stderr.write("WmiDictPropertiesUnit propNam=%s unitNam=%s\n"%(propNam,unitNam))
+			# sys.stderr.write("WmiDictPropertiesUnit propNam=%s unitNam=%s\n"%(propNam,unitNam))
 
 		# except pywintypes.com_error:
 		except :
@@ -331,7 +331,7 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 		klassQuals = getattr( connWmi, className ).qualifiers
 		for klaQualKey in klassQuals :
 			klaQualVal = klassQuals[klaQualKey]
-			sys.stderr.write("WmiAddClassQualifiers klaQualVal=%s / %s\n"%(str(klaQualVal),str(type(klaQualVal))))
+			# sys.stderr.write("WmiAddClassQualifiers klaQualVal=%s / %s\n"%(str(klaQualVal),str(type(klaQualVal))))
 			if isinstance(klaQualVal,tuple):
 				klaQualVal = "{ " + ",".join(klaQualVal) + " }"
 
