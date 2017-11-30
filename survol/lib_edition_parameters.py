@@ -87,13 +87,15 @@ def FormEditionParameters(formActionNoMode,theCgi):
 			if argList[0] == "edit":
 				continue
 
+		# TODO: Values should be encoded.
+		# BEWARE ... if the values contains simgle quotes !
+		# Or remove enclosing quotes.
 		if len(argList) == 1:
-			# TODO: Values should be encoded.
-			print('<input type="hidden" name="' + key + '" value="'+argList[0] + '">')
+			print('<input type="hidden" name="' + key + '" value=\''+argList[0] + '\'>')
 		else:
 			for val in argList:
 				# Note the "[]" to pass several values.
-				print('<input type="hidden" name="' + key + '[]" value="'+val + '">')
+				print('<input type="hidden" name="' + key + '[]" value=\''+val + '\'>')
 
 	print('<input type="submit" value="Submit">')
 	print("</form>")

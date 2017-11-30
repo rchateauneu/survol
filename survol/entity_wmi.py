@@ -14,6 +14,10 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("WMI Python library not installed")
 
+# Do not use WQL because it filters data after they have been selected by WMI.
+# On the contrary, WMI applies its filters on classes.
+# A WMI Filter is a set of conditions used against the instances of a WMI Class
+# which defines whether or not an instance should be reported or excluded.
 def WmiReadWithMoniker( cgiEnv, cgiMoniker ):
 	"""
 		This returns an array of the single object read wrom WMI with the moniker.
@@ -44,11 +48,11 @@ def WmiReadWithQuery( cgiEnv, connWmi, className ):
 # Add all usual Python types.
 scalarDataTypes = lib_util.six_string_types + ( lib_util.six_text_type, lib_util.six_binary_type ) + lib_util.six_integer_types
 
-
 # This is a hard-coded list of properties which cannot be displayed.
 # They should be stored in the class directory.
 prpCannotBeDisplayed = {
-	# TODO: Convert this into an image.
+	# TODO: Convert this into an image. Find similar properties.
+	# At list display the type when it happens.
 	"CIM_ComputerSystem" : ["OEMLogoBitmap"]
 }
 
@@ -181,7 +185,8 @@ def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
 
 	# There might potentially be several Survol objects for these several WMI objects.
 	# It depends on the properties, as Survol takes only a subset of them.
-	propWmi2Survol = lib_common.MakeProp("WMI equivalent")
+	# Prefixed by hyphens so that it comes first when sorted.
+	propWmi2Survol = lib_common.MakeProp("--Survol equivalent object")
 	for urlSurvol in setSurvolUrls:
 		grph.add( ( wmiInstanceNode, propWmi2Survol, urlSurvol ) )
 	return
@@ -203,6 +208,32 @@ def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
 # wmi.WMI(moniker='\\rchateau-HP\root\CIMV2:CIM_ComputerSystem.Name="rchateau-hp"')
 # wmi.WMI(moniker='root\CIMV2:CIM_ComputerSystem.Name=rchateau-hp')
 # wmi.WMI(moniker='root\CIMV2:CIM_ComputerSystem.Name="127.0.0.1"')
+
+
+
+# All instances that are associated with a particular source instance.
+def DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker):
+	sys.stderr.write("DisplayObjectAssociators\n")
+	# It is possible to restrict the associators to a specific class only.
+	for anAssoc in objWmi.associators():
+		# assocMoniker=\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"
+		assocMoniker = str(anAssoc.path())
+		sys.stderr.write("DisplayObjectAssociators anAssoc Moniker=%s\n"%assocMoniker)
+
+		# derivation=(u'CIM_UnitaryComputerSystem', u'CIM_ComputerSystem', u'CIM_System', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
+		assocDerivation = anAssoc.derivation()
+
+		sys.stderr.write("DisplayObjectAssociators anAssoc derivation=%s\n"%str(assocDerivation))
+		# sys.stderr.write("DisplayObjectAssociators anAssoc=%s\n"%str(dir(anAssoc)))
+
+		# TODO: Consider these methods: associated_classes, associators, derivation,
+		# id, keys, methods, ole_object, path, properties, property_map, put,
+		# qualifiers, references, set, wmi_property
+
+		assocInstanceUrl = lib_util.EntityUrlFromMoniker( assocMoniker )
+		assocInstanceNode = lib_common.NodeUrl(assocInstanceUrl)
+		grph.add( ( wmiInstanceNode, lib_common.MakeProp(assocDerivation[0]), assocInstanceNode ) )
+
 
 
 
@@ -228,6 +259,10 @@ def EqualMonikers( monikA, monikB ):
 	# Maybe we could simply make a case-insensitive string comparison.
 	return splitA[0].upper() == splitB[0].upper() and splitA[1:].upper() == splitB[1:].upper()
 
+
+# The references() retrieves all association instances that refer to a particular source instance.
+# It is similar to the associators()statement.
+# However, rather than retrieving endpoint instances, it retrieves the intervening association instances.
 # Dont do this on a Win32_ComputerSystem object and several other classes; it is VERY SLOW !
 # TODO: Test with a small data set.
 def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
@@ -267,15 +302,18 @@ def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
 
 def Main():
 	paramkeyDisplayNone = "Display none values"
+	paramkeyDisplayAssociators = "Display Associators"
 	cgiEnv = lib_common.CgiEnv(can_process_remote=True,
-									parameters = { paramkeyDisplayNone : "0" })
+									parameters = { paramkeyDisplayNone : False, paramkeyDisplayAssociators : False })
 
-	displayNoneValues = cgiEnv.GetParameters( paramkeyDisplayNone ) in ( "1", "Y", "True")
+	displayNoneValues = bool(cgiEnv.GetParameters( paramkeyDisplayNone ))
+	displayAssociators = bool(cgiEnv.GetParameters( paramkeyDisplayAssociators ))
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
 	cimomUrl = cgiEnv.GetHost()
 
+	# cimomUrl=RCHATEAU-HP ns=root\cimv2 cls=Win32_ComputerSystem id=Name="RCHATEAU-HP"
 	sys.stderr.write("cimomUrl=%s ns=%s cls=%s id=%s\n" % ( cimomUrl, nameSpace, className, cgiEnv.m_entity_id) )
 
 	grph = cgiEnv.GetGraph()
@@ -294,6 +332,7 @@ def Main():
 	objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )
 	if objList is None:
 		# If no object associated with the moniker, then tries a WQL query which might return several objects.
+		# BEWARE: This is slow and less efficient than using WMI filters.
 		objList = WmiReadWithQuery( cgiEnv, connWmi, className )
 
 	wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
@@ -304,17 +343,15 @@ def Main():
 	# This returns the map of units for all properties of a class.
 	mapPropUnits = lib_wmi.WmiDictPropertiesUnit(connWmi, className)
 
-	# We do not know what to do of the WQL query returns several WMI objects.
+	# In principle, there should be only one object to display.
 	for objWmi in objList:
-		# sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
+		sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
 
-		# TODO: Attendre d'avoir plusieurs objects pour faire la meme chose que wentity_wbem,
-		# c est a dire une deduplication adaptee avec creation d URL. Je me comprends.
 		DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,mapPropUnits)
 
-		# TODO: Pour ces classes, l'attente est tres longue. Rather create another link.
+		# Displaying these classes is very slow, several minutes for 100 elements.
+		# It would be better to have another link.
 		# rchref = wmi.WMI().query("select * from Win32_UserAccount where Name='rchateau'")[0].references()
-		# Several minutes for 139 elements.
 		if not lib_wmi.WmiTooManyInstances( className ):
 			try:
 				DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker)
@@ -324,6 +361,14 @@ def Main():
 		else:
 			# Prefixc with a dot so it is displayed first.
 			grph.add( ( wmiInstanceNode, lib_common.MakeProp(".REFERENCES"), lib_common.NodeLiteral( "DISABLED" ) ) )
+
+		# Displaying the associators is conditional because it slows things.
+		if displayAssociators:
+			# This class appears everywhere, so not not display its references, it would be too long.
+			if className == "Win32_ComputerSystem":
+				grph.add( ( wmiInstanceNode, lib_common.MakeProp(".ASSOCIATORS"), lib_common.NodeLiteral( "DISABLED" ) ) )
+			else:
+				DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker)
 
 	# Adds the class node to the instance.
 	wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, cimomUrl, nameSpace, className, lib_common.MakeProp(className) )
@@ -344,7 +389,6 @@ def Main():
 	# cgiEnv.OutCgiRdf("LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
 
 # TODO: Must add a link to our URL, entity.py etc...
-# TODO: Must also add a link to associators.
 
 if __name__ == '__main__':
 	Main()
