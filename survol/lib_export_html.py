@@ -291,7 +291,7 @@ def WriteScriptsTree(theCgi):
 
 		if subj:
 			subj_str = str(subj)
-			WrtAsUtf("<td rowspan='%d'>"%len(mapProps))
+			WrtAsUtf("<td valign='top' rowspan='%d'>"%len(mapProps))
 			if lib_kbase.IsLink( subj ):
 				url_with_mode = UrlInHtmlMode( subj_str )
 				if subj_uniq_title:
@@ -475,13 +475,13 @@ def DispClassObjects(dictSubjPropObj):
 
 				if mustWriteColOneSubj:
 					WrtAsUtf(
-						'<td rowspan="%s"><a href="%s">%s</a></td>'
+						'<td valign="top" rowspan="%s"><a href="%s">%s</a></td>'
 						% (str(cntPreds), subj_str_with_mode, subj_title ) )
 					mustWriteColOneSubj = False
 
 				if mustWriteColOnePred:
 					if aPred not in listPropsTdDoubleColSpan :
-						WrtAsUtf( '<td rowspan="%s">%s</td>' % (str(cntObjs), predStr) )
+						WrtAsUtf( '<td valign="top" rowspan="%s">%s</td>' % (str(cntObjs), predStr) )
 					mustWriteColOnePred = False
 
 				if aPred in listPropsTdDoubleColSpan:
@@ -505,7 +505,7 @@ def DispClassObjects(dictSubjPropObj):
 							else:
 								WrtAsUtf( """<a href="%s">%s</a>""" % (obj_str,obj_title) )
 						else:
-							url_with_mode = lib_util.AnyUriModed(subj_str, "html")
+							url_with_mode = lib_util.AnyUriModed(obj_str, "html")
 							WrtAsUtf( """<a href="%s">%s</a>""" % (url_with_mode,obj_title) )
 					else:
 						WrtAsUtf( '%s' %(obj_str))

@@ -1483,23 +1483,26 @@ class TmpFile:
 		self.Name = "%s/%s.%d.%s" % ( currDir, prefix, procPid, suffix )
 		sys.stderr.write("tmp=%s cwd=%s\n" % ( self.Name, os.getcwd() ) )
 
+	def DbgDelFil(self,filNam):
+		if True:
+			sys.stderr.write("Deleting="+filNam+"\n")
+			os.remove(filNam)
+		else:
+			sys.stderr.write("NOT Deleting="+filNam+"\n")
+
 	def __del__(self):
 		try:
 			if self.Name:
-				sys.stderr.write("NOT Deleting="+self.Name+"\n")
-				os.remove(self.Name)
+				self.DbgDelFil(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
 				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
 				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
 					for name in files:
-						#os.remove(os.path.join(root, name))
-						pass
-						# os.remove(os.path.join(root, name))
+						self.DbgDelFil(os.path.join(root, name))
 					for name in dirs:
 						#os.rmdir(os.path.join(root, name))
 						pass
-						# os.rmdir(os.path.join(root, name))
 
 		except Exception:
 			exc = sys.exc_info()[1]

@@ -229,7 +229,7 @@ def WmiTooManyInstances(className):
 	return className in ['Win32_ComputerSystem','PG_ComputerSystem','CIM_UnitaryComputerSystem',
 						 'CIM_ComputerSystem','CIM_System','CIM_LogicalElement','Win32_UserAccount',
 						 'Win32_Group', 'CIM_ManagedSystemElement', 'CIM_Dependency', 'CIM_LogicalFile',
-						 'CIM_SoftwareElement']
+						 'CIM_SoftwareElement', 'CIM_Directory', 'CIM_DataFile' ]
 
 # TODO: What does it do ?????
 def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
@@ -272,7 +272,7 @@ def WmiDictPropertiesUnit(connWmi, className):
 			propNam = propObj.Name # 'str(propObj.Qualifiers_("DisplayName"))'
 			unitNam = str(propObj.Qualifiers_("Units"))
 			mapPropUnits[propNam] = unitNam
-			sys.stderr.write("WmiDictPropertiesUnit propNam=%s unitNam=%s\n"%(propNam,unitNam))
+			# sys.stderr.write("WmiDictPropertiesUnit propNam=%s unitNam=%s\n"%(propNam,unitNam))
 
 		# except pywintypes.com_error:
 		except :
@@ -304,6 +304,9 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 
 		theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
 		if theCls:
+			# https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/wmi-class-qualifiers
+			# Specifies a description of the block for the locale specified by the Locale qualifier.
+			# If defined, WMI clients can display the description string to users.
 			klassDescr = theCls.Qualifiers_("Description")
 			# Beware, klassDescr is of type "instance".
 			strKlassDescr = str(klassDescr)
@@ -328,6 +331,7 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 		klassQuals = getattr( connWmi, className ).qualifiers
 		for klaQualKey in klassQuals :
 			klaQualVal = klassQuals[klaQualKey]
+			# sys.stderr.write("WmiAddClassQualifiers klaQualVal=%s / %s\n"%(str(klaQualVal),str(type(klaQualVal))))
 			if isinstance(klaQualVal,tuple):
 				klaQualVal = "{ " + ",".join(klaQualVal) + " }"
 

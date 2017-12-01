@@ -533,22 +533,23 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 		urlRdf = ModedUrl("rdf")
 		urlD3 = UrlToMergeD3()
 
-		urlHtmlReplaced = UrlToSvg( urlHtml )
-		urlJsonReplaced = UrlToSvg( urlJson )
-		urlRdfReplaced = UrlToSvg( urlRdf )
-		urlD3Replaced = UrlToSvg( urlD3 )
+		# Stupid replacement of dot: "\\" transformed into "\"
+		# Fix for : "http://rchateau-hp:8000/survol/class_wmi.py?xid=\\machine\root\CIMV2%3ACIM_Directory.&mode=html"
+		def UrlForDot(mdUrl):
+			mdUrl = mdUrl.replace("\\\\","\\\\\\")
+			return UrlToSvg(mdUrl)
 
 		stream.write("<tr><td colspan='4'><table border='0'>")
 		stream.write(
 			"<tr>"
 			"<td>(</td>"
-			"<td align='left' href='" + urlHtmlReplaced + "'>" + DotUL("HTML") + "</td>"
+			"<td align='left' href='" + UrlForDot( urlHtml ) + "'>" + DotUL("HTML") + "</td>"
 			"<td>,</td>"
-			"<td align='left' href='" + urlJsonReplaced + "'>" + DotUL("JSON") + "</td>"
+			"<td align='left' href='" + UrlForDot( urlJson ) + "'>" + DotUL("JSON") + "</td>"
 			"<td>,</td>"
-			"<td align='left' href='" + urlRdfReplaced + "'>" + DotUL("RDF") + "</td>"
+			"<td align='left' href='" + UrlForDot( urlRdf ) + "'>" + DotUL("RDF") + "</td>"
 			"<td>,</td>"
-			"<td align='left' href='" + urlD3Replaced + "'>" + DotUL("D3") + "</td>"
+			"<td align='left' href='" + UrlForDot( urlD3 ) + "'>" + DotUL("D3") + "</td>"
 			"<td>)</td></tr>"
 		)
 		stream.write("</table></td></tr>")

@@ -13,12 +13,16 @@ import lib_wmi
 from lib_properties import pc
 
 def Main():
-	# This can process remote hosts because it does not call any script, just shows them.
-	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
+	paramkeyEnumInstances = "Enumerate instances"
+
+	cgiEnv = lib_common.CgiEnv(	parameters = { paramkeyEnumInstances : False })
+
+	flagEnumInstances = bool(cgiEnv.GetParameters( paramkeyEnumInstances ))
 
 	grph = cgiEnv.GetGraph()
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
+	sys.stderr.write("nameSpace=%s className=%s entity_namespace_type=%s\n"%(nameSpace,className,entity_namespace_type))
 
 	cimomUrl = cgiEnv.GetHost()
 
@@ -43,6 +47,9 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("WMI Connecting to cimomUrl=%s nameSpace=%s Caught:%s\n" % ( cimomUrl, nameSpace, str(exc) ) )
 
+	# http://rchateau-hp:8000/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_Directory.
+	# http://rchateau-hp:8000/survol/class_wmi.py?xid=\rchateau-HP\root\CIMV2%3ACIM_Directory.&mode=html
+
 	lib_wmi.WmiAddClassQualifiers( grph, connWmi, rootNode, className, True )
 
 	# Inutilisable pour:
@@ -54,79 +61,111 @@ def Main():
 
 	# Et aussi, revenir vers l'arborescence des classes dans ce namespace.
 
-	# lib_common.ErrorMessageHtml("Too many elements in className=%s\n" % ( className ) )
-
-	# Il y a d autres classes hardcodees de cette facon.
-	if lib_wmi.WmiTooManyInstances( className ):
-		lib_common.ErrorMessageHtml("Too many elements in className=%s\n" % ( className ) )
-
 	try:
 		wmiClass = getattr( connWmi, className )
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("cimomUrl=%s tp=%s nameSpace=%s className=%s Caught:%s\n" % ( cimomUrl, entity_namespace_type, nameSpace, className, str(exc) ) )
 
-	try:
-		lstObj = wmiClass()
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Caught when getting list of %s\n" % className )
+	# wmiClass=[Abstract, Locale(1033): ToInstance, UUID("{8502C55F-5FBB-11D2-AAC1-006008C78BC7}"): ToInstance]
+	# class CIM_Directory : CIM_LogicalFile
+	# {
+	# };
+	sys.stderr.write("wmiClass=%s\n"%str(wmiClass))
 
-	numLstObj = len( lstObj )
-	sys.stderr.write("className=%s type(wmiClass)=%s len=%d\n" % ( className, str(type(wmiClass)), numLstObj ) )
+	for k in wmiClass():
+		sys.stderr.write("k\n")
+		break
 
-	if numLstObj == 0:
-		grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral("No instances in this class") ) )
+	# Some examples of WMI queries.
+	# http://timgolden.me.uk/python/wmi/tutorial.html
+	#
+	# logical_disk = wmi.WMI(moniker="//./root/cimv2:Win32_LogicalDisk")
+	# c_drive = wmi.WMI(moniker='//./root/cimv2:Win32_LogicalDisk.DeviceID="C:"')
+	# c = wmi.WMI("MachineB", user=r"MachineB\fred", password="secret")
+	#
+	# A WMI class can be "called" with simple equal-to parameters to narrow down the list.
+	# This filtering is happening at the WMI level.
+	# for disk in c.Win32_LogicalDisk(DriveType=3):
+	# for service in c.Win32_Service(Name="seclogon"):
+	#
+	# Arbitrary WQL queries can be run, but apparently WQL selects first all elements from WMI,
+	# then only does its filtering:
+	# for disk in wmi.WMI().query("SELECT Caption, Description FROM Win32_LogicalDisk WHERE DriveType <> 3"):
+	#
+	if flagEnumInstances:
 
-	for wmiObj in lstObj:
-		# Full natural path: We must try to merge it with WBEM Uris.
-		# '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'
-		# https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
+
+		# Biggest difficulty is the impossibility to limit the numbers of results fetched by WMI.
+		# Many classes have to many elements to display them.
+		# This makes it virtually impossible to select their elements.
+		if lib_wmi.WmiTooManyInstances( className ):
+			lib_common.ErrorMessageHtml("Too many elements in className=%s\n" % ( className ) )
 
 		try:
-			fullPth = str( wmiObj.path() )
-		except UnicodeEncodeError:
-			# UnicodeEncodeError: 'ascii' codec can't encode characters in position 104-108: ordinal not in range(128)
+			lstObj = wmiClass()
+		except Exception:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("Exception %s\n"%str(exc))
-			continue
+			lib_common.ErrorMessageHtml("Caught when getting list of %s\n" % className )
 
-		# sys.stderr.write("fullPth=%s\n" % fullPth)
 
-		if fullPth == "":
-			sys.stderr.write("WARNING Empty path wmiObj=%s\n" % str(wmiObj))
-			# The class Win32_PnPSignedDriver (Maybe others) generates dozens of these messages.
-			# This is not really an issue as this class should be hidden from applications.
-			# WARNING Empty path wmiObj=
-			# instance of Win32_PnPSignedDriver
-			# {
-			# 		ClassGuid = NULL;
-			# 		CompatID = NULL;
-			# 		Description = NULL;
-			# 		DeviceClass = "LEGACYDRIVER";
-			# 		DeviceID = "ROOT\\LEGACY_LSI_FC\\0000";
-			# 		DeviceName = "LSI_FC";
-			# 		DevLoader = NULL;
-			# 		DriverName = NULL;
-			# 		DriverProviderName = NULL;
-			# 		DriverVersion = NULL;
-			# 		FriendlyName = NULL;
-			# 		HardWareID = NULL;
-			# 		InfName = NULL;
-			# 		Location = NULL;
-			# 		Manufacturer = NULL;
-			# 		PDO = NULL;
-			# };
-			continue
+		numLstObj = len( lstObj )
+		sys.stderr.write("className=%s type(wmiClass)=%s len=%d\n" % ( className, str(type(wmiClass)), numLstObj ) )
 
-		# fullPth=\\RCHATEAU-HP\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
-		fullPth = fullPth.replace("&","&amp;")
-		wmiInstanceUrl = lib_util.EntityUrlFromMoniker( fullPth )
-		wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
+		if numLstObj == 0:
+			grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral("No instances in this class") ) )
 
-		# infos = lib_wbem_cim.get_inst_info(iname, klass, include_all=True, keys_only=True)
+		for wmiObj in lstObj:
+			# Full natural path: We must try to merge it with WBEM Uris.
+			# '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'
+			# https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
 
-		grph.add( ( rootNode, pc.property_class_instance, wmiInstanceNode ) )
+			try:
+				fullPth = str( wmiObj.path() )
+			except UnicodeEncodeError:
+				# UnicodeEncodeError: 'ascii' codec can't encode characters in position 104-108: ordinal not in range(128)
+				exc = sys.exc_info()[1]
+				sys.stderr.write("Exception %s\n"%str(exc))
+				continue
+
+			# sys.stderr.write("fullPth=%s\n" % fullPth)
+
+			if fullPth == "":
+				sys.stderr.write("WARNING Empty path wmiObj=%s\n" % str(wmiObj))
+				# The class Win32_PnPSignedDriver (Maybe others) generates dozens of these messages.
+				# This is not really an issue as this class should be hidden from applications.
+				# WARNING Empty path wmiObj=
+				# instance of Win32_PnPSignedDriver
+				# {
+				# 		ClassGuid = NULL;
+				# 		CompatID = NULL;
+				# 		Description = NULL;
+				# 		DeviceClass = "LEGACYDRIVER";
+				# 		DeviceID = "ROOT\\LEGACY_LSI_FC\\0000";
+				# 		DeviceName = "LSI_FC";
+				# 		DevLoader = NULL;
+				# 		DriverName = NULL;
+				# 		DriverProviderName = NULL;
+				# 		DriverVersion = NULL;
+				# 		FriendlyName = NULL;
+				# 		HardWareID = NULL;
+				# 		InfName = NULL;
+				# 		Location = NULL;
+				# 		Manufacturer = NULL;
+				# 		PDO = NULL;
+				# };
+				continue
+
+			# fullPth=\\RCHATEAU-HP\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
+			fullPth = fullPth.replace("&","&amp;")
+			wmiInstanceUrl = lib_util.EntityUrlFromMoniker( fullPth )
+			sys.stderr.write("wmiInstanceUrl=%s\n"%wmiInstanceUrl)
+
+			wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
+
+			# infos = lib_wbem_cim.get_inst_info(iname, klass, include_all=True, keys_only=True)
+
+			grph.add( ( rootNode, pc.property_class_instance, wmiInstanceNode ) )
 
 	# TODO: On pourrait rassembler par classes, et aussi afficher les liens d'heritages des classes.
 
