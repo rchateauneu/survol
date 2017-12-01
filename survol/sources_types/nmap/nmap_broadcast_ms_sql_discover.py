@@ -49,7 +49,6 @@ def Main():
 	for aScript in dom.getElementsByTagName('script'):
 		anOutput = aScript.getAttributeNode('output').value.strip()
 		sys.stderr.write("anOutput=%s\n"%str(anOutput))
-		# arrSplit = [ aWrd.strip() for aWrd in anOutput.split("&#xa;") ]
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
 		sys.stderr.write("arrSplit=%s\n"%str(arrSplit))
