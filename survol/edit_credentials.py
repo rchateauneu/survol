@@ -236,6 +236,7 @@ def CredDefinitions():
 
     def CredUrlLogin(credName_Machine):
         """ Return a node given a machine name"""
+        # Example: credName_Machine="titi\\rchateauneu@hotmail.com"
         serverNode = lib_common.gUriGen.HostnameUri(credName_Machine)
         return serverNode
 
@@ -244,11 +245,23 @@ def CredDefinitions():
         return nodeWmi
 
     def CredUrlOracle(dbName):
+        # Example: dbName = "XE", which must be defined in tnsnames-ora
         from sources_types.oracle import db as oracle_db
     	node_oradb = oracle_db.MakeUri( dbName )
         return node_oradb
 
+    def CredUrlSqlExpress(dbName):
+        # Example: dbName = "RCHATEAU-HP\\SQLEXPRESS". It contains the server name.
+        # Connection with ODBC.
+        # conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=192.168.0.14;PORT=1433;DATABASE=ExpressDB;UID=essaisql;PWD=tralala')
+        # The ODBC connection string can be, from Fedora Linux:
+        # 'DRIVER={ODBC Driver 13 for SQL Server};SERVER=192.168.0.14;PORT=1433;DATABASE=SQLEXPRESS;UID=xxxxxxx;PWD=yyyyyyy'
+
+        # TODO: Finish this
+        return None
+
     def CredUrlWBEM(credName):
+        # Example: credName = "http://192.168.0.17:5989"
         # TODO: Finish this
         return None
 
@@ -258,6 +271,7 @@ def CredDefinitions():
         return nodeManager
 
     def CredUrlAzure(subscriptionName):
+        # Example: subscriptionName = "Visual Studio Professional"
         from sources_types.Azure import subscription as azure_subscription
         subscriptionNode = azure_subscription.MakeUri( subscriptionName )
         return subscriptionNode
@@ -272,6 +286,7 @@ def CredDefinitions():
         "Login" : CredUrlLogin,
         "WMI" : CredUrlWMI,
         "Oracle" : CredUrlOracle,
+        "SqlExpress" : CredUrlSqlExpress,
         "WBEM" : CredUrlWBEM,
         "RabbitMQ" : CredUrlRabbitMQ,
         "Azure" : CredUrlAzure,
