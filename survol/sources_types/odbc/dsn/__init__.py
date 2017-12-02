@@ -12,6 +12,10 @@ from sources_types import odbc as survol_odbc
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.oracle import db as oracle_db
 
+# On Linux pyodbc is installed with, for example:
+# yum install unixODBC-devel
+# https://stackoverflow.com/questions/31353137/sql-h-not-found-when-installing-pyodbc-on-heroku
+
 def Graphic_colorfill():
 	return "#CCFF11"
 
