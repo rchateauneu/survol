@@ -103,7 +103,7 @@ def GetCredentialsNames( credType ):
 		return arrType.keys()
 	except KeyError:
 		sys.stderr.write("GetCredentials Invalid type credType=%s\n" % (credType))
-		return None
+		return []
 
 def GetCredentialsTypes():
 	"""Returns the various credential types taken form the confidential file: """

@@ -346,8 +346,12 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 			grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), lib_common.NodeLiteral(klaQualVal) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
-		# Dumped in json so that lists can be appropriately deserialized then displayed.
-		errStr = json.dumps(list(exc))
+		try:
+			# Dumped in json so that lists can be appropriately deserialized then displayed.
+			errStr = json.dumps(list(exc))
+		except:
+			# Might have caught: 'com_error' object is not iterable
+			errStr = json.dumps("Non-iterable COM Error:"+str(exc))
 		grph.add( ( wmiClassNode, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(errStr) ) )
 
 # Tells if this class for our ontology is in a given WMI server, whatever the namespace is.

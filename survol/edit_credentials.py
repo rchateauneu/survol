@@ -247,7 +247,7 @@ def CredDefinitions():
     def CredUrlOracle(dbName):
         # Example: dbName = "XE", which must be defined in tnsnames-ora
         from sources_types.oracle import db as oracle_db
-    	node_oradb = oracle_db.MakeUri( dbName )
+        node_oradb = oracle_db.MakeUri( dbName )
         return node_oradb
 
     def CredUrlSqlExpress(dbName):
@@ -267,7 +267,7 @@ def CredDefinitions():
 
     def CredUrlRabbitMQ(configNam):
         from sources_types.rabbitmq import manager as survol_rabbitmq_manager
-    	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
+        nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
         return nodeManager
 
     def CredUrlAzure(subscriptionName):
@@ -351,4 +351,4 @@ def Main():
     WrtAsUtf("</body></html>")
 
 if __name__ == '__main__':
-	Main()
+    Main()

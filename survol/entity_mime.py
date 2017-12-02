@@ -43,6 +43,7 @@ def Main():
 	except:
 		exc = sys.exc_info()[1]
 		sys.stderr.write("entity_mime.py No DisplayAsMime for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
+		lib_common.ErrorMessageHtml("entity_mime.py No DisplayAsMime for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
 
 if __name__ == '__main__':
 	Main()
