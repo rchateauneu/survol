@@ -10,7 +10,6 @@ import urllib
 import lib_util
 import lib_common
 import lib_wbem
-import lib_wbem_cim
 from lib_properties import pc
 
 import pywbem # Might be pywbem or python3-pywbem.

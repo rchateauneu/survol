@@ -4,6 +4,7 @@
 import os
 import sys
 import lib_util
+import lib_mime
 import lib_exports
 import lib_patterns
 import lib_naming
@@ -14,13 +15,31 @@ from lib_properties import pc
 from lib_util import WrtAsUtf
 from sources_types import CIM_ComputerSystem
 
+if sys.version_info[0] >= 3:
+	import html
+	from html import parser
+	from html.parser import HTMLParser
+else:
+	from HTMLParser import HTMLParser
+
+# Donner le look de Wikipedia
+# Pour voir ajouter des notes associees a un URL.
+
 try:
 	from urllib import unquote
 except ImportError:
 	from urllib.parse import unquote
 
+# This does not change the existing mode if there is one.
+# Otherwise it could erase the MIME type.
 def UrlInHtmlMode(anUrl):
-	return lib_util.ConcatenateCgi( anUrl, "mode=html" )
+	# sys.stderr.write("UrlInHtmlMode anUrl=%s\n"%anUrl)
+	# if anUrl.find("mode=") < 0:
+	urlMode = lib_util.GetModeFromUrl(anUrl)
+	if urlMode:
+		return lib_util.AnyUriModed(anUrl, "html")
+	else:
+		return anUrl
 
 def WriteScriptInformation(theCgi,gblCgiEnvList):
 	"""
@@ -383,10 +402,18 @@ def WriteAllObjects(grph):
 
 		urlClass = lib_util.EntityClassUrl(entity_graphic_class)
 		urlClass_with_mode = UrlInHtmlMode( urlClass )
-		WrtAsUtf("<h3/>Class <a href='%s'>%s</a><h2/>"%(urlClass_with_mode,entity_graphic_class))
+		WrtAsUtf("<h3>Class <a href='%s'>%s</a></h3>"%(urlClass_with_mode,entity_graphic_class))
 		dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
 
 		DispClassObjects(dictSubjPropObj)
+
+# Apparently, a problem is that "%" gets transformed into an hexadecimal number, preventing decoding.
+def DesHex(theStr):
+	theStr = HTMLParser().unescape(theStr)
+	return theStr.replace("%25","%").replace("%2F","/").replace("%5C","\\").replace("%3A",":")
+
+# TODO: Scripts should be merged together on demand.
+# This could be achieved by filtering href clicks with javascript. With CSS ?
 
 def DispClassObjects(dictSubjPropObj):
 	listPropsTdDoubleColSpan = [pc.property_information,pc.property_rdf_data_nolist2,pc.property_rdf_data_nolist1]
@@ -399,9 +426,8 @@ def DispClassObjects(dictSubjPropObj):
 		subj_str = str(aSubj)
 		( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
 		lstTuplesSubjects.append((aSubj,subj_str,subj_title, entity_graphic_class, entity_id))
-	# Sorted by the title of the subject, which is the third value of the tuple.
 
-	# lstTuplesSubjects.sort(key=lambda tup: tup[2])
+	# Sorted by the title of the subject, which is the third value of the tuple.
 	lib_util.natural_sort_list(lstTuplesSubjects,key=lambda tup: tup[2])
 
 	# Now it iterates on the sorted list.
@@ -436,11 +462,11 @@ def DispClassObjects(dictSubjPropObj):
 			lstTuplesObjs = []
 			for anObj in lstObjs:
 				obj_str = str(anObj)
+				obj_str = DesHex(obj_str)
 				obj_title = lib_naming.ParseEntityUri(obj_str)[0]
 				lstTuplesObjs.append((anObj,obj_str,obj_title))
 
 			# Sorted by the title of the object, which is the third value of the tuple.
-			# lstTuplesObjs.sort(key=lambda tup: tup[2])
 			lib_util.natural_sort_list(lstTuplesObjs,key=lambda tup: tup[2])
 
 			for anObj,obj_str,obj_title in lstTuplesObjs:
@@ -463,11 +489,35 @@ def DispClassObjects(dictSubjPropObj):
 				else:
 					colSpan = 1
 
-				if lib_kbase.IsLink( anObj ):
-					url_with_mode = UrlInHtmlMode( obj_str )
-					WrtAsUtf( '<td colSpan="%d"><a href="%s">%s</a></td>' % (colSpan,url_with_mode,obj_title))
+				dispMimeUrls = True
+
+				WrtAsUtf( '<td colspan="%d">' %(colSpan))
+				if dispMimeUrls:
+					if lib_kbase.IsLink( anObj ):
+						objStrClean = lib_util.UrlNoAmp(obj_str)
+						mimeType = lib_mime.GetMimeTypeFromUrl(objStrClean)
+						if mimeType:
+							if mimeType.startswith("image/"):
+								WrtAsUtf(
+									"""<a href="%s"><img src="%s" alt="%s" height="42" width="42"></a>"""
+									% (obj_str,obj_str,obj_title)
+								)
+							else:
+								WrtAsUtf( """<a href="%s">%s</a>""" % (obj_str,obj_title) )
+						else:
+							url_with_mode = lib_util.AnyUriModed(subj_str, "html")
+							WrtAsUtf( """<a href="%s">%s</a>""" % (url_with_mode,obj_title) )
+					else:
+						WrtAsUtf( '%s' %(obj_str))
 				else:
-					WrtAsUtf( '<td colspan="%d">%s</td>' %(colSpan,obj_str))
+					if lib_kbase.IsLink( anObj ):
+						url_with_mode = UrlInHtmlMode( obj_str )
+						WrtAsUtf( '<a href="%s">%s</a>' % (url_with_mode,obj_title))
+					else:
+						WrtAsUtf( '%s' %(obj_str))
+
+
+				WrtAsUtf( "</td>")
 
 				WrtAsUtf( "</tr>")
 

@@ -13,7 +13,7 @@ import lib_common
 import lib_util
 import lib_credentials
 import lib_export_html
-
+import lib_exports
 from lib_util import WrtAsUtf
 
 
@@ -245,7 +245,7 @@ def CredDefinitions():
 
     def CredUrlOracle(dbName):
         from sources_types.oracle import db as oracle_db
-    	node_oradb = oracle_db.MakeUri( dbName )
+        node_oradb = oracle_db.MakeUri( dbName )
         return node_oradb
 
     def CredUrlWBEM(credName):
@@ -254,7 +254,7 @@ def CredDefinitions():
 
     def CredUrlRabbitMQ(configNam):
         from sources_types.rabbitmq import manager as survol_rabbitmq_manager
-    	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
+        nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
         return nodeManager
 
     def CredUrlAzure(subscriptionName):
@@ -328,14 +328,12 @@ def Main():
         FormInsertCredentials(formAction, sorted(credTypesWellKnown.keys()))
         WrtAsUtf("""</table>""")
 
-    # The second link is wrong.
-    WrtAsUtf("""
-    <br><a href="edit_configuration.py">Configuration</a>
-    <br><a href="index.htm">Return to Survol</a>
-    """)
+    WrtAsUtf('<br><a href="edit_configuration.py">Configuration</a>')
 
-    WrtAsUtf("""
-    </body></html>""")
+    urlIndex = lib_exports.UrlWWW("index.htm")
+    WrtAsUtf('<br><a href="' + urlIndex + '">Return to Survol</a>')
+
+    WrtAsUtf("</body></html>")
 
 if __name__ == '__main__':
-	Main()
+    Main()

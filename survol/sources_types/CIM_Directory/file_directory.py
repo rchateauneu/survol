@@ -18,6 +18,7 @@ def Usable(entity_type,entity_ids_arr):
 	dirNam = entity_ids_arr[0]
 	return os.path.isdir(dirNam)
 
+# This returns an url which displays a directory in HTML.
 # This can work only if the HTTP server allows so.
 # Purely experimental.
 # Apache option:
@@ -25,33 +26,21 @@ def Usable(entity_type,entity_ids_arr):
 # <Directory "C:/Users/rchateau/>
 # 	Options +Indexes
 # </Directory>
-# Il faudrait plutot un script externe qui lise la configuraton Apache.
-# fullDirPath=C:\\/Users/rchateau/FiatLux/ChapelleStansted
 #
-# TODO: Integrer un serveur HTML qui affiche le directory !!!!
-# TODO: C EST MEME QUELQUE CHOSE Qu ON PEUT FAIRE SYSTEMATIQUEMENT.
-# TODO: ON PROPOSE DE PASSER EN HTML.
-# TODO: DIFFERENT DE L AFFICHAGE DU RDF EN HTML.
-# TODO: C EST PLUTOT SE SIMPLIFIER LA VIE SI HTML EST PLUS ADEQUAT.
-# TODO: MAIS DANS LE HTML GENERE, ON REMET NOS LIENS SVG.
-# TODO: CA N EMPECHE PAS D AVOIR PLUSIEURS LIENS CAR ON PEUT AVOIR DES SITES SPECIALISES
-# TODO: SELON L OBJET.
+# Maybe read Apache configuration ? IIS also allows to browse a directory.
 #
-# NON !!! On va utiliser SimpleHttpServer, voir file_to_mime.py
-# Mais on s'en fiche, on veut donner la priorite au RDF.
-#
-# Icones de Apache: http://127.0.0.1/icons/folder.gif
+# Apache Icons: http://127.0.0.1/icons/folder.gif
 # http://127.0.0.1/icons/sound2.gif
 #
 # TODO: This is hard-coded, and should be replaced by a Python CGI server
 # serving this directory.
 def UrlDirectory( fullDirPath ):
-	# sys.stderr.write("UrlDirectory fullDirPath=%s\n" % fullDirPath)
-	dirPrefix = "C://Users/rchateau"
+	sys.stderr.write("UrlDirectory fullDirPath=%s\n" % fullDirPath)
+	dirPrefix = "C://Users/CurrentUser"
 	if fullDirPath.startswith( dirPrefix ):
 		shortPath = fullDirPath[ len(dirPrefix) : ]
 		shortpathclean = shortPath.replace("&","&amp;" )
-		dirUrl = "http://127.0.0.1/Maison/" + shortpathclean
+		dirUrl = "http://127.0.0.1/Home/" + shortpathclean
 		return lib_common.NodeUrl(dirUrl)
 	return None
 
@@ -117,7 +106,11 @@ def Main():
 		if dirs == None:
 			lib_common.ErrorMessageHtml("No files in:"+filNam)
 
-		filNam_slash = filNam + "/"
+		# Special case if top of the filesystem, on Linux.
+		filNam_slash = filNam
+		if filNam != "/":
+			filNam_slash += "/"
+
 		for dir in dirs:
 			fullDirPath = filNam_slash + dir
 			subdirNode = lib_common.gUriGen.DirectoryUri( fullDirPath.replace("&","&amp;" ) )

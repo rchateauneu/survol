@@ -178,6 +178,11 @@ def ExternalToTitle(extUrl):
 	# This cannot work this way.
 	# return '<IMG SRC="Icons.16x16/fileicons.chromefans.org/divx.png" />'
 
+# These properties must have their object displayed not as a separated node,
+# but as a link displayed with a string, a plain HREF.
+FlatPropertertiesList = [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]
+def IsFlatProperty(key):
+	return key in FlatPropertertiesList
 
 # Used for transforming into SVG format.
 # If from entity.py, CollapsedProps = pc.property_directory,pc.property_script
@@ -295,7 +300,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# Completely left-aligned. Col span is 2, approximate ratio.
 				val = lib_exports.StrWithBr(val,2)
 				currTd = "<td align='left' balign='left' colspan='2'>%s</td>" % val
-			elif key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
+			elif IsFlatProperty(key) :
 				urlTxt = lib_naming.ParseEntityUri(val)[0]
 				splitTxt = lib_exports.StrWithBr(urlTxt, 2)
 				# The text of the link must be underlined.
@@ -403,7 +408,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# Maybe the property is not known, if the node is the subject.
 		# Or the property is not collapsed.
 		if prop is None:
-			propNam = dictOfProps.keys()[0]
+			# In Python3, keys() is an iterable. No need to create a list.
+			#propNam = list(dictOfProps.keys())[0]
+			#propNam = dictOfProps.keys()[0]
+			for propNam in dictOfProps.keys():
+				break
 			# First property available.
 			subjNam = dictOfProps[propNam]
 
@@ -441,7 +450,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				# TODO: Il suffit de tester si obj est un url de la forme "entity.py" ???
 				# HTML and images urls can be "flattened" because the nodes have no descendants.
 				# Do not create a node for this.
-				# TODO: CGIPROP: Peut-on avoir plusieurs html ou sub-rdf ?? Il faut !
+				# MIME links displayed in the same column as sub-directory.
+				# Also, it might be enough to test if the object has the form "entity.py" because it has no descendant.
+				# TODO: CGIPROP: Can it have several html or sub-rdf ?? It is necessary !
 				fieldsSet[subj].append( ( prop, obj ) )
 			else:
 				objNam = RdfNodeToDotLabelExtended(obj,prop)
@@ -522,7 +533,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absentes.
 			# S il y a du html ou du RDF, on veut que ca vienne en premier.
 			fieldsKeysOrdered = []
-			for fldPriority in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]:
+			for fldPriority in FlatPropertertiesList:
 				try:
 					# Must always be appended. BUT IF THERE IS NO html_data, IS IT WORTH ?
 					# TODO: Remove if not HTML and no sub-rdf. CGIPROP
@@ -595,7 +606,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 						continue
 
 					# TODO: This is hard-coded.
-					if key in [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ] :
+					if IsFlatProperty(key) :
 
 						# In fact, it might also be an internal URL with "entity.py"
 						if lib_kbase.IsLiteral(val):

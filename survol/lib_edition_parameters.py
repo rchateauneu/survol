@@ -1,6 +1,9 @@
 import sys
 import lib_util
 
+# Should simplify this by storing the input URL in a hidden value
+# So that the mode=edit trick would not be necessary anymore.
+
 def FormEditionParameters(formActionNoMode,theCgi):
 	"""
 	This creates a HTML form for editing parameters of a script.

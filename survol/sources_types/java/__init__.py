@@ -20,6 +20,7 @@ def JPypeLocalStartJVM():
 	return None
 
 def JPypeLocalStartJVMLinux():
+	# Example: '/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib/amd64/server/libjvm.so'
 	dfltPath = jpype.getDefaultJVMPath()
 
 	# getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
@@ -46,6 +47,7 @@ def JPypeLocalStartJVMLinux():
 
 
 def JPypeLocalStartJVMWindows():
+	# u'C:\\Program Files\\Java\\jre1.8.0_121\\bin\\server\\jvm.dll'
 	dfltPath = jpype.getDefaultJVMPath()
 
 	# getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
@@ -265,8 +267,9 @@ def JavaJmxSystemProperties(pid):
 	return vmSysProps
 
 
-# This returns a list of processes withoutj attaching to them,
+# This returns a list of processes without attaching to them,
 # so it is simpler and faster.
+# The result is a map indexed by pids.
 def JPypeListVMs(jvPckVM):
 	resuProcs = dict()
 	if not jvPckVM:
@@ -338,3 +341,35 @@ def GetJavaDataFromJmx(thePid,mbeanObjNam = None):
 
 	return javaResults
 
+
+
+# Development notes:
+#
+# https://stackoverflow.com/questions/10331189/how-to-find-the-default-jmx-port-number
+# C:\Users\rchateau>jvisualvm
+# The launcher has determined that the parent process has a console and will reuse it for its own console output.
+# Closing the console will result in termination of the running program.
+# Use '--console suppress' to suppress console output.
+# Use '--console new' to create a separate console window.
+#
+#
+# # Start this command on both machines. Notepad is a simple app. Security disabled.
+# java -Dcom.sun.management.jmxremote  \
+# -Dcom.sun.management.jmxremote.port=9010 \
+# -Dcom.sun.management.jmxremote.local.only=false \
+# -Dcom.sun.management.jmxremote.authenticate=false  \
+# -Dcom.sun.management.jmxremote.ssl=false   -jar Notepad.jar
+#
+# jconsole usable on Windows (192.168.0.14) and Linux (192.168.0.17)
+# Start it in remote mode with port 9010.
+#
+# Problem: How can we have the list of remote machines running on a remote host?
+# Do they all have a distinct port number ?
+# Can we share this port number ?
+#
+# https://www.optiv.com/blog/exploiting-jmx-rmi
+#
+#
+# Credentials would be like: "JMI" : { "192.168.0.14:9010" : ( "user", "pass" ) }
+#
+#
