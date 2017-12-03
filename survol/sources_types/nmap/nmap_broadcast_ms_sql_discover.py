@@ -37,6 +37,28 @@ except ImportError:
 # WARNING: No targets were specified, so 0 hosts scanned.
 # Nmap done: 0 IP addresses (0 hosts up) scanned in 5.76 seconds
 #
+def AddOdbcNode(grph,machNam,srvName,tcpPort):
+	# cn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=192.168.0.14;PORT=1433;UID=essaisql;PWD=xyz')
+	if lib_util.isPlatformLinux:
+		driverName = "ODBC Driver 13 for SQL Server"
+	else:
+		driverName = "ODBC Driver 13 for SQL Server"
+
+	# credKey = "RCHATEAU-HP\\SQLEXPRESS"
+	credKey = "%s\\%s" % ( machNam, srvName )
+	sys.stderr.write("credKey=%s\n"%credKey)
+	aCred = lib_credentials.GetCredentials("SqlExpress", credKey )
+
+	if aCred:
+
+		strDsn = 'DRIVER={%s};SERVER=%s;PORT=%s;UID=%s;PWD=%s' % (driverName, machNam, tcpPort, aCred[0], aCred[1] )
+		sys.stderr.write("strDsn=%s\n"%strDsn)
+
+		### cn = pyodbc.connect(strDsn)
+		# nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + strDsn )
+		nodeDsn = survol_odbc_dsn.MakeUri( strDsn )
+		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
+
 
 
 
@@ -73,6 +95,7 @@ def Main():
 			grph.add( ( nodeHost, lib_common.MakeProp("IP address"), lib_common.NodeLiteral( machIp ) ) )
 		else:
 			nodeHost = lib_common.gUriGen.HostnameUri( theMachFull )
+			machIp = None
 			machNam = theMachFull
 
 		theNameDB = arrSplit[1].strip()
@@ -108,26 +131,8 @@ def Main():
 
 
 		if tcpPort and srvName and pyodbc:
-			# cn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=192.168.0.14;PORT=1433;UID=essaisql;PWD=xyz')
-			if lib_util.isPlatformLinux:
-				driverName = "ODBC Driver 13 for SQL Server"
-			else:
-				driverName = "ODBC Driver 13 for SQL Server"
-
-			# credKey = "RCHATEAU-HP\\SQLEXPRESS"
-			credKey = "%s\\%s" % ( machNam, srvName )
-			sys.stderr.write("credKey=%s\n"%credKey)
-			aCred = lib_credentials.GetCredentials("SqlExpress", credKey )
-
-			if aCred:
-
-				strDsn = 'DRIVER={%s};SERVER=%s;PORT=%s;UID=%s;PWD=%s' % (driverName, machNam, tcpPort, aCred[0], aCred[1] )
-				sys.stderr.write("strDsn=%s\n"%strDsn)
-
-				### cn = pyodbc.connect(strDsn)
-                		# nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + strDsn )
-                		nodeDsn = survol_odbc_dsn.MakeUri( strDsn )
-                		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
+			AddOdbcNode(grph,machNam,srvName,tcpPort)
+			AddOdbcNode(grph,machIp,srvName,tcpPort)
 
 
 	cgiEnv.OutCgiRdf()
