@@ -33,13 +33,12 @@ except ImportError:
 # This does not change the existing mode if there is one.
 # Otherwise it could erase the MIME type.
 def UrlInHtmlMode(anUrl):
-	# sys.stderr.write("UrlInHtmlMode anUrl=%s\n"%anUrl)
-	# if anUrl.find("mode=") < 0:
 	urlMode = lib_util.GetModeFromUrl(anUrl)
+	# sys.stderr.write("UrlInHtmlMode anUrl=%s urlMode=%s\n"%(anUrl,urlMode))
 	if urlMode:
-		return lib_util.AnyUriModed(anUrl, "html")
-	else:
 		return anUrl
+	else:
+		return lib_util.AnyUriModed(anUrl, "html")
 
 def WriteScriptInformation(theCgi,gblCgiEnvList):
 	"""
