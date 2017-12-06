@@ -2,6 +2,8 @@
 
 """
 File names in process memory.
+
+Filenames detected in the running process'memory.
 """
 
 import os
@@ -29,13 +31,12 @@ def FilenameRegexWindows(miniDepth,withRelat):
 
 	# In Windows, the last character should not be a space or a dot.
 	# There must be at least one character.
-	oneRegexNormal = '[^\\/<>:"\|\*\?]+[^. ]'
+	oneRegexNormal = '[^\\/<>:"\|\*\?\0]+[^. ]'
 	# Dot is allowed for current or parent directory
 	oneRegexNoSlash = "(" + oneRegexNormal + "|\.\.|\.)"
 	oneRegex = r"[/\\]" + oneRegexNoSlash
 
 	rgxFilNam += oneRegex * miniDepth
-	rgxFilNam += oneRegex
 
 	return rgxFilNam
 
@@ -101,19 +102,21 @@ def Main():
 				oFil = open(aFilNam,"r")
 			except:
 				exc = sys.exc_info()[1]
-				sys.stderr.write("open:%s throw:%s\n"%(aFilNam,str(exc)))
+				# sys.stderr.write("open:%s throw:%s\n"%(aFilNam,str(exc)))
+
+				# If the file cannot be opened, it may be a PATH of several filenames
+				# separated by a semi-colon ";".
 				continue
 			if not oFil:
 				continue
 
 			oFil.close()
 
-
 			resuClean.add( aFilNam )
 
 		for aFilNam in resuClean:
 			# sys.stderr.write("aFilNam=%s\n"%aFilNam)
-			nodeFilnam = lib_util.FileUri( aFilNam )
+			nodeFilnam = lib_common.gUriGen.FileUri( aFilNam )
 			grph.add( ( node_process, pc.property_rdf_data_nolist1, nodeFilnam ) )
 
 	except Exception:
