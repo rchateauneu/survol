@@ -15,6 +15,25 @@ import socket
 from six.moves import builtins
 from sources_types import CIM_Process
 
+# This module allows to search for regular expressions, in the memory of a running
+# process. Indeed, some specific strings give a hint of what a process is doing:
+# HTTP urls, SQL queries, ODBC connection strings (and passwords), file names etc...
+
+# There are plans to allow searching for specific data structures,
+# it is at least partly implemented, but was never succesfully tested yet.
+# The concept is to search for strctures, that is, contiguous set of specific values ranges
+# and specific sizes, in raw binary memory.
+# These structures would be taken from C/C++ data types actually used by the process.
+
+# TODO: Extend this feature to scanning a raw data file, or a block of shared memory.
+
+# TODO: Other specific strings to search for:
+#   Oracle connection strings such as: "scott/tiger@database"
+#   IPV4 or IPV6 addresses, in text.
+#   Emails, various URLs.
+#   Investigate LDAP.
+#   Any script code: Javascript etc...
+
 # required to access _ctypes
 import _ctypes
 
