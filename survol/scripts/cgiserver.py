@@ -1,5 +1,14 @@
 #!/usr/bin/python
 
+# This is a minimal HTTP server intended to replace Apache or IIS.
+# First reason is that, on a small machine, no HTTP server might be available.
+# 
+# Also, this script can be run under any privileged account giving much more exploration
+# possibilities than the safe apache IISUSR user accounts.
+
+
+# This can be used for profiling.
+# Unfortunately, it does not work yet with threads and subprocesses.
 YappiProfile = False
 try:
     import yappi
@@ -16,9 +25,7 @@ try:
 except ImportError:
 	from urllib.parse import urlparse
 
-# If Apache is not available or if we want to run the website
-# with a specific user account.
-
+# Apache setup:
 # In Apache httpd.conf, we have the directive:
 # SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\revlib
 # It is also possible to set it globally in the .profile
@@ -45,10 +52,12 @@ def ServerForever(server):
 # * When deployed, acts as a UI by running the HTML pages from the installation directory,
 #   or from the directory defined by distutils or pkg_resources.
 
+port_number_default = 8000
+
 def Usage(progNam):
     print("Survol HTTP server: %s"%progNam)
     print("    -a,--address=<IP address> TCP/IP address")
-    print("    -p,--port=<number>        TCP/IP port number")
+    print("    -p,--port=<number>        TCP/IP port number. Default is %d." %(port_number_default) )
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
     print("    -b,--browser=<program>    Starts a browser")
     print("    -v,--verbose              Verbose mode")
@@ -57,15 +66,6 @@ def Usage(progNam):
 # This changes the current directory, so that URLs can point to plain Python scripts.
 # This can be avoided if we have an unique CGI script loading Python scripts as modules.
 def RunCgiServer():
-    # sys.path=['C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\testarea\\Scripts\\survol_cgiserver.exe', 'C:\\w
-    # indows\\system32\\python27.zip', 'c:\\users\\rchateau\\developpement\\reverseengineeringapps\\pythonstyle\\testarea\\DLLs', 'c:\\use
-    # rs\\rchateau\\developpement\\reverseengineeringapps\\pythonstyle\\testarea\\lib', 'c:\\users\\rchateau\\developpement\\reverseengine
-    # eringapps\\pythonstyle\\testarea\\lib\\plat-win', 'c:\\users\\rchateau\\developpement\\reverseengineeringapps\\pythonstyle\\testarea
-    # \\lib\\lib-tk', 'c:\\users\\rchateau\\developpement\\reverseengineeringapps\\pythonstyle\\testarea\\scripts', 'c:\\python27\\Lib', '
-    # c:\\python27\\DLLs', 'c:\\python27\\Lib\\lib-tk', 'c:\\users\\rchateau\\developpement\\reverseengineeringapps\\pythonstyle\\testarea
-    # ', 'c:\\users\\rchateau\\developpement\\reverseengineeringapps\\pythonstyle\\testarea\\lib\\site-packages']
-
-    # curPth = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\testarea\Lib\site-packages"
     curPth = None
     print("Searching internal packages")
     for pth in sys.path:
@@ -122,8 +122,16 @@ def RunCgiServerInternal():
         os.environ.copy()
 
     # This also works on Windows and Python 3.
-    if 'linux' in sys.platform:
-        sys.path.append("survol")
+    elif 'linux' in sys.platform:
+        # It seems that the cgi script is executed in another process
+        # therefore chaning sys.argv does not do anything.
+        try:
+            os.environ["PYTHONPATH"]
+        except KeyError:
+            os.environ["PYTHONPATH"] = "/home/rchateau/rdfmon-code/survol"
+
+    else:
+        print("Unsupported platform:%s"%sys.platform)
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
@@ -138,10 +146,11 @@ def RunCgiServerInternal():
     # server_addr = "rchateau-HP"
     # server_addr = "DESKTOP-NI99V8E"
     # It is possible to force this address to "localhost" or "127.0.0.1" for example.
+    # Consider also: socket.gethostbyname(socket.getfqdn())
     server_addr = socket.gethostname()
 
     verbose = False
-    port_number = 8000
+    port_number = port_number_default
     browser_name = None
 
     for anOpt, aVal in opts:
@@ -161,6 +170,9 @@ def RunCgiServerInternal():
 
     currDir = os.getcwd()
     print("cwd=%s path=%s"% (currDir, str(sys.path)))
+    os.environ['SERVER_NAME'] = "tototutu"
+    os.environ['HOSTNAME'] = "tititoto"
+    print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
     print("Opening %s:%d" % (server_addr,port_number))
     print("sys.path=%s"% str(sys.path))
     try:
@@ -226,6 +238,17 @@ def RunCgiServerInternal():
         handler = MyCGIHTTPServer
 
         server = HTTPServer((server_addr, port_number), handler)
+
+        if 'linux' in sys.platform:
+            # Normally, this value receives socket.gethostname(),
+            # which later gives its value to os.environ["SERVER_NAME"].
+            # But, for this application, this environment variable must have the same value
+            # as the server address, because it is used to build URLs.
+            # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
+            # This is not necessary for Windows (Which apparently copies its env vars).
+            # This must be tested on Python 3.
+            server.server_name = server_addr
+            print("server=%s"%(server.server_name))
 
         ServerForever(server)
 
