@@ -80,7 +80,7 @@ def FormEditionParameters(formActionNoMode,theCgi):
 			continue
 
 		# BEWARE: The arguments which are editable, are not "hidden".
-		# Hoiw could we edit an argument list ? And how to know that it is a list ?
+		# How could we edit an argument list ? And how to know that it is a list ?
 		# Maybe we could proceed like CGI variables: If the parameter name ends with "[]".
 		argList = theCgi.m_arguments.getlist(key)
 
