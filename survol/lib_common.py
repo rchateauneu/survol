@@ -127,7 +127,8 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 	stream.write(" layout=\"" + dot_layout + "\"; \n")
 
 	# TODO: Take the font from the CSS html_exports.css
-	stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
+	# Example on Windows: stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
+	stream.write(" node [ %s ] ; \n" % lib_exports.FontString() )
 	return dot_layout
 
 # Returns a string for an URL which might be different from "entity.py" etc...
@@ -794,7 +795,13 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	if lib_util.isPlatformLinux:
 		# TODO: This is arbitrary because old Graphviz version.
 		# TODO: Take the fonts from html_exports.css
-		dotFonts = ["-Gfontpath=/usr/share/fonts/TTF", "-Gfontnames=svg", "-Nfontname=VeraBd.ttf","-Efontname=VeraBd.ttf"]
+		# dotFonts = ["-Gfontpath=/usr/share/fonts/TTF", "-Gfontnames=svg", "-Nfontname=VeraBd.ttf","-Efontname=VeraBd.ttf"]
+		dotFonts = [
+                    # "-Gfontpath=/usr/share/fonts/dejavu", 
+                    "-Gfontpath=/usr/share/fonts", 
+                    "-Gfontnames=svg",
+                    "-Nfontname=DejaVuSans.ttf",
+                    "-Efontname=DejaVuSans.ttf"]
 	else:
 		dotFonts = []
 
@@ -1222,6 +1229,7 @@ class CgiEnv():
 		try:
 			# If the script parameter is passed as a CGI argument.
 			# BEWARE !!! An empty argument triggers an exception !!!
+			# Same problem if the same argument appears several times: This will be a list.
 			paramVal = self.m_arguments[paramkey].value
 			sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
@@ -1235,12 +1243,28 @@ class CgiEnv():
 				paramVal = paramTyp( paramVal )
 				sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
 			else:
-				paramVal = dfltValue
+				# If the parameters were edited but the value did not appear,
+				# it can only be a Boolean with a clear check box.
+				# https://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
+				# Unchecked check boxes are not POSTed.
+				try:
+					self.m_arguments["edimodtype"]
+					paramVal = False
+
+					# Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
+					# Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
+					self.m_parameters[paramkey] = paramVal
+					sys.stderr.write("GetParameters paramkey='%s' set to FALSE\n" % ( paramkey ) )
+				except KeyError:
+					paramVal = dfltValue
+					sys.stderr.write("GetParameters paramkey='%s' set to paramVal='%s'\n" % ( paramkey, paramVal ) )
 		else:
 			if not hasArgValue:
 				sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
 				# lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
 				paramVal = ""
+			else:
+				sys.stderr.write("GetParameters nothing for paramkey='%s'\n" % ( paramkey ))
 
 		# TODO: Beware, empty strings are NOT send by the HTML form,
 		# TODO: so an empty string must be equal to the default value.

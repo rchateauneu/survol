@@ -463,6 +463,19 @@ def Grph2Rdf(grph):
 	grph.serialize( destination = out_dest, format="xml")
 
 
+def FontString():
+
+	# fontname: "DejaVuSans.ttf" resolved to: (PangoCairoFcFont) "DejaVu Sans, Book" /usr/share/fonts/dejavu/DejaVuSans.ttf
+	# stream.write("node [shape=plaintext fontpath=\"/usr/share/fonts\" fontname=\"DejaVuSans\" ]")
+
+	if lib_util.isPlatformWindows:
+		return 'fontname="DejaVu Sans"'
+	else:
+		# fontname: "DejaVuSans.ttf" resolved to: (PangoCairoFcFont) "DejaVu Sans, Book" /usr/share/fonts/dejavu/DejaVuSans.ttf
+		return 'fontpath="/usr/share/fonts" fontname="DejaVuSans"'
+
+
+
 htbinPrefixScript = "/survol"
 
 # Link to help page:
@@ -565,13 +578,13 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 			urlEditReplaced = UrlToSvg( urlEdit )
 			stream.write("<tr><td colspan='4' href='" + urlEditReplaced + "' align='left'>" + DotBold(DotUL( "Edit script parameters" )) + "</td></tr>" )
 
-		arguments = cgi.FieldStorage()
-		for keyParam,valParam in parameters.items():
-			try:
-				actualParam = arguments[keyParam].value
-			except KeyError:
-				actualParam = valParam
-			stream.write('<tr><td colspan="2">%s:</td><td colspan="2">%s</td></tr>' % ( keyParam, DotIt(actualParam) ) )
+			arguments = cgi.FieldStorage()
+			for keyParam,valParam in parameters.items():
+				try:
+					actualParam = arguments[keyParam].value
+				except KeyError:
+					actualParam = valParam
+				stream.write('<tr><td colspan="2">%s:</td><td colspan="2">%s</td></tr>' % ( keyParam, DotIt(actualParam) ) )
 
 		# We want to display links associated to the parameters.
 		# The use case is "Prev/Next" when paging between many values.
@@ -603,7 +616,11 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 		stream.write("</tr>" )
 
 
-	stream.write("node [shape=plaintext]")
+
+	# stream.write("node [shape=plaintext fontname=\"DejaVu Sans\" ]")
+	# fontname: "DejaVuSans.ttf" resolved to: (PangoCairoFcFont) "DejaVu Sans, Book" /usr/share/fonts/dejavu/DejaVuSans.ttf
+	# stream.write("node [shape=plaintext fontpath=\"/usr/share/fonts\" fontname=\"DejaVuSans\" ]")
+	stream.write("node [shape=plaintext %s ]" % FontString() )
 
 	# The first line is a title, the rest, more explanations.
 	# The first line also must be wrapped if it is too long.
