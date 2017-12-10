@@ -14,53 +14,76 @@ from lib_properties import pc
 from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
 
-# https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
+class FilenameParserLinux:
+	# https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
+	# This is a most plausible regular expressions.
+	# Most file names do not contain UTF-8 characters, are not "too long" nor "too short".
+	def Regex(self,miniDepth,withRelat):
 
-def FilenameRegexLinux(miniDepth,withRelat):
-	rgxFilNam = ""
+		rgxFilNam = ""
+		# rgxFilNam += "/[^/]+" * miniDepth
+		# rgxFilNam += "/[a-zA-Z0-9]+" * miniDepth
+		rgxFilNam += "/[-a-zA-Z0-9\._\+]{3,50}" * miniDepth
+		#rgxFilNam = "kademlia"
+		return rgxFilNam
 
-	rgxFilNam += "/[^/]+" * miniDepth
-	return rgxFilNam
+	def Cleanup(self,aFilNam):
+		return aFilNam
 
-# Beware that slash-separated filenames are also legal in Windows.
-# https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
-def FilenameRegexWindows(miniDepth,withRelat):
-	rgxFilNam = "[^a-zA-Z][A-Z]:"
+class FilenameParserWindows:
+	# Beware that slash-separated filenames are also legal in Windows.
+	# https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+	def Regex(self,miniDepth,withRelat):
+		rgxFilNam = "[^a-zA-Z][A-Z]:"
 
-	# In Windows, the last character should not be a space or a dot.
-	# There must be at least one character.
-	oneRegexNormal = '[^\\/<>:"\|\*\?]+[^. ]'
-	# Dot is allowed for current or parent directory
-	oneRegexNoSlash = "(" + oneRegexNormal + "|\.\.|\.)"
-	oneRegex = r"[/\\]" + oneRegexNoSlash
+		# In Windows, the last character should not be a space or a dot.
+		# There must be at least one character.
+		oneRegexNormal = '[^\\/<>:"\|\*\?]+[^. ]'
+		# Dot is allowed for current or parent directory
+		oneRegexNoSlash = "(" + oneRegexNormal + "|\.\.|\.)"
+		oneRegex = r"[/\\]" + oneRegexNoSlash
 
-	rgxFilNam += oneRegex * miniDepth
-	rgxFilNam += oneRegex
+		rgxFilNam += oneRegex * miniDepth
+		rgxFilNam += oneRegex
 
-	return rgxFilNam
+		return rgxFilNam
 
-def FilenameRegexFunc():
+	def Cleanup(self,aFilNam):
+
+		# Truncate first character, because not in the regex.
+		aFilNam = aFilNam[1:]
+
+		# file() argument 1 must be encoded string without NULL bytes, not str
+		idxZero = aFilNam.find('\0')
+		if idxZero >= 0:
+			aFilNam = aFilNam[:idxZero]
+		return aFilNam
+
+def FilenameParserFunc():
 	if lib_util.isPlatformLinux:
-		return FilenameRegexLinux
+		return FilenameParserLinux()
 	if lib_util.isPlatformWindows:
-		return FilenameRegexWindows
+		return FilenameParserWindows()
 	lib_common.ErrorMessageHtml("No operating system")
 
 
 def Main():
 	# Parameter for the minimal depth of the regular expression.
 	# min=3, otherwise any string with a "/" will match.
-	paramkeyMiniDepth = "Minimum filename depth"
+	keyMiniDepth = "Minimum filename depth"
 
 	# Otherwise, only look for absolute filenames.
-	paramkeyWithRelative = "Search relative filenames"
+	keyWithRelative = "Search relative filenames"
 
-	cgiEnv = lib_common.CgiEnv( parameters = { paramkeyMiniDepth : 3, paramkeyWithRelative : False })
+	keyCheckExistence = "Check file existence"
+
+	cgiEnv = lib_common.CgiEnv( parameters = { keyMiniDepth : 3, keyWithRelative : False, keyCheckExistence : True })
 
 	pidint = int( cgiEnv.GetId() )
 
-	paramMiniDepth = int(cgiEnv.GetParameters( paramkeyMiniDepth ))
-	paramWithRelative = bool(cgiEnv.GetParameters( paramkeyWithRelative ))
+	paramMiniDepth = int(cgiEnv.GetParameters( keyMiniDepth ))
+	paramWithRelative = bool(cgiEnv.GetParameters( keyWithRelative ))
+	paramCheckExistence = bool(cgiEnv.GetParameters( keyCheckExistence ))
 
 
 	grph = cgiEnv.GetGraph()
@@ -68,8 +91,8 @@ def Main():
 	node_process = lib_common.gUriGen.PidUri(pidint)
 
 	try:
-		rgxFunc = FilenameRegexFunc()
-		rgxFilNam = rgxFunc(paramMiniDepth,paramWithRelative)
+		objParser = FilenameParserFunc()
+		rgxFilNam = objParser.Regex(paramMiniDepth,paramWithRelative)
 		sys.stderr.write("rgxFilNam=%s\n"%rgxFilNam)
 
 		resuFilNams = memory_regex_search.GetRegexMatches(pidint,rgxFilNam)
@@ -82,38 +105,34 @@ def Main():
 		for idxFilNam in resuFilNams:
 			aFilNam = resuFilNams[idxFilNam]
 
-			# Truncate first character, because not in the regex.
-			aFilNam = aFilNam[1:]
-
-			# file() argument 1 must be encoded string without NULL bytes, not str
-			idxZero = aFilNam.find('\0')
-			if idxZero >= 0:
-				aFilNam = aFilNam[:idxZero]
-
-			aFilNam=str(aFilNam) # On Python3, this is a bytes array.
+			# Depending opn the regular expression, the result must be adapted.
+			aFilNam = objParser.Cleanup(aFilNam)
 
 			if aFilNam in resuClean:
 				continue
 
-			# The file must exist. If we cann access it does not matter.
+			# The file must exist. If we cannot access it does not matter.
 			# TODO: Must accept if we can access it or not.
-			try:
-				oFil = open(aFilNam,"r")
-			except:
-				exc = sys.exc_info()[1]
-				sys.stderr.write("open:%s throw:%s\n"%(aFilNam,str(exc)))
-				continue
-			if not oFil:
-				continue
+			if paramCheckExistence:
 
-			oFil.close()
+				# TODO: Test existence of relative files by prefixing with current directory.
+				try:
+					oFil = open(aFilNam,"r")
+				except:
+					exc = sys.exc_info()[1]
+					sys.stderr.write("open:%s throw:%s\n"%(aFilNam,str(exc)))
+					continue
+				if not oFil:
+					continue
+
+				oFil.close()
 
 
 			resuClean.add( aFilNam )
 
 		for aFilNam in resuClean:
-			# sys.stderr.write("aFilNam=%s\n"%aFilNam)
-			nodeFilnam = lib_util.FileUri( aFilNam )
+			sys.stderr.write("aFilNam=%s\n"%aFilNam)
+			nodeFilnam = lib_common.gUriGen.FileUri( aFilNam )
 			grph.add( ( node_process, pc.property_rdf_data_nolist1, nodeFilnam ) )
 
 	except Exception:
