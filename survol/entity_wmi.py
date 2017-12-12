@@ -56,6 +56,40 @@ prpCannotBeDisplayed = {
 	"CIM_ComputerSystem" : ["OEMLogoBitmap"]
 }
 
+# There are unit conversions which are specific to WMI.
+# Example when displaying a Win32_Process:
+# http://rchateau-hp:8000/survol/entity_wmi.py?xid=%5C%5CRCHATEAU-HP%5Croot%5Ccimv2%3A3AWin32_Process.Handle%3D%221988%22
+#
+# CSCreationClassName Win32_ComputerSystem
+# KernelModeTime      407006609 100 nanoseconds
+# OtherTransferCount  13745472 bytes
+# PageFileUsage       56264 kilobytes
+# PeakPageFileUsage   133264 kilobytes
+# PeakVirtualSize     315052032 bytes
+# PeakWorkingSetSize  116432 kilobytes
+# ReadTransferCount   639502009 bytes
+# UserModeTime        798881121 100 nanoseconds
+# VirtualSize         235409408 bytes
+# WorkingSetSize      15052800 bytes
+# WriteTransferCount  13204197 bytes
+def UnitConversion(aFltValue, valUnit):
+	try:
+		unitNotation = {
+			"bytes" : "B",
+			"kilobytes" : "kB"
+		}[valUnit]
+		return lib_util.AddSIUnit( aFltValue, unitNotation )
+	except KeyError:
+		pass
+
+	# Special case needing a conversion. Jeefie.
+	if valUnit == "100 nanoseconds":
+		return lib_util.AddSIUnit( float(aFltValue) / 10, "ms" )
+
+	# Unknown unit.
+	return lib_util.AddSIUnit( aFltValue, valUnit )
+
+
 def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,mapPropUnits):
 	"""
 		Displays the properties of a WMI object (Not a class),
@@ -100,7 +134,7 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,ma
 			valueReplaced = str(value).replace('\\','\\\\')
 
 			if valUnit:
-				valueReplaced = lib_util.AddSIUnit( valueReplaced, valUnit )
+				valueReplaced = UnitConversion( valueReplaced, valUnit )
 			grph.add( ( wmiInstanceNode, prpProp, lib_common.NodeLiteral( valueReplaced ) ) )
 		elif isinstance( value, ( tuple) ):
 			# Special backslash replacement otherwise:
