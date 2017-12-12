@@ -37,7 +37,11 @@ def Main():
 	# TODO: The dependency network is huge, so we put a limit, for the moment.
 	maxCnt=0
 
-	modudeps = lib_modules.Dependencies()
+	try:
+		modudeps = lib_modules.Dependencies()
+	except:
+		errorMsg = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("Caught:"+str(errorMsg))
 
 	for module_name in modudeps:
 
