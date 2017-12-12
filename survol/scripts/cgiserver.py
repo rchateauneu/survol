@@ -143,11 +143,14 @@ def RunCgiServerInternal():
 
     # It must be the same address whether it is local or guessed from another machine.
     # Equivalent to os.environ['SERVER_NAME']
-    # server_addr = "rchateau-HP"
-    # server_addr = "DESKTOP-NI99V8E"
+    # server_name = "rchateau-HP"
+    # server_name = "DESKTOP-NI99V8E"
     # It is possible to force this address to "localhost" or "127.0.0.1" for example.
     # Consider also: socket.gethostbyname(socket.getfqdn())
-    server_addr = socket.gethostname()
+
+    server_name = socket.gethostname()
+
+    server_addr = socket.gethostbyname(server_name)
 
     verbose = False
     port_number = port_number_default
@@ -157,7 +160,7 @@ def RunCgiServerInternal():
         if anOpt == ("-v", "--verbose"):
             verbose = True
         elif anOpt in ("-a", "--address"):
-            server_addr = aVal
+            server_name = aVal
         elif anOpt in ("-p", "--port"):
             port_number = int(aVal)
         elif anOpt in ("-b", "--browser"):
@@ -170,10 +173,11 @@ def RunCgiServerInternal():
 
     currDir = os.getcwd()
     print("cwd=%s path=%s"% (currDir, str(sys.path)))
-    os.environ['SERVER_NAME'] = "tototutu"
-    os.environ['HOSTNAME'] = "tititoto"
-    print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
-    print("Opening %s:%d" % (server_addr,port_number))
+    # os.environ['SERVER_NAME'] = "tototutu"
+    # os.environ['HOSTNAME'] = "tititoto"
+    # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
+    print("Server address:%s" % server_addr)
+    print("Opening %s:%d" % (server_name,port_number))
     print("sys.path=%s"% str(sys.path))
     try:
         print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
@@ -183,7 +187,7 @@ def RunCgiServerInternal():
     # Starts a thread which will starts the browser.
     if browser_name:
 
-        theUrl = "http://" + server_addr
+        theUrl = "http://" + server_name
         if port_number:
             if port_number != 80:
                 theUrl += ":%d" % port_number
@@ -237,7 +241,7 @@ def RunCgiServerInternal():
         server = BaseHTTPServer.HTTPServer
         handler = MyCGIHTTPServer
 
-        server = HTTPServer((server_addr, port_number), handler)
+        server = HTTPServer((server_name, port_number), handler)
 
         if 'linux' in sys.platform:
             # Normally, this value receives socket.gethostname(),
@@ -247,7 +251,7 @@ def RunCgiServerInternal():
             # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
             # This is not necessary for Windows (Which apparently copies its env vars).
             # This must be tested on Python 3.
-            server.server_name = server_addr
+            server.server_name = server_name
             print("server=%s"%(server.server_name))
 
         ServerForever(server)
@@ -274,7 +278,7 @@ def RunCgiServerInternal():
 
 
         handler = MyCGIHTTPServer
-        server = HTTPServer((server_addr, port_number), handler)
+        server = HTTPServer((server_name, port_number), handler)
         server.serve_forever()
 
 if __name__ == '__main__':
