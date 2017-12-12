@@ -24,6 +24,8 @@ try:
 except ImportError:
 	from urllib.parse import quote,unquote
 
+modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
+
 ################################################################################
 
 # Sometimes we have to display many strings of the same type, for example
