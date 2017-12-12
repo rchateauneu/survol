@@ -52,7 +52,12 @@ def Main():
 		sys.stderr.write("arrSplit=%s\n"%str(arrSplit))
 
 		theMachFull = arrSplit[1].strip()
-		machIp, machNam, nameDomain = [ subWrd.split() for subWrd in theMachFull.split(" +") ]
+		sys.stderr.write("theMachFull=%s\n"%str(theMachFull))
+		machSplit = re.split( "[\t ]+", theMachFull )
+		sys.stderr.write("machSplit=%s\n"%str(machSplit))
+		machIp = machSplit[0].strip()
+		machNam = machSplit[1].strip()
+		nameDomain = machSplit[2].strip()
 
 		nodeHost = lib_common.gUriGen.HostnameUri( machNam )
 		grph.add( ( nodeHost, lib_common.MakeProp("IP address"), lib_common.NodeLiteral( machIp ) ) )
