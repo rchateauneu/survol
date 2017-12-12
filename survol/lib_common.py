@@ -914,9 +914,7 @@ def GetCallingModuleDoc():
 
 	sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
 
-	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
-
-	if modeOVH or globalMergeMode:
+	if lib_util.modeOVH or globalMergeMode:
 		try:
 			# This is a bit of a hack.
 			import inspect
@@ -931,7 +929,7 @@ def GetCallingModuleDoc():
 			filnamCaller = filnamCaller[htbinIdx + len(modulePrefix):]
 
 			# Even more hacky, just for OVH hosting.
-			if modeOVH:
+			if lib_util.modeOVH:
 				# Then it starts again with "survol."
 				filnamCaller = filnamCaller[ len(modulePrefix): ]
 			sys.stderr.write("GetCallingModuleDoc filnamCaller=%s\n" % filnamCaller)
