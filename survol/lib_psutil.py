@@ -90,6 +90,8 @@ except ImportError:
 	# voluntary_ctxt_switches:        2
 	# nonvoluntary_ctxt_switches:     0
 
+	# {'VmExe': '3392 kB', 'CapBnd': '0000003fffffffff', 'NSpgid': '29427', 'Tgid': '27794', 'NSpid': '27794', 'VmSize': '15664 kB', 'VmPMD': '8 kB', 'ShdPnd': '0000000000000000', 'State': 'R (running)', 'Gid': '100\t100\t100\t100', 'nonvoluntary_ctxt_switches': '3', 'SigIgn': '0000000001001000', 'VmStk': '132 kB', 'VmData': '6352 kB', 'SigCgt': '0000000180000002', 'CapEff': '0000000000000000', 'VmPTE': '40 kB', 'Groups': '100', 'NStgid': '27794', 'Threads': '1', 'PPid': '19204', 'VmHWM': '13120 kB', 'NSsid': '29427', 'VmSwap': '0 kB', 'Name': 'survolcgi.py', 'SigBlk': '0000000000000000', 'Mems_allowed_list': '0', 'VmPeak': '15724 kB', 'Ngid': '0', 'VmLck': '0 kB', 'SigQ': '0/128505', 'VmPin': '0 kB', 'Mems_allowed': '00000000,00000001', 'CapPrm': '0000000000000000', 'CapAmb': '0000000000000000', 'Seccomp': '0', 'VmLib': '5044 kB', 'Cpus_allowed': 'ff', 'Uid': '31896\t31896\t31896\t31896', 'SigPnd': '0000000000000000', 'Pid': '27794', 'Cpus_allowed_list': '0-7', 'TracerPid': '0', 'CapInh': '0000000000000000', 'voluntary_ctxt_switches': '1039', 'VmRSS': '13088 kB', 'FDSize': '128'}
+
 	# This can work on Linux only.
 	class MyProcObj:
 		def __init__(self,aPid):
@@ -120,9 +122,9 @@ except ImportError:
 				return ""
 
 		def username(self):
-			# Uid: 31896      31896   31896   31896
+			# Uid: 31896\t31896\t31896\t31896
 			try:
-				uid = self.m_props["Uid"].split(" ")[0]
+				uid = self.m_props["Uid"].split("\t")[0]
 				return str(uid)
 			except KeyError:
 				return "nobody"
@@ -187,8 +189,14 @@ def PsutilGetProcObj(pid):
 
 # If psutil is not available, consider "getpass.getuser()"
 def GetCurrentUser():
-	currProc = PsutilGetProcObj(os.getpid())
-	return PsutilProcToUser(currProc)
+	try:
+		# This is for OVH
+		import getpass
+		return getpass.getuser()
+	except ImportError:
+		currProc = PsutilGetProcObj(os.getpid())
+		return PsutilProcToUser(currProc)
+	
 
 # https://pythonhosted.org/psutil/
 # rss: this is the non-swapped physical memory a process has used.

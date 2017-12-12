@@ -20,12 +20,8 @@ import entity_dirmenu_only # Also used with the CGI parameter mode=menu
 ## AND THE LINKS LIKE WBEM OR WMI SHOULD BE PROPERLY DISPLAYED.
 ## IN THE CONTEXTUAL MENU ??
 
-try:
-	from sources_types import CIM_Process
-	FunctionGetUser = CIM_Process.GetCurrentUser
-except ImportError:
-	import getpass
-	FunctionGetUser = getpass.getuser
+from sources_types import CIM_Process
+FunctionGetUser = CIM_Process.GetCurrentUser
 
 from sources_types import CIM_ComputerSystem
 
