@@ -44,7 +44,10 @@ def AddInfo(grph,node,entity_ids_arr):
 	try:
 		usersList = LoadEtcPasswd()
 		userSplit = usersList[ usrNam ]
-		grph.add( ( node, pc.property_information, lib_common.NodeLiteral( userSplit[4] ) ) )
+		# "postfix:x:105:109::/var/spool/postfix:/bin/false"
+		usrComment = userSplit[4].strip()
+		if usrComment:
+			grph.add( ( node, pc.property_information, lib_common.NodeLiteral( usrComment ) ) )
 
 		# We insert this link to the home directory because it should not
 		# imply an access to the file itself, so it cannot fail.
