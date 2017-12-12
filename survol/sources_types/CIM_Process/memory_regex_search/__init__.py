@@ -554,17 +554,17 @@ if sys.platform == "win32":
 
 		# kernel32.OpenProcess.restype = ctypes.wintypes.HANDLE
 
-		# print("pidint=%s" % str(pidint) )
+		sys.stderr.write("MemMachine pidint=%s\n" % str(pidint) )
 		phandle = kernel32.OpenProcess( ACCESS, False, pidint)
-		# print("phandle=%s" % str(phandle) )
-		# print("GetLastError=%s" % str(ctypes.GetLastError()) )
+		sys.stderr.write("MemMachine phandle=%s\n" % str(phandle) )
+		sys.stderr.write("MemMachine GetLastError=%s\n" % str(ctypes.GetLastError()) )
 
 		# No need to prefix with ctypes on Python 3. Why ?
 		assert phandle, "Failed to open process!\n%s" % ctypes.WinError(ctypes.GetLastError())[1]
 
 
 		is64bits = IsProcess64Bits(phandle)
-		sys.stderr.write("is64bits=%d\n" % is64bits)
+		sys.stderr.write("MemMachine is64bits=%d\n" % is64bits)
 		mem_proc_functor = MemoryProcessor(is64bits,lstStructs,re_flags)
 
 		# First address of the first page, and last address to scan.
@@ -578,23 +578,23 @@ if sys.platform == "win32":
 			try:
 				next_page = ScanFromPage(phandle, page_address, mem_proc_functor)
 			except ctypes.ArgumentError:
-				sys.stderr.write("Address overflow: %s\n" % str(page_address) )
+				sys.stderr.write("MemMachine Address overflow: %s\n" % str(page_address) )
 				break
 			except Exception:
 				t, e = sys.exc_info()[:2]
-				sys.stderr.write("    Other exception:%s\n"%str(e).replace("\n"," "))
+				sys.stderr.write("MemMachine Other exception:%s\n"%str(e).replace("\n"," "))
 				break
 
 			page_address = next_page
 
 			if not is64bits and page_address == 0x7FFF0000:
-				sys.stderr.write("End of 32bits process memory on Windows\n")
+				sys.stderr.write("MemMachine End of 32bits process memory on Windows\n")
 				break
 
 			if len(allFound) >= 1000000:
 				sys.stderr.write("[Warning] Scan ended early because too many addresses were found to hold the target data.\n")
 				break
-		# print("MemMachine leaving")
+		sys.stderr.write("MemMachine leaving\n")
 		return mem_proc_functor
 
 else:
@@ -649,18 +649,62 @@ else:
 		try:
 			return p.get_memory_maps(grouped=False)
 		except AttributeError:
+			# New version.
 			return p.memory_maps(grouped=False)
 
 	def MemMachine(pidint,lstStructs,re_flags):
 		# TODO: 64 bits by default :):):) ... Fix this !
+		sys.stderr.write("MemMachine pidint=%d\n"%pidint)
 		mem_proc_functor = MemoryProcessor(True,lstStructs,re_flags)
 		memmaps = GetMemMaps(pidint)
+		# Typical content for map.path
+		#
+		# pmmap_ext(addr='7f1650f5f000-7f1650f60000', perms='rw-p', path='/usr/lib64/ld-2.21.so', 
+		#    rss=4096, size=4096, pss=4096, shared_clean=0, shared_dirty=0, private_clean=0, 
+		#    private_dirty=4096, referenced=4096, anonymous=4096, swap=0)
+		# pmmap_ext(addr='7f1650f60000-7f1650f61000', perms='rw-p', path='[anon]', 
+		#    rss=4096, size=4096, pss=4096, shared_clean=0, shared_dirty=0, private_clean=0, 
+		#    private_dirty=4096, referenced=4096, anonymous=4096, swap=0)
+		# pmmap_ext(addr='7ffd18c38000-7ffd18d20000', perms='rw-p', path='[stack]', 
+		#    rss=946176, size=954368, pss=946176, shared_clean=0, shared_dirty=0, private_clean=0, 
+		#    private_dirty=946176, referenced=946176, anonymous=946176, swap=0)
+		# pmmap_ext(addr='7ffd18de1000-7ffd18de3000', perms='r--p', path='[vvar]', 
+		#    rss=0, size=8192, pss=0, shared_clean=0, shared_dirty=0, private_clean=0, 
+		#    private_dirty=0, referenced=0, anonymous=0, swap=0)
+
+		# /dev/dri/card0
+		# [heap]
+		# [stack]
+		# [stack:10025]
+		# /SYSV00000000 (deleted)
+		# [vdso]
+		# [vsyscall]
+		# [vvar]
+
+		# Path is blank for anonymous mapped regions.
+		# There are also special regions with names like [heap], [stack], or [vdso]. 
+		# [vdso] stands for virtual dynamic shared object. 
+		# It is used by system calls to switch to kernel mode.
+
+		# Memory mapping is not only used to map files into memory 
+		# but is also a tool to request RAM from kernel. 
+		# These are those inode 0 entries - stack, heap, bss segments and more
+
+		# r = read
+		# w = write
+		# x = execute
+		# s = shared
+		# p = private (copy on write)
+
 		for map in memmaps:
-			if '[heap]' in map.path:
-				#	print(map.addr)
+
+			# sys.stderr.write("MemMachine map.path=%s\n"%str(map))
+
+			if map.path in ["[heap]",""] or map.path.startswith("[stack"):
 				addr_beg, addr_end = ( int( ad, 16 ) for ad in map.addr.split("-") )
-				# print("%d %d %s" % (addr_beg, addr_end, map.path) )
+				# sys.stderr.write("MemMachine %d %d %s\n" % (addr_beg, addr_end, map.path) )
 				GetMemoryFromProc(pidint, addr_beg, addr_end, mem_proc_functor )
+		sys.stderr.write("MemMachine pidint=%d leaving\n"%pidint)
 		return mem_proc_functor
 
 # TODO: Should apply the extra validation before creating the dict.
@@ -728,11 +772,11 @@ def ProcessMemoryScanNonVerbose(pidint, lstStructs, maxDisplay,re_flags=0):
 
 	dictByStructs = dict()
 
-	# print("Keys number:%d" % len(byStruct) )
+	# sys.stderr.write("Keys number:%d\n" % len(byStruct) )
 	for keyStr in byStruct:
 		structDefinition = byStruct[keyStr]
 		objsSet = structDefinition.m_foundStructs
-		print("%0.60s : %d occurences before validation" % (keyStr, len( objsSet ) ) )
+		sys.stderr.write("%0.60s : %d occurences before validation\n" % (keyStr, len( objsSet ) ) )
 
 		maxCnt = maxDisplay
 
@@ -753,7 +797,7 @@ def ProcessMemoryScanNonVerbose(pidint, lstStructs, maxDisplay,re_flags=0):
 				dictByAddrs[addrObj] = objDict
 		dictByStructs[keyStr] = dictByAddrs
 
-	print(dictByStructs)
+	sys.stderr.write(str(dictByStructs) + "\n")
 
 def ProcessMemoryScanVerbose(pidint, lstStructs, maxDisplay, re_flags = 0):
 	mem_proc_functor = MemMachine( pidint, lstStructs, re_flags )
