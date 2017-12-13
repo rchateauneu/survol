@@ -327,9 +327,7 @@ def Main():
     <tr><td><b>Remote address</b></td><td>%s</td></tr>
     """ %(currHostNam,currHostAddr,addrRemote))
 
-    if ( currHostAddr != "192.168.0.17" ) and (addrRemote not in ["82.45.12.63","192.168.0.14","127.0.0.1"]):
-        WrtAsUtf("<b>ACCESS FORBIDDEN</b><br>")
-    else:
+    if addrRemote in ["82.45.12.63","192.168.0.14","127.0.0.1"]:
         InsertedCredMap(cgiArguments)
 
         credMap = UpdatedCredMap(cgiArguments)
@@ -342,6 +340,8 @@ def Main():
 
         FormInsertCredentials(formAction, sorted(credTypesWellKnown.keys()))
         WrtAsUtf("""</table>""")
+    else:
+        WrtAsUtf("<b>ACCESS FORBIDDEN</b><br>")
 
     WrtAsUtf('<br><a href="edit_configuration.py">Configuration</a>')
 
