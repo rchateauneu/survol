@@ -13,6 +13,10 @@ except ImportError:
 def FilenameToMime(pathName):
 	sys.stderr.write("FilenameToMime pathName=%s\n"%pathName)
 
+	# No risk of course. Ideally the file should not be visible.
+	if pathName.upper().find("CREDENTIALS") >= 0:
+		return [ None, None ]
+
 	# On Linux, we want to read text files in the /proc filesystem
 	if pathName.startswith("/proc/"):
 		return ['text/plain', None]
@@ -22,7 +26,7 @@ def FilenameToMime(pathName):
 	fileName, fileExt = os.path.splitext(pathName)
 	extUpper = fileExt.upper()
 
-	if extUpper in [".LOG"]:
+	if extUpper in [".LOG",".JSON"]:
 		return ['text/plain', None]
 
 	if mimelib_present:
@@ -36,7 +40,7 @@ def FilenameToMime(pathName):
 		if extUpper in [".TXT"]:
 			return ['image/jpeg', None]
 
-		mime_stuff = [None]
+	return [ None, None ]
 
 # This encodes the Mime type in the mode associated to an Url.
 # The CGI "mode" parameter can be for example:
