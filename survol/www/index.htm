@@ -398,6 +398,20 @@ function D3DisplayCreation()
     wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
     hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
 
+    /*
+    Pour la page en D3, on fait comme google maps:
+    - On resize avec la roulette.
+    - mais la taille doit etre infinie: Ca prend toute la page.
+    - Le menu est sur un rectagle surajoute.
+    <jst><canvas>
+
+    Plan:
+    - OPn commence a creer le petit rectangle toutjours positionne en haut.
+    Qq chose de moderne, menus etc...
+    - On voit comment D3 peut profiter d'une page entiere.
+
+    */
+
     // http://stackoverflow.com/questions/16265123/resize-svg-when-window-is-resized-in-d3-js
     // This allows the resizing.
     divSvg = d3.select("body")
@@ -2118,6 +2132,11 @@ function openHtmlLayout() {
     location.href = urlHtmlLayout;
 }
 
+function openConfigurationUrl() {
+    var urlConfiguration = AddUrlPrefix("edit_configuration.py", "");
+    location.href = urlConfiguration;
+}
+
 function RunAfterLoad()
 {
     // "getParamValue=[{"cgi_key":"toto","cgi_value":"tutu"},{"cgi_key":"titi","cgi_value":"tata"}]"
@@ -2134,6 +2153,7 @@ function RunAfterLoad()
 
     $(IdPrintLayout).on("click", openPrintLayout);
     $(IdHtmlLayout).on("click", openHtmlLayout);
+    $(IdConfigurationUrl).on("click", openConfigurationUrl);
 
     window.name = gblWindowName;
 
@@ -2174,7 +2194,7 @@ Ajouter le lien de merge.
     <td align="right"><a href="#" id="IdHrefSummary">Tools</a>&nbsp;
     <a href="#" id="IdPrintLayout">SVG</a>
     <a href="#" id="IdHtmlLayout">HTML</a>
-<a href="configuration.htm">Setup</a>
+    <a href="#" id="IdConfigurationUrl">Setup</a>
 <a href="help.htm">Help</a>
     </td>
 </tr></table>
