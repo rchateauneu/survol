@@ -11,8 +11,6 @@ from lib_properties import pc
 
 import win32net
 
-Usable = lib_util.UsableWindows
-
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	hostname = cgiEnv.GetId()

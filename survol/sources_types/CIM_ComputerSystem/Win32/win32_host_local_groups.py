@@ -10,17 +10,12 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-#import win32api
 import win32net
-#import win32con
-#import win32netcon
 import win32security
 from sources_types import Win32_Group as survol_Win32_Group
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
 import lib_win32
-
-Usable = lib_util.UsableWindows
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)

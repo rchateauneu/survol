@@ -15,9 +15,6 @@ import win32netcon
 
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
-# Probably not necessary as it should not be able to import sources_types.Win32_UserAccount package.
-Usable = lib_util.UsableWindows
-
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	hostname = cgiEnv.GetId()
