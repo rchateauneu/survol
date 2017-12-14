@@ -260,6 +260,10 @@ def CredDefinitions():
         # TODO: Finish this
         return None
 
+    def CredUrlCredUrlMySql(configNam):
+        # TODO: Finish this
+        return None
+
     def CredUrlWBEM(credName):
         # Example: credName = "http://192.168.0.17:5989"
         # TODO: Finish this
@@ -287,6 +291,7 @@ def CredDefinitions():
         "WMI" : CredUrlWMI,
         "Oracle" : CredUrlOracle,
         "SqlExpress" : CredUrlSqlExpress,
+        "MySql" : CredUrlMySql,
         "WBEM" : CredUrlWBEM,
         "RabbitMQ" : CredUrlRabbitMQ,
         "Azure" : CredUrlAzure,
