@@ -32,10 +32,13 @@ def Main():
     #],
 
 	for hostMySql in credNames:
-		sys.stderr.write("WbemServersList urlMySql=%s\n"%(urlMySql))
+		sys.stderr.write("WbemServersList hostMySql=%s\n"%(hostMySql))
 
-		Creer un node pour le host.
+		nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
 
+		aCred = lib_credentials.GetCredentials("MySql", hostMySql)
+
+		grph.add( ( nodeHostMySql, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
 
 	try:
 		pass
