@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-MySql databases on this machine
+MySql databases on a server
 """
 
 # TODO: Is is accessible from the first page on the current machine ?
@@ -15,13 +15,16 @@ import lib_credentials
 
 from lib_properties import pc
 
-if ???:
+from sources_types import mysql as survol_mysql
+from sources_types.mysql import database as survol_mysql_database
+
+try:
 	import mysql.connector
 	def MysqlConnect(aHost,aUser,aPass):
 		# conn = mysql.connector.connect (user='primhilltcsrvdb1', password='xxx', host='primhilltcsrvdb1.mysql.db',buffered=True)
 		conn = mysql.connector.connect (user=aUser, password=aPass, host=aHost,buffered=True)
 		return conn
-else:
+except ImportError:
 	import MySQLdb
 	def MysqlConnect(aHost,aUser,aPass):
 		conn =  MySQLdb.connect(user=aUser, passwd=aPass, host=aHost)
@@ -42,10 +45,9 @@ def Main():
 	# The IP address would be unambiguous but less clear.
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
+	aCred = lib_credentials.GetCredentials("MySql", hostMySql)
 
-	Get the credentials, connect to the machine.
-
-	connMysql = MysqlConnect(hostname,aUser,aPass)
+	connMysql = MysqlConnect(hostname,aUser = aCred[0],aPass=aCred[1])
 
 	cursorMysql = connMysql.cursor()
 
@@ -56,6 +58,8 @@ def Main():
 		#('primhilltcsrvdb1',)
 		sys.stderr.write("dbInfo=%s\n"%str(dbInfo))
 		dbNam = dbInfo[0]
+
+		nodeMysqlDatabase = survol_mysql_database.MakeUri(hostname,dbNam)
 
 		# Create a node for each database.
 
