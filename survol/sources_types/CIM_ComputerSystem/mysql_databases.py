@@ -45,7 +45,7 @@ def Main():
 	# The IP address would be unambiguous but less clear.
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
-	aCred = lib_credentials.GetCredentials("MySql", hostMySql)
+	aCred = lib_credentials.GetCredentials("MySql", hostname)
 
 	connMysql = MysqlConnect(hostname,aUser = aCred[0],aPass=aCred[1])
 
