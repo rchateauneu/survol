@@ -19,18 +19,6 @@ from lib_properties import pc
 from sources_types import mysql as survol_mysql
 from sources_types.mysql import database as survol_mysql_database
 
-try:
-	import mysql.connector
-	def MysqlConnect(aHost,aUser,aPass):
-		# conn = mysql.connector.connect (user='primhilltcsrvdb1', password='xxx', host='primhilltcsrvdb1.mysql.db',buffered=True)
-		conn = mysql.connector.connect (user=aUser, password=aPass, host=aHost,buffered=True)
-		return conn
-except ImportError:
-	import MySQLdb
-	def MysqlConnect(aHost,aUser,aPass):
-		conn =  MySQLdb.connect(user=aUser, passwd=aPass, host=aHost)
-		return conn
-
 def Main():
 
 	cgiEnv = lib_common.CgiEnv( )
@@ -46,9 +34,10 @@ def Main():
 	# The IP address would be unambiguous but less clear.
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
+	# This returns a user/pass pair for this machine.
 	aCred = lib_credentials.GetCredentials("MySql", hostname)
 
-	connMysql = MysqlConnect(hostname,aUser = aCred[0],aPass=aCred[1])
+	connMysql = survol_mysql.MysqlConnect(hostname,aUser = aCred[0],aPass=aCred[1])
 
 	cursorMysql = connMysql.cursor()
 
