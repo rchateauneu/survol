@@ -24,7 +24,10 @@ try:
 except ImportError:
 	from urllib.parse import quote,unquote
 
-modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
+try:
+	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
+except:
+	modeOVH = True
 
 ################################################################################
 
@@ -178,7 +181,7 @@ def UriRootHelper():
 			root = scriptNam[:idx] + 'survol'
 		else:
 			# Should not happen.
-			root = "/CANNOT_HAPPEN/" + scriptNam
+			root = "/NON_SURVOL_URL/" + scriptNam
 		sys.stderr.write("UriRootHelper scriptNam=%s root=%s\n"%(scriptNam,root))
 
 	except KeyError:
