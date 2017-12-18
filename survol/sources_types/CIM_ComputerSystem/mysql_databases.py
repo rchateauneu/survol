@@ -6,6 +6,7 @@ MySql databases on a server
 
 # TODO: Is is accessible from the first page on the current machine ?
 
+
 import sys
 import re
 import socket
@@ -53,6 +54,8 @@ def Main():
 
 	cursorMysql.execute("show databases")
 
+	propDb = lib_common.MakeProp("Mysql database")
+
 	for dbInfo in cursorMysql:
 		#('information_schema',)
 		#('primhilltcsrvdb1',)
@@ -62,9 +65,11 @@ def Main():
 		nodeMysqlDatabase = survol_mysql_database.MakeUri(hostname,dbNam)
 
 		# Create a node for each database.
+		# grph.add( ( nodeMysqlDatabase, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
+		grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
 
-	cursor.close()
-	conn.close()
+	cursorMysql.close()
+	connMysql.close()
 
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
