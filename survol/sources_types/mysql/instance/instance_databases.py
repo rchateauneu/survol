@@ -1,10 +1,8 @@
 #!/usr/bin/python
 
 """
-MySql databases on a server
+Databases in a MySql instance
 """
-
-# TODO: Is is accessible from the first page on the current machine ?
 
 
 import sys
@@ -18,11 +16,16 @@ from lib_properties import pc
 
 from sources_types import mysql as survol_mysql
 from sources_types.mysql import database as survol_mysql_database
+#from sources_types.mysql import table as survol_mysql_table
 
 def Main():
 
 	cgiEnv = lib_common.CgiEnv( )
-	hostname = cgiEnv.GetId()
+
+	instanceName = cgiEnv.m_entity_id_dict["Instance"]
+	instanceNode = survol_mysql.MakeUri(instanceName)
+
+	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
 
 	cgiEnv = lib_common.CgiEnv()
 
@@ -34,10 +37,12 @@ def Main():
 	# The IP address would be unambiguous but less clear.
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
-	# This returns a user/pass pair for this machine.
-	aCred = lib_credentials.GetCredentials("MySql", hostname)
+	# BEWARE: This is duplicated.
+	propDb = lib_common.MakeProp("Mysql database")
 
-	connMysql = survol_mysql.MysqlConnect(hostname,aUser = aCred[0],aPass=aCred[1])
+	aCred = lib_credentials.GetCredentials("MySql", instanceName)
+
+	connMysql = survol_mysql.MysqlConnect(instanceName,aUser = aCred[0],aPass=aCred[1])
 
 	cursorMysql = connMysql.cursor()
 
@@ -45,24 +50,24 @@ def Main():
 
 	propDb = lib_common.MakeProp("Mysql database")
 
+	grph.add( ( hostNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
+
 	for dbInfo in cursorMysql:
 		#('information_schema',)
 		#('primhilltcsrvdb1',)
 		sys.stderr.write("dbInfo=%s\n"%str(dbInfo))
 		dbNam = dbInfo[0]
 
-		nodeMysqlDatabase = survol_mysql_database.MakeUri(hostname,dbNam)
+		nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 
 		# Create a node for each database.
-		# grph.add( ( nodeMysqlDatabase, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
-		grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
+		grph.add( ( nodeMysqlDatabase, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
+		grph.add( ( instanceNode, propDb, nodeMysqlDatabase ) )
 
 	cursorMysql.close()
 	connMysql.close()
 
-
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
-
 
 if __name__ == '__main__':
 	Main()
