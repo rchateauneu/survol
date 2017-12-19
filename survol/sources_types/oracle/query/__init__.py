@@ -30,7 +30,7 @@ def MakeUri(strQuery,theDb):
 	#return lib_common.gUriGen.UriMakeFromDict("sql/query",{ "Query" : strQueryEncoded, "Handle" : thePid })
 	return sql_query.MakeUri( strQuery, "oracle/query", Db = theDb )
 
-# TODO: Ce serait mieux de passer un dictionnaire plutot qu un tableau.
+# TODO: This should maybe receive a dictionary instead of a list.
 def AddInfo(grph,node,entity_ids_arr):
 	theDb = entity_ids_arr[1]
 	nodeDb = oracle_db.MakeUri(theDb)

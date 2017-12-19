@@ -19,7 +19,7 @@ def EntityOntology():
 def MakeUri(strQuery,fileName):
 	return sql_query.MakeUri( strQuery, "sqlite/query", Path = fileName )
 
-# TODO: Ce serait mieux de passer un dictionnaire plutot qu un tableau.
+# TODO: This could maybe receive a dictionary instead of a list.
 def AddInfo(grph,node,entity_ids_arr):
 	fileName = entity_ids_arr[1]
 	nodeFile = lib_common.gUriGen.FileUri( fileName )
@@ -29,7 +29,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	grph.add( ( node, lib_common.MakeProp("Sqlite database"), dbNod ) )
 
 # It receives a query and the list of tables or views it depends on,
-# and also the connection parameters to the databse, which here is only a sqlite file.
+# and also the connection parameters to the database, which here is only a sqlite file.
 # This must return a list of nodes to be displayed, or None.
 # For the moment, we assume that these are all table names, without checking.
 # TODO: Find a quick way to check if these are tables or views.

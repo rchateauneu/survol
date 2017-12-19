@@ -91,7 +91,7 @@ def GetEnvArgs(cgiEnv):
 	return ( sqlQuery )
 
 
-
+# Only cosmetic reasons: The displayed text should not be too long, when used as a title.
 def EntityNameUtil(textPrefix,sqlQuery):
 	resu = lib_util.Base64Decode(sqlQuery)
 	resu = cgi.escape(resu)
