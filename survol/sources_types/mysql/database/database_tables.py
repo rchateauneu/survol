@@ -103,8 +103,7 @@ def Main():
 	cursorMysql.close()
 	connMysql.close()
 
-
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [propTable] )
 
 
 if __name__ == '__main__':
