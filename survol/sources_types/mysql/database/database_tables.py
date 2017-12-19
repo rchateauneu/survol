@@ -4,7 +4,6 @@
 Tables in a MySql database
 """
 
-
 import sys
 import re
 import socket
@@ -21,11 +20,12 @@ from sources_types.mysql import table as survol_mysql_table
 def Main():
 
 	cgiEnv = lib_common.CgiEnv( )
-	hostname = cgiEnv.GetId()
+	# hostname = cgiEnv.GetId()
 
-
-	hostNam = cgiEnv.m_entity_id_dict["Hostname"]
+	instanceName = cgiEnv.m_entity_id_dict["Instance"]
 	dbNam = cgiEnv.m_entity_id_dict["Database"]
+
+	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
 
 	cgiEnv = lib_common.CgiEnv()
 
@@ -40,12 +40,12 @@ def Main():
 	# BEWARE: This is duplicated.
 	propDb = lib_common.MakeProp("Mysql database")
 
-	nodeMysqlDatabase = survol_mysql_database.MakeUri(hostname,dbNam)
+	nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 	grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
 
-	aCred = lib_credentials.GetCredentials("MySql", hostname)
+	aCred = lib_credentials.GetCredentials("MySql", instanceName)
 
-	connMysql = survol_mysql.MysqlConnect(hostname,aUser = aCred[0],aPass=aCred[1])
+	connMysql = survol_mysql.MysqlConnect(instanceName,aUser = aCred[0],aPass=aCred[1])
 
 	cursorMysql = connMysql.cursor()
 
@@ -94,7 +94,7 @@ def Main():
 
 		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
 
-
+		grph.add( (nodeMysqlTable, lib_common.MakeProp("Table type"), lib_common.NodeLiteral(tabInfo[3]) ) )
 		grph.add( (nodeMysqlTable, lib_common.MakeProp("Engine"), lib_common.NodeLiteral(tabInfo[4]) ) )
 		grph.add( (nodeMysqlTable, pc.property_information, lib_common.NodeLiteral(tabInfo[20]) ) )
 

@@ -5,18 +5,20 @@ MySql database
 """
 
 import lib_common
+from sources_types import mysql as survol_mysql
+from sources_types.mysql import instance as survol_mysql_instance
 
 def EntityOntology():
-	return ( ["Hostname","Database",], )
+	return ( ["Instance","Database",], )
 
-def MakeUri(hostName,dbName):
-	return lib_common.gUriGen.UriMakeFromDict("mysql/database", { "Hostname": hostName, "Database" : dbName } )
+def MakeUri(instanceName,dbName):
+	return lib_common.gUriGen.UriMakeFromDict("mysql/database", { "Instance": instanceName, "Database" : dbName } )
 
 def EntityName(entity_ids_arr,entity_host):
 	return entity_ids_arr[1]+ "@" + entity_ids_arr[0]
 
 def AddInfo(grph,node,entity_ids_arr):
-	hostMySql = entity_ids_arr[0]
-	nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
-	grph.add( ( node, lib_common.MakeProp("Mysql server"), nodeHostMySql ) )
+	instanceMySql = entity_ids_arr[0]
+	nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
+	grph.add((node,lib_common.MakeProp("Instance"),nodeInstance))
 

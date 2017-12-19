@@ -23,6 +23,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv( )
 
 	instanceName = cgiEnv.m_entity_id_dict["Instance"]
+	instanceNode = survol_mysql.MakeUri(instanceName)
 
 	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
 
@@ -39,12 +40,10 @@ def Main():
 	# BEWARE: This is duplicated.
 	propDb = lib_common.MakeProp("Mysql database")
 
-	nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
-	grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
+	#nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
+	#grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
 
 	aCred = lib_credentials.GetCredentials("MySql", instanceName)
-
-	connMysql = survol_mysql.MysqlConnect(hostname,aUser = aCred[0],aPass=aCred[1])
 
 	connMysql = survol_mysql.MysqlConnect(instanceName,aUser = aCred[0],aPass=aCred[1])
 
@@ -62,16 +61,24 @@ def Main():
 
 	propTable = lib_common.MakeProp("Mysql table")
 
+	grph.add( ( hostNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
+
 	for sessInfo in cursorMysql:
 		sys.stderr.write("sessInfo=%s\n"%str(sessInfo))
 
+		mysqlSessionId = sessInfo[0]
 		mysqlUser = sessInfo[1]
 
-		# If there is a proper socket, the create a name for it.
+
+
+Creer sessionNode
+
+		# If there is a proper socket, then create a name for it.
 		mysqlSocket = sessInfo[2]
 		try:
-			(mysqlSocketPort,mysqlSocketHost) = mysqlSocket.split(":")
-			then what
+			(mysqlSocketHost,mysqlSocketPort) = mysqlSocket.split(":")
+			socketNode = lib_common.gUriGen.AddrUri( mysqlSocketHost, mysqlSocketPort )
+			grph.add( (nodeMysqlTable, lib_common.MakeProp("Connection socket"), socketNode ) )
 		except:
 			pass
 
@@ -89,6 +96,9 @@ def Main():
 		#grph.add( (nodeMysqlTable, pc.property_information, lib_common.NodeLiteral(tabInfo[20]) ) )
 
 		#grph.add( ( nodeMysqlDatabase, propTable, nodeMysqlTable ) )
+
+		grph.add( ( instanceNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
+
 
 	cursorMysql.close()
 	connMysql.close()

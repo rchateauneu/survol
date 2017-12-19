@@ -79,7 +79,8 @@ def Main():
             grph.add( (nodTab, pc.property_odbc_column, nodColumn ) )
 
             for idxCol in ( 5, 11, 12, 13, 17):
-                grph.add( (nodColumn, lib_common.NodeLiteral(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
+                # grph.add( (nodColumn, lib_common.NodeLiteral(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
+                grph.add( (nodColumn, lib_common.MakeProp(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
         exc = sys.exc_info()[0]
