@@ -914,6 +914,7 @@ def GetCallingModuleDoc():
 
 	sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
 
+	# If it uses an unique CGI script.
 	if lib_util.modeOVH or globalMergeMode:
 		try:
 			# This is a bit of a hack.
