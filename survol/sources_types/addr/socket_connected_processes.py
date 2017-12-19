@@ -67,7 +67,8 @@ def Main():
 			if addr == socketAddr or addr == socketName:
 				return True
 
-			if addr == "0.0.0.0" or addr == "::":
+			# "::1" is equivalent to 127.0.0.1 for IPV6.
+			if addr == "0.0.0.0" or addr == "::" or addr == "::1":
 				return socketAddr == "127.0.0.1"
 		except IndexError:
 			pass

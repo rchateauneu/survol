@@ -15,15 +15,16 @@ import lib_credentials
 from lib_properties import pc
 
 from sources_types import mysql as survol_mysql
-#from sources_types.mysql import database as survol_mysql_database
-#from sources_types.mysql import table as survol_mysql_table
+from sources_types.mysql import instance as survol_mysql_instance
+from sources_types.mysql import session as survol_mysql_session
+from sources_types.mysql import query as survol_mysql_query
 
 def Main():
 
 	cgiEnv = lib_common.CgiEnv( )
 
 	instanceName = cgiEnv.m_entity_id_dict["Instance"]
-	instanceNode = survol_mysql.MakeUri(instanceName)
+	instanceNode = survol_mysql_instance.MakeUri(instanceName)
 
 	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
 
@@ -69,16 +70,14 @@ def Main():
 		mysqlSessionId = sessInfo[0]
 		mysqlUser = sessInfo[1]
 
-
-
-Creer sessionNode
+		sessionNode = survol_mysql_session.MakeUri(instanceName,mysqlSessionId)
 
 		# If there is a proper socket, then create a name for it.
 		mysqlSocket = sessInfo[2]
 		try:
 			(mysqlSocketHost,mysqlSocketPort) = mysqlSocket.split(":")
 			socketNode = lib_common.gUriGen.AddrUri( mysqlSocketHost, mysqlSocketPort )
-			grph.add( (nodeMysqlTable, lib_common.MakeProp("Connection socket"), socketNode ) )
+			grph.add( (sessionNode, lib_common.MakeProp("Connection socket"), socketNode ) )
 		except:
 			pass
 
@@ -88,7 +87,8 @@ Creer sessionNode
 		if (mysqlCommand == "Query") and (mysqlState == "executing"):
 			mysqlQuery = sessInfo[7]
 
-			then what
+			nodeQuery = survol_mysql_query.MakeUri(instanceName,mysqlQuery)
+			grph.add( (sessionNode, lib_common.MakeProp("Mysql query"), nodeQuery ) )
 
 		#nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
 
@@ -97,7 +97,7 @@ Creer sessionNode
 
 		#grph.add( ( nodeMysqlDatabase, propTable, nodeMysqlTable ) )
 
-		grph.add( ( instanceNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
+		grph.add( ( sessionNode, lib_common.MakeProp("Mysql session"), instanceNode ) )
 
 
 	cursorMysql.close()

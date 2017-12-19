@@ -16,14 +16,14 @@ from lib_properties import pc
 
 from sources_types import mysql as survol_mysql
 from sources_types.mysql import database as survol_mysql_database
-#from sources_types.mysql import table as survol_mysql_table
+from sources_types.mysql import instance as survol_mysql_instance
 
 def Main():
 
 	cgiEnv = lib_common.CgiEnv( )
 
 	instanceName = cgiEnv.m_entity_id_dict["Instance"]
-	instanceNode = survol_mysql.MakeUri(instanceName)
+	instanceNode = survol_mysql_instance.MakeUri(instanceName)
 
 	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
 

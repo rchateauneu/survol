@@ -17,6 +17,7 @@ import lib_util
 import lib_common
 import lib_credentials
 from lib_properties import pc
+from sources_types import mysql as survol_mysql
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -31,12 +32,15 @@ def Main():
     #  "xyz"
     #],
 
-	for hostMySql in credNames:
-		sys.stderr.write("WbemServersList hostMySql=%s\n"%(hostMySql))
+	for instanceMySql in credNames:
+		sys.stderr.write("WbemServersList instanceMySql=%s\n"%(instanceMySql))
 
+		(hostMySql,portMySql) = survol_mysql,InstanceToHostPort(instanceMySql)
+
+		# TODO: Display the connection socket ?
 		nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
 
-		aCred = lib_credentials.GetCredentials("MySql", hostMySql)
+		aCred = lib_credentials.GetCredentials("MySql", instanceMySql)
 
 		grph.add( ( nodeHostMySql, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
 
