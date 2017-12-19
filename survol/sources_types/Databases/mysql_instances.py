@@ -6,7 +6,7 @@ mysql instances
 
 # This lists SQL servers from the credentials list.
 # It does not attempt to connect to a server,
-# and therefore does not need the appropriated packages.
+# and therefore does not need the appropriate packages.
 # TODO: Detect servers with nmap.
 
 import os
@@ -26,11 +26,6 @@ def Main():
 	credNames = lib_credentials.GetCredentialsNames( "MySql" )
 	sys.stderr.write("Mysql servers\n")
 
-    #"primhilltcsrvdb1.mysql.db": [
-    #  "primhilltcsrvdb1",
-    #  "xyz"
-    #],
-
 	for instanceMySql in credNames:
 		sys.stderr.write("WbemServersList instanceMySql=%s\n"%(instanceMySql))
 
@@ -40,9 +35,15 @@ def Main():
 		# TODO: Display the connection socket ?
 		nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
 
-		aCred = lib_credentials.GetCredentials("MySql", instanceMySql)
+		# Intentionaly, it does not use mysql package.
+		nodeInstance = lib_common.gUriGen.UriMakeFromDict("mysql/instance", { "Instance": instanceName } )
 
-		grph.add( ( nodeHostMySql, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
+		aCred = credNames[instanceMySql]
+
+		grph.add( ( nodeInstance, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
+		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql instance"), nodeHostMySql ) )
+
+
 
 	try:
 		pass
