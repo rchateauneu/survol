@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-MySql servers
+mysql instances
 """
 
 # This lists SQL servers from the credentials list.
@@ -17,7 +17,6 @@ import lib_util
 import lib_common
 import lib_credentials
 from lib_properties import pc
-from sources_types import mysql as survol_mysql
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -35,7 +34,8 @@ def Main():
 	for instanceMySql in credNames:
 		sys.stderr.write("WbemServersList instanceMySql=%s\n"%(instanceMySql))
 
-		(hostMySql,portMySql) = survol_mysql,InstanceToHostPort(instanceMySql)
+		# Do not use sources_types.mysql
+		hostMySql = instanceMySql.split(":")[0]
 
 		# TODO: Display the connection socket ?
 		nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
