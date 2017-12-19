@@ -1,11 +1,8 @@
 #!/usr/bin/python
 
 """
-MySql instances on a server
+mysql instances on a server
 """
-
-# TODO: Is is accessible from the first page on the current machine ?
-
 
 import sys
 import re
@@ -15,8 +12,6 @@ import lib_common
 import lib_credentials
 
 from lib_properties import pc
-
-# from sources_types.mysql import instance as survol_mysql_instance
 
 def Main():
 
