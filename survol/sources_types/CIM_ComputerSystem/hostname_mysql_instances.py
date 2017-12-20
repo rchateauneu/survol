@@ -13,6 +13,9 @@ import lib_credentials
 
 from lib_properties import pc
 
+# This does not import genuine mysql packages so this will always work.
+from sources_types.mysql import instance as survol_mysql_instance
+
 def Main():
 
 	cgiEnv = lib_common.CgiEnv( )
@@ -41,7 +44,8 @@ def Main():
 				continue
 
 		# Intentionaly, it does not use mysql package.
-		nodeInstance = lib_common.gUriGen.UriMakeFromDict("mysql/instance", { "Instance": instanceName } )
+		# nodeInstance = lib_common.gUriGen.UriMakeFromDict("mysql/instance", { "Instance": instanceName } )
+		nodeInstance = survol_mysql_instance.MakeUri(instanceName)
 
 		grph.add( ( hostNode, propInstance, nodeInstance ) )
 
