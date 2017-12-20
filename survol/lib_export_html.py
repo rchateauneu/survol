@@ -22,9 +22,6 @@ if sys.version_info[0] >= 3:
 else:
 	from HTMLParser import HTMLParser
 
-# Donner le look de Wikipedia
-# Pour voir ajouter des notes associees a un URL.
-
 try:
 	from urllib import unquote
 except ImportError:
@@ -52,12 +49,13 @@ def WriteScriptInformation(theCgi,gblCgiEnvList):
 	( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
 	sys.stderr.write("entity_label=%s entity_graphic_class=%s entity_id=%s\n"%( entity_label, entity_graphic_class, entity_id ))
 
-	WrtAsUtf('<table class="list_of_merged_scripts">')
+	# WrtAsUtf('<table class="list_of_merged_scripts">')
+	WrtAsUtf('<table border="0">')
 	if len(gblCgiEnvList):
 		sys.stderr.write("gblCgiEnvList=%s\n"%str(gblCgiEnvList))
 		# This step is dedicated to the merging of several scripts.
 
-		WrtAsUtf("<tr align=left><td colspan=2 align=left><b>Merge of %d scripts</b></td></tr>"%len(gblCgiEnvList))
+		WrtAsUtf("<tr align=left><td colspan=2 align=left><h2>Fusion of data from %d scripts</h2></td></tr>"%len(gblCgiEnvList))
 		for aCgiEnv in gblCgiEnvList:
 			sys.stderr.write("aCgiEnv=%s\n"%str(aCgiEnv))
 			sys.stderr.write("aCgiEnv.m_page_title=%s\n"%str(aCgiEnv.m_page_title))
@@ -67,7 +65,7 @@ def WriteScriptInformation(theCgi,gblCgiEnvList):
 
 	else:
 		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgi.m_page_title)
-		WrtAsUtf("<tr><td colspan=2>%s</td></tr>"%(page_title_first))
+		WrtAsUtf("<tr><td colspan=2><h2>%s</h2></td></tr>"%(page_title_first))
 		if page_title_rest:
 			WrtAsUtf("<tr><td colspan=2>%s</td></tr>"%(page_title_rest))
 
@@ -137,15 +135,15 @@ def WriteOtherUrls(topUrl):
 	if not lib_util.modeOVH:
 		WrtAsUtf("""
 		<tr>
-			<td class="other_urls"><a href="%s">Content as SVG</a></td>
-			<td>SVG format (Graphviz generated)</td>
+			<td class="other_urls"><a href="%s">SVG format</a></td>
+			<td>Graphviz&trade; generated</td>
 		</tr>
 		""" % lib_exports.ModedUrl("svg") )
 
 	WrtAsUtf("""
 	<tr>
-		<td class="other_urls"><a href="%s">Content as RDF</a></td>
-		<td>RDF format (Semantic Web, OWL standard / Protege ... )</td>
+		<td class="other_urls"><a href="%s">RDF format</a></td>
+		<td>Semantic Web, OWL standard / Prot&eacute;g&eacute;&trade;...</td>
 	</tr>
 	""" % lib_exports.ModedUrl("rdf") )
 
@@ -153,8 +151,8 @@ def WriteOtherUrls(topUrl):
 
 	WrtAsUtf("""
 	<tr>
-		<td class="other_urls"><a href="%s">Content as D3</a></td>
-		<td>Data Javascript D3 library</td>
+		<td class="other_urls"><a href="%s">D3</a></td>
+		<td>Javascript D3 library</td>
 	</tr>
 	""" % urlD3 )
 
@@ -184,10 +182,6 @@ def WriteOtherUrls(topUrl):
 			WrtAsUtf("</td>")
 		WrtAsUtf("</tr>")
 
-	# (labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( unquote(objRdfNode) )
-	# propNam = lib_exports.PropToShortPropNam(prop)
-
-
 	callingUrl = lib_util.RequestUri()
 	( entity_label, entity_type, entity_id ) = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
 	nameSpace = ""
@@ -196,16 +190,6 @@ def WriteOtherUrls(topUrl):
 	WMapToHtml(mapWbem,pc.property_wbem_data)
 	mapWmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
 	WMapToHtml(mapWmi,pc.property_wmi_data)
-
-
-	# TODO: Add these URLs like in entity.py
-	#AddDefaultScripts(grph,rootNode,entity_host)
-
-	# Special case if we are displaying a machine, we might as well try to connect to it.
-	#if entity_type == "CIM_ComputerSystem":
-	#	AddDefaultScripts(grph,rootNode,entity_id)
-
-
 
 	WrtAsUtf('</table>')
 
@@ -526,7 +510,7 @@ def DispClassObjects(dictSubjPropObj):
 
 def DisplayHtmlTextHeader(page_title):
 	"""
-	This is the common Survol headers, ideally for all HTML documents.
+	This is the common Survol header, ideally for all HTML documents.
 	"""
 
 	lib_util.WrtHeader('text/html')
@@ -552,7 +536,27 @@ def DisplayHtmlTextHeader(page_title):
 	WrtAsUtf('</head>')
 
 
+def DisplayHtmlTextFooter():
+	"""
+	This is the common Survol footer.
+	"""
 
+	wrtFmt = """
+	<br>
+	<table width="100%"><tr>
+	<td><a href="index.htm">Survol home</a></td>
+	<td><a href="edit_credentials.py">Credentials</a></td>
+	<td><a href="edit_configuration.py">Configuration</a></td>
+	<td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017</i></td>
+	</tr></table>
+	"""
+
+	# This needs a directory whichdepends on the HTTP hosting.
+	urlIndex = lib_exports.UrlWWW("index.htm")
+
+	# With this trick, the footer can be used as is in HTML pages.
+	wrtTxt = wrtFmt.replace("index.htm",urlIndex)
+	WrtAsUtf(wrtTxt)
 
 def Grph2Html( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
 	"""
@@ -569,7 +573,7 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
 
 	WriteErrors(error_msg,isSubServer)
 
-	WrtAsUtf("<h2>Objects</h2>")
+	# WrtAsUtf("<h2>Objects</h2>")
 	WriteAllObjects(grph)
 
 	if len(theCgi.m_parameters) > 0:
@@ -585,6 +589,8 @@ def Grph2Html( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
 
 	WrtAsUtf("<h2>Other related urls</h2>")
 	WriteOtherUrls(topUrl)
+
+	DisplayHtmlTextFooter()
 
 	WrtAsUtf("</body>")
 

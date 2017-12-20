@@ -36,10 +36,13 @@ def Main():
     </form>
     """)
 
-    WrtAsUtf('<br><a href="edit_credentials.py">Credentials</a>')
+    lib_export_html.DisplayHtmlTextFooter()
 
-    urlIndex = lib_exports.UrlWWW("index.htm")
-    WrtAsUtf('<br><a href="' + urlIndex + '">Return to Survol</a>')
+    #WrtAsUtf('<br><a href="edit_credentials.py">Credentials</a>')
+    #WrtAsUtf('<br><a href="edit_configuration.py">Configuration</a>')
+
+    #urlIndex = lib_exports.UrlWWW("index.htm")
+    #WrtAsUtf('<br><a href="' + urlIndex + '">Return to Survol</a>')
 
     WrtAsUtf("</body></html>")
 

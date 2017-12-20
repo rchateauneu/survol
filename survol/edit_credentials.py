@@ -334,7 +334,7 @@ def Main():
     addrRemote = os.environ['REMOTE_ADDR']
 
     WrtAsUtf("""
-    <table border="1">
+    <table border="1" width='100%%'>
     <tr><td><b>Host name</b></td><td>%s</td></tr>
     <tr><td><b>Host address</b></td><td>%s</td></tr>
     <tr><td><b>Remote address</b></td><td>%s</td></tr>
@@ -347,7 +347,7 @@ def Main():
 
         credTypesWellKnown = CredDefinitions()
 
-        WrtAsUtf("""<table border="1">""")
+        WrtAsUtf("""<table border="1" width='100%%'>""")
         if credMap:
             FormUpdateCredentials(formAction,credMap,credTypesWellKnown)
 
@@ -356,10 +356,12 @@ def Main():
     else:
         WrtAsUtf("<b>ACCESS FORBIDDEN</b><br>")
 
-    WrtAsUtf('<br><a href="edit_configuration.py">Configuration</a>')
+    lib_export_html.DisplayHtmlTextFooter()
 
-    urlIndex = lib_exports.UrlWWW("index.htm")
-    WrtAsUtf('<br><a href="' + urlIndex + '">Return to Survol</a>')
+    #WrtAsUtf('<br><a href="edit_configuration.py">Configuration</a>')
+
+    #urlIndex = lib_exports.UrlWWW("index.htm")
+    #WrtAsUtf('<br><a href="' + urlIndex + '">Return to Survol</a>')
 
     WrtAsUtf("</body></html>")
 
