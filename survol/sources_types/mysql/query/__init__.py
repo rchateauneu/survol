@@ -12,7 +12,7 @@ import lib_common
 
 # We do not know if CIM_Process.EntityOntology() is available.
 def EntityOntology():
-	return ( ["Instance",],)
+	return ( ["Query","Instance",],)
 
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
 # encode as HTML entities. This is not visible as EntityName() does the reverse decoding.

@@ -1,9 +1,8 @@
 #!/usr/bin/python
 
 """
-Sessions in a MySql instance
+Information about a mysql session
 """
-
 
 import sys
 import re
@@ -24,6 +23,8 @@ def Main():
 	cgiEnv = lib_common.CgiEnv( )
 
 	instanceName = cgiEnv.m_entity_id_dict["Instance"]
+	sessionId = cgiEnv.m_entity_id_dict["Id"]
+
 	instanceNode = survol_mysql_instance.MakeUri(instanceName)
 
 	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
@@ -58,12 +59,13 @@ def Main():
 	# | 439765 | primhilltcsrvdb1 | 10.2.123.9:52062 | NULL | Sleep   |   13 |           | NULL                                         |
 	# +--------+------------------+------------------+------+---------+------+-----------+----------------------------------------------+
 
-	cursorMysql.execute("select * from information_schema.processlist")
+	cursorMysql.execute("select * from information_schema.processlist where ID=%s"%sessionId)
 
 	propTable = lib_common.MakeProp("Mysql table")
 
 	grph.add( ( hostNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
 
+	# There should be one row only.
 	for sessInfo in cursorMysql:
 		sys.stderr.write("sessInfo=%s\n"%str(sessInfo))
 
@@ -81,6 +83,12 @@ def Main():
 		except:
 			pass
 
+		mysqlDB = sessInfo[3]
+		grph.add( (sessionNode, lib_common.MakeProp("Database"), lib_common.NodeLiteral(mysqlDB) ) )
+
+		mysqlTime = sessInfo[5]
+		grph.add( (sessionNode, lib_common.MakeProp("Time"), lib_common.NodeLiteral(mysqlTime) ) )
+
 		# If there is a running query, then display it.
 		mysqlCommand = sessInfo[4]
 		mysqlState = sessInfo[6]
@@ -89,6 +97,10 @@ def Main():
 
 			nodeQuery = survol_mysql_query.MakeUri(instanceName,mysqlQuery)
 			grph.add( (sessionNode, lib_common.MakeProp("Mysql query"), nodeQuery ) )
+
+		grph.add( (sessionNode, lib_common.MakeProp("Command"), lib_common.NodeLiteral(mysqlCommand) ) )
+
+		grph.add( (sessionNode, lib_common.MakeProp("State"), lib_common.NodeLiteral(mysqlState) ) )
 
 		grph.add( (sessionNode, lib_common.MakeProp("User"), lib_common.NodeLiteral(mysqlUser) ) )
 
