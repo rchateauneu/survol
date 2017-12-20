@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Information about a mysql table
+Mysql table information
 """
 
 import sys

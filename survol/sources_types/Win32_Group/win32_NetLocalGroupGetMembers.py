@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Members of a Windows local group
+Windows local group members
 """
 
 from __future__ import generators
