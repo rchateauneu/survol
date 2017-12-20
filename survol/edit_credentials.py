@@ -265,10 +265,17 @@ def CredDefinitions():
         nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
         return nodeInstance
 
-    def CredUrlWBEM(credName):
-        # Example: credName = "http://192.168.0.17:5989"
-        # TODO: Finish this
-        return None
+    def CredUrlWBEM(cimomUrl):
+        # Example: urlWbem = "http://192.168.0.17:5989"
+        if False:
+            hostname = cimomUrl[7:]
+            nodeWbem = lib_util.UrlPortalWbem(cimomUrl)
+            return nodeWbem
+        else:
+            import lib_wbem
+            theCimom = cimomUrl.replace("http://","http:%2F%2F").replace("https://","https:%2F%2F")
+            nodeWbem = lib_wbem.WbemAllNamespacesUrl(theCimom)
+            return nodeWbem
 
     def CredUrlRabbitMQ(configNam):
         from sources_types.rabbitmq import manager as survol_rabbitmq_manager
