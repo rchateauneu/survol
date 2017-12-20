@@ -36,9 +36,9 @@ def Main():
 		nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
 
 		# Intentionaly, it does not use mysql package.
-		nodeInstance = lib_common.gUriGen.UriMakeFromDict("mysql/instance", { "Instance": instanceName } )
+		nodeInstance = lib_common.gUriGen.UriMakeFromDict("mysql/instance", { "Instance": instanceMySql } )
 
-		aCred = credNames[instanceMySql]
+		aCred = lib_credentials.GetCredentials( "MySql", instanceMySql )
 
 		grph.add( ( nodeInstance, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
 		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql instance"), nodeHostMySql ) )
