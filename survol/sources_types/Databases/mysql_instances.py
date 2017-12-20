@@ -18,6 +18,9 @@ import lib_common
 import lib_credentials
 from lib_properties import pc
 
+# This does not import genuine mysql packages so this will always work.
+from sources_types.mysql import instance as survol_mysql_instance
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
@@ -36,7 +39,8 @@ def Main():
 		nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
 
 		# Intentionaly, it does not use mysql package.
-		nodeInstance = lib_common.gUriGen.UriMakeFromDict("mysql/instance", { "Instance": instanceMySql } )
+		# nodeInstance = lib_common.gUriGen.UriMakeFromDict("mysql/instance", { "Instance": instanceMySql } )
+		nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
 
 		aCred = lib_credentials.GetCredentials( "MySql", instanceMySql )
 

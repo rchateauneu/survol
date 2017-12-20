@@ -4,6 +4,8 @@
 MySql instance
 """
 
+# This does not import mysql packages, so this will always work.
+
 import lib_common
 
 def EntityOntology():
@@ -15,7 +17,8 @@ def MakeUri(instanceName):
 #def EntityName(entity_ids_arr,entity_host):
 #	return entity_ids_arr[1]+ "@" + entity_ids_arr[0]
 
-#def AddInfo(grph,node,entity_ids_arr):
-#	instanceMySql = entity_ids_arr[0]
-#	nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
-#	grph.add((node,lib_common.MakeProp("Instance"),nodeInstance))
+def AddInfo(grph,node,entity_ids_arr):
+	instanceMySql = entity_ids_arr[0]
+	instanceHost = instanceMySql.split(":")[0]
+	nodeHost = lib_common.gUriGen.HostnameUri( instanceHost )
+	grph.add((node,lib_common.MakeProp("Instance"),nodeHost))

@@ -260,9 +260,10 @@ def CredDefinitions():
         # TODO: Finish this
         return None
 
-    def CredUrlCredUrlMySql(configNam):
-        # TODO: Finish this
-        return None
+    def CredUrlMySql(instanceMySql):
+        from sources_types.mysql import instance as survol_mysql_instance
+        nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
+        return nodeInstance
 
     def CredUrlWBEM(credName):
         # Example: credName = "http://192.168.0.17:5989"
