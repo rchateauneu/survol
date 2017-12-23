@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol FAQs</title></head>
+<body>
+<div class="" style="text-align: center; font-family: DejaVu Sans;"><a href="survol.htm"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
+<br>
+</small></small></small>SURVOL FREQUENTLY ASKED QUESTIONS</span></big></big></big><br>
+</div>
+<br><div style="text-align: left;"><br></div><div style="text-align: left;"><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"></span></div><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;">
+
+</span><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"><br></span><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;">&nbsp;</span><br><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"><br>ARCHITECTURE
+<br><br></span><span style="font-family: DejaVu Sans;">Survol needs to
+run one agent
+per machine: A plain HTTP server running Python scripts. This agent and
+its port number define the identity of each object of this machine,
+that Survol is able to provide informaiton about. This is exactly the
+same concept as in WMI and WBEM, and both interoperate completely.
+Therefore, Survol is able to get information with another machine
+with no Survol agent: See OpenLMI, WMI etc... <br><br>If your browser runs ActiveX, it is also possible to use Survol web pages with no agent.<br><br>Survol
+is based on a tree of Python scripts, all of them display information
+of the system the agent is running on. Some scripts do not need
+parameters: They will return information with no context: For example
+all available databases, all detected machines on the network, all
+installed Python modules etc... Other scripts need parameters, as they
+display information about a specific object. For example; Files opened
+by a specific process. Columns of a SQL Server</span><span style="font-family: DejaVu Sans;">&#8482;</span><span style="font-family: DejaVu Sans;"> table. Processes connected to an Oracle&#8482; database.</span><br>
+<span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
+<span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;">SO
+IT WORKS LIKE A HTTP SERVER. CAN I REUSE APACHE&#8482; OR IIS&#8482; ?</span><br style="font-family: DejaVu Sans;">
+<br><span style="font-family: DejaVu Sans;">For classical desktop or server applications, Survol can
+use </span><a style="font-family: DejaVu Sans;" href="https://httpd.apache.org/">Apache</a><span style="font-family: DejaVu Sans;"> and </span><a style="font-family: DejaVu Sans;" href="https://www.iis.net/">IIS</a><span style="font-family: DejaVu Sans;"> (Internet Information Services).</span> <span style="font-family: DejaVu Sans;">As a set of Python scripts, it is compatible with CGI and WSGI.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">Survol comes with
+its own HTTP server, a lightweight Python script, so it can run&nbsp;on very small machines and
+is very appropriate for <a href="https://en.wikipedia.org/wiki/Internet_of_things">Internet Of Things</a> applications. This also has the benefit to run on any user account, which gives access to much more information.</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;">DISPLAY
+MODES AND INTERNAL DATA REPRESENTATION</span><br style="font-family: DejaVu Sans;">
+<br><img style="float: right; width: 140px; height: 153px;" alt="Resource Description Framework" title="Resource Description Framework" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Rdf_logo.svg/221px-Rdf_logo.svg.png"><span style="font-family: DejaVu Sans;">The
+internal data model built by Survol, is based on</span><span style="font-family: DejaVu Sans;"> <a href="https://en.wikipedia.org/wiki/Resource_Description_Framework">RDF</a>,
+a standard model for data interchange in the Web. The&nbsp; data
+representation of Survol is a RDF graph: </span><span style="font-family: DejaVu Sans;">a set
+of triples: Subject, relation, object, and is also the core data type
+found in the </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Semantic_Web">Semantic
+web</a><span style="font-family: DejaVu Sans;">.
+This representation is independent of the display mode.The same set of
+data, extracted from an information system, is shown several ways:</span><br style="font-family: DejaVu Sans;">
+<ul style="font-family: DejaVu Sans;">
+<li>Interactive mode, fully interactive, designed for
+investigating, browsing, drilling into applications internals. It uses <a href="https://d3js.org/">D3</a>, a nice JavaScript
+library for manipulating graphs.</li>
+<li>The print
+mode: the rendered view cannot be modified but is designed to be
+printed for reports or presentations. The appearance is very
+close to the interactive one, but the layout is always identical, and
+the users cannot change it. It
+uses <a href="http://www.graphviz.org/">Graphviz</a>,
+an&nbsp;open source graph visualization software. Graphviz is not
+an absolute requirement.</li>
+<li>The plain HTML mode, convenient to generate reports in
+plain text, reports which can be saved, and compared.</li>
+</ul>
+<span style="font-family: DejaVu Sans;">There are also two
+output modes, used internally:<br>
+</span>
+<ul style="font-family: DejaVu Sans;">
+<li>A JSON mode of use Javascript-based display. At the moment,
+the client-side graphic library is D3, but it might be nice to use also
+<a href="http://www.cytoscape.org/">Cytoscape</a>,
+another software platform for visualizing complex network. Survol is
+extremely modular, and adding a new front-end is a totally independent
+task.</li>
+<li>A native RDF mode which can be used as an input to such as <strong class="upcase bold-a" style="font-size: 16px;"><a style="font-weight: normal;" href="https://protege.stanford.edu/">Protégé</a><span style="font-weight: normal;">.</span></strong>
+<strong class="upcase bold-a" style="font-size: 16px; font-weight: normal;">Protégé
+is&nbsp;</strong>an ontology editor and framework, for
+building intelligent systems and knowledge-based solutions.</li>
+</ul>
+<span style="font-style: italic; font-family: DejaVu Sans;"><br>
+<span style="font-weight: bold;">ON WHICH PLATFORM ? WHICH PYTHON VERSION ? WHICH REQUIREMENTS ?</span></span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;"><img style="float: left; width: 203px; height: 60px;" alt="Python logo" title="Python logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Python_logo_and_wordmark.svg/486px-Python_logo_and_wordmark.svg.png"></span><span style="font-family: DejaVu Sans;">Survol
+is a
+pure-Python software which runs on Windows&#8482; and Linux&#8482; operating
+systems. It is easy to port Survol on other platforms: Its modular
+architecture is such that, when a module cannot run for any reason, it
+is simply disabled.<br><br>Survol
+can run on Python 2
+or Python 3, in 32 or 64 bits. It does not need special Python
+libraries, nor the latest Python version. Some of the most important
+Python modules it uses are:<br></span><ul style="font-family: DejaVu Sans;"><li>socket, sys, os, re: Standard modules which are available everywhere.</li><li><a href="https://pypi.python.org/pypi/psutil">psutil</a>: <span class="st">a cross-platform library for retrieving information on running processes and system utilization</span>. It is not absolutely mandatory but very convenient.</li><li><a href="http://pywbem.github.io/">pywbem</a> if a WBEM server is available.</li><li><a href="https://pypi.python.org/pypi/pywin32">pywin32</a>: The fantastic win32 module is really nice to have when running on a Windows machine.</li></ul>
+<span style="font-style: italic; font-family: DejaVu Sans;"><br></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">OTHER REQUIREMENTS ?<br><br></span></span><span style="font-family: DejaVu Sans;">Survol uses <a style="font-family: DejaVu Sans;" href="http://www.graphviz.org/">Graphviz</a><span style="font-family: DejaVu Sans;"> , an </span>open source graph visualization software, to represent its&nbsp; structural information as an SVG diagram<span style="font-family: DejaVu Sans;">.</span>
+It is not absolutely required because Survol has other rendenring
+mtehods, but stable SVG representations are convenient to generate
+print reports or slides</span>.<br><span style="font-style: italic; font-family: DejaVu Sans;"><br></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">WHY WMI AND WBEM ? WHAT IS CIM ?</span></span><br><span style="font-style: italic; font-family: DejaVu Sans;"><br></span><span style="font-family: DejaVu Sans;">To start with, some acronyms. WBEM&#8482; stands for <a href="https://en.wikipedia.org/wiki/Web-Based_Enterprise_Management">Web-Based Enterprise Management</a>,&nbsp;</span><span style="font-family: DejaVu Sans;" class="st">an industry initiative to develop a standard technology for 
+accessing management information in an enterprise environment.</span><span style="font-family: DejaVu Sans;"> This standard is governed by DMTF, <a href="https://en.wikipedia.org/wiki/Distributed_Management_Task_Force">Distributed Management Task Force</a>. WMI&nbsp;</span><span style="font-family: DejaVu Sans;" class="st">is the Microsoft implementation of WBEM</span><span style="font-family: DejaVu Sans;">. In the Linux world, a common implementation of WBEM is <a href="http://www.openlmi.org/">OpenLMI</a>. It is based on an open-source implementation named <a href="https://collaboration.opengroup.org/pegasus/">OpenPegasus</a>&#8482;. WBEM standard information is delivered with CIM (<a href="https://en.wikipedia.org/wiki/Common_Information_Model_%28computing%29">Common Information
+Model</a>).&nbsp; The CIM schema is the model for delivering this standard
+information.&nbsp; </span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">To
+summarize, WBEM define classes of computer-related objects: Processes,
+files, network cards etc... have a valid and detailed definition in CIM.</span> Here are some examples:<br><br></span><table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2"><tbody><tr><td style="font-family: DejaVu Sans;">CIM_Process</td><td style="font-family: DejaVu Sans;">This is the base class of a process, which is derived into Win32_Process</td></tr><tr><td style="font-family: DejaVu Sans;">CIM_Datafile</td><td style="font-family: DejaVu Sans;">A normal file: The concept and its implementation are similar in Windows and Linux. </td></tr><tr><td style="font-family: DejaVu Sans;">CIM_Directory</td><td style="font-family: DejaVu Sans;">File directories</td></tr><tr><td style="font-family: DejaVu Sans;">Win32_UserAccount</td><td style="font-family: DejaVu Sans;">A Windows user account. Linux has a specific definition, unrelated to this one.</td></tr></tbody></table><span style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">SURVOL DATA MODEL.</span></span><br><span style="font-family: DejaVu Sans;"><br>The data description offered by WBEM suffers from several drawbacks:<br></span><ul><li><span style="font-family: DejaVu Sans;">It
+does not define all the objects we need, because CIM is not really
+oriented . For example, database tables, or sockets, or Python packages or Samba&#8482; servers have no definition. It
+is indeed possible to add new classes into WIM or WMI, but not in a
+portable way, and it requires C++ code compilation etc... this is quite
+a heavy process.</span><span style="font-family: DejaVu Sans;"></span></li><li><span style="font-family: DejaVu Sans;">Also:
+WQL, the CIM query language, has some limitations: It does not allow
+joins between several classes, and a query can return objects of a
+single class only. Whereas some information snapshot would require of
+all sorts of objects to completely describe a situation: Some examples
+which cannot be described by WQL queries could be:All network files accessed by a process, plus their sockets. Or 
+linkable symbols from a DLL file. Or SQL queries detected in a process
+memory, plus their tables. These are quite common situations when
+investigating an application. However, it can be represented with WBEM.</span></li><li style="font-family: DejaVu Sans;">On
+top of that, WMI and WBEM suffer from several specific performance
+problems which are difficult to overcome. These problems come from the
+indistinct processing of objects, whatever their behaviour. For
+example, selecting all CMI_Datafile objects will return all files on a
+given machine: This is obviously very difficult to handle.<br></li></ul><span style="font-family: DejaVu Sans;">Despite
+this, building a software on an industrial standard is invaluably
+convenient. Therefore, Survol attempts to combine the best of both
+worlds:<br></span><ul style="font-family: DejaVu Sans;"><li>Existing
+WBEM classes are always reused. When the classes are different in Linux
+and Windows, but a common base class exist, this base &nbsp;class is
+chosen. Survol uses only a subset of WBEM ontologies: That is, it uses
+only the minimal number of WBEM class properties which are necessary to
+uniquely define an object.However, all detected properties are
+displayed, when available.</li><li>Survol comes with a lightweight
+ontology and data definition where a class is only defined by a
+directory in a Python source code tree.</li><li>When an object is
+defined by Survol, its equivalent link into WBEM or WMI is calculated
+and accessible. WBEM, WMI and Survol use the same moniker strings
+(Object path).</li><li>It
+is possible to display any WMI or WBEM object and navigate into their
+repository. Survol is -also- a complete read-only WBEM objects browser.
+Notably, Survol can "talk" with WBEM or WMI running on distant machines.</li></ul><span style="font-family: DejaVu Sans;">
+</span>
+<span style="font-family: DejaVu Sans;"><span style="font-style: italic;"><br></span></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">SCANNING PROCESS MEMORY, WHAT DOES IT MEAN ?</span></span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">In
+the memory of a running process (Its heap, or the stack), variables are
+created at execution time, and can contain a lot of useful
+information which helps understand the process behaviour: File names,
+HTTP urls, SQL queries etc... and other resources created on-the-fly,
+provide invaluable hints about what a process is doing. Survol comes
+with several scripts able to extract this inforation and display the
+associated objects. This is not an entirely reliable process, of
+course, because these data might be corrupted, or just being created,
+or might simply be unused. Still, the implied information is extremely
+useful when investigating an application.</span><br><span style="font-style: italic; font-family: DejaVu Sans;"><br>
+<span style="font-weight: bold;">NMAP ?</span></span><br><br><a style="font-family: DejaVu Sans;" href="https://nmap.org/">Nmap</a><span style="font-family: DejaVu Sans;">
+is a free and open source utility for
+network discovery and security auditing. It is able to detect various
+resources on a network: Computer, databases, shared disks and other
+classes defined in WBEM. Nmap is therefore a convenient investigation
+tool in the Survol toolbox. Several Nmap scripts are used, it is very
+easy to use more of them.</span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"></span><br><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">WHERE ARE THE SOURCES ?</span></span><br><br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">Survol is an
+one-source project and as such, its source code is available on <a href="https://sourceforge.net/">Sourceforge</a> and <a href="https://github.com/">Github</a>:</span><br style="font-family: DejaVu Sans;">
+<ul style="font-family: DejaVu Sans;">
+<li><a href="https://github.com/rchateauneu/survol">Survol
+on Github</a>: This is the main GIT repository, the project name is
+"survol".</li>
+<li><a href="https://sourceforge.net/projects/rdfmon/">Survol
+on Sourceforge</a>:
+Backup source repository, and the project name is "rdfmon".</li>
+</ul>
+<br style="font-family: DejaVu Sans;">
+<span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">HOW CAN I INSTALL SURVOL ON MY
+MACHINE ?</span></span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">Survol can of
+course be installed from the sources, but also as a pure-Python module,
+which is available on <a href="https://pypi.python.org/pypi">Pypi</a>:</span>
+<ul style="font-family: DejaVu Sans;">
+<li><a href="https://pypi.python.org/pypi/survol/">Survol
+source distribution, on Pypy</a>, complete package, can be
+downloaded and installed as any Python module. </li>
+<li><a href="https://testpypi.python.org/pypi?%3Aaction=pkg_edit&amp;name=survol">Survol
+on Pypi (Test)</a> , same on test site.</li>
+<li><a href="file:///C:/Users/rchateau/DiversDocs/SiteFreeFr/Site.Primhill/cgi-bin/test.py">Test
+CGI script</a></li>
+</ul>
+<span style="font-family: DejaVu Sans;"><br>
+<br>
+Return to <a href="survol.htm">Survol</a>.</span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
+</body></html>
