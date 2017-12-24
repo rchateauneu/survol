@@ -6,20 +6,8 @@ d'une machine a l'autre, d'un process a l'autre, sans avoir forcement besoin de 
 des serveurs.
 
 ============================================================================================================
-
-Transformer une operation de merge en une source d'informations: Il suffit de lister
-son URL, enregistrer ses parametres et declarer avec SLP par exemple.
-
-============================================================================================================
 De facon generale, toute action doit pouvoir etre faite avec deux outils differents ou plus.
 C'est pour ca qu'il faut pouvoir utiliser les scripts en ligne de commande.
-============================================================================================================
-Protocole permettant de debugger des processes a distance.
-RDF: Microsoft Visual Studio Remote Debugging Monitor
-MSVSMON.EXE
-Faire la meme chose  avec gdb qui je crois permet la meme chose.
-
-Voir aussi comment appeler des fonctions de l'API, en Python.
 
 ============================================================================================================
 
@@ -29,15 +17,6 @@ Il faut s'assurer que le merge permet par exemple que processes ayant le meme
 pid se retrouvent fusionnes.
 Si ce n'est pas le cas, il faut une regle permettant de construire le meme URN
 par exemple pour le meme pid.
-
-Quelles sont les regles du merge en RDF ????
-
-To merge N-Triples documents it is necessary to check if the same nodeID
-is used in two or more documents, and to replace it with a distinct nodeID
-in each of them, before merging the documents.
-
-Ca veut dire qu'il ne faut surtout pas creer des blank nodes en esperant que
-le merge de RDF sera capable de les fusionner.
 ============================================================================================================
 Avec DOT, on peut, je crois representer des graphes imbriques.
 S'en servir pour mettre representer la hierarchie des sous-processes
@@ -51,60 +30,41 @@ en s'appuyant sur du RDF?
 * Eventuellement les reseaux (Mais on ne sait pas faire pour le moment)
 * Pas les user-groups.
 
-============================================================================================================
-Ajouter un plugin a Nagios ???
-C'est a dire qu'on ajouterait un adapteur a nos scripts CGI
-pour en faire des plugins Nagios.
-
-============================================================================================================
-Mais les meta-data en RDF, c'est tout simplement du RDF ?
-
-Autre approche pour signaler des erreurs:
-On renvoie les messages directement dans le document RDF, ce qui fait que 
-l'utilisateur ne peut pas les eviter.
-Par exemple, en creant des nodes artificiels. Mais il faudrait que ca aie un sens,
-ce qui est parfois possible.
-Autrement dit, on integre les erreurs dans les donnees normales, traitees normalement.
-Ca a l'avantage de ne jamais les perdre.
-============================================================================================================
-
-Pour le edit mode:
-Probleme: On ne peut pas garder les valeurs des mots-clefs comme CGI dans l'URL..
-peut-etre tester "xx=main" de facon a ce que nos sous-scripts puisse editer leur parametres ?
-
-AUSSI: On peut tester le Referer pour avoir tel ou tel comportement:
-Selon qu'on est appele de tel ou tel script, on va generer du RDF ou autre chose ?
 
 ============================================================================================================
 
 Certaines relations sont plus visibles, representees avec des boites plutot qu'avec des aretes. 
 
-Trouver un moyen de controller le SVG a partir du RDF: listes, arbres etc;..
+Trouver un moyen de controler le SVG a partir du RDF: listes, arbres etc;..
 Par exemple, on sait que les pids sont forcement arborescent, donc on pourrati forcer une presentation.
 Ou bien, y a-t-il des "hints" dans le langage dot ?
 
-Ce qui est une liste de listes et a coup sur un DAG peut-etre transforme en record, surtout si c'est pas profond.
+Ce qui est une liste de listes et a coup sur un DAG peut-etre transforme en record,
+surtout si c'est pas profond.
 Faut juste parcourir certaines proprietes d'une certaines facon.
-Et traiter autrement les nœuds qui font de boucles (Les mettre dans un nœud normal ou un autre record et meme on s'en fiche)
+Et traiter autrement les nœuds qui font de boucles (Les mettre dans un nœud normal
+ou un autre record et meme on s'en fiche)
 Mais on n'ajoute pas les aretes quand elles sont implicites dans le DAG.
 Meme approche pour HTML.
  
-• Pourquoi on ne voit pas londata001 et londata002 avec Net view ?
-• Le resultat d'un browse (net view, tnsnames etc... : Ne pas les relier a la machine principale si pas de raison particuliere.
-• Peut-on voir les imprimantes et les scanners ? L'idee est de faire au moins comme le network browser de Windows.
- 
+Le resultat d'un browse (net view, tnsnames etc... : Ne pas les relier a la machine principale
+si pas de raison particuliere.
+
 http://stackoverflow.com/questions/9869799/service-location-protocol-slp-binding-in-python
 Python library for service discovery using SSDP or UPnP?
  
-Donc, difficulte: Il faut non seulement publier des URL, mais aussi les categoriser avec un type: "", "process", "file", etc...
+Donc, difficulte: Il faut non seulement publier des URL, mais aussi les categoriser avec un type: "",
+"process", "file", etc...
 Peuit-etre peut-on ajouter un mot-clef?
  
 On peut peut-etre changer le format:
  
-SLP ne va publier que le sommet de l'arbre, et on peut interroger pour avoir les listes de scripts, un peu comme le parcours de directories:
+SLP ne va publier que le sommet de l'arbre, et on peut interroger pour avoir les listes de scripts,
+un peu comme le parcours de directories:
 SLP publie http:/machine:host/
  
-Alors: http:/machine:host/ renvoie une liste d'URLS, idem http:/machine:host/BY_process, http:/machine:host/BY_file etc...
+Alors: http:/machine:host/ renvoie une liste d'URLS, idem http:/machine:host/BY_process,
+http:/machine:host/BY_file etc...
 et pour vraiment se simplifier la vie, ca renvoie une page HTML qu'on va parser.
  
 Est-ce necessaire ??? Non! C'est necessaire uniquement pour fabriquer une liste d'URL pour une entite,
@@ -115,12 +75,14 @@ mais c'est déjà renvoye par le RDF
 http://stackoverflow.com/questions/243616/visualization-tools-for-huge-graphs
 Mais pourquoi pas, mettre a jour un SVG avec du Javascript ???
  
-Et il faudrait quelques convertisseurs pour pouvoir regarder n'importe quel source RDF dans des logiciels de visualisation de graph.
+Et il faudrait quelques convertisseurs pour pouvoir regarder n'importe quel source RDF
+dans des logiciels de visualisation de graph.
 Autrement dit, par exemple, on choisit un url complexe, et on le paste dans un convertisseur,
 et ca fabrique immediatement un fichier a downloader ?
 En meme temps, ca nous fera travailler le drag'n'drop.
 Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, "DOT", "GraphML" etc..
-et quand on drag dessus un url RDF, ça fait la conversion. Pas idéal mais à force de petits outils, on aura toute la souplesse necessaire.
+et quand on drag dessus un url RDF, ça fait la conversion. Pas idéal mais à force de petits outils,
+ on aura toute la souplesse necessaire.
  
 Note : On ne peut pas lister les sources qui ont besoin d'un argument (pid, file etc..)
 On ne le liste qu'indirectement quand on fabrique un RDF a partir d'une source sans argument.
@@ -128,7 +90,8 @@ On ne le liste qu'indirectement quand on fabrique un RDF a partir d'une source s
 http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html
 http://nlp.fi.muni.cz/projekty/visualbrowser/index.html
  
-... et dans les softs de visualisation de RDF, sont-ils capables d'utiliser l'URN d'un vertex quand il génère du RDF ? J'en doute.
+... et dans les softs de visualisation de RDF,
+sont-ils capables d'utiliser l'URN d'un vertex quand il génère du RDF ? J'en doute.
  
 On retrace l'historique de chaque fichier, on associe chaque entite a un intervalle de temps,
 ce qui permet de reconstruire l'état du système a un instant donne.
@@ -140,26 +103,53 @@ Notamment, detecter les arbres (Sous-fichiers dans un directory).
  
 Idem pour l'arbres des modules : On essaie de rassembler les vertices dans des classes.
  
-============================================================================================================
-Les modules Linux devraient avoir un type a part (Heritant de file) ?
-On retombe dans le cas des object COM qui sont des fichiers mais aussi autre chose.
-Si on les fait heriter des fichiers en les mettant dans le meme directory,
-ca empeche de creer des sous-dir pour regrouper des fonctionnalites.
-Faudrait-il a voir a part, une arborescence?
-Ou bien ecrire "module:file" ou "module:file,memmap" etc...
-Idem "dir:file", "dll:file", "service:process"
-Ou "service,process" ce qui simplifierait le traitement?
+
+https://gephi.org/2009/rich-svg-export/
+https://gephi.org/toolkit/
+http://gephi.org/users/supported-graph-formats/
+Ca montre bien qu'il ne faut pas trop s'attacher a un format intermediaire, a part RDF et les formats MIME.
+Donc, avoir des chaines de traitement bien modulaires.
+
+Mais pourquoi pas, mettre a jour un SVG avec du Javascript ?
+Pas possible apparemment avec le SVG cree par DOT.
+
+Le plus crucial est le traitement RDF.
+Et il faudrait quelques convertisseurs pour pouvoir regarder n'importe quel source RDF
+dans des logiciels de visualisation de graph.
+Autrement dit, par exemple, on choisit un url complexe, et on le paste dans un convertisseur,
+et ca fabrique immediatement un fichier a downloader ? En meme temps, ca nous fera travailler le drag'n'drop.
+Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, "DOT", "GraphML" etc
+et quand on drag dessus un url RDF, ça fait la conversion. Pas idéal mais à force de petits outils,
+on aura toute la souplesse necessaire.
+
+Est-ce qu'on pourrait utiliser ceci pour nos besoins ???
+http://cytoscape.org/what_is_cytoscape.html
+
+Tester absolument ceux-la :
+http://www.mkbergman.com/414/large-scale-rdf-graph-visualization-tools/
+http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html
+http://nlp.fi.muni.cz/projekty/visualbrowser/index.html
+... et dans les softs de visualisation de RDF,
+sont-ils capables d'utiliser l'URN d'un vertex quand il génère du RDF ? J'en doute.
+ 
+ 
+Premiere phase est un operateur rdf=>rdf
+Construire le graphe des operateurs rdf=>rdf a partir des bookmarks :
+Autre facon de visualiser les book-marks : On en fait un RDF.
+Google sur les RDF
+Longueur maxi d'un URL ? Pouvoir le décomposer facilement en sous-URL.
+Ainsi, l'affichage d'une page est la composition d'un opérateur fabriquant du RDF (Eventuellement un simple url),
+compose avec un opérateur transformant du RDF en quelque chose d'affichable (Eventuellement du RDF)
+ 
+Il faudrait un framework qui puisse utiliser des url existants.
+ 
+http://www.academia.edu/1424450/A_Software_Reverse_Engineering_Methodology_For_Legacy_Modernization
+
 ============================================================================================================
 
-SLP ne va publier que le sommet de l'arbre, et on peut interroger pour avoir les listes de scripts,
-un peu comme le parcours de directories: SLP publie http:/machine:host/
-Alors: http:/machine:host/ renvoie une liste d'URLS, idem http:/machine:host/BY_process, http:/machine:host/BY_file etc...
-et pour vraiment se simplifier la vie, ca renvoie une page HTML qu'on va parser.
-Est-ce necessaire ??? Non! C'est necessaire uniquement pour fabriquer une liste d'URL pour une entite,
-mais c'est déjà renvoye par le RDF
- 
+Representation: Visio VSD
 ============================================================================================================
- 
+
 Visualiser du RDF (Nexus, RDF Gravity http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html )
 http://swui.semanticweb.org/swui06/papers/Karger/Pathetic_Fallacy.html
 
@@ -167,8 +157,8 @@ http://www.legacysoftware.co.uk/faq.php
 www.st.ewi.tudelft.nl/~arie/phds/Kuipers.pdf
 
 ============================================================================================================
- 
-Pour l'affichage des flux, on peut encore simplifier: 
+
+Pour l'affichage des flux, on peut encore simplifier:
 Quand le script en Python, charge de renvoyer un snapshot, est lance,
 il va créer une query vers le vrai serveur qui est en train de tourner
 En background: Il ne fait q'une redirection. Et donc ce petit script n'a comme role que de
@@ -186,58 +176,13 @@ http:/machine:host/BY_file etc... et pour vraiment se simplifier la vie, ca renv
 Est-ce necessaire ??? Non! C'est necessaire uniquement pour fabriquer une liste d'URL pour une entite,
 mais c'est déjà renvoye par le RDF
 ============================================================================================================
- 
- 
-Retour sur les points d'entrée dans les DLL/so : On parle bien d'un point d'entree dans une DLL donnée :
-Pas forcement, c'est une abstraction. En revanche, permettre d'instrumenter la combinaison : symbole+fichier.
+
 
 On veut, a partir d'un graphe qui affiche des ressources, progresser d'une ressource a l'autre.
 Autrement dit, quand on clique sur un nœud, on voudrait aller chercher tous les cgi
 (Sauf ceux du document courant), les exécuter, ne garder que les arêtes aboutissant a notre noeud,
 et fusionner avec l'URL (Avant rdf=>dot) qui a abouti a l'affichage courant.
- 
-============================================================================================================
- 
-https://gephi.org/2009/rich-svg-export/
-https://gephi.org/toolkit/
-http://gephi.org/users/supported-graph-formats/
-Ca montre bien qu'il ne faut pas trop s'attacher a un format intermediaire, a part RDF et les formats MIME.
-Donc, avoir des chaines de traitement bien modulaires.
 
-Mais pourquoi pas, mettre a jour un SVG avec du Javascript ?
-Pas possible apparemment avec le SVG cree par DOT.
-
-Le plus crucial est le traitement RDF.
-Et il faudrait quelques convertisseurs pour pouvoir regarder n'importe quel source RDF dans des logiciels de visualisation de graph.
-Autrement dit, par exemple, on choisit un url complexe, et on le paste dans un convertisseur,
-et ca fabrique immediatement un fichier a downloader ? En meme temps, ca nous fera travailler le drag'n'drop.
-Donc : Une page qui permet de lister les urls habituels. Et en plus, on a quelques icones, "DOT", "GraphML" etc
-et quand on drag dessus un url RDF, ça fait la conversion. Pas idéal mais à force de petits outils, on aura toute la souplesse necessaire.
-
-Est-ce qu'on pourrait utiliser ceci pour nos besoins ???
-http://cytoscape.org/what_is_cytoscape.html
-Nos sources pourrait certes generer directement du GraphML ? C'est tentant, mais on perdrait toute possibilite d'inference.
-Tester absolument ceux-la :
-http://www.mkbergman.com/414/large-scale-rdf-graph-visualization-tools/
-http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html
-http://nlp.fi.muni.cz/projekty/visualbrowser/index.html
-... et dans les softs de visualisation de RDF, sont-ils capables d'utiliser l'URN d'un vertex quand il génère du RDF ? J'en doute.
- 
- 
-Premiere phase est un operateur rdf=>rdf
-Construire le graphe des operateurs rdf=>rdf a partir des bookmarks : Autre facon de visualiser les book-marks : On en fait un RDF.
-Google sur les RDF
-Longueur maxi d'un URL ? Pouvoir le décomposer facilement en sous-URL.
-Ainsi, l'affichage d'une page est la composition d'un opérateur fabriquant du RDF (Eventuellement un simple url),
-compose avec un opérateur transformant du RDF en quelque chose d'affichable (Eventuellement du RDF)
- 
-Il faudrait un framework qui puisse utiliser des url existants.
- 
-http://www.academia.edu/1424450/A_Software_Reverse_Engineering_Methodology_For_Legacy_Modernization
- 
-============================================================================================================
-
-Representation: Visio VSD
 ============================================================================================================
 
 S'arranger pour que copier/coller un nom de fichier dans la saisie de entity, fonctionne.
@@ -320,26 +265,6 @@ Et aussi le rendre debrayable.
 En fonction des proprietes, ca marche ou pas.
 Ca ne doit pas etre obligatoire.
 
-============================================================================================================
-PYWIN
-
-http://timgolden.me.uk/pywin32-docs/contents.html
-
-http://timgolden.me.uk/pywin32-docs/win32pipe__GetNamedPipeClientProcessId_meth.html
-http://timgolden.me.uk/pywin32-docs/contents.html
-http://timgolden.me.uk/pywin32-docs/win32net__NetGetDCName_meth.html
-
-http://timgolden.me.uk/pywin32-docs/win32file__TransmitFile_meth.html
-
-Lister les objects COM ?
-http://www.boddie.org.uk/python/COM.html
-
-==========================================================================================
-
-Trouver un moyen d'aller, a partir des fichiers, vers d'autres entites.
-Par exemple, BY_file/file_stat.py doit afficher le proprietaire du fichier.
-
-Idealement les processes qui y accedent ?
 
 ============================================================================================================
 
@@ -351,21 +276,8 @@ Sinon, ajouter traceroute.
 Afficher aussi les interfaces reseau.
 Les serveurs DNS?
 
-
 BY_hostname/hostname_nmap.py?xid=hostname:192.168.1.67 affiche plein de sockets et puis c'est tout.
 Y a-t-il vraiment de l'information?
-
-============================================================================================================
-
- For shared libs, directories etc... and other files "subclasses", maybe we could have subtypes written as:
-"file.dll" or "file.dir" and according create the subdirectories of scripts:
-BY_file.BY_dll etc...
-
-============================================================================================================
-
-Utiliser samba_shares.py pour afficher dans BY_hostname les shares Samba proposés par une machine.
-
-Afficher le(s) point(s) de montage d'un partage samba.
 
 ============================================================================================================
 
@@ -377,21 +289,6 @@ OUI: Dans le cartouche, on met le lien "TOP" qui envoie vers le niveau tout en h
 selon le cas (process=>process Init, user => liste des users, fichier => "/", etc...).
 Different du niveau au-dessus que nous faisons deja.
 
-Mettre un lien plausible pour chaque icone de objtypes.py .
-Par exemple, ca peut etre BY_<types>/index.py
-
-Et on utilisera le meme lien dans tous les scripts du meme directory.
-
-Chaque index.py va essayer depointer vers un script de sources/top , a moins que ce soit l'inverse ?
-Et donc, entity.py irait balayer tous les directory BY_<*>/index.py ? Et donc ferait la meme chose
-que obj_types ?
-
-OU BIEN: Dans top, on a renomme des scripts index_<type>.py.
-
-Dans les scripts qui sont deja sous 'top', le 'index' est simplement 'entity.py'.
-Ca ne peut pas toujours fonctionner.
-Ca n'est pas remonter d'un niveau dans des objets lies, mais au contraire
-lister tous les objets de ce type.
 
 Type             Script quelconque                                  index.py
 addr             ??
@@ -432,40 +329,12 @@ Oui, mais si on veut dans le cas general, afficher le "parent" de l'objet ? C'es
 car par exemple la liste des services n'est pas le "parent" d'un service.
 Ici: On veut ajouter un lien similaire a rdf_data, qu'on va peut-etre afficher dans le cartouche.
 
-Exemple oracle_view
-A partir de la view, on veut aller pointer vers BY_oracle_schema/oracle_schema_views .
-Mais il faut calculer le entity_type, ce qui est specifique a ce type.
-Afin de donner de la generalite, on pourrait renommer BY_oracle_schema/oracle_schema_views en 
-BY_oracle_schema/container.oracle_view.py et donc lib_entity_oracle_view.py aurait juste
-besoin d'etre capable d'extraire le schema d'un view id.
-De meme on aurait dans BY_group/container.user.py .
-
-On pourrait tout aussi bien utiliser RDF qui est fait pour ca.
-============================================================================================================
-Feeder: Pas plus de 1000 elements dans la queue (C'est une option) et on garde
-les derniers arrives. On veut eviter de saturer la machine.
-Ajouter menu pour voir les caches et les vider.
-Et lister tous les feeders.
-
-SubServer pourrait heriter de CgiEnv: Ca permettrait de passer des variables plus facilement.
 ============================================================================================================
 
 Ajouter des infos dans la legende comme quand pas vraiment un message d'erreur.
 Ou bien des warnings.
 
 ============================================================================================================
-
-Visualisation en HTML: On ameliore la presentation ! (Et on vire entity_list.py)
-
-
-On deplace la visu en HTML dans un nouveau fichier de librairie, ca allegera le code.
-
-Quand on clique "fusion", ça appelle la fusion avec "url=...".
-On ajoute des tick box ? En plus des ticks box, il y a un drop-down html/rdf/svg
-
-Eventuellement on va chercher les tick boxes dans toutes les fenetres en HTML.
-
-Donc, la fusion fonctionne en html ou rdf etc... La legende permet de changer le mode.
 
 Utiliser des frames ?
 
@@ -528,11 +397,6 @@ car ca casserait la logique d'associer un icone SVG a chaque entite afin d'avoir
 
 Aussi: C'est lie a l'affichage , dans les listes de fichiers, de petites infos, sur une autre colonne.
 
-
-============================================================================================================
-
-Sous Windows, lister les applications, comme dans le Task Manager (A nouveau, quelle dommage qu'on
-n'ait pas d'icones avec Graphviz)
 ============================================================================================================
 Il faut creer un rect pour la table, comme ca, d3.force fera le placement.
 Implicitement, une arete qui se dirige vers cette matrice va vers chacun des <tr>.
@@ -1204,47 +1068,10 @@ Cellule CSV, tag HTML, champ table SQL ... Pour d'autres, on cherche vraiment en
 Voir aussi https://en.wikipedia.org/wiki/Entity_Framework, ADO.NET
 
 ========================================================================================================================
-RECHERCHE DE CHAINES DE CONNEXION OLE DB
-
-https://www.connectionstrings.com/formating-rules-for-connection-strings/
-
-
-Plein d'exemples ici : https://www.connectionstrings.com/html-table/
-
-Donc on cherche des paires clef-valeur, séparées par ";". Il peut y avoir des espaces de part et d'autre du ";".
-Certains parametres vont entrainer la creation de nœuds (C'est meme le but de l'operation).
-
-Provider = SQLOLEDB.1; Initial Catalog = scnXYZliv; Persist Security Info = False; Data Source = HOSTNAME\SC4NXYZ;User ID=yyyyy;Password=xxxxx;Trusted_Connection=False;
-
-Provider=Microsoft.Jet.OLEDB.4.0;Data Source=http://www.websitewithhtmltable.com/tablepage.html;Extended Properties="HTML Import;HDR=YES;IMEX=1";
-
-DRIVER={Empress ODBC Interface [Default]};Server=serverName;Port=6322;UID=userName;PWD=password;Database=dbName;
-
-Driver={CData ODBC Driver for Exchange 2015};Server='https://outlook.office365.com/EWS/Exchange.asmx';Platform='Exchange_Online';User='myUser@mydomain.onmicrosoft.com';Password='myPassword';
-
-DRIVER={InterSystems ODBC};SERVER=myServerAddress;PORT=12345;DATABASE=myDataBase;
-PROTOCOL=TCP;STATIC CURSORS=1;UID=myUsername;PWD=myPassword;
-
-DRIVER={InterSystems ODBC};SERVER=myServerAddress;PORT=12345;DATABASE=myDataBase;
-UID=myUsername;PWD=myPassword;
-
-Provider=MSDASQL;DRIVER=Ingres;SRVR=xxxxx;DB=xxxxx;Persist Security Info=False;
-Uid=myUsername;Pwd=myPassword;SELECTLOOPS=N;Extended Properties="SERVER=xxxxx;
-DATABASE=xxxxx;SERVERTYPE=INGRES";
-
-========================================================================================================================
 Base whois
 localisation geographique
 https://www.ripe.net/manage-ips-and-asns/db/support/querying-the-ripe-database
 ip-api.com/docs/api:json
-
-========================================================================================================================
-Eviter de faire une solution cherchant un probleme:
-
-Survol:
-"Legacy distributed application analyser. Based on WMI/WBEM, with a Web interface."
-
-Pour l interface, on va reprendre le minimalisme de Google.
 
 ========================================================================================================================
 Renommer "xid=" en "path=" et "entity.py" en "cimobj.py" ou qq chose comme ca.
@@ -1761,6 +1588,19 @@ Iisnode ?
 SqlServer
 http://sqlwebadmin.codeplex.com/
 " The SQL Server Web Data Administrator enables you to easily manage your SQL Server data, wherever you are."
+
+============================================================================================================
+Realite augmentee:
+Afficher par dessus le desktop les object de grph qui correspondent aux objects visibles.
+La "realite" est ce qu on voit sur le desktop.
+Donc, on va afficher les process au-dessus des fentres des applications qui ont cree ces process.
+Idem les icones du desktop.
+Quand on ouvre FileExprolrer, on ajoute nos icones SVG en semi-transparence.
+Mais ca exige de pouvoir afficher du SVG en semi-transparence sur tout le desktop.
+Avec un fond de page transparent.
+
+Pour forcer l affichage, on peut renforcer la proximite de certains objets en les liant avec
+une propriete bidon, dont l arete est transparente.
 
 ============================================================================================================
 Ecarter les infos sans importance:

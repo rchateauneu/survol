@@ -11,12 +11,12 @@ HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes.
 ============================================================================================================
 UDP:
 Etablir la correlation entre:
-* Des trames UDP venant d'un certain process, vers une adresse multicast donnée (Ou
-bien eventuellement on regroupe) et un port donné.
-* Des processes qui manifestent une certaine activité quand cette trame
-arrive. Comme cette trame est traitée dans du code utilisateur,
-et pas forcement dansune librairie donnée, on ne peut que se referer
-a l'activité CPU.
+* Des trames UDP venant d'un certain process, vers une adresse multicast donnee (Ou
+bien eventuellement on regroupe) et un port donne.
+* Des processes qui manifestent une certaine activite quand cette trame
+arrive. Comme cette trame est traitee dans du code utilisateur,
+et pas forcement dansune librairie donnee, on ne peut que se referer
+a l'activite CPU.
 
 Toutefois, on peut s'aider de lsof/netstat pour reduire le nombre
 de processes possibles?
@@ -24,10 +24,30 @@ de processes possibles?
 On pourrait se connecter a tous les messages TIBCO et verifier les processes 
 qui reagissent. Ca revient au meme probleme:
 - Des evenements d'une part (Trames UDP ou n'importe quoi d'autre
-associés soit a une adresse IP ou bien un sujet tibco)
+associes soit a une adresse IP ou bien un sujet tibco)
 - D'autre part la reactivite des processes.
 
 Voir si on pourrait maquetter avec gdb, ptrace etc...
+============================================================================================================
+Protocole permettant de debugger des processes a distance.
+RDF: Microsoft Visual Studio Remote Debugging Monitor
+MSVSMON.EXE
+Faire la meme chose  avec gdb qui je crois permet la meme chose.
+
+Voir aussi comment appeler des fonctions de l'API, en Python.
+
+==========================================================================================
+
+Trouver un moyen d'aller, a partir des fichiers, vers d'autres entites.
+Par exemple, BY_file/file_stat.py doit afficher le proprietaire du fichier.
+
+Idealement les processes qui y accedent ?
+
+============================================================================================================
+Ajouter un plugin a Nagios ???
+C'est a dire qu'on ajouterait un adapteur a nos scripts CGI
+pour en faire des plugins Nagios.
+
 ============================================================================================================
 
 Utiliser la sortie de MRTG ? Un adapteur SNMP 
@@ -44,7 +64,11 @@ strace fournit comme information des fonctions mais aussi des fichiers et des ad
 Meme chose avec GDB: On peut analyser les connections aux bases de donnees.
 Notion de PID abstrait: Autrement dit, on peut fusionner les informations non pas d'un PID precis,
 mais celui qui execute telle commande. C'est precisement la que l'accumulation de donnees est interessante, d'autant qu'on peut snapshotter des processes a la volee. Peut-etre qu'un operateur RDF permet ceci.
- 
+
+============================================================================================================
+
+Retour sur les points d'entrÃ©e dans les DLL/so : On parle bien d'un point d'entree dans une DLL donnÃ©e :
+Pas forcement, c'est une abstraction. En revanche, permettre d'instrumenter la combinaison : symbole+fichier.
 ============================================================================================================
 
 Extraire de doxygen:
@@ -54,9 +78,9 @@ Extraire de doxygen:
 http://www.stack.nl/~dimitri/doxygen/manual/customize.html#xmlgenerator
                                                   GENERATE_XML to YES
 Fabriquer le fichier de config pour doxygen.
-Pour l’outil, on lui fournit un directory ou se trouve un makefile. Ou bien un doxyfile.
-L’important est le parseur.
-Et aussi la possiblite d’aggreger.
+Pour l'outil, on lui fournit un directory ou se trouve un makefile. Ou bien un doxyfile.
+L'important est le parseur.
+Et aussi la possiblite d'aggreger.
 Memes noms de noeuds que dans strace.
 ============================================================================================================
 Peut etre que tous les scripts qui dependent d'une fonctionnalite particuliere (OS, librairies) pourrait etre dans le meme directory.
@@ -83,15 +107,15 @@ Python library for service discovery using SSDP or UPnP?
 
 Visualiser du RDF (Nexus, RDF Gravity http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html )
 http://swui.semanticweb.org/swui06/papers/Karger/Pathetic_Fallacy.html
-Remarques intéressantes mais ne nous concerne pas car on veut vraiment visualiser le graphe.
+Remarques interessantes mais ne nous concerne pas car on veut vraiment visualiser le graphe.
  
 ============================================================================================================
-Fabriquer le reseau des appels avec la relation “Fonction X appelle fonction Y »
-Alleger avec la relation « class X appelle class Y » et « fichier X appelle fichier Y »
-On peut l’extraire a la volee avec strace.
+Fabriquer le reseau des appels avec la relation "Fonction X appelle fonction Y"
+Alleger avec la relation "class X appelle class Y" et "fichier X appelle fichier Y"
+On peut l extraire a la volee avec strace.
 Ou bien utiliser un parseur.
-Ce qui est important est de réduire la taille du graphe.
-Idem pour l’arbres des modules : On essaie de rassembler les vertices dans des classes.
+Ce qui est important est de reduire la taille du graphe.
+Idem pour l'arbre des modules : On essaie de rassembler les vertices dans des classes.
 ============================================================================================================
 Prendre le code d'une fonction et faire le graphe des jumps. Pour alleger, ne considerer que les jumps
 de plus de N octets qui en principe donnent le structure generale.
@@ -157,10 +181,11 @@ Permettre de remonter comme dans cgi_stat.py
 Type des fichiers: Infos renvoyees par filemagic ou python-magic.
  
 Entity.py doit etre un peu plus subtil, peut-etre:
-• Pour les directories, il faudrait immediatement afficher les sous-fichiers, en plus des scripts.
-•  Pour les processes, idem, sous-processes.
+- Pour les directories, il faudrait immediatement afficher les sous-fichiers, en plus des scripts.
+-  Pour les processes, idem, sous-processes.
 Donc entity.py peut , pour une entite, executer un script et fusionner avec les NOMS des autres scripts du directory.
-Ca revient a dire que pour afficher un directory de scripts, ya des scripts qu’on execute, et d’autres dont on affiche le nom. On fait ca avec le nom du script, peut-etre. 
+Ca revient a dire que pour afficher un directory de scripts,
+ya des scripts qu'on execute, et d'autres dont on affiche le nom. On fait ca avec le nom du script, peut-etre.
 ============================================================================================================
 RUP IBM
 http://www.ibm.com/developerworks/rational/library/sep06/dugerdil/
@@ -188,4 +213,17 @@ Python wrapper: https://keras.io/
 Site dedie a l AI: https://www.kaggle.com/petrosgk/1st-try-with-keras-0-918-lb
 
 image processing: http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_tutorials.html
+============================================================================================================
+PYWIN
+
+http://timgolden.me.uk/pywin32-docs/contents.html
+
+http://timgolden.me.uk/pywin32-docs/win32pipe__GetNamedPipeClientProcessId_meth.html
+http://timgolden.me.uk/pywin32-docs/contents.html
+http://timgolden.me.uk/pywin32-docs/win32net__NetGetDCName_meth.html
+
+http://timgolden.me.uk/pywin32-docs/win32file__TransmitFile_meth.html
+
+Lister les objects COM ?
+http://www.boddie.org.uk/python/COM.html
 ============================================================================================================
