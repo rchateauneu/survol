@@ -1,7 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol FAQs</title></head>
-<body>
+
+
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol FAQs</title><meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body>
 <div class="" style="text-align: center; font-family: DejaVu Sans;"><a href="survol.htm"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
 <br>
 </small></small></small>SURVOL FREQUENTLY ASKED QUESTIONS</span></big></big></big><br>
@@ -162,8 +163,154 @@ on Github</a>: This is the main GIT repository, the project name is
 on Sourceforge</a>:
 Backup source repository, and the project name is "rdfmon".</li>
 </ul>
-<br style="font-family: DejaVu Sans;">
-<span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">HOW CAN I INSTALL SURVOL ON MY
+<br>
+<span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">WHY USING PYTHON ?</span></span><br>
+<br style="font-family: DejaVu Sans;">Using a compiled language might
+raise security issues when running on a production environment. On the
+contrary, a scripting language such as Python with its concept of "<span style="font-style: italic;">pure Python</span>"
+packages, is much safer. NodeJS has the extra advantage to run mostly
+the same code on server and client. But it may be less mature, less
+validated in production environments, with less libraries,
+and the JIT compiler is a bit CPU hungry.
+Perl would be a good choice, but does not have the flexility to install
+modules
+just by copying a set of files. Still: It is perfectly possibly to
+integrate scripts written on other languages than Python.<br>
+<br>
+To run Survol, no genuine installation is needed,
+just a files tree, for example on a USB memory stick (or floppy disk...), is enough.
+The only needed thing is a Python interpreter. And even not: if your browser can run ActiveX&#8482; object on a Windows&#8482; platform,
+you can still perform some simplified analysis.
+
+<br>
+<span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"><br>
+SURVOL CLASSES AND NAMESPACES. ADDING NEW CLASSES</span></span>.<br>
+<br>
+Survol library is made of packages and subpackages which represents its classes model.
+
+A class is a module where the function Ontology() is present, whether it is defined
+by the module or one of its parents modules.
+The return value of EntityOntology() is a list of string, each representing an attrobute of the class.
+
+If a module nor none of its parent modules define the function EntityOntology(),
+it is a namespace.
+
+<br>
+<br>
+
+
+A class or namespace can define other functions in its __init__.py file. All of them are optional:<br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-style: italic; font-weight: bold;">Function</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-style: italic; font-weight: bold;">What it does</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">EntityOntology<br>
+      </td>
+      <td style="vertical-align: top;">This returns an array of strings which are the name of the attributes of an object of this class. This does not apply to namespaces.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Graphic_colorbg<br>
+      </td>
+      <td style="vertical-align: top;">Ths returns a RBG color coded as a hexadecimal string. This color is used by any UI mode, for this class/namespace, unless it is superseded by a subclass or subnamespace.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">EntityName<span style="color: rgb(128, 128, 128);"></span></td>
+      <td style="vertical-align: top;">This returns a display name for
+this object, given its attributes passed as an array, in the order
+specified by the ontology. The ostname is also passed. The resulting
+name does have to be unique, but must be printable.This applies to classes only.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><meta http-equiv="content-type" content="text/html; charset=UTF-8">AddInfo</td>
+      <td style="vertical-align: top;">When displaying an object, adds some extra information related to it.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Usable<br>
+      </td>
+      <td style="vertical-align: top;">This tells if the module or the
+script, is usable in this context, given the platform, available
+packages etc... It can be defined for any module or any script.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Survol aims to address the diversity of applications running for dozen
+of years on a variety of architectures.
+Its framework, based on a tree of Python modules and scripts makes it
+very easy to add processing
+to include libraries, architectures, etc...
+The inclusion of different architectures in Survol framework, adding a
+new class, or new scripts, to survol, is a trivial task: One just need
+to copy a file tree at a specific place. It is of course possible to
+mix open-source and proprietary scripts.<br>
+<br>
+<span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">WHY AN ADHOC CGI SERVER ?<br>
+<br>
+</span></span>To access specific information, a "root" or "administrator"
+account is needed; Apache or IIS do not run under such a privileged account.
+Also, the adhoc CGI server is very ligthweight, uses standard Python classes,
+does not require any installation and can execute on any machine running Python.<br>
+<br>
+<span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">REDUNDANCY ?</span></span> <br>
+<br>
+Survol is designed to run in a harsh environment, uncertain platforms, broken libraries, uncompatible interfaces,
+and return as much information as possible about unknown applications. It has to be robust and adapt to any situation.
+
+Therefore, it is built, at all stages, on the concept of redundancy.
+
+
+<br>
+<br>
+<span style="font-style: italic;">Redundancy of data display:</span><br>
+<br>
+Survol can display its results in:<br>
+<ul>
+  <li>Plain HTML text: Results of the same scripts are garanteed to be return in the same order,
+allowing automatic comparison. It can be displayed on a very simple browser.</li>
+  <li>Static SVG generated by Graphviz, on the server side. It does not need a powerful client machine.</li>
+  <li>Client-side D3 display: It is not demanding on the server side, but needs a more powerful client.</li>
+  <li>RDF output, for Semantic Web engine.</li>
+  <li>JSON output: This is used by D3, its API is stable and can be used by client software too.</li>
+</ul>
+<span style="font-style: italic;">Redundancy of informations sources:</span><br>
+<br>The core information might come from any source: win32 Python library, any Linux package, WMI and WBEM select statements.<br>
+<br>
+<span style="font-style: italic;">Redundancy of Web hosting:</span><br>
+<br>
+Scripts can be hosted by Apache, IIS&#8482;, our dedicated adhoc CGI server. Any reasonable HTTP server
+with CGI or WSGI capabilities should suffice.<br>
+<br>
+<span style="font-style: italic;">Redundancy of Python interpreter and libraries:</span><br>
+<ul>
+  <li>It can use Python2 and Python3, over many releases. Survol is not very demanding in terms of Python features.</li>
+  <li>Packages: Python requires a very small set of modules. The other are optional; If a script needs a Python module
+which is not there, the script is simply disabled, doing no harm.</li>
+  <li>Scripts
+might return information with a significant overlap, from different
+libraries or mechanisms.
+This is helpful if one script does not work, as a work-around might
+exist.
+And, because objects, in Survol, always have the same URL, this does
+not yield duplicate,
+when combining, merging the results of several scripts into a single
+one:
+Duplicate information is automatically removed when at this stage.
+Even objects created by ActiveX&#8482; are smoothly paired with the ones
+created by Python agents. This is the reason why objects URLs do not
+accept any CGI parameter except the display mode. </li>
+</ul>
+<span style="font-family: DejaVu Sans;"><span style="font-style: italic;"><span style="font-weight: bold;"></span></span></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">HOW CAN I INSTALL SURVOL ON MY
 MACHINE ?</span></span><br style="font-weight: bold; font-family: DejaVu Sans;">
 <span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
 <span style="font-family: DejaVu Sans;">Survol can of
@@ -178,7 +325,7 @@ on Pypi (Test)</a> , same on test site.</li>
 <li><a href="file:///C:/Users/rchateau/DiversDocs/SiteFreeFr/Site.Primhill/cgi-bin/test.py">Test
 CGI script</a></li>
 </ul>
-<span style="font-family: DejaVu Sans;"><br>
+<span style="font-family: DejaVu Sans;">
 <br>
 Return to <a href="survol.htm">Survol</a>.</span><br style="font-weight: bold; font-family: DejaVu Sans;">
 <span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
