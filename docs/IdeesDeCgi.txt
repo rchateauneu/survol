@@ -54,6 +54,16 @@ Utiliser la sortie de MRTG ? Un adapteur SNMP
 https://infosonic.wordpress.com/2008/04/21/using-mrtg-to-monitor-records-in-a-mysql-table/
 
 ============================================================================================================
+Permettre de faire des grep, des recherches, dans les tables des BDD et aussi les BLOBs.
+Et aussi afficher ces tables.
+Pas tres important car pas au coeur du problem,
+mais faciliter cet ajout.
+C est dans la logique du "google applicatif", qui modelise une application ou une machine
+comme un reseau explorable.
+Notons qu on obtiendrait le meme resultat en affichant le contenu des tables.
+Justement: On sera en mesure d afficher une table entiere quelque soit sa taille.
+Comment empecher qu un moteur de recherche s y noie ?
+============================================================================================================
 Faire la meme chose que Oracle mais avec odbc ?
 http://timgolden.me.uk/pywin32-docs/odbc__odbc_meth.html
 

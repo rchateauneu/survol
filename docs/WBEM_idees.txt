@@ -64,7 +64,7 @@ OpenLMI is open-source project aiming to improve management of Linux systems usi
 
 ============================================================================================================
 PyWBEM: 
-Avec WMI, on a deja commencé a transformer les messages WBEM en RDF.
+Avec WMI, on a deja commence a transformer les messages WBEM en RDF.
 Peut-etre pourrait-on generaliser ca?
 On a reflechi a laisser tomber RDF pour plutot faire un WBEM augmente.
 Certes, mais WBEM ne vient pas avec un format de fichier.
@@ -116,16 +116,18 @@ http://www.blog.pythonlibrary.org/2010/10/03/how-to-find-and-list-all-running-pr
 processes = WMI.InstancesOf('Win32_Process')
  
 Ajouter le parametre pour nm et ldd, et verifier comment on peut utiliser en ligne de commande avec parametres.
-Créer des urls PID, FILE, DLL etc…                              
+Creer des urls PID, FILE, DLL etc
   
 ( WMI = candidat au remplacement de SNMP )
-Integrer des providers WMI a des applications existantes ? Notamment que les objects de l’application soient des objects WMI  (CMI) ?
+Integrer des providers WMI a des applications existantes ? Notamment que les objects
+de l'application soient des objects WMI  (CMI) ?
 http://doc.opensuse.org/products/draft/SLES/SLES-admin_sd_draft/cha.wbem.html
 Small Footprint CIM Broker
 ============================================================================================================
 
 
-If you like the CIM schema then you should see about converting it to RDF. RDF uses the same primitive data types as XSD so this should be straightforward.
+If you like the CIM schema then you should see about converting it to RDF.
+RDF uses the same primitive data types as XSD so this should be straightforward.
 
 Here's a tool that claims to convert XSD schemas to OWL:
 
@@ -145,7 +147,7 @@ Pour Windows, on peut utiliser WMI :
 processes = WMI.InstancesOf('Win32_Process')
  
 http://technet.microsoft.com/fr-fr/library/dd315379.aspx
-Get-WmiObject –List   -ComputerName 192.168.1.28
+Get-WmiObject List   -ComputerName 192.168.1.28
 http://technet.microsoft.com/en-us/library/ee176860.aspx
  
 http://publib.boulder.ibm.com/infocenter/idm/v2r1/index.jsp?topic=/com.ibm.db2tools.fpeic.doc.ug/fpeic171.html
@@ -209,7 +211,7 @@ On a aussi les URLs, ca fait partie de la norme:
 
 WBEM URI Mapping
 WBEM Uniform Resource Identifiers (URI) Mapping is used by WBEM protocols for mapping between the CIM Naming and the URI format. The WBEM URI is a compact string of characters to identify a CIM element. The WBEM URI is defined as follows.
-Scheme”://”[<userinfo>”@”]<host>[“:”<port>”/”]”/”<namespace>”/:”<model path>
+Schemeï¿½://ï¿½[<userinfo>ï¿½@ï¿½]<host>[ï¿½:ï¿½<port>ï¿½/ï¿½]ï¿½/ï¿½<namespace>ï¿½/:ï¿½<model path>
 
 
 bender:5988/root/cimv2:PG_OperatingSystem.CreationClassName="CIM_OperatingSystem",CSCreationClassName="CIM_ComputerSystem",CSName="localhost",Name="SuSE Distribution"

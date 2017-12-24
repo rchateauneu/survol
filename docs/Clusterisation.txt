@@ -124,3 +124,7 @@ En pratique, elles sont forcement specialisees pour un type de chaine.
 Et meme peut-etre, les attacher a une classe.
 Ca permettrait de toujours pouvoir proposer une clusterisation des qu'on a plein d'objets
 de cette classe et descendants du meme parent.
+
+============================================================================================================
+Cas de figure: Si on arrive a extraire des dates au meme format,
+d un grand nombre de chaines, les regrouper sous la forme d un calendrier.
