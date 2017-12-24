@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol: Understanding Legacy Applications</title></head>
-<body><div style="text-align: center; font-family: DejaVu Sans;"><a href="index.html"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br><br></small></small></small>SURVOL</span></big></big></big><br></div><br style="font-family: DejaVu Sans;"><span style="font-weight: bold; font-family: DejaVu Sans;"><br><br><br><br>Survol</span><span style="font-family: DejaVu Sans;"> is Primhill Computer's exclusive tool to implement our projects on Legacy Software. </span><b style="font-family: DejaVu Sans;">Survol</b><span style="font-family: DejaVu Sans;"> is a Python agent and a web interface which aim to help
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol: Understanding Legacy Applications</title></head><body><div style="text-align: center; font-family: DejaVu Sans;"><a href="index.html"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br><br></small></small></small>SURVOL</span></big></big></big><br></div><br style="font-family: DejaVu Sans;"><span style="font-weight: bold; font-family: DejaVu Sans;"><br><br><br><br>Survol</span><span style="font-family: DejaVu Sans;"> is Primhill Computer's exclusive tool to implement our projects on Legacy Software. </span><b style="font-family: DejaVu Sans;">Survol</b><span style="font-family: DejaVu Sans;"> is a Python agent and a web interface which aim to help
 understanding a legacy application.
 A set of machines, processes, databases, programs etc .... all
 communicating with each other,
@@ -26,7 +26,7 @@ coming from the agents.
 It is not necessary to have an agent on all machines because many
 scripts can get information from other machines than the one they
 are running on. Strictly said, it is possible to run without
-an&nbsp;agent at all, just with a static Javascript page which connects to the target machines.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"> The
+an&nbsp;agent at all, just with a static Javascript page which connects to the target machines.</span> The agents are very lightweight and can also run on an <a href="https://en.wikipedia.org/wiki/Internet_of_things"><span style="font-style: italic;">Internet of Things</span></a> (IoT) network.<br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"> The
 data model of Survol is based on classes, each of them defining a type
 of computer resources: Processes, machines, files etc...
 It can display for example the tree of processes and subprocesses ...</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><img title="Directories and subdirectories" style="width: 372px; height: 234px; float: left; font-family: DejaVu Sans;" alt="" src="Survol/SnapshotFiles.PNG"><span style="font-family: DejaVu Sans;">...
@@ -59,7 +59,11 @@ add ones, along with associated scripts, in open or proprietary source
 code, without complicated setup. Just create a directory and add a new
 script at the right place, that's it.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><img style="width: 281px; height: 178px; float: right; font-family: DejaVu Sans;" alt="" title="Python modules" src="Survol/SnapshotPythonModules.PNG"><span style="font-family: DejaVu Sans;">The
 internal data model built by Survol agents, is a set
-of triples: Subject, relation, object, the core data type found in the </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Semantic_Web">Semantic web</a><span style="font-family: DejaVu Sans;">, another standard. The same set of data, extracted from an information system, can be shown with several display modes:</span><br style="font-family: DejaVu Sans;"><ul style="font-family: DejaVu Sans;"><li>Interactive mode, fully interactive, designed for investigating, browsing, drilling into applications internals. It uses <a href="https://d3js.org/">D3</a>, a nice JavaScript library for manipulating graphs.</li><li>A
+of triples: Subject, relation, object, homogeneous to <span style="font-style: italic;">Resource Description Framework</span> (<a href="https://en.wikipedia.org/wiki/Resource_Description_Framework">RDF</a>), the core data type found in the </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Semantic_Web">Semantic web</a><span style="font-family: DejaVu Sans;">, a standard </span>which provides a framework allowing data to be shared and reused across applications<span style="font-family: DejaVu Sans;">.
+RDF, especially appropriate for Artificial Intelligence applications,
+is an abstract model for Survol data, which are extracted from
+heterogenous sources information system. Survol displays these data in
+several modes:</span><br style="font-family: DejaVu Sans;"><ul style="font-family: DejaVu Sans;"><li>Interactive mode, fully interactive, designed for investigating, browsing, drilling into applications internals. It uses <a href="https://d3js.org/">D3</a>, a nice JavaScript library for manipulating graphs.</li><li>A
 print
 mode, where the rendered view cannot be modified but is designed to be
 nicely printed for reporting or presentations. The appearance is

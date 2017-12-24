@@ -2,7 +2,8 @@
 <html><head>
 
 
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol FAQs</title><meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body>
+
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol FAQs</title><meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body>
 <div class="" style="text-align: center; font-family: DejaVu Sans;"><a href="survol.htm"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
 <br>
 </small></small></small>SURVOL FREQUENTLY ASKED QUESTIONS</span></big></big></big><br>
@@ -43,7 +44,9 @@ representation of Survol is a RDF graph: </span><span style="font-family: DejaVu
 of triples: Subject, relation, object, and is also the core data type
 found in the </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Semantic_Web">Semantic
 web</a><span style="font-family: DejaVu Sans;">.
-This representation is independent of the display mode.The same set of
+It is succesfully used in Artificial Intelligence applications. This
+abstract representation is independent of the display mode.The same set
+of
 data, extracted from an information system, is shown several ways:</span><br style="font-family: DejaVu Sans;">
 <ul style="font-family: DejaVu Sans;">
 <li>Interactive mode, fully interactive, designed for
@@ -86,7 +89,7 @@ architecture is such that, when a module cannot run for any reason, it
 is simply disabled.<br><br>Survol
 can run on Python 2
 or Python 3, in 32 or 64 bits. It does not need special Python
-libraries, nor the latest Python version. Some of the most important
+libraries, nor the latest Python version. Its performance requirements are very low and it can run on an <a href="https://en.wikipedia.org/wiki/Internet_of_things"><span style="font-style: italic;">Internet of Things</span></a> network. Some of the most important
 Python modules it uses are:<br></span><ul style="font-family: DejaVu Sans;"><li>socket, sys, os, re: Standard modules which are available everywhere.</li><li><a href="https://pypi.python.org/pypi/psutil">psutil</a>: <span class="st">a cross-platform library for retrieving information on running processes and system utilization</span>. It is not absolutely mandatory but very convenient.</li><li><a href="http://pywbem.github.io/">pywbem</a> if a WBEM server is available.</li><li><a href="https://pypi.python.org/pypi/pywin32">pywin32</a>: The fantastic win32 module is really nice to have when running on a Windows machine.</li></ul>
 <span style="font-style: italic; font-family: DejaVu Sans;"><br></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">OTHER REQUIREMENTS ?<br><br></span></span><span style="font-family: DejaVu Sans;">Survol uses <a style="font-family: DejaVu Sans;" href="http://www.graphviz.org/">Graphviz</a><span style="font-family: DejaVu Sans;"> , an </span>open source graph visualization software, to represent its&nbsp; structural information as an SVG diagram<span style="font-family: DejaVu Sans;">.</span>
 It is not absolutely required because Survol has other rendenring
@@ -96,7 +99,11 @@ accessing management information in an enterprise environment.</span><span style
 Model</a>).&nbsp; The CIM schema is the model for delivering this standard
 information.&nbsp; </span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">To
 summarize, WBEM define classes of computer-related objects: Processes,
-files, network cards etc... have a valid and detailed definition in CIM.</span> Here are some examples:<br><br></span><table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2"><tbody><tr><td style="font-family: DejaVu Sans;">CIM_Process</td><td style="font-family: DejaVu Sans;">This is the base class of a process, which is derived into Win32_Process</td></tr><tr><td style="font-family: DejaVu Sans;">CIM_Datafile</td><td style="font-family: DejaVu Sans;">A normal file: The concept and its implementation are similar in Windows and Linux. </td></tr><tr><td style="font-family: DejaVu Sans;">CIM_Directory</td><td style="font-family: DejaVu Sans;">File directories</td></tr><tr><td style="font-family: DejaVu Sans;">Win32_UserAccount</td><td style="font-family: DejaVu Sans;">A Windows user account. Linux has a specific definition, unrelated to this one.</td></tr></tbody></table><span style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">SURVOL DATA MODEL.</span></span><br><span style="font-family: DejaVu Sans;"><br>The data description offered by WBEM suffers from several drawbacks:<br></span><ul><li><span style="font-family: DejaVu Sans;">It
+files, network cards etc... have a valid and detailed definition in CIM.</span> Here are some examples:<br><br></span><table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2"><tbody><tr><td style="font-family: DejaVu Sans;">CIM_Process</td><td style="font-family: DejaVu Sans;">This is the base class of a process, which is derived into Win32_Process</td></tr><tr><td style="font-family: DejaVu Sans;">CIM_Datafile</td><td style="font-family: DejaVu Sans;">A normal file: The concept and its implementation are similar in Windows and Linux. </td></tr><tr><td style="font-family: DejaVu Sans;">CIM_Directory</td><td style="font-family: DejaVu Sans;">File directories</td></tr><tr><td style="font-family: DejaVu Sans;">Win32_UserAccount</td><td style="font-family: DejaVu Sans;">A Windows user account. Linux has a specific definition, unrelated to this one.</td></tr></tbody></table><span style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">SURVOL DATA MODEL.</span></span><br><span style="font-family: DejaVu Sans;"><br>One
+of the core aspects of Survol is its data model which attempts to take
+the best of the worlds it is working in. A first approach is WBEM.
+However, the data description offered by WBEM suffers from several
+drawbacks:<br></span><ul><li><span style="font-family: DejaVu Sans;">It
 does not define all the objects we need, because CIM is not really
 oriented . For example, database tables, or sockets, or Python packages or Samba&#8482; servers have no definition. It
 is indeed possible to add new classes into WIM or WMI, but not in a
@@ -212,13 +219,18 @@ A class or namespace can define other functions in its __init__.py file. All of 
     <tr>
       <td style="vertical-align: top;">EntityOntology<br>
       </td>
-      <td style="vertical-align: top;">This returns an array of strings which are the name of the attributes of an object of this class. This does not apply to namespaces.<br>
+      <td style="vertical-align: top;">This
+returns an array of strings which are the name of the attributes of an
+object of this class. This does not apply to namespaces.<br>
       </td>
     </tr>
     <tr>
       <td style="vertical-align: top;">Graphic_colorbg<br>
       </td>
-      <td style="vertical-align: top;">Ths returns a RBG color coded as a hexadecimal string. This color is used by any UI mode, for this class/namespace, unless it is superseded by a subclass or subnamespace.<br>
+      <td style="vertical-align: top;">Ths
+returns a RBG color coded as a hexadecimal string. This color is used
+by any UI mode, for this class/namespace, unless it is superseded by a
+subclass or subnamespace.<br>
       </td>
     </tr>
     <tr>
@@ -230,7 +242,7 @@ name does have to be unique, but must be printable.This applies to classes only.
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;"><meta http-equiv="content-type" content="text/html; charset=UTF-8">AddInfo</td>
+      <td style="vertical-align: top;">AddInfo</td>
       <td style="vertical-align: top;">When displaying an object, adds some extra information related to it.<br>
       </td>
     </tr>
