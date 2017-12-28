@@ -54,7 +54,8 @@ def ServerForever(server):
 
 port_number_default = 8000
 
-def Usage(progNam):
+def Usage():
+    progNam = sys.argv[0]
     print("Survol HTTP server: %s"%progNam)
     print("    -a,--address=<IP address> TCP/IP address")
     print("    -p,--port=<number>        TCP/IP port number. Default is %d." %(port_number_default) )
@@ -166,7 +167,7 @@ def RunCgiServerInternal():
         elif anOpt in ("-b", "--browser"):
             browser_name = aVal
         elif anOpt in ("-h", "--help"):
-            Usage(sys.argv[0])
+            Usage()
             sys.exit()
         else:
             assert False, "Unhandled option"
@@ -176,9 +177,11 @@ def RunCgiServerInternal():
     # os.environ['SERVER_NAME'] = "tototutu"
     # os.environ['HOSTNAME'] = "tititoto"
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
+    print("Platform=%s\n"%sys.platform)
+    print("Version:%s\n"% str(sys.version_info))
     print("Server address:%s" % server_addr)
     print("Opening %s:%d" % (server_name,port_number))
-    print("sys.path=%s"% str(sys.path))
+    # print("sys.path=%s"% str(sys.path))
     try:
         print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
     except KeyError:
@@ -272,13 +275,47 @@ def RunCgiServerInternal():
                 pathOnly = uprs.path
                 # print("is_cgi pathOnly=%s"%pathOnly)
 
+                # This interprets cr-nl.
+
+                logging.info('\n')
+
                 fileName, fileExtension = os.path.splitext(pathOnly)
                 return fileExtension == ".py"
 
-
+        # Purpose is to understand why it does not interpret cr-nl.
+        import logging
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
+        logging.info('hello')
+        logging.info('\n')
+        # logging.warning('new hello')
 
         handler = MyCGIHTTPServer
         server = HTTPServer((server_name, port_number), handler)
+
+        # Testing Win10 and Python 3
+        if 'win' in sys.platform:
+            # Normally, this value receives socket.gethostname(),
+            # which later gives its value to os.environ["SERVER_NAME"].
+            # But, for this application, this environment variable must have the same value
+            # as the server address, because it is used to build URLs.
+            # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
+            # This is not necessary for Windows (Which apparently copies its env vars).
+            # This must be tested on Python 3.
+            server.server_name = server_name
+            print("server=%s"%(server.server_name))
+            # os.environ["SERVER_NAME"] = server_name
+
+
+        if 'win' in sys.platform:
+            import msvcrt
+            # msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+            # It does not work either. Problem is that it receives binary strings.
+            msvcrt.setmode(sys.stdout.fileno(), os.O_TEXT)
+
+            # With this, still it does not interpret carriage-returns.
+            # Maybe it is open as binary and should be reopen as text ?
+            # sys.stderr = sys.stdout
+
         server.serve_forever()
 
 if __name__ == '__main__':
