@@ -172,17 +172,23 @@ def HttpPrefix():
 
 def UriRootHelper():
 	try:
+		# sys.stderr.write("SERVER_NAME=%s\n"%os.environ["SERVER_NAME"])
+		os.environ["SERVER_NAME"]
+	except KeyError:
+		sys.stderr.write("SERVER_NAME MUST BE DEFINED UNDEFINED\n")
+		sys.exit(1)
+	try:
 		# SCRIPT_NAME=/PythonStyle/survol/internals/print.py
 		# SCRIPT_NAME=/survol/print_environment_variables.py
 		scriptNam=os.environ['SCRIPT_NAME']
 		idx = scriptNam.find('survol')
-		sys.stderr.write("UriRootHelper scriptNam=%s idx=%d\n"%(scriptNam,idx))
+		# sys.stderr.write("UriRootHelper scriptNam=%s idx=%d\n"%(scriptNam,idx))
 		if idx >= 0:
 			root = scriptNam[:idx] + 'survol'
 		else:
 			# Should not happen.
 			root = "/NON_SURVOL_URL/" + scriptNam
-		sys.stderr.write("UriRootHelper scriptNam=%s root=%s\n"%(scriptNam,root))
+		# sys.stderr.write("UriRootHelper scriptNam=%s root=%s\n"%(scriptNam,root))
 
 	except KeyError:
 		# If this runs from the command line and not as a CGI script,
