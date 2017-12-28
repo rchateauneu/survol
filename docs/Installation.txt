@@ -175,6 +175,9 @@ LoadModule headers_module modules/mod_headers.so
     Header set Access-Control-Allow-Origin: *
 </IfModule>
 
+Create Survol.conf file
+Must create a specific conf file pour Apache.
+
 ========================================================================================================================
 PYTHONPATH
 ;C:\Python\3.2.3-0.2;C:\Python\3.2.3-0.2\Lib\site-packages
@@ -189,17 +192,17 @@ This is not enough:
 
 
 Comme Apache veut ses scripts dans un directory special, et qu on veut aussi les installer normallement
-(Donc dans le dossier Python), on est oblige d’utilise des symlinks.
+(Donc dans le dossier Python), on est oblige d'utiliser des symlinks.
 
-Ce que doit faire l’installation :
--          Mettre sources_types, revlib ( mais aussi quelques scripts de htbin, bien que ce soit commode de faire une exception pour eux ), dans les modules appelables. Les scripts de htbin devront maintenant specifier explicitement from survol etc… Renommer « /htbin/ » en « /survol/ », virer « htbin » des paths.
+Ce que doit faire lï¿½installation :
+-          Mettre sources_types, revlib ( mais aussi quelques scripts de htbin, bien que ce soit commode de faire une exception pour eux ), dans les modules appelables. Les scripts de htbin devront maintenant specifier explicitement from survol etcï¿½ Renommer ï¿½ /htbin/ ï¿½ en ï¿½ /survol/ ï¿½, virer ï¿½ htbin ï¿½ des paths.
 -          Copier les html et js dans un dossier pas trop loin des deux scripts.
--          Transformer les deux scripts cgi et wsgi en .exe lances en double-cliquant (Ouverture d’un browser). Ils vont explicitement « from survol import … » et exposent, indépendamment ou concurremment, les htm et les py.
--          Installer les html/js d’une part, les les scripts de « /survol/ » d’autre part, dans Apache, ou IIS, indépendamment : On peut avoir l’un sans l’autre. On peut aussi, probablement, avoir les html sans serveur (Mais c’est du cross-site ?)
+-          Transformer les deux scripts cgi et wsgi en .exe lances en double-cliquant (Ouverture dï¿½un browser). Ils vont explicitement ï¿½ from survol import ï¿½ ï¿½ et exposent, indï¿½pendamment ou concurremment, les htm et les py.
+-          Installer les html/js dï¿½une part, les les scripts de ï¿½ /survol/ ï¿½ dï¿½autre part, dans Apache, ou IIS, indï¿½pendamment : On peut avoir lï¿½un sans lï¿½autre. On peut aussi, probablement, avoir les html sans serveur (Mais cï¿½est du cross-site ?)
 
 Installations Apache:
 -          Pour le html, rien de special mais il faudra acceder aux CSS.
--          Pour les scripts, on voudrait que Apache pointe sur le directory d’installation de Python.
+-          Pour les scripts, on voudrait que Apache pointe sur le directory dï¿½installation de Python.
 
 
 https://docs.python.org/2.7/distutils/setupscript.html#installing-additional-files
@@ -223,15 +226,20 @@ pip install survol-1.0.dev0.zip --upgrade
 #
 ========================================================================================================================
 How to start our CGI server:
-survol_cgiserver -h
+Make a binary with installation.
+Check the directory
+cgiserver -h
 
-Survol HTTP server: C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\testarea\Scripts\survol_cgiserver
-    -p,--port=<number>      TCP/IP port number
+Survol HTTP server:
+cgiserver
+    -p,--port=<number>      TCP/IP port number. Default is 8000
+    -a,--address=<host>     IP address. Default value is local host name.
     -b,--browser=<program>  Starts a browser
     -v,--verbose            Verbose mode
 
-survol_cgiserver -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
-survol_cgiserver -b "C:\Program Files\Internet Explorer\iexplore.exe"
+cgiserver -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+cgiserver -b "C:\Program Files\Internet Explorer\iexplore.exe"
+cgiserver -b webbrowser # Uses default browser.
 
 ========================================================================================================================
 Adding favicon
@@ -284,7 +292,7 @@ Surprisingly, it works... It should not, as following symbolic links in a cgi di
 http://www.primhillcomputers.com/cgi-bin/survol/print_environment_variables.py
 
 
-
-
 ========================================================================================================================
-
+Development tools (Win10):
+notepad++
+Creer base SqlServer

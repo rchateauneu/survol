@@ -124,3 +124,76 @@ En pratique, elles sont forcement specialisees pour un type de chaine.
 Et meme peut-etre, les attacher a une classe.
 Ca permettrait de toujours pouvoir proposer une clusterisation des qu'on a plein d'objets
 de cette classe et descendants du meme parent.
+
+============================================================================================================
+Cas de figure: Si on arrive a extraire des dates au meme format,
+d un grand nombre de chaines, les regrouper sous la forme d un calendrier.
+============================================================================================================
+opencalais et transformer un fichier de log en donnees: https://permid.org/onecalaisViewer
+Appliquer le tagging a des fichiers de logs pour comprendre ce que fait une application.
+http://www.opencalais.com/about-open-calais/
+Parser les time-stamps ?
+
+Thomson Reuters OpenPermID
+Pour relier au PermID de Thomson Reuters: https://permid.org/faq
+Entreprise associee a une adresse IP.
+Personne physique associee a un user.
+
+Eventuellement associer des donnees techniques a des donnees business,
+ce qui est frequemment le cas.
+
+"Use Open Calais to return PermIDs for organizations and instruments hidden in your unstructured text."
+============================================================================================================
+Donnees temporelles.
+Pour que ca ait du sens, il faudrait tenir compte du temps,
+en parsant aussi les time-stamps.
+Rejouer des sessions
+============================================================================================================
+On va laisser tomber RDFLIB pour le stockage car la clusterization
+demandera un autre format de donnees.
+En revanche, c est l occasion de vraiment fabriquer du rdf,
+ainsi que les ontologies en OWL.
+
+class SurvolNode:
+  m_url : Si None, c est un literal.
+  m_class : Calculee une seule fois en meme temps que le label. Si None, literal.
+  m_label : On les calculera une seule fois. Ou alors, c est la valeur du literal.
+  Eventuellement, correspondance avec WMI et WBEM (Namespace ?)
+  Conversion en string: m_url ou str(m_caption) si None.
+
+Comme ca, plus besoin des conversions bizarres.
+Notamment, on maitrise le tri.
+Et les pc.properties sont des SurvolProp
+class SurvolProp:
+  m_name
+
+Structure du graph.
+dict< SurvolNode, dict < SurvolProp, set < SurvolNode > > >
+
+Avant de generer le code, phase de clusterization, qui depend de la classe.
+Le flag qui dit si on clusterize ou pas, en depend aussi.
+On affiche ce flag si la classe est representee.
+Pour clusteriser, on remplace des paires: ( SurvolProp, set < SurvolNode > )
+en creant des noeuds intermediaires.
+Ces nouveaux noeuds intermediaires peuvent etre:
+* Des directories (Si on a liste des fichiers en vrac)
+* Des processes-sous processes si on veut refaire l arbre des sous processes.
+  Mais on garde ce qu on a deja.
+* Des liens de pagination abstraits (Next 100, Prev 100):
+  Ca ne gene pas la pagination qu on a deja.
+* Des "clusters" abstraits, bases sur des regexp.
+
+
+
+
+
+Pour convertir en RDF, on le fera serieusement:
+Et tout d'abord creer les ontologies en OWL.
+Et donc on va creer lib_rdf qui sera le seul a utiliser rdflib.
+
+Avant de faire le changement, d abord boucler sur une page de bookmark.
+Pour cela, utiliser wget avec une profondeur limitee a 1 ou 2,
+et verifier le resultat.
+Eventuellement, mettre la page de bookmarks de test, dans Git.
+
+============================================================================================================

@@ -1,4 +1,5 @@
 #
+# This is made to debug things on OVH hosting.
 
 # http://primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/sources_types/CIM_ComputerSystem/mysql_databases.py&amp;xid=CIM_ComputerSystem.Name%3Dprimhilltcsrvdb1.mysql.db&mode=html
 echo "Run script locally"
