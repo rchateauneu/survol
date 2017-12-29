@@ -4,8 +4,7 @@
 
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-</head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head>
 <body>
 <div class="" style="text-align: center; font-family: DejaVu Sans;"><a href="survol.htm"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
 <br>
@@ -17,18 +16,17 @@
 <div style="text-align: left; font-family: DejaVu Sans;"><span style="font-style: italic; font-weight: bold;"></span></div>
 <span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"><br>
 &nbsp;</span><br style="font-family: DejaVu Sans;">
-<span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"></span><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;">ARCHITECTURE
-<br><br></span><span style="font-family: DejaVu Sans;">Survol needs to
+<span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"></span><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"><br>ARCHITECTURE<br><br></span><span style="font-family: DejaVu Sans;">Survol needs to
 run one agent
 per machine: A plain HTTP server running Python scripts. This agent and
 its port number define the identity of each object of this machine,
-that Survol is able to provide informaiton about. This is exactly the
+that Survol is able to provide information about. This is the
 same concept as in WMI and WBEM, and both interoperate completely.
 Therefore, Survol is able to get information with another machine
 with no Survol agent: See OpenLMI, WMI etc... <br><br>If your browser runs ActiveX, it is also possible to use Survol web pages with no agent.<br><br>Survol
 is based on a tree of Python scripts, all of them display information
 of the system the agent is running on. Some scripts do not need
-parameters: They will return information with no context: For example
+parameters: They will return information with no context: For example,
 all available databases, all detected machines on the network, all
 installed Python modules etc... Other scripts need parameters, as they
 display information about a specific object. For example; Files opened
@@ -44,8 +42,8 @@ representation of Survol is a RDF graph: a set
 of triples: Subject, relation, object, and is also the core data type
 found in the </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Semantic_Web">Semantic
 web</a><span style="font-family: DejaVu Sans;">.
-It is succesfully used in Artificial Intelligence applications. This
-abstract representation is independent of the display mode.The same set
+It is successfully used in Artificial Intelligence applications. This
+abstract representation is independent of the display mode. The same set
 of
 data, extracted from an information system, is shown several ways:</span><br style="font-family: DejaVu Sans;">
 <ul style="font-family: DejaVu Sans;">
@@ -67,8 +65,8 @@ plain text, reports which can be saved, and compared.</li>
 output modes, used internally:<br>
 </span>
 <ul style="font-family: DejaVu Sans;">
-<li>A JSON mode of use Javascript-based display. At the moment,
-the client-side graphic library is D3, but it might be nice to use also
+<li>A JSON mode of use JavaScript-based display. At the moment,
+the client-side graphic library is D3, with projects to use also
 <a href="http://www.cytoscape.org/">Cytoscape</a>,
 another software platform for visualizing complex network. Survol is
 extremely modular, and adding a new front-end is a totally independent
@@ -78,8 +76,6 @@ task.</li>
 is&nbsp;</strong>an ontology editor and framework, for
 building intelligent systems and knowledge-based solutions.</li>
 </ul>
-<span style="font-style: italic; font-family: DejaVu Sans;"><br>
-<span style="font-weight: bold;"></span></span><br style="font-family: DejaVu Sans;">
 <span style="font-style: italic; font-family: DejaVu Sans;"><br>
 <span style="font-weight: bold;">WMI, WBEM, CIM</span></span><br style="font-family: DejaVu Sans;">
 <span style="font-style: italic; font-family: DejaVu Sans;"><br>
@@ -141,8 +137,8 @@ drawbacks:<br>
 </span>
 <ul style="font-family: DejaVu Sans;">
 <li>It
-does not define all the objects we need, because CIM is not really
-oriented . For example, database tables, or sockets, or Python packages
+does not define all the objects we need, because CIM is very neutral, not
+oriented to applicaiotns management. For example, database tables, or sockets, or Python packages
 or Samba&#8482; servers have no definition. It
 is indeed possible to add new classes into WIM or WMI, but not in a
 portable way, and it requires C++ code compilation etc... this is quite
@@ -152,7 +148,7 @@ WQL, the CIM query language, has some limitations: It does not allow
 joins between several classes, and a query can return objects of a
 single class only. Whereas some information snapshot would require of
 all sorts of objects to completely describe a situation: Some examples
-which cannot be described by WQL queries could be:All network files
+which cannot be described by WQL queries could be: All network files
 accessed by a process, plus their sockets. Or linkable symbols from a
 DLL file. Or SQL queries detected in a process
 memory, plus their tables. These are quite common situations when
@@ -173,11 +169,11 @@ worlds:<br>
 <ul style="font-family: DejaVu Sans;">
 <li>Existing
 WBEM classes are always reused. When the classes are different in Linux
-and Windows, but a common base class exist, this base &nbsp;class
+and Windows, but a common base class exist, this base&nbsp;class
 is
 chosen. Survol uses only a subset of WBEM ontologies: That is, it uses
 only the minimal number of WBEM class properties which are necessary to
-uniquely define an object.However, all detected properties are
+uniquely define an object. However, all detected properties are
 displayed, when available.</li>
 <li>Survol comes with a lightweight
 ontology and data definition where a class is only defined by a
@@ -192,7 +188,7 @@ repository. Survol is -also- a complete read-only WBEM objects browser.
 Notably, Survol can "talk" with WBEM or WMI running on distant machines.</li>
 </ul>
 <span style="font-family: DejaVu Sans;"><span style="font-style: italic;">
-</span></span><br style="font-family: DejaVu Sans;">
+</span></span>
 <span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"><br>
 SURVOL CLASSES AND NAMESPACES. ADDING NEW CLASSES</span></span><span style="font-family: DejaVu Sans;">.</span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
@@ -203,7 +199,7 @@ A class is a module where the function Ontology() is present, whether
 it is defined
 by the module or one of its parents modules.
 The return value of EntityOntology() is a list of string, each
-representing an attrobute of the class.
+representing an attribute of the class.
 If a module nor none of its parent modules define the function
 EntityOntology(),
 it is a namespace.
@@ -232,8 +228,8 @@ object of this class. This does not apply to namespaces.<br>
 <tr>
 <td style="vertical-align: top;">Graphic_colorbg<br>
 </td>
-<td style="vertical-align: top;">Ths
-returns a RBG color coded as a hexadecimal string. This color is used
+<td style="vertical-align: top;">This
+returns a RBG colour coded as a hexadecimal string. This colour is used
 by any UI mode, for this class/namespace, unless it is superseded by a
 subclass or subnamespace.<br>
 </td>
@@ -243,8 +239,8 @@ subclass or subnamespace.<br>
 <td style="vertical-align: top;">This returns a
 display name for
 this object, given its attributes passed as an array, in the order
-specified by the ontology. The ostname is also passed. The resulting
-name does have to be unique, but must be printable.This applies to
+specified by the ontology. The hostname is also passed as an argument. The resulting
+name does have to be unique, but must be printable. This applies to
 classes only.<br>
 </td>
 </tr>
@@ -267,13 +263,13 @@ packages etc... It can be defined for any module or any script.<br>
 </table>
 <br style="font-family: DejaVu Sans;">
 <span style="font-family: DejaVu Sans;">Survol aims to
-address the diversity of applications running for dozen
+address the diversity of applications running for dozens
 of years on a variety of architectures.
 Its framework, based on a tree of Python modules and scripts makes it
 very easy to add processing
 to include libraries, architectures, etc...
 The inclusion of different architectures in Survol framework, adding a
-new class, or new scripts, to survol, is a trivial task: One just need
+new class, or new scripts, to Survol, is a trivial task: One just need
 to copy a file tree at a specific place. It is of course possible to
 mix open-source and proprietary scripts.</span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
@@ -282,7 +278,7 @@ mix open-source and proprietary scripts.</span><br style="font-family: DejaVu Sa
 <br style="font-family: DejaVu Sans;">
 <span style="font-family: DejaVu Sans;">Survol is designed
 to run in a harsh environment, uncertain platforms,
-broken libraries, uncompatible interfaces,
+broken libraries, incompatible interfaces,
 and return as much information as possible about unknown applications.
 It has to be robust and adapt to any situation.
 Therefore, it is built, at all stages, on the concept of redundancy.
@@ -295,7 +291,7 @@ display:</span><br style="font-family: DejaVu Sans;">
 <span style="font-family: DejaVu Sans;">Survol can display
 its results in:</span><br style="font-family: DejaVu Sans;">
 <ul style="font-family: DejaVu Sans;">
-<li>Plain HTML text: Results of the same scripts are garanteed
+<li>Plain HTML text: Results of the same scripts are guaranteed
 to be return in the same order,
 allowing automatic comparison. It can be displayed on a very simple
 browser.</li>
@@ -309,7 +305,7 @@ be used by client software too.</li>
 </ul>
 <span style="font-style: italic; font-family: DejaVu Sans;">Redundancy
 of
-informations sources:</span><br style="font-family: DejaVu Sans;">
+information sources:</span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
 <span style="font-family: DejaVu Sans;">The core
 information might come from any source: win32 Python library,
@@ -320,7 +316,7 @@ of Web
 hosting:</span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
 <span style="font-family: DejaVu Sans;">Scripts can be
-hosted by Apache, IIS&#8482;, our dedicated adhoc CGI server.
+hosted by Apache, IIS&#8482;, the dedicated ad hoc CGI server.
 Any reasonable HTTP server
 with CGI or WSGI capabilities should suffice.</span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
@@ -330,9 +326,8 @@ interpreter and libraries:</span><br style="font-family: DejaVu Sans;">
 <ul style="font-family: DejaVu Sans;">
 <li>It can use Python2 and Python3, over many releases. Survol
 is not very demanding in terms of Python features.</li>
-<li>Packages: Python requires a very small set of modules. The
-other are optional; If a script needs a Python module
-which is not there, the script is simply disabled, doing no harm.</li>
+<li>Packages: Python requires a very small set of modules. If a script needs an optional Python module
+which is not installed, the script is simply disabled, doing no harm.</li>
 <li>Scripts
 might return information with a significant overlap, from different
 libraries or mechanisms.
@@ -340,7 +335,7 @@ This is helpful if one script does not work, as a work-around might
 exist.
 And, because objects, in Survol, always have the same URL, this does
 not yield duplicate,
-when combining, merging the results of several scripts into a single
+when combining, merging the results of several scripts into
 one:
 Duplicate information is automatically removed when at this stage.
 Even objects created by ActiveX&#8482; are smoothly paired with the ones
