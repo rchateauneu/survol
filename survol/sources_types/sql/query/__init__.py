@@ -1,3 +1,7 @@
+"""
+Abstract SQL query
+"""
+
 import re
 import sys
 import cgi

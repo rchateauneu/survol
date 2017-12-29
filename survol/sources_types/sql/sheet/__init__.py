@@ -1,3 +1,7 @@
+"""
+Abstract SQL table/view
+"""
+
 import lib_common
 
 def EntityOntology():

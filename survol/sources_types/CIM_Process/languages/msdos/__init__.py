@@ -1,3 +1,7 @@
+"""
+Processes running MSDOS batches
+"""
+
 import os
 import sys
 import json

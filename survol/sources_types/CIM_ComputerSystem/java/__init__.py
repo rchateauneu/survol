@@ -1,1 +1,3 @@
-# Return information about Java processes running on a remote machine.
+"""
+Java processes running on a machine.
+"""

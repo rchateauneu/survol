@@ -1,3 +1,7 @@
+"""
+Java processes
+"""
+
 # On l implemente en Java appele par du Python car de toute facon Java est necessaire.
 #
 # (1) http://stackoverflow.com/questions/376201/debug-a-java-application-without-starting-the-jvm-with-debug-arguments
