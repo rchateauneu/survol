@@ -1,5 +1,5 @@
 """
-Scripts specific to Windows 32
+Scripts specific to Win32 API
 """
 
 import lib_util
