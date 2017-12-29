@@ -1,0 +1,63 @@
+Survol is a Python agent and a web interface aiming to help the analysis and investigation of a legacy application.
+A set of machines, processes, databases, programs etc ...
+all communicating with each other, manipulating your data,
+and whose software architecture has become, with time, complicated, difficult to understand, and undocumented.
+
+Survol is designed for two classes of users:
+
+* Managers in charge of software projects, who must to follow development tasks, infrastructure evolutions,
+by looking directly into what's being developed.
+They need a non-technical tool, to extract information from a running application at a synthetic level.
+* Consultants, newly-comers on legacy software, who must be grasp quickly an existing information system,
+using many, too many technologies.
+
+These users have something in common: They must quickly grasp a large software architecture, maybe constantly changing:
+With its visual interfaces, _Survol is also a team-building tool_, bringing clarity, helping to give the same names to the same things.
+
+Survol allows to display any software entity or resources running on a computer.
+Simply said, it is a library of Python scripts, each of them displaying a particular facet of an information system.
+
+These scripts are run on Survol agents, these agents running on one or several machines of the user application network.
+The web interface then displays and summarizes all the information coming from the agents.
+It is not necessary to have an agent on all machines because many scripts can get information
+from other machines than the one they are running on. Strictly said, it is possible to run without an agent at all,
+just with a static Javascript page which connects to the target machines.
+The agents are very lightweight and can also run on an **Internet of Things** (IoT) network.
+
+The data model of Survol is based on classes, each of them defining a type of computer resources: Processes, machines, files etc...
+It can display for example the tree of processes and subprocesses or a directory and its subdirectories: Each file is displayed with some basic properties.
+One can click on each box to get further information, as no keyboard is needed. No special technical skills are needed to use Survol.
+The general details one can graps about the various interaction between components of an information system, greatly help its understanding:
+Links between machines, processes, databases and any other components are visible. Useful dependencies are extracted without documentation.
+
+Survol fully respects the security policy of the network it is running on:
+If the agent runs on a privileged account, it will extract many information.
+But even with a dummy account, it will still be able to retrieve useful data about the analysed system.
+Survol does not ever modify or change anything on the machines it is running on, so it is very safe.
+
+Everything can be combined in graphic reports, everyone can understand.
+The data model borrows extensively its ontology and terminology from **Common Information Model** (CIM), an existing industrial standard.
+Therefore, it interacts freely with CIM implementations such as **Microsoft WMI**, **OpenLMI**, **OpenPegasus** and **WBEM**, and any other software based on this standard.
+
+It is very easy to add new scripts, to display a specific kind of information, only your application defines.
+When resources types are not defined by CIM, Survol adds its own resource classes, in a very simply way.
+If a user application defines its resources classes, it is very easy to add ones, along with associated scripts,
+in open or proprietary source code, without complicated setup. Just create a directory and add a new script at the right place, that's it.
+
+The internal data model built by Survol agents, is a set of triples: Subject, relation, object,
+homogeneous to **Resource Description Framework** (RDF), the core data type found in the Semantic web,
+a standard which provides a framework allowing data to be shared and reused across applications.
+RDF, especially appropriate for Artificial Intelligence applications, is an abstract model for Survol data,
+which are extracted from heterogenous sources information system. Survol displays these data in several modes:
+
+* Interactive mode, fully interactive, designed for investigating, browsing, drilling into applications internals.
+It uses **D3**, a nice JavaScript library for manipulating graphs.
+* A print mode, where the rendered view cannot be modified but is designed to be nicely printed for reporting or presentations.
+The appearance is similar to the interactive one, but the layout does not depend on User interaction.
+It uses Graphviz, an open source graph visualization software.
+* The plain HTML mode, convenient to generate reports in plain text, reports which can be saved, and compared.
+
+Survol can have add-ons: It is very easy to customize Survol by adding new scripts and classes:
+One just need to add Python scripts at the right place:
+Their returned information can now fully integrate with the rest of Survol model.
+Survol fully uses Python documentation features to expose your add-on and its integrated documentation.
