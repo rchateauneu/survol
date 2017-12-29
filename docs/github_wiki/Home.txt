@@ -61,3 +61,5 @@ Survol can have add-ons: It is very easy to customize Survol by adding new scrip
 One just need to add Python scripts at the right place:
 Their returned information can now fully integrate with the rest of Survol model.
 Survol fully uses Python documentation features to expose your add-on and its integrated documentation.
+
+[See Survol page on Primhill Computers web site.](http://primhillcomputers.com/survol.htm)
