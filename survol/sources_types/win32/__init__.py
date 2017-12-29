@@ -1,3 +1,7 @@
+"""
+Top-level Windows scripts.
+"""
+
 import lib_util
 
 # Necessary otherwise it is displayed on Linux machines.

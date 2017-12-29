@@ -1,7 +1,5 @@
-# Sessions  for mysql or mariadb.
-
 """
-MySql database
+MySql session
 """
 
 import lib_common

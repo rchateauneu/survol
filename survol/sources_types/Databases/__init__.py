@@ -1,1 +1,3 @@
-__author__ = 'rchateau'
+"""
+Top-level scripts for databases detection.
+"""

@@ -1,5 +1,3 @@
-# Databases for mysql or mariadb.
-
 """
 MySql database
 """

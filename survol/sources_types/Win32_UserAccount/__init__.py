@@ -1,3 +1,6 @@
+"""
+Scripts related to Windows Win32_UserAccount class.
+"""
 import lib_common
 import lib_uris
 

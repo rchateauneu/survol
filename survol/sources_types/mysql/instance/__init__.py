@@ -1,5 +1,3 @@
-# Instances for mysql or mariadb.
-
 """
 MySql instance
 """

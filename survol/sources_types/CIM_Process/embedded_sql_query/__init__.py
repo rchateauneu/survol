@@ -1,3 +1,7 @@
+"""
+Extraction of SQL queries from process memory.
+"""
+
 from sources_types.sql import query as sql_query
 # from sources_types import CIM_Process
 
