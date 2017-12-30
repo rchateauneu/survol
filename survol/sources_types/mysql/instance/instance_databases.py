@@ -42,7 +42,13 @@ def Main():
 
 	aCred = lib_credentials.GetCredentials("MySql", instanceName)
 
-	connMysql = survol_mysql.MysqlConnect(instanceName,aUser = aCred[0],aPass=aCred[1])
+	# If user/password incorrect, nothing we can do.
+	try:
+		aUser = aCred[0]
+		connMysql = survol_mysql.MysqlConnect(instanceName,aUser,aPass=aCred[1])
+	except :
+		exc = sys.exc_info()
+		lib_common.ErrorMessageHtml("Cannot connect to instance=%s user=%s:%s"%(instanceName,aUser,str(exc)))
 
 	cursorMysql = connMysql.cursor()
 
