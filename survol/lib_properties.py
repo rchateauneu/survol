@@ -113,6 +113,7 @@ pc.property_rdf_data_nolist2     = MakeProp("Data2") # Names must all be differe
 pc.property_rdf_data_nolist3     = MakeProp("Data3") # Names must all be different
 pc.property_wbem_data            = MakeProp("wbem")
 pc.property_wmi_data             = MakeProp("wmi")
+pc.property_survol_agent         = MakeProp("survol_agent")
 pc.property_csv_data             = MakeProp("csv")
 pc.property_information          = MakeProp(sortPrefix + "Information")
 pc.property_domain               = MakeProp("domain")
