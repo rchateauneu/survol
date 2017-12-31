@@ -140,3 +140,6 @@ def UpdatesCredentials(credMapOut):
 			cred = credMapOut[credType][credName]
 			credDict[credType][credName] = [ cred[0], cred[1] ]
 	DumpToFile(credDict)
+
+def KeyUrlCgiEncode(aKeyUrl):
+	return aKeyUrl.replace("http://","http:%2F%2F").replace("https://","https:%2F%2F")
