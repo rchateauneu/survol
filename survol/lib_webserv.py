@@ -15,10 +15,10 @@ try:
 except ImportError:
 	from urllib import urlopen
 
-try:
-	from urllib.parse import urlparse
-except ImportError:
-	from urlparse import urlparse
+#try:
+#	from urllib.parse import urlparse
+#except ImportError:
+#	from urlparse import urlparse
 	
 import time
 import datetime
@@ -98,7 +98,7 @@ class RdfQueue_HTTPRequestHandler(BaseHTTPRequestHandler):
 		# http://192.168.1.68/~rchateau/RevPython/survol/entity.py?xid=process:7775
 		self.LogMsg("ParseQuery path="+self.path)
 
-		parsed_url = urlparse( self.path )
+		parsed_url = lib_util.survol_urlparse( self.path )
 
 		query_as_dict = cgi.parse_qs(parsed_url.query)
 
