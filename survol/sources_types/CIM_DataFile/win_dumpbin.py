@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Dumpbin symbols associated to a DLL
+Dumpbin DLL symbols
 """
 
 import os
@@ -11,36 +11,8 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-# Trouver un moyen de passer un parametre a un cgi :
-# - Creer des URL qu on injecte dans un fichier dot.
-#   Ca exige une passe speciale qui va reconnaitre la nature des noeuds.
-# - Sur un SVG donne, il faut pouvoir developper plusieurs noeuds 
-#   (c est-a-dire merger avec des urls contenant ce noeud comme parametre).
-# - Peut-etre style de merge ou, pour chaque noeud d un type donne, 
-#   on charge un pattern d URL en ajoutant ce noeud comme parameter. 
-#   Peut-etre pratique mais on risque d avoir un graphe enorme. Pas incompatible avec le reste.
-# - Quand on cliquerait un node, ca rappellerait le meme URL mais en ajoutant comme nouvel argument CGI, 
-#   l URL implicitement cree en cliquant ce noeud (Ou check-box auquel cas on retire le parametre 
-#   (En fait un URL) de la liste d url parametres CGI. 
-#   On peut faire ca plus facilement si on affiche un url sous forme d une liste de triplets, 
-#   avec une check-box pour chaque triplet (Signifiant : " expansion pour un type d URL 
-#   admettant ce type de noeud comme parametre)
-# - Comment qualifier dynamiquement, qu un URL doit prendre comme parametre un noeud d un type donne ? 
-#   Aussi, ca implique que le nom d un noeud le qualifie entierement : On peut aller chercher un fichier, 
-#   voir un process sur une machine donnee etc
-#   Eventuellement, cet identifiant unique est affiche sous forme de raccourci.
-# - Retour sur les points d entree dans les DLL/so : 
-#   On parle bien d un point d entree dans une DLL donnee : 
-#   Pas forcement, c est une abstraction. 
-#   En revanche, permettre d instrumenter la combinaison : symbole+fichier.
-
-def Usable(entity_type,entity_ids_arr):
-	"""Not a Windows binary or executable file"""
-	if not lib_util.UsableWindows(entity_type,entity_ids_arr):
-		return False
-	fulFileName = entity_ids_arr[0]
-	filename, file_extension = os.path.splitext(fulFileName)
-	return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
+# This script works only on a Windows executable or DLL etc...
+Usable = lib_util.UsableWindowsBinary
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -49,16 +21,20 @@ def Main():
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("DLL files are on Windows platforms only")
 
-	# This should be a parameter.
-	dumpbin_exe = "\"c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/bin/amd64/dumpbin.exe\""
-	# dumpbin_exe = "dumpbin.exe"
-	# dll_file = "C:/Program Files (x86)/IBM/WebSphere MQ/bin/amqmdnet.dll"
+	# The path containing the program dumpbin.exe should be a parameter.
+	# It can for example be:
+	# C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin
+	# c:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/bin/amd64/
+	dumpbin_exe = "dumpbin.exe"
+	# For example: dll_file = "C:/Program Files (x86)/IBM/WebSphere MQ/bin/amqmdnet.dll"
 	dumpbin_cmd = [ dumpbin_exe, dll_file, "/exports" ]
+
+	sys.stderr.write("dumpbin_cmd=%s\n"%str(dumpbin_cmd))
 
 	try:
 		dumpbin_pipe = lib_common.SubProcPOpen(dumpbin_cmd)
-	except WindowsError:
-		exc = sys.exc_info()[1]
+	except:
+		exc = sys.exc_info()
 		lib_common.ErrorMessageHtml("Windows error executing:"+" ".join(dumpbin_cmd)+":"+str(exc))
 		# TODO: "Access is denied". Why ???
 
@@ -67,19 +43,69 @@ def Main():
 	err_asstr = dumpbin_err.decode("utf-8")
 	err_lines = err_asstr.split('\n')
 
-	lib_common.ErrorMessageHtml("Err="+str(err_lines))
+	sys.stderr.write("err_asstr=%s\n"%str(err_asstr))
+	# lib_common.ErrorMessageHtml("Err="+str(err_lines))
 
 	# Converts to string for Python3.
 	out_asstr = dumpbin_out.decode("utf-8")
 	out_lines = out_asstr.split('\n')
 
+	sys.stderr.write("out_asstr=%s\n"%str(out_asstr))
+
 	grph = cgiEnv.GetGraph()
 
 	nodeDLL = lib_common.gUriGen.FileUri( dll_file )
 
+	# C:\Users\rchateau>dumpbin.exe "C:/Program Files (x86)/NETGEAR/WNDA3100v3/ICSDHCP.dll" /exports
+	# Microsoft (R) COFF/PE Dumper Version 12.00.31101.0
+	# Copyright (C) Microsoft Corporation.  All rights reserved.
+	#
+	#
+	# Dump of file C:/Program Files (x86)/NETGEAR/WNDA3100v3/ICSDHCP.dll
+	#
+	# File Type: DLL
+	#
+	#   Section contains the following exports for ICSDHCP.dll
+	#
+	#     00000000 characteristics
+	#     50232972 time date stamp Thu Aug 09 04:07:30 2012
+	#         0.00 version
+	#            1 ordinal base
+	#           17 number of functions
+	#           17 number of names
+	#
+	#     ordinal hint RVA      name
+	#
+	#          15    0 00005E10 ?ICSDHCP_DisableICS@@YAIXZ
+	#          16    1 00006650 ?ICSDHCP_GetAvailableDHCPSrvIP@@YAIQAE@Z
+	#           9    2 000067C0 ICSDHCP_CheckIcsNodes
+	#          10    3 000067F0 ICSDHCP_CheckIcsNodesEx
+	#           8    4 000066F0 ICSDHCP_DisableDhcpServer
+	#           5    5 00005E20 ICSDHCP_DisableICS
+	#           6    6 00006020 ICSDHCP_EnableDhcpServer
+	#          11    7 00006240 ICSDHCP_EnableDhcpServerEx
+	#           3    8 00005A50 ICSDHCP_EnableICS
+	#           4    9 00005C20 ICSDHCP_EnableICSP2P
+	#           2    A 00005A40 ICSDHCP_FreeAdapterInfo
+	#          14    B 00006850 ICSDHCP_FreeMemory
+	#           1    C 00005950 ICSDHCP_GetAdaptersInfo
+	#          17    D 000056F0 ICSDHCP_GetAdaptersInfoEx
+	#          13    E 00006830 ICSDHCP_GetIPfromMACTableLookup
+	#           7    F 000066D0 ICSDHCP_GetLeaseInfo
+	#          12   10 00006810 ICSDHCP_IcsSwitchWan
+	#
+	#   Summary
+	#
+	#        11000 .data
+	#        14000 .rdata
+	#         6000 .reloc
+	#         3000 .rsrc
+	#        5E000 .text
+	#
 	for lin in out_lines:
 		#        362  168 0111B5D0 ?CompareNoCase@AString@ole@@QBEHPBD@Z = ?CompareNoCase@AString@ole@@QBEHPBD@Z (public: int __thiscall ole:
-		matchObj = re.match( r'^ *[0-9A-F]+ *[0-9A-F]+ *[0-9A-F]+ ([^ ]+) = ([^ ]+)', lin )
+		# matchObj = re.match( r'^ *[0-9A-F]+ *[0-9A-F]+ *[0-9A-F]+ ([^ ]+) = ([^ ]+)', lin )
+		matchObj = re.match( r'^ *[0-9A-F]+ +[0-9A-F]+ +[0-9A-F]+ ([^ ]+)', lin )
 		if matchObj:
 			sym = matchObj.group(1)
 			# TODO: Not sure about the file.
@@ -87,7 +113,7 @@ def Main():
 			grph.add( ( nodeDLL, pc.property_symbol_defined, nodeSymbol ) )
 			# print( "OK :" + matchObj.group(1) )
 
-	cgiEnv.OutCgiRdf()
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined])
 
 if __name__ == '__main__':
 	Main()
