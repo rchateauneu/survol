@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-SMB informations returned by NET SHARE
+NET SHARE information
 """
 
 # Output example:
@@ -21,6 +21,7 @@ import sys
 import lib_util
 import lib_common
 from lib_properties import pc
+import lib_kbase
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -33,7 +34,15 @@ def Main():
 	# If called fron cgiserver.py, double slashes are collapsed into one.
 	shrMatch = re.match( "/?/([^/]+)/([^/]+)",smbShr)
 	if not shrMatch:
-		lib_common.ErrorMessageHtml("Invalid share name:%s"%shrMatch)
+		# It can also tolerate backslahes.
+		smbShr = smbShr.replace("\\","/")
+		shrMatch = re.match( "/?/([^/]+)/([^/]+)",smbShr)
+		if not shrMatch:
+			# It also accepts backslashes instead of slashes.
+			lib_common.ErrorMessageHtml("Invalid share name:%s"%smbShr)
+
+	hostName = shrMatch.group(1)
+	hostNode = lib_common.gUriGen.HostnameUri( hostName )
 
 	#sys.stderr.write("smbShr=%s\n"%smbShr)
 	shrNam = shrMatch.group(2)
@@ -42,6 +51,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
+	# TODO: This can work only on the local machine.
 	net_share_cmd = [ "net", "share", shrNam ]
 
 	net_share_pipe = lib_common.SubProcPOpen(net_share_cmd)
@@ -50,18 +60,35 @@ def Main():
 
 	# Converts to string for Python3.
 	asstr = net_share_last_output.decode("utf-8")
-	#print("Str="+asstr)
+	sys.stderr.write("asstr=%s\n"%asstr)
+
+	# Share name        ShrProvTuto
+	# Path              C:\Users\rchateau\Developpement\ReverseEngineeringApps\SharedProviderTutorial
+	# Remark
+	# Maximum users     No limit
+
 	lines = asstr.split('\n')
 
+	propMap = dict()
 	shrPath = "UndefinedPath"
 	for lin in lines:
+		sys.stderr.write("lin=%s\n"%lin)
+		txtContent = lin[18:].strip()
 		if lin.startswith("Path"):
-			shrPath = lin[18:]
-
-	#print("Path+"+shrPath)
+			shrPath = txtContent
+		else:
+			propKey = lin[:18].strip()
+			if propKey:
+				propMap[propKey] = txtContent
 
 	mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrPath )
+
+	for propKey in propMap:
+		propVal = propMap[propKey]
+		grph.add( ( nodeSmbShr, lib_common.MakeProp(propKey), lib_kbase.MakeNodeLiteral(propVal) ) )
+
 	grph.add( ( nodeSmbShr, pc.property_smbmount, mountNode ) )
+	grph.add( ( nodeSmbShr, pc.property_host, hostNode ) )
 
 	cgiEnv.OutCgiRdf()
 
