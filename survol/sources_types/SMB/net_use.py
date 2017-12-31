@@ -83,7 +83,7 @@ def Main():
 		else:
 			currNetwork = lin[48:]
 
-		shareNode = lib_common.gUriGen.SmbShareUri( currRemote )
+		shareNode = lib_common.gUriGen.SmbShareUri( currRemote.strip() )
 		grph.add( ( lib_common.gUriGen.FileUri( currLocal + ':' ), pc.property_mount, shareNode ) )
 
 		# Reset the line, will read next disk.
