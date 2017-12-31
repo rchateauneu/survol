@@ -42,6 +42,10 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
     AddWMap(mapWbem,pc.property_wbem_data)
     mapWmi = AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
     AddWMap(mapWmi,pc.property_wmi_data)
+    mapSurvol = AddSurvolServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    AddWMap(mapSurvol,pc.property_survol_agent)
+
+
 
 def AddWbemServers(entity_host, nameSpace, entity_type, entity_id):
     sys.stderr.write("AddWbemServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
@@ -104,6 +108,15 @@ def AddWmiServers(entity_host, nameSpace, entity_type, entity_id):
                     (pc.property_rdf_data_nolist2, nodePortalWmi)
                 )
     return mapWmi
+
+def AddSurvolServers(entity_host, nameSpace, entity_type, entity_id):
+    sys.stderr.write("AddSurvolServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
+
+    mapSurvol = dict()
+
+    # TODO: Not implemented yet.
+
+    return mapSurvol
 
 
 # g = geocoder.ip('216.58.206.37')

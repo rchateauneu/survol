@@ -190,6 +190,8 @@ def WriteOtherUrls(topUrl):
 	WMapToHtml(mapWbem,pc.property_wbem_data)
 	mapWmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
 	WMapToHtml(mapWmi,pc.property_wmi_data)
+	mapSurvol = CIM_ComputerSystem.AddSurvolServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+	WMapToHtml(mapSurvol,pc.property_survol_agent)
 
 	WrtAsUtf('</table>')
 
