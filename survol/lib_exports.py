@@ -26,10 +26,10 @@ if sys.version_info[0] >= 3:
 else:
 	from HTMLParser import HTMLParser
 
-try:
-	from urlparse import urlparse
-except ImportError:
-	from urllib.parse import urlparse
+#try:
+#	from urlparse import urlparse
+#except ImportError:
+#	from urllib.parse import urlparse
 
 
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
