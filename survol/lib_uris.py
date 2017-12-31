@@ -80,8 +80,11 @@ class LocalBox:
 	def MakeTheNode(self, entity_type, entity_id):
 		return self.MakeTheNodeFromScript( "/entity.py", entity_type, entity_id)
 
+	def RootUrl(self):
+		return lib_util.uriRoot
+
 	def MakeTheNodeFromScript(self, path, entity_type, entity_id):
-		url = lib_util.uriRoot + path + lib_util.xidCgiDelimiter + self.TypeMake() + entity_type + "." + entity_id
+		url = self.RootUrl() + path + lib_util.xidCgiDelimiter + self.TypeMake() + entity_type + "." + entity_id
 		# Depending on the code path, NodeUrl is sometimes called recursively, which is not detected
 		# because its conversion to a string returns the same URL.
 		return lib_util.NodeUrl( url )
@@ -463,13 +466,30 @@ class LocalBox:
 
 gUriGen = LocalBox()
 
-# At the moment, this can only be HTTP. Should be HTTPS also.
+# For a remote object displayed on the local agent.
 class RemoteBox (LocalBox):
 	def __init__(self,mach):
 		self.m_mach = mach
 
 	def TypeMake(self):
 		return self.m_mach + "@"
+
+# For remote objects displayed by their corresponding remote agent.
+# At the moment, this can only be HTTP. Should be HTTPS also.
+class OtherAgentBox (LocalBox):
+	def __init__(self,urlRootAgent):
+		self.m_urlRootAgent = urlRootAgent
+
+	# No need to change the host because the object
+	# will be local to its agent.
+	# TODO: Adding a host in the url is a dangerous idea,
+	# because it is the same object displayed a remote agent.
+	#def TypeMake(self):
+	#	return self.m_mach + "@"
+
+	def RootUrl(self):
+		return self.m_urlRootAgent
+
 
 # mach could be an IP address, a machine name, None, "localhost" etc...
 def MachineBox(mach):
