@@ -25,6 +25,11 @@ except ImportError:
 	from urllib.parse import quote,unquote
 
 try:
+	from urlparse import urlparse as survol_urlparse
+except ImportError:
+	from urllib.parse import urlparse as survol_urlparse
+
+try:
 	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
 except:
 	modeOVH = True
