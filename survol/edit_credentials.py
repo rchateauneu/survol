@@ -273,9 +273,14 @@ def CredDefinitions():
             return nodeWbem
         else:
             import lib_wbem
-            theCimom = cimomUrl.replace("http://","http:%2F%2F").replace("https://","https:%2F%2F")
+            theCimom = lib_credentials.KeyUrlCgiEncode(cimomUrl)
             nodeWbem = lib_wbem.WbemAllNamespacesUrl(theCimom)
             return nodeWbem
+
+    def CredUrlSurvol(survolUrl):
+        survolUrlClean = lib_credentials.KeyUrlCgiEncode(survolUrl)
+        # nodeSurvol = lib_common.NodeUrl(survolUrlClean)
+        return nodeSurvol
 
     def CredUrlRabbitMQ(configNam):
         from sources_types.rabbitmq import manager as survol_rabbitmq_manager
@@ -301,6 +306,7 @@ def CredDefinitions():
         "SqlExpress" : CredUrlSqlExpress,
         "MySql" : CredUrlMySql,
         "WBEM" : CredUrlWBEM,
+        "Survol" : CredUrlSurvol,
         "RabbitMQ" : CredUrlRabbitMQ,
         "Azure" : CredUrlAzure,
         "ODBC" : CredUrlODBC,
