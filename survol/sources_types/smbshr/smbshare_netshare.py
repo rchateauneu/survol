@@ -70,7 +70,7 @@ def Main():
 	lines = asstr.split('\n')
 
 	propMap = dict()
-	shrPath = "UndefinedPath"
+	shrPath = None
 	for lin in lines:
 		sys.stderr.write("lin=%s\n"%lin)
 		txtContent = lin[18:].strip()
@@ -81,13 +81,14 @@ def Main():
 			if propKey:
 				propMap[propKey] = txtContent
 
-	mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrPath )
-
 	for propKey in propMap:
 		propVal = propMap[propKey]
 		grph.add( ( nodeSmbShr, lib_common.MakeProp(propKey), lib_kbase.MakeNodeLiteral(propVal) ) )
 
-	grph.add( ( nodeSmbShr, pc.property_smbmount, mountNode ) )
+	if shrPath:
+		mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrPath )
+		grph.add( ( nodeSmbShr, pc.property_smbmount, mountNode ) )
+
 	grph.add( ( nodeSmbShr, pc.property_host, hostNode ) )
 
 	cgiEnv.OutCgiRdf()
