@@ -24,30 +24,19 @@ def AddSurvolNode(grph,hostSurvol,urlSurvolClean):
 	# - Open a new HTML page with this URL. Or SVG, passed on the current mode.
 	# - If we are in D3 mode, this should return a JSON object from the other agent.
 	if currDispMode == "json":
-	    # "http://primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/entity.py":
-		# ... must be transformed into:
-		# "http://primhillcomputers.com/ui/index.htm"
-
-		# TODO: HARD-CODED WHILE TESTING
-		#if urlSurvolClean.find("primhillcomputers.com") >= 0:
-		#	urlSurvolModed = http://primhillcomputers.com/ui/index.htm"
-		#else:
-		#	urlSurvolModed = lib_util.AnyUriModed(urlSurvolClean, currDispMode)
-
-		urlSurvolModed = lib_util.AnyUriModed(urlSurvolClean, currDispMode)
 
 		if lib_util.IsLocalAddress( hostSurvol ):
 			machName_or_None = None
 			serverBox = lib_common.gUriGen
 		else:
 			machName_or_None = hostSurvol
-			serverBox = lib_common.RemoteBox(hostSurvol)
+			serverBox = lib_common.OtherAgentBox(urlSurvolClean)
 
 		# This is the URL of the remote host, on the remote agent.
 		nodeRemoteHost = serverBox.HostnameUri(hostSurvol)
 		grph.add( ( survolHostNode, lib_common.MakeProp("Survol host"), nodeRemoteHost ) )
 
-		grph.add( ( survolHostNode, lib_common.MakeProp("Survol agent"), lib_common.NodeUrl(urlSurvolModed) ) )
+		grph.add( ( survolHostNode, lib_common.MakeProp("Survol agent"), lib_common.NodeUrl(urlSurvolClean) ) )
 
 	else:
 		urlSurvolModed = lib_util.AnyUriModed(urlSurvolClean, currDispMode)
