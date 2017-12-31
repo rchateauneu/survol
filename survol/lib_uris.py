@@ -463,6 +463,7 @@ class LocalBox:
 
 gUriGen = LocalBox()
 
+# At the moment, this can only be HTTP. Should be HTTPS also.
 class RemoteBox (LocalBox):
 	def __init__(self,mach):
 		self.m_mach = mach
