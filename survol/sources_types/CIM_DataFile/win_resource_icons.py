@@ -18,7 +18,8 @@ from lib_properties import pc
 from sources_types import win32
 from sources_types.win32 import resource as survol_win32_resource
 
-Usable = lib_util.UsableWindows
+# This script works only on a Windows executable or DLL etc...
+Usable = lib_util.UsableWindowsBinary
 
 # This specifies that the object is an Url which returns a MIME object,
 # and can therefore be displayed as such.
