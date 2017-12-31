@@ -9,11 +9,6 @@ import lib_util
 import lib_common
 import lib_credentials
 
-try:
-	from urllib.parse import urlparse
-except ImportError:
-	from urlparse import urlparse
-
 def AddSurvolNode(grph,hostSurvol,urlSurvolClean):
 	sys.stderr.write("AddSurvolNode hostSurvol=%s\n"%(hostSurvol))
 	survolHostNode = lib_common.gUriGen.HostnameUri( hostSurvol )
@@ -60,7 +55,7 @@ def SurvolServersDisplay(grph):
 		# sys.stderr.write("SurvolServersDisplay urlSurvolClean=%s\n"%(urlSurvolClean))
 
 		# The credentials are not needed until a Survol agent uses HTTPS.
-		parsed_url = urlparse( urlSurvol )
+		parsed_url = lib_util.survol_urlparse( urlSurvol )
 		hostSurvol = parsed_url.hostname
 		# sys.stderr.write("SurvolServersDisplay hostSurvol=%s\n"%(hostSurvol))
 		if not hostSurvol:
