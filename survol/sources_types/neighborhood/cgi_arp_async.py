@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-ARP command - Asynchronous DNS lookup
+ARP address resolution protocol
 """
 
 import sys
