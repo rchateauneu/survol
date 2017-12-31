@@ -1522,14 +1522,14 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
                             if(error)
                             {
-                                errMsg = "Tooltip error:" + error;
+                                var errMsg = "Tooltip error:" + error;
                                 DisplayTooltipDiv(errMsg);
                                 return;
                             }
                             console.log("Callback urlTooltip="+urlTooltip+ " objTooltip="+JSON.stringify(objTooltip));
                             if( objTooltip.survol_error != undefined )
                             {
-                                errMsg = "Tooltip objTooltip.survol_error="+objTooltip.survol_error;
+                                var errMsg = "Tooltip objTooltip.survol_error="+objTooltip.survol_error;
                                 DisplayTooltipDiv(errMsg);
                                 return;
                             }
