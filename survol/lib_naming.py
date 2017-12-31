@@ -6,10 +6,10 @@ import os
 import re
 import lib_patterns
 
-try:
-	from urlparse import urlparse
-except ImportError:
-	from urllib.parse import urlparse
+#try:
+#	from urlparse import urlparse
+#except ImportError:
+#	from urllib.parse import urlparse
 
 ################################################################################
 
@@ -200,6 +200,8 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 		if not lib_util.IsLocalAddress( entity_host ):
 			entity_label += " at " + entity_host
 
+	# TODO: Add the host name in the title.
+
 	return entity_label
 
 # Extracts the entity type and id from a URI, coming from a RDF document. This is used
@@ -221,7 +223,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 	uri = lib_util.AnyUriModed(uriWithModeClean, "")
 	uriMode = lib_util.GetModeFromUrl(uriWithModeClean)
 
-	uprs = urlparse(uri)
+	uprs = lib_util.survol_urlparse(uri)
 
 	filScript = os.path.basename(uprs.path)
 	if filScript == "survolcgi.py":
