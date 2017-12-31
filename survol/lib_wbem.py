@@ -7,10 +7,10 @@ import lib_util
 import lib_common
 import lib_credentials
 
-try:
-	from urllib.parse import urlparse
-except ImportError:
-	from urlparse import urlparse
+#try:
+#	from urllib.parse import urlparse
+#except ImportError:
+#	from urlparse import urlparse
 
 ################################################################################
 
@@ -122,8 +122,8 @@ def slp_wbem_services():
 # TODO: Will be stored in the cache filled with SLP discovery, with credentials.
 # http://192.168.1.83:5988 	index 	Namespaces
 # https://192.168.1.83:5989 	index 	Namespaces
-# Should use SLP.
-# TODO: CHANGE THIS !
+# TODO: It could use SLP.
+# TODO: No need to return all WBEM servers.
 # TODO: Emulate the protocol with Jquery and Javascript, if it is HTTP.
 # But for that, we would need a WBEM server sending Access-Control-Allow-Origin header.
 def WbemServersList():
@@ -133,7 +133,7 @@ def WbemServersList():
 	for urlWbem in credNames:
 		sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
 		# crdNam = "http://192.168.1.83:5988"
-		parsed_url = urlparse( urlWbem )
+		parsed_url = lib_util.survol_urlparse( urlWbem )
 		the_host = parsed_url.hostname
 		if the_host:
 			lstWbemServers.append((the_host,urlWbem))
@@ -188,7 +188,7 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 		# TODO: Example: "xid=http://192.168.1.83:5988/." becomes "xid=http:/192.168.1.83:5988/"
 		# TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
 		# Maybe a bad collapsing of URL ?
-		theCimom = theCimom.replace("http://","http:%2F%2F").replace("https://","https:%2F%2F")
+		theCimom = lib_credentials.KeyUrlCgiEncode(theCimom)
 
 		# On suppose que les classes sont les memes.
 		if entity_type == "":
