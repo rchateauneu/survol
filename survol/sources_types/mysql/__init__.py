@@ -5,6 +5,9 @@ Software components related to mysql or mariadb database.
 def Graphic_colorbg():
 	return "#66CCFF"
 
+def Graphic_colorfill():
+	return "#66CCFF"
+
 import lib_common
 
 def InstanceToHostPort(instanceName):
