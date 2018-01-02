@@ -3,6 +3,8 @@ MySql instance
 """
 
 # This does not import mysql packages, so this will always work.
+def Graphic_colorbg():
+	return "#66CC00"
 
 import lib_common
 
