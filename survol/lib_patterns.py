@@ -27,9 +27,6 @@ dictGraphParams = {
 
 dfltGraphParams =                              ( "none",      "#FFFFFF", "#99BB88", 1, False )
 
-# See this key in lib_common.py.
-dictGraphParams["scripts_list"] = dfltGraphParams
-
 # shape        colorfill  colorbg    border is_rounded
 # On imagine une fonction par attribut et par module, sous-module etc...
 # sqlite.shape() qui est supersedee par sqlite.table.shape() etc ...
@@ -75,6 +72,14 @@ ColorLighter.CacheMap = dict()
 # Returns graphic parameters given a type without namespace.
 # For example "Win32_Service", "oracle/package"
 def TypeToGraphParams(typeWithoutNS):
+	# sys.stderr.write("lib_patterns.TypeToGraphParams typeWithoutNS=%s keys=%s\n"%(typeWithoutNS,str(dictGraphParams.keys())))
+
+	# Safety check.
+	if typeWithoutNS.find(".") >= 0:
+		raise "Invalid typeWithoutNS=%s" % typeWithoutNS
+
+	typeWithoutNS = typeWithoutNS.replace("/",".")
+
 	# Fastest access from the cache.
 	try:
 		return dictGraphParams[typeWithoutNS]
@@ -125,13 +130,13 @@ def TypeToGraphParamsNoCache(typeWithoutNS):
 def TypeToGraphParamsNoCacheOneFunc(typeWithoutNS,gFuncName):
 
 	# for the first loop it takes the entire string.
-	lastSlash = len(typeWithoutNS)
-	while lastSlash > 0:
+	lastDot = len(typeWithoutNS)
+	while lastDot > 0:
 
-		topModule = typeWithoutNS[:lastSlash]
-		choppedEntityType = typeWithoutNS[:lastSlash]
+		topModule = typeWithoutNS[:lastDot]
+		choppedEntityType = typeWithoutNS[:lastDot]
 
-		# Loa the module of this entity to see if it defines the graphic function.
+		# Load the module of this entity to see if it defines the graphic function.
 		entity_module = lib_util.GetEntityModule(choppedEntityType)
 
 		if entity_module:
@@ -142,7 +147,7 @@ def TypeToGraphParamsNoCacheOneFunc(typeWithoutNS,gFuncName):
 				pass
 
 		# Then try the upper level module.
-		lastSlash = typeWithoutNS.rfind("/",0,lastSlash)
+		lastDot = typeWithoutNS.rfind(".",0,lastDot)
 
 	return None
 
