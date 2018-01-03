@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Process socket connections
+Open sockets of process
 """
 
 import sys
