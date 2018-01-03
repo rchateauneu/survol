@@ -24,12 +24,8 @@ def Main():
 
 	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 
-	# We have it but it is not needed at this place.
-	# mime_type = cgiEnv.m_arguments["cgi_mime_type"]
-	mime_type = cgiEnv.m_arguments["mode"]
-
 	modeDisp = lib_util.GuessDisplayMode()
-	sys.stderr.write("entity_mime.py mime_type=%s entity_type=%s modeDisp=%s\n"%(mime_type,entity_type,modeDisp))
+	sys.stderr.write("entity_mime.py entity_type=%s modeDisp=%s\n"%(entity_type,modeDisp))
 
 	if not entity_type:
 		lib_common.ErrorMessageHtml("entity_mime.py needs an object")
