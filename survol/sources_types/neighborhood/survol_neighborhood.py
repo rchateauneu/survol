@@ -49,11 +49,6 @@ def SurvolServersDisplay(grph):
 	for urlSurvol in credNames:
 		# sys.stderr.write("SurvolServersDisplay urlSurvol=%s\n"%(urlSurvol))
 
-		# Same when returning from WbemServersList.
-		# urlSurvolClean = lib_credentials.KeyUrlCgiEncode(urlSurvol)
-		urlSurvolClean = urlSurvol
-		# sys.stderr.write("SurvolServersDisplay urlSurvolClean=%s\n"%(urlSurvolClean))
-
 		# The credentials are not needed until a Survol agent uses HTTPS.
 		parsed_url = lib_util.survol_urlparse( urlSurvol )
 		hostSurvol = parsed_url.hostname
@@ -61,7 +56,7 @@ def SurvolServersDisplay(grph):
 		if not hostSurvol:
 			continue
 
-		AddSurvolNode(grph,hostSurvol,urlSurvolClean)
+		AddSurvolNode(grph,hostSurvol,urlSurvol)
 
 
 
