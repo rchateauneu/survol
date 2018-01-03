@@ -35,7 +35,7 @@ def Usable(entity_type,entity_ids_arr):
 # TODO: This is hard-coded, and should be replaced by a Python CGI server
 # serving this directory.
 def UrlDirectory( fullDirPath ):
-	sys.stderr.write("UrlDirectory fullDirPath=%s\n" % fullDirPath)
+	# sys.stderr.write("UrlDirectory fullDirPath=%s\n" % fullDirPath)
 	dirPrefix = "C://Users/CurrentUser"
 	if fullDirPath.startswith( dirPrefix ):
 		shortPath = fullDirPath[ len(dirPrefix) : ]
