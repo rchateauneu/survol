@@ -73,40 +73,6 @@
         font: 10px sans-serif;
     }
 
-    /* Probably not used.
-    https://css-tricks.com/multiple-class-id-selectors/
-    This selects all elements with the class name type1 that are descendents of the element with a class of node.
-    */
-    .node.type1 {
-        fill:brown;
-    }
-    .node.type2 {
-        fill:#337147;
-    }
-    .node.type3 {
-        fill:blue;
-    }
-    .node.type4 {
-        fill:red;
-    }
-    .node.type5 {
-        fill:#1BC9E0;
-    }
-    .node.type6 {
-        fill:#E01B98;
-    }
-
-    /* https://css-tricks.com/multiple-class-id-selectors/
-    This selects all elements with the class name CIM_ComputerSystem
-    that are descendents of the element with a class of node.
-
-    <g xmlns="http://www.w3.org/2000/svg" class="survol_node node CIM_ComputerSystem" transform="translate(1265.99 562.223)">
-        <rect class="CIM_ComputerSystem" style="stroke: #000000; stroke-width: 1;" opacity="1" x="-29.46" y="-5.55" width="58.92" height="11.5" rx="5" ry="5" />
-        <text class="nodetext" text-anchor="middle" dx="0" dy="0.35em">
-            <tspan x="0">vsnp2std.exe</tspan>
-        </text>
-    </g>
-    */
     .CIM_ComputerSystem {
         /* fill:#E01B98; */
         font: 12px sans-serif;
@@ -452,7 +418,33 @@ function CreateDisplay(data)
     DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
 } // CreateDisplay
 
-/* Called when adding a new url and merge it to the existing nodes and links. */
+/* Called when adding a new url and merge it to the existing nodes and links.
+TODO: When merging networks, look for url_survol which are identical expect
+the host, for some types only, where the same object can be detected
+on different machines: CIM_ComputerSystem, socket address, Oracle databases etc...
+and everything defined in a credentials file.
+Another possibility is to have lib_exports.Grph2Json(), for these types,
+add a agent-neutral url.
+Or add a flag, survol_global_id, telling that the moniker should not depend on the agent.
+If so, the key will be the url stripped of the host.
+
+Meme la, ca ne marchera pas forcement, par exemple
+avec ces deux representations differentes, de la meme machine:
+
+DESKTOP-NI99V8E
+ARP_type	dynamic
+IP_address	192.168.0.26
+MAC	8C-70-5A-56-CF-7C
+Vendor	"Intel Corporate"
+
+192.168.0.26
+Vendor	"Intel Corporate"
+MAC	8C-70-5A-56-CF-7C
+
+* Soit le nom de la machine est l'adresse IP.
+* Ou bien la carte reseau est creee: Soit adresse IP, soit adresse MAC,
+et dans tous ces cas on precise le flag survol_global_id
+*/
 function RefillDisplayMerge(data, currTimeStamp)
 {
     // This creates a new list of nodes with new numbers and without the duplicates.
@@ -490,7 +482,7 @@ function RefillDisplayMerge(data, currTimeStamp)
     {
         var newNod = newNodes[ixNod];
         var urlNode = newNod.survol_url;
-        console.log("RefillDisplay(2) urlNode="+urlNode);
+        // console.log("RefillDisplayMerge(2) urlNode="+urlNode);
 
         // Sanity check
         if( urlNode == undefined)
@@ -722,7 +714,52 @@ function RefillDisplayRefresh(theUrl,data,currTimeStamp)
     CheckGraph("refresh2",previousData);
 } // RefillDisplayRefresh
 
-// Callback of contextual menu. It receives the JSON menu sent by the server.
+// Calculate graphic data once and for all.
+var hostMine = GetHostFromUrl(window.location.href);
+
+// https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
+function HashStringToInt24(aString)
+{
+    var hash = 0, i, chr;
+    if (aString.length === 0) return hash;
+    for (i = 0; i < aString.length; i++) {
+        chr   = aString.charCodeAt(aString.length-i);
+        hash  = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    if(hash <0)
+        hash = -hash;
+
+    return hash % ( 256 * 256 * 256 );
+};
+
+// var dictHostToColor = {};
+
+// Calculates a hash with a hostname.
+// This does not process collisions.
+function HostToColor(aHostName)
+{
+    var hashInt = HashStringToInt24(aHostName);
+    var hashStr = hashInt.toString(16);
+    var theStr = ("000000" + hashStr).substr(-6);
+
+    // Only the first last digits.
+    // var aCol = "#" + theStr.substr(0,6);
+    function Amplify(aHex)
+    {
+        if( "01234".indexOf(aHex) >= 0 ) return "0";
+        if( "567".indexOf(aHex) >= 0 ) return "5";
+        if( "89a".indexOf(aHex) >= 0 ) return "a";
+        if( "bcdef".indexOf(aHex) >= 0 ) return "f";
+    }
+
+    var aCol = "#" + Amplify(theStr[0]) + theStr[1] + Amplify(theStr[2]) + theStr[3] + Amplify(theStr[4]) + theStr[5] ;
+    // var aCol = "#" + theStr ;
+    console.log("+++++++++++++++++++++++ HostToColor hashInt="+hashInt+" hashStr="+hashStr+" aHostName="+aHostName+" => "+aCol);
+    return aCol;
+}
+
+// Callback of contextual menu. It receives the JSON nodes and links sent by the server.
 function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp)
 {
     'use strict';
@@ -737,6 +774,21 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp)
     // UTC timestamp in milliseconds.
     // var currTimeStamp = Date.now();
     // newNod.survol_timestamp = currTimeStamp
+
+    for (var ixNod = 0; ixNod < data.nodes.length; ixNod++ ) {
+        var objNode = data.nodes[ixNod];
+        objNode.survol_host = GetHostFromUrl(objNode.survol_url);
+
+        if( objNode.survol_host == hostMine ) {
+            objNode.survol_width = 1;
+            objNode.survol_stroke = "#000000";
+        }
+        else {
+            objNode.survol_width = 2;
+            objNode.survol_stroke = HostToColor(objNode.survol_host);
+        }
+    }
+
 
     if( (previousData == null ) || (shouldMerge == false) )
     {
@@ -1157,13 +1209,12 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
             return;
         }
 
-	console.log("data="+JSON.stringify(data));
-	if( data.status == "error" )
-	{
-		alert("Error agent:"+data.message);
-		return;
-	}
-
+        console.log("data="+JSON.stringify(data));
+        if( data.status == "error" )
+        {
+            alert("Error agent:"+data.message);
+            return;
+        }
 
         if( data.survol_error != undefined )
         {
@@ -1256,19 +1307,33 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
 	}
 } // LoadUrlUpdateDisplay
 
+// This checks if there is already a CGI argument.
 function AppendCgiToUrl(url,cgipair)
 {
-	console.log("AppendCgiToUrl url="+url);
 	if( url.indexOf("?") < 0 )
 		return url + "?" + cgipair;
 	else
 		return url + "&" + cgipair;
 }
 
+/* Ad-hoc solution to remove the mode from a URL. */
 function UrlWithoutJsonMode(theUrl)
 {
     return theUrl.replace("?mode=json","").replace("&mode=json","")
 }
+
+/* This approximates the Survol agent with the host name of the URL.
+This works because a Survol agent is uniquely associated with a host name
+and a port number, because this is a plain HTTP server.
+Taken from "URI Parsing with Javascript"
+https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+*/
+function GetHostFromUrl( aSurvolUrl )
+{
+    var parser = document.createElement('a');
+    parser.href = aSurvolUrl; // "http://example.com:3000/pathname/?search=test#hash";
+    return parser.host;
+} // GetHostFromUrl
 
 function DisplayD3Layout(divSvg,newData,w,h)
 {
@@ -1317,7 +1382,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
     var link = divSvg.selectAll(".survol_line")
         .data(newData.links)
         .enter().append("svg:line")
-        .attr("class", function (d) { return "link" + d.value + " survol_line"; }) // "link10"
+        .attr("class", function (d) { return "survol_line"; })
         .attr("x1", function (d) { return d.source.x; })
         .attr("y1", function (d) { return d.source.y; })
         .attr("x2", function (d) { return d.target.x; })
@@ -1443,11 +1508,10 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
         .attr("width", function(d){return d.bbox.width})
         .attr("height", function(d){return d.bbox.height})
-        .style("stroke-width", 1)
-        .style("stroke", "#000000")
+        .attr("stroke-width", function (d) { return d.survol_width; } )
+        .attr("stroke", function (d) { return d.survol_stroke; } )
         // Classes are not defined so fill colors are OK. We will fetch CSS in classes directories.
         .attr("fill", function (d) {
-            /* #337147 */
             if(d.survol_fill)
                 // Returned by the Python script.
                 return d.survol_fill;
@@ -1457,7 +1521,6 @@ function DisplayD3Layout(divSvg,newData,w,h)
         })
         // This allows to apply a CSS with the same name.
         .attr("class", function (d) { return d.entity_class; })
-        //.attr("class", function (d) { return "node type" + d.survol_type; })
         .on("mouseover", function(d)
             {
                 // No tooltip creation when dragging because it is very CPU-consuming.
@@ -1599,7 +1662,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
 
     // Is that to avoid collisions ? Is the drag needed here ?
     d3.selectAll(".circle").append("circle")
-        .attr("class", function (d) { return "node type" + d.survol_type; })
+        .attr("class", function (d) { return "node"; })
         // TODO: No change when it is commented out.
         //.attr("r", function (d) { return radius(d.value) || 10; })
         .call(myForce.drag);
@@ -1941,7 +2004,8 @@ function DisplayD3Layout(divSvg,newData,w,h)
         function GetEntityUrl(error,jsonData)
         {
             if(error) {
-                alert("GetEntityUrl error="+error);
+                alert("GetEntityUrl error="+error+" jsonData="+jsonData);
+                return;
             }
             if( jsonData.error != undefined )
             {
@@ -1973,7 +2037,9 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 // We expect a contextual menu in JSON format, not a graph.
                 // TODO: Have a script which returns only the menu tree in json, without the intermediate
                 // step of RDF encoding.
-                var urlEntity = this.__data__.survol_url.replace("entity.py","entity_dirmenu_only.py") + "&mode=menu";
+                var urlEntityNoMode = this.__data__.survol_url.replace("entity.py","entity_dirmenu_only.py")
+                var urlEntity = AddUrlCgiArg( urlEntityNoMode, "mode=menu");
+
                 console.log("urlEntity:"+urlEntity);
 
                 this.__data__.defer_scripts = jQuery.Deferred();
