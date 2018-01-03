@@ -63,8 +63,10 @@ gblWindowName = "SurvolMainWindowName";
 
 /*
 This takes as input an array which defines several urls simultaneously
-present in a D£ window. This array might come from the main window
-or the summary (tool) window.
+present in a D3 window. This array might come from the main window
+or is the summary ("Tools") window. It bears the same name for clarity,
+as it is a singleton in these two windows.
+The result is a single url which represents the merging of the input urls.
 */
 function ConcatenateMergeUrl(lstLoadedUrls,cgiArgs)
 {
@@ -72,10 +74,11 @@ function ConcatenateMergeUrl(lstLoadedUrls,cgiArgs)
 
 	/* If there is one element, we might as well simply return it.
 	It is a frequent case. */
-	console.log("ConcatenateMergeUrl lstLoadedUrls.length="+ lstLoadedUrls.length);
-	if( lstLoadedUrls.length == 1 )
+	console.log("ConcatenateMergeUrl lstLoadedUrls.array_urls.length="+ lstLoadedUrls.array_urls.length);
+	if( lstLoadedUrls.array_urls.length == 1 )
 	{
-		urlFull = lstLoadedUrls[0].m_loaded_url;
+		urlFull = lstLoadedUrls.array_urls[0].m_loaded_url;
+		// No need to merge anything because there is one url only.
 		urlFull = AddUrlCgiArg(urlFull, cgiArgs );
 	}
 	else
@@ -83,9 +86,9 @@ function ConcatenateMergeUrl(lstLoadedUrls,cgiArgs)
 		var urlMerge = pyMergeScript;
 		var cgiDelim = "?url=";
 
-		for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
+		for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.array_urls.length; ixLoaded++ )
 		{
-			var objLoadedUrl = lstLoadedUrls[ixLoaded];
+			var objLoadedUrl = lstLoadedUrls.array_urls[ixLoaded];
 			console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
 
 			var url64safe = Base64.encodeURI(objLoadedUrl.m_loaded_url);

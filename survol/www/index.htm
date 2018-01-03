@@ -34,7 +34,7 @@
 <link rel='stylesheet' type='text/css' href=css/html_exports.css>
 
 <script type="text/javascript">
-// Ca marche mais on en n'a pas besoin.
+// This works but not needed yet.
 //window.onerror = function (errorMsg, url, lineNumber) {
 //    alert('Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber);
 //}
@@ -142,15 +142,10 @@
 /*
 TODO:
 - Undo edition.
-- Mixer les SVG avec des graphes et des trees.
-  Ou bien lier les nodes de facon rigide, matricielle. On les mettrait dans une classe specifique.
-- A terme, pour les couleurs, ne pas utiliser le JSON mais charger le fichier CSS dans le directory de la classe.
-- Afficher quelque chose quand le result "json" est vide.
-- Afficher la meme chose en Graphviz: Pour ce faire, on pourrait injecter le reseau, en JSON dans un script
-Python qui le retransformerait en RDF etc...
-L'avantage est qu on peut tout afficher. En revanche, on perd la possibilite d'actualiser
-une requete particulierement interessante. Notons qu en pratique, les requetes combinees ne sont pas encore
-specifiees et seront surement tres differentes.
+- Mix SVG nodes with graphes and trees.
+  Maybe they could be linked in a matrix ?
+- For colors, use CSS.
+- When a Json document is empty, should display a message.
 
 We wish to pass several parameters so that scripts and objects can be added or substracted,
 with pattern matching possibilities.
@@ -190,23 +185,19 @@ http://127.0.0.1:8000/survol/entity.py?xid=rabbitmq/connection.Url=LOCALHOST:123
 ],
 
 
-ou tout simplement:
+or simply:
 [
     urls:"sources_types/CIM_DataFile/file_stat.py?CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29",
     url:"entity.py?rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
 ],
 
-Ou meme:
+Or even:
 [
     urls:"http://127.0.0.1:8000/sources_types/CIM_DataFile/file_stat.py?CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29",
     url:"http://127.0.0.1:8000/entity.py?rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
 ],
 
-A terme:
-- En theorie, un URL peut etre utilise sur plusieurs machines et donner le meme resultat si on ajoute le host.
-Donc on pourrait executer le meme script sur plusieurs machines. Ou suivre le meme objet sur plusieurs machines.
-Et donc on reecrirait l'URL.
-- On peut vouloir executer tous les scripts relatifs a un objet (On liste tous les scripts).
+A URL could be used on several agents, returning the same result if the agent is provided in the URL.
 */
 function GetCgiParams()
 {
@@ -240,15 +231,19 @@ var divSvg = null;
 // This stores the current nodes and links. Maybe there is a simpler way to store them.
 var previousData = null;
 
+// Contains the current tooltip.
 var divTooltip = null;
 
 // https://stackoverflow.com/questions/41705135/how-to-disable-mouseover-and-mouseout-event-while-dragging-with-d3
 var isDragging = false;
 
 // Sanity check to ensure that nodes and links are properly matched.
+// This is slow but useful in development mode.
 function CheckGraph(theNam,theData)
 {
     'use strict';
+
+    // Add comments when in production version.
     ///////////////////// return;
     if(theData == null)
     {
@@ -714,37 +709,37 @@ function RefillDisplayRefresh(theUrl,data,currTimeStamp)
     CheckGraph("refresh2",previousData);
 } // RefillDisplayRefresh
 
-// Calculate graphic data once and for all.
+// This is the host name if the current page, calculated once only.
 var hostMine = GetHostFromUrl(window.location.href);
 
-// https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
-function HashStringToInt24(aString)
+
+/* This associates a hostname to a color.
+This gives a different appearance to nodes based on the host where they are defined.
+This does not process collisions. */
+function HostToColorNoCache(aHostName)
 {
-    var hash = 0, i, chr;
-    if (aString.length === 0) return hash;
-    for (i = 0; i < aString.length; i++) {
-        chr   = aString.charCodeAt(aString.length-i);
-        hash  = ((hash << 5) - hash) + chr;
-        hash |= 0; // Convert to 32bit integer
-    }
-    if(hash <0)
-        hash = -hash;
+    // https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
+    // Calculates a hash with a hostname. This integer hash is used to create a color.
+    function HashStringToInt24(aString)
+    {
+        var hash = 0, i, chr;
+        if (aString.length === 0) return hash;
+        for (i = 0; i < aString.length; i++) {
+            chr   = aString.charCodeAt(aString.length-i);
+            hash  = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        if(hash <0)
+            hash = -hash;
 
-    return hash % ( 256 * 256 * 256 );
-};
+        return hash % ( 256 * 256 * 256 );
+    };
 
-// var dictHostToColor = {};
-
-// Calculates a hash with a hostname.
-// This does not process collisions.
-function HostToColor(aHostName)
-{
     var hashInt = HashStringToInt24(aHostName);
     var hashStr = hashInt.toString(16);
     var theStr = ("000000" + hashStr).substr(-6);
 
-    // Only the first last digits.
-    // var aCol = "#" + theStr.substr(0,6);
+    // This amplifies color constrast.
     function Amplify(aHex)
     {
         if( "01234".indexOf(aHex) >= 0 ) return "0";
@@ -757,6 +752,28 @@ function HostToColor(aHostName)
     // var aCol = "#" + theStr ;
     console.log("+++++++++++++++++++++++ HostToColor hashInt="+hashInt+" hashStr="+hashStr+" aHostName="+aHostName+" => "+aCol);
     return aCol;
+}
+
+/* This associates an unique color to a hostname,
+using a cache. There is no need to post a message
+to the summary window because this is called only when adding a new url.
+Therefore the summary window will receive a message anyway.
+However, the list of color is stored in the data structure sent to the summary window.
+*/
+function HostToColor(aHostName)
+{
+    // Is this host here ?
+    var hostObj = lstLoadedUrls.dict_hosts[aHostName];
+
+    if(hostObj == undefined)
+    {
+        hostObj = {};
+        hostObj.m_host_color = HostToColorNoCache(aHostName);
+        // Store the color for later use.
+        lstLoadedUrls.dict_hosts[aHostName] = hostObj;
+    }
+
+    return hostObj.m_host_color;
 }
 
 // Callback of contextual menu. It receives the JSON nodes and links sent by the server.
@@ -775,6 +792,10 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp)
     // var currTimeStamp = Date.now();
     // newNod.survol_timestamp = currTimeStamp
 
+    /* This calculates the stroke color and width for each object,
+    based on the host on which it is defined.
+    Ths url should normally be from the same host, but this is not a requirement.
+    */
     for (var ixNod = 0; ixNod < data.nodes.length; ixNod++ ) {
         var objNode = data.nodes[ixNod];
         objNode.survol_host = GetHostFromUrl(objNode.survol_url);
@@ -984,15 +1005,37 @@ function DeleteSvgConnectedNodes(objectSvg)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// The list of currently loaded urls.
-// TODO: This could also be the UNDO list, and therefore will contain "pseudo-urls"
-// meaning that such or such object was added or removed.
-var lstLoadedUrls = [];
+/* The list of currently loaded urls.
+This is an object array with some extra members.
+    lstLoadedUrls.number_nodes  // Total number of nodes after merging.
+    lstLoadedUrls.number_links  // Total number of links after merging.
+    array_urls[]                // Each URL of the array.
+                                // It behaves like a map but we want to be sure of the order.
+        m_loaded_url            // The loaded URL itself.
+        m_loaded_title
+        m_loaded_nodes_length
+        m_loaded_links_length
+        m_refresh_rate
+    dict_hosts{}                // Dictonary of unique hosts of the URLs.
+                                // It always grows: Host are never removed, there are not may of them.
+                                // It simply maps to a object containing graphic data.
+        m_host_color            // An unique color string for nodes of this host.
+
+TODO: This could also be the UNDO list, and therefore will contain "pseudo-urls"
+meaning that such or such object was added or removed.
+*/
+
+var lstLoadedUrls = {
+    number_nodes:0,
+    number_links:0,
+    array_urls: [],
+    dict_hosts: {}
+};
 
 // We do not add methods because the object must be cloned when sent as a message.
 function lstLoadedUrls_DeleteAll()
 {
-    for( var idxUrl = 0; idxUrl < lstLoadedUrls.length; idxUrl++ )
+    for( var idxUrl = 0; idxUrl < lstLoadedUrls.array_urls.length; idxUrl++ )
     {
         lstLoadedUrls_DeleteOne(0);
     }
@@ -1002,7 +1045,7 @@ function lstLoadedUrls_DeleteAll()
 function lstLoadedUrls_DeleteOne(idxUrl)
 {
     lstLoadedUrls_TimerSet(idxUrl);
-    lstLoadedUrls.splice(idxUrl,1);
+    lstLoadedUrls.array_urls.splice(idxUrl,1);
 }
 
 var MergeRefreshMode = 2;
@@ -1021,16 +1064,15 @@ function TimerRefreshUrl(objLoadedUrl)
 function lstLoadedUrls_TimerSet(idxUrl,newRate)
 {
     console.log("TimerSet idxUrl="+idxUrl+" newRate="+newRate);
-    lstLoadedUrls[idxUrl].m_refresh_rate = newRate;
-    if( lstLoadedUrls[idxUrl].m_timer_refresh != undefined )
+    lstLoadedUrls.array_urls[idxUrl].m_refresh_rate = newRate;
+    if( lstLoadedUrls.array_urls[idxUrl].m_timer_refresh != undefined )
     {
-        clearInterval(lstLoadedUrls[idxUrl].m_timer_refresh);
+        clearInterval(lstLoadedUrls.array_urls[idxUrl].m_timer_refresh);
     }
     if((newRate != undefined) && (newRate != 0))
     {
-        // TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
-        lstLoadedUrls[idxUrl].m_timer_refresh = setInterval( TimerRefreshUrl, newRate * 60 * 1000, lstLoadedUrls[idxUrl] );
-        // lstLoadedUrls[idxUrl].m_timer_refresh = setInterval( TimerRefreshUrl, newRate * 5 * 1000, lstLoadedUrls[idxUrl] );
+        // The URL is reloaded every minute.
+        lstLoadedUrls.array_urls[idxUrl].m_timer_refresh = setInterval( TimerRefreshUrl, newRate * 60 * 1000, lstLoadedUrls.array_urls[idxUrl] );
     }
 } // lstLoadedUrls_TimerSet
 
@@ -1038,10 +1080,10 @@ function lstLoadedUrls_TimerSet(idxUrl,newRate)
 function IsLoadedUrl(theUrl)
 {
     var urlNoJson = UrlWithoutJsonMode( theUrl );
-    for( var idxUrl = 0; idxUrl < lstLoadedUrls.length; idxUrl++ )
+    for( var idxUrl = 0; idxUrl < lstLoadedUrls.array_urls.length; idxUrl++ )
     {
-        console.log("IsLoadedUrl idxUrl="+idxUrl+" url="+lstLoadedUrls[idxUrl].m_loaded_url);
-        if( urlNoJson == lstLoadedUrls[idxUrl].m_loaded_url ) {
+        console.log("IsLoadedUrl idxUrl="+idxUrl+" url="+lstLoadedUrls.array_urls[idxUrl].m_loaded_url);
+        if( urlNoJson == lstLoadedUrls.array_urls[idxUrl].m_loaded_url ) {
             console.log("IsLoadedUrl urlNoJson="+urlNoJson+" already there");
             return true;
         }
@@ -1056,7 +1098,7 @@ function IsLoadedUrl(theUrl)
 /* This is called when clicking "Del" on the Summary little window. */
 function ProcessSummaryWindowDel(idxUrl)
 {
-    objLoadedUrl = lstLoadedUrls[idxUrl];
+    objLoadedUrl = lstLoadedUrls.array_urls[idxUrl];
     // The URL can be something like "survol/sources_types/enumerate_CIM_Process.py?xid=."
     // It should be identical to what is stored in the nodes.
     objUrlStr = objLoadedUrl.m_loaded_url;
@@ -1129,7 +1171,7 @@ by sending as a message the list of loaded urls. */
 function RefreshSummaryWindow()
 {
     if(windowObjectReference) {
-        console.log("RefreshSummaryWindow: Sending message to summary window lstLoadedUrls.length="+lstLoadedUrls.length);
+        console.log("RefreshSummaryWindow: Sending message to summary window lstLoadedUrls.array_urls.length="+lstLoadedUrls.array_urls.length);
         lstLoadedUrls.number_nodes = previousData.nodes.length;
         lstLoadedUrls.number_links = previousData.links.length;
 
@@ -1189,6 +1231,11 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
     'use strict';
 
     console.log("LoadUrlUpdateDisplay theUrl="+theUrl);
+
+    if( theUrl.indexOf("entity_mime") >= 0 )
+    {
+        console.log("Getting close");
+    }
 
     if( shouldMerge == false ) {
         // Each element must be properly destroyed.
@@ -1250,14 +1297,14 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
                 m_loaded_nodes_length : data.nodes.length,
                 m_loaded_links_length : data.links.length
                 };
-            lstLoadedUrls.push(objLoadedUrlNew);
+            lstLoadedUrls.array_urls.push(objLoadedUrlNew);
         }
         else
         {
             var objUrl;
-            for( var ixUrl = 0; ixUrl < lstLoadedUrls.length; ++ixUrl )
+            for( var ixUrl = 0; ixUrl < lstLoadedUrls.array_urls.length; ++ixUrl )
             {
-                objUrl = lstLoadedUrls[ixUrl];
+                objUrl = lstLoadedUrls.array_urls[ixUrl];
                 if( objUrl.m_loaded_url == urlNoJson )
                 {
                     console.log("Updating url ixUrl="+ixUrl);
@@ -1700,15 +1747,15 @@ function DisplayD3Layout(divSvg,newData,w,h)
         {
             if(url.indexOf("survol/entity.py?xid=CIM_DataFile.") < 0)
                 return null;
-            return url.replace("survol/entity.py","survol/file_to_mime.py");
+            return url.replace("survol/entity.py","survol/entity_mime.py");
         }
 
         var urlMime = urlCIM_DataFileToMime(objUrl);
         if(urlMime) {
-			TheItems[urlMime] = {
-                    "name": "Mime Display",
-                    "icon": "paste"
-			};
+            TheItems[urlMime] = {
+                "name": "Mime Display",
+                "icon": "paste"
+            };
         }
 
         /*
@@ -1815,7 +1862,8 @@ function DisplayD3Layout(divSvg,newData,w,h)
     } // MakeContextMenuItems
 
     /* This returns the contextual menu for the background.
-    It is immediately superseded, and the sample data are here just for documentation. */
+    It is immediately superseded, and the sample data are here just for documentation.
+    It contains example data, to explain its structure. */
     function MakeDefaultContextMenuItems(objectSvg)
     {
         var theDfltItems =
@@ -1862,7 +1910,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         // Similar to ScriptForJson in Python.
         function PlainNonEntityUrl(url)
         {
-            if( url.indexOf("survol/file_to_mime.py") >= 0 )
+            if( url.indexOf("survol/entity_mime.py") >= 0 )
             {
                 return true;
             }
@@ -2178,8 +2226,6 @@ function openRequestedPopup() {
     }
 
     windowObjectReference.focus();
-
-    // RefreshSummaryWindow();
 }
 
 function openPrintLayout() {

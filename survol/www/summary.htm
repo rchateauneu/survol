@@ -50,7 +50,7 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
             + '</a></td>';
     } // HrefTarget
 
-    console.log("SummaryRefreshSummaryWindow lstLoadedUrls.length="+lstLoadedUrls.length);
+    console.log("SummaryRefreshSummaryWindow lstLoadedUrls.array_urls.length="+lstLoadedUrls.array_urls.length);
 
     var urlsHtml = "";
 
@@ -66,9 +66,9 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
         "</tr>"
     ].join("\n");
 
-    for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.length; ixLoaded++ )
+    for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.array_urls.length; ixLoaded++ )
     {
-        var objLoadedUrl = lstLoadedUrls[ixLoaded];
+        var objLoadedUrl = lstLoadedUrls.array_urls[ixLoaded];
         console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
 
         // This is sent to the main window, to update the refresh rate of this URL.
@@ -94,9 +94,10 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
         ].join("\n");
     }
 
+    // This creates a single URL which merges all the individual ones.
     var urlMerge = ConcatenateMergeUrl(lstLoadedUrls,"");
 
-    // On va envoyer le total quelque part.
+    // Displays the various totals of the merged urls.
     urlsHtml += [
         "<tr>",
         HrefTarget(urlMerge,"Merge into SVG display"),
@@ -109,6 +110,23 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
 
     urlsHtml += "</table>";
 
+    // Now, this adds a little table do display the specific color of each agent.
+    urlsHtml += "<table>";
+    for (var keyHost in lstLoadedUrls.dict_hosts) {
+        // check if the property/key is defined in the object itself, not in parent.
+        // Cannot see why it would happen, but better be sure.
+        if (lstLoadedUrls.dict_hosts.hasOwnProperty(keyHost)) {
+            urlsHtml += "<tr>";
+            objHost = lstLoadedUrls.dict_hosts[keyHost];
+            colHost = objHost.m_host_color;
+            urlsHtml += "<td bgcolor='" + colHost + "'>" + keyHost + "</td>";
+            urlsHtml += "</tr>";
+        }
+    }
+
+    urlsHtml += "</table>";
+
+    // Changes the HTML content of the whole summary table.
 	$(SummaryTable).html( urlsHtml );
 
 	console.log("urlsHtml.length="+urlsHtml.length);
