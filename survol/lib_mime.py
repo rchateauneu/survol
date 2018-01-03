@@ -11,7 +11,7 @@ except ImportError:
 	mimelib_present = False
 
 def FilenameToMime(pathName):
-	sys.stderr.write("FilenameToMime pathName=%s\n"%pathName)
+	# sys.stderr.write("FilenameToMime pathName=%s\n"%pathName)
 
 	# No risk of course. Ideally the file should not be visible.
 	if pathName.upper().find("CREDENTIALS") >= 0:
