@@ -13,6 +13,70 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 192.168.0.0     0.0.0.0         255.255.255.0   U     100    0        0 enp3s0
 192.168.122.0   0.0.0.0         255.255.255.0   U     0      0        0 virbr0
 
+C:\Users\rchat>route print
+===========================================================================
+Interface List
+  2...04 7d 7b 42 f9 c5 ......Realtek PCIe GBE Family Controller
+ 16...02 00 4c 4f 4f 50 ......Npcap Loopback Adapter
+ 10...8c 70 5a 56 cf 7d ......Microsoft Wi-Fi Direct Virtual Adapter
+ 12...8c 70 5a 56 cf 7c ......Intel(R) Centrino(R) Advanced-N 6205
+ 15...40 2c f4 e1 d3 6c ......Bluetooth Device (Personal Area Network)
+  1...........................Software Loopback Interface 1
+ 11...00 00 00 00 00 00 00 e0 Microsoft Teredo Tunneling Adapter
+ 14...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter #3
+ 51...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter #4
+===========================================================================
+
+IPv4 Route Table
+===========================================================================
+Active Routes:
+Network Destination        Netmask          Gateway       Interface  Metric
+          0.0.0.0          0.0.0.0      192.168.0.1     192.168.0.26     55
+        127.0.0.0        255.0.0.0         On-link         127.0.0.1    331
+        127.0.0.1  255.255.255.255         On-link         127.0.0.1    331
+  127.255.255.255  255.255.255.255         On-link         127.0.0.1    331
+      169.254.0.0      255.255.0.0         On-link    169.254.74.251    281
+   169.254.74.251  255.255.255.255         On-link    169.254.74.251    281
+  169.254.255.255  255.255.255.255         On-link    169.254.74.251    281
+      192.168.0.0    255.255.255.0         On-link      192.168.0.26    311
+     192.168.0.26  255.255.255.255         On-link      192.168.0.26    311
+    192.168.0.255  255.255.255.255         On-link      192.168.0.26    311
+        224.0.0.0        240.0.0.0         On-link         127.0.0.1    331
+        224.0.0.0        240.0.0.0         On-link      192.168.0.26    311
+        224.0.0.0        240.0.0.0         On-link    169.254.74.251    281
+  255.255.255.255  255.255.255.255         On-link         127.0.0.1    331
+  255.255.255.255  255.255.255.255         On-link      192.168.0.26    311
+  255.255.255.255  255.255.255.255         On-link    169.254.74.251    281
+===========================================================================
+Persistent Routes:
+  None
+
+IPv6 Route Table
+===========================================================================
+Active Routes:
+ If Metric Network Destination      Gateway
+ 11    331 ::/0                     On-link
+  1    331 ::1/128                  On-link
+ 11    331 2001::/32                On-link
+ 11    331 2001:0:4137:9e76:1076:9af:add2:f3c0/128
+                                    On-link
+ 12    311 fe80::/64                On-link
+ 16    281 fe80::/64                On-link
+ 11    331 fe80::/64                On-link
+ 11    331 fe80::1076:9af:add2:f3c0/128
+                                    On-link
+ 12    311 fe80::b110:27e4:2392:1c92/128
+                                    On-link
+ 16    281 fe80::b971:331b:4653:4afb/128
+                                    On-link
+  1    331 ff00::/8                 On-link
+ 12    311 ff00::/8                 On-link
+ 11    331 ff00::/8                 On-link
+ 16    281 ff00::/8                 On-link
+===========================================================================
+Persistent Routes:
+  None
+
 
 See if broadcast wi
 
