@@ -125,8 +125,7 @@ def PassNoThreads(the_pid, execName, grph, procNode):
 		callNodePrev = callNodeNew
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(
-		"http://www.gnu.org/software/gdb/images/archer.jpg")
+	cgiEnv = lib_common.CgiEnv()
 	try:
 		the_pid = int(cgiEnv.GetId())
 	except KeyError:
