@@ -1,0 +1,18 @@
+Not clear if my Virgin router Hub 3.0 is happy with multicast.
+
+http://www.openslp.org/doc/html/UsersGuide/Installation.html
+
+Two possibilities:
+* Replace multicast by broadcast
+* Add a multicast route
+
+[rchateau@fedora22 ~]$ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.0.1     0.0.0.0         UG    100    0        0 enp3s0
+192.168.0.0     0.0.0.0         255.255.255.0   U     100    0        0 enp3s0
+192.168.122.0   0.0.0.0         255.255.255.0   U     0      0        0 virbr0
+
+
+See if broadcast wi
+
