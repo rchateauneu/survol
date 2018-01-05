@@ -78,5 +78,208 @@ Persistent Routes:
   None
 
 
-See if broadcast wi
+No explanation about this error on Windows:
+C:\Users\rchateau>slptool register service:toto://toto.example.com
+errorcode: -19
+
+tcpdump of registering, on Linux.
+In /etc/slp.conf, this flag is set:
+net.slp.isBroadcastOnly = true
+net.slp.broadcastAddr = 255.255.255.255
+
+
+sendto(3, "\2\3\0\0O@\0\0\0\0!\347\0\2en\0\377\377\0\37service:toto://toto.example.com\0\0\fservice:toto\0\7DEFAULT\0\0\0", 79, MSG_NOSIGNAL, {sa_family=AF_INET, sin_port=htons(427), sin_addr=inet_addr("127.0.0.1")}, 16) = 79
+poll([{fd=3, events=POLLIN}], 1, 500)   = 1 ([{fd=3, revents=POLLIN}])
+recvfrom(3, "\2\5\0\0\22\0\0\0\0\0!\347\0\2en", 16, MSG_PEEK, {sa_family=AF_INET, sin_port=htons(427), sin_addr=inet_addr("127.0.0.1")}, [16]) = 16
+poll([{fd=3, events=POLLIN}], 1, 500)   = 1 ([{fd=3, revents=POLLIN}])
+recvfrom(3, "\2\5\0\0\22\0\0\0\0\0!\347\0\2en\0\0", 18, 0, NULL, NULL) = 18
+
+
+Here is /var/log/slpd.log
+
+Fri Jan  5 12:44:30 2018
+DATABASE - Registration (pid=0):
+    SA address = IPC (libslp)
+    service-url = service:toto://toto.example.com
+    scope = DEFAULT
+    attributes = <empty>
+
+
+========================================================================================================
+We know that another machine runs slpd fine:
+
+[root@fedora22 rchateau]# tcpdump -i enp3s0 -s0 -vv host 239.255.255.253
+tcpdump: listening on enp3s0, link-type EN10MB (Ethernet), capture size 262144 bytes
+
+12:03:31.650021 IP (tos 0x0, ttl 255, id 65027, offset 0, flags [DF], proto UDP (17), length 72)
+    fedora22.57714 > 239.255.255.253.svrloc: [udp sum ok] UDP, length 44
+12:03:32.656650 IP (tos 0x0, ttl 255, id 13456, offset 0, flags [none], proto UDP (17), length 77)
+    192.168.0.14.svrloc > 239.255.255.253.svrloc: [udp sum ok] UDP, length 49
+========================================================================================================
+In the Windows version, slpd.ede is installed as a service, and the executable file slpd.exe contains:
+
+%WINDIR%\slpd.pid
+%WINDIR%\slp.reg
+%WINDIR%\slpd.log
+%WINDIR%\slp.conf
+
+By default:
+WINDIR=C:\Windows
+
+
+========================================================================================================
+
+This is what I did in 2015. It was working but with a BT router:
+
+# $ slptool findsrvs service:wbem
+# service:wbem:http://192.168.1.83:5988,65535
+# service:wbem:https://192.168.1.83:5989,65535
+#
+# It was working on the same machine but is not wokring anymore:
+# C:\Users\rchateau>"C:\Program Files (x86)\OpenSLP\slptool.exe" findsrvs service:wbem
+# service:wbem:http://192.168.1.83:5988,65535
+# service:wbem:https://192.168.1.83:5989,65535
+#
+# But when registering by hand from Linux it was not working:
+# slptool register service:wbem:http://192.168.1.88:5988,65535
+# Maybe it was registerd from openlmi ?
+#
+# Now it does not work anymore, either.
+#
+
+========================================================================================================
+When the router was changed:
+
+BEFORE:
+
+****************************************
+Mon Jul 06 23:19:27 2015
+SLPD daemon started
+****************************************
+Command line = slpd
+Using configuration file = C:\windows\slp.conf
+Using registration file = C:\windows\slp.reg
+Listening on loopback TCP...
+Listening on loopback UDP...
+Listening on 192.168.56.1 ...
+Multicast (IPv4) socket on 192.168.56.1 ready
+SLPv1 Service Location General Multicast socket on 192.168.56.1 ready
+Unicast socket on 192.168.56.1 ready
+Listening on 192.168.1.83 ...
+Multicast (IPv4) socket on 192.168.1.83 ready
+SLPv1 Service Location General Multicast socket on 192.168.1.83 ready
+Unicast socket on 192.168.1.83 ready
+Agent Interfaces = 192.168.56.1,192.168.1.83
+Startup complete entering main run loop ...
+
+****************************************
+Mon Jul 06 23:58:58 2015
+SLPD daemon reset by SIGHUP
+****************************************
+
+Already listening on IPv4 loopback.
+Already listening on 192.168.56.1.
+Already listening on 192.168.1.83.
+
+
+AFTER:
+
+****************************************
+Fri Sep 01 20:09:15 2017
+SLPD daemon reset by SIGHUP
+****************************************
+
+Already listening on IPv4 loopback.
+Already listening on 192.168.56.1.
+Listening on 192.168.0.14 ...
+Multicast (IPv4) socket on 192.168.0.14 ready
+SLPv1 Service Location General Multicast socket on 192.168.0.14 ready
+Unicast socket on 192.168.0.14 ready
+****************************************
+Fri Sep 01 20:09:15 2017
+SLPD daemon reset finished
+****************************************
+
+Agent Interfaces = 192.168.56.1,192.168.0.14
+****************************************
+Fri Sep 01 20:09:16 2017
+SLPD daemon reset by SIGHUP
+****************************************
+
+Already listening on IPv4 loopback.
+Already listening on 192.168.56.1.
+Already listening on 192.168.0.14.
+
+========================================================================================================
+From Wireshark, with command:
+
+C:\Users\rchateau>slptool findsrvs service:test
+
+27	2.429514000	192.168.0.14	239.255.255.253	SRVLOC	91	Service Request, V2 XID - 1032
+
+....1 ........en....service:directory-agent..........1 ........en....service:directory-agent..........1 ........en....service:directory-agent..........1 ........en....service:directory-agent..........8 ........en....service:directory-agent..DEFAULT........8 ........en....service:directory-agent..DEFAULT........8 ........en....service:directory-agent..DEFAULT........8 ........en....service:directory-agent..DEFAULT........- ........en....service:test..DEFAULT........- ........en....service:test..DEFAULT........- ........en....service:test..DEFAULT........- ........en....service:test..DEFAULT........1 ........en....service:directory-agent..........1 ........en....service:directory-agent......
+
+========================================================================================================
+Added some hard-coded SLP addresses on Windows 7:
+
+Pre-registered addresses must be separated by empty lines:
+
+service:wbem:http://rchateau-hp,en,65535
+description=OpenPegasus sous Windows 7
+
+# Definitions must be separated by an empty line.
+service:survol:http://rchateau-hp:8000/survol/entity.py,en,65535
+description=Survol Windows 7
+
+C:\Users\rchateau>slptool findsrvs service:toto
+# Nothing of course, but how was it registered before ?????
+# Never mind, we do not care for the moment,
+# as it is acceptable to register manually the agents.
+
+C:\Users\rchateau>slptool findsrvs service:survol
+service:survol:http://rchateau-hp:8000/survol/entity.py,65535
+
+========================================================================================================
+Added some hard-coded SLP addresses on Fedora:
+
+Pre-registered addresses must be separated by empty lines:
+
+##
+service:wbem:http://192.168.1.88,en,65535
+scopes=test1,test2
+description=OpenPegasus sous Linux
+authors=test1,test2
+
+## Definitions must be separated by an empty line.
+## Register Survol agent.
+service:survol:http://192.168.0.17/Survol/survol/entity.py,en,65535
+# scopes=test1,test2
+description=Survol agent on Fedora.
+# authors=test1,test2
+
+========================================================================================================
+[rchateau@fedora22 ~]$ slptool findsrvs service:survol
+service:survol:http://rchateau-hp:8000/survol/entity.py,65535
+
+This means that Fedora can get registered agents on Windows 7,
+but does not detect its own.
+
+Windows 7 can also detect its own:
+C:\Users\rchateau>slptool findsrvs service:survol
+service:survol:http://rchateau-hp:8000/survol/entity.py,65535
+
+========================================================================================================
+Other tests:
+
+C:\Users\rchateau>slptool findsrvtypes
+service:wbem:http
+service:survol:http
+
+[rchateau@fedora22 ~]$ slptool findsrvtypes
+service:wbem:http
+service:survol:http
+
+Conclusions:
+* Multicast can work on this network.
+* Slpd on Fedora is not able to respond to queries.
 
