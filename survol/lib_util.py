@@ -1240,34 +1240,35 @@ def WrtHeader(mimeType,extraArgs = None):
 
 ################################################################################
 
+def GetEntityModuleNoCacheNoCatch(entity_type):
+	# Here, we want: "sources_types/Azure/location/__init__.py"
+	# Example: entity_type = "Azure.location"
+	# This works.
+	# entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
+
+	entity_type_split = entity_type.split("/")
+	if len(entity_type_split) > 1:
+		entity_package = "sources_types." + ".".join(entity_type_split[:-1])
+		entity_name = "." + entity_type_split[-1]
+	else:
+		entity_package = "sources_types"
+		entity_name = "." + entity_type
+	# sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+	entity_module = importlib.import_module( entity_name, entity_package)
+	# sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
+	return entity_module
+
+
+
 def GetEntityModuleNoCache(entity_type):
 	# sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
 
 	try:
-		# Here, we want: "sources_types/Azure/location/__init__.py"
-		# Example: entity_type = "Azure.location"
-		# This works.
-		# entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
-
-		entity_type_split = entity_type.split("/")
-		if len(entity_type_split) > 1:
-			entity_package = "sources_types." + ".".join(entity_type_split[:-1])
-			entity_name = "." + entity_type_split[-1]
-		else:
-			entity_package = "sources_types"
-			entity_name = "." + entity_type
-		# sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
-		entity_module = importlib.import_module( entity_name, entity_package)
-		# sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
-		return entity_module
-
+		return GetEntityModuleNoCacheNoCatch(entity_type)
 	except ImportError:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("GetEntityModuleNoCache entity_type=%s Loading (%s):%s\n"%(entity_type,entity_package,str(exc)))
-		pass
-
-	# sys.stderr.write("Info:Cannot find entity-specific library:"+entity_lib+"\n")
-	return None
+		sys.stderr.write("GetEntityModuleNoCache entity_type=%s Caught:%s\n"%(entity_type,str(exc)))
+		return None
 
 # So we try to load only once.
 cacheEntityToModule = dict()
