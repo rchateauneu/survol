@@ -75,8 +75,7 @@ def SurvolServersDisplay(grph):
 
 
 def Main():
-	# If this flag is set, the script uses SLP (Servicel Location Protocol)
-	# to browse other Survol Agents.
+	# If this flag is set, the script uses SLP to discover Survol Agents.
 	paramkeySLP = "Service Location Protocol"
 
 	cgiEnv = lib_common.CgiEnv(
