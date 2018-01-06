@@ -342,7 +342,139 @@ Even objects created by ActiveX&#8482; are smoothly paired with the ones
 created by Python agents. This is the reason why objects URLs do not
 accept any CGI parameter except the display mode. </li>
 </ul>
-<span style="font-family: DejaVu Sans;"><span style="font-style: italic;"><span style="font-weight: bold;"></span></span></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"></span></span><span style="font-family: DejaVu Sans;"><br>
-Return to <a href="survol.htm">Survol</a>, or see the <a href="survol_faq.html">FAQs</a></span>, <span style="font-family: DejaVu Sans;">or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="doxygen_docs/html/index.html">here</a>.</span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;"><span style="font-style: italic;"><span style="font-weight: bold;"></span></span></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"></span></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"><br></span></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">CREDENTIALS FILES<br><br></span></span><span style="font-family: DejaVu Sans;">Survol
+scripts access many software resources, some of them being protected
+with credentials, typically a username and a password. These
+credentials are made available to Survol with a JSON file,
+SurvolCredentials.json, residing in the users' home directory.
+Depending on the user running the HTTP server (Apache, IIS etc...),
+this home directory may vary. This file can be edited with the "<span style="font-style: italic;">Credentials</span>" page link.<br><br>It
+contains several types of credentials, depending on the type of access:
+Database software, middleware library etc... For each of this access
+type, it is possible to add, delete, update any credentials. On the
+other hand, it is not possible, without extra development, to add new
+types of credentials as these need specific software to use them.<br><br>A typical content of this file might be:<br><br><br></span><table style="width: 748px; height: 648px;" border="1">
+    <form method="post" action="/survol/edit_credentials.py" name="ServerCredentials"></form>
+    <tbody><tr>
+    <td><b>Resource</b></td>
+    <td><b>Account</b></td>
+    <td><b>Password</b></td>
+    
+    </tr>
+    <tr><td colspan="4"><b>Azure</b></td></tr><tr>
+                <td>Visual Studio Professional</td>
+                <td>8532-42f4-a66a-c5da7acd</td>
+                <td><input name="Azure_Visual Studio Professional_8eae3913-8532-42f4-a66a-c5da7acdedd7_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                <tr><td colspan="4"><b>Login</b></td></tr>
+                <tr>
+                <td>DESKTOP-NI99V8E</td>
+                <td>johnwin</td>
+                <td><input name="Login_DESKTOP-NI99V8E_rchateauneu@hotmail.com_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                
+                
+                <tr>
+                <td>fedora22</td>
+                <td>mary</td>
+                <td><input name="Login_fedora22_rchateau_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                
+                
+                
+                
+                <tr><td colspan="4"><b>MySql</b></td></tr>
+                
+                <tr>
+                <td>sqlusertcsrvdb1.mysql.db</td>
+                <td>sqlusertcsrvdb1</td>
+                <td><input name="MySql_primhilltcsrvdb1.mysql.db_primhilltcsrvdb1_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                
+                <tr><td colspan="4"><b>ODBC</b></td></tr><tr>
+                <td>MyOracleDataSource</td>
+                <td>system</td>
+                <td><input name="ODBC_MyOracleDataSource_system_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                
+                <tr><td colspan="4"><b>Oracle</b></td></tr><tr>
+                <td>XE</td>
+                <td>system</td>
+                <td><input name="Oracle_XE_system_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                <tr><td colspan="4"><b>RabbitMQ</b></td></tr><tr>
+                <td>localhost:12345</td>
+                <td>guest</td>
+                <td><input name="RabbitMQ_localhost:12345_guest_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                
+                <tr><td colspan="4"><b>SqlExpress</b></td></tr><tr>
+                <td>192.168.0.14\SQLEXPRESS</td>
+                <td>jamessql</td>
+                <td><input name="SqlExpress_192.168.0.14\SQLEXPRESS_essaisql_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                
+                
+                <tr><td colspan="4"><b>Survol</b></td></tr><tr>
+                <td>http://desktop-ni99v8e/Survol/survol/entity.py</td>
+                <td></td>
+                <td><input name="Survol_http://desktop-ni99v8e/Survol/survol/entity.py__UPDATE_PASSWORD"></td>
+                
+                </tr>
+                
+                
+                
+                
+                <tr>
+                <td>http://win7-hp:8000/survol/entity.py</td>
+                <td></td>
+                <td><input name="Survol_http://rchateau-hp:8000/survol/entity.py__UPDATE_PASSWORD"></td>
+                
+                </tr>
+                <tr><td colspan="4"><b>WBEM</b></td></tr><tr>
+                <td>http://192.168.0.17:5988</td>
+                <td>pegasus</td>
+                <td><input name="WBEM_http://192.168.0.17:5988_pegasus_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                
+                
+                
+                
+                <tr>
+                <td>http://WIN7-HP:5988</td>
+                <td>william</td>
+                <td><input name="WBEM_http://rchateau-HP:5988_rchateau_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                <tr><td colspan="4"><b>WMI</b></td></tr><tr>
+                <td>LAPTOP-B2HEHHF6</td>
+                <td>user</td>
+                <td><input name="WMI_LAPTOP-B2HEHHF6_emmanuel_UPDATE_PASSWORD" value="****"></td>
+                
+                </tr>
+                
+                
+                
+    <form method="post" action="edit_credentials.py" name="ServerCredentials"></form>
+    
+    </tbody></table>
+	<br><span style="font-family: DejaVu Sans;"><br>It is absolutely mandatory to ensure that this file is protected, for security reasons.<br><br>Some subcategories of the credentials file are used for static services discovery:<br></span><ul><li>The list of WBEM servers allows to fetch CIM information from thees machines.</li><li>The listed Survol agents
+are fully accessible: Their information can be fully browsed and merged
+with the information of the agent your are running on.</li></ul><span style="font-family: DejaVu Sans;"></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"><br>SERVICES DISCOVERY</span></span><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><br><span style="font-family: DejaVu Sans;">A
+Survol setup can run on several machines, each agent providing a facet
+of the overall multi-hosted application being investigated. To get an
+overall vision of this application, it is necessary to discover all the
+Survol agents available, in order to merge their outputs into a single
+result, whether this result is a SVG document, a HTML page etc...<br><br>There are several mechanisms allowing to discover other Survol agents available in the same network.<br></span><ul><li><span style="font-family: DejaVu Sans;">Static definition of remote agents in the credentials file, </span><span style="font-family: DejaVu Sans;">SurvolCredentials.json</span>.</li><li><a href="https://en.wikipedia.org/wiki/Service_Location_Protocol">Service Location Protocol</a> (SLP), used for Survol agents discovery, but also for WBEM servers.</li><li>The assumption that any Windows machine can run remote WMI requests.</li></ul><span style="font-family: DejaVu Sans;"><br><br>
+Return to <a href="survol.htm">Survol</a>, or see the <a href="survol_faq.html">FAQs</a>, the <a href="survol_installation.html">installation notes</a>, or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="doxygen_docs/html/index.html">here</a>.</span><br style="font-weight: bold; font-family: DejaVu Sans;">
 <span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
 </body></html>
