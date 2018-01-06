@@ -407,8 +407,8 @@ types of credentials as these need specific software to use them.<br><br>A typic
                 
                 <tr><td colspan="4"><b>Oracle</b></td></tr><tr>
                 <td>XE</td>
-                <td>system</td>
-                <td><input name="Oracle_XE_system_UPDATE_PASSWORD" value="****"></td>
+                <td>scott</td>
+                <td><input name="Oracle_XE_system_UPDATE_PASSWORD" value="tiger"></td>
                 
                 </tr>
                 <tr><td colspan="4"><b>RabbitMQ</b></td></tr><tr>
@@ -470,14 +470,14 @@ types of credentials as these need specific software to use them.<br><br>A typic
     <form method="post" action="edit_credentials.py" name="ServerCredentials"></form>
     
     </tbody></table>
-	<br><span style="font-family: DejaVu Sans;"><br>It is absolutely mandatory to ensure that this file is protected, for security reasons.<br><br>Some subcategories of the credentials file are used for static services discovery:<br></span><ul><li>The list of WBEM servers allows to fetch CIM information from thees machines.</li><li>The listed Survol agents
+	<br><span style="font-family: DejaVu Sans;"><br><span style="font-family: DejaVu Sans;">It is absolutely mandatory to ensure that this file is protected, for security reasons.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Some subcategories of the credentials file are used for static services discovery:</span><br style="font-family: DejaVu Sans;"></span><ul><li style="font-family: DejaVu Sans;">The list of WBEM servers allows to fetch CIM information from thees machines.</li><li><span style="font-family: DejaVu Sans;">The listed Survol agents
 are fully accessible: Their information can be fully browsed and merged
-with the information of the agent your are running on.</li></ul><span style="font-family: DejaVu Sans;"></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"><br>SERVICES DISCOVERY</span></span><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><br><span style="font-family: DejaVu Sans;">A
+with the information of the agent your are running on.</span></li></ul><span style="font-family: DejaVu Sans;"></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"><br>SERVICES DISCOVERY</span></span><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><br><span style="font-family: DejaVu Sans;">A
 Survol setup can run on several machines, each agent providing a facet
 of the overall multi-hosted application being investigated. To get an
 overall vision of this application, it is necessary to discover all the
 Survol agents available, in order to merge their outputs into a single
-result, whether this result is a SVG document, a HTML page etc...<br><br>There are several mechanisms allowing to discover other Survol agents available in the same network.<br></span><ul><li><span style="font-family: DejaVu Sans;">Static definition of remote agents in the credentials file, </span><span style="font-family: DejaVu Sans;">SurvolCredentials.json</span>.</li><li><a href="https://en.wikipedia.org/wiki/Service_Location_Protocol">Service Location Protocol</a> (SLP), used for Survol agents discovery, but also for WBEM servers.</li><li>The assumption that any Windows machine can run remote WMI requests.</li></ul><span style="font-family: DejaVu Sans;"><br><br>
+result, whether this result is a SVG document, a HTML page etc...<br><br>There are several mechanisms allowing to discover other Survol agents available in the same network.<br></span><ul><li style="font-family: DejaVu Sans;">Static definition of remote agents in the credentials file, SurvolCredentials.json.</li><li style="font-family: DejaVu Sans;"><a href="https://en.wikipedia.org/wiki/Service_Location_Protocol">Service Location Protocol</a> (SLP), used for Survol agents discovery, but also for WBEM servers.</li><li><span style="font-family: DejaVu Sans;">The assumption that any Windows machine can run remote WMI requests.</span></li></ul><span style="font-family: DejaVu Sans;"><br><br>
 Return to <a href="survol.htm">Survol</a>, or see the <a href="survol_faq.html">FAQs</a>, the <a href="survol_installation.html">installation notes</a>, or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="doxygen_docs/html/index.html">here</a>.</span><br style="font-weight: bold; font-family: DejaVu Sans;">
 <span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
 </body></html>
