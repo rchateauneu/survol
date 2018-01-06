@@ -1,5 +1,5 @@
 """
-Unix user account
+Unix-like user account
 """
 
 import sys
