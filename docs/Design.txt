@@ -1,3 +1,51 @@
+
+============================================================================================================
+Some ideas about services discovery:
+
+* If using SLP, we could add more attributes, even optional.
+* consider using UPNP with drag'n'drop, for merging.
+
+============================================================================================================
+
+The idea of merging identical nodes came from RDF: http://www.w3.org/TR/rdf-mt/
+
+This allows identical nodes calculated form several scripts, and several agents running on different 
+machines, to be merged into one.
+
+============================================================================================================
+DOT format allows to create embedded graphes.
+Maybe it could be used to display the hierarchy of sub-processes.
+
+============================================================================================================
+
+"A responsive table will display a horizontal scroll bar if the screen is too small to display the full content.
+Resize the browser window to see the effect. To create a responsive table,
+add a container element (like div) with overflow-x:auto around the table element:"
+https://www.w3schools.com/css/tryit.asp?filename=trycss_table_responsive
+
+============================================================================================================
+
+RRD data store ? http://en.wikipedia.org/wiki/RRDtool
+
+========================================================================================================================
+http://www.ntcore.com/pedetective.php
+http://bob.droppages.com/projects/peid
+https://reverseengineering.stackexchange.com/questions/3362/how-to-know-in-which-language-technology-program-exe-is-written
+
+https://www.logilab.org/project/pyreverse
+
+============================================================================================================
+Representation: Visio VSD
+
+=============================================
+http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
+
+HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes.
+
+============================================================================================================
+FROM HERE, IDEAS, NOTES ETC... CURRENTLY BEING TRANSLATED
+============================================================================================================
+
 http://tw.rpi.edu/web/tool/vraer
 
 Javascript devra peut-etre uploader les fichiers, ce qui nous dispenserait d'avoir un serveur local.
@@ -8,33 +56,6 @@ des serveurs.
 ============================================================================================================
 De facon generale, toute action doit pouvoir etre faite avec deux outils differents ou plus.
 C'est pour ca qu'il faut pouvoir utiliser les scripts en ligne de commande.
-
-============================================================================================================
-Some ideas about services discovery:
-
-* If using SLP, we could add more attributes, even optional.
-* consider using UPNP with drag'n'drop, for merging.
-
-============================================================================================================
-
-http://www.w3.org/TR/rdf-mt/
-
-Il faut s'assurer que le merge permet par exemple que processes ayant le meme 
-pid se retrouvent fusionnes.
-Si ce n'est pas le cas, il faut une regle permettant de construire le meme URN
-par exemple pour le meme pid.
-============================================================================================================
-Avec DOT, on peut, je crois representer des graphes imbriques.
-S'en servir pour mettre representer la hierarchie des sous-processes
-sans modifier le dessin d'ensemble.
-
-============================================================================================================
-Doit-on exprimer l'imbrication de facon generique ou bien
-en s'appuyant sur du RDF?
-* Processes.
-* Fichiers (Avec l'exception des links symboliques ou hards).
-* Eventuellement les reseaux (Mais on ne sait pas faire pour le moment)
-* Pas les user-groups.
 
 
 ============================================================================================================
@@ -151,9 +172,6 @@ Il faudrait un framework qui puisse utiliser des url existants.
  
 http://www.academia.edu/1424450/A_Software_Reverse_Engineering_Methodology_For_Legacy_Modernization
 
-============================================================================================================
-
-Representation: Visio VSD
 ============================================================================================================
 
 Visualiser du RDF (Nexus, RDF Gravity http://semweb.salzburgresearch.at/apps/rdf-gravity/index.html )
@@ -370,10 +388,6 @@ A la limite on pourrait meme fusionner immediatement, des le drop. En revanche, 
 http://stackoverflow.com/questions/21143504/drag-and-drop-how-to-get-the-url-of-image-being-dropped-if-image-is-a-link-not
 
 ============================================================================================================
-
-RRD data store ? http://en.wikipedia.org/wiki/RRDtool
-
-============================================================================================================
 Pour les fichiers, trouver un moyen de sauter une etape:
 Donc avoir les scripts mais aussi un ou deux liens preferentiels.
 
@@ -422,13 +436,6 @@ Le sort ne fonctionne pas mais on peut au moins commencer avec ca.
 
 D'apres cet autre site, on voit bien que c est une fonctionnalite de D3:
 http://bl.ocks.org/biovisualize/1226718
-
-============================================================================================================
-
-"A responsive table will display a horizontal scroll bar if the screen is too small to display the full content.
-Resize the browser window to see the effect. To create a responsive table,
-add a container element (like div) with overflow-x:auto around the table element:"
-https://www.w3schools.com/css/tryit.asp?filename=trycss_table_responsive
 
 ============================================================================================================
 
@@ -490,17 +497,7 @@ machines Windows.
 Transformer une operation de merge en une source d'informations: Il suffit de lister
 son URL, enregistrer ses parametres et declarer avec SLP par exemple.
 
-=============================================
-Noms:
-Survol
-SysExplain
-AppExplain
-Sys-X-Plain
 
-=============================================
-http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
-
-HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes.
 =============================================
 UDP:
 Etablir la correlation entre:
@@ -1193,7 +1190,7 @@ Sauver les mots de passe comme on le fait avec WMI (Qu'il faudra d'ailleurs term
 
 «Geographical Visualisation of CIM Networks Using Google APIs”
 "IEC 61968 classes for geographical data”
-Si on veut afficher des donnees D£ avec du KML:
+Si on veut afficher des donnees D3 avec du KML:
 ·         On s'arrange pour que les distances soient raisonnables en fonction de ce qu'on veut afficher :
 ·         Tout ce qui concerne un ordinateur tient dans une boite de 30cm*30cm
 ·         Distances entre machines : 1m si dans un LAN.
@@ -1247,20 +1244,11 @@ Et les utiliser dans les SVG.
 
 Calculer un thumbnail si le fichier est une image.
 
-========================================================================================================================
-http://www.ntcore.com/pedetective.php
-http://bob.droppages.com/projects/peid
-https://reverseengineering.stackexchange.com/questions/3362/how-to-know-in-which-language-technology-program-exe-is-written
-
-https://www.logilab.org/project/pyreverse
 
 ========================================================================================================================
 
 FAIRE DU MENAGE :
 =================
-
-Virer d3v2, Scripts etc...
-On peut virer "operators/gui_accumulate", le mettre dans Tests ou oldies.
 
 Ajouter des pages CSS dynamiquement.
 https://stackoverflow.com/questions/4847313/dynamically-add-css-to-page-via-javascript

@@ -115,98 +115,9 @@ Attention au coding:
           # -*- coding: ascii -*-
           import os, sys
 
-========================================================================================================================
-Service Location Protocol
-
-Survol uses OpenSlp as an implementation of Service Location Protocol.
-
-It can be downloaded from http://www.openslp.org/
-
-It might be helpful to pre-register some services in the file slp.reg.
-
-This is the right place to also register manually, WBEM services.
-
-This can be done this way:
-
-#
-service:wbem:http://rchateau-hp,en,65535 
-description=OpenPegasus under Windows 7
-
-# Definitions must be separated by an empty line.
-service:survol:http://rchateau-hp:8000/survol/entity.py,en,65535
-description=Survol Windows 7
-#
-
-
-========================================================================================================================
-Configuring Apache for CGI scripts:
-
-
-The HTTP Server Apache must be able to run all Python scripts residing
-under the directory survol/sources_types as CGI scripts.
-
-On Windows, it is necessary to specify to Apache which Python interpreter must be used
-to run the CGI scripts. On Windows, this is done in the registry, with various keys depending 
-on the Windows operating system version.
-
-Windows7 
-HKEY_CLASSES_ROOT\.py\Shell\ExecCGI\Command : The key "Default" contains the program name.
-C:\Program Files (x86)\Python32\pythonw.exe -u
-
-"C:\Python\3.2.3-0.2\pythonw.exe"
-
-With Windows XP, the command is the key itself.
-"C:\Python\3.2.3-0.3\pythonw.exe -u"
-
-On Linux, all CGI scripts must be executable and the first line specifies the Pyton interpreter.
-http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
-
 
 ========================================================================================================================
 
-Installation Apache Windows 7:
-==============================
-
-AddHandler cgi-script .py
-
-Alias /PythonStyle/ "D:/Projects/Divers/Reverse/PythonStyle/"
-
-<Directory "D:\Projects\Divers\Reverse\PythonStyle\htbin">
-    AllowOverride None
-    Options Indexes FollowSymLinks +ExecCGI IncludesNoExec
-	# http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
-	# So the shebang line is not taken into account at all.
-	ScriptInterpreterSource Registry-Strict
-	# ScriptInterpreterSource Registry
-	PassEnv PYTHONPATH
-	SetEnv PYTHONUNBUFFERED 1
-	# Tried this otherwise error when importing module cx_Oracle ... but this does not work.
-	# PassEnv ORAC_HOME
-	# SetEnv ORAC_HOME "D:/Projects/OracleBinTmp/CLNT0010203NEN005"
-    AddOutputFilter Includes html
-    AddHandler type-map var
-    Order allow,deny
-    Allow from all
-    LanguagePriority en cs de es fr it ja ko nl pl pt-br ro sv tr
-    ForceLanguagePriority Prefer Fallback
-</Directory>
-
-Cross Requests : So it is possible to haver a static html page which loads
-RDF urls from distant sites.
-# Ok on Linux.
-Header set Access-Control-Allow-Origin "*"
-
-# On Windows: Ensure this:
-LoadModule headers_module modules/mod_headers.so
-...
-<IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin: *
-</IfModule>
-
-Create Survol.conf file
-Must create a specific conf file pour Apache.
-
-========================================================================================================================
 PYTHONPATH
 ;C:\Python\3.2.3-0.2;C:\Python\3.2.3-0.2\Lib\site-packages
 
@@ -218,20 +129,6 @@ This is not enough:
 
 ========================================================================================================================
 
-Apache needs to have its CGI scripts in a special directory.
-At the same time, we meed to install Survol code as easily as possible,
-independantly from Apache which might no be the unique HTTP server we are using.
-
-Therefore, we are using symbolic links: Apache 
-
-Synthetically, what the installation must do is:
-- Copy the content of survol/*, survol/sources_types etc... at a place accessible from Apache.
-- The css files must be accessible, from Python scripts.
-
-
-https://docs.python.org/2.7/distutils/setupscript.html#installing-additional-files
-
-========================================================================================================================
 Installation with setup.py:
 
 Test with virtual env:
@@ -248,22 +145,6 @@ pip install survol-1.0.dev0.zip --upgrade
 # scripts\activate
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
 #
-========================================================================================================================
-How to start our CGI server:
-Make a binary with installation.
-Check the directory
-cgiserver -h
-
-Survol HTTP server:
-cgiserver
-    -p,--port=<number>      TCP/IP port number. Default is 8000
-    -a,--address=<host>     IP address. Default value is local host name.
-    -b,--browser=<program>  Starts a browser
-    -v,--verbose            Verbose mode
-
-cgiserver -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
-cgiserver -b "C:\Program Files\Internet Explorer\iexplore.exe"
-cgiserver -b webbrowser # Uses default browser.
 
 ========================================================================================================================
 Adding favicon
@@ -309,9 +190,4 @@ ln -s ~/survol/survol/www/ www/ui
 
 So the javascript entry point is:
 http://www.primhillcomputers.com/ui/index.htm
-
-##########
-Surprisingly, it works... It should not, as following symbolic links in a cgi directory is not very safe.
-
-http://www.primhillcomputers.com/cgi-bin/survol/print_environment_variables.py
 
