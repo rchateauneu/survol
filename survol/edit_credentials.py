@@ -278,8 +278,7 @@ def CredDefinitions():
             return nodeWbem
 
     def CredUrlSurvol(survolUrl):
-        survolUrlClean = lib_credentials.KeyUrlCgiEncode(survolUrl)
-        # nodeSurvol = lib_common.NodeUrl(survolUrlClean)
+        nodeSurvol = lib_common.NodeUrl(survolUrl)
         return nodeSurvol
 
     def CredUrlRabbitMQ(configNam):
