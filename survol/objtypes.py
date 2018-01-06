@@ -41,8 +41,14 @@ def Main():
 			entityNode = lib_util.EntityClassNode(intermedType)
 			grph.add( ( tmpNode, lib_common.pc.property_directory, entityNode ) )
 
-			entity_module = lib_util.GetEntityModule(intermedType)
-			entDoc = entity_module.__doc__
+			try:
+				# This reloads all classes without cache because we want to see the error message.
+				entity_module = lib_util.GetEntityModuleNoCacheNoCatch(entity_type)
+				entDoc = entity_module.__doc__
+			except:
+				exc = sys.exc_info()[1]
+				entDoc = "Error:"+str(exc)
+
 			if entDoc:
 				grph.add( ( entityNode, lib_common.pc.property_information, lib_common.NodeLiteral(entDoc) ) )
 
