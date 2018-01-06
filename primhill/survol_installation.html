@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol installation notes</title>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<div class="" style="text-align: center; font-family: DejaVu Sans;"><a href="survol.htm"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
+<br>
+</small></small></small></span></big></big></big><big><big><big><span style="font-weight: bold;"></span></big></big></big><big><big><big><span style="font-weight: bold;">SURVOL INSTALLATION NOTES</span></big></big></big><br>
+</div>
+<br style="font-family: DejaVu Sans;">
+<div style="text-align: left; font-family: DejaVu Sans;"><br>
+</div>
+<div style="text-align: left; font-family: DejaVu Sans;"><span style="font-style: italic; font-weight: bold;"></span></div>
+<span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"><br>
+&nbsp;</span><br style="font-family: DejaVu Sans;">
+<span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"></span><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"><br>
+PYTHON PACKAGE INSTALLATION<br>
+<br>
+</span><span style="font-family: DejaVu Sans;">Survol server-side code is a pure-Python module and as such can be installed like any module. The packages are available&nbsp;</span><span style="font-family: DejaVu Sans;">on <span style="text-decoration: underline;">t</span></span><span style="font-family: DejaVu Sans;"></span>he <a href="https://pypi.python.org/pypi">Python Package Index</a> (Pypi), which is a repository of software for the Python
+programming language<span style="font-family: DejaVu Sans;"><br></span><ul style="font-family: DejaVu Sans;"><li><a href="https://pypi.python.org/pypi/survol/">Survol
+source distribution</a>, complete package, can be
+downloaded and installed as any Python module. </li><li><a href="https://testpypi.python.org/pypi/survol/">Survol
+on Pypi (Test)</a> , same content on test site.</li></ul><span style="font-family: DejaVu Sans;"><br><br></span><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;">INSTALLATION FORM THE SOURCES<br><br></span><span style="font-family: DejaVu Sans;">It is also possible to install Survol from the source code which is avalaible at two places:<br></span><ul style="font-family: DejaVu Sans;"><li><a href="https://github.com/rchateauneu/survol">Survol
+on Github</a>: This is the main GIT repository; the project name
+is
+"survol".</li><li><a href="https://sourceforge.net/projects/survol/">Survol
+on Sourceforge</a>: A backup source repository.</li></ul><span style="font-family: DejaVu Sans;"><br></span><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;">
+APACHE SETUP</span><span style="font-family: DejaVu Sans;"><br><br>
+If your browser runs ActiveX, it is also possible to use Survol web
+pages with no agent.<br>
+<br>
+Survol
+is based on a tree of Python scripts, all of them display information
+of the system the agent is running on. Some scripts do not need
+parameters: They will return information with no context: For example,
+all available databases, all detected machines on the network, all
+installed Python modules etc... Other scripts need parameters, as they
+display information about a specific object. For example; Files opened
+by a specific process. Columns of a SQL Server</span><span style="font-family: DejaVu Sans;">&#8482;</span><span style="font-family: DejaVu Sans;"> table. Processes
+connected to an Oracle&#8482; database.</span><br>
+<br>
+<br>
+<span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">SOURCE LINKS</span></span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;"></span><span style="font-family: DejaVu Sans;">Survol can of
+course be installed from the sources, which are stored at two places:<br></span>
+<ul style="font-family: DejaVu Sans;"><li><a href="https://pypi.python.org/pypi/survol/">Survol
+source distribution, on Pypy</a>, complete package, can be
+downloaded and installed as any Python module. </li><li><a href="https://testpypi.python.org/pypi/survol/">Survol
+on Pypi (Test)</a> , same on test site.</li></ul><span style="font-family: DejaVu Sans;"><br></span><span style="font-family: DejaVu Sans; font-style: italic; font-weight: bold;">CONFIGURING APACHE</span><span style="font-family: DejaVu Sans;"><span style="font-style: italic; font-weight: bold;"> FOR CGI SCRIPTS</span><br><br><br>The HTTP Server Apache must be able to run all Python scripts residing under the directory survol/sources_types as CGI scripts.<br><br>On
+Windows, it is necessary to specify to Apache which Python interpreter
+must be used to run the CGI scripts. On Windows, this is done in the
+registry, with various keys depending on the Windows operating system
+version.<br><br>On Windows 7, see the key
+HKEY_CLASSES_ROOT\.py\Shell\ExecCGI\Command : The key "Default"
+contains the program name, which can for example be: C:\Program Files
+(x86)\Python32\pythonw.exe -u<br><br><br>With Windows XP, the command is the key itself. "C:\Python\3.2.3-0.3\pythonw.exe -u"<br><br>On Linux, all CGI scripts must be executable and the first line specifies the Pyton interpreter.<br>http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2<br><br>
+<br>
+Return to <a href="survol.htm">Survol</a>, its <a href="survol_architecture.html">architecture</a>, or
+see the <a href="survol_faq.html">FAQs</a></span>,
+<span style="font-family: DejaVu Sans;">or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated
+pages&nbsp;<a href="doxygen_docs/html/index.html">here</a>.</span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
+</body></html>
