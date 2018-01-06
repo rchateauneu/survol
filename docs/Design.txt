@@ -10,6 +10,12 @@ De facon generale, toute action doit pouvoir etre faite avec deux outils differe
 C'est pour ca qu'il faut pouvoir utiliser les scripts en ligne de commande.
 
 ============================================================================================================
+Some ideas about services discovery:
+
+* If using SLP, we could add more attributes, even optional.
+* consider using UPNP with drag'n'drop, for merging.
+
+============================================================================================================
 
 http://www.w3.org/TR/rdf-mt/
 

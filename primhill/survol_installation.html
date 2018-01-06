@@ -47,18 +47,28 @@ connected to an Oracle&#8482; database.</span><br>
 <span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">SOURCE LINKS</span></span><br style="font-weight: bold; font-family: DejaVu Sans;">
 <span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
 <span style="font-family: DejaVu Sans;"></span><span style="font-family: DejaVu Sans;">Survol can of
-course be installed from the sources, which are stored at two places:<br></span>
+course be installed from the sources, which are stored at two places:</span>
 <ul style="font-family: DejaVu Sans;"><li><a href="https://pypi.python.org/pypi/survol/">Survol
 source distribution, on Pypy</a>, complete package, can be
 downloaded and installed as any Python module. </li><li><a href="https://testpypi.python.org/pypi/survol/">Survol
-on Pypi (Test)</a> , same on test site.</li></ul><span style="font-family: DejaVu Sans;"><br></span><span style="font-family: DejaVu Sans; font-style: italic; font-weight: bold;">CONFIGURING APACHE</span><span style="font-family: DejaVu Sans;"><span style="font-style: italic; font-weight: bold;"> FOR CGI SCRIPTS</span><br><br><br>The HTTP Server Apache must be able to run all Python scripts residing under the directory survol/sources_types as CGI scripts.<br><br>On
-Windows, it is necessary to specify to Apache which Python interpreter
-must be used to run the CGI scripts. On Windows, this is done in the
-registry, with various keys depending on the Windows operating system
-version.<br><br>On Windows 7, see the key
-HKEY_CLASSES_ROOT\.py\Shell\ExecCGI\Command : The key "Default"
-contains the program name, which can for example be: C:\Program Files
-(x86)\Python32\pythonw.exe -u<br><br><br>With Windows XP, the command is the key itself. "C:\Python\3.2.3-0.3\pythonw.exe -u"<br><br>On Linux, all CGI scripts must be executable and the first line specifies the Pyton interpreter.<br>http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2<br><br>
+on Pypi (Test)</a> , same on test site.</li></ul><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"><br><br>TESTING INDIVIDUAL SCRIPTS</span></span><span style="font-family: DejaVu Sans;"><br></span><span style="font-family: DejaVu Sans; font-style: italic;"><br></span><span style="font-family: DejaVu Sans;">Once
+the core features are installed, it might be possible that some CGI
+scripts do not work, or not as expected. Errors are normally displayed
+when detected, and the Apache log file contains all the information
+writted to stderr. If this is not enough, a very powerful debugging
+technique is to run&nbsp;CGI scripts as
+command-line Python mode, by setting a couple of mandatory environment
+variables. This allows to test a program in isolation, possibly in a
+debugger, with full visibility on its context, inputs and outputs.
+Here is an example:<br><br><span style="font-family: Courier New;">PYTHONPATH=/homez.85/primhilltc/survol/survol \</span><br style="font-family: Courier New;"><span style="font-family: Courier New;">SERVER_NAME=debug.primhillcomputers.com \</span><br style="font-family: Courier New;"><span style="font-family: Courier New;">SCRIPT_NAME=sources_types/CIM_ComputerSystem/mysql_databases.py \</span><br style="font-family: Courier New;"><span style="font-family: Courier New;">QUERY_STRING="xid=CIM_ComputerSystem.Name%3Dprimhilltcsrvdb1.mysql.db&amp;mode=json" \</span><br style="font-family: Courier New;"><span style="font-family: Courier New;">python survol/sources_types/CIM_ComputerSystem/mysql_databases.py</span><br></span><br><span style="font-family: DejaVu Sans;">With this command, the CGI script </span><span style="font-family: DejaVu Sans;"><span style="font-family: Courier New;">mysql_databases.py</span> runs as if it is launched by a HTTP server.</span><span style="font-family: DejaVu Sans;"><br><br></span><span style="font-family: DejaVu Sans; font-style: italic; font-weight: bold;"><br>CONFIGURING APACHE</span><span style="font-family: DejaVu Sans;"><span style="font-style: italic; font-weight: bold;"> FOR CGI SCRIPTS</span><br><br><img alt="Common Gateway Interface public domain logo" title="Common Gateway Interface public domain logo" src="https://en.wikipedia.org/wiki/Common_Gateway_Interface#/media/File:CGIlogo.gif"><img style="width: 80px; height: 64px; float: right;" alt="Common Gateway Interface public domain logo" title="Common Gateway Interface" src="https://upload.wikimedia.org/wikipedia/en/c/cd/CGIlogo.gif">The
+HTTP Server Apache must be able to run all Python scripts residing
+under the directory survol/sources_types as CGI scripts. On Windows, it
+is necessary to specify to Apache which Python interpreter must be used
+to run the CGI scripts. On Windows, this is done in the registry, with
+various keys depending on the Windows operating system version.<br><br>On
+Windows 7, see the key HKEY_CLASSES_ROOT\.py\Shell\ExecCGI\Command :
+The key "Default" contains the program name, which can for example be:
+C:\Program Files (x86)\Python32\pythonw.exe -u<br><br><br>With Windows XP, the command is the key itself. "C:\Python\3.2.3-0.3\pythonw.exe -u"<br><br>On Linux, all CGI scripts must be executable and the first line specifies the Pyton interpreter.<br>http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2<br><br>
 <br>
 Return to <a href="survol.htm">Survol</a>, its <a href="survol_architecture.html">architecture</a>, or
 see the <a href="survol_faq.html">FAQs</a></span>,
