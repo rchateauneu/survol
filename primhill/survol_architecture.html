@@ -18,7 +18,7 @@
 &nbsp;</span><br style="font-family: DejaVu Sans;">
 <span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"></span><span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;"><br>ARCHITECTURE<br><br></span><span style="font-family: DejaVu Sans;">Survol needs to
 run one agent
-per machine: A plain HTTP server running Python scripts. This agent and
+per machine: A plain HTTP server running <a href="https://en.wikipedia.org/wiki/Common_Gateway_Interface">Common Gateway Interface</a> (CGI) Python scripts. This agent and
 its port number define the identity of each object of this machine,
 that Survol is able to provide information about. This is the
 same concept as in WMI and WBEM, and both interoperate completely.
@@ -31,7 +31,10 @@ all available databases, all detected machines on the network, all
 installed Python modules etc... Other scripts need parameters, as they
 display information about a specific object. For example; Files opened
 by a specific process. Columns of a SQL Server</span><span style="font-family: DejaVu Sans;">&#8482;</span><span style="font-family: DejaVu Sans;"> table. Processes connected to an Oracle&#8482; database.</span><br style="font-family: DejaVu Sans;">
-<br style="font-family: DejaVu Sans;">
+<br>As a benefit of a CGI-based architecture, <span style="font-family: DejaVu Sans;">it
+is also possible to run any Python scripts as command-line programs.
+This allows to test them in isolation with full control on ther
+environment and input, and full visibility on the output. This greatly helps when creating and testing scripts.<br><br style="font-family: DejaVu Sans;"></span>
 <span style="font-style: italic; font-weight: bold; font-family: DejaVu Sans;">DISPLAY
 MODES AND INTERNAL DATA REPRESENTATION</span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
@@ -76,7 +79,7 @@ task.</li>
 is&nbsp;</strong>an ontology editor and framework, for
 building intelligent systems and knowledge-based solutions.</li>
 </ul>
-<span style="font-style: italic; font-family: DejaVu Sans;"><br>
+<span style="font-family: DejaVu Sans;"></span><span style="font-style: italic; font-family: DejaVu Sans;"><br>
 <span style="font-weight: bold;">WMI, WBEM, CIM</span></span><br style="font-family: DejaVu Sans;">
 <span style="font-style: italic; font-family: DejaVu Sans;"><br>
 </span><span style="font-family: DejaVu Sans;">To

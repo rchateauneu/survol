@@ -1,4 +1,4 @@
-Various notes about installation.
+﻿Various notes about installation.
 
 NECESSARY MODULES:
 ==================
@@ -89,10 +89,8 @@ https://pypi.python.org/pypi/WMI
 AS A SCRIPT:
 ============
 
-Installation en tant que script cgiserver.py :
-
-On voudrait pouvoir lancer le site rien qu en cliquant sur cgiserver.py
-
+Installaing Apache is not necessary.
+Its is enough to run survol with the stand-alone script cgiserver.py :
 
 APACHE:
 =======
@@ -100,7 +98,8 @@ APACHE:
 Mandatory header for all scripts:
 ---------------------------------
 
-Jusqu ici le seul moyen d executer un script sous Apache/Windows est avec le shebang :
+On Linux, the Shebang is necessary to run CGI scripts.
+
 #!C:\Python\3.2.3-0.2\python.exe -u
 #!/usr/bin/python
 Attention au coding:
@@ -117,24 +116,53 @@ Attention au coding:
           import os, sys
 
 ========================================================================================================================
+Service Location Protocol
 
-Il faut que Apache lance Python pour tous les URLs qui se terminent par ".py".
+Survol uses OpenSlp as an implementation of Service Location Protocol.
 
-http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+It can be downloaded from http://www.openslp.org/
 
-J'ai l'impression que Visual studio ma change le registry sans le dire.
+It might be helpful to pre-register some services in the file slp.reg.
+
+This is the right place to also register manually, WBEM services.
+
+This can be done this way:
+
+#
+service:wbem:http://rchateau-hp,en,65535 
+description=OpenPegasus under Windows 7
+
+# Definitions must be separated by an empty line.
+service:survol:http://rchateau-hp:8000/survol/entity.py,en,65535
+description=Survol Windows 7
+#
+
+
+========================================================================================================================
+Configuring Apache for CGI scripts:
+
+
+The HTTP Server Apache must be able to run all Python scripts residing
+under the directory survol/sources_types as CGI scripts.
+
+On Windows, it is necessary to specify to Apache which Python interpreter must be used
+to run the CGI scripts. On Windows, this is done in the registry, with various keys depending 
+on the Windows operating system version.
 
 Windows7 
-HKEY_CLASSES_ROOT\.py\Shell\ExecCGI\Command : Et la clef Default contient le programme:
+HKEY_CLASSES_ROOT\.py\Shell\ExecCGI\Command : The key "Default" contains the program name.
 C:\Program Files (x86)\Python32\pythonw.exe -u
 
-On en avait mis un autre, a savoir:
 "C:\Python\3.2.3-0.2\pythonw.exe"
 
-Mais sous WinXP ce serait peut-etre la clef qui est Command.:
-
-20141204
+With Windows XP, the command is the key itself.
 "C:\Python\3.2.3-0.3\pythonw.exe -u"
+
+On Linux, all CGI scripts must be executable and the first line specifies the Pyton interpreter.
+http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+
+
+========================================================================================================================
 
 Installation Apache Windows 7:
 ==============================
@@ -190,19 +218,15 @@ This is not enough:
 
 ========================================================================================================================
 
+Apache needs to have its CGI scripts in a special directory.
+At the same time, we meed to install Survol code as easily as possible,
+independantly from Apache which might no be the unique HTTP server we are using.
 
-Comme Apache veut ses scripts dans un directory special, et qu on veut aussi les installer normallement
-(Donc dans le dossier Python), on est oblige d'utiliser des symlinks.
+Therefore, we are using symbolic links: Apache 
 
-Ce que doit faire l�installation :
--          Mettre sources_types, revlib ( mais aussi quelques scripts de htbin, bien que ce soit commode de faire une exception pour eux ), dans les modules appelables. Les scripts de htbin devront maintenant specifier explicitement from survol etc� Renommer � /htbin/ � en � /survol/ �, virer � htbin � des paths.
--          Copier les html et js dans un dossier pas trop loin des deux scripts.
--          Transformer les deux scripts cgi et wsgi en .exe lances en double-cliquant (Ouverture d�un browser). Ils vont explicitement � from survol import � � et exposent, ind�pendamment ou concurremment, les htm et les py.
--          Installer les html/js d�une part, les les scripts de � /survol/ � d�autre part, dans Apache, ou IIS, ind�pendamment : On peut avoir l�un sans l�autre. On peut aussi, probablement, avoir les html sans serveur (Mais c�est du cross-site ?)
-
-Installations Apache:
--          Pour le html, rien de special mais il faudra acceder aux CSS.
--          Pour les scripts, on voudrait que Apache pointe sur le directory d�installation de Python.
+Synthetically, what the installation must do is:
+- Copy the content of survol/*, survol/sources_types etc... at a place accessible from Apache.
+- The css files must be accessible, from Python scripts.
 
 
 https://docs.python.org/2.7/distutils/setupscript.html#installing-additional-files
@@ -210,7 +234,7 @@ https://docs.python.org/2.7/distutils/setupscript.html#installing-additional-fil
 ========================================================================================================================
 Installation with setup.py:
 
-Test avec virtual env:
+Test with virtual env:
 
 cd testarea:
 scripts/activate
@@ -291,8 +315,3 @@ Surprisingly, it works... It should not, as following symbolic links in a cgi di
 
 http://www.primhillcomputers.com/cgi-bin/survol/print_environment_variables.py
 
-
-========================================================================================================================
-Development tools (Win10):
-notepad++
-Creer base SqlServer
