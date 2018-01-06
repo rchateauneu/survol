@@ -1,5 +1,5 @@
 """
-Operating system users group
+Unix-like users group
 """
 
 def EntityOntology():
