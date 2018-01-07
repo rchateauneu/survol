@@ -30,6 +30,8 @@ import lib_common
 # (description=OpenPegasus sous Windows 7)
 #
 
+# It could probably use the Python3 module pyslp.
+
 # This returns a map containing the key-value pairs of the attributes
 # of this service.
 def GetSLPAttributes(serviceName,slpHost):
