@@ -42,8 +42,9 @@ def Main():
 			grph.add( ( tmpNode, lib_common.pc.property_directory, entityNode ) )
 
 			try:
-				# This reloads all classes without cache because we want to see the error message.
-				entity_module = lib_util.GetEntityModuleNoCacheNoCatch(entity_type)
+				# This reloads all classes without cache because if it does not load
+				# we want to see the error message.
+				entity_module = lib_util.GetEntityModuleNoCatch(entity_type)
 				entDoc = entity_module.__doc__
 			except:
 				exc = sys.exc_info()[1]
