@@ -70,26 +70,12 @@ Automatic refresh when displaying the processes tree:
 - Impossible to delete the nodes of this url (When clicking Del in the summary window)
 ============================================================================================================
 
-Ca deconne probablement a cause du tilda: Tester avec des noms de fichiers tres longs ?
+Check what happens when a file name contains a tilda.
 http://127.0.0.1/PythonStyle/survol/entity.py?xid=file:C%3A%5CDOCUME~1%5CRemi%5CLOCALS~1%5CTemp%5CSkype%5CDbTemp%5Ctemp-968iZH8Qs4gRIszFZIEJETGX
 
-file_directory sur un ficheir qui n'est pas un directory:
+file_directory on a file which is not a directory.
 http://127.0.0.1/PythonStyle/survol/sources_types/file/file_directory.py?xid=file:C%3A%5CDocuments%20and%20Settings%5CRemi%5CApplication%20Data%5CSkype%5Cshared_dynco%5Cdc.db
 Ca n'affiche rien: Soit on ne propose pas la focntion, soit on  met un message d'information.
-
-http://127.0.0.1:4444/infoqueues
-Sous XP ca affiche en texte, ca doit ajouter une cochonnerie au debut.
-# TODO: Est-ce vraiment necessaire ?????????????
-# Peut-etre oui, a cause des sockets ?
-def WrtAsUtf(out,str):
-	out.write( str.encode('utf-8') )
-Peut-etre ca, mais pas certain car autre erreur. Voir deja si ca casse Win8.
-		# Python 3.2.3 (Donc Win8)
-		# self.wfile.write( str.encode() )
-		self.wfile.write( str.encode('utf-8') )
-
-* http://127.0.0.1:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2FUsers%2Frchateau%2FDeveloppement%2FReverseEngineeringApps%2FPythonStyle%2Fhtbin
-Faulty link, probably because it contains "htbin"
 
 * http://127.0.0.1:8000/survol/entity.py?xid=python/package.Id=azure-storage
 Importing azure-storage: Error (, ImportError('No module named azure-storage',), )
@@ -101,14 +87,12 @@ Should not use WMI on a Linux password. Maybe check the port number.
 * http://127.0.0.1:8000/survol/entity.py?xid=CIM_DataFile.
 When displaying data file, should be able to see it in MIME just like when viewing directories.
 
-# Cleanup TmpDirToDel (Quand on affiche du doxygen)
+# Cleanup TmpDirToDel (When using doxygen)
 
 * http://127.0.0.1:8000/survol/entity.py?xid=CIM_Directory.Name=C%3A\
-Ca plante graphviz, on ne le detecte pas et eventuellement on affiche un ancien svg
-qui n aurait pas ete zappe.
-Le probleme est le backslash a la fin de la ligne.
+It may crash graphviz because of the back-slash at the end ??
 
-* Le texte des Usable ne doit pas contenir de "<>":
+* Text in "Usable" functions should not contain "<>":
 def Usable(entity_type,entity_ids_arr):
 	"""Psutil version >= 4.0.0"""
 
