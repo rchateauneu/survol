@@ -328,3 +328,7 @@ if __name__ == '__main__':
     # In this mode, we assume that the Python scripts are here, on the same server.
     # survol/entity.py
     RunCgiServerInternal()
+
+    # TODO: Once started, it could register itself to Service Location Protocol (SLP),
+    # for example with the Python 3 module pyslp.
+    # this is what WBEM uses for services discovery.
