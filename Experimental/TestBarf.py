@@ -20,6 +20,10 @@ from barf import BARF
 #for reil_instr in reil_instrs:
 #	print("{indent:11s} {instr}".format(indent="", instr=reil_instr))
 
+# z3 must be installed and in the path.as The command "where" must be accessible.
+# Onn Windows, it is enough to copy which.exe to where.exe
+# https://github.com/Z3Prover/z3
+
 def TstBarf(file_path):
 	barf = BARF(file_path)
 
