@@ -28,6 +28,8 @@ def TstBarf(file_path):
 	barf = BARF(file_path)
 
 	# Recover CFG.
+
+	sys.stdout.write("dir=%s\n"%str(dir(barf)))
 	cfg = barf.recover_cfg()
 	basna = os.path.basename(file_path)
 
