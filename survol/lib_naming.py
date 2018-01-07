@@ -191,7 +191,7 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 		if moduOntology:
 			entity_label = entity_suffix + " (Class)"
 		else:
-			entity_label = entity_suffix + " (Namespace)"
+			entity_label = entity_suffix + " (Domain)"
 		return entity_label
 
 	try:

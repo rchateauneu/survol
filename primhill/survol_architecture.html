@@ -193,23 +193,22 @@ Notably, Survol can "talk" with WBEM or WMI running on distant machines.</li>
 <span style="font-family: DejaVu Sans;"><span style="font-style: italic;">
 </span></span>
 <span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;"><br>
-SURVOL CLASSES AND NAMESPACES. ADDING NEW CLASSES</span></span><span style="font-family: DejaVu Sans;">.</span><br style="font-family: DejaVu Sans;">
+SURVOL CLASSES AND DOMAINS. ADDING NEW CLASSES</span></span><span style="font-family: DejaVu Sans;">.</span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
 <span style="font-family: DejaVu Sans;">Survol library is
 made of packages and subpackages which represents its
 classes model.
-A class is a module where the function Ontology() is present, whether
+A class is a module where the function EntityOntology</span><span style="font-family: DejaVu Sans;">() is present, whether
 it is defined
 by the module or one of its parents modules.
 The return value of EntityOntology() is a list of string, each
 representing an attribute of the class.
 If a module nor none of its parent modules define the function
 EntityOntology(),
-it is a namespace.
+it is a domain.
 </span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
-<span style="font-family: DejaVu Sans;">A class or
-namespace can define other functions in its __init__.py
+<span style="font-family: DejaVu Sans;">A class or a domain can define other functions in its __init__.py
 file. All of them are optional:</span><br style="font-family: DejaVu Sans;">
 <br style="font-family: DejaVu Sans;">
 <table style="text-align: left; width: 100%; font-family: DejaVu Sans;" border="1" cellpadding="2" cellspacing="2">
@@ -225,7 +224,7 @@ file. All of them are optional:</span><br style="font-family: DejaVu Sans;">
 </td>
 <td style="vertical-align: top;">This
 returns an array of strings which are the name of the attributes of an
-object of this class. This does not apply to namespaces.<br>
+object of this class. This does not apply to domains.<br>
 </td>
 </tr>
 <tr>
@@ -233,8 +232,8 @@ object of this class. This does not apply to namespaces.<br>
 </td>
 <td style="vertical-align: top;">This
 returns a RBG colour coded as a hexadecimal string. This colour is used
-by any UI mode, for this class/namespace, unless it is superseded by a
-subclass or subnamespace.<br>
+by any UI mode, for this class/domain, unless it is superseded by a
+subclass or subdomain.<br>
 </td>
 </tr>
 <tr>
