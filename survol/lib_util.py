@@ -53,10 +53,6 @@ try:
 
 		try:
 			orig_key = args['key']
-
-			# one_list.sort(**args)
-			#return
-
 			args['key'] = lambda in_param: natsort_key(orig_key(in_param))
 
 		except KeyError:
@@ -138,25 +134,12 @@ def HttpPrefix():
 	try:
 		server_addr = os.environ['SERVER_NAME']
 
-		# This is an attempt to fix a problem when running cgiserver.py:
-		# * The URL is 127.0.0.1:8000/index.htm
-		# * SERVER_NAME="rchateau-hp"
-		# * REMOTE_HOST="rchateau-hp"
-		# * Pinging rchateau-HP [fe80::3c7a:339:64f0:2161%11]
-		#try:
-		#	remote_host = os.environ['REMOTE_HOST']
-		#	sys.stderr.write("HTTPPrefix remote_host=%s\n" % remote_host)
-		#	if server_addr == remote_host:
-		#		server_addr = "127.0.0.1"
-		#except KeyError:
-		#	pass
-
 		#os.environ['REMOTE_ADDR']=127.0.0.1
 		#os.environ['SERVER_NAME']=rchateau-HP
 		#os.environ['REMOTE_HOST']=rchateau-HP
 
 	except KeyError:
-		# Local use .
+		# Local use.
 		server_addr = "127.0.0.1"
 	
 	try:
@@ -242,19 +225,7 @@ uriRoot = UriRootHelper()
 #
 # It is better to rely on a distributed naming system: DNS or plain IP address.
 def HostName():
-
 	return os.environ["SERVER_NAME"]
-
-#	socketGetHostNam = socket.gethostname()
-
-#	# TODO: CONTRADICTION !!!???
-#	if socketGetHostNam.find('.')>=0:
-#		# 'rchateau-HP'
-#		name=socketGetHostNam
-#	else:
-#		# 'rchateau-HP.home'
-#		name=socket.gethostbyaddr(socketGetHostNam)[0]
-#	return name
 
 # hostName
 currentHostname = HostName()
@@ -293,7 +264,6 @@ def IsLocalAddress(anHostNam):
 # socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
 # socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
 def SameHostOrLocal( srv, entHost ):
-	# if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ) or ( entHost == "*"):
 	if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ):
 		# We might add credentials.
 		sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME\n" % ( entHost, localIP, srv ) )
@@ -312,12 +282,9 @@ def TopUrl( entityType, entityId ):
 		scriptNam = "Hello.py"
 	if re.match( ".*/survol/entity.py.*", scriptNam ):
 		if entityType == "":
-			# topUrl = uriRoot + "/../index.htm" # A VERIFIER.
 			topUrl = uriRoot + "/entity.py"
 		else:
 			# Same as in objtypes.py
-			# if entityId in ("","Id=") or entity.endswith("="):
-			# Not reliable: What does it mean to have "Id=" or "Name=" ?
 			if entityId == "" or re.match( "[a-zA-Z_]*=", entityId ):
 				topUrl = uriRoot + "/entity.py"
 			else:
@@ -341,16 +308,12 @@ def EncodeUri(anStr):
 
 	# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 	if sys.version_info >= (3,):
-		# THIS SHOULD NORMALLY BE DONE. BUT WHAT ??
-		###strTABLE = strTABLE.replace("&",";;;")
-
 		return quote(strTABLE,'')
 	else:
 
 		# THIS SHOULD NORMALLY BE DONE. BUT WHAT ??
 		###strTABLE = strTABLE.replace("&","%26")
 		# UnicodeDecodeError: 'ascii' codec can't decode byte 0xe9 in position 32
-		# strTABLE = unicode( strTABLE, 'utf-8')
 		return quote(strTABLE,'ascii')
 
 ################################################################################
@@ -509,7 +472,6 @@ def ParseXidWMI(xid ):
 	# This matches for example 'root\cimv2:Win32_Process.Handle="0"'
 	wmi_regex_local_part = r"([a-zA-Z0-9_]+)\\([^.]*)(\..*)"
 
-	# mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\([^.]*)(\..*)", xid )
 	mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\" + wmi_regex_local_part, xid )
 	if mtch_ent_wmi:
 		grp = mtch_ent_wmi.groups()
@@ -724,7 +686,6 @@ def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_host
 	scriptPath = EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname)
 
 	# sys.stderr.write("EntityUrlFromMoniker scriptPath=%s\n"%scriptPath)
-	# url = uriRoot + "/" + scriptPath + "?xid=" + EncodeUri(monikerEntity)
 	url = uriRoot + "/" + scriptPath + xidCgiDelimiter + EncodeUri(monikerEntity)
 	return url
 
@@ -903,9 +864,6 @@ def OntologyClassKeys(entity_type):
 	# sys.stderr.write("OntologyClassKeys entity_type=%s Caller=%s\n"%(entity_type, sys._getframe(1).f_code.co_name))
 
 	try:
-		# TODO: Temporarily until we do something more interesting, using the subtype.
-		# entity_type = entity_type.split(CharTypesComposer)[0]
-
 		# TODO: If cannot find it, load the associated module and retry.
 		return localOntology[ entity_type ][0]
 	except KeyError:
@@ -922,7 +880,8 @@ def OntologyClassKeys(entity_type):
 		except AttributeError:
 			pass
 
-	# This could be replaced by a single lookup.
+	# It does not have a ontology, so it is a domain.
+	localOntology[ entity_type ] = []
 	return []
 
 # Used for calling ArrayInfo. The order of arguments is strict.
@@ -983,11 +942,7 @@ def RequestUriModed(otherMode):
 	return AnyUriModed(script, otherMode)
 
 def AnyUriModed(script, otherMode):
-
-	# mtch_url = re.match("(.*)([\?\&])mode=[a-zA-Z0-9]*(.*)", script)
 	mtch_url = re.match("(.*)([\?\&])mode=[^\&]*(.*)", script)
-
-	# mtch_url = re.match("(.*[\?\&]mode=)([a-zA-Z0-9]*)(.*)", script)
 
 	if otherMode:
 		if mtch_url:
@@ -1010,7 +965,7 @@ def AnyUriModed(script, otherMode):
 			# Nothing to do because it has no cgi arguments.
 			edtUrl = script
 
-	# TODO: CA DECONNE SI L URL CONTIENT DES BACKSLASHES COMME:
+	# TODO: PROBLEMS IF THE URL CONTAINS BACKSLASHES SUCH AS HERE:
 	# "http://127.0.0.1:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE"
 	return edtUrl
 
@@ -1027,14 +982,6 @@ def GetModeFromUrl(url):
 	# sys.stderr.write("lib_util.GetModeFromUrl url=%s\n"%url)
 	# Maybe it contains a MIME type: application/java-archive,
 	# application/vnd.ms-powerpoint, audio/3gpp2, application/epub+zip
-
-#	mtch_url = re.match(".*[\?\&]mode=(mime:[a-zA-Z0-9]*/[-\.a-zA-Z0-9]*).*", url)
-#	if mtch_url:
-#		return mtch_url.group(1)
-#
-#	mtch_url = re.match(".*[\?\&]mode=([a-zA-Z0-9]*).*", url)
-#	if mtch_url:
-#		return mtch_url.group(1)
 
 	mtch_url = re.match(".*[\?\&]mode=([^\&]*).*", url)
 	if mtch_url:
@@ -1099,7 +1046,6 @@ def BuildMonikerPath(dictKeyVal):
 def SplitMoniker(xid):
 	# sys.stderr.write("SplitMoniker xid=%s\n" % xid )
 
-	# spltLst = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', xid)
 	spltLst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', xid)
 
 	# sys.stderr.write("SplitMoniker spltLst=%s\n" % ";".join(spltLst) )
@@ -1119,7 +1065,9 @@ def SplitMoniker(xid):
 
 	return resu
 
-# Builds a SQL query.
+# Builds a WQL (WMI Query Language) query from a Moniker.
+# This allows to search for an object in the CIM repository,
+# whatever the attribute values are, or if it is a Survol object.
 def SplitMonikToWQL(splitMonik,className):
 	sys.stderr.write("splitMonik=[%s]\n" % str(splitMonik) )
 	aQry = 'select * from %s ' % className
@@ -1160,6 +1108,7 @@ def Base64Decode(text):
 
 ################################################################################
 
+# Different stream behaviour due to string vs binary.
 if sys.version_info >= (3,):
 	outputHttp = sys.stdout.buffer
 else:
@@ -1231,9 +1180,6 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 		pass
 
 	out_dest.write( stri.encode() )
-
-#def HttpHeader( out_dest, contentType ):
-#	globalOutMach.OutStream()
 
 def WrtHeader(mimeType,extraArgs = None):
 	globalOutMach.HeaderWriter(mimeType,extraArgs)
@@ -1374,8 +1320,6 @@ def AppendNotNoneHostname(script,hostname):
 	strUrl = uriRoot + script
 	if hostname:
 		# The string "portal" is just there to have a nice title.
-		# xidCgiDelimiter
-		# strUrl += '?xid=' + hostname + "@portal."
 		strUrl += xidCgiDelimiter + hostname + "@portal."
 	return strUrl
 
