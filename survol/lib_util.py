@@ -1274,6 +1274,19 @@ def GetEntityModuleNoCache(entity_type):
 cacheEntityToModule = dict()
 cacheEntityToModule[""] = None
 
+# If it throws, the exception is not hidden.
+# If it does not throw, then try to load the module.
+def GetEntityModuleNoCatch(entity_type):
+	# sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
+
+	# Do not throw KeyError exception.
+	if entity_type in cacheEntityToModule:
+		return cacheEntityToModule[ entity_type ]
+
+	entity_module = GetEntityModuleNoCacheNoCatch(entity_type)
+	cacheEntityToModule[ entity_type ] = entity_module
+	return entity_module
+
 # Maybe we could return an array because of heritage ?
 # Or:  GetEntityModuleFunction(entity_type,functionName):
 # ... which would explore from bottom to top.

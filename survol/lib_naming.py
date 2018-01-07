@@ -161,7 +161,7 @@ scripts_to_titles = {
 	"portal_wmi.py": "WMI server ",
 	"class_wbem.py": "WBEM class",
 	"class_wmi.py": "WMI class",
-	"class_type_all.py": "Generic class",
+	# "class_type_all.py": "Generic class",
 	"file_directory.py": "Directory content",
 	"objtypes.py": "Classes hierarchy",
 	"objtypes_wbem.py": "WBEM subclasses",
@@ -182,6 +182,16 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 			entity_suffix = "None"
 		# The Mime type is embedded into the mode, after a "mime:" prefix.
 		entity_label = entity_suffix + " ("+ lib_mime.ModeToMimeType(uriMode)+")"
+		return entity_label
+
+	# The label is a Survol module name which is a class (With an EntityOntology() function),
+	#  or a namespace. So we give the right title.
+	if filScript == "class_type_all.py":
+		moduOntology = lib_util.OntologyClassKeys(entity_suffix)
+		if moduOntology:
+			entity_label = entity_suffix + " (Class)"
+		else:
+			entity_label = entity_suffix + " (Namespace)"
 		return entity_label
 
 	try:
