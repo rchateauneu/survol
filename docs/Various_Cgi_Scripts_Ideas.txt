@@ -1,7 +1,17 @@
 ============================================================================================================
+Python call-graph.
+
+Apparently custom outputs are possible.
+
+http://pycallgraph.slowchop.com/en/master/guide/custom_outputs.html
+
+============================================================================================================
 Quid des operateurs de RDF ? Moyenne, difference etc... ?
-Il n'est pas trop tard, evidemment. Il faudrait reutiliser
-la logique de libweb.
+L idee est de faire tourner plusieurs fois le meme script
+et de compter le nombre de fois ou le meme object apparait,
+et fusionner seuleemnt au-dela d un seuil.
+
+Il faudrait reutiliser la logique de libweb.
 
 ============================================================================================================
 http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
@@ -36,13 +46,6 @@ Faire la meme chose  avec gdb qui je crois permet la meme chose.
 
 Voir aussi comment appeler des fonctions de l'API, en Python.
 
-==========================================================================================
-
-Trouver un moyen d'aller, a partir des fichiers, vers d'autres entites.
-Par exemple, BY_file/file_stat.py doit afficher le proprietaire du fichier.
-
-Idealement les processes qui y accedent ?
-
 ============================================================================================================
 Ajouter un plugin a Nagios ???
 C'est a dire qu'on ajouterait un adapteur a nos scripts CGI
@@ -75,10 +78,6 @@ Meme chose avec GDB: On peut analyser les connections aux bases de donnees.
 Notion de PID abstrait: Autrement dit, on peut fusionner les informations non pas d'un PID precis,
 mais celui qui execute telle commande. C'est precisement la que l'accumulation de donnees est interessante, d'autant qu'on peut snapshotter des processes a la volee. Peut-etre qu'un operateur RDF permet ceci.
 
-============================================================================================================
-
-Retour sur les points d'entrée dans les DLL/so : On parle bien d'un point d'entree dans une DLL donnée :
-Pas forcement, c'est une abstraction. En revanche, permettre d'instrumenter la combinaison : symbole+fichier.
 ============================================================================================================
 
 Extraire de doxygen:
