@@ -4,11 +4,13 @@
 # This is a very simple example which shows how to open a binary file
 # and print each instruction with its translation to the intermediate language (*REIL*).
 
-#```python
-#from barf import BARF
+import os
+import sys
+from barf import BARF
 
-# Open binary file.
-#barf = BARF("examples/bin/x86/branch1")
+# https://pypi.python.org/pypi/barf/0.4.0
+# It works but generates very small DOT files.
+# We would like customize them, generate something else.
 
 # Print assembly instruction.
 #for addr, asm_instr, reil_instrs in barf.translate():
@@ -18,10 +20,21 @@
 #for reil_instr in reil_instrs:
 #	print("{indent:11s} {instr}".format(indent="", instr=reil_instr))
 
-# We can also recover the CFG and save it to a ``.dot`` file.
+def TstBarf(file_path):
+	barf = BARF(file_path)
 
-# Recover CFG.
-# cfg = barf.recover_cfg()
+	# Recover CFG.
+	cfg = barf.recover_cfg()
+	basna = os.path.basename(file_path)
 
-# Save CFG to a .dot file.
-# cfg.save("branch1_cfg")
+	# Save CFG to a .dot file.
+	cfg.save(basna)
+
+
+for file_path in [
+	r"C:\Program Files (x86)\Git\bin\libaprutil-0-0.dll",
+	r"C:\Program Files (x86)\Hewlett-Packard\Energy Star\ClearSysReg.exe",
+	r"C:\Program Files (x86)\Hewlett-Packard\Energy Star\Estar.dll",
+	r"C:\Program Files (x86)\Hewlett-Packard\Energy Star\msvcp100.dll",
+]:
+	TstBarf(file_path)
