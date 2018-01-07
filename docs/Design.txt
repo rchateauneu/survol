@@ -755,10 +755,7 @@ Mais le script ne sera pas affiché si test variable globale car aucun n'était 
 Donc ?
 ========================================================================================================================
 
-"class_type_all.py": "Generic class",
-Au lieu d afficher "Generic class", mettre si namespace ou bien classe etc...
-Ou bien "Sub class" ou "virtual class" si pas de direcotyr associe.
-Et dans obj_types.py, en -dessous de CIM_Process, on affiche "Generic class CIM_Process/memory_regex_search"
+Dans obj_types.py, en -dessous de CIM_Process, on affiche "Generic class CIM_Process/memory_regex_search"
 alors que c'est un simple module sans ontologie.
 
 ========================================================================================================================
