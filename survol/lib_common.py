@@ -779,10 +779,11 @@ def CopyToOut(logfil,svg_out_filnam,out_dest):
 
 ################################################################################
 
-# TODO: Consider using pygraphviz: Small speedup probably.
-# But the priority is to chase graphes which are too long to route.
-# TODO: Problem: The resulting graph is not deterministic.
-# Should compare the generated DOT files to see of they are identical.
+# TODO: Consider using the Python module pygraphviz: Small speedup probably.
+# But the priority is to avoid graphes which are too long to route.
+# TODO: Consider using the Python module pydot,
+# but anyway it needs to have graphviz already installed.
+# Also, creating an intermediary files helps debugging.
 def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	sys.stderr.write("viztype=%s\n"%(viztype) )
 	tmpSvgFil = TmpFile("Dot2Svg","svg")
