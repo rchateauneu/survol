@@ -15,6 +15,17 @@ from sources_types import CIM_DataFile
 import lib_common
 from lib_properties import pc
 
+def Usable(entity_type,entity_ids_arr):
+	"""File must be a symbolic link"""
+	filNam = entity_ids_arr[0]
+	try:
+		lnk_path = os.readlink( filNam )
+		return True
+	except:
+		return False
+
+
+
 def DoTheRest( grph, beginning, physical, file_split ):
 	file_depth = len(file_split)
 
