@@ -217,6 +217,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# Nothing really interesting at the moment, just hardcodes.
 		return lib_properties.prop_color(prop)
 
+	# The input is any Python object.
+	# This returns a simple object which can be transformed into a string.
+	# If the input is a container, it returns a HTML table.
 	def FormatElementAux(val,depth=0):
 		if val is None:
 			return ""
@@ -244,6 +247,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 		# Note: Recursive list are not very visible.
 		if isinstance(val, ( list, tuple ) ):
+			# If this is an empty list or tuple.
+			if not val:
+				# return "(Empty)"
+				# Empty set character in UTF8
+				return "{"+"&#x2205;"+"}"
 			if depth % 2 == 0:
 				subTable = ""
 				for subElement in val:
@@ -263,7 +271,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 		except ValueError:
 			# It is a string which cannot be converted to json.
-			val = cgi.escape(val) # +"OOOOO"+str(type(val))
+			val = cgi.escape(val)
 			return lib_exports.StrWithBr(val)
 		except TypeError:
 			# "Expected a string or buffer"
