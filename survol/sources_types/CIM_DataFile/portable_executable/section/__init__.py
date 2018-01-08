@@ -17,4 +17,4 @@ def EntityName(entity_ids_arr,entity_host):
 	return fileNameBase + ":" + sectionName
 
 def MakeUri(fileName, sectionName):
-	return lib_common.gUriGen.UriMakeFromDict("CIM_Datafile/portable_executable/section", { "Name" : fileName, "Section" : sectionName } )
+	return lib_common.gUriGen.UriMakeFromDict("CIM_DataFile/portable_executable/section", { "Name" : fileName, "Section" : sectionName } )

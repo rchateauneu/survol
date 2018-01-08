@@ -8,6 +8,8 @@ import sys
 import pefile
 import lib_common
 
+from sources_types.CIM_DataFile.portable_executable import section as survol_pe_section
+
 def Main():
 	cgiEnv = lib_common.CgiEnv(	)
 
@@ -52,21 +54,54 @@ def Main():
 	# 'set_dword_at_offset', 'set_dword_at_rva', 'set_qword_at_offset', 'set_qword_at_rva', 'set_word_at_offset',
 	# 'set_word_at_rva', 'show_warnings', 'trim', 'verify_checksum', 'write']
 
+	propSection = lib_common.MakeProp("Section")
+	propVirtualAddress = lib_common.MakeProp("Virtual address")
+	propSizeOfRawData = lib_common.MakeProp("Raw data size")
+	propNumberOfRelocations = lib_common.MakeProp("Relocations")
+	propNumberOfLinenumbers = lib_common.MakeProp("Line numbers")
+
 	try:
 		grph.add( ( filNode, lib_common.MakeProp("Is a dll"), lib_common.NodeLiteral(pe.is_dll() )) )
 		grph.add( ( filNode, lib_common.MakeProp("Is a driver"), lib_common.NodeLiteral(pe.is_driver() )) )
 		grph.add( ( filNode, lib_common.MakeProp("Is an executable"), lib_common.NodeLiteral(pe.is_exe() )) )
-#		grph.add( ( filNode, lib_common.MakeProp("Overlay data start offset"), lib_common.NodeLiteral(pe.get_overlay_data_start_offset() )) )
-#		grph.add( ( filNode, lib_common.MakeProp("Overlay data start offset"), lib_common.NodeLiteral(pe.get_overlay_data_start_offset() )) )
-#		grph.add( ( filNode, lib_common.MakeProp("Resources strings"), lib_common.NodeLiteral(pe.get_resources_strings() )) )
-#		grph.add( ( filNode, lib_common.MakeProp("Warnings"), lib_common.NodeLiteral(pe.get_warnings() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Overlay data start offset"), lib_common.NodeLiteral(pe.get_overlay_data_start_offset() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Resources strings"), lib_common.NodeLiteral(pe.get_resources_strings() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Warnings"), lib_common.NodeLiteral(pe.get_warnings() ) ) )
+		grph.add( ( filNode, lib_common.MakeProp("DOS header"), lib_common.NodeLiteral(pe.DOS_HEADER) ) )
+		grph.add( ( filNode, lib_common.MakeProp("File header"), lib_common.NodeLiteral(pe.FILE_HEADER) ) )
+
+		for peSect in pe.sections:
+			# <Structure: [IMAGE_SECTION_HEADER] 0x178 0x0
+			# Name: .text 0x180 0x8
+			# Misc: 0xC4D8 0x180 0x8
+			# Misc_PhysicalAddress: 0xC4D8 0x180 0x8
+			# Misc_VirtualSize: 0xC4D8 0x184 0xC
+			# VirtualAddress: 0x1000 0x188 0x10
+			# SizeOfRawData: 0xC600 0x18C 0x14
+			# PointerToRawData: 0x400 0x190 0x18
+			# PointerToRelocations: 0x0 0x194 0x1C
+			# PointerToLinenumbers: 0x0 0x198 0x20
+			# NumberOfRelocations: 0x0 0x19A 0x22
+			# NumberOfLinenumbers: 0x0 0x19C 0x24
+			# Characteristics: 0x60000020>
+			# sys.stderr.write("peSect.Name=%s\n"%peSect.Name)
+
+			# Without the string: "Section=.data\0\0\0"
+			nodeSect = survol_pe_section.MakeUri(win_module,peSect.Name.rstrip("\0"))
+
+			grph.add( ( filNode, propSection, nodeSect ) )
+			grph.add( ( nodeSect, propVirtualAddress, lib_common.NodeLiteral(peSect.VirtualAddress)) )
+			grph.add( ( nodeSect, propSizeOfRawData, lib_common.NodeLiteral(peSect.SizeOfRawData)) )
+			grph.add( ( nodeSect, propNumberOfRelocations, lib_common.NodeLiteral(peSect.NumberOfRelocations)) )
+			grph.add( ( nodeSect, propNumberOfLinenumbers, lib_common.NodeLiteral(peSect.NumberOfLinenumbers)) )
+
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % ( win_module, str(exc)))
 
-	cgiEnv.OutCgiRdf()
+	# cgiEnv.OutCgiRdf()
 	# cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
-	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_symbol_defined])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propSection])
 
 	# cgiEnv.OutCgiRdf()
 
