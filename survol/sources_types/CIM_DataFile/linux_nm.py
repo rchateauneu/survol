@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-nm command on executables and shared libraries (Linux)
+Entry points displayed from nm command
 """
 
 import os
