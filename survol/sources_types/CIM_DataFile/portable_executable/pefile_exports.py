@@ -21,7 +21,7 @@ from lib_properties import pc
 import pefile
 import lib_pefile
 
-Usable = lib_util.UsableWindowsBinary
+#Usable = lib_util.UsableWindowsBinary
 
 def pefileDecorate( grph, rootNode, pe ):
 	for fileinfo in pe.FileInfo:
