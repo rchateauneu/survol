@@ -100,10 +100,7 @@ def Main():
 		lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % ( win_module, str(exc)))
 
 	# cgiEnv.OutCgiRdf()
-	# cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propSection])
-
-	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()
