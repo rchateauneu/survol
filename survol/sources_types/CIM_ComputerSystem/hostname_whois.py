@@ -10,4 +10,6 @@ Whois
 
 # https://rest.db.ripe.net/search.json?query-string=54.186.255.9
 
-# FINIR CECI
+# TODO: Implement this.
+lib_common.ErrorMessageHtml("Not implemented yet")
+
