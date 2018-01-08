@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-nm command on executables and shared libraries (Linux), with classes
+Classes methods from nm command
 """
 
 import os

@@ -13,7 +13,7 @@ import lib_modules
 from lib_properties import pc
 
 def Usable(entity_type,entity_ids_arr):
-	"""Can run on a Sqlite database only"""
+	"""Only for Linux modules"""
 
 	filNam = entity_ids_arr[0]
 
