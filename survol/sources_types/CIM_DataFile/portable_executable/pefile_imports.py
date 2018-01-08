@@ -19,9 +19,10 @@ import pefile
 
 import win32api
 
-Usable = lib_util.UsableWindowsBinary
+#Usable = lib_util.UsableWindowsBinary
 
-# TODO: MUST TAKE THE GOOD PROCESS PATH, NOT OURS.
+# TODO: THIS SHOULD USE THE ENVIRONMENT VARIABLE "PATH" OF THE RUNNING PROCESS.
+# TODO: INSTEAD, IT IS USING THE CURRENT PROCESS'ONE, WHICH IS WRONG.
 
 class EnvPeFile:
 
