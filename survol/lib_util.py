@@ -881,7 +881,7 @@ def OntologyClassKeys(entity_type):
 			pass
 
 	# It does not have a ontology, so it is a domain.
-	localOntology[ entity_type ] = []
+	localOntology[ entity_type ] = ([],)
 	return []
 
 # Used for calling ArrayInfo. The order of arguments is strict.
