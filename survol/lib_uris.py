@@ -5,61 +5,9 @@ import lib_util
 
 ################################################################################
 
-# For example, a process on a remote machine.
-# Eventuellement, on peut savoir sur notre machine locale, quelques infos
-# sur le process distant (Avec interrogation a distance ??)
-# On ne sait pas a quoi ressemble l'URL de la machine distante qui en principe
-# a des infos sur ce process.
-# Il faudrait faire une discovery qui grouperait des infos:
-# "host + entity+_type" => url_pattern. Eventuellement plusieurs patterns.
-#  ... et pas forcement le meme host.
-# Donc une sorte de "remote_entity.pl?host=x&type=y&id=z" qui tourne sur notre machine
-# locale, va interroger le host, donne plusieurs urls y compris sur
-# notre machine, essaye de deduire quelque chose des discovery.
-# Il suppose le numero de port du remote host mais on peut l'editer.
-
-# Convertir le moniker en moniker WBEM et "NOUS" et ajouter liens.
-# En plus, on va creer un entity_all.py qui synthetise les trois.
-# Il faut donc avoir un format unique pour les xid, cad les moniker.
-# On a donc une table qui passe du host netbios vers l url WBEM. Et s'il y a plusieurs urls WBEM ?
-# Netbios ou bien adresse IP ?
-# On suppose que les classes sont uniques quelque soit le namespace,
-# et qu'une classe ne peut pas apparaitre dans plusieurs namespaces (Meme supposition pour WMI).
-# Pour chaque serveur WBEM et peut etre aussi pour chaque machine WMI (Ou bien chaque version ?)
-# on a un dictionnaire qui pointe de la classe vers le namespace.
-# Pour chaque classe, on definit aussi les classes de bases qu on peut investiguer.
-#
-#
-# On ne peut pas comparer directement, de totue facon, des accounts WMI et WBEM.
-# Mais notre ontologie doit faire la jonction avec WMI d'une part,
-# et WBEM d'autre part (Si Linux).
-# Une possibilite est de dupliquer nos directories.
-# En ce qui nous concerne, 2/3 du code est specifique Linux.
-#
-# Quand on veut aller d'un objet portable (Process) vers un qui nest pas
-# portacle comme un user, il faut choisir dynamiquement le type:
-# Par exemple ici, Win32_UserAccount ou bien LMI_Account, qui n ont pas d ancetre commun.
-# Ou bien Win32_Group et LMI_Group.
-# On ne sait pas encore faire. Limitons-nous pour le moment aux cas sans ambiguites.
-#
-#
-#
-# Jusqu'ou remonter ?
-# Un critere peut etre de remonter d abord dans notre classe, tant qu'on trouve notre propriete,
-# en l'occurence "Handle". Au-dessus, ca n'aurait pas de sens.
-# On peut selectionner les processes dans WIN et WBEM uniquement a partir de la classe CIM_Process.
-# Donc: On cherche la classe de base la plus elevee qui a toujours nos criteres.
-# Ensuite on cherche le namespace de cette classe dans le serveur d'en face (WMI ou WBEM),
-# on ajoute les memes criteres. Puis on fait la recherche.
-# Pour chaque type de serveur, il faudrait une fonction qui renvoie du RDF.
-#
-# ====================================================================================
-#
-# Peut etre que entity_id pourrait etre soit une valeur unique: Si une seule clef,
-# ou bien un dictionnaire de paires clef-valeur.
-# Ne nous pressons pas: Dans un premier temps:
-# * Remplacer cimom=xxx par le moniker (En effet, c etait une erreur).
-# * Remplacer nos classes par des classes DMTF, avec mecanismes a rajouter.
+# This assumes that class names are unique: For WBEM and WMI,
+# it always assumes namespace=root/cimv2 : The other CIM namespaces
+# have no interest for our usage.
 
 # See lib_util.HostName()
 # WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
@@ -106,15 +54,6 @@ class LocalBox:
 			sys.stderr.write("BuildEntity entity_type=%s Not enough values:%s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
 			# entity_id_arr += [ "Unknown" ] * ( lenKeys - lenEntIds )
 
-		# C est peut etre ici le probleme car on conserve l ordre ???
-		# zip pas tres rapide.
-		# dict tres rapide et commode.
-		# si on est tributaire de l ordre,
-		# on va forcement se planter de tps en tps/
-		# Qu est ce qu apporte l ordre ?
-		# Au lieu de zip, on aura aussi vite fait de batir un dict.
-
-		# entity_id = ",".join( "%s=%s" % kwItems for kwItems in zip( keys, entity_id_arr ) )
 		# Sorted keys
 		entity_id = ",".join( "%s=%s" % kwItems for kwItems in dict(zip( keys, entity_id_arr ) ).items() )
 
@@ -128,6 +67,13 @@ class LocalBox:
 		entity_id = self.BuildEntity( entity_type, *entity_id_arr )
 		return self.MakeTheNodeFromScript( path, entity_type, entity_id )
 
+	# Example of call
+	# UriMakeFromDict("CIM_Datafile/portable_executable/section", { "Name" : fileName, "Section" : sectionName } )
+	# TODO: It would help to specific the entity_type from the current directory.
+	# So that, when the script is moved, it would not need to be changed.
+	# For example: UriMakeFromDictCurrentPackage({ "Name" : fileName, "Section" : sectionName })
+	# Or even: UriMakeFromDictCurrentPackage( Name = fileName, Section = sectionName )
+	# Or even: UriMakeFromDictCurrentPackage(fileName,sectionName)
 	def UriMakeFromDict(self, entity_type, entity_id_dict):
 		def UriPairEncode(keyIt,valIt):
 			try:
@@ -150,11 +96,6 @@ class LocalBox:
 
 	###################################################################################
 
-
-	# TODO: Si on ne trouve pas, charger le module "sources_types/<type>/__init__.py"
-
-
-
 	# >>> wmi.WMI().Win32_Process()[0].derivation()
 	# (u'CIM_Process', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
 	#
@@ -175,7 +116,6 @@ class LocalBox:
 	# |    |    |    |--- CIM_Process 	Instance Names 	Instances
 	# |    |    |    |    |--- PG_UnixProcess 	Instance Names 	Instances
 	#
-	# Quant a nous: "process" qui deviendra CIM_Process.
 	def PidUri(self,pid):
 		return self.UriMake('CIM_Process',str(pid))
 
@@ -225,13 +165,10 @@ class LocalBox:
 	# |    |    |    |    |--- LMI_SymbolicLink 	Instance Names 	Instances
 	#
 	# OpenPegasus/Windows:
-	# Rien
+	# Nothing
 	#
 	def SharedLibUri(self,soname):
 		return self.UriMake("CIM_DataFile", lib_util.EncodeUri(soname) )
-
-	# TODO: POUR LES DISQUES ET LES PARTITIONS, LES HIERARCHIES SE CROISENT, SANS PLUS.
-	# Y PENSER DANS class_type_all.py
 
 	# For a partition. Display the mount point and IO performance.
 	# WMI
@@ -262,7 +199,8 @@ class LocalBox:
 	# |   |   |    |    |--- Win32_DiskDrive
 	#
 	#
-	# OpenPegasus: Rien
+	# OpenPegasus: Nothing
+	#
 	# OpenLMI:
 	# |--- CIM_LogicalElement
 	# |   |--- CIM_LogicalDevice
@@ -347,13 +285,6 @@ class LocalBox:
 		# Better have our own "canonical" notation for filenames, so replace them.
 		# If needed, they can always be replaced by a normal slash.
 		#
-		# ATTENTION ! IL Y A UN MOMENT OU CE N EST PAS FAIT ET DONC LA FUSION NE FONCTIONNE PAS
-		# Peut-etre dans les mapped memory segments ?
-		#
-		# To reproduce the problem, for example:
-		# Process: "Current working directory" => Directories separated by backslashes.
-		# then "File Stat information" => Separator is slashes.
-		#
 		path = path.replace("\\","/")
 		return self.UriMake( "CIM_Directory" , lib_util.EncodeUri(path))
 
@@ -425,7 +356,6 @@ class LocalBox:
 	# Win32_SystemAccount : Tres intern a Windows, on peut laisser de cote.
 	# Win32_GroupUser: "HomeUsers", "Administrator" : Association entre Win32_Group et un account
 	#
-	# Quant a nous: "group" et "user"
 	def UserUri(self,username):
 		# If Unix "CIM_UnixUser"
 		# If Windows "CIM_Win32User"
@@ -484,8 +414,6 @@ class OtherAgentBox (LocalBox):
 	# will be local to its agent.
 	# TODO: Adding a host in the url is a dangerous idea,
 	# because it is the same object displayed a remote agent.
-	#def TypeMake(self):
-	#	return self.m_mach + "@"
 
 	def RootUrl(self):
 		return self.m_urlRootAgent
@@ -498,8 +426,3 @@ def MachineBox(mach):
 	else:
 		theMachineBox = RemoteBox(mach)
 	return theMachineBox
-
-
-# Ceci est un peu equivalent a:
-# select * from LMI_MountedFileSystem where MountPointPath="/sys/fs/cgroup" and FileSystemSpec="tmpfs"
-# Dictionnaire des properties ?
