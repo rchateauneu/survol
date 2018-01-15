@@ -8,13 +8,6 @@ try:
 except ImportError:
     import json
 
-# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
-# Consider using module "six", which is unfortunately not in the OVH standard package.
-try:
-	from urllib import quote,unquote
-except ImportError:
-	from urllib.parse import quote,unquote
-
 import signal
 import sys
 import cgi
@@ -744,7 +737,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		try:
 			# TODO: Probleme ici: La chaine est deja codee pour HTML ce qui en rend le parsing different
 			# TODO: ... de celui d'un URL deja decode. DOMMAGE: On quote puis unquote !!!
-			(labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( unquote(objRdfNode) )
+			(labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(objRdfNode) )
 		except UnicodeEncodeError:
 			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( objRdfNode ) )
 
@@ -1365,7 +1358,7 @@ class CgiEnv():
 		for argK in cgi.FieldStorage():
 			argV = cgi.FieldStorage()[argK].value
 			# sys.stderr.write("AddParameterizedLinks argK=%s argV=%s\n"%(argK,argV))
-			prmsCopy[argK] = quote(argV)
+			prmsCopy[argK] = lib_util.urllib_quote(argV)
 
 		# Update these parameters with the values specific for this label.
 		for paramKey in paramsMap:
