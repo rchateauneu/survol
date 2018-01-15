@@ -11,22 +11,14 @@
 <meta charset="UTF-8">
 <meta name="theme-color" content="#ffffff">
 
-
-<!--  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js" -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
-
-<!-- Port to D3 v4 could be done by a specialist. -->
-
-    <!-- src="http://d3js.org/d3.v3.min.js" -->
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v4.js"></script>
 <script src="js/base64.js"></script>
 <script src="js/revjslib.js"></script>
 
-    <!-- href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" -->
 <link href="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
 
-    <!--  src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" -->
 <script src="https://swisnl.github.io/jQuery-contextMenu/dist/jquery.contextMenu.js" type="text/javascript"></script>
 
 <script src="js/ActiveX_WMI.js"></script>
@@ -71,6 +63,10 @@
     .nodetext {
         pointer-events: none;
         font: 10px sans-serif;
+    }
+
+    #MainDiv {
+        background: #E0E0F0;
     }
 
     .CIM_ComputerSystem {
@@ -168,6 +164,15 @@ Also, we must transmit to graphic properties for edges: This simply means having
 ... ou bien:
 "PROPERTY_LAYOUT" property "Ortho"
 
+
+
+TODO: We need another operator which applies a script on all object of a given class
+in the current graph. Example:
+url=sources_types/all_processes.py
+&operator=*
+&url=sources_types/ComputerSystem/process_open_files.py
+
+This would display the open files of all processes.
 */
 
 /*
@@ -227,6 +232,7 @@ var hScreen;
 var myForce = null;
 
 var divSvg = null;
+var divItselfG = null;
 
 // This stores the current nodes and links. Maybe there is a simpler way to store them.
 var previousData = null;
@@ -330,8 +336,6 @@ function onDrop(evt) {
         alert("Cannot drop url:"+droppedUrl);
     }
 
-
-
 };
 
 function onDragOver(evt){
@@ -342,10 +346,6 @@ function onDragOver(evt){
 function D3DisplayCreation()
 {
     'use strict';
-
-    function MyZoom() {
-        divSvg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-    }
 
     var win = window;
     var doc = document;
@@ -358,41 +358,89 @@ function D3DisplayCreation()
     // First defined and non-zero values.
     wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
     hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
+    console.log("win.innerWidth="+win.innerWidth);
+    console.log("elt.clientWidth="+elt.clientWidth);
+    console.log("geb.clientWidth="+geb.clientWidth);
+    console.log("wScreen="+wScreen);
 
-    /*
-    Pour la page en D3, on fait comme google maps:
-    - On resize avec la roulette.
-    - mais la taille doit etre infinie: Ca prend toute la page.
-    - Le menu est sur un rectagle surajoute.
-    <jst><canvas>
+    console.log("win.innerHeight="+win.innerHeight);
+    console.log("elt.clientHeight="+elt.clientHeight);
+    console.log("geb.clientHeight="+geb.clientHeight);
+    console.log("hScreen="+hScreen);
 
-    Plan:
-    - OPn commence a creer le petit rectangle toutjours positionne en haut.
-    Qq chose de moderne, menus etc...
-    - On voit comment D3 peut profiter d'une page entiere.
+    divSvg = d3.select("#MainDiv")
 
-    */
-
-    // http://stackoverflow.com/questions/16265123/resize-svg-when-window-is-resized-in-d3-js
-    // This allows the resizing.
-    divSvg = d3.select("body")
-        .append("div")
         .classed("svg-container", true) //container class to make it responsive
+
         .append("svg:svg")
-        //responsive SVG needs these 2 attributes and no width and height attr
-        .attr("preserveAspectRatio", "xMinYMin meet")
-        .attr("viewBox", "0 0 " + wScreen + " " + hScreen)
 
-        // style="border-style:solid;border-width:1px;"
-        .attr("style","border-style:solid;border-width:1px;")
-
-        //class to make it responsive
-        .classed("svg-content-responsive", true)
-        // SVG Geometric Zooming https://bl.ocks.org/mbostock/3680999
-        .call(d3.behavior.zoom().scaleExtent([0.125, 8]).on("zoom", MyZoom))
+        // If we do not use "viewBox" and "preserveAspectRatio".
+        .attr("width", wScreen)
+        .attr("height", hScreen)
         ;
 
-    myForce = d3.layout.force();
+    divSvg
+        .attr("style","border-style:solid;border-width:1px;")
+
+        //.attr("preserveAspectRatio", "xMinYMin meet")
+        //.attr("viewBox", "0 0 " + wScreen + " " + hScreen)
+        .classed("svg-content-responsive", true)
+        ;
+
+    divItselfG = divSvg.append("sgv:g");
+
+    function resizeFunction(e){
+        // get width/height with container selector (body also works)
+        // or use other method of calculating desired values
+        var width = $('#MainDiv').width();
+        var height = $('#MainDiv').height();
+        console.log("resizeFunction width="+width+" height="+height);
+        // alert("resizeFunction width="+width+" height="+height);
+
+        // set attrs and 'resume' force
+        divSvg.attr('width', width);
+        divSvg.attr('height', height);
+        // myForce.size([width, height]).resume();
+
+        //divSvg
+        //    .attr("viewBox", "0 0 " + width + " " + height)
+
+    }
+    // window.addEventListener("resize", resizeFunction);
+
+
+    function updateWindow(){
+        wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
+        hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
+        console.log("updateWindow wScreen="+wScreen+" hScreen="+hScreen);
+
+        divSvg.attr("width", wScreen).attr("height", hScreen);
+    }
+    d3.select(window).on('resize.updatesvg', updateWindow);
+
+    function zoomed() {
+        console.log("zoomed d3.event.transform="+d3.event.transform);
+        divItselfG.attr("transform", d3.event.transform); // updated for d3 v4
+    }
+
+    var zoom = d3.zoom()
+        .scaleExtent([0.125, 8])
+        .on("zoom", zoomed);
+
+    divSvg.call(zoom);
+
+    if(false)
+    {
+        // If the drag behavior prevents the default click,
+        // also stop propagation so we don’t click-to-zoom.
+        function stopped() {
+          if (d3.event.defaultPrevented) d3.event.stopPropagation();
+        }
+        divSvg.on("click", stopped, true);
+    }
+
+    myForce = d3.forceSimulation();
+
 } // D3DisplayCreation
 
 // Mais pourquoi data est passe en premier ? au lieu de (error,data ) ?
@@ -410,7 +458,7 @@ function CreateDisplay(data)
 
     // Brand new graph, no need to merge.
     previousData = data;
-    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
 } // CreateDisplay
 
 /* Called when adding a new url and merge it to the existing nodes and links.
@@ -442,179 +490,57 @@ et dans tous ces cas on precise le flag survol_global_id
 */
 function RefillDisplayMerge(data, currTimeStamp)
 {
-    // This creates a new list of nodes with new numbers and without the duplicates.
-    // The links also, are recreated, with new numbers.
-    var previousNodes = previousData.nodes;
-    var prevUrlsToIds = {};
+    var urlToNode = {}
 
-    var lenPrevNodes = previousNodes.length;
-    var maxAlerts = 3;
-    for (var ixNod = 0; ixNod < lenPrevNodes; ixNod++) {
-        var urlNode = previousNodes[ixNod].survol_url;
-        // console.log("RefillDisplay(1) urlNode="+urlNode);
+    for (var ixNod = 0; ixNod < previousData.nodes.length; ixNod++) {
+        var objNode = previousData.nodes[ixNod];
+        var urlNode = objNode.survol_url;
 
-        // Sanity check:
-        if(prevUrlsToIds[urlNode] != undefined)
+        // Sanity check: URLs should be unique.
+        if(urlToNode[urlNode] != undefined)
         {
-            // Not too many alerts.
-            if(maxAlerts > 0)
-            {
-                alert("ixNod="+ixNod+" prevUrlsToIds[urlNode] undefined. urlNode="+urlNode);
-                maxAlerts--;
-            }
+            alert("ixNod="+ixNod+" prevUrlsToIds[urlNode] undefined. urlNode="+urlNode);
         }
-
         // Normally, at this stage, each URL should appear only once.
-        prevUrlsToIds[urlNode] = ixNod;
+        urlToNode[urlNode] = objNode;
     }
 
-    // console.log("prevUrlsToIds elements:"+JSON.stringify(prevUrlsToIds));
+    for (var ixNod = 0; ixNod < data.nodes.length; ixNod++) {
+        var objNode = data.nodes[ixNod];
+        var urlNode = objNode.survol_url;
 
-    // The new numbers of the new nodes are written in the nodes themselves.
-    var newNodes = data.nodes;
-    var lenNewNodes = newNodes.length;
-    for( var ixNod = 0; ixNod < lenNewNodes; ixNod++ )
-    {
-        var newNod = newNodes[ixNod];
-        var urlNode = newNod.survol_url;
-        // console.log("RefillDisplayMerge(2) urlNode="+urlNode);
-
-        // Sanity check
-        if( urlNode == undefined)
+        if(urlToNode[urlNode] == undefined)
         {
-            alert("urlNode undefined. ixNod="+ixNod);
-        }
-
-        // Index of the same URL in the current list of nodes.
-        var oldIdx = prevUrlsToIds[urlNode];
-
-        if( oldIdx == undefined )
-        {
-            // Most common case of a new node.
-            var idxAppend = previousNodes.length;
-            newNod.new_index = idxAppend;
-            // The timestamp must already be set.
-            if( newNod.survol_timestamp == undefined ) {
-                alert("Inconsistent timestamp (1)");
-                return;
-            }
-            // newNod.survol_timestamp = currTimeStamp;
-
-            // Sanity check
-            if( idxAppend < lenPrevNodes )
-            {
-                alert("idxAppend="+idxAppend);
-            }
-
-            // The new node is copied at the end.
-            previousNodes.push(newNod);
-        }
-        else
-        {
-            // The node already exists, no copy, but this merge the input scripts lists.
-            newNod.new_index = oldIdx;
-
-            if( previousNodes[oldIdx].survol_input_scripts == undefined )
-            {
-                alert("Previous node should have input scripts");
-                return;
-            }
-
-            if( newNod.survol_input_scripts == undefined )
-            {
-                alert("New node should have input scripts");
-                return;
-            }
-
-            previousNodes[oldIdx].survol_input_scripts
-                = previousNodes[oldIdx].survol_input_scripts.concat(newNod.survol_input_scripts)
-
-            previousNodes[oldIdx].survol_timestamp = currTimeStamp;
-
-            // Sanity check
-            if( previousNodes[oldIdx].survol_url != urlNode)
-            {
-                alert("Inconsistent urls oldIdx="+oldIdx);
-            }
+            previousData.nodes.push(objNode);
+            urlToNode[urlNode] = objNode;
         }
     }
 
-    // Now we renumber the edges.
-    var newLinks = data.links;
-    var lenNewLinks = newLinks.length;
-    var previousLinks = previousData.links;
-    for( var ixLnk = 0; ixLnk < lenNewLinks; ixLnk++ )
+    for( var ixLnk = 0; ixLnk < data.links.length; ixLnk++ )
     {
-        var newLnk = newLinks[ixLnk];
+        var newLnk = data.links[ixLnk];
 
-        var idxSourceMapped = newNodes[newLnk.source].new_index;
-
-        // Sanity check
-        if(idxSourceMapped == undefined)
+        var newLnkSource = urlToNode[newLnk.source];
+        if(newLnkSource == undefined)
         {
-            alert("Source undefined newLnk.source="+newLnk.source);
+            alert("newLnk.source undefined");
+            throw("newLnk.source undefined");
         }
+        newLnk.source = newLnkSource;
 
-        newLnk.source = idxSourceMapped;
-
-        var idxTargetMapped = newNodes[newLnk.target].new_index;
-
-        // Sanity check
-        if(idxTargetMapped == undefined)
+        var newLnkTarget = urlToNode[newLnk.target];
+        if(newLnkTarget == undefined)
         {
-            alert("Target undefined newLnk.target="+newLnk.target);
+            alert("newLnk.target undefined");
+            throw("newLnk.target undefined");
         }
-
-        // console.log("Rewire "+ixLnk+" target from "+newLnk.target+" to "+idxTargetMapped);
-        newLnk.target = idxTargetMapped;
-
-        // Sanity check
-        if(newLnk.source == undefined)
-        {
-            alert("newLnk.source undefined. ixLnk="+ixLnk);
-        }
-        if(newLnk.target == undefined)
-        {
-            alert("newLnk.target undefined. ixLnk="+ixLnk);
-        }
+        newLnk.target = newLnkTarget;
 
         // If the source and the targets had to be remapped,
         // it means that the target was already there.
         // However, we insert it again because it should be rare,
         // and the duplicated edge might bring more information.
-        previousLinks.push(newLnk);
-    }
-
-    // Now a last pass to remove the duplicate nodes.
-    var ixNod = 0;
-    while(ixNod < lenNewNodes)
-    {
-        var newNod = newNodes[ixNod];
-
-        // Sanity check
-        if(newNod.new_index == undefined)
-        {
-            alert("newNod.new_index undefined ixNod="+ixNod);
-        }
-
-        if(newNod.new_index < lenPrevNodes)
-        {
-            // The node already exists.
-            newNod.new_index = oldIdx;
-            newNodes.splice(ixNod,1); // Beware, this might be slow.
-            console.log("Removing duplicate ixNod="+ixNod);
-            lenNewNodes--;
-        }
-        else
-        {
-            ixNod++;
-        }
-    }
-
-    // Sanity check
-    if(lenNewNodes != data.nodes.length)
-    {
-        alert("Inconsistency lenNewNodes="+lenNewNodes+" data.nodes.length="+data.nodes.length);
+        previousData.links.push(newLnk);
     }
 
     // Sanity check.
@@ -739,7 +665,7 @@ function HostToColorNoCache(aHostName)
     var hashStr = hashInt.toString(16);
     var theStr = ("000000" + hashStr).substr(-6);
 
-    // This amplifies color constrast.
+    // This amplifies color contrast.
     function Amplify(aHex)
     {
         if( "01234".indexOf(aHex) >= 0 ) return "0";
@@ -788,10 +714,6 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp)
         return;
     }
 
-    // UTC timestamp in milliseconds.
-    // var currTimeStamp = Date.now();
-    // newNod.survol_timestamp = currTimeStamp
-
     /* This calculates the stroke color and width for each object,
     based on the host on which it is defined.
     Ths url should normally be from the same host, but this is not a requirement.
@@ -832,6 +754,10 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp)
             alert("RefillDisplay Cannot do anything theUrl="+theUrl);
             return;
         }
+        myForce.alphaTarget(0.1).restart();
+        // myForce.alphaTarget(0.3).restart();
+        // myForce.restart();
+        // myForce.alphaTarget(0.3);
     }
 
 	console.log("RefillDisplay before EmptyDisplay");
@@ -846,7 +772,7 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp)
 	TypeError: r.target is undefined
 	*/
 
-    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
     // globalMustMerge = false;
 	console.log("RefillDisplay leaving");
 } // RefillDisplay
@@ -854,12 +780,12 @@ function RefillDisplay(theUrl,data,shouldMerge,currTimeStamp)
 function EmptyDisplay()
 {
     'use strict';
-    var node = divSvg.selectAll("g.survol_node")
+    var node = divItselfG.selectAll("g.survol_node")
         .data([])
         .exit()
         .remove();
 
-    var link = divSvg.selectAll(".survol_line")
+    var link = divItselfG.selectAll(".survol_line")
         .data([])
         .exit()
         .remove();
@@ -908,6 +834,8 @@ function DeleteD3NodeFromIndex(goodNodeIdx)
 // Attempt to fix the "use strict"problem with Edge..
 globalMustMerge = false;
 
+// https://groups.google.com/forum/#!topic/d3-js/LWuhBeEipz4
+
 /* When deleting a node from the contextual menu. Deletes the nodes and its links. */
 function DeleteSvgNode(objectSvg)
 {
@@ -917,7 +845,7 @@ function DeleteSvgNode(objectSvg)
     DeleteD3NodeFromIndex(goodNodeIdx);
 
     EmptyDisplay();
-    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
     console.log("DeleteSvgNode reset globalMustMerge");
     // BEWARE: On IE / Edge: Not defined.
     globalMustMerge = false;
@@ -998,7 +926,7 @@ function DeleteSvgConnectedNodes(objectSvg)
 
     // Same code as for deleting one node.
     EmptyDisplay();
-    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
     console.log("DeleteSvgConnectedNodes reset globalMustMerge");
     globalMustMerge = false;
 } // DeleteSvgConnectedNodes
@@ -1129,7 +1057,7 @@ function ProcessSummaryWindowDel(idxUrl)
 
     // Maybe we could refresh the display at each node ?
     EmptyDisplay();
-    DisplayD3Layout(divSvg,previousData,wScreen,hScreen);
+    DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
 
     RefreshSummaryWindow();
 } // ProcessSummaryWindowDel
@@ -1201,6 +1129,7 @@ function NodeSetInputScript(urlObj,theData)
         // We know that the object is freshly loaded, so we can create a new list.
         objNod.survol_input_scripts = [urlObjRaw];
 
+        // UTC timestamp in milliseconds.
         objNod.survol_timestamp = currTimeStamp;
     }
 
@@ -1382,7 +1311,7 @@ function GetHostFromUrl( aSurvolUrl )
     return parser.host;
 } // GetHostFromUrl
 
-function DisplayD3Layout(divSvg,newData,w,h)
+function DisplayD3Layout(divItselfG,newData,w,h)
 {
     'use strict';
     console.log("DisplayD3Layout newData.nodes="+newData.nodes.length+" newData.links="+newData.links.length);
@@ -1402,7 +1331,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
         // http://mbostock.github.io/d3/talk/20110921/bounding.html
         selectedNodes.attr("transform", function (d) {
             /*
-            // Ca fonctionne mais ca n'est pas tres beau.
+            // TODO: This works but is not very nice..
             var rr = 10;
             d.x = Math.max(rr, Math.min(w - rr, d.x));
             d.y = Math.max(rr, Math.min(h - rr, d.y));
@@ -1417,16 +1346,40 @@ function DisplayD3Layout(divSvg,newData,w,h)
 	
     // It is possible to link nodes by names in D3 v4: https://bl.ocks.org/mbostock/533daf20348023dfdd76
     myForce
-        .nodes(newData.nodes)
-        .links(newData.links)
-        .distance(100)
-        .charge(-1000)
-        .linkDistance(100)
-        .size([wScreen, hScreen])
-        .on("tick", tick_function)
-        .start();
+        .nodes(newData.nodes);
 
-    var link = divSvg.selectAll(".survol_line")
+    var forceLink = d3
+        .forceLink().id(
+            function (d)
+            {
+                return d.id;
+            }
+        )
+        .distance(
+            function (d)
+            {
+                // return GetNodeDefaults(d.label).linkDistance;
+                return 200;
+            }
+        )
+        .strength(0.1);
+
+    myForce
+        .force("link", forceLink)
+        .force("charge", d3.forceManyBody().strength(-200))
+        .force("center", d3.forceCenter(wScreen / 2, hScreen / 2));
+
+    myForce.force("link")
+        .links(newData.links);
+
+    myForce
+        .force("x",d3.forceX(wScreen))
+        .force("y",d3.forceY(hScreen))
+        .on("tick", tick_function);
+
+    // D3V4 END
+
+    var link = divItselfG.selectAll(".survol_line")
         .data(newData.links)
         .enter().append("svg:line")
         .attr("class", function (d) { return "survol_line"; })
@@ -1434,14 +1387,47 @@ function DisplayD3Layout(divSvg,newData,w,h)
         .attr("y1", function (d) { return d.source.y; })
         .attr("x2", function (d) { return d.target.x; })
         .attr("y2", function (d) { return d.target.y; })
-        // "Error in parsing value for "markedr-end": This is why I removed this.
+        // "Error in parsing value for "marker-end": This is why I removed this.
         // .attr("marker-end", function (d) { if (d.value == 1) { return "url(#arrowhead)"; } else { return " "; }; })
         // .append("svg:title").text(function(d) { return d.link_prop; })
         ;
 
+    // D3V4 START
+    function dragstarted(d) {
+        if (!d3.event.active) myForce.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+
+        isDragging = true; // This avoids the tooltip when dragging.
+        // Tooltip ne fonctionne plus !!!
+        console.log("Tooltip disabled");
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active) myForce.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+
+        d3.event.sourceEvent.stopPropagation(); // silence other listeners
+        isDragging = false; // Tooltip when hovering is now allowed.
+        console.log("Tooltip enabled");
+    }
+
+    // var d3BehDrag = myForce.drag();
+    var d3BehDrag = d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended)
+    // D3V4 END
+
     // Creates one SVG object (Which class ?) for each survol node.
     // CA DEVRAIT ALLER POUR AJOUTER DES NODES.
-    var selectedNodes = divSvg.selectAll("g.node")
+    var selectedNodes = divItselfG.selectAll("g.node")
         .data(newData.nodes)
         .enter().append("svg:g")
         .attr("class", function (d)
@@ -1449,29 +1435,13 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 return "survol_node node " + d.entity_class;
             }
         ) // Several classes are possible.
-        .call(myForce.drag);
+        .call(d3BehDrag);
+        ;
 
 	/* https://stackoverflow.com/questions/30723592/prevent-click-action-when-dragging-a-d3-node
 	When combining drag with other event listeners,
 	stop propagation on the source event to prevent multiple actions.
 	Otherwise, dragging also triggers the click behavior when the mouse is released. */
-
-    // var d3BehDrag = d3.behavior.drag();
-    var d3BehDrag = myForce.drag();
-    d3BehDrag
-        .on("dragstart", function() {
-            isDragging = true; // This avoids the tooltip when dragging.
-            // Tooltip ne fonctionne plus !!!
-            console.log("Tooltip disabled");
-        })
-        .on("dragend", function() {
-            d3.event.sourceEvent.stopPropagation(); // silence other listeners
-            isDragging = false; // Tooltip when hovering is now allowed.
-            console.log("Tooltip enabled");
-        })
-        ;
-
-    // fill:#337147;
 
     // Define the div for the tooltip.
     // If set globally, it is null here.
@@ -1687,6 +1657,7 @@ function DisplayD3Layout(divSvg,newData,w,h)
                     .style("opacity", 0);
             }
         )
+        /*
         .on("click", function(d)
             {
                 // TODO: Disabled for the moment because we do not know how to
@@ -1703,16 +1674,18 @@ function DisplayD3Layout(divSvg,newData,w,h)
                 console.log("aUrl="+aUrl);
                 LoadUrlUpdateDisplay(aUrl, false);
             })
+        */
         ;
 
-    var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
+    // var radius = d3.scale.log().domain([0, 312000]).range(["10", "50"]);
 
     // Is that to avoid collisions ? Is the drag needed here ?
     d3.selectAll(".circle").append("circle")
         .attr("class", function (d) { return "node"; })
         // TODO: No change when it is commented out.
         //.attr("r", function (d) { return radius(d.value) || 10; })
-        .call(myForce.drag);
+        ;
+        // .call(myForce.drag);
 
     // This returns the contextual menu for nodes.
     function MakeContextMenuItems(objectSvg)
@@ -2101,6 +2074,11 @@ function DisplayD3Layout(divSvg,newData,w,h)
     // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
     // $(CreateContextMenus);
     CreateContextMenus();
+
+    myForce.restart();
+    // myForce.alphaTarget(0.3).restart();
+
+
 } // DisplayD3Layout
 
 // At startup. This special case because hosting on OVH is specific.
@@ -2236,7 +2214,15 @@ function openPrintLayout() {
         alert("SVG display and Graphviz not yet available on this platform");
         return false;
     }
-    location.href = urlPrintLayout;
+    if(true) {
+        location.href = urlPrintLayout;
+    } else {
+        // This opens the SVG url in the DIV tag used for D3 display.
+        // This is not enabled now until everything is fixed: Size adjusted, legend removed ...
+        var div = document.getElementById("MainDiv");
+        // div.innerHTML = '<iframe style="width:100%;height:100%;" frameborder="0" src="' + urlPrintLayout + '" />';
+        div.innerHTML = '<iframe style="width:100%;height:1000;" frameborder="0" src="' + urlPrintLayout + '" />';
+    }
 }
 
 function openHtmlLayout() {
@@ -2300,7 +2286,6 @@ Ajouter le lien de merge.
 
 <body>
 
-
 <table border="0" width="100%"><tr>
     <td><a href="index.htm">Survol</a> <i>Unearthing LegacyWare. Based on CIM/WMI/WBEM, with a web ui. &copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017</i></td>
     <td align="right"><a href="#" id="IdHrefSummary">Tools</a>&nbsp;
@@ -2310,6 +2295,8 @@ Ajouter le lien de merge.
 <a href="help.htm">Help</a>
     </td>
 </tr></table>
+
+<div id="MainDiv"></div>
 
 </body>
 </html>
