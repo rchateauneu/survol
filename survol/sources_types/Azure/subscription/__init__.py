@@ -3,6 +3,7 @@ Azure subscription
 """
 
 import sys
+import lib_util
 import lib_credentials
 import lib_common
 
@@ -19,6 +20,8 @@ def EntityOntology():
 	return ( ["Subscription"], )
 
 def MakeUri(subscriptionName):
+	# TODO: Because the input parameters could contain a sspace, derive from str() and define ValueDecode()
+	subscriptionName = lib_util.urllib_quote(subscriptionName)
 	return lib_common.gUriGen.UriMakeFromDict("Azure/subscription", { "Subscription" : subscriptionName } )
 
 
