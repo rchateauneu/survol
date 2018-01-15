@@ -140,6 +140,7 @@ def DotIt(str):
 NodeJsonNumber = 0
 
 # This models a node as it will be saved to Json.
+# TODO: This creates a useless layer of lookup that could be suppressed.
 class NodeJson:
 	def __init__(self,rdf_node):
 		global NodeJsonNumber
@@ -155,11 +156,16 @@ class NodeJson:
 		# "Graphic_shape","Graphic_colorfill","Graphic_colorbg","Graphic_border","Graphic_is_rounded"
 		self.m_color = arrayGraphParams[1]
 
-
 		# TODO: Display the doc in the module with FromModuleToDoc(importedMod,filDfltText):
 		self.m_info_list = [entity_graphic_class]
 		self.m_info_dict = dict()
 		self.m_index = NodeJsonNumber
+
+		the_survol_url = HTMLParser().unescape(rdf_node)
+		# Hack, specific to OVH.
+		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
+		self.m_survol_url = the_survol_url
+
 		NodeJsonNumber += 1 # One more node.
 
 # Transforms a RDF property name into a pure alphanum string usable as a DOT label.
@@ -242,10 +248,6 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# This applies only to entity.py : In rendering based on Json, scripts are not displayed as nodes,
 		# but in hierarchical menus. The node must not appear at all.
 
-		# PROBLEME: On voit toujours les nodes !!! Mais sans les aretes !!
-		# C EST PARCE QUE LES NODES DES SCRIPTS CONTIENNENT LEURS PROPRES INFOS.
-		# DONC, QUAND EN MODE JSON, IL FAUT VRAIMNENT NE PAS APPELER entity_dirmenu_only.py, DU TOUT !
-
 		if pred == pc.property_script:
 			sys.stderr.write("continue subj=%s obj=%s\n"%(subj,obj))
 			continue
@@ -258,14 +260,16 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			continue
 
 		subjObj = NodeToJsonObj(subj)
-		subj_id = subjObj.m_index
+		#subj_id = subjObj.m_index
+		subj_id = subjObj.m_survol_url
 
 		propNam = PropToShortPropNam(pred)
 
 		# TODO: BUG: If several nodes for the same properties, only the last one is kept.
 		if lib_kbase.IsLink(obj):
 			objObj = NodeToJsonObj(obj)
-			obj_id = objObj.m_index
+			#obj_id = objObj.m_index
+			obj_id = objObj.m_survol_url
 			links.extend([{'source': subj_id, 'target': obj_id, 'survol_link_prop': propNam}])
 
 			# TODO: Add the name corresponding to the URL, in m_info_dict so that some elements
@@ -305,19 +309,17 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 		# HTTP_MIME_URL
 		the_survol_nam = HTMLParser().unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
-		the_survol_url = HTMLParser().unescape(obj_link)
 
-		# Hack, specific to OVH.
-		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
-
+		# TODO: Use the same object for lookup and Json.
 		nodes[nod_id] = {
+			'id'               : nodObj.m_survol_url, # Required by D3
 			'name'             : the_survol_nam,
 			# Theoretically, this URL should be HTML unescaped then CGI escaped.
 			# 'survol_url'       : obj_link,
 			#'x'       : 500,
 			#'y'       : 500,
 			#'number'  : 50,
-			'survol_url'       : the_survol_url,
+			'survol_url'       : nodObj.m_survol_url, # Duplicate of 'id'
 			'survol_fill'      : nodObj.m_color,
 			'entity_class'     : nodObj.m_class, # TODO: Maybe not needed because also in the URL ?
 			'survol_info_list' : nodObj.m_info_list,
