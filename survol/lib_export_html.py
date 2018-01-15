@@ -22,10 +22,6 @@ if sys.version_info[0] >= 3:
 else:
 	from HTMLParser import HTMLParser
 
-try:
-	from urllib import unquote
-except ImportError:
-	from urllib.parse import unquote
 
 # This does not change the existing mode if there is one.
 # Otherwise it could erase the MIME type.
@@ -163,7 +159,7 @@ def WriteOtherUrls(topUrl):
 	def WMapToHtml(theMap,propData):
 		sys.stderr.write("WMapToHtml len=%d\n"%len(theMap))
 		for urlSubj in theMap:
-			(subjText, subjEntityGraphClass, subjEntityId) = lib_naming.ParseEntityUri( unquote(urlSubj) )
+			(subjText, subjEntityGraphClass, subjEntityId) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(urlSubj) )
 			WrtAsUtf("<tr>")
 			WrtAsUtf("<td valign='top'><a href='%s'>%s</a></td>"%( str(urlSubj), subjText ) )
 			WrtAsUtf("<td>")
@@ -175,7 +171,7 @@ def WriteOtherUrls(topUrl):
 				if lib_kbase.IsLiteral(urlObj):
 					WrtAsUtf("<td>%s</td>"%( str(urlObj) ) )
 				else:
-					(objText, objEntityGraphClass, objEntityId) = lib_naming.ParseEntityUri( unquote(urlObj) )
+					(objText, objEntityGraphClass, objEntityId) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(urlObj) )
 					WrtAsUtf("<td><a href='%s'>%s</a></td>"%( str(urlObj), objText ) )
 				WrtAsUtf("</tr>")
 			WrtAsUtf("</table>")
