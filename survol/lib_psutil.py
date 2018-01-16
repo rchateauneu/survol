@@ -136,7 +136,7 @@ except ImportError:
 			try:
 				return os.readlink(self.m_proc+'/exe')
 			except:
-				return "No executable"
+				return "Pid %s: No executable" % str(self.pid)
 
 		def cmdline(self):
 			try:
