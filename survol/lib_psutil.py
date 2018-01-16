@@ -143,9 +143,9 @@ except ImportError:
 				file = open(self.m_proc+'/cmdline', 'r')
 				text = file.read()
 				file.close()
-				return text
+				return [ text ]
 			except:
-				return "No command"
+				return [ "No command" ]
 
 		def connections(self,kind):
 			return []
