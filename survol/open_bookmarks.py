@@ -16,8 +16,43 @@
 
 # Tester aussi avec un URL.
 
-filName = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Docs\bookmarks.html"
-
-urlNam = "https://www.google.com/bookmarks/bookmarks.html?hl=fr"
-
+import sys
 import lib_bookmark
+
+def pretty(d, indent=0):
+   for key, value in d.items():
+      print('\t' * indent + str(key))
+      if isinstance(value, dict):
+         pretty(value, indent+1)
+      else:
+         print('\t' * (indent+1) + str(value))
+
+def Main():
+
+	filNam = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Docs\bookmarks.html"
+
+	urlNam = "https://www.google.com/bookmarks/bookmarks.html?hl=fr"
+
+	sys.stdout.write("""
+		<html><head></head><body>
+	""")
+
+	dictBookmarks = lib_bookmark.ImportBookmarkFile(filNam)
+
+	sys.stdout.write("<br/>\n")
+	sys.stdout.write("<br/>\n")
+	sys.stdout.write("<br/>\n")
+	sys.stdout.write("<br/>\n")
+	sys.stdout.write("<br/>\n")
+
+	# sys.stdout.write("RESULT=%s<br/>" % str(dictBookmarks))
+
+	pretty(dictBookmarks)
+
+
+	sys.stdout.write("""
+		</body></html>
+	""")
+
+if __name__ == '__main__':
+	Main()
