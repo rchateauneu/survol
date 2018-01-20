@@ -40,13 +40,14 @@ def ParseCompleteTag(aTag,aRest):
 
 
 def ImportAux(xmlFil,level):
-	sys.stdout.write(( "   " * level ) + "ImportAux\n")
+	# sys.stdout.write(( "   " * level ) + "ImportAux\n")
 	dictResu = {}
 
 	for aLin in xmlFil:
 		# sys.stdout.write("aLin="+aLin+"<br>\n")
 
 		( aTag, aRest ) = GetTagAndRest(aLin)
+
 
 		if aTag == "DL":
 			subDict = ImportAux(xmlFil,level+1)
@@ -55,7 +56,7 @@ def ImportAux(xmlFil,level):
 			return dictResu
 		elif aTag == "H1":
 			# Rest=[Bookmarks Menu</H1>]<br>
-			aTitle = aRest[:-4]
+			aTitle = aRest[:-5]
 			pass
 		elif aTag == "DT":
 			# Rest=[<A HREF="http://primhillcomputers.ddns.net/S" ADD_DATE="1497705694" LAST_MODIFIED="1502556991">Linux disk partitions</A>]
@@ -63,7 +64,7 @@ def ImportAux(xmlFil,level):
 			if parsedTagA:
 				# "HREF", "ADD_DATE", "LAST_MODIFIED"
 				dictResu[parsedTagA["label"]] = parsedTagA["HREF"]
-				sys.stdout.write(( "   " * level ) + "dictResu=%s\n"%str(dictResu))
+				# sys.stdout.write(( "   " * level ) + "dictResu=%s\n"%str(dictResu))
 			else:
 				# <DT><H3 ADD_DATE="1508084007" LAST_MODIFIED="1508084007">[Folder Name]</H3>
 				parsedTagH3 = ParseCompleteTag("H3",aRest)

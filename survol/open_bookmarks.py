@@ -20,12 +20,18 @@ import sys
 import lib_bookmark
 
 def pretty(d, indent=0):
-   for key, value in d.items():
-      print('\t' * indent + str(key))
-      if isinstance(value, dict):
-         pretty(value, indent+1)
-      else:
-         print('\t' * (indent+1) + str(value))
+	def Truncate(value):
+		strVal = str(value)
+		if len(strVal) > 30:
+			strVal = strVal[:30] + "..."
+		return strVal
+
+	for key, value in d.items():
+		print('\t' * indent + Truncate(key))
+		if isinstance(value, dict):
+			pretty(value, indent+1)
+		else:
+			print('\t' * (indent+1) + Truncate(value))
 
 def Main():
 
