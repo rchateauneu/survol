@@ -19,7 +19,20 @@ function PostMessageChangeRate(ixLoaded,value)
     self.opener.postMessage( ['ChangeRate',ixLoaded,value], '*');
 }
 
+/* Deletes the URL whose index is passed as parameter.
+When this is done, the main window sends an update message,
+so this window is consequently updated. */
 function PostMessageDelScript(ixLoaded)
+{
+    // This array is sent as a message to the main window which delete the URL.
+    console.log("PostMessageDelScript ixLoaded="+ixLoaded);
+    self.opener.postMessage( ['DelScript',ixLoaded] ,'*');
+}
+
+/* Deletes the select URL.
+When this is done, the main window sends an update message,
+so this window is consequently updated. */
+function PostMessageDelSelected()
 {
     // This array is sent as a message to the main window which delete the URL.
     console.log("PostMessageDelScript ixLoaded="+ixLoaded);
@@ -62,7 +75,7 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
         "<td><b>Nodes</b></td>",
         "<td><b>Links</b></td>",
         "<td><b>Rate/mn</b></td>",
-        "<td><b>Delete</b></td>",
+        "<td><b>Operations</b></td>",
         "</tr>"
     ].join("\n");
 
@@ -89,7 +102,7 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
             "<td valign=top align='right'>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
             "<td valign=top align='right'>" + objLoadedUrl.m_loaded_links_length + "</td>",
             '<td valign=top><input type="number" min="0" style="width: 5em" onchange="'+  funcOnChange + '" value="' + rateValue + '"></td>',
-            '<td valign=top><a href="#" onclick="' + funcOnClk + '">Del</a></td>',
+            '<td valign=top><button onclick="' + funcOnClk + '">Del</button></td>',
             "</tr>"
         ].join("\n");
     }
@@ -155,7 +168,7 @@ function SummaryInit()
 // Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
 $(SummaryInit);
 
-// TODO: Maybe this shoudl go in the SummaryInit ??
+// TODO: Maybe this should go in the SummaryInit ??
 window.addEventListener("message", ProcessIncomingMessage, false);
 
     </script>
