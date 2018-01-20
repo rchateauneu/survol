@@ -16,24 +16,75 @@
 
 # Tester aussi avec un URL.
 
+
+# De out facon il faut soit stocker l emplacement du fichier,
+# soit le charger.
+# Il vaut mieux que la configuration indique l emplacement du fichier
+# Pour aller a l essentiel, on convient que le fichier de bookmark est avec le fichier de credentials.
+# L'upload se fera plus tard si necessaire.
+
 import sys
 import lib_bookmark
 
-def pretty(d, indent=0):
+def PrettyBkMrks(aDict, indent=0):
+	margin = "&nbsp;" * 10
+
 	def Truncate(value):
+		value = value.strip()
+		if not value:
+			return "<empty>"
 		strVal = str(value)
-		if len(strVal) > 30:
-			strVal = strVal[:30] + "..."
+		if len(strVal) > 40:
+			strVal = strVal[:40] + "..."
 		return strVal
 
-	for key, value in d.items():
-		print('\t' * indent + Truncate(key))
-		if isinstance(value, dict):
-			pretty(value, indent+1)
-		else:
-			print('\t' * (indent+1) + Truncate(value))
+	try:
+		theName = aDict["name"]
+	except KeyError:
+		theName = "No name"
+
+	try:
+		urlHRef = str(aDict["HREF"])
+
+		strLnk = "<a href='%s'>%s</a>" % (urlHRef,Truncate(theName))
+		sys.stdout.write(margin * (indent+1) + strLnk)
+
+		if urlHRef.find("merge_scripts.py") >= 0:
+			sys.stdout.write(" MERGE \n")
+	except KeyError:
+		# If no URL
+		strVal = Truncate(theName)
+		sys.stdout.write(margin * (indent+1) + strVal)
+
+	sys.stdout.write("<BR/>\n")
+
+
+	for keyDict in sorted(aDict.keys()):
+		if keyDict not in ["children","HREF","name"]:
+			valDict = aDict[keyDict]
+
+			# Afficher si merge_scripts.py, si lien normal etc...
+			strVal = Truncate(valDict)
+
+			sys.stdout.write(margin * (indent+1) + keyDict + " : " + strVal)
+
+			sys.stdout.write("<BR/>\n")
+
+	try:
+		for oneObj in aDict["children"]:
+			# sys.stdout.write(margin * indent + Truncate(keyDict) + "<BR/>\n")
+			PrettyBkMrks(oneObj, indent+1)
+	except KeyError:
+		pass
+
+
+
 
 def Main():
+
+	# Bookmark file for Chrome should be here: "AppData\Local\Google\Chrome\User Data\Default."
+	# "C:\Users\rchateau\AppData\Roaming\Microsoft\Windows\Recent\bookmarks.html.lnk"
+	# "C:\Users\rchateau\AppData\Roaming\Thunderbird\Profiles\xgv4ydxm.default\bookmarks.html"
 
 	filNam = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Docs\bookmarks.html"
 
@@ -51,9 +102,7 @@ def Main():
 	sys.stdout.write("<br/>\n")
 	sys.stdout.write("<br/>\n")
 
-	# sys.stdout.write("RESULT=%s<br/>" % str(dictBookmarks))
-
-	pretty(dictBookmarks)
+	PrettyBkMrks(dictBookmarks)
 
 
 	sys.stdout.write("""
