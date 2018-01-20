@@ -365,35 +365,60 @@ function D3DisplayCreation()
 
     var win = window;
     var doc = document;
-    var elt = doc.documentElement;
-    var geb = doc.getElementsByTagName('body')[0];
 
-    geb.addEventListener('drop', onDrop);
-    geb.addEventListener('dragover', onDragOver, false);
+    // For HTML documents the returned object is the <html> element.
+    var eltDocElt = doc.documentElement;
+    var gebBody = doc.getElementsByTagName('body')[0];
 
-    // First defined and non-zero values.
-    wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
-    hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
-    console.log("win.innerWidth="+win.innerWidth);
-    console.log("elt.clientWidth="+elt.clientWidth);
-    console.log("geb.clientWidth="+geb.clientWidth);
-    console.log("wScreen="+wScreen);
+    gebBody.addEventListener('drop', onDrop);
+    gebBody.addEventListener('dragover', onDragOver, false);
 
-    console.log("win.innerHeight="+win.innerHeight);
-    console.log("elt.clientHeight="+elt.clientHeight);
-    console.log("geb.clientHeight="+geb.clientHeight);
-    console.log("hScreen="+hScreen);
+    // No scrolling. Could not find a way to set the exact size of the document.
+    $("body").css("overflow", "hidden");
 
     divSvg = d3.select("#MainDiv")
-
         .classed("svg-container", true) //container class to make it responsive
+        .append("svg:svg");
 
-        .append("svg:svg")
+    function SetSvgRect()
+    {
+        /* Typical values:
+               win.innerWidth= 1892        win.innerHeight=  430
+        eltDocElt.clientWidth= 1869 eltDocElt.clientHeight=  430
+          gebBody.clientWidth= 1853  gebBody.clientHeight = 2034
+        */
+
+
+        /*
+        // win.innerWidth and win.innerHeight are the window's height and width, without toolbars/scrollbars
+        wScreen = Math.max( win.innerWidth , eltDocElt.clientWidth , gebBody.clientWidth  );
+        hScreen = Math.max( win.innerHeight, eltDocElt.clientHeight, gebBody.clientHeight );
+
+        console.log("win.innerWidth="+win.innerWidth);
+        console.log("eltDocElt.clientWidth="+eltDocElt.clientWidth);
+        console.log("gebBody.clientWidth="+gebBody.clientWidth);
+        console.log("wScreen="+wScreen);
+
+        console.log("win.innerHeight="+win.innerHeight);
+        console.log("eltDocElt.clientHeight="+eltDocElt.clientHeight);
+        console.log("gebBody.clientHeight="+gebBody.clientHeight);
+        console.log("hScreen="+hScreen);
+        */
+
+        wScreen = win.innerWidth;
+        hScreen = win.innerHeight;
+
+        wScreen -= 10;
+        hScreen -= 50;
 
         // If we do not use "viewBox" and "preserveAspectRatio".
-        .attr("width", wScreen)
-        .attr("height", hScreen)
-        ;
+        divSvg
+            .attr("width", wScreen)
+            .attr("height", hScreen)
+            ;
+    }
+
+    SetSvgRect();
 
     divSvg
         .attr("style","border-style:solid;border-width:1px;")
@@ -405,45 +430,18 @@ function D3DisplayCreation()
 
     divItselfG = divSvg.append("sgv:g");
 
-    function resizeFunction(e){
-        // get width/height with container selector (body also works)
-        // or use other method of calculating desired values
-        var width = $('#MainDiv').width();
-        var height = $('#MainDiv').height();
-        console.log("resizeFunction width="+width+" height="+height);
-        // alert("resizeFunction width="+width+" height="+height);
-
-        // set attrs and 'resume' force
-        divSvg.attr('width', width);
-        divSvg.attr('height', height);
-        // myForce.size([width, height]).resume();
-
-        //divSvg
-        //    .attr("viewBox", "0 0 " + width + " " + height)
-
-    }
-    // window.addEventListener("resize", resizeFunction);
-
-
     function updateWindow(){
-        'use strict';
-
-        wScreen = win.innerWidth || elt.clientWidth || geb.clientWidth,
-        hScreen = win.innerHeight|| elt.clientHeight|| geb.clientHeight;
-        console.log("updateWindow wScreen="+wScreen+" hScreen="+hScreen);
-
-        divSvg.attr("width", wScreen).attr("height", hScreen);
+        SetSvgRect();
     }
     d3.select(window).on('resize.updatesvg', updateWindow);
 
-    function zoomed() {
-        // console.log("zoomed d3.event.transform="+d3.event.transform);
-        divItselfG.attr("transform", d3.event.transform); // updated for d3 v4
+    function zoomFunction() {
+        divItselfG.attr("transform", d3.event.transform);
     }
 
     var zoom = d3.zoom()
         .scaleExtent([0.125, 8])
-        .on("zoom", zoomed);
+        .on("zoom", zoomFunction);
 
     divSvg.call(zoom);
 
@@ -461,8 +459,6 @@ function D3DisplayCreation()
 
 } // D3DisplayCreation
 
-// Mais pourquoi data est passe en premier ? au lieu de (error,data ) ?
-// Ah peut-etre d2 version 3 au lieu de 4 ?
 function CreateDisplay(data)
 {
     'use strict';
@@ -1069,7 +1065,7 @@ function lstLoadedUrls_DeleteOne(idxUrl)
     lstLoadedUrls.array_urls.splice(idxUrl,1);
 }
 
-var MergeRefreshMode = 2;
+const MergeRefreshMode = 2;
 
 // When the url is deleted, the timer must also be cleared.
 function TimerRefreshUrl(objLoadedUrl)
@@ -1315,6 +1311,9 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
         var urlNoJson = UrlWithoutJsonMode( theUrl )
         if( actualMergeMode != MergeRefreshMode )
         {
+            // BEWARE THIS IS SOMETIMES DUPLICATED !!! BUT NOT ALWAYS !!!!!!
+            // De toute facon ca va maintenant etre un arbre.
+
             var objLoadedUrlNew = {
                 m_loaded_url : urlNoJson,
                 m_loaded_title : data.page_title,
