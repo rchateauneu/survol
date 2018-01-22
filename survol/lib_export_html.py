@@ -15,13 +15,7 @@ from lib_properties import pc
 from lib_util import WrtAsUtf
 from sources_types import CIM_ComputerSystem
 
-if sys.version_info[0] >= 3:
-	import html
-	from html import parser
-	from html.parser import HTMLParser
-else:
-	from HTMLParser import HTMLParser
-
+# TODO: Use descriptions provided by lib_bookmark.py
 
 # This does not change the existing mode if there is one.
 # Otherwise it could erase the MIME type.
@@ -392,7 +386,7 @@ def WriteAllObjects(grph):
 
 # Apparently, a problem is that "%" gets transformed into an hexadecimal number, preventing decoding.
 def DesHex(theStr):
-	theStr = HTMLParser().unescape(theStr)
+	theStr = lib_util_HTMLParser().unescape(theStr)
 	return theStr.replace("%25","%").replace("%2F","/").replace("%5C","\\").replace("%3A",":")
 
 # TODO: Scripts should be merged together on demand.
