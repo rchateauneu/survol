@@ -31,6 +31,11 @@ try:
 except ImportError:
 	from urllib.parse import urlparse as survol_urlparse
 
+if sys.version_info >= (3,):
+	from html.parser import HTMLParser as lib_util_HTMLParser
+else:
+	from HTMLParser import HTMLParser as lib_util_HTMLParser
+
 try:
 	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
 except:
@@ -1202,7 +1207,10 @@ def GetEntityModuleNoCacheNoCatch(entity_type):
 		entity_package = "sources_types"
 		entity_name = "." + entity_type
 	# sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
-	entity_module = importlib.import_module( entity_name, entity_package)
+	if sys.version_info >= (3, 2) and sys.version_info < (3, 3):
+		entity_module = importlib.import_module( entity_package + entity_name )
+	else:
+		entity_module = importlib.import_module( entity_name, entity_package)
 	# sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
 	return entity_module
 
