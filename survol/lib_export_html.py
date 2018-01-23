@@ -386,7 +386,7 @@ def WriteAllObjects(grph):
 
 # Apparently, a problem is that "%" gets transformed into an hexadecimal number, preventing decoding.
 def DesHex(theStr):
-	theStr = lib_util_HTMLParser().unescape(theStr)
+	theStr = lib_util.survol_HTMLParser().unescape(theStr)
 	return theStr.replace("%25","%").replace("%2F","/").replace("%5C","\\").replace("%3A",":")
 
 # TODO: Scripts should be merged together on demand.

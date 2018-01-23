@@ -94,3 +94,5 @@ def ImportBookmarkFile(filNam):
 		"children" : arrChildren
 	}
 
+# TODO: Provide a lookup for URLs, insensitive ot the display mode,
+# TODO: returning description or other data given an URL.
