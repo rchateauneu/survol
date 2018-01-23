@@ -1,8 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol use cases: Windows Explorer</title>
-
-</head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol use cases: Windows Explorer</title></head>
 <body>
 <div style="text-align: center; font-family: DejaVu Sans;"><a href="index.html"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="../../LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
 <br>
@@ -15,70 +13,95 @@
 <br>
 <br>
 </span><span style="font-family: DejaVu Sans;"><br>
-This scenario is done on a plain Windows machine, where the file
+This investigation scenario is done on a plain Windows machine, where the file
 Explorer is always available. The goal is to grab as much informaiton
-as possible about its internal behaviour. The image are taken from the
-static SVG output, as it is more stable to copy/paste.<br>
+as possible about the internal behaviour of a well-known executable.
+The image are taken from the
+static SVG output, as it is more stable to copy/paste. This is a simple
+experiment on a process whose side effects and interactions with other
+resources are very simple. Please note that, no command has to be enetered, and no specific knowledge in IT is necessary.<br>
+<br></span><span style="font-family: DejaVu Sans;"><br>
 <br>
 <br>
-The first step is to find the process using the "Process tree" script:<br>
+<img style="width: 295px; height: 209px; float: left;" alt="Windows explorer process" title="Windows explorer process" src="Windows_explorer_process.PNG"></span><span style="font-family: DejaVu Sans;">The first step is to find the process using the "Process tree" script (</span><span style="font-family: DejaVu Sans;">enumerate_CIM_Process.py</span><span style="font-family: DejaVu Sans;">).
+In the graph of processes and subprocesses, because it is a SVG document, one can use the Browser
+"find" usual command to find one or several processes running "explorer.exe", but it is also possible to scroll in the graph</span>. This object is of the CIM class CIM_Process. To be exact, this is a subclass of this class.<br><span style="font-family: DejaVu Sans;">
 <br>
-http://rchateau-hp:8000/survol/sources_types/enumerate_CIM_Process.py?xid=.<br>
-<br>
-<br>
-<img style="width: 295px; height: 209px;" alt="Windows explorer process" title="Windows explorer process" src="Windows_explorer_process.PNG"><br>
-<br>
-<br>
-<br>
-</span><span style="font-family: DejaVu Sans;">Several
-scripts are available. Only the scripts which can run on a Windows
+</span><span style="font-family: DejaVu Sans;"><br><br><br><br><br><br><br><br><br><br>Several
+scripts are available to run on this process. Only the scripts which can run on a Windows
 machine are displayed.<br>
 <img style="width: 925px; height: 323px;" alt="Available scripts" title="Available scripts" src="Available_scripts.PNG"><br>
 <br>
-Of course, the Java scripts will not be called, as Explorer is written
+Of course, the script related to Java processes are not worth being&nbsp;called, as Explorer is written
 only in C. Still, a C process could call Java libraries, therefore in
 some tituations these scripts are usable.<br>
+<br><br>
 <br>
-Let's have a look to the HTTP urls this process contains:<br>
-<br>
-<img style="width: 241px; height: 585px;" alt="URLs in memory" title="URLs in memory" src="urls.PNG"><br>
-<br>
-The script displaying sockets do not return anything.<br>
-On the other hand, the list of memory mapped -files is really huge; It
+<img style="width: 227px; height: 190px; float: left;" alt="URLs in process heap." title="URLs in process heap." src="urls.PNG"></span><span style="font-family: DejaVu Sans;">The scripts in the folder "Regex matching in heap" scan the memory
+process to detect some specific strinss, using regular expressions.
+Let's have a look to some of&nbsp;the HTTP urls this process contains. </span>It is not entirely clear why this and that URL appears in the process memory.<br><br>URLs
+do not have a class name in the CIM terminology. This is not a
+difficulty for Survol which very easily adds its own classes to CIM
+ones: Each Survol class is a Python module, with very few requirements.<br><br><br><br><br><br><br><br><span style="font-family: DejaVu Sans;">
+<br><br>
+<img style="width: 249px; height: 76px; float: right;" alt="Tortoise" title="Tortoise" src="Tortoise.PNG"></span><span style="font-family: DejaVu Sans;">
+The script displaying sockets do not return anything. On the other hand, the list of memory mapped-files is really huge; It
 would be nice to display them in a list instead of a graph. Several of
-them related to TortoiseSVN and TortoiseGIT:<br>
-<br>
-<img style="width: 249px; height: 76px;" alt="Tortoise" title="Tortoise" src="Tortoise.PNG"><br>
-<br>
-It is not uninteresting to see that this DLL is opened by several
+them related to TortoiseSVN and TortoiseGIT, for example this library. We will see why we think it is dynamically loaded.</span>
+Memory-mapped files are a different entity than plain files, because
+they convey more information such as the amount of memory mapped, the
+addresses etc... Still, there is a one-to-one correspondance with their
+data file names, which is why they have the same name. <br><span style="font-family: DejaVu Sans;"><br>
+<br><br>
+<img style="width: 689px; height: 508px; float: left;" alt="Processes mapping TortoiseGit.dll" title="Processes mapping TortoiseGit.dll" src="ProcTortoise.PNG"><br>
+</span><span style="font-family: DejaVu Sans;">It is not uninteresting to see that this DLL is also opened by several
 processes. But why does Snipping Tool accesses this DLL ? This can only
 be an indirect load because it is not part of the static dependency of
-this executable.<br>
-<img style="width: 689px; height: 508px;" alt="Processes mapping TortoiseGit.dll" title="Processes mapping TortoiseGit.dll" src="ProcTortoise.PNG"><br>
-<br>
-<br>
-Back to Windows Explorer. Whcih file does it open ? Unsurprisingly,
-cache files containing icons:<br>
+this executable. It is of course possible to click on each process or
+any other resource to have a better idea of possible interactions.</span><br><span style="font-family: DejaVu Sans;"><br>One can see the associated CIM_DataFile object associated to the mapped file. It has a standard CIM class.<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>Back
+to Windows Explorer. Which file does it open ? Unsurprisingly,
+cache files containing icons, if we believe the hint given by their
+names. At the moment, there is no script to decode these (They are no
+SQLLite database files despite the extensions).<br>
 <br>
 <img style="width: 486px; height: 161px;" alt="Open files" title="Open files" src="open_files.PNG"><br>
 <br>
 <br>
 <br>
-<img style="width: 260px; height: 373px;" alt="Filenames in process heap" title="Filenames in process heap" src="files_in_heap.PNG"></span><span style="font-family: DejaVu Sans;">Without too much
-surprises, we can see the file names which are contained in the memory
-process. We can find the files which are currently being displayed and,
-of courses, their names appear in the heap. What is more interesting is
-that they apprently are not stored in a process cache, but simply
-resides in the operating system memory.</span><br>
+<img style="width: 260px; height: 373px; float: right;" alt="Filenames in process heap" title="Filenames in process heap" src="files_in_heap.PNG"></span><span style="font-family: DejaVu Sans;">Without too much
+surprise, we can see the file names contained in the memory
+process. We can find the files which are currently being displayed in the user interface and,
+of course, their names appear in the heap. What is more interesting is
+that they apparently are not stored in a process cache, but simply
+resides in the operating system memory.</span>
+A possible explanation is that Explorer would use the Operating System
+cache.<br><br>By
+default, the script selects only the filenames whose file
+actually exist. So it is possible to click on each filename and
+investigate further, or simply display it if it has a MIME type. But it
+is possible to toggle this flag, and in this case non-existent
+filenames will be displayed.<br><br>The
+logic of searching the process memory for specific patterns is very
+easy to extend to new expressions. At the moment, this can detect SQL
+queries, HTTP URLs, ODBC connections strings, file names and COM
+classes, once a specific characters patterns is defined.<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <br>
-Let's have a look at the executable file itself:<br>
+Now, let's have a look at the executable file itself, and the possibilities offered by Survol:<br>
 <img style="width: 689px; height: 172px;" alt="Scripts usable on the executable" title="Scripts usable on the executable" src="executable_scripts.PNG"><br>
-Explorer.exe contains several icons ...<br>
-<img style="width: 93px; height: 122px;" alt="Icons" title="Icons" src="Explorer_icons.PNG"><br>
-There is also a script which displays the complete graph of DLLs and
-imported symbols. This is quite heavy but is exhausite, and for example
-shows that the Tortoise library can only have been loaded dynamically: <br>
-<img style="width: 471px; height: 322px;" alt="Import symbols" title="Import symbols" src="Import_Symbols.PNG"><br>
+Explorer.exe contains several icons ... This is not a very useful
+information in itself, but the methodology can be extended to extract
+any type of information from a CIM_Datafile object.<br>
+<img style="width: 93px; height: 122px;" alt="Icons" title="Icons" src="Explorer_icons.PNG"><br><br><br><br>
+<img style="width: 471px; height: 322px; float: right;" alt="Import symbols" title="Import symbols" src="Import_Symbols.PNG">
+There is also a script which displays the complete graph of DLLs (Dynamic Link Library) and
+imported symbols from a PE (Portable Executable format) file. This is quite heavy but is exhaustive, and for example
+shows that the Tortoise library can only have been loaded dynamically, as it cannot be found here<br><br>Each
+DLL listed in this diagram can be further browsed by clicking on it.
+Also, each symbol of each DLL can also be explored, because it is an
+object type with its properties and scripts.<br><br>A future plan is to
+disassemble the code of each entry point, to extract the call graph
+(Internal jumps and calls to external functions), but this is not
+available yet.&nbsp;<br><br><br><br><br><br><br><br><br><br><br>
 <br><span style="font-family: DejaVu Sans;"><br>
 Return to <a href="../../survol.htm">Survol</a>, or see more</span><span style="font-family: DejaVu Sans;"> </span><span style="font-family: DejaVu Sans;"><a href="../../survol_use_cases.html">use cases</a>,</span><span style="font-family: DejaVu Sans;"> </span><span style="font-family: DejaVu Sans;">or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="../../doxygen_docs/html/index.html">here</a>.</span><br>
 <br>
