@@ -1033,8 +1033,8 @@ This is an object array with some extra members.
         m_loaded_nodes_length
         m_loaded_links_length
         m_refresh_rate
-    dict_hosts{}                // Dictonary of unique hosts of the URLs.
-                                // It always grows: Host are never removed, there are not may of them.
+    dict_hosts{}                // Dictionary of unique hosts of the URLs.
+                                // It always grows: Hosts are never removed, there are not many of them.
                                 // It simply maps to a object containing graphic data.
         m_host_color            // An unique color string for nodes of this host.
 
@@ -1046,6 +1046,8 @@ var lstLoadedUrls = {
     number_nodes:0,
     number_links:0,
     array_urls: [],
+
+    // This is the list of unique hosts of the URLs.
     dict_hosts: {}
 };
 
