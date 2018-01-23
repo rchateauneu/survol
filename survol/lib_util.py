@@ -12,10 +12,12 @@ import os
 import re
 import sys
 import cgi
-import lib_kbase
+import time
 import socket
 import base64
 import importlib
+
+import lib_kbase
 
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 # TODO: Use module six.
@@ -1362,4 +1364,7 @@ def SplitTextTitleRest(title):
 	page_title_rest = " ".join( title_split[1:] ).strip()
 
 	return (page_title_first,page_title_rest)
+
+def TimeStamp():
+	return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
