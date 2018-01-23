@@ -13,97 +13,111 @@
 <br>
 <br>
 </span><span style="font-family: DejaVu Sans;"><br>
-This investigation scenario is done on a plain Windows machine, where the file
-Explorer is always available. The goal is to grab as much informaiton
+This investigation scenario is done on a plain Windows machine, where
+the file
+Explorer is always available. The goal is to grab as much information
 as possible about the internal behaviour of a well-known executable.
 The image are taken from the
 static SVG output, as it is more stable to copy/paste. This is a simple
 experiment on a process whose side effects and interactions with other
-resources are very simple. Please note that, no command has to be enetered, and no specific knowledge in IT is necessary.<br>
-<br></span><span style="font-family: DejaVu Sans;"><br>
-<br>
-<br>
-<img style="width: 295px; height: 209px; float: left;" alt="Windows explorer process" title="Windows explorer process" src="Windows_explorer_process.PNG"></span><span style="font-family: DejaVu Sans;">The first step is to find the process using the "Process tree" script (</span><span style="font-family: DejaVu Sans;">enumerate_CIM_Process.py</span><span style="font-family: DejaVu Sans;">).
-In the graph of processes and subprocesses, because it is a SVG document, one can use the Browser
-"find" usual command to find one or several processes running "explorer.exe", but it is also possible to scroll in the graph</span>. This object is of the CIM class CIM_Process. To be exact, this is a subclass of this class.<br><span style="font-family: DejaVu Sans;">
-<br>
-</span><span style="font-family: DejaVu Sans;"><br><br><br><br><br><br><br><br><br><br>Several
+resources are more or less known in advance, and quite simple. Please
+note that, no command has to be entered, and no specific knowledge in
+IT is necessary.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 295px; height: 209px; float: left;" alt="Windows explorer process" title="Windows explorer process" src="Windows_explorer_process.PNG">The
+first step is to find the process using the "Process tree" script
+(enumerate_CIM_Process.py).
+In the graph of processes and subprocesses, because it is a SVG
+document, one can use the Browser
+"find" usual command to find one or several processes running
+"explorer.exe", but it is also possible to scroll in the graph. This
+object is of the CIM class CIM_Process. To be exact, this is a subclass
+of this class.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Several
 scripts are available to run on this process. Only the scripts which can run on a Windows
-machine are displayed.<br>
-<img style="width: 925px; height: 323px;" alt="Available scripts" title="Available scripts" src="Available_scripts.PNG"><br>
-<br>
-Of course, the script related to Java processes are not worth being&nbsp;called, as Explorer is written
+machine are displayed.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 925px; height: 323px;" alt="Available scripts" title="Available scripts" src="Available_scripts.PNG"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+Of course, the scripts related to Java processes are not worth being&nbsp;called, as Explorer is written
 only in C. Still, a C process could call Java libraries, therefore in
-some tituations these scripts are usable.<br>
-<br><br>
-<br>
-<img style="width: 227px; height: 190px; float: left;" alt="URLs in process heap." title="URLs in process heap." src="urls.PNG"></span><span style="font-family: DejaVu Sans;">The scripts in the folder "Regex matching in heap" scan the memory
-process to detect some specific strinss, using regular expressions.
-Let's have a look to some of&nbsp;the HTTP urls this process contains. </span>It is not entirely clear why this and that URL appears in the process memory.<br><br>URLs
+some tituations these scripts are usable.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 227px; height: 190px; float: left;" alt="URLs in process heap." title="URLs in process heap." src="urls.PNG">The
+scripts in the folder "Regex matching in heap" scan the memory
+process to detect some specific strings, using regular expressions.
+Let's have a look to some of&nbsp;the HTTP urls this process contains.
+It is not entirely clear why this and that URL appears in the process
+memory.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">URLs
 do not have a class name in the CIM terminology. This is not a
 difficulty for Survol which very easily adds its own classes to CIM
-ones: Each Survol class is a Python module, with very few requirements.<br><br><br><br><br><br><br><br><span style="font-family: DejaVu Sans;">
-<br><br>
-<img style="width: 249px; height: 76px; float: right;" alt="Tortoise" title="Tortoise" src="Tortoise.PNG"></span><span style="font-family: DejaVu Sans;">
-The script displaying sockets do not return anything. On the other hand, the list of memory mapped-files is really huge; It
+ones: Each Survol class is a Python module, with very few requirements.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 249px; height: 76px; float: right;" alt="Tortoise" title="Tortoise" src="Tortoise.PNG">
+The script displaying sockets do not return anything. On the other
+hand, the list of memory mapped-files is really huge; It
 would be nice to display them in a list instead of a graph. Several of
-them related to TortoiseSVN and TortoiseGIT, for example this library. We will see why we think it is dynamically loaded.</span>
-Memory-mapped files are a different entity than plain files, because
-they convey more information such as the amount of memory mapped, the
-addresses etc... Still, there is a one-to-one correspondance with their
-data file names, which is why they have the same name. <br><span style="font-family: DejaVu Sans;"><br>
-<br><br>
-<img style="width: 689px; height: 508px; float: left;" alt="Processes mapping TortoiseGit.dll" title="Processes mapping TortoiseGit.dll" src="ProcTortoise.PNG"><br>
-</span><span style="font-family: DejaVu Sans;">It is not uninteresting to see that this DLL is also opened by several
+them related to TortoiseSVN and TortoiseGIT, for example this library.
+We will see why we think it is dynamically loaded. Memory-mapped files
+are a different entity than plain files, because they convey more
+information such as the amount of memory mapped, the addresses etc...
+Still, there is a one-to-one correspondance with their data file names,
+which is why they have the same name. </span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 689px; height: 508px; float: left;" alt="Processes mapping TortoiseGit.dll" title="Processes mapping TortoiseGit.dll" src="ProcTortoise.PNG"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+It is not uninteresting to see that this DLL is also opened by several
 processes. But why does Snipping Tool accesses this DLL ? This can only
 be an indirect load because it is not part of the static dependency of
 this executable. It is of course possible to click on each process or
-any other resource to have a better idea of possible interactions.</span><br><span style="font-family: DejaVu Sans;"><br>One can see the associated CIM_DataFile object associated to the mapped file. It has a standard CIM class.<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>Back
+any other resource to have a better idea of possible interactions.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">One can see the associated CIM_DataFile object associated to the mapped file. It has a standard CIM class.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Back
 to Windows Explorer. Which file does it open ? Unsurprisingly,
 cache files containing icons, if we believe the hint given by their
 names. At the moment, there is no script to decode these (They are no
-SQLLite database files despite the extensions).<br>
-<br>
-<img style="width: 486px; height: 161px;" alt="Open files" title="Open files" src="open_files.PNG"><br>
-<br>
-<br>
-<br>
-<img style="width: 260px; height: 373px; float: right;" alt="Filenames in process heap" title="Filenames in process heap" src="files_in_heap.PNG"></span><span style="font-family: DejaVu Sans;">Without too much
+SQLLite database files despite the extensions).</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 486px; height: 161px;" alt="Open files" title="Open files" src="open_files.PNG"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 260px; height: 373px; float: right;" alt="Filenames in process heap" title="Filenames in process heap" src="files_in_heap.PNG">Without too much
 surprise, we can see the file names contained in the memory
 process. We can find the files which are currently being displayed in the user interface and,
 of course, their names appear in the heap. What is more interesting is
 that they apparently are not stored in a process cache, but simply
-resides in the operating system memory.</span>
+resides in the operating system memory.
 A possible explanation is that Explorer would use the Operating System
-cache.<br><br>By
+cache.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">By
 default, the script selects only the filenames whose file
 actually exist. So it is possible to click on each filename and
 investigate further, or simply display it if it has a MIME type. But it
 is possible to toggle this flag, and in this case non-existent
-filenames will be displayed.<br><br>The
+filenames will be displayed.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">The
 logic of searching the process memory for specific patterns is very
 easy to extend to new expressions. At the moment, this can detect SQL
 queries, HTTP URLs, ODBC connections strings, file names and COM
-classes, once a specific characters patterns is defined.<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<br>
-Now, let's have a look at the executable file itself, and the possibilities offered by Survol:<br>
-<img style="width: 689px; height: 172px;" alt="Scripts usable on the executable" title="Scripts usable on the executable" src="executable_scripts.PNG"><br>
+classes, once a specific characters patterns is defined.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+Now, let's have a look at the executable file itself, and the possibilities offered by Survol:</span><br style="font-family: DejaVu Sans;"><img style="width: 689px; height: 172px; font-family: DejaVu Sans;" alt="Scripts usable on the executable" title="Scripts usable on the executable" src="executable_scripts.PNG"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
 Explorer.exe contains several icons ... This is not a very useful
 information in itself, but the methodology can be extended to extract
-any type of information from a CIM_Datafile object.<br>
-<img style="width: 93px; height: 122px;" alt="Icons" title="Icons" src="Explorer_icons.PNG"><br><br><br><br>
-<img style="width: 471px; height: 322px; float: right;" alt="Import symbols" title="Import symbols" src="Import_Symbols.PNG">
+any type of information from a CIM_Datafile object.</span><br style="font-family: DejaVu Sans;"><img style="width: 93px; height: 122px; font-family: DejaVu Sans;" alt="Icons" title="Icons" src="Explorer_icons.PNG"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><img style="width: 471px; height: 322px; float: right; font-family: DejaVu Sans;" alt="Import symbols" title="Import symbols" src="Import_Symbols.PNG"><span style="font-family: DejaVu Sans;">
 There is also a script which displays the complete graph of DLLs (Dynamic Link Library) and
 imported symbols from a PE (Portable Executable format) file. This is quite heavy but is exhaustive, and for example
-shows that the Tortoise library can only have been loaded dynamically, as it cannot be found here<br><br>Each
+shows that the Tortoise library can only have been loaded dynamically, as it cannot be found here</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Each
 DLL listed in this diagram can be further browsed by clicking on it.
 Also, each symbol of each DLL can also be explored, because it is an
-object type with its properties and scripts.<br><br>A future plan is to
-disassemble the code of each entry point, to extract the call graph
-(Internal jumps and calls to external functions), but this is not
-available yet.&nbsp;<br><br><br><br><br><br><br><br><br><br><br>
-<br><span style="font-family: DejaVu Sans;"><br>
-Return to <a href="../../survol.htm">Survol</a>, or see more</span><span style="font-family: DejaVu Sans;"> </span><span style="font-family: DejaVu Sans;"><a href="../../survol_use_cases.html">use cases</a>,</span><span style="font-family: DejaVu Sans;"> </span><span style="font-family: DejaVu Sans;">or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="../../doxygen_docs/html/index.html">here</a>.</span><br>
+object type with its properties and scripts.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">A
+future plan is to disassemble the code of each entry point, to extract
+the call graph (Internal jumps and calls to external functions), but
+this is not available yet.&nbsp;</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+Return to <a href="../../survol.htm">Survol</a>, or see more <a href="../../survol_use_cases.html">use cases</a>, or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="../../doxygen_docs/html/index.html">here</a>.</span><br style="font-family: DejaVu Sans;">
+
+
+
+
+
 <br>
 <span style="font-family: DejaVu Sans;"></span>
 </body></html>
