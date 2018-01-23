@@ -32,9 +32,9 @@ except ImportError:
 	from urllib.parse import urlparse as survol_urlparse
 
 if sys.version_info >= (3,):
-	from html.parser import HTMLParser as lib_util_HTMLParser
+	from html.parser import HTMLParser as survol_HTMLParser
 else:
-	from HTMLParser import HTMLParser as lib_util_HTMLParser
+	from HTMLParser import HTMLParser as survol_HTMLParser
 
 try:
 	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
