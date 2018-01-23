@@ -1353,7 +1353,7 @@ class CgiEnv():
 			try:
 				self.m_parameters[paramKey]
 			except KeyError:
-				ErrorMessageHrml("Parameter %s should be defined for a link"%paramKey)
+				ErrorMessageHtml("Parameter %s should be defined for a link"%paramKey)
 			prmsCopy[paramKey] = paramsMap[paramKey]
 
 		sys.stderr.write("prmsCopy=%s\n"%str(prmsCopy))
