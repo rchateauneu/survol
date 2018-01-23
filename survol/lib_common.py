@@ -159,19 +159,6 @@ def ExternalToTitle(extUrl):
 		# sys.stderr.write("extUrl=%s\n"%extUrl)
 		return "Literal:"+extUrl
 
-	# TODO: Ca vient de FileUriMime()
-	# Voir scripts_to_titles dans lib_naming.py
-	# "http://127.0.0.1:8000/survol/file_to_mime.py?xid=file.Id=C%3A%2F%2FUsers%2Frchateau%2FMavica%2FConstantin.20120225.JPG"
-	# Que faire pour extraire le type MIME ?
-	# (1) Extraire le nom du fichier et calculer le type ?
-	# (2) Ou utiliser l extension ? Mais ca revient au meme.
-	# (3) Ou bien une solution plus generale est de mettre dans l'URL un texte:
-	#     "http://127.0.0.1:8000/survol/file_to_mime.py?txt="Tralala"?xid=file.Id ..."
-	#     Ainsi, ParseEntityUri() et ExternalToTitle() n'auront qu'a trafiquer l'URL.
-	# "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Icons.16x16\fileicons.chromefans.org\divx.png"
-	# This cannot work this way.
-	# return '<IMG SRC="Icons.16x16/fileicons.chromefans.org/divx.png" />'
-
 # These properties must have their object displayed not as a separated node,
 # but as a link displayed with a string, a plain HREF.
 FlatPropertertiesList = [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]
