@@ -17,5 +17,5 @@ def EntityOntology():
 def MakeUri(configFilename,cronId,triggerName):
 	return lib_common.gUriGen.UriMakeFromDict("AC2/trigger", { "File" : configFilename, "CronId":cronId,"Trigger":triggerName } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return AC2.ConfigFileNameClean(entity_ids_arr[0]) + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]
