@@ -533,21 +533,24 @@ def DisplayHtmlTextFooter():
 	This is the common Survol footer.
 	"""
 
+	# See lib_exports.LegendFooter, similar footer.
+
+	# This needs a directory which depends on the HTTP hosting, such as on OVH.
+	urlIndex = lib_exports.UrlWWW("index.htm")
+	urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
+	urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
+
 	wrtFmt = """
 	<br>
-	<table width="100%"><tr>
-	<td><a href="index.htm">Survol home</a></td>
-	<td><a href="edit_credentials.py">Credentials</a></td>
-	<td><a href="edit_configuration.py">Configuration</a></td>
+	<table width="100%%"><tr>
+	<td><a href="%s">Survol home</a></td>
+	<td><a href="%s">Configuration</a></td>
+	<td><a href="%s">Credentials</a></td>
 	<td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017</i></td>
 	</tr></table>
 	"""
 
-	# This needs a directory whichdepends on the HTTP hosting.
-	urlIndex = lib_exports.UrlWWW("index.htm")
-
-	# With this trick, the footer can be used as is in HTML pages.
-	wrtTxt = wrtFmt.replace("index.htm",urlIndex)
+	wrtTxt = wrtFmt % (urlIndex,urlEdtConfiguration,urlEdtCredentials)
 	WrtAsUtf(wrtTxt)
 
 def Grph2Html( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
