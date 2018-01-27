@@ -2,6 +2,7 @@
 Callable or data library symbol
 """
 
+import sys
 import cgi
 import lib_properties
 from lib_properties import pc
@@ -12,7 +13,7 @@ import lib_common
 def EntityOntology():
 	return ( ["Name","File"], )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
 	try:
 		# Trailing padding.

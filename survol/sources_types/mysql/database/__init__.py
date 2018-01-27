@@ -12,7 +12,7 @@ def EntityOntology():
 def MakeUri(instanceName,dbName):
 	return lib_common.gUriGen.UriMakeFromDict("mysql/database", { "Instance": instanceName, "Database" : dbName } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[1]+ "@" + entity_ids_arr[0]
 
 def AddInfo(grph,node,entity_ids_arr):
