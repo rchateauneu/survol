@@ -17,7 +17,7 @@ def MakeUri(urlName,vhostName):
 # According to the API documentation:
 # "If the vhost is '/', note that it will be translated to '%2F' to conform to URL encoding requirements."
 # https://pyrabbit.readthedocs.io/en/latest/api.html#pyrabbit.api.Client.get_queues
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[0] + "/" + entity_ids_arr[1]
 
 # >>> cl.get_vhost("/")

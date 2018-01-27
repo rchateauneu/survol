@@ -15,7 +15,7 @@ def MakeUri(dsnName):
 	return lib_common.gUriGen.UriMakeFromDict("sqlserver/dsn", { survol_odbc.CgiPropertyDsn() : dsnName })
 
 # So the values of keys "PWD" and "PASSWORD" are replaced by "xxx" etc...
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	# sys.stderr.write("EntityName entity_ids_arr=%s\n"%str(entity_ids_arr))
 	return survol_odbc.CgiPropertyDsn().ValueDisplay(entity_ids_arr[0])
 

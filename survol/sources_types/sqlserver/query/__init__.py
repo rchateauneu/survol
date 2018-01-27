@@ -68,7 +68,7 @@ def QueryToNodesList(sqlQuery,connectionKW,list_of_tables,defaultSchemaName=None
 
 # Si on passait les parametres avec un dict plutot qu tableau, ce serait plus facile
 # de faire appel a la "classe de base" sql/query.
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	sys.stderr.write("EntityName entity_ids_arr=%s\n"%str(entity_ids_arr))
 	sqlQuery = entity_ids_arr[0]
 	dsnNam = entity_ids_arr[1]

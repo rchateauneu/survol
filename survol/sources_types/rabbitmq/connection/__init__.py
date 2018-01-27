@@ -20,7 +20,7 @@ def MakeUri(urlName,connectionName):
 	return lib_common.gUriGen.UriMakeFromDict("rabbitmq/connection", { "Url" : urlName, "Connection" : connectionName } )
 
 # '127.0.0.1:51532 -> 127.0.0.1:5672'
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[0] + "/" + entity_ids_arr[1].replace(">","&gt;")
 
 # Adds the sockets, as their address is embedded in the connection name,

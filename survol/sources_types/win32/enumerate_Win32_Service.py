@@ -7,7 +7,7 @@ Windows services
 import sys
 import lib_common
 import lib_util
-from lib_common import pc
+from lib_properties import pc
 from sources_types import Win32_Service
 
 def Main():

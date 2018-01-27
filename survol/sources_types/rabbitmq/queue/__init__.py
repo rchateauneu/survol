@@ -15,7 +15,7 @@ def EntityOntology():
 def MakeUri(urlName,vhostName,queueName):
 	return lib_common.gUriGen.UriMakeFromDict("rabbitmq/queue", { "Url" : urlName, "VHost" : vhostName, "Queue" : queueName } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[0] + "/" + entity_ids_arr[1] + "/" + entity_ids_arr[2]
 
 def AddInfo(grph,node,entity_ids_arr):

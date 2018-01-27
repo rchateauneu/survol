@@ -10,7 +10,7 @@ from lib_properties import pc
 def EntityOntology():
     return ( ["Name","Domain"], )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
 	# The type of some entities can be deduced from their name.
 	return entity_id

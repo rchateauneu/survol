@@ -23,7 +23,7 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	grph.add( ( nodeDb, pc.property_oracle_schema, node ) )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[0] + "." + entity_ids_arr[1]
 
 # SQL> select distinct object_type from dba_objects;

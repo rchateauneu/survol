@@ -14,5 +14,5 @@ def EntityOntology():
 def MakeUri(fileName,viewName):
 	return lib_common.gUriGen.UriMakeFromDict("sqlite/view", { "File" : fileName, "View" : viewName } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[1] + "@" + survol_sqlite.ShortenSqliteFilename(entity_ids_arr[0])

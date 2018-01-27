@@ -13,5 +13,5 @@ def EntityOntology():
 def MakeUri(urlName,userName):
 	return lib_common.gUriGen.UriMakeFromDict("rabbitmq/user", { "Url" : urlName, "User" : userName } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[0] + "/" + entity_ids_arr[1]
