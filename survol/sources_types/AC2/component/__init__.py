@@ -29,7 +29,7 @@ def AddInfo(grph,node,entity_ids_arr):
 # Pointer vers le HOST en parsant le fichier de conf.
 
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return AC2.ConfigFileNameClean(entity_ids_arr[0]) + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]
 
 def AddPropIfThere(grph,compNode,elt_component,propNamXml,propRdf):

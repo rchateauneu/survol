@@ -25,7 +25,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	nodeFile = lib_common.gUriGen.FileUri(configName)
 	grph.add( ( node, lib_common.MakeProp("Configuration file"), nodeFile ) )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return AC2.ConfigFileNameClean(entity_ids_arr[0])
 
 
