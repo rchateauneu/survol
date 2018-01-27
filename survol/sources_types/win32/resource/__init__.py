@@ -49,7 +49,7 @@ def EntityOntology():
 	return ( ["Name","GroupName"], )
 
 # Given a resources characteristics (File name and group), it returns a string suitable for printing.
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
 	group_name = entity_ids_arr[1]
 	# A file name can be very long, so it is truncated.

@@ -23,5 +23,5 @@ def MakeUri(dsnNam,schemaName,tableName):
 	# sys.stderr.write("sqlserver/table tableName=%s\n"%tableName)
 	return lib_common.gUriGen.UriMakeFromDict("sqlserver/table", { sqlserver_dsn.CgiPropertyDsn() : dsnNam, "Schema" : schemaName, "Table" : tableName } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]

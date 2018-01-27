@@ -8,7 +8,7 @@ from __future__ import generators
 import lib_util
 import lib_uris
 import lib_common
-from lib_common import pc
+from lib_properties import pc
 
 import win32net
 import win32security

@@ -24,5 +24,5 @@ def EntityOntology():
 def MakeUri(dbName,schemaName,tableName):
 	return lib_common.gUriGen.UriMakeFromDict("oracle/table", { "Db" : dbName, "Schema" : schemaName, "Table" : tableName } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]
