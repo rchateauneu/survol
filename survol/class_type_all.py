@@ -192,7 +192,7 @@ def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 			localClassUrl = lib_util.ScriptizeCimom( fullScriptNam, className, entity_host )
 
 			localClassNode =  lib_common.NodeUrl( localClassUrl )
-			grph.add( ( rootNode, lib_common.pc.property_directory, localClassNode ) )
+			grph.add( ( rootNode, pc.property_directory, localClassNode ) )
 
 def Main():
 	# This can process remote hosts because it calls scripts which can access remote data. I hope.
@@ -223,7 +223,7 @@ def Main():
 	entity_module = lib_util.GetEntityModule(className)
 	entDoc = entity_module.__doc__
 	if entDoc:
-		grph.add( ( rootNode, lib_common.pc.property_information, lib_common.NodeLiteral(entDoc) ) )
+		grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(entDoc) ) )
 
 	CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 

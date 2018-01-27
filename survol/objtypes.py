@@ -39,7 +39,7 @@ def Main():
 				intermedType = entity_type[ : nextSlash ]
 
 			entityNode = lib_util.EntityClassNode(intermedType)
-			grph.add( ( tmpNode, lib_common.pc.property_directory, entityNode ) )
+			grph.add( ( tmpNode, pc.property_directory, entityNode ) )
 
 			try:
 				# This reloads all classes without cache because if it does not load
@@ -51,7 +51,7 @@ def Main():
 				entDoc = "Error:"+str(exc)
 
 			if entDoc:
-				grph.add( ( entityNode, lib_common.pc.property_information, lib_common.NodeLiteral(entDoc) ) )
+				grph.add( ( entityNode, pc.property_information, lib_common.NodeLiteral(entDoc) ) )
 
 			# TODO: If this is a CIM class, add WMI or WBEM documentation, or add the link.
 
