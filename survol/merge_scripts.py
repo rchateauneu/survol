@@ -23,7 +23,7 @@ def Main():
 
 	arguments = cgi.FieldStorage()
 
-	# The display mode is yaken now, otherwise the CGI arguments are later destroyed, in this script.
+	# The display mode is read now, otherwise the CGI arguments are later destroyed, in this script.
 	theMode = lib_util.GuessDisplayMode()
 	sys.stderr.write("merge_scripts.py theMode=%s\n"%(theMode))
 
