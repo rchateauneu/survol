@@ -8,7 +8,7 @@ import lib_common
 def EntityOntology():
 	return ( ["Name","Section"], )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	fileName = entity_ids_arr[0]
 	sectionName = entity_ids_arr[1]
 

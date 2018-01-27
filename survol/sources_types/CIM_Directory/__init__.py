@@ -11,7 +11,7 @@ AddInfo = CIM_DataFile.AddInfo
 def EntityOntology():
 	return ( ["Name"], )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
 	# A file name can be very long, so it is truncated.
 	file_basename = os.path.basename(entity_id)
