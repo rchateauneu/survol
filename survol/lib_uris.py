@@ -134,6 +134,10 @@ class LocalBox:
 			exc = sys.exc_info()[1]
 			sys.stderr.write("HostnameUri hostAddr=%s. Caught: %s\n" % (hostAddr, str(exc) ) )
 			hostName = hostAddr
+
+		# Hostnames are case-insensitive, RFC4343 https://tools.ietf.org/html/rfc4343
+		hostName = hostName.lower()
+
 		return self.UriMake("CIM_ComputerSystem",hostName)
 
 	# TODO: THIS WILL NOT WORK IF REMOTE LIB, BECAUSE IT WRAPS A RemoteXXX
