@@ -51,6 +51,9 @@ def Main():
 		urlPrefix = "sources_types/"
 		idxHtbin = urlNoArgs.find(urlPrefix)
 		if idxHtbin == -1:
+			# TODO: This happens if the URL is a main presentation page of an object,
+			# instead of a script: Something like "survol/entity.py/entity.py?xid=..."
+			# This should be fixed but is not an issue.
 			sys.stderr.write("merge: SHOULD NOT HAPPEN url=%s\n"%complete_url)
 			urlPathShort = "INVALID_MERGED_URL"
 		else:
