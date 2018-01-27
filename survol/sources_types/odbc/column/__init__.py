@@ -23,6 +23,6 @@ def AddInfo(grph,node,entity_ids_arr):
 	grph.add( ( nodeTable, lib_common.MakeProp("ODBC table"), node ) )
 
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	# sys.stderr.write("EntityName entity_ids_arr=%s\n"%str(entity_ids_arr))
 	return survol_odbc.CgiPropertyDsn().ValueShortDisplay(entity_ids_arr[0]) + "::" + entity_ids_arr[1] + "." + entity_ids_arr[2]

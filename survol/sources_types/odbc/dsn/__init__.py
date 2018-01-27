@@ -30,7 +30,7 @@ def MakeUri(dsnName):
 	# sys.stderr.write("MakeUri dsnName=%s\n"%dsnName)
 	return lib_common.gUriGen.UriMakeFromDict("odbc/dsn", { survol_odbc.CgiPropertyDsn() : dsnName })
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	# sys.stderr.write("EntityName entity_ids_arr=%s\n"%str(entity_ids_arr))
 	return survol_odbc.CgiPropertyDsn().ValueDisplay(entity_ids_arr[0])
 
