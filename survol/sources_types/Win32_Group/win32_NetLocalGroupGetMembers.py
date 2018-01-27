@@ -121,7 +121,8 @@ def Main():
 
 				if servName_or_None:
 					nodeMemberRemote = MemberNameToNodeRemote(sidUsage,memberName,servName_or_None,serverBox)
-					grph.add( (memberNode, pc.property_equivalent, nodeMemberRemote ) )
+					# TODO: Instead, both object must have the same universal alias
+					grph.add( (memberNode, pc.property_alias, nodeMemberRemote ) )
 
 
 

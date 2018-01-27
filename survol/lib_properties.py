@@ -80,8 +80,6 @@ pc.property_partition            = MakeProp("partition")
 pc.property_mount_options        = MakeProp("options")
 pc.property_file_system          = MakeProp("file_system")
 pc.property_cwd                  = MakeProp("cwd")
-# TODO: APPARENTLY NOT USED ...
-pc.property_symbol_oradb         = MakeProp("oradb")
 pc.property_oracle_db            = MakeProp("oracle_db")
 pc.property_oracle_schema        = MakeProp("schema")
 pc.property_oracle_session       = MakeProp("session")
@@ -139,17 +137,20 @@ pc.property_cim_subnamespace     = MakeProp("cim_namespace")
 pc.property_class_instance       = MakeProp("instance")
 pc.property_subclass             = MakeProp("subclass")
 pc.property_cim_subclass         = MakeProp("cim subclass")
-pc.property_equivalent           = MakeProp("equivalent")
+pc.property_alias                = MakeProp("alias")
 
-# Couleur des aretes.
-# TODO: L utiliser pour les colonnes des tables.
-# TODO: Faire varier la couleur en ayant des arguments CGI.
+dictPropertiesGraphAttributes = {
+	pc.property_script: "GREEN",
+	pc.property_rdf_data_nolist1: "BLUE",
+	pc.property_socket_end: "ORANGE",
+	pc.property_alias: "RED"
+}
+
+# TODO: It should be used for tables columns colors.
+# TODO: Change the color based on arguments.
 def prop_color(prop):
-	if prop == pc.property_script:
-		return "RED"
-	if prop == pc.property_rdf_data_nolist1:
-		return "BLUE"
-	if prop == pc.property_socket_end:
-		return "ORANGE"
-	return "PURPLE"
+	try:
+		return dictPropertiesGraphAttributes[prop]
+	except KeyError:
+		return "PURPLE"
 
