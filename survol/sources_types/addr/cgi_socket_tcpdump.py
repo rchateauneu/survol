@@ -8,7 +8,7 @@ import os
 import sys
 import time
 import lib_common
-from lib_common import pc
+from lib_properties import pc
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()

@@ -13,7 +13,7 @@ def Graphic_colorbg():
 def EntityOntology():
 	return ( ["Handle","Name"],)
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	pid = entity_ids_arr[0]
 	mbeanObjectName = entity_ids_arr[1]
 	mbeanObjectName = mbeanObjectName.replace("*",",").replace("-","=")

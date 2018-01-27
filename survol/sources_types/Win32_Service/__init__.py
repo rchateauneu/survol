@@ -6,7 +6,7 @@ import os
 import sys
 import lib_util
 import lib_common
-from lib_common import pc
+from lib_properties import pc
 
 # Python for Windows extensions: pywin32
 # https://sourceforge.net/projects/pywin32/

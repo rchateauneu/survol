@@ -11,7 +11,7 @@ def EntityOntology():
 def MakeUri(userName,domainName):
 	return lib_common.gUriGen.UriMakeFromDict("Win32_UserAccount", { "Name" : userName, "Domain" : domainName } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	if entity_ids_arr[1]:
 		return entity_ids_arr[1] + "\\\\" + entity_ids_arr[0]
 	else:
