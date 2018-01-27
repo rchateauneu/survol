@@ -9,7 +9,7 @@ import sys
 import lib_util
 import lib_common
 import lib_wmi
-from lib_common import pc
+from lib_properties import pc
 
 # If it cannot be imported, this is checked when loading the script.
 import wmi

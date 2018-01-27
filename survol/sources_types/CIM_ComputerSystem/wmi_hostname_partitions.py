@@ -8,7 +8,7 @@ import sys
 import lib_common
 import lib_util
 import lib_wmi
-from lib_common import pc
+from lib_properties import pc
 
 # If this module is not there, the whole sciprt will not be imported.
 import wmi
