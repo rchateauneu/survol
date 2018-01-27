@@ -91,7 +91,8 @@ def Main():
 
 		if hostName:
 			nodeGroupRemote = serverBox.UriMakeFromDict("Win32_Group", { "Name" : groupName, "Domain" : hostName } )
-			grph.add( (nodeGroup, pc.property_equivalent, nodeGroupRemote ) )
+			# TODO: Instead, both object must have the same universal alias
+			grph.add( (nodeGroup, pc.property_alias, nodeGroupRemote ) )
 
 
 
