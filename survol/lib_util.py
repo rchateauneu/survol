@@ -12,22 +12,31 @@ import os
 import re
 import sys
 import cgi
-import lib_kbase
+import time
 import socket
 import base64
 import importlib
 
+import lib_kbase
+
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 # TODO: Use module six.
 try:
-	from urllib import quote,unquote
+	from urllib import quote as urllib_quote
+	from urllib import unquote as urllib_unquote
 except ImportError:
-	from urllib.parse import quote,unquote
+	from urllib.parse import quote as urllib_quote
+	from urllib.parse import unquote as urllib_unquote
 
 try:
 	from urlparse import urlparse as survol_urlparse
 except ImportError:
 	from urllib.parse import urlparse as survol_urlparse
+
+if sys.version_info >= (3,):
+	from html.parser import HTMLParser as survol_HTMLParser
+else:
+	from HTMLParser import HTMLParser as survol_HTMLParser
 
 try:
 	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
@@ -308,13 +317,13 @@ def EncodeUri(anStr):
 
 	# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 	if sys.version_info >= (3,):
-		return quote(strTABLE,'')
+		return urllib_quote(strTABLE,'')
 	else:
 
 		# THIS SHOULD NORMALLY BE DONE. BUT WHAT ??
 		###strTABLE = strTABLE.replace("&","%26")
 		# UnicodeDecodeError: 'ascii' codec can't decode byte 0xe9 in position 32
-		return quote(strTABLE,'ascii')
+		return urllib_quote(strTABLE,'ascii')
 
 ################################################################################
 
@@ -451,7 +460,7 @@ def ParseXidLocal(xid ):
 		entity_id_quoted = mtch_entity.group(3)
 
 		# Everything which comes after the dot which follows the class name.
-		entity_id = unquote(entity_id_quoted)
+		entity_id = urllib_unquote(entity_id_quoted)
 
 		return ( entity_type, entity_id, entity_host )
 
@@ -484,7 +493,7 @@ def ParseXidWMI(xid ):
 			# sys.stderr.write("WMI Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
 		else:
 			# Remove the dot which comes after the class name.
-			entity_id = unquote(entity_id_quoted)[1:]
+			entity_id = urllib_unquote(entity_id_quoted)[1:]
 			# sys.stderr.write("WMI Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
 		return ( entity_type, entity_id, entity_host )
@@ -502,7 +511,7 @@ def ParseXidWMI(xid ):
 			# sys.stderr.write("WMI Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
 		else:
 			# Remove the dot which comes after the class name.
-			entity_id = unquote(entity_id_quoted)[1:]
+			entity_id = urllib_unquote(entity_id_quoted)[1:]
 			# sys.stderr.write("WMI Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
 		return ( entity_type, entity_id, entity_host )
@@ -527,7 +536,7 @@ def ParseXidWBEM(xid ):
 			# sys.stderr.write("WBEM Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
 		else:
 			# Remove the dot which comes after the class name.
-			entity_id = unquote(entity_id_quoted)[1:]
+			entity_id = urllib_unquote(entity_id_quoted)[1:]
 			# sys.stderr.write("WBEM Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
 		return ( entity_type, entity_id, entity_host )
@@ -553,7 +562,7 @@ def ParseXid(xid ):
 		return entity_triplet
 
 	# Apparently it is not a problem for the plain old entities.
-	xid = unquote(xid)
+	xid = urllib_unquote(xid)
 
 	entity_triplet = ParseXidWMI(xid )
 	if entity_triplet:
@@ -1200,7 +1209,10 @@ def GetEntityModuleNoCacheNoCatch(entity_type):
 		entity_package = "sources_types"
 		entity_name = "." + entity_type
 	# sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
-	entity_module = importlib.import_module( entity_name, entity_package)
+	if sys.version_info >= (3, 2) and sys.version_info < (3, 3):
+		entity_module = importlib.import_module( entity_package + entity_name )
+	else:
+		entity_module = importlib.import_module( entity_name, entity_package)
 	# sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
 	return entity_module
 
@@ -1352,4 +1364,7 @@ def SplitTextTitleRest(title):
 	page_title_rest = " ".join( title_split[1:] ).strip()
 
 	return (page_title_first,page_title_rest)
+
+def TimeStamp():
+	return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
