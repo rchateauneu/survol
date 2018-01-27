@@ -12,7 +12,7 @@ def Graphic_colorbg():
 def EntityOntology():
 	return ( ["Name","File"],)
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
 	# PROBLEME: Double &kt;&lt !!!
 	# return entity_id
