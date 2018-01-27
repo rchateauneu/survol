@@ -15,23 +15,6 @@ import re
 import os
 import json
 
-#import six
-#from six.moves.html_parser import HTMLParser
-# When the new Python 3 name is a package, the components of the name are separated by underscores.
-# For example, html.parser becomes html_parser
-if sys.version_info[0] >= 3:
-	import html
-	from html import parser
-	from html.parser import HTMLParser
-else:
-	from HTMLParser import HTMLParser
-
-#try:
-#	from urlparse import urlparse
-#except ImportError:
-#	from urllib.parse import urlparse
-
-
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
 def AntiPredicateUri(uri):
 	return uri[ len(lib_properties.primns_slash) : ]
@@ -161,7 +144,7 @@ class NodeJson:
 		self.m_info_dict = dict()
 		self.m_index = NodeJsonNumber
 
-		the_survol_url = HTMLParser().unescape(rdf_node)
+		the_survol_url = lib_util.survol_HTMLParser().unescape(rdf_node)
 		# Hack, specific to OVH.
 		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
 		self.m_survol_url = the_survol_url
@@ -308,7 +291,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# has the form: "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
 
 		# HTTP_MIME_URL
-		the_survol_nam = HTMLParser().unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
+		the_survol_nam = lib_util.survol_HTMLParser().unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
 
 		# TODO: Use the same object for lookup and Json.
 		nodes[nod_id] = {

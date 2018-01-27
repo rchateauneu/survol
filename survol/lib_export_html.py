@@ -15,17 +15,7 @@ from lib_properties import pc
 from lib_util import WrtAsUtf
 from sources_types import CIM_ComputerSystem
 
-if sys.version_info[0] >= 3:
-	import html
-	from html import parser
-	from html.parser import HTMLParser
-else:
-	from HTMLParser import HTMLParser
-
-try:
-	from urllib import unquote
-except ImportError:
-	from urllib.parse import unquote
+# TODO: Use descriptions provided by lib_bookmark.py
 
 # This does not change the existing mode if there is one.
 # Otherwise it could erase the MIME type.
@@ -163,7 +153,7 @@ def WriteOtherUrls(topUrl):
 	def WMapToHtml(theMap,propData):
 		sys.stderr.write("WMapToHtml len=%d\n"%len(theMap))
 		for urlSubj in theMap:
-			(subjText, subjEntityGraphClass, subjEntityId) = lib_naming.ParseEntityUri( unquote(urlSubj) )
+			(subjText, subjEntityGraphClass, subjEntityId) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(urlSubj) )
 			WrtAsUtf("<tr>")
 			WrtAsUtf("<td valign='top'><a href='%s'>%s</a></td>"%( str(urlSubj), subjText ) )
 			WrtAsUtf("<td>")
@@ -175,7 +165,7 @@ def WriteOtherUrls(topUrl):
 				if lib_kbase.IsLiteral(urlObj):
 					WrtAsUtf("<td>%s</td>"%( str(urlObj) ) )
 				else:
-					(objText, objEntityGraphClass, objEntityId) = lib_naming.ParseEntityUri( unquote(urlObj) )
+					(objText, objEntityGraphClass, objEntityId) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(urlObj) )
 					WrtAsUtf("<td><a href='%s'>%s</a></td>"%( str(urlObj), objText ) )
 				WrtAsUtf("</tr>")
 			WrtAsUtf("</table>")
@@ -396,7 +386,7 @@ def WriteAllObjects(grph):
 
 # Apparently, a problem is that "%" gets transformed into an hexadecimal number, preventing decoding.
 def DesHex(theStr):
-	theStr = HTMLParser().unescape(theStr)
+	theStr = lib_util.survol_HTMLParser().unescape(theStr)
 	return theStr.replace("%25","%").replace("%2F","/").replace("%5C","\\").replace("%3A",":")
 
 # TODO: Scripts should be merged together on demand.

@@ -11,13 +11,6 @@ import cgi
 import lib_util
 import lib_common
 
-try:
-	from urllib import unquote
-	#from urlparse import urlparse
-except ImportError:
-	from urllib.parse import unquote
-	#from urllib.parse import urlparse
-
 # This CGI script is called as a CGI script,
 # and its parameters are input URLs in Base64UrlSafe format.
 # It merges the input urls into a single RDF document,
@@ -80,7 +73,7 @@ def Main():
 		try:
 			# The entire URL must be "injected" so the parameters will be properly parsed,
 			# when Main() call lib_util.RequestUri().
-			urlUnquote = unquote(complete_url)
+			urlUnquote = lib_util.urllib_unquote(complete_url)
 			os.environ["REQUEST_URI"] = urlUnquote
 
 			os.environ['SCRIPT_NAME'] = urlFilNam
