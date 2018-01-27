@@ -24,3 +24,5 @@ TCP sockets
 # tcp        0      0 0.0.0.0:microsoft-ds    0.0.0.0:*               LISTEN      -
 # tcp        1      0 fedora22:39888          dg-in-f147.1e100.:https CLOSE_WAIT  4729/evolution-addr
 # tcp        0      0 fedora22:41347          192.168.0.14:64278      ESTABLISHED 2134/rygel
+
+TODO: MUST IMPLEMENT THIS.
