@@ -12,7 +12,7 @@ def EntityOntology():
 def MakeUri(instanceName,sessionId):
 	return lib_common.gUriGen.UriMakeFromDict("mysql/session", { "Instance": instanceName, "Id": sessionId } )
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	return "Session:"+entity_ids_arr[1]+ "@" + entity_ids_arr[0]
 
 def AddInfo(grph,node,entity_ids_arr):
