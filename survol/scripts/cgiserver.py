@@ -158,7 +158,7 @@ def RunCgiServerInternal():
     browser_name = None
 
     for anOpt, aVal in opts:
-        if anOpt == ("-v", "--verbose"):
+        if anOpt in ("-v", "--verbose"):
             verbose = True
         elif anOpt in ("-a", "--address"):
             server_name = aVal
