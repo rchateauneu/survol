@@ -58,14 +58,14 @@ password=*********
 # Command to upload on Pypi test:
 python setup.py sdist upload -r pypitest
 
-# Result can be checked at https://testpypi.python.org/pypi/survol/1.0.dev1
+# Result can be checked at https://testpypi.python.org/pypi/survol/1.0.dev2
 
 
 # Command to upload on Pypi:
 python setup.py sdist upload -r pypi
 
 # Result at:
-https://pypi.python.org/pypi/survol/1.0.dev1
+https://pypi.python.org/pypi/survol/1.0.dev2
 
 # Install into virtualenv:
 (testarea) ...\testarea>pip uninstall survol
