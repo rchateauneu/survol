@@ -39,6 +39,7 @@ def ManagementUrlPrefix(configNam,key="vhosts",nameKey1="",nameKey2=""):
 		effectiveVHost = "%2F"
 	else:
 		effectiveVHost = nameKey1
+	effectiveVHost = effectiveVHost.lower() # RFC4343
 
 	vhostPrefix = prePrefix + key + "/" + effectiveVHost
 

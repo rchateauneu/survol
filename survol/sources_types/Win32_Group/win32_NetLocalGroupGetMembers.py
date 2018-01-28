@@ -45,10 +45,11 @@ def MemberNameToNode(sidUsage,memberName,servName):
 	elif sidUsage == 5 or sidUsage == 2:
 		memberNode = survol_Win32_Group.MakeUri( memberName, servName )
 	else:
-		serverNode = lib_common.gUriGen.HostnameUri(server)
+		serverNode = lib_common.gUriGen.HostnameUri(servName)
 	return memberNode
 
 def MemberNameToNodeRemote(sidUsage,memberName,servName,serverBox):
+	servName = servName.lower() # RFC4343
 	if sidUsage == 1 or sidUsage == 6:
 		memberNode = serverBox.UriMakeFromDict("Win32_UserAccount", { "Name" : memberName, "Domain" : servName } )
 	elif sidUsage == 5 or sidUsage == 2:

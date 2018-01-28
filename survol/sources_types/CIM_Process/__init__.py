@@ -44,11 +44,11 @@ def GetEnvVarProcess(theEnvVar,thePid):
 def EntityOntology():
 	return ( ["Handle"],)
 
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
 
-	if entity_host and entity_host != lib_util.currentHostname:
-		return "process id " + entity_id # + "@" + entity_host
+	#if entity_host and entity_host != lib_util.currentHostname:
+	#	return "process id " + entity_id # + "@" + entity_host
 
 	# If the process is not there, this is not a problem.
 	try:

@@ -9,6 +9,7 @@ def EntityOntology():
 
 # BEWARE: Very close to lib_uris.UserUri
 def MakeUri(userName,domainName):
+	domainName = domainName.lower()
 	return lib_common.gUriGen.UriMakeFromDict("Win32_UserAccount", { "Name" : userName, "Domain" : domainName } )
 
 def EntityName(entity_ids_arr):

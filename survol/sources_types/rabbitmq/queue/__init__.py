@@ -13,6 +13,7 @@ def EntityOntology():
 	return ( ["Url","VHost","Queue"], )
 
 def MakeUri(urlName,vhostName,queueName):
+	vhostName = vhostName.lower() # RFC4343
 	return lib_common.gUriGen.UriMakeFromDict("rabbitmq/queue", { "Url" : urlName, "VHost" : vhostName, "Queue" : queueName } )
 
 def EntityName(entity_ids_arr):

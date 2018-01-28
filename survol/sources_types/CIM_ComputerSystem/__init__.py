@@ -15,9 +15,27 @@ def EntityOntology():
     return ( ["Name"], )
 
 # This returns a nice name given the parameter of the object.
-def EntityName(entity_ids_arr,entity_host):
+def EntityName(entity_ids_arr):
     entity_id = entity_ids_arr[0]
     return entity_id
+
+# We do not care about the entity_host as this is simply the machine from which
+# this machine was detected, so nothing more than a computer on the same network.
+def UniversalAlias(entity_ids_arr,entity_host,entity_class):
+    # TOO SLOW !!!
+    return "ThisComputer:"+entity_ids_arr[0].lower()
+
+
+    try:
+        # (entity_ids_arr=[u'desktop-ni99v8e'], entity_host='192.168.0.14', entity_class=u'CIM_ComputerSystem')
+        # might possibly throw:
+        # "[Errno 11004] getaddrinfo failed "
+        aHostName = socket.gethostbyname(entity_ids_arr[0])
+    except:
+        aHostName = entity_host
+
+    # Hostnames are case-insensitive, RFC4343 https://tools.ietf.org/html/rfc4343
+    return "ThisComputer:"+aHostName.lower()
 
 # This adds the WBEM and WMI urls related to the entity.
 def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_id):
@@ -76,7 +94,7 @@ def AddWbemServers(entity_host, nameSpace, entity_type, entity_id):
                     ( pc.property_host, wbemHostNode )
                 ]
 
-                # Ca devrait etre dans nmap qui essaye d abord 80, et propose d ouvrir une fenetre.
+                # TODO: This could try to pen a HTTP server on this machine, possibly with port 80.
                 # grph.add( ( wbemHostNode, pc.property_information, lib_common.NodeLiteral("Url to host") ) )
     except ImportError:
         pass

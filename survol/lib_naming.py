@@ -6,11 +6,6 @@ import os
 import re
 import lib_patterns
 
-#try:
-#	from urlparse import urlparse
-#except ImportError:
-#	from urllib.parse import urlparse
-
 ################################################################################
 
 # TODO: Make this dynamic, less hard-coded.
@@ -32,29 +27,7 @@ def UriToTitle(uprs):
 
 ################################################################################
 
-DictEntityNameFunctions = {}
-
-def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
-	global DictEntityNameFunctions
-
-	try:
-		funcEntNam = DictEntityNameFunctions[entity_type]
-		return funcEntNam(entity_ids_arr,entity_host)
-	except KeyError:
-		pass
-
-	# Si on ne trouve pas le module on utilise la fonction par defaut.
-	# { "file" : sources_types.file.ArrToLabel, ... }
-	entity_module = lib_util.GetEntityModule(entity_type)
-	if 	entity_module:
-		try:
-			# sys.stderr.write("Before calling EntityName: entity_ids_arr=%s\n"%(entity_ids_arr))
-			DictEntityNameFunctions[entity_type] = entity_module.EntityName
-			entity_name = entity_module.EntityName(entity_ids_arr,entity_host)
-			return entity_name
-		except AttributeError:
-			pass
-
+def EntityArrConcat(entity_type,entity_ids_arr):
 	# General case of a URI created by us and for us.
 	ent_ids_joined = ",".join(entity_ids_arr)
 	if lib_patterns.TypeToGraphParams( entity_type ) is None:
@@ -63,14 +36,35 @@ def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
 	else:
 		return ent_ids_joined
 
+def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
+	funcEntityName = lib_util.HierarchicalFunctionSearch(entity_type,"EntityName")
 
+	if funcEntityName:
+		entity_name = funcEntityName(entity_ids_arr)
+		return entity_name
+
+	return EntityArrConcat(entity_type,entity_ids_arr)
+
+
+def EntityArrToAlias(entity_type,entity_ids_arr,entity_host, force_entity_ip_addr ):
+
+	funcUniversalAlias = lib_util.HierarchicalFunctionSearch(entity_type,"UniversalAlias")
+
+	if funcUniversalAlias:
+		univAlias = funcUniversalAlias(entity_ids_arr,force_entity_ip_addr,entity_type)
+	else:
+		univAlias = force_entity_ip_addr + "@" + EntityArrConcat(entity_type,entity_ids_arr)
+
+	#sys.stderr.write("EntityArrToAlias entity_type=%s entity_ids_arr=%s force_entity_ip_addr=%s univAlias=%s\n"
+	#				 %(entity_type,str(entity_ids_arr),force_entity_ip_addr,univAlias) )
+	return univAlias
 
 # Dans les cas des associations on a pu avoir:
 # entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"
 # Ca n est pas facile a gerer, on va essayer d'eviter ca en amont, en traitant a part les references et les associations.
 # Ca se compred car elles sont de toutes facons destinees a etre traitees autrement.
 # Notons que SplitMoniker() ne garde que le premier groupe.
-def EntityToLabel(entity_type,entity_ids_concat, entity_host):
+def EntityToLabel(entity_type,entity_ids_concat, entity_host, force_entity_ip_addr):
 	# sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
 
 	# Specific case of objtypes.py
@@ -94,9 +88,10 @@ def EntityToLabel(entity_type,entity_ids_concat, entity_host):
 	# Default value if key is missing.
 	entity_ids_arr = [ splitKV.get( keyOnto, keyOnto + "?" ) for keyOnto in ontoKeys ]
 
-	# sys.stderr.write("EntityToLabel entity_ids_arr=%s\n" % str( entity_ids_arr ) )
-
-	entity_label = EntityArrToLabel(entity_type,entity_ids_arr,entity_host)
+	if force_entity_ip_addr:
+		entity_label = EntityArrToAlias(entity_type,entity_ids_arr,entity_host, force_entity_ip_addr)
+	else:
+		entity_label = EntityArrToLabel(entity_type,entity_ids_arr,entity_host)
 	# sys.stderr.write("EntityToLabel entity_label=%s\n" % entity_label )
 
 	# There might be extra properties which are not in our ontology.
@@ -107,6 +102,7 @@ def EntityToLabel(entity_type,entity_ids_concat, entity_host):
 	setOntoKeys = set(ontoKeys)
 
 	# This appends the keys which are not part of the normal ontology, therefore bring extra information.
+	# This is rather slow and should normally not happen.
 	for ( extPrpKey, extPrpVal ) in splitKV.items():
 		if not extPrpKey in setOntoKeys:
 			entity_label += " %s=%s" % ( extPrpKey, extPrpVal )
@@ -114,7 +110,7 @@ def EntityToLabel(entity_type,entity_ids_concat, entity_host):
 	return entity_label
 
 # Called when using the specific CGI script.
-def ParseEntitySurvolUri(uprs,longDisplay):
+def ParseEntitySurvolUri(uprs,longDisplay, force_entity_ip_addr):
 	# sys.stderr.write("KnownScriptToTitle filScript=%s uprs=%s\n"%(filScript,str(uprs)))
 	# uprs=ParseResult(
 	#   scheme=u'http',
@@ -149,7 +145,7 @@ def ParseEntitySurvolUri(uprs,longDisplay):
 		# sys.stderr.write("ParseEntitySurvolUri urlRebuilt=%s\n"%(urlRebuilt))
 
 		# ( labText, subjEntityGraphicClass, entity_id)
-		return ParseEntityUri(urlRebuilt, longDisplay)
+		return ParseEntityUri(urlRebuilt, longDisplay, force_entity_ip_addr)
 	else:
 		return ( "Incomplete CGI script:"+str(uprs), "Unknown subjEntityGraphicClass", "Unknown entity_id" )
 
@@ -219,7 +215,7 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 # The returned entity type is used for choosing graphic attributes and gives more information than the simple entity type.
 # (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
 # "http://192.168.0.17/yawn/GetClass/CIM_UnixProcess?url=http%3A%2F%2F192.168.0.17%3A5988&amp;amp;verify=0&amp;amp;ns=root%2Fcimv2"
-def ParseEntityUri(uriWithMode,longDisplay=True):
+def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
 	#sys.stderr.write("ParseEntityUri uriWithMode=%s\n"%uriWithMode)
 
 	# Maybe there is a host name before the entity type. It can contain letters, numbers,
@@ -237,7 +233,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 
 	filScript = os.path.basename(uprs.path)
 	if filScript == "survolcgi.py":
-		return ParseEntitySurvolUri(uprs,longDisplay)
+		return ParseEntitySurvolUri(uprs,longDisplay, force_entity_ip_addr)
 
 	# This works for the scripts:
 	# entity.py            xid=namespace/type:idGetNamespaceType
@@ -253,7 +249,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 		( namSpac, entity_type_NoNS, _ ) = lib_util.ParseNamespaceType(entity_type)
 
 		if entity_type_NoNS or entity_id:
-			entity_label = EntityToLabel( entity_type_NoNS, entity_id, entity_host )
+			entity_label = EntityToLabel( entity_type_NoNS, entity_id, entity_host, force_entity_ip_addr )
 		else:
 			# Only possibility to print something meaningful.
 			entity_label = namSpac
@@ -285,7 +281,6 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 			entity_id = ""
 
 			entity_label = KnownScriptToTitle(filScript,uriMode)
-			# entity_label = UriToTitle(uprs)
 
 	elif uri.split(':')[0] in [ "ftp", "http", "https", "urn", "mail" ]:
 		# Standard URLs. Example: lib_common.NodeUrl( "http://www.google.com" )
@@ -301,11 +296,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True):
 		# TODO: " " are replaced by "%20". Why ? So change back.
 		entity_label = entity_label.replace("%20"," ")
 
-	# TODO: ATTENTION !!!! ON L A RETIRE ICI UNIQUEMENT CAR C ETAIT DEJA FAIT
-	# TODO: AVEC LES SYMBOLES. PEUT ETRE LE REMETTRE POUR TOUS LES AUTRES TYPES.
-	# entity_label = entity_label.replace("&","&amp;")
-	# entity_label = entity_label.escape()
 	return ( entity_label, entity_graphic_class, entity_id )
 
 def ParseEntityUriShort(uri):
-	return ParseEntityUri(uri,False)
+	return ParseEntityUri(uri,longDisplay=False,force_entity_ip_addr = None)

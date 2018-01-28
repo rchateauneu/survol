@@ -381,6 +381,7 @@ class LocalBox:
 			# This transforms "rchateau-hp.home" into "rchateau-hp"
 			userHost = TruncateHostname(lib_util.currentHostname)
 			userOnly = username
+		userHost = userHost.lower() # RFC4343
 		return self.UriMake(userTp,userOnly,userHost)
 
 	def GroupUri(self,groupname):
