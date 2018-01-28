@@ -35,7 +35,7 @@
 <style>
 
     .survol_line {
-        stroke: #111111;
+        stroke: #008080;
         /* stroke-width: 1px; */ /* This works. */
         stroke-width: 1;
         /* stroke-dasharray: 4, 1; */ /* This works. */
@@ -477,75 +477,151 @@ function CreateDisplay(data)
     DisplayD3Layout(divItselfG,previousData,wScreen,hScreen);
 } // CreateDisplay
 
-/* Called when adding a new url and merge it to the existing nodes and links.
-TODO: When merging networks, look for url_survol which are identical expect
-the host, for some types only, where the same object can be detected
-on different machines: CIM_ComputerSystem, socket address, Oracle databases etc...
-and everything defined in a credentials file.
-Another possibility is to have lib_exports.Grph2Json(), for these types,
-add a agent-neutral url.
-Or add a flag, survol_global_id, telling that the moniker should not depend on the agent.
-If so, the key will be the url stripped of the host.
 
-Meme la, ca ne marchera pas forcement, par exemple
-avec ces deux representations differentes, de la meme machine:
 
-DESKTOP-NI99V8E
-ARP_type	dynamic
-IP_address	192.168.0.26
-MAC	8C-70-5A-56-CF-7C
-Vendor	"Intel Corporate"
 
-192.168.0.26
-Vendor	"Intel Corporate"
-MAC	8C-70-5A-56-CF-7C
 
-* Soit le nom de la machine est l'adresse IP.
-* Ou bien la carte reseau est creee: Soit adresse IP, soit adresse MAC,
-et dans tous ces cas on precise le flag survol_global_id
-*/
+/* Called when adding a new url and merge it to the existing nodes and links. */
 function RefillDisplayMerge(data, currTimeStamp)
 {
     'use strict';
 
+    /* This returns a dictionary of nodes labelled by their universal alias. */
+    function DictNodesByUniversal(lstNodes)
+    {
+        'use strict';
+
+        var dictByUni = {};
+
+        for( var ixNod = 0; ixNod < lstNodes.length; ixNod++ )
+        {
+            var objNod = lstNodes[ixNod];
+            console.log("DictNodesByUniversal ixNod="+ixNod+" survol_url="+objNod.survol_url);
+            var univAlias = objNod.survol_universal_alias;
+
+            // Sanity check: The universal alias must be defined.
+            if(univAlias == undefined)
+            {
+                console.log("DictNodesByUniversal ixNod="+ixNod+" No universal alias:"+objNod);
+                continue;
+            }
+
+            // Sanity check.
+            if(objNod.survol_url == undefined)
+            {
+                console.log("DictNodesByUniversal ixNod="+ixNod+" Undefined url:"+objNod);
+                continue;
+            }
+
+            if(dictByUni[univAlias] == undefined)
+            {
+                dictByUni[univAlias] = [objNod];
+            }
+            else
+            {
+                dictByUni[univAlias].push( objNod );
+            }
+        }
+        return dictByUni;
+    }
+
+    /* When merging networks, look for url_survol which are identical except the host,
+    for some types only, where the same object can be detected on different machines:
+    CIM_ComputerSystem, socket address, Oracle databases etc... and objects in credentials file.
+
+    See these two different representations of the same machine:
+        DESKTOP-NI99V8E
+        IP_address	192.168.0.26
+        MAC	8C-70-5A-56-CF-7C
+        Vendor	"Intel Corporate"
+
+        192.168.0.26
+        Vendor	"Intel Corporate"
+        MAC	8C-70-5A-56-CF-7C
+    */
+    var dictNodesByUniversalPrevious = DictNodesByUniversal(previousData.nodes);
+
     var urlToNode = {}
 
+    // This builds a map from urls of current nodes to these nodes themselves.
     for (var ixNod = 0; ixNod < previousData.nodes.length; ixNod++) {
-        var objNode = previousData.nodes[ixNod];
-        var urlNode = objNode.survol_url;
-
-        // Sanity check: URLs should be unique.
-        if(urlNode == undefined)
+        var objPrevNode = previousData.nodes[ixNod];
+        // Sanity check: Object must exist.
+        if(objPrevNode == undefined)
         {
             alert("ixNod="+ixNod+" Undefined url");
-            continue;
+            return;
+        }
+
+        var urlPrevNode = objPrevNode.survol_url;
+
+        // Sanity check: URLs should be unique.
+        if(urlPrevNode == undefined)
+        {
+            alert("ixNod="+ixNod+" Undefined url");
+            return;
         }
 
         // Sanity check: URLs should be unique.
-        if(urlToNode[urlNode] != undefined)
+        if(urlToNode[urlPrevNode] != undefined)
         {
-            alert("ixNod="+ixNod+" prevUrlsToIds[urlNode] undefined. urlNode="+urlNode);
+            alert("RefillDisplayMerge ixNod="+ixNod+" prevUrlsToIds[urlNode] undefined. urlPrevNode="+urlPrevNode);
+            return;
         }
         // Normally, at this stage, each URL should appear only once.
-        urlToNode[urlNode] = objNode;
+        urlToNode[urlPrevNode] = objPrevNode;
     }
 
     // Now, this adds the new nodes, only if they are not duplicates.
     for (var ixNod = 0; ixNod < data.nodes.length; ixNod++) {
-        var objNode = data.nodes[ixNod];
-        var urlNode = objNode.survol_url;
+        var objNewNode = data.nodes[ixNod];
+        var urlNewNode = objNewNode.survol_url;
 
-        if(urlToNode[urlNode] == undefined)
+        if(urlToNode[urlNewNode] == undefined)
         {
-            previousData.nodes.push(objNode);
-            urlToNode[urlNode] = objNode;
+            previousData.nodes.push(objNewNode);
+            urlToNode[urlNewNode] = objNewNode;
+            var univAlias = objNewNode.survol_universal_alias;
+
+            console.log("urlNewNode="+urlNewNode+" univAlias="+univAlias);
+
+            /*
+            The new nodes which have the same survol_universal_alias than existing nodes
+            must be linked together with a new, very short and visible link.
+            */
+
+            var prevNodesSameUni = dictNodesByUniversalPrevious[univAlias];
+
+            // Then add a specific link binding two different representations of the same object.
+            // They have describing the same object from two different servers, hence URLs.
+            if( prevNodesSameUni != undefined )
+            {
+                // Add one very short and visible link with the first of the previous nodes.
+                var oldNode = prevNodesSameUni[0];
+
+                console.log("objNod="+objNewNode.survol_url+" oldNode="+oldNode.survol_url+" univAlias="+univAlias);
+
+                // The links could be made with the objects, which would save time.
+                // But later on, there is a sanity check. So we stick to URLs.
+                var newLink =
+                {
+                    "source":objNewNode.survol_url,
+                    "target":oldNode.survol_url,
+                    "link_class":"survol_class_line_alias"
+                };
+
+                data.links.push(newLink);
+            }
         }
         else
         {
+            console.log("RefillDisplayMerge Adding duplicate node:"+urlNewNode);
             // This shows that the node is duplicated with a new one.
-            urlToNode[urlNode].survol_timestamp = currTimeStamp;
+            urlToNode[urlNewNode].survol_timestamp = currTimeStamp;
         }
     }
+
+    console.log("RefillDisplayMerge Adding new links:"+data.links.length);
 
     // Now this adds the new links, replacing the source and target urls
     // by the corresponding objects, which might have been duplicates.
@@ -553,11 +629,16 @@ function RefillDisplayMerge(data, currTimeStamp)
     {
         var newLnk = data.links[ixLnk];
 
+        if(newLnk.source == undefined)
+        {
+            alert("RefillDisplayMerge ixLnk="+ixLnk+" newLnk.source undefined");
+            return;
+        }
         var newLnkSource = urlToNode[newLnk.source];
         if(newLnkSource == undefined)
         {
-            alert("newLnk.source undefined");
-            throw("newLnk.source undefined");
+            alert("RefillDisplayMerge ixLnk="+ixLnk+" newLnkSource undefined. newLnk.source="+newLnk.source);
+            return;
         }
         newLnk.source = newLnkSource;
 
@@ -1278,7 +1359,7 @@ function LoadUrlUpdateDisplay(theUrl,shouldMerge)
             return;
         }
 
-        console.log("data="+JSON.stringify(data));
+        // console.log("LoaderCallback data="+JSON.stringify(data));
         if( data.status == "error" )
         {
             alert("Error agent:"+data.message);
@@ -1455,7 +1536,12 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             function (d)
             {
                 // return GetNodeDefaults(d.label).linkDistance;
-                return 200;
+                // console.log("stroke link attr d.link_class="+d.link_class);
+                if( d.link_class == undefined ) {
+                    return 200;
+                } else {
+                    return 10;
+                    }
             }
         )
         .strength(0.1);
@@ -1486,6 +1572,32 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         // "Error in parsing value for "marker-end": This is why I removed this.
         // .attr("marker-end", function (d) { if (d.value == 1) { return "url(#arrowhead)"; } else { return " "; }; })
         // .append("svg:title").text(function(d) { return d.link_prop; })
+
+        /* Could not find a way to use CSS */
+        .style("stroke", function (d) {
+            console.log("stroke link attr d.link_class="+d.link_class);
+            if( d.link_class == undefined )
+                return "green";
+            else {
+                return "red";
+                }
+        })
+        .style("stroke-dasharray", function (d) {
+            console.log("stroke-dasharray link attr d.link_class="+d.link_class);
+            if( d.link_class == undefined )
+                return undefined;
+            else {
+                return ("10,3");
+                }
+        })
+        .style("stroke-width", function (d) {
+            console.log("stroke-dasharray link attr d.link_class="+d.link_class);
+            if( d.link_class == undefined )
+                return 1;
+            else {
+                return 3;
+                }
+        })
         ;
 
     // D3V4 START
@@ -1495,8 +1607,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         d.fy = d.y;
 
         isDragging = true; // This avoids the tooltip when dragging.
-        // Tooltip ne fonctionne plus !!!
-        console.log("Tooltip disabled");
+        // console.log("Tooltip disabled");
     }
 
     function dragged(d) {
@@ -1511,7 +1622,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 
         d3.event.sourceEvent.stopPropagation(); // silence other listeners
         isDragging = false; // Tooltip when hovering is now allowed.
-        console.log("Tooltip enabled");
+        // console.log("Tooltip enabled");
     }
 
     // var d3BehDrag = myForce.drag();
@@ -1523,12 +1634,14 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 
     // Creates one SVG object (Which class ?) for each survol node.
     // CA DEVRAIT ALLER POUR AJOUTER DES NODES.
+    // var selectedNodes = divItselfG.selectAll("g.node")
     var selectedNodes = divItselfG.selectAll("g.node")
         .data(newData.nodes)
         .enter().append("svg:g")
         .attr("class", function (d)
             {
-                return "survol_node node " + d.entity_class;
+                // return "survol_node node " + d.entity_class;
+                return "survol_node " + d.entity_class;
             }
         ) // Several classes are possible.
         .call(d3BehDrag);
@@ -1652,7 +1765,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                         return;
                         }
                     if( isDragging ) {
-                        console.log("IfMouseOver not when dragging");
+                        // console.log("IfMouseOver not when dragging");
                         return;
                         }
 
@@ -1681,7 +1794,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                         {
                             function DisplayTooltipDiv(theTooltipText)
                             {
-                                console.log("DisplayTooltipDiv theTooltipText="+theTooltipText);
+                                // console.log("DisplayTooltipDiv theTooltipText="+theTooltipText);
 
                                 // http://stackoverflow.com/questions/36326683/d3-js-how-can-i-set-the-cursor-to-hand-when-mouseover-these-elements-on-svg-co
                                 // This could as well be done in CSS, but we might wish not change the pointer if no link is available, i.e. faulty node.
@@ -1702,7 +1815,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                                 DisplayTooltipDiv(errMsg);
                                 return;
                             }
-                            console.log("Callback urlTooltip="+urlTooltip+ " objTooltip="+JSON.stringify(objTooltip));
+                            // console.log("Callback urlTooltip="+urlTooltip+ " objTooltip="+JSON.stringify(objTooltip));
                             if( objTooltip.survol_error != undefined )
                             {
                                 var errMsg = "Tooltip objTooltip.survol_error="+objTooltip.survol_error;
@@ -2128,9 +2241,11 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             // Maybe this duplicates the value. Not a problem.
             objectThis.__data__.contextual_menu_items = jsonData;
 
+            // FIXME: This does not seem to work when called from Android.
             objectThis.__data__.defer_scripts.resolve(jsonData);
         }
 
+        // 1 for the left button, 2 for the middle button, or 3 for the right button
         if(ev.which == 3)
         {
             var objectThis = this;

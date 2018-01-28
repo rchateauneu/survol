@@ -14,6 +14,7 @@ import cgi
 import re
 import os
 import json
+import socket
 
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
 def AntiPredicateUri(uri):
@@ -103,6 +104,51 @@ def DotIt(str):
 
 ################################################################################
 
+dictNodeToUniversalAlias = {}
+
+def NodeToUniversalAlias(anObject):
+
+	def MakeUniversalAliasNoCache(anObj):
+		# The prefix of the URL which contain the host name,
+		# maybe with a port number, maybe with a WBEM prefix, WMI machine,
+		# CGI script etc...
+		# is simply replaced by the IP address of the machine.
+		# The resulting string is the same for all servers
+		# running on the same machine.
+		parsed_url = lib_util.survol_urlparse( anObject )
+		#sys.stderr.write("MakeUniversalAliasNoCache parsed_url=%s\n"%str(parsed_url))
+		# netloc=u'desktop-ni99v8e:8000'
+		entity_host = parsed_url.netloc.split(":")[0]
+		#sys.stderr.write("MakeUniversalAliasNoCache entity_host=%s\n"%str(entity_host))
+
+		# FIXME: This is very slow.
+		if False:
+			try:
+				# Might throw: socket.gaierror: [Errno 11004] getaddrinfo failed with "entity_host=desktop-ni99v8e"
+				entity_ip_addr = socket.gethostbyname(entity_host)
+			except:
+				entity_ip_addr = entity_host
+		else:
+			entity_ip_addr = entity_host
+
+		# RFC4343: Hostname are case-insensitive.
+		entity_ip_addr = entity_ip_addr.lower()
+
+		# TODO: Many things are calculated several times.
+		( labText, subjEntityGraphicClass, entity_id) = lib_naming.ParseEntityUri( anObject, longDisplay = True, force_entity_ip_addr=entity_ip_addr )
+
+		# sys.stderr.write("MakeUniversalAliasNoCache anObject=%s labText=%s\n"%(str(anObject),labText))
+		return labText
+
+	try:
+		return dictNodeToUniversalAlias[anObject]
+	except KeyError:
+		uniAlias = MakeUniversalAliasNoCache(anObject)
+		dictNodeToUniversalAlias[anObject] = uniAlias
+		return uniAlias
+
+################################################################################
+
 # def Graphic_shape():
 # 	return "egg"
 #
@@ -129,7 +175,7 @@ class NodeJson:
 		global NodeJsonNumber
 		subj_str = str(rdf_node)
 
-		( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
+		( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str, longDisplay=False,force_entity_ip_addr=None)
 
 		self.m_label = entity_label.strip()
 		self.m_class = entity_graphic_class
@@ -148,6 +194,7 @@ class NodeJson:
 		# Hack, specific to OVH.
 		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
 		self.m_survol_url = the_survol_url
+		self.m_survol_universal_alias = NodeToUniversalAlias(rdf_node)
 
 		NodeJsonNumber += 1 # One more node.
 
@@ -295,18 +342,15 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 		# TODO: Use the same object for lookup and Json.
 		nodes[nod_id] = {
-			'id'               : nodObj.m_survol_url, # Required by D3
-			'name'             : the_survol_nam,
+			'id'                     : nodObj.m_survol_url, # Required by D3
+			'name'                   : the_survol_nam,
 			# Theoretically, this URL should be HTML unescaped then CGI escaped.
-			# 'survol_url'       : obj_link,
-			#'x'       : 500,
-			#'y'       : 500,
-			#'number'  : 50,
-			'survol_url'       : nodObj.m_survol_url, # Duplicate of 'id'
-			'survol_fill'      : nodObj.m_color,
-			'entity_class'     : nodObj.m_class, # TODO: Maybe not needed because also in the URL ?
-			'survol_info_list' : nodObj.m_info_list,
-			'survol_info_dict' : nodObj.m_info_dict
+			'survol_url'             : nodObj.m_survol_url, # Duplicate of 'id'
+			'survol_universal_alias' : nodObj.m_survol_universal_alias,
+			'survol_fill'            : nodObj.m_color,
+			'entity_class'           : nodObj.m_class, # TODO: Maybe not needed because also in the URL ?
+			'survol_info_list'       : nodObj.m_info_list,
+			'survol_info_dict'       : nodObj.m_info_dict
 		}
 
 	graph = {}

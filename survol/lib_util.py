@@ -172,7 +172,7 @@ def UriRootHelper():
 		# sys.stderr.write("SERVER_NAME=%s\n"%os.environ["SERVER_NAME"])
 		os.environ["SERVER_NAME"]
 	except KeyError:
-		sys.stderr.write("SERVER_NAME MUST BE DEFINED UNDEFINED\n")
+		sys.stderr.write("SERVER_NAME MUST BE DEFINED\n")
 		sys.exit(1)
 	try:
 		# SCRIPT_NAME=/PythonStyle/survol/internals/print.py
@@ -234,13 +234,15 @@ uriRoot = UriRootHelper()
 #
 # It is better to rely on a distributed naming system: DNS or plain IP address.
 def HostName():
-	return os.environ["SERVER_NAME"]
+	# RFC4343: Domain Name System (DNS) Case Insensitivity Clarification
+	return os.environ["SERVER_NAME"].lower()
 
 # hostName
 currentHostname = HostName()
 
 # Beware: The machine might have several IP addresses.
 try:
+	# BEWARE: Possibly very slow.
 	localIP = socket.gethostbyname(currentHostname)
 except Exception:
 	# Apparently, it happens if the router is down.
@@ -431,7 +433,7 @@ def EntHostToIp(entity_host):
 def EntHostToIpReally(entity_host):
 	try:
 		hostOnly = EntHostToIp(entity_host)
-		return socket.gethostbyname(hostOnly)
+		return socket.gethostbyname(hostOnly) # POSSIBLY VERY SLOW.
 	except Exception:
 		return hostOnly
 
@@ -856,6 +858,58 @@ def UsableLinuxBinary(entity_type,entity_ids_arr):
 	return True
 	
 	
+################################################################################
+
+# For example gFuncName="Graphic_shape" etc... This seeks for a function in this name.
+# This searches in several modules, starting with the module of the entity,
+# then the upper module etc...
+def HierarchicalFunctionSearchNoCache(typeWithoutNS,gFuncName):
+
+	# for the first loop it takes the entire string.
+	lastDot = len(typeWithoutNS)
+	while lastDot > 0:
+
+		topModule = typeWithoutNS[:lastDot]
+		choppedEntityType = typeWithoutNS[:lastDot]
+
+		# Load the module of this entity to see if it defines the graphic function.
+		entity_module = GetEntityModule(choppedEntityType)
+
+		if entity_module:
+			try:
+				gFuncAddr = getattr(entity_module,gFuncName)
+				return gFuncAddr
+			except AttributeError:
+				pass
+
+		# Then try the upper level module.
+		lastDot = typeWithoutNS.rfind(".",0,lastDot)
+
+	return None
+
+################################################################################
+
+dictHierarchicalFunctionSearch = {}
+
+def HierarchicalFunctionSearch(typeWithoutNS,function_name):
+	global dictHierarchicalFunctionSearch
+	# Safety check.
+	if typeWithoutNS.find(".") >= 0:
+		raise "HierarchicalFunctionSearch Invalid typeWithoutNS=%s" % typeWithoutNS
+
+	typeWithoutNS = typeWithoutNS.replace("/",".")
+
+	try:
+		return dictHierarchicalFunctionSearch[function_name][typeWithoutNS]
+	except KeyError:
+		funcObj = HierarchicalFunctionSearchNoCache(typeWithoutNS,function_name)
+		try:
+			dictHierarchicalFunctionSearch[function_name][typeWithoutNS] = funcObj
+		except KeyError:
+			dictHierarchicalFunctionSearch[function_name] = { typeWithoutNS : funcObj }
+		return funcObj
+
+
 ################################################################################
 
 # This describes for each entity type, the list of parameters names needed

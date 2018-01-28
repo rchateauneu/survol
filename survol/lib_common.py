@@ -222,6 +222,8 @@ def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterize
 # THIS IS NOT THE CASE IN HTML AND SVG !!
 # def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
 def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
+	theCgi.BindIdenticalNodes()
+
 	grph = theCgi.m_graph
 	pageTitle = theCgi.m_page_title
 	dotLayout = theCgi.m_layoutParams
@@ -424,7 +426,7 @@ class CgiEnv():
 		callingUrl = lib_util.RequestUri()
 		self.m_calling_url = callingUrl
 		sys.stderr.write("CgiEnv m_page_title=%s m_calling_url=%s\n"%(self.m_page_title,self.m_calling_url))
-		parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False)
+		parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False,force_entity_ip_addr=None)
 		if parsedEntityUri[2]:
 			# If there is an object to display.
 			# Practically, we are in the script "entity.py" and the single doc string is "Overview"
@@ -734,6 +736,65 @@ class CgiEnv():
 
 
 		self.m_parameterized_links[urlLabel] = labelledUrl
+
+	# Graphs might contain the same entities calculated by different servers.
+	# This can happen here, when several URLs are merged.
+	# This can happen also in the JavaScript client, where several URLs
+	# are dragged and dropped in the same browser session.
+	# The same object will have different URLs depending on the server where it is detected.
+	# For example, a remote database might be seen from different machines.
+	# These different nodes, representing the same object, must be associated.
+	# For this, we calculated for each node, its universal alias.
+	# This is done, basically, by taking the URL, replacing the host name of where
+	# the object sits, by an IP address.
+	# Nodes with the same
+	def BindIdenticalNodes(self):
+
+		# This maps each universal alias to the set of nodes which have it.
+		# At the end, all nodes with the same universal alias are
+		# linked with a special property.
+		dictUniToObjs = dict()
+
+		def HasUnivAlias(anObject):
+			if lib_kbase.IsLiteral(anObject):
+				return False
+
+			if ( anObject.find("entity.py") >= 0 ) or ( anObject.find("entity_wbem.py") >= 0 ) or( anObject.find("entity_wmi.py") >= 0 ):
+				return True
+
+			return False
+
+		# This calculates the universal alias for each node representing an object.
+		def PrepareBinding(anObject):
+
+			if not HasUnivAlias(anObject):
+				return
+
+			uniDescr = lib_exports.NodeToUniversalAlias(anObject)
+			try:
+				dictUniToObjs[uniDescr].add(anObject)
+			except KeyError:
+				dictUniToObjs[uniDescr] = { anObject }
+
+		for aSubj, aPred, anObj in self.m_graph:
+			PrepareBinding(aSubj)
+			PrepareBinding(anObj)
+
+		for anUniDescr in dictUniToObjs:
+			relatedNodes = dictUniToObjs[anUniDescr]
+			if len(relatedNodes) < 2:
+				continue
+
+			nodePrevious = None
+
+			# These specific links must be very visible and short.
+			# They should be displayed identically in SVG and D3.
+			# Ideally, all objects with the same alias should be a single graphic shape,
+			# with all scripts of each object.
+			for otherNode in relatedNodes:
+				if nodePrevious:
+					self.m_graph.add((nodePrevious,lib_properties.pc.property_alias,otherNode))
+				nodePrevious = otherNode
 
 
 ################################################################################

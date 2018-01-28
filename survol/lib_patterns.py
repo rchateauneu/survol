@@ -71,6 +71,7 @@ ColorLighter.CacheMap = dict()
 
 # Returns graphic parameters given a type without namespace.
 # For example "Win32_Service", "oracle/package"
+# TODO: Should use lib_util.HierarchicalFunctionSearch
 def TypeToGraphParams(typeWithoutNS):
 	# sys.stderr.write("lib_patterns.TypeToGraphParams typeWithoutNS=%s keys=%s\n"%(typeWithoutNS,str(dictGraphParams.keys())))
 
@@ -112,7 +113,7 @@ def TypeToGraphParamsNoCache(typeWithoutNS):
 	vecProps = []
 	for idxGrph in range(len(vecGraphFunctions)):
 		gFuncName = vecGraphFunctions[idxGrph]
-		grphFunc = TypeToGraphParamsNoCacheOneFunc(typeWithoutNS,gFuncName)
+		grphFunc = lib_util.HierarchicalFunctionSearchNoCache(typeWithoutNS,gFuncName)
 
 		if grphFunc:
 			grphVal = grphFunc()
@@ -123,33 +124,6 @@ def TypeToGraphParamsNoCache(typeWithoutNS):
 
 	return vecProps
 
-
-# For example "Graphic_shape" etc... This seeks for a function in this name.
-# This searches in several modules, starting with the module of the entity,
-# then the upper module etc...
-def TypeToGraphParamsNoCacheOneFunc(typeWithoutNS,gFuncName):
-
-	# for the first loop it takes the entire string.
-	lastDot = len(typeWithoutNS)
-	while lastDot > 0:
-
-		topModule = typeWithoutNS[:lastDot]
-		choppedEntityType = typeWithoutNS[:lastDot]
-
-		# Load the module of this entity to see if it defines the graphic function.
-		entity_module = lib_util.GetEntityModule(choppedEntityType)
-
-		if entity_module:
-			try:
-				gFuncAddr = getattr(entity_module,gFuncName)
-				return gFuncAddr
-			except AttributeError:
-				pass
-
-		# Then try the upper level module.
-		lastDot = typeWithoutNS.rfind(".",0,lastDot)
-
-	return None
 
 # This returns an array of format strings which are used to generate HTML code.
 def BuildPatternNode(tp):

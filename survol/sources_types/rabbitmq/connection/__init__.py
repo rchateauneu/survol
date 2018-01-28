@@ -14,6 +14,8 @@ def EntityOntology():
 	return ( ["Url","Connection"], )
 
 def MakeUri(urlName,connectionName):
+	# The url is a host:port pair, and the host is case-insensitive.
+	urlName = urlName.lower()
 	# Needed because RabbitMQ connecton names are like:
 	# "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
 	connectionName = connectionName.replace(">","&gt;")

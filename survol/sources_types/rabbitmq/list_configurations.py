@@ -25,6 +25,10 @@ def Main():
 
 	if credList:
 		for configNam in credList:
+
+			# Nothing else but a host and a port. The host is case insensitive: RFC4343.
+			configNam = configNam.lower()
+
 			sys.stderr.write("configNam=%s\n"%configNam)
 			nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
 
