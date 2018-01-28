@@ -30,7 +30,7 @@ def UniversalAlias(entity_ids_arr,entity_host,entity_class):
         # (entity_ids_arr=[u'desktop-ni99v8e'], entity_host='192.168.0.14', entity_class=u'CIM_ComputerSystem')
         # might possibly throw:
         # "[Errno 11004] getaddrinfo failed "
-        aHostName = socket.gethostbyname(entity_ids_arr[0])
+        aHostName = lib_util.GlobalGetHostByName(entity_ids_arr[0])
     except:
         aHostName = entity_host
 
@@ -169,7 +169,7 @@ def AddInfo(grph,node,entity_ids_arr):
     theHostname = entity_ids_arr[0]
 
     try:
-        ipv4 = socket.gethostbyname(theHostname)
+        ipv4 = lib_util.GlobalGetHostByName(theHostname)
     except:
         grph.add( ( node, pc.property_information, lib_common.NodeLiteral("Unknown machine") ) )
         return

@@ -23,7 +23,7 @@ def Main():
 	# instanceName = cgiEnv.m_entity_id_dict["Instance"]
 	hostname = cgiEnv.GetId()
 
-	hostAddr = socket.gethostbyname(hostname)
+	hostAddr = lib_util.GlobalGetHostByName(hostname)
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
 	cgiEnv = lib_common.CgiEnv()
@@ -39,7 +39,7 @@ def Main():
 		sqlInstHost = instanceName.split(":")[0].strip()
 
 		if ( sqlInstHost != hostname ) and ( sqlInstHost != hostAddr ):
-			sqlInstAddr = socket.gethostbyname(sqlInstHost)
+			sqlInstAddr = lib_util.GlobalGetHostByName(sqlInstHost)
 			if ( sqlInstAddr != hostname ) and ( sqlInstAddr != hostAddr ):
 				continue
 
