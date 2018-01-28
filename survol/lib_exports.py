@@ -125,7 +125,7 @@ def NodeToUniversalAlias(anObject):
 		if False:
 			try:
 				# Might throw: socket.gaierror: [Errno 11004] getaddrinfo failed with "entity_host=desktop-ni99v8e"
-				entity_ip_addr = socket.gethostbyname(entity_host)
+				entity_ip_addr = lib_util.GlobalGetHostByName(entity_host)
 			except:
 				entity_ip_addr = entity_host
 		else:
