@@ -41,7 +41,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	hostAddr = socket.gethostbyname(hostname)
+	hostAddr = lib_util.GlobalGetHostByName(hostname)
 
 	# BEWARE: The rule whether we use the host name or the host IP is not very clear !
 	# The IP address would be unambiguous but less clear.

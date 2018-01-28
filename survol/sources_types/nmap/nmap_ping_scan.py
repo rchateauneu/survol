@@ -12,7 +12,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-# socket.gethostbyname(lib_util.currentHostname) Renvoie "127.0.0.1"
+# lib_util.GlobalGetHostByName(lib_util.currentHostname) Renvoie "127.0.0.1"
 
 # http://stackoverflow.com/questions/3698901/retrieving-netmask-for-interfaces-with-multiple-ip-addresses-using-python
 #
@@ -38,7 +38,7 @@ from lib_properties import pc
 
 
 # Calculates a mask, similar to "192.168.1.0/24"
-#hostAddr = socket.gethostbyname(lib_util.currentHostname)
+#hostAddr = lib_util.GlobalGetHostByName(lib_util.currentHostname)
 #hostSplit = hostAddr.split('.')
 #hostSplit[3] = "0"
 #netMask = '.'.join( hostSplit ) + "/24"
@@ -53,7 +53,7 @@ def Main():
 	# netMask = "192.168.1.0/24"
 
 	# '10.102.235.173'
-	localIpAddr = socket.gethostbyname(socket.gethostname())
+	localIpAddr = lib_util.GlobalGetHostByName(socket.gethostname())
 	
 	splitIpAddr = localIpAddr.split(".")
 	

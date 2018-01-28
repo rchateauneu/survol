@@ -240,10 +240,21 @@ def HostName():
 # hostName
 currentHostname = HostName()
 
+def GlobalGetHostByName(hostNam):
+	timeStart = time.time()
+	try:
+		theIP = socket.gethostbyname(hostNam)
+		sys.stderr.write("GlobalGetHostByName tm=%f OK hostNam=%s theIP=%s\n"%(time.time()-timeStart,hostNam,theIP))
+		return theIP
+	except Exception:
+		sys.stderr.write("GlobalGetHostByName tm=%f FAIL hostNam=%s\n"%(time.time()-timeStart,hostNam))
+		return hostNam
+
+
 # Beware: The machine might have several IP addresses.
 try:
 	# BEWARE: Possibly very slow.
-	localIP = socket.gethostbyname(currentHostname)
+	localIP = GlobalGetHostByName(currentHostname)
 except Exception:
 	# Apparently, it happens if the router is down.
 	localIP = "127.0.0.1"
@@ -256,7 +267,7 @@ def IsLocalAddress(anHostNam):
 		return True
 
 	try:
-		ipOnly = socket.gethostbyname(hostOnly)
+		ipOnly = GlobalGetHostByName(hostOnly)
 	# socket.gaierror
 	except Exception:
 		# Unknown machine
@@ -433,7 +444,7 @@ def EntHostToIp(entity_host):
 def EntHostToIpReally(entity_host):
 	try:
 		hostOnly = EntHostToIp(entity_host)
-		return socket.gethostbyname(hostOnly) # POSSIBLY VERY SLOW.
+		return GlobalGetHostByName(hostOnly) # POSSIBLY VERY SLOW.
 	except Exception:
 		return hostOnly
 
