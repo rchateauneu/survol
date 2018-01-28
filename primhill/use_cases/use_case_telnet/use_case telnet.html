@@ -1,56 +1,480 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol use cases: Windows Explorer</title></head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol use cases: Telnet connection</title>
+
+</head>
 <body>
 <div style="text-align: center; font-family: DejaVu Sans;"><a href="index.html"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="../../LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
 <br>
-</small></small></small>TELNET</span></big></big></big> <br>
+</small></small></small>TELNET</span></big></big></big>
+<br>
 </div>
 <br style="font-family: DejaVu Sans;">
 <span style="font-weight: bold; font-family: DejaVu Sans;"><br>
 <br>
 <br>
 <br>
-</span><span style="font-family: DejaVu Sans;"><br><br>The goal is to examine a telnet sesson between a Linux client and a Windows server:<br><br><span style="font-family: Courier New,Courier,monospace;">[rchateau@fedora22 rdfmon-code]$ telnet 192.168.0.14</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Trying 192.168.0.14...</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Connected to 192.168.0.14.</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Escape character is '^]'.</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Welcome to Microsoft Telnet Service</span><br style="font-family: Courier New,Courier,monospace;"><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">login: rchateau</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">password:</span><br style="font-family: Courier New,Courier,monospace;"><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">*===============================================================</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Microsoft Telnet Server.</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">*===============================================================</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">C:\Users\rchateau&gt;</span><br><br><br></span><h2><span style="font-family: DejaVu Sans;">DEMO SETUP</span></h2><span style="font-family: DejaVu Sans;"><br>We
+</span><span style="font-family: DejaVu Sans;"><br>
+</span><span style="font-family: DejaVu Sans;">This
+use case attempts to
+demonstrate Survol capability to visualize on the same display,
+resources from different machines. Two Survol agents are running on the
+client and the server, and their data need to be displayed on the same
+window.</span><br>
+<h2><span style="font-family: DejaVu Sans;">SETUP</span></h2>
+<span style="font-family: DejaVu Sans;"><br>
+We
 want to focus on processes that Apache might not be able to access,
 notably because Linux security is quite strict. This is why Survol, on
 the client side, is started from a script, with the same user as the
-one running the telnet access.<br><br><br><span style="font-family: Courier New,Courier,monospace;">[rchateau@fedora22 rdfmon-code]$ survol/scripts/cgiserver.py --address 192.168.0.17</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Platform=linux2</span><br style="font-family: Courier New,Courier,monospace;"><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Version:sys.version_info(major=2, minor=7, micro=10, releaselevel='final', serial=0)</span><br style="font-family: Courier New,Courier,monospace;"><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Server address:81.200.64.50</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Opening 192.168.0.17:8000</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">os.environ['PYTHONPATH']=/home/rchateau/rdfmon-code/survol</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Url:http://192.168.0.17:8000/survol/www/index.htm</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">server=192.168.0.17</span><br><br><br><br></span><h2><span style="font-family: DejaVu Sans;">CLIENT SIDE INVESTIGATION</span></h2><span style="font-family: DejaVu Sans;"><br><br>Let's start the telnet session from the Linux box:<br><br><br><br>The Javascript interface gives a global vision:<br><br><img style="width: 444px; height: 263px;" alt="Processes in Javascript display" title="Processes in Javascript display" src="Linux_processes_in_D3.PNG"><br><br><br>The static SVG display is more stable and we can use the search functionality &nbsp;of the browser:<br><br><img style="width: 622px; height: 327px;" alt="Linux processes in static SVG" title="Linux processes in static SVG" src="Linux_processes_in_SVG.PNG"><br><br><br>The
-text interface allows better searching too. This is entirely in text
-so, when documenting an application, instead of "snipping" screen
-copies, it is possible to manipulate HTML copy/paste buffers, like this:<br><br><br></span><table class="class_objects"><tbody><tr bgcolor="#99ff88"><td rowspan="3" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=4483&amp;mode=html">telnet</a></td><td rowspan="1" valign="top">pid</td><td colspan="1">4483</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">ppid</td><td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=3459&amp;mode=html">bash</a></td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">user</td><td colspan="1">rchateau</td></tr></tbody></table><br>Let's click on the client telnet process:<br><br><table border="0"><tbody><tr><td colspan="2"><h2>Overview telnet</h2></td></tr><tr><td colspan="2">Standard process. Uniquely associated to a CIM_ComputerSystem and a parent CIM_Process.</td></tr></tbody></table><table class="table_script_information">
-		<tbody><tr>
-			<td><a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html">CIM_Process</a></td>
-			<td>
-Standard process. Uniquely associated to a CIM_ComputerSystem and a parent CIM_Process.
+one running the telnet access.<br>
+<br>
+<br>
+<span style="font-family: Courier New,Courier,monospace;">[rchateau@fedora22
+rdfmon-code]$ survol/scripts/cgiserver.py --address 192.168.0.17</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Platform=linux2</span><br style="font-family: Courier New,Courier,monospace;">
+<br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Version:sys.version_info(major=2,
+minor=7, micro=10, releaselevel='final', serial=0)</span><br style="font-family: Courier New,Courier,monospace;">
+<br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Server
+address:81.200.64.50</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Opening
+192.168.0.17:8000</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">os.environ['PYTHONPATH']=/home/rchateau/rdfmon-code/survol</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Url:http://192.168.0.17:8000/survol/www/index.htm</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">server=192.168.0.17</span></span><br>
+<span style="font-family: DejaVu Sans;"><br>
+<br>
+Similarly, on the server, Survol is started from a script:<br>
+<br>
+<br>
+<span style="font-family: Courier New,Courier,monospace;">C:\Users\rchateau\Development<br>
+&gt;cd C:\Users\rchateau\Development\PythonStyle</span><br style="font-family: Courier New,Courier,monospace;">
+<br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">C:\Users\rchateau\Development\PythonStyle&gt;python
+survol\scripts\cgiserver.py</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Platform=win32</span><br style="font-family: Courier New,Courier,monospace;">
+<br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Version:sys.version_info(major=2,
+minor=7, micro=10, releaselevel='final', serial=0)</span><br style="font-family: Courier New,Courier,monospace;">
+<br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Server
+address:192.168.0.14</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Opening
+rchateau-HP:8000</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">os.environ['PYTHONPATH']=survol</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Url:http://rchateau-HP:8000/survol/www/index.htm</span><br>
+<br>
+<br>
+<br>
+<br>
+The plan, here, is to examine a telnet sesson between a Linux client
+telnet, IP address 192.168.0.17 and a Windows telnet server,
+192.168.0.14. Let's start the telnet session on the Linux machine:<br>
+<br>
+<span style="font-family: Courier New,Courier,monospace;">[rchateau@fedora22
+rdfmon-code]$ telnet 192.168.0.14</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Trying
+192.168.0.14...</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Connected
+to 192.168.0.14.</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Escape
+character is '^]'.</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Welcome
+to Microsoft Telnet Service</span><br style="font-family: Courier New,Courier,monospace;">
+<br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">login:
+rchateau</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">password:</span><br style="font-family: Courier New,Courier,monospace;">
+<br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">*===============================================================</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">Microsoft
+Telnet Server.</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">*===============================================================</span><br style="font-family: Courier New,Courier,monospace;">
+<span style="font-family: Courier New,Courier,monospace;">C:\Users\rchateau&gt;</span><br>
+<br>
+<br>
+</span><span style="font-family: DejaVu Sans;">This
+document details each steps of the investigation.<br>
+<br>
+</span>
+<h2><span style="font-family: DejaVu Sans;">CLIENT
+SIDE INVESTIGATION</span></h2>
+<span style="font-family: DejaVu Sans;"><br>
+<br>
+<br>
+<br>
+<br>
+<img style="width: 444px; height: 263px; float: right;" alt="Processes in Javascript display" title="Processes in Javascript display" src="Linux_processes_in_D3.PNG"><br>
+</span><span style="font-family: DejaVu Sans;">Let's
+start this investigation but examining the default output of the
+Javascript display. This interface gives a global vision of the many
+processes running on the Linux machine and their mutual
+dependencies.&nbsp;It is convenient as giving a full picture of the
+machine activity. Also, it allows to right-click any node of this graph
+to display more specialized information which are combined with the
+current graph. It is also possible, by right-clicking on the
+backgroujnd, to open a contextual menu of various information.<br>
+<br>
+This display type, on a very busy machine, might give too many
+information. Also, the routing algorithm creates a moving, very dynamic
+and constantly adapting image which might not suit all needs. <br>
+<br>
+This is not an issue as they are several other display types, that we
+are going to test with the same data.<br>
+</span><span style="font-family: DejaVu Sans;"><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</span><span style="font-family: DejaVu Sans;"><img style="width: 622px; height: 327px; float: right;" alt="Linux processes in static SVG" title="Linux processes in static SVG" src="Linux_processes_in_SVG.PNG"></span>Another
+display type creates a static SVG document with the open-source
+software Graphviz. It is more appropriate to generate static documents,
+easier to print or examine or do whatever you like with a SVG file.<br>
+<br>
+<br>
+Also, the output is predictible and identical for the same input data.
+On the other hand, it allows a limited interactivity. However, each
+node is clickable and displays functionally the same data as the
+Javascrit D3 user interface.<span style="font-family: DejaVu Sans;"><br>
+<br>
+Because we can use more features of the browser, we can easily find the
+telnet process with the browser search command. Here, it is in the
+left-bottom corner.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</span><span style="font-family: DejaVu Sans;">Another
+interface type is a
+plain HTML output which allows even better searching. This is entirely
+in text so, when documenting an application, instead of "snipping"
+screen copies, it is possible to manipulate HTML copy/paste buffers, as
+for example in this document.</span> Two other outptu types are
+possible: JSON, used by the D3 interface, and also RDF.<br>
+<br>
+<table class="class_objects">
+<tbody>
+<tr bgcolor="#99ff88">
+<td rowspan="3" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=4483&amp;mode=html">telnet</a></td>
+<td rowspan="1" valign="top">pid</td>
+<td colspan="1">4483</td>
+</tr>
+<tr bgcolor="#99ff88">
+<td rowspan="1" valign="top">ppid</td>
+<td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=3459&amp;mode=html">bash</a></td>
+</tr>
+<tr bgcolor="#99ff88">
+<td rowspan="1" valign="top">user</td>
+<td colspan="1">rchateau</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+Now, we can actuallty examining this process: Let's click on the client
+telnet process and see the HTML output:<br>
+<br>
+<table border="0">
+<tbody>
+<tr>
+<td colspan="2">
+<h2>Overview telnet</h2>
 </td>
-		</tr>
-		
-			<tr>
-				<td>Handle</td>
-				<td>4483</td>
-			</tr>
-			</tbody></table><h3>Class <a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_ComputerSystem.&amp;mode=html">CIM_ComputerSystem</a></h3><table class="class_objects"><tbody><tr bgcolor="#ccffcc"><td rowspan="1" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=192.168.0.17&amp;mode=html">192.168.0.17</a></td><td colspan="2">Current host:192.168.0.17</td></tr> </tbody></table><h3>Class <a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html">CIM_Process</a></h3><table class="class_objects"><tbody><tr bgcolor="#99ff88"><td rowspan="8" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=4483&amp;mode=html">telnet</a></td><td colspan="2"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=192.168.0.17&amp;mode=html">192.168.0.17</a></td></tr><tr bgcolor="#99ff88"><td colspan="2"><a href="http://192.168.0.17:8000/survol/entity.py?xid=user.Domain=192.168.0.17,Name=rchateau&amp;mode=html">rchateau</a></td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">Resident_Set_Size</td><td colspan="1">2236416 B</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">Virtual_Memory_Size</td><td colspan="1">15446016 B</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">command</td><td colspan="1">telnet 192.168.0.14</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">pid</td><td colspan="1">4483</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">runs</td><td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_DataFile.Name=/usr/bin/telnet&amp;mode=html">telnet</a></td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">user</td><td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=user.Domain=192.168.0.17,Name=rchateau&amp;mode=html">rchateau</a></td></tr></tbody></table><br><br>What we really want to see are its sockets, so let's switch to D3 mode:<br><img style="width: 379px; height: 266px;" alt="Telnet client in D3" title="Telnet client in D3" src="telnet_client_in_d3.PNG"><br><br>Right-clicking on the "Telnet" boxes gives a list of script.<br><br><br>Let's choose "Open sockets" which gets the list of sockets open by this process, and merge the result in the disply:<br><br><img style="width: 550px; height: 365px;" alt="Open client sockets" title="Open client sockets" src="telnet_client_sockets_D3.PNG"><br><br>The results of several commands have been merged into a single display:<br>* The telnet client process.<br>* Its open sockets.<br><br>These
-two data can be displayed together, or separately. This merge can be
-done with any kind of script/command. The result is more interesting
-when several commands share nodes.<br><br>A window summarizes all commands mnerged together in a D3 display. It is called "Tools". Let's see the result:<br><br><img style="width: 826px; height: 546px;" alt="Merged scripts on client side" title="Merged scripts on client side" src="Summary_on_client.PNG"><br><br><br>These
-links can be clicked on, separately: They will display there indivudual
-result into a static SVG display (Of course, from there, you can switch
-to the D3 or text display). You can also see the result of their merge,
-in static SVG format, which can be quite convenient for printing:<br><br><img style="width: 275px; height: 239px;" alt="Client-side merged information in static SVG" title="Client-side merged information in static SVG" src="client_mergestatic_SVG.PNG"><br><br><br>But
-you can also drag-and-drop each of thsee links into another browser
-window, notable if this browser is connected on another Survol agent.
-This allows merging data from several agents and several machines. We
-will use that later.<br><br><h2>SERVER SIDE INVESTIGATION</h2><br><br>Now,
-we want to see what happens on the server. Forst problem, we have no
-idea of the process it is connected to. On Windows, no "telnet server"
-process is running. But let's have a look at the open sockets:<br><br><img style="width: 519px; height: 579px;" alt="Global scripts available on server" title="Global scripts available on server" src="server_global_scripts.PNG"><br><br><br><br>Many sockets are displayed, but we do ot know which one is connect to the client:<br><img style="width: 459px; height: 220px;" alt="Some server sockets" title="Some server sockets" src="Some_server_sockets.PNG"><br><span style="font-family: DejaVu Sans;"><br>Form the beowser, it is easier to use the HTML interface:<br><br><br>http://192.168.0.17:8000/survol/sources_types/enumerate_CIM_Process.py?xid=.&amp;mode=html<br><br><br><br><br><br><br><br><br>urlNewNode=http://192.168.0.17:8000/survol/entity.py?xid=addr.Id=127.0.0.1:42280 univAlias=127.0.0.1:42280<br>index.htm:586:13<br>urlNewNode=http://192.168.0.17:8000/survol/entity.py?xid=addr.Id=192.168.0.14:telnet univAlias=192.168.0.14:telnet<br><br><br><br></span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
-Return to <a href="../../survol.htm">Survol</a>, or see more <a href="../../survol_use_cases.html">use cases</a>, or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="../../doxygen_docs/html/index.html">here</a>.</span><br style="font-family: DejaVu Sans;">
-
-
-
-
-
+</tr>
+<tr>
+<td colspan="2">Standard process. Uniquely
+associated to a CIM_ComputerSystem and a parent CIM_Process.</td>
+</tr>
+</tbody>
+</table>
+<table class="table_script_information">
+<tbody>
+<tr>
+<td><a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html">CIM_Process</a></td>
+<td>Standard process. Uniquely associated to a
+CIM_ComputerSystem and a parent CIM_Process.
+</td>
+</tr>
+<tr>
+<td>Handle</td>
+<td>4483</td>
+</tr>
+</tbody>
+</table>
+<h3>Class <a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_ComputerSystem.&amp;mode=html">CIM_ComputerSystem</a></h3>
+<table class="class_objects">
+<tbody>
+<tr bgcolor="#ccffcc">
+<td rowspan="1" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=192.168.0.17&amp;mode=html">192.168.0.17</a></td>
+<td colspan="2">Current host:192.168.0.17</td>
+</tr>
+</tbody>
+</table>
+<h3>Class <a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html">CIM_Process</a></h3>
+<table class="class_objects">
+<tbody>
+<tr bgcolor="#99ff88">
+<td rowspan="8" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=4483&amp;mode=html">telnet</a></td>
+<td colspan="2"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=192.168.0.17&amp;mode=html">192.168.0.17</a></td>
+</tr>
+<tr bgcolor="#99ff88">
+<td colspan="2"><a href="http://192.168.0.17:8000/survol/entity.py?xid=user.Domain=192.168.0.17,Name=rchateau&amp;mode=html">rchateau</a></td>
+</tr>
+<tr bgcolor="#99ff88">
+<td rowspan="1" valign="top">Resident_Set_Size</td>
+<td colspan="1">2236416 B</td>
+</tr>
+<tr bgcolor="#99ff88">
+<td rowspan="1" valign="top">Virtual_Memory_Size</td>
+<td colspan="1">15446016 B</td>
+</tr>
+<tr bgcolor="#99ff88">
+<td rowspan="1" valign="top">command</td>
+<td colspan="1">telnet 192.168.0.14</td>
+</tr>
+<tr bgcolor="#99ff88">
+<td rowspan="1" valign="top">pid</td>
+<td colspan="1">4483</td>
+</tr>
+<tr bgcolor="#99ff88">
+<td rowspan="1" valign="top">runs</td>
+<td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_DataFile.Name=/usr/bin/telnet&amp;mode=html">telnet</a></td>
+</tr>
+<tr bgcolor="#99ff88">
+<td rowspan="1" valign="top">user</td>
+<td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=user.Domain=192.168.0.17,Name=rchateau&amp;mode=html">rchateau</a></td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+Beyond some general purpose information, it shows several links. But
+now that we are able to focus on a single process, let us switch back
+to D3 mode, because it allows some features we will need. Please click
+on the "D3" URL at the end of the page.<br>
+<br>
+<br>
+<img style="width: 379px; height: 266px; float: right;" alt="Telnet client in D3" title="Telnet client in D3" src="telnet_client_in_d3.PNG">This Javascript (D3-based)
+output shows basically the same information as the HTML page, but in a
+more interactive representation. The user can zoom and pan the image,
+but also right-click on each resource to bring extra information to be
+merged in the current graph. Right-clicking on the "Telnet" boxes opens
+a list of script. Each of these scripts runs on the server and returns
+some specific information about the current node: Here, the telnet
+process. It is absolutely safe to try any script, but for the momehnt,
+we are focusing on sockets and communication with the telnet server
+process, running on the Windows machine 192.168.0.14.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<img style="width: 550px; height: 365px; float: right;" alt="Open client sockets" title="Open client sockets" src="telnet_client_sockets_D3.PNG">Let's choose "Open
+sockets" which gets the list of sockets open by this process, and merge
+the result in the current graph.<br>
+<br>
+The results of several commands have been combined into a single
+display:<br>
+<ul>
+<li>The telnet client process, which was the starting point.</li>
+<li>Its open sockets: Here, one socket pair which is used by
+the telnet client process to communicate with the server. The two
+yellow boxes are the two sockets, of type "addr". As expected, one of
+them is created on the server Windows machine.<br>
+</li>
+</ul>
+<br>
+These two data can be displayed together, or separately. This merge can
+be done with any kind of script/command. The result is more interesting
+when several commands share nodes.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<img style="width: 826px; height: 546px; float: right;" alt="Merged scripts on client side" title="Merged scripts on client side" src="Summary_on_client.PNG"><br>
+<br>
+<br>
+<br>
+Another window, we did not talk about yet. summarizes all commands
+merged together in a D3 display. It is called "Tools". Let's see what
+it looks like:<br>
+<ul>
+<li>The first links it the original representation of the
+telnet server.</li>
+<li>The second is the list of sockets open by this process.</li>
+<li>These source of data are combined into a third one, which
+comes last in this list.</li>
+</ul>
+As indicated in the header, each information comes with the number of
+nodes and links, a button to remove it from the display, and also a
+refresh rate to periodically refresh the display by reloading the
+information. We do use these features in this use case.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<img style="width: 275px; height: 239px; float: right;" alt="Client-side merged information in static SVG" title="Client-side merged information in static SVG" src="client_mergestatic_SVG.PNG">The links listed in the
+Summary window can be clicked on, separately:
+They will display there individual result into a static SVG display (Of
+course, from there, you can switch to the D3 or text display). You can
+also see the result of their merge, in static SVG format, which can be
+quite convenient for printing. It allows to build a specific set of
+data with all types on interfaces and, when finished, generate a static
+representation. Of course, it is static in its structure, but is
+automatically updated each time it is displayed.<br>
+<br>
+Another very important feature of the Summary windows is that each of
+the links can be drag-and-dropped into another browser window,
+specifically if this browser is connected on another Survol agent. This
+allows merging data from several agents and several machines. We will
+use that later.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<h2>SERVER SIDE INVESTIGATION</h2>
+<br>
+<br>
+<br>
+<img style="width: 519px; height: 579px; float: right;" alt="Global scripts available on server" title="Global scripts available on server" src="server_global_scripts.PNG"><br>
+Now, we want to see what happens on the server when the telnet client
+on 192.168.0.17 Linux machine is connected onto it.. First problem, we
+have no idea of the process it is connected to. On Windows, apparently,
+no "telnet server" process is running. Let's open the D3 interface,
+and&nbsp;have a look at the open sockets:<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<img style="width: 459px; height: 220px; float: right;" alt="Some server sockets" title="Some server sockets" src="Some_server_sockets.PNG">Many sockets are displayed,
+with their connected servers, but we do not know which one is connected
+to the client. As explained before we will drag-and-drop the second
+link from the Summary window of the client agent, "Open sockets of the
+telnet process". This client-side socket pair will be displayed along
+with the server-side socket pairs. We expect to see, in the same
+display, the same socket pairs as seen from the telnet client and from
+the telnet server.<br>
+<span style="font-family: DejaVu Sans;"><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</span><span style="font-family: DejaVu Sans;"></span><br>
+<span style="font-family: DejaVu Sans;"><br>
+<br>
+<img style="width: 458px; height: 536px; float: left;" alt="Merging client and server data on the server agent" title="Merging client and server data on the server agent" src="merge_client_server_d3.PNG">This is the result of the
+merge.<br>
+<br>
+Several remarks:<br>
+</span>
+<ul>
+<li>Two sockets are linked with a red, thick and dotted line:
+Its links the same socket, represented on two Survol agents: The client
+and the server one. These nodes are not merged because they actually
+point to different machines, which might return different information.</li>
+<li>Two nodes are framed with different colors: One socket and
+one telnet process: This is because, again, they are pointing to a
+different agent than the rest: Here, the client agent. This graph
+actually displays objects from two different agents, and links the
+identical objects with a specific link (Red).</li>
+<li>We can see the server telnet process, here tlntsvr.exe,
+process id=4740.</li>
+<li>Its possible to investigate server and client resources by
+right-clicking (Contextual menu) on each node</li>
+</ul>
+<span style="font-family: DejaVu Sans;"><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</span><span style="font-family: DejaVu Sans;"><br>
+<br>
+<br>
+<img style="width: 448px; height: 298px; float: right;" alt="Summary on server after merging" title="Summary on server after merging" src="Summary_on_server_after_merge.PNG"></span><span style="font-family: DejaVu Sans;">Please open the summary
+window
+of the server agent by clicking on "Tools". One can see that a new line
+representing the open sockets of the client telnet process is now
+added. And, as they are mixed data from an external agent (The server
+one), Survol associates a specific color for all resources of this
+agent, address 192.168.0.17, port number 8000.</span><br>
+<span style="font-family: DejaVu Sans;"><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">Return to <a href="../../survol.htm">Survol</a>, or see more <a href="../../survol_use_cases.html">use cases</a>, or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated
+pages&nbsp;<a href="../../doxygen_docs/html/index.html">here</a>.</span><br style="font-family: DejaVu Sans;">
 <br>
 <span style="font-family: DejaVu Sans;"></span>
 </body></html>
