@@ -62,6 +62,8 @@ def Usage():
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
     print("    -b,--browser=<program>    Starts a browser")
     print("    -v,--verbose              Verbose mode")
+    print("")
+    print("Script must be started with command: survol/scripts/cgiserver.py"
 
 # Setup creates a binary script which directly calls this function.
 # This changes the current directory, so that URLs can point to plain Python scripts.
@@ -173,9 +175,18 @@ def RunCgiServerInternal():
             assert False, "Unhandled option"
 
     currDir = os.getcwd()
-    print("cwd=%s path=%s"% (currDir, str(sys.path)))
-    # os.environ['SERVER_NAME'] = "tototutu"
-    # os.environ['HOSTNAME'] = "tititoto"
+    if verbose:
+        print("cwd=%s path=%s"% (currDir, str(sys.path)))
+
+
+    # The script must be started from a specific directory to ensure the URL.
+    filMyself = open("survol/scripts/cgiserver.py")
+    if not filMyself:
+        print("Script started from wrong directory")
+        Usage()
+        sys.exit()
+    
+
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
     print("Platform=%s\n"%sys.platform)
     print("Version:%s\n"% str(sys.version_info))
@@ -187,14 +198,15 @@ def RunCgiServerInternal():
     except KeyError:
         print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
 
+    theUrl = "http://" + server_name
+    if port_number:
+        if port_number != 80:
+            theUrl += ":%d" % port_number
+    theUrl += "/survol/www/index.htm"
+    print("Url:"+theUrl)
+
     # Starts a thread which will starts the browser.
     if browser_name:
-
-        theUrl = "http://" + server_name
-        if port_number:
-            if port_number != 80:
-                theUrl += ":%d" % port_number
-        theUrl += "/survol/www/index.htm"
 
         if browser_name.startswith("webbrowser"):
             StartsWebrowser(browser_name,theUrl)
@@ -220,7 +232,8 @@ def RunCgiServerInternal():
             def is_cgi(self):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
-                # print("is_cgi collapsed_path=%s"%collapsed_path)
+                if verbose:
+                    print("is_cgi collapsed_path=%s"%collapsed_path)
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
@@ -263,7 +276,8 @@ def RunCgiServerInternal():
         from http.server import CGIHTTPRequestHandler, HTTPServer
         class MyCGIHTTPServer(CGIHTTPRequestHandler):
             def is_cgi(self):
-                sys.stdout.write("is_cgi self.path=%s\n" % self.path)
+                if verbose:
+                    sys.stdout.write("is_cgi self.path=%s\n" % self.path)
 
                 # By defaut, self.cgi_directories=['/cgi-bin', '/htbin']
                 sys.stdout.write("self.cgi_directories=%s\n" % self.cgi_directories)
