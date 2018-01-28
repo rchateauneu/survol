@@ -63,7 +63,7 @@ def Usage():
     print("    -b,--browser=<program>    Starts a browser")
     print("    -v,--verbose              Verbose mode")
     print("")
-    print("Script must be started with command: survol/scripts/cgiserver.py"
+    print("Script must be started with command: survol/scripts/cgiserver.py")
 
 # Setup creates a binary script which directly calls this function.
 # This changes the current directory, so that URLs can point to plain Python scripts.
