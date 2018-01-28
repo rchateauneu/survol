@@ -6,7 +6,7 @@ import sys
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
 
 
-# Consider setuptools.setup
+# TODO: Have a look to setuptools.setup
 from distutils.core import setup
 from setuptools import find_packages
 
@@ -34,7 +34,7 @@ class InstallCommand(install):
         install.initialize_options(self)
         self.port = 24680
 
-        # By dfefault, cgiserver will pick its files from the Python installation directory,
+        # By default, cgiserver will pick its files from the Python installation directory,
         # and this is acceptable because their are part of the same package.
 
         # http://setuptools.readthedocs.io/en/latest/setuptools.html#automatic-script-creation
@@ -139,7 +139,7 @@ extra_files = package_files('survol/www')
 
 setup(
     name='survol',
-    version='1.0.dev1',
+    version='1.0.dev2',
     description='Understanding legacy applications',
     author='Remi Chateauneu',
     author_email='remi.chateauneu@primhillcomputers.com',
