@@ -130,7 +130,7 @@ are going to test with the same data.<br>
 <br>
 <br>
 <br>
-</span><span style="font-family: DejaVu Sans;"><img style="width: 622px; height: 327px; float: right;" alt="Linux processes in static SVG" title="Linux processes in static SVG" src="Linux_processes_in_SVG.PNG"></span>Another
+</span><span style="font-family: DejaVu Sans;"><img style="width: 622px; height: 327px; float: right;" alt="Linux processes in static SVG" title="Linux processes in static SVG" src="Linux_processes_in_SVG.PNG">Another
 display type creates a static SVG document with the open-source
 software Graphviz. It is more appropriate to generate static documents,
 easier to print or examine or do whatever you like with a SVG file.<br>
@@ -143,7 +143,7 @@ Javascrit D3 user interface.<span style="font-family: DejaVu Sans;"><br>
 <br>
 Because we can use more features of the browser, we can easily find the
 telnet process with the browser search command. Here, it is in the
-left-bottom corner.<br>
+left-bottom corner.</span><br>
 <br>
 <br>
 <br>
@@ -179,8 +179,9 @@ possible: JSON, used by the D3 interface, and also RDF.<br>
 </table>
 <br>
 <br>
-Now, we can actuallty examining this process: Let's click on the client
-telnet process and see the HTML output:<br>
+<span style="font-family: DejaVu Sans;">Now, we can
+actually examine this process: Let's click on the client
+telnet process and see the HTML output:</span><br>
 <br>
 <table border="0">
 <tbody>
@@ -256,7 +257,8 @@ CIM_ComputerSystem and a parent CIM_Process.
 </table>
 <br>
 <br>
-Beyond some general purpose information, it shows several links. But
+<span style="font-family: DejaVu Sans;">Beyond some
+general purpose information, it shows several links. But
 now that we are able to focus on a single process, let us switch back
 to D3 mode, because it allows some features we will need. Please click
 on the "D3" URL at the end of the page.<br>
@@ -300,7 +302,7 @@ them is created on the server Windows machine.<br>
 These two data can be displayed together, or separately. This merge can
 be done with any kind of script/command. The result is more interesting
 when several commands share nodes.<br>
-<br>
+</span><br>
 <br>
 <br>
 <br>
@@ -313,7 +315,8 @@ when several commands share nodes.<br>
 <br>
 <br>
 <br>
-Another window, we did not talk about yet. summarizes all commands
+<span style="font-family: DejaVu Sans;">Another window, we
+did not talk about yet. summarizes all commands
 merged together in a D3 display. It is called "Tools". Let's see what
 it looks like:<br>
 <ul>
@@ -326,7 +329,7 @@ comes last in this list.</li>
 As indicated in the header, each information comes with the number of
 nodes and links, a button to remove it from the display, and also a
 refresh rate to periodically refresh the display by reloading the
-information. We do use these features in this use case.<br>
+information. We do use these features in this use case.</span><br>
 <br>
 <br>
 <br>
@@ -335,7 +338,7 @@ information. We do use these features in this use case.<br>
 <br>
 <br>
 <br>
-<img style="width: 275px; height: 239px; float: right;" alt="Client-side merged information in static SVG" title="Client-side merged information in static SVG" src="client_mergestatic_SVG.PNG">The links listed in the
+<img style="width: 275px; height: 239px; float: right;" alt="Client-side merged information in static SVG" title="Client-side merged information in static SVG" src="client_mergestatic_SVG.PNG"><span style="font-family: DejaVu Sans;">The links listed in the
 Summary window can be clicked on, separately:
 They will display there individual result into a static SVG display (Of
 course, from there, you can switch to the D3 or text display). You can
@@ -349,7 +352,7 @@ Another very important feature of the Summary windows is that each of
 the links can be drag-and-dropped into another browser window,
 specifically if this browser is connected on another Survol agent. This
 allows merging data from several agents and several machines. We will
-use that later.<br>
+use that later.</span><br>
 <br>
 <br>
 <br>
@@ -360,11 +363,12 @@ use that later.<br>
 <br>
 <br>
 <img style="width: 519px; height: 579px; float: right;" alt="Global scripts available on server" title="Global scripts available on server" src="server_global_scripts.PNG"><br>
-Now, we want to see what happens on the server when the telnet client
+<span style="font-family: DejaVu Sans;">Now, we want to
+see what happens on the server when the telnet client
 on 192.168.0.17 Linux machine is connected onto it.. First problem, we
 have no idea of the process it is connected to. On Windows, apparently,
 no "telnet server" process is running. Let's open the D3 interface,
-and&nbsp;have a look at the open sockets:<br>
+and&nbsp;have a look at the open sockets:</span><br>
 <br>
 <br>
 <br>
@@ -396,14 +400,15 @@ and&nbsp;have a look at the open sockets:<br>
 <br>
 <br>
 <br>
-<img style="width: 459px; height: 220px; float: right;" alt="Some server sockets" title="Some server sockets" src="Some_server_sockets.PNG">Many sockets are displayed,
+<img style="width: 459px; height: 220px; float: right;" alt="Some server sockets" title="Some server sockets" src="Some_server_sockets.PNG"><span style="font-family: DejaVu Sans;">Many sockets are
+displayed,
 with their connected servers, but we do not know which one is connected
 to the client. As explained before we will drag-and-drop the second
 link from the Summary window of the client agent, "Open sockets of the
 telnet process". This client-side socket pair will be displayed along
 with the server-side socket pairs. We expect to see, in the same
 display, the same socket pairs as seen from the telnet client and from
-the telnet server.<br>
+the telnet server.</span><br>
 <span style="font-family: DejaVu Sans;"><br>
 <br>
 <br>
@@ -414,11 +419,8 @@ the telnet server.<br>
 </span><span style="font-family: DejaVu Sans;"></span><br>
 <span style="font-family: DejaVu Sans;"><br>
 <br>
-<img style="width: 458px; height: 536px; float: left;" alt="Merging client and server data on the server agent" title="Merging client and server data on the server agent" src="merge_client_server_d3.PNG">This is the result of the
-merge.<br>
-<br>
-Several remarks:<br>
-</span>
+<img style="width: 458px; height: 536px; float: right;" alt="Merging client and server data on the server agent" title="Merging client and server data on the server agent" src="merge_client_server_d3.PNG">This is the result of the
+merge. Several remarks:<br>
 <ul>
 <li>Two sockets are linked with a red, thick and dotted line:
 Its links the same socket, represented on two Survol agents: The client
@@ -434,6 +436,7 @@ process id=4740.</li>
 <li>Its possible to investigate server and client resources by
 right-clicking (Contextual menu) on each node</li>
 </ul>
+</span>
 <span style="font-family: DejaVu Sans;"><br>
 <br>
 <br>
