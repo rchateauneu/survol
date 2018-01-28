@@ -43,6 +43,8 @@ def Main():
 
 	# <script id="broadcast-netbios-master-browser" output="..."/>
 
+	# TODO: Remove line "ip server domain"
+
 	for aScript in dom.getElementsByTagName('script'):
 		# output="&#xa;ip server domain&#xa;192.168.0.15  WDMYCLOUDMIRROR  WORKGROUP&#xa;"
 		anOutput = aScript.getAttributeNode('output').value.strip()

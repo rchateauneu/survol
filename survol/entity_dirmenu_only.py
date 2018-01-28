@@ -177,6 +177,7 @@ def DirToMenuAux(callbackGrphAdd,parentNode,curr_dir,relative_dir,entity_type,en
 			except AttributeError:
 				can_process_remote = False
 
+			can_process_remote = True
 			if not can_process_remote:
 				if not errorMsg:
 					errorMsg = "%s is local" % ( entity_host )
