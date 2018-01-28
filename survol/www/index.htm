@@ -25,13 +25,6 @@
 
 <link rel='stylesheet' type='text/css' href=css/html_exports.css>
 
-<script type="text/javascript">
-// This works but not needed yet.
-//window.onerror = function (errorMsg, url, lineNumber) {
-//    alert('Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber);
-//}
-</script>
-
 <style>
 
     .survol_line {
@@ -137,23 +130,19 @@
 <script>
 /*
 TODO:
-- Undo edition.
 - Mix SVG nodes with graphes and trees.
   Maybe they could be linked in a matrix ?
 - For colors, use CSS.
 - When a Json document is empty, should display a message.
 
+Undo edition: For this, use a specific script deleting the object passed in parameters: entity_deleted.py
 We wish to pass several parameters so that scripts and objects can be added or substracted,
 with pattern matching possibilities.
 Should we pass the arguments as GET or as a JSON document ?
 This could assume the CGI structure:
 "http://127.0.0.1:8000/survol.htm?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
 
-What about "+"/"-" ??
-
 xxx.htm?xid=(XID1)&script=(SCRIPT1)&operator=+&xid=(XID2)&script=(SCRIPT2)
-
-By default the operator is "+".
 
 And also we need to restore merge_rdf_inputs_graphviz_only.htm,
 in fact it can handle all modes, something like merger.py.
