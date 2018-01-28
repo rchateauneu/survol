@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol use cases: Windows Explorer</title></head>
+<body>
+<div style="text-align: center; font-family: DejaVu Sans;"><a href="index.html"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="../../LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
+<br>
+</small></small></small>TELNET</span></big></big></big> <br>
+</div>
+<br style="font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"><br>
+<br>
+<br>
+<br>
+</span><span style="font-family: DejaVu Sans;"><br>where ? config ?<br><br>Goal is to examine a telnet sesson betyween a Linux client and a Windows server:<br><br><span style="font-family: Courier New,Courier,monospace;">[rchateau@fedora22 rdfmon-code]$ telnet 192.168.0.14</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Trying 192.168.0.14...</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Connected to 192.168.0.14.</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Escape character is '^]'.</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Welcome to Microsoft Telnet Service</span><br style="font-family: Courier New,Courier,monospace;"><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">login: rchateau</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">password:</span><br style="font-family: Courier New,Courier,monospace;"><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">*===============================================================</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Microsoft Telnet Server.</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">*===============================================================</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">C:\Users\rchateau&gt;</span><br><br><br><br>We want to focus on processes that Apache might not be able to access. This is why Survol is started from a script:<br><br><br><span style="font-family: Courier New,Courier,monospace;">[rchateau@fedora22 rdfmon-code]$ survol/scripts/cgiserver.py --address 192.168.0.17</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Platform=linux2</span><br style="font-family: Courier New,Courier,monospace;"><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Version:sys.version_info(major=2, minor=7, micro=10, releaselevel='final', serial=0)</span><br style="font-family: Courier New,Courier,monospace;"><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Server address:81.200.64.50</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Opening 192.168.0.17:8000</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">os.environ['PYTHONPATH']=/home/rchateau/rdfmon-code/survol</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">Url:http://192.168.0.17:8000/survol/www/index.htm</span><br style="font-family: Courier New,Courier,monospace;"><span style="font-family: Courier New,Courier,monospace;">server=192.168.0.17</span><br><br>Let's start the telnet session from the Linux box:<br><br><br><br>The Javascript interface gives a global vision:<br><br><img style="width: 444px; height: 263px;" alt="Processes in Javascript display" title="Processes in Javascript display" src="Linux_processes_in_D3.PNG"><br><br><br>The static SVG display is more stable and we can use the search functionality &nbsp;of the browser:<br><br><img style="width: 622px; height: 327px;" alt="Linux processes in static SVG" title="Linux processes in static SVG" src="Linux_processes_in_SVG.PNG"><br><br><br>The
+text interface allows better searching too. This is entirely in text
+so, when documenting an application, instead of "snipping" screen
+copies, it is possible to manipulate HTML copy/paste buffers, like this:<br><br><br></span><table class="class_objects"><tbody><tr bgcolor="#99ff88"><td rowspan="3" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=4483&amp;mode=html">telnet</a></td><td rowspan="1" valign="top">pid</td><td colspan="1">4483</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">ppid</td><td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=3459&amp;mode=html">bash</a></td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">user</td><td colspan="1">rchateau</td></tr></tbody></table><br>Let's click on the client telnet process:<br><br><table border="0"><tbody><tr><td colspan="2"><h2>Overview telnet</h2></td></tr><tr><td colspan="2">Standard process. Uniquely associated to a CIM_ComputerSystem and a parent CIM_Process.</td></tr></tbody></table><table class="table_script_information">
+		<tbody><tr>
+			<td><a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html">CIM_Process</a></td>
+			<td>
+Standard process. Uniquely associated to a CIM_ComputerSystem and a parent CIM_Process.
+</td>
+		</tr>
+		
+			<tr>
+				<td>Handle</td>
+				<td>4483</td>
+			</tr>
+			</tbody></table><h3>Class <a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_ComputerSystem.&amp;mode=html">CIM_ComputerSystem</a></h3><table class="class_objects"><tbody><tr bgcolor="#ccffcc"><td rowspan="1" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=192.168.0.17&amp;mode=html">192.168.0.17</a></td><td colspan="2">Current host:192.168.0.17</td></tr> </tbody></table><h3>Class <a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html">CIM_Process</a></h3><table class="class_objects"><tbody><tr bgcolor="#99ff88"><td rowspan="8" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=4483&amp;mode=html">telnet</a></td><td colspan="2"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=192.168.0.17&amp;mode=html">192.168.0.17</a></td></tr><tr bgcolor="#99ff88"><td colspan="2"><a href="http://192.168.0.17:8000/survol/entity.py?xid=user.Domain=192.168.0.17,Name=rchateau&amp;mode=html">rchateau</a></td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">Resident_Set_Size</td><td colspan="1">2236416 B</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">Virtual_Memory_Size</td><td colspan="1">15446016 B</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">command</td><td colspan="1">telnet 192.168.0.14</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">pid</td><td colspan="1">4483</td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">runs</td><td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_DataFile.Name=/usr/bin/telnet&amp;mode=html">telnet</a></td></tr><tr bgcolor="#99ff88"><td rowspan="1" valign="top">user</td><td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=user.Domain=192.168.0.17,Name=rchateau&amp;mode=html">rchateau</a></td></tr></tbody></table><br><br>What we really want to see are its sockets, so let's switch to D3 mode:<br><br><br><br><span style="font-family: DejaVu Sans;"><br>Form the beowser, it is easier to use the HTML interface:<br><br><br>http://192.168.0.17:8000/survol/sources_types/enumerate_CIM_Process.py?xid=.&amp;mode=html<br><br><br><br><br><br><br><br><br><br><br><br><br>
+This investigation scenario is done on a plain Windows machine, where
+the file
+Explorer is always available. The goal is to grab as much information
+as possible about the internal behaviour of a well-known executable.
+The image are taken from the
+static SVG output, as it is more stable to copy/paste. This is a simple
+experiment on a process whose side effects and interactions with other
+resources are more or less known in advance, and quite simple. Please
+note that, no command has to be entered, and no specific knowledge in
+IT is necessary.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 295px; height: 209px; float: left;" alt="Windows explorer process" title="Windows explorer process" src="Windows_explorer_process.PNG">The
+first step is to find the process using the "Process tree" script
+(enumerate_CIM_Process.py).
+In the graph of processes and subprocesses, because it is a SVG
+document, one can use the Browser
+"find" usual command to find one or several processes running
+"explorer.exe", but it is also possible to scroll in the graph. This
+object is of the CIM class CIM_Process. To be exact, this is a subclass
+of this class.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Several
+scripts are available to run on this process. Only the scripts which can run on a Windows
+machine are displayed.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 925px; height: 323px;" alt="Available scripts" title="Available scripts" src="Available_scripts.PNG"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+Of course, the scripts related to Java processes are not worth being&nbsp;called, as Explorer is written
+only in C. Still, a C process could call Java libraries, therefore in
+some tituations these scripts are usable.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 227px; height: 190px; float: left;" alt="URLs in process heap." title="URLs in process heap." src="urls.PNG">The
+scripts in the folder "Regex matching in heap" scan the memory
+process to detect some specific strings, using regular expressions.
+Let's have a look to some of&nbsp;the HTTP urls this process contains.
+It is not entirely clear why this and that URL appears in the process
+memory.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">URLs
+do not have a class name in the CIM terminology. This is not a
+difficulty for Survol which very easily adds its own classes to CIM
+ones: Each Survol class is a Python module, with very few requirements.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 249px; height: 76px; float: right;" alt="Tortoise" title="Tortoise" src="Tortoise.PNG">
+The script displaying sockets does not return anything. On the other
+hand, the list of memory mapped-files is really huge; It
+would be nice to display them in a list instead of a graph. Several of
+them related to TortoiseSVN and TortoiseGIT, for example this library.
+We will see why we think it is dynamically loaded. Memory-mapped files
+are a different entity than plain files, because they convey more
+information such as the amount of memory mapped, the addresses etc...
+Still, there is a one-to-one correspondance with their data file names,
+which is why they have the same name. </span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 689px; height: 508px; float: left;" alt="Processes mapping TortoiseGit.dll" title="Processes mapping TortoiseGit.dll" src="ProcTortoise.PNG"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+It is not uninteresting to see that this DLL is also opened by several
+processes. But why does Snipping Tool accesses this DLL ? This can only
+be an indirect load because it is not part of the static dependency of
+this executable. It is of course possible to click on each process or
+any other resource to have a better idea of possible interactions.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">One can see the associated CIM_DataFile object associated to the mapped file. It has a standard CIM class.</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Back
+to Windows Explorer. Which file does it open ? Unsurprisingly,
+cache files containing icons, if we believe the hint given by their
+names. At the moment, there is no script to decode these (They are no
+SQLLite database files despite the extensions).</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 486px; height: 161px;" alt="Open files" title="Open files" src="open_files.PNG"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+</span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+<img style="width: 260px; height: 373px; float: right;" alt="Filenames in process heap" title="Filenames in process heap" src="files_in_heap.PNG">Without too much
+surprise, we can see the file names contained in the memory
+process. We can find the files which are currently being displayed in the user interface and,
+of course, their names appear in the heap. What is more interesting is
+that they apparently are not stored in a process cache, but simply
+resides in the operating system memory.
+A possible explanation is that Explorer would use the Operating System
+cache.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">By
+default, the script selects only the filenames whose file
+actually exist. So it is possible to click on each filename and
+investigate further, or simply display it if it has a MIME type. But it
+is possible to toggle this flag, and in this case non-existent
+filenames will be displayed.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">The
+logic of searching the process memory for specific patterns is very
+easy to extend to new expressions. At the moment, this can detect SQL
+queries, HTTP URLs, ODBC connections strings, file names and COM
+classes, once a specific characters patterns is defined.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+Now, let's have a look at the executable file itself, and the possibilities offered by Survol:</span><br style="font-family: DejaVu Sans;"><img style="width: 689px; height: 172px; font-family: DejaVu Sans;" alt="Scripts usable on the executable" title="Scripts usable on the executable" src="executable_scripts.PNG"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+Explorer.exe contains several icons ... This is not a very useful
+information in itself, but the methodology can be extended to extract
+any type of information from a CIM_Datafile object.</span><br style="font-family: DejaVu Sans;"><img style="width: 93px; height: 122px; font-family: DejaVu Sans;" alt="Icons" title="Icons" src="Explorer_icons.PNG"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><img style="width: 471px; height: 322px; float: right; font-family: DejaVu Sans;" alt="Import symbols" title="Import symbols" src="Import_Symbols.PNG"><span style="font-family: DejaVu Sans;">
+There is also a script which displays the complete graph of DLLs (Dynamic Link Library) and
+imported symbols from a PE (Portable Executable format) file. This is quite heavy but is exhaustive, and for example
+shows that the Tortoise library can only have been loaded dynamically, as it cannot be found here</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Each
+DLL listed in this diagram can be further browsed by clicking on it.
+Also, each symbol of each DLL can also be explored, because it is an
+object type with its properties and scripts.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">A
+future plan is to disassemble the code of each entry point, to extract
+the call graph (Internal jumps and calls to external functions), but
+this is not available yet.&nbsp;</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
+Return to <a href="../../survol.htm">Survol</a>, or see more <a href="../../survol_use_cases.html">use cases</a>, or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="../../doxygen_docs/html/index.html">here</a>.</span><br style="font-family: DejaVu Sans;">
+
+
+
+
+
+<br>
+<span style="font-family: DejaVu Sans;"></span>
+</body></html>
