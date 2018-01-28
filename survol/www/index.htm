@@ -2278,13 +2278,8 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 
 } // DisplayD3Layout
 
-// At startup. This special case because hosting on OVH is specific.
-var urlInit = null;
-var ixPrim = window.location.hostname.indexOf("primhillcomputers.com");
-if( ixPrim >= 0 )
-    urlInit = AddUrlPrefix( "sources_types/Linux/etc_passwd.py", "xid=.&mode=json");
-else
-    urlInit = AddUrlPrefix( "sources_types/enumerate_CIM_Process.py", "xid=.&mode=json");
+// TODO: This could be a parameter.
+urlInit = AddUrlPrefix( "sources_types/enumerate_CIM_Process.py", "xid=.&mode=json");
 
 
 /* The calling URL might as well be:
