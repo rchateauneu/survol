@@ -1,36 +1,84 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol: Understanding Legacy Applications</title></head>
-<body><div style="text-align: center; font-family: DejaVu Sans;"><a href="index.html"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br><br></small></small></small>SURVOL</span></big></big></big><br></div><br style="font-family: DejaVu Sans;"><span style="font-weight: bold; font-family: DejaVu Sans;"><br><br><br><br>Survol</span><span style="font-family: DejaVu Sans;"> is Primhill Computer's exclusive tool to analyse and investigate running applications. </span><b style="font-family: DejaVu Sans;">Survol</b><span style="font-family: DejaVu Sans;"> is a Python agent and a web interface aiming to help understand an existing information system, perhaps legacy applications.
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>Survol: Understanding Legacy Applications</title>
+
+</head>
+<body>
+<div style="text-align: center; font-family: DejaVu Sans;"><a href="index.html"><img style="border: 0px solid ; width: 200px; height: 200px; float: left;" alt="Logo" src="LogoColorTextRight.jpeg"></a><big><big><big><span style="font-weight: bold;"><small><small><small><br>
+<br>
+</small></small></small>SURVOL</span></big></big></big><br>
+</div>
+<br style="font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"><br>
+<br>
+<br>
+<br>
+Survol</span><span style="font-family: DejaVu Sans;">
+is Primhill Computer's exclusive tool to analyse and investigate
+running applications. </span><b style="font-family: DejaVu Sans;">Survol</b><span style="font-family: DejaVu Sans;"> is a Python agent and a
+web interface aiming to help understand an existing information system,
+perhaps legacy applications.
 A set of machines, processes, databases, programs etc .... all
 communicating with each other,
-manipulating your data, and whose software architecture has become, with time, complicated,&nbsp;difficult to understand, and
-undocumented.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-style: italic; font-family: DejaVu Sans; font-weight: bold;">WHO IS IT MADE FOR?</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Survol is designed for two classes of users:</span><br style="font-family: DejaVu Sans;"><ul style="font-family: DejaVu Sans;"><li>Managers
+manipulating your data, and whose software architecture has become,
+with time, complicated,&nbsp;difficult to understand, and
+undocumented.</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-style: italic; font-family: DejaVu Sans; font-weight: bold;">WHO
+IS IT MADE FOR?</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">Survol is designed
+for two classes of users:</span><br style="font-family: DejaVu Sans;">
+<ul style="font-family: DejaVu Sans;">
+<li>Managers
 in charge of software projects, who must to follow development tasks,
-infrastructure evolutions,&nbsp;by looking directly into what's being
+infrastructure evolutions,&nbsp;by looking directly into what's
+being
 developed. They need a non-technical tool, to extract information from
-a running application at a synthetic level.</li><li>Consultants,
+a running application at a synthetic level.</li>
+<li>Consultants,
 newly-comers on legacy software, who must be grasp quickly an existing
-information system, using many, too many technologies.</li></ul><span style="font-family: DejaVu Sans;">These
-users have something in common: They must quickly grasp a large software architecture, maybe constantly changing:
+information system, using many, too many technologies.</li>
+</ul>
+<span style="font-family: DejaVu Sans;">These
+users have something in common: They must quickly grasp a large
+software architecture, maybe constantly changing:
 With its visual interfaces, Survol is also a team-building tool,
-bringing clarity, helping to give the same names to the same things.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-style: italic; font-family: DejaVu Sans; font-weight: bold;">WHAT DOES IT DO?</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><img title="Processes tree" style="width: 528px; height: 307px; float: right; font-family: DejaVu Sans;" alt="" src="Survol/SnapshotProcesses.PNG"><span style="font-family: DejaVu Sans;">
-Survol allows to display any software entity or resources running on a
+bringing clarity, helping to give the same names to the same things.</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-style: italic; font-family: DejaVu Sans; font-weight: bold;">WHAT
+DOES IT DO?</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<img title="Processes tree" style="width: 528px; height: 307px; float: right; font-family: DejaVu Sans;" alt="" src="Survol/SnapshotProcesses.PNG"><span style="font-family: DejaVu Sans;">Survol allows to display
+any software entity or resources running on a
 computer. Simply said, it is a library of Python scripts, each of them
 displaying a facet of an information system.
-</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">These scripts are run by Survol agents, these agents running on one or several machines of the user application network.
-The web interface then displays and aggregates&nbsp; the heterogeneous information
+</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">These scripts are
+run by Survol agents, these agents running on one or several machines
+of the user application network.
+The web interface then displays and aggregates&nbsp; the
+heterogeneous information
 coming from the agents.
 It is not necessary to have an agent on all machines because many
-scripts can get information from different machines than their own. Strictly said, it is possible to run without
-an&nbsp;agent at all, just with a static JavaScript page which connects to the target machines.</span> <span style="font-family: DejaVu Sans;">The agents are very lightweight and can also run on an </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Internet_of_things"><span style="font-style: italic;">Internet of Things</span></a><span style="font-family: DejaVu Sans;"> (IoT) network.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">
-The
+scripts can get information from different machines than their own.
+Strictly said, it is possible to run without
+an&nbsp;agent at all, just with a static JavaScript page which
+connects to the target machines.</span> <span style="font-family: DejaVu Sans;">The agents are very
+lightweight and can also run on an </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Internet_of_things"><span style="font-style: italic;">Internet of Things</span></a><span style="font-family: DejaVu Sans;"> (IoT) network.</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">The
 data model of Survol is based on classes, each of them defining a type
 of computer resources: Processes, machines, files
-etc...&nbsp;Heterogeneous data are modelled into a single dramework,
+etc...&nbsp;Heterogeneous data are modelled into a single
+dramework,
 then aggregated with an RDF inference engine, creating a global vision
 of the business information processing. It can display for example the
-tree of processes and subprocesses ...</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><img title="Directories and subdirectories" style="width: 372px; height: 234px; float: left; font-family: DejaVu Sans;" alt="" src="Survol/SnapshotFiles.PNG"><span style="font-family: DejaVu Sans;">...
+tree of processes and subprocesses ...</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<img title="Directories and subdirectories" style="width: 372px; height: 234px; float: left; font-family: DejaVu Sans;" alt="" src="Survol/SnapshotFiles.PNG"><span style="font-family: DejaVu Sans;">...
 or a directory and its subdirectories: Each file is displayed with some
 basic properties. One can click on each box to get further information,
 as no keyboard is needed. No special technical skills are needed to use
@@ -38,19 +86,32 @@ Survol. The general details one can grasp about the various interaction
 between components of an information system, greatly help its
 understanding: Links between machines, processes, databases and any
 other components are visible. Useful dependencies are extracted without
-documentation.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Survol
+documentation.</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">Survol
 fully respects the security policy of the network it is running on: If
 the agent runs on a privileged account, it will extract many
 information. But even with a dummy account, it will still be able to
 retrieve useful data about the analysed system. Survol does not ever
 modify or change anything on the machines it is running on, so it is
-very safe.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><img title="Shared memory segments" style="width: 593px; height: 292px; float: left; font-family: DejaVu Sans;" alt="" src="Survol/SnapshotMemmaps.PNG"><span style="font-family: DejaVu Sans;">Here,
+very safe.</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<img title="Shared memory segments" style="width: 593px; height: 292px; float: left; font-family: DejaVu Sans;" alt="" src="Survol/SnapshotMemmaps.PNG"><span style="font-family: DejaVu Sans;">Here,
 this displays the shared memory segments and the processes mapping
 them. Everything can be combined in graphic reports, everyone can
 understand. The data model borrows extensively its ontology and
-terminology from </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Common_Information_Model_%28computing%29">Common Information Model</a><span style="font-family: DejaVu Sans;">,&nbsp;an existing industrial standard. Therefore, it interacts freely with CIM implementations such as </span><a style="font-family: DejaVu Sans;" href="https://msdn.microsoft.com/en-us/library/aa394582%28v=vs.85%29.aspx">Microsoft WMI</a><span style="font-family: DejaVu Sans;">,
+terminology from </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Common_Information_Model_%28computing%29">Common
+Information Model</a><span style="font-family: DejaVu Sans;">,&nbsp;an
+existing industrial standard. Therefore, it interacts freely with CIM
+implementations such as </span><a style="font-family: DejaVu Sans;" href="https://msdn.microsoft.com/en-us/library/aa394582%28v=vs.85%29.aspx">Microsoft
+WMI</a><span style="font-family: DejaVu Sans;">,
 </span><a style="font-family: DejaVu Sans;" href="http://www.openlmi.org/">OpenLMI</a><span style="font-family: DejaVu Sans;">, </span><a style="font-family: DejaVu Sans;" href="http://www.opengroup.org/subjectareas/management/openpegasus">OpenPegasus</a><span style="font-family: DejaVu Sans;"> and
-</span><a style="font-family: DejaVu Sans;" href="https://www.dmtf.org/standards/wbem">WBEM</a><span style="font-family: DejaVu Sans;">, and any other software based on this standard.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">It
+</span><a style="font-family: DejaVu Sans;" href="https://www.dmtf.org/standards/wbem">WBEM</a><span style="font-family: DejaVu Sans;">, and any other software
+based on this standard.</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">It
 is very easy to add new scripts, to display a specific kind of
 information, only your application defines. When resources types are
 not defined by CIM, Survol adds its own resource classes, in a very
@@ -58,26 +119,82 @@ simply way.
 If a user application defines its resources classes, it is very easy to
 add ones, along with associated scripts, in open or proprietary source
 code, without complicated setup. Just create a directory and add a new
-script at the right place, that's it.</span><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><br style="font-family: DejaVu Sans;"><img style="width: 281px; height: 178px; float: right; font-family: DejaVu Sans;" alt="" title="Python modules" src="Survol/SnapshotPythonModules.PNG"><span style="font-family: DejaVu Sans;">The
+script at the right place, that's it.</span><br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<br style="font-family: DejaVu Sans;">
+<img style="width: 281px; height: 178px; float: right; font-family: DejaVu Sans;" alt="" title="Python modules" src="Survol/SnapshotPythonModules.PNG"><span style="font-family: DejaVu Sans;">The
 internal data model built by Survol agents, is a set
-of triples: Subject, relation, object, homogeneous to <span style="font-style: italic;">Resource Description Framework</span> (<a href="https://en.wikipedia.org/wiki/Resource_Description_Framework">RDF</a>), the core data type found in the </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Semantic_Web">Semantic web</a><span style="font-family: DejaVu Sans;">, a standard </span>which provides a framework allowing data to be shared and reused across applications<span style="font-family: DejaVu Sans;">.
+of triples: Subject, relation, object, homogeneous to <span style="font-style: italic;">Resource Description Framework</span>
+(<a href="https://en.wikipedia.org/wiki/Resource_Description_Framework">RDF</a>),
+the core data type found in the </span><a style="font-family: DejaVu Sans;" href="https://en.wikipedia.org/wiki/Semantic_Web">Semantic
+web</a><span style="font-family: DejaVu Sans;">, a
+standard </span>which provides a framework allowing data to be
+shared and reused across applications<span style="font-family: DejaVu Sans;">.
 RDF, especially appropriate for Artificial Intelligence applications,
 is an abstract model for Survol data, which are extracted from
 heterogenous sources information system. Survol displays these data in
-several modes:</span><br style="font-family: DejaVu Sans;"><ul style="font-family: DejaVu Sans;"><li>Interactive mode, fully interactive, designed for investigating, browsing, drilling into applications internals. It uses <a href="https://d3js.org/">D3</a>, a nice JavaScript library for manipulating graphs.</li><li>A
+several modes:</span><br style="font-family: DejaVu Sans;">
+<ul style="font-family: DejaVu Sans;">
+<li>Interactive mode, fully interactive, designed for
+investigating, browsing, drilling into applications internals. It uses <a href="https://d3js.org/">D3</a>, a nice JavaScript
+library for manipulating graphs.</li>
+<li>A
 print
 mode, where the rendered view cannot be modified but is designed to be
 nicely printed for reporting or presentations. The appearance is
 similar to the interactive one, but the layout does not depend on User
 interaction. It
-uses <a href="http://www.graphviz.org/">Graphviz</a>, an&nbsp;open source graph visualization software.</li><li>The plain HTML mode, convenient to generate reports in plain text, reports which can be saved, and compared.</li></ul><span style="font-family: DejaVu Sans;">Survol,
+uses <a href="http://www.graphviz.org/">Graphviz</a>,
+an&nbsp;open source graph visualization software.</li>
+<li>The plain HTML mode, convenient to generate reports in
+plain text, reports which can be saved, and compared.</li>
+</ul>
+<span style="font-family: DejaVu Sans;">Survol,
 is an
 open-source project: Everyone can&nbsp;freely download and use it.
-Survol can have add-ons: It is very easy to customize Survol by adding new
+Survol can have add-ons: It is very easy to customize Survol by adding
+new
 scripts and classes: One just need to add Python scripts at the right
-place: Their returned information can&nbsp;now fully integrate with the
+place: Their returned information can&nbsp;now fully integrate with
+the
 rest of Survol model. Survol fully uses Python documentation features
-to expose your add-on and its integrated documentation.</span><br style="font-family: DejaVu Sans;"><span style="font-style: italic; font-family: DejaVu Sans;"><br><span style="font-weight: bold;">CAN I TRY?</span></span><br style="font-family: DejaVu Sans; font-weight: bold;"><span style="font-family: DejaVu Sans; font-weight: bold;"></span><br style="font-family: DejaVu Sans;"><span style="font-family: DejaVu Sans;">Survol is installed on this Linux machine, in different configurations:</span><ul style="font-family: DejaVu Sans;"><li><a href="ui/index.htm">Javascript interface</a> : This is the main entry point.</li><li><a href="http://primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/sources_types/Linux/etc_passwd.py&amp;xid=.&amp;mode=html">Entry point, in text mode</a></li><li><a href="http://primhillcomputers.ddns.net/Survol/survol/www/index.htm">Survol on Fedora Linux</a> :This is a Fedora 22 machine, with a complete installation (Sometimes stopped).</li></ul><br>Here, you will find some <a href="survol_use_cases.html">use cases</a>.<br><br><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">HOW MUCH DOES IT COST?</span></span><br><br><span style="font-family: DejaVu Sans;">Survol
-is free and open-source, and will stay so. But users might invest into its
-installation, consulting, training. Or possibly into proprietary development of
-specific scripts, adapted to their own needs.<br><br></span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">QUESTIONS?</span></span><br><span style="font-family: DejaVu Sans;"><br></span><span style="font-family: DejaVu Sans;">See the <a href="survol_faq.html">FAQs</a></span>, <span style="font-family: DejaVu Sans;">the <a href="survol_architecture.html">architecture</a>, <a href="survol_installation.html">installation notes</a>, <a href="survol_use_cases.html">use cases</a>, or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated pages&nbsp;<a href="doxygen_docs/html/index.html">here</a>.</span><br><span style="font-family: DejaVu Sans;"><br>Please contact us for any <a href="mailto:remi.chateauneu@primhillcomputers.com">question</a>.</span><br style="font-weight: bold; font-family: DejaVu Sans;"><span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;"></body></html>
+to expose your add-on and its integrated documentation.</span><br style="font-family: DejaVu Sans;">
+<span style="font-style: italic; font-family: DejaVu Sans;"><br>
+<span style="font-weight: bold;">CAN I TRY?</span></span><br style="font-family: DejaVu Sans; font-weight: bold;">
+<span style="font-family: DejaVu Sans; font-weight: bold;"></span><br style="font-family: DejaVu Sans;">
+<span style="font-family: DejaVu Sans;">Survol is
+installed on this Linux machine, in different configurations:</span>
+<ul style="font-family: DejaVu Sans;">
+<li><a href="ui/index.htm">Javascript interface</a>
+: This is the main entry point.</li>
+<li><a href="http://primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/sources_types/Linux/etc_passwd.py&amp;xid=.&amp;mode=html">Entry
+point, in text mode</a></li>
+<li><a href="http://primhillcomputers.ddns.net/Survol/survol/www/index.htm">Survol
+on Fedora Linux</a> :This is a Fedora 22 machine, with a complete
+installation (Sometimes stopped).</li>
+</ul>
+<br>
+<span style="font-family: DejaVu Sans;">Here, you will find some <a href="survol_use_cases.html">use
+cases</a>.</span><br>
+<br>
+<span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">HOW MUCH DOES IT COST?</span></span><br>
+<br>
+<span style="font-family: DejaVu Sans;">Survol
+is free and open-source, and will stay so. But users might invest into
+its
+installation, consulting, training. Or possibly into proprietary
+development of
+specific scripts, adapted to their own needs.<br>
+<br>
+</span><span style="font-style: italic; font-family: DejaVu Sans;"><span style="font-weight: bold;">QUESTIONS?</span></span><br>
+<span style="font-family: DejaVu Sans;"><br>
+</span><span style="font-family: DejaVu Sans;">See
+the <a href="survol_faq.html">FAQs</a></span>,
+<span style="font-family: DejaVu Sans;">the <a href="survol_architecture.html">architecture</a>, <a href="survol_installation.html">installation notes</a>,
+<a href="survol_use_cases.html">use cases</a>, or <a href="http://www.stack.nl/%7Edimitri/doxygen/">Doxygen</a>-generated
+pages&nbsp;<a href="doxygen_docs/html/index.html">here</a>.</span><br>
+<span style="font-family: DejaVu Sans;"><br>
+Please contact us for any <a href="mailto:remi.chateauneu@primhillcomputers.com">question</a>.</span><br style="font-weight: bold; font-family: DejaVu Sans;">
+<span style="font-weight: bold; font-family: DejaVu Sans;"></span><br style="font-family: DejaVu Sans;">
+</body></html>

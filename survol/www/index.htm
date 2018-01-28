@@ -1573,11 +1573,12 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         // .attr("marker-end", function (d) { if (d.value == 1) { return "url(#arrowhead)"; } else { return " "; }; })
         // .append("svg:title").text(function(d) { return d.link_prop; })
 
-        /* Could not find a way to use CSS */
+        // Could not find a way to use CSS.
+        // TODO: Change styles with parameters.
         .style("stroke", function (d) {
             console.log("stroke link attr d.link_class="+d.link_class);
             if( d.link_class == undefined )
-                return "green";
+                return "black";
             else {
                 return "red";
                 }

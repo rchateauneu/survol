@@ -76,7 +76,7 @@ def GetWmiUserPass(machWithBackSlashes):
 
 	# WMI does not do local connection with the local IP.
 	try:
-		machIP = socket.gethostbyname(cleanMachNam)
+		machIP = lib_util.GlobalGetHostByName(cleanMachNam)
 	except:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Cannot connect to WMI server:%s" % cleanMachNam)

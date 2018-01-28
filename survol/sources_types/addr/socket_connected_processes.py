@@ -23,7 +23,7 @@ def Main():
 	socketSplit = socketNam.split(':')
 	socketName = socketSplit[0]
 
-	socketAddr = socket.gethostbyname(socketName)
+	socketAddr = lib_util.GlobalGetHostByName(socketName)
 
 	allIpAddrs = [i[4][0] for i in socket.getaddrinfo(socket.gethostname(), None)]
 

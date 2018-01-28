@@ -335,7 +335,7 @@ def Main():
     # Remote client=82.45.12.63
 
     currHostNam = socket.gethostname()
-    currHostAddr = socket.gethostbyname(currHostNam)
+    currHostAddr = lib_util.GlobalGetHostByName(currHostNam)
     addrRemote = os.environ['REMOTE_ADDR']
 
     WrtAsUtf("""
