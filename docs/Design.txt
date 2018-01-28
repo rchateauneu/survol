@@ -1,4 +1,4 @@
-
+﻿
 ============================================================================================================
 Some ideas about services discovery:
 
@@ -1605,3 +1605,6 @@ Shared memory :
 "Hide system DLLs"
 
 ============================================================================================================
+For the documentation, consider:
+http://www.purplepixie.org/freenats/wiki/Introduction
+https://www.mediawiki.org/wiki/MediaWiki
