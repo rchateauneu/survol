@@ -136,16 +136,16 @@ except ImportError:
 			try:
 				return os.readlink(self.m_proc+'/exe')
 			except:
-				return "No executable"
+				return "Pid %s: No executable" % str(self.pid)
 
 		def cmdline(self):
 			try:
 				file = open(self.m_proc+'/cmdline', 'r')
 				text = file.read()
 				file.close()
-				return text
+				return [ text ]
 			except:
-				return "No command"
+				return [ "No command" ]
 
 		def connections(self,kind):
 			return []
