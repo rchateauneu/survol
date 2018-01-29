@@ -669,7 +669,7 @@ class CgiEnv():
 	# the unique generation of graphic data.
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 		global globalCgiEnvList
-		sys.stderr.write("OutCgiRdf globalMergeMode=%d len(globalCgiEnvList)=%d\n"%(globalMergeMode,len(globalCgiEnvList)))
+		# sys.stderr.write("OutCgiRdf globalMergeMode=%d len(globalCgiEnvList)=%d\n"%(globalMergeMode,len(globalCgiEnvList)))
 		sys.stderr.write("OutCgiRdf m_calling_url=%s m_page_title=%s\n"%(self.m_calling_url,self.m_page_title))
 
 		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
