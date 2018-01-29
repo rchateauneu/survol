@@ -2,20 +2,32 @@
 ============================================================================================================
 Some ideas about services discovery:
 
-* If using SLP, we could add more attributes, even optional.
-* consider using UPNP with drag'n'drop, for merging.
+* With SLP, we could add more attributes, even optional.
+* Consider using UPNP with drag'n'drop, for merging.
 
+============================================================================================================
+Graphic attributes applicable to all objects:
+* Check if the owner of an object is similar to the user running the agent.
+* Most object belong to a user on this machine: This could be a standard attribute of all objects.
+* Any error, or impossiblity to get an information about an object, could be returned.
+  We could then add a little graphic information: The goal is to make the D3 rendering, less dull.
+* Or attribute to each user, a little icon with the initial of the username.  
 ============================================================================================================
 
 The idea of merging identical nodes came from RDF: http://www.w3.org/TR/rdf-mt/
 
 This allows identical nodes calculated form several scripts, and several agents running on different 
-machines, to be merged into one.
+machines, to be merged into one. This is the role of the universal alias.
 
 ============================================================================================================
 DOT format allows to create embedded graphes.
-Maybe it could be used to display the hierarchy of sub-processes.
-
+This can be used to gather urls into parents, parents of parents etc...
+This is similar to the representation of bookmarks.htm file.
+Also, the concept is the same as merging ruls, then merging the merged urls etc...
+At each level of imbrication, it will be possible to implode graphes,
+that is, to replace all objects of an URL by a single object,
+keeping only the links between internal nodes (Now replaced by a single one)
+and external nodes. 
 ============================================================================================================
 
 "A responsive table will display a horizontal scroll bar if the screen is too small to display the full content.
@@ -43,20 +55,13 @@ http://docs.fedoraproject.org/en-US/Fedora/17/html/System_Administrators_Guide/s
 HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes.
 
 ============================================================================================================
+As a design rule: Scripts are redundant. This means that several scripts might return the same information,
+or redundant data etc... But identical data is merged, which makes redundancy invisible.
+Redundancy of scripts make the system more robust.
+
+============================================================================================================
 FROM HERE, IDEAS, NOTES ETC... CURRENTLY BEING TRANSLATED
 ============================================================================================================
-
-http://tw.rpi.edu/web/tool/vraer
-
-Javascript devra peut-etre uploader les fichiers, ce qui nous dispenserait d'avoir un serveur local.
-Pas urgent mais on se laisse la possiblite de cette architecture, ou tout est decouple
-d'une machine a l'autre, d'un process a l'autre, sans avoir forcement besoin de demarrer
-des serveurs.
-
-============================================================================================================
-De facon generale, toute action doit pouvoir etre faite avec deux outils differents ou plus.
-C'est pour ca qu'il faut pouvoir utiliser les scripts en ligne de commande.
-
 
 ============================================================================================================
 
