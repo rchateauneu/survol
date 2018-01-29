@@ -99,7 +99,6 @@ def AddInfo(grph,node,entity_ids_arr):
 		# TODO: Should add the hostname to the user ???
 		user_name_host = lib_common.FormatUser( user_name )
 		user_node = lib_common.gUriGen.UserUri(user_name_host)
-		sys.stderr.write("================== user_node=%s\n"%str(user_node))
 		grph.add( ( node, pc.property_user, user_node ) )
 
 		szResidSetSz = PsutilResidentSetSize(proc_obj)
