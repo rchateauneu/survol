@@ -36,7 +36,6 @@ def AddInfo(grph,node,entity_ids_arr):
 	grph.add( ( node, pc.property_has_socket, nodeHost ) )
 
 def UniversalAlias(entity_ids_arr,entity_host,entity_class):
-	timeStart = time.time()
 	socketAddr, socketPort = entity_ids_arr[0].split(":")
 
 	# Is the host an IP address ?
@@ -56,10 +55,7 @@ def UniversalAlias(entity_ids_arr,entity_host,entity_class):
 	except:
 		socketPortNumber = socketPort
 
-	timeEnd = time.time()
-	timeDelta = timeEnd - timeStart
 	uniAlias = str(sockIP) + ":" + str(socketPortNumber)
-	sys.stderr.write("addr.UniversalAlias tm=%f entity_ids_arr=%s entity_host=%s uniAlias=%s\n"%(timeDelta,str(entity_ids_arr),entity_host,uniAlias))
 	return uniAlias
 
 
