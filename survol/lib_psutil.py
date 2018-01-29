@@ -224,9 +224,14 @@ def PsutilProcToPPid(proc):
 
 def PsutilProcToName(proc):
 	try:
-		# WinXP, old version
-		return proc.name()
+		procNam = proc.name()
+		# Very often, the process name will just be the executable file name.
+		# So we shorten because it is nicer.
+		if procNam.upper().endswith(".EXE"):
+			procNam = procNam[:-4]
+		return procNam
 	except TypeError:
+		# Old psutil version.
 		return proc.name
 
 def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
