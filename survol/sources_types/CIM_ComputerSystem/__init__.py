@@ -104,7 +104,7 @@ def AddWmiServers(entity_host, nameSpace, entity_type, entity_id):
     sys.stderr.write("AddWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
 
     mapWmi = dict()
-    if lib_wmi.ValidClassWmi(entity_host, entity_type):
+    if lib_wmi.ValidClassWmi(entity_type):
         # TODO: We may also loop on all machines which may describe this object.
         wmiurl = lib_wmi.GetWmiUrl( entity_host, nameSpace, entity_type, entity_id )
         # sys.stderr.write("wmiurl=%s\n" % str(wmiurl))
