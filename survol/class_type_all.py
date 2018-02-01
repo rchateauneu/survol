@@ -152,7 +152,7 @@ def AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id):
 			pairNameNodeWbem = CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
 	pairNameNodeWmi = None
-	if lib_wmi.ValidClassWmi(entity_host, className):
+	if lib_wmi.ValidClassWmi(className):
 		pairNameNodeWmi = CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
 	# Match the two inheritance trees.
