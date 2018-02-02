@@ -27,15 +27,6 @@ def UriToTitle(uprs):
 
 ################################################################################
 
-def EntityArrConcat(entity_type,entity_ids_arr):
-	# General case of a URI created by us and for us.
-	ent_ids_joined = ",".join(entity_ids_arr)
-	if lib_patterns.TypeToGraphParams( entity_type ) is None:
-		# If the type does not have a special color, add its name.
-		return ent_ids_joined + " (" + entity_type + ")"
-	else:
-		return ent_ids_joined
-
 def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
 	funcEntityName = lib_util.HierarchicalFunctionSearch(entity_type,"EntityName")
 
@@ -43,9 +34,22 @@ def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
 		entity_name = funcEntityName(entity_ids_arr)
 		return entity_name
 
-	return EntityArrConcat(entity_type,entity_ids_arr)
+	# General case of a URI created by us and for us.
+	ent_ids_joined = ",".join(entity_ids_arr)
+	if lib_patterns.TypeToGraphParams( entity_type ) is None:
+		# If the type does not have a special color, add its name.
+		return  "%s (%s)" % ( ent_ids_joined, entity_type )
+	else:
+		return ent_ids_joined
 
-
+# This calls for an object, the class-specific function UniversalAlias, if it exists.
+# Otherwise, it generates a default string with the object's parameters.
+# The universal alias of an object is the same for all Survol agents no matter what
+# the host they are running on, or their URL.
+# Therefore, if several agents are running on the same machine but are hosted differently
+# (Apache, IIS, cgiserver.py script running with different accounts and different port numbers),
+# they will calculate the same universal alias for the same objects, even if
+# the URLs are different.
 def EntityArrToAlias(entity_type,entity_ids_arr,entity_host, force_entity_ip_addr ):
 
 	funcUniversalAlias = lib_util.HierarchicalFunctionSearch(entity_type,"UniversalAlias")
@@ -53,17 +57,19 @@ def EntityArrToAlias(entity_type,entity_ids_arr,entity_host, force_entity_ip_add
 	if funcUniversalAlias:
 		univAlias = funcUniversalAlias(entity_ids_arr,force_entity_ip_addr,entity_type)
 	else:
-		univAlias = force_entity_ip_addr + "@" + EntityArrConcat(entity_type,entity_ids_arr)
+		# The default alias must contain the class name otherwise there could be an ambiguity
+		# between objects of different classes, on the same machine with the attributes values.
+		ent_ids_joined = ",".join(entity_ids_arr)
+
+		univAlias = "%s@%s:%s" % (force_entity_ip_addr, entity_type, ent_ids_joined)
 
 	#sys.stderr.write("EntityArrToAlias entity_type=%s entity_ids_arr=%s force_entity_ip_addr=%s univAlias=%s\n"
 	#				 %(entity_type,str(entity_ids_arr),force_entity_ip_addr,univAlias) )
 	return univAlias
 
-# Dans les cas des associations on a pu avoir:
+# For an association, we might have:
 # entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"
-# Ca n est pas facile a gerer, on va essayer d'eviter ca en amont, en traitant a part les references et les associations.
-# Ca se compred car elles sont de toutes facons destinees a etre traitees autrement.
-# Notons que SplitMoniker() ne garde que le premier groupe.
+# This is not easy to manage but avoids ambiguities.
 def EntityToLabel(entity_type,entity_ids_concat, entity_host, force_entity_ip_addr):
 	# sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
 
@@ -71,19 +77,11 @@ def EntityToLabel(entity_type,entity_ids_concat, entity_host, force_entity_ip_ad
 	if not entity_ids_concat:
 		return entity_type
 
-	# TODO: Meme logique foireuse mais robuste, tant que la valeur ne contient pas "=".
-	# TODO: Des que les choses sont stables, on mettra "=" dans tous les URLs.
-	# TODO: Mais il faut un dictionnaire de donnees pour toutes les classes.
-	# VERY SLOW !!!
+	# TODO: Robust logic as long as the value does ot contain an '=' sign.
 	splitKV = lib_util.SplitMoniker(entity_ids_concat)
 
 	# Now build the array of values in the ontology order.
 	ontoKeys = lib_util.OntologyClassKeys(entity_type)
-
-	# TODO: On obtient ceci avec des classes externes:
-	# 'Id? (MSFT_CliAlias);FriendlyName="Alias" '
-	# DONC: OntologyClassKeys() ne devrait renvoyer [ "Id" ] que pour nos classes, par defaut.
-	# et sinon une chaine vide.
 
 	# Default value if key is missing.
 	entity_ids_arr = [ splitKV.get( keyOnto, keyOnto + "?" ) for keyOnto in ontoKeys ]
