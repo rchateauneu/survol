@@ -212,8 +212,14 @@ def PropToShortPropNam(collapsProp):
 
 # Only some scripts are exported to Json.
 def ScriptForJson(url):
-	# The two only internal scripts accepted.
+	# TODO: Do something faster and more elegant.
 	if( url.find("survol/entity.py") >= 0):
+		return True
+
+	if( url.find("survol/entity_wmi.py") >= 0):
+		return True
+
+	if( url.find("survol/entity_wbem.py") >= 0):
 		return True
 
 	if( url.find("survol/entity_info_only.py") >= 0):
@@ -324,7 +330,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
 	# Now, this creates the nodes sent as json objects.
 	numNodes = len(NodeToJsonObj.dictNod2Json)
-	sys.stderr.write("Grph2Json numNodes=%d\n"%numNodes)
+	# sys.stderr.write("Grph2Json numNodes=%d\n"%numNodes)
 	nodes = [None] * numNodes
 	for nod in NodeToJsonObj.dictNod2Json:
 		nodObj = NodeToJsonObj.dictNod2Json[nod]
