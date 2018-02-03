@@ -5,6 +5,7 @@ WMI instance
 """
 
 import sys
+import time
 import lib_common
 import lib_wmi
 import lib_util
@@ -97,6 +98,12 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,ma
 	"""
 
 	for prpName in objWmi.properties:
+
+		# Some common properties are not displayed because the value is cumbersome
+		# and the occurrence repetitive.
+		if prpName in ["OSName"]:
+			continue
+
 		prpProp = lib_common.MakeProp(prpName)
 
 		try:
@@ -116,6 +123,30 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,ma
 		else:
 			# BEWARE, it could be None.
 			value = getattr(objWmi,prpName)
+
+		# Date format: "20189987698769876.97987+000", Universal Time Coordinate (UTC)
+		# yyyymmddHHMMSS.xxxxxx +- UUU
+		# yyyy represents the year.
+		# mm represents the month.
+		# dd represents the day.
+		# HH represents the hour (in 24-hour format).
+		# MM represents the minutes.
+		# SS represents the seconds.
+		# xxxxxx represents the milliseconds.
+		# UUU represents the difference, in minutes, between the local time zone and Greenwich Mean Time (GMT).
+		if prpName in ["CreationDate"]:
+			try:
+				dtYear = value[0:4]
+				dtMonth = value[4:6]
+				dtDay = value[6:8]
+				dtHour = value[8:10]
+				dtMinute = value[10:12]
+				dtSecond = value[12:14]
+
+				value = "%s-%s-%s %s:%s:%s" % (dtYear,dtMonth,dtDay,dtHour,dtMinute,dtSecond)
+			except:
+				pass
+
 
 		# Some specific properties match a Survol class,
 		# so it is possible to add a specific node.
@@ -375,6 +406,8 @@ def Main():
 	wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
 
 	# This returns the map of units for all properties of a class.
+	# Consider using the value of the property "OSCreationClassName",
+	# because units properties of base classes are not always documented.
 	mapPropUnits = lib_wmi.WmiDictPropertiesUnit(connWmi, className)
 
 	# In principle, there should be only one object to display.
