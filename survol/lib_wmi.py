@@ -101,7 +101,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 
 	wmiMachine, wmiUser, wmiPass = GetWmiUserPass(machWithBackSlashes)
 
-	wmiMachineIpAddr =  socket.gethostbyaddr(wmiMachine)
+	#wmiMachineIpAddr =  socket.gethostbyaddr(wmiMachine)
 	#sys.stderr.write("WmiConnect wmiMachine=%s wmiMachineIpAddr=%s wmiUser=%s wmiPass=%s\n" % ( wmiMachine,wmiMachineIpAddr,wmiUser,wmiPass ) )
 
 	dictParams = {}
@@ -156,7 +156,8 @@ def WmiGetClassKeys( wmiNameSpace, wmiClass, cimomSrv ):
 
 # Normally we must find the right namespace, but default value is OK most of times.
 def BuildWmiNamespaceClass( entity_namespace, entity_type ):
-	# TODO: Change this default namespace.
+	# TODO: This is the default namespace where all "interesting" classes are.
+	# At the moment, this is hard-coded because we have no interest into other namespaces.
 	wmiNamespace = "root\\CIMV2"
 	# Normally we should check if this class is defined in this cimom. For the moment, we assume, yes.
 	return ( wmiNamespace, entity_type, wmiNamespace + ":" + entity_type )
@@ -225,13 +226,12 @@ def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 # These classes have too many members to be listed or even counted, let alone displayed.
 def WmiTooManyInstances(className):
 	# TODO: This list Should also include their base classes.
-	# TODO: Have a mechanism to stop the process when it tales too long to return.
+	# TODO: Have a mechanism to stop the process when it takes too long to return.
 	return className in ['Win32_ComputerSystem','PG_ComputerSystem','CIM_UnitaryComputerSystem',
 						 'CIM_ComputerSystem','CIM_System','CIM_LogicalElement','Win32_UserAccount',
 						 'Win32_Group', 'CIM_ManagedSystemElement', 'CIM_Dependency', 'CIM_LogicalFile',
 						 'CIM_SoftwareElement', 'CIM_Directory', 'CIM_DataFile' ]
 
-# TODO: What does it do ?????
 def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
 	clsObj = getattr( connWmi, classNam )
 	drv = clsObj.derivation()
@@ -257,6 +257,38 @@ def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
 # Applies to: properties, methods, parameters
 # Type of unit in which the associated data item is expressed. The default is NULL.
 # For example, a size data item might have a value of "bytes" for Units."
+#
+#
+# There are unit conversions which are specific to WMI.
+# Example when displaying a Win32_Process:
+# http://rchateau-hp:8000/survol/entity_wmi.py?xid=%5C%5CRCHATEAU-HP%5Croot%5Ccimv2%3A3AWin32_Process.Handle%3D%221988%22
+#
+# CSCreationClassName Win32_ComputerSystem
+# KernelModeTime      407006609 100 nanoseconds
+# OtherTransferCount  13745472 bytes
+# PageFileUsage       56264 kilobytes
+# PeakPageFileUsage   133264 kilobytes
+# PeakVirtualSize     315052032 bytes
+# PeakWorkingSetSize  116432 kilobytes
+# ReadTransferCount   639502009 bytes
+# UserModeTime        798881121 100 nanoseconds
+# VirtualSize         235409408 bytes
+# WorkingSetSize      15052800 bytes
+# WriteTransferCount  13204197 bytes
+#
+# Some properties of the base class do not have an unit although they should.
+# See CIM_Process, base class of Win32_Process:
+# VirtualSize, PeakWorkingSetSize, PeakVirtualSize have no units.
+# On the other hand WorkingSetSize is in "B" as expected.
+#
+# TODO: To fix this, for an object of type CIM_Process, use OSCreationClassName="Win32_OperatingSystem"
+# That is: Use the units of the property of the actual class of the object, not its base class.
+#
+# Some units could be created:
+# "PageFaults" : page / second
+# "PageFileUsage" : Page
+# "PeakPageFileUsage" : Page
+#
 def WmiDictPropertiesUnit(connWmi, className):
 	theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
 
@@ -355,6 +387,7 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 		grph.add( ( wmiClassNode, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(errStr) ) )
 
 # Tells if this class for our ontology is in a given WMI server, whatever the namespace is.
+# This is used to display or not, the WMI url associated to a Survol object.
 def ValidClassWmi(className):
 	tpSplit = className.split("_")
 	tpPrefix = tpSplit[0]
