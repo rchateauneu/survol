@@ -28,18 +28,30 @@ function AddUrlCgiArg(urlQuery, cgiArgs )
 	return urlQuery;
 }
 
+/* This adds a prefix to URLs into Survol scripts.
+It is needed by D3 library to fetch JSON data.
+Also, needed with OVH hosting because it does not allow to call our Python scripts
+as CGI scripts.
+*/
 function AddUrlPrefix(urlQuery, cgiArgs )
 {
-	console.log("AddUrlPrefix urlQuery="+urlQuery);
-	var ixPrim = window.location.hostname.indexOf("primhillcomputers.com");
-	// This special case because hosting on OVH is specific.
-	if( ixPrim >= 0 )
-		// http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/sources_types/Linux/etc_passwd.py&mode=json
-		// url_survol_prefix = "../cgi-bin/survol/";
-		url_survol_prefix = "../cgi-bin/survol/survolcgi.py?script=/";
+	console.log("AddUrlPrefix urlQuery="+urlQuery+" window.location.hostname="+window.location.hostname);
+
+	// If this is a local session, this points to a remote machine.
+	if( window.location.hostname == "")
+	{
+		url_survol_prefix = "http://127.0.0.1/Survol/survol/";
+	}
 	else
-		// url_survol_prefix = "../"; // CE QU ON AVAIT AVANT
-		url_survol_prefix = "../";
+	{
+		var ixPrim = window.location.hostname.indexOf("primhillcomputers.com");
+		// This special case because hosting on OVH does not give the choice of CGI scripts location.
+		if( ixPrim >= 0 )
+			// http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/sources_types/Linux/etc_passwd.py&mode=json
+			url_survol_prefix = "../cgi-bin/survol/survolcgi.py?script=/";
+		else
+			url_survol_prefix = "../";
+	}
 
 	var fullUrl =  url_survol_prefix + urlQuery;
 
