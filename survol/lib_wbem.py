@@ -225,7 +225,7 @@ def GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id ):
 			wbem_urls_list = GetWbemUrls( host_alt, nameSpace, entity_type, "Name=" + host_alt + ".home")
 	else:
 		# This returns the current url server of the current machine.
-		wbem_urls_list = GetWbemUrls( entity_host, nameSpace, entity_type, "" )
+		wbem_urls_list = GetWbemUrls( entity_host, nameSpace, entity_type, entity_id )
 	return wbem_urls_list
 
 # conn = pywbem.WBEMConnection("http://192.168.1.83:5988" , ('','') )
