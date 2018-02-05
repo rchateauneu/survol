@@ -200,10 +200,10 @@ def NormalHostName(entity_host):
 
 ################################################################################
 
-# On renvoie une liste de liens.
-# Il faut mapper vers CIM et renvoyer un lien qui affiche les categories etc...
-# Dans le contenu de ce lien il faut pouvoir revenir vers nos objets
-# de facon homogene vis-a-vis de l'appartenance a WBEM (ou WMI) et nos objets.
+# WMI from a Linux box
+# http://www.tomsitpro.com/articles/issue-wmi-queries-from-linux,1-3436.html
+
+# This returns a list of URLS.
 def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 	if not wmi_imported:
 		return None
