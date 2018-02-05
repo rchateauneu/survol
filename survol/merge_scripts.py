@@ -27,13 +27,13 @@ def Main():
 	theMode = lib_util.GuessDisplayMode()
 	sys.stderr.write("merge_scripts.py theMode=%s\n"%(theMode))
 
+	# Concatenation of error messages of each script.
 	cumulatedError = ""
 
 	for urlfil in arguments.getlist("url"):
 		# The parameters are coded in base64, although we leave the possibility not to encode them,
 		# for compatibility with test scripts.
 
-		# "survol/sources_types/enumerate_CIM_Process.py?xid=."
 		complete_url = lib_util.Base64Decode(urlfil)
 
 		sys.stderr.write("complete_url=%s\n"%complete_url)
@@ -46,19 +46,27 @@ def Main():
 		else:
 			cgiQueryString = ""
 
-		# The URL might be absolute or relative.
-		# urlPrefix = "survol/"
-		urlPrefix = "sources_types/"
-		idxHtbin = urlNoArgs.find(urlPrefix)
+		# The URL might be absolute or relative. Example:
+		# "survol/sources_types/enumerate_CIM_Process.py?xid=."
+		idxHtbin = urlNoArgs.find("sources_types/")
 		if idxHtbin == -1:
-			# TODO: This happens if the URL is a main presentation page of an object,
-			# instead of a script: Something like "survol/entity.py/entity.py?xid=..."
-			# This should be fixed but is not an issue.
-			sys.stderr.write("merge: SHOULD NOT HAPPEN url=%s\n"%complete_url)
-			urlPathShort = "INVALID_MERGED_URL"
+			# This may be the main presentation page of a Survol, WMI or WBEM object. Example:
+			# "http://127.0.0.1:80/Survol/survol/entity.py?xid=CIM_Process.Handle=640"
+			survolPrefix = "survol/"
+			idxSurvol = urlNoArgs.find(survolPrefix)
+			if idxSurvol == -1:
+				# TODO: This happens if the URL is a main presentation page of an object,
+				# instead of a script: Something like "survol/entity.py/entity.py?xid=..."
+				# This should be fixed but is not an issue.
+				sys.stderr.write("merge: SHOULD NOT HAPPEN url=%s\n"%complete_url)
+				urlPathShort = "INVALID_MERGED_URL"
+			else:
+				# Just starts at the beginning of the script name: "entity.py", "entity_wmi.py", "entity_wbem.py".
+				urlPathShort = urlNoArgs[idxSurvol + len(survolPrefix):]
 		else:
 			urlPathShort = urlNoArgs[idxHtbin:]
 
+		# urlPathShort is the actual script to load.
 		urlDirNam = os.path.dirname(urlPathShort)
 		moduNam = urlDirNam.replace("/",".")
 
@@ -71,6 +79,10 @@ def Main():
 		except Exception:
 			errorMsg = sys.exc_info()[1]
 			sys.stderr.write("Caught %s when loading moduNam=%s urlFilNam=%s\n"%(errorMsg,moduNam,urlFilNam))
+			continue
+
+		if not importedMod:
+			cumulatedError = "merge_scripts.py Cannot import complete_url=%s" % (complete_url)
 			continue
 
 		try:
