@@ -117,7 +117,34 @@ function ConcatenateMergeUrl(lstLoadedUrls,cgiArgs)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/* This splits a text into lines of maximum length.
+Should rather use natural SVG text wrap feature,
+but this is simpler for the moment. */
+function NiceTextSplit(valInfo,maxLen)
+{
+	var arrResu = [];
+	var ixStr = 0;
+	while(true)
+	{
+		var ixSpace = valInfo.indexOf(" ",ixStr + maxLen);
+		if( ixSpace < 0 )
+		{
+			// No space after the max length. So leave with the string end.
+			arrResu.push( valInfo.substring( ixStr ) );
+			break;
+		}
+		arrResu.push( valInfo.substring( ixStr, ixSpace ) );
+		ixStr = ixSpace + 1;
+	}
+	return arrResu;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// AFTER THAT, ONLY EXPERIMENTAL CODE.
+////////////////////////////////////////////////////////////////////////////////
+
 // Current dir = http://127.0.0.1/Survol/embed_entity.htm
+// This is experimental/
 function LocalHost()
 {
 	/*
@@ -155,7 +182,7 @@ var UrlInfoQueue = {};
 
 var UrlInfoCache = {};
 
-// BEWARE: This is full of race conditions.
+// THIS IS EXPERIMENTAL CODE.
 function SetIdWithUrlInfo(the_url_info,title_id)
 {
 	// return;
@@ -384,7 +411,7 @@ function DoLoadHtmlError( the_url, divErrMsg )
 }
 
 // Loads the URL of a RDF document, makes a RDF databank,
-// and passes it to a callback.
+// and passes it to a callback. Purely experimental.
 function DoLoadRdfUrl( the_url_nomode, processingFunc, showErr, divErrMsg )
 {
 	var the_url = CheckMode(the_url_nomode,"rdf");
@@ -542,15 +569,15 @@ function UpdateDatabankWithPredicates(checkboxName, displayFunc)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// This is what we should use to merge the databanks but it does not work.
-// rdfDataBank.add( newRdfDb );
+/* This is what we should use to merge the databanks but it does not work.
+This is purely experimental. */
 function MergeDatabanks( rdfDataBank, newRdfDb )
 {
 	// Not sure this is useful.
 	$.ajaxSetup({cache:true});
 	var newLength = newRdfDb.size();
 
-	// TODO: If the target darabank is empty, just assign.
+	// TODO: If the target databank is empty, just assign.
 	var newTriples = newRdfDb.triples();
 	for (var i = 0; i < newLength; i++) {
 		rdfDataBank.add(newTriples[i]);
@@ -564,5 +591,7 @@ function NiceHostname()
 		return "localhost";
 	return location.hostname;
 }
+////////////////////////////////////////////////////////////////////////////////
+// END OF EXPERIMENTAL CODE.
 ////////////////////////////////////////////////////////////////////////////////
 
