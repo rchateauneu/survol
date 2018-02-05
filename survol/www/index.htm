@@ -1714,26 +1714,49 @@ function DisplayD3Layout(divItselfG,newData,w,h)
     // https://bl.ocks.org/mbostock/7555321 Wrapping Long Labels
     function addTextLines(selection) {
         selection.each(function(d) {
+            // Helper function to add a string at the bottom of the text SVG object.
+            function TextAppender() {
+                return theText.append("tspan").attr("x", 0).attr("dy", 1 + "em");
+            }
+
             var theText = d3.select(this);
             // This is the first line of the box.
-            theText.text(null).append("tspan").attr("x", 0).text(d.name);
+            TextAppender().attr("text-anchor", "middle").text(d.name);
 
             // Now it displays one line for each information about the node.
             var cntLine = 0;
 
+            // These are the properties without key.
             for (var ix in d.survol_info_list) {
-                theText.append("tspan").attr("x", 0).attr("dy", 1 + "em").text(d.survol_info_list[ix]);
+                TextAppender().text(d.survol_info_list[ix]);
             }
 
+            // This display the key-value pairs properties of an object.
             for (var key in d.survol_info_dict) {
                 if (d.survol_info_dict.hasOwnProperty(key)) {
-                    var txtKeyVal = key + "=" + d.survol_info_dict[key];
-                    theText.append("tspan").attr("x", 0).attr("dy", 1 + "em").text(txtKeyVal);
+                    var valInfo = d.survol_info_dict[key];
+
+                    // FIXME> This is a temporary solution until we have automatic wrapping.
+                    if( valInfo.length > 30 )
+                    {
+                        var arrVals = NiceTextSplit(valInfo,30)
+
+                        // Print first line with the key.
+                        var txtKeyVal = key + "=" + arrVals[0];
+                        TextAppender().text(txtKeyVal);
+
+                        // Rest of the value on different lines.
+                        for( var ixLin = 1; ixLin < arrVals.length; ixLin++ )
+                            TextAppender().text(arrVals[ixLin]);
+
+                    }
+                    else
+                    {
+                        var txtKeyVal = key + "=" + valInfo;
+                        TextAppender().text(txtKeyVal);
+                    }
                 }
             }
-
-            // info_list
-            // theText.append("tspan").attr("x", 0).attr("dy", 1 + "em").text(d.name);
         })
     } // addTextLines
 
@@ -1742,14 +1765,13 @@ function DisplayD3Layout(divItselfG,newData,w,h)
     }
 
     // This is the text associated to each survol node.
+    // TODO: Properly align text: Title in the center, key-value paiss left-align.
+    // TODO: Set text box maximum size, because of automatic wrapping.
     selectedNodes.append("svg:text")
-        // .attr("class", "nodetext " + d.entity_class) // Ca marche pas.
         .attr("class", "nodetext")
         .attr("dx", 0)
         .attr("dy", ".35em")
         .attr("text-anchor", "middle")
-        // .text(function (d) { return d.name; }) // Use tspan and tref ???
-        // .text(function (d) { return '<tspan>' + d.name + '</tspan><tspan dy="10">First line.</tspan>'; }) // Use tspan and tref ???
         .call(addTextLines)
         .call(getTextBox)
     ;
@@ -1761,9 +1783,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
         .attr("x", function(d){return d.bbox.x})
         .attr("y", function(d){return d.bbox.y})
 
-        // Ces attributs vont refleter un calcul car on peut toujours les appliquer.
-        // Bizarrement, pas moyen d'overrider rx et ry avec CSS.
-        .attr("rx", 5) // Pas moyen d'overrider ca avec CSS
+        .attr("rx", 5) // NOTE: Could not find a way to override this with CSS
         .attr("ry", 5)
         .attr("opacity", 1)
 
