@@ -1,0 +1,40 @@
+
+Linux:
+
+$ strace -f ls *.in 2>&1 | egrep -w "open|stat|lstat"
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+open("/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3
+open("/proc/filesystems", O_RDONLY)     = 3
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
+stat("MANIFEST.in", {st_mode=S_IFREG|0664, st_size=25, ...}) = 0
+lstat("MANIFEST.in", {st_mode=S_IFREG|0664, st_size=25, ...}) = 0
+
+"-f" : Sous-processes.
+
+Resultat:
+=========
+
+Arbre: Chaque node est un sample. Attributs:
+  Pid
+  Node entrants et sortants: Dependances.
+  Parametres: Appel systeme, creation de process etc..
+  Arguments: Les arguments ajoutent une autre relation de dependance.
+  Timestamp.
+
+Ca cree un graphe oriente:
+  fork ou vfork cree une branche.
+  waitpid joint deux branches.
+
+Rien pour les threads.
+
+Comparaison:
+============
+
+http://liris.cnrs.fr/Documents/Liris-1526.pdf
+http://lioneltabourier.fr/documents/These_Tabourier.pdf
+
+... etc ...
+
+Pour s'abstraire des pid, on designe les processes par leur commande.
+
+
