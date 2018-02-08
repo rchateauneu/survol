@@ -100,7 +100,7 @@ def Main():
 
 	cimomUrl = entity_host
 
-	sys.stderr.write("cimomUrl=%s\n" % cimomUrl)
+	sys.stderr.write("namespaces_wmi.py cimomUrl=%s\n" % cimomUrl)
 
 	grph = cgiEnv.GetGraph()
 
@@ -136,7 +136,7 @@ def Main():
 		#	lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
 		except Exception:
 			exc = sys.exc_info()[1]
-			lib_common.ErrorMessageHtml("cimomUrl=%s nskey=%s Caught:%s" % ( cimomUrl, nskey , str(exc) ) )
+			lib_common.ErrorMessageHtml("namespaces_wmi.py cimomUrl=%s nskey=%s Caught:%s" % ( cimomUrl, nskey , str(exc) ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_cim_subnamespace])
 	# cgiEnv.OutCgiRdf()
