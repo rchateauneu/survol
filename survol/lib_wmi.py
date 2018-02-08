@@ -79,7 +79,7 @@ def GetWmiUserPass(machWithBackSlashes):
 		machIP = lib_util.GlobalGetHostByName(cleanMachNam)
 	except:
 		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Cannot connect to WMI server:%s" % cleanMachNam)
+		lib_common.ErrorMessageHtml("GetWmiUserPass: Cannot connect to WMI server:%s" % cleanMachNam)
 
 	#sys.stderr.write("GetWmiUserPass machIP=%s\n" % ( machIP ) )
 
@@ -125,9 +125,9 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 		dictParams['password'] = "XXXYYYZZZ" # Security.
 		if throw_if_error:
 		# Could not connect, maybe the namespace is wrong.
-			lib_common.ErrorMessageHtml("Cannot connect to WMI server with params:%s.Exc=%s" % (str(dictParams),str(sys.exc_info())))
+			lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (str(dictParams),str(sys.exc_info())))
 		else:
-			sys.stderr.write("Cannot connect to WMI server with params:%s.Exc=%s\n" % (str(dictParams),str(sys.exc_info())))
+			sys.stderr.write("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s\n" % (str(dictParams),str(sys.exc_info())))
 			return None
 
 	#sys.stderr.write("WmiConnect returning\n" )
