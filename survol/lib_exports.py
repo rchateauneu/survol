@@ -422,20 +422,6 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 
 	TopLevelNodes = SubjectNodes - NodesWithParent
 
-	#sys.stderr.write("TopLevelNodes=%s\n"%str(TopLevelNodes))
-
-	#sys.stderr.write("\n")
-	for oneRdfNod in NodesToItems:
-		lstItem = NodesToItems[oneRdfNod]
-		# sys.stderr.write("oneRdfNod=%s l=%d\n"%(oneRdfNod,len(lstItem)))
-	#sys.stderr.write("\n")
-
-	#sys.stderr.write("\n")
-	for oneRdfNod in NodesToNames:
-		nam = NodesToNames[oneRdfNod]
-		# sys.stderr.write("oneRdfNod=%s nam=%s\n"%(oneRdfNod,nam))
-	#sys.stderr.write("\n")
-
 	# The output result must be sorted.
 	def AddStuff(theNodList,depth=0):
 		listJsonItems = {}

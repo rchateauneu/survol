@@ -79,7 +79,7 @@ def GetWmiUserPass(machWithBackSlashes):
 		machIP = lib_util.GlobalGetHostByName(cleanMachNam)
 	except:
 		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Cannot connect to WMI server:%s" % cleanMachNam)
+		lib_common.ErrorMessageHtml("GetWmiUserPass: Cannot connect to WMI server:%s" % cleanMachNam)
 
 	#sys.stderr.write("GetWmiUserPass machIP=%s\n" % ( machIP ) )
 
@@ -125,9 +125,9 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 		dictParams['password'] = "XXXYYYZZZ" # Security.
 		if throw_if_error:
 		# Could not connect, maybe the namespace is wrong.
-			lib_common.ErrorMessageHtml("Cannot connect to WMI server with params:%s.Exc=%s" % (str(dictParams),str(sys.exc_info())))
+			lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (str(dictParams),str(sys.exc_info())))
 		else:
-			sys.stderr.write("Cannot connect to WMI server with params:%s.Exc=%s\n" % (str(dictParams),str(sys.exc_info())))
+			sys.stderr.write("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s\n" % (str(dictParams),str(sys.exc_info())))
 			return None
 
 	#sys.stderr.write("WmiConnect returning\n" )
@@ -200,10 +200,10 @@ def NormalHostName(entity_host):
 
 ################################################################################
 
-# On renvoie une liste de liens.
-# Il faut mapper vers CIM et renvoyer un lien qui affiche les categories etc...
-# Dans le contenu de ce lien il faut pouvoir revenir vers nos objets
-# de facon homogene vis-a-vis de l'appartenance a WBEM (ou WMI) et nos objets.
+# WMI from a Linux box
+# http://www.tomsitpro.com/articles/issue-wmi-queries-from-linux,1-3436.html
+
+# This returns a list of URLS.
 def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 	if not wmi_imported:
 		return None

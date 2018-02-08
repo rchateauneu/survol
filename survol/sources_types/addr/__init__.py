@@ -14,6 +14,8 @@ from lib_properties import pc
 def EntityOntology():
 	return ( ["Id"],)
 
+# TODO: Add the network card.
+
 # This returns a nice name given the parameter of the object.
 def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
@@ -23,7 +25,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	timeStart = time.time()
 	socketNam = entity_ids_arr[0]
 	#sys.stderr.write("socketNam=%s\n"%socketNam)
-	socketSplit = socketNam.split(':')
+	socketSplit = SplitAddrPort(socketNam)
 	socketAddr = socketSplit[0]
 	#sys.stderr.write("socketAddr=%s\n"%socketAddr)
 	sockIP = lib_util.GlobalGetHostByName(socketAddr)
@@ -36,7 +38,8 @@ def AddInfo(grph,node,entity_ids_arr):
 	grph.add( ( node, pc.property_has_socket, nodeHost ) )
 
 def UniversalAlias(entity_ids_arr,entity_host,entity_class):
-	socketAddr, socketPort = entity_ids_arr[0].split(":")
+	# If IPV4, "host:port". Could be IPv6
+	socketAddr, socketPort = SplitAddrPort(entity_ids_arr[0])
 
 	# Is the host an IP address ?
 	try:
@@ -107,6 +110,25 @@ def SocketToPair(connect):
 		rarray = connect.remote_address
 	return (larray,rarray)
 
+# The input could be '192.168.0.17:22' or '[fe80::3c7a:339:64f0:2161%11]:51769'
+# If IPV6, it removes the surrounding square brackets.
+def SplitAddrPort(addr):
+	idxCol = addr.rfind(":")
+	if idxCol < 0:
+		return ("",0)
+
+	if addr[0] == '[':
+		theHost = addr[1:idxCol-1]
+	else:
+		theHost = addr[:idxCol]
+
+	# FIXME: Should be OK: This applies only to IPV6
+	theHost = theHost.replace("%","_")
+
+	thePort = addr[idxCol+1]
+	return (theHost,thePort)
+
+
 # This asynchronously adds a RDF relation between a process and a socket.
 # As it is asychronous, we can make a DNS query.
 class PsutilAddSocketThread(threading.Thread):
@@ -176,12 +198,11 @@ def PsutilAddSocketToGraphOne(node_process,connect,grph):
 		except IndexError:
 			rsocketNode = None
 
-
-		# Il faudrait plutot une relation commutative.
+		# TODO: Should rather have a commutative link.
 		if rsocketNode != None:
 			grph.add( ( lsocketNode, pc.property_socket_end, rsocketNode ) )
 
-		# PAS CERTAIN: Qu'est ce qui dit qu une des sockets aboutit au host ?
+		# How can we be sure that one of the sockets is linked to the host ?
 		grph.add( ( node_process, pc.property_has_socket, lsocketNode ) )
 		grph.add( ( lsocketNode, pc.property_information, lib_common.NodeLiteral(connect.status) ) )
 
