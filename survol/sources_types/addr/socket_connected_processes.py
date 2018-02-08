@@ -7,6 +7,7 @@ Processes connected to socket
 import re
 import sys
 import socket
+import lib_util
 import lib_common
 from sources_types import CIM_Process
 from sources_types import addr as survol_addr
