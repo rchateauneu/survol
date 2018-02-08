@@ -82,7 +82,7 @@ def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
 # If ExecQuery is not supported like on OpenPegasus, try to build one instance.
 def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 	try:
-		keyBnds = pywbem.NocaseDict( splitMonik )
+		keyBnds = pywbem.cim_obj.NocaseDict( splitMonik )
 
 		# CA NE MARCHE PAS VRAIMENT CAR ON NE RESPECTE PAS LES PARAMETRES: msgExcFirst=CIMError: header-mismatch, PGErrorDetail:
 		# Empty CIMObject value. wbemInstName=root/CIMv2:CIM_ComputerSystem.Name="rchateau-HP".
@@ -98,7 +98,7 @@ def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 	except:
 		exc = sys.exc_info()[1]
 		# lib_common.ErrorMessageHtml("msgExcFirst="+msgExcFirst+" wbemInstName=" + str(wbemInstName) + ". ns="+nameSpace+". Caught:"+str(exc))
-		sys.stderr.write("WbemNoQueryOneInst wbemInstName=" + str(wbemInstName) + ". ns="+nameSpace+".\nCaught:"+str(exc) + "\n")
+		sys.stderr.write("WbemNoQueryOneInst className=" + str(className) + ". ns="+nameSpace+".\nCaught:"+str(exc) + "\n")
 		return None
 
 # If ExecQuery is not supported like on OpenPegasus, read all instances and filters the good ones. VERY SLOW.
