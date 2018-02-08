@@ -32,7 +32,7 @@ if entity_id == "":
 cimomUrl = cgiEnv.GetHost()
 
 ( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-sys.stderr.write("cimomUrl=%s nameSpace=%s className=%s\n" % (cimomUrl,nameSpace,className))
+sys.stderr.write("entity_wbem.py cimomUrl=%s nameSpace=%s className=%s\n" % (cimomUrl,nameSpace,className))
 
 if nameSpace == "":
 	nameSpace = "root/cimv2"
@@ -54,7 +54,7 @@ grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(klaDescrip
 
 splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )
 
-sys.stderr.write("nameSpace=%s className=%s cimomUrl=%s\n" %(nameSpace,className,cimomUrl))
+sys.stderr.write("entity_wbem.py nameSpace=%s className=%s cimomUrl=%s\n" %(nameSpace,className,cimomUrl))
 
 # conn = pywbem.WBEMConnection("http://192.168.1.88:5988",("pegasus","toto"))
 # conn.ExecQuery("WQL","select * from CIM_System","root/cimv2")
