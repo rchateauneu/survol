@@ -54,15 +54,20 @@ grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(klaDescrip
 
 splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )
 
-sys.stderr.write("nameSpace=%s className=%s cimomUrl=%s\n" %(nameSpace,className,cimomUrl))
+sys.stderr.write("entity_wbem.py nameSpace=%s className=%s cimomUrl=%s\n" %(nameSpace,className,cimomUrl))
 
-# conn = pywbem.WBEMConnection("http://192.168.1.88:5988",("pegasus","toto"))
+# This works:
+# conn = pywbem.WBEMConnection("http://192.168.0.17:5988",("pegasus","toto"))
 # conn.ExecQuery("WQL","select * from CIM_System","root/cimv2")
+# conn.ExecQuery("WQL",'select * from CIM_Process  where Handle="4125"',"root/cimv2")
+#
+# select * from CIM_Directory or CIM_DataFile does not return anything.
 
 
 # If ExecQuery is not supported like on OpenPegasus, try to build one instance.
 def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
 	aQry = lib_util.SplitMonikToWQL(splitMonik,className)
+	sys.stderr.write("WbemPlainExecQuery nameSpace=%s aQry=%s\n" % (nameSpace,aQry) )
 	# aQry = 'select * from CIM_System'
 	# aQry = 'select * from CIM_ComputerSystem'
 	try:
@@ -71,9 +76,8 @@ def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
 	except Exception:
 		exc = sys.exc_info()[1]
 
-		# Problem sur le PC avec OpenPegasus.
+		# Problem on Windows with OpenPegasus.
 		# aQry=select * from CIM_UnitaryComputerSystem where CreationClassName="PG_ComputerSystem"and Name="rchateau-HP". ns=root/cimv2. Caught:(7, u'CIM_ERR_NOT_SUPPORTED')
-		# Pourquoi ? Alors qu il y a un objet. Meme chose en retirant "CreationClassName"
 		msgExcFirst = str(exc)
 		sys.stderr.write("WbemPlainExecQuery aQry=%s Exc=%s\n" % ( aQry, msgExcFirst ) )
 		return None
@@ -84,7 +88,7 @@ def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 	try:
 		keyBnds = pywbem.cim_obj.NocaseDict( splitMonik )
 
-		# CA NE MARCHE PAS VRAIMENT CAR ON NE RESPECTE PAS LES PARAMETRES: msgExcFirst=CIMError: header-mismatch, PGErrorDetail:
+		# FIXME: Problem with parameters: msgExcFirst=CIMError: header-mismatch, PGErrorDetail:
 		# Empty CIMObject value. wbemInstName=root/CIMv2:CIM_ComputerSystem.Name="rchateau-HP".
 		# ns=. Caught:(4, u'CIM_ERR_INVALID_PARAMETER: Wrong number of keys')
 
@@ -104,7 +108,7 @@ def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 # If ExecQuery is not supported like on OpenPegasus, read all instances and filters the good ones. VERY SLOW.
 def WbemNoQueryFilterInstances( conn, className, splitMonik, nameSpace ):
 	try:
-		# TODO: Fix the namespace !!!!
+		# TODO: namespace is hard-coded.
 		nameSpace = "root/CIMv2"
 		instNamesList = conn.EnumerateInstanceNames(ClassName=className,namespace=nameSpace)
 	except Exception:
@@ -148,7 +152,7 @@ def WbemNoQueryFilterInstances( conn, className, splitMonik, nameSpace ):
 
 
 instLists = WbemPlainExecQuery( conn, className, splitMonik, nameSpace )
-sys.stderr.write("instLists=%s\n"%str(instLists))
+sys.stderr.write("entity_wbem.py instLists=%s\n"%str(instLists))
 if instLists is None:
 	instLists = WbemNoQueryOneInst( conn, className, splitMonik, nameSpace )
 	if instLists is None:
