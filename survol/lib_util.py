@@ -244,10 +244,10 @@ def GlobalGetHostByName(hostNam):
 	timeStart = time.time()
 	try:
 		theIP = socket.gethostbyname(hostNam)
-		sys.stderr.write("GlobalGetHostByName tm=%f OK hostNam=%s theIP=%s\n"%(time.time()-timeStart,hostNam,theIP))
+		# sys.stderr.write("GlobalGetHostByName tm=%f OK hostNam=%s theIP=%s\n"%(time.time()-timeStart,hostNam,theIP))
 		return theIP
 	except Exception:
-		sys.stderr.write("GlobalGetHostByName tm=%f FAIL hostNam=%s\n"%(time.time()-timeStart,hostNam))
+		# sys.stderr.write("GlobalGetHostByName tm=%f FAIL hostNam=%s\n"%(time.time()-timeStart,hostNam))
 		return hostNam
 
 
@@ -1143,7 +1143,7 @@ def SplitMoniker(xid):
 # This allows to search for an object in the CIM repository,
 # whatever the attribute values are, or if it is a Survol object.
 def SplitMonikToWQL(splitMonik,className):
-	sys.stderr.write("splitMonik=[%s]\n" % str(splitMonik) )
+	sys.stderr.write("SplitMonikToWQL splitMonik=[%s]\n" % str(splitMonik) )
 	aQry = 'select * from %s ' % className
 	qryDelim = "where"
 	for qryKey in splitMonik:
