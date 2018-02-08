@@ -1866,7 +1866,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 
                             if(error)
                             {
-                                var errMsg = "Tooltip error:" + error;
+                                var errMsg = "Tooltip error:" + error + " urlTooltip="+urlTooltip;
                                 DisplayTooltipDiv(errMsg);
                                 return;
                             }
@@ -1883,7 +1883,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                                 }
 
                             if( isDragging ) {
-                                console.log("No tooltip when dragging");
+                                // console.log("No tooltip when dragging");
                                 return;
                                 }
 
@@ -2298,6 +2298,9 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             console.log("AddsDefaultCtxtMenu entering");
             if(error) {
                 alert("AddsDefaultCtxtMenu error="+error);
+            }
+            if(dfltItms == undefined) {
+                alert("AddsDefaultCtxtMenu dfltItms undefined");
             }
             if( dfltItms.survol_error != undefined )
             {
