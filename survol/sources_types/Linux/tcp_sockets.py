@@ -33,6 +33,20 @@ from sources_types import addr as survol_addr
 # tcp        0      0 192.168.0.17:44634      192.168.0.15:38960      TIME_WAIT   -
 # tcp        0      0 192.168.0.17:44634      192.168.0.14:58658      ESTABLISHED 4118/rygel
 # tcp        0      0 192.168.0.17:44634      192.168.0.14:59694      ESTABLISHED 4118/rygel
+# tcp        0      0 fedora22:44634          192.168.0.14:58690      ESTABLISHED 4118/rygel
+# tcp        0      0 fedora22:ssh            192.168.0.14:63599      ESTABLISHED -
+# tcp        0      0 fedora22:42042          176.103.:universe_suite ESTABLISHED 23512/amule
+# tcp6       0      0 [::]:wbem-http          [::]:*                  LISTEN      -
+# tcp6       0      0 [::]:wbem-https         [::]:*                  LISTEN      -
+# tcp6       0      0 [::]:mysql              [::]:*                  LISTEN      -
+# tcp6       0      0 [::]:rfb                [::]:*                  LISTEN      4119/vino-server
+# tcp6       0      0 [::]:50000              [::]:*                  LISTEN      23512/amule
+# tcp6       0      0 [::]:43056              [::]:*                  LISTEN      4125/httpd
+# tcp6       0      0 [::]:http               [::]:*                  LISTEN      -
+# tcp6       0      0 [::]:ssh                [::]:*                  LISTEN      -
+# tcp6       0      0 localhost:ipp           [::]:*                  LISTEN      -
+# tcp6       0      0 [::]:telnet             [::]:*                  LISTEN      -
+
 #
 
 def Main():
@@ -52,24 +66,29 @@ def Main():
 
 	seenHeader = False
 	for lin in netstat_lines:
-		if not seenHeader:
-			if lin.startswith("Proto"):
-				seenHeader = True
-			continue
-
 		# By default, consecutive spaces are treated as one.
 		linSplit = lin.split()
 
+		if len(linSplit) == 0:
+			continue
+
+		if not seenHeader:
+			if linSplit[0] == "Proto":
+				seenHeader = True
+			continue
+
+		# TODO: "tcp6"
 		if linSplit[0] != "tcp":
 			continue
 
+    		# sys.stderr.write("tcp_sockets.py lin=%s\n"%lin)
+
 		sockStatus = linSplit[5]
-		if sockStatus != "ESTABLISHED":
+		if sockStatus not in ["ESTABLISHED","TIME_WAIT"]:
 			continue
 
 		addrLocal = linSplit[3]
 		ipLocal, portLocal = survol_addr.SplitAddrPort(addrLocal)
-
 
 		# It does not use survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
 		# because sometimes we do not have the process id.
@@ -78,6 +97,8 @@ def Main():
 		grph.add( ( localSocketNode, pc.property_information, lib_common.NodeLiteral(sockStatus) ) )
 
 		addrRemot = linSplit[4]
+
+		# This is different for IPV6
 		if addrRemot != "0.0.0.0:*":
 			ipRemot, portRemot = survol_addr.SplitAddrPort(addrRemot)
 			remotSocketNode = lib_common.gUriGen.AddrUri( ipRemot, portRemot )
@@ -90,7 +111,6 @@ def Main():
 
 			grph.add( ( procNode, pc.property_host, lib_common.nodeMachine ) )
 			grph.add( ( procNode, pc.property_pid, lib_common.NodeLiteral(procPid) ) )
-			grph.add( ( procNode, pc.property_information, lib_common.NodeLiteral(procNam) ) )
 
 			grph.add( ( procNode, pc.property_has_socket, localSocketNode ) )
 
