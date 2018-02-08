@@ -32,7 +32,7 @@ if entity_id == "":
 cimomUrl = cgiEnv.GetHost()
 
 ( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-sys.stderr.write("cimomUrl=%s nameSpace=%s className=%s\n" % (cimomUrl,nameSpace,className))
+sys.stderr.write("entity_wbem.py cimomUrl=%s nameSpace=%s className=%s\n" % (cimomUrl,nameSpace,className))
 
 if nameSpace == "":
 	nameSpace = "root/cimv2"

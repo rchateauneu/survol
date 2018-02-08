@@ -27,7 +27,7 @@ def Main():
 
 	cimomUrl = lib_wbem.HostnameToWbemServer(machineName)
 
-	sys.stderr.write("cimomUrl=%s\n"%cimomUrl)
+	sys.stderr.write("wbem_hostname_processes.py cimomUrl=%s\n"%cimomUrl)
 
 	# If running on the local machine, pass the host as None otherwise authorization is checked
 	# just like a remote machine, which means User Account Control (UAC) disabling,

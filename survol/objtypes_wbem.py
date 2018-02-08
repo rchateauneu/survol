@@ -90,7 +90,7 @@ def Main():
 	# entity_type might an empty string.
 	rootNode = WbemNamespaceNode(wbemNamespace, cimomUrl, entity_type)
 
-	sys.stderr.write("cimomUrl=%s entity_type=%s\n" % (cimomUrl,entity_type) )
+	sys.stderr.write("objtypes_wmi.py cimomUrl=%s entity_type=%s\n" % (cimomUrl,entity_type) )
 
 	treeClassesFiltered = lib_wbem.GetClassesTreeInstrumented(connWbem,wbemNamespace)
 
