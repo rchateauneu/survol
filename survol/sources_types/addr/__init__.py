@@ -125,7 +125,7 @@ def SplitAddrPort(addr):
 	# FIXME: Should be OK: This applies only to IPV6
 	theHost = theHost.replace("%","_")
 
-	thePort = addr[idxCol+1]
+	thePort = addr[idxCol+1:]
 	return (theHost,thePort)
 
 
