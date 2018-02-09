@@ -14,7 +14,8 @@ lstat("MANIFEST.in", {st_mode=S_IFREG|0664, st_size=25, ...}) = 0
 Resultat:
 =========
 
-Arbre: Chaque node est un sample. Attributs:
+Un batchflow est un graphe oriente dont chaque noeud est un evenement,
+qui a en general les attributs:
   Pid
   Node entrants et sortants: Dependances.
   Parametres: Appel systeme, creation de process etc..
@@ -25,16 +26,128 @@ Ca cree un graphe oriente:
   fork ou vfork cree une branche.
   waitpid joint deux branches.
 
-Rien pour les threads.
+(Rien pour les threads a priori, la creation d'une thread
+est beaucoup plus difficile a detecter).
 
-Comparaison:
-============
+Les evenements d'un meme process sont lies entre eux
+(Causalite). Ils aussi pointent vers les ressources utilisees:
+- Fonction (Detectee avec strace ou cdb)
+- Pid
+- Ressources divers mises en oeuvre par la fonction: Fichier, BDD etc...
+
+Visualisation: On n affiche pas forcement les ressources de chaque evenement
+mais un simple texte. En revanche, on visualise l'arbre de "causalite" (La succession des evenements).
+
+
+
+
+Stockage du batchflow:
+======================
+
+Pour modeliser, XML ne convient pas car on pourrait avoir:
+Proc 0 fork() proc 1
+Proc 0 fork() proc 2
+Proc 0 waitpid() proc 1
+Proc 0 waitpid() proc 2
+
+En effet, c est un graphe oriente.
+
+Utilisons RDF et Python. Suggerer OWL.
+
+Fusionner deux batchflows:
+==========================
+
+Deux batchflows sur deux machines sur le meme reseau peuvent partager des ressources:
+* Meme fichier
+* meme base de donnee
+* Meme sockets
+
+Les ressources sont representees par un identifiant global. On ne peut pas se suffire
+du moniker WBEM ou WMI car le serveur est different. Donc, on utilise la partie
+specifique au serveur (Moniker: "classe.key1=val1,key2=val2") en prefixant avec
+l'adresse de la machine.
+
+
+Reutiliser le code de Survol qui sait gerer les cas particuliers en remplacant la machine sur
+laquelle tourne le batchflow, par une machine unique:
+* Fichiers partages sont prefixes par l'adresse du disque reseau.
+* Bases de donnees prefixees par le serveur de la base.
+* DNS unique, eventuellement prise en compte du NAT.
+
+Quant on fusionne et qu'on estime raisonnablement que deux ressources sont identiques,
+on les relie par une relation specifique (Comme dans Survol). On ne peut pas etre
+totalement certain  que deux ressources soient identiques, ce qui nous arrange car on n'a
+pas besoin de fusionner.
+
+Dans le fichier representant le batchflows, les ressources sont bien representees
+par leur node WMI, WBEM ou Survol
+
+Comparaison de deux batchflows:
+===============================
+
+Deux batchflows pris sur la meme machine modelisent les memes taches,
+par exemple a un jour d intervalle. Il y a des similarites et des differences:
+* Les commandes sont les memes mais les process id differents.
+* Les time-stamps sont differeents mais les durees similaires.
+* Les noms de fichiers differents, contiennent eventuellement la date.
+  D'ailleurs, reperer les fichiers dientiques comme cause possible de probleme.
 
 http://liris.cnrs.fr/Documents/Liris-1526.pdf
 http://lioneltabourier.fr/documents/These_Tabourier.pdf
 
 ... etc ...
 
-Pour s'abstraire des pid, on designe les processes par leur commande.
+Pour comparer, il faut gommer ce qui change tous les jours:
+* Remplacer les process ids par la commande.
+* Dans les fichiers, virer les dates.
+* Dans les sockets, ne garder que les sockets connues ("/etc/services")
 
+Visualiser un batchflow dans Survol:
+====================================
+
+Deux visualisations possibles:
+
+(1) Si le batchflow est termine: Les processes ne sont plus la.
+On ne peut pas visualiser d information sur eux, uniquement afficher l arbre.
+Beaucoup d objets, en fonction de leur classe, auront l attribut "deleted"
+(qui desactive par exemple le tooltip ou le click gauche).
+Il faut transformer du RDF en Json ? Ou bien charger le json d un coup
+a partir d un URL specifique ?
+
+(2) Si le batchflow est en cours d execution:
+On a un serveur de JSON qui envoie les updates du batchflow:
+En clair, les dernieres informations (Appels de fonctions)
+transformees en JSON, chargeable par Survol.
+Les processes sont la, mais peuvent eventuellement disparaitre:
+On represente la disparition d'un object en le renvoyant avec l attribut "deleted".
+
+Serveur de donnees associees a un batchflow:
+============================================
+
+Le process qui cree le fichier de batchflow detecte les creations
+de processes, fichiers etc... et alimente un fichier de log (RDF ?) qui contient
+l historique du batchflow et permet de le reconstituer.
+
+Il peut lancer en meme temps un serveur HTTP qui envoie en JSON la description du graphe
+du batchflow.
+
+Comme le batchflow grandit, comment ne renvoyer que les dernieres donnees ?
+A chaque appel, on va envoyer un petit document json contenant les nouveaux
+nodes (ou la notification de leur destruction) et les nouveaux links.
+
+On pourrait utiliser le time-stamp:
+"Tous les nouveaux nodes et links depuis le time-stamp X"
+Si on ne le fournit pas, on recupere tout.
+
+Le serveur pourrait aussi detecter la deconnection.
+Si c'est la meme socket, on renvoie la suite.
+Mais ca mele technique et fonctionnel.
+
+Le serveur pourrait gerer une session si le client lui envoie
+un identifiant unique: Le serveur gere alors une queue par client.
+Peu de donnees et peu de clients, donc pas de souci de taille.
+
+
+Survol doit pouvoir s'abonner a plusieurs sources de donnees en meme temps
+et faire "en direct" la fusion des ressources partagees par plusieurs batchflows.
 
