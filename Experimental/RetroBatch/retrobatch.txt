@@ -151,3 +151,32 @@ Peu de donnees et peu de clients, donc pas de souci de taille.
 Survol doit pouvoir s'abonner a plusieurs sources de donnees en meme temps
 et faire "en direct" la fusion des ressources partagees par plusieurs batchflows.
 
+Implementation dans Survol:
+===========================
+
+Survol apporte:
+* Visualisation des donnees.
+* Structure de donnees.
+
+A proprement parler, on n'implemente pas dans Survol car on amene le plus possible,
+du code autonome. En revanche, le couplage est tres proche.
+
+Clique droit sur un process: On demarre un nouvel URL qui renvoie des nodes
+a chaque appel: entity_flow.py
+entity_flow.py fonctionne avec toute ressource et renvoie de nouveaux nodes.
+
+En pratique, on lance une session de cgiserver.py.
+Ou bien cgiserver.py traite specifiquement certais urls.
+
+On n implemente pas entity_flow.py en general car:
+* On veut monitorer non seulement un process deja existant (via son pid)
+mais aussi le lancement d une ligne de commande.
+* Dans un premier temps on n'a pas besoin du JSON etc...
+* On ne s interesse qu au processes.
+
+En revanche:
+* Le monitoring des processes est le meme.
+
+Donc on peut reprendre la partie HTTP de cgiserver.py et ajouter le cas specifique de entity_flow.py?xid=CIM_Process.Handle=<pid>
+... mais aussi le lancement du process, sur la ligne de commande de cgiserver.py (Qui prendra un autre nom).
+
