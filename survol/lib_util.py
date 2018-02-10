@@ -1294,7 +1294,7 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 	if extraArgs:
 		# extraArgs in a array of key-value tuples.
 		for key_value in extraArgs:
-			stri += "%s: %s\n" % key_value
+			stri += "%s: %s\n" % ( key_value[0], key_value[1] )
 	stri += "\n"
 
 	# Python 3.2
