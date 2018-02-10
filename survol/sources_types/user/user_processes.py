@@ -57,7 +57,7 @@ def Main():
 
 		procUsername = CIM_Process.PsutilProcToUser(proc)
 
-		sys.stderr.write("procUsername=%s userName=%s\n" % ( procUsername, userName ) )
+		# sys.stderr.write("procUsername=%s userName=%s\n" % ( procUsername, userName ) )
 		# procUsername=EURO\\UK936025 userName=UK936025
 		# procUsername=NT AUTHORITY\\NETWORK SERVICE
 		# procUsername=NT AUTHORITY\\SYSTEM

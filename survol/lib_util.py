@@ -1277,7 +1277,8 @@ def DfltOutDest():
 # Needed also because of sockets.
 def WrtAsUtf(str):
 	# TODO: try to make this faster. Should be conditional just like HttpHeader.
-	outputHttp.write( str.encode('utf-8') )
+	# outputHttp.write( str.encode('utf-8') )
+	globalOutMach.OutStream().write( str.encode('utf-8') )
 
 # For asynchronous display.
 # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
