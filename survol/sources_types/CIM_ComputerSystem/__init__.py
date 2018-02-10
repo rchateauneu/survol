@@ -49,7 +49,6 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
     # This receives a map and a RDF property, and must add the correspknding nodes to the rootNode
     # int the given graph. The same callback signature is used elsewhere to generate HTML tables.
     def AddWMap(theMap,propData):
-        sys.stderr.write("AddWMap len=%d\n"%len(theMap))
         for urlSubj in theMap:
             grph.add( ( rootNode, propData, urlSubj ) )
             for theProp, urlObj in theMap[urlSubj]:
