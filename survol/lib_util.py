@@ -1291,8 +1291,9 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 
 	stri = "Content-Type: " + contentType + "; charset=utf-8\n"
 	if extraArgs:
-		for linArg in extraArgs:
-			stri += linArg + "\n"
+		# extraArgs in a array of key-value tuples.
+		for key_value in extraArgs:
+			stri += "%s: %s\n" % key_value
 	stri += "\n"
 
 	# Python 3.2

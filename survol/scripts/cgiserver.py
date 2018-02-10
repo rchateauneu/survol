@@ -56,7 +56,7 @@ port_number_default = 8000
 
 def Usage():
     progNam = sys.argv[0]
-    print("Survol HTTP server: %s"%progNam)
+    print("Survol CGI server: %s"%progNam)
     print("    -a,--address=<IP address> TCP/IP address")
     print("    -p,--port=<number>        TCP/IP port number. Default is %d." %(port_number_default) )
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
@@ -116,7 +116,7 @@ def RunCgiServerInternal():
 
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
-        # This is necessary for revlib which is otherwise not found.
+        # This is necessary for lib_util which is otherwise not found.
         extraPath = "survol"
         try:
             os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + ";" + extraPath
@@ -127,7 +127,7 @@ def RunCgiServerInternal():
     # This also works on Windows and Python 3.
     elif 'linux' in sys.platform:
         # It seems that the cgi script is executed in another process
-        # therefore chaning sys.argv does not do anything.
+        # therefore changing sys.argv does not do anything.
         try:
             os.environ["PYTHONPATH"]
         except KeyError:
@@ -213,9 +213,6 @@ def RunCgiServerInternal():
         else:
             StartsBrowser(browser_name,theUrl)
         print("Browser thread started to:"+theUrl)
-
-    # https://stackoverflow.com/questions/32241082/python-access-control-allow-origin
-    # CORS Cross-site scripting must be activated.
 
     # Apache sets these environment variables.
     # SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
