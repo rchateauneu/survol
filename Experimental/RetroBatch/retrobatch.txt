@@ -38,7 +38,10 @@ Les evenements d'un meme process sont lies entre eux
 Visualisation: On n affiche pas forcement les ressources de chaque evenement
 mais un simple texte. En revanche, on visualise l'arbre de "causalite" (La succession des evenements).
 
-
+Architecture:
+=============
+On fournit des scripts qui ecrivent leurs resultats vers stderr ou bien un fichier.
+Pour des raisons de performances, on les lance dans un sous-process et on parse la sortie.
 
 
 Stockage du batchflow:
@@ -81,26 +84,6 @@ pas besoin de fusionner.
 
 Dans le fichier representant le batchflows, les ressources sont bien representees
 par leur node WMI, WBEM ou Survol
-
-Comparaison de deux batchflows:
-===============================
-
-Deux batchflows pris sur la meme machine modelisent les memes taches,
-par exemple a un jour d intervalle. Il y a des similarites et des differences:
-* Les commandes sont les memes mais les process id differents.
-* Les time-stamps sont differeents mais les durees similaires.
-* Les noms de fichiers differents, contiennent eventuellement la date.
-  D'ailleurs, reperer les fichiers dientiques comme cause possible de probleme.
-
-http://liris.cnrs.fr/Documents/Liris-1526.pdf
-http://lioneltabourier.fr/documents/These_Tabourier.pdf
-
-... etc ...
-
-Pour comparer, il faut gommer ce qui change tous les jours:
-* Remplacer les process ids par la commande.
-* Dans les fichiers, virer les dates.
-* Dans les sockets, ne garder que les sockets connues ("/etc/services")
 
 Visualiser un batchflow dans Survol:
 ====================================
@@ -147,9 +130,56 @@ Le serveur pourrait gerer une session si le client lui envoie
 un identifiant unique: Le serveur gere alors une queue par client.
 Peu de donnees et peu de clients, donc pas de souci de taille.
 
-
 Survol doit pouvoir s'abonner a plusieurs sources de donnees en meme temps
 et faire "en direct" la fusion des ressources partagees par plusieurs batchflows.
+
+Les scripts asynchrones s'abonnent a une source de donnees
+et remplissent un buffer dedie a un client WSGI.
+
+Ca ne peut fonctionner que si le serveur est WSGI.
+Le click-droit propose pour chaque entite une source de donnees.
+Pourrait-on en avoir plusieurs ?
+Il y a aussi des sources de donnees globales.
+
+Comment fusionner ca avec le refresh d'URLs ?
+Du point de vue de D3, ca pourrait etre la meme chose:
+ON s'abonne toutes les X minutes (Ou bien en continu) a un URL.
+Mais on ne permet pas l'abonnement en continu a un script normal.
+
+On fait la difference du point de vue de D3,
+entre un script normal qui renvoie toujours les memes donnees,
+et un script asynchrone qui ne renvoie que les dernieres donnees,
+en donnant un nom special aux scripts asynchrones.
+monscript.ASYNC.py
+Du coup, pas besoin de preciser dans CgiEnv.
+
+D3 refuse de faire des refresh immediats de scripts qui n'ont pas le nom *.ASYNC.py.
+On peut eventuellement se deconnecter d'un script asynchrone, car ca peut faire beaucoup de donnees.
+
+Par ailleurs, CgiEnv refuse de traiter le parametre "&from_timestamp=" pour ces memes scripts.
+
+De plus, si script asynchrone, on ne va pas tout virer,
+mais seulement ajouter des updates (et des nodes "deleted").
+
+Sessions WSGI:
+==============
+
+CgiServer peut detecter dans les variables d'environnement si on est en WSGI:
+
+Variables d'environnement:
+SERVER_SOFTWARE	WSGIServer/0.1 Python/2.7.10
+
+wsgi.url_scheme	http
+wsgi.multithread	True
+wsgi.file_wrapper	wsgiref.util.FileWrapper
+wsgi.version	(1, 0)
+wsgi.run_once	False
+wsgi.input	LTsocket._fileobject object at 0x0000000003DAF228GT
+wsgi.errors	LTopen file 'LTstderrGT', mode 'w' at 0x0000000001D4A150GT
+wsgi.run_once	False
+
+D3 devrait peut-etre mettre un identifiant de session.
+Le server detruit les buffer qui n'ont pas ete accedes depuis plus de X minutes.
 
 Implementation dans Survol:
 ===========================
@@ -161,22 +191,50 @@ Survol apporte:
 A proprement parler, on n'implemente pas dans Survol car on amene le plus possible,
 du code autonome. En revanche, le couplage est tres proche.
 
+Les scripts asynchrones peuvent etre visualises comme les autres,
+D3 peut les filtrer grace a leur nom.
+Dans un premier temps, on peut gerer leur demarrage, les sessions.
+
 Clique droit sur un process: On demarre un nouvel URL qui renvoie des nodes
 a chaque appel: entity_flow.py
 entity_flow.py fonctionne avec toute ressource et renvoie de nouveaux nodes.
 
 En pratique, on lance une session de cgiserver.py.
-Ou bien cgiserver.py traite specifiquement certais urls.
-
-On n implemente pas entity_flow.py en general car:
-* On veut monitorer non seulement un process deja existant (via son pid)
-mais aussi le lancement d une ligne de commande.
-* Dans un premier temps on n'a pas besoin du JSON etc...
-* On ne s interesse qu au processes.
+Ou bien cgiserver.py traite specifiquement certains urls.
 
 En revanche:
 * Le monitoring des processes est le meme.
 
 Donc on peut reprendre la partie HTTP de cgiserver.py et ajouter le cas specifique de entity_flow.py?xid=CIM_Process.Handle=<pid>
 ... mais aussi le lancement du process, sur la ligne de commande de cgiserver.py (Qui prendra un autre nom).
+
+Scripts asynchrones:
+====================
+
+monitor_process.py :
+
+On appelle le script retrobatch avec un pid.
+
+mpnitor_executable.py:
+On appelle le script retrobatch avec un fichier executable.
+
+Comparaison de deux batchflows:
+===============================
+
+Deux batchflows pris sur la meme machine modelisent les memes taches,
+par exemple a un jour d intervalle. Il y a des similarites et des differences:
+* Les commandes sont les memes mais les process id differents.
+* Les time-stamps sont differeents mais les durees similaires.
+* Les noms de fichiers differents, contiennent eventuellement la date.
+  D'ailleurs, reperer les fichiers dientiques comme cause possible de probleme.
+
+http://liris.cnrs.fr/Documents/Liris-1526.pdf
+http://lioneltabourier.fr/documents/These_Tabourier.pdf
+
+... etc ...
+
+Pour comparer, il faut gommer ce qui change tous les jours:
+* Remplacer les process ids par la commande.
+* Dans les fichiers, virer les dates.
+* Dans les sockets, ne garder que les sockets connues ("/etc/services")
 
