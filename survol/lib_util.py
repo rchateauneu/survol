@@ -148,8 +148,8 @@ def HttpPrefix():
 		#os.environ['REMOTE_HOST']=rchateau-HP
 
 	except KeyError:
-		# Local use.
-		server_addr = "127.0.0.1"
+		sys.stderr.write("HttpPrefix SERVER_NAME MUST BE DEFINED\n")
+		sys.exit(1)
 	
 	try:
 		server_port = os.environ['SERVER_PORT']
@@ -172,7 +172,7 @@ def UriRootHelper():
 		# sys.stderr.write("SERVER_NAME=%s\n"%os.environ["SERVER_NAME"])
 		os.environ["SERVER_NAME"]
 	except KeyError:
-		sys.stderr.write("SERVER_NAME MUST BE DEFINED\n")
+		sys.stderr.write("UriRootHelper SERVER_NAME MUST BE DEFINED\n")
 		sys.exit(1)
 	try:
 		# SCRIPT_NAME=/PythonStyle/survol/internals/print.py
@@ -210,8 +210,11 @@ uriRoot = UriRootHelper()
 # rchateau-HP                          ('rchateau-HP', [], ['fe80::3c7a:339:64f0:2161'])
 # ssh02.cluster023.gra.hosting.ovh.net ('ssh02.cluster023.gra.hosting.ovh.net', ['ssh02'], ['10.23.90.2'])
 #
+# Some example of the values of important CGI variables:
+# rchateau-hp IP address is 192.168.0.14
 #
 # http://rchateau-hp:8000/survol/print_environment_variables.py
+# SERVER_SOFTWARE=SimpleHTTP/0.6 Python/2.7.10
 # SERVER_NAME=rchateau-HP
 #
 # http://rchateau-hp/Survol/survol/print_environment_variables.py
@@ -220,11 +223,40 @@ uriRoot = UriRootHelper()
 # SERVER_ADDR=fe80::3c7a:339:64f0:2161
 # HTTP_HOST=rchateau-hp
 #
+# http://127.0.0.1/Survol/survol/print_environment_variables.py
+# SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
+# SERVER_NAME=127.0.0.1
+# SERVER_ADDR=127.0.0.1
+# HTTP_HOST=127.0.0.1
+#
+# http://192.168.0.14/Survol/survol/print_environment_variables.py
+# SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
+# SERVER_NAME=192.168.0.14
+# SERVER_ADDR=192.168.0.14
+# HTTP_HOST=192.168.0.14
+#
+# This is 192.168.0.17 accessible via NAT and primhillcomputers.ddns.net:
+#
 # http://primhillcomputers.ddns.net/Survol/survol/print_environment_variables.py
 # SERVER_SOFTWARE=Apache/2.4.18 (Fedora) PHP/5.6.23 mod_wsgi/4.4.8 Python/2.7.10
 # SERVER_NAME=primhillcomputers.ddns.net
 # SERVER_ADDR=192.168.0.17
 # HTTP_HOST=primhillcomputers.ddns.net
+#
+# http://192.168.0.17/Survol/survol/print_environment_variables.py
+# SERVER_SOFTWARE=Apache/2.4.18 (Fedora) PHP/5.6.23 mod_wsgi/4.4.8 Python/2.7.10
+# SERVER_NAME=192.168.0.17
+# SERVER_ADDR=192.168.0.17
+# HTTP_HOST=192.168.0.17
+#
+# Todays, my IP address is 82.45.12.63, so let's try to access the same machine:
+# http://82.45.12.63/Survol/survol/print_environment_variables.py
+# SERVER_SOFTWARE=Apache/2.4.18 (Fedora) PHP/5.6.23 mod_wsgi/4.4.8 Python/2.7.10
+# SERVER_NAME=82.45.12.63
+# SERVER_ADDR=192.168.0.17
+# HTTP_HOST=82.45.12.63
+#
+# This is another machine hosted by OVH:
 #
 # http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/print_environment_variables.py
 # SERVER_SOFTWARE=Apache
@@ -234,7 +266,9 @@ uriRoot = UriRootHelper()
 #
 # It is better to rely on a distributed naming system: DNS or plain IP address.
 def HostName():
-	# RFC4343: Domain Name System (DNS) Case Insensitivity Clarification
+	# SERVER_NAME is set by the HTTP server and might be wrong, but gives some consistency.
+
+	# Converted to lowercase because of RFC4343: Domain Name System (DNS) Case Insensitivity Clarification
 	return os.environ["SERVER_NAME"].lower()
 
 # hostName
@@ -259,6 +293,8 @@ except Exception:
 	# Apparently, it happens if the router is down.
 	localIP = "127.0.0.1"
 
+# This is for example used by WMI, which does not accept credentials
+# for a local machine: We must therefore be sure that the machine is local or not.
 def IsLocalAddress(anHostNam):
 	# Maybe entity_host="http://192.168.1.83:5988"
 	hostOnly = EntHostToIp(anHostNam)
@@ -275,8 +311,15 @@ def IsLocalAddress(anHostNam):
 		# sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
 		return False
 
+	# IsLocalAddress RCHATEAU-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
+	sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(anHostNam,ipOnly,localIP,currentHostname))
 	if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
 		# sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
+		return True
+
+	# "RCHATEAU-HP" and "rchateau-HP" ??
+	sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(anHostNam,socket.gethostname()))
+	if anHostNam.lower() == socket.gethostname().lower():
 		return True
 
 	# sys.stderr.write("IsLocalAddress %s FALSE\n"%anHostNam)
@@ -702,8 +745,14 @@ def EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname):
 	else:
 		return ('entity_wmi.py','entity_wbem.py','entity.py')[ entIdx ]
 
-# Le parsing devra etre beaucoup plus performant.
-# TODO: Creer trois fonctions un peu comme EntityClassUrl, car on connait toujorus la categorie.
+# WMI, WBEM and Survol have the similar monikers.
+# TODO: This should split the arguments and reformat them according to the class.
+# TODO: This, because some parameters must be reformatted,
+# TODO: for example CIM_ComputerSystem.Name must be in lowercase.
+# TODO: The problem can be fixed by converting all hostnames to uppercase,
+# TODO: but we must be sure that WBEM and WMI will follow the same standard.
+# TODO: Probably same problem with CIM_DataFile on Windows because of backslashes
+# TODO: as directory separator.
 def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_hostname=False):
 	scriptPath = EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname)
 
@@ -1242,8 +1291,9 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 
 	stri = "Content-Type: " + contentType + "; charset=utf-8\n"
 	if extraArgs:
-		for linArg in extraArgs:
-			stri += linArg + "\n"
+		# extraArgs in a array of key-value tuples.
+		for key_value in extraArgs:
+			stri += "%s: %s\n" % key_value
 	stri += "\n"
 
 	# Python 3.2

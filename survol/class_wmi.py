@@ -65,7 +65,7 @@ def Main():
 		wmiClass = getattr( connWmi, className )
 	except Exception:
 		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("cimomUrl=%s tp=%s nameSpace=%s className=%s Caught:%s\n" % ( cimomUrl, entity_namespace_type, nameSpace, className, str(exc) ) )
+		lib_common.ErrorMessageHtml("class_wmi.py cimomUrl=%s tp=%s nameSpace=%s className=%s Caught:%s\n" % ( cimomUrl, entity_namespace_type, nameSpace, className, str(exc) ) )
 
 	# wmiClass=[Abstract, Locale(1033): ToInstance, UUID("{8502C55F-5FBB-11D2-AAC1-006008C78BC7}"): ToInstance]
 	# class CIM_Directory : CIM_LogicalFile
