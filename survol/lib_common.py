@@ -824,7 +824,7 @@ def ErrorMessageHtml(message):
 
 		sys.stderr.write("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
 		lib_util.InfoMessageHtml(message)
-		# TODO: Fix with wsgi which just displays "A server error occurred.  Please contact the administrator."
+		sys.stderr.write("ErrorMessageHtml about to leave\n")
 		sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
