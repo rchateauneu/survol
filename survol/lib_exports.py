@@ -246,22 +246,47 @@ def ScriptForJson(url):
 # (Reason: CORS header 'Access-Control-Allow-Origin' missing)
 #
 # https://stackoverflow.com/questions/5027705/error-in-chrome-content-type-is-not-allowed-by-access-control-allow-headers
-def WriteJsonHeader():
+# The body of the reply is base-64 encoded.
+def WriteJsonHeader( bufJson ):
+	# It is difficult to calculate the length because the output is encoded
+	# in Base64, which takes more room than JSon. And also, at least on Windows,
+	# each line gets an extra character ("\n\r" ?).
+	# So it is confusing.
+	# The reason for adding the length is: When an error is detected, sometimes a second error
+	# comes immediately after the one, even if the thread (or process ?) quits.
+
+	numLines = bufJson.count("\n")
+	lenBuf = len(bufJson) + numLines
+
 	lib_util.WrtHeader('application/json', [
-			'Access-Control-Allow-Origin: *',
-			'Access-Control-Allow-Methods: POST,GET,OPTIONS',
-			'Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept'
+		('Access-Control-Allow-Origin','*'),
+		('Access-Control-Allow-Methods','POST,GET,OPTIONS'),
+		('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept'),
+		('Content-Length',str(lenBuf) )
 		] )
+	# No text conversion.
+	lib_util.outputHttp.write(bufJson)
 
 # This is a standard for returning errors.
 # http://labs.omniti.com/labs/jsend
 def WriteJsonError(message):
+	sys.stderr.write("WriteJsonError message="+message)
 	jsonErr = {}
 	jsonErr["status"] = "error"
 	jsonErr["message"] = message
 
-	WriteJsonHeader()
-	print(json.dumps(jsonErr, indent=2))
+	WriteJsonHeader(json.dumps(jsonErr, indent=2))
+	# print(json.dumps(jsonErr, indent=2))
+	# lib_util.WrtAsUtf(json.dumps(jsonErr, indent=2))
+
+	# This closes manually the output, otherwise another thread is triggered
+	# and writes another error message, with the header, on the same output.
+	# And the client JSON parser does not like that:
+	# lib_util.outputHttp.close()
+
+	# "ValueError: I/O operation on closed file"
+
+	sys.exit(0)
 
 
 # Transforms a RDF graph into a JSON document.
@@ -364,8 +389,8 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 	graph["nodes"] = nodes
 	graph["links"] = links
 
-	WriteJsonHeader()
-	print(json.dumps(graph, indent=2))
+	WriteJsonHeader(json.dumps(graph, indent=2))
+	# print(json.dumps(graph, indent=2))
 
 # This returns a tree of scripts, usable as a contextual menu.
 # The RDF content is already created, so this keeps only the nodes related to scripts.
@@ -457,8 +482,8 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 
 	#sys.stderr.write("menuJson=%s\n"%str(oneMenuVal))
 
-	WriteJsonHeader()
-	print(json.dumps(oneMenuVal, sort_keys = True, indent=2))
+	WriteJsonHeader(json.dumps(oneMenuVal, sort_keys = True, indent=2))
+	# print(json.dumps(oneMenuVal, sort_keys = True, indent=2))
 
 ################################################################################
 
