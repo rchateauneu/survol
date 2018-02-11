@@ -294,6 +294,10 @@ def WriteJsonError(message):
 # This returns a graph made of Json objects.
 def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
+	# Must be reset to zero between several executions, when run by WSGI.
+	global NodeJsonNumber
+	NodeJsonNumber = 0
+
 	# It contains a cache because the same nodes may appear several times.
 	def NodeToJsonObj(theNod):
 		try:
