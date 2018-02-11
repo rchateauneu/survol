@@ -10,30 +10,6 @@ import importlib
 import wsgiref.simple_server as server
 import cStringIO
 
-# TODO: Verifier quon peut lancer en cliquant sur wsgiserver.py ou cgiserver.py
-# TODO: Permettre a wsgiserver.py d afficher les messages d erreurs.
-# TODO: Maintenant que wsgi fonctionne, y adapter les scripts asyncyhrones.
-
-# This is just to check that we are running in the same process,
-# and that the variables state is global.
-cnt = 0
-
-def the_dflt(environ, start_response):
-	status = '200 OK'
-	global cnt
-	output = "<h1>Display counter %d</h1>\n" % cnt
-	output += "<table>"
-	for e in environ:
-		v = str(environ[e])
-		v = v.replace("<","LT").replace(">","GT")
-		output += "<tr><td>%s</td><td>%s</td></tr>" % (e,v)
-	output += "</table>"
-	cnt += 1
-	response_headers = [('Content-type', 'text/html'),
-						('Content-Length', str(len(output)))]
-	start_response(status, response_headers)
-	return [output]
-
 # See the class lib_util.OutputMachineCgi
 class OutputMachineWsgi:
 
@@ -83,43 +59,54 @@ def app_serve_file(pathInfo, start_response):
 		return [ "<html><head></head><body>Broken</body></html>" ]
 
 def application_ok(environ, start_response):
+	#for key in sorted(environ.keys()):
+	#	sys.stderr.write("application_ok:environ[%-20s]=%-20s\n"%(key,environ[key]))
+
+	#for key in sorted(os.environ.keys()):
+	#	sys.stderr.write("application_ok:os.environ[%-20s]=%-20s\n"%(key,os.environ[key]))
+
 	# Must be done BEFORE IMPORTING, so the modules can have the good environment at init time.
 	for key in ["QUERY_STRING","SERVER_PORT"]:
 		os.environ[key] = environ[key]
-	# This environment variable is parsed in UriRootHelper
-	os.environ["SCRIPT_NAME"] = "/survol/"
+
+	# The wsgi Python module sets a value for SERVER_NAME that we do not want.
+	os.environ["SERVER_NAME"] = os.environ["SURVOL_SERVER_NAME"]
+
+	### sys.stderr.write("os.environ['SCRIPT_NAME']=%s\n"%os.environ['SCRIPT_NAME'])
 	os.environ["PYTHONPATH"] = "survol" # Not needed if installed ??
-	os.environ["SERVER_NAME"] = "rchateau-hp"
 
 	# Not sure this is needed on all platforms.
 	os.environ.copy()
 
 	pathInfo = environ['PATH_INFO']
 
+	# This environment variable is parsed in UriRootHelper
+	# os.environ["SCRIPT_NAME"] = "/survol/see_wsgiserver"
+	# SCRIPT_NAME=/survol/print_environment_variables.py
+	# REQUEST_URI=/survol/print_environment_variables.py?d=s
+	# QUERY_STRING=d=s
+	os.environ["SCRIPT_NAME"] = pathInfo
+
 	# If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
 	# then "/survol/sources_top/enumerate_CIM_LogicalDisk.py"
 	sys.stderr.write("pathInfo=%s\n"%pathInfo)
+
+	# Example: pathInfo=/survol/www/index.htm
+	if pathInfo.find("/survol/www/") >= 0:
+		return app_serve_file(pathInfo, start_response)
+		
 
 	pathInfo = pathInfo.replace("/",".")
 
 	modulePrefix = "survol."
 	htbinIndex = pathInfo.find(modulePrefix)
 
-	# This is not a Python file. Most probably a html file.
-	if htbinIndex < 0:
-		return app_serve_file(pathInfo, start_response)
-
 	pathInfo = pathInfo[htbinIndex + len(modulePrefix):-3] # "Strips ".py" at the end.
 
-	# ["sources_top","enumerate_CIM_LogicalDisk"]
+	# ["sources_types","enumerate_CIM_LogicalDisk"]
 	splitPathInfo = pathInfo.split(".")
 
-
 	import lib_util
-	#if splitPathInfo[-1] == "entity":
-	#	from survol import lib_util
-	#else:
-	#	import lib_util
 
 	# This is the needed interface so all our Python machinery can write to the WSGI server.
 	theOutMach = OutputMachineWsgi(start_response)
@@ -155,13 +142,18 @@ def application_ok(environ, start_response):
 	return [ lib_util.globalOutMach.Content() ]
 
 def application(environ, start_response):
-	# return application_ok(environ, start_response)
 	try:
 		return application_ok(environ, start_response)
 	except:
+		# Uncomment this for easier debugging.
+		# raise
+		sys.stderr.write("application CAUGHT:\n")
+
+		import lib_util
+
 		exc = sys.exc_info()
-		sys.stderr.write("CAUGHT:%s\n"%str(exc))
-		return the_dflt(environ, start_response)
+		sys.stderr.write("application CAUGHT:%s\n"%str(exc))
+		return [ lib_util.globalOutMach.Content() ]
 
 port_number_default = 9000
 
@@ -281,6 +273,9 @@ def RunWsgiServer():
 	# sys.path.append("survol/revlib")
 	sys.stderr.write("path=%s\n"% str(sys.path))
 
+	# This expects that environment variables are propagated to subprocesses.
+	os.environ["SURVOL_SERVER_NAME"] = server_name
+	sys.stderr.write("server_name=%s\n"% server_name)
 
 	httpd = server.make_server('', port_number, application)
 	print "WSGI server running on port %i..." % port_number
