@@ -265,7 +265,8 @@ def WriteJsonHeader( bufJson ):
 		('Content-Length',str(lenBuf) )
 		] )
 	# No text conversion.
-	lib_util.outputHttp.write(bufJson)
+	# lib_util.outputHttp.write(bufJson)
+	lib_util.WrtAsUtf(bufJson)
 
 # This is a standard for returning errors.
 # http://labs.omniti.com/labs/jsend
