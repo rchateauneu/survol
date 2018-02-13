@@ -241,6 +241,10 @@ def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
 		return proc.username
 	except AccessDenied:
 		return dfltUser
+	except KeyError:
+		# This does not make sense but it happens.
+		# KeyError: 'getpwuid(): uid not found: 56413'
+		return "usr"+str(proc.pid)
 
 def PsutilProcOpenFiles(proc):
 	try:
