@@ -241,6 +241,9 @@ def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
 		return proc.username
 	except AccessDenied:
 		return dfltUser
+	except KeyError:
+		# This does not make sense but it happens.
+		return "usr"+str(proc.pid)
 
 def PsutilProcOpenFiles(proc):
 	try:
