@@ -247,23 +247,30 @@ def ScriptForJson(url):
 #
 # https://stackoverflow.com/questions/5027705/error-in-chrome-content-type-is-not-allowed-by-access-control-allow-headers
 # The body of the reply is base-64 encoded.
-def WriteJsonHeader( bufJson ):
+def WriteJsonHeader( bufJson, withContentLength = False ):
+	arrHeaders = [
+		('Access-Control-Allow-Origin','*'),
+		('Access-Control-Allow-Methods','POST,GET,OPTIONS'),
+		('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept'),
+	]
+
 	# It is difficult to calculate the length because the output is encoded
 	# in Base64, which takes more room than JSon. And also, at least on Windows,
 	# each line gets an extra character ("\n\r" ?).
 	# So it is confusing.
 	# The reason for adding the length is: When an error is detected, sometimes a second error
 	# comes immediately after the one, even if the thread (or process ?) quits.
+	#
+	# Also, with Chrome and Android, sometimes it is not happy with the length,
+	# even if we checked it. It works without the length, except if this is an error message.
+	if withContentLength:
+		numLines = bufJson.count("\n")
+		lenBuf = len(bufJson) + numLines
 
-	numLines = bufJson.count("\n")
-	lenBuf = len(bufJson) + numLines
+		arrHeaders.append( ('Content-Length',str(lenBuf) ) )
 
-	lib_util.WrtHeader('application/json', [
-		('Access-Control-Allow-Origin','*'),
-		('Access-Control-Allow-Methods','POST,GET,OPTIONS'),
-		('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept'),
-		('Content-Length',str(lenBuf) )
-		] )
+	lib_util.WrtHeader('application/json', arrHeaders )
+
 	# No text conversion.
 	# lib_util.outputHttp.write(bufJson)
 	lib_util.WrtAsUtf(bufJson)
@@ -276,9 +283,8 @@ def WriteJsonError(message):
 	jsonErr["status"] = "error"
 	jsonErr["message"] = message
 
-	WriteJsonHeader(json.dumps(jsonErr, indent=2))
-	# print(json.dumps(jsonErr, indent=2))
-	# lib_util.WrtAsUtf(json.dumps(jsonErr, indent=2))
+	# The only case where Content-Length is added.
+	WriteJsonHeader(json.dumps(jsonErr, indent=2), True)
 
 	# This closes manually the output, otherwise another thread is triggered
 	# and writes another error message, with the header, on the same output.
