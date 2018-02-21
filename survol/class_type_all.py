@@ -201,6 +201,15 @@ def Main():
 	# entity_type = cgiEnv.m_entity_type
 	( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()
 
+
+	# UNE SEQUENCE QUI NE MARCHE PAS VRAIMENT
+	# http://rchateau-hp:8000/survol/class_type_all.py?xid=CIM_ComputerSystem. OK bien que plein de "Undefined class CIM_ComputerSystem"
+	# http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A%252F%252F192.168.0.17%3A5988%2FCIM_ComputerSystem.
+	# http://rchateau-hp:8000/survol/class_type_all.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2F%3ACIM_ComputerSystem.
+
+	# CA NON PLUS:
+	# http://192.168.0.17/Survol/survol/class_type_all.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2Froot%2Fcimv2%3ACIM_Process.
+
 	# Just in case ...
 	if nameSpace == "/":
 		nameSpace = ""
