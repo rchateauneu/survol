@@ -295,6 +295,8 @@ def DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker):
 		# id, keys, methods, ole_object, path, properties, property_map, put,
 		# qualifiers, references, set, wmi_property
 
+		# BEWARE: For example for CIM_ComputerSystem, the host name must be in lowercase.
+		# TODO: This is not done here. Luckily the universal alias does this properly.
 		assocInstanceUrl = lib_util.EntityUrlFromMoniker( assocMoniker )
 		assocInstanceNode = lib_common.NodeUrl(assocInstanceUrl)
 		grph.add( ( wmiInstanceNode, lib_common.MakeProp(assocDerivation[0]), assocInstanceNode ) )
@@ -376,23 +378,23 @@ def Main():
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
-	cimomUrl = cgiEnv.GetHost()
+	wmiHost = cgiEnv.GetHost()
 
-	# cimomUrl=RCHATEAU-HP ns=root\cimv2 cls=Win32_ComputerSystem id=Name="RCHATEAU-HP"
-	sys.stderr.write("cimomUrl=%s ns=%s cls=%s id=%s\n" % ( cimomUrl, nameSpace, className, cgiEnv.m_entity_id) )
+	# wmiHost=RCHATEAU-HP ns=root\cimv2 cls=Win32_ComputerSystem id=Name="RCHATEAU-HP"
+	sys.stderr.write("entity_wmi.py wmiHost=%s ns=%s cls=%s id=%s\n" % ( wmiHost, nameSpace, className, cgiEnv.m_entity_id) )
 
 	grph = cgiEnv.GetGraph()
 
 	try:
-		connWmi = lib_wmi.WmiConnect(cimomUrl,nameSpace)
+		connWmi = lib_wmi.WmiConnect(wmiHost,nameSpace)
 	except:
 		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Cannot connect to WMI server %s with namespace %s: %s" % ( cimomUrl,nameSpace, str(exc) ) )
+		lib_common.ErrorMessageHtml("entity_wmi.py: Cannot connect to WMI server %s with namespace %s: %s" % ( wmiHost,nameSpace, str(exc) ) )
 
 	# Try to read the moniker, which is much faster,
 	# but it does not always work if we do not have all the properties.
 	cgiMoniker = cgiEnv.GetParameters("xid")
-	sys.stderr.write("cgiMoniker=[%s]\n" % cgiMoniker )
+	sys.stderr.write("entity_wmi.py cgiMoniker=[%s]\n" % cgiMoniker )
 
 	objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )
 	if objList is None:
@@ -412,7 +414,7 @@ def Main():
 
 	# In principle, there should be only one object to display.
 	for objWmi in objList:
-		sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
+		sys.stderr.write("entity_wmi.py objWmi=[%s]\n" % str(objWmi) )
 
 		DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,mapPropUnits)
 
@@ -424,12 +426,13 @@ def Main():
 				DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker)
 			except:
 				exc = sys.exc_info()[1]
-				sys.stderr.write("Exception=%s\n" % str(exc) )
+				sys.stderr.write("entity_wmi.py Exception=%s\n" % str(exc) )
 		else:
 			# Prefixc with a dot so it is displayed first.
 			grph.add( ( wmiInstanceNode, lib_common.MakeProp(".REFERENCES"), lib_common.NodeLiteral( "DISABLED" ) ) )
 
 		# Displaying the associators is conditional because it slows things.
+		# TODO: How to select this option with D3 ?????
 		if displayAssociators:
 			# This class appears everywhere, so not not display its references, it would be too long.
 			if className == "Win32_ComputerSystem":
@@ -438,10 +441,10 @@ def Main():
 				DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker)
 
 	# Adds the class node to the instance.
-	wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, cimomUrl, nameSpace, className, lib_common.MakeProp(className) )
+	wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, wmiHost, nameSpace, className, lib_common.MakeProp(className) )
 
 	# Now displays the base class, up to the top.
-	lib_wmi.WmiAddBaseClasses(grph,connWmi,wmiClassNode,cimomUrl, nameSpace, className)
+	lib_wmi.WmiAddBaseClasses(grph,connWmi,wmiClassNode,wmiHost, nameSpace, className)
 
 	# Now tries to find the equivalent object in the Survol terminology.
 	AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList)

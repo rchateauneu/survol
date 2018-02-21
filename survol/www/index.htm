@@ -437,6 +437,12 @@ function D3DisplayCreation()
             ;
     }
 
+    // If the drag behavior prevents the default click,
+    // also stop propagation so we don’t click-to-zoom.
+    function stopped() {
+      if (d3.event.defaultPrevented) d3.event.stopPropagation();
+    }
+
     SetSvgRect();
 
     divSvg
@@ -466,11 +472,6 @@ function D3DisplayCreation()
 
     if(false)
     {
-        // If the drag behavior prevents the default click,
-        // also stop propagation so we don’t click-to-zoom.
-        function stopped() {
-          if (d3.event.defaultPrevented) d3.event.stopPropagation();
-        }
         divSvg.on("click", stopped, true);
     }
 

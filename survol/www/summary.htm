@@ -95,6 +95,14 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
             rateValue = objLoadedUrl.m_refresh_rate;
         }
 
+        cellTdOper = '<td valign=top>'
+        cellTdOper += '<button onclick="' + funcOnClk + '">Del</button>'
+        isMergeUrl = objLoadedUrl.m_loaded_url.indexOf("merge_scripts.py") >= 0
+        if (isMergeUrl) {
+            cellTdOper += '<button onclick="' + funcOnClk + '">Explode</button>'
+            }
+        cellTdOper += '</td>'
+
         // https://stackoverflow.com/questions/22709792/html-input-type-number-wont-resize
         urlsHtml += [
             "<tr>",
@@ -102,7 +110,7 @@ function SummaryRefreshSummaryWindow(lstLoadedUrls)
             "<td valign=top align='right'>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
             "<td valign=top align='right'>" + objLoadedUrl.m_loaded_links_length + "</td>",
             '<td valign=top><input type="number" min="0" style="width: 5em" onchange="'+  funcOnChange + '" value="' + rateValue + '"></td>',
-            '<td valign=top><button onclick="' + funcOnClk + '">Del</button></td>',
+            cellTdOper,
             "</tr>"
         ].join("\n");
     }

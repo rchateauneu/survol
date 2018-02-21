@@ -2,6 +2,7 @@ import sys
 import getopt
 import os
 import socket
+import subprocess
 
 def Usage():
     progNam = sys.argv[0]
@@ -9,8 +10,8 @@ def Usage():
     print("    -v,--verbose              Verbose mode")
     print("")
 
-def StartSystrace_Windows(verbose):
-	return
+def StartSystrace_Windows(verbose,extCommand):
+    return
 
 # strace -h
 # Usage: strace.exe [OPTIONS] <command-line>
@@ -24,15 +25,15 @@ def StartSystrace_Windows(verbose):
 #   -h, --help                   output usage information and exit
 #   -m, --mask=MASK              set message filter mask
 #   -n, --crack-error-numbers    output descriptive text instead of error
-#                                numbers for Windows errors
+#                             numbers for Windows errors
 #   -o, --output=FILENAME        set output file to FILENAME
 #   -p, --pid=n                  attach to executing program with cygwin pid n
 #   -q, --quiet                  suppress messages about attaching, detaching, etc.
 #   -S, --flush-period=PERIOD    flush buffered strace output every PERIOD secs
 #   -t, --timestamp              use an absolute hh:mm:ss timestamp insted of
-#                                the default microsecond timestamp.  Implies -d
+#                             the default microsecond timestamp.  Implies -d
 #   -T, --toggle                 toggle tracing in a process already being
-#                                traced. Requires -p <pid>
+#                             traced. Requires -p <pid>
 #   -u, --usecs                  toggle printing of microseconds timestamp
 #   -V, --version                output version information and exit
 #   -w, --new-window             spawn program under test in a new window
@@ -49,92 +50,265 @@ def StartSystrace_Windows(verbose):
 # C:\Users\rchateau>C:\Users\rchateau\Documents\MobaXterm\slash\bin\strace notepad.exe
 # --- Process 7432, exception 000006ba at 7686C54F
 # --- Process 7432, exception 000006ba at 7686C54F
-def StartSystrace_Cygwin(verbose):
-	pathCygwin = "C:\\Users\\rchateau\\Documents\\MobaXterm\\slash\\bin\\strace"
+def StartSystrace_Cygwin(verbose,extCommand):
+    pathCygwin = "C:\\Users\\rchateau\\Documents\\MobaXterm\\slash\\bin\\strace"
 
-	return
+    return
 
-# -D Run tracer process as a detached grandchild, not as parent of the tracee.  This reduces the visible effect of strace by  keeping
-#       the tracee a direct child of the calling process.
-# -y    Print paths associated with file descriptor arguments.
-#
-# -yy   Print ip:port pairs associated with socket file descriptors.
-# -e expr     A qualifying expression which modifies which events to trace or how to trace them.  The format of the expression is:
-#
-#             [qualifier=][!]value1[,value2]...
-#
-#       where  qualifier is one of trace, abbrev, verbose, raw, signal, read, or write and value is a qualifier-dependent symbol or num?
-#       ber.  The default qualifier is trace.  Using an exclamation mark negates the set of values.  For example, -e open  means  liter?
-#       ally -e trace=open which in turn means trace only the open system call.  By contrast, -e trace=!open means to trace every system
-#       call except open.  In addition, the special values all and none have the obvious meanings.
-#       Note that some shells use the exclamation point for history expansion even inside quoted arguments.  If so, you must escape  the
-#       exclamation point with a backslash.
-#
-# -e trace=set
-#       Trace  only  the  specified  set of system calls.  The -c option is useful for determining which system calls might be useful to
-#       trace.  For example, trace=open,close,read,write means to only trace those four system calls.  Be careful when making inferences
-#       about the user/kernel boundary if only a subset of system calls are being monitored.  The default is trace=all.
-# -e trace=file
-#       Trace   all  system  calls  which  take  a  file  name  as  an  argument.   You  can  think  of  this  as  an  abbreviation  for
-#       -e trace=open,stat,chmod,unlink,...  which is useful to seeing what files the process is referencing.   Furthermore,  using  the
-#       abbreviation  will  ensure  that  you don't accidentally forget to include a call like lstat in the list.  Betchya woulda forgot
-#       that one.
-#
-# -e trace=process Trace all system calls which involve process management.
-#       This is useful for watching the  fork,  wait,  and  exec  steps  of  a process.
-# -e trace=network Trace all the network related system calls.
-# -e trace=signal Trace all signal related system calls.
-# -e trace=ipc Trace all IPC related system calls.
-# -e trace=desc Trace all file descriptor related system calls.
-# -e trace=memory Trace all memory mapping related system calls.
-#
-# -o filename Write  the  trace  output  to the file filename rather than to stderr.  Use filename.pid if -ff is used.  If the argument begins
-#       with '|' or with '!' then the rest of the argument is treated as a command and all output is piped to it.   This  is  convenient
-#       for piping the debugging output to a program without affecting the redirections of executed programs.
-#
-# -O overhead Set  the  overhead  for  tracing system calls to overhead microseconds.  This is useful for overriding the default heuristic for
-#       guessing how much time is spent in mere measuring when timing system calls using the -c option.  The accuracy of  the  heuristic
-#       can  be  gauged  by timing a given program run without tracing (using time(1)) and comparing the accumulated system call time to
-#       the total produced using -c.
-#
-# -p pid      Attach to the process with the process ID pid and begin tracing.  The trace may be terminated at any time by a  keyboard  inter?
-#       rupt  signal  (CTRL-C).   strace will respond by detaching itself from the traced process(es) leaving it (them) to continue run?
-#       ning.  Multiple -p options can be used to attach to many processes.  -p "`pidof PROG`" syntax is supported.
-#
-# open("/proc/filesystems", O_RDONLY)     = 3
-# fstat(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-# mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f263c232000
-# read(3, "nodev\tsysfs\nnodev\trootfs\nnodev\tr"..., 1024) = 356
-#
-def StartSystrace_Linux(verbose):
-	return
 
-def StartSystrace(verbose):
-	if sys.platform.startwith("win32"):
-		StartSystrace_Windows(verbose)
-	elif sys.platform.startwith("linux"):
-		StartSystrace_Linux(verbose)
-	else:
-		StartSystrace_Cygwin(verbose)
+
+def ParsePar(aStr):
+    idx = 0
+    theArr = []
+    inQuotes = False
+    levelBrackets = 0
+    isEscaped = False
+    currStr = ""
+    for aChr in aStr:
+        if isEscaped:
+            currStr += aChr
+            isEscaped = False
+            continue
+        if aChr == '\\':
+            isEscaped = True
+            continue
+
+        if aChr == '"':
+            inQuotes = not inQuotes
+            continue
+
+        if not inQuotes:
+            if aChr == '{':
+                levelBrackets += 1
+            elif aChr == '}':
+                levelBrackets -= 1
+            elif aChr == ',':
+                if levelBrackets == 0:
+                    theArr.append( currStr.strip() )
+                    currStr = ""
+                    continue
+
+        currStr += aChr
+        continue
+
+    if currStr:
+        theArr.append( currStr.strip() )
+
+    return theArr
+
+def FindNonEnclosedPar(aStr,idxStart):
+    lenStr = len(aStr)
+    inQuotes = False
+    isEscaped = False
+    while idxStart < lenStr:
+        aChr = aStr[idxStart]
+        idxStart += 1
+        if isEscaped:
+            isEscaped = False
+            continue
+        if aChr == '\\':
+            isEscaped = True
+            continue
+        if aChr == '"':
+            inQuotes = not inQuotes
+            continue
+
+        if not inQuotes:
+            if aChr == ')':
+                return idxStart - 1
+
+    return -1
+
+
+
+class BatchLetCore:
+    def __init__(self,oneLine):
+        # This could be done without intermediary string.
+        self.m_timeStamp = oneLine[:15]
+        theCall = oneLine[16:]
+
+        idxPar = theCall.find("(")
+
+        self.m_funcNam = theCall[:idxPar]
+        # sys.stderr.write("Line=%s" % theCall )
+
+        idxGT = theCall.rfind(">")
+        # sys.stderr.write("idxGT=%d\n" % idxGT )
+        idxLT = theCall.rfind("<",0,idxGT)
+        # sys.stderr.write("idxLT=%d\n" % idxLT )
+        if idxLT >= 0 :
+            self.m_execTim = theCall[idxLT+1:idxGT]
+        else:
+            self.m_execTim = ""
+        # sys.stderr.write("execTim=%s\n" % execTim )
+
+        # idxLastPar = theCall.rfind(")",0,idxLT)
+        idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
+
+        allArgs = theCall[idxPar+1:idxLastPar]
+
+        self.m_parsedArgs = ParsePar( allArgs )
+        # sys.stderr.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
+
+        sys.stderr.write("Func=%s\n"%self.m_funcNam)
+
+class BatchLetBase:
+    def __init__(self,batchCore):
+        self.m_core = batchCore
+
+    def DumpBatch(self,strm):
+        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs) ) )
+
+
+# Must be a new-style class.
+class BatchLet_open(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_open,self).__init__(batchBase)
+
+class BatchLet_read(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_read,self).__init__(batchBase)
+
+    def DumpBatch(self,strm):
+        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
+
+class BatchLet_write(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_write,self).__init__(batchBase)
+
+    def DumpBatch(self,strm):
+        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
+
+class BatchLet_mmap(BatchLetBase,object):
+    def __init__(self,batchBase):
+        # Not interested by anonymous map because there is no side effect.
+        if batchBase.m_parsedArgs[3].find("MAP_ANONYMOUS") >= 0:
+            return
+        super( BatchLet_mmap,self).__init__(batchBase)
+
+    def DumpBatch(self,strm):
+        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[2:5]) ) )
+
+class BatchLet_fstat(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_fstat,self).__init__(batchBase)
+
+    def DumpBatch(self,strm):
+        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
+
+batchModels = {
+    "open"      : BatchLet_open,
+    "read"      : BatchLet_read,
+    "write"     : BatchLet_write,
+    "mmap"      : BatchLet_mmap,
+    "fstat"     : BatchLet_fstat,
+    "mprotect"  : None,
+    "brk"       : None,
+    "lseek"     : None,
+    "arch_prctl": None
+}
+
+def BatchFactory(oneLine):
+    batchCore = BatchLetCore( oneLine )
+    try:
+        aModel = batchModels[ batchCore.m_funcNam ]
+    except KeyError:
+        # Default generic BatchLet
+        return BatchLetBase( batchCore )
+
+    # Explicitely non-existent.
+    if aModel == None:
+        return None
+
+    btchLetDrv = aModel( batchCore )
+
+    return btchLetDrv
+
+class BatchTree:
+    def __init__(self):
+        self.m_treeBatches = []
+
+    def AddBatch(self,btchLet):
+        self.m_treeBatches.append( btchLet )
+
+    def DumpTree(self,strm):
+        for aBtch in self.m_treeBatches:
+            aBtch.DumpBatch(strm)
+
+
+#
+# 22:41:05.094710 rt_sigaction(SIGRTMIN, {0x7f18d70feb20, [], SA_RESTORER|SA_SIGINFO, 0x7f18d7109430}, NULL, 8) = 0 <0.000008>
+# 22:41:05.094841 rt_sigaction(SIGRT_1, {0x7f18d70febb0, [], SA_RESTORER|SA_RESTART|SA_SIGINFO, 0x7f18d7109430}, NULL, 8) = 0 <0.000018>
+# 22:41:05.094965 rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0 <0.000007>
+# 22:41:05.095113 getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0 <0.000008>
+# 22:41:05.095350 statfs("/sys/fs/selinux", 0x7ffd5a97f9e0) = -1 ENOENT (No such file or directory) <0.000019>
+#
+def StartSystrace_Linux(verbose,extCommand):
+
+    # strace -tt -T -s 1000 -y -yy ls
+    aCmd = ["strace",
+        "-tt", "-T", "-s", "1000", "-y", "-yy",
+        "-e", "trace=desc,ipc,process,network,memory",
+        ]
+    aCmd += extCommand
+
+    sys.stdout.write("aCmd=%s\n" % str(aCmd) )
+    sys.stdout.write("aCmd=%s\n" % " ".join(aCmd) )
+
+    # If shell=True, the command must be passed as a single line.
+    pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
+        stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    btchTree = BatchTree()
+
+    # for oneLine in pipErr:
+    while True:
+        oneLine = pipPOpen.stderr.readline()
+        if oneLine == '':
+            break
+
+        # This could be done without intermediary string.
+        aBatch = BatchFactory(oneLine)
+        if aBatch:
+
+            # Is it defined ?
+            try:
+                aBatch.m_core
+                btchTree.AddBatch( aBatch )
+            except AttributeError:
+                pass
+
+    btchTree.DumpTree(sys.stdout)
+
+    return
+
+def StartSystrace(verbose,extCommand):
+    if sys.platform.startswith("win32"):
+        StartSystrace_Windows(verbose,extCommand)
+    elif sys.platform.startswith("linux"):
+        StartSystrace_Linux(verbose,extCommand)
+    else:
+        StartSystrace_Cygwin(verbose,extCommand)
 
 if __name__ == '__main__':
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hv", ["help","verbose"])
-	except getopt.GetoptError as err:
-		# print help information and exit:
-		print(err)  # will print something like "option -a not recognized"
-		Usage()
-		sys.exit(2)
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hv", ["help","verbose"])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(err)  # will print something like "option -a not recognized"
+        Usage()
+        sys.exit(2)
 
-	verbose = False
+    verbose = False
 
-	for anOpt, aVal in opts:
-		if anOpt in ("-v", "--verbose"):
-			verbose = True
-		elif anOpt in ("-h", "--help"):
-			Usage()
-			sys.exit()
-		else:
-			assert False, "Unhandled option"
+    for anOpt, aVal in opts:
+        if anOpt in ("-v", "--verbose"):
+            verbose = True
+        elif anOpt in ("-h", "--help"):
+            Usage()
+            sys.exit()
+        else:
+            assert False, "Unhandled option"
 
-	StartSystrace(verbose)
+    StartSystrace(verbose,args)
