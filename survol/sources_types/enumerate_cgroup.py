@@ -1,8 +1,11 @@
+#!/usr/bin/python
+
 """
 List of Linux cgroups
 """
 
 import lib_util
+import lib_common
 
 # cat /proc/cgroups
 # #subsys_name    hierarchy       num_cgroups     enabled
@@ -20,3 +23,9 @@ import lib_util
 
 
 Usable = lib_util.UsableLinux
+
+def Main():
+	cgiEnv = lib_common.CgiEnv()
+
+	lib_common.ErrorMessageHtml("Not implemented yet")
+
