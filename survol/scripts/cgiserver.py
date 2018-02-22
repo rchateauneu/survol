@@ -6,6 +6,7 @@
 # Also, this script can be run under any privileged account giving much more exploration
 # possibilities than the safe apache IISUSR user accounts.
 
+# The directory "survol" must be in PYTHONPATH to access lib_common.py etc...
 
 # This can be used for profiling.
 # Unfortunately, it does not work yet with threads and subprocesses.
