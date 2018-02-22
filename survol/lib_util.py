@@ -417,22 +417,21 @@ def RequestUri():
 ################################################################################
 
 
-# Apparently getcwd() changes during execution, or at least is not stable.
-# "C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\htbin\\sources_top"
 # SCRIPT_FILENAME=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/survol/internals/print.py
 # REQUEST_URI=/Survol/survol/internals/print.py
 # SCRIPT_NAME=/Survol/survol/internals/print.py
-# getcwd=C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\internals
 def TopScriptsFunc():
-	# TODO: Use __file__ which might be faster ??
 	currDir = os.getcwd()
 
-	# TODO: Should search for the right directory ?
-	# This simply looks for "survol" if it contains "sources_types".
-	# (1) Looks for sources_types. If yes, exists.
-	# (2) Looks for survol. If not. exit with failure.
-	# (3) iF YES, CD TO IT, THEN GOTO (1).
+	# TODO: cgiserver.py should have the same base directory as the Apache server.
 
+	# Fedora 26, cgiserver.py : "/home/rchateau/survol"
+	# Fedora 22, cgiserver.py : "/home/rchateau/rdfmon-code"
+	#     "    , Apache       : "/home/rchateau/rdfmon-code/survol"
+	# Windows 7, cgiserver.py : "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle"
+	#     "    , Apache       : "C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\survol"
+
+	# This is misleading because the name of the GIT repository is the same as the top-level directory.
 	urlPrefix = "survol"
 	idx = currDir.find(urlPrefix)
 	sys.stderr.write("TopScriptsFunc currDir=%s idx=%s\n"%(currDir,idx))
@@ -449,7 +448,19 @@ def TopScriptsFunc():
 			# Win10, Py3:  currDir="C:\\Users\\rchat\\Survol\\survol"
 			return currDir + "\\survol"
 		else:
-			return currDir[ : idx + len(urlPrefix) ]
+			# This is the most normal case when the top directory is also "survol"
+			currDirShort = currDir[ : idx + len(urlPrefix) ]
+			if os.path.isdir( currDirShort + "/sources_types" ):
+				# sys.stderr.write("TopScriptsFunc (1) currDir=%s\n"%currDir)
+				return currDirShort
+
+			currDirShort += "/survol"
+
+			if os.path.isdir( currDirShort + "/sources_types" ):
+				# sys.stderr.write("TopScriptsFunc (2) currDir=%s\n"%currDir)
+				return currDirShort
+
+			raise Exception("TopScriptsFunc: Invalid currDir=%s" % currDir )
 
 gblTopScripts = TopScriptsFunc()
 
