@@ -119,10 +119,21 @@ def FindNonEnclosedPar(aStr,idxStart):
 
     return -1
 
+class ExceptionIsSignal(Exception):
+    pass
 
-
+# Typical string displayed by strace:
+# "23:02:28.857508 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7faf42aadad0) = 23653 <0.000081>"
 class BatchLetCore:
+
     def __init__(self,oneLine):
+
+        # --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---
+        if oneLine[16:16+4] == "--- ":
+            raise ExceptionIsSignal()
+
+        # sys.stderr.write("oneLine=%s\n" % oneLine )
+
         # This could be done without intermediary string.
         self.m_timeStamp = oneLine[:15]
         theCall = oneLine[16:]
@@ -149,6 +160,10 @@ class BatchLetCore:
 
         self.m_parsedArgs = ParsePar( allArgs )
         # sys.stderr.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
+
+        idxEq = theCall.find( "=", idxLastPar )
+        self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
+        # sys.stderr.write("retValue=%s\n"%self.m_retValue)
 
         sys.stderr.write("Func=%s\n"%self.m_funcNam)
 
@@ -196,20 +211,42 @@ class BatchLet_fstat(BatchLetBase,object):
     def DumpBatch(self,strm):
         strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
 
+class BatchLet_clone(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_clone,self).__init__(batchBase)
+
+    def DumpBatch(self,strm):
+        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_retValue) ) )
+
+class BatchLet_wait4(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_wait4,self).__init__(batchBase)
+
+    def DumpBatch(self,strm):
+        # The first argument is the PID.
+        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
+
 batchModels = {
     "open"      : BatchLet_open,
     "read"      : BatchLet_read,
     "write"     : BatchLet_write,
     "mmap"      : BatchLet_mmap,
     "fstat"     : BatchLet_fstat,
+    "clone"     : BatchLet_clone,
+    "wait4"     : BatchLet_wait4,
     "mprotect"  : None,
     "brk"       : None,
     "lseek"     : None,
-    "arch_prctl": None
+    "arch_prctl": None,
 }
 
 def BatchFactory(oneLine):
-    batchCore = BatchLetCore( oneLine )
+
+    try:
+        batchCore = BatchLetCore( oneLine )
+    except ExceptionIsSignal:
+        return None
+
     try:
         aModel = batchModels[ batchCore.m_funcNam ]
     except KeyError:
@@ -252,8 +289,7 @@ def StartSystrace_Linux(verbose,extCommand):
         ]
     aCmd += extCommand
 
-    sys.stdout.write("aCmd=%s\n" % str(aCmd) )
-    sys.stdout.write("aCmd=%s\n" % " ".join(aCmd) )
+    sys.stderr.write("aCmd=%s\n" % " ".join(aCmd) )
 
     # If shell=True, the command must be passed as a single line.
     pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
@@ -311,4 +347,7 @@ if __name__ == '__main__':
         else:
             assert False, "Unhandled option"
 
+    if not args:
+        print("Must provide command")
+        sys.exit()
     StartSystrace(verbose,args)
