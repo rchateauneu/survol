@@ -125,6 +125,12 @@ class ExceptionIsExit(Exception):
 class ExceptionIsSignal(Exception):
     pass
 
+# Option "-y          Print paths associated with file descriptor arguments."
+# read ['3</usr/lib64/libc-2.21.so>']
+def STraceStreamToFile(strmStr):
+    idxLT = strmStr.find("<")
+    return strmStr[ idxLT + 1 : -1 ]
+
 
 # Typical strings displayed by strace:
 # [pid  7492] 07:54:54.205073 wait4(18381, [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18381 <0.000894>
@@ -203,6 +209,10 @@ class BatchLetBase:
     def SignificantData(self):
         return self.m_core.m_parsedArgs
 
+    # This is very often used.
+    def StreamName(self,idx=0):
+        return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
+
     def DumpBatch(self,strm):
         
         strm.write("F=%6d %s %s\n"%(self.m_core.m_pid, self.m_core.m_funcNam,str(self.SignificantData() ) ) )
@@ -218,21 +228,21 @@ class BatchLet_close(BatchLetBase,object):
         super( BatchLet_close,self).__init__(batchBase)
 
     def SignificantData(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        return self.StreamName()
 
 class BatchLet_read(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_read,self).__init__(batchBase)
 
     def SignificantData(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        return self.StreamName()
 
 class BatchLet_write(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_write,self).__init__(batchBase)
 
     def SignificantData(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        return self.StreamName()
 
 class BatchLet_mmap(BatchLetBase,object):
     def __init__(self,batchBase):
@@ -242,21 +252,35 @@ class BatchLet_mmap(BatchLetBase,object):
         super( BatchLet_mmap,self).__init__(batchBase)
 
     def SignificantData(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        return self.StreamName(4)
+
+class BatchLet_ioctl(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_ioctl,self).__init__(batchBase)
+
+    def SignificantData(self):
+        return [ STraceStreamToFile( self.m_core.m_parsedArgs[0] ) ] + self.m_core.m_parsedArgs[1:0]
 
 class BatchLet_fstat(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_fstat,self).__init__(batchBase)
 
     def SignificantData(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        return self.StreamName()
+
+class BatchLet_fchdir(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_fchdir,self).__init__(batchBase)
+
+    def SignificantData(self):
+        return self.StreamName()
 
 class BatchLet_fcntl(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_fcntl,self).__init__(batchBase)
 
     def SignificantData(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        return self.StreamName()
 
 class BatchLet_clone(BatchLetBase,object):
     def __init__(self,batchBase):
@@ -303,7 +327,9 @@ batchModels = {
     "read"      : BatchLet_read,
     "write"     : BatchLet_write,
     "mmap"      : BatchLet_mmap,
+    "ioctl"     : BatchLet_ioctl,
     "fstat"     : BatchLet_fstat,
+    "fchdir"    : BatchLet_fchdir,
     "fcntl"     : BatchLet_fcntl,
     "clone"     : BatchLet_clone,
     "wait4"     : BatchLet_wait4,
