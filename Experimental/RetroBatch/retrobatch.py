@@ -119,24 +119,53 @@ def FindNonEnclosedPar(aStr,idxStart):
 
     return -1
 
+class ExceptionIsExit(Exception):
+    pass
+
 class ExceptionIsSignal(Exception):
     pass
 
-# Typical string displayed by strace:
-# "23:02:28.857508 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7faf42aadad0) = 23653 <0.000081>"
+
+# Typical strings displayed by strace:
+# [pid  7492] 07:54:54.205073 wait4(18381, [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18381 <0.000894>
+# [pid  7492] 07:54:54.206000 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18381, si_uid=1000, si_status=1, si_utime=0, si_stime=0 } ---
+# [pid  7492] 07:54:54.206031 newfstatat(7</home/rchateau/rdfmon-code/primhill>, "Survol", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLIN K_NOFOLLOW) = 0 <0.000012>
+# [pid  7492] 07:54:54.206113 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fb0d303fad0) = 18382 <0.000065>
+# [pid  7492] 07:54:54.206217 wait4(18382, grep: ../../primhill/Survol: Is a directory
+# [pid  7492] [{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>
+# 07:54:54.207500 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18382, si_uid=1000, si_status=2, si_utime=0, si_stime=0 } ---
+
+
 class BatchLetCore:
-
+    # [pid  7639] 09:35:56.198010 wait4(7777,  <unfinished ...>
+    # 09:35:56.202030 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 7777 <0.004010>
+    # [pid  7639] 09:35:56.202303 wait4(7778,  <unfinished ...>
     def __init__(self,oneLine):
+        if oneLine[0:4] == "[pid":
+            idxAfterPid = oneLine.find("]")
+            self.m_pid = int( oneLine[ 4:idxAfterPid ] )
+            self.InitAfterPid(oneLine[ idxAfterPid + 2 : ] )
+        else:
+            # This is the main process.
+            self.m_pid = -1
+            self.InitAfterPid(oneLine)
 
-        # --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---
-        if oneLine[16:16+4] == "--- ":
-            raise ExceptionIsSignal()
+
+    def InitAfterPid(self,oneLine):
+
+        # "[{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>"
+        if oneLine[0] == '[':
+            raise ExceptionIsExit()
 
         # sys.stderr.write("oneLine=%s\n" % oneLine )
 
         # This could be done without intermediary string.
         self.m_timeStamp = oneLine[:15]
         theCall = oneLine[16:]
+
+        # "--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---"
+        if theCall[0:4] == "--- ":
+            raise ExceptionIsSignal()
 
         idxPar = theCall.find("(")
 
@@ -171,8 +200,12 @@ class BatchLetBase:
     def __init__(self,batchCore):
         self.m_core = batchCore
 
+    def SignificantData(self):
+        return self.m_core.m_parsedArgs
+
     def DumpBatch(self,strm):
-        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs) ) )
+        
+        strm.write("F=%6d %s %s\n"%(self.m_core.m_pid, self.m_core.m_funcNam,str(self.SignificantData() ) ) )
 
 
 # Must be a new-style class.
@@ -180,19 +213,26 @@ class BatchLet_open(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_open,self).__init__(batchBase)
 
+class BatchLet_close(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_close,self).__init__(batchBase)
+
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
+
 class BatchLet_read(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_read,self).__init__(batchBase)
 
-    def DumpBatch(self,strm):
-        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_write(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_write,self).__init__(batchBase)
 
-    def DumpBatch(self,strm):
-        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_mmap(BatchLetBase,object):
     def __init__(self,batchBase):
@@ -201,49 +241,88 @@ class BatchLet_mmap(BatchLetBase,object):
             return
         super( BatchLet_mmap,self).__init__(batchBase)
 
-    def DumpBatch(self,strm):
-        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[2:5]) ) )
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_fstat(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_fstat,self).__init__(batchBase)
 
-    def DumpBatch(self,strm):
-        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
+
+class BatchLet_fcntl(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_fcntl,self).__init__(batchBase)
+
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_clone(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_clone,self).__init__(batchBase)
 
-    def DumpBatch(self,strm):
-        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_retValue) ) )
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_wait4(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_wait4,self).__init__(batchBase)
 
-    def DumpBatch(self,strm):
+    def SignificantData(self):
         # The first argument is the PID.
-        strm.write("F=%s %s\n"%(self.m_core.m_funcNam,str(self.m_core.m_parsedArgs[0]) ) )
+        return [ self.m_core.m_parsedArgs[0] ]
+
+class BatchLet_newfstatat(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_newfstatat,self).__init__(batchBase)
+
+    def SignificantData(self):
+        dirNam = self.m_core.m_parsedArgs[0]
+        filNam = self.m_core.m_parsedArgs[1]
+        pathName = dirNam +"/" + filNam
+        return [ pathName ]
+
+class BatchLet_getdents(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_getdents,self).__init__(batchBase)
+
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
+
+class BatchLet_openat(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_openat,self).__init__(batchBase)
+
+    def SignificantData(self):
+        return [ self.m_core.m_parsedArgs[0] ]
 
 batchModels = {
     "open"      : BatchLet_open,
+    "close"     : BatchLet_close,
     "read"      : BatchLet_read,
     "write"     : BatchLet_write,
     "mmap"      : BatchLet_mmap,
     "fstat"     : BatchLet_fstat,
+    "fcntl"     : BatchLet_fcntl,
     "clone"     : BatchLet_clone,
     "wait4"     : BatchLet_wait4,
+    "newfstatat": BatchLet_newfstatat,
+    "getdents"  : BatchLet_getdents,
+    "openat"    : BatchLet_openat,
     "mprotect"  : None,
     "brk"       : None,
     "lseek"     : None,
     "arch_prctl": None,
 }
 
+
 def BatchFactory(oneLine):
 
     try:
         batchCore = BatchLetCore( oneLine )
+    except ExceptionIsExit:
+        return None
     except ExceptionIsSignal:
         return None
 
@@ -280,11 +359,14 @@ class BatchTree:
 # 22:41:05.095113 getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0 <0.000008>
 # 22:41:05.095350 statfs("/sys/fs/selinux", 0x7ffd5a97f9e0) = -1 ENOENT (No such file or directory) <0.000019>
 #
+# lags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f9c27230ad0) = 7256 <0.000075> ['lags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD', 'child_tidptr=0x7f9c27230ad0']
+
+#
 def StartSystrace_Linux(verbose,extCommand):
 
     # strace -tt -T -s 1000 -y -yy ls
     aCmd = ["strace",
-        "-tt", "-T", "-s", "1000", "-y", "-yy",
+        "-f", "-tt", "-T", "-s", "1000", "-y", "-yy",
         "-e", "trace=desc,ipc,process,network,memory",
         ]
     aCmd += extCommand
