@@ -171,6 +171,10 @@ class BatchLetCore:
 
         # "--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---"
         if theCall[0:4] == "--- ":
+            raise ExceptionIsExit()
+
+        # "+++ exited with 1 +++ ['+++ exited with 1 +++']"
+        if theCall[0:4] == "+++ ":
             raise ExceptionIsSignal()
 
         idxPar = theCall.find("(")
@@ -200,13 +204,68 @@ class BatchLetCore:
         self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
         # sys.stderr.write("retValue=%s\n"%self.m_retValue)
 
-        sys.stderr.write("Func=%s\n"%self.m_funcNam)
+        # sys.stderr.write("Func=%s\n"%self.m_funcNam)
+
+# Each class is indexed with the name of the corresponding system call name.
+# If the class is None, it means that this function is explicitly neglected.
+# If it is not defined after metaclass registration,
+# then it is processed by BatchLetBase.
+batchModels = {
+    # "open"      : BatchLet_open,
+    # "close"     : BatchLet_close,
+    # "read"      : BatchLet_read,
+    # "write"     : BatchLet_write,
+    # "mmap"      : BatchLet_mmap,
+    # "ioctl"     : BatchLet_ioctl,
+    # "fstat"     : BatchLet_fstat,
+    # "fchdir"    : BatchLet_fchdir,
+    # "fcntl"     : BatchLet_fcntl,
+    # "clone"     : BatchLet_clone,
+    # "wait4"     : BatchLet_wait4,
+    # "newfstatat": BatchLet_newfstatat,
+    # "getdents"  : BatchLet_getdents,
+    # "openat"    : BatchLet_openat,
+    "mprotect"  : None,
+    "brk"       : None,
+    "lseek"     : None,
+    "arch_prctl": None,
+}
+
+
+
+class BatchMeta(type):
+    #def __new__(meta, name, bases, dct):
+    #    print '-----------------------------------'
+    #    print "Allocating memory for class", name
+    #    print meta
+    #    print bases
+    #    print dct
+    #    return super(BatchMeta, meta).__new__(meta, name, bases, dct)
+
+    def __init__(cls, name, bases, dct):
+        global batchModels
+
+        # print '-----------------------------------'
+        if name.startswith("BatchLet_"):
+            shortClassName = name[9:]
+            # print "Initializing class", shortClassName
+            batchModels[ shortClassName ] = cls
+        # print cls
+        # print bases
+        # print dct
+        super(BatchMeta, cls).__init__(name, bases, dct)
+
+
 
 class BatchLetBase:
+    __metaclass__ = BatchMeta
+
     def __init__(self,batchCore):
         self.m_core = batchCore
+        self.m_occurences = 1
+        # sys.stderr.write("NAME=%s\n"%self.__class__.__name__)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return self.m_core.m_parsedArgs
 
     # This is very often used.
@@ -214,34 +273,72 @@ class BatchLetBase:
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
 
     def DumpBatch(self,strm):
-        
-        strm.write("F=%6d %s %s\n"%(self.m_core.m_pid, self.m_core.m_funcNam,str(self.SignificantData() ) ) )
+        strm.write("F=%6d {%2d} %s %s\n"
+            %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ) ) )
 
+    def SameCall(self,anotherBatch):
+        if self.m_core.m_funcNam != anotherBatch.m_core.m_funcNam:
+            return False
+
+        return self.SameArguments(anotherBatch)
+
+    # This assumes that the function calls are the same.
+    def SameArguments(self,anotherBatch):
+        args1 = self.SignificantArgs()
+        args2 = anotherBatch.SignificantArgs()
+
+        len1 = len(args1)
+        len2 = len(args2)
+        if len1 != len2:
+            raise Exception("Inconsistency")
+
+        idx = 0
+        while idx < len1:
+            if args1[idx] != args2[idx]:
+                return False
+            idx += 1
+
+        return True
+
+
+################################################################################
 
 # Must be a new-style class.
 class BatchLet_open(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_open,self).__init__(batchBase)
 
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_openat(BatchLetBase,object):
+    def __init__(self,batchBase):
+        super( BatchLet_openat,self).__init__(batchBase)
+
+    # TODO: A relative pathname is interpreted relative to the directory
+    # referred to by the file descriptor passed as first parameter.
+    def SignificantArgs(self):
+        return self.StreamName(1)
+
 class BatchLet_close(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_close,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_read(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_read,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_write(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_write,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_mmap(BatchLetBase,object):
@@ -251,49 +348,49 @@ class BatchLet_mmap(BatchLetBase,object):
             return
         super( BatchLet_mmap,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return self.StreamName(4)
 
 class BatchLet_ioctl(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_ioctl,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[0] ) ] + self.m_core.m_parsedArgs[1:0]
 
 class BatchLet_fstat(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_fstat,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_fchdir(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_fchdir,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_fcntl(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_fcntl,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_clone(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_clone,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_wait4(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_wait4,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         # The first argument is the PID.
         return [ self.m_core.m_parsedArgs[0] ]
 
@@ -301,7 +398,7 @@ class BatchLet_newfstatat(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_newfstatat,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         dirNam = self.m_core.m_parsedArgs[0]
         filNam = self.m_core.m_parsedArgs[1]
         pathName = dirNam +"/" + filNam
@@ -311,37 +408,17 @@ class BatchLet_getdents(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_getdents,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_openat(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_openat,self).__init__(batchBase)
 
-    def SignificantData(self):
+    def SignificantArgs(self):
         return [ self.m_core.m_parsedArgs[0] ]
 
-batchModels = {
-    "open"      : BatchLet_open,
-    "close"     : BatchLet_close,
-    "read"      : BatchLet_read,
-    "write"     : BatchLet_write,
-    "mmap"      : BatchLet_mmap,
-    "ioctl"     : BatchLet_ioctl,
-    "fstat"     : BatchLet_fstat,
-    "fchdir"    : BatchLet_fchdir,
-    "fcntl"     : BatchLet_fcntl,
-    "clone"     : BatchLet_clone,
-    "wait4"     : BatchLet_wait4,
-    "newfstatat": BatchLet_newfstatat,
-    "getdents"  : BatchLet_getdents,
-    "openat"    : BatchLet_openat,
-    "mprotect"  : None,
-    "brk"       : None,
-    "lseek"     : None,
-    "arch_prctl": None,
-}
-
+################################################################################
 
 def BatchFactory(oneLine):
 
@@ -366,12 +443,66 @@ def BatchFactory(oneLine):
 
     return btchLetDrv
 
+
+################################################################################
+
+
+
+# Typical repetitions:
+
+# This happens at process startup:
+# open ['/lib64/libselinux.so.']
+# read ['/usr/lib64/libselinux.so.1']
+# fstat ['/usr/lib64/libselinux.so.1']
+# mmap ['/usr/lib64/libselinux.so.1']
+# mmap ['/usr/lib64/libselinux.so.1']
+# close ['/usr/lib64/libselinux.so.1']
+# open ['/lib64/libm.so.']
+# read ['/usr/lib64/libm-2.21.so']
+# fstat ['/usr/lib64/libm-2.21.so']
+# mmap ['/usr/lib64/libm-2.21.so']
+# mmap ['/usr/lib64/libm-2.21.so']
+# close ['/usr/lib64/libm-2.21.so']
+# open ['/lib64/libc.so.']
+# read ['/usr/lib64/libc-2.21.so']
+# fstat ['/usr/lib64/libc-2.21.so']
+# mmap ['/usr/lib64/libc-2.21.so']
+# mmap ['/usr/lib64/libc-2.21.so']
+# close ['/usr/lib64/libc-2.21.so']
+
+
+
+# open ['/usr/share/locale/en_GB.UTF-8/LC_MESSAGES/findutils.m']
+# open ['/usr/share/locale/en_GB.utf8/LC_MESSAGES/findutils.m']
+# ...
+# open ['/usr/share/locale/en.utf8/LC_MESSAGES/findutils.m']
+# open ['/usr/share/locale/en/LC_MESSAGES/findutils.m']
+
+# write ['pipe:[82244]']
+# write ['pipe:[82244]']
+# ...
+# write ['pipe:[82244]']
+
+
+
+
 class BatchTree:
+# One per process, or per thread ?
     def __init__(self):
         self.m_treeBatches = []
 
     def AddBatch(self,btchLet):
-        self.m_treeBatches.append( btchLet )
+        numBatches = len(self.m_treeBatches)
+
+        if numBatches > 0:
+            lstBatch = self.m_treeBatches[-1]
+
+            if lstBatch.SameCall( btchLet ):
+                lstBatch.m_occurences += 1
+            else:
+                self.m_treeBatches.append( btchLet )
+        else:
+            self.m_treeBatches.append( btchLet )
 
     def DumpTree(self,strm):
         for aBtch in self.m_treeBatches:
@@ -404,7 +535,8 @@ def StartSystrace_Linux(verbose,extCommand):
         stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    btchTree = BatchTree()
+    # This is indexed by the pid.
+    mapTrees = {}
 
     # for oneLine in pipErr:
     while True:
@@ -418,12 +550,28 @@ def StartSystrace_Linux(verbose,extCommand):
 
             # Is it defined ?
             try:
-                aBatch.m_core
+                # This throws of the core object could not be created
+                # if the current line cannot reasonably transformed
+                # into a usable call.
+                aCore = aBatch.m_core
+
+                aPid = aCore.m_pid
+
+                try:
+                    btchTree = mapTrees[ aPid ]
+                except KeyError:
+                    # This is the first system call of this process.
+                    btchTree = BatchTree()
+                    mapTrees[ aPid ] = btchTree
+
                 btchTree.AddBatch( aBatch )
             except AttributeError:
                 pass
 
-    btchTree.DumpTree(sys.stdout)
+    for aPid in mapTrees:
+        btchTree = mapTrees[aPid]
+        sys.stdout.write("\n================== PID=%d\n"%aPid)
+        btchTree.DumpTree(sys.stdout)
 
     return
 
