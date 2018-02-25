@@ -56,8 +56,12 @@ def StartSystrace_Cygwin(verbose,extCommand):
 
     return
 
+# strace creates data structures similar to Python or Json.
+# fstat(3</usr/lib64/gconv/gconv-modules.cache>, {st_mode=S_IFREG|0644, st_size=26254, ...})
+# execve("/usr/bin/grep", ["grep", "toto", "../TestMySql.py"], [/* 34 vars */]) = 0 <0.000175>
 
-
+# The input is a string containing the arguments printed by strace.
+# The output is an array of strings wtith these arguments correctly split.
 def ParsePar(aStr):
     idx = 0
     theArr = []
@@ -79,9 +83,11 @@ def ParsePar(aStr):
             continue
 
         if not inQuotes:
-            if aChr == '{':
+            # This assumes that [] and {} are correctly paired by strace and therefore,
+            # it is not needed to check their parity.
+            if aChr in ['{','[']:
                 levelBrackets += 1
-            elif aChr == '}':
+            elif aChr in ['}',']']:
                 levelBrackets -= 1
             elif aChr == ',':
                 if levelBrackets == 0:
@@ -142,21 +148,40 @@ def STraceStreamToFile(strmStr):
 # [pid  7492] [{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>
 # 07:54:54.207500 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18382, si_uid=1000, si_status=2, si_utime=0, si_stime=0 } ---
 
+# Thi sis set to the parent pid as soon as it can be detected.
+rootPid = None
 
 class BatchLetCore:
     # [pid  7639] 09:35:56.198010 wait4(7777,  <unfinished ...>
     # 09:35:56.202030 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 7777 <0.004010>
     # [pid  7639] 09:35:56.202303 wait4(7778,  <unfinished ...>
     def __init__(self,oneLine):
+        global rootPid
+
         # sys.stderr.write("oneLine1=%s" % oneLine )
         # self.m_debugLine = oneLine
 
         if oneLine[0:4] == "[pid":
             idxAfterPid = oneLine.find("]")
-            self.m_pid = int( oneLine[ 4:idxAfterPid ] )
+
+            pidParsed = int( oneLine[ 4:idxAfterPid ] )
+
+            # The first line with "[pid " is the pid of the [arent process,
+            # when it creates its sub-processes.
+            if not rootPid:
+                rootPid = pidParsed
+                self.m_pid = -1
+            elif rootPid == pidParsed:
+                # This sticks to the convention that the root process is set to -1.
+                # This is because it is detected too late, after the first system calls.
+                self.m_pid = -1
+            else:
+                # This is a sub-process.
+                self.m_pid = pidParsed
+
             self.InitAfterPid(oneLine[ idxAfterPid + 2 : ] )
         else:
-            # This is the main process.
+            # This is the main process, but at this stage we do not have its pid.
             self.m_pid = -1
             self.InitAfterPid(oneLine)
 
@@ -182,6 +207,9 @@ class BatchLetCore:
             raise ExceptionIsSignal()
 
         idxPar = theCall.find("(")
+
+        if idxPar <= 0 :
+            raise Exception("No function in:%s"%oneLine)
 
         self.m_funcNam = theCall[:idxPar]
         # sys.stderr.write("Line=%s" % theCall )
@@ -281,13 +309,17 @@ class BatchLetBase:
     def SignificantArgs(self):
         return self.m_core.m_parsedArgs
 
+    # This is used to detect repetitions.
+    def GetSignature(self):
+        return self.m_core.m_funcNam
+
     # This is very often used.
     def StreamName(self,idx=0):
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
 
     def DumpBatch(self,strm):
         # strm.write("X=%s"%self.m_core.m_debugLine)
-        strm.write("F=%6d {%4d} %s %s ==>> %s\n"
+        strm.write("F=%6d {%4d} '%-20s' %s ==>> %s\n"
             %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
 
     def SameCall(self,anotherBatch):
@@ -396,6 +428,27 @@ class BatchLet_clone(BatchLetBase,object):
     def SignificantArgs(self):
         return [ self.m_core.m_parsedArgs[0] ]
 
+    # Process creations are not aggregated, not to lose the new pid.
+    def SameCall(self,anotherBatch):
+        return False
+
+# execve("/usr/bin/grep", ["grep", "toto", "../TestMySql.py"], [/* 34 vars */]) = 0 <0.000175>
+class BatchLet_execve(BatchLetBase,object):
+    def __init__(self,batchBase):
+
+        # ['/usr/lib64/qt-3.3/bin/grep', '[grep, toto, ..]'] ==>> -1 ENOENT (No such file or directory)
+        # If the executable could not be started, no point creating a batch node.
+        if batchBase.m_retValue.find("ENOENT") >= 0 :
+            return
+        super( BatchLet_execve,self).__init__(batchBase)
+
+    def SignificantArgs(self):
+        return self.m_core.m_parsedArgs[0:2]
+
+    # Process creations are not aggregated.
+    def SameCall(self,anotherBatch):
+        return False
+
 class BatchLet_wait4(BatchLetBase,object):
     def __init__(self,batchBase):
         super( BatchLet_wait4,self).__init__(batchBase)
@@ -451,8 +504,12 @@ def BatchFactory(oneLine):
 
     btchLetDrv = aModel( batchCore )
 
-    return btchLetDrv
-
+    # If the parameters makes it unusable anyway.
+    try:
+        btchLetDrv.m_core
+        return btchLetDrv
+    except AttributeError:
+        return None
 
 ################################################################################
 
@@ -494,14 +551,59 @@ def BatchFactory(oneLine):
 # write ['pipe:[82244]']
 
 
+maxDepth = 4
 
+
+def GetBatchesSignature(arrBatches):
+    arrSigs = [ aBatch.GetSignature() for aBatch in arrBatches ]
+    sigBatch = ",".join( arrSigs )
+    return sigBatch
 
 class BatchTree:
 # One per process, or per thread ?
     def __init__(self):
         self.m_treeBatches = []
 
+        # This contain combinations of system calls, of length 2, 3 etc...
+        # Problem: If we increase the depth, the calculation step becomes quadratic.
+        #
+        # Notes about how to compress consecutive system calls:
+        # - If a signature does not appear too often, remove it.
+        # - If a signature is repetitive, remove it.
+        # - Signatures are cyclic: If several signatures are identical except a rotation,
+        #   only one should be kept. By convention, alphabetical order ?
+        #   Or, before inserting, check for the existence of a rotated signature ?
+        # - When replacing a sequence, possibly rotate the signature ?
+        #
+        self.m_mapPatterns = {}
+
+
+    # Updates probabilities with the latest insertion in mind.
+    def UpdateStatistics(self):
+        actualDepth = min(maxDepth,len(self.m_treeBatches) )
+
+        # Repetition of the same call is already taken into account.
+        idx = 2
+        while idx <= actualDepth:
+            signatureBatches = GetBatchesSignature( self.m_treeBatches[ -idx : ] )
+
+            try:
+                sigsByDepth = self.m_mapPatterns[ idx ]
+                try:
+                    sigsByDepth[ signatureBatches ] += 1
+                except KeyError:
+                    sigsByDepth[ signatureBatches ] = 1
+            except KeyError:
+                self.m_mapPatterns[ idx ] = { signatureBatches : 1 }
+            idx += 1
+
+
+    def EffectiveAppendBatch(self,btchLet):
+        self.m_treeBatches.append( btchLet )
+        self.UpdateStatistics()
+
     def AddBatch(self,btchLet):
+        # sys.stderr.write("AddBatch:%s\n"%btchLet.GetSignature())
         numBatches = len(self.m_treeBatches)
 
         if numBatches > 0:
@@ -510,13 +612,38 @@ class BatchTree:
             if lstBatch.SameCall( btchLet ):
                 lstBatch.m_occurences += 1
             else:
-                self.m_treeBatches.append( btchLet )
+                self.EffectiveAppendBatch( btchLet )
         else:
-            self.m_treeBatches.append( btchLet )
+            self.EffectiveAppendBatch( btchLet )
+
+    # This rewrites a window at the beginning 
+    # of the queue and can write it to a file.
+    def RewriteWindow(self):
+        pass
 
     def DumpTree(self,strm):
         for aBtch in self.m_treeBatches:
             aBtch.DumpBatch(strm)
+
+    def CleanupStatistics(self):
+        for keyIdx in self.m_mapPatterns:
+            sigsToDel = []
+            for aSignature in self.m_mapPatterns[ keyIdx ]:
+                numOccurs = self.m_mapPatterns[ keyIdx ][ aSignature ]
+                if numOccurs <= 2:
+                    sigsToDel.append( aSignature )
+
+            for aSignature in sigsToDel:
+                del self.m_mapPatterns[ keyIdx ][ aSignature ]
+
+
+    def DumpStatistics(self,strm):
+        strm.write("DUMPING STATISTICS\n")
+        for keyIdx in self.m_mapPatterns:
+            strm.write("Repetition length:%d\n" % keyIdx )
+            for aSignature in sorted( list( self.m_mapPatterns[ keyIdx ].keys() ) ):
+                numOccurs = self.m_mapPatterns[ keyIdx ][ aSignature ]
+                strm.write("    %-20s : %d\n" % ( aSignature, numOccurs ) )
 
 
 #
@@ -531,14 +658,15 @@ class BatchTree:
 #
 def StartSystrace_Linux(verbose,extCommand):
 
-    # strace -tt -T -s 1000 -y -yy ls
+    # -f  Trace  child  processes as a result of the fork, vfork and clone.
+
     aCmd = ["strace",
-        "-f", "-tt", "-T", "-s", "100", "-y", "-yy",
+        "-q", "-qq", "-f", "-tt", "-T", "-s", "100", "-y", "-yy",
         "-e", "trace=desc,ipc,process,network,memory",
         ]
     aCmd += extCommand
 
-    sys.stderr.write("aCmd=%s\n" % " ".join(aCmd) )
+    sys.stderr.write("pid=%s aCmd=%s\n" % (os.getpid(), " ".join(aCmd) ) )
 
     # If shell=True, the command must be passed as a single line.
     pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
@@ -552,12 +680,27 @@ def StartSystrace_Linux(verbose,extCommand):
 
     # for oneLine in pipErr:
     while True:
-        oneLine = pipPOpen.stderr.readline()
-        sys.stderr.write("oneLine=%s"%oneLine)
-        if oneLine == '':
+        oneLine = ""
+
+        # If this line is not properly terminated, then concatenates the next line.
+        # FIXME: Problem if several processes.
+        while True:
+            tmpLine = pipPOpen.stderr.readline()
+            # sys.stderr.write("tmpLine after read=%s"%tmpLine)
+            if not tmpLine:
+                break
+            if tmpLine.endswith(">\n"):
+                # TODO: The most common case is that the call is on one line only.
+                oneLine += tmpLine
+                break
+
+            # If the call is split on several lines, maybe because a write() contains a "\n".
+            oneLine += tmpLine[:-1]
+
+        if not oneLine:
             break
 
-
+        # sys.stderr.write("oneLine after read=%s"%oneLine)
 
 
 #        matchAttached = re.match("strace: Process (\d+) attached", oneLine)
@@ -565,7 +708,6 @@ def StartSystrace_Linux(verbose,extCommand):
 #            # This should be before the first system call of this process, but not always.
 #            pidAttached = int(matchAttached.group(1))
 #            continue
-
 
         # Big difficulty if two different processes in the same system call
         # are interrupted by a signal ?? How can we match the two pieces ?
@@ -595,14 +737,20 @@ def StartSystrace_Linux(verbose,extCommand):
 #            sys.stderr.write("  oneLine=%s.\n"%oneLine)
 #            continue
 
-#        matchResume = re.match( "^<\.\.\. ([^ ]*) resumed> (.*)", oneLine )
-#        if matchResume:
-#            # TODO: Should check if this is the correct function name.
-#            funcNameResumed = matchResume.groups(1)
-#            sys.stderr.write("RESUMING FUNCTION %s\n"%funcNameResumed)
-#            lineRest = matchResume.groups(2)
-#            oneLine = lineSignal + lineRest
-#            lineSignal = ""
+        # TODO: When a function is resumed, do not do anything yet.
+
+        # sys.stderr.write("Trying resumed:%s\n"%oneLine)
+        # 23:41:39.837639 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 24848 <0.004063>
+        # matchResume = re.match( ".... ([^ ]*) resumed. (.*)", oneLine )
+        matchResume = re.match( ".*<\.\.\. ([^ ]*) resumed> (.*)", oneLine )
+        if matchResume:
+            # TODO: Should check if this is the correct function name.
+            funcNameResumed = matchResume.group(1)
+            sys.stderr.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
+            lineRest = matchResume.group(2)
+            # oneLine = lineSignal + lineRest
+            # lineSignal = ""
+            continue
 
 
 
@@ -613,29 +761,29 @@ def StartSystrace_Linux(verbose,extCommand):
         if aBatch:
 
             # Is it defined ?
+            # This throws of the core object could not be created
+            # if the current line cannot reasonably transformed
+            # into a usable call.
+            # sys.stderr.write("oneLine before add=%s"%oneLine)
+            aCore = aBatch.m_core
+
+            aPid = aCore.m_pid
+
             try:
-                # This throws of the core object could not be created
-                # if the current line cannot reasonably transformed
-                # into a usable call.
-                aCore = aBatch.m_core
+                btchTree = mapTrees[ aPid ]
+            except KeyError:
+                # This is the first system call of this process.
+                btchTree = BatchTree()
+                mapTrees[ aPid ] = btchTree
 
-                aPid = aCore.m_pid
-
-                try:
-                    btchTree = mapTrees[ aPid ]
-                except KeyError:
-                    # This is the first system call of this process.
-                    btchTree = BatchTree()
-                    mapTrees[ aPid ] = btchTree
-
-                btchTree.AddBatch( aBatch )
-            except AttributeError:
-                pass
+            btchTree.AddBatch( aBatch )
 
     for aPid in sorted(list(mapTrees.keys()),reverse=True):
         btchTree = mapTrees[aPid]
         sys.stdout.write("\n================== PID=%d\n"%aPid)
         btchTree.DumpTree(sys.stdout)
+        btchTree.CleanupStatistics()
+        btchTree.DumpStatistics(sys.stdout)
 
     return
 
