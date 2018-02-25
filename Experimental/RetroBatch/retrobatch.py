@@ -351,7 +351,8 @@ class BatchLet_open(BatchLetBase,object):
         super( BatchLet_open,self).__init__(batchBase)
 
     def SignificantArgs(self):
-        return self.StreamName()
+        # return self.StreamName()
+        return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_openat(BatchLetBase,object):
     def __init__(self,batchBase):
@@ -551,7 +552,7 @@ def BatchFactory(oneLine):
 # write ['pipe:[82244]']
 
 
-maxDepth = 4
+maxDepth = 20 
 
 
 def GetBatchesSignature(arrBatches):
@@ -630,7 +631,7 @@ class BatchTree:
             sigsToDel = []
             for aSignature in self.m_mapPatterns[ keyIdx ]:
                 numOccurs = self.m_mapPatterns[ keyIdx ][ aSignature ]
-                if numOccurs <= 2:
+                if numOccurs <= 3:
                     sigsToDel.append( aSignature )
 
             for aSignature in sigsToDel:
