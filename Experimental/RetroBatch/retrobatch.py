@@ -1,3 +1,4 @@
+import re
 import sys
 import getopt
 import os
@@ -147,6 +148,9 @@ class BatchLetCore:
     # 09:35:56.202030 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 7777 <0.004010>
     # [pid  7639] 09:35:56.202303 wait4(7778,  <unfinished ...>
     def __init__(self,oneLine):
+        # sys.stderr.write("oneLine1=%s" % oneLine )
+        # self.m_debugLine = oneLine
+
         if oneLine[0:4] == "[pid":
             idxAfterPid = oneLine.find("]")
             self.m_pid = int( oneLine[ 4:idxAfterPid ] )
@@ -163,7 +167,7 @@ class BatchLetCore:
         if oneLine[0] == '[':
             raise ExceptionIsExit()
 
-        # sys.stderr.write("oneLine=%s\n" % oneLine )
+        # sys.stderr.write("oneLine2=%s" % oneLine )
 
         # This could be done without intermediary string.
         self.m_timeStamp = oneLine[:15]
@@ -190,19 +194,28 @@ class BatchLetCore:
             self.m_execTim = theCall[idxLT+1:idxGT]
         else:
             self.m_execTim = ""
-        # sys.stderr.write("execTim=%s\n" % execTim )
+
+        # Maybe the system call is interrupted by a signal.
+        # "[pid 18534] 19:58:38.406747 wait4(18666,  <unfinished ...>"
+        # "19:58:38.410766 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18666 <0.004009>"
+
+
+        # if self.m_funcNam == "wait4":
+        #     sys.stderr.write("wait4 execTim:%s\n"%self.m_execTim)
 
         # idxLastPar = theCall.rfind(")",0,idxLT)
         idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
 
         allArgs = theCall[idxPar+1:idxLastPar]
 
-        self.m_parsedArgs = ParsePar( allArgs )
-        # sys.stderr.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
-
         idxEq = theCall.find( "=", idxLastPar )
         self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
         # sys.stderr.write("retValue=%s\n"%self.m_retValue)
+
+        # sys.stderr.write("allArgs=%s\n"%allArgs)
+        self.m_parsedArgs = ParsePar( allArgs )
+        # sys.stderr.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
+
 
         # sys.stderr.write("Func=%s\n"%self.m_funcNam)
 
@@ -273,8 +286,9 @@ class BatchLetBase:
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
 
     def DumpBatch(self,strm):
-        strm.write("F=%6d {%2d} %s %s\n"
-            %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ) ) )
+        # strm.write("X=%s"%self.m_core.m_debugLine)
+        strm.write("F=%6d {%4d} %s %s ==>> %s\n"
+            %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
 
     def SameCall(self,anotherBatch):
         if self.m_core.m_funcNam != anotherBatch.m_core.m_funcNam:
@@ -287,14 +301,10 @@ class BatchLetBase:
         args1 = self.SignificantArgs()
         args2 = anotherBatch.SignificantArgs()
 
-        len1 = len(args1)
-        len2 = len(args2)
-        if len1 != len2:
-            raise Exception("Inconsistency")
+        for idx,val1 in enumerate(args1):
+            val2 = args2[idx]
 
-        idx = 0
-        while idx < len1:
-            if args1[idx] != args2[idx]:
+            if val1 != val2:
                 return False
             idx += 1
 
@@ -523,7 +533,7 @@ def StartSystrace_Linux(verbose,extCommand):
 
     # strace -tt -T -s 1000 -y -yy ls
     aCmd = ["strace",
-        "-f", "-tt", "-T", "-s", "1000", "-y", "-yy",
+        "-f", "-tt", "-T", "-s", "100", "-y", "-yy",
         "-e", "trace=desc,ipc,process,network,memory",
         ]
     aCmd += extCommand
@@ -536,13 +546,67 @@ def StartSystrace_Linux(verbose,extCommand):
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # This is indexed by the pid.
-    mapTrees = {}
+    mapTrees = { -1 : BatchTree() }
+
+    lineSignal = ""
 
     # for oneLine in pipErr:
     while True:
         oneLine = pipPOpen.stderr.readline()
+        sys.stderr.write("oneLine=%s"%oneLine)
         if oneLine == '':
             break
+
+
+
+
+#        matchAttached = re.match("strace: Process (\d+) attached", oneLine)
+#        if matchAttached:
+#            # This should be before the first system call of this process, but not always.
+#            pidAttached = int(matchAttached.group(1))
+#            continue
+
+
+        # Big difficulty if two different processes in the same system call
+        # are interrupted by a signal ?? How can we match the two pieces ?
+        # Luckily: "If a system call is being executed and meanwhile another one is being called
+        # from a different thread/process then strace will try to preserve the
+        # order of those events and mark the ongoing call as being unfinished.
+        # When the call returns it will be marked as resumed.
+
+        # strace: Process 24848 attached
+        # [pid 24711] 23:41:39.833567 wait4(24848,  <unfinished ...>
+        # [pid 24848] 23:41:39.833682 fchdir(3</home/rchateau/rdfmon-code/Experimental/RetroBatch>) = 0 <0.000115>
+        # [pid 24848] 23:41:39.837619 +++ exited with 1 +++
+        # 23:41:39.837639 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 24848 <0.004063>
+#        strUnfinished = "<unfinished ...>\n"
+#        if oneLine.endswith( strUnfinished ):
+#            if lineSignal != "":
+#                sys.stderr.write("Two simultaneous signals\n")
+#                sys.stderr.write("  lineSignal=%s.\n"%lineSignal)
+#                sys.stderr.write("  oneLine=%s.\n"%oneLine)
+#                # raise Exception("Cannot handle two simultaneous signals")
+#                sys.stderr.write("Cannot handle two simultaneous signals\n")
+#                lineSignal = ""
+#                # TODO: FIXME.
+#                continue
+#            lineSignal = oneLine[ : -len(strUnfinished) ]
+#            sys.stderr.write("Set lineSignal to:%s.\n"%lineSignal)
+#            sys.stderr.write("  oneLine=%s.\n"%oneLine)
+#            continue
+
+#        matchResume = re.match( "^<\.\.\. ([^ ]*) resumed> (.*)", oneLine )
+#        if matchResume:
+#            # TODO: Should check if this is the correct function name.
+#            funcNameResumed = matchResume.groups(1)
+#            sys.stderr.write("RESUMING FUNCTION %s\n"%funcNameResumed)
+#            lineRest = matchResume.groups(2)
+#            oneLine = lineSignal + lineRest
+#            lineSignal = ""
+
+
+
+
 
         # This could be done without intermediary string.
         aBatch = BatchFactory(oneLine)
@@ -568,7 +632,7 @@ def StartSystrace_Linux(verbose,extCommand):
             except AttributeError:
                 pass
 
-    for aPid in mapTrees:
+    for aPid in sorted(list(mapTrees.keys()),reverse=True):
         btchTree = mapTrees[aPid]
         sys.stdout.write("\n================== PID=%d\n"%aPid)
         btchTree.DumpTree(sys.stdout)
