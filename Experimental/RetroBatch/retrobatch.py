@@ -4,6 +4,7 @@ import getopt
 import os
 import socket
 import subprocess
+import time
 
 def Usage():
     progNam = sys.argv[0]
@@ -11,49 +12,8 @@ def Usage():
     print("    -v,--verbose              Verbose mode")
     print("")
 
-def StartSystrace_Windows(verbose,extCommand):
-    return
-
-# strace -h
-# Usage: strace.exe [OPTIONS] <command-line>
-# Usage: strace.exe [OPTIONS] -p <pid>
-#
-# Trace system calls and signals
-#
-#   -b, --buffer-size=SIZE       set size of output file buffer
-#   -d, --no-delta               don't display the delta-t microsecond timestamp
-#   -f, --trace-children         trace child processes (toggle - default true)
-#   -h, --help                   output usage information and exit
-#   -m, --mask=MASK              set message filter mask
-#   -n, --crack-error-numbers    output descriptive text instead of error
-#                             numbers for Windows errors
-#   -o, --output=FILENAME        set output file to FILENAME
-#   -p, --pid=n                  attach to executing program with cygwin pid n
-#   -q, --quiet                  suppress messages about attaching, detaching, etc.
-#   -S, --flush-period=PERIOD    flush buffered strace output every PERIOD secs
-#   -t, --timestamp              use an absolute hh:mm:ss timestamp insted of
-#                             the default microsecond timestamp.  Implies -d
-#   -T, --toggle                 toggle tracing in a process already being
-#                             traced. Requires -p <pid>
-#   -u, --usecs                  toggle printing of microseconds timestamp
-#   -V, --version                output version information and exit
-#   -w, --new-window             spawn program under test in a new window
-#
-#
-# With a Cygwin executable
-#   820 1235721 [main] dir 8916 fhandler_base::close_with_arch: line 1142:  /dev/cons0<0x612E6C88> usecount + -1 = 1
-#   699 1236420 [main] dir 8916 fhandler_base::close_with_arch: not closing archetype
-#   765 1237185 [main] dir 8916 init_cygheap::close_ctty: closing cygheap->ctty 0x612E6C88
-#   820 1238005 [main] dir 8916 fhandler_base::close_with_arch: closing passed in archetype 0x0, usecount 0
-#   875 1238880 [main] dir 8916 fhandler_console::free_console: freed console, res 1
-#
-# With notepad
-# C:\Users\rchateau>C:\Users\rchateau\Documents\MobaXterm\slash\bin\strace notepad.exe
-# --- Process 7432, exception 000006ba at 7686C54F
-# --- Process 7432, exception 000006ba at 7686C54F
-def StartSystrace_Cygwin(verbose,extCommand):
-    pathCygwin = "C:\\Users\\rchateau\\Documents\\MobaXterm\\slash\\bin\\strace"
-
+def StartSystrace_Windows(verbose,extCommand,aPid):
+    raise Exception("Not implemented yet")
     return
 
 # strace creates data structures similar to Python or Json.
@@ -148,15 +108,22 @@ def STraceStreamToFile(strmStr):
 # [pid  7492] [{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>
 # 07:54:54.207500 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18382, si_uid=1000, si_status=2, si_utime=0, si_stime=0 } ---
 
-# Thi sis set to the parent pid as soon as it can be detected.
-rootPid = None
+# This is set to the parent pid as soon as it can be detected.
+### rootPid = None
 
 class BatchLetCore:
+    # The input line is read from "strace" command.
     # [pid  7639] 09:35:56.198010 wait4(7777,  <unfinished ...>
     # 09:35:56.202030 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 7777 <0.004010>
     # [pid  7639] 09:35:56.202303 wait4(7778,  <unfinished ...>
-    def __init__(self,oneLine):
-        global rootPid
+    def __init__(self,oneLine = None):
+        #global rootPid
+
+        if oneLine is None:
+            # This constructor is used when building a BatchLetSequence.
+
+            self.m_retValue = "N/A"
+            return
 
         # sys.stderr.write("oneLine1=%s" % oneLine )
         # self.m_debugLine = oneLine
@@ -168,16 +135,19 @@ class BatchLetCore:
 
             # The first line with "[pid " is the pid of the [arent process,
             # when it creates its sub-processes.
-            if not rootPid:
-                rootPid = pidParsed
-                self.m_pid = -1
-            elif rootPid == pidParsed:
-                # This sticks to the convention that the root process is set to -1.
-                # This is because it is detected too late, after the first system calls.
-                self.m_pid = -1
-            else:
-                # This is a sub-process.
-                self.m_pid = pidParsed
+            #if not rootPid:
+            #    rootPid = pidParsed
+            #    self.m_pid = -1
+            #elif rootPid == pidParsed:
+            #    # This sticks to the convention that the root process is set to -1.
+            #    # This is because it is detected too late, after the first system calls.
+            #    self.m_pid = -1
+            #else:
+            #    # This is a sub-process.
+            #    self.m_pid = pidParsed
+
+            # This is a sub-process.
+            self.m_pid = pidParsed
 
             self.InitAfterPid(oneLine[ idxAfterPid + 2 : ] )
         else:
@@ -195,7 +165,15 @@ class BatchLetCore:
         # sys.stderr.write("oneLine2=%s" % oneLine )
 
         # This could be done without intermediary string.
-        self.m_timeStamp = oneLine[:15]
+        # "07:54:54.206113"
+        try:
+            aTimeStamp = time.mktime( time.strptime(oneLine[:15],"%H:%M:%S.%f") )
+        except ValueError:
+            sys.stderr.write("Invalid time format:%s\n"%oneLine[0:15])
+            aTimeStamp = 0
+
+        self.m_timeStart = aTimeStamp
+        self.m_timeEnd = aTimeStamp
         theCall = oneLine[16:]
 
         # "--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---"
@@ -244,8 +222,8 @@ class BatchLetCore:
         self.m_parsedArgs = ParsePar( allArgs )
         # sys.stderr.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
 
-
         # sys.stderr.write("Func=%s\n"%self.m_funcNam)
+
 
 # Each class is indexed with the name of the corresponding system call name.
 # If the class is None, it means that this function is explicitly neglected.
@@ -347,16 +325,16 @@ class BatchLetBase:
 
 # Must be a new-style class.
 class BatchLet_open(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_open,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_open,self).__init__(batchCore)
 
     def SignificantArgs(self):
         # return self.StreamName()
         return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_openat(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_openat,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_openat,self).__init__(batchCore)
 
     # TODO: A relative pathname is interpreted relative to the directory
     # referred to by the file descriptor passed as first parameter.
@@ -364,67 +342,67 @@ class BatchLet_openat(BatchLetBase,object):
         return self.StreamName(1)
 
 class BatchLet_close(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_close,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_close,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_read(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_read,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_read,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_write(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_write,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_write,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_mmap(BatchLetBase,object):
-    def __init__(self,batchBase):
+    def __init__(self,batchCore):
         # Not interested by anonymous map because there is no side effect.
-        if batchBase.m_parsedArgs[3].find("MAP_ANONYMOUS") >= 0:
+        if batchCore.m_parsedArgs[3].find("MAP_ANONYMOUS") >= 0:
             return
-        super( BatchLet_mmap,self).__init__(batchBase)
+        super( BatchLet_mmap,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName(4)
 
 class BatchLet_ioctl(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_ioctl,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_ioctl,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[0] ) ] + self.m_core.m_parsedArgs[1:0]
 
 class BatchLet_fstat(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_fstat,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_fstat,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_fchdir(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_fchdir,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_fchdir,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_fcntl(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_fcntl,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_fcntl,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName()
 
 class BatchLet_clone(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_clone,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_clone,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return [ self.m_core.m_parsedArgs[0] ]
@@ -435,13 +413,13 @@ class BatchLet_clone(BatchLetBase,object):
 
 # execve("/usr/bin/grep", ["grep", "toto", "../TestMySql.py"], [/* 34 vars */]) = 0 <0.000175>
 class BatchLet_execve(BatchLetBase,object):
-    def __init__(self,batchBase):
+    def __init__(self,batchCore):
 
         # ['/usr/lib64/qt-3.3/bin/grep', '[grep, toto, ..]'] ==>> -1 ENOENT (No such file or directory)
         # If the executable could not be started, no point creating a batch node.
-        if batchBase.m_retValue.find("ENOENT") >= 0 :
+        if batchCore.m_retValue.find("ENOENT") >= 0 :
             return
-        super( BatchLet_execve,self).__init__(batchBase)
+        super( BatchLet_execve,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.m_core.m_parsedArgs[0:2]
@@ -451,16 +429,16 @@ class BatchLet_execve(BatchLetBase,object):
         return False
 
 class BatchLet_wait4(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_wait4,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_wait4,self).__init__(batchCore)
 
     def SignificantArgs(self):
         # The first argument is the PID.
         return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_newfstatat(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_newfstatat,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_newfstatat,self).__init__(batchCore)
 
     def SignificantArgs(self):
         dirNam = self.m_core.m_parsedArgs[0]
@@ -469,15 +447,15 @@ class BatchLet_newfstatat(BatchLetBase,object):
         return [ pathName ]
 
 class BatchLet_getdents(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_getdents,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_getdents,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return [ self.m_core.m_parsedArgs[0] ]
 
 class BatchLet_openat(BatchLetBase,object):
-    def __init__(self,batchBase):
-        super( BatchLet_openat,self).__init__(batchBase)
+    def __init__(self,batchCore):
+        super( BatchLet_openat,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return [ self.m_core.m_parsedArgs[0] ]
@@ -552,18 +530,128 @@ def BatchFactory(oneLine):
 # write ['pipe:[82244]']
 
 
-maxDepth = 20 
-
-
 def GetBatchesSignature(arrBatches):
     arrSigs = [ aBatch.GetSignature() for aBatch in arrBatches ]
     sigBatch = ",".join( arrSigs )
     return sigBatch
 
-class BatchTree:
-# One per process, or per thread ?
+# VIRE LES BATCHLETS QUI N ONT PAS A D ARGUMENT INTERESSANT, STYLE FICHIER OU SOCKET.
+# SELON LA DLL CA SE FERA DIFFEREMMENT.
+
+# This groups several contiguous BatchLet which form a logical operation.
+# For example (If the argument is factorised).:
+#   Read(x)
+#   Write(x)
+#
+# ... or ...
+#   fseek("dummy.txt")
+#   fwrite("dummy.txt")
+#
+# There can be several way to "reuse" a sequence, depending on other similar
+# sequences.
+#
+class BatchLetSequence(BatchLetBase,object):
+    def __init__(self,arrBatch):
+        batchCore = BatchLetCore()
+
+        # All batchlets should have the same pid.
+        batchCore.m_pid = arrBatch[0].m_core.m_pid
+
+        batchCore.m_timeStart = arrBatch[0].m_core.m_timeStart
+        batchCore.m_timeEnd = arrBatch[-1].m_core.m_timeEnd
+        batchCore.m_execTim = batchCore.m_timeEnd - batchCore.m_timeStart
+
+        # TODO ????????????
+        self.m_parsedArgs = None
+
+        super( BatchLetSequence,self).__init__(batchCore)
+
+
+# On essaye de former une sequence en aveugle.
+# le constructor 
+
+#     def SignificantArgs(self):
+#         ON repere les arguments.
+# on essaye de s en abstraire.
+# Exemple de critere de fusion:
+#     Meme signature de fonctions (Signature "legere")
+#     Juste un seul argument (Eventuellement different). Alors on considere que c est la meme operation "en gros".
+# 
+# Ou:
+#     Meme signature concatenee (signature "lourde")
+#         return self.m_core.m_parsedArgs[0]
+# 
+# Donc une sequence peut apparaitre deux fois ?
+# Quel remplacement est le plus avantageux ?
+# 
+# Il faut pouvoir empiler les BatchLetSequence.
+# 
+# Faire plusieurs passes dans la liste pour compresser a plusieurs niveaux.
+# Et recalculer les statistiques.
+# Si on garde dans la fenetre (Si fil de l eau) des elements,
+# et qu'ensuite on les vire, envoyer status=deleted.
+# 
+
+
+class StatisticsNode:
+    def __init__(self, signat = None):
+        self.m_mapStats = {}
+        self.m_signature = signat
+        self.m_occurences = 0
+
+    # This adds a complete sequence of batches and updates the intermediary nodes.
+    def AddCompleteBatchRange(self,batchRange):
+        lenBatch = len(batchRange)
+
+        if lenBatch == 0:
+            raise Exception("Empty range")
+
+        idx = 0
+        currNode = self
+        while idx < lenBatch:
+            currSignature = batchRange[idx].GetSignature()
+            try:
+                subNode = currNode.m_mapStats[ currSignature ]
+            except KeyError:
+                subNode = StatisticsNode( currSignature )
+                currNode.m_mapStats[ currSignature ] = subNode
+
+            subNode.m_occurences += 1
+            currNode = subNode
+            idx += 1
+
+
+    def GetOccurences( self, batchRange ):
+        lenBatch = len(batchRange)
+
+        idx = 0
+        currNode = self
+        while idx < lenBatch:
+            currSignature = batchRange[idx].GetSignature()
+            try:
+                subNode = currNode.m_mapStats[ currSignature ]
+            except KeyError:
+                raise Exception("Tree should be deeper")
+            idx += 1
+
+        return subNode.m_occurences
+
+
+    def DumpStats(self, strm, newMargin = "" ):
+        strm.write( "%s %-20s {%4d}\n" % ( newMargin, self.m_signature, self.m_occurences ) )
+        newMargin += "    "
+        for aSig in sorted( list( self.m_mapStats.keys() ) ):
+            aSub = self.m_mapStats[ aSig ]
+            aSub.DumpStats( strm, newMargin )
+            
+            
+            
+# This is an execution flow, associated to a process. And a thread ?
+class BatchFlow:
     def __init__(self):
-        self.m_treeBatches = []
+        self.m_treeStats = StatisticsNode()
+
+        self.m_listBatchLets = []
 
         # This contain combinations of system calls, of length 2, 3 etc...
         # Problem: If we increase the depth, the calculation step becomes quadratic.
@@ -576,17 +664,39 @@ class BatchTree:
         #   Or, before inserting, check for the existence of a rotated signature ?
         # - When replacing a sequence, possibly rotate the signature ?
         #
+        #
+        # Un BatchLet a deux signatures: 
+        # - Avec ou sans les arguments. Actuellement, on a uniquement le nom de la fonction.
+        # 
+        # On peut grouper des batchlets de plusieurs facons:
+        # - On garde les arguments
+        # - On ne garde que le nom de la fonction.
+        # - On factorise le seul argument interessant: pid ou stream:
+        # On aggrege des batch contigus qui ont le meme argument et on en fait un super-batch.
+        # Ex: fseek(fil)+fread(file)
+        #
+        # On peut aussi grouper les batchlets par ressource (fichier ou socket).
+        # BatchLet ayant la meme ressource en argument.
+        # 
+        #
         self.m_mapPatterns = {}
+
+    def GetMaxDepth(self):
+        # Maximum length of repetition.
+        maxDepth = 20 
+        actualDepth = min(maxDepth,len(self.m_listBatchLets) )
+        return actualDepth
 
 
     # Updates probabilities with the latest insertion in mind.
     def UpdateStatistics(self):
-        actualDepth = min(maxDepth,len(self.m_treeBatches) )
+
+        actualDepth = self.GetMaxDepth()
 
         # Repetition of the same call is already taken into account.
         idx = 2
         while idx <= actualDepth:
-            signatureBatches = GetBatchesSignature( self.m_treeBatches[ -idx : ] )
+            signatureBatches = GetBatchesSignature( self.m_listBatchLets[ -idx : ] )
 
             try:
                 sigsByDepth = self.m_mapPatterns[ idx ]
@@ -598,17 +708,23 @@ class BatchTree:
                 self.m_mapPatterns[ idx ] = { signatureBatches : 1 }
             idx += 1
 
+    def UpdateStatsTree(self):
+        actualDepth = self.GetMaxDepth()
+
+        # TODO: Would be faster to pass the array and the indices instead of creating a subarray.
+        self.m_treeStats.AddCompleteBatchRange( self.m_listBatchLets[ -actualDepth : ] )
 
     def EffectiveAppendBatch(self,btchLet):
-        self.m_treeBatches.append( btchLet )
+        self.m_listBatchLets.append( btchLet )
         self.UpdateStatistics()
+        self.UpdateStatsTree()
 
     def AddBatch(self,btchLet):
         # sys.stderr.write("AddBatch:%s\n"%btchLet.GetSignature())
-        numBatches = len(self.m_treeBatches)
+        numBatches = len(self.m_listBatchLets)
 
         if numBatches > 0:
-            lstBatch = self.m_treeBatches[-1]
+            lstBatch = self.m_listBatchLets[-1]
 
             if lstBatch.SameCall( btchLet ):
                 lstBatch.m_occurences += 1
@@ -617,13 +733,54 @@ class BatchTree:
         else:
             self.EffectiveAppendBatch( btchLet )
 
+    # Problem: This is to add to the statistics, a new type of node.
+    # BUT IN FACT WE SHOULD RESCAN EVERYTHING FIRST !!
+    def UpdateStatistics(self):
+        return
+
     # This rewrites a window at the beginning 
     # of the queue and can write it to a file.
-    def RewriteWindow(self):
-        pass
+    # It returns the number of factorizations.
+    # If it is small or zero, it should be stopped.
+    def Factorize(self):
+        lenBatch = len(self.m_listBatchLets)
+        idxBatch = 0
+        actualDepth = self.GetMaxDepth()
+        lastValidIdx = lenBatch - actualDepth
 
-    def DumpTree(self,strm):
-        for aBtch in self.m_treeBatches:
+        numSubsts = 0
+
+        while idxBatch < lastValidIdx:
+            batchRange = self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ]
+
+            numOcc = self.m_treeStats.GetOccurences( batchRange )
+
+            # 3 occurences of the same pattern is arbitrary.
+            if numOcc > 3:
+                batchSeq = BatchLetSequence( batchRange )
+                self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ] = [ batchSeq ]
+
+                # The number of occurences is not decremented because
+                # the frequency is still valid and must apply to further substitutions.
+
+                # However, several new sequences are added and might appear elsewhere.
+                idxBackward = idxBatch - actualDepth
+                idxSubSeq = idxBackward
+                while idxSubSeq <= idxBatch:
+                    self.m_treeStats.AddCompleteBatchRange( self.m_listBatchLets[ idxSubSeq : idxSubSeq + actualDepth ] )
+
+                lastValidIdx -= ( actualDepth - 1 )
+
+                # Restart from backward position because the list has changed.
+                idxBatch = idxBackward
+
+                numSubsts += 1
+            else:
+                idxBatch += 1
+        return numSubsts
+
+    def DumpFlow(self,strm):
+        for aBtch in self.m_listBatchLets:
             aBtch.DumpBatch(strm)
 
     def CleanupStatistics(self):
@@ -646,6 +803,25 @@ class BatchTree:
                 numOccurs = self.m_mapPatterns[ keyIdx ][ aSignature ]
                 strm.write("    %-20s : %d\n" % ( aSignature, numOccurs ) )
 
+        self.m_treeStats.DumpStats(strm)
+
+# The command is tightly coupled to the way its result is parsed.
+def BuildLinuxCommand(extCommand,aPid):
+    # -f  Trace  child  processes as a result of the fork, vfork and clone.
+    aCmd = ["strace",
+        "-q", "-qq", "-f", "-tt", "-T", "-s", "100", "-y", "-yy",
+        "-e", "trace=desc,ipc,process,network,memory",
+        ]
+
+    if extCommand:
+        aCmd += extCommand
+    else:
+        aCmd += [ "-p", aPid ]
+
+    sys.stderr.write("aCmd=%s\n" % ( " ".join(aCmd) ) )
+
+    return aCmd
+
 
 #
 # 22:41:05.094710 rt_sigaction(SIGRTMIN, {0x7f18d70feb20, [], SA_RESTORER|SA_SIGINFO, 0x7f18d7109430}, NULL, 8) = 0 <0.000008>
@@ -657,17 +833,8 @@ class BatchTree:
 # lags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f9c27230ad0) = 7256 <0.000075> ['lags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD', 'child_tidptr=0x7f9c27230ad0']
 
 #
-def StartSystrace_Linux(verbose,extCommand):
-
-    # -f  Trace  child  processes as a result of the fork, vfork and clone.
-
-    aCmd = ["strace",
-        "-q", "-qq", "-f", "-tt", "-T", "-s", "100", "-y", "-yy",
-        "-e", "trace=desc,ipc,process,network,memory",
-        ]
-    aCmd += extCommand
-
-    sys.stderr.write("pid=%s aCmd=%s\n" % (os.getpid(), " ".join(aCmd) ) )
+def StartSystrace_Linux(verbose,extCommand,aPid):
+    aCmd = BuildLinuxCommand( extCommand, aPid )
 
     # If shell=True, the command must be passed as a single line.
     pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
@@ -675,7 +842,7 @@ def StartSystrace_Linux(verbose,extCommand):
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # This is indexed by the pid.
-    mapTrees = { -1 : BatchTree() }
+    mapFlows = { -1 : BatchFlow() }
 
     lineSignal = ""
 
@@ -771,34 +938,45 @@ def StartSystrace_Linux(verbose,extCommand):
             aPid = aCore.m_pid
 
             try:
-                btchTree = mapTrees[ aPid ]
+                btchTree = mapFlows[ aPid ]
             except KeyError:
                 # This is the first system call of this process.
-                btchTree = BatchTree()
-                mapTrees[ aPid ] = btchTree
+                btchTree = BatchFlow()
+                mapFlows[ aPid ] = btchTree
 
             btchTree.AddBatch( aBatch )
 
-    for aPid in sorted(list(mapTrees.keys()),reverse=True):
-        btchTree = mapTrees[aPid]
+    for aPid in sorted(list(mapFlows.keys()),reverse=True):
+        btchTree = mapFlows[aPid]
         sys.stdout.write("\n================== PID=%d\n"%aPid)
-        btchTree.DumpTree(sys.stdout)
-        btchTree.CleanupStatistics()
+        btchTree.DumpFlow(sys.stdout)
+        continue
+
+
         btchTree.DumpStatistics(sys.stdout)
+
+
+
+        numSubsts = btchTree.Factorize()
+        btchTree.DumpFlow(sys.stdout)
+
+        # Do this several times ?
+
+        btchTree.CleanupStatistics()
 
     return
 
-def StartSystrace(verbose,extCommand):
+def StartSystrace(verbose,extCommand,aPid):
     if sys.platform.startswith("win32"):
-        StartSystrace_Windows(verbose,extCommand)
+        StartSystrace_Windows(verbose,extCommand,aPid)
     elif sys.platform.startswith("linux"):
-        StartSystrace_Linux(verbose,extCommand)
+        StartSystrace_Linux(verbose,extCommand,aPid)
     else:
-        StartSystrace_Cygwin(verbose,extCommand)
+        raise Exception("Unknown platform:%s"%sys.platform)
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hv", ["help","verbose"])
+        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:", ["help","verbose","pid"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -806,17 +984,38 @@ if __name__ == '__main__':
         sys.exit(2)
 
     verbose = False
+    aPid = None
 
-    for anOpt, aVal in opts:
+    for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
             verbose = True
+        elif anOpt in ("-p", "--pid"):
+            aPid = aVal
         elif anOpt in ("-h", "--help"):
             Usage()
             sys.exit()
         else:
             assert False, "Unhandled option"
 
-    if not args:
-        print("Must provide command")
+    # A command or a pid, not both.
+    if not ( ( argsCmd  == [] ) ^ ( aPid is None ) ):
+        print("Must provide command or process id")
         sys.exit()
-    StartSystrace(verbose,args)
+    StartSystrace(verbose,argsCmd,aPid)
+
+    # Options:
+    # -p pid
+    # -u user
+    # -g group
+
+    # https://www.eventtracker.com/newsletters/how-to-use-process-tracking-events-in-the-windows-security-log/
+    # https://stackoverflow.com/questions/26852228/detect-new-process-creation-instantly-in-linux
+    # https://stackoverflow.com/questions/6075013/detect-launching-of-programs-on-linux-platform
+
+    # An adapter to Linux kernel support for inotify directory-watching.
+    # https://pypi.python.org/pypi/inotify
+    # As an aside, Inotify doesn't work. It will not work on /proc/ to detect new processes:
+
+    # linux process monitoring (exec, fork, exit, set*uid, set*gid)
+    # http://bewareofgeek.livejournal.com/2945.html
+
