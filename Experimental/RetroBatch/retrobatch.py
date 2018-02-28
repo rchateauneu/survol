@@ -17,11 +17,12 @@ def Usage():
     print("  -l,--loops <integer>      Number of factorization loops. Default is zero.")
     print("  -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
     print("  -w,--window <integer>     Size of sliding window of system calls, used for factorization. Default is 0, i.e. no window")
+    print("  -r,--repetition <integer> Threshold of the number of repetition of system calls beyond which they are factorized")
     print("")
 
 ################################################################################
 
-def StartSystrace_Windows(verbose,extCommand,aPid,maxDepth):
+def StartSystrace_Windows(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
     raise Exception("Not implemented yet")
     return
 
@@ -829,9 +830,13 @@ class StatisticsNode:
             
 # This is an execution flow, associated to a process. And a thread ?
 class BatchFlow:
-    def __init__(self,maxDepth):
+    def __init__(self,maxDepth,thresholdRepetition):
         self.m_maxDepth = maxDepth
         self.m_treeStats = StatisticsNode()
+
+        # If less than this number repetitions of the same sequence of system calls,
+        # it is not necessary to factorize.
+        self.m_thresholdRepetition = thresholdRepetition
 
         self.m_listBatchLets = []
 
@@ -916,8 +921,8 @@ class BatchFlow:
 
     # Problem: This is to add to the statistics, a new type of node.
     # BUT IN FACT WE SHOULD RESCAN EVERYTHING FIRST !!
-    def UpdateStatistics(self):
-        return
+    #def UpdateStatistics(self):
+    #    return
 
     # This rewrites a window at the beginning 
     # of the queue and can write it to a file.
@@ -936,12 +941,12 @@ class BatchFlow:
 
             numOcc = self.m_treeStats.GetOccurences( batchRange )
 
-            # 3 occurences of the same pattern is arbitrary.
-            if numOcc > 3:
+            # Number of occurences of the same pattern is arbitrary.
+            if numOcc > self.m_thresholdRepetition:
                 batchSeq = BatchLetSequence( batchRange )
                 self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ] = [ batchSeq ]
 
-                # The number of occurences is not decremented because
+                # The number of occurences of this sequence is not decremented because
                 # the frequency is still valid and must apply to further substitutions.
 
                 # However, several new sequences are added and might appear elsewhere.
@@ -971,12 +976,14 @@ class BatchFlow:
 
         batchDump.Footer()
 
+    # This removes sequences of systems calls, which are too rare
+    # to be factorised. The threshold is arbitrary.
     def CleanupStatistics(self):
         for keyIdx in self.m_mapPatterns:
             sigsToDel = []
             for aSignature in self.m_mapPatterns[ keyIdx ]:
                 numOccurs = self.m_mapPatterns[ keyIdx ][ aSignature ]
-                if numOccurs <= 3:
+                if numOccurs <= self.m_thresholdRepetition:
                     sigsToDel.append( aSignature )
 
             for aSignature in sigsToDel:
@@ -1019,11 +1026,9 @@ def BuildLinuxCommand(extCommand,aPid):
 # 22:41:05.095113 getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0 <0.000008>
 # 22:41:05.095350 statfs("/sys/fs/selinux", 0x7ffd5a97f9e0) = -1 ENOENT (No such file or directory) <0.000019>
 #
-# lags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f9c27230ad0) = 7256 <0.000075> ['lags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD', 'child_tidptr=0x7f9c27230ad0']
-
 # The command and the parsing are specific to Linux.
 # It returns a data strcture which is generic.
-def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth):
+def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
     aCmd = BuildLinuxCommand( extCommand, aPid )
 
     # If shell=True, the command must be passed as a single line.
@@ -1032,9 +1037,9 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth):
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # This is indexed by the pid.
-    mapFlows = { -1 : BatchFlow(maxDepth) }
+    mapFlows = { -1 : BatchFlow(maxDepth,thresholdRepetition) }
 
-    lineSignal = ""
+    # lineSignal = ""
 
     # for oneLine in pipErr:
     while True:
@@ -1128,22 +1133,22 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth):
                 btchTree = mapFlows[ aPid ]
             except KeyError:
                 # This is the first system call of this process.
-                btchTree = BatchFlow(maxDepth)
+                btchTree = BatchFlow(maxDepth,thresholdRepetition)
                 mapFlows[ aPid ] = btchTree
 
             btchTree.AddBatch( aBatch )
 
     return mapFlows
 
-def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth,szWindow):
+def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth,szWindow,thresholdRepetition):
 
     if szWindow != 0:
         raise Exception("Sliding window not implemented yet")
 
     if sys.platform.startswith("win32"):
-        mapFlows = StartSystrace_Windows(verbose,extCommand,aPid,maxDepth)
+        mapFlows = StartSystrace_Windows(verbose,extCommand,aPid,maxDepth,thresholdRepetition)
     elif sys.platform.startswith("linux"):
-        mapFlows = StartSystrace_Linux(verbose,extCommand,aPid,maxDepth)
+        mapFlows = StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition)
     else:
         raise Exception("Unknown platform:%s"%sys.platform)
 
@@ -1179,7 +1184,7 @@ def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth,szWindo
 
 if __name__ == '__main__':
     try:
-        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:l:d:w:", ["help","verbose","pid","format","loops","depth","window"])
+        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:l:d:w:r:", ["help","verbose","pid","format","loops","depth","window","repetition"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -1192,6 +1197,7 @@ if __name__ == '__main__':
     numLoops = 0
     maxDepth = 5
     szWindow = 0
+    thresholdRepetition = 3
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
@@ -1206,6 +1212,8 @@ if __name__ == '__main__':
             maxDepth = int(aVal)
         elif anOpt in ("-w", "--window"):
             szWindow = int(aVal)
+        elif anOpt in ("-r", "--repetition"):
+            thresholdRepetition = int(aVal)
         elif anOpt in ("-h", "--help"):
             Usage()
             sys.exit()
@@ -1216,7 +1224,7 @@ if __name__ == '__main__':
     if not ( ( argsCmd  == [] ) ^ ( aPid is None ) ):
         print("Must provide command or process id")
         sys.exit()
-    StartSystrace(verbose,argsCmd,aPid,outputFormat,numLoops,maxDepth,szWindow)
+    StartSystrace(verbose,argsCmd,aPid,outputFormat,numLoops,maxDepth,szWindow,thresholdRepetition)
 
     # Options:
     # -p pid
