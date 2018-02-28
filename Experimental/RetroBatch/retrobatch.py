@@ -9,12 +9,14 @@ import time
 def Usage():
     progNam = sys.argv[0]
     print("Retrobatch: %s <executable>"%progNam)
-    print("    -h,--help                 This message.")
-    print("    -v,--verbose              Verbose mode.")
-    print("    -p,--pid <pid>            Monitors a running process instead of starting an executable.")
-    print("    -f,--format TXT|CSV|JSON  Output format. Default is TXT.")
-    print("    -l,--loops <integer>      Number of compression loops. Default is zero.")
-    print("    -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
+    print("Monitors and factorizes systems calls.")
+    print("  -h,--help                 This message.")
+    print("  -v,--verbose              Verbose mode.")
+    print("  -p,--pid <pid>            Monitors a running process instead of starting an executable.")
+    print("  -f,--format TXT|CSV|JSON  Output format. Default is TXT.")
+    print("  -l,--loops <integer>      Number of compression loops. Default is zero.")
+    print("  -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
+    print("  -w,--window <integer>     Size of sliding window of system calls, used for factorization. Default is 0, i.e. no window")
     print("")
 
 ################################################################################
@@ -142,6 +144,7 @@ def ParseSTraceObject(aStr,isArray):
 
     return theResult
 
+# Returns the index of the closing parenthesis, not between quotes or escaped.
 def FindNonEnclosedPar(aStr,idxStart):
     # sys.stderr.write("FindNonEnclosedPar idxStart=%d aStr=%s\n" % (idxStart, aStr ) )
     lenStr = len(aStr)
@@ -177,6 +180,7 @@ class ExceptionIsExit(Exception):
 class ExceptionIsSignal(Exception):
     pass
 
+# strace associates file descriptors to the original file or socket which created it.
 # Option "-y          Print paths associated with file descriptor arguments."
 # read ['3</usr/lib64/libc-2.21.so>']
 def STraceStreamToFile(strmStr):
@@ -309,21 +313,11 @@ class BatchLetCore:
 # If the class is None, it means that this function is explicitly neglected.
 # If it is not defined after metaclass registration,
 # then it is processed by BatchLetBase.
+# Derived classes of BatchLetBase self-register thanks to the metaclass.
 batchModels = {
     # "open"      : BatchLet_open,
+    # ...
     # "close"     : BatchLet_close,
-    # "read"      : BatchLet_read,
-    # "write"     : BatchLet_write,
-    # "mmap"      : BatchLet_mmap,
-    # "ioctl"     : BatchLet_ioctl,
-    # "fstat"     : BatchLet_fstat,
-    # "fchdir"    : BatchLet_fchdir,
-    # "fcntl"     : BatchLet_fcntl,
-    # "clone"     : BatchLet_clone,
-    # "wait4"     : BatchLet_wait4,
-    # "newfstatat": BatchLet_newfstatat,
-    # "getdents"  : BatchLet_getdents,
-    # "openat"    : BatchLet_openat,
     "mprotect"  : None,
     "brk"       : None,
     "lseek"     : None,
@@ -331,27 +325,18 @@ batchModels = {
 }
 
 
-
+# This metaclass allows derived class of BatchLetBase to self-register their function name.
+# So, the name of a system call is used to lookup the class which represents it.
 class BatchMeta(type):
     #def __new__(meta, name, bases, dct):
-    #    print '-----------------------------------'
-    #    print "Allocating memory for class", name
-    #    print meta
-    #    print bases
-    #    print dct
     #    return super(BatchMeta, meta).__new__(meta, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
         global batchModels
 
-        # print '-----------------------------------'
         if name.startswith("BatchLet_"):
             shortClassName = name[9:]
-            # print "Initializing class", shortClassName
             batchModels[ shortClassName ] = cls
-        # print cls
-        # print bases
-        # print dct
         super(BatchMeta, cls).__init__(name, bases, dct)
 
 
@@ -376,28 +361,6 @@ class BatchLetBase:
         # sys.stderr.write( "StreamName=%s\n"%self.m_core.m_parsedArgs[idx] )
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
 
-    #def DumpBatch(self,strm,outputFormat):
-    #    # strm.write("X=%s"%self.m_core.m_debugLine)
-#
-#        if outputFormat == "TXT":
-#            strm.write("F=%6d {%4d} '%-20s' %s ==>> %s\n"
-#                %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
-#        elif outputFormat == "CSV":
-#            strm.write("%d,%d,%s,%s,%s\n"
-#                %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
-#        elif outputFormat == "JSON":
-#            strm.write(
-#                '{\n'
-#                '   "pid" : %d\n'
-#                '   "occurences" : %d\n'
-#                '   "function" : "%s"\n'
-#                '   "arguments" : %s\n'
-#                '   "return_value" : "%s"\n'
-#                '},'
-#                %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
-#        else:
-#            raise Exception("Invalid output format:%s" % outputFormat )
-
     def SameCall(self,anotherBatch):
         if self.m_core.m_funcNam != anotherBatch.m_core.m_funcNam:
             return False
@@ -420,35 +383,48 @@ class BatchLetBase:
 
 ################################################################################
 
-class BatchDumperTXT:
-    def __init__(self,strm):
-        self.m_strm = strm
+def FmtTim(aTim):
+    return time.strftime("%H:%M:%S", time.gmtime(aTim))
 
+class BatchDumberBase:
     def Header(self):
         return
-
-    def DumpBatch(self,batchLet):
-        self.m_strm.write("F=%6d {%4d} '%-20s' %s ==>> %s\n"
-            %(batchLet.m_core.m_pid, batchLet.m_occurences, batchLet.m_core.m_funcNam,str(batchLet.SignificantArgs() ), batchLet.m_core.m_retValue ) )
 
     def Footer(self):
         return
 
-class BatchDumperCSV:
+class BatchDumperTXT(BatchDumberBase):
+    def __init__(self,strm):
+        self.m_strm = strm
+
+    def DumpBatch(self,batchLet):
+        self.m_strm.write("F=%6d {%4d} '%-20s' %s ==>> %s (%s,%s)\n" %(
+            batchLet.m_core.m_pid,
+            batchLet.m_occurences,
+            batchLet.m_core.m_funcNam,
+            str(batchLet.SignificantArgs() ),
+            batchLet.m_core.m_retValue,
+            FmtTim(batchLet.m_core.m_timeStart),
+            FmtTim(batchLet.m_core.m_timeEnd) ) )
+
+class BatchDumperCSV(BatchDumberBase):
     def __init__(self,strm):
         self.m_strm = strm
 
     def Header(self):
-        self.m_strm.write("Pid,Occurences,Function,Arguments,Return\n")
+        self.m_strm.write("Pid,Occurences,Function,Arguments,Return,Start,End\n")
 
     def DumpBatch(self,batchLet):
-        self.m_strm.write("%d,%d,%s,%s,%s\n"
-            %(batchLet.m_core.m_pid, batchLet.m_occurences, batchLet.m_core.m_funcNam,str(batchLet.SignificantArgs() ), batchLet.m_core.m_retValue ) )
+        self.m_strm.write("%d,%d,%s,%s,%s,%s,%s\n" %(
+            batchLet.m_core.m_pid,
+            batchLet.m_occurences,
+            batchLet.m_core.m_funcNam,
+            str(batchLet.SignificantArgs() ),
+            batchLet.m_core.m_retValue,
+            FmtTim(batchLet.m_core.m_timeStart),
+            FmtTim(batchLet.m_core.m_timeEnd) ) )
 
-    def Footer(self):
-        return
-
-class BatchDumperJSON:
+class BatchDumperJSON(BatchDumberBase):
     def __init__(self,strm):
         self.m_strm = strm
 
@@ -463,8 +439,16 @@ class BatchDumperJSON:
             '   "function" : "%s"\n'
             '   "arguments" : %s\n'
             '   "return_value" : "%s"\n'
-            '},\n'
-            %(batchLet.m_core.m_pid, batchLet.m_occurences, batchLet.m_core.m_funcNam,str(batchLet.SignificantArgs() ), batchLet.m_core.m_retValue ) )
+            '   "time_start" : "%s"\n'
+            '   "time_end" : "%s"\n'
+            '},\n' %(
+            batchLet.m_core.m_pid,
+            batchLet.m_occurences,
+            batchLet.m_core.m_funcNam,
+            str(batchLet.SignificantArgs() ),
+            batchLet.m_core.m_retValue,
+            FmtTim(batchLet.m_core.m_timeStart),
+            FmtTim(batchLet.m_core.m_timeEnd) ) )
 
     def Footer(self):
         self.m_strm.write( ']\n' )
@@ -1151,7 +1135,11 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth):
 
     return mapFlows
 
-def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth):
+def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth,szWindow):
+
+    if szWindow != 0:
+        raise Exception("Sliding window not implemented yet")
+
     if sys.platform.startswith("win32"):
         mapFlows = StartSystrace_Windows(verbose,extCommand,aPid,maxDepth)
     elif sys.platform.startswith("linux"):
@@ -1191,7 +1179,7 @@ def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth):
 
 if __name__ == '__main__':
     try:
-        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:l:d:", ["help","verbose","pid","format","loops","depth"])
+        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:l:d:w:", ["help","verbose","pid","format","loops","depth","window"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -1203,6 +1191,7 @@ if __name__ == '__main__':
     outputFormat = "TXT"
     numLoops = 0
     maxDepth = 5
+    szWindow = 0
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
@@ -1215,6 +1204,8 @@ if __name__ == '__main__':
             numLoops = int(aVal)
         elif anOpt in ("-d", "--depth"):
             maxDepth = int(aVal)
+        elif anOpt in ("-w", "--window"):
+            szWindow = int(aVal)
         elif anOpt in ("-h", "--help"):
             Usage()
             sys.exit()
@@ -1225,7 +1216,7 @@ if __name__ == '__main__':
     if not ( ( argsCmd  == [] ) ^ ( aPid is None ) ):
         print("Must provide command or process id")
         sys.exit()
-    StartSystrace(verbose,argsCmd,aPid,outputFormat,numLoops,maxDepth)
+    StartSystrace(verbose,argsCmd,aPid,outputFormat,numLoops,maxDepth,szWindow)
 
     # Options:
     # -p pid
