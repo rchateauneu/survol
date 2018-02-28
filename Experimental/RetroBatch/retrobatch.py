@@ -9,7 +9,11 @@ import time
 def Usage():
     progNam = sys.argv[0]
     print("Retrobatch: %s <executable>"%progNam)
+    print("    -h,--help                 This message")
     print("    -v,--verbose              Verbose mode")
+    print("    -p,--pid <pid>            Monitors a running process instead of starting an executable")
+    print("    -f,--format TXT|CSV|JSON  Output format. Default is TXT")
+    print("    -l,--loops <integer>      Number of compression loops. Default is zero")
     print("")
 
 def StartSystrace_Windows(verbose,extCommand,aPid):
@@ -275,7 +279,6 @@ class BatchMeta(type):
         super(BatchMeta, cls).__init__(name, bases, dct)
 
 
-
 class BatchLetBase:
     __metaclass__ = BatchMeta
 
@@ -295,10 +298,27 @@ class BatchLetBase:
     def StreamName(self,idx=0):
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
 
-    def DumpBatch(self,strm):
-        # strm.write("X=%s"%self.m_core.m_debugLine)
-        strm.write("F=%6d {%4d} '%-20s' %s ==>> %s\n"
-            %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
+    #def DumpBatch(self,strm,outputFormat):
+    #    # strm.write("X=%s"%self.m_core.m_debugLine)
+#
+#        if outputFormat == "TXT":
+#            strm.write("F=%6d {%4d} '%-20s' %s ==>> %s\n"
+#                %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
+#        elif outputFormat == "CSV":
+#            strm.write("%d,%d,%s,%s,%s\n"
+#                %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
+#        elif outputFormat == "JSON":
+#            strm.write(
+#                '{\n'
+#                '   "pid" : %d\n'
+#                '   "occurences" : %d\n'
+#                '   "function" : "%s"\n'
+#                '   "arguments" : %s\n'
+#                '   "return_value" : "%s"\n'
+#                '},'
+#                %(self.m_core.m_pid, self.m_occurences, self.m_core.m_funcNam,str(self.SignificantArgs() ), self.m_core.m_retValue ) )
+#        else:
+#            raise Exception("Invalid output format:%s" % outputFormat )
 
     def SameCall(self,anotherBatch):
         if self.m_core.m_funcNam != anotherBatch.m_core.m_funcNam:
@@ -320,6 +340,66 @@ class BatchLetBase:
 
         return True
 
+################################################################################
+
+class BatchDumperTXT:
+    def __init__(self,strm):
+        self.m_strm = strm
+
+    def Header(self):
+        return
+
+    def DumpBatch(self,batchLet):
+        self.m_strm.write("F=%6d {%4d} '%-20s' %s ==>> %s\n"
+            %(batchLet.m_core.m_pid, batchLet.m_occurences, batchLet.m_core.m_funcNam,str(batchLet.SignificantArgs() ), batchLet.m_core.m_retValue ) )
+
+    def Footer(self):
+        return
+
+class BatchDumperCSV:
+    def __init__(self,strm):
+        self.m_strm = strm
+
+    def Header(self):
+        self.m_strm.write("Pid,Occurences,Function,Arguments,Return\n")
+
+    def DumpBatch(self,batchLet):
+        self.m_strm.write("%d,%d,%s,%s,%s\n"
+            %(batchLet.m_core.m_pid, batchLet.m_occurences, batchLet.m_core.m_funcNam,str(batchLet.SignificantArgs() ), batchLet.m_core.m_retValue ) )
+
+    def Footer(self):
+        return
+
+class BatchDumperJSON:
+    def __init__(self,strm):
+        self.m_strm = strm
+
+    def Header(self):
+        self.m_strm.write( '[\n' )
+
+    def DumpBatch(self,batchLet):
+        self.m_strm.write(
+            '{\n'
+            '   "pid" : %d\n'
+            '   "occurences" : %d\n'
+            '   "function" : "%s"\n'
+            '   "arguments" : %s\n'
+            '   "return_value" : "%s"\n'
+            '},\n'
+            %(batchLet.m_core.m_pid, batchLet.m_occurences, batchLet.m_core.m_funcNam,str(batchLet.SignificantArgs() ), batchLet.m_core.m_retValue ) )
+
+    def Footer(self):
+        self.m_strm.write( ']\n' )
+
+
+def BatchDumperFactory(strm, outputFormat):
+    BatchDumpersDictionary = {
+        "TXT"  : BatchDumperTXT,
+        "CSV"  : BatchDumperCSV,
+        "JSON" : BatchDumperJSON
+    }
+
+    return BatchDumpersDictionary[ outputFormat ](strm)
 
 ################################################################################
 
@@ -451,7 +531,7 @@ class BatchLet_getdents(BatchLetBase,object):
         super( BatchLet_getdents,self).__init__(batchCore)
 
     def SignificantArgs(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        return self.StreamName()
 
 class BatchLet_openat(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -779,9 +859,16 @@ class BatchFlow:
                 idxBatch += 1
         return numSubsts
 
-    def DumpFlow(self,strm):
+    def DumpFlow(self,strm,outputFormat):
+
+        batchDump = BatchDumperFactory(strm, outputFormat)
+
+        batchDump.Header()
+
         for aBtch in self.m_listBatchLets:
-            aBtch.DumpBatch(strm)
+            batchDump.DumpBatch(aBtch)
+
+        batchDump.Footer()
 
     def CleanupStatistics(self):
         for keyIdx in self.m_mapPatterns:
@@ -832,7 +919,8 @@ def BuildLinuxCommand(extCommand,aPid):
 #
 # lags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f9c27230ad0) = 7256 <0.000075> ['lags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD', 'child_tidptr=0x7f9c27230ad0']
 
-#
+# The command and the parsing are specific to Linux.
+# It returns a data strcture which is generic.
 def StartSystrace_Linux(verbose,extCommand,aPid):
     aCmd = BuildLinuxCommand( extCommand, aPid )
 
@@ -921,9 +1009,6 @@ def StartSystrace_Linux(verbose,extCommand,aPid):
             continue
 
 
-
-
-
         # This could be done without intermediary string.
         aBatch = BatchFactory(oneLine)
         if aBatch:
@@ -946,37 +1031,49 @@ def StartSystrace_Linux(verbose,extCommand,aPid):
 
             btchTree.AddBatch( aBatch )
 
-    for aPid in sorted(list(mapFlows.keys()),reverse=True):
-        btchTree = mapFlows[aPid]
-        sys.stdout.write("\n================== PID=%d\n"%aPid)
-        btchTree.DumpFlow(sys.stdout)
-        continue
+    return mapFlows
 
-
-        btchTree.DumpStatistics(sys.stdout)
-
-
-
-        numSubsts = btchTree.Factorize()
-        btchTree.DumpFlow(sys.stdout)
-
-        # Do this several times ?
-
-        btchTree.CleanupStatistics()
-
-    return
-
-def StartSystrace(verbose,extCommand,aPid):
+def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops):
     if sys.platform.startswith("win32"):
-        StartSystrace_Windows(verbose,extCommand,aPid)
+        mapFlows = StartSystrace_Windows(verbose,extCommand,aPid)
     elif sys.platform.startswith("linux"):
-        StartSystrace_Linux(verbose,extCommand,aPid)
+        mapFlows = StartSystrace_Linux(verbose,extCommand,aPid)
     else:
         raise Exception("Unknown platform:%s"%sys.platform)
 
+
+    for aPid in sorted(list(mapFlows.keys()),reverse=True):
+        btchTree = mapFlows[aPid]
+        sys.stdout.write("\n================== PID=%d\n"%aPid)
+
+        idxLoops = 0
+
+        while True:
+            btchTree.DumpFlow(sys.stdout,outputFormat)
+
+            if verbose:
+                btchTree.DumpStatistics(sys.stdout)
+
+            if idxLoops >= numLoops:
+                break
+            idxLoops += 1
+
+            numSubsts = btchTree.Factorize()
+
+            if verbose:
+                btchTree.DumpStatistics(sys.stdout)
+
+            sys.stdout.write("Number of substitutions:%d\n"%numSubsts)
+            if numSubsts == 0:
+                sys.stdout.write("End of compression\n")
+                break
+
+            btchTree.CleanupStatistics()
+
+
 if __name__ == '__main__':
     try:
-        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:", ["help","verbose","pid"])
+        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:l:", ["help","verbose","pid","format","loops"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -985,12 +1082,18 @@ if __name__ == '__main__':
 
     verbose = False
     aPid = None
+    outputFormat = "TXT"
+    numLoops = 0
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
             verbose = True
         elif anOpt in ("-p", "--pid"):
             aPid = aVal
+        elif anOpt in ("-f", "--format"):
+            outputFormat = aVal.upper()
+        elif anOpt in ("-l", "--loops"):
+            numLoops = str(aVal)
         elif anOpt in ("-h", "--help"):
             Usage()
             sys.exit()
@@ -1001,7 +1104,7 @@ if __name__ == '__main__':
     if not ( ( argsCmd  == [] ) ^ ( aPid is None ) ):
         print("Must provide command or process id")
         sys.exit()
-    StartSystrace(verbose,argsCmd,aPid)
+    StartSystrace(verbose,argsCmd,aPid,outputFormat,numLoops)
 
     # Options:
     # -p pid
