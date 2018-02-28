@@ -14,7 +14,7 @@ def Usage():
     print("  -v,--verbose              Verbose mode.")
     print("  -p,--pid <pid>            Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON  Output format. Default is TXT.")
-    print("  -l,--loops <integer>      Number of compression loops. Default is zero.")
+    print("  -l,--loops <integer>      Number of factorization loops. Default is zero.")
     print("  -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
     print("  -w,--window <integer>     Size of sliding window of system calls, used for factorization. Default is 0, i.e. no window")
     print("")
@@ -767,7 +767,7 @@ class BatchLetSequence(BatchLetBase,object):
 # 
 # Il faut pouvoir empiler les BatchLetSequence.
 # 
-# Faire plusieurs passes dans la liste pour compresser a plusieurs niveaux.
+# Faire plusieurs passes dans la liste pour factoriser a plusieurs niveaux.
 # Et recalculer les statistiques.
 # Si on garde dans la fenetre (Si fil de l eau) des elements,
 # et qu'ensuite on les vire, envoyer status=deleted.
@@ -838,7 +838,7 @@ class BatchFlow:
         # This contain combinations of system calls, of length 2, 3 etc...
         # Problem: If we increase the depth, the calculation step becomes quadratic.
         #
-        # Notes about how to compress consecutive system calls:
+        # Notes about how to factorize consecutive system calls:
         # - If a signature does not appear too often, remove it.
         # - If a signature is repetitive, remove it.
         # - Signatures are cyclic: If several signatures are identical except a rotation,
@@ -1171,7 +1171,7 @@ def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth,szWindo
 
             sys.stdout.write("Number of substitutions:%d\n"%numSubsts)
             if numSubsts == 0:
-                sys.stdout.write("End of compression\n")
+                sys.stdout.write("End of factorization\n")
                 break
 
             btchTree.CleanupStatistics()
