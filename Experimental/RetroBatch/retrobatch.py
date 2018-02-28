@@ -9,14 +9,15 @@ import time
 def Usage():
     progNam = sys.argv[0]
     print("Retrobatch: %s <executable>"%progNam)
-    print("    -h,--help                 This message")
-    print("    -v,--verbose              Verbose mode")
-    print("    -p,--pid <pid>            Monitors a running process instead of starting an executable")
-    print("    -f,--format TXT|CSV|JSON  Output format. Default is TXT")
-    print("    -l,--loops <integer>      Number of compression loops. Default is zero")
+    print("    -h,--help                 This message.")
+    print("    -v,--verbose              Verbose mode.")
+    print("    -p,--pid <pid>            Monitors a running process instead of starting an executable.")
+    print("    -f,--format TXT|CSV|JSON  Output format. Default is TXT.")
+    print("    -l,--loops <integer>      Number of compression loops. Default is zero.")
+    print("    -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
     print("")
 
-def StartSystrace_Windows(verbose,extCommand,aPid):
+def StartSystrace_Windows(verbose,extCommand,aPid,maxDepth):
     raise Exception("Not implemented yet")
     return
 
@@ -718,17 +719,18 @@ class StatisticsNode:
 
 
     def DumpStats(self, strm, newMargin = "" ):
-        strm.write( "%s %-20s {%4d}\n" % ( newMargin, self.m_signature, self.m_occurences ) )
-        newMargin += "    "
+        strm.write( "%s%-20s {%4d}\n" % ( newMargin, self.m_signature, self.m_occurences ) )
+        # newMargin += "    "
         for aSig in sorted( list( self.m_mapStats.keys() ) ):
             aSub = self.m_mapStats[ aSig ]
-            aSub.DumpStats( strm, newMargin )
+            aSub.DumpStats( strm, newMargin + "....")
             
             
             
 # This is an execution flow, associated to a process. And a thread ?
 class BatchFlow:
-    def __init__(self):
+    def __init__(self,maxDepth):
+        self.m_maxDepth = maxDepth
         self.m_treeStats = StatisticsNode()
 
         self.m_listBatchLets = []
@@ -763,8 +765,7 @@ class BatchFlow:
 
     def GetMaxDepth(self):
         # Maximum length of repetition.
-        maxDepth = 20 
-        actualDepth = min(maxDepth,len(self.m_listBatchLets) )
+        actualDepth = min(self.m_maxDepth,len(self.m_listBatchLets) )
         return actualDepth
 
 
@@ -883,13 +884,14 @@ class BatchFlow:
 
 
     def DumpStatistics(self,strm):
-        strm.write("DUMPING STATISTICS\n")
+        strm.write("DUMPING STATISTICS MAP (DEPRECATED)\n")
         for keyIdx in self.m_mapPatterns:
             strm.write("Repetition length:%d\n" % keyIdx )
             for aSignature in sorted( list( self.m_mapPatterns[ keyIdx ].keys() ) ):
                 numOccurs = self.m_mapPatterns[ keyIdx ][ aSignature ]
                 strm.write("    %-20s : %d\n" % ( aSignature, numOccurs ) )
 
+        strm.write("DUMPING STATISTICS TREE\n")
         self.m_treeStats.DumpStats(strm)
 
 # The command is tightly coupled to the way its result is parsed.
@@ -921,7 +923,7 @@ def BuildLinuxCommand(extCommand,aPid):
 
 # The command and the parsing are specific to Linux.
 # It returns a data strcture which is generic.
-def StartSystrace_Linux(verbose,extCommand,aPid):
+def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth):
     aCmd = BuildLinuxCommand( extCommand, aPid )
 
     # If shell=True, the command must be passed as a single line.
@@ -930,7 +932,7 @@ def StartSystrace_Linux(verbose,extCommand,aPid):
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # This is indexed by the pid.
-    mapFlows = { -1 : BatchFlow() }
+    mapFlows = { -1 : BatchFlow(maxDepth) }
 
     lineSignal = ""
 
@@ -1026,18 +1028,18 @@ def StartSystrace_Linux(verbose,extCommand,aPid):
                 btchTree = mapFlows[ aPid ]
             except KeyError:
                 # This is the first system call of this process.
-                btchTree = BatchFlow()
+                btchTree = BatchFlow(maxDepth)
                 mapFlows[ aPid ] = btchTree
 
             btchTree.AddBatch( aBatch )
 
     return mapFlows
 
-def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops):
+def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth):
     if sys.platform.startswith("win32"):
-        mapFlows = StartSystrace_Windows(verbose,extCommand,aPid)
+        mapFlows = StartSystrace_Windows(verbose,extCommand,aPid,maxDepth)
     elif sys.platform.startswith("linux"):
-        mapFlows = StartSystrace_Linux(verbose,extCommand,aPid)
+        mapFlows = StartSystrace_Linux(verbose,extCommand,aPid,maxDepth)
     else:
         raise Exception("Unknown platform:%s"%sys.platform)
 
@@ -1073,7 +1075,7 @@ def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops):
 
 if __name__ == '__main__':
     try:
-        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:l:", ["help","verbose","pid","format","loops"])
+        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:l:d:", ["help","verbose","pid","format","loops","depth"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -1084,6 +1086,7 @@ if __name__ == '__main__':
     aPid = None
     outputFormat = "TXT"
     numLoops = 0
+    maxDepth = 5
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
@@ -1093,7 +1096,9 @@ if __name__ == '__main__':
         elif anOpt in ("-f", "--format"):
             outputFormat = aVal.upper()
         elif anOpt in ("-l", "--loops"):
-            numLoops = str(aVal)
+            numLoops = int(aVal)
+        elif anOpt in ("-d", "--depth"):
+            maxDepth = int(aVal)
         elif anOpt in ("-h", "--help"):
             Usage()
             sys.exit()
@@ -1104,7 +1109,7 @@ if __name__ == '__main__':
     if not ( ( argsCmd  == [] ) ^ ( aPid is None ) ):
         print("Must provide command or process id")
         sys.exit()
-    StartSystrace(verbose,argsCmd,aPid,outputFormat,numLoops)
+    StartSystrace(verbose,argsCmd,aPid,outputFormat,numLoops,maxDepth)
 
     # Options:
     # -p pid
