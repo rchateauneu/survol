@@ -17,19 +17,93 @@ def Usage():
     print("    -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
     print("")
 
+################################################################################
+
 def StartSystrace_Windows(verbose,extCommand,aPid,maxDepth):
     raise Exception("Not implemented yet")
     return
 
+################################################################################
+
 # strace creates data structures similar to Python or Json.
 # fstat(3</usr/lib64/gconv/gconv-modules.cache>, {st_mode=S_IFREG|0644, st_size=26254, ...})
 # execve("/usr/bin/grep", ["grep", "toto", "../TestMySql.py"], [/* 34 vars */]) = 0 <0.000175>
+# ['[{fd=5<UNIX:[73470->73473]>, events=POLLIN}]', '1', '25000'] ==>> 1 ([{fd=5, revents=POLLIN}])
 
+# The result might be an array or an object.
+# The input argument might be a single value or a key-value pair separated
+# by a "=" equal sign.
+def AppendArgToResultThrow( theResult, currStr, isArray ):
+    # sys.stdout.write("AppendArgToResult %s\n"%currStr)
+    argClean = currStr.strip()
+
+    if isArray:
+        keyArg = None
+        valArg = argClean
+    else:
+        # sys.stderr.write("argClean=%s\n"%argClean)
+
+        # Special case of an unfinished struct. See strace option:
+        # -v    Print unabbreviated versions of environment, stat, termios,  etc. calls.
+        #       These structures are very common in calls and so the default behavior
+        #       displays a reasonable subset of structure members. Use this option to get all of the gory details.
+        if argClean.endswith("..."):
+            return
+
+        # TODO: Check if the key is valid ...
+        # Some unexplainable case such as: "[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]"
+        idxEqual = argClean.find("=")
+        if idxEqual > 0:
+            keyArg = argClean[:idxEqual].strip()
+            valArg = argClean[idxEqual+1:].strip()
+        else:
+            keyArg = ""
+            valArg = argClean
+    
+    if valArg == "":   
+        objToAdd = argClean
+    elif valArg[0] == '[':
+        if valArg[-1] != ']':
+            raise Exception("Invalid array:%s"%valArg)
+        objToAdd = ParseSTraceObject( valArg[1:-1], True )
+    elif valArg[0] == '{':
+        if valArg[-1] != '}':
+            raise Exception("Invalid struct:%s"%valArg)
+        objToAdd = ParseSTraceObject( valArg[1:-1], False )
+    else:
+        objToAdd = valArg
+
+    if isArray:
+        theResult.append( objToAdd )
+    else:
+        theResult[keyArg] = objToAdd
+
+# The input string might be broken.
+def AppendArgToResult( theResult, currStr, isArray ):
+    try:
+        AppendArgToResultThrow( theResult, currStr, isArray )
+    except:
+        if isArray:
+            theResult.append( "error" )
+        else:
+            theResult["error"] = "error"
+    
+
+# This transforms a structure as returned by strace, into a Python object.
 # The input is a string containing the arguments printed by strace.
-# The output is an array of strings wtith these arguments correctly split.
-def ParsePar(aStr):
+# The output is an array of strings with these arguments correctly split.
+# The arguments delimiter is a comma, if not between double quotes or brackets.
+# It is stripped of the surrounding curly braces or square brackets.
+# Beware that the input string might be incomplete: "{st_mode=S_IFREG|0644, st_size=121043, ...}"
+def ParseSTraceObject(aStr,isArray):
+    # sys.stdout.write("ParseSTraceObject %s\n"%aStr)
     idx = 0
-    theArr = []
+
+    if isArray:
+        theResult = []
+    else:
+        theResult = {}
+
     inQuotes = False
     levelBrackets = 0
     isEscaped = False
@@ -50,13 +124,13 @@ def ParsePar(aStr):
         if not inQuotes:
             # This assumes that [] and {} are correctly paired by strace and therefore,
             # it is not needed to check their parity.
-            if aChr in ['{','[']:
+            if aChr in ['{','[','(']:
                 levelBrackets += 1
-            elif aChr in ['}',']']:
+            elif aChr in ['}',']',')']:
                 levelBrackets -= 1
             elif aChr == ',':
                 if levelBrackets == 0:
-                    theArr.append( currStr.strip() )
+                    AppendArgToResult( theResult, currStr, isArray )
                     currStr = ""
                     continue
 
@@ -64,14 +138,16 @@ def ParsePar(aStr):
         continue
 
     if currStr:
-        theArr.append( currStr.strip() )
+        AppendArgToResult( theResult, currStr, isArray )
 
-    return theArr
+    return theResult
 
 def FindNonEnclosedPar(aStr,idxStart):
+    # sys.stderr.write("FindNonEnclosedPar idxStart=%d aStr=%s\n" % (idxStart, aStr ) )
     lenStr = len(aStr)
     inQuotes = False
     isEscaped = False
+    levelParenthesis = 0
     while idxStart < lenStr:
         aChr = aStr[idxStart]
         idxStart += 1
@@ -86,8 +162,12 @@ def FindNonEnclosedPar(aStr,idxStart):
             continue
 
         if not inQuotes:
-            if aChr == ')':
-                return idxStart - 1
+            if aChr == '(':
+                levelParenthesis += 1
+            elif aChr == ')':
+                if levelParenthesis == 0:
+                    return idxStart - 1
+                levelParenthesis -= 1
 
     return -1
 
@@ -195,7 +275,7 @@ class BatchLetCore:
             raise Exception("No function in:%s"%oneLine)
 
         self.m_funcNam = theCall[:idxPar]
-        # sys.stderr.write("Line=%s" % theCall )
+        # sys.stderr.write("theCall=%s\n" % theCall )
 
         idxGT = theCall.rfind(">")
         # sys.stderr.write("idxGT=%d\n" % idxGT )
@@ -210,11 +290,6 @@ class BatchLetCore:
         # "[pid 18534] 19:58:38.406747 wait4(18666,  <unfinished ...>"
         # "19:58:38.410766 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18666 <0.004009>"
 
-
-        # if self.m_funcNam == "wait4":
-        #     sys.stderr.write("wait4 execTim:%s\n"%self.m_execTim)
-
-        # idxLastPar = theCall.rfind(")",0,idxLT)
         idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
 
         allArgs = theCall[idxPar+1:idxLastPar]
@@ -224,7 +299,7 @@ class BatchLetCore:
         # sys.stderr.write("retValue=%s\n"%self.m_retValue)
 
         # sys.stderr.write("allArgs=%s\n"%allArgs)
-        self.m_parsedArgs = ParsePar( allArgs )
+        self.m_parsedArgs = ParseSTraceObject( allArgs, True )
         # sys.stderr.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
 
         # sys.stderr.write("Func=%s\n"%self.m_funcNam)
@@ -297,6 +372,8 @@ class BatchLetBase:
 
     # This is very often used.
     def StreamName(self,idx=0):
+        # sys.stderr.write( "StreamName func%s\n"%self.m_core.m_funcNam )
+        # sys.stderr.write( "StreamName=%s\n"%self.m_core.m_parsedArgs[idx] )
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
 
     #def DumpBatch(self,strm,outputFormat):
@@ -540,6 +617,45 @@ class BatchLet_openat(BatchLetBase,object):
 
     def SignificantArgs(self):
         return [ self.m_core.m_parsedArgs[0] ]
+
+class BatchLet_sendmsg(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_sendmsg,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_recvmsg(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_recvmsg,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_getsockname(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_getsockname,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+# ['[{fd=5<UNIX:[73470->73473]>, events=POLLIN}]', '1', '25000'] ==>> 1 ([{fd=5, revents=POLLIN}])
+class BatchLet_poll(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_poll,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        arrStrms = self.m_core.m_parsedArgs[0]
+
+        retList = []
+        for oneStream in arrStrms:
+            fdName = oneStream["fd"]
+            filOnly = STraceStreamToFile( fdName )
+            retList.append( filOnly )
+            # sys.stderr.write("XX: %s\n" % filOnly )
+        # return "XX="+str(arrStrms)
+        return [ retList ]
+
 
 ################################################################################
 
@@ -898,7 +1014,7 @@ class BatchFlow:
 def BuildLinuxCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     aCmd = ["strace",
-        "-q", "-qq", "-f", "-tt", "-T", "-s", "100", "-y", "-yy",
+        "-q", "-qq", "-f", "-tt", "-T", "-s", "20", "-y", "-yy",
         "-e", "trace=desc,ipc,process,network,memory",
         ]
 
