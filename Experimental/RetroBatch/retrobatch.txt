@@ -238,3 +238,60 @@ Pour comparer, il faut gommer ce qui change tous les jours:
 * Dans les fichiers, virer les dates.
 * Dans les sockets, ne garder que les sockets connues ("/etc/services")
 
+Si Windows et CDB:
+==================
+
+Thrd 1b34 00D831EC GetStartupInfoA() ( [0x001BFCEC] -> 0x00000044 ,    , "" , "WinSta0\Default" , "C:\Windows\system32\notepad.exe" , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x0000 , 0x0000 ,    , [0x00000000] , INVALID_HANDLE_VALUE , INVALID_HANDLE_VALUE , INVALID_HANDLE_VALUE )
+Thrd 1b34 00D835AD GetModuleHandleA( NULL) -> 0x00D80000
+
+
+# windows default encoding is cp1252 but the file is not using that encoding
+
+#enc='utf-8'
+#enc='utf-16'
+enc='iso-8859-15'
+logFil = open("LogExts/notepad.exe.txt", 'r', encoding=enc)
+cnt = 1
+for aLine in logFil:
+                # sys.stdout.write("l=%s"%aLine) ( 0x74650000 "ThemeInitApiHook") -> 0x74664571
+
+Problemes avec CDB:
+- Il faut l installer.
+- On na pas reussi a le faire fonctionner chez nous.
+- Ca ecrit dans un fichier, pas un pipe: On peut contourner, mais bon.
+
+Sur Windows:
+============
+
+On utilise pydbg donc une version fonctionne avec python3:
+https://github.com/vuonghv/pydbg3
+
+On a besoin uniquement de attach(), run() et hook().
+
+http://www.openrce.org/forums/posts/274
+https://github.com/OpenRCE/pydbg
+https://www.malwaretech.com/2015/04/intercepting-all-system-calls-by.html
+
+“Usually I don’t post things like this, but because KiFastSystemCall
+hooking only works on x86 systems and doesn’t work on Windows 8 or above,
+it no longer has much use in malware.
+There are also multiple public implementations for this method, just not very elegant, which I hope to correct.”
+
+https://github.com/OpenRCE/paimei/tree/master/utils
+https://github.com/OpenRCE/pydbg
+
+
+
+https://gist.github.com/RobinDavid/9213868
+# This script present a way to hook a DLL library in Firefox.
+For this example the script hook nspr4.dll which encrypt datas for SSL
+
+It uses pydbg.
+
+Notes sur le Process Mining:
+============================
+
+« Frequent Itemset and Association Rule Mining. Frequent item-set mining is an interesting branch of data mining that focuses on looking at sequences of actions or events”
+https://en.wikipedia.org/wiki/Sequential_pattern_mining
+
+
