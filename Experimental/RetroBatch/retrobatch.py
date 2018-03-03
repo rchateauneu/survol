@@ -17,7 +17,6 @@ def Usage():
     print("  -v,--verbose              Verbose mode.")
     print("  -p,--pid <pid>            Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON  Output format. Default is TXT.")
-    print("  -l,--loops <integer>      Number of factorization loops. Default is zero.")
     print("  -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
     print("  -w,--window <integer>     Size of sliding window of system calls, used for factorization.")
     print("                            Default is 0, i.e. no window")
@@ -489,6 +488,12 @@ class BatchLet_open(BatchLetBase,object):
         super( BatchLet_open,self).__init__(batchCore)
 
     # TODO: If the open is not successful, maybe it should be rejected.
+    # TODO: But, if it succeeds, the file actually opened might be different,
+    # than the input argument. Example:
+    # open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so>
+    # Therefore the returned file should be SignificantRgas().
+    # But if we also keep the input file, it might hamper the grouping
+    # of calls on the same parameters.
 
     def SignificantArgs(self):
         # return self.StreamName()
@@ -767,10 +772,16 @@ class BatchLetSequence(BatchLetBase,object):
 
         sys.stdout.write("BatchLetSequence concatSigns=%s\n"%concatSigns)
 
-        # countSequence += 1
+        # This is returned by the method SignificantArgs()
 
-        # TODO ????????????
-        batchCore.m_parsedArgs = None
+        # Cannot use a set because lists are not hashable, and objects always different.
+        # Because there are very few arguments, it is allright to iterate on each list.
+        argsArray = []
+        for btch in arrBatch:
+            for oneArg in btch.SignificantArgs():
+                if not oneArg in argsArray:
+                    argsArray.append( oneArg )
+        batchCore.m_parsedArgs = argsArray
 
         # All batchlets should have the same pid.
         batchCore.m_pid = arrBatch[0].m_core.m_pid
@@ -841,7 +852,7 @@ class StatisticsNode:
     def GetOccurences( self, batchRange ):
         lenBatch = len(batchRange)
 
-        sys.stdout.write("GetOccurences\n")
+        sys.stdout.write("GetOccurences:%s\n" % "=".join( [ btch.GetSignature() for btch in batchRange ] ) )
         idx = 0
         currNode = self
         while idx < lenBatch:
@@ -857,32 +868,32 @@ class StatisticsNode:
         sys.stdout.write("Occurences:%d\n" % currNode.m_occurences)
         return subNode.m_occurences
 
-    # This looks for the most common sub-range of this range.
-    # The result if a pair of the sub-range length and its number of occurences.
-    # Example:
-    # batchRange = "ABCD"
-    # "A"    =>  9 occurences
-    # "AB"   =>  7
-    # "ABC"  =>  5
-    # "ABCD" =>  3
-    def xxxxGetBestOccurences( self, batchRange ):
+    # Another approach is to look for a plateau.
+
+    # This takes the longest possible range prefix, whose occurence is greater or equal to the threahold.
+    def GetOccurencesMinimal( self, batchRange, currThreshold ):
         lenBatch = len(batchRange)
 
-        sys.stdout.write("GetOccurences\n")
+        sys.stdout.write(
+                "GetOccurencesMinimal currThreshold=%d lenBatch=%d batchRange=%s\n"
+                %(currThreshold,lenBatch,"-".join([btch.GetSignature() for btch in batchRange])))
         idx = 0
         currNode = self
         while idx < lenBatch:
             currSignature = batchRange[idx].GetSignature()
-            sys.stdout.write("    currSignature=%s\n"%currSignature)
             try:
-                subNode = currNode.m_mapStats[ currSignature ]
+                currNode = currNode.m_mapStats[ currSignature ]
+                sys.stdout.write("    CurrNode: %d %s \n"%(currNode.m_occurences,currSignature))
             except KeyError:
-                raise Exception("Tree should be deeper")
-            currNode = subNode
+                raise Exception("Tree should be deeper. idx=%d currSignature=%s\n"%(idx,currSignature))
+
+            if currNode.m_occurences < currThreshold:
+                break
+
             idx += 1
 
-        sys.stdout.write("Occurences:%d\n" % subNode.m_occurences)
-        return subNode.m_occurences
+        sys.stdout.write("GetOccurencesMinimal idx=%d Occurences:%d currThreshold=%d\n" % (idx, currNode.m_occurences, currThreshold ) )
+        return idx
 
 
     def DumpStats(self, strm, newMargin = "" ):
@@ -965,64 +976,111 @@ class BatchFlow:
     # of the queue and can write it to a file.
     # It returns the number of factorizations.
     # If it is small or zero, it should be stopped.
-    def Factorize(self):
+    def Factorize(self,currThreshold):
         lenBatch = len(self.m_listBatchLets)
         idxBatch = 0
         actualDepth = self.GetMaxDepth()
         lastValidIdx = lenBatch - actualDepth
 
         sys.stdout.write("\n")
-        sys.stdout.write("Factorize lenBatch=%d actualDepth=%d lastValidIdx=%d\n"%(lenBatch,actualDepth,lastValidIdx) )
+        sys.stdout.write("Factorize currThreshold=%d lenBatch=%d actualDepth=%d lastValidIdx=%d\n"%(currThreshold,lenBatch,actualDepth,lastValidIdx) )
 
         numSubsts = 0
 
         while idxBatch < lastValidIdx:
             batchRange = self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ]
 
-            # TODO: Does not work with short patterns
-            numOcc = self.m_treeStats.GetOccurences( batchRange )
-            sys.stdout.write("numOcc=%d batchRange=%s\n"%( numOcc, "*".join( [ btch.GetSignature() for btch in batchRange ]) ) )
+            lenRepetition = self.m_treeStats.GetOccurencesMinimal( batchRange, currThreshold )
+            sys.stdout.write("lenRepetition=%d batchRange=%s\n"%( lenRepetition, "*".join( [ btch.GetSignature() for btch in batchRange ]) ) )
 
-            # Number of occurences of the same pattern is arbitrary.
-            if numOcc > self.m_thresholdRepetition:
-                batchSeq = BatchLetSequence( batchRange )
+            if lenRepetition > 1:
+                # Only a prefix of this range is repeated enough.
+                subBatchRange = batchRange[ : lenRepetition ]
+                batchSeq = BatchLetSequence( subBatchRange )
 
                 # Maybe this new batch is similar to the previous one.
                 if idxBatch > 0:
                     batchPrevious = self.m_listBatchLets[ idxBatch - 1 ]
                     sys.stdout.write("Factorise compare %s == %s\n"%( batchSeq.GetSignature(), batchPrevious.GetSignature() ) )
-                    if batchSeq.GetSignature() == batchPrevious.GetSignature():
-                        sys.stdout.write("Factorize delete idxBatch=%d\n"%idxBatch )
-                        del self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ]
-                        batchPrevious.m_occurences += 1
-                        lastValidIdx -= actualDepth
+                else:
+                    batchPrevious = None
 
-                        # No need to increment the batch index.
-                        continue
+                if batchPrevious and ( batchSeq.GetSignature() == batchPrevious.GetSignature() ):
+                    sys.stdout.write("Factorize delete idxBatch=%d\n"%idxBatch )
+                    batchPrevious.m_occurences += 1
 
-                self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ] = [ batchSeq ]
+                    del self.m_listBatchLets[ idxBatch : idxBatch + lenRepetition ]
+                    lastValidIdx -= lenRepetition
+
+                else:
+
+                    self.m_listBatchLets[ idxBatch : idxBatch + lenRepetition ] = [ batchSeq ]
+                    lastValidIdx -= ( lenRepetition - 1 )
+
 
                 # The number of occurences of this sequence is not decremented because
                 # the frequency is still valid and must apply to further substitutions.
 
                 # However, several new sequences are added and might appear elsewhere.
-                idxBackward = max(0,idxBatch - actualDepth)
+                idxBackward = max(0,idxBatch - lenRepetition)
                 idxSubSeq = idxBackward
                 
                 sys.stdout.write("Factorize idxSubSeq=%d idxBatch=%d actualDepth=%d lastValidIdx=%d\n"%(idxSubSeq,idxBatch,actualDepth,lastValidIdx) )
                 while idxSubSeq <= idxBatch:
-                    self.m_treeStats.AddCompleteBatchRange( self.m_listBatchLets[ idxSubSeq : idxSubSeq + actualDepth ] )
+                    self.m_treeStats.AddCompleteBatchRange( self.m_listBatchLets[ idxSubSeq : idxSubSeq + lenRepetition ] )
                     idxSubSeq += 1
-
-                lastValidIdx -= ( actualDepth - 1 )
 
                 # Restart from backward position because the list has changed.
                 idxBatch = idxBackward
 
                 numSubsts += 1
             else:
+                # No change in the list of system calls.
                 idxBatch += 1
         return numSubsts
+
+
+    # Case ids are close to the significant args. Could be extracted by any mean.
+    # Activities are the systems calls, possibly grouped, by threads, pids
+    # or simply consecutive calls in short time-spans.
+
+    # Successive calls which have the same arguments are grouped into logical entities.
+    def GroupBatchesByArguments(self):
+        lenBatch = len(self.m_listBatchLets)
+
+        sys.stdout.write("\n")
+        sys.stdout.write("GroupBatchesByArguments lenBatch=%d\n"%(lenBatch) )
+
+        numSubst = 0
+        idxLast = 0
+        idxBatch = 1
+        while idxBatch <= lenBatch:
+            if idxBatch < lenBatch:
+                lastBatch = self.m_listBatchLets[ idxLast ]
+                lastArgs = lastBatch.SignificantArgs()
+                if not lastArgs:
+                    idxLast += 1
+                    idxBatch += 1
+                    continue
+
+                currentBatch = self.m_listBatchLets[ idxBatch ]
+
+                if currentBatch.SignificantArgs() == lastBatch.SignificantArgs():
+                    idxBatch += 1
+                    continue
+
+            if idxBatch > idxLast + 1:
+                batchSeq = BatchLetSequence( self.m_listBatchLets[ idxLast : idxBatch ] )
+                self.m_listBatchLets[ idxLast : idxBatch ] = [ batchSeq ]
+
+                lenBatch -= ( idxBatch - idxLast )
+                numSubst += 1
+
+            idxLast += 1
+            idxBatch = idxLast + 1
+        sys.stdout.write("GroupBatchesByArguments numSubst=%d\n"%(numSubst) )
+
+
 
     def DumpFlow(self,strm,outputFormat):
 
@@ -1178,7 +1236,9 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
 
     return mapFlows
 
-def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth,szWindow,thresholdRepetition):
+
+
+def StartSystrace(verbose,extCommand,aPid,outputFormat,maxDepth,szWindow,thresholdRepetition):
 
     if szWindow != 0:
         raise Exception("Sliding window not implemented yet")
@@ -1197,30 +1257,43 @@ def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth,szWindo
 
         idxLoops = 0
 
+        currThreshold = thresholdRepetition
+
+        btchTree.DumpFlow(sys.stdout,outputFormat)
+        btchTree.GroupBatchesByArguments()
+
         while True:
             btchTree.DumpFlow(sys.stdout,outputFormat)
 
             if verbose:
                 btchTree.DumpStatistics(sys.stdout)
 
-            if idxLoops >= numLoops:
-                break
             idxLoops += 1
 
-            numSubsts = btchTree.Factorize()
+            if currThreshold < 5:
+                sys.stdout.write("End of factorization (Low repetition threshold)\n")
+                break
+
+            sys.stdout.write("Factorization idx=%d Threshold=%d\n"%(idxLoops,currThreshold) )
+            numSubsts = btchTree.Factorize(currThreshold)
 
             if verbose:
                 btchTree.DumpStatistics(sys.stdout)
 
             sys.stdout.write("After factorization %d: Number of substitutions:%d\n"%(idxLoops,numSubsts))
-            if numSubsts == 0:
-                sys.stdout.write("End of factorization\n")
-                break
+
+            # If no substition, try with shorter sequences.
+            #if numSubsts == 0:
+            #    sys.stdout.write("End of factorization (No change)\n")
+            #    btchTree.DumpFlow(sys.stdout,outputFormat)
+            #    break
+
+            currThreshold = currThreshold / 2
 
 
 if __name__ == '__main__':
     try:
-        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:l:d:w:r:", ["help","verbose","pid","format","loops","depth","window","repetition"])
+        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:d:w:r:", ["help","verbose","pid","format","depth","window","repetition"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -1230,10 +1303,9 @@ if __name__ == '__main__':
     verbose = False
     aPid = None
     outputFormat = "TXT"
-    numLoops = 0
     maxDepth = 5
     szWindow = 0
-    thresholdRepetition = 3
+    thresholdRepetition = 10
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
@@ -1242,8 +1314,6 @@ if __name__ == '__main__':
             aPid = aVal
         elif anOpt in ("-f", "--format"):
             outputFormat = aVal.upper()
-        elif anOpt in ("-l", "--loops"):
-            numLoops = int(aVal)
         elif anOpt in ("-d", "--depth"):
             maxDepth = int(aVal)
         elif anOpt in ("-w", "--window"):
@@ -1260,7 +1330,7 @@ if __name__ == '__main__':
     if not ( ( argsCmd  == [] ) ^ ( aPid is None ) ):
         print("Must provide command or process id")
         sys.exit()
-    StartSystrace(verbose,argsCmd,aPid,outputFormat,numLoops,maxDepth,szWindow,thresholdRepetition)
+    StartSystrace(verbose,argsCmd,aPid,outputFormat,maxDepth,szWindow,thresholdRepetition)
 
     # Options:
     # -p pid
