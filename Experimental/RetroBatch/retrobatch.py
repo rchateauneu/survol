@@ -1,3 +1,6 @@
+#!/usr/bin/python
+
+
 import re
 import sys
 import getopt
@@ -16,8 +19,9 @@ def Usage():
     print("  -f,--format TXT|CSV|JSON  Output format. Default is TXT.")
     print("  -l,--loops <integer>      Number of factorization loops. Default is zero.")
     print("  -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
-    print("  -w,--window <integer>     Size of sliding window of system calls, used for factorization. Default is 0, i.e. no window")
-    print("  -r,--repetition <integer> Threshold of the number of repetition of system calls beyond which they are factorized")
+    print("  -w,--window <integer>     Size of sliding window of system calls, used for factorization.")
+    print("                            Default is 0, i.e. no window")
+    print("  -r,--repetition <integer> Threshold of repetition number of system calls before being factorized")
     print("")
 
 ################################################################################
@@ -44,7 +48,7 @@ def AppendArgToResultThrow( theResult, currStr, isArray ):
         keyArg = None
         valArg = argClean
     else:
-        # sys.stderr.write("argClean=%s\n"%argClean)
+        # sys.stdout.write("argClean=%s\n"%argClean)
 
         # Special case of an unfinished struct. See strace option:
         # -v    Print unabbreviated versions of environment, stat, termios,  etc. calls.
@@ -147,7 +151,7 @@ def ParseSTraceObject(aStr,isArray):
 
 # Returns the index of the closing parenthesis, not between quotes or escaped.
 def FindNonEnclosedPar(aStr,idxStart):
-    # sys.stderr.write("FindNonEnclosedPar idxStart=%d aStr=%s\n" % (idxStart, aStr ) )
+    # sys.stdout.write("FindNonEnclosedPar idxStart=%d aStr=%s\n" % (idxStart, aStr ) )
     lenStr = len(aStr)
     inQuotes = False
     isEscaped = False
@@ -215,7 +219,7 @@ class BatchLetCore:
             self.m_retValue = "N/A"
             return
 
-        # sys.stderr.write("oneLine1=%s" % oneLine )
+        # sys.stdout.write("oneLine1=%s" % oneLine )
         # self.m_debugLine = oneLine
 
         if oneLine[0:4] == "[pid":
@@ -252,14 +256,14 @@ class BatchLetCore:
         if oneLine[0] == '[':
             raise ExceptionIsExit()
 
-        # sys.stderr.write("oneLine2=%s" % oneLine )
+        # sys.stdout.write("oneLine2=%s" % oneLine )
 
         # This could be done without intermediary string.
         # "07:54:54.206113"
         try:
             aTimeStamp = time.mktime( time.strptime(oneLine[:15],"%H:%M:%S.%f") )
         except ValueError:
-            sys.stderr.write("Invalid time format:%s\n"%oneLine[0:15])
+            sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
 
         self.m_timeStart = aTimeStamp
@@ -280,12 +284,12 @@ class BatchLetCore:
             raise Exception("No function in:%s"%oneLine)
 
         self.m_funcNam = theCall[:idxPar]
-        # sys.stderr.write("theCall=%s\n" % theCall )
+        # sys.stdout.write("theCall=%s\n" % theCall )
 
         idxGT = theCall.rfind(">")
-        # sys.stderr.write("idxGT=%d\n" % idxGT )
+        # sys.stdout.write("idxGT=%d\n" % idxGT )
         idxLT = theCall.rfind("<",0,idxGT)
-        # sys.stderr.write("idxLT=%d\n" % idxLT )
+        # sys.stdout.write("idxLT=%d\n" % idxLT )
         if idxLT >= 0 :
             self.m_execTim = theCall[idxLT+1:idxGT]
         else:
@@ -301,13 +305,13 @@ class BatchLetCore:
 
         idxEq = theCall.find( "=", idxLastPar )
         self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
-        # sys.stderr.write("retValue=%s\n"%self.m_retValue)
+        # sys.stdout.write("retValue=%s\n"%self.m_retValue)
 
-        # sys.stderr.write("allArgs=%s\n"%allArgs)
+        # sys.stdout.write("allArgs=%s\n"%allArgs)
         self.m_parsedArgs = ParseSTraceObject( allArgs, True )
-        # sys.stderr.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
+        # sys.stdout.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
 
-        # sys.stderr.write("Func=%s\n"%self.m_funcNam)
+        # sys.stdout.write("Func=%s\n"%self.m_funcNam)
 
 
 # Each class is indexed with the name of the corresponding system call name.
@@ -347,9 +351,17 @@ class BatchLetBase:
     def __init__(self,batchCore):
         self.m_core = batchCore
         self.m_occurences = 1
-        # sys.stderr.write("NAME=%s\n"%self.__class__.__name__)
+        # sys.stdout.write("NAME=%s\n"%self.__class__.__name__)
+
+    def __str__(self):
+        return self.m_core.m_funcNam
 
     def SignificantArgs(self):
+        # sys.stdout.write("m_core.m_funcNam=%s\n"%self.m_core.m_funcNam)
+        # sys.stdout.write("m_core.m_pid=%s\n"%self.m_core.m_pid)
+        # sys.stdout.write("m_core.m_timeStart=%s\n"%self.m_core.m_timeStart)
+        # sys.stdout.write("m_core.m_timeEnd=%s\n"%self.m_core.m_timeEnd)
+
         return self.m_core.m_parsedArgs
 
     # This is used to detect repetitions.
@@ -358,8 +370,8 @@ class BatchLetBase:
 
     # This is very often used.
     def StreamName(self,idx=0):
-        # sys.stderr.write( "StreamName func%s\n"%self.m_core.m_funcNam )
-        # sys.stderr.write( "StreamName=%s\n"%self.m_core.m_parsedArgs[idx] )
+        # sys.stdout.write( "StreamName func%s\n"%self.m_core.m_funcNam )
+        # sys.stdout.write( "StreamName=%s\n"%self.m_core.m_parsedArgs[idx] )
         return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
 
     def SameCall(self,anotherBatch):
@@ -470,6 +482,8 @@ def BatchDumperFactory(strm, outputFormat):
 class BatchLet_open(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_open,self).__init__(batchCore)
+
+    # TODO: If the open is not successful, maybe it should be rejected.
 
     def SignificantArgs(self):
         # return self.StreamName()
@@ -637,7 +651,7 @@ class BatchLet_poll(BatchLetBase,object):
             fdName = oneStream["fd"]
             filOnly = STraceStreamToFile( fdName )
             retList.append( filOnly )
-            # sys.stderr.write("XX: %s\n" % filOnly )
+            # sys.stdout.write("XX: %s\n" % filOnly )
         # return "XX="+str(arrStrms)
         return [ retList ]
 
@@ -712,10 +726,13 @@ def BatchFactory(oneLine):
 # write ['pipe:[82244]']
 
 
-def GetBatchesSignature(arrBatches):
-    arrSigs = [ aBatch.GetSignature() for aBatch in arrBatches ]
-    sigBatch = ",".join( arrSigs )
-    return sigBatch
+#def GetBatchesSignature(arrBatches):
+#    arrSigs = [ aBatch.GetSignature() for aBatch in arrBatches ]
+#    sigBatch = ",".join( arrSigs )
+#    return sigBatch
+
+# This is just a helper for counting generated sequences.
+# countSequence = 0
 
 # VIRE LES BATCHLETS QUI N ONT PAS A D ARGUMENT INTERESSANT, STYLE FICHIER OU SOCKET.
 # SELON LA DLL CA SE FERA DIFFEREMMENT.
@@ -734,7 +751,21 @@ def GetBatchesSignature(arrBatches):
 #
 class BatchLetSequence(BatchLetBase,object):
     def __init__(self,arrBatch):
+        # global countSequence
+
         batchCore = BatchLetCore()
+
+        concatSigns = "+".join( [ btch.GetSignature() for btch in arrBatch ] )
+
+        # batchCore.m_funcNam = "Sequence_%d" % countSequence
+        batchCore.m_funcNam = "(" + concatSigns + ")"
+
+        sys.stdout.write("BatchLetSequence concatSigns=%s\n"%concatSigns)
+
+        # countSequence += 1
+
+        # TODO ????????????
+        batchCore.m_parsedArgs = None
 
         # All batchlets should have the same pid.
         batchCore.m_pid = arrBatch[0].m_core.m_pid
@@ -742,9 +773,6 @@ class BatchLetSequence(BatchLetBase,object):
         batchCore.m_timeStart = arrBatch[0].m_core.m_timeStart
         batchCore.m_timeEnd = arrBatch[-1].m_core.m_timeEnd
         batchCore.m_execTim = batchCore.m_timeEnd - batchCore.m_timeStart
-
-        # TODO ????????????
-        self.m_parsedArgs = None
 
         super( BatchLetSequence,self).__init__(batchCore)
 
@@ -784,6 +812,7 @@ class StatisticsNode:
     # This adds a complete sequence of batches and updates the intermediary nodes.
     def AddCompleteBatchRange(self,batchRange):
         lenBatch = len(batchRange)
+        # sys.stdout.write("AddCompleteBatchRange batchRange=%s\n" % ",".join([ str(btch) for btch in batchRange ] ) )
 
         if lenBatch == 0:
             raise Exception("Empty range")
@@ -796,32 +825,63 @@ class StatisticsNode:
                 subNode = currNode.m_mapStats[ currSignature ]
             except KeyError:
                 subNode = StatisticsNode( currSignature )
+                subNode.m_occurences = 0
                 currNode.m_mapStats[ currSignature ] = subNode
 
             subNode.m_occurences += 1
             currNode = subNode
             idx += 1
 
-
+    # TODO: Renvoyer plutot l'occurence la plus elevee et sa longueur.
     def GetOccurences( self, batchRange ):
         lenBatch = len(batchRange)
 
+        sys.stdout.write("GetOccurences\n")
         idx = 0
         currNode = self
         while idx < lenBatch:
             currSignature = batchRange[idx].GetSignature()
             try:
                 subNode = currNode.m_mapStats[ currSignature ]
+                sys.stdout.write("    SubNode: %d %s \n"%(subNode.m_occurences,currSignature))
             except KeyError:
-                raise Exception("Tree should be deeper")
+                raise Exception("Tree should be deeper:idx=%d lenBatch=%d currSignature=%s"%(idx,lenBatch,currSignature) )
+            currNode = subNode
             idx += 1
 
+        sys.stdout.write("Occurences:%d\n" % currNode.m_occurences)
+        return subNode.m_occurences
+
+    # This looks for the most common sub-range of this range.
+    # The result if a pair of the sub-range length and its number of occurences.
+    # Example:
+    # batchRange = "ABCD"
+    # "A"    =>  9 occurences
+    # "AB"   =>  7
+    # "ABC"  =>  5
+    # "ABCD" =>  3
+    def xxxxGetBestOccurences( self, batchRange ):
+        lenBatch = len(batchRange)
+
+        sys.stdout.write("GetOccurences\n")
+        idx = 0
+        currNode = self
+        while idx < lenBatch:
+            currSignature = batchRange[idx].GetSignature()
+            sys.stdout.write("    currSignature=%s\n"%currSignature)
+            try:
+                subNode = currNode.m_mapStats[ currSignature ]
+            except KeyError:
+                raise Exception("Tree should be deeper")
+            currNode = subNode
+            idx += 1
+
+        sys.stdout.write("Occurences:%d\n" % subNode.m_occurences)
         return subNode.m_occurences
 
 
     def DumpStats(self, strm, newMargin = "" ):
         strm.write( "%s%-20s {%4d}\n" % ( newMargin, self.m_signature, self.m_occurences ) )
-        # newMargin += "    "
         for aSig in sorted( list( self.m_mapStats.keys() ) ):
             aSub = self.m_mapStats[ aSig ]
             aSub.DumpStats( strm, newMargin + "....")
@@ -866,33 +926,11 @@ class BatchFlow:
         # BatchLet ayant la meme ressource en argument.
         # 
         #
-        self.m_mapPatterns = {}
 
     def GetMaxDepth(self):
         # Maximum length of repetition.
         actualDepth = min(self.m_maxDepth,len(self.m_listBatchLets) )
         return actualDepth
-
-
-    # Updates probabilities with the latest insertion in mind.
-    def UpdateStatistics(self):
-
-        actualDepth = self.GetMaxDepth()
-
-        # Repetition of the same call is already taken into account.
-        idx = 2
-        while idx <= actualDepth:
-            signatureBatches = GetBatchesSignature( self.m_listBatchLets[ -idx : ] )
-
-            try:
-                sigsByDepth = self.m_mapPatterns[ idx ]
-                try:
-                    sigsByDepth[ signatureBatches ] += 1
-                except KeyError:
-                    sigsByDepth[ signatureBatches ] = 1
-            except KeyError:
-                self.m_mapPatterns[ idx ] = { signatureBatches : 1 }
-            idx += 1
 
     def UpdateStatsTree(self):
         actualDepth = self.GetMaxDepth()
@@ -902,11 +940,10 @@ class BatchFlow:
 
     def EffectiveAppendBatch(self,btchLet):
         self.m_listBatchLets.append( btchLet )
-        self.UpdateStatistics()
         self.UpdateStatsTree()
 
     def AddBatch(self,btchLet):
-        # sys.stderr.write("AddBatch:%s\n"%btchLet.GetSignature())
+        # sys.stdout.write("AddBatch:%s\n"%btchLet.GetSignature())
         numBatches = len(self.m_listBatchLets)
 
         if numBatches > 0:
@@ -919,11 +956,6 @@ class BatchFlow:
         else:
             self.EffectiveAppendBatch( btchLet )
 
-    # Problem: This is to add to the statistics, a new type of node.
-    # BUT IN FACT WE SHOULD RESCAN EVERYTHING FIRST !!
-    #def UpdateStatistics(self):
-    #    return
-
     # This rewrites a window at the beginning 
     # of the queue and can write it to a file.
     # It returns the number of factorizations.
@@ -934,26 +966,48 @@ class BatchFlow:
         actualDepth = self.GetMaxDepth()
         lastValidIdx = lenBatch - actualDepth
 
+        sys.stdout.write("\n")
+        sys.stdout.write("Factorize lenBatch=%d actualDepth=%d lastValidIdx=%d\n"%(lenBatch,actualDepth,lastValidIdx) )
+
         numSubsts = 0
 
         while idxBatch < lastValidIdx:
             batchRange = self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ]
 
+            # TODO: Does not work with short patterns
             numOcc = self.m_treeStats.GetOccurences( batchRange )
+            sys.stdout.write("numOcc=%d batchRange=%s\n"%( numOcc, "*".join( [ btch.GetSignature() for btch in batchRange ]) ) )
 
             # Number of occurences of the same pattern is arbitrary.
             if numOcc > self.m_thresholdRepetition:
                 batchSeq = BatchLetSequence( batchRange )
+
+                # Maybe this new batch is similar to the previous one.
+                if idxBatch > 0:
+                    batchPrevious = self.m_listBatchLets[ idxBatch - 1 ]
+                    sys.stdout.write("Factorise compare %s == %s\n"%( batchSeq.GetSignature(), batchPrevious.GetSignature() ) )
+                    if batchSeq.GetSignature() == batchPrevious.GetSignature():
+                        sys.stdout.write("Factorize delete idxBatch=%d\n"%idxBatch )
+                        del self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ]
+                        batchPrevious.m_occurences += 1
+                        lastValidIdx -= actualDepth
+
+                        # No need to increment the batch index.
+                        continue
+
                 self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ] = [ batchSeq ]
 
                 # The number of occurences of this sequence is not decremented because
                 # the frequency is still valid and must apply to further substitutions.
 
                 # However, several new sequences are added and might appear elsewhere.
-                idxBackward = idxBatch - actualDepth
+                idxBackward = max(0,idxBatch - actualDepth)
                 idxSubSeq = idxBackward
+                
+                sys.stdout.write("Factorize idxSubSeq=%d idxBatch=%d actualDepth=%d lastValidIdx=%d\n"%(idxSubSeq,idxBatch,actualDepth,lastValidIdx) )
                 while idxSubSeq <= idxBatch:
                     self.m_treeStats.AddCompleteBatchRange( self.m_listBatchLets[ idxSubSeq : idxSubSeq + actualDepth ] )
+                    idxSubSeq += 1
 
                 lastValidIdx -= ( actualDepth - 1 )
 
@@ -976,28 +1030,7 @@ class BatchFlow:
 
         batchDump.Footer()
 
-    # This removes sequences of systems calls, which are too rare
-    # to be factorised. The threshold is arbitrary.
-    def CleanupStatistics(self):
-        for keyIdx in self.m_mapPatterns:
-            sigsToDel = []
-            for aSignature in self.m_mapPatterns[ keyIdx ]:
-                numOccurs = self.m_mapPatterns[ keyIdx ][ aSignature ]
-                if numOccurs <= self.m_thresholdRepetition:
-                    sigsToDel.append( aSignature )
-
-            for aSignature in sigsToDel:
-                del self.m_mapPatterns[ keyIdx ][ aSignature ]
-
-
     def DumpStatistics(self,strm):
-        strm.write("DUMPING STATISTICS MAP (DEPRECATED)\n")
-        for keyIdx in self.m_mapPatterns:
-            strm.write("Repetition length:%d\n" % keyIdx )
-            for aSignature in sorted( list( self.m_mapPatterns[ keyIdx ].keys() ) ):
-                numOccurs = self.m_mapPatterns[ keyIdx ][ aSignature ]
-                strm.write("    %-20s : %d\n" % ( aSignature, numOccurs ) )
-
         strm.write("DUMPING STATISTICS TREE\n")
         self.m_treeStats.DumpStats(strm)
 
@@ -1014,7 +1047,7 @@ def BuildLinuxCommand(extCommand,aPid):
     else:
         aCmd += [ "-p", aPid ]
 
-    sys.stderr.write("aCmd=%s\n" % ( " ".join(aCmd) ) )
+    sys.stdout.write("aCmd=%s\n" % ( " ".join(aCmd) ) )
 
     return aCmd
 
@@ -1034,7 +1067,7 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
     # If shell=True, the command must be passed as a single line.
     pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
         stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stdout=subprocess.PIPE)
 
     # This is indexed by the pid.
     mapFlows = { -1 : BatchFlow(maxDepth,thresholdRepetition) }
@@ -1049,7 +1082,7 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
         # FIXME: Problem if several processes.
         while True:
             tmpLine = pipPOpen.stderr.readline()
-            # sys.stderr.write("tmpLine after read=%s"%tmpLine)
+            # sys.stdout.write("tmpLine after read=%s"%tmpLine)
             if not tmpLine:
                 break
             if tmpLine.endswith(">\n"):
@@ -1063,7 +1096,7 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
         if not oneLine:
             break
 
-        # sys.stderr.write("oneLine after read=%s"%oneLine)
+        # sys.stdout.write("StartSystrace_Linux oneLine after read=%s"%oneLine)
 
 
 #        matchAttached = re.match("strace: Process (\d+) attached", oneLine)
@@ -1087,29 +1120,29 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
 #        strUnfinished = "<unfinished ...>\n"
 #        if oneLine.endswith( strUnfinished ):
 #            if lineSignal != "":
-#                sys.stderr.write("Two simultaneous signals\n")
-#                sys.stderr.write("  lineSignal=%s.\n"%lineSignal)
-#                sys.stderr.write("  oneLine=%s.\n"%oneLine)
+#                sys.stdout.write("Two simultaneous signals\n")
+#                sys.stdout.write("  lineSignal=%s.\n"%lineSignal)
+#                sys.stdout.write("  oneLine=%s.\n"%oneLine)
 #                # raise Exception("Cannot handle two simultaneous signals")
-#                sys.stderr.write("Cannot handle two simultaneous signals\n")
+#                sys.stdout.write("Cannot handle two simultaneous signals\n")
 #                lineSignal = ""
 #                # TODO: FIXME.
 #                continue
 #            lineSignal = oneLine[ : -len(strUnfinished) ]
-#            sys.stderr.write("Set lineSignal to:%s.\n"%lineSignal)
-#            sys.stderr.write("  oneLine=%s.\n"%oneLine)
+#            sys.stdout.write("Set lineSignal to:%s.\n"%lineSignal)
+#            sys.stdout.write("  oneLine=%s.\n"%oneLine)
 #            continue
 
         # TODO: When a function is resumed, do not do anything yet.
 
-        # sys.stderr.write("Trying resumed:%s\n"%oneLine)
+        # sys.stdout.write("Trying resumed:%s\n"%oneLine)
         # 23:41:39.837639 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 24848 <0.004063>
         # matchResume = re.match( ".... ([^ ]*) resumed. (.*)", oneLine )
         matchResume = re.match( ".*<\.\.\. ([^ ]*) resumed> (.*)", oneLine )
         if matchResume:
             # TODO: Should check if this is the correct function name.
             funcNameResumed = matchResume.group(1)
-            sys.stderr.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
+            sys.stdout.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
             lineRest = matchResume.group(2)
             # oneLine = lineSignal + lineRest
             # lineSignal = ""
@@ -1124,7 +1157,7 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
             # This throws of the core object could not be created
             # if the current line cannot reasonably transformed
             # into a usable call.
-            # sys.stderr.write("oneLine before add=%s"%oneLine)
+            # sys.stdout.write("oneLine before add=%s"%oneLine)
             aCore = aBatch.m_core
 
             aPid = aCore.m_pid
@@ -1174,12 +1207,10 @@ def StartSystrace(verbose,extCommand,aPid,outputFormat,numLoops,maxDepth,szWindo
             if verbose:
                 btchTree.DumpStatistics(sys.stdout)
 
-            sys.stdout.write("Number of substitutions:%d\n"%numSubsts)
+            sys.stdout.write("After factorization %d: Number of substitutions:%d\n"%(idxLoops,numSubsts))
             if numSubsts == 0:
                 sys.stdout.write("End of factorization\n")
                 break
-
-            btchTree.CleanupStatistics()
 
 
 if __name__ == '__main__':
