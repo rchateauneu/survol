@@ -257,9 +257,14 @@ class BatchLetCore:
         # This could be done without intermediary string.
         # "07:54:54.206113"
         try:
-            aTimeStamp = time.mktime( time.strptime(oneLine[:15],"%H:%M:%S.%f") )
+            # This date is conventional, but necessary, otherwise set to 1900/01/01..
+            timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
+            aTimeStamp = time.mktime( timStruct )
         except ValueError:
             sys.stderr.write("Invalid time format:%s\n"%oneLine[0:15])
+            aTimeStamp = 0
+        except OverflowError:
+            sys.stderr.write("Overflow time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
 
         self.m_timeStart = aTimeStamp
