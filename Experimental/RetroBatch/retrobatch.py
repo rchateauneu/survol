@@ -9,7 +9,10 @@ import socket
 import subprocess
 import time
 
-def Usage():
+def Usage(exitCode = 1, errMsg = None):
+    if errMsg:
+        print(errMsg)
+
     progNam = sys.argv[0]
     print("Retrobatch: %s <executable>"%progNam)
     print("Monitors and factorizes systems calls.")
@@ -21,11 +24,14 @@ def Usage():
     print("  -w,--window <integer>     Size of sliding window of system calls, used for factorization.")
     print("                            Default is 0, i.e. no window")
     print("  -r,--repetition <integer> Threshold of repetition number of system calls before being factorized")
+    print("  -i,--input <file name>    strace or cdb output file.")
     print("")
+
+    sys.exit(exitCode)
 
 ################################################################################
 
-def StartSystrace_Windows(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
+def CreateFlowsFromWindowsLogger(verbose,logStream,maxDepth):
     raise Exception("Not implemented yet")
     return
 
@@ -906,13 +912,9 @@ class StatisticsNode:
             
 # This is an execution flow, associated to a process. And a thread ?
 class BatchFlow:
-    def __init__(self,maxDepth,thresholdRepetition):
+    def __init__(self,maxDepth):
         self.m_maxDepth = maxDepth
-        self.m_treeStats = StatisticsNode()
-
-        # If less than this number repetitions of the same sequence of system calls,
-        # it is not necessary to factorize.
-        self.m_thresholdRepetition = thresholdRepetition
+        # self.m_treeStats = StatisticsNode()
 
         self.m_listBatchLets = []
 
@@ -943,20 +945,19 @@ class BatchFlow:
         # 
         #
 
-    def GetMaxDepth(self):
-        # Maximum length of repetition.
-        actualDepth = min(self.m_maxDepth,len(self.m_listBatchLets) )
-        return actualDepth
+    def CreateStatisticsTree(self,maxDepth):
+        treeStats = StatisticsNode(maxDepth)
 
-    def UpdateStatsTree(self):
-        actualDepth = self.GetMaxDepth()
+        lenBtch = len( self.m_listBatchLets )
 
-        # TODO: Would be faster to pass the array and the indices instead of creating a subarray.
-        self.m_treeStats.AddCompleteBatchRange( self.m_listBatchLets[ -actualDepth : ] )
+        idxBtch = 0
+        maxBtch = lenBtch - maxDepth
+        while idxBtch < maxBtch:
+            treeStats.AddCompleteBatchRange( self.m_listBatchLets[ idxBtch : idxBtch + maxDepth ] )
+            idxBtch += 1
 
-    def EffectiveAppendBatch(self,btchLet):
-        self.m_listBatchLets.append( btchLet )
-        self.UpdateStatsTree()
+        return treeStats
+
 
     def AddBatch(self,btchLet):
         # sys.stdout.write("AddBatch:%s\n"%btchLet.GetSignature())
@@ -967,30 +968,31 @@ class BatchFlow:
 
             if lstBatch.SameCall( btchLet ):
                 lstBatch.m_occurences += 1
-            else:
-                self.EffectiveAppendBatch( btchLet )
-        else:
-            self.EffectiveAppendBatch( btchLet )
+                return
+
+        self.m_listBatchLets.append( btchLet )
 
     # This rewrites a window at the beginning 
     # of the queue and can write it to a file.
     # It returns the number of factorizations.
     # If it is small or zero, it should be stopped.
-    def Factorize(self,currThreshold):
+    def Factorize(self,treeStats,maxDepth,currThreshold):
         lenBatch = len(self.m_listBatchLets)
+        if lenBatch < maxDepth:
+            raise Exception("Not enough batches vs maximum depth")
+
         idxBatch = 0
-        actualDepth = self.GetMaxDepth()
-        lastValidIdx = lenBatch - actualDepth
+        lastValidIdx = lenBatch - maxDepth
 
         sys.stdout.write("\n")
-        sys.stdout.write("Factorize currThreshold=%d lenBatch=%d actualDepth=%d lastValidIdx=%d\n"%(currThreshold,lenBatch,actualDepth,lastValidIdx) )
+        sys.stdout.write("Factorize currThreshold=%d lenBatch=%d lastValidIdx=%d\n"%(currThreshold,lenBatch,lastValidIdx) )
 
         numSubsts = 0
 
         while idxBatch < lastValidIdx:
-            batchRange = self.m_listBatchLets[ idxBatch : idxBatch + actualDepth ]
+            batchRange = self.m_listBatchLets[ idxBatch : idxBatch + maxDepth ]
 
-            lenRepetition = self.m_treeStats.GetOccurencesMinimal( batchRange, currThreshold )
+            lenRepetition = treeStats.GetOccurencesMinimal( batchRange, currThreshold )
             sys.stdout.write("lenRepetition=%d batchRange=%s\n"%( lenRepetition, "*".join( [ btch.GetSignature() for btch in batchRange ]) ) )
 
             if lenRepetition > 1:
@@ -1025,9 +1027,9 @@ class BatchFlow:
                 idxBackward = max(0,idxBatch - lenRepetition)
                 idxSubSeq = idxBackward
                 
-                sys.stdout.write("Factorize idxSubSeq=%d idxBatch=%d actualDepth=%d lastValidIdx=%d\n"%(idxSubSeq,idxBatch,actualDepth,lastValidIdx) )
+                sys.stdout.write("Factorize idxSubSeq=%d idxBatch=%d lastValidIdx=%d\n"%(idxSubSeq,idxBatch,lastValidIdx) )
                 while idxSubSeq <= idxBatch:
-                    self.m_treeStats.AddCompleteBatchRange( self.m_listBatchLets[ idxSubSeq : idxSubSeq + lenRepetition ] )
+                    treeStats.AddCompleteBatchRange( self.m_listBatchLets[ idxSubSeq : idxSubSeq + lenRepetition ] )
                     idxSubSeq += 1
 
                 # Restart from backward position because the list has changed.
@@ -1093,11 +1095,11 @@ class BatchFlow:
 
         batchDump.Footer()
 
-    def DumpStatistics(self,strm):
-        strm.write("DUMPING STATISTICS TREE\n")
-        self.m_treeStats.DumpStats(strm)
+def LogSource(msgSource):
+    sys.stdout.write("Source:%s\n"%msgSource)
 
-# The command is tightly coupled to the way its result is parsed.
+# The command options generate a specific output file format,
+# and therefore parsing it is specific to these options.
 def BuildLinuxCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     aCmd = ["strace",
@@ -1107,10 +1109,12 @@ def BuildLinuxCommand(extCommand,aPid):
 
     if extCommand:
         aCmd += extCommand
+        LogSource("Command "+" ".join(extCommand) )
     else:
         aCmd += [ "-p", aPid ]
+        LogSource("Process %s\n"%aPid)
 
-    sys.stdout.write("aCmd=%s\n" % ( " ".join(aCmd) ) )
+    LogSource("%s\n" % ( " ".join(aCmd) ) )
 
     return aCmd
 
@@ -1123,8 +1127,9 @@ def BuildLinuxCommand(extCommand,aPid):
 # 22:41:05.095350 statfs("/sys/fs/selinux", 0x7ffd5a97f9e0) = -1 ENOENT (No such file or directory) <0.000019>
 #
 # The command and the parsing are specific to Linux.
-# It returns a data strcture which is generic.
-def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
+# It returns a data structure which is generic.
+
+def LogLinuxFileStream(extCommand,aPid):
     aCmd = BuildLinuxCommand( extCommand, aPid )
 
     # If shell=True, the command must be passed as a single line.
@@ -1132,19 +1137,20 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
         stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stdout=subprocess.PIPE)
 
+    return pipPOpen.stderr
+
+
+def CreateFlowsFromLinuxSystraceLog(verbose,logStream,maxDepth):
     # This is indexed by the pid.
-    mapFlows = { -1 : BatchFlow(maxDepth,thresholdRepetition) }
+    mapFlows = { -1 : BatchFlow(maxDepth) }
 
-    # lineSignal = ""
-
-    # for oneLine in pipErr:
     while True:
         oneLine = ""
 
         # If this line is not properly terminated, then concatenates the next line.
         # FIXME: Problem if several processes.
         while True:
-            tmpLine = pipPOpen.stderr.readline()
+            tmpLine = logStream.readline()
             # sys.stdout.write("tmpLine after read=%s"%tmpLine)
             if not tmpLine:
                 break
@@ -1159,56 +1165,12 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
         if not oneLine:
             break
 
-        # sys.stdout.write("StartSystrace_Linux oneLine after read=%s"%oneLine)
-
-
-#        matchAttached = re.match("strace: Process (\d+) attached", oneLine)
-#        if matchAttached:
-#            # This should be before the first system call of this process, but not always.
-#            pidAttached = int(matchAttached.group(1))
-#            continue
-
-        # Big difficulty if two different processes in the same system call
-        # are interrupted by a signal ?? How can we match the two pieces ?
-        # Luckily: "If a system call is being executed and meanwhile another one is being called
-        # from a different thread/process then strace will try to preserve the
-        # order of those events and mark the ongoing call as being unfinished.
-        # When the call returns it will be marked as resumed.
-
-        # strace: Process 24848 attached
-        # [pid 24711] 23:41:39.833567 wait4(24848,  <unfinished ...>
-        # [pid 24848] 23:41:39.833682 fchdir(3</home/rchateau/rdfmon-code/Experimental/RetroBatch>) = 0 <0.000115>
-        # [pid 24848] 23:41:39.837619 +++ exited with 1 +++
-        # 23:41:39.837639 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 24848 <0.004063>
-#        strUnfinished = "<unfinished ...>\n"
-#        if oneLine.endswith( strUnfinished ):
-#            if lineSignal != "":
-#                sys.stdout.write("Two simultaneous signals\n")
-#                sys.stdout.write("  lineSignal=%s.\n"%lineSignal)
-#                sys.stdout.write("  oneLine=%s.\n"%oneLine)
-#                # raise Exception("Cannot handle two simultaneous signals")
-#                sys.stdout.write("Cannot handle two simultaneous signals\n")
-#                lineSignal = ""
-#                # TODO: FIXME.
-#                continue
-#            lineSignal = oneLine[ : -len(strUnfinished) ]
-#            sys.stdout.write("Set lineSignal to:%s.\n"%lineSignal)
-#            sys.stdout.write("  oneLine=%s.\n"%oneLine)
-#            continue
-
-        # TODO: When a function is resumed, do not do anything yet.
-
-        # sys.stdout.write("Trying resumed:%s\n"%oneLine)
-        # 23:41:39.837639 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 24848 <0.004063>
-        # matchResume = re.match( ".... ([^ ]*) resumed. (.*)", oneLine )
         matchResume = re.match( ".*<\.\.\. ([^ ]*) resumed> (.*)", oneLine )
         if matchResume:
             # TODO: Should check if this is the correct function name.
             funcNameResumed = matchResume.group(1)
             sys.stdout.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
             lineRest = matchResume.group(2)
-            # oneLine = lineSignal + lineRest
-            # lineSignal = ""
             continue
 
 
@@ -1229,7 +1191,7 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
                 btchTree = mapFlows[ aPid ]
             except KeyError:
                 # This is the first system call of this process.
-                btchTree = BatchFlow(maxDepth,thresholdRepetition)
+                btchTree = BatchFlow(maxDepth)
                 mapFlows[ aPid ] = btchTree
 
             btchTree.AddBatch( aBatch )
@@ -1237,20 +1199,7 @@ def StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition):
     return mapFlows
 
 
-
-def StartSystrace(verbose,extCommand,aPid,outputFormat,maxDepth,szWindow,thresholdRepetition):
-
-    if szWindow != 0:
-        raise Exception("Sliding window not implemented yet")
-
-    if sys.platform.startswith("win32"):
-        mapFlows = StartSystrace_Windows(verbose,extCommand,aPid,maxDepth,thresholdRepetition)
-    elif sys.platform.startswith("linux"):
-        mapFlows = StartSystrace_Linux(verbose,extCommand,aPid,maxDepth,thresholdRepetition)
-    else:
-        raise Exception("Unknown platform:%s"%sys.platform)
-
-
+def FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition):
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
         sys.stdout.write("\n================== PID=%d\n"%aPid)
@@ -1262,11 +1211,13 @@ def StartSystrace(verbose,extCommand,aPid,outputFormat,maxDepth,szWindow,thresho
         btchTree.DumpFlow(sys.stdout,outputFormat)
         btchTree.GroupBatchesByArguments()
 
+        treeStats = btchTree.CreateStatisticsTree(maxDepth)
+
         while True:
             btchTree.DumpFlow(sys.stdout,outputFormat)
 
             if verbose:
-                btchTree.DumpStatistics(sys.stdout)
+                treeStats.DumpStats(sys.stdout)
 
             idxLoops += 1
 
@@ -1275,30 +1226,70 @@ def StartSystrace(verbose,extCommand,aPid,outputFormat,maxDepth,szWindow,thresho
                 break
 
             sys.stdout.write("Factorization idx=%d Threshold=%d\n"%(idxLoops,currThreshold) )
-            numSubsts = btchTree.Factorize(currThreshold)
+            numSubsts = btchTree.Factorize(treeStats,maxDepth,currThreshold)
 
             if verbose:
-                btchTree.DumpStatistics(sys.stdout)
+                treeStats.DumpStats(sys.stdout)
 
             sys.stdout.write("After factorization %d: Number of substitutions:%d\n"%(idxLoops,numSubsts))
 
-            # If no substition, try with shorter sequences.
-            #if numSubsts == 0:
-            #    sys.stdout.write("End of factorization (No change)\n")
-            #    btchTree.DumpFlow(sys.stdout,outputFormat)
-            #    break
-
             currThreshold = currThreshold / 2
 
+def CreateEventLog(argsCmd, aPid, inputLogFile ):
+    # A command or a pid or an input log file, only one possibility.
+    if argsCmd != []:
+        if aPid or inputLogFile:
+            Usage(1,"When providing command, must not specify process id or input log file")
+    elif aPid:
+        if argsCmd != [] or inputLogFile:
+            Usage(1,"When providing process id, must not specify command or input log file")
+    elif inputLogFile:
+        if argsCmd != [] or aPid:
+            Usage(1,"When providing input file, must not specify command or process id")
+
+    if inputLogFile:
+        logStream = open(inputLogFile)
+        LogSource("File "+inputLogFile)
+    else:
+        if sys.platform.startswith("win32"):
+            logStream = LogWindowsFileStream(argsCmd,aPid)
+        elif sys.platform.startswith("linux"):
+            logStream = LogLinuxFileStream(argsCmd,aPid)
+        else:
+            raise Exception("Unknown platform:%s"%sys.platform)
+
+
+    # Another possibility is to start a process or a thread which will monitor
+    # the target process, and will write output information in a stream.
+
+    return logStream
+
+def CreateMapFlowFromStream( verbose, logStream, maxDepth ):
+    # Here, we have an event log as a stream, which comes from a file (if testing),
+    # the output of strace or anything else.
+
+    # Consider some flexibility in this input format.
+    # This is why there are two implementations.
+
+    # This step transforms the input log into a map of BatchFlow,
+    # which have the same format whatever the platform is.
+    if sys.platform.startswith("win32"):
+        mapFlows = CreateFlowsFromWindowsLogger(verbose,logStream,maxDepth)
+    elif sys.platform.startswith("linux"):
+        mapFlows = CreateFlowsFromLinuxSystraceLog(verbose,logStream,maxDepth)
+    else:
+        raise Exception("Unknown platform:%s"%sys.platform)
+
+    # TODO: maxDepth should not be passed as a parameter.
+    # It is only there because stats are created.
+    return mapFlows
 
 if __name__ == '__main__':
     try:
-        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:d:w:r:", ["help","verbose","pid","format","depth","window","repetition"])
+        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:d:w:r:i:", ["help","verbose","pid","format","depth","window","repetition","input"])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print(err)  # will print something like "option -a not recognized"
-        Usage()
-        sys.exit(2)
+        Usage(2,err) # will print something like "option -a not recognized"
 
     verbose = False
     aPid = None
@@ -1306,6 +1297,7 @@ if __name__ == '__main__':
     maxDepth = 5
     szWindow = 0
     thresholdRepetition = 10
+    inputLogFile = None
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
@@ -1318,19 +1310,21 @@ if __name__ == '__main__':
             maxDepth = int(aVal)
         elif anOpt in ("-w", "--window"):
             szWindow = int(aVal)
+            raise Exception("Sliding window not implemented yet")
         elif anOpt in ("-r", "--repetition"):
             thresholdRepetition = int(aVal)
+        elif anOpt in ("-i", "--input"):
+            inputLogFile = aVal
         elif anOpt in ("-h", "--help"):
-            Usage()
-            sys.exit()
+            Usage(0)
         else:
             assert False, "Unhandled option"
 
-    # A command or a pid, not both.
-    if not ( ( argsCmd  == [] ) ^ ( aPid is None ) ):
-        print("Must provide command or process id")
-        sys.exit()
-    StartSystrace(verbose,argsCmd,aPid,outputFormat,maxDepth,szWindow,thresholdRepetition)
+    logStream = CreateEventLog(argsCmd, aPid, inputLogFile )
+
+    mapFlows = CreateMapFlowFromStream( verbose, logStream, maxDepth )
+
+    FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition)
 
     # Options:
     # -p pid
@@ -1348,3 +1342,7 @@ if __name__ == '__main__':
     # linux process monitoring (exec, fork, exit, set*uid, set*gid)
     # http://bewareofgeek.livejournal.com/2945.html
 
+    # Une premiere passe sur le log decoupleen traces independantes,
+    # selon pid ou tid ou bien selon le time-stamp, s'il y a un delai importnant..
+    # Ca genere des maps de BatchFlows. L index peut etre pid, tid, ou un time rgane.
+    # Ensuite on injecte des batchflows, independamment, vers des passes de simplification.
