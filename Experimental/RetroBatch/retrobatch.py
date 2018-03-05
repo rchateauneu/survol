@@ -232,19 +232,6 @@ class BatchLetCore:
 
             pidParsed = int( oneLine[ 4:idxAfterPid ] )
 
-            # The first line with "[pid " is the pid of the [arent process,
-            # when it creates its sub-processes.
-            #if not rootPid:
-            #    rootPid = pidParsed
-            #    self.m_pid = -1
-            #elif rootPid == pidParsed:
-            #    # This sticks to the convention that the root process is set to -1.
-            #    # This is because it is detected too late, after the first system calls.
-            #    self.m_pid = -1
-            #else:
-            #    # This is a sub-process.
-            #    self.m_pid = pidParsed
-
             # This is a sub-process.
             self.m_pid = pidParsed
 
@@ -1046,12 +1033,12 @@ class BatchFlow:
     # Activities are the systems calls, possibly grouped, by threads, pids
     # or simply consecutive calls in short time-spans.
 
-    # Successive calls which have the same arguments are grouped into logical entities.
-    def GroupBatchesByArguments(self):
+    # Successive calls which have the same arguments are clusterized into logical entities.
+    def ClusterizeBatchesByArguments(self):
         lenBatch = len(self.m_listBatchLets)
 
         sys.stdout.write("\n")
-        sys.stdout.write("GroupBatchesByArguments lenBatch=%d\n"%(lenBatch) )
+        sys.stdout.write("ClusterizeBatchesByArguments lenBatch=%d\n"%(lenBatch) )
 
         numSubst = 0
         idxLast = 0
@@ -1072,6 +1059,8 @@ class BatchFlow:
                     continue
 
             if idxBatch > idxLast + 1:
+
+                # Clusters should not be too big
                 batchSeq = BatchLetSequence( self.m_listBatchLets[ idxLast : idxBatch ] )
                 self.m_listBatchLets[ idxLast : idxBatch ] = [ batchSeq ]
 
@@ -1080,7 +1069,7 @@ class BatchFlow:
 
             idxLast += 1
             idxBatch = idxLast + 1
-        sys.stdout.write("GroupBatchesByArguments numSubst=%d\n"%(numSubst) )
+        sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d len=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
 
 
 
@@ -1169,7 +1158,7 @@ def CreateFlowsFromLinuxSystraceLog(verbose,logStream,maxDepth):
         if matchResume:
             # TODO: Should check if this is the correct function name.
             funcNameResumed = matchResume.group(1)
-            sys.stdout.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
+            # sys.stdout.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
             lineRest = matchResume.group(2)
             continue
 
@@ -1198,42 +1187,44 @@ def CreateFlowsFromLinuxSystraceLog(verbose,logStream,maxDepth):
 
     return mapFlows
 
-
 def FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition):
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
         sys.stdout.write("\n================== PID=%d\n"%aPid)
+        FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition)
 
-        idxLoops = 0
+def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition):
 
-        currThreshold = thresholdRepetition
+    idxLoops = 0
 
+    currThreshold = thresholdRepetition
+
+    btchTree.DumpFlow(sys.stdout,outputFormat)
+    btchTree.ClusterizeBatchesByArguments()
+
+    treeStats = btchTree.CreateStatisticsTree(maxDepth)
+
+    while True:
         btchTree.DumpFlow(sys.stdout,outputFormat)
-        btchTree.GroupBatchesByArguments()
 
-        treeStats = btchTree.CreateStatisticsTree(maxDepth)
+        if verbose:
+            treeStats.DumpStats(sys.stdout)
 
-        while True:
-            btchTree.DumpFlow(sys.stdout,outputFormat)
+        idxLoops += 1
 
-            if verbose:
-                treeStats.DumpStats(sys.stdout)
+        if currThreshold < 5:
+            sys.stdout.write("End of factorization (Low repetition threshold)\n")
+            break
 
-            idxLoops += 1
+        sys.stdout.write("Factorization idx=%d Threshold=%d\n"%(idxLoops,currThreshold) )
+        numSubsts = btchTree.Factorize(treeStats,maxDepth,currThreshold)
 
-            if currThreshold < 5:
-                sys.stdout.write("End of factorization (Low repetition threshold)\n")
-                break
+        if verbose:
+            treeStats.DumpStats(sys.stdout)
 
-            sys.stdout.write("Factorization idx=%d Threshold=%d\n"%(idxLoops,currThreshold) )
-            numSubsts = btchTree.Factorize(treeStats,maxDepth,currThreshold)
+        sys.stdout.write("After factorization %d: Number of substitutions:%d\n"%(idxLoops,numSubsts))
 
-            if verbose:
-                treeStats.DumpStats(sys.stdout)
-
-            sys.stdout.write("After factorization %d: Number of substitutions:%d\n"%(idxLoops,numSubsts))
-
-            currThreshold = currThreshold / 2
+        currThreshold = currThreshold / 2
 
 def CreateEventLog(argsCmd, aPid, inputLogFile ):
     # A command or a pid or an input log file, only one possibility.
