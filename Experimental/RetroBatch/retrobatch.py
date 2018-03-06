@@ -365,6 +365,9 @@ class BatchLetBase:
     def GetSignature(self):
         return self.m_core.m_funcNam
 
+    def GetSignatureWithArgs(self):
+        return self.GetSignature() + ":" + "&".join( [ str(oneArg) for oneArg in self.SignificantArgs() ] )
+
     # This is very often used.
     def StreamName(self,idx=0):
         # sys.stdout.write( "StreamName func%s\n"%self.m_core.m_funcNam )
@@ -896,6 +899,9 @@ class StatisticsNode:
             aSub.DumpStats( strm, newMargin + "....")
             
             
+def SignatureForRepetitions(batchRange):
+    return "+".join( [ aBtch.GetSignatureWithArgs() for aBtch in batchRange ] )
+
             
 # This is an execution flow, associated to a process. And a thread ?
 class BatchFlow:
@@ -1028,10 +1034,128 @@ class BatchFlow:
                 idxBatch += 1
         return numSubsts
 
+# Detecting short repetitions with same arguments.
 
-    # Case ids are close to the significant args. Could be extracted by any mean.
-    # Activities are the systems calls, possibly grouped, by threads, pids
-    # or simply consecutive calls in short time-spans.
+#On voit d'abord si le range qui arrive est dans le dictionnaire des repetitions frequentes.
+#En commencant par les plus longues.
+
+#Puis on veut detecter de nouvelles repetitions.
+#On voit si
+#(0,1) == (2,3) == (4,5) == (6,7)
+#Si oui, on cree un BatchSequence pour [0,1] avec 4 occurences
+#(qui remplacent le reste)
+#on le met dans le dictionnaire des repetiions frequentes.
+
+#Sinon on cherche (0,1,2) == (3,4,5) == (6,7,8)
+#... puis (0,1,2,3,4) == (5,6,7,8,9)
+#... puis (0,1,2,3,4,5,6) == (7,8,9,10,11,12,13)
+
+#Petit tableau longueurs+repetitions, pas la peine d aller trop loin.
+#Aucun probleme si deja multiple occurences.
+    
+
+# In a second stage, much later, we can detect if repetitions are identical wrt respect to argument changes: Factorization.
+
+    def StatisticsRepetitions(self,maxLenRepeat):
+
+        # https://stackoverflow.com/questions/29481088/how-can-i-tell-if-a-string-repeats-itself-in-python
+        def PrincipalPeriod(aStr):
+            # ix = ( aStr + aStr ).find( aStr, 1, -1 )
+            # return ix
+            lenStr = len(aStr)
+            lenStr2 = lenStr - 1
+
+            ixStr = 1
+            while ixStr <= lenStr2:
+                ixSubStr = 0
+                while ixSubStr < lenStr:
+                    ixTotal = ixStr + ixSubStr
+                    if ixTotal >= lenStr:
+                        ixTotal -= lenStr
+
+                    if aStr[ ixSubStr ] != aStr[ ixTotal ]:
+                        break
+                    ixSubStr += 1
+
+                if ixSubStr == lenStr:
+                    return ixStr
+                ixStr += 1
+            return -1
+
+
+
+        lenBatch = len(self.m_listBatchLets)
+
+        mapOccurences = {}
+
+        sys.stdout.write("\n")
+        sys.stdout.write("StatisticsRepetitions lenBatch=%d\n"%(lenBatch) )
+
+        # First pass to build a map of occurrences.
+        idxBatch = 0
+        maxIdx = lenBatch - maxLenRepeat
+        while idxBatch < maxIdx:
+            subLen = 2
+            while subLen < maxLenRepeat:
+                batchRange = self.m_listBatchLets[ idxBatch : idxBatch + subLen ]
+                if PrincipalPeriod( batchRange ) < 0:
+
+                    keyRange = SignatureForRepetitions( batchRange )
+
+                    try:
+                        mapOccurences[ keyRange ] += 1
+                    except KeyError:
+                        mapOccurences[ keyRange ] = 1
+                subLen += 1
+            idxBatch += 1
+
+        return mapOccurences
+
+
+
+    # Think about generators, with a special "buffer" taking a generator returning another one,
+    # with an internal buffer, as a window..
+    def ClusterizeShortRepeat(self,maxLenRepeat):
+        lenBatch = len(self.m_listBatchLets)
+        sys.stdout.write("\n")
+        sys.stdout.write("ClusterizeShortRepeat lenBatch=%d\n"%(lenBatch) )
+
+        mapOccurences = self.StatisticsRepetitions(maxLenRepeat)
+        #sys.stdout.write("ClusterizeShortRepeat mapOccurencess\n" )
+        #for keyOccur in mapOccurences:
+        #    valOccur = mapOccurences[ keyOccur ]
+        #    sys.stdout.write("ClusterizeShortRepeat keyOccur=%s valOccurs=%s\n" % ( keyOccur, valOccur ) )
+
+        sys.stdout.write("\n")
+        sys.stdout.write("ClusterizeShortRepeat Starting\n" )
+
+        numSubst = 0
+        idxBatch = 0
+        maxIdx = lenBatch - maxLenRepeat
+        while idxBatch < maxIdx:
+            subLen = maxLenRepeat
+            while subLen >= 2:
+                batchRange = self.m_listBatchLets[ idxBatch : idxBatch + subLen ]
+                keyRange = SignatureForRepetitions( batchRange )
+
+                try:
+                    numOccur = mapOccurences[ keyRange ]
+                except KeyError:
+                    numOccur = 0
+
+                # Five occurences for example.
+                if numOccur > 5:
+                    batchSequence = BatchLetSequence( batchRange )
+                    self.m_listBatchLets[ idxBatch : idxBatch + subLen ] = [ batchSequence ]
+
+                    maxIdx -= ( subLen - 1 )
+                    numSubst += 1
+                    break
+                subLen -= 1
+            idxBatch += 1
+            
+
+        sys.stdout.write("ClusterizeShortRepeat numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
 
     # Successive calls which have the same arguments are clusterized into logical entities.
     def ClusterizeBatchesByArguments(self):
@@ -1069,7 +1193,7 @@ class BatchFlow:
 
             idxLast += 1
             idxBatch = idxLast + 1
-        sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d len=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+        sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
 
 
 
@@ -1200,6 +1324,11 @@ def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition)
     currThreshold = thresholdRepetition
 
     btchTree.DumpFlow(sys.stdout,outputFormat)
+
+    btchTree.ClusterizeShortRepeat(10)
+
+    btchTree.DumpFlow(sys.stdout,outputFormat)
+
     btchTree.ClusterizeBatchesByArguments()
 
     treeStats = btchTree.CreateStatisticsTree(maxDepth)
@@ -1237,6 +1366,8 @@ def CreateEventLog(argsCmd, aPid, inputLogFile ):
     elif inputLogFile:
         if argsCmd != [] or aPid:
             Usage(1,"When providing input file, must not specify command or process id")
+    else:
+        Usage(1,"Must provide command, pid or input file")
 
     if inputLogFile:
         logStream = open(inputLogFile)
