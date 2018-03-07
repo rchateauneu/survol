@@ -1,0 +1,128 @@
+23:41:19.658656 execve("/usr/bin/cp", ["cp", "mineit_find_grep.log", "tutu"], 0x7fffb006d488 /* 17 vars */) = 0 <0.000182>
+23:41:19.658992 brk(NULL)               = 0x55c1d734b000 <0.000005>
+23:41:19.659050 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7feb87201000 <0.000008>
+23:41:19.659105 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000012>
+23:41:19.659208 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=27886, ...}) = 0 <0.000007>
+23:41:19.659246 mmap(NULL, 27886, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7feb871fa000 <0.000007>
+23:41:19.659271 close(3</etc/ld.so.cache>) = 0 <0.000004>
+23:41:19.659295 open("/lib64/libselinux.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libselinux.so.1> <0.000012>
+23:41:19.659336 read(3</usr/lib64/libselinux.so.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000010>
+23:41:19.659375 fstat(3</usr/lib64/libselinux.so.1>, {st_mode=S_IFREG|0755, st_size=158320, ...}) = 0 <0.000005>
+23:41:19.659400 mmap(NULL, 2258128, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libselinux.so.1>, 0) = 0x7feb86db5000 <0.000008>
+23:41:19.659425 mprotect(0x7feb86dda000, 2093056, PROT_NONE) = 0 <0.000010>
+23:41:19.659448 mmap(0x7feb86fd9000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libselinux.so.1>, 0x24000) = 0x7feb86fd9000 <0.000011>
+23:41:19.659480 mmap(0x7feb86fdb000, 5328, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7feb86fdb000 <0.000007>
+23:41:19.659510 close(3</usr/lib64/libselinux.so.1>) = 0 <0.000008>
+23:41:19.659560 open("/lib64/libacl.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libacl.so.1.1.0> <0.000016>
+23:41:19.659608 read(3</usr/lib64/libacl.so.1.1.0>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+23:41:19.659647 fstat(3</usr/lib64/libacl.so.1.1.0>, {st_mode=S_IFREG|0755, st_size=36384, ...}) = 0 <0.000008>
+23:41:19.659685 mmap(NULL, 2130048, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libacl.so.1.1.0>, 0) = 0x7feb86bac000 <0.000011>
+23:41:19.659717 mprotect(0x7feb86bb3000, 2097152, PROT_NONE) = 0 <0.000010>
+23:41:19.659740 mmap(0x7feb86db3000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libacl.so.1.1.0>, 0x7000) = 0x7feb86db3000 <0.000008>
+23:41:19.659776 close(3</usr/lib64/libacl.so.1.1.0>) = 0 <0.000004>
+23:41:19.659810 open("/lib64/libattr.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libattr.so.1.1.0> <0.000013>
+23:41:19.659877 read(3</usr/lib64/libattr.so.1.1.0>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000006>
+23:41:19.659902 fstat(3</usr/lib64/libattr.so.1.1.0>, {st_mode=S_IFREG|0755, st_size=19376, ...}) = 0 <0.000005>
+23:41:19.659925 mmap(NULL, 2113552, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libattr.so.1.1.0>, 0) = 0x7feb869a7000 <0.000008>
+23:41:19.659950 mprotect(0x7feb869ab000, 2093056, PROT_NONE) = 0 <0.000009>
+23:41:19.659971 mmap(0x7feb86baa000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libattr.so.1.1.0>, 0x3000) = 0x7feb86baa000 <0.000010>
+23:41:19.659996 mmap(0x7feb86bab000, 16, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7feb86bab000 <0.000006>
+23:41:19.660024 close(3</usr/lib64/libattr.so.1.1.0>) = 0 <0.000005>
+23:41:19.660057 open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so> <0.000014>
+23:41:19.660099 read(3</usr/lib64/libc-2.25.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000005>
+23:41:19.660123 fstat(3</usr/lib64/libc-2.25.so>, {st_mode=S_IFREG|0755, st_size=2163104, ...}) = 0 <0.000007>
+23:41:19.660159 mmap(NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0) = 0x7feb865d6000 <0.000008>
+23:41:19.660188 mprotect(0x7feb8679d000, 2097152, PROT_NONE) = 0 <0.000009>
+23:41:19.660214 mmap(0x7feb8699d000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0x1c7000) = 0x7feb8699d000 <0.000012>
+23:41:19.660257 mmap(0x7feb869a3000, 14688, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7feb869a3000 <0.000007>
+23:41:19.660298 close(3</usr/lib64/libc-2.25.so>) = 0 <0.000004>
+23:41:19.660331 open("/lib64/libpcre.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libpcre.so.1.2.8> <0.000011>
+23:41:19.660362 read(3</usr/lib64/libpcre.so.1.2.8>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000006>
+23:41:19.660385 fstat(3</usr/lib64/libpcre.so.1.2.8>, {st_mode=S_IFREG|0755, st_size=467600, ...}) = 0 <0.000005>
+23:41:19.660406 mmap(NULL, 2560264, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libpcre.so.1.2.8>, 0) = 0x7feb86364000 <0.000040>
+23:41:19.660465 mprotect(0x7feb863d4000, 2097152, PROT_NONE) = 0 <0.000011>
+23:41:19.660491 mmap(0x7feb865d4000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libpcre.so.1.2.8>, 0x70000) = 0x7feb865d4000 <0.000008>
+23:41:19.660530 close(3</usr/lib64/libpcre.so.1.2.8>) = 0 <0.000004>
+23:41:19.660562 open("/lib64/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libdl-2.25.so> <0.000011>
+23:41:19.660593 read(3</usr/lib64/libdl-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000006>
+23:41:19.660616 fstat(3</usr/lib64/libdl-2.25.so>, {st_mode=S_IFREG|0755, st_size=19496, ...}) = 0 <0.000005>
+23:41:19.660637 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7feb871f8000 <0.000006>
+23:41:19.660660 mmap(NULL, 2109584, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libdl-2.25.so>, 0) = 0x7feb86160000 <0.000008>
+23:41:19.660724 mprotect(0x7feb86163000, 2093056, PROT_NONE) = 0 <0.000010>
+23:41:19.660749 mmap(0x7feb86362000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libdl-2.25.so>, 0x2000) = 0x7feb86362000 <0.000009>
+23:41:19.660789 close(3</usr/lib64/libdl-2.25.so>) = 0 <0.000005>
+23:41:19.660841 open("/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libpthread-2.25.so> <0.000011>
+23:41:19.660876 read(3</usr/lib64/libpthread-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000006>
+23:41:19.660899 fstat(3</usr/lib64/libpthread-2.25.so>, {st_mode=S_IFREG|0755, st_size=153896, ...}) = 0 <0.000005>
+23:41:19.660925 mmap(NULL, 2220552, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libpthread-2.25.so>, 0) = 0x7feb85f41000 <0.000013>
+23:41:19.660965 mprotect(0x7feb85f5a000, 2097152, PROT_NONE) = 0 <0.000010>
+23:41:19.660989 mmap(0x7feb8615a000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libpthread-2.25.so>, 0x19000) = 0x7feb8615a000 <0.000010>
+23:41:19.661021 mmap(0x7feb8615c000, 12808, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7feb8615c000 <0.000007>
+23:41:19.661051 close(3</usr/lib64/libpthread-2.25.so>) = 0 <0.000006>
+23:41:19.661109 mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7feb871f5000 <0.000007>
+23:41:19.661139 arch_prctl(ARCH_SET_FS, 0x7feb871f5800) = 0 <0.000007>
+23:41:19.661227 mprotect(0x7feb8699d000, 16384, PROT_READ) = 0 <0.000014>
+23:41:19.661301 mprotect(0x7feb8615a000, 4096, PROT_READ) = 0 <0.000010>
+23:41:19.661339 mprotect(0x7feb86362000, 4096, PROT_READ) = 0 <0.000013>
+23:41:19.661390 mprotect(0x7feb865d4000, 4096, PROT_READ) = 0 <0.000021>
+23:41:19.661441 mprotect(0x7feb86baa000, 4096, PROT_READ) = 0 <0.000007>
+23:41:19.661489 mprotect(0x7feb86db3000, 4096, PROT_READ) = 0 <0.000016>
+23:41:19.661588 mprotect(0x7feb86fd9000, 4096, PROT_READ) = 0 <0.000013>
+23:41:19.661674 mprotect(0x55c1d6723000, 4096, PROT_READ) = 0 <0.000011>
+23:41:19.661709 mprotect(0x7feb87203000, 4096, PROT_READ) = 0 <0.000010>
+23:41:19.661734 munmap(0x7feb871fa000, 27886) = 0 <0.000019>
+23:41:19.661948 brk(NULL)               = 0x55c1d734b000 <0.000008>
+23:41:19.661981 brk(0x55c1d736c000)     = 0x55c1d736c000 <0.000006>
+23:41:19.662039 open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3</usr/lib/locale/locale-archive> <0.000012>
+23:41:19.662078 fstat(3</usr/lib/locale/locale-archive>, {st_mode=S_IFREG|0644, st_size=2291760, ...}) = 0 <0.000008>
+23:41:19.662124 mmap(NULL, 2291760, PROT_READ, MAP_PRIVATE, 3</usr/lib/locale/locale-archive>, 0) = 0x7feb85d11000 <0.000008>
+23:41:19.662159 close(3</usr/lib/locale/locale-archive>) = 0 <0.000008>
+23:41:19.662277 open("mineit_find_grep.log", O_RDONLY) = 3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log> <0.000007>
+23:41:19.662313 fstat(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, {st_mode=S_IFREG|0664, st_size=2149823, ...}) = 0 <0.000004>
+23:41:19.662336 open("tutu", O_WRONLY|O_TRUNC) = 4</home/rchateau/survol/Experimental/RetroBatch/tutu> <0.000395>
+23:41:19.662789 fstat(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, {st_mode=S_IFREG|0664, st_size=0, ...}) = 0 <0.000008>
+23:41:19.662858 fadvise64(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, 0, 0, POSIX_FADV_SEQUENTIAL) = 0 <0.000005>
+23:41:19.662888 mmap(NULL, 139264, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7feb871d3000 <0.000007>
+23:41:19.662915 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "18:43:33.631433 exec"..., 131072) = 131072 <0.000106>
+23:41:19.663043 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "18:43:33.631433 exec"..., 131072) = 131072 <0.000095>
+23:41:19.663162 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "execve(\"/usr/bin/gre"..., 131072) = 131072 <0.000042>
+23:41:19.663229 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "execve(\"/usr/bin/gre"..., 131072) = 131072 <0.000088>
+23:41:19.663340 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "imental/RetroBatch/m"..., 131072) = 131072 <0.000048>
+23:41:19.663412 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "imental/RetroBatch/m"..., 131072) = 131072 <0.000081>
+23:41:19.663512 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "2768 <0.000030>\n[pid"..., 131072) = 131072 <0.000048>
+23:41:19.663588 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "2768 <0.000030>\n[pid"..., 131072) = 131072 <0.000082>
+23:41:19.663692 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "tch/mineit_find_grep"..., 131072) = 131072 <0.000052>
+23:41:19.663764 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "tch/mineit_find_grep"..., 131072) = 131072 <0.000099>
+23:41:19.663890 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, " 32768) = 32768 <0.0"..., 131072) = 131072 <0.000046>
+23:41:19.663959 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, " 32768) = 32768 <0.0"..., 131072) = 131072 <0.000096>
+23:41:19.664077 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "atch/mineit_find_gre"..., 131072) = 131072 <0.000043>
+23:41:19.664151 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "atch/mineit_find_gre"..., 131072) = 131072 <0.000104>
+23:41:19.664287 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "[pid  9920] 18:43:34"..., 131072) = 131072 <0.000042>
+23:41:19.664363 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "[pid  9920] 18:43:34"..., 131072) = 131072 <0.000114>
+23:41:19.664500 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "rimental/RetroBatch/"..., 131072) = 131072 <0.000039>
+23:41:19.664562 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "rimental/RetroBatch/"..., 131072) = 131072 <0.000079>
+23:41:19.664664 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, " <0.000011>\n[pid  99"..., 131072) = 131072 <0.000036>
+23:41:19.664729 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, " <0.000011>\n[pid  99"..., 131072) = 131072 <0.000090>
+23:41:19.664840 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "e/rchateau/survol/Ex"..., 131072) = 131072 <0.000033>
+23:41:19.664895 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "e/rchateau/survol/Ex"..., 131072) = 131072 <0.000078>
+23:41:19.664993 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "0x7f0e6ee8c000, 1468"..., 131072) = 131072 <0.000040>
+23:41:19.665066 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "0x7f0e6ee8c000, 1468"..., 131072) = 131072 <0.000088>
+23:41:19.665178 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "ANONYMOUS, -1, 0) = "..., 131072) = 131072 <0.000080>
+23:41:19.665327 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "ANONYMOUS, -1, 0) = "..., 131072) = 131072 <0.000159>
+23:41:19.665520 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "TE|MAP_DENYWRITE, 3<"..., 131072) = 131072 <0.000056>
+23:41:19.665620 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "TE|MAP_DENYWRITE, 3<"..., 131072) = 131072 <0.000088>
+23:41:19.665745 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "] 18:43:34.406572 ex"..., 131072) = 131072 <0.000036>
+23:41:19.665804 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "] 18:43:34.406572 ex"..., 131072) = 131072 <0.000095>
+23:41:19.665919 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, ":43:34.451880 open(\""..., 131072) = 131072 <0.000035>
+23:41:19.665975 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, ":43:34.451880 open(\""..., 131072) = 131072 <0.000117>
+23:41:19.666114 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "8 close(3</home/rcha"..., 131072) = 52671 <0.000018>
+23:41:19.666163 write(4</home/rchateau/survol/Experimental/RetroBatch/tutu>, "8 close(3</home/rcha"..., 52671) = 52671 <0.000062>
+23:41:19.666259 read(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>, "", 131072) = 0 <0.000005>
+23:41:19.666287 close(4</home/rchateau/survol/Experimental/RetroBatch/tutu>) = 0 <0.000373>
+23:41:19.666682 close(3</home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log>) = 0 <0.000006>
+23:41:19.666713 munmap(0x7feb871d3000, 139264) = 0 <0.000035>
+23:41:19.666769 lseek(0</dev/pts/2>, 0, SEEK_CUR) = -1 ESPIPE (Illegal seek) <0.000005>
+23:41:19.666815 close(0</dev/pts/2>)    = 0 <0.000007>
+23:41:19.666870 close(1</dev/pts/2>)    = 0 <0.000005>
+23:41:19.666897 close(2</home/rchateau/survol/Experimental/RetroBatch/mineit_copy_bigfile.log>) = 0 <0.000005>
+23:41:19.666952 exit_group(0)           = ?
