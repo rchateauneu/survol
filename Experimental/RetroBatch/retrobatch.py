@@ -326,7 +326,6 @@ batchModels = {
     "arch_prctl": None,
 }
 
-
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
 # So, the name of a system call is used to lookup the class which represents it.
 class BatchMeta(type):
@@ -341,10 +340,15 @@ class BatchMeta(type):
             batchModels[ shortClassName ] = cls
         super(BatchMeta, cls).__init__(name, bases, dct)
 
+# This is portable for Python 2 and Python 3.
+# No need to import the modules six or future.utils
+def my_with_metaclass(meta, *bases):
+    return meta("NewBase", bases, {})
 
-class BatchLetBase:
-    __metaclass__ = BatchMeta
+class BatchLetBase(my_with_metaclass(BatchMeta) ):
 
+    # The style tells if this is a native call or an aggregate of function
+    # calls, made with some style: Factorization etc...
     def __init__(self,batchCore,style="Orig"):
         self.m_core = batchCore
         self.m_occurrences = 1
@@ -382,6 +386,7 @@ class BatchLetBase:
         return self.SameArguments(anotherBatch)
 
     # This assumes that the function calls are the same.
+    # It compares the arguments one by one.
     def SameArguments(self,anotherBatch):
         args1 = self.SignificantArgs()
         args2 = anotherBatch.SignificantArgs()
@@ -486,9 +491,11 @@ def BatchDumperFactory(strm, outputFormat):
 # Must be a new-style class.
 class BatchLet_open(BatchLetBase,object):
     def __init__(self,batchCore):
+        if batchCore.m_retValue.find("ENOENT") >= 0 :
+            # TODO: If the open is not successful, maybe it should be rejected.
+            return
         super( BatchLet_open,self).__init__(batchCore)
 
-    # TODO: If the open is not successful, maybe it should be rejected.
     # TODO: But, if it succeeds, the file actually opened might be different,
     # than the input argument. Example:
     # open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so>
@@ -581,7 +588,9 @@ class BatchLet_clone(BatchLetBase,object):
         super( BatchLet_clone,self).__init__(batchCore)
 
     def SignificantArgs(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        # return [ self.m_core.m_parsedArgs[0] ]
+        # This is the created pid.
+        return [ self.m_core.m_retValue ]
 
     # Process creations are not aggregated, not to lose the new pid.
     def SameCall(self,anotherBatch):
@@ -690,6 +699,50 @@ class BatchLet_select(BatchLetBase,object):
         arrFilExcp = ArrFdNameToArrString(arrArgs[3])
 
         return [ arrFilRead, arrFilWrit, arrFilExcp ]
+
+# socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 6<UNIX:[2038057]>
+class BatchLet_socket(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_socket,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return [ self.m_core.m_retValue ]
+
+# connect(6<UNIX:[2038057]>, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110)
+class BatchLet_connect(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_connect,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return [ STraceStreamToFile(self.m_core.m_parsedArgs[0]), self.m_core.m_parsedArgs[1] ]
+
+# sendto(7<UNIX:[2038065->2038073]>, "\24\0\0", 16, MSG_NOSIGNAL, NULL, 0) = 16
+class BatchLet_sendto(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_sendto,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_exit_group(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_exit_group,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return []
+
+# TODO: If the return value is not zero, maybe reject.
+# pipe([3<pipe:[255278]>, 4<pipe:[255278]>]) = 0
+class BatchLet_pipe(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_pipe,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        arrPipes = self.m_core.m_parsedArgs[0]
+        arrFil0 = STraceStreamToFile(arrPipes[0])
+        arrFil1 = STraceStreamToFile(arrPipes[1])
+
+        return [ arrFil0, arrFil1 ]
 
 
 ################################################################################
