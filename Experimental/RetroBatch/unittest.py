@@ -1,11 +1,11 @@
 import os
 import retrobatch
 
-for subdir, dirs, files in os.walk(rootdir):
+for subdir, dirs, files in os.walk("."):
     for inFile in files:
         #print os.path.join(subdir, file)
 
-        if inFile.endswith("log")i and inFile.startswith("mineit_"):
+        if inFile.endswith("log") and inFile.startswith("mineit_"):
             inPath = subdir + os.sep + inFile
             print (inPath)
 
@@ -13,4 +13,4 @@ for subdir, dirs, files in os.walk(rootdir):
             outFile = pre + ".out"
             outPath = subdir + os.sep + outFile
 
-            retrobatch.UnitTest(inPath,outPath()
+            retrobatch.UnitTest(inPath,outPath)
