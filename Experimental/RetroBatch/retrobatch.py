@@ -849,7 +849,7 @@ class BatchLetSequence(BatchLetBase,object):
         # batchCore.m_funcNam = "Sequence_%d" % countSequence
         batchCore.m_funcNam = "(" + concatSigns + ")"
 
-        sys.stdout.write("BatchLetSequence concatSigns=%s\n"%concatSigns)
+        # sys.stdout.write("BatchLetSequence concatSigns=%s\n"%concatSigns)
 
         # This is returned by the method SignificantArgs()
 
@@ -1284,7 +1284,7 @@ class BatchFlow:
 
                 currentBatch = self.m_listBatchLets[ idxBatch ]
 
-                if currentBatch.SignificantArgs() == lastBatch.SignificantArgs():
+                if currentBatch.SignificantArgs() == lastArgs:
                     idxBatch += 1
                     continue
 
@@ -1294,7 +1294,7 @@ class BatchFlow:
                 batchSeq = BatchLetSequence( self.m_listBatchLets[ idxLast : idxBatch ], "Args" )
                 self.m_listBatchLets[ idxLast : idxBatch ] = [ batchSeq ]
 
-                lenBatch -= ( idxBatch - idxLast )
+                lenBatch -= ( idxBatch - idxLast - 1 )
                 numSubst += 1
 
             idxLast += 1
@@ -1511,6 +1511,27 @@ def CreateMapFlowFromStream( verbose, logStream, maxDepth ):
     # TODO: maxDepth should not be passed as a parameter.
     # It is only there because stats are created.
     return mapFlows
+
+# Function called for unit tests
+def UnitTest(inputLogFile,outFile):
+    logStream = CreateEventLog([], None, inputLogFile )
+
+    maxDepth = 5
+    mapFlows = CreateMapFlowFromStream( False, logStream, maxDepth )
+
+    outputFormat = "TXT"
+    FactorizeMapFlows(mapFlows,False,outputFormat,maxDepth,0)
+
+    outFd = open(outFile, "w")
+
+    for aPid in sorted(list(mapFlows.keys()),reverse=True):
+        btchTree = mapFlows[aPid]
+        outFd.write("\n================== PID=%d\n"%aPid)
+        btchTree.DumpFlow(outFd,outputFormat)
+
+    outFd.close()
+    sys.stdout.write("Test finished")
+
 
 if __name__ == '__main__':
     try:
