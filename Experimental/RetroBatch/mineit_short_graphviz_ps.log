@@ -1,0 +1,36 @@
+08:08:42.502101 write(2</home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log>, "{-20.214201,17.58110"..., 24{-20.214201,17.581106}, ) = 24 <0.000019>
+08:08:42.502169 write(2</home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log>, "{-16.019598,14.16862"..., 24{-16.019598,14.168625}, ) = 24 <0.000018>
+08:08:42.502232 write(2</home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log>, "\n", 1
+) = 1 <0.000018>
+08:08:42.506043 open("/proc/meminfo", O_RDONLY|O_CLOEXEC) = 4</proc/meminfo> <0.000032>
+08:08:42.506142 fstat(4</proc/meminfo>, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0 <0.000013>
+08:08:42.506206 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f38994cb000 <0.000018>
+08:08:42.506263 read(4</proc/meminfo>, "MemTotal:        404"..., 1024) = 1024 <0.000044>
+08:08:42.506358 close(4</proc/meminfo>) = 0 <0.000020>
+08:08:42.506419 munmap(0x7f38994cb000, 4096) = 0 <0.000019>
+08:08:42.506958 write(2</home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log>, "found 0 clashes\n", 16found 0 clashes
+) = 16 <0.000021>
+08:08:42.507160 write(2</home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log>, " no overlap (overlap"..., 53 no overlap (overlap = -0.000027), rescale to shrink
+) = 53 <0.000020>
+08:08:42.520039 write(2</home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log>, "Using device: svg:sv"..., 27Using device: svg:svg:core
+) = 27 <0.000011>
+08:08:42.520081 open("/tmp/Dot2Svg.26787.svg", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4</tmp/Dot2Svg.26787.svg> <0.000090>
+08:08:42.520206 fstat(4</tmp/Dot2Svg.26787.svg>, {st_mode=S_IFREG|0664, st_size=0, ...}) = 0 <0.000009>
+08:08:42.520244 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f38994cb000 <0.000012>
+08:08:42.520447 write(4</tmp/Dot2Svg.26787.svg>, "<?xml version=\"1.0\" "..., 4096) = 4096 <0.000015>
+08:08:42.520699 write(4</tmp/Dot2Svg.26787.svg>, " nd_0 -->\n<g id=\"nod"..., 4096) = 4096 <0.000014>
+08:08:42.566893 write(4</tmp/Dot2Svg.26787.svg>, "14.85\"/>\n<text text-"..., 4096) = 4096 <0.000020>
+08:08:42.567261 write(4</tmp/Dot2Svg.26787.svg>, "-anchor=\"start\" x=\"4"..., 4096) = 4096 <0.000020>
+08:08:42.567623 write(4</tmp/Dot2Svg.26787.svg>, "is a CIM_Process\">\n<"..., 4096) = 4096 <0.000020>
+08:08:42.567995 write(4</tmp/Dot2Svg.26787.svg>, "50\"><a xlink:href=\"h"..., 4096) = 4096 <0.000020>
+08:08:42.568346 write(4</tmp/Dot2Svg.26787.svg>, "7 2267.24,-496.927 2"..., 4096) = 4096 <0.000021>
+08:08:42.568705 write(4</tmp/Dot2Svg.26787.svg>, "4\" font-family=\"Deja"..., 4096) = 4096 <0.000020>
+08:08:42.568995 write(4</tmp/Dot2Svg.26787.svg>, " class=\"edge\"><title"..., 2848) = 2848 <0.000021>
+08:08:42.569095 write(2</home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log>, "gvRenderJobs Process"..., 40gvRenderJobs Processes tree: 0.04 secs.
+) = 40 <0.000021>
+08:08:42.569170 read(3</tmp/Grph2Dot.26787.dot>, "", 4096) = 0 <0.000015>
+08:08:42.569234 close(3</tmp/Grph2Dot.26787.dot>) = 0 <0.000023>
+08:08:42.569303 munmap(0x7f38996aa000, 4096) = 0 <0.000029>
+08:08:42.569377 close(4</tmp/Dot2Svg.26787.svg>) = 0 <0.000016>
+08:08:42.569436 munmap(0x7f38994cb000, 4096) = 0 <0.000019>
+08:08:42.569889 exit_group(0)           = ?
