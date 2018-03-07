@@ -345,9 +345,10 @@ class BatchMeta(type):
 class BatchLetBase:
     __metaclass__ = BatchMeta
 
-    def __init__(self,batchCore):
+    def __init__(self,batchCore,style="Orig"):
         self.m_core = batchCore
-        self.m_occurences = 1
+        self.m_occurrences = 1
+        self.m_style = style
         # sys.stdout.write("NAME=%s\n"%self.__class__.__name__)
 
     def __str__(self):
@@ -411,9 +412,10 @@ class BatchDumperTXT(BatchDumberBase):
         self.m_strm = strm
 
     def DumpBatch(self,batchLet):
-        self.m_strm.write("F=%6d {%4d} '%-20s' %s ==>> %s (%s,%s)\n" %(
+        self.m_strm.write("F=%6d {%4d/%s} '%-20s' %s ==>> %s (%s,%s)\n" %(
             batchLet.m_core.m_pid,
-            batchLet.m_occurences,
+            batchLet.m_occurrences,
+            batchLet.m_style,
             batchLet.m_core.m_funcNam,
             str(batchLet.SignificantArgs() ),
             batchLet.m_core.m_retValue,
@@ -425,12 +427,13 @@ class BatchDumperCSV(BatchDumberBase):
         self.m_strm = strm
 
     def Header(self):
-        self.m_strm.write("Pid,Occurences,Function,Arguments,Return,Start,End\n")
+        self.m_strm.write("Pid,Occurrences,Style,Function,Arguments,Return,Start,End\n")
 
     def DumpBatch(self,batchLet):
-        self.m_strm.write("%d,%d,%s,%s,%s,%s,%s\n" %(
+        self.m_strm.write("%d,%d,%s,%s,%s,%s,%s,%s\n" %(
             batchLet.m_core.m_pid,
-            batchLet.m_occurences,
+            batchLet.m_occurrences,
+            batchLet.m_style,
             batchLet.m_core.m_funcNam,
             str(batchLet.SignificantArgs() ),
             batchLet.m_core.m_retValue,
@@ -448,7 +451,8 @@ class BatchDumperJSON(BatchDumberBase):
         self.m_strm.write(
             '{\n'
             '   "pid" : %d\n'
-            '   "occurences" : %d\n'
+            '   "occurrences" : %d\n'
+            '   "style" : %s\n'
             '   "function" : "%s"\n'
             '   "arguments" : %s\n'
             '   "return_value" : "%s"\n'
@@ -456,7 +460,8 @@ class BatchDumperJSON(BatchDumberBase):
             '   "time_end" : "%s"\n'
             '},\n' %(
             batchLet.m_core.m_pid,
-            batchLet.m_occurences,
+            batchLet.m_occurrences,
+            batchLet.m_style,
             batchLet.m_core.m_funcNam,
             str(batchLet.SignificantArgs() ),
             batchLet.m_core.m_retValue,
@@ -534,6 +539,14 @@ class BatchLet_mmap(BatchLetBase,object):
 
     def SignificantArgs(self):
         return self.StreamName(4)
+
+class BatchLet_munmap(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_munmap,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        # The parameter is only an address and we cannot do much with it.
+        return []
 
 class BatchLet_ioctl(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -661,6 +674,23 @@ class BatchLet_poll(BatchLetBase,object):
         # return "XX="+str(arrStrms)
         return [ retList ]
 
+# int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
+# select ['1', ['0</dev/pts/2>'], [], ['0</dev/pts/2>'], {'tv_sec': '0', 'tv_usec': '0'}] ==>> 0 (Timeout) (07:43:14,07:43:14)
+class BatchLet_select(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_select,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        def ArrFdNameToArrString(arrStrms):
+            return [ STraceStreamToFile( fdName ) for fdName in arrStrms ]
+
+        arrArgs = self.m_core.m_parsedArgs
+        arrFilRead = ArrFdNameToArrString(arrArgs[1])
+        arrFilWrit = ArrFdNameToArrString(arrArgs[2])
+        arrFilExcp = ArrFdNameToArrString(arrArgs[3])
+
+        return [ arrFilRead, arrFilWrit, arrFilExcp ]
+
 
 ################################################################################
 
@@ -756,7 +786,7 @@ def BatchFactory(oneLine):
 # sequences.
 #
 class BatchLetSequence(BatchLetBase,object):
-    def __init__(self,arrBatch):
+    def __init__(self,arrBatch,style):
         # global countSequence
 
         batchCore = BatchLetCore()
@@ -786,7 +816,7 @@ class BatchLetSequence(BatchLetBase,object):
         batchCore.m_timeEnd = arrBatch[-1].m_core.m_timeEnd
         batchCore.m_execTim = batchCore.m_timeEnd - batchCore.m_timeStart
 
-        super( BatchLetSequence,self).__init__(batchCore)
+        super( BatchLetSequence,self).__init__(batchCore,style)
 
 
 # On essaye de former une sequence en aveugle.
@@ -819,7 +849,7 @@ class StatisticsNode:
     def __init__(self, signat = None):
         self.m_mapStats = {}
         self.m_signature = signat
-        self.m_occurences = 0
+        self.m_occurrences = 0
 
     # This adds a complete sequence of batches and updates the intermediary nodes.
     def AddCompleteBatchRange(self,batchRange):
@@ -837,10 +867,10 @@ class StatisticsNode:
                 subNode = currNode.m_mapStats[ currSignature ]
             except KeyError:
                 subNode = StatisticsNode( currSignature )
-                subNode.m_occurences = 0
+                subNode.m_occurrences = 0
                 currNode.m_mapStats[ currSignature ] = subNode
 
-            subNode.m_occurences += 1
+            subNode.m_occurrences += 1
             currNode = subNode
             idx += 1
 
@@ -855,14 +885,14 @@ class StatisticsNode:
             currSignature = batchRange[idx].GetSignature()
             try:
                 subNode = currNode.m_mapStats[ currSignature ]
-                sys.stdout.write("    SubNode: %d %s \n"%(subNode.m_occurences,currSignature))
+                sys.stdout.write("    SubNode: %d %s \n"%(subNode.m_occurrences,currSignature))
             except KeyError:
                 raise Exception("Tree should be deeper:idx=%d lenBatch=%d currSignature=%s"%(idx,lenBatch,currSignature) )
             currNode = subNode
             idx += 1
 
-        sys.stdout.write("Occurences:%d\n" % currNode.m_occurences)
-        return subNode.m_occurences
+        sys.stdout.write("Occurences:%d\n" % currNode.m_occurrences)
+        return subNode.m_occurrences
 
     # Another approach is to look for a plateau.
 
@@ -879,21 +909,21 @@ class StatisticsNode:
             currSignature = batchRange[idx].GetSignature()
             try:
                 currNode = currNode.m_mapStats[ currSignature ]
-                sys.stdout.write("    CurrNode: %d %s \n"%(currNode.m_occurences,currSignature))
+                sys.stdout.write("    CurrNode: %d %s \n"%(currNode.m_occurrences,currSignature))
             except KeyError:
                 raise Exception("Tree should be deeper. idx=%d currSignature=%s\n"%(idx,currSignature))
 
-            if currNode.m_occurences < currThreshold:
+            if currNode.m_occurrences < currThreshold:
                 break
 
             idx += 1
 
-        sys.stdout.write("GetOccurencesMinimal idx=%d Occurences:%d currThreshold=%d\n" % (idx, currNode.m_occurences, currThreshold ) )
+        sys.stdout.write("GetOccurencesMinimal idx=%d Occurences:%d currThreshold=%d\n" % (idx, currNode.m_occurrences, currThreshold ) )
         return idx
 
 
     def DumpStats(self, strm, newMargin = "" ):
-        strm.write( "%s%-20s {%4d}\n" % ( newMargin, self.m_signature, self.m_occurences ) )
+        strm.write( "%s%-20s {%4d}\n" % ( newMargin, self.m_signature, self.m_occurrences ) )
         for aSig in sorted( list( self.m_mapStats.keys() ) ):
             aSub = self.m_mapStats[ aSig ]
             aSub.DumpStats( strm, newMargin + "....")
@@ -960,7 +990,7 @@ class BatchFlow:
             lstBatch = self.m_listBatchLets[-1]
 
             if lstBatch.SameCall( btchLet ):
-                lstBatch.m_occurences += 1
+                lstBatch.m_occurrences += 1
                 return
 
         self.m_listBatchLets.append( btchLet )
@@ -991,7 +1021,7 @@ class BatchFlow:
             if lenRepetition > 1:
                 # Only a prefix of this range is repeated enough.
                 subBatchRange = batchRange[ : lenRepetition ]
-                batchSeq = BatchLetSequence( subBatchRange )
+                batchSeq = BatchLetSequence( subBatchRange, "Fact" )
 
                 # Maybe this new batch is similar to the previous one.
                 if idxBatch > 0:
@@ -1002,7 +1032,7 @@ class BatchFlow:
 
                 if batchPrevious and ( batchSeq.GetSignature() == batchPrevious.GetSignature() ):
                     sys.stdout.write("Factorize delete idxBatch=%d\n"%idxBatch )
-                    batchPrevious.m_occurences += 1
+                    batchPrevious.m_occurrences += 1
 
                     del self.m_listBatchLets[ idxBatch : idxBatch + lenRepetition ]
                     lastValidIdx -= lenRepetition
@@ -1034,27 +1064,7 @@ class BatchFlow:
                 idxBatch += 1
         return numSubsts
 
-# Detecting short repetitions with same arguments.
-
-#On voit d'abord si le range qui arrive est dans le dictionnaire des repetitions frequentes.
-#En commencant par les plus longues.
-
-#Puis on veut detecter de nouvelles repetitions.
-#On voit si
-#(0,1) == (2,3) == (4,5) == (6,7)
-#Si oui, on cree un BatchSequence pour [0,1] avec 4 occurences
-#(qui remplacent le reste)
-#on le met dans le dictionnaire des repetiions frequentes.
-
-#Sinon on cherche (0,1,2) == (3,4,5) == (6,7,8)
-#... puis (0,1,2,3,4) == (5,6,7,8,9)
-#... puis (0,1,2,3,4,5,6) == (7,8,9,10,11,12,13)
-
-#Petit tableau longueurs+repetitions, pas la peine d aller trop loin.
-#Aucun probleme si deja multiple occurences.
-    
-
-# In a second stage, much later, we can detect if repetitions are identical wrt respect to argument changes: Factorization.
+    # In a second stage, much later, we can detect if repetitions are identical wrt respect to argument changes: Factorization.
 
     def StatisticsRepetitions(self,maxLenRepeat):
 
@@ -1133,25 +1143,68 @@ class BatchFlow:
         idxBatch = 0
         maxIdx = lenBatch - maxLenRepeat
         while idxBatch < maxIdx:
-            subLen = maxLenRepeat
-            while subLen >= 2:
-                batchRange = self.m_listBatchLets[ idxBatch : idxBatch + subLen ]
-                keyRange = SignatureForRepetitions( batchRange )
 
-                try:
-                    numOccur = mapOccurences[ keyRange ]
-                except KeyError:
-                    numOccur = 0
+#            subLen = maxLenRepeat
 
-                # Five occurences for example.
-                if numOccur > 5:
-                    batchSequence = BatchLetSequence( batchRange )
-                    self.m_listBatchLets[ idxBatch : idxBatch + subLen ] = [ batchSequence ]
+            # Start with the longest non-periodic pattern
+#            while subLen >= 2:
+#                batchRange = self.m_listBatchLets[ idxBatch : idxBatch + subLen ]
+#                keyRange = SignatureForRepetitions( batchRange )
+#
+#                try:
+#                    numOccur = mapOccurences[ keyRange ]
+#                except KeyError:
+#                    numOccur = 0
+#
+#                # Five occurences for example.
+#                if numOccur > 5:
+#                    batchSequence = BatchLetSequence( batchRange, "Rept" )
+#                    self.m_listBatchLets[ idxBatch : idxBatch + subLen ] = [ batchSequence ]
+#
+#                    maxIdx -= ( subLen - 1 )
+#                    numSubst += 1
+#                    break
+#                subLen -= 1
 
-                    maxIdx -= ( subLen - 1 )
-                    numSubst += 1
-                    break
-                subLen -= 1
+            # Looks for the best core by splitting the string into two parts,
+            # and summing the two occurrences.
+            lenBest = -1
+            bestOccur = 0
+
+            subLen = 2
+            while subLen < maxLenRepeat:
+                batchRangeLeft = self.m_listBatchLets[ idxBatch : idxBatch + subLen ]
+                keyRangeLeft = SignatureForRepetitions( batchRangeLeft )
+                numOccurLeft = mapOccurences.get( keyRangeLeft, 0 )
+                sys.stdout.write("Left =%s num=%d\n"%(keyRangeLeft,numOccurLeft))
+
+                numOccur = numOccurLeft
+
+                if subLen < maxLenRepeat - 1:
+                    batchRangeRight = self.m_listBatchLets[ idxBatch + subLen : idxBatch + maxLenRepeat ]
+                    keyRangeRight = SignatureForRepetitions( batchRangeRight )
+                    numOccurRight = mapOccurences.get( keyRangeRight, 0 )
+                    sys.stdout.write("Right=%s num=%d\n"%(keyRangeRight,numOccurRight))
+
+                    numOccur += numOccurRight
+
+                if numOccur > bestOccur:
+                    bestOccur = numOccur
+                    lenBest = subLen
+
+                subLen += 1
+
+            sys.stdout.write("Best idxBatch=%d maxIdx=%d lenBest=%d bestOccur=%d\n"%(idxBatch,maxIdx,lenBest,bestOccur))
+            # Five occurences for example.
+            if bestOccur > 5:
+                batchRangeBest = self.m_listBatchLets[ idxBatch : idxBatch + lenBest ]
+                batchSequence = BatchLetSequence( batchRangeBest, "Rept" )
+                self.m_listBatchLets[ idxBatch : idxBatch + lenBest] = [ batchSequence ]
+                sys.stdout.write("Best idxBatch=%d maxIdx=%d lenBest=%d bestOccur=%d bestRange=%s\n"%(idxBatch,maxIdx,lenBest,bestOccur,SignatureForRepetitions(batchRangeBest)))
+
+                maxIdx -= ( lenBest- 1 )
+                numSubst += 1
+
             idxBatch += 1
             
 
@@ -1185,7 +1238,7 @@ class BatchFlow:
             if idxBatch > idxLast + 1:
 
                 # Clusters should not be too big
-                batchSeq = BatchLetSequence( self.m_listBatchLets[ idxLast : idxBatch ] )
+                batchSeq = BatchLetSequence( self.m_listBatchLets[ idxLast : idxBatch ], "Args" )
                 self.m_listBatchLets[ idxLast : idxBatch ] = [ batchSeq ]
 
                 lenBatch -= ( idxBatch - idxLast )
