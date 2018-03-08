@@ -29,7 +29,7 @@ for databases in cursor:
 if False:
 
 	import MySQLdb
-	conn = MySQLdb.connect(user='primhilltcsrvdb1', passwd='MySql123', host='primhilltcsrvdb1.mysql.db')
+	conn = MySQLdb.connect(user='primhilltcsrvdb1', passwd='******', host='primhilltcsrvdb1.mysql.db')
 
 	cursor = conn.cursor()
 	cursor.execute("show databases")
