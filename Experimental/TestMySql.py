@@ -12,8 +12,8 @@ import cgitb
 #  },
 import mysql.connector
 
-conn = mysql.connector.connect (user='primhilltcsrvdb1', password='MySql123', host='primhilltcsrvdb1.mysql.db',buffered=True)
-# conn = mysql.connector.connect (user='primhilltcsrvdb1', password='MySql123', host='primhillcomputers.com',buffered=True)
+conn = mysql.connector.connect (user='primhilltcsrvdb1', password='****', host='primhilltcsrvdb1.mysql.db',buffered=True)
+# conn = mysql.connector.connect (user='primhilltcsrvdb1', password='*****', host='primhillcomputers.com',buffered=True)
 
 cursor = conn.cursor()
 
