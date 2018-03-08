@@ -16,24 +16,27 @@ def Usage(exitCode = 1, errMsg = None):
     progNam = sys.argv[0]
     print("Retrobatch: %s <executable>"%progNam)
     print("Monitors and factorizes systems calls.")
-    print("  -h,--help                 This message.")
-    print("  -v,--verbose              Verbose mode.")
-    print("  -p,--pid <pid>            Monitors a running process instead of starting an executable.")
-    print("  -f,--format TXT|CSV|JSON  Output format. Default is TXT.")
-    print("  -d,--depth <integer>      Maximum length of detected calls sequence. Default is 5.")
-    print("  -w,--window <integer>     Size of sliding window of system calls, used for factorization.")
-    print("                            Default is 0, i.e. no window")
-    print("  -r,--repetition <integer> Threshold of repetition number of system calls before being factorized")
-    print("  -i,--input <file name>    strace or cdb output file.")
+    print("  -h,--help                     This message.")
+    print("  -v,--verbose                  Verbose mode.")
+    print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
+    print("  -f,--format TXT|CSV|JSON      Output format. Default is TXT.")
+    print("  -d,--depth <integer>          Maximum length of detected calls sequence. Default is 5.")
+    print("  -w,--window <integer>         Size of sliding window of system calls, used for factorization.")
+    print("                                Default is 0, i.e. no window")
+    print("  -r,--repetition <integer>     Threshold of repetition number of system calls before being factorized")
+    print("  -i,--input <file name>        trace command output file.")
+    print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("")
 
     sys.exit(exitCode)
 
 ################################################################################
 
+def LogWindowsFileStream(extCommand,aPid):
+    raise Exception("Not implemented yet")
+
 def CreateFlowsFromWindowsLogger(verbose,logStream,maxDepth):
     raise Exception("Not implemented yet")
-    return
 
 ################################################################################
 
@@ -1337,6 +1340,8 @@ def BuildLinuxCommand(extCommand,aPid):
 
     return aCmd
 
+def LogLTraceFileStream(extCommand,aPid):
+    raise Exception("Not implemented yet")
 
 #
 # 22:41:05.094710 rt_sigaction(SIGRTMIN, {0x7f18d70feb20, [], SA_RESTORER|SA_SIGINFO, 0x7f18d7109430}, NULL, 8) = 0 <0.000008>
@@ -1348,7 +1353,7 @@ def BuildLinuxCommand(extCommand,aPid):
 # The command and the parsing are specific to Linux.
 # It returns a data structure which is generic.
 
-def LogLinuxFileStream(extCommand,aPid):
+def LogSTraceFileStream(extCommand,aPid):
     aCmd = BuildLinuxCommand( extCommand, aPid )
 
     # If shell=True, the command must be passed as a single line.
@@ -1358,6 +1363,8 @@ def LogLinuxFileStream(extCommand,aPid):
 
     return pipPOpen.stderr
 
+def CreateFlowsFromLtraceLog(verbose,logStream,maxDepth):
+    raise Exception("Not implemented yet")
 
 def CreateFlowsFromLinuxSystraceLog(verbose,logStream,maxDepth):
     # This is indexed by the pid.
@@ -1461,7 +1468,13 @@ def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition)
 
         currThreshold = currThreshold / 2
 
-def CreateEventLog(argsCmd, aPid, inputLogFile ):
+traceToTracer = {
+    "cdb"    : ( LogWindowsFileStream, CreateFlowsFromWindowsLogger ),
+    "strace" : ( LogSTraceFileStream , CreateFlowsFromLinuxSystraceLog ),
+    "ltrace" : ( LogLTraceFileStream, CreateFlowsFromLtraceLog )
+    }
+
+def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     # A command or a pid or an input log file, only one possibility.
     if argsCmd != []:
         if aPid or inputLogFile:
@@ -1479,12 +1492,12 @@ def CreateEventLog(argsCmd, aPid, inputLogFile ):
         logStream = open(inputLogFile)
         LogSource("File "+inputLogFile)
     else:
-        if sys.platform.startswith("win32"):
-            logStream = LogWindowsFileStream(argsCmd,aPid)
-        elif sys.platform.startswith("linux"):
-            logStream = LogLinuxFileStream(argsCmd,aPid)
-        else:
-            raise Exception("Unknown platform:%s"%sys.platform)
+        try:
+            funcTrace = traceToTracer[ tracer ][0]
+        except KeyError:
+            raise Exception("Unknown tracer:%s"%tracer)
+
+        logStream = funcTrace(argsCmd,aPid)
 
 
     # Another possibility is to start a process or a thread which will monitor
@@ -1492,7 +1505,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile ):
 
     return logStream
 
-def CreateMapFlowFromStream( verbose, logStream, maxDepth ):
+def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
 
@@ -1501,12 +1514,12 @@ def CreateMapFlowFromStream( verbose, logStream, maxDepth ):
 
     # This step transforms the input log into a map of BatchFlow,
     # which have the same format whatever the platform is.
-    if sys.platform.startswith("win32"):
-        mapFlows = CreateFlowsFromWindowsLogger(verbose,logStream,maxDepth)
-    elif sys.platform.startswith("linux"):
-        mapFlows = CreateFlowsFromLinuxSystraceLog(verbose,logStream,maxDepth)
-    else:
-        raise Exception("Unknown platform:%s"%sys.platform)
+    try:
+        funcCreator = traceToTracer[ tracer ][1]
+    except KeyError:
+        raise Exception("Unknown tracer:%s"%tracer)
+
+    mapFlows = funcCreator(verbose,logStream,maxDepth)
 
     # TODO: maxDepth should not be passed as a parameter.
     # It is only there because stats are created.
@@ -1514,7 +1527,7 @@ def CreateMapFlowFromStream( verbose, logStream, maxDepth ):
 
 # Function called for unit tests
 def UnitTest(inputLogFile,outFile):
-    logStream = CreateEventLog([], None, inputLogFile )
+    logStream = CreateEventLog([], None, inputLogFile, "strace" )
 
     maxDepth = 5
     mapFlows = CreateMapFlowFromStream( False, logStream, maxDepth )
@@ -1535,7 +1548,9 @@ def UnitTest(inputLogFile,outFile):
 
 if __name__ == '__main__':
     try:
-        optsCmd, argsCmd = getopt.getopt(sys.argv[1:], "hvp:f:d:w:r:i:", ["help","verbose","pid","format","depth","window","repetition","input"])
+        optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
+                "hvp:f:d:w:r:i:t:",
+                ["help","verbose","pid","format","depth","window","repetition","input","tracer"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
@@ -1547,6 +1562,13 @@ if __name__ == '__main__':
     szWindow = 0
     thresholdRepetition = 10
     inputLogFile = None
+
+    if sys.platform.startswith("win32"):
+        tracer = "cdb"
+    elif sys.platform.startswith("linux"):
+        tracer = "strace"
+    else:
+        tracer = "unknown tracer command"
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
@@ -1564,14 +1586,16 @@ if __name__ == '__main__':
             thresholdRepetition = int(aVal)
         elif anOpt in ("-i", "--input"):
             inputLogFile = aVal
+        elif anOpt in ("-t", "--tracer"):
+            tracer = aVal
         elif anOpt in ("-h", "--help"):
             Usage(0)
         else:
             assert False, "Unhandled option"
 
-    logStream = CreateEventLog(argsCmd, aPid, inputLogFile )
+    logStream = CreateEventLog(argsCmd, aPid, inputLogFile, tracer )
 
-    mapFlows = CreateMapFlowFromStream( verbose, logStream, maxDepth )
+    mapFlows = CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth )
 
     FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition)
 
