@@ -1,7 +1,9 @@
 import os
 import retrobatch
 
-for subdir, dirs, files in os.walk("."):
+# This iterates on the inut test files andgenerate the "compressed" output.as
+#  After that we can check if the results are as expected.
+for subdir, dirs, files in os.walk("UnitTests"):
     for inFile in files:
         #print os.path.join(subdir, file)
 
