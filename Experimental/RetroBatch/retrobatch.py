@@ -1320,9 +1320,77 @@ class BatchFlow:
 def LogSource(msgSource):
     sys.stdout.write("Source:%s\n"%msgSource)
 
+################################################################################
+
+# This executes a Linux command and returns the stderr pipe.
+# It is used to get the return content of strace or ltrace,
+# so it can be parsed.
+def GenerateLinuxStreamFromCommand(aCmd):
+
+    # If shell=True, the command must be passed as a single line.
+    pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
+        stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    return pipPOpen.stderr
+
+################################################################################
 # The command options generate a specific output file format,
 # and therefore parsing it is specific to these options.
-def BuildLinuxCommand(extCommand,aPid):
+def BuildLTraceCommand(extCommand,aPid):
+    # -f  Trace  child  processes as a result of the fork, vfork and clone.
+    aCmd = ["ltrace",
+        "-tt", "-T", "-f", "-S", "-s", "20", 
+        ]
+
+    if extCommand:
+        aCmd += extCommand
+        LogSource("Command "+" ".join(extCommand) )
+    else:
+        aCmd += [ "-p", aPid ]
+        LogSource("Process %s\n"%aPid)
+
+    LogSource("%s\n" % ( " ".join(aCmd) ) )
+
+    return aCmd
+
+def LogLTraceFileStream(extCommand,aPid):
+    aCmd = BuildLTraceCommand( extCommand, aPid )
+    return GenerateLinuxStreamFromCommand(aCmd)
+
+
+# The output log format of ltrace is very similar to strace's, except that:
+# - The system calls are suffixed with "@SYS"
+# - Entering and leaving a shared library is surrounded by the lines:
+# ...  Py_Main(...  <unfinished ...>
+# ...  <... Py_Main resumed> ) 
+
+# [pid 28696] 08:50:25.573022 rt_sigaction@SYS(33, 0x7ffcbdb8f840, 0, 8) = 0 <0.000032>
+# [pid 28696] 08:50:25.573070 rt_sigprocmask@SYS(1, 0x7ffcbdb8f9b8, 0, 8) = 0 <0.000033>
+# [pid 28696] 08:50:25.573127 getrlimit@SYS(3, 0x7ffcbdb8f9a0) = 0 <0.000028>
+# [pid 28696] 08:50:25.576494 __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py"... ] <unfinished ...>
+# [pid 28696] 08:50:25.577718 Py_Main(2, 0x7ffcbdb8faf8, 0x7ffcbdb8fb10, 0 <unfinished ...>
+# [pid 28696] 08:50:25.578559 ioctl@SYS(0, 0x5401, 0x7ffcbdb8f860, 653) = 0 <0.000037>
+# [pid 28696] 08:50:25.578649 brk@SYS(nil)         = 0x21aa000 <0.000019>
+# [pid 28696] 08:50:25.578682 brk@SYS(0x21cb000)   = 0x21cb000 <0.000021>
+# ...
+# [pid 28735] 08:51:40.608641 rt_sigaction@SYS(2, 0x7ffeaa2e6870, 0x7ffeaa2e6910, 8)                                = 0 <0.000109>
+# [pid 28735] 08:51:40.611613 sendto@SYS(3, 0x19a7fd8, 5, 0)                                                        = 5 <0.000445>
+# [pid 28735] 08:51:40.612230 shutdown@SYS(3, 2, 0, 0)                                                              = 0 <0.000119>
+# [pid 28735] 08:51:40.612451 close@SYS(3)                                                                          = 0 <0.000156>
+# [pid 28735] 08:51:40.615726 close@SYS(7)                                                                          = 0 <0.000305>
+# [pid 28735] 08:51:40.616610 <... Py_Main resumed> )                                                               = 0 <1.092079>
+# [pid 28735] 08:51:40.616913 exit_group@SYS(0 <no return ...>
+
+
+
+def CreateFlowsFromLtraceLog(verbose,logStream,maxDepth):
+    raise Exception("Not implemented yet")
+
+################################################################################
+# The command options generate a specific output file format,
+# and therefore parsing it is specific to these options.
+def BuildSTraceCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     aCmd = ["strace",
         "-q", "-qq", "-f", "-tt", "-T", "-s", "20", "-y", "-yy",
@@ -1340,9 +1408,6 @@ def BuildLinuxCommand(extCommand,aPid):
 
     return aCmd
 
-def LogLTraceFileStream(extCommand,aPid):
-    raise Exception("Not implemented yet")
-
 #
 # 22:41:05.094710 rt_sigaction(SIGRTMIN, {0x7f18d70feb20, [], SA_RESTORER|SA_SIGINFO, 0x7f18d7109430}, NULL, 8) = 0 <0.000008>
 # 22:41:05.094841 rt_sigaction(SIGRT_1, {0x7f18d70febb0, [], SA_RESTORER|SA_RESTART|SA_SIGINFO, 0x7f18d7109430}, NULL, 8) = 0 <0.000018>
@@ -1350,25 +1415,19 @@ def LogLTraceFileStream(extCommand,aPid):
 # 22:41:05.095113 getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0 <0.000008>
 # 22:41:05.095350 statfs("/sys/fs/selinux", 0x7ffd5a97f9e0) = -1 ENOENT (No such file or directory) <0.000019>
 #
-# The command and the parsing are specific to Linux.
+# The command parameters and the parsing are specific to strace.
 # It returns a data structure which is generic.
 
 def LogSTraceFileStream(extCommand,aPid):
-    aCmd = BuildLinuxCommand( extCommand, aPid )
+    aCmd = BuildSTraceCommand( extCommand, aPid )
+    return GenerateLinuxStreamFromCommand(aCmd)
 
-    # If shell=True, the command must be passed as a single line.
-    pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
-        stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stdout=subprocess.PIPE)
-
-    return pipPOpen.stderr
-
-def CreateFlowsFromLtraceLog(verbose,logStream,maxDepth):
-    raise Exception("Not implemented yet")
-
-def CreateFlowsFromLinuxSystraceLog(verbose,logStream,maxDepth):
+def CreateFlowsFromLinuxSTraceLog(verbose,logStream,maxDepth):
     # This is indexed by the pid.
-    mapFlows = { -1 : BatchFlow(maxDepth) }
+    # mapFlows = { -1 : BatchFlow(maxDepth) }
+    # yield ( -1 : BatchFlow(maxDepth) )
+    # yield BatchFlow(maxDepth)
+
 
     while True:
         oneLine = ""
@@ -1409,20 +1468,23 @@ def CreateFlowsFromLinuxSystraceLog(verbose,logStream,maxDepth):
             # if the current line cannot reasonably transformed
             # into a usable call.
             # sys.stdout.write("oneLine before add=%s"%oneLine)
-            aCore = aBatch.m_core
+            # aCore = aBatch.m_core
 
-            aPid = aCore.m_pid
+            # aPid = aCore.m_pid
 
-            try:
-                btchTree = mapFlows[ aPid ]
-            except KeyError:
+            #try:
+            #    btchTree = mapFlows[ aPid ]
+            #except KeyError:
                 # This is the first system call of this process.
-                btchTree = BatchFlow(maxDepth)
-                mapFlows[ aPid ] = btchTree
+            #    btchTree = BatchFlow(maxDepth)
+            #    mapFlows[ aPid ] = btchTree
 
-            btchTree.AddBatch( aBatch )
+            # btchTree.AddBatch( aBatch )
+            yield aBatch
 
-    return mapFlows
+    # return mapFlows
+
+################################################################################
 
 def FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition):
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
@@ -1470,7 +1532,7 @@ def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition)
 
 traceToTracer = {
     "cdb"    : ( LogWindowsFileStream, CreateFlowsFromWindowsLogger ),
-    "strace" : ( LogSTraceFileStream , CreateFlowsFromLinuxSystraceLog ),
+    "strace" : ( LogSTraceFileStream , CreateFlowsFromLinuxSTraceLog ),
     "ltrace" : ( LogLTraceFileStream, CreateFlowsFromLtraceLog )
     }
 
@@ -1512,6 +1574,8 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
     # Consider some flexibility in this input format.
     # This is why there are two implementations.
 
+    mapFlows = {}
+
     # This step transforms the input log into a map of BatchFlow,
     # which have the same format whatever the platform is.
     try:
@@ -1519,7 +1583,21 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
     except KeyError:
         raise Exception("Unknown tracer:%s"%tracer)
 
-    mapFlows = funcCreator(verbose,logStream,maxDepth)
+    # mapFlows = funcCreator(verbose,logStream,maxDepth)
+    mapFlowsGenerator = funcCreator(verbose,logStream,maxDepth)
+
+    for oneBatch in mapFlowsGenerator:
+        aCore = oneBatch.m_core
+
+        aPid = aCore.m_pid
+        try:
+            btchFlow = mapFlows[ aPid ]
+        except KeyError:
+            # This is the first system call of this process.
+            btchFlow = BatchFlow(maxDepth)
+            mapFlows[ aPid ] = btchFlow
+
+        btchFlow.AddBatch( oneBatch )
 
     # TODO: maxDepth should not be passed as a parameter.
     # It is only there because stats are created.
