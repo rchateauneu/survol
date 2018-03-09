@@ -193,12 +193,30 @@ class ExceptionIsExit(Exception):
 class ExceptionIsSignal(Exception):
     pass
 
+
+################################################################################
+
+# These functions return an object path.
+
+def ToObjectPath_CIM_Process(aPid):
+    objectPath = 'CIM_Process.Handle="%s"' % aPid
+    return objectPath
+
+# TODO: It might be a Linux socket or an IP socket.
+def ToObjectPath_CIM_DataFile(pathName):
+    objectPath = 'CIM_DataFile.Name="%s"' % pathName
+    return objectPath
+
+################################################################################
+
 # strace associates file descriptors to the original file or socket which created it.
 # Option "-y          Print paths associated with file descriptor arguments."
 # read ['3</usr/lib64/libc-2.21.so>']
+# This returns a WMI object path, which is self-descriptive.
 def STraceStreamToFile(strmStr):
     idxLT = strmStr.find("<")
-    return strmStr[ idxLT + 1 : -1 ]
+    pathName = strmStr[ idxLT + 1 : -1 ]
+    return ToObjectPath_CIM_DataFile( pathName )
 
 
 # Typical strings displayed by strace:
@@ -507,8 +525,8 @@ class BatchLet_open(BatchLetBase,object):
     # of calls on the same parameters.
 
     def SignificantArgs(self):
-        # return self.StreamName()
-        return [ self.m_core.m_parsedArgs[0] ]
+        pathName = self.m_core.m_parsedArgs[0]
+        return [ ToObjectPath_CIM_DataFile(pathName) ]
 
 class BatchLet_openat(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -593,7 +611,7 @@ class BatchLet_clone(BatchLetBase,object):
     def SignificantArgs(self):
         # return [ self.m_core.m_parsedArgs[0] ]
         # This is the created pid.
-        return [ self.m_core.m_retValue ]
+        return [ ToObjectPath_Cim_Process( self.m_core.m_retValue ) ]
 
     # Process creations are not aggregated, not to lose the new pid.
     def SameCall(self,anotherBatch):
@@ -622,7 +640,7 @@ class BatchLet_wait4(BatchLetBase,object):
 
     def SignificantArgs(self):
         # The first argument is the PID.
-        return [ self.m_core.m_parsedArgs[0] ]
+        return [ ToObjectPath_CIM_Process( self.m_core.m_parsedArgs[0] ) ]
 
 class BatchLet_newfstatat(BatchLetBase,object):
     def __init__(self,batchCore):
