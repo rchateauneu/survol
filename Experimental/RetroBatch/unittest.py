@@ -35,12 +35,7 @@ for baseName in mapFiles:
     print(baseName)
     inputLogFile = baseName + ".log"
 
-    # The file format might be "xyzxyz.strace.log", "abcabc.ltrace.log", "123123.cdb.log"
-    # depending on the tool which generated the log.
-    matchTrace = re.match(".*\.([^\.]*)\.log", inputLogFile )
-    if not matchTrace:
-        raise Exception("Cannot read tracer from log file name:%s"%inputLogFile)
-    tracer = matchTrace.group(1)
+    tracer = retrobatch.DefaultTracer(inputLogFile)
 
     for outFilNam in mapFiles[baseName]:
         print("    "+outFilNam)

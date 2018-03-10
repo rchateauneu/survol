@@ -209,9 +209,12 @@ def ToObjectPath_CIM_DataFile(pathName):
 
 ################################################################################
 
-# This associates file descriptos to path names when strace and the option "-y"
+# This associates file descriptors to path names when strace and the option "-y"
 # cannot be used.
-mapFilDesToPathName = {}
+mapFilDesToPathName = {
+    "0" : "stdin",
+    "1" : "stdout",
+    "2" : "stderr"}
 
 # strace associates file descriptors to the original file or socket which created it.
 # Option "-y          Print paths associated with file descriptor arguments."
@@ -227,7 +230,10 @@ def STraceStreamToFile(strmStr):
         try:
             pathName = mapFilDesToPathName[ strmStr ]
         except KeyError:
-            pathName = "UnknownFileDescr:%s" % strmStr
+            if strmStr == "-1": # Normal return value.
+                pathName = strmStr
+            else:
+                pathName = "UnknownFileDescr:%s" % strmStr
     return ToObjectPath_CIM_DataFile( pathName )
 
 ################################################################################
@@ -370,17 +376,27 @@ def CreateBatchCore(oneLine,tracer):
 
 # Each class is indexed with the name of the corresponding system call name.
 # If the class is None, it means that this function is explicitly neglected.
-# If it is not defined after metaclass registration,
-# then it is processed by BatchLetBase.
+# If it is not defined after metaclass registration, then it is processed by BatchLetBase.
 # Derived classes of BatchLetBase self-register thanks to the metaclass.
+# At init time, this map contains the suystems calls which should be ignored.
 batchModels = {
-    # "open"      : BatchLet_open,
+    # "open"          : BatchLet_open,
     # ...
-    # "close"     : BatchLet_close,
-    "mprotect"  : None,
-    "brk"       : None,
-    "lseek"     : None,
-    "arch_prctl": None,
+    # "close"         : BatchLet_close,
+    "mprotect"        : None,
+    "brk"             : None,
+    "lseek"           : None,
+    "arch_prctl"      : None,
+    "rt_sigaction"    : None,
+    "set_tid_address" : None,
+    "set_robust_list" : None,
+    "rt_sigprocmask"  : None,
+    "rt_sigaction"    : None,
+    "geteuid"         : None,
+    "getuid"          : None,
+    "getegid"         : None,
+    "getrlimit"       : None,
+    "futex"           : None,
 }
 
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
@@ -543,14 +559,30 @@ def BatchDumperFactory(strm, outputFormat):
 
 ################################################################################
 
+# Some Linux functioins return a file descriptor which can be invalid:
+# This is not shown the same way depending on the tracer: strace or ltrace.
+# On Linux, ENOENT = 2.
+def InvalidReturnedFileDescriptor(fileDes,tracer):
+    if tracer == "strace":
+        # 09:18:26.452764 open("/usr/lib/python2.7/numbersmodule.so", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory) <0.000012>
+        if fileDes.find("ENOENT") >= 0 :
+            return True
+    elif tracer == "ltrace":
+        # [pid 4784] 16:42:12.033450 open@SYS("/usr/lib64/python2.7/numbersmodule.so", 0, 0666) = -2 <0.000195>
+        if fileDes.find("-2") >= 0 :
+            return True
+    else:
+        raise Exception("Tracer %s not supported yet"%tracer)
+    return False
+
 
 ##### File descriptor system calls.
 
 # Must be a new-style class.
 class BatchLet_open(BatchLetBase,object):
     def __init__(self,batchCore):
-        if batchCore.m_retValue.find("ENOENT") >= 0 :
-            # TODO: If the open is not successful, maybe it should be rejected.
+        # TODO: If the open is not successful, maybe it should be rejected.
+        if InvalidReturnedFileDescriptor(batchCore.m_retValue,batchCore.m_tracer):
             return
         super( BatchLet_open,self).__init__(batchCore)
 
@@ -578,7 +610,7 @@ class BatchLet_open(BatchLetBase,object):
             mapFilDesToPathName[ filDes ] = pathName
             self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
         else:
-            raise Exception("Tfacer %s not supported yet"%batchCore.m_tracer)
+            raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
 class BatchLet_openat(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -623,7 +655,16 @@ class BatchLet_ioctl(BatchLetBase,object):
 
 class BatchLet_stat(BatchLetBase,object):
     def __init__(self,batchCore):
+        # TODO: If the stat is not successful, maybe it should be rejected.
+        if InvalidReturnedFileDescriptor(batchCore.m_retValue,batchCore.m_tracer):
+            return
         super( BatchLet_stat,self).__init__(batchCore)
+
+        self.m_significantArgs = [ ToObjectPath_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
+
+class BatchLet_lstat(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_lstat,self).__init__(batchCore)
 
         self.m_significantArgs = [ ToObjectPath_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
 
@@ -889,12 +930,17 @@ class BatchLet_socket(BatchLetBase,object):
 
         self.m_significantArgs = [ STraceStreamToFile(self.m_core.m_retValue) ]
 
-# connect(6<UNIX:[2038057]>, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110)
+# Different output depending on the tracer:
+# strace: connect(6<UNIX:[2038057]>, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110)
+# ltrace: connect@SYS(3, 0x25779f0, 16, 0x1999999999999999)
 class BatchLet_connect(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_connect,self).__init__(batchCore)
 
-        self.m_significantArgs = [ STraceStreamToFile(self.m_core.m_parsedArgs[0]), self.m_core.m_parsedArgs[1] ]
+        # Only the file descriptor is taken into account.
+        # The other parameters are of interest but would hamper clusterization
+        # of system calls.
+        self.m_significantArgs = [ STraceStreamToFile(self.m_core.m_parsedArgs[0]) ]
 
 # sendto(7<UNIX:[2038065->2038073]>, "\24\0\0", 16, MSG_NOSIGNAL, NULL, 0) = 16
 class BatchLet_sendto(BatchLetBase,object):
@@ -921,6 +967,15 @@ class BatchLet_shutdown(BatchLetBase,object):
         super( BatchLet_shutdown,self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
+
+
+
+
+
+#F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python', '', '4096'] ==>> 7 (16:42:10,16:42:10)
+#F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2', 'python2', '4096'] ==>> 9 (16:42:10,16:42:10)
+#F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2.7', 'python2.7', '4096'] ==>> -22 (16:42:10,16:42:10)
+
 
 ################################################################################
 
@@ -1321,7 +1376,6 @@ def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition)
     btchTree.ClusterizeBatchesByArguments()
 
     btchTree.DumpFlow(sys.stdout,outputFormat)
-    # treeStats = btchTree.CreateStatisticsTree(maxDepth)
 
 
 traceToTracer = {
@@ -1329,6 +1383,27 @@ traceToTracer = {
     "strace" : ( LogSTraceFileStream , CreateFlowsFromLinuxSTraceLog ),
     "ltrace" : ( LogLTraceFileStream, CreateFlowsFromLtraceLog )
     }
+
+def DefaultTracer(inputLogFile,tracer=None):
+    if not tracer:
+        if inputLogFile:
+            # The file format might be "xyzxyz.strace.log", "abcabc.ltrace.log", "123123.cdb.log"
+            # depending on the tool which generated the log.
+            matchTrace = re.match(".*\.([^\.]*)\.log", inputLogFile )
+            if not matchTrace:
+                raise Exception("Cannot read tracer from log file name:%s"%inputLogFile)
+            tracer = matchTrace.group(1)
+        else:
+            if sys.platform.startswith("win32"):
+                tracer = "cdb"
+            elif sys.platform.startswith("linux"):
+                # This could also be "ltrace", but "strace" is more usual.
+                tracer = "strace"
+            else:
+                raise Exception("Unknown platform")
+    LogSource("Tracer "+tracer)
+    return tracer
+
 
 def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     # A command or a pid or an input log file, only one possibility.
@@ -1434,13 +1509,7 @@ if __name__ == '__main__':
     szWindow = 0
     thresholdRepetition = 10
     inputLogFile = None
-
-    if sys.platform.startswith("win32"):
-        tracer = "cdb"
-    elif sys.platform.startswith("linux"):
-        tracer = "strace"
-    else:
-        tracer = "unknown tracer command"
+    tracer = None
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
@@ -1465,6 +1534,7 @@ if __name__ == '__main__':
         else:
             assert False, "Unhandled option"
 
+    tracer = DefaultTracer( inputLogFile, tracer )
     logStream = CreateEventLog(argsCmd, aPid, inputLogFile, tracer )
 
     mapFlows = CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth )
