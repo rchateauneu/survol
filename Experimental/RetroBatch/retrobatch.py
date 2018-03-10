@@ -1192,7 +1192,9 @@ def LogLTraceFileStream(extCommand,aPid):
 
 
 def CreateFlowsFromLtraceLog(verbose,logStream,maxDepth):
-    raise Exception("Not implemented yet")
+    # The output format of the command ltrace seems very similar to strace
+    # so for the moment, no reason not to use it.
+    return CreateFlowsFromLinuxSTraceLog(verbose,logStream,maxDepth)
 
 ################################################################################
 # The command options generate a specific output file format,
@@ -1230,12 +1232,6 @@ def LogSTraceFileStream(extCommand,aPid):
     return GenerateLinuxStreamFromCommand(aCmd)
 
 def CreateFlowsFromLinuxSTraceLog(verbose,logStream,maxDepth):
-    # This is indexed by the pid.
-    # mapFlows = { -1 : BatchFlow(maxDepth) }
-    # yield ( -1 : BatchFlow(maxDepth) )
-    # yield BatchFlow(maxDepth)
-
-
     while True:
         oneLine = ""
 
@@ -1269,27 +1265,7 @@ def CreateFlowsFromLinuxSTraceLog(verbose,logStream,maxDepth):
         # This could be done without intermediary string.
         aBatch = BatchFactory(oneLine)
         if aBatch:
-
-            # Is it defined ?
-            # This throws of the core object could not be created
-            # if the current line cannot reasonably transformed
-            # into a usable call.
-            # sys.stdout.write("oneLine before add=%s"%oneLine)
-            # aCore = aBatch.m_core
-
-            # aPid = aCore.m_pid
-
-            #try:
-            #    btchTree = mapFlows[ aPid ]
-            #except KeyError:
-                # This is the first system call of this process.
-            #    btchTree = BatchFlow(maxDepth)
-            #    mapFlows[ aPid ] = btchTree
-
-            # btchTree.AddBatch( aBatch )
             yield aBatch
-
-    # return mapFlows
 
 ################################################################################
 
@@ -1392,16 +1368,12 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
     return mapFlows
 
 # Function called for unit tests
-def UnitTest(inputLogFile,outFile):
-    # This assumes the format of the input file,
-    # but we could use any method to deduce it.
-    tracer = "strace"
+def UnitTest(inputLogFile,tracer,outFile,outputFormat):
     logStream = CreateEventLog([], None, inputLogFile, tracer )
 
     maxDepth = 5
     mapFlows = CreateMapFlowFromStream( False, logStream, tracer, maxDepth )
 
-    outputFormat = "TXT"
     FactorizeMapFlows(mapFlows,False,outputFormat,maxDepth,0)
 
     outFd = open(outFile, "w")
@@ -1426,7 +1398,7 @@ if __name__ == '__main__':
 
     verbose = False
     aPid = None
-    outputFormat = "TXT"
+    outputFormat = "TXT" # Default output format of the generated files.
     maxDepth = 5
     szWindow = 0
     thresholdRepetition = 10
