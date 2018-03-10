@@ -594,6 +594,19 @@ class BatchLet_munmap(BatchLetBase,object):
         # The parameter is only an address and we cannot do much with it.
         return []
 
+# 'mmap2' ['NULL', '4096', 'PROT_READ|PROT_WRITE', 'MAP_PRIVATE|MAP_ANONYMOUS', '-1', '0'] ==>> 0xf7b21000 (09:18:26,09:18:26)
+class BatchLet_mmap2(BatchLetBase,object):
+    def __init__(self,batchCore):
+        # Not interested by anonymous map because there is no side effect.
+        if batchCore.m_parsedArgs[3].find("MAP_ANONYMOUS") >= 0:
+            return
+        super( BatchLet_mmap2,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName(4)
+
+
+
 ##### File system calls.
 
 class BatchLet_fstat(BatchLetBase,object):
@@ -883,7 +896,6 @@ class BatchLet_shutdown(BatchLetBase,object):
         return self.StreamName()
 
 
-# 'mmap2               ' ['NULL', '4096', 'PROT_READ|PROT_WRITE', 'MAP_PRIVATE|MAP_ANONYMOUS', '-1', '0'] ==>> 0xf7b21000 (09:18:26,09:18:26)
 
 
 
@@ -920,54 +932,6 @@ def BatchFactory(oneLine):
 
 ################################################################################
 
-
-
-# Typical repetitions:
-
-# This happens at process startup:
-# open ['/lib64/libselinux.so.']
-# read ['/usr/lib64/libselinux.so.1']
-# fstat ['/usr/lib64/libselinux.so.1']
-# mmap ['/usr/lib64/libselinux.so.1']
-# mmap ['/usr/lib64/libselinux.so.1']
-# close ['/usr/lib64/libselinux.so.1']
-# open ['/lib64/libm.so.']
-# read ['/usr/lib64/libm-2.21.so']
-# fstat ['/usr/lib64/libm-2.21.so']
-# mmap ['/usr/lib64/libm-2.21.so']
-# mmap ['/usr/lib64/libm-2.21.so']
-# close ['/usr/lib64/libm-2.21.so']
-# open ['/lib64/libc.so.']
-# read ['/usr/lib64/libc-2.21.so']
-# fstat ['/usr/lib64/libc-2.21.so']
-# mmap ['/usr/lib64/libc-2.21.so']
-# mmap ['/usr/lib64/libc-2.21.so']
-# close ['/usr/lib64/libc-2.21.so']
-
-
-
-# open ['/usr/share/locale/en_GB.UTF-8/LC_MESSAGES/findutils.m']
-# open ['/usr/share/locale/en_GB.utf8/LC_MESSAGES/findutils.m']
-# ...
-# open ['/usr/share/locale/en.utf8/LC_MESSAGES/findutils.m']
-# open ['/usr/share/locale/en/LC_MESSAGES/findutils.m']
-
-# write ['pipe:[82244]']
-# write ['pipe:[82244]']
-# ...
-# write ['pipe:[82244]']
-
-
-#def GetBatchesSignature(arrBatches):
-#    arrSigs = [ aBatch.GetSignature() for aBatch in arrBatches ]
-#    sigBatch = ",".join( arrSigs )
-#    return sigBatch
-
-# This is just a helper for counting generated sequences.
-# countSequence = 0
-
-# VIRE LES BATCHLETS QUI N ONT PAS A D ARGUMENT INTERESSANT, STYLE FICHIER OU SOCKET.
-# SELON LA DLL CA SE FERA DIFFEREMMENT.
 
 # This groups several contiguous BatchLet which form a logical operation.
 # For example (If the argument is factorised).:
