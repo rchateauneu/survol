@@ -509,6 +509,9 @@ def BatchDumperFactory(strm, outputFormat):
 
 ################################################################################
 
+
+##### File descriptor system calls.
+
 # Must be a new-style class.
 class BatchLet_open(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -532,10 +535,19 @@ class BatchLet_openat(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_openat,self).__init__(batchCore)
 
-    # TODO: A relative pathname is interpreted relative to the directory
+    # A relative pathname is interpreted relative to the directory
     # referred to by the file descriptor passed as first parameter.
     def SignificantArgs(self):
-        return self.StreamName(1)
+        dirNam = self.m_core.m_parsedArgs[0]
+
+        if dirNam == "AT_FDCWD":
+            dirPath = "."
+        else:
+            dirPath = STraceStreamToFile( dirNam )
+
+        filNam = self.m_core.m_parsedArgs[1]
+        pathName = dirPath +"/" + filNam
+        return [ ToObjectPath_CIM_DataFile( pathName ) ]
 
 class BatchLet_close(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -558,6 +570,15 @@ class BatchLet_write(BatchLetBase,object):
     def SignificantArgs(self):
         return self.StreamName()
 
+class BatchLet_ioctl(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_ioctl,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return [ STraceStreamToFile( self.m_core.m_parsedArgs[0] ) ] + self.m_core.m_parsedArgs[1:0]
+
+##### Memory system calls.
+
 class BatchLet_mmap(BatchLetBase,object):
     def __init__(self,batchCore):
         # Not interested by anonymous map because there is no side effect.
@@ -576,16 +597,32 @@ class BatchLet_munmap(BatchLetBase,object):
         # The parameter is only an address and we cannot do much with it.
         return []
 
-class BatchLet_ioctl(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLet_ioctl,self).__init__(batchCore)
-
-    def SignificantArgs(self):
-        return [ STraceStreamToFile( self.m_core.m_parsedArgs[0] ) ] + self.m_core.m_parsedArgs[1:0]
+##### File system calls.
 
 class BatchLet_fstat(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_fstat,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_fstat64(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_fstat64,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_fstatfs(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_fstatfs,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_fadvise64(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_fadvise64,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName()
@@ -604,6 +641,44 @@ class BatchLet_fcntl(BatchLetBase,object):
     def SignificantArgs(self):
         return self.StreamName()
 
+class BatchLet_fcntl64(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_fcntl64,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_fchown(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_fchown,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_ftruncate(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_ftruncate,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_fsync(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_fsync,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+class BatchLet_fchmod(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_fchmod,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+
+##### Process system calls.
+
 class BatchLet_clone(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_clone,self).__init__(batchCore)
@@ -611,7 +686,7 @@ class BatchLet_clone(BatchLetBase,object):
     def SignificantArgs(self):
         # return [ self.m_core.m_parsedArgs[0] ]
         # This is the created pid.
-        return [ ToObjectPath_Cim_Process( self.m_core.m_retValue ) ]
+        return [ ToObjectPath_CIM_Process( self.m_core.m_retValue ) ]
 
     # Process creations are not aggregated, not to lose the new pid.
     def SameCall(self,anotherBatch):
@@ -627,8 +702,12 @@ class BatchLet_execve(BatchLetBase,object):
             return
         super( BatchLet_execve,self).__init__(batchCore)
 
+    # The first argument is the executable file name, while the second is an array 
+    # of command-line parameters.
     def SignificantArgs(self):
-        return self.m_core.m_parsedArgs[0:2]
+        return [
+            ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0] ),
+            self.m_core.m_parsedArgs[1] ]
 
     # Process creations are not aggregated.
     def SameCall(self,anotherBatch):
@@ -642,14 +721,29 @@ class BatchLet_wait4(BatchLetBase,object):
         # The first argument is the PID.
         return [ ToObjectPath_CIM_Process( self.m_core.m_parsedArgs[0] ) ]
 
+class BatchLet_exit_group(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_exit_group,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return []
+
+#####
+
 class BatchLet_newfstatat(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_newfstatat,self).__init__(batchCore)
 
     def SignificantArgs(self):
         dirNam = self.m_core.m_parsedArgs[0]
+
+        if dirNam == "AT_FDCWD":
+            dirPath = "."
+        else:
+            dirPath = STraceStreamToFile( dirNam )
+
         filNam = self.m_core.m_parsedArgs[1]
-        pathName = dirNam +"/" + filNam
+        pathName = dirPath +"/" + filNam
         return [ pathName ]
 
 class BatchLet_getdents(BatchLetBase,object):
@@ -659,12 +753,14 @@ class BatchLet_getdents(BatchLetBase,object):
     def SignificantArgs(self):
         return self.StreamName()
 
-class BatchLet_openat(BatchLetBase,object):
+class BatchLet_getdents64(BatchLetBase,object):
     def __init__(self,batchCore):
-        super( BatchLet_openat,self).__init__(batchCore)
+        super( BatchLet_getdents64,self).__init__(batchCore)
 
     def SignificantArgs(self):
-        return [ self.m_core.m_parsedArgs[0] ]
+        return self.StreamName()
+
+##### Sockets system calls.
 
 class BatchLet_sendmsg(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -673,9 +769,25 @@ class BatchLet_sendmsg(BatchLetBase,object):
     def SignificantArgs(self):
         return self.StreamName()
 
+# sendmmsg(3<socket:[535040600]>, {{{msg_name(0)=NULL, msg_iov(1)=[{"\270\32\1\0\0\1\0\0
+class BatchLet_sendmmsg(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_sendmmsg,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
 class BatchLet_recvmsg(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_recvmsg,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+# recvfrom(3<socket:[535040600]>, "\270\32\201\203\0\1\0\0\0\1\0\0\
+class BatchLet_recvfrom(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_recvfrom,self).__init__(batchCore)
 
     def SignificantArgs(self):
         return self.StreamName()
@@ -721,13 +833,20 @@ class BatchLet_select(BatchLetBase,object):
 
         return [ arrFilRead, arrFilWrit, arrFilExcp ]
 
+class BatchLet_setsockopt(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_setsockopt,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return [ self.m_core.m_retValue ]
+
 # socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 6<UNIX:[2038057]>
 class BatchLet_socket(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_socket,self).__init__(batchCore)
 
     def SignificantArgs(self):
-        return [ self.m_core.m_retValue ]
+        return [ STraceStreamToFile(self.m_core.m_retValue) ]
 
 # connect(6<UNIX:[2038057]>, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110)
 class BatchLet_connect(BatchLetBase,object):
@@ -745,13 +864,6 @@ class BatchLet_sendto(BatchLetBase,object):
     def SignificantArgs(self):
         return self.StreamName()
 
-class BatchLet_exit_group(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLet_exit_group,self).__init__(batchCore)
-
-    def SignificantArgs(self):
-        return []
-
 # TODO: If the return value is not zero, maybe reject.
 # pipe([3<pipe:[255278]>, 4<pipe:[255278]>]) = 0
 class BatchLet_pipe(BatchLetBase,object):
@@ -764,6 +876,19 @@ class BatchLet_pipe(BatchLetBase,object):
         arrFil1 = STraceStreamToFile(arrPipes[1])
 
         return [ arrFil0, arrFil1 ]
+
+
+class BatchLet_shutdown(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_shutdown,self).__init__(batchCore)
+
+    def SignificantArgs(self):
+        return self.StreamName()
+
+
+# 'mmap2               ' ['NULL', '4096', 'PROT_READ|PROT_WRITE', 'MAP_PRIVATE|MAP_ANONYMOUS', '-1', '0'] ==>> 0xf7b21000 (09:18:26,09:18:26)
+
+
 
 
 ################################################################################
@@ -1623,10 +1748,13 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
 
 # Function called for unit tests
 def UnitTest(inputLogFile,outFile):
-    logStream = CreateEventLog([], None, inputLogFile, "strace" )
+    # This assumes the format of the input file,
+    # but we could use any method to deduce it.
+    tracer = "strace"
+    logStream = CreateEventLog([], None, inputLogFile, tracer )
 
     maxDepth = 5
-    mapFlows = CreateMapFlowFromStream( False, logStream, maxDepth )
+    mapFlows = CreateMapFlowFromStream( False, logStream, tracer, maxDepth )
 
     outputFormat = "TXT"
     FactorizeMapFlows(mapFlows,False,outputFormat,maxDepth,0)
