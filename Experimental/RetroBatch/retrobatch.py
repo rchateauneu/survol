@@ -112,7 +112,6 @@ def AppendArgToResult( theResult, currStr, isArray ):
 # Beware that the input string might be incomplete: "{st_mode=S_IFREG|0644, st_size=121043, ...}"
 def ParseSTraceObject(aStr,isArray):
     # sys.stdout.write("ParseSTraceObject %s\n"%aStr)
-    idx = 0
 
     if isArray:
         theResult = []
@@ -152,7 +151,8 @@ def ParseSTraceObject(aStr,isArray):
         currStr += aChr
         continue
 
-    if currStr:
+    # If there is something in the string.
+    if aStr:
         AppendArgToResult( theResult, currStr, isArray )
 
     return theResult
@@ -238,6 +238,14 @@ def STraceStreamToFile(strmStr):
 
 ################################################################################
 
+# ltrace logs
+# [rchateau@fedora22 RetroBatch]$ grep libc_start UnitTests/mineit_gcc_hello_world.ltrace.log  | more
+# [pid 6414] 23:58:46.424055 __libc_start_main([ "gcc", "TestProgs/HelloWorld.c" ] <unfinished ...>
+# [pid 6415] 23:58:47.905826 __libc_start_main([ "/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1", "-quiet", "TestProgs/HelloWorld.c", "-quiet"... ] <unfinished ...>
+#
+
+
+
 # Typical strings displayed by strace:
 # [pid  7492] 07:54:54.205073 wait4(18381, [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18381 <0.000894>
 # [pid  7492] 07:54:54.206000 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18381, si_uid=1000, si_status=1, si_utime=0, si_stime=0 } ---
@@ -247,8 +255,6 @@ def STraceStreamToFile(strmStr):
 # [pid  7492] [{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>
 # 07:54:54.207500 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18382, si_uid=1000, si_status=2, si_utime=0, si_stime=0 } ---
 
-# This is set to the parent pid as soon as it can be detected.
-### rootPid = None
 
 class BatchLetCore:
     # The input line is read from "strace" command.
@@ -287,10 +293,11 @@ class BatchLetCore:
 
     def SetFunction(self, funcFull):
         # With ltrace, systems calls are suffix with the string "@SYS".
-        idxArrobas = funcFull.find("@")
-        if idxArrobas >= 0 :
-            self.m_funcNam = funcFull[:idxArrobas]
+        if self.m_tracer == "strace":
+            # strace can only intercept system calls.
+            self.m_funcNam = funcFull + "@SYS"
         else:
+            # 
             self.m_funcNam = funcFull
 
     # This parsing is specific to strace.
@@ -300,7 +307,7 @@ class BatchLetCore:
         if oneLine[0] == '[':
             raise ExceptionIsExit()
 
-        # sys.stdout.write("oneLine2=%s" % oneLine )
+        # sys.stdout.write("oneLine=%s" % oneLine )
 
         # This could be done without intermediary string.
         # "07:54:54.206113"
@@ -327,39 +334,84 @@ class BatchLetCore:
         if theCall[0:4] == "+++ ":
             raise ExceptionIsSignal()
 
-        idxPar = theCall.find("(")
 
-        if idxPar <= 0 :
-            raise Exception("No function in:%s"%oneLine)
+        # Specific logic of interrupted calls.
+        # [pid 12666] 14:50:45.609523 wait4@SYS(-1, 0x7ffd59a919e0, 0, 0 <unfinished ...>
+        # [pid 12666] 14:50:45.666995 <... wait4 resumed> ) = 0x317b <0.057470>
 
-        self.SetFunction( theCall[:idxPar] )
+        # ... with functions which do not implying signals or processes:
+        # [pid 12693] 14:55:38.882089 fwrite(" ?", 2, 1, 0x7f93548c5620 <unfinished ...>
+        # [pid 12693] 14:55:38.882412 <... fwrite resumed> ) = 1 <0.000319>
+
+        # Sometimes on two recursive levels:
+        # [pid 12753] 14:56:54.288041 sigaction(SIGCHLD, { nil, <>, 0, nil } <unfinished ...>
+        # [pid 12753] 14:56:54.288231 rt_sigaction@SYS(17, 0x7ffe7c383380, 0x7ffe7c383420, 8 <unfinished ...>
+        # [pid 12753] 14:56:54.288299 <... rt_sigaction resumed> ) = 0 <0.000069>
+        # [pid 12753] 14:56:54.288404 <... sigaction resumed> , { 0x5612836832c0, <>, 0, nil }) = 0 <0.000361>
+
+        # "[pid 18534] 19:58:38.406747 wait4(18666,  <unfinished ...>"
+        # "19:58:38.410766 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18666 <0.004009>"
 
         idxGT = theCall.rfind(">")
         # sys.stdout.write("idxGT=%d\n" % idxGT )
         idxLT = theCall.rfind("<",0,idxGT)
         # sys.stdout.write("idxLT=%d\n" % idxLT )
+        self.m_unfinished = False
         if idxLT >= 0 :
-            self.m_execTim = theCall[idxLT+1:idxGT]
+            exeTm = theCall[idxLT+1:idxGT]
+            if exeTm == "unfinished ...":
+                self.m_execTim = ""
+                self.m_unfinished = True
+            else:
+                self.m_execTim = theCall[idxLT+1:idxGT]
         else:
             self.m_execTim = ""
 
-        # Maybe the system call is interrupted by a signal.
-        # "[pid 18534] 19:58:38.406747 wait4(18666,  <unfinished ...>"
-        # "19:58:38.410766 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18666 <0.004009>"
+        matchResume = re.match( "<\.\.\. ([^ ]*) resumed> (.*)", theCall )
+        if matchResume:
+            self.m_resumed = True
+            # Sanity check
+            if self.m_unfinished:
+                raise Exception("Should not be unfinished")
+            # TODO: Should check if this is the correct function name.
+            funcNameResumed = matchResume.group(1)
+            self.SetFunction( funcNameResumed )
 
-        idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
+            # ") = 0 <0.000069>"
+            # ", { 0x5612836832c0, <>, 0, nil }) = 0 <0.000361>"
+            # lineRest = matchResume.group(2)
+
+            ## Offset of the second match.
+            idxPar = matchResume.start(2)
+
+        else:
+            self.m_resumed = False
+        
+            idxPar = theCall.find("(")
+
+            if idxPar <= 0 :
+                raise Exception("No function in:%s"%oneLine)
+
+            self.SetFunction( theCall[:idxPar] )
+
+        if self.m_unfinished:
+            idxLastPar = idxLT - 1
+        else:
+            idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
 
         allArgs = theCall[idxPar+1:idxLastPar]
-
-        idxEq = theCall.find( "=", idxLastPar )
-        self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
-        # sys.stdout.write("retValue=%s\n"%self.m_retValue)
-
         # sys.stdout.write("allArgs=%s\n"%allArgs)
         self.m_parsedArgs = ParseSTraceObject( allArgs, True )
-        # sys.stdout.write("Parsed arguments=%s\n" % str(self.m_parsedArgs) )
 
-        # sys.stdout.write("Func=%s\n"%self.m_funcNam)
+        if self.m_unfinished:
+            # 18:46:10.920748 execve("/usr/bin/ps", ["ps", "-ef"], [/* 33 vars */] <unfinished ...>
+            # sys.stdout.write("self.m_unfinished: %s\n"%oneLine)
+            self.m_retValue = None
+        else:
+            idxEq = theCall.find( "=", idxLastPar )
+            self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
+            # sys.stdout.write("retValue=%s\n"%self.m_retValue)
+
 
 def CreateBatchCore(oneLine,tracer):
 
@@ -374,30 +426,32 @@ def CreateBatchCore(oneLine,tracer):
 
 ################################################################################
 
+ignoredSyscalls = [
+    "mprotect",
+    "brk",
+    "lseek",
+    "arch_prctl",
+    "rt_sigaction",
+    "set_tid_address",
+    "set_robust_list",
+    "rt_sigprocmask",
+    "rt_sigaction",
+    "geteuid",
+    "getuid",
+    "getegid",
+    "getrlimit",
+    "futex",
+    "brk",
+]
+
+
 # Each class is indexed with the name of the corresponding system call name.
 # If the class is None, it means that this function is explicitly neglected.
 # If it is not defined after metaclass registration, then it is processed by BatchLetBase.
 # Derived classes of BatchLetBase self-register thanks to the metaclass.
-# At init time, this map contains the suystems calls which should be ignored.
-batchModels = {
-    # "open"          : BatchLet_open,
-    # ...
-    # "close"         : BatchLet_close,
-    "mprotect"        : None,
-    "brk"             : None,
-    "lseek"           : None,
-    "arch_prctl"      : None,
-    "rt_sigaction"    : None,
-    "set_tid_address" : None,
-    "set_robust_list" : None,
-    "rt_sigprocmask"  : None,
-    "rt_sigaction"    : None,
-    "geteuid"         : None,
-    "getuid"          : None,
-    "getegid"         : None,
-    "getrlimit"       : None,
-    "futex"           : None,
-}
+# At init time, this map contains the systems calls which should be ignored.
+
+batchModels = { sysCll + "@SYS" : None for sysCll in ignoredSyscalls }
 
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
 # So, the name of a system call is used to lookup the class which represents it.
@@ -409,11 +463,12 @@ class BatchMeta(type):
         global batchModels
 
         if name.startswith("BatchLet_"):
-            shortClassName = name[9:]
-            batchModels[ shortClassName ] = cls
+            syscallName = name[9:] + "@SYS"
+            
+            batchModels[ syscallName ] = cls
         super(BatchMeta, cls).__init__(name, bases, dct)
 
-# This is portable for Python 2 and Python 3.
+# This is portable on Python 2 and Python 3.
 # No need to import the modules six or future.utils
 def my_with_metaclass(meta, *bases):
     return meta("NewBase", bases, {})
@@ -462,6 +517,13 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
         args1 = self.SignificantArgs()
         args2 = anotherBatch.SignificantArgs()
 
+        # sys.stdout.write("%s args1=%s\n" % ( self.m_core.m_funcNam, str(args1)) )
+        # sys.stdout.write("%s args2=%s\n" % ( anotherBatch.m_core.m_funcNam, str(args2)) )
+
+        # At least they should have the same number of arguments.
+        if len(args1) != len(args2):
+            return False
+
         for idx,val1 in enumerate(args1):
             val2 = args2[idx]
 
@@ -476,14 +538,14 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
 def FmtTim(aTim):
     return time.strftime("%H:%M:%S", time.gmtime(aTim))
 
-class BatchDumberBase:
+class BatchDumperBase:
     def Header(self):
         return
 
     def Footer(self):
         return
 
-class BatchDumperTXT(BatchDumberBase):
+class BatchDumperTXT(BatchDumperBase):
     def __init__(self,strm):
         self.m_strm = strm
 
@@ -498,7 +560,7 @@ class BatchDumperTXT(BatchDumberBase):
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
 
-class BatchDumperCSV(BatchDumberBase):
+class BatchDumperCSV(BatchDumperBase):
     def __init__(self,strm):
         self.m_strm = strm
 
@@ -516,7 +578,7 @@ class BatchDumperCSV(BatchDumberBase):
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
 
-class BatchDumperJSON(BatchDumberBase):
+class BatchDumperJSON(BatchDumperBase):
     def __init__(self,strm):
         self.m_strm = strm
 
@@ -559,7 +621,7 @@ def BatchDumperFactory(strm, outputFormat):
 
 ################################################################################
 
-# Some Linux functioins return a file descriptor which can be invalid:
+# Some Linux functions return a file descriptor which can be invalid:
 # This is not shown the same way depending on the tracer: strace or ltrace.
 # On Linux, ENOENT = 2.
 def InvalidReturnedFileDescriptor(fileDes,tracer):
@@ -673,6 +735,12 @@ class BatchLet_access(BatchLetBase,object):
         super( BatchLet_access,self).__init__(batchCore)
 
         self.m_significantArgs = [ ToObjectPath_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
+
+class BatchLet_dup2(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_dup2,self).__init__(batchCore)
+
+        self.m_significantArgs = self.StreamName()
 
 ##### Memory system calls.
 
@@ -802,6 +870,8 @@ class BatchLet_execve(BatchLetBase,object):
             ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0] ),
             self.m_core.m_parsedArgs[1] ]
 
+        # TODO: Specifically filter the creation of a new process.
+
     # Process creations are not aggregated.
     def SameCall(self,anotherBatch):
         return False
@@ -810,8 +880,8 @@ class BatchLet_wait4(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_wait4,self).__init__(batchCore)
 
-        # The first argument is the PID.
-        self.m_significantArgs = [ ToObjectPath_CIM_Process( self.m_core.m_parsedArgs[0] ) ]
+        # This is the terminated pid.
+        self.m_significantArgs = [ ToObjectPath_CIM_Process( self.m_core.m_retValue ) ]
 
 class BatchLet_exit_group(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -992,7 +1062,16 @@ def BatchFactory(batchCore):
     if aModel == None:
         return None
 
-    btchLetDrv = aModel( batchCore )
+    # If this is an unfinished system call, it is not possible to build
+    # the correct derived class. Until the unfinished and the resumed BatchCore
+    # are merged, this simply creates a generic base class.
+    # [pid 12753] 14:56:54.296251 read(3 <unfinished ...>
+    # [pid 12753] 14:56:54.296765 <... read resumed> , "#!/usr/bin/bash\n\n# Different ste"..., 131072) = 533 <0.000513>
+
+    if batchCore.m_unfinished or batchCore.m_resumed:
+        btchLetDrv = BatchLetBase( batchCore )
+    else:
+        btchLetDrv = aModel( batchCore )
 
     # If the parameters makes it unusable anyway.
     try:
@@ -1214,6 +1293,52 @@ def GenerateLinuxStreamFromCommand(aCmd):
 # This applies to strace and ltrace.
 # It isolates single lines describing an individual functon or system call.
 def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
+
+
+    # $ strace -q -qq -f -tt -T -s 20 -y -yy -e trace=desc,ipc,process,network,memory bash TestProgs/sample_shell.sh 2>&1 | egrep "clone|wait4"
+    # 11:11:29.155313 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3cd046e9d0) = 12040 <0.000095>
+    # [pid 12039] 11:11:29.155919 wait4(-1,  <unfinished ...>
+    # 11:11:29.161366 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 12040 <0.005437>
+    # 11:11:29.161589 wait4(-1, 0x7ffcaa389350, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000015>
+    # 11:11:29.162168 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3cd046e9d0) = 12041 <0.000090>
+    # [pid 12039] 11:11:29.162524 clone( <unfinished ...>
+    # [pid 12039] 11:11:29.162647 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3cd046e9d0) = 12042 <0.000109>
+    # [pid 12039] 11:11:29.162935 wait4(-1,  <unfinished ...>
+    # [pid 12039] 11:11:29.325429 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 12042 <0.162484>
+    # [pid 12039] 11:11:29.325627 wait4(-1,  <unfinished ...>
+    # 11:11:29.326231 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 12041 <0.000596>
+    # 11:11:29.326473 wait4(-1, 0x7ffcaa389350, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000010>
+    # 11:11:29.327226 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3cd046e9d0) = 12043 <0.000107>
+    # [pid 12039] 11:11:29.327597 wait4(-1,  <unfinished ...>
+    # 11:11:29.330324 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 12043 <0.002718>
+    # 11:11:29.330505 wait4(-1, 0x7ffcaa389350, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000010>
+    # 
+    # $ ltrace -tt -T -f -S  bash TestProgs/sample_shell.sh 2>&1 | egrep "clone|wait4"
+    # [pid 12099] 11:14:08.174519 clone@SYS(0x1200011, 0, 0, 0x7faef8d449d0) = 0x2f44 <0.000691>
+    # [pid 12099] 11:14:08.187069 wait4@SYS(-1, 0x7fff2d4857f0, 0, 0 <unfinished ...>
+    # [pid 12099] 11:14:08.270248 <... wait4 resumed> ) = 0x2f44 <0.083178>
+    # [pid 12099] 11:14:08.274985 wait4@SYS(-1, 0x7fff2d485350, 1, 0) = -10 <0.000050>
+    # [pid 12099] 11:14:08.354330 clone@SYS(0x1200011, 0, 0, 0x7faef8d449d0) = 0x2f45 <0.000687>
+    # [pid 12099] 11:14:08.365437 clone@SYS(0x1200011, 0, 0, 0x7faef8d449d0 <unfinished ...>
+    # [pid 12099] 11:14:08.366211 <... clone resumed> ) = 0x2f46 <0.000772>
+    # [pid 12099] 11:14:08.374968 wait4@SYS(-1, 0x7fff2d485580, 0, 0 <unfinished ...>
+    # [pid 12101] 11:14:11.286325 strlen("grep -E --color=auto clone|wait4"... <unfinished ...>
+    # [pid 12101] 11:14:11.286852 fwrite(" grep -E --color=auto clone|wait"..., 34, 1, 0x7f8a9d0ba620 <unfinished ...>
+    # [pid 12099] 11:14:11.520094 <... wait4 resumed> ) = 0x2f45 <3.145126>
+    # [pid 12099] 11:14:11.520633 wait4@SYS(-1, 0x7fff2d485580, 0, 0 <unfinished ...>
+    # [pid 12099] 11:14:17.959941 <... wait4 resumed> ) = 0x2f46 <6.439308>
+    # [pid 12099] 11:14:17.964594 wait4@SYS(-1, 0x7fff2d485350, 1, 0) = -10 <0.000049>
+    # [pid 12099] 11:14:18.021332 clone@SYS(0x1200011, 0, 0, 0x7faef8d449d0) = 0x2f49 <0.000666>
+    # [pid 12099] 11:14:18.033574 wait4@SYS(-1, 0x7fff2d4857f0, 0, 0 <unfinished ...>
+    # [pid 12099] 11:14:18.046628 <... wait4 resumed> ) = 0x2f49 <0.013053>
+    # [pid 12099] 11:14:18.050244 wait4@SYS(-1, 0x7fff2d485350, 1, 0) = -10 <0.000049>
+    #
+    # The result of "clone" must be differently converted than with strace.
+    # 0x2f45 = 12101
+    # 
+
+
+
     while True:
         oneLine = ""
 
@@ -1235,13 +1360,14 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
         if not oneLine:
             break
 
-        matchResume = re.match( ".*<\.\.\. ([^ ]*) resumed> (.*)", oneLine )
-        if matchResume:
-            # TODO: Should check if this is the correct function name.
-            funcNameResumed = matchResume.group(1)
-            # sys.stdout.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
-            lineRest = matchResume.group(2)
-            continue
+        #matchResume = re.match( ".*<\.\.\. ([^ ]*) resumed> (.*)", oneLine )
+        #if matchResume:
+        #    # TODO: Should check if this is the correct function name.
+        #    funcNameResumed = matchResume.group(1)
+        #    # sys.stdout.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
+        #    lineRest = matchResume.group(2)
+        #    batchCore = CreateBatchCoreResumed(lineRest,tracer)
+        #    continue
 
         # This parses the line into the basic parameters of a function call.
         batchCore = CreateBatchCore(oneLine,tracer)
@@ -1258,15 +1384,86 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
                 yield aBatch
 
 ################################################################################
+
+# These libc calls can be detected by ltrace but must be filtered
+# because they do not bring information we want (And there are loads of them
+# These libc calls can be detected by ltrace but must be filtered
+# because they do not bring information we want (And there are loads of them))
+ignoredCallLTrace = [
+    "strncmp",
+    "strlen",
+    "malloc",
+    "strcmp",
+    "memcmp",
+    "memcpy",
+    "calloc",
+    "malloc",
+    "free",
+    "memset",
+    "strcasecmp",
+    "__strdup",
+    "strchr",
+    "sprintf",
+    "__errno_location",
+    "bfd*",
+    "fopen",
+]
+
+# Many libc calls are created by several libraries because they are static.
+# For example:
+#    gcc->getenv("GNUTARGET") = nil <0.000182>
+#    liblto_plugin.so.0->getenv("COLLECT_GCC_OPTIONS") = "'-mtune=generic' '-march=x86-64'" <0.000321>
+# Note that the results are visible.
+#
+# Also, there are many libc calls, and in general, we do not know how to process
+# their arguments.
+# So we filter them additively.
+
+# mandatoryCallLTrace = [
+  #   "getenv",
+# ]
+
+#-brk@SYS
+#-rt_sigaction@SYS"   gcc TestProgs/HelloWorld.c
+#]
+
 # The command options generate a specific output file format,
 # and therefore parsing it is specific to these options.
 def BuildLTraceCommand(extCommand,aPid):
+    # We do not want hese libc calls.
+    # strIgnoreLibc = "".join( "-" + libcCall for libcCall in ignoredCallLTrace )
+
+    # strMandatoryLibc = "".join( "-" + libcCall for libcCall in mandatoryCallLTrace )
+
+    # Remove everything, then add system calls and some libc functions whatever the shared lib
+
+    # Remove everything, then add system calls and some libc functions whatever the shared lib
+    strMandatoryLibc = "-*+getenv+*@SYS"
+
+    # These are the Linux systenm calls we are not interested by,
+    # because they do not carry information about external resources.
+    #   strIgnoreSysCall = "".join( "-%s@SYS" % sysCall for sysCall in ignoredSyscalls 
+
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     # This needs long strings because path names are truncated just like
     # normal strings.
     aCmd = ["ltrace",
         "-tt", "-T", "-f", "-S", "-s", "200", 
+        # "-e", strIgnoreLibc + strIgnoredSysCall
+        # "-e", strIgnoreLibc
+        "-e", strMandatoryLibc
         ]
+
+    # Example of log: This can be filtered with: "-e -realpath"
+    # gcc->realpath(0x2abfbe0, 0x7ffd739d8310, 0x2ac0930, 0 <unfinished ...>
+    # lstat@SYS("/usr", 0x7ffd739d8240)                    = 0 <0.000167>
+    # lstat@SYS("/usr/local", 0x7ffd739d8240)              = 0 <0.000118>
+    # lstat@SYS("/usr/local/include", 0x7ffd739d8240)      = 0 <0.000162>
+    # lstat@SYS("/usr/local/include/bits", 0x7ffd739d8240) = -2 <0.000177>
+    # <... realpath resumed> )                             = 0 <0.001261>
+
+
+
 
     if extCommand:
         aCmd += extCommand
