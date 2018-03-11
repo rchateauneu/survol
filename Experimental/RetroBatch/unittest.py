@@ -2,7 +2,32 @@ import re
 import os
 import retrobatch
 
-# This iterates on the inut test files andgenerate the "compressed" output.as
+def InternalUnitTests_ParseSTraceObject():
+    dataTst = [
+        ( '"Abcd"',
+          ["Abcd"] ),
+        ( '"Ab","cd"',
+          ["Ab","cd"] ),
+        ( '"/usr/bin/grep", ["grep", "toto"]',
+          ["/usr/bin/grep", ["grep", "toto"] ] ),
+        ( '"","cd"',
+          ["","cd"] ),
+        ( '"12345",""',
+          ["12345",""] ),
+    ]
+
+    for tupl in dataTst:
+        resu = retrobatch.ParseSTraceObject(tupl[0],True)
+        if resu != tupl[1]:
+            raise Exception("Fail:%s != %s" % ( str(tupl[1]), resu ) )
+
+# First, some internal tests of parsing functions..
+InternalUnitTests_ParseSTraceObject()
+
+print("Internal tests OK.")
+
+
+# This iterates on the input test files and generates the "compressed" output.as
 #  After that we can check if the results are as expected.
 
 # The keys are the prefix of the log files
