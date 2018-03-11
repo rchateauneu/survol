@@ -21,6 +21,7 @@ def InstanceToHostPort(instanceName):
 
 # It does not use the same package depending on the platform.
 try:
+        # Windows
         import mysql.connector
         def MysqlMkInstance(aUser,aPass,aHost,aPort):
                 # conn = mysql.connector.connect (user='primhilltcsrvdb1', password='xxx', host='primhilltcsrvdb1.mysql.db',buffered=True)
@@ -30,6 +31,7 @@ try:
                         conn = mysql.connector.connect (user=aUser, password=aPass, host=aHost,buffered=True)
                 return conn
 except ImportError:
+        # Linux
         import MySQLdb
         def MysqlMkInstance(aUser,aPass,aHost,aPort):
                 if aPort:
@@ -38,7 +40,7 @@ except ImportError:
                         conn =  MySQLdb.connect(user=aUser, passwd=aPass, host=aHost)
                 return conn
 
-# MysqlConnect(anInstance='192.168.0.17', aUser=u'linuxmysql', aPass=u'sqlmylinux')
+# MysqlConnect(anInstance='192.168.0.17', aUser=u'linuxmysql', aPass=u'yyyyyyy')
 def MysqlConnect(anInstance,aUser,aPass):
         (instanceHost,instancePort) = InstanceToHostPort(anInstance)
         conn = MysqlMkInstance( aUser, aPass, instanceHost, instancePort)

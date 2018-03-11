@@ -12,8 +12,8 @@ import cgitb
 #  },
 import mysql.connector
 
-conn = mysql.connector.connect (user='primhilltcsrvdb1', password='MySql123', host='primhilltcsrvdb1.mysql.db',buffered=True)
-# conn = mysql.connector.connect (user='primhilltcsrvdb1', password='MySql123', host='primhillcomputers.com',buffered=True)
+conn = mysql.connector.connect (user='primhilltcsrvdb1', password='****', host='primhilltcsrvdb1.mysql.db',buffered=True)
+# conn = mysql.connector.connect (user='primhilltcsrvdb1', password='*****', host='primhillcomputers.com',buffered=True)
 
 cursor = conn.cursor()
 
@@ -29,7 +29,7 @@ for databases in cursor:
 if False:
 
 	import MySQLdb
-	conn = MySQLdb.connect(user='primhilltcsrvdb1', passwd='MySql123', host='primhilltcsrvdb1.mysql.db')
+	conn = MySQLdb.connect(user='primhilltcsrvdb1', passwd='******', host='primhilltcsrvdb1.mysql.db')
 
 	cursor = conn.cursor()
 	cursor.execute("show databases")

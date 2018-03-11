@@ -1,0 +1,13 @@
+
+================== PID=-1
+F=    -1 {   3/Orig} 'write@SYS           ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log"'] ==>> 24 (08:08:42,08:08:42)
+F=    -1 {   1/Args} '(open@SYS+fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/proc/meminfo"'] ==>> N/A (08:08:42,08:08:42)
+F=    -1 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (08:08:42,08:08:42)
+F=    -1 {   3/Orig} 'write@SYS           ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log"'] ==>> 16 (08:08:42,08:08:42)
+F=    -1 {   1/Args} '(open@SYS+fstat@SYS+write@SYS)' ['CIM_DataFile.Name="/tmp/Dot2Svg.26787.svg"'] ==>> N/A (08:08:42,08:08:42)
+F=    -1 {   1/Orig} 'write@SYS           ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log"'] ==>> 40 (08:08:42,08:08:42)
+F=    -1 {   1/Args} '(read@SYS+close@SYS)' ['CIM_DataFile.Name="/tmp/Grph2Dot.26787.dot"'] ==>> N/A (08:08:42,08:08:42)
+F=    -1 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (08:08:42,08:08:42)
+F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/tmp/Dot2Svg.26787.svg"'] ==>> 0 (08:08:42,08:08:42)
+F=    -1 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (08:08:42,08:08:42)
+F=    -1 {   1/Orig} 'exit_group@SYS      ' [] ==>>  (08:08:42,08:08:42)
