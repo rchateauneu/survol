@@ -13,7 +13,7 @@ F= 18198 {   1/Orig} 'read@SYS            ' ['CIM_DataFile.Name="/home/rchateau/
 F= 18198 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (08:26:47,08:26:47)
 F= 18198 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"'] ==>> 0 (08:26:47,08:26:47)
 F= 18198 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[587230]"'] ==>> 0 (08:26:47,08:26:47)
-F= 18198 {   1/Orig} 'exit_group@SYS      ' [] ==>> ?08:26:47.552520 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18198 (08:26:47,08:26:47)
+F= 18198 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (08:26:47,08:26:47)
 
 ================== PID=18196
 F= 18196 {   1/Orig} 'close@SYS           ' ['255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh>'] ==>> None (08:26:47,08:26:47)
@@ -105,7 +105,7 @@ F= 18196 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[586559]"'
 F= 18196 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[587230]"'] ==>> 0 (08:26:47,08:26:47)
 F= 18196 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (08:26:47,08:26:47)
 F= 18196 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[587230]"'] ==>> 0 (08:26:47,08:26:47)
-F= 18196 {   1/Orig} 'exit_group@SYS      ' [] ==>> ?[pid 18195] 08:26:47.543383 <... close resumed> ) = 0 (08:26:47,08:26:47)
+F= 18196 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (08:26:47,08:26:47)
 
 ================== PID=18195
 F= 18195 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"'] ==>> 0 (08:26:47,08:26:47)
@@ -1029,10 +1029,11 @@ F= 18195 {   1/Args} '(getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/proc"'] ==
 F= 18195 {   1/Orig} 'write@SYS           ' ['1<pipe:[586559]>', '?        00:01:14 ss...', '309'] ==>> None (08:26:47,08:26:47)
 F= 18195 {   1/Orig} 'write@SYS           ' ['= 309 <0.000147>'] ==>> <... write resumed> ) = 309 (08:26:47,08:26:47)
 F= 18195 {   1/Orig} 'close@SYS           ' ['1<pipe:[586559]>'] ==>> None (08:26:47,08:26:47)
+F= 18195 {   1/Orig} 'close@SYS           ' ['= 0 <0.000754>'] ==>> <... close resumed> ) = 0 (08:26:47,08:26:47)
 F= 18195 {   1/Orig} 'munmap@SYS          ' ['0x7f2b9e080000', '4096'] ==>> None (08:26:47,08:26:47)
 F= 18195 {   1/Orig} 'munmap@SYS          ' ['= 0 <0.000079>'] ==>> <... munmap resumed> ) = 0 (08:26:47,08:26:47)
 F= 18195 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[587230]"'] ==>> 0 (08:26:47,08:26:47)
-F= 18195 {   1/Orig} 'exit_group@SYS      ' [] ==>> ?08:26:47.544283 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18195 (08:26:47,08:26:47)
+F= 18195 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (08:26:47,08:26:47)
 
 ================== PID=18194
 F= 18194 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"'] ==>> 0 (08:26:47,08:26:47)
@@ -1056,7 +1057,7 @@ F= 18194 {   1/Args} '(getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchat
 F= 18194 {   1/Args} '(fstat@SYS+write@SYS+close@SYS)' ['CIM_DataFile.Name="pipe:[587230]"'] ==>> N/A (08:26:47,08:26:47)
 F= 18194 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (08:26:47,08:26:47)
 F= 18194 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[587230]"'] ==>> 0 (08:26:47,08:26:47)
-F= 18194 {   1/Orig} 'exit_group@SYS      ' [] ==>> ?08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 (08:26:47,08:26:47)
+F= 18194 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (08:26:47,08:26:47)
 
 ================== PID=18193
 F= 18193 {   1/Orig} 'wait4@SYS           ' ['-1', ''] ==>> None (08:26:47,08:26:47)
@@ -1087,12 +1088,18 @@ F=    -1 {   1/Args} '(open@SYS+ioctl@SYS+read@SYS)' ['CIM_DataFile.Name="/home/
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="UnknownFileDescr:255"'] ==>> -1 EBADF (Bad file descriptor) (08:26:47,08:26:47)
 F=    -1 {   1/Args} '(dup2@SYS+close@SYS+fcntl@SYS+fstat@SYS+read@SYS)' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"'] ==>> N/A (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="18194"'] ==>> 18194 (08:26:47,08:26:47)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 18194 (08:26:47,08:26:47)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="-1 ECHILD (No child processes)"'] ==>> -1 ECHILD (No child processes) (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'read@SYS            ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"'] ==>> 24 (08:26:47,08:26:47)
 F=    -1 {   1/Args} '(fstat@SYS+write@SYS)' ['CIM_DataFile.Name="pipe:[587230]"'] ==>> N/A (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'pipe@SYS            ' ['CIM_DataFile.Name="pipe:[586559]"', 'CIM_DataFile.Name="pipe:[586559]"'] ==>> 0 (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="18195"'] ==>> 18195 (08:26:47,08:26:47)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 18195 (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="UnknownFileDescr:3"'] ==>> -1 EBADF (Bad file descriptor) (08:26:47,08:26:47)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="-1 ECHILD (No child processes)"'] ==>> -1 ECHILD (No child processes) (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'read@SYS            ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"'] ==>> 8 (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="18198"'] ==>> 18198 (08:26:47,08:26:47)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 18198 (08:26:47,08:26:47)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="-1 ECHILD (No child processes)"'] ==>> -1 ECHILD (No child processes) (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'read@SYS            ' ['CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"'] ==>> 0 (08:26:47,08:26:47)
 F=    -1 {   1/Orig} 'exit_group@SYS      ' [] ==>>  (08:26:47,08:26:47)
