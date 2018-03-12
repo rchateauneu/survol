@@ -296,9 +296,16 @@ class BatchLetCore:
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
             self.m_funcNam = funcFull + "@SYS"
+        elif self.m_tracer == "ltrace":
+            # ltrace does not add "@SYS" when the function is resumed:
+            #[pid 18316] 09:00:22.600426 rt_sigprocmask@SYS(0, 0x7ffea10cd370, 0x7ffea10cd3f0, 8 <unfinished ...>
+            #[pid 18316] 09:00:22.600494 <... rt_sigprocmask resumed> ) = 0 <0.000068>
+            if self.m_resumed:
+                self.m_funcNam = funcFull + "@SYS"
+            else:
+                self.m_funcNam = funcFull
         else:
-            # 
-            self.m_funcNam = funcFull
+            raise Exception("SetFunction tracer unsupported")
 
     # This parsing is specific to strace.
     def InitAfterPid(self,oneLine):
@@ -436,9 +443,17 @@ ignoredSyscalls = [
     "set_robust_list",
     "rt_sigprocmask",
     "rt_sigaction",
+    "rt_sigreturn",
     "geteuid",
     "getuid",
+    "getgid",
     "getegid",
+    "setpgid",
+    "getpgid",
+    "setpgrp",
+    "getpgrp",
+    "getpid",
+    "getppid",
     "getrlimit",
     "futex",
     "brk",
@@ -452,6 +467,8 @@ ignoredSyscalls = [
 # At init time, this map contains the systems calls which should be ignored.
 
 batchModels = { sysCll + "@SYS" : None for sysCll in ignoredSyscalls }
+
+# sys.stdout.write("batchModels=%s\n"%str(batchModels) )
 
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
 # So, the name of a system call is used to lookup the class which represents it.
