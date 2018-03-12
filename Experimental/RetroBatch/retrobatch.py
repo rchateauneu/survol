@@ -310,10 +310,6 @@ class BatchLetCore:
     # This parsing is specific to strace.
     def InitAfterPid(self,oneLine):
 
-        # "[{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>"
-        if oneLine[0] == '[':
-            raise ExceptionIsExit()
-
         # sys.stdout.write("oneLine=%s" % oneLine )
 
         # This could be done without intermediary string.
@@ -1355,17 +1351,37 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
     # 
 
 
-
+    numLine = 0
     while True:
         oneLine = ""
 
-        # If this line is not properly terminated, then concatenates the next line.
+        # There are several cases of line ending with strace.
+        # If a function has a string parameter which contain a carriage-return,
+        # this is not filtered and this string is split on multiple lines.
+        # We cannot reliably count the double-quotes.
         # FIXME: Problem if several processes.
         while True:
             tmpLine = logStream.readline()
+            numLine += 1
             # sys.stdout.write("tmpLine after read=%s"%tmpLine)
             if not tmpLine:
                 break
+
+            # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
+            # Not reliable because this could be a plain string ending like this.
+            if tmpLine.startswith("[pid ") and tmpLine.endswith(" = ?\n"):
+                oneLine += tmpLine
+                break
+
+            # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18194, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---"
+            # Not reliable because this could be a plain string ending like this.
+            if tmpLine.endswith(" ---\n"):
+                oneLine += tmpLine
+                break
+
+
+            # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
+            # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
             if tmpLine.endswith(">\n"):
                 # TODO: The most common case is that the call is on one line only.
                 oneLine += tmpLine
@@ -1387,7 +1403,10 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
         #    continue
 
         # This parses the line into the basic parameters of a function call.
-        batchCore = CreateBatchCore(oneLine,tracer)
+        try:
+            batchCore = CreateBatchCore(oneLine,tracer)
+        except:
+            raise Exception("Invalid line %d:%s\n"%(numLine,oneLine) )
 
         # Maybe the line cannot be parsed.
         if batchCore:
