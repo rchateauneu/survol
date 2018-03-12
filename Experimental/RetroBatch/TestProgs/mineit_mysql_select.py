@@ -27,7 +27,10 @@ except ImportError:
                         conn =  MySQLdb.connect(user=aUser, passwd=aPass, host=aHost)
                 return conn
 
-conn = MysqlMkInstance('primhilltcsrvdb1', 'MySql123', 'primhilltcsrvdb1.mysql.db',None)
+# conn = MysqlMkInstance('primhilltcsrvdb1', '******', 'primhilltcsrvdb1.mysql.db',None)
+# mysql> SELECT User FROM mysql.user; 
+# conn = MysqlMkInstance('linuxmysql', '****', '127.0.0.1',None)
+conn = MysqlMkInstance('root', '', '127.0.0.1',None)
 
 cursor = conn.cursor()
 
