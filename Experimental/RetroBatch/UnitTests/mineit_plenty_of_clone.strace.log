@@ -1,0 +1,810 @@
+18:43:33.631433 execve("/usr/bin/find", ["find", "..", "-type", "f", "-exec", "grep", "Hello", "{}", ";"], 0x7fff863180b8 /* 17 vars */) = 0 <0.000148>
+18:43:33.631755 brk(NULL)               = 0x559ed62ad000 <0.000006>
+18:43:33.631834 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd66a9d4000 <0.000009>
+18:43:33.631894 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000008>
+18:43:33.631977 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=27886, ...}) = 0 <0.000009>
+18:43:33.632039 mmap(NULL, 27886, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7fd66a9cd000 <0.000010>
+18:43:33.632082 close(3</etc/ld.so.cache>) = 0 <0.000007>
+18:43:33.632126 open("/lib64/libselinux.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libselinux.so.1> <0.000015>
+18:43:33.632165 read(3</usr/lib64/libselinux.so.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000010>
+18:43:33.632195 fstat(3</usr/lib64/libselinux.so.1>, {st_mode=S_IFREG|0755, st_size=158320, ...}) = 0 <0.000010>
+18:43:33.632239 mmap(NULL, 2258128, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libselinux.so.1>, 0) = 0x7fd66a588000 <0.000026>
+18:43:33.632298 mprotect(0x7fd66a5ad000, 2093056, PROT_NONE) = 0 <0.000029>
+18:43:33.632354 mmap(0x7fd66a7ac000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libselinux.so.1>, 0x24000) = 0x7fd66a7ac000 <0.000029>
+18:43:33.632432 mmap(0x7fd66a7ae000, 5328, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fd66a7ae000 <0.000008>
+18:43:33.632473 close(3</usr/lib64/libselinux.so.1>) = 0 <0.000005>
+18:43:33.632513 open("/lib64/libm.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libm-2.25.so> <0.000024>
+18:43:33.632560 read(3</usr/lib64/libm-2.25.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000010>
+18:43:33.632590 fstat(3</usr/lib64/libm-2.25.so>, {st_mode=S_IFREG|0755, st_size=1226368, ...}) = 0 <0.000005>
+18:43:33.632614 mmap(NULL, 3231896, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libm-2.25.so>, 0) = 0x7fd66a272000 <0.000014>
+18:43:33.632645 mprotect(0x7fd66a387000, 2093056, PROT_NONE) = 0 <0.000017>
+18:43:33.632677 mmap(0x7fd66a586000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libm-2.25.so>, 0x114000) = 0x7fd66a586000 <0.000015>
+18:43:33.632728 close(3</usr/lib64/libm-2.25.so>) = 0 <0.000005>
+18:43:33.632770 open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so> <0.000009>
+18:43:33.632802 read(3</usr/lib64/libc-2.25.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000005>
+18:43:33.632849 fstat(3</usr/lib64/libc-2.25.so>, {st_mode=S_IFREG|0755, st_size=2163104, ...}) = 0 <0.000004>
+18:43:33.632876 mmap(NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0) = 0x7fd669ea1000 <0.000007>
+18:43:33.632900 mprotect(0x7fd66a068000, 2097152, PROT_NONE) = 0 <0.000008>
+18:43:33.632920 mmap(0x7fd66a268000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0x1c7000) = 0x7fd66a268000 <0.000009>
+18:43:33.632950 mmap(0x7fd66a26e000, 14688, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fd66a26e000 <0.000007>
+18:43:33.632979 close(3</usr/lib64/libc-2.25.so>) = 0 <0.000005>
+18:43:33.633020 open("/lib64/libpcre.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libpcre.so.1.2.8> <0.000029>
+18:43:33.633081 read(3</usr/lib64/libpcre.so.1.2.8>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000017>
+18:43:33.633127 fstat(3</usr/lib64/libpcre.so.1.2.8>, {st_mode=S_IFREG|0755, st_size=467600, ...}) = 0 <0.000004>
+18:43:33.633154 mmap(NULL, 2560264, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libpcre.so.1.2.8>, 0) = 0x7fd669c2f000 <0.000020>
+18:43:33.633191 mprotect(0x7fd669c9f000, 2097152, PROT_NONE) = 0 <0.000033>
+18:43:33.633245 mmap(0x7fd669e9f000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libpcre.so.1.2.8>, 0x70000) = 0x7fd669e9f000 <0.000026>
+18:43:33.633332 close(3</usr/lib64/libpcre.so.1.2.8>) = 0 <0.000009>
+18:43:33.633397 open("/lib64/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libdl-2.25.so> <0.000036>
+18:43:33.633466 read(3</usr/lib64/libdl-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000006>
+18:43:33.633490 fstat(3</usr/lib64/libdl-2.25.so>, {st_mode=S_IFREG|0755, st_size=19496, ...}) = 0 <0.000005>
+18:43:33.633513 mmap(NULL, 2109584, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libdl-2.25.so>, 0) = 0x7fd669a2b000 <0.000016>
+18:43:33.633547 mprotect(0x7fd669a2e000, 2093056, PROT_NONE) = 0 <0.000017>
+18:43:33.633578 mmap(0x7fd669c2d000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libdl-2.25.so>, 0x2000) = 0x7fd669c2d000 <0.000017>
+18:43:33.633631 close(3</usr/lib64/libdl-2.25.so>) = 0 <0.000005>
+18:43:33.633665 open("/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libpthread-2.25.so> <0.000019>
+18:43:33.633707 read(3</usr/lib64/libpthread-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000011>
+18:43:33.633736 fstat(3</usr/lib64/libpthread-2.25.so>, {st_mode=S_IFREG|0755, st_size=153896, ...}) = 0 <0.000004>
+18:43:33.633760 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd66a9cb000 <0.000007>
+18:43:33.633790 mmap(NULL, 2220552, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libpthread-2.25.so>, 0) = 0x7fd66980c000 <0.000014>
+18:43:33.633842 mprotect(0x7fd669825000, 2097152, PROT_NONE) = 0 <0.000023>
+18:43:33.633881 mmap(0x7fd669a25000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libpthread-2.25.so>, 0x19000) = 0x7fd669a25000 <0.000015>
+18:43:33.633928 mmap(0x7fd669a27000, 12808, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fd669a27000 <0.000007>
+18:43:33.633967 close(3</usr/lib64/libpthread-2.25.so>) = 0 <0.000005>
+18:43:33.634020 mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd66a9c8000 <0.000011>
+18:43:33.634063 arch_prctl(ARCH_SET_FS, 0x7fd66a9c8800) = 0 <0.000007>
+18:43:33.634160 mprotect(0x7fd66a268000, 16384, PROT_READ) = 0 <0.000011>
+18:43:33.634228 mprotect(0x7fd669a25000, 4096, PROT_READ) = 0 <0.000016>
+18:43:33.634282 mprotect(0x7fd669c2d000, 4096, PROT_READ) = 0 <0.000013>
+18:43:33.634351 mprotect(0x7fd669e9f000, 4096, PROT_READ) = 0 <0.000011>
+18:43:33.634452 mprotect(0x7fd66a586000, 4096, PROT_READ) = 0 <0.000011>
+18:43:33.634536 mprotect(0x7fd66a7ac000, 4096, PROT_READ) = 0 <0.000015>
+18:43:33.634634 mprotect(0x559ed4fc0000, 8192, PROT_READ) = 0 <0.000009>
+18:43:33.634666 mprotect(0x7fd66a9d6000, 4096, PROT_READ) = 0 <0.000009>
+18:43:33.634691 munmap(0x7fd66a9cd000, 27886) = 0 <0.000018>
+18:43:33.634983 brk(NULL)               = 0x559ed62ad000 <0.000005>
+18:43:33.635010 brk(0x559ed62ce000)     = 0x559ed62ce000 <0.000006>
+18:43:33.635123 open(".", O_RDONLY)     = 3</home/rchateau/survol/Experimental/RetroBatch> <0.000011>
+18:43:33.635181 fcntl(3</home/rchateau/survol/Experimental/RetroBatch>, F_GETFD) = 0 <0.000005>
+18:43:33.635205 fcntl(3</home/rchateau/survol/Experimental/RetroBatch>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:33.635314 ioctl(0</dev/pts/0>, TCGETS, {B38400 opost isig icanon echo ...}) = 0 <0.000012>
+18:43:33.635399 open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 4</usr/lib/locale/locale-archive> <0.000034>
+18:43:33.635484 fstat(4</usr/lib/locale/locale-archive>, {st_mode=S_IFREG|0644, st_size=2291760, ...}) = 0 <0.000005>
+18:43:33.635516 mmap(NULL, 2291760, PROT_READ, MAP_PRIVATE, 4</usr/lib/locale/locale-archive>, 0) = 0x7fd6695dc000 <0.000012>
+18:43:33.635557 close(4</usr/lib/locale/locale-archive>) = 0 <0.000004>
+18:43:33.635675 open("/usr/lib64/gconv/gconv-modules.cache", O_RDONLY) = 4</usr/lib64/gconv/gconv-modules.cache> <0.000042>
+18:43:33.635746 fstat(4</usr/lib64/gconv/gconv-modules.cache>, {st_mode=S_IFREG|0644, st_size=26254, ...}) = 0 <0.000004>
+18:43:33.635772 mmap(NULL, 26254, PROT_READ, MAP_SHARED, 4</usr/lib64/gconv/gconv-modules.cache>, 0) = 0x7fd66a9cd000 <0.000007>
+18:43:33.635795 close(4</usr/lib64/gconv/gconv-modules.cache>) = 0 <0.000022>
+18:43:33.635896 mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd66a9a7000 <0.000007>
+18:43:33.635966 newfstatat(AT_FDCWD, "..", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000006>
+18:43:33.636016 openat(AT_FDCWD, "..", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 4</home/rchateau/survol/Experimental> <0.000008>
+18:43:33.636049 fcntl(4</home/rchateau/survol/Experimental>, F_GETFD) = 0 <0.000005>
+18:43:33.636075 fcntl(4</home/rchateau/survol/Experimental>, F_SETFD, FD_CLOEXEC) = 0 <0.000008>
+18:43:33.636114 fstat(4</home/rchateau/survol/Experimental>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000007>
+18:43:33.636151 fcntl(4</home/rchateau/survol/Experimental>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000006>
+18:43:33.636180 fcntl(4</home/rchateau/survol/Experimental>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:33.636213 newfstatat(AT_FDCWD, "..", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000005>
+18:43:33.636239 fcntl(4</home/rchateau/survol/Experimental>, F_DUPFD, 3) = 5</home/rchateau/survol/Experimental> <0.000005>
+18:43:33.636282 fcntl(5</home/rchateau/survol/Experimental>, F_GETFD) = 0 <0.000008>
+18:43:33.636319 fcntl(5</home/rchateau/survol/Experimental>, F_SETFD, FD_CLOEXEC) = 0 <0.000006>
+18:43:33.636351 getdents(4</home/rchateau/survol/Experimental>, /* 52 entries */, 32768) = 2072 <0.000045>
+18:43:33.636479 getdents(4</home/rchateau/survol/Experimental>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:33.636511 close(4</home/rchateau/survol/Experimental>) = 0 <0.000004>
+18:43:33.636532 newfstatat(5</home/rchateau/survol/Experimental>, "Divers", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000014>
+18:43:33.636571 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000005>
+18:43:33.636598 openat(5</home/rchateau/survol/Experimental>, "Divers", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/Divers> <0.000008>
+18:43:33.636643 fcntl(6</home/rchateau/survol/Experimental/Divers>, F_GETFD) = 0 <0.000005>
+18:43:33.636665 fcntl(6</home/rchateau/survol/Experimental/Divers>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:33.636684 fstat(6</home/rchateau/survol/Experimental/Divers>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000004>
+18:43:33.636705 fcntl(6</home/rchateau/survol/Experimental/Divers>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000004>
+18:43:33.636726 fcntl(6</home/rchateau/survol/Experimental/Divers>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:33.636746 newfstatat(5</home/rchateau/survol/Experimental>, "Divers", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000006>
+18:43:33.636771 fcntl(6</home/rchateau/survol/Experimental/Divers>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/Divers> <0.000005>
+18:43:33.636808 fcntl(7</home/rchateau/survol/Experimental/Divers>, F_GETFD) = 0 <0.000016>
+18:43:33.636842 fcntl(7</home/rchateau/survol/Experimental/Divers>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:33.636864 getdents(6</home/rchateau/survol/Experimental/Divers>, /* 22 entries */, 32768) = 912 <0.000028>
+18:43:33.636939 getdents(6</home/rchateau/survol/Experimental/Divers>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:33.636968 close(6</home/rchateau/survol/Experimental/Divers>) = 0 <0.000004>
+18:43:33.636989 close(4</home/rchateau/survol/Experimental>) = 0 <0.000004>
+18:43:33.637008 fcntl(7</home/rchateau/survol/Experimental/Divers>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/Divers> <0.000005>
+18:43:33.637033 mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fd66a986000 <0.000007>
+18:43:33.637084 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9896 <0.000110>
+18:43:33.637239 wait4(9896,  <unfinished ...>
+18:43:33.640328 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9896 <0.003072>
+18:43:33.640357 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9896, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.640397 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9897 <0.000079>
+18:43:33.640520 wait4(9897,  <unfinished ...>
+18:43:33.643097 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9897 <0.002561>
+18:43:33.643114 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9897, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.643139 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9898 <0.000060>
+18:43:33.643232 wait4(9898,  <unfinished ...>
+18:43:33.645903 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9898 <0.002654>
+18:43:33.645923 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9898, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.645950 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9899 <0.000046>
+18:43:33.646023 wait4(9899,  <unfinished ...>
+18:43:33.648623 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9899 <0.002589>
+18:43:33.648648 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9899, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.648676 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9900 <0.000047>
+18:43:33.648750 wait4(9900,  <unfinished ...>
+18:43:33.651244 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9900 <0.002483>
+18:43:33.651274 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9900, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.651305 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9901 <0.000046>
+18:43:33.651397 wait4(9901,  <unfinished ...>
+18:43:33.653930 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9901 <0.002517>
+18:43:33.653948 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9901, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.653975 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9902 <0.000046>
+18:43:33.654047 wait4(9902,  <unfinished ...>
+18:43:33.656593 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9902 <0.002535>
+18:43:33.656621 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9902, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.656655 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9903 <0.000054>
+18:43:33.656747 wait4(9903,  <unfinished ...>
+18:43:33.659232 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9903 <0.002469>
+18:43:33.659250 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9903, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.659277 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9904 <0.000046>
+18:43:33.659348 wait4(9904,  <unfinished ...>
+18:43:33.661902 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9904 <0.002543>
+18:43:33.661925 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9904, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.661952 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9905 <0.000046>
+18:43:33.662025 wait4(9905,  <unfinished ...>
+18:43:33.664472 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9905 <0.002437>
+18:43:33.664491 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9905, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.664523 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9906 <0.000047>
+18:43:33.664596 wait4(9906,  <unfinished ...>
+18:43:33.667073 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9906 <0.002467>
+18:43:33.667092 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9906, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.667129 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9907 <0.000046>
+18:43:33.667204 wait4(9907,  <unfinished ...>
+18:43:33.669586 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9907 <0.002371>
+18:43:33.669604 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9907, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.669631 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9908 <0.000045>
+18:43:33.669704 wait4(9908,  <unfinished ...>
+18:43:33.672171 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9908 <0.002456>
+18:43:33.672189 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9908, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.672216 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9909 <0.000047>
+18:43:33.672289 wait4(9909,  <unfinished ...>
+18:43:33.674651 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9909 <0.002351>
+18:43:33.674670 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9909, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.674697 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9910 <0.000048>
+18:43:33.674771 wait4(9910,  <unfinished ...>
+18:43:33.677449 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 9910 <0.002667>
+18:43:33.677468 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9910, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+18:43:33.677506 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9911 <0.000058>
+18:43:33.677590 wait4(9911,  <unfinished ...>
+18:43:33.680148 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9911 <0.002547>
+18:43:33.680169 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9911, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.680196 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9912 <0.000046>
+18:43:33.680268 wait4(9912,  <unfinished ...>
+18:43:33.682741 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9912 <0.002462>
+18:43:33.682759 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9912, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.682786 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9913 <0.000064>
+18:43:33.682879 wait4(9913,  <unfinished ...>
+18:43:33.685350 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9913 <0.002459>
+18:43:33.685368 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9913, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.685395 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9914 <0.000046>
+18:43:33.685467 wait4(9914,  <unfinished ...>
+18:43:33.687844 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9914 <0.002366>
+18:43:33.687865 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9914, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.687892 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9915 <0.000048>
+18:43:33.687966 wait4(9915,  <unfinished ...>
+18:43:33.690382 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9915 <0.002404>
+18:43:33.690401 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9915, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.690421 close(7</home/rchateau/survol/Experimental/Divers>) = 0 <0.000005>
+18:43:33.690448 close(4</home/rchateau/survol/Experimental/Divers>) = 0 <0.000009>
+18:43:33.690474 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000006>
+18:43:33.690501 newfstatat(5</home/rchateau/survol/Experimental>, "RetroBatch", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000006>
+18:43:33.690531 openat(5</home/rchateau/survol/Experimental>, "RetroBatch", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/RetroBatch> <0.000007>
+18:43:33.690560 fcntl(6</home/rchateau/survol/Experimental/RetroBatch>, F_GETFD) = 0 <0.000005>
+18:43:33.690580 fcntl(6</home/rchateau/survol/Experimental/RetroBatch>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:33.690599 fstat(6</home/rchateau/survol/Experimental/RetroBatch>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000004>
+18:43:33.690620 fcntl(6</home/rchateau/survol/Experimental/RetroBatch>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000004>
+18:43:33.690640 fcntl(6</home/rchateau/survol/Experimental/RetroBatch>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:33.690664 newfstatat(5</home/rchateau/survol/Experimental>, "RetroBatch", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000006>
+18:43:33.690690 fcntl(6</home/rchateau/survol/Experimental/RetroBatch>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/RetroBatch> <0.000005>
+18:43:33.690713 fcntl(7</home/rchateau/survol/Experimental/RetroBatch>, F_GETFD) = 0 <0.000005>
+18:43:33.690732 fcntl(7</home/rchateau/survol/Experimental/RetroBatch>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:33.690751 getdents(6</home/rchateau/survol/Experimental/RetroBatch>, /* 10 entries */, 32768) = 368 <0.000013>
+18:43:33.690786 getdents(6</home/rchateau/survol/Experimental/RetroBatch>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:33.690808 close(6</home/rchateau/survol/Experimental/RetroBatch>) = 0 <0.000023>
+18:43:33.690848 close(4</home/rchateau/survol/Experimental>) = 0 <0.000005>
+18:43:33.690871 fcntl(7</home/rchateau/survol/Experimental/RetroBatch>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/RetroBatch> <0.000005>
+18:43:33.690902 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9916 <0.000047>
+18:43:33.690977 wait4(9916,  <unfinished ...>
+18:43:33.693512 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9916 <0.002524>
+18:43:33.693530 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9916, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.693556 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9917 <0.000046>
+18:43:33.693629 wait4(9917,  <unfinished ...>
+18:43:33.695981 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9917 <0.002341>
+18:43:33.695999 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9917, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.696025 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9918 <0.000046>
+18:43:33.696097 wait4(9918,  <unfinished ...>
+18:43:33.698639 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9918 <0.002531>
+18:43:33.698657 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9918, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.698682 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9919 <0.000059>
+18:43:33.698767 wait4(9919,  <unfinished ...>
+18:43:33.701147 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9919 <0.002370>
+18:43:33.701166 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9919, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:33.701191 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9920 <0.000045>
+18:43:33.701264 wait4(9920,  <unfinished ...>
+18:43:34.261749 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 9920 <0.560470>
+18:43:34.261790 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9920, si_uid=1001, si_status=0, si_utime=19, si_stime=17} ---
+18:43:34.261914 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9921 <0.000184>
+18:43:34.262134 wait4(9921,  <unfinished ...>
+18:43:34.265511 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9921 <0.003366>
+18:43:34.265530 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9921, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.265557 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9922 <0.000056>
+18:43:34.265640 wait4(9922,  <unfinished ...>
+18:43:34.268351 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9922 <0.002700>
+18:43:34.268381 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9922, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.268407 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9923 <0.000055>
+18:43:34.268490 wait4(9923,  <unfinished ...>
+18:43:34.270958 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9923 <0.002456>
+18:43:34.270977 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9923, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.270999 close(7</home/rchateau/survol/Experimental/RetroBatch>) = 0 <0.000007>
+18:43:34.271042 close(4</home/rchateau/survol/Experimental/RetroBatch>) = 0 <0.000012>
+18:43:34.271080 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000006>
+18:43:34.271125 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9924 <0.000071>
+18:43:34.271226 wait4(9924,  <unfinished ...>
+18:43:34.273797 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9924 <0.002559>
+18:43:34.273837 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9924, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.273897 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9925 <0.000104>
+18:43:34.274040 wait4(9925,  <unfinished ...>
+18:43:34.276779 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9925 <0.002727>
+18:43:34.276798 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9925, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.276863 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9926 <0.000102>
+18:43:34.277014 wait4(9926,  <unfinished ...>
+18:43:34.279808 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9926 <0.002778>
+18:43:34.279850 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9926, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.279891 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9927 <0.000110>
+18:43:34.280042 wait4(9927,  <unfinished ...>
+18:43:34.282758 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9927 <0.002697>
+18:43:34.282778 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9927, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.282816 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9928 <0.000072>
+18:43:34.282939 wait4(9928,  <unfinished ...>
+18:43:34.285512 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9928 <0.002563>
+18:43:34.285532 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9928, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.285568 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9929 <0.000063>
+18:43:34.285659 wait4(9929,  <unfinished ...>
+18:43:34.288082 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9929 <0.002412>
+18:43:34.288101 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9929, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.288135 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9930 <0.000061>
+18:43:34.288223 wait4(9930,  <unfinished ...>
+18:43:34.290720 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9930 <0.002486>
+18:43:34.290739 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9930, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.290760 newfstatat(5</home/rchateau/survol/Experimental>, "tests_data", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000007>
+18:43:34.290797 openat(5</home/rchateau/survol/Experimental>, "tests_data", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/tests_data> <0.000008>
+18:43:34.290859 fcntl(6</home/rchateau/survol/Experimental/tests_data>, F_GETFD) = 0 <0.000005>
+18:43:34.290883 fcntl(6</home/rchateau/survol/Experimental/tests_data>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.290909 fstat(6</home/rchateau/survol/Experimental/tests_data>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000005>
+18:43:34.290934 fcntl(6</home/rchateau/survol/Experimental/tests_data>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000009>
+18:43:34.290971 fcntl(6</home/rchateau/survol/Experimental/tests_data>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.291000 newfstatat(5</home/rchateau/survol/Experimental>, "tests_data", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000009>
+18:43:34.291042 fcntl(6</home/rchateau/survol/Experimental/tests_data>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/tests_data> <0.000006>
+18:43:34.291073 fcntl(7</home/rchateau/survol/Experimental/tests_data>, F_GETFD) = 0 <0.000008>
+18:43:34.291108 fcntl(7</home/rchateau/survol/Experimental/tests_data>, F_SETFD, FD_CLOEXEC) = 0 <0.000006>
+18:43:34.291138 getdents(6</home/rchateau/survol/Experimental/tests_data>, /* 3 entries */, 32768) = 80 <0.000027>
+18:43:34.291189 getdents(6</home/rchateau/survol/Experimental/tests_data>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:34.291214 close(6</home/rchateau/survol/Experimental/tests_data>) = 0 <0.000004>
+18:43:34.291234 close(4</home/rchateau/survol/Experimental>) = 0 <0.000004>
+18:43:34.291253 fcntl(7</home/rchateau/survol/Experimental/tests_data>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/tests_data> <0.000004>
+18:43:34.291288 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9931 <0.000062>
+18:43:34.291377 wait4(9931,  <unfinished ...>
+18:43:34.293890 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9931 <0.002502>
+18:43:34.293911 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9931, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.293933 close(7</home/rchateau/survol/Experimental/tests_data>) = 0 <0.000005>
+18:43:34.293959 close(4</home/rchateau/survol/Experimental/tests_data>) = 0 <0.000007>
+18:43:34.293988 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000008>
+18:43:34.294039 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9932 <0.000073>
+18:43:34.294148 wait4(9932,  <unfinished ...>
+18:43:34.296665 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9932 <0.002499>
+18:43:34.296685 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9932, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.296705 newfstatat(5</home/rchateau/survol/Experimental>, "CTypesTests", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000015>
+18:43:34.296751 openat(5</home/rchateau/survol/Experimental>, "CTypesTests", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/CTypesTests> <0.000008>
+18:43:34.296783 fcntl(6</home/rchateau/survol/Experimental/CTypesTests>, F_GETFD) = 0 <0.000005>
+18:43:34.296804 fcntl(6</home/rchateau/survol/Experimental/CTypesTests>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.296845 fstat(6</home/rchateau/survol/Experimental/CTypesTests>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000005>
+18:43:34.296871 fcntl(6</home/rchateau/survol/Experimental/CTypesTests>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000005>
+18:43:34.296897 fcntl(6</home/rchateau/survol/Experimental/CTypesTests>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.296921 newfstatat(5</home/rchateau/survol/Experimental>, "CTypesTests", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000005>
+18:43:34.296947 fcntl(6</home/rchateau/survol/Experimental/CTypesTests>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/CTypesTests> <0.000005>
+18:43:34.296978 fcntl(7</home/rchateau/survol/Experimental/CTypesTests>, F_GETFD) = 0 <0.000004>
+18:43:34.296997 fcntl(7</home/rchateau/survol/Experimental/CTypesTests>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.297016 getdents(6</home/rchateau/survol/Experimental/CTypesTests>, /* 10 entries */, 32768) = 408 <0.000027>
+18:43:34.297074 getdents(6</home/rchateau/survol/Experimental/CTypesTests>, /* 0 entries */, 32768) = 0 <0.000007>
+18:43:34.297114 close(6</home/rchateau/survol/Experimental/CTypesTests>) = 0 <0.000008>
+18:43:34.297147 close(4</home/rchateau/survol/Experimental>) = 0 <0.000007>
+18:43:34.297176 fcntl(7</home/rchateau/survol/Experimental/CTypesTests>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/CTypesTests> <0.000009>
+18:43:34.297231 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9933 <0.000061>
+18:43:34.297321 wait4(9933,  <unfinished ...>
+18:43:34.299813 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9933 <0.002480>
+18:43:34.299852 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9933, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.299884 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9934 <0.000054>
+18:43:34.299965 wait4(9934,  <unfinished ...>
+18:43:34.302437 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9934 <0.002461>
+18:43:34.302455 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9934, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.302486 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9935 <0.000052>
+18:43:34.302564 wait4(9935,  <unfinished ...>
+18:43:34.305061 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9935 <0.002486>
+18:43:34.305079 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9935, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.305108 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9936 <0.000050>
+18:43:34.305185 wait4(9936,  <unfinished ...>
+18:43:34.307569 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9936 <0.002373>
+18:43:34.307587 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9936, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.307614 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9937 <0.000055>
+18:43:34.307697 wait4(9937,  <unfinished ...>
+18:43:34.310141 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9937 <0.002423>
+18:43:34.310159 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9937, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.310186 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9938 <0.000048>
+18:43:34.310260 wait4(9938,  <unfinished ...>
+18:43:34.312660 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9938 <0.002389>
+18:43:34.312679 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9938, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.312706 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9939 <0.000048>
+18:43:34.312780 wait4(9939,  <unfinished ...>
+18:43:34.315159 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9939 <0.002369>
+18:43:34.315178 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9939, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.315211 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9940 <0.000049>
+18:43:34.315287 wait4(9940,  <unfinished ...>
+18:43:34.317693 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9940 <0.002395>
+18:43:34.317711 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9940, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.317730 close(7</home/rchateau/survol/Experimental/CTypesTests>) = 0 <0.000005>
+18:43:34.317756 close(4</home/rchateau/survol/Experimental/CTypesTests>) = 0 <0.000007>
+18:43:34.317780 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000005>
+18:43:34.317814 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9941 <0.000048>
+18:43:34.317916 wait4(9941,  <unfinished ...>
+18:43:34.320408 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9941 <0.002480>
+18:43:34.320427 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9941, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.320461 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9942 <0.000061>
+18:43:34.320556 wait4(9942,  <unfinished ...>
+18:43:34.323393 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 9942 <0.002825>
+18:43:34.323412 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9942, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+18:43:34.323431 newfstatat(5</home/rchateau/survol/Experimental>, "tests_AC2", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000020>
+18:43:34.323491 openat(5</home/rchateau/survol/Experimental>, "tests_AC2", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/tests_AC2> <0.000013>
+18:43:34.323542 fcntl(6</home/rchateau/survol/Experimental/tests_AC2>, F_GETFD) = 0 <0.000010>
+18:43:34.323578 fcntl(6</home/rchateau/survol/Experimental/tests_AC2>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.323602 fstat(6</home/rchateau/survol/Experimental/tests_AC2>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000005>
+18:43:34.323625 fcntl(6</home/rchateau/survol/Experimental/tests_AC2>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000005>
+18:43:34.323646 fcntl(6</home/rchateau/survol/Experimental/tests_AC2>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.323670 newfstatat(5</home/rchateau/survol/Experimental>, "tests_AC2", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000006>
+18:43:34.323696 fcntl(6</home/rchateau/survol/Experimental/tests_AC2>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/tests_AC2> <0.000006>
+18:43:34.323734 fcntl(7</home/rchateau/survol/Experimental/tests_AC2>, F_GETFD) = 0 <0.000005>
+18:43:34.323754 fcntl(7</home/rchateau/survol/Experimental/tests_AC2>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.323774 getdents(6</home/rchateau/survol/Experimental/tests_AC2>, /* 3 entries */, 32768) = 96 <0.000023>
+18:43:34.323837 getdents(6</home/rchateau/survol/Experimental/tests_AC2>, /* 0 entries */, 32768) = 0 <0.000006>
+18:43:34.323867 close(6</home/rchateau/survol/Experimental/tests_AC2>) = 0 <0.000005>
+18:43:34.323887 close(4</home/rchateau/survol/Experimental>) = 0 <0.000005>
+18:43:34.323907 fcntl(7</home/rchateau/survol/Experimental/tests_AC2>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/tests_AC2> <0.000005>
+18:43:34.323945 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9943 <0.000050>
+18:43:34.324023 wait4(9943,  <unfinished ...>
+18:43:34.326454 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9943 <0.002419>
+18:43:34.326473 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9943, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.326499 close(7</home/rchateau/survol/Experimental/tests_AC2>) = 0 <0.000007>
+18:43:34.326536 close(4</home/rchateau/survol/Experimental/tests_AC2>) = 0 <0.000009>
+18:43:34.326571 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000008>
+18:43:34.326614 newfstatat(5</home/rchateau/survol/Experimental>, "Microsoft_Azure", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000017>
+18:43:34.326661 openat(5</home/rchateau/survol/Experimental>, "Microsoft_Azure", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/Microsoft_Azure> <0.000008>
+18:43:34.326698 fcntl(6</home/rchateau/survol/Experimental/Microsoft_Azure>, F_GETFD) = 0 <0.000005>
+18:43:34.326719 fcntl(6</home/rchateau/survol/Experimental/Microsoft_Azure>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.326739 fstat(6</home/rchateau/survol/Experimental/Microsoft_Azure>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000005>
+18:43:34.326760 fcntl(6</home/rchateau/survol/Experimental/Microsoft_Azure>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000005>
+18:43:34.326780 fcntl(6</home/rchateau/survol/Experimental/Microsoft_Azure>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.326801 newfstatat(5</home/rchateau/survol/Experimental>, "Microsoft_Azure", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000005>
+18:43:34.326848 fcntl(6</home/rchateau/survol/Experimental/Microsoft_Azure>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/Microsoft_Azure> <0.000005>
+18:43:34.326874 fcntl(7</home/rchateau/survol/Experimental/Microsoft_Azure>, F_GETFD) = 0 <0.000004>
+18:43:34.326893 fcntl(7</home/rchateau/survol/Experimental/Microsoft_Azure>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.326913 getdents(6</home/rchateau/survol/Experimental/Microsoft_Azure>, /* 5 entries */, 32768) = 160 <0.000023>
+18:43:34.326957 getdents(6</home/rchateau/survol/Experimental/Microsoft_Azure>, /* 0 entries */, 32768) = 0 <0.000008>
+18:43:34.326990 close(6</home/rchateau/survol/Experimental/Microsoft_Azure>) = 0 <0.000009>
+18:43:34.327028 close(4</home/rchateau/survol/Experimental>) = 0 <0.000007>
+18:43:34.327061 fcntl(7</home/rchateau/survol/Experimental/Microsoft_Azure>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/Microsoft_Azure> <0.000006>
+18:43:34.327102 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9944 <0.000052>
+18:43:34.327181 wait4(9944,  <unfinished ...>
+18:43:34.329644 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9944 <0.002452>
+18:43:34.329673 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9944, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.329703 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9945 <0.000051>
+18:43:34.329781 wait4(9945,  <unfinished ...>
+18:43:34.332283 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9945 <0.002491>
+18:43:34.332305 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9945, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.332332 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9946 <0.000044>
+18:43:34.332402 wait4(9946,  <unfinished ...>
+18:43:34.334876 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9946 <0.002463>
+18:43:34.334897 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9946, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.334918 close(7</home/rchateau/survol/Experimental/Microsoft_Azure>) = 0 <0.000005>
+18:43:34.334943 close(4</home/rchateau/survol/Experimental/Microsoft_Azure>) = 0 <0.000006>
+18:43:34.334966 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000005>
+18:43:34.334998 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9947 <0.000058>
+18:43:34.335081 wait4(9947,  <unfinished ...>
+18:43:34.337543 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9947 <0.002451>
+18:43:34.337561 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9947, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.337588 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9948 <0.000046>
+18:43:34.337660 wait4(9948,  <unfinished ...>
+18:43:34.340082 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9948 <0.002412>
+18:43:34.340100 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9948, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.340127 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9949 <0.000046>
+18:43:34.340199 wait4(9949,  <unfinished ...>
+18:43:34.342547 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9949 <0.002337>
+18:43:34.342565 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9949, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.342592 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9950 <0.000046>
+18:43:34.342663 wait4(9950,  <unfinished ...>
+18:43:34.345187 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9950 <0.002513>
+18:43:34.345204 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9950, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.345229 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9951 <0.000056>
+18:43:34.345310 wait4(9951,  <unfinished ...>
+18:43:34.347598 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9951 <0.002277>
+18:43:34.347616 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9951, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.347644 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9952 <0.000045>
+18:43:34.347725 wait4(9952,  <unfinished ...>
+18:43:34.350380 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 9952 <0.002643>
+18:43:34.350398 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9952, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+18:43:34.350424 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9953 <0.000056>
+18:43:34.350504 wait4(9953,  <unfinished ...>
+18:43:34.353049 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9953 <0.002535>
+18:43:34.353071 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9953, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.353098 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9954 <0.000046>
+18:43:34.353170 wait4(9954,  <unfinished ...>
+18:43:34.355570 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9954 <0.002389>
+18:43:34.355588 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9954, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.355606 newfstatat(5</home/rchateau/survol/Experimental>, "SLP", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000014>
+18:43:34.355650 openat(5</home/rchateau/survol/Experimental>, "SLP", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/SLP> <0.000007>
+18:43:34.355682 fcntl(6</home/rchateau/survol/Experimental/SLP>, F_GETFD) = 0 <0.000005>
+18:43:34.355702 fcntl(6</home/rchateau/survol/Experimental/SLP>, F_SETFD, FD_CLOEXEC) = 0 <0.000006>
+18:43:34.355737 fstat(6</home/rchateau/survol/Experimental/SLP>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000005>
+18:43:34.355759 fcntl(6</home/rchateau/survol/Experimental/SLP>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000005>
+18:43:34.355779 fcntl(6</home/rchateau/survol/Experimental/SLP>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.355802 newfstatat(5</home/rchateau/survol/Experimental>, "SLP", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000024>
+18:43:34.355851 fcntl(6</home/rchateau/survol/Experimental/SLP>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/SLP> <0.000005>
+18:43:34.355877 fcntl(7</home/rchateau/survol/Experimental/SLP>, F_GETFD) = 0 <0.000004>
+18:43:34.355896 fcntl(7</home/rchateau/survol/Experimental/SLP>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.355915 getdents(6</home/rchateau/survol/Experimental/SLP>, /* 17 entries */, 32768) = 640 <0.000027>
+18:43:34.355972 getdents(6</home/rchateau/survol/Experimental/SLP>, /* 0 entries */, 32768) = 0 <0.000010>
+18:43:34.356012 close(6</home/rchateau/survol/Experimental/SLP>) = 0 <0.000005>
+18:43:34.356035 close(4</home/rchateau/survol/Experimental>) = 0 <0.000008>
+18:43:34.356067 fcntl(7</home/rchateau/survol/Experimental/SLP>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/SLP> <0.000006>
+18:43:34.356104 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9955 <0.000048>
+18:43:34.356179 wait4(9955,  <unfinished ...>
+18:43:34.358565 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9955 <0.002375>
+18:43:34.358584 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9955, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.358611 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9956 <0.000046>
+18:43:34.358682 wait4(9956,  <unfinished ...>
+18:43:34.361010 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9956 <0.002317>
+18:43:34.361029 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9956, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.361056 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9957 <0.000060>
+18:43:34.361153 wait4(9957,  <unfinished ...>
+18:43:34.363574 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9957 <0.002408>
+18:43:34.363593 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9957, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.363620 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9958 <0.000046>
+18:43:34.363692 wait4(9958,  <unfinished ...>
+18:43:34.366036 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9958 <0.002333>
+18:43:34.366054 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9958, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.366081 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9959 <0.000046>
+18:43:34.366153 wait4(9959,  <unfinished ...>
+18:43:34.368555 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9959 <0.002388>
+18:43:34.368574 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9959, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.368604 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9960 <0.000054>
+18:43:34.368684 wait4(9960,  <unfinished ...>
+18:43:34.371060 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9960 <0.002365>
+18:43:34.371078 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9960, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.371105 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9961 <0.000047>
+18:43:34.371178 wait4(9961,  <unfinished ...>
+18:43:34.373572 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9961 <0.002383>
+18:43:34.373590 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9961, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.373617 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9962 <0.000046>
+18:43:34.373688 wait4(9962,  <unfinished ...>
+18:43:34.376069 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9962 <0.002370>
+18:43:34.376088 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9962, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.376114 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9963 <0.000046>
+18:43:34.376185 wait4(9963,  <unfinished ...>
+18:43:34.378521 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9963 <0.002325>
+18:43:34.378540 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9963, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.378567 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9964 <0.000046>
+18:43:34.378639 wait4(9964,  <unfinished ...>
+18:43:34.381272 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 9964 <0.002622>
+18:43:34.381293 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9964, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+18:43:34.381321 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9965 <0.000047>
+18:43:34.381394 wait4(9965,  <unfinished ...>
+18:43:34.383937 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9965 <0.002531>
+18:43:34.383956 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9965, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.383984 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9966 <0.000046>
+18:43:34.384056 wait4(9966,  <unfinished ...>
+18:43:34.386464 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9966 <0.002396>
+18:43:34.386483 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9966, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.386502 newfstatat(7</home/rchateau/survol/Experimental/SLP>, "tests_pyslp", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000007>
+18:43:34.386540 openat(7</home/rchateau/survol/Experimental/SLP>, "tests_pyslp", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/SLP/tests_pyslp> <0.000013>
+18:43:34.386588 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_GETFD) = 0 <0.000005>
+18:43:34.386610 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.386629 fstat(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000005>
+18:43:34.386651 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000005>
+18:43:34.386672 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.386694 newfstatat(7</home/rchateau/survol/Experimental/SLP>, "tests_pyslp", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000006>
+18:43:34.386720 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_DUPFD, 3) = 8</home/rchateau/survol/Experimental/SLP/tests_pyslp> <0.000004>
+18:43:34.386759 fcntl(8</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_GETFD) = 0 <0.000005>
+18:43:34.386780 fcntl(8</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.386800 getdents(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>, /* 7 entries */, 32768) = 256 <0.000052>
+18:43:34.386877 getdents(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:34.386902 close(6</home/rchateau/survol/Experimental/SLP/tests_pyslp>) = 0 <0.000005>
+18:43:34.386922 close(4</home/rchateau/survol/Experimental/SLP>) = 0 <0.000004>
+18:43:34.386942 fcntl(8</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/SLP/tests_pyslp> <0.000005>
+18:43:34.386973 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9967 <0.000045>
+18:43:34.387044 wait4(9967,  <unfinished ...>
+18:43:34.389615 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9967 <0.002560>
+18:43:34.389641 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9967, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.389669 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9968 <0.000047>
+18:43:34.389742 wait4(9968,  <unfinished ...>
+18:43:34.392131 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9968 <0.002378>
+18:43:34.392148 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9968, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.392184 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9969 <0.000055>
+18:43:34.392287 wait4(9969,  <unfinished ...>
+18:43:34.394673 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9969 <0.002375>
+18:43:34.394694 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9969, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.394724 newfstatat(8</home/rchateau/survol/Experimental/SLP/tests_pyslp>, "port_to_py2", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000007>
+18:43:34.394763 openat(8</home/rchateau/survol/Experimental/SLP/tests_pyslp>, "port_to_py2", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2> <0.000007>
+18:43:34.394794 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, F_GETFD) = 0 <0.000004>
+18:43:34.394814 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, F_SETFD, FD_CLOEXEC) = 0 <0.000006>
+18:43:34.394859 fstat(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000004>
+18:43:34.394883 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000005>
+18:43:34.394904 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.394927 newfstatat(8</home/rchateau/survol/Experimental/SLP/tests_pyslp>, "port_to_py2", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000006>
+18:43:34.394953 fcntl(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, F_DUPFD, 3) = 9</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2> <0.000005>
+18:43:34.394991 fcntl(9</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, F_GETFD) = 0 <0.000004>
+18:43:34.395012 fcntl(9</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.395032 getdents(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, /* 4 entries */, 32768) = 128 <0.000021>
+18:43:34.395075 getdents(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:34.395099 close(6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>) = 0 <0.000005>
+18:43:34.395118 close(4</home/rchateau/survol/Experimental/SLP/tests_pyslp>) = 0 <0.000005>
+18:43:34.395138 fcntl(9</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2> <0.000005>
+18:43:34.395169 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9970 <0.000048>
+18:43:34.395243 wait4(9970,  <unfinished ...>
+18:43:34.397690 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9970 <0.002436>
+18:43:34.397708 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9970, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.397736 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9971 <0.000059>
+18:43:34.397844 wait4(9971,  <unfinished ...>
+18:43:34.400298 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9971 <0.002439>
+18:43:34.400316 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9971, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.400333 close(9</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>) = 0 <0.000005>
+18:43:34.400359 close(4</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2>) = 0 <0.000007>
+18:43:34.400382 fcntl(8</home/rchateau/survol/Experimental/SLP/tests_pyslp>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/SLP/tests_pyslp> <0.000005>
+18:43:34.400414 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9972 <0.000064>
+18:43:34.400511 wait4(9972,  <unfinished ...>
+18:43:34.402930 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9972 <0.002405>
+18:43:34.402952 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9972, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.402970 close(8</home/rchateau/survol/Experimental/SLP/tests_pyslp>) = 0 <0.000005>
+18:43:34.402995 close(4</home/rchateau/survol/Experimental/SLP/tests_pyslp>) = 0 <0.000007>
+18:43:34.403020 fcntl(7</home/rchateau/survol/Experimental/SLP>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/SLP> <0.000005>
+18:43:34.403052 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9973 <0.000047>
+18:43:34.403125 wait4(9973,  <unfinished ...>
+18:43:34.405803 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 9973 <0.002667>
+18:43:34.405840 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9973, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+18:43:34.405862 newfstatat(7</home/rchateau/survol/Experimental/SLP>, "SLP_PerlSamples", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000015>
+18:43:34.405907 openat(7</home/rchateau/survol/Experimental/SLP>, "SLP_PerlSamples", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples> <0.000019>
+18:43:34.405960 fcntl(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, F_GETFD) = 0 <0.000006>
+18:43:34.405988 fcntl(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.406008 fstat(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000004>
+18:43:34.406030 fcntl(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000005>
+18:43:34.406063 fcntl(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.406086 newfstatat(7</home/rchateau/survol/Experimental/SLP>, "SLP_PerlSamples", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000005>
+18:43:34.406112 fcntl(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, F_DUPFD, 3) = 8</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples> <0.000004>
+18:43:34.406135 fcntl(8</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, F_GETFD) = 0 <0.000004>
+18:43:34.406154 fcntl(8</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.406185 getdents(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, /* 3 entries */, 32768) = 80 <0.000022>
+18:43:34.406228 getdents(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:34.406251 close(6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>) = 0 <0.000004>
+18:43:34.406270 close(4</home/rchateau/survol/Experimental/SLP>) = 0 <0.000004>
+18:43:34.406289 fcntl(8</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples> <0.000004>
+18:43:34.406319 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9974 <0.000058>
+18:43:34.406401 wait4(9974,  <unfinished ...>
+18:43:34.408870 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9974 <0.002458>
+18:43:34.408891 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9974, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.408909 close(8</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>) = 0 <0.000006>
+18:43:34.408935 close(4</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples>) = 0 <0.000005>
+18:43:34.408958 fcntl(7</home/rchateau/survol/Experimental/SLP>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/SLP> <0.000005>
+18:43:34.408982 close(7</home/rchateau/survol/Experimental/SLP>) = 0 <0.000005>
+18:43:34.409002 close(4</home/rchateau/survol/Experimental/SLP>) = 0 <0.000010>
+18:43:34.409032 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000007>
+18:43:34.409067 newfstatat(5</home/rchateau/survol/Experimental>, "RDF", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000016>
+18:43:34.409110 openat(5</home/rchateau/survol/Experimental>, "RDF", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/RDF> <0.000008>
+18:43:34.409141 fcntl(6</home/rchateau/survol/Experimental/RDF>, F_GETFD) = 0 <0.000005>
+18:43:34.409161 fcntl(6</home/rchateau/survol/Experimental/RDF>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.409180 fstat(6</home/rchateau/survol/Experimental/RDF>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000004>
+18:43:34.409201 fcntl(6</home/rchateau/survol/Experimental/RDF>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000004>
+18:43:34.409227 fcntl(6</home/rchateau/survol/Experimental/RDF>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.409250 newfstatat(5</home/rchateau/survol/Experimental>, "RDF", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000006>
+18:43:34.409276 fcntl(6</home/rchateau/survol/Experimental/RDF>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/RDF> <0.000005>
+18:43:34.409299 fcntl(7</home/rchateau/survol/Experimental/RDF>, F_GETFD) = 0 <0.000005>
+18:43:34.409317 fcntl(7</home/rchateau/survol/Experimental/RDF>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.409337 getdents(6</home/rchateau/survol/Experimental/RDF>, /* 7 entries */, 32768) = 256 <0.000020>
+18:43:34.409379 getdents(6</home/rchateau/survol/Experimental/RDF>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:34.409402 close(6</home/rchateau/survol/Experimental/RDF>) = 0 <0.000005>
+18:43:34.409422 close(4</home/rchateau/survol/Experimental>) = 0 <0.000004>
+18:43:34.409441 fcntl(7</home/rchateau/survol/Experimental/RDF>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/RDF> <0.000005>
+18:43:34.409471 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9975 <0.000047>
+18:43:34.409544 wait4(9975,  <unfinished ...>
+18:43:34.411969 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9975 <0.002414>
+18:43:34.411987 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9975, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.412014 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9976 <0.000046>
+18:43:34.412089 wait4(9976,  <unfinished ...>
+18:43:34.414453 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9976 <0.002347>
+18:43:34.414471 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9976, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.414498 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9977 <0.000046>
+18:43:34.414570 wait4(9977,  <unfinished ...>
+18:43:34.416940 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9977 <0.002358>
+18:43:34.416960 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9977, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.416987 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9978 <0.000046>
+18:43:34.417059 wait4(9978,  <unfinished ...>
+18:43:34.419453 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9978 <0.002383>
+18:43:34.419471 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9978, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.419498 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9979 <0.000046>
+18:43:34.419570 wait4(9979,  <unfinished ...>
+18:43:34.422056 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9979 <0.002475>
+18:43:34.422075 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9979, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.422094 close(7</home/rchateau/survol/Experimental/RDF>) = 0 <0.000005>
+18:43:34.422130 close(4</home/rchateau/survol/Experimental/RDF>) = 0 <0.000007>
+18:43:34.422176 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000006>
+18:43:34.422211 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9980 <0.000051>
+18:43:34.422296 wait4(9980,  <unfinished ...>
+18:43:34.424814 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9980 <0.002505>
+18:43:34.424853 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9980, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.424882 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9981 <0.000046>
+18:43:34.424958 wait4(9981,  <unfinished ...>
+18:43:34.427313 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9981 <0.002339>
+18:43:34.427330 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9981, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.427358 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9982 <0.000048>
+18:43:34.427442 wait4(9982,  <unfinished ...>
+18:43:34.429867 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9982 <0.002414>
+18:43:34.429888 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9982, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.429916 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9983 <0.000046>
+18:43:34.429988 wait4(9983,  <unfinished ...>
+18:43:34.432405 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9983 <0.002406>
+18:43:34.432423 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9983, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.432455 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9984 <0.000052>
+18:43:34.432539 wait4(9984,  <unfinished ...>
+18:43:34.435254 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 9984 <0.002704>
+18:43:34.435272 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9984, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+18:43:34.435291 newfstatat(5</home/rchateau/survol/Experimental>, "tests_wbem", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000015>
+18:43:34.435348 openat(5</home/rchateau/survol/Experimental>, "tests_wbem", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_DIRECTORY) = 6</home/rchateau/survol/Experimental/tests_wbem> <0.000007>
+18:43:34.435391 fcntl(6</home/rchateau/survol/Experimental/tests_wbem>, F_GETFD) = 0 <0.000004>
+18:43:34.435410 fcntl(6</home/rchateau/survol/Experimental/tests_wbem>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+18:43:34.435428 fstat(6</home/rchateau/survol/Experimental/tests_wbem>, {st_mode=S_IFDIR|0775, st_size=4096, ...}) = 0 <0.000004>
+18:43:34.435448 fcntl(6</home/rchateau/survol/Experimental/tests_wbem>, F_GETFL) = 0x38800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW|O_DIRECTORY) <0.000004>
+18:43:34.435467 fcntl(6</home/rchateau/survol/Experimental/tests_wbem>, F_SETFD, FD_CLOEXEC) = 0 <0.000004>
+18:43:34.435488 newfstatat(5</home/rchateau/survol/Experimental>, "tests_wbem", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLINK_NOFOLLOW) = 0 <0.000009>
+18:43:34.435524 fcntl(6</home/rchateau/survol/Experimental/tests_wbem>, F_DUPFD, 3) = 7</home/rchateau/survol/Experimental/tests_wbem> <0.000005>
+18:43:34.435553 fcntl(7</home/rchateau/survol/Experimental/tests_wbem>, F_GETFD) = 0 <0.000004>
+18:43:34.435571 fcntl(7</home/rchateau/survol/Experimental/tests_wbem>, F_SETFD, FD_CLOEXEC) = 0 <0.000003>
+18:43:34.435590 getdents(6</home/rchateau/survol/Experimental/tests_wbem>, /* 15 entries */, 32768) = 552 <0.000027>
+18:43:34.435655 getdents(6</home/rchateau/survol/Experimental/tests_wbem>, /* 0 entries */, 32768) = 0 <0.000005>
+18:43:34.435679 close(6</home/rchateau/survol/Experimental/tests_wbem>) = 0 <0.000005>
+18:43:34.435698 close(4</home/rchateau/survol/Experimental>) = 0 <0.000005>
+18:43:34.435742 fcntl(7</home/rchateau/survol/Experimental/tests_wbem>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental/tests_wbem> <0.000005>
+18:43:34.435775 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9985 <0.000075>
+18:43:34.435881 wait4(9985,  <unfinished ...>
+18:43:34.438292 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9985 <0.002399>
+18:43:34.438312 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9985, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.438339 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9986 <0.000058>
+18:43:34.438423 wait4(9986,  <unfinished ...>
+18:43:34.440854 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9986 <0.002421>
+18:43:34.440874 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9986, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.440900 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9987 <0.000082>
+18:43:34.441010 wait4(9987,  <unfinished ...>
+18:43:34.443437 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9987 <0.002415>
+18:43:34.443456 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9987, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.443483 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9988 <0.000047>
+18:43:34.443556 wait4(9988,  <unfinished ...>
+18:43:34.445954 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9988 <0.002387>
+18:43:34.445972 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9988, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.445999 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9989 <0.000052>
+18:43:34.446085 wait4(9989,  <unfinished ...>
+18:43:34.448516 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9989 <0.002419>
+18:43:34.448535 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9989, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.448563 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9990 <0.000047>
+18:43:34.448637 wait4(9990,  <unfinished ...>
+18:43:34.451162 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9990 <0.002513>
+18:43:34.451191 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9990, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.451226 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9991 <0.000047>
+18:43:34.451299 wait4(9991,  <unfinished ...>
+18:43:34.453807 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9991 <0.002496>
+18:43:34.453843 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9991, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.453883 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9992 <0.000045>
+18:43:34.453955 wait4(9992,  <unfinished ...>
+18:43:34.456457 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9992 <0.002479>
+18:43:34.456476 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9992, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.456503 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9993 <0.000059>
+18:43:34.456589 wait4(9993,  <unfinished ...>
+18:43:34.458963 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9993 <0.002362>
+18:43:34.458988 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9993, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.459017 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9994 <0.000047>
+18:43:34.459090 wait4(9994,  <unfinished ...>
+18:43:34.461562 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9994 <0.002461>
+18:43:34.461581 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9994, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.461610 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9995 <0.000055>
+18:43:34.461698 wait4(9995,  <unfinished ...>
+18:43:34.464230 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9995 <0.002520>
+18:43:34.464249 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9995, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.464277 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9996 <0.000063>
+18:43:34.464378 wait4(9996,  <unfinished ...>
+18:43:34.466899 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9996 <0.002502>
+18:43:34.466920 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9996, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.466947 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9997 <0.000046>
+18:43:34.467020 wait4(9997,  <unfinished ...>
+18:43:34.469572 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9997 <0.002541>
+18:43:34.469590 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9997, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.469609 close(7</home/rchateau/survol/Experimental/tests_wbem>) = 0 <0.000006>
+18:43:34.469635 close(4</home/rchateau/survol/Experimental/tests_wbem>) = 0 <0.000007>
+18:43:34.469660 fcntl(5</home/rchateau/survol/Experimental>, F_DUPFD_CLOEXEC, 0) = 4</home/rchateau/survol/Experimental> <0.000005>
+18:43:34.469693 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9998 <0.000056>
+18:43:34.469791 wait4(9998,  <unfinished ...>
+18:43:34.472241 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9998 <0.002435>
+18:43:34.472265 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9998, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.472291 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 9999 <0.000048>
+18:43:34.472377 wait4(9999,  <unfinished ...>
+18:43:34.474838 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 9999 <0.002450>
+18:43:34.474859 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=9999, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.474900 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10000 <0.000048>
+18:43:34.474980 wait4(10000,  <unfinished ...>
+18:43:34.477378 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10000 <0.002386>
+18:43:34.477399 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10000, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.477427 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10001 <0.000050>
+18:43:34.477505 wait4(10001,  <unfinished ...>
+18:43:34.479965 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10001 <0.002449>
+18:43:34.479994 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10001, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.480027 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10002 <0.000048>
+18:43:34.480102 wait4(10002,  <unfinished ...>
+18:43:34.482476 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10002 <0.002363>
+18:43:34.482497 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10002, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.482524 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10003 <0.000046>
+18:43:34.482597 wait4(10003,  <unfinished ...>
+18:43:34.485006 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10003 <0.002398>
+18:43:34.485025 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10003, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.485051 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10004 <0.000058>
+18:43:34.485139 wait4(10004,  <unfinished ...>
+18:43:34.487466 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10004 <0.002315>
+18:43:34.487483 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10004, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.487519 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10005 <0.000048>
+18:43:34.487597 wait4(10005,  <unfinished ...>
+18:43:34.489986 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10005 <0.002373>
+18:43:34.490005 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10005, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.490032 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10006 <0.000045>
+18:43:34.490103 wait4(10006,  <unfinished ...>
+18:43:34.492516 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10006 <0.002402>
+18:43:34.492534 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10006, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.492561 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10007 <0.000059>
+18:43:34.492648 wait4(10007,  <unfinished ...>
+18:43:34.495116 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10007 <0.002456>
+18:43:34.495134 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10007, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.495160 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10008 <0.000046>
+18:43:34.495232 wait4(10008,  <unfinished ...>
+18:43:34.497664 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10008 <0.002421>
+18:43:34.497687 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10008, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.497725 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10009 <0.000047>
+18:43:34.497802 wait4(10009,  <unfinished ...>
+18:43:34.500272 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10009 <0.002454>
+18:43:34.500290 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10009, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.500317 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10010 <0.000059>
+18:43:34.500404 wait4(10010,  <unfinished ...>
+18:43:34.503075 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10010 <0.002659>
+18:43:34.503096 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10010, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.503122 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10011 <0.000047>
+18:43:34.503195 wait4(10011,  <unfinished ...>
+18:43:34.505730 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10011 <0.002524>
+18:43:34.505760 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10011, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.505790 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10012 <0.000082>
+18:43:34.505907 wait4(10012,  <unfinished ...>
+18:43:34.508343 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10012 <0.002424>
+18:43:34.508362 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10012, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.508388 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10013 <0.000046>
+18:43:34.508461 wait4(10013,  <unfinished ...>
+18:43:34.510966 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10013 <0.002494>
+18:43:34.510988 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10013, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.511015 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10014 <0.000058>
+18:43:34.511105 wait4(10014,  <unfinished ...>
+18:43:34.513599 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10014 <0.002478>
+18:43:34.513626 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10014, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.513671 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fd66a9c8ad0) = 10015 <0.000047>
+18:43:34.513745 wait4(10015,  <unfinished ...>
+18:43:34.516209 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 10015 <0.002453>
+18:43:34.516233 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=10015, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+18:43:34.516253 close(5</home/rchateau/survol/Experimental>) = 0 <0.000005>
+18:43:34.516280 close(4</home/rchateau/survol/Experimental>) = 0 <0.000022>
+18:43:34.516326 fchdir(3</home/rchateau/survol/Experimental/RetroBatch>) = 0 <0.000006>
+18:43:34.516357 close(3</home/rchateau/survol/Experimental/RetroBatch>) = 0 <0.000005>
+18:43:34.516388 close(1</dev/pts/0>)    = 0 <0.000006>
+18:43:34.516432 close(2</home/rchateau/survol/mineit_find_grep.log>) = 0 <0.000006>
+18:43:34.516514 exit_group(0)           = ?
