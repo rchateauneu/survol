@@ -36,8 +36,8 @@ que MineIT realise: Il n'y a donc pas besoin d'autres outils.
 * Remonter des objets techniques aux ressources metiers: C'est un process iteratif,
 par nature imprecis en l'absence de documentation, et toujours ameliorable.
 
-Comment proceder:
------------------
+Comment ca fonctionne:
+----------------------
 
 (1) Extraction technique: strace, ou Logger.
 => Fichiers de logs ou toutes les informations sont disponibles.
@@ -58,3 +58,13 @@ Qu'est ce qui est fait ?
 
 (1) sous Linux
 (2) en partie seulement.
+
+Par rapport a "Survol":
+=======================
+Survol est un outil interactif d'analyse et d'exploration d'un systeme existant.
+Il fait des snapshots de ressources en cours d'execution ou d'exploitation,
+et les presente dans plusieurs interface: WEB, texte, SVG etc...
+
+Mine-IT apporte la dimension temporelle aux objets presente par Survol:
+Ils sont orthogonaux en ceci que survol explore les relations
+entre les objects a un instant T, tandis que Mine-IT suit leur evolution.
