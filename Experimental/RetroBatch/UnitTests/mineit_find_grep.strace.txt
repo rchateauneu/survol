@@ -14,6 +14,7 @@ F= 10015 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../relative_u
 F= 10015 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/relative_url.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10015 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10015 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10015 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10014
 F= 10014 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -30,6 +31,7 @@ F= 10014 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../security_d
 F= 10014 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/security_directories.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10014 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10014 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10014 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10013
 F= 10013 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -46,6 +48,7 @@ F= 10013 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../extract_ta
 F= 10013 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/extract_table_names.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10013 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10013 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10013 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10012
 F= 10012 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -62,6 +65,7 @@ F= 10012 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../TestMySql.
 F= 10012 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/TestMySql.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10012 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10012 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10012 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10011
 F= 10011 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -78,6 +82,7 @@ F= 10011 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../TestUnicod
 F= 10011 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/TestUnicodeStrings.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10011 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10011 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10011 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10010
 F= 10010 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -94,6 +99,7 @@ F= 10010 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../readelf.py
 F= 10010 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/readelf.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10010 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10010 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10010 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10009
 F= 10009 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -110,6 +116,7 @@ F= 10009 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../ScanOdbcRe
 F= 10009 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/ScanOdbcRegex.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10009 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10009 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10009 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10008
 F= 10008 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -126,6 +133,7 @@ F= 10008 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../TestBarf.p
 F= 10008 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/TestBarf.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10008 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10008 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10008 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10007
 F= 10007 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -142,6 +150,7 @@ F= 10007 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../ClusterFil
 F= 10007 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/ClusterFilenames.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10007 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10007 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10007 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10006
 F= 10006 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -158,6 +167,7 @@ F= 10006 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Test_COM_G
 F= 10006 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Test_COM_GetRunningObjectTable.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10006 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10006 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10006 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10005
 F= 10005 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -174,6 +184,7 @@ F= 10005 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../TestLoopOd
 F= 10005 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/TestLoopOdbc.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10005 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10005 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10005 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10004
 F= 10004 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -190,6 +201,7 @@ F= 10004 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../TestPySmb.
 F= 10004 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/TestPySmb.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10004 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10004 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10004 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10003
 F= 10003 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -206,6 +218,7 @@ F= 10003 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../build_merg
 F= 10003 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/build_merge.htm"'] ==>> N/A (18:43:34,18:43:34)
 F= 10003 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10003 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10003 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10002
 F= 10002 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -222,6 +235,7 @@ F= 10002 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../load_urls_
 F= 10002 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/load_urls_with_rdfquery.htm"'] ==>> N/A (18:43:34,18:43:34)
 F= 10002 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10002 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10002 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10001
 F= 10001 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -238,6 +252,7 @@ F= 10001 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Test_ip_co
 F= 10001 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Test_ip_config.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10001 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10001 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10001 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=10000
 F= 10000 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -254,6 +269,7 @@ F= 10000 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../list_machi
 F= 10000 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/list_machines_in_domain.py"'] ==>> N/A (18:43:34,18:43:34)
 F= 10000 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F= 10000 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F= 10000 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9999
 F=  9999 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -270,6 +286,7 @@ F=  9999 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../readelf_cu
 F=  9999 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/readelf_customized.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9999 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9999 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9999 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9998
 F=  9998 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -286,6 +303,7 @@ F=  9998 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../WindowsGet
 F=  9998 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/WindowsGetDocumentSummaryInformation.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9998 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9998 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9998 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9997
 F=  9997 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -302,6 +320,7 @@ F=  9997 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9997 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/wbem.pyproj"'] ==>> N/A (18:43:34,18:43:34)
 F=  9997 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9997 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9997 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9996
 F=  9996 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -318,6 +337,7 @@ F=  9996 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9996 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/web.debug.config"'] ==>> N/A (18:43:34,18:43:34)
 F=  9996 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9996 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9996 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9995
 F=  9995 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -334,6 +354,7 @@ F=  9995 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9995 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/EnumNamespaces.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9995 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9995 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9995 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9994
 F=  9994 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -350,6 +371,7 @@ F=  9994 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9994 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/web.config"'] ==>> N/A (18:43:34,18:43:34)
 F=  9994 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9994 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9994 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9993
 F=  9993 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -366,6 +388,7 @@ F=  9993 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9993 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/EnumClassNames.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9993 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9993 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9993 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9992
 F=  9992 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -382,6 +405,7 @@ F=  9992 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9992 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/yawn_render.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9992 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9992 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9992 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9991
 F=  9991 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -398,6 +422,7 @@ F=  9991 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9991 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/yawn_cim_insight.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9991 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9991 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9991 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9990
 F=  9990 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -414,6 +439,7 @@ F=  9990 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9990 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/EnumInstanceNames.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9990 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9990 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9990 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9989
 F=  9989 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -430,6 +456,7 @@ F=  9989 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9989 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/GetInstance.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9989 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9989 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9989 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9988
 F=  9988 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -446,6 +473,7 @@ F=  9988 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9988 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/Login.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9988 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9988 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9988 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9987
 F=  9987 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -462,6 +490,7 @@ F=  9987 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9987 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/wbem_utils.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9987 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9987 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9987 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9986
 F=  9986 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -478,6 +507,7 @@ F=  9986 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9986 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/yawn_util.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9986 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9986 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9986 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9985
 F=  9985 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -494,6 +524,7 @@ F=  9985 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_wbem
 F=  9985 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem/EnumClassNamesInstrumented.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9985 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9985 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9985 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9984
 F=  9984 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -512,6 +543,7 @@ F=  9984 {   1/Args} '(fstat@SYS+write@SYS)' ['CIM_DataFile.Name="/dev/pts/0"'] 
 F=  9984 {   1/Args} '(read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Test_jpype_jmx.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9984 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9984 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9984 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9983
 F=  9983 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -528,6 +560,7 @@ F=  9983 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../ExtractIco
 F=  9983 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/ExtractIconFromExe.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9983 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9983 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9983 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9982
 F=  9982 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -544,6 +577,7 @@ F=  9982 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../TestCapsto
 F=  9982 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/TestCapstone.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9982 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9982 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9982 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9981
 F=  9981 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -560,6 +594,7 @@ F=  9981 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../lib_cluste
 F=  9981 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/lib_clusters.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9981 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9981 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9981 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9980
 F=  9980 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -576,6 +611,7 @@ F=  9980 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../sqlparse_t
 F=  9980 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/sqlparse_test.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9980 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9980 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9980 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9979
 F=  9979 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -592,6 +628,7 @@ F=  9979 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RDF/TrineR
 F=  9979 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF/TrineRdfToGraphviz.pl"'] ==>> N/A (18:43:34,18:43:34)
 F=  9979 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9979 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9979 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9978
 F=  9978 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -608,6 +645,7 @@ F=  9978 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RDF/XsdRdf
 F=  9978 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF/XsdRdfToDot.sh"'] ==>> N/A (18:43:34,18:43:34)
 F=  9978 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9978 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9978 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9977
 F=  9977 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -624,6 +662,7 @@ F=  9977 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RDF/out.pn
 F=  9977 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF/out.png"'] ==>> N/A (18:43:34,18:43:34)
 F=  9977 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9977 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9977 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9976
 F=  9976 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -640,6 +679,7 @@ F=  9976 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RDF/svc_rd
 F=  9976 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF/svc_rdf_to_svg.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9976 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9976 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9976 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9975
 F=  9975 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -656,6 +696,7 @@ F=  9975 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RDF/svc_me
 F=  9975 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF/svc_merge_rdf_files.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9975 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9975 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9975 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9974
 F=  9974 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -672,6 +713,7 @@ F=  9974 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/SLP_Pe
 F=  9974 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples/SLPtest.pl"'] ==>> N/A (18:43:34,18:43:34)
 F=  9974 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9974 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9974 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9973
 F=  9973 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -690,6 +732,7 @@ F=  9973 {   1/Args} '(fstat@SYS+write@SYS)' ['CIM_DataFile.Name="/dev/pts/0"'] 
 F=  9973 {   1/Args} '(read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/rdf_droite.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9973 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9973 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9973 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9972
 F=  9972 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -706,6 +749,7 @@ F=  9972 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/tests_
 F=  9972 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_server.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9972 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9972 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9972 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9971
 F=  9971 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -722,6 +766,7 @@ F=  9971 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/tests_
 F=  9971 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2/pyslp_server.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9971 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9971 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9971 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9970
 F=  9970 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -738,6 +783,7 @@ F=  9970 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/tests_
 F=  9970 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2/pyslp_client.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9970 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9970 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9970 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9969
 F=  9969 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -754,6 +800,7 @@ F=  9969 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/tests_
 F=  9969 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client_register.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9969 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9969 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9969 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9968
 F=  9968 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -770,6 +817,7 @@ F=  9968 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/tests_
 F=  9968 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client_findsrvs.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9968 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9968 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9968 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9967
 F=  9967 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -786,6 +834,7 @@ F=  9967 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/tests_
 F=  9967 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/pyslp_client.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9967 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9967 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9967 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9966
 F=  9966 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -802,6 +851,7 @@ F=  9966 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/SlpMgr
 F=  9966 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SlpMgr.sh"'] ==>> N/A (18:43:34,18:43:34)
 F=  9966 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9966 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9966 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9965
 F=  9965 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -818,6 +868,7 @@ F=  9965 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/Techni
 F=  9965 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/TechnicalNotes.txt"'] ==>> N/A (18:43:34,18:43:34)
 F=  9965 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9965 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9965 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9964
 F=  9964 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -836,6 +887,7 @@ F=  9964 {   1/Args} '(fstat@SYS+write@SYS)' ['CIM_DataFile.Name="/dev/pts/0"'] 
 F=  9964 {   1/Args} '(read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/rdf_center.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9964 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9964 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9964 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9963
 F=  9963 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -852,6 +904,7 @@ F=  9963 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/SlpPy.
 F=  9963 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SlpPy.sh"'] ==>> N/A (18:43:34,18:43:34)
 F=  9963 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9963 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9963 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9962
 F=  9962 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -868,6 +921,7 @@ F=  9962 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/gui_sl
 F=  9962 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/gui_slpmenu.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9962 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9962 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9962 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9961
 F=  9961 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -884,6 +938,7 @@ F=  9961 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/list_r
 F=  9961 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/list_rdf_generators.tmpl.htm.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9961 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9961 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9961 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9960
 F=  9960 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -900,6 +955,7 @@ F=  9960 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/gui_sl
 F=  9960 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/gui_slpform.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9960 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9960 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9960 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9959
 F=  9959 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -916,6 +972,7 @@ F=  9959 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/frames
 F=  9959 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/frames_result.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9959 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9959 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9959 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9958
 F=  9958 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -932,6 +989,7 @@ F=  9958 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/SlpApa
 F=  9958 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SlpApache.sh"'] ==>> N/A (18:43:34,18:43:34)
 F=  9958 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9958 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9958 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9957
 F=  9957 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -948,6 +1006,7 @@ F=  9957 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/webslp
 F=  9957 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/webslptool.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9957 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9957 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9957 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9956
 F=  9956 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -964,6 +1023,7 @@ F=  9956 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/TestPr
 F=  9956 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/TestPresenceSlp.sh"'] ==>> N/A (18:43:34,18:43:34)
 F=  9956 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9956 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9956 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9955
 F=  9955 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -980,6 +1040,7 @@ F=  9955 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SLP/list_r
 F=  9955 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/list_rdf_generators.tmpl.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9955 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9955 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9955 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9954
 F=  9954 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -996,6 +1057,7 @@ F=  9954 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../ActiveXObj
 F=  9954 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/ActiveXObjectWMI.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9954 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9954 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9954 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9953
 F=  9953 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1012,6 +1074,7 @@ F=  9953 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../PrintDescr
 F=  9953 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/PrintDescription.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9953 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9953 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9953 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9952
 F=  9952 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1030,6 +1093,7 @@ F=  9952 {   1/Args} '(fstat@SYS+write@SYS)' ['CIM_DataFile.Name="/dev/pts/0"'] 
 F=  9952 {   1/Args} '(read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/pyrasite_clone.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9952 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9952 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9952 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9951
 F=  9951 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1046,6 +1110,7 @@ F=  9951 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../column_def
 F=  9951 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/column_defs_lowlevel.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9951 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9951 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9951 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9950
 F=  9950 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1062,6 +1127,7 @@ F=  9950 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../pefile_tes
 F=  9950 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/pefile_test.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9950 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9950 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9950 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9949
 F=  9949 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1078,6 +1144,7 @@ F=  9949 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../TestRabbit
 F=  9949 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/TestRabbitMQ.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9949 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9949 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9949 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9948
 F=  9948 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1094,6 +1161,7 @@ F=  9948 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../merge_rdf_
 F=  9948 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/merge_rdf_inputs_graphviz_only.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9948 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9948 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9948 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9947
 F=  9947 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1110,6 +1178,7 @@ F=  9947 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../DragAndDro
 F=  9947 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/DragAndDrop.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9947 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9947 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9947 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9946
 F=  9946 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1126,6 +1195,7 @@ F=  9946 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Microsoft_
 F=  9946 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Microsoft_Azure/AzureTest.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9946 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9946 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9946 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9945
 F=  9945 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1142,6 +1212,7 @@ F=  9945 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Microsoft_
 F=  9945 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Microsoft_Azure/AzureCopy.cer"'] ==>> N/A (18:43:34,18:43:34)
 F=  9945 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9945 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9945 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9944
 F=  9944 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1158,6 +1229,7 @@ F=  9944 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Microsoft_
 F=  9944 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Microsoft_Azure/AzureTest2.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9944 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9944 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9944 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9943
 F=  9943 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1174,6 +1246,7 @@ F=  9943 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_AC2/
 F=  9943 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_AC2/Application_Sample.xml"'] ==>> N/A (18:43:34,18:43:34)
 F=  9943 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9943 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9943 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9942
 F=  9942 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1192,6 +1265,7 @@ F=  9942 {   1/Args} '(fstat@SYS+write@SYS)' ['CIM_DataFile.Name="/dev/pts/0"'] 
 F=  9942 {   1/Args} '(read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Test_UndecorateSymbolName.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9942 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9942 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9942 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9941
 F=  9941 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1208,6 +1282,7 @@ F=  9941 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../TestEnumWi
 F=  9941 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/TestEnumWindows.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9941 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9941 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9941 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9940
 F=  9940 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1224,6 +1299,7 @@ F=  9940 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../CTypesTest
 F=  9940 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_MQ.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9940 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9940 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9940 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9939
 F=  9939 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1240,6 +1316,7 @@ F=  9939 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../CTypesTest
 F=  9939 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Windows.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9939 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9939 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9939 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9938
 F=  9938 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1256,6 +1333,7 @@ F=  9938 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../CTypesTest
 F=  9938 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Oracle.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9938 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9938 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9938 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9937
 F=  9937 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1272,6 +1350,7 @@ F=  9937 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../CTypesTest
 F=  9937 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests/CTypesRegex_Urls.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9937 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9937 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9937 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9936
 F=  9936 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1288,6 +1367,7 @@ F=  9936 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../CTypesTest
 F=  9936 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Linux.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9936 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9936 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9936 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9935
 F=  9935 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1304,6 +1384,7 @@ F=  9935 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../CTypesTest
 F=  9935 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests/ctypes_scanner.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9935 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9935 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9935 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9934
 F=  9934 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1320,6 +1401,7 @@ F=  9934 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../CTypesTest
 F=  9934 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Posix.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9934 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9934 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9934 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9933
 F=  9933 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1336,6 +1418,7 @@ F=  9933 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../CTypesTest
 F=  9933 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests/CTypesStructs_Tibco.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9933 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9933 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9933 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9932
 F=  9932 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1352,6 +1435,7 @@ F=  9932 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../ParseTcpDu
 F=  9932 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/ParseTcpDump.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9932 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9932 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9932 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9931
 F=  9931 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1368,6 +1452,7 @@ F=  9931 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../tests_data
 F=  9931 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_data/tnsnames.ora"'] ==>> N/A (18:43:34,18:43:34)
 F=  9931 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9931 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9931 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9930
 F=  9930 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1384,6 +1469,7 @@ F=  9930 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../testcgi.py
 F=  9930 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/testcgi.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9930 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9930 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9930 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9929
 F=  9929 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1400,6 +1486,7 @@ F=  9929 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../get_file_o
 F=  9929 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/get_file_owner_windows.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9929 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9929 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9929 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9928
 F=  9928 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1416,6 +1503,7 @@ F=  9928 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../merge_rdf_
 F=  9928 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/merge_rdf_inputs.htm"'] ==>> N/A (18:43:34,18:43:34)
 F=  9928 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9928 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9928 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9927
 F=  9927 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1432,6 +1520,7 @@ F=  9927 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../SqlServerU
 F=  9927 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SqlServerUsersList.sql"'] ==>> N/A (18:43:34,18:43:34)
 F=  9927 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9927 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9927 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9926
 F=  9926 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1448,6 +1537,7 @@ F=  9926 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../wmi_test.p
 F=  9926 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/wmi_test.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9926 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9926 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9926 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9925
 F=  9925 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1464,6 +1554,7 @@ F=  9925 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../generate_d
 F=  9925 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/generate_descriptor.py"'] ==>> N/A (18:43:34,18:43:34)
 F=  9925 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9925 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9925 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9924
 F=  9924 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1480,6 +1571,7 @@ F=  9924 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../favorites_
 F=  9924 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/favorites_urls.js"'] ==>> N/A (18:43:34,18:43:34)
 F=  9924 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9924 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9924 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9923
 F=  9923 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1496,6 +1588,7 @@ F=  9923 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RetroBatch
 F=  9923 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/retrobatch.txt"'] ==>> N/A (18:43:34,18:43:34)
 F=  9923 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9923 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9923 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9922
 F=  9922 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1512,6 +1605,7 @@ F=  9922 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RetroBatch
 F=  9922 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/.retrobatch.py.swp"'] ==>> N/A (18:43:34,18:43:34)
 F=  9922 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9922 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9922 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9921
 F=  9921 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
@@ -1528,6 +1622,7 @@ F=  9921 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RetroBatch
 F=  9921 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/retrobatch.bat"'] ==>> N/A (18:43:34,18:43:34)
 F=  9921 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9921 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9921 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9920
 F=  9920 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1547,6 +1642,7 @@ F=  9920 {   6/Rept} '(write@SYS+read@SYS)' ['CIM_DataFile.Name="/dev/pts/0"', '
 F=  9920 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
 F=  9920 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=  9920 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)
+F=  9920 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:34,18:43:34)
 
 ================== PID=9919
 F=  9919 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1563,6 +1659,7 @@ F=  9919 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RetroBatch
 F=  9919 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/retrobatch_cdb.ini"'] ==>> N/A (18:43:33,18:43:33)
 F=  9919 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9919 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9919 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9918
 F=  9918 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1579,6 +1676,7 @@ F=  9918 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RetroBatch
 F=  9918 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/retrobatch.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9918 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9918 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9918 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9917
 F=  9917 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1595,6 +1693,7 @@ F=  9917 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RetroBatch
 F=  9917 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/cobaye.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9917 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9917 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9917 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9916
 F=  9916 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1611,6 +1710,7 @@ F=  9916 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../RetroBatch
 F=  9916 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/mineit_python_cobaye.log"'] ==>> N/A (18:43:33,18:43:33)
 F=  9916 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9916 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9916 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9915
 F=  9915 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1627,6 +1727,7 @@ F=  9915 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/Rea
 F=  9915 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/ReadDirectoryChanges.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9915 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9915 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9915 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9914
 F=  9914 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1643,6 +1744,7 @@ F=  9914 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/web
 F=  9914 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/webserver.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9914 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9914 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9914 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9913
 F=  9913 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1659,6 +1761,7 @@ F=  9913 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/sni
 F=  9913 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/snifferCore.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9913 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9913 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9913 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9912
 F=  9912 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1675,6 +1778,7 @@ F=  9912 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/pac
 F=  9912 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/packsnifflinux.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9912 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9912 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9912 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9911
 F=  9911 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1691,6 +1795,7 @@ F=  9911 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/Tes
 F=  9911 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/TestUnicodeStrings.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9911 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9911 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9911 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9910
 F=  9910 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1709,6 +1814,7 @@ F=  9910 {   1/Args} '(fstat@SYS+write@SYS)' ['CIM_DataFile.Name="/dev/pts/0"'] 
 F=  9910 {   1/Args} '(read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/test_dyn_methods_for_uris.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9910 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9910 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9910 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9909
 F=  9909 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1725,6 +1831,7 @@ F=  9909 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/com
 F=  9909 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/com_type_libraries.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9909 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9909 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9909 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9908
 F=  9908 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1741,6 +1848,7 @@ F=  9908 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/win
 F=  9908 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/windows_event_log_viewer.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9908 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9908 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9908 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9907
 F=  9907 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1757,6 +1865,7 @@ F=  9907 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/tst
 F=  9907 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/tst_pypcap.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9907 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9907 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9907 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9906
 F=  9906 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1773,6 +1882,7 @@ F=  9906 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/win
 F=  9906 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/win32_tests.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9906 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9906 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9906 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9905
 F=  9905 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1789,6 +1899,7 @@ F=  9905 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/tst
 F=  9905 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/tst_dbus.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9905 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9905 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9905 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9904
 F=  9904 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1805,6 +1916,7 @@ F=  9904 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/com
 F=  9904 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/combrowse.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9904 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9904 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9904 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9903
 F=  9903 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1821,6 +1933,7 @@ F=  9903 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/win
 F=  9903 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/win32_EnumProcessModules.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9903 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9903 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9903 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9902
 F=  9902 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1837,6 +1950,7 @@ F=  9902 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/tes
 F=  9902 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/test_win32wnet.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9902 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9902 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9902 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9901
 F=  9901 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1853,6 +1967,7 @@ F=  9901 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/tes
 F=  9901 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/testwnet.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9901 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9901 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9901 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9900
 F=  9900 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1869,6 +1984,7 @@ F=  9900 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/get
 F=  9900 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/getting_process_information_on_windows.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9900 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9900 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9900 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9899
 F=  9899 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1885,6 +2001,7 @@ F=  9899 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/cgi
 F=  9899 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/cgi_hostname_traceroute.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9899 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9899 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9899 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9898
 F=  9898 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1901,6 +2018,7 @@ F=  9898 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/com
 F=  9898 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/com_type_lib_versions.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9898 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9898 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9898 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9897
 F=  9897 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1917,6 +2035,7 @@ F=  9897 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/tst
 F=  9897 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/tst_dbus_small.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9897 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9897 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9897 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=9896
 F=  9896 {   1/Orig} 'fchdir@SYS          ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:33,18:43:33)
@@ -1933,6 +2052,7 @@ F=  9896 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="./../Divers/cty
 F=  9896 {   1/Args} '(fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers/ctypes_EnumWindows.py"'] ==>> N/A (18:43:33,18:43:33)
 F=  9896 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:33,18:43:33)
 F=  9896 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:33,18:43:33)
+F=  9896 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=-1
 F=    -1 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/find"', ['find', '..', '-type', 'f', '-exec', 'grep', 'Hello', {}, ';']] ==>> 0 (18:43:33,18:43:33)
@@ -1961,27 +2081,67 @@ F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers"'] ==>> N/A (18:43:33,18:43:33)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:33,18:43:33)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers"'] ==>> 4</home/rchateau/survol/Experimental/Divers> (18:43:33,18:43:33)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9896"'] ==>> N/A (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9897"'] ==>> wait4(9897, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9898"'] ==>> wait4(9898, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9899"'] ==>> wait4(9899, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9900"'] ==>> wait4(9900, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9901"'] ==>> wait4(9901, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9902"'] ==>> wait4(9902, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9903"'] ==>> wait4(9903, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9904"'] ==>> wait4(9904, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9905"'] ==>> wait4(9905, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9906"'] ==>> wait4(9906, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9907"'] ==>> wait4(9907, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9908"'] ==>> wait4(9908, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9909"'] ==>> wait4(9909, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9910"'] ==>> wait4(9910, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9911"'] ==>> wait4(9911, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9912"'] ==>> wait4(9912, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9913"'] ==>> wait4(9913, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9914"'] ==>> wait4(9914, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9915"'] ==>> wait4(9915, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers"'] ==>> 0 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9896"'] ==>> 9896 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9896', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9896 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9897"'] ==>> 9897 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9897', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9897 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9898"'] ==>> 9898 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9898', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9898 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9899"'] ==>> 9899 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9899', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9899 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9900"'] ==>> 9900 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9900', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9900 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9901"'] ==>> 9901 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9901', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9901 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9902"'] ==>> 9902 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9902', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9902 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9903"'] ==>> 9903 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9903', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9903 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9904"'] ==>> 9904 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9904', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9904 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9905"'] ==>> 9905 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9905', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9905 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9906"'] ==>> 9906 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9906', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9906 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9907"'] ==>> 9907 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9907', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9907 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9908"'] ==>> 9908 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9908', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9908 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9909"'] ==>> 9909 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9909', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9909 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9910"'] ==>> 9910 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9910', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9910 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9911"'] ==>> 9911 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9911', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9911 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9912"'] ==>> 9912 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9912', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9912 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9913"'] ==>> 9913 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9913', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9913 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9914"'] ==>> 9914 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9914', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9914 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9915"'] ==>> 9915 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9915', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9915 (18:43:33,18:43:33)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Divers"'] ==>> 0 (18:43:33,18:43:33)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:33,18:43:33)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/RetroBatch'] ==>> 0 (18:43:33,18:43:33)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental"/RetroBatch"'] ==>> 6</home/rchateau/survol/Experimental/RetroBatch> (18:43:33,18:43:33)
@@ -1990,59 +2150,118 @@ F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> N/A (18:43:33,18:43:33)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:33,18:43:33)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 4</home/rchateau/survol/Experimental/RetroBatch> (18:43:33,18:43:33)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9916"'] ==>> N/A (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9917"'] ==>> wait4(9917, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9918"'] ==>> wait4(9918, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9919"'] ==>> wait4(9919, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9920"'] ==>> wait4(9920, (18:43:33,18:43:33)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9921"'] ==>> wait4(9921, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9922"'] ==>> wait4(9922, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9923"'] ==>> wait4(9923, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9916"'] ==>> 9916 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9916', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9916 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9917"'] ==>> 9917 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9917', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9917 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9918"'] ==>> 9918 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9918', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9918 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9919"'] ==>> 9919 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9919', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9919 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9920"'] ==>> 9920 (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9920', ''] ==>> None (18:43:33,18:43:33)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9920 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9921"'] ==>> 9921 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9921', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9921 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9922"'] ==>> 9922 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9922', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9922 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9923"'] ==>> 9923 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9923', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9923 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9924"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9925"'] ==>> wait4(9925, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9926"'] ==>> wait4(9926, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9927"'] ==>> wait4(9927, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9928"'] ==>> wait4(9928, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9929"'] ==>> wait4(9929, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9930"'] ==>> wait4(9930, (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9924"'] ==>> 9924 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9924', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9924 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9925"'] ==>> 9925 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9925', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9925 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9926"'] ==>> 9926 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9926', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9926 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9927"'] ==>> 9927 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9927', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9927 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9928"'] ==>> 9928 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9928', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9928 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9929"'] ==>> 9929 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9929', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9929 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9930"'] ==>> 9930 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9930', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9930 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_data'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_data"'] ==>> 6</home/rchateau/survol/Experimental/tests_data> (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+fstat@SYS+fcntl@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_data"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_data'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_data"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_data"'] ==>> 4</home/rchateau/survol/Experimental/tests_data> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9931"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_data"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9931"'] ==>> 9931 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9931', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9931 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_data"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9932"'] ==>> N/A (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9932"'] ==>> 9932 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9932', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9932 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/CTypesTests'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental"/CTypesTests"'] ==>> 6</home/rchateau/survol/Experimental/CTypesTests> (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+fstat@SYS+fcntl@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/CTypesTests'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests"'] ==>> 4</home/rchateau/survol/Experimental/CTypesTests> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9933"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9934"'] ==>> wait4(9934, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9935"'] ==>> wait4(9935, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9936"'] ==>> wait4(9936, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9937"'] ==>> wait4(9937, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9938"'] ==>> wait4(9938, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9939"'] ==>> wait4(9939, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9940"'] ==>> wait4(9940, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9933"'] ==>> 9933 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9933', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9933 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9934"'] ==>> 9934 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9934', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9934 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9935"'] ==>> 9935 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9935', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9935 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9936"'] ==>> 9936 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9936', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9936 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9937"'] ==>> 9937 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9937', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9937 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9938"'] ==>> 9938 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9938', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9938 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9939"'] ==>> 9939 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9939', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9939 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9940"'] ==>> 9940 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9940', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9940 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/CTypesTests"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9941"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9942"'] ==>> wait4(9942, (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9941"'] ==>> 9941 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9941', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9941 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9942"'] ==>> 9942 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9942', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9942 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_AC2'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_AC2"'] ==>> 6</home/rchateau/survol/Experimental/tests_AC2> (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+fstat@SYS+fcntl@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_AC2"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_AC2'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_AC2"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_AC2"'] ==>> 4</home/rchateau/survol/Experimental/tests_AC2> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9943"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_AC2"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9943"'] ==>> 9943 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9943', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9943 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_AC2"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/Microsoft_Azure'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental"/Microsoft_Azure"'] ==>> 6</home/rchateau/survol/Experimental/Microsoft_Azure> (18:43:34,18:43:34)
@@ -2051,68 +2270,134 @@ F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Microsoft_Azure"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Microsoft_Azure"'] ==>> 4</home/rchateau/survol/Experimental/Microsoft_Azure> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9944"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9945"'] ==>> wait4(9945, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9946"'] ==>> wait4(9946, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Microsoft_Azure"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9944"'] ==>> 9944 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9944', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9944 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9945"'] ==>> 9945 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9945', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9945 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9946"'] ==>> 9946 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9946', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9946 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/Microsoft_Azure"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9947"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9948"'] ==>> wait4(9948, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9949"'] ==>> wait4(9949, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9950"'] ==>> wait4(9950, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9951"'] ==>> wait4(9951, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9952"'] ==>> wait4(9952, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9953"'] ==>> wait4(9953, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9954"'] ==>> wait4(9954, (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9947"'] ==>> 9947 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9947', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9947 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9948"'] ==>> 9948 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9948', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9948 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9949"'] ==>> 9949 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9949', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9949 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9950"'] ==>> 9950 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9950', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9950 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9951"'] ==>> 9951 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9951', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9951 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9952"'] ==>> 9952 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9952', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9952 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9953"'] ==>> 9953 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9953', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9953 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9954"'] ==>> 9954 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9954', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9954 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/SLP'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental"/SLP"'] ==>> 6</home/rchateau/survol/Experimental/SLP> (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+fstat@SYS+fcntl@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/SLP'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"'] ==>> 4</home/rchateau/survol/Experimental/SLP> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9955"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9956"'] ==>> wait4(9956, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9957"'] ==>> wait4(9957, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9958"'] ==>> wait4(9958, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9959"'] ==>> wait4(9959, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9960"'] ==>> wait4(9960, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9961"'] ==>> wait4(9961, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9962"'] ==>> wait4(9962, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9963"'] ==>> wait4(9963, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9964"'] ==>> wait4(9964, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9965"'] ==>> wait4(9965, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9966"'] ==>> wait4(9966, (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9955"'] ==>> 9955 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9955', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9955 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9956"'] ==>> 9956 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9956', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9956 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9957"'] ==>> 9957 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9957', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9957 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9958"'] ==>> 9958 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9958', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9958 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9959"'] ==>> 9959 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9959', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9959 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9960"'] ==>> 9960 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9960', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9960 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9961"'] ==>> 9961 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9961', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9961 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9962"'] ==>> 9962 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9962', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9962 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9963"'] ==>> 9963 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9963', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9963 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9964"'] ==>> 9964 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9964', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9964 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9965"'] ==>> 9965 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9965', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9965 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9966"'] ==>> 9966 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9966', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9966 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"/tests_pyslp'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"/tests_pyslp"'] ==>> 6</home/rchateau/survol/Experimental/SLP/tests_pyslp> (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+fstat@SYS+fcntl@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"/tests_pyslp'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"'] ==>> 4</home/rchateau/survol/Experimental/SLP/tests_pyslp> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9967"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9968"'] ==>> wait4(9968, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9969"'] ==>> wait4(9969, (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9967"'] ==>> 9967 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9967', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9967 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9968"'] ==>> 9968 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9968', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9968 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9969"'] ==>> 9969 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9969', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9969 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"/port_to_py2'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"/port_to_py2"'] ==>> 6</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2> (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+fstat@SYS+fcntl@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"/port_to_py2'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2"'] ==>> 4</home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9970"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9971"'] ==>> wait4(9971, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9970"'] ==>> 9970 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9970', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9970 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9971"'] ==>> 9971 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9971', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9971 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"'] ==>> 4</home/rchateau/survol/Experimental/SLP/tests_pyslp> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9972"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9972"'] ==>> 9972 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9972', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9972 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/tests_pyslp"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"'] ==>> 4</home/rchateau/survol/Experimental/SLP> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9973"'] ==>> N/A (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9973"'] ==>> 9973 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9973', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9973 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"/SLP_PerlSamples'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"/SLP_PerlSamples"'] ==>> 6</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples> (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+fstat@SYS+fcntl@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"/SLP_PerlSamples'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples"'] ==>> 4</home/rchateau/survol/Experimental/SLP/SLP_PerlSamples> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9974"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9974"'] ==>> 9974 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9974', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9974 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/SLP"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/RDF'] ==>> 0 (18:43:34,18:43:34)
@@ -2122,58 +2407,141 @@ F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF"'] ==>> 4</home/rchateau/survol/Experimental/RDF> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9975"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9976"'] ==>> wait4(9976, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9977"'] ==>> wait4(9977, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9978"'] ==>> wait4(9978, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9979"'] ==>> wait4(9979, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9975"'] ==>> 9975 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9975', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9975 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9976"'] ==>> 9976 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9976', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9976 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9977"'] ==>> 9977 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9977', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9977 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9978"'] ==>> 9978 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9978', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9978 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9979"'] ==>> 9979 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9979', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9979 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RDF"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9980"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9981"'] ==>> wait4(9981, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9982"'] ==>> wait4(9982, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9983"'] ==>> wait4(9983, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9984"'] ==>> wait4(9984, (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9980"'] ==>> 9980 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9980', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9980 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9981"'] ==>> 9981 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9981', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9981 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9982"'] ==>> 9982 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9982', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9982 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9983"'] ==>> 9983 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9983', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9983 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9984"'] ==>> 9984 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9984', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9984 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_wbem'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'openat@SYS          ' ['CIM_DataFile.Name="CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_wbem"'] ==>> 6</home/rchateau/survol/Experimental/tests_wbem> (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+fstat@SYS+fcntl@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'newfstatat@SYS      ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"/tests_wbem'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fcntl@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem"'] ==>> 4</home/rchateau/survol/Experimental/tests_wbem> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9985"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9986"'] ==>> wait4(9986, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9987"'] ==>> wait4(9987, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9988"'] ==>> wait4(9988, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9989"'] ==>> wait4(9989, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9990"'] ==>> wait4(9990, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9991"'] ==>> wait4(9991, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9992"'] ==>> wait4(9992, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9993"'] ==>> wait4(9993, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9994"'] ==>> wait4(9994, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9995"'] ==>> wait4(9995, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9996"'] ==>> wait4(9996, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9997"'] ==>> wait4(9997, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9985"'] ==>> 9985 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9985', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9985 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9986"'] ==>> 9986 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9986', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9986 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9987"'] ==>> 9987 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9987', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9987 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9988"'] ==>> 9988 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9988', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9988 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9989"'] ==>> 9989 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9989', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9989 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9990"'] ==>> 9990 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9990', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9990 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9991"'] ==>> 9991 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9991', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9991 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9992"'] ==>> 9992 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9992', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9992 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9993"'] ==>> 9993 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9993', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9993 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9994"'] ==>> 9994 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9994', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9994 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9995"'] ==>> 9995 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9995', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9995 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9996"'] ==>> 9996 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9996', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9996 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9997"'] ==>> 9997 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9997', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9997 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/tests_wbem"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 4</home/rchateau/survol/Experimental> (18:43:34,18:43:34)
-F=    -1 {   1/Args} '(clone@SYS+wait4@SYS)' ['CIM_Process.Handle="9998"'] ==>> N/A (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="9999"'] ==>> wait4(9999, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10000"'] ==>> wait4(10000, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10001"'] ==>> wait4(10001, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10002"'] ==>> wait4(10002, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10003"'] ==>> wait4(10003, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10004"'] ==>> wait4(10004, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10005"'] ==>> wait4(10005, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10006"'] ==>> wait4(10006, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10007"'] ==>> wait4(10007, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10008"'] ==>> wait4(10008, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10009"'] ==>> wait4(10009, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10010"'] ==>> wait4(10010, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10011"'] ==>> wait4(10011, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10012"'] ==>> wait4(10012, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10013"'] ==>> wait4(10013, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10014"'] ==>> wait4(10014, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10015"'] ==>> wait4(10015, (18:43:34,18:43:34)
-F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9998"'] ==>> 9998 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9998', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9998 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="9999"'] ==>> 9999 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['9999', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 9999 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10000"'] ==>> 10000 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10000', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10000 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10001"'] ==>> 10001 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10001', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10001 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10002"'] ==>> 10002 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10002', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10002 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10003"'] ==>> 10003 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10003', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10003 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10004"'] ==>> 10004 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10004', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10004 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10005"'] ==>> 10005 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10005', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10005 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10006"'] ==>> 10006 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10006', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10006 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10007"'] ==>> 10007 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10007', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10007 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10008"'] ==>> 10008 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10008', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10008 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10009"'] ==>> 10009 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10009', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10009 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10010"'] ==>> 10010 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10010', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10010 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10011"'] ==>> 10011 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10011', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10011 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10012"'] ==>> 10012 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10012', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10012 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10013"'] ==>> 10013 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10013', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10013 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10014"'] ==>> 10014 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10014', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10014 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'clone@SYS           ' ['CIM_Process.Handle="10015"'] ==>> 10015 (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['10015', ''] ==>> None (18:43:34,18:43:34)
+F=    -1 {   1/Orig} 'wait4@SYS           ' ['error'] ==>> 10015 (18:43:34,18:43:34)
+F=    -1 {   2/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Args} '(fchdir@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> N/A (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/0"'] ==>> 0 (18:43:34,18:43:34)
 F=    -1 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchateau/survol/mineit_find_grep.log"'] ==>> 0 (18:43:34,18:43:34)

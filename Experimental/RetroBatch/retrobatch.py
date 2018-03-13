@@ -296,16 +296,19 @@ class BatchLetCore:
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
             self.m_funcNam = funcFull + "@SYS"
+        elif self.m_tracer == "ltrace":
+            # ltrace does not add "@SYS" when the function is resumed:
+            #[pid 18316] 09:00:22.600426 rt_sigprocmask@SYS(0, 0x7ffea10cd370, 0x7ffea10cd3f0, 8 <unfinished ...>
+            #[pid 18316] 09:00:22.600494 <... rt_sigprocmask resumed> ) = 0 <0.000068>
+            if self.m_resumed:
+                self.m_funcNam = funcFull + "@SYS"
+            else:
+                self.m_funcNam = funcFull
         else:
-            # 
-            self.m_funcNam = funcFull
+            raise Exception("SetFunction tracer unsupported")
 
     # This parsing is specific to strace.
     def InitAfterPid(self,oneLine):
-
-        # "[{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>"
-        if oneLine[0] == '[':
-            raise ExceptionIsExit()
 
         # sys.stdout.write("oneLine=%s" % oneLine )
 
@@ -436,9 +439,17 @@ ignoredSyscalls = [
     "set_robust_list",
     "rt_sigprocmask",
     "rt_sigaction",
+    "rt_sigreturn",
     "geteuid",
     "getuid",
+    "getgid",
     "getegid",
+    "setpgid",
+    "getpgid",
+    "setpgrp",
+    "getpgrp",
+    "getpid",
+    "getppid",
     "getrlimit",
     "futex",
     "brk",
@@ -452,6 +463,8 @@ ignoredSyscalls = [
 # At init time, this map contains the systems calls which should be ignored.
 
 batchModels = { sysCll + "@SYS" : None for sysCll in ignoredSyscalls }
+
+# sys.stdout.write("batchModels=%s\n"%str(batchModels) )
 
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
 # So, the name of a system call is used to lookup the class which represents it.
@@ -1338,17 +1351,37 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
     # 
 
 
-
+    numLine = 0
     while True:
         oneLine = ""
 
-        # If this line is not properly terminated, then concatenates the next line.
+        # There are several cases of line ending with strace.
+        # If a function has a string parameter which contain a carriage-return,
+        # this is not filtered and this string is split on multiple lines.
+        # We cannot reliably count the double-quotes.
         # FIXME: Problem if several processes.
         while True:
             tmpLine = logStream.readline()
+            numLine += 1
             # sys.stdout.write("tmpLine after read=%s"%tmpLine)
             if not tmpLine:
                 break
+
+            # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
+            # Not reliable because this could be a plain string ending like this.
+            if tmpLine.startswith("[pid ") and tmpLine.endswith(" = ?\n"):
+                oneLine += tmpLine
+                break
+
+            # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18194, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---"
+            # Not reliable because this could be a plain string ending like this.
+            if tmpLine.endswith(" ---\n"):
+                oneLine += tmpLine
+                break
+
+
+            # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
+            # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
             if tmpLine.endswith(">\n"):
                 # TODO: The most common case is that the call is on one line only.
                 oneLine += tmpLine
@@ -1370,7 +1403,10 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
         #    continue
 
         # This parses the line into the basic parameters of a function call.
-        batchCore = CreateBatchCore(oneLine,tracer)
+        try:
+            batchCore = CreateBatchCore(oneLine,tracer)
+        except:
+            raise Exception("Invalid line %d:%s\n"%(numLine,oneLine) )
 
         # Maybe the line cannot be parsed.
         if batchCore:
