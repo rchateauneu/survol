@@ -389,6 +389,11 @@ class BatchLetCore:
         else:
             self.m_execTim = ""
 
+        # Another scenario:
+        # [pid 11761] 10:56:39.125823 close@SYS(4 <unfinished ...>
+        # [pid 11762] 10:56:39.125896 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
+        # [pid 11761] 10:56:39.125939 <... close resumed> ) = 0 <0.000116>
+        # [pid 11762] 10:56:39.125955 <... mmap resumed> ) = 0x7f75198d5000 <0.000063>
         matchResume = re.match( "<\.\.\. ([^ ]*) resumed> (.*)", theCall )
         if matchResume:
             self.m_status = BatchStatus.resumed
@@ -398,10 +403,10 @@ class BatchLetCore:
 
             # ") = 0 <0.000069>"
             # ", { 0x5612836832c0, <>, 0, nil }) = 0 <0.000361>"
-            # lineRest = matchResume.group(2)
 
-            ## Offset of the second match.
-            idxPar = matchResume.start(2)
+            # Offset of the second match.
+            # A 'resumed' function call does not have an opening parenthesis.
+            idxPar = matchResume.start(2) - 1
 
         else:
             idxPar = theCall.find("(")
@@ -1126,15 +1131,18 @@ class UnfinishedBatches:
         self.m_mapStacks = {}
 
     def PushBatch(self,batchCoreUnfinished):
+        # sys.stdout.write("PushBatch m_funcNam=%s\n"%batchCoreUnfinished.m_funcNam)
         try:
             self.m_mapStacks[ batchCoreUnfinished.m_funcNam ].append( batchCoreUnfinished )
         except KeyError:
             self.m_mapStacks[ batchCoreUnfinished.m_funcNam ] = [ batchCoreUnfinished ]
 
     def MergePopBatch(self,batchCoreResumed):
+        # sys.stdout.write("MergePopBatch m_funcNam=%s\n"%batchCoreResumed.m_funcNam)
         try:
             stackPerFunc = self.m_mapStacks[ batchCoreResumed.m_funcNam ]
         except KeyError:
+            sys.stdout.write("MergePopBatch m_funcNam=%s cannot find function\n"%batchCoreResumed.m_funcNam)
             # This is strange, we could not find the unfinished call.
             return None
 
@@ -1142,6 +1150,7 @@ class UnfinishedBatches:
         try:
             batchCoreUnfinished = stackPerFunc[-1]
         except IndexError:
+            sys.stdout.write("MergePopBatch m_funcNam=%s cannot find call\n"%batchCoreResumed.m_funcNam)
             # Same problem, we could not find the unfinished call.
             return None
 
@@ -1152,6 +1161,7 @@ class UnfinishedBatches:
         batchCoreResumed.m_parsedArgs = argsMerged
         batchCoreUnfinished.m_status = BatchStatus.matched
         batchCoreResumed.m_status = BatchStatus.merged
+        return batchCoreResumed
 
 # TODO: This should be specific to processes
 stackUnfinishedBatches = UnfinishedBatches()
