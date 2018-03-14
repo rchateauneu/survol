@@ -210,7 +210,7 @@ def ToObjectPath_CIM_DataFile(pathName):
 ################################################################################
 
 # This associates file descriptors to path names when strace and the option "-y"
-# cannot be used.
+# cannot be used. There are predefined values.
 mapFilDesToPathName = {
     "0" : "stdin",
     "1" : "stdout",
@@ -255,6 +255,16 @@ def STraceStreamToFile(strmStr):
 # [pid  7492] [{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>
 # 07:54:54.207500 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18382, si_uid=1000, si_status=2, si_utime=0, si_stime=0 } ---
 
+class BatchStatus:
+    unknown    = 0
+    plain      = 1
+    unfinished = 2
+    resumed    = 3
+    matched    = 4 # After the unfinished has found its resumed half.
+    merged     = 5 # After the resumed has found its unfinished half.
+    sequence   = 6
+    chrDisplayCodes = "? URmM "
+
 
 class BatchLetCore:
     # The input line is read from "strace" command.
@@ -270,6 +280,7 @@ class BatchLetCore:
 
     def __init__(self):
         self.m_retValue = "N/A"
+        self.m_status = BatchStatus.unknown
         return
 
     # tracer = "strace|ltrace"
@@ -300,10 +311,18 @@ class BatchLetCore:
             # ltrace does not add "@SYS" when the function is resumed:
             #[pid 18316] 09:00:22.600426 rt_sigprocmask@SYS(0, 0x7ffea10cd370, 0x7ffea10cd3f0, 8 <unfinished ...>
             #[pid 18316] 09:00:22.600494 <... rt_sigprocmask resumed> ) = 0 <0.000068>
-            if self.m_resumed:
+            if self.m_status == BatchStatus.resumed:
                 self.m_funcNam = funcFull + "@SYS"
             else:
                 self.m_funcNam = funcFull
+
+            # It does not work with this:
+            #[pid 4784] 16:42:10.781324 Py_Main(2, 0x7ffed52a8038, 0x7ffed52a8050, 0 <unfinished ...>
+            #[pid 4784] 16:42:12.166187 <... Py_Main resumed> ) = 0 <1.384547>
+            #
+            # The only thing we can do is register the funaton names which have been seen as unfinished,
+            # store their prefix and use this to correctly suffix them or not.
+
         else:
             raise Exception("SetFunction tracer unsupported")
 
@@ -359,12 +378,12 @@ class BatchLetCore:
         # sys.stdout.write("idxGT=%d\n" % idxGT )
         idxLT = theCall.rfind("<",0,idxGT)
         # sys.stdout.write("idxLT=%d\n" % idxLT )
-        self.m_unfinished = False
+        self.m_status = BatchStatus.plain
         if idxLT >= 0 :
             exeTm = theCall[idxLT+1:idxGT]
             if exeTm == "unfinished ...":
                 self.m_execTim = ""
-                self.m_unfinished = True
+                self.m_status = BatchStatus.unfinished
             else:
                 self.m_execTim = theCall[idxLT+1:idxGT]
         else:
@@ -372,10 +391,7 @@ class BatchLetCore:
 
         matchResume = re.match( "<\.\.\. ([^ ]*) resumed> (.*)", theCall )
         if matchResume:
-            self.m_resumed = True
-            # Sanity check
-            if self.m_unfinished:
-                raise Exception("Should not be unfinished")
+            self.m_status = BatchStatus.resumed
             # TODO: Should check if this is the correct function name.
             funcNameResumed = matchResume.group(1)
             self.SetFunction( funcNameResumed )
@@ -388,8 +404,6 @@ class BatchLetCore:
             idxPar = matchResume.start(2)
 
         else:
-            self.m_resumed = False
-        
             idxPar = theCall.find("(")
 
             if idxPar <= 0 :
@@ -397,7 +411,7 @@ class BatchLetCore:
 
             self.SetFunction( theCall[:idxPar] )
 
-        if self.m_unfinished:
+        if self.m_status == BatchStatus.unfinished:
             idxLastPar = idxLT - 1
         else:
             idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
@@ -406,7 +420,7 @@ class BatchLetCore:
         # sys.stdout.write("allArgs=%s\n"%allArgs)
         self.m_parsedArgs = ParseSTraceObject( allArgs, True )
 
-        if self.m_unfinished:
+        if self.m_status == BatchStatus.unfinished:
             # 18:46:10.920748 execve("/usr/bin/ps", ["ps", "-ef"], [/* 33 vars */] <unfinished ...>
             # sys.stdout.write("self.m_unfinished: %s\n"%oneLine)
             self.m_retValue = None
@@ -563,10 +577,11 @@ class BatchDumperTXT(BatchDumperBase):
         self.m_strm = strm
 
     def DumpBatch(self,batchLet):
-        self.m_strm.write("F=%6d {%4d/%s} '%-20s' %s ==>> %s (%s,%s)\n" %(
+        self.m_strm.write("F=%6d {%4d/%s}%1s'%-20s' %s ==>> %s (%s,%s)\n" %(
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
             batchLet.m_style,
+            BatchStatus.chrDisplayCodes[ batchLet.m_core.m_status ],
             batchLet.m_core.m_funcNam,
             str(batchLet.SignificantArgs() ),
             batchLet.m_core.m_retValue,
@@ -581,10 +596,11 @@ class BatchDumperCSV(BatchDumperBase):
         self.m_strm.write("Pid,Occurrences,Style,Function,Arguments,Return,Start,End\n")
 
     def DumpBatch(self,batchLet):
-        self.m_strm.write("%d,%d,%s,%s,%s,%s,%s,%s\n" %(
+        self.m_strm.write("%d,%d,%s,%s,%s,%s,%s,%s,%s\n" %(
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
             batchLet.m_style,
+            batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
             str(batchLet.SignificantArgs() ),
             batchLet.m_core.m_retValue,
@@ -604,6 +620,7 @@ class BatchDumperJSON(BatchDumperBase):
             '   "pid" : %d\n'
             '   "occurrences" : %d\n'
             '   "style" : %s\n'
+            '   "status" : %d\n'
             '   "function" : "%s"\n'
             '   "arguments" : %s\n'
             '   "return_value" : "%s"\n'
@@ -613,6 +630,7 @@ class BatchDumperJSON(BatchDumperBase):
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
             batchLet.m_style,
+            batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
             str(batchLet.SignificantArgs() ),
             batchLet.m_core.m_retValue,
@@ -656,6 +674,8 @@ def InvalidReturnedFileDescriptor(fileDes,tracer):
 # Must be a new-style class.
 class BatchLet_open(BatchLetBase,object):
     def __init__(self,batchCore):
+        global mapFilDesToPathName
+
         # TODO: If the open is not successful, maybe it should be rejected.
         if InvalidReturnedFileDescriptor(batchCore.m_retValue,batchCore.m_tracer):
             return
@@ -687,22 +707,49 @@ class BatchLet_open(BatchLetBase,object):
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
+# The important file descriptor is the returned value.
+# openat(AT_FDCWD, "../list_machines_in_domain.py", O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
 class BatchLet_openat(BatchLetBase,object):
     def __init__(self,batchCore):
+        global mapFilDesToPathName
+
         super( BatchLet_openat,self).__init__(batchCore)
 
         # A relative pathname is interpreted relative to the directory
         # referred to by the file descriptor passed as first parameter.
-        dirNam = self.m_core.m_parsedArgs[0]
+        #dirNam = self.m_core.m_parsedArgs[0]
+        #
+        #if dirNam == "AT_FDCWD":
+        #    dirPath = "."
+        #else:
+        #    dirPath = STraceStreamToFile( dirNam )
+        #
+        #filNam = self.m_core.m_parsedArgs[1]
+        #pathName = dirPath +"/" + filNam
+        #self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
 
-        if dirNam == "AT_FDCWD":
-            dirPath = "."
+        # Same logic as for open().
+        if batchCore.m_tracer == "strace":
+            self.m_significantArgs = [ STraceStreamToFile( self.m_core.m_retValue ) ]
+        elif batchCore.m_tracer == "ltrace":
+            # pathName = self.m_core.m_parsedArgs[0]
+            dirNam = self.m_core.m_parsedArgs[0]
+        
+            if dirNam == "AT_FDCWD":
+                dirPath = "."
+            else:
+                dirPath = STraceStreamToFile( dirNam )
+        
+            filNam = self.m_core.m_parsedArgs[1]
+            pathName = dirPath +"/" + filNam
+
+            filDes = self.m_core.m_retValue
+
+            # TODO: Should be cleaned up when closing ?
+            mapFilDesToPathName[ filDes ] = pathName
+            self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
         else:
-            dirPath = STraceStreamToFile( dirNam )
-
-        filNam = self.m_core.m_parsedArgs[1]
-        pathName = dirPath +"/" + filNam
-        self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
+            raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
 class BatchLet_close(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -753,6 +800,7 @@ class BatchLet_dup2(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_dup2,self).__init__(batchCore)
 
+        # TODO: After that, the second file descriptor points to the first one.
         self.m_significantArgs = self.StreamName()
 
 ##### Memory system calls.
@@ -1020,9 +1068,18 @@ class BatchLet_connect(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_connect,self).__init__(batchCore)
 
-        # Only the file descriptor is taken into account.
-        # The other parameters are of interest but would hamper clusterization
-        # of system calls.
+        if batchCore.m_tracer == "strace":
+            # 09:18:26.465799 socket(PF_INET, SOCK_DGRAM|SOCK_NONBLOCK, IPPROTO_IP) = 3 <0.000013>
+            # 09:18:26.465839 connect(3<socket:[535040600]>, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("127.0.0.1")}, 16) = 0 <0.000016>
+
+            # TODO: Should link this file descriptor to the IP-addr+port pair.
+            pass
+
+        elif batchCore.m_tracer == "ltrace":
+            pass
+        else:
+            raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
+
         self.m_significantArgs = [ STraceStreamToFile(self.m_core.m_parsedArgs[0]) ]
 
 # sendto(7<UNIX:[2038065->2038073]>, "\24\0\0", 16, MSG_NOSIGNAL, NULL, 0) = 16
@@ -1062,6 +1119,43 @@ class BatchLet_shutdown(BatchLetBase,object):
 
 ################################################################################
 
+
+class UnfinishedBatches:
+    def __init__(self):
+        # TODO: Maybe this should be specific to processes.
+        self.m_mapStacks = {}
+
+    def PushBatch(self,batchCoreUnfinished):
+        try:
+            self.m_mapStacks[ batchCoreUnfinished.m_funcNam ].append( batchCoreUnfinished )
+        except KeyError:
+            self.m_mapStacks[ batchCoreUnfinished.m_funcNam ] = [ batchCoreUnfinished ]
+
+    def MergePopBatch(self,batchCoreResumed):
+        try:
+            stackPerFunc = self.m_mapStacks[ batchCoreResumed.m_funcNam ]
+        except KeyError:
+            # This is strange, we could not find the unfinished call.
+            return None
+
+        # They should have the same pid.
+        try:
+            batchCoreUnfinished = stackPerFunc[-1]
+        except IndexError:
+            # Same problem, we could not find the unfinished call.
+            return None
+
+        del stackPerFunc[-1]
+
+        # Now, the unfinished and the resumed batches are merged.
+        argsMerged = batchCoreUnfinished.m_parsedArgs + batchCoreResumed.m_parsedArgs
+        batchCoreResumed.m_parsedArgs = argsMerged
+        batchCoreUnfinished.m_status = BatchStatus.matched
+        batchCoreResumed.m_status = BatchStatus.merged
+
+# TODO: This should be specific to processes
+stackUnfinishedBatches = UnfinishedBatches()
+
 def BatchFactory(batchCore):
 
     try:
@@ -1081,8 +1175,26 @@ def BatchFactory(batchCore):
     # [pid 12753] 14:56:54.296251 read(3 <unfinished ...>
     # [pid 12753] 14:56:54.296765 <... read resumed> , "#!/usr/bin/bash\n\n# Different ste"..., 131072) = 533 <0.000513>
 
-    if batchCore.m_unfinished or batchCore.m_resumed:
+    if batchCore.m_status == BatchStatus.unfinished:
+
+        # We do not have the return value, and maybe not all the arguments,
+        # so we simply store what we have and hope to merge
+        # with the "resumed" part, later on.
         btchLetDrv = BatchLetBase( batchCore )
+
+        # To match later with the "resumed" line.
+        stackUnfinishedBatches.PushBatch( batchCore )
+    elif batchCore.m_status == BatchStatus.resumed:
+        # We should have the "unfinished" part somewhere.
+
+        # TODO: Find the matching "unfinished".
+        batchCoreMerged = stackUnfinishedBatches.MergePopBatch( batchCore )
+        
+        if batchCoreMerged:
+            btchLetDrv = aModel( batchCoreMerged )
+        else:
+            # Could not find the matching unfinished batch.
+            btchLetDrv = BatchLetBase( batchCore )
     else:
         btchLetDrv = aModel( batchCore )
 
@@ -1117,6 +1229,7 @@ class BatchLetSequence(BatchLetBase,object):
         concatSigns = "+".join( [ btch.GetSignature() for btch in arrBatch ] )
 
         batchCore.m_funcNam = "(" + concatSigns + ")"
+        batchCore.m_status = BatchStatus.sequence
 
         # sys.stdout.write("BatchLetSequence concatSigns=%s\n"%concatSigns)
 
@@ -1379,7 +1492,6 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
                 oneLine += tmpLine
                 break
 
-
             # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
             # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
             if tmpLine.endswith(">\n"):
@@ -1393,20 +1505,12 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
         if not oneLine:
             break
 
-        #matchResume = re.match( ".*<\.\.\. ([^ ]*) resumed> (.*)", oneLine )
-        #if matchResume:
-        #    # TODO: Should check if this is the correct function name.
-        #    funcNameResumed = matchResume.group(1)
-        #    # sys.stdout.write("RESUMING FUNCTION resumed C:%s\n"%funcNameResumed)
-        #    lineRest = matchResume.group(2)
-        #    batchCore = CreateBatchCoreResumed(lineRest,tracer)
-        #    continue
-
         # This parses the line into the basic parameters of a function call.
         try:
             batchCore = CreateBatchCore(oneLine,tracer)
         except:
             raise Exception("Invalid line %d:%s\n"%(numLine,oneLine) )
+            # raise
 
         # Maybe the line cannot be parsed.
         if batchCore:
