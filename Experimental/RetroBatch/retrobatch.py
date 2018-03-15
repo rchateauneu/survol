@@ -1313,9 +1313,6 @@ class BatchFlow:
 
         mapOccurences = {}
 
-        sys.stdout.write("\n")
-        sys.stdout.write("StatisticsPairs lenBatch=%d\n"%(lenBatch) )
-
         idxBatch = 0
         maxIdx = lenBatch - 1
         while idxBatch < maxIdx:
@@ -1344,9 +1341,6 @@ class BatchFlow:
         maxIdx = lenBatch - 1
         batchSeqPrev = None
         while idxBatch < maxIdx:
-
-Normallement ca devrait resoudre le probleme mais ca fusionne n importe quoi.
-Peut etre ajouter des tests avec comparisons intermediaire.
 
             # It cannot include a BatchLet which is unfinished because the arguments list
             # is not reliable.
@@ -1732,24 +1726,24 @@ def CreateFlowsFromLinuxSTraceLog(verbose,logStream,maxDepth):
 def FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition):
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
-        sys.stdout.write("\n================== PID=%d\n"%aPid)
+        if verbose: sys.stdout.write("\n================== PID=%d\n"%aPid)
         FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition)
 
 def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition):
 
     idxLoops = 0
     while True:
-        btchTree.DumpFlow(sys.stdout,outputFormat)
+        if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
         numSubst = btchTree.ClusterizePairs()
         if numSubst == 0:
             break
         idxLoops += 1
 
-    btchTree.DumpFlow(sys.stdout,outputFormat)
+    if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
 
     btchTree.ClusterizeBatchesByArguments()
 
-    btchTree.DumpFlow(sys.stdout,outputFormat)
+    if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
 
 
 traceToTracer = {
@@ -1852,13 +1846,13 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
     return mapFlows
 
 # Function called for unit tests
-def UnitTest(inputLogFile,tracer,outFile,outputFormat):
+def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose):
     logStream = CreateEventLog([], None, inputLogFile, tracer )
 
     maxDepth = 5
     mapFlows = CreateMapFlowFromStream( False, logStream, tracer, maxDepth )
 
-    FactorizeMapFlows(mapFlows,False,outputFormat,maxDepth,0)
+    FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,0)
 
     outFd = open(outFile, "w")
 
@@ -1868,7 +1862,7 @@ def UnitTest(inputLogFile,tracer,outFile,outputFormat):
         btchTree.DumpFlow(outFd,outputFormat)
 
     outFd.close()
-    sys.stdout.write("Test finished")
+    if verbose: sys.stdout.write("\n")
 
 
 if __name__ == '__main__':
