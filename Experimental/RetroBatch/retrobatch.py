@@ -522,6 +522,8 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
         return self.m_core.m_funcNam
 
     def SignificantArgs(self):
+        #if self.m_core == BatchStatus.unfinished:
+        #    return None
         return self.m_significantArgs
 
     # This is used to detect repetitions.
@@ -1156,10 +1158,25 @@ class UnfinishedBatches:
 
         del stackPerFunc[-1]
 
+        # Sanity check
+        if batchCoreUnfinished.m_funcNam != batchCoreResumed.m_funcNam:
+            raise Exception("Inconsistency batchCoreUnfinished.m_funcNam=%s batchCoreResumed.m_funcNam=%s\n"
+                % ( batchCoreUnfinished.m_funcNam, batchCoreResumed.m_funcNam ) )
+
         # Now, the unfinished and the resumed batches are merged.
         argsMerged = batchCoreUnfinished.m_parsedArgs + batchCoreResumed.m_parsedArgs
         batchCoreResumed.m_parsedArgs = argsMerged
+
+        # Sanity check
+        if batchCoreUnfinished.m_status != BatchStatus.unfinished:
+            raise Exception("Unfinished status is not plain:%d"%batchCoreUnfinished.m_status)
+
         batchCoreUnfinished.m_status = BatchStatus.matched
+
+        # Sanity check
+        if batchCoreResumed.m_status != BatchStatus.resumed:
+            raise Exception("Resumed status is not plain:%d"%batchCoreResumed.m_status)
+
         batchCoreResumed.m_status = BatchStatus.merged
         return batchCoreResumed
 
@@ -1327,6 +1344,17 @@ class BatchFlow:
         maxIdx = lenBatch - 1
         batchSeqPrev = None
         while idxBatch < maxIdx:
+
+Normallement ca devrait resoudre le probleme mais ca fusionne n importe quoi.
+Peut etre ajouter des tests avec comparisons intermediaire.
+
+            # It cannot include a BatchLet which is unfinished because the arguments list
+            # is not reliable.
+            #if self.m_listBatchLets[ idxBatch ].m_core.m_status in [ BatchStatus.unfinished, BatchStatus.merged ]:
+            #    batchSeqPrev = None
+            #    idxBatch += 1
+            #    continue
+            
             batchRange = self.m_listBatchLets[ idxBatch : idxBatch + 2 ]
             keyRange = SignatureForRepetitions( batchRange )
             numOccur = mapOccurences.get( keyRange, 0 )
@@ -1352,7 +1380,6 @@ class BatchFlow:
                 numSubst += 1
             else:
                 batchSeqPrev = None
-
                 idxBatch += 1
             
         sys.stdout.write("ClusterizePairs numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
@@ -1805,6 +1832,10 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
 
     for oneBatch in mapFlowsGenerator:
         aCore = oneBatch.m_core
+
+
+### NO: We must fill create immediately the derived objects so we can fill the caches in the right order.
+### For example in the case where one file descriptor is created in a thread and used in another.
 
         aPid = aCore.m_pid
         try:
