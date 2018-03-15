@@ -707,5 +707,5 @@ F=  4784 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7f
 F=  4784 {   1/Args} '(sendto@SYS+shutdown@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/services"'] ==>> N/A (16:42:12,16:42:12)
 F=  4784 {   1/Orig} 'write@SYS           ' ['CIM_DataFile.Name="stdout"'] ==>> 69 (16:42:12,16:42:12)
 F=  4784 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/dev/urandom"'] ==>> 0 (16:42:12,16:42:12)
-F=  4784 {   1/Orig}R'Py_Main@SYS         ' ['= 0 <1.384547>'] ==>> <... Py_Main resumed> ) = 0 (16:42:12,16:42:12)
+F=  4784 {   1/Orig}R'Py_Main@SYS         ' [] ==>> 0 (16:42:12,16:42:12)
 F=  4784 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (16:42:12,16:42:12)
