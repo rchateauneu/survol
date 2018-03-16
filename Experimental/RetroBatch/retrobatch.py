@@ -281,6 +281,10 @@ class BatchLetCore:
     def __init__(self):
         self.m_retValue = "N/A"
         self.m_status = BatchStatus.unknown
+
+        # Both cannot be set at the same time.
+        self.m_unfinishedBatch = None # If this is an merged batch.
+        self.m_resumedBatch = None # If this is an matched batch.
         return
 
     # tracer = "strace|ltrace"
@@ -1172,12 +1176,14 @@ class UnfinishedBatches:
             raise Exception("Unfinished status is not plain:%d"%batchCoreUnfinished.m_status)
 
         batchCoreUnfinished.m_status = BatchStatus.matched
+        batchCoreUnfinished.m_resumedBatch = batchCoreResumed
 
         # Sanity check
         if batchCoreResumed.m_status != BatchStatus.resumed:
             raise Exception("Resumed status is not plain:%d"%batchCoreResumed.m_status)
 
         batchCoreResumed.m_status = BatchStatus.merged
+        batchCoreResumed.m_unfinishedBatch = batchCoreUnfinished
         return batchCoreResumed
 
 # TODO: This should be specific to processes
@@ -1306,7 +1312,42 @@ class BatchFlow:
 
         self.m_listBatchLets.append( btchLet )
 
+    # This removes matched batches (Formerly unfinished calls which were matched to the resumed part)
+    # when the merged batches (The resumed calls) comes immediately after.
+    def FilterMatchedBatches(self):
+        lenBatch = len(self.m_listBatchLets)
+        sys.stdout.write("\n")
+        sys.stdout.write("FilterMatchedBatches lenBatch=%d\n"%(lenBatch) )
 
+        mapOccurences = self.StatisticsPairs()
+
+        numSubst = 0
+        idxBatch = 1
+        while idxBatch < lenBatch:
+            # sys.stdout.write("FilterMatchedBatches idxBatch=%d\n"%( idxBatch ) )
+            batchSeq = self.m_listBatchLets[idxBatch]
+            batchSeqPrev = self.m_listBatchLets[idxBatch-1]
+
+            if batchSeqPrev.m_core.m_status == BatchStatus.matched \
+            and batchSeq.m_core.m_status == BatchStatus.merged \
+            and batchSeqPrev.m_core.m_resumedBatch == batchSeq.m_core \
+            and batchSeq.m_core.m_unfinishedBatch == batchSeqPrev.m_core :
+                # sys.stdout.write("Merged found for Matched idxBatch=%d\n"%idxBatch)
+                del self.m_listBatchLets[idxBatch-1]
+                batchSeqPrev = None
+                batchSeq.m_core.m_unfinishedBatch = None
+                lenBatch -= 1
+                numSubst += 1
+                continue
+
+            idxBatch += 1
+            
+        sys.stdout.write("FilterMatchedBatches numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+        return numSubst
+
+    
+    # This counts the frequency of consecutive pairs of calls.
+    # Used to replace these common pairs by an aggregate call.
     def StatisticsPairs(self):
 
         lenBatch = len(self.m_listBatchLets)
@@ -1731,6 +1772,10 @@ def FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition
 
 def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition):
 
+    if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
+
+    btchTree.FilterMatchedBatches()
+
     idxLoops = 0
     while True:
         if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
@@ -1745,12 +1790,14 @@ def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition)
 
     if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
 
+################################################################################
 
 traceToTracer = {
     "cdb"    : ( LogWindowsFileStream, CreateFlowsFromWindowsLogger ),
     "strace" : ( LogSTraceFileStream , CreateFlowsFromLinuxSTraceLog ),
     "ltrace" : ( LogLTraceFileStream, CreateFlowsFromLtraceLog )
     }
+
 
 def DefaultTracer(inputLogFile,tracer=None):
     if not tracer:
@@ -1844,6 +1891,8 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
     # TODO: maxDepth should not be passed as a parameter.
     # It is only there because stats are created.
     return mapFlows
+
+################################################################################
 
 # Function called for unit tests
 def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose):
