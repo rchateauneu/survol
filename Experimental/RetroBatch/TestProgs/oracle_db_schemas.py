@@ -1,5 +1,18 @@
 #!/usr/bin/python
 
+# When run with this strace command:
+# strace -q -qq -f -tt -T -s 20 -y -yy -e trace=desc,ipc,process,network,memory python TestProgs/oracle_db_schemas.py
+# it issues the error message:
+# "ORA-12547: TNS:lost contact"
+#
+# A possible cause is the "-f" flag for following subprocesses.
+#
+# It also happens with the ltrace command, even without the "-f" option:
+#
+# ltrace -tt -T -S -s 200 -e -*+getenv+*@SYS python TestProgs/oracle_db_schemas.py
+#
+# No explanation yet.
+
 import sys
 import cx_Oracle
 
