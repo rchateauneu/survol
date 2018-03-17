@@ -1,17 +1,5 @@
 Notes techniques variees.
 
-Linux:
-
-$ strace -f ls *.in 2>&1 | egrep -w "open|stat|lstat"
-open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
-open("/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3
-open("/proc/filesystems", O_RDONLY)     = 3
-open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3
-stat("MANIFEST.in", {st_mode=S_IFREG|0664, st_size=25, ...}) = 0
-lstat("MANIFEST.in", {st_mode=S_IFREG|0664, st_size=25, ...}) = 0
-
-"-f" : Sous-processes.
-
 Resultat:
 =========
 
@@ -264,14 +252,16 @@ There are also multiple public implementations for this method, just not very el
 https://github.com/OpenRCE/paimei/tree/master/utils
 https://github.com/OpenRCE/pydbg
 
-
-
 https://gist.github.com/RobinDavid/9213868
 # This script present a way to hook a DLL library in Firefox.
 For this example the script hook nspr4.dll which encrypt datas for SSL
 
 It uses pydbg.
 
+http://www.openrce.org/forums/posts/274
+“Usually I don’t post things like this, but because KiFastSystemCall hooking only works on x86 systems
+and doesn’t work on Windows 8 or above, it no longer has much use in malware.
+There are also multiple public implementations for this method, just not very elegant, which I hope to correct.”
 
 "Official" project repository:
 ==============================
@@ -317,3 +307,25 @@ https://en.wikipedia.org/wiki/Strace
 
 Microsoft Windows: Logger can monitor the actions of a user-mode target application and record all of its API calls.
 https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/logger-and-logviewer
+
+
+Frequent Item Set Mining:
+========================
+
+Efficient Mining of Partial Periodic Patterns in Time Series Database
+https://corescholar.libraries.wright.edu/cgi/viewcontent.cgi?referer=http://scholar.google.co.uk/&httpsredir=1&article=1355&context=knoesis
+
+https://pypi.python.org/pypi/apyori/1.1.1 Simple Apriori algorithm Implementation.
+
+http://www.borgelt.net/pyfim.html Frequent Item Set Mining for Python
+https://pypi.python.org/pypi/fim Frequent Item Set Mining and Association Rule Induction for Python
+« Frequent Itemset and Association Rule Mining.
+Frequent item-set mining is an interesting branch of data mining that focuses on looking at sequences of actions or events”
+
+
+https://en.wikipedia.org/wiki/Sequential_pattern_mining
+
+Process mining:
+===============
+PyProM is a Python-based, open-source process mining package.
+https://github.com/harrywang/pyprom
