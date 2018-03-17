@@ -1,3 +1,7 @@
+“Retrobatch is a Python-based, open-source process mining tool aiming at modelling .“
+
+
+
 L idee est d appliquer les concepts du "Process Mining" au deroulement technique d'un
 systeme d informations, d un ensemble de taches, dont a priori on ne sait rien.
 
@@ -6,14 +10,14 @@ Qu'est ce que le process mining ? https://en.wikipedia.org/wiki/Process_mining#O
 D'apres wikipedia, c'est un ensemble de techniques
 issue du Business Process Management ( https://fr.wikipedia.org/wiki/Business_Process_Management ),
 et qui permet l'analyse de processus metiers en partant de fichiers de logs,
- c est a dire de l historique technique d une suite d'operations metiers.
- Ces fichiers de logs peuvent etre crees par tout outil utilise par l entreprise,
- et peuvent concerner toute ressource de celle-ci: Suite d operations client,
- d'intervention du personnel, de transformations sur des produits etc...
+c est a dire de l historique technique d une suite d'operations metiers.
+Ces fichiers de logs peuvent etre crees par tout outil utilise par l entreprise,
+et peuvent concerner toute ressource de celle-ci: Suite d operations client,
+d'intervention du personnel, de transformations sur des produits etc...
 
- Pendant le process mining, des algorithmes specifiques sont utilises sur les fichiers de logs
- pour identifier des patters des tendances, extraire des details, aggreger des operations
- de base.
+Pendant le process mining, des algorithmes specifiques sont utilises sur les fichiers de logs
+pour identifier des patters des tendances, extraire des details, aggreger des operations
+de base.
 
 Il suffit qu on puisse ramener chaque operation de base d'un log,
 a un triplet: CaseId, Activite, timeStamp, pour que les algorithmes du Process Mining puisse s'appliquer.
@@ -55,7 +59,6 @@ des time-stamps, pid, sockets, fichiers etc...
 
 Qu'est ce qui est fait ?
 ========================
-
 (1) sous Linux
 (2) en partie seulement.
 
