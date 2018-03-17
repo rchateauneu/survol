@@ -19,14 +19,12 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM DBA_OBJECTS WHERE OBJECT_TYPE = 'TABLE' AND OWNER = '" + oraSchema + "'"
+	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'TABLE' AND OWNER = '" + oraSchema + "'"
 	sys.stderr.write("sql_query=%s\n" % sql_query )
 
 	node_oraschema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, oraSchema )
 
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
-	num_tables=len(result)
-	sys.stderr.write("num_tables=%d\n" % num_tables )
 
 	for row in result:
 		tableName = str(row[0])

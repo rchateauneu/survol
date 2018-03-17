@@ -53,7 +53,7 @@ def Main():
 	node_oradb = oracle_db.MakeUri( cgiEnv.m_oraDatabase )
 
 	try:
-		result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
+		result = lib_oracle.ExecuteQueryThrow( cgiEnv.ConnectStr(), sql_query)
 	except:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("ExecuteQuery exception:%s in %s"% ( str(exc), sql_query ) )
