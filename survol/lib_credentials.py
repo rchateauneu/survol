@@ -32,21 +32,15 @@ def BuildCredDocument():
 	filNam = CredFilNam()
 	try:
 		jsonCreds = json.load( open(filNam) )
-		# return jsonCreds
-		# sys.stderr.write("CredDocument credentials=%d elements\n" % (len(credentials)))
 
 		upperCredentials = dict()
 		for keyCred in jsonCreds:
 			keyVal = jsonCreds[keyCred]
 			upperCredentials[keyCred] = keyVal
-			# Now converts the internal keys to uppercase. This because machines name are unpredictably converted
-			# to lower or upper case, or capitalised.
-			# keyValUp = { subKey.upper() : keyVal[subKey] for subKey in keyVal }
-			# upperCredentials[keyCred] = keyValUp
 
 		return upperCredentials
 	except Exception:
-		sys.stderr.write("CredDocument no credentials: %s\n" % str(sys.exc_info()))
+		sys.stderr.write("BuildCredDocument no credentials: %s\n" % str(sys.exc_info()))
 		return dict()
 
 def CredDocument():
