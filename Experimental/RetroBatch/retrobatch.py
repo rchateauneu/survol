@@ -23,7 +23,6 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -d,--depth <integer>          Maximum length of detected calls sequence. Default is 5.")
     print("  -w,--window <integer>         Size of sliding window of system calls, used for factorization.")
     print("                                Default is 0, i.e. no window")
-    print("  -r,--repetition <integer>     Threshold of repetition number of system calls before being factorized")
     print("  -i,--input <file name>        trace command output file.")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("")
@@ -285,11 +284,13 @@ class BatchLetCore:
         # Both cannot be set at the same time.
         self.m_unfinishedBatch = None # If this is an merged batch.
         self.m_resumedBatch = None # If this is an matched batch.
+
+        # sys.stdout.write("self=%d\n" % id(self) )
         return
 
     # tracer = "strace|ltrace"
     def ParseLine( self, oneLine, tracer ):
-        # sys.stdout.write("oneLine1=%s" % oneLine )
+        # sys.stdout.write("%s oneLine1=%s" % (id(self),oneLine ) )
         self.m_tracer = tracer
 
         if oneLine[0:4] == "[pid":
@@ -1120,33 +1121,34 @@ class BatchLet_shutdown(BatchLetBase,object):
         self.m_significantArgs = self.StreamName()
 
 
-
-
-
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python', '', '4096'] ==>> 7 (16:42:10,16:42:10)
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2', 'python2', '4096'] ==>> 9 (16:42:10,16:42:10)
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2.7', 'python2.7', '4096'] ==>> -22 (16:42:10,16:42:10)
 
-
 ################################################################################
-
 
 class UnfinishedBatches:
     def __init__(self):
-        # TODO: Maybe this should be specific to processes.
+        # This must be specific to processes.
+        # Because when a system call is resumed, it is in the same process.
         self.m_mapStacks = {}
 
     def PushBatch(self,batchCoreUnfinished):
-        # sys.stdout.write("PushBatch m_funcNam=%s\n"%batchCoreUnfinished.m_funcNam)
         try:
-            self.m_mapStacks[ batchCoreUnfinished.m_funcNam ].append( batchCoreUnfinished )
+            mapByPids = self.m_mapStacks[ batchCoreUnfinished.m_pid ]
+            try:
+                mapByPids[ batchCoreUnfinished.m_funcNam ].append( batchCoreUnfinished )
+            except KeyError:
+                mapByPids[ batchCoreUnfinished.m_funcNam ] = [ batchCoreUnfinished ]
         except KeyError:
-            self.m_mapStacks[ batchCoreUnfinished.m_funcNam ] = [ batchCoreUnfinished ]
+            self.m_mapStacks[ batchCoreUnfinished.m_pid ] = { batchCoreUnfinished.m_funcNam : [ batchCoreUnfinished ] }
+            
+        # sys.stdout.write("PushBatch m_funcNam=%s\n"%batchCoreUnfinished.m_funcNam)
 
     def MergePopBatch(self,batchCoreResumed):
         # sys.stdout.write("MergePopBatch m_funcNam=%s\n"%batchCoreResumed.m_funcNam)
         try:
-            stackPerFunc = self.m_mapStacks[ batchCoreResumed.m_funcNam ]
+            stackPerFunc = self.m_mapStacks[ batchCoreResumed.m_pid][ batchCoreResumed.m_funcNam ]
         except KeyError:
             sys.stdout.write("MergePopBatch m_funcNam=%s cannot find function\n"%batchCoreResumed.m_funcNam)
             # This is strange, we could not find the unfinished call.
@@ -1184,6 +1186,7 @@ class UnfinishedBatches:
 
         batchCoreResumed.m_status = BatchStatus.merged
         batchCoreResumed.m_unfinishedBatch = batchCoreUnfinished
+
         return batchCoreResumed
 
 # TODO: This should be specific to processes
@@ -1220,10 +1223,12 @@ def BatchFactory(batchCore):
     elif batchCore.m_status == BatchStatus.resumed:
         # We should have the "unfinished" part somewhere.
 
-        # TODO: Find the matching "unfinished".
         batchCoreMerged = stackUnfinishedBatches.MergePopBatch( batchCore )
         
         if batchCoreMerged:
+            if batchCoreMerged != batchCore:
+                sys.stdout.write("Inconsistency 4\n")
+                exit(1)
             btchLetDrv = aModel( batchCoreMerged )
         else:
             # Could not find the matching unfinished batch.
@@ -1234,6 +1239,10 @@ def BatchFactory(batchCore):
     # If the parameters makes it unusable anyway.
     try:
         btchLetDrv.m_core
+        # sys.stdout.write("batchCore=%s\n"%id(batchCore))
+        if btchLetDrv.m_core != batchCore:
+            sys.stdout.write("Inconsistency 6\n")
+            exit(1)
         return btchLetDrv
     except AttributeError:
         return None
@@ -1255,13 +1264,12 @@ def BatchFactory(batchCore):
 #
 class BatchLetSequence(BatchLetBase,object):
     def __init__(self,arrBatch,style):
-        # global countSequence
-
         batchCore = BatchLetCore()
 
+        # TODO: Instaed of a string, this could be a tuple because it is hashable.
         concatSigns = "+".join( [ btch.GetSignature() for btch in arrBatch ] )
-
         batchCore.m_funcNam = "(" + concatSigns + ")"
+
         batchCore.m_status = BatchStatus.sequence
 
         # sys.stdout.write("BatchLetSequence concatSigns=%s\n"%concatSigns)
@@ -1328,17 +1336,31 @@ class BatchFlow:
             batchSeq = self.m_listBatchLets[idxBatch]
             batchSeqPrev = self.m_listBatchLets[idxBatch-1]
 
+            # Sanity check.
+            if batchSeqPrev.m_core.m_status == BatchStatus.matched \
+            and batchSeq.m_core.m_status == BatchStatus.merged:
+                if batchSeqPrev.m_core.m_funcNam != batchSeq.m_core.m_funcNam :
+                    sys.stdout.write("INCONSISTENCY1 %s %s\n"% ( batchSeq.m_core.m_funcNam, batchSeqPrev.m_core.m_funcNam ) )
+
+            if batchSeqPrev.m_core.m_status == BatchStatus.matched \
+            and batchSeq.m_core.m_status == BatchStatus.merged:
+                if batchSeqPrev.m_core.m_resumedBatch.m_unfinishedBatch != batchSeqPrev.m_core:
+                    sys.stdout.write("INCONSISTENCY2 %s\n"% batchSeqPrev.m_core.m_funcNam)
+
+            if batchSeqPrev.m_core.m_status == BatchStatus.matched \
+            and batchSeq.m_core.m_status == BatchStatus.merged:
+                if batchSeq.m_core.m_unfinishedBatch.m_resumedBatch != batchSeq.m_core:
+                    sys.stdout.write("INCONSISTENCY3 %s\n"% batchSeq.m_core.m_funcNam)
+
             if batchSeqPrev.m_core.m_status == BatchStatus.matched \
             and batchSeq.m_core.m_status == BatchStatus.merged \
             and batchSeqPrev.m_core.m_resumedBatch == batchSeq.m_core \
             and batchSeq.m_core.m_unfinishedBatch == batchSeqPrev.m_core :
-                # sys.stdout.write("Merged found for Matched idxBatch=%d\n"%idxBatch)
                 del self.m_listBatchLets[idxBatch-1]
                 batchSeqPrev = None
                 batchSeq.m_core.m_unfinishedBatch = None
                 lenBatch -= 1
                 numSubst += 1
-                continue
 
             idxBatch += 1
             
@@ -1396,7 +1418,7 @@ class BatchFlow:
 
             # sys.stdout.write("ClusterizePairs keyRange=%s numOccur=%d\n" % (keyRange, numOccur) )
 
-            # Five occurences for example.
+            # Five occurences for example, as representative of a repetition.
             if numOccur > 5:
                 batchSequence = BatchLetSequence( batchRange, "Rept" )
 
@@ -1536,6 +1558,28 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
     # 
 
 
+    # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
+    # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
+    # This test is not reliable because we cannot really control what a spurious output can be:
+    def IsLogEnding(aLin):
+        mtchBracket = re.match("^.*<([^>]*)>\n$", aLin)
+
+        if not mtchBracket:
+            return False
+
+        strBrack = mtchBracket.group(1)
+        ##sys.stdout.write("Brack=%s\n"%strBrack)
+
+        if strBrack == "unfinished ...":
+            return True
+
+        try:
+            flt = float(strBrack)
+            return True
+        except:
+            return False
+
+
     numLine = 0
     while True:
         oneLine = ""
@@ -1566,7 +1610,9 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
 
             # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
             # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
-            if tmpLine.endswith(">\n"):
+            # This test is not reliable because we cannot really control what a spurious output can be:
+            # if tmpLine.endswith(">\n"):
+            if IsLogEnding( tmpLine ):
                 # TODO: The most common case is that the call is on one line only.
                 oneLine += tmpLine
                 break
@@ -1764,13 +1810,13 @@ def CreateFlowsFromLinuxSTraceLog(verbose,logStream,maxDepth):
 
 ################################################################################
 
-def FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition):
+def FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth):
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
         if verbose: sys.stdout.write("\n================== PID=%d\n"%aPid)
-        FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition)
+        FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth)
 
-def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth,thresholdRepetition):
+def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth):
 
     if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
 
@@ -1901,7 +1947,7 @@ def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose):
     maxDepth = 5
     mapFlows = CreateMapFlowFromStream( False, logStream, tracer, maxDepth )
 
-    FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,0)
+    FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth)
 
     outFd = open(outFile, "w")
 
@@ -1928,7 +1974,6 @@ if __name__ == '__main__':
     outputFormat = "TXT" # Default output format of the generated files.
     maxDepth = 5
     szWindow = 0
-    thresholdRepetition = 10
     inputLogFile = None
     tracer = None
 
@@ -1944,8 +1989,6 @@ if __name__ == '__main__':
         elif anOpt in ("-w", "--window"):
             szWindow = int(aVal)
             raise Exception("Sliding window not implemented yet")
-        elif anOpt in ("-r", "--repetition"):
-            thresholdRepetition = int(aVal)
         elif anOpt in ("-i", "--input"):
             inputLogFile = aVal
         elif anOpt in ("-t", "--tracer"):
@@ -1960,7 +2003,7 @@ if __name__ == '__main__':
 
     mapFlows = CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth )
 
-    FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth,thresholdRepetition)
+    FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth)
 
     # Options:
     # -p pid
