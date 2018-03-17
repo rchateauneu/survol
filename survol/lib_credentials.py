@@ -69,7 +69,7 @@ def GetCredentials( credType, credName ):
 	# Try first without converting.
 	try:
 		cred = arrType[credName]
-		sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
+		# sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
 		return cred
 	except KeyError:
 		pass
@@ -82,7 +82,7 @@ def GetCredentials( credType, credName ):
 	credNameUpper = credName.upper()
 	try:
 		cred = arrTypeUpper[credNameUpper]
-		sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
+		# sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
 		return cred
 	except KeyError:
 		sys.stderr.write("GetCredentials Unknown name credType=%s credName=%s\n" % (credType,credName))
