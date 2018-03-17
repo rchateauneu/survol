@@ -56,7 +56,7 @@ def ListAllUsers(cgiEnv,node_oradb,grph):
 
 
 	qryDbaUsers = "select username, user_id, created from all_users"
-	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(),qryDbaUsers)
+	result = lib_oracle.ExecuteQueryThrow( cgiEnv.ConnectStr(),qryDbaUsers)
 
 	for row in result:
 		sys.stderr.write("row=" + str(row) + "\n")
