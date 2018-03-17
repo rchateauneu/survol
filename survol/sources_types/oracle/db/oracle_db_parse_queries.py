@@ -80,7 +80,11 @@ def Main():
 	oraParser = OraCallbackParseQry(grph,database, propSqlQuery)
 
 	# This calls the callback for each retrieved row.
-	lib_oracle.CallbackQuery( conn_str,qrySelect, oraParser.oracallback)
+	try:
+		lib_oracle.CallbackQuery( conn_str,qrySelect, oraParser.oracallback)
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("CallbackQuery exception:%s in %s"% ( str(exc), qrySelect ) )
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [propSqlQuery] )
 
