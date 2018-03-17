@@ -1,5 +1,4 @@
 import lib_common
-import socket
 from lib_properties import pc
 
 import sys
@@ -33,7 +32,7 @@ def GetOraConnect(conn_str):
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("cx_Oracle.connect conn_str="+conn_str+" Err="+str(exc))
 
-def ExecuteQuery(conn_str,sql_query):
+def ExecuteQueryThrow(conn_str,sql_query):
 	result = []
 	conn = GetOraConnect(conn_str)
 	c = conn.cursor()
@@ -52,7 +51,16 @@ def ExecuteQuery(conn_str,sql_query):
 	conn.close()
 
 	return result
-	
+
+def ExecuteQuery(conn_str,sql_query):
+	try:
+		return ExecuteQueryThrow(conn_str,sql_query)
+	except cx_Oracle.DatabaseError:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("CallbackQuery exception:%s in %s"% ( str(exc), sql_query ) )
+
+
+
 # Faster because no object copy, and also mandatory if LOBs are returned,
 # because they disappear when the cursor is deleted.
 def CallbackQuery(conn_str,sql_query,callback):
