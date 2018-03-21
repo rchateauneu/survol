@@ -181,12 +181,12 @@ section.about{
 	margin: 20px 0px;
 	transition: width 2s linear 1s;
 }
-.button-field a:hover
+.button-field .sub:hover
 {
 	background:#008183;
 	color:#fff;
 }
-.button-field a
+.button-field .sub
 {
 	border:1px solid #008183;
 	font-size:15px;
