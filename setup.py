@@ -143,7 +143,7 @@ setup(
     description='Understanding legacy applications',
     author='Remi Chateauneu',
     author_email='remi.chateauneu@primhillcomputers.com',
-    url='http://www.primhillcomputers.com/survol.htm',
+    url='http://www.primhillcomputers.com/survol.html',
     packages=find_packages(),
     package_dir = {"survol": "survol"},
     # Ca n est pas recursif.
