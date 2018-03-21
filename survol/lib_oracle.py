@@ -65,7 +65,7 @@ def ExecuteQuery(conn_str,sql_query):
 		return ExecuteQueryThrow(conn_str,sql_query)
 	except cx_Oracle.DatabaseError:
 		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("CallbackQuery exception:%s in %s"% ( str(exc), sql_query ) )
+		lib_common.ErrorMessageHtml("ExecuteQuery exception:%s in %s"% ( str(exc), sql_query ) )
 
 
 
