@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>FAQ</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+     <link href="css/font-awesome.min.css" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+     <link href="css/style.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+      <!--- top bar -->
+     <div class="topbar thetop">
+      <div class="container">
+        <div class="row">
+        	<div class="col-md-6 col-sm-8 col-xs-12 left-part">
+            	<span class="phone"><i class="fa fa-phone"></i> <a href="tel:+447769516770" class="no-deco">+44 77 6951 6770</a></span>
+                <span class="email"><i class="fa fa-envelope"></i> <a href="mailto:contact@primhillcomputers.com" class="no-deco">contact@primhillcomputers.com</a></span>
+            </div>
+                        <div class="col-md-6 col-sm-4 col-xs-12 right-part">
+            	<ul class="hrlist social-icons">
+                <li><a href="javascript:void()"><i class="fa fa-facebook"></i></a></li>
+                <li><a href="javascript:void()"><i class="fa fa-twitter"></i></a></li>
+                <li><a href="javascript:void()"><i class="fa fa-google-plus"></i></a></li>
+                <li><a href="javascript:void()"><i class="fa fa-linkedin"></i></a></li>
+                </ul>
+            </div>
+
+        </div>
+      </div>
+     </div>
+     <!-- End -->
+      <!--- navigation -->
+    <div class="container">    
+     <nav class="navbar navbar-default nav-def">
+    		<!-- Brand and toggle get grouped for better mobile display -->
+    
+     <a href="index.html" class="nav-logo"><img src="images/logo.png" class="img-responsive"></a>
+    
+ 		   <div class="navbar-header">
+        <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+      
+       
+    </div>    <!-- Collection of nav links and other content for toggling -->
+
+    	<div id="navbarCollapse" class="collapse navbar-collapse">
+       		<ul class="nav navbar-nav navbar-right pad-nav">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="solutions.html">Solutions</a></li>
+        <li><a href="survol.html">Survol</a></li>
+        <li class="active"><a href="faq.html">Survol Faq</a></li>
+        <li><a href="architecture.html">Survol Architecture</a></li>
+        <li><a href="installation.html">Survol Installation</a></li>
+        <li><a href="usecase.html">Survol Use Cases</a></li>
+        <li><a href="contact.php">Contact Us</a></li>        
+      </ul>
+    	</div>
+	</nav>
+	</div>
+<!-- End -->
+<!-- breadcrum section -->
+<div class="breadcrum-sec">
+ <div class="container">
+ 	<div class="row">
+    	<div class="col-lg-6 col-md-8 col-sm-9 col-xs-12">
+        <h1 class="page-title">Frequently asked questions</h1>
+        </div>
+        <div class="col-lg-6 col-md-4 col-sm-3 col-xs-12">
+        <ul class="breadcrumb">
+<li><a href="index.html">Home</a></li>
+<li class="active">FAQ</li>
+</ul>
+        </div>
+    </div>
+ </div>
+</div>
+
+<!-- end -->
+<!-- about US -->
+    <section class="faq-section">
+     <div class="container">
+     	<div class="col-md-12 col-xs-12">
+           <div class="panel-group my-accordian" id="accordion" role="tablist" aria-multiselectable="true">
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head1">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq1" aria-expanded="true" aria-controls="faq1">
+          <i class="fa icon-plminus"></i> SO IT WORKS LIKE A HTTP SERVER. CAN I REUSE APACHE™ OR IIS™ ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="faq-head1">
+      <div class="panel-body">
+       <p class="infotxt"> For classical desktop or server applications, Survol can use <a href="https://httpd.apache.org/" class="a-link">Apache</a> and <a href="https://www.iis.net/" class="a-link">IIS</a> (Internet Information Services). As a set of Python scripts, it is compatible with CGI and WSGI.
+        Survol comes with its own HTTP server, a concise Python script, so it can run on very small machines and is very appropriate for <a href="https://en.wikipedia.org/wiki/Internet_of_things" class="a-link">Internet Of Things</a> applications. This also has the benefit to run on any user account, which gives access to much more information.</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head2">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq2" aria-expanded="true" aria-controls="faq2" class="collapsed">
+          <i class="fa icon-plminus"></i> WHY AN ADHOC CGI SERVER ? </a>
+      </h4>
+    </div>
+    <div id="faq2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head2">
+      <div class="panel-body">
+       <p class="infotxt"> To access specific information, a "root" or "administrator" account is needed; Apache or IIS do not run under such a privileged account. Also, the adhoc CGI server is very lightweight, uses standard Python classes, does not require any installation and can execute on any machine running Python.</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head3">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq3" aria-expanded="true" aria-controls="faq3" class="collapsed">
+          <i class="fa icon-plminus"></i> WHY USING PYTHON ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head3">
+      <div class="panel-body">
+       <p class="infotxt"> Using a compiled language might raise security issues when running on a production environment. On the contrary, a scripting language such as Python with its concept of "pure Python" packages, is much safer. NodeJS has the extra advantage to run mostly the same code on server and client. But it may be less mature, less validated in production environments, with less libraries, and the JIT compiler is a bit CPU hungry. Perl would be a good choice, but does not have the flexibility to install modules just by copying a set of files. Survol is heavily based on Python, and benefits from all its specific features: Concision, large set of libraries, object-orientation, modules, memory management, self-documentation etc...</p>
+<p class="infotxt">To run Survol, no genuine installation is needed, just a files tree, for example on a USB memory stick (or floppy disk...), is enough. The only needed thing is a Python interpreter. And even not: if your browser can run ActiveX™ object on a Windows™ platform, you can still perform some simplified analysis.</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head4">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq4" aria-expanded="true" aria-controls="faq4" class="collapsed">
+          <i class="fa icon-plminus"></i> ON WHICH PLATFORM ? WHICH PYTHON VERSION ? WHICH REQUIREMENTS ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head4">
+      <div class="panel-body">
+       <div class="txtwithimg">
+       	<div class="img-box-inline">
+         <img src="images/python.png" alt="image" class="img-outline img-responsive" />
+        </div>
+        <div class="text-box">
+                <p class="infotxt">Survol is a pure-Python software which runs on Windows™ and Linux™ operating systems. It is easy to port Survol on other platforms: Its modular architecture is such that, when a module cannot run for any reason, it is simply disabled.</p>
+       <p class="infotxt">Survol can run on Python 2 or Python 3, in 32 or 64 bits. It does not need special Python libraries, nor the latest Python version. Its performance requirements are very low and it can run on an <a href="https://en.wikipedia.org/wiki/Internet_of_things" class="a-link">Internet of Things</a> network. Some of the most important Python modules it uses are:</p>
+
+        </div>
+       </div>
+       
+<ul class="datalist">
+<li>socket, sys, os, re: Standard modules which are available everywhere.</li>
+<li><a href="https://pypi.python.org/pypi/psutil" class="a-link"> psutil:</a> a cross-platform library for retrieving information on running processes and system utilization. It is not mandatory but very convenient.</li>
+<li><a href="http://pywbem.github.io/" class="a-link">pywbem</a> if a WBEM server is available.</li>
+<li><a href="https://pypi.python.org/pypi/pywin32" class="a-link">pywin32:</a> The fantastic win32 module is nice to have when running on a Windows machine.</li>
+</ul>
+      </div>
+    </div>
+  </div>  
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head5">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq5" aria-expanded="true" aria-controls="faq5" class="collapsed">
+          <i class="fa icon-plminus"></i> CAN I ADD SCRIPTS IN ANOTHER PROGRAMMING LANGUAGE ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq5" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head5">
+      <div class="panel-body">
+       <p class="infotxt">Yes, this is possible, but they will be poorly integrated in Survol. It is much more advisable to create your own Python module in your programming language. <a href="https://wiki.python.org/moin/IntegratingPythonWithOtherLanguages" class="a-link">This is easy</a> (C++, Java, Perl, Fortran...)</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head6">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq6" aria-expanded="true" aria-controls="faq6" class="collapsed">
+          <i class="fa icon-plminus"></i> OTHER REQUIREMENTS ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq6" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head6">
+      <div class="panel-body">
+       <p class="infotxt"> Survol uses <a href="http://www.graphviz.org/" class="a-link">Graphviz</a> , an open source graph visualization software, to represent its  structural information as an SVG diagram. It is not absolutely required because Survol has other rendering methods, but stable SVG representations are convenient to generate print reports or slides.
+</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head7">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq7" aria-expanded="true" aria-controls="faq7" class="collapsed">
+          <i class="fa icon-plminus"></i> SCANNING PROCESS MEMORY, WHAT DOES IT MEAN ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq7" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head7">
+      <div class="panel-body">
+       <p class="infotxt"> In the memory of a running process (Its heap, or the stack), variables are created at execution time, and can contain a lot of useful information which helps understand the process behaviour: File names, HTTP URLs, SQL queries etc... and other resources created on-the-fly, provide invaluable hints about what a process is doing. Survol comes with several scripts able to extract this information and display the associated objects. This is not an entirely reliable process, of course, because these data might be corrupted, or just being created, or might simply be unused. Still, the implied information is extremely useful when investigating an application.
+</p>
+      </div>
+    </div>
+  </div>  
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head8">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq8" aria-expanded="true" aria-controls="faq8" class="collapsed">
+          <i class="fa icon-plminus"></i> NMAP ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq8" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head8">
+      <div class="panel-body">
+       <p class="infotxt"> <a href="https://nmap.org/" class="a-link">Nmap</a> is a free and open source utility for network discovery and security auditing. It is able to detect various resources on a network: Computer, databases, shared disks and other classes defined in WBEM. Nmap is therefore a convenient investigation tool in the Survol toolbox. Several Nmap programs are wrapped into Survol scripts, it is very easy to add more.</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head9">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq9" aria-expanded="true" aria-controls="faq9" class="collapsed">
+          <i class="fa icon-plminus"></i> WHERE ARE THE SOURCES ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq9" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head9">
+      <div class="panel-body">
+       <p class="infotxt">Survol is an one-source project and as such, its source code is available on <a href="https://sourceforge.net/" class="a-link">Sourceforge</a> and <a href="https://sourceforge.net/" class="a-link">Github:</a></p>
+       <ul class="datalist">
+       <li><a href="https://github.com/rchateauneu/survol" class="a-link">Survol on Github:</a> This is the main GIT repository; the project name is "survol".</li>
+       <li><a href="https://sourceforge.net/projects/survol/" class="a-link">Survol on Sourceforge:</a> A backup source repository.</li>
+       </ul>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head10">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq10" aria-expanded="true" aria-controls="faq10" class="collapsed">
+          <i class="fa icon-plminus"></i> I WANT TO SEE DOCUMENTATION !
+        </a>
+      </h4>
+    </div>
+    <div id="faq10" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head10">
+      <div class="panel-body">
+      <ul class="datalist">
+       <li>Survol architecture is explained <a class="a-link" href="survol_architecture.html">here.</a></li>
+	   <li><a class="a-link" href="survol_architecture.html">Doxygen</a>-generated pages are <a href="doxygen_docs/html/index.html" class="a-link">there</a>.</li>
+       <li><a href="installation.html" class="a-link">Installation notes</a>, how the setup can be customised etc...</li>
+      </ul>
+       
+      </div>
+    </div>
+  </div>  
+  
+  
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="faq-head11">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#faq11" aria-expanded="true" aria-controls="faq11" class="collapsed">
+          <i class="fa icon-plminus"></i> HOW CAN I INSTALL SURVOL ON MY MACHINE ?
+        </a>
+      </h4>
+    </div>
+    <div id="faq11" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq-head11">
+      <div class="panel-body">
+       <p class="infotxt"> Complete explanation are provided with the <a href="installation.html" class="a-link">installation notes</a>. Survol can of course be installed from the sources, but also as a pure-Python module, which is available on <a href="https://pypi.python.org/pypi" class="a-link">Pypi:</a></p>
+       <ul class="datalist">
+       <li><a href="https://pypi.python.org/pypi/survol/" class="a-link">Survol source distribution, on Pypy,</a> complete package, can be downloaded and installed as any Python module.</li>
+       <li><a href="https://testpypi.python.org/pypi?%3Aaction=pkg_edit&name=survol" class="a-link">Survol on Pypi (Test)</a> , same on test site.</li>
+       <li><a href="http://www.primhillcomputers.com/DiversDocs/SiteFreeFr/Site.Primhill/cgi-bin/test.py" class="a-link">Test CGI script</a></li>
+       </ul>
+      </div>
+    </div>
+  </div>
+</div>
+        </div>
+     </div>
+        </section>
+<!-- end -->
+
+<!-- ==== Footer ==== -->
+   
+    <section class="footer">
+    <div class="container">
+    <div class="col-md-4 col-sm-4 col-xs-12">
+    <div class="footer-logo"><img src="images/footer-logo.png" class="img-responsive"></div>
+    </div>
+      <div class="col-md-4 col-sm-4 col-xs-12">
+      <div class="useful">Useful links</div>
+      	<div class="row">
+
+      <div class="col-md-6 col-sm-6 col-xs-12">
+      <div class="useful-link">
+      <ul>
+      <li>
+      <a href="index.html"><i class="fa fa-angle-right"></i> Home</a>
+      </li>
+      <li>
+      <a href="solutions.html"><i class="fa fa-angle-right"></i> Solutions</a>
+      </li>
+      <li>
+      <a href="survol.html"><i class="fa fa-angle-right"></i> Survol</a>
+      </li>
+      <li>
+      <a href="faq.html"><i class="fa fa-angle-right"></i> Survol Faq</a>
+      </li>
+      </ul>
+      </div>
+      </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+      <div class="useful-link">
+      <ul>
+      <li>
+      <a href="architecture.html"><i class="fa fa-angle-right"></i> Survol Architecture</a>
+      </li>
+      <li>
+      <a href="installation.html"><i class="fa fa-angle-right"></i> Survol Installation</a>
+      </li>
+      <li>
+      <a href="survol.html"><i class="fa fa-angle-right"></i> Survol Use Cases</a>
+      </li>
+      <li>
+      <a href="contact.html"><i class="fa fa-angle-right"></i> Contact Us</a>
+      </li>
+      </ul>
+      </div>
+      </div>
+              </div>
+      </div>
+      <div class="col-md-4 col-sm-4 col-xs-12">
+            <div class="contact-us">Contact us</div>
+            <div class="address-map"> <i class="fa fa-map-marker"></i> Primhill Computers Address, 275, Boston Manor Road, TW8 9LG Brentford, United-Kingdom</div>
+            <div class="address-map"> <i class="fa fa-envelope"></i> Email : <a href="mailto:contact@primhillcomputers.com" class="a-link">contact@primhillcomputers.com</a></div>
+            <div class="address-map"> <i class="fa fa-phone"></i> Phone Number : <a href="tel:+447769516770" class="a-link">+44 77 6951 6770</a></div>
+            </div>
+            </div>
+    </section>
+    <!-- End -->
+
+    <div class="bottotop">
+<div class='scrolltop'>
+    <div class='scroll icon'><i class="fa fa-arrow-up"></i></div>
+</div>
+    </div>
+    
+    <section class="footer-bottom">
+    <div class="copyright">Copyright 2018 All Right Reserved | <b>Primhill Computers</b></div>
+    </section>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+        
+    <script>
+    $(window).scroll(function() {
+    if ($(this).scrollTop() > 50 ) {
+        $('.scrolltop:hidden').stop(true, true).fadeIn();
+    } else {
+        $('.scrolltop').stop(true, true).fadeOut();
+    }
+});
+$(function(){$(".scroll").click(function(){$("html,body").animate({scrollTop:$(".thetop").offset().top},"1000");return false})})
+    </script>
+
+  </body>
+</html>
