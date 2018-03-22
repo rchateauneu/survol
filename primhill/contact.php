@@ -102,7 +102,7 @@ session_start();
 <!-- ===== header-end ==== -->
 <section class="map">
 
-<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2484.543844989843!2d-0.25561374879105103!3d51.48488677953147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48760e436f381f95%3A0x79baae89fd2c73dc!2sPrimhill+Computers!5e0!3m2!1sen!2sin!4v1521538379272" width="100%" height="315" frameborder="0" style="border:0" allowfullscreen></iframe>
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2483.9957717076963!2d-0.32429304882908!3d51.49494507953314!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48760d98c045f597%3A0x4bb1769152689fb6!2s275+Boston+Manor+Rd%2C+Brentford+TW8+9LG!5e0!3m2!1sen!2suk!4v1521703171634" width="100%" height="315" frameborder="0" style="border:0" allowfullscreen></iframe>
 
 </section>
 <!-- === sections start == -->
