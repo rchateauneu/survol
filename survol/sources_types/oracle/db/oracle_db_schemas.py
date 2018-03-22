@@ -33,7 +33,7 @@ def ListDbaUsers(cgiEnv,node_oradb,grph):
 	#  AUTHENTICATION_TYPE                                VARCHAR2(8)
 
 	qryDbaUsers = "select username, user_id, account_status, lock_date, expiry_date from dba_users"
-	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(),qryDbaUsers)
+	result = lib_oracle.ExecuteQueryThrow( cgiEnv.ConnectStr(),qryDbaUsers)
 
 	for row in result:
 		# row=('ORACLE_OCM', 21, 'EXPIRED & LOCKED')
