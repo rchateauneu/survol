@@ -116,8 +116,8 @@ session_start();
             <p class="sec-subhead">CONTACT INFO</p> 
           <p>+44 77 6951 6770</p>
           <p>contact@primhillcomputers.com</p>
-          <p>Primhill Computers Address, 275, Boston Manor Road,
-             TW8 9LG Brentford, United-Kingdom</p>
+          <p>Primhill Computers: 275, Boston Manor Road,
+             TW8 9LG Brentford, United Kingdom</p>
                  
           <p class="sec-subhead">SOCIAL MEDIA</p>
 
@@ -131,7 +131,7 @@ session_start();
      	
      </div>
      <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
-      <p class="sec-subhead">SEND YOUR MASSAGE</p>
+      <p class="sec-subhead">SEND YOUR MESSAGE</p>
 
        <?php  if(isset($_SESSION['failure'])) {echo '<div style="color:red;font-weight:bold;">'.$_SESSION['failure'].'</div>'; } unset($_SESSION['failure']);
 if(isset($_SESSION['success']))
