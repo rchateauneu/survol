@@ -32,17 +32,25 @@ def GetOraConnect(conn_str):
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("cx_Oracle.connect conn_str="+conn_str+" Err="+str(exc))
 
+# TODO: Check that there is only one query, and exclusively a select,
+# to avoid SQL injections.
+def ExecuteSafeQuery(aCursor,sql_query):
+	if not sql_query.upper().startswith("SELECT "):
+		raise Exception("Unsafe query:%s"%sql_query)
+	aCursor.execute(sql_query)
+
 def ExecuteQueryThrow(conn_str,sql_query):
 	result = []
 	conn = GetOraConnect(conn_str)
-	c = conn.cursor()
+	aCursor = conn.cursor()
 
 	sys.stderr.write("ExecuteQuery %s\n" % sql_query)
-	c.execute(sql_query)
 
+	ExecuteSafeQuery(aCursor,sql_query)
 	try:
-		# This could be much faster but not important now.
-		for row in c:
+		# This could be faster by returning a cursor
+		# or a generator, but this is not important now.
+		for row in aCursor:
 			# Use yield ? Or return c ?
 			result.append( row )
 
@@ -66,12 +74,11 @@ def ExecuteQuery(conn_str,sql_query):
 def CallbackQuery(conn_str,sql_query,callback):
 	conn = GetOraConnect(conn_str)
 
-	c = conn.cursor()
+	aCursor = conn.cursor()
 
-	c.execute(sql_query)
-
+	ExecuteSafeQuery(aCursor,sql_query)
 	try:
-		for row in c:
+		for row in aCursor:
 			callback(row)
 
 	except cx_Oracle.DatabaseError:
