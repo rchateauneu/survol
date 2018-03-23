@@ -18,6 +18,8 @@ def Usage(exitCode = 1, errMsg = None):
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
     print("  -v,--verbose                  Verbose mode.")
+    print("  -s,--summary                  Prints a summary at the end: Start end end time stamps, executable name,"
+        + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON      Output format. Default is TXT.")
     print("  -d,--depth <integer>          Maximum length of detected calls sequence. Default is 5.")
@@ -589,7 +591,7 @@ class BatchDumperTXT(BatchDumperBase):
         self.m_strm = strm
 
     def DumpBatch(self,batchLet):
-        self.m_strm.write("F=%6d {%4d/%s}%1s'%-20s' %s ==>> %s (%s,%s)\n" %(
+        self.m_strm.write("Pid=%6d {%4d/%s}%1s'%-20s' %s ==>> %s (%s,%s)\n" %(
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
             batchLet.m_style,
@@ -1482,6 +1484,54 @@ class BatchFlow:
 
 
 
+
+    # Other patterns:
+
+    # '(open@SYS+fstatfs@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fonts/adobe-source-han-sans-cn"']
+    # '(open@SYS+fstat@SYS+fstatfs@SYS+mmap@SYS+fadvise64@SYS)' ['CIM_DataFile.Name="/var/cache/fontconfig/le64.cache-7"']
+    # '(openat@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fonts/adobe-source-han-sans-cn"']
+    # 'close@SYS           ' ['CIM_DataFile.Name="/var/cache/fontconfig/le64.cache-7"']
+
+    # '(open@SYS+fstatfs@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fonts/adobe-source-han-sans-twhk"']
+    # '(open@SYS+fstat@SYS+fstatfs@SYS+mmap@SYS+fadvise64@SYS)' ['CIM_DataFile.Name="/var/cache/fontconfig/le64.cache-7"']
+    # '(openat@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fonts/adobe-source-han-sans-twhk"']
+    # 'close@SYS           ' ['CIM_DataFile.Name="/var/cache/fontconfig/le64.cache-7"']
+
+    # Or, repetition of the same call: Just one parameter changes.
+    # '(open@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fontconfig/65-0-khmeros-base.conf"']
+    # '(open@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fontconfig/65-0-lohit-assamese.conf"']
+    # '(open@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fontconfig/65-0-lohit-bengali.conf"']
+
+
+    # Or, similar processes:
+
+    # ================== PID=27400
+    # 'ioctl@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (08:18:37,08:18:37)
+    # '(close@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="pipe:[256030]"'] ==>> N/A (08:18:37,08:18:37)
+    # 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/sleep"', ['sleep', '1']] ==>> 0 (08:18:37,08:18:37)
+    # '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (08:18:37,08:18:37)
+    # '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib64/libc-2.21.so"'] ==>> N/A (08:18:37,08:18:37)
+    # 'munmap@SYS          ' [] ==>> 0 (08:18:37,08:18:37)
+    # '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib/locale/locale-archive"'] ==>> N/A (08:18:37,08:18:37)
+    # 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (08:18:38,08:18:38)
+    # 'exit_group@SYS      ' [] ==>> ? (08:18:38,08:18:38)
+
+    # ================== PID=27399
+    # 'ioctl@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (08:18:36,08:18:36)
+    # '(close@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="pipe:[255278]"'] ==>> N/A (08:18:36,08:18:36)
+    # 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/sleep"', ['sleep', '1']] ==>> 0 (08:18:36,08:18:36)
+    # '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (08:18:36,08:18:36)
+    # '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib64/libc-2.21.so"'] ==>> N/A (08:18:36,08:18:36)
+    # 'munmap@SYS          ' [] ==>> 0 (08:18:36,08:18:36)
+    # '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib/locale/locale-archive"'] ==>> N/A (08:18:36,08:18:36)
+    # 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (08:18:37,08:18:37)
+    # 'exit_group@SYS      ' [] ==>> ? (08:18:37,08:18:37)
+
+
+
+
+
+
     def DumpFlow(self,strm,outputFormat):
 
         batchDump = BatchDumperFactory(strm, outputFormat)
@@ -1963,13 +2013,14 @@ def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose):
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvp:f:d:w:r:i:t:",
-                ["help","verbose","pid","format","depth","window","repetition","input","tracer"])
+                "hvsp:f:d:w:r:i:t:",
+                ["help","verbose","summary","pid","format","depth","window","repetition","input","tracer"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
 
     verbose = False
+    withSummary = False
     aPid = None
     outputFormat = "TXT" # Default output format of the generated files.
     maxDepth = 5
@@ -1980,6 +2031,8 @@ if __name__ == '__main__':
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
             verbose = True
+        elif anOpt in ("-s", "--summary"):
+            withSummary = True
         elif anOpt in ("-p", "--pid"):
             aPid = aVal
         elif anOpt in ("-f", "--format"):
@@ -2004,6 +2057,18 @@ if __name__ == '__main__':
     mapFlows = CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth )
 
     FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth)
+
+    if withSummary:
+# dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
+# fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
+# + arborescence des fils lances avec les memes informations 
+# Est ce qu on va chercher lkes infos a la fin ?
+# Ou on les fabrique au fur et a mesure ?
+# Pour les librairies, pattens particuliers ou bien attaquer le binaire ?
+# On peut faire les deux:
+# C est pas mal de mettre en relation les Batch et les ressources
+# en creant du pseudo-RDF a la volee
+        pass
 
     # Options:
     # -p pid
