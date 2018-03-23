@@ -197,16 +197,111 @@ class ExceptionIsSignal(Exception):
 
 ################################################################################
 
-# These functions return an object path.
+class CIM_Process:
+    def __init__(self,procId):
+        self.m_procId = procId
+        self.m_executable = ""
+        self.m_parentProcess = None
+
+    def __str__(self):
+        return self.CreateMoniker(self.m_procId)
+
+    @staticmethod
+    def CreateMoniker(procId):
+        return 'CIM_Process.Handle="%s"' % procId
+
+    def AddParentProcess(self, objCIM_Process):
+        m_parentProcess = objCIM_Process
+
+    def SetExecutable(self,objCIM_DataFile) :
+        m_executable = objCIM_DataFile.m_pathName
+        pass
+
+    def SetStartTime(self):
+        pass
+
+    def Summarize(self,strm):
+        strm.write("Process id:%s\n" % self.m_procId )
+        strm.write("Executable:%s\n" % self.m_executable )
+        if self.m_parentProcess:
+            strm.write("Parent:%s\n" % self.m_parentProcess.m_procId )
+
+
+class CIM_DataFile:
+    def __init__(self,pathName):
+        self.m_pathName = pathName
+
+    def __str__(self):
+        return self.CreateMoniker(self.m_pathName)
+
+    @staticmethod
+    def CreateMoniker(pathName):
+        return 'CIM_DataFile.Name="%s"' % pathName
+
+    def SetOpenTime(self, timeStamp, objCIM_Process):
+        pass
+
+    def Summarize(self,strm):
+        strm.write("Path:%s\n" % self.m_pathName )
+
+mapCacheObjects = {}
+
+
+def CreateObjectPath(classModel, *ctorArgs):
+    try:
+        mapObjs = mapCacheObjects[classModel.__name__]
+    except KeyError:
+        mapObjs = {}
+        mapCacheObjects[classModel.__name__] = mapObjs
+
+    objPath = classModel.CreateMoniker(*ctorArgs)
+    try:
+        theObj = mapObjs[objPath]
+    except KeyError:
+        theObj = classModel(*ctorArgs)
+        mapObjs[objPath] = theObj
+    return theObj
+
 
 def ToObjectPath_CIM_Process(aPid):
-    objectPath = 'CIM_Process.Handle="%s"' % aPid
-    return objectPath
+    return CreateObjectPath(CIM_Process,aPid)
 
 # TODO: It might be a Linux socket or an IP socket.
 def ToObjectPath_CIM_DataFile(pathName):
-    objectPath = 'CIM_DataFile.Name="%s"' % pathName
-    return objectPath
+    return CreateObjectPath(CIM_DataFile,pathName)
+
+def CIM_SharedLibrary(CIM_DataFile):
+    pass
+
+def GenerateSummaryProcesses(mapFlows):
+    for objPath,objInstance in mapCacheObjects[CIM_Process.__name__].items():
+        # sys.stdout.write("Path=%s\n"%objPath)
+        objInstance.Summarize(sys.stdout)
+
+def GenerateSummaryFiles(mapFlows):
+    for objPath,objInstance in mapCacheObjects[CIM_DataFile.__name__].items():
+        # sys.stdout.write("Path=%s\n"%objPath)
+        objInstance.Summarize(sys.stdout)
+
+
+# Ajouter des regex sur la ligne de commande pour le filtrage:
+# - "CIM_DataFile.Name=/proc/.*"  +"CIM_Process.Parent=1234"
+# Avec un filtrage par defaut.
+
+
+# dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
+# fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
+# + arborescence des fils lances avec les memes informations 
+# Est ce qu on va chercher lkes infos a la fin ?
+# Ou on les fabrique au fur et a mesure ?
+# Pour les librairies, pattens particuliers ou bien attaquer le binaire ?
+# On peut faire les deux:
+# C est pas mal de mettre en relation les Batch et les ressources
+# en creant du pseudo-RDF a la volee
+def GenerateSummary(mapFlows):
+    GenerateSummaryProcesses(mapFlows)
+    GenerateSummaryFiles(mapFlows)
+
 
 ################################################################################
 
@@ -221,7 +316,7 @@ mapFilDesToPathName = {
 # Option "-y          Print paths associated with file descriptor arguments."
 # read ['3</usr/lib64/libc-2.21.so>']
 # This returns a WMI object path, which is self-descriptive.
-def STraceStreamToFile(strmStr):
+def STraceStreamToPathname(strmStr):
     idxLT = strmStr.find("<")
     if idxLT >= 0:
         pathName = strmStr[ idxLT + 1 : -1 ]
@@ -235,7 +330,11 @@ def STraceStreamToFile(strmStr):
                 pathName = strmStr
             else:
                 pathName = "UnknownFileDescr:%s" % strmStr
-    return ToObjectPath_CIM_DataFile( pathName )
+
+    return pathName
+
+def STraceStreamToFile(strmStr):
+    return ToObjectPath_CIM_DataFile( STraceStreamToPathname(strmStr) )
 
 ################################################################################
 
@@ -308,6 +407,7 @@ class BatchLetCore:
             # This is the main process, but at this stage we do not have its pid.
             self.m_pid = -1
             self.InitAfterPid(oneLine)
+        self.m_objectProcess = ToObjectPath_CIM_Process(self.m_pid)
 
     def SetFunction(self, funcFull):
         # With ltrace, systems calls are suffix with the string "@SYS".
@@ -529,9 +629,11 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
         return self.m_core.m_funcNam
 
     def SignificantArgs(self):
-        #if self.m_core == BatchStatus.unfinished:
-        #    return None
         return self.m_significantArgs
+
+    def SignificantArgsAsStr(self):
+        arrStr = [ str(arg) for arg in self.m_significantArgs ]
+        return arrStr
 
     # This is used to detect repetitions.
     def GetSignature(self):
@@ -597,7 +699,7 @@ class BatchDumperTXT(BatchDumperBase):
             batchLet.m_style,
             BatchStatus.chrDisplayCodes[ batchLet.m_core.m_status ],
             batchLet.m_core.m_funcNam,
-            str(batchLet.SignificantArgs() ),
+            batchLet.SignificantArgsAsStr(),
             batchLet.m_core.m_retValue,
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
@@ -616,7 +718,7 @@ class BatchDumperCSV(BatchDumperBase):
             batchLet.m_style,
             batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
-            str(batchLet.SignificantArgs() ),
+            batchLet.SignificantArgsAsStr(),
             batchLet.m_core.m_retValue,
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
@@ -646,7 +748,7 @@ class BatchDumperJSON(BatchDumperBase):
             batchLet.m_style,
             batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
-            str(batchLet.SignificantArgs() ),
+            batchLet.SignificantArgsAsStr(),
             batchLet.m_core.m_retValue,
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
@@ -720,6 +822,7 @@ class BatchLet_open(BatchLetBase,object):
             self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
+        self.m_significantArgs[0].SetOpenTime("Current time",self.m_core.m_objectProcess)
 
 # The important file descriptor is the returned value.
 # openat(AT_FDCWD, "../list_machines_in_domain.py", O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
@@ -764,6 +867,8 @@ class BatchLet_openat(BatchLetBase,object):
             self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
+        self.m_significantArgs[0].SetOpenTime("Current time",self.m_core.m_objectProcess)
+        
 
 class BatchLet_close(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -923,7 +1028,11 @@ class BatchLet_clone(BatchLetBase,object):
         super( BatchLet_clone,self).__init__(batchCore)
 
         # This is the created pid.
-        self.m_significantArgs = [ ToObjectPath_CIM_Process( self.m_core.m_retValue ) ]
+        objNewProcess = ToObjectPath_CIM_Process( self.m_core.m_retValue )
+        self.m_significantArgs = [ objNewProcess ]
+
+        objNewProcess.AddParentProcess(self.m_core.m_objectProcess)
+        # self.m_core.m_objectProcess.CreateSubprocess(objNewProcess)
 
     # Process creations are not aggregated, not to lose the new pid.
     def SameCall(self,anotherBatch):
@@ -944,6 +1053,7 @@ class BatchLet_execve(BatchLetBase,object):
         self.m_significantArgs = [
             ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0] ),
             self.m_core.m_parsedArgs[1] ]
+        self.m_core.m_objectProcess.SetExecutable(ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0]) )
 
         # TODO: Specifically filter the creation of a new process.
 
@@ -975,11 +1085,11 @@ class BatchLet_newfstatat(BatchLetBase,object):
         if dirNam == "AT_FDCWD":
             dirPath = "."
         else:
-            dirPath = STraceStreamToFile( dirNam )
+            dirPath = STraceStreamToPathname( dirNam )
 
         filNam = self.m_core.m_parsedArgs[1]
         pathName = dirPath +"/" + filNam
-        self.m_significantArgs = [ pathName ]
+        self.m_significantArgs = [ ToObjectPath_CIM_DataFile(pathName) ]
 
 class BatchLet_getdents(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -1160,7 +1270,8 @@ class UnfinishedBatches:
         try:
             batchCoreUnfinished = stackPerFunc[-1]
         except IndexError:
-            sys.stdout.write("MergePopBatch m_funcNam=%s cannot find call\n"%batchCoreResumed.m_funcNam)
+            sys.stdout.write("MergePopBatch pid=%d m_funcNam=%s cannot find call\n"
+                    % (batchCoreResumed.m_pid,batchCoreResumed.m_funcNam) )
             # Same problem, we could not find the unfinished call.
             return None
 
@@ -1971,7 +2082,7 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
         aCore = oneBatch.m_core
 
 
-### NO: We must fill create immediately the derived objects so we can fill the caches in the right order.
+### NO: We must create immediately the derived objects so we can fill the caches in the right order.
 ### For example in the case where one file descriptor is created in a thread and used in another.
 
         aPid = aCore.m_pid
@@ -1991,7 +2102,7 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
 ################################################################################
 
 # Function called for unit tests
-def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose):
+def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose, withSummary):
     logStream = CreateEventLog([], None, inputLogFile, tracer )
 
     maxDepth = 5
@@ -2008,6 +2119,10 @@ def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose):
 
     outFd.close()
     if verbose: sys.stdout.write("\n")
+
+    if withSummary:
+        GenerateSummary(mapFlows)
+        
 
 
 if __name__ == '__main__':
@@ -2058,17 +2173,10 @@ if __name__ == '__main__':
 
     FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth)
 
+
     if withSummary:
-# dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
-# fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
-# + arborescence des fils lances avec les memes informations 
-# Est ce qu on va chercher lkes infos a la fin ?
-# Ou on les fabrique au fur et a mesure ?
-# Pour les librairies, pattens particuliers ou bien attaquer le binaire ?
-# On peut faire les deux:
-# C est pas mal de mettre en relation les Batch et les ressources
-# en creant du pseudo-RDF a la volee
-        pass
+        GenerateSummary(mapFlows)
+
 
     # Options:
     # -p pid

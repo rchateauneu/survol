@@ -27,7 +27,7 @@ def InternalUnitTests_ParseSTraceObject():
         if resu != tupl[1]:
             raise Exception("Fail:%s != %s" % ( str(tupl[1]), resu ) )
 
-def DoTheTests(verbose,diffFiles):
+def DoTheTests(verbose,diffFiles,withSummary):
 
     # This iterates on the input test files and generates the "compressed" output.as
     #  After that we can check if the results are as expected.
@@ -70,7 +70,7 @@ def DoTheTests(verbose,diffFiles):
             baseOutName, filOutExt = os.path.splitext(outFilNam)
     
             outputFormat = filOutExt[1:].upper()
-            retrobatch.UnitTest(inputLogFile,tracer,outFilNam,outputFormat,verbose)
+            retrobatch.UnitTest(inputLogFile,tracer,outFilNam,outputFormat,verbose,withSummary)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
@@ -83,6 +83,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
     print("  -v,--verbose                  Verbose mode.")
+    print("  -s,--summary                  With summary.")
     print("  -d,--diff                     Differences.")
     print("")
 
@@ -92,18 +93,21 @@ def Usage(exitCode = 1, errMsg = None):
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvd",
-                ["help","verbose","differences"])
+                "hvsd",
+                ["help","verbose","summary","differences"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
 
     verbose = False
+    withSummary = False
     diffFiles = False
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
             verbose = True
+        elif anOpt in ("-s", "--summary"):
+            withSummary = True
         elif anOpt in ("-d", "--diff"):
             diffFiles = aVal
         elif anOpt in ("-h", "--help"):
@@ -115,7 +119,7 @@ if __name__ == '__main__':
     InternalUnitTests_ParseSTraceObject()
     print("Internal tests OK.")
 
-    DoTheTests(verbose,diffFiles)
+    DoTheTests(verbose,diffFiles,withSummary)
     print("Tests done")
 
 
