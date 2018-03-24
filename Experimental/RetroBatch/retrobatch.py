@@ -197,6 +197,10 @@ class ExceptionIsSignal(Exception):
 
 ################################################################################
 
+# dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
+# fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
+# + arborescence des fils lances avec les memes informations 
+
 class CIM_Process:
     def __init__(self,procId):
         self.m_procId = procId
@@ -213,15 +217,15 @@ class CIM_Process:
 
     def Summarize(self,strm):
         strm.write("Process id:%s\n" % self.m_procId )
-        strm.write("Executable:%s\n" % self.m_executable )
+        strm.write("    Executable:%s\n" % self.m_executable )
         if self.m_parentProcess:
-            strm.write("Parent:%s\n" % self.m_parentProcess.m_procId )
+            strm.write("    Parent:%s\n" % self.m_parentProcess.m_procId )
 
     def AddParentProcess(self, objCIM_Process):
-        m_parentProcess = objCIM_Process
+        self.m_parentProcess = objCIM_Process
 
     def SetExecutable(self,objCIM_DataFile) :
-        m_executable = objCIM_DataFile.m_pathName
+        self.m_executable = objCIM_DataFile.m_pathName
         pass
 
     def SetStartTime(self):
@@ -239,6 +243,9 @@ class CIM_Process:
 class CIM_DataFile:
     def __init__(self,pathName):
         self.m_pathName = pathName
+        self.m_openTime = None
+        self.m_closeTime = None
+        self.m_numOpens = 0
 
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.m_pathName)
@@ -249,9 +256,26 @@ class CIM_DataFile:
 
     def Summarize(self,strm):
         strm.write("Path:%s\n" % self.m_pathName )
+        if self.m_openTime:
+            tmOpen = time.gmtime( self.m_openTime )
+            strOpen = time.strftime("%Y/%m/%d %H:%M:%S", tmOpen )
+            strm.write("  Open:%s\n" % strOpen )
+
+            strm.write("  Open times:%d\n" % self.m_numOpens )
+
+        if self.m_closeTime:
+            tmClose = time.gmtime( self.m_closeTime )
+            strClose = time.strftime("%Y/%m/%d %H:%M:%S", tmClose )
+            strm.write("  Close:%s\n" % strClose )
 
     def SetOpenTime(self, timeStamp, objCIM_Process):
-        pass
+        self.m_numOpens += 1
+        if not self.m_openTime or ( timeStamp < self.m_openTime ):
+            self.m_openTime = timeStamp
+
+    def SetCloseTime(self, timeStamp, objCIM_Process):
+        if not self.m_closeTime or ( timeStamp < self.m_closeTime ):
+            self.m_closeTime = timeStamp
 
 mapCacheObjects = {}
 
@@ -283,12 +307,12 @@ def CIM_SharedLibrary(CIM_DataFile):
     pass
 
 def GenerateSummaryProcesses(mapFlows):
-    for objPath,objInstance in mapCacheObjects[CIM_Process.__name__].items():
+    for objPath,objInstance in sorted( mapCacheObjects[CIM_Process.__name__].items() ):
         # sys.stdout.write("Path=%s\n"%objPath)
         objInstance.Summarize(sys.stdout)
 
 def GenerateSummaryFiles(mapFlows):
-    for objPath,objInstance in mapCacheObjects[CIM_DataFile.__name__].items():
+    for objPath,objInstance in sorted( mapCacheObjects[CIM_DataFile.__name__].items() ):
         # sys.stdout.write("Path=%s\n"%objPath)
         objInstance.Summarize(sys.stdout)
 
@@ -301,12 +325,6 @@ def GenerateSummaryFiles(mapFlows):
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
-# Est ce qu on va chercher lkes infos a la fin ?
-# Ou on les fabrique au fur et a mesure ?
-# Pour les librairies, pattens particuliers ou bien attaquer le binaire ?
-# On peut faire les deux:
-# C est pas mal de mettre en relation les Batch et les ressources
-# en creant du pseudo-RDF a la volee
 def GenerateSummary(mapFlows):
     GenerateSummaryProcesses(mapFlows)
     GenerateSummaryFiles(mapFlows)
@@ -845,7 +863,7 @@ class BatchLet_open(BatchLetBase,object):
             self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
-        self.m_significantArgs[0].SetOpenTime("Current time",self.m_core.m_objectProcess)
+        self.m_significantArgs[0].SetOpenTime(self.m_core.m_timeStart,self.m_core.m_objectProcess)
 
 # The important file descriptor is the returned value.
 # openat(AT_FDCWD, "../list_machines_in_domain.py", O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
@@ -879,7 +897,7 @@ class BatchLet_openat(BatchLetBase,object):
             self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
-        self.m_significantArgs[0].SetOpenTime("Current time",self.m_core.m_objectProcess)
+        self.m_significantArgs[0].SetOpenTime(self.m_core.m_timeStart,self.m_core.m_objectProcess)
         
 
 class BatchLet_close(BatchLetBase,object):
@@ -887,6 +905,7 @@ class BatchLet_close(BatchLetBase,object):
         super( BatchLet_close,self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
+        self.m_significantArgs[0].SetCloseTime(self.m_core.m_timeEnd,self.m_core.m_objectProcess)
 
 class BatchLet_read(BatchLetBase,object):
     def __init__(self,batchCore):
