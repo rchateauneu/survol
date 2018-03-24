@@ -201,12 +201,18 @@ class ExceptionIsSignal(Exception):
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
 
+def TimeStampToStr(timStamp):
+    aTm = time.gmtime( timStamp )
+    return time.strftime("%Y/%m/%d %H:%M:%S", aTm )
+
 class CIM_Process:
     def __init__(self,procId):
         self.m_procId = procId
-        self.m_executable = ""
+        self.m_executable = None
         self.m_parentProcess = None
         self.m_currDir = "."
+        self.m_procStartTime = None
+        self.m_procEndTime = None
 
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.m_procId)
@@ -217,19 +223,27 @@ class CIM_Process:
 
     def Summarize(self,strm):
         strm.write("Process id:%s\n" % self.m_procId )
-        strm.write("    Executable:%s\n" % self.m_executable )
+        if self.m_executable:
+            strm.write("    Executable:%s\n" % self.m_executable )
+        if self.m_procStartTime:
+            strStart = TimeStampToStr( self.m_procStartTime )
+            strm.write("    Start time:%s\n" % strStart )
+        if self.m_procEndTime:
+            strEnd = TimeStampToStr( self.m_procEndTime )
+            strm.write("    End time:%s\n" % strEnd )
         if self.m_parentProcess:
             strm.write("    Parent:%s\n" % self.m_parentProcess.m_procId )
 
-    def AddParentProcess(self, objCIM_Process):
+    def AddParentProcess(self, timeStamp, objCIM_Process):
         self.m_parentProcess = objCIM_Process
+        self.m_procStartTime = timeStamp
+
+    def WaitProcessEnd(self, timeStamp ):
+        self.m_procEndTime = timeStamp
 
     def SetExecutable(self,objCIM_DataFile) :
         self.m_executable = objCIM_DataFile.m_pathName
-        pass
 
-    def SetStartTime(self):
-        pass
 
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
@@ -257,15 +271,13 @@ class CIM_DataFile:
     def Summarize(self,strm):
         strm.write("Path:%s\n" % self.m_pathName )
         if self.m_openTime:
-            tmOpen = time.gmtime( self.m_openTime )
-            strOpen = time.strftime("%Y/%m/%d %H:%M:%S", tmOpen )
+            strOpen = TimeStampToStr( self.m_openTime )
             strm.write("  Open:%s\n" % strOpen )
 
             strm.write("  Open times:%d\n" % self.m_numOpens )
 
         if self.m_closeTime:
-            tmClose = time.gmtime( self.m_closeTime )
-            strClose = time.strftime("%Y/%m/%d %H:%M:%S", tmClose )
+            strClose = TimeStampToStr( self.m_closeTime )
             strm.write("  Close:%s\n" % strClose )
 
     def SetOpenTime(self, timeStamp, objCIM_Process):
@@ -307,14 +319,18 @@ def CIM_SharedLibrary(CIM_DataFile):
     pass
 
 def GenerateSummaryProcesses(mapFlows):
+    sys.stdout.write("Processes:\n")
     for objPath,objInstance in sorted( mapCacheObjects[CIM_Process.__name__].items() ):
         # sys.stdout.write("Path=%s\n"%objPath)
         objInstance.Summarize(sys.stdout)
+    sys.stdout.write("\n")
 
 def GenerateSummaryFiles(mapFlows):
+    sys.stdout.write("Files:\n")
     for objPath,objInstance in sorted( mapCacheObjects[CIM_DataFile.__name__].items() ):
         # sys.stdout.write("Path=%s\n"%objPath)
         objInstance.Summarize(sys.stdout)
+    sys.stdout.write("\n")
 
 
 # Ajouter des regex sur la ligne de commande pour le filtrage:
@@ -458,7 +474,7 @@ class BatchLetCore:
             # store their prefix and use this to correctly suffix them or not.
 
         else:
-            raise Exception("SetFunction tracer unsupported")
+            raise Exception("SetFunction tracer %s unsupported"%self.m_trace)
 
     # This parsing is specific to strace.
     def InitAfterPid(self,oneLine):
@@ -1061,11 +1077,22 @@ class BatchLet_clone(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_clone,self).__init__(batchCore)
 
-        # This is the created pid.
-        objNewProcess = ToObjectPath_CIM_Process( self.m_core.m_retValue )
+        # The process id is the return value but does not have the same format
+        # with ltrace (hexadecimal) and strace (decimal).
+        if batchCore.m_tracer == "ltrace":
+            aPid = int(self.m_core.m_retValue,16)
+        elif batchCore.m_tracer == "strace":
+            aPid = int(self.m_core.m_retValue)
+        else:
+            raise Exception("Tracer %s not supported yet"%tracer)
+
+        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
+
+        # This is the created process.
+        objNewProcess = ToObjectPath_CIM_Process( aPid )
         self.m_significantArgs = [ objNewProcess ]
 
-        objNewProcess.AddParentProcess(self.m_core.m_objectProcess)
+        objNewProcess.AddParentProcess(self.m_core.m_timeStart,self.m_core.m_objectProcess)
         # self.m_core.m_objectProcess.CreateSubprocess(objNewProcess)
 
     # Process creations are not aggregated, not to lose the new pid.
@@ -1099,8 +1126,35 @@ class BatchLet_wait4(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_wait4,self).__init__(batchCore)
 
+        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
+
+        # sys.stdout.write("WAIT A=%s\n" % self.m_core.m_retValue )
         # This is the terminated pid.
-        self.m_significantArgs = [ ToObjectPath_CIM_Process( self.m_core.m_retValue ) ]
+        if batchCore.m_tracer == "ltrace":
+            if self.m_core.m_retValue.find("-10") >= 0:
+                # ECHILD = 10
+                # wait4@SYS(-1, 0x7ffea10cd110, 1, 0) = -10
+                aPid = None
+            else:
+                # <... wait4 resumed> ) = 0x2df2 
+                aPid = int(self.m_core.m_retValue,16)
+                # sys.stdout.write("WAITzzz=%d\n" % aPid )
+        elif batchCore.m_tracer == "strace":
+            if self.m_core.m_retValue.find("ECHILD") >= 0:
+                # wait4(-1, 0x7fff9a7a6cd0, WNOHANG, NULL) = -1 ECHILD (No child processes) 
+                aPid = None
+            else:
+                # <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 27037 
+                aPid = int(self.m_core.m_retValue.split(" ")[0])
+                # sys.stdout.write("WAITxxx=%d\n" % aPid )
+        else:
+            raise Exception("Tracer %s not supported yet"%tracer)
+
+        if aPid:
+            # sys.stdout.write("WAIT=%d\n" % aPid )
+            waitedProcess = ToObjectPath_CIM_Process( aPid )
+            self.m_significantArgs = [ waitedProcess ]
+            waitedProcess.WaitProcessEnd(self.m_core.m_timeStart)
 
 class BatchLet_exit_group(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -1708,50 +1762,6 @@ def GenerateLinuxStreamFromCommand(aCmd):
 # This applies to strace and ltrace.
 # It isolates single lines describing an individual functon or system call.
 def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
-
-
-    # $ strace -q -qq -f -tt -T -s 20 -y -yy -e trace=desc,ipc,process,network,memory bash TestProgs/sample_shell.sh 2>&1 | egrep "clone|wait4"
-    # 11:11:29.155313 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3cd046e9d0) = 12040 <0.000095>
-    # [pid 12039] 11:11:29.155919 wait4(-1,  <unfinished ...>
-    # 11:11:29.161366 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 12040 <0.005437>
-    # 11:11:29.161589 wait4(-1, 0x7ffcaa389350, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000015>
-    # 11:11:29.162168 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3cd046e9d0) = 12041 <0.000090>
-    # [pid 12039] 11:11:29.162524 clone( <unfinished ...>
-    # [pid 12039] 11:11:29.162647 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3cd046e9d0) = 12042 <0.000109>
-    # [pid 12039] 11:11:29.162935 wait4(-1,  <unfinished ...>
-    # [pid 12039] 11:11:29.325429 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 12042 <0.162484>
-    # [pid 12039] 11:11:29.325627 wait4(-1,  <unfinished ...>
-    # 11:11:29.326231 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 12041 <0.000596>
-    # 11:11:29.326473 wait4(-1, 0x7ffcaa389350, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000010>
-    # 11:11:29.327226 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3cd046e9d0) = 12043 <0.000107>
-    # [pid 12039] 11:11:29.327597 wait4(-1,  <unfinished ...>
-    # 11:11:29.330324 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 12043 <0.002718>
-    # 11:11:29.330505 wait4(-1, 0x7ffcaa389350, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000010>
-    # 
-    # $ ltrace -tt -T -f -S  bash TestProgs/sample_shell.sh 2>&1 | egrep "clone|wait4"
-    # [pid 12099] 11:14:08.174519 clone@SYS(0x1200011, 0, 0, 0x7faef8d449d0) = 0x2f44 <0.000691>
-    # [pid 12099] 11:14:08.187069 wait4@SYS(-1, 0x7fff2d4857f0, 0, 0 <unfinished ...>
-    # [pid 12099] 11:14:08.270248 <... wait4 resumed> ) = 0x2f44 <0.083178>
-    # [pid 12099] 11:14:08.274985 wait4@SYS(-1, 0x7fff2d485350, 1, 0) = -10 <0.000050>
-    # [pid 12099] 11:14:08.354330 clone@SYS(0x1200011, 0, 0, 0x7faef8d449d0) = 0x2f45 <0.000687>
-    # [pid 12099] 11:14:08.365437 clone@SYS(0x1200011, 0, 0, 0x7faef8d449d0 <unfinished ...>
-    # [pid 12099] 11:14:08.366211 <... clone resumed> ) = 0x2f46 <0.000772>
-    # [pid 12099] 11:14:08.374968 wait4@SYS(-1, 0x7fff2d485580, 0, 0 <unfinished ...>
-    # [pid 12101] 11:14:11.286325 strlen("grep -E --color=auto clone|wait4"... <unfinished ...>
-    # [pid 12101] 11:14:11.286852 fwrite(" grep -E --color=auto clone|wait"..., 34, 1, 0x7f8a9d0ba620 <unfinished ...>
-    # [pid 12099] 11:14:11.520094 <... wait4 resumed> ) = 0x2f45 <3.145126>
-    # [pid 12099] 11:14:11.520633 wait4@SYS(-1, 0x7fff2d485580, 0, 0 <unfinished ...>
-    # [pid 12099] 11:14:17.959941 <... wait4 resumed> ) = 0x2f46 <6.439308>
-    # [pid 12099] 11:14:17.964594 wait4@SYS(-1, 0x7fff2d485350, 1, 0) = -10 <0.000049>
-    # [pid 12099] 11:14:18.021332 clone@SYS(0x1200011, 0, 0, 0x7faef8d449d0) = 0x2f49 <0.000666>
-    # [pid 12099] 11:14:18.033574 wait4@SYS(-1, 0x7fff2d4857f0, 0, 0 <unfinished ...>
-    # [pid 12099] 11:14:18.046628 <... wait4 resumed> ) = 0x2f49 <0.013053>
-    # [pid 12099] 11:14:18.050244 wait4@SYS(-1, 0x7fff2d485350, 1, 0) = -10 <0.000049>
-    #
-    # The result of "clone" must be differently converted than with strace.
-    # 0x2f45 = 12101
-    # 
-
 
     # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
     # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
