@@ -17,7 +17,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("Retrobatch: %s <executable>"%progNam)
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
-    print("  -v,--verbose                  Verbose mode.")
+    print("  -v,--verbose                  Verbose mode (Can be repeated).")
     print("  -s,--summary                  Prints a summary at the end: Start end end time stamps, executable name,"
         + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
@@ -1461,8 +1461,6 @@ class BatchFlow:
     # when the merged batches (The resumed calls) comes immediately after.
     def FilterMatchedBatches(self):
         lenBatch = len(self.m_listBatchLets)
-        sys.stdout.write("\n")
-        sys.stdout.write("FilterMatchedBatches lenBatch=%d\n"%(lenBatch) )
 
         mapOccurences = self.StatisticsPairs()
 
@@ -1501,7 +1499,6 @@ class BatchFlow:
 
             idxBatch += 1
             
-        sys.stdout.write("FilterMatchedBatches numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
         return numSubst
 
     
@@ -1531,8 +1528,6 @@ class BatchFlow:
 
     def ClusterizePairs(self):
         lenBatch = len(self.m_listBatchLets)
-        sys.stdout.write("\n")
-        sys.stdout.write("ClusterizePairs lenBatch=%d\n"%(lenBatch) )
 
         mapOccurences = self.StatisticsPairs()
 
@@ -1576,15 +1571,11 @@ class BatchFlow:
                 batchSeqPrev = None
                 idxBatch += 1
             
-        sys.stdout.write("ClusterizePairs numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
         return numSubst
 
     # Successive calls which have the same arguments are clusterized into logical entities.
     def ClusterizeBatchesByArguments(self):
         lenBatch = len(self.m_listBatchLets)
-
-        sys.stdout.write("\n")
-        sys.stdout.write("ClusterizeBatchesByArguments lenBatch=%d\n"%(lenBatch) )
 
         numSubst = 0
         idxLast = 0
@@ -1615,7 +1606,7 @@ class BatchFlow:
 
             idxLast += 1
             idxBatch = idxLast + 1
-        sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+        return numSubst
 
 
 
@@ -2001,28 +1992,45 @@ def FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat,maxDepth):
 
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
-        if verbose: sys.stdout.write("\n================== PID=%d\n"%aPid)
+        if verbose > 0: sys.stdout.write("\n================== PID=%d\n"%aPid)
         FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat,maxDepth)
 
 def FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat,maxDepth):
 
-    if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
+    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
 
-    btchTree.FilterMatchedBatches()
+    if verbose > 0:
+        sys.stdout.write("\n")
+        sys.stdout.write("FilterMatchedBatches lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
+    numSubst = btchTree.FilterMatchedBatches()
+    if verbose > 0:
+        sys.stdout.write("FilterMatchedBatches numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
 
     idxLoops = 0
     while True:
-        if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
+        if verbose > 1:
+            btchTree.DumpFlow(sys.stdout,outputFormat)
+
+        if verbose > 0:
+            sys.stdout.write("\n")
+            sys.stdout.write("ClusterizePairs lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
         numSubst = btchTree.ClusterizePairs()
+        if verbose > 0:
+            sys.stdout.write("ClusterizePairs numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
         if numSubst == 0:
             break
         idxLoops += 1
 
-    if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
+    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
 
-    btchTree.ClusterizeBatchesByArguments()
+    if verbose > 0:
+        sys.stdout.write("\n")
+        sys.stdout.write("ClusterizeBatchesByArguments lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
+    numSubst = btchTree.ClusterizeBatchesByArguments()
+    if verbose > 0:
+        sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
 
-    if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
+    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
 
 ################################################################################
 
@@ -2161,7 +2169,7 @@ if __name__ == '__main__':
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
 
-    verbose = False
+    verbose = 0
     withWarning = False
     withSummary = False
     aPid = None
@@ -2173,7 +2181,7 @@ if __name__ == '__main__':
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
-            verbose = True
+            verbose += 1
         elif anOpt in ("-w", "--warning"):
             withWarning = True
         elif anOpt in ("-s", "--summary"):

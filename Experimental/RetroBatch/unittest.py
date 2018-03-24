@@ -82,7 +82,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("Unit tests: %s <executable>"%progNam)
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
-    print("  -v,--verbose                  Verbose mode.")
+    print("  -v,--verbose                  Verbose mode (Can be repeated).")
     print("  -w,--warning                  Display warnings.")
     print("  -s,--summary                  With summary.")
     print("  -d,--diff                     Differences.")
@@ -100,14 +100,14 @@ if __name__ == '__main__':
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
 
-    verbose = False
+    verbose = 0
     withWarning = False
     withSummary = False
     diffFiles = False
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
-            verbose = True
+            verbose += 1
         elif anOpt in ("-w", "--warning"):
             withWarning = True
         elif anOpt in ("-s", "--summary"):
