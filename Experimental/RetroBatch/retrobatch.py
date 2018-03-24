@@ -1258,10 +1258,11 @@ class BatchLet_shutdown(BatchLetBase,object):
 ################################################################################
 
 class UnfinishedBatches:
-    def __init__(self):
+    def __init__(self,withWarning):
         # This must be specific to processes.
         # Because when a system call is resumed, it is in the same process.
         self.m_mapStacks = {}
+        self.m_withWarning = withWarning
 
     def PushBatch(self,batchCoreUnfinished):
         try:
@@ -1280,7 +1281,8 @@ class UnfinishedBatches:
         try:
             stackPerFunc = self.m_mapStacks[ batchCoreResumed.m_pid][ batchCoreResumed.m_funcNam ]
         except KeyError:
-            sys.stdout.write("MergePopBatch m_funcNam=%s cannot find function\n"%batchCoreResumed.m_funcNam)
+            if self.m_withWarning:
+                sys.stdout.write("MergePopBatch m_funcNam=%s cannot find function\n"%batchCoreResumed.m_funcNam)
             # This is strange, we could not find the unfinished call.
             return None
 
@@ -1288,7 +1290,8 @@ class UnfinishedBatches:
         try:
             batchCoreUnfinished = stackPerFunc[-1]
         except IndexError:
-            sys.stdout.write("MergePopBatch pid=%d m_funcNam=%s cannot find call\n"
+            if self.m_withWarning:
+                sys.stdout.write("MergePopBatch pid=%d m_funcNam=%s cannot find call\n"
                     % (batchCoreResumed.m_pid,batchCoreResumed.m_funcNam) )
             # Same problem, we could not find the unfinished call.
             return None
@@ -1320,8 +1323,11 @@ class UnfinishedBatches:
 
         return batchCoreResumed
 
-# TODO: This should be specific to processes
-stackUnfinishedBatches = UnfinishedBatches()
+# This is used to collect system or function calls which are unfinished and cannot be matched
+# with the corresponding "resumed" line. In some circumstances, the beginning of a "wait4()" call
+# might appear in one process, and the resumed part in another. Therefore this container 
+# uis global for all processes. The "withWarning" flag allows to hide detection of unmatched calls.
+stackUnfinishedBatches = None
 
 def BatchFactory(batchCore):
 
@@ -1989,13 +1995,16 @@ def CreateFlowsFromLinuxSTraceLog(verbose,logStream,maxDepth):
 
 ################################################################################
 
-def FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth):
+def FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat,maxDepth):
+    global stackUnfinishedBatches
+    stackUnfinishedBatches = UnfinishedBatches(withWarning)
+
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
         if verbose: sys.stdout.write("\n================== PID=%d\n"%aPid)
-        FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth)
+        FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat,maxDepth)
 
-def FactorizeOneFlow(btchTree,verbose,outputFormat,maxDepth):
+def FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat,maxDepth):
 
     if verbose: btchTree.DumpFlow(sys.stdout,outputFormat)
 
@@ -2120,13 +2129,13 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
 ################################################################################
 
 # Function called for unit tests
-def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose, withSummary):
+def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose, withSummary, withWarning):
     logStream = CreateEventLog([], None, inputLogFile, tracer )
 
     maxDepth = 5
     mapFlows = CreateMapFlowFromStream( False, logStream, tracer, maxDepth )
 
-    FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth)
+    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat,maxDepth)
 
     outFd = open(outFile, "w")
 
@@ -2153,6 +2162,7 @@ if __name__ == '__main__':
         Usage(2,err) # will print something like "option -a not recognized"
 
     verbose = False
+    withWarning = False
     withSummary = False
     aPid = None
     outputFormat = "TXT" # Default output format of the generated files.
@@ -2164,6 +2174,8 @@ if __name__ == '__main__':
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
             verbose = True
+        elif anOpt in ("-w", "--warning"):
+            withWarning = True
         elif anOpt in ("-s", "--summary"):
             withSummary = True
         elif anOpt in ("-p", "--pid"):
@@ -2189,7 +2201,7 @@ if __name__ == '__main__':
 
     mapFlows = CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth )
 
-    FactorizeMapFlows(mapFlows,verbose,outputFormat,maxDepth)
+    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat,maxDepth)
 
 
     if withSummary:
