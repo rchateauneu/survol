@@ -202,13 +202,20 @@ class CIM_Process:
         self.m_procId = procId
         self.m_executable = ""
         self.m_parentProcess = None
+        self.m_currDir = "."
 
-    def __str__(self):
-        return self.CreateMoniker(self.m_procId)
+    def __repr__(self):
+        return "'%s'" % self.CreateMoniker(self.m_procId)
 
     @staticmethod
     def CreateMoniker(procId):
         return 'CIM_Process.Handle="%s"' % procId
+
+    def Summarize(self,strm):
+        strm.write("Process id:%s\n" % self.m_procId )
+        strm.write("Executable:%s\n" % self.m_executable )
+        if self.m_parentProcess:
+            strm.write("Parent:%s\n" % self.m_parentProcess.m_procId )
 
     def AddParentProcess(self, objCIM_Process):
         m_parentProcess = objCIM_Process
@@ -220,29 +227,31 @@ class CIM_Process:
     def SetStartTime(self):
         pass
 
-    def Summarize(self,strm):
-        strm.write("Process id:%s\n" % self.m_procId )
-        strm.write("Executable:%s\n" % self.m_executable )
-        if self.m_parentProcess:
-            strm.write("Parent:%s\n" % self.m_parentProcess.m_procId )
+    # Some system calls are relative to the current directory.
+    # Therefore, this traces current dir changes due to system calls.
+    def SetProcessCurrentDir(self,currDirObject):
+        self.m_currDir = currDirObject.m_pathName
+
+    def GetProcessCurrentDir(self):
+        return self.m_currDir
 
 
 class CIM_DataFile:
     def __init__(self,pathName):
         self.m_pathName = pathName
 
-    def __str__(self):
-        return self.CreateMoniker(self.m_pathName)
+    def __repr__(self):
+        return "'%s'" % self.CreateMoniker(self.m_pathName)
 
     @staticmethod
     def CreateMoniker(pathName):
         return 'CIM_DataFile.Name="%s"' % pathName
 
-    def SetOpenTime(self, timeStamp, objCIM_Process):
-        pass
-
     def Summarize(self,strm):
         strm.write("Path:%s\n" % self.m_pathName )
+
+    def SetOpenTime(self, timeStamp, objCIM_Process):
+        pass
 
 mapCacheObjects = {}
 
@@ -632,8 +641,9 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
         return self.m_significantArgs
 
     def SignificantArgsAsStr(self):
-        arrStr = [ str(arg) for arg in self.m_significantArgs ]
-        return arrStr
+        # arrStr = [ str(arg) for arg in self.m_significantArgs ]
+        return self.m_significantArgs
+        # return arrStr
 
     # This is used to detect repetitions.
     def GetSignature(self):
@@ -784,6 +794,19 @@ def InvalidReturnedFileDescriptor(fileDes,tracer):
         raise Exception("Tracer %s not supported yet"%tracer)
     return False
 
+################################################################################
+
+# os.path.abspath removes things like . and .. from the path
+# giving a full path from the root of the directory tree to the named file (or symlink)
+def ToAbsPath( dirPath, filNam ):
+    if filNam[0] == "/":
+        fullPath = filNam
+    else:
+        fullPath = dirPath + "/" + filNam
+
+    return os.path.abspath( fullPath )
+
+################################################################################
 
 ##### File descriptor system calls.
 
@@ -832,33 +855,22 @@ class BatchLet_openat(BatchLetBase,object):
 
         super( BatchLet_openat,self).__init__(batchCore)
 
-        # A relative pathname is interpreted relative to the directory
-        # referred to by the file descriptor passed as first parameter.
-        #dirNam = self.m_core.m_parsedArgs[0]
-        #
-        #if dirNam == "AT_FDCWD":
-        #    dirPath = "."
-        #else:
-        #    dirPath = STraceStreamToFile( dirNam )
-        #
-        #filNam = self.m_core.m_parsedArgs[1]
-        #pathName = dirPath +"/" + filNam
-        #self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
-
         # Same logic as for open().
         if batchCore.m_tracer == "strace":
             self.m_significantArgs = [ STraceStreamToFile( self.m_core.m_retValue ) ]
         elif batchCore.m_tracer == "ltrace":
-            # pathName = self.m_core.m_parsedArgs[0]
             dirNam = self.m_core.m_parsedArgs[0]
         
             if dirNam == "AT_FDCWD":
-                dirPath = "."
+                # A relative pathname is interpreted relative to the directory
+                # referred to by the file descriptor passed as first parameter.
+                dirPath = self.m_core.m_objectProcess.GetProcessCurrentDir()
             else:
                 dirPath = STraceStreamToFile( dirNam )
         
             filNam = self.m_core.m_parsedArgs[1]
-            pathName = dirPath +"/" + filNam
+
+            pathName = ToAbsPath( dirPath, filNam )
 
             filDes = self.m_core.m_retValue
 
@@ -984,6 +996,9 @@ class BatchLet_fchdir(BatchLetBase,object):
 
         self.m_significantArgs = self.StreamName()
 
+        # This also stores the new current directory in the process.
+        self.m_core.m_objectProcess.SetProcessCurrentDir(self.m_significantArgs[0])
+
 class BatchLet_fcntl(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_fcntl,self).__init__(batchCore)
@@ -1076,6 +1091,7 @@ class BatchLet_exit_group(BatchLetBase,object):
 
 #####
 
+# int fstatat(int dirfd, const char *pathname, struct stat *statbuf, int flags);
 class BatchLet_newfstatat(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_newfstatat,self).__init__(batchCore)
@@ -1083,12 +1099,14 @@ class BatchLet_newfstatat(BatchLetBase,object):
         dirNam = self.m_core.m_parsedArgs[0]
 
         if dirNam == "AT_FDCWD":
-            dirPath = "."
+            dirPath = self.m_core.m_objectProcess.GetProcessCurrentDir()
         else:
             dirPath = STraceStreamToPathname( dirNam )
 
         filNam = self.m_core.m_parsedArgs[1]
-        pathName = dirPath +"/" + filNam
+
+        pathName = ToAbsPath( dirPath, filNam )
+
         self.m_significantArgs = [ ToObjectPath_CIM_DataFile(pathName) ]
 
 class BatchLet_getdents(BatchLetBase,object):
