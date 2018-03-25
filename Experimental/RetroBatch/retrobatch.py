@@ -334,10 +334,65 @@ def GenerateSummaryProcesses(mapFlows):
     sys.stdout.write("\n")
 
 def GenerateSummaryFiles(mapFlows):
+
     sys.stdout.write("Files:\n")
-    for objPath,objInstance in sorted( G_mapCacheObjects[CIM_DataFile.__name__].items() ):
-        # sys.stdout.write("Path=%s\n"%objPath)
-        objInstance.Summarize(sys.stdout)
+    try:
+        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
+    except KeyError:
+        sys.stdout.write("\n")
+        return
+
+
+    # This is not a map, it is not sorted.
+    # It contains regular expression for classifying file names in categories:
+    # Shared libraries, source files, scripts, Linux pipes etc...
+    lstFilters = [
+        ( "Shared libraries" , True, [
+            "^/usr/lib[^/]*/.*\.so", 
+            "^/usr/lib[^/]*/.*\.so\..*", 
+        ] ),
+        ( "Proc file system" , False, [
+            "^/proc", 
+        ] ),
+        ( "Pipes and terminals" , False, [
+            "^/sys", 
+            "^/dev", 
+            "^pipe:", 
+            "^UNIX:", 
+        ] ),
+        ( "Others" , True, [] ),
+    ]
+
+    mapOfFilesMap = { rgxTuple[0] : {} for rgxTuple in lstFilters }
+
+    # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
+    for objPath,objInstance in mapFiles:
+        # objInstance.Summarize(sys.stdout)
+        foundCategory = False
+        for rgxTuple in lstFilters:
+            for oneRgx in rgxTuple[2]:
+                # If the file matches a regular expression,
+                # then it is sorted in this category.
+                mtchRgx = re.match( oneRgx, objInstance.m_pathName )
+                if mtchRgx:
+                    # Files of some specific categories can be hidden.
+                    if rgxTuple[1]:
+                        mapOfFilesMap[ rgxTuple[0] ][ objPath ] = objInstance
+                    foundCategory = True
+                    break
+            if foundCategory:
+                break
+        if not foundCategory:
+            mapOfFilesMap[ "Others" ][ objPath ] = objInstance
+        
+    for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
+        sys.stdout.write("\n** %s\n"%categoryFiles)
+        for objPath,objInstance in sorted( mapFilesSub.items() ):
+            # sys.stdout.write("Path=%s\n"%objPath)
+            objInstance.Summarize(sys.stdout)
+
+        
+
     sys.stdout.write("\n")
 
 
@@ -1262,7 +1317,11 @@ class BatchLet_select(BatchLetBase,object):
         super( BatchLet_select,self).__init__(batchCore)
 
         def ArrFdNameToArrString(arrStrms):
-            return [ STraceStreamToFile( fdName ) for fdName in arrStrms ]
+            if arrStrms == "NULL":
+                # If the array of file descriptors is empty.
+                return []
+            else:
+                return [ STraceStreamToFile( fdName ) for fdName in arrStrms ]
 
         arrArgs = self.m_core.m_parsedArgs
         arrFilRead = ArrFdNameToArrString(arrArgs[1])
@@ -1757,7 +1816,7 @@ def LogSource(msgSource):
 # This executes a Linux command and returns the stderr pipe.
 # It is used to get the return content of strace or ltrace,
 # so it can be parsed.
-def GenerateLinuxStreamFromCommand(aCmd):
+def GenerateLinuxStreamFromCommand(aCmd, aPid):
 
     # If shell=True, the command must be passed as a single line.
     pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
@@ -1765,7 +1824,11 @@ def GenerateLinuxStreamFromCommand(aCmd):
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stdout=subprocess.PIPE)
 
     # If shell argument is True, this is the process ID of the spawned shell.
-    thePid = pipPOpen.pid
+    if aPid:
+        thePid = int(aPid)
+    else:
+        thePid = int(pipPOpen.pid)
+    sys.stdout.write("thePid=%d\n" % thePid )
 
     return ( thePid, pipPOpen.stderr )
 
@@ -1805,7 +1868,9 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         # We cannot reliably count the double-quotes.
         # FIXME: Problem if several processes.
         while not G_Interrupt:
+            # sys.stdout.write("000:\n")
             tmpLine = logStream.readline()
+            # sys.stdout.write("AAA:%s"%tmpLine)
             numLine += 1
             # sys.stdout.write("tmpLine after read=%s"%tmpLine)
             if not tmpLine:
@@ -1835,8 +1900,10 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             # If the call is split on several lines, maybe because a write() contains a "\n".
             oneLine += tmpLine[:-1]
 
+        # sys.stdout.write("BBB:%s"%oneLine)
         if not oneLine:
             break
+        # sys.stdout.write("CCC:%s"%oneLine)
 
         # This parses the line into the basic parameters of a function call.
         try:
@@ -1947,7 +2014,7 @@ def BuildLTraceCommand(extCommand,aPid):
 
 def LogLTraceFileStream(extCommand,aPid):
     aCmd = BuildLTraceCommand( extCommand, aPid )
-    return GenerateLinuxStreamFromCommand(aCmd)
+    return GenerateLinuxStreamFromCommand(aCmd, aPid)
 
 
 # The output log format of ltrace is very similar to strace's, except that:
@@ -2014,7 +2081,7 @@ def BuildSTraceCommand(extCommand,aPid):
 
 def LogSTraceFileStream(extCommand,aPid):
     aCmd = BuildSTraceCommand( extCommand, aPid )
-    return GenerateLinuxStreamFromCommand(aCmd)
+    return GenerateLinuxStreamFromCommand(aCmd, aPid)
 
 def CreateFlowsFromLinuxSTraceLog(verbose,logStream):
     return CreateFlowsFromGenericLinuxLog(verbose,logStream,"strace")
@@ -2113,7 +2180,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     if inputLogFile:
         logStream = open(inputLogFile)
         LogSource("File "+inputLogFile)
-        sys.stdout.write("Logfile=%s lenBatch=?\n" % inputLogFile)
+        sys.stdout.write("Logfile=%s pid=%d lenBatch=?\n" % (inputLogFile,aPid) )
 
         # The main process pid might be embedded in the log file name.
         G_topProcessId = aPid
@@ -2124,6 +2191,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
             raise Exception("Unknown tracer:%s"%tracer)
 
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
+        sys.stdout.write("G_top_ProcessId=%s\n"%G_topProcessId)
 
 
     # Another possibility is to start a process or a thread which will monitor
@@ -2255,8 +2323,9 @@ if __name__ == '__main__':
                 print("Creation of log file %s" % outFilNam )
 
             def readline(self):
+                # sys.stdout.write("xxx\n" )
                 aLin = self.m_logStrm.readline()
-                print("r=%s" % aLin)
+                # sys.stdout.write("tee=%s" % aLin)
                 self.m_outFd.write(aLin)
                 return aLin
 
