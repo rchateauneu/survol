@@ -18,11 +18,10 @@ def Usage(exitCode = 1, errMsg = None):
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
     print("  -v,--verbose                  Verbose mode (Can be repeated).")
-    print("  -s,--summary                  Prints a summary at the end: Start end end time stamps, executable name,"
-        + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree")
+    print("  -s,--summary                  Prints a summary at the end: Start end end time stamps, executable name,\n"
+        + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree.")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON      Output format. Default is TXT.")
-    print("  -d,--depth <integer>          Maximum length of detected calls sequence. Default is 5.")
     print("  -w,--window <integer>         Size of sliding window of system calls, used for factorization.")
     print("                                Default is 0, i.e. no window")
     print("  -i,--input <file name>        trace command output file.")
@@ -36,7 +35,7 @@ def Usage(exitCode = 1, errMsg = None):
 def LogWindowsFileStream(extCommand,aPid):
     raise Exception("Not implemented yet")
 
-def CreateFlowsFromWindowsLogger(verbose,logStream,maxDepth):
+def CreateFlowsFromWindowsLogger(verbose,logStream):
     raise Exception("Not implemented yet")
 
 ################################################################################
@@ -1512,8 +1511,7 @@ def SignatureForRepetitions(batchRange):
             
 # This is an execution flow, associated to a process. And a thread ?
 class BatchFlow:
-    def __init__(self,maxDepth):
-        self.m_maxDepth = maxDepth
+    def __init__(self):
 
         self.m_listBatchLets = []
 
@@ -1761,7 +1759,7 @@ def GenerateLinuxStreamFromCommand(aCmd):
 
 # This applies to strace and ltrace.
 # It isolates single lines describing an individual functon or system call.
-def CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,tracer):
+def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
 
     # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
     # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
@@ -1970,10 +1968,10 @@ def LogLTraceFileStream(extCommand,aPid):
 
 
 
-def CreateFlowsFromLtraceLog(verbose,logStream,maxDepth):
+def CreateFlowsFromLtraceLog(verbose,logStream):
     # The output format of the command ltrace seems very similar to strace
     # so for the moment, no reason not to use it.
-    return CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,"ltrace")
+    return CreateFlowsFromGenericLinuxLog(verbose,logStream,"ltrace")
 
 ################################################################################
 # The command options generate a specific output file format,
@@ -2010,21 +2008,18 @@ def LogSTraceFileStream(extCommand,aPid):
     aCmd = BuildSTraceCommand( extCommand, aPid )
     return GenerateLinuxStreamFromCommand(aCmd)
 
-def CreateFlowsFromLinuxSTraceLog(verbose,logStream,maxDepth):
-    return CreateFlowsFromGenericLinuxLog(verbose,logStream,maxDepth,"strace")
+def CreateFlowsFromLinuxSTraceLog(verbose,logStream):
+    return CreateFlowsFromGenericLinuxLog(verbose,logStream,"strace")
 
 ################################################################################
 
-def FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat,maxDepth):
-    global stackUnfinishedBatches
-    stackUnfinishedBatches = UnfinishedBatches(withWarning)
-
+def FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat):
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
         if verbose > 0: sys.stdout.write("\n================== PID=%d\n"%aPid)
-        FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat,maxDepth)
+        FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat)
 
-def FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat,maxDepth):
+def FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat):
 
     if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
 
@@ -2123,7 +2118,10 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
     return logStream
 
-def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
+def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
+    global stackUnfinishedBatches
+    stackUnfinishedBatches = UnfinishedBatches(withWarning)
+
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
 
@@ -2139,8 +2137,7 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
     except KeyError:
         raise Exception("Unknown tracer:%s"%tracer)
 
-    # mapFlows = funcCreator(verbose,logStream,maxDepth)
-    mapFlowsGenerator = funcCreator(verbose,logStream,maxDepth)
+    mapFlowsGenerator = funcCreator(verbose,logStream)
 
     for oneBatch in mapFlowsGenerator:
         aCore = oneBatch.m_core
@@ -2154,25 +2151,23 @@ def CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth ):
             btchFlow = mapFlows[ aPid ]
         except KeyError:
             # This is the first system call of this process.
-            btchFlow = BatchFlow(maxDepth)
+            btchFlow = BatchFlow()
             mapFlows[ aPid ] = btchFlow
 
         btchFlow.AddBatch( oneBatch )
 
-    # TODO: maxDepth should not be passed as a parameter.
-    # It is only there because stats are created.
     return mapFlows
 
 ################################################################################
 
 # Function called for unit tests
 def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose, withSummary, withWarning):
+
     logStream = CreateEventLog([], None, inputLogFile, tracer )
 
-    maxDepth = 5
-    mapFlows = CreateMapFlowFromStream( False, logStream, tracer, maxDepth )
+    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
 
-    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat,maxDepth)
+    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat)
 
     outFd = open(outFile, "w")
 
@@ -2192,8 +2187,8 @@ def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose, withSummary, wit
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvsp:f:d:w:r:i:t:",
-                ["help","verbose","summary","pid","format","depth","window","repetition","input","tracer"])
+                "hvsp:f:w:r:i:t:",
+                ["help","verbose","summary","pid","format","window","repetition","input","tracer"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
@@ -2203,7 +2198,6 @@ if __name__ == '__main__':
     withSummary = False
     aPid = None
     outputFormat = "TXT" # Default output format of the generated files.
-    maxDepth = 5
     szWindow = 0
     inputLogFile = None
     tracer = None
@@ -2219,8 +2213,6 @@ if __name__ == '__main__':
             aPid = aVal
         elif anOpt in ("-f", "--format"):
             outputFormat = aVal.upper()
-        elif anOpt in ("-d", "--depth"):
-            maxDepth = int(aVal)
         elif anOpt in ("-w", "--window"):
             szWindow = int(aVal)
             raise Exception("Sliding window not implemented yet")
@@ -2236,9 +2228,9 @@ if __name__ == '__main__':
     tracer = DefaultTracer( inputLogFile, tracer )
     logStream = CreateEventLog(argsCmd, aPid, inputLogFile, tracer )
 
-    mapFlows = CreateMapFlowFromStream( verbose, logStream, tracer, maxDepth )
+    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
 
-    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat,maxDepth)
+    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat)
 
 
     if withSummary:

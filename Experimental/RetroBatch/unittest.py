@@ -56,7 +56,7 @@ def DoTheTests(verbose,diffFiles,withSummary,withWarning):
                         mapFiles[keyName].append( inPath )
                     except KeyError:
                         mapFiles[keyName] = [ inPath ]
-    
+
     for baseName in mapFiles:
         print("")
         inputLogFile = baseName + ".log"
