@@ -2143,12 +2143,17 @@ G_traceToTracer = {
 def DefaultTracer(inputLogFile,tracer=None):
     if not tracer:
         if inputLogFile:
-            # The file format might be "xyzxyz.strace.log", "abcabc.ltrace.log", "123123.cdb.log"
-            # depending on the tool which generated the log.
-            matchTrace = re.match(".*\.([^\.]*)\.log", inputLogFile )
-            if not matchTrace:
-                raise Exception("Cannot read tracer from log file name:%s"%inputLogFile)
-            tracer = matchTrace.group(1)
+            # Maybe the pid is embedde in the log file.
+            matchTrace = re.match(".*\.([^\.]*)\.[0-9]+\.log", inputLogFile )
+            if matchTrace:
+                tracer = matchTrace.group(1)
+            else:
+                # The file format might be "xyzxyz.strace.log", "abcabc.ltrace.log", "123123.cdb.log"
+                # depending on the tool which generated the log.
+                matchTrace = re.match(".*\.([^\.]*)\.log", inputLogFile )
+                if not matchTrace:
+                    raise Exception("Cannot read tracer from log file name:%s"%inputLogFile)
+                tracer = matchTrace.group(1)
         else:
             if sys.platform.startswith("win32"):
                 tracer = "cdb"
@@ -2180,7 +2185,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     if inputLogFile:
         logStream = open(inputLogFile)
         LogSource("File "+inputLogFile)
-        sys.stdout.write("Logfile=%s pid=%d lenBatch=?\n" % (inputLogFile,aPid) )
+        sys.stdout.write("Logfile=%s pid=%s lenBatch=?\n" % (inputLogFile,aPid) )
 
         # The main process pid might be embedded in the log file name.
         G_topProcessId = aPid
