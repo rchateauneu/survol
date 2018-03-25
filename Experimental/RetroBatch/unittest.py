@@ -60,6 +60,16 @@ def DoTheTests(verbose,diffFiles,withSummary,withWarning):
     for baseName in mapFiles:
         print("")
         inputLogFile = baseName + ".log"
+
+        # The main process pid might be embedded in the log file name,
+        # just before the extension. If it cannot be foujnd, it is assumed
+        # to be -1..
+        mtchLog = re.match(".*\.([0-9]*)$", baseName)
+        if mtchLog:
+            aPid = int( mtchLog.group(1) )
+        else:
+            aPid = -1
+
         print("Input=%s"%inputLogFile)
     
         tracer = retrobatch.DefaultTracer(inputLogFile)
@@ -68,9 +78,10 @@ def DoTheTests(verbose,diffFiles,withSummary,withWarning):
             print("Destination=%s"%outFilNam)
     
             baseOutName, filOutExt = os.path.splitext(outFilNam)
-    
+
+            # "txt", "json" etc...
             outputFormat = filOutExt[1:].upper()
-            retrobatch.UnitTest(inputLogFile,tracer,outFilNam,outputFormat,verbose,withSummary,withWarning)
+            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,withSummary,withWarning)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
