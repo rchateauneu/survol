@@ -8,6 +8,7 @@ import os
 import socket
 import subprocess
 import time
+import signal
 
 def Usage(exitCode = 1, errMsg = None):
     if errMsg:
@@ -24,11 +25,19 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -f,--format TXT|CSV|JSON      Output format. Default is TXT.")
     print("  -w,--window <integer>         Size of sliding window of system calls, used for factorization.")
     print("                                Default is 0, i.e. no window")
-    print("  -i,--input <file name>        trace command output file.")
+    print("  -i,--input <file name>        trace command input file.")
+    print("  -l,--log <filename prefix>    trace command log output file.")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("")
 
     sys.exit(exitCode)
+
+################################################################################
+# This is set by a signal handler when a control-C is typed.
+# It then triggers a clean exit, and ceration of output results.
+# This allows to monitor a running process, just for a given time
+# without stopping it.
+G_Interrupt = False
 
 ################################################################################
 
@@ -288,15 +297,15 @@ class CIM_DataFile:
         if not self.m_closeTime or ( timeStamp < self.m_closeTime ):
             self.m_closeTime = timeStamp
 
-mapCacheObjects = {}
+G_mapCacheObjects = {}
 
 
 def CreateObjectPath(classModel, *ctorArgs):
     try:
-        mapObjs = mapCacheObjects[classModel.__name__]
+        mapObjs = G_mapCacheObjects[classModel.__name__]
     except KeyError:
         mapObjs = {}
-        mapCacheObjects[classModel.__name__] = mapObjs
+        G_mapCacheObjects[classModel.__name__] = mapObjs
 
     objPath = classModel.CreateMoniker(*ctorArgs)
     try:
@@ -319,14 +328,14 @@ def CIM_SharedLibrary(CIM_DataFile):
 
 def GenerateSummaryProcesses(mapFlows):
     sys.stdout.write("Processes:\n")
-    for objPath,objInstance in sorted( mapCacheObjects[CIM_Process.__name__].items() ):
+    for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
         # sys.stdout.write("Path=%s\n"%objPath)
         objInstance.Summarize(sys.stdout)
     sys.stdout.write("\n")
 
 def GenerateSummaryFiles(mapFlows):
     sys.stdout.write("Files:\n")
-    for objPath,objInstance in sorted( mapCacheObjects[CIM_DataFile.__name__].items() ):
+    for objPath,objInstance in sorted( G_mapCacheObjects[CIM_DataFile.__name__].items() ):
         # sys.stdout.write("Path=%s\n"%objPath)
         objInstance.Summarize(sys.stdout)
     sys.stdout.write("\n")
@@ -349,7 +358,7 @@ def GenerateSummary(mapFlows):
 
 # This associates file descriptors to path names when strace and the option "-y"
 # cannot be used. There are predefined values.
-mapFilDesToPathName = {
+G_mapFilDesToPathName = {
     "0" : "stdin",
     "1" : "stdout",
     "2" : "stderr"}
@@ -366,7 +375,7 @@ def STraceStreamToPathname(strmStr):
         # If the option "-y" is not available, with ltrace or truss.
         # Theoretically the path name should be in the map.
         try:
-            pathName = mapFilDesToPathName[ strmStr ]
+            pathName = G_mapFilDesToPathName[ strmStr ]
         except KeyError:
             if strmStr == "-1": # Normal return value.
                 pathName = strmStr
@@ -447,7 +456,7 @@ class BatchLetCore:
             self.InitAfterPid(oneLine[ idxAfterPid + 2 : ] )
         else:
             # This is the main process, but at this stage we do not have its pid.
-            self.m_pid = -1
+            self.m_pid = G_topProcessId
             self.InitAfterPid(oneLine)
         self.m_objectProcess = ToObjectPath_CIM_Process(self.m_pid)
 
@@ -597,7 +606,7 @@ def CreateBatchCore(oneLine,tracer):
 
 ################################################################################
 
-ignoredSyscalls = [
+G_ignoredSyscalls = [
     "mprotect",
     "brk",
     "lseek",
@@ -630,9 +639,9 @@ ignoredSyscalls = [
 # Derived classes of BatchLetBase self-register thanks to the metaclass.
 # At init time, this map contains the systems calls which should be ignored.
 
-batchModels = { sysCll + "@SYS" : None for sysCll in ignoredSyscalls }
+G_batchModels = { sysCll + "@SYS" : None for sysCll in G_ignoredSyscalls }
 
-# sys.stdout.write("batchModels=%s\n"%str(batchModels) )
+# sys.stdout.write("G_batchModels=%s\n"%str(G_batchModels) )
 
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
 # So, the name of a system call is used to lookup the class which represents it.
@@ -641,12 +650,12 @@ class BatchMeta(type):
     #    return super(BatchMeta, meta).__new__(meta, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
-        global batchModels
+        global G_batchModels
 
         if name.startswith("BatchLet_"):
             syscallName = name[9:] + "@SYS"
             
-            batchModels[ syscallName ] = cls
+            G_batchModels[ syscallName ] = cls
         super(BatchMeta, cls).__init__(name, bases, dct)
 
 # This is portable on Python 2 and Python 3.
@@ -846,7 +855,7 @@ def ToAbsPath( dirPath, filNam ):
 # Must be a new-style class.
 class BatchLet_open(BatchLetBase,object):
     def __init__(self,batchCore):
-        global mapFilDesToPathName
+        global G_mapFilDesToPathName
 
         # TODO: If the open is not successful, maybe it should be rejected.
         if InvalidReturnedFileDescriptor(batchCore.m_retValue,batchCore.m_tracer):
@@ -874,7 +883,7 @@ class BatchLet_open(BatchLetBase,object):
             filDes = self.m_core.m_retValue
 
             # TODO: Should be cleaned up when closing ?
-            mapFilDesToPathName[ filDes ] = pathName
+            G_mapFilDesToPathName[ filDes ] = pathName
             self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
@@ -884,7 +893,7 @@ class BatchLet_open(BatchLetBase,object):
 # openat(AT_FDCWD, "../list_machines_in_domain.py", O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
 class BatchLet_openat(BatchLetBase,object):
     def __init__(self,batchCore):
-        global mapFilDesToPathName
+        global G_mapFilDesToPathName
 
         super( BatchLet_openat,self).__init__(batchCore)
 
@@ -908,7 +917,7 @@ class BatchLet_openat(BatchLetBase,object):
             filDes = self.m_core.m_retValue
 
             # TODO: Should be cleaned up when closing ?
-            mapFilDesToPathName[ filDes ] = pathName
+            G_mapFilDesToPathName[ filDes ] = pathName
             self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
@@ -1399,13 +1408,13 @@ class UnfinishedBatches:
 # with the corresponding "resumed" line. In some circumstances, the beginning of a "wait4()" call
 # might appear in one process, and the resumed part in another. Therefore this container 
 # uis global for all processes. The "withWarning" flag allows to hide detection of unmatched calls.
-stackUnfinishedBatches = None
+G_stackUnfinishedBatches = None
 
 def BatchFactory(batchCore):
 
     try:
         # TODO: We will have to take the library into account.
-        aModel = batchModels[ batchCore.m_funcNam ]
+        aModel = G_batchModels[ batchCore.m_funcNam ]
     except KeyError:
         # Default generic BatchLet
         return BatchLetBase( batchCore )
@@ -1428,11 +1437,11 @@ def BatchFactory(batchCore):
         btchLetDrv = BatchLetBase( batchCore )
 
         # To match later with the "resumed" line.
-        stackUnfinishedBatches.PushBatch( batchCore )
+        G_stackUnfinishedBatches.PushBatch( batchCore )
     elif batchCore.m_status == BatchStatus.resumed:
         # We should have the "unfinished" part somewhere.
 
-        batchCoreMerged = stackUnfinishedBatches.MergePopBatch( batchCore )
+        batchCoreMerged = G_stackUnfinishedBatches.MergePopBatch( batchCore )
         
         if batchCoreMerged:
             if batchCoreMerged != batchCore:
@@ -1755,7 +1764,10 @@ def GenerateLinuxStreamFromCommand(aCmd):
         stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stdout=subprocess.PIPE)
 
-    return pipPOpen.stderr
+    # If shell argument is True, this is the process ID of the spawned shell.
+    thePid = pipPOpen.pid
+
+    return ( thePid, pipPOpen.stderr )
 
 # This applies to strace and ltrace.
 # It isolates single lines describing an individual functon or system call.
@@ -1792,7 +1804,7 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         # this is not filtered and this string is split on multiple lines.
         # We cannot reliably count the double-quotes.
         # FIXME: Problem if several processes.
-        while True:
+        while not G_Interrupt:
             tmpLine = logStream.readline()
             numLine += 1
             # sys.stdout.write("tmpLine after read=%s"%tmpLine)
@@ -1805,7 +1817,7 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
                 oneLine += tmpLine
                 break
 
-            # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18194, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---"
+            # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_status=0, si_utime=0, si_stime=0} ---"
             # Not reliable because this could be a plain string ending like this.
             if tmpLine.endswith(" ---\n"):
                 oneLine += tmpLine
@@ -1850,7 +1862,7 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
 # because they do not bring information we want (And there are loads of them
 # These libc calls can be detected by ltrace but must be filtered
 # because they do not bring information we want (And there are loads of them))
-ignoredCallLTrace = [
+G_ignoredCallLTrace = [
     "strncmp",
     "strlen",
     "malloc",
@@ -1891,8 +1903,8 @@ ignoredCallLTrace = [
 # The command options generate a specific output file format,
 # and therefore parsing it is specific to these options.
 def BuildLTraceCommand(extCommand,aPid):
-    # We do not want hese libc calls.
-    # strIgnoreLibc = "".join( "-" + libcCall for libcCall in ignoredCallLTrace )
+    # We do not want these libc calls.
+    # strIgnoreLibc = "".join( "-" + libcCall for libcCall in G_ignoredCallLTrace )
 
     # strMandatoryLibc = "".join( "-" + libcCall for libcCall in mandatoryCallLTrace )
 
@@ -1900,10 +1912,6 @@ def BuildLTraceCommand(extCommand,aPid):
 
     # Remove everything, then add system calls and some libc functions whatever the shared lib
     strMandatoryLibc = "-*+getenv+*@SYS"
-
-    # These are the Linux systenm calls we are not interested by,
-    # because they do not carry information about external resources.
-    #   strIgnoreSysCall = "".join( "-%s@SYS" % sysCall for sysCall in ignoredSyscalls 
 
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     # This needs long strings because path names are truncated just like
@@ -2058,7 +2066,7 @@ def FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat):
 
 ################################################################################
 
-traceToTracer = {
+G_traceToTracer = {
     "cdb"    : ( LogWindowsFileStream, CreateFlowsFromWindowsLogger ),
     "strace" : ( LogSTraceFileStream , CreateFlowsFromLinuxSTraceLog ),
     "ltrace" : ( LogLTraceFileStream, CreateFlowsFromLtraceLog )
@@ -2085,17 +2093,19 @@ def DefaultTracer(inputLogFile,tracer=None):
     LogSource("Tracer "+tracer)
     return tracer
 
+G_topProcessId = None
 
 def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
+    global G_topProcessId
     # A command or a pid or an input log file, only one possibility.
     if argsCmd != []:
         if aPid or inputLogFile:
             Usage(1,"When providing command, must not specify process id or input log file")
     elif aPid:
-        if argsCmd != [] or inputLogFile:
+        if argsCmd != []:
             Usage(1,"When providing process id, must not specify command or input log file")
     elif inputLogFile:
-        if argsCmd != [] or aPid:
+        if argsCmd != []:
             Usage(1,"When providing input file, must not specify command or process id")
     else:
         Usage(1,"Must provide command, pid or input file")
@@ -2104,13 +2114,16 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         logStream = open(inputLogFile)
         LogSource("File "+inputLogFile)
         sys.stdout.write("Logfile=%s lenBatch=?\n" % inputLogFile)
+
+        # The main process pid might be embedded in the log file name.
+        G_topProcessId = aPid
     else:
         try:
-            funcTrace = traceToTracer[ tracer ][0]
+            funcTrace = G_traceToTracer[ tracer ][0]
         except KeyError:
             raise Exception("Unknown tracer:%s"%tracer)
 
-        logStream = funcTrace(argsCmd,aPid)
+        ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
 
 
     # Another possibility is to start a process or a thread which will monitor
@@ -2119,8 +2132,8 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     return logStream
 
 def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
-    global stackUnfinishedBatches
-    stackUnfinishedBatches = UnfinishedBatches(withWarning)
+    global G_stackUnfinishedBatches
+    G_stackUnfinishedBatches = UnfinishedBatches(withWarning)
 
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
@@ -2133,7 +2146,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
     # This step transforms the input log into a map of BatchFlow,
     # which have the same format whatever the platform is.
     try:
-        funcCreator = traceToTracer[ tracer ][1]
+        funcCreator = G_traceToTracer[ tracer ][1]
     except KeyError:
         raise Exception("Unknown tracer:%s"%tracer)
 
@@ -2161,9 +2174,9 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
 ################################################################################
 
 # Function called for unit tests
-def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose, withSummary, withWarning):
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, withWarning):
 
-    logStream = CreateEventLog([], None, inputLogFile, tracer )
+    logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
 
@@ -2187,8 +2200,8 @@ def UnitTest(inputLogFile,tracer,outFile,outputFormat, verbose, withSummary, wit
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvsp:f:w:r:i:t:",
-                ["help","verbose","summary","pid","format","window","repetition","input","tracer"])
+                "hvsp:f:w:r:i:l:t:",
+                ["help","verbose","summary","pid","format","window","repetition","input","log","tracer"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
@@ -2200,6 +2213,7 @@ if __name__ == '__main__':
     outputFormat = "TXT" # Default output format of the generated files.
     szWindow = 0
     inputLogFile = None
+    outputLogFile = None
     tracer = None
 
     for anOpt, aVal in optsCmd:
@@ -2218,6 +2232,8 @@ if __name__ == '__main__':
             raise Exception("Sliding window not implemented yet")
         elif anOpt in ("-i", "--input"):
             inputLogFile = aVal
+        elif anOpt in ("-l", "--log"):
+            outputLogFile = aVal
         elif anOpt in ("-t", "--tracer"):
             tracer = aVal
         elif anOpt in ("-h", "--help"):
@@ -2225,35 +2241,60 @@ if __name__ == '__main__':
         else:
             assert False, "Unhandled option"
 
+
     tracer = DefaultTracer( inputLogFile, tracer )
     logStream = CreateEventLog(argsCmd, aPid, inputLogFile, tracer )
+
+    if outputLogFile:
+        # tee: This jusy need to reimplement "readline()"
+        class TeeStream:
+            def __init__(self,logStrm):
+                self.m_logStrm = logStrm
+                outFilNam = "%s.%s.%s.log" % ( outputLogFile, tracer, G_topProcessId )
+                self.m_outFd = open( outFilNam, "w" )
+                print("Creation of log file %s" % outFilNam )
+
+            def readline(self):
+                aLin = self.m_logStrm.readline()
+                print("r=%s" % aLin)
+                self.m_outFd.write(aLin)
+                return aLin
+
+        logStream = TeeStream(logStream)
+
+
+    def signal_handler(signal, frame):
+        print('You pressed Ctrl+C!')
+        global G_Interrupt
+        G_Interrupt = True
+
+    signal.signal(signal.SIGINT, signal_handler)
+    print('Press Ctrl+C')
+    # signal.pause()
 
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
 
     FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat)
 
-
     if withSummary:
         GenerateSummary(mapFlows)
 
 
-    # Options:
-    # -p pid
-    # -u user
-    # -g group
+################################################################################
+# Options:
+# -p pid
+# -u user
+# -g group
 
-    # https://www.eventtracker.com/newsletters/how-to-use-process-tracking-events-in-the-windows-security-log/
-    # https://stackoverflow.com/questions/26852228/detect-new-process-creation-instantly-in-linux
-    # https://stackoverflow.com/questions/6075013/detect-launching-of-programs-on-linux-platform
+# https://www.eventtracker.com/newsletters/how-to-use-process-tracking-events-in-the-windows-security-log/
+# https://stackoverflow.com/questions/26852228/detect-new-process-creation-instantly-in-linux
+# https://stackoverflow.com/questions/6075013/detect-launching-of-programs-on-linux-platform
 
-    # An adapter to Linux kernel support for inotify directory-watching.
-    # https://pypi.python.org/pypi/inotify
-    # As an aside, Inotify doesn't work. It will not work on /proc/ to detect new processes:
+# An adapter to Linux kernel support for inotify directory-watching.
+# https://pypi.python.org/pypi/inotify
+# As an aside, Inotify doesn't work. It will not work on /proc/ to detect new processes:
 
-    # linux process monitoring (exec, fork, exit, set*uid, set*gid)
-    # http://bewareofgeek.livejournal.com/2945.html
+# linux process monitoring (exec, fork, exit, set*uid, set*gid)
+# http://bewareofgeek.livejournal.com/2945.html
 
-    # Une premiere passe sur le log decoupleen traces independantes,
-    # selon pid ou tid ou bien selon le time-stamp, s'il y a un delai importnant..
-    # Ca genere des maps de BatchFlows. L index peut etre pid, tid, ou un time rgane.
-    # Ensuite on injecte des batchflows, independamment, vers des passes de simplification.
+################################################################################
