@@ -268,6 +268,7 @@ class CIM_DataFile:
         self.m_openTime = None
         self.m_closeTime = None
         self.m_numOpens = 0
+        self.m_isExecuted = False
 
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.m_pathName)
@@ -277,6 +278,8 @@ class CIM_DataFile:
         return 'CIM_DataFile.Name="%s"' % pathName
 
     def Summarize(self,strm):
+        if self.m_isExecuted:
+            return
         strm.write("Path:%s\n" % self.m_pathName )
         if self.m_openTime:
             strOpen = TimeStampToStr( self.m_openTime )
@@ -296,6 +299,9 @@ class CIM_DataFile:
     def SetCloseTime(self, timeStamp, objCIM_Process):
         if not self.m_closeTime or ( timeStamp < self.m_closeTime ):
             self.m_closeTime = timeStamp
+
+    def SetIsExecuted(self) :
+        self.m_isExecuted = True
 
 G_mapCacheObjects = {}
 
@@ -1174,10 +1180,12 @@ class BatchLet_execve(BatchLetBase,object):
 
         # The first argument is the executable file name,
         # while the second is an array of command-line parameters.
+        objNewDataFile = ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0] )
         self.m_significantArgs = [
-            ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0] ),
+            objNewDataFile,
             self.m_core.m_parsedArgs[1] ]
-        self.m_core.m_objectProcess.SetExecutable(ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0]) )
+        self.m_core.m_objectProcess.SetExecutable( objNewDataFile )
+        objNewDataFile.SetIsExecuted()
 
         # TODO: Specifically filter the creation of a new process.
 
@@ -1828,7 +1836,6 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
         thePid = int(aPid)
     else:
         thePid = int(pipPOpen.pid)
-    sys.stdout.write("thePid=%d\n" % thePid )
 
     return ( thePid, pipPOpen.stderr )
 
@@ -2196,7 +2203,6 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
             raise Exception("Unknown tracer:%s"%tracer)
 
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
-        sys.stdout.write("G_top_ProcessId=%s\n"%G_topProcessId)
 
 
     # Another possibility is to start a process or a thread which will monitor
@@ -2342,9 +2348,10 @@ if __name__ == '__main__':
         global G_Interrupt
         G_Interrupt = True
 
-    signal.signal(signal.SIGINT, signal_handler)
-    print('Press Ctrl+C')
-    # signal.pause()
+    # When waiting for a process, interrupt with control-C.
+    if aPid:
+        signal.signal(signal.SIGINT, signal_handler)
+        print('Press Ctrl+C to exit cleanly')
 
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
 
