@@ -1168,6 +1168,32 @@ class BatchLet_clone(BatchLetBase,object):
     def SameCall(self,anotherBatch):
         return False
 
+class BatchLet_vfork(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_vfork,self).__init__(batchCore)
+
+        # The process id is the return value but does not have the same format
+        # with ltrace (hexadecimal) and strace (decimal).
+        if batchCore.m_tracer == "ltrace":
+            aPid = int(self.m_core.m_retValue,16)
+        elif batchCore.m_tracer == "strace":
+            aPid = int(self.m_core.m_retValue)
+        else:
+            raise Exception("Tracer %s not supported yet"%tracer)
+
+        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
+
+        # This is the created process.
+        objNewProcess = ToObjectPath_CIM_Process( aPid )
+        self.m_significantArgs = [ objNewProcess ]
+
+        objNewProcess.AddParentProcess(self.m_core.m_timeStart,self.m_core.m_objectProcess)
+        # self.m_core.m_objectProcess.CreateSubprocess(objNewProcess)
+
+    # Process creations are not aggregated, not to lose the new pid.
+    def SameCall(self,anotherBatch):
+        return False
+
 # execve("/usr/bin/grep", ["grep", "toto", "../TestMySql.py"], [/* 34 vars */]) = 0 <0.000175>
 class BatchLet_execve(BatchLetBase,object):
     def __init__(self,batchCore):
