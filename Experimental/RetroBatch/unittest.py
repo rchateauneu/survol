@@ -93,9 +93,9 @@ def Usage(exitCode = 1, errMsg = None):
     print("Unit tests: %s <executable>"%progNam)
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
-    print("  -v,--verbose                  Verbose mode (Can be repeated).")
-    print("  -w,--warning                  Display warnings.")
-    print("  -s,--summary                  With summary.")
+    print("  -v,--verbose                  Verbose mode (Cumulative).")
+    print("  -w,--warning                  Display warnings (Cumulative).")
+    print("  -s,--summary <CIM class>      With summary.")
     print("  -d,--diff                     Differences.")
     print("")
 
@@ -105,24 +105,24 @@ def Usage(exitCode = 1, errMsg = None):
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvwsd",
+                "hvws:d",
                 ["help","verbose","warning","summary","differences"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
 
     verbose = 0
-    withWarning = False
-    withSummary = False
+    withWarning = 0
+    withSummary = []
     diffFiles = False
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
             verbose += 1
         elif anOpt in ("-w", "--warning"):
-            withWarning = True
+            withWarning += 1
         elif anOpt in ("-s", "--summary"):
-            withSummary = True
+            withSummary = withSummary + [ aVal ] if aVal else []
         elif anOpt in ("-d", "--diff"):
             diffFiles = aVal
         elif anOpt in ("-h", "--help"):
