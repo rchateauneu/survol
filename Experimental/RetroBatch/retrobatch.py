@@ -417,11 +417,14 @@ def DisplaySummaryFiles(mapFlows,cimKeyValuePairs):
     for objPath,objInstance in mapFiles:
         mapOfFilesMap[ objInstance.m_category ][ objPath ] = objInstance
 
-    filterCats = cimKeyValuePairs["Category"]
+    try:
+        filterCats = cimKeyValuePairs["Category"]
+    except KeyError:
+        filterCats = None
 
     for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
         sys.stdout.write("\n** %s\n"%categoryFiles)
-        if not categoryFiles in filterCats: continue
+        if filterCats and ( not categoryFiles in filterCats ): continue
         for objPath,objInstance in sorted( mapFilesSub.items() ):
             # sys.stdout.write("Path=%s\n"%objPath)
             objInstance.Summarize(sys.stdout)
@@ -2422,7 +2425,8 @@ if __name__ == '__main__':
 
     verbose = 0
     withWarning = 0
-    withSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
+    # withSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
+    withSummary = ["CIM_Process","CIM_DataFile"]
     aPid = -1
     outputFormat = "TXT" # Default output format of the generated files.
     szWindow = 0
