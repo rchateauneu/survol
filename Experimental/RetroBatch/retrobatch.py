@@ -18,13 +18,12 @@ def Usage(exitCode = 1, errMsg = None):
     print("Retrobatch: %s <executable>"%progNam)
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
-    print("  -v,--verbose                  Verbose mode (Can be repeated).")
-    print("  -s,--summary                  Prints a summary at the end: Start end end time stamps, executable name,\n"
+    print("  -v,--verbose                  Verbose mode (Cumulative).")
+    print("  -w,--warning                  Display warnings (Cumulative).")
+    print("  -s,--summary <CIM class>      Prints a summary at the end: Start end end time stamps, executable name,\n"
         + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree.")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON      Output format. Default is TXT.")
-    print("  -w,--window <integer>         Size of sliding window of system calls, used for factorization.")
-    print("                                Default is 0, i.e. no window")
     print("  -i,--input <file name>        trace command input file.")
     print("  -l,--log <filename prefix>    trace command log output file.")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
@@ -246,8 +245,18 @@ class CIM_Process:
         self.m_parentProcess = objCIM_Process
         self.m_procStartTime = timeStamp
 
-    def WaitProcessEnd(self, timeStamp ):
+    def WaitProcessEnd(self, timeStamp, objCIM_Process):
+        # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.m_procId,objCIM_Process.m_procId))
         self.m_procEndTime = timeStamp
+        if not self.m_parentProcess:
+            self.m_parentProcess = objCIM_Process
+            # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.m_procId,objCIM_Process.m_procId))
+        elif self.m_parentProcess != objCIM_Process:
+            # sys.stdout.write("WaitProcessEnd: %s not %s\n" % (self.m_parentProcess.m_procId,objCIM_Process.m_procId))
+            pass
+        else:
+            # sys.stdout.write("WaitProcessEnd: %s already linked to %s\n" % (self.m_parentProcess.m_procId,objCIM_Process.m_procId))
+            pass
 
     def SetExecutable(self,objCIM_DataFile) :
         self.m_executable = objCIM_DataFile.m_pathName
@@ -303,8 +312,9 @@ class CIM_DataFile:
     def SetIsExecuted(self) :
         self.m_isExecuted = True
 
-G_mapCacheObjects = {}
-
+# This contains the CIM objects: CIM_Process, CIM_DataFile and
+# is used to generate the summary.
+G_mapCacheObjects = None
 
 def CreateObjectPath(classModel, *ctorArgs):
     try:
@@ -410,9 +420,9 @@ def GenerateSummaryFiles(mapFlows):
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
-def GenerateSummary(mapFlows):
-    GenerateSummaryProcesses(mapFlows)
-    GenerateSummaryFiles(mapFlows)
+def GenerateSummary(mapFlows,withSummary):
+    if "CIM_Process" in withSummary: GenerateSummaryProcesses(mapFlows)
+    if "CIM_DataFile" in withSummary: GenerateSummaryFiles(mapFlows)
 
 
 ################################################################################
@@ -653,6 +663,11 @@ class BatchLetCore:
             self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
             # sys.stdout.write("retValue=%s\n"%self.m_retValue)
 
+    def AsStr(self):
+        return "%s %s s=%s" % (
+            str(self.m_parsedArgs),
+            self.m_retValue,
+            BatchStatus.chrDisplayCodes[ self.m_status ] )
 
 def CreateBatchCore(oneLine,tracer):
 
@@ -1181,7 +1196,7 @@ class BatchLet_vfork(BatchLetBase,object):
         else:
             raise Exception("Tracer %s not supported yet"%tracer)
 
-        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
+        # sys.stdout.write("VFORK %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
 
         # This is the created process.
         objNewProcess = ToObjectPath_CIM_Process( aPid )
@@ -1251,7 +1266,7 @@ class BatchLet_wait4(BatchLetBase,object):
             # sys.stdout.write("WAIT=%d\n" % aPid )
             waitedProcess = ToObjectPath_CIM_Process( aPid )
             self.m_significantArgs = [ waitedProcess ]
-            waitedProcess.WaitProcessEnd(self.m_core.m_timeStart)
+            waitedProcess.WaitProcessEnd(self.m_core.m_timeStart, self.m_core.m_objectProcess)
 
 class BatchLet_exit_group(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -1438,7 +1453,16 @@ class UnfinishedBatches:
         self.m_mapStacks = {}
         self.m_withWarning = withWarning
 
+
+    # PROBLEM. A vfork() is started in the main process but "appears" in another one.
+    # What we could do is infer the main process number when a pid appreas without having been created before.
+    # 08:53:31.301860 vfork( <unfinished ...>
+    # [pid 23944] 08:53:31.304901 <... vfork resumed> ) = 23945 <0.003032>
+
+
+
     def PushBatch(self,batchCoreUnfinished):
+        # sys.stdout.write("PushBatch pid=%s m_funcNam=%s\n"%(batchCoreUnfinished.m_pid,batchCoreUnfinished.m_funcNam))
         try:
             mapByPids = self.m_mapStacks[ batchCoreUnfinished.m_pid ]
             try:
@@ -1451,23 +1475,25 @@ class UnfinishedBatches:
         # sys.stdout.write("PushBatch m_funcNam=%s\n"%batchCoreUnfinished.m_funcNam)
 
     def MergePopBatch(self,batchCoreResumed):
-        # sys.stdout.write("MergePopBatch m_funcNam=%s\n"%batchCoreResumed.m_funcNam)
+        # sys.stdout.write("MergePopBatch pid=%s m_funcNam=%s\n"%(batchCoreResumed.m_pid,batchCoreResumed.m_funcNam))
         try:
             stackPerFunc = self.m_mapStacks[ batchCoreResumed.m_pid][ batchCoreResumed.m_funcNam ]
         except KeyError:
-            if self.m_withWarning:
+            if self.m_withWarning > 1:
                 sys.stdout.write("MergePopBatch m_funcNam=%s cannot find function\n"%batchCoreResumed.m_funcNam)
             # This is strange, we could not find the unfinished call.
+            # sys.stdout.write("MergePopBatch NOTFOUND1 m_funcNam=%s\n"%batchCoreResumed.m_funcNam)
             return None
 
         # They should have the same pid.
         try:
             batchCoreUnfinished = stackPerFunc[-1]
         except IndexError:
-            if self.m_withWarning:
+            if self.m_withWarning > 1:
                 sys.stdout.write("MergePopBatch pid=%d m_funcNam=%s cannot find call\n"
                     % (batchCoreResumed.m_pid,batchCoreResumed.m_funcNam) )
             # Same problem, we could not find the unfinished call.
+            # sys.stdout.write("MergePopBatch NOTFOUND2 m_funcNam=%s\n"%batchCoreResumed.m_funcNam)
             return None
 
         del stackPerFunc[-1]
@@ -1497,13 +1523,37 @@ class UnfinishedBatches:
 
         return batchCoreResumed
 
+    def PrintUnfinished(self,strm):
+        if self.m_withWarning == 0:
+            return
+        for onePid in self.m_mapStacks:
+            # strm.write("onePid=%s\n"%onePid)
+            mapPid = self.m_mapStacks[ onePid ]
+
+            isPidWritten = False
+            
+            for funcNam in mapPid:
+                arrCores = mapPid[funcNam]
+                if not arrCores: break
+
+                if not isPidWritten:
+                    isPidWritten = True
+                    strm.write("Unfinished calls pid=%s\n"%onePid)
+
+                strm.write("    Call name=%s\n"%funcNam)
+                arrCores = mapPid[funcNam]
+                for batchCoreUnfinished in arrCores:
+                    strm.write("        %s\n" % ( batchCoreUnfinished.AsStr() ) )
+                strm.write("\n")
+        strm.write("\n")
+
 # This is used to collect system or function calls which are unfinished and cannot be matched
 # with the corresponding "resumed" line. In some circumstances, the beginning of a "wait4()" call
 # might appear in one process, and the resumed part in another. Therefore this container 
 # uis global for all processes. The "withWarning" flag allows to hide detection of unmatched calls.
 G_stackUnfinishedBatches = None
 
-def BatchFactory(batchCore):
+def BatchLetFactory(batchCore):
 
     try:
         # TODO: We will have to take the library into account.
@@ -1698,7 +1748,8 @@ class BatchFlow:
 
         return mapOccurences
 
-
+    # This examines pairs of consecutive calls with their arguments, and if a pair
+    # occurs often enough, it is replaced by a single BatchLetSequence which represents it.
     def ClusterizePairs(self):
         lenBatch = len(self.m_listBatchLets)
 
@@ -1710,13 +1761,6 @@ class BatchFlow:
         batchSeqPrev = None
         while idxBatch < maxIdx:
 
-            # It cannot include a BatchLet which is unfinished because the arguments list
-            # is not reliable.
-            #if self.m_listBatchLets[ idxBatch ].m_core.m_status in [ BatchStatus.unfinished, BatchStatus.merged ]:
-            #    batchSeqPrev = None
-            #    idxBatch += 1
-            #    continue
-            
             batchRange = self.m_listBatchLets[ idxBatch : idxBatch + 2 ]
             keyRange = SignatureForRepetitions( batchRange )
             numOccur = mapOccurences.get( keyRange, 0 )
@@ -1858,7 +1902,7 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
         # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stdout=subprocess.PIPE)
 
     # If shell argument is True, this is the process ID of the spawned shell.
-    if aPid:
+    if aPid > 0:
         thePid = int(aPid)
     else:
         thePid = int(pipPOpen.pid)
@@ -1949,7 +1993,7 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         if batchCore:
 
             # Based on the function call, it creates a specific derived class.
-            aBatch = BatchFactory(batchCore)
+            aBatch = BatchLetFactory(batchCore)
 
             # Some functions calls should simply be forgotten because there are
             # no side effects, so simply forget them.
@@ -2127,6 +2171,8 @@ def FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat):
         if verbose > 0: sys.stdout.write("\n================== PID=%d\n"%aPid)
         FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat)
 
+    G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
+
 def FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat):
 
     if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
@@ -2204,9 +2250,9 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     global G_topProcessId
     # A command or a pid or an input log file, only one possibility.
     if argsCmd != []:
-        if aPid or inputLogFile:
+        if aPid > 0 or inputLogFile:
             Usage(1,"When providing command, must not specify process id or input log file")
-    elif aPid:
+    elif aPid> 0 :
         if argsCmd != []:
             Usage(1,"When providing process id, must not specify command or input log file")
     elif inputLogFile:
@@ -2236,15 +2282,17 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
     return logStream
 
+# This receives a stream of lines, each of them is a function call,
+# possibily unfinished/resumed/interrupted by a signal.
 def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
     global G_stackUnfinishedBatches
     G_stackUnfinishedBatches = UnfinishedBatches(withWarning)
 
+    global G_mapCacheObjects
+    G_mapCacheObjects = {}
+
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
-
-    # Consider some flexibility in this input format.
-    # This is why there are two implementations.
 
     mapFlows = {}
 
@@ -2255,14 +2303,25 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
     except KeyError:
         raise Exception("Unknown tracer:%s"%tracer)
 
+    # This generator creates individual BatchLet objects on-the-fly.
+    # At this stage, "resumed" calls are matched with the previously received "unfinished"
+    # line for the same call.
+    # Some calls, for some reason, might stay "unfinished": Though,
+    # they are still needed to rebuild the processes tree.
     mapFlowsGenerator = funcCreator(verbose,logStream)
 
+    # Maybe, some system calls are unfinished, i.e. the "resumed" part of the call
+    # is never seen. They might be matched later.
     for oneBatch in mapFlowsGenerator:
         aCore = oneBatch.m_core
 
 
 ### NO: We must create immediately the derived objects so we can fill the caches in the right order.
 ### For example in the case where one file descriptor is created in a thread and used in another.
+### In other words:
+### - Loop on the incoming lines.
+### - For each new pid ... or new burst of activity, create a coroutine:
+###   This coroutine "is yielded" with new BatchCore objects.
 
         aPid = aCore.m_pid
         try:
@@ -2297,24 +2356,23 @@ def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSumma
     outFd.close()
     if verbose: sys.stdout.write("\n")
 
-    if withSummary:
-        GenerateSummary(mapFlows)
+    GenerateSummary(mapFlows,withSummary)
         
 
 
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvsp:f:w:r:i:l:t:",
-                ["help","verbose","summary","pid","format","window","repetition","input","log","tracer"])
+                "hvws:p:f:r:i:l:t:",
+                ["help","verbose","warning","summary","pid","format","repetition","input","log","tracer"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
 
     verbose = 0
-    withWarning = False
-    withSummary = False
-    aPid = None
+    withWarning = 0
+    withSummary = ["CIM_Process","CIM_DataFile"]
+    aPid = -1
     outputFormat = "TXT" # Default output format of the generated files.
     szWindow = 0
     inputLogFile = None
@@ -2325,9 +2383,9 @@ if __name__ == '__main__':
         if anOpt in ("-v", "--verbose"):
             verbose += 1
         elif anOpt in ("-w", "--warning"):
-            withWarning = True
+            withWarning += 1
         elif anOpt in ("-s", "--summary"):
-            withSummary = True
+            withSummary = withSummary + [ aVal ] if aVal else []
         elif anOpt in ("-p", "--pid"):
             aPid = aVal
         elif anOpt in ("-f", "--format"):
@@ -2375,16 +2433,14 @@ if __name__ == '__main__':
         G_Interrupt = True
 
     # When waiting for a process, interrupt with control-C.
-    if aPid:
+    if aPid > 0:
         signal.signal(signal.SIGINT, signal_handler)
         print('Press Ctrl+C to exit cleanly')
 
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
-
     FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat)
 
-    if withSummary:
-        GenerateSummary(mapFlows)
+    GenerateSummary(mapFlows,withSummary)
 
 
 ################################################################################
