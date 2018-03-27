@@ -27,7 +27,7 @@ def InternalUnitTests_ParseSTraceObject():
         if resu != tupl[1]:
             raise Exception("Fail:%s != %s" % ( str(tupl[1]), resu ) )
 
-def DoTheTests(verbose,diffFiles):
+def DoTheTests(verbose,diffFiles,withSummary,withWarning):
 
     # This iterates on the input test files and generates the "compressed" output.as
     #  After that we can check if the results are as expected.
@@ -56,10 +56,20 @@ def DoTheTests(verbose,diffFiles):
                         mapFiles[keyName].append( inPath )
                     except KeyError:
                         mapFiles[keyName] = [ inPath ]
-    
+
     for baseName in mapFiles:
         print("")
         inputLogFile = baseName + ".log"
+
+        # The main process pid might be embedded in the log file name,
+        # just before the extension. If it cannot be foujnd, it is assumed
+        # to be -1..
+        mtchLog = re.match(".*\.([0-9]*)$", baseName)
+        if mtchLog:
+            aPid = int( mtchLog.group(1) )
+        else:
+            aPid = -1
+
         print("Input=%s"%inputLogFile)
     
         tracer = retrobatch.DefaultTracer(inputLogFile)
@@ -68,9 +78,10 @@ def DoTheTests(verbose,diffFiles):
             print("Destination=%s"%outFilNam)
     
             baseOutName, filOutExt = os.path.splitext(outFilNam)
-    
+
+            # "txt", "json" etc...
             outputFormat = filOutExt[1:].upper()
-            retrobatch.UnitTest(inputLogFile,tracer,outFilNam,outputFormat,verbose)
+            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,withSummary,withWarning)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
@@ -82,7 +93,9 @@ def Usage(exitCode = 1, errMsg = None):
     print("Unit tests: %s <executable>"%progNam)
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
-    print("  -v,--verbose                  Verbose mode.")
+    print("  -v,--verbose                  Verbose mode (Cumulative).")
+    print("  -w,--warning                  Display warnings (Cumulative).")
+    print("  -s,--summary <CIM class>      With summary.")
     print("  -d,--diff                     Differences.")
     print("")
 
@@ -92,18 +105,24 @@ def Usage(exitCode = 1, errMsg = None):
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvd",
-                ["help","verbose","differences"])
+                "hvws:d",
+                ["help","verbose","warning","summary","differences"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
 
-    verbose = False
+    verbose = 0
+    withWarning = 0
+    withSummary = []
     diffFiles = False
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
-            verbose = True
+            verbose += 1
+        elif anOpt in ("-w", "--warning"):
+            withWarning += 1
+        elif anOpt in ("-s", "--summary"):
+            withSummary = withSummary + [ aVal ] if aVal else []
         elif anOpt in ("-d", "--diff"):
             diffFiles = aVal
         elif anOpt in ("-h", "--help"):
@@ -115,7 +134,7 @@ if __name__ == '__main__':
     InternalUnitTests_ParseSTraceObject()
     print("Internal tests OK.")
 
-    DoTheTests(verbose,diffFiles)
+    DoTheTests(verbose,diffFiles,withSummary,withWarning)
     print("Tests done")
 
 

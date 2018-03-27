@@ -34,9 +34,30 @@ conn = MysqlMkInstance('root', '', '127.0.0.1',None)
 
 cursor = conn.cursor()
 
-cursor.execute("show databases")
+# Databases are:
+# 'information_schema',
+# 'mysql',
+# 'performance_schema',
+# 'test',
 
-for databases in cursor:
-	print(str(databases))
 
+cursor.execute("use mysql")
+print("Database set")
+
+cursor.execute("show tables")
+for tabNam in cursor:
+    print(str(tabNam))
+print("End of tables")
+
+# cursor.execute("describe user")
+# for rowUser in cursor:
+#	print(str(rowUser))
+
+cursor.execute("select Host,User from user")
+for rowUser in cursor:
+    usrHost = rowUser[0]
+    usrUser = rowUser[1]
+    print(usrHost)
+    print(str(rowUser))
+print("End of users")
 

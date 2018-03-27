@@ -166,12 +166,13 @@ def GetTnsNamesWindows():
     tnsnam = oraHome + "\\network\\ADMIN\\tnsnames.ora"
     return tnsnam
 
-def GetTnsNamesLinux():
+# Preferably used on Linux but can also work on Windows.
+def GetTnsNamesEnvVar():
     #  If $TNS_ADMIN is not set, then the tnsnames.ora should be in $ORACLE_HOME/network/admin/.
     # $ORACLE_HOME//network/admin/tnsnames.ora
     envTNS_ADMIN = os.getenv("TNS_ADMIN")
     if envTNS_ADMIN:
-        tnsnam = envTNS_ADMIN
+        tnsnam = envTNS_ADMIN + "/tnsnames.ora"
     else:
         envORACLE_HOME = os.getenv("ORACLE_HOME")
         if envORACLE_HOME:
@@ -186,7 +187,7 @@ def GetTnsNames():
         return GetTnsNamesWindows()
 
     elif lib_util.isPlatformLinux:
-        return GetTnsNamesLinux()
+        return GetTnsNamesEnvVar()
 
     else:
         lib_common.ErrorMessageHtml("No tnsnames.ora")
