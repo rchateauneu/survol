@@ -5,10 +5,10 @@ import re
 import sys
 import getopt
 import os
-import socket
 import subprocess
 import time
 import signal
+import inspect
 
 def Usage(exitCode = 1, errMsg = None):
     if errMsg:
@@ -228,6 +228,10 @@ class CIM_Process:
     def CreateMoniker(procId):
         return 'CIM_Process.Handle="%s"' % procId
 
+    @staticmethod
+    def DisplaySummary(mapFlows,cimKeyValuePairs):
+        DisplaySummaryProcesses(mapFlows,cimKeyValuePairs)
+
     def Summarize(self,strm):
         strm.write("Process id:%s\n" % self.m_procId )
         if self.m_executable:
@@ -278,6 +282,7 @@ class CIM_DataFile:
         self.m_closeTime = None
         self.m_numOpens = 0
         self.m_isExecuted = False
+        self.m_category = PathCategory(pathName)
 
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.m_pathName)
@@ -285,6 +290,10 @@ class CIM_DataFile:
     @staticmethod
     def CreateMoniker(pathName):
         return 'CIM_DataFile.Name="%s"' % pathName
+
+    @staticmethod
+    def DisplaySummary(mapFlows,cimKeyValuePairs):
+        DisplaySummaryFiles(mapFlows,cimKeyValuePairs)
 
     def Summarize(self,strm):
         if self.m_isExecuted:
@@ -342,14 +351,55 @@ def ToObjectPath_CIM_DataFile(pathName):
 def CIM_SharedLibrary(CIM_DataFile):
     pass
 
-def GenerateSummaryProcesses(mapFlows):
+def DisplaySummaryProcesses(mapFlows,cimKeyValuePairs):
     sys.stdout.write("Processes:\n")
     for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
         # sys.stdout.write("Path=%s\n"%objPath)
         objInstance.Summarize(sys.stdout)
     sys.stdout.write("\n")
 
-def GenerateSummaryFiles(mapFlows):
+# This is not a map, it is not sorted.
+# It contains regular expression for classifying file names in categories:
+# Shared libraries, source files, scripts, Linux pipes etc...
+G_lstFilters = [
+    ( "Shared libraries" , [
+        "^/usr/lib[^/]*/.*\.so",
+        "^/usr/lib[^/]*/.*\.so\..*",
+    ] ),
+    ( "Other libraries" , [
+        "^/usr/lib[^/]*/",
+        "^/usr/share/",
+    ] ),
+    ( "Proc file system" , [
+        "^/proc",
+    ] ),
+    ( "/etc conf files" , [
+        "^/etc/",
+    ] ),
+    ( "/tmp temporary files" , [
+        "^/tmp/",
+    ] ),
+    ( "Pipes and terminals" , [
+        "^/sys",
+        "^/dev",
+        "^pipe:",
+        "^UNIX:",
+    ] ),
+    ( "Others" , [] ),
+]
+
+
+def PathCategory(pathName):
+    for rgxTuple in G_lstFilters:
+        for oneRgx in rgxTuple[1]:
+            # If the file matches a regular expression,
+            # then it is sorted in this category.
+            mtchRgx = re.match( oneRgx, pathName )
+            if mtchRgx:
+                return rgxTuple[0]
+    return "Others"
+
+def DisplaySummaryFiles(mapFlows,cimKeyValuePairs):
 
     sys.stdout.write("Files:\n")
     try:
@@ -358,51 +408,20 @@ def GenerateSummaryFiles(mapFlows):
         sys.stdout.write("\n")
         return
 
-
-    # This is not a map, it is not sorted.
-    # It contains regular expression for classifying file names in categories:
-    # Shared libraries, source files, scripts, Linux pipes etc...
-    lstFilters = [
-        ( "Shared libraries" , True, [
-            "^/usr/lib[^/]*/.*\.so", 
-            "^/usr/lib[^/]*/.*\.so\..*", 
-        ] ),
-        ( "Proc file system" , False, [
-            "^/proc", 
-        ] ),
-        ( "Pipes and terminals" , False, [
-            "^/sys", 
-            "^/dev", 
-            "^pipe:", 
-            "^UNIX:", 
-        ] ),
-        ( "Others" , True, [] ),
-    ]
-
-    mapOfFilesMap = { rgxTuple[0] : {} for rgxTuple in lstFilters }
+    # TODO: Find a way to define the presentation as a parameter.
+    # Maybe we can use the list of keys: Just mentionning a property
+    # means that a sub-level must be displayed.
+    mapOfFilesMap = { rgxTuple[0] : {} for rgxTuple in G_lstFilters }
 
     # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
     for objPath,objInstance in mapFiles:
-        # objInstance.Summarize(sys.stdout)
-        foundCategory = False
-        for rgxTuple in lstFilters:
-            for oneRgx in rgxTuple[2]:
-                # If the file matches a regular expression,
-                # then it is sorted in this category.
-                mtchRgx = re.match( oneRgx, objInstance.m_pathName )
-                if mtchRgx:
-                    # Files of some specific categories can be hidden.
-                    if rgxTuple[1]:
-                        mapOfFilesMap[ rgxTuple[0] ][ objPath ] = objInstance
-                    foundCategory = True
-                    break
-            if foundCategory:
-                break
-        if not foundCategory:
-            mapOfFilesMap[ "Others" ][ objPath ] = objInstance
-        
+        mapOfFilesMap[ objInstance.m_category ][ objPath ] = objInstance
+
+    filterCats = cimKeyValuePairs["Category"]
+
     for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
         sys.stdout.write("\n** %s\n"%categoryFiles)
+        if not categoryFiles in filterCats: continue
         for objPath,objInstance in sorted( mapFilesSub.items() ):
             # sys.stdout.write("Path=%s\n"%objPath)
             objInstance.Summarize(sys.stdout)
@@ -411,18 +430,50 @@ def GenerateSummaryFiles(mapFlows):
 
     sys.stdout.write("\n")
 
+# rgxObjectPath = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
+def ParseFilterCIM(rgxObjectPath):
+    idxDot = rgxObjectPath.find(".")
+    if idxDot < 0 :
+        return ( rgxObjectPath, {} )
 
-# Ajouter des regex sur la ligne de commande pour le filtrage:
-# - "CIM_DataFile.Name=/proc/.*"  +"CIM_Process.Parent=1234"
-# Avec un filtrage par defaut.
+    objClassName = rgxObjectPath[:idxDot]
+
+    # Maybe there is nothing after the dot.
+    if idxDot == len(rgxObjectPath)-1:
+        return ( objClassName, {} )
+
+    strKeyValues = rgxObjectPath[idxDot+1:]
+
+    # def toto(a='1',b='2')
+    # >>> inspect.getargspec(toto)
+    # ArgSpec(args=['a', 'b'], varargs=None, keywords=None, defaults=('1', '2'))
+    tmpFunc = "def aTempFunc(%s) : pass" % strKeyValues
+
+    # OK with Python 3
+    exec(tmpFunc)
+    tmpInsp = inspect.getargspec( locals()["aTempFunc"] )
+    arrArgs = tmpInsp.args
+    arrVals = tmpInsp.defaults
+    mapKeyValues = dict( zip(arrArgs, arrVals) )
+
+    return ( objClassName, mapKeyValues )
+
+# This receives an array of WMI/WBEM/CIM object paths:
+# 'Win32_LogicalDisk.DeviceID="C:"'
+# The values can be regular expressions.
+# key-value pairs in the expressions are matched one-to-one with objects.
+
 
 
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
 def GenerateSummary(mapFlows,withSummary):
-    if "CIM_Process" in withSummary: GenerateSummaryProcesses(mapFlows)
-    if "CIM_DataFile" in withSummary: GenerateSummaryFiles(mapFlows)
+    for rgxObjectPath in withSummary:
+        ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
+        classObj = globals()[ cimClassName ]
+
+        classObj.DisplaySummary(mapFlows,cimKeyValuePairs)
 
 
 ################################################################################
@@ -2371,7 +2422,7 @@ if __name__ == '__main__':
 
     verbose = 0
     withWarning = 0
-    withSummary = ["CIM_Process","CIM_DataFile"]
+    withSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
     aPid = -1
     outputFormat = "TXT" # Default output format of the generated files.
     szWindow = 0
