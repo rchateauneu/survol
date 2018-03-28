@@ -126,7 +126,7 @@ def AddOneNodeIpConfig(grph,rootNode,keyMap,subMapIpconfigs):
 			ipAddr = paramVal.replace("(Preferred)","")
 			if ipAddr:
 				hostNode = lib_common.gUriGen.HostnameUri( ipAddr )
-			grph.add( (naNode, prp, hostNode ) )
+				grph.add( (naNode, prp, hostNode ) )
 		else:
 			grph.add( (naNode, prp, lib_common.NodeLiteral(paramVal) ) )
 
