@@ -46,13 +46,18 @@ print("Database set")
 
 cursor.execute("show tables")
 for tabNam in cursor:
-	print(str(tabNam))
+    print(str(tabNam))
 print("End of tables")
 
+# cursor.execute("describe user")
+# for rowUser in cursor:
+#	print(str(rowUser))
 
-cursor.execute("select * from user")
+cursor.execute("select Host,User from user")
 for rowUser in cursor:
-	print(str(rowUser))
+    usrHost = rowUser[0]
+    usrUser = rowUser[1]
+    print(usrHost)
+    print(str(rowUser))
 print("End of users")
-
 

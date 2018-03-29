@@ -6,6 +6,14 @@ Some ideas about services discovery:
 * Consider using UPNP with drag'n'drop, for merging.
 
 ============================================================================================================
+Bookmarks taken from the "Summary" window.
+See display_bookmarks.py and lib_bookmark.py
+
+The idea is to model the current document with a tree of URLs.
+At the moment this is just a list.
+Building a tree implieds grouping individual URLs into merged URLs: This already works.
+A tree of URLs can be handled just like a bookmarks page.
+============================================================================================================
 Graphic attributes applicable to all objects:
 * Check if the owner of an object is similar to the user running the agent.
 * Most object belong to a user on this machine: This could be a standard attribute of all objects.
