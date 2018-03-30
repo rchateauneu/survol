@@ -212,8 +212,30 @@ def TimeStampToStr(timStamp):
     aTm = time.gmtime( timStamp )
     return time.strftime("%Y/%m/%d %H:%M:%S", aTm )
 
+#class CIM_Process : CIM_LogicalElement
+#{
+#  string   Caption;
+#  string   CreationClassName;
+#  datetime CreationDate;
+#  string   CSCreationClassName;
+#  string   CSName;
+#  string   Description;
+#  uint16   ExecutionState;
+#  string   Handle;
+#  datetime InstallDate;
+#  uint64   KernelModeTime;
+#  string   Name;
+#  string   OSCreationClassName;
+#  string   OSName;
+#  uint32   Priority;
+#  string   Status;
+#  datetime TerminationDate;
+#  uint64   UserModeTime;
+#  uint64   WorkingSetSize;
+#};
 class CIM_Process:
     def __init__(self,procId):
+        # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
         self.m_procId = procId
         self.m_executable = None
         self.m_parentProcess = None
@@ -232,6 +254,59 @@ class CIM_Process:
     def DisplaySummary(mapFlows,cimKeyValuePairs):
         DisplaySummaryProcesses(mapFlows,cimKeyValuePairs)
 
+    def XMLOneLevelSummary(self,margin=""):
+        self.m_isVisited = True
+        sys.stdout.write("%s<process pid='%s'>\n" % ( margin, self.m_procId) )
+        
+        subMargin = margin + "    "
+        if self.m_executable:
+            sys.stdout.write("%s<executable>%s</executable>\n" % ( subMargin, self.m_executable) )
+        if self.m_procStartTime:
+            sys.stdout.write("%s<CreationDate>%s</CreationDate>\n" % ( subMargin, self.m_procStartTime) )
+        if self.m_procEndTime:
+            sys.stdout.write("%s<DestructionDate>%s</DestructionDate>\n" % ( subMargin, self.m_procEndTime) )
+        if self.m_currDir:
+            sys.stdout.write("%s<CurrentDirectory>%s</CurrentDirectory>\n" % ( subMargin, self.m_currDir) )
+
+        for objInstance in self.m_subProcesses:
+            objInstance.XMLOneLevelSummary(subMargin)
+        sys.stdout.write("%s</process>\n" % ( margin ) )
+
+    @staticmethod
+    def CalcSubprocess(mapFlows,cimKeyValuePairs):
+        """This rebuilds the tree of subprocesses seen from the top. """
+        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+            objInstance.m_subProcesses = []
+
+        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+            if objInstance.m_parentProcess:
+                objInstance.m_parentProcess.m_subProcesses.append(objInstance)
+
+    @staticmethod
+    def TopProcessFromProc(objInstance):
+        while True:
+            parentProc = objInstance.m_parentProcess
+            if not parentProc: return objInstance
+            objInstance = parentProc
+
+    @staticmethod
+    def XMLSummary(mapFlows,cimKeyValuePairs):
+        CIM_Process.CalcSubprocess(mapFlows,cimKeyValuePairs)
+
+        # Find unvisited processes. It does not start from G_top_ProcessId
+        # because maybe it contains several trees, or subtrees were missed etc...
+        for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
+            try:
+                objInstance.m_isVisited
+                continue
+            except AttributeError:
+                pass
+
+            topObjProc = CIM_Process.TopProcessFromProc(objInstance)
+
+            topObjProc.XMLOneLevelSummary()
+
+    # In text mode, with no special formatting.
     def Summarize(self,strm):
         strm.write("Process id:%s\n" % self.m_procId )
         if self.m_executable:
@@ -274,7 +349,42 @@ class CIM_Process:
     def GetProcessCurrentDir(self):
         return self.m_currDir
 
-
+# class CIM_DataFile : CIM_LogicalFile
+# {
+  # string   Caption;
+  # string   Description;
+  # datetime InstallDate;
+  # string   Status;
+  # uint32   AccessMask;
+  # boolean  Archive;
+  # boolean  Compressed;
+  # string   CompressionMethod;
+  # string   CreationClassName;
+  # datetime CreationDate;
+  # string   CSCreationClassName;
+  # string   CSName;
+  # string   Drive;
+  # string   EightDotThreeFileName;
+  # boolean  Encrypted;
+  # string   EncryptionMethod;
+  # string   Name;
+  # string   Extension;
+  # string   FileName;
+  # uint64   FileSize;
+  # string   FileType;
+  # string   FSCreationClassName;
+  # string   FSName;
+  # boolean  Hidden;
+  # uint64   InUseCount;
+  # datetime LastAccessed;
+  # datetime LastModified;
+  # string   Path;
+  # boolean  Readable;
+  # boolean  System;
+  # boolean  Writeable;
+  # string   Manufacturer;
+  # string   Version;
+# };
 class CIM_DataFile:
     def __init__(self,pathName):
         self.m_pathName = pathName
@@ -283,6 +393,8 @@ class CIM_DataFile:
         self.m_numOpens = 0
         self.m_isExecuted = False
         self.m_category = PathCategory(pathName)
+        # It will take a proper value if it is "connect()" or "bind()"
+        self.m_socket_address = None
 
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.m_pathName)
@@ -294,6 +406,10 @@ class CIM_DataFile:
     @staticmethod
     def DisplaySummary(mapFlows,cimKeyValuePairs):
         DisplaySummaryFiles(mapFlows,cimKeyValuePairs)
+
+    @staticmethod
+    def XMLSummary(mapFlows,cimKeyValuePairs):
+        raise Exception("Not implemented yet")
 
     def Summarize(self,strm):
         if self.m_isExecuted:
@@ -308,6 +424,11 @@ class CIM_DataFile:
         if self.m_closeTime:
             strClose = TimeStampToStr( self.m_closeTime )
             strm.write("  Close:%s\n" % strClose )
+
+        if self.m_socket_address:
+            for saKey in self.m_socket_address:
+                saVal = self.m_socket_address[saKey]
+                strm.write("    %s:%s\n" % (saKey,saVal) )
 
     def SetOpenTime(self, timeStamp, objCIM_Process):
         self.m_numOpens += 1
@@ -471,12 +592,18 @@ def ParseFilterCIM(rgxObjectPath):
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
-def GenerateSummary(mapFlows,withSummary):
+def GenerateSummary(mapFlows,withSummary,outputFormat):
     for rgxObjectPath in withSummary:
         ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
         classObj = globals()[ cimClassName ]
 
-        classObj.DisplaySummary(mapFlows,cimKeyValuePairs)
+        if outputFormat == "TXT":
+            classObj.DisplaySummary(mapFlows,cimKeyValuePairs)
+        elif outputFormat.upper() == "XML":
+            # The output format is very different.
+            classObj.XMLSummary(mapFlows,cimKeyValuePairs)
+        else:
+            raise Exception("Unsupported summary output format:%s"%outputFormat)
 
 
 ################################################################################
@@ -942,6 +1069,7 @@ class BatchDumperJSON(BatchDumperBase):
 def BatchDumperFactory(strm, outputFormat):
     BatchDumpersDictionary = {
         "TXT"  : BatchDumperTXT,
+        "XML"  : BatchDumperTXT,
         "CSV"  : BatchDumperCSV,
         "JSON" : BatchDumperJSON
     }
@@ -1452,20 +1580,40 @@ class BatchLet_socket(BatchLetBase,object):
 class BatchLet_connect(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_connect,self).__init__(batchCore)
+        objPath = STraceStreamToFile(self.m_core.m_parsedArgs[0])
 
         if batchCore.m_tracer == "strace":
             # 09:18:26.465799 socket(PF_INET, SOCK_DGRAM|SOCK_NONBLOCK, IPPROTO_IP) = 3 <0.000013>
             # 09:18:26.465839 connect(3<socket:[535040600]>, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("127.0.0.1")}, 16) = 0 <0.000016>
 
             # TODO: Should link this file descriptor to the IP-addr+port pair.
+            # But this is not very important because strace does the job of remapping the file descriptor,
+            # so things are consistent as long as we follow the same logic, in the same order:
+            #    socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3<TCP:[7275805]>
+            #    connect(3<TCP:[7275805]>, {sa_family=AF_INET, sin_port=htons(80), sin_addr=inet_addr("204.79.197.212")}, 16) = 0
+            #    select(4, NULL, [3<TCP:[192.168.0.17:48318->204.79.197.212:80]>], NULL, {900, 0}) = 1
+            objPath.m_socket_address = self.m_core.m_parsedArgs[1]
+            
+        elif batchCore.m_tracer == "ltrace":
             pass
+        else:
+            raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
+
+        self.m_significantArgs = [ objPath ]
+class BatchLet_bind(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_bind,self).__init__(batchCore)
+        objPath = STraceStreamToFile(self.m_core.m_parsedArgs[0])
+        if batchCore.m_tracer == "strace":
+            # bind(4<NETLINK:[7274795]>, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0
+            objPath.m_socket_address = self.m_core.m_parsedArgs[1]
 
         elif batchCore.m_tracer == "ltrace":
             pass
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
-        self.m_significantArgs = [ STraceStreamToFile(self.m_core.m_parsedArgs[0]) ]
+        self.m_significantArgs = [ objPath ]
 
 # sendto(7<UNIX:[2038065->2038073]>, "\24\0\0", 16, MSG_NOSIGNAL, NULL, 0) = 16
 class BatchLet_sendto(BatchLetBase,object):
@@ -1720,6 +1868,8 @@ class BatchFlow:
     def __init__(self):
 
         self.m_listBatchLets = []
+        self.m_coroutine = self.AddingCoroutine()
+        next(self.m_coroutine)
 
     def AddBatch(self,btchLet):
         # sys.stdout.write("AddBatch:%s\n"%btchLet.GetSignature())
@@ -1733,6 +1883,24 @@ class BatchFlow:
                 return
 
         self.m_listBatchLets.append( btchLet )
+
+    # Does the same AddBatch() but it is possible to process system calls on-the-fly
+    # without intermediate storage.
+    def SendBatch(self,btchLet):
+        self.m_coroutine.send(btchLet)
+
+    def AddingCoroutine(self):
+        lstBatch = None
+        while True:
+            btchLet = yield
+            
+            if lstBatch and lstBatch.SameCall( btchLet ):
+                lstBatch.m_occurrences += 1
+            else:
+                self.m_listBatchLets.append( btchLet )
+            lstBatch = btchLet
+                
+        
 
     # This removes matched batches (Formerly unfinished calls which were matched to the resumed part)
     # when the merged batches (The resumed calls) comes immediately after.
@@ -1939,6 +2107,46 @@ class BatchFlow:
             batchDump.DumpBatch(aBtch)
 
         batchDump.Footer()
+
+    def FactorizeOneFlow(self,verbose,withWarning,outputFormat):
+
+        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+
+        if verbose > 0:
+            sys.stdout.write("\n")
+            sys.stdout.write("FilterMatchedBatches lenBatch=%d\n"%(len(self.m_listBatchLets)) )
+        numSubst = self.FilterMatchedBatches()
+        if verbose > 0:
+            sys.stdout.write("FilterMatchedBatches numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+
+        idxLoops = 0
+        while True:
+            if verbose > 1:
+                self.DumpFlow(sys.stdout,outputFormat)
+
+            if verbose > 0:
+                sys.stdout.write("\n")
+                sys.stdout.write("ClusterizePairs lenBatch=%d\n"%(len(self.m_listBatchLets)) )
+            numSubst = self.ClusterizePairs()
+            if verbose > 0:
+                sys.stdout.write("ClusterizePairs numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+            if numSubst == 0:
+                break
+            idxLoops += 1
+
+        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+
+        if verbose > 0:
+            sys.stdout.write("\n")
+            sys.stdout.write("ClusterizeBatchesByArguments lenBatch=%d\n"%(len(self.m_listBatchLets)) )
+        numSubst = self.ClusterizeBatchesByArguments()
+        if verbose > 0:
+            sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+
+        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+
+        
+        
 
 def LogSource(msgSource):
     sys.stdout.write("Source:%s\n"%msgSource)
@@ -2217,52 +2425,6 @@ def LogSTraceFileStream(extCommand,aPid):
 def CreateFlowsFromLinuxSTraceLog(verbose,logStream):
     return CreateFlowsFromGenericLinuxLog(verbose,logStream,"strace")
 
-################################################################################
-
-def FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat):
-    for aPid in sorted(list(mapFlows.keys()),reverse=True):
-        btchTree = mapFlows[aPid]
-        if verbose > 0: sys.stdout.write("\n================== PID=%d\n"%aPid)
-        FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat)
-
-    G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
-
-def FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat):
-
-    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
-
-    if verbose > 0:
-        sys.stdout.write("\n")
-        sys.stdout.write("FilterMatchedBatches lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
-    numSubst = btchTree.FilterMatchedBatches()
-    if verbose > 0:
-        sys.stdout.write("FilterMatchedBatches numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
-
-    idxLoops = 0
-    while True:
-        if verbose > 1:
-            btchTree.DumpFlow(sys.stdout,outputFormat)
-
-        if verbose > 0:
-            sys.stdout.write("\n")
-            sys.stdout.write("ClusterizePairs lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
-        numSubst = btchTree.ClusterizePairs()
-        if verbose > 0:
-            sys.stdout.write("ClusterizePairs numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
-        if numSubst == 0:
-            break
-        idxLoops += 1
-
-    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
-
-    if verbose > 0:
-        sys.stdout.write("\n")
-        sys.stdout.write("ClusterizeBatchesByArguments lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
-    numSubst = btchTree.ClusterizeBatchesByArguments()
-    if verbose > 0:
-        sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
-
-    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
 
 ################################################################################
 
@@ -2338,7 +2500,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
 # This receives a stream of lines, each of them is a function call,
 # possibily unfinished/resumed/interrupted by a signal.
-def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
+def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat):
     global G_stackUnfinishedBatches
     G_stackUnfinishedBatches = UnfinishedBatches(withWarning)
 
@@ -2385,33 +2547,43 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
             btchFlow = BatchFlow()
             mapFlows[ aPid ] = btchFlow
 
-        btchFlow.AddBatch( oneBatch )
+        if False:
+            btchFlow.AddBatch( oneBatch )
+        else:
+            btchFlow.SendBatch( oneBatch )
+    for aPid in sorted(list(mapFlows.keys()),reverse=True):
+        btchTree = mapFlows[aPid]
+        if verbose > 0: sys.stdout.write("\n================== PID=%d\n"%aPid)
+        btchTree.FactorizeOneFlow(verbose,withWarning,outputFormat)
+        
 
     return mapFlows
 
 ################################################################################
+
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary):
+    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
+
+    G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
+
+    if outFile:
+        outFd = open(outFile, "w")
+
+        for aPid in sorted(list(mapFlows.keys()),reverse=True):
+            btchTree = mapFlows[aPid]
+            outFd.write("\n================== PID=%d\n"%aPid)
+            btchTree.DumpFlow(outFd,outputFormat)
+
+        if verbose: sys.stdout.write("\n")
+
+    GenerateSummary(mapFlows,withSummary,outputFormat)
 
 # Function called for unit tests
 def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, withWarning):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
-    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
-
-    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat)
-
-    outFd = open(outFile, "w")
-
-    for aPid in sorted(list(mapFlows.keys()),reverse=True):
-        btchTree = mapFlows[aPid]
-        outFd.write("\n================== PID=%d\n"%aPid)
-        btchTree.DumpFlow(outFd,outputFormat)
-
-    outFd.close()
-    if verbose: sys.stdout.write("\n")
-
-    GenerateSummary(mapFlows,withSummary)
-        
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary)        
 
 
 if __name__ == '__main__':
@@ -2492,11 +2664,7 @@ if __name__ == '__main__':
         signal.signal(signal.SIGINT, signal_handler)
         print('Press Ctrl+C to exit cleanly')
 
-    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
-    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat)
-
-    GenerateSummary(mapFlows,withSummary)
-
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, withSummary)
 
 ################################################################################
 # Options:
