@@ -214,24 +214,24 @@ def TimeStampToStr(timStamp):
 
 #class CIM_Process : CIM_LogicalElement
 #{
-#  string   Caption;
-#  string   CreationClassName;
+#  string   Caption;
+#  string   CreationClassName;
 #  datetime CreationDate;
-#  string   CSCreationClassName;
-#  string   CSName;
-#  string   Description;
-#  uint16   ExecutionState;
-#  string   Handle;
+#  string   CSCreationClassName;
+#  string   CSName;
+#  string   Description;
+#  uint16   ExecutionState;
+#  string   Handle;
 #  datetime InstallDate;
-#  uint64   KernelModeTime;
-#  string   Name;
-#  string   OSCreationClassName;
-#  string   OSName;
-#  uint32   Priority;
-#  string   Status;
+#  uint64   KernelModeTime;
+#  string   Name;
+#  string   OSCreationClassName;
+#  string   OSName;
+#  uint32   Priority;
+#  string   Status;
 #  datetime TerminationDate;
-#  uint64   UserModeTime;
-#  uint64   WorkingSetSize;
+#  uint64   UserModeTime;
+#  uint64   WorkingSetSize;
 #};
 class CIM_Process:
     def __init__(self,procId):
@@ -356,39 +356,39 @@ class CIM_Process:
 
 # class CIM_DataFile : CIM_LogicalFile
 # {
-  # string   Caption;
-  # string   Description;
+  # string   Caption;
+  # string   Description;
   # datetime InstallDate;
-  # string   Status;
-  # uint32   AccessMask;
-  # boolean  Archive;
-  # boolean  Compressed;
-  # string   CompressionMethod;
-  # string   CreationClassName;
+  # string   Status;
+  # uint32   AccessMask;
+  # boolean  Archive;
+  # boolean  Compressed;
+  # string   CompressionMethod;
+  # string   CreationClassName;
   # datetime CreationDate;
-  # string   CSCreationClassName;
-  # string   CSName;
-  # string   Drive;
-  # string   EightDotThreeFileName;
-  # boolean  Encrypted;
-  # string   EncryptionMethod;
-  # string   Name;
-  # string   Extension;
-  # string   FileName;
-  # uint64   FileSize;
-  # string   FileType;
-  # string   FSCreationClassName;
-  # string   FSName;
-  # boolean  Hidden;
-  # uint64   InUseCount;
+  # string   CSCreationClassName;
+  # string   CSName;
+  # string   Drive;
+  # string   EightDotThreeFileName;
+  # boolean  Encrypted;
+  # string   EncryptionMethod;
+  # string   Name;
+  # string   Extension;
+  # string   FileName;
+  # uint64   FileSize;
+  # string   FileType;
+  # string   FSCreationClassName;
+  # string   FSName;
+  # boolean  Hidden;
+  # uint64   InUseCount;
   # datetime LastAccessed;
   # datetime LastModified;
-  # string   Path;
-  # boolean  Readable;
-  # boolean  System;
-  # boolean  Writeable;
-  # string   Manufacturer;
-  # string   Version;
+  # string   Path;
+  # boolean  Readable;
+  # boolean  System;
+  # boolean  Writeable;
+  # string   Manufacturer;
+  # string   Version;
 # };
 class CIM_DataFile:
     def __init__(self,pathName):
