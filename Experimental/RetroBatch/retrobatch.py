@@ -252,25 +252,29 @@ class CIM_Process:
 
     @staticmethod
     def DisplaySummary(mapFlows,cimKeyValuePairs):
-        DisplaySummaryProcesses(mapFlows,cimKeyValuePairs)
+        sys.stdout.write("Processes:\n")
+        for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
+            # sys.stdout.write("Path=%s\n"%objPath)
+            objInstance.Summarize(sys.stdout)
+        sys.stdout.write("\n")
 
     def XMLOneLevelSummary(self,margin=""):
         self.m_isVisited = True
-        sys.stdout.write("%s<process pid='%s'>\n" % ( margin, self.m_procId) )
+        sys.stdout.write("%s<CIM_Process Handle='%s'>\n" % ( margin, self.m_procId) )
         
         subMargin = margin + "    "
         if self.m_executable:
             sys.stdout.write("%s<executable>%s</executable>\n" % ( subMargin, self.m_executable) )
         if self.m_procStartTime:
-            sys.stdout.write("%s<CreationDate>%s</CreationDate>\n" % ( subMargin, self.m_procStartTime) )
+            sys.stdout.write("%s<CreationDate>%s</CreationDate>\n" % ( subMargin, TimeStampToStr(self.m_procStartTime) ) )
         if self.m_procEndTime:
-            sys.stdout.write("%s<DestructionDate>%s</DestructionDate>\n" % ( subMargin, self.m_procEndTime) )
+            sys.stdout.write("%s<DestructionDate>%s</DestructionDate>\n" % ( subMargin, TimeStampToStr(self.m_procEndTime) ) )
         if self.m_currDir:
             sys.stdout.write("%s<CurrentDirectory>%s</CurrentDirectory>\n" % ( subMargin, self.m_currDir) )
 
         for objInstance in self.m_subProcesses:
             objInstance.XMLOneLevelSummary(subMargin)
-        sys.stdout.write("%s</process>\n" % ( margin ) )
+        sys.stdout.write("%s</CIM_Process>\n" % ( margin ) )
 
     @staticmethod
     def CalcSubprocess(mapFlows,cimKeyValuePairs):
@@ -284,6 +288,7 @@ class CIM_Process:
 
     @staticmethod
     def TopProcessFromProc(objInstance):
+        """This returns the top-level parent of a process."""
         while True:
             parentProc = objInstance.m_parentProcess
             if not parentProc: return objInstance
@@ -403,14 +408,79 @@ class CIM_DataFile:
     def CreateMoniker(pathName):
         return 'CIM_DataFile.Name="%s"' % pathName
 
+        
+    @staticmethod
+    def SplitFilesByCategory():
+        try:
+            mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
+        except KeyError:
+            sys.stdout.write("\n")
+            return {}
+
+        # TODO: Find a way to define the presentation as a parameter.
+        # Maybe we can use the list of keys: Just mentioning a property
+        # means that a sub-level must be displayed.
+        mapOfFilesMap = { rgxTuple[0] : {} for rgxTuple in G_lstFilters }
+
+        # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
+        for objPath,objInstance in mapFiles:
+            mapOfFilesMap[ objInstance.m_category ][ objPath ] = objInstance
+        return mapOfFilesMap
+        
     @staticmethod
     def DisplaySummary(mapFlows,cimKeyValuePairs):
-        DisplaySummaryFiles(mapFlows,cimKeyValuePairs)
+        sys.stdout.write("Files:\n")
+        mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
+
+        try:
+            filterCats = cimKeyValuePairs["Category"]
+        except KeyError:
+            filterCats = None
+
+        for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
+            sys.stdout.write("\n** %s\n"%categoryFiles)
+            if filterCats and ( not categoryFiles in filterCats ): continue
+            for objPath,objInstance in sorted( mapFilesSub.items() ):
+                # sys.stdout.write("Path=%s\n"%objPath)
+                objInstance.Summarize(sys.stdout)
+        sys.stdout.write("\n")
+
+    def XMLDisplay(self,strm):
+        margin = "    "
+        strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.m_pathName) )
+        
+        subMargin = margin + "    "
+        if self.m_openTime:
+            strm.write("%s<OpenTime>%s</OpenTime>\n" % ( subMargin, TimeStampToStr(self.m_openTime) ) )
+        if self.m_closeTime:
+            strm.write("%s<CloseTime>%s</CloseTime>\n" % ( subMargin, TimeStampToStr(self.m_closeTime) ) )
+        if self.m_numOpens:
+            strm.write("%s<NumOpens>%d</NumOpens>\n" % ( subMargin, self.m_numOpens) )
+        strm.write("%s</CIM_DataFile>\n" % ( margin ) )
+
+    @staticmethod
+    def XMLCategorySummary(mapFilesSub):
+        for objPath,objInstance in sorted( mapFilesSub.items() ):
+            # sys.stdout.write("Path=%s\n"%objPath)
+            objInstance.XMLDisplay(sys.stdout)
 
     @staticmethod
     def XMLSummary(mapFlows,cimKeyValuePairs):
-        raise Exception("Not implemented yet")
+        """Top-level informations are categories of CIM_DataFile which are not technical
+        but the regex-based filtering."""
+        mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
 
+        try:
+            filterCats = cimKeyValuePairs["Category"]
+        except KeyError:
+            filterCats = None
+
+        for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
+            sys.stdout.write("<FilesCategory category='%s'>\n"%categoryFiles)
+            if filterCats and ( not categoryFiles in filterCats ): continue
+            CIM_DataFile.XMLCategorySummary(mapFilesSub)
+            sys.stdout.write("</FilesCategory>\n")
+        
     def Summarize(self,strm):
         if self.m_isExecuted:
             return
@@ -472,13 +542,6 @@ def ToObjectPath_CIM_DataFile(pathName):
 def CIM_SharedLibrary(CIM_DataFile):
     pass
 
-def DisplaySummaryProcesses(mapFlows,cimKeyValuePairs):
-    sys.stdout.write("Processes:\n")
-    for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
-        # sys.stdout.write("Path=%s\n"%objPath)
-        objInstance.Summarize(sys.stdout)
-    sys.stdout.write("\n")
-
 # This is not a map, it is not sorted.
 # It contains regular expression for classifying file names in categories:
 # Shared libraries, source files, scripts, Linux pipes etc...
@@ -511,6 +574,10 @@ G_lstFilters = [
 
 
 def PathCategory(pathName):
+    """This match the path name againt the set of regular expressions
+    defining broad categories of files: Sockets, libraries, temporary files...
+    These categories are not technical but based on application best practices,
+    rules of thumbs etc..."""
     for rgxTuple in G_lstFilters:
         for oneRgx in rgxTuple[1]:
             # If the file matches a regular expression,
@@ -520,39 +587,11 @@ def PathCategory(pathName):
                 return rgxTuple[0]
     return "Others"
 
-def DisplaySummaryFiles(mapFlows,cimKeyValuePairs):
 
-    sys.stdout.write("Files:\n")
-    try:
-        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
-    except KeyError:
-        sys.stdout.write("\n")
-        return
-
-    # TODO: Find a way to define the presentation as a parameter.
-    # Maybe we can use the list of keys: Just mentionning a property
-    # means that a sub-level must be displayed.
-    mapOfFilesMap = { rgxTuple[0] : {} for rgxTuple in G_lstFilters }
-
-    # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
-    for objPath,objInstance in mapFiles:
-        mapOfFilesMap[ objInstance.m_category ][ objPath ] = objInstance
-
-    try:
-        filterCats = cimKeyValuePairs["Category"]
-    except KeyError:
-        filterCats = None
-
-    for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
-        sys.stdout.write("\n** %s\n"%categoryFiles)
-        if filterCats and ( not categoryFiles in filterCats ): continue
-        for objPath,objInstance in sorted( mapFilesSub.items() ):
-            # sys.stdout.write("Path=%s\n"%objPath)
-            objInstance.Summarize(sys.stdout)
-
-        
-
-    sys.stdout.write("\n")
+# This receives an array of WMI/WBEM/CIM object paths:
+# 'Win32_LogicalDisk.DeviceID="C:"'
+# The values can be regular expressions.
+# key-value pairs in the expressions are matched one-to-one with objects.
 
 # rgxObjectPath = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
 def ParseFilterCIM(rgxObjectPath):
@@ -581,13 +620,6 @@ def ParseFilterCIM(rgxObjectPath):
     mapKeyValues = dict( zip(arrArgs, arrVals) )
 
     return ( objClassName, mapKeyValues )
-
-# This receives an array of WMI/WBEM/CIM object paths:
-# 'Win32_LogicalDisk.DeviceID="C:"'
-# The values can be regular expressions.
-# key-value pairs in the expressions are matched one-to-one with objects.
-
-
 
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
