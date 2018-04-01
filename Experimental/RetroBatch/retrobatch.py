@@ -2579,7 +2579,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
             btchFlow = BatchFlow()
             mapFlows[ aPid ] = btchFlow
 
-        if False:
+        if True:
             btchFlow.AddBatch( oneBatch )
         else:
             btchFlow.SendBatch( oneBatch )
