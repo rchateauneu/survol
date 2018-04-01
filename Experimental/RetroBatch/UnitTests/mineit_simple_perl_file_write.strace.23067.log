@@ -1,0 +1,167 @@
+10:20:58.902984 execve("/usr/bin/bash", ["bash", "TestProgs/write_file"...], 0x7fff7a2d8600 /* 20 vars */) = 0 <0.000196>
+10:20:58.906889 brk(NULL)               = 0x55bf18715000 <0.000011>
+10:20:58.906976 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f32fc1c2000 <0.000008>
+10:20:58.907038 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000009>
+10:20:58.907104 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=31317, ...}) = 0 <0.000006>
+10:20:58.907146 mmap(NULL, 31317, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7f32fc1ba000 <0.000009>
+10:20:58.907174 close(3</etc/ld.so.cache>) = 0 <0.000005>
+10:20:58.907206 open("/lib64/libtinfo.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libtinfo.so.6.0> <0.000010>
+10:20:58.907239 read(3</usr/lib64/libtinfo.so.6.0>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000007>
+10:20:58.907269 fstat(3</usr/lib64/libtinfo.so.6.0>, {st_mode=S_IFREG|0755, st_size=181992, ...}) = 0 <0.000005>
+10:20:58.907296 mmap(NULL, 2275616, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libtinfo.so.6.0>, 0) = 0x7f32fbd72000 <0.000009>
+10:20:58.907325 mprotect(0x7f32fbd99000, 2097152, PROT_NONE) = 0 <0.000010>
+10:20:58.907346 mmap(0x7f32fbf99000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libtinfo.so.6.0>, 0x27000) = 0x7f32fbf99000 <0.000014>
+10:20:58.907394 close(3</usr/lib64/libtinfo.so.6.0>) = 0 <0.000006>
+10:20:58.907431 open("/lib64/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libdl-2.25.so> <0.000009>
+10:20:58.907465 read(3</usr/lib64/libdl-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000006>
+10:20:58.907491 fstat(3</usr/lib64/libdl-2.25.so>, {st_mode=S_IFREG|0755, st_size=19496, ...}) = 0 <0.000005>
+10:20:58.907517 mmap(NULL, 2109584, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libdl-2.25.so>, 0) = 0x7f32fbb6e000 <0.000010>
+10:20:58.907546 mprotect(0x7f32fbb71000, 2093056, PROT_NONE) = 0 <0.000011>
+10:20:58.907568 mmap(0x7f32fbd70000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libdl-2.25.so>, 0x2000) = 0x7f32fbd70000 <0.000011>
+10:20:58.907609 close(3</usr/lib64/libdl-2.25.so>) = 0 <0.000006>
+10:20:58.907645 open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so> <0.000009>
+10:20:58.907677 read(3</usr/lib64/libc-2.25.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000007>
+10:20:58.907703 fstat(3</usr/lib64/libc-2.25.so>, {st_mode=S_IFREG|0755, st_size=2163104, ...}) = 0 <0.000006>
+10:20:58.907730 mmap(NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0) = 0x7f32fb79d000 <0.000010>
+10:20:58.907758 mprotect(0x7f32fb964000, 2097152, PROT_NONE) = 0 <0.000012>
+10:20:58.907781 mmap(0x7f32fbb64000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0x1c7000) = 0x7f32fbb64000 <0.000012>
+10:20:58.907816 mmap(0x7f32fbb6a000, 14688, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f32fbb6a000 <0.000010>
+10:20:58.907871 close(3</usr/lib64/libc-2.25.so>) = 0 <0.000006>
+10:20:58.907919 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f32fc1b8000 <0.000007>
+10:20:58.907944 arch_prctl(ARCH_SET_FS, 0x7f32fc1b8b40) = 0 <0.000005>
+10:20:58.908025 mprotect(0x7f32fbb64000, 16384, PROT_READ) = 0 <0.000014>
+10:20:58.908078 mprotect(0x7f32fbd70000, 4096, PROT_READ) = 0 <0.000010>
+10:20:58.908169 mprotect(0x7f32fbf99000, 16384, PROT_READ) = 0 <0.000675>
+10:20:58.909002 mprotect(0x55bf1856b000, 16384, PROT_READ) = 0 <0.000012>
+10:20:58.909038 mprotect(0x7f32fc1c4000, 4096, PROT_READ) = 0 <0.000012>
+10:20:58.909065 munmap(0x7f32fc1ba000, 31317) = 0 <0.000015>
+10:20:58.909131 open("/dev/tty", O_RDWR|O_NONBLOCK) = 3</dev/tty> <0.000015>
+10:20:58.909181 close(3</dev/tty>)      = 0 <0.000008>
+10:20:58.909245 brk(NULL)               = 0x55bf18715000 <0.000005>
+10:20:58.909262 brk(0x55bf18736000)     = 0x55bf18736000 <0.000006>
+10:20:58.909278 brk(NULL)               = 0x55bf18736000 <0.000004>
+10:20:58.909297 open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3</usr/lib/locale/locale-archive> <0.000009>
+10:20:58.909333 fstat(3</usr/lib/locale/locale-archive>, {st_mode=S_IFREG|0644, st_size=2291760, ...}) = 0 <0.000005>
+10:20:58.909361 mmap(NULL, 2291760, PROT_READ, MAP_PRIVATE, 3</usr/lib/locale/locale-archive>, 0) = 0x7f32fb56d000 <0.000010>
+10:20:58.909394 close(3</usr/lib/locale/locale-archive>) = 0 <0.000005>
+10:20:58.909531 ioctl(-1, TIOCGPGRP, 0x7ffda1c21154) = -1 EBADF (Bad file descriptor) <0.000007>
+10:20:58.909878 open("/usr/lib64/gconv/gconv-modules.cache", O_RDONLY) = 3</usr/lib64/gconv/gconv-modules.cache> <0.000010>
+10:20:58.909924 fstat(3</usr/lib64/gconv/gconv-modules.cache>, {st_mode=S_IFREG|0644, st_size=26254, ...}) = 0 <0.000006>
+10:20:58.909953 mmap(NULL, 26254, PROT_READ, MAP_SHARED, 3</usr/lib64/gconv/gconv-modules.cache>, 0) = 0x7f32fc1bb000 <0.000010>
+10:20:58.909982 close(3</usr/lib64/gconv/gconv-modules.cache>) = 0 <0.000006>
+10:20:58.911282 ioctl(2<pipe:[9259179]>, TIOCGPGRP, 0x7ffda1c21024) = -1 ENOTTY (Inappropriate ioctl for device) <0.000013>
+10:20:58.911377 ioctl(2<pipe:[9259179]>, TIOCGPGRP, 0x7ffda1c21004) = -1 ENOTTY (Inappropriate ioctl for device) <0.000011>
+10:20:58.911575 open("TestProgs/write_file_in_perl.pl", O_RDONLY) = 3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl> <0.000025>
+10:20:58.911672 ioctl(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, TCGETS, 0x7ffda1c210e0) = -1 ENOTTY (Inappropriate ioctl for device) <0.000011>
+10:20:58.911724 lseek(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, 0, SEEK_CUR) = 0 <0.000011>
+10:20:58.911771 read(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, "#!/usr/bin/perl\n\nope"..., 80) = 80 <0.000013>
+10:20:58.911852 lseek(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, 0, SEEK_SET) = 0 <0.000011>
+10:20:58.911917 fcntl(255, F_GETFD)     = -1 EBADF (Bad file descriptor) <0.000010>
+10:20:58.911968 dup2(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, 255) = 255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl> <0.000014>
+10:20:58.912094 close(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>) = 0 <0.000008>
+10:20:58.912144 fcntl(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, F_SETFD, FD_CLOEXEC) = 0 <0.000007>
+10:20:58.912175 fcntl(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, F_GETFL) = 0x8000 (flags O_RDONLY|O_LARGEFILE) <0.000006>
+10:20:58.912202 fstat(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, {st_mode=S_IFREG|0775, st_size=114, ...}) = 0 <0.000006>
+10:20:58.912232 lseek(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, 0, SEEK_CUR) = 0 <0.000006>
+10:20:58.912266 read(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, "#!/usr/bin/perl\n\nope"..., 114) = 114 <0.000007>
+10:20:58.912687 lseek(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, -59, SEEK_CUR) = 55 <0.000007>
+10:20:58.912724 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f32fc1b8e10) = 23070 <0.000125>
+10:20:58.913931 wait4(-1,  <unfinished ...>
+[pid 23070] 10:20:58.915925 close(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>) = 0 <0.000008>
+[pid 23070] 10:20:58.916128 execve("/usr/bin/open", ["open", "FH,>/tmp/survol_test"...], 0x55bf1871ea30 /* 20 vars */) = 0 <0.000174>
+[pid 23070] 10:20:58.916363 brk(NULL)   = 0x557132d02000 <0.000005>
+[pid 23070] 10:20:58.916407 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f47a0e60000 <0.000007>
+[pid 23070] 10:20:58.916453 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000009>
+[pid 23070] 10:20:58.916507 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=31317, ...}) = 0 <0.000007>
+[pid 23070] 10:20:58.916546 mmap(NULL, 31317, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7f47a0e58000 <0.000009>
+[pid 23070] 10:20:58.916581 close(3</etc/ld.so.cache>) = 0 <0.000008>
+[pid 23070] 10:20:58.916626 open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so> <0.000015>
+[pid 23070] 10:20:58.916682 read(3</usr/lib64/libc-2.25.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000008>
+[pid 23070] 10:20:58.916719 fstat(3</usr/lib64/libc-2.25.so>, {st_mode=S_IFREG|0755, st_size=2163104, ...}) = 0 <0.000005>
+[pid 23070] 10:20:58.916748 mmap(NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0) = 0x7f47a086b000 <0.000011>
+[pid 23070] 10:20:58.916779 mprotect(0x7f47a0a32000, 2097152, PROT_NONE) = 0 <0.000011>
+[pid 23070] 10:20:58.916802 mmap(0x7f47a0c32000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0x1c7000) = 0x7f47a0c32000 <0.000030>
+[pid 23070] 10:20:58.916860 mmap(0x7f47a0c38000, 14688, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f47a0c38000 <0.000007>
+[pid 23070] 10:20:58.916892 close(3</usr/lib64/libc-2.25.so>) = 0 <0.000006>
+[pid 23070] 10:20:58.916935 mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f47a0e55000 <0.000006>
+[pid 23070] 10:20:58.916960 arch_prctl(ARCH_SET_FS, 0x7f47a0e55700) = 0 <0.000004>
+[pid 23070] 10:20:58.917032 mprotect(0x7f47a0c32000, 16384, PROT_READ) = 0 <0.000012>
+[pid 23070] 10:20:58.917075 mprotect(0x557131ca1000, 4096, PROT_READ) = 0 <0.000009>
+[pid 23070] 10:20:58.917100 mprotect(0x7f47a0e62000, 4096, PROT_READ) = 0 <0.000011>
+[pid 23070] 10:20:58.917123 munmap(0x7f47a0e58000, 31317) = 0 <0.000019>
+[pid 23070] 10:20:58.917215 brk(NULL)   = 0x557132d02000 <0.000004>
+[pid 23070] 10:20:58.917234 brk(0x557132d23000) = 0x557132d23000 <0.000007>
+[pid 23070] 10:20:58.917250 brk(NULL)   = 0x557132d23000 <0.000004>
+[pid 23070] 10:20:58.917268 open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3</usr/lib/locale/locale-archive> <0.000009>
+[pid 23070] 10:20:58.917308 fstat(3</usr/lib/locale/locale-archive>, {st_mode=S_IFREG|0644, st_size=2291760, ...}) = 0 <0.000006>
+[pid 23070] 10:20:58.917335 mmap(NULL, 2291760, PROT_READ, MAP_PRIVATE, 3</usr/lib/locale/locale-archive>, 0) = 0x7f47a063b000 <0.000009>
+[pid 23070] 10:20:58.917367 close(3</usr/lib/locale/locale-archive>) = 0 <0.000007>
+[pid 23070] 10:20:58.917429 fstat(0</dev/pts/2>, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2), ...}) = 0 <0.000007>
+[pid 23070] 10:20:58.917466 fstat(1<pipe:[9259178]>, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0 <0.000006>
+[pid 23070] 10:20:58.917498 fstat(2<pipe:[9259179]>, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0 <0.000010>
+[pid 23070] 10:20:58.917543 open("/proc/self/fd/0", O_RDWR) = -1 EACCES (Permission denied) <0.000013>
+[pid 23070] 10:20:58.917574 open("/proc/self/fd/0", O_WRONLY) = -1 EACCES (Permission denied) <0.000012>
+[pid 23070] 10:20:58.917605 open("/proc/self/fd/0", O_RDONLY) = -1 EACCES (Permission denied) <0.000011>
+[pid 23070] 10:20:58.917849 open("/dev/tty", O_RDWR) = 3</dev/tty> <0.000015>
+[pid 23070] 10:20:58.917899 ioctl(3</dev/tty>, TCGETS, {B38400 opost isig icanon echo ...}) = 0 <0.000008>
+[pid 23070] 10:20:58.917931 ioctl(3</dev/tty>, KDGKBTYPE, 0x7ffebb032837) = -1 ENOTTY (Inappropriate ioctl for device) <0.000006>
+[pid 23070] 10:20:58.917960 close(3</dev/tty>) = 0 <0.000008>
+[pid 23070] 10:20:58.917986 open("/dev/tty0", O_RDWR) = -1 EACCES (Permission denied) <0.000008>
+[pid 23070] 10:20:58.918009 open("/dev/tty0", O_WRONLY) = -1 EACCES (Permission denied) <0.000005>
+[pid 23070] 10:20:58.918026 open("/dev/tty0", O_RDONLY) = -1 EACCES (Permission denied) <0.000006>
+[pid 23070] 10:20:58.918044 open("/dev/vc/0", O_RDWR) = -1 ENOENT (No such file or directory) <0.000009>
+[pid 23070] 10:20:58.918065 open("/dev/vc/0", O_WRONLY) = -1 ENOENT (No such file or directory) <0.000006>
+[pid 23070] 10:20:58.918083 open("/dev/vc/0", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000006>
+[pid 23070] 10:20:58.918101 open("/dev/systty", O_RDWR) = -1 ENOENT (No such file or directory) <0.000009>
+[pid 23070] 10:20:58.918122 open("/dev/systty", O_WRONLY) = -1 ENOENT (No such file or directory) <0.000006>
+[pid 23070] 10:20:58.918140 open("/dev/systty", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000006>
+[pid 23070] 10:20:58.918158 open("/dev/console", O_RDWR) = -1 EACCES (Permission denied) <0.000006>
+[pid 23070] 10:20:58.918176 open("/dev/console", O_WRONLY) = -1 EACCES (Permission denied) <0.000006>
+[pid 23070] 10:20:58.918197 open("/dev/console", O_RDONLY) = -1 EACCES (Permission denied) <0.000010>
+[pid 23070] 10:20:58.918230 ioctl(0</dev/pts/2>, TCGETS, {B38400 opost isig icanon echo ...}) = 0 <0.000013>
+[pid 23070] 10:20:58.918283 ioctl(0</dev/pts/2>, KDGKBTYPE, 0x7ffebb032837) = -1 ENOTTY (Inappropriate ioctl for device) <0.000011>
+[pid 23070] 10:20:58.918331 ioctl(1<pipe:[9259178]>, TCGETS, 0x7ffebb032790) = -1 ENOTTY (Inappropriate ioctl for device) <0.000009>
+[pid 23070] 10:20:58.918376 ioctl(2<pipe:[9259179]>, TCGETS, 0x7ffebb032790) = -1 ENOTTY (Inappropriate ioctl for device) <0.000007>
+[pid 23070] 10:20:58.918417 open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3</usr/share/locale/locale.alias> <0.000015>
+[pid 23070] 10:20:58.918459 fstat(3</usr/share/locale/locale.alias>, {st_mode=S_IFREG|0644, st_size=2997, ...}) = 0 <0.000005>
+[pid 23070] 10:20:58.918490 read(3</usr/share/locale/locale.alias>, "# Locale name alias "..., 4096) = 2997 <0.000007>
+[pid 23070] 10:20:58.918538 read(3</usr/share/locale/locale.alias>, "", 4096) = 0 <0.000008>
+[pid 23070] 10:20:58.918576 close(3</usr/share/locale/locale.alias>) = 0 <0.000010>
+[pid 23070] 10:20:58.918627 open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/kbd.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000217>
+[pid 23070] 10:20:58.918871 open("/usr/share/locale/en_US.utf8/LC_MESSAGES/kbd.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000013>
+[pid 23070] 10:20:58.918903 open("/usr/share/locale/en_US/LC_MESSAGES/kbd.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000009>
+[pid 23070] 10:20:58.918925 open("/usr/share/locale/en.UTF-8/LC_MESSAGES/kbd.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000006>
+[pid 23070] 10:20:58.918943 open("/usr/share/locale/en.utf8/LC_MESSAGES/kbd.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000006>
+[pid 23070] 10:20:58.918961 open("/usr/share/locale/en/LC_MESSAGES/kbd.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000006>
+[pid 23070] 10:20:58.918992 write(2<pipe:[9259179]>, "Couldn't get a file "..., 56Couldn't get a file descriptor referring to the console
+) = 56 <0.000006>
+[pid 23070] 10:20:58.919030 exit_group(1) = ?
+10:20:58.919124 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 23070 <0.005165>
+10:20:58.919173 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=23070, si_uid=1001, si_status=1, si_utime=0, si_stime=0} ---
+10:20:58.919188 wait4(-1, 0x7ffda1c208d0, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000005>
+10:20:58.919222 read(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, "print FH \"Perl - Pra"..., 114) = 59 <0.000010>
+10:20:58.919390 lseek(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, -1, SEEK_CUR) = 113 <0.000007>
+10:20:58.919423 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f32fc1b8e10) = 23071 <0.000060>
+10:20:58.919645 wait4(-1,  <unfinished ...>
+[pid 23071] 10:20:58.921930 close(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>) = 0 <0.000008>
+[pid 23071] 10:20:58.922102 open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3</usr/share/locale/locale.alias> <0.000017>
+[pid 23071] 10:20:58.922177 fstat(3</usr/share/locale/locale.alias>, {st_mode=S_IFREG|0644, st_size=2997, ...}) = 0 <0.000010>
+[pid 23071] 10:20:58.925860 read(3</usr/share/locale/locale.alias>, "# Locale name alias "..., 4096) = 2997 <0.000012>
+[pid 23071] 10:20:58.925935 read(3</usr/share/locale/locale.alias>, "", 4096) = 0 <0.000007>
+[pid 23071] 10:20:58.925967 close(3</usr/share/locale/locale.alias>) = 0 <0.000017>
+[pid 23071] 10:20:58.926022 open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/bash.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000011>
+[pid 23071] 10:20:58.926052 open("/usr/share/locale/en_US.utf8/LC_MESSAGES/bash.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000007>
+[pid 23071] 10:20:58.926072 open("/usr/share/locale/en_US/LC_MESSAGES/bash.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000008>
+[pid 23071] 10:20:58.926092 open("/usr/share/locale/en.UTF-8/LC_MESSAGES/bash.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000005>
+[pid 23071] 10:20:58.926109 open("/usr/share/locale/en.utf8/LC_MESSAGES/bash.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000005>
+[pid 23071] 10:20:58.926126 open("/usr/share/locale/en/LC_MESSAGES/bash.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000006>
+[pid 23071] 10:20:58.926174 fstat(2<pipe:[9259179]>, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0 <0.000007>
+[pid 23071] 10:20:58.926224 write(2<pipe:[9259179]>, "TestProgs/write_file"..., 66TestProgs/write_file_in_perl.pl: line 4: print: command not found
+) = 66 <0.000006>
+[pid 23071] 10:20:58.926303 exit_group(127) = ?
+10:20:58.926424 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 127}], 0, NULL) = 23071 <0.006763>
+10:20:58.926470 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=23071, si_uid=1001, si_status=127, si_utime=0, si_stime=0} ---
+10:20:58.926485 wait4(-1, 0x7ffda1c208d0, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000004>
+10:20:58.926522 read(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, "\n", 114) = 1 <0.000008>
+10:20:58.926567 read(255</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, "", 114) = 0 <0.000006>
+10:20:58.926628 exit_group(127)         = ?
