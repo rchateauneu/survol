@@ -10,6 +10,13 @@ import time
 import signal
 import inspect
 
+try:
+    # To add more information to processes etc...
+    # If not there, this is not a problem.
+    import psutil
+except ImportError:
+    pass
+
 def Usage(exitCode = 1, errMsg = None):
     if errMsg:
         print(errMsg)
@@ -23,7 +30,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -s,--summary <CIM class>      Prints a summary at the end: Start end end time stamps, executable name,\n"
         + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree.")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
-    print("  -f,--format TXT|CSV|JSON      Output format. Default is TXT.")
+    print("  -f,--format TXT|CSV|JSON|XML  Output format. Default is TXT.")
     print("  -i,--input <file name>        trace command input file.")
     print("  -l,--log <filename prefix>    trace command log output file.")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
@@ -212,6 +219,9 @@ def TimeStampToStr(timStamp):
     aTm = time.gmtime( timStamp )
     return time.strftime("%Y/%m/%d %H:%M:%S", aTm )
 
+def IsTimeStamp(attr,attrVal):
+    return attr.find("Date") > 0 or attr.find("Time") > 0
+
 #class CIM_Process : CIM_LogicalElement
 #{
 #  string   Caption;
@@ -236,15 +246,39 @@ def TimeStampToStr(timStamp):
 class CIM_Process:
     def __init__(self,procId):
         # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
-        self.m_procId = procId
-        self.m_executable = None
+        self.Handle = procId
         self.m_parentProcess = None
-        self.m_currDir = "."
-        self.m_procStartTime = None
-        self.m_procEndTime = None
+        self.CreationDate = None
+        self.TerminationDate = None
+
+        if psutil:
+            try:
+                procObj = psutil.Process(procId)
+            except:
+                # Maybe this is replaying a former session and in this case,
+                # the process is not there anymore.
+                procObj = None
+        else:
+            procObj = None
+
+        if procObj:
+            self.Name = procObj.name()
+            self.Executable = procObj.exe()
+            self.Username = procObj.username()
+            self.m_currDir = procObj.cwd()
+            self.Priority = procObj.nice()
+        else:
+            self.Name = str(procId)
+            self.Executable = None
+            # TODO: This could be deduced with calls to setuid().
+            self.Username = None
+            # TODO: This can be partly deduced with calls to chdir() etc...
+            # so it would not be necessary to install psutil.
+            self.m_currDir = "."
+            self.Priority = 0
 
     def __repr__(self):
-        return "'%s'" % self.CreateMoniker(self.m_procId)
+        return "'%s'" % self.CreateMoniker(self.Handle)
 
     @staticmethod
     def CreateMoniker(procId):
@@ -258,23 +292,23 @@ class CIM_Process:
             objInstance.Summarize(sys.stdout)
         sys.stdout.write("\n")
 
-    def XMLOneLevelSummary(self,margin=""):
+    def XMLOneLevelSummary(self,strm,margin=""):
         self.m_isVisited = True
-        sys.stdout.write("%s<CIM_Process Handle='%s'>\n" % ( margin, self.m_procId) )
+        strm.write("%s<CIM_Process Handle='%s'>\n" % ( margin, self.Handle) )
         
         subMargin = margin + "    "
-        if self.m_executable:
-            sys.stdout.write("%s<executable>%s</executable>\n" % ( subMargin, self.m_executable) )
-        if self.m_procStartTime:
-            sys.stdout.write("%s<CreationDate>%s</CreationDate>\n" % ( subMargin, TimeStampToStr(self.m_procStartTime) ) )
-        if self.m_procEndTime:
-            sys.stdout.write("%s<DestructionDate>%s</DestructionDate>\n" % ( subMargin, TimeStampToStr(self.m_procEndTime) ) )
-        if self.m_currDir:
-            sys.stdout.write("%s<CurrentDirectory>%s</CurrentDirectory>\n" % ( subMargin, self.m_currDir) )
+
+        for attr in dir(self):
+            attrVal = getattr(self,attr)
+            if not callable(attrVal) and not attr.startswith("__"):
+                # FIXME: Not very reliable.
+                if IsTimeStamp(attr,attrVal):
+                    attrVal = TimeStampToStr(attrVal)
+                strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
 
         for objInstance in self.m_subProcesses:
-            objInstance.XMLOneLevelSummary(subMargin)
-        sys.stdout.write("%s</CIM_Process>\n" % ( margin ) )
+            objInstance.XMLOneLevelSummary(strm,subMargin)
+        strm.write("%s</CIM_Process>\n" % ( margin ) )
 
     @staticmethod
     def CalcSubprocess(mapFlows,cimKeyValuePairs):
@@ -309,41 +343,41 @@ class CIM_Process:
 
             topObjProc = CIM_Process.TopProcessFromProc(objInstance)
 
-            topObjProc.XMLOneLevelSummary()
+            topObjProc.XMLOneLevelSummary(sys.stdout)
 
     # In text mode, with no special formatting.
     def Summarize(self,strm):
-        strm.write("Process id:%s\n" % self.m_procId )
-        if self.m_executable:
-            strm.write("    Executable:%s\n" % self.m_executable )
-        if self.m_procStartTime:
-            strStart = TimeStampToStr( self.m_procStartTime )
+        strm.write("Process id:%s\n" % self.Handle )
+        if self.Executable:
+            strm.write("    Executable:%s\n" % self.Executable )
+        if self.CreationDate:
+            strStart = TimeStampToStr( self.CreationDate )
             strm.write("    Start time:%s\n" % strStart )
-        if self.m_procEndTime:
-            strEnd = TimeStampToStr( self.m_procEndTime )
+        if self.TerminationDate:
+            strEnd = TimeStampToStr( self.TerminationDate )
             strm.write("    End time:%s\n" % strEnd )
         if self.m_parentProcess:
-            strm.write("    Parent:%s\n" % self.m_parentProcess.m_procId )
+            strm.write("    Parent:%s\n" % self.m_parentProcess.Handle )
 
     def AddParentProcess(self, timeStamp, objCIM_Process):
         self.m_parentProcess = objCIM_Process
-        self.m_procStartTime = timeStamp
+        self.CreationDate = timeStamp
 
     def WaitProcessEnd(self, timeStamp, objCIM_Process):
-        # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.m_procId,objCIM_Process.m_procId))
-        self.m_procEndTime = timeStamp
+        # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
+        self.TerminationDate = timeStamp
         if not self.m_parentProcess:
             self.m_parentProcess = objCIM_Process
-            # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.m_procId,objCIM_Process.m_procId))
+            # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.Handle,objCIM_Process.Handle))
         elif self.m_parentProcess != objCIM_Process:
-            # sys.stdout.write("WaitProcessEnd: %s not %s\n" % (self.m_parentProcess.m_procId,objCIM_Process.m_procId))
+            # sys.stdout.write("WaitProcessEnd: %s not %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
             pass
         else:
-            # sys.stdout.write("WaitProcessEnd: %s already linked to %s\n" % (self.m_parentProcess.m_procId,objCIM_Process.m_procId))
+            # sys.stdout.write("WaitProcessEnd: %s already linked to %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
             pass
 
     def SetExecutable(self,objCIM_DataFile) :
-        self.m_executable = objCIM_DataFile.m_pathName
+        self.Executable = objCIM_DataFile.m_pathName
 
 
     # Some system calls are relative to the current directory.
@@ -401,6 +435,21 @@ class CIM_DataFile:
         # It will take a proper value if it is "connect()" or "bind()"
         self.m_socket_address = None
 
+        try:
+            objStat = os.stat(pathName)
+        except:
+            objStat = None
+
+        # Some information are not meaningfull because they will vary
+        # during the process execution.
+        if objStat:
+            self.FileSize = objStat.st_size
+        else:
+            self.FileSize = None
+
+
+
+
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.m_pathName)
 
@@ -450,12 +499,14 @@ class CIM_DataFile:
         strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.m_pathName) )
         
         subMargin = margin + "    "
-        if self.m_openTime:
-            strm.write("%s<OpenTime>%s</OpenTime>\n" % ( subMargin, TimeStampToStr(self.m_openTime) ) )
-        if self.m_closeTime:
-            strm.write("%s<CloseTime>%s</CloseTime>\n" % ( subMargin, TimeStampToStr(self.m_closeTime) ) )
-        if self.m_numOpens:
-            strm.write("%s<NumOpens>%d</NumOpens>\n" % ( subMargin, self.m_numOpens) )
+
+        for attr in dir(self):
+            attrVal = getattr(self,attr)
+            if not callable(attrVal) and not attr.startswith("__"):
+                if IsTimeStamp(attr,attrVal):
+                    attrVal = TimeStampToStr(attrVal)
+                strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
+
         strm.write("%s</CIM_DataFile>\n" % ( margin ) )
 
     @staticmethod
@@ -2279,8 +2330,8 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         try:
             batchCore = CreateBatchCore(oneLine,tracer)
         except:
-            raise Exception("Invalid line %d:%s\n"%(numLine,oneLine) )
-            # raise
+            # raise Exception("Invalid line %d:%s\n"%(numLine,oneLine) )
+            raise
 
         # Maybe the line cannot be parsed.
         if batchCore:
