@@ -1927,7 +1927,9 @@ class BatchFlow:
                 lstBatch.m_occurrences += 1
             else:
                 self.m_listBatchLets.append( btchLet )
-            lstBatch = btchLet
+            # Intentionally points to the object actually stored in the container,
+            # instead of the possibly transient object returned by yield.
+            lstBatch = self.m_listBatchLets[-1]
                 
         
 
@@ -2586,10 +2588,9 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
             btchFlow = BatchFlow()
             mapFlows[ aPid ] = btchFlow
 
-        if True:
+        if False:
             btchFlow.AddBatch( oneBatch )
         else:
-            # FIXME: repeated which are not properly counted.
             btchFlow.SendBatch( oneBatch )
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
