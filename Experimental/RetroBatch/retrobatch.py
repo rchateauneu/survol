@@ -642,10 +642,7 @@ def GenerateSummary(mapFlows,withSummary,outputFormat):
 
 # This associates file descriptors to path names when strace and the option "-y"
 # cannot be used. There are predefined values.
-G_mapFilDesToPathName = {
-    "0" : "stdin",
-    "1" : "stdout",
-    "2" : "stderr"}
+G_mapFilDesToPathName = None
 
 # strace associates file descriptors to the original file or socket which created it.
 # Option "-y          Print paths associated with file descriptor arguments."
@@ -2425,7 +2422,7 @@ def CreateFlowsFromLtraceLog(verbose,logStream):
 def BuildSTraceCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     aCmd = ["strace",
-        "-q", "-qq", "-f", "-tt", "-T", "-s", "20", "-y", "-yy",
+        "-q", "-qq", "-f", "-tt", "-T", "-s", "200", "-y", "-yy",
         "-e", "trace=desc,ipc,process,network,memory",
         ]
 
@@ -2530,17 +2527,27 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
     return logStream
 
-# This receives a stream of lines, each of them is a function call,
-# possibily unfinished/resumed/interrupted by a signal.
-def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat):
+# Global variables which must be reinitialised before a run.
+def InitGlobals( withWarning ):
     global G_stackUnfinishedBatches
     G_stackUnfinishedBatches = UnfinishedBatches(withWarning)
 
     global G_mapCacheObjects
     G_mapCacheObjects = {}
 
+    global G_mapFilDesToPathName
+    G_mapFilDesToPathName = {
+        "0" : "stdin",
+        "1" : "stdout",
+        "2" : "stderr"}
+
+# This receives a stream of lines, each of them is a function call,
+# possibily unfinished/resumed/interrupted by a signal.
+def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat):
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
+
+    InitGlobals(withWarning)
 
     mapFlows = {}
 
@@ -2582,6 +2589,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
         if True:
             btchFlow.AddBatch( oneBatch )
         else:
+            # FIXME: repeated which are not properly counted.
             btchFlow.SendBatch( oneBatch )
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
