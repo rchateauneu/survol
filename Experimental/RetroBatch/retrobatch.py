@@ -449,11 +449,22 @@ class CIM_DataFile:
         # during the process execution.
         if objStat:
             self.FileSize = objStat.st_size
-        else:
-            self.FileSize = None
 
+            self.FileMode = objStat.st_mode
+            self.Inode = objStat.st_ino
+            self.DeviceId = objStat.st_dev
+            self.HardLinksNumber = objStat.st_nlink
+            self.OwnerUserId = objStat.st_uid
+            self.OwnerGroupId = objStat.st_gid
+            self.AccessTime = objStat.st_atime
+            self.ModifyTime = objStat.st_mtime
+            self.CreationTime = objStat.st_ctime
+            self.DeviceType = objStat.st_rdev
 
-
+            # This is on Windows only.
+            # self.UserDefinedFlags = objStat.st_flags
+            # self.FileCreator = objStat.st_creator
+            # self.FileType = objStat.st_type
 
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.FileName)
