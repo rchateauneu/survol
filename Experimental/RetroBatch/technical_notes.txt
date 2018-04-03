@@ -1,0 +1,331 @@
+Notes techniques variees.
+
+Resultat:
+=========
+
+Un batchflow est un graphe oriente dont chaque noeud est un evenement,
+qui a en general les attributs:
+  Pid
+  Node entrants et sortants: Dependances.
+  Parametres: Appel systeme, creation de process etc..
+  Arguments: Les arguments ajoutent une autre relation de dependance.
+  Timestamp.
+
+Ca cree un graphe oriente:
+  fork ou vfork cree une branche.
+  waitpid joint deux branches.
+
+(Rien pour les threads a priori, la creation d'une thread
+est beaucoup plus difficile a detecter).
+
+Les evenements d'un meme process sont lies entre eux
+(Causalite). Ils aussi pointent vers les ressources utilisees:
+- Fonction (Detectee avec strace ou cdb)
+- Pid
+- Ressources divers mises en oeuvre par la fonction: Fichier, BDD etc...
+
+Visualisation: On n affiche pas forcement les ressources de chaque evenement
+mais un simple texte. En revanche, on visualise l'arbre de "causalite" (La succession des evenements).
+
+
+
+Fusionner deux batchflows:
+==========================
+
+Deux batchflows sur deux machines sur le meme reseau peuvent partager des ressources:
+* Meme fichier
+* meme base de donnee
+* Meme sockets
+
+Les ressources sont representees par un identifiant global. On ne peut pas se suffire
+du moniker WBEM ou WMI car le serveur est different. Donc, on utilise la partie
+specifique au serveur (Moniker: "classe.key1=val1,key2=val2") en prefixant avec
+l'adresse de la machine.
+
+
+Reutiliser le code de Survol qui sait gerer les cas particuliers en remplacant la machine sur
+laquelle tourne le batchflow, par une machine unique:
+* Fichiers partages sont prefixes par l'adresse du disque reseau.
+* Bases de donnees prefixees par le serveur de la base.
+* DNS unique, eventuellement prise en compte du NAT.
+
+Quant on fusionne et qu'on estime raisonnablement que deux ressources sont identiques,
+on les relie par une relation specifique (Comme dans Survol). On ne peut pas etre
+totalement certain  que deux ressources soient identiques, ce qui nous arrange car on n'a
+pas besoin de fusionner.
+
+Dans le fichier representant le batchflows, les ressources sont bien representees
+par leur node WMI, WBEM ou Survol
+
+Visualiser un batchflow dans Survol:
+====================================
+
+Deux visualisations possibles:
+
+(1) Si le batchflow est termine: Les processes ne sont plus la.
+On ne peut pas visualiser d information sur eux, uniquement afficher l arbre.
+Beaucoup d objets, en fonction de leur classe, auront l attribut "deleted"
+(qui desactive par exemple le tooltip ou le click gauche).
+Il faut transformer du RDF en Json ? Ou bien charger le json d un coup
+a partir d un URL specifique ?
+
+(2) Si le batchflow est en cours d execution:
+On a un serveur de JSON qui envoie les updates du batchflow:
+En clair, les dernieres informations (Appels de fonctions)
+transformees en JSON, chargeable par Survol.
+Les processes sont la, mais peuvent eventuellement disparaitre:
+On represente la disparition d'un object en le renvoyant avec l attribut "deleted".
+
+Serveur de donnees associees a un batchflow:
+============================================
+
+Le process qui cree le fichier de batchflow detecte les creations
+de processes, fichiers etc... et alimente un fichier de log (RDF ?) qui contient
+l historique du batchflow et permet de le reconstituer.
+
+Il peut lancer en meme temps un serveur HTTP qui envoie en JSON la description du graphe
+du batchflow.
+
+Comme le batchflow grandit, comment ne renvoyer que les dernieres donnees ?
+A chaque appel, on va envoyer un petit document json contenant les nouveaux
+nodes (ou la notification de leur destruction) et les nouveaux links.
+
+On pourrait utiliser le time-stamp:
+"Tous les nouveaux nodes et links depuis le time-stamp X"
+Si on ne le fournit pas, on recupere tout.
+
+Le serveur pourrait aussi detecter la deconnection.
+Si c'est la meme socket, on renvoie la suite.
+Mais ca mele technique et fonctionnel.
+
+Le serveur pourrait gerer une session si le client lui envoie
+un identifiant unique: Le serveur gere alors une queue par client.
+Peu de donnees et peu de clients, donc pas de souci de taille.
+
+Survol doit pouvoir s'abonner a plusieurs sources de donnees en meme temps
+et faire "en direct" la fusion des ressources partagees par plusieurs batchflows.
+
+Les scripts asynchrones s'abonnent a une source de donnees
+et remplissent un buffer dedie a un client WSGI.
+
+Ca ne peut fonctionner que si le serveur est WSGI.
+Le click-droit propose pour chaque entite une source de donnees.
+Pourrait-on en avoir plusieurs ?
+Il y a aussi des sources de donnees globales.
+
+Comment fusionner ca avec le refresh d'URLs ?
+Du point de vue de D3, ca pourrait etre la meme chose:
+ON s'abonne toutes les X minutes (Ou bien en continu) a un URL.
+Mais on ne permet pas l'abonnement en continu a un script normal.
+
+On fait la difference du point de vue de D3,
+entre un script normal qui renvoie toujours les memes donnees,
+et un script asynchrone qui ne renvoie que les dernieres donnees,
+en donnant un nom special aux scripts asynchrones.
+monscript.ASYNC.py
+Du coup, pas besoin de preciser dans CgiEnv.
+
+D3 refuse de faire des refresh immediats de scripts qui n'ont pas le nom *.ASYNC.py.
+On peut eventuellement se deconnecter d'un script asynchrone, car ca peut faire beaucoup de donnees.
+
+Par ailleurs, CgiEnv refuse de traiter le parametre "&from_timestamp=" pour ces memes scripts.
+
+De plus, si script asynchrone, on ne va pas tout virer,
+mais seulement ajouter des updates (et des nodes "deleted").
+
+Sessions WSGI:
+==============
+
+CgiServer peut detecter dans les variables d'environnement si on est en WSGI:
+
+Variables d'environnement:
+SERVER_SOFTWARE	WSGIServer/0.1 Python/2.7.10
+
+wsgi.url_scheme	http
+wsgi.multithread	True
+wsgi.file_wrapper	wsgiref.util.FileWrapper
+wsgi.version	(1, 0)
+wsgi.run_once	False
+wsgi.input	LTsocket._fileobject object at 0x0000000003DAF228GT
+wsgi.errors	LTopen file 'LTstderrGT', mode 'w' at 0x0000000001D4A150GT
+wsgi.run_once	False
+
+D3 devrait peut-etre mettre un identifiant de session.
+Le server detruit les buffer qui n'ont pas ete accedes depuis plus de X minutes.
+
+Implementation dans Survol:
+===========================
+
+Survol apporte:
+* Visualisation des donnees.
+* Structure de donnees.
+
+A proprement parler, on n'implemente pas dans Survol car on amene le plus possible,
+du code autonome. En revanche, le couplage est tres proche.
+
+Les scripts asynchrones peuvent etre visualises comme les autres,
+D3 peut les filtrer grace a leur nom.
+Dans un premier temps, on peut gerer leur demarrage, les sessions.
+
+Clique droit sur un process: On demarre un nouvel URL qui renvoie des nodes
+a chaque appel: entity_flow.py
+entity_flow.py fonctionne avec toute ressource et renvoie de nouveaux nodes.
+
+En pratique, on lance une session de cgiserver.py.
+Ou bien cgiserver.py traite specifiquement certains urls.
+
+En revanche:
+* Le monitoring des processes est le meme.
+
+Donc on peut reprendre la partie HTTP de cgiserver.py et ajouter le cas specifique de entity_flow.py?xid=CIM_Process.Handle=<pid>
+... mais aussi le lancement du process, sur la ligne de commande de cgiserver.py (Qui prendra un autre nom).
+
+Scripts asynchrones:
+====================
+
+monitor_process.py :
+
+On appelle le script retrobatch avec un pid.
+
+mpnitor_executable.py:
+On appelle le script retrobatch avec un fichier executable.
+
+Comparaison de deux batchflows:
+===============================
+
+Deux batchflows pris sur la meme machine modelisent les memes taches,
+par exemple a un jour d intervalle. Il y a des similarites et des differences:
+* Les commandes sont les memes mais les process id differents.
+* Les time-stamps sont differeents mais les durees similaires.
+* Les noms de fichiers differents, contiennent eventuellement la date.
+  D'ailleurs, reperer les fichiers dientiques comme cause possible de probleme.
+
+http://liris.cnrs.fr/Documents/Liris-1526.pdf
+http://lioneltabourier.fr/documents/These_Tabourier.pdf
+
+... etc ...
+
+Pour comparer, il faut gommer ce qui change tous les jours:
+* Remplacer les process ids par la commande.
+* Dans les fichiers, virer les dates.
+* Dans les sockets, ne garder que les sockets connues ("/etc/services")
+
+Si Windows et CDB:
+==================
+
+Thrd 1b34 00D831EC GetStartupInfoA() ( [0x001BFCEC] -> 0x00000044 ,    , "" , "WinSta0\Default" , "C:\Windows\system32\notepad.exe" , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x00000000 , 0x0000 , 0x0000 ,    , [0x00000000] , INVALID_HANDLE_VALUE , INVALID_HANDLE_VALUE , INVALID_HANDLE_VALUE )
+Thrd 1b34 00D835AD GetModuleHandleA( NULL) -> 0x00D80000
+
+
+# windows default encoding is cp1252 but the file is not using that encoding
+
+#enc='utf-8'
+#enc='utf-16'
+enc='iso-8859-15'
+logFil = open("LogExts/notepad.exe.txt", 'r', encoding=enc)
+cnt = 1
+for aLine in logFil:
+                # sys.stdout.write("l=%s"%aLine) ( 0x74650000 "ThemeInitApiHook") -> 0x74664571
+
+Problemes avec CDB:
+- Il faut l installer.
+- On na pas reussi a le faire fonctionner chez nous.
+- Ca ecrit dans un fichier, pas un pipe: On peut contourner, mais bon.
+
+Sur Windows:
+============
+
+On utilise pydbg donc une version fonctionne avec python3:
+https://github.com/vuonghv/pydbg3
+
+On a besoin uniquement de attach(), run() et hook().
+
+http://www.openrce.org/forums/posts/274
+https://github.com/OpenRCE/pydbg
+https://www.malwaretech.com/2015/04/intercepting-all-system-calls-by.html
+
+“Usually I don’t post things like this, but because KiFastSystemCall
+hooking only works on x86 systems and doesn’t work on Windows 8 or above,
+it no longer has much use in malware.
+There are also multiple public implementations for this method, just not very elegant, which I hope to correct.”
+
+https://github.com/OpenRCE/paimei/tree/master/utils
+https://github.com/OpenRCE/pydbg
+
+https://gist.github.com/RobinDavid/9213868
+# This script present a way to hook a DLL library in Firefox.
+For this example the script hook nspr4.dll which encrypt datas for SSL
+
+It uses pydbg.
+
+http://www.openrce.org/forums/posts/274
+“Usually I don’t post things like this, but because KiFastSystemCall hooking only works on x86 systems
+and doesn’t work on Windows 8 or above, it no longer has much use in malware.
+There are also multiple public implementations for this method, just not very elegant, which I hope to correct.”
+
+"Official" project repository:
+==============================
+https://github.com/rchateauneu/mineit
+
+
+Reducing event logs size:
+=========================
+
+« Frequent Itemset and Association Rule Mining.
+Frequent item-set mining is an interesting branch of data mining
+that focuses on looking at sequences of actions or events”
+https://en.wikipedia.org/wiki/Sequential_pattern_mining
+
+"Trace Clustering in Process Mining"
+https://link.springer.com/chapter/10.1007/978-3-642-00328-8_11
+"Process mining has proven to be a valuable tool for analyzing operational process executions based on event logs.
+Existing techniques perform well on structured processes,
+but still have problems discovering and visualizing less structured ones.
+Unfortunately, process mining is most interesting in domains requiring flexibility.
+A typical example would be the treatment process in a hospital
+where it is vital that people can deviate to deal with changing circumstances.
+Here it is useful to provide insights into the actual processes but at the same time
+there is a lot of diversity leading to complex models that are difficult to interpret.
+This paper presents an approach using trace clustering, i.e.,
+the event log is split into homogeneous subsets and for each subset a process model is created."
+
+https://www.quora.com/What-is-the-difference-between-factor-and-cluster-analyses
+"Cluster analysis is about grouping subjects (e.g. people). Factor analysis is about grouping variables.
+Suppose a group of people answer a bunch of questions about, say, politics.
+Opinions of various politicians, thoughts on issues, etc.
+Ignoring all the messy details, a cluster analysis would try to identify groups of people:
+The groups might have labels like "Tea party conservative", "Libertarian", "Liberal", "Environmentalist" and so on.
+A factor analysis would try to come up with measures of latent variables such as "liberalness", "hawkishness", etc."
+
+Outils pour la generation d'event logs:
+=======================================
+
+strace is a diagnostic, debugging and instructional userspace utility for Linux.
+It is used to monitor and tamper with interactions between processes and the Linux kernel,
+which include system calls, signal deliveries, and changes of process state.
+https://en.wikipedia.org/wiki/Strace
+
+Microsoft Windows: Logger can monitor the actions of a user-mode target application and record all of its API calls.
+https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/logger-and-logviewer
+
+
+Frequent Item Set Mining:
+========================
+
+Efficient Mining of Partial Periodic Patterns in Time Series Database
+https://corescholar.libraries.wright.edu/cgi/viewcontent.cgi?referer=http://scholar.google.co.uk/&httpsredir=1&article=1355&context=knoesis
+
+https://pypi.python.org/pypi/apyori/1.1.1 Simple Apriori algorithm Implementation.
+
+http://www.borgelt.net/pyfim.html Frequent Item Set Mining for Python
+https://pypi.python.org/pypi/fim Frequent Item Set Mining and Association Rule Induction for Python
+« Frequent Itemset and Association Rule Mining.
+Frequent item-set mining is an interesting branch of data mining that focuses on looking at sequences of actions or events”
+
+
+https://en.wikipedia.org/wiki/Sequential_pattern_mining
+
+Process mining:
+===============
+PyProM is a Python-based, open-source process mining package.
+https://github.com/harrywang/pyprom

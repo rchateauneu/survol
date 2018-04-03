@@ -25,7 +25,7 @@ def Main():
 	grph.add( ( node_oraSchema, pc.property_oracle_package_body, node_oraPackageBody ) )
 
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"
-	sql_query = "select owner,name,type from dba_dependencies where REFERENCED_TYPE = 'PACKAGE BODY' AND REFERENCED_NAME = '"\
+	sql_query = "select owner,name,type from all_dependencies where REFERENCED_TYPE = 'PACKAGE BODY' AND REFERENCED_NAME = '"\
 				+ oraPackageBody + "' and referenced_owner='" + oraSchema + "'"
 	sys.stderr.write("sql_query=%s\n" % sql_query )
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
@@ -33,7 +33,7 @@ def Main():
 	for row in result:
 		lib_oracle.AddDependency( grph, row, node_oraPackageBody, cgiEnv.m_oraDatabase, True )
 
-	sql_query_inv = "select referenced_owner,referenced_name,referenced_type from dba_dependencies where type='PACKAGE BODY' and NAME = '"\
+	sql_query_inv = "select referenced_owner,referenced_name,referenced_type from all_dependencies where type='PACKAGE BODY' and NAME = '"\
 					+ oraPackageBody + "' and OWNER='" + oraSchema + "'"
 	sys.stderr.write("sql_query_inv=%s\n" % sql_query_inv )
 	result_inv = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query_inv)
