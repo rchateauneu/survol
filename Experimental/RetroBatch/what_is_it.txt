@@ -1,3 +1,7 @@
+“Retrobatch is a Python-based, open-source process mining tool aiming at modelling .“
+
+
+
 L idee est d appliquer les concepts du "Process Mining" au deroulement technique d'un
 systeme d informations, d un ensemble de taches, dont a priori on ne sait rien.
 
@@ -5,39 +9,39 @@ Qu'est ce que le process mining ? https://en.wikipedia.org/wiki/Process_mining#O
 =================================
 D'apres wikipedia, c'est un ensemble de techniques
 issue du Business Process Management ( https://fr.wikipedia.org/wiki/Business_Process_Management ),
-et qui permet l analyse de processus metiers en partant de fichiers de logs,
- c est a dire de l historique technique d une suite d'operations metiers.
- Ces fichiers de logs peuvent etre crees par tout outil utilise par l entreprise,
- et peuvent concerner toute ressource de celle-ci: Suite d operations client,
- d'intervention du personnelm, de transformations sur des produits etc...
+et qui permet l'analyse de processus metiers en partant de fichiers de logs,
+c est a dire de l historique technique d une suite d'operations metiers.
+Ces fichiers de logs peuvent etre crees par tout outil utilise par l entreprise,
+et peuvent concerner toute ressource de celle-ci: Suite d operations client,
+d'intervention du personnel, de transformations sur des produits etc...
 
- Pendant le process mining, des algorithmes specifiques sont utilises sur les fichiers de logs
- pour identifier des patters des tendances, extraire des details, aggreger des operations
- de base.
+Pendant le process mining, des algorithmes specifiques sont utilises sur les fichiers de logs
+pour identifier des patters des tendances, extraire des details, aggreger des operations
+de base.
 
 Il suffit qu on puisse ramener chaque operation de base d'un log,
 a un triplet: CaseId, Activite, timeStamp, pour que les algorithmes du Process Mining puisse s'appliquer.
 
-Dans notre cas, nous considerons que les objects informatiques font aussi partie des ressources de l entreprise,
-sont l expression au plus bas niveau des processus metiers.
-Si on prend une suite de batches quotidiens, ce sont la meilleure represenation
-des operations, de l;activite metier.
+Ici, on considere les ressoucres techniques comme faisant partie des ressources de l entreprise,
+et composents au plus bas niveau des processus metiers.
 
-Dans le cas des batches, quels fichiers logs sont toujours existants,
-et sont la representaiton la plus fidele des transformations en cours ?
+C'est par exemple le meilleur modele des batches quotidiens.
+Et meme sans documentation, cette informnation est toujours disponible.,
+bien que tres technique et difficile a relier
+aux objects metier; Mais cette relation existe.
 
-Ce sont les logs generes par les debuggers, qui permettent de controler
-quelles ressources sont affectees, quels traitements sont lances etc...
+L'objectif de MineIT est de relier les fichiers de logs des batchs,
+que objets metiers du client, en s'appuyant sur les concepts du Process Mining.
 
-Meme en l'absence de documentation, cette information est toujours disponible.
+D'emblee, quelques remarques:
 
-La difficulte reelle est qu'elle est extremement technique et difficile a relier
-aux objects metier.
+* Generer des logs fiables, est une fonctionnalite en elle-meme,
+que MineIT realise: Il n'y a donc pas besoin d'autres outils.
+* Remonter des objets techniques aux ressources metiers: C'est un process iteratif,
+par nature imprecis en l'absence de documentation, et toujours ameliorable.
 
-Le role de retrobatch est de generer ces logs, de les aggreger et d'en extraire les composants de base.
-
-Comment proceder:
------------------
+Comment ca fonctionne:
+----------------------
 
 (1) Extraction technique: strace, ou Logger.
 => Fichiers de logs ou toutes les informations sont disponibles.
@@ -55,6 +59,15 @@ des time-stamps, pid, sockets, fichiers etc...
 
 Qu'est ce qui est fait ?
 ========================
-
 (1) sous Linux
 (2) en partie seulement.
+
+Par rapport a "Survol":
+=======================
+Survol est un outil interactif d'analyse et d'exploration d'un systeme existant.
+Il fait des snapshots de ressources en cours d'execution ou d'exploitation,
+et les presente dans plusieurs interface: WEB, texte, SVG etc...
+
+Mine-IT apporte la dimension temporelle aux objets presente par Survol:
+Ils sont orthogonaux en ceci que survol explore les relations
+entre les objects a un instant T, tandis que Mine-IT suit leur evolution.

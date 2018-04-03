@@ -32,21 +32,15 @@ def BuildCredDocument():
 	filNam = CredFilNam()
 	try:
 		jsonCreds = json.load( open(filNam) )
-		# return jsonCreds
-		# sys.stderr.write("CredDocument credentials=%d elements\n" % (len(credentials)))
 
 		upperCredentials = dict()
 		for keyCred in jsonCreds:
 			keyVal = jsonCreds[keyCred]
 			upperCredentials[keyCred] = keyVal
-			# Now converts the internal keys to uppercase. This because machines name are unpredictably converted
-			# to lower or upper case, or capitalised.
-			# keyValUp = { subKey.upper() : keyVal[subKey] for subKey in keyVal }
-			# upperCredentials[keyCred] = keyValUp
 
 		return upperCredentials
 	except Exception:
-		sys.stderr.write("CredDocument no credentials: %s\n" % str(sys.exc_info()))
+		sys.stderr.write("BuildCredDocument no credentials: %s\n" % str(sys.exc_info()))
 		return dict()
 
 def CredDocument():
@@ -75,7 +69,7 @@ def GetCredentials( credType, credName ):
 	# Try first without converting.
 	try:
 		cred = arrType[credName]
-		sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
+		# sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
 		return cred
 	except KeyError:
 		pass
@@ -88,7 +82,7 @@ def GetCredentials( credType, credName ):
 	credNameUpper = credName.upper()
 	try:
 		cred = arrTypeUpper[credNameUpper]
-		sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
+		# sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
 		return cred
 	except KeyError:
 		sys.stderr.write("GetCredentials Unknown name credType=%s credName=%s\n" % (credType,credName))

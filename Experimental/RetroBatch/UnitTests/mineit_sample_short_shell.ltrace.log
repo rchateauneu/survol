@@ -1,0 +1,161 @@
+[pid 18319] 09:00:22.600117 close@SYS(255 <unfinished ...>
+[pid 18319] 09:00:22.600192 <... close resumed> ) = 0 <0.000074>
+[pid 18319] 09:00:22.600248 rt_sigprocmask@SYS(2, 0x55e290fb69a0, 0, 8 <unfinished ...>
+[pid 18319] 09:00:22.600327 <... rt_sigprocmask resumed> ) = 0 <0.000079>
+[pid 18319] 09:00:22.600398 rt_sigaction@SYS(20, 0x7ffea10ccff0, 0x7ffea10cd090, 8 <unfinished ...>
+[pid 18319] 09:00:22.600474 <... rt_sigaction resumed> ) = 0 <0.000074>
+[pid 18319] 09:00:22.600520 rt_sigaction@SYS(21, 0x7ffea10ccff0, 0x7ffea10cd090, 8 <unfinished ...>
+[pid 18319] 09:00:22.600601 <... rt_sigaction resumed> ) = 0 <0.000080>
+[pid 18319] 09:00:22.600645 rt_sigaction@SYS(22, 0x7ffea10cd000, 0x7ffea10cd0a0, 8 <unfinished ...>
+[pid 18319] 09:00:22.600724 <... rt_sigaction resumed> ) = 0 <0.000077>
+[pid 18319] 09:00:22.600750 dup2@SYS(3, 0)       = 0 <0.000034>
+[pid 18319] 09:00:22.600810 close@SYS(3)         = 0 <0.000025>
+[pid 18319] 09:00:22.600965 stat@SYS(".", 0x7ffea10cd310) = 0 <0.000057>
+[pid 18319] 09:00:22.601042 stat@SYS("/usr/lib64/qt-3.3/bin/wc", 0x7ffea10cd200) = -2 <0.000113>
+[pid 18319] 09:00:22.601175 stat@SYS("/usr/local/bin/wc", 0x7ffea10cd200) = -2 <0.000127>
+[pid 18319] 09:00:22.601323 stat@SYS("/usr/bin/wc", 0x7ffea10cd200) = 0 <0.000141>
+[pid 18319] 09:00:22.601482 stat@SYS("/usr/bin/wc", 0x7ffea10cd130) = 0 <0.000077>
+[pid 18319] 09:00:22.601577 geteuid@SYS()        = 1000 <0.000034>
+[pid 18319] 09:00:22.601631 getegid@SYS()        = 1000 <0.000022>
+[pid 18319] 09:00:22.601671 getuid@SYS()         = 1000 <0.000022>
+[pid 18319] 09:00:22.601724 getgid@SYS()         = 1000 <0.000022>
+[pid 18319] 09:00:22.601763 access@SYS("/usr/bin/wc", 01) = 0 <0.000113>
+[pid 18319] 09:00:22.601894 stat@SYS("/usr/bin/wc", 0x7ffea10cd130) = 0 <0.000078>
+[pid 18319] 09:00:22.601990 geteuid@SYS()        = 1000 <0.000022>
+[pid 18319] 09:00:22.602043 getegid@SYS()        = 1000 <0.000021>
+[pid 18319] 09:00:22.602082 getuid@SYS()         = 1000 <0.000022>
+[pid 18319] 09:00:22.602134 getgid@SYS()         = 1000 <0.000043>
+[pid 18319] 09:00:22.602197 access@SYS("/usr/bin/wc", 04) = 0 <0.000079>
+[pid 18319] 09:00:22.602293 stat@SYS("/usr/bin/wc", 0x7ffea10cd230) = 0 <0.000077>
+[pid 18319] 09:00:22.602388 stat@SYS("/usr/bin/wc", 0x7ffea10cd160) = 0 <0.000077>
+[pid 18319] 09:00:22.602482 geteuid@SYS()        = 1000 <0.000021>
+[pid 18319] 09:00:22.602521 getegid@SYS()        = 1000 <0.000035>
+[pid 18319] 09:00:22.602574 getuid@SYS()         = 1000 <0.000022>
+[pid 18319] 09:00:22.602614 getgid@SYS()         = 1000 <0.000032>
+[pid 18319] 09:00:22.602666 access@SYS("/usr/bin/wc", 01) = 0 <0.000064>
+[pid 18319] 09:00:22.602818 stat@SYS("/usr/bin/wc", 0x7ffea10cd160) = 0 <0.000065>
+[pid 18319] 09:00:22.602901 geteuid@SYS()        = 1000 <0.000036>
+[pid 18319] 09:00:22.602956 getegid@SYS()        = 1000 <0.000021>
+[pid 18319] 09:00:22.603012 getuid@SYS()         = 1000 <0.000022>
+[pid 18319] 09:00:22.603053 getgid@SYS()         = 1000 <0.000021>
+[pid 18319] 09:00:22.603092 access@SYS("/usr/bin/wc", 04) = 0 <0.000078>
+[pid 18319] 09:00:22.603202 rt_sigaction@SYS(2, 0x7ffea10cd120, 0x7ffea10cd1c0, 8) = 0 <0.000047>
+[pid 18319] 09:00:22.603268 rt_sigaction@SYS(3, 0x7ffea10cd120, 0x7ffea10cd1c0, 8) = 0 <0.000034>
+[pid 18319] 09:00:22.603319 rt_sigaction@SYS(17, 0x7ffea10cd120, 0x7ffea10cd1c0, 8) = 0 <0.000049>
+[pid 18319] 09:00:22.603387 execve@SYS("/usr/bin/wc", 0x55e291ac8950, 0x55e291ac8f00 <unfinished ...>
+[pid 18319] 09:00:22.604343 --- Called exec() ---
+[pid 18319] 09:00:22.605153 brk@SYS(nil)         = 0x11f3000 <0.000047>
+[pid 18319] 09:00:22.605358 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
+[pid 18319] 09:00:22.605640 <... mmap resumed> ) = 0x7fa4ee0cf000 <0.000274>
+[pid 18319] 09:00:22.605732 access@SYS("/etc/ld.so.preload", 04 <unfinished ...>
+[pid 18319] 09:00:22.605987 <... access resumed> ) = -2 <0.000252>
+[pid 18319] 09:00:22.606161 open@SYS("/etc/ld.so.cache", 0x80000, 01 <unfinished ...>
+[pid 18319] 09:00:22.606343 <... open resumed> ) = 3 <0.000180>
+[pid 18319] 09:00:22.606403 fstat@SYS(3, 0x7fffef1e5570 <unfinished ...>
+[pid 18319] 09:00:22.606494 <... fstat resumed> ) = 0 <0.000091>
+[pid 18319] 09:00:22.606557 mmap@SYS(nil, 121043, 1, 2, 3, 0 <unfinished ...>
+[pid 18319] 09:00:22.606745 <... mmap resumed> ) = 0x7fa4ee0b1000 <0.000122>
+[pid 18319] 09:00:22.606822 close@SYS(3 <unfinished ...>
+[pid 18319] 09:00:22.606924 <... close resumed> ) = 0 <0.000100>
+[pid 18319] 09:00:22.607180 open@SYS("/lib64/libc.so.6", 0x80000, 035603220510 <unfinished ...>
+[pid 18319] 09:00:22.607375 <... open resumed> ) = 3 <0.000194>
+[pid 18319] 09:00:22.607467 read@SYS(3 <unfinished ...>
+[pid 18319] 09:00:22.607590 <... read resumed> , "\177ELF\002\001\001\003", 832) = 832 <0.000123>
+[pid 18319] 09:00:22.607701 fstat@SYS(3, 0x7fffef1e55b0 <unfinished ...>
+[pid 18319] 09:00:22.607797 <... fstat resumed> ) = 0 <0.000095>
+[pid 18319] 09:00:22.607885 mmap@SYS(nil, 3934752, 5, 2050, 3, 0 <unfinished ...>
+[pid 18319] 09:00:22.608031 <... mmap resumed> ) = 0x7fa4edaef000 <0.000146>
+[pid 18319] 09:00:22.608080 mprotect@SYS(0x7fa4edca6000, 2097152, 0 <unfinished ...>
+[pid 18319] 09:00:22.608159 <... mprotect resumed> ) = 0 <0.000077>
+[pid 18319] 09:00:22.608247 mmap@SYS(0x7fa4edea6000, 24576, 3, 2066, 3, 1798144 <unfinished ...>
+[pid 18319] 09:00:22.608362 <... mmap resumed> ) = 0x7fa4edea6000 <0.000115>
+[pid 18319] 09:00:22.608447 mmap@SYS(0x7fa4edeac000, 14880, 3, 50, -1, 0 <unfinished ...>
+[pid 18319] 09:00:22.608515 <... mmap resumed> ) = 0x7fa4edeac000 <0.000070>
+[pid 18319] 09:00:22.608630 close@SYS(3 <unfinished ...>
+[pid 18319] 09:00:22.608705 <... close resumed> ) = 0 <0.000075>
+[pid 18319] 09:00:22.608750 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
+[pid 18319] 09:00:22.608847 <... mmap resumed> ) = 0x7fa4ee0b0000 <0.000095>
+[pid 18319] 09:00:22.608909 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
+[pid 18319] 09:00:22.609018 <... mmap resumed> ) = 0x7fa4ee0af000 <0.000108>
+[pid 18319] 09:00:22.609077 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
+[pid 18319] 09:00:22.609284 <... mmap resumed> ) = 0x7fa4ee0ae000 <0.000205>
+[pid 18319] 09:00:22.609460 arch_prctl@SYS(4098, 0x7fa4ee0af700, 3, 34 <unfinished ...>
+[pid 18319] 09:00:22.609521 <... arch_prctl resumed> ) = 0 <0.000052>
+[pid 18319] 09:00:22.609648 mprotect@SYS(0x7fa4edea6000, 16384, 1 <unfinished ...>
+[pid 18319] 09:00:22.609739 <... mprotect resumed> ) = 0 <0.000095>
+[pid 18319] 09:00:22.609789 mprotect@SYS(0x608000, 4096, 1) = 0 <0.000055>
+[pid 18319] 09:00:22.609898 mprotect@SYS(0x7fa4ee0d0000, 4096, 1) = 0 <0.000044>
+[pid 18319] 09:00:22.609993 munmap@SYS(0x7fa4ee0b1000, 121043 <unfinished ...>
+[pid 18319] 09:00:22.610105 <... munmap resumed> ) = 0 <0.000112>
+[pid 18319] 09:00:22.612140 brk@SYS(nil <unfinished ...>
+[pid 18319] 09:00:22.612231 <... brk resumed> )  = 0x11f3000 <0.000090>
+[pid 18319] 09:00:22.612302 brk@SYS(0x1214000 <unfinished ...>
+[pid 18319] 09:00:22.612351 <... brk resumed> )  = 0x1214000 <0.000050>
+[pid 18319] 09:00:22.612442 brk@SYS(nil <unfinished ...>
+[pid 18319] 09:00:22.612582 <... brk resumed> )  = 0x1214000 <0.000140>
+[pid 18319] 09:00:22.612789 open@SYS("/usr/lib/locale/locale-archive", 0x80000, 00 <no return ...>
+[pid 18319] 09:00:22.613530 <... open resumed> ) = 3 <0.000741>
+[pid 18319] 09:00:22.613618 fstat@SYS(3, 0x7fa4edeab980 <unfinished ...>
+[pid 18319] 09:00:22.613736 <... fstat resumed> ) = 0 <0.000118>
+[pid 18319] 09:00:22.613901 mmap@SYS(nil, 109229520, 1, 2, 3, 0 <unfinished ...>
+[pid 18319] 09:00:22.613994 <... mmap resumed> ) = 0x7fa4e72c3000 <0.000093>
+[pid 18319] 09:00:22.614122 close@SYS(3 <unfinished ...>
+[pid 18319] 09:00:22.614212 <... close resumed> ) = 0 <0.000090>
+[pid 18319] 09:00:22.614362 fstat@SYS(0, 0x11f4078 <unfinished ...>
+[pid 18319] 09:00:22.614439 <... fstat resumed> ) = 0 <0.000080>
+[pid 18319] 09:00:22.614511 open@SYS("/usr/share/locale/locale.alias", 0x80000, 0666 <unfinished ...>
+[pid 18319] 09:00:22.614793 <... open resumed> ) = 3 <0.000282>
+[pid 18319] 09:00:22.614879 fstat@SYS(3, 0x7fffef1e1530 <unfinished ...>
+[pid 18319] 09:00:22.614995 <... fstat resumed> ) = 0 <0.000119>
+[pid 18319] 09:00:22.615033 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
+[pid 18319] 09:00:22.615109 <... mmap resumed> ) = 0x7fa4ee0ce000 <0.000076>
+[pid 18319] 09:00:22.615198 read@SYS(3 <unfinished ...>
+[pid 18319] 09:00:22.615257 <... read resumed> , "# Locale name alias data base.\n# Copyright (C) 1996-2015 Free Software Foundation, Inc.\n#\n# This program is free software; you can redistribute it and/or modify\n# it under the terms of the GNU General"..., 4096) = 2997 <0.000058>
+[pid 18319] 09:00:22.617530 read@SYS(3, "", 4096) = 0 <0.000037>
+[pid 18319] 09:00:22.617622 close@SYS(3 <unfinished ...>
+[pid 18319] 09:00:22.617677 <... close resumed> ) = 0 <0.000055>
+[pid 18319] 09:00:22.617731 munmap@SYS(0x7fa4ee0ce000, 4096 <unfinished ...>
+[pid 18319] 09:00:22.617920 <... munmap resumed> ) = 0 <0.000184>
+[pid 18319] 09:00:22.618019 open@SYS("/usr/share/locale/en_GB.UTF-8/LC_MESSAGES/coreutils.mo", 0, 035602573400 <unfinished ...>
+[pid 18319] 09:00:22.618407 <... open resumed> ) = -2 <0.000386>
+[pid 18319] 09:00:22.618480 open@SYS("/usr/share/locale/en_GB.utf8/LC_MESSAGES/coreutils.mo", 0, 035602573400 <unfinished ...>
+[pid 18319] 09:00:22.618833 <... open resumed> ) = -2 <0.000352>
+[pid 18319] 09:00:22.619148 open@SYS("/usr/share/locale/en_GB/LC_MESSAGES/coreutils.mo", 0, 035602573400 <unfinished ...>
+[pid 18319] 09:00:22.619474 <... open resumed> ) = -2 <0.000329>
+[pid 18319] 09:00:22.619616 open@SYS("/usr/share/locale/en.UTF-8/LC_MESSAGES/coreutils.mo", 0, 035602573400 <unfinished ...>
+[pid 18319] 09:00:22.620089 <... open resumed> ) = -2 <0.000473>
+[pid 18319] 09:00:22.620145 open@SYS("/usr/share/locale/en.utf8/LC_MESSAGES/coreutils.mo", 0, 035602573400 <unfinished ...>
+[pid 18319] 09:00:22.620492 <... open resumed> ) = -2 <0.000344>
+[pid 18319] 09:00:22.620551 open@SYS("/usr/share/locale/en/LC_MESSAGES/coreutils.mo", 0, 035602573400 <unfinished ...>
+[pid 18319] 09:00:22.620876 <... open resumed> ) = -2 <0.000325>
+[pid 18319] 09:00:22.621014 fadvise64@SYS(0, 0, 0, 2 <unfinished ...>
+[pid 18319] 09:00:22.621086 <... fadvise64 resumed> ) = -29 <0.000077>
+[pid 18319] 09:00:22.621213 read@SYS(0 <unfinished ...>
+[pid 18319] 09:00:23.019579 <... read resumed> , "UID        PID  PPID  C STIME TTY          TIME CMD\nroot         1     0  0 Mar03 ?        00:00:30 /usr/lib/systemd/systemd --switched-root --system --deserialize 21\nroot         2     0  0 Mar03 ?  "..., 16384) = 4096 <0.398361>
+[pid 18319] 09:00:23.024656 open@SYS("/usr/lib64/gconv/gconv-modules.cache", 0, 00) = 3 <0.001286>
+[pid 18319] 09:00:23.026041 fstat@SYS(3, 0x7fffef1e1870) = 0 <0.000238>
+[pid 18319] 09:00:23.026371 mmap@SYS(nil, 26254, 1, 1, 3, 0 <unfinished ...>
+[pid 18319] 09:00:23.027341 <... mmap resumed> ) = 0x7fa4ee0c8000 <0.000911>
+[pid 18319] 09:00:23.027775 close@SYS(3 <unfinished ...>
+[pid 18319] 09:00:23.028724 <... close resumed> ) = 0 <0.000960>
+[pid 18319] 09:00:23.029063 read@SYS(0 <unfinished ...>
+[pid 18319] 09:00:23.191374 <... read resumed> , "  00:00:00 [bioset]\nroot       466     2  0 Mar03 ?        00:00:00 [bioset]\nroot       470     2  0 Mar03 ?        00:00:01 [kworker/1:1H]\nroot       500     1  0 Mar03 ?        00:00:05 /usr/lib/sys"..., 16384) = 4096 <0.162314>
+[pid 18319] 09:00:23.194830 read@SYS(0 <unfinished ...>
+[pid 18319] 09:00:23.315109 <... read resumed> , "/libvirt_leaseshelper\nroot      1456  1455  0 Mar03 ?        00:00:00 /sbin/dnsmasq --conf-file=/var/lib/libvirt/dnsmasq/default.conf --leasefile-ro --dhcp-script=/usr/libexec/libvirt_leaseshelper\ngdm"..., 16384) = 4096 <0.120279>
+[pid 18319] 09:00:23.318623 read@SYS(0 <unfinished ...>
+[pid 18319] 09:00:23.442943 <... read resumed> , "   00:00:00 /usr/sbin/httpd -DFOREGROUND\napache    7201  1237  0 Mar11 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache    7203  1237  0 Mar11 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napach"..., 16384) = 4096 <0.124320>
+[pid 18319] 09:00:23.446411 read@SYS(0 <unfinished ...>
+[pid 18319] 09:00:23.613761 <... read resumed> , "hateau  8031  7669  0 Mar04 tty2     00:00:00 /usr/libexec/tracker-miner-user-guides\nrchateau  8033  7669  0 Mar04 tty2     00:00:00 abrt-applet\nrchateau  8036     1  0 Mar04 tty2     00:00:05 /usr/li"..., 16384) = 4096 <0.167350>
+[pid 18319] 09:00:23.617229 read@SYS(0 <unfinished ...>
+[pid 18319] 09:00:23.630534 <... read resumed> , "@pts/2\nrchateau 26377 26350  0 Mar07 ?        00:00:00 sshd: rchateau@notty\nrchateau 26434 26377  0 Mar07 ?        00:00:00 /usr/libexec/openssh/sftp-server\nrchateau 26531 26355  0 Mar07 pts/2    00:0"..., 16384) = 277 <0.013305>
+[pid 18319] 09:00:23.631008 read@SYS(0 <unfinished ...>
+[pid 18319] 09:00:23.631086 <... read resumed> , "", 16384) = 0 <0.000077>
+[pid 18319] 09:00:23.631141 fstat@SYS(1, 0x7fffef1e12a0) = 0 <0.000030>
+[pid 18319] 09:00:23.631186 mmap@SYS(nil, 4096, 3, 34, -1, 0) = 0x7fa4ee0c7000 <0.000044>
+[pid 18319] 09:00:23.631259 write@SYS(1, "    251    2280   20757\n", 24    251    2280   20757
+[pid 18319] 09:00:23.631360 close@SYS(0)         = 0 <0.000030>
+[pid 18319] 09:00:23.631414 close@SYS(1)         = 0 <0.000025>
+[pid 18319] 09:00:23.631455 munmap@SYS(0x7fa4ee0c7000, 4096) = 0 <0.000036>
+[pid 18319] 09:00:23.631510 close@SYS(2)         = 0 <0.000023>
+[pid 18319] 09:00:23.631554 exit_group@SYS(0 <no return ...>
+[pid 18319] 09:00:23.631717 +++ exited (status 0) +++
