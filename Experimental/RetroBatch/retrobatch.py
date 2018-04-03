@@ -222,6 +222,11 @@ def TimeStampToStr(timStamp):
 def IsTimeStamp(attr,attrVal):
     return attr.find("Date") > 0 or attr.find("Time") > 0
 
+def IsCIM(attr,attrVal):
+    return not callable(attrVal) and not attr.startswith("__") and not attr.startswith("m_")
+
+################################################################################
+
 #class CIM_Process : CIM_LogicalElement
 #{
 #  string   Caption;
@@ -265,7 +270,7 @@ class CIM_Process:
             self.Name = procObj.name()
             self.Executable = procObj.exe()
             self.Username = procObj.username()
-            self.m_currDir = procObj.cwd()
+            self.CurrencyDirectory = procObj.cwd()
             self.Priority = procObj.nice()
         else:
             self.Name = str(procId)
@@ -274,7 +279,7 @@ class CIM_Process:
             self.Username = None
             # TODO: This can be partly deduced with calls to chdir() etc...
             # so it would not be necessary to install psutil.
-            self.m_currDir = "."
+            self.CurrencyDirectory = "."
             self.Priority = 0
 
     def __repr__(self):
@@ -300,7 +305,7 @@ class CIM_Process:
 
         for attr in dir(self):
             attrVal = getattr(self,attr)
-            if not callable(attrVal) and not attr.startswith("__"):
+            if IsCIM(attr,attrVal):
                 # FIXME: Not very reliable.
                 if IsTimeStamp(attr,attrVal):
                     attrVal = TimeStampToStr(attrVal)
@@ -377,16 +382,16 @@ class CIM_Process:
             pass
 
     def SetExecutable(self,objCIM_DataFile) :
-        self.Executable = objCIM_DataFile.m_pathName
+        self.Executable = objCIM_DataFile.FileName
 
 
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
     def SetProcessCurrentDir(self,currDirObject):
-        self.m_currDir = currDirObject.m_pathName
+        self.CurrencyDirectory = currDirObject.FileName
 
     def GetProcessCurrentDir(self):
-        return self.m_currDir
+        return self.CurrencyDirectory
 
 # class CIM_DataFile : CIM_LogicalFile
 # {
@@ -426,12 +431,12 @@ class CIM_Process:
 # };
 class CIM_DataFile:
     def __init__(self,pathName):
-        self.m_pathName = pathName
-        self.m_openTime = None
-        self.m_closeTime = None
-        self.m_numOpens = 0
-        self.m_isExecuted = False
-        self.m_category = PathCategory(pathName)
+        self.FileName = pathName
+        self.FileOpenTime = None
+        self.FileCloseTime = None
+        self.NumberOpens = 0
+        self.IsExecuted = False
+        self.FileCategory = PathCategory(pathName)
         # It will take a proper value if it is "connect()" or "bind()"
         self.m_socket_address = None
 
@@ -451,7 +456,7 @@ class CIM_DataFile:
 
 
     def __repr__(self):
-        return "'%s'" % self.CreateMoniker(self.m_pathName)
+        return "'%s'" % self.CreateMoniker(self.FileName)
 
     @staticmethod
     def CreateMoniker(pathName):
@@ -473,7 +478,7 @@ class CIM_DataFile:
 
         # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
         for objPath,objInstance in mapFiles:
-            mapOfFilesMap[ objInstance.m_category ][ objPath ] = objInstance
+            mapOfFilesMap[ objInstance.FileCategory ][ objPath ] = objInstance
         return mapOfFilesMap
         
     @staticmethod
@@ -496,13 +501,13 @@ class CIM_DataFile:
 
     def XMLDisplay(self,strm):
         margin = "    "
-        strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.m_pathName) )
+        strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.FileName) )
         
         subMargin = margin + "    "
 
         for attr in dir(self):
             attrVal = getattr(self,attr)
-            if not callable(attrVal) and not attr.startswith("__"):
+            if IsCIM(attr,attrVal):
                 if IsTimeStamp(attr,attrVal):
                     attrVal = TimeStampToStr(attrVal)
                 strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
@@ -533,17 +538,17 @@ class CIM_DataFile:
             sys.stdout.write("</FilesCategory>\n")
         
     def Summarize(self,strm):
-        if self.m_isExecuted:
+        if self.IsExecuted:
             return
-        strm.write("Path:%s\n" % self.m_pathName )
-        if self.m_openTime:
-            strOpen = TimeStampToStr( self.m_openTime )
+        strm.write("Path:%s\n" % self.FileName )
+        if self.FileOpenTime:
+            strOpen = TimeStampToStr( self.FileOpenTime )
             strm.write("  Open:%s\n" % strOpen )
 
-            strm.write("  Open times:%d\n" % self.m_numOpens )
+            strm.write("  Open times:%d\n" % self.NumberOpens )
 
-        if self.m_closeTime:
-            strClose = TimeStampToStr( self.m_closeTime )
+        if self.FileCloseTime:
+            strClose = TimeStampToStr( self.FileCloseTime )
             strm.write("  Close:%s\n" % strClose )
 
         if self.m_socket_address:
@@ -552,16 +557,16 @@ class CIM_DataFile:
                 strm.write("    %s:%s\n" % (saKey,saVal) )
 
     def SetOpenTime(self, timeStamp, objCIM_Process):
-        self.m_numOpens += 1
-        if not self.m_openTime or ( timeStamp < self.m_openTime ):
-            self.m_openTime = timeStamp
+        self.NumberOpens += 1
+        if not self.FileOpenTime or ( timeStamp < self.FileOpenTime ):
+            self.FileOpenTime = timeStamp
 
     def SetCloseTime(self, timeStamp, objCIM_Process):
-        if not self.m_closeTime or ( timeStamp < self.m_closeTime ):
-            self.m_closeTime = timeStamp
+        if not self.FileCloseTime or ( timeStamp < self.FileCloseTime ):
+            self.FileCloseTime = timeStamp
 
     def SetIsExecuted(self) :
-        self.m_isExecuted = True
+        self.IsExecuted = True
 
 # This contains the CIM objects: CIM_Process, CIM_DataFile and
 # is used to generate the summary.
