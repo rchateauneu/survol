@@ -81,7 +81,9 @@ def DoTheTests(verbose,diffFiles,withSummary,withWarning):
 
             # "txt", "json" etc...
             outputFormat = filOutExt[1:].upper()
-            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,withSummary,withWarning)
+
+            # In tests, the summary output format is always XML.
+            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,withSummary,"XML",withWarning)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 

@@ -727,11 +727,8 @@ def STraceStreamToFile(strmStr):
 ################################################################################
 
 # ltrace logs
-# [rchateau@fedora22 RetroBatch]$ grep libc_start UnitTests/mineit_gcc_hello_world.ltrace.log  | more
 # [pid 6414] 23:58:46.424055 __libc_start_main([ "gcc", "TestProgs/HelloWorld.c" ] <unfinished ...>
 # [pid 6415] 23:58:47.905826 __libc_start_main([ "/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1", "-quiet", "TestProgs/HelloWorld.c", "-quiet"... ] <unfinished ...>
-#
-
 
 
 # Typical strings displayed by strace:
@@ -2658,7 +2655,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 
 ################################################################################
 
-def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary):
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat):
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
 
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
@@ -2673,14 +2670,14 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 
         if verbose: sys.stdout.write("\n")
 
-    GenerateSummary(mapFlows,withSummary,outputFormat)
+    GenerateSummary(mapFlows,withSummary,summaryFormat)
 
 # Function called for unit tests
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, withWarning):
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, summaryFormat, withWarning):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary)        
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat)        
 
 
 if __name__ == '__main__':
@@ -2761,7 +2758,9 @@ if __name__ == '__main__':
         signal.signal(signal.SIGINT, signal_handler)
         print('Press Ctrl+C to exit cleanly')
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, withSummary)
+    # In normal usage, the summary output format is the same as
+    # the output format for calls.
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, withSummary, outputFormat )
 
 ################################################################################
 # Options:
