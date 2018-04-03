@@ -24,5 +24,5 @@
 # UnitTests/mineit_wget_hotmail.strace.866.log
 
 # Execution of simple Perle programs.
-./retrobatch.py -t strace -l UnitTests/mineit_simple_perl_file_write bash TestProgs/write_file_in_perl.pl
-./retrobatch.py -t ltrace -l UnitTests/mineit_simple_perl_file_write bash TestProgs/write_file_in_perl.pl
+./retrobatch.py -t strace -l UnitTests/mineit_simple_perl_file_write perl TestProgs/write_file_in_perl.pl
+./retrobatch.py -t ltrace -l UnitTests/mineit_simple_perl_file_write perl TestProgs/write_file_in_perl.pl
