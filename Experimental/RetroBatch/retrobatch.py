@@ -10,6 +10,13 @@ import time
 import signal
 import inspect
 
+try:
+    # To add more information to processes etc...
+    # If not there, this is not a problem.
+    import psutil
+except ImportError:
+    pass
+
 def Usage(exitCode = 1, errMsg = None):
     if errMsg:
         print(errMsg)
@@ -23,7 +30,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -s,--summary <CIM class>      Prints a summary at the end: Start end end time stamps, executable name,\n"
         + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree.")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
-    print("  -f,--format TXT|CSV|JSON      Output format. Default is TXT.")
+    print("  -f,--format TXT|CSV|JSON|XML  Output format. Default is TXT.")
     print("  -i,--input <file name>        trace command input file.")
     print("  -l,--log <filename prefix>    trace command log output file.")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
@@ -212,14 +219,68 @@ def TimeStampToStr(timStamp):
     aTm = time.gmtime( timStamp )
     return time.strftime("%Y/%m/%d %H:%M:%S", aTm )
 
+def IsTimeStamp(attr,attrVal):
+    return attr.find("Date") > 0 or attr.find("Time") > 0
+
+def IsCIM(attr,attrVal):
+    return not callable(attrVal) and not attr.startswith("__") and not attr.startswith("m_")
+
+################################################################################
+
+#class CIM_Process : CIM_LogicalElement
+#{
+#  string   Caption;
+#  string   CreationClassName;
+#  datetime CreationDate;
+#  string   CSCreationClassName;
+#  string   CSName;
+#  string   Description;
+#  uint16   ExecutionState;
+#  string   Handle;
+#  datetime InstallDate;
+#  uint64   KernelModeTime;
+#  string   Name;
+#  string   OSCreationClassName;
+#  string   OSName;
+#  uint32   Priority;
+#  string   Status;
+#  datetime TerminationDate;
+#  uint64   UserModeTime;
+#  uint64   WorkingSetSize;
+#};
 class CIM_Process:
     def __init__(self,procId):
-        self.m_procId = procId
-        self.m_executable = None
+        # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
+        self.Handle = procId
         self.m_parentProcess = None
-        self.m_currDir = "."
-        self.m_procStartTime = None
-        self.m_procEndTime = None
+        self.CreationDate = None
+        self.TerminationDate = None
+
+        if psutil:
+            try:
+                procObj = psutil.Process(procId)
+            except:
+                # Maybe this is replaying a former session and in this case,
+                # the process is not there anymore.
+                procObj = None
+        else:
+            procObj = None
+
+        if procObj:
+            self.Name = procObj.name()
+            self.Executable = procObj.exe()
+            self.Username = procObj.username()
+            self.CurrencyDirectory = procObj.cwd()
+            self.Priority = procObj.nice()
+        else:
+            self.Name = str(procId)
+            self.Executable = None
+            # TODO: This could be deduced with calls to setuid().
+            self.Username = None
+            # TODO: This can be partly deduced with calls to chdir() etc...
+            # so it would not be necessary to install psutil.
+            self.CurrencyDirectory = "."
+            self.Priority = 0
 
         # If this process appears for the first time and there is only
         # one other process, then it is its parent.
@@ -238,7 +299,7 @@ class CIM_Process:
 
 
     def __repr__(self):
-        return "'%s'" % self.CreateMoniker(self.m_procId)
+        return "'%s'" % self.CreateMoniker(self.Handle)
 
     @staticmethod
     def CreateMoniker(procId):
@@ -246,96 +307,293 @@ class CIM_Process:
 
     @staticmethod
     def DisplaySummary(mapFlows,cimKeyValuePairs):
-        DisplaySummaryProcesses(mapFlows,cimKeyValuePairs)
+        sys.stdout.write("Processes:\n")
+        for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
+            # sys.stdout.write("Path=%s\n"%objPath)
+            objInstance.Summarize(sys.stdout)
+        sys.stdout.write("\n")
 
+    def XMLOneLevelSummary(self,strm,margin=""):
+        self.m_isVisited = True
+        strm.write("%s<CIM_Process Handle='%s'>\n" % ( margin, self.Handle) )
+        
+        subMargin = margin + "    "
+
+        for attr in dir(self):
+            attrVal = getattr(self,attr)
+            if IsCIM(attr,attrVal):
+                # FIXME: Not very reliable.
+                if IsTimeStamp(attr,attrVal):
+                    attrVal = TimeStampToStr(attrVal)
+                strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
+
+        for objInstance in self.m_subProcesses:
+            objInstance.XMLOneLevelSummary(strm,subMargin)
+        strm.write("%s</CIM_Process>\n" % ( margin ) )
+
+    @staticmethod
+    def CalcSubprocess(mapFlows,cimKeyValuePairs):
+        """This rebuilds the tree of subprocesses seen from the top. """
+        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+            objInstance.m_subProcesses = []
+
+        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+            if objInstance.m_parentProcess:
+                objInstance.m_parentProcess.m_subProcesses.append(objInstance)
+
+    @staticmethod
+    def TopProcessFromProc(objInstance):
+        """This returns the top-level parent of a process."""
+        while True:
+            parentProc = objInstance.m_parentProcess
+            if not parentProc: return objInstance
+            objInstance = parentProc
+
+    @staticmethod
+    def XMLSummary(mapFlows,cimKeyValuePairs):
+        CIM_Process.CalcSubprocess(mapFlows,cimKeyValuePairs)
+
+        # Find unvisited processes. It does not start from G_top_ProcessId
+        # because maybe it contains several trees, or subtrees were missed etc...
+        for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
+            try:
+                objInstance.m_isVisited
+                continue
+            except AttributeError:
+                pass
+
+            topObjProc = CIM_Process.TopProcessFromProc(objInstance)
+
+            topObjProc.XMLOneLevelSummary(sys.stdout)
+
+    # In text mode, with no special formatting.
     def Summarize(self,strm):
-        strm.write("Process id:%s\n" % self.m_procId )
-        if self.m_executable:
-            strm.write("    Executable:%s\n" % self.m_executable )
-        if self.m_procStartTime:
-            strStart = TimeStampToStr( self.m_procStartTime )
+        strm.write("Process id:%s\n" % self.Handle )
+        if self.Executable:
+            strm.write("    Executable:%s\n" % self.Executable )
+        if self.CreationDate:
+            strStart = TimeStampToStr( self.CreationDate )
             strm.write("    Start time:%s\n" % strStart )
-        if self.m_procEndTime:
-            strEnd = TimeStampToStr( self.m_procEndTime )
+        if self.TerminationDate:
+            strEnd = TimeStampToStr( self.TerminationDate )
             strm.write("    End time:%s\n" % strEnd )
         if self.m_parentProcess:
-            strm.write("    Parent:%s\n" % self.m_parentProcess.m_procId )
+            strm.write("    Parent:%s\n" % self.m_parentProcess.Handle )
 
     def AddParentProcess(self, timeStamp, objCIM_Process):
         self.m_parentProcess = objCIM_Process
-        self.m_procStartTime = timeStamp
+        self.CreationDate = timeStamp
 
     def WaitProcessEnd(self, timeStamp, objCIM_Process):
-        # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.m_procId,objCIM_Process.m_procId))
-        self.m_procEndTime = timeStamp
+        # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
+        self.TerminationDate = timeStamp
         if not self.m_parentProcess:
             self.m_parentProcess = objCIM_Process
-            # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.m_procId,objCIM_Process.m_procId))
+            # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.Handle,objCIM_Process.Handle))
         elif self.m_parentProcess != objCIM_Process:
-            # sys.stdout.write("WaitProcessEnd: %s not %s\n" % (self.m_parentProcess.m_procId,objCIM_Process.m_procId))
+            # sys.stdout.write("WaitProcessEnd: %s not %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
             pass
         else:
-            # sys.stdout.write("WaitProcessEnd: %s already linked to %s\n" % (self.m_parentProcess.m_procId,objCIM_Process.m_procId))
+            # sys.stdout.write("WaitProcessEnd: %s already linked to %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
             pass
 
     def SetExecutable(self,objCIM_DataFile) :
-        self.m_executable = objCIM_DataFile.m_pathName
+        self.Executable = objCIM_DataFile.FileName
 
 
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
     def SetProcessCurrentDir(self,currDirObject):
-        self.m_currDir = currDirObject.m_pathName
+        self.CurrencyDirectory = currDirObject.FileName
 
     def GetProcessCurrentDir(self):
-        return self.m_currDir
+        return self.CurrencyDirectory
 
-
+# class CIM_DataFile : CIM_LogicalFile
+# {
+  # string   Caption;
+  # string   Description;
+  # datetime InstallDate;
+  # string   Status;
+  # uint32   AccessMask;
+  # boolean  Archive;
+  # boolean  Compressed;
+  # string   CompressionMethod;
+  # string   CreationClassName;
+  # datetime CreationDate;
+  # string   CSCreationClassName;
+  # string   CSName;
+  # string   Drive;
+  # string   EightDotThreeFileName;
+  # boolean  Encrypted;
+  # string   EncryptionMethod;
+  # string   Name;
+  # string   Extension;
+  # string   FileName;
+  # uint64   FileSize;
+  # string   FileType;
+  # string   FSCreationClassName;
+  # string   FSName;
+  # boolean  Hidden;
+  # uint64   InUseCount;
+  # datetime LastAccessed;
+  # datetime LastModified;
+  # string   Path;
+  # boolean  Readable;
+  # boolean  System;
+  # boolean  Writeable;
+  # string   Manufacturer;
+  # string   Version;
+# };
 class CIM_DataFile:
     def __init__(self,pathName):
-        self.m_pathName = pathName
-        self.m_openTime = None
-        self.m_closeTime = None
-        self.m_numOpens = 0
-        self.m_isExecuted = False
-        self.m_category = PathCategory(pathName)
+        self.FileName = pathName
+        self.FileOpenTime = None
+        self.FileCloseTime = None
+        self.NumberOpens = 0
+        self.IsExecuted = False
+        self.FileCategory = PathCategory(pathName)
+        # It will take a proper value if it is "connect()" or "bind()"
+        self.m_socket_address = None
+
+        try:
+            objStat = os.stat(pathName)
+        except:
+            objStat = None
+
+        # Some information are not meaningfull because they will vary
+        # during the process execution.
+        if objStat:
+            self.FileSize = objStat.st_size
+
+            self.FileMode = objStat.st_mode
+            self.Inode = objStat.st_ino
+            self.DeviceId = objStat.st_dev
+            self.HardLinksNumber = objStat.st_nlink
+            self.OwnerUserId = objStat.st_uid
+            self.OwnerGroupId = objStat.st_gid
+            self.AccessTime = objStat.st_atime
+            self.ModifyTime = objStat.st_mtime
+            self.CreationTime = objStat.st_ctime
+            self.DeviceType = objStat.st_rdev
+
+            # This is on Windows only.
+            # self.UserDefinedFlags = objStat.st_flags
+            # self.FileCreator = objStat.st_creator
+            # self.FileType = objStat.st_type
 
     def __repr__(self):
-        return "'%s'" % self.CreateMoniker(self.m_pathName)
+        return "'%s'" % self.CreateMoniker(self.FileName)
 
     @staticmethod
     def CreateMoniker(pathName):
         return 'CIM_DataFile.Name="%s"' % pathName
 
+        
+    @staticmethod
+    def SplitFilesByCategory():
+        try:
+            mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
+        except KeyError:
+            sys.stdout.write("\n")
+            return {}
+
+        # TODO: Find a way to define the presentation as a parameter.
+        # Maybe we can use the list of keys: Just mentioning a property
+        # means that a sub-level must be displayed.
+        mapOfFilesMap = { rgxTuple[0] : {} for rgxTuple in G_lstFilters }
+
+        # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
+        for objPath,objInstance in mapFiles:
+            mapOfFilesMap[ objInstance.FileCategory ][ objPath ] = objInstance
+        return mapOfFilesMap
+        
     @staticmethod
     def DisplaySummary(mapFlows,cimKeyValuePairs):
-        DisplaySummaryFiles(mapFlows,cimKeyValuePairs)
+        sys.stdout.write("Files:\n")
+        mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
 
+        try:
+            filterCats = cimKeyValuePairs["Category"]
+        except KeyError:
+            filterCats = None
+
+        for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
+            sys.stdout.write("\n** %s\n"%categoryFiles)
+            if filterCats and ( not categoryFiles in filterCats ): continue
+            for objPath,objInstance in sorted( mapFilesSub.items() ):
+                # sys.stdout.write("Path=%s\n"%objPath)
+                objInstance.Summarize(sys.stdout)
+        sys.stdout.write("\n")
+
+    def XMLDisplay(self,strm):
+        margin = "    "
+        strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.FileName) )
+        
+        subMargin = margin + "    "
+
+        for attr in dir(self):
+            attrVal = getattr(self,attr)
+            if IsCIM(attr,attrVal):
+                if IsTimeStamp(attr,attrVal):
+                    attrVal = TimeStampToStr(attrVal)
+                strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
+
+        strm.write("%s</CIM_DataFile>\n" % ( margin ) )
+
+    @staticmethod
+    def XMLCategorySummary(mapFilesSub):
+        for objPath,objInstance in sorted( mapFilesSub.items() ):
+            # sys.stdout.write("Path=%s\n"%objPath)
+            objInstance.XMLDisplay(sys.stdout)
+
+    @staticmethod
+    def XMLSummary(mapFlows,cimKeyValuePairs):
+        """Top-level informations are categories of CIM_DataFile which are not technical
+        but the regex-based filtering."""
+        mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
+
+        try:
+            filterCats = cimKeyValuePairs["Category"]
+        except KeyError:
+            filterCats = None
+
+        for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
+            sys.stdout.write("<FilesCategory category='%s'>\n"%categoryFiles)
+            if filterCats and ( not categoryFiles in filterCats ): continue
+            CIM_DataFile.XMLCategorySummary(mapFilesSub)
+            sys.stdout.write("</FilesCategory>\n")
+        
     def Summarize(self,strm):
-        if self.m_isExecuted:
+        if self.IsExecuted:
             return
-        strm.write("Path:%s\n" % self.m_pathName )
-        if self.m_openTime:
-            strOpen = TimeStampToStr( self.m_openTime )
+        strm.write("Path:%s\n" % self.FileName )
+        if self.FileOpenTime:
+            strOpen = TimeStampToStr( self.FileOpenTime )
             strm.write("  Open:%s\n" % strOpen )
 
-            strm.write("  Open times:%d\n" % self.m_numOpens )
+            strm.write("  Open times:%d\n" % self.NumberOpens )
 
-        if self.m_closeTime:
-            strClose = TimeStampToStr( self.m_closeTime )
+        if self.FileCloseTime:
+            strClose = TimeStampToStr( self.FileCloseTime )
             strm.write("  Close:%s\n" % strClose )
 
+        if self.m_socket_address:
+            for saKey in self.m_socket_address:
+                saVal = self.m_socket_address[saKey]
+                strm.write("    %s:%s\n" % (saKey,saVal) )
+
     def SetOpenTime(self, timeStamp, objCIM_Process):
-        self.m_numOpens += 1
-        if not self.m_openTime or ( timeStamp < self.m_openTime ):
-            self.m_openTime = timeStamp
+        self.NumberOpens += 1
+        if not self.FileOpenTime or ( timeStamp < self.FileOpenTime ):
+            self.FileOpenTime = timeStamp
 
     def SetCloseTime(self, timeStamp, objCIM_Process):
-        if not self.m_closeTime or ( timeStamp < self.m_closeTime ):
-            self.m_closeTime = timeStamp
+        if not self.FileCloseTime or ( timeStamp < self.FileCloseTime ):
+            self.FileCloseTime = timeStamp
 
     def SetIsExecuted(self) :
-        self.m_isExecuted = True
+        self.IsExecuted = True
 
 # This contains the CIM objects: CIM_Process, CIM_DataFile and
 # is used to generate the summary.
@@ -366,13 +624,6 @@ def ToObjectPath_CIM_DataFile(pathName):
 
 def CIM_SharedLibrary(CIM_DataFile):
     pass
-
-def DisplaySummaryProcesses(mapFlows,cimKeyValuePairs):
-    sys.stdout.write("Processes:\n")
-    for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
-        # sys.stdout.write("Path=%s\n"%objPath)
-        objInstance.Summarize(sys.stdout)
-    sys.stdout.write("\n")
 
 # This is not a map, it is not sorted.
 # It contains regular expression for classifying file names in categories:
@@ -406,6 +657,10 @@ G_lstFilters = [
 
 
 def PathCategory(pathName):
+    """This match the path name againt the set of regular expressions
+    defining broad categories of files: Sockets, libraries, temporary files...
+    These categories are not technical but based on application best practices,
+    rules of thumbs etc..."""
     for rgxTuple in G_lstFilters:
         for oneRgx in rgxTuple[1]:
             # If the file matches a regular expression,
@@ -415,39 +670,11 @@ def PathCategory(pathName):
                 return rgxTuple[0]
     return "Others"
 
-def DisplaySummaryFiles(mapFlows,cimKeyValuePairs):
 
-    sys.stdout.write("Files:\n")
-    try:
-        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
-    except KeyError:
-        sys.stdout.write("\n")
-        return
-
-    # TODO: Find a way to define the presentation as a parameter.
-    # Maybe we can use the list of keys: Just mentionning a property
-    # means that a sub-level must be displayed.
-    mapOfFilesMap = { rgxTuple[0] : {} for rgxTuple in G_lstFilters }
-
-    # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
-    for objPath,objInstance in mapFiles:
-        mapOfFilesMap[ objInstance.m_category ][ objPath ] = objInstance
-
-    try:
-        filterCats = cimKeyValuePairs["Category"]
-    except KeyError:
-        filterCats = None
-
-    for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
-        sys.stdout.write("\n** %s\n"%categoryFiles)
-        if filterCats and ( not categoryFiles in filterCats ): continue
-        for objPath,objInstance in sorted( mapFilesSub.items() ):
-            # sys.stdout.write("Path=%s\n"%objPath)
-            objInstance.Summarize(sys.stdout)
-
-        
-
-    sys.stdout.write("\n")
+# This receives an array of WMI/WBEM/CIM object paths:
+# 'Win32_LogicalDisk.DeviceID="C:"'
+# The values can be regular expressions.
+# key-value pairs in the expressions are matched one-to-one with objects.
 
 # rgxObjectPath = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
 def ParseFilterCIM(rgxObjectPath):
@@ -477,32 +704,28 @@ def ParseFilterCIM(rgxObjectPath):
 
     return ( objClassName, mapKeyValues )
 
-# This receives an array of WMI/WBEM/CIM object paths:
-# 'Win32_LogicalDisk.DeviceID="C:"'
-# The values can be regular expressions.
-# key-value pairs in the expressions are matched one-to-one with objects.
-
-
-
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
-def GenerateSummary(mapFlows,withSummary):
+def GenerateSummary(mapFlows,withSummary,outputFormat):
     for rgxObjectPath in withSummary:
         ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
         classObj = globals()[ cimClassName ]
 
-        classObj.DisplaySummary(mapFlows,cimKeyValuePairs)
+        if outputFormat == "TXT":
+            classObj.DisplaySummary(mapFlows,cimKeyValuePairs)
+        elif outputFormat.upper() == "XML":
+            # The output format is very different.
+            classObj.XMLSummary(mapFlows,cimKeyValuePairs)
+        else:
+            raise Exception("Unsupported summary output format:%s"%outputFormat)
 
 
 ################################################################################
 
 # This associates file descriptors to path names when strace and the option "-y"
 # cannot be used. There are predefined values.
-G_mapFilDesToPathName = {
-    "0" : "stdin",
-    "1" : "stdout",
-    "2" : "stderr"}
+G_mapFilDesToPathName = None
 
 # strace associates file descriptors to the original file or socket which created it.
 # Option "-y          Print paths associated with file descriptor arguments."
@@ -531,11 +754,8 @@ def STraceStreamToFile(strmStr):
 ################################################################################
 
 # ltrace logs
-# [rchateau@fedora22 RetroBatch]$ grep libc_start UnitTests/mineit_gcc_hello_world.ltrace.log  | more
 # [pid 6414] 23:58:46.424055 __libc_start_main([ "gcc", "TestProgs/HelloWorld.c" ] <unfinished ...>
 # [pid 6415] 23:58:47.905826 __libc_start_main([ "/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1", "-quiet", "TestProgs/HelloWorld.c", "-quiet"... ] <unfinished ...>
-#
-
 
 
 # Typical strings displayed by strace:
@@ -635,7 +855,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct )
+            aTimeStamp = time.mktime( timStruct ) + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -958,6 +1178,7 @@ class BatchDumperJSON(BatchDumperBase):
 def BatchDumperFactory(strm, outputFormat):
     BatchDumpersDictionary = {
         "TXT"  : BatchDumperTXT,
+        "XML"  : BatchDumperTXT,
         "CSV"  : BatchDumperCSV,
         "JSON" : BatchDumperJSON
     }
@@ -1468,20 +1689,40 @@ class BatchLet_socket(BatchLetBase,object):
 class BatchLet_connect(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_connect,self).__init__(batchCore)
+        objPath = STraceStreamToFile(self.m_core.m_parsedArgs[0])
 
         if batchCore.m_tracer == "strace":
             # 09:18:26.465799 socket(PF_INET, SOCK_DGRAM|SOCK_NONBLOCK, IPPROTO_IP) = 3 <0.000013>
             # 09:18:26.465839 connect(3<socket:[535040600]>, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("127.0.0.1")}, 16) = 0 <0.000016>
 
             # TODO: Should link this file descriptor to the IP-addr+port pair.
+            # But this is not very important because strace does the job of remapping the file descriptor,
+            # so things are consistent as long as we follow the same logic, in the same order:
+            #    socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3<TCP:[7275805]>
+            #    connect(3<TCP:[7275805]>, {sa_family=AF_INET, sin_port=htons(80), sin_addr=inet_addr("204.79.197.212")}, 16) = 0
+            #    select(4, NULL, [3<TCP:[192.168.0.17:48318->204.79.197.212:80]>], NULL, {900, 0}) = 1
+            objPath.m_socket_address = self.m_core.m_parsedArgs[1]
+            
+        elif batchCore.m_tracer == "ltrace":
             pass
+        else:
+            raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
+
+        self.m_significantArgs = [ objPath ]
+class BatchLet_bind(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLet_bind,self).__init__(batchCore)
+        objPath = STraceStreamToFile(self.m_core.m_parsedArgs[0])
+        if batchCore.m_tracer == "strace":
+            # bind(4<NETLINK:[7274795]>, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0
+            objPath.m_socket_address = self.m_core.m_parsedArgs[1]
 
         elif batchCore.m_tracer == "ltrace":
             pass
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
-        self.m_significantArgs = [ STraceStreamToFile(self.m_core.m_parsedArgs[0]) ]
+        self.m_significantArgs = [ objPath ]
 
 # sendto(7<UNIX:[2038065->2038073]>, "\24\0\0", 16, MSG_NOSIGNAL, NULL, 0) = 16
 class BatchLet_sendto(BatchLetBase,object):
@@ -1743,6 +1984,8 @@ class BatchFlow:
     def __init__(self):
 
         self.m_listBatchLets = []
+        self.m_coroutine = self.AddingCoroutine()
+        next(self.m_coroutine)
 
     def AddBatch(self,btchLet):
         # sys.stdout.write("AddBatch:%s\n"%btchLet.GetSignature())
@@ -1756,6 +1999,26 @@ class BatchFlow:
                 return
 
         self.m_listBatchLets.append( btchLet )
+
+    # Does the same AddBatch() but it is possible to process system calls on-the-fly
+    # without intermediate storage.
+    def SendBatch(self,btchLet):
+        self.m_coroutine.send(btchLet)
+
+    def AddingCoroutine(self):
+        lstBatch = None
+        while True:
+            btchLet = yield
+            
+            if lstBatch and lstBatch.SameCall( btchLet ):
+                lstBatch.m_occurrences += 1
+            else:
+                self.m_listBatchLets.append( btchLet )
+            # Intentionally points to the object actually stored in the container,
+            # instead of the possibly transient object returned by yield.
+            lstBatch = self.m_listBatchLets[-1]
+                
+        
 
     # This removes matched batches (Formerly unfinished calls which were matched to the resumed part)
     # when the merged batches (The resumed calls) comes immediately after.
@@ -1963,6 +2226,46 @@ class BatchFlow:
 
         batchDump.Footer()
 
+    def FactorizeOneFlow(self,verbose,withWarning,outputFormat):
+
+        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+
+        if verbose > 0:
+            sys.stdout.write("\n")
+            sys.stdout.write("FilterMatchedBatches lenBatch=%d\n"%(len(self.m_listBatchLets)) )
+        numSubst = self.FilterMatchedBatches()
+        if verbose > 0:
+            sys.stdout.write("FilterMatchedBatches numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+
+        idxLoops = 0
+        while True:
+            if verbose > 1:
+                self.DumpFlow(sys.stdout,outputFormat)
+
+            if verbose > 0:
+                sys.stdout.write("\n")
+                sys.stdout.write("ClusterizePairs lenBatch=%d\n"%(len(self.m_listBatchLets)) )
+            numSubst = self.ClusterizePairs()
+            if verbose > 0:
+                sys.stdout.write("ClusterizePairs numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+            if numSubst == 0:
+                break
+            idxLoops += 1
+
+        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+
+        if verbose > 0:
+            sys.stdout.write("\n")
+            sys.stdout.write("ClusterizeBatchesByArguments lenBatch=%d\n"%(len(self.m_listBatchLets)) )
+        numSubst = self.ClusterizeBatchesByArguments()
+        if verbose > 0:
+            sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+
+        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+
+        
+        
+
 def LogSource(msgSource):
     sys.stdout.write("Source:%s\n"%msgSource)
 
@@ -2063,8 +2366,8 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         try:
             batchCore = CreateBatchCore(oneLine,tracer)
         except:
-            raise Exception("Invalid line %d:%s\n"%(numLine,oneLine) )
-            # raise
+            # raise Exception("Invalid line %d:%s\n"%(numLine,oneLine) )
+            raise
 
         # Maybe the line cannot be parsed.
         if batchCore:
@@ -2208,7 +2511,7 @@ def CreateFlowsFromLtraceLog(verbose,logStream):
 def BuildSTraceCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     aCmd = ["strace",
-        "-q", "-qq", "-f", "-tt", "-T", "-s", "20", "-y", "-yy",
+        "-q", "-qq", "-f", "-tt", "-T", "-s", "200", "-y", "-yy",
         "-e", "trace=desc,ipc,process,network,memory",
         ]
 
@@ -2240,52 +2543,6 @@ def LogSTraceFileStream(extCommand,aPid):
 def CreateFlowsFromLinuxSTraceLog(verbose,logStream):
     return CreateFlowsFromGenericLinuxLog(verbose,logStream,"strace")
 
-################################################################################
-
-def FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat):
-    for aPid in sorted(list(mapFlows.keys()),reverse=True):
-        btchTree = mapFlows[aPid]
-        if verbose > 0: sys.stdout.write("\n================== PID=%d\n"%aPid)
-        FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat)
-
-    G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
-
-def FactorizeOneFlow(btchTree,verbose,withWarning,outputFormat):
-
-    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
-
-    if verbose > 0:
-        sys.stdout.write("\n")
-        sys.stdout.write("FilterMatchedBatches lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
-    numSubst = btchTree.FilterMatchedBatches()
-    if verbose > 0:
-        sys.stdout.write("FilterMatchedBatches numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
-
-    idxLoops = 0
-    while True:
-        if verbose > 1:
-            btchTree.DumpFlow(sys.stdout,outputFormat)
-
-        if verbose > 0:
-            sys.stdout.write("\n")
-            sys.stdout.write("ClusterizePairs lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
-        numSubst = btchTree.ClusterizePairs()
-        if verbose > 0:
-            sys.stdout.write("ClusterizePairs numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
-        if numSubst == 0:
-            break
-        idxLoops += 1
-
-    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
-
-    if verbose > 0:
-        sys.stdout.write("\n")
-        sys.stdout.write("ClusterizeBatchesByArguments lenBatch=%d\n"%(len(btchTree.m_listBatchLets)) )
-    numSubst = btchTree.ClusterizeBatchesByArguments()
-    if verbose > 0:
-        sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n"%(numSubst, len(btchTree.m_listBatchLets) ) )
-
-    if verbose > 1: btchTree.DumpFlow(sys.stdout,outputFormat)
 
 ################################################################################
 
@@ -2359,17 +2616,27 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
     return logStream
 
-# This receives a stream of lines, each of them is a function call,
-# possibily unfinished/resumed/interrupted by a signal.
-def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
+# Global variables which must be reinitialised before a run.
+def InitGlobals( withWarning ):
     global G_stackUnfinishedBatches
     G_stackUnfinishedBatches = UnfinishedBatches(withWarning)
 
     global G_mapCacheObjects
     G_mapCacheObjects = {}
 
+    global G_mapFilDesToPathName
+    G_mapFilDesToPathName = {
+        "0" : "stdin",
+        "1" : "stdout",
+        "2" : "stderr"}
+
+# This receives a stream of lines, each of them is a function call,
+# possibily unfinished/resumed/interrupted by a signal.
+def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat):
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
+
+    InitGlobals(withWarning)
 
     mapFlows = {}
 
@@ -2408,33 +2675,43 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer):
             btchFlow = BatchFlow()
             mapFlows[ aPid ] = btchFlow
 
-        btchFlow.AddBatch( oneBatch )
+        if False:
+            btchFlow.AddBatch( oneBatch )
+        else:
+            btchFlow.SendBatch( oneBatch )
+    for aPid in sorted(list(mapFlows.keys()),reverse=True):
+        btchTree = mapFlows[aPid]
+        if verbose > 0: sys.stdout.write("\n================== PID=%d\n"%aPid)
+        btchTree.FactorizeOneFlow(verbose,withWarning,outputFormat)
+        
 
     return mapFlows
 
 ################################################################################
 
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat):
+    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
+
+    G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
+
+    if outFile:
+        outFd = open(outFile, "w")
+
+        for aPid in sorted(list(mapFlows.keys()),reverse=True):
+            btchTree = mapFlows[aPid]
+            outFd.write("\n================== PID=%d\n"%aPid)
+            btchTree.DumpFlow(outFd,outputFormat)
+
+        if verbose: sys.stdout.write("\n")
+
+    GenerateSummary(mapFlows,withSummary,summaryFormat)
+
 # Function called for unit tests
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, withWarning):
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, summaryFormat, withWarning):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
-    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
-
-    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat)
-
-    outFd = open(outFile, "w")
-
-    for aPid in sorted(list(mapFlows.keys()),reverse=True):
-        btchTree = mapFlows[aPid]
-        outFd.write("\n================== PID=%d\n"%aPid)
-        btchTree.DumpFlow(outFd,outputFormat)
-
-    outFd.close()
-    if verbose: sys.stdout.write("\n")
-
-    GenerateSummary(mapFlows,withSummary)
-        
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat)        
 
 
 if __name__ == '__main__':
@@ -2515,11 +2792,9 @@ if __name__ == '__main__':
         signal.signal(signal.SIGINT, signal_handler)
         print('Press Ctrl+C to exit cleanly')
 
-    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer)
-    FactorizeMapFlows(mapFlows,verbose,withWarning,outputFormat)
-
-    GenerateSummary(mapFlows,withSummary)
-
+    # In normal usage, the summary output format is the same as
+    # the output format for calls.
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, withSummary, outputFormat )
 
 ################################################################################
 # Options:
