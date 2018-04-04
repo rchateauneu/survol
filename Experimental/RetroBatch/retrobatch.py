@@ -221,6 +221,22 @@ class CIM_Process:
         self.m_procStartTime = None
         self.m_procEndTime = None
 
+        # If this process appears for the first time and there is only
+        # one other process, then it is its parent.
+        # It helps if the first vfork() is never finished,
+        # and if we did not get the main process id.
+        try:
+            mapProcs = G_mapCacheObjects["CIM_Process"]
+            keysProcs = mapProcs.keys()
+            if len(keysProcs) == 1:
+                # We are about to create the second process.
+                firstProcObj = mapProcs[ keysProcs[0] ]
+                self.m_parentProcess = firstProcObj
+        except KeyError:
+            # This is the first process.
+            pass
+
+
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.m_procId)
 
@@ -1534,7 +1550,8 @@ class UnfinishedBatches:
             stackPerFunc = self.m_mapStacks[ batchCoreResumed.m_pid][ batchCoreResumed.m_funcNam ]
         except KeyError:
             if self.m_withWarning > 1:
-                sys.stdout.write("MergePopBatch m_funcNam=%s cannot find function\n"%batchCoreResumed.m_funcNam)
+                sys.stdout.write("Resuming %s: cannot find unfinished call\n"%batchCoreResumed.m_funcNam)
+
             # This is strange, we could not find the unfinished call.
             # sys.stdout.write("MergePopBatch NOTFOUND1 m_funcNam=%s\n"%batchCoreResumed.m_funcNam)
             return None
@@ -1647,6 +1664,12 @@ def BatchLetFactory(batchCore):
             btchLetDrv = aModel( batchCoreMerged )
         else:
             # Could not find the matching unfinished batch.
+            # Still we try the degraded mode if it is available.
+            try:
+                btchLetDrv = aModel.ResumedOnly( batchCore )
+            except AttributeError:
+                pass
+
             btchLetDrv = BatchLetBase( batchCore )
     else:
         btchLetDrv = aModel( batchCore )
@@ -2516,3 +2539,41 @@ if __name__ == '__main__':
 # http://bewareofgeek.livejournal.com/2945.html
 
 ################################################################################
+# Cas de figure:
+# findstr "wait4 vfork" UnitTests\mineit_gcc_incomplete.strace.log
+#
+#             08:53:31.301860 vfork( <unfinished ...>
+# [pid 23944] 08:53:31.304901 <... vfork resumed> ) = 23945 <0.003032>
+# [pid 23944] 08:53:31.304921 wait4(23945,  <unfinished ...>
+#             08:53:31.335463 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 23945 <0.030535>
+#             08:53:31.335744 vfork( <unfinished ...>
+# [pid 23944] 08:53:31.336179 <... vfork resumed> ) = 23946 <0.000427>
+# [pid 23944] 08:53:31.336196 wait4(23946,  <unfinished ...>
+#             08:53:31.348242 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 23946 <0.012039>
+#             08:53:31.349322 vfork( <unfinished ...>
+# [pid 23944] 08:53:31.349554 <... vfork resumed> ) = 23947 <0.000222>
+# [pid 23944] 08:53:31.349571 wait4(23947,  <unfinished ...>
+# [pid 23947] 08:53:31.353394 vfork( <unfinished ...>
+# [pid 23947] 08:53:31.353725 <... vfork resumed> ) = 23948 <0.000323>
+# [pid 23947] 08:53:31.353797 wait4(23948,  <unfinished ...>
+# [pid 23947] 08:53:31.478920 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 23948 <0.125108>
+#             08:53:31.479748 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 23947 <0.130171>
+#
+#
+# findstr "wait4 vfork" UnitTests\mineit_gcc_incomplete.strace.txt
+# Pid= 23947 M'vfork@SYS' ['CIM_Process.Handle="23948"'] ==>> 23948
+# Pid= 23947 M'wait4@SYS' ['CIM_Process.Handle="23948"'] ==>> 23948
+# Pid= 23944 U'wait4@SYS' ['23945', ''] ==>> None
+# Pid= 23944 R'vfork@SYS' [] ==>> 23945
+# Pid= 23944 R'vfork@SYS' [] ==>> 23946
+# Pid= 23944 U'wait4@SYS' ['23946', ''] ==>> None
+# Pid= 23944 R'vfork@SYS' [] ==>> 23947
+# Pid= 23944 U'wait4@SYS' ['23947', ''] ==>> None
+# Pid=    -1 U'vfork@SYS' [] ==>> None (08:53:31,08:53:31)
+# Pid=    -1 R'wait4@SYS' [[{'WIFEXITED(s) && WEXITSTATUS(s)': '= 0'}], '0', 'NULL'] ==>> 23945
+# Pid=    -1 U'vfork@SYS' [] ==>> None
+# Pid=    -1 R'wait4@SYS' [[{'WIFEXITED(s) && WEXITSTATUS(s)': '= 0'}], '0', 'NULL'] ==>> 23946
+# Pid=    -1 U'vfork@SYS' [] ==>> None
+# Pid=    -1 R'wait4@SYS' [[{'WIFEXITED(s) && WEXITSTATUS(s)': '= 0'}], '0', 'NULL'] ==>> 23947
+#
+#
