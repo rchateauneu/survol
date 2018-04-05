@@ -1217,7 +1217,29 @@ def ToAbsPath( dirPath, filNam ):
     else:
         fullPath = dirPath + "/" + filNam
 
-    return os.path.abspath( fullPath )
+    # FIXME: Broken if Linux test run on Windows machine and vice-versa.
+    # Therefore, the file manipulation is done.
+    # This assumes that original tests are done on Linux, for the moment.
+    splitSlash = fullPath.split("/")
+    lenSplt = len(splitSlash)
+    ix = 1
+    while ix < lenSplt:
+        if splitSlash[ix] == '..':
+            del splitSlash[ix-1:ix+1]
+            ix -= 1
+            lenSplt -= 2
+        elif splitSlash[ix] in ['.','']:
+            del splitSlash[ix:ix+1]
+            lenSplt -= 1
+        else:
+            ix += 1
+
+
+    absPth = "/".join(splitSlash)
+
+    absPthWin = os.path.abspath( fullPath )
+    sys.stdout.write(" fullPath=%s\n   absPth=%s\nabsPthWin=%s\n"%(fullPath,absPth,absPthWin))
+    return absPth
 
 ################################################################################
 
@@ -2593,6 +2615,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
         G_CurrentDirectory = "."
 
+    sys.stdout.write("G_CurrentDirectory=%s\n"%G_CurrentDirectory)
 
     # Another possibility is to start a process or a thread which will monitor
     # the target process, and will write output information in a stream.
