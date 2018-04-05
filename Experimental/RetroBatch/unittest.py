@@ -49,9 +49,10 @@ def DoTheTests(verbose,diffFiles,withSummary,withWarning):
                 keyName = subdir + os.sep + baseName
     
                 # The key does not need the extension so it does not matter
-                # of this lists the output files before the log input,
+                # if this lists the output files before the log input,
                 # because the key has to be the same.
-                if filExt != ".log":
+                # ".ini" files are context parameters for the test only.
+                if filExt not in [".log",".ini"]:
                     try:
                         mapFiles[keyName].append( inPath )
                     except KeyError:

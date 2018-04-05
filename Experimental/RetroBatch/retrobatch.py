@@ -270,7 +270,7 @@ class CIM_Process:
             self.Name = procObj.name()
             self.Executable = procObj.exe()
             self.Username = procObj.username()
-            self.CurrencyDirectory = procObj.cwd()
+            self.CurrentDirectory = procObj.cwd()
             self.Priority = procObj.nice()
         else:
             self.Name = str(procId)
@@ -279,7 +279,7 @@ class CIM_Process:
             self.Username = None
             # TODO: This can be partly deduced with calls to chdir() etc...
             # so it would not be necessary to install psutil.
-            self.CurrencyDirectory = "."
+            self.CurrentDirectory = G_CurrentDirectory
             self.Priority = 0
 
         # If this process appears for the first time and there is only
@@ -404,10 +404,10 @@ class CIM_Process:
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
     def SetProcessCurrentDir(self,currDirObject):
-        self.CurrencyDirectory = currDirObject.FileName
+        self.CurrentDirectory = currDirObject.FileName
 
     def GetProcessCurrentDir(self):
-        return self.CurrencyDirectory
+        return self.CurrentDirectory
 
 # class CIM_DataFile : CIM_LogicalFile
 # {
@@ -475,7 +475,11 @@ class CIM_DataFile:
             self.AccessTime = objStat.st_atime
             self.ModifyTime = objStat.st_mtime
             self.CreationTime = objStat.st_ctime
-            self.DeviceType = objStat.st_rdev
+            try:
+                # This does not exist on Windows.
+                self.DeviceType = objStat.st_rdev
+            except AttributeError:
+                pass
 
             # This is on Windows only.
             # self.UserDefinedFlags = objStat.st_flags
@@ -855,7 +859,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) + 3600
+            aTimeStamp = time.mktime( timStruct ) # + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -2166,55 +2170,6 @@ class BatchFlow:
         return numSubst
 
 
-
-
-    # Other patterns:
-
-    # '(open@SYS+fstatfs@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fonts/adobe-source-han-sans-cn"']
-    # '(open@SYS+fstat@SYS+fstatfs@SYS+mmap@SYS+fadvise64@SYS)' ['CIM_DataFile.Name="/var/cache/fontconfig/le64.cache-7"']
-    # '(openat@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fonts/adobe-source-han-sans-cn"']
-    # 'close@SYS           ' ['CIM_DataFile.Name="/var/cache/fontconfig/le64.cache-7"']
-
-    # '(open@SYS+fstatfs@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fonts/adobe-source-han-sans-twhk"']
-    # '(open@SYS+fstat@SYS+fstatfs@SYS+mmap@SYS+fadvise64@SYS)' ['CIM_DataFile.Name="/var/cache/fontconfig/le64.cache-7"']
-    # '(openat@SYS+getdents@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fonts/adobe-source-han-sans-twhk"']
-    # 'close@SYS           ' ['CIM_DataFile.Name="/var/cache/fontconfig/le64.cache-7"']
-
-    # Or, repetition of the same call: Just one parameter changes.
-    # '(open@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fontconfig/65-0-khmeros-base.conf"']
-    # '(open@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fontconfig/65-0-lohit-assamese.conf"']
-    # '(open@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/fontconfig/65-0-lohit-bengali.conf"']
-
-
-    # Or, similar processes:
-
-    # ================== PID=27400
-    # 'ioctl@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (08:18:37,08:18:37)
-    # '(close@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="pipe:[256030]"'] ==>> N/A (08:18:37,08:18:37)
-    # 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/sleep"', ['sleep', '1']] ==>> 0 (08:18:37,08:18:37)
-    # '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (08:18:37,08:18:37)
-    # '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib64/libc-2.21.so"'] ==>> N/A (08:18:37,08:18:37)
-    # 'munmap@SYS          ' [] ==>> 0 (08:18:37,08:18:37)
-    # '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib/locale/locale-archive"'] ==>> N/A (08:18:37,08:18:37)
-    # 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (08:18:38,08:18:38)
-    # 'exit_group@SYS      ' [] ==>> ? (08:18:38,08:18:38)
-
-    # ================== PID=27399
-    # 'ioctl@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (08:18:36,08:18:36)
-    # '(close@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="pipe:[255278]"'] ==>> N/A (08:18:36,08:18:36)
-    # 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/sleep"', ['sleep', '1']] ==>> 0 (08:18:36,08:18:36)
-    # '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (08:18:36,08:18:36)
-    # '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib64/libc-2.21.so"'] ==>> N/A (08:18:36,08:18:36)
-    # 'munmap@SYS          ' [] ==>> 0 (08:18:36,08:18:36)
-    # '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib/locale/locale-archive"'] ==>> N/A (08:18:36,08:18:36)
-    # 'close@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (08:18:37,08:18:37)
-    # 'exit_group@SYS      ' [] ==>> ? (08:18:37,08:18:37)
-
-
-
-
-
-
     def DumpFlow(self,strm,outputFormat):
 
         batchDump = BatchDumperFactory(strm, outputFormat)
@@ -2579,9 +2534,29 @@ def DefaultTracer(inputLogFile,tracer=None):
     return tracer
 
 G_topProcessId = None
+G_CurrentDirectory = None
+
+def LoadIniFile(iniFilNam):
+    mapKV = {}
+    try:
+        filOp =  open(iniFilNam)
+    except IOError:
+        return mapKV
+    for linKV in filOp.readlines():
+        clnKV = linKV.strip()
+        if not clnKV: continue
+        if clnKV[0] == ';': continue
+        idxEq = clnKV.find('=')
+        if idxEq < 0: continue
+        prmKey = clnKV[:idxEq]
+        prmVal = clnKV[idxEq+1:]
+        mapKV[prmKey] = prmVal
+    return mapKV
 
 def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     global G_topProcessId
+    global G_CurrentDirectory
+
     # A command or a pid or an input log file, only one possibility.
     if argsCmd != []:
         if aPid > 0 or inputLogFile:
@@ -2602,6 +2577,13 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
         # The main process pid might be embedded in the log file name.
         G_topProcessId = aPid
+
+        # There might be a context file with important information to reproduce the test.
+        contextLogFile = os.path.splitext(inputLogFile)[0]+'.ini'
+        mapKV = LoadIniFile(contextLogFile)
+
+        G_CurrentDirectory = mapKV.get("CurrentDirectory",".")
+
     else:
         try:
             funcTrace = G_traceToTracer[ tracer ][0]
@@ -2609,6 +2591,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
             raise Exception("Unknown tracer:%s"%tracer)
 
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
+        G_CurrentDirectory = "."
 
 
     # Another possibility is to start a process or a thread which will monitor
@@ -2710,6 +2693,9 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, summaryFormat, withWarning):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
+
+    # Check if there is a context file, which gives parameters such as the current directory,
+    # necessary to reproduce the test in the same conditions.
 
     FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat)        
 
