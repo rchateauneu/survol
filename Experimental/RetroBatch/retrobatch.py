@@ -453,11 +453,8 @@ class CIM_DataFile:
         self.FileName = pathName
         self.FileOpenTime = None
         self.FileCloseTime = None
-        self.NumberOpens = 0
-        self.IsExecuted = False
         self.FileCategory = PathCategory(pathName)
         # It will take a proper value if it is "connect()" or "bind()"
-        self.m_socket_address = None
 
         try:
             objStat = os.stat(pathName)
@@ -572,26 +569,39 @@ class CIM_DataFile:
             fdSummaryFile.write("    </FilesCategory>\n")
         
     def Summarize(self,strm):
-        if self.IsExecuted:
-            return
+        try:
+            # By default, this attribute is not set.
+            if self.IsExecuted:
+                return
+        except AttributeError:
+            pass
         strm.write("Path:%s\n" % self.FileName )
         if self.FileOpenTime:
             strOpen = TimeStampToStr( self.FileOpenTime )
             strm.write("  Open:%s\n" % strOpen )
 
-            strm.write("  Open times:%d\n" % self.NumberOpens )
+            try:
+                strm.write("  Open times:%d\n" % self.NumOpen )
+            except AttributeError:
+                pass
 
         if self.FileCloseTime:
             strClose = TimeStampToStr( self.FileCloseTime )
             strm.write("  Close:%s\n" % strClose )
 
-        if self.m_socket_address:
-            for saKey in self.m_socket_address:
-                saVal = self.m_socket_address[saKey]
+        # Only if this is a socket.
+        try:
+            for saKey in self.SocketAddress:
+                saVal = self.SocketAddress[saKey]
                 strm.write("    %s:%s\n" % (saKey,saVal) )
+        except AttributeError:
+            pass
 
     def SetOpenTime(self, timeStamp, objCIM_Process):
-        self.NumberOpens += 1
+        try:
+            self.NumOpen += 1
+        except AttributeError:
+            self.NumOpen = 1
         if not self.FileOpenTime or ( timeStamp < self.FileOpenTime ):
             self.FileOpenTime = timeStamp
 
@@ -658,6 +668,10 @@ G_lstFilters = [
         "^/dev",
         "^pipe:",
         "^UNIX:",
+    ] ),
+    ( "TCP/IP sockets" , [
+        "^TCP:",
+        "^UDP:",
     ] ),
     ( "Others" , [] ),
 ]
@@ -977,9 +991,16 @@ class BatchLetCore:
             # sys.stdout.write("self.m_unfinished: %s\n"%oneLine)
             self.m_retValue = None
         else:
-            idxEq = theCall.find( "=", idxLastPar )
+            # The parameters list might be broken, with strings containing an embedded double-quote.
+            if idxLastPar < 0:
+                # The parameters list might be broken, with strings containing an embedded double-quote.
+                # So the closing parenthesis could not be found.
+                idxEq = theCall.rfind( "=", 0, idxLT )
+            else:
+                # Normal case where the '=' equal sign comes after the clolsing parenthese of the args list.
+                idxEq = theCall.find( "=", idxLastPar )
             self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
-            # sys.stdout.write("retValue=%s\n"%self.m_retValue)
+            # sys.stdout.write("idxEq=%d idxLastPar=%d idxLT=%d retValue=%s\n"%(idxEq,idxLastPar,idxLT,self.m_retValue))
 
     def AsStr(self):
         return "%s %s s=%s" % (
@@ -1352,13 +1373,34 @@ class BatchLet_read(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_read,self).__init__(batchCore)
 
+        bytesRead = int(self.m_core.m_retValue)
+
         self.m_significantArgs = self.StreamName()
+
+        try:
+            self.m_significantArgs[0].NumRead += 1
+        except AttributeError:
+            self.m_significantArgs[0].NumRead = 1
+        try:
+            self.m_significantArgs[0].BytesRead += bytesRead
+        except AttributeError:
+            self.m_significantArgs[0].BytesRead = bytesRead
 
 class BatchLet_write(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_write,self).__init__(batchCore)
 
+        bytesWritten = int(self.m_core.m_retValue)
+
         self.m_significantArgs = self.StreamName()
+        try:
+            self.m_significantArgs[0].NumWritten += 1
+        except AttributeError:
+            self.m_significantArgs[0].NumWritten = 1
+        try:
+            self.m_significantArgs[0].BytesWritten += bytesWritten
+        except AttributeError:
+            self.m_significantArgs[0].BytesWritten = bytesWritten
 
 class BatchLet_ioctl(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -1751,7 +1793,7 @@ class BatchLet_connect(BatchLetBase,object):
             #    socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3<TCP:[7275805]>
             #    connect(3<TCP:[7275805]>, {sa_family=AF_INET, sin_port=htons(80), sin_addr=inet_addr("204.79.197.212")}, 16) = 0
             #    select(4, NULL, [3<TCP:[192.168.0.17:48318->204.79.197.212:80]>], NULL, {900, 0}) = 1
-            objPath.m_socket_address = self.m_core.m_parsedArgs[1]
+            objPath.SocketAddress = self.m_core.m_parsedArgs[1]
             
         elif batchCore.m_tracer == "ltrace":
             pass
@@ -1765,7 +1807,7 @@ class BatchLet_bind(BatchLetBase,object):
         objPath = STraceStreamToFile(self.m_core.m_parsedArgs[0])
         if batchCore.m_tracer == "strace":
             # bind(4<NETLINK:[7274795]>, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0
-            objPath.m_socket_address = self.m_core.m_parsedArgs[1]
+            objPath.SocketAddress = self.m_core.m_parsedArgs[1]
 
         elif batchCore.m_tracer == "ltrace":
             pass
