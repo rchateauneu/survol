@@ -1261,7 +1261,7 @@ def ToAbsPath( dirPath, filNam ):
 
     absPth = "/".join(splitSlash)
 
-    absPthWin = os.path.abspath( fullPath )
+    # absPthWin = os.path.abspath( fullPath )
     # sys.stdout.write(" fullPath=%s\n   absPth=%s\nabsPthWin=%s\n"%(fullPath,absPth,absPthWin))
     return absPth
 
