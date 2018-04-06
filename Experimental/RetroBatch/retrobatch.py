@@ -32,6 +32,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON|XML  Output format. Default is TXT.")
     print("  -i,--input <file name>        trace command input file.")
+    print("  -o,--output <file name>       summary output file.")
     print("  -l,--log <filename prefix>    trace command log output file.")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("")
@@ -258,6 +259,8 @@ class CIM_Process:
 
         if psutil:
             try:
+                # FIXME: If rerunning a simulation, this does not make sense.
+                # Same for CIM_DataFile when this is not the target machine.
                 procObj = psutil.Process(procId)
             except:
                 # Maybe this is replaying a former session and in this case,
@@ -306,14 +309,14 @@ class CIM_Process:
         return 'CIM_Process.Handle="%s"' % procId
 
     @staticmethod
-    def DisplaySummary(mapFlows,cimKeyValuePairs):
-        sys.stdout.write("Processes:\n")
+    def DisplaySummary(fdSummaryFile,mapFlows,cimKeyValuePairs):
+        fdSummaryFile.write("Processes:\n")
         for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
             # sys.stdout.write("Path=%s\n"%objPath)
-            objInstance.Summarize(sys.stdout)
-        sys.stdout.write("\n")
+            objInstance.Summarize(fdSummaryFile)
+        fdSummaryFile.write("\n")
 
-    def XMLOneLevelSummary(self,strm,margin=""):
+    def XMLOneLevelSummary(self,strm,margin="    "):
         self.m_isVisited = True
         strm.write("%s<CIM_Process Handle='%s'>\n" % ( margin, self.Handle) )
         
@@ -350,7 +353,7 @@ class CIM_Process:
             objInstance = parentProc
 
     @staticmethod
-    def XMLSummary(mapFlows,cimKeyValuePairs):
+    def XMLSummary(fdSummaryFile,mapFlows,cimKeyValuePairs):
         CIM_Process.CalcSubprocess(mapFlows,cimKeyValuePairs)
 
         # Find unvisited processes. It does not start from G_top_ProcessId
@@ -364,7 +367,7 @@ class CIM_Process:
 
             topObjProc = CIM_Process.TopProcessFromProc(objInstance)
 
-            topObjProc.XMLOneLevelSummary(sys.stdout)
+            topObjProc.XMLOneLevelSummary(fdSummaryFile)
 
     # In text mode, with no special formatting.
     def Summarize(self,strm):
@@ -513,8 +516,8 @@ class CIM_DataFile:
         return mapOfFilesMap
         
     @staticmethod
-    def DisplaySummary(mapFlows,cimKeyValuePairs):
-        sys.stdout.write("Files:\n")
+    def DisplaySummary(fdSummaryFile,mapFlows,cimKeyValuePairs):
+        fdSummaryFile.write("Files:\n")
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
 
         try:
@@ -523,15 +526,15 @@ class CIM_DataFile:
             filterCats = None
 
         for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
-            sys.stdout.write("\n** %s\n"%categoryFiles)
+            fdSummaryFile.write("\n** %s\n"%categoryFiles)
             if filterCats and ( not categoryFiles in filterCats ): continue
             for objPath,objInstance in sorted( mapFilesSub.items() ):
                 # sys.stdout.write("Path=%s\n"%objPath)
-                objInstance.Summarize(sys.stdout)
-        sys.stdout.write("\n")
+                objInstance.Summarize(fdSummaryFile)
+        fdSummaryFile.write("\n")
 
     def XMLDisplay(self,strm):
-        margin = "    "
+        margin = "        "
         strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.FileName) )
         
         subMargin = margin + "    "
@@ -546,13 +549,13 @@ class CIM_DataFile:
         strm.write("%s</CIM_DataFile>\n" % ( margin ) )
 
     @staticmethod
-    def XMLCategorySummary(mapFilesSub):
+    def XMLCategorySummary(fdSummaryFile,mapFilesSub):
         for objPath,objInstance in sorted( mapFilesSub.items() ):
             # sys.stdout.write("Path=%s\n"%objPath)
-            objInstance.XMLDisplay(sys.stdout)
+            objInstance.XMLDisplay(fdSummaryFile)
 
     @staticmethod
-    def XMLSummary(mapFlows,cimKeyValuePairs):
+    def XMLSummary(fdSummaryFile,mapFlows,cimKeyValuePairs):
         """Top-level informations are categories of CIM_DataFile which are not technical
         but the regex-based filtering."""
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
@@ -563,10 +566,10 @@ class CIM_DataFile:
             filterCats = None
 
         for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
-            sys.stdout.write("<FilesCategory category='%s'>\n"%categoryFiles)
+            fdSummaryFile.write("    <FilesCategory category='%s'>\n"%categoryFiles)
             if filterCats and ( not categoryFiles in filterCats ): continue
-            CIM_DataFile.XMLCategorySummary(mapFilesSub)
-            sys.stdout.write("</FilesCategory>\n")
+            CIM_DataFile.XMLCategorySummary(fdSummaryFile,mapFilesSub)
+            fdSummaryFile.write("    </FilesCategory>\n")
         
     def Summarize(self,strm):
         if self.IsExecuted:
@@ -708,22 +711,43 @@ def ParseFilterCIM(rgxObjectPath):
 
     return ( objClassName, mapKeyValues )
 
-# dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
-# fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
-# + arborescence des fils lances avec les memes informations 
-def GenerateSummary(mapFlows,withSummary,outputFormat):
+def GenerateSummaryTXT(mapFlows,withSummary,fdSummaryFile):
     for rgxObjectPath in withSummary:
         ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
         classObj = globals()[ cimClassName ]
+        classObj.DisplaySummary(fdSummaryFile,mapFlows,cimKeyValuePairs)
 
-        if outputFormat == "TXT":
-            classObj.DisplaySummary(mapFlows,cimKeyValuePairs)
-        elif outputFormat.upper() == "XML":
-            # The output format is very different.
-            classObj.XMLSummary(mapFlows,cimKeyValuePairs)
-        else:
-            raise Exception("Unsupported summary output format:%s"%outputFormat)
+# dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees,
+# fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
+# + arborescence des fils lances avec les memes informations 
+def GenerateSummaryXML(mapFlows,withSummary,fdSummaryFile):
+    if withSummary:
+        fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+        fdSummaryFile.write('<retrobatch>\n')
+        for rgxObjectPath in withSummary:
+            ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
+            classObj = globals()[ cimClassName ]
+            classObj.XMLSummary(fdSummaryFile,mapFlows,cimKeyValuePairs)
+        fdSummaryFile.write('</retrobatch>\n')
 
+
+def GenerateSummary(mapFlows,withSummary,outputFormat, outputSummaryFile):
+
+    if outputSummaryFile:
+        fdSummaryFile = open(outputSummaryFile, "w")
+    else:
+        fdSummaryFile = sys.stdout
+
+    if outputFormat == "TXT":
+        GenerateSummaryTXT(mapFlows,withSummary,fdSummaryFile)
+    elif outputFormat.upper() == "XML":
+        # The output format is very different.
+        GenerateSummaryXML(mapFlows,withSummary,fdSummaryFile)
+    else:
+        raise Exception("Unsupported summary output format:%s"%outputFormat)
+
+    if outputSummaryFile:
+        fdSummaryFile.close()
 
 ################################################################################
 
@@ -1238,7 +1262,7 @@ def ToAbsPath( dirPath, filNam ):
     absPth = "/".join(splitSlash)
 
     absPthWin = os.path.abspath( fullPath )
-    sys.stdout.write(" fullPath=%s\n   absPth=%s\nabsPthWin=%s\n"%(fullPath,absPth,absPthWin))
+    # sys.stdout.write(" fullPath=%s\n   absPth=%s\nabsPthWin=%s\n"%(fullPath,absPth,absPthWin))
     return absPth
 
 ################################################################################
@@ -2695,7 +2719,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 
 ################################################################################
 
-def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat):
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat, outputSummaryFile):
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
 
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
@@ -2710,7 +2734,7 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 
         if verbose: sys.stdout.write("\n")
 
-    GenerateSummary(mapFlows,withSummary,summaryFormat)
+    GenerateSummary(mapFlows,withSummary,summaryFormat, outputSummaryFile)
 
 # Function called for unit tests
 def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, summaryFormat, withWarning):
@@ -2720,14 +2744,14 @@ def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSumma
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat)        
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat, None)
 
 
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvws:p:f:r:i:l:t:",
-                ["help","verbose","warning","summary","pid","format","repetition","input","log","tracer"])
+                "hvws:p:f:r:i:o:l:t:",
+                ["help","verbose","warning","summary","pid","format","repetition","input","output","log","tracer"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
@@ -2740,7 +2764,8 @@ if __name__ == '__main__':
     outputFormat = "TXT" # Default output format of the generated files.
     szWindow = 0
     inputLogFile = None
-    outputLogFile = None
+    outputSummaryFile = None
+    outputLogFilePrefix = None
     tracer = None
 
     for anOpt, aVal in optsCmd:
@@ -2759,8 +2784,10 @@ if __name__ == '__main__':
             raise Exception("Sliding window not implemented yet")
         elif anOpt in ("-i", "--input"):
             inputLogFile = aVal
+        elif anOpt in ("-o", "--output"):
+            outputSummaryFile = aVal
         elif anOpt in ("-l", "--log"):
-            outputLogFile = aVal
+            outputLogFilePrefix = aVal
         elif anOpt in ("-t", "--tracer"):
             tracer = aVal
         elif anOpt in ("-h", "--help"):
@@ -2772,12 +2799,12 @@ if __name__ == '__main__':
     tracer = DefaultTracer( inputLogFile, tracer )
     logStream = CreateEventLog(argsCmd, aPid, inputLogFile, tracer )
 
-    if outputLogFile:
+    if outputLogFilePrefix:
         # tee: This jusy need to reimplement "readline()"
         class TeeStream:
             def __init__(self,logStrm):
                 self.m_logStrm = logStrm
-                outFilNam = "%s.%s.%s.log" % ( outputLogFile, tracer, G_topProcessId )
+                outFilNam = "%s.%s.%s.log" % ( outputLogFilePrefix, tracer, G_topProcessId )
                 self.m_outFd = open( outFilNam, "w" )
                 print("Creation of log file %s" % outFilNam )
 
@@ -2803,7 +2830,7 @@ if __name__ == '__main__':
 
     # In normal usage, the summary output format is the same as
     # the output format for calls.
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, withSummary, outputFormat )
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, withSummary, outputFormat, outputSummaryFile )
 
 ################################################################################
 # Options:
