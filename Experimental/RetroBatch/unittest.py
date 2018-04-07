@@ -52,7 +52,8 @@ def DoTheTests(verbose,diffFiles,withSummary,withWarning):
                 # if this lists the output files before the log input,
                 # because the key has to be the same.
                 # ".ini" files are context parameters for the test only.
-                if filExt not in [".log",".ini"]:
+                # ".xml" files are used to store the execution summary.
+                if filExt not in [".log",".ini",".xml"]:
                     try:
                         mapFiles[keyName].append( inPath )
                     except KeyError:
@@ -83,8 +84,11 @@ def DoTheTests(verbose,diffFiles,withSummary,withWarning):
             # "txt", "json" etc...
             outputFormat = filOutExt[1:].upper()
 
+            # It should be the samne whatever the output format is.
+            outputSummaryFile = baseName + ".xml"
+
             # In tests, the summary output format is always XML.
-            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,withSummary,"XML",withWarning)
+            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,withSummary,"XML",withWarning, outputSummaryFile)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
