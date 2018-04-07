@@ -2629,12 +2629,24 @@ def CreateFlowsFromLinuxSTraceLog(verbose,logStream):
 
 ################################################################################
 
+# This is const
 G_traceToTracer = {
     "cdb"    : ( LogWindowsFileStream, CreateFlowsFromWindowsLogger ),
     "strace" : ( LogSTraceFileStream , CreateFlowsFromLinuxSTraceLog ),
     "ltrace" : ( LogLTraceFileStream, CreateFlowsFromLtraceLog )
     }
 
+# Read from a real process or from the log file name when replaying a session.
+G_topProcessId = None
+
+# Read from a real process or from the ini file when replaying a session.
+G_CurrentDirectory = None
+
+# When replaying a session, it is not worth getting information about processes
+# because they do not exist anymore.
+G_ReplayMode = False
+
+################################################################################
 
 def DefaultTracer(inputLogFile,tracer=None):
     if not tracer:
@@ -2661,8 +2673,6 @@ def DefaultTracer(inputLogFile,tracer=None):
     LogSource("Tracer "+tracer)
     return tracer
 
-G_topProcessId = None
-G_CurrentDirectory = None
 
 def LoadIniFile(iniFilNam):
     mapKV = {}
@@ -2684,6 +2694,7 @@ def LoadIniFile(iniFilNam):
 def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     global G_topProcessId
     global G_CurrentDirectory
+    global G_ReplayMode
 
     # A command or a pid or an input log file, only one possibility.
     if argsCmd != []:
@@ -2711,6 +2722,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         mapKV = LoadIniFile(contextLogFile)
 
         G_CurrentDirectory = mapKV.get("CurrentDirectory",".")
+        G_ReplayMode = True
 
     else:
         try:
@@ -2720,6 +2732,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
         G_CurrentDirectory = "."
+        G_ReplayMode = False
 
     sys.stdout.write("G_CurrentDirectory=%s\n"%G_CurrentDirectory)
 
@@ -2818,14 +2831,8 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 
     GenerateSummary(mapFlows,withSummary,summaryFormat, outputSummaryFile)
 
-# When replaying a session, it is not worth getting information about processes
-# because they do not exist anymore.
-G_ReplayMode = False
-
 # Function called for unit tests
 def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, summaryFormat, withWarning, outputSummaryFile):
-    global G_ReplayMode
-    G_ReplayMode = True
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
