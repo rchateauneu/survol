@@ -257,7 +257,7 @@ class CIM_Process:
         self.CreationDate = None
         self.TerminationDate = None
 
-        if psutil:
+        if not G_ReplayMode and psutil:
             try:
                 # FIXME: If rerunning a simulation, this does not make sense.
                 # Same for CIM_DataFile when this is not the target machine.
@@ -277,7 +277,6 @@ class CIM_Process:
             self.Priority = procObj.nice()
         else:
             self.Name = str(procId)
-            self.Executable = None
             # TODO: This could be deduced with calls to setuid().
             self.Username = None
             # TODO: This can be partly deduced with calls to chdir() etc...
@@ -403,6 +402,8 @@ class CIM_Process:
     def SetExecutable(self,objCIM_DataFile) :
         self.Executable = objCIM_DataFile.FileName
 
+    def SetThread(self):
+        self.IsThread = True
 
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
@@ -1540,6 +1541,32 @@ class BatchLet_fchmod(BatchLetBase,object):
 
 ##### Process system calls.
 
+# Two usual sets of flags:
+# flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID
+# flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD
+#
+
+# CLONE_CHILD_CLEARTID Erase child thread ID at location ctid in child memory when the child exits, and do a wakeup on the futex at that address.
+# CLONE_CHILD_SETTID Store child thread ID at location ctid in child memory.
+# CLONE_FILES If CLONE_FILES is set, the calling process and the child process share the same file descriptor table.
+# CLONE_FS the caller and the child process share the same file system information.
+# CLONE_NEWIPC If CLONE_NEWIPC is set, then create the process in a new IPC namespace.
+# CLONE_NEWNET If CLONE_NEWNET is set, then create the process in a new network namespace.
+# CLONE_NEWNS Start the child in a new mount namespace.
+# CLONE_NEWPID Create the process in a new PID namespace.
+# CLONE_NEWUTS create the process in a new UTS namespace.
+# CLONE_PARENT the parent of the new child (as returned by getppid(2)) will be the same as that of the calling process.
+# CLONE_PARENT_SETTID Store child thread ID at location ptid in parent and child memory.
+# CLONE_PID the child process is created with the same process ID as the calling process.
+# CLONE_PTRACE If CLONE_PTRACE is specified, and the calling process is being traced, then trace the child also .
+# CLONE_SETTLS The newtls argument is the new TLS (Thread Local Storage) descriptor.
+# CLONE_SIGHAND If CLONE_SIGHAND is set, the calling process and the child process share the same table of signal handlers.
+# CLONE_STOPPED the child is initially stopped (as though it was sent a SIGSTOP signal), and must be resumed by sending it a SIGCONT signal.
+# CLONE_SYSVSEM the child and the calling process share a single list of System V semaphore undo values (see semop(2)).
+# CLONE_THREAD the child is placed in the same thread group as the calling process.
+# CLONE_UNTRACED a tracing process cannot force CLONE_PTRACE on this child process.
+# CLONE_VFORK the execution of the calling process is suspended until the child releases its virtual memory resources via a call to execve(2) or _exit(2).
+# CLONE_VM the calling process and the child process run in the same memory space.
 class BatchLet_clone(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLet_clone,self).__init__(batchCore)
@@ -1548,15 +1575,28 @@ class BatchLet_clone(BatchLetBase,object):
         # with ltrace (hexadecimal) and strace (decimal).
         if batchCore.m_tracer == "ltrace":
             aPid = int(self.m_core.m_retValue,16)
+
+            # TODO: How to make the difference between thread and process ?
+            isThread = True
         elif batchCore.m_tracer == "strace":
             aPid = int(self.m_core.m_retValue)
+            flagsClone = self.m_core.m_parsedArgs[1].strip()
+            if flagsClone.find("CLONE_VM") >= 0:
+                isThread = True
+            else:
+                isThread = False
+
         else:
             raise Exception("Tracer %s not supported yet"%tracer)
 
         # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
 
         # This is the created process.
-        objNewProcess = ToObjectPath_CIM_Process( aPid )
+        objNewProcess = ToObjectPath_CIM_Process( aPid)
+
+        if isThread:
+            objNewProcess.SetThread()
+
         self.m_significantArgs = [ objNewProcess ]
 
         objNewProcess.AddParentProcess(self.m_core.m_timeStart,self.m_core.m_objectProcess)
@@ -2778,15 +2818,21 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 
     GenerateSummary(mapFlows,withSummary,summaryFormat, outputSummaryFile)
 
+# When replaying a session, it is not worth getting information about processes
+# because they do not exist anymore.
+G_ReplayMode = False
+
 # Function called for unit tests
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, summaryFormat, withWarning):
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, summaryFormat, withWarning, outputSummaryFile):
+    global G_ReplayMode
+    G_ReplayMode = True
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat, None)
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat, outputSummaryFile)
 
 
 if __name__ == '__main__':
