@@ -371,8 +371,11 @@ class CIM_Process:
     # In text mode, with no special formatting.
     def Summarize(self,strm):
         strm.write("Process id:%s\n" % self.Handle )
-        if self.Executable:
-            strm.write("    Executable:%s\n" % self.Executable )
+        try:
+            if self.Executable:
+                strm.write("    Executable:%s\n" % self.Executable )
+        except AttributeError:
+            pass
         if self.CreationDate:
             strStart = TimeStampToStr( self.CreationDate )
             strm.write("    Start time:%s\n" % strStart )
