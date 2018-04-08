@@ -677,7 +677,12 @@ G_lstFilters = [
         "^UNIX:",
         "^NETLINK:",
     ] ),
-    ( "TCP/IP sockets" , [
+    # TCP:[54.36.162.150:41039->82.45.12.63:63711]
+    ( "Connected TCP sockets" , [
+        "^TCP:\[.*->.*\]",
+        "^TCPv6:\[.*->.*\]",
+    ] ),
+    ( "Other TCP/IP sockets" , [
         "^TCP:",
         "^TCPv6:",
         "^UDP:",
@@ -1896,6 +1901,7 @@ class BatchLetSys_poll(BatchLetBase,object):
 
 # int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 # select ['1', ['0</dev/pts/2>'], [], ['0</dev/pts/2>'], {'tv_sec': '0', 'tv_usec': '0'}] ==>> 0 (Timeout) (07:43:14,07:43:14)
+# select(13, [0<TCPv6:[:::21]> 12<pipe:[10567127]>], NULL, NULL, {tv_sec=30, tv_usec=0}) = 1 (in [12], left {tv_sec=29, tv_usec=999997})
 class BatchLetSys_select(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_select,self).__init__(batchCore)
@@ -1905,7 +1911,16 @@ class BatchLetSys_select(BatchLetBase,object):
                 # If the array of file descriptors is empty.
                 return []
             else:
-                return [ STraceStreamToFile( fdName ) for fdName in arrStrms ]
+                # The delimiter is a space:
+                # "1 arrStrms=['0<TCPv6:[:::21]> 12<pipe:[10567127]>']"
+                # sys.stdout.write("%d arrStrms=%s\n"%(len(arrStrms),str(arrStrms)))
+                filStrms = []
+                for fdName in arrStrms:
+                    # Most of times there should be one element only.
+                    splitFdName = fdName.split(" ")
+                    for oneFdNam in splitFdName:
+                        filStrms.append(STraceStreamToFile( oneFdNam ))
+                return filStrms
 
         arrArgs = self.m_core.m_parsedArgs
         arrFilRead = ArrFdNameToArrString(arrArgs[1])
@@ -1984,6 +1999,22 @@ class BatchLetSys_pipe(BatchLetBase,object):
         arrPipes = self.m_core.m_parsedArgs[0]
         arrFil0 = STraceStreamToFile(arrPipes[0])
         arrFil1 = STraceStreamToFile(arrPipes[1])
+
+        sys.stdout.write("pipe arrFil0=%s arrFil1=%s\n"%(arrFil0.FileName,arrFil1.FileName))
+
+        self.m_significantArgs = [ arrFil0, arrFil1 ]
+
+# TODO: If the return value is not zero, maybe reject.
+# pipe([3<pipe:[255278]>, 4<pipe:[255278]>]) = 0
+class BatchLetSys_pipe2(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLetSys_pipe2,self).__init__(batchCore)
+
+        arrPipes = self.m_core.m_parsedArgs[0]
+        arrFil0 = STraceStreamToFile(arrPipes[0])
+        arrFil1 = STraceStreamToFile(arrPipes[1])
+
+        sys.stdout.write("pipe2 arrFil0=%s arrFil1=%s\n"%(arrFil0.FileName,arrFil1.FileName))
 
         self.m_significantArgs = [ arrFil0, arrFil1 ]
 
