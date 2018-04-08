@@ -9,6 +9,7 @@ import subprocess
 import time
 import signal
 import inspect
+import socket
 
 try:
     # To add more information to processes etc...
@@ -490,6 +491,18 @@ class CIM_DataFile:
             # self.FileCreator = objStat.st_creator
             # self.FileType = objStat.st_type
 
+        # If this is a connected socket:
+        # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
+        mtchSock = re.match( "TCP:\[.*->(.*)\]", pathName)
+        if mtchSock:
+            self.SetAddrPort( mtchSock.group(1) )
+        else:
+            # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
+            mtchSock = re.match( "TCPv6:\[.*->(.*)\]", pathName)
+            if mtchSock:
+                self.SetAddrPort( mtchSock.group(1) )
+
+
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.FileName)
 
@@ -615,6 +628,21 @@ class CIM_DataFile:
 
     def SetIsExecuted(self) :
         self.IsExecuted = True
+
+    # The input could be IPV4 or IPV6:
+    # '82.45.12.63:63708]'
+    # '::ffff:82.45.12.63:63703]'
+    def SetAddrPort(self,pathIP):
+        ixEq = pathIP.rfind(":")
+        if ixEq < 0:
+            self.Destination = pathIP
+        else:
+            self.Port = pathIP[ixEq+1:]
+            addrIP = pathIP[:ixEq]
+            try:
+                self.Destination = socket.gethostbyaddr(addrIP)[0]
+            except:
+                self.Destination = addrIP
 
 # This contains the CIM objects: CIM_Process, CIM_DataFile and
 # is used to generate the summary.
@@ -1999,8 +2027,6 @@ class BatchLetSys_pipe(BatchLetBase,object):
         arrPipes = self.m_core.m_parsedArgs[0]
         arrFil0 = STraceStreamToFile(arrPipes[0])
         arrFil1 = STraceStreamToFile(arrPipes[1])
-
-        sys.stdout.write("pipe arrFil0=%s arrFil1=%s\n"%(arrFil0.FileName,arrFil1.FileName))
 
         self.m_significantArgs = [ arrFil0, arrFil1 ]
 
