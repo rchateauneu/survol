@@ -371,8 +371,11 @@ class CIM_Process:
     # In text mode, with no special formatting.
     def Summarize(self,strm):
         strm.write("Process id:%s\n" % self.Handle )
-        if self.Executable:
-            strm.write("    Executable:%s\n" % self.Executable )
+        try:
+            if self.Executable:
+                strm.write("    Executable:%s\n" % self.Executable )
+        except AttributeError:
+            pass
         if self.CreationDate:
             strStart = TimeStampToStr( self.CreationDate )
             strm.write("    Start time:%s\n" % strStart )
@@ -898,7 +901,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) # + 3600
+            aTimeStamp = time.mktime( timStruct ) + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -2146,7 +2149,6 @@ def BatchLetFactory(batchCore):
         # as the input parameters contain enough information for us.
         try:
             aModel.UnfinishedIsOk
-            sys.stdout.write("UnfinishedIsOk %s !!!!!!!!!!!\n"%aModel.__name__)
             btchLetDrv = aModel( batchCore )
             # ResumedOnly
             # UnfinishedOnly
@@ -2302,17 +2304,17 @@ class BatchFlow:
             if batchSeqPrev.m_core.m_status == BatchStatus.matched \
             and batchSeq.m_core.m_status == BatchStatus.merged:
                 if batchSeqPrev.m_core.m_funcNam != batchSeq.m_core.m_funcNam :
-                    sys.stdout.write("INCONSISTENCY1 %s %s\n"% ( batchSeq.m_core.m_funcNam, batchSeqPrev.m_core.m_funcNam ) )
+                    raise Exception("INCONSISTENCY1 %s %s\n"% ( batchSeq.m_core.m_funcNam, batchSeqPrev.m_core.m_funcNam ) )
 
             if batchSeqPrev.m_core.m_status == BatchStatus.matched \
             and batchSeq.m_core.m_status == BatchStatus.merged:
                 if batchSeqPrev.m_core.m_resumedBatch.m_unfinishedBatch != batchSeqPrev.m_core:
-                    sys.stdout.write("INCONSISTENCY2 %s\n"% batchSeqPrev.m_core.m_funcNam)
+                    raise Exception("INCONSISTENCY2 %s\n"% batchSeqPrev.m_core.m_funcNam)
 
             if batchSeqPrev.m_core.m_status == BatchStatus.matched \
             and batchSeq.m_core.m_status == BatchStatus.merged:
                 if batchSeq.m_core.m_unfinishedBatch.m_resumedBatch != batchSeq.m_core:
-                    sys.stdout.write("INCONSISTENCY3 %s\n"% batchSeq.m_core.m_funcNam)
+                    raise Exception("INCONSISTENCY3 %s\n"% batchSeq.m_core.m_funcNam)
 
             if batchSeqPrev.m_core.m_status == BatchStatus.matched \
             and batchSeq.m_core.m_status == BatchStatus.merged \
@@ -2973,9 +2975,13 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
     GenerateSummary(mapFlows,mapParamsSummary,summaryFormat, outputSummaryFile)
 
 # Function called for unit tests by unittest.py
+# Function called for unit tests
 def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, outputSummaryFile):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
+
+    # Check if there is a context file, which gives parameters such as the current directory,
+    # necessary to reproduce the test in the same conditions.
 
     FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile)
 
