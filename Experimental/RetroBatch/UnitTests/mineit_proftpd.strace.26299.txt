@@ -17,7 +17,7 @@ Pid= 26299 {   1/Orig}M'clone@SYS           ' ['CIM_Process.Handle="10622"'] ==>
 Pid= 26299 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]"'] ==>> 0 (14:09:54,14:09:54)
 Pid= 26299 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[10567127]"'] ==>> 0 (14:09:54,14:09:54)
 Pid= 26299 {   2/Orig} 'fcntl@SYS           ' ['CIM_DataFile.Name="TCPv6:[:::21]"'] ==>> 0x802 (flags O_RDWR|O_NONBLOCK) (14:09:54,14:09:54)
-Pid= 26299 {   1/Orig} 'select@SYS          ' [['CIM_DataFile.Name="TCPv6:[:::21]> 12<pipe:[10567127]"'], [], []] ==>> 1 (in [12], left {tv_sec=29, tv_usec=999997}) (14:09:54,14:09:54)
+Pid= 26299 {   1/Orig} 'select@SYS          ' [['CIM_DataFile.Name="TCPv6:[:::21]"', 'CIM_DataFile.Name="pipe:[10567127]"'], [], []] ==>> 1 (in [12], left {tv_sec=29, tv_usec=999997}) (14:09:54,14:09:54)
 Pid= 26299 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[10567127]"'] ==>> 0 (14:09:54,14:09:54)
 Pid= 26299 {   1/Orig}M'select@SYS          ' [['CIM_DataFile.Name="TCPv6:[:::21]"'], [], []] ==>> ? ERESTARTNOHAND (To be restarted if no handler) (14:09:56,14:09:56)
 Pid= 26299 {   1/Orig}M'wait4@SYS           ' ['CIM_Process.Handle="10614"'] ==>> 10614 (14:09:56,14:09:56)
