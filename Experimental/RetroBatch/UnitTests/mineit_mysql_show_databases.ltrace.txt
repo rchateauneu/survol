@@ -19,7 +19,7 @@ Pid=  4784 {   2/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="/lib64/libc.s
 Pid=  4784 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7ff7fe765000 (16:42:10,16:42:10)
 Pid=  4784 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/lib64/libc.so.6"'] ==>> 0 (16:42:10,16:42:10)
 Pid=  4784 {   1/Rept} '(mmap@SYS+munmap@SYS)' ['CIM_DataFile.Name="-1"'] ==>> N/A (16:42:10,16:42:10)
-Pid=  4784 {   1/Orig}U'__libc_start_main   ' [['python', 'TestProgs/mineit_mysql_select.py']] ==>> None (16:42:10,16:42:10)
+Pid=  4784 {   1/Orig}U'__libc_start_main   ' ['CIM_DataFile.Name="python"', ['python', 'TestProgs/mineit_mysql_select.py']] ==>> None (16:42:10,16:42:10)
 Pid=  4784 {   1/Orig}U'Py_Main             ' ['2', '0x7ffed52a8038', '0x7ffed52a8050', '0'] ==>> None (16:42:10,16:42:10)
 Pid=  4784 {   1/Orig} 'ioctl@SYS           ' ['CIM_DataFile.Name="stdin"'] ==>> 0 (16:42:10,16:42:10)
 Pid=  4784 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7ff7ff61b000 (16:42:10,16:42:10)

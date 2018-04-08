@@ -138,7 +138,7 @@ Pid= 11762 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/lib64/ld-lin
 Pid= 11762 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (10:56:39,10:56:39)
 Pid= 11762 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/usr/lib/gcc/x86_64-redhat-linux/5.3.1/libgcc_s.so"'] ==>> 0 (10:56:39,10:56:39)
 Pid= 11762 {   2/Orig} 'munmap@SYS          ' [] ==>> 0 (10:56:39,10:56:39)
-Pid= 11762 {   1/Orig} 'exit_group@SYS      ' [] ==>> 0x2df2 (10:56:39,10:56:39)
+Pid= 11762 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (10:56:39,10:56:39)
 
 ================== PID=11761
 Pid= 11761 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2"', '0xd20798'] ==>> execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2", 0xd20798, 0xd1a5e0 (10:56:39,10:56:39)
@@ -202,7 +202,7 @@ Pid= 11761 {   1/Orig} 'lstat@SYS           ' ['CIM_DataFile.Name="/tmp/ccUsMLfe
 Pid= 11761 {   1/Orig} 'lstat@SYS           ' ['CIM_DataFile.Name="/tmp/cc7sc7bb.o"'] ==>> -2 (10:56:39,10:56:39)
 Pid= 11761 {   1/Orig} 'lstat@SYS           ' ['CIM_DataFile.Name="/tmp/ccumYu87.ld"'] ==>> -2 (10:56:39,10:56:39)
 Pid= 11761 {   1/Orig} 'lstat@SYS           ' ['CIM_DataFile.Name="/tmp/ccHPSU44.le"'] ==>> -2 (10:56:39,10:56:39)
-Pid= 11761 {   1/Orig} 'exit_group@SYS      ' [] ==>> 0x2df1 (10:56:39,10:56:39)
+Pid= 11761 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (10:56:39,10:56:39)
 
 ================== PID=11760
 Pid= 11760 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/lib64/qt-3.3/bin/as"', '0xd1a138'] ==>> -2 (10:56:39,10:56:39)
@@ -247,7 +247,7 @@ Pid= 11760 {   1/Orig} 'fstat@SYS           ' ['CIM_DataFile.Name="/tmp/ccWzHVOT
 Pid= 11760 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7f82b0ae5000 (10:56:39,10:56:39)
 Pid= 11760 {   1/Args} '((read@SYS+write@SYS)+close@SYS)' ['CIM_DataFile.Name="/tmp/ccWzHVOT.o"'] ==>> N/A (10:56:39,10:56:39)
 Pid= 11760 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (10:56:39,10:56:39)
-Pid= 11760 {   1/Orig} 'exit_group@SYS      ' [] ==>> 0x2df0 (10:56:39,10:56:39)
+Pid= 11760 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (10:56:39,10:56:39)
 
 ================== PID=11759
 Pid= 11759 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1"', '0xd1a138'] ==>> execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1", 0xd1a138, 0xd1a2b0 (10:56:38,10:56:38)
@@ -416,7 +416,7 @@ Pid= 11759 {   1/Args} '(lstat@SYS+open@SYS+fstat@SYS+read@SYS+close@SYS)' ['CIM
 Pid= 11759 {   2/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7fb343468000 (10:56:38,10:56:38)
 Pid= 11759 {   1/Args} '(write@SYS+close@SYS)' ['CIM_DataFile.Name="/tmp/ccCdYueX.s"'] ==>> N/A (10:56:38,10:56:38)
 Pid= 11759 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (10:56:38,10:56:38)
-Pid= 11759 {   1/Orig} 'exit_group@SYS      ' [] ==>> 0x2def (10:56:38,10:56:38)
+Pid= 11759 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (10:56:38,10:56:38)
 
 ================== PID=11758
 Pid= 11758 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7fa407cd9000 (10:56:38,10:56:38)

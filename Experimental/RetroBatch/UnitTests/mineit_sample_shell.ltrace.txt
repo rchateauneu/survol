@@ -21,7 +21,7 @@ Pid= 18320 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (09:00:23,09:00:23)
 Pid= 18320 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="TestProgs/sample_shell.sh"'] ==>> 0 (09:00:23,09:00:23)
 Pid= 18320 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="stdout"'] ==>> 0 (09:00:23,09:00:23)
 Pid= 18320 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="stderr"'] ==>> 0 (09:00:23,09:00:23)
-Pid= 18320 {   1/Orig} 'exit_group@SYS      ' [] ==>> 0x4790 (09:00:23,09:00:23)
+Pid= 18320 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (09:00:23,09:00:23)
 
 ================== PID=18319
 Pid= 18319 {   1/Orig}M'close@SYS           ' ['CIM_DataFile.Name="UnknownFileDescr:255"'] ==>> 0 (09:00:22,09:00:22)
@@ -63,7 +63,7 @@ Pid= 18319 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="stdin"'] ==>>
 Pid= 18319 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="stdout"'] ==>> 0 (09:00:23,09:00:23)
 Pid= 18319 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (09:00:23,09:00:23)
 Pid= 18319 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="stderr"'] ==>> 0 (09:00:23,09:00:23)
-Pid= 18319 {   1/Orig} 'exit_group@SYS      ' [] ==>> 0 (09:00:23,09:00:23)
+Pid= 18319 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (09:00:23,09:00:23)
 
 ================== PID=18318
 Pid= 18318 {   1/Orig}M'close@SYS           ' ['CIM_DataFile.Name="UnknownFileDescr:255"'] ==>> 0 (09:00:22,09:00:22)
@@ -1479,7 +1479,7 @@ Pid= 18318 {   1/Orig}M'write@SYS           ' ['CIM_DataFile.Name="stdout"'] ==>
 Pid= 18318 {   1/Orig}U'close@SYS           ' ['1'] ==>> None (09:00:23,09:00:23)
 Pid= 18318 {   1/Orig}M'munmap@SYS          ' [] ==>> 0 (09:00:23,09:00:23)
 Pid= 18318 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="stderr"'] ==>> 0 (09:00:23,09:00:23)
-Pid= 18318 {   1/Orig} 'exit_group@SYS      ' [] ==>> 0x478e (09:00:23,09:00:23)
+Pid= 18318 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (09:00:23,09:00:23)
 
 ================== PID=18317
 Pid= 18317 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="UnknownFileDescr:255"'] ==>> 0 (09:00:22,09:00:22)
@@ -1531,7 +1531,7 @@ Pid= 18317 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x
 Pid= 18317 {   1/Args} '(write@SYS+close@SYS)' ['CIM_DataFile.Name="stdout"'] ==>> N/A (09:00:22,09:00:22)
 Pid= 18317 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (09:00:22,09:00:22)
 Pid= 18317 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="stderr"'] ==>> 0 (09:00:22,09:00:22)
-Pid= 18317 {   1/Orig} 'exit_group@SYS      ' [] ==>> 0x478d (09:00:22,09:00:22)
+Pid= 18317 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (09:00:22,09:00:22)
 
 ================== PID=18316
 Pid= 18316 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7fb20cb1f000 (09:00:22,09:00:22)
