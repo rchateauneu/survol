@@ -27,7 +27,7 @@ def InternalUnitTests_ParseSTraceObject():
         if resu != tupl[1]:
             raise Exception("Fail:%s != %s" % ( str(tupl[1]), resu ) )
 
-def DoTheTests(verbose,diffFiles,withSummary,withWarning):
+def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning):
 
     # This iterates on the input test files and generates the "compressed" output.as
     #  After that we can check if the results are as expected.
@@ -88,7 +88,7 @@ def DoTheTests(verbose,diffFiles,withSummary,withWarning):
             outputSummaryFile = baseName + ".xml"
 
             # In tests, the summary output format is always XML.
-            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,withSummary,"XML",withWarning, outputSummaryFile)
+            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning, outputSummaryFile)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
@@ -120,7 +120,7 @@ if __name__ == '__main__':
 
     verbose = 0
     withWarning = 0
-    withSummary = []
+    mapParamsSummary = []
     diffFiles = False
 
     for anOpt, aVal in optsCmd:
@@ -129,7 +129,7 @@ if __name__ == '__main__':
         elif anOpt in ("-w", "--warning"):
             withWarning += 1
         elif anOpt in ("-s", "--summary"):
-            withSummary = withSummary + [ aVal ] if aVal else []
+            mapParamsSummary = mapParamsSummary + [ aVal ] if aVal else []
         elif anOpt in ("-d", "--diff"):
             diffFiles = aVal
         elif anOpt in ("-h", "--help"):
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     InternalUnitTests_ParseSTraceObject()
     print("Internal tests OK.")
 
-    DoTheTests(verbose,diffFiles,withSummary,withWarning)
+    DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning)
     print("Tests done")
 
 
