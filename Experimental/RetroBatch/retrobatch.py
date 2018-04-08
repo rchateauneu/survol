@@ -653,10 +653,12 @@ G_lstFilters = [
     ( "Shared libraries" , [
         "^/usr/lib[^/]*/.*\.so",
         "^/usr/lib[^/]*/.*\.so\..*",
+        "^/var/lib[^/]*/.*\.so",
     ] ),
     ( "Other libraries" , [
-        "^/usr/lib[^/]*/",
         "^/usr/share/",
+        "^/usr/lib[^/]*/",
+        "^/var/lib[^/]*/",
     ] ),
     ( "Proc file system" , [
         "^/proc",
@@ -666,15 +668,18 @@ G_lstFilters = [
     ] ),
     ( "/tmp temporary files" , [
         "^/tmp/",
+        "^/var/log/",
     ] ),
     ( "Pipes and terminals" , [
         "^/sys",
         "^/dev",
         "^pipe:",
         "^UNIX:",
+        "^NETLINK:",
     ] ),
     ( "TCP/IP sockets" , [
         "^TCP:",
+        "^TCPv6:",
         "^UDP:",
     ] ),
     ( "Others" , [] ),
@@ -901,7 +906,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) + 3600
+            aTimeStamp = time.mktime( timStruct ) # + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -1049,6 +1054,7 @@ G_ignoredSyscalls = [
     "getrlimit",
     "futex",
     "brk",
+    "mlock",
 ]
 
 
@@ -1381,10 +1387,14 @@ class BatchLetSys_openat(BatchLetBase,object):
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
         self.m_significantArgs[0].SetOpenTime(self.m_core.m_timeStart,self.m_core.m_objectProcess)
-        
 
 class BatchLetSys_close(BatchLetBase,object):
     def __init__(self,batchCore):
+        # Maybe no need to record it if close is unsuccessful.
+        # [pid 10624] 14:09:55.350002 close(2902) = -1 EBADF (Bad file descriptor) <0.000006>
+        if batchCore.m_retValue.find("EBADF") >= 0:
+            return
+
         super( BatchLetSys_close,self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
@@ -1851,9 +1861,17 @@ class BatchLetSys_recvfrom(BatchLetBase,object):
 
         self.m_significantArgs = self.StreamName()
 
+# getsockname(1<TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]>, {sa_family=AF_INET6, sin6_port=htons(21), inet_pton(AF_INET6, "::ffff:54.36.162.150", &sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, [28]) = 0 <0.000008>
 class BatchLetSys_getsockname(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_getsockname,self).__init__(batchCore)
+
+        self.m_significantArgs = self.StreamName()
+
+# getpeername(1<TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]>, {sa_family=AF_INET6, sin6_port=htons(63703), inet_pton(AF_INET6, "::ffff:82.45.12.63", &sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, [28]) = 0 <0.000007>
+class BatchLetSys_getpeername(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLetSys_getpeername,self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
