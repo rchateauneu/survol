@@ -729,8 +729,8 @@ def ParseFilterCIM(rgxObjectPath):
 
     return ( objClassName, mapKeyValues )
 
-def GenerateSummaryTXT(mapFlows,withSummary,fdSummaryFile):
-    for rgxObjectPath in withSummary:
+def GenerateSummaryTXT(mapFlows,mapParamsSummary,fdSummaryFile):
+    for rgxObjectPath in mapParamsSummary:
         ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
         classObj = globals()[ cimClassName ]
         classObj.DisplaySummary(fdSummaryFile,mapFlows,cimKeyValuePairs)
@@ -738,18 +738,18 @@ def GenerateSummaryTXT(mapFlows,withSummary,fdSummaryFile):
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees,
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
-def GenerateSummaryXML(mapFlows,withSummary,fdSummaryFile):
-    if withSummary:
+def GenerateSummaryXML(mapFlows,mapParamsSummary,fdSummaryFile):
+    if mapParamsSummary:
         fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         fdSummaryFile.write('<retrobatch>\n')
-        for rgxObjectPath in withSummary:
+        for rgxObjectPath in mapParamsSummary:
             ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
             classObj = globals()[ cimClassName ]
             classObj.XMLSummary(fdSummaryFile,mapFlows,cimKeyValuePairs)
         fdSummaryFile.write('</retrobatch>\n')
 
 
-def GenerateSummary(mapFlows,withSummary,outputFormat, outputSummaryFile):
+def GenerateSummary(mapFlows,mapParamsSummary,outputFormat, outputSummaryFile):
 
     if outputSummaryFile:
         fdSummaryFile = open(outputSummaryFile, "w")
@@ -757,10 +757,10 @@ def GenerateSummary(mapFlows,withSummary,outputFormat, outputSummaryFile):
         fdSummaryFile = sys.stdout
 
     if outputFormat == "TXT":
-        GenerateSummaryTXT(mapFlows,withSummary,fdSummaryFile)
+        GenerateSummaryTXT(mapFlows,mapParamsSummary,fdSummaryFile)
     elif outputFormat.upper() == "XML":
         # The output format is very different.
-        GenerateSummaryXML(mapFlows,withSummary,fdSummaryFile)
+        GenerateSummaryXML(mapFlows,mapParamsSummary,fdSummaryFile)
     else:
         raise Exception("Unsupported summary output format:%s"%outputFormat)
 
@@ -901,7 +901,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) # + 3600
+            aTimeStamp = time.mktime( timStruct ) + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -2817,7 +2817,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 
 ################################################################################
 
-def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat, outputSummaryFile):
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile):
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
 
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
@@ -2832,17 +2832,17 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 
         if verbose: sys.stdout.write("\n")
 
-    GenerateSummary(mapFlows,withSummary,summaryFormat, outputSummaryFile)
+    GenerateSummary(mapFlows,mapParamsSummary,summaryFormat, outputSummaryFile)
 
 # Function called for unit tests
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, withSummary, summaryFormat, withWarning, outputSummaryFile):
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, outputSummaryFile):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, withSummary, summaryFormat, outputSummaryFile)
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile)
 
 
 if __name__ == '__main__':
@@ -2856,8 +2856,8 @@ if __name__ == '__main__':
 
     verbose = 0
     withWarning = 0
-    # withSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
-    withSummary = ["CIM_Process","CIM_DataFile"]
+    # mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
+    mapParamsSummary = ["CIM_Process","CIM_DataFile"]
     aPid = -1
     outputFormat = "TXT" # Default output format of the generated files.
     szWindow = 0
@@ -2872,7 +2872,7 @@ if __name__ == '__main__':
         elif anOpt in ("-w", "--warning"):
             withWarning += 1
         elif anOpt in ("-s", "--summary"):
-            withSummary = withSummary + [ aVal ] if aVal else []
+            mapParamsSummary = mapParamsSummary + [ aVal ] if aVal else []
         elif anOpt in ("-p", "--pid"):
             aPid = aVal
         elif anOpt in ("-f", "--format"):
@@ -2928,7 +2928,7 @@ if __name__ == '__main__':
 
     # In normal usage, the summary output format is the same as
     # the output format for calls.
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, withSummary, outputFormat, outputSummaryFile )
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, mapParamsSummary, outputFormat, outputSummaryFile )
 
 ################################################################################
 # Options:
