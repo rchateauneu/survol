@@ -27,7 +27,7 @@ def InternalUnitTests_ParseSTraceObject():
         if resu != tupl[1]:
             raise Exception("Fail:%s != %s" % ( str(tupl[1]), resu ) )
 
-def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning):
+def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
 
     # This iterates on the input test files and generates the "compressed" output.as
     #  After that we can check if the results are as expected.
@@ -53,7 +53,7 @@ def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning):
                 # because the key has to be the same.
                 # ".ini" files are context parameters for the test only.
                 # ".xml" files are used to store the execution summary.
-                if filExt not in [".log",".ini",".xml"]:
+                if filExt not in [".log",".ini",".xml",".docker"]:
                     try:
                         mapFiles[keyName].append( inPath )
                     except KeyError:
@@ -87,8 +87,13 @@ def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning):
             # It should be the samne whatever the output format is.
             outputSummaryFile = baseName + ".xml"
 
+            if withDockerfile:
+                dockerFilename = baseName + ".docker"
+            else:
+                dockerFilename = None
+            
             # In tests, the summary output format is always XML.
-            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning, outputSummaryFile)
+            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning, outputSummaryFile,dockerFilename)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
@@ -103,6 +108,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -v,--verbose                  Verbose mode (Cumulative).")
     print("  -w,--warning                  Display warnings (Cumulative).")
     print("  -s,--summary <CIM class>      With summary.")
+    print("  -D,--dockerfile               Generates a dockerfile for each sample.")
     print("  -d,--diff                     Differences.")
     print("")
 
@@ -112,7 +118,7 @@ def Usage(exitCode = 1, errMsg = None):
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvws:d",
+                "hvws:Dd",
                 ["help","verbose","warning","summary","differences"])
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -121,6 +127,7 @@ if __name__ == '__main__':
     verbose = 0
     withWarning = 0
     mapParamsSummary = []
+    withDockerfile = None
     diffFiles = False
 
     for anOpt, aVal in optsCmd:
@@ -130,6 +137,8 @@ if __name__ == '__main__':
             withWarning += 1
         elif anOpt in ("-s", "--summary"):
             mapParamsSummary = mapParamsSummary + [ aVal ] if aVal else []
+        elif anOpt in ("-D", "--dockerfile"):
+            withDockerfile = True
         elif anOpt in ("-d", "--diff"):
             diffFiles = aVal
         elif anOpt in ("-h", "--help"):
@@ -141,7 +150,7 @@ if __name__ == '__main__':
     InternalUnitTests_ParseSTraceObject()
     print("Internal tests OK.")
 
-    DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning)
+    DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile)
     print("Tests done")
 
 

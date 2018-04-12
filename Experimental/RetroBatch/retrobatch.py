@@ -30,6 +30,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -w,--warning                  Display warnings (Cumulative).")
     print("  -s,--summary <CIM class>      Prints a summary at the end: Start end end time stamps, executable name,\n"
         + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree.")
+    print("  -D,--dockerfile <File name>   Docker file name.")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON|XML  Output format. Default is TXT.")
     print("  -i,--input <file name>        trace command input file.")
@@ -291,7 +292,7 @@ class CIM_Process:
         # and if we did not get the main process id.
         try:
             mapProcs = G_mapCacheObjects["CIM_Process"]
-            keysProcs = mapProcs.keys()
+            keysProcs = list(mapProcs.keys())
             if len(keysProcs) == 1:
                 # We are about to create the second process.
                 firstProcObj = mapProcs[ keysProcs[0] ]
@@ -309,7 +310,7 @@ class CIM_Process:
         return 'CIM_Process.Handle="%s"' % procId
 
     @staticmethod
-    def DisplaySummary(fdSummaryFile,mapFlows,cimKeyValuePairs):
+    def DisplaySummary(fdSummaryFile,cimKeyValuePairs):
         fdSummaryFile.write("Processes:\n")
         for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
             # sys.stdout.write("Path=%s\n"%objPath)
@@ -335,7 +336,7 @@ class CIM_Process:
         strm.write("%s</CIM_Process>\n" % ( margin ) )
 
     @staticmethod
-    def CalcSubprocess(mapFlows,cimKeyValuePairs):
+    def CalcSubprocess(cimKeyValuePairs):
         """This rebuilds the tree of subprocesses seen from the top. """
         for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
             objInstance.m_subProcesses = []
@@ -353,8 +354,8 @@ class CIM_Process:
             objInstance = parentProc
 
     @staticmethod
-    def XMLSummary(fdSummaryFile,mapFlows,cimKeyValuePairs):
-        CIM_Process.CalcSubprocess(mapFlows,cimKeyValuePairs)
+    def XMLSummary(fdSummaryFile,cimKeyValuePairs):
+        CIM_Process.CalcSubprocess(cimKeyValuePairs)
 
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
@@ -510,7 +511,8 @@ class CIM_DataFile:
     def CreateMoniker(pathName):
         return 'CIM_DataFile.Name="%s"' % pathName
 
-        
+    # This creates a map containing all detected files. This map is indexed
+    # by an informal file category: DLL, data file etc...
     @staticmethod
     def SplitFilesByCategory():
         try:
@@ -530,7 +532,7 @@ class CIM_DataFile:
         return mapOfFilesMap
         
     @staticmethod
-    def DisplaySummary(fdSummaryFile,mapFlows,cimKeyValuePairs):
+    def DisplaySummary(fdSummaryFile,cimKeyValuePairs):
         fdSummaryFile.write("Files:\n")
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
 
@@ -569,7 +571,7 @@ class CIM_DataFile:
             objInstance.XMLDisplay(fdSummaryFile)
 
     @staticmethod
-    def XMLSummary(fdSummaryFile,mapFlows,cimKeyValuePairs):
+    def XMLSummary(fdSummaryFile,cimKeyValuePairs):
         """Top-level informations are categories of CIM_DataFile which are not technical
         but the regex-based filtering."""
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
@@ -647,6 +649,10 @@ class CIM_DataFile:
 # This contains the CIM objects: CIM_Process, CIM_DataFile and
 # is used to generate the summary.
 G_mapCacheObjects = None
+
+# Environment variables actually access by processes.
+# Used to generate a Dockerfile.
+G_EnvironmentVariables = None
 
 def CreateObjectPath(classModel, *ctorArgs):
     try:
@@ -767,27 +773,26 @@ def ParseFilterCIM(rgxObjectPath):
 
     return ( objClassName, mapKeyValues )
 
-def GenerateSummaryTXT(mapFlows,mapParamsSummary,fdSummaryFile):
+def GenerateSummaryTXT(mapParamsSummary,fdSummaryFile):
     for rgxObjectPath in mapParamsSummary:
         ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
         classObj = globals()[ cimClassName ]
-        classObj.DisplaySummary(fdSummaryFile,mapFlows,cimKeyValuePairs)
+        classObj.DisplaySummary(fdSummaryFile,cimKeyValuePairs)
 
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees,
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
-def GenerateSummaryXML(mapFlows,mapParamsSummary,fdSummaryFile):
+def GenerateSummaryXML(mapParamsSummary,fdSummaryFile):
     if mapParamsSummary:
         fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         fdSummaryFile.write('<retrobatch>\n')
         for rgxObjectPath in mapParamsSummary:
             ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
             classObj = globals()[ cimClassName ]
-            classObj.XMLSummary(fdSummaryFile,mapFlows,cimKeyValuePairs)
+            classObj.XMLSummary(fdSummaryFile,cimKeyValuePairs)
         fdSummaryFile.write('</retrobatch>\n')
 
-
-def GenerateSummary(mapFlows,mapParamsSummary,outputFormat, outputSummaryFile):
+def GenerateSummary(mapParamsSummary,outputFormat, outputSummaryFile):
 
     if outputSummaryFile:
         fdSummaryFile = open(outputSummaryFile, "w")
@@ -795,15 +800,52 @@ def GenerateSummary(mapFlows,mapParamsSummary,outputFormat, outputSummaryFile):
         fdSummaryFile = sys.stdout
 
     if outputFormat == "TXT":
-        GenerateSummaryTXT(mapFlows,mapParamsSummary,fdSummaryFile)
-    elif outputFormat.upper() == "XML":
+        GenerateSummaryTXT(mapParamsSummary,fdSummaryFile)
+    elif outputFormat == "XML":
         # The output format is very different.
-        GenerateSummaryXML(mapFlows,mapParamsSummary,fdSummaryFile)
+        GenerateSummaryXML(mapParamsSummary,fdSummaryFile)
     else:
         raise Exception("Unsupported summary output format:%s"%outputFormat)
 
     if outputSummaryFile:
         fdSummaryFile.close()
+
+################################################################################
+
+def GenerateDockerFile(dockerFilename):
+    fdDockerFile = open(dockerFilename, "w")
+
+    # This write in the DockerFile, the environment variables accessed
+    # by processes. For the moment, all env vars are mixed together,
+    # which is inexact, strictly speaking.
+    def WriteEnvironVar():
+        for envNam in G_EnvironmentVariables:
+            envVal = G_EnvironmentVariables[envNam]
+            fdDockerFile.write("ENV %s %s\n" % (envNam, envVal ) )
+            
+        fdDockerFile.write("\n")
+        
+    fdDockerFile.write("FROM xyz\n")
+    fdDockerFile.write("\n")
+
+    fdDockerFile.write("MAINTAINER abc xyz\n")
+    fdDockerFile.write("\n")
+
+    fdDockerFile.write("EXPOSE 80\n")
+    fdDockerFile.write("\n")
+
+    WriteEnvironVar()
+    
+    aCmd = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+    fdDockerFile.write("CMD %s\n" % aCmd)
+    fdDockerFile.write("\n")
+
+    # More examples here:
+    # https://github.com/kstaken/dockerfile-examples/blob/master/couchdb/Dockerfile
+    
+    fdDockerFile.close()
+    return
+
 
 ################################################################################
 
@@ -911,6 +953,15 @@ class BatchLetCore:
             # strace can only intercept system calls.
             self.m_funcNam = funcFull + "@SYS"
         elif self.m_tracer == "ltrace":
+
+            # This might be in a shared library, so this extracts the function name:
+            # libaugeas.so.0->getenv
+            # libaugeas.so.0->getenv
+            # libclntsh.so.11.1->getenv
+            # libclntsh.so.11.1->getenv
+            # libpython2.7.so.1.0->getenv
+            funcFull = funcFull.split("->")[-1]
+
             # ltrace does not add "@SYS" when the function is resumed:
             #[pid 18316] 09:00:22.600426 rt_sigprocmask@SYS(0, 0x7ffea10cd370, 0x7ffea10cd3f0, 8 <unfinished ...>
             #[pid 18316] 09:00:22.600494 <... rt_sigprocmask resumed> ) = 0 <0.000068>
@@ -939,7 +990,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) # + 3600
+            aTimeStamp = time.mktime( timStruct ) + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -1116,7 +1167,8 @@ class BatchMeta(type):
         # This is for Linux system calls.
         btchSysPrefix = "BatchLetSys_"
 
-        # This is for plain libraries functions: "__libc_start_main", "Py_Main" and more to come
+        # This is for plain libraries functions: "__libc_start_main", "Py_Main" and
+        # functions like "libpython2.7.so.1.0->getenv", "libperl.so.5.24->getenv" etc...
         btchLibPrefix = "BatchLetLib_"
 
         if name.startswith(btchSysPrefix):
@@ -2051,7 +2103,39 @@ class BatchLetSys_shutdown(BatchLetBase,object):
 
         self.m_significantArgs = self.StreamName()
 
+#####
+        
+# This is detected by ltrace.
+# There can be several types of instantiations:
+# libaugeas.so.0->getenv("HOME")            = "/home/rchateau"
+# libaugeas.so.0->getenv("XDG_CACHE_HOME")  = nil
+# libclntsh.so.11.1->getenv("HOME")         = "/home/rchateau"
+# libclntsh.so.11.1->getenv("ORACLE_HOME")  = "/u01/app/oracle/product/11.2.0/xe"
+# libpython2.7.so.1.0->getenv("PYTHONHOME") = nil
+#
+# This assumes that all shared libraries instianting a function with this same
+# are actually doing the same thing. This might be wrong.
+class BatchLetLib_getenv(BatchLetBase,object):
 
+    def __init__(self,batchCore):
+        # We could also take the environment variables of each process but
+        # It does not tell which ones are actually useful.
+        global G_EnvironmentVariables
+
+        # The base class is never created because we do not need it.
+        # We just need to intercept the environment variables reading.
+        # super( BatchLetLib_getenv,self).__init__(batchCore)
+
+        envNam = batchCore.m_parsedArgs[0]
+        envVal = batchCore.m_retValue
+        
+        # FIXME: Should have one map per process ?
+        G_EnvironmentVariables[envNam] = envVal
+        
+        # self.m_significantArgs = []
+
+        
+        
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python', '', '4096'] ==>> 7 (16:42:10,16:42:10)
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2', 'python2', '4096'] ==>> 9 (16:42:10,16:42:10)
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2.7', 'python2.7', '4096'] ==>> -22 (16:42:10,16:42:10)
@@ -2973,6 +3057,9 @@ def InitGlobals( withWarning ):
         "1" : "stdout",
         "2" : "stderr"}
 
+    global G_EnvironmentVariables
+    G_EnvironmentVariables = {}
+        
 # This receives a stream of lines, each of them is a function call,
 # possibily unfinished/resumed/interrupted by a signal.
 def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat):
@@ -3032,7 +3119,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 
 ################################################################################
 
-def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile):
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile, dockerFilename):
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
 
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
@@ -3047,18 +3134,20 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 
         if verbose: sys.stdout.write("\n")
 
-    GenerateSummary(mapFlows,mapParamsSummary,summaryFormat, outputSummaryFile)
+    GenerateSummary(mapParamsSummary,summaryFormat, outputSummaryFile)
+    
+    if dockerFilename:
+        GenerateDockerFile(dockerFilename)
 
 # Function called for unit tests by unittest.py
-# Function called for unit tests
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, outputSummaryFile):
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, outputSummaryFile, dockerFilename):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile)
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile, dockerFilename)
 
 
 if __name__ == '__main__':
