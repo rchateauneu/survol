@@ -3202,3 +3202,30 @@ if __name__ == '__main__':
 # Pid=    -1 R'wait4@SYS' [[{'WIFEXITED(s) && WEXITSTATUS(s)': '= 0'}], '0', 'NULL'] ==>> 23947
 #
 #
+# TODO:
+# When creating the generic container of CIM objects, they can point to each other.
+# For example, each process gets the list of files it opens or accesses.
+#
+# This is the native container of objects which is never destroyed.
+# Object are stored "flat": For example, there is no process tree.
+# Also, CIM_DataFile are stored "flat".
+
+# The secondary repository of objects is created on requests (Possibly from a GET/PUT request).
+# It is able to work on an incomplete primary objects container.
+# It dispatches CIM_DataFile using the regular expressions, into several subdirectories.
+# Files can be described with "magic" or "file" or whatever method.
+#
+# For each process, it analyses the accessed files and create the list of source files
+# and source/libraries dependencies.
+# Par exemple, si xxx.py et xxx.pyc sont accedes, on ne garde que le second.
+# This takes only the top-level module names.
+# Same for DLLs: it does not explicit all dependencies.
+#
+# It also calls specific module which do specific transformations from the primary to secondary container.
+# For example, a module looks for tnsnames.ora and adds an Oracle data tree.
+#
+# This second pass can produce a XML file, a JSON document or a Dockerfile.
+# Dockerfile recommendation: "One process per container", if they are very different of course.
+#
+# Use "getenv" to access specific environment variables: ORACLE_HOME, TNS_ADMIN, PYPATH, CLASS_PATH etc...
+#
