@@ -354,6 +354,22 @@ class CIM_Process:
             objInstance = parentProc
 
     @staticmethod
+    def GetTopProcesses():
+        """This returns a list of top-level processes, which have no parents."""
+
+        # This contains all subprocesses.
+        setSubProcs = set()
+        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+            for oneSub in objInstance.m_subProcesses:
+                setSubProcs.add(oneSub)
+
+        lstTopLvl = []
+        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+            if objInstance not in setSubProcs:
+                lstTopLvl.append(objInstance)
+        return lstTopLvl
+
+    @staticmethod
     def XMLSummary(fdSummaryFile,cimKeyValuePairs):
         CIM_Process.CalcSubprocess(cimKeyValuePairs)
 
@@ -406,6 +422,9 @@ class CIM_Process:
 
     def SetExecutable(self,objCIM_DataFile) :
         self.Executable = objCIM_DataFile.FileName
+
+    def SetCommandLine(self,lstCmdLine) :
+        self.CommandLine = lstCmdLine
 
     def SetThread(self):
         self.IsThread = True
@@ -831,15 +850,51 @@ def GenerateDockerFile(dockerFilename):
     fdDockerFile.write("MAINTAINER abc xyz\n")
     fdDockerFile.write("\n")
 
+    # Display the dependencies of process.
+    # They might need the installation of libraries. modules etc...
+    # Sometimes these dependencies are the same.
+    # The type of process can be: "Binary", "Python", "Perl" etc...
+    # and for each of these it receive a list of strings, each of them models
+    # a dependency: a RPM package, a Python module etc...
+    # Sometimes, they can be be similar and will therefore be loaded once.
+    # The type of process contains some specific code which can generate
+    # the Dockerfile commands for handling these dependencies.
+
+#On va boucler sur chaque vari process (pas les threads ) et afficher ses requirements.
+#    allDeps = CIM_Process.GetTypedDependencies()
+#    for oneDepKey in allDeps:
+#        arrDeps = allDeps[oneDepKey]
+#        for oneDep in arrDeps:
+#            fdDockerFile.write("CMD [\"%s\"]\n"% xxx)
+        # RUN apt-get install -y g++
+        # RUN apt-get install -y erlang-dev erlang-manpages erlang-base-hipe erlang-eunit erlang-nox erlang-xmerl erlang-inets
+        # RUN apt-get update && apt-get install -y php5 libapache2-mod-php5 php5-mysql php5-cli && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+    # Top-level processes, which starts the other ones.
+    # Probably there should be one only, but this is not a constraint.
+    procsTopLevel = CIM_Process.GetTopProcesses()
+    for oneProc in procsTopLevel:
+        try:
+            # TypeError: sequence item 7: expected string, dict found
+            # commandLine = " ".join(oneProc.CommandLine)
+            commandLine = " ".join( [ str(elt) for elt in oneProc.CommandLine ] )
+            # commandLine = str(oneProc.CommandLine)
+        except AttributeError:
+            try:
+                commandLine = oneProc.Executable
+            except AttributeError:
+                commandLine = None
+
+        if commandLine:
+            fdDockerFile.write("CMD [\"%s\"]\n"%commandLine)
+    fdDockerFile.write("\n")
+
     fdDockerFile.write("EXPOSE 80\n")
     fdDockerFile.write("\n")
 
     WriteEnvironVar()
     
-    aCmd = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
-    fdDockerFile.write("CMD %s\n" % aCmd)
-    fdDockerFile.write("\n")
-
     # More examples here:
     # https://github.com/kstaken/dockerfile-examples/blob/master/couchdb/Dockerfile
     
@@ -974,7 +1029,7 @@ class BatchLetCore:
             #[pid 4784] 16:42:10.781324 Py_Main(2, 0x7ffed52a8038, 0x7ffed52a8050, 0 <unfinished ...>
             #[pid 4784] 16:42:12.166187 <... Py_Main resumed> ) = 0 <1.384547>
             #
-            # The only thing we can do is register the funaton names which have been seen as unfinished,
+            # The only thing we can do is register the function names which have been seen as unfinished,
             # store their prefix and use this to correctly suffix them or not.
 
         else:
@@ -990,7 +1045,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) + 3600
+            aTimeStamp = time.mktime( timStruct ) # + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -1811,10 +1866,12 @@ class BatchLetSys_execve(BatchLetBase,object):
         # The first argument is the executable file name,
         # while the second is an array of command-line parameters.
         objNewDataFile = ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0] )
+        commandLine = self.m_core.m_parsedArgs[1]
         self.m_significantArgs = [
             objNewDataFile,
-            self.m_core.m_parsedArgs[1] ]
+            commandLine ]
         self.m_core.m_objectProcess.SetExecutable( objNewDataFile )
+        self.m_core.m_objectProcess.SetCommandLine( commandLine )
         objNewDataFile.SetIsExecuted()
 
         # TODO: Specifically filter the creation of a new process.
@@ -1834,12 +1891,14 @@ class BatchLetLib___libc_start_main(BatchLetBase,object):
         super( BatchLetLib___libc_start_main,self).__init__(batchCore)
 
         # TODO: Take the path of the executable name.
-        execName = self.m_core.m_parsedArgs[0][0]
+        commandLine = self.m_core.m_parsedArgs[0]
+        execName = commandLine[0]
         objNewDataFile = ToObjectPath_CIM_DataFile(execName)
         self.m_significantArgs = [
             objNewDataFile,
-            self.m_core.m_parsedArgs[0] ]
+            commandLine ]
         self.m_core.m_objectProcess.SetExecutable( objNewDataFile )
+        self.m_core.m_objectProcess.SetCommandLine( commandLine )
         objNewDataFile.SetIsExecuted()
 
     # Process creations or setup are not aggregated.
