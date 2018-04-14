@@ -291,7 +291,7 @@ class CIM_Process:
         # It helps if the first vfork() is never finished,
         # and if we did not get the main process id.
         try:
-            mapProcs = G_mapCacheObjects["CIM_Process"]
+            mapProcs = G_mapCacheObjects[CIM_Process.__name__]
             keysProcs = list(mapProcs.keys())
             if len(keysProcs) == 1:
                 # We are about to create the second process.
@@ -537,7 +537,6 @@ class CIM_DataFile:
         try:
             mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
         except KeyError:
-            sys.stdout.write("\n")
             return {}
 
         # TODO: Find a way to define the presentation as a parameter.
@@ -664,6 +663,23 @@ class CIM_DataFile:
                 self.Destination = socket.gethostbyaddr(addrIP)[0]
             except:
                 self.Destination = addrIP
+
+
+    @staticmethod
+    def GetExposedPorts():
+        """this is is the list of all ports numbers whihc have to be open."""
+
+        try:
+            mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
+        except KeyError:
+            return
+
+        for objPath,objInstance in mapFiles:
+            try:
+                yield objInstance.Port
+            except AttributeError:
+                pass
+
 
 # This contains the CIM objects: CIM_Process, CIM_DataFile and
 # is used to generate the summary.
@@ -890,8 +906,10 @@ def GenerateDockerFile(dockerFilename):
             fdDockerFile.write("CMD [\"%s\"]\n"%commandLine)
     fdDockerFile.write("\n")
 
-    fdDockerFile.write("EXPOSE 80\n")
-    fdDockerFile.write("\n")
+    portsList = CIM_DataFile.GetExposedPorts()
+    for onePort in portsList:
+        fdDockerFile.write("EXPOSE %s\n"%onePort)
+        fdDockerFile.write("\n")
 
     WriteEnvironVar()
     
