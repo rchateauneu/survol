@@ -880,12 +880,14 @@ def GenerateDockerProcessDependencies(fdDockerFile):
     # All versions mixed together which is realistic most of times.
     class Dependency:
         def __init__(self):
-            self.m_accessedCodeFiles = []
+            self.m_accessedCodeFiles = set()
 
         def AddDep(self,pathName):
-            self.m_accessedCodeFiles.append(pathName)
+            self.m_accessedCodeFiles.add(pathName)
 
     class DependencyPython(Dependency,object):
+        DependencyName = "Python"
+
         def __init__(self):
             super( DependencyPython,self).__init__()
 
@@ -905,11 +907,6 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         def IsCode(objDataFile):
             return objDataFile.FileName.endswith(".py") or objDataFile.FileName.endswith(".pyc")
 
-#On voit pas le module mysqldb dans ca:
-#C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\RetroBatch\UnitTests\mineit_mysql_show_databases.ltrace.txt
-#alors qu on le voit dans le strace.
-
-
         def GenerateDocketDependencies(self,fdDockerFile):
             packagesToInstall = set()
 
@@ -918,17 +915,14 @@ def GenerateDockerProcessDependencies(fdDockerFile):
                 if filNam.find("packages") >= 0:
                     # Now this trucates the file name to extract the Python package name.
                     # filNam = '/usr/lib64/python2.7/site-packages/MySQLdb/constants/CLIENT.pyc'
-                    sys.stdout.write("================= %s\n"%filNam)
                     splitFil = filNam.split("/")
                     try:
                         ixPack = splitFil.index("site-packages")
                     except ValueError:
-                        sys.stdout.write("################ %s\n"%filNam)
                         try:
                             ixPack = splitFil.index("dist-packages")
                         except ValueError:
                             ixPack = -1
-                            sys.stdout.write("??????????????? %s\n"%filNam)
                             pass
 
                     if (ixPack >= 0) and (ixPack < len(splitFil)-1):
@@ -936,6 +930,9 @@ def GenerateDockerProcessDependencies(fdDockerFile):
                         if not pckNam.endswith(".py") and not pckNam.endswith(".pyc"):
                             # filNam = 'abrt_exception_handler.py'
                             packagesToInstall.add( splitFil[ixPack+1] )
+                elif filNam.startswith("/usr/lib/python2.7/"):
+                    # Then a source file coming with Python: "/usr/lib/python2.7/string.py"
+                    pass
                 else:
                     # Must avoid copying file from the standard installation and always available, such as:
                     # "ADD /usr/lib64/python2.7/cgitb.py /"
@@ -948,6 +945,8 @@ def GenerateDockerProcessDependencies(fdDockerFile):
                 fdDockerFile.write("RUN pip install %s\n"%onePckgNam)
 
     class DependencyPerl(Dependency,object):
+        DependencyName = "Perl"
+
         def __init__(self):
             super( DependencyPerl,self).__init__()
 
@@ -970,6 +969,8 @@ def GenerateDockerProcessDependencies(fdDockerFile):
             pass
 
     class DependencyBinary(Dependency,object):
+        DependencyName = "Binary programs"
+
         def __init__(self):
             super( DependencyBinary,self).__init__()
 
@@ -1014,6 +1015,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
                 accessedDataFiles.add(oneFile)
 
     for oneDep in lstDependencies:
+        fdDockerFile.write("# Dependencies: %s\n"%oneDep.DependencyName)
         oneDep.GenerateDocketDependencies(fdDockerFile)
 
     # TODO : Ajouter la copie du prog principal.
@@ -2365,6 +2367,8 @@ class BatchLetLib_getenv(BatchLetBase,object):
 
         envNam = batchCore.m_parsedArgs[0]
         envVal = batchCore.m_retValue
+        if envVal == "nil":
+            envVal = ""
         
         # FIXME: Should have one map per process ?
         G_EnvironmentVariables[envNam] = envVal
