@@ -259,6 +259,11 @@ class CIM_Process:
         self.CreationDate = None
         self.TerminationDate = None
 
+        # This contains all the files objects accessed by this process.
+        # It is used when creating a DockerFile.
+        # It is a set, so each file appears only once.
+        self.m_accessedFiles = set()
+
         if not G_ReplayMode and psutil:
             try:
                 # FIXME: If rerunning a simulation, this does not make sense.
@@ -436,6 +441,11 @@ class CIM_Process:
 
     def GetProcessCurrentDir(self):
         return self.CurrentDirectory
+
+    # This tells that this process has accessed this file.
+    def AddDataFile(self,objDataFile):
+        self.m_accessedFiles.add(objDataFile)
+
 
 # class CIM_DataFile : CIM_LogicalFile
 # {
@@ -708,12 +718,14 @@ def CreateObjectPath(classModel, *ctorArgs):
 def ToObjectPath_CIM_Process(aPid):
     return CreateObjectPath(CIM_Process,aPid)
 
-# TODO: It might be a Linux socket or an IP socket.
-def ToObjectPath_CIM_DataFile(pathName):
-    return CreateObjectPath(CIM_DataFile,pathName)
-
-def CIM_SharedLibrary(CIM_DataFile):
-    pass
+# It might be a Linux socket or an IP socket.
+# The pid can be added so we know which process accesses this file.
+def ToObjectPath_CIM_DataFile(pathName,aPid = None):
+    objDataFile = CreateObjectPath(CIM_DataFile,pathName)
+    if aPid:
+        objProcess = ToObjectPath_CIM_Process(aPid)
+        objProcess.AddDataFile(objDataFile)
+    return objDataFile
 
 # This is not a map, it is not sorted.
 # It contains regular expression for classifying file names in categories:
@@ -723,11 +735,17 @@ G_lstFilters = [
         "^/usr/lib[^/]*/.*\.so",
         "^/usr/lib[^/]*/.*\.so\..*",
         "^/var/lib[^/]*/.*\.so",
+        "^/lib/.*\.so",
+        "^/lib64/.*\.so",
     ] ),
     ( "Other libraries" , [
         "^/usr/share/",
         "^/usr/lib[^/]*/",
         "^/var/lib[^/]*/",
+    ] ),
+    ( "System executables" , [
+        "^/bin/",
+        "^/usr/bin[^/]*/",
     ] ),
     ( "Proc file system" , [
         "^/proc",
@@ -758,7 +776,6 @@ G_lstFilters = [
     ] ),
     ( "Others" , [] ),
 ]
-
 
 def PathCategory(pathName):
     """This match the path name againt the set of regular expressions
@@ -847,6 +864,161 @@ def GenerateSummary(mapParamsSummary,outputFormat, outputSummaryFile):
 
 ################################################################################
 
+# Display the dependencies of process.
+# They might need the installation of libraries. modules etc...
+# Sometimes these dependencies are the same.
+# The type of process can be: "Binary", "Python", "Perl" etc...
+# and for each of these it receive a list of strings, each of them models
+# a dependency: a RPM package, a Python module etc...
+# Sometimes, they can be be similar and will therefore be loaded once.
+# The type of process contains some specific code which can generate
+# the Dockerfile commands for handling these dependencies.
+def GenerateDockerProcessDependencies(fdDockerFile):
+
+    # Code dependencies and data files dependencies are different.
+
+    # All versions mixed together which is realistic most of times.
+    class Dependency:
+        def __init__(self):
+            self.m_accessedCodeFiles = []
+
+        def AddDep(self,pathName):
+            self.m_accessedCodeFiles.append(pathName)
+
+    class DependencyPython(Dependency,object):
+        def __init__(self):
+            super( DependencyPython,self).__init__()
+
+        @staticmethod
+        def IsDepType(objInstance):
+            try:
+                # Detection with strace:
+                # execve("/usr/bin/python", ["python", "TestProgs/mineit_mys"...], [/* 22 vars */]) = 0
+                # Detection with ltrace:
+                # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
+                return objInstance.Executable.find("/python") >= 0 or objInstance.Executable.startswith("python")
+            except AttributeError:
+                # We do not know the executable, or it is a thread.
+                return False
+
+        @staticmethod
+        def IsCode(objDataFile):
+            return objDataFile.FileName.endswith(".py") or objDataFile.FileName.endswith(".pyc")
+
+#On voit pas le module mysqldb dans ca:
+#C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\RetroBatch\UnitTests\mineit_mysql_show_databases.ltrace.txt
+#alors qu on le voit dans le strace.
+
+
+        def GenerateDocketDependencies(self,fdDockerFile):
+            packagesToInstall = set()
+
+            for objDataFile in self.m_accessedCodeFiles:
+                filNam = objDataFile.FileName
+                if filNam.find("packages") >= 0:
+                    # Now this trucates the file name to extract the Python package name.
+                    # filNam = '/usr/lib64/python2.7/site-packages/MySQLdb/constants/CLIENT.pyc'
+                    sys.stdout.write("================= %s\n"%filNam)
+                    splitFil = filNam.split("/")
+                    try:
+                        ixPack = splitFil.index("site-packages")
+                    except ValueError:
+                        sys.stdout.write("################ %s\n"%filNam)
+                        try:
+                            ixPack = splitFil.index("dist-packages")
+                        except ValueError:
+                            ixPack = -1
+                            sys.stdout.write("??????????????? %s\n"%filNam)
+                            pass
+
+                    if (ixPack >= 0) and (ixPack < len(splitFil)-1):
+                        pckNam = splitFil[ixPack+1]
+                        if not pckNam.endswith(".py") and not pckNam.endswith(".pyc"):
+                            # filNam = 'abrt_exception_handler.py'
+                            packagesToInstall.add( splitFil[ixPack+1] )
+                else:
+                    # Must avoid copying file from the standard installation and always available, such as:
+                    # "ADD /usr/lib64/python2.7/cgitb.py /"
+                    # TODO: Use the right path:
+                    if not filNam.startswith("/usr/lib64/python2.7"):
+                        # ADD /home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/big_mysql_select.py /
+                        fdDockerFile.write("ADD %s /\n"%filNam)
+
+            for onePckgNam in packagesToInstall:
+                fdDockerFile.write("RUN pip install %s\n"%onePckgNam)
+
+    class DependencyPerl(Dependency,object):
+        def __init__(self):
+            super( DependencyPerl,self).__init__()
+
+        @staticmethod
+        def IsDepType(objInstance):
+            try:
+                return  objInstance.Executable.find("/perl") >= 0
+            except AttributeError:
+                # We do not know the executable, or it is a thread.
+                return False
+
+        @staticmethod
+        def IsCode(objDataFile):
+            return objDataFile.FileName.endswith(".pl")
+
+        def GenerateDocketDependencies(self,fdDockerFile):
+            for objDataFile in self.m_accessedCodeFiles:
+                filNam = objDataFile.FileName
+                fdDockerFile.write("RUN cpanm %s\n"%filNam)
+            pass
+
+    class DependencyBinary(Dependency,object):
+        def __init__(self):
+            super( DependencyBinary,self).__init__()
+
+        @staticmethod
+        def IsDepType(objInstance):
+            # Always true because tested at the end as a default.
+            # The executable should at least be an executable file.
+            return True
+
+        @staticmethod
+        def IsCode(objDataFile):
+            return objDataFile.FileName.find(".so") > 0
+
+        def GenerateDocketDependencies(self,fdDockerFile):
+            for objDataFile in self.m_accessedCodeFiles:
+                filNam = objDataFile.FileName
+                if filNam.find("packages") >= 0:
+                    fdDockerFile.write("RUN apt-get install -y %s\n"%filNam)
+                else:
+                    fdDockerFile.write("ADD %s /\n"%filNam)
+            pass
+
+
+    lstDependencies = [
+        DependencyPython(),
+        DependencyPerl(),
+        DependencyBinary(),
+    ]
+
+    accessedDataFiles = set()
+
+
+    for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+        for oneDep in lstDependencies:
+            if oneDep.IsDepType(objInstance):
+                break
+
+        for oneFile in objInstance.m_accessedFiles:
+            if oneDep and oneDep.IsCode(oneFile):
+                oneDep.AddDep(oneFile)
+            else:
+                accessedDataFiles.add(oneFile)
+
+    for oneDep in lstDependencies:
+        oneDep.GenerateDocketDependencies(fdDockerFile)
+
+    # TODO : Ajouter la copie du prog principal.
+
+
 def GenerateDockerFile(dockerFilename):
     fdDockerFile = open(dockerFilename, "w")
 
@@ -866,26 +1038,7 @@ def GenerateDockerFile(dockerFilename):
     fdDockerFile.write("MAINTAINER abc xyz\n")
     fdDockerFile.write("\n")
 
-    # Display the dependencies of process.
-    # They might need the installation of libraries. modules etc...
-    # Sometimes these dependencies are the same.
-    # The type of process can be: "Binary", "Python", "Perl" etc...
-    # and for each of these it receive a list of strings, each of them models
-    # a dependency: a RPM package, a Python module etc...
-    # Sometimes, they can be be similar and will therefore be loaded once.
-    # The type of process contains some specific code which can generate
-    # the Dockerfile commands for handling these dependencies.
-
-#On va boucler sur chaque vari process (pas les threads ) et afficher ses requirements.
-#    allDeps = CIM_Process.GetTypedDependencies()
-#    for oneDepKey in allDeps:
-#        arrDeps = allDeps[oneDepKey]
-#        for oneDep in arrDeps:
-#            fdDockerFile.write("CMD [\"%s\"]\n"% xxx)
-        # RUN apt-get install -y g++
-        # RUN apt-get install -y erlang-dev erlang-manpages erlang-base-hipe erlang-eunit erlang-nox erlang-xmerl erlang-inets
-        # RUN apt-get update && apt-get install -y php5 libapache2-mod-php5 php5-mysql php5-cli && apt-get clean && rm -rf /var/lib/apt/lists/*
-
+    GenerateDockerProcessDependencies(fdDockerFile)
 
     # Top-level processes, which starts the other ones.
     # Probably there should be one only, but this is not a constraint.
@@ -893,9 +1046,7 @@ def GenerateDockerFile(dockerFilename):
     for oneProc in procsTopLevel:
         try:
             # TypeError: sequence item 7: expected string, dict found
-            # commandLine = " ".join(oneProc.CommandLine)
             commandLine = " ".join( [ str(elt) for elt in oneProc.CommandLine ] )
-            # commandLine = str(oneProc.CommandLine)
         except AttributeError:
             try:
                 commandLine = oneProc.Executable
@@ -903,6 +1054,8 @@ def GenerateDockerFile(dockerFilename):
                 commandLine = None
 
         if commandLine:
+            # If the string length read by ltrace or strace is too short,
+            # some arguments are truncated: 'CMD ["python TestProgs/big_mysql_..."]'
             fdDockerFile.write("CMD [\"%s\"]\n"%commandLine)
     fdDockerFile.write("\n")
 
@@ -946,9 +1099,6 @@ def STraceStreamToPathname(strmStr):
                 pathName = "UnknownFileDescr:%s" % strmStr
 
     return pathName
-
-def STraceStreamToFile(strmStr):
-    return ToObjectPath_CIM_DataFile( STraceStreamToPathname(strmStr) )
 
 ################################################################################
 
@@ -1298,7 +1448,7 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
     def StreamName(self,idx=0):
         # sys.stdout.write( "StreamName func%s\n"%self.m_core.m_funcNam )
         # sys.stdout.write( "StreamName=%s\n"%self.m_core.m_parsedArgs[idx] )
-        return [ STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
+        return [ self.STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
 
     def SameCall(self,anotherBatch):
         if self.m_core.m_funcNam != anotherBatch.m_core.m_funcNam:
@@ -1327,6 +1477,16 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
             idx += 1
 
         return True
+
+    # Returns the file associated to this path, and creates it if needed.
+    # It also associates this file to the process.
+    def ToObjectPath_Accessed_CIM_DataFile(self,pathName):
+        return ToObjectPath_CIM_DataFile(pathName,self.m_core.m_pid)
+
+    def STraceStreamToFile(self,strmStr):
+        return ToObjectPath_CIM_DataFile( STraceStreamToPathname(strmStr), self.m_core.m_pid )
+
+
 
 ################################################################################
 
@@ -1494,7 +1654,7 @@ class BatchLetSys_open(BatchLetBase,object):
             # open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so>
             # Therefore the returned file should be SignificantArgs(),
             # not the input file.
-            self.m_significantArgs = [ STraceStreamToFile( self.m_core.m_retValue ) ]
+            self.m_significantArgs = [ self.STraceStreamToFile( self.m_core.m_retValue ) ]
         elif batchCore.m_tracer == "ltrace":
             # The option "-y" which writes the complete path after the file descriptor,
             # is not available for ltrace.
@@ -1507,7 +1667,7 @@ class BatchLetSys_open(BatchLetBase,object):
 
             # TODO: Should be cleaned up when closing ?
             G_mapFilDesToPathName[ filDes ] = pathName
-            self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
+            self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
         self.m_significantArgs[0].SetOpenTime(self.m_core.m_timeStart,self.m_core.m_objectProcess)
@@ -1522,7 +1682,7 @@ class BatchLetSys_openat(BatchLetBase,object):
 
         # Same logic as for open().
         if batchCore.m_tracer == "strace":
-            self.m_significantArgs = [ STraceStreamToFile( self.m_core.m_retValue ) ]
+            self.m_significantArgs = [ self.STraceStreamToFile( self.m_core.m_retValue ) ]
         elif batchCore.m_tracer == "ltrace":
             dirNam = self.m_core.m_parsedArgs[0]
         
@@ -1531,7 +1691,7 @@ class BatchLetSys_openat(BatchLetBase,object):
                 # referred to by the file descriptor passed as first parameter.
                 dirPath = self.m_core.m_objectProcess.GetProcessCurrentDir()
             else:
-                dirPath = STraceStreamToFile( dirNam )
+                dirPath = self.STraceStreamToFile( dirNam )
         
             filNam = self.m_core.m_parsedArgs[1]
 
@@ -1541,7 +1701,7 @@ class BatchLetSys_openat(BatchLetBase,object):
 
             # TODO: Should be cleaned up when closing ?
             G_mapFilDesToPathName[ filDes ] = pathName
-            self.m_significantArgs = [ ToObjectPath_CIM_DataFile( pathName ) ]
+            self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
         self.m_significantArgs[0].SetOpenTime(self.m_core.m_timeStart,self.m_core.m_objectProcess)
@@ -1641,7 +1801,7 @@ class BatchLetSys_ioctl(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_ioctl,self).__init__(batchCore)
 
-        self.m_significantArgs = [ STraceStreamToFile( self.m_core.m_parsedArgs[0] ) ] + self.m_core.m_parsedArgs[1:0]
+        self.m_significantArgs = [ self.STraceStreamToFile( self.m_core.m_parsedArgs[0] ) ] + self.m_core.m_parsedArgs[1:0]
 
 class BatchLetSys_stat(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -1650,19 +1810,19 @@ class BatchLetSys_stat(BatchLetBase,object):
             return
         super( BatchLetSys_stat,self).__init__(batchCore)
 
-        self.m_significantArgs = [ ToObjectPath_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
+        self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
 
 class BatchLetSys_lstat(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_lstat,self).__init__(batchCore)
 
-        self.m_significantArgs = [ ToObjectPath_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
+        self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
 
 class BatchLetSys_access(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_access,self).__init__(batchCore)
 
-        self.m_significantArgs = [ ToObjectPath_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
+        self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
 
 class BatchLetSys_dup2(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -1883,7 +2043,7 @@ class BatchLetSys_execve(BatchLetBase,object):
 
         # The first argument is the executable file name,
         # while the second is an array of command-line parameters.
-        objNewDataFile = ToObjectPath_CIM_DataFile(self.m_core.m_parsedArgs[0] )
+        objNewDataFile = self.ToObjectPath_Accessed_CIM_DataFile(self.m_core.m_parsedArgs[0] )
         commandLine = self.m_core.m_parsedArgs[1]
         self.m_significantArgs = [
             objNewDataFile,
@@ -1911,7 +2071,7 @@ class BatchLetLib___libc_start_main(BatchLetBase,object):
         # TODO: Take the path of the executable name.
         commandLine = self.m_core.m_parsedArgs[0]
         execName = commandLine[0]
-        objNewDataFile = ToObjectPath_CIM_DataFile(execName)
+        objNewDataFile = self.ToObjectPath_Accessed_CIM_DataFile(execName)
         self.m_significantArgs = [
             objNewDataFile,
             commandLine ]
@@ -1981,7 +2141,7 @@ class BatchLetSys_newfstatat(BatchLetBase,object):
 
         pathName = ToAbsPath( dirPath, filNam )
 
-        self.m_significantArgs = [ ToObjectPath_CIM_DataFile(pathName) ]
+        self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile(pathName) ]
 
 class BatchLetSys_getdents(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -2048,7 +2208,7 @@ class BatchLetSys_poll(BatchLetBase,object):
             retList = []
             for oneStream in arrStrms:
                 fdName = oneStream["fd"]
-                filOnly = STraceStreamToFile( fdName )
+                filOnly = self.STraceStreamToFile( fdName )
                 retList.append( filOnly )
                 # sys.stdout.write("XX: %s\n" % filOnly )
             # return "XX="+str(arrStrms)
@@ -2076,7 +2236,7 @@ class BatchLetSys_select(BatchLetBase,object):
                     # Most of times there should be one element only.
                     splitFdName = fdName.split(" ")
                     for oneFdNam in splitFdName:
-                        filStrms.append(STraceStreamToFile( oneFdNam ))
+                        filStrms.append(self.STraceStreamToFile( oneFdNam ))
                 return filStrms
 
         arrArgs = self.m_core.m_parsedArgs
@@ -2097,7 +2257,7 @@ class BatchLetSys_socket(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_socket,self).__init__(batchCore)
 
-        self.m_significantArgs = [ STraceStreamToFile(self.m_core.m_retValue) ]
+        self.m_significantArgs = [ self.STraceStreamToFile(self.m_core.m_retValue) ]
 
 # Different output depending on the tracer:
 # strace: connect(6<UNIX:[2038057]>, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110)
@@ -2105,7 +2265,7 @@ class BatchLetSys_socket(BatchLetBase,object):
 class BatchLetSys_connect(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_connect,self).__init__(batchCore)
-        objPath = STraceStreamToFile(self.m_core.m_parsedArgs[0])
+        objPath = self.STraceStreamToFile(self.m_core.m_parsedArgs[0])
 
         if batchCore.m_tracer == "strace":
             # 09:18:26.465799 socket(PF_INET, SOCK_DGRAM|SOCK_NONBLOCK, IPPROTO_IP) = 3 <0.000013>
@@ -2128,7 +2288,7 @@ class BatchLetSys_connect(BatchLetBase,object):
 class BatchLetSys_bind(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_bind,self).__init__(batchCore)
-        objPath = STraceStreamToFile(self.m_core.m_parsedArgs[0])
+        objPath = self.STraceStreamToFile(self.m_core.m_parsedArgs[0])
         if batchCore.m_tracer == "strace":
             # bind(4<NETLINK:[7274795]>, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0
             objPath.SocketAddress = self.m_core.m_parsedArgs[1]
@@ -2154,8 +2314,8 @@ class BatchLetSys_pipe(BatchLetBase,object):
         super( BatchLetSys_pipe,self).__init__(batchCore)
 
         arrPipes = self.m_core.m_parsedArgs[0]
-        arrFil0 = STraceStreamToFile(arrPipes[0])
-        arrFil1 = STraceStreamToFile(arrPipes[1])
+        arrFil0 = self.STraceStreamToFile(arrPipes[0])
+        arrFil1 = self.STraceStreamToFile(arrPipes[1])
 
         self.m_significantArgs = [ arrFil0, arrFil1 ]
 
@@ -2166,8 +2326,8 @@ class BatchLetSys_pipe2(BatchLetBase,object):
         super( BatchLetSys_pipe2,self).__init__(batchCore)
 
         arrPipes = self.m_core.m_parsedArgs[0]
-        arrFil0 = STraceStreamToFile(arrPipes[0])
-        arrFil1 = STraceStreamToFile(arrPipes[1])
+        arrFil0 = self.STraceStreamToFile(arrPipes[0])
+        arrFil1 = self.STraceStreamToFile(arrPipes[1])
 
         sys.stdout.write("pipe2 arrFil0=%s arrFil1=%s\n"%(arrFil0.FileName,arrFil1.FileName))
 
