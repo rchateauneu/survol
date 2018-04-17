@@ -181,6 +181,7 @@ def RunCgiServerInternal():
 
 
     # The script must be started from a specific directory to ensure the URL.
+    # See AddUrlPrefix() and TopScriptsFunc() to simplify things.
     filMyself = open("survol/scripts/cgiserver.py")
     if not filMyself:
         print("Script started from wrong directory")
