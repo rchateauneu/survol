@@ -87,13 +87,8 @@ def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
             # It should be the samne whatever the output format is.
             outputSummaryFile = baseName + ".xml"
 
-            if withDockerfile:
-                dockerFilename = baseName + ".docker"
-            else:
-                dockerFilename = None
-            
             # In tests, the summary output format is always XML.
-            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning, outputSummaryFile,dockerFilename)
+            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning,outputSummaryFile,withDockerfile)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
