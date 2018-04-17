@@ -30,7 +30,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -w,--warning                  Display warnings (Cumulative).")
     print("  -s,--summary <CIM class>      Prints a summary at the end: Start end end time stamps, executable name,\n"
         + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree.")
-    print("  -D,--dockerfile <File name>   Docker file name.")
+    print("  -D,--dockerfile               Generates a dockerfile.")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON|XML  Output format. Default is TXT.")
     print("  -i,--input <file name>        trace command input file.")
@@ -3360,7 +3360,11 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 
 ################################################################################
 
-def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile, dockerFilename):
+# All possible summaries. Data needed to generate a docker file.
+fullMapParamsSummary = ["CIM_Process","CIM_DataFile"]
+
+
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary,summaryFormat,outputSummaryFile,withDockerfile):
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
 
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
@@ -3375,20 +3379,33 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 
         if verbose: sys.stdout.write("\n")
 
+    # Generating a docker file needs some data calculated withthe summaries.
+    if withDockerfile:
+        mapParamsSummary = fullMapParamsSummary
+
     GenerateSummary(mapParamsSummary,summaryFormat, outputSummaryFile)
     
-    if dockerFilename:
+    if withDockerfile:
+        if outFile:
+            baseOutName, filOutExt = os.path.splitext(outFile)
+        elif outputSummaryFile:
+            baseOutName, filOutExt = os.path.splitext(outputSummaryFile)
+        else:
+            baseOutName = "docker"
+        dockerDirName = baseOutName + ".docker"
+        os.mkdir(dockerDirName)
+        dockerFilename = dockerDirName + "/Dockerfile"
         GenerateDockerFile(dockerFilename)
 
 # Function called for unit tests by unittest.py
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, outputSummaryFile, dockerFilename):
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, outputSummaryFile, withDockerfile):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile, dockerFilename)
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile, withDockerfile)
 
 
 if __name__ == '__main__':
@@ -3402,8 +3419,17 @@ if __name__ == '__main__':
 
     verbose = 0
     withWarning = 0
+
+    # By default, generates all summaries. The filter syntax is based on CIM object pathes:
+    # -s 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
+    # -s "CIM+_DataFile:Category=['Others','Shared libraries']"
+    #
+    # At the moment, the summary generates only two sorts of objects: CIM_Process and CIM_DataFile.
     # mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
-    mapParamsSummary = ["CIM_Process","CIM_DataFile"]
+    mapParamsSummary = fullMapParamsSummary
+
+    withDockerfile = None
+
     aPid = -1
     outputFormat = "TXT" # Default output format of the generated files.
     szWindow = 0
@@ -3419,6 +3445,8 @@ if __name__ == '__main__':
             withWarning += 1
         elif anOpt in ("-s", "--summary"):
             mapParamsSummary = mapParamsSummary + [ aVal ] if aVal else []
+        elif anOpt in ("-D", "--dockerfile"):
+            withDockerfile = True
         elif anOpt in ("-p", "--pid"):
             aPid = aVal
         elif anOpt in ("-f", "--format"):
@@ -3472,9 +3500,8 @@ if __name__ == '__main__':
         signal.signal(signal.SIGINT, signal_handler)
         print('Press Ctrl+C to exit cleanly')
 
-    # In normal usage, the summary output format is the same as
-    # the output format for calls.
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, mapParamsSummary, outputFormat, outputSummaryFile )
+    # In normal usage, the summary output format is the same as the output format for calls.
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, mapParamsSummary, outputFormat, outputSummaryFile, withDockerfile )
 
 ################################################################################
 # Options:
