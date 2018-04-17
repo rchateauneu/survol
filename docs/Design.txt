@@ -66,7 +66,14 @@ HOST-RESOURCES-MIB::hrSWRun  	 Contains a listing of all running processes.
 As a design rule: Scripts are redundant. This means that several scripts might return the same information,
 or redundant data etc... But identical data is merged, which makes redundancy invisible.
 Redundancy of scripts make the system more robust.
-
+============================================================================================================
+Graphic design: Zoom on D3 document.
+Sometimes, there are thousands of D3 nodes simultaneously displayed.
+It would be nice to a zoom as a magnifying glass, which would focus
+on nodes detected by a search engine: Small box where a text can be entered;
+The nagnifying class moves to the object whose caption matches the search pattern.
+Arrows moves from one object to the next matching the same pattern.
+Other possibility: Several magnifying glasses: If many objects, they do not zoom much.
 ============================================================================================================
 FROM HERE, IDEAS, NOTES ETC... CURRENTLY BEING TRANSLATED
 ============================================================================================================
