@@ -272,7 +272,7 @@ class CIM_Process:
         # This contains all the files objects accessed by this process.
         # It is used when creating a DockerFile.
         # It is a set, so each file appears only once.
-        self.m_accessedFiles = set()
+        self.AccessedFiles = set()
 
         if not G_ReplayMode and psutil:
             try:
@@ -454,7 +454,7 @@ class CIM_Process:
 
     # This tells that this process has accessed this file.
     def AddDataFile(self,objDataFile):
-        self.m_accessedFiles.add(objDataFile)
+        self.AccessedFiles.add(objDataFile)
 
 
 # class CIM_DataFile : CIM_LogicalFile
@@ -748,6 +748,14 @@ G_lstFilters = [
         "^/lib/.*\.so",
         "^/lib64/.*\.so",
     ] ),
+    ( "System config files" , [
+        "^/etc/",
+        "^/usr/share/fonts/",
+        "^/usr/share/fontconfig/",
+        "^/usr/share/fontconfig/",
+        "^/usr/share/locale/",
+        "^/usr/share/zoneinfo/",
+    ] ),
     ( "Other libraries" , [
         "^/usr/share/",
         "^/usr/lib[^/]*/",
@@ -757,15 +765,14 @@ G_lstFilters = [
         "^/bin/",
         "^/usr/bin[^/]*/",
     ] ),
-    ( "Proc file system" , [
+    ( "Kernel file systems" , [
         "^/proc",
+        "^/run",
     ] ),
-    ( "/etc conf files" , [
-        "^/etc/",
-    ] ),
-    ( "/tmp temporary files" , [
+    ( "Temporary files" , [
         "^/tmp/",
         "^/var/log/",
+        "^/var/cache/",
     ] ),
     ( "Pipes and terminals" , [
         "^/sys",
@@ -783,6 +790,7 @@ G_lstFilters = [
         "^TCP:",
         "^TCPv6:",
         "^UDP:",
+        "^UDPv6:",
     ] ),
     ( "Others" , [] ),
 ]
@@ -795,7 +803,7 @@ def PathCategory(pathName):
     for rgxTuple in G_lstFilters:
         for oneRgx in rgxTuple[1]:
             # If the file matches a regular expression,
-            # then it is sorted in this category.
+            # then it is classified in this category.
             mtchRgx = re.match( oneRgx, pathName )
             if mtchRgx:
                 return rgxTuple[0]
@@ -917,7 +925,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         def IsCode(objDataFile):
             return objDataFile.FileName.endswith(".py") or objDataFile.FileName.endswith(".pyc")
 
-        def GenerateDocketDependencies(self,fdDockerFile):
+        def GenerateDockerDependencies(self,fdDockerFile):
             packagesToInstall = set()
 
             for objDataFile in self.m_accessedCodeFiles:
@@ -951,6 +959,8 @@ def GenerateDockerProcessDependencies(fdDockerFile):
                         # ADD /home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/big_mysql_select.py /
                         fdDockerFile.write("ADD %s /\n"%filNam)
 
+            if packagesToInstall or self.m_accessedCodeFiles:
+                fdDockerFile.write("RUN yum install python\n")
             for onePckgNam in packagesToInstall:
                 fdDockerFile.write("RUN pip install %s\n"%onePckgNam)
 
@@ -972,7 +982,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         def IsCode(objDataFile):
             return objDataFile.FileName.endswith(".pl")
 
-        def GenerateDocketDependencies(self,fdDockerFile):
+        def GenerateDockerDependencies(self,fdDockerFile):
             for objDataFile in self.m_accessedCodeFiles:
                 filNam = objDataFile.FileName
                 fdDockerFile.write("RUN cpanm %s\n"%filNam)
@@ -994,14 +1004,56 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         def IsCode(objDataFile):
             return objDataFile.FileName.find(".so") > 0
 
-        def GenerateDocketDependencies(self,fdDockerFile):
-            for objDataFile in self.m_accessedCodeFiles:
+        @staticmethod
+        # This detects the libraries which are always in the path.
+        #
+        # ADD /usr/lib64/libdl-2.25.so /
+        # ADD /usr/lib64/libc-2.25.so /
+        # ADD /usr/lib64/libselinux.so.1 /
+        # ADD /usr/lib64/libpthread-2.25.so /
+        # ADD /usr/lib64/libpcre.so.1.2.8 /
+        # ADD /usr/lib64/libattr.so.1.1.0 /
+        # ADD /usr/lib64/libacl.so.1.1.0 /
+        # ADD /etc/ld.so.cache /
+        def IsSystemLib(filNam):
+            basNam = os.path.basename(filNam)
+            if basNam in ["ld.so.cache","ld.so.preload"]:
+                return True
+
+            # Eliminates the extension and the version.
+            noExt = basNam[ : basNam.find(".") ]
+            noExt = noExt[ : noExt.find("-") ]
+            if noExt in ["libdl","libc","libacl","libm","libutil","libpthread"]:
+                return True
+            return False
+            
+        def GenerateDockerDependencies(self,fdDockerFile):
+            # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
+            #    return objInstance.Executable.find("/python") >= 0 or objInstance.Executable.startswith("python")
+
+            sortAccessedCodeFiles = sorted( self.m_accessedCodeFiles, key=lambda x: x.FileName )
+
+            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/_dbus_bindings.so
+            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/cx_Oracle.so
+            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/problem/_pyabrt.so
+            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/report/_pyreport.so
+            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/_journal.so
+            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/_reader.so
+            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/id128.so
+            fdDockerFile.write("# Installations:\n")
+            for objDataFile in sortAccessedCodeFiles:
                 filNam = objDataFile.FileName
                 if filNam.find("packages") >= 0:
                     fdDockerFile.write("RUN apt-get install -y %s\n"%filNam)
-                else:
-                    fdDockerFile.write("ADD %s /\n"%filNam)
-            pass
+            fdDockerFile.write("\n")
+
+            fdDockerFile.write("# Copies:\n")
+            for objDataFile in sortAccessedCodeFiles:
+                filNam = objDataFile.FileName
+                if not filNam.find("packages") >= 0:
+                    # TODO: This is a very primitive mechanism:
+                    if not DependencyBinary.IsSystemLib(filNam):
+                        fdDockerFile.write("ADD %s /\n"%filNam)
 
 
     lstDependencies = [
@@ -1012,24 +1064,93 @@ def GenerateDockerProcessDependencies(fdDockerFile):
 
     accessedDataFiles = set()
 
+    # This is the complete list of extra executables which have to be installed.
+    lstBinaryExecutables = set()
 
     for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
         for oneDep in lstDependencies:
             if oneDep.IsDepType(objInstance):
                 break
 
-        for oneFile in objInstance.m_accessedFiles:
+        for oneFile in objInstance.AccessedFiles:
             if oneDep and oneDep.IsCode(oneFile):
                 oneDep.AddDep(oneFile)
             else:
                 accessedDataFiles.add(oneFile)
+        
+        try:
+            anExec = objInstance.Executable
+            lstBinaryExecutables.add(anExec)
+        except AttributeError:
+            pass
 
     for oneDep in lstDependencies:
         fdDockerFile.write("# Dependencies: %s\n"%oneDep.DependencyName)
-        oneDep.GenerateDocketDependencies(fdDockerFile)
+        oneDep.GenerateDockerDependencies(fdDockerFile)
+        fdDockerFile.write("\n")
 
-    # TODO : Ajouter la copie du prog principal.
+    # Install or copy the executables.
+    # Beware that some of them are specifically installed: Python, Perl.
+    # RUN yum install /usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2
+    # RUN yum install /usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1
+    # RUN yum install /usr/bin/as
+    # RUN yum install /usr/bin/ld
+    fdDockerFile.write("# Binaries:\n")
+    for anExec in sorted(lstBinaryExecutables):
+        # How to filter binaries ?
+        if anExec in ["/usr/bin/as","/usr/bin/ld","/usr/bin/ps"]:
+            continue
+        fdDockerFile.write("RUN yum install %s\n"%anExec)
+    fdDockerFile.write("\n")
+    
+    # These are not data files.
+    categoriesNotInclude = set([
+        "Temporary files",
+        "Pipes and terminals",
+        "Kernel file systems",
+        "System config files",
+        "Connected TCP sockets",
+        "Other TCP/IP sockets",
+    ])
 
+    fdDockerFile.write("# Data files:\n")
+    # Sorted by alphabetical order.
+    # It would be better to sort it after filtering.
+    sortedDatFils = sorted(accessedDataFiles, key=lambda x: x.FileName )
+    for datFil in sortedDatFils:
+        # DO NOT ADD DIRECTORIES.
+        # TODO: We could take the list of files installed by yum,
+        # and map them to the packages.
+        # https://linux-audit.com/determine-file-and-related-package/
+
+        # Files not to include:
+        # /usr/lib/python2.7/site-packages/openlmi_scripts_selinux-0.4.0-py2.7-nspkg.pth
+        # /usr/lib/python2.7/site-packages/M2Crypto-0.25.1-py2.7-linux-x86_64.egg
+        # /usr/lib64/python2.7/lib-dynload/datetime.so
+
+        if datFil.FileCategory in categoriesNotInclude:
+            continue
+            
+            
+        filNam = datFil.FileName
+        if filNam.startswith("/usr/include/"):
+            continue
+        if filNam.startswith("/usr/bin/"):
+            continue
+        #if filNam.startswith("/dev/"):
+        #    continue
+        #if filNam.startswith("/proc/"):
+        #    continue
+
+        if filNam.startswith("UnknownFileDescr:"):
+            continue
+
+        if filNam in ["-1","stdint","stdout","stderr","."]:
+            continue
+
+        fdDockerFile.write("ADD %s # %s \n"%(filNam,datFil.FileCategory))
+    fdDockerFile.write("\n")
+    
 
 def GenerateDockerFile(dockerFilename):
     fdDockerFile = open(dockerFilename, "w")
@@ -1047,7 +1168,7 @@ def GenerateDockerFile(dockerFilename):
             
         fdDockerFile.write("\n")
         
-    fdDockerFile.write("FROM docker.io/fedora/apache\n")
+    fdDockerFile.write("FROM docker.io/fedora\n")
     fdDockerFile.write("\n")
 
     fdDockerFile.write("MAINTAINER contact@primhillcomputers.com\n")
@@ -1228,7 +1349,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) # + 3600
+            aTimeStamp = time.mktime( timStruct ) + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
