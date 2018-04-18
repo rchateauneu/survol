@@ -1,5 +1,15 @@
 #!/usr/bin/python
 
+"""Monitors living processes and generates a dockerfile And much more."""
+
+__author__      = "Remi Chateauneu"
+__copyright__   = "Primhill Computers, 2018"
+__credits__ = ["","",""]
+__license__ = "GPL"
+__version__ = "0.0.1"
+__maintainer__ = "Remi Chateauneu"
+__email__ = "contact@primhillcomputers.com"
+__status__ = "Development"
 
 import re
 import sys
@@ -1030,14 +1040,17 @@ def GenerateDockerFile(dockerFilename):
     def WriteEnvironVar():
         for envNam in G_EnvironmentVariables:
             envVal = G_EnvironmentVariables[envNam]
+            if envVal == "":
+                # Error response from daemon: ENV must have two arguments
+                envVal = '""'
             fdDockerFile.write("ENV %s %s\n" % (envNam, envVal ) )
             
         fdDockerFile.write("\n")
         
-    fdDockerFile.write("FROM xyz\n")
+    fdDockerFile.write("FROM docker.io/fedora/apache\n")
     fdDockerFile.write("\n")
 
-    fdDockerFile.write("MAINTAINER abc xyz\n")
+    fdDockerFile.write("MAINTAINER contact@primhillcomputers.com\n")
     fdDockerFile.write("\n")
 
     GenerateDockerProcessDependencies(fdDockerFile)
@@ -3393,7 +3406,8 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
         else:
             baseOutName = "docker"
         dockerDirName = baseOutName + ".docker"
-        os.mkdir(dockerDirName)
+        if not os.path.exists(dockerDirName):
+            os.mkdir(dockerDirName)
         dockerFilename = dockerDirName + "/Dockerfile"
         GenerateDockerFile(dockerFilename)
 
