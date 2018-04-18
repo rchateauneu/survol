@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Consulting</title></head>
+<body>
+
+Docker creates lighweight, portable and self-sufficient containers for applications, and dockerizing an application means converting it to run within a Docker container.
+
+
+
+DockIT  is a utility to recondition legacy applications in docker containers.
+
+It is able to generate Docker configuration files from running process, executions logs and traces.
+
+It embraces a complete batch or group of processes and generates a Dockerfile draft to move this batch to the Cloud.
+
+
+
+The typical use case for dockerize is when you have an application that has one or more configuration files and you would like to control some of the values using environment variables.
+
+For example, a Python application using Sqlalchemy might not be able to use environment variables directly. It may require that the database URL be read from a python settings file with a variable named SQLALCHEMY_DATABASE_URI. dockerize allows you to set an environment variable such as DATABASE_URL and update the python file when the container starts. In addition, it can also delay the starting of the python application until the database container is running and listening on the TCP port.
+
+Another use case is when the application logs to specific files on the filesystem and not stdout or stderr. This makes it difficult to troubleshoot the container using the docker logs command. For example, nginx will log to /var/log/nginx/access.logand /var/log/nginx/error.log by default. While you can sometimes work around this, it's tedious to find a solution for every application. dockerize allows you to specify which logs files should be tailed and where they should be sent.
+
+
+http://jasonwilder.com/projects/
+
+Depending on the analysed batch, this skeleton can be just a draft or a complete enumeration of the resources to dockerize. What is certain is that it makes many details of this tasks much easier and reliable. For example:
+
+-          Enumerating port numbers.
+-          Enumerating files: It is able to classify log files and give a hint of where they should be moved. It is also able to detect which files are used by several processes. For examples, log files are detected as such.
+-          Used libraries and only these ones
+-          Subprocesses created.
+-          Environment variables used internally.
+
+Also, it is able to analyse a running batch without stopping it.
+
+Benefits:
+
+-  Many tedious tasks are done automatically.
+-  The generated images can be much smaller.
+-  You can focus on the really difficult tasks of dockerizing an application.
+
+Helps treating special situation:
+-          detection of log files, when an application logs to files instead of terminal standard output or error. Therefore the right strategy to handle logs can be applied: Inside /  outside the container, centralized logging system etc?.
+-
+
+
+
+ð  TODO: DECRIRE COMMENTUN FICHIER EST ACCEDE PAR UN PROCESS: READ/WRITE/APPEND, POUR DEDUIRE SI FICHIER LOG ETC?
+ð  AUTREMENT DIT, AU LIEU DE STOCKER UN LIST DE FICHIER, ON STOCKE UNE MAP AVEC DES META-DATA D?ACCES : RD/RD/APP/
+
+LOG FILE : Que des writes, aucun read, aucun fseek ou bien a la fin.
+Indiquer S?il y a beaucoup de fseek et donc si ca vaut la peine d utiliser un ssd.
+
+
+COMPETITION:
+
+There are several tools whose aim is also automatizing the dockerization of applications.
+
+LES CITER.
+
+This is really fine because they address only some facets of the problem: Static code analysis, focusing on some languages etc...
+DockIT uses a different techniques which gives results that cannot be obtained with other tools.
+This is really nice, because these tools and DockIT are quite complementatyr.
+
+And this is why we have an option to edit a Dockerfile, adding to its what is missing and was not detected before.
+
+
+
+
+</body></html>
