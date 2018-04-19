@@ -20,6 +20,7 @@ import time
 import signal
 import inspect
 import socket
+import json
 
 try:
     # To add more information to processes etc...
@@ -882,6 +883,92 @@ def GenerateSummary(mapParamsSummary,outputFormat, outputSummaryFile):
 
 ################################################################################
 
+class FileToPackage:
+    def __init__(self):
+        self.m_cacheFileName = "FileToPackageCache.txt"
+        self.m_validCache = True
+        try:
+            fdCache = open(self.m_cacheFileName,"r")
+            self.m_cacheFilesToPackages = json.load(fdCache)
+            fdCache.close()
+        except IOError:
+            self.m_cacheFilesToPackages = dict()
+
+    def __del__(self):
+        if self.m_validCache:
+            try:
+                fdCache = open(self.m_cacheFileName,"w")
+                json.dump(self.m_cacheFilesToPackages,fdCache)
+                fdCache.close()
+            except IOError:
+                raise Exception("Cannot dump cache to %s"%self.m_cacheFileName)
+
+    @staticmethod
+    def OneFileToPackageLinuxNoCache(oneFil):
+        if sys.platform.startswith("linux"):
+            aCmd = ['rpm','-qf',oneFil]
+
+            try:
+                aPop = subprocess.Popen(aCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                anOut, anErr = aPop.communicate()
+                aPack = anOut
+                return aPack
+            except:
+                return ''
+        else:
+            return None
+
+    def OneFileToPackageLinux(self,oneFil):
+        try:
+            return self.m_cacheFilesToPackages[oneFil]
+        except KeyError:
+            onePack = self.OneFileToPackageLinuxNoCache(oneFil)
+
+            if onePack == None:
+                # The cache cannot ve filled with valid data.
+                self.m_validCache = False
+                onePack = ''
+
+            # TODO: Optimisation: Once we have detected a file of a package,
+            # this loads all files from this package because reasonably,
+            # there will be other files from it.
+            # rpm -qf /usr/lib64/libselinux.so.1
+            # rpm -q -l libselinux-2.6-6.fc26.x86_64
+            self.m_cacheFilesToPackages[oneFil] = onePack
+
+            return onePack
+
+
+    def GetPackagesList(self,lstBinaryExecutables):
+
+        # This command is very slow:
+        # dnf provides /usr/bin/as
+
+        # This is quite fast:
+        # rpm -qf /bin/ls
+
+        lstPackages = set()
+
+        for oneFil in lstBinaryExecutables:
+            aPack = self.OneFileToPackageLinux(oneFil)
+            lstPackages.add(aPack)
+
+        return lstPackages
+
+    def FilesToPackages(self,lstBinaryExecutables):
+        # If this is a simulation on another platform,
+        # simulates the result.
+        if sys.platform.startswith("linux"):
+            return self.GetPackagesList(lstBinaryExecutables)
+        else:
+            return set()
+
+# We can keep the same cache for all simulations because
+# they were all run on the same machine.
+G_cacheFilesToPackages = FileToPackage()
+
+################################################################################
+
 # Display the dependencies of process.
 # They might need the installation of libraries. modules etc...
 # Sometimes these dependencies are the same.
@@ -1096,7 +1183,8 @@ def GenerateDockerProcessDependencies(fdDockerFile):
     # RUN yum install /usr/bin/as
     # RUN yum install /usr/bin/ld
     fdDockerFile.write("# Binaries:\n")
-    for anExec in sorted(lstBinaryExecutables):
+    lstPackages = G_cacheFilesToPackages.GetPackagesList(lstBinaryExecutables)
+    for anExec in sorted(lstPackages):
         # How to filter binaries ?
         if anExec in ["/usr/bin/as","/usr/bin/ld","/usr/bin/ps"]:
             continue
@@ -1349,7 +1437,7 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) + 3600
+            aTimeStamp = time.mktime( timStruct ) # + 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
