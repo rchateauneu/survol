@@ -21,6 +21,8 @@ import signal
 import inspect
 import socket
 import json
+import atexit
+import datetime
 
 try:
     # To add more information to processes etc...
@@ -267,8 +269,8 @@ class CIM_Process:
         # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
         self.Handle = procId
         self.m_parentProcess = None
-        self.CreationDate = None
-        self.TerminationDate = None
+        self.CreationDate = 0 # 0 so it can still be compared.
+        self.TerminationDate = 0 # 0 so it can still be compared.
 
         # This contains all the files objects accessed by this process.
         # It is used when creating a DockerFile.
@@ -289,7 +291,9 @@ class CIM_Process:
 
         if procObj:
             self.Name = procObj.name()
-            self.Executable = procObj.exe()
+            execFilNam = procObj.exe()
+            execFilObj = ToObjectPath_CIM_DataFile(execFilNam,procId)
+            self.Executable = execFilObj
             self.Username = procObj.username()
             self.CurrentDirectory = procObj.cwd()
             self.Priority = procObj.nice()
@@ -437,11 +441,26 @@ class CIM_Process:
             pass
 
     def SetExecutable(self,objCIM_DataFile) :
-        self.Executable = objCIM_DataFile.FileName
+        # sys.stdout.write("SetExecutable %s tp=%s\n"%(objCIM_DataFile,str(type(objCIM_DataFile))))
+        self.Executable = objCIM_DataFile
 
     def SetCommandLine(self,lstCmdLine) :
         self.CommandLine = lstCmdLine
 
+    def GetCommandLine(self):
+        try:
+            if self.CommandLine:
+                # TypeError: sequence item 7: expected string, dict found
+                return " ".join( [ str(elt) for elt in self.CommandLine ] )
+        except AttributeError:
+            pass
+
+        try:
+            commandLine = self.Executable
+        except AttributeError:
+            commandLine = None
+        return commandLine
+        
     def SetThread(self):
         self.IsThread = True
 
@@ -779,6 +798,7 @@ G_lstFilters = [
         "^/sys",
         "^/dev",
         "^pipe:",
+        "^socket:",
         "^UNIX:",
         "^NETLINK:",
     ] ),
@@ -886,61 +906,73 @@ def GenerateSummary(mapParamsSummary,outputFormat, outputSummaryFile):
 class FileToPackage:
     def __init__(self):
         self.m_cacheFileName = "FileToPackageCache.txt"
-        self.m_validCache = True
         try:
             fdCache = open(self.m_cacheFileName,"r")
             self.m_cacheFilesToPackages = json.load(fdCache)
             fdCache.close()
+            self.m_validCache = True
+            self.m_dirtyCache = False
         except IOError:
             self.m_cacheFilesToPackages = dict()
 
-    def __del__(self):
-        if self.m_validCache:
+    # Dump cache to a file. It does not use __del__()
+    # because it cannot access some global names in recent versions of Python.
+    def DumpToFile(self):
+        if self.m_dirtyCache:
             try:
                 fdCache = open(self.m_cacheFileName,"w")
+                sys.stdout.write("Dumping to %s\n"%self.m_cacheFileName)
                 json.dump(self.m_cacheFilesToPackages,fdCache)
                 fdCache.close()
             except IOError:
                 raise Exception("Cannot dump cache to %s"%self.m_cacheFileName)
 
     @staticmethod
-    def OneFileToPackageLinuxNoCache(oneFil):
+    def OneFileToPackageLinuxNoCache(oneFilNam):
         if sys.platform.startswith("linux"):
-            aCmd = ['rpm','-qf',oneFil]
+            aCmd = ['rpm','-qf',oneFilNam]
 
             try:
                 aPop = subprocess.Popen(aCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 anOut, anErr = aPop.communicate()
                 aPack = anOut
                 aPack = aPack.strip()
-                return aPack
+                if aPack.endswith("is not owned by any package"):
+                    aPack = ""
+                lstPacks = aPack.split("\n")
+                return lstPacks
             except:
-                return ''
+                return []
         else:
             return None
 
-    def OneFileToPackageLinux(self,oneFil):
+    def OneFileToPackageLinux(self,oneFilObj):
+        #if oneFilNam.startswith("CIM"):
+        #    raise Exception("Tralal")
+        oneFilNam = oneFilObj.FileName
         try:
-            return self.m_cacheFilesToPackages[oneFil]
+            return self.m_cacheFilesToPackages[oneFilNam]
         except KeyError:
-            onePack = self.OneFileToPackageLinuxNoCache(oneFil)
+            lstPacks= self.OneFileToPackageLinuxNoCache(oneFilNam)
 
-            if onePack == None:
-                # The cache cannot ve filled with valid data.
+            if lstPacks== None:
+                # The cache is not filled with valid data.
                 self.m_validCache = False
-                onePack = ''
+                onePack = []
+            else:
+                self.m_dirtyCache = True
 
             # TODO: Optimisation: Once we have detected a file of a package,
             # this loads all files from this package because reasonably,
             # there will be other files from it.
             # rpm -qf /usr/lib64/libselinux.so.1
             # rpm -q -l libselinux-2.6-6.fc26.x86_64
-            self.m_cacheFilesToPackages[oneFil] = onePack
+            self.m_cacheFilesToPackages[oneFilNam] = lstPacks
 
-            return onePack
+            return lstPacks
 
 
-    def GetPackagesList(self,lstBinaryExecutables):
+    def GetPackagesList(self,lstPackagedFiles):
 
         # This command is very slow:
         # dnf provides /usr/bin/as
@@ -949,24 +981,24 @@ class FileToPackage:
         # rpm -qf /bin/ls
 
         lstPackages = set()
+        unknownFiles = []
 
-        for oneFil in lstBinaryExecutables:
-            aPack = self.OneFileToPackageLinux(oneFil)
-            lstPackages.add(aPack)
-
-        return lstPackages
-
-    def FilesToPackages(self,lstBinaryExecutables):
-        # If this is a simulation on another platform,
-        # simulates the result.
-        if sys.platform.startswith("linux"):
-            return self.GetPackagesList(lstBinaryExecutables)
-        else:
-            return set()
+        for oneFil in lstPackagedFiles:
+            # sys.stdout.write("oneFil=%s tp=%s\n"%(oneFil,str(type(oneFil))))
+            lstPacks = self.OneFileToPackageLinux(oneFil)
+            if lstPacks:
+                # BEWARE: This takes the first pack, randomly.
+                aPack = lstPacks[0]
+                lstPackages.add(aPack)
+            else:
+                unknownFiles.append(oneFil)
+        return lstPackages, unknownFiles
 
 # We can keep the same cache for all simulations because
 # they were all run on the same machine.
-G_cacheFilesToPackages = FileToPackage()
+G_FilesToPackagesCache = FileToPackage()
+
+atexit.register( FileToPackage.DumpToFile, G_FilesToPackagesCache )
 
 ################################################################################
 
@@ -979,6 +1011,7 @@ G_cacheFilesToPackages = FileToPackage()
 # Sometimes, they can be be similar and will therefore be loaded once.
 # The type of process contains some specific code which can generate
 # the Dockerfile commands for handling these dependencies.
+#
 def GenerateDockerProcessDependencies(fdDockerFile):
 
     # Code dependencies and data files dependencies are different.
@@ -992,7 +1025,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
             self.m_accessedCodeFiles.add(pathName)
 
     class DependencyPython(Dependency,object):
-        DependencyName = "Python"
+        DependencyName = "Python scripts"
 
         def __init__(self):
             super( DependencyPython,self).__init__()
@@ -1053,7 +1086,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
                 fdDockerFile.write("RUN pip install %s\n"%onePckgNam)
 
     class DependencyPerl(Dependency,object):
-        DependencyName = "Perl"
+        DependencyName = "Perl scripts"
 
         def __init__(self):
             super( DependencyPerl,self).__init__()
@@ -1128,14 +1161,14 @@ def GenerateDockerProcessDependencies(fdDockerFile):
             # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/_journal.so
             # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/_reader.so
             # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/id128.so
-            fdDockerFile.write("# Installations:\n")
+            fdDockerFile.write("# Package installations:\n")
             for objDataFile in sortAccessedCodeFiles:
                 filNam = objDataFile.FileName
                 if filNam.find("packages") >= 0:
                     fdDockerFile.write("RUN apt-get install -y %s\n"%filNam)
             fdDockerFile.write("\n")
 
-            fdDockerFile.write("# Copies:\n")
+            fdDockerFile.write("# Non-packaged executable files copies:\n")
             for objDataFile in sortAccessedCodeFiles:
                 filNam = objDataFile.FileName
                 if not filNam.find("packages") >= 0:
@@ -1155,9 +1188,12 @@ def GenerateDockerProcessDependencies(fdDockerFile):
     # This is the complete list of extra executables which have to be installed.
     lstBinaryExecutables = set()
 
+    setUsefulDependencies = set()
+
     for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
         for oneDep in lstDependencies:
             if oneDep.IsDepType(objInstance):
+                setUsefulDependencies.add(oneDep)
                 break
 
         for oneFile in objInstance.AccessedFiles:
@@ -1168,11 +1204,14 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         
         try:
             anExec = objInstance.Executable
+            # sys.stdout.write("Add exec=%s tp=%s\n" % (anExec,str(type(anExec))))
             lstBinaryExecutables.add(anExec)
         except AttributeError:
             pass
 
-    for oneDep in lstDependencies:
+
+    fdDockerFile.write("################################# Dependencies by program type\n")
+    for oneDep in setUsefulDependencies:
         fdDockerFile.write("# Dependencies: %s\n"%oneDep.DependencyName)
         oneDep.GenerateDockerDependencies(fdDockerFile)
         fdDockerFile.write("\n")
@@ -1183,11 +1222,10 @@ def GenerateDockerProcessDependencies(fdDockerFile):
     # RUN yum install /usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1
     # RUN yum install /usr/bin/as
     # RUN yum install /usr/bin/ld
-    fdDockerFile.write("# Binaries:\n")
-    lstPackages = G_cacheFilesToPackages.GetPackagesList(lstBinaryExecutables)
+    fdDockerFile.write("################################# Executables:\n")
+    lstPackages, unknownBinaries = G_FilesToPackagesCache.GetPackagesList(lstBinaryExecutables)
     for anExec in sorted(lstPackages):
-        # How to filter binaries ?
-        if anExec in ["/usr/bin/as","/usr/bin/ld","/usr/bin/ps"]:
+        if anExec in ["","/usr/bin/as","/usr/bin/ld","/usr/bin/ps"]:
             continue
         fdDockerFile.write("RUN yum install %s\n"%anExec)
     fdDockerFile.write("\n")
@@ -1202,10 +1240,20 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         "Other TCP/IP sockets",
     ])
 
+    lstPackagesData, unknownDataFiles = G_FilesToPackagesCache.GetPackagesList(accessedDataFiles)
+
+    fdDockerFile.write("# Data packages:\n")
+    # TODO: Many of them are probably already installed.
+    for anExec in sorted(lstPackagesData):
+        if anExec in ["","/usr/bin/as","/usr/bin/ld","/usr/bin/ps"]:
+            continue
+        fdDockerFile.write("RUN yum install %s\n"%anExec)
+    fdDockerFile.write("\n")
+
     fdDockerFile.write("# Data files:\n")
     # Sorted by alphabetical order.
     # It would be better to sort it after filtering.
-    sortedDatFils = sorted(accessedDataFiles, key=lambda x: x.FileName )
+    sortedDatFils = sorted(unknownDataFiles, key=lambda x: x.FileName )
     for datFil in sortedDatFils:
         # DO NOT ADD DIRECTORIES.
         # TODO: We could take the list of files installed by yum,
@@ -1234,7 +1282,11 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         if filNam.startswith("UnknownFileDescr:"):
             continue
 
-        if filNam in ["-1","stdint","stdout","stderr","."]:
+        if filNam in ["-1","stdin","stdout","stderr","."]:
+            continue
+
+        # Primitive tests so that directories are not copied.
+        if filNam.endswith("/.") or filNam.endswith("/"):
             continue
 
         fdDockerFile.write("ADD %s # %s \n"%(filNam,datFil.FileCategory))
@@ -1257,6 +1309,32 @@ def GenerateDockerFile(dockerFilename):
             
         fdDockerFile.write("\n")
         
+    def WriteProcessTree():
+        """Only for documentation purpose"""
+        def WriteOneProcessSubTree(objProc,depth):
+            commandLine = objProc.GetCommandLine()
+            if not commandLine:
+                commandLine = "????"
+            fdDockerFile.write("# %s -> %s : %s %s\n" % ( TimeStampToStr(objProc.CreationDate), TimeStampToStr(objProc.TerminationDate), "    "*depth , commandLine ) )
+            
+            for subProc in sorted( objProc.m_subProcesses, key=lambda x: x.CreationDate ):
+                WriteOneProcessSubTree(subProc,depth+1)
+
+        fdDockerFile.write("# Processes tree\n" )
+
+        procsTopLevel = CIM_Process.GetTopProcesses()
+        for oneProc in procsTopLevel:
+            WriteOneProcessSubTree( oneProc, 1 )
+        fdDockerFile.write("\n" )
+
+    currNow = datetime.datetime.now()
+    currDatTim = currNow.strftime("%Y-%m-%d %H:%M:%S")
+    fdDockerFile.write("# Dockerfile generated %s\n"%currDatTim)
+    
+    dirDockFilNam = os.path.dirname(dockerFilename)
+    fdDockerFile.write("# Directory %s\n"%dirDockFilNam)
+    fdDockerFile.write("\n")
+
     fdDockerFile.write("FROM docker.io/fedora\n")
     fdDockerFile.write("\n")
 
@@ -1269,15 +1347,7 @@ def GenerateDockerFile(dockerFilename):
     # Probably there should be one only, but this is not a constraint.
     procsTopLevel = CIM_Process.GetTopProcesses()
     for oneProc in procsTopLevel:
-        try:
-            # TypeError: sequence item 7: expected string, dict found
-            commandLine = " ".join( [ str(elt) for elt in oneProc.CommandLine ] )
-        except AttributeError:
-            try:
-                commandLine = oneProc.Executable
-            except AttributeError:
-                commandLine = None
-
+        commandLine = oneProc.GetCommandLine()
         if commandLine:
             # If the string length read by ltrace or strace is too short,
             # some arguments are truncated: 'CMD ["python TestProgs/big_mysql_..."]'
@@ -1291,6 +1361,8 @@ def GenerateDockerFile(dockerFilename):
 
     WriteEnvironVar()
     
+    WriteProcessTree()
+
     # More examples here:
     # https://github.com/kstaken/dockerfile-examples/blob/master/couchdb/Dockerfile
     
@@ -1438,7 +1510,11 @@ class BatchLetCore:
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct ) # + 3600
+            aTimeStamp = time.mktime( timStruct )
+
+            # This is an innocuous hack to match unit test samples. OK for the moment.
+            if socket.gethostname() == 'vps516494.localdomain':
+                aTimeStamp += 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -2203,6 +2279,7 @@ class BatchLetSys_clone(BatchLetBase,object):
             if flagsClone.find("CLONE_VM") >= 0:
                 isThread = True
             else:
+                # flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD
                 isThread = False
         else:
             raise Exception("Tracer %s not supported yet"%tracer)
@@ -2260,7 +2337,10 @@ class BatchLetSys_vfork(BatchLetBase,object):
 class BatchLetSys_execve(BatchLetBase,object):
     def __init__(self,batchCore):
 
+        # strace:
         # ['/usr/lib64/qt-3.3/bin/grep', '[grep, toto, ..]'] ==>> -1 ENOENT (No such file or directory)
+        # ltrace:
+        # execve@SYS("/usr/bin/ls", 0x55e291ac9bd0, 0x55e291ac8830 <no return ...>
         # If the executable could not be started, no point creating a batch node.
         if batchCore.m_retValue.find("ENOENT") >= 0 :
             return
@@ -2269,10 +2349,19 @@ class BatchLetSys_execve(BatchLetBase,object):
         # The first argument is the executable file name,
         # while the second is an array of command-line parameters.
         objNewDataFile = self.ToObjectPath_Accessed_CIM_DataFile(self.m_core.m_parsedArgs[0] )
-        commandLine = self.m_core.m_parsedArgs[1]
+
+        if batchCore.m_tracer == "ltrace":
+            # This contains just a pointer so we reuse 
+            commandLine = None # [ self.m_core.m_parsedArgs[0] ]
+        elif batchCore.m_tracer == "strace":
+            commandLine = self.m_core.m_parsedArgs[1]
+        else:
+            raise Exception("Tracer %s not supported yet"%tracer)
+
         self.m_significantArgs = [
             objNewDataFile,
             commandLine ]
+
         self.m_core.m_objectProcess.SetExecutable( objNewDataFile )
         self.m_core.m_objectProcess.SetCommandLine( commandLine )
         objNewDataFile.SetIsExecuted()

@@ -1,7 +1,7 @@
 
 ================== PID=18320
 Pid= 18320 {   1/Orig}M'close@SYS           ' ['CIM_DataFile.Name="UnknownFileDescr:255"'] ==>> 0 (09:00:23,09:00:23)
-Pid= 18320 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/cat"', '0x55e291ac89f0'] ==>> execve@SYS("/usr/bin/cat", 0x55e291ac89f0, 0x55e291ac8f00 (09:00:23,09:00:23)
+Pid= 18320 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/cat"', None] ==>> execve@SYS("/usr/bin/cat", 0x55e291ac89f0, 0x55e291ac8f00 (09:00:23,09:00:23)
 Pid= 18320 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7fc3e6bd5000 (09:00:23,09:00:23)
 Pid= 18320 {   1/Orig} 'access@SYS          ' ['CIM_DataFile.Name="/etc/ld.so.preload"'] ==>> -2 (09:00:23,09:00:23)
 Pid= 18320 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (09:00:23,09:00:23)
@@ -1475,7 +1475,7 @@ Pid= 18318 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (09:00:23
 
 ================== PID=18317
 Pid= 18317 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="UnknownFileDescr:255"'] ==>> 0 (09:00:22,09:00:22)
-Pid= 18317 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/ls"', '0x55e291ac9bd0'] ==>> execve@SYS("/usr/bin/ls", 0x55e291ac9bd0, 0x55e291ac8830 (09:00:22,09:00:22)
+Pid= 18317 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/ls"', None] ==>> execve@SYS("/usr/bin/ls", 0x55e291ac9bd0, 0x55e291ac8830 (09:00:22,09:00:22)
 Pid= 18317 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7f84b53ff000 (09:00:22,09:00:22)
 Pid= 18317 {   1/Orig} 'access@SYS          ' ['CIM_DataFile.Name="/etc/ld.so.preload"'] ==>> -2 (09:00:22,09:00:22)
 Pid= 18317 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (09:00:22,09:00:22)

@@ -2,7 +2,7 @@
 ================== PID=11762
 Pid= 11762 {   1/Args} '(dup2@SYS+close@SYS)' ['CIM_DataFile.Name="/tmp/ccumYu87.ld"'] ==>> N/A (10:56:39,10:56:39)
 Pid= 11762 {   1/Args} '(dup2@SYS+close@SYS)' ['CIM_DataFile.Name="/tmp/ccHPSU44.le"'] ==>> N/A (10:56:39,10:56:39)
-Pid= 11762 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/ld"', '0x22c5080'] ==>> execve@SYS("/usr/bin/ld", 0x22c5080, 0x7ffff3062df0 (10:56:39,10:56:39)
+Pid= 11762 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/ld"', None] ==>> execve@SYS("/usr/bin/ld", 0x22c5080, 0x7ffff3062df0 (10:56:39,10:56:39)
 Pid= 11762 {   1/Orig}M'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7f75198d5000 (10:56:39,10:56:39)
 Pid= 11762 {   1/Orig} 'access@SYS          ' ['CIM_DataFile.Name="/etc/ld.so.preload"'] ==>> -2 (10:56:39,10:56:39)
 Pid= 11762 {   1/Orig} 'stat@SYS            ' ['CIM_DataFile.Name="/usr/lib64/tls"'] ==>> 0 (10:56:39,10:56:39)
@@ -136,7 +136,7 @@ Pid= 11762 {   2/Orig} 'munmap@SYS          ' [] ==>> 0 (10:56:39,10:56:39)
 Pid= 11762 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (10:56:39,10:56:39)
 
 ================== PID=11761
-Pid= 11761 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2"', '0xd20798'] ==>> execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2", 0xd20798, 0xd1a5e0 (10:56:39,10:56:39)
+Pid= 11761 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2"', None] ==>> execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2", 0xd20798, 0xd1a5e0 (10:56:39,10:56:39)
 Pid= 11761 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7fd56b1a5000 (10:56:39,10:56:39)
 Pid= 11761 {   1/Orig} 'access@SYS          ' ['CIM_DataFile.Name="/etc/ld.so.preload"'] ==>> -2 (10:56:39,10:56:39)
 Pid= 11761 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (10:56:39,10:56:39)
@@ -190,9 +190,9 @@ Pid= 11761 {   1/Orig} 'lstat@SYS           ' ['CIM_DataFile.Name="/tmp/ccHPSU44
 Pid= 11761 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (10:56:39,10:56:39)
 
 ================== PID=11760
-Pid= 11760 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/lib64/qt-3.3/bin/as"', '0xd1a138'] ==>> -2 (10:56:39,10:56:39)
-Pid= 11760 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/local/bin/as"', '0xd1a138'] ==>> -2 (10:56:39,10:56:39)
-Pid= 11760 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/as"', '0xd1a138'] ==>> execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 (10:56:39,10:56:39)
+Pid= 11760 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/lib64/qt-3.3/bin/as"', None] ==>> -2 (10:56:39,10:56:39)
+Pid= 11760 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/local/bin/as"', None] ==>> -2 (10:56:39,10:56:39)
+Pid= 11760 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/as"', None] ==>> execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 (10:56:39,10:56:39)
 Pid= 11760 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7f82b0ae6000 (10:56:39,10:56:39)
 Pid= 11760 {   1/Orig} 'access@SYS          ' ['CIM_DataFile.Name="/etc/ld.so.preload"'] ==>> -2 (10:56:39,10:56:39)
 Pid= 11760 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (10:56:39,10:56:39)
@@ -235,7 +235,7 @@ Pid= 11760 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (10:56:39,10:56:39)
 Pid= 11760 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (10:56:39,10:56:39)
 
 ================== PID=11759
-Pid= 11759 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1"', '0xd1a138'] ==>> execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1", 0xd1a138, 0xd1a2b0 (10:56:38,10:56:38)
+Pid= 11759 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1"', None] ==>> execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1", 0xd1a138, 0xd1a2b0 (10:56:38,10:56:38)
 Pid= 11759 {   1/Orig} 'mmap@SYS            ' ['CIM_DataFile.Name="-1"'] ==>> 0x7fb3434bc000 (10:56:38,10:56:38)
 Pid= 11759 {   1/Orig} 'access@SYS          ' ['CIM_DataFile.Name="/etc/ld.so.preload"'] ==>> -2 (10:56:38,10:56:38)
 Pid= 11759 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (10:56:38,10:56:38)
