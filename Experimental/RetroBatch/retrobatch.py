@@ -912,6 +912,7 @@ class FileToPackage:
                 aPop = subprocess.Popen(aCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 anOut, anErr = aPop.communicate()
                 aPack = anOut
+                aPack = aPack.strip()
                 return aPack
             except:
                 return ''
