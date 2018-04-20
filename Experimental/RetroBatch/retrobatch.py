@@ -903,8 +903,58 @@ def GenerateSummary(mapParamsSummary,outputFormat, outputSummaryFile):
 
 ################################################################################
 
+# See https://github.com/nbeaver/pip_file_lookup
+def PathToPythonModuleOneFile(path):
+    try:
+        import pip.utils
+    except ImportError:
+        return
+
+    for dist in pip.utils.get_installed_distributions():
+        # RECORDs should be part of .dist-info metadatas
+        if dist.has_metadata('RECORD'):
+            lines = dist.get_metadata_lines('RECORD')
+            paths = [l.split(',')[0] for l in lines]
+            distDirectory = dist.location
+        # Otherwise use pip's log for .egg-info's
+        elif dist.has_metadata('installed-files.txt'):
+            paths = dist.get_metadata_lines('installed-files.txt')
+            distDirectory = dist.egg_info
+        else:
+            distDirectory = None
+
+        if distDirectory:
+            if path in [ os.path.normpath( os.path.join(distDirectory, p) ) for p in paths]:
+                yield dist
+
+# setPythonModules, unknownDataFiles = FilesToPythonModules(unpackagedDataFiles)
+def FilesToPythonModules(unpackagedDataFiles):
+    setPythonModules = set()
+    unknownDataFiles = []
+
+    for oneFilObj in unpackagedDataFiles:
+        lstModules = PathToPythonModuleOneFile(oneFilObj.FileName)
+        # TODO: Maybe just take one module ?
+        # sys.stdout.write("path=%s mods=%s\n"%(oneFilObj.FileName, str(list(lstModules))))
+        addedOne = False
+        for oneMod in lstModules:
+            setPythonModules.add( oneMod )
+            addedOne = True
+        if not addedOne:
+            unknownDataFiles.append( oneFilObj )
+
+    return setPythonModules, unknownDataFiles
+
+
+################################################################################
+def InstallLinuxPackage(fdDockerFile,packageName):
+    fdDockerFile.write("RUN yum install %s\n" % packageName)
+
+################################################################################
+
 class FileToPackage:
     def __init__(self):
+        # This file stores and reuses the map from file name to Linux package.
         self.m_cacheFileName = "FileToPackageCache.txt"
         try:
             fdCache = open(self.m_cacheFileName,"r")
@@ -938,8 +988,13 @@ class FileToPackage:
                 aPack = anOut
                 aPack = aPack.strip()
                 if aPack.endswith("is not owned by any package"):
-                    aPack = ""
-                lstPacks = aPack.split("\n")
+                    lstPacks = []
+                elif aPack == "":
+                    lstPacks = []
+                else:
+                    lstPacks = aPack.split("\n")
+                    if lstPacks[0] == "":
+                        raise Exception("Inserting invalid package")
                 return lstPacks
             except:
                 return []
@@ -989,6 +1044,8 @@ class FileToPackage:
             if lstPacks:
                 # BEWARE: This takes the first pack, randomly.
                 aPack = lstPacks[0]
+                if aPack == "":
+                    raise Exception("Invalid package for file=%s\n"%oneFil)
                 lstPackages.add(aPack)
             else:
                 unknownFiles.append(oneFil)
@@ -1081,8 +1138,9 @@ def GenerateDockerProcessDependencies(fdDockerFile):
                         fdDockerFile.write("ADD %s /\n"%filNam)
 
             if packagesToInstall or self.m_accessedCodeFiles:
-                fdDockerFile.write("RUN yum install python\n")
-            for onePckgNam in packagesToInstall:
+                InstallLinuxPackage( fdDockerFile, "python")
+            for onePckgNam in sorted(packagesToInstall):
+                # TODO: Do not duplicate Python modules installation.
                 fdDockerFile.write("RUN pip install %s\n"%onePckgNam)
 
     class DependencyPerl(Dependency,object):
@@ -1152,29 +1210,18 @@ def GenerateDockerProcessDependencies(fdDockerFile):
             # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
             #    return objInstance.Executable.find("/python") >= 0 or objInstance.Executable.startswith("python")
 
-            sortAccessedCodeFiles = sorted( self.m_accessedCodeFiles, key=lambda x: x.FileName )
+            lstAccessedPackages, unpackagedAccessedCodeFiles = G_FilesToPackagesCache.GetPackagesList(self.m_accessedCodeFiles)
 
-            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/_dbus_bindings.so
-            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/cx_Oracle.so
-            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/problem/_pyabrt.so
-            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/report/_pyreport.so
-            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/_journal.so
-            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/_reader.so
-            # RUN apt-get install -y /usr/lib64/python2.7/site-packages/systemd/id128.so
             fdDockerFile.write("# Package installations:\n")
-            for objDataFile in sortAccessedCodeFiles:
-                filNam = objDataFile.FileName
-                if filNam.find("packages") >= 0:
-                    fdDockerFile.write("RUN apt-get install -y %s\n"%filNam)
+            for namPackage in sorted(lstAccessedPackages):
+                InstallLinuxPackage( fdDockerFile, namPackage )
             fdDockerFile.write("\n")
 
             fdDockerFile.write("# Non-packaged executable files copies:\n")
+            sortAccessedCodeFiles = sorted( unpackagedAccessedCodeFiles, key=lambda x: x.FileName )
             for objDataFile in sortAccessedCodeFiles:
                 filNam = objDataFile.FileName
-                if not filNam.find("packages") >= 0:
-                    # TODO: This is a very primitive mechanism:
-                    if not DependencyBinary.IsSystemLib(filNam):
-                        fdDockerFile.write("ADD %s /\n"%filNam)
+                fdDockerFile.write("ADD %s /\n"%filNam)
 
 
     lstDependencies = [
@@ -1225,9 +1272,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
     fdDockerFile.write("################################# Executables:\n")
     lstPackages, unknownBinaries = G_FilesToPackagesCache.GetPackagesList(lstBinaryExecutables)
     for anExec in sorted(lstPackages):
-        if anExec in ["","/usr/bin/as","/usr/bin/ld","/usr/bin/ps"]:
-            continue
-        fdDockerFile.write("RUN yum install %s\n"%anExec)
+        InstallLinuxPackage( fdDockerFile, anExec )
     fdDockerFile.write("\n")
     
     # These are not data files.
@@ -1240,56 +1285,49 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         "Other TCP/IP sockets",
     ])
 
-    lstPackagesData, unknownDataFiles = G_FilesToPackagesCache.GetPackagesList(accessedDataFiles)
+    lstPackagesData, unpackagedDataFiles = G_FilesToPackagesCache.GetPackagesList(accessedDataFiles)
+
+    setPythonModules, unknownDataFiles = FilesToPythonModules(unpackagedDataFiles)
+
+    if setPythonModules:
+        fdDockerFile.write("# Python modules:\n")
+        for onePyModu in sorted(setPythonModules):
+            # TODO: Do not duplicate Python modules installation.
+            fdDockerFile.write("RUN pip install %s\n"%onePyModu)
+        fdDockerFile.write("\n")
 
     fdDockerFile.write("# Data packages:\n")
     # TODO: Many of them are probably already installed.
     for anExec in sorted(lstPackagesData):
-        if anExec in ["","/usr/bin/as","/usr/bin/ld","/usr/bin/ps"]:
-            continue
-        fdDockerFile.write("RUN yum install %s\n"%anExec)
+        InstallLinuxPackage( fdDockerFile, anExec )
     fdDockerFile.write("\n")
 
-    fdDockerFile.write("# Data files:\n")
-    # Sorted by alphabetical order.
-    # It would be better to sort it after filtering.
-    sortedDatFils = sorted(unknownDataFiles, key=lambda x: x.FileName )
-    for datFil in sortedDatFils:
-        # DO NOT ADD DIRECTORIES.
-        # TODO: We could take the list of files installed by yum,
-        # and map them to the packages.
-        # https://linux-audit.com/determine-file-and-related-package/
-
-        # Files not to include:
-        # /usr/lib/python2.7/site-packages/openlmi_scripts_selinux-0.4.0-py2.7-nspkg.pth
-        # /usr/lib/python2.7/site-packages/M2Crypto-0.25.1-py2.7-linux-x86_64.egg
-        # /usr/lib64/python2.7/lib-dynload/datetime.so
-
-        if datFil.FileCategory in categoriesNotInclude:
-            continue
+    if unknownDataFiles:
+        fdDockerFile.write("# Data files:\n")
+        # Sorted by alphabetical order.
+        # It would be better to sort it after filtering.
+        sortedDatFils = sorted(unknownDataFiles, key=lambda x: x.FileName )
+        for datFil in sortedDatFils:
+            # DO NOT ADD DIRECTORIES.
+    
+            if datFil.FileCategory in categoriesNotInclude:
+                continue
             
-            
-        filNam = datFil.FileName
-        if filNam.startswith("/usr/include/"):
-            continue
-        if filNam.startswith("/usr/bin/"):
-            continue
-        #if filNam.startswith("/dev/"):
-        #    continue
-        #if filNam.startswith("/proc/"):
-        #    continue
+            filNam = datFil.FileName
+            if filNam.startswith("/usr/include/"):
+                continue
+            if filNam.startswith("/usr/bin/"):
+                continue
+            if filNam.startswith("UnknownFileDescr:"):
+                continue
+            if filNam in ["-1","stdin","stdout","stderr","."]:
+                continue
 
-        if filNam.startswith("UnknownFileDescr:"):
-            continue
+            # Primitive tests so that directories are not copied.
+            if filNam.endswith("/.") or filNam.endswith("/"):
+                continue
 
-        if filNam in ["-1","stdin","stdout","stderr","."]:
-            continue
-
-        # Primitive tests so that directories are not copied.
-        if filNam.endswith("/.") or filNam.endswith("/"):
-            continue
-
-        fdDockerFile.write("ADD %s # %s \n"%(filNam,datFil.FileCategory))
+            fdDockerFile.write("ADD %s # %s \n"%(filNam,datFil.FileCategory))
     fdDockerFile.write("\n")
     
 
