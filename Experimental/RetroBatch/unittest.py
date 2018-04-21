@@ -117,7 +117,7 @@ if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
                 "hvws:Dd",
-                ["help","verbose","warning","summary","differences"])
+                ["help","verbose","warning","summary","docker","differences"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
