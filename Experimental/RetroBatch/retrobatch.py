@@ -947,8 +947,29 @@ def FilesToPythonModules(unpackagedDataFiles):
 
 
 ################################################################################
+
+# Each package is installed only once.
+G_installedLinuxPackages = None
+
 def InstallLinuxPackage(fdDockerFile,packageName):
-    fdDockerFile.write("RUN yum install %s\n" % packageName)
+    global G_installedLinuxPackages
+
+    # packageName = "mariadb-libs-10.1.30-2.fc26.x86_64"
+    # RUN yum install mariadb-libs
+    if packageName in G_installedLinuxPackages:
+        pckShort = G_installedLinuxPackages[ packageName ]
+        fdDockerFile.write("# Already installed %s -> %s\n" % (pckShort, packageName) )
+        return
+
+    # TODO: Maybe there are several versions of the same package.
+    mtch = re.search(r'(.*)-(.*)-(.*?)\.(.*)', packageName)
+    if mtch:
+        ( pckShort, version, release, platform ) = mtch.groups()
+    else:
+        raise Exception("Cannot parse package name:%s"%packageName)
+
+    G_installedLinuxPackages[ packageName ] = pckShort
+    fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName) )
 
 ################################################################################
 
@@ -3651,6 +3672,9 @@ def InitGlobals( withWarning ):
     global G_EnvironmentVariables
     G_EnvironmentVariables = {}
         
+    global G_installedLinuxPackages
+    G_installedLinuxPackages = dict()
+
 # This receives a stream of lines, each of them is a function call,
 # possibily unfinished/resumed/interrupted by a signal.
 def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat):
