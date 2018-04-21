@@ -276,7 +276,7 @@ class CIM_Process:
         # This contains all the files objects accessed by this process.
         # It is used when creating a DockerFile.
         # It is a set, so each file appears only once.
-        self.AccessedFiles = set()
+        self.m_AccessedFiles = set()
 
         if not G_ReplayMode and psutil:
             try:
@@ -292,11 +292,18 @@ class CIM_Process:
 
         if procObj:
             self.Name = procObj.name()
-            execFilNam = procObj.exe()
-            execFilObj = ToObjectPath_CIM_DataFile(execFilNam,procId)
-            self.Executable = execFilObj
+            try:
+                execFilNam = procObj.exe()
+                execFilObj = ToObjectPath_CIM_DataFile(execFilNam,procId)
+                self.Executable = execFilObj
+            except:
+                execFilNam = None
+
             self.Username = procObj.username()
-            self.CurrentDirectory = procObj.cwd()
+            try:
+                self.CurrentDirectory = procObj.cwd()
+            except:
+                pass
             self.Priority = procObj.nice()
         else:
             self.Name = str(procId)
@@ -475,7 +482,7 @@ class CIM_Process:
 
     # This tells that this process has accessed this file.
     def AddDataFile(self,objDataFile):
-        self.AccessedFiles.add(objDataFile)
+        self.m_AccessedFiles.add(objDataFile)
 
 
 # class CIM_DataFile : CIM_LogicalFile
@@ -952,7 +959,7 @@ def FilesToPythonModules(unpackagedDataFiles):
 class FileToPackage:
     def __init__(self):
         # This file stores and reuses the map from file name to Linux package.
-        self.m_cacheFileName = "FileToPackageCache.txt"
+        self.m_cacheFileName = "FileToPackageCache." + socket.gethostname() + ".txt"
         try:
             fdCache = open(self.m_cacheFileName,"r")
             self.m_cacheFilesToPackages = json.load(fdCache)
@@ -1068,6 +1075,10 @@ atexit.register( FileToPackage.DumpToFile, G_FilesToPackagesCache )
 #
 def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
 
+    # TODO: Do not duplicate Python modules installation.
+    def InstallPipModule(fdDockerFile,namePyModule):
+        fdDockerFile.write("RUN pip --disable-pip-version-check install %s\n"%namePyModule)
+
     def InstallLinuxPackage(fdDockerFile,packageName):
 
         # packageName = "mariadb-libs-10.1.30-2.fc26.x86_64"
@@ -1090,24 +1101,33 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # Each package is installed only once.
     InstallLinuxPackage.InstalledPackages = dict()
 
+    # FIXME: We could copy an entire directory tree. When ?
     def AddToDockerDir(pathName,filComment = 0):
-        orgDir = os.path.dirname(pathName)
-        dstDir = dockerDirectory + orgDir
+        # Maybe the input file does not exist.
+        if not os.path.exists(pathName):
+            fdDockerFile.write("# Origin file does not exist:%s\n" % (pathName) )
+            return
 
-        if not os.path.exists(dockerDirectory):
-            os.makedirs(dockerDirectory)
-        dstPath = dockerDirectory + pathName
+        # No need to copy directories.
+        if os.path.isdir(pathName):
+            return
+
+        orgDir = os.path.dirname(pathName)
+        dstDir = dockerDirectory + "/" + orgDir
+
+        if not os.path.exists(dstDir):
+            os.makedirs(dstDir)
+        dstPath = dockerDirectory + "/" + pathName
         try:
             shutil.copy(pathName, dstPath)
-            fdDockerFile.write("# Source file %s\n" % (pathName) )
         except IOError:
+            sys.stdout.write("Failed copy %s to %s\n"%(pathName,dstPath) )
             fdDockerFile.write("# Cannot add non-existent file:%s\n" % (pathName) )
             return
 
         if filComment:
-            fdDockerFile.write("ADD %s / # %s\n" % (pathName,filComment) )
-        else:
-            fdDockerFile.write("ADD %s /\n" % (pathName) )
+            fdDockerFile.write("# %s\n" % (filComment) )
+        fdDockerFile.write("ADD %s /\n" % (pathName) )
 
     # Code dependencies and data files dependencies are different.
 
@@ -1179,7 +1199,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 InstallLinuxPackage( fdDockerFile, "python")
             for onePckgNam in sorted(packagesToInstall):
                 # TODO: Do not duplicate Python modules installation.
-                fdDockerFile.write("RUN pip install %s\n"%onePckgNam)
+                InstallPipModule(fdDockerFile,onePckgNam)
 
     class DependencyPerl(Dependency,object):
         DependencyName = "Perl scripts"
@@ -1273,7 +1293,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 setUsefulDependencies.add(oneDep)
                 break
 
-        for oneFile in objInstance.AccessedFiles:
+        for oneFile in objInstance.m_AccessedFiles:
             if oneDep and oneDep.IsCode(oneFile):
                 oneDep.AddDep(oneFile)
             else:
@@ -1318,8 +1338,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     if setPythonModules:
         fdDockerFile.write("# Python modules:\n")
         for onePyModu in sorted(setPythonModules):
-            # TODO: Do not duplicate Python modules installation.
-            fdDockerFile.write("RUN pip install %s\n"%onePyModu)
+            InstallPipModule(fdDockerFile,onePyModu)
         fdDockerFile.write("\n")
 
     fdDockerFile.write("# Data packages:\n")
@@ -3786,8 +3805,8 @@ def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParams
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvws:p:f:r:i:o:l:t:",
-                ["help","verbose","warning","summary","pid","format","repetition","input","output","log","tracer"])
+                "hvws:Dp:f:r:i:o:l:t:",
+                ["help","verbose","warning","summary","docker","pid","format","repetition","input","output","log","tracer"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
