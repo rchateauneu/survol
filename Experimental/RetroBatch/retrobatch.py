@@ -2707,8 +2707,6 @@ class BatchLetSys_pipe2(BatchLetBase,object):
         arrFil0 = self.STraceStreamToFile(arrPipes[0])
         arrFil1 = self.STraceStreamToFile(arrPipes[1])
 
-        sys.stdout.write("pipe2 arrFil0=%s arrFil1=%s\n"%(arrFil0.FileName,arrFil1.FileName))
-
         self.m_significantArgs = [ arrFil0, arrFil1 ]
 
 
@@ -3305,7 +3303,7 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         # exit_group@SYS(0 <no return ...>
         # execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 <no return ...>
         if strBrack == "no return ...":
-            sys.stdout.write("NO RETURN\n")
+            # sys.stdout.write("NO RETURN\n")
             return True
 
         try:
