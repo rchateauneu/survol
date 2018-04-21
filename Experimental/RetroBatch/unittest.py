@@ -38,26 +38,29 @@ def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
     mapFiles = {}
     
     # First pass to build a map of files.
+    # This takes only the log files at the top level.
     for subdir, dirs, files in os.walk("UnitTests"):
         for inFile in files:
-            #print os.path.join(subdir, file)
+            inPath = subdir + os.sep + inFile
+            baseName, filExt = os.path.splitext(inFile)
     
-            if inFile.startswith("mineit_"):
-                inPath = subdir + os.sep + inFile
-                baseName, filExt = os.path.splitext(inFile)
+            keyName = subdir + os.sep + baseName
+
+            if not os.path.exists(keyName + ".log"):
+                continue
     
-                keyName = subdir + os.sep + baseName
-    
-                # The key does not need the extension so it does not matter
-                # if this lists the output files before the log input,
-                # because the key has to be the same.
-                # ".ini" files are context parameters for the test only.
-                # ".xml" files are used to store the execution summary.
-                if filExt not in [".log",".ini",".xml",".docker"]:
-                    try:
-                        mapFiles[keyName].append( inPath )
-                    except KeyError:
-                        mapFiles[keyName] = [ inPath ]
+            # The key does not need the extension so it does not matter
+            # if this lists the output files before the log input,
+            # because the key has to be the same.
+            # ".ini" files are context parameters for the test only.
+            # ".xml" files are used to store the execution summary.
+            if filExt not in [".log",".ini",".xml",".docker"]:
+                try:
+                    mapFiles[keyName].append( inPath )
+                except KeyError:
+                    mapFiles[keyName] = [ inPath ]
+        # Top-level only.
+        break
 
     for baseName in mapFiles:
         print("")

@@ -1068,6 +1068,10 @@ atexit.register( FileToPackage.DumpToFile, G_FilesToPackagesCache )
 #
 def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
 
+    # TODO: Do not duplicate Python modules installation.
+    def InstallPipModule(fdDockerFile,namePyModule):
+        fdDockerFile.write("RUN pip --disable-pip-version-check install %s\n"%namePyModule)
+
     def InstallLinuxPackage(fdDockerFile,packageName):
 
         # packageName = "mariadb-libs-10.1.30-2.fc26.x86_64"
@@ -1090,17 +1094,27 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # Each package is installed only once.
     InstallLinuxPackage.InstalledPackages = dict()
 
+    # FIXME: We could copy an entire directory tree. When ?
     def AddToDockerDir(pathName,filComment = 0):
-        orgDir = os.path.dirname(pathName)
-        dstDir = dockerDirectory + orgDir
+        # Maybe the input file does not exist.
+        if not os.path.exists(pathName):
+            fdDockerFile.write("# Origin file does not exist:%s\n" % (pathName) )
+            return
 
-        if not os.path.exists(dockerDirectory):
-            os.makedirs(dockerDirectory)
-        dstPath = dockerDirectory + pathName
+        # No need to copy directories.
+        if os.path.isdir(pathName):
+            return
+
+        orgDir = os.path.dirname(pathName)
+        dstDir = dockerDirectory + "/" + orgDir
+
+        if not os.path.exists(dstDir):
+            os.makedirs(dstDir)
+        dstPath = dockerDirectory + "/" + pathName
         try:
             shutil.copy(pathName, dstPath)
-            fdDockerFile.write("# Source file %s\n" % (pathName) )
         except IOError:
+            sys.stdout.write("Failed copy %s to %s\n"%(pathName,dstPath) )
             fdDockerFile.write("# Cannot add non-existent file:%s\n" % (pathName) )
             return
 
@@ -1179,7 +1193,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 InstallLinuxPackage( fdDockerFile, "python")
             for onePckgNam in sorted(packagesToInstall):
                 # TODO: Do not duplicate Python modules installation.
-                fdDockerFile.write("RUN pip install %s\n"%onePckgNam)
+                InstallPipModule(fdDockerFile,onePckgNam)
 
     class DependencyPerl(Dependency,object):
         DependencyName = "Perl scripts"
@@ -1318,8 +1332,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     if setPythonModules:
         fdDockerFile.write("# Python modules:\n")
         for onePyModu in sorted(setPythonModules):
-            # TODO: Do not duplicate Python modules installation.
-            fdDockerFile.write("RUN pip install %s\n"%onePyModu)
+            InstallPipModule(fdDockerFile,onePyModu)
         fdDockerFile.write("\n")
 
     fdDockerFile.write("# Data packages:\n")
