@@ -23,6 +23,7 @@ import socket
 import json
 import atexit
 import datetime
+import shutil
 
 try:
     # To add more information to processes etc...
@@ -948,31 +949,6 @@ def FilesToPythonModules(unpackagedDataFiles):
 
 ################################################################################
 
-# Each package is installed only once.
-G_installedLinuxPackages = None
-
-def InstallLinuxPackage(fdDockerFile,packageName):
-    global G_installedLinuxPackages
-
-    # packageName = "mariadb-libs-10.1.30-2.fc26.x86_64"
-    # RUN yum install mariadb-libs
-    if packageName in G_installedLinuxPackages:
-        pckShort = G_installedLinuxPackages[ packageName ]
-        fdDockerFile.write("# Already installed %s -> %s\n" % (pckShort, packageName) )
-        return
-
-    # TODO: Maybe there are several versions of the same package.
-    mtch = re.search(r'(.*)-(.*)-(.*?)\.(.*)', packageName)
-    if mtch:
-        ( pckShort, version, release, platform ) = mtch.groups()
-    else:
-        raise Exception("Cannot parse package name:%s"%packageName)
-
-    G_installedLinuxPackages[ packageName ] = pckShort
-    fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName) )
-
-################################################################################
-
 class FileToPackage:
     def __init__(self):
         # This file stores and reuses the map from file name to Linux package.
@@ -1090,7 +1066,48 @@ atexit.register( FileToPackage.DumpToFile, G_FilesToPackagesCache )
 # The type of process contains some specific code which can generate
 # the Dockerfile commands for handling these dependencies.
 #
-def GenerateDockerProcessDependencies(fdDockerFile):
+def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
+
+    def InstallLinuxPackage(fdDockerFile,packageName):
+
+        # packageName = "mariadb-libs-10.1.30-2.fc26.x86_64"
+        # RUN yum install mariadb-libs
+        if packageName in InstallLinuxPackage.InstalledPackages:
+            pckShort = InstallLinuxPackage.InstalledPackages[ packageName ]
+            fdDockerFile.write("# Already installed %s -> %s\n" % (pckShort, packageName) )
+            return
+
+        # TODO: Maybe there are several versions of the same package.
+        mtch = re.search(r'(.*)-(.*)-(.*?)\.(.*)', packageName)
+        if mtch:
+            ( pckShort, version, release, platform ) = mtch.groups()
+        else:
+            raise Exception("Cannot parse package name:%s"%packageName)
+
+        InstallLinuxPackage.InstalledPackages[ packageName ] = pckShort
+        fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName) )
+
+    # Each package is installed only once.
+    InstallLinuxPackage.InstalledPackages = dict()
+
+    def AddToDockerDir(pathName,filComment = 0):
+        orgDir = os.path.dirname(pathName)
+        dstDir = dockerDirectory + orgDir
+
+        if not os.path.exists(dockerDirectory):
+            os.makedirs(dockerDirectory)
+        dstPath = dockerDirectory + pathName
+        try:
+            shutil.copy(pathName, dstPath)
+            fdDockerFile.write("# Source file %s\n" % (pathName) )
+        except IOError:
+            fdDockerFile.write("# Cannot add non-existent file:%s\n" % (pathName) )
+            return
+
+        if filComment:
+            fdDockerFile.write("ADD %s / # %s\n" % (pathName,filComment) )
+        else:
+            fdDockerFile.write("ADD %s /\n" % (pathName) )
 
     # Code dependencies and data files dependencies are different.
 
@@ -1156,7 +1173,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
                     # TODO: Use the right path:
                     if not filNam.startswith("/usr/lib64/python2.7"):
                         # ADD /home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/big_mysql_select.py /
-                        fdDockerFile.write("ADD %s /\n"%filNam)
+                        AddToDockerDir(filNam)
 
             if packagesToInstall or self.m_accessedCodeFiles:
                 InstallLinuxPackage( fdDockerFile, "python")
@@ -1207,14 +1224,6 @@ def GenerateDockerProcessDependencies(fdDockerFile):
         @staticmethod
         # This detects the libraries which are always in the path.
         #
-        # ADD /usr/lib64/libdl-2.25.so /
-        # ADD /usr/lib64/libc-2.25.so /
-        # ADD /usr/lib64/libselinux.so.1 /
-        # ADD /usr/lib64/libpthread-2.25.so /
-        # ADD /usr/lib64/libpcre.so.1.2.8 /
-        # ADD /usr/lib64/libattr.so.1.1.0 /
-        # ADD /usr/lib64/libacl.so.1.1.0 /
-        # ADD /etc/ld.so.cache /
         def IsSystemLib(filNam):
             basNam = os.path.basename(filNam)
             if basNam in ["ld.so.cache","ld.so.preload"]:
@@ -1242,7 +1251,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
             sortAccessedCodeFiles = sorted( unpackagedAccessedCodeFiles, key=lambda x: x.FileName )
             for objDataFile in sortAccessedCodeFiles:
                 filNam = objDataFile.FileName
-                fdDockerFile.write("ADD %s /\n"%filNam)
+                AddToDockerDir(filNam)
 
 
     lstDependencies = [
@@ -1286,10 +1295,6 @@ def GenerateDockerProcessDependencies(fdDockerFile):
 
     # Install or copy the executables.
     # Beware that some of them are specifically installed: Python, Perl.
-    # RUN yum install /usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2
-    # RUN yum install /usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1
-    # RUN yum install /usr/bin/as
-    # RUN yum install /usr/bin/ld
     fdDockerFile.write("################################# Executables:\n")
     lstPackages, unknownBinaries = G_FilesToPackagesCache.GetPackagesList(lstBinaryExecutables)
     for anExec in sorted(lstPackages):
@@ -1348,7 +1353,7 @@ def GenerateDockerProcessDependencies(fdDockerFile):
             if filNam.endswith("/.") or filNam.endswith("/"):
                 continue
 
-            fdDockerFile.write("ADD %s # %s \n"%(filNam,datFil.FileCategory))
+            AddToDockerDir(filNam,datFil.FileCategory)
     fdDockerFile.write("\n")
     
 
@@ -1390,8 +1395,8 @@ def GenerateDockerFile(dockerFilename):
     currDatTim = currNow.strftime("%Y-%m-%d %H:%M:%S")
     fdDockerFile.write("# Dockerfile generated %s\n"%currDatTim)
     
-    dirDockFilNam = os.path.dirname(dockerFilename)
-    fdDockerFile.write("# Directory %s\n"%dirDockFilNam)
+    dockerDirectory = os.path.dirname(dockerFilename)
+    fdDockerFile.write("# Directory %s\n"%dockerDirectory)
     fdDockerFile.write("\n")
 
     fdDockerFile.write("FROM docker.io/fedora\n")
@@ -1400,7 +1405,7 @@ def GenerateDockerFile(dockerFilename):
     fdDockerFile.write("MAINTAINER contact@primhillcomputers.com\n")
     fdDockerFile.write("\n")
 
-    GenerateDockerProcessDependencies(fdDockerFile)
+    GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile)
 
     # Top-level processes, which starts the other ones.
     # Probably there should be one only, but this is not a constraint.
@@ -3648,8 +3653,6 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         G_CurrentDirectory = "."
         G_ReplayMode = False
 
-    sys.stdout.write("G_CurrentDirectory=%s\n"%G_CurrentDirectory)
-
     # Another possibility is to start a process or a thread which will monitor
     # the target process, and will write output information in a stream.
 
@@ -3672,9 +3675,6 @@ def InitGlobals( withWarning ):
     global G_EnvironmentVariables
     G_EnvironmentVariables = {}
         
-    global G_installedLinuxPackages
-    G_installedLinuxPackages = dict()
-
 # This receives a stream of lines, each of them is a function call,
 # possibily unfinished/resumed/interrupted by a signal.
 def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat):
@@ -3767,8 +3767,10 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
         else:
             baseOutName = "docker"
         dockerDirName = baseOutName + ".docker"
-        if not os.path.exists(dockerDirName):
-            os.mkdir(dockerDirName)
+        if os.path.exists(dockerDirName):
+            shutil.rmtree(dockerDirName)
+        os.makedirs(dockerDirName)
+
         dockerFilename = dockerDirName + "/Dockerfile"
         GenerateDockerFile(dockerFilename)
 
