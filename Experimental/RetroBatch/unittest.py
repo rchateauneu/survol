@@ -1,12 +1,24 @@
 #!/usr/bin/python
 
+"""Unit test framework for dockit"""
+
+__author__      = "Remi Chateauneu"
+__copyright__   = "Primhill Computers, 2018"
+__credits__ = ["","",""]
+__license__ = "GPL"
+__version__ = "0.0.1"
+__maintainer__ = "Remi Chateauneu"
+__email__ = "contact@primhillcomputers.com"
+__status__ = "Development"
+
+
 import re
 import os
 import sys
 import getopt
 import difflib
 
-import retrobatch
+import dockit
 
 def InternalUnitTests_ParseSTraceObject():
     dataTst = [
@@ -23,7 +35,7 @@ def InternalUnitTests_ParseSTraceObject():
     ]
 
     for tupl in dataTst:
-        resu = retrobatch.ParseSTraceObject(tupl[0],True)
+        resu = dockit.ParseSTraceObject(tupl[0],True)
         if resu != tupl[1]:
             raise Exception("Fail:%s != %s" % ( str(tupl[1]), resu ) )
 
@@ -77,7 +89,7 @@ def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
 
         print("Input=%s"%inputLogFile)
     
-        tracer = retrobatch.DefaultTracer(inputLogFile)
+        tracer = dockit.DefaultTracer(inputLogFile)
     
         for outFilNam in mapFiles[baseName]:
             print("Destination=%s"%outFilNam)
@@ -91,7 +103,7 @@ def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
             outputSummaryFile = baseName + ".xml"
 
             # In tests, the summary output format is always XML.
-            retrobatch.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning,outputSummaryFile,withDockerfile)
+            dockit.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning,outputSummaryFile,withDockerfile)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
