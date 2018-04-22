@@ -297,6 +297,9 @@ Ignoring all the messy details, a cluster analysis would try to identify groups 
 The groups might have labels like "Tea party conservative", "Libertarian", "Liberal", "Environmentalist" and so on.
 A factor analysis would try to come up with measures of latent variables such as "liberalness", "hawkishness", etc."
 
+
+
+
 Outils pour la generation d'event logs:
 =======================================
 
@@ -329,3 +332,12 @@ Process mining:
 ===============
 PyProM is a Python-based, open-source process mining package.
 https://github.com/harrywang/pyprom
+
+
+Various TODOes:
+===============
+LOG FILE : Que des writes, aucun read, aucun fseek ou bien a la fin.
+
+Indiquer S’il y a beaucoup de fseek et donc si ca vaut la peine d utiliser un ssd.
+
+
