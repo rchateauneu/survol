@@ -968,6 +968,7 @@ class FileToPackage:
             self.m_dirtyCache = False
         except IOError:
             self.m_cacheFilesToPackages = dict()
+            self.m_dirtyCache = True
 
     # Dump cache to a file. It does not use __del__()
     # because it cannot access some global names in recent versions of Python.
