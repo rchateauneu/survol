@@ -24,6 +24,7 @@ import json
 import atexit
 import datetime
 import shutil
+import platform
 
 try:
     # To add more information to processes etc...
@@ -43,15 +44,22 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -v,--verbose                  Verbose mode (Cumulative).")
     print("  -w,--warning                  Display warnings (Cumulative).")
     print("  -s,--summary <CIM class>      Prints a summary at the end: Start end end time stamps, executable name,\n"
-        + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree.")
+        + "                                loaded libraries, read/written/created files and timestamps, subprocesses tree.\n"
+        + "                                Examples: -s 'Win32_LogicalDisk.DeviceID=\"C:\",Prop1=\"Value1\",Prop2=\"Value2\"'\n"
+        + "                                          -s 'CIM_DataFile:Category=[\"Others\",\"Shared libraries\"]'" )
     print("  -D,--dockerfile               Generates a dockerfile.")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON|XML  Output format. Default is TXT.")
     print("  -i,--input <file name>        trace command input file.")
     print("  -o,--output <file name>       summary output file.")
-    print("  -l,--log <filename prefix>    trace command log output file.")
+    print("  -l,--log <filename prefix>    trace command log output file.\n"
+        + "                                Example:" + "LE DIRECTORY DE SORTIE SI ENORME  logstash, kibana")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("")
+
+
+# Explain how categories can be filtered.
+# Pre-defined clusters.
 
     sys.exit(exitCode)
 
@@ -234,7 +242,21 @@ class ExceptionIsSignal(Exception):
 
 def TimeStampToStr(timStamp):
     aTm = time.gmtime( timStamp )
-    return time.strftime("%Y/%m/%d %H:%M:%S", aTm )
+
+    # 0 	tm_year 	(for example, 1993)
+    # 1 	tm_mon 	range [1, 12]
+    # 2 	tm_mday 	range [1, 31]
+    # 3 	tm_hour 	range [0, 23]
+    # 4 	tm_min 	range [0, 59]
+    # 5 	tm_sec 	range [0, 61]; see (2) in strftime() description
+    # 6 	tm_wday 	range [0, 6], Monday is 0
+    # 7 	tm_yday 	range [1, 366]
+    # 8 	tm_isdst 	0, 1 or -1; see below
+
+    if (aTm.tm_year <= 2000):
+        return time.strftime("%H:%M:%S", aTm )
+    else:
+        return time.strftime("%Y/%m/%d %H:%M:%S", aTm )
 
 def IsTimeStamp(attr,attrVal):
     return attr.find("Date") > 0 or attr.find("Time") > 0
@@ -242,7 +264,290 @@ def IsTimeStamp(attr,attrVal):
 def IsCIM(attr,attrVal):
     return not callable(attrVal) and not attr.startswith("__") and not attr.startswith("m_")
 
+def EnumerateSwap(aLst):
+    return { val : key for (key, val) in enumerate(aLst) }
+
+
 ################################################################################
+
+
+G_cacheFileAccesses = None
+
+# This is displayed in XML as a single tag:
+# <FileAccess OpenTime="" CloseTime=""
+## If this class is added to a CIM_DataFile, it also has a member ProcessHandle.
+#
+# If this class is added to a CIM_Process, it also has a member FileName
+
+
+class FileAccess:
+    def __init__(self,objProcess,objDataFile):
+        self.OpenTime = None
+        self.CloseTime = None
+        self.m_objectCIM_Process = objProcess
+        self.m_objectCIM_DataFile = objDataFile
+
+        objProcess.m_ProcessFileAccesses.append(self)
+        objDataFile.m_DataFileFileAccesses.append(self)
+
+    def SetOpenTime(self, timeStamp):
+        global G_cacheFileAccesses
+
+        try:
+            self.NumOpen += 1
+        except AttributeError:
+            self.NumOpen = 1
+        if not self.OpenTime or (timeStamp < self.OpenTime):
+            self.OpenTime = timeStamp
+
+        # Strictly speaking, from now on, this is accessible from the cache.
+        G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile] = self
+
+    def SetCloseTime(self, timeStamp):
+        global G_cacheFileAccesses
+
+        # Maybe the file was never closed.
+        if not getattr(self,"FileCloseTime",0) or (timeStamp < self.FileCloseTime):
+            self.FileCloseTime = timeStamp
+        # Then remove the object from the cache so it cannot be returned
+        # anymore from this process and this file because it is closed.
+        del G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile]
+
+    def SetRead(self,bytesRead):
+        try:
+            self.NumRead += 1
+        except AttributeError:
+            self.NumRead = 1
+        try:
+            self.BytesRead += bytesRead
+        except AttributeError:
+            self.BytesRead = bytesRead
+
+    def SetWritten(self, bytesWritten):
+        try:
+            self.NumWritten += 1
+        except AttributeError:
+            self.NumWritten = 1
+        try:
+            self.BytesWritten += bytesWritten
+        except AttributeError:
+            self.BytesWritten = bytesWritten
+
+    def TagXML(self,strm,margin,dispProcess):
+        strm.write("%s<Access" % ( margin ) )
+
+        if dispProcess:
+            if self.m_objectCIM_Process:
+                strm.write(" Process='%s'" % ( self.m_objectCIM_Process.Handle ) )
+        else:
+            if self.m_objectCIM_DataFile:
+                strm.write(" File='%s'" % ( self.m_objectCIM_DataFile.FileName ) )
+
+        if self.OpenTime:
+            strm.write(" OpenTime='%s'" % TimeStampToStr( self.OpenTime ) )
+        if self.CloseTime:
+            strm.write(" CloseTime='%s'" % TimeStampToStr( self.CloseTime ) )
+        if getattr(self,'NumRead',0):
+            strm.write(" NumRead=%s" % ( self.NumRead ) )
+        if getattr(self,'BytesRead',0):
+            strm.write(" BytesRead=%s" % ( self.BytesRead ) )
+        if getattr(self,'NumWritten',0):
+            strm.write(" NumWritten=%s" % ( self.NumWritten ) )
+        if getattr(self,'BytesWritten',0):
+            strm.write(" BytesWritten=%s" % ( self.BytesWritten ) )
+
+        strm.write(" />\n" )
+
+
+    @staticmethod
+    def LookupFileAccess(objProcess,objDataFile):
+        global G_cacheFileAccesses
+
+        try:
+            filAcc = G_cacheFileAccesses[objProcess][objDataFile]
+        except KeyError:
+            filAcc = FileAccess(objProcess,objDataFile)
+            try:
+                G_cacheFileAccesses[objProcess][objDataFile] = filAcc
+            except KeyError:
+                G_cacheFileAccesses[objProcess] = {objDataFile : filAcc}
+        return filAcc
+
+    @staticmethod
+    def VectorToXML(strm,vecFilesAccesses,margin,dispProcess):
+        if not vecFilesAccesses:
+            return
+        subMargin = margin + "    "
+        strm.write("%s<FileAccesses>\n" % ( margin ) )
+        for filAcc in vecFilesAccesses:
+            filAcc.TagXML(strm,subMargin,dispProcess)
+        strm.write("%s</FileAccesses>\n" % ( margin ) )
+        
+        
+################################################################################
+
+class CIM_XmlMarshaller:
+    def __init__(self):
+        try:
+            currAttrsPriorities = self.__class__.m_AttrsPriorities
+
+            def sort_attrs(key1,key2):
+                try:
+                    idx1 = currAttrsPriorities[key1]
+                    idx2 = currAttrsPriorities[key2]
+                    return idx1 < idx2
+                except KeyError:
+                    return key1 < key2
+
+            self.m_sort_function = sort_attrs
+        except:
+            def sort_attrs_dflt(key1,key2):
+                return key1 < key2
+
+            self.m_sort_function = sort_attrs_dflt
+
+    def PlainToXML(self,strm,subMargin):
+        for attr in sorted(dir(self),self.m_sort_function):
+            attrVal = getattr(self,attr)
+            if IsCIM(attr,attrVal):
+                # FIXME: Not very reliable.
+                if IsTimeStamp(attr,attrVal):
+                    attrVal = TimeStampToStr(attrVal)
+                strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
+
+    @classmethod
+    def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
+        namClass = theClass.__name__
+        margin = "    "
+        subMargin = margin + margin
+        for objPath,objInstance in sorted( G_mapCacheObjects[namClass].items() ):
+            fdSummaryFile.write("%s<%s>\n" % ( margin, namClass ) )
+            objInstance.PlainToXML(fdSummaryFile,subMargin)
+            fdSummaryFile.write("%s</%s>\n" % ( margin, namClass ) )
+
+
+################################################################################
+
+
+# class CIM_ComputerSystem : CIM_System
+# {
+#   string   Caption;
+#   string   Description;
+#   datetime InstallDate;
+#   string   Status;
+#   string   CreationClassName;
+#   string   Name;
+#   string   PrimaryOwnerContact;
+#   string   PrimaryOwnerName;
+#   string   Roles[];
+#   string   NameFormat;
+# }
+class CIM_ComputerSystem (CIM_XmlMarshaller,object):
+    def __init__(self,hostname):
+        super( CIM_ComputerSystem,self).__init__()
+        self.Name = hostname
+
+        if not G_ReplayMode and psutil:
+            vm = psutil.virtual_memory()
+            self.VirtualMemoryTotal = vm[0]
+            self.VirtualMemoryAvailable = vm[1]
+            self.VirtualMemoryUsed = vm[3]
+            self.VirtualMemoryFree = vm[4]
+
+            cf = psutil.cpu_freq()
+            self.CpuCurrent = cf[0]
+            self.CpuMinimum = cf[1]
+            self.CpuMaximum = cf[2]
+
+    @staticmethod
+    def CreateMoniker(hostname):
+        return 'CIM_ComputerSystem.Name=%s' % hostname
+
+#
+# class CIM_OperatingSystem : CIM_LogicalElement
+# {
+#   string   Caption;
+#   string   CreationClassName;
+#   string   CSCreationClassName;
+#   string   CSName;
+#   sint16   CurrentTimeZone;
+#   string   Description;
+#   boolean  Distributed;
+#   uint64   FreePhysicalMemory;
+#   uint64   FreeSpaceInPagingFiles;
+#   uint64   FreeVirtualMemory;
+#   datetime InstallDate;
+#   datetime LastBootUpTime;
+#   datetime LocalDateTime;
+#   uint32   MaxNumberOfProcesses;
+#   uint64   MaxProcessMemorySize;
+#   string   Name;
+#   uint32   NumberOfLicensedUsers;
+#   uint32   NumberOfProcesses;
+#   uint32   NumberOfUsers;
+#   uint16   OSType;
+#   string   OtherTypeDescription;
+#   uint64   SizeStoredInPagingFiles;
+#   string   Status;
+#   uint64   TotalSwapSpaceSize;
+#   uint64   TotalVirtualMemorySize;
+#   uint64   TotalVisibleMemorySize;
+#   string   Version;
+# };
+class CIM_OperatingSystem (CIM_XmlMarshaller,object):
+    def __init__(self):
+        super( CIM_OperatingSystem,self).__init__()
+
+        if not G_ReplayMode:
+            self.OSType = sys.platform
+            self.Name = os.name
+            self.System = platform.system()
+            self.Release = platform.release()
+            self.Platform = platform.platform()
+
+    @staticmethod
+    def CreateMoniker():
+        return 'CIM_OperatingSystem.'
+
+#
+# class CIM_NetworkAdapter : CIM_LogicalDevice
+# {
+#   boolean  AutoSense;
+#   uint16   Availability;
+#   string   Caption;
+#   uint32   ConfigManagerErrorCode;
+#   boolean  ConfigManagerUserConfig;
+#   string   CreationClassName;
+#   string   Description;
+#   string   DeviceID;
+#   boolean  ErrorCleared;
+#   string   ErrorDescription;
+#   datetime InstallDate;
+#   uint32   LastErrorCode;
+#   uint64   MaxSpeed;
+#   string   Name;
+#   string   NetworkAddresses[];
+#   string   PermanentAddress;
+#   string   PNPDeviceID;
+#   uint16   PowerManagementCapabilities[];
+#   boolean  PowerManagementSupported;
+#   uint64   Speed;
+#   string   Status;
+#   uint16   StatusInfo;
+#   string   SystemCreationClassName;
+#   string   SystemName;
+# };
+class CIM_NetworkAdapter (CIM_XmlMarshaller,object):
+    def __init__(self,address):
+        super( CIM_NetworkAdapter,self).__init__()
+        self.PermanentAddress = address
+
+    @staticmethod
+    def CreateMoniker(address):
+        return 'CIM_NetworkAdapter.PermanentAddress=%s' % address
+
+
+
 
 #class CIM_Process : CIM_LogicalElement
 #{
@@ -265,8 +570,10 @@ def IsCIM(attr,attrVal):
 #  uint64   UserModeTime;
 #  uint64   WorkingSetSize;
 #};
-class CIM_Process:
+class CIM_Process (CIM_XmlMarshaller,object):
     def __init__(self,procId):
+        super( CIM_Process,self).__init__()
+
         # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
         self.Handle = procId
         self.m_parentProcess = None
@@ -276,7 +583,25 @@ class CIM_Process:
         # This contains all the files objects accessed by this process.
         # It is used when creating a DockerFile.
         # It is a set, so each file appears only once.
-        self.m_AccessedFiles = set()
+
+        self.m_ProcessFileAccesses = []
+
+        if not G_ReplayMode and psutil:
+            # Maybe this cannot be accessed.
+            if sys.platform.startswith("linux"):
+                filnamEnviron = "/proc/%d/environ" % self.Handle
+                #try:
+                fdEnv = open(filnamEnviron)
+                arrEnv = fdEnv.readline().split('\0')
+                fdEnv.close()
+                self.EnvironmentVariables = {}
+                for onePair in fdEnv.readline().split('\0'):
+                    if onePair:
+                        ixEq = onePair.find("=")
+                        if ixEq > 0:
+                            envKey = onePair[:ixEq]
+                            envVal = onePair[ixEq+1:]
+                            self.EnvironmentVariables[envKey] = envVal
 
         if not G_ReplayMode and psutil:
             try:
@@ -295,7 +620,7 @@ class CIM_Process:
             try:
                 execFilNam = procObj.exe()
                 execFilObj = ToObjectPath_CIM_DataFile(execFilNam,procId)
-                self.Executable = execFilObj
+                self.SetExecutable( execFilObj.FileName )
             except:
                 execFilNam = None
 
@@ -306,9 +631,12 @@ class CIM_Process:
                 pass
             self.Priority = procObj.nice()
         else:
-            self.Name = str(procId)
+            if procId > 0:
+                self.Name = "pid=%s" % procId
+            else:
+                self.Name = ""
             # TODO: This could be deduced with calls to setuid().
-            self.Username = None
+            self.Username = ""
             # TODO: This can be partly deduced with calls to chdir() etc...
             # so it would not be necessary to install psutil.
             self.CurrentDirectory = G_CurrentDirectory
@@ -345,19 +673,17 @@ class CIM_Process:
             objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
+    m_AttrsPriorities = EnumerateSwap({"Handle","CreationDate","TerminationDate"})
+
     def XMLOneLevelSummary(self,strm,margin="    "):
         self.m_isVisited = True
         strm.write("%s<CIM_Process Handle='%s'>\n" % ( margin, self.Handle) )
         
         subMargin = margin + "    "
 
-        for attr in dir(self):
-            attrVal = getattr(self,attr)
-            if IsCIM(attr,attrVal):
-                # FIXME: Not very reliable.
-                if IsTimeStamp(attr,attrVal):
-                    attrVal = TimeStampToStr(attrVal)
-                strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
+        self.PlainToXML(strm,subMargin)
+
+        FileAccess.VectorToXML(strm,self.m_ProcessFileAccesses,subMargin,False)
 
         for objInstance in self.m_subProcesses:
             objInstance.XMLOneLevelSummary(strm,subMargin)
@@ -397,8 +723,8 @@ class CIM_Process:
                 lstTopLvl.append(objInstance)
         return lstTopLvl
 
-    @staticmethod
-    def XMLSummary(fdSummaryFile,cimKeyValuePairs):
+    @classmethod
+    def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
         CIM_Process.CalcSubprocess(cimKeyValuePairs)
 
         # Find unvisited processes. It does not start from G_top_ProcessId
@@ -450,7 +776,8 @@ class CIM_Process:
 
     def SetExecutable(self,objCIM_DataFile) :
         # sys.stdout.write("SetExecutable %s tp=%s\n"%(objCIM_DataFile,str(type(objCIM_DataFile))))
-        self.Executable = objCIM_DataFile
+        self.Executable = objCIM_DataFile.FileName
+        self.m_ExecutableObject = objCIM_DataFile
 
     def SetCommandLine(self,lstCmdLine) :
         self.CommandLine = lstCmdLine
@@ -466,7 +793,7 @@ class CIM_Process:
         try:
             commandLine = self.Executable
         except AttributeError:
-            commandLine = None
+            commandLine = ""
         return commandLine
         
     def SetThread(self):
@@ -480,10 +807,19 @@ class CIM_Process:
     def GetProcessCurrentDir(self):
         return self.CurrentDirectory
 
-    # This tells that this process has accessed this file.
-    def AddDataFile(self,objDataFile):
-        self.m_AccessedFiles.add(objDataFile)
 
+    # This returns an object indexed by the file name and the process id.
+    # A file might have been opened several times by the same process.
+    # Therefore, once a file has been closed, the associated file access
+    # cannot be returned again.
+    def GetFileAccess(self, objCIM_DataFile):
+        filAcc = FileAccess.LookupFileAccess(self,objCIM_DataFile)
+        return filAcc
+
+
+# Other tools to consider:
+# dtrace and blktrac and valgrind
+# http://www.brendangregg.com/ebpf.html
 
 # class CIM_DataFile : CIM_LogicalFile
 # {
@@ -521,12 +857,15 @@ class CIM_Process:
   # string   Manufacturer;
   # string   Version;
 # };
-class CIM_DataFile:
+class CIM_DataFile (CIM_XmlMarshaller,object):
     def __init__(self,pathName):
+        super( CIM_DataFile,self).__init__()
+
         self.FileName = pathName
-        self.FileOpenTime = None
-        self.FileCloseTime = None
-        self.FileCategory = PathCategory(pathName)
+        self.Category = PathCategory(pathName)
+
+        self.m_DataFileFileAccesses = []
+
         # It will take a proper value if it is "connect()" or "bind()"
 
         try:
@@ -594,7 +933,7 @@ class CIM_DataFile:
 
         # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
         for objPath,objInstance in mapFiles:
-            mapOfFilesMap[ objInstance.FileCategory ][ objPath ] = objInstance
+            mapOfFilesMap[ objInstance.Category ][ objPath ] = objInstance
         return mapOfFilesMap
         
     @staticmethod
@@ -615,18 +954,17 @@ class CIM_DataFile:
                 objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
+    m_AttrsPriorities = EnumerateSwap({ "FileName","Category","SocketAddress"})
+
     def XMLDisplay(self,strm):
         margin = "        "
         strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.FileName) )
         
         subMargin = margin + "    "
 
-        for attr in dir(self):
-            attrVal = getattr(self,attr)
-            if IsCIM(attr,attrVal):
-                if IsTimeStamp(attr,attrVal):
-                    attrVal = TimeStampToStr(attrVal)
-                strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
+        self.PlainToXML(strm,subMargin)
+
+        FileAccess.VectorToXML(strm,self.m_DataFileFileAccesses,subMargin,True)
 
         strm.write("%s</CIM_DataFile>\n" % ( margin ) )
 
@@ -636,8 +974,8 @@ class CIM_DataFile:
             # sys.stdout.write("Path=%s\n"%objPath)
             objInstance.XMLDisplay(fdSummaryFile)
 
-    @staticmethod
-    def XMLSummary(fdSummaryFile,cimKeyValuePairs):
+    @classmethod
+    def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
         """Top-level informations are categories of CIM_DataFile which are not technical
         but the regex-based filtering."""
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
@@ -661,18 +999,21 @@ class CIM_DataFile:
         except AttributeError:
             pass
         strm.write("Path:%s\n" % self.FileName )
-        if self.FileOpenTime:
-            strOpen = TimeStampToStr( self.FileOpenTime )
-            strm.write("  Open:%s\n" % strOpen )
 
-            try:
-                strm.write("  Open times:%d\n" % self.NumOpen )
-            except AttributeError:
-                pass
+        for filAcc in self.m_DataFileFileAccesses:
 
-        if self.FileCloseTime:
-            strClose = TimeStampToStr( self.FileCloseTime )
-            strm.write("  Close:%s\n" % strClose )
+            if filAcc.OpenTime:
+                strOpen = TimeStampToStr( filAcc.OpenTime )
+                strm.write("  Open:%s\n" % strOpen )
+
+                try:
+                    strm.write("  Open times:%d\n" % filAcc.NumOpen )
+                except AttributeError:
+                    pass
+
+            if filAcc.CloseTime:
+                strClose = TimeStampToStr( filAcc.CloseTime )
+                strm.write("  Close:%s\n" % strClose )
 
         # Only if this is a socket.
         try:
@@ -681,18 +1022,6 @@ class CIM_DataFile:
                 strm.write("    %s:%s\n" % (saKey,saVal) )
         except AttributeError:
             pass
-
-    def SetOpenTime(self, timeStamp, objCIM_Process):
-        try:
-            self.NumOpen += 1
-        except AttributeError:
-            self.NumOpen = 1
-        if not self.FileOpenTime or ( timeStamp < self.FileOpenTime ):
-            self.FileOpenTime = timeStamp
-
-    def SetCloseTime(self, timeStamp, objCIM_Process):
-        if not self.FileCloseTime or ( timeStamp < self.FileCloseTime ):
-            self.FileCloseTime = timeStamp
 
     def SetIsExecuted(self) :
         self.IsExecuted = True
@@ -762,7 +1091,6 @@ def ToObjectPath_CIM_DataFile(pathName,aPid = None):
     objDataFile = CreateObjectPath(CIM_DataFile,pathName)
     if aPid:
         objProcess = ToObjectPath_CIM_Process(aPid)
-        objProcess.AddDataFile(objDataFile)
     return objDataFile
 
 # This is not a map, it is not sorted.
@@ -884,12 +1212,12 @@ def GenerateSummaryTXT(mapParamsSummary,fdSummaryFile):
 def GenerateSummaryXML(mapParamsSummary,fdSummaryFile):
     if mapParamsSummary:
         fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-        fdSummaryFile.write('<retrobatch>\n')
+        fdSummaryFile.write('<Dockit>\n')
         for rgxObjectPath in mapParamsSummary:
             ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
             classObj = globals()[ cimClassName ]
             classObj.XMLSummary(fdSummaryFile,cimKeyValuePairs)
-        fdSummaryFile.write('</retrobatch>\n')
+        fdSummaryFile.write('</Dockit>\n')
 
 def GenerateSummary(mapParamsSummary,outputFormat, outputSummaryFile):
 
@@ -1094,7 +1422,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         if mtch:
             ( pckShort, version, release, platform ) = mtch.groups()
         else:
-            raise Exception("Cannot parse package name:%s"%packageName)
+            pckShort = packageName
 
         InstallLinuxPackage.InstalledPackages[ packageName ] = pckShort
         fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName) )
@@ -1294,14 +1622,15 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 setUsefulDependencies.add(oneDep)
                 break
 
-        for oneFile in objInstance.m_AccessedFiles:
+        for filAcc in objInstance.m_ProcessFileAccesses:
+            oneFile = filAcc.m_objectCIM_DataFile
             if oneDep and oneDep.IsCode(oneFile):
                 oneDep.AddDep(oneFile)
             else:
                 accessedDataFiles.add(oneFile)
         
         try:
-            anExec = objInstance.Executable
+            anExec = objInstance.m_ExecutableObject
             # sys.stdout.write("Add exec=%s tp=%s\n" % (anExec,str(type(anExec))))
             lstBinaryExecutables.add(anExec)
         except AttributeError:
@@ -1356,7 +1685,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         for datFil in sortedDatFils:
             # DO NOT ADD DIRECTORIES.
     
-            if datFil.FileCategory in categoriesNotInclude:
+            if datFil.Category in categoriesNotInclude:
                 continue
             
             filNam = datFil.FileName
@@ -1373,7 +1702,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             if filNam.endswith("/.") or filNam.endswith("/"):
                 continue
 
-            AddToDockerDir(filNam,datFil.FileCategory)
+            AddToDockerDir(filNam,datFil.Category)
     fdDockerFile.write("\n")
     
 
@@ -1464,6 +1793,7 @@ G_mapFilDesToPathName = None
 # Option "-y          Print paths associated with file descriptor arguments."
 # read ['3</usr/lib64/libc-2.21.so>']
 # This returns a WMI object path, which is self-descriptive.
+# FIXME: Are file descriptors shared between processes ?
 def STraceStreamToPathname(strmStr):
     idxLT = strmStr.find("<")
     if idxLT >= 0:
@@ -2055,7 +2385,8 @@ class BatchLetSys_open(BatchLetBase,object):
             self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
-        self.m_significantArgs[0].SetOpenTime(self.m_core.m_timeStart,self.m_core.m_objectProcess)
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+        aFilAcc.SetOpenTime(self.m_core.m_timeStart)
 
 # The important file descriptor is the returned value.
 # openat(AT_FDCWD, "../list_machines_in_domain.py", O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
@@ -2089,7 +2420,8 @@ class BatchLetSys_openat(BatchLetBase,object):
             self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( pathName ) ]
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
-        self.m_significantArgs[0].SetOpenTime(self.m_core.m_timeStart,self.m_core.m_objectProcess)
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+        aFilAcc.SetOpenTime(self.m_core.m_timeStart)
 
 class BatchLetSys_close(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -2101,7 +2433,8 @@ class BatchLetSys_close(BatchLetBase,object):
         super( BatchLetSys_close,self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
-        self.m_significantArgs[0].SetCloseTime(self.m_core.m_timeEnd,self.m_core.m_objectProcess)
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+        aFilAcc.SetCloseTime(self.m_core.m_timeEnd)
 
 class BatchLetSys_read(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -2110,15 +2443,8 @@ class BatchLetSys_read(BatchLetBase,object):
         bytesRead = int(self.m_core.m_retValue)
 
         self.m_significantArgs = self.StreamName()
-
-        try:
-            self.m_significantArgs[0].NumRead += 1
-        except AttributeError:
-            self.m_significantArgs[0].NumRead = 1
-        try:
-            self.m_significantArgs[0].BytesRead += bytesRead
-        except AttributeError:
-            self.m_significantArgs[0].BytesRead = bytesRead
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+        aFilAcc.SetRead(bytesRead)
 
 # The process id is the return value but does not have the same format
 # with ltrace (hexadecimal) and strace (decimal).
@@ -2139,15 +2465,8 @@ class BatchLetSys_preadx(BatchLetBase,object):
         bytesRead = ConvertBatchCoreRetValue(batchCore)
 
         self.m_significantArgs = self.StreamName()
-
-        try:
-            self.m_significantArgs[0].NumRead += 1
-        except AttributeError:
-            self.m_significantArgs[0].NumRead = 1
-        try:
-            self.m_significantArgs[0].BytesRead += bytesRead
-        except AttributeError:
-            self.m_significantArgs[0].BytesRead = bytesRead
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+        aFilAcc.SetRead(bytesRead)
 
 class BatchLetSys_pread64x(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -2156,15 +2475,8 @@ class BatchLetSys_pread64x(BatchLetBase,object):
         bytesRead = ConvertBatchCoreRetValue(batchCore)
 
         self.m_significantArgs = self.StreamName()
-
-        try:
-            self.m_significantArgs[0].NumRead += 1
-        except AttributeError:
-            self.m_significantArgs[0].NumRead = 1
-        try:
-            self.m_significantArgs[0].BytesRead += bytesRead
-        except AttributeError:
-            self.m_significantArgs[0].BytesRead = bytesRead
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+        aFilAcc.SetRead(bytesRead)
 
 class BatchLetSys_write(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -2173,14 +2485,8 @@ class BatchLetSys_write(BatchLetBase,object):
         bytesWritten = int(self.m_core.m_retValue)
 
         self.m_significantArgs = self.StreamName()
-        try:
-            self.m_significantArgs[0].NumWritten += 1
-        except AttributeError:
-            self.m_significantArgs[0].NumWritten = 1
-        try:
-            self.m_significantArgs[0].BytesWritten += bytesWritten
-        except AttributeError:
-            self.m_significantArgs[0].BytesWritten = bytesWritten
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+        aFilAcc.SetWritten(bytesWritten)
 
 class BatchLetSys_ioctl(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -3676,13 +3982,21 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
     return logStream
 
+
 # Global variables which must be reinitialised before a run.
 def InitGlobals( withWarning ):
     global G_stackUnfinishedBatches
     G_stackUnfinishedBatches = UnfinishedBatches(withWarning)
 
-    global G_mapCacheObjects
-    G_mapCacheObjects = {}
+    def InitObjectsCache():
+        global G_mapCacheObjects
+        G_mapCacheObjects = {}
+
+        CreateObjectPath(CIM_ComputerSystem,socket.gethostname())
+        CreateObjectPath(CIM_OperatingSystem)
+        CreateObjectPath(CIM_NetworkAdapter,socket.gethostbyname(socket.gethostname()))
+
+    InitObjectsCache()
 
     global G_mapFilDesToPathName
     G_mapFilDesToPathName = {
@@ -3690,8 +4004,12 @@ def InitGlobals( withWarning ):
         "1" : "stdout",
         "2" : "stderr"}
 
+    # As read from the strace or ltrace calls to getenv()
     global G_EnvironmentVariables
     G_EnvironmentVariables = {}
+
+    global G_cacheFileAccesses
+    G_cacheFileAccesses = {}
         
 # This receives a stream of lines, each of them is a function call,
 # possibily unfinished/resumed/interrupted by a signal.
@@ -3753,8 +4071,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 ################################################################################
 
 # All possible summaries. Data needed to generate a docker file.
-fullMapParamsSummary = ["CIM_Process","CIM_DataFile"]
-
+fullMapParamsSummary = ["CIM_ComputerSystem","CIM_OperatingSystem","CIM_NetworkAdapter","CIM_Process","CIM_DataFile"]
 
 def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary,summaryFormat,outputSummaryFile,withDockerfile):
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
