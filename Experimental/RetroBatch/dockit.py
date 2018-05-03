@@ -264,10 +264,6 @@ def IsTimeStamp(attr,attrVal):
 def IsCIM(attr,attrVal):
     return not callable(attrVal) and not attr.startswith("__") and not attr.startswith("m_")
 
-def EnumerateSwap(aLst):
-    return { val : key for (key, val) in enumerate(aLst) }
-
-
 ################################################################################
 
 
@@ -388,32 +384,39 @@ class FileAccess:
 
 class CIM_XmlMarshaller:
     def __init__(self):
-        try:
-            currAttrsPriorities = self.__class__.m_AttrsPriorities
-
-            def sort_attrs(key1,key2):
-                try:
-                    idx1 = currAttrsPriorities[key1]
-                    idx2 = currAttrsPriorities[key2]
-                    return idx1 < idx2
-                except KeyError:
-                    return key1 < key2
-
-            self.m_sort_function = sort_attrs
-        except:
-            def sort_attrs_dflt(key1,key2):
-                return key1 < key2
-
-            self.m_sort_function = sort_attrs_dflt
+        pass
 
     def PlainToXML(self,strm,subMargin):
-        for attr in sorted(dir(self),self.m_sort_function):
-            attrVal = getattr(self,attr)
+        try:
+            attrExtra = self.__class__.m_AttrsPriorities
+        except AttributeError:
+            attrExtra = []
+
+        start = len(attrExtra)
+        enumAttrs = {}
+        for elt in dir(self):
+            enumAttrs[ elt ] = start
+            start += 1
+
+        start = 0
+        for elt in attrExtra:
+            enumAttrs[ elt ] = start
+            start += 1
+
+        dictAttrs = dict((val,key) for (key,val) in enumAttrs.items())
+        for idx in sorted(dictAttrs.keys()):
+            attr = dictAttrs[idx]
+            try:
+                attrVal = getattr(self,attr)
+            except AttributeError:
+                continue
             if IsCIM(attr,attrVal):
                 # FIXME: Not very reliable.
                 if IsTimeStamp(attr,attrVal):
                     attrVal = TimeStampToStr(attrVal)
-                strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
+                if attrVal:
+                    # No need to write empty strings.
+                    strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
 
     @classmethod
     def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
@@ -673,7 +676,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
             objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
-    m_AttrsPriorities = EnumerateSwap({"Handle","CreationDate","TerminationDate"})
+    m_AttrsPriorities = ["Handle","Name","CommandLine","CreationDate","TerminationDate","Priority"]
 
     def XMLOneLevelSummary(self,strm,margin="    "):
         self.m_isVisited = True
@@ -954,7 +957,7 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
                 objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
-    m_AttrsPriorities = EnumerateSwap({ "FileName","Category","SocketAddress"})
+    m_AttrsPriorities = ["FileName","Category","SocketAddress"]
 
     def XMLDisplay(self,strm):
         margin = "        "
