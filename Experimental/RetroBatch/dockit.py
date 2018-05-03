@@ -52,10 +52,13 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -f,--format TXT|CSV|JSON|XML  Output format. Default is TXT.")
     print("  -i,--input <file name>        trace command input file.")
     print("  -o,--output <file name>       summary output file.")
-    print("  -l,--log <filename prefix>    trace command log output file.\n"
-        + "                                Example:" + "LE DIRECTORY DE SORTIE SI ENORME  logstash, kibana")
+    print("  -l,--log <filename prefix>    trace command log output file.\n")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("")
+
+
+# Example to create a new unit test:
+# ./dockit.py -D -l UnitTests/mineit_firefox  -t  ltrace bash firefox
 
 
 # Explain how categories can be filtered.
@@ -419,6 +422,10 @@ class CIM_XmlMarshaller:
                     strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
 
     @classmethod
+    def DisplaySummary(theClass,fdSummaryFile,cimKeyValuePairs):
+        pass
+
+    @classmethod
     def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
         namClass = theClass.__name__
         margin = "    "
@@ -458,9 +465,10 @@ class CIM_ComputerSystem (CIM_XmlMarshaller,object):
             self.VirtualMemoryFree = vm[4]
 
             cf = psutil.cpu_freq()
-            self.CpuCurrent = cf[0]
-            self.CpuMinimum = cf[1]
-            self.CpuMaximum = cf[2]
+            if cf:
+                self.CpuCurrent = cf[0]
+                self.CpuMinimum = cf[1]
+                self.CpuMaximum = cf[2]
 
     @staticmethod
     def CreateMoniker(hostname):
@@ -580,6 +588,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
         # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
         self.Handle = procId
         self.m_parentProcess = None
+        self.m_subProcesses = []
         self.CreationDate = 0 # 0 so it can still be compared.
         self.TerminationDate = 0 # 0 so it can still be compared.
 
@@ -593,18 +602,20 @@ class CIM_Process (CIM_XmlMarshaller,object):
             # Maybe this cannot be accessed.
             if sys.platform.startswith("linux"):
                 filnamEnviron = "/proc/%d/environ" % self.Handle
-                #try:
-                fdEnv = open(filnamEnviron)
-                arrEnv = fdEnv.readline().split('\0')
-                fdEnv.close()
-                self.EnvironmentVariables = {}
-                for onePair in fdEnv.readline().split('\0'):
-                    if onePair:
-                        ixEq = onePair.find("=")
-                        if ixEq > 0:
-                            envKey = onePair[:ixEq]
-                            envVal = onePair[ixEq+1:]
-                            self.EnvironmentVariables[envKey] = envVal
+                try:
+                    fdEnv = open(filnamEnviron)
+                    arrEnv = fdEnv.readline().split('\0')
+                    self.EnvironmentVariables = {}
+                    for onePair in fdEnv.readline().split('\0'):
+                        if onePair:
+                            ixEq = onePair.find("=")
+                            if ixEq > 0:
+                                envKey = onePair[:ixEq]
+                                envVal = onePair[ixEq+1:]
+                                self.EnvironmentVariables[envKey] = envVal
+                    fdEnv.close()
+                except:
+                    pass
 
         if not G_ReplayMode and psutil:
             try:
@@ -655,7 +666,8 @@ class CIM_Process (CIM_XmlMarshaller,object):
             if len(keysProcs) == 1:
                 # We are about to create the second process.
                 firstProcObj = mapProcs[ keysProcs[0] ]
-                self.m_parentProcess = firstProcObj
+                # self.m_parentProcess = firstProcObj
+                self.SetParentProcess( firstProcObj )
         except KeyError:
             # This is the first process.
             pass
@@ -668,8 +680,8 @@ class CIM_Process (CIM_XmlMarshaller,object):
     def CreateMoniker(procId):
         return 'CIM_Process.Handle="%s"' % procId
 
-    @staticmethod
-    def DisplaySummary(fdSummaryFile,cimKeyValuePairs):
+    @classmethod
+    def DisplaySummary(theClass,fdSummaryFile,cimKeyValuePairs):
         fdSummaryFile.write("Processes:\n")
         for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
             # sys.stdout.write("Path=%s\n"%objPath)
@@ -694,13 +706,14 @@ class CIM_Process (CIM_XmlMarshaller,object):
 
     @staticmethod
     def CalcSubprocess(cimKeyValuePairs):
-        """This rebuilds the tree of subprocesses seen from the top. """
-        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-            objInstance.m_subProcesses = []
+        #"""This rebuilds the tree of subprocesses seen from the top. """
+        #for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+        #    objInstance.m_subProcesses = []
 
-        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-            if objInstance.m_parentProcess:
-                objInstance.m_parentProcess.m_subProcesses.append(objInstance)
+        #for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+        #    if objInstance.m_parentProcess:
+        #        objInstance.m_parentProcess.m_subProcesses.append(objInstance)
+        pass
 
     @staticmethod
     def TopProcessFromProc(objInstance):
@@ -760,15 +773,20 @@ class CIM_Process (CIM_XmlMarshaller,object):
         if self.m_parentProcess:
             strm.write("    Parent:%s\n" % self.m_parentProcess.Handle )
 
-    def AddParentProcess(self, timeStamp, objCIM_Process):
+    def SetParentProcess(self, objCIM_Process):
         self.m_parentProcess = objCIM_Process
+        objCIM_Process.m_subProcesses.append(self)
+
+    def AddParentProcess(self, timeStamp, objCIM_Process):
+        self.SetParentProcess( objCIM_Process )
         self.CreationDate = timeStamp
 
     def WaitProcessEnd(self, timeStamp, objCIM_Process):
         # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
         self.TerminationDate = timeStamp
         if not self.m_parentProcess:
-            self.m_parentProcess = objCIM_Process
+            # self.m_parentProcess = objCIM_Process
+            self.SetParentProcess( objCIM_Process )
             # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.Handle,objCIM_Process.Handle))
         elif self.m_parentProcess != objCIM_Process:
             # sys.stdout.write("WaitProcessEnd: %s not %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
@@ -939,8 +957,8 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
             mapOfFilesMap[ objInstance.Category ][ objPath ] = objInstance
         return mapOfFilesMap
         
-    @staticmethod
-    def DisplaySummary(fdSummaryFile,cimKeyValuePairs):
+    @classmethod
+    def DisplaySummary(theClass,fdSummaryFile,cimKeyValuePairs):
         fdSummaryFile.write("Files:\n")
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
 
