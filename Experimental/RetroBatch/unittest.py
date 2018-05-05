@@ -99,11 +99,11 @@ def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
             # "txt", "json" etc...
             outputFormat = filOutExt[1:].upper()
 
-            # It should be the samne whatever the output format is.
-            outputSummaryFile = baseName + ".xml"
+            # It should be the same whatever the output format is.
+            # outputSummaryFile = baseName + ".xml"
 
             # In tests, the summary output format is always XML.
-            dockit.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning,outputSummaryFile,withDockerfile)
+            dockit.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning,withDockerfile)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
