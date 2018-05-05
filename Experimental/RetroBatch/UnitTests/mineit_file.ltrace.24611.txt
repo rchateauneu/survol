@@ -1,0 +1,17 @@
+
+================== PID=24613
+Pid= 24613 {   1/Orig} 'access@SYS          ' ['CIM_DataFile.Name="/etc/ld.so.preload"'] ==>> -2 (00:05:17,00:05:17)
+Pid= 24613 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (00:05:17,00:05:17)
+Pid= 24613 {   1/Args} '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/lib64/libmagic.so.1"'] ==>> N/A (00:05:17,00:05:17)
+Pid= 24613 {   1/Args} '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/lib64/libz.so.1"'] ==>> N/A (00:05:17,00:05:17)
+Pid= 24613 {   1/Args} '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/lib64/libc.so.6"'] ==>> N/A (00:05:17,00:05:17)
+Pid= 24613 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (00:05:17,00:05:17)
+Pid= 24613 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib/locale/locale-archive"'] ==>> N/A (00:05:17,00:05:17)
+Pid= 24613 {   1/Args} '(stat@SYS+open@SYS+fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/magic"'] ==>> N/A (00:05:17,00:05:17)
+Pid= 24613 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/share/misc/magic.mgc"'] ==>> N/A (00:05:17,00:05:17)
+Pid= 24613 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib64/gconv/gconv-modules.cache"'] ==>> N/A (00:05:17,00:05:17)
+Pid= 24613 {   1/Orig} 'fstat@SYS           ' ['CIM_DataFile.Name="stdout"'] ==>> 0 (00:05:17,00:05:17)
+Pid= 24613 {   1/Orig} 'lstat@SYS           ' ['CIM_DataFile.Name="docker.pyc"'] ==>> -2 (00:05:17,00:05:17)
+Pid= 24613 {   2/Orig} 'munmap@SYS          ' [] ==>> 0 (00:05:17,00:05:17)
+Pid= 24613 {   1/Orig} 'write@SYS           ' ['CIM_DataFile.Name="stdout"'] ==>> 65 (00:05:17,00:05:17)
+Pid= 24613 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (00:05:17,00:05:17)

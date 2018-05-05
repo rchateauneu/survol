@@ -585,6 +585,8 @@ class CIM_Process (CIM_XmlMarshaller,object):
     def __init__(self,procId):
         super( CIM_Process,self).__init__()
 
+        # sys.stdout.write("CIM_Process procId=%s\n"%procId)
+
         # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
         self.Handle = procId
         self.m_parentProcess = None
@@ -630,20 +632,22 @@ class CIM_Process (CIM_XmlMarshaller,object):
             procObj = None
 
         if procObj:
-            self.Name = procObj.name()
             try:
+                self.Name = procObj.name()
                 execFilNam = procObj.exe()
-                execFilObj = ToObjectPath_CIM_DataFile(execFilNam,procId)
+                # execFilObj = ToObjectPath_CIM_DataFile(execFilNam,procId)
+                execFilObj = CreateObjectPath(CIM_DataFile,execFilNam)
                 self.SetExecutable( execFilObj.FileName )
             except:
-                execFilNam = None
+                self.Name = None
 
-            self.Username = procObj.username()
             try:
+                # Maybe the process has exit.
+                self.Username = procObj.username()
                 self.CurrentDirectory = procObj.cwd()
+                self.Priority = procObj.nice()
             except:
                 pass
-            self.Priority = procObj.nice()
         else:
             if procId > 0:
                 self.Name = "pid=%s" % procId
@@ -665,7 +669,15 @@ class CIM_Process (CIM_XmlMarshaller,object):
             keysProcs = list(mapProcs.keys())
             if len(keysProcs) == 1:
                 # We are about to create the second process.
-                firstProcObj = mapProcs[ keysProcs[0] ]
+
+                # CIM_Process.Handle="29300"
+                firstProcId = keysProcs[0]
+                firstProcObj = mapProcs[ firstProcId ]
+                if firstProcId != ( 'CIM_Process.Handle="%s"' % firstProcObj.Handle ):
+                    raise Exception("Inconsistent procid:%s != %s" % (firstProcId, firstProcObj.Handle) )
+
+                if firstProcObj.Handle == procId:
+                    raise Exception("Duplicate procid:%s"%procId)
                 # self.m_parentProcess = firstProcObj
                 self.SetParentProcess( firstProcObj )
         except KeyError:
@@ -678,6 +690,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
 
     @staticmethod
     def CreateMoniker(procId):
+        # sys.stdout.write("CreateMoniker:procId=%s\n"%procId)
         return 'CIM_Process.Handle="%s"' % procId
 
     @classmethod
@@ -774,6 +787,9 @@ class CIM_Process (CIM_XmlMarshaller,object):
             strm.write("    Parent:%s\n" % self.m_parentProcess.Handle )
 
     def SetParentProcess(self, objCIM_Process):
+        # sys.stdout.write("me=%s up=%s\n" % ( self.Handle, objCIM_Process.Handle ) )
+        if int(self.Handle) == int(objCIM_Process.Handle):
+            raise Exception("Self-parent")
         self.m_parentProcess = objCIM_Process
         objCIM_Process.m_subProcesses.append(self)
 
@@ -799,6 +815,13 @@ class CIM_Process (CIM_XmlMarshaller,object):
         # sys.stdout.write("SetExecutable %s tp=%s\n"%(objCIM_DataFile,str(type(objCIM_DataFile))))
         self.Executable = objCIM_DataFile.FileName
         self.m_ExecutableObject = objCIM_DataFile
+
+
+
+        # TODO TODO
+        # aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+
+
 
     def SetCommandLine(self,lstCmdLine) :
         self.CommandLine = lstCmdLine
@@ -1088,6 +1111,9 @@ G_mapCacheObjects = None
 G_EnvironmentVariables = None
 
 def CreateObjectPath(classModel, *ctorArgs):
+    global G_mapCacheObjects
+    #if classModel.__name__ == "CIM_Process":
+    #    sys.stdout.write("ctorArgs=%s\n"%str(ctorArgs))
     try:
         mapObjs = G_mapCacheObjects[classModel.__name__]
     except KeyError:
@@ -1097,9 +1123,17 @@ def CreateObjectPath(classModel, *ctorArgs):
     objPath = classModel.CreateMoniker(*ctorArgs)
     try:
         theObj = mapObjs[objPath]
+        #if classModel.__name__ == "CIM_Process":
+        #    sys.stdout.write("objPath=%s found\n"%objPath)
     except KeyError:
+        #if classModel.__name__ == "CIM_Process":
+        #    sys.stdout.write("objPath=%s NOT found\n"%objPath)
         theObj = classModel(*ctorArgs)
+        #if classModel.__name__ == "CIM_Process":
+        #    sys.stdout.write("theObj.Handle=%s\n"%theObj.Handle)
         mapObjs[objPath] = theObj
+        #if classModel.__name__ == "CIM_Process":
+        #    sys.stdout.write("keys=%s\n"%str(mapObjs.keys()))
     return theObj
 
 
@@ -1109,9 +1143,19 @@ def ToObjectPath_CIM_Process(aPid):
 # It might be a Linux socket or an IP socket.
 # The pid can be added so we know which process accesses this file.
 def ToObjectPath_CIM_DataFile(pathName,aPid = None):
-    objDataFile = CreateObjectPath(CIM_DataFile,pathName)
+    #sys.stdout.write("ToObjectPath_CIM_DataFile pathName=%s aPid=%s\n" % ( pathName, str(aPid) ) )
     if aPid:
+        # Maybe this is a relative file, and to make it absolute,
+        # the process is needed.
         objProcess = ToObjectPath_CIM_Process(aPid)
+        dirPath = objProcess.GetProcessCurrentDir()
+    else:
+        # At least it will suppress ".." etc...
+        dirPath = ""
+
+    pathName = ToAbsPath( dirPath, pathName )
+
+    objDataFile = CreateObjectPath(CIM_DataFile,pathName)
     return objDataFile
 
 # This is not a map, it is not sorted.
@@ -1231,29 +1275,31 @@ def GenerateSummaryTXT(mapParamsSummary,fdSummaryFile):
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
 def GenerateSummaryXML(mapParamsSummary,fdSummaryFile):
+    fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+    fdSummaryFile.write('<Dockit>\n')
     if mapParamsSummary:
-        fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-        fdSummaryFile.write('<Dockit>\n')
         for rgxObjectPath in mapParamsSummary:
             ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
             classObj = globals()[ cimClassName ]
             classObj.XMLSummary(fdSummaryFile,cimKeyValuePairs)
-        fdSummaryFile.write('</Dockit>\n')
+    fdSummaryFile.write('</Dockit>\n')
 
-def GenerateSummary(mapParamsSummary,outputFormat, outputSummaryFile):
-
+def GenerateSummary(mapParamsSummary, summaryFormat, outputSummaryFile):
     if outputSummaryFile:
         fdSummaryFile = open(outputSummaryFile, "w")
+        sys.stdout.write("Creating summary file:%s\n"%outputSummaryFile)
     else:
         fdSummaryFile = sys.stdout
 
-    if outputFormat == "TXT":
+    if summaryFormat == "TXT":
         GenerateSummaryTXT(mapParamsSummary,fdSummaryFile)
-    elif outputFormat == "XML":
+    elif summaryFormat == "XML":
         # The output format is very different.
         GenerateSummaryXML(mapParamsSummary,fdSummaryFile)
+    elif summaryFormat == None:
+        return
     else:
-        raise Exception("Unsupported summary output format:%s"%outputFormat)
+        raise Exception("Unsupported summary output format:%s"%summaryFormat)
 
     if outputSummaryFile:
         fdSummaryFile.close()
@@ -1826,7 +1872,7 @@ def STraceStreamToPathname(strmStr):
             pathName = G_mapFilDesToPathName[ strmStr ]
         except KeyError:
             if strmStr == "-1": # Normal return value.
-                pathName = strmStr
+                pathName = "Invalid device"
             else:
                 pathName = "UnknownFileDescr:%s" % strmStr
 
@@ -2184,7 +2230,8 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
     def StreamName(self,idx=0):
         # sys.stdout.write( "StreamName func%s\n"%self.m_core.m_funcNam )
         # sys.stdout.write( "StreamName=%s\n"%self.m_core.m_parsedArgs[idx] )
-        return [ self.STraceStreamToFile( self.m_core.m_parsedArgs[idx] ) ]
+        aFil = self.STraceStreamToFile( self.m_core.m_parsedArgs[idx] )
+        return [ aFil ]
 
     def SameCall(self,anotherBatch):
         if self.m_core.m_funcNam != anotherBatch.m_core.m_funcNam:
@@ -2308,7 +2355,6 @@ class BatchDumperJSON(BatchDumperBase):
 def BatchDumperFactory(strm, outputFormat):
     BatchDumpersDictionary = {
         "TXT"  : BatchDumperTXT,
-        "XML"  : BatchDumperTXT,
         "CSV"  : BatchDumperCSV,
         "JSON" : BatchDumperJSON
     }
@@ -2338,10 +2384,23 @@ def InvalidReturnedFileDescriptor(fileDes,tracer):
 # os.path.abspath removes things like . and .. from the path
 # giving a full path from the root of the directory tree to the named file (or symlink)
 def ToAbsPath( dirPath, filNam ):
+    if filNam == "-1":
+        raise Exception("Noooooon")
+
+    # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
+    if re.match("^[0-9a-zA-Z_]+:",filNam):
+        return filNam
+
+    if filNam in ["stdout","stdin","stderr"]:
+        return filNam
+
     if filNam[0] == "/":
         fullPath = filNam
     else:
-        fullPath = dirPath + "/" + filNam
+        if dirPath in [".",""]:
+            fullPath = filNam
+        else:
+            fullPath = dirPath + "/" + filNam
 
     # FIXME: Broken if Linux test run on Windows machine and vice-versa.
     # Therefore, the file manipulation is done.
@@ -2530,6 +2589,14 @@ class BatchLetSys_lstat(BatchLetBase,object):
 
         self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
 
+# With ltrace:
+# lstat@SYS("./UnitTests/mineit_wget_hotmail.strace.866.xml", 0x55fd19026230) = 0
+# lgetxattr@SYS("./UnitTests/mineit_wget_hotmail.strace.866.xml", "security.selinux", 0x55fd19029770, 255) = 37
+# getxattr@SYS("./UnitTests/mineit_wget_hotmail.strace.866.xml", "system.posix_acl_access", nil, 0) = -61
+
+
+
+
 class BatchLetSys_access(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_access,self).__init__(batchCore)
@@ -2549,6 +2616,10 @@ class BatchLetSys_mmap(BatchLetBase,object):
     def __init__(self,batchCore):
         # Not interested by anonymous map because there is no side effect.
         if batchCore.m_parsedArgs[3].find("MAP_ANONYMOUS") >= 0:
+            return
+
+        fdArg = batchCore.m_parsedArgs[4]
+        if fdArg == "-1":
             return
         super( BatchLetSys_mmap,self).__init__(batchCore)
 
@@ -2861,6 +2932,8 @@ class BatchLetSys_newfstatat(BatchLetBase,object):
             dirPath = self.m_core.m_objectProcess.GetProcessCurrentDir()
         else:
             dirPath = STraceStreamToPathname( dirNam )
+            if not dirPath:
+                raise Exception("Invalid directory:%s"%dirNam)
 
         filNam = self.m_core.m_parsedArgs[1]
 
@@ -4100,6 +4173,7 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
 
     if outFile:
+        sys.stdout.write("Creating flow file:%s\n"%outFile)
         outFd = open(outFile, "w")
 
         for aPid in sorted(list(mapFlows.keys()),reverse=True):
@@ -4205,13 +4279,15 @@ if __name__ == '__main__':
     logStream = CreateEventLog(argsCmd, aPid, inputLogFile, tracer )
 
     if outputLogFilePrefix:
+        fullPrefixNoExt = "%s.%s.%s." % ( outputLogFilePrefix, tracer, G_topProcessId )
+
         # tee: This jusy need to reimplement "readline()"
         class TeeStream:
             def __init__(self,logStrm):
                 self.m_logStrm = logStrm
-                outFilNam = "%s.%s.%s.log" % ( outputLogFilePrefix, tracer, G_topProcessId )
-                self.m_outFd = open( outFilNam, "w" )
-                print("Creation of log file %s" % outFilNam )
+                logFilNam = fullPrefixNoExt + "log"
+                self.m_outFd = open( logFilNam, "w" )
+                print("Creating log file:%s" % logFilNam )
 
             def readline(self):
                 # sys.stdout.write("xxx\n" )
@@ -4222,6 +4298,17 @@ if __name__ == '__main__':
 
         logStream = TeeStream(logStream)
 
+        outFilExt = outputFormat.lower() # "txt", "xml" etc...
+        outFilNam = fullPrefixNoExt + outFilExt
+    else:
+        exit(1)
+        outFilNam = None
+
+    if outputSummaryFile:
+        baseSumName, filSumExt = os.path.splitext(outputSummaryFile)
+        summaryFormat = filSumExt[1:].upper()
+    else:
+        summaryFormat = None
 
     def signal_handler(signal, frame):
         print('You pressed Ctrl+C!')
@@ -4234,7 +4321,7 @@ if __name__ == '__main__':
         print('Press Ctrl+C to exit cleanly')
 
     # In normal usage, the summary output format is the same as the output format for calls.
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, None, mapParamsSummary, outputFormat, outputSummaryFile, withDockerfile )
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFilNam, mapParamsSummary, summaryFormat, outputSummaryFile, withDockerfile )
 
 ################################################################################
 # Options:

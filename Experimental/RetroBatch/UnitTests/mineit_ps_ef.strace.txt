@@ -37,7 +37,7 @@ Pid=    -1 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.
 Pid=    -1 {   1/Args} '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib64/libnss_sss.so.2"'] ==>> N/A (08:42:12,08:42:12)
 Pid=    -1 {   1/Orig} 'munmap@SYS          ' [] ==>> 0 (08:42:12,08:42:12)
 Pid=    -1 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+fstat@SYS)' ['CIM_DataFile.Name="/var/lib/sss/mc/passwd"'] ==>> N/A (08:42:12,08:42:12)
-Pid=    -1 {   1/Orig} 'fstat@SYS           ' ['CIM_DataFile.Name="-1"'] ==>> -1 EBADF (Bad file descriptor) (08:42:12,08:42:12)
+Pid=    -1 {   1/Orig} 'fstat@SYS           ' ['CIM_DataFile.Name="Invalid device"'] ==>> -1 EBADF (Bad file descriptor) (08:42:12,08:42:12)
 Pid=    -1 {   1/Args} '(socket@SYS+fcntl@SYS+connect@SYS)' ['CIM_DataFile.Name="UNIX:[2038065]"'] ==>> N/A (08:42:12,08:42:12)
 Pid=    -1 {   1/Orig} 'fstat@SYS           ' ['CIM_DataFile.Name="UNIX:[2038065->2038073]"'] ==>> 0 (08:42:12,08:42:12)
 Pid=    -1 {   1/Orig} 'poll@SYS            ' [['CIM_DataFile.Name="UNIX:[2038065->2038073]"']] ==>> 1 ([{fd=7, revents=POLLOUT}]) (08:42:12,08:42:12)
