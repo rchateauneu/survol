@@ -49,9 +49,9 @@ def Usage(exitCode = 1, errMsg = None):
         + "                                          -s 'CIM_DataFile:Category=[\"Others\",\"Shared libraries\"]'" )
     print("  -D,--dockerfile               Generates a dockerfile.")
     print("  -p,--pid <pid>                Monitors a running process instead of starting an executable.")
-    print("  -f,--format TXT|CSV|JSON|XML  Output format. Default is TXT.")
+    print("  -f,--format TXT|CSV|JSON      Output format. Default is TXT.")
+    print("  -F,--summary-format TXT|XML   Summary output format. Default is XML.")
     print("  -i,--input <file name>        trace command input file.")
-    print("  -o,--output <file name>       summary output file.")
     print("  -l,--log <filename prefix>    trace command log output file.\n")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("")
@@ -314,9 +314,9 @@ class FileAccess:
 
     def SetRead(self,bytesRead):
         try:
-            self.NumRead += 1
+            self.NumReads += 1
         except AttributeError:
-            self.NumRead = 1
+            self.NumReads = 1
         try:
             self.BytesRead += bytesRead
         except AttributeError:
@@ -324,9 +324,9 @@ class FileAccess:
 
     def SetWritten(self, bytesWritten):
         try:
-            self.NumWritten += 1
+            self.NumWrites += 1
         except AttributeError:
-            self.NumWritten = 1
+            self.NumWrites = 1
         try:
             self.BytesWritten += bytesWritten
         except AttributeError:
@@ -346,12 +346,12 @@ class FileAccess:
             strm.write(" OpenTime='%s'" % TimeStampToStr( self.OpenTime ) )
         if self.CloseTime:
             strm.write(" CloseTime='%s'" % TimeStampToStr( self.CloseTime ) )
-        if getattr(self,'NumRead',0):
-            strm.write(" NumRead=%s" % ( self.NumRead ) )
+        if getattr(self,'NumReads',0):
+            strm.write(" NumReads=%s" % ( self.NumReads ) )
         if getattr(self,'BytesRead',0):
             strm.write(" BytesRead=%s" % ( self.BytesRead ) )
-        if getattr(self,'NumWritten',0):
-            strm.write(" NumWritten=%s" % ( self.NumWritten ) )
+        if getattr(self,'NumWrites',0):
+            strm.write(" NumWrites=%s" % ( self.NumWrites ) )
         if getattr(self,'BytesWritten',0):
             strm.write(" BytesWritten=%s" % ( self.BytesWritten ) )
 
@@ -4167,7 +4167,14 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 # All possible summaries. Data needed to generate a docker file.
 fullMapParamsSummary = ["CIM_ComputerSystem","CIM_OperatingSystem","CIM_NetworkAdapter","CIM_Process","CIM_DataFile"]
 
-def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary,summaryFormat,outputSummaryFile,withDockerfile):
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary,summaryFormat, withDockerfile):
+
+    baseOutName, filOutExt = os.path.splitext(outFile)
+    if summaryFormat:
+        outputSummaryFile = baseOutName + "." + summaryFormat.lower()
+    else:
+        outputSummaryFile = None
+
     mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
 
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
@@ -4205,21 +4212,21 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
         GenerateDockerFile(dockerFilename)
 
 # Function called for unit tests by unittest.py
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, outputSummaryFile, withDockerfile):
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, withDockerfile):
 
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, outputSummaryFile, withDockerfile)
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, withDockerfile)
 
 
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvws:Dp:f:r:i:o:l:t:",
-                ["help","verbose","warning","summary","docker","pid","format","repetition","input","output","log","tracer"])
+                "hvws:Dp:f:F:r:i:l:t:",
+                ["help","verbose","warning","summary","summary-format","docker","pid","format","repetition","input","log","tracer"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
@@ -4241,7 +4248,7 @@ if __name__ == '__main__':
     outputFormat = "TXT" # Default output format of the generated files.
     szWindow = 0
     inputLogFile = None
-    outputSummaryFile = None
+    summaryFormat = None
     outputLogFilePrefix = None
     tracer = None
 
@@ -4258,6 +4265,8 @@ if __name__ == '__main__':
             aPid = aVal
         elif anOpt in ("-f", "--format"):
             outputFormat = aVal.upper()
+        elif anOpt in ("-F", "--summary_format"):
+            summaryFormat = aVal.upper()
         elif anOpt in ("-w", "--window"):
             szWindow = int(aVal)
             raise Exception("Sliding window not implemented yet")
@@ -4304,12 +4313,6 @@ if __name__ == '__main__':
         exit(1)
         outFilNam = None
 
-    if outputSummaryFile:
-        baseSumName, filSumExt = os.path.splitext(outputSummaryFile)
-        summaryFormat = filSumExt[1:].upper()
-    else:
-        summaryFormat = None
-
     def signal_handler(signal, frame):
         print('You pressed Ctrl+C!')
         global G_Interrupt
@@ -4321,7 +4324,7 @@ if __name__ == '__main__':
         print('Press Ctrl+C to exit cleanly')
 
     # In normal usage, the summary output format is the same as the output format for calls.
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFilNam, mapParamsSummary, summaryFormat, outputSummaryFile, withDockerfile )
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFilNam, mapParamsSummary, summaryFormat, withDockerfile )
 
 ################################################################################
 # Options:
