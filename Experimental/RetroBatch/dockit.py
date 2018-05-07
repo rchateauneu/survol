@@ -11,6 +11,7 @@ __maintainer__ = "Remi Chateauneu"
 __email__ = "contact@primhillcomputers.com"
 __status__ = "Development"
 
+import cProfile
 import re
 import sys
 import getopt
@@ -136,17 +137,6 @@ def AppendArgToResultThrow( theResult, currStr, isArray ):
     else:
         theResult[keyArg] = objToAdd
 
-# The input string might be broken.
-def AppendArgToResult( theResult, currStr, isArray ):
-    try:
-        AppendArgToResultThrow( theResult, currStr, isArray )
-    except:
-        if isArray:
-            theResult.append( "error" )
-        else:
-            theResult["error"] = "error"
-    
-
 # This transforms a structure as returned by strace, into a Python object.
 # The input is a string containing the arguments printed by strace.
 # The output is an array of strings with these arguments correctly split.
@@ -187,7 +177,14 @@ def ParseSTraceObject(aStr,isArray):
                 levelBrackets -= 1
             elif aChr == ',':
                 if levelBrackets == 0:
-                    AppendArgToResult( theResult, currStr, isArray )
+                    # AppendArgToResult( theResult, currStr, isArray )
+                    try:
+                        AppendArgToResultThrow( theResult, currStr, isArray )
+                    except:
+                        if isArray:
+                            theResult.append( "error" )
+                        else:
+                            theResult["error"] = "error"
                     currStr = ""
                     continue
 
@@ -196,7 +193,14 @@ def ParseSTraceObject(aStr,isArray):
 
     # If there is something in the string.
     if aStr:
-        AppendArgToResult( theResult, currStr, isArray )
+        # AppendArgToResult( theResult, currStr, isArray )
+        try:
+            AppendArgToResultThrow( theResult, currStr, isArray )
+        except:
+            if isArray:
+                theResult.append( "error" )
+            else:
+                theResult["error"] = "error"
 
     return theResult
 
@@ -635,7 +639,6 @@ class CIM_Process (CIM_XmlMarshaller,object):
             try:
                 self.Name = procObj.name()
                 execFilNam = procObj.exe()
-                # execFilObj = ToObjectPath_CIM_DataFile(execFilNam,procId)
                 execFilObj = CreateObjectPath(CIM_DataFile,execFilNam)
                 self.SetExecutable( execFilObj.FileName )
             except:
@@ -849,7 +852,11 @@ class CIM_Process (CIM_XmlMarshaller,object):
         self.CurrentDirectory = currDirObject.FileName
 
     def GetProcessCurrentDir(self):
-        return self.CurrentDirectory
+        try:
+            return self.CurrentDirectory
+        except AttributeError:
+            # Maybe it could not be get because the process left too quickly.
+            return "UnknownCwd"
 
 
     # This returns an object indexed by the file name and the process id.
@@ -1307,7 +1314,43 @@ def GenerateSummary(mapParamsSummary, summaryFormat, outputSummaryFile):
 ################################################################################
 
 # See https://github.com/nbeaver/pip_file_lookup
+pythonCache = {}
+
+def PathToPythonModuleOneFileMakeCache(path):
+    global pythonCache
+    try:
+        import pip.utils
+    except ImportError:
+        return
+
+    for dist in pip.utils.get_installed_distributions():
+        # RECORDs should be part of .dist-info metadatas
+        if dist.has_metadata('RECORD'):
+            lines = dist.get_metadata_lines('RECORD')
+            paths = [l.split(',')[0] for l in lines]
+            distDirectory = dist.location
+        # Otherwise use pip's log for .egg-info's
+        elif dist.has_metadata('installed-files.txt'):
+            paths = dist.get_metadata_lines('installed-files.txt')
+            distDirectory = dist.egg_info
+        else:
+            distDirectory = None
+
+        if distDirectory:
+            for p in paths:
+                normedPath = os.path.normpath( os.path.join(distDirectory, p) )
+                try:
+                    pythonCache[normedPath].append( dist )
+                except KeyError:
+                    pythonCache[normedPath] = [ dist ]
+
 def PathToPythonModuleOneFile(path):
+    try:
+        return pythonCache[path]
+    except KeyError:
+        return []
+
+def PathToPythonModuleOneFile_OldOldOldOld(path):
     try:
         import pip.utils
     except ImportError:
@@ -1361,7 +1404,9 @@ class FileToPackage:
             fdCache.close()
             self.m_validCache = True
             self.m_dirtyCache = False
-        except IOError:
+            sys.stdout.write("Loaded packages cache file:%s\n"%self.m_cacheFileName)
+        except:
+            sys.stdout.write("Error reading packages cache file:%s. Resetting.\n" % self.m_cacheFileName)
             self.m_cacheFilesToPackages = dict()
             self.m_dirtyCache = True
 
@@ -1371,11 +1416,11 @@ class FileToPackage:
         if self.m_dirtyCache:
             try:
                 fdCache = open(self.m_cacheFileName,"w")
-                sys.stdout.write("Dumping to %s\n"%self.m_cacheFileName)
+                sys.stdout.write("Dumping to packages cache file %s\n"%self.m_cacheFileName)
                 json.dump(self.m_cacheFilesToPackages,fdCache)
                 fdCache.close()
             except IOError:
-                raise Exception("Cannot dump cache to %s"%self.m_cacheFileName)
+                raise Exception("Cannot dump packages cache file to %s"%self.m_cacheFileName)
 
     @staticmethod
     def OneFileToPackageLinuxNoCache(oneFilNam):
@@ -1401,10 +1446,22 @@ class FileToPackage:
         else:
             return None
 
+    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
+
+    @staticmethod
+    def CannotBePackaged(filNam):
+        # Some files cannot be packaged, ever.
+        for pfx in FileToPackage.unpackagedPrefixes:
+            if filNam.startswith(pfx):
+                return True
+        return False
+
     def OneFileToPackageLinux(self,oneFilObj):
-        #if oneFilNam.startswith("CIM"):
-        #    raise Exception("Tralal")
         oneFilNam = oneFilObj.FileName
+
+        # Very common case of a file which is only local.
+        if FileToPackage.CannotBePackaged(oneFilNam):
+            return []
         try:
             return self.m_cacheFilesToPackages[oneFilNam]
         except KeyError:
@@ -1981,6 +2038,17 @@ class BatchLetCore:
         else:
             raise Exception("SetFunction tracer %s unsupported"%self.m_trace)
 
+    def SetDefaultOnError(self):
+        self.SetFunction( "" )
+        self.m_parsedArgs = []
+        self.m_retValue = None
+
+    # This date is conventional, but necessary, otherwise set to 1900/01/01..
+    # This is an innocuous hack to match unit test samples. OK for the moment.
+    #if socket.gethostname() == 'vps516494.localdomain':
+    #    aTimeStamp += 3600
+    deltaTimeStamp = -3600.0 + time.mktime(time.strptime("1900/01/01","%Y/%m/%d")) - time.mktime(time.strptime("1970/01/01","%Y/%m/%d"))
+
     # This parsing is specific to strace.
     def InitAfterPid(self,oneLine):
 
@@ -1989,13 +2057,10 @@ class BatchLetCore:
         # This could be done without intermediary string.
         # "07:54:54.206113"
         try:
-            # This date is conventional, but necessary, otherwise set to 1900/01/01..
-            timStruct = time.strptime("2000/01/01 " + oneLine[:15],"%Y/%m/%d %H:%M:%S.%f")
+            timStruct = time.strptime(oneLine[:15],"%H:%M:%S.%f")
             aTimeStamp = time.mktime( timStruct )
+            aTimeStamp -= BatchLetCore.deltaTimeStamp
 
-            # This is an innocuous hack to match unit test samples. OK for the moment.
-            if socket.gethostname() == 'vps516494.localdomain':
-                aTimeStamp += 3600
         except ValueError:
             sys.stdout.write("Invalid time format:%s\n"%oneLine[0:15])
             aTimeStamp = 0
@@ -2008,11 +2073,11 @@ class BatchLetCore:
         theCall = oneLine[16:]
 
         # "--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---"
-        if theCall[0:4] == "--- ":
+        if theCall.startswith( "--- " ):
             raise ExceptionIsExit()
 
         # "+++ exited with 1 +++ ['+++ exited with 1 +++']"
-        if theCall[0:4] == "+++ ":
+        if theCall.startswith( "+++ " ):
             raise ExceptionIsSignal()
 
 
@@ -2071,6 +2136,26 @@ class BatchLetCore:
             idxPar = theCall.find("(")
 
             if idxPar <= 0 :
+                # With ltrace only, wrong detection: https://github.com/dkogan/ltrace/blob/master/TODO
+                # oneLine='error: maximum array length seems negative, "\236\245\v", 8192) = -21'
+                if (self.m_tracer == "ltrace") and oneLine.startswith("error:"):
+                    sys.stdout.write("Warning ltrace:%s\n"%oneLine)
+                    self.SetDefaultOnError()
+                    return
+
+                # Exception: No function in:22:50:11.879132 <... exit resumed>) = ?
+                # Special case, when it is leaving:
+                if (self.m_tracer == "strace"):
+                    if ( oneLine.find("<... exit resumed>) = ?") >= 0 ):
+                        sys.stdout.write("Warning strace exit:%s\n"%oneLine)
+                        self.SetDefaultOnError()
+                        return
+
+                    if ( oneLine.find("<... exit_group resumed>) = ?") >= 0 ):
+                        sys.stdout.write("Warning strace exit_group:%s\n"%oneLine)
+                        self.SetDefaultOnError()
+                        return
+
                 raise Exception("No function in:%s"%oneLine)
 
             self.SetFunction( theCall[:idxPar] )
@@ -2217,7 +2302,6 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
     def SignificantArgsAsStr(self):
         # arrStr = [ str(arg) for arg in self.m_significantArgs ]
         return self.m_significantArgs
-        # return arrStr
 
     # This is used to detect repetitions.
     def GetSignature(self):
@@ -2384,9 +2468,6 @@ def InvalidReturnedFileDescriptor(fileDes,tracer):
 # os.path.abspath removes things like . and .. from the path
 # giving a full path from the root of the directory tree to the named file (or symlink)
 def ToAbsPath( dirPath, filNam ):
-    if filNam == "-1":
-        raise Exception("Noooooon")
-
     # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
     if re.match("^[0-9a-zA-Z_]+:",filNam):
         return filNam
@@ -2419,11 +2500,8 @@ def ToAbsPath( dirPath, filNam ):
         else:
             ix += 1
 
-
     absPth = "/".join(splitSlash)
 
-    # absPthWin = os.path.abspath( fullPath )
-    # sys.stdout.write(" fullPath=%s\n   absPth=%s\nabsPthWin=%s\n"%(fullPath,absPth,absPthWin))
     return absPth
 
 ################################################################################
@@ -2520,11 +2598,15 @@ class BatchLetSys_read(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_read,self).__init__(batchCore)
 
-        bytesRead = int(self.m_core.m_retValue)
-
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
-        aFilAcc.SetRead(bytesRead)
+
+        try:
+            bytesRead = int(self.m_core.m_retValue)
+            aFilAcc.SetRead(bytesRead)
+        except ValueError:
+            # Probably a race condition: invalid literal for int() with base 10: 'read@SYS(31'
+            sys.stdout.write("Error parsing retValue=%s\n" % ( batchCore.m_retValue) )
 
 # The process id is the return value but does not have the same format
 # with ltrace (hexadecimal) and strace (decimal).
@@ -2562,11 +2644,15 @@ class BatchLetSys_write(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_write,self).__init__(batchCore)
 
-        bytesWritten = int(self.m_core.m_retValue)
-
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
-        aFilAcc.SetWritten(bytesWritten)
+
+        try:
+            bytesWritten = int(self.m_core.m_retValue)
+            aFilAcc.SetWritten(bytesWritten)
+        except ValueError:
+            # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
+            pass
 
 class BatchLetSys_ioctl(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -2648,6 +2734,9 @@ class BatchLetSys_mmap2(BatchLetBase,object):
 
 class BatchLetSys_fstat(BatchLetBase,object):
     def __init__(self,batchCore):
+        # With strace: "fstat(-1, 0x7fff57630980) = -1 EBADF (Bad file descriptor)"
+        if batchCore.m_retValue.find("EBADF") >= 0 :
+            return
         super( BatchLetSys_fstat,self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
@@ -2902,7 +2991,11 @@ class BatchLetSys_wait4(BatchLetBase,object):
                 aPid = None
             else:
                 # <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 27037 
-                aPid = int(self.m_core.m_retValue.split(" ")[0])
+                try:
+                    aPid = int(self.m_core.m_retValue.split(" ")[0])
+                except ValueError:
+                    sys.stdout.write("wait4: Cannot decode pid from:%s\n" % self.m_core.m_retValue)
+                    aPid = None
                 # sys.stdout.write("WAITxxx=%d\n" % aPid )
         else:
             raise Exception("Tracer %s not supported yet"%tracer)
@@ -3002,15 +3095,21 @@ class BatchLetSys_poll(BatchLetBase,object):
 
         arrStrms = self.m_core.m_parsedArgs[0]
 
+
         if batchCore.m_tracer == "strace":
-            retList = []
-            for oneStream in arrStrms:
-                fdName = oneStream["fd"]
+            if type(arrStrms) in (list, tuple):
+                retList = []
+                for oneStream in arrStrms:
+                    # oneStream: {'fd': '5<anon_inode:[eventfd]>', 'events': 'POLLIN'}
+                    fdName = oneStream["fd"]
+
                 filOnly = self.STraceStreamToFile( fdName )
                 retList.append( filOnly )
-                # sys.stdout.write("XX: %s\n" % filOnly )
-            # return "XX="+str(arrStrms)
-            self.m_significantArgs = [ retList ]
+                self.m_significantArgs = [ retList ]
+            else:
+                # It might be the string "NULL":
+                sys.stdout.write("poll: Unexpected arrStrms=%s\n" % str(arrStrms) )
+                self.m_significantArgs = []
         else:
             self.m_significantArgs = []
 
@@ -3766,7 +3865,6 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
             # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
             # This test is not reliable because we cannot really control what a spurious output can be:
-            # if tmpLine.endswith(">\n"):
             if IsLogEnding( tmpLine ):
                 # TODO: The most common case is that the call is on one line only.
                 oneLine += tmpLine
@@ -3775,10 +3873,8 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             # If the call is split on several lines, maybe because a write() contains a "\n".
             oneLine += tmpLine[:-1]
 
-        # sys.stdout.write("BBB:%s"%oneLine)
         if not oneLine:
             break
-        # sys.stdout.write("CCC:%s"%oneLine)
 
         # This parses the line into the basic parameters of a function call.
         try:
@@ -4310,7 +4406,6 @@ if __name__ == '__main__':
         outFilExt = outputFormat.lower() # "txt", "xml" etc...
         outFilNam = fullPrefixNoExt + outFilExt
     else:
-        exit(1)
         outFilNam = None
 
     def signal_handler(signal, frame):

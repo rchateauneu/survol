@@ -20,6 +20,6 @@ Pid=  5904 {   1/Orig} 'readlink@SYS        ' ['/proc/self/exe', '', '4095'] ==>
 Pid=  5904 {   1/Orig} 'ioctl@SYS           ' ['CIM_DataFile.Name="stdin"'] ==>> 0 (11:30:21,11:30:21)
 Pid=  5904 {   1/Orig} 'ioctl@SYS           ' ['CIM_DataFile.Name="stdout"'] ==>> -25 (11:30:21,11:30:21)
 Pid=  5904 {   1/Orig} 'ioctl@SYS           ' ['CIM_DataFile.Name="stderr"'] ==>> -25 (11:30:21,11:30:21)
-Pid=  5904 {   1/Args} '(open@SYS+ioctl@SYS+fcntl@SYS+fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="TestProgs/write_file_in_perl.pl"'] ==>> N/A (11:30:21,11:30:21)
+Pid=  5904 {   1/Args} '(open@SYS+ioctl@SYS+fcntl@SYS+fstat@SYS+read@SYS+close@SYS)' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl"'] ==>> N/A (11:30:21,11:30:21)
 Pid=  5904 {   1/Args} '(open@SYS+ioctl@SYS+fstat@SYS+fcntl@SYS+write@SYS+close@SYS)' ['CIM_DataFile.Name="/tmp/survol_test_perl.txt"'] ==>> N/A (11:30:21,11:30:21)
 Pid=  5904 {   1/Orig} 'exit_group@SYS      ' [] ==>> exit_group@SYS(0 (11:30:21,11:30:21)
