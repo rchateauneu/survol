@@ -2,7 +2,7 @@
 ================== PID=18319
 Pid= 18319 {   1/Orig}M'close@SYS           ' ['CIM_DataFile.Name="UnknownFileDescr:255"'] ==>> 0 (09:00:22,09:00:22)
 Pid= 18319 {   1/Args} '(dup2@SYS+close@SYS)' ['CIM_DataFile.Name="UnknownFileDescr:3"'] ==>> N/A (09:00:22,09:00:22)
-Pid= 18319 {   1/Orig} 'stat@SYS            ' ['CIM_DataFile.Name="."'] ==>> 0 (09:00:22,09:00:22)
+Pid= 18319 {   1/Orig} 'stat@SYS            ' ['CIM_DataFile.Name="/home/rchateau/survol/Experimental/RetroBatch"'] ==>> 0 (09:00:22,09:00:22)
 Pid= 18319 {   1/Args} '(stat@SYS+access@SYS+stat@SYS+access@SYS+stat@SYS+access@SYS+stat@SYS+access@SYS)' ['CIM_DataFile.Name="/usr/bin/wc"'] ==>> N/A (09:00:22,09:00:22)
 Pid= 18319 {   1/Orig}U'execve@SYS          ' ['/usr/bin/wc', '0x55e291ac8950', '0x55e291ac8f00'] ==>> None (09:00:22,09:00:22)
 Pid= 18319 {   1/Orig}m'mmap@SYS            ' ['nil', '4096', '3', '34', '-1', '0'] ==>> None (09:00:22,09:00:22)
