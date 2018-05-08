@@ -35,7 +35,7 @@ def InternalUnitTests_ParseSTraceObject():
     ]
 
     for tupl in dataTst:
-        resu = dockit.ParseSTraceObject(tupl[0],True)
+        resu = dockit.ParseSTraceObjectList(tupl[0])
         if resu != tupl[1]:
             raise Exception("Fail:%s != %s" % ( str(tupl[1]), resu ) )
 
