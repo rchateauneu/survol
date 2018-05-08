@@ -274,7 +274,8 @@ def TimeStampToStr(timStamp):
     # 7 	tm_yday 	range [1, 366]
     # 8 	tm_isdst 	0, 1 or -1; see below
 
-    return time.strftime("%H:%M:%S", aTm )
+    # Today's date can change so we can reproduce a run.
+    return G_Today + time.strftime(" %H:%M:%S", aTm )
 
 def IsTimeStamp(attr,attrVal):
     return attr.find("Date") > 0 or attr.find("Time") > 0
@@ -825,13 +826,14 @@ class CIM_Process (CIM_XmlMarshaller,object):
 
 
     def SetCommandLine(self,lstCmdLine) :
-        self.CommandLine = lstCmdLine
+        # TypeError: sequence item 7: expected string, dict found
+        if lstCmdLine:
+            self.CommandLine = " ".join( [ str(elt) for elt in lstCmdLine ] )
 
     def GetCommandLine(self):
         try:
             if self.CommandLine:
-                # TypeError: sequence item 7: expected string, dict found
-                return " ".join( [ str(elt) for elt in self.CommandLine ] )
+                return self.CommandLine
         except AttributeError:
             pass
 
@@ -1996,11 +1998,11 @@ class BatchLetCore:
             # This is a sub-process.
             self.m_pid = pidParsed
 
-            self.InitAfterPid(oneLine[ idxAfterPid + 2 : ] )
+            self.InitAfterPid(oneLine, idxAfterPid + 2 )
         else:
             # This is the main process, but at this stage we do not have its pid.
             self.m_pid = G_topProcessId
-            self.InitAfterPid(oneLine)
+            self.InitAfterPid(oneLine, 0)
         self.m_objectProcess = ToObjectPath_CIM_Process(self.m_pid)
 
     def SetFunction(self, funcFull):
@@ -2043,14 +2045,12 @@ class BatchLetCore:
 
     # This date is conventional, but necessary, otherwise set to 1900/01/01..
     # This is an innocuous hack to match unit test samples. OK for the moment.
-    #if socket.gethostname() == 'vps516494.localdomain':
-    #    aTimeStamp += 3600
     deltaTimeStamp = 3600 if socket.gethostname() == 'vps516494.localdomain' else 0
 
-    # This parsing is specific to strace.
-    def InitAfterPid(self,oneLine):
+    # This parsing is specific to strace and ltrace.
+    def InitAfterPid(self,oneLine, idxStart):
         # "07:54:54.206113"
-        strTm = oneLine[:15]
+        strTm = oneLine[idxStart:idxStart+15]
         try:
             # This date is conventional, but necessary, otherwise set to 1900/01/01..
             timStruct = time.strptime("2000/01/01 " + strTm,"%Y/%m/%d %H:%M:%S.%f")
@@ -2068,7 +2068,7 @@ class BatchLetCore:
 
         self.m_timeStart = aTimeStamp
         self.m_timeEnd = aTimeStamp
-        theCall = oneLine[16:]
+        theCall = oneLine[idxStart+16:]
 
         # "--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---"
         if theCall.startswith( "--- " ):
@@ -2165,13 +2165,10 @@ class BatchLetCore:
             idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
 
         allArgs = theCall[idxPar+1:idxLastPar]
-        # sys.stdout.write("allArgs=%s\n"%allArgs)
-        # self.m_parsedArgs = ParseSTraceObject( allArgs, True )
         self.m_parsedArgs = ParseSTraceObjectList( allArgs )
 
         if self.m_status == BatchStatus.unfinished:
             # 18:46:10.920748 execve("/usr/bin/ps", ["ps", "-ef"], [/* 33 vars */] <unfinished ...>
-            # sys.stdout.write("self.m_unfinished: %s\n"%oneLine)
             self.m_retValue = None
         else:
             # The parameters list might be broken, with strings containing an embedded double-quote.
@@ -2240,14 +2237,9 @@ G_ignoredSyscalls = [
 
 G_batchModels = { sysCll + "@SYS" : None for sysCll in G_ignoredSyscalls }
 
-# sys.stdout.write("G_batchModels=%s\n"%str(G_batchModels) )
-
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
 # So, the name of a system call is used to lookup the class which represents it.
 class BatchMeta(type):
-    #def __new__(meta, name, bases, dct):
-    #    return super(BatchMeta, meta).__new__(meta, name, bases, dct)
-
     # This registers function names using the name of the derived class which is properly truncated.
     # TODO: It would be cleaner to add members in the class cls, instead of using the class name
     # to characterize the function.
@@ -2288,7 +2280,6 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
         self.m_core = batchCore
         self.m_occurrences = 1
         self.m_style = style
-        # sys.stdout.write("NAME=%s\n"%self.__class__.__name__)
 
         # Maybe we could get rid of the parsed args as they are not needed anymore.
         self.m_significantArgs = self.m_core.m_parsedArgs
@@ -2308,8 +2299,6 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
 
     # This is very often used.
     def StreamName(self,idx=0):
-        # sys.stdout.write( "StreamName func%s\n"%self.m_core.m_funcNam )
-        # sys.stdout.write( "StreamName=%s\n"%self.m_core.m_parsedArgs[idx] )
         aFil = self.STraceStreamToFile( self.m_core.m_parsedArgs[idx] )
         return [ aFil ]
 
@@ -4095,6 +4084,9 @@ G_topProcessId = None
 # Read from a real process or from the ini file when replaying a session.
 G_CurrentDirectory = None
 
+# The date where the test was run. Loaded from the ini file when replaying.
+G_Today = None
+
 # When replaying a session, it is not worth getting information about processes
 # because they do not exist anymore.
 G_ReplayMode = False
@@ -4104,7 +4096,7 @@ G_ReplayMode = False
 def DefaultTracer(inputLogFile,tracer=None):
     if not tracer:
         if inputLogFile:
-            # Maybe the pid is embedde in the log file.
+            # Maybe the pid is embedded in the log file.
             matchTrace = re.match(".*\.([^\.]*)\.[0-9]+\.log", inputLogFile )
             if matchTrace:
                 tracer = matchTrace.group(1)
@@ -4144,9 +4136,11 @@ def LoadIniFile(iniFilNam):
         mapKV[prmKey] = prmVal
     return mapKV
 
+# This returns a stream with each line written by strace or ltrace.
 def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     global G_topProcessId
     global G_CurrentDirectory
+    global G_Today
     global G_ReplayMode
 
     # A command or a pid or an input log file, only one possibility.
@@ -4175,6 +4169,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         mapKV = LoadIniFile(contextLogFile)
 
         G_CurrentDirectory = mapKV.get("CurrentDirectory",".")
+        G_Today = mapKV.get("Today","1999-12-31")
         G_ReplayMode = True
 
     else:
@@ -4185,6 +4180,8 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
         G_CurrentDirectory = "."
+        G_Today = "1999-12-31" # strftime  G_Today = time.strftime("%Y-%m-%d")
+
         G_ReplayMode = False
 
     # Another possibility is to start a process or a thread which will monitor
@@ -4425,6 +4422,16 @@ if __name__ == '__main__':
 
         outFilExt = outputFormat.lower() # "txt", "xml" etc...
         outFilNam = fullPrefixNoExt + outFilExt
+
+        # If not replaying, saves all parameters in an ini file.
+        if not G_ReplayMode:
+            iniFilNam = fullPrefixNoExt + ".ini"
+            iniFd = open(iniFilNam,"w")
+            iniFd.write('CurrentDirectory=%s\n' % os.getcwd() )
+            # Necessary because ltrace and strace do not write the date.
+            # Done before testing in case the test stops next day.
+            iniFd.write('CurrentDate=%s\n' % G_Today)
+            iniFd.close()
     else:
         outFilNam = None
 
