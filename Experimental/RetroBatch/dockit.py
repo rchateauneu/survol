@@ -2616,6 +2616,20 @@ class BatchLetSys_write(BatchLetBase,object):
             # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
             pass
 
+class BatchLetSys_writev(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLetSys_writev,self).__init__(batchCore)
+
+        self.m_significantArgs = self.StreamName()
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+
+        try:
+            bytesWritten = int(self.m_core.m_retValue)
+            aFilAcc.SetWritten(bytesWritten)
+        except ValueError:
+            # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
+            pass
+
 class BatchLetSys_ioctl(BatchLetBase,object):
     def __init__(self,batchCore):
         # With strace: "ioctl(-1, TIOCGPGRP, 0x7ffc3b5287f4) = -1 EBADF (Bad file descriptor)"
