@@ -84,74 +84,14 @@ def CreateFlowsFromWindowsLogger(verbose,logStream):
 
 ################################################################################
 
-# strace creates data structures similar to Python or Json.
-# fstat(3</usr/lib64/gconv/gconv-modules.cache>, {st_mode=S_IFREG|0644, st_size=26254, ...})
-# execve("/usr/bin/grep", ["grep", "toto", "../TestMySql.py"], [/* 34 vars */]) = 0 <0.000175>
-# ['[{fd=5<UNIX:[73470->73473]>, events=POLLIN}]', '1', '25000'] ==>> 1 ([{fd=5, revents=POLLIN}])
-
-# The result might be an array or an object.
-# The input argument might be a single value or a key-value pair separated
-# by a "=" equal sign.
-def AppendArgToResult( theResult, currStr, isArray ):
-    # sys.stdout.write("AppendArgToResult %s\n"%currStr)
-    argClean = currStr.strip()
-
-    if isArray:
-        keyArg = None
-        valArg = argClean
-    else:
-        # sys.stdout.write("argClean=%s\n"%argClean)
-
-        # Special case of an unfinished struct. See strace option:
-        # -v    Print unabbreviated versions of environment, stat, termios,  etc. calls.
-        #       These structures are very common in calls and so the default behavior
-        #       displays a reasonable subset of structure members. Use this option to get all of the gory details.
-        if argClean.endswith("..."):
-            return
-
-        # TODO: Check if the key is valid ...
-        # Some unexplainable case such as: "[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]"
-        idxEqual = argClean.find("=")
-        if idxEqual > 0:
-            keyArg = argClean[:idxEqual].strip()
-            valArg = argClean[idxEqual+1:]
-        else:
-            keyArg = ""
-            valArg = argClean
-    
-    if not valArg:
-        objToAdd = argClean
-    elif valArg[0] == '[':
-        if valArg[-1] != ']':
-            objToAdd = "Error: Invalid array:%s"%valArg
-        else:
-            objToAdd = ParseSTraceObject( valArg[1:-1], True )
-    elif valArg[0] == '{':
-        if valArg[-1] != '}':
-            objToAdd = "Error: Invalid struct:%s"%valArg
-        else:
-            objToAdd = ParseSTraceObject( valArg[1:-1], False )
-    else:
-        objToAdd = valArg
-
-    if isArray:
-        theResult.append( objToAdd )
-    else:
-        theResult[keyArg] = objToAdd
-
 # This transforms a structure as returned by strace, into a Python object.
 # The input is a string containing the arguments printed by strace.
 # The output is an array of strings with these arguments correctly split.
 # The arguments delimiter is a comma, if not between double quotes or brackets.
 # It is stripped of the surrounding curly braces or square brackets.
 # Beware that the input string might be incomplete: "{st_mode=S_IFREG|0644, st_size=121043, ...}"
-def ParseSTraceObject(aStr,isArray):
-    # sys.stdout.write("ParseSTraceObject %s\n"%aStr)
-
-    if isArray:
-        theResult = []
-    else:
-        theResult = {}
+def ParseSTraceObjectList(aStr):
+    theResult = []
 
     if not aStr:
         return theResult
@@ -160,7 +100,7 @@ def ParseSTraceObject(aStr,isArray):
     levelBrackets = 0
     isEscaped = False
     currStr = ""
-    for aChr in aStr:
+    for aChr in aStr + ",":
         if isEscaped:
             currStr += aChr
             isEscaped = False
@@ -177,13 +117,107 @@ def ParseSTraceObject(aStr,isArray):
                     levelBrackets -= 1
                 elif aChr == ',':
                     if levelBrackets == 0:
-                        AppendArgToResult( theResult, currStr, isArray )
+                        valArg = currStr.strip()
+
+                        if not valArg:
+                            objToAdd = valArg
+                        elif valArg[0] == '[':
+                            if valArg[-1] != ']':
+                                objToAdd = "Error: Invalid array:%s"%valArg
+                            else:
+                                objToAdd = ParseSTraceObjectList( valArg[1:-1] )
+                        elif valArg[0] == '{':
+                            if valArg[-1] != '}':
+                                objToAdd = "Error: Invalid struct:%s"%valArg
+                            else:
+                                objToAdd = ParseSTraceObjectDict( valArg[1:-1] )
+                        else:
+                            objToAdd = valArg
+
+                        theResult.append( objToAdd )
+
                         currStr = ""
                         continue
             currStr += aChr
 
-    # If there is something in the string.
-    AppendArgToResult( theResult, currStr, isArray )
+    return theResult
+
+################################################################################
+
+# This transforms a structure as returned by strace, into a Python object.
+# The input is a string containing the arguments printed by strace.
+# The output is an array of strings with these arguments correctly split.
+# The arguments delimiter is a comma, if not between double quotes or brackets.
+# It is stripped of the surrounding curly braces or square brackets.
+# Beware that the input string might be incomplete: "{st_mode=S_IFREG|0644, st_size=121043, ...}"
+def ParseSTraceObjectDict(aStr):
+    theResult = {}
+
+    if not aStr:
+        return theResult
+
+    inQuotes = False
+    levelBrackets = 0
+    isEscaped = False
+    currStr = ""
+    for aChr in aStr + ",":
+        if isEscaped:
+            currStr += aChr
+            isEscaped = False
+        elif aChr == '\\':
+            isEscaped = True
+        elif aChr == '"':
+            inQuotes = not inQuotes
+        else:
+            if not inQuotes:
+                # This assumes that [] and {} are paired by strace so no need to check parity.
+                if aChr in ['{','[','(']:
+                    levelBrackets += 1
+                elif aChr in ['}',']',')']:
+                    levelBrackets -= 1
+                elif aChr == ',':
+                    if levelBrackets == 0:
+                        argClean = currStr.strip()
+
+                        # sys.stdout.write("argClean=%s\n"%argClean)
+
+                        # Special case of an unfinished struct. See strace option:
+                        # -v    Print unabbreviated versions of environment, stat, termios,  etc. calls.
+                        #       These structures are very common in calls and so the default behavior
+                        #       displays a reasonable subset of structure members. Use this option to get all of the gory details.
+                        if argClean.endswith("..."):
+                            return
+
+                        # TODO: Check if the key is valid ...
+                        # Some unexplainable case such as: "[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]"
+                        idxEqual = argClean.find("=")
+                        if idxEqual > 0:
+                            keyArg = argClean[:idxEqual].strip()
+                            valArg = argClean[idxEqual+1:]
+                        else:
+                            keyArg = ""
+                            valArg = argClean
+
+                        if not valArg:
+                            objToAdd = argClean
+                        elif valArg[0] == '[':
+                            if valArg[-1] != ']':
+                                objToAdd = "Error: Invalid array:%s"%valArg
+                            else:
+                                objToAdd = ParseSTraceObjectList( valArg[1:-1] )
+                        elif valArg[0] == '{':
+                            if valArg[-1] != '}':
+                                objToAdd = "Error: Invalid struct:%s"%valArg
+                            else:
+                                objToAdd = ParseSTraceObjectDict( valArg[1:-1] )
+                        else:
+                            objToAdd = valArg
+
+                        theResult[keyArg] = objToAdd
+
+                        currStr = ""
+                        continue
+            currStr += aChr
 
     return theResult
 
@@ -1954,7 +1988,7 @@ class BatchLetCore:
         # sys.stdout.write("%s oneLine1=%s" % (id(self),oneLine ) )
         self.m_tracer = tracer
 
-        if oneLine[0:4] == "[pid":
+        if oneLine.startswith( "[pid" ):
             idxAfterPid = oneLine.find("]")
 
             pidParsed = int( oneLine[ 4:idxAfterPid ] )
@@ -2132,7 +2166,8 @@ class BatchLetCore:
 
         allArgs = theCall[idxPar+1:idxLastPar]
         # sys.stdout.write("allArgs=%s\n"%allArgs)
-        self.m_parsedArgs = ParseSTraceObject( allArgs, True )
+        # self.m_parsedArgs = ParseSTraceObject( allArgs, True )
+        self.m_parsedArgs = ParseSTraceObjectList( allArgs )
 
         if self.m_status == BatchStatus.unfinished:
             # 18:46:10.920748 execve("/usr/bin/ps", ["ps", "-ef"], [/* 33 vars */] <unfinished ...>
@@ -2269,7 +2304,6 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
         return self.m_core.m_funcNam
 
     def GetSignatureWithArgs(self):
-        # return self.GetSignature() + ":" + "&".join( [ str(oneArg) for oneArg in self.SignificantArgs() ] )
         return self.m_core.m_funcNam + ":" + "&".join( map( str, self.m_significantArgs ) )
 
     # This is very often used.
