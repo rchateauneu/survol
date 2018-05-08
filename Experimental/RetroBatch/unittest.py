@@ -136,7 +136,9 @@ if __name__ == '__main__':
 
     verbose = 0
     withWarning = 0
-    mapParamsSummary = []
+    # By default, generate all summaries.
+    mapParamsSummary = dockit.fullMapParamsSummary
+
     withDockerfile = None
     diffFiles = False
 
