@@ -92,7 +92,7 @@ def CreateFlowsFromWindowsLogger(verbose,logStream):
 # The result might be an array or an object.
 # The input argument might be a single value or a key-value pair separated
 # by a "=" equal sign.
-def AppendArgToResultThrow( theResult, currStr, isArray ):
+def AppendArgToResult( theResult, currStr, isArray ):
     # sys.stdout.write("AppendArgToResult %s\n"%currStr)
     argClean = currStr.strip()
 
@@ -164,35 +164,30 @@ def ParseSTraceObject(aStr,isArray):
         if isEscaped:
             currStr += aChr
             isEscaped = False
-            continue
-        if aChr == '\\':
+        elif aChr == '\\':
             isEscaped = True
-            continue
-
-        if aChr == '"':
+        elif aChr == '"':
             inQuotes = not inQuotes
-            continue
-
-
-        if not inQuotes:
-            # This assumes that [] and {} are correctly paired by strace and therefore,
-            # it is not needed to check their parity.
-            if aChr in ['{','[','(']:
-                levelBrackets += 1
-            elif aChr in ['}',']',')']:
-                levelBrackets -= 1
-            elif aChr == ',':
-                if levelBrackets == 0:
-                    AppendArgToResultThrow( theResult, currStr, isArray )
-                    currStr = ""
-                    continue
-
-        currStr += aChr
+        else:
+            if not inQuotes:
+                # This assumes that [] and {} are paired by strace so no need to check parity.
+                if aChr in ['{','[','(']:
+                    levelBrackets += 1
+                elif aChr in ['}',']',')']:
+                    levelBrackets -= 1
+                elif aChr == ',':
+                    if levelBrackets == 0:
+                        AppendArgToResult( theResult, currStr, isArray )
+                        currStr = ""
+                        continue
+            currStr += aChr
 
     # If there is something in the string.
-    AppendArgToResultThrow( theResult, currStr, isArray )
+    AppendArgToResult( theResult, currStr, isArray )
 
     return theResult
+
+################################################################################
 
 # Returns the index of the closing parenthesis, not between quotes or escaped.
 def FindNonEnclosedPar(aStr,idxStart):
@@ -225,7 +220,6 @@ class ExceptionIsExit(Exception):
 
 class ExceptionIsSignal(Exception):
     pass
-
 
 ################################################################################
 
