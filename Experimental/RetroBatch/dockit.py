@@ -200,27 +200,23 @@ def FindNonEnclosedPar(aStr,idxStart):
     lenStr = len(aStr)
     inQuotes = False
     isEscaped = False
-    levelParenthesis = 0
+    levelParent = 0
     while idxStart < lenStr:
         aChr = aStr[idxStart]
         idxStart += 1
         if isEscaped:
             isEscaped = False
-            continue
-        if aChr == '\\':
+        elif aChr == '\\':
             isEscaped = True
-            continue
-        if aChr == '"':
+        elif aChr == '"':
             inQuotes = not inQuotes
-            continue
-
-        if not inQuotes:
+        elif not inQuotes:
             if aChr == '(':
-                levelParenthesis += 1
+                levelParent += 1
             elif aChr == ')':
-                if levelParenthesis == 0:
+                if levelParent == 0:
                     return idxStart - 1
-                levelParenthesis -= 1
+                levelParent -= 1
 
     return -1
 
