@@ -2668,6 +2668,15 @@ class BatchLetSys_access(BatchLetBase,object):
 
         self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
 
+class BatchLetSys_dup(BatchLetBase,object):
+    def __init__(self,batchCore):
+        super( BatchLetSys_dup,self).__init__(batchCore)
+
+        self.m_significantArgs = self.StreamName()
+
+        self.m_significantArgs.append( self.STraceStreamToFile( self.m_core.m_retValue ) )
+		# TODO: BEWARE, DUPLICATED ELEMENTS IN THE ARGUMENTS: SHOULD sort()+uniq()
+
 class BatchLetSys_dup2(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_dup2,self).__init__(batchCore)
