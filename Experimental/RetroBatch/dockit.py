@@ -480,11 +480,14 @@ class CIM_ComputerSystem (CIM_XmlMarshaller,object):
             self.VirtualMemoryUsed = vm[3]
             self.VirtualMemoryFree = vm[4]
 
-            cf = psutil.cpu_freq()
-            if cf:
-                self.CpuCurrent = cf[0]
-                self.CpuMinimum = cf[1]
-                self.CpuMaximum = cf[2]
+            try:
+                cf = psutil.cpu_freq()
+                if cf:
+                    self.CpuCurrent = cf[0]
+                    self.CpuMinimum = cf[1]
+                    self.CpuMaximum = cf[2]
+            except AttributeError:
+                pass
 
     @staticmethod
     def CreateMoniker(hostname):
@@ -3842,7 +3845,9 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
 
 
     numLine = 0
+    oneLine = ""
     while True:
+        prevLine = oneLine
         oneLine = ""
 
         # There are several cases of line ending with strace.
@@ -3883,6 +3888,7 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             oneLine += tmpLine[:-1]
 
         if not oneLine:
+            sys.stdout.write("Last line=%s"%prevLine)
             break
 
         # This parses the line into the basic parameters of a function call.
@@ -4156,6 +4162,8 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     else:
         Usage(1,"Must provide command, pid or input file")
 
+    dateTodayRun = time.strftime("%Y-%m-%d")
+
     if inputLogFile:
         logStream = open(inputLogFile)
         LogSource("File "+inputLogFile)
@@ -4169,7 +4177,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         mapKV = LoadIniFile(contextLogFile)
 
         G_CurrentDirectory = mapKV.get("CurrentDirectory",".")
-        G_Today = mapKV.get("Today","1999-12-31")
+        G_Today = mapKV.get("Today",dateTodayRun)
         G_ReplayMode = True
 
     else:
@@ -4180,7 +4188,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
         G_CurrentDirectory = "."
-        G_Today = "1999-12-31" # strftime  G_Today = time.strftime("%Y-%m-%d")
+        G_Today = dateTodayRun
 
         G_ReplayMode = False
 
@@ -4282,8 +4290,8 @@ fullMapParamsSummary = ["CIM_ComputerSystem","CIM_OperatingSystem","CIM_NetworkA
 
 def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary,summaryFormat, withDockerfile):
 
-    baseOutName, filOutExt = os.path.splitext(outFile)
-    if summaryFormat:
+    if outFile and summaryFormat:
+        baseOutName, filOutExt = os.path.splitext(outFile)
         outputSummaryFile = baseOutName + "." + summaryFormat.lower()
     else:
         outputSummaryFile = None
@@ -4425,7 +4433,7 @@ if __name__ == '__main__':
 
         # If not replaying, saves all parameters in an ini file.
         if not G_ReplayMode:
-            iniFilNam = fullPrefixNoExt + ".ini"
+            iniFilNam = fullPrefixNoExt + "ini"
             iniFd = open(iniFilNam,"w")
             iniFd.write('CurrentDirectory=%s\n' % os.getcwd() )
             # Necessary because ltrace and strace do not write the date.
