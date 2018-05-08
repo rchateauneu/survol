@@ -114,21 +114,23 @@ def AppendArgToResultThrow( theResult, currStr, isArray ):
         idxEqual = argClean.find("=")
         if idxEqual > 0:
             keyArg = argClean[:idxEqual].strip()
-            valArg = argClean[idxEqual+1:].strip()
+            valArg = argClean[idxEqual+1:]
         else:
             keyArg = ""
             valArg = argClean
     
-    if valArg == "":   
+    if not valArg:
         objToAdd = argClean
     elif valArg[0] == '[':
         if valArg[-1] != ']':
-            raise Exception("Invalid array:%s"%valArg)
-        objToAdd = ParseSTraceObject( valArg[1:-1], True )
+            objToAdd = "Error: Invalid array:%s"%valArg
+        else:
+            objToAdd = ParseSTraceObject( valArg[1:-1], True )
     elif valArg[0] == '{':
         if valArg[-1] != '}':
-            raise Exception("Invalid struct:%s"%valArg)
-        objToAdd = ParseSTraceObject( valArg[1:-1], False )
+            objToAdd = "Error: Invalid struct:%s"%valArg
+        else:
+            objToAdd = ParseSTraceObject( valArg[1:-1], False )
     else:
         objToAdd = valArg
 
@@ -151,6 +153,9 @@ def ParseSTraceObject(aStr,isArray):
     else:
         theResult = {}
 
+    if not aStr:
+        return theResult
+
     inQuotes = False
     levelBrackets = 0
     isEscaped = False
@@ -168,6 +173,7 @@ def ParseSTraceObject(aStr,isArray):
             inQuotes = not inQuotes
             continue
 
+
         if not inQuotes:
             # This assumes that [] and {} are correctly paired by strace and therefore,
             # it is not needed to check their parity.
@@ -177,30 +183,14 @@ def ParseSTraceObject(aStr,isArray):
                 levelBrackets -= 1
             elif aChr == ',':
                 if levelBrackets == 0:
-                    # AppendArgToResult( theResult, currStr, isArray )
-                    try:
-                        AppendArgToResultThrow( theResult, currStr, isArray )
-                    except:
-                        if isArray:
-                            theResult.append( "error" )
-                        else:
-                            theResult["error"] = "error"
+                    AppendArgToResultThrow( theResult, currStr, isArray )
                     currStr = ""
                     continue
 
         currStr += aChr
-        continue
 
     # If there is something in the string.
-    if aStr:
-        # AppendArgToResult( theResult, currStr, isArray )
-        try:
-            AppendArgToResultThrow( theResult, currStr, isArray )
-        except:
-            if isArray:
-                theResult.append( "error" )
-            else:
-                theResult["error"] = "error"
+    AppendArgToResultThrow( theResult, currStr, isArray )
 
     return theResult
 
@@ -718,17 +708,6 @@ class CIM_Process (CIM_XmlMarshaller,object):
         strm.write("%s</CIM_Process>\n" % ( margin ) )
 
     @staticmethod
-    def CalcSubprocess(cimKeyValuePairs):
-        #"""This rebuilds the tree of subprocesses seen from the top. """
-        #for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-        #    objInstance.m_subProcesses = []
-
-        #for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-        #    if objInstance.m_parentProcess:
-        #        objInstance.m_parentProcess.m_subProcesses.append(objInstance)
-        pass
-
-    @staticmethod
     def TopProcessFromProc(objInstance):
         """This returns the top-level parent of a process."""
         while True:
@@ -754,8 +733,6 @@ class CIM_Process (CIM_XmlMarshaller,object):
 
     @classmethod
     def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
-        CIM_Process.CalcSubprocess(cimKeyValuePairs)
-
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
         for objPath,objInstance in sorted( G_mapCacheObjects[CIM_Process.__name__].items() ):
