@@ -41,10 +41,10 @@ Monitors and factorizes systems calls.
 Examples:
 =========
 
-Typical strace or ltrace commands are:
+This list some examples, with the strace or ltrace commands internally created and. It is always possible to run thees commands separately, and feed dockit with it, in replay mode. Typical strace or ltrace commands are:
 
-Command ls with strace:
------------------------
+Command "ls" with strace:
+-------------------------
 The default trace program is strace.
 
 dockit.py ls
@@ -55,13 +55,13 @@ Attaching to process 4233:
 dockit.py -p 4233
 strace -q -qq -f -tt -T -s 200 -y -yy -e trace=desc,ipc,process,network,memory -p 4233
 
-Command ps, traced with ltrace:
--------------------------------
+Command "ps", traced with ltrace:
+---------------------------------
 The command-line option -t allows to choose a tracer command.
 dockit.py -t ltrace ps -ef
 ltrace -tt -T -f -S -s 200 -e -*+getenv+*@SYS ps -ef
 
-Command netstat. Stores the result:
+Command "netstat". Stores the result:
 -----------------------------------
 
 dockit.py -l XYZ -t ltrace netstat
