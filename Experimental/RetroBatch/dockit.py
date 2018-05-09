@@ -1105,11 +1105,13 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
         except KeyError:
             return
 
+        setPorts = set()
         for objPath,objInstance in mapFiles:
             try:
-                yield objInstance.Port
+                setPorts.add( objInstance.Port )
             except AttributeError:
                 pass
+        return setPorts
 
 
 # This contains the CIM objects: CIM_Process, CIM_DataFile and
@@ -1895,8 +1897,15 @@ def GenerateDockerFile(dockerFilename):
     fdDockerFile.write("\n")
 
     portsList = CIM_DataFile.GetExposedPorts()
-    for onePort in portsList:
-        fdDockerFile.write("EXPOSE %s\n"%onePort)
+    if portsList:
+        fdDockerFile.write("# Port numbers:\n")
+        for onePort in portsList:
+            try:
+                txtPort = socket.getservbyport(int(onePort))
+                fdDockerFile.write("# Service: %s\n"%txtPort)
+            except:
+                fdDockerFile.write("# Unknown service number: %s\n"%onePort)
+            fdDockerFile.write("EXPOSE %s\n"%onePort)
         fdDockerFile.write("\n")
 
     WriteEnvironVar()
