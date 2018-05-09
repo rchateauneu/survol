@@ -32,12 +32,33 @@ def InternalUnitTests_ParseSTraceObject():
           ["","cd"] ),
         ( '"12345",""',
           ["12345",""] ),
+        ( '3</usr/lib64/libpthread-2.21.so>, "xyz", 832',
+          ['3</usr/lib64/libpthread-2.21.so>', 'xyz', '832']),
+        ( '3</usr/lib64/libc-2.21.so>, "\177ELF\2\1\1\3\>\0"..., 832',
+          ['3</usr/lib64/libc-2.21.so>', '\x7fELF\x02\x01\x01\x03>\x00...', '832'] ),
+        ( '6</usr/lib64/python2.7/posixpath.pyc>, {st_mode=S_IFREG|0644, st_size=11420, ...}',
+          ['6</usr/lib64/python2.7/posixpath.pyc>', None] ),
+        ( '1<pipe:[7124131]>, TCGETS, 0x7ffe58d35d60',
+          ['1<pipe:[7124131]>', 'TCGETS', '0x7ffe58d35d60'] ),
+        ( '3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>, SOL_IP, IP_TOS, [8], 4',
+          ['3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>', 'SOL_IP', 'IP_TOS', ['8'], '4'] ),
+        ( '"/usr/bin/python", ["python", "TestProgs/big_mysql_"...], [/* 37 vars */]',
+          ['/usr/bin/python', ['python', 'TestProgs/big_mysql_...'], ['/* 37 vars */']] ),
+        ( '0</dev/pts/2>, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2)}',
+          ['0</dev/pts/2>', {'st_rdev': 'makedev(136, 2)', 'st_mode': 'S_IFCHR|0620'}] ),
+        ( '48<UNIX:[15589121->15589122]>, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="\10\0\0\0\371\224\206r\237,\216\27\0", iov_len=40}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, MSG_DONTWAIT <unfinished ...>',
+          ['48<UNIX:[15589121->15589122]>', {'msg_iov': [{'': '\x8e\x17\x00', 'iov_len': '40', 'iov_base': '\x08\x00\x00\x00\xf9\x94\x86r\x9f'}], 'msg_iovlen': '1', 'msg_namelen': '0', 'msg_controllen': '0', 'msg_name': 'NULL', 'msg_flags': '0'}, 'MSG_DONTWAIT <unfinished ...>'] ),
+        ( '4<TCPv6:[::1:59094->::1:6015]>, [{iov_base="(\4\4\0\20\0", iov_len=16}, {iov_base=NULL, iov_len=0}, {iov_base="", iov_len=0}], 3 <unfinished ...>',
+          ['4<TCPv6:[::1:59094->::1:6015]>', [], '3 <unfinished ...>'] ),
     ]
 
     for tupl in dataTst:
+        # The input string theoretically starts and ends with parenthesis,
+        # but the closing one might not be there.
+        # Therefore it should be tested with and without the closing parenthesis.
         resu = dockit.ParseSTraceObjectList(tupl[0])
         if resu != tupl[1]:
-            raise Exception("Fail:%s != %s" % ( str(tupl[1]), resu ) )
+            raise Exception("Fail:%s != %s" % ( str(tupl[1]), str(resu) ) )
 
 def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
 
