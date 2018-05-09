@@ -41,7 +41,7 @@ Monitors and factorizes systems calls.
 Examples:
 =========
 
-This list some examples, with the strace or ltrace commands internally created and. It is always possible to run thees commands separately, and feed dockit with it, in replay mode. Typical strace or ltrace commands are:
+This list some examples, with the strace or ltrace commands internally created and. It is always possible to run thees commands separately, and feed dockit with it, in replay mode. All examples are documented in the ini files. Typical strace or ltrace commands are:
 
 Command "ls" with strace:
 -------------------------
@@ -98,77 +98,104 @@ ABC.strace.29887.docker:
 
 
 
-Future directions:
-==================
+Next steps:
+===========
 
-More aggregation of data 
+Survol ?
+--------
+Survol is an interactive tool for analysing and exploring a computer system. 
+It extracts and displays managed elements in an IT environment, represented in the Common Information Model (CIM) open standard as a common set of objects and relationships between them.
 
+The elements extracted by DockIT can be displayed by Survol, along with other information.
+Both tools are orthogonal: DockIT brings to Survol its temporal dimension,
+as opposed to Survol snapshots.
 
-(2) Reduction, aggregation et filtrage
-On elimine ce qui est inutile, on aggrege des operations repetitives.
-=> On discerne les blocs fonctionnels: Processes, fichiers, requetes SQL,
-on separe les traitements differents: pics de traitement, pids, threads.
-On connait le role de telle ou telle librairie.
+To interface DockIT and Survol, DockIT starts a HTTP server displaying the same objects as the Survol scripts,
+fetched from its internal cache of objects.
+It is then up to the browser to connect to a more general Survol browser.
 
-(3) Matching avec les objects metiers.
-On apparie les "traces" avec des objets metiers en fonctions
-des time-stamps, pid, sockets, fichiers etc...
+Another approach is to have Survol scripts which will access a running DockIT script,
+or start one. This can work to monitor a running process, but cannot work when an entire
+system is being monitored as a whole, running specific commands in a specific environment.
 
-Qu'est ce qui est fait ?
-========================
-(1) sous Linux
-(2) en partie seulement.
+A technical possibility was to use Python interprocess queues. Python processes (Such as started by WSGI)
+would write CIM elements creations, updates or deletes in these queues which would be read
+by the HTTP server, from a script. The role of the script would simply be to start a data 
+server if need be, then read data from the queue.
 
-Par rapport a "Survol":
-=======================
-Survol est un outil interactif d'analyse et d'exploration d'un systeme existant.
-Il fait des snapshots de ressources en cours d'execution ou d'exploitation,
-et les presente dans plusieurs interface: WEB, texte, SVG etc...
+DockIT would then be one type of data server: It would work as now, but:
+- Without files generation (Log, summary, Dockerfile).
+- Writing elements create, update or delete events to the queue.
 
-Mine-IT apporte la dimension temporelle aux objets presente par Survol:
-Ils sont orthogonaux en ceci que survol explore les relations
-entre les objects a un instant T, tandis que Mine-IT suit leur evolution.
-COMMANDES:
+User libraries calls:
+---------------------
+At the moment, only system calls are analysed although ltrace allows to trace
+any shareable library.
+A specific module should probably be created per library.
 
-EXEMPLEQ:
+More efficiency, less storage, with a data window:
+--------------------------------------------------
+At the moment, all intermediate data are stored into memory, and used
+at scritp's end, when various files are created.
 
-Extension to process mining:
-============================
-L idee est d appliquer les concepts du "Process Mining" au deroulement technique d'un
-systeme d informations, d un ensemble de taches, dont a priori on ne sait rien.
+It would be more efficient to store data in a small window, a circular buffer.
+This would allow to monitor an application without limitation
+of time and space.
 
-Qu'est ce que le process mining ? https://en.wikipedia.org/wiki/Process_mining#Overview
-=================================
-D'apres wikipedia, c'est un ensemble de techniques
-issue du Business Process Management ( https://fr.wikipedia.org/wiki/Business_Process_Management ),
-et qui permet l'analyse de processus metiers en partant de fichiers de logs,
-c est a dire de l historique technique d une suite d'operations metiers.
-Ces fichiers de logs peuvent etre crees par tout outil utilise par l entreprise,
-et peuvent concerner toute ressource de celle-ci: Suite d operations client,
-d'intervention du personnel, de transformations sur des produits etc...
+More data aggregation:
+----------------------
 
-Pendant le process mining, des algorithmes specifiques sont utilises sur les fichiers de logs
-pour identifier des patters des tendances, extraire des details, aggreger des operations
-de base.
+At the moment, system calls are aggregated in another output file,
+strongly reducing its size, for the same synthetic information.
+It is possible to go further into this direction
+to give a better overview of what a program is really doing:
+- Extracts the valuable inforation moved in IOs (SQL queries, any data ...)
+- Separate distinct processing streams, based on different pids, threads,
+and processing peaks; the goal being to apply processing mining techniques
+to streams of instructions.
+ 
 
-Il suffit qu on puisse ramener chaque operation de base d'un log,
-a un triplet: CaseId, Activite, timeStamp, pour que les algorithmes du Process Mining puisse s'appliquer.
+Faire tourner scikit-learn sur la fenetre d'appels et afficher les sorties.
+Il faudrait faire l'apprentissage avec n'importe quoi:
+- Predire les prochains appels.
+- Estimer ce que ca fait en fonction de cas stockes: Hard-copy de l ecran. Contenu des fichiers.
 
-Ici, on considere les ressoucres techniques comme faisant partie des ressources de l entreprise,
-et composents au plus bas niveau des processus metiers.
+Machine learning:
+-----------------
+The aggregated system calls can be transformed into free text describing the running operations:
+System calls - possibly grouped, parameters, buffers content.
+This contains only the interaction of the system with the outside world.
+This can be associated with other data coming from the program: Graphic display,
+network operations, database operations etc...
 
-C'est par exemple le meilleur modele des batches quotidiens.
-Et meme sans documentation, cette informnation est toujours disponible.,
-bien que tres technique et difficile a relier
-aux objects metier; Mais cette relation existe.
+scikit-learn module provide simple and efficient tools for data mining and data analysis,
+notably for classification, clustering, feature extraction etc...
 
-L'objectif de MineIT est de relier les fichiers de logs des batchs,
-que objets metiers du client, en s'appuyant sur les concepts du Process Mining.
+The plan is to apply these techniques on the aggregated calls,
+in order to enhance the software understanding, by:
+- Isolating logical steps
+- Detecting common patterns
+- Qualifying streams of processing will well-known activities
 
-D'emblee, quelques remarques:
+Process mining:
+---------------
+Process mining is a family of techniques in the field of process management that support the analysis of business processes based on event logs. It is required that the event logs data be linked to a case ID, activities, and timestamps.
 
-* Generer des logs fiables, est une fonctionnalite en elle-meme,
-que MineIT realise: Il n'y a donc pas besoin d'autres outils.
-* Remonter des objets techniques aux ressources metiers: C'est un process iteratif,
-par nature imprecis en l'absence de documentation, et toujours ameliorable.
+The goal is to extract or synthetize case ID and activities from the system calls log files,
+to result in models describing business processes.
+
+Process mining techniques are able, with such logs,
+to extract patterns, details etc...
+
+What is only needed is to transform the system calls logs into triplets of:
+Case id, activity and time stamp.
+
+For this framework to be applicable, technical resources have to be considered
+as being part of the resources of the company, and are the at the lowest level of the business processes.
+
+The technical resources are related in some way with the higher-level business objects.
+The difficulty is that this relation is not documented, or not one-to-one.
+The goal is to discover this relation between the technical objects in call logs,
+and the business objects, whose processing yields these call logs.
+This association is an iterative process, potentially helped by a user.
 
