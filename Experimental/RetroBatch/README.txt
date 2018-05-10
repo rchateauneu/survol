@@ -20,7 +20,7 @@ Command line options:
 dockit.py -h
 
 Loaded packages cache file:FileToPackageCache.vps516494.localdomain.txt
-Retrobatch: ./dockit.py <executable>
+DockIT: ./dockit.py <executable>
 Monitors and factorizes systems calls.
   -h,--help                     This message.
   -v,--verbose                  Verbose mode (Cumulative).
@@ -35,7 +35,6 @@ Monitors and factorizes systems calls.
   -F,--summary-format TXT|XML   Summary output format. Default is XML.
   -i,--input <file name>        trace command input file.
   -l,--log <filename prefix>    trace command log output file.
-
   -t,--tracer strace|ltrace|cdb command for generating trace log
 
 Examples:
