@@ -60,7 +60,7 @@ def InternalUnitTests_ParseSTraceObject():
         if resu != tupl[1]:
             raise Exception("Fail:%s != %s" % ( str(tupl[1]), str(resu) ) )
 
-def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
+def DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile):
 
     # This iterates on the input test files and generates the "compressed" output.as
     #  After that we can check if the results are as expected.
@@ -120,9 +120,6 @@ def DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile):
             # "txt", "json" etc...
             outputFormat = filOutExt[1:].upper()
 
-            # It should be the same whatever the output format is.
-            # outputSummaryFile = baseName + ".xml"
-
             # In tests, the summary output format is always XML.
             dockit.UnitTest(inputLogFile,tracer,aPid,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning,withDockerfile)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
@@ -140,7 +137,6 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -w,--warning                  Display warnings (Cumulative).")
     print("  -s,--summary <CIM class>      With summary.")
     print("  -D,--dockerfile               Generates a dockerfile for each sample.")
-    print("  -d,--diff                     Differences.")
     print("")
 
     sys.exit(exitCode)
@@ -172,8 +168,6 @@ if __name__ == '__main__':
             mapParamsSummary = mapParamsSummary + [ aVal ] if aVal else []
         elif anOpt in ("-D", "--dockerfile"):
             withDockerfile = True
-        elif anOpt in ("-d", "--diff"):
-            diffFiles = aVal
         elif anOpt in ("-h", "--help"):
             Usage(0)
         else:
@@ -183,7 +177,7 @@ if __name__ == '__main__':
     InternalUnitTests_ParseSTraceObject()
     print("Internal tests OK.")
 
-    DoTheTests(verbose,diffFiles,mapParamsSummary,withWarning,withDockerfile)
+    DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile)
     print("Tests done")
 
 
