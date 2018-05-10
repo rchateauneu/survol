@@ -132,6 +132,33 @@ At the moment, only system calls are analysed although ltrace allows to trace
 any shareable library.
 A specific module should probably be created per library.
 
+Port to Microsoft Windows:
+--------------------------
+Apparently, there is no tool similar to ltrace or strace.
+The solution is to use the existing module pygdb:
+- Port to Python3 (Using pygdb3)
+- Remove what is not needed (PE, pydasm)
+
+Notification of created processes:
+----------------------------------
+
+There is a need to track the unexpected creation of processes.
+Suggestion to notify the creation of processes from a given user or group,
+adding the command-line options:
+ -u --user
+ -g --group
+
+Information here about linux process monitoring (exec, fork, exit, set*uid, set*gid)
+http://bewareofgeek.livejournal.com/2945.html
+https://stackoverflow.com/questions/26852228/detect-new-process-creation-instantly-in-linux
+https://stackoverflow.com/questions/6075013/detect-launching-of-programs-on-linux-platform
+ 
+Its is also possible (desirable ?) to track creation of files in a given directory,
+and monitor the processes accessing them:
+https://www.eventtracker.com/newsletters/how-to-use-process-tracking-events-in-the-windows-security-log/
+https://pypi.python.org/pypi/inotify
+
+
 More efficiency, less storage, with a data window:
 --------------------------------------------------
 At the moment, all intermediate data are stored into memory, and used
