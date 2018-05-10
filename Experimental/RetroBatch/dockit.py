@@ -622,7 +622,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
         # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
         self.Handle = procId
         self.m_parentProcess = None
-        self.m_subProcesses = []
+        self.m_subProcesses = set()
         self.CreationDate = 0 # 0 so it can still be compared.
         self.TerminationDate = 0 # 0 so it can still be compared.
 
@@ -808,7 +808,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
         if int(self.Handle) == int(objCIM_Process.Handle):
             raise Exception("Self-parent")
         self.m_parentProcess = objCIM_Process
-        objCIM_Process.m_subProcesses.append(self)
+        objCIM_Process.m_subProcesses.add(self)
 
     def AddParentProcess(self, timeStamp, objCIM_Process):
         self.SetParentProcess( objCIM_Process )
