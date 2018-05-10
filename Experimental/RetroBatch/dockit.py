@@ -39,7 +39,7 @@ def Usage(exitCode = 1, errMsg = None):
         print(errMsg)
 
     progNam = sys.argv[0]
-    print("Retrobatch: %s <executable>"%progNam)
+    print("DockIT: %s <executable>"%progNam)
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                     This message.")
     print("  -v,--verbose                  Verbose mode (Cumulative).")
@@ -60,10 +60,6 @@ def Usage(exitCode = 1, errMsg = None):
 
 # Example to create a new unit test:
 # ./dockit.py -D -l UnitTests/mineit_firefox  -t  ltrace bash firefox
-
-
-# Explain how categories can be filtered.
-# Pre-defined clusters.
 
     sys.exit(exitCode)
 
@@ -288,13 +284,11 @@ def IsCIM(attr,attrVal):
 
 G_cacheFileAccesses = None
 
+# This models an open/read-or-write/close access from a process to a file.
+# The same process may access several times the same file,
+# producing several FileAccess objects.
 # This is displayed in XML as a single tag:
-# <FileAccess OpenTime="" CloseTime=""
-## If this class is added to a CIM_DataFile, it also has a member ProcessHandle.
-#
-# If this class is added to a CIM_Process, it also has a member FileName
-
-
+# <FileAccess OpenTime="" CloseTime="" etc... />
 class FileAccess:
     def __init__(self,objProcess,objDataFile):
         self.OpenTime = None
@@ -315,6 +309,12 @@ class FileAccess:
         if not self.OpenTime or (timeStamp < self.OpenTime):
             self.OpenTime = timeStamp
 
+            try:
+                filStat = os.stat( self.m_objectCIM_DataFile.FileName )
+                self.OpenSize = filStat.st_size
+            except:
+                pass
+
         # Strictly speaking, from now on, this is accessible from the cache.
         G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile] = self
 
@@ -322,8 +322,15 @@ class FileAccess:
         global G_cacheFileAccesses
 
         # Maybe the file was never closed.
-        if not getattr(self,"FileCloseTime",0) or (timeStamp < self.FileCloseTime):
-            self.FileCloseTime = timeStamp
+        if not getattr(self,"CloseTime",0) or (timeStamp < self.CloseTime):
+            self.CloseTime = timeStamp
+
+            try:
+                filStat = os.stat( self.m_objectCIM_DataFile.FileName )
+                self.CloseSize = filStat.st_size
+            except:
+                pass
+
         # Then remove the object from the cache so it cannot be returned
         # anymore from this process and this file because it is closed.
         del G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile]
@@ -360,8 +367,12 @@ class FileAccess:
 
         if self.OpenTime:
             strm.write(" OpenTime='%s'" % TimeStampToStr( self.OpenTime ) )
+        if getattr(self,'OpenSize',0):
+            strm.write(" OpenSize=%s" % ( self.OpenSize ) )
         if self.CloseTime:
             strm.write(" CloseTime='%s'" % TimeStampToStr( self.CloseTime ) )
+        if getattr(self,'CloseSize',0):
+            strm.write(" CloseSize=%s" % ( self.CloseSize ) )
         if getattr(self,'NumReads',0):
             strm.write(" NumReads=%s" % ( self.NumReads ) )
         if getattr(self,'BytesRead',0):
@@ -454,6 +465,8 @@ class CIM_XmlMarshaller:
 
 ################################################################################
 
+# The CIM_xxx classes are taken from Common Information Model standard.
+# They share some properties and are adding more.
 
 # class CIM_ComputerSystem : CIM_System
 # {
@@ -619,7 +632,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
 
         self.m_ProcessFileAccesses = []
 
-        if not G_ReplayMode and psutil:
+        if not G_ReplayMode:
             # Maybe this cannot be accessed.
             if sys.platform.startswith("linux"):
                 filnamEnviron = "/proc/%d/environ" % self.Handle
@@ -696,7 +709,6 @@ class CIM_Process (CIM_XmlMarshaller,object):
 
                 if firstProcObj.Handle == procId:
                     raise Exception("Duplicate procid:%s"%procId)
-                # self.m_parentProcess = firstProcObj
                 self.SetParentProcess( firstProcObj )
         except KeyError:
             # This is the first process.
@@ -806,7 +818,6 @@ class CIM_Process (CIM_XmlMarshaller,object):
         # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
         self.TerminationDate = timeStamp
         if not self.m_parentProcess:
-            # self.m_parentProcess = objCIM_Process
             self.SetParentProcess( objCIM_Process )
             # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.Handle,objCIM_Process.Handle))
         elif self.m_parentProcess != objCIM_Process:
@@ -821,12 +832,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
         self.Executable = objCIM_DataFile.FileName
         self.m_ExecutableObject = objCIM_DataFile
 
-
-
-        # TODO TODO
-        # aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
-
-
+        # TODO: Maybe should GetFileAccess()
 
     def SetCommandLine(self,lstCmdLine) :
         # TypeError: sequence item 7: expected string, dict found
@@ -1124,8 +1130,6 @@ G_EnvironmentVariables = None
 
 def CreateObjectPath(classModel, *ctorArgs):
     global G_mapCacheObjects
-    #if classModel.__name__ == "CIM_Process":
-    #    sys.stdout.write("ctorArgs=%s\n"%str(ctorArgs))
     try:
         mapObjs = G_mapCacheObjects[classModel.__name__]
     except KeyError:
@@ -1135,17 +1139,9 @@ def CreateObjectPath(classModel, *ctorArgs):
     objPath = classModel.CreateMoniker(*ctorArgs)
     try:
         theObj = mapObjs[objPath]
-        #if classModel.__name__ == "CIM_Process":
-        #    sys.stdout.write("objPath=%s found\n"%objPath)
     except KeyError:
-        #if classModel.__name__ == "CIM_Process":
-        #    sys.stdout.write("objPath=%s NOT found\n"%objPath)
         theObj = classModel(*ctorArgs)
-        #if classModel.__name__ == "CIM_Process":
-        #    sys.stdout.write("theObj.Handle=%s\n"%theObj.Handle)
         mapObjs[objPath] = theObj
-        #if classModel.__name__ == "CIM_Process":
-        #    sys.stdout.write("keys=%s\n"%str(mapObjs.keys()))
     return theObj
 
 
@@ -1249,7 +1245,7 @@ def PathCategory(pathName):
 # The values can be regular expressions.
 # key-value pairs in the expressions are matched one-to-one with objects.
 
-# rgxObjectPath = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
+# Example: rgxObjectPath = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
 def ParseFilterCIM(rgxObjectPath):
     idxDot = rgxObjectPath.find(".")
     if idxDot < 0 :
@@ -1378,7 +1374,11 @@ def PathToPythonModuleOneFile_OldOldOldOld(path):
             if path in [ os.path.normpath( os.path.join(distDirectory, p) ) for p in paths]:
                 yield dist
 
-# setPythonModules, unknownDataFiles = FilesToPythonModules(unpackagedDataFiles)
+# This takes as input a list of files, some of them installed by Python modules,
+# and others having nothing to do with Python. It returns two data structures:
+# - The set of unique Python modules, some files come from.
+# - The remaining list of files, not coming from any Python module.
+# This allow to reproduce an environment.
 def FilesToPythonModules(unpackagedDataFiles):
     setPythonModules = set()
     unknownDataFiles = []
@@ -1475,7 +1475,6 @@ class FileToPackage:
             if lstPacks== None:
                 # The cache is not filled with valid data.
                 self.m_validCache = False
-                onePack = []
             else:
                 self.m_dirtyCache = True
 
@@ -2176,6 +2175,12 @@ class BatchLetCore:
         else:
             idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
 
+
+        # TODO: This can be simplified:
+        # ParseSTraceObjectList takes an index for the start of the string.
+        # It returns the end of the string, so FindNonEnclosedPar() becomes useless.
+
+
         allArgs = theCall[idxPar+1:idxLastPar]
         self.m_parsedArgs = ParseSTraceObjectList( allArgs )
 
@@ -2213,6 +2218,8 @@ def CreateBatchCore(oneLine,tracer):
 
 ################################################################################
 
+# These system calls are not taken into account beause they do not give
+# any dependency between the process and other resources.
 G_ignoredSyscalls = [
     "mprotect",
     "brk",
@@ -2284,6 +2291,7 @@ class BatchMeta(type):
 def my_with_metaclass(meta, *bases):
     return meta("NewBase", bases, {})
 
+# All class modeling a system call inherit from this.
 class BatchLetBase(my_with_metaclass(BatchMeta) ):
 
     # The style tells if this is a native call or an aggregate of function
@@ -2354,6 +2362,7 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
 
 ################################################################################
 
+# Formatting function specific to TXT mode output file.
 def FmtTim(aTim):
     return time.strftime("%H:%M:%S", time.gmtime(aTim))
 
@@ -2432,7 +2441,7 @@ class BatchDumperJSON(BatchDumperBase):
     def Footer(self):
         self.m_strm.write( ']\n' )
 
-
+# The file of aggregated system calls can be output in several formats.
 def BatchDumperFactory(strm, outputFormat):
     BatchDumpersDictionary = {
         "TXT"  : BatchDumperTXT,
@@ -2524,7 +2533,7 @@ class BatchLetSys_open(BatchLetBase,object):
             # open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so>
             # Therefore the returned file should be SignificantArgs(),
             # not the input file.
-            self.m_significantArgs = [ self.STraceStreamToFile( self.m_core.m_retValue ) ]
+            filObj = self.STraceStreamToFile( self.m_core.m_retValue )
         elif batchCore.m_tracer == "ltrace":
             # The option "-y" which writes the complete path after the file descriptor,
             # is not available for ltrace.
@@ -2537,10 +2546,12 @@ class BatchLetSys_open(BatchLetBase,object):
 
             # TODO: Should be cleaned up when closing ?
             G_mapFilDesToPathName[ filDes ] = pathName
-            self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( pathName ) ]
+            filObj = self.ToObjectPath_Accessed_CIM_DataFile( pathName )
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
-        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+
+        self.m_significantArgs = [ filObj ]
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(filObj)
         aFilAcc.SetOpenTime(self.m_core.m_timeStart)
 
 # The important file descriptor is the returned value.
@@ -2553,7 +2564,7 @@ class BatchLetSys_openat(BatchLetBase,object):
 
         # Same logic as for open().
         if batchCore.m_tracer == "strace":
-            self.m_significantArgs = [ self.STraceStreamToFile( self.m_core.m_retValue ) ]
+            filObj = self.STraceStreamToFile( self.m_core.m_retValue )
         elif batchCore.m_tracer == "ltrace":
             dirNam = self.m_core.m_parsedArgs[0]
         
@@ -2572,10 +2583,12 @@ class BatchLetSys_openat(BatchLetBase,object):
 
             # TODO: Should be cleaned up when closing ?
             G_mapFilDesToPathName[ filDes ] = pathName
-            self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( pathName ) ]
+            filObj = self.ToObjectPath_Accessed_CIM_DataFile( pathName )
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
-        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
+
+        self.m_significantArgs = [ filObj ]
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(filObj)
         aFilAcc.SetOpenTime(self.m_core.m_timeStart)
 
 class BatchLetSys_close(BatchLetBase,object):
@@ -2710,7 +2723,7 @@ class BatchLetSys_dup(BatchLetBase,object):
         self.m_significantArgs = self.StreamName()
 
         self.m_significantArgs.append( self.STraceStreamToFile( self.m_core.m_retValue ) )
-		# TODO: BEWARE, DUPLICATED ELEMENTS IN THE ARGUMENTS: SHOULD sort()+uniq()
+        # TODO: BEWARE, DUPLICATED ELEMENTS IN THE ARGUMENTS: SHOULD sort()+uniq()
 
 class BatchLetSys_dup2(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -2914,7 +2927,6 @@ class BatchLetSys_vfork(BatchLetBase,object):
         self.m_significantArgs = [ objNewProcess ]
 
         objNewProcess.AddParentProcess(self.m_core.m_timeStart,self.m_core.m_objectProcess)
-        # self.m_core.m_objectProcess.CreateSubprocess(objNewProcess)
 
     # Process creations are not aggregated, not to lose the new pid.
     def SameCall(self,anotherBatch):
@@ -3289,10 +3301,7 @@ class BatchLetLib_getenv(BatchLetBase,object):
         # FIXME: Should have one map per process ?
         G_EnvironmentVariables[envNam] = envVal
         
-        # self.m_significantArgs = []
 
-        
-        
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python', '', '4096'] ==>> 7 (16:42:10,16:42:10)
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2', 'python2', '4096'] ==>> 9 (16:42:10,16:42:10)
 #F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2.7', 'python2.7', '4096'] ==>> -22 (16:42:10,16:42:10)
@@ -3810,7 +3819,6 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
     # If shell=True, the command must be passed as a single line.
     pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
         stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # stdin=subprocess.PIPE, stdout=subprocess.PIPE, stdout=subprocess.PIPE)
 
     # If shell argument is True, this is the process ID of the spawned shell.
     if aPid > 0:
@@ -3954,36 +3962,18 @@ G_ignoredCallLTrace = [
 # their arguments.
 # So we filter them additively.
 
-# mandatoryCallLTrace = [
-  #   "getenv",
-# ]
-
-#-brk@SYS
-#-rt_sigaction@SYS"   gcc TestProgs/HelloWorld.c
-#]
-
 # The command options generate a specific output file format,
 # and therefore parsing it is specific to these options.
 def BuildLTraceCommand(extCommand,aPid):
-    # We do not want these libc calls.
-    # strIgnoreLibc = "".join( "-" + libcCall for libcCall in G_ignoredCallLTrace )
 
-    # strMandatoryLibc = "".join( "-" + libcCall for libcCall in mandatoryCallLTrace )
-
-    # Remove everything, then add system calls and some libc functions whatever the shared lib
-
-    # Remove everything, then add system calls and some libc functions whatever the shared lib
     # This selects:
     # libpython2.7.so.1.0->getenv, cx_Oracle.so->getenv, libclntsh.so.11.1->getenv, libresolv.so.2->getenv etc...
     strMandatoryLibc = "-*+getenv+*@SYS"
 
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
-    # This needs long strings because path names are truncated just like
-    # normal strings.
+    # This needs long strings because path names are truncated like normal strings.
     aCmd = ["ltrace",
         "-tt", "-T", "-f", "-S", "-s", "200", 
-        # "-e", strIgnoreLibc + strIgnoredSysCall
-        # "-e", strIgnoreLibc
         "-e", strMandatoryLibc
         ]
 
@@ -4294,7 +4284,8 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 
 ################################################################################
 
-# All possible summaries. Data needed to generate a docker file.
+# All possible summaries. Data created for the summaries are also needed
+# to generate a docker file. So, summaries are calculated if Dockerfile is asked.
 fullMapParamsSummary = ["CIM_ComputerSystem","CIM_OperatingSystem","CIM_NetworkAdapter","CIM_Process","CIM_DataFile"]
 
 def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary,summaryFormat, withDockerfile):
@@ -4466,85 +4457,5 @@ if __name__ == '__main__':
     FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFilNam, mapParamsSummary, summaryFormat, withDockerfile )
 
 ################################################################################
-# Options:
-# -p pid
-# -u user
-# -g group
-
-# https://www.eventtracker.com/newsletters/how-to-use-process-tracking-events-in-the-windows-security-log/
-# https://stackoverflow.com/questions/26852228/detect-new-process-creation-instantly-in-linux
-# https://stackoverflow.com/questions/6075013/detect-launching-of-programs-on-linux-platform
-
-# An adapter to Linux kernel support for inotify directory-watching.
-# https://pypi.python.org/pypi/inotify
-# As an aside, Inotify doesn't work. It will not work on /proc/ to detect new processes:
-
-# linux process monitoring (exec, fork, exit, set*uid, set*gid)
-# http://bewareofgeek.livejournal.com/2945.html
-
+# The End.
 ################################################################################
-# Cas de figure:
-# findstr "wait4 vfork" UnitTests\mineit_gcc_incomplete.strace.log
-#
-#             08:53:31.301860 vfork( <unfinished ...>
-# [pid 23944] 08:53:31.304901 <... vfork resumed> ) = 23945 <0.003032>
-# [pid 23944] 08:53:31.304921 wait4(23945,  <unfinished ...>
-#             08:53:31.335463 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 23945 <0.030535>
-#             08:53:31.335744 vfork( <unfinished ...>
-# [pid 23944] 08:53:31.336179 <... vfork resumed> ) = 23946 <0.000427>
-# [pid 23944] 08:53:31.336196 wait4(23946,  <unfinished ...>
-#             08:53:31.348242 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 23946 <0.012039>
-#             08:53:31.349322 vfork( <unfinished ...>
-# [pid 23944] 08:53:31.349554 <... vfork resumed> ) = 23947 <0.000222>
-# [pid 23944] 08:53:31.349571 wait4(23947,  <unfinished ...>
-# [pid 23947] 08:53:31.353394 vfork( <unfinished ...>
-# [pid 23947] 08:53:31.353725 <... vfork resumed> ) = 23948 <0.000323>
-# [pid 23947] 08:53:31.353797 wait4(23948,  <unfinished ...>
-# [pid 23947] 08:53:31.478920 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 23948 <0.125108>
-#             08:53:31.479748 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 23947 <0.130171>
-#
-#
-# findstr "wait4 vfork" UnitTests\mineit_gcc_incomplete.strace.txt
-# Pid= 23947 M'vfork@SYS' ['CIM_Process.Handle="23948"'] ==>> 23948
-# Pid= 23947 M'wait4@SYS' ['CIM_Process.Handle="23948"'] ==>> 23948
-# Pid= 23944 U'wait4@SYS' ['23945', ''] ==>> None
-# Pid= 23944 R'vfork@SYS' [] ==>> 23945
-# Pid= 23944 R'vfork@SYS' [] ==>> 23946
-# Pid= 23944 U'wait4@SYS' ['23946', ''] ==>> None
-# Pid= 23944 R'vfork@SYS' [] ==>> 23947
-# Pid= 23944 U'wait4@SYS' ['23947', ''] ==>> None
-# Pid=    -1 U'vfork@SYS' [] ==>> None (08:53:31,08:53:31)
-# Pid=    -1 R'wait4@SYS' [[{'WIFEXITED(s) && WEXITSTATUS(s)': '= 0'}], '0', 'NULL'] ==>> 23945
-# Pid=    -1 U'vfork@SYS' [] ==>> None
-# Pid=    -1 R'wait4@SYS' [[{'WIFEXITED(s) && WEXITSTATUS(s)': '= 0'}], '0', 'NULL'] ==>> 23946
-# Pid=    -1 U'vfork@SYS' [] ==>> None
-# Pid=    -1 R'wait4@SYS' [[{'WIFEXITED(s) && WEXITSTATUS(s)': '= 0'}], '0', 'NULL'] ==>> 23947
-#
-#
-# TODO:
-# When creating the generic container of CIM objects, they can point to each other.
-# For example, each process gets the list of files it opens or accesses.
-#
-# This is the native container of objects which is never destroyed.
-# Object are stored "flat": For example, there is no process tree.
-# Also, CIM_DataFile are stored "flat".
-
-# The secondary repository of objects is created on requests (Possibly from a GET/PUT request).
-# It is able to work on an incomplete primary objects container.
-# It dispatches CIM_DataFile using the regular expressions, into several subdirectories.
-# Files can be described with "magic" or "file" or whatever method.
-#
-# For each process, it analyses the accessed files and create the list of source files
-# and source/libraries dependencies.
-# Par exemple, si xxx.py et xxx.pyc sont accedes, on ne garde que le second.
-# This takes only the top-level module names.
-# Same for DLLs: it does not explicit all dependencies.
-#
-# It also calls specific module which do specific transformations from the primary to secondary container.
-# For example, a module looks for tnsnames.ora and adds an Oracle data tree.
-#
-# This second pass can produce a XML file, a JSON document or a Dockerfile.
-# Dockerfile recommendation: "One process per container", if they are very different of course.
-#
-# Use "getenv" to access specific environment variables: ORACLE_HOME, TNS_ADMIN, PYPATH, CLASS_PATH etc...
-#
