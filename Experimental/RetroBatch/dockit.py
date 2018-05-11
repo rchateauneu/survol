@@ -253,6 +253,154 @@ class ExceptionIsSignal(Exception):
 
 ################################################################################
 
+# This starts immediately after an open parenthesis or bracket.
+# It returns an index on the closing parenthesis, or equal to the string length.
+def ParseCallArguments(strArgs,ixStart = 0,isList = True,margin=""):
+    lenStr = len(strArgs)
+
+    theResult = [] if isList else {}
+    # theResult = []
+    finished = False
+    inQuotes = False
+    levelParent = 0
+    isEscaped = False
+    while ixStart < lenStr and strArgs[ixStart] in [' ']: ixStart += 1
+    ixCurr = ixStart
+
+    # This can be done more efficiently.
+    ixUnfinished = strArgs.find("<unfinished ...>",ixStart)
+    if ixUnfinished >= 0:
+        lenStr = ixUnfinished
+
+
+
+    while (ixCurr < lenStr) and not finished:
+
+        aChr = strArgs[ixCurr]
+        ixCurr += 1
+        #print(margin+"aChr=",aChr," ixStart=",ixStart," ixCurr=",ixCurr)
+
+        if isEscaped:
+            isEscaped = False
+            continue
+
+        if aChr == '\\':
+            isEscaped = True
+            continue
+
+        if aChr == '"':
+            inQuotes = not inQuotes
+            continue
+
+        if inQuotes:
+            continue
+
+        # This assumes that [] and {} are paired by strace so no need to check parity.
+        if aChr == '[':
+            if ixCurr == ixStart +1:
+                objToAdd, ixNext = ParseCallArguments( strArgs, ixCurr, True, margin + "    " )
+                #if not theResult: theResult = []
+                #theResult.append( objToAdd )
+                if isList:
+                    theResult.append( objToAdd )
+                else:
+                    theResult[""] = objToAdd
+
+                while ixNext < lenStr and strArgs[ixNext] in [' ',',']: ixNext += 1
+                ixStart = ixNext
+                ixCurr = ixStart
+                continue
+            levelParent += 1
+
+        if aChr == '{':
+            if ixCurr == ixStart +1:
+                objToAdd, ixNext = ParseCallArguments( strArgs, ixCurr, False, margin + "    " )
+                #if not theResult: theResult = []
+                if isList:
+                    theResult.append( objToAdd )
+                else:
+                    theResult[""] = objToAdd
+                while ixNext < lenStr and strArgs[ixNext] in [' ',',']: ixNext += 1
+                ixStart = ixNext
+                ixCurr = ixStart
+                continue
+            levelParent += 1
+
+        if aChr == '(':
+            levelParent += 1
+
+        if aChr in [')',']','}']:
+            levelParent -= 1
+            if levelParent == -1:
+                finished = True
+
+                if ixCurr == ixStart +1:
+                    continue
+                #print("aChr=",aChr," level=",levelParent," finished=",finished)
+            else:
+                continue
+
+        if finished or (aChr in [',','  )',']','}'] and levelParent == 0) :
+            ixBeg = ixStart
+            while ixBeg < lenStr and strArgs[ixBeg] in [' ','"']: ixBeg += 1
+            #ixEnd = ixCurr-1
+            #while strArgs[ixEnd] in [',',')',']','}',' ','"'] and ixBeg <= ixEnd: ixEnd -= 1
+            ixEnd = ixCurr-2
+            while strArgs[ixEnd] == '"' and ixBeg <= ixEnd: ixEnd -= 1
+            argClean = strArgs[ixBeg:ixEnd + 1]
+            #print("argClean1=",argClean)
+
+            # Special case due to truncated strings.
+            if argClean.endswith('"...'):
+                argClean = argClean[:-4] + "..."
+                #print("argClean1 truncated=",argClean)
+
+            #if argClean.find("<unfinished ...>") < 0:
+            if not argClean.startswith("<unfinished ...>"):
+                if isList:
+                    #if not theResult: theResult = []
+                    theResult.append( argClean )
+                else:
+                    #if not theResult: theResult = {}
+                    idxEqual = argClean.find("=")
+                    if idxEqual > 0:
+                        keyArg = argClean[:idxEqual].strip()
+                        valArg = argClean[idxEqual+1:]
+                        theResult[keyArg] = valArg
+                    else:
+                        theResult[""] = argClean
+                        #theResult.append( argClean )
+
+            while ixCurr < lenStr and strArgs[ixCurr] in [' ']: ixCurr += 1
+            ixStart = ixCurr
+            continue
+
+    #if not theResult: theResult = []
+    if (ixStart < lenStr) and not finished:
+        ixBeg = ixStart
+        while ixBeg < lenStr and strArgs[ixBeg] in [' ','"']: ixBeg += 1
+        ixEnd = lenStr-1
+        while strArgs[ixEnd] in [',',')',']','}',' ','"'] and ixBeg <= ixEnd: ixEnd -= 1
+        #while strArgs[ixEnd] in ['"'] and ixBeg <= ixEnd: ixEnd -= 1
+        argClean = strArgs[ixBeg:ixEnd + 1]
+        #print("argClean2=",argClean)
+        if argClean.endswith('"...'):
+            argClean = argClean[:-4] + "..."
+            #print("argClean2 truncated=",argClean)
+        # if argClean.find("<unfinished ...>") < 0:
+        if not argClean.startswith("<unfinished ...>"):
+            if isList:
+                theResult.append( argClean )
+            else:
+                theResult[""] = argClean
+
+    return theResult,ixCurr
+
+
+
+
+################################################################################
+
 # dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
 # fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
 # + arborescence des fils lances avec les memes informations 
@@ -2170,19 +2318,7 @@ class BatchLetCore:
 
             self.SetFunction( theCall[:idxPar] )
 
-        if self.m_status == BatchStatus.unfinished:
-            idxLastPar = idxLT - 1
-        else:
-            idxLastPar = FindNonEnclosedPar(theCall,idxPar+1)
-
-
-        # TODO: This can be simplified:
-        # ParseSTraceObjectList takes an index for the start of the string.
-        # It returns the end of the string, so FindNonEnclosedPar() becomes useless.
-
-
-        allArgs = theCall[idxPar+1:idxLastPar]
-        self.m_parsedArgs = ParseSTraceObjectList( allArgs )
+        self.m_parsedArgs, idxLastPar = ParseCallArguments(theCall,idxPar+1)
 
         if self.m_status == BatchStatus.unfinished:
             # 18:46:10.920748 execve("/usr/bin/ps", ["ps", "-ef"], [/* 33 vars */] <unfinished ...>
@@ -2606,17 +2742,29 @@ class BatchLetSys_close(BatchLetBase,object):
 
 class BatchLetSys_read(BatchLetBase,object):
     def __init__(self,batchCore):
+        try:
+            bytesRead = int(batchCore.m_retValue)
+        except ValueError:
+            # Probably a race condition: invalid literal for int() with base 10: 'read@SYS(31'
+            # Or: "read(31</tmp>, 0x7ffdd2592930, 8192) = -1 EISDIR (Is a directory)"
+            if batchCore.m_retValue.find("EISDIR") >= 0:
+                return
+            # Or: "read(9<pipe:[15588394]>, 0x7f77a332a7c0, 1024) = -1 EAGAIN"
+            if batchCore.m_retValue.find("EAGAIN") >= 0:
+                return
+
+            # Or: "read(0</dev/pts/2>,  <detached ...>"
+            # TODO: Should be processed specifically.
+
+            sys.stdout.write("Error parsing retValue=%s\n" % ( batchCore.m_retValue) )
+            return
+
         super( BatchLetSys_read,self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
 
-        try:
-            bytesRead = int(self.m_core.m_retValue)
-            aFilAcc.SetRead(bytesRead)
-        except ValueError:
-            # Probably a race condition: invalid literal for int() with base 10: 'read@SYS(31'
-            sys.stdout.write("Error parsing retValue=%s\n" % ( batchCore.m_retValue) )
+        aFilAcc.SetRead(bytesRead)
 
 # The process id is the return value but does not have the same format
 # with ltrace (hexadecimal) and strace (decimal).
@@ -3136,7 +3284,14 @@ class BatchLetSys_poll(BatchLetBase,object):
                 retList = []
                 for oneStream in arrStrms:
                     # oneStream: {'fd': '5<anon_inode:[eventfd]>', 'events': 'POLLIN'}
-                    fdName = oneStream["fd"]
+                    # TEMP
+                    if isinstance(oneStream,list):
+                        for key,val in oneStream:
+                            if key == 'fd':
+                                fdName = val
+                                break
+                    else:
+                        fdName = oneStream["fd"]
 
                 filOnly = self.STraceStreamToFile( fdName )
                 retList.append( filOnly )
@@ -3492,7 +3647,11 @@ def BatchLetFactory(batchCore):
         
         if batchCoreMerged:
             assert batchCoreMerged == batchCore
-            btchLetDrv = aModel( batchCoreMerged )
+            try:
+                btchLetDrv = aModel( batchCoreMerged )
+            except:
+                sys.stdout.write("Cannot create derived class %s from args:%s\n" % ( aModel.__name__,str(batchCore.m_parsedArgs)))
+                raise
         else:
             # Could not find the matching unfinished batch.
             # Still we try the degraded mode if it is available.
@@ -3919,7 +4078,11 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         if batchCore:
 
             # Based on the function call, it creates a specific derived class.
-            aBatch = BatchLetFactory(batchCore)
+            try:
+                aBatch = BatchLetFactory(batchCore)
+            except:
+                sys.stdout.write("Line:%d Error parsing:%s"%(numLine,oneLine))
+                raise
 
             # Some functions calls should simply be forgotten because there are
             # no side effects, so simply forget them.

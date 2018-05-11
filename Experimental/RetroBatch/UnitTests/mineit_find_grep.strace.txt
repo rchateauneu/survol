@@ -1935,7 +1935,7 @@ Pid=  9896 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="/home/rchatea
 Pid=  9896 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (18:43:33,18:43:33)
 
 ================== PID=-1
-Pid=    -1 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/find"', ['find', '..', '-type', 'f', '-exec', 'grep', 'Hello', {}, ';']] ==>> 0 (18:43:33,18:43:33)
+Pid=    -1 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/find"', ['find', '..', '-type', 'f', '-exec', 'grep', 'Hello', '{}', ';']] ==>> 0 (18:43:33,18:43:33)
 Pid=    -1 {   1/Args} '(open@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/etc/ld.so.cache"'] ==>> N/A (18:43:33,18:43:33)
 Pid=    -1 {   1/Args} '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib64/libselinux.so.1"'] ==>> N/A (18:43:33,18:43:33)
 Pid=    -1 {   1/Args} '(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)' ['CIM_DataFile.Name="/usr/lib64/libm-2.25.so"'] ==>> N/A (18:43:33,18:43:33)
