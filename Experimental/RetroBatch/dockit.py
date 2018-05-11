@@ -80,171 +80,6 @@ def CreateFlowsFromWindowsLogger(verbose,logStream):
 
 ################################################################################
 
-# This transforms a structure as returned by strace, into a Python object.
-# The input is a string containing the arguments printed by strace.
-# The output is an array of strings with these arguments correctly split.
-# The arguments delimiter is a comma, if not between double quotes or brackets.
-# It is stripped of the surrounding curly braces or square brackets.
-# Beware that the input string might be incomplete: "{st_mode=S_IFREG|0644, st_size=121043, ...}"
-def ParseSTraceObjectList(aStr):
-    theResult = []
-
-    if not aStr:
-        return theResult
-
-    inQuotes = False
-    levelBrackets = 0
-    isEscaped = False
-    currStr = ""
-    for aChr in aStr + ",":
-        if isEscaped:
-            currStr += aChr
-            isEscaped = False
-        elif aChr == '\\':
-            isEscaped = True
-        elif aChr == '"':
-            inQuotes = not inQuotes
-        else:
-            if not inQuotes:
-                # This assumes that [] and {} are paired by strace so no need to check parity.
-                if aChr in ['{','[','(']:
-                    levelBrackets += 1
-                elif aChr in ['}',']',')']:
-                    levelBrackets -= 1
-                elif aChr == ',':
-                    if levelBrackets == 0:
-                        valArg = currStr.strip()
-
-                        if not valArg:
-                            objToAdd = valArg
-                        elif valArg[0] == '[':
-                            if valArg[-1] != ']':
-                                objToAdd = "Error: Invalid array:%s"%valArg
-                            else:
-                                objToAdd = ParseSTraceObjectList( valArg[1:-1] )
-                        elif valArg[0] == '{':
-                            if valArg[-1] != '}':
-                                objToAdd = "Error: Invalid struct:%s"%valArg
-                            else:
-                                objToAdd = ParseSTraceObjectDict( valArg[1:-1] )
-                        else:
-                            objToAdd = valArg
-
-                        theResult.append( objToAdd )
-
-                        currStr = ""
-                        continue
-            currStr += aChr
-
-    return theResult
-
-################################################################################
-
-# This transforms a structure as returned by strace, into a Python object.
-# The input is a string containing the arguments printed by strace.
-# The output is an array of strings with these arguments correctly split.
-# The arguments delimiter is a comma, if not between double quotes or brackets.
-# It is stripped of the surrounding curly braces or square brackets.
-# Beware that the input string might be incomplete: "{st_mode=S_IFREG|0644, st_size=121043, ...}"
-def ParseSTraceObjectDict(aStr):
-    theResult = {}
-
-    if not aStr:
-        return theResult
-
-    inQuotes = False
-    levelBrackets = 0
-    isEscaped = False
-    currStr = ""
-    for aChr in aStr + ",":
-        if isEscaped:
-            currStr += aChr
-            isEscaped = False
-        elif aChr == '\\':
-            isEscaped = True
-        elif aChr == '"':
-            inQuotes = not inQuotes
-        else:
-            if not inQuotes:
-                # This assumes that [] and {} are paired by strace so no need to check parity.
-                if aChr in ['{','[','(']:
-                    levelBrackets += 1
-                elif aChr in ['}',']',')']:
-                    levelBrackets -= 1
-                elif aChr == ',':
-                    if levelBrackets == 0:
-                        argClean = currStr.strip()
-
-                        # sys.stdout.write("argClean=%s\n"%argClean)
-
-                        # Special case of an unfinished struct. See strace option:
-                        # -v    Print unabbreviated versions of environment, stat, termios,  etc. calls.
-                        #       These structures are very common in calls and so the default behavior
-                        #       displays a reasonable subset of structure members. Use this option to get all of the gory details.
-                        if argClean.endswith("..."):
-                            return
-
-                        # TODO: Check if the key is valid ...
-                        # Some unexplainable case such as: "[{WIFEXITED(s) && WEXITSTATUS(s) == 0}]"
-                        idxEqual = argClean.find("=")
-                        if idxEqual > 0:
-                            keyArg = argClean[:idxEqual].strip()
-                            valArg = argClean[idxEqual+1:]
-                        else:
-                            keyArg = ""
-                            valArg = argClean
-
-                        if not valArg:
-                            objToAdd = argClean
-                        elif valArg[0] == '[':
-                            if valArg[-1] != ']':
-                                objToAdd = "Error: Invalid array:%s"%valArg
-                            else:
-                                objToAdd = ParseSTraceObjectList( valArg[1:-1] )
-                        elif valArg[0] == '{':
-                            if valArg[-1] != '}':
-                                objToAdd = "Error: Invalid struct:%s"%valArg
-                            else:
-                                objToAdd = ParseSTraceObjectDict( valArg[1:-1] )
-                        else:
-                            objToAdd = valArg
-
-                        theResult[keyArg] = objToAdd
-
-                        currStr = ""
-                        continue
-            currStr += aChr
-
-    return theResult
-
-################################################################################
-
-# Returns the index of the closing parenthesis, not between quotes or escaped.
-def FindNonEnclosedPar(aStr,idxStart):
-    # sys.stdout.write("FindNonEnclosedPar idxStart=%d aStr=%s\n" % (idxStart, aStr ) )
-    lenStr = len(aStr)
-    inQuotes = False
-    isEscaped = False
-    levelParent = 0
-    while idxStart < lenStr:
-        aChr = aStr[idxStart]
-        idxStart += 1
-        if isEscaped:
-            isEscaped = False
-        elif aChr == '\\':
-            isEscaped = True
-        elif aChr == '"':
-            inQuotes = not inQuotes
-        elif not inQuotes:
-            if aChr == '(':
-                levelParent += 1
-            elif aChr == ')':
-                if levelParent == 0:
-                    return idxStart - 1
-                levelParent -= 1
-
-    return -1
-
 class ExceptionIsExit(Exception):
     pass
 
@@ -253,9 +88,10 @@ class ExceptionIsSignal(Exception):
 
 ################################################################################
 
+# Parsing of the arguments of the systems calls printed by strace and ltrace.
 # This starts immediately after an open parenthesis or bracket.
 # It returns an index on the closing parenthesis, or equal to the string length.
-def ParseCallArguments(strArgs,ixStart = 0,isList = True,margin=""):
+def ParseCallArguments(strArgs,ixStart = 0,isList = True):
     lenStr = len(strArgs)
 
     theResult = [] if isList else {}
@@ -264,21 +100,17 @@ def ParseCallArguments(strArgs,ixStart = 0,isList = True,margin=""):
     inQuotes = False
     levelParent = 0
     isEscaped = False
-    while ixStart < lenStr and strArgs[ixStart] in [' ']: ixStart += 1
+    while ixStart < lenStr and strArgs[ixStart] == ' ': ixStart += 1
     ixCurr = ixStart
 
-    # This can be done more efficiently.
     ixUnfinished = strArgs.find("<unfinished ...>",ixStart)
     if ixUnfinished >= 0:
         lenStr = ixUnfinished
-
-
 
     while (ixCurr < lenStr) and not finished:
 
         aChr = strArgs[ixCurr]
         ixCurr += 1
-        #print(margin+"aChr=",aChr," ixStart=",ixStart," ixCurr=",ixCurr)
 
         if isEscaped:
             isEscaped = False
@@ -298,30 +130,25 @@ def ParseCallArguments(strArgs,ixStart = 0,isList = True,margin=""):
         # This assumes that [] and {} are paired by strace so no need to check parity.
         if aChr == '[':
             if ixCurr == ixStart +1:
-                objToAdd, ixNext = ParseCallArguments( strArgs, ixCurr, True, margin + "    " )
-                #if not theResult: theResult = []
-                #theResult.append( objToAdd )
+                objToAdd, ixStart = ParseCallArguments( strArgs, ixCurr, True)
                 if isList:
                     theResult.append( objToAdd )
                 else:
                     theResult[""] = objToAdd
 
-                while ixNext < lenStr and strArgs[ixNext] in [' ',',']: ixNext += 1
-                ixStart = ixNext
+                while ixStart < lenStr and strArgs[ixStart] in [' ',',']: ixStart += 1
                 ixCurr = ixStart
                 continue
             levelParent += 1
 
         if aChr == '{':
             if ixCurr == ixStart +1:
-                objToAdd, ixNext = ParseCallArguments( strArgs, ixCurr, False, margin + "    " )
-                #if not theResult: theResult = []
+                objToAdd, ixStart = ParseCallArguments( strArgs, ixCurr, False)
                 if isList:
                     theResult.append( objToAdd )
                 else:
                     theResult[""] = objToAdd
-                while ixNext < lenStr and strArgs[ixNext] in [' ',',']: ixNext += 1
-                ixStart = ixNext
+                while ixStart < lenStr and strArgs[ixStart] in [' ',',']: ixStart += 1
                 ixCurr = ixStart
                 continue
             levelParent += 1
@@ -333,66 +160,48 @@ def ParseCallArguments(strArgs,ixStart = 0,isList = True,margin=""):
             levelParent -= 1
             if levelParent == -1:
                 finished = True
-
                 if ixCurr == ixStart +1:
                     continue
-                #print("aChr=",aChr," level=",levelParent," finished=",finished)
             else:
                 continue
 
-        if finished or (aChr in [',','  )',']','}'] and levelParent == 0) :
-            ixBeg = ixStart
-            while ixBeg < lenStr and strArgs[ixBeg] in [' ','"']: ixBeg += 1
-            #ixEnd = ixCurr-1
-            #while strArgs[ixEnd] in [',',')',']','}',' ','"'] and ixBeg <= ixEnd: ixEnd -= 1
+        if (aChr in [',',')',']','}'] and levelParent == 0) or finished :
+            while ixStart < lenStr and strArgs[ixStart] in [' ','"']: ixStart += 1
             ixEnd = ixCurr-2
-            while strArgs[ixEnd] == '"' and ixBeg <= ixEnd: ixEnd -= 1
-            argClean = strArgs[ixBeg:ixEnd + 1]
-            #print("argClean1=",argClean)
+            while strArgs[ixEnd] == '"' and ixStart <= ixEnd: ixEnd -= 1
+            argClean = strArgs[ixStart:ixEnd + 1]
 
             # Special case due to truncated strings.
             if argClean.endswith('"...'):
                 argClean = argClean[:-4] + "..."
-                #print("argClean1 truncated=",argClean)
 
-            #if argClean.find("<unfinished ...>") < 0:
-            if not argClean.startswith("<unfinished ...>"):
-                if isList:
-                    #if not theResult: theResult = []
-                    theResult.append( argClean )
-                else:
-                    #if not theResult: theResult = {}
-                    idxEqual = argClean.find("=")
-                    if idxEqual > 0:
-                        keyArg = argClean[:idxEqual].strip()
-                        valArg = argClean[idxEqual+1:]
-                        theResult[keyArg] = valArg
-                    else:
-                        theResult[""] = argClean
-                        #theResult.append( argClean )
-
-            while ixCurr < lenStr and strArgs[ixCurr] in [' ']: ixCurr += 1
-            ixStart = ixCurr
-            continue
-
-    #if not theResult: theResult = []
-    if (ixStart < lenStr) and not finished:
-        ixBeg = ixStart
-        while ixBeg < lenStr and strArgs[ixBeg] in [' ','"']: ixBeg += 1
-        ixEnd = lenStr-1
-        while strArgs[ixEnd] in [',',')',']','}',' ','"'] and ixBeg <= ixEnd: ixEnd -= 1
-        #while strArgs[ixEnd] in ['"'] and ixBeg <= ixEnd: ixEnd -= 1
-        argClean = strArgs[ixBeg:ixEnd + 1]
-        #print("argClean2=",argClean)
-        if argClean.endswith('"...'):
-            argClean = argClean[:-4] + "..."
-            #print("argClean2 truncated=",argClean)
-        # if argClean.find("<unfinished ...>") < 0:
-        if not argClean.startswith("<unfinished ...>"):
             if isList:
                 theResult.append( argClean )
             else:
-                theResult[""] = argClean
+                idxEqual = argClean.find("=")
+                if idxEqual > 0:
+                    keyArg = argClean[:idxEqual].strip()
+                    valArg = argClean[idxEqual+1:]
+                    theResult[keyArg] = valArg
+                else:
+                    # BEWARE: These are not really named members.
+                    theResult[""] = argClean
+
+            while ixCurr < lenStr and strArgs[ixCurr] == ' ': ixCurr += 1
+            ixStart = ixCurr
+
+    if (ixStart < lenStr) and not finished:
+        while ixStart < lenStr and strArgs[ixStart] in [' ','"']: ixStart += 1
+        ixEnd = lenStr-1
+        while strArgs[ixEnd] in [',',')',']','}',' ','"'] and ixStart <= ixEnd: ixEnd -= 1
+        argClean = strArgs[ixStart:ixEnd + 1]
+        if argClean.endswith('"...'):
+            argClean = argClean[:-4] + "..."
+        if isList:
+            theResult.append( argClean )
+        else:
+            # BEWARE: These are not really named members.
+            theResult[""] = argClean
 
     return theResult,ixCurr
 
@@ -2305,7 +2114,7 @@ class BatchLetCore:
                 # Special case, when it is leaving:
                 elif (self.m_tracer == "strace"):
                     if ( oneLine.find("<... exit resumed>) = ?") >= 0 ):
-                        sys.stdout.write("Warning strace exit:%s\n"%oneLine)
+                        sys.stdout.write("Warning strace exit:%s"%oneLine)
                         self.SetDefaultOnError()
                         return
 
