@@ -122,8 +122,6 @@ def InternalUnitTests_ParseSTraceObject():
         # Therefore it should be tested with and without the closing parenthesis.
         resu,idx = dockit.ParseCallArguments(tupl[0])
         if resu != tupl[1]:
-            otherStr = dockit.ParseSTraceObjectList(tupl[0])
-            sys.stdout.write("otherStr=%s\n"%otherStr)
             raise Exception("\n     Fail:%s\nSHOULD BE:%s" % ( str(resu),str(tupl[1])  ) )
 
         if idx != tupl[2]:
