@@ -3515,4 +3515,4 @@ Pid=  4233 {   1/Orig}M'wait4@SYS           ' ['CIM_Process.Handle="5602"'] ==>>
 Pid=  4233 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="5601"'] ==>> 5601 (19:59:20,19:59:20)
 Pid=  4233 {   3/Orig} 'ioctl@SYS           ' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> 0 (19:59:20,19:59:20)
 Pid=  4233 {   1/Orig} 'wait4@SYS           ' ['-1', '0x7fffa5fca610', 'WNOHANG|WSTOPPED|WCONTINUED', 'NULL'] ==>> -1 ECHILD (No child processes) (19:59:20,19:59:20)
-Pid=  4233 {   1/Args} '((write@SYS+ioctl@SYS)+(write@SYS+read@SYS))' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> N/A (19:59:20,19:59:20)
+Pid=  4233 {   1/Args} '((write@SYS+ioctl@SYS)+write@SYS)' ['CIM_DataFile.Name="/dev/pts/2"'] ==>> N/A (19:59:20,19:59:20)

@@ -904,12 +904,12 @@ Pid= 18194 {   1/Orig} 'close@SYS           ' ['CIM_DataFile.Name="pipe:[587230]
 Pid= 18194 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (08:26:47,08:26:47)
 
 ================== PID=18193
-Pid= 18193 {   1/Orig}U'wait4@SYS           ' ['-1', ''] ==>> None (08:26:47,08:26:47)
+Pid= 18193 {   1/Orig}U'wait4@SYS           ' ['-1'] ==>> None (08:26:47,08:26:47)
 Pid= 18193 {   1/Orig}M'close@SYS           ' ['CIM_DataFile.Name="pipe:[586559]"'] ==>> 0 (08:26:47,08:26:47)
 Pid= 18193 {   1/Orig}M'clone@SYS           ' ['CIM_Process.Handle="18196"'] ==>> 18196 (08:26:47,08:26:47)
 Pid= 18193 {   1/Orig}M'close@SYS           ' ['CIM_DataFile.Name="pipe:[586559]"'] ==>> 0 (08:26:47,08:26:47)
 Pid= 18193 {   1/Orig}M'wait4@SYS           ' ['CIM_Process.Handle="18196"'] ==>> 18196 (08:26:47,08:26:47)
-Pid= 18193 {   2/Orig}U'wait4@SYS           ' ['-1', ''] ==>> None (08:26:47,08:26:47)
+Pid= 18193 {   2/Orig}U'wait4@SYS           ' ['-1'] ==>> None (08:26:47,08:26:47)
 
 ================== PID=-1
 Pid=    -1 {   1/Orig} 'execve@SYS          ' ['CIM_DataFile.Name="/usr/bin/bash"', ['bash', 'TestProgs/sample_she...']] ==>> 0 (08:26:47,08:26:47)
