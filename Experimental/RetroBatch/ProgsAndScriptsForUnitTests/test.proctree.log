@@ -1,0 +1,36 @@
+12:43:54.334660 execve("/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>
+12:43:54.351205 vfork( <unfinished ...>
+[pid 19353] 12:43:54.353230 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", ["/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", "-quiet", "ProgsAndScriptsForUnitTests/HelloWorld.c", "-quiet", "-dumpbase", "HelloWorld.c", "-mtune=generic", "-march=x86-64", "-auxbase", "HelloWorld", "-O3", "-o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */ <unfinished ...>
+[pid 19351] 12:43:54.353461 <... vfork resumed> ) = 19353 <0.002239>
+[pid 19351] 12:43:54.353502 wait4(19353,  <unfinished ...>
+[pid 19353] 12:43:54.353866 <... execve resumed> ) = 0 <0.000557>
+[pid 19353] 12:43:54.468360 exit_group(0) = ?
+12:43:54.469190 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 19353 <0.115666>
+12:43:54.469217 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19353, si_uid=1001, si_status=0, si_utime=2, si_stime=1} ---
+12:43:54.469708 vfork( <unfinished ...>
+[pid 19354] 12:43:54.470903 execve("/u01/app/oracle/product/11.2.0/xe/bin/as", ["as", "--64", "-o", "/tmp/ccajVp6K.o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */) = -1 ENOENT (No such file or directory) <0.000132>
+[pid 19354] 12:43:54.471761 execve("/usr/local/bin/as", ["as", "--64", "-o", "/tmp/ccajVp6K.o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */) = -1 ENOENT (No such file or directory) <0.000037>
+[pid 19354] 12:43:54.471997 execve("/usr/bin/as", ["as", "--64", "-o", "/tmp/ccajVp6K.o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */ <unfinished ...>
+[pid 19351] 12:43:54.472143 <... vfork resumed> ) = 19354 <0.002423>
+[pid 19351] 12:43:54.472159 wait4(19354,  <unfinished ...>
+[pid 19354] 12:43:54.472530 <... execve resumed> ) = 0 <0.000492>
+[pid 19354] 12:43:54.492949 exit_group(0) = ?
+12:43:54.493438 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 19354 <0.021274>
+12:43:54.493460 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19354, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+12:43:54.494581 vfork( <unfinished ...>
+[pid 19355] 12:43:54.499593 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/collect2", ["/usr/libexec/gcc/x86_64-redhat-linux/7/collect2", "-plugin", "/usr/libexec/gcc/x86_64-redhat-linux/7/liblto_plugin.so", "-plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/7/lto-wrapper", "-plugin-opt=-fresolution=/tmp/cc3Y2UNm.res", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "--build-id", "--no-add-needed", "--eh-frame-hdr", "--hash-style=gnu", "-m", "elf_x86_64", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crt1.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crti.o", "/usr/lib/gcc/x86_64-redhat-linux/7/crtbegin.o", "-L/usr/lib/gcc/x86_64-redhat-linux/7", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64", "-L/lib/../lib64", "-L/usr/lib/../lib64", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../..", "/tmp/ccajVp6K.o", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "-lc", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "/usr/lib/gcc/x86_64-redhat-linux/7/crtend.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crtn.o"], 0x175eac0 /* 37 vars */ <unfinished ...>
+[pid 19351] 12:43:54.499796 <... vfork resumed> ) = 19355 <0.005197>
+[pid 19351] 12:43:54.499813 wait4(19355,  <unfinished ...>
+[pid 19355] 12:43:54.499922 <... execve resumed> ) = 0 <0.000233>
+[pid 19355] 12:43:54.504213 vfork( <unfinished ...>
+[pid 19356] 12:43:54.506472 execve("/usr/bin/ld", ["/usr/bin/ld", "-plugin", "/usr/libexec/gcc/x86_64-redhat-linux/7/liblto_plugin.so", "-plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/7/lto-wrapper", "-plugin-opt=-fresolution=/tmp/cc3Y2UNm.res", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "--build-id", "--no-add-needed", "--eh-frame-hdr", "--hash-style=gnu", "-m", "elf_x86_64", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crt1.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crti.o", "/usr/lib/gcc/x86_64-redhat-linux/7/crtbegin.o", "-L/usr/lib/gcc/x86_64-redhat-linux/7", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64", "-L/lib/../lib64", "-L/usr/lib/../lib64", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../..", "/tmp/ccajVp6K.o", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "-lc", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "/usr/lib/gcc/x86_64-redhat-linux/7/crtend.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crtn.o"], 0x7ffc023b8fd0 /* 37 vars */ <unfinished ...>
+[pid 19355] 12:43:54.506621 <... vfork resumed> ) = 19356 <0.002398>
+[pid 19355] 12:43:54.506674 wait4(19356,  <unfinished ...>
+[pid 19356] 12:43:54.506760 <... execve resumed> ) = 0 <0.000216>
+[pid 19356] 12:43:54.606281 exit_group(0) = ?
+[pid 19355] 12:43:54.606691 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 19356 <0.100010>
+[pid 19355] 12:43:54.606712 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19356, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+[pid 19355] 12:43:54.608051 exit_group(0) = ?
+12:43:54.608189 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 19355 <0.108370>
+12:43:54.608213 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19355, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+12:43:54.608378 exit_group(0)           = ?
