@@ -1533,15 +1533,19 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             os.makedirs(dstDir)
         dstPath = dockerDirectory + "/" + pathName
         try:
+            # Copy the file at the right place, so "docker build" can find it.
             shutil.copy(pathName, dstPath)
         except IOError:
             sys.stdout.write("Failed copy %s to %s\n"%(pathName,dstPath) )
+            # Maybe the file is not there because this is in replay mode,
+            # rerunning a session form the log file. This is not a problem.
             fdDockerFile.write("# Cannot add non-existent file:%s\n" % (pathName) )
             return
 
         if filComment:
             fdDockerFile.write("# %s\n" % (filComment) )
-        fdDockerFile.write("ADD %s /\n" % (pathName) )
+
+        fdDockerFile.write("ADD %s %s\n" % (pathName,pathName) )
 
     # Code dependencies and data files dependencies are different.
 
@@ -1849,6 +1853,10 @@ def GenerateDockerFile(dockerFilename):
         if commandLine:
             # If the string length read by ltrace or strace is too short,
             # some arguments are truncated: 'CMD ["python TestProgs/big_mysql_..."]'
+
+            # There should be one CMD command only !
+            # What about WORKDIR ?
+
             fdDockerFile.write("CMD [\"%s\"]\n"%commandLine)
     fdDockerFile.write("\n")
 
@@ -3873,7 +3881,7 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             oneLine += tmpLine[:-1]
 
         if not oneLine:
-            sys.stdout.write("Last line=%s"%prevLine)
+            sys.stdout.write("Last line=%s\n"%prevLine)
             break
 
         # This parses the line into the basic parameters of a function call.
@@ -4055,6 +4063,10 @@ G_traceToTracer = {
     "ltrace" : ( LogLTraceFileStream, CreateFlowsFromLtraceLog )
     }
 
+################################################################################
+# These global variables allow to better simulate the execution context
+# when replaying a session.
+
 # Read from a real process or from the log file name when replaying a session.
 G_topProcessId = None
 
@@ -4063,6 +4075,10 @@ G_CurrentDirectory = None
 
 # The date where the test was run. Loaded from the ini file when replaying.
 G_Today = None
+
+G_Hostname = None
+
+G_OSType = None
 
 # When replaying a session, it is not worth getting information about processes
 # because they do not exist anymore.
@@ -4118,6 +4134,8 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     global G_topProcessId
     global G_CurrentDirectory
     global G_Today
+    global G_Hostname
+    global G_OSType
     global G_ReplayMode
 
     # A command or a pid or an input log file, only one possibility.
@@ -4134,6 +4152,8 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         Usage(1,"Must provide command, pid or input file")
 
     dateTodayRun = time.strftime("%Y-%m-%d")
+    theHostNam = socket.gethostname()
+    thePlatform = sys.platform
 
     if inputLogFile:
         logStream = open(inputLogFile)
@@ -4148,7 +4168,10 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         mapKV = LoadIniFile(contextLogFile)
 
         G_CurrentDirectory = mapKV.get("CurrentDirectory",".")
-        G_Today = mapKV.get("Today",dateTodayRun)
+        G_Today            = mapKV.get("CurrentDate",dateTodayRun)
+        G_Hostname         = mapKV.get("CurrentHostname",theHostNam)
+        G_OSType           = mapKV.get("CurrentOSType",thePlatform)
+
         G_ReplayMode = True
 
     else:
@@ -4160,6 +4183,8 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
         G_CurrentDirectory = "."
         G_Today = dateTodayRun
+        G_Hostname = theHostNam
+        G_OSType = thePlatform
 
         G_ReplayMode = False
 
@@ -4411,6 +4436,8 @@ if __name__ == '__main__':
             # Necessary because ltrace and strace do not write the date.
             # Done before testing in case the test stops next day.
             iniFd.write('CurrentDate=%s\n' % G_Today)
+            iniFd.write('CurrentHostname=%s\n' % socket.gethostname())
+            iniFd.write('CurrentOSType=%s\n' % sys.platform)
             iniFd.close()
     else:
         outFilNam = None
