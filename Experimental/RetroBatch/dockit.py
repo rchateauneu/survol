@@ -1408,7 +1408,7 @@ class FileToPackage:
         else:
             return None
 
-    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
+    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","/var/cache/","UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
 
     @staticmethod
     def CannotBePackaged(filNam):
