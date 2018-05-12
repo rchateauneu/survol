@@ -761,7 +761,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
             strm.write("    Parent:%s\n" % self.m_parentProcess.Handle )
 
     def SetParentProcess(self, objCIM_Process):
-        # sys.stdout.write("me=%s up=%s\n" % ( self.Handle, objCIM_Process.Handle ) )
+        # sys.stdout.write("SetParentProcess proc=%s parent=%s\n" % ( self.Handle, objCIM_Process.Handle ) )
         if int(self.Handle) == int(objCIM_Process.Handle):
             raise Exception("Self-parent")
         self.m_parentProcess = objCIM_Process
@@ -2646,6 +2646,8 @@ class BatchLetSys_writev(BatchLetBase,object):
 class BatchLetSys_ioctl(BatchLetBase,object):
     def __init__(self,batchCore):
         # With strace: "ioctl(-1, TIOCGPGRP, 0x7ffc3b5287f4) = -1 EBADF (Bad file descriptor)"
+        # TODO: Could use the parameter TIOCSPGRP to get the process id: ioctl(255</dev/pts/2>, TIOCSPGRP, [26531])
+
         if batchCore.m_retValue.find("EBADF") >= 0 :
             return
         super( BatchLetSys_ioctl,self).__init__(batchCore)
@@ -2872,7 +2874,12 @@ class BatchLetSys_clone(BatchLetBase,object):
     def SameCall(self,anotherBatch):
         return False
 
+# It does not matter if the first "unfinished" cannot be found because only
+# the "resumed" part is important as it constains the sub-PID/
 class BatchLetSys_vfork(BatchLetBase,object):
+
+    Incomplete_ResumedWithoutUnfinishedIsOk = True
+
     def __init__(self,batchCore):
         super( BatchLetSys_vfork,self).__init__(batchCore)
 
@@ -2884,8 +2891,6 @@ class BatchLetSys_vfork(BatchLetBase,object):
             aPid = int(self.m_core.m_retValue)
         else:
             raise Exception("Tracer %s not supported yet"%tracer)
-
-        # sys.stdout.write("VFORK %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
 
         # This is the created process.
         objNewProcess = ToObjectPath_CIM_Process( aPid )
@@ -2948,7 +2953,7 @@ class BatchLetSys_execve(BatchLetBase,object):
 # It does not matter if it is not technically finished: We only need the executable.
 # BEWARE: See difference with BatchLetSys_xxx classes.
 class BatchLetLib___libc_start_main(BatchLetBase,object):
-    UnfinishedIsOk = True
+    Incomplete_UnfinishedIsOk = True
 
     def __init__(self,batchCore):
         super( BatchLetLib___libc_start_main,self).__init__(batchCore)
@@ -3445,7 +3450,7 @@ def BatchLetFactory(batchCore):
         # A function as __libc_start_main() is happy if it is not finished
         # as the input parameters contain enough information for us.
         try:
-            aModel.UnfinishedIsOk
+            aModel.Incomplete_UnfinishedIsOk
             btchLetDrv = aModel( batchCore )
             # ResumedOnly
             # UnfinishedOnly
@@ -3473,8 +3478,8 @@ def BatchLetFactory(batchCore):
             # Could not find the matching unfinished batch.
             # Still we try the degraded mode if it is available.
             try:
-                btchLetDrv = aModel.ResumedOnly( batchCore )
-                raise Exception("CANNOT HAPPEN")
+                aModel.Incomplete_ResumedWithoutUnfinishedIsOk
+                btchLetDrv = aModel( batchCore )
             except AttributeError:
                 pass
 
@@ -3510,7 +3515,7 @@ class BatchLetSequence(BatchLetBase,object):
     def __init__(self,arrBatch,style):
         batchCore = BatchLetCore()
 
-        # TODO: Instaed of a string, this could be a tuple because it is hashable.
+        # TODO: Instead of a string, this could be a tuple because it is hashable.
         concatSigns = "+".join( [ btch.GetSignature() for btch in arrBatch ] )
         batchCore.m_funcNam = "(" + concatSigns + ")"
 
@@ -4160,12 +4165,13 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         LogSource("File "+inputLogFile)
         sys.stdout.write("Logfile=%s pid=%s lenBatch=?\n" % (inputLogFile,aPid) )
 
-        # The main process pid might be embedded in the log file name.
-        G_topProcessId = aPid
-
         # There might be a context file with important information to reproduce the test.
         contextLogFile = os.path.splitext(inputLogFile)[0]+'.ini'
         mapKV = LoadIniFile(contextLogFile)
+
+        # The main process pid might be embedded in the log file name,
+        # but preferably stored in the ini file.
+        G_topProcessId = int(mapKV.get("TopProcessId",aPid))
 
         G_CurrentDirectory = mapKV.get("CurrentDirectory",".")
         G_Today            = mapKV.get("CurrentDate",dateTodayRun)
@@ -4174,6 +4180,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
         G_ReplayMode = True
 
+        sys.stdout.write("G_topProcessId=%d\n"%G_topProcessId)
     else:
         try:
             funcTrace = G_traceToTracer[ tracer ][0]
@@ -4287,9 +4294,13 @@ fullMapParamsSummary = ["CIM_ComputerSystem","CIM_OperatingSystem","CIM_NetworkA
 
 def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary,summaryFormat, withDockerfile):
 
-    if outFile and summaryFormat:
-        baseOutName, filOutExt = os.path.splitext(outFile)
-        outputSummaryFile = baseOutName + "." + summaryFormat.lower()
+    if summaryFormat:
+        if outFile:
+            baseOutName, filOutExt = os.path.splitext(outFile)
+            outputSummaryFile = baseOutName + "." + summaryFormat.lower()
+        else:
+            # Default name for the summary file.
+            outputSummaryFile = "summary." + summaryFormat.lower()
     else:
         outputSummaryFile = None
 
@@ -4329,6 +4340,8 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
         dockerFilename = dockerDirName + "/Dockerfile"
         GenerateDockerFile(dockerFilename)
 
+    return outputSummaryFile
+
 # Function called for unit tests by unittest.py
 def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, withDockerfile):
 
@@ -4337,8 +4350,8 @@ def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParams
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, withDockerfile)
-
+    outputSummaryFile = FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, withDockerfile)
+    return outputSummaryFile
 
 if __name__ == '__main__':
     try:
@@ -4432,6 +4445,11 @@ if __name__ == '__main__':
         if not G_ReplayMode:
             iniFilNam = fullPrefixNoExt + "ini"
             iniFd = open(iniFilNam,"w")
+
+            # At this stage, we know what is the top process id,
+            # because the command is created, or the process attached.
+            iniFd.write('TopProcessId=%s\n' % G_topProcessId )
+
             iniFd.write('CurrentDirectory=%s\n' % os.getcwd() )
             # Necessary because ltrace and strace do not write the date.
             # Done before testing in case the test stops next day.
