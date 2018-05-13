@@ -789,8 +789,6 @@ class CIM_Process (CIM_XmlMarshaller,object):
         self.Executable = objCIM_DataFile.FileName
         self.m_ExecutableObject = objCIM_DataFile
 
-        # TODO: Maybe should GetFileAccess()
-
     def SetCommandLine(self,lstCmdLine) :
         # TypeError: sequence item 7: expected string, dict found
         if lstCmdLine:
@@ -1728,10 +1726,13 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # This is the complete list of extra executables which have to be installed.
     lstBinaryExecutables = set()
 
+    # This is a subset of lstDependencies.
     setUsefulDependencies = set()
 
     for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
         for oneDep in lstDependencies:
+            # Based on the executable of the process,
+            # this tells if we might have dependencies of this type: Python Perl etc...
             if oneDep.IsDepType(objInstance):
                 setUsefulDependencies.add(oneDep)
                 break
@@ -1750,13 +1751,6 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         except AttributeError:
             pass
 
-
-    fdDockerFile.write("################################# Dependencies by program type\n")
-    for oneDep in setUsefulDependencies:
-        fdDockerFile.write("# Dependencies: %s\n"%oneDep.DependencyName)
-        oneDep.GenerateDockerDependencies(fdDockerFile)
-        fdDockerFile.write("\n")
-
     # Install or copy the executables.
     # Beware that some of them are specifically installed: Python, Perl.
     fdDockerFile.write("################################# Executables:\n")
@@ -1764,7 +1758,15 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     for anExec in sorted(lstPackages):
         InstallLinuxPackage( fdDockerFile, anExec )
     fdDockerFile.write("\n")
-    
+
+    # This must be done after the binaries are installed: For example installing Perl packages
+    # with CPAN needs to install Perl.
+    fdDockerFile.write("################################# Dependencies by program type\n")
+    for oneDep in setUsefulDependencies:
+        fdDockerFile.write("# Dependencies: %s\n"%oneDep.DependencyName)
+        oneDep.GenerateDockerDependencies(fdDockerFile)
+        fdDockerFile.write("\n")
+
     # These are not data files.
     categoriesNotInclude = set([
         "Temporary files",
