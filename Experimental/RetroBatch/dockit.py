@@ -329,15 +329,15 @@ class FileAccess:
         if self.CloseTime:
             strm.write(" CloseTime='%s'" % TimeStampToStr( self.CloseTime ) )
         if getattr(self,'CloseSize',0):
-            strm.write(" CloseSize=%s" % ( self.CloseSize ) )
+            strm.write(" CloseSize='%s'" % ( self.CloseSize ) )
         if getattr(self,'NumReads',0):
-            strm.write(" NumReads=%s" % ( self.NumReads ) )
+            strm.write(" NumReads='%s'" % ( self.NumReads ) )
         if getattr(self,'BytesRead',0):
-            strm.write(" BytesRead=%s" % ( self.BytesRead ) )
+            strm.write(" BytesRead='%s'" % ( self.BytesRead ) )
         if getattr(self,'NumWrites',0):
-            strm.write(" NumWrites=%s" % ( self.NumWrites ) )
+            strm.write(" NumWrites='%s'" % ( self.NumWrites ) )
         if getattr(self,'BytesWritten',0):
-            strm.write(" BytesWritten=%s" % ( self.BytesWritten ) )
+            strm.write(" BytesWritten='%s'" % ( self.BytesWritten ) )
 
         strm.write(" />\n" )
 
@@ -793,6 +793,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
         # TypeError: sequence item 7: expected string, dict found
         if lstCmdLine:
             self.CommandLine = " ".join( [ str(elt) for elt in lstCmdLine ] )
+            self.m_commandList = lstCmdLine
 
     def GetCommandLine(self):
         try:
@@ -807,6 +808,12 @@ class CIM_Process (CIM_XmlMarshaller,object):
             commandLine = ""
         return commandLine
         
+    def GetCommandList(self):
+        try:
+            return self.m_commandList
+        except AttributeError:
+            return []
+
     def SetThread(self):
         self.IsThread = True
 
@@ -1851,15 +1858,17 @@ def GenerateDockerFile(dockerFilename):
     # Probably there should be one only, but this is not a constraint.
     procsTopLevel = CIM_Process.GetTopProcesses()
     for oneProc in procsTopLevel:
-        commandLine = oneProc.GetCommandLine()
-        if commandLine:
+        commandList = oneProc.GetCommandList()
+        if commandList:
             # If the string length read by ltrace or strace is too short,
             # some arguments are truncated: 'CMD ["python TestProgs/big_mysql_..."]'
 
             # There should be one CMD command only !
-            # What about WORKDIR ?
 
-            fdDockerFile.write("CMD [\"%s\"]\n"%commandLine)
+            fdDockerFile.write("WORKDIR [\"%s\"]\n" % oneProc.CurrentDirectory)
+
+            concatCommand = ",".join( [ '"%s"' % wrd for wrd in commandList ] )
+            fdDockerFile.write("CMD [%s]\n" % concatCommand )
     fdDockerFile.write("\n")
 
     portsList = CIM_DataFile.GetExposedPorts()
