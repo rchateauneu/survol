@@ -795,6 +795,8 @@ class CIM_Process (CIM_XmlMarshaller,object):
         # TypeError: sequence item 7: expected string, dict found
         if lstCmdLine:
             self.CommandLine = " ".join( [ str(elt) for elt in lstCmdLine ] )
+            # The command line as a list is needed by Dockerfile.
+            self.m_commandList = lstCmdLine
 
     def GetCommandLine(self):
         try:
@@ -809,6 +811,19 @@ class CIM_Process (CIM_XmlMarshaller,object):
             commandLine = ""
         return commandLine
         
+    def GetCommandList(self):
+        try:
+            if self.m_commandList:
+                return self.m_commandList
+        except AttributeError:
+            pass
+
+        try:
+            commandList = [ self.Executable ]
+        except AttributeError:
+            commandList = []
+        return commandList
+
     def SetThread(self):
         self.IsThread = True
 
@@ -1849,15 +1864,19 @@ def GenerateDockerFile(dockerFilename):
     # Probably there should be one only, but this is not a constraint.
     procsTopLevel = CIM_Process.GetTopProcesses()
     for oneProc in procsTopLevel:
-        commandLine = oneProc.GetCommandLine()
-        if commandLine:
+        # TODO: Possibly add the command "VOLUME" ?
+        currDir = oneProc.GetProcessCurrentDir()
+        fdDockerFile.write("WORKDIR %s\n"%currDir)
+
+        commandList = oneProc.GetCommandList()
+        if commandList:
             # If the string length read by ltrace or strace is too short,
             # some arguments are truncated: 'CMD ["python TestProgs/big_mysql_..."]'
 
             # There should be one CMD command only !
-            # What about WORKDIR ?
+            strCmd = ",".join( '"%s"' % wrd for wrd in commandList )
 
-            fdDockerFile.write("CMD [\"%s\"]\n"%commandLine)
+            fdDockerFile.write("CMD [ %s ]\n" % strCmd )
     fdDockerFile.write("\n")
 
     portsList = CIM_DataFile.GetExposedPorts()
