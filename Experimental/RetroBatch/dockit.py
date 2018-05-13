@@ -3803,8 +3803,15 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
 
     # If shell argument is True, this is the process ID of the spawned shell.
     if aPid > 0:
+        # The process already exists and strace/ltrace attaches to it.
         thePid = int(aPid)
     else:
+        # We want the pid of the process created by strace/ltrace.
+        # ltrace always prefixes each line with the pid, so no ambiguity.
+        # strace does not always prefixes the top process calls with the pid.
+        tracerPid = int(pipPOpen.pid)
+
+        sys.stdout.write("aCmd=%s pid=%s\n"%(aCmd,pipPOpen.pid))
         thePid = int(pipPOpen.pid)
 
     return ( thePid, pipPOpen.stderr )
@@ -4031,6 +4038,9 @@ def BuildSTraceCommand(extCommand,aPid):
         ]
 
     if extCommand:
+        # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
+        # effect of strace by keeping the tracee a direct child of the calling process.
+        aCmd += [ "-D" ]
         aCmd += extCommand
         LogSource("Command "+" ".join(extCommand) )
     else:
