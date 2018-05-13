@@ -3809,9 +3809,6 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
         # We want the pid of the process created by strace/ltrace.
         # ltrace always prefixes each line with the pid, so no ambiguity.
         # strace does not always prefixes the top process calls with the pid.
-        tracerPid = int(pipPOpen.pid)
-
-        sys.stdout.write("aCmd=%s pid=%s\n"%(aCmd,pipPOpen.pid))
         thePid = int(pipPOpen.pid)
 
     return ( thePid, pipPOpen.stderr )
