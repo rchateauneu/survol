@@ -132,6 +132,23 @@ At the moment, only system calls are analysed although ltrace allows to trace
 any shareable library.
 A specific module should probably be created per library.
 
+Mysql:
+------
+This is an example of a library whose communication protocol can be reverse-engineered:
+System calls as found in the log file:
+; sendto(127.0.0.1:3306]>, "\21\0\0\0\3set autocommit="
+; sendto(127.0.0.1:3306]>, "\n\0\0\0\3use mysql"
+; sendto(127.0.0.1:3306]>, "\f\0\0\0\3show tables"
+; sendto(127.0.0.1:3306]>, "\33\0\0\0\3select Host,Use"
+
+We can parse the content (Which some utility tools creayed for Survol)
+and create tables etc... in the XML file.
+
+Oracle:
+-------
+; write(6<pipe:[5648149]>, "...0\0\0\0\0\0'select username, user_id from"..., 312) = 312 <0.000016>
+
+
 Port to Microsoft Windows:
 --------------------------
 Apparently, there is no tool similar to ltrace or strace.
