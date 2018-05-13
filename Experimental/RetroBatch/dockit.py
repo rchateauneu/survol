@@ -1423,7 +1423,7 @@ class FileToPackage:
         else:
             return None
 
-    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
+    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","/var/cache","UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
 
     @staticmethod
     def CannotBePackaged(filNam):
@@ -1525,7 +1525,17 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             pckShort = packageName
 
         InstallLinuxPackage.InstalledPackages[ packageName ] = pckShort
-        fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName) )
+
+        # Step 4/7 : RUN yum -y install coreutils # coreutils-8.27-5.fc26.x86_64
+        # Problem: problem with installed package coreutils-single-8.29-5.fc28.x86_64
+        # - package coreutils-8.29-5.fc28.x86_64 conflicts with coreutils-single provided by coreutils-single-8.29-5.fc28.x86_64
+        # (try to add '--allowerasing' to command line to replace conflicting packages or '--skip-broken' to skip uninstallable packages)
+
+        # For the moment, this is simpler.
+        if pckShort in ['coreutils']:
+            fdDockerFile.write("# Potential conflict with %s , %s\n" % (pckShort, packageName) )
+        else:
+            fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName) )
 
     # Each package is installed only once.
     InstallLinuxPackage.InstalledPackages = dict()
