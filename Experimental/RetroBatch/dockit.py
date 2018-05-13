@@ -325,7 +325,7 @@ class FileAccess:
         if self.OpenTime:
             strm.write(" OpenTime='%s'" % TimeStampToStr( self.OpenTime ) )
         if getattr(self,'OpenSize',0):
-            strm.write(" OpenSize=%s" % ( self.OpenSize ) )
+            strm.write(" OpenSize='%s'" % ( self.OpenSize ) )
         if self.CloseTime:
             strm.write(" CloseTime='%s'" % TimeStampToStr( self.CloseTime ) )
         if getattr(self,'CloseSize',0):
@@ -793,6 +793,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
         # TypeError: sequence item 7: expected string, dict found
         if lstCmdLine:
             self.CommandLine = " ".join( [ str(elt) for elt in lstCmdLine ] )
+            # The command line as a list is needed by Dockerfile.
             self.m_commandList = lstCmdLine
 
     def GetCommandLine(self):
@@ -810,9 +811,16 @@ class CIM_Process (CIM_XmlMarshaller,object):
         
     def GetCommandList(self):
         try:
-            return self.m_commandList
+            if self.m_commandList:
+                return self.m_commandList
         except AttributeError:
-            return []
+            pass
+
+        try:
+            commandList = [ self.Executable ]
+        except AttributeError:
+            commandList = []
+        return commandList
 
     def SetThread(self):
         self.IsThread = True
@@ -1515,7 +1523,17 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             pckShort = packageName
 
         InstallLinuxPackage.InstalledPackages[ packageName ] = pckShort
-        fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName) )
+
+        # Step 4/7 : RUN yum -y install coreutils # coreutils-8.27-5.fc26.x86_64
+        # Problem: problem with installed package coreutils-single-8.29-5.fc28.x86_64
+        # - package coreutils-8.29-5.fc28.x86_64 conflicts with coreutils-single provided by coreutils-single-8.29-5.fc28.x86_64
+        # (try to add '--allowerasing' to command line to replace conflicting packages or '--skip-broken' to skip uninstallable packages)
+
+        # For the moment, this is simpler.
+        if pckShort in ['coreutils']:
+            fdDockerFile.write("# Potential conflict with %s , %s\n" % (pckShort, packageName) )
+        else:
+            fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName) )
 
     # Each package is installed only once.
     InstallLinuxPackage.InstalledPackages = dict()
@@ -1858,17 +1876,19 @@ def GenerateDockerFile(dockerFilename):
     # Probably there should be one only, but this is not a constraint.
     procsTopLevel = CIM_Process.GetTopProcesses()
     for oneProc in procsTopLevel:
+        # TODO: Possibly add the command "VOLUME" ?
+        currDir = oneProc.GetProcessCurrentDir()
+        fdDockerFile.write("WORKDIR %s\n"%currDir)
+
         commandList = oneProc.GetCommandList()
         if commandList:
             # If the string length read by ltrace or strace is too short,
             # some arguments are truncated: 'CMD ["python TestProgs/big_mysql_..."]'
 
             # There should be one CMD command only !
+            strCmd = ",".join( '"%s"' % wrd for wrd in commandList )
 
-            fdDockerFile.write("WORKDIR [\"%s\"]\n" % oneProc.CurrentDirectory)
-
-            concatCommand = ",".join( [ '"%s"' % wrd for wrd in commandList ] )
-            fdDockerFile.write("CMD [%s]\n" % concatCommand )
+            fdDockerFile.write("CMD [ %s ]\n" % strCmd )
     fdDockerFile.write("\n")
 
     portsList = CIM_DataFile.GetExposedPorts()
@@ -3814,8 +3834,12 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
 
     # If shell argument is True, this is the process ID of the spawned shell.
     if aPid > 0:
+        # The process already exists and strace/ltrace attaches to it.
         thePid = int(aPid)
     else:
+        # We want the pid of the process created by strace/ltrace.
+        # ltrace always prefixes each line with the pid, so no ambiguity.
+        # strace does not always prefixes the top process calls with the pid.
         thePid = int(pipPOpen.pid)
 
     return ( thePid, pipPOpen.stderr )
@@ -4042,6 +4066,9 @@ def BuildSTraceCommand(extCommand,aPid):
         ]
 
     if extCommand:
+        # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
+        # effect of strace by keeping the tracee a direct child of the calling process.
+        aCmd += [ "-D" ]
         aCmd += extCommand
         LogSource("Command "+" ".join(extCommand) )
     else:
