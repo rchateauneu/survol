@@ -325,19 +325,19 @@ class FileAccess:
         if self.OpenTime:
             strm.write(" OpenTime='%s'" % TimeStampToStr( self.OpenTime ) )
         if getattr(self,'OpenSize',0):
-            strm.write(" OpenSize=%s" % ( self.OpenSize ) )
+            strm.write(" OpenSize='%s'" % ( self.OpenSize ) )
         if self.CloseTime:
             strm.write(" CloseTime='%s'" % TimeStampToStr( self.CloseTime ) )
         if getattr(self,'CloseSize',0):
-            strm.write(" CloseSize=%s" % ( self.CloseSize ) )
+            strm.write(" CloseSize='%s'" % ( self.CloseSize ) )
         if getattr(self,'NumReads',0):
-            strm.write(" NumReads=%s" % ( self.NumReads ) )
+            strm.write(" NumReads='%s'" % ( self.NumReads ) )
         if getattr(self,'BytesRead',0):
-            strm.write(" BytesRead=%s" % ( self.BytesRead ) )
+            strm.write(" BytesRead='%s'" % ( self.BytesRead ) )
         if getattr(self,'NumWrites',0):
-            strm.write(" NumWrites=%s" % ( self.NumWrites ) )
+            strm.write(" NumWrites='%s'" % ( self.NumWrites ) )
         if getattr(self,'BytesWritten',0):
-            strm.write(" BytesWritten=%s" % ( self.BytesWritten ) )
+            strm.write(" BytesWritten='%s'" % ( self.BytesWritten ) )
 
         strm.write(" />\n" )
 
