@@ -317,23 +317,22 @@ def InternalUnitTests_ParseSTraceObject():
           ['5</etc/pki/nssdb/key4.db>', '\r\x00\x00\x00\x01\x00G\x00\x00G\x03\xcb\x00\x00\x00\x00\x00\x00\x876\x01\x07\x17!!\x01\x8e7tablenssPrivatenssPrivate\x02CREATE TABLE nssP\x876\x01\x07\x17!!\x01\x8e7tablenssPrivatenssPrivate\x02CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a...', '1024', '3072'], 244),
 
         ( '4</etc/pki/nssdb/cert9.db>, F_SETLK, {l_type=F_RDLCK, l_whence=SEEK_SET, l_start=1073741824, l_len=1}',
-            ['4</etc/pki/nssdb/cert9.db>', 'F_SETLK', {'l_len': '1', 'l_type': 'F_RDLCK', 'l_start': '1073741824', 'l_whence': 'SEEK_SET'}], 101),
+            ['4</etc/pki/nssdb/cert9.db>', 'F_SETLK', ['l_type=F_RDLCK', 'l_whence=SEEK_SET', 'l_start=1073741824', 'l_len=1']], 101),
 
         ( '4</etc/pki/nssdb/cert9.db>, "\0\0\0\2\0\0\0\t\0\0\0\0\0\0\0\0", 16, 24',
           ['4</etc/pki/nssdb/cert9.db>', '\x00\x00\x00\x02\x00\x00\x00\t\x00\x00\x00\x00\x00\x00\x00\x00', '16', '24'], 54),
 
         ( '0</dev/pts/2>, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2)}',
-          ['0</dev/pts/2>', {'st_rdev': 'makedev(136, 2)', 'st_mode': 'S_IFCHR|0620'}],62 ),
-          # ['0</dev/pts/2>', [('st_mode', 'S_IFCHR|0620'), ('st_rdev', 'makedev(136, 2)')]],62 ),
+          ['0</dev/pts/2>', ['st_mode=S_IFCHR|0620', 'st_rdev=makedev(136, 2)']],62 ),
 
         ( '6, [4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>], NULL, NULL, {tv_sec=0, tv_usec=500}',
-          ['6', ['4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>'], 'NULL', 'NULL', {'tv_sec': '0', 'tv_usec': '500'}], 87),
+          ['6', ['4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>'], 'NULL', 'NULL', ['tv_sec=0', 'tv_usec=500']], 87),
 
         ( '13<UNIX:[10579575->10579582]>, SOL_SOCKET, SO_PEERSEC, "system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\0", [64->48]',
           ['13<UNIX:[10579575->10579582]>', 'SOL_SOCKET', 'SO_PEERSEC', 'system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\x00', ['64->48']], 115),
 
         ( '17<TCP:[54.36.162.150:32855]>, {sa_family=AF_INET, sin_port=htons(63705), sin_addr=inet_addr("82.45.12.63")}, [16]',
-          ['17<TCP:[54.36.162.150:32855]>', {'sin_port': 'htons(63705)', 'sin_addr': 'inet_addr("82.45.12.63")', 'sa_family': 'AF_INET'}, ['16']], 114),
+          ['17<TCP:[54.36.162.150:32855]>', ['sa_family=AF_INET', 'sin_port=htons(63705)', 'sin_addr=inet_addr("82.45.12.63")'], ['16']], 114),
     ]
 
     for tupl in dataTst:
