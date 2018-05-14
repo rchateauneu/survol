@@ -146,7 +146,7 @@ def ParseCallArguments(strArgs,ixStart = 0):
             else:
                 continue
 
-        if (aChr in [',',')',']','}'] and levelParent == 0) or finished :
+        if (aChr == ',' and levelParent == 0) or finished :
             while ixStart < lenStr and strArgs[ixStart] in [' ','"']: ixStart += 1
             ixEnd = ixCurr-2
             while strArgs[ixEnd] == '"' and ixStart <= ixEnd: ixEnd -= 1
