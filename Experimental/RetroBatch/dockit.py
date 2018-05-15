@@ -91,11 +91,10 @@ class ExceptionIsSignal(Exception):
 # Parsing of the arguments of the systems calls printed by strace and ltrace.
 # This starts immediately after an open parenthesis or bracket.
 # It returns an index on the closing parenthesis, or equal to the string length.
-def ParseCallArguments(strArgs,ixStart = 0,isList = True):
+def ParseCallArguments(strArgs,ixStart = 0):
     lenStr = len(strArgs)
 
-    theResult = [] if isList else {}
-    # theResult = []
+    theResult = []
     finished = False
     inQuotes = False
     levelParent = 0
@@ -128,35 +127,17 @@ def ParseCallArguments(strArgs,ixStart = 0,isList = True):
             continue
 
         # This assumes that [] and {} are paired by strace so no need to check parity.
-        if aChr == '[':
+        if aChr in ['[','{']:
             if ixCurr == ixStart +1:
-                objToAdd, ixStart = ParseCallArguments( strArgs, ixCurr, True)
-                if isList:
-                    theResult.append( objToAdd )
-                else:
-                    theResult[""] = objToAdd
-
+                objToAdd, ixStart = ParseCallArguments( strArgs, ixCurr)
+                theResult.append( objToAdd )
                 while ixStart < lenStr and strArgs[ixStart] in [' ',',']: ixStart += 1
                 ixCurr = ixStart
                 continue
             levelParent += 1
-
-        if aChr == '{':
-            if ixCurr == ixStart +1:
-                objToAdd, ixStart = ParseCallArguments( strArgs, ixCurr, False)
-                if isList:
-                    theResult.append( objToAdd )
-                else:
-                    theResult[""] = objToAdd
-                while ixStart < lenStr and strArgs[ixStart] in [' ',',']: ixStart += 1
-                ixCurr = ixStart
-                continue
+        elif aChr == '(':
             levelParent += 1
-
-        if aChr == '(':
-            levelParent += 1
-
-        if aChr in [')',']','}']:
+        elif aChr in [')',']','}']:
             levelParent -= 1
             if levelParent == -1:
                 finished = True
@@ -169,23 +150,13 @@ def ParseCallArguments(strArgs,ixStart = 0,isList = True):
             while ixStart < lenStr and strArgs[ixStart] in [' ','"']: ixStart += 1
             ixEnd = ixCurr-2
             while strArgs[ixEnd] == '"' and ixStart <= ixEnd: ixEnd -= 1
-            argClean = strArgs[ixStart:ixEnd + 1]
 
+            argClean = strArgs[ixStart:ixEnd + 1]
             # Special case due to truncated strings.
             if argClean.endswith('"...'):
                 argClean = argClean[:-4] + "..."
 
-            if isList:
-                theResult.append( argClean )
-            else:
-                idxEqual = argClean.find("=")
-                if idxEqual > 0:
-                    keyArg = argClean[:idxEqual].strip()
-                    valArg = argClean[idxEqual+1:]
-                    theResult[keyArg] = valArg
-                else:
-                    # BEWARE: These are not really named members.
-                    theResult[""] = argClean
+            theResult.append( argClean )
 
             while ixCurr < lenStr and strArgs[ixCurr] == ' ': ixCurr += 1
             ixStart = ixCurr
@@ -194,14 +165,12 @@ def ParseCallArguments(strArgs,ixStart = 0,isList = True):
         while ixStart < lenStr and strArgs[ixStart] in [' ','"']: ixStart += 1
         ixEnd = lenStr-1
         while strArgs[ixEnd] in [',',')',']','}',' ','"'] and ixStart <= ixEnd: ixEnd -= 1
+
         argClean = strArgs[ixStart:ixEnd + 1]
+            # Special case due to truncated strings.
         if argClean.endswith('"...'):
             argClean = argClean[:-4] + "..."
-        if isList:
-            theResult.append( argClean )
-        else:
-            # BEWARE: These are not really named members.
-            theResult[""] = argClean
+        theResult.append( argClean )
 
     return theResult,ixCurr
 
@@ -3136,15 +3105,11 @@ class BatchLetSys_poll(BatchLetBase,object):
             if type(arrStrms) in (list, tuple):
                 retList = []
                 for oneStream in arrStrms:
-                    # oneStream: {'fd': '5<anon_inode:[eventfd]>', 'events': 'POLLIN'}
-                    # TEMP
-                    if isinstance(oneStream,list):
-                        for key,val in oneStream:
-                            if key == 'fd':
-                                fdName = val
-                                break
-                    else:
-                        fdName = oneStream["fd"]
+                    # oneStream: {'fd=5<anon_inode:[eventfd]>', 'events=POLLIN'}
+                    for elt in oneStream:
+                        if elt.startswith('fd='):
+                            fdName = elt[3:]
+                            break
 
                 filOnly = self.STraceStreamToFile( fdName )
                 retList.append( filOnly )
