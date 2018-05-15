@@ -2268,7 +2268,12 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
         return self.m_core.m_funcNam
 
     def GetSignatureWithArgs(self):
-        return self.m_core.m_funcNam + ":" + "&".join( map( str, self.m_significantArgs ) )
+        try:
+            # This is costly so we calculate it once only.
+            return self.m_signatureWithArgs
+        except AttributeError:
+            self.m_signatureWithArgs = self.m_core.m_funcNam + ":" + "&".join( map( str, self.m_significantArgs ) )
+            return self.m_signatureWithArgs
 
     # This is very often used.
     def StreamName(self,idx=0):
@@ -2294,7 +2299,8 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
         if len(args1) != len(args2):
             return False
 
-        for idx,val1 in enumerate(args1):
+        idx = 0
+        for val1 in args1:
             val2 = args2[idx]
 
             if val1 != val2:
