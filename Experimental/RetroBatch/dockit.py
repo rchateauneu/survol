@@ -28,8 +28,13 @@ import shutil
 import platform
 
 try:
-    # To add more information to processes etc...
-    # If not there, this is not a problem.
+    # Optional: Classification of buffers and process mining.
+    import buffer_analysis
+except ImportError:
+    pass
+
+try:
+    # Optional: To add more information to processes etc...
     import psutil
 except ImportError:
     pass
@@ -153,6 +158,7 @@ def ParseCallArguments(strArgs,ixStart = 0):
 
             argClean = strArgs[ixStart:ixEnd + 1]
             # Special case due to truncated strings.
+            # TODO: Should we truncate ? If read()/write'), we know what the length should be."
             if argClean.endswith('"...'):
                 argClean = argClean[:-4] + "..."
 
@@ -167,7 +173,8 @@ def ParseCallArguments(strArgs,ixStart = 0):
         while strArgs[ixEnd] in [',',')',']','}',' ','"'] and ixStart <= ixEnd: ixEnd -= 1
 
         argClean = strArgs[ixStart:ixEnd + 1]
-            # Special case due to truncated strings.
+        # Special case due to truncated strings.
+        # TODO: Should we truncate ? If read()/write'), we know what the length should be."
         if argClean.endswith('"...'):
             argClean = argClean[:-4] + "..."
         theResult.append( argClean )
@@ -207,6 +214,8 @@ def IsCIM(attr,attrVal):
 
 ################################################################################
 
+# Max number of bytes when trapping read() and write().
+G_StringSize = "500"
 
 G_cacheFileAccesses = None
 
@@ -261,7 +270,33 @@ class FileAccess:
         # anymore from this process and this file because it is closed.
         del G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile]
 
-    def SetRead(self,bytesRead):
+    def AnalyseNewBuffer(self,isRead,szBuffer,aBuffer):
+        if not aBuffer:
+            return
+
+        if not buffer_analysis:
+            return
+
+        # This does not apply to files.
+        if self.m_objectCIM_DataFile.IsPlainFile():
+            return
+
+        if isRead:
+            try:
+                self.m_accumulatorRead
+            except AttributeError:
+                self.m_accumulatorRead = buffer_analysis.BufferAccumulator()
+            theAccum = self.m_accumulatorRead
+        else:
+            try:
+                self.m_accumulatorWrite
+            except AttributeError:
+                self.m_accumulatorWrite = buffer_analysis.BufferAccumulator()
+            theAccum = self.m_accumulatorWrite
+
+        theAccum.AppendIOBuffer(aBuffer,szBuffer)
+
+    def SetRead(self,bytesRead,bufferRead):
         try:
             self.NumReads += 1
         except AttributeError:
@@ -270,8 +305,9 @@ class FileAccess:
             self.BytesRead += bytesRead
         except AttributeError:
             self.BytesRead = bytesRead
+        self.AnalyseNewBuffer(True,bytesRead,bufferRead)
 
-    def SetWritten(self, bytesWritten):
+    def SetWritten(self, bytesWritten,bufferWrite):
         try:
             self.NumWrites += 1
         except AttributeError:
@@ -280,11 +316,12 @@ class FileAccess:
             self.BytesWritten += bytesWritten
         except AttributeError:
             self.BytesWritten = bytesWritten
+        self.AnalyseNewBuffer(False,bytesWritten,bufferWrite)
 
-    def TagXML(self,strm,margin,dispProcess):
+    def TagXML(self,strm,margin,displayedFromProcess):
         strm.write("%s<Access" % ( margin ) )
 
-        if dispProcess:
+        if displayedFromProcess:
             if self.m_objectCIM_Process:
                 strm.write(" Process='%s'" % ( self.m_objectCIM_Process.Handle ) )
         else:
@@ -308,6 +345,19 @@ class FileAccess:
         if getattr(self,'BytesWritten',0):
             strm.write(" BytesWritten='%s'" % ( self.BytesWritten ) )
 
+
+        # TODO: This must go in the file. This is still experimental.
+        accRead = getattr(self,'m_accumulatorRead',None)
+        if accRead:
+            classRead = accRead.GetContentClass()
+            if classRead:
+                strm.write(" ReadClass='%s'" % ( classRead ) )
+
+        accWrite = getattr(self,'m_accumulatorWrite',None)
+        if accWrite:
+            classWrite = accWrite.GetContentClass()
+            strm.write(" WriteClass='%s'" % ( classWrite ) )
+
         strm.write(" />\n" )
 
 
@@ -326,13 +376,13 @@ class FileAccess:
         return filAcc
 
     @staticmethod
-    def VectorToXML(strm,vecFilesAccesses,margin,dispProcess):
+    def VectorToXML(strm,vecFilesAccesses,margin,displayedFromProcess):
         if not vecFilesAccesses:
             return
         subMargin = margin + "    "
         strm.write("%s<FileAccesses>\n" % ( margin ) )
         for filAcc in vecFilesAccesses:
-            filAcc.TagXML(strm,subMargin,dispProcess)
+            filAcc.TagXML(strm,subMargin,displayedFromProcess)
         strm.write("%s</FileAccesses>\n" % ( margin ) )
         
         
@@ -865,8 +915,6 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
 
         self.m_DataFileFileAccesses = []
 
-        # It will take a proper value if it is "connect()" or "bind()"
-
         try:
             objStat = os.stat(pathName)
         except:
@@ -1058,10 +1106,24 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
                 pass
         return setPorts
 
+    nonFilePrefixes = ["UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
 
-# This contains the CIM objects: CIM_Process, CIM_DataFile and
-# is used to generate the summary.
+    def IsPlainFile(self):
+        if self.FileName:
+            for pfx in CIM_DataFile.nonFilePrefixes:
+                if self.FileName.startswith(pfx):
+                    return False
+            return True
+        return False
+
+
+################################################################################
+
+# This contains all CIM objects: CIM_Process, CIM_DataFile etc...
+# and is used to generate the summary.
 G_mapCacheObjects = None
+
+################################################################################
 
 # Environment variables actually access by processes.
 # Used to generate a Dockerfile.
@@ -1390,7 +1452,7 @@ class FileToPackage:
         else:
             return None
 
-    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","/var/cache/","UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
+    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","/var/cache/"] + CIM_DataFile.nonFilePrefixes
 
     @staticmethod
     def CannotBePackaged(filNam):
@@ -2581,7 +2643,7 @@ class BatchLetSys_read(BatchLetBase,object):
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
 
-        aFilAcc.SetRead(bytesRead)
+        aFilAcc.SetRead(bytesRead,self.m_core.m_parsedArgs[1])
 
 # The process id is the return value but does not have the same format
 # with ltrace (hexadecimal) and strace (decimal).
@@ -2613,7 +2675,7 @@ class BatchLetSys_pread64x(BatchLetBase,object):
 
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
-        aFilAcc.SetRead(bytesRead)
+        aFilAcc.SetRead(bytesRead,self.m_core.m_parsedArgs[1])
 
 class BatchLetSys_write(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -2624,7 +2686,7 @@ class BatchLetSys_write(BatchLetBase,object):
 
         try:
             bytesWritten = int(self.m_core.m_retValue)
-            aFilAcc.SetWritten(bytesWritten)
+            aFilAcc.SetWritten(bytesWritten,self.m_core.m_parsedArgs[1])
         except ValueError:
             # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
             pass
@@ -2638,7 +2700,8 @@ class BatchLetSys_writev(BatchLetBase,object):
 
         try:
             bytesWritten = int(self.m_core.m_retValue)
-            aFilAcc.SetWritten(bytesWritten)
+            # The content is not processed yet.
+            aFilAcc.SetWritten(bytesWritten,None)
         except ValueError:
             # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
             pass
@@ -3958,7 +4021,7 @@ def BuildLTraceCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     # This needs long strings because path names are truncated like normal strings.
     aCmd = ["ltrace",
-        "-tt", "-T", "-f", "-S", "-s", "200", 
+        "-tt", "-T", "-f", "-S", "-s", G_StringSize,
         "-e", strMandatoryLibc
         ]
 
@@ -4026,7 +4089,7 @@ def CreateFlowsFromLtraceLog(verbose,logStream):
 def BuildSTraceCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     aCmd = ["strace",
-        "-q", "-qq", "-f", "-tt", "-T", "-s", "200", "-y", "-yy",
+        "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize, "-y", "-yy",
         "-e", "trace=desc,ipc,process,network,memory",
         ]
 
