@@ -1,20 +1,26 @@
 # Faire des tests en generant des requetes SQL.
 
+import sys
 import numpy
 
 class induction:
-	def __init__(self,size_buffer):
+	def __init__(self):
 		self.m_list_samples = []
 		self.m_map_token_to_index = dict()
-		#self.m_num_occurences = []
 
 	@staticmethod
 	def tokenize(sample):
 		return []
 
 	#Non: Ce qui caracterise un cluster, c est la substitution.
-	#La "moyenne" de deux queries, ce sotn les tokens identiaues tandis que les
+	#La "moyenne" de deux queries, ce sont les tokens identiaues tandis que les
 	#differents sont remplaces par des "variables" (Ou bien on garde les variables deja la).
+
+	# Certains tokens peuvent etre substitues plus facilement que d'autres: Chaines (encadrees
+	# par des guillemets), et nombres.
+	# On aura peut-etre plus vite fait de remplacer tout de suite.
+
+	# This is a kind of Hamming distance.
 
 	@staticmethod
 	def query_distance(sam1,sam2):
@@ -29,33 +35,47 @@ class induction:
 
 		median = []
 		idx = 0
-		dist = deltaLen
+		numSubsts = deltaLen
 		while idx < minLen:
 			elt1 = sam1[idx]
 			elt2 = sam2[idx]
 			if elt1 != elt2:
 				median[idx] = 'any letter'
 				if isinstance( elt1, str) or isinstance( elt2, str):
-					dist +=1
+					numSubsts +=1
 			else:
 				median[idx] = elt1
 
-		dist += 100 * deltaLen
-		return dist,median
+		# Si longueurs differentes
+		numSubsts += 100 * deltaLen
+		return numSubsts,median
 
-	# Quand on ajoute un sample, on calcule sa "moyenne" avec tous les autres samples.
-	# ON a une map des "moyennes" et des samples qui produisent cette moyenne:
-	# Sample A et B, operation "moyenne": *
+	# Quand on ajoute un echantillon, on calcule sa "moyenne" avec tous les autres echantillons.
+	# On a une map des "moyennes" et des echantillons qui produisent cette moyenne:
+	# Echantillons A et B, operation "moyenne": *
 	# Si M = A * B, alors M = A * M = M * A = B * M = M * B.
-	# Le match se fait avec un score qui represente le nombre de substitutions necessaires.
-	# Les moyennes a garder sont celles qui ont beaucoup de participants pour le plus faible score.
+	# Le match renvoie aussi le nombre de substitutions necessaires.
+	# Les moyennes a garder sont celles qui ont beaucoup de participants pour le plus faible nombre de substitutions.
 	# En effet, s'il faut tout substituer, ca ne vaut pas le coup.
-	# On pourrait confronter un sample avec une "moyenne" mais ca peut fort bien creer une nouvelle "moyenne"
-	# s'il faut substituer de nouvelle svariables/
-	# Cette nouvelle "moyenne" va recevoir aussi tous les samples de l'ancienne mais avec un score plus grand
+	# On pourrait confronter un echantillon avec une "moyenne" mais ca peut fort bien creer une nouvelle "moyenne"
+	# s'il faut substituer de nouvelles variables/
+	# Cette nouvelle "moyenne" va recevoir aussi tous les echantillons de l'ancienne mais avec un nombre de substitutions plus grand
 	# car il y a davantage de substitutions.
+	# Chaque "moyenne" stocke une liste de ( nombre de substitutions, echantillon )
 
+	# On ne stocke pas si le nombre de substitutions est superieur a un seuil (Ex: 50% de la longueur).
+	# Quand nouvel echantillon, on compare en premier avec les moyennes.
+	# Si aucune ne donne un resultat "satisfaisant", comparer avec les echantillons de la "moyenne"
+	# donnant le meilleur resultat ?
+	# Ou bien: Au debut chaque echantillon est sa propre "moyenne" et au fur et a mesure, on fusionne ?
 
+	# Eventuellement, ranger les echantillons dans un arbre dont les feuilles sont les echantillons,
+	# et les noeuds intermediaires, les "moyennes".
+	# Quand un nouvel echantillon arrive, on parcourt l'arbre en largeur d'abord.
+	# On s'arrete au meilleur score et eventuellement, on insere un noeud intermediaire ???
+
+	# Des qu'il y a plus de deux echantillons dans la meme moyenne, on supprime les echantillons,
+	# on arrete de les stocker ???
 
 
 
@@ -70,7 +90,8 @@ class induction:
 
 	def clusterize(self):
 		num_tokens = len(self.m_map_token_to_index)
-		distMatrix = numpy.array( [ zeroes(num_tokens)])
+		sys.stdout.write("num_tokens=%d\n"%num_tokens)
+		distMatrix = numpy.zeros( (num_tokens,num_tokens,),dtype=int)
 
 		idx1 = 0
 		while idx1 < num_tokens:
@@ -88,16 +109,34 @@ class induction:
 		# http://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
 
 
-
-
 	def get_clusters(self):
 		pass
-
-
-
 
 # Si periodiques:
 # Matrice de Markov.
 # Detecter les etats qui ont la meme periode
 # Reperer la premiere sequence complete.
 # On doit avoir les memes regles de tokenisation.
+
+def TestInduction():
+	tstData = [
+		"insert into table1 values('id1',11,'aa')",
+		"insert into table1 values('id2',22,'bb')",
+		"insert into table1 values('id3',33,'cc')",
+		"insert into table1 values('id4',44,'dd')",
+		"update table2 set age=11 where name='id1'",
+		"update table2 set age=22 where name='id2'",
+		"update table2 set age=33 where name='id3'",
+		"update table2 set age=44 where name='id4'",
+	]
+
+	induc = induction()
+	for tstStr in tstData:
+		induc.add_sample(tstStr)
+
+	induc.clusterize()
+
+
+
+if __name__ == '__main__':
+    TestInduction()
