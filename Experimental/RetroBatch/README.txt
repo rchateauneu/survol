@@ -205,12 +205,6 @@ Il faudrait faire l'apprentissage avec n'importe quoi:
 
 Machine learning:
 -----------------
-The aggregated system calls can be transformed into free text describing the running operations:
-System calls - possibly grouped, parameters, buffers content.
-This contains only the interaction of the system with the outside world.
-This can be associated with other data coming from the program: Graphic display,
-network operations, database operations etc...
-
 scikit-learn module provide simple and efficient tools for data mining and data analysis,
 notably for classification, clustering, feature extraction etc...
 
@@ -218,11 +212,37 @@ The plan is to apply these techniques on the aggregated calls,
 in order to enhance the software understanding, by:
 - Isolating logical steps
 - Detecting common patterns
-- Qualifying streams of processing will well-known activities
+- Qualifying streams of processing will well-known activities.
+
+(1) The aggregated system calls can be transformed into free text describing the running operations:
+System calls - possibly grouped, parameters, buffers content.
+This contains only the interaction of the system with the outside world.
+Only a sliding window of system calls - possibly aggregated - is enough.
+This can be associated with other data coming from the program: Graphic display,
+network operations, database operations etc...
+Usage: Gives the hint about what the system is doing. Example:
+- Dialog on a socket.
+- ...
+
+(2) The user can provide a CSV file with tags as output. Use that for learning before classification
+of read() and write() buffers. Resulting tags stored in XML file.
+When it matches, the Python module is called with these data, and do things like:
+- Return CIM-like objects
+- Process mining.
+Usage: Gives a hint about data files with category="Others".
+Not needed for well-known files, such as libraries, sqlite etc....
+
+(3) Find a correlation between the content of several simultaneous streams.
+Usage: ???
+- Model the process as a black box ? Really too far. An internal state should be used.
+Makes no sense when it is data manipulation.
+
 
 Process mining:
 ---------------
-Process mining is a family of techniques in the field of process management that support the analysis of business processes based on event logs. It is required that the event logs data be linked to a case ID, activities, and timestamps.
+Process mining is a family of techniques in the field of process management
+that support the analysis of business processes based on event logs.
+It is required that the event logs data be linked to a case ID, activities, and timestamps.
 
 The goal is to extract or synthetize case ID and activities from the system calls log files,
 to result in models describing business processes.
@@ -242,3 +262,74 @@ The goal is to discover this relation between the technical objects in call logs
 and the business objects, whose processing yields these call logs.
 This association is an iterative process, potentially helped by a user.
 
+Consider text method from sklearn, to detect and extract case ids:
+- A case id is a "rare" string occuring in several streams frames.
+- It can be a group of rare strings: First name, surname etc...
+strongly correlated.
+- Different caseids should not appear together in the same frame of a stream.
+
+In a stream, remove the words which are always part of this category of streams.
+For example, in SQL, remove the SQL keywords.
+What is left are case ids, or data specific to the case.
+Plus, of course, time-stamps, counters etc...
+
+If it is not possible to split a stream based on time stamps, or io buffers,
+then detect periodic patterns. Ex:
+insert into XXX value("a");insert into XXX value("bb");insert into XXX value("ccc");
+Just extract "a","bb","ccc".
+Consider Markov chains.
+
+If a segment is "not too big", calculate Levenshtein distance with "a couple of previous" segments,
+this distance being stored in a distance matrix.
+The goal is to create clusters of "similar" segments.
+Store the first N segments, calculate their Levenshtein distance matrix,
+for the first N segments.
+the n selects the "center" of each cluster. Only the centers are kept.
+http://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
+https://en.wikipedia.org/wiki/N-gram
+
+Example of application: Analysing the content of a socket to a database engine.
+This does not work with stored procedures.
+This socket transports SQL queries of a couple of different types: "select from a", "insert into b" etc...
+This is typical of programs always running the same set of queries,
+with bind variables and substitution.
+We want to:
+(1) Extract the variables which are the case id for process mining.
+(2) Extract the table names to investigate dependencies.
+This should apply to the returned values, even if the keywords are only delimiters.
+
+So we have an object which is fed with the incoming queries.
+It clusterizes them.
+It can give the skeleton of each cluster,
+the inverse of variables subsitution.
+If it receives a very big buffer, it is able to detect periodic patterns.
+https://en.wikipedia.org/wiki/Anti-unification_(computer_science)
+https://en.wikipedia.org/wiki/Grammar_induction
+
+Splitting into tokens is specific to the language:
+Which delimiters, if delimiters are escaped etc...
+However, we can assume some generic rules.
+
+This is an independant package.
+dockit uses it if it is there only.
+
+class induction_engine:
+    void add_sample(string qry)
+
+    // Each string of the form "insert into ABC values(\1,\2)" or whatever placeholder.
+    list<string> clusters()
+
+    int cluster_id(string qry)
+    list<string> extract_substitution_variables(string qry)
+
+// This may use the patterns induced.
+// But maybe we cannot.
+class detect_periodic_patterns:
+
+To ease development, we can create a mock object which just stores the data for later
+processing and testing. This helps creating realistic data sets.
+Results:
+- No clusters detected.
+- No substitution variables (aka case id) detected.
+
+scipy.sparse
