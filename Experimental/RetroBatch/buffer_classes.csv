@@ -1,0 +1,30 @@
+module  buffer
+elf \177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>
+ftp 250 CDUP command successful
+ftp PWD
+ftp CDUP
+ftp 227 Entering Passive Mode (54,36,162,150,146,39).
+ftp MLSD
+ftp 150 Opening BINARY mode data connection for MLSD
+ftp modify=20180221234207;perm=adfrw;size=2888;type=file;unique=FC01U42B41;UNIX.group=1001;UNIX.groupname=rchateau;UNIX.mode=0664;UNIX.owner=1001;UNIX.ownername=rchateau; favicon-32x32.png
+ftp CWD www\r\n
+ftp 250 CWD command successful
+ftp PWD
+ftp 226 Transfer complete
+ftp CDUP
+ftp PASV
+ftp 331 Password required for
+ftp PASS
+ftp 500 AUTH not understood
+ftp AUTH SSL
+ftp AUTH TLS
+ftp 220 FTP Server ready
+oracle  \1\206\0\0\6\0\0\0\0\0\10\3\0\f\0\0\0\fAUTH_SESSKEY`\0\0\0`F8B9A13E8006BA2FC6275E0701A329D5B85F4D518E25D4646C0AD018FB00C132E6D5B7451D793FBEC5991C4A318A2D3A\0\0\0\0\r\0\0\0\rAUTH_VFR_DATA\24\0\0\0\0249D561D54571FF38A35D0%\33\0\0\32\0\0\0\32AUTH_GLOBALLY_UNIQUE_DBID\0 \0\0\0 39CE822CD896E898D07B9A395876716F
+python  #!/usr/bin/python
+sqlserver   UNIQUE ON CONFLICT ABORT%s)\0\0\0\0\0SELECT ALL * FROM %s LIMIT 0;\0\0\0DELETE FROM %s;\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0INSERT INTO metaData (id,item1) VALUES($ID,$ITEM1);\0\0\0\0\0\0\0\0\0\0\0\0\0INSERT INTO metaData (id,item1,item2) VA
+sqlserver   SELECT * FROM sys.dm
+terminal    \33[?25lS\33[48;159H2\33[2
+terminal    \33[48;1H\33[K\33[1;27H
+terminal    \33[?25l\33[48;147H^[\33[1
+terminal    \33[48;147H  \33[1;28H
+terminal    \33[48;157H1,27\33[10CAl
