@@ -38,14 +38,15 @@ def ExecuteQuery(conn_str,sql_query):
 
 strConnect = "scott/tiger"
 
-sql_query_tables = "select table_name,tablespace_name from user_tables"
+sql_query_tables = "select table_name,tablespace_name from all_tables"
 result_tables = ExecuteQuery( strConnect,sql_query_tables)
 
+sys.stdout.write("About to display tables\n")
 for reqtab in result_tables:
     tabnam = reqtab[0]
-    sys.stderr.write("tabnam=%s\n"%str(tabnam))
+    sys.stdout.write("tabnam=%s\n"%str(tabnam))
     sql_query_one_tab = "select data_type,column_name,data_length from all_tab_columns where TABLE_NAME = '%s'" % tabnam
     result_cols = ExecuteQuery( strConnect,sql_query_one_tab)
     for colnam,dattyp,datlen in result_cols:
-        sys.stderr.write("    colnam=%s dattyp=%s datlen=%s \n"%(colnam,dattyp,datlen))
+        sys.stdout.write("    colnam=%s dattyp=%s datlen=%s \n"%(colnam,dattyp,datlen))
 
