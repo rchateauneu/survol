@@ -29,7 +29,8 @@ import platform
 
 try:
     # Optional: Classification of buffers and process mining.
-    import buffer_analysis
+    # import buffer_analysis
+    buffer_analysis = None
 except ImportError:
     pass
 
@@ -111,6 +112,7 @@ def ParseCallArguments(strArgs,ixStart = 0):
     if ixUnfinished >= 0:
         lenStr = ixUnfinished
 
+    hasOctal = False
     while (ixCurr < lenStr) and not finished:
 
         aChr = strArgs[ixCurr]
@@ -121,10 +123,15 @@ def ParseCallArguments(strArgs,ixStart = 0):
             continue
 
         if aChr == '\\':
+            # TODO: This might be an octal number as in ltrace.
+            #if (ixCurr == lenStr) or (strArgs[ixCurr] != '0'):
             isEscaped = True
             continue
 
         if aChr == '"':
+            # TODO: ltrace does not escape double-quotes:
+            #  "\001$\001$\001\026\001"\0015\001\n\001\r\001\r\001\f\001(\020",
+            # "read@SYS(3, "" + str(row) + "\\n")\n\n", 4096)"
             inQuotes = not inQuotes
             continue
 
@@ -746,6 +753,14 @@ class CIM_Process (CIM_XmlMarshaller,object):
             if objInstance not in setSubProcs:
                 lstTopLvl.append(objInstance)
         return lstTopLvl
+
+    # When parsing the last system call, it sets the termination date for all processes.
+    @staticmethod
+    def GlobalTerminationDate(timeEnd):
+        for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
+            if objInstance.TerminationDate == 0:
+                objInstance.TerminationDate = timeEnd
+                sys.stdout.write("Setting termination date for pid:%d\n"%objInstance.Handle )
 
     @classmethod
     def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
@@ -1400,6 +1415,8 @@ def FilesToPythonModules(unpackagedDataFiles):
 
 ################################################################################
 
+# This stores, on Linux, the package from where a file came from.
+# So, in Docker, a file used by a process is not copied, but its package installed.
 class FileToPackage:
     def __init__(self):
         # This file stores and reuses the map from file name to Linux package.
@@ -2041,7 +2058,13 @@ class BatchLetCore:
             # This is the main process, but at this stage we do not have its pid.
             self.m_pid = G_topProcessId
             self.InitAfterPid(oneLine, 0)
+
+        # If this process is just created, it receives the creation time-stamp.
         self.m_objectProcess = ToObjectPath_CIM_Process(self.m_pid)
+
+        # If the creation date is uknown, it is at least equal to the current call time.
+        if self.m_objectProcess.CreationDate == 0:
+            self.m_objectProcess.CreationDate = self.m_timeStart
 
     def SetFunction(self, funcFull):
         # With ltrace, systems calls are suffix with the string "@SYS".
@@ -2208,9 +2231,19 @@ class BatchLetCore:
                 # The parameters list might be broken, with strings containing an embedded double-quote.
                 # So the closing parenthesis could not be found.
                 idxEq = theCall.rfind( "=", 0, idxLT )
+                if idxEq < 0:
+                    raise Exception("No = from end: idxLT=%d. theCall=%s"%(idxLT,theCall))
             else:
                 # Normal case where the '=' equal sign comes after the clolsing parenthese of the args list.
                 idxEq = theCall.find( "=", idxLastPar )
+                if idxEq < 0:
+                    # This is acceptable in this circumstance only.
+                    if not theCall.endswith("<no return ...>\n") and not theCall.endswith("<detached ...>"):
+                        if self.m_tracer != "ltrace":
+                        # This can happen with ltrace which does not escape double-quotes. Example:
+                        # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
+                            raise Exception("No = from parenthesis: idxLastPar=%d. theCall=%s. Len=%d"%(idxLT,theCall,len(theCall)))
+
             self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
             # sys.stdout.write("idxEq=%d idxLastPar=%d idxLT=%d retValue=%s\n"%(idxEq,idxLastPar,idxLT,self.m_retValue))
 
@@ -2233,33 +2266,38 @@ def CreateBatchCore(oneLine,tracer):
 
 ################################################################################
 
-# These system calls are not taken into account beause they do not give
-# any dependency between the process and other resources.
+# These system calls are not taken into account because they do not give
+# any dependency between the process and other resources,
+# so we are not interested by their return value.
 G_ignoredSyscalls = [
-    "mprotect",
-    "brk",
-    "lseek",
     "arch_prctl",
-    "rt_sigaction",
-    "set_tid_address",
-    "set_robust_list",
-    "rt_sigprocmask",
-    "rt_sigaction",
-    "rt_sigreturn",
-    "geteuid",
-    "getuid",
-    "getgid",
-    "getegid",
-    "setpgid",
-    "getpgid",
-    "setpgrp",
-    "getpgrp",
-    "getpid",
-    "getppid",
-    "getrlimit",
-    "futex",
     "brk",
+    "futex",
+    "clock_getres",
+    "clock_gettime",
+    "getegid",
+    "geteuid",
+    "getgid",
+    "getpgid",
+    "getpid",
+    "getpgrp",
+    "getppid",
+    "getresgid",
+    "getrlimit",
+    "gettid",
+    "getuid",
+    "lseek",
     "mlock",
+    "mprotect",
+    "rt_sigaction",
+    "rt_sigprocmask",
+    "rt_sigreturn",
+    "sched_getaffinity",
+    "set_robust_list",
+    "set_tid_address",
+    "setpgid",
+    "setpgrp",
+    "times",
 ]
 
 
@@ -2640,7 +2678,8 @@ class BatchLetSys_read(BatchLetBase,object):
 
             # Or: "read(0</dev/pts/2>,  <detached ...>"
             # TODO: Should be processed specifically.
-
+            # This happens if the buffer contains a double-quote. Example:
+            # Error parsing retValue=read@SYS(8, "\003\363\r\n"|\314Vc", 4096)                                                  = 765
             sys.stdout.write("Error parsing retValue=%s\n" % ( batchCore.m_retValue) )
             return
 
@@ -3660,7 +3699,7 @@ class BatchFlow:
     def FilterMatchedBatches(self):
         lenBatch = len(self.m_listBatchLets)
 
-        mapOccurences = self.StatisticsPairs()
+        mapOccurences = self.StatisticsBigrams()
 
         numSubst = 0
         idxBatch = 1
@@ -3699,10 +3738,11 @@ class BatchFlow:
             
         return numSubst
 
-    
     # This counts the frequency of consecutive pairs of calls.
     # Used to replace these common pairs by an aggregate call.
-    def StatisticsPairs(self):
+    # See https://en.wikipedia.org/wiki/N-gram about bigrams.
+    # About statistics: https://books.google.com/ngrams/info
+    def StatisticsBigrams(self):
 
         lenBatch = len(self.m_listBatchLets)
 
@@ -3725,10 +3765,10 @@ class BatchFlow:
 
     # This examines pairs of consecutive calls with their arguments, and if a pair
     # occurs often enough, it is replaced by a single BatchLetSequence which represents it.
-    def ClusterizePairs(self):
+    def ClusterizeBigrams(self):
         lenBatch = len(self.m_listBatchLets)
 
-        mapOccurences = self.StatisticsPairs()
+        mapOccurences = self.StatisticsBigrams()
 
         numSubst = 0
         idxBatch = 0
@@ -3740,7 +3780,7 @@ class BatchFlow:
             keyRange = SignatureForRepetitions( batchRange )
             numOccur = mapOccurences.get( keyRange, 0 )
 
-            # sys.stdout.write("ClusterizePairs keyRange=%s numOccur=%d\n" % (keyRange, numOccur) )
+            # sys.stdout.write("ClusterizeBigrams keyRange=%s numOccur=%d\n" % (keyRange, numOccur) )
 
             # Five occurences for example, as representative of a repetition.
             if numOccur > 5:
@@ -3830,10 +3870,10 @@ class BatchFlow:
 
             if verbose > 0:
                 sys.stdout.write("\n")
-                sys.stdout.write("ClusterizePairs lenBatch=%d\n"%(len(self.m_listBatchLets)) )
-            numSubst = self.ClusterizePairs()
+                sys.stdout.write("ClusterizeBigrams lenBatch=%d\n"%(len(self.m_listBatchLets)) )
+            numSubst = self.ClusterizeBigrams()
             if verbose > 0:
-                sys.stdout.write("ClusterizePairs numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
+                sys.stdout.write("ClusterizeBigrams numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
             if numSubst == 0:
                 break
             idxLoops += 1
@@ -3910,6 +3950,10 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         except:
             return False
 
+    # This is parsed from each line corresponding to a syztem call.
+    batchCore = None
+
+    lastTimeStamp = 0
 
     numLine = 0
     oneLine = ""
@@ -3955,20 +3999,27 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             oneLine += tmpLine[:-1]
 
         if not oneLine:
+            # If this is the last line and therefore the last call.
             sys.stdout.write("Last line=%s\n"%prevLine)
+
+            # This is the terminate date of the last process still running.
+            CIM_Process.GlobalTerminationDate(lastTimeStamp)
+
             break
 
         # This parses the line into the basic parameters of a function call.
         try:
             batchCore = CreateBatchCore(oneLine,tracer)
         except:
-            # raise Exception("Invalid line %d:%s\n"%(numLine,oneLine) )
-            raise
+            sys.stderr.write("Caught invalid line %d:%s\n"%(numLine,oneLine) )
+            # raise
 
         # Maybe the line cannot be parsed.
         if batchCore:
 
-            # Based on the function call, it creates a specific derived class.
+            lastTimeStamp = batchCore.m_timeEnd
+
+            # This creates a derived class deduced from the system call.
             try:
                 aBatch = BatchLetFactory(batchCore)
             except:
@@ -4235,7 +4286,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     if inputLogFile:
         logStream = open(inputLogFile)
         LogSource("File "+inputLogFile)
-        sys.stdout.write("Logfile=%s pid=%s lenBatch=?\n" % (inputLogFile,aPid) )
+        LogSource("Logfile %s pid=%s lenBatch=?\n" % (inputLogFile,aPid) )
 
         # There might be a context file with important information to reproduce the test.
         contextLogFile = os.path.splitext(inputLogFile)[0]+'.ini'
