@@ -170,7 +170,7 @@ http://bewareofgeek.livejournal.com/2945.html
 https://stackoverflow.com/questions/26852228/detect-new-process-creation-instantly-in-linux
 https://stackoverflow.com/questions/6075013/detect-launching-of-programs-on-linux-platform
  
-Its is also possible (desirable ?) to track creation of files in a given directory,
+It is also possible (desirable ?) to track creation of files in a given directory,
 and monitor the processes accessing them:
 https://www.eventtracker.com/newsletters/how-to-use-process-tracking-events-in-the-windows-security-log/
 https://pypi.python.org/pypi/inotify
@@ -179,7 +179,7 @@ https://pypi.python.org/pypi/inotify
 More efficiency, less storage, with a data window:
 --------------------------------------------------
 At the moment, all intermediate data are stored into memory, and used
-at scritp's end, when various files are created.
+at script's end, when various files are created.
 
 It would be more efficient to store data in a small window, a circular buffer.
 This would allow to monitor an application without limitation
@@ -197,16 +197,17 @@ to give a better overview of what a program is really doing:
 and processing peaks; the goal being to apply processing mining techniques
 to streams of instructions.
  
-
-Faire tourner scikit-learn sur la fenetre d'appels et afficher les sorties.
-Il faudrait faire l'apprentissage avec n'importe quoi:
-- Predire les prochains appels.
-- Estimer ce que ca fait en fonction de cas stockes: Hard-copy de l ecran. Contenu des fichiers.
-
 Machine learning:
 -----------------
 scikit-learn module provide simple and efficient tools for data mining and data analysis,
 notably for classification, clustering, feature extraction etc...
+
+Consider running sklearn on the window, so that not the whole history is necessary.
+Machine learning with any output data of the program:
+- File content.
+- Screen hard-copy.
+- etc...
+Predict next calls ?
 
 The plan is to apply these techniques on the aggregated calls,
 in order to enhance the software understanding, by:
