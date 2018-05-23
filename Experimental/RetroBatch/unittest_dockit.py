@@ -110,7 +110,6 @@ def InternalUnitTests_SummaryXML_STrace1():
 
     outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"strace",19351,None,None,False,dockit.fullMapParamsSummary,"XML",False,False)
 
-    sys.stdout.write("\nRebuilding tree\n")
     procTree = RebuildProcessTree(outputSummaryFile)
 
     print(procTree)
@@ -333,6 +332,17 @@ def InternalUnitTests_ParseSTraceObject():
 
         ( '17<TCP:[54.36.162.150:32855]>, {sa_family=AF_INET, sin_port=htons(63705), sin_addr=inet_addr("82.45.12.63")}, [16]',
           ['17<TCP:[54.36.162.150:32855]>', ['sa_family=AF_INET', 'sin_port=htons(63705)', 'sin_addr=inet_addr("82.45.12.63")'], ['16']], 114),
+
+        ( '"/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>',
+          ['/usr/bin/gcc', ['gcc', '-O3', 'ProgsAndScriptsForUnitTests/HelloWorld.c'], '0x7ffd8b44aab8 /* 30 vars */'],106 ),
+
+        # TODO: ltrace does not escape double-quotes:
+        #  "\001$\001$\001\026\001"\0015\001\n\001\r\001\r\001\f\001(\020",
+        # "read@SYS(3, "" + str(row) + "\\n")\n\n", 4096)"
+        # This string is broken due to the repeated double-quote.
+        # ( '4, "\001\024\001$\001$\001\026\001"\0015\001\n\001\r\001\004\002\r\001\f\001(\020", 4096) = 282 <0.000051>',
+        #   ['4', '\x01\x14\x01$\x01$\x01\x16\x01"\x015\x01\n\x01\r\x01\x04\x02\r\x01\x0c\x01(\x10', '4096'], 987979 ),
+
     ]
 
     for tupl in dataTst:
@@ -346,10 +356,11 @@ def InternalUnitTests_ParseSTraceObject():
         # This must be the position of the end of the arguments.
         if idx != tupl[2]:
             raise Exception("Fail idx: %d SHOULD BE:%d" % ( idx, tupl[2] ) )
-        sys.stdout.write("------%s\n"%str(resu))
-        sys.stdout.write("\n")
 
-
+        if idx != len(tupl[0]):
+            if not tupl[0][idx:].startswith("<unfinished ...>"):
+                if tupl[0][idx-2] != ')':
+                    raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % ( len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
 
 
 
@@ -401,12 +412,12 @@ def DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile):
         #else:
         #    aPid = -1
 
-        print("Input=%s"%inputLogFile)
+        dockit.LogSource("Input %s"%inputLogFile)
     
         tracer = dockit.DefaultTracer(inputLogFile)
     
         for outFilNam in mapFiles[baseName]:
-            print("Destination=%s"%outFilNam)
+            dockit.LogSource("Destination %s"%outFilNam)
     
             baseOutName, filOutExt = os.path.splitext(outFilNam)
 
@@ -467,8 +478,8 @@ if __name__ == '__main__':
             assert False, "Unhandled option"
 
     # First, some internal tests of parsing functions..
-    InternalUnitTests_SummaryXML()
     InternalUnitTests_ParseSTraceObject()
+    InternalUnitTests_SummaryXML()
     print("Internal tests OK.")
 
     DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile)
