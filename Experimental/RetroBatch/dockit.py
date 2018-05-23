@@ -1121,11 +1121,11 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
                 pass
         return setPorts
 
-    nonFilePrefixes = ["UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
+    m_nonFilePrefixes = ["UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
 
     def IsPlainFile(self):
         if self.FileName:
-            for pfx in CIM_DataFile.nonFilePrefixes:
+            for pfx in CIM_DataFile.m_nonFilePrefixes:
                 if self.FileName.startswith(pfx):
                     return False
             return True
@@ -1469,7 +1469,7 @@ class FileToPackage:
         else:
             return None
 
-    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","/var/cache/"] + CIM_DataFile.nonFilePrefixes
+    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","/var/cache/"] + CIM_DataFile.m_nonFilePrefixes
 
     @staticmethod
     def CannotBePackaged(filNam):
