@@ -55,7 +55,6 @@ Pid= 26299 {   1/Orig} 'wait4@SYS           ' ['CIM_Process.Handle="10622"'] ==>
 Pid= 26299 {   1/Orig} 'wait4@SYS           ' ['-1', 'NULL', 'WNOHANG', 'NULL'] ==>> -1 ECHILD (No child processes) (14:11:04,14:11:04)
 Pid= 26299 {   1/Orig} 'select@SYS          ' [[], [], []] ==>> 0 (Timeout) (14:11:04,14:11:04)
 Pid= 26299 {   1/Orig} 'wait4@SYS           ' ['-1', 'NULL', 'WNOHANG', 'NULL'] ==>> -1 ECHILD (No child processes) (14:11:05,14:11:05)
-Pid= 26299 {   1/Orig} 'select@SYS          ' [['CIM_DataFile.Name="TCPv6:[:::21]"'], [], []] ==>> select(1, [0 (14:11:05,14:11:05)
 
 ================== PID=10625
 Pid= 10625 {   1/Orig}M'dup2@SYS            ' ['CIM_DataFile.Name="pipe:[10575399]"'] ==>> 1<pipe:[10575399]> (14:09:55,14:09:55)
