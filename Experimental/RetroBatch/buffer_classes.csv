@@ -18,6 +18,8 @@ ftp 500 AUTH not understood
 ftp AUTH SSL
 ftp AUTH TLS
 ftp 220 FTP Server ready
+ftp <86>Apr  8 14:09:56 proftpd: pam_unix(proftpd:session): session opened for user rchateau by (uid=0)
+ftp #%PAM-1.0 session optional pam_keyinit.so force revoke auth required pam_listfile.so item=user sense=deny file=/etc/ftpusers onerr=succeed auth required pam_shells.so\nauth
 oracle \1\206\0\0\6\0\0\0\0\0\10\3\0\f\0\0\0\fAUTH_SESSKEY`\0\0\0`F8B9A13E8006BA2FC6275E0701A329D5B85F4D518E25D4646C0AD018FB00C132E6D5B7451D793FBEC5991C4A318A2D3A\0\0\0\0\r\0\0\0\rAUTH_VFR_DATA\24\0\0\0\0249D561D54571FF38A35D0%\33\0\0\32\0\0\0\32AUTH_GLOBALLY_UNIQUE_DBID\0 \0\0\0 39CE822CD896E898D07B9A395876716F
 oracle CREATE TABLE books\n( book_id            NUMBER PRIMARY KEY,\n  book_name          VARCHAR2(30),\n  author_name        VARCHAR2(40),\n  book_isbn          VARCHAR2(20) )\nTABLESPACE users
 oracle insert into books values(1,'name1','author1','isbn1')
@@ -27,6 +29,197 @@ oracle select table_name,tablespace_name from user_tables
 oracle \0Xselect data_type,column_name,data_length from all_tab_columns where TABLE_NAME = 'BOOKS'\1\0\0
 oracle \1\1\0\0\6\0\0\0\0\0\6\0\2\0\2\0\0\0\0\0d\0\0\0\0\0\0\0\270\245&\263s\177\0\0\1\0\360\7\0\0\0\0\0\0\0\0\0\0\0\0\0\0%\263s\177\0\0\6\7\vAUTHOR_NAME\2\301)\25\2\0\6\7\tBOOK_ISBN\2\301\25\4\1\0\0\0\5\0\1\4\0\0\0{\5\0\0\0\0\2\0\0\0\3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\6\0\0\1\0\0\0006\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0 \3661\n\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\31ORA-01403: no data found
 oracle \3t\0\0\6\0\0\0\0\0\20\27\0\0\00065\31\322f)\3618\200\2206\233\307\331m\362xv\5\24\2\32\30<\0\0\0\2\0\0\0Q\1\1\200\0\0\36\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0i\3\1\0\36\0\0\0\0\0\0\0\0\n\n\0\0\0\nTABLE_NAME\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\1\200\0\0\36\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0i\3\1\0\36\0\0\0\0\0\0\0\1\17\17\0\0\0\17TABLESPACE_NAME\0\0\0\0\0\0\0\0\1\0\0\0\0\0\7\0\0\0\7xv\5\24\0031\1\0\0\0\0\350\37\0\0D\0\0\0D\0\0\0\0\0\0\0\6\1\"\0\2\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0]\225\0\0\0\0\0\0\0\0\0\0\0\0\0\0y\225\360\177\0\0\7\5BOOKS\5USERS\10\6\0\220\23\25\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\23\0\0\0\0\0\7\0\0\0\7ENGLISH\20\0\0\0\0\0\16\0\0\0\16UNITED KINGDOM\t\0\0\0\0\0\2\0\0\0\2\302\243\0\0\0\0\0\0\16\0\0\0\16UNITED KINGDOM\1\0\0\0\0\0\2\0\0\0\2.,\2\0\0\0\0\0\10\0\0\0\10AL32UTF8\n\0\0\0\0\0\t\0\0\0\tGREGORIAN\f\0\0\0\0\0\t\0\0\0\tDD-MON-RR\7\0\0\0\0\0\7\0\0\0\7ENGLISH\10\0\0\0\0\0\6\0\0
+oracle INSERT INTO table (nom_colonne_1, nom_colonne_2) VALUES ('valeur 1', 'valeur 2')" : ["TABLE"],
+oracle DELETE FROM student WHERE name = 'alan'
+oracle CREATE TABLE student (id INTEGER PRIMARY KEY , name TEXT, age INTEGER)
+oracle INSERT INTO USER_TABLE VALUES ('Perry', 'Jonathan')
+oracle CREATE TABLE USER_TABLE(Userid int PRIMARY KEY IDENTITY(2,1),Last_Name nvarchar(50),First_Name nvarchar(50))
+oracle DELETE FROM Store_Information WHERE Store_Name = 'Los Angeles'
+oracle UPDATE Store_Information SET Sales = 500 WHERE Store_Name = 'Los Angeles' AND Txn_Date = 'Jan-08-1999'
+oracle SELECT WORKDEPT, MAX(SALARY) FROM DSN8A10.EMP GROUP BY WORKDEPT HAVING MAX(SALARY) < (SELECT AVG(SALARY) FROM DSN8A10.EMP)
+oracle select cola,colb from (select colb from tab22),tab11 alias15
+oracle DELETE Contact FROM Contact INNER JOIN Bedrijf ON Bedrijf.IDBedrijf = Contact.IDbedrijf
+oracle select y.CategoryID, y.CategoryName, round(x.actual_unit_price, 2) as "Actual Avg Unit Price", round(y.planned_unit_price, 2) as "Would-Like Avg Unit Price" from ( select avg(a.UnitPrice) as actual_unit_price, c.CategoryID from order_details as a inner join products as b on b.ProductID = a.ProductID inner join categories as c on b.CategoryID = c.CategoryID group by c.CategoryID ) as x inner join ( select a.CategoryID, b.CategoryName, avg(a.UnitPrice) as planned_unit_price from products as a inner join categories as b on b.CategoryID = a.CategoryID group by a.CategoryID ) as y on x.CategoryID = y.CategoryID
+oracle INSERT INTO Store_Information (Store_Name, Sales, Txn_Date) SELECT Store_Name, SUM(Sales), Txn_Date FROM Sales_Data GROUP BY Store_Name, Txn_Date
+oracle UPDATE Sales_Import SET Sales_Import.AccountNumber = RAN.AccountNumber FROM Sales_Import SI INNER JOIN RetrieveAccountNumber RAN ON SI.LeadID = RAN.LeadID
+oracle UPDATE TableOne SET field1 =(SELECT TableTwo.field1 FROM TableTwo WHERE TableOne.id=TableTwo.id), field2 =(SELECT TableTwo.field2 FROM TableTwo WHERE TableOne.id=TableTwo.id) WHERE TableOne.id = (SELECT TableTwo.id FROM TableTwo WHERE TableOne.id = TableTwo.id)
+oracle DELETE FROM WorkRecord2 FROM Employee Where EmployeeRun=EmployeeNo And Company = '1' AND Date = '2013-05-06'
+oracle SELECT MIN(a.idno) AS min_id, a.CustomerID INTO tmp_Min_Idno FROM (SELECT idno, CustomerID FROM Clients) AS a INNER JOIN (SELECT CustomerID, count(*) AS cn FROM Clients GROUP BY CustomerID HAVING count(*) > 1) AS b ON a.CustomerID=b.CustomerID GROUP BY a.CustomerID
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees
+oracle SELECT A1.Store_Name Store, SUM(A1.Sales) AS "Total Sales" FROM Store_Information AS A1 GROUP BY A1.Store_Name
+oracle select book_title from book where pub_key in (select pub_key from publisher where publisher.pub_key = book.pub_key)
+oracle select K.a,K.b from (select H.b from (select G.c from (select F.d from (select E.e from A, B, C, D, E), F), G), H), I, J, K order by 1,2;
+oracle DELETE FROM guide_category AS gc WHERE id_guide NOT IN ( SELECT id_guide FROM guide )
+oracle select book_key from book where book_key not in (select book_key from sales)
+oracle select alias1.cola,alias2.colb from tab11 alias1, (select colb from tab22) alias2
+oracle select cola from (select colb from tab22) alias2
+oracle select distinct a.CustomerID, a.CompanyName from customers as a inner join orders as b on a.CustomerID = b.CustomerID where b.ShipCountry = 'UK'
+oracle SELECT Txn_Date FROM Store_Information UNION ALL SELECT Txn_Date FROM Internet_Sales
+oracle select ProductID, ProductName, concat((UnitsInStock / 3119)*100, '%') as Percent_of_total_units_in_stock from products order by ProductID
+oracle select cola from tab14 where cold in (select c from tab140)
+oracle SELECT ProductName, UnitPrice FROM Products INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID WHERE CategoryName = 'Condiments'
+oracle select alias25.cola from (select colb from tab22) alias25
+oracle DELETE FROM Contacts FROM Contacts, Customers WHERE Contacts.Surname = Customers.Surname AND Contacts.GivenName = Customers.GivenName
+oracle SELECT song_name FROM Album WHERE band_name = 'Metallica' AND song_name IN (SELECT song_name FROM Lyric WHERE song_lyric LIKE '%justice%')
+oracle SELECT FirstName, LastName, OrderCount = (SELECT COUNT(O.Id) FROM Order O WHERE O.CustomerId = C.Id) FROM Customer C
+oracle UPDATE Sales_Import SET AccountNumber = (SELECT RetrieveAccountNumber.AccountNumber FROM RetrieveAccountNumber WHERE Sales_Import.leadid =RetrieveAccountNumber.LeadID) WHERE Sales_Import.leadid = (SELECT RetrieveAccountNumber.LeadID FROM RetrieveAccountNumber WHERE Sales_Import.leadid = RetrieveAccountNumber.LeadID)
+oracle SELECT a1.Name, a1.Sales, COUNT (a2.Sales) Sales_Rank FROM Total_Sales a1, Total_Sales a2 WHERE a1.Sales < a2.Sales OR (a1.Sales=a2.Sales AND a1.Name = a2.Name) GROUP BY a1.Name, a1.Sales ORDER BY a1.Sales DESC, a1.Name DESC
+oracle DELETE * FROM Clients WHERE remove_this = 1
+oracle DELETE T1 FROM T1 LEFT JOIN T2 ON T1.key = T2.key WHERE T2.key IS NULL
+oracle UPDATE application SET omts_received_date = (SELECT date_created FROM application_history WHERE application.id = application_history.application_id AND application_history.application_status_id = 8)
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees WHERE HireDate =1
+oracle select b*(b+1) from a
+oracle UPDATE Clients AS a INNER JOIN tmp_Min_Idno AS b ON a.CustomerID=b.CustomerID SET a.remove_this = 1 WHERE a.idno <> b.min_id
+oracle select ca,tab2.cb,tab3.cc from tab1,(select cb from tab2),(select cc from tab3)
+oracle DELETE TOP (5) o FROM #orders o JOIN #customers c ON c.customer_id = o.customer_id WHERE c.last_name = 'jones' AND c.first_name = 'alexandria'
+oracle SELECT a1.Name, a1.Sales, SUM(a2.Sales)/(SELECT SUM(Sales) FROM Total_Sales) Pct_To_Total FROM Total_Sales a1, Total_Sales a2 WHERE a1.Sales <= a2.sales or (a1.Sales=a2.Sales and a1.Name = a2.Name) GROUP BY a1.Name, a1.Sales ORDER BY a1.Sales DESC, a1.Name DESC
+oracle select cola from tab11, (select colb from tab22) alias2
+oracle SELECT SUM (a1.Sales) FROM Store_Information a1 WHERE a1.Store_Name IN (SELECT Store_Name FROM Geography a2 WHERE a2.Store_Name = a1.Store_Name)
+oracle select cola,colb,colc from tab00,(select colb from tab22),tab11
+oracle SELECT funded_month AS month, COUNT(DISTINCT company_permalink) AS companies_rec_investment FROM tutorial.crunchbase_investments GROUP BY 1
+oracle SELECT * FROM table_name
+oracle UPDATE Sales_Import SI SET AccountNumber = RAN.AccountNumber FROM RetrieveAccountNumber RAN WHERE RAN.LeadID = SI.LeadID
+oracle DELETE a FROM Employees AS a INNER JOIN Departments AS b ON a.DeptNo = b.DeptNo WHERE LOWER(b.DeptName) LIKE '%sales%'
+oracle select (select count(*) from taba where taba.col = maintab.maincol), (select count(*) from tabb where tabb.col = maintab.maincol), (select count(*) from tabc where tabc.col = maintab.maincol) from maintab where maintab.maincol like "%"
+oracle SELECT ProductName, UnitPrice FROM Products WHERE CategoryID In (SELECT CategoryID FROM Categories WHERE CategoryName = 'Condiments')
+oracle DELETE customers FROM customers LEFT JOIN orders ON customers.customerNumber = orders.customerNumber WHERE orderNumber IS NULL
+oracle DELETE a FROM "dbo"."DM_ConformedPerson" a JOIN "dbo"."TST_Fix_DM_ConformedPerson" z ON a."Person_SK" = z."Person_SK" WHERE z."Person_SK" <> z."MaxSK"
+oracle SELECT * FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE ORDER BY ORDER OF UTABLE
+oracle DELETE zpost FROM zpost INNER JOIN zcomment ON (zpost.zpostid = zcomment.zpostid) WHERE zcomment.icomment = "first"
+oracle SELECT COALESCE(acquisitions.acquired_month, investments.funded_month) AS month, COUNT(DISTINCT acquisitions.company_permalink) AS companies_acquired, COUNT(DISTINCT investments.company_permalink) AS investments FROM tutorial.crunchbase_acquisitions acquisitions FULL JOIN tutorial.crunchbase_investments investments ON acquisitions.acquired_month = investments.funded_month GROUP BY 1
+oracle SELECT cs.CUSID,dp.DEPID FROM CUSTMR cs LEFT OUTER JOIN ( SELECT DEPID,DEPNAME FROM DEPRMNT WHERE dp.DEPADDRESS = 'TOKYO' ) ss ON ( ss.DEPID = cs.CUSID AND ss.DEPNAME = cs.CUSTNAME ) WHERE cs.CUSID != ''
+oracle SELECT EMPLOYEE_ID, salary, department_id FROM employees E WHERE salary > (SELECT AVG(salary) FROM EMP T WHERE E.department_id = T.department_id)
+oracle SELECT Ord.SalesOrderID, Ord.OrderDate, (SELECT MAX(OrdDet.UnitPrice) FROM AdventureWorks.Sales.SalesOrderDetail AS OrdDet WHERE Ord.SalesOrderID = OrdDet.SalesOrderID) AS MaxUnitPrice FROM AdventureWorks2008R2.Sales.SalesOrderHeader AS Ord
+oracle UPDATE Table1 t1, Table2 t2 SET t1.column = t2.column WHERE t1.ID = t2.ID
+oracle select cola,colc,colb from tab13 alias13,tab23 alias23
+oracle SELECT a.CustomerID, c.CustomerName, c.phone1 FROM ((Invoice AS a INNER JOIN InvLines AS b ON a.DocKey=b.DocKey) INNER JOIN Customers AS c ON a.CustomerID = c.CustomerID) INNER JOIN ( SELECT a.ItemCode FROM (InvLines AS a INNER JOIN Invoice AS b ON a.DocKey=b.DocKey) INNER JOIN Customers AS c ON b.CustomerID = c.CustomerID WHERE c.CustomerName = 'John Depp' GROUP BY a.ItemCode ) AS d ON b.ItemCode = d.ItemCode WHERE c.CustomerName <> 'John Depp' GROUP BY a.CustomerID, c.CustomerName, c.phone1
+oracle DELETE px FROM #prodextend px INNER JOIN #product p ON p.din = px.din AND p.pkgSize = px.pkgSize INNER JOIN #manu_clients mc ON mc.clientCode = p.clientCode
+oracle UPDATE table1 SET table1.column = 'some_new_val' WHERE table1.id IN ( SELECT * FROM ( SELECT table1.id FROM table1 JOIN table2 ON ( table2.column = table1.column ) 		WHERE table1.column = 'some_expected_val' ) AS Xalias )
+oracle SELECT sub.* FROM ( SELECT * FROM tutorial.sf_crime_incidents_2014_01 WHERE day_of_week = 'Friday' ) sub WHERE sub.resolution = 'NONE'
+oracle select tab1.cola,tab2.colb,tab3.colc from (select cola from tab1),(select colb from tab2),(select colc from tab3)
+oracle SELECT Sales Median FROM (SELECT a1.Name, a1.Sales, COUNT(a1.Sales) Rank FROM Total_Sales a1, Total_Sales a2 WHERE a1.Sales < a2.Sales OR (a1.Sales=a2.Sales AND a1.Name <= a2.Name) group by a1.Name, a1.Sales order by a1.Sales desc) a3 WHERE Rank = (SELECT (COUNT(*)+1) DIV 2 FROM Total_Sales)
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees WHERE HireDate >= '1-july-1993'
+oracle SELECT Count(r.id)  AS cnt_total, (SELECT Count(r1.entity_id) FROM auto_reminders_members r1 WHERE r1.reminder_id = r.reminder_id AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',   101)   AND CONVERT(DATETIME, '03/28/2013' + ' 23:59:59.997 ', 101) AND r1.action = 'notnow') AS cnt_notnow, (SELECT Count(r1.entity_id) FROM auto_reminders_members r1 WHERE r1.reminder_id = r.reminder_id AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',   101)   AND CONVERT(DATETIME, '03/28/2013' + ' 23:59:59.997 ', 101) AND r1.action = 'insert') AS cnt_insert, (SELECT Count(r1.entity_id) FROM auto_reminders_members r1 WHERE r1.reminder_id = r.reminder_id AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',   101)   AND CONVERT(DATETIME, '03/28/2013' + ' 23:59:59.997 ', 101) AND r1.action = 'update') AS cnt_update, (SELECT Count(r1.entity_id) FROM auto_reminders_members r1 WHERE r1.reminder_id = r.reminder_id AND r1.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013',   101)   AND CONVERT(DATETIME, '03/28/2013' + ' 23:59:59.997 ', 101) AND r1.action = 'verify') AS cnt_verify FROM auto_reminders_members r WHERE r.reminder_id = 1 AND r.date_last_reminder BETWEEN CONVERT(DATETIME, '03/28/2013', 101) AND   CONVERT(DATETIME,   '03/28/2013' + ' 23:59:59.997 ', 101   ) GROUP BY r.reminder_id
+oracle DELETE pgc FROM guide_category pgc LEFT JOIN guide g ON g.id_guide = gc.id_guide WHERE g.id_guide IS NULL
+oracle select * from Schema.Students JOIN Advisors ON Advisor_ID=Advisor_ID
+oracle SELECT LEFT(sub.date, 2) AS cleaned_month, sub.day_of_week, AVG(sub.incidents) AS average_incidents FROM ( SELECT day_of_week, date, COUNT(incidnt_num) AS incidents FROM tutorial.sf_crime_incidents_2014_01 GROUP BY 1,2 ) sub GROUP BY 1,2 ORDER BY 1,2
+oracle SELECT suppliers.supplier_name, subquery1.total_amt FROM suppliers, (SELECT supplier_id, SUM(orders.amount) AS total_amt FROM orders GROUP BY supplier_id) subquery1 WHERE subquery1.supplier_id = suppliers.supplier_id
+oracle select cola,colb,colc,cold from (select cola from tab00),(select colb from tab22),tab11,(select colb from tab33)
+oracle SELECT Store_Name, CASE Store_Name WHEN 'Los Angeles' THEN Sales * 2 WHEN 'San Diego' THEN Sales * 1.5 ELSE Sales END 'New Sales',Txn_Date FROM Store_Information
+oracle select cola,tab2.colb,tab3.colc from (select cola from tab1),(select colb from tab2),(select colc from tab3)
+oracle select distinct a.ProductID, a.UnitPrice as Max_unit_price_sold from order_details as a inner join ( select ProductID, max(UnitPrice) as Max_unit_price_sold from order_details group by ProductID ) as b on a.ProductID=b.ProductID and a.UnitPrice=b.Max_unit_price_sold order by a.ProductID
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, Country, City FROM Employees ORDER BY Country, City DESC
+oracle SELECT SalesOrderID, OrderDate, (SELECT MAX(OrdDet.UnitPrice) FROM AdventureWorks.Sales.SalesOrderDetail WHERE SalesOrderID = OrdDet.SalesOrderID) FROM AdventureWorks2008R2.Sales.SalesOrderHeader
+oracle SELECT SalesOrderID, OrderDate, TotalDue, (SELECT COUNT(SalesOrderDetailID) FROM Sales.SalesOrderDetail WHERE SalesOrderID = SO.SalesOrderID) FROM Sales.SalesOrderHeader
+oracle SELECT column1 = (SELECT columnname FROM tablename WHERE condition), columnnames FROM tablename WHERE condition
+oracle select distinct a.ProductID, p.ProductName, a.UnitPrice as Max_unit_price_sold from order_details as a inner join products as p on a.ProductID = p.ProductID where a.UnitPrice = ( select max(UnitPrice) from order_details as b where a.ProductID = b.ProductID ) order by a.ProductID
+oracle MERGE INTO Sales_Import USING RetrieveAccountNumber ON Sales_Import.LeadID = RetrieveAccountNumber.LeadID WHEN MATCHED THEN UPDATE SET AccountNumber = RetrieveAccountNumber.AccountNumber
+oracle select alias25.cola,alias15.colb from tab11 alias15,(select colb from tab22) alias25
+oracle SELECT Txn_Date FROM Store_Information INTERSECT SELECT Txn_Date FROM Internet_Sales
+oracle SELECT * FROM tutorial.crunchbase_investments_part1 UNION ALL SELECT * FROM tutorial.crunchbase_investments_part2
+oracle SELECT A1.Store_Name STORE1, A2.Store_Name STORE2, A2.Sales SALES FROM Geography A1 JOIN Store_Information A2
+oracle select * from Schema.Students S JOIN Advisors A ON S.Advisor_ID=A.Advisor_ID
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees WHERE HireDate BETWEEN '1-june-1992' AND '15-december-1993'
+oracle SELECT Store_Name, SUM(Sales) FROM Store_Information GROUP BY Store_Name HAVING SUM(Sales) > 1500
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees WHERE (HireDate >= '1-june-1992') AND (HireDate <= '15-december-1993')
+oracle select x.ProductID, y.ProductName, x.max_unit_price from ( select ProductID, max(UnitPrice) as max_unit_price from order_details group by ProductID ) as x inner join products as y on x.ProductID = y.ProductID
+oracle select distinct a.ProductID, a.UnitPrice as Max_unit_price_sold from order_details as a where a.UnitPrice = ( select max(UnitPrice) from order_details as b where a.ProductID = b.ProductID ) order by a.ProductID
+oracle select alias1.cola,colb from tab1 alias1, (select colb from tab2)
+oracle select CustomerID, CompanyName from customers where CustomerID in ( 'BONAP', 'DRACD', 'ERNSH', 'LEHMS', 'LILAS', 'PERIC', 'QUEEN', 'RATTC', 'RICSU', 'SIMOB', 'TORTU' )
+oracle SELECT COUNT(*) FROM tutorial.crunchbase_acquisitions acquisitions FULL JOIN tutorial.crunchbase_investments investments ON acquisitions.acquired_month = investments.funded_month
+oracle SELECT CompanyName FROM Suppliers WHERE EXISTS (SELECT * FROM Products p, Categories c WHERE p.SupplierID = s.SupplierID AND p.CategoryID = c.CategoryID AND CategoryName LIKE '*Dairy*')
+oracle select distinct ProductID, UnitPrice as Max_unit_price_sold from order_details where row(ProductID, UnitPrice) in ( select ProductID, max(UnitPrice) from order_details group by ProductID ) order by ProductID
+oracle SELECT incidents.*, sub.incidents AS incidents_that_day FROM tutorial.sf_crime_incidents_2014_01 incidents JOIN ( SELECT date, COUNT(incidnt_num) AS incidents FROM tutorial.sf_crime_incidents_2014_01 GROUP BY 1 ) sub ON incidents.date = sub.date ORDER BY sub.incidents DESC, time
+oracle select * from Schema.Students S , Advisors ON Advisor_ID=Advisor_ID
+oracle update foo set foo.new = (select bar.new from bar where foo.key = bar.key) where exists (select 1 from bar where foo.key = bar.key)
+oracle SELECT first_name, salary, department_id FROM employees WHERE salary = (SELECT MIN (salary) FROM employees)
+oracle SELECT a.CustomerID, c.CustomerName, c.phone1 FROM (Invoice AS a INNER JOIN InvLines AS b ON a.DocKey = b.DocKey) INNER JOIN Customers AS c ON a.CustomerID = c.CustomerID WHERE c.CustomerName <> 'John Depp' AND b.ItemCode IN ( SELECT a.ItemCode FROM (InvLines AS a INNER JOIN Invoice AS b ON a.DocKey = b.DocKey) INNER JOIN Customers AS c ON b.CustomerID = c.CustomerID WHERE c.CustomerName = 'John Depp' GROUP BY a.ItemCode ) GROUP BY a.CustomerID, c.CustomerName, c.phone1
+oracle SELECT COUNT(*) AS total_rows FROM ( SELECT * FROM tutorial.crunchbase_investments_part1 UNION ALL SELECT * FROM tutorial.crunchbase_investments_part2 ) sub
+oracle SELECT acquired_month AS month, COUNT(DISTINCT company_permalink) AS companies_acquired FROM tutorial.crunchbase_acquisitions GROUP BY 1
+oracle select CustomerID, CompanyName from customers as a where not exists ( select * from orders as b where a.CustomerID = b.CustomerID and ShipCountry <> 'UK' )
+oracle select cola,colb,colc,cold from tab00,(select colb from tab22),tab11,(select colb from tab33)
+oracle SELECT name, count(*) AS name_count FROM ( SELECT Lower(RTrim(FirstName))+ ' ' + Lower(RTrim(LastName)) AS name FROM Employees UNION ALL SELECT Lower(RTrim(CustomerName)) AS name FROM Customers ) AS a GROUP BY name
+oracle SELECT Store_Name, Sales, Txn_Date FROM Store_Information ORDER BY Sales DESC LIMIT 2
+oracle DELETE a FROM Table1 AS a INNER JOIN Table2 AS b ON a.id = b.id
+oracle select * from dbo.Students S FULL OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID where A.Advisor_ID is null
+oracle SELECT City_EN, count(*) AS cn FROM ( SELECT City_EN, City_IT FROM Address_Table GROUP BY City_EN, City_IT ) AS a GROUP BY City_EN HAVING count(*) > 1
+oracle SELECT * FROM tutorial.sf_crime_incidents_2014_01 incidents JOIN ( SELECT date FROM tutorial.sf_crime_incidents_2014_01 ORDER BY date LIMIT 5 ) sub ON incidents.date = sub.date
+oracle UPDATE Sales_Import SI,RetrieveAccountNumber RAN SET SI.AccountNumber = RAN.AccountNumber WHERE SI.LeadID = RAN.LeadID
+oracle select tab22.cola from (select colb from tab22)
+oracle SELECT SalesOrderID, LineTotal, (SELECT AVG(LineTotal) FROM Sales.SalesOrderDetail) AS AverageLineTotal, LineTotal - (SELECT AVG(LineTotal) FROM Sales.SalesOrderDetail) AS Variance FROM Sales.SalesOrderDetail
+oracle SELECT Album.song_name FROM Album WHERE Album.band_name = 'Metallica' AND EXISTS (SELECT Cover.song_name FROM Cover WHERE Cover.band_name = 'Damage, Inc.' AND Cover.song_name = Album.song_name)
+oracle UPDATE table1 SET table1.column = 'some_new_val' WHERE table1.id IN ( SELECT * FROM ( SELECT table1.id FROM table1 LEFT JOIN table2 ON ( table2.column = table1.column ) WHERE table1.column = 'some_expected_val' AND table12.column IS NULL ) AS Xalias )
+oracle SELECT c.* FROM Address_Table AS c INNER JOIN ( SELECT City_EN, count(*) AS cn FROM ( SELECT City_EN, City_IT FROM Address_Table GROUP BY City_EN, City_IT ) AS a GROUP BY City_EN HAVING count(*) > 1 ) AS b ON c.City_EN = b.City_EN ORDER BY c.City_EN, c.City_IT
+oracle select * from Schema.Students S JOIN Advisors ON Advisor_ID=Advisor_ID
+oracle SELECT SalesOrderID, SalesOrderDetailID, LineTotal, (SELECT AVG(LineTotal) FROM Sales.SalesOrderDetail WHERE SalesOrderID = SOD.SalesOrderID) AS AverageLineTotal FROM Sales.SalesOrderDetail SOD
+oracle select a.OrderID, a.CustomerID from orders as a where ( select Quantity from order_details as b where a.OrderID = b.OrderID and b.ProductID = 6 ) > 20
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees WHERE City = 'London' OR City = 'Seattle'
+oracle SELECT distinct sess.sid, sess.username, sess.schemaname, proc.spid,pid,sess.osuser,sess.machine,sess.process, sess.port,proc.terminal,sess.program,proc.tracefile FROM v$session sess, 	 v$process proc WHERE sess.type = 'USER' and sess.paddr = proc.addr
+oracle SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid FROM v$session sess, 	 v$sql sql, 	 v$process proc WHERE sql.sql_id(+) = sess.sql_id AND sess.type = 'USER' and sess.paddr = proc.addr
+oracle SELECT column-names FROM tablename1 WHERE value IN (SELECT column_name FROM tablename2 WHERE condition)
+oracle DELETE offices, employees FROM offices INNER JOIN employees ON employees.officeCode = employees.officeCode WHERE offices.officeCode = 5
+oracle select CustomerID, CompanyName from customers where CustomerID in ( select CustomerID from orders where orderDate > '1998-05-01' )
+oracle SELECT CompanyName FROM Suppliers AS s WHERE EXISTS (SELECT * FROM Products p, Categories c WHERE p.SupplierID = s.SupplierID AND p.CategoryID = c.CategoryID AND CategoryName LIKE '*Dairy*')
+oracle SELECT AlbumInfo.album_name FROM AlbumInfo WHERE AlbumInfo.band_name = 'Metallica' AND album_tracks <> (SELECT COUNT(*) FROM Album WHERE Album.album_name = AlbumInfo.album_name)
+oracle SELECT a.EmpNo, TRIM(a.FirstName) & ' ' & TRIM(a.LastName) AS EmpName, SUM(b.Salary) AS TotalMoney FROM Employees AS a INNER JOIN Employees AS b ON a.EmpNo=b.ManagerNo GROUP BY a.EmpNo, TRIM(a.FirstName) & ' ' & TRIM(a.LastName) ORDER BY SUM(b.Salary) DESC
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees ORDER BY City
+oracle DELETE Table1 FROM Table1 t1 INNER JOIN Table2 t2 ON t1.Col1 = t2.Col1 WHERE t2.Col3 IN ('Two-Three','Two-Four')
+oracle SELECT a1.Name, a1.Sales, a1.Sales/(SELECT SUM(Sales) FROM Total_Sales) Pct_To_Total FROM Total_Sales a1, Total_Sales a2 WHERE a1.Sales <= a2.sales or (a1.Sales=a2.Sales and a1.Name = a2.Name) GROUP BY a1.Name, a1.Sales ORDER BY a1.Sales DESC, a1.Name DESC
+oracle select aa from bb
+oracle select * from Students S JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID
+oracle SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees WHERE City = 'London'
+oracle DELETE subscribers, subscriptions FROM subscribers INNER JOIN subscriptions ON subscribers.id = subscriptions.subscriber_id INNER JOIN magazines ON subscriptions.magazine_id = magazines.id WHERE subscribers.name='Wes';
+oracle SELECT song_name FROM Album WHERE album_name = 'And Justice for All' AND band_name = 'Metallica' AND song_name NOT IN (SELECT song_name FROM Lyric WHERE song_lyric LIKE '%justice%')
+oracle SELECT AlbumInfo.album_name, album_tracks, (SELECT COUNT(*) FROM Album WHERE Album.album_name = AlbumInfo.album_name) FROM AlbumInfo WHERE AlbumInfo.band_name = 'Metallica'
+oracle select * from Students S LEFT OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID
+oracle SELECT	first_name, department_id FROM employees WHERE department_id IN (SELECT department_id FROM departments WHERE LOCATION_ID = 100)
+oracle DROP TABLE Table1
+oracle select b from a
+oracle SELECT Txn_Date FROM Store_Information MINUS SELECT Txn_Date FROM Internet_Sales
+oracle SELECT * FROM AlbumSales WHERE album_gross > ALL (SELECT album_costs FROM AlbumProduction)
+oracle SELECT A1.Store_Name, SUM(A2.Sales) SALES FROM Geography A1, Store_Information A2 WHERE A1.Store_Name = A2.Store_Name (+) GROUP BY A1.Store_Name
+oracle SELECT name, count(*) AS name_count FROM ( SELECT LCase(Trim(FirstName))& ' ' & LCase(Trim(LastName)) AS Name FROM Employees UNION ALL SELECT LCase(Trim(CustomerName)) AS Name FROM Customers ) AS a GROUP BY name
+oracle DELETE a.* FROM Clients AS a INNER JOIN tmp_Min_Idno AS b ON a.CustomerID = b.CustomerID WHERE a.idno <> b.min_id
+oracle UPDATE t1 SET t1.colmun = t2.column FROM Table1 t1, Table2 t2 WHERE t1.ID = t2.ID
+oracle select * from dbo.Students S LEFT OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID
+oracle UPDATE Sales_Import SI, RetrieveAccountNumber RAN SET SI.AccountNumber = RAN.AccountNumber WHERE SI.LeadID = RAN.LeadID
+oracle SELECT EMP_ACT.EMPNO, PROJNO FROM EMP_ACT WHERE EMP_ACT.EMPNO IN (SELECT EMPLOYEE.EMPNO FROM EMPLOYEE ORDER BY SALARY DESC FETCH FIRST 3 ROWS ONLY)
+oracle SELECT COALESCE(acquisitions.month, investments.month) AS month, acquisitions.companies_acquired, investments.companies_rec_investment FROM ( SELECT acquired_month AS month, COUNT(DISTINCT company_permalink) AS companies_acquired FROM tutorial.crunchbase_acquisitions ) acquisitions FULL JOIN ( SELECT funded_month AS month, COUNT(DISTINCT company_permalink) AS companies_rec_investment FROM tutorial.crunchbase_investments )investments ON acquisitions.month = investments.month
+oracle SELECT DECODE (Store_Name, 'Los Angeles', 'LA', 'San Francisco', 'SF', 'San Diego', 'SD', 'Others') Area, Sales, Txn_Date FROM Store_Information
+oracle DELETE guide_category WHERE id_guide_category IN ( SELECT id_guide_category FROM guide_category AS gc LEFT JOIN guide AS g ON g.id_guide = gc.id_guide WHERE g.title IS NULL )
+oracle select b from a union (select c from d)
+oracle select book_key from book where exists (select book_key from sales)
+oracle select EmployeeID, FirstName, LastName, City, Country from employees where row(City, Country) in (select City, Country from customers)
+oracle SELECT * FROM tutorial.sf_crime_incidents_2014_01 WHERE Date IN (SELECT date  FROM tutorial.sf_crime_incidents_2014_01  ORDER BY date  LIMIT 5 )
+oracle UPDATE t1 SET t1.column = t2.column FROM Table1 t1 INNER JOIN Table2 t2 ON t1.id = t2.id
+oracle SELECT SUM (Sales) FROM Store_Information WHERE Store_Name IN (SELECT Store_Name FROM Geography WHERE Region_Name = 'West')
+oracle DELETE * FROM Employees WHERE DeptNo IN (SELECT DeptNo FROM Departments WHERE LCase(DeptName) LIKE '*sales*')
+oracle select b from a intersect (select c from d)
+oracle select emp_last_name from emp where emp_salary < (select job_min_sal from job where emp.job_key = job.job_key)
+oracle SELECT sqltext.TEXT, req.session_id, req.status, sess.host_process_id, sess.host_name FROM sys.dm_exec_requests req CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext , sys.dm_exec_sessions sess where sess.session_id = req.session_id
+oracle select distinct a.CustomerID, a.CompanyName from customers as a left join orders as b on a.CustomerID = b.CustomerID where b.ShipCountry = 'UK' or b.ShipCountry is null
+oracle select cola,colb,colc,cold from tab00,tab22,tab11,(select colb from tab33)
+oracle select cola,colc,colb from tab14,tab24 alias24
+oracle SELECT ProductName FROM Product WHERE Id IN (SELECT ProductId FROM OrderItem WHERE Quantity > 100)
+oracle select * from dbo.Students S FULL OUTER JOIN dbo.Advisors A ON S.Advisor_ID=A.Advisor_ID where A.Advisor_ID is null or S.Student_ID is null
+oracle select cola,colc,colb from tab14,tab24
+oracle DELETE a.* FROM Employees AS a INNER JOIN Departments AS b ON a.DeptNo = b.DeptNo WHERE LCase(b.DeptName) LIKE '*sales*'
+oracle select cola,colb from (select colb from tab22),tab11
+oracle select CustomerID, CompanyName from customers as a where exists ( select * from orders as b where a.CustomerID = b.CustomerID and ShipCountry = 'UK' )
+oracle SELECT a1.Name, a1.Sales, SUM(a2.Sales) Running_Total FROM Total_Sales a1, Total_Sales a2 WHERE a1.Sales <= a2.sales or (a1.Sales=a2.Sales and a1.Name = a2.Name) GROUP BY a1.Name, a1.Sales ORDER BY a1.Sales DESC, a1.Name DESC
+oracle SELECT Products.ProductName, Products.UnitPrice FROM Products WHERE (((Products.UnitPrice) > (SELECT AVG([UnitPrice]) From Products))) ORDER BY Products.UnitPrice DESC;
+oracle select cola from tab11 alias1, (select colb from tab22) alias2
+oracle SELECT first_name, job_id, salary FROM emp_history WHERE (salary, department_id) in (SELECT salary, department_id FROM employees WHERE salary BETWEEN 1000 and 2000 AND department_id BETWEEN 10 and 20) ORDER BY first_name
+oracle select ProductID, ProductName, concat((UnitsInStock / (select sum(UnitsInStock) from products))*100, '%') as Percent_of_total_units_in_stock from products order by ProductID
+oracle SELECT * FROM tutorial.sf_crime_incidents_2014_01 WHERE Date = (SELECT MIN(date)  FROM tutorial.sf_crime_incidents_2014_01 )
+oracle SELECT * FROM (SELECT salary, department_id FROM employees WHERE salary BETWEEN 1000 and 2000)
+oracle select cola,colb from (select colb from tab22) alias25,tab11
+oracle SELECT e1.last_name, e1.first_name, (SELECT MAX(salary) FROM employees e2 WHERE e1.employee_id = e2.employee_id) subquery2 FROM employees e1
+oracle SELECT department_id, MIN (salary) FROM employees GROUP BY department_id HAVING MIN (salary) < (SELECT AVG (salary) FROM employees)
+oracle select cola,colb from (select colb from tab22) alias25,tab11 alias15
+oracle UPDATE AlbumInfo SET album_tracks = SELECT COUNT(*) FROM Album WHERE AlbumInfo.album_name = Album.album_name) WHERE AlbumInfo.band_name = 'Metallica'
+oracle SELECT SalesOrderID, OrderDate, TotalDue, (SELECT COUNT(SalesOrderDetailID) FROM Sales.SalesOrderDetail WHERE SalesOrderID = SO.SalesOrderID) as LineCount FROM Sales.SalesOrderHeader SO
+oracle SELECT wpoi.order_id As No_Commande FROM wp_woocommerce_order_items AS wpoi LEFT JOIN wp_postmeta AS wpp ON wpoi.order_id = wpp.post_id  AND wpp.meta_key = '_shipping_first_name' WHERE wpoi.order_id =2198
 python #!/ted.usr/bin/python
 sqlplus Table created.
 sqlplus 1 row created.
