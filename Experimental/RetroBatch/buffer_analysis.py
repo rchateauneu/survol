@@ -208,7 +208,6 @@ class BufferAccumulator:
 				if maxNum < num:
 					maxNum = num
 					maxCla = cla
-		print("maxNum=%d"%maxNum)
 		return maxCla
 
 
