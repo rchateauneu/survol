@@ -239,6 +239,16 @@ Usage: ???
 Makes no sense when it is data manipulation.
 
 
+
+Analysing the content of buffers just to classify them is not really interesting.
+What we want to do is extract CIM objects (for Survol) and cases ids (For process mining).
+But thees two domains need text data only.
+Therefore, there is not point using binary samples of buffers, because they will need to be converted anyway.
+
+In the very important case if SQL, one socket direction might be easily analysed (SQL queries),
+but not the opposite direction. Although it can only contain data, possibly in CSV format.
+
+
 Process mining:
 ---------------
 Process mining is a family of techniques in the field of process management

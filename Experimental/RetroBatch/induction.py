@@ -50,7 +50,11 @@ class induction:
 		numSubsts += 100 * deltaLen
 		return numSubsts,median
 
+	# Comment et pourquoi clusteriser les buffers (aka echantillons) ?
+	# On veut les repartir en classes homogenes pour separar les donnees d'une part, du code d'autre part.
+
 	# Quand on ajoute un echantillon, on calcule sa "moyenne" avec tous les autres echantillons.
+	# Cette "moyenne" represente les tokens communs entre deux echantillons: C'est une generalisation.
 	# On a une map des "moyennes" et des echantillons qui produisent cette moyenne:
 	# Echantillons A et B, operation "moyenne": *
 	# Si M = A * B, alors M = A * M = M * A = B * M = M * B.
@@ -136,6 +140,12 @@ def TestInduction():
 
 	induc.clusterize()
 
+# It should be modular enough so that he creation of CIM entites could be in a separate HTTP server,
+# and this could work on tcpdump socket content.
+
+# At the moment, we are planning to detect the file type,
+# and then to extract the case ids, and leave the "skeleton" of queries.
+# In fact these "skeletons" are much more characteristic of the type of the stream.
 
 
 if __name__ == '__main__':
