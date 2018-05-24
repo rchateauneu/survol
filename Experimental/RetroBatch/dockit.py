@@ -29,8 +29,8 @@ import platform
 
 try:
     # Optional: Classification of buffers and process mining.
-    # import buffer_analysis
-    buffer_analysis = None
+    import buffer_analysis
+    # buffer_analysis = None
 except ImportError:
     pass
 
@@ -301,7 +301,10 @@ class FileAccess:
                 self.m_accumulatorWrite = buffer_analysis.BufferAccumulator()
             theAccum = self.m_accumulatorWrite
 
-        theAccum.AppendIOBuffer(aBuffer,szBuffer)
+        try:
+            theAccum.AppendIOBuffer(aBuffer,szBuffer)
+        except:
+            sys.stdout.write("Cannot parse:%s\n"%aBuffer)
 
     def SetRead(self,bytesRead,bufferRead):
         try:
@@ -760,7 +763,6 @@ class CIM_Process (CIM_XmlMarshaller,object):
         for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
             if objInstance.TerminationDate == 0:
                 objInstance.TerminationDate = timeEnd
-                sys.stdout.write("Setting termination date for pid:%d\n"%objInstance.Handle )
 
     @classmethod
     def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
@@ -3926,29 +3928,37 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
     # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
     # This test is not reliable because we cannot really control what a spurious output can be:
     def IsLogEnding(aLin):
-        mtchBracket = re.match("^.*<([^>]*)>\n$", aLin)
+        if aLin.endswith(">\n"):
+            ixLT = aLin.rfind("<")
+            if ixLT >= 0:
+                strBrack = aLin[ixLT+1:-2]
+                try:
+                    flt = float(strBrack)
+                    return True
+                except:
+                    pass
 
-        if not mtchBracket:
-            return False
+                if strBrack == "unfinished ...":
+                    return True
 
-        strBrack = mtchBracket.group(1)
-        ##sys.stdout.write("Brack=%s\n"%strBrack)
+                # This value occurs exclusively with ltrace. Examples:
+                # exit_group@SYS(0 <no return ...>
+                # execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 <no return ...>
+                if strBrack == "no return ...":
+                    return True
+        else:
+            # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
+            # Not reliable because this could be a plain string ending like this.
+            if aLin.startswith("[pid ") and aLin.endswith(" = ?\n"):
+                return True
 
-        if strBrack == "unfinished ...":
-            return True
+            # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_status=0, si_utime=0, si_stime=0} ---"
+            # Not reliable because this could be a plain string ending like this.
+            if aLin.endswith(" ---\n"):
+                return True
 
-        # This value occurs exclusively with ltrace. Examples:
-        # exit_group@SYS(0 <no return ...>
-        # execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 <no return ...>
-        if strBrack == "no return ...":
-            # sys.stdout.write("NO RETURN\n")
-            return True
+        return False
 
-        try:
-            flt = float(strBrack)
-            return True
-        except:
-            return False
 
     # This is parsed from each line corresponding to a syztem call.
     batchCore = None
@@ -3973,18 +3983,6 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             numLine += 1
             # sys.stdout.write("tmpLine after read=%s"%tmpLine)
             if not tmpLine:
-                break
-
-            # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
-            # Not reliable because this could be a plain string ending like this.
-            if tmpLine.startswith("[pid ") and tmpLine.endswith(" = ?\n"):
-                oneLine += tmpLine
-                break
-
-            # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_status=0, si_utime=0, si_stime=0} ---"
-            # Not reliable because this could be a plain string ending like this.
-            if tmpLine.endswith(" ---\n"):
-                oneLine += tmpLine
                 break
 
             # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
