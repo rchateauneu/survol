@@ -22,7 +22,7 @@ from xml.dom import minidom
 sys.path.append("../..")
 
 # from ../.. import survol
-from survol import scripts
+# from survol import scripts
 from survol.scripts import dockit
 
 def RebuildProcessTreeAux(currNode,margin=""):
