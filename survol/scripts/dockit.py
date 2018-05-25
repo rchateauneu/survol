@@ -28,13 +28,7 @@ import atexit
 import datetime
 import shutil
 import platform
-
-try:
-    # Optional: Scan buffers for SQL objects and process mining.
-    import buffer_scanner
-except ImportError:
-    buffer_scanner = None
-    pass
+import tempfile
 
 try:
     # Optional: To add more information to processes etc...
@@ -202,15 +196,15 @@ def ParseCallArguments(strArgs,ixStart = 0):
 def TimeStampToStr(timStamp):
     aTm = time.gmtime( timStamp )
 
-    # 0 	tm_year 	(for example, 1993)
-    # 1 	tm_mon 	range [1, 12]
-    # 2 	tm_mday 	range [1, 31]
-    # 3 	tm_hour 	range [0, 23]
-    # 4 	tm_min 	range [0, 59]
-    # 5 	tm_sec 	range [0, 61]; see (2) in strftime() description
-    # 6 	tm_wday 	range [0, 6], Monday is 0
-    # 7 	tm_yday 	range [1, 366]
-    # 8 	tm_isdst 	0, 1 or -1; see below
+    # 0     tm_year     (for example, 1993)
+    # 1     tm_mon      range [1, 12]
+    # 2     tm_mday     range [1, 31]
+    # 3     tm_hour     range [0, 23]
+    # 4     tm_min      range [0, 59]
+    # 5     tm_sec      range [0, 61]; see (2) in strftime() description
+    # 6     tm_wday     range [0, 6], Monday is 0
+    # 7     tm_yday     range [1, 366]
+    # 8     tm_isdst    0, 1 or -1; see below
 
     # Today's date can change so we can reproduce a run.
     return G_Today + time.strftime(" %H:%M:%S", aTm )
@@ -222,6 +216,145 @@ def IsCIM(attr,attrVal):
     return not callable(attrVal) and not attr.startswith("__") and not attr.startswith("m_")
 
 ################################################################################
+
+BufferScanners = {}
+
+try:
+
+    sys.path.append("../..")
+    from survol import lib_sql
+
+    dictRegexSQL = lib_sql.SqlRegularExpressions()
+
+    dictRegexSQLCompiled = {
+        rgxKey : re.compile(dictRegexSQL[rgxKey])
+        for rgxKey in dictRegexSQL
+    }
+
+    # This returns a list of SQL queries.
+    def RawBufferSqlQueryScanner(aBuffer):
+        # The regular expressions are indexed with a key such as "INSERT", "SELECT" etc...
+        # which gives a hint about what the query does.
+        # This creates a dictionary mapping the RDF property to the compiled regular expression.
+        # Also, the regular expressions are compiled for better performance.
+
+        lstQueries = []
+
+        for rgxKey in dictRegexSQLCompiled:
+            compiledRgx = dictRegexSQLCompiled[rgxKey]
+            matchedSqls = compiledRgx.findall(aBuffer)
+            if matchedSqls:
+                lstQueries += matchedSqls
+
+        if lstQueries:
+            sys.stdout.write("lstQueries=%s\n"%str(lstQueries))
+
+        # TODO: For the moment, we just print the query. How can it be related to a database ?
+        return lstQueries
+
+    BufferScanners["SqlQuery"] = RawBufferSqlQueryScanner
+except ImportError:
+    print("Cannot imported optonal module lib_sql")
+    pass
+
+################################################################################
+
+def DecodeOctalEscapeSequence(aBuffer):
+    # An octal escape sequence consists of \ followed by one, two, or three octal digits.
+    # The octal escape sequence ends when it either contains three octal digits already,
+    # or the next character is not an octal digit.
+    # For example, \11 is a single octal escape sequence denoting a byte with numerical value 9 (11 in octal),
+    # rather than the escape sequence \1 followed by the digit 1.
+    # However, \1111 is the octal escape sequence \111 followed by the digit 1.
+    # In order to denote the byte with numerical value 1, followed by the digit 1,
+    # one could use "\1""1", since C automatically concatenates adjacent string literals.
+    # Note that some three-digit octal escape sequences may be too large to fit in a single byte;
+    # this results in an implementation-defined value for the byte actually produced.
+    # The escape sequence \0 is a commonly used octal escape sequence,
+    # which denotes the null character, with value zero.
+    # https://en.wikipedia.org/wiki/Escape_sequences_in_C
+
+    # https://stackoverflow.com/questions/4020539/process-escape-sequences-in-a-string-in-python
+    # bytes(myString, "utf-8").decode("unicode_escape") # python3
+    return aBuffer.decode('string_escape')
+
+
+class BufferConcatenator:
+    def __init__(self):
+        self.m_currentBuffer = None
+        self.m_parsedData = None
+
+    def AnalyseCompleteBuffer(self,aBuffer):
+        for scannerKey in BufferScanners:
+            scannerFunction = BufferScanners[scannerKey]
+
+            # This returns a list of strings.
+            # TODO: In a second stage, this will return CIM objects.
+            lstResults = scannerFunction(aBuffer)
+
+            if lstResults:
+                if self.m_parsedData == None:
+                    self.m_parsedData = {}
+                if scannerKey in self.m_parsedData:
+                    self.m_parsedData[scannerKey] += lstResults
+                else:
+                    self.m_parsedData[scannerKey] = lstResults
+
+
+    def HasParsedData(self):
+        return self.m_parsedData != None
+
+    def ParsedDataToXML(self, strm, margin):
+        if self.m_parsedData:
+            submargin = margin + "    "
+            for scannerKey in self.m_parsedData:
+                scannerKeySet = scannerKey + "_List"
+                strm.write("%s<%s>\n" % ( margin, scannerKeySet ) )
+                scannerVal = self.m_parsedData[scannerKey]
+                for scanResult in scannerVal:
+                    strm.write("%s<%s>%s</%s>\n" % ( submargin, scannerKey, scanResult, scannerKey ) )
+                strm.write("%s</%s>\n" % ( margin, scannerKeySet ) )
+
+
+    # This receives all read() and write() buffers displayed by strace or ltrace,
+    # decodes them and tries to rebuild a complete logical message if it seems
+    # to be truncated.
+    # It then analyses the logical pieces.
+    def AppendIOBuffer(self,aFragment,szFragment = 0):
+        decodedFragment = DecodeOctalEscapeSequence(aFragment)
+
+        # Typical buffer size are multiple of 100x:
+        #      256              100 #
+        #      512              200 #
+        #    12288             3000 #
+        #    49152             c000 #
+        #    65536            10000 #
+        #   262144            40000 #
+
+        isSegment = \
+            ( ( szFragment % 0x100 == 0 ) and ( szFragment <= 0x1000) ) \
+        or ( ( szFragment % 0x1000 == 0 ) and ( szFragment <= 0x10000) ) \
+        or ( ( szFragment % 0x10000 == 0 ) and ( szFragment <= 0x100000) ) \
+        or ( ( szFragment % 0x100000 == 0 )  )
+
+        if isSegment and (szFragment == len(decodedFragment)):
+            if self.m_currentBuffer:
+                self.m_currentBuffer += decodedFragment
+            else:
+                self.m_currentBuffer = decodedFragment
+        else:
+            if self.m_currentBuffer:
+                self.AnalyseCompleteBuffer(self.m_currentBuffer)
+                # Reuse memory.
+                del self.m_currentBuffer
+                self.m_currentBuffer = None
+
+            self.AnalyseCompleteBuffer(decodedFragment)
+
+
+################################################################################
+
+
 
 # Max number of bytes when trapping read() and write().
 G_StringSize = "500"
@@ -283,28 +416,25 @@ class FileAccess:
         if not aBuffer:
             return
 
-        if not buffer_scanner:
-            return
-
         # This does not apply to files.
         if self.m_objectCIM_DataFile.IsPlainFile():
             return
 
         if isRead:
             try:
-                self.m_accumulatorRead
+                self.m_bufConcatRead
             except AttributeError:
-                self.m_accumulatorRead = buffer_scanner.BufferAccumulator()
-            theAccum = self.m_accumulatorRead
+                self.m_bufConcatRead = BufferConcatenator()
+            concatBuf = self.m_bufConcatRead
         else:
             try:
-                self.m_accumulatorWrite
+                self.m_bufConcatWrite
             except AttributeError:
-                self.m_accumulatorWrite = buffer_scanner.BufferAccumulator()
-            theAccum = self.m_accumulatorWrite
+                self.m_bufConcatWrite = BufferConcatenator()
+            concatBuf = self.m_bufConcatWrite
 
         try:
-            theAccum.AppendIOBuffer(aBuffer,szBuffer)
+            concatBuf.AppendIOBuffer(aBuffer,szBuffer)
         except:
             sys.stdout.write("Cannot parse:%s\n"%aBuffer)
 
@@ -357,30 +487,18 @@ class FileAccess:
         if getattr(self,'BytesWritten',0):
             strm.write(" BytesWritten='%s'" % ( self.BytesWritten ) )
 
-        accRead = getattr(self,'m_accumulatorRead',None)
-        if accRead:
-            objectsRead = accRead.GetStreamObjects()
+        accRead = getattr(self,'m_bufConcatRead',None)
+        accWrite = getattr(self,'m_bufConcatWrite',None)
 
-        accWrite = getattr(self,'m_accumulatorWrite',None)
-        if accWrite:
-            objectsWrite = accWrite.GetStreamObjects()
-
-        if (accRead and objectsRead) or (accWrite and objectsWrite):
+        if (accRead and accRead.HasParsedData() ) or (accWrite and accWrite.HasParsedData() ):
             strm.write(" >\n" )
-            if objectsRead:
-                # Write SQL objects
-                pass
 
-            if objectsWrite:
-                # Write SQL objects
-                pass
+            submargin = margin + "    "
+            if accRead and accRead.HasParsedData():
+                accRead.ParsedDataToXML(strm, submargin)
+            if accWrite and accWrite.HasParsedData():
+                accWrite.ParsedDataToXML(strm, submargin)
 
-        #NON: On va utiliser le code de survol:
-        #Inutile de chercher dans la cas general:
-        #Trop long et de plus;, on a deja ce qu'il faut, a savoir chercher une requete SQL dans un buffer
-        #ON accumule le buffer.
-        #On cherche dedans comme on cherche dans un buffer en memoire.
-        #On fabrique des objets SQL.
             strm.write("%s</Access>\n" % ( margin ) )
         else:
             strm.write(" />\n" )
@@ -1436,8 +1554,9 @@ def FilesToPythonModules(unpackagedDataFiles):
 # So, in Docker, a file used by a process is not copied, but its package installed.
 class FileToPackage:
     def __init__(self):
+        tmpDir = tempfile.gettempdir()
         # This file stores and reuses the map from file name to Linux package.
-        self.m_cacheFileName = "FileToPackageCache." + socket.gethostname() + ".txt"
+        self.m_cacheFileName = tmpDir + "/" + "FileToPackageCache." + socket.gethostname() + ".txt"
         try:
             fdCache = open(self.m_cacheFileName,"r")
             self.m_cacheFilesToPackages = json.load(fdCache)
