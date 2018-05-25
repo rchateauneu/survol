@@ -55,8 +55,8 @@ def Main():
 	try:
 		# The regular expressions are indexed with a key such as "INSERT", "SELECT" etc...
 		# which gives a hint about what the query does, and is transformed into a RDF property.
-		# Also, the regular expressions are compiled for better performence.
-		# This creates an dictionary mapping the RDF property to the compiled regular expression.
+		# TODO: Store the compiled regular expressions.
+		# This creates a dictionary mapping the RDF property to the compiled regular expression.
 		dictRegexSQL = lib_sql.SqlRegularExpressions()
 
 		arrProps = []
@@ -71,7 +71,7 @@ def Main():
 			for linFil in opFil:
 				matchedSqls = compiledRgx.findall(linFil)
 
-				# For the moment, we just print the query.
+				# TODO: For the moment, we just print the query. How can it be related to a database ?
 				for sqlQry in matchedSqls:
 					# grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
 					grph.add( ( nodeFile, rgxProp, lib_common.NodeLiteral(sqlQry) ) )
