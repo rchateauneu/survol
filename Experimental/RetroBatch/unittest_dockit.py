@@ -19,7 +19,11 @@ import getopt
 import tempfile
 from xml.dom import minidom
 
-import dockit
+sys.path.append("../..")
+
+# from ../.. import survol
+from survol import scripts
+from survol.scripts import dockit
 
 def RebuildProcessTreeAux(currNode,margin=""):
     def PrintOneNode(currNode,margin):
