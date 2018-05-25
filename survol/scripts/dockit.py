@@ -2,6 +2,8 @@
 
 """Monitors living processes and generates a dockerfile And much more."""
 
+# NOTE: For convenience purpose, this script must be standalone.
+
 __author__      = "Remi Chateauneu"
 __copyright__   = "Primhill Computers, 2018"
 __credits__ = ["","",""]
@@ -31,6 +33,7 @@ try:
     # Optional: Scan buffers for SQL objects and process mining.
     import buffer_scanner
 except ImportError:
+    buffer_scanner = None
     pass
 
 try:
@@ -280,8 +283,8 @@ class FileAccess:
         if not aBuffer:
             return
 
-        #if not buffer_analysis:
-        #    return
+        if not buffer_scanner:
+            return
 
         # This does not apply to files.
         if self.m_objectCIM_DataFile.IsPlainFile():
@@ -362,7 +365,7 @@ class FileAccess:
         if accWrite:
             objectsWrite = accWrite.GetStreamObjects()
 
-        if objectsRead or objectsWrite:
+        if (accRead and objectsRead) or (accWrite and objectsWrite):
             strm.write(" >\n" )
             if objectsRead:
                 # Write SQL objects

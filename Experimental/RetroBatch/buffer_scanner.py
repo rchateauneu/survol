@@ -59,7 +59,7 @@ class BufferAccumulator:
 			# TODO: Extract the tables and views frm these queries.
 
 
-...
+#...
 
 
 	def AppendIOBuffer(self,aFragment,szFragment = 0):
