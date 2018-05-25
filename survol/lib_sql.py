@@ -440,8 +440,9 @@ def SqlQueryWalkNodes(sqlQuery,Func):
 
 ################################################################################
 
-# These regular expressions are used to detect SQL queries in pllain text,
-# which can be a text file, or the heap memory of a running process.l
+# These regular expressions are used to detect SQL queries in plain text,
+# which can be a text file, or the heap memory of a running process.
+# They must be used with re.IGNORECASE
 # TODO: Maybe have one regular expression only,
 # TODO: so we would scan the memory or file content, once only.
 printables = "[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
@@ -473,4 +474,5 @@ listModulesUsingSqlQueries = [
 	("sources_types.odbc.dsn","__init__.py"),
 	("sources_types.CIM_Process.memory_regex_search","search_connection_strings.py")
 ]
+
 ################################################################################
