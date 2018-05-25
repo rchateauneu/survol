@@ -31,18 +31,18 @@ def Main():
 
 	arrProps = []
 
-	# "oracle", "sqlserver", "sqlite" etc ...
+	#listModulesUsingSqlQueries = [
+	#	("sources_types.oracle","__init__.py"),
+	#	...
+	#	("sources_types.CIM_Process.memory_regex_search","search_connection_strings.py") ...
 	for ( namDbType, scriptNam ) in lib_sql.listModulesUsingSqlQueries :
 		sys.stderr.write("\nnamDbType=%s scriptNam=%s\n"%(namDbType,scriptNam))
 		# TODO: We should check if the syntax of the query is conformant to the database.
 		# TODO: We should check if the process is linked with this database.
 
-		lib_util.GetScriptModule
-
 		moduleDbType = lib_util.GetScriptModule(namDbType, scriptNam)
+		# This removes the ".py" file extension.
 		nodeTypeDb = lib_util.FromModuleToDoc(moduleDbType,scriptNam[:-3])
-
-
 
 		# This creates a non-clickable node. TODO: DOES NOT WORK ??
 
