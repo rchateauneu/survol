@@ -1,4 +1,24 @@
-# Faire des tests en generant des requetes SQL.
+# The goal is to take several SQL queries, completely similar except
+# the values, and generalise by doing the inverse operation of binding
+# variables to a possibly prepared query.
+#
+# The results are sets of variables which represent the application data.
+# If we can deduce the most important variables: Indexed columns,
+# target of "where id=??" statements, we know what are the application 
+# unique ids, also called "case ids" in process mining.
+#
+# Some heuristics to differentiate the ids for other values:
+# - Column name like "IDxxx"
+# - First column of a row.
+# - First or unique column of a WHERE statement.
+# - If number, uniform distribution of values
+#
+#
+# If suspected identifier is alphanumeric:
+# - identical size of all values.
+# - non-spellable word, does not exist in any dictionary.
+# - same layout of letters-digits for all ids.
+#
 
 import sys
 import numpy
