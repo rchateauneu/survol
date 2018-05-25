@@ -4,7 +4,7 @@
 Extract SQL queries from process heap memory
 """
 
-# It cans a process heap memory to detect SQL queries.
+# It scans a process heap memory to detect SQL queries.
 # TODO: It should also search in the executable file itself.
 #
 # TODO: Check the database libraries we are linked with: It might give a hint
