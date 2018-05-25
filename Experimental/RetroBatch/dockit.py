@@ -28,9 +28,8 @@ import shutil
 import platform
 
 try:
-    # Optional: Classification of buffers and process mining.
-    import buffer_analysis
-    # buffer_analysis = None
+    # Optional: Scan buffers for SQL objects and process mining.
+    import buffer_scanner
 except ImportError:
     pass
 
@@ -281,8 +280,8 @@ class FileAccess:
         if not aBuffer:
             return
 
-        if not buffer_analysis:
-            return
+        #if not buffer_analysis:
+        #    return
 
         # This does not apply to files.
         if self.m_objectCIM_DataFile.IsPlainFile():
@@ -292,13 +291,13 @@ class FileAccess:
             try:
                 self.m_accumulatorRead
             except AttributeError:
-                self.m_accumulatorRead = buffer_analysis.BufferAccumulator()
+                self.m_accumulatorRead = buffer_scanner.BufferAccumulator()
             theAccum = self.m_accumulatorRead
         else:
             try:
                 self.m_accumulatorWrite
             except AttributeError:
-                self.m_accumulatorWrite = buffer_analysis.BufferAccumulator()
+                self.m_accumulatorWrite = buffer_scanner.BufferAccumulator()
             theAccum = self.m_accumulatorWrite
 
         try:
@@ -355,20 +354,33 @@ class FileAccess:
         if getattr(self,'BytesWritten',0):
             strm.write(" BytesWritten='%s'" % ( self.BytesWritten ) )
 
-
-        # TODO: This must go in the file. This is still experimental.
         accRead = getattr(self,'m_accumulatorRead',None)
         if accRead:
-            classRead = accRead.GetContentClass()
-            if classRead:
-                strm.write(" ReadClass='%s'" % ( classRead ) )
+            objectsRead = accRead.GetStreamObjects()
 
         accWrite = getattr(self,'m_accumulatorWrite',None)
         if accWrite:
-            classWrite = accWrite.GetContentClass()
-            strm.write(" WriteClass='%s'" % ( classWrite ) )
+            objectsWrite = accWrite.GetStreamObjects()
 
-        strm.write(" />\n" )
+        if objectsRead or objectsWrite:
+            strm.write(" >\n" )
+            if objectsRead:
+                # Write SQL objects
+                pass
+
+            if objectsWrite:
+                # Write SQL objects
+                pass
+
+        #NON: On va utiliser le code de survol:
+        #Inutile de chercher dans la cas general:
+        #Trop long et de plus;, on a deja ce qu'il faut, a savoir chercher une requete SQL dans un buffer
+        #ON accumule le buffer.
+        #On cherche dedans comme on cherche dans un buffer en memoire.
+        #On fabrique des objets SQL.
+            strm.write("%s</Access>\n" % ( margin ) )
+        else:
+            strm.write(" />\n" )
 
 
     @staticmethod
