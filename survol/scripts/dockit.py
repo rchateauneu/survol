@@ -227,7 +227,7 @@ try:
     dictRegexSQL = lib_sql.SqlRegularExpressions()
 
     dictRegexSQLCompiled = {
-        rgxKey : re.compile(dictRegexSQL[rgxKey])
+        rgxKey : re.compile(dictRegexSQL[rgxKey], re.IGNORECASE)
         for rgxKey in dictRegexSQL
     }
 
