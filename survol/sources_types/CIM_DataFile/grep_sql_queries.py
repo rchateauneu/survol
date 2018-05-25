@@ -65,7 +65,7 @@ def Main():
 			rgxProp = lib_common.MakeProp(rgxKey)
 			arrProps.append(rgxProp)
 
-			compiledRgx = re.compile(rgxSQL)
+			compiledRgx = re.compile(rgxSQL, re.IGNORECASE)
 
 			opFil = open(filNam, 'r')
 			for linFil in opFil:
