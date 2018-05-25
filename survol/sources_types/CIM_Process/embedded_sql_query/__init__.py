@@ -3,33 +3,13 @@ Extraction of SQL queries from process memory.
 """
 
 from sources_types.sql import query as sql_query
-# from sources_types import CIM_Process
 
 import lib_util
-# import lib_common
 
-# TODO: What is annoying in this model is, sometimes directories have their own ontology,
-# TODO: and sometimes not. What is the rule ? There is no rule, except that: Objects
-# TODO: are what is instantiated with a path of subdirectories.
-# TODO: GROS PROBLEME, RELIE AU SIMILI-HERITAGE DE "oracle/query"
-# ou "CIM_Process/embedded_sql_query" vers "sql/query".
-# TODO: Ici, quand entity.py liste les scripts, il suppose qu'ils peuvent tous
-# TODO: s appliquer aux parametres courants.
-# TODO: Devrait-on verifier si __init__.py contient la fonction EntityOntology() ?
-# TODO: Ca voudrait dire que chaque script herite du EntityOntology() du niveau au-dessus.
-# TODO: En effet, on a suppose que chaque dossier de "sources_types" est associe a un type.
-# TODO: Or on a fait le contraire avec "sources_types/oracle" et "sources_types/sqlserver"
-# TODO: qui justement ne sont pas des types.
-# TODO: Donc en tout logique on devrait mettre tous les dossiers de "sources_types" dans "sources_top"
-# TODO: ... etc et le dossier "Databases/oracle_tnsnames.py" serait dans "Databases/oracle/oracle_tnsnames.py".
-# TODO: Le gros probleme est que entity.py devra scanner beaucoup plus de fichiers.
-# TODO: Toutefois il s arrete d explorer des qu il rencontre un module qui contient "EntityOntology()"
-# TODO: Impact: * Implementer EntityOntology() pour tout le monde.
-# TODO:           Il faut le faire de toute facon.
-# TODO:         * Remplacer "sources_types" par "sources_top".
-# TODO:         * entity.py arrete lexploration des qu un module contient la fonction EntityOntology()
-# TODO:           => On va etre oblige de le faire a cause de CIM_Process/embedded_sql_query.
-# Notre modele est un peu du Duck typing de modules.as
+# Explanation about the object model:
+# A directory defines a class if the __init__.py object contains a function named EntityOntology().
+# Otherwise, it is a subclass of the parent directory. If no EntityOntology() function is defined
+# in none of the parent directories, then it is a static class or a namespace.
 
 # The result should be ["Query","Handle"]
 # We do not know if CIM_Process.EntityOntology() is available.
