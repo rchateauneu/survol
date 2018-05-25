@@ -304,12 +304,12 @@ class BufferConcatenator:
     def HasParsedData(self):
         return self.m_parsedData != None
 
-    def ParsedDataToXML(self, strm, margin):
+    def ParsedDataToXML(self, strm, margin,direction):
         if self.m_parsedData:
             submargin = margin + "    "
             for scannerKey in self.m_parsedData:
                 scannerKeySet = scannerKey + "_List"
-                strm.write("%s<%s>\n" % ( margin, scannerKeySet ) )
+                strm.write("%s<%s direction='%s'>\n" % ( margin, scannerKeySet, direction ) )
                 scannerVal = self.m_parsedData[scannerKey]
                 for scanResult in scannerVal:
                     strm.write("%s<%s>%s</%s>\n" % ( submargin, scannerKey, scanResult, scannerKey ) )
@@ -495,9 +495,9 @@ class FileAccess:
 
             submargin = margin + "    "
             if accRead and accRead.HasParsedData():
-                accRead.ParsedDataToXML(strm, submargin)
+                accRead.ParsedDataToXML(strm, submargin,"Read")
             if accWrite and accWrite.HasParsedData():
-                accWrite.ParsedDataToXML(strm, submargin)
+                accWrite.ParsedDataToXML(strm, submargin,"Write")
 
             strm.write("%s</Access>\n" % ( margin ) )
         else:
@@ -4029,7 +4029,7 @@ class BatchFlow:
         
 
 def LogSource(msgSource):
-    sys.stdout.write("Source:%s\n"%msgSource)
+    sys.stdout.write("Parameter:%s\n"%msgSource)
 
 ################################################################################
 
@@ -4376,6 +4376,7 @@ def LoadIniFile(iniFilNam):
     mapKV = {}
     try:
         filOp =  open(iniFilNam)
+        LogSource("Init "+iniFilNam)
     except IOError:
         return mapKV
     for linKV in filOp.readlines():
@@ -4387,6 +4388,7 @@ def LoadIniFile(iniFilNam):
         prmKey = clnKV[:idxEq]
         prmVal = clnKV[idxEq+1:]
         mapKV[prmKey] = prmVal
+    filOp.close()
     return mapKV
 
 # This returns a stream with each line written by strace or ltrace.
@@ -4418,10 +4420,10 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     if inputLogFile:
         logStream = open(inputLogFile)
         LogSource("File "+inputLogFile)
-        LogSource("Logfile %s pid=%s lenBatch=?\n" % (inputLogFile,aPid) )
+        LogSource("Logfile %s pid=%s" % (inputLogFile,aPid) )
 
         # There might be a context file with important information to reproduce the test.
-        contextLogFile = os.path.splitext(inputLogFile)[0]+'.ini'
+        contextLogFile = os.path.splitext(inputLogFile)[0]+"."+"ini"
         mapKV = LoadIniFile(contextLogFile)
 
         # The main process pid might be embedded in the log file name,
