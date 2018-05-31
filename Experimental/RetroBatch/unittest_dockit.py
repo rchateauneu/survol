@@ -108,7 +108,7 @@ def InternalUnitTests_SummaryXML_STrace1():
 12:43:54.608378 exit_group(0)           = ?
 """
 
-    tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+b',delete=False)
+    tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
     tmpFilSTrace.write(tstLogFileSTrace)
     tmpFilSTrace.close()
 
@@ -168,7 +168,7 @@ def InternalUnitTests_SummaryXML_STrace2():
 19:37:50.582490 exit_group(0)           = ?
 """
 
-    tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+b',delete=False)
+    tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
     tmpFilSTrace.write(tstLogFileSTrace)
     tmpFilSTrace.close()
 
@@ -239,7 +239,7 @@ def InternalUnitTests_SummaryXML_LTrace():
 [pid 21256] 14:45:29.863535 +++ exited (status 0) +++
 """
 
-    tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+b',delete=False)
+    tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
     tmpFilSTrace.write(tstLogFileLTrace)
     tmpFilSTrace.close()
 
