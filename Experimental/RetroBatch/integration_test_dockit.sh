@@ -4,7 +4,7 @@
 # Some tests cannot be easily recreated.
 # It tries to rerun the tests given in the dockit_readme.txt file.
 
-DOCKIT=../../survol/survol/scripts/dockit.py
+DOCKIT=../../survol/scripts/dockit.py
 
 #  -h,--help                     This message.
 #  -v,--verbose                  Verbose mode (Cumulative).
@@ -23,8 +23,48 @@ DOCKIT=../../survol/survol/scripts/dockit.py
 #  -t,--tracer strace|ltrace|cdb command for generating trace log
 
 DOCKIT_TMPDIR=/tmp/dockit.$$
+mkdir ${DOCKIT_TMPDIR}
 
-$DOCKIT -l ${DOCKIT_TMPDIR}/tst_01_ls ls
+# Test if files are properly generated.
+function tst_generated_files()
+{
+	export LOGDIR=${DOCKIT_TMPDIR}/tst_01_ls
+	$DOCKIT -l ${LOGDIR} ls
+	FILPREFIX=${LOGDIR}.strace
+	LISTEXT=$( ls ${FILPREFIX}.* | while read f; do echo ${f#$FILPREFIX}; done | cut -d. -f3 )
+
+	# This syntax to insert a carriage-return in a bash string.
+	if [ "$LISTEXT" == $'ini\nlog\ntxt' ]
+	then
+		echo ${FUNCNAME[0]} success
+	else
+		echo ${FUNCNAME[0]} failure
+		exit 1
+	fi
+}
+
+function tst_dockerfile()
+{
+	export LOGDIR=${DOCKIT_TMPDIR}/tst_02_docker
+	$DOCKIT -l ${LOGDIR} -t ltrace -D ps -ef
+	FILPREFIX=${LOGDIR}.ltrace
+	LISTEXT=$( ls -d ${FILPREFIX}.* | while read f; do echo ${f#$FILPREFIX}; done | cut -d. -f3 )
+
+	if [ "$LISTEXT" == $'docker\nini\nlog\ntxt' ]
+	then
+		echo ${FUNCNAME[0]} first step success
+	else
+		echo ${FUNCNAME[0]} first step failure
+		exit 1
+	fi
+
+	# Now check the generated Dockerfile.
+}
+
+
+tst_generated_files
+tst_dockerfile
+echo "Success"
 
 # $DOCKIT -t strace -l UnitTests/mineit_simple_perl_file_write perl TestProgs/write_file_in_perl.pl
 # $DOCKIT -t ltrace -l UnitTests/mineit_simple_perl_file_write perl TestProgs/write_file_in_perl.pl
