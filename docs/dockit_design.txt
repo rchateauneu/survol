@@ -1,0 +1,40 @@
+Communication between dockit and sirvol.
+
+All insertion into the object cach will go with an insertion in the shared queue.
+
+# Pour communiquer avec survol:
+# Meme principe que webserver.
+# On cree une queue en memoire partagee.
+# Le nom est passe sur la ligne de commande.
+
+survol pourra demarrer docker dans un process wsgi.
+
+Une alternative est que docker cree un serveur HTTP, et affiche ses pdendances entre les objets.
+Mais si on veut voir les scripts associes aux objets, il faudrait de toute facon
+avoir un serveur survol normal.
+
+Donc dockit est completement lie a survol, qui doit le faire apparaitre comme un script comme un autre.
+
+Survol can create processes running dockit:
+===========================================
+
+Meme approche que webserver, mais on se debarasse du probleme de la gestion des processes avec CGI
+qui ne pouvait pas fonctionner.
+De plus, comme les processes dockit ne seront pas forcement crees par survol, seront-ils geres de la meme facon ?
+
+Check that no other prcoess is attached to the target pid.
+
+In scripts under CIM_Process, add a new script which reads the shared queue created by a process running survol.
+
+Survol can detect which processes are riunning dockit:
+======================================================
+
+survol peut detecter quels processes executent dockit
+On peut peut-etre savoir si un process est attache a un autre.
+strace uses ptrace(): https://linux.die.net/man/2/ptrace
+
+Survol doit voir les process docker deja lances et les queues ou il ira chercher les infos
+sur les objets CIM crees ou detruits.
+
+List of shared queues ?
+
