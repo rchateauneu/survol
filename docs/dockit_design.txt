@@ -38,3 +38,13 @@ sur les objets CIM crees ou detruits.
 
 List of shared queues ?
 
+
+        # How can we get the database connection ?
+        # If attaching to a running process, this is even impossible.
+        # TODO: We can create symbolic database connection: At least we known the server name.
+        # We can associate one connection to each socket or pipe where a SQL query could be found.
+        # ... possibly list the connections as CIM objects.
+        # An extra regular expression on the buffer, or some test on the SQL query,
+        # might imply the database type. This is not very important because the database connection
+        # is an obvious information
+        # for the user.
