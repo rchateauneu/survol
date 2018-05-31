@@ -284,8 +284,11 @@ def DecodeOctalEscapeSequence(aBuffer):
     # https://en.wikipedia.org/wiki/Escape_sequences_in_C
 
     # https://stackoverflow.com/questions/4020539/process-escape-sequences-in-a-string-in-python
-    # bytes(myString, "utf-8").decode("unicode_escape") # python3
-    return aBuffer.decode('string_escape')
+    if (sys.version_info > (3, 0)):
+        decBuf = bytes(aBuffer, "utf-8").decode("unicode_escape")
+    else:
+        decBuf = aBuffer.decode('string_escape')
+    return decBuf
 
 
 class BufferConcatenator:
@@ -446,7 +449,9 @@ class FileAccess:
         try:
             concatBuf.AppendIOBuffer(aBuffer,szBuffer)
         except:
-            sys.stdout.write("Cannot parse:%s\n"%aBuffer)
+            # Example: '[pid  5602] 19:59:20.590740 <... read resumed> "... end of read() content"..., 32768) = 4096 <0.037642>'
+            sys.stdout.write("Cannot parse:%s szBuffer=%s\n"%(aBuffer,szBuffer))
+            exit(1)
 
     def SetRead(self,bytesRead,bufferRead):
         try:
