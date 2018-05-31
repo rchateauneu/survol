@@ -250,6 +250,15 @@ try:
             sys.stdout.write("lstQueries=%s\n"%str(lstQueries))
 
         # TODO: For the moment, we just print the query. How can it be related to a database ?
+        # How can we get the database connection ?
+        # If attaching to a running process, this is even impossible.
+        # TODO: We can create symbolic database connection: At least we known the server name.
+        # We can associate one connection to each socket or pipe where a SQL query could be found.
+        # ... possibly list the connections as CIM objects.
+        # An extra regular expression on the buffer, or some test on the SQL query,
+        # might imply the database type. This is not very important because the database connection
+        # is an obvious information
+        # for the user.
         return lstQueries
 
     BufferScanners["SqlQuery"] = RawBufferSqlQueryScanner
@@ -308,6 +317,7 @@ class BufferConcatenator:
         if self.m_parsedData:
             submargin = margin + "    "
             for scannerKey in self.m_parsedData:
+                # TODO: Have a specific tag for the list.
                 scannerKeySet = scannerKey + "_List"
                 strm.write("%s<%s direction='%s'>\n" % ( margin, scannerKeySet, direction ) )
                 scannerVal = self.m_parsedData[scannerKey]
@@ -1424,6 +1434,7 @@ def ParseFilterCIM(rgxObjectPath):
 
     return ( objClassName, mapKeyValues )
 
+# TODO: Probably not needed because noone wants this output format..
 def GenerateSummaryTXT(mapParamsSummary,fdSummaryFile):
     for rgxObjectPath in mapParamsSummary:
         ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
