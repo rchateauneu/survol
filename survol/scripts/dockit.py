@@ -263,7 +263,7 @@ try:
 
     BufferScanners["SqlQuery"] = RawBufferSqlQueryScanner
 except ImportError:
-    print("Cannot imported optonal module lib_sql")
+    print("Cannot import optional module lib_sql")
     pass
 
 ################################################################################
@@ -797,17 +797,24 @@ class CIM_Process (CIM_XmlMarshaller,object):
                 self.Name = procObj.name()
                 execFilNam = procObj.exe()
                 execFilObj = CreateObjectPath(CIM_DataFile,execFilNam)
-                self.SetExecutable( execFilObj.FileName )
+                self.SetExecutable( execFilObj )
             except:
                 self.Name = None
 
             try:
                 # Maybe the process has exit.
                 self.Username = procObj.username()
-                self.CurrentDirectory = procObj.cwd()
                 self.Priority = procObj.nice()
             except:
                 pass
+
+            try:
+                self.CurrentDirectory = procObj.cwd()
+            except:
+                 # psutil.ZombieProcess process still exists but it's a zombie
+                 # Another possibility would be to use the parent process.
+                self.CurrentDirectory = G_CurrentDirectory
+
         else:
             if procId > 0:
                 self.Name = "pid=%s" % procId
@@ -964,7 +971,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
             pass
 
     def SetExecutable(self,objCIM_DataFile) :
-        # sys.stdout.write("SetExecutable %s tp=%s\n"%(objCIM_DataFile,str(type(objCIM_DataFile))))
+        assert( isinstance(objCIM_DataFile, CIM_DataFile) )
         self.Executable = objCIM_DataFile.FileName
         self.m_ExecutableObject = objCIM_DataFile
 
@@ -1193,6 +1200,10 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
             filterCats = None
 
         for categoryFiles, mapFilesSub in sorted( mapOfFilesMap.items() ):
+            if len(mapFilesSub) == 0:
+                # No need to write a category name if it is empty.
+                continue
+
             fdSummaryFile.write("    <FilesCategory category='%s'>\n"%categoryFiles)
             if filterCats and ( not categoryFiles in filterCats ): continue
             CIM_DataFile.XMLCategorySummary(fdSummaryFile,mapFilesSub)
@@ -1455,21 +1466,23 @@ def GenerateSummaryXML(mapParamsSummary,fdSummaryFile):
     fdSummaryFile.write('</Dockit>\n')
 
 def GenerateSummary(mapParamsSummary, summaryFormat, outputSummaryFile):
+    if summaryFormat == "TXT":
+        summaryGenerator = GenerateSummaryTXT
+    elif summaryFormat == "XML":
+        # The output format is very different.
+        summaryGenerator = GenerateSummaryXML
+    elif summaryFormat == None:
+        return
+    else:
+        raise Exception("Unsupported summary output format:%s"%summaryFormat)
+
     if outputSummaryFile:
         fdSummaryFile = open(outputSummaryFile, "w")
         sys.stdout.write("Creating summary file:%s\n"%outputSummaryFile)
     else:
         fdSummaryFile = sys.stdout
 
-    if summaryFormat == "TXT":
-        GenerateSummaryTXT(mapParamsSummary,fdSummaryFile)
-    elif summaryFormat == "XML":
-        # The output format is very different.
-        GenerateSummaryXML(mapParamsSummary,fdSummaryFile)
-    elif summaryFormat == None:
-        return
-    else:
-        raise Exception("Unsupported summary output format:%s"%summaryFormat)
+    summaryGenerator(mapParamsSummary,fdSummaryFile)
 
     if outputSummaryFile:
         fdSummaryFile.close()
@@ -1570,9 +1583,15 @@ class FileToPackage:
         self.m_cacheFileName = tmpDir + "/" + "FileToPackageCache." + socket.gethostname() + ".txt"
         try:
             fdCache = open(self.m_cacheFileName,"r")
+        except:
+            sys.stdout.write("Cannot open packages cache file:%s.\n" % self.m_cacheFileName)
+            self.m_cacheFilesToPackages = dict()
+            self.m_dirtyCache = False
+            return
+
+        try:
             self.m_cacheFilesToPackages = json.load(fdCache)
             fdCache.close()
-            self.m_validCache = True
             self.m_dirtyCache = False
             sys.stdout.write("Loaded packages cache file:%s\n"%self.m_cacheFileName)
         except:
@@ -1637,10 +1656,7 @@ class FileToPackage:
         except KeyError:
             lstPacks= self.OneFileToPackageLinuxNoCache(oneFilNam)
 
-            if lstPacks== None:
-                # The cache is not filled with valid data.
-                self.m_validCache = False
-            else:
+            if lstPacks:
                 self.m_dirtyCache = True
 
             # TODO: Optimisation: Once we have detected a file of a package,
@@ -2268,6 +2284,8 @@ class BatchLetCore:
             aTimeStamp += BatchLetCore.deltaTimeStamp
 
         except ValueError:
+            # This should not happen often, so it is OK to search the result string.
+
             sys.stdout.write("Invalid time format:%s\n"%strTm)
             aTimeStamp = 0
         except OverflowError:
@@ -3377,34 +3395,48 @@ class BatchLetSys_poll(BatchLetBase,object):
             self.m_significantArgs = []
 
 # int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
+#
+# If strace:
 # select ['1', ['0</dev/pts/2>'], [], ['0</dev/pts/2>'], {'tv_sec': '0', 'tv_usec': '0'}] ==>> 0 (Timeout) (07:43:14,07:43:14)
 # select(13, [0<TCPv6:[:::21]> 12<pipe:[10567127]>], NULL, NULL, {tv_sec=30, tv_usec=0}) = 1 (in [12], left {tv_sec=29, tv_usec=999997})
+# If strace and kill -9:
+# "select(1, [0</dev/pts/2>], [], [0</dev/pts/2>], NULL <unfinished ...>)"
+#
+# If ltrace and kill -9 the process:
+# "select@SYS(1, 0x7ffd06327760, 0x7ffd063277e0, 0x7ffd06327860 <no return ...>"
 class BatchLetSys_select(BatchLetBase,object):
     def __init__(self,batchCore):
         super( BatchLetSys_select,self).__init__(batchCore)
 
-        def ArrFdNameToArrString(arrStrms):
-            if arrStrms == "NULL":
-                # If the array of file descriptors is empty.
-                return []
-            else:
-                # The delimiter is a space:
-                # "1 arrStrms=['0<TCPv6:[:::21]> 12<pipe:[10567127]>']"
-                # sys.stdout.write("%d arrStrms=%s\n"%(len(arrStrms),str(arrStrms)))
-                filStrms = []
-                for fdName in arrStrms:
-                    # Most of times there should be one element only.
-                    splitFdName = fdName.split(" ")
-                    for oneFdNam in splitFdName:
-                        filStrms.append(self.STraceStreamToFile( oneFdNam ))
-                return filStrms
+        if batchCore.m_tracer == "strace":
+            def ArrFdNameToArrString(arrStrms):
+                # The program strace formats the parameters of the system call select(), as three arrays
+                # of file descriptors, each of them starting with the number, followed by the path name.
+                if arrStrms == "NULL":
+                    # If the array of file descriptors is empty.
+                    return []
+                else:
+                    # The delimiter is a space:
+                    # "1 arrStrms=['0<TCPv6:[:::21]> 12<pipe:[10567127]>']"
+                    # sys.stdout.write("%d arrStrms=%s\n"%(len(arrStrms),str(arrStrms)))
+                    filStrms = []
+                    for fdName in arrStrms:
+                        # Most of times there should be one element only.
+                        splitFdName = fdName.split(" ")
+                        for oneFdNam in splitFdName:
+                            filStrms.append(self.STraceStreamToFile( oneFdNam ))
+                    return filStrms
 
-        arrArgs = self.m_core.m_parsedArgs
-        arrFilRead = ArrFdNameToArrString(arrArgs[1])
-        arrFilWrit = ArrFdNameToArrString(arrArgs[2])
-        arrFilExcp = ArrFdNameToArrString(arrArgs[3])
+            arrArgs = self.m_core.m_parsedArgs
+            arrFilRead = ArrFdNameToArrString(arrArgs[1])
+            arrFilWrit = ArrFdNameToArrString(arrArgs[2])
+            arrFilExcp = ArrFdNameToArrString(arrArgs[3])
 
-        self.m_significantArgs = [ arrFilRead, arrFilWrit, arrFilExcp ]
+            self.m_significantArgs = [ arrFilRead, arrFilWrit, arrFilExcp ]
+        elif batchCore.m_tracer == "ltrace":
+            self.m_significantArgs = []
+        else:
+            raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
 class BatchLetSys_setsockopt(BatchLetBase,object):
     def __init__(self,batchCore):
@@ -4036,9 +4068,8 @@ class BatchFlow:
 
         if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
 
-        
-        
 
+# Logging execution information.
 def LogSource(msgSource):
     sys.stdout.write("Parameter:%s\n"%msgSource)
 
@@ -4048,6 +4079,7 @@ def LogSource(msgSource):
 # It is used to get the return content of strace or ltrace,
 # so it can be parsed.
 def GenerateLinuxStreamFromCommand(aCmd, aPid):
+    sys.stdout.write("Starting trace command:%s\n" % " ".join(aCmd) )
 
     # If shell=True, the command must be passed as a single line.
     pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
@@ -4146,7 +4178,8 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             sys.stdout.write("Last line=%s\n"%prevLine)
 
             # This is the terminate date of the last process still running.
-            CIM_Process.GlobalTerminationDate(lastTimeStamp)
+            if lastTimeStamp:
+                CIM_Process.GlobalTerminationDate(lastTimeStamp)
 
             break
 
@@ -4154,6 +4187,21 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
         try:
             batchCore = CreateBatchCore(oneLine,tracer)
         except:
+            if numLine == 2:
+                # If the command does not exist:
+                # "strace: Can't stat 'qklsjhdflksd': No such file or directory"
+                # "Can't open qklsjhdflksd: No such file or directory"
+                if oneLine.find("No such file or directory") >= 0:
+                    raise Exception("Invalid command: %s" % oneLine)
+
+                # If the pid is invalid, the scond contains "No such process"
+                # "strace: attach: ptrace(PTRACE_SEIZE, 11111): No such process"
+                # "Cannot attach to pid 11111: No such process"
+                if oneLine.find("No such process") >= 0:
+                    raise Exception("Invalid process id: %s" % oneLine)
+
+
+            # No such file or directory
             sys.stderr.write("Caught invalid line %d:%s\n"%(numLine,oneLine) )
             # raise
 
@@ -4233,17 +4281,12 @@ def BuildLTraceCommand(extCommand,aPid):
     # lstat@SYS("/usr/local/include/bits", 0x7ffd739d8240) = -2 <0.000177>
     # <... realpath resumed> )                             = 0 <0.001261>
 
-
-
-
     if extCommand:
         aCmd += extCommand
         LogSource("Command "+" ".join(extCommand) )
     else:
         aCmd += [ "-p", aPid ]
         LogSource("Process %s\n"%aPid)
-
-    LogSource("%s\n" % ( " ".join(aCmd) ) )
 
     return aCmd
 
@@ -4302,8 +4345,6 @@ def BuildSTraceCommand(extCommand,aPid):
     else:
         aCmd += [ "-p", aPid ]
         LogSource("Process %s\n"%aPid)
-
-    LogSource("%s\n" % ( " ".join(aCmd) ) )
 
     return aCmd
 
@@ -4428,6 +4469,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     theHostNam = socket.gethostname()
     thePlatform = sys.platform
 
+    currWrkDir = os.getcwd()
     if inputLogFile:
         logStream = open(inputLogFile)
         LogSource("File "+inputLogFile)
@@ -4441,7 +4483,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         # but preferably stored in the ini file.
         G_topProcessId = int(mapKV.get("TopProcessId",aPid))
 
-        G_CurrentDirectory = mapKV.get("CurrentDirectory",".")
+        G_CurrentDirectory = mapKV.get("CurrentDirectory",currWrkDir)
         G_Today            = mapKV.get("CurrentDate",dateTodayRun)
         G_Hostname         = mapKV.get("CurrentHostname",theHostNam)
         G_OSType           = mapKV.get("CurrentOSType",thePlatform)
@@ -4456,7 +4498,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
             raise Exception("Unknown tracer:%s"%tracer)
 
         ( G_topProcessId, logStream ) = funcTrace(argsCmd,aPid)
-        G_CurrentDirectory = "."
+        G_CurrentDirectory = currWrkDir
         G_Today = dateTodayRun
         G_Hostname = theHostNam
         G_OSType = thePlatform
