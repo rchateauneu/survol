@@ -194,8 +194,6 @@ def ParseCallArguments(strArgs,ixStart = 0):
 # + arborescence des fils lances avec les memes informations 
 
 def TimeStampToStr(timStamp):
-    aTm = time.gmtime( timStamp )
-
     # 0     tm_year     (for example, 1993)
     # 1     tm_mon      range [1, 12]
     # 2     tm_mday     range [1, 31]
@@ -207,7 +205,11 @@ def TimeStampToStr(timStamp):
     # 8     tm_isdst    0, 1 or -1; see below
 
     # Today's date can change so we can reproduce a run.
-    return G_Today + time.strftime(" %H:%M:%S", aTm )
+    if timStamp:
+        # return G_Today + timStamp.strftime(" %H:%M:%S.%f" )
+        return G_Today + " " + timStamp
+    else:
+        return G_Today + " 00:00:00.000000"
 
 def IsTimeStamp(attr,attrVal):
     return attr.find("Date") > 0 or attr.find("Time") > 0
@@ -245,9 +247,6 @@ try:
             matchedSqls = compiledRgx.findall(aBuffer)
             if matchedSqls:
                 lstQueries += matchedSqls
-
-        if lstQueries:
-            sys.stdout.write("lstQueries=%s\n"%str(lstQueries))
 
         # TODO: For the moment, we just print the query. How can it be related to a database ?
         # How can we get the database connection ?
@@ -400,8 +399,10 @@ class FileAccess:
             self.OpenTime = timeStamp
 
             try:
+                sys.stdout.write("Calculating OpenSize for %s\n"%self.m_objectCIM_DataFile.FileName)
                 filStat = os.stat( self.m_objectCIM_DataFile.FileName )
                 self.OpenSize = filStat.st_size
+                sys.stdout.write("self.OpenSize=%d\n"%self.OpenSize)
             except:
                 pass
 
@@ -757,8 +758,8 @@ class CIM_Process (CIM_XmlMarshaller,object):
         self.Handle = procId
         self.m_parentProcess = None
         self.m_subProcesses = set()
-        self.CreationDate = 0 # 0 so it can still be compared.
-        self.TerminationDate = 0 # 0 so it can still be compared.
+        self.CreationDate = None
+        self.TerminationDate = None
 
         # This contains all the files objects accessed by this process.
         # It is used when creating a DockerFile.
@@ -916,7 +917,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
     @staticmethod
     def GlobalTerminationDate(timeEnd):
         for objPath,objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-            if objInstance.TerminationDate == 0:
+            if not objInstance.TerminationDate:
                 objInstance.TerminationDate = timeEnd
 
     @classmethod
@@ -1092,6 +1093,11 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
         except:
             objStat = None
 
+        # attr=AccessTime attrVal=1518262584.92 <type 'float'>
+        def TimeT_to_DateTime(stTimeT):
+            # Or utcfromtimestamp
+            return datetime.datetime.strftime( datetime.datetime.fromtimestamp(stTimeT), "%H:%M:%S:%f")
+
         # Some information are not meaningfull because they will vary
         # during the process execution.
         if objStat:
@@ -1103,9 +1109,9 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
             self.HardLinksNumber = objStat.st_nlink
             self.OwnerUserId = objStat.st_uid
             self.OwnerGroupId = objStat.st_gid
-            self.AccessTime = objStat.st_atime
-            self.ModifyTime = objStat.st_mtime
-            self.CreationTime = objStat.st_ctime
+            self.AccessTime = TimeT_to_DateTime(objStat.st_atime)
+            self.ModifyTime = TimeT_to_DateTime(objStat.st_mtime)
+            self.CreationTime = TimeT_to_DateTime(objStat.st_ctime)
             try:
                 # This does not exist on Windows.
                 self.DeviceType = objStat.st_rdev
@@ -2073,7 +2079,7 @@ def GenerateDockerFile(dockerFilename):
         fdDockerFile.write("\n" )
 
     currNow = datetime.datetime.now()
-    currDatTim = currNow.strftime("%Y-%m-%d %H:%M:%S")
+    currDatTim = currNow.strftime("%Y-%m-%d %H:%M:%S:%f")
     fdDockerFile.write("# Dockerfile generated %s\n"%currDatTim)
     
     dockerDirectory = os.path.dirname(dockerFilename)
@@ -2231,7 +2237,7 @@ class BatchLetCore:
         self.m_objectProcess = ToObjectPath_CIM_Process(self.m_pid)
 
         # If the creation date is uknown, it is at least equal to the current call time.
-        if self.m_objectProcess.CreationDate == 0:
+        if not self.m_objectProcess.CreationDate:
             self.m_objectProcess.CreationDate = self.m_timeStart
 
     def SetFunction(self, funcFull):
@@ -2272,30 +2278,10 @@ class BatchLetCore:
         self.m_parsedArgs = []
         self.m_retValue = None
 
-    # This date is conventional, but necessary, otherwise set to 1900/01/01..
-    # This is an innocuous hack to match unit test samples. OK for the moment.
-    deltaTimeStamp = 3600 if socket.gethostname() == 'vps516494.localdomain' else 0
-
     # This parsing is specific to strace and ltrace.
     def InitAfterPid(self,oneLine, idxStart):
         # "07:54:54.206113"
-        strTm = oneLine[idxStart:idxStart+15]
-        try:
-            # This date is conventional, but necessary, otherwise set to 1900/01/01..
-            timStruct = time.strptime("2000/01/01 " + strTm,"%Y/%m/%d %H:%M:%S.%f")
-            aTimeStamp = time.mktime( timStruct )
-
-            # This is an innocuous hack to match unit test samples. OK for the moment.
-            aTimeStamp += BatchLetCore.deltaTimeStamp
-
-        except ValueError:
-            # This should not happen often, so it is OK to search the result string.
-
-            sys.stdout.write("Invalid time format:%s\n"%strTm)
-            aTimeStamp = 0
-        except OverflowError:
-            sys.stderr.write("Overflow time format:%s\n"%strTm)
-            aTimeStamp = 0
+        aTimeStamp = oneLine[idxStart:idxStart+15]
 
         self.m_timeStart = aTimeStamp
         self.m_timeEnd = aTimeStamp
@@ -2593,7 +2579,7 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
 
 # Formatting function specific to TXT mode output file.
 def FmtTim(aTim):
-    return time.strftime("%H:%M:%S", time.gmtime(aTim))
+    return aTim
 
 class BatchDumperBase:
     def Header(self):
@@ -3827,7 +3813,7 @@ class BatchLetSequence(BatchLetBase,object):
 
         batchCore.m_timeStart = arrBatch[0].m_core.m_timeStart
         batchCore.m_timeEnd = arrBatch[-1].m_core.m_timeEnd
-        batchCore.m_execTim = batchCore.m_timeEnd - batchCore.m_timeStart
+        batchCore.m_execTim = datetime.datetime.strptime(batchCore.m_timeEnd, '%H:%M:%S.%f') - datetime.datetime.strptime(batchCore.m_timeStart, '%H:%M:%S.%f')
 
         super( BatchLetSequence,self).__init__(batchCore,style)
 
@@ -3883,8 +3869,6 @@ class BatchFlow:
     def FilterMatchedBatches(self):
         lenBatch = len(self.m_listBatchLets)
 
-        mapOccurences = self.StatisticsBigrams()
-
         numSubst = 0
         idxBatch = 1
         while idxBatch < lenBatch:
@@ -3913,7 +3897,6 @@ class BatchFlow:
             and batchSeqPrev.m_core.m_resumedBatch == batchSeq.m_core \
             and batchSeq.m_core.m_unfinishedBatch == batchSeqPrev.m_core :
                 del self.m_listBatchLets[idxBatch-1]
-                batchSeqPrev = None
                 batchSeq.m_core.m_unfinishedBatch = None
                 lenBatch -= 1
                 numSubst += 1
@@ -4205,8 +4188,6 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
                 if oneLine.find("No such process") >= 0:
                     raise Exception("Invalid process id: %s" % oneLine)
 
-
-            # No such file or directory
             sys.stderr.write("Caught invalid line %d:%s\n"%(numLine,oneLine) )
             # raise
 
