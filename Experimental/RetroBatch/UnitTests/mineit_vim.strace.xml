@@ -1,0 +1,1009 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dockit>
+    <CIM_ComputerSystem>
+        <Name>vps516494.localdomain</Name>
+    </CIM_ComputerSystem>
+    <CIM_OperatingSystem>
+    </CIM_OperatingSystem>
+    <CIM_NetworkAdapter>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
+    </CIM_NetworkAdapter>
+    <CIM_Process Handle='12345'>
+        <Handle>12345</Handle>
+        <Name>pid=12345</Name>
+        <CommandLine>vim titi</CommandLine>
+        <CreationDate>2018-05-31 08:43:14</CreationDate>
+        <TerminationDate>2018-05-31 08:43:43</TerminationDate>
+        <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        <Executable>/usr/bin/vim</Executable>
+        <FileAccesses>
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-31 08:43:14' OpenSize='36008' CloseTime='2018-05-31 08:43:14' CloseSize='36008' />
+            <Access File='/usr/lib64/libm-2.25.so' OpenTime='2018-05-31 08:43:14' OpenSize='1226368' CloseTime='2018-05-31 08:43:14' CloseSize='1226368' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-31 08:43:14' OpenSize='158320' CloseTime='2018-05-31 08:43:14' CloseSize='158320' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libtinfo.so.6.0' OpenTime='2018-05-31 08:43:14' OpenSize='181992' CloseTime='2018-05-31 08:43:14' CloseSize='181992' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libacl.so.1.1.0' OpenTime='2018-05-31 08:43:14' OpenSize='36384' CloseTime='2018-05-31 08:43:14' CloseSize='36384' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libgpm.so.2.1.0' OpenTime='2018-05-31 08:43:14' OpenSize='27688' CloseTime='2018-05-31 08:43:14' CloseSize='27688' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libdl-2.25.so' OpenTime='2018-05-31 08:43:14' OpenSize='19496' CloseTime='2018-05-31 08:43:14' CloseSize='19496' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libpthread-2.25.so' OpenTime='2018-05-31 08:43:14' OpenSize='153896' CloseTime='2018-05-31 08:43:14' CloseSize='153896' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libc-2.25.so' OpenTime='2018-05-31 08:43:14' OpenSize='2163104' CloseTime='2018-05-31 08:43:14' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libpcre.so.1.2.8' OpenTime='2018-05-31 08:43:14' OpenSize='467600' CloseTime='2018-05-31 08:43:14' CloseSize='467600' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-31 08:43:14' OpenSize='19376' CloseTime='2018-05-31 08:43:14' CloseSize='19376' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libncurses.so.6.0' OpenTime='2018-05-31 08:43:14' OpenSize='166480' CloseTime='2018-05-31 08:43:14' CloseSize='166480' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-31 08:43:14' OpenSize='2291760' CloseTime='2018-05-31 08:43:14' CloseSize='2291760' />
+            <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-31 08:43:14' OpenSize='2997' CloseTime='2018-05-31 08:43:14' CloseSize='2997' NumReads='2' BytesRead='2997' />
+            <Access File='/usr/share/terminfo/x/xterm' OpenTime='2018-05-31 08:43:14' OpenSize='3429' CloseTime='2018-05-31 08:43:14' CloseSize='3429' NumReads='2' BytesRead='3429' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/etc/vimrc' OpenTime='2018-05-31 08:43:14' OpenSize='1982' CloseTime='2018-05-31 08:43:14' CloseSize='1982' NumReads='3' BytesRead='1982' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/syntax/syntax.vim' OpenTime='2018-05-31 08:43:14' OpenSize='1228' CloseTime='2018-05-31 08:43:14' CloseSize='1228' NumReads='3' BytesRead='1228' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/syntax/synload.vim' OpenTime='2018-05-31 08:43:14' OpenSize='1984' CloseTime='2018-05-31 08:43:14' CloseSize='1984' NumReads='3' BytesRead='1984' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/syntax/syncolor.vim' OpenTime='2018-05-31 08:43:14' OpenSize='4093' CloseTime='2018-05-31 08:43:14' CloseSize='4093' NumReads='3' BytesRead='4093' />
+            <Access File='/usr/share/vim/vim80/rgb.txt' OpenTime='2018-05-31 08:43:14' OpenSize='17780' CloseTime='2018-05-31 08:43:14' CloseSize='17780' NumReads='12' BytesRead='35560' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/filetype.vim' OpenTime='2018-05-31 08:43:14' OpenSize='56142' CloseTime='2018-05-31 08:43:14' CloseSize='56142' NumReads='16' BytesRead='56142' />
+            <Access File='/usr/share/vim/vimfiles/ftdetect' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vimfiles/after/ftdetect' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/filetype.vim' OpenTime='2018-05-31 08:43:14' OpenSize='56142' CloseTime='2018-05-31 08:43:14' CloseSize='56142' NumReads='1' BytesRead='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/ftplugin.vim' OpenTime='2018-05-31 08:43:14' OpenSize='971' CloseTime='2018-05-31 08:43:14' CloseSize='971' NumReads='3' BytesRead='971' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/defaults.vim' OpenTime='2018-05-31 08:43:14' OpenSize='4120' CloseTime='2018-05-31 08:43:14' CloseSize='4120' NumReads='4' BytesRead='4120' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/syntax/syntax.vim' OpenTime='2018-05-31 08:43:14' OpenSize='1228' CloseTime='2018-05-31 08:43:14' CloseSize='1228' NumReads='3' BytesRead='1228' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/syntax/nosyntax.vim' OpenTime='2018-05-31 08:43:14' OpenSize='755' CloseTime='2018-05-31 08:43:14' CloseSize='755' NumReads='3' BytesRead='755' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/syntax/synload.vim' OpenTime='2018-05-31 08:43:14' OpenSize='1984' CloseTime='2018-05-31 08:43:14' CloseSize='1984' NumReads='3' BytesRead='1984' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/syntax/syncolor.vim' OpenTime='2018-05-31 08:43:14' OpenSize='4093' CloseTime='2018-05-31 08:43:14' CloseSize='4093' NumReads='3' BytesRead='4093' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/filetype.vim' OpenTime='2018-05-31 08:43:14' OpenSize='56142' CloseTime='2018-05-31 08:43:14' CloseSize='56142' NumReads='1' BytesRead='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/ftplugin.vim' OpenTime='2018-05-31 08:43:14' OpenSize='971' CloseTime='2018-05-31 08:43:14' CloseSize='971' NumReads='1' BytesRead='971' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/indent.vim' OpenTime='2018-05-31 08:43:14' OpenSize='767' CloseTime='2018-05-31 08:43:14' CloseSize='767' NumReads='3' BytesRead='767' />
+            <Access File='/usr/share/vim/vim80/pack' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vimfiles/plugin' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vimfiles/plugin' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='UnknownFileDescr:-1 ENOTDIR (Not a directory)' OpenTime='2018-05-31 08:43:14' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/getscriptPlugin.vim' OpenTime='2018-05-31 08:43:14' OpenSize='1393' CloseTime='2018-05-31 08:43:14' CloseSize='1393' NumReads='3' BytesRead='1393' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/gzip.vim' OpenTime='2018-05-31 08:43:14' OpenSize='2499' CloseTime='2018-05-31 08:43:14' CloseSize='2499' NumReads='3' BytesRead='2499' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/logiPat.vim' OpenTime='2018-05-31 08:43:14' OpenSize='10269' CloseTime='2018-05-31 08:43:14' CloseSize='10269' NumReads='5' BytesRead='10269' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/manpager.vim' OpenTime='2018-05-31 08:43:14' OpenSize='676' CloseTime='2018-05-31 08:43:14' CloseSize='676' NumReads='3' BytesRead='676' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/matchparen.vim' OpenTime='2018-05-31 08:43:14' OpenSize='6746' CloseTime='2018-05-31 08:43:14' CloseSize='6746' NumReads='4' BytesRead='6746' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/netrwPlugin.vim' OpenTime='2018-05-31 08:43:14' OpenSize='10440' CloseTime='2018-05-31 08:43:14' CloseSize='10440' NumReads='5' BytesRead='10440' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/rrhelper.vim' OpenTime='2018-05-31 08:43:14' OpenSize='1414' CloseTime='2018-05-31 08:43:14' CloseSize='1414' NumReads='1' BytesRead='1414' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/spellfile.vim' OpenTime='2018-05-31 08:43:14' OpenSize='499' CloseTime='2018-05-31 08:43:14' CloseSize='499' NumReads='3' BytesRead='499' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/tarPlugin.vim' OpenTime='2018-05-31 08:43:14' OpenSize='2271' CloseTime='2018-05-31 08:43:14' CloseSize='2271' NumReads='3' BytesRead='2271' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/tohtml.vim' OpenTime='2018-05-31 08:43:14' OpenSize='9924' CloseTime='2018-05-31 08:43:14' CloseSize='9924' NumReads='5' BytesRead='9924' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/vimballPlugin.vim' OpenTime='2018-05-31 08:43:14' OpenSize='2898' CloseTime='2018-05-31 08:43:14' CloseSize='2898' NumReads='3' BytesRead='2898' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/plugin/zipPlugin.vim' OpenTime='2018-05-31 08:43:14' OpenSize='2510' CloseTime='2018-05-31 08:43:14' CloseSize='2510' NumReads='3' BytesRead='2510' />
+            <Access File='/usr/share/vim/vim80/pack' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vimfiles/after/plugin' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/usr/share/vim/vimfiles/after/plugin' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            <Access File='/home/rchateau/.viminfo' OpenTime='2018-05-31 08:43:14' OpenSize='26153' CloseTime='2018-05-31 08:43:14' CloseSize='26153' NumReads='7' BytesRead='20628' />
+            <Access File='/dev/pts/2' NumReads='86' BytesRead='101' NumWrites='133' BytesWritten='11568' />
+            <Access File='UNIX:[2038143]' CloseTime='2018-05-31 08:43:14' />
+            <Access File='UNIX:[2038147]' CloseTime='2018-05-31 08:43:14' />
+            <Access File='/etc/nsswitch.conf' OpenTime='2018-05-31 08:43:14' OpenSize='1731' CloseTime='2018-05-31 08:43:14' CloseSize='1731' NumReads='2' BytesRead='1731' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-31 08:43:14' OpenSize='36008' CloseTime='2018-05-31 08:43:14' CloseSize='36008' />
+            <Access File='/usr/lib64/libnss_sss.so.2' OpenTime='2018-05-31 08:43:14' OpenSize='36512' CloseTime='2018-05-31 08:43:14' CloseSize='36512' NumReads='1' BytesRead='832' />
+            <Access File='/var/lib/sss/mc/passwd' OpenTime='2018-05-31 08:43:14' OpenSize='8406312' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch/.titi.swp' OpenTime='2018-05-31 08:43:14' CloseTime='2018-05-31 08:43:14' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch/.titi.swpx' OpenTime='2018-05-31 08:43:14' CloseTime='2018-05-31 08:43:14' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch/.titi.swp' OpenTime='2018-05-31 08:43:14' CloseTime='2018-05-31 08:43:43' NumWrites='10' BytesWritten='40960' />
+            <Access File='/home/rchateau/.viminfo' OpenTime='2018-05-31 08:43:14' OpenSize='26153' CloseTime='2018-05-31 08:43:14' CloseSize='26153' NumReads='5' BytesRead='20480' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 08:43:15' OpenSize='4096' CloseTime='2018-05-31 08:43:15' CloseSize='4096' />
+            <Access File='/usr/share/vim/vim80/scripts.vim' OpenTime='2018-05-31 08:43:15' OpenSize='11244' CloseTime='2018-05-31 08:43:15' CloseSize='11244' NumReads='5' BytesRead='11244' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch/titi' OpenTime='2018-05-31 08:43:32' CloseTime='2018-05-31 08:43:32' NumWrites='1' BytesWritten='45' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch/4913' OpenTime='2018-05-31 08:43:43' CloseTime='2018-05-31 08:43:43' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch/titi' OpenTime='2018-05-31 08:43:43' CloseTime='2018-05-31 08:43:43' NumWrites='1' BytesWritten='72' />
+            <Access File='/home/rchateau/.viminfo' OpenTime='2018-05-31 08:43:43' OpenSize='26153' CloseTime='2018-05-31 08:43:43' CloseSize='26153' NumReads='7' BytesRead='20628' />
+            <Access File='/home/rchateau/.viminfo.tmp' OpenTime='2018-05-31 08:43:43' CloseTime='2018-05-31 08:43:43' NumWrites='6' BytesWritten='20569' />
+        </FileAccesses>
+    </CIM_Process>
+    <FilesCategory category='Other libraries'>
+        <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
+            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 15:29:34</AccessTime>
+            <CreationTime>2018-05-31 21:49:15</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2291760</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>131415</Inode>
+            <ModifyTime>2018-05-31 21:49:15</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='2291760' CloseTime='2018-05-31 08:43:14' CloseSize='2291760' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/terminfo/x/xterm'>
+            <FileName>/usr/share/terminfo/x/xterm</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:12:45</AccessTime>
+            <CreationTime>2018-05-31 21:47:37</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>3429</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136571</Inode>
+            <ModifyTime>2018-05-31 15:21:03</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='3429' CloseTime='2018-05-31 08:43:14' CloseSize='3429' NumReads='2' BytesRead='3429' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/defaults.vim'>
+            <FileName>/usr/share/vim/vim80/defaults.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:29</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>4120</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>393561</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4120' CloseTime='2018-05-31 08:43:14' CloseSize='4120' NumReads='4' BytesRead='4120' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/filetype.vim'>
+            <FileName>/usr/share/vim/vim80/filetype.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>56142</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>393701</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='56142' CloseTime='2018-05-31 08:43:14' CloseSize='56142' NumReads='16' BytesRead='56142' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='56142' CloseTime='2018-05-31 08:43:14' CloseSize='56142' NumReads='1' BytesRead='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='56142' CloseTime='2018-05-31 08:43:14' CloseSize='56142' NumReads='1' BytesRead='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/ftplugin.vim'>
+            <FileName>/usr/share/vim/vim80/ftplugin.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>971</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>393704</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='971' CloseTime='2018-05-31 08:43:14' CloseSize='971' NumReads='3' BytesRead='971' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='971' CloseTime='2018-05-31 08:43:14' CloseSize='971' NumReads='1' BytesRead='971' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/indent.vim'>
+            <FileName>/usr/share/vim/vim80/indent.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>767</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>393922</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='767' CloseTime='2018-05-31 08:43:14' CloseSize='767' NumReads='3' BytesRead='767' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/pack'>
+            <FileName>/usr/share/vim/vim80/pack</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>3</HardLinksNumber>
+            <Inode>394287</Inode>
+            <ModifyTime>2018-05-31 11:50:30</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin'>
+            <FileName>/usr/share/vim/vim80/plugin</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>394317</Inode>
+            <ModifyTime>2018-05-31 11:50:30</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/getscriptPlugin.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/getscriptPlugin.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1393</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394319</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1393' CloseTime='2018-05-31 08:43:14' CloseSize='1393' NumReads='3' BytesRead='1393' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/gzip.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/gzip.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2499</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394320</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='2499' CloseTime='2018-05-31 08:43:14' CloseSize='2499' NumReads='3' BytesRead='2499' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/logiPat.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/logiPat.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>10269</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394321</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='10269' CloseTime='2018-05-31 08:43:14' CloseSize='10269' NumReads='5' BytesRead='10269' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/manpager.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/manpager.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>676</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394322</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='676' CloseTime='2018-05-31 08:43:14' CloseSize='676' NumReads='3' BytesRead='676' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/matchparen.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/matchparen.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>6746</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394323</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='6746' CloseTime='2018-05-31 08:43:14' CloseSize='6746' NumReads='4' BytesRead='6746' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/netrwPlugin.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/netrwPlugin.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>10440</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394324</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='10440' CloseTime='2018-05-31 08:43:14' CloseSize='10440' NumReads='5' BytesRead='10440' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/rrhelper.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/rrhelper.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1414</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394325</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1414' CloseTime='2018-05-31 08:43:14' CloseSize='1414' NumReads='1' BytesRead='1414' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/spellfile.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/spellfile.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>499</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394326</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='499' CloseTime='2018-05-31 08:43:14' CloseSize='499' NumReads='3' BytesRead='499' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/tarPlugin.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/tarPlugin.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2271</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394327</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='2271' CloseTime='2018-05-31 08:43:14' CloseSize='2271' NumReads='3' BytesRead='2271' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/tohtml.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/tohtml.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>9924</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394328</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='9924' CloseTime='2018-05-31 08:43:14' CloseSize='9924' NumReads='5' BytesRead='9924' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/vimballPlugin.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/vimballPlugin.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2898</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394329</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='2898' CloseTime='2018-05-31 08:43:14' CloseSize='2898' NumReads='3' BytesRead='2898' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/plugin/zipPlugin.vim'>
+            <FileName>/usr/share/vim/vim80/plugin/zipPlugin.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2510</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394330</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='2510' CloseTime='2018-05-31 08:43:14' CloseSize='2510' NumReads='3' BytesRead='2510' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/rgb.txt'>
+            <FileName>/usr/share/vim/vim80/rgb.txt</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>17780</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394365</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='17780' CloseTime='2018-05-31 08:43:14' CloseSize='17780' NumReads='12' BytesRead='35560' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/scripts.vim'>
+            <FileName>/usr/share/vim/vim80/scripts.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:16:22</AccessTime>
+            <CreationTime>2018-05-31 11:50:30</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>11244</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394366</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:15' OpenSize='11244' CloseTime='2018-05-31 08:43:15' CloseSize='11244' NumReads='5' BytesRead='11244' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/syntax/nosyntax.vim'>
+            <FileName>/usr/share/vim/vim80/syntax/nosyntax.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:31</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>755</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394722</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='755' CloseTime='2018-05-31 08:43:14' CloseSize='755' NumReads='3' BytesRead='755' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/syntax/syncolor.vim'>
+            <FileName>/usr/share/vim/vim80/syntax/syncolor.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:31</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>4093</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394882</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4093' CloseTime='2018-05-31 08:43:14' CloseSize='4093' NumReads='3' BytesRead='4093' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4093' CloseTime='2018-05-31 08:43:14' CloseSize='4093' NumReads='3' BytesRead='4093' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/syntax/synload.vim'>
+            <FileName>/usr/share/vim/vim80/syntax/synload.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:31</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1984</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394883</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1984' CloseTime='2018-05-31 08:43:14' CloseSize='1984' NumReads='3' BytesRead='1984' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1984' CloseTime='2018-05-31 08:43:14' CloseSize='1984' NumReads='3' BytesRead='1984' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vim80/syntax/syntax.vim'>
+            <FileName>/usr/share/vim/vim80/syntax/syntax.vim</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:31</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1228</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>394884</Inode>
+            <ModifyTime>2018-05-31 11:41:58</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1228' CloseTime='2018-05-31 08:43:14' CloseSize='1228' NumReads='3' BytesRead='1228' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1228' CloseTime='2018-05-31 08:43:14' CloseSize='1228' NumReads='3' BytesRead='1228' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vimfiles/after/ftdetect'>
+            <FileName>/usr/share/vim/vimfiles/after/ftdetect</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:29</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>393399</Inode>
+            <ModifyTime>2018-05-31 11:41:57</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vimfiles/after/plugin'>
+            <FileName>/usr/share/vim/vimfiles/after/plugin</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:29</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>393404</Inode>
+            <ModifyTime>2018-05-31 11:41:57</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vimfiles/ftdetect'>
+            <FileName>/usr/share/vim/vimfiles/ftdetect</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:29</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>393413</Inode>
+            <ModifyTime>2018-05-31 11:41:57</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/vim/vimfiles/plugin'>
+            <FileName>/usr/share/vim/vimfiles/plugin</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:29</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>393418</Inode>
+            <ModifyTime>2018-05-31 11:41:57</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/var/lib/sss/mc/passwd'>
+            <FileName>/var/lib/sss/mc/passwd</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 15:44:20</AccessTime>
+            <CreationTime>2018-05-31 15:44:20</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>8406312</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>99</Inode>
+            <ModifyTime>2018-05-31 15:44:20</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='8406312' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Others'>
+        <CIM_DataFile Name='/home/rchateau/.viminfo'>
+            <FileName>/home/rchateau/.viminfo</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 15:45:37</AccessTime>
+            <CreationTime>2018-05-31 15:45:37</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33152</FileMode>
+            <FileSize>26153</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>275631</Inode>
+            <ModifyTime>2018-05-31 15:45:37</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='26153' CloseTime='2018-05-31 08:43:14' CloseSize='26153' NumReads='7' BytesRead='20628' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='26153' CloseTime='2018-05-31 08:43:14' CloseSize='26153' NumReads='5' BytesRead='20480' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:43' OpenSize='26153' CloseTime='2018-05-31 08:43:43' CloseSize='26153' NumReads='7' BytesRead='20628' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/.viminfo.tmp'>
+            <FileName>/home/rchateau/.viminfo.tmp</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:43' CloseTime='2018-05-31 08:43:43' NumWrites='6' BytesWritten='20569' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch'>
+            <FileName>/home/rchateau/survol/Experimental/RetroBatch</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 15:46:41</AccessTime>
+            <CreationTime>2018-05-31 10:12:52</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>5</HardLinksNumber>
+            <Inode>272074</Inode>
+            <ModifyTime>2018-05-31 10:12:52</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='4096' CloseTime='2018-05-31 08:43:14' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:15' OpenSize='4096' CloseTime='2018-05-31 08:43:15' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/.titi.swp'>
+            <FileName>/home/rchateau/survol/Experimental/RetroBatch/.titi.swp</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' CloseTime='2018-05-31 08:43:14' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' CloseTime='2018-05-31 08:43:43' NumWrites='10' BytesWritten='40960' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/.titi.swpx'>
+            <FileName>/home/rchateau/survol/Experimental/RetroBatch/.titi.swpx</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' CloseTime='2018-05-31 08:43:14' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/4913'>
+            <FileName>/home/rchateau/survol/Experimental/RetroBatch/4913</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:43' CloseTime='2018-05-31 08:43:43' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/titi'>
+            <FileName>/home/rchateau/survol/Experimental/RetroBatch/titi</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:32' CloseTime='2018-05-31 08:43:32' NumWrites='1' BytesWritten='45' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:43' CloseTime='2018-05-31 08:43:43' NumWrites='1' BytesWritten='72' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='UnknownFileDescr:-1 ENOTDIR (Not a directory)'>
+            <FileName>UnknownFileDescr:-1 ENOTDIR (Not a directory)</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Pipes and terminals'>
+        <CIM_DataFile Name='/dev/pts/2'>
+            <FileName>/dev/pts/2</FileName>
+            <Category>Pipes and terminals</Category>
+            <AccessTime>2018-05-31 15:46:51</AccessTime>
+            <CreationTime>2018-05-31 12:31:09</CreationTime>
+            <DeviceId>21</DeviceId>
+            <DeviceType>34818</DeviceType>
+            <FileMode>8592</FileMode>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>5</Inode>
+            <ModifyTime>2018-05-31 15:46:51</ModifyTime>
+            <OwnerGroupId>5</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' NumReads='86' BytesRead='101' NumWrites='133' BytesWritten='11568' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='UNIX:[2038143]'>
+            <FileName>UNIX:[2038143]</FileName>
+            <Category>Pipes and terminals</Category>
+            <SocketAddress>['sa_family=AF_UNIX', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <FileAccesses>
+                <Access Process='12345' CloseTime='2018-05-31 08:43:14' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='UNIX:[2038147]'>
+            <FileName>UNIX:[2038147]</FileName>
+            <Category>Pipes and terminals</Category>
+            <SocketAddress>['sa_family=AF_UNIX', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <FileAccesses>
+                <Access Process='12345' CloseTime='2018-05-31 08:43:14' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Shared libraries'>
+        <CIM_DataFile Name='/usr/lib64/libacl.so.1.1.0'>
+            <FileName>/usr/lib64/libacl.so.1.1.0</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:38:16</AccessTime>
+            <CreationTime>2018-05-31 21:47:41</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>36384</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137456</Inode>
+            <ModifyTime>2018-05-31 07:17:24</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='36384' CloseTime='2018-05-31 08:43:14' CloseSize='36384' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libattr.so.1.1.0'>
+            <FileName>/usr/lib64/libattr.so.1.1.0</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:38:16</AccessTime>
+            <CreationTime>2018-05-31 21:47:41</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>19376</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137454</Inode>
+            <ModifyTime>2018-05-31 06:36:33</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='19376' CloseTime='2018-05-31 08:43:14' CloseSize='19376' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libc-2.25.so'>
+            <FileName>/usr/lib64/libc-2.25.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>2163104</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136672</Inode>
+            <ModifyTime>2018-05-31 04:42:30</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='2163104' CloseTime='2018-05-31 08:43:14' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libdl-2.25.so'>
+            <FileName>/usr/lib64/libdl-2.25.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>19496</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136676</Inode>
+            <ModifyTime>2018-05-31 04:42:29</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='19496' CloseTime='2018-05-31 08:43:14' CloseSize='19496' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libgpm.so.2.1.0'>
+            <FileName>/usr/lib64/libgpm.so.2.1.0</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:31</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>27688</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>141225</Inode>
+            <ModifyTime>2018-05-31 19:53:10</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='27688' CloseTime='2018-05-31 08:43:14' CloseSize='27688' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libm-2.25.so'>
+            <FileName>/usr/lib64/libm-2.25.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>1226368</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136678</Inode>
+            <ModifyTime>2018-05-31 04:42:32</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1226368' CloseTime='2018-05-31 08:43:14' CloseSize='1226368' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libncurses.so.6.0'>
+            <FileName>/usr/lib64/libncurses.so.6.0</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 21:47:40</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>166480</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136983</Inode>
+            <ModifyTime>2018-05-31 15:21:22</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='166480' CloseTime='2018-05-31 08:43:14' CloseSize='166480' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libnss_sss.so.2'>
+            <FileName>/usr/lib64/libnss_sss.so.2</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:38:16</AccessTime>
+            <CreationTime>2018-05-31 21:47:57</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>36512</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>145289</Inode>
+            <ModifyTime>2018-05-31 11:30:56</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='36512' CloseTime='2018-05-31 08:43:14' CloseSize='36512' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libpcre.so.1.2.8'>
+            <FileName>/usr/lib64/libpcre.so.1.2.8</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:09:09</AccessTime>
+            <CreationTime>2018-05-31 21:47:40</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>467600</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137112</Inode>
+            <ModifyTime>2018-05-31 08:24:37</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='467600' CloseTime='2018-05-31 08:43:14' CloseSize='467600' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libpthread-2.25.so'>
+            <FileName>/usr/lib64/libpthread-2.25.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>153896</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136688</Inode>
+            <ModifyTime>2018-05-31 04:42:29</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='153896' CloseTime='2018-05-31 08:43:14' CloseSize='153896' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libselinux.so.1'>
+            <FileName>/usr/lib64/libselinux.so.1</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:09:09</AccessTime>
+            <CreationTime>2018-05-31 21:47:40</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>158320</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137122</Inode>
+            <ModifyTime>2018-05-31 10:34:50</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='158320' CloseTime='2018-05-31 08:43:14' CloseSize='158320' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libtinfo.so.6.0'>
+            <FileName>/usr/lib64/libtinfo.so.6.0</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:29:34</AccessTime>
+            <CreationTime>2018-05-31 21:47:40</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>181992</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136993</Inode>
+            <ModifyTime>2018-05-31 15:21:22</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='181992' CloseTime='2018-05-31 08:43:14' CloseSize='181992' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='System config files'>
+        <CIM_DataFile Name='/etc/ld.so.cache'>
+            <FileName>/etc/ld.so.cache</FileName>
+            <Category>System config files</Category>
+            <AccessTime>2018-05-31 20:55:01</AccessTime>
+            <CreationTime>2018-05-31 20:50:06</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>36008</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>168101</Inode>
+            <ModifyTime>2018-05-31 20:50:06</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='36008' CloseTime='2018-05-31 08:43:14' CloseSize='36008' />
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='36008' CloseTime='2018-05-31 08:43:14' CloseSize='36008' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/etc/nsswitch.conf'>
+            <FileName>/etc/nsswitch.conf</FileName>
+            <Category>System config files</Category>
+            <AccessTime>2018-05-31 15:38:16</AccessTime>
+            <CreationTime>2018-05-31 21:47:42</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1731</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137539</Inode>
+            <ModifyTime>2018-05-31 21:47:42</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1731' CloseTime='2018-05-31 08:43:14' CloseSize='1731' NumReads='2' BytesRead='1731' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/etc/vimrc'>
+            <FileName>/etc/vimrc</FileName>
+            <Category>System config files</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:29</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1982</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>138400</Inode>
+            <ModifyTime>2018-05-31 11:38:41</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='1982' CloseTime='2018-05-31 08:43:14' CloseSize='1982' NumReads='3' BytesRead='1982' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/locale/locale.alias'>
+            <FileName>/usr/share/locale/locale.alias</FileName>
+            <Category>System config files</Category>
+            <AccessTime>2018-05-31 00:29:16</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2997</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136660</Inode>
+            <ModifyTime>2018-05-31 04:39:38</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 08:43:14' OpenSize='2997' CloseTime='2018-05-31 08:43:14' CloseSize='2997' NumReads='2' BytesRead='2997' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='System executables'>
+        <CIM_DataFile Name='/usr/bin/vim'>
+            <FileName>/usr/bin/vim</FileName>
+            <Category>System executables</Category>
+            <AccessTime>2018-05-31 10:15:18</AccessTime>
+            <CreationTime>2018-05-31 11:50:31</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>3010888</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>141229</Inode>
+            <IsExecuted>True</IsExecuted>
+            <ModifyTime>2018-05-31 11:42:03</ModifyTime>
+        </CIM_DataFile>
+    </FilesCategory>
+</Dockit>

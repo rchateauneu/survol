@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dockit>
+    <CIM_ComputerSystem>
+        <Name>vps516494.localdomain</Name>
+    </CIM_ComputerSystem>
+    <CIM_OperatingSystem>
+    </CIM_OperatingSystem>
+    <CIM_NetworkAdapter>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
+    </CIM_NetworkAdapter>
+    <CIM_Process Handle='5904'>
+        <Handle>5904</Handle>
+        <Name>pid=5904</Name>
+        <CreationDate>2018-05-31 11:30:21</CreationDate>
+        <TerminationDate>2018-05-31 11:30:21</TerminationDate>
+        <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        <FileAccesses>
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-31 11:30:21' OpenSize='36008' CloseTime='2018-05-31 11:30:21' CloseSize='36008' />
+            <Access File='/lib64/libperl.so.5.24' OpenTime='2018-05-31 11:30:21' OpenSize='2075248' CloseTime='2018-05-31 11:30:21' CloseSize='2075248' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libpthread.so.0' OpenTime='2018-05-31 11:30:21' OpenSize='153896' CloseTime='2018-05-31 11:30:21' CloseSize='153896' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libresolv.so.2' OpenTime='2018-05-31 11:30:21' OpenSize='109800' CloseTime='2018-05-31 11:30:21' CloseSize='109800' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libnsl.so.1' OpenTime='2018-05-31 11:30:21' OpenSize='115472' CloseTime='2018-05-31 11:30:21' CloseSize='115472' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libdl.so.2' OpenTime='2018-05-31 11:30:21' OpenSize='19496' CloseTime='2018-05-31 11:30:21' CloseSize='19496' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libm.so.6' OpenTime='2018-05-31 11:30:21' OpenSize='1226368' CloseTime='2018-05-31 11:30:21' CloseSize='1226368' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libcrypt.so.1' OpenTime='2018-05-31 11:30:21' OpenSize='36872' CloseTime='2018-05-31 11:30:21' CloseSize='36872' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libutil.so.1' OpenTime='2018-05-31 11:30:21' OpenSize='14448' CloseTime='2018-05-31 11:30:21' CloseSize='14448' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libc.so.6' OpenTime='2018-05-31 11:30:21' OpenSize='2163104' CloseTime='2018-05-31 11:30:21' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libfreebl3.so' OpenTime='2018-05-31 11:30:21' OpenSize='11368' CloseTime='2018-05-31 11:30:21' CloseSize='11368' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-31 11:30:21' OpenSize='2291760' CloseTime='2018-05-31 11:30:21' CloseSize='2291760' />
+            <Access File='/dev/urandom' OpenTime='2018-05-31 11:30:21' CloseTime='2018-05-31 11:30:21' NumReads='1' BytesRead='4' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl' OpenTime='2018-05-31 11:30:21' OpenSize='114' CloseTime='2018-05-31 11:30:21' CloseSize='114' NumReads='2' BytesRead='114' />
+            <Access File='/tmp/survol_test_perl.txt' OpenTime='2018-05-31 11:30:21' CloseTime='2018-05-31 11:30:21' NumWrites='1' BytesWritten='44' />
+        </FileAccesses>
+    </CIM_Process>
+    <FilesCategory category='Other libraries'>
+        <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
+            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 15:29:34</AccessTime>
+            <CreationTime>2018-05-31 21:49:15</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2291760</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>131415</Inode>
+            <ModifyTime>2018-05-31 21:49:15</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='2291760' CloseTime='2018-05-31 11:30:21' CloseSize='2291760' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Others'>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl'>
+            <FileName>/home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 15:02:58</AccessTime>
+            <CreationTime>2018-05-31 15:03:47</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33277</FileMode>
+            <FileSize>114</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262191</Inode>
+            <ModifyTime>2018-05-31 15:03:47</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='114' CloseTime='2018-05-31 11:30:21' CloseSize='114' NumReads='2' BytesRead='114' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='stderr'>
+            <FileName>stderr</FileName>
+            <Category>Others</Category>
+        </CIM_DataFile>
+        <CIM_DataFile Name='stdin'>
+            <FileName>stdin</FileName>
+            <Category>Others</Category>
+        </CIM_DataFile>
+        <CIM_DataFile Name='stdout'>
+            <FileName>stdout</FileName>
+            <Category>Others</Category>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Pipes and terminals'>
+        <CIM_DataFile Name='/dev/urandom'>
+            <FileName>/dev/urandom</FileName>
+            <Category>Pipes and terminals</Category>
+            <AccessTime>2018-05-31 14:59:32</AccessTime>
+            <CreationTime>2018-05-31 14:59:32</CreationTime>
+            <DeviceId>6</DeviceId>
+            <DeviceType>265</DeviceType>
+            <FileMode>8630</FileMode>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>8748</Inode>
+            <ModifyTime>2018-05-31 14:59:32</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' CloseTime='2018-05-31 11:30:21' NumReads='1' BytesRead='4' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Shared libraries'>
+        <CIM_DataFile Name='/lib64/libc.so.6'>
+            <FileName>/lib64/libc.so.6</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>2163104</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136672</Inode>
+            <ModifyTime>2018-05-31 04:42:30</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='2163104' CloseTime='2018-05-31 11:30:21' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libcrypt.so.1'>
+            <FileName>/lib64/libcrypt.so.1</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 20:23:24</AccessTime>
+            <CreationTime>2018-05-31 21:47:42</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>36872</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137740</Inode>
+            <ModifyTime>2018-05-31 04:42:29</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='36872' CloseTime='2018-05-31 11:30:21' CloseSize='36872' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libdl.so.2'>
+            <FileName>/lib64/libdl.so.2</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>19496</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136676</Inode>
+            <ModifyTime>2018-05-31 04:42:29</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='19496' CloseTime='2018-05-31 11:30:21' CloseSize='19496' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libfreebl3.so'>
+            <FileName>/lib64/libfreebl3.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 09:24:50</AccessTime>
+            <CreationTime>2018-05-31 07:40:04</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>11368</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137734</Inode>
+            <ModifyTime>2018-05-31 10:23:15</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='11368' CloseTime='2018-05-31 11:30:21' CloseSize='11368' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libm.so.6'>
+            <FileName>/lib64/libm.so.6</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>1226368</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136678</Inode>
+            <ModifyTime>2018-05-31 04:42:32</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='1226368' CloseTime='2018-05-31 11:30:21' CloseSize='1226368' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libnsl.so.1'>
+            <FileName>/lib64/libnsl.so.1</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 17:45:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>115472</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136682</Inode>
+            <ModifyTime>2018-05-31 04:42:31</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='115472' CloseTime='2018-05-31 11:30:21' CloseSize='115472' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libperl.so.5.24'>
+            <FileName>/lib64/libperl.so.5.24</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 18:00:21</AccessTime>
+            <CreationTime>2018-05-31 08:05:57</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>2075248</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137047</Inode>
+            <ModifyTime>2018-05-31 12:09:09</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='2075248' CloseTime='2018-05-31 11:30:21' CloseSize='2075248' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libpthread.so.0'>
+            <FileName>/lib64/libpthread.so.0</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>153896</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136688</Inode>
+            <ModifyTime>2018-05-31 04:42:29</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='153896' CloseTime='2018-05-31 11:30:21' CloseSize='153896' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libresolv.so.2'>
+            <FileName>/lib64/libresolv.so.2</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:09:09</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>109800</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136690</Inode>
+            <ModifyTime>2018-05-31 04:42:29</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='109800' CloseTime='2018-05-31 11:30:21' CloseSize='109800' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/lib64/libutil.so.1'>
+            <FileName>/lib64/libutil.so.1</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 20:23:24</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>14448</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136696</Inode>
+            <ModifyTime>2018-05-31 04:42:31</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='14448' CloseTime='2018-05-31 11:30:21' CloseSize='14448' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='System config files'>
+        <CIM_DataFile Name='/etc/ld.so.cache'>
+            <FileName>/etc/ld.so.cache</FileName>
+            <Category>System config files</Category>
+            <AccessTime>2018-05-31 20:55:01</AccessTime>
+            <CreationTime>2018-05-31 20:50:06</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>36008</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>168101</Inode>
+            <ModifyTime>2018-05-31 20:50:06</ModifyTime>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' OpenSize='36008' CloseTime='2018-05-31 11:30:21' CloseSize='36008' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/etc/ld.so.preload'>
+            <FileName>/etc/ld.so.preload</FileName>
+            <Category>System config files</Category>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Temporary files'>
+        <CIM_DataFile Name='/tmp/survol_test_perl.txt'>
+            <FileName>/tmp/survol_test_perl.txt</FileName>
+            <Category>Temporary files</Category>
+            <FileAccesses>
+                <Access Process='5904' OpenTime='2018-05-31 11:30:21' CloseTime='2018-05-31 11:30:21' NumWrites='1' BytesWritten='44' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+</Dockit>
