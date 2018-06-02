@@ -15,6 +15,10 @@ avoir un serveur survol normal.
 
 Donc dockit est completement lie a survol, qui doit le faire apparaitre comme un script comme un autre.
 
+Tracers:
+========
+dtrace, blktrrace, valgrind.
+
 Survol can create processes running dockit:
 ===========================================
 

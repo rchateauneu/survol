@@ -2,16 +2,93 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="217fdf30-e1c5-4541-a80a-6b2caf048c88" name="Default" comment="">
-      <change type="DELETED" beforePath="C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\.idea\.name" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/PythonStyle.iml" afterPath="$PROJECT_DIR$/.idea/PythonStyle.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/class_type_all.py" afterPath="$PROJECT_DIR$/survol/class_type_all.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/entity_wmi.py" afterPath="$PROJECT_DIR$/survol/entity_wmi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/www/index.htm" afterPath="$PROJECT_DIR$/survol/www/index.htm" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/retrobatch.py" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/retrobatch.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/www/summary.htm" afterPath="$PROJECT_DIR$/survol/www/summary.htm" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/bash_fedora.strace.4233.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/bash_fedora.strace.4233.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/bash_fedora.strace.4233.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/bash_fedora.strace.4233.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/primhill/dock_it.html" afterPath="$PROJECT_DIR$/primhill/dock_it.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/scripts/dockit.py" afterPath="$PROJECT_DIR$/survol/scripts/dockit.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/dockit_design.txt" afterPath="$PROJECT_DIR$/docs/dockit_design.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/firefox_google.strace.22501.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/firefox_google.strace.22501.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/firefox_google.strace.22501.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/firefox_google.strace.22501.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/firefox_google.strace.22501.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/firefox_google.strace.22501.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/ls_lr.ltrace.21366.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/ls_lr.ltrace.21366.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/ls_lr.ltrace.21366.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/ls_lr.ltrace.21366.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/ls_lr.ltrace.21366.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/ls_lr.ltrace.21366.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_copy_bigfile.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_copy_bigfile.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_copy_bigfile.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_copy_bigfile.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_copy_bigfile.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_copy_bigfile.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_file.ltrace.24611.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_file.ltrace.24611.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_file.ltrace.24611.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_file.ltrace.24611.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_file.ltrace.24611.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_file.ltrace.24611.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_find_grep.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_find_grep.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_find_grep.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_find_grep.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_find_grep.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_find_grep.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_hello_world.ltrace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_hello_world.ltrace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_hello_world.ltrace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_hello_world.ltrace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_hello_world.ltrace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_hello_world.ltrace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_graphviz_ps.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_graphviz_ps.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_graphviz_ps.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_graphviz_ps.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_graphviz_ps.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_graphviz_ps.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_minusp_bash_while_sleep.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_minusp_bash_while_sleep.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_minusp_bash_while_sleep.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_minusp_bash_while_sleep.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_minusp_bash_while_sleep.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_minusp_bash_while_sleep.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.ltrace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.ltrace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.ltrace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.ltrace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.ltrace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.ltrace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_plenty_of_clone.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_plenty_of_clone.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_plenty_of_clone.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_plenty_of_clone.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_plenty_of_clone.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_plenty_of_clone.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_proftpd.strace.26299.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_proftpd.strace.26299.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_proftpd.strace.26299.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_proftpd.strace.26299.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_proftpd.strace.26299.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_proftpd.strace.26299.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_ps_ef.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_ps_ef.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_ps_ef.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_ps_ef.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_ps_ef.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_ps_ef.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_python_cobaye.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_python_cobaye.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_python_cobaye.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_python_cobaye.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_python_cobaye.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_python_cobaye.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.ltrace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.ltrace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.ltrace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.ltrace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.ltrace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.ltrace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_short_graphviz_ps.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_short_graphviz_ps.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_short_graphviz_ps.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_short_graphviz_ps.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_short_graphviz_ps.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_short_graphviz_ps.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.strace.5899.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.strace.5899.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.strace.5899.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.strace.5899.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.strace.5899.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.strace.5899.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_vim.strace.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_vim.strace.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_vim.strace.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_vim.strace.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_vim.strace.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_vim.strace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_wget_hotmail.strace.866.ini" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_wget_hotmail.strace.866.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_wget_hotmail.strace.866.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_wget_hotmail.strace.866.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_wget_hotmail.strace.866.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_wget_hotmail.strace.866.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/oracle_db_data.strace.5718.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/oracle_db_data.strace.5718.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/oracle_db_data.strace.5718.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/oracle_db_data.strace.5718.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/sqlplus.strace.4401.txt" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/sqlplus.strace.4401.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/sqlplus.strace.4401.xml" afterPath="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/sqlplus.strace.4401.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="PythonStyle.iws" />
@@ -33,44 +110,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="retrobatch.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/retrobatch.py">
+      <file leaf-file-name="dockit.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/survol/scripts/dockit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="7.346789">
-              <caret line="314" column="0" selection-start-line="314" selection-start-column="0" selection-end-line="314" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.34719712">
+              <caret line="402" column="0" selection-start-line="402" selection-start-column="0" selection-end-line="402" selection-end-column="0" />
               <folding>
-                <element signature="e#0#10#0" expanded="true" />
+                <element signature="e#415#430#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="hostname_nmap.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/hostname_nmap.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="38" column="36" selection-start-line="38" selection-start-column="36" selection-end-line="38" selection-end-column="36" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lib_common.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/lib_common.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-7.6296296">
-              <caret line="839" column="34" selection-start-line="839" selection-start-column="18" selection-end-line="839" selection-end-column="34" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lib_exports.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/lib_exports.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="270" column="0" selection-start-line="270" selection-start-column="0" selection-end-line="270" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -83,9 +130,57 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/survol/www/index.htm" />
-        <option value="$PROJECT_DIR$/survol/lib_exports.py" />
-        <option value="$PROJECT_DIR$/Experimental/RetroBatch/retrobatch.py" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/sqlplus.strace.4401.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/oracle_db_data.strace.5718.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/induction.py" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.xml" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/summary.xml" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/README.txt" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/buffer_classes.csv" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.xml" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/oracle_db_data.strace.5718.xml" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/buffer_analysis.py" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/dockit.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/CIM_Process/embedded_sql_query/__init__.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/CIM_Process/embedded_sql_query/query_vs_databases.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/unittest_dockit.py" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/buffer_scanner.py" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.txt" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/unittest_dockit.py" />
+        <option value="$PROJECT_DIR$/survol/lib_sql.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/summary.xml" />
+        <option value="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/grep_sql_queries.py" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/integration_test_dockit.sh" />
+        <option value="$PROJECT_DIR$/docs/dockit_design.txt" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/bash_fedora.strace.4233.xml" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/firefox_google.strace.22501.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/ls_lr.ltrace.21366.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_copy_bigfile.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_file.ltrace.24611.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_find_grep.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_hello_world.ltrace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_graphviz_ps.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_minusp_bash_while_sleep.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.ltrace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_plenty_of_clone.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_proftpd.strace.26299.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_ps_ef.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_python_cobaye.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.ltrace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_short_graphviz_ps.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.strace.5899.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_vim.strace.ini" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_wget_hotmail.strace.866.ini" />
+        <option value="$PROJECT_DIR$/survol/scripts/dockit.py" />
       </list>
     </option>
   </component>
@@ -93,9 +188,10 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="307" />
-    <option name="width" value="1222" />
-    <option name="height" value="946" />
+    <option name="x" value="2" />
+    <option name="y" value="66" />
+    <option name="width" value="1620" />
+    <option name="height" value="871" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -166,7 +262,29 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="www" />
+              <option name="myItemId" value="sources_types" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="survol" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sources_types" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="CIM_DataFile" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -185,6 +303,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="scripts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="docs" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -226,7 +358,46 @@
       <pane id="Scratches" />
     </panes>
   </component>
-  <component name="RunManager">
+  <component name="PropertiesComponent">
+    <property name="recentsLimit" value="5" />
+    <property name="FullScreen" value="false" />
+    <property name="full.screen.before.presentation.mode" value="false" />
+  </component>
+  <component name="RunManager" selected="Python.scikit_svm_opencv">
+    <configuration default="false" name="PrincipalPeriodTest" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental/RetroBatch" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonStyle" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/RetroBatch/PrincipalPeriodTest.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="scikit_svm_opencv" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental/OCR" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonStyle" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/OCR/scikit_svm_opencv.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -349,30 +520,59 @@
       <option name="USE_KEYWORD" value="false" />
       <method />
     </configuration>
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="Python.PrincipalPeriodTest" />
+      <item index="1" class="java.lang.String" itemvalue="Python.scikit_svm_opencv" />
+    </list>
+    <recent_temporary>
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="Python.scikit_svm_opencv" />
+        <item index="1" class="java.lang.String" itemvalue="Python.PrincipalPeriodTest" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="ToolWindowManager">
-    <frame x="307" y="0" width="1222" height="946" extended-state="0" />
+    <frame x="2" y="66" width="1620" height="871" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24958813" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25868487" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32902467" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18685567" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.019329896" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21799746" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
+    <layout-to-restore>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32902467" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25178573" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32902467" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+    </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -386,106 +586,410 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/enumerate_memmap.py">
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/sqlplus.strace.4401.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.6690909">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="93" column="44" selection-start-line="93" selection-start-column="44" selection-end-line="93" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_DataFile/grep_sql_queries.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="64" column="45" selection-start-line="64" selection-start-column="45" selection-end-line="64" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/Design.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.092">
+          <caret line="1320" column="22" selection-start-line="1320" selection-start-column="22" selection-end-line="1320" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/integration_test_dockit.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-17.68">
+          <caret line="26" column="40" selection-start-line="26" selection-start-column="40" selection-end-line="26" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/dockit_readme.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33333334">
-          <caret line="203" column="58" selection-start-line="203" selection-start-column="54" selection-end-line="203" selection-end-column="58" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/www/index.htm">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.8301888">
-          <caret line="436" column="13" selection-start-line="436" selection-start-column="13" selection-end-line="436" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/nmap/nmap_broadcast_ms_sql_discover.py">
+    <entry file="file://$PROJECT_DIR$/survol/scripts/webserver.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="74" column="50" selection-start-line="74" selection-start-column="35" selection-end-line="74" selection-end-column="50" />
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/Linux/tcp_sockets.py">
+    <entry file="file://$PROJECT_DIR$/survol/task_control.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="62" column="0" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
+          <caret line="24" column="26" selection-start-line="24" selection-start-column="26" selection-end-line="24" selection-end-column="26" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/win32/tcp_sockets_windows.py">
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/psutil_processes_perf.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="39" column="41" selection-start-line="39" selection-start-column="41" selection-end-line="39" selection-end-column="41" />
+          <caret line="50" column="25" selection-start-line="50" selection-start-column="25" selection-end-line="50" selection-end-column="25" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_DataFile/win_depends.py">
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/sockets_promiscuous_mode.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="63" column="31" selection-start-line="63" selection-start-column="19" selection-end-line="63" selection-end-column="31" />
+          <caret line="82" column="36" selection-start-line="82" selection-start-column="36" selection-end-line="82" selection-end-column="36" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/scripts/cgiserver.py">
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/README.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="3.8220184">
-          <caret line="156" column="0" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="56" selection-start-line="0" selection-start-column="56" selection-end-line="0" selection-end-column="56" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/dockit_design.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-12.92">
+          <caret line="19" column="28" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_Process/linux_strace.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-21.74074">
+          <caret line="306" column="24" selection-start-line="306" selection-start-column="16" selection-end-line="306" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_webserv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.4444447">
+          <caret line="363" column="40" selection-start-line="363" selection-start-column="19" selection-end-line="363" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.docker/Dockerfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="13" column="45" selection-start-line="13" selection-start-column="45" selection-end-line="13" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1357" column="26" selection-start-line="1357" selection-start-column="26" selection-end-line="1357" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/bash_fedora.strace.4233.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/bash_fedora.strace.4233.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/firefox_google.strace.22501.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/ls_lr.ltrace.21366.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_big_mysql_select.strace.18648.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-8.84">
+          <caret line="13" column="11" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_copy_bigfile.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_file.ltrace.24611.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_find_grep.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_hello_world.ltrace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_gcc_incomplete.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_graphviz_ps.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_minusp_bash_while_sleep.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.ltrace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_mysql_show_databases.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.ltrace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.72">
+          <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.44">
+          <caret line="8" column="11" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_plenty_of_clone.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_proftpd.strace.26299.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_ps_ef.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.04">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_python_cobaye.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-6.8">
+          <caret line="10" column="11" selection-start-line="10" selection-start-column="11" selection-end-line="10" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/sqlplus.strace.4401.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/oracle_db_data.strace.5718.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_wget_hotmail.strace.866.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.08793104">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_vim.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.08793104">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.strace.5899.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.14655173">
+          <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_simple_perl_file_write.ltrace.5903.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.14655173">
+          <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_short_graphviz_ps.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.08793104">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_short_shell.ltrace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.08793104">
+          <caret line="3" column="11" selection-start-line="3" selection-start-column="11" selection-end-line="3" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.strace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.20517242">
+          <caret line="7" column="11" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/UnitTests/mineit_sample_shell.ltrace.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.20517242">
+          <caret line="7" column="11" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/dockit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.34719712">
+          <caret line="402" column="0" selection-start-line="402" selection-start-column="0" selection-end-line="402" selection-end-column="0" />
           <folding>
-            <element signature="e#510#520#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_exports.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="270" column="0" selection-start-line="270" selection-start-column="0" selection-end-line="270" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/hostname_nmap.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="38" column="36" selection-start-line="38" selection-start-column="36" selection-end-line="38" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_common.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.6296296">
-          <caret line="839" column="34" selection-start-line="839" selection-start-column="18" selection-end-line="839" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/retrobatch.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="7.346789">
-          <caret line="314" column="0" selection-start-line="314" selection-start-column="0" selection-end-line="314" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#415#430#0" expanded="true" />
           </folding>
         </state>
       </provider>

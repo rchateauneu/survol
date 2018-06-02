@@ -49,7 +49,10 @@ briefly monitor it with DockIT:<br><br>- Many tedious tasks are done automatical
 - You can focus on the really difficult tasks of dockerizing an application.<br>- You do not need to be skills in all technologies used by your application: DockIT tells what is required.<br>- Less skills are needed<br>- Si script bien cache dans un coin, difficile a debusquer.<br>- Elimine les surprises, notamment avant de prendre la decision de dockeriser.<br>-
 Ameliore la precision de vos estimations car repere immediatement les
 difficultes et les points techniques a resoudre, et donne des elements
-pour les resoudre. Ameliore votre productivite.<br><br>(SURVOL AUSSI: Permet de tater le terrain avant de commencer un developpement)<br><br>When discovering a legacy applicaiton you know nothing about, DockIT gives the significant advantage of understanding the overall structure of a batch process.<br>
+pour les resoudre. Ameliore votre productivite.<br><br>(SURVOL AUSSI: Permet de tater le terrain avant de commencer un developpement)<br><br>When
+discovering a legacy applicaiton you know nothing about, DockIT gives
+the significant advantage of understanding the overall structure of a
+batch process.<br>
 <br>
 <br>
 Helps treating special situation: <br>
@@ -77,7 +80,7 @@ objects and resources as described by the CIM industrial standard.
 Survol and&nbsp;DockIT are two orthogonal technologies, based on the
 same concepts, to address, understand and running applications in-situ
 and in-vivo. Survol displays snapshots, whereas DockIT traces a
-temporal behaviour on a time scale. <br><br>==<br><br>&nbsp;DockIT&nbsp; is a utility to recondition legacy applications in docker containers.<br><br>It is able to generate Docker configuration files from running process, executions logs and traces.<br><br>It embraces a complete batch or group of processes and generates a Dockerfile draft to move this batch to the Cloud.<br><br>The
+temporal behaviour on a time scale. <br><br>==<br>Indexing and keywords: "Software archeology", "Legacy".<br><br><br>&nbsp;DockIT&nbsp; is a utility to recondition legacy applications in docker containers.<br><br>It is able to generate Docker configuration files from running process, executions logs and traces.<br><br>It embraces a complete batch or group of processes and generates a Dockerfile draft to move this batch to the Cloud.<br><br>The
 typical use case for dockerize is when you have an application that has
 one or more configuration files and you would like to control some of
 the values using environment variables.<br><br>For example, a Python
@@ -106,7 +109,7 @@ application.<br><br>&nbsp;<br><br>&nbsp;<br><br>Helps treating special situation
 detection of log files, when an application logs to files instead of
 terminal standard output or error. Therefore the right strategy to
 handle logs can be applied: Inside /&nbsp; outside the container,
-centralized logging system etc&#8230;.<br>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><br>&nbsp;<br><br>ð&nbsp; TODO: DECRIRE COMMENTUN FICHIER EST ACCEDE PAR UN PROCESS: READ/WRITE/APPEND, POUR DEDUIRE SI FICHIER LOG ETC&#8230;<br><br>ð&nbsp; AUTREMENT DIT, AU LIEU DE STOCKER UN LIST DE FICHIER, ON STOCKE UNE MAP AVEC DES META-DATA D&#8217;ACCES : RD/RD/APP/<br><br>&nbsp;<br><br>LOG FILE : Que des writes, aucun read, aucun fseek ou bien a la fin.<br><br>Indiquer S&#8217;il y a beaucoup de fseek et donc si ca vaut la peine d utiliser un ssd.<br><br>
+centralized logging system etc&#8230;.<br>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><br>&nbsp;<br><br>*&nbsp;TODO: DECRIRE COMMENTUN FICHIER EST ACCEDE PAR UN PROCESS: READ/WRITE/APPEND, POUR DEDUIRE SI FICHIER LOG ETC&#8230;<br>*&nbsp; AUTREMENT DIT, AU LIEU DE STOCKER UN LIST DE FICHIER, ON STOCKE UNE MAP AVEC DES META-DATA D&#8217;ACCES : RD/RD/APP/<br><br>Ajouter des keywords: Software Archeology.<br><br>LOG FILE : Que des writes, aucun read, aucun fseek ou bien a la fin.<br><br>Indiquer S&#8217;il y a beaucoup de fseek et donc si ca vaut la peine d utiliser un ssd.<br><br>
 
 
 
