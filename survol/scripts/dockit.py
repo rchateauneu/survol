@@ -399,10 +399,8 @@ class FileAccess:
             self.OpenTime = timeStamp
 
             try:
-                sys.stdout.write("Calculating OpenSize for %s\n"%self.m_objectCIM_DataFile.FileName)
                 filStat = os.stat( self.m_objectCIM_DataFile.FileName )
                 self.OpenSize = filStat.st_size
-                sys.stdout.write("self.OpenSize=%d\n"%self.OpenSize)
             except:
                 pass
 
