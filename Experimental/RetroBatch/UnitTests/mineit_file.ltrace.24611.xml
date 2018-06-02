@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>rchateau-HP</Name>
+        <Name>vps516494.localdomain</Name>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <PermanentAddress>192.168.0.14</PermanentAddress>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='24613'>
         <Handle>24613</Handle>
@@ -15,14 +15,14 @@
         <TerminationDate>2018-05-08 00:05:17.878744</TerminationDate>
         <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
         <FileAccesses>
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 00:05:17.866918' CloseTime='2018-05-08 00:05:17.867021' />
-            <Access File='/lib64/libmagic.so.1' OpenTime='2018-05-08 00:05:17.867045' CloseTime='2018-05-08 00:05:17.867303' NumReads='1' BytesRead='832' />
-            <Access File='/lib64/libz.so.1' OpenTime='2018-05-08 00:05:17.867341' CloseTime='2018-05-08 00:05:17.867630' NumReads='1' BytesRead='832' />
-            <Access File='/lib64/libc.so.6' OpenTime='2018-05-08 00:05:17.867671' CloseTime='2018-05-08 00:05:17.867985' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 00:05:17.875018' CloseTime='2018-05-08 00:05:17.875922' />
-            <Access File='/etc/magic' OpenTime='2018-05-08 00:05:17.876244' CloseTime='2018-05-08 00:05:17.876671' NumReads='2' BytesRead='111' />
-            <Access File='/usr/share/misc/magic.mgc' OpenTime='2018-05-08 00:05:17.876706' CloseTime='2018-05-08 00:05:17.878042' />
-            <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 00:05:17.878136' CloseTime='2018-05-08 00:05:17.878269' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 00:05:17.866918' OpenSize='36008' CloseTime='2018-05-08 00:05:17.867021' CloseSize='36008' />
+            <Access File='/lib64/libmagic.so.1' OpenTime='2018-05-08 00:05:17.867045' OpenSize='148144' CloseTime='2018-05-08 00:05:17.867303' CloseSize='148144' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libz.so.1' OpenTime='2018-05-08 00:05:17.867341' OpenSize='94104' CloseTime='2018-05-08 00:05:17.867630' CloseSize='94104' NumReads='1' BytesRead='832' />
+            <Access File='/lib64/libc.so.6' OpenTime='2018-05-08 00:05:17.867671' OpenSize='2163104' CloseTime='2018-05-08 00:05:17.867985' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 00:05:17.875018' OpenSize='2291760' CloseTime='2018-05-08 00:05:17.875922' CloseSize='2291760' />
+            <Access File='/etc/magic' OpenTime='2018-05-08 00:05:17.876244' OpenSize='111' CloseTime='2018-05-08 00:05:17.876671' CloseSize='111' NumReads='2' BytesRead='111' />
+            <Access File='/usr/share/misc/magic.mgc' OpenTime='2018-05-08 00:05:17.876706' OpenSize='4887896' CloseTime='2018-05-08 00:05:17.878042' CloseSize='4887896' />
+            <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 00:05:17.878136' OpenSize='26254' CloseTime='2018-05-08 00:05:17.878269' CloseSize='26254' />
             <Access File='stdout' NumWrites='1' BytesWritten='65' />
         </FileAccesses>
     </CIM_Process>
@@ -30,22 +30,46 @@
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
             <FileName>/usr/lib/locale/locale-archive</FileName>
             <Category>Other libraries</Category>
+            <AccessTime>2018-05-08 17:33:14:319501</AccessTime>
+            <CreationTime>2018-05-08 23:49:15:421897</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2291760</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>131415</Inode>
+            <ModifyTime>2018-05-08 23:49:15:421897</ModifyTime>
             <FileAccesses>
-                <Access Process='24613' OpenTime='2018-05-08 00:05:17.875018' CloseTime='2018-05-08 00:05:17.875922' />
+                <Access Process='24613' OpenTime='2018-05-08 00:05:17.875018' OpenSize='2291760' CloseTime='2018-05-08 00:05:17.875922' CloseSize='2291760' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
             <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
             <Category>Other libraries</Category>
+            <AccessTime>2018-05-08 17:33:14:320501</AccessTime>
+            <CreationTime>2018-05-08 23:47:40:160752</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>26254</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136974</Inode>
+            <ModifyTime>2018-05-08 23:47:40:160752</ModifyTime>
             <FileAccesses>
-                <Access Process='24613' OpenTime='2018-05-08 00:05:17.878136' CloseTime='2018-05-08 00:05:17.878269' />
+                <Access Process='24613' OpenTime='2018-05-08 00:05:17.878136' OpenSize='26254' CloseTime='2018-05-08 00:05:17.878269' CloseSize='26254' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/misc/magic.mgc'>
             <FileName>/usr/share/misc/magic.mgc</FileName>
             <Category>Other libraries</Category>
+            <AccessTime>2018-05-08 22:48:17:761142</AccessTime>
+            <CreationTime>2018-05-08 23:47:42:977185</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>4887896</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137970</Inode>
+            <ModifyTime>2018-05-08 09:02:37:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='24613' OpenTime='2018-05-08 00:05:17.876706' CloseTime='2018-05-08 00:05:17.878042' />
+                <Access Process='24613' OpenTime='2018-05-08 00:05:17.876706' OpenSize='4887896' CloseTime='2018-05-08 00:05:17.878042' CloseSize='4887896' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -66,22 +90,46 @@
         <CIM_DataFile Name='/lib64/libc.so.6'>
             <FileName>/lib64/libc.so.6</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:05:00:668103</AccessTime>
+            <CreationTime>2018-05-08 23:47:39:791826</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>2163104</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136672</Inode>
+            <ModifyTime>2018-05-08 06:42:30:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='24613' OpenTime='2018-05-08 00:05:17.867671' CloseTime='2018-05-08 00:05:17.867985' NumReads='1' BytesRead='832' />
+                <Access Process='24613' OpenTime='2018-05-08 00:05:17.867671' OpenSize='2163104' CloseTime='2018-05-08 00:05:17.867985' CloseSize='2163104' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libmagic.so.1'>
             <FileName>/lib64/libmagic.so.1</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 02:32:16:570569</AccessTime>
+            <CreationTime>2018-05-08 23:47:42:911199</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>148144</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137964</Inode>
+            <ModifyTime>2018-05-08 09:02:39:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='24613' OpenTime='2018-05-08 00:05:17.867045' CloseTime='2018-05-08 00:05:17.867303' NumReads='1' BytesRead='832' />
+                <Access Process='24613' OpenTime='2018-05-08 00:05:17.867045' OpenSize='148144' CloseTime='2018-05-08 00:05:17.867303' CloseSize='148144' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libz.so.1'>
             <FileName>/lib64/libz.so.1</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 22:26:45:653258</AccessTime>
+            <CreationTime>2018-05-08 23:47:40:915600</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>94104</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137127</Inode>
+            <ModifyTime>2018-05-08 15:08:35:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='24613' OpenTime='2018-05-08 00:05:17.867341' CloseTime='2018-05-08 00:05:17.867630' NumReads='1' BytesRead='832' />
+                <Access Process='24613' OpenTime='2018-05-08 00:05:17.867341' OpenSize='94104' CloseTime='2018-05-08 00:05:17.867630' CloseSize='94104' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -89,8 +137,16 @@
         <CIM_DataFile Name='/etc/ld.so.cache'>
             <FileName>/etc/ld.so.cache</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 22:57:36:314973</AccessTime>
+            <CreationTime>2018-05-08 22:50:06:707621</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>36008</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>168101</Inode>
+            <ModifyTime>2018-05-08 22:50:06:707621</ModifyTime>
             <FileAccesses>
-                <Access Process='24613' OpenTime='2018-05-08 00:05:17.866918' CloseTime='2018-05-08 00:05:17.867021' />
+                <Access Process='24613' OpenTime='2018-05-08 00:05:17.866918' OpenSize='36008' CloseTime='2018-05-08 00:05:17.867021' CloseSize='36008' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.preload'>
@@ -100,8 +156,16 @@
         <CIM_DataFile Name='/etc/magic'>
             <FileName>/etc/magic</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 22:48:17:760142</AccessTime>
+            <CreationTime>2018-05-08 23:47:42:992182</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>111</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137963</Inode>
+            <ModifyTime>2018-05-08 09:02:21:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='24613' OpenTime='2018-05-08 00:05:17.876244' CloseTime='2018-05-08 00:05:17.876671' NumReads='2' BytesRead='111' />
+                <Access Process='24613' OpenTime='2018-05-08 00:05:17.876244' OpenSize='111' CloseTime='2018-05-08 00:05:17.876671' CloseSize='111' NumReads='2' BytesRead='111' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>

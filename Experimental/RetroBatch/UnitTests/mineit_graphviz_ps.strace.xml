@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>rchateau-HP</Name>
+        <Name>vps516494.localdomain</Name>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <PermanentAddress>192.168.0.14</PermanentAddress>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='12345'>
         <Handle>12345</Handle>
@@ -17,22 +17,22 @@
         <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
         <Executable>/usr/bin/dot</Executable>
         <FileAccesses>
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:08:41.924778' CloseTime='2018-05-08 08:08:41.925034' />
-            <Access File='/usr/lib64/libgvc.so.6.0.0' OpenTime='2018-05-08 08:08:41.925099' CloseTime='2018-05-08 08:08:41.925530' NumReads='1' BytesRead='832' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:08:41.924778' OpenSize='36008' CloseTime='2018-05-08 08:08:41.925034' CloseSize='36008' />
+            <Access File='/usr/lib64/libgvc.so.6.0.0' OpenTime='2018-05-08 08:08:41.925099' OpenSize='654224' CloseTime='2018-05-08 08:08:41.925530' CloseSize='654224' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libltdl.so.7.3.0' OpenTime='2018-05-08 08:08:41.925595' CloseTime='2018-05-08 08:08:41.925986' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxdot.so.4.0.0' OpenTime='2018-05-08 08:08:41.926052' CloseTime='2018-05-08 08:08:41.926475' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libcgraph.so.6.0.0' OpenTime='2018-05-08 08:08:41.926536' CloseTime='2018-05-08 08:08:41.926927' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libpathplan.so.4.0.0' OpenTime='2018-05-08 08:08:41.926992' CloseTime='2018-05-08 08:08:41.927350' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxdot.so.4.0.0' OpenTime='2018-05-08 08:08:41.926052' OpenSize='23432' CloseTime='2018-05-08 08:08:41.926475' CloseSize='23432' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libcgraph.so.6.0.0' OpenTime='2018-05-08 08:08:41.926536' OpenSize='96664' CloseTime='2018-05-08 08:08:41.926927' CloseSize='96664' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libpathplan.so.4.0.0' OpenTime='2018-05-08 08:08:41.926992' OpenSize='35904' CloseTime='2018-05-08 08:08:41.927350' CloseSize='35904' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libexpat.so.1.6.0' OpenTime='2018-05-08 08:08:41.927411' CloseTime='2018-05-08 08:08:41.927857' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libz.so.1.2.8' OpenTime='2018-05-08 08:08:41.927923' CloseTime='2018-05-08 08:08:41.928160' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libm-2.21.so' OpenTime='2018-05-08 08:08:41.928198' CloseTime='2018-05-08 08:08:41.928424' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libcdt.so.5.0.0' OpenTime='2018-05-08 08:08:41.928462' CloseTime='2018-05-08 08:08:41.928720' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libcdt.so.5.0.0' OpenTime='2018-05-08 08:08:41.928462' OpenSize='27712' CloseTime='2018-05-08 08:08:41.928720' CloseSize='27712' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:08:41.928758' CloseTime='2018-05-08 08:08:41.929022' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-08 08:08:41.929066' CloseTime='2018-05-08 08:08:41.929292' NumReads='1' BytesRead='832' />
             <Access File='/proc/26829/maps' OpenTime='2018-05-08 08:08:41.930403' CloseTime='2018-05-08 08:08:41.930788' NumReads='5' BytesRead='5120' />
-            <Access File='/usr/lib64/graphviz/config6' OpenTime='2018-05-08 08:08:41.930954' CloseTime='2018-05-08 08:08:41.931259' NumReads='1' BytesRead='2720' />
-            <Access File='/usr/lib64/graphviz/libgvplugin_pango.so.6.0.0' OpenTime='2018-05-08 08:08:41.931378' CloseTime='2018-05-08 08:08:41.931700' NumReads='1' BytesRead='832' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:08:41.931752' CloseTime='2018-05-08 08:08:41.931894' />
+            <Access File='/usr/lib64/graphviz/config6' OpenTime='2018-05-08 08:08:41.930954' OpenSize='2986' CloseTime='2018-05-08 08:08:41.931259' CloseSize='2986' NumReads='1' BytesRead='2720' />
+            <Access File='/usr/lib64/graphviz/libgvplugin_pango.so.6.0.0' OpenTime='2018-05-08 08:08:41.931378' OpenSize='44848' CloseTime='2018-05-08 08:08:41.931700' CloseSize='44848' NumReads='1' BytesRead='832' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:08:41.931752' OpenSize='36008' CloseTime='2018-05-08 08:08:41.931894' CloseSize='36008' />
             <Access File='/usr/lib64/libpangocairo-1.0.so.0.3600.8' OpenTime='2018-05-08 08:08:41.931942' CloseTime='2018-05-08 08:08:41.932224' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libcairo.so.2.11400.2' OpenTime='2018-05-08 08:08:41.932271' CloseTime='2018-05-08 08:08:41.932603' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libpangoft2-1.0.so.0.3600.8' OpenTime='2018-05-08 08:08:41.932653' CloseTime='2018-05-08 08:08:41.932939' NumReads='1' BytesRead='832' />
@@ -45,72 +45,72 @@
             <Access File='/usr/lib64/libgthread-2.0.so.0.4400.1' OpenTime='2018-05-08 08:08:41.935045' CloseTime='2018-05-08 08:08:41.935325' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libharfbuzz.so.0.940.0' OpenTime='2018-05-08 08:08:41.935372' CloseTime='2018-05-08 08:08:41.935650' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libpthread-2.21.so' OpenTime='2018-05-08 08:08:41.935702' CloseTime='2018-05-08 08:08:41.936042' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libpixman-1.so.0.34.0' OpenTime='2018-05-08 08:08:41.936093' CloseTime='2018-05-08 08:08:41.936369' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libEGL.so.1.0.0' OpenTime='2018-05-08 08:08:41.936421' CloseTime='2018-05-08 08:08:41.936692' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libpixman-1.so.0.34.0' OpenTime='2018-05-08 08:08:41.936093' OpenSize='681320' CloseTime='2018-05-08 08:08:41.936369' CloseSize='681320' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libEGL.so.1.0.0' OpenTime='2018-05-08 08:08:41.936421' OpenSize='83280' CloseTime='2018-05-08 08:08:41.936692' CloseSize='83280' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libpng16.so.16.19.0' OpenTime='2018-05-08 08:08:41.936742' CloseTime='2018-05-08 08:08:41.937038' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-shm.so.0.0.0' OpenTime='2018-05-08 08:08:41.937089' CloseTime='2018-05-08 08:08:41.937379' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-render.so.0.0.0' OpenTime='2018-05-08 08:08:41.937427' CloseTime='2018-05-08 08:08:41.937709' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb.so.1.1.0' OpenTime='2018-05-08 08:08:41.937758' CloseTime='2018-05-08 08:08:41.938056' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libXrender.so.1.3.0' OpenTime='2018-05-08 08:08:41.938107' CloseTime='2018-05-08 08:08:41.938389' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libX11.so.6.3.0' OpenTime='2018-05-08 08:08:41.938438' CloseTime='2018-05-08 08:08:41.938719' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libXext.so.6.4.0' OpenTime='2018-05-08 08:08:41.938773' CloseTime='2018-05-08 08:08:41.939068' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-shm.so.0.0.0' OpenTime='2018-05-08 08:08:41.937089' OpenSize='15104' CloseTime='2018-05-08 08:08:41.937379' CloseSize='15104' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-render.so.0.0.0' OpenTime='2018-05-08 08:08:41.937427' OpenSize='56024' CloseTime='2018-05-08 08:08:41.937709' CloseSize='56024' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb.so.1.1.0' OpenTime='2018-05-08 08:08:41.937758' OpenSize='164816' CloseTime='2018-05-08 08:08:41.938056' CloseSize='164816' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libXrender.so.1.3.0' OpenTime='2018-05-08 08:08:41.938107' OpenSize='40136' CloseTime='2018-05-08 08:08:41.938389' CloseSize='40136' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libX11.so.6.3.0' OpenTime='2018-05-08 08:08:41.938438' OpenSize='1317384' CloseTime='2018-05-08 08:08:41.938719' CloseSize='1317384' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libXext.so.6.4.0' OpenTime='2018-05-08 08:08:41.938773' OpenSize='75224' CloseTime='2018-05-08 08:08:41.939068' CloseSize='75224' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libGL.so.1.2.0' OpenTime='2018-05-08 08:08:41.939118' CloseTime='2018-05-08 08:08:41.939436' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/librt-2.21.so' OpenTime='2018-05-08 08:08:41.939488' CloseTime='2018-05-08 08:08:41.939760' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libffi.so.6.0.2' OpenTime='2018-05-08 08:08:41.939843' CloseTime='2018-05-08 08:08:41.940129' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libbz2.so.1.0.6' OpenTime='2018-05-08 08:08:41.940185' CloseTime='2018-05-08 08:08:41.940466' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libgraphite2.so.3.0.1' OpenTime='2018-05-08 08:08:41.940531' CloseTime='2018-05-08 08:08:41.940824' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libX11-xcb.so.1.0.0' OpenTime='2018-05-08 08:08:41.940884' CloseTime='2018-05-08 08:08:41.941192' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-dri2.so.0.0.0' OpenTime='2018-05-08 08:08:41.941241' CloseTime='2018-05-08 08:08:41.941519' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-xfixes.so.0.0.0' OpenTime='2018-05-08 08:08:41.941567' CloseTime='2018-05-08 08:08:41.941851' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-shape.so.0.0.0' OpenTime='2018-05-08 08:08:41.941902' CloseTime='2018-05-08 08:08:41.942182' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libgbm.so.1.0.0' OpenTime='2018-05-08 08:08:41.942232' CloseTime='2018-05-08 08:08:41.942517' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libwayland-client.so.0.3.0' OpenTime='2018-05-08 08:08:41.942568' CloseTime='2018-05-08 08:08:41.942852' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libwayland-server.so.0.1.0' OpenTime='2018-05-08 08:08:41.942902' CloseTime='2018-05-08 08:08:41.943184' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 08:08:41.943235' CloseTime='2018-05-08 08:08:41.943558' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libdrm.so.2.4.0' OpenTime='2018-05-08 08:08:41.943611' CloseTime='2018-05-08 08:08:41.943907' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libXau.so.6.0.0' OpenTime='2018-05-08 08:08:41.943962' CloseTime='2018-05-08 08:08:41.944251' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libglapi.so.0.0.0' OpenTime='2018-05-08 08:08:41.944318' CloseTime='2018-05-08 08:08:41.944644' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libXdamage.so.1.1.0' OpenTime='2018-05-08 08:08:41.944699' CloseTime='2018-05-08 08:08:41.944989' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libXfixes.so.3.1.0' OpenTime='2018-05-08 08:08:41.945041' CloseTime='2018-05-08 08:08:41.945325' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-glx.so.0.0.0' OpenTime='2018-05-08 08:08:41.945378' CloseTime='2018-05-08 08:08:41.945658' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-dri3.so.0.0.0' OpenTime='2018-05-08 08:08:41.945712' CloseTime='2018-05-08 08:08:41.946006' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-present.so.0.0.0' OpenTime='2018-05-08 08:08:41.946055' CloseTime='2018-05-08 08:08:41.946338' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-randr.so.0.1.0' OpenTime='2018-05-08 08:08:41.946387' CloseTime='2018-05-08 08:08:41.946667' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxcb-sync.so.1.0.0' OpenTime='2018-05-08 08:08:41.946724' CloseTime='2018-05-08 08:08:41.947013' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libxshmfence.so.1.0.0' OpenTime='2018-05-08 08:08:41.947065' CloseTime='2018-05-08 08:08:41.947348' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libXxf86vm.so.1.0.0' OpenTime='2018-05-08 08:08:41.947397' CloseTime='2018-05-08 08:08:41.947682' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libffi.so.6.0.2' OpenTime='2018-05-08 08:08:41.939843' OpenSize='31792' CloseTime='2018-05-08 08:08:41.940129' CloseSize='31792' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libbz2.so.1.0.6' OpenTime='2018-05-08 08:08:41.940185' OpenSize='67688' CloseTime='2018-05-08 08:08:41.940466' CloseSize='67688' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libgraphite2.so.3.0.1' OpenTime='2018-05-08 08:08:41.940531' OpenSize='184048' CloseTime='2018-05-08 08:08:41.940824' CloseSize='184048' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libX11-xcb.so.1.0.0' OpenTime='2018-05-08 08:08:41.940884' OpenSize='6656' CloseTime='2018-05-08 08:08:41.941192' CloseSize='6656' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-dri2.so.0.0.0' OpenTime='2018-05-08 08:08:41.941241' OpenSize='19192' CloseTime='2018-05-08 08:08:41.941519' CloseSize='19192' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-xfixes.so.0.0.0' OpenTime='2018-05-08 08:08:41.941567' OpenSize='31408' CloseTime='2018-05-08 08:08:41.941851' CloseSize='31408' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-shape.so.0.0.0' OpenTime='2018-05-08 08:08:41.941902' OpenSize='15112' CloseTime='2018-05-08 08:08:41.942182' CloseSize='15112' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libgbm.so.1.0.0' OpenTime='2018-05-08 08:08:41.942232' OpenSize='57824' CloseTime='2018-05-08 08:08:41.942517' CloseSize='57824' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libwayland-client.so.0.3.0' OpenTime='2018-05-08 08:08:41.942568' OpenSize='61840' CloseTime='2018-05-08 08:08:41.942852' CloseSize='61840' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libwayland-server.so.0.1.0' OpenTime='2018-05-08 08:08:41.942902' OpenSize='78624' CloseTime='2018-05-08 08:08:41.943184' CloseSize='78624' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 08:08:41.943235' OpenSize='158320' CloseTime='2018-05-08 08:08:41.943558' CloseSize='158320' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libdrm.so.2.4.0' OpenTime='2018-05-08 08:08:41.943611' OpenSize='74184' CloseTime='2018-05-08 08:08:41.943907' CloseSize='74184' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libXau.so.6.0.0' OpenTime='2018-05-08 08:08:41.943962' OpenSize='15072' CloseTime='2018-05-08 08:08:41.944251' CloseSize='15072' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libglapi.so.0.0.0' OpenTime='2018-05-08 08:08:41.944318' OpenSize='199592' CloseTime='2018-05-08 08:08:41.944644' CloseSize='199592' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libXdamage.so.1.1.0' OpenTime='2018-05-08 08:08:41.944699' OpenSize='10936' CloseTime='2018-05-08 08:08:41.944989' CloseSize='10936' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libXfixes.so.3.1.0' OpenTime='2018-05-08 08:08:41.945041' OpenSize='23392' CloseTime='2018-05-08 08:08:41.945325' CloseSize='23392' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-glx.so.0.0.0' OpenTime='2018-05-08 08:08:41.945378' OpenSize='109672' CloseTime='2018-05-08 08:08:41.945658' CloseSize='109672' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-dri3.so.0.0.0' OpenTime='2018-05-08 08:08:41.945712' OpenSize='10952' CloseTime='2018-05-08 08:08:41.946006' CloseSize='10952' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-present.so.0.0.0' OpenTime='2018-05-08 08:08:41.946055' OpenSize='10944' CloseTime='2018-05-08 08:08:41.946338' CloseSize='10944' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-randr.so.0.1.0' OpenTime='2018-05-08 08:08:41.946387' OpenSize='64232' CloseTime='2018-05-08 08:08:41.946667' CloseSize='64232' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxcb-sync.so.1.0.0' OpenTime='2018-05-08 08:08:41.946724' OpenSize='27408' CloseTime='2018-05-08 08:08:41.947013' CloseSize='27408' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libxshmfence.so.1.0.0' OpenTime='2018-05-08 08:08:41.947065' OpenSize='6792' CloseTime='2018-05-08 08:08:41.947348' CloseSize='6792' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libXxf86vm.so.1.0.0' OpenTime='2018-05-08 08:08:41.947397' OpenSize='23344' CloseTime='2018-05-08 08:08:41.947682' CloseSize='23344' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libgcc_s-5.3.1-20160406.so.1' OpenTime='2018-05-08 08:08:41.947743' CloseTime='2018-05-08 08:08:41.948043' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libpcre.so.1.2.7' OpenTime='2018-05-08 08:08:41.948143' CloseTime='2018-05-08 08:08:41.948429' NumReads='1' BytesRead='832' />
             <Access File='/proc/filesystems' OpenTime='2018-05-08 08:08:41.952143' CloseTime='2018-05-08 08:08:41.952430' NumReads='2' BytesRead='356' />
             <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log' NumWrites='1193' BytesWritten='62107' />
-            <Access File='/usr/lib64/graphviz/libgvplugin_neato_layout.so.6.0.0' OpenTime='2018-05-08 08:08:41.953222' CloseTime='2018-05-08 08:08:41.953566' NumReads='1' BytesRead='832' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:08:41.953623' CloseTime='2018-05-08 08:08:41.953771' />
-            <Access File='/usr/lib64/libgts-0.7.so.5.0.1' OpenTime='2018-05-08 08:08:41.953830' CloseTime='2018-05-08 08:08:41.954110' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/graphviz/libgvplugin_neato_layout.so.6.0.0' OpenTime='2018-05-08 08:08:41.953222' OpenSize='718912' CloseTime='2018-05-08 08:08:41.953566' CloseSize='718912' NumReads='1' BytesRead='832' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:08:41.953623' OpenSize='36008' CloseTime='2018-05-08 08:08:41.953771' CloseSize='36008' />
+            <Access File='/usr/lib64/libgts-0.7.so.5.0.1' OpenTime='2018-05-08 08:08:41.953830' OpenSize='397360' CloseTime='2018-05-08 08:08:41.954110' CloseSize='397360' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libstdc++.so.6.0.21' OpenTime='2018-05-08 08:08:41.954167' CloseTime='2018-05-08 08:08:41.954490' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/graphviz/libgvplugin_core.so.6.0.0' OpenTime='2018-05-08 08:08:41.956523' CloseTime='2018-05-08 08:08:41.956867' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/graphviz/libgvplugin_core.so.6.0.0' OpenTime='2018-05-08 08:08:41.956523' OpenSize='141816' CloseTime='2018-05-08 08:08:41.956867' CloseSize='141816' NumReads='1' BytesRead='832' />
             <Access File='/tmp/Grph2Dot.26787.dot' OpenTime='2018-05-08 08:08:41.957720' CloseTime='2018-05-08 08:08:42.569234' NumReads='42' BytesRead='167737' />
-            <Access File='/etc/fonts/fonts.conf' OpenTime='2018-05-08 08:08:41.969924' CloseTime='2018-05-08 08:08:41.993307' NumReads='2' BytesRead='2413' />
-            <Access File='/etc/fonts/conf.d' OpenTime='2018-05-08 08:08:41.970148' CloseTime='2018-05-08 08:08:41.993158' />
-            <Access File='/usr/share/fontconfig/conf.avail/10-scale-bitmap-fonts.conf' OpenTime='2018-05-08 08:08:41.970462' CloseTime='2018-05-08 08:08:41.970681' NumReads='2' BytesRead='2010' />
+            <Access File='/etc/fonts/fonts.conf' OpenTime='2018-05-08 08:08:41.969924' OpenSize='2417' CloseTime='2018-05-08 08:08:41.993307' CloseSize='2417' NumReads='2' BytesRead='2413' />
+            <Access File='/etc/fonts/conf.d' OpenTime='2018-05-08 08:08:41.970148' OpenSize='4096' CloseTime='2018-05-08 08:08:41.993158' CloseSize='4096' />
+            <Access File='/usr/share/fontconfig/conf.avail/10-scale-bitmap-fonts.conf' OpenTime='2018-05-08 08:08:41.970462' OpenSize='2010' CloseTime='2018-05-08 08:08:41.970681' CloseSize='2010' NumReads='2' BytesRead='2010' />
             <Access File='/usr/share/fontconfig/conf.avail/20-unhint-small-dejavu-sans-mono.conf' OpenTime='2018-05-08 08:08:41.970754' CloseTime='2018-05-08 08:08:41.971016' NumReads='2' BytesRead='866' />
             <Access File='/usr/share/fontconfig/conf.avail/20-unhint-small-dejavu-sans.conf' OpenTime='2018-05-08 08:08:41.971136' CloseTime='2018-05-08 08:08:41.971363' NumReads='2' BytesRead='856' />
             <Access File='/usr/share/fontconfig/conf.avail/20-unhint-small-dejavu-serif.conf' OpenTime='2018-05-08 08:08:41.971481' CloseTime='2018-05-08 08:08:41.971706' NumReads='2' BytesRead='858' />
-            <Access File='/usr/share/fontconfig/conf.avail/20-unhint-small-vera.conf' OpenTime='2018-05-08 08:08:41.971831' CloseTime='2018-05-08 08:08:41.972097' NumReads='2' BytesRead='1259' />
-            <Access File='/etc/fonts/conf.d/25-no-bitmap-fedora.conf' OpenTime='2018-05-08 08:08:41.972205' CloseTime='2018-05-08 08:08:41.972458' NumReads='2' BytesRead='1160' />
-            <Access File='/usr/share/fontconfig/conf.avail/25-unhint-nonlatin.conf' OpenTime='2018-05-08 08:08:41.972569' CloseTime='2018-05-08 08:08:41.972969' NumReads='2' BytesRead='3256' />
+            <Access File='/usr/share/fontconfig/conf.avail/20-unhint-small-vera.conf' OpenTime='2018-05-08 08:08:41.971831' OpenSize='1259' CloseTime='2018-05-08 08:08:41.972097' CloseSize='1259' NumReads='2' BytesRead='1259' />
+            <Access File='/etc/fonts/conf.d/25-no-bitmap-fedora.conf' OpenTime='2018-05-08 08:08:41.972205' OpenSize='1160' CloseTime='2018-05-08 08:08:41.972458' CloseSize='1160' NumReads='2' BytesRead='1160' />
+            <Access File='/usr/share/fontconfig/conf.avail/25-unhint-nonlatin.conf' OpenTime='2018-05-08 08:08:41.972569' OpenSize='3256' CloseTime='2018-05-08 08:08:41.972969' CloseSize='3256' NumReads='2' BytesRead='3256' />
             <Access File='/etc/fonts/conf.d/29-paps.conf' OpenTime='2018-05-08 08:08:41.973079' CloseTime='2018-05-08 08:08:41.973305' NumReads='2' BytesRead='456' />
             <Access File='/usr/share/fontconfig/conf.avail/30-0-google-crosextra-caladea-fontconfig.conf' OpenTime='2018-05-08 08:08:41.973423' CloseTime='2018-05-08 08:08:41.973643' NumReads='2' BytesRead='470' />
             <Access File='/usr/share/fontconfig/conf.avail/30-0-google-crosextra-carlito-fontconfig.conf' OpenTime='2018-05-08 08:08:41.973761' CloseTime='2018-05-08 08:08:41.974351' NumReads='2' BytesRead='470' />
             <Access File='/usr/share/fontconfig/conf.avail/30-lohit-gurmukhi.conf' OpenTime='2018-05-08 08:08:41.974468' CloseTime='2018-05-08 08:08:41.974686' NumReads='2' BytesRead='469' />
             <Access File='/usr/share/fontconfig/conf.avail/30-lohit-odia.conf' OpenTime='2018-05-08 08:08:41.974812' CloseTime='2018-05-08 08:08:41.975031' NumReads='2' BytesRead='457' />
-            <Access File='/usr/share/fontconfig/conf.avail/30-metric-aliases.conf' OpenTime='2018-05-08 08:08:41.975146' CloseTime='2018-05-08 08:08:41.975979' NumReads='3' BytesRead='12804' />
-            <Access File='/usr/share/fontconfig/conf.avail/30-urw-aliases.conf' OpenTime='2018-05-08 08:08:41.976092' CloseTime='2018-05-08 08:08:41.976327' NumReads='2' BytesRead='701' />
+            <Access File='/usr/share/fontconfig/conf.avail/30-metric-aliases.conf' OpenTime='2018-05-08 08:08:41.975146' OpenSize='13510' CloseTime='2018-05-08 08:08:41.975979' CloseSize='13510' NumReads='3' BytesRead='12804' />
+            <Access File='/usr/share/fontconfig/conf.avail/30-urw-aliases.conf' OpenTime='2018-05-08 08:08:41.976092' OpenSize='889' CloseTime='2018-05-08 08:08:41.976327' CloseSize='889' NumReads='2' BytesRead='701' />
             <Access File='/usr/share/fontconfig/conf.avail/31-cantarell.conf' OpenTime='2018-05-08 08:08:41.976441' CloseTime='2018-05-08 08:08:41.976660' NumReads='2' BytesRead='440' />
-            <Access File='/usr/share/fontconfig/conf.avail/40-nonlatin.conf' OpenTime='2018-05-08 08:08:41.976771' CloseTime='2018-05-08 08:08:41.977286' NumReads='2' BytesRead='5182' />
-            <Access File='/usr/share/fontconfig/conf.avail/45-latin.conf' OpenTime='2018-05-08 08:08:41.977403' CloseTime='2018-05-08 08:08:41.977905' NumReads='2' BytesRead='4621' />
-            <Access File='/usr/share/fontconfig/conf.avail/49-sansserif.conf' OpenTime='2018-05-08 08:08:41.977992' CloseTime='2018-05-08 08:08:41.978167' NumReads='2' BytesRead='545' />
-            <Access File='/usr/share/fontconfig/conf.avail/50-user.conf' OpenTime='2018-05-08 08:08:41.978256' CloseTime='2018-05-08 08:08:41.978668' NumReads='2' BytesRead='673' />
-            <Access File='/usr/share/fontconfig/conf.avail/51-local.conf' OpenTime='2018-05-08 08:08:41.978755' CloseTime='2018-05-08 08:08:41.978953' NumReads='2' BytesRead='189' />
+            <Access File='/usr/share/fontconfig/conf.avail/40-nonlatin.conf' OpenTime='2018-05-08 08:08:41.976771' OpenSize='5182' CloseTime='2018-05-08 08:08:41.977286' CloseSize='5182' NumReads='2' BytesRead='5182' />
+            <Access File='/usr/share/fontconfig/conf.avail/45-latin.conf' OpenTime='2018-05-08 08:08:41.977403' OpenSize='6362' CloseTime='2018-05-08 08:08:41.977905' CloseSize='6362' NumReads='2' BytesRead='4621' />
+            <Access File='/usr/share/fontconfig/conf.avail/49-sansserif.conf' OpenTime='2018-05-08 08:08:41.977992' OpenSize='545' CloseTime='2018-05-08 08:08:41.978167' CloseSize='545' NumReads='2' BytesRead='545' />
+            <Access File='/usr/share/fontconfig/conf.avail/50-user.conf' OpenTime='2018-05-08 08:08:41.978256' OpenSize='673' CloseTime='2018-05-08 08:08:41.978668' CloseSize='673' NumReads='2' BytesRead='673' />
+            <Access File='/usr/share/fontconfig/conf.avail/51-local.conf' OpenTime='2018-05-08 08:08:41.978755' OpenSize='189' CloseTime='2018-05-08 08:08:41.978953' CloseSize='189' NumReads='2' BytesRead='189' />
             <Access File='/usr/share/fontconfig/conf.avail/57-dejavu-sans-mono.conf' OpenTime='2018-05-08 08:08:41.979038' CloseTime='2018-05-08 08:08:41.979236' NumReads='2' BytesRead='1509' />
             <Access File='/usr/share/fontconfig/conf.avail/57-dejavu-sans.conf' OpenTime='2018-05-08 08:08:41.979320' CloseTime='2018-05-08 08:08:41.979534' NumReads='2' BytesRead='2011' />
             <Access File='/usr/share/fontconfig/conf.avail/57-dejavu-serif.conf' OpenTime='2018-05-08 08:08:41.979618' CloseTime='2018-05-08 08:08:41.979850' NumReads='2' BytesRead='1649' />
@@ -118,7 +118,7 @@
             <Access File='/usr/share/fontconfig/conf.avail/59-liberation-mono.conf' OpenTime='2018-05-08 08:08:41.980223' CloseTime='2018-05-08 08:08:41.980390' NumReads='2' BytesRead='482' />
             <Access File='/usr/share/fontconfig/conf.avail/59-liberation-sans.conf' OpenTime='2018-05-08 08:08:41.980478' CloseTime='2018-05-08 08:08:41.980653' NumReads='2' BytesRead='483' />
             <Access File='/usr/share/fontconfig/conf.avail/59-liberation-serif.conf' OpenTime='2018-05-08 08:08:41.980741' CloseTime='2018-05-08 08:08:41.980917' NumReads='2' BytesRead='485' />
-            <Access File='/usr/share/fontconfig/conf.avail/60-latin.conf' OpenTime='2018-05-08 08:08:41.981005' CloseTime='2018-05-08 08:08:41.981216' NumReads='2' BytesRead='1798' />
+            <Access File='/usr/share/fontconfig/conf.avail/60-latin.conf' OpenTime='2018-05-08 08:08:41.981005' OpenSize='1833' CloseTime='2018-05-08 08:08:41.981216' CloseSize='1833' NumReads='2' BytesRead='1798' />
             <Access File='/usr/share/fontconfig/conf.avail/61-stix.conf' OpenTime='2018-05-08 08:08:41.981304' CloseTime='2018-05-08 08:08:41.981534' NumReads='2' BytesRead='1873' />
             <Access File='/usr/share/fontconfig/conf.avail/62-google-crosextra-caladea-fontconfig.conf' OpenTime='2018-05-08 08:08:41.981625' CloseTime='2018-05-08 08:08:41.981788' NumReads='2' BytesRead='409' />
             <Access File='/usr/share/fontconfig/conf.avail/62-google-crosextra-carlito-fontconfig.conf' OpenTime='2018-05-08 08:08:41.981885' CloseTime='2018-05-08 08:08:41.982048' NumReads='2' BytesRead='419' />
@@ -139,9 +139,9 @@
             <Access File='/usr/share/fontconfig/conf.avail/65-0-smc-meera.conf' OpenTime='2018-05-08 08:08:41.986212' CloseTime='2018-05-08 08:08:41.986382' NumReads='2' BytesRead='438' />
             <Access File='/usr/share/fontconfig/conf.avail/65-1-lohit-devanagari.conf' OpenTime='2018-05-08 08:08:41.986471' CloseTime='2018-05-08 08:08:41.986774' NumReads='2' BytesRead='3191' />
             <Access File='/usr/share/fontconfig/conf.avail/65-1-vlgothic-gothic.conf' OpenTime='2018-05-08 08:08:41.986880' CloseTime='2018-05-08 08:08:41.987105' NumReads='2' BytesRead='1521' />
-            <Access File='/usr/share/fontconfig/conf.avail/65-fonts-persian.conf' OpenTime='2018-05-08 08:08:41.987196' CloseTime='2018-05-08 08:08:41.988055' NumReads='3' BytesRead='10118' />
+            <Access File='/usr/share/fontconfig/conf.avail/65-fonts-persian.conf' OpenTime='2018-05-08 08:08:41.987196' OpenSize='10118' CloseTime='2018-05-08 08:08:41.988055' CloseSize='10118' NumReads='3' BytesRead='10118' />
             <Access File='/usr/share/fontconfig/conf.avail/65-lklug.conf' OpenTime='2018-05-08 08:08:41.988146' CloseTime='2018-05-08 08:08:41.988326' NumReads='2' BytesRead='422' />
-            <Access File='/usr/share/fontconfig/conf.avail/65-nonlatin.conf' OpenTime='2018-05-08 08:08:41.988416' CloseTime='2018-05-08 08:08:41.988815' NumReads='2' BytesRead='7959' />
+            <Access File='/usr/share/fontconfig/conf.avail/65-nonlatin.conf' OpenTime='2018-05-08 08:08:41.988416' OpenSize='7931' CloseTime='2018-05-08 08:08:41.988815' CloseSize='7931' NumReads='2' BytesRead='7959' />
             <Access File='/usr/share/fontconfig/conf.avail/65-sil-mingzat.conf' OpenTime='2018-05-08 08:08:41.988905' CloseTime='2018-05-08 08:08:41.989067' NumReads='2' BytesRead='334' />
             <Access File='/usr/share/fontconfig/conf.avail/65-sil-padauk.conf' OpenTime='2018-05-08 08:08:41.989153' CloseTime='2018-05-08 08:08:41.989314' NumReads='2' BytesRead='332' />
             <Access File='/usr/share/fontconfig/conf.avail/66-google-noto-sans-lisu.conf' OpenTime='2018-05-08 08:08:41.989402' CloseTime='2018-05-08 08:08:41.989579' NumReads='2' BytesRead='455' />
@@ -155,12 +155,12 @@
             <Access File='/usr/share/fontconfig/conf.avail/69-gnu-free-mono.conf' OpenTime='2018-05-08 08:08:41.991529' CloseTime='2018-05-08 08:08:41.991692' NumReads='2' BytesRead='334' />
             <Access File='/usr/share/fontconfig/conf.avail/69-gnu-free-sans.conf' OpenTime='2018-05-08 08:08:41.991781' CloseTime='2018-05-08 08:08:41.991992' NumReads='2' BytesRead='979' />
             <Access File='/usr/share/fontconfig/conf.avail/69-gnu-free-serif.conf' OpenTime='2018-05-08 08:08:41.992082' CloseTime='2018-05-08 08:08:41.992278' NumReads='2' BytesRead='972' />
-            <Access File='/usr/share/fontconfig/conf.avail/69-unifont.conf' OpenTime='2018-05-08 08:08:41.992368' CloseTime='2018-05-08 08:08:41.992549' NumReads='2' BytesRead='672' />
-            <Access File='/usr/share/fontconfig/conf.avail/80-delicious.conf' OpenTime='2018-05-08 08:08:41.992639' CloseTime='2018-05-08 08:08:41.992810' NumReads='2' BytesRead='422' />
-            <Access File='/usr/share/fontconfig/conf.avail/90-synthetic.conf' OpenTime='2018-05-08 08:08:41.992903' CloseTime='2018-05-08 08:08:41.993114' NumReads='2' BytesRead='1691' />
-            <Access File='/usr/share/fonts' OpenTime='2018-05-08 08:08:41.993369' CloseTime='2018-05-08 08:08:41.993468' />
+            <Access File='/usr/share/fontconfig/conf.avail/69-unifont.conf' OpenTime='2018-05-08 08:08:41.992368' OpenSize='672' CloseTime='2018-05-08 08:08:41.992549' CloseSize='672' NumReads='2' BytesRead='672' />
+            <Access File='/usr/share/fontconfig/conf.avail/80-delicious.conf' OpenTime='2018-05-08 08:08:41.992639' OpenSize='422' CloseTime='2018-05-08 08:08:41.992810' CloseSize='422' NumReads='2' BytesRead='422' />
+            <Access File='/usr/share/fontconfig/conf.avail/90-synthetic.conf' OpenTime='2018-05-08 08:08:41.992903' OpenSize='1691' CloseTime='2018-05-08 08:08:41.993114' CloseSize='1691' NumReads='2' BytesRead='1691' />
+            <Access File='/usr/share/fonts' OpenTime='2018-05-08 08:08:41.993369' OpenSize='4096' CloseTime='2018-05-08 08:08:41.993468' CloseSize='4096' />
             <Access File='/var/cache/fontconfig/3830d5c3ddfd5cd38a049b759396e72e-le64.cache-7' OpenTime='2018-05-08 08:08:41.993515' CloseTime='2018-05-08 08:08:41.995409' />
-            <Access File='/usr/share/fonts' OpenTime='2018-05-08 08:08:41.993769' CloseTime='2018-05-08 08:08:41.995361' />
+            <Access File='/usr/share/fonts' OpenTime='2018-05-08 08:08:41.993769' OpenSize='4096' CloseTime='2018-05-08 08:08:41.995361' CloseSize='4096' />
             <Access File='/usr/share/X11/fonts/Type1' OpenTime='2018-05-08 08:08:41.995552' CloseTime='2018-05-08 08:08:41.995644' />
             <Access File='/var/cache/fontconfig/beeeeb3dfe132a8a0633a017c99ce0c0-le64.cache-7' OpenTime='2018-05-08 08:08:41.995687' CloseTime='2018-05-08 08:08:41.996683' />
             <Access File='/usr/share/X11/fonts/Type1' OpenTime='2018-05-08 08:08:41.995940' CloseTime='2018-05-08 08:08:41.996638' />
@@ -173,9 +173,9 @@
             <Access File='/usr/share/fonts/adobe-source-han-sans-twhk' OpenTime='2018-05-08 08:08:41.998353' CloseTime='2018-05-08 08:08:41.998447' />
             <Access File='/var/cache/fontconfig/a4412f743c4d1c8e7d1a441b64ec7319-le64.cache-7' OpenTime='2018-05-08 08:08:41.998491' CloseTime='2018-05-08 08:08:41.999055' />
             <Access File='/usr/share/fonts/adobe-source-han-sans-twhk' OpenTime='2018-05-08 08:08:41.998721' CloseTime='2018-05-08 08:08:41.999013' />
-            <Access File='/usr/share/fonts/default' OpenTime='2018-05-08 08:08:41.999117' CloseTime='2018-05-08 08:08:41.999210' />
+            <Access File='/usr/share/fonts/default' OpenTime='2018-05-08 08:08:41.999117' OpenSize='4096' CloseTime='2018-05-08 08:08:41.999210' CloseSize='4096' />
             <Access File='/var/cache/fontconfig/0251a5afa6ac727a1e32b7d4d4aa7cf0-le64.cache-7' OpenTime='2018-05-08 08:08:41.999253' CloseTime='2018-05-08 08:08:41.999705' NumReads='1' BytesRead='200' />
-            <Access File='/usr/share/fonts/default' OpenTime='2018-05-08 08:08:41.999445' CloseTime='2018-05-08 08:08:41.999663' />
+            <Access File='/usr/share/fonts/default' OpenTime='2018-05-08 08:08:41.999445' OpenSize='4096' CloseTime='2018-05-08 08:08:41.999663' CloseSize='4096' />
             <Access File='/usr/share/fonts/dejavu' OpenTime='2018-05-08 08:08:41.999770' CloseTime='2018-05-08 08:08:41.999878' />
             <Access File='/var/cache/fontconfig/12b26b760a24f8b4feb03ad48a333a72-le64.cache-7' OpenTime='2018-05-08 08:08:41.999923' CloseTime='2018-05-08 08:08:42.000771' />
             <Access File='/usr/share/fonts/dejavu' OpenTime='2018-05-08 08:08:42.000156' CloseTime='2018-05-08 08:08:42.000729' />
@@ -272,15 +272,15 @@
             <Access File='/usr/share/fonts/vlgothic' OpenTime='2018-05-08 08:08:42.020369' CloseTime='2018-05-08 08:08:42.020443' />
             <Access File='/var/cache/fontconfig/2e1514a9fdd499050989183bb65136db-le64.cache-7' OpenTime='2018-05-08 08:08:42.020478' CloseTime='2018-05-08 08:08:42.020828' />
             <Access File='/usr/share/fonts/vlgothic' OpenTime='2018-05-08 08:08:42.020661' CloseTime='2018-05-08 08:08:42.020788' />
-            <Access File='/usr/share/fonts/default/Type1' OpenTime='2018-05-08 08:08:42.020877' CloseTime='2018-05-08 08:08:42.020950' />
+            <Access File='/usr/share/fonts/default/Type1' OpenTime='2018-05-08 08:08:42.020877' OpenSize='4096' CloseTime='2018-05-08 08:08:42.020950' CloseSize='4096' />
             <Access File='/var/cache/fontconfig/b79f3aaa7d385a141ab53ec885cc22a8-le64.cache-7' OpenTime='2018-05-08 08:08:42.020983' CloseTime='2018-05-08 08:08:42.022596' />
-            <Access File='/usr/share/fonts/default/Type1' OpenTime='2018-05-08 08:08:42.021164' CloseTime='2018-05-08 08:08:42.022555' />
-            <Access File='/usr/share/fonts/default/ghostscript' OpenTime='2018-05-08 08:08:42.022659' CloseTime='2018-05-08 08:08:42.022735' />
+            <Access File='/usr/share/fonts/default/Type1' OpenTime='2018-05-08 08:08:42.021164' OpenSize='4096' CloseTime='2018-05-08 08:08:42.022555' CloseSize='4096' />
+            <Access File='/usr/share/fonts/default/ghostscript' OpenTime='2018-05-08 08:08:42.022659' OpenSize='4096' CloseTime='2018-05-08 08:08:42.022735' CloseSize='4096' />
             <Access File='/var/cache/fontconfig/87f5e051180a7a75f16eb6fe7dbd3749-le64.cache-7' OpenTime='2018-05-08 08:08:42.022770' CloseTime='2018-05-08 08:08:42.023440' />
-            <Access File='/usr/share/fonts/default/ghostscript' OpenTime='2018-05-08 08:08:42.022959' CloseTime='2018-05-08 08:08:42.023405' />
+            <Access File='/usr/share/fonts/default/ghostscript' OpenTime='2018-05-08 08:08:42.022959' OpenSize='4096' CloseTime='2018-05-08 08:08:42.023405' CloseSize='4096' />
             <Access File='/usr/share/fonts/dejavu/DejaVuSans.ttf' OpenTime='2018-05-08 08:08:42.025935' CloseTime='2018-05-08 08:08:42.026106' />
-            <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 08:08:42.026362' CloseTime='2018-05-08 08:08:42.026574' NumReads='2' BytesRead='2997' />
-            <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 08:08:42.026744' CloseTime='2018-05-08 08:08:42.026870' />
+            <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 08:08:42.026362' OpenSize='2997' CloseTime='2018-05-08 08:08:42.026574' CloseSize='2997' NumReads='2' BytesRead='2997' />
+            <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 08:08:42.026744' OpenSize='26254' CloseTime='2018-05-08 08:08:42.026870' CloseSize='26254' />
             <Access File='/usr/lib64/pango/1.8.0/modules.cache' OpenTime='2018-05-08 08:08:42.027044' CloseTime='2018-05-08 08:08:42.027348' NumReads='3' BytesRead='1534' />
             <Access File='/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf' OpenTime='2018-05-08 08:08:42.028889' CloseTime='2018-05-08 08:08:42.029067' />
             <Access File='/proc/meminfo' OpenTime='2018-05-08 08:08:42.506043' CloseTime='2018-05-08 08:08:42.506358' NumReads='1' BytesRead='1024' />
@@ -298,6 +298,13 @@
         <CIM_DataFile Name='/proc/filesystems'>
             <FileName>/proc/filesystems</FileName>
             <Category>Kernel file systems</Category>
+            <AccessTime>2018-05-08 00:58:13:489314</AccessTime>
+            <CreationTime>2018-05-08 00:58:13:489314</CreationTime>
+            <DeviceId>4</DeviceId>
+            <FileMode>33060</FileMode>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>4026532038</Inode>
+            <ModifyTime>2018-05-08 00:58:13:489314</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:08:41.952143' CloseTime='2018-05-08 08:08:41.952430' NumReads='2' BytesRead='356' />
             </FileAccesses>
@@ -305,6 +312,13 @@
         <CIM_DataFile Name='/proc/meminfo'>
             <FileName>/proc/meminfo</FileName>
             <Category>Kernel file systems</Category>
+            <AccessTime>2018-05-08 00:58:13:722313</AccessTime>
+            <CreationTime>2018-05-08 00:58:13:722313</CreationTime>
+            <DeviceId>4</DeviceId>
+            <FileMode>33060</FileMode>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>4026531994</Inode>
+            <ModifyTime>2018-05-08 00:58:13:722313</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:08:42.506043' CloseTime='2018-05-08 08:08:42.506358' NumReads='1' BytesRead='1024' />
             </FileAccesses>
@@ -314,15 +328,31 @@
         <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
             <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
             <Category>Other libraries</Category>
+            <AccessTime>2018-05-08 17:33:14:320501</AccessTime>
+            <CreationTime>2018-05-08 23:47:40:160752</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>26254</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136974</Inode>
+            <ModifyTime>2018-05-08 23:47:40:160752</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:42.026744' CloseTime='2018-05-08 08:08:42.026870' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:42.026744' OpenSize='26254' CloseTime='2018-05-08 08:08:42.026870' CloseSize='26254' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/graphviz/config6'>
             <FileName>/usr/lib64/graphviz/config6</FileName>
             <Category>Other libraries</Category>
+            <AccessTime>2018-05-08 12:36:18:173553</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:795410</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2986</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>264452</Inode>
+            <ModifyTime>2018-05-08 23:27:13:795410</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.930954' CloseTime='2018-05-08 08:08:41.931259' NumReads='1' BytesRead='2720' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.930954' OpenSize='2986' CloseTime='2018-05-08 08:08:41.931259' CloseSize='2986' NumReads='1' BytesRead='2720' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/pango/1.8.0/modules.cache'>
@@ -343,9 +373,17 @@
         <CIM_DataFile Name='/usr/share/fonts'>
             <FileName>/usr/share/fonts</FileName>
             <Category>Other libraries</Category>
+            <AccessTime>2018-05-08 16:46:28:026093</AccessTime>
+            <CreationTime>2018-05-08 23:27:07:146451</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>4</HardLinksNumber>
+            <Inode>262307</Inode>
+            <ModifyTime>2018-05-08 23:27:07:146451</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.993369' CloseTime='2018-05-08 08:08:41.993468' />
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.993769' CloseTime='2018-05-08 08:08:41.995361' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.993369' OpenSize='4096' CloseTime='2018-05-08 08:08:41.993468' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.993769' OpenSize='4096' CloseTime='2018-05-08 08:08:41.995361' CloseSize='4096' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -362,29 +400,61 @@
         <CIM_DataFile Name='/usr/lib64/graphviz/libgvplugin_core.so.6.0.0'>
             <FileName>/usr/lib64/graphviz/libgvplugin_core.so.6.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:36:18:229553</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:293413</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>141816</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>264368</Inode>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.956523' CloseTime='2018-05-08 08:08:41.956867' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.956523' OpenSize='141816' CloseTime='2018-05-08 08:08:41.956867' CloseSize='141816' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/graphviz/libgvplugin_neato_layout.so.6.0.0'>
             <FileName>/usr/lib64/graphviz/libgvplugin_neato_layout.so.6.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 19:17:11:809755</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:348413</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>718912</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>264380</Inode>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.953222' CloseTime='2018-05-08 08:08:41.953566' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.953222' OpenSize='718912' CloseTime='2018-05-08 08:08:41.953566' CloseSize='718912' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/graphviz/libgvplugin_pango.so.6.0.0'>
             <FileName>/usr/lib64/graphviz/libgvplugin_pango.so.6.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:36:18:174553</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:352413</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>44848</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>264382</Inode>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.931378' CloseTime='2018-05-08 08:08:41.931700' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.931378' OpenSize='44848' CloseTime='2018-05-08 08:08:41.931700' CloseSize='44848' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libEGL.so.1.0.0'>
             <FileName>/usr/lib64/libEGL.so.1.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:231575</AccessTime>
+            <CreationTime>2018-05-08 23:27:09:671436</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>83280</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135989</Inode>
+            <ModifyTime>2018-05-08 09:18:07:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.936421' CloseTime='2018-05-08 08:08:41.936692' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.936421' OpenSize='83280' CloseTime='2018-05-08 08:08:41.936692' CloseSize='83280' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libGL.so.1.2.0'>
@@ -397,64 +467,136 @@
         <CIM_DataFile Name='/usr/lib64/libX11-xcb.so.1.0.0'>
             <FileName>/usr/lib64/libX11-xcb.so.1.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:352575</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:707442</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>6656</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135943</Inode>
+            <ModifyTime>2018-05-08 15:32:08:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.940884' CloseTime='2018-05-08 08:08:41.941192' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.940884' OpenSize='6656' CloseTime='2018-05-08 08:08:41.941192' CloseSize='6656' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libX11.so.6.3.0'>
             <FileName>/usr/lib64/libX11.so.6.3.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:12:45:493089</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:803441</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>1317384</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135945</Inode>
+            <ModifyTime>2018-05-08 15:32:08:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.938438' CloseTime='2018-05-08 08:08:41.938719' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.938438' OpenSize='1317384' CloseTime='2018-05-08 08:08:41.938719' CloseSize='1317384' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libXau.so.6.0.0'>
             <FileName>/usr/lib64/libXau.so.6.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:12:45:491089</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:373444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>15072</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135890</Inode>
+            <ModifyTime>2018-05-08 02:31:34:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.943962' CloseTime='2018-05-08 08:08:41.944251' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.943962' OpenSize='15072' CloseTime='2018-05-08 08:08:41.944251' CloseSize='15072' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libXdamage.so.1.1.0'>
             <FileName>/usr/lib64/libXdamage.so.1.1.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:218576</AccessTime>
+            <CreationTime>2018-05-08 23:27:09:143439</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>10936</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135961</Inode>
+            <ModifyTime>2018-05-08 02:32:00:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.944699' CloseTime='2018-05-08 08:08:41.944989' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.944699' OpenSize='10936' CloseTime='2018-05-08 08:08:41.944989' CloseSize='10936' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libXext.so.6.4.0'>
             <FileName>/usr/lib64/libXext.so.6.4.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:12:45:491089</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:886441</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>75224</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135947</Inode>
+            <ModifyTime>2018-05-08 02:31:58:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.938773' CloseTime='2018-05-08 08:08:41.939068' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.938773' OpenSize='75224' CloseTime='2018-05-08 08:08:41.939068' CloseSize='75224' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libXfixes.so.3.1.0'>
             <FileName>/usr/lib64/libXfixes.so.3.1.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:170576</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:965440</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>23392</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135951</Inode>
+            <ModifyTime>2018-05-08 02:33:18:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.945041' CloseTime='2018-05-08 08:08:41.945325' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.945041' OpenSize='23392' CloseTime='2018-05-08 08:08:41.945325' CloseSize='23392' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libXrender.so.1.3.0'>
             <FileName>/usr/lib64/libXrender.so.1.3.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:236576</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:932441</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>40136</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135949</Inode>
+            <ModifyTime>2018-05-08 02:35:43:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.938107' CloseTime='2018-05-08 08:08:41.938389' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.938107' OpenSize='40136' CloseTime='2018-05-08 08:08:41.938389' CloseSize='40136' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libXxf86vm.so.1.0.0'>
             <FileName>/usr/lib64/libXxf86vm.so.1.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:673568</AccessTime>
+            <CreationTime>2018-05-08 23:27:09:499437</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>23344</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135978</Inode>
+            <ModifyTime>2018-05-08 02:38:41:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.947397' CloseTime='2018-05-08 08:08:41.947682' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.947397' OpenSize='23344' CloseTime='2018-05-08 08:08:41.947682' CloseSize='23344' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libbz2.so.1.0.6'>
             <FileName>/usr/lib64/libbz2.so.1.0.6</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 02:32:16:491570</AccessTime>
+            <CreationTime>2018-05-08 23:47:40:990585</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>67688</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137148</Inode>
+            <ModifyTime>2018-05-08 08:23:12:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.940185' CloseTime='2018-05-08 08:08:41.940466' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.940185' OpenSize='67688' CloseTime='2018-05-08 08:08:41.940466' CloseSize='67688' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc-2.21.so'>
@@ -474,15 +616,31 @@
         <CIM_DataFile Name='/usr/lib64/libcdt.so.5.0.0'>
             <FileName>/usr/lib64/libcdt.so.5.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:36:18:170553</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:361413</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>27712</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136132</Inode>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.928462' CloseTime='2018-05-08 08:08:41.928720' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.928462' OpenSize='27712' CloseTime='2018-05-08 08:08:41.928720' CloseSize='27712' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libcgraph.so.6.0.0'>
             <FileName>/usr/lib64/libcgraph.so.6.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:36:18:168554</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:367413</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>96664</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136134</Inode>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.926536' CloseTime='2018-05-08 08:08:41.926927' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.926536' OpenSize='96664' CloseTime='2018-05-08 08:08:41.926927' CloseSize='96664' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libdl-2.21.so'>
@@ -495,8 +653,16 @@
         <CIM_DataFile Name='/usr/lib64/libdrm.so.2.4.0'>
             <FileName>/usr/lib64/libdrm.so.2.4.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:674568</AccessTime>
+            <CreationTime>2018-05-08 23:27:06:063458</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>74184</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135789</Inode>
+            <ModifyTime>2018-05-08 02:51:35:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.943611' CloseTime='2018-05-08 08:08:41.943907' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.943611' OpenSize='74184' CloseTime='2018-05-08 08:08:41.943907' CloseSize='74184' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libexpat.so.1.6.0'>
@@ -509,8 +675,16 @@
         <CIM_DataFile Name='/usr/lib64/libffi.so.6.0.2'>
             <FileName>/usr/lib64/libffi.so.6.0.2</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 02:32:16:501570</AccessTime>
+            <CreationTime>2018-05-08 23:47:41:466490</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>31792</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137315</Inode>
+            <ModifyTime>2018-05-08 15:16:29:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.939843' CloseTime='2018-05-08 08:08:41.940129' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.939843' OpenSize='31792' CloseTime='2018-05-08 08:08:41.940129' CloseSize='31792' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libfontconfig.so.1.9.0'>
@@ -530,8 +704,16 @@
         <CIM_DataFile Name='/usr/lib64/libgbm.so.1.0.0'>
             <FileName>/usr/lib64/libgbm.so.1.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 23:27:06:138458</AccessTime>
+            <CreationTime>2018-05-08 23:27:06:124458</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>57824</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135801</Inode>
+            <ModifyTime>2018-05-08 18:47:59:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.942232' CloseTime='2018-05-08 08:08:41.942517' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.942232' OpenSize='57824' CloseTime='2018-05-08 08:08:41.942517' CloseSize='57824' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libgcc_s-5.3.1-20160406.so.1'>
@@ -544,8 +726,16 @@
         <CIM_DataFile Name='/usr/lib64/libglapi.so.0.0.0'>
             <FileName>/usr/lib64/libglapi.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:669569</AccessTime>
+            <CreationTime>2018-05-08 23:27:06:237457</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>199592</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135811</Inode>
+            <ModifyTime>2018-05-08 18:47:59:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.944318' CloseTime='2018-05-08 08:08:41.944644' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.944318' OpenSize='199592' CloseTime='2018-05-08 08:08:41.944644' CloseSize='199592' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libglib-2.0.so.0.4400.1'>
@@ -572,8 +762,16 @@
         <CIM_DataFile Name='/usr/lib64/libgraphite2.so.3.0.1'>
             <FileName>/usr/lib64/libgraphite2.so.3.0.1</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:256575</AccessTime>
+            <CreationTime>2018-05-08 23:27:06:890453</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>184048</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135862</Inode>
+            <ModifyTime>2018-05-08 17:38:56:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.940531' CloseTime='2018-05-08 08:08:41.940824' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.940531' OpenSize='184048' CloseTime='2018-05-08 08:08:41.940824' CloseSize='184048' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libgthread-2.0.so.0.4400.1'>
@@ -586,15 +784,31 @@
         <CIM_DataFile Name='/usr/lib64/libgts-0.7.so.5.0.1'>
             <FileName>/usr/lib64/libgts-0.7.so.5.0.1</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 19:17:11:812755</AccessTime>
+            <CreationTime>2018-05-08 23:27:06:729454</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>397360</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135844</Inode>
+            <ModifyTime>2018-05-08 21:31:00:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.953830' CloseTime='2018-05-08 08:08:41.954110' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.953830' OpenSize='397360' CloseTime='2018-05-08 08:08:41.954110' CloseSize='397360' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libgvc.so.6.0.0'>
             <FileName>/usr/lib64/libgvc.so.6.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:36:18:163553</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:404413</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>654224</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136136</Inode>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.925099' CloseTime='2018-05-08 08:08:41.925530' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.925099' OpenSize='654224' CloseTime='2018-05-08 08:08:41.925530' CloseSize='654224' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libharfbuzz.so.0.940.0'>
@@ -642,8 +856,16 @@
         <CIM_DataFile Name='/usr/lib64/libpathplan.so.4.0.0'>
             <FileName>/usr/lib64/libpathplan.so.4.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:36:18:169554</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:590411</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>35904</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136142</Inode>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.926992' CloseTime='2018-05-08 08:08:41.927350' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.926992' OpenSize='35904' CloseTime='2018-05-08 08:08:41.927350' CloseSize='35904' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpcre.so.1.2.7'>
@@ -656,8 +878,16 @@
         <CIM_DataFile Name='/usr/lib64/libpixman-1.so.0.34.0'>
             <FileName>/usr/lib64/libpixman-1.so.0.34.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:229576</AccessTime>
+            <CreationTime>2018-05-08 23:27:12:110421</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>681320</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136053</Inode>
+            <ModifyTime>2018-05-08 17:57:56:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.936093' CloseTime='2018-05-08 08:08:41.936369' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.936093' OpenSize='681320' CloseTime='2018-05-08 08:08:41.936369' CloseSize='681320' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpng16.so.16.19.0'>
@@ -684,8 +914,16 @@
         <CIM_DataFile Name='/usr/lib64/libselinux.so.1'>
             <FileName>/usr/lib64/libselinux.so.1</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:11:07:392462</AccessTime>
+            <CreationTime>2018-05-08 23:47:40:893605</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>158320</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137122</Inode>
+            <ModifyTime>2018-05-08 12:34:50:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.943235' CloseTime='2018-05-08 08:08:41.943558' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.943235' OpenSize='158320' CloseTime='2018-05-08 08:08:41.943558' CloseSize='158320' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libstdc++.so.6.0.21'>
@@ -698,106 +936,226 @@
         <CIM_DataFile Name='/usr/lib64/libwayland-client.so.0.3.0'>
             <FileName>/usr/lib64/libwayland-client.so.0.3.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:222576</AccessTime>
+            <CreationTime>2018-05-08 23:27:03:847472</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>61840</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135746</Inode>
+            <ModifyTime>2018-05-08 16:08:25:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.942568' CloseTime='2018-05-08 08:08:41.942852' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.942568' OpenSize='61840' CloseTime='2018-05-08 08:08:41.942852' CloseSize='61840' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libwayland-server.so.0.1.0'>
             <FileName>/usr/lib64/libwayland-server.so.0.1.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 23:27:03:834472</AccessTime>
+            <CreationTime>2018-05-08 23:27:03:814472</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>78624</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135744</Inode>
+            <ModifyTime>2018-05-08 16:08:25:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.942902' CloseTime='2018-05-08 08:08:41.943184' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.942902' OpenSize='78624' CloseTime='2018-05-08 08:08:41.943184' CloseSize='78624' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-dri2.so.0.0.0'>
             <FileName>/usr/lib64/libxcb-dri2.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:672569</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:407444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>19192</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135898</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.941241' CloseTime='2018-05-08 08:08:41.941519' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.941241' OpenSize='19192' CloseTime='2018-05-08 08:08:41.941519' CloseSize='19192' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-dri3.so.0.0.0'>
             <FileName>/usr/lib64/libxcb-dri3.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:664569</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:409444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>10952</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135900</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.945712' CloseTime='2018-05-08 08:08:41.946006' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.945712' OpenSize='10952' CloseTime='2018-05-08 08:08:41.946006' CloseSize='10952' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-glx.so.0.0.0'>
             <FileName>/usr/lib64/libxcb-glx.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:670568</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:413444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>109672</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135902</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.945378' CloseTime='2018-05-08 08:08:41.945658' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.945378' OpenSize='109672' CloseTime='2018-05-08 08:08:41.945658' CloseSize='109672' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-present.so.0.0.0'>
             <FileName>/usr/lib64/libxcb-present.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:666569</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:415444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>10944</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135904</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.946055' CloseTime='2018-05-08 08:08:41.946338' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.946055' OpenSize='10944' CloseTime='2018-05-08 08:08:41.946338' CloseSize='10944' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-randr.so.0.1.0'>
             <FileName>/usr/lib64/libxcb-randr.so.0.1.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 23:27:08:493443</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:419444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>64232</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135906</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.946387' CloseTime='2018-05-08 08:08:41.946667' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.946387' OpenSize='64232' CloseTime='2018-05-08 08:08:41.946667' CloseSize='64232' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-render.so.0.0.0'>
             <FileName>/usr/lib64/libxcb-render.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:235575</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:423444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>56024</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135910</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.937427' CloseTime='2018-05-08 08:08:41.937709' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.937427' OpenSize='56024' CloseTime='2018-05-08 08:08:41.937709' CloseSize='56024' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-shape.so.0.0.0'>
             <FileName>/usr/lib64/libxcb-shape.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 23:27:08:492443</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:427444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>15112</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135916</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.941902' CloseTime='2018-05-08 08:08:41.942182' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.941902' OpenSize='15112' CloseTime='2018-05-08 08:08:41.942182' CloseSize='15112' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-shm.so.0.0.0'>
             <FileName>/usr/lib64/libxcb-shm.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:11:234576</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:429444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>15104</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135918</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.937089' CloseTime='2018-05-08 08:08:41.937379' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.937089' OpenSize='15104' CloseTime='2018-05-08 08:08:41.937379' CloseSize='15104' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-sync.so.1.0.0'>
             <FileName>/usr/lib64/libxcb-sync.so.1.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:667568</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:430444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>27408</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135920</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.946724' CloseTime='2018-05-08 08:08:41.947013' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.946724' OpenSize='27408' CloseTime='2018-05-08 08:08:41.947013' CloseSize='27408' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb-xfixes.so.0.0.0'>
             <FileName>/usr/lib64/libxcb-xfixes.so.0.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:665569</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:436444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>31408</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135924</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.941567' CloseTime='2018-05-08 08:08:41.941851' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.941567' OpenSize='31408' CloseTime='2018-05-08 08:08:41.941851' CloseSize='31408' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxcb.so.1.1.0'>
             <FileName>/usr/lib64/libxcb.so.1.1.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:12:45:494089</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:467443</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>164816</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135940</Inode>
+            <ModifyTime>2018-05-08 05:16:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.937758' CloseTime='2018-05-08 08:08:41.938056' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.937758' OpenSize='164816' CloseTime='2018-05-08 08:08:41.938056' CloseSize='164816' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxdot.so.4.0.0'>
             <FileName>/usr/lib64/libxdot.so.4.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:36:18:167553</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:592412</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>23432</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136144</Inode>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.926052' CloseTime='2018-05-08 08:08:41.926475' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.926052' OpenSize='23432' CloseTime='2018-05-08 08:08:41.926475' CloseSize='23432' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libxshmfence.so.1.0.0'>
             <FileName>/usr/lib64/libxshmfence.so.1.0.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 12:39:12:668569</AccessTime>
+            <CreationTime>2018-05-08 23:27:03:876472</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>6792</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>135748</Inode>
+            <ModifyTime>2018-05-08 05:21:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.947065' CloseTime='2018-05-08 08:08:41.947348' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.947065' OpenSize='6792' CloseTime='2018-05-08 08:08:41.947348' CloseSize='6792' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libz.so.1.2.8'>
@@ -812,15 +1170,31 @@
         <CIM_DataFile Name='/etc/fonts/conf.d'>
             <FileName>/etc/fonts/conf.d</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 16:46:27:868094</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:232470</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>262304</Inode>
+            <ModifyTime>2018-05-08 23:27:04:232470</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.970148' CloseTime='2018-05-08 08:08:41.993158' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.970148' OpenSize='4096' CloseTime='2018-05-08 08:08:41.993158' CloseSize='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/fonts/conf.d/25-no-bitmap-fedora.conf'>
             <FileName>/etc/fonts/conf.d/25-no-bitmap-fedora.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:143552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:226470</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1160</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262339</Inode>
+            <ModifyTime>2018-05-08 09:26:39:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.972205' CloseTime='2018-05-08 08:08:41.972458' NumReads='2' BytesRead='1160' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.972205' OpenSize='1160' CloseTime='2018-05-08 08:08:41.972458' CloseSize='1160' NumReads='2' BytesRead='1160' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/fonts/conf.d/29-paps.conf'>
@@ -833,24 +1207,48 @@
         <CIM_DataFile Name='/etc/fonts/fonts.conf'>
             <FileName>/etc/fonts/fonts.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:139552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:232470</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2417</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262357</Inode>
+            <ModifyTime>2018-05-08 09:28:30:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.969924' CloseTime='2018-05-08 08:08:41.993307' NumReads='2' BytesRead='2413' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.969924' OpenSize='2417' CloseTime='2018-05-08 08:08:41.993307' CloseSize='2417' NumReads='2' BytesRead='2413' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.cache'>
             <FileName>/etc/ld.so.cache</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 22:57:36:314973</AccessTime>
+            <CreationTime>2018-05-08 22:50:06:707621</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>36008</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>168101</Inode>
+            <ModifyTime>2018-05-08 22:50:06:707621</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.924778' CloseTime='2018-05-08 08:08:41.925034' />
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.931752' CloseTime='2018-05-08 08:08:41.931894' />
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.953623' CloseTime='2018-05-08 08:08:41.953771' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.924778' OpenSize='36008' CloseTime='2018-05-08 08:08:41.925034' CloseSize='36008' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.931752' OpenSize='36008' CloseTime='2018-05-08 08:08:41.931894' CloseSize='36008' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.953623' OpenSize='36008' CloseTime='2018-05-08 08:08:41.953771' CloseSize='36008' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/10-scale-bitmap-fonts.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/10-scale-bitmap-fonts.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:142552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:284469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2010</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262370</Inode>
+            <ModifyTime>2018-05-08 04:22:19:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.970462' CloseTime='2018-05-08 08:08:41.970681' NumReads='2' BytesRead='2010' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.970462' OpenSize='2010' CloseTime='2018-05-08 08:08:41.970681' CloseSize='2010' NumReads='2' BytesRead='2010' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/20-unhint-small-dejavu-sans-mono.conf'>
@@ -877,15 +1275,31 @@
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/20-unhint-small-vera.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/20-unhint-small-vera.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:143552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:289469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1259</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262379</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.971831' CloseTime='2018-05-08 08:08:41.972097' NumReads='2' BytesRead='1259' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.971831' OpenSize='1259' CloseTime='2018-05-08 08:08:41.972097' CloseSize='1259' NumReads='2' BytesRead='1259' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/25-unhint-nonlatin.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/25-unhint-nonlatin.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:144552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:290469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>3256</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262380</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.972569' CloseTime='2018-05-08 08:08:41.972969' NumReads='2' BytesRead='3256' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.972569' OpenSize='3256' CloseTime='2018-05-08 08:08:41.972969' CloseSize='3256' NumReads='2' BytesRead='3256' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/30-0-google-crosextra-caladea-fontconfig.conf'>
@@ -919,15 +1333,31 @@
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/30-metric-aliases.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/30-metric-aliases.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:145552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:291469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>13510</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262381</Inode>
+            <ModifyTime>2018-05-08 09:28:11:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.975146' CloseTime='2018-05-08 08:08:41.975979' NumReads='3' BytesRead='12804' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.975146' OpenSize='13510' CloseTime='2018-05-08 08:08:41.975979' CloseSize='13510' NumReads='3' BytesRead='12804' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/30-urw-aliases.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/30-urw-aliases.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:146552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:292469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>889</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262382</Inode>
+            <ModifyTime>2018-05-08 09:28:11:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.976092' CloseTime='2018-05-08 08:08:41.976327' NumReads='2' BytesRead='701' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.976092' OpenSize='889' CloseTime='2018-05-08 08:08:41.976327' CloseSize='889' NumReads='2' BytesRead='701' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/31-cantarell.conf'>
@@ -940,36 +1370,76 @@
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/40-nonlatin.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/40-nonlatin.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:147552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:293469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>5182</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262383</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.976771' CloseTime='2018-05-08 08:08:41.977286' NumReads='2' BytesRead='5182' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.976771' OpenSize='5182' CloseTime='2018-05-08 08:08:41.977286' CloseSize='5182' NumReads='2' BytesRead='5182' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/45-latin.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/45-latin.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:148552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:294469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>6362</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262385</Inode>
+            <ModifyTime>2018-05-08 04:22:19:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.977403' CloseTime='2018-05-08 08:08:41.977905' NumReads='2' BytesRead='4621' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.977403' OpenSize='6362' CloseTime='2018-05-08 08:08:41.977905' CloseSize='6362' NumReads='2' BytesRead='4621' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/49-sansserif.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/49-sansserif.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:149552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:295469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>545</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262386</Inode>
+            <ModifyTime>2018-05-08 06:23:42:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.977992' CloseTime='2018-05-08 08:08:41.978167' NumReads='2' BytesRead='545' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.977992' OpenSize='545' CloseTime='2018-05-08 08:08:41.978167' CloseSize='545' NumReads='2' BytesRead='545' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/50-user.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/50-user.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:149552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:295469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>673</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262387</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.978256' CloseTime='2018-05-08 08:08:41.978668' NumReads='2' BytesRead='673' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.978256' OpenSize='673' CloseTime='2018-05-08 08:08:41.978668' CloseSize='673' NumReads='2' BytesRead='673' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/51-local.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/51-local.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:150552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:296469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>189</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262388</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.978755' CloseTime='2018-05-08 08:08:41.978953' NumReads='2' BytesRead='189' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.978755' OpenSize='189' CloseTime='2018-05-08 08:08:41.978953' CloseSize='189' NumReads='2' BytesRead='189' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/57-dejavu-sans-mono.conf'>
@@ -1024,8 +1494,16 @@
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/60-latin.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/60-latin.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:152552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:297469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1833</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262390</Inode>
+            <ModifyTime>2018-05-08 04:22:19:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.981005' CloseTime='2018-05-08 08:08:41.981216' NumReads='2' BytesRead='1798' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.981005' OpenSize='1833' CloseTime='2018-05-08 08:08:41.981216' CloseSize='1833' NumReads='2' BytesRead='1798' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/61-stix.conf'>
@@ -1171,8 +1649,16 @@
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/65-fonts-persian.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/65-fonts-persian.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:153552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:298469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>10118</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262391</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.987196' CloseTime='2018-05-08 08:08:41.988055' NumReads='3' BytesRead='10118' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.987196' OpenSize='10118' CloseTime='2018-05-08 08:08:41.988055' CloseSize='10118' NumReads='3' BytesRead='10118' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/65-lklug.conf'>
@@ -1185,8 +1671,16 @@
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/65-nonlatin.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/65-nonlatin.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:154552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:300469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>7931</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262393</Inode>
+            <ModifyTime>2018-05-08 06:44:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.988416' CloseTime='2018-05-08 08:08:41.988815' NumReads='2' BytesRead='7959' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.988416' OpenSize='7931' CloseTime='2018-05-08 08:08:41.988815' CloseSize='7931' NumReads='2' BytesRead='7959' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/65-sil-mingzat.conf'>
@@ -1283,22 +1777,46 @@
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/69-unifont.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/69-unifont.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:155551</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:300469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>672</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262394</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.992368' CloseTime='2018-05-08 08:08:41.992549' NumReads='2' BytesRead='672' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.992368' OpenSize='672' CloseTime='2018-05-08 08:08:41.992549' CloseSize='672' NumReads='2' BytesRead='672' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/80-delicious.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/80-delicious.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:158551</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:302469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>422</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262397</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.992639' CloseTime='2018-05-08 08:08:41.992810' NumReads='2' BytesRead='422' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.992639' OpenSize='422' CloseTime='2018-05-08 08:08:41.992810' CloseSize='422' NumReads='2' BytesRead='422' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fontconfig/conf.avail/90-synthetic.conf'>
             <FileName>/usr/share/fontconfig/conf.avail/90-synthetic.conf</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 12:39:16:159552</AccessTime>
+            <CreationTime>2018-05-08 23:27:04:304469</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>1691</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>262398</Inode>
+            <ModifyTime>2018-05-08 04:41:05:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.992903' CloseTime='2018-05-08 08:08:41.993114' NumReads='2' BytesRead='1691' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.992903' OpenSize='1691' CloseTime='2018-05-08 08:08:41.993114' CloseSize='1691' NumReads='2' BytesRead='1691' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fonts/abattis-cantarell'>
@@ -1328,25 +1846,49 @@
         <CIM_DataFile Name='/usr/share/fonts/default'>
             <FileName>/usr/share/fonts/default</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 16:46:28:026093</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:265445</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>4</HardLinksNumber>
+            <Inode>262543</Inode>
+            <ModifyTime>2018-05-08 23:27:08:265445</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.999117' CloseTime='2018-05-08 08:08:41.999210' />
-                <Access Process='12345' OpenTime='2018-05-08 08:08:41.999445' CloseTime='2018-05-08 08:08:41.999663' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.999117' OpenSize='4096' CloseTime='2018-05-08 08:08:41.999210' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:41.999445' OpenSize='4096' CloseTime='2018-05-08 08:08:41.999663' CloseSize='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fonts/default/Type1'>
             <FileName>/usr/share/fonts/default/Type1</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 16:46:28:026093</AccessTime>
+            <CreationTime>2018-05-08 23:27:07:636448</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>262544</Inode>
+            <ModifyTime>2018-05-08 23:27:07:636448</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:42.020877' CloseTime='2018-05-08 08:08:42.020950' />
-                <Access Process='12345' OpenTime='2018-05-08 08:08:42.021164' CloseTime='2018-05-08 08:08:42.022555' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:42.020877' OpenSize='4096' CloseTime='2018-05-08 08:08:42.020950' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:42.021164' OpenSize='4096' CloseTime='2018-05-08 08:08:42.022555' CloseSize='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fonts/default/ghostscript'>
             <FileName>/usr/share/fonts/default/ghostscript</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 16:46:28:027093</AccessTime>
+            <CreationTime>2018-05-08 23:27:08:342444</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16877</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>262811</Inode>
+            <ModifyTime>2018-05-08 23:27:08:342444</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:42.022659' CloseTime='2018-05-08 08:08:42.022735' />
-                <Access Process='12345' OpenTime='2018-05-08 08:08:42.022959' CloseTime='2018-05-08 08:08:42.023405' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:42.022659' OpenSize='4096' CloseTime='2018-05-08 08:08:42.022735' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:42.022959' OpenSize='4096' CloseTime='2018-05-08 08:08:42.023405' CloseSize='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/fonts/dejavu'>
@@ -1622,8 +2164,16 @@
         <CIM_DataFile Name='/usr/share/locale/locale.alias'>
             <FileName>/usr/share/locale/locale.alias</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 02:32:16:470570</AccessTime>
+            <CreationTime>2018-05-08 23:47:39:703844</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2997</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136660</Inode>
+            <ModifyTime>2018-05-08 06:39:38:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:08:42.026362' CloseTime='2018-05-08 08:08:42.026574' NumReads='2' BytesRead='2997' />
+                <Access Process='12345' OpenTime='2018-05-08 08:08:42.026362' OpenSize='2997' CloseTime='2018-05-08 08:08:42.026574' CloseSize='2997' NumReads='2' BytesRead='2997' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -1631,7 +2181,15 @@
         <CIM_DataFile Name='/usr/bin/dot'>
             <FileName>/usr/bin/dot</FileName>
             <Category>System executables</Category>
+            <AccessTime>2018-05-08 12:36:18:161554</AccessTime>
+            <CreationTime>2018-05-08 23:27:13:193414</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>11136</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136099</Inode>
             <IsExecuted>True</IsExecuted>
+            <ModifyTime>2018-05-08 09:09:04:000000</ModifyTime>
         </CIM_DataFile>
     </FilesCategory>
     <FilesCategory category='Temporary files'>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>rchateau-HP</Name>
+        <Name>vps516494.localdomain</Name>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <PermanentAddress>192.168.0.14</PermanentAddress>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='12345'>
         <Handle>12345</Handle>
@@ -17,15 +17,15 @@
         <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
         <Executable>/usr/bin/cp</Executable>
         <FileAccesses>
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 23:41:19.659105' CloseTime='2018-05-08 23:41:19.659271' />
-            <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 23:41:19.659295' CloseTime='2018-05-08 23:41:19.659510' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libacl.so.1.1.0' OpenTime='2018-05-08 23:41:19.659560' CloseTime='2018-05-08 23:41:19.659776' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-08 23:41:19.659810' CloseTime='2018-05-08 23:41:19.660024' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libc-2.25.so' OpenTime='2018-05-08 23:41:19.660057' CloseTime='2018-05-08 23:41:19.660298' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libpcre.so.1.2.8' OpenTime='2018-05-08 23:41:19.660331' CloseTime='2018-05-08 23:41:19.660530' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libdl-2.25.so' OpenTime='2018-05-08 23:41:19.660562' CloseTime='2018-05-08 23:41:19.660789' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libpthread-2.25.so' OpenTime='2018-05-08 23:41:19.660841' CloseTime='2018-05-08 23:41:19.661051' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 23:41:19.662039' CloseTime='2018-05-08 23:41:19.662159' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 23:41:19.659105' OpenSize='36008' CloseTime='2018-05-08 23:41:19.659271' CloseSize='36008' />
+            <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 23:41:19.659295' OpenSize='158320' CloseTime='2018-05-08 23:41:19.659510' CloseSize='158320' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libacl.so.1.1.0' OpenTime='2018-05-08 23:41:19.659560' OpenSize='36384' CloseTime='2018-05-08 23:41:19.659776' CloseSize='36384' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-08 23:41:19.659810' OpenSize='19376' CloseTime='2018-05-08 23:41:19.660024' CloseSize='19376' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libc-2.25.so' OpenTime='2018-05-08 23:41:19.660057' OpenSize='2163104' CloseTime='2018-05-08 23:41:19.660298' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libpcre.so.1.2.8' OpenTime='2018-05-08 23:41:19.660331' OpenSize='467600' CloseTime='2018-05-08 23:41:19.660530' CloseSize='467600' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libdl-2.25.so' OpenTime='2018-05-08 23:41:19.660562' OpenSize='19496' CloseTime='2018-05-08 23:41:19.660789' CloseSize='19496' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libpthread-2.25.so' OpenTime='2018-05-08 23:41:19.660841' OpenSize='153896' CloseTime='2018-05-08 23:41:19.661051' CloseSize='153896' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 23:41:19.662039' OpenSize='2291760' CloseTime='2018-05-08 23:41:19.662159' CloseSize='2291760' />
             <Access File='/home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log' OpenTime='2018-05-08 23:41:19.662277' CloseTime='2018-05-08 23:41:19.666682' NumReads='18' BytesRead='2149823' />
             <Access File='/home/rchateau/survol/Experimental/RetroBatch/tutu' OpenTime='2018-05-08 23:41:19.662336' CloseTime='2018-05-08 23:41:19.666287' NumWrites='17' BytesWritten='2149823' />
             <Access File='/dev/pts/2' CloseTime='2018-05-08 23:41:19.666815' />
@@ -37,8 +37,16 @@
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
             <FileName>/usr/lib/locale/locale-archive</FileName>
             <Category>Other libraries</Category>
+            <AccessTime>2018-05-08 17:33:14:319501</AccessTime>
+            <CreationTime>2018-05-08 23:49:15:421897</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2291760</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>131415</Inode>
+            <ModifyTime>2018-05-08 23:49:15:421897</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.662039' CloseTime='2018-05-08 23:41:19.662159' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.662039' OpenSize='2291760' CloseTime='2018-05-08 23:41:19.662159' CloseSize='2291760' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -69,6 +77,16 @@
         <CIM_DataFile Name='/dev/pts/2'>
             <FileName>/dev/pts/2</FileName>
             <Category>Pipes and terminals</Category>
+            <AccessTime>2018-05-08 00:58:08:630661</AccessTime>
+            <CreationTime>2018-05-08 14:31:09:633662</CreationTime>
+            <DeviceId>21</DeviceId>
+            <DeviceType>34818</DeviceType>
+            <FileMode>8592</FileMode>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>5</Inode>
+            <ModifyTime>2018-05-08 00:58:08:630661</ModifyTime>
+            <OwnerGroupId>5</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 23:41:19.666815' />
                 <Access Process='12345' CloseTime='2018-05-08 23:41:19.666870' />
@@ -79,50 +97,106 @@
         <CIM_DataFile Name='/usr/lib64/libacl.so.1.1.0'>
             <FileName>/usr/lib64/libacl.so.1.1.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:38:24:642102</AccessTime>
+            <CreationTime>2018-05-08 23:47:41:827417</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>36384</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137456</Inode>
+            <ModifyTime>2018-05-08 09:17:24:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.659560' CloseTime='2018-05-08 23:41:19.659776' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.659560' OpenSize='36384' CloseTime='2018-05-08 23:41:19.659776' CloseSize='36384' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libattr.so.1.1.0'>
             <FileName>/usr/lib64/libattr.so.1.1.0</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:38:24:642102</AccessTime>
+            <CreationTime>2018-05-08 23:47:41:811420</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>19376</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137454</Inode>
+            <ModifyTime>2018-05-08 07:36:33:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.659810' CloseTime='2018-05-08 23:41:19.660024' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.659810' OpenSize='19376' CloseTime='2018-05-08 23:41:19.660024' CloseSize='19376' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc-2.25.so'>
             <FileName>/usr/lib64/libc-2.25.so</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:05:00:668103</AccessTime>
+            <CreationTime>2018-05-08 23:47:39:791826</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>2163104</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136672</Inode>
+            <ModifyTime>2018-05-08 06:42:30:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.660057' CloseTime='2018-05-08 23:41:19.660298' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.660057' OpenSize='2163104' CloseTime='2018-05-08 23:41:19.660298' CloseSize='2163104' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libdl-2.25.so'>
             <FileName>/usr/lib64/libdl-2.25.so</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:05:00:668103</AccessTime>
+            <CreationTime>2018-05-08 23:47:39:797825</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>19496</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136676</Inode>
+            <ModifyTime>2018-05-08 06:42:29:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.660562' CloseTime='2018-05-08 23:41:19.660789' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.660562' OpenSize='19496' CloseTime='2018-05-08 23:41:19.660789' CloseSize='19496' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpcre.so.1.2.8'>
             <FileName>/usr/lib64/libpcre.so.1.2.8</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:11:07:394462</AccessTime>
+            <CreationTime>2018-05-08 23:47:40:866610</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>467600</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137112</Inode>
+            <ModifyTime>2018-05-08 10:24:37:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.660331' CloseTime='2018-05-08 23:41:19.660530' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.660331' OpenSize='467600' CloseTime='2018-05-08 23:41:19.660530' CloseSize='467600' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpthread-2.25.so'>
             <FileName>/usr/lib64/libpthread-2.25.so</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:05:00:668103</AccessTime>
+            <CreationTime>2018-05-08 23:47:39:853814</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>153896</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136688</Inode>
+            <ModifyTime>2018-05-08 06:42:29:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.660841' CloseTime='2018-05-08 23:41:19.661051' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.660841' OpenSize='153896' CloseTime='2018-05-08 23:41:19.661051' CloseSize='153896' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libselinux.so.1'>
             <FileName>/usr/lib64/libselinux.so.1</FileName>
             <Category>Shared libraries</Category>
+            <AccessTime>2018-05-08 17:11:07:392462</AccessTime>
+            <CreationTime>2018-05-08 23:47:40:893605</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>158320</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137122</Inode>
+            <ModifyTime>2018-05-08 12:34:50:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.659295' CloseTime='2018-05-08 23:41:19.659510' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.659295' OpenSize='158320' CloseTime='2018-05-08 23:41:19.659510' CloseSize='158320' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -130,8 +204,16 @@
         <CIM_DataFile Name='/etc/ld.so.cache'>
             <FileName>/etc/ld.so.cache</FileName>
             <Category>System config files</Category>
+            <AccessTime>2018-05-08 22:57:36:314973</AccessTime>
+            <CreationTime>2018-05-08 22:50:06:707621</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>36008</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>168101</Inode>
+            <ModifyTime>2018-05-08 22:50:06:707621</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 23:41:19.659105' CloseTime='2018-05-08 23:41:19.659271' />
+                <Access Process='12345' OpenTime='2018-05-08 23:41:19.659105' OpenSize='36008' CloseTime='2018-05-08 23:41:19.659271' CloseSize='36008' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -139,7 +221,15 @@
         <CIM_DataFile Name='/usr/bin/cp'>
             <FileName>/usr/bin/cp</FileName>
             <Category>System executables</Category>
+            <AccessTime>2018-05-08 13:43:56:673343</AccessTime>
+            <CreationTime>2018-05-08 23:47:46:341508</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>141392</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>139051</Inode>
             <IsExecuted>True</IsExecuted>
+            <ModifyTime>2018-05-08 13:39:02:000000</ModifyTime>
         </CIM_DataFile>
     </FilesCategory>
 </Dockit>
