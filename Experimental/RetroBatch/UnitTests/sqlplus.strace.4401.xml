@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>rchateau-HP</Name>
+        <Name>vps516494.localdomain</Name>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <PermanentAddress>192.168.0.14</PermanentAddress>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='4401'>
         <Handle>4401</Handle>
@@ -16,48 +16,81 @@
         <CurrentDirectory>/home/rchateau/rdfmon-code/Experimental/RetroBatch</CurrentDirectory>
         <FileAccesses>
             <Access File='/dev/pts/2' NumReads='30' BytesRead='1010' NumWrites='22490' BytesWritten='1168980' />
-            <Access File='pipe:[1173642]' CloseTime='2018-05-20 02:08:54.954567' NumWrites='52' BytesWritten='5379' >
-                <SqlQuery_List direction='Write'>
-                    <SqlQuery>select * from all_tables</SqlQuery>
-                    <SqlQuery>select count(1) from all_tab_columns</SqlQuery>
-                    <SqlQuery>select data_type,column_name,data_length from all_tab_columns where TABLE_NAME like 'V%'</SqlQuery>
-                    <SqlQuery>select book_id+10,book_name,author_name,book_isbn from books</SqlQuery>
-                </SqlQuery_List>
-            </Access>
+            <Access File='pipe:[1173642]' CloseTime='2018-05-20 02:08:54.954567' NumWrites='52' BytesWritten='5379' />
             <Access File='pipe:[1173643]' CloseTime='2018-05-20 02:08:54.954608' NumReads='51' BytesRead='27608' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp1us.msb' CloseTime='2018-05-20 02:08:54.955001' NumReads='7' BytesRead='3584' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp2us.msb' CloseTime='2018-05-20 02:08:54.955039' NumReads='3' BytesRead='1536' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb' CloseTime='2018-05-20 02:08:54.954856' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/cpyus.msb' CloseTime='2018-05-20 02:08:54.954947' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp1us.msb' CloseTime='2018-05-20 02:08:54.955001' CloseSize='12288' NumReads='7' BytesRead='3584' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp2us.msb' CloseTime='2018-05-20 02:08:54.955039' CloseSize='34816' NumReads='3' BytesRead='1536' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb' CloseTime='2018-05-20 02:08:54.954856' CloseSize='27136' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/cpyus.msb' CloseTime='2018-05-20 02:08:54.954947' CloseSize='4096' />
         </FileAccesses>
     </CIM_Process>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb</FileName>
             <Category>Others</Category>
+            <AccessTime>2018-05-20 19:02:40:277302</AccessTime>
+            <CreationTime>2018-05-20 20:38:57:310470</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>27136</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>527087</Inode>
+            <ModifyTime>2018-05-20 07:53:02:000000</ModifyTime>
+            <OwnerGroupId>1002</OwnerGroupId>
+            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='4401' CloseTime='2018-05-20 02:08:54.954856' />
+                <Access Process='4401' CloseTime='2018-05-20 02:08:54.954856' CloseSize='27136' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/cpyus.msb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/cpyus.msb</FileName>
             <Category>Others</Category>
+            <AccessTime>2018-05-20 19:02:40:206302</AccessTime>
+            <CreationTime>2018-05-20 20:38:57:309470</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>527254</Inode>
+            <ModifyTime>2018-05-20 07:52:57:000000</ModifyTime>
+            <OwnerGroupId>1002</OwnerGroupId>
+            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='4401' CloseTime='2018-05-20 02:08:54.954947' />
+                <Access Process='4401' CloseTime='2018-05-20 02:08:54.954947' CloseSize='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp1us.msb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp1us.msb</FileName>
             <Category>Others</Category>
+            <AccessTime>2018-05-20 19:02:40:205302</AccessTime>
+            <CreationTime>2018-05-20 20:38:57:309470</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>12288</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>527258</Inode>
+            <ModifyTime>2018-05-20 07:52:57:000000</ModifyTime>
+            <OwnerGroupId>1002</OwnerGroupId>
+            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='4401' CloseTime='2018-05-20 02:08:54.955001' NumReads='7' BytesRead='3584' />
+                <Access Process='4401' CloseTime='2018-05-20 02:08:54.955001' CloseSize='12288' NumReads='7' BytesRead='3584' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp2us.msb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp2us.msb</FileName>
             <Category>Others</Category>
+            <AccessTime>2018-05-20 19:02:40:205302</AccessTime>
+            <CreationTime>2018-05-20 20:38:57:309470</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>34816</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>527262</Inode>
+            <ModifyTime>2018-05-20 07:52:57:000000</ModifyTime>
+            <OwnerGroupId>1002</OwnerGroupId>
+            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='4401' CloseTime='2018-05-20 02:08:54.955039' NumReads='3' BytesRead='1536' />
+                <Access Process='4401' CloseTime='2018-05-20 02:08:54.955039' CloseSize='34816' NumReads='3' BytesRead='1536' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -65,6 +98,16 @@
         <CIM_DataFile Name='/dev/pts/2'>
             <FileName>/dev/pts/2</FileName>
             <Category>Pipes and terminals</Category>
+            <AccessTime>2018-05-20 00:58:08:630661</AccessTime>
+            <CreationTime>2018-05-20 14:31:09:633662</CreationTime>
+            <DeviceId>21</DeviceId>
+            <DeviceType>34818</DeviceType>
+            <FileMode>8592</FileMode>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>5</Inode>
+            <ModifyTime>2018-05-20 00:58:08:630661</ModifyTime>
+            <OwnerGroupId>5</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
             <FileAccesses>
                 <Access Process='4401' NumReads='30' BytesRead='1010' NumWrites='22490' BytesWritten='1168980' />
             </FileAccesses>
@@ -73,14 +116,7 @@
             <FileName>pipe:[1173642]</FileName>
             <Category>Pipes and terminals</Category>
             <FileAccesses>
-                <Access Process='4401' CloseTime='2018-05-20 02:08:54.954567' NumWrites='52' BytesWritten='5379' >
-                    <SqlQuery_List direction='Write'>
-                        <SqlQuery>select * from all_tables</SqlQuery>
-                        <SqlQuery>select count(1) from all_tab_columns</SqlQuery>
-                        <SqlQuery>select data_type,column_name,data_length from all_tab_columns where TABLE_NAME like 'V%'</SqlQuery>
-                        <SqlQuery>select book_id+10,book_name,author_name,book_isbn from books</SqlQuery>
-                    </SqlQuery_List>
-                </Access>
+                <Access Process='4401' CloseTime='2018-05-20 02:08:54.954567' NumWrites='52' BytesWritten='5379' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='pipe:[1173643]'>
