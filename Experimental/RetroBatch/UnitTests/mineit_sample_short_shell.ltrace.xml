@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dockit>
+    <CIM_ComputerSystem>
+        <Name>vps516494.localdomain</Name>
+    </CIM_ComputerSystem>
+    <CIM_OperatingSystem>
+    </CIM_OperatingSystem>
+    <CIM_NetworkAdapter>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
+    </CIM_NetworkAdapter>
+    <CIM_Process Handle='18319'>
+        <Handle>18319</Handle>
+        <Name>pid=18319</Name>
+        <CreationDate>2018-05-31 09:00:22</CreationDate>
+        <TerminationDate>2018-05-31 09:00:23</TerminationDate>
+        <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        <FileAccesses>
+            <Access File='UnknownFileDescr:255' CloseTime='2018-05-31 09:00:22' />
+            <Access File='UnknownFileDescr:3' CloseTime='2018-05-31 09:00:22' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-31 09:00:22' OpenSize='36008' CloseTime='2018-05-31 09:00:22' CloseSize='36008' />
+            <Access File='/lib64/libc.so.6' OpenTime='2018-05-31 09:00:22' OpenSize='2163104' CloseTime='2018-05-31 09:00:22' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-31 09:00:22' OpenSize='2291760' />
+            <Access File='/lib64/libc.so.6' CloseTime='2018-05-31 09:00:22' CloseSize='2163104' />
+            <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-31 09:00:22' OpenSize='2997' CloseTime='2018-05-31 09:00:22' CloseSize='2997' NumReads='2' BytesRead='2997' />
+            <Access File='stdin' NumReads='7' BytesRead='20757' />
+            <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-31 09:00:23' OpenSize='26254' CloseTime='2018-05-31 09:00:23' CloseSize='26254' />
+            <Access File='stdout' CloseTime='2018-05-31 09:00:23' />
+            <Access File='stderr' CloseTime='2018-05-31 09:00:23' />
+        </FileAccesses>
+    </CIM_Process>
+    <FilesCategory category='Other libraries'>
+        <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
+            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 15:29:34</AccessTime>
+            <CreationTime>2018-05-31 21:49:15</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2291760</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>131415</Inode>
+            <ModifyTime>2018-05-31 21:49:15</ModifyTime>
+            <FileAccesses>
+                <Access Process='18319' OpenTime='2018-05-31 09:00:22' OpenSize='2291760' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
+            <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 15:29:34</AccessTime>
+            <CreationTime>2018-05-31 21:47:40</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>26254</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136974</Inode>
+            <ModifyTime>2018-05-31 21:47:40</ModifyTime>
+            <FileAccesses>
+                <Access Process='18319' OpenTime='2018-05-31 09:00:23' OpenSize='26254' CloseTime='2018-05-31 09:00:23' CloseSize='26254' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Others'>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch'>
+            <FileName>/home/rchateau/survol/Experimental/RetroBatch</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 15:46:41</AccessTime>
+            <CreationTime>2018-05-31 10:12:52</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>5</HardLinksNumber>
+            <Inode>272074</Inode>
+            <ModifyTime>2018-05-31 10:12:52</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+        </CIM_DataFile>
+        <CIM_DataFile Name='UnknownFileDescr:255'>
+            <FileName>UnknownFileDescr:255</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='18319' CloseTime='2018-05-31 09:00:22' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='UnknownFileDescr:3'>
+            <FileName>UnknownFileDescr:3</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='18319' CloseTime='2018-05-31 09:00:22' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='stderr'>
+            <FileName>stderr</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='18319' CloseTime='2018-05-31 09:00:23' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='stdin'>
+            <FileName>stdin</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='18319' NumReads='7' BytesRead='20757' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='stdout'>
+            <FileName>stdout</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='18319' CloseTime='2018-05-31 09:00:23' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Shared libraries'>
+        <CIM_DataFile Name='/lib64/libc.so.6'>
+            <FileName>/lib64/libc.so.6</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>2163104</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136672</Inode>
+            <ModifyTime>2018-05-31 04:42:30</ModifyTime>
+            <FileAccesses>
+                <Access Process='18319' OpenTime='2018-05-31 09:00:22' OpenSize='2163104' CloseTime='2018-05-31 09:00:22' CloseSize='2163104' NumReads='1' BytesRead='832' />
+                <Access Process='18319' CloseTime='2018-05-31 09:00:22' CloseSize='2163104' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='System config files'>
+        <CIM_DataFile Name='/etc/ld.so.cache'>
+            <FileName>/etc/ld.so.cache</FileName>
+            <Category>System config files</Category>
+            <AccessTime>2018-05-31 20:55:01</AccessTime>
+            <CreationTime>2018-05-31 20:50:06</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>36008</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>168101</Inode>
+            <ModifyTime>2018-05-31 20:50:06</ModifyTime>
+            <FileAccesses>
+                <Access Process='18319' OpenTime='2018-05-31 09:00:22' OpenSize='36008' CloseTime='2018-05-31 09:00:22' CloseSize='36008' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/etc/ld.so.preload'>
+            <FileName>/etc/ld.so.preload</FileName>
+            <Category>System config files</Category>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/share/locale/locale.alias'>
+            <FileName>/usr/share/locale/locale.alias</FileName>
+            <Category>System config files</Category>
+            <AccessTime>2018-05-31 00:29:16</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2997</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136660</Inode>
+            <ModifyTime>2018-05-31 04:39:38</ModifyTime>
+            <FileAccesses>
+                <Access Process='18319' OpenTime='2018-05-31 09:00:22' OpenSize='2997' CloseTime='2018-05-31 09:00:22' CloseSize='2997' NumReads='2' BytesRead='2997' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='System executables'>
+        <CIM_DataFile Name='/usr/bin/wc'>
+            <FileName>/usr/bin/wc</FileName>
+            <Category>System executables</Category>
+            <AccessTime>2018-05-31 07:11:24</AccessTime>
+            <CreationTime>2018-05-31 21:47:46</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>45040</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>139137</Inode>
+            <ModifyTime>2018-05-31 11:39:02</ModifyTime>
+        </CIM_DataFile>
+    </FilesCategory>
+</Dockit>

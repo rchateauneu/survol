@@ -1,0 +1,1369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dockit>
+    <CIM_ComputerSystem>
+        <Name>vps516494.localdomain</Name>
+    </CIM_ComputerSystem>
+    <CIM_OperatingSystem>
+    </CIM_OperatingSystem>
+    <CIM_NetworkAdapter>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
+    </CIM_NetworkAdapter>
+    <CIM_Process Handle='12345'>
+        <Handle>12345</Handle>
+        <Name>pid=12345</Name>
+        <CommandLine>find .. -type f -exec grep Hello {} ;</CommandLine>
+        <CreationDate>2018-05-31 18:43:33</CreationDate>
+        <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+        <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        <Executable>/usr/bin/find</Executable>
+        <FileAccesses>
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-31 18:43:33' OpenSize='36008' CloseTime='2018-05-31 18:43:33' CloseSize='36008' />
+            <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-31 18:43:33' OpenSize='158320' CloseTime='2018-05-31 18:43:33' CloseSize='158320' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libm-2.25.so' OpenTime='2018-05-31 18:43:33' OpenSize='1226368' CloseTime='2018-05-31 18:43:33' CloseSize='1226368' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libc-2.25.so' OpenTime='2018-05-31 18:43:33' OpenSize='2163104' CloseTime='2018-05-31 18:43:33' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libpcre.so.1.2.8' OpenTime='2018-05-31 18:43:33' OpenSize='467600' CloseTime='2018-05-31 18:43:33' CloseSize='467600' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libdl-2.25.so' OpenTime='2018-05-31 18:43:33' OpenSize='19496' CloseTime='2018-05-31 18:43:33' CloseSize='19496' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/libpthread-2.25.so' OpenTime='2018-05-31 18:43:33' OpenSize='153896' CloseTime='2018-05-31 18:43:33' CloseSize='153896' NumReads='1' BytesRead='832' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-31 18:43:33' OpenSize='4096' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-31 18:43:33' OpenSize='2291760' CloseTime='2018-05-31 18:43:33' CloseSize='2291760' />
+            <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-31 18:43:33' OpenSize='26254' CloseTime='2018-05-31 18:43:33' CloseSize='26254' />
+            <Access File='/home/rchateau/survol/Experimental' OpenTime='2018-05-31 18:43:33' OpenSize='4096' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/Divers' OpenTime='2018-05-31 18:43:33' OpenSize='4096' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/Divers' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/Divers' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_data' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_data' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_data' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/CTypesTests' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/CTypesTests' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/CTypesTests' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_AC2' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_AC2' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_AC2' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/Microsoft_Azure' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/Microsoft_Azure' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/Microsoft_Azure' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/tests_pyslp' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/tests_pyslp' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/tests_pyslp' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/tests_pyslp' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/SLP' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RDF' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RDF' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RDF' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_wbem' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_wbem' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/tests_wbem' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/home/rchateau/survol/Experimental/RetroBatch' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            <Access File='/dev/pts/0' CloseTime='2018-05-31 18:43:34' />
+            <Access File='/home/rchateau/survol/mineit_find_grep.log' CloseTime='2018-05-31 18:43:34' />
+        </FileAccesses>
+        <CIM_Process Handle='9930'>
+            <Handle>9930</Handle>
+            <Name>pid=9930</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9965'>
+            <Handle>9965</Handle>
+            <Name>pid=9965</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9986'>
+            <Handle>9986</Handle>
+            <Name>pid=9986</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9910'>
+            <Handle>9910</Handle>
+            <Name>pid=9910</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9948'>
+            <Handle>9948</Handle>
+            <Name>pid=9948</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9924'>
+            <Handle>9924</Handle>
+            <Name>pid=9924</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10004'>
+            <Handle>10004</Handle>
+            <Name>pid=10004</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9898'>
+            <Handle>9898</Handle>
+            <Name>pid=9898</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9959'>
+            <Handle>9959</Handle>
+            <Name>pid=9959</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9957'>
+            <Handle>9957</Handle>
+            <Name>pid=9957</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9951'>
+            <Handle>9951</Handle>
+            <Name>pid=9951</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9958'>
+            <Handle>9958</Handle>
+            <Name>pid=9958</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9981'>
+            <Handle>9981</Handle>
+            <Name>pid=9981</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9929'>
+            <Handle>9929</Handle>
+            <Name>pid=9929</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9904'>
+            <Handle>9904</Handle>
+            <Name>pid=9904</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9947'>
+            <Handle>9947</Handle>
+            <Name>pid=9947</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9980'>
+            <Handle>9980</Handle>
+            <Name>pid=9980</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9967'>
+            <Handle>9967</Handle>
+            <Name>pid=9967</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9995'>
+            <Handle>9995</Handle>
+            <Name>pid=9995</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9900'>
+            <Handle>9900</Handle>
+            <Name>pid=9900</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9920'>
+            <Handle>9920</Handle>
+            <Name>pid=9920</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9916'>
+            <Handle>9916</Handle>
+            <Name>pid=9916</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9964'>
+            <Handle>9964</Handle>
+            <Name>pid=9964</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9950'>
+            <Handle>9950</Handle>
+            <Name>pid=9950</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9897'>
+            <Handle>9897</Handle>
+            <Name>pid=9897</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9905'>
+            <Handle>9905</Handle>
+            <Name>pid=9905</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9987'>
+            <Handle>9987</Handle>
+            <Name>pid=9987</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9925'>
+            <Handle>9925</Handle>
+            <Name>pid=9925</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9982'>
+            <Handle>9982</Handle>
+            <Name>pid=9982</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9901'>
+            <Handle>9901</Handle>
+            <Name>pid=9901</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9934'>
+            <Handle>9934</Handle>
+            <Name>pid=9934</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9949'>
+            <Handle>9949</Handle>
+            <Name>pid=9949</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9985'>
+            <Handle>9985</Handle>
+            <Name>pid=9985</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9945'>
+            <Handle>9945</Handle>
+            <Name>pid=9945</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9908'>
+            <Handle>9908</Handle>
+            <Name>pid=9908</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9983'>
+            <Handle>9983</Handle>
+            <Name>pid=9983</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9977'>
+            <Handle>9977</Handle>
+            <Name>pid=9977</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9956'>
+            <Handle>9956</Handle>
+            <Name>pid=9956</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9921'>
+            <Handle>9921</Handle>
+            <Name>pid=9921</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9919'>
+            <Handle>9919</Handle>
+            <Name>pid=9919</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9907'>
+            <Handle>9907</Handle>
+            <Name>pid=9907</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9902'>
+            <Handle>9902</Handle>
+            <Name>pid=9902</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9915'>
+            <Handle>9915</Handle>
+            <Name>pid=9915</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9962'>
+            <Handle>9962</Handle>
+            <Name>pid=9962</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9975'>
+            <Handle>9975</Handle>
+            <Name>pid=9975</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9946'>
+            <Handle>9946</Handle>
+            <Name>pid=9946</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9922'>
+            <Handle>9922</Handle>
+            <Name>pid=9922</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9909'>
+            <Handle>9909</Handle>
+            <Name>pid=9909</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9899'>
+            <Handle>9899</Handle>
+            <Name>pid=9899</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9896'>
+            <Handle>9896</Handle>
+            <Name>pid=9896</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10010'>
+            <Handle>10010</Handle>
+            <Name>pid=10010</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9988'>
+            <Handle>9988</Handle>
+            <Name>pid=9988</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9961'>
+            <Handle>9961</Handle>
+            <Name>pid=9961</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9993'>
+            <Handle>9993</Handle>
+            <Name>pid=9993</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9989'>
+            <Handle>9989</Handle>
+            <Name>pid=9989</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9944'>
+            <Handle>9944</Handle>
+            <Name>pid=9944</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9911'>
+            <Handle>9911</Handle>
+            <Name>pid=9911</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9943'>
+            <Handle>9943</Handle>
+            <Name>pid=9943</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9960'>
+            <Handle>9960</Handle>
+            <Name>pid=9960</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9999'>
+            <Handle>9999</Handle>
+            <Name>pid=9999</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9972'>
+            <Handle>9972</Handle>
+            <Name>pid=9972</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9996'>
+            <Handle>9996</Handle>
+            <Name>pid=9996</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9937'>
+            <Handle>9937</Handle>
+            <Name>pid=9937</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9992'>
+            <Handle>9992</Handle>
+            <Name>pid=9992</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10000'>
+            <Handle>10000</Handle>
+            <Name>pid=10000</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10014'>
+            <Handle>10014</Handle>
+            <Name>pid=10014</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9941'>
+            <Handle>9941</Handle>
+            <Name>pid=9941</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9938'>
+            <Handle>9938</Handle>
+            <Name>pid=9938</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9953'>
+            <Handle>9953</Handle>
+            <Name>pid=9953</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9973'>
+            <Handle>9973</Handle>
+            <Name>pid=9973</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9914'>
+            <Handle>9914</Handle>
+            <Name>pid=9914</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9928'>
+            <Handle>9928</Handle>
+            <Name>pid=9928</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9939'>
+            <Handle>9939</Handle>
+            <Name>pid=9939</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9969'>
+            <Handle>9969</Handle>
+            <Name>pid=9969</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9903'>
+            <Handle>9903</Handle>
+            <Name>pid=9903</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9984'>
+            <Handle>9984</Handle>
+            <Name>pid=9984</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9991'>
+            <Handle>9991</Handle>
+            <Name>pid=9991</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10003'>
+            <Handle>10003</Handle>
+            <Name>pid=10003</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9970'>
+            <Handle>9970</Handle>
+            <Name>pid=9970</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9917'>
+            <Handle>9917</Handle>
+            <Name>pid=9917</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9990'>
+            <Handle>9990</Handle>
+            <Name>pid=9990</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9940'>
+            <Handle>9940</Handle>
+            <Name>pid=9940</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10011'>
+            <Handle>10011</Handle>
+            <Name>pid=10011</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9906'>
+            <Handle>9906</Handle>
+            <Name>pid=9906</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9979'>
+            <Handle>9979</Handle>
+            <Name>pid=9979</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10009'>
+            <Handle>10009</Handle>
+            <Name>pid=10009</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9966'>
+            <Handle>9966</Handle>
+            <Name>pid=9966</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9926'>
+            <Handle>9926</Handle>
+            <Name>pid=9926</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10015'>
+            <Handle>10015</Handle>
+            <Name>pid=10015</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9998'>
+            <Handle>9998</Handle>
+            <Name>pid=9998</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9936'>
+            <Handle>9936</Handle>
+            <Name>pid=9936</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10008'>
+            <Handle>10008</Handle>
+            <Name>pid=10008</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9971'>
+            <Handle>9971</Handle>
+            <Name>pid=9971</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9954'>
+            <Handle>9954</Handle>
+            <Name>pid=9954</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10005'>
+            <Handle>10005</Handle>
+            <Name>pid=10005</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10002'>
+            <Handle>10002</Handle>
+            <Name>pid=10002</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9912'>
+            <Handle>9912</Handle>
+            <Name>pid=9912</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10007'>
+            <Handle>10007</Handle>
+            <Name>pid=10007</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10006'>
+            <Handle>10006</Handle>
+            <Name>pid=10006</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9963'>
+            <Handle>9963</Handle>
+            <Name>pid=9963</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9952'>
+            <Handle>9952</Handle>
+            <Name>pid=9952</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9978'>
+            <Handle>9978</Handle>
+            <Name>pid=9978</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10001'>
+            <Handle>10001</Handle>
+            <Name>pid=10001</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9968'>
+            <Handle>9968</Handle>
+            <Name>pid=9968</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9923'>
+            <Handle>9923</Handle>
+            <Name>pid=9923</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10013'>
+            <Handle>10013</Handle>
+            <Name>pid=10013</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9931'>
+            <Handle>9931</Handle>
+            <Name>pid=9931</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9994'>
+            <Handle>9994</Handle>
+            <Name>pid=9994</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9932'>
+            <Handle>9932</Handle>
+            <Name>pid=9932</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9918'>
+            <Handle>9918</Handle>
+            <Name>pid=9918</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9933'>
+            <Handle>9933</Handle>
+            <Name>pid=9933</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9974'>
+            <Handle>9974</Handle>
+            <Name>pid=9974</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9927'>
+            <Handle>9927</Handle>
+            <Name>pid=9927</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9955'>
+            <Handle>9955</Handle>
+            <Name>pid=9955</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9913'>
+            <Handle>9913</Handle>
+            <Name>pid=9913</Name>
+            <CreationDate>2018-05-31 18:43:33</CreationDate>
+            <TerminationDate>2018-05-31 18:43:33</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9935'>
+            <Handle>9935</Handle>
+            <Name>pid=9935</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9997'>
+            <Handle>9997</Handle>
+            <Name>pid=9997</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='10012'>
+            <Handle>10012</Handle>
+            <Name>pid=10012</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9976'>
+            <Handle>9976</Handle>
+            <Name>pid=9976</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+        <CIM_Process Handle='9942'>
+            <Handle>9942</Handle>
+            <Name>pid=9942</Name>
+            <CreationDate>2018-05-31 18:43:34</CreationDate>
+            <TerminationDate>2018-05-31 18:43:34</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        </CIM_Process>
+    </CIM_Process>
+    <FilesCategory category='Other libraries'>
+        <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
+            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 15:29:34</AccessTime>
+            <CreationTime>2018-05-31 21:49:15</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>2291760</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>131415</Inode>
+            <ModifyTime>2018-05-31 21:49:15</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='2291760' CloseTime='2018-05-31 18:43:33' CloseSize='2291760' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
+            <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
+            <Category>Other libraries</Category>
+            <AccessTime>2018-05-31 15:29:34</AccessTime>
+            <CreationTime>2018-05-31 21:47:40</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>26254</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136974</Inode>
+            <ModifyTime>2018-05-31 21:47:40</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='26254' CloseTime='2018-05-31 18:43:33' CloseSize='26254' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Others'>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental'>
+            <FileName>/home/rchateau/survol/Experimental</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 15:46:40</AccessTime>
+            <CreationTime>2018-05-31 07:46:04</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>12</HardLinksNumber>
+            <Inode>272027</Inode>
+            <ModifyTime>2018-05-31 07:46:04</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='4096' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/CTypesTests'>
+            <FileName>/home/rchateau/survol/Experimental/CTypesTests</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272029</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/Divers'>
+            <FileName>/home/rchateau/survol/Experimental/Divers</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272039</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='4096' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/Microsoft_Azure'>
+            <FileName>/home/rchateau/survol/Experimental/Microsoft_Azure</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272062</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RDF'>
+            <FileName>/home/rchateau/survol/Experimental/RDF</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272068</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch'>
+            <FileName>/home/rchateau/survol/Experimental/RetroBatch</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 15:46:41</AccessTime>
+            <CreationTime>2018-05-31 10:12:52</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>5</HardLinksNumber>
+            <Inode>272074</Inode>
+            <ModifyTime>2018-05-31 10:12:52</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='4096' CloseTime='2018-05-31 18:43:33' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/SLP'>
+            <FileName>/home/rchateau/survol/Experimental/SLP</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>4</HardLinksNumber>
+            <Inode>272079</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples'>
+            <FileName>/home/rchateau/survol/Experimental/SLP/SLP_PerlSamples</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272080</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/SLP/tests_pyslp'>
+            <FileName>/home/rchateau/survol/Experimental/SLP/tests_pyslp</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>3</HardLinksNumber>
+            <Inode>272094</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2'>
+            <FileName>/home/rchateau/survol/Experimental/SLP/tests_pyslp/port_to_py2</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272095</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/tests_AC2'>
+            <FileName>/home/rchateau/survol/Experimental/tests_AC2</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272162</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/tests_data'>
+            <FileName>/home/rchateau/survol/Experimental/tests_data</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272164</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/Experimental/tests_wbem'>
+            <FileName>/home/rchateau/survol/Experimental/tests_wbem</FileName>
+            <Category>Others</Category>
+            <AccessTime>2018-05-31 14:46:27</AccessTime>
+            <CreationTime>2018-05-31 23:42:07</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>16893</FileMode>
+            <FileSize>4096</FileSize>
+            <HardLinksNumber>2</HardLinksNumber>
+            <Inode>272175</Inode>
+            <ModifyTime>2018-05-31 23:42:07</ModifyTime>
+            <OwnerGroupId>1001</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:34' OpenSize='4096' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' CloseSize='4096' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/home/rchateau/survol/mineit_find_grep.log'>
+            <FileName>/home/rchateau/survol/mineit_find_grep.log</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Pipes and terminals'>
+        <CIM_DataFile Name='/dev/pts/0'>
+            <FileName>/dev/pts/0</FileName>
+            <Category>Pipes and terminals</Category>
+            <AccessTime>2018-05-31 15:45:47</AccessTime>
+            <CreationTime>2018-05-31 10:12:45</CreationTime>
+            <DeviceId>21</DeviceId>
+            <DeviceType>34816</DeviceType>
+            <FileMode>8592</FileMode>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>3</Inode>
+            <ModifyTime>2018-05-31 15:45:47</ModifyTime>
+            <OwnerGroupId>5</OwnerGroupId>
+            <OwnerUserId>1001</OwnerUserId>
+            <FileAccesses>
+                <Access Process='12345' CloseTime='2018-05-31 18:43:34' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Shared libraries'>
+        <CIM_DataFile Name='/usr/lib64/libc-2.25.so'>
+            <FileName>/usr/lib64/libc-2.25.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>2163104</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136672</Inode>
+            <ModifyTime>2018-05-31 04:42:30</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='2163104' CloseTime='2018-05-31 18:43:33' CloseSize='2163104' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libdl-2.25.so'>
+            <FileName>/usr/lib64/libdl-2.25.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>19496</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136676</Inode>
+            <ModifyTime>2018-05-31 04:42:29</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='19496' CloseTime='2018-05-31 18:43:33' CloseSize='19496' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libm-2.25.so'>
+            <FileName>/usr/lib64/libm-2.25.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>1226368</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136678</Inode>
+            <ModifyTime>2018-05-31 04:42:32</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='1226368' CloseTime='2018-05-31 18:43:33' CloseSize='1226368' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libpcre.so.1.2.8'>
+            <FileName>/usr/lib64/libpcre.so.1.2.8</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:09:09</AccessTime>
+            <CreationTime>2018-05-31 21:47:40</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>467600</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137112</Inode>
+            <ModifyTime>2018-05-31 08:24:37</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='467600' CloseTime='2018-05-31 18:43:33' CloseSize='467600' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libpthread-2.25.so'>
+            <FileName>/usr/lib64/libpthread-2.25.so</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:05:00</AccessTime>
+            <CreationTime>2018-05-31 21:47:39</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>153896</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>136688</Inode>
+            <ModifyTime>2018-05-31 04:42:29</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='153896' CloseTime='2018-05-31 18:43:33' CloseSize='153896' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/usr/lib64/libselinux.so.1'>
+            <FileName>/usr/lib64/libselinux.so.1</FileName>
+            <Category>Shared libraries</Category>
+            <AccessTime>2018-05-31 15:09:09</AccessTime>
+            <CreationTime>2018-05-31 21:47:40</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>158320</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137122</Inode>
+            <ModifyTime>2018-05-31 10:34:50</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='158320' CloseTime='2018-05-31 18:43:33' CloseSize='158320' NumReads='1' BytesRead='832' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='System config files'>
+        <CIM_DataFile Name='/etc/ld.so.cache'>
+            <FileName>/etc/ld.so.cache</FileName>
+            <Category>System config files</Category>
+            <AccessTime>2018-05-31 20:55:01</AccessTime>
+            <CreationTime>2018-05-31 20:50:06</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33188</FileMode>
+            <FileSize>36008</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>168101</Inode>
+            <ModifyTime>2018-05-31 20:50:06</ModifyTime>
+            <FileAccesses>
+                <Access Process='12345' OpenTime='2018-05-31 18:43:33' OpenSize='36008' CloseTime='2018-05-31 18:43:33' CloseSize='36008' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='System executables'>
+        <CIM_DataFile Name='/usr/bin/find'>
+            <FileName>/usr/bin/find</FileName>
+            <Category>System executables</Category>
+            <AccessTime>2018-05-31 20:51:01</AccessTime>
+            <CreationTime>2018-05-31 21:47:42</CreationTime>
+            <DeviceId>64513</DeviceId>
+            <FileMode>33261</FileMode>
+            <FileSize>218720</FileSize>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>137910</Inode>
+            <IsExecuted>True</IsExecuted>
+            <ModifyTime>2018-05-31 09:31:03</ModifyTime>
+        </CIM_DataFile>
+    </FilesCategory>
+</Dockit>

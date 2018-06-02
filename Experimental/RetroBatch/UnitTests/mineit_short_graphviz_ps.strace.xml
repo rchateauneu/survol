@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dockit>
+    <CIM_ComputerSystem>
+        <Name>vps516494.localdomain</Name>
+    </CIM_ComputerSystem>
+    <CIM_OperatingSystem>
+    </CIM_OperatingSystem>
+    <CIM_NetworkAdapter>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
+    </CIM_NetworkAdapter>
+    <CIM_Process Handle='18319'>
+        <Handle>18319</Handle>
+        <Name>pid=18319</Name>
+        <CreationDate>2018-05-31 08:08:42</CreationDate>
+        <TerminationDate>2018-05-31 08:08:42</TerminationDate>
+        <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+        <FileAccesses>
+            <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log' NumWrites='7' BytesWritten='185' />
+            <Access File='/proc/meminfo' OpenTime='2018-05-31 08:08:42' CloseTime='2018-05-31 08:08:42' NumReads='1' BytesRead='1024' />
+            <Access File='/tmp/Dot2Svg.26787.svg' OpenTime='2018-05-31 08:08:42' CloseTime='2018-05-31 08:08:42' NumWrites='9' BytesWritten='35616' />
+            <Access File='/tmp/Grph2Dot.26787.dot' CloseTime='2018-05-31 08:08:42' NumReads='1' />
+        </FileAccesses>
+    </CIM_Process>
+    <FilesCategory category='Kernel file systems'>
+        <CIM_DataFile Name='/proc/meminfo'>
+            <FileName>/proc/meminfo</FileName>
+            <Category>Kernel file systems</Category>
+            <AccessTime>2018-05-31 15:47:56</AccessTime>
+            <CreationTime>2018-05-31 15:47:56</CreationTime>
+            <DeviceId>4</DeviceId>
+            <FileMode>33060</FileMode>
+            <HardLinksNumber>1</HardLinksNumber>
+            <Inode>4026531994</Inode>
+            <ModifyTime>2018-05-31 15:47:56</ModifyTime>
+            <FileAccesses>
+                <Access Process='18319' OpenTime='2018-05-31 08:08:42' CloseTime='2018-05-31 08:08:42' NumReads='1' BytesRead='1024' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Others'>
+        <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log'>
+            <FileName>/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log</FileName>
+            <Category>Others</Category>
+            <FileAccesses>
+                <Access Process='18319' NumWrites='7' BytesWritten='185' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+    <FilesCategory category='Temporary files'>
+        <CIM_DataFile Name='/tmp/Dot2Svg.26787.svg'>
+            <FileName>/tmp/Dot2Svg.26787.svg</FileName>
+            <Category>Temporary files</Category>
+            <FileAccesses>
+                <Access Process='18319' OpenTime='2018-05-31 08:08:42' CloseTime='2018-05-31 08:08:42' NumWrites='9' BytesWritten='35616' />
+            </FileAccesses>
+        </CIM_DataFile>
+        <CIM_DataFile Name='/tmp/Grph2Dot.26787.dot'>
+            <FileName>/tmp/Grph2Dot.26787.dot</FileName>
+            <Category>Temporary files</Category>
+            <FileAccesses>
+                <Access Process='18319' CloseTime='2018-05-31 08:08:42' NumReads='1' />
+            </FileAccesses>
+        </CIM_DataFile>
+    </FilesCategory>
+</Dockit>
