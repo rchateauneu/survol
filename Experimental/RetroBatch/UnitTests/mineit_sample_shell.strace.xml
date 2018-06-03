@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>vps516494.localdomain</Name>
+        <Name>rchateau-HP</Name>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <PermanentAddress>127.0.0.1</PermanentAddress>
+        <PermanentAddress>192.168.0.14</PermanentAddress>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='12345'>
         <Handle>12345</Handle>
@@ -17,14 +17,14 @@
         <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
         <Executable>/usr/bin/bash</Executable>
         <FileAccesses>
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.178163' OpenSize='36008' CloseTime='2018-05-08 08:26:47.178331' CloseSize='36008' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.178163' CloseTime='2018-05-08 08:26:47.178331' />
             <Access File='/usr/lib64/libtinfo.so.5.9' OpenTime='2018-05-08 08:26:47.178380' CloseTime='2018-05-08 08:26:47.178655' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-08 08:26:47.178702' CloseTime='2018-05-08 08:26:47.178988' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:26:47.179032' CloseTime='2018-05-08 08:26:47.179383' NumReads='1' BytesRead='832' />
             <Access File='/dev/tty' OpenTime='2018-05-08 08:26:47.180391' CloseTime='2018-05-08 08:26:47.180473' />
-            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.180856' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.181075' CloseSize='2291760' />
+            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.180856' CloseTime='2018-05-08 08:26:47.181075' />
             <Access File='/proc/meminfo' OpenTime='2018-05-08 08:26:47.181368' CloseTime='2018-05-08 08:26:47.181671' NumReads='1' BytesRead='1024' />
-            <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 08:26:47.182069' OpenSize='26254' CloseTime='2018-05-08 08:26:47.182316' CloseSize='26254' />
+            <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 08:26:47.182069' CloseTime='2018-05-08 08:26:47.182316' />
             <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' OpenTime='2018-05-08 08:26:47.183346' CloseTime='2018-05-08 08:26:47.184179' NumReads='1' BytesRead='80' />
             <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' NumReads='4' BytesRead='565' />
             <Access File='pipe:[587230]' NumWrites='1' BytesWritten='51' />
@@ -39,9 +39,9 @@
             <Executable>/usr/bin/cat</Executable>
             <FileAccesses>
                 <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' CloseTime='2018-05-08 08:26:47.545842' />
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.546936' OpenSize='36008' CloseTime='2018-05-08 08:26:47.547371' CloseSize='36008' />
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.546936' CloseTime='2018-05-08 08:26:47.547371' />
                 <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:26:47.547498' CloseTime='2018-05-08 08:26:47.548344' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.550053' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.550403' CloseSize='2291760' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.550053' CloseTime='2018-05-08 08:26:47.550403' />
                 <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' OpenTime='2018-05-08 08:26:47.550749' CloseTime='2018-05-08 08:26:47.551914' NumReads='2' BytesRead='533' />
                 <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.552048' NumWrites='1' BytesWritten='533' />
                 <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.552174' />
@@ -57,17 +57,17 @@
             <Executable>/usr/bin/ls</Executable>
             <FileAccesses>
                 <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' CloseTime='2018-05-08 08:26:47.185841' />
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.186864' OpenSize='36008' CloseTime='2018-05-08 08:26:47.187239' CloseSize='36008' />
-                <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 08:26:47.187362' OpenSize='158320' CloseTime='2018-05-08 08:26:47.188109' CloseSize='158320' NumReads='1' BytesRead='832' />
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.186864' CloseTime='2018-05-08 08:26:47.187239' />
+                <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 08:26:47.187362' CloseTime='2018-05-08 08:26:47.188109' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libcap.so.2.24' OpenTime='2018-05-08 08:26:47.188190' CloseTime='2018-05-08 08:26:47.188712' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libacl.so.1.1.0' OpenTime='2018-05-08 08:26:47.188796' OpenSize='36384' CloseTime='2018-05-08 08:26:47.189385' CloseSize='36384' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libacl.so.1.1.0' OpenTime='2018-05-08 08:26:47.188796' CloseTime='2018-05-08 08:26:47.189385' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:26:47.189463' CloseTime='2018-05-08 08:26:47.190066' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libpcre.so.1.2.7' OpenTime='2018-05-08 08:26:47.190148' CloseTime='2018-05-08 08:26:47.190678' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-08 08:26:47.190758' CloseTime='2018-05-08 08:26:47.191364' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-08 08:26:47.191444' OpenSize='19376' CloseTime='2018-05-08 08:26:47.191966' CloseSize='19376' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-08 08:26:47.191444' CloseTime='2018-05-08 08:26:47.191966' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libpthread-2.21.so' OpenTime='2018-05-08 08:26:47.192045' CloseTime='2018-05-08 08:26:47.192733' NumReads='1' BytesRead='832' />
                 <Access File='/proc/filesystems' OpenTime='2018-05-08 08:26:47.194480' CloseTime='2018-05-08 08:26:47.195037' NumReads='2' BytesRead='356' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.195258' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.195604' CloseSize='2291760' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.195258' CloseTime='2018-05-08 08:26:47.195604' />
                 <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch' OpenTime='2018-05-08 08:26:47.195987' CloseTime='2018-05-08 08:26:47.196315' />
                 <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.196710' NumWrites='1' BytesWritten='143' />
                 <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.196903' />
@@ -85,15 +85,15 @@
                 <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' CloseTime='2018-05-08 08:26:47.198680' />
                 <Access File='pipe:[586559]' CloseTime='2018-05-08 08:26:47.198908' />
                 <Access File='pipe:[586559]' CloseTime='2018-05-08 08:26:47.199489' />
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.201012' OpenSize='36008' CloseTime='2018-05-08 08:26:47.201128' CloseSize='36008' />
-                <Access File='/usr/lib64/libprocps.so.4.0.0' OpenTime='2018-05-08 08:26:47.201175' OpenSize='77680' CloseTime='2018-05-08 08:26:47.201509' CloseSize='77680' NumReads='1' BytesRead='832' />
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.201012' CloseTime='2018-05-08 08:26:47.201128' />
+                <Access File='/usr/lib64/libprocps.so.4.0.0' OpenTime='2018-05-08 08:26:47.201175' CloseTime='2018-05-08 08:26:47.201509' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libsystemd.so.0.6.0' OpenTime='2018-05-08 08:26:47.201559' CloseTime='2018-05-08 08:26:47.201923' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-08 08:26:47.202015' CloseTime='2018-05-08 08:26:47.202300' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:26:47.202360' CloseTime='2018-05-08 08:26:47.202757' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libcap.so.2.24' OpenTime='2018-05-08 08:26:47.202816' CloseTime='2018-05-08 08:26:47.203137' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libm-2.21.so' OpenTime='2018-05-08 08:26:47.203188' CloseTime='2018-05-08 08:26:47.203541' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/librt-2.21.so' OpenTime='2018-05-08 08:26:47.203647' CloseTime='2018-05-08 08:26:47.203974' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 08:26:47.204020' OpenSize='158320' CloseTime='2018-05-08 08:26:47.204398' CloseSize='158320' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 08:26:47.204020' CloseTime='2018-05-08 08:26:47.204398' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/liblzma.so.5.2.0' OpenTime='2018-05-08 08:26:47.204452' CloseTime='2018-05-08 08:26:47.204965' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libgcrypt.so.20.0.3' OpenTime='2018-05-08 08:26:47.205097' CloseTime='2018-05-08 08:26:47.205629' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libgpg-error.so.0.17.0' OpenTime='2018-05-08 08:26:47.205756' CloseTime='2018-05-08 08:26:47.206168' NumReads='1' BytesRead='832' />
@@ -101,17 +101,17 @@
                 <Access File='/usr/lib64/libdw-0.166.so' OpenTime='2018-05-08 08:26:47.206819' CloseTime='2018-05-08 08:26:47.207328' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libgcc_s-5.3.1-20160406.so.1' OpenTime='2018-05-08 08:26:47.207488' CloseTime='2018-05-08 08:26:47.207957' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libpthread-2.21.so' OpenTime='2018-05-08 08:26:47.208059' CloseTime='2018-05-08 08:26:47.208638' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-08 08:26:47.208760' OpenSize='19376' CloseTime='2018-05-08 08:26:47.209354' CloseSize='19376' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-08 08:26:47.208760' CloseTime='2018-05-08 08:26:47.209354' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libpcre.so.1.2.7' OpenTime='2018-05-08 08:26:47.209477' CloseTime='2018-05-08 08:26:47.209820' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libelf-0.166.so' OpenTime='2018-05-08 08:26:47.210099' CloseTime='2018-05-08 08:26:47.210395' NumReads='1' BytesRead='832' />
                 <Access File='/usr/lib64/libz.so.1.2.8' OpenTime='2018-05-08 08:26:47.210493' CloseTime='2018-05-08 08:26:47.210895' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libbz2.so.1.0.6' OpenTime='2018-05-08 08:26:47.211017' OpenSize='67688' CloseTime='2018-05-08 08:26:47.211319' CloseSize='67688' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libbz2.so.1.0.6' OpenTime='2018-05-08 08:26:47.211017' CloseTime='2018-05-08 08:26:47.211319' NumReads='1' BytesRead='832' />
                 <Access File='/proc/filesystems' OpenTime='2018-05-08 08:26:47.214287' CloseTime='2018-05-08 08:26:47.214798' NumReads='2' BytesRead='356' />
-                <Access File='/sys/devices/system/cpu/online' OpenTime='2018-05-08 08:26:47.215041' OpenSize='4096' CloseTime='2018-05-08 08:26:47.215242' CloseSize='4096' NumReads='1' BytesRead='4' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.215330' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.215650' CloseSize='2291760' />
+                <Access File='/sys/devices/system/cpu/online' OpenTime='2018-05-08 08:26:47.215041' CloseTime='2018-05-08 08:26:47.215242' NumReads='1' BytesRead='4' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.215330' CloseTime='2018-05-08 08:26:47.215650' />
                 <Access File='/proc/18195/stat' OpenTime='2018-05-08 08:26:47.216104' CloseTime='2018-05-08 08:26:47.216322' NumReads='1' BytesRead='314' />
                 <Access File='/proc/uptime' OpenTime='2018-05-08 08:26:47.216846' NumReads='1' BytesRead='21' />
-                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 08:26:47.217142' OpenSize='2997' CloseTime='2018-05-08 08:26:47.217652' CloseSize='2997' NumReads='2' BytesRead='2997' />
+                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 08:26:47.217142' CloseTime='2018-05-08 08:26:47.217652' NumReads='2' BytesRead='2997' />
                 <Access File='/proc/sys/kernel/pid_max' OpenTime='2018-05-08 08:26:47.218564' CloseTime='2018-05-08 08:26:47.218809' NumReads='1' BytesRead='6' />
                 <Access File='/proc/meminfo' OpenTime='2018-05-08 08:26:47.219121' NumReads='1' BytesRead='1251' />
                 <Access File='/proc' OpenTime='2018-05-08 08:26:47.219543' CloseTime='2018-05-08 08:26:47.542248' />
@@ -119,13 +119,13 @@
                 <Access File='/proc/1/status' OpenTime='2018-05-08 08:26:47.220982' CloseTime='2018-05-08 08:26:47.221242' NumReads='1' BytesRead='1008' />
                 <Access File='UNIX:[587259]' CloseTime='2018-05-08 08:26:47.222945' />
                 <Access File='UNIX:[587260]' CloseTime='2018-05-08 08:26:47.224646' />
-                <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 08:26:47.225206' OpenSize='1731' CloseTime='2018-05-08 08:26:47.225837' CloseSize='1731' NumReads='2' BytesRead='1769' />
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.226056' OpenSize='36008' CloseTime='2018-05-08 08:26:47.226425' CloseSize='36008' />
+                <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 08:26:47.225206' CloseTime='2018-05-08 08:26:47.225837' NumReads='2' BytesRead='1769' />
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.226056' CloseTime='2018-05-08 08:26:47.226425' />
                 <Access File='/usr/lib64/libnss_files-2.21.so' OpenTime='2018-05-08 08:26:47.226541' CloseTime='2018-05-08 08:26:47.227265' NumReads='1' BytesRead='832' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.227594' OpenSize='1134' CloseTime='2018-05-08 08:26:47.228190' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.227594' CloseTime='2018-05-08 08:26:47.228190' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/1/cmdline' OpenTime='2018-05-08 08:26:47.228458' CloseTime='2018-05-08 08:26:47.228944' NumReads='2' BytesRead='67' />
-                <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 08:26:47.229086' OpenSize='26254' CloseTime='2018-05-08 08:26:47.229523' CloseSize='26254' />
-                <Access File='/usr/share/zoneinfo/Europe/London' OpenTime='2018-05-08 08:26:47.230012' OpenSize='3687' CloseTime='2018-05-08 08:26:47.231149' CloseSize='3687' NumReads='2' BytesRead='6034' />
+                <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 08:26:47.229086' CloseTime='2018-05-08 08:26:47.229523' />
+                <Access File='/usr/share/zoneinfo/Europe/London' OpenTime='2018-05-08 08:26:47.230012' CloseTime='2018-05-08 08:26:47.231149' NumReads='2' BytesRead='6034' />
                 <Access File='/proc/stat' OpenTime='2018-05-08 08:26:47.231427' CloseTime='2018-05-08 08:26:47.232255' NumReads='2' BytesRead='1285' />
                 <Access File='/proc/2/stat' OpenTime='2018-05-08 08:26:47.232588' CloseTime='2018-05-08 08:26:47.232923' NumReads='1' BytesRead='150' />
                 <Access File='/proc/2/status' OpenTime='2018-05-08 08:26:47.233066' CloseTime='2018-05-08 08:26:47.233372' NumReads='1' BytesRead='727' />
@@ -373,7 +373,7 @@
                 <Access File='/proc/697/cmdline' OpenTime='2018-05-08 08:26:47.323457' CloseTime='2018-05-08 08:26:47.323696' NumReads='2' BytesRead='14' />
                 <Access File='/proc/699/stat' OpenTime='2018-05-08 08:26:47.323885' CloseTime='2018-05-08 08:26:47.324104' NumReads='1' BytesRead='173' />
                 <Access File='/proc/699/status' OpenTime='2018-05-08 08:26:47.324206' CloseTime='2018-05-08 08:26:47.324434' NumReads='1' BytesRead='1034' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.324502' OpenSize='1134' CloseTime='2018-05-08 08:26:47.324888' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.324502' CloseTime='2018-05-08 08:26:47.324888' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/699/cmdline' OpenTime='2018-05-08 08:26:47.325059' CloseTime='2018-05-08 08:26:47.325339' NumReads='2' BytesRead='26' />
                 <Access File='/proc/703/stat' OpenTime='2018-05-08 08:26:47.325549' CloseTime='2018-05-08 08:26:47.325795' NumReads='1' BytesRead='189' />
                 <Access File='/proc/703/status' OpenTime='2018-05-08 08:26:47.325910' CloseTime='2018-05-08 08:26:47.326143' NumReads='1' BytesRead='1019' />
@@ -386,14 +386,14 @@
                 <Access File='/proc/710/cmdline' OpenTime='2018-05-08 08:26:47.328581' CloseTime='2018-05-08 08:26:47.328886' NumReads='2' BytesRead='29' />
                 <Access File='/proc/717/stat' OpenTime='2018-05-08 08:26:47.329069' CloseTime='2018-05-08 08:26:47.329296' NumReads='1' BytesRead='171' />
                 <Access File='/proc/717/status' OpenTime='2018-05-08 08:26:47.329392' CloseTime='2018-05-08 08:26:47.329614' NumReads='1' BytesRead='1031' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.329700' OpenSize='1134' CloseTime='2018-05-08 08:26:47.330056' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.329700' CloseTime='2018-05-08 08:26:47.330056' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/717/cmdline' OpenTime='2018-05-08 08:26:47.330257' CloseTime='2018-05-08 08:26:47.330512' NumReads='2' BytesRead='18' />
                 <Access File='/proc/718/stat' OpenTime='2018-05-08 08:26:47.330688' CloseTime='2018-05-08 08:26:47.330925' NumReads='1' BytesRead='173' />
                 <Access File='/proc/718/status' OpenTime='2018-05-08 08:26:47.331030' CloseTime='2018-05-08 08:26:47.331255' NumReads='1' BytesRead='1015' />
                 <Access File='/proc/718/cmdline' OpenTime='2018-05-08 08:26:47.331360' CloseTime='2018-05-08 08:26:47.331703' NumReads='2' BytesRead='29' />
                 <Access File='/proc/721/stat' OpenTime='2018-05-08 08:26:47.331878' CloseTime='2018-05-08 08:26:47.332121' NumReads='1' BytesRead='174' />
                 <Access File='/proc/721/status' OpenTime='2018-05-08 08:26:47.332225' CloseTime='2018-05-08 08:26:47.332454' NumReads='1' BytesRead='1031' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.332518' OpenSize='1134' CloseTime='2018-05-08 08:26:47.332942' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.332518' CloseTime='2018-05-08 08:26:47.332942' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/721/cmdline' OpenTime='2018-05-08 08:26:47.333098' CloseTime='2018-05-08 08:26:47.333352' NumReads='2' BytesRead='38' />
                 <Access File='/proc/723/stat' OpenTime='2018-05-08 08:26:47.333556' CloseTime='2018-05-08 08:26:47.333778' NumReads='1' BytesRead='183' />
                 <Access File='/proc/723/status' OpenTime='2018-05-08 08:26:47.333896' CloseTime='2018-05-08 08:26:47.334079' NumReads='1' BytesRead='1020' />
@@ -403,7 +403,7 @@
                 <Access File='/proc/729/cmdline' OpenTime='2018-05-08 08:26:47.335193' CloseTime='2018-05-08 08:26:47.335525' NumReads='2' BytesRead='32' />
                 <Access File='/proc/731/stat' OpenTime='2018-05-08 08:26:47.335699' CloseTime='2018-05-08 08:26:47.335894' NumReads='1' BytesRead='184' />
                 <Access File='/proc/731/status' OpenTime='2018-05-08 08:26:47.335975' CloseTime='2018-05-08 08:26:47.336163' NumReads='1' BytesRead='1032' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.336252' OpenSize='1134' CloseTime='2018-05-08 08:26:47.336568' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.336252' CloseTime='2018-05-08 08:26:47.336568' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/731/cmdline' OpenTime='2018-05-08 08:26:47.336748' CloseTime='2018-05-08 08:26:47.337057' NumReads='2' BytesRead='91' />
                 <Access File='/proc/738/stat' OpenTime='2018-05-08 08:26:47.337254' CloseTime='2018-05-08 08:26:47.337473' NumReads='1' BytesRead='168' />
                 <Access File='/proc/738/status' OpenTime='2018-05-08 08:26:47.337579' CloseTime='2018-05-08 08:26:47.337753' NumReads='1' BytesRead='1030' />
@@ -416,7 +416,7 @@
                 <Access File='/proc/751/cmdline' OpenTime='2018-05-08 08:26:47.340068' CloseTime='2018-05-08 08:26:47.340302' NumReads='2' BytesRead='53' />
                 <Access File='/proc/763/stat' OpenTime='2018-05-08 08:26:47.340488' CloseTime='2018-05-08 08:26:47.340723' NumReads='1' BytesRead='184' />
                 <Access File='/proc/763/status' OpenTime='2018-05-08 08:26:47.340842' CloseTime='2018-05-08 08:26:47.341091' NumReads='1' BytesRead='1038' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.341201' OpenSize='1134' CloseTime='2018-05-08 08:26:47.341641' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.341201' CloseTime='2018-05-08 08:26:47.341641' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/763/cmdline' OpenTime='2018-05-08 08:26:47.341844' CloseTime='2018-05-08 08:26:47.342093' NumReads='2' BytesRead='37' />
                 <Access File='/proc/809/stat' OpenTime='2018-05-08 08:26:47.342282' CloseTime='2018-05-08 08:26:47.342510' NumReads='1' BytesRead='193' />
                 <Access File='/proc/809/status' OpenTime='2018-05-08 08:26:47.342618' CloseTime='2018-05-08 08:26:47.342790' NumReads='1' BytesRead='1025' />
@@ -453,18 +453,18 @@
                 <Access File='/proc/1277/cmdline' OpenTime='2018-05-08 08:26:47.354480' CloseTime='2018-05-08 08:26:47.354815' NumReads='2' BytesRead='14' />
                 <Access File='/proc/1281/stat' OpenTime='2018-05-08 08:26:47.354981' CloseTime='2018-05-08 08:26:47.355213' NumReads='1' BytesRead='172' />
                 <Access File='/proc/1281/status' OpenTime='2018-05-08 08:26:47.355319' CloseTime='2018-05-08 08:26:47.355610' NumReads='1' BytesRead='1024' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.355766' OpenSize='1134' CloseTime='2018-05-08 08:26:47.356134' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.355766' CloseTime='2018-05-08 08:26:47.356134' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/1281/cmdline' OpenTime='2018-05-08 08:26:47.356307' CloseTime='2018-05-08 08:26:47.356541' NumReads='2' BytesRead='18' />
                 <Access File='/proc/1310/stat' OpenTime='2018-05-08 08:26:47.356719' CloseTime='2018-05-08 08:26:47.356900' NumReads='1' BytesRead='187' />
                 <Access File='/proc/1310/status' OpenTime='2018-05-08 08:26:47.356983' CloseTime='2018-05-08 08:26:47.357170' NumReads='1' BytesRead='1039' />
                 <Access File='/proc/1310/cmdline' OpenTime='2018-05-08 08:26:47.357261' CloseTime='2018-05-08 08:26:47.357526' NumReads='2' BytesRead='48' />
                 <Access File='/proc/1329/stat' OpenTime='2018-05-08 08:26:47.357745' CloseTime='2018-05-08 08:26:47.358027' NumReads='1' BytesRead='169' />
                 <Access File='/proc/1329/status' OpenTime='2018-05-08 08:26:47.358124' CloseTime='2018-05-08 08:26:47.358362' NumReads='1' BytesRead='1039' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.358470' OpenSize='1134' CloseTime='2018-05-08 08:26:47.358844' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.358470' CloseTime='2018-05-08 08:26:47.358844' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/1329/cmdline' OpenTime='2018-05-08 08:26:47.358999' CloseTime='2018-05-08 08:26:47.359246' NumReads='2' BytesRead='16' />
                 <Access File='/proc/1377/stat' OpenTime='2018-05-08 08:26:47.359424' CloseTime='2018-05-08 08:26:47.359638' NumReads='1' BytesRead='185' />
                 <Access File='/proc/1377/status' OpenTime='2018-05-08 08:26:47.359790' CloseTime='2018-05-08 08:26:47.360029' NumReads='1' BytesRead='1036' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.360139' OpenSize='1134' CloseTime='2018-05-08 08:26:47.360568' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.360139' CloseTime='2018-05-08 08:26:47.360568' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/1377/cmdline' OpenTime='2018-05-08 08:26:47.360764' CloseTime='2018-05-08 08:26:47.363166' NumReads='2' BytesRead='44' />
                 <Access File='/proc/1394/stat' OpenTime='2018-05-08 08:26:47.363402' CloseTime='2018-05-08 08:26:47.363699' NumReads='1' BytesRead='187' />
                 <Access File='/proc/1394/status' OpenTime='2018-05-08 08:26:47.363872' CloseTime='2018-05-08 08:26:47.364065' NumReads='1' BytesRead='1025' />
@@ -474,14 +474,14 @@
                 <Access File='/proc/1415/cmdline' OpenTime='2018-05-08 08:26:47.365173' CloseTime='2018-05-08 08:26:47.365434' NumReads='2' BytesRead='63' />
                 <Access File='/proc/1443/stat' OpenTime='2018-05-08 08:26:47.365620' CloseTime='2018-05-08 08:26:47.366296' NumReads='1' BytesRead='177' />
                 <Access File='/proc/1443/status' OpenTime='2018-05-08 08:26:47.366407' CloseTime='2018-05-08 08:26:47.366613' NumReads='1' BytesRead='1031' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.366722' OpenSize='1134' CloseTime='2018-05-08 08:26:47.367119' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.366722' CloseTime='2018-05-08 08:26:47.367119' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/1443/cmdline' OpenTime='2018-05-08 08:26:47.367321' CloseTime='2018-05-08 08:26:47.367698' NumReads='2' BytesRead='32' />
                 <Access File='/proc/1447/stat' OpenTime='2018-05-08 08:26:47.367915' CloseTime='2018-05-08 08:26:47.368142' NumReads='1' BytesRead='172' />
                 <Access File='/proc/1447/status' OpenTime='2018-05-08 08:26:47.368246' CloseTime='2018-05-08 08:26:47.368434' NumReads='1' BytesRead='1033' />
                 <Access File='/proc/1447/cmdline' OpenTime='2018-05-08 08:26:47.368524' CloseTime='2018-05-08 08:26:47.368769' NumReads='2' BytesRead='67' />
                 <Access File='/proc/1455/stat' OpenTime='2018-05-08 08:26:47.368964' CloseTime='2018-05-08 08:26:47.369222' NumReads='1' BytesRead='169' />
                 <Access File='/proc/1455/status' OpenTime='2018-05-08 08:26:47.369316' CloseTime='2018-05-08 08:26:47.369490' NumReads='1' BytesRead='1026' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.369583' OpenSize='1134' CloseTime='2018-05-08 08:26:47.369915' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.369583' CloseTime='2018-05-08 08:26:47.369915' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/1455/cmdline' OpenTime='2018-05-08 08:26:47.370088' CloseTime='2018-05-08 08:26:47.370337' NumReads='2' BytesRead='127' />
                 <Access File='/proc/1456/stat' OpenTime='2018-05-08 08:26:47.370834' CloseTime='2018-05-08 08:26:47.371061' NumReads='1' BytesRead='172' />
                 <Access File='/proc/1456/status' OpenTime='2018-05-08 08:26:47.371165' CloseTime='2018-05-08 08:26:47.371453' NumReads='1' BytesRead='1021' />
@@ -573,7 +573,7 @@
                 <Access File='/proc/1870/cmdline' OpenTime='2018-05-08 08:26:47.405181' CloseTime='2018-05-08 08:26:47.405444' NumReads='2' BytesRead='32' />
                 <Access File='/proc/1927/stat' OpenTime='2018-05-08 08:26:47.405643' CloseTime='2018-05-08 08:26:47.405839' NumReads='1' BytesRead='169' />
                 <Access File='/proc/1927/status' OpenTime='2018-05-08 08:26:47.405923' CloseTime='2018-05-08 08:26:47.406106' NumReads='1' BytesRead='1041' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.406224' OpenSize='1134' CloseTime='2018-05-08 08:26:47.406631' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.406224' CloseTime='2018-05-08 08:26:47.406631' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/1927/cmdline' OpenTime='2018-05-08 08:26:47.406823' CloseTime='2018-05-08 08:26:47.407062' NumReads='2' BytesRead='20' />
                 <Access File='/proc/1960/stat' OpenTime='2018-05-08 08:26:47.407272' CloseTime='2018-05-08 08:26:47.407520' NumReads='1' BytesRead='183' />
                 <Access File='/proc/1960/status' OpenTime='2018-05-08 08:26:47.407623' CloseTime='2018-05-08 08:26:47.407867' NumReads='1' BytesRead='1023' />
@@ -583,7 +583,7 @@
                 <Access File='/proc/1962/cmdline' OpenTime='2018-05-08 08:26:47.409108' CloseTime='2018-05-08 08:26:47.409472' NumReads='2' BytesRead='21' />
                 <Access File='/proc/1964/stat' OpenTime='2018-05-08 08:26:47.409629' CloseTime='2018-05-08 08:26:47.409836' NumReads='1' BytesRead='340' />
                 <Access File='/proc/1964/status' OpenTime='2018-05-08 08:26:47.409932' CloseTime='2018-05-08 08:26:47.410168' NumReads='1' BytesRead='1048' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.410258' OpenSize='1134' CloseTime='2018-05-08 08:26:47.410586' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.410258' CloseTime='2018-05-08 08:26:47.410586' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/1964/cmdline' OpenTime='2018-05-08 08:26:47.410754' CloseTime='2018-05-08 08:26:47.411003' NumReads='2' BytesRead='32' />
                 <Access File='/proc/1967/stat' OpenTime='2018-05-08 08:26:47.411185' CloseTime='2018-05-08 08:26:47.411447' NumReads='1' BytesRead='174' />
                 <Access File='/proc/1967/status' OpenTime='2018-05-08 08:26:47.411621' CloseTime='2018-05-08 08:26:47.411868' NumReads='1' BytesRead='1051' />
@@ -611,7 +611,7 @@
                 <Access File='/proc/2211/cmdline' OpenTime='2018-05-08 08:26:47.420464' CloseTime='2018-05-08 08:26:47.420717' NumReads='2' BytesRead='73' />
                 <Access File='/proc/7200/stat' OpenTime='2018-05-08 08:26:47.420995' CloseTime='2018-05-08 08:26:47.421224' NumReads='1' BytesRead='197' />
                 <Access File='/proc/7200/status' OpenTime='2018-05-08 08:26:47.421335' CloseTime='2018-05-08 08:26:47.421652' NumReads='1' BytesRead='1035' />
-                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.421764' OpenSize='1134' CloseTime='2018-05-08 08:26:47.422132' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access File='/etc/passwd' OpenTime='2018-05-08 08:26:47.421764' CloseTime='2018-05-08 08:26:47.422132' NumReads='1' BytesRead='2998' />
                 <Access File='/proc/7200/cmdline' OpenTime='2018-05-08 08:26:47.422289' CloseTime='2018-05-08 08:26:47.422546' NumReads='2' BytesRead='29' />
                 <Access File='/proc/7201/stat' OpenTime='2018-05-08 08:26:47.423019' CloseTime='2018-05-08 08:26:47.423200' NumReads='1' BytesRead='198' />
                 <Access File='/proc/7201/status' OpenTime='2018-05-08 08:26:47.423292' CloseTime='2018-05-08 08:26:47.423514' NumReads='1' BytesRead='1035' />
@@ -914,12 +914,12 @@
             <FileAccesses>
                 <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' CloseTime='2018-05-08 08:26:47.199382' />
                 <Access File='pipe:[586559]' CloseTime='2018-05-08 08:26:47.199679' />
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.203233' OpenSize='36008' CloseTime='2018-05-08 08:26:47.204681' CloseSize='36008' />
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.203233' CloseTime='2018-05-08 08:26:47.204681' />
                 <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:26:47.204789' CloseTime='2018-05-08 08:26:47.205613' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.207373' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.207726' CloseSize='2291760' />
-                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 08:26:47.208075' OpenSize='2997' CloseTime='2018-05-08 08:26:47.208536' CloseSize='2997' NumReads='2' BytesRead='2997' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.207373' CloseTime='2018-05-08 08:26:47.207726' />
+                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 08:26:47.208075' CloseTime='2018-05-08 08:26:47.208536' NumReads='2' BytesRead='2997' />
                 <Access File='pipe:[586559]' CloseTime='2018-05-08 08:26:47.542946' NumReads='7' BytesRead='20789' />
-                <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 08:26:47.307285' OpenSize='26254' CloseTime='2018-05-08 08:26:47.307398' CloseSize='26254' />
+                <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-08 08:26:47.307285' CloseTime='2018-05-08 08:26:47.307398' />
                 <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.542999' NumWrites='1' BytesWritten='24' />
                 <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.543099' />
             </FileAccesses>
@@ -929,13 +929,6 @@
         <CIM_DataFile Name='/proc'>
             <FileName>/proc</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:202307</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:202307</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>16749</FileMode>
-            <HardLinksNumber>136</HardLinksNumber>
-            <Inode>1</Inode>
-            <ModifyTime>2018-05-08 15:59:30:202307</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.219543' CloseTime='2018-05-08 08:26:47.542248' />
             </FileAccesses>
@@ -943,13 +936,6 @@
         <CIM_DataFile Name='/proc/1/cmdline'>
             <FileName>/proc/1/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:747000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:747000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>11339</Inode>
-            <ModifyTime>2018-05-08 15:59:30:747000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.228458' CloseTime='2018-05-08 08:26:47.228944' NumReads='2' BytesRead='67' />
             </FileAccesses>
@@ -957,13 +943,6 @@
         <CIM_DataFile Name='/proc/1/stat'>
             <FileName>/proc/1/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:485663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:485663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862501</Inode>
-            <ModifyTime>2018-05-08 15:35:14:485663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.220559' CloseTime='2018-05-08 08:26:47.220869' NumReads='1' BytesRead='197' />
             </FileAccesses>
@@ -971,13 +950,6 @@
         <CIM_DataFile Name='/proc/1/status'>
             <FileName>/proc/1/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 08:22:55:176964</AccessTime>
-            <CreationTime>2018-05-08 08:22:55:176964</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19343265</Inode>
-            <ModifyTime>2018-05-08 08:22:55:176964</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.220982' CloseTime='2018-05-08 08:26:47.221242' NumReads='1' BytesRead='1008' />
             </FileAccesses>
@@ -985,13 +957,6 @@
         <CIM_DataFile Name='/proc/10/cmdline'>
             <FileName>/proc/10/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10872</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.241277' CloseTime='2018-05-08 08:26:47.241556' NumReads='1' />
             </FileAccesses>
@@ -999,13 +964,6 @@
         <CIM_DataFile Name='/proc/10/stat'>
             <FileName>/proc/10/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:495663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:495663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862518</Inode>
-            <ModifyTime>2018-05-08 15:35:14:495663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.240589' CloseTime='2018-05-08 08:26:47.240828' NumReads='1' BytesRead='150' />
             </FileAccesses>
@@ -1013,13 +971,6 @@
         <CIM_DataFile Name='/proc/10/status'>
             <FileName>/proc/10/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:495663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:495663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862519</Inode>
-            <ModifyTime>2018-05-08 15:35:14:495663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.240938' CloseTime='2018-05-08 08:26:47.241171' NumReads='1' BytesRead='727' />
             </FileAccesses>
@@ -1069,13 +1020,6 @@
         <CIM_DataFile Name='/proc/11/cmdline'>
             <FileName>/proc/11/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10874</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.242448' CloseTime='2018-05-08 08:26:47.242654' NumReads='1' />
             </FileAccesses>
@@ -1083,13 +1027,6 @@
         <CIM_DataFile Name='/proc/11/stat'>
             <FileName>/proc/11/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:496663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:496663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862520</Inode>
-            <ModifyTime>2018-05-08 15:35:14:496663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.241759' CloseTime='2018-05-08 08:26:47.241999' NumReads='1' BytesRead='159' />
             </FileAccesses>
@@ -1097,13 +1034,6 @@
         <CIM_DataFile Name='/proc/11/status'>
             <FileName>/proc/11/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:496663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:496663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862521</Inode>
-            <ModifyTime>2018-05-08 15:35:14:496663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.242106' CloseTime='2018-05-08 08:26:47.242343' NumReads='1' BytesRead='733' />
             </FileAccesses>
@@ -1153,13 +1083,6 @@
         <CIM_DataFile Name='/proc/12/cmdline'>
             <FileName>/proc/12/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10876</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.243537' CloseTime='2018-05-08 08:26:47.243750' NumReads='1' />
             </FileAccesses>
@@ -1167,13 +1090,6 @@
         <CIM_DataFile Name='/proc/12/stat'>
             <FileName>/proc/12/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:496663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:496663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862522</Inode>
-            <ModifyTime>2018-05-08 15:35:14:496663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.242841' CloseTime='2018-05-08 08:26:47.243074' NumReads='1' BytesRead='159' />
             </FileAccesses>
@@ -1181,13 +1097,6 @@
         <CIM_DataFile Name='/proc/12/status'>
             <FileName>/proc/12/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:498663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:498663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862523</Inode>
-            <ModifyTime>2018-05-08 15:35:14:498663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.243182' CloseTime='2018-05-08 08:26:47.243428' NumReads='1' BytesRead='733' />
             </FileAccesses>
@@ -1405,13 +1314,6 @@
         <CIM_DataFile Name='/proc/13/cmdline'>
             <FileName>/proc/13/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10878</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.244566' CloseTime='2018-05-08 08:26:47.244812' NumReads='1' />
             </FileAccesses>
@@ -1419,13 +1321,6 @@
         <CIM_DataFile Name='/proc/13/stat'>
             <FileName>/proc/13/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:498663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:498663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862524</Inode>
-            <ModifyTime>2018-05-08 15:35:14:498663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.243919' CloseTime='2018-05-08 08:26:47.244137' NumReads='1' BytesRead='159' />
             </FileAccesses>
@@ -1433,13 +1328,6 @@
         <CIM_DataFile Name='/proc/13/status'>
             <FileName>/proc/13/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:498663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:498663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862525</Inode>
-            <ModifyTime>2018-05-08 15:35:14:498663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.244237' CloseTime='2018-05-08 08:26:47.244462' NumReads='1' BytesRead='733' />
             </FileAccesses>
@@ -1552,13 +1440,6 @@
         <CIM_DataFile Name='/proc/14/cmdline'>
             <FileName>/proc/14/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10880</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.245700' CloseTime='2018-05-08 08:26:47.245968' NumReads='1' />
             </FileAccesses>
@@ -1566,13 +1447,6 @@
         <CIM_DataFile Name='/proc/14/stat'>
             <FileName>/proc/14/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:498663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:498663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862526</Inode>
-            <ModifyTime>2018-05-08 15:35:14:498663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.245028' CloseTime='2018-05-08 08:26:47.245254' NumReads='1' BytesRead='159' />
             </FileAccesses>
@@ -1580,13 +1454,6 @@
         <CIM_DataFile Name='/proc/14/status'>
             <FileName>/proc/14/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:498663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:498663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862527</Inode>
-            <ModifyTime>2018-05-08 15:35:14:498663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.245362' CloseTime='2018-05-08 08:26:47.245596' NumReads='1' BytesRead='733' />
             </FileAccesses>
@@ -1783,13 +1650,6 @@
         <CIM_DataFile Name='/proc/15/cmdline'>
             <FileName>/proc/15/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10882</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.246859' CloseTime='2018-05-08 08:26:47.247073' NumReads='1' />
             </FileAccesses>
@@ -1797,13 +1657,6 @@
         <CIM_DataFile Name='/proc/15/stat'>
             <FileName>/proc/15/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:498663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:498663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862528</Inode>
-            <ModifyTime>2018-05-08 15:35:14:498663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.246162' CloseTime='2018-05-08 08:26:47.246389' NumReads='1' BytesRead='157' />
             </FileAccesses>
@@ -1811,13 +1664,6 @@
         <CIM_DataFile Name='/proc/15/status'>
             <FileName>/proc/15/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:499663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:499663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862529</Inode>
-            <ModifyTime>2018-05-08 15:35:14:499663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.246497' CloseTime='2018-05-08 08:26:47.246742' NumReads='1' BytesRead='736' />
             </FileAccesses>
@@ -1909,13 +1755,6 @@
         <CIM_DataFile Name='/proc/17/cmdline'>
             <FileName>/proc/17/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10886</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.248142' CloseTime='2018-05-08 08:26:47.248357' NumReads='1' />
             </FileAccesses>
@@ -1923,13 +1762,6 @@
         <CIM_DataFile Name='/proc/17/stat'>
             <FileName>/proc/17/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:500663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:500663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862532</Inode>
-            <ModifyTime>2018-05-08 15:35:14:500663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.247235' CloseTime='2018-05-08 08:26:47.247670' NumReads='1' BytesRead='157' />
             </FileAccesses>
@@ -1937,13 +1769,6 @@
         <CIM_DataFile Name='/proc/17/status'>
             <FileName>/proc/17/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:500663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:500663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862533</Inode>
-            <ModifyTime>2018-05-08 15:35:14:500663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.247781' CloseTime='2018-05-08 08:26:47.248036' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -2287,13 +2112,6 @@
         <CIM_DataFile Name='/proc/18/cmdline'>
             <FileName>/proc/18/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10888</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.249225' CloseTime='2018-05-08 08:26:47.249496' NumReads='1' />
             </FileAccesses>
@@ -2301,13 +2119,6 @@
         <CIM_DataFile Name='/proc/18/stat'>
             <FileName>/proc/18/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:500663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:500663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862534</Inode>
-            <ModifyTime>2018-05-08 15:35:14:500663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.248532' CloseTime='2018-05-08 08:26:47.248745' NumReads='1' BytesRead='153' />
             </FileAccesses>
@@ -2315,13 +2126,6 @@
         <CIM_DataFile Name='/proc/18/status'>
             <FileName>/proc/18/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:501663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:501663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862535</Inode>
-            <ModifyTime>2018-05-08 15:35:14:501663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.248856' CloseTime='2018-05-08 08:26:47.249091' NumReads='1' BytesRead='734' />
             </FileAccesses>
@@ -2750,13 +2554,6 @@
         <CIM_DataFile Name='/proc/19/cmdline'>
             <FileName>/proc/19/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10890</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.250387' CloseTime='2018-05-08 08:26:47.250586' NumReads='1' />
             </FileAccesses>
@@ -2764,13 +2561,6 @@
         <CIM_DataFile Name='/proc/19/stat'>
             <FileName>/proc/19/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:501663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:501663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862536</Inode>
-            <ModifyTime>2018-05-08 15:35:14:501663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.249689' CloseTime='2018-05-08 08:26:47.249949' NumReads='1' BytesRead='150' />
             </FileAccesses>
@@ -2778,13 +2568,6 @@
         <CIM_DataFile Name='/proc/19/status'>
             <FileName>/proc/19/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:502663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:502663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862537</Inode>
-            <ModifyTime>2018-05-08 15:35:14:502663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.250060' CloseTime='2018-05-08 08:26:47.250290' NumReads='1' BytesRead='727' />
             </FileAccesses>
@@ -2939,13 +2722,6 @@
         <CIM_DataFile Name='/proc/2/cmdline'>
             <FileName>/proc/2/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10856</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.233517' CloseTime='2018-05-08 08:26:47.233784' NumReads='1' />
             </FileAccesses>
@@ -2953,13 +2729,6 @@
         <CIM_DataFile Name='/proc/2/stat'>
             <FileName>/proc/2/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:486663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:486663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862506</Inode>
-            <ModifyTime>2018-05-08 15:35:14:486663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.232588' CloseTime='2018-05-08 08:26:47.232923' NumReads='1' BytesRead='150' />
             </FileAccesses>
@@ -2967,13 +2736,6 @@
         <CIM_DataFile Name='/proc/2/status'>
             <FileName>/proc/2/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:487663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:487663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862507</Inode>
-            <ModifyTime>2018-05-08 15:35:14:487663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.233066' CloseTime='2018-05-08 08:26:47.233372' NumReads='1' BytesRead='727' />
             </FileAccesses>
@@ -2981,13 +2743,6 @@
         <CIM_DataFile Name='/proc/20/cmdline'>
             <FileName>/proc/20/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10892</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.251526' CloseTime='2018-05-08 08:26:47.251794' NumReads='1' />
             </FileAccesses>
@@ -2995,13 +2750,6 @@
         <CIM_DataFile Name='/proc/20/stat'>
             <FileName>/proc/20/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:502663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:502663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862538</Inode>
-            <ModifyTime>2018-05-08 15:35:14:502663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.250759' CloseTime='2018-05-08 08:26:47.251009' NumReads='1' BytesRead='152' />
             </FileAccesses>
@@ -3009,13 +2757,6 @@
         <CIM_DataFile Name='/proc/20/status'>
             <FileName>/proc/20/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:502663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:502663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862539</Inode>
-            <ModifyTime>2018-05-08 15:35:14:502663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.251129' CloseTime='2018-05-08 08:26:47.251415' NumReads='1' BytesRead='731' />
             </FileAccesses>
@@ -3044,13 +2785,6 @@
         <CIM_DataFile Name='/proc/21/cmdline'>
             <FileName>/proc/21/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10894</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.252644' CloseTime='2018-05-08 08:26:47.252856' NumReads='1' />
             </FileAccesses>
@@ -3058,13 +2792,6 @@
         <CIM_DataFile Name='/proc/21/stat'>
             <FileName>/proc/21/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:502663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:502663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862540</Inode>
-            <ModifyTime>2018-05-08 15:35:14:502663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.251966' CloseTime='2018-05-08 08:26:47.252195' NumReads='1' BytesRead='150' />
             </FileAccesses>
@@ -3072,13 +2799,6 @@
         <CIM_DataFile Name='/proc/21/status'>
             <FileName>/proc/21/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:502663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:502663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862541</Inode>
-            <ModifyTime>2018-05-08 15:35:14:502663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.252304' CloseTime='2018-05-08 08:26:47.252542' NumReads='1' BytesRead='725' />
             </FileAccesses>
@@ -3107,13 +2827,6 @@
         <CIM_DataFile Name='/proc/22/cmdline'>
             <FileName>/proc/22/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10896</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.253759' CloseTime='2018-05-08 08:26:47.253988' NumReads='1' />
             </FileAccesses>
@@ -3121,13 +2834,6 @@
         <CIM_DataFile Name='/proc/22/stat'>
             <FileName>/proc/22/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:502663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:502663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862542</Inode>
-            <ModifyTime>2018-05-08 15:35:14:502663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.253018' CloseTime='2018-05-08 08:26:47.253293' NumReads='1' BytesRead='149' />
             </FileAccesses>
@@ -3135,13 +2841,6 @@
         <CIM_DataFile Name='/proc/22/status'>
             <FileName>/proc/22/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:502663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:502663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862543</Inode>
-            <ModifyTime>2018-05-08 15:35:14:502663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.253404' CloseTime='2018-05-08 08:26:47.253653' NumReads='1' BytesRead='724' />
             </FileAccesses>
@@ -3212,13 +2911,6 @@
         <CIM_DataFile Name='/proc/23/cmdline'>
             <FileName>/proc/23/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10898</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.254901' CloseTime='2018-05-08 08:26:47.255111' NumReads='1' />
             </FileAccesses>
@@ -3226,13 +2918,6 @@
         <CIM_DataFile Name='/proc/23/stat'>
             <FileName>/proc/23/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:502663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:502663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862544</Inode>
-            <ModifyTime>2018-05-08 15:35:14:502663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.254161' CloseTime='2018-05-08 08:26:47.254444' NumReads='1' BytesRead='154' />
             </FileAccesses>
@@ -3240,13 +2925,6 @@
         <CIM_DataFile Name='/proc/23/status'>
             <FileName>/proc/23/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:503663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:503663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862545</Inode>
-            <ModifyTime>2018-05-08 15:35:14:503663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.254551' CloseTime='2018-05-08 08:26:47.254784' NumReads='1' BytesRead='729' />
             </FileAccesses>
@@ -3254,13 +2932,6 @@
         <CIM_DataFile Name='/proc/24/cmdline'>
             <FileName>/proc/24/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10900</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.256066' CloseTime='2018-05-08 08:26:47.256282' NumReads='1' />
             </FileAccesses>
@@ -3268,13 +2939,6 @@
         <CIM_DataFile Name='/proc/24/stat'>
             <FileName>/proc/24/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:503663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:503663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862546</Inode>
-            <ModifyTime>2018-05-08 15:35:14:503663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.255282' CloseTime='2018-05-08 08:26:47.255508' NumReads='1' BytesRead='147' />
             </FileAccesses>
@@ -3282,13 +2946,6 @@
         <CIM_DataFile Name='/proc/24/status'>
             <FileName>/proc/24/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:503663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:503663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862547</Inode>
-            <ModifyTime>2018-05-08 15:35:14:503663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.255617' CloseTime='2018-05-08 08:26:47.255924' NumReads='1' BytesRead='724' />
             </FileAccesses>
@@ -3296,13 +2953,6 @@
         <CIM_DataFile Name='/proc/25/cmdline'>
             <FileName>/proc/25/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10902</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.257133' CloseTime='2018-05-08 08:26:47.257342' NumReads='1' />
             </FileAccesses>
@@ -3310,13 +2960,6 @@
         <CIM_DataFile Name='/proc/25/stat'>
             <FileName>/proc/25/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:503663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:503663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862548</Inode>
-            <ModifyTime>2018-05-08 15:35:14:503663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.256444' CloseTime='2018-05-08 08:26:47.256670' NumReads='1' BytesRead='154' />
             </FileAccesses>
@@ -3324,13 +2967,6 @@
         <CIM_DataFile Name='/proc/25/status'>
             <FileName>/proc/25/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:503663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:503663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862549</Inode>
-            <ModifyTime>2018-05-08 15:35:14:503663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.256768' CloseTime='2018-05-08 08:26:47.257028' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -3464,13 +3100,6 @@
         <CIM_DataFile Name='/proc/26/cmdline'>
             <FileName>/proc/26/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10904</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.258257' CloseTime='2018-05-08 08:26:47.258464' NumReads='1' />
             </FileAccesses>
@@ -3478,13 +3107,6 @@
         <CIM_DataFile Name='/proc/26/stat'>
             <FileName>/proc/26/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:503663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:503663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862550</Inode>
-            <ModifyTime>2018-05-08 15:35:14:503663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.257518' CloseTime='2018-05-08 08:26:47.257808' NumReads='1' BytesRead='151' />
             </FileAccesses>
@@ -3492,13 +3114,6 @@
         <CIM_DataFile Name='/proc/26/status'>
             <FileName>/proc/26/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:503663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:503663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862551</Inode>
-            <ModifyTime>2018-05-08 15:35:14:503663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.257919' CloseTime='2018-05-08 08:26:47.258153' NumReads='1' BytesRead='726' />
             </FileAccesses>
@@ -3632,13 +3247,6 @@
         <CIM_DataFile Name='/proc/27/cmdline'>
             <FileName>/proc/27/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10906</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.259417' CloseTime='2018-05-08 08:26:47.259630' NumReads='1' />
             </FileAccesses>
@@ -3646,13 +3254,6 @@
         <CIM_DataFile Name='/proc/27/stat'>
             <FileName>/proc/27/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:503663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:503663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862552</Inode>
-            <ModifyTime>2018-05-08 15:35:14:503663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.258633' CloseTime='2018-05-08 08:26:47.258880' NumReads='1' BytesRead='156' />
             </FileAccesses>
@@ -3660,13 +3261,6 @@
         <CIM_DataFile Name='/proc/27/status'>
             <FileName>/proc/27/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:504663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:504663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862553</Inode>
-            <ModifyTime>2018-05-08 15:35:14:504663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.258985' CloseTime='2018-05-08 08:26:47.259267' NumReads='1' BytesRead='731' />
             </FileAccesses>
@@ -3674,13 +3268,6 @@
         <CIM_DataFile Name='/proc/28/cmdline'>
             <FileName>/proc/28/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10908</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.260502' CloseTime='2018-05-08 08:26:47.260716' NumReads='1' />
             </FileAccesses>
@@ -3688,13 +3275,6 @@
         <CIM_DataFile Name='/proc/28/stat'>
             <FileName>/proc/28/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:504663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:504663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862554</Inode>
-            <ModifyTime>2018-05-08 15:35:14:504663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.259821' CloseTime='2018-05-08 08:26:47.260053' NumReads='1' BytesRead='151' />
             </FileAccesses>
@@ -3702,13 +3282,6 @@
         <CIM_DataFile Name='/proc/28/status'>
             <FileName>/proc/28/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:504663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:504663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862555</Inode>
-            <ModifyTime>2018-05-08 15:35:14:504663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.260166' CloseTime='2018-05-08 08:26:47.260396' NumReads='1' BytesRead='726' />
             </FileAccesses>
@@ -3716,13 +3289,6 @@
         <CIM_DataFile Name='/proc/29/cmdline'>
             <FileName>/proc/29/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10910</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.261661' CloseTime='2018-05-08 08:26:47.261912' NumReads='1' />
             </FileAccesses>
@@ -3730,13 +3296,6 @@
         <CIM_DataFile Name='/proc/29/stat'>
             <FileName>/proc/29/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:504663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:504663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862556</Inode>
-            <ModifyTime>2018-05-08 15:35:14:504663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.260884' CloseTime='2018-05-08 08:26:47.261114' NumReads='1' BytesRead='152' />
             </FileAccesses>
@@ -3744,13 +3303,6 @@
         <CIM_DataFile Name='/proc/29/status'>
             <FileName>/proc/29/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:504663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:504663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862557</Inode>
-            <ModifyTime>2018-05-08 15:35:14:504663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.261224' CloseTime='2018-05-08 08:26:47.261507' NumReads='1' BytesRead='727' />
             </FileAccesses>
@@ -4010,13 +3562,6 @@
         <CIM_DataFile Name='/proc/32/cmdline'>
             <FileName>/proc/32/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10914</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.264992' CloseTime='2018-05-08 08:26:47.265606' NumReads='1' />
             </FileAccesses>
@@ -4024,13 +3569,6 @@
         <CIM_DataFile Name='/proc/32/stat'>
             <FileName>/proc/32/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:504663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:504663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862558</Inode>
-            <ModifyTime>2018-05-08 15:35:14:504663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.264271' CloseTime='2018-05-08 08:26:47.264499' NumReads='1' BytesRead='155' />
             </FileAccesses>
@@ -4038,13 +3576,6 @@
         <CIM_DataFile Name='/proc/32/status'>
             <FileName>/proc/32/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:505663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:505663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862559</Inode>
-            <ModifyTime>2018-05-08 15:35:14:505663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.264605' CloseTime='2018-05-08 08:26:47.264884' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -4283,13 +3814,6 @@
         <CIM_DataFile Name='/proc/464/cmdline'>
             <FileName>/proc/464/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:31:331000</AccessTime>
-            <CreationTime>2018-05-08 15:59:31:331000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>12639</Inode>
-            <ModifyTime>2018-05-08 15:59:31:331000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.305764' CloseTime='2018-05-08 08:26:47.305925' NumReads='1' />
             </FileAccesses>
@@ -4297,13 +3821,6 @@
         <CIM_DataFile Name='/proc/464/stat'>
             <FileName>/proc/464/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:508663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:508663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862590</Inode>
-            <ModifyTime>2018-05-08 15:35:14:508663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.305099' CloseTime='2018-05-08 08:26:47.305312' NumReads='1' BytesRead='154' />
             </FileAccesses>
@@ -4311,13 +3828,6 @@
         <CIM_DataFile Name='/proc/464/status'>
             <FileName>/proc/464/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:508663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:508663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862591</Inode>
-            <ModifyTime>2018-05-08 15:35:14:508663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.305415' CloseTime='2018-05-08 08:26:47.305688' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -4577,13 +4087,6 @@
         <CIM_DataFile Name='/proc/656/cmdline'>
             <FileName>/proc/656/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:34:150784</AccessTime>
-            <CreationTime>2018-05-08 15:59:34:150784</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>15499</Inode>
-            <ModifyTime>2018-05-08 15:59:34:150784</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.319018' CloseTime='2018-05-08 08:26:47.319225' NumReads='1' />
             </FileAccesses>
@@ -4591,13 +4094,6 @@
         <CIM_DataFile Name='/proc/656/stat'>
             <FileName>/proc/656/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:517663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:517663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862607</Inode>
-            <ModifyTime>2018-05-08 15:35:14:517663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.318359' CloseTime='2018-05-08 08:26:47.318580' NumReads='1' BytesRead='160' />
             </FileAccesses>
@@ -4605,13 +4101,6 @@
         <CIM_DataFile Name='/proc/656/status'>
             <FileName>/proc/656/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:517663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:517663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862608</Inode>
-            <ModifyTime>2018-05-08 15:35:14:517663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.318685' CloseTime='2018-05-08 08:26:47.318916' NumReads='1' BytesRead='738' />
             </FileAccesses>
@@ -4724,13 +4213,6 @@
         <CIM_DataFile Name='/proc/7/cmdline'>
             <FileName>/proc/7/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10866</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.237931' CloseTime='2018-05-08 08:26:47.238137' NumReads='1' />
             </FileAccesses>
@@ -4738,13 +4220,6 @@
         <CIM_DataFile Name='/proc/7/stat'>
             <FileName>/proc/7/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:493663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:493663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862512</Inode>
-            <ModifyTime>2018-05-08 15:35:14:493663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.237035' CloseTime='2018-05-08 08:26:47.237332' NumReads='1' BytesRead='155' />
             </FileAccesses>
@@ -4752,13 +4227,6 @@
         <CIM_DataFile Name='/proc/7/status'>
             <FileName>/proc/7/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:493663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:493663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862513</Inode>
-            <ModifyTime>2018-05-08 15:35:14:493663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.237471' CloseTime='2018-05-08 08:26:47.237766' NumReads='1' BytesRead='733' />
             </FileAccesses>
@@ -4808,13 +4276,6 @@
         <CIM_DataFile Name='/proc/710/cmdline'>
             <FileName>/proc/710/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:34:313782</AccessTime>
-            <CreationTime>2018-05-08 15:59:34:313782</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>15616</Inode>
-            <ModifyTime>2018-05-08 15:59:34:313782</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.328581' CloseTime='2018-05-08 08:26:47.328886' NumReads='2' BytesRead='29' />
             </FileAccesses>
@@ -4822,13 +4283,6 @@
         <CIM_DataFile Name='/proc/710/stat'>
             <FileName>/proc/710/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:517663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:517663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862609</Inode>
-            <ModifyTime>2018-05-08 15:35:14:517663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.327860' CloseTime='2018-05-08 08:26:47.328087' NumReads='1' BytesRead='184' />
             </FileAccesses>
@@ -4836,13 +4290,6 @@
         <CIM_DataFile Name='/proc/710/status'>
             <FileName>/proc/710/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:517663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:517663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862610</Inode>
-            <ModifyTime>2018-05-08 15:35:14:517663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.328195' CloseTime='2018-05-08 08:26:47.328457' NumReads='1' BytesRead='1024' />
             </FileAccesses>
@@ -5942,13 +5389,6 @@
         <CIM_DataFile Name='/proc/8/cmdline'>
             <FileName>/proc/8/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10868</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.239018' CloseTime='2018-05-08 08:26:47.239217' NumReads='1' />
             </FileAccesses>
@@ -5956,13 +5396,6 @@
         <CIM_DataFile Name='/proc/8/stat'>
             <FileName>/proc/8/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:493663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:493663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862514</Inode>
-            <ModifyTime>2018-05-08 15:35:14:493663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.238312' CloseTime='2018-05-08 08:26:47.238543' NumReads='1' BytesRead='148' />
             </FileAccesses>
@@ -5970,13 +5403,6 @@
         <CIM_DataFile Name='/proc/8/status'>
             <FileName>/proc/8/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:493663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:493663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862515</Inode>
-            <ModifyTime>2018-05-08 15:35:14:493663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.238657' CloseTime='2018-05-08 08:26:47.238905' NumReads='1' BytesRead='722' />
             </FileAccesses>
@@ -6236,13 +5662,6 @@
         <CIM_DataFile Name='/proc/81/cmdline'>
             <FileName>/proc/81/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10922</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.272161' CloseTime='2018-05-08 08:26:47.272376' NumReads='1' />
             </FileAccesses>
@@ -6250,13 +5669,6 @@
         <CIM_DataFile Name='/proc/81/stat'>
             <FileName>/proc/81/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:505663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:505663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862564</Inode>
-            <ModifyTime>2018-05-08 15:35:14:505663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.271476' CloseTime='2018-05-08 08:26:47.271707' NumReads='1' BytesRead='153' />
             </FileAccesses>
@@ -6264,13 +5676,6 @@
         <CIM_DataFile Name='/proc/81/status'>
             <FileName>/proc/81/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:505663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:505663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862565</Inode>
-            <ModifyTime>2018-05-08 15:35:14:505663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.271822' CloseTime='2018-05-08 08:26:47.272053' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -6404,13 +5809,6 @@
         <CIM_DataFile Name='/proc/82/cmdline'>
             <FileName>/proc/82/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10924</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.273278' CloseTime='2018-05-08 08:26:47.273496' NumReads='1' />
             </FileAccesses>
@@ -6418,13 +5816,6 @@
         <CIM_DataFile Name='/proc/82/stat'>
             <FileName>/proc/82/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:505663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:505663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862566</Inode>
-            <ModifyTime>2018-05-08 15:35:14:505663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.272548' CloseTime='2018-05-08 08:26:47.272775' NumReads='1' BytesRead='156' />
             </FileAccesses>
@@ -6432,13 +5823,6 @@
         <CIM_DataFile Name='/proc/82/status'>
             <FileName>/proc/82/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:505663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:505663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862567</Inode>
-            <ModifyTime>2018-05-08 15:35:14:505663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.272934' CloseTime='2018-05-08 08:26:47.273171' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -6488,13 +5872,6 @@
         <CIM_DataFile Name='/proc/83/cmdline'>
             <FileName>/proc/83/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10926</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.274397' CloseTime='2018-05-08 08:26:47.274603' NumReads='1' />
             </FileAccesses>
@@ -6502,13 +5879,6 @@
         <CIM_DataFile Name='/proc/83/stat'>
             <FileName>/proc/83/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:505663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:505663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862568</Inode>
-            <ModifyTime>2018-05-08 15:35:14:505663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.273673' CloseTime='2018-05-08 08:26:47.273953' NumReads='1' BytesRead='153' />
             </FileAccesses>
@@ -6516,13 +5886,6 @@
         <CIM_DataFile Name='/proc/83/status'>
             <FileName>/proc/83/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:506663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:506663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862569</Inode>
-            <ModifyTime>2018-05-08 15:35:14:506663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.274066' CloseTime='2018-05-08 08:26:47.274297' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -6572,13 +5935,6 @@
         <CIM_DataFile Name='/proc/84/cmdline'>
             <FileName>/proc/84/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10928</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.275545' CloseTime='2018-05-08 08:26:47.275756' NumReads='1' />
             </FileAccesses>
@@ -6586,13 +5942,6 @@
         <CIM_DataFile Name='/proc/84/stat'>
             <FileName>/proc/84/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:506663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:506663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862570</Inode>
-            <ModifyTime>2018-05-08 15:35:14:506663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.274782' CloseTime='2018-05-08 08:26:47.275087' NumReads='1' BytesRead='156' />
             </FileAccesses>
@@ -6600,13 +5949,6 @@
         <CIM_DataFile Name='/proc/84/status'>
             <FileName>/proc/84/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:507663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:507663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862571</Inode>
-            <ModifyTime>2018-05-08 15:35:14:507663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.275196' CloseTime='2018-05-08 08:26:47.275437' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -6614,13 +5956,6 @@
         <CIM_DataFile Name='/proc/85/cmdline'>
             <FileName>/proc/85/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10930</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.276691' CloseTime='2018-05-08 08:26:47.276960' NumReads='1' />
             </FileAccesses>
@@ -6628,13 +5963,6 @@
         <CIM_DataFile Name='/proc/85/stat'>
             <FileName>/proc/85/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:507663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:507663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862572</Inode>
-            <ModifyTime>2018-05-08 15:35:14:507663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.275947' CloseTime='2018-05-08 08:26:47.276166' NumReads='1' BytesRead='153' />
             </FileAccesses>
@@ -6642,13 +5970,6 @@
         <CIM_DataFile Name='/proc/85/status'>
             <FileName>/proc/85/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:507663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:507663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862573</Inode>
-            <ModifyTime>2018-05-08 15:35:14:507663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.276276' CloseTime='2018-05-08 08:26:47.276547' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -6656,13 +5977,6 @@
         <CIM_DataFile Name='/proc/86/cmdline'>
             <FileName>/proc/86/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10932</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.277914' CloseTime='2018-05-08 08:26:47.278168' NumReads='1' />
             </FileAccesses>
@@ -6670,13 +5984,6 @@
         <CIM_DataFile Name='/proc/86/stat'>
             <FileName>/proc/86/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:507663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:507663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862574</Inode>
-            <ModifyTime>2018-05-08 15:35:14:507663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.277140' CloseTime='2018-05-08 08:26:47.277369' NumReads='1' BytesRead='156' />
             </FileAccesses>
@@ -6684,13 +5991,6 @@
         <CIM_DataFile Name='/proc/86/status'>
             <FileName>/proc/86/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:507663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:507663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862575</Inode>
-            <ModifyTime>2018-05-08 15:35:14:507663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.277477' CloseTime='2018-05-08 08:26:47.277794' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -6719,13 +6019,6 @@
         <CIM_DataFile Name='/proc/88/cmdline'>
             <FileName>/proc/88/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10936</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.280319' CloseTime='2018-05-08 08:26:47.280532' NumReads='1' />
             </FileAccesses>
@@ -6733,13 +6026,6 @@
         <CIM_DataFile Name='/proc/88/stat'>
             <FileName>/proc/88/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:507663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:507663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862576</Inode>
-            <ModifyTime>2018-05-08 15:35:14:507663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.279526' CloseTime='2018-05-08 08:26:47.279808' NumReads='1' BytesRead='156' />
             </FileAccesses>
@@ -6747,13 +6033,6 @@
         <CIM_DataFile Name='/proc/88/status'>
             <FileName>/proc/88/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:507663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:507663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862577</Inode>
-            <ModifyTime>2018-05-08 15:35:14:507663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.279917' CloseTime='2018-05-08 08:26:47.280209' NumReads='1' BytesRead='730' />
             </FileAccesses>
@@ -6761,13 +6040,6 @@
         <CIM_DataFile Name='/proc/9/cmdline'>
             <FileName>/proc/9/cmdline</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:59:30:575000</AccessTime>
-            <CreationTime>2018-05-08 15:59:30:575000</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>10870</Inode>
-            <ModifyTime>2018-05-08 15:59:30:575000</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.240173' CloseTime='2018-05-08 08:26:47.240414' NumReads='1' />
             </FileAccesses>
@@ -6775,13 +6047,6 @@
         <CIM_DataFile Name='/proc/9/stat'>
             <FileName>/proc/9/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:493663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:493663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862516</Inode>
-            <ModifyTime>2018-05-08 15:35:14:493663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.239434' CloseTime='2018-05-08 08:26:47.239707' NumReads='1' BytesRead='152' />
             </FileAccesses>
@@ -6789,13 +6054,6 @@
         <CIM_DataFile Name='/proc/9/status'>
             <FileName>/proc/9/status</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 15:35:14:495663</AccessTime>
-            <CreationTime>2018-05-08 15:35:14:495663</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19862517</Inode>
-            <ModifyTime>2018-05-08 15:35:14:495663</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.239827' CloseTime='2018-05-08 08:26:47.240065' NumReads='1' BytesRead='733' />
             </FileAccesses>
@@ -6929,13 +6187,6 @@
         <CIM_DataFile Name='/proc/filesystems'>
             <FileName>/proc/filesystems</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:37:720204</AccessTime>
-            <CreationTime>2018-05-08 00:58:37:720204</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026532038</Inode>
-            <ModifyTime>2018-05-08 00:58:37:720204</ModifyTime>
             <FileAccesses>
                 <Access Process='18194' OpenTime='2018-05-08 08:26:47.194480' CloseTime='2018-05-08 08:26:47.195037' NumReads='2' BytesRead='356' />
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.214287' CloseTime='2018-05-08 08:26:47.214798' NumReads='2' BytesRead='356' />
@@ -6944,13 +6195,6 @@
         <CIM_DataFile Name='/proc/meminfo'>
             <FileName>/proc/meminfo</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:37:710204</AccessTime>
-            <CreationTime>2018-05-08 00:58:37:710204</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026531994</Inode>
-            <ModifyTime>2018-05-08 00:58:37:710204</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:26:47.181368' CloseTime='2018-05-08 08:26:47.181671' NumReads='1' BytesRead='1024' />
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.219121' NumReads='1' BytesRead='1251' />
@@ -6959,13 +6203,6 @@
         <CIM_DataFile Name='/proc/stat'>
             <FileName>/proc/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:37:757204</AccessTime>
-            <CreationTime>2018-05-08 00:58:37:757204</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026531995</Inode>
-            <ModifyTime>2018-05-08 00:58:37:757204</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.231427' CloseTime='2018-05-08 08:26:47.232255' NumReads='2' BytesRead='1285' />
             </FileAccesses>
@@ -6973,13 +6210,6 @@
         <CIM_DataFile Name='/proc/sys/kernel/pid_max'>
             <FileName>/proc/sys/kernel/pid_max</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 12:12:44:477094</AccessTime>
-            <CreationTime>2018-05-08 12:12:44:477094</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33188</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>19828470</Inode>
-            <ModifyTime>2018-05-08 12:12:44:477094</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.218564' CloseTime='2018-05-08 08:26:47.218809' NumReads='1' BytesRead='6' />
             </FileAccesses>
@@ -6987,13 +6217,6 @@
         <CIM_DataFile Name='/proc/tty/drivers'>
             <FileName>/proc/tty/drivers</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:37:911203</AccessTime>
-            <CreationTime>2018-05-08 00:58:37:911203</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026531853</Inode>
-            <ModifyTime>2018-05-08 00:58:37:911203</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.372978' CloseTime='2018-05-08 08:26:47.373245' NumReads='1' BytesRead='517' />
             </FileAccesses>
@@ -7001,13 +6224,6 @@
         <CIM_DataFile Name='/proc/uptime'>
             <FileName>/proc/uptime</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:37:748204</AccessTime>
-            <CreationTime>2018-05-08 00:58:37:748204</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026531996</Inode>
-            <ModifyTime>2018-05-08 00:58:37:748204</ModifyTime>
             <FileAccesses>
                 <Access Process='18195' OpenTime='2018-05-08 08:26:47.216846' NumReads='1' BytesRead='21' />
             </FileAccesses>
@@ -7017,37 +6233,21 @@
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
             <FileName>/usr/lib/locale/locale-archive</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 17:33:14:319501</AccessTime>
-            <CreationTime>2018-05-08 23:49:15:421897</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>2291760</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>131415</Inode>
-            <ModifyTime>2018-05-08 23:49:15:421897</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:26:47.180856' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.181075' CloseSize='2291760' />
-                <Access Process='18194' OpenTime='2018-05-08 08:26:47.195258' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.195604' CloseSize='2291760' />
-                <Access Process='18196' OpenTime='2018-05-08 08:26:47.207373' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.207726' CloseSize='2291760' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.215330' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.215650' CloseSize='2291760' />
-                <Access Process='18198' OpenTime='2018-05-08 08:26:47.550053' OpenSize='2291760' CloseTime='2018-05-08 08:26:47.550403' CloseSize='2291760' />
+                <Access Process='12345' OpenTime='2018-05-08 08:26:47.180856' CloseTime='2018-05-08 08:26:47.181075' />
+                <Access Process='18194' OpenTime='2018-05-08 08:26:47.195258' CloseTime='2018-05-08 08:26:47.195604' />
+                <Access Process='18196' OpenTime='2018-05-08 08:26:47.207373' CloseTime='2018-05-08 08:26:47.207726' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.215330' CloseTime='2018-05-08 08:26:47.215650' />
+                <Access Process='18198' OpenTime='2018-05-08 08:26:47.550053' CloseTime='2018-05-08 08:26:47.550403' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
             <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 17:33:14:320501</AccessTime>
-            <CreationTime>2018-05-08 23:47:40:160752</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>26254</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>136974</Inode>
-            <ModifyTime>2018-05-08 23:47:40:160752</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:26:47.182069' OpenSize='26254' CloseTime='2018-05-08 08:26:47.182316' CloseSize='26254' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.229086' OpenSize='26254' CloseTime='2018-05-08 08:26:47.229523' CloseSize='26254' />
-                <Access Process='18196' OpenTime='2018-05-08 08:26:47.307285' OpenSize='26254' CloseTime='2018-05-08 08:26:47.307398' CloseSize='26254' />
+                <Access Process='12345' OpenTime='2018-05-08 08:26:47.182069' CloseTime='2018-05-08 08:26:47.182316' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.229086' CloseTime='2018-05-08 08:26:47.229523' />
+                <Access Process='18196' OpenTime='2018-05-08 08:26:47.307285' CloseTime='2018-05-08 08:26:47.307398' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -7081,29 +6281,10 @@
         <CIM_DataFile Name='/dev/pts/2'>
             <FileName>/dev/pts/2</FileName>
             <Category>Pipes and terminals</Category>
-            <AccessTime>2018-05-08 00:58:08:630661</AccessTime>
-            <CreationTime>2018-05-08 14:31:09:633662</CreationTime>
-            <DeviceId>21</DeviceId>
-            <DeviceType>34818</DeviceType>
-            <FileMode>8592</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>5</Inode>
-            <ModifyTime>2018-05-08 00:58:32:630661</ModifyTime>
-            <OwnerGroupId>5</OwnerGroupId>
-            <OwnerUserId>1001</OwnerUserId>
         </CIM_DataFile>
         <CIM_DataFile Name='/dev/tty'>
             <FileName>/dev/tty</FileName>
             <Category>Pipes and terminals</Category>
-            <AccessTime>2018-05-08 15:09:08:567000</AccessTime>
-            <CreationTime>2018-05-08 15:59:32:567000</CreationTime>
-            <DeviceId>6</DeviceId>
-            <DeviceType>1280</DeviceType>
-            <FileMode>8630</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>8750</Inode>
-            <ModifyTime>2018-05-08 15:09:08:567000</ModifyTime>
-            <OwnerGroupId>5</OwnerGroupId>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:26:47.180391' CloseTime='2018-05-08 08:26:47.180473' />
             </FileAccesses>
@@ -7111,16 +6292,8 @@
         <CIM_DataFile Name='/sys/devices/system/cpu/online'>
             <FileName>/sys/devices/system/cpu/online</FileName>
             <Category>Pipes and terminals</Category>
-            <AccessTime>2018-05-08 15:59:32:146983</AccessTime>
-            <CreationTime>2018-05-08 15:59:32:146983</CreationTime>
-            <DeviceId>19</DeviceId>
-            <FileMode>33060</FileMode>
-            <FileSize>4096</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>35</Inode>
-            <ModifyTime>2018-05-08 15:59:32:146983</ModifyTime>
             <FileAccesses>
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.215041' OpenSize='4096' CloseTime='2018-05-08 08:26:47.215242' CloseSize='4096' NumReads='1' BytesRead='4' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.215041' CloseTime='2018-05-08 08:26:47.215242' NumReads='1' BytesRead='4' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[587259]'>
@@ -7171,47 +6344,23 @@
         <CIM_DataFile Name='/usr/lib64/libacl.so.1.1.0'>
             <FileName>/usr/lib64/libacl.so.1.1.0</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 17:38:24:642102</AccessTime>
-            <CreationTime>2018-05-08 23:47:41:827417</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>36384</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137456</Inode>
-            <ModifyTime>2018-05-08 09:17:24:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='18194' OpenTime='2018-05-08 08:26:47.188796' OpenSize='36384' CloseTime='2018-05-08 08:26:47.189385' CloseSize='36384' NumReads='1' BytesRead='832' />
+                <Access Process='18194' OpenTime='2018-05-08 08:26:47.188796' CloseTime='2018-05-08 08:26:47.189385' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libattr.so.1.1.0'>
             <FileName>/usr/lib64/libattr.so.1.1.0</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 17:38:24:642102</AccessTime>
-            <CreationTime>2018-05-08 23:47:41:811420</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>19376</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137454</Inode>
-            <ModifyTime>2018-05-08 07:36:33:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='18194' OpenTime='2018-05-08 08:26:47.191444' OpenSize='19376' CloseTime='2018-05-08 08:26:47.191966' CloseSize='19376' NumReads='1' BytesRead='832' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.208760' OpenSize='19376' CloseTime='2018-05-08 08:26:47.209354' CloseSize='19376' NumReads='1' BytesRead='832' />
+                <Access Process='18194' OpenTime='2018-05-08 08:26:47.191444' CloseTime='2018-05-08 08:26:47.191966' NumReads='1' BytesRead='832' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.208760' CloseTime='2018-05-08 08:26:47.209354' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libbz2.so.1.0.6'>
             <FileName>/usr/lib64/libbz2.so.1.0.6</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 02:32:16:491570</AccessTime>
-            <CreationTime>2018-05-08 23:47:40:990585</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>67688</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137148</Inode>
-            <ModifyTime>2018-05-08 08:23:12:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.211017' OpenSize='67688' CloseTime='2018-05-08 08:26:47.211319' CloseSize='67688' NumReads='1' BytesRead='832' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.211017' CloseTime='2018-05-08 08:26:47.211319' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc-2.21.so'>
@@ -7309,16 +6458,8 @@
         <CIM_DataFile Name='/usr/lib64/libprocps.so.4.0.0'>
             <FileName>/usr/lib64/libprocps.so.4.0.0</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 15:35:14:479663</AccessTime>
-            <CreationTime>2018-05-08 23:47:42:084365</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>77680</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137574</Inode>
-            <ModifyTime>2018-05-08 18:25:39:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.201175' OpenSize='77680' CloseTime='2018-05-08 08:26:47.201509' CloseSize='77680' NumReads='1' BytesRead='832' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.201175' CloseTime='2018-05-08 08:26:47.201509' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpthread-2.21.so'>
@@ -7346,17 +6487,9 @@
         <CIM_DataFile Name='/usr/lib64/libselinux.so.1'>
             <FileName>/usr/lib64/libselinux.so.1</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 17:11:07:392462</AccessTime>
-            <CreationTime>2018-05-08 23:47:40:893605</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>158320</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137122</Inode>
-            <ModifyTime>2018-05-08 12:34:50:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='18194' OpenTime='2018-05-08 08:26:47.187362' OpenSize='158320' CloseTime='2018-05-08 08:26:47.188109' CloseSize='158320' NumReads='1' BytesRead='832' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.204020' OpenSize='158320' CloseTime='2018-05-08 08:26:47.204398' CloseSize='158320' NumReads='1' BytesRead='832' />
+                <Access Process='18194' OpenTime='2018-05-08 08:26:47.187362' CloseTime='2018-05-08 08:26:47.188109' NumReads='1' BytesRead='832' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.204020' CloseTime='2018-05-08 08:26:47.204398' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libsystemd.so.0.6.0'>
@@ -7385,95 +6518,55 @@
         <CIM_DataFile Name='/etc/ld.so.cache'>
             <FileName>/etc/ld.so.cache</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 22:57:36:314973</AccessTime>
-            <CreationTime>2018-05-08 22:50:06:707621</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>36008</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>168101</Inode>
-            <ModifyTime>2018-05-08 22:50:06:707621</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 08:26:47.178163' OpenSize='36008' CloseTime='2018-05-08 08:26:47.178331' CloseSize='36008' />
-                <Access Process='18194' OpenTime='2018-05-08 08:26:47.186864' OpenSize='36008' CloseTime='2018-05-08 08:26:47.187239' CloseSize='36008' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.201012' OpenSize='36008' CloseTime='2018-05-08 08:26:47.201128' CloseSize='36008' />
-                <Access Process='18196' OpenTime='2018-05-08 08:26:47.203233' OpenSize='36008' CloseTime='2018-05-08 08:26:47.204681' CloseSize='36008' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.226056' OpenSize='36008' CloseTime='2018-05-08 08:26:47.226425' CloseSize='36008' />
-                <Access Process='18198' OpenTime='2018-05-08 08:26:47.546936' OpenSize='36008' CloseTime='2018-05-08 08:26:47.547371' CloseSize='36008' />
+                <Access Process='12345' OpenTime='2018-05-08 08:26:47.178163' CloseTime='2018-05-08 08:26:47.178331' />
+                <Access Process='18194' OpenTime='2018-05-08 08:26:47.186864' CloseTime='2018-05-08 08:26:47.187239' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.201012' CloseTime='2018-05-08 08:26:47.201128' />
+                <Access Process='18196' OpenTime='2018-05-08 08:26:47.203233' CloseTime='2018-05-08 08:26:47.204681' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.226056' CloseTime='2018-05-08 08:26:47.226425' />
+                <Access Process='18198' OpenTime='2018-05-08 08:26:47.546936' CloseTime='2018-05-08 08:26:47.547371' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/nsswitch.conf'>
             <FileName>/etc/nsswitch.conf</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 17:38:24:652102</AccessTime>
-            <CreationTime>2018-05-08 23:47:42:015379</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>1731</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137539</Inode>
-            <ModifyTime>2018-05-08 23:47:42:015379</ModifyTime>
             <FileAccesses>
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.225206' OpenSize='1731' CloseTime='2018-05-08 08:26:47.225837' CloseSize='1731' NumReads='2' BytesRead='1769' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.225206' CloseTime='2018-05-08 08:26:47.225837' NumReads='2' BytesRead='1769' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/passwd'>
             <FileName>/etc/passwd</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:01:01:130417</AccessTime>
-            <CreationTime>2018-05-08 23:24:25:159193</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>1134</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>153459</Inode>
-            <ModifyTime>2018-05-08 23:24:25:157192</ModifyTime>
             <FileAccesses>
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.227594' OpenSize='1134' CloseTime='2018-05-08 08:26:47.228190' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.324502' OpenSize='1134' CloseTime='2018-05-08 08:26:47.324888' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.329700' OpenSize='1134' CloseTime='2018-05-08 08:26:47.330056' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.332518' OpenSize='1134' CloseTime='2018-05-08 08:26:47.332942' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.336252' OpenSize='1134' CloseTime='2018-05-08 08:26:47.336568' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.341201' OpenSize='1134' CloseTime='2018-05-08 08:26:47.341641' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.355766' OpenSize='1134' CloseTime='2018-05-08 08:26:47.356134' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.358470' OpenSize='1134' CloseTime='2018-05-08 08:26:47.358844' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.360139' OpenSize='1134' CloseTime='2018-05-08 08:26:47.360568' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.366722' OpenSize='1134' CloseTime='2018-05-08 08:26:47.367119' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.369583' OpenSize='1134' CloseTime='2018-05-08 08:26:47.369915' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.406224' OpenSize='1134' CloseTime='2018-05-08 08:26:47.406631' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.410258' OpenSize='1134' CloseTime='2018-05-08 08:26:47.410586' CloseSize='1134' NumReads='1' BytesRead='2998' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.421764' OpenSize='1134' CloseTime='2018-05-08 08:26:47.422132' CloseSize='1134' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.227594' CloseTime='2018-05-08 08:26:47.228190' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.324502' CloseTime='2018-05-08 08:26:47.324888' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.329700' CloseTime='2018-05-08 08:26:47.330056' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.332518' CloseTime='2018-05-08 08:26:47.332942' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.336252' CloseTime='2018-05-08 08:26:47.336568' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.341201' CloseTime='2018-05-08 08:26:47.341641' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.355766' CloseTime='2018-05-08 08:26:47.356134' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.358470' CloseTime='2018-05-08 08:26:47.358844' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.360139' CloseTime='2018-05-08 08:26:47.360568' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.366722' CloseTime='2018-05-08 08:26:47.367119' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.369583' CloseTime='2018-05-08 08:26:47.369915' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.406224' CloseTime='2018-05-08 08:26:47.406631' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.410258' CloseTime='2018-05-08 08:26:47.410586' NumReads='1' BytesRead='2998' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.421764' CloseTime='2018-05-08 08:26:47.422132' NumReads='1' BytesRead='2998' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/locale/locale.alias'>
             <FileName>/usr/share/locale/locale.alias</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:32:16:470570</AccessTime>
-            <CreationTime>2018-05-08 23:47:39:703844</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>2997</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>136660</Inode>
-            <ModifyTime>2018-05-08 06:39:38:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='18196' OpenTime='2018-05-08 08:26:47.208075' OpenSize='2997' CloseTime='2018-05-08 08:26:47.208536' CloseSize='2997' NumReads='2' BytesRead='2997' />
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.217142' OpenSize='2997' CloseTime='2018-05-08 08:26:47.217652' CloseSize='2997' NumReads='2' BytesRead='2997' />
+                <Access Process='18196' OpenTime='2018-05-08 08:26:47.208075' CloseTime='2018-05-08 08:26:47.208536' NumReads='2' BytesRead='2997' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.217142' CloseTime='2018-05-08 08:26:47.217652' NumReads='2' BytesRead='2997' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/zoneinfo/Europe/London'>
             <FileName>/usr/share/zoneinfo/Europe/London</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 04:15:37:000000</AccessTime>
-            <CreationTime>2018-05-08 23:47:32:914275</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>3687</FileSize>
-            <HardLinksNumber>7</HardLinksNumber>
-            <Inode>133739</Inode>
-            <ModifyTime>2018-05-08 04:15:37:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='18195' OpenTime='2018-05-08 08:26:47.230012' OpenSize='3687' CloseTime='2018-05-08 08:26:47.231149' CloseSize='3687' NumReads='2' BytesRead='6034' />
+                <Access Process='18195' OpenTime='2018-05-08 08:26:47.230012' CloseTime='2018-05-08 08:26:47.231149' NumReads='2' BytesRead='6034' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -7481,67 +6574,27 @@
         <CIM_DataFile Name='/usr/bin/bash'>
             <FileName>/usr/bin/bash</FileName>
             <Category>System executables</Category>
-            <AccessTime>2018-05-08 18:01:01:924961</AccessTime>
-            <CreationTime>2018-05-08 23:47:40:256733</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>1136648</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>136998</Inode>
             <IsExecuted>True</IsExecuted>
-            <ModifyTime>2018-05-08 06:53:33:000000</ModifyTime>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/bin/cat'>
             <FileName>/usr/bin/cat</FileName>
             <Category>System executables</Category>
-            <AccessTime>2018-05-08 19:01:02:008616</AccessTime>
-            <CreationTime>2018-05-08 23:47:46:328511</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>36680</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>139044</Inode>
             <IsExecuted>True</IsExecuted>
-            <ModifyTime>2018-05-08 13:39:02:000000</ModifyTime>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/bin/ls'>
             <FileName>/usr/bin/ls</FileName>
             <Category>System executables</Category>
-            <AccessTime>2018-05-08 15:08:15:853979</AccessTime>
-            <CreationTime>2018-05-08 23:47:46:382500</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>133104</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>139078</Inode>
             <IsExecuted>True</IsExecuted>
-            <ModifyTime>2018-05-08 13:39:02:000000</ModifyTime>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/bin/ps'>
             <FileName>/usr/bin/ps</FileName>
             <Category>System executables</Category>
-            <AccessTime>2018-05-08 15:35:14:478663</AccessTime>
-            <CreationTime>2018-05-08 23:47:42:068368</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>132064</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137562</Inode>
             <IsExecuted>True</IsExecuted>
-            <ModifyTime>2018-05-08 18:25:39:000000</ModifyTime>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/bin/wc'>
             <FileName>/usr/bin/wc</FileName>
             <Category>System executables</Category>
-            <AccessTime>2018-05-08 09:11:24:876166</AccessTime>
-            <CreationTime>2018-05-08 23:47:46:457485</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>45040</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>139137</Inode>
             <IsExecuted>True</IsExecuted>
-            <ModifyTime>2018-05-08 13:39:02:000000</ModifyTime>
         </CIM_DataFile>
     </FilesCategory>
 </Dockit>

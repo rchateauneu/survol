@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>vps516494.localdomain</Name>
+        <Name>rchateau-HP</Name>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <PermanentAddress>127.0.0.1</PermanentAddress>
+        <PermanentAddress>192.168.0.14</PermanentAddress>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='12345'>
         <Handle>12345</Handle>
@@ -19,7 +19,7 @@
         <FileAccesses>
             <Access File='/etc/ld.so.preload' OpenTime='2018-05-08 09:18:26.339259' CloseTime='2018-05-08 09:18:26.339431' />
             <Access File='/lib/security/hosting-securize.so' OpenTime='2018-05-08 09:18:26.339479' CloseTime='2018-05-08 09:18:26.339741' NumReads='1' BytesRead='512' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.339826' OpenSize='36008' CloseTime='2018-05-08 09:18:26.339983' CloseSize='36008' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.339826' CloseTime='2018-05-08 09:18:26.339983' />
             <Access File='/lib/i386-linux-gnu/libpthread-2.19.so' OpenTime='2018-05-08 09:18:26.340050' CloseTime='2018-05-08 09:18:26.340356' NumReads='1' BytesRead='512' />
             <Access File='/lib/i386-linux-gnu/libdl-2.19.so' OpenTime='2018-05-08 09:18:26.340425' CloseTime='2018-05-08 09:18:26.340747' NumReads='1' BytesRead='512' />
             <Access File='/lib/i386-linux-gnu/libutil-2.19.so' OpenTime='2018-05-08 09:18:26.340817' CloseTime='2018-05-08 09:18:26.341088' NumReads='1' BytesRead='512' />
@@ -110,14 +110,14 @@
             <Access File='/usr/lib/python2.7/hashlib.py' OpenTime='2018-05-08 09:18:26.396351' CloseTime='2018-05-08 09:18:26.401310' />
             <Access File='/usr/lib/python2.7/hashlib.pyc' OpenTime='2018-05-08 09:18:26.396462' CloseTime='2018-05-08 09:18:26.396853' NumReads='3' BytesRead='7011' />
             <Access File='/usr/lib/python2.7/lib-dynload/_hashlib.i386-linux-gnu.so' OpenTime='2018-05-08 09:18:26.398033' CloseTime='2018-05-08 09:18:26.398457' NumReads='1' BytesRead='512' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.398499' OpenSize='36008' CloseTime='2018-05-08 09:18:26.398645' CloseSize='36008' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.398499' CloseTime='2018-05-08 09:18:26.398645' />
             <Access File='/usr/lib/i386-linux-gnu/i686/cmov/libssl.so.1.0.0' OpenTime='2018-05-08 09:18:26.398709' CloseTime='2018-05-08 09:18:26.398957' NumReads='1' BytesRead='512' />
             <Access File='/usr/lib/i386-linux-gnu/i686/cmov/libcrypto.so.1.0.0' OpenTime='2018-05-08 09:18:26.399021' CloseTime='2018-05-08 09:18:26.399307' NumReads='1' BytesRead='512' />
             <Access File='/usr/lib/python2.7/lib-dynload/_hashlib.i386-linux-gnu.so' CloseTime='2018-05-08 09:18:26.401234' />
             <Access File='/dev/urandom' OpenTime='2018-05-08 09:18:26.401476' CloseTime='2018-05-08 09:18:26.474190' NumReads='1' BytesRead='2500' />
             <Access File='/usr/lib/python2.7/rfc822.py' OpenTime='2018-05-08 09:18:26.402925' CloseTime='2018-05-08 09:18:26.404139' />
             <Access File='/usr/lib/python2.7/rfc822.pyc' OpenTime='2018-05-08 09:18:26.403038' CloseTime='2018-05-08 09:18:26.403546' NumReads='4' BytesRead='31671' />
-            <Access File='/etc/localtime' OpenTime='2018-05-08 09:18:26.403658' OpenSize='2971' CloseTime='2018-05-08 09:18:26.403994' CloseSize='2971' NumReads='2' BytesRead='124' />
+            <Access File='/etc/localtime' OpenTime='2018-05-08 09:18:26.403658' CloseTime='2018-05-08 09:18:26.403994' NumReads='2' BytesRead='124' />
             <Access File='/usr/lib/python2.7/cgitb.py' OpenTime='2018-05-08 09:18:26.405354' CloseTime='2018-05-08 09:18:26.427631' />
             <Access File='/usr/lib/python2.7/cgitb.pyc' OpenTime='2018-05-08 09:18:26.405467' CloseTime='2018-05-08 09:18:26.405901' NumReads='4' BytesRead='12148' />
             <Access File='/usr/lib/python2.7/inspect.py' OpenTime='2018-05-08 09:18:26.406446' CloseTime='2018-05-08 09:18:26.419844' />
@@ -147,7 +147,7 @@
             <Access File='/usr/lib/python2.7/dist-packages/MySQLdb/release.py' OpenTime='2018-05-08 09:18:26.432655' CloseTime='2018-05-08 09:18:26.433158' />
             <Access File='/usr/lib/python2.7/dist-packages/MySQLdb/release.pyc' OpenTime='2018-05-08 09:18:26.432776' CloseTime='2018-05-08 09:18:26.433079' NumReads='2' BytesRead='333' />
             <Access File='/usr/lib/python2.7/dist-packages/_mysql.so' OpenTime='2018-05-08 09:18:26.435113' CloseTime='2018-05-08 09:18:26.435493' NumReads='1' BytesRead='512' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.435535' OpenSize='36008' CloseTime='2018-05-08 09:18:26.435682' CloseSize='36008' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.435535' CloseTime='2018-05-08 09:18:26.435682' />
             <Access File='/usr/lib/i386-linux-gnu/libmysqlclient.so.18.0.0' OpenTime='2018-05-08 09:18:26.435745' CloseTime='2018-05-08 09:18:26.436035' NumReads='1' BytesRead='512' />
             <Access File='/usr/lib/i386-linux-gnu/libstdc++.so.6.0.20' OpenTime='2018-05-08 09:18:26.436112' CloseTime='2018-05-08 09:18:26.436410' NumReads='1' BytesRead='512' />
             <Access File='/lib/i386-linux-gnu/libgcc_s.so.1' OpenTime='2018-05-08 09:18:26.436480' CloseTime='2018-05-08 09:18:26.436728' NumReads='1' BytesRead='512' />
@@ -180,22 +180,22 @@
             <Access File='/usr/lib/python2.7/weakref.pyc' OpenTime='2018-05-08 09:18:26.458716' CloseTime='2018-05-08 09:18:26.459155' NumReads='4' BytesRead='15254' />
             <Access File='socket:[535040596]' CloseTime='2018-05-08 09:18:26.460077' />
             <Access File='socket:[535040597]' CloseTime='2018-05-08 09:18:26.460232' />
-            <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 09:18:26.460275' OpenSize='1731' CloseTime='2018-05-08 09:18:26.460512' CloseSize='1731' NumReads='2' BytesRead='497' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.460591' OpenSize='36008' CloseTime='2018-05-08 09:18:26.460747' CloseSize='36008' />
+            <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 09:18:26.460275' CloseTime='2018-05-08 09:18:26.460512' NumReads='2' BytesRead='497' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.460591' CloseTime='2018-05-08 09:18:26.460747' />
             <Access File='/usr/lib/libnss_db-2.2.3.so' OpenTime='2018-05-08 09:18:26.460811' CloseTime='2018-05-08 09:18:26.461055' NumReads='1' BytesRead='512' />
             <Access File='/lib/i386-linux-gnu/libnss_files-2.19.so' OpenTime='2018-05-08 09:18:26.461119' CloseTime='2018-05-08 09:18:26.461374' NumReads='1' BytesRead='512' />
             <Access File='/usr/lib/i386-linux-gnu/libdb-5.3.so' OpenTime='2018-05-08 09:18:26.461438' CloseTime='2018-05-08 09:18:26.461684' NumReads='1' BytesRead='512' />
             <Access File='/proc/stat' OpenTime='2018-05-08 09:18:26.462115' CloseTime='2018-05-08 09:18:26.462268' NumReads='1' BytesRead='2718' />
-            <Access File='/etc/services' OpenTime='2018-05-08 09:18:26.462580' OpenSize='687295' CloseTime='2018-05-08 09:18:26.462934' CloseSize='687295' NumReads='3' BytesRead='12288' />
+            <Access File='/etc/services' OpenTime='2018-05-08 09:18:26.462580' CloseTime='2018-05-08 09:18:26.462934' NumReads='3' BytesRead='12288' />
             <Access File='socket:[535040598]' CloseTime='2018-05-08 09:18:26.463175' />
             <Access File='socket:[535040599]' CloseTime='2018-05-08 09:18:26.463325' />
-            <Access File='/etc/host.conf' OpenTime='2018-05-08 09:18:26.463365' OpenSize='9' CloseTime='2018-05-08 09:18:26.463599' CloseSize='9' NumReads='2' BytesRead='9' />
-            <Access File='/etc/resolv.conf' OpenTime='2018-05-08 09:18:26.463696' OpenSize='88' CloseTime='2018-05-08 09:18:26.463927' CloseSize='88' NumReads='2' BytesRead='176' />
-            <Access File='/etc/hosts' OpenTime='2018-05-08 09:18:26.464003' OpenSize='231' CloseTime='2018-05-08 09:18:26.464236' CloseSize='231' NumReads='2' BytesRead='449' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.464313' OpenSize='36008' CloseTime='2018-05-08 09:18:26.464459' CloseSize='36008' />
+            <Access File='/etc/host.conf' OpenTime='2018-05-08 09:18:26.463365' CloseTime='2018-05-08 09:18:26.463599' NumReads='2' BytesRead='9' />
+            <Access File='/etc/resolv.conf' OpenTime='2018-05-08 09:18:26.463696' CloseTime='2018-05-08 09:18:26.463927' NumReads='2' BytesRead='176' />
+            <Access File='/etc/hosts' OpenTime='2018-05-08 09:18:26.464003' CloseTime='2018-05-08 09:18:26.464236' NumReads='2' BytesRead='449' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:18:26.464313' CloseTime='2018-05-08 09:18:26.464459' />
             <Access File='/lib/i386-linux-gnu/libnss_dns-2.19.so' OpenTime='2018-05-08 09:18:26.464521' CloseTime='2018-05-08 09:18:26.464791' NumReads='1' BytesRead='512' />
             <Access File='/lib/i386-linux-gnu/libresolv-2.19.so' OpenTime='2018-05-08 09:18:26.464861' CloseTime='2018-05-08 09:18:26.465222' NumReads='1' BytesRead='512' />
-            <Access File='/etc/resolv.conf' OpenTime='2018-05-08 09:18:26.465439' OpenSize='88' CloseTime='2018-05-08 09:18:26.465670' CloseSize='88' NumReads='2' BytesRead='176' />
+            <Access File='/etc/resolv.conf' OpenTime='2018-05-08 09:18:26.465439' CloseTime='2018-05-08 09:18:26.465670' NumReads='2' BytesRead='176' />
             <Access File='socket:[535040600]' CloseTime='2018-05-08 09:18:26.466550' />
             <Access File='socket:[535040601]' CloseTime='2018-05-08 09:18:26.467279' />
             <Access File='socket:[535040602]' CloseTime='2018-05-08 09:18:26.467989' />
@@ -215,13 +215,6 @@
         <CIM_DataFile Name='/proc/meminfo'>
             <FileName>/proc/meminfo</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:37:531205</AccessTime>
-            <CreationTime>2018-05-08 00:58:37:531205</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026531994</Inode>
-            <ModifyTime>2018-05-08 00:58:37:531205</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 09:18:26.348761' CloseTime='2018-05-08 09:18:26.349011' NumReads='1' BytesRead='1024' />
             </FileAccesses>
@@ -229,13 +222,6 @@
         <CIM_DataFile Name='/proc/stat'>
             <FileName>/proc/stat</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:37:648205</AccessTime>
-            <CreationTime>2018-05-08 00:58:37:648205</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026531995</Inode>
-            <ModifyTime>2018-05-08 00:58:37:648205</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 09:18:26.462115' CloseTime='2018-05-08 09:18:26.462268' NumReads='1' BytesRead='2718' />
             </FileAccesses>
@@ -1210,14 +1196,6 @@
         <CIM_DataFile Name='/dev/urandom'>
             <FileName>/dev/urandom</FileName>
             <Category>Pipes and terminals</Category>
-            <AccessTime>2018-05-08 15:59:32:552000</AccessTime>
-            <CreationTime>2018-05-08 15:59:32:552000</CreationTime>
-            <DeviceId>6</DeviceId>
-            <DeviceType>265</DeviceType>
-            <FileMode>8630</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>8748</Inode>
-            <ModifyTime>2018-05-08 15:59:32:552000</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 09:18:26.401476' CloseTime='2018-05-08 09:18:26.474190' NumReads='1' BytesRead='2500' />
             </FileAccesses>
@@ -1428,50 +1406,26 @@
         <CIM_DataFile Name='/etc/host.conf'>
             <FileName>/etc/host.conf</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:32:16:538569</AccessTime>
-            <CreationTime>2018-05-08 23:47:31:802663</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>9</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>131316</Inode>
-            <ModifyTime>2018-05-08 12:56:36:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.463365' OpenSize='9' CloseTime='2018-05-08 09:18:26.463599' CloseSize='9' NumReads='2' BytesRead='9' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.463365' CloseTime='2018-05-08 09:18:26.463599' NumReads='2' BytesRead='9' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/hosts'>
             <FileName>/etc/hosts</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:32:16:538569</AccessTime>
-            <CreationTime>2018-05-08 15:59:58:761404</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>231</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>131317</Inode>
-            <ModifyTime>2018-05-08 15:59:58:760404</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.464003' OpenSize='231' CloseTime='2018-05-08 09:18:26.464236' CloseSize='231' NumReads='2' BytesRead='449' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.464003' CloseTime='2018-05-08 09:18:26.464236' NumReads='2' BytesRead='449' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.cache'>
             <FileName>/etc/ld.so.cache</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 22:57:36:314973</AccessTime>
-            <CreationTime>2018-05-08 22:50:06:707621</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>36008</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>168101</Inode>
-            <ModifyTime>2018-05-08 22:50:06:707621</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.339826' OpenSize='36008' CloseTime='2018-05-08 09:18:26.339983' CloseSize='36008' />
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.398499' OpenSize='36008' CloseTime='2018-05-08 09:18:26.398645' CloseSize='36008' />
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.435535' OpenSize='36008' CloseTime='2018-05-08 09:18:26.435682' CloseSize='36008' />
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.460591' OpenSize='36008' CloseTime='2018-05-08 09:18:26.460747' CloseSize='36008' />
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.464313' OpenSize='36008' CloseTime='2018-05-08 09:18:26.464459' CloseSize='36008' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.339826' CloseTime='2018-05-08 09:18:26.339983' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.398499' CloseTime='2018-05-08 09:18:26.398645' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.435535' CloseTime='2018-05-08 09:18:26.435682' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.460591' CloseTime='2018-05-08 09:18:26.460747' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.464313' CloseTime='2018-05-08 09:18:26.464459' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.preload'>
@@ -1491,31 +1445,15 @@
         <CIM_DataFile Name='/etc/localtime'>
             <FileName>/etc/localtime</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 17:05:00:676103</AccessTime>
-            <CreationTime>2018-05-08 23:47:32:687150</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>2971</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>132987</Inode>
-            <ModifyTime>2018-05-08 04:15:37:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.403658' OpenSize='2971' CloseTime='2018-05-08 09:18:26.403994' CloseSize='2971' NumReads='2' BytesRead='124' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.403658' CloseTime='2018-05-08 09:18:26.403994' NumReads='2' BytesRead='124' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/nsswitch.conf'>
             <FileName>/etc/nsswitch.conf</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 17:38:24:652102</AccessTime>
-            <CreationTime>2018-05-08 23:47:42:015379</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>1731</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137539</Inode>
-            <ModifyTime>2018-05-08 23:47:42:015379</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.460275' OpenSize='1731' CloseTime='2018-05-08 09:18:26.460512' CloseSize='1731' NumReads='2' BytesRead='497' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.460275' CloseTime='2018-05-08 09:18:26.460512' NumReads='2' BytesRead='497' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/python2.7/sitecustomize.py'>
@@ -1528,32 +1466,16 @@
         <CIM_DataFile Name='/etc/resolv.conf'>
             <FileName>/etc/resolv.conf</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:32:16:538569</AccessTime>
-            <CreationTime>2018-05-08 15:59:57:071430</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>88</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>135711</Inode>
-            <ModifyTime>2018-05-08 15:59:57:071430</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.463696' OpenSize='88' CloseTime='2018-05-08 09:18:26.463927' CloseSize='88' NumReads='2' BytesRead='176' />
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.465439' OpenSize='88' CloseTime='2018-05-08 09:18:26.465670' CloseSize='88' NumReads='2' BytesRead='176' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.463696' CloseTime='2018-05-08 09:18:26.463927' NumReads='2' BytesRead='176' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.465439' CloseTime='2018-05-08 09:18:26.465670' NumReads='2' BytesRead='176' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/services'>
             <FileName>/etc/services</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 00:58:19:431287</AccessTime>
-            <CreationTime>2018-05-08 23:47:31:819672</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>687295</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>131327</Inode>
-            <ModifyTime>2018-05-08 12:56:36:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 09:18:26.462580' OpenSize='687295' CloseTime='2018-05-08 09:18:26.462934' CloseSize='687295' NumReads='3' BytesRead='12288' />
+                <Access Process='12345' OpenTime='2018-05-08 09:18:26.462580' CloseTime='2018-05-08 09:18:26.462934' NumReads='3' BytesRead='12288' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -1561,15 +1483,7 @@
         <CIM_DataFile Name='/usr/bin/python'>
             <FileName>/usr/bin/python</FileName>
             <Category>System executables</Category>
-            <AccessTime>2018-05-08 00:58:11:655322</AccessTime>
-            <CreationTime>2018-05-08 08:56:52:129518</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>7016</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>136202</Inode>
             <IsExecuted>True</IsExecuted>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
         </CIM_DataFile>
     </FilesCategory>
 </Dockit>
