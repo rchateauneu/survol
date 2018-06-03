@@ -29,6 +29,7 @@ import datetime
 import shutil
 import platform
 import tempfile
+import urllib2
 
 try:
     # Optional: To add more information to processes etc...
@@ -57,6 +58,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -i,--input <file name>        trace command input file.")
     print("  -l,--log <filename prefix>    trace command log output file.\n")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
+    print("  -S,--server <Url>             Survol url for sending CIM objects updates")
     print("")
 
 
@@ -67,7 +69,7 @@ def Usage(exitCode = 1, errMsg = None):
 
 ################################################################################
 # This is set by a signal handler when a control-C is typed.
-# It then triggers a clean exit, and ceration of output results.
+# It then triggers a clean exit, and creation of output results.
 # This allows to monitor a running process, just for a given time
 # without stopping it.
 G_Interrupt = False
@@ -93,6 +95,7 @@ class ExceptionIsSignal(Exception):
 # Parsing of the arguments of the systems calls printed by strace and ltrace.
 # This starts immediately after an open parenthesis or bracket.
 # It returns an index on the closing parenthesis, or equal to the string length.
+# This is called for each line and is on the critical path.
 def ParseCallArguments(strArgs,ixStart = 0):
     lenStr = len(strArgs)
 
@@ -184,14 +187,7 @@ def ParseCallArguments(strArgs,ixStart = 0):
 
     return theResult,ixCurr
 
-
-
-
 ################################################################################
-
-# dated but exec, datedebut et fin exec, binaire utilise , librairies utilisees, 
-# fichiers cres, lus, ecrits (avec date+taille premiere action et date+taille derniere)  
-# + arborescence des fils lances avec les memes informations 
 
 def TimeStampToStr(timStamp):
     # 0     tm_year     (for example, 1993)
@@ -206,7 +202,6 @@ def TimeStampToStr(timStamp):
 
     # Today's date can change so we can reproduce a run.
     if timStamp:
-        # return G_Today + timStamp.strftime(" %H:%M:%S.%f" )
         return G_Today + " " + timStamp
     else:
         return G_Today + " 00:00:00.000000"
@@ -224,8 +219,12 @@ def TimeT_to_DateTime(stTimeT):
 
 ################################################################################
 
+# Buffers transferred with read() and write() are parsed to detect information
+# about the running applications. There can be several types of parsers,
+# indexed by a descriptive key.
 BufferScanners = {}
 
+# This creates the SQL queries scanner, it needs Survol code.
 try:
 
     sys.path.append("../..")
@@ -294,7 +293,12 @@ def DecodeOctalEscapeSequence(aBuffer):
         decBuf = aBuffer.decode('string_escape')
     return decBuf
 
-
+# When strace or ltrace display a call to read() and write(), they also display
+# a fragment of the transferred bytes. It is needed to try to rebuild the entire
+# sequence between the opening and the closing, because some important information
+# that we want to parse, might be truncated.
+# Beware, there are severe limitations: The amount of displayed bytes is limited,
+# and it does not take into account fseek().
 class BufferConcatenator:
     def __init__(self):
         self.m_currentBuffer = None
@@ -371,11 +375,12 @@ class BufferConcatenator:
 
 ################################################################################
 
-
-
-# Max number of bytes when trapping read() and write().
+# Max bytes number when strace or ltrace display read() and write() calls.
 G_StringSize = "500"
 
+# This is a dictionary (indexed by processes) of dictionaries (indexed by files).
+# It containes files accesses, which are object representing what happens
+# to a file between its opening and closing by a process.
 G_cacheFileAccesses = None
 
 # This models an open/read-or-write/close access from a process to a file.
@@ -552,12 +557,20 @@ class FileAccess:
         
 ################################################################################
 
+# This is the Survol server which is notified of all updates
+# of CIM objects. These updates can then be displayed in Survol Web clients.
+# It must be a plain Web server to be hosted by Apache or IIS.
+G_UpdateServer = None
+
+# This is the base class of all CIM8xxx classes. It does the serialization
+# into XML and also sends updates events to the Survol server if there is one.
 class CIM_XmlMarshaller:
     def __init__(self):
         pass
 
     def PlainToXML(self,strm,subMargin):
         try:
+            # Optional members order.
             attrExtra = self.__class__.m_AttrsPriorities
         except AttributeError:
             attrExtra = []
@@ -588,6 +601,48 @@ class CIM_XmlMarshaller:
                     # No need to write empty strings.
                     strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
 
+    # Any object change is broadcast to a Survol server.
+    def __setattr__(self, attrNam, attrVal):
+        if G_UpdateServer:
+            if IsCIM(attrNam,attrVal):
+                # TOFO: For better performance, consider grouping requests.
+                sys.stdout.write("Update %s %s\n"%(attrNam,attrVal))
+
+                clsNam = self.__class__.__name__
+                payloadHttp = { "class" : clsNam}
+
+                # These are the properties which uniquely define the object.
+                for ontoAttrNam in self.__class__.m_Ontology:
+                    payloadHttp[ontoAttrNam] = getattr(self, ontoAttrNam)
+
+                # The updated attribute.
+                payloadHttp[attrNam] = attrVal
+
+                # G_UpdateServer = 'http://www.python.org/'
+                srvUpd = urllib2.urlopen(G_UpdateServer)
+
+                req = urllib2.Request(G_UpdateServer, payloadHttp)
+                req.add_header('Content-type','application/json')
+                req.add_header("Accept", "application/json")
+                res = urllib2.urlopen(req)
+                output = res.read()
+                print( output )
+                print( res.code )
+
+                #Envoyer toutes les donnees ?
+                #Sinon, il faut connaitre la clef et donc l ontologie.
+                #On peut remplacer CreateMoniker si on a la clef,
+                #et on met un peu d ontologie.
+                #Quitte q terme a reutiliser ces classes.
+
+
+        # Python2
+        # super(object, self).__setattr__(name, value)
+        self.__dict__[attrNam] = attrVal
+
+        # Python3
+        # super().__setattr__(name, value)
+
     @classmethod
     def DisplaySummary(theClass,fdSummaryFile,cimKeyValuePairs):
         pass
@@ -602,6 +657,12 @@ class CIM_XmlMarshaller:
             objInstance.PlainToXML(fdSummaryFile,subMargin)
             fdSummaryFile.write("%s</%s>\n" % ( margin, namClass ) )
 
+    @classmethod
+    def CreateMoniker(theClass,*args):
+        #sys.stdout.write("CreateMoniker2 %s %s %s\n"%(theClass.__name__,str(theClass.m_Ontology),str(args)))
+        mnk = theClass.__name__ + "." + ",".join( '%s="%s"' % (k,v) for k,v in zip(theClass.m_Ontology,args) )
+        #sys.stdout.write("CreateMoniker2 mnk=%s\n"%mnk)
+        return mnk
 
 ################################################################################
 
@@ -642,10 +703,7 @@ class CIM_ComputerSystem (CIM_XmlMarshaller,object):
             except AttributeError:
                 pass
 
-    @staticmethod
-    def CreateMoniker(hostname):
-        return 'CIM_ComputerSystem.Name=%s' % hostname
-
+    m_Ontology = ['Name']
 #
 # class CIM_OperatingSystem : CIM_LogicalElement
 # {
@@ -688,10 +746,7 @@ class CIM_OperatingSystem (CIM_XmlMarshaller,object):
             self.Release = platform.release()
             self.Platform = platform.platform()
 
-    @staticmethod
-    def CreateMoniker():
-        return 'CIM_OperatingSystem.'
-
+    m_Ontology = []
 #
 # class CIM_NetworkAdapter : CIM_LogicalDevice
 # {
@@ -725,12 +780,7 @@ class CIM_NetworkAdapter (CIM_XmlMarshaller,object):
         super( CIM_NetworkAdapter,self).__init__()
         self.PermanentAddress = address
 
-    @staticmethod
-    def CreateMoniker(address):
-        return 'CIM_NetworkAdapter.PermanentAddress=%s' % address
-
-
-
+    m_Ontology = ['PermanentAddress']
 
 #class CIM_Process : CIM_LogicalElement
 #{
@@ -865,10 +915,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.Handle)
 
-    @staticmethod
-    def CreateMoniker(procId):
-        # sys.stdout.write("CreateMoniker:procId=%s\n"%procId)
-        return 'CIM_Process.Handle="%s"' % procId
+    m_Ontology = ['Handle']
 
     @classmethod
     def DisplaySummary(theClass,fdSummaryFile,cimKeyValuePairs):
@@ -1137,9 +1184,7 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
     def __repr__(self):
         return "'%s'" % self.CreateMoniker(self.FileName)
 
-    @staticmethod
-    def CreateMoniker(pathName):
-        return 'CIM_DataFile.Name="%s"' % pathName
+    m_Ontology = ['Name']
 
     # This creates a map containing all detected files. This map is indexed
     # by an informal file category: DLL, data file etc...
@@ -1301,7 +1346,8 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
 ################################################################################
 
 # This contains all CIM objects: CIM_Process, CIM_DataFile etc...
-# and is used to generate the summary.
+# and is used to generate the summary. Each time an object is created,
+# updated or deleted, an event might be sent to a Survol server.
 G_mapCacheObjects = None
 
 ################################################################################
@@ -2073,7 +2119,7 @@ def GenerateDockerFile(dockerFilename):
         fdDockerFile.write("# Processes tree\n" )
 
         procsTopLevel = CIM_Process.GetTopProcesses()
-        for oneProc in procsTopLevel:
+        for oneProc in sorted(procsTopLevel, key=lambda x: x.CreationDate):
             WriteOneProcessSubTree( oneProc, 1 )
         fdDockerFile.write("\n" )
 
@@ -4655,8 +4701,10 @@ def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParams
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvws:Dp:f:F:r:i:l:t:",
-                ["help","verbose","warning","summary","summary-format","docker","pid","format","repetition","input","log","tracer"])
+                "hvws:Dp:f:F:r:i:l:t:S:",
+                ["help","verbose","warning","summary","summary-format",
+                 "docker","pid","format","repetition","input",
+                 "log","tracer","server"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
@@ -4708,6 +4756,8 @@ if __name__ == '__main__':
             outputLogFilePrefix = aVal
         elif anOpt in ("-t", "--tracer"):
             tracer = aVal
+        elif anOpt in ("-S", "--server"):
+            G_UpdateServer = aVal
         elif anOpt in ("-h", "--help"):
             Usage(0)
         else:
