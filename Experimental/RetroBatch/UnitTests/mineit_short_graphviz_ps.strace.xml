@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>vps516494.localdomain</Name>
+        <Name>rchateau-HP</Name>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <PermanentAddress>127.0.0.1</PermanentAddress>
+        <PermanentAddress>192.168.0.14</PermanentAddress>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='18319'>
         <Handle>18319</Handle>
@@ -25,13 +25,6 @@
         <CIM_DataFile Name='/proc/meminfo'>
             <FileName>/proc/meminfo</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:37:699204</AccessTime>
-            <CreationTime>2018-05-08 00:58:37:699204</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026531994</Inode>
-            <ModifyTime>2018-05-08 00:58:37:699204</ModifyTime>
             <FileAccesses>
                 <Access Process='18319' OpenTime='2018-05-08 08:08:42.506043' CloseTime='2018-05-08 08:08:42.506358' NumReads='1' BytesRead='1024' />
             </FileAccesses>

@@ -217,6 +217,11 @@ def IsTimeStamp(attr,attrVal):
 def IsCIM(attr,attrVal):
     return not callable(attrVal) and not attr.startswith("__") and not attr.startswith("m_")
 
+# attr=AccessTime attrVal=1518262584.92 <type 'float'>
+def TimeT_to_DateTime(stTimeT):
+    # Or utcfromtimestamp
+    return datetime.datetime.strftime( datetime.datetime.fromtimestamp(stTimeT), "%H:%M:%S:%f")
+
 ################################################################################
 
 BufferScanners = {}
@@ -398,11 +403,12 @@ class FileAccess:
         if not self.OpenTime or (timeStamp < self.OpenTime):
             self.OpenTime = timeStamp
 
-            try:
-                filStat = os.stat( self.m_objectCIM_DataFile.FileName )
-                self.OpenSize = filStat.st_size
-            except:
-                pass
+            if G_SameMachine:
+                try:
+                    filStat = os.stat( self.m_objectCIM_DataFile.FileName )
+                    self.OpenSize = filStat.st_size
+                except:
+                    pass
 
         # Strictly speaking, from now on, this is accessible from the cache.
         G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile] = self
@@ -414,11 +420,12 @@ class FileAccess:
         if not getattr(self,"CloseTime",0) or (timeStamp < self.CloseTime):
             self.CloseTime = timeStamp
 
-            try:
-                filStat = os.stat( self.m_objectCIM_DataFile.FileName )
-                self.CloseSize = filStat.st_size
-            except:
-                pass
+            if G_SameMachine:
+                try:
+                    filStat = os.stat( self.m_objectCIM_DataFile.FileName )
+                    self.CloseSize = filStat.st_size
+                except:
+                    pass
 
         # Then remove the object from the cache so it cannot be returned
         # anymore from this process and this file because it is closed.
@@ -1086,40 +1093,34 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
 
         self.m_DataFileFileAccesses = []
 
-        try:
-            objStat = os.stat(pathName)
-        except:
-            objStat = None
-
-        # attr=AccessTime attrVal=1518262584.92 <type 'float'>
-        def TimeT_to_DateTime(stTimeT):
-            # Or utcfromtimestamp
-            return datetime.datetime.strftime( datetime.datetime.fromtimestamp(stTimeT), "%H:%M:%S:%f")
-
-        # Some information are not meaningfull because they will vary
-        # during the process execution.
-        if objStat:
-            self.FileSize = objStat.st_size
-
-            self.FileMode = objStat.st_mode
-            self.Inode = objStat.st_ino
-            self.DeviceId = objStat.st_dev
-            self.HardLinksNumber = objStat.st_nlink
-            self.OwnerUserId = objStat.st_uid
-            self.OwnerGroupId = objStat.st_gid
-            self.AccessTime = TimeT_to_DateTime(objStat.st_atime)
-            self.ModifyTime = TimeT_to_DateTime(objStat.st_mtime)
-            self.CreationTime = TimeT_to_DateTime(objStat.st_ctime)
+        # Some information are meaningless because they vary between executions.
+        if G_SameMachine:
             try:
-                # This does not exist on Windows.
-                self.DeviceType = objStat.st_rdev
-            except AttributeError:
-                pass
+                objStat = os.stat(pathName)
+            except:
+                objStat = None
 
-            # This is on Windows only.
-            # self.UserDefinedFlags = objStat.st_flags
-            # self.FileCreator = objStat.st_creator
-            # self.FileType = objStat.st_type
+            if objStat:
+                self.FileSize = objStat.st_size
+                self.FileMode = objStat.st_mode
+                self.Inode = objStat.st_ino
+                self.DeviceId = objStat.st_dev
+                self.HardLinksNumber = objStat.st_nlink
+                self.OwnerUserId = objStat.st_uid
+                self.OwnerGroupId = objStat.st_gid
+                self.AccessTime = TimeT_to_DateTime(objStat.st_atime)
+                self.ModifyTime = TimeT_to_DateTime(objStat.st_mtime)
+                self.CreationTime = TimeT_to_DateTime(objStat.st_ctime)
+                try:
+                    # This does not exist on Windows.
+                    self.DeviceType = objStat.st_rdev
+                except AttributeError:
+                    pass
+
+                # This is on Windows only.
+                # self.UserDefinedFlags = objStat.st_flags
+                # self.FileCreator = objStat.st_creator
+                # self.FileType = objStat.st_type
 
         # If this is a connected socket:
         # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
@@ -4435,6 +4436,7 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     global G_Hostname
     global G_OSType
     global G_ReplayMode
+    global G_SameMachine
 
     # A command or a pid or an input log file, only one possibility.
     if argsCmd != []:
@@ -4488,6 +4490,9 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
         G_OSType = thePlatform
 
         G_ReplayMode = False
+
+    G_SameMachine = not G_ReplayMode or G_Hostname == socket.gethostname()
+
 
     # Another possibility is to start a process or a thread which will monitor
     # the target process, and will write output information in a stream.

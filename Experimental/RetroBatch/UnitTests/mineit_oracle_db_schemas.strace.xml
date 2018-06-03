@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>vps516494.localdomain</Name>
+        <Name>rchateau-HP</Name>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <PermanentAddress>127.0.0.1</PermanentAddress>
+        <PermanentAddress>192.168.0.14</PermanentAddress>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='12345'>
         <Handle>12345</Handle>
@@ -17,62 +17,62 @@
         <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
         <Executable>/usr/bin/python</Executable>
         <FileAccesses>
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.164758' OpenSize='36008' CloseTime='2018-05-08 22:33:30.164996' CloseSize='36008' />
-            <Access File='/usr/lib64/libpython2.7.so.1.0' OpenTime='2018-05-08 22:33:30.165061' OpenSize='2277024' CloseTime='2018-05-08 22:33:30.165503' CloseSize='2277024' NumReads='1' BytesRead='832' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.164758' CloseTime='2018-05-08 22:33:30.164996' />
+            <Access File='/usr/lib64/libpython2.7.so.1.0' OpenTime='2018-05-08 22:33:30.165061' CloseTime='2018-05-08 22:33:30.165503' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libpthread-2.21.so' OpenTime='2018-05-08 22:33:30.165571' CloseTime='2018-05-08 22:33:30.166020' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-08 22:33:30.166136' CloseTime='2018-05-08 22:33:30.166515' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libutil-2.21.so' OpenTime='2018-05-08 22:33:30.166574' CloseTime='2018-05-08 22:33:30.166989' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libm-2.21.so' OpenTime='2018-05-08 22:33:30.167052' CloseTime='2018-05-08 22:33:30.167429' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 22:33:30.167491' CloseTime='2018-05-08 22:33:30.167990' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/site.py' OpenTime='2018-05-08 22:33:30.172717' OpenSize='19637' CloseTime='2018-05-08 22:33:30.213454' CloseSize='19637' />
-            <Access File='/usr/lib64/python2.7/site.pyc' OpenTime='2018-05-08 22:33:30.172796' OpenSize='19364' CloseTime='2018-05-08 22:33:30.173372' CloseSize='19364' NumReads='4' BytesRead='19553' />
-            <Access File='/usr/lib64/python2.7/os.py' OpenTime='2018-05-08 22:33:30.173549' OpenSize='25910' CloseTime='2018-05-08 22:33:30.183815' CloseSize='25910' />
-            <Access File='/usr/lib64/python2.7/os.pyc' OpenTime='2018-05-08 22:33:30.173624' OpenSize='25689' CloseTime='2018-05-08 22:33:30.174082' CloseSize='25689' NumReads='4' BytesRead='25699' />
+            <Access File='/usr/lib64/python2.7/site.py' OpenTime='2018-05-08 22:33:30.172717' CloseTime='2018-05-08 22:33:30.213454' />
+            <Access File='/usr/lib64/python2.7/site.pyc' OpenTime='2018-05-08 22:33:30.172796' CloseTime='2018-05-08 22:33:30.173372' NumReads='4' BytesRead='19553' />
+            <Access File='/usr/lib64/python2.7/os.py' OpenTime='2018-05-08 22:33:30.173549' CloseTime='2018-05-08 22:33:30.183815' />
+            <Access File='/usr/lib64/python2.7/os.pyc' OpenTime='2018-05-08 22:33:30.173624' CloseTime='2018-05-08 22:33:30.174082' NumReads='4' BytesRead='25699' />
             <Access File='/proc/meminfo' OpenTime='2018-05-08 22:33:30.174377' CloseTime='2018-05-08 22:33:30.174559' NumReads='1' BytesRead='1024' />
-            <Access File='/usr/lib64/python2.7/posixpath.py' OpenTime='2018-05-08 22:33:30.174972' OpenSize='13935' CloseTime='2018-05-08 22:33:30.178844' CloseSize='13935' />
-            <Access File='/usr/lib64/python2.7/posixpath.pyc' OpenTime='2018-05-08 22:33:30.175050' OpenSize='11431' CloseTime='2018-05-08 22:33:30.175444' CloseSize='11431' NumReads='4' BytesRead='11420' />
-            <Access File='/usr/lib64/python2.7/stat.py' OpenTime='2018-05-08 22:33:30.175609' OpenSize='1842' CloseTime='2018-05-08 22:33:30.176242' CloseSize='1842' />
-            <Access File='/usr/lib64/python2.7/stat.pyc' OpenTime='2018-05-08 22:33:30.175684' OpenSize='2751' CloseTime='2018-05-08 22:33:30.176161' CloseSize='2751' NumReads='2' BytesRead='2751' />
-            <Access File='/usr/lib64/python2.7/genericpath.py' OpenTime='2018-05-08 22:33:30.176369' OpenSize='3201' CloseTime='2018-05-08 22:33:30.176758' CloseSize='3201' />
-            <Access File='/usr/lib64/python2.7/genericpath.pyc' OpenTime='2018-05-08 22:33:30.176444' OpenSize='3517' CloseTime='2018-05-08 22:33:30.176683' CloseSize='3517' NumReads='2' BytesRead='3517' />
-            <Access File='/usr/lib64/python2.7/warnings.py' OpenTime='2018-05-08 22:33:30.176891' OpenSize='14823' CloseTime='2018-05-08 22:33:30.178779' CloseSize='14823' />
-            <Access File='/usr/lib64/python2.7/warnings.pyc' OpenTime='2018-05-08 22:33:30.176963' OpenSize='13510' CloseTime='2018-05-08 22:33:30.177336' CloseSize='13510' NumReads='4' BytesRead='13188' />
-            <Access File='/usr/lib64/python2.7/linecache.py' OpenTime='2018-05-08 22:33:30.177490' OpenSize='4027' CloseTime='2018-05-08 22:33:30.177897' CloseSize='4027' />
-            <Access File='/usr/lib64/python2.7/linecache.pyc' OpenTime='2018-05-08 22:33:30.177562' OpenSize='3272' CloseTime='2018-05-08 22:33:30.177794' CloseSize='3272' NumReads='2' BytesRead='3272' />
-            <Access File='/usr/lib64/python2.7/types.py' OpenTime='2018-05-08 22:33:30.178022' OpenSize='2094' CloseTime='2018-05-08 22:33:30.178498' CloseSize='2094' />
-            <Access File='/usr/lib64/python2.7/types.pyc' OpenTime='2018-05-08 22:33:30.178097' OpenSize='2725' CloseTime='2018-05-08 22:33:30.178347' CloseSize='2725' NumReads='2' BytesRead='2725' />
-            <Access File='/usr/lib64/python2.7/UserDict.py' OpenTime='2018-05-08 22:33:30.179085' OpenSize='7060' CloseTime='2018-05-08 22:33:30.183126' CloseSize='7060' />
-            <Access File='/usr/lib64/python2.7/UserDict.pyc' OpenTime='2018-05-08 22:33:30.179162' OpenSize='9711' CloseTime='2018-05-08 22:33:30.179526' CloseSize='9711' NumReads='4' BytesRead='8820' />
-            <Access File='/usr/lib64/python2.7/_abcoll.py' OpenTime='2018-05-08 22:33:30.179710' OpenSize='18619' CloseTime='2018-05-08 22:33:30.183030' CloseSize='18619' />
-            <Access File='/usr/lib64/python2.7/_abcoll.pyc' OpenTime='2018-05-08 22:33:30.179786' OpenSize='25682' CloseTime='2018-05-08 22:33:30.180285' CloseSize='25682' NumReads='4' BytesRead='25550' />
-            <Access File='/usr/lib64/python2.7/abc.py' OpenTime='2018-05-08 22:33:30.180440' OpenSize='7145' CloseTime='2018-05-08 22:33:30.181769' CloseSize='7145' />
-            <Access File='/usr/lib64/python2.7/abc.pyc' OpenTime='2018-05-08 22:33:30.180513' OpenSize='6143' CloseTime='2018-05-08 22:33:30.180809' CloseSize='6143' NumReads='3' BytesRead='6143' />
-            <Access File='/usr/lib64/python2.7/_weakrefset.py' OpenTime='2018-05-08 22:33:30.180976' OpenSize='5911' CloseTime='2018-05-08 22:33:30.181680' CloseSize='5911' />
-            <Access File='/usr/lib64/python2.7/_weakrefset.pyc' OpenTime='2018-05-08 22:33:30.181072' OpenSize='9678' CloseTime='2018-05-08 22:33:30.181458' CloseSize='9678' NumReads='4' BytesRead='9678' />
-            <Access File='/usr/lib64/python2.7/copy_reg.py' OpenTime='2018-05-08 22:33:30.183285' OpenSize='6974' CloseTime='2018-05-08 22:33:30.183760' CloseSize='6974' />
-            <Access File='/usr/lib64/python2.7/copy_reg.pyc' OpenTime='2018-05-08 22:33:30.183379' OpenSize='5167' CloseTime='2018-05-08 22:33:30.183673' CloseSize='5167' NumReads='3' BytesRead='5113' />
-            <Access File='/usr/lib64/python2.7/traceback.py' OpenTime='2018-05-08 22:33:30.183947' OpenSize='11285' CloseTime='2018-05-08 22:33:30.184469' CloseSize='11285' />
-            <Access File='/usr/lib64/python2.7/traceback.pyc' OpenTime='2018-05-08 22:33:30.184022' OpenSize='11679' CloseTime='2018-05-08 22:33:30.184388' CloseSize='11679' NumReads='4' BytesRead='11679' />
-            <Access File='/usr/lib64/python2.7/sysconfig.py' OpenTime='2018-05-08 22:33:30.184933' OpenSize='22852' CloseTime='2018-05-08 22:33:30.185832' CloseSize='22852' />
-            <Access File='/usr/lib64/python2.7/sysconfig.pyc' OpenTime='2018-05-08 22:33:30.185008' OpenSize='17818' CloseTime='2018-05-08 22:33:30.185443' CloseSize='17818' NumReads='4' BytesRead='17715' />
-            <Access File='/usr/lib64/python2.7/re.py' OpenTime='2018-05-08 22:33:30.186100' OpenSize='13423' CloseTime='2018-05-08 22:33:30.190323' CloseSize='13423' />
-            <Access File='/usr/lib64/python2.7/re.pyc' OpenTime='2018-05-08 22:33:30.186176' OpenSize='13413' CloseTime='2018-05-08 22:33:30.186540' CloseSize='13413' NumReads='4' BytesRead='13413' />
-            <Access File='/usr/lib64/python2.7/sre_compile.py' OpenTime='2018-05-08 22:33:30.186704' OpenSize='19823' CloseTime='2018-05-08 22:33:30.189105' CloseSize='19823' />
-            <Access File='/usr/lib64/python2.7/sre_compile.pyc' OpenTime='2018-05-08 22:33:30.186778' OpenSize='12560' CloseTime='2018-05-08 22:33:30.187271' CloseSize='12560' NumReads='4' BytesRead='12559' />
-            <Access File='/usr/lib64/python2.7/sre_parse.py' OpenTime='2018-05-08 22:33:30.187467' OpenSize='30700' CloseTime='2018-05-08 22:33:30.188817' CloseSize='30700' />
-            <Access File='/usr/lib64/python2.7/sre_parse.pyc' OpenTime='2018-05-08 22:33:30.187540' OpenSize='21156' CloseTime='2018-05-08 22:33:30.187993' CloseSize='21156' NumReads='4' BytesRead='20017' />
-            <Access File='/usr/lib64/python2.7/sre_constants.py' OpenTime='2018-05-08 22:33:30.188157' OpenSize='7197' CloseTime='2018-05-08 22:33:30.188690' CloseSize='7197' />
-            <Access File='/usr/lib64/python2.7/sre_constants.pyc' OpenTime='2018-05-08 22:33:30.188232' OpenSize='6195' CloseTime='2018-05-08 22:33:30.188549' CloseSize='6195' NumReads='3' BytesRead='6195' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/_localemodule.so' OpenTime='2018-05-08 22:33:30.189673' OpenSize='24888' CloseTime='2018-05-08 22:33:30.190044' CloseSize='24888' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/_localemodule.so' CloseTime='2018-05-08 22:33:30.190211' CloseSize='24888' />
-            <Access File='/usr/lib64/python2.7/_sysconfigdata.py' OpenTime='2018-05-08 22:33:30.190453' OpenSize='18741' CloseTime='2018-05-08 22:33:30.191202' CloseSize='18741' />
-            <Access File='/usr/lib64/python2.7/_sysconfigdata.pyc' OpenTime='2018-05-08 22:33:30.190528' OpenSize='21929' CloseTime='2018-05-08 22:33:30.191073' CloseSize='21929' NumReads='4' BytesRead='21465' />
-            <Access File='/usr/lib64/python2.7/site-packages' OpenTime='2018-05-08 22:33:30.191812' OpenSize='4096' CloseTime='2018-05-08 22:33:30.192035' CloseSize='4096' />
+            <Access File='/usr/lib64/python2.7/posixpath.py' OpenTime='2018-05-08 22:33:30.174972' CloseTime='2018-05-08 22:33:30.178844' />
+            <Access File='/usr/lib64/python2.7/posixpath.pyc' OpenTime='2018-05-08 22:33:30.175050' CloseTime='2018-05-08 22:33:30.175444' NumReads='4' BytesRead='11420' />
+            <Access File='/usr/lib64/python2.7/stat.py' OpenTime='2018-05-08 22:33:30.175609' CloseTime='2018-05-08 22:33:30.176242' />
+            <Access File='/usr/lib64/python2.7/stat.pyc' OpenTime='2018-05-08 22:33:30.175684' CloseTime='2018-05-08 22:33:30.176161' NumReads='2' BytesRead='2751' />
+            <Access File='/usr/lib64/python2.7/genericpath.py' OpenTime='2018-05-08 22:33:30.176369' CloseTime='2018-05-08 22:33:30.176758' />
+            <Access File='/usr/lib64/python2.7/genericpath.pyc' OpenTime='2018-05-08 22:33:30.176444' CloseTime='2018-05-08 22:33:30.176683' NumReads='2' BytesRead='3517' />
+            <Access File='/usr/lib64/python2.7/warnings.py' OpenTime='2018-05-08 22:33:30.176891' CloseTime='2018-05-08 22:33:30.178779' />
+            <Access File='/usr/lib64/python2.7/warnings.pyc' OpenTime='2018-05-08 22:33:30.176963' CloseTime='2018-05-08 22:33:30.177336' NumReads='4' BytesRead='13188' />
+            <Access File='/usr/lib64/python2.7/linecache.py' OpenTime='2018-05-08 22:33:30.177490' CloseTime='2018-05-08 22:33:30.177897' />
+            <Access File='/usr/lib64/python2.7/linecache.pyc' OpenTime='2018-05-08 22:33:30.177562' CloseTime='2018-05-08 22:33:30.177794' NumReads='2' BytesRead='3272' />
+            <Access File='/usr/lib64/python2.7/types.py' OpenTime='2018-05-08 22:33:30.178022' CloseTime='2018-05-08 22:33:30.178498' />
+            <Access File='/usr/lib64/python2.7/types.pyc' OpenTime='2018-05-08 22:33:30.178097' CloseTime='2018-05-08 22:33:30.178347' NumReads='2' BytesRead='2725' />
+            <Access File='/usr/lib64/python2.7/UserDict.py' OpenTime='2018-05-08 22:33:30.179085' CloseTime='2018-05-08 22:33:30.183126' />
+            <Access File='/usr/lib64/python2.7/UserDict.pyc' OpenTime='2018-05-08 22:33:30.179162' CloseTime='2018-05-08 22:33:30.179526' NumReads='4' BytesRead='8820' />
+            <Access File='/usr/lib64/python2.7/_abcoll.py' OpenTime='2018-05-08 22:33:30.179710' CloseTime='2018-05-08 22:33:30.183030' />
+            <Access File='/usr/lib64/python2.7/_abcoll.pyc' OpenTime='2018-05-08 22:33:30.179786' CloseTime='2018-05-08 22:33:30.180285' NumReads='4' BytesRead='25550' />
+            <Access File='/usr/lib64/python2.7/abc.py' OpenTime='2018-05-08 22:33:30.180440' CloseTime='2018-05-08 22:33:30.181769' />
+            <Access File='/usr/lib64/python2.7/abc.pyc' OpenTime='2018-05-08 22:33:30.180513' CloseTime='2018-05-08 22:33:30.180809' NumReads='3' BytesRead='6143' />
+            <Access File='/usr/lib64/python2.7/_weakrefset.py' OpenTime='2018-05-08 22:33:30.180976' CloseTime='2018-05-08 22:33:30.181680' />
+            <Access File='/usr/lib64/python2.7/_weakrefset.pyc' OpenTime='2018-05-08 22:33:30.181072' CloseTime='2018-05-08 22:33:30.181458' NumReads='4' BytesRead='9678' />
+            <Access File='/usr/lib64/python2.7/copy_reg.py' OpenTime='2018-05-08 22:33:30.183285' CloseTime='2018-05-08 22:33:30.183760' />
+            <Access File='/usr/lib64/python2.7/copy_reg.pyc' OpenTime='2018-05-08 22:33:30.183379' CloseTime='2018-05-08 22:33:30.183673' NumReads='3' BytesRead='5113' />
+            <Access File='/usr/lib64/python2.7/traceback.py' OpenTime='2018-05-08 22:33:30.183947' CloseTime='2018-05-08 22:33:30.184469' />
+            <Access File='/usr/lib64/python2.7/traceback.pyc' OpenTime='2018-05-08 22:33:30.184022' CloseTime='2018-05-08 22:33:30.184388' NumReads='4' BytesRead='11679' />
+            <Access File='/usr/lib64/python2.7/sysconfig.py' OpenTime='2018-05-08 22:33:30.184933' CloseTime='2018-05-08 22:33:30.185832' />
+            <Access File='/usr/lib64/python2.7/sysconfig.pyc' OpenTime='2018-05-08 22:33:30.185008' CloseTime='2018-05-08 22:33:30.185443' NumReads='4' BytesRead='17715' />
+            <Access File='/usr/lib64/python2.7/re.py' OpenTime='2018-05-08 22:33:30.186100' CloseTime='2018-05-08 22:33:30.190323' />
+            <Access File='/usr/lib64/python2.7/re.pyc' OpenTime='2018-05-08 22:33:30.186176' CloseTime='2018-05-08 22:33:30.186540' NumReads='4' BytesRead='13413' />
+            <Access File='/usr/lib64/python2.7/sre_compile.py' OpenTime='2018-05-08 22:33:30.186704' CloseTime='2018-05-08 22:33:30.189105' />
+            <Access File='/usr/lib64/python2.7/sre_compile.pyc' OpenTime='2018-05-08 22:33:30.186778' CloseTime='2018-05-08 22:33:30.187271' NumReads='4' BytesRead='12559' />
+            <Access File='/usr/lib64/python2.7/sre_parse.py' OpenTime='2018-05-08 22:33:30.187467' CloseTime='2018-05-08 22:33:30.188817' />
+            <Access File='/usr/lib64/python2.7/sre_parse.pyc' OpenTime='2018-05-08 22:33:30.187540' CloseTime='2018-05-08 22:33:30.187993' NumReads='4' BytesRead='20017' />
+            <Access File='/usr/lib64/python2.7/sre_constants.py' OpenTime='2018-05-08 22:33:30.188157' CloseTime='2018-05-08 22:33:30.188690' />
+            <Access File='/usr/lib64/python2.7/sre_constants.pyc' OpenTime='2018-05-08 22:33:30.188232' CloseTime='2018-05-08 22:33:30.188549' NumReads='3' BytesRead='6195' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/_localemodule.so' OpenTime='2018-05-08 22:33:30.189673' CloseTime='2018-05-08 22:33:30.190044' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/_localemodule.so' CloseTime='2018-05-08 22:33:30.190211' />
+            <Access File='/usr/lib64/python2.7/_sysconfigdata.py' OpenTime='2018-05-08 22:33:30.190453' CloseTime='2018-05-08 22:33:30.191202' />
+            <Access File='/usr/lib64/python2.7/_sysconfigdata.pyc' OpenTime='2018-05-08 22:33:30.190528' CloseTime='2018-05-08 22:33:30.191073' NumReads='4' BytesRead='21465' />
+            <Access File='/usr/lib64/python2.7/site-packages' OpenTime='2018-05-08 22:33:30.191812' CloseTime='2018-05-08 22:33:30.192035' />
             <Access File='/usr/lib64/python2.7/site-packages/abrt.pth' OpenTime='2018-05-08 22:33:30.192141' CloseTime='2018-05-08 22:33:30.193841' NumReads='3' BytesRead='30' />
             <Access File='/usr/lib64/python2.7/site-packages/abrt_exception_handler.py' OpenTime='2018-05-08 22:33:30.193234' CloseTime='2018-05-08 22:33:30.193758' />
             <Access File='/usr/lib64/python2.7/site-packages/abrt_exception_handler.pyc' OpenTime='2018-05-08 22:33:30.193310' CloseTime='2018-05-08 22:33:30.193646' NumReads='3' BytesRead='7303' />
             <Access File='/usr/lib64/python2.7/site-packages/pygtk.pth' OpenTime='2018-05-08 22:33:30.193913' CloseTime='2018-05-08 22:33:30.194201' NumReads='3' BytesRead='8' />
-            <Access File='/usr/lib/python2.7/site-packages' OpenTime='2018-05-08 22:33:30.194302' OpenSize='4096' CloseTime='2018-05-08 22:33:30.194538' CloseSize='4096' />
+            <Access File='/usr/lib/python2.7/site-packages' OpenTime='2018-05-08 22:33:30.194302' CloseTime='2018-05-08 22:33:30.194538' />
             <Access File='/usr/lib/python2.7/site-packages/Paste-1.7.5.1-py2.7-nspkg.pth' OpenTime='2018-05-08 22:33:30.194638' CloseTime='2018-05-08 22:33:30.195125' NumReads='3' BytesRead='304' />
             <Access File='/usr/lib/python2.7/site-packages/easy-install.pth' OpenTime='2018-05-08 22:33:30.195201' CloseTime='2018-05-08 22:33:30.195681' NumReads='3' BytesRead='251' />
             <Access File='/usr/lib/python2.7/site-packages/openlmi-0.6.0-py2.7-nspkg.pth' OpenTime='2018-05-08 22:33:30.195755' CloseTime='2018-05-08 22:33:30.196200' NumReads='3' BytesRead='296' />
@@ -92,75 +92,75 @@
             <Access File='/usr/lib/python2.7/site-packages/openlmi_scripts_system-0.4.0-py2.7-nspkg.pth' OpenTime='2018-05-08 22:33:30.207627' CloseTime='2018-05-08 22:33:30.208429' NumReads='3' BytesRead='666' />
             <Access File='/usr/lib/python2.7/site-packages/openlmi_storage-0.8.1-py2.7-nspkg.pth' OpenTime='2018-05-08 22:33:30.208521' CloseTime='2018-05-08 22:33:30.209079' NumReads='3' BytesRead='296' />
             <Access File='/usr/lib/python2.7/site-packages/openlmi_tools-0.10.4-py2.7-nspkg.pth' OpenTime='2018-05-08 22:33:30.209177' CloseTime='2018-05-08 22:33:30.209964' NumReads='3' BytesRead='666' />
-            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 22:33:30.213516' OpenSize='2291760' CloseTime='2018-05-08 22:33:30.213664' CloseSize='2291760' />
-            <Access File='/usr/lib64/python2.7/encodings/__init__.py' OpenTime='2018-05-08 22:33:30.214298' OpenSize='5698' CloseTime='2018-05-08 22:33:30.218005' CloseSize='5698' />
-            <Access File='/usr/lib64/python2.7/encodings/__init__.pyc' OpenTime='2018-05-08 22:33:30.214392' OpenSize='4378' CloseTime='2018-05-08 22:33:30.214745' CloseSize='4378' NumReads='3' BytesRead='4378' />
-            <Access File='/usr/lib64/python2.7/codecs.py' OpenTime='2018-05-08 22:33:30.215548' OpenSize='36098' CloseTime='2018-05-08 22:33:30.216595' CloseSize='36098' />
-            <Access File='/usr/lib64/python2.7/codecs.pyc' OpenTime='2018-05-08 22:33:30.215640' OpenSize='36845' CloseTime='2018-05-08 22:33:30.216253' CloseSize='36845' NumReads='4' BytesRead='36709' />
-            <Access File='/usr/lib64/python2.7/encodings/aliases.py' OpenTime='2018-05-08 22:33:30.216962' OpenSize='14848' CloseTime='2018-05-08 22:33:30.217688' CloseSize='14848' />
-            <Access File='/usr/lib64/python2.7/encodings/aliases.pyc' OpenTime='2018-05-08 22:33:30.217057' OpenSize='8770' CloseTime='2018-05-08 22:33:30.217577' CloseSize='8770' NumReads='4' BytesRead='8770' />
-            <Access File='/usr/lib64/python2.7/encodings/utf_8.py' OpenTime='2018-05-08 22:33:30.218179' OpenSize='1005' CloseTime='2018-05-08 22:33:30.218730' CloseSize='1005' />
-            <Access File='/usr/lib64/python2.7/encodings/utf_8.pyc' OpenTime='2018-05-08 22:33:30.218272' OpenSize='1966' CloseTime='2018-05-08 22:33:30.218570' CloseSize='1966' NumReads='2' BytesRead='1966' />
+            <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 22:33:30.213516' CloseTime='2018-05-08 22:33:30.213664' />
+            <Access File='/usr/lib64/python2.7/encodings/__init__.py' OpenTime='2018-05-08 22:33:30.214298' CloseTime='2018-05-08 22:33:30.218005' />
+            <Access File='/usr/lib64/python2.7/encodings/__init__.pyc' OpenTime='2018-05-08 22:33:30.214392' CloseTime='2018-05-08 22:33:30.214745' NumReads='3' BytesRead='4378' />
+            <Access File='/usr/lib64/python2.7/codecs.py' OpenTime='2018-05-08 22:33:30.215548' CloseTime='2018-05-08 22:33:30.216595' />
+            <Access File='/usr/lib64/python2.7/codecs.pyc' OpenTime='2018-05-08 22:33:30.215640' CloseTime='2018-05-08 22:33:30.216253' NumReads='4' BytesRead='36709' />
+            <Access File='/usr/lib64/python2.7/encodings/aliases.py' OpenTime='2018-05-08 22:33:30.216962' CloseTime='2018-05-08 22:33:30.217688' />
+            <Access File='/usr/lib64/python2.7/encodings/aliases.pyc' OpenTime='2018-05-08 22:33:30.217057' CloseTime='2018-05-08 22:33:30.217577' NumReads='4' BytesRead='8770' />
+            <Access File='/usr/lib64/python2.7/encodings/utf_8.py' OpenTime='2018-05-08 22:33:30.218179' CloseTime='2018-05-08 22:33:30.218730' />
+            <Access File='/usr/lib64/python2.7/encodings/utf_8.pyc' OpenTime='2018-05-08 22:33:30.218272' CloseTime='2018-05-08 22:33:30.218570' NumReads='2' BytesRead='1966' />
             <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/oracle_db_schemas.py' OpenTime='2018-05-08 22:33:30.219067' CloseTime='2018-05-08 22:33:30.219375' NumReads='2' BytesRead='989' />
             <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/oracle_db_schemas.py' OpenTime='2018-05-08 22:33:30.219479' CloseTime='2018-05-08 22:33:30.220399' NumReads='3' BytesRead='1978' />
             <Access File='/usr/lib64/python2.7/site-packages/cx_Oracle.so' OpenTime='2018-05-08 22:33:30.221828' CloseTime='2018-05-08 22:33:30.222270' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/datetime.so' OpenTime='2018-05-08 22:33:30.223605' OpenSize='86000' CloseTime='2018-05-08 22:33:30.224027' CloseSize='86000' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/datetime.so' CloseTime='2018-05-08 22:33:30.224311' CloseSize='86000' />
-            <Access File='/usr/lib64/python2.7/decimal.py' OpenTime='2018-05-08 22:33:30.225060' OpenSize='221933' CloseTime='2018-05-08 22:33:30.261083' CloseSize='221933' />
-            <Access File='/usr/lib64/python2.7/decimal.pyc' OpenTime='2018-05-08 22:33:30.225154' OpenSize='172155' CloseTime='2018-05-08 22:33:30.226873' CloseSize='172155' NumReads='4' BytesRead='171368' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/math.so' OpenTime='2018-05-08 22:33:30.227978' OpenSize='40976' CloseTime='2018-05-08 22:33:30.228374' CloseSize='40976' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/math.so' CloseTime='2018-05-08 22:33:30.228537' CloseSize='40976' />
-            <Access File='/usr/lib64/python2.7/numbers.py' OpenTime='2018-05-08 22:33:30.229282' OpenSize='10319' CloseTime='2018-05-08 22:33:30.232104' CloseSize='10319' />
-            <Access File='/usr/lib64/python2.7/numbers.pyc' OpenTime='2018-05-08 22:33:30.229377' OpenSize='14012' CloseTime='2018-05-08 22:33:30.229880' CloseSize='14012' NumReads='4' BytesRead='14012' />
-            <Access File='/usr/lib64/python2.7/__future__.py' OpenTime='2018-05-08 22:33:30.230648' OpenSize='4380' CloseTime='2018-05-08 22:33:30.231274' CloseSize='4380' />
-            <Access File='/usr/lib64/python2.7/__future__.pyc' OpenTime='2018-05-08 22:33:30.230742' OpenSize='4223' CloseTime='2018-05-08 22:33:30.231163' CloseSize='4223' NumReads='3' BytesRead='4228' />
-            <Access File='/usr/lib64/python2.7/collections.py' OpenTime='2018-05-08 22:33:30.232861' OpenSize='27798' CloseTime='2018-05-08 22:33:30.243429' CloseSize='27798' />
-            <Access File='/usr/lib64/python2.7/collections.pyc' OpenTime='2018-05-08 22:33:30.232963' OpenSize='26163' CloseTime='2018-05-08 22:33:30.233582' CloseSize='26163' NumReads='4' BytesRead='25621' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so' OpenTime='2018-05-08 22:33:30.234717' OpenSize='45152' CloseTime='2018-05-08 22:33:30.235110' CloseSize='45152' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so' CloseTime='2018-05-08 22:33:30.235305' CloseSize='45152' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/operator.so' OpenTime='2018-05-08 22:33:30.236375' OpenSize='47088' CloseTime='2018-05-08 22:33:30.236770' CloseSize='47088' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/operator.so' CloseTime='2018-05-08 22:33:30.237066' CloseSize='47088' />
-            <Access File='/usr/lib64/python2.7/keyword.py' OpenTime='2018-05-08 22:33:30.237819' OpenSize='1996' CloseTime='2018-05-08 22:33:30.238317' CloseSize='1996' />
-            <Access File='/usr/lib64/python2.7/keyword.pyc' OpenTime='2018-05-08 22:33:30.237915' OpenSize='2105' CloseTime='2018-05-08 22:33:30.238217' CloseSize='2105' NumReads='2' BytesRead='2105' />
-            <Access File='/usr/lib64/python2.7/heapq.py' OpenTime='2018-05-08 22:33:30.239078' OpenSize='18295' CloseTime='2018-05-08 22:33:30.243207' CloseSize='18295' />
-            <Access File='/usr/lib64/python2.7/heapq.pyc' OpenTime='2018-05-08 22:33:30.239175' OpenSize='14564' CloseTime='2018-05-08 22:33:30.239629' CloseSize='14564' NumReads='4' BytesRead='14565' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so' OpenTime='2018-05-08 22:33:30.240734' OpenSize='69992' CloseTime='2018-05-08 22:33:30.241122' CloseSize='69992' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so' CloseTime='2018-05-08 22:33:30.241558' CloseSize='69992' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/_heapq.so' OpenTime='2018-05-08 22:33:30.242599' OpenSize='22520' CloseTime='2018-05-08 22:33:30.243006' CloseSize='22520' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/_heapq.so' CloseTime='2018-05-08 22:33:30.243143' CloseSize='22520' />
-            <Access File='/usr/lib64/python2.7/threading.py' OpenTime='2018-05-08 22:33:30.245514' OpenSize='47325' CloseTime='2018-05-08 22:33:30.250524' CloseSize='47325' />
-            <Access File='/usr/lib64/python2.7/threading.pyc' OpenTime='2018-05-08 22:33:30.245610' OpenSize='42718' CloseTime='2018-05-08 22:33:30.246302' CloseSize='42718' NumReads='4' BytesRead='42803' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/timemodule.so' OpenTime='2018-05-08 22:33:30.247400' OpenSize='28600' CloseTime='2018-05-08 22:33:30.247787' CloseSize='28600' NumReads='1' BytesRead='832' />
-            <Access File='/usr/share/zoneinfo/Europe/London' OpenTime='2018-05-08 22:33:30.247965' OpenSize='3687' CloseTime='2018-05-08 22:33:30.248286' CloseSize='3687' NumReads='2' BytesRead='6034' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/timemodule.so' CloseTime='2018-05-08 22:33:30.248440' CloseSize='28600' />
-            <Access File='/usr/lib64/python2.7/locale.py' OpenTime='2018-05-08 22:33:30.255701' OpenSize='99914' CloseTime='2018-05-08 22:33:30.260967' CloseSize='99914' />
-            <Access File='/usr/lib64/python2.7/locale.pyc' OpenTime='2018-05-08 22:33:30.255811' OpenSize='55120' CloseTime='2018-05-08 22:33:30.256847' CloseSize='55120' NumReads='4' BytesRead='55084' />
-            <Access File='/usr/lib64/python2.7/functools.py' OpenTime='2018-05-08 22:33:30.257636' OpenSize='4478' CloseTime='2018-05-08 22:33:30.259929' CloseSize='4478' />
-            <Access File='/usr/lib64/python2.7/functools.pyc' OpenTime='2018-05-08 22:33:30.257730' OpenSize='6056' CloseTime='2018-05-08 22:33:30.258250' CloseSize='6056' NumReads='3' BytesRead='6089' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so' OpenTime='2018-05-08 22:33:30.259423' OpenSize='16656' CloseTime='2018-05-08 22:33:30.259754' CloseSize='16656' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so' CloseTime='2018-05-08 22:33:30.259885' CloseSize='16656' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/datetime.so' OpenTime='2018-05-08 22:33:30.223605' CloseTime='2018-05-08 22:33:30.224027' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/datetime.so' CloseTime='2018-05-08 22:33:30.224311' />
+            <Access File='/usr/lib64/python2.7/decimal.py' OpenTime='2018-05-08 22:33:30.225060' CloseTime='2018-05-08 22:33:30.261083' />
+            <Access File='/usr/lib64/python2.7/decimal.pyc' OpenTime='2018-05-08 22:33:30.225154' CloseTime='2018-05-08 22:33:30.226873' NumReads='4' BytesRead='171368' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/math.so' OpenTime='2018-05-08 22:33:30.227978' CloseTime='2018-05-08 22:33:30.228374' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/math.so' CloseTime='2018-05-08 22:33:30.228537' />
+            <Access File='/usr/lib64/python2.7/numbers.py' OpenTime='2018-05-08 22:33:30.229282' CloseTime='2018-05-08 22:33:30.232104' />
+            <Access File='/usr/lib64/python2.7/numbers.pyc' OpenTime='2018-05-08 22:33:30.229377' CloseTime='2018-05-08 22:33:30.229880' NumReads='4' BytesRead='14012' />
+            <Access File='/usr/lib64/python2.7/__future__.py' OpenTime='2018-05-08 22:33:30.230648' CloseTime='2018-05-08 22:33:30.231274' />
+            <Access File='/usr/lib64/python2.7/__future__.pyc' OpenTime='2018-05-08 22:33:30.230742' CloseTime='2018-05-08 22:33:30.231163' NumReads='3' BytesRead='4228' />
+            <Access File='/usr/lib64/python2.7/collections.py' OpenTime='2018-05-08 22:33:30.232861' CloseTime='2018-05-08 22:33:30.243429' />
+            <Access File='/usr/lib64/python2.7/collections.pyc' OpenTime='2018-05-08 22:33:30.232963' CloseTime='2018-05-08 22:33:30.233582' NumReads='4' BytesRead='25621' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so' OpenTime='2018-05-08 22:33:30.234717' CloseTime='2018-05-08 22:33:30.235110' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so' CloseTime='2018-05-08 22:33:30.235305' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/operator.so' OpenTime='2018-05-08 22:33:30.236375' CloseTime='2018-05-08 22:33:30.236770' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/operator.so' CloseTime='2018-05-08 22:33:30.237066' />
+            <Access File='/usr/lib64/python2.7/keyword.py' OpenTime='2018-05-08 22:33:30.237819' CloseTime='2018-05-08 22:33:30.238317' />
+            <Access File='/usr/lib64/python2.7/keyword.pyc' OpenTime='2018-05-08 22:33:30.237915' CloseTime='2018-05-08 22:33:30.238217' NumReads='2' BytesRead='2105' />
+            <Access File='/usr/lib64/python2.7/heapq.py' OpenTime='2018-05-08 22:33:30.239078' CloseTime='2018-05-08 22:33:30.243207' />
+            <Access File='/usr/lib64/python2.7/heapq.pyc' OpenTime='2018-05-08 22:33:30.239175' CloseTime='2018-05-08 22:33:30.239629' NumReads='4' BytesRead='14565' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so' OpenTime='2018-05-08 22:33:30.240734' CloseTime='2018-05-08 22:33:30.241122' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so' CloseTime='2018-05-08 22:33:30.241558' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/_heapq.so' OpenTime='2018-05-08 22:33:30.242599' CloseTime='2018-05-08 22:33:30.243006' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/_heapq.so' CloseTime='2018-05-08 22:33:30.243143' />
+            <Access File='/usr/lib64/python2.7/threading.py' OpenTime='2018-05-08 22:33:30.245514' CloseTime='2018-05-08 22:33:30.250524' />
+            <Access File='/usr/lib64/python2.7/threading.pyc' OpenTime='2018-05-08 22:33:30.245610' CloseTime='2018-05-08 22:33:30.246302' NumReads='4' BytesRead='42803' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/timemodule.so' OpenTime='2018-05-08 22:33:30.247400' CloseTime='2018-05-08 22:33:30.247787' NumReads='1' BytesRead='832' />
+            <Access File='/usr/share/zoneinfo/Europe/London' OpenTime='2018-05-08 22:33:30.247965' CloseTime='2018-05-08 22:33:30.248286' NumReads='2' BytesRead='6034' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/timemodule.so' CloseTime='2018-05-08 22:33:30.248440' />
+            <Access File='/usr/lib64/python2.7/locale.py' OpenTime='2018-05-08 22:33:30.255701' CloseTime='2018-05-08 22:33:30.260967' />
+            <Access File='/usr/lib64/python2.7/locale.pyc' OpenTime='2018-05-08 22:33:30.255811' CloseTime='2018-05-08 22:33:30.256847' NumReads='4' BytesRead='55084' />
+            <Access File='/usr/lib64/python2.7/functools.py' OpenTime='2018-05-08 22:33:30.257636' CloseTime='2018-05-08 22:33:30.259929' />
+            <Access File='/usr/lib64/python2.7/functools.pyc' OpenTime='2018-05-08 22:33:30.257730' CloseTime='2018-05-08 22:33:30.258250' NumReads='3' BytesRead='6089' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so' OpenTime='2018-05-08 22:33:30.259423' CloseTime='2018-05-08 22:33:30.259754' NumReads='1' BytesRead='832' />
+            <Access File='/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so' CloseTime='2018-05-08 22:33:30.259885' />
             <Access File='/usr/lib64/python2.7/site-packages/cx_Oracle.so' CloseTime='2018-05-08 22:33:30.261832' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.261892' OpenSize='36008' CloseTime='2018-05-08 22:33:30.262014' CloseSize='36008' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so.11.1' OpenTime='2018-05-08 22:33:30.262058' OpenSize='41051464' CloseTime='2018-05-08 22:33:30.262354' CloseSize='41051464' NumReads='1' BytesRead='832' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/lib/libnnz11.so' OpenTime='2018-05-08 22:33:30.262405' OpenSize='2909600' CloseTime='2018-05-08 22:33:30.262786' CloseSize='2909600' NumReads='1' BytesRead='832' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.261892' CloseTime='2018-05-08 22:33:30.262014' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so.11.1' OpenTime='2018-05-08 22:33:30.262058' CloseTime='2018-05-08 22:33:30.262354' NumReads='1' BytesRead='832' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/lib/libnnz11.so' OpenTime='2018-05-08 22:33:30.262405' CloseTime='2018-05-08 22:33:30.262786' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libnsl-2.21.so' OpenTime='2018-05-08 22:33:30.262845' CloseTime='2018-05-08 22:33:30.263117' NumReads='1' BytesRead='832' />
-            <Access File='/usr/lib64/libaio.so.1.0.1' OpenTime='2018-05-08 22:33:30.263159' OpenSize='6288' CloseTime='2018-05-08 22:33:30.263401' CloseSize='6288' NumReads='1' BytesRead='832' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx1boot.nlb' OpenTime='2018-05-08 22:33:30.270619' OpenSize='13728' CloseTime='2018-05-08 22:33:30.270837' CloseSize='13728' NumReads='2' BytesRead='13728' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx00025.nlb' OpenTime='2018-05-08 22:33:30.270934' OpenSize='968' CloseTime='2018-05-08 22:33:30.271075' CloseSize='968' NumReads='2' BytesRead='968' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx20369.nlb' OpenTime='2018-05-08 22:33:30.271199' OpenSize='951775' CloseTime='2018-05-08 22:33:30.271474' CloseSize='951775' NumReads='2' BytesRead='145905' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx10002.nlb' OpenTime='2018-05-08 22:33:30.271524' OpenSize='851' CloseTime='2018-05-08 22:33:30.271677' CloseSize='851' NumReads='2' BytesRead='851' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx40011.nlb' OpenTime='2018-05-08 22:33:30.271730' OpenSize='22113' CloseTime='2018-05-08 22:33:30.271920' CloseSize='22113' NumReads='2' BytesRead='22113' />
+            <Access File='/usr/lib64/libaio.so.1.0.1' OpenTime='2018-05-08 22:33:30.263159' CloseTime='2018-05-08 22:33:30.263401' NumReads='1' BytesRead='832' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx1boot.nlb' OpenTime='2018-05-08 22:33:30.270619' CloseTime='2018-05-08 22:33:30.270837' NumReads='2' BytesRead='13728' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx00025.nlb' OpenTime='2018-05-08 22:33:30.270934' CloseTime='2018-05-08 22:33:30.271075' NumReads='2' BytesRead='968' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx20369.nlb' OpenTime='2018-05-08 22:33:30.271199' CloseTime='2018-05-08 22:33:30.271474' NumReads='2' BytesRead='145905' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx10002.nlb' OpenTime='2018-05-08 22:33:30.271524' CloseTime='2018-05-08 22:33:30.271677' NumReads='2' BytesRead='851' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx40011.nlb' OpenTime='2018-05-08 22:33:30.271730' CloseTime='2018-05-08 22:33:30.271920' NumReads='2' BytesRead='22113' />
             <Access File='UDPv6:[::1:32990]' CloseTime='2018-05-08 22:33:30.272227' />
             <Access File='UNIX:[5648125]' CloseTime='2018-05-08 22:33:30.273975' />
             <Access File='UNIX:[5648126]' CloseTime='2018-05-08 22:33:30.275410' />
-            <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 22:33:30.275905' OpenSize='1731' CloseTime='2018-05-08 22:33:30.276175' CloseSize='1731' NumReads='2' BytesRead='1769' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.276273' OpenSize='36008' CloseTime='2018-05-08 22:33:30.276411' CloseSize='36008' />
+            <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 22:33:30.275905' CloseTime='2018-05-08 22:33:30.276175' NumReads='2' BytesRead='1769' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.276273' CloseTime='2018-05-08 22:33:30.276411' />
             <Access File='/usr/lib64/libnss_files-2.21.so' OpenTime='2018-05-08 22:33:30.276463' CloseTime='2018-05-08 22:33:30.276757' NumReads='1' BytesRead='832' />
-            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.276917' OpenSize='1134' CloseTime='2018-05-08 22:33:30.277113' CloseSize='1134' NumReads='1' BytesRead='3044' />
-            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.277261' OpenSize='1134' CloseTime='2018-05-08 22:33:30.277449' CloseSize='1134' NumReads='1' BytesRead='3044' />
+            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.276917' CloseTime='2018-05-08 22:33:30.277113' NumReads='1' BytesRead='3044' />
+            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.277261' CloseTime='2018-05-08 22:33:30.277449' NumReads='1' BytesRead='3044' />
             <Access File='/proc/29838/fd' OpenTime='2018-05-08 22:33:30.278146' />
-            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.278474' OpenSize='1134' CloseTime='2018-05-08 22:33:30.278674' CloseSize='1134' NumReads='1' BytesRead='3044' />
-            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.278796' OpenSize='1134' CloseTime='2018-05-08 22:33:30.279035' CloseSize='1134' NumReads='1' BytesRead='3044' />
+            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.278474' CloseTime='2018-05-08 22:33:30.278674' NumReads='1' BytesRead='3044' />
+            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.278796' CloseTime='2018-05-08 22:33:30.279035' NumReads='1' BytesRead='3044' />
             <Access File='/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/metadata/ADR_CONTROL.ams' OpenTime='2018-05-08 22:33:30.280444' CloseTime='2018-05-08 22:33:30.280547' />
             <Access File='/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/metadata/ADR_CONTROL.ams' OpenTime='2018-05-08 22:33:30.280615' CloseTime='2018-05-08 22:33:30.280712' />
             <Access File='/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/metadata/ADR_CONTROL.ams' OpenTime='2018-05-08 22:33:30.280795' CloseTime='2018-05-08 22:33:30.280933' />
@@ -168,53 +168,53 @@
             <Access File='UNIX:[5649207]' CloseTime='2018-05-08 22:33:30.293743' />
             <Access File='NETLINK:[5649206]' CloseTime='2018-05-08 22:33:30.294135' />
             <Access File='UNIX:[5649208]' CloseTime='2018-05-08 22:33:30.295049' />
-            <Access File='/etc/host.conf' OpenTime='2018-05-08 22:33:30.295683' OpenSize='9' CloseTime='2018-05-08 22:33:30.296012' CloseSize='9' NumReads='2' BytesRead='9' />
-            <Access File='/etc/resolv.conf' OpenTime='2018-05-08 22:33:30.296153' OpenSize='88' CloseTime='2018-05-08 22:33:30.296449' CloseSize='88' NumReads='2' BytesRead='80' />
-            <Access File='/etc/hosts' OpenTime='2018-05-08 22:33:30.296586' OpenSize='231' CloseTime='2018-05-08 22:33:30.296903' CloseSize='231' NumReads='2' BytesRead='158' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.297020' OpenSize='36008' CloseTime='2018-05-08 22:33:30.297196' CloseSize='36008' />
+            <Access File='/etc/host.conf' OpenTime='2018-05-08 22:33:30.295683' CloseTime='2018-05-08 22:33:30.296012' NumReads='2' BytesRead='9' />
+            <Access File='/etc/resolv.conf' OpenTime='2018-05-08 22:33:30.296153' CloseTime='2018-05-08 22:33:30.296449' NumReads='2' BytesRead='80' />
+            <Access File='/etc/hosts' OpenTime='2018-05-08 22:33:30.296586' CloseTime='2018-05-08 22:33:30.296903' NumReads='2' BytesRead='158' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.297020' CloseTime='2018-05-08 22:33:30.297196' />
             <Access File='/usr/lib64/libnss_mdns4_minimal.so.2' OpenTime='2018-05-08 22:33:30.297264' CloseTime='2018-05-08 22:33:30.297651' NumReads='1' BytesRead='832' />
-            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.297878' OpenSize='36008' CloseTime='2018-05-08 22:33:30.298071' CloseSize='36008' />
+            <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 22:33:30.297878' CloseTime='2018-05-08 22:33:30.298071' />
             <Access File='/usr/lib64/libnss_dns-2.21.so' OpenTime='2018-05-08 22:33:30.298135' CloseTime='2018-05-08 22:33:30.298519' NumReads='1' BytesRead='832' />
             <Access File='/usr/lib64/libresolv-2.21.so' OpenTime='2018-05-08 22:33:30.298585' CloseTime='2018-05-08 22:33:30.299053' NumReads='1' BytesRead='832' />
             <Access File='UDP:[192.168.0.17:60275->194.168.4.100:53]' CloseTime='2018-05-08 22:33:30.325742' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx00001.nlb' OpenTime='2018-05-08 22:33:30.326010' OpenSize='951' CloseTime='2018-05-08 22:33:30.326205' CloseSize='951' NumReads='2' BytesRead='951' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx20001.nlb' OpenTime='2018-05-08 22:33:30.326274' OpenSize='6969' CloseTime='2018-05-08 22:33:30.326466' CloseSize='6969' NumReads='2' BytesRead='6969' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx10001.nlb' OpenTime='2018-05-08 22:33:30.326533' OpenSize='1140' CloseTime='2018-05-08 22:33:30.326716' CloseSize='1140' NumReads='2' BytesRead='1140' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx00001.nlb' OpenTime='2018-05-08 22:33:30.326010' CloseTime='2018-05-08 22:33:30.326205' NumReads='2' BytesRead='951' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx20001.nlb' OpenTime='2018-05-08 22:33:30.326274' CloseTime='2018-05-08 22:33:30.326466' NumReads='2' BytesRead='6969' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx10001.nlb' OpenTime='2018-05-08 22:33:30.326533' CloseTime='2018-05-08 22:33:30.326716' NumReads='2' BytesRead='1140' />
             <Access File='/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/alert/log.xml' OpenTime='2018-05-08 22:33:30.327113' CloseTime='2018-05-08 22:33:30.327339' NumWrites='1' BytesWritten='304' />
             <Access File='/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/trace/sqlnet.log' OpenTime='2018-05-08 22:33:30.327498' CloseTime='2018-05-08 22:33:30.327775' NumWrites='2' BytesWritten='158' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo' OpenTime='2018-05-08 22:33:30.328459' OpenSize='4096' CloseTime='2018-05-08 22:33:30.329749' CloseSize='4096' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezone_14.dat' OpenTime='2018-05-08 22:33:30.328593' OpenSize='344448' CloseTime='2018-05-08 22:33:30.328810' CloseSize='344448' NumReads='1' BytesRead='4096' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezdif.csv' OpenTime='2018-05-08 22:33:30.328901' OpenSize='31525' CloseTime='2018-05-08 22:33:30.329086' CloseSize='31525' NumReads='1' BytesRead='4096' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat' OpenTime='2018-05-08 22:33:30.329169' OpenSize='791430' CloseTime='2018-05-08 22:33:30.329353' CloseSize='791430' NumReads='1' BytesRead='4096' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/readme.txt' OpenTime='2018-05-08 22:33:30.329436' OpenSize='6068' CloseTime='2018-05-08 22:33:30.329618' CloseSize='6068' NumReads='1' BytesRead='4096' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat' OpenTime='2018-05-08 22:33:30.329795' OpenSize='791430' CloseTime='2018-05-08 22:33:30.329945' CloseSize='791430' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo' OpenTime='2018-05-08 22:33:30.328459' CloseTime='2018-05-08 22:33:30.329749' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezone_14.dat' OpenTime='2018-05-08 22:33:30.328593' CloseTime='2018-05-08 22:33:30.328810' NumReads='1' BytesRead='4096' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezdif.csv' OpenTime='2018-05-08 22:33:30.328901' CloseTime='2018-05-08 22:33:30.329086' NumReads='1' BytesRead='4096' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat' OpenTime='2018-05-08 22:33:30.329169' CloseTime='2018-05-08 22:33:30.329353' NumReads='1' BytesRead='4096' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/readme.txt' OpenTime='2018-05-08 22:33:30.329436' CloseTime='2018-05-08 22:33:30.329618' NumReads='1' BytesRead='4096' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat' OpenTime='2018-05-08 22:33:30.329795' CloseTime='2018-05-08 22:33:30.329945' />
             <Access File='/proc/sys/kernel/shmmax' OpenTime='2018-05-08 22:33:30.330043' CloseTime='2018-05-08 22:33:30.330234' NumReads='1' BytesRead='11' />
             <Access File='/proc/meminfo' OpenTime='2018-05-08 22:33:30.330313' CloseTime='2018-05-08 22:33:30.330564' NumReads='2' BytesRead='1251' />
             <Access File='/proc/meminfo' OpenTime='2018-05-08 22:33:30.330661' CloseTime='2018-05-08 22:33:30.330976' NumReads='3' BytesRead='1251' />
             <Access File='/usr/lib64/libnuma.so.1.0.0' OpenTime='2018-05-08 22:33:30.331169' CloseTime='2018-05-08 22:33:30.331469' NumReads='1' BytesRead='832' />
             <Access File='/proc/29838/status' OpenTime='2018-05-08 22:33:30.331571' CloseTime='2018-05-08 22:33:30.331793' NumReads='1' BytesRead='1024' />
             <Access File='/sys/devices/system/node' OpenTime='2018-05-08 22:33:30.331887' CloseTime='2018-05-08 22:33:30.332400' />
-            <Access File='/sys/devices/system/node/node0/meminfo' OpenTime='2018-05-08 22:33:30.332014' OpenSize='4096' CloseTime='2018-05-08 22:33:30.332275' CloseSize='4096' NumReads='2' BytesRead='1000' />
+            <Access File='/sys/devices/system/node/node0/meminfo' OpenTime='2018-05-08 22:33:30.332014' CloseTime='2018-05-08 22:33:30.332275' NumReads='2' BytesRead='1000' />
             <Access File='/sys/devices/system/cpu' OpenTime='2018-05-08 22:33:30.332465' CloseTime='2018-05-08 22:33:30.332608' />
             <Access File='/proc/29838/status' OpenTime='2018-05-08 22:33:30.332652' CloseTime='2018-05-08 22:33:30.332974' NumReads='3' BytesRead='1064' />
             <Access File='/proc/meminfo' OpenTime='2018-05-08 22:33:30.333373' CloseTime='2018-05-08 22:33:30.333662' NumReads='3' BytesRead='1251' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb' OpenTime='2018-05-08 22:33:30.334095' OpenSize='27136' CloseTime='2018-05-08 22:33:30.428422' CloseSize='27136' NumReads='3' BytesRead='862' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb' OpenTime='2018-05-08 22:33:30.334095' CloseTime='2018-05-08 22:33:30.428422' NumReads='3' BytesRead='862' />
             <Access File='/proc/29838/stat' OpenTime='2018-05-08 22:33:30.335137' CloseTime='2018-05-08 22:33:30.335262' NumReads='1' BytesRead='329' />
             <Access File='/proc/29838/stat' OpenTime='2018-05-08 22:33:30.335331' CloseTime='2018-05-08 22:33:30.335429' NumReads='1' BytesRead='329' />
             <Access File='/proc/29838/cmdline' OpenTime='2018-05-08 22:33:30.335759' CloseTime='2018-05-08 22:33:30.335877' NumReads='1' BytesRead='38' />
-            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.335980' OpenSize='1134' CloseTime='2018-05-08 22:33:30.336195' CloseSize='1134' NumReads='1' BytesRead='3044' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/lib/libnque11.so' OpenTime='2018-05-08 22:33:30.336447' OpenSize='42256' CloseTime='2018-05-08 22:33:30.336849' CloseSize='42256' NumReads='1' BytesRead='832' />
+            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.335980' CloseTime='2018-05-08 22:33:30.336195' NumReads='1' BytesRead='3044' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/lib/libnque11.so' OpenTime='2018-05-08 22:33:30.336447' CloseTime='2018-05-08 22:33:30.336849' NumReads='1' BytesRead='832' />
             <Access File='pipe:[5648149]' CloseTime='2018-05-08 22:33:30.338105' />
             <Access File='pipe:[5648150]' CloseTime='2018-05-08 22:33:30.338167' />
             <Access File='pipe:[5648150]' CloseTime='2018-05-08 22:33:30.428059' NumReads='11' BytesRead='3279' />
             <Access File='pipe:[5648149]' CloseTime='2018-05-08 22:33:30.427989' NumWrites='12' BytesWritten='2615' />
-            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.354170' OpenSize='1134' CloseTime='2018-05-08 22:33:30.354432' CloseSize='1134' NumReads='1' BytesRead='3044' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx207d0.nlb' OpenTime='2018-05-08 22:33:30.354835' OpenSize='437760' CloseTime='2018-05-08 22:33:30.355433' CloseSize='437760' NumReads='2' BytesRead='334338' />
-            <Access File='/etc/hosts' OpenTime='2018-05-08 22:33:30.361468' OpenSize='231' CloseTime='2018-05-08 22:33:30.361717' CloseSize='231' NumReads='2' BytesRead='158' />
+            <Access File='/etc/passwd' OpenTime='2018-05-08 22:33:30.354170' CloseTime='2018-05-08 22:33:30.354432' NumReads='1' BytesRead='3044' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/nls/data/lx207d0.nlb' OpenTime='2018-05-08 22:33:30.354835' CloseTime='2018-05-08 22:33:30.355433' NumReads='2' BytesRead='334338' />
+            <Access File='/etc/hosts' OpenTime='2018-05-08 22:33:30.361468' CloseTime='2018-05-08 22:33:30.361717' NumReads='2' BytesRead='158' />
             <Access File='UDP:[192.168.0.17:54310->194.168.4.100:53]' CloseTime='2018-05-08 22:33:30.390593' />
-            <Access File='/etc/hosts' OpenTime='2018-05-08 22:33:30.390816' OpenSize='231' CloseTime='2018-05-08 22:33:30.391141' CloseSize='231' NumReads='2' BytesRead='158' />
+            <Access File='/etc/hosts' OpenTime='2018-05-08 22:33:30.390816' CloseTime='2018-05-08 22:33:30.391141' NumReads='2' BytesRead='158' />
             <Access File='UDP:[192.168.0.17:51650->194.168.4.100:53]' CloseTime='2018-05-08 22:33:30.411074' />
-            <Access File='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/oraus.msb' OpenTime='2018-05-08 22:33:30.414653' OpenSize='1092096' CloseTime='2018-05-08 22:33:30.417461' CloseSize='1092096' NumReads='22' BytesRead='11008' />
+            <Access File='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/oraus.msb' OpenTime='2018-05-08 22:33:30.414653' CloseTime='2018-05-08 22:33:30.417461' NumReads='22' BytesRead='11008' />
             <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.log' NumWrites='14' BytesWritten='316' />
         </FileAccesses>
         <CIM_Process Handle='29839'>
@@ -259,13 +259,6 @@
         <CIM_DataFile Name='/proc/meminfo'>
             <FileName>/proc/meminfo</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 00:58:13:797312</AccessTime>
-            <CreationTime>2018-05-08 00:58:13:797312</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33060</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>4026531994</Inode>
-            <ModifyTime>2018-05-08 00:58:13:797312</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.174377' CloseTime='2018-05-08 22:33:30.174559' NumReads='1' BytesRead='1024' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.330313' CloseTime='2018-05-08 22:33:30.330564' NumReads='2' BytesRead='1251' />
@@ -276,13 +269,6 @@
         <CIM_DataFile Name='/proc/sys/kernel/shmmax'>
             <FileName>/proc/sys/kernel/shmmax</FileName>
             <Category>Kernel file systems</Category>
-            <AccessTime>2018-05-08 10:58:26:535299</AccessTime>
-            <CreationTime>2018-05-08 10:58:26:535299</CreationTime>
-            <DeviceId>4</DeviceId>
-            <FileMode>33188</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>15425727</Inode>
-            <ModifyTime>2018-05-08 10:58:26:535299</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.330043' CloseTime='2018-05-08 22:33:30.330234' NumReads='1' BytesRead='11' />
             </FileAccesses>
@@ -342,31 +328,15 @@
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
             <FileName>/usr/lib/locale/locale-archive</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 17:33:14:319501</AccessTime>
-            <CreationTime>2018-05-08 23:49:15:421897</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>2291760</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>131415</Inode>
-            <ModifyTime>2018-05-08 23:49:15:421897</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.213516' OpenSize='2291760' CloseTime='2018-05-08 22:33:30.213664' CloseSize='2291760' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.213516' CloseTime='2018-05-08 22:33:30.213664' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages'>
             <FileName>/usr/lib/python2.7/site-packages</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:670322</AccessTime>
-            <CreationTime>2018-05-08 23:20:09:752952</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>16877</FileMode>
-            <FileSize>4096</FileSize>
-            <HardLinksNumber>49</HardLinksNumber>
-            <Inode>264766</Inode>
-            <ModifyTime>2018-05-08 23:20:09:752952</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.194302' OpenSize='4096' CloseTime='2018-05-08 22:33:30.194538' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.194302' CloseTime='2018-05-08 22:33:30.194538' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/Paste-1.7.5.1-py2.7-nspkg.pth'>
@@ -505,706 +475,330 @@
         <CIM_DataFile Name='/usr/lib64/python2.7/UserDict.py'>
             <FileName>/usr/lib64/python2.7/UserDict.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:49:992531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>7060</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264784</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.179085' OpenSize='7060' CloseTime='2018-05-08 22:33:30.183126' CloseSize='7060' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.179085' CloseTime='2018-05-08 22:33:30.183126' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/UserDict.pyc'>
             <FileName>/usr/lib64/python2.7/UserDict.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:663322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:358523</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>9711</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>265865</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.179162' OpenSize='9711' CloseTime='2018-05-08 22:33:30.179526' CloseSize='9711' NumReads='4' BytesRead='8820' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.179162' CloseTime='2018-05-08 22:33:30.179526' NumReads='4' BytesRead='8820' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/__future__.py'>
             <FileName>/usr/lib64/python2.7/__future__.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:49:999531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>4380</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264791</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.230648' OpenSize='4380' CloseTime='2018-05-08 22:33:30.231274' CloseSize='4380' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.230648' CloseTime='2018-05-08 22:33:30.231274' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/__future__.pyc'>
             <FileName>/usr/lib64/python2.7/__future__.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:680322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:363523</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>4223</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>265869</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.230742' OpenSize='4223' CloseTime='2018-05-08 22:33:30.231163' CloseSize='4223' NumReads='3' BytesRead='4228' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.230742' CloseTime='2018-05-08 22:33:30.231163' NumReads='3' BytesRead='4228' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_abcoll.py'>
             <FileName>/usr/lib64/python2.7/_abcoll.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:001531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>18619</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264793</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.179710' OpenSize='18619' CloseTime='2018-05-08 22:33:30.183030' CloseSize='18619' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.179710' CloseTime='2018-05-08 22:33:30.183030' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_abcoll.pyc'>
             <FileName>/usr/lib64/python2.7/_abcoll.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:664322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:365523</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>25682</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>265871</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.179786' OpenSize='25682' CloseTime='2018-05-08 22:33:30.180285' CloseSize='25682' NumReads='4' BytesRead='25550' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.179786' CloseTime='2018-05-08 22:33:30.180285' NumReads='4' BytesRead='25550' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_sysconfigdata.py'>
             <FileName>/usr/lib64/python2.7/_sysconfigdata.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:008531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>18741</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264797</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.190453' OpenSize='18741' CloseTime='2018-05-08 22:33:30.191202' CloseSize='18741' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.190453' CloseTime='2018-05-08 22:33:30.191202' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_sysconfigdata.pyc'>
             <FileName>/usr/lib64/python2.7/_sysconfigdata.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:668322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:374523</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>21929</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>265875</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.190528' OpenSize='21929' CloseTime='2018-05-08 22:33:30.191073' CloseSize='21929' NumReads='4' BytesRead='21465' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.190528' CloseTime='2018-05-08 22:33:30.191073' NumReads='4' BytesRead='21465' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_weakrefset.py'>
             <FileName>/usr/lib64/python2.7/_weakrefset.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:010531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>5911</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264799</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.180976' OpenSize='5911' CloseTime='2018-05-08 22:33:30.181680' CloseSize='5911' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.180976' CloseTime='2018-05-08 22:33:30.181680' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_weakrefset.pyc'>
             <FileName>/usr/lib64/python2.7/_weakrefset.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:664322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:376523</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>9678</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>265877</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.181072' OpenSize='9678' CloseTime='2018-05-08 22:33:30.181458' CloseSize='9678' NumReads='4' BytesRead='9678' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.181072' CloseTime='2018-05-08 22:33:30.181458' NumReads='4' BytesRead='9678' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/abc.py'>
             <FileName>/usr/lib64/python2.7/abc.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:010531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>7145</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264800</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.180440' OpenSize='7145' CloseTime='2018-05-08 22:33:30.181769' CloseSize='7145' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.180440' CloseTime='2018-05-08 22:33:30.181769' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/abc.pyc'>
             <FileName>/usr/lib64/python2.7/abc.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:664322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:011531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>6143</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264801</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.180513' OpenSize='6143' CloseTime='2018-05-08 22:33:30.180809' CloseSize='6143' NumReads='3' BytesRead='6143' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.180513' CloseTime='2018-05-08 22:33:30.180809' NumReads='3' BytesRead='6143' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/codecs.py'>
             <FileName>/usr/lib64/python2.7/codecs.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:054531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>36098</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264835</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.215548' OpenSize='36098' CloseTime='2018-05-08 22:33:30.216595' CloseSize='36098' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.215548' CloseTime='2018-05-08 22:33:30.216595' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/codecs.pyc'>
             <FileName>/usr/lib64/python2.7/codecs.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:671322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:410522</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>36845</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>265903</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.215640' OpenSize='36845' CloseTime='2018-05-08 22:33:30.216253' CloseSize='36845' NumReads='4' BytesRead='36709' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.215640' CloseTime='2018-05-08 22:33:30.216253' NumReads='4' BytesRead='36709' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/collections.py'>
             <FileName>/usr/lib64/python2.7/collections.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:057531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>27798</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264837</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.232861' OpenSize='27798' CloseTime='2018-05-08 22:33:30.243429' CloseSize='27798' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.232861' CloseTime='2018-05-08 22:33:30.243429' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/collections.pyc'>
             <FileName>/usr/lib64/python2.7/collections.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:747322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:058531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>26163</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264838</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.232963' OpenSize='26163' CloseTime='2018-05-08 22:33:30.233582' CloseSize='26163' NumReads='4' BytesRead='25621' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.232963' CloseTime='2018-05-08 22:33:30.233582' NumReads='4' BytesRead='25621' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/copy_reg.py'>
             <FileName>/usr/lib64/python2.7/copy_reg.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:103531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>6974</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264872</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.183285' OpenSize='6974' CloseTime='2018-05-08 22:33:30.183760' CloseSize='6974' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.183285' CloseTime='2018-05-08 22:33:30.183760' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/copy_reg.pyc'>
             <FileName>/usr/lib64/python2.7/copy_reg.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:666322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:104531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>5167</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264873</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.183379' OpenSize='5167' CloseTime='2018-05-08 22:33:30.183673' CloseSize='5167' NumReads='3' BytesRead='5113' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.183379' CloseTime='2018-05-08 22:33:30.183673' NumReads='3' BytesRead='5113' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/decimal.py'>
             <FileName>/usr/lib64/python2.7/decimal.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:133530</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>221933</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>264904</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.225060' OpenSize='221933' CloseTime='2018-05-08 22:33:30.261083' CloseSize='221933' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.225060' CloseTime='2018-05-08 22:33:30.261083' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/decimal.pyc'>
             <FileName>/usr/lib64/python2.7/decimal.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 22:48:17:623143</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:449522</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>172155</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>265930</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.225154' OpenSize='172155' CloseTime='2018-05-08 22:33:30.226873' CloseSize='172155' NumReads='4' BytesRead='171368' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.225154' CloseTime='2018-05-08 22:33:30.226873' NumReads='4' BytesRead='171368' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/__init__.py'>
             <FileName>/usr/lib64/python2.7/encodings/__init__.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:49:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:259530</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>5698</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265021</Inode>
-            <ModifyTime>2018-05-08 16:10:49:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.214298' OpenSize='5698' CloseTime='2018-05-08 22:33:30.218005' CloseSize='5698' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.214298' CloseTime='2018-05-08 22:33:30.218005' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/__init__.pyc'>
             <FileName>/usr/lib64/python2.7/encodings/__init__.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:671322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:526522</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>4378</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>265999</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.214392' OpenSize='4378' CloseTime='2018-05-08 22:33:30.214745' CloseSize='4378' NumReads='3' BytesRead='4378' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.214392' CloseTime='2018-05-08 22:33:30.214745' NumReads='3' BytesRead='4378' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/aliases.py'>
             <FileName>/usr/lib64/python2.7/encodings/aliases.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:49:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:260530</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>14848</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265023</Inode>
-            <ModifyTime>2018-05-08 16:10:49:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.216962' OpenSize='14848' CloseTime='2018-05-08 22:33:30.217688' CloseSize='14848' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.216962' CloseTime='2018-05-08 22:33:30.217688' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/aliases.pyc'>
             <FileName>/usr/lib64/python2.7/encodings/aliases.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:672322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:527522</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>8770</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266000</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.217057' OpenSize='8770' CloseTime='2018-05-08 22:33:30.217577' CloseSize='8770' NumReads='4' BytesRead='8770' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.217057' CloseTime='2018-05-08 22:33:30.217577' NumReads='4' BytesRead='8770' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/utf_8.py'>
             <FileName>/usr/lib64/python2.7/encodings/utf_8.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:50:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:364529</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>1005</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265146</Inode>
-            <ModifyTime>2018-05-08 16:10:50:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.218179' OpenSize='1005' CloseTime='2018-05-08 22:33:30.218730' CloseSize='1005' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.218179' CloseTime='2018-05-08 22:33:30.218730' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/utf_8.pyc'>
             <FileName>/usr/lib64/python2.7/encodings/utf_8.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:672322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:625521</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>1966</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266111</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.218272' OpenSize='1966' CloseTime='2018-05-08 22:33:30.218570' CloseSize='1966' NumReads='2' BytesRead='1966' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.218272' CloseTime='2018-05-08 22:33:30.218570' NumReads='2' BytesRead='1966' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/functools.py'>
             <FileName>/usr/lib64/python2.7/functools.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 11:42:29:101651</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:381529</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>4478</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265167</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.257636' OpenSize='4478' CloseTime='2018-05-08 22:33:30.259929' CloseSize='4478' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.257636' CloseTime='2018-05-08 22:33:30.259929' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/functools.pyc'>
             <FileName>/usr/lib64/python2.7/functools.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:755322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:641521</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>6056</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266124</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.257730' OpenSize='6056' CloseTime='2018-05-08 22:33:30.258250' CloseSize='6056' NumReads='3' BytesRead='6089' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.257730' CloseTime='2018-05-08 22:33:30.258250' NumReads='3' BytesRead='6089' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/genericpath.py'>
             <FileName>/usr/lib64/python2.7/genericpath.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:382529</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>3201</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265168</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.176369' OpenSize='3201' CloseTime='2018-05-08 22:33:30.176758' CloseSize='3201' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.176369' CloseTime='2018-05-08 22:33:30.176758' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/genericpath.pyc'>
             <FileName>/usr/lib64/python2.7/genericpath.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:663322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:642521</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>3517</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266125</Inode>
-            <ModifyTime>2018-05-08 16:11:52:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.176444' OpenSize='3517' CloseTime='2018-05-08 22:33:30.176683' CloseSize='3517' NumReads='2' BytesRead='3517' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.176444' CloseTime='2018-05-08 22:33:30.176683' NumReads='2' BytesRead='3517' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/heapq.py'>
             <FileName>/usr/lib64/python2.7/heapq.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:391529</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>18295</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265177</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.239078' OpenSize='18295' CloseTime='2018-05-08 22:33:30.243207' CloseSize='18295' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.239078' CloseTime='2018-05-08 22:33:30.243207' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/heapq.pyc'>
             <FileName>/usr/lib64/python2.7/heapq.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:749322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:650521</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>14564</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266131</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.239175' OpenSize='14564' CloseTime='2018-05-08 22:33:30.239629' CloseSize='14564' NumReads='4' BytesRead='14565' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.239175' CloseTime='2018-05-08 22:33:30.239629' NumReads='4' BytesRead='14565' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/keyword.py'>
             <FileName>/usr/lib64/python2.7/keyword.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:563528</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>1996</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265350</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.237819' OpenSize='1996' CloseTime='2018-05-08 22:33:30.238317' CloseSize='1996' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.237819' CloseTime='2018-05-08 22:33:30.238317' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/keyword.pyc'>
             <FileName>/usr/lib64/python2.7/keyword.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:749322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:755520</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>2105</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266221</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.237915' OpenSize='2105' CloseTime='2018-05-08 22:33:30.238217' CloseSize='2105' NumReads='2' BytesRead='2105' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.237915' CloseTime='2018-05-08 22:33:30.238217' NumReads='2' BytesRead='2105' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/linecache.py'>
             <FileName>/usr/lib64/python2.7/linecache.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:908525</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>4027</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265542</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.177490' OpenSize='4027' CloseTime='2018-05-08 22:33:30.177897' CloseSize='4027' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.177490' CloseTime='2018-05-08 22:33:30.177897' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/linecache.pyc'>
             <FileName>/usr/lib64/python2.7/linecache.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:663322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:804520</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>3272</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266274</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.177562' OpenSize='3272' CloseTime='2018-05-08 22:33:30.177794' CloseSize='3272' NumReads='2' BytesRead='3272' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.177562' CloseTime='2018-05-08 22:33:30.177794' NumReads='2' BytesRead='3272' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/locale.py'>
             <FileName>/usr/lib64/python2.7/locale.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:912526</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>99914</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265543</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.255701' OpenSize='99914' CloseTime='2018-05-08 22:33:30.260967' CloseSize='99914' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.255701' CloseTime='2018-05-08 22:33:30.260967' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/locale.pyc'>
             <FileName>/usr/lib64/python2.7/locale.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:809321</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:807520</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>55120</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266275</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.255811' OpenSize='55120' CloseTime='2018-05-08 22:33:30.256847' CloseSize='55120' NumReads='4' BytesRead='55084' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.255811' CloseTime='2018-05-08 22:33:30.256847' NumReads='4' BytesRead='55084' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/numbers.py'>
             <FileName>/usr/lib64/python2.7/numbers.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:999525</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>10319</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265616</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.229282' OpenSize='10319' CloseTime='2018-05-08 22:33:30.232104' CloseSize='10319' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.229282' CloseTime='2018-05-08 22:33:30.232104' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/numbers.pyc'>
             <FileName>/usr/lib64/python2.7/numbers.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 22:48:17:536143</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:832520</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>14012</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266294</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.229377' OpenSize='14012' CloseTime='2018-05-08 22:33:30.229880' CloseSize='14012' NumReads='4' BytesRead='14012' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.229377' CloseTime='2018-05-08 22:33:30.229880' NumReads='4' BytesRead='14012' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/os.py'>
             <FileName>/usr/lib64/python2.7/os.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 14:34:19:798786</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:010525</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>25910</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265621</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.173549' OpenSize='25910' CloseTime='2018-05-08 22:33:30.183815' CloseSize='25910' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.173549' CloseTime='2018-05-08 22:33:30.183815' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/os.pyc'>
             <FileName>/usr/lib64/python2.7/os.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:661322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:834520</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>25689</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266296</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.173624' OpenSize='25689' CloseTime='2018-05-08 22:33:30.174082' CloseSize='25689' NumReads='4' BytesRead='25699' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.173624' CloseTime='2018-05-08 22:33:30.174082' NumReads='4' BytesRead='25699' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/posixpath.py'>
             <FileName>/usr/lib64/python2.7/posixpath.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:47:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:047525</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>13935</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265648</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.174972' OpenSize='13935' CloseTime='2018-05-08 22:33:30.178844' CloseSize='13935' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.174972' CloseTime='2018-05-08 22:33:30.178844' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/posixpath.pyc'>
             <FileName>/usr/lib64/python2.7/posixpath.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:662322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:854520</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>11431</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266308</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.175050' OpenSize='11431' CloseTime='2018-05-08 22:33:30.175444' CloseSize='11431' NumReads='4' BytesRead='11420' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.175050' CloseTime='2018-05-08 22:33:30.175444' NumReads='4' BytesRead='11420' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/re.py'>
             <FileName>/usr/lib64/python2.7/re.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 22:12:04:765373</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:096524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>13423</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265667</Inode>
-            <ModifyTime>2018-05-08 16:10:47:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.186100' OpenSize='13423' CloseTime='2018-05-08 22:33:30.190323' CloseSize='13423' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.186100' CloseTime='2018-05-08 22:33:30.190323' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/re.pyc'>
             <FileName>/usr/lib64/python2.7/re.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:667322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:881520</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>13413</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266317</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.186176' OpenSize='13413' CloseTime='2018-05-08 22:33:30.186540' CloseSize='13413' NumReads='4' BytesRead='13413' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.186176' CloseTime='2018-05-08 22:33:30.186540' NumReads='4' BytesRead='13413' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages'>
             <FileName>/usr/lib64/python2.7/site-packages</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:669322</AccessTime>
-            <CreationTime>2018-05-08 23:20:09:232955</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>16877</FileMode>
-            <FileSize>4096</FileSize>
-            <HardLinksNumber>23</HardLinksNumber>
-            <Inode>265682</Inode>
-            <ModifyTime>2018-05-08 23:20:09:232955</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.191812' OpenSize='4096' CloseTime='2018-05-08 22:33:30.192035' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.191812' CloseTime='2018-05-08 22:33:30.192035' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages/abrt.pth'>
@@ -1238,301 +832,141 @@
         <CIM_DataFile Name='/usr/lib64/python2.7/site.py'>
             <FileName>/usr/lib64/python2.7/site.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:112524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>19637</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265683</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.172717' OpenSize='19637' CloseTime='2018-05-08 22:33:30.213454' CloseSize='19637' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.172717' CloseTime='2018-05-08 22:33:30.213454' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site.pyc'>
             <FileName>/usr/lib64/python2.7/site.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:661322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:901520</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>19364</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266331</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.172796' OpenSize='19364' CloseTime='2018-05-08 22:33:30.173372' CloseSize='19364' NumReads='4' BytesRead='19553' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.172796' CloseTime='2018-05-08 22:33:30.173372' NumReads='4' BytesRead='19553' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_compile.py'>
             <FileName>/usr/lib64/python2.7/sre_compile.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:123524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>19823</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265695</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.186704' OpenSize='19823' CloseTime='2018-05-08 22:33:30.189105' CloseSize='19823' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.186704' CloseTime='2018-05-08 22:33:30.189105' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_compile.pyc'>
             <FileName>/usr/lib64/python2.7/sre_compile.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:667322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:124524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>12560</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265696</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.186778' OpenSize='12560' CloseTime='2018-05-08 22:33:30.187271' CloseSize='12560' NumReads='4' BytesRead='12559' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.186778' CloseTime='2018-05-08 22:33:30.187271' NumReads='4' BytesRead='12559' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_constants.py'>
             <FileName>/usr/lib64/python2.7/sre_constants.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:126524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>7197</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265698</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.188157' OpenSize='7197' CloseTime='2018-05-08 22:33:30.188690' CloseSize='7197' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.188157' CloseTime='2018-05-08 22:33:30.188690' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_constants.pyc'>
             <FileName>/usr/lib64/python2.7/sre_constants.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:667322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:911519</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>6195</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266339</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.188232' OpenSize='6195' CloseTime='2018-05-08 22:33:30.188549' CloseSize='6195' NumReads='3' BytesRead='6195' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.188232' CloseTime='2018-05-08 22:33:30.188549' NumReads='3' BytesRead='6195' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_parse.py'>
             <FileName>/usr/lib64/python2.7/sre_parse.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:128524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>30700</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265699</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.187467' OpenSize='30700' CloseTime='2018-05-08 22:33:30.188817' CloseSize='30700' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.187467' CloseTime='2018-05-08 22:33:30.188817' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_parse.pyc'>
             <FileName>/usr/lib64/python2.7/sre_parse.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:667322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:913519</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>21156</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266340</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.187540' OpenSize='21156' CloseTime='2018-05-08 22:33:30.187993' CloseSize='21156' NumReads='4' BytesRead='20017' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.187540' CloseTime='2018-05-08 22:33:30.187993' NumReads='4' BytesRead='20017' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/stat.py'>
             <FileName>/usr/lib64/python2.7/stat.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:130524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>1842</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265701</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.175609' OpenSize='1842' CloseTime='2018-05-08 22:33:30.176242' CloseSize='1842' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.175609' CloseTime='2018-05-08 22:33:30.176242' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/stat.pyc'>
             <FileName>/usr/lib64/python2.7/stat.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:662322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:916519</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>2751</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266342</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.175684' OpenSize='2751' CloseTime='2018-05-08 22:33:30.176161' CloseSize='2751' NumReads='2' BytesRead='2751' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.175684' CloseTime='2018-05-08 22:33:30.176161' NumReads='2' BytesRead='2751' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sysconfig.py'>
             <FileName>/usr/lib64/python2.7/sysconfig.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:57:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:146524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>22852</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265716</Inode>
-            <ModifyTime>2018-05-08 16:10:57:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.184933' OpenSize='22852' CloseTime='2018-05-08 22:33:30.185832' CloseSize='22852' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.184933' CloseTime='2018-05-08 22:33:30.185832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sysconfig.pyc'>
             <FileName>/usr/lib64/python2.7/sysconfig.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:666322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:929519</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>17818</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266351</Inode>
-            <ModifyTime>2018-05-08 16:11:53:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.185008' OpenSize='17818' CloseTime='2018-05-08 22:33:30.185443' CloseSize='17818' NumReads='4' BytesRead='17715' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.185008' CloseTime='2018-05-08 22:33:30.185443' NumReads='4' BytesRead='17715' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/threading.py'>
             <FileName>/usr/lib64/python2.7/threading.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:173524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>47325</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265728</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.245514' OpenSize='47325' CloseTime='2018-05-08 22:33:30.250524' CloseSize='47325' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.245514' CloseTime='2018-05-08 22:33:30.250524' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/threading.pyc'>
             <FileName>/usr/lib64/python2.7/threading.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:769321</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:175524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>42718</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265729</Inode>
-            <ModifyTime>2018-05-08 16:11:54:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.245610' OpenSize='42718' CloseTime='2018-05-08 22:33:30.246302' CloseSize='42718' NumReads='4' BytesRead='42803' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.245610' CloseTime='2018-05-08 22:33:30.246302' NumReads='4' BytesRead='42803' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/traceback.py'>
             <FileName>/usr/lib64/python2.7/traceback.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:188524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>11285</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265740</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.183947' OpenSize='11285' CloseTime='2018-05-08 22:33:30.184469' CloseSize='11285' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.183947' CloseTime='2018-05-08 22:33:30.184469' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/traceback.pyc'>
             <FileName>/usr/lib64/python2.7/traceback.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:666322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:946519</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>11679</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266362</Inode>
-            <ModifyTime>2018-05-08 16:11:54:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.184022' OpenSize='11679' CloseTime='2018-05-08 22:33:30.184388' CloseSize='11679' NumReads='4' BytesRead='11679' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.184022' CloseTime='2018-05-08 22:33:30.184388' NumReads='4' BytesRead='11679' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/types.py'>
             <FileName>/usr/lib64/python2.7/types.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:189524</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>2094</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265742</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.178022' OpenSize='2094' CloseTime='2018-05-08 22:33:30.178498' CloseSize='2094' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.178022' CloseTime='2018-05-08 22:33:30.178498' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/types.pyc'>
             <FileName>/usr/lib64/python2.7/types.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:663322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:947519</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>2725</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>266364</Inode>
-            <ModifyTime>2018-05-08 16:11:54:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.178097' OpenSize='2725' CloseTime='2018-05-08 22:33:30.178347' CloseSize='2725' NumReads='2' BytesRead='2725' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.178097' CloseTime='2018-05-08 22:33:30.178347' NumReads='2' BytesRead='2725' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/warnings.py'>
             <FileName>/usr/lib64/python2.7/warnings.py</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 16:10:48:000000</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:246523</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>14823</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265784</Inode>
-            <ModifyTime>2018-05-08 16:10:48:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.176891' OpenSize='14823' CloseTime='2018-05-08 22:33:30.178779' CloseSize='14823' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.176891' CloseTime='2018-05-08 22:33:30.178779' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/warnings.pyc'>
             <FileName>/usr/lib64/python2.7/warnings.pyc</FileName>
             <Category>Other libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:663322</AccessTime>
-            <CreationTime>2018-05-08 08:56:51:248523</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>13510</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265785</Inode>
-            <ModifyTime>2018-05-08 16:11:54:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.176963' OpenSize='13510' CloseTime='2018-05-08 22:33:30.177336' CloseSize='13510' NumReads='4' BytesRead='13188' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.176963' CloseTime='2018-05-08 22:33:30.177336' NumReads='4' BytesRead='13188' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -1579,325 +1013,135 @@
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so.11.1'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so.11.1</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 17:48:02:102454</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:309470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>41051464</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>524940</Inode>
-            <ModifyTime>2018-05-08 07:55:13:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.262058' OpenSize='41051464' CloseTime='2018-05-08 22:33:30.262354' CloseSize='41051464' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.262058' CloseTime='2018-05-08 22:33:30.262354' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/lib/libnnz11.so'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/lib/libnnz11.so</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 21:45:00:730364</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:309470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>2909600</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>524951</Inode>
-            <ModifyTime>2018-05-08 07:55:14:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.262405' OpenSize='2909600' CloseTime='2018-05-08 22:33:30.262786' CloseSize='2909600' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.262405' CloseTime='2018-05-08 22:33:30.262786' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/lib/libnque11.so'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/lib/libnque11.so</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 20:25:13:531642</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:309470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>42256</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>524952</Inode>
-            <ModifyTime>2018-05-08 07:55:13:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.336447' OpenSize='42256' CloseTime='2018-05-08 22:33:30.336849' CloseSize='42256' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.336447' CloseTime='2018-05-08 22:33:30.336849' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx00001.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx00001.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 21:45:00:745364</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:308470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>951</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525248</Inode>
-            <ModifyTime>2018-05-08 07:53:33:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.326010' OpenSize='951' CloseTime='2018-05-08 22:33:30.326205' CloseSize='951' NumReads='2' BytesRead='951' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.326010' CloseTime='2018-05-08 22:33:30.326205' NumReads='2' BytesRead='951' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx00025.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx00025.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 07:53:33:000000</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:308470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>968</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525284</Inode>
-            <ModifyTime>2018-05-08 07:53:33:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.270934' OpenSize='968' CloseTime='2018-05-08 22:33:30.271075' CloseSize='968' NumReads='2' BytesRead='968' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.270934' CloseTime='2018-05-08 22:33:30.271075' NumReads='2' BytesRead='968' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx10001.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx10001.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 21:45:00:745364</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:308470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>1140</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525313</Inode>
-            <ModifyTime>2018-05-08 07:53:33:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.326533' OpenSize='1140' CloseTime='2018-05-08 22:33:30.326716' CloseSize='1140' NumReads='2' BytesRead='1140' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.326533' CloseTime='2018-05-08 22:33:30.326716' NumReads='2' BytesRead='1140' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx10002.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx10002.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 07:53:33:000000</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:308470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>851</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525314</Inode>
-            <ModifyTime>2018-05-08 07:53:33:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.271524' OpenSize='851' CloseTime='2018-05-08 22:33:30.271677' CloseSize='851' NumReads='2' BytesRead='851' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.271524' CloseTime='2018-05-08 22:33:30.271677' NumReads='2' BytesRead='851' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx1boot.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx1boot.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 21:45:00:744364</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:307470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>13728</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525428</Inode>
-            <ModifyTime>2018-05-08 07:53:31:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.270619' OpenSize='13728' CloseTime='2018-05-08 22:33:30.270837' CloseSize='13728' NumReads='2' BytesRead='13728' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.270619' CloseTime='2018-05-08 22:33:30.270837' NumReads='2' BytesRead='13728' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx20001.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx20001.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 21:45:00:745364</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:307470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>6969</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525429</Inode>
-            <ModifyTime>2018-05-08 07:53:31:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.326274' OpenSize='6969' CloseTime='2018-05-08 22:33:30.326466' CloseSize='6969' NumReads='2' BytesRead='6969' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.326274' CloseTime='2018-05-08 22:33:30.326466' NumReads='2' BytesRead='6969' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx20369.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx20369.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 22:03:49:706366</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:308470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>951775</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525483</Inode>
-            <ModifyTime>2018-05-08 07:53:31:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.271199' OpenSize='951775' CloseTime='2018-05-08 22:33:30.271474' CloseSize='951775' NumReads='2' BytesRead='145905' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.271199' CloseTime='2018-05-08 22:33:30.271474' NumReads='2' BytesRead='145905' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx207d0.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx207d0.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 22:03:49:706366</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:307470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>437760</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525484</Inode>
-            <ModifyTime>2018-05-08 07:53:31:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.354835' OpenSize='437760' CloseTime='2018-05-08 22:33:30.355433' CloseSize='437760' NumReads='2' BytesRead='334338' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.354835' CloseTime='2018-05-08 22:33:30.355433' NumReads='2' BytesRead='334338' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx40011.nlb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx40011.nlb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 21:45:00:745364</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:308470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>22113</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525576</Inode>
-            <ModifyTime>2018-05-08 07:53:29:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.271730' OpenSize='22113' CloseTime='2018-05-08 22:33:30.271920' CloseSize='22113' NumReads='2' BytesRead='22113' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.271730' CloseTime='2018-05-08 22:33:30.271920' NumReads='2' BytesRead='22113' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 16:46:25:941103</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:306470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>16877</FileMode>
-            <FileSize>4096</FileSize>
-            <HardLinksNumber>2</HardLinksNumber>
-            <Inode>525671</Inode>
-            <ModifyTime>2018-05-08 20:38:30:365637</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.328459' OpenSize='4096' CloseTime='2018-05-08 22:33:30.329749' CloseSize='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.328459' CloseTime='2018-05-08 22:33:30.329749' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/readme.txt'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/readme.txt</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 19:02:40:271302</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:306470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>6068</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525672</Inode>
-            <ModifyTime>2018-05-08 07:53:27:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.329436' OpenSize='6068' CloseTime='2018-05-08 22:33:30.329618' CloseSize='6068' NumReads='1' BytesRead='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.329436' CloseTime='2018-05-08 22:33:30.329618' NumReads='1' BytesRead='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezdif.csv'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezdif.csv</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 19:02:40:270302</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:306470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>31525</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525673</Inode>
-            <ModifyTime>2018-05-08 07:53:27:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.328901' OpenSize='31525' CloseTime='2018-05-08 22:33:30.329086' CloseSize='31525' NumReads='1' BytesRead='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.328901' CloseTime='2018-05-08 22:33:30.329086' NumReads='1' BytesRead='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 19:02:40:270302</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:306470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>791430</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525674</Inode>
-            <ModifyTime>2018-05-08 07:53:27:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.329169' OpenSize='791430' CloseTime='2018-05-08 22:33:30.329353' CloseSize='791430' NumReads='1' BytesRead='4096' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.329795' OpenSize='791430' CloseTime='2018-05-08 22:33:30.329945' CloseSize='791430' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.329169' CloseTime='2018-05-08 22:33:30.329353' NumReads='1' BytesRead='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.329795' CloseTime='2018-05-08 22:33:30.329945' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezone_14.dat'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezone_14.dat</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 19:02:40:271302</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:306470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>344448</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>525675</Inode>
-            <ModifyTime>2018-05-08 07:53:27:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.328593' OpenSize='344448' CloseTime='2018-05-08 22:33:30.328810' CloseSize='344448' NumReads='1' BytesRead='4096' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.328593' CloseTime='2018-05-08 22:33:30.328810' NumReads='1' BytesRead='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 19:02:40:277302</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:310470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>27136</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>527087</Inode>
-            <ModifyTime>2018-05-08 07:53:02:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.334095' OpenSize='27136' CloseTime='2018-05-08 22:33:30.428422' CloseSize='27136' NumReads='3' BytesRead='862' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.334095' CloseTime='2018-05-08 22:33:30.428422' NumReads='3' BytesRead='862' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/oraus.msb'>
             <FileName>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/oraus.msb</FileName>
             <Category>Others</Category>
-            <AccessTime>2018-05-08 21:45:00:751364</AccessTime>
-            <CreationTime>2018-05-08 20:38:57:309470</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>1092096</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>527095</Inode>
-            <ModifyTime>2018-05-08 07:53:02:000000</ModifyTime>
-            <OwnerGroupId>1002</OwnerGroupId>
-            <OwnerUserId>1002</OwnerUserId>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.414653' OpenSize='1092096' CloseTime='2018-05-08 22:33:30.417461' CloseSize='1092096' NumReads='22' BytesRead='11008' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.414653' CloseTime='2018-05-08 22:33:30.417461' NumReads='22' BytesRead='11008' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -1905,27 +1149,10 @@
         <CIM_DataFile Name='/dev/pts/2'>
             <FileName>/dev/pts/2</FileName>
             <Category>Pipes and terminals</Category>
-            <AccessTime>2018-05-08 00:58:08:630661</AccessTime>
-            <CreationTime>2018-05-08 14:31:09:633662</CreationTime>
-            <DeviceId>21</DeviceId>
-            <DeviceType>34818</DeviceType>
-            <FileMode>8592</FileMode>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>5</Inode>
-            <ModifyTime>2018-05-08 00:58:08:630661</ModifyTime>
-            <OwnerGroupId>5</OwnerGroupId>
-            <OwnerUserId>1001</OwnerUserId>
         </CIM_DataFile>
         <CIM_DataFile Name='/sys/devices/system/cpu'>
             <FileName>/sys/devices/system/cpu</FileName>
             <Category>Pipes and terminals</Category>
-            <AccessTime>2018-05-08 15:59:32:525489</AccessTime>
-            <CreationTime>2018-05-08 15:59:32:525489</CreationTime>
-            <DeviceId>19</DeviceId>
-            <FileMode>16877</FileMode>
-            <HardLinksNumber>7</HardLinksNumber>
-            <Inode>33</Inode>
-            <ModifyTime>2018-05-08 15:59:32:525489</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.332465' CloseTime='2018-05-08 22:33:30.332608' />
             </FileAccesses>
@@ -1933,13 +1160,6 @@
         <CIM_DataFile Name='/sys/devices/system/node'>
             <FileName>/sys/devices/system/node</FileName>
             <Category>Pipes and terminals</Category>
-            <AccessTime>2018-05-08 15:59:32:543449</AccessTime>
-            <CreationTime>2018-05-08 15:59:32:543449</CreationTime>
-            <DeviceId>19</DeviceId>
-            <FileMode>16877</FileMode>
-            <HardLinksNumber>4</HardLinksNumber>
-            <Inode>552</Inode>
-            <ModifyTime>2018-05-08 15:59:32:543449</ModifyTime>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.331887' CloseTime='2018-05-08 22:33:30.332400' />
             </FileAccesses>
@@ -1947,16 +1167,8 @@
         <CIM_DataFile Name='/sys/devices/system/node/node0/meminfo'>
             <FileName>/sys/devices/system/node/node0/meminfo</FileName>
             <Category>Pipes and terminals</Category>
-            <AccessTime>2018-05-08 17:47:03:608721</AccessTime>
-            <CreationTime>2018-05-08 17:47:03:608721</CreationTime>
-            <DeviceId>19</DeviceId>
-            <FileMode>33060</FileMode>
-            <FileSize>4096</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>616</Inode>
-            <ModifyTime>2018-05-08 17:47:03:608721</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.332014' OpenSize='4096' CloseTime='2018-05-08 22:33:30.332275' CloseSize='4096' NumReads='2' BytesRead='1000' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.332014' CloseTime='2018-05-08 22:33:30.332275' NumReads='2' BytesRead='1000' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='NETLINK:[5649206]'>
@@ -2020,16 +1232,8 @@
         <CIM_DataFile Name='/usr/lib64/libaio.so.1.0.1'>
             <FileName>/usr/lib64/libaio.so.1.0.1</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 21:45:00:730364</AccessTime>
-            <CreationTime>2018-05-08 20:30:56:396456</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>6288</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>153362</Inode>
-            <ModifyTime>2018-05-08 02:38:12:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.263159' OpenSize='6288' CloseTime='2018-05-08 22:33:30.263401' CloseSize='6288' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.263159' CloseTime='2018-05-08 22:33:30.263401' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc-2.21.so'>
@@ -2098,16 +1302,8 @@
         <CIM_DataFile Name='/usr/lib64/libpython2.7.so.1.0'>
             <FileName>/usr/lib64/libpython2.7.so.1.0</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:655322</AccessTime>
-            <CreationTime>2018-05-08 08:56:49:968531</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>2277024</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>141235</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.165061' OpenSize='2277024' CloseTime='2018-05-08 22:33:30.165503' CloseSize='2277024' NumReads='1' BytesRead='832' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.165061' CloseTime='2018-05-08 22:33:30.165503' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libresolv-2.21.so'>
@@ -2127,145 +1323,73 @@
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:748322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:624527</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>45152</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265361</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.234717' OpenSize='45152' CloseTime='2018-05-08 22:33:30.235110' CloseSize='45152' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.235305' CloseSize='45152' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.234717' CloseTime='2018-05-08 22:33:30.235110' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.235305' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:755322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:643527</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>16656</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265368</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.259423' OpenSize='16656' CloseTime='2018-05-08 22:33:30.259754' CloseSize='16656' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.259885' CloseSize='16656' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.259423' CloseTime='2018-05-08 22:33:30.259754' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.259885' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/_heapq.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/_heapq.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:749322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:646527</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>22520</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265370</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.242599' OpenSize='22520' CloseTime='2018-05-08 22:33:30.243006' CloseSize='22520' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.243143' CloseSize='22520' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.242599' CloseTime='2018-05-08 22:33:30.243006' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.243143' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/_localemodule.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/_localemodule.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:668322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:660527</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>24888</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265374</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.189673' OpenSize='24888' CloseTime='2018-05-08 22:33:30.190044' CloseSize='24888' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.190211' CloseSize='24888' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.189673' CloseTime='2018-05-08 22:33:30.190044' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.190211' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/datetime.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/datetime.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:761322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:729527</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>86000</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265394</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.223605' OpenSize='86000' CloseTime='2018-05-08 22:33:30.224027' CloseSize='86000' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.224311' CloseSize='86000' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.223605' CloseTime='2018-05-08 22:33:30.224027' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.224311' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:740322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:741527</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>69992</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265402</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.240734' OpenSize='69992' CloseTime='2018-05-08 22:33:30.241122' CloseSize='69992' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.241558' CloseSize='69992' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.240734' CloseTime='2018-05-08 22:33:30.241122' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.241558' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/math.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/math.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:681322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:745527</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>40976</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265404</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.227978' OpenSize='40976' CloseTime='2018-05-08 22:33:30.228374' CloseSize='40976' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.228537' CloseSize='40976' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.227978' CloseTime='2018-05-08 22:33:30.228374' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.228537' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/operator.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/operator.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:747322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:751527</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>47088</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265407</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.236375' OpenSize='47088' CloseTime='2018-05-08 22:33:30.236770' CloseSize='47088' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.237066' CloseSize='47088' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.236375' CloseTime='2018-05-08 22:33:30.236770' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.237066' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/timemodule.so'>
             <FileName>/usr/lib64/python2.7/lib-dynload/timemodule.so</FileName>
             <Category>Shared libraries</Category>
-            <AccessTime>2018-05-08 00:58:11:732322</AccessTime>
-            <CreationTime>2018-05-08 08:56:50:773526</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>28600</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>265418</Inode>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.247400' OpenSize='28600' CloseTime='2018-05-08 22:33:30.247787' CloseSize='28600' NumReads='1' BytesRead='832' />
-                <Access Process='12345' CloseTime='2018-05-08 22:33:30.248440' CloseSize='28600' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.247400' CloseTime='2018-05-08 22:33:30.247787' NumReads='1' BytesRead='832' />
+                <Access Process='12345' CloseTime='2018-05-08 22:33:30.248440' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages/cx_Oracle.so'>
@@ -2281,117 +1405,61 @@
         <CIM_DataFile Name='/etc/host.conf'>
             <FileName>/etc/host.conf</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:32:16:538569</AccessTime>
-            <CreationTime>2018-05-08 23:47:31:802663</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>9</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>131316</Inode>
-            <ModifyTime>2018-05-08 12:56:36:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.295683' OpenSize='9' CloseTime='2018-05-08 22:33:30.296012' CloseSize='9' NumReads='2' BytesRead='9' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.295683' CloseTime='2018-05-08 22:33:30.296012' NumReads='2' BytesRead='9' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/hosts'>
             <FileName>/etc/hosts</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:32:16:538569</AccessTime>
-            <CreationTime>2018-05-08 15:59:58:761404</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>231</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>131317</Inode>
-            <ModifyTime>2018-05-08 15:59:58:760404</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.296586' OpenSize='231' CloseTime='2018-05-08 22:33:30.296903' CloseSize='231' NumReads='2' BytesRead='158' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.361468' OpenSize='231' CloseTime='2018-05-08 22:33:30.361717' CloseSize='231' NumReads='2' BytesRead='158' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.390816' OpenSize='231' CloseTime='2018-05-08 22:33:30.391141' CloseSize='231' NumReads='2' BytesRead='158' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.296586' CloseTime='2018-05-08 22:33:30.296903' NumReads='2' BytesRead='158' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.361468' CloseTime='2018-05-08 22:33:30.361717' NumReads='2' BytesRead='158' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.390816' CloseTime='2018-05-08 22:33:30.391141' NumReads='2' BytesRead='158' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.cache'>
             <FileName>/etc/ld.so.cache</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 22:57:36:314973</AccessTime>
-            <CreationTime>2018-05-08 22:50:06:707621</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>36008</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>168101</Inode>
-            <ModifyTime>2018-05-08 22:50:06:707621</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.164758' OpenSize='36008' CloseTime='2018-05-08 22:33:30.164996' CloseSize='36008' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.261892' OpenSize='36008' CloseTime='2018-05-08 22:33:30.262014' CloseSize='36008' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.276273' OpenSize='36008' CloseTime='2018-05-08 22:33:30.276411' CloseSize='36008' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.297020' OpenSize='36008' CloseTime='2018-05-08 22:33:30.297196' CloseSize='36008' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.297878' OpenSize='36008' CloseTime='2018-05-08 22:33:30.298071' CloseSize='36008' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.164758' CloseTime='2018-05-08 22:33:30.164996' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.261892' CloseTime='2018-05-08 22:33:30.262014' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.276273' CloseTime='2018-05-08 22:33:30.276411' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.297020' CloseTime='2018-05-08 22:33:30.297196' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.297878' CloseTime='2018-05-08 22:33:30.298071' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/nsswitch.conf'>
             <FileName>/etc/nsswitch.conf</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 17:38:24:652102</AccessTime>
-            <CreationTime>2018-05-08 23:47:42:015379</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>1731</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>137539</Inode>
-            <ModifyTime>2018-05-08 23:47:42:015379</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.275905' OpenSize='1731' CloseTime='2018-05-08 22:33:30.276175' CloseSize='1731' NumReads='2' BytesRead='1769' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.275905' CloseTime='2018-05-08 22:33:30.276175' NumReads='2' BytesRead='1769' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/passwd'>
             <FileName>/etc/passwd</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:01:01:130417</AccessTime>
-            <CreationTime>2018-05-08 23:24:25:159193</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>1134</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>153459</Inode>
-            <ModifyTime>2018-05-08 23:24:25:157192</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.276917' OpenSize='1134' CloseTime='2018-05-08 22:33:30.277113' CloseSize='1134' NumReads='1' BytesRead='3044' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.277261' OpenSize='1134' CloseTime='2018-05-08 22:33:30.277449' CloseSize='1134' NumReads='1' BytesRead='3044' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.278474' OpenSize='1134' CloseTime='2018-05-08 22:33:30.278674' CloseSize='1134' NumReads='1' BytesRead='3044' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.278796' OpenSize='1134' CloseTime='2018-05-08 22:33:30.279035' CloseSize='1134' NumReads='1' BytesRead='3044' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.335980' OpenSize='1134' CloseTime='2018-05-08 22:33:30.336195' CloseSize='1134' NumReads='1' BytesRead='3044' />
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.354170' OpenSize='1134' CloseTime='2018-05-08 22:33:30.354432' CloseSize='1134' NumReads='1' BytesRead='3044' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.276917' CloseTime='2018-05-08 22:33:30.277113' NumReads='1' BytesRead='3044' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.277261' CloseTime='2018-05-08 22:33:30.277449' NumReads='1' BytesRead='3044' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.278474' CloseTime='2018-05-08 22:33:30.278674' NumReads='1' BytesRead='3044' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.278796' CloseTime='2018-05-08 22:33:30.279035' NumReads='1' BytesRead='3044' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.335980' CloseTime='2018-05-08 22:33:30.336195' NumReads='1' BytesRead='3044' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.354170' CloseTime='2018-05-08 22:33:30.354432' NumReads='1' BytesRead='3044' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/resolv.conf'>
             <FileName>/etc/resolv.conf</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 02:32:16:538569</AccessTime>
-            <CreationTime>2018-05-08 15:59:57:071430</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>88</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>135711</Inode>
-            <ModifyTime>2018-05-08 15:59:57:071430</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.296153' OpenSize='88' CloseTime='2018-05-08 22:33:30.296449' CloseSize='88' NumReads='2' BytesRead='80' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.296153' CloseTime='2018-05-08 22:33:30.296449' NumReads='2' BytesRead='80' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/zoneinfo/Europe/London'>
             <FileName>/usr/share/zoneinfo/Europe/London</FileName>
             <Category>System config files</Category>
-            <AccessTime>2018-05-08 04:15:37:000000</AccessTime>
-            <CreationTime>2018-05-08 23:47:32:914275</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33188</FileMode>
-            <FileSize>3687</FileSize>
-            <HardLinksNumber>7</HardLinksNumber>
-            <Inode>133739</Inode>
-            <ModifyTime>2018-05-08 04:15:37:000000</ModifyTime>
             <FileAccesses>
-                <Access Process='12345' OpenTime='2018-05-08 22:33:30.247965' OpenSize='3687' CloseTime='2018-05-08 22:33:30.248286' CloseSize='3687' NumReads='2' BytesRead='6034' />
+                <Access Process='12345' OpenTime='2018-05-08 22:33:30.247965' CloseTime='2018-05-08 22:33:30.248286' NumReads='2' BytesRead='6034' />
             </FileAccesses>
         </CIM_DataFile>
     </FilesCategory>
@@ -2399,15 +1467,7 @@
         <CIM_DataFile Name='/usr/bin/python'>
             <FileName>/usr/bin/python</FileName>
             <Category>System executables</Category>
-            <AccessTime>2018-05-08 00:58:11:655322</AccessTime>
-            <CreationTime>2018-05-08 08:56:52:129518</CreationTime>
-            <DeviceId>64513</DeviceId>
-            <FileMode>33261</FileMode>
-            <FileSize>7016</FileSize>
-            <HardLinksNumber>1</HardLinksNumber>
-            <Inode>136202</Inode>
             <IsExecuted>True</IsExecuted>
-            <ModifyTime>2018-05-08 16:11:27:000000</ModifyTime>
         </CIM_DataFile>
     </FilesCategory>
 </Dockit>
