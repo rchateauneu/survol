@@ -24,6 +24,70 @@
             <Access File='/tmp/ccWzHVOT.o' OpenTime='2018-05-08 10:56:39.000943' CloseTime='2018-05-08 10:56:39.001199' />
             <Access File='/tmp/ccs7jjCQ.res' OpenTime='2018-05-08 10:56:39.072688' CloseTime='2018-05-08 10:56:39.072894' />
         </FileAccesses>
+        <CIM_Process Handle='11759'>
+            <Handle>11759</Handle>
+            <Name>pid=11759</Name>
+            <CreationDate>2018-05-08 10:56:38.725330</CreationDate>
+            <TerminationDate>2018-05-08 10:56:39.388505</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+            <Executable>/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1</Executable>
+            <FileAccesses>
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 10:56:38.725845' CloseTime='2018-05-08 10:56:38.726200' />
+                <Access File='/lib64/libdl.so.2' OpenTime='2018-05-08 10:56:38.726286' CloseTime='2018-05-08 10:56:38.727032' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libmpc.so.3' OpenTime='2018-05-08 10:56:38.727118' CloseTime='2018-05-08 10:56:38.727780' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libmpfr.so.4' OpenTime='2018-05-08 10:56:38.727906' CloseTime='2018-05-08 10:56:38.728783' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libgmp.so.10' OpenTime='2018-05-08 10:56:38.728899' CloseTime='2018-05-08 10:56:38.729507' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libz.so.1' OpenTime='2018-05-08 10:56:38.729601' CloseTime='2018-05-08 10:56:38.730248' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libm.so.6' OpenTime='2018-05-08 10:56:38.730339' CloseTime='2018-05-08 10:56:38.731161' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libc.so.6' OpenTime='2018-05-08 10:56:38.731242' CloseTime='2018-05-08 10:56:38.732222' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 10:56:38.746045' CloseTime='2018-05-08 10:56:38.746487' />
+                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 10:56:38.746653' CloseTime='2018-05-08 10:56:38.749511' NumReads='2' BytesRead='2997' />
+                <Access File='/proc/meminfo' OpenTime='2018-05-08 10:56:38.755351' CloseTime='2018-05-08 10:56:38.757617' NumReads='1' BytesRead='1024' />
+                <Access File='/proc/meminfo' OpenTime='2018-05-08 10:56:38.758076' CloseTime='2018-05-08 10:56:38.759332' NumReads='1' BytesRead='1024' />
+                <Access File='/proc/meminfo' OpenTime='2018-05-08 10:56:38.759650' CloseTime='2018-05-08 10:56:38.760900' NumReads='1' BytesRead='1024' />
+                <Access File='/dev/urandom' OpenTime='2018-05-08 10:56:38.762603' CloseTime='2018-05-08 10:56:38.762925' NumReads='1' BytesRead='8' />
+                <Access File='/home/rchateau/survol/Experimental/RetroBatch/TestProgs/HelloWorld.c' OpenTime='2018-05-08 10:56:38.766311' CloseTime='2018-05-08 10:56:38.766763' NumReads='1' BytesRead='102' />
+                <Access File='/tmp/ccCdYueX.s' OpenTime='2018-05-08 10:56:38.772349' CloseTime='2018-05-08 10:56:38.998465' NumWrites='1' BytesWritten='509' />
+                <Access File='/usr/include/stdc-predef.h' OpenTime='2018-05-08 10:56:38.780469' CloseTime='2018-05-08 10:56:38.783374' NumReads='1' BytesRead='2495' />
+                <Access File='/usr/include/stdio.h' OpenTime='2018-05-08 10:56:38.788875' CloseTime='2018-05-08 10:56:38.818330' NumReads='1' BytesRead='31365' />
+                <Access File='/usr/include/features.h' OpenTime='2018-05-08 10:56:38.823225' CloseTime='2018-05-08 10:56:38.835624' NumReads='1' BytesRead='13029' />
+                <Access File='/usr/include/sys/cdefs.h' OpenTime='2018-05-08 10:56:38.840050' CloseTime='2018-05-08 10:56:38.856680' NumReads='1' BytesRead='15052' />
+                <Access File='/usr/include/bits/wordsize.h' OpenTime='2018-05-08 10:56:38.860908' CloseTime='2018-05-08 10:56:38.861627' NumReads='1' BytesRead='327' />
+                <Access File='/usr/include/gnu/stubs.h' OpenTime='2018-05-08 10:56:38.865148' CloseTime='2018-05-08 10:56:38.865863' NumReads='1' BytesRead='384' />
+                <Access File='/usr/include/gnu/stubs-64.h' OpenTime='2018-05-08 10:56:38.868656' CloseTime='2018-05-08 10:56:38.869610' NumReads='1' BytesRead='604' />
+                <Access File='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stddef.h' OpenTime='2018-05-08 10:56:38.871746' CloseTime='2018-05-08 10:56:38.881098' NumReads='1' BytesRead='13754' />
+                <Access File='/usr/include/bits/types.h' OpenTime='2018-05-08 10:56:38.884614' CloseTime='2018-05-08 10:56:38.891366' NumReads='1' BytesRead='7563' />
+                <Access File='/usr/include/bits/wordsize.h' OpenTime='2018-05-08 10:56:38.891460' CloseTime='2018-05-08 10:56:38.892448' NumReads='1' BytesRead='327' />
+                <Access File='/usr/include/bits/typesizes.h' OpenTime='2018-05-08 10:56:38.896345' CloseTime='2018-05-08 10:56:38.899576' NumReads='1' BytesRead='3230' />
+                <Access File='/usr/include/libio.h' OpenTime='2018-05-08 10:56:38.903469' CloseTime='2018-05-08 10:56:38.917548' NumReads='1' BytesRead='17248' />
+                <Access File='/usr/include/_G_config.h' OpenTime='2018-05-08 10:56:38.922450' CloseTime='2018-05-08 10:56:38.924808' NumReads='1' BytesRead='1287' />
+                <Access File='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stddef.h' OpenTime='2018-05-08 10:56:38.924991' CloseTime='2018-05-08 10:56:38.937232' NumReads='1' BytesRead='13754' />
+                <Access File='/usr/include/wchar.h' OpenTime='2018-05-08 10:56:38.941745' CloseTime='2018-05-08 10:56:38.969668' NumReads='1' BytesRead='31999' />
+                <Access File='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stdarg.h' OpenTime='2018-05-08 10:56:38.971646' CloseTime='2018-05-08 10:56:38.975581' NumReads='1' BytesRead='4075' />
+                <Access File='/usr/include/bits/stdio_lim.h' OpenTime='2018-05-08 10:56:38.979757' CloseTime='2018-05-08 10:56:38.981503' NumReads='1' BytesRead='1354' />
+                <Access File='/usr/include/bits/sys_errlist.h' OpenTime='2018-05-08 10:56:38.986421' CloseTime='2018-05-08 10:56:38.988118' NumReads='1' BytesRead='1215' />
+            </FileAccesses>
+        </CIM_Process>
+        <CIM_Process Handle='11760'>
+            <Handle>11760</Handle>
+            <Name>pid=11760</Name>
+            <CreationDate>2018-05-08 10:56:39.006807</CreationDate>
+            <TerminationDate>2018-05-08 10:56:39.388505</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+            <Executable>/usr/bin/as</Executable>
+            <FileAccesses>
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 10:56:39.008310' CloseTime='2018-05-08 10:56:39.009271' />
+                <Access File='/lib64/libopcodes-2.25-9.fc22.so' OpenTime='2018-05-08 10:56:39.009538' CloseTime='2018-05-08 10:56:39.011574' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libbfd-2.25-9.fc22.so' OpenTime='2018-05-08 10:56:39.011755' CloseTime='2018-05-08 10:56:39.013890' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libz.so.1' OpenTime='2018-05-08 10:56:39.014164' CloseTime='2018-05-08 10:56:39.016438' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libdl.so.2' OpenTime='2018-05-08 10:56:39.016629' CloseTime='2018-05-08 10:56:39.018437' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libc.so.6' OpenTime='2018-05-08 10:56:39.018681' CloseTime='2018-05-08 10:56:39.020646' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 10:56:39.038146' CloseTime='2018-05-08 10:56:39.039293' />
+                <Access File='/tmp/ccWzHVOT.o' OpenTime='2018-05-08 10:56:39.043678' CloseTime='2018-05-08 10:56:39.064298' NumReads='7' BytesRead='3864' NumWrites='8' BytesWritten='1500' />
+                <Access File='/tmp/ccCdYueX.s' OpenTime='2018-05-08 10:56:39.048399' CloseTime='2018-05-08 10:56:39.050785' NumReads='2' BytesRead='509' />
+                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 10:56:39.051545' CloseTime='2018-05-08 10:56:39.055431' NumReads='2' BytesRead='2997' />
+            </FileAccesses>
+        </CIM_Process>
         <CIM_Process Handle='11761'>
             <Handle>11761</Handle>
             <Name>pid=11761</Name>
@@ -95,70 +159,6 @@
                     <Access File='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/libgcc_s.so' CloseTime='2018-05-08 10:56:39.383106' />
                 </FileAccesses>
             </CIM_Process>
-        </CIM_Process>
-        <CIM_Process Handle='11759'>
-            <Handle>11759</Handle>
-            <Name>pid=11759</Name>
-            <CreationDate>2018-05-08 10:56:38.725330</CreationDate>
-            <TerminationDate>2018-05-08 10:56:39.388505</TerminationDate>
-            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
-            <Executable>/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1</Executable>
-            <FileAccesses>
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 10:56:38.725845' CloseTime='2018-05-08 10:56:38.726200' />
-                <Access File='/lib64/libdl.so.2' OpenTime='2018-05-08 10:56:38.726286' CloseTime='2018-05-08 10:56:38.727032' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libmpc.so.3' OpenTime='2018-05-08 10:56:38.727118' CloseTime='2018-05-08 10:56:38.727780' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libmpfr.so.4' OpenTime='2018-05-08 10:56:38.727906' CloseTime='2018-05-08 10:56:38.728783' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libgmp.so.10' OpenTime='2018-05-08 10:56:38.728899' CloseTime='2018-05-08 10:56:38.729507' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libz.so.1' OpenTime='2018-05-08 10:56:38.729601' CloseTime='2018-05-08 10:56:38.730248' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libm.so.6' OpenTime='2018-05-08 10:56:38.730339' CloseTime='2018-05-08 10:56:38.731161' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libc.so.6' OpenTime='2018-05-08 10:56:38.731242' CloseTime='2018-05-08 10:56:38.732222' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 10:56:38.746045' CloseTime='2018-05-08 10:56:38.746487' />
-                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 10:56:38.746653' CloseTime='2018-05-08 10:56:38.749511' NumReads='2' BytesRead='2997' />
-                <Access File='/proc/meminfo' OpenTime='2018-05-08 10:56:38.755351' CloseTime='2018-05-08 10:56:38.757617' NumReads='1' BytesRead='1024' />
-                <Access File='/proc/meminfo' OpenTime='2018-05-08 10:56:38.758076' CloseTime='2018-05-08 10:56:38.759332' NumReads='1' BytesRead='1024' />
-                <Access File='/proc/meminfo' OpenTime='2018-05-08 10:56:38.759650' CloseTime='2018-05-08 10:56:38.760900' NumReads='1' BytesRead='1024' />
-                <Access File='/dev/urandom' OpenTime='2018-05-08 10:56:38.762603' CloseTime='2018-05-08 10:56:38.762925' NumReads='1' BytesRead='8' />
-                <Access File='/home/rchateau/survol/Experimental/RetroBatch/TestProgs/HelloWorld.c' OpenTime='2018-05-08 10:56:38.766311' CloseTime='2018-05-08 10:56:38.766763' NumReads='1' BytesRead='102' />
-                <Access File='/tmp/ccCdYueX.s' OpenTime='2018-05-08 10:56:38.772349' CloseTime='2018-05-08 10:56:38.998465' NumWrites='1' BytesWritten='509' />
-                <Access File='/usr/include/stdc-predef.h' OpenTime='2018-05-08 10:56:38.780469' CloseTime='2018-05-08 10:56:38.783374' NumReads='1' BytesRead='2495' />
-                <Access File='/usr/include/stdio.h' OpenTime='2018-05-08 10:56:38.788875' CloseTime='2018-05-08 10:56:38.818330' NumReads='1' BytesRead='31365' />
-                <Access File='/usr/include/features.h' OpenTime='2018-05-08 10:56:38.823225' CloseTime='2018-05-08 10:56:38.835624' NumReads='1' BytesRead='13029' />
-                <Access File='/usr/include/sys/cdefs.h' OpenTime='2018-05-08 10:56:38.840050' CloseTime='2018-05-08 10:56:38.856680' NumReads='1' BytesRead='15052' />
-                <Access File='/usr/include/bits/wordsize.h' OpenTime='2018-05-08 10:56:38.860908' CloseTime='2018-05-08 10:56:38.861627' NumReads='1' BytesRead='327' />
-                <Access File='/usr/include/gnu/stubs.h' OpenTime='2018-05-08 10:56:38.865148' CloseTime='2018-05-08 10:56:38.865863' NumReads='1' BytesRead='384' />
-                <Access File='/usr/include/gnu/stubs-64.h' OpenTime='2018-05-08 10:56:38.868656' CloseTime='2018-05-08 10:56:38.869610' NumReads='1' BytesRead='604' />
-                <Access File='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stddef.h' OpenTime='2018-05-08 10:56:38.871746' CloseTime='2018-05-08 10:56:38.881098' NumReads='1' BytesRead='13754' />
-                <Access File='/usr/include/bits/types.h' OpenTime='2018-05-08 10:56:38.884614' CloseTime='2018-05-08 10:56:38.891366' NumReads='1' BytesRead='7563' />
-                <Access File='/usr/include/bits/wordsize.h' OpenTime='2018-05-08 10:56:38.891460' CloseTime='2018-05-08 10:56:38.892448' NumReads='1' BytesRead='327' />
-                <Access File='/usr/include/bits/typesizes.h' OpenTime='2018-05-08 10:56:38.896345' CloseTime='2018-05-08 10:56:38.899576' NumReads='1' BytesRead='3230' />
-                <Access File='/usr/include/libio.h' OpenTime='2018-05-08 10:56:38.903469' CloseTime='2018-05-08 10:56:38.917548' NumReads='1' BytesRead='17248' />
-                <Access File='/usr/include/_G_config.h' OpenTime='2018-05-08 10:56:38.922450' CloseTime='2018-05-08 10:56:38.924808' NumReads='1' BytesRead='1287' />
-                <Access File='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stddef.h' OpenTime='2018-05-08 10:56:38.924991' CloseTime='2018-05-08 10:56:38.937232' NumReads='1' BytesRead='13754' />
-                <Access File='/usr/include/wchar.h' OpenTime='2018-05-08 10:56:38.941745' CloseTime='2018-05-08 10:56:38.969668' NumReads='1' BytesRead='31999' />
-                <Access File='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stdarg.h' OpenTime='2018-05-08 10:56:38.971646' CloseTime='2018-05-08 10:56:38.975581' NumReads='1' BytesRead='4075' />
-                <Access File='/usr/include/bits/stdio_lim.h' OpenTime='2018-05-08 10:56:38.979757' CloseTime='2018-05-08 10:56:38.981503' NumReads='1' BytesRead='1354' />
-                <Access File='/usr/include/bits/sys_errlist.h' OpenTime='2018-05-08 10:56:38.986421' CloseTime='2018-05-08 10:56:38.988118' NumReads='1' BytesRead='1215' />
-            </FileAccesses>
-        </CIM_Process>
-        <CIM_Process Handle='11760'>
-            <Handle>11760</Handle>
-            <Name>pid=11760</Name>
-            <CreationDate>2018-05-08 10:56:39.006807</CreationDate>
-            <TerminationDate>2018-05-08 10:56:39.388505</TerminationDate>
-            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
-            <Executable>/usr/bin/as</Executable>
-            <FileAccesses>
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 10:56:39.008310' CloseTime='2018-05-08 10:56:39.009271' />
-                <Access File='/lib64/libopcodes-2.25-9.fc22.so' OpenTime='2018-05-08 10:56:39.009538' CloseTime='2018-05-08 10:56:39.011574' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libbfd-2.25-9.fc22.so' OpenTime='2018-05-08 10:56:39.011755' CloseTime='2018-05-08 10:56:39.013890' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libz.so.1' OpenTime='2018-05-08 10:56:39.014164' CloseTime='2018-05-08 10:56:39.016438' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libdl.so.2' OpenTime='2018-05-08 10:56:39.016629' CloseTime='2018-05-08 10:56:39.018437' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libc.so.6' OpenTime='2018-05-08 10:56:39.018681' CloseTime='2018-05-08 10:56:39.020646' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 10:56:39.038146' CloseTime='2018-05-08 10:56:39.039293' />
-                <Access File='/tmp/ccWzHVOT.o' OpenTime='2018-05-08 10:56:39.043678' CloseTime='2018-05-08 10:56:39.064298' NumReads='7' BytesRead='3864' NumWrites='8' BytesWritten='1500' />
-                <Access File='/tmp/ccCdYueX.s' OpenTime='2018-05-08 10:56:39.048399' CloseTime='2018-05-08 10:56:39.050785' NumReads='2' BytesRead='509' />
-                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 10:56:39.051545' CloseTime='2018-05-08 10:56:39.055431' NumReads='2' BytesRead='2997' />
-            </FileAccesses>
         </CIM_Process>
     </CIM_Process>
     <FilesCategory category='Kernel file systems'>
