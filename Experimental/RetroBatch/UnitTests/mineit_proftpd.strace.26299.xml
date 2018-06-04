@@ -22,13 +22,6 @@
             <Access File='/run/proftpd/proftpd.scoreboard' OpenTime='2018-05-08 14:10:17.222407' CloseTime='2018-05-08 14:10:17.224437' NumReads='3' BytesRead='1248' />
             <Access File='/run/proftpd/proftpd.scoreboard' OpenTime='2018-05-08 14:10:47.433173' CloseTime='2018-05-08 14:10:47.435550' NumReads='3' BytesRead='1248' />
         </FileAccesses>
-        <CIM_Process Handle='10614'>
-            <Handle>10614</Handle>
-            <Name>pid=10614</Name>
-            <CreationDate>2018-05-08 00:00:00.000000</CreationDate>
-            <TerminationDate>2018-05-08 14:09:56.110693</TerminationDate>
-            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
-        </CIM_Process>
         <CIM_Process Handle='10622'>
             <Handle>10622</Handle>
             <Name>pid=10622</Name>
@@ -162,61 +155,51 @@
                 <Access File='/run/proftpd/proftpd.scoreboard.lck' CloseTime='2018-05-08 14:11:04.796967' />
                 <Access File='UNIX:[10567134->11035]' CloseTime='2018-05-08 14:11:04.798582' />
             </FileAccesses>
-            <CIM_Process Handle='10624'>
-                <Handle>10624</Handle>
-                <Name>pid=10624</Name>
-                <CommandLine>/usr/sbin/unix_chkpwd rchateau nullok</CommandLine>
-                <CreationDate>2018-05-08 14:09:55.247514</CreationDate>
-                <TerminationDate>2018-05-08 14:09:55.678238</TerminationDate>
+            <CIM_Process Handle='10625'>
+                <Handle>10625</Handle>
+                <Name>pid=10625</Name>
+                <CommandLine>/usr/sbin/unix_chkpwd rchateau chkexpiry</CommandLine>
+                <CreationDate>2018-05-08 14:09:55.685465</CreationDate>
+                <TerminationDate>2018-05-08 14:09:56.136965</TerminationDate>
                 <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
                 <Executable>/usr/sbin/unix_chkpwd</Executable>
                 <FileAccesses>
-                    <Access File='pipe:[10571277]' CloseTime='2018-05-08 14:09:55.249108' />
-                    <Access File='pipe:[10571277]' CloseTime='2018-05-08 14:09:55.249432' />
-                    <Access File='pipe:[10571272]' CloseTime='2018-05-08 14:09:55.616015' />
-                    <Access File='pipe:[10571272]' CloseTime='2018-05-08 14:09:55.616169' />
-                    <Access File='UNIX:[10567134->11035]' CloseTime='2018-05-08 14:09:55.616263' />
-                    <Access File='/run/proftpd/proftpd.scoreboard.lck' CloseTime='2018-05-08 14:09:55.616377' />
-                    <Access File='/run/proftpd/proftpd.scoreboard' CloseTime='2018-05-08 14:09:55.616469' />
-                    <Access File='/var/lib/sss/mc/initgroups' CloseTime='2018-05-08 14:09:55.616600' />
-                    <Access File='/var/log/proftpd/controls.log' CloseTime='2018-05-08 14:09:55.616706' />
-                    <Access File='UNIX:[10567146->10567153]' CloseTime='2018-05-08 14:09:55.616809' />
-                    <Access File='/var/lib/sss/mc/group' CloseTime='2018-05-08 14:09:55.616936' />
-                    <Access File='/var/lib/sss/mc/passwd' CloseTime='2018-05-08 14:09:55.617022' />
-                    <Access File='/run/proftpd/proftpd.scoreboard' CloseTime='2018-05-08 14:09:55.617162' />
-                    <Access File='/etc/protocols' CloseTime='2018-05-08 14:09:55.617240' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.619621' CloseTime='2018-05-08 14:09:55.619936' />
-                    <Access File='/usr/lib64/libcrypt-nss-2.25.so' OpenTime='2018-05-08 14:09:55.620043' CloseTime='2018-05-08 14:09:55.620768' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 14:09:55.620884' CloseTime='2018-05-08 14:09:55.621603' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libaudit.so.1.0.0' OpenTime='2018-05-08 14:09:55.621716' CloseTime='2018-05-08 14:09:55.622491' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libc-2.25.so' OpenTime='2018-05-08 14:09:55.622612' CloseTime='2018-05-08 14:09:55.623349' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libfreebl3.so' OpenTime='2018-05-08 14:09:55.623563' CloseTime='2018-05-08 14:09:55.623993' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libpcre.so.1.2.8' OpenTime='2018-05-08 14:09:55.624127' CloseTime='2018-05-08 14:09:55.624785' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libdl-2.25.so' OpenTime='2018-05-08 14:09:55.624901' CloseTime='2018-05-08 14:09:55.625596' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libcap-ng.so.0.0.0' OpenTime='2018-05-08 14:09:55.625704' CloseTime='2018-05-08 14:09:55.626309' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libpthread-2.25.so' OpenTime='2018-05-08 14:09:55.626407' CloseTime='2018-05-08 14:09:55.627112' NumReads='1' BytesRead='832' />
-                    <Access File='pipe:[10571272]' NumReads='1' BytesRead='9' />
-                    <Access File='UNIX:[10575374]' CloseTime='2018-05-08 14:09:55.630896' />
-                    <Access File='UNIX:[10575378]' CloseTime='2018-05-08 14:09:55.631605' />
-                    <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 14:09:55.631898' CloseTime='2018-05-08 14:09:55.632542' NumReads='2' BytesRead='1731' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.632681' CloseTime='2018-05-08 14:09:55.633067' />
-                    <Access File='/usr/lib64/libnss_sss.so.2' OpenTime='2018-05-08 14:09:55.633165' CloseTime='2018-05-08 14:09:55.634008' NumReads='1' BytesRead='832' />
-                    <Access File='/var/lib/sss/mc/passwd' OpenTime='2018-05-08 14:09:55.634423' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.635031' CloseTime='2018-05-08 14:09:55.635352' />
-                    <Access File='/usr/lib64/libnss_files-2.25.so' OpenTime='2018-05-08 14:09:55.635446' CloseTime='2018-05-08 14:09:55.636329' NumReads='1' BytesRead='832' />
-                    <Access File='/etc/shadow' OpenTime='2018-05-08 14:09:55.636715' CloseTime='2018-05-08 14:09:55.637152' NumReads='1' BytesRead='776' />
-                    <Access File='/usr/lib64/libfreeblpriv3.so' OpenTime='2018-05-08 14:09:55.637416' CloseTime='2018-05-08 14:09:55.638056' NumReads='1' BytesRead='832' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.638389' CloseTime='2018-05-08 14:09:55.638686' />
-                    <Access File='/usr/lib64/libnspr4.so' OpenTime='2018-05-08 14:09:55.638758' CloseTime='2018-05-08 14:09:55.639051' NumReads='1' BytesRead='832' />
-                    <Access File='/dev/urandom' OpenTime='2018-05-08 14:09:55.639298' CloseTime='2018-05-08 14:09:55.639574' NumReads='1' BytesRead='55' />
-                    <Access File='/usr/lib64/libfreeblpriv3.chk' OpenTime='2018-05-08 14:09:55.639695' CloseTime='2018-05-08 14:09:55.640835' NumReads='11' BytesRead='899' />
-                    <Access File='/usr/lib64/libfreeblpriv3.so' OpenTime='2018-05-08 14:09:55.640998' CloseTime='2018-05-08 14:09:55.654355' NumReads='134' BytesRead='543632' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.656418' CloseTime='2018-05-08 14:09:55.657120' />
-                    <Access File='/usr/lib64/libnspr4.so' OpenTime='2018-05-08 14:09:55.657149' CloseTime='2018-05-08 14:09:55.657227' NumReads='1' BytesRead='832' />
-                    <Access File='/proc/sys/crypto/fips_enabled' OpenTime='2018-05-08 14:09:55.657289' CloseTime='2018-05-08 14:09:55.657421' NumReads='1' BytesRead='2' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.662777' CloseTime='2018-05-08 14:09:55.667121' />
-                    <Access File='/usr/lib64/libnspr4.so' OpenTime='2018-05-08 14:09:55.667174' CloseTime='2018-05-08 14:09:55.667427' NumReads='1' BytesRead='832' />
-                    <Access File='/proc/sys/crypto/fips_enabled' OpenTime='2018-05-08 14:09:55.667572' CloseTime='2018-05-08 14:09:55.667764' NumReads='1' BytesRead='2' />
+                    <Access File='pipe:[10575404]' CloseTime='2018-05-08 14:09:55.686970' />
+                    <Access File='pipe:[10575404]' CloseTime='2018-05-08 14:09:55.687176' />
+                    <Access File='pipe:[10575408]' CloseTime='2018-05-08 14:09:55.687385' />
+                    <Access File='pipe:[10575408]' CloseTime='2018-05-08 14:09:55.687639' />
+                    <Access File='pipe:[10575399]' CloseTime='2018-05-08 14:09:56.081453' />
+                    <Access File='pipe:[10575399]' CloseTime='2018-05-08 14:09:56.081556' />
+                    <Access File='UNIX:[10567134->11035]' CloseTime='2018-05-08 14:09:56.081631' />
+                    <Access File='/run/proftpd/proftpd.scoreboard.lck' CloseTime='2018-05-08 14:09:56.081709' />
+                    <Access File='/run/proftpd/proftpd.scoreboard' CloseTime='2018-05-08 14:09:56.081785' />
+                    <Access File='/var/lib/sss/mc/initgroups' CloseTime='2018-05-08 14:09:56.081892' />
+                    <Access File='/var/log/proftpd/controls.log' CloseTime='2018-05-08 14:09:56.081973' />
+                    <Access File='UNIX:[10567146->10567153]' CloseTime='2018-05-08 14:09:56.082053' />
+                    <Access File='/var/lib/sss/mc/group' CloseTime='2018-05-08 14:09:56.082128' />
+                    <Access File='/var/lib/sss/mc/passwd' CloseTime='2018-05-08 14:09:56.082199' />
+                    <Access File='/run/proftpd/proftpd.scoreboard' CloseTime='2018-05-08 14:09:56.082268' />
+                    <Access File='/etc/protocols' CloseTime='2018-05-08 14:09:56.082355' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:56.083644' CloseTime='2018-05-08 14:09:56.083958' />
+                    <Access File='/usr/lib64/libcrypt-nss-2.25.so' OpenTime='2018-05-08 14:09:56.084009' CloseTime='2018-05-08 14:09:56.084617' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 14:09:56.084677' CloseTime='2018-05-08 14:09:56.085319' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libaudit.so.1.0.0' OpenTime='2018-05-08 14:09:56.085421' CloseTime='2018-05-08 14:09:56.086229' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libc-2.25.so' OpenTime='2018-05-08 14:09:56.086380' CloseTime='2018-05-08 14:09:56.086992' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libfreebl3.so' OpenTime='2018-05-08 14:09:56.087112' CloseTime='2018-05-08 14:09:56.087641' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libpcre.so.1.2.8' OpenTime='2018-05-08 14:09:56.087748' CloseTime='2018-05-08 14:09:56.088523' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libdl-2.25.so' OpenTime='2018-05-08 14:09:56.088588' CloseTime='2018-05-08 14:09:56.089365' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libcap-ng.so.0.0.0' OpenTime='2018-05-08 14:09:56.089430' CloseTime='2018-05-08 14:09:56.090036' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libpthread-2.25.so' OpenTime='2018-05-08 14:09:56.090136' CloseTime='2018-05-08 14:09:56.090802' NumReads='1' BytesRead='832' />
+                    <Access File='UNIX:[10579502]' CloseTime='2018-05-08 14:09:56.093779' />
+                    <Access File='UNIX:[10579506]' CloseTime='2018-05-08 14:09:56.094382' />
+                    <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 14:09:56.094586' CloseTime='2018-05-08 14:09:56.095133' NumReads='2' BytesRead='1731' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:56.095236' CloseTime='2018-05-08 14:09:56.102339' />
+                    <Access File='/usr/lib64/libnss_sss.so.2' OpenTime='2018-05-08 14:09:56.109011' CloseTime='2018-05-08 14:09:56.112805' NumReads='1' BytesRead='832' />
+                    <Access File='/var/lib/sss/mc/passwd' OpenTime='2018-05-08 14:09:56.126937' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:56.132125' CloseTime='2018-05-08 14:09:56.132457' />
+                    <Access File='/usr/lib64/libnss_files-2.25.so' OpenTime='2018-05-08 14:09:56.132590' CloseTime='2018-05-08 14:09:56.133274' NumReads='1' BytesRead='832' />
+                    <Access File='/etc/shadow' OpenTime='2018-05-08 14:09:56.133650' CloseTime='2018-05-08 14:09:56.133978' NumReads='1' BytesRead='776' />
+                    <Access File='pipe:[10575399]' NumWrites='1' BytesWritten='3' />
                 </FileAccesses>
             </CIM_Process>
             <CIM_Process Handle='10623'>
@@ -276,53 +259,70 @@
                     <Access File='/proc/sys/crypto/fips_enabled' OpenTime='2018-05-08 14:09:55.236349' CloseTime='2018-05-08 14:09:55.236526' NumReads='1' BytesRead='2' />
                 </FileAccesses>
             </CIM_Process>
-            <CIM_Process Handle='10625'>
-                <Handle>10625</Handle>
-                <Name>pid=10625</Name>
-                <CommandLine>/usr/sbin/unix_chkpwd rchateau chkexpiry</CommandLine>
-                <CreationDate>2018-05-08 14:09:55.685465</CreationDate>
-                <TerminationDate>2018-05-08 14:09:56.136965</TerminationDate>
+            <CIM_Process Handle='10624'>
+                <Handle>10624</Handle>
+                <Name>pid=10624</Name>
+                <CommandLine>/usr/sbin/unix_chkpwd rchateau nullok</CommandLine>
+                <CreationDate>2018-05-08 14:09:55.247514</CreationDate>
+                <TerminationDate>2018-05-08 14:09:55.678238</TerminationDate>
                 <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
                 <Executable>/usr/sbin/unix_chkpwd</Executable>
                 <FileAccesses>
-                    <Access File='pipe:[10575404]' CloseTime='2018-05-08 14:09:55.686970' />
-                    <Access File='pipe:[10575404]' CloseTime='2018-05-08 14:09:55.687176' />
-                    <Access File='pipe:[10575408]' CloseTime='2018-05-08 14:09:55.687385' />
-                    <Access File='pipe:[10575408]' CloseTime='2018-05-08 14:09:55.687639' />
-                    <Access File='pipe:[10575399]' CloseTime='2018-05-08 14:09:56.081453' />
-                    <Access File='pipe:[10575399]' CloseTime='2018-05-08 14:09:56.081556' />
-                    <Access File='UNIX:[10567134->11035]' CloseTime='2018-05-08 14:09:56.081631' />
-                    <Access File='/run/proftpd/proftpd.scoreboard.lck' CloseTime='2018-05-08 14:09:56.081709' />
-                    <Access File='/run/proftpd/proftpd.scoreboard' CloseTime='2018-05-08 14:09:56.081785' />
-                    <Access File='/var/lib/sss/mc/initgroups' CloseTime='2018-05-08 14:09:56.081892' />
-                    <Access File='/var/log/proftpd/controls.log' CloseTime='2018-05-08 14:09:56.081973' />
-                    <Access File='UNIX:[10567146->10567153]' CloseTime='2018-05-08 14:09:56.082053' />
-                    <Access File='/var/lib/sss/mc/group' CloseTime='2018-05-08 14:09:56.082128' />
-                    <Access File='/var/lib/sss/mc/passwd' CloseTime='2018-05-08 14:09:56.082199' />
-                    <Access File='/run/proftpd/proftpd.scoreboard' CloseTime='2018-05-08 14:09:56.082268' />
-                    <Access File='/etc/protocols' CloseTime='2018-05-08 14:09:56.082355' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:56.083644' CloseTime='2018-05-08 14:09:56.083958' />
-                    <Access File='/usr/lib64/libcrypt-nss-2.25.so' OpenTime='2018-05-08 14:09:56.084009' CloseTime='2018-05-08 14:09:56.084617' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 14:09:56.084677' CloseTime='2018-05-08 14:09:56.085319' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libaudit.so.1.0.0' OpenTime='2018-05-08 14:09:56.085421' CloseTime='2018-05-08 14:09:56.086229' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libc-2.25.so' OpenTime='2018-05-08 14:09:56.086380' CloseTime='2018-05-08 14:09:56.086992' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libfreebl3.so' OpenTime='2018-05-08 14:09:56.087112' CloseTime='2018-05-08 14:09:56.087641' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libpcre.so.1.2.8' OpenTime='2018-05-08 14:09:56.087748' CloseTime='2018-05-08 14:09:56.088523' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libdl-2.25.so' OpenTime='2018-05-08 14:09:56.088588' CloseTime='2018-05-08 14:09:56.089365' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libcap-ng.so.0.0.0' OpenTime='2018-05-08 14:09:56.089430' CloseTime='2018-05-08 14:09:56.090036' NumReads='1' BytesRead='832' />
-                    <Access File='/usr/lib64/libpthread-2.25.so' OpenTime='2018-05-08 14:09:56.090136' CloseTime='2018-05-08 14:09:56.090802' NumReads='1' BytesRead='832' />
-                    <Access File='UNIX:[10579502]' CloseTime='2018-05-08 14:09:56.093779' />
-                    <Access File='UNIX:[10579506]' CloseTime='2018-05-08 14:09:56.094382' />
-                    <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 14:09:56.094586' CloseTime='2018-05-08 14:09:56.095133' NumReads='2' BytesRead='1731' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:56.095236' CloseTime='2018-05-08 14:09:56.102339' />
-                    <Access File='/usr/lib64/libnss_sss.so.2' OpenTime='2018-05-08 14:09:56.109011' CloseTime='2018-05-08 14:09:56.112805' NumReads='1' BytesRead='832' />
-                    <Access File='/var/lib/sss/mc/passwd' OpenTime='2018-05-08 14:09:56.126937' />
-                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:56.132125' CloseTime='2018-05-08 14:09:56.132457' />
-                    <Access File='/usr/lib64/libnss_files-2.25.so' OpenTime='2018-05-08 14:09:56.132590' CloseTime='2018-05-08 14:09:56.133274' NumReads='1' BytesRead='832' />
-                    <Access File='/etc/shadow' OpenTime='2018-05-08 14:09:56.133650' CloseTime='2018-05-08 14:09:56.133978' NumReads='1' BytesRead='776' />
-                    <Access File='pipe:[10575399]' NumWrites='1' BytesWritten='3' />
+                    <Access File='pipe:[10571277]' CloseTime='2018-05-08 14:09:55.249108' />
+                    <Access File='pipe:[10571277]' CloseTime='2018-05-08 14:09:55.249432' />
+                    <Access File='pipe:[10571272]' CloseTime='2018-05-08 14:09:55.616015' />
+                    <Access File='pipe:[10571272]' CloseTime='2018-05-08 14:09:55.616169' />
+                    <Access File='UNIX:[10567134->11035]' CloseTime='2018-05-08 14:09:55.616263' />
+                    <Access File='/run/proftpd/proftpd.scoreboard.lck' CloseTime='2018-05-08 14:09:55.616377' />
+                    <Access File='/run/proftpd/proftpd.scoreboard' CloseTime='2018-05-08 14:09:55.616469' />
+                    <Access File='/var/lib/sss/mc/initgroups' CloseTime='2018-05-08 14:09:55.616600' />
+                    <Access File='/var/log/proftpd/controls.log' CloseTime='2018-05-08 14:09:55.616706' />
+                    <Access File='UNIX:[10567146->10567153]' CloseTime='2018-05-08 14:09:55.616809' />
+                    <Access File='/var/lib/sss/mc/group' CloseTime='2018-05-08 14:09:55.616936' />
+                    <Access File='/var/lib/sss/mc/passwd' CloseTime='2018-05-08 14:09:55.617022' />
+                    <Access File='/run/proftpd/proftpd.scoreboard' CloseTime='2018-05-08 14:09:55.617162' />
+                    <Access File='/etc/protocols' CloseTime='2018-05-08 14:09:55.617240' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.619621' CloseTime='2018-05-08 14:09:55.619936' />
+                    <Access File='/usr/lib64/libcrypt-nss-2.25.so' OpenTime='2018-05-08 14:09:55.620043' CloseTime='2018-05-08 14:09:55.620768' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-08 14:09:55.620884' CloseTime='2018-05-08 14:09:55.621603' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libaudit.so.1.0.0' OpenTime='2018-05-08 14:09:55.621716' CloseTime='2018-05-08 14:09:55.622491' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libc-2.25.so' OpenTime='2018-05-08 14:09:55.622612' CloseTime='2018-05-08 14:09:55.623349' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libfreebl3.so' OpenTime='2018-05-08 14:09:55.623563' CloseTime='2018-05-08 14:09:55.623993' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libpcre.so.1.2.8' OpenTime='2018-05-08 14:09:55.624127' CloseTime='2018-05-08 14:09:55.624785' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libdl-2.25.so' OpenTime='2018-05-08 14:09:55.624901' CloseTime='2018-05-08 14:09:55.625596' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libcap-ng.so.0.0.0' OpenTime='2018-05-08 14:09:55.625704' CloseTime='2018-05-08 14:09:55.626309' NumReads='1' BytesRead='832' />
+                    <Access File='/usr/lib64/libpthread-2.25.so' OpenTime='2018-05-08 14:09:55.626407' CloseTime='2018-05-08 14:09:55.627112' NumReads='1' BytesRead='832' />
+                    <Access File='pipe:[10571272]' NumReads='1' BytesRead='9' />
+                    <Access File='UNIX:[10575374]' CloseTime='2018-05-08 14:09:55.630896' />
+                    <Access File='UNIX:[10575378]' CloseTime='2018-05-08 14:09:55.631605' />
+                    <Access File='/etc/nsswitch.conf' OpenTime='2018-05-08 14:09:55.631898' CloseTime='2018-05-08 14:09:55.632542' NumReads='2' BytesRead='1731' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.632681' CloseTime='2018-05-08 14:09:55.633067' />
+                    <Access File='/usr/lib64/libnss_sss.so.2' OpenTime='2018-05-08 14:09:55.633165' CloseTime='2018-05-08 14:09:55.634008' NumReads='1' BytesRead='832' />
+                    <Access File='/var/lib/sss/mc/passwd' OpenTime='2018-05-08 14:09:55.634423' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.635031' CloseTime='2018-05-08 14:09:55.635352' />
+                    <Access File='/usr/lib64/libnss_files-2.25.so' OpenTime='2018-05-08 14:09:55.635446' CloseTime='2018-05-08 14:09:55.636329' NumReads='1' BytesRead='832' />
+                    <Access File='/etc/shadow' OpenTime='2018-05-08 14:09:55.636715' CloseTime='2018-05-08 14:09:55.637152' NumReads='1' BytesRead='776' />
+                    <Access File='/usr/lib64/libfreeblpriv3.so' OpenTime='2018-05-08 14:09:55.637416' CloseTime='2018-05-08 14:09:55.638056' NumReads='1' BytesRead='832' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.638389' CloseTime='2018-05-08 14:09:55.638686' />
+                    <Access File='/usr/lib64/libnspr4.so' OpenTime='2018-05-08 14:09:55.638758' CloseTime='2018-05-08 14:09:55.639051' NumReads='1' BytesRead='832' />
+                    <Access File='/dev/urandom' OpenTime='2018-05-08 14:09:55.639298' CloseTime='2018-05-08 14:09:55.639574' NumReads='1' BytesRead='55' />
+                    <Access File='/usr/lib64/libfreeblpriv3.chk' OpenTime='2018-05-08 14:09:55.639695' CloseTime='2018-05-08 14:09:55.640835' NumReads='11' BytesRead='899' />
+                    <Access File='/usr/lib64/libfreeblpriv3.so' OpenTime='2018-05-08 14:09:55.640998' CloseTime='2018-05-08 14:09:55.654355' NumReads='134' BytesRead='543632' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.656418' CloseTime='2018-05-08 14:09:55.657120' />
+                    <Access File='/usr/lib64/libnspr4.so' OpenTime='2018-05-08 14:09:55.657149' CloseTime='2018-05-08 14:09:55.657227' NumReads='1' BytesRead='832' />
+                    <Access File='/proc/sys/crypto/fips_enabled' OpenTime='2018-05-08 14:09:55.657289' CloseTime='2018-05-08 14:09:55.657421' NumReads='1' BytesRead='2' />
+                    <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 14:09:55.662777' CloseTime='2018-05-08 14:09:55.667121' />
+                    <Access File='/usr/lib64/libnspr4.so' OpenTime='2018-05-08 14:09:55.667174' CloseTime='2018-05-08 14:09:55.667427' NumReads='1' BytesRead='832' />
+                    <Access File='/proc/sys/crypto/fips_enabled' OpenTime='2018-05-08 14:09:55.667572' CloseTime='2018-05-08 14:09:55.667764' NumReads='1' BytesRead='2' />
                 </FileAccesses>
             </CIM_Process>
+        </CIM_Process>
+        <CIM_Process Handle='10614'>
+            <Handle>10614</Handle>
+            <Name>pid=10614</Name>
+            <CreationDate>2018-05-08 00:00:00.000000</CreationDate>
+            <TerminationDate>2018-05-08 14:09:56.110693</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
         </CIM_Process>
     </CIM_Process>
     <FilesCategory category='Connected TCP sockets'>

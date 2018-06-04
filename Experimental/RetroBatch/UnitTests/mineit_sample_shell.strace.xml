@@ -29,24 +29,6 @@
             <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' NumReads='4' BytesRead='565' />
             <Access File='pipe:[587230]' NumWrites='1' BytesWritten='51' />
         </FileAccesses>
-        <CIM_Process Handle='18198'>
-            <Handle>18198</Handle>
-            <Name>pid=18198</Name>
-            <CommandLine>cat TestProgs/sample_she...</CommandLine>
-            <CreationDate>2018-05-08 08:26:47.545561</CreationDate>
-            <TerminationDate>2018-05-08 08:26:47.553096</TerminationDate>
-            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
-            <Executable>/usr/bin/cat</Executable>
-            <FileAccesses>
-                <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' CloseTime='2018-05-08 08:26:47.545842' />
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.546936' CloseTime='2018-05-08 08:26:47.547371' />
-                <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:26:47.547498' CloseTime='2018-05-08 08:26:47.548344' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.550053' CloseTime='2018-05-08 08:26:47.550403' />
-                <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' OpenTime='2018-05-08 08:26:47.550749' CloseTime='2018-05-08 08:26:47.551914' NumReads='2' BytesRead='533' />
-                <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.552048' NumWrites='1' BytesWritten='533' />
-                <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.552174' />
-            </FileAccesses>
-        </CIM_Process>
         <CIM_Process Handle='18194'>
             <Handle>18194</Handle>
             <Name>pid=18194</Name>
@@ -71,6 +53,24 @@
                 <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch' OpenTime='2018-05-08 08:26:47.195987' CloseTime='2018-05-08 08:26:47.196315' />
                 <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.196710' NumWrites='1' BytesWritten='143' />
                 <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.196903' />
+            </FileAccesses>
+        </CIM_Process>
+        <CIM_Process Handle='18198'>
+            <Handle>18198</Handle>
+            <Name>pid=18198</Name>
+            <CommandLine>cat TestProgs/sample_she...</CommandLine>
+            <CreationDate>2018-05-08 08:26:47.545561</CreationDate>
+            <TerminationDate>2018-05-08 08:26:47.553096</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+            <Executable>/usr/bin/cat</Executable>
+            <FileAccesses>
+                <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' CloseTime='2018-05-08 08:26:47.545842' />
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:26:47.546936' CloseTime='2018-05-08 08:26:47.547371' />
+                <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:26:47.547498' CloseTime='2018-05-08 08:26:47.548344' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:26:47.550053' CloseTime='2018-05-08 08:26:47.550403' />
+                <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' OpenTime='2018-05-08 08:26:47.550749' CloseTime='2018-05-08 08:26:47.551914' NumReads='2' BytesRead='533' />
+                <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.552048' NumWrites='1' BytesWritten='533' />
+                <Access File='pipe:[587230]' CloseTime='2018-05-08 08:26:47.552174' />
             </FileAccesses>
         </CIM_Process>
         <CIM_Process Handle='18195'>

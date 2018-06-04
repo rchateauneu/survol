@@ -31,32 +31,6 @@
             <Access File='/home/rchateau/survol/Experimental/RetroBatch' CloseTime='2018-05-08 09:00:22.600065' />
             <Access File='/usr/lib64/gconv/gconv-modules.cache' CloseTime='2018-05-08 09:00:23.632669' />
         </FileAccesses>
-        <CIM_Process Handle='18317'>
-            <Handle>18317</Handle>
-            <Name>pid=18317</Name>
-            <CreationDate>2018-05-08 09:00:22.557771</CreationDate>
-            <TerminationDate>2018-05-08 09:00:23.657686</TerminationDate>
-            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
-            <Executable>/usr/bin/ls</Executable>
-            <IsThread>True</IsThread>
-            <FileAccesses>
-                <Access File='UnknownFileDescr:255' CloseTime='2018-05-08 09:00:22.558338' />
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:00:22.561511' CloseTime='2018-05-08 09:00:22.562587' />
-                <Access File='/lib64/libselinux.so.1' OpenTime='2018-05-08 09:00:22.562791' CloseTime='2018-05-08 09:00:22.565102' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libcap.so.2' OpenTime='2018-05-08 09:00:22.565346' CloseTime='2018-05-08 09:00:22.566931' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libacl.so.1' OpenTime='2018-05-08 09:00:22.567074' CloseTime='2018-05-08 09:00:22.568457' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libc.so.6' OpenTime='2018-05-08 09:00:22.568667' CloseTime='2018-05-08 09:00:22.569994' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libpcre.so.1' OpenTime='2018-05-08 09:00:22.570141' CloseTime='2018-05-08 09:00:22.571483' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libdl.so.2' OpenTime='2018-05-08 09:00:22.571609' CloseTime='2018-05-08 09:00:22.573142' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libattr.so.1' OpenTime='2018-05-08 09:00:22.573289' CloseTime='2018-05-08 09:00:22.574539' NumReads='1' BytesRead='832' />
-                <Access File='/lib64/libpthread.so.0' OpenTime='2018-05-08 09:00:22.574646' CloseTime='2018-05-08 09:00:22.576080' NumReads='1' BytesRead='832' />
-                <Access File='/proc/filesystems' OpenTime='2018-05-08 09:00:22.580289' CloseTime='2018-05-08 09:00:22.581549' NumReads='2' BytesRead='356' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 09:00:22.591012' CloseTime='2018-05-08 09:00:22.591406' />
-                <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-08 09:00:22.594794' CloseTime='2018-05-08 09:00:22.595183' />
-                <Access File='stdout' CloseTime='2018-05-08 09:00:22.595925' NumWrites='1' BytesWritten='143' />
-                <Access File='stderr' CloseTime='2018-05-08 09:00:22.596220' />
-            </FileAccesses>
-        </CIM_Process>
         <CIM_Process Handle='18319'>
             <Handle>18319</Handle>
             <Name>pid=18319</Name>
@@ -913,6 +887,32 @@
                 <Access File='/proc/31755/status' OpenTime='2018-05-08 09:00:23.627799' CloseTime='2018-05-08 09:00:23.629080' NumReads='1' BytesRead='1062' />
                 <Access File='/proc/31755/cmdline' OpenTime='2018-05-08 09:00:23.629132' CloseTime='2018-05-08 09:00:23.629357' NumReads='2' BytesRead='18' />
                 <Access File='stderr' CloseTime='2018-05-08 09:00:23.631881' />
+            </FileAccesses>
+        </CIM_Process>
+        <CIM_Process Handle='18317'>
+            <Handle>18317</Handle>
+            <Name>pid=18317</Name>
+            <CreationDate>2018-05-08 09:00:22.557771</CreationDate>
+            <TerminationDate>2018-05-08 09:00:23.657686</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+            <Executable>/usr/bin/ls</Executable>
+            <IsThread>True</IsThread>
+            <FileAccesses>
+                <Access File='UnknownFileDescr:255' CloseTime='2018-05-08 09:00:22.558338' />
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 09:00:22.561511' CloseTime='2018-05-08 09:00:22.562587' />
+                <Access File='/lib64/libselinux.so.1' OpenTime='2018-05-08 09:00:22.562791' CloseTime='2018-05-08 09:00:22.565102' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libcap.so.2' OpenTime='2018-05-08 09:00:22.565346' CloseTime='2018-05-08 09:00:22.566931' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libacl.so.1' OpenTime='2018-05-08 09:00:22.567074' CloseTime='2018-05-08 09:00:22.568457' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libc.so.6' OpenTime='2018-05-08 09:00:22.568667' CloseTime='2018-05-08 09:00:22.569994' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libpcre.so.1' OpenTime='2018-05-08 09:00:22.570141' CloseTime='2018-05-08 09:00:22.571483' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libdl.so.2' OpenTime='2018-05-08 09:00:22.571609' CloseTime='2018-05-08 09:00:22.573142' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libattr.so.1' OpenTime='2018-05-08 09:00:22.573289' CloseTime='2018-05-08 09:00:22.574539' NumReads='1' BytesRead='832' />
+                <Access File='/lib64/libpthread.so.0' OpenTime='2018-05-08 09:00:22.574646' CloseTime='2018-05-08 09:00:22.576080' NumReads='1' BytesRead='832' />
+                <Access File='/proc/filesystems' OpenTime='2018-05-08 09:00:22.580289' CloseTime='2018-05-08 09:00:22.581549' NumReads='2' BytesRead='356' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 09:00:22.591012' CloseTime='2018-05-08 09:00:22.591406' />
+                <Access File='/home/rchateau/survol/Experimental/RetroBatch' OpenTime='2018-05-08 09:00:22.594794' CloseTime='2018-05-08 09:00:22.595183' />
+                <Access File='stdout' CloseTime='2018-05-08 09:00:22.595925' NumWrites='1' BytesWritten='143' />
+                <Access File='stderr' CloseTime='2018-05-08 09:00:22.596220' />
             </FileAccesses>
         </CIM_Process>
     </CIM_Process>

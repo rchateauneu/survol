@@ -436,10 +436,10 @@
             <Access File='/home/rchateau/survol/Experimental/RetroBatch/TestProgs/oracle_db_schemas.py' OpenTime='2018-05-08 22:39:32.613722' CloseTime='2018-05-08 22:39:32.615270' NumReads='1' BytesRead='1161' />
             <Access File='/home/rchateau/survol/Experimental/RetroBatch/TestProgs/oracle_db_schemas.py' OpenTime='2018-05-08 22:39:32.615546' CloseTime='2018-05-08 22:39:32.617053' NumReads='1' BytesRead='1161' />
         </FileAccesses>
-        <CIM_Process Handle='29959'>
-            <Handle>29959</Handle>
-            <Name>pid=29959</Name>
-            <CreationDate>2018-05-08 22:39:30.062207</CreationDate>
+        <CIM_Process Handle='29962'>
+            <Handle>29962</Handle>
+            <Name>pid=29962</Name>
+            <CreationDate>2018-05-08 22:39:30.979876</CreationDate>
             <TerminationDate>2018-05-08 22:39:32.625450</TerminationDate>
             <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
             <IsThread>True</IsThread>
@@ -452,10 +452,10 @@
             <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
             <IsThread>True</IsThread>
         </CIM_Process>
-        <CIM_Process Handle='29962'>
-            <Handle>29962</Handle>
-            <Name>pid=29962</Name>
-            <CreationDate>2018-05-08 22:39:30.979876</CreationDate>
+        <CIM_Process Handle='29959'>
+            <Handle>29959</Handle>
+            <Name>pid=29959</Name>
+            <CreationDate>2018-05-08 22:39:30.062207</CreationDate>
             <TerminationDate>2018-05-08 22:39:32.625450</TerminationDate>
             <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
             <IsThread>True</IsThread>
