@@ -28,22 +28,28 @@
     </CIM_Process>
     <FilesCategory category='Other libraries'>
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
-            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Name>/usr/lib/locale/locale-archive</Name>
             <Category>Other libraries</Category>
+            <Extension>locale-archive</Extension>
+            <FileName>locale-archive</FileName>
             <FileAccesses>
                 <Access Process='24613' OpenTime='2018-05-08 00:05:17.875018' CloseTime='2018-05-08 00:05:17.875922' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
-            <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
+            <Name>/usr/lib64/gconv/gconv-modules.cache</Name>
             <Category>Other libraries</Category>
+            <Extension>cache</Extension>
+            <FileName>gconv-modules</FileName>
             <FileAccesses>
                 <Access Process='24613' OpenTime='2018-05-08 00:05:17.878136' CloseTime='2018-05-08 00:05:17.878269' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/misc/magic.mgc'>
-            <FileName>/usr/share/misc/magic.mgc</FileName>
+            <Name>/usr/share/misc/magic.mgc</Name>
             <Category>Other libraries</Category>
+            <Extension>mgc</Extension>
+            <FileName>magic</FileName>
             <FileAccesses>
                 <Access Process='24613' OpenTime='2018-05-08 00:05:17.876706' CloseTime='2018-05-08 00:05:17.878042' />
             </FileAccesses>
@@ -51,12 +57,16 @@
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/docker.pyc'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/docker.pyc</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/docker.pyc</Name>
             <Category>Others</Category>
+            <Extension>pyc</Extension>
+            <FileName>docker</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='stdout'>
-            <FileName>stdout</FileName>
+            <Name>stdout</Name>
             <Category>Others</Category>
+            <Extension>stdout</Extension>
+            <FileName>stdout</FileName>
             <FileAccesses>
                 <Access Process='24613' NumWrites='1' BytesWritten='65' />
             </FileAccesses>
@@ -64,22 +74,28 @@
     </FilesCategory>
     <FilesCategory category='Shared libraries'>
         <CIM_DataFile Name='/lib64/libc.so.6'>
-            <FileName>/lib64/libc.so.6</FileName>
+            <Name>/lib64/libc.so.6</Name>
             <Category>Shared libraries</Category>
+            <Extension>6</Extension>
+            <FileName>libc</FileName>
             <FileAccesses>
                 <Access Process='24613' OpenTime='2018-05-08 00:05:17.867671' CloseTime='2018-05-08 00:05:17.867985' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libmagic.so.1'>
-            <FileName>/lib64/libmagic.so.1</FileName>
+            <Name>/lib64/libmagic.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libmagic</FileName>
             <FileAccesses>
                 <Access Process='24613' OpenTime='2018-05-08 00:05:17.867045' CloseTime='2018-05-08 00:05:17.867303' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libz.so.1'>
-            <FileName>/lib64/libz.so.1</FileName>
+            <Name>/lib64/libz.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libz</FileName>
             <FileAccesses>
                 <Access Process='24613' OpenTime='2018-05-08 00:05:17.867341' CloseTime='2018-05-08 00:05:17.867630' NumReads='1' BytesRead='832' />
             </FileAccesses>
@@ -87,19 +103,25 @@
     </FilesCategory>
     <FilesCategory category='System config files'>
         <CIM_DataFile Name='/etc/ld.so.cache'>
-            <FileName>/etc/ld.so.cache</FileName>
+            <Name>/etc/ld.so.cache</Name>
             <Category>System config files</Category>
+            <Extension>cache</Extension>
+            <FileName>ld</FileName>
             <FileAccesses>
                 <Access Process='24613' OpenTime='2018-05-08 00:05:17.866918' CloseTime='2018-05-08 00:05:17.867021' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.preload'>
-            <FileName>/etc/ld.so.preload</FileName>
+            <Name>/etc/ld.so.preload</Name>
             <Category>System config files</Category>
+            <Extension>preload</Extension>
+            <FileName>ld</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/magic'>
-            <FileName>/etc/magic</FileName>
+            <Name>/etc/magic</Name>
             <Category>System config files</Category>
+            <Extension>magic</Extension>
+            <FileName>magic</FileName>
             <FileAccesses>
                 <Access Process='24613' OpenTime='2018-05-08 00:05:17.876244' CloseTime='2018-05-08 00:05:17.876671' NumReads='2' BytesRead='111' />
             </FileAccesses>

@@ -26,27 +26,6 @@
             <Access File='/tmp/ccfQ2ZlR.o' OpenTime='2018-05-08 08:53:31.335540' CloseTime='2018-05-08 08:53:31.335603' />
             <Access File='/tmp/ccBJJSTw.res' OpenTime='2018-05-08 08:53:31.348710' CloseTime='2018-05-08 08:53:31.348771' />
         </FileAccesses>
-        <CIM_Process Handle='23946'>
-            <Handle>23946</Handle>
-            <Name>pid=23946</Name>
-            <CommandLine>as --64 -o /tmp/ccfQ2ZlR.o /tmp/ccnzLuQb.s</CommandLine>
-            <CreationDate>2018-05-08 08:53:31.336179</CreationDate>
-            <TerminationDate>2018-05-08 08:53:31.348242</TerminationDate>
-            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
-            <Executable>/usr/bin/as</Executable>
-            <FileAccesses>
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:53:31.336422' CloseTime='2018-05-08 08:53:31.336532' />
-                <Access File='/usr/lib64/libopcodes-2.25-9.fc22.so' OpenTime='2018-05-08 08:53:31.336572' CloseTime='2018-05-08 08:53:31.336822' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libbfd-2.25-9.fc22.so' OpenTime='2018-05-08 08:53:31.336862' CloseTime='2018-05-08 08:53:31.337130' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libz.so.1.2.8' OpenTime='2018-05-08 08:53:31.337168' CloseTime='2018-05-08 08:53:31.337377' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-08 08:53:31.337413' CloseTime='2018-05-08 08:53:31.337625' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:53:31.337659' CloseTime='2018-05-08 08:53:31.337955' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:53:31.340526' CloseTime='2018-05-08 08:53:31.340661' />
-                <Access File='/tmp/ccfQ2ZlR.o' OpenTime='2018-05-08 08:53:31.342598' CloseTime='2018-05-08 08:53:31.347464' NumReads='7' BytesRead='3864' NumWrites='8' BytesWritten='1500' />
-                <Access File='/tmp/ccnzLuQb.s' OpenTime='2018-05-08 08:53:31.344566' CloseTime='2018-05-08 08:53:31.345019' NumReads='2' BytesRead='509' />
-                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 08:53:31.345438' CloseTime='2018-05-08 08:53:31.345632' NumReads='2' BytesRead='2997' />
-            </FileAccesses>
-        </CIM_Process>
         <CIM_Process Handle='23947'>
             <Handle>23947</Handle>
             <Name>pid=23947</Name>
@@ -121,6 +100,27 @@
                 </FileAccesses>
             </CIM_Process>
         </CIM_Process>
+        <CIM_Process Handle='23946'>
+            <Handle>23946</Handle>
+            <Name>pid=23946</Name>
+            <CommandLine>as --64 -o /tmp/ccfQ2ZlR.o /tmp/ccnzLuQb.s</CommandLine>
+            <CreationDate>2018-05-08 08:53:31.336179</CreationDate>
+            <TerminationDate>2018-05-08 08:53:31.348242</TerminationDate>
+            <CurrentDirectory>/home/rchateau/survol/Experimental/RetroBatch</CurrentDirectory>
+            <Executable>/usr/bin/as</Executable>
+            <FileAccesses>
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-08 08:53:31.336422' CloseTime='2018-05-08 08:53:31.336532' />
+                <Access File='/usr/lib64/libopcodes-2.25-9.fc22.so' OpenTime='2018-05-08 08:53:31.336572' CloseTime='2018-05-08 08:53:31.336822' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libbfd-2.25-9.fc22.so' OpenTime='2018-05-08 08:53:31.336862' CloseTime='2018-05-08 08:53:31.337130' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libz.so.1.2.8' OpenTime='2018-05-08 08:53:31.337168' CloseTime='2018-05-08 08:53:31.337377' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-08 08:53:31.337413' CloseTime='2018-05-08 08:53:31.337625' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-08 08:53:31.337659' CloseTime='2018-05-08 08:53:31.337955' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-08 08:53:31.340526' CloseTime='2018-05-08 08:53:31.340661' />
+                <Access File='/tmp/ccfQ2ZlR.o' OpenTime='2018-05-08 08:53:31.342598' CloseTime='2018-05-08 08:53:31.347464' NumReads='7' BytesRead='3864' NumWrites='8' BytesWritten='1500' />
+                <Access File='/tmp/ccnzLuQb.s' OpenTime='2018-05-08 08:53:31.344566' CloseTime='2018-05-08 08:53:31.345019' NumReads='2' BytesRead='509' />
+                <Access File='/usr/share/locale/locale.alias' OpenTime='2018-05-08 08:53:31.345438' CloseTime='2018-05-08 08:53:31.345632' NumReads='2' BytesRead='2997' />
+            </FileAccesses>
+        </CIM_Process>
         <CIM_Process Handle='23945'>
             <Handle>23945</Handle>
             <Name>pid=23945</Name>
@@ -169,8 +169,10 @@
     </CIM_Process>
     <FilesCategory category='Kernel file systems'>
         <CIM_DataFile Name='/proc/meminfo'>
-            <FileName>/proc/meminfo</FileName>
+            <Name>/proc/meminfo</Name>
             <Category>Kernel file systems</Category>
+            <Extension>meminfo</Extension>
+            <FileName>meminfo</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.309655' CloseTime='2018-05-08 08:53:31.309833' NumReads='1' BytesRead='1024' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.309915' CloseTime='2018-05-08 08:53:31.310055' NumReads='1' BytesRead='1024' />
@@ -180,47 +182,59 @@
     </FilesCategory>
     <FilesCategory category='Other libraries'>
         <CIM_DataFile Name='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/crtbegin.o'>
-            <FileName>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/crtbegin.o</FileName>
+            <Name>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/crtbegin.o</Name>
             <Category>Other libraries</Category>
+            <Extension>o</Extension>
+            <FileName>crtbegin</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.360167' CloseTime='2018-05-08 08:53:31.360947' NumReads='8' BytesRead='8400' />
                 <Access Process='23948' CloseTime='2018-05-08 08:53:31.477546' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/crtend.o'>
-            <FileName>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/crtend.o</FileName>
+            <Name>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/crtend.o</Name>
             <Category>Other libraries</Category>
+            <Extension>o</Extension>
+            <FileName>crtend</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.395883' CloseTime='2018-05-08 08:53:31.396776' NumReads='8' BytesRead='4424' />
                 <Access Process='23948' CloseTime='2018-05-08 08:53:31.477260' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stdarg.h'>
-            <FileName>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stdarg.h</FileName>
+            <Name>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stdarg.h</Name>
             <Category>Other libraries</Category>
+            <Extension>h</Extension>
+            <FileName>stdarg</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.323397' CloseTime='2018-05-08 08:53:31.323504' NumReads='1' BytesRead='4075' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stddef.h'>
-            <FileName>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stddef.h</FileName>
+            <Name>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/include/stddef.h</Name>
             <Category>Other libraries</Category>
+            <Extension>h</Extension>
+            <FileName>stddef</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.319861' CloseTime='2018-05-08 08:53:31.319970' NumReads='1' BytesRead='13754' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.322244' CloseTime='2018-05-08 08:53:31.322348' NumReads='1' BytesRead='13754' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/gcc/x86_64-redhat-linux/5.3.1/libgcc.a'>
-            <FileName>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/libgcc.a</FileName>
+            <Name>/usr/lib/gcc/x86_64-redhat-linux/5.3.1/libgcc.a</Name>
             <Category>Other libraries</Category>
+            <Extension>a</Extension>
+            <FileName>libgcc</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.362137' CloseTime='2018-05-08 08:53:31.478046' NumReads='8' BytesRead='32768' />
                 <Access Process='23948' CloseTime='2018-05-08 08:53:31.478102' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
-            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Name>/usr/lib/locale/locale-archive</Name>
             <Category>Other libraries</Category>
+            <Extension>locale-archive</Extension>
+            <FileName>locale-archive</FileName>
             <FileAccesses>
                 <Access Process='23944' OpenTime='2018-05-08 08:53:31.300086' CloseTime='2018-05-08 08:53:31.300215' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.308343' CloseTime='2018-05-08 08:53:31.308459' />
@@ -230,165 +244,211 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/crt1.o'>
-            <FileName>/usr/lib64/crt1.o</FileName>
+            <Name>/usr/lib64/crt1.o</Name>
             <Category>Other libraries</Category>
+            <Extension>o</Extension>
+            <FileName>crt1</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.358287' CloseTime='2018-05-08 08:53:31.359131' NumReads='8' BytesRead='5752' />
                 <Access Process='23948' CloseTime='2018-05-08 08:53:31.477841' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/crti.o'>
-            <FileName>/usr/lib64/crti.o</FileName>
+            <Name>/usr/lib64/crti.o</Name>
             <Category>Other libraries</Category>
+            <Extension>o</Extension>
+            <FileName>crti</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.359286' CloseTime='2018-05-08 08:53:31.360060' NumReads='8' BytesRead='4010' />
                 <Access Process='23948' CloseTime='2018-05-08 08:53:31.477731' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/crtn.o'>
-            <FileName>/usr/lib64/crtn.o</FileName>
+            <Name>/usr/lib64/crtn.o</Name>
             <Category>Other libraries</Category>
+            <Extension>o</Extension>
+            <FileName>crtn</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.396879' CloseTime='2018-05-08 08:53:31.397638' NumReads='8' BytesRead='3312' />
                 <Access Process='23948' CloseTime='2018-05-08 08:53:31.477639' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
-            <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
+            <Name>/usr/lib64/gconv/gconv-modules.cache</Name>
             <Category>Other libraries</Category>
+            <Extension>cache</Extension>
+            <FileName>gconv-modules</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.356486' CloseTime='2018-05-08 08:53:31.356587' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc_nonshared.a'>
-            <FileName>/usr/lib64/libc_nonshared.a</FileName>
+            <Name>/usr/lib64/libc_nonshared.a</Name>
             <Category>Other libraries</Category>
+            <Extension>a</Extension>
+            <FileName>libc_nonshared</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.380039' CloseTime='2018-05-08 08:53:31.381050' NumReads='7' BytesRead='5920' />
                 <Access Process='23948' CloseTime='2018-05-08 08:53:31.477453' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1'>
-            <FileName>/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1</FileName>
+            <Name>/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1</Name>
             <Category>Other libraries</Category>
+            <Extension>cc1</Extension>
+            <FileName>cc1</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2'>
-            <FileName>/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2</FileName>
+            <Name>/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/collect2</Name>
             <Category>Other libraries</Category>
+            <Extension>collect2</Extension>
+            <FileName>collect2</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/HelloWorld.c'>
-            <FileName>/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/HelloWorld.c</FileName>
+            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/HelloWorld.c</Name>
             <Category>Others</Category>
+            <Extension>c</Extension>
+            <FileName>HelloWorld</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.311478' CloseTime='2018-05-08 08:53:31.311584' NumReads='1' BytesRead='102' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/a.out'>
-            <FileName>/home/rchateau/rdfmon-code/Experimental/RetroBatch/a.out</FileName>
+            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/a.out</Name>
             <Category>Others</Category>
+            <Extension>out</Extension>
+            <FileName>a</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.358015' CloseTime='2018-05-08 08:53:31.477053' NumReads='45' BytesRead='163536' NumWrites='45' BytesWritten='6828' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/_G_config.h'>
-            <FileName>/usr/include/_G_config.h</FileName>
+            <Name>/usr/include/_G_config.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>_G_config</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.322109' CloseTime='2018-05-08 08:53:31.322206' NumReads='1' BytesRead='1287' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/bits/stdio_lim.h'>
-            <FileName>/usr/include/bits/stdio_lim.h</FileName>
+            <Name>/usr/include/bits/stdio_lim.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>stdio_lim</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.324433' CloseTime='2018-05-08 08:53:31.324539' NumReads='1' BytesRead='1354' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/bits/sys_errlist.h'>
-            <FileName>/usr/include/bits/sys_errlist.h</FileName>
+            <Name>/usr/include/bits/sys_errlist.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>sys_errlist</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.326139' CloseTime='2018-05-08 08:53:31.326261' NumReads='1' BytesRead='1215' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/bits/types.h'>
-            <FileName>/usr/include/bits/types.h</FileName>
+            <Name>/usr/include/bits/types.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>types</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.320439' CloseTime='2018-05-08 08:53:31.320541' NumReads='1' BytesRead='7563' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/bits/typesizes.h'>
-            <FileName>/usr/include/bits/typesizes.h</FileName>
+            <Name>/usr/include/bits/typesizes.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>typesizes</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.321044' CloseTime='2018-05-08 08:53:31.321159' NumReads='1' BytesRead='3230' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/bits/wordsize.h'>
-            <FileName>/usr/include/bits/wordsize.h</FileName>
+            <Name>/usr/include/bits/wordsize.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>wordsize</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.318395' CloseTime='2018-05-08 08:53:31.318496' NumReads='1' BytesRead='327' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.320578' CloseTime='2018-05-08 08:53:31.320675' NumReads='1' BytesRead='327' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/features.h'>
-            <FileName>/usr/include/features.h</FileName>
+            <Name>/usr/include/features.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>features</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.316955' CloseTime='2018-05-08 08:53:31.317071' NumReads='1' BytesRead='13029' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/gnu/stubs-64.h'>
-            <FileName>/usr/include/gnu/stubs-64.h</FileName>
+            <Name>/usr/include/gnu/stubs-64.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>stubs-64</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.319431' CloseTime='2018-05-08 08:53:31.319531' NumReads='1' BytesRead='604' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/gnu/stubs.h'>
-            <FileName>/usr/include/gnu/stubs.h</FileName>
+            <Name>/usr/include/gnu/stubs.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>stubs</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.319043' CloseTime='2018-05-08 08:53:31.319142' NumReads='1' BytesRead='384' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/libio.h'>
-            <FileName>/usr/include/libio.h</FileName>
+            <Name>/usr/include/libio.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>libio</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.321712' CloseTime='2018-05-08 08:53:31.321828' NumReads='1' BytesRead='17248' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/stdc-predef.h'>
-            <FileName>/usr/include/stdc-predef.h</FileName>
+            <Name>/usr/include/stdc-predef.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>stdc-predef</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.315792' CloseTime='2018-05-08 08:53:31.315915' NumReads='1' BytesRead='2495' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/stdio.h'>
-            <FileName>/usr/include/stdio.h</FileName>
+            <Name>/usr/include/stdio.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>stdio</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.316525' CloseTime='2018-05-08 08:53:31.316656' NumReads='1' BytesRead='31365' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/sys/cdefs.h'>
-            <FileName>/usr/include/sys/cdefs.h</FileName>
+            <Name>/usr/include/sys/cdefs.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>cdefs</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.317493' CloseTime='2018-05-08 08:53:31.317619' NumReads='1' BytesRead='15052' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/include/wchar.h'>
-            <FileName>/usr/include/wchar.h</FileName>
+            <Name>/usr/include/wchar.h</Name>
             <Category>Others</Category>
+            <Extension>h</Extension>
+            <FileName>wchar</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.322755' CloseTime='2018-05-08 08:53:31.322884' NumReads='1' BytesRead='31999' />
             </FileAccesses>
@@ -396,21 +456,27 @@
     </FilesCategory>
     <FilesCategory category='Pipes and terminals'>
         <CIM_DataFile Name='/dev/urandom'>
-            <FileName>/dev/urandom</FileName>
+            <Name>/dev/urandom</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>urandom</Extension>
+            <FileName>urandom</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.311222' CloseTime='2018-05-08 08:53:31.311306' NumReads='1' BytesRead='8' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='pipe:[7166258]'>
-            <FileName>pipe:[7166258]</FileName>
+            <Name>pipe:[7166258]</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>pipe:[7166258]</Extension>
+            <FileName>pipe:[7166258]</FileName>
         </CIM_DataFile>
     </FilesCategory>
     <FilesCategory category='Shared libraries'>
         <CIM_DataFile Name='/usr/lib64/ld-2.21.so'>
-            <FileName>/usr/lib64/ld-2.21.so</FileName>
+            <Name>/usr/lib64/ld-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>ld-2</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.381272' CloseTime='2018-05-08 08:53:31.382815' NumReads='13' BytesRead='31600' />
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.397725' CloseTime='2018-05-08 08:53:31.477935' NumReads='11' BytesRead='43952' />
@@ -418,16 +484,20 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libbfd-2.25-9.fc22.so'>
-            <FileName>/usr/lib64/libbfd-2.25-9.fc22.so</FileName>
+            <Name>/usr/lib64/libbfd-2.25-9.fc22.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libbfd-2</FileName>
             <FileAccesses>
                 <Access Process='23946' OpenTime='2018-05-08 08:53:31.336862' CloseTime='2018-05-08 08:53:31.337130' NumReads='1' BytesRead='832' />
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.354145' CloseTime='2018-05-08 08:53:31.354388' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc-2.21.so'>
-            <FileName>/usr/lib64/libc-2.21.so</FileName>
+            <Name>/usr/lib64/libc-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libc-2</FileName>
             <FileAccesses>
                 <Access Process='23944' OpenTime='2018-05-08 08:53:31.299171' CloseTime='2018-05-08 08:53:31.299413' NumReads='1' BytesRead='832' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.306915' CloseTime='2018-05-08 08:53:31.307159' NumReads='1' BytesRead='832' />
@@ -439,8 +509,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc.so'>
-            <FileName>/usr/lib64/libc.so</FileName>
+            <Name>/usr/lib64/libc.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libc</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.365825' CloseTime='2018-05-08 08:53:31.367332' NumReads='4' BytesRead='506' />
                 <Access Process='23948' CloseTime='2018-05-08 08:53:31.369427' />
@@ -448,8 +520,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libdl-2.21.so'>
-            <FileName>/usr/lib64/libdl-2.21.so</FileName>
+            <Name>/usr/lib64/libdl-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libdl-2</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.305326' CloseTime='2018-05-08 08:53:31.305540' NumReads='1' BytesRead='832' />
                 <Access Process='23946' OpenTime='2018-05-08 08:53:31.337413' CloseTime='2018-05-08 08:53:31.337625' NumReads='1' BytesRead='832' />
@@ -457,8 +531,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libgcc_s-5.3.1-20160406.so.1'>
-            <FileName>/usr/lib64/libgcc_s-5.3.1-20160406.so.1</FileName>
+            <Name>/usr/lib64/libgcc_s-5.3.1-20160406.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libgcc_s-5</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.362950' CloseTime='2018-05-08 08:53:31.364489' NumReads='12' BytesRead='24768' />
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.390748' CloseTime='2018-05-08 08:53:31.392294' NumReads='19' BytesRead='53440' />
@@ -467,15 +543,19 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libgmp.so.10.2.0'>
-            <FileName>/usr/lib64/libgmp.so.10.2.0</FileName>
+            <Name>/usr/lib64/libgmp.so.10.2.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libgmp</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.306106' CloseTime='2018-05-08 08:53:31.306316' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libm-2.21.so'>
-            <FileName>/usr/lib64/libm-2.21.so</FileName>
+            <Name>/usr/lib64/libm-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libm-2</FileName>
             <FileAccesses>
                 <Access Process='23944' OpenTime='2018-05-08 08:53:31.298918' CloseTime='2018-05-08 08:53:31.299133' NumReads='1' BytesRead='832' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.306626' CloseTime='2018-05-08 08:53:31.306876' NumReads='1' BytesRead='832' />
@@ -483,29 +563,37 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libmpc.so.3.0.0'>
-            <FileName>/usr/lib64/libmpc.so.3.0.0</FileName>
+            <Name>/usr/lib64/libmpc.so.3.0.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libmpc</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.305576' CloseTime='2018-05-08 08:53:31.305779' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libmpfr.so.4.1.2'>
-            <FileName>/usr/lib64/libmpfr.so.4.1.2</FileName>
+            <Name>/usr/lib64/libmpfr.so.4.1.2</Name>
             <Category>Shared libraries</Category>
+            <Extension>2</Extension>
+            <FileName>libmpfr</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.305830' CloseTime='2018-05-08 08:53:31.306068' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libopcodes-2.25-9.fc22.so'>
-            <FileName>/usr/lib64/libopcodes-2.25-9.fc22.so</FileName>
+            <Name>/usr/lib64/libopcodes-2.25-9.fc22.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libopcodes-2</FileName>
             <FileAccesses>
                 <Access Process='23946' OpenTime='2018-05-08 08:53:31.336572' CloseTime='2018-05-08 08:53:31.336822' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libz.so.1.2.8'>
-            <FileName>/usr/lib64/libz.so.1.2.8</FileName>
+            <Name>/usr/lib64/libz.so.1.2.8</Name>
             <Category>Shared libraries</Category>
+            <Extension>8</Extension>
+            <FileName>libz</FileName>
             <FileAccesses>
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.306356' CloseTime='2018-05-08 08:53:31.306587' NumReads='1' BytesRead='832' />
                 <Access Process='23946' OpenTime='2018-05-08 08:53:31.337168' CloseTime='2018-05-08 08:53:31.337377' NumReads='1' BytesRead='832' />
@@ -513,8 +601,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/liblto_plugin.so.0.0.0'>
-            <FileName>/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/liblto_plugin.so.0.0.0</FileName>
+            <Name>/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/liblto_plugin.so.0.0.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>liblto_plugin</FileName>
             <FileAccesses>
                 <Access Process='23948' OpenTime='2018-05-08 08:53:31.356718' CloseTime='2018-05-08 08:53:31.356943' NumReads='1' BytesRead='832' />
             </FileAccesses>
@@ -522,8 +612,10 @@
     </FilesCategory>
     <FilesCategory category='System config files'>
         <CIM_DataFile Name='/etc/ld.so.cache'>
-            <FileName>/etc/ld.so.cache</FileName>
+            <Name>/etc/ld.so.cache</Name>
             <Category>System config files</Category>
+            <Extension>cache</Extension>
+            <FileName>ld</FileName>
             <FileAccesses>
                 <Access Process='23944' OpenTime='2018-05-08 08:53:31.298728' CloseTime='2018-05-08 08:53:31.298879' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.305172' CloseTime='2018-05-08 08:53:31.305287' />
@@ -532,8 +624,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/locale/locale.alias'>
-            <FileName>/usr/share/locale/locale.alias</FileName>
+            <Name>/usr/share/locale/locale.alias</Name>
             <Category>System config files</Category>
+            <Extension>alias</Extension>
+            <FileName>locale</FileName>
             <FileAccesses>
                 <Access Process='23944' OpenTime='2018-05-08 08:53:31.300306' CloseTime='2018-05-08 08:53:31.300491' NumReads='2' BytesRead='2997' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.308539' CloseTime='2018-05-08 08:53:31.308720' NumReads='2' BytesRead='2997' />
@@ -545,32 +639,42 @@
     </FilesCategory>
     <FilesCategory category='System executables'>
         <CIM_DataFile Name='/usr/bin/as'>
-            <FileName>/usr/bin/as</FileName>
+            <Name>/usr/bin/as</Name>
             <Category>System executables</Category>
+            <Extension>as</Extension>
+            <FileName>as</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/bin/gcc'>
-            <FileName>/usr/bin/gcc</FileName>
+            <Name>/usr/bin/gcc</Name>
             <Category>System executables</Category>
+            <Extension>gcc</Extension>
+            <FileName>gcc</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/bin/ld'>
-            <FileName>/usr/bin/ld</FileName>
+            <Name>/usr/bin/ld</Name>
             <Category>System executables</Category>
+            <Extension>ld</Extension>
+            <FileName>ld</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
     </FilesCategory>
     <FilesCategory category='Temporary files'>
         <CIM_DataFile Name='/tmp/ccBJJSTw.res'>
-            <FileName>/tmp/ccBJJSTw.res</FileName>
+            <Name>/tmp/ccBJJSTw.res</Name>
             <Category>Temporary files</Category>
+            <Extension>res</Extension>
+            <FileName>ccBJJSTw</FileName>
             <FileAccesses>
                 <Access Process='23944' OpenTime='2018-05-08 08:53:31.348710' CloseTime='2018-05-08 08:53:31.348771' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/tmp/ccJMTKTe.le'>
-            <FileName>/tmp/ccJMTKTe.le</FileName>
+            <Name>/tmp/ccJMTKTe.le</Name>
             <Category>Temporary files</Category>
+            <Extension>le</Extension>
+            <FileName>ccJMTKTe</FileName>
             <FileAccesses>
                 <Access Process='23947' OpenTime='2018-05-08 08:53:31.353248' CloseTime='2018-05-08 08:53:31.353284' />
                 <Access Process='23947' OpenTime='2018-05-08 08:53:31.353355' CloseTime='2018-05-08 08:53:31.353768' />
@@ -579,22 +683,28 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/tmp/ccTqSmMT.o'>
-            <FileName>/tmp/ccTqSmMT.o</FileName>
+            <Name>/tmp/ccTqSmMT.o</Name>
             <Category>Temporary files</Category>
+            <Extension>o</Extension>
+            <FileName>ccTqSmMT</FileName>
             <FileAccesses>
                 <Access Process='23947' OpenTime='2018-05-08 08:53:31.353118' CloseTime='2018-05-08 08:53:31.353155' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/tmp/ccakRGde.c'>
-            <FileName>/tmp/ccakRGde.c</FileName>
+            <Name>/tmp/ccakRGde.c</Name>
             <Category>Temporary files</Category>
+            <Extension>c</Extension>
+            <FileName>ccakRGde</FileName>
             <FileAccesses>
                 <Access Process='23947' OpenTime='2018-05-08 08:53:31.353041' CloseTime='2018-05-08 08:53:31.353088' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/tmp/ccc1A3kz.ld'>
-            <FileName>/tmp/ccc1A3kz.ld</FileName>
+            <Name>/tmp/ccc1A3kz.ld</Name>
             <Category>Temporary files</Category>
+            <Extension>ld</Extension>
+            <FileName>ccc1A3kz</FileName>
             <FileAccesses>
                 <Access Process='23947' OpenTime='2018-05-08 08:53:31.353184' CloseTime='2018-05-08 08:53:31.353220' />
                 <Access Process='23947' OpenTime='2018-05-08 08:53:31.353318' CloseTime='2018-05-08 08:53:31.353740' />
@@ -603,8 +713,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/tmp/ccfQ2ZlR.o'>
-            <FileName>/tmp/ccfQ2ZlR.o</FileName>
+            <Name>/tmp/ccfQ2ZlR.o</Name>
             <Category>Temporary files</Category>
+            <Extension>o</Extension>
+            <FileName>ccfQ2ZlR</FileName>
             <FileAccesses>
                 <Access Process='23944' OpenTime='2018-05-08 08:53:31.335540' CloseTime='2018-05-08 08:53:31.335603' />
                 <Access Process='23946' OpenTime='2018-05-08 08:53:31.342598' CloseTime='2018-05-08 08:53:31.347464' NumReads='7' BytesRead='3864' NumWrites='8' BytesWritten='1500' />
@@ -613,8 +725,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/tmp/ccnzLuQb.s'>
-            <FileName>/tmp/ccnzLuQb.s</FileName>
+            <Name>/tmp/ccnzLuQb.s</Name>
             <Category>Temporary files</Category>
+            <Extension>s</Extension>
+            <FileName>ccnzLuQb</FileName>
             <FileAccesses>
                 <Access Process='23944' OpenTime='2018-05-08 08:53:31.301717' CloseTime='2018-05-08 08:53:31.301782' />
                 <Access Process='23945' OpenTime='2018-05-08 08:53:31.314874' CloseTime='2018-05-08 08:53:31.334356' NumWrites='1' BytesWritten='509' />

@@ -106,18 +106,22 @@
     </CIM_Process>
     <FilesCategory category='Connected TCP sockets'>
         <CIM_DataFile Name='TCP:[192.168.0.17:48318->204.79.197.212:80]'>
-            <FileName>TCP:[192.168.0.17:48318->204.79.197.212:80]</FileName>
+            <Name>TCP:[192.168.0.17:48318->204.79.197.212:80]</Name>
             <Category>Connected TCP sockets</Category>
             <Destination>a-0010.a-msedge.net</Destination>
+            <Extension>212:80]</Extension>
+            <FileName>TCP:[192</FileName>
             <Port>80</Port>
             <FileAccesses>
                 <Access Process='869' CloseTime='2018-05-08 10:07:39.561178' NumReads='1' BytesRead='263' NumWrites='1' BytesWritten='136' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='TCP:[192.168.0.17:53788->13.107.42.11:443]'>
-            <FileName>TCP:[192.168.0.17:53788->13.107.42.11:443]</FileName>
+            <Name>TCP:[192.168.0.17:53788->13.107.42.11:443]</Name>
             <Category>Connected TCP sockets</Category>
             <Destination>13.107.42.11</Destination>
+            <Extension>11:443]</Extension>
+            <FileName>TCP:[192</FileName>
             <Port>443</Port>
             <FileAccesses>
                 <Access Process='869' NumReads='10' BytesRead='10682' NumWrites='3' BytesWritten='532' />
@@ -126,15 +130,19 @@
     </FilesCategory>
     <FilesCategory category='Kernel file systems'>
         <CIM_DataFile Name='/proc/filesystems'>
-            <FileName>/proc/filesystems</FileName>
+            <Name>/proc/filesystems</Name>
             <Category>Kernel file systems</Category>
+            <Extension>filesystems</Extension>
+            <FileName>filesystems</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.275265' CloseTime='2018-05-08 10:07:39.275481' NumReads='2' BytesRead='374' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/proc/meminfo'>
-            <FileName>/proc/meminfo</FileName>
+            <Name>/proc/meminfo</Name>
             <Category>Kernel file systems</Category>
+            <Extension>meminfo</Extension>
+            <FileName>meminfo</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.261889' CloseTime='2018-05-08 10:07:39.262083' NumReads='1' BytesRead='1024' />
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.391083' CloseTime='2018-05-08 10:07:39.391305' NumReads='1' BytesRead='1024' />
@@ -143,59 +151,79 @@
     </FilesCategory>
     <FilesCategory category='Other TCP/IP sockets'>
         <CIM_DataFile Name='TCP:[7275805]'>
-            <FileName>TCP:[7275805]</FileName>
+            <Name>TCP:[7275805]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET', 'sin_port=htons(80)', 'sin_addr=inet_addr("204.79.197.212")']</SocketAddress>
+            <Extension>TCP:[7275805]</Extension>
+            <FileName>TCP:[7275805]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='TCP:[7275815]'>
-            <FileName>TCP:[7275815]</FileName>
+            <Name>TCP:[7275815]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET', 'sin_port=htons(443)', 'sin_addr=inet_addr("13.107.42.11")']</SocketAddress>
+            <Extension>TCP:[7275815]</Extension>
+            <FileName>TCP:[7275815]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[192.168.0.17:36066->13.107.42.11:0]'>
-            <FileName>UDP:[192.168.0.17:36066->13.107.42.11:0]</FileName>
+            <Name>UDP:[192.168.0.17:36066->13.107.42.11:0]</Name>
             <Category>Other TCP/IP sockets</Category>
+            <Extension>11:0]</Extension>
+            <FileName>UDP:[192</FileName>
             <FileAccesses>
                 <Access Process='869' CloseTime='2018-05-08 10:07:39.417881' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[192.168.0.17:43224->194.168.4.100:53]'>
-            <FileName>UDP:[192.168.0.17:43224->194.168.4.100:53]</FileName>
+            <Name>UDP:[192.168.0.17:43224->194.168.4.100:53]</Name>
             <Category>Other TCP/IP sockets</Category>
+            <Extension>100:53]</Extension>
+            <FileName>UDP:[192</FileName>
             <FileAccesses>
                 <Access Process='869' CloseTime='2018-05-08 10:07:39.416561' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[192.168.0.17:54913->194.168.4.100:53]'>
-            <FileName>UDP:[192.168.0.17:54913->194.168.4.100:53]</FileName>
+            <Name>UDP:[192.168.0.17:54913->194.168.4.100:53]</Name>
             <Category>Other TCP/IP sockets</Category>
+            <Extension>100:53]</Extension>
+            <FileName>UDP:[192</FileName>
             <FileAccesses>
                 <Access Process='869' CloseTime='2018-05-08 10:07:39.312040' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[7274786]'>
-            <FileName>UDP:[7274786]</FileName>
+            <Name>UDP:[7274786]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET', 'sin_port=htons(53)', 'sin_addr=inet_addr("194.168.4.100")']</SocketAddress>
+            <Extension>UDP:[7274786]</Extension>
+            <FileName>UDP:[7274786]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[7274804]'>
-            <FileName>UDP:[7274804]</FileName>
+            <Name>UDP:[7274804]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET', 'sin_port=htons(0)', 'sin_addr=inet_addr("13.107.42.11")']</SocketAddress>
+            <Extension>UDP:[7274804]</Extension>
+            <FileName>UDP:[7274804]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[7275793]'>
-            <FileName>UDP:[7275793]</FileName>
+            <Name>UDP:[7275793]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET', 'sin_port=htons(53)', 'sin_addr=inet_addr("194.168.4.100")']</SocketAddress>
+            <Extension>UDP:[7275793]</Extension>
+            <FileName>UDP:[7275793]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDPv6:[7275814]'>
-            <FileName>UDPv6:[7275814]</FileName>
+            <Name>UDPv6:[7275814]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET6', 'sin6_port=htons(0)', 'inet_pton(AF_INET6, "2620:1ec:21::11", &sin6_addr)', 'sin6_flowinfo=0', 'sin6_scope_id=0']</SocketAddress>
+            <Extension>UDPv6:[7275814]</Extension>
+            <FileName>UDPv6:[7275814]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDPv6:[:::33727->2620:1ec:21::11:0]'>
-            <FileName>UDPv6:[:::33727->2620:1ec:21::11:0]</FileName>
+            <Name>UDPv6:[:::33727->2620:1ec:21::11:0]</Name>
             <Category>Other TCP/IP sockets</Category>
+            <Extension>UDPv6:[:::33727->2620:1ec:21::11:0]</Extension>
+            <FileName>UDPv6:[:::33727->2620:1ec:21::11:0]</FileName>
             <FileAccesses>
                 <Access Process='869' CloseTime='2018-05-08 10:07:39.418143' />
             </FileAccesses>
@@ -203,16 +231,20 @@
     </FilesCategory>
     <FilesCategory category='Other libraries'>
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
-            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Name>/usr/lib/locale/locale-archive</Name>
             <Category>Other libraries</Category>
+            <Extension>locale-archive</Extension>
+            <FileName>locale-archive</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.261535' CloseTime='2018-05-08 10:07:39.261657' />
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.275712' CloseTime='2018-05-08 10:07:39.275833' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
-            <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
+            <Name>/usr/lib64/gconv/gconv-modules.cache</Name>
             <Category>Other libraries</Category>
+            <Extension>cache</Extension>
+            <FileName>gconv-modules</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.262341' CloseTime='2018-05-08 10:07:39.262447' />
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.276762' CloseTime='2018-05-08 10:07:39.276885' />
@@ -221,15 +253,18 @@
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/.wget-hsts'>
-            <FileName>/home/rchateau/.wget-hsts</FileName>
+            <Name>/home/rchateau/.wget-hsts</Name>
             <Category>Others</Category>
+            <Extension>wget-hsts</Extension>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.276450' CloseTime='2018-05-08 10:07:39.276664' NumReads='2' BytesRead='250' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh'>
-            <FileName>/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh</FileName>
+            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh</Name>
             <Category>Others</Category>
+            <Extension>sh</Extension>
+            <FileName>test_wget_hotmail</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.262819' CloseTime='2018-05-08 10:07:39.263114' NumReads='1' BytesRead='45' />
                 <Access Process='866' NumReads='2' BytesRead='45' />
@@ -237,57 +272,73 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh</Name>
             <Category>Others</Category>
+            <Extension>sh</Extension>
+            <FileName>test_wget_hotmail</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
         <CIM_DataFile Name='UnknownFileDescr:255'>
-            <FileName>UnknownFileDescr:255</FileName>
+            <Name>UnknownFileDescr:255</Name>
             <Category>Others</Category>
+            <Extension>UnknownFileDescr:255</Extension>
+            <FileName>UnknownFileDescr:255</FileName>
         </CIM_DataFile>
     </FilesCategory>
     <FilesCategory category='Pipes and terminals'>
         <CIM_DataFile Name='/dev/tty'>
-            <FileName>/dev/tty</FileName>
+            <Name>/dev/tty</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>tty</Extension>
+            <FileName>tty</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.261272' CloseTime='2018-05-08 10:07:39.261349' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/dev/urandom'>
-            <FileName>/dev/urandom</FileName>
+            <Name>/dev/urandom</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>urandom</Extension>
+            <FileName>urandom</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.375000' CloseTime='2018-05-08 10:07:39.375185' NumReads='1' BytesRead='48' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='NETLINK:[7274795]'>
-            <FileName>NETLINK:[7274795]</FileName>
+            <Name>NETLINK:[7274795]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_NETLINK', 'pid=0', 'groups=00000000']</SocketAddress>
+            <Extension>NETLINK:[7274795]</Extension>
+            <FileName>NETLINK:[7274795]</FileName>
             <FileAccesses>
                 <Access Process='869' CloseTime='2018-05-08 10:07:39.417473' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[7275785]'>
-            <FileName>UNIX:[7275785]</FileName>
+            <Name>UNIX:[7275785]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_LOCAL', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <Extension>UNIX:[7275785]</Extension>
+            <FileName>UNIX:[7275785]</FileName>
             <FileAccesses>
                 <Access Process='869' CloseTime='2018-05-08 10:07:39.279165' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[7275789]'>
-            <FileName>UNIX:[7275789]</FileName>
+            <Name>UNIX:[7275789]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_LOCAL', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <Extension>UNIX:[7275789]</Extension>
+            <FileName>UNIX:[7275789]</FileName>
             <FileAccesses>
                 <Access Process='869' CloseTime='2018-05-08 10:07:39.280381' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='pipe:[7274781]'>
-            <FileName>pipe:[7274781]</FileName>
+            <Name>pipe:[7274781]</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>pipe:[7274781]</Extension>
+            <FileName>pipe:[7274781]</FileName>
             <FileAccesses>
                 <Access Process='869' NumWrites='86' BytesWritten='904' />
             </FileAccesses>
@@ -295,206 +346,264 @@
     </FilesCategory>
     <FilesCategory category='Shared libraries'>
         <CIM_DataFile Name='/usr/lib64/libc-2.21.so'>
-            <FileName>/usr/lib64/libc-2.21.so</FileName>
+            <Name>/usr/lib64/libc-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libc-2</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.260034' CloseTime='2018-05-08 10:07:39.260327' NumReads='1' BytesRead='832' />
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.266915' CloseTime='2018-05-08 10:07:39.267193' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libcom_err.so.2.1'>
-            <FileName>/usr/lib64/libcom_err.so.2.1</FileName>
+            <Name>/usr/lib64/libcom_err.so.2.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libcom_err</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.268347' CloseTime='2018-05-08 10:07:39.268558' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libcrypto.so.1.0.1k'>
-            <FileName>/usr/lib64/libcrypto.so.1.0.1k</FileName>
+            <Name>/usr/lib64/libcrypto.so.1.0.1k</Name>
             <Category>Shared libraries</Category>
+            <Extension>1k</Extension>
+            <FileName>libcrypto</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.265834' CloseTime='2018-05-08 10:07:39.266080' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libdl-2.21.so'>
-            <FileName>/usr/lib64/libdl-2.21.so</FileName>
+            <Name>/usr/lib64/libdl-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libdl-2</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.259762' CloseTime='2018-05-08 10:07:39.259998' NumReads='1' BytesRead='832' />
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.268915' CloseTime='2018-05-08 10:07:39.269127' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libexpat.so.1.6.0'>
-            <FileName>/usr/lib64/libexpat.so.1.6.0</FileName>
+            <Name>/usr/lib64/libexpat.so.1.6.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libexpat</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.267532' CloseTime='2018-05-08 10:07:39.267744' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libgcc_s-5.3.1-20160406.so.1'>
-            <FileName>/usr/lib64/libgcc_s-5.3.1-20160406.so.1</FileName>
+            <Name>/usr/lib64/libgcc_s-5.3.1-20160406.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libgcc_s-5</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.271167' CloseTime='2018-05-08 10:07:39.271379' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libgssapi_krb5.so.2.2'>
-            <FileName>/usr/lib64/libgssapi_krb5.so.2.2</FileName>
+            <Name>/usr/lib64/libgssapi_krb5.so.2.2</Name>
             <Category>Shared libraries</Category>
+            <Extension>2</Extension>
+            <FileName>libgssapi_krb5</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.267785' CloseTime='2018-05-08 10:07:39.268057' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libicudata.so.54.1'>
-            <FileName>/usr/lib64/libicudata.so.54.1</FileName>
+            <Name>/usr/lib64/libicudata.so.54.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libicudata</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.269453' CloseTime='2018-05-08 10:07:39.269692' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libicuuc.so.54.1'>
-            <FileName>/usr/lib64/libicuuc.so.54.1</FileName>
+            <Name>/usr/lib64/libicuuc.so.54.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libicuuc</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.269167' CloseTime='2018-05-08 10:07:39.269410' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libidn.so.11.6.15'>
-            <FileName>/usr/lib64/libidn.so.11.6.15</FileName>
+            <Name>/usr/lib64/libidn.so.11.6.15</Name>
             <Category>Shared libraries</Category>
+            <Extension>15</Extension>
+            <FileName>libidn</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.266643' CloseTime='2018-05-08 10:07:39.266876' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libk5crypto.so.3.1'>
-            <FileName>/usr/lib64/libk5crypto.so.3.1</FileName>
+            <Name>/usr/lib64/libk5crypto.so.3.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libk5crypto</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.268593' CloseTime='2018-05-08 10:07:39.268877' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libkeyutils.so.1.5'>
-            <FileName>/usr/lib64/libkeyutils.so.1.5</FileName>
+            <Name>/usr/lib64/libkeyutils.so.1.5</Name>
             <Category>Shared libraries</Category>
+            <Extension>5</Extension>
+            <FileName>libkeyutils</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.269991' CloseTime='2018-05-08 10:07:39.270198' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libkrb5.so.3.3'>
-            <FileName>/usr/lib64/libkrb5.so.3.3</FileName>
+            <Name>/usr/lib64/libkrb5.so.3.3</Name>
             <Category>Shared libraries</Category>
+            <Extension>3</Extension>
+            <FileName>libkrb5</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.268097' CloseTime='2018-05-08 10:07:39.268308' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libkrb5support.so.0.1'>
-            <FileName>/usr/lib64/libkrb5support.so.0.1</FileName>
+            <Name>/usr/lib64/libkrb5support.so.0.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libkrb5support</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.269734' CloseTime='2018-05-08 10:07:39.269951' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libm-2.21.so'>
-            <FileName>/usr/lib64/libm-2.21.so</FileName>
+            <Name>/usr/lib64/libm-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libm-2</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.270881' CloseTime='2018-05-08 10:07:39.271127' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libmetalink.so.3.0.0'>
-            <FileName>/usr/lib64/libmetalink.so.3.0.0</FileName>
+            <Name>/usr/lib64/libmetalink.so.3.0.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libmetalink</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.265304' CloseTime='2018-05-08 10:07:39.265537' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnss_dns-2.21.so'>
-            <FileName>/usr/lib64/libnss_dns-2.21.so</FileName>
+            <Name>/usr/lib64/libnss_dns-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libnss_dns-2</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.282833' CloseTime='2018-05-08 10:07:39.283049' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnss_files-2.21.so'>
-            <FileName>/usr/lib64/libnss_files-2.21.so</FileName>
+            <Name>/usr/lib64/libnss_files-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libnss_files-2</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.281637' CloseTime='2018-05-08 10:07:39.281879' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnss_mdns4_minimal.so.2'>
-            <FileName>/usr/lib64/libnss_mdns4_minimal.so.2</FileName>
+            <Name>/usr/lib64/libnss_mdns4_minimal.so.2</Name>
             <Category>Shared libraries</Category>
+            <Extension>2</Extension>
+            <FileName>libnss_mdns4_minimal</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.282377' CloseTime='2018-05-08 10:07:39.282583' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpcre.so.1.2.7'>
-            <FileName>/usr/lib64/libpcre.so.1.2.7</FileName>
+            <Name>/usr/lib64/libpcre.so.1.2.7</Name>
             <Category>Shared libraries</Category>
+            <Extension>7</Extension>
+            <FileName>libpcre</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.264771' CloseTime='2018-05-08 10:07:39.265019' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpsl.so.0.2.4'>
-            <FileName>/usr/lib64/libpsl.so.0.2.4</FileName>
+            <Name>/usr/lib64/libpsl.so.0.2.4</Name>
             <Category>Shared libraries</Category>
+            <Extension>4</Extension>
+            <FileName>libpsl</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.266400' CloseTime='2018-05-08 10:07:39.266607' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpthread-2.21.so'>
-            <FileName>/usr/lib64/libpthread-2.21.so</FileName>
+            <Name>/usr/lib64/libpthread-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libpthread-2</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.267236' CloseTime='2018-05-08 10:07:39.267484' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libresolv-2.21.so'>
-            <FileName>/usr/lib64/libresolv-2.21.so</FileName>
+            <Name>/usr/lib64/libresolv-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libresolv-2</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.270235' CloseTime='2018-05-08 10:07:39.270530' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libselinux.so.1'>
-            <FileName>/usr/lib64/libselinux.so.1</FileName>
+            <Name>/usr/lib64/libselinux.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libselinux</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.271423' CloseTime='2018-05-08 10:07:39.271666' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libssl.so.1.0.1k'>
-            <FileName>/usr/lib64/libssl.so.1.0.1k</FileName>
+            <Name>/usr/lib64/libssl.so.1.0.1k</Name>
             <Category>Shared libraries</Category>
+            <Extension>1k</Extension>
+            <FileName>libssl</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.265575' CloseTime='2018-05-08 10:07:39.265788' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libstdc++.so.6.0.21'>
-            <FileName>/usr/lib64/libstdc++.so.6.0.21</FileName>
+            <Name>/usr/lib64/libstdc++.so.6.0.21</Name>
             <Category>Shared libraries</Category>
+            <Extension>21</Extension>
+            <FileName>libstdc++</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.270584' CloseTime='2018-05-08 10:07:39.270834' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libtinfo.so.5.9'>
-            <FileName>/usr/lib64/libtinfo.so.5.9</FileName>
+            <Name>/usr/lib64/libtinfo.so.5.9</Name>
             <Category>Shared libraries</Category>
+            <Extension>9</Extension>
+            <FileName>libtinfo</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.259510' CloseTime='2018-05-08 10:07:39.259722' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libuuid.so.1.3.0'>
-            <FileName>/usr/lib64/libuuid.so.1.3.0</FileName>
+            <Name>/usr/lib64/libuuid.so.1.3.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libuuid</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.265057' CloseTime='2018-05-08 10:07:39.265269' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libz.so.1.2.8'>
-            <FileName>/usr/lib64/libz.so.1.2.8</FileName>
+            <Name>/usr/lib64/libz.so.1.2.8</Name>
             <Category>Shared libraries</Category>
+            <Extension>8</Extension>
+            <FileName>libz</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.266121' CloseTime='2018-05-08 10:07:39.266363' NumReads='1' BytesRead='832' />
             </FileAccesses>
@@ -502,30 +611,38 @@
     </FilesCategory>
     <FilesCategory category='System config files'>
         <CIM_DataFile Name='/etc/crypto-policies/back-ends/openssl.config'>
-            <FileName>/etc/crypto-policies/back-ends/openssl.config</FileName>
+            <Name>/etc/crypto-policies/back-ends/openssl.config</Name>
             <Category>System config files</Category>
+            <Extension>config</Extension>
+            <FileName>openssl</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.378282' CloseTime='2018-05-08 10:07:39.378432' NumReads='1' BytesRead='115' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/host.conf'>
-            <FileName>/etc/host.conf</FileName>
+            <Name>/etc/host.conf</Name>
             <Category>System config files</Category>
+            <Extension>conf</Extension>
+            <FileName>host</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.281030' CloseTime='2018-05-08 10:07:39.281187' NumReads='2' BytesRead='9' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/hosts'>
-            <FileName>/etc/hosts</FileName>
+            <Name>/etc/hosts</Name>
             <Category>System config files</Category>
+            <Extension>hosts</Extension>
+            <FileName>hosts</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.282014' CloseTime='2018-05-08 10:07:39.282186' NumReads='2' BytesRead='158' />
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.391953' CloseTime='2018-05-08 10:07:39.392123' NumReads='2' BytesRead='158' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.cache'>
-            <FileName>/etc/ld.so.cache</FileName>
+            <Name>/etc/ld.so.cache</Name>
             <Category>System config files</Category>
+            <Extension>cache</Extension>
+            <FileName>ld</FileName>
             <FileAccesses>
                 <Access Process='866' OpenTime='2018-05-08 10:07:39.259340' CloseTime='2018-05-08 10:07:39.259472' />
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.264625' CloseTime='2018-05-08 10:07:39.264732' />
@@ -535,65 +652,83 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/nsswitch.conf'>
-            <FileName>/etc/nsswitch.conf</FileName>
+            <Name>/etc/nsswitch.conf</Name>
             <Category>System config files</Category>
+            <Extension>conf</Extension>
+            <FileName>nsswitch</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.280779' CloseTime='2018-05-08 10:07:39.280969' NumReads='2' BytesRead='1769' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'>
-            <FileName>/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem</FileName>
+            <Name>/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem</Name>
             <Category>System config files</Category>
+            <Extension>pem</Extension>
+            <FileName>tls-ca-bundle</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.378640' CloseTime='2018-05-08 10:07:39.390303' NumReads='64' BytesRead='254799' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/pki/tls/openssl.cnf'>
-            <FileName>/etc/pki/tls/openssl.cnf</FileName>
+            <Name>/etc/pki/tls/openssl.cnf</Name>
             <Category>System config files</Category>
+            <Extension>cnf</Extension>
+            <FileName>openssl</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.374362' CloseTime='2018-05-08 10:07:39.374884' NumReads='4' BytesRead='10923' />
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.375276' CloseTime='2018-05-08 10:07:39.375727' NumReads='4' BytesRead='10923' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/resolv.conf'>
-            <FileName>/etc/resolv.conf</FileName>
+            <Name>/etc/resolv.conf</Name>
             <Category>System config files</Category>
+            <Extension>conf</Extension>
+            <FileName>resolv</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.281257' CloseTime='2018-05-08 10:07:39.281414' NumReads='2' BytesRead='80' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/wgetrc'>
-            <FileName>/etc/wgetrc</FileName>
+            <Name>/etc/wgetrc</Name>
             <Category>System config files</Category>
+            <Extension>wgetrc</Extension>
+            <FileName>wgetrc</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.275950' CloseTime='2018-05-08 10:07:39.276167' NumReads='3' BytesRead='4925' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/locale/en_GB/LC_MESSAGES/libc.mo'>
-            <FileName>/usr/share/locale/en_GB/LC_MESSAGES/libc.mo</FileName>
+            <Name>/usr/share/locale/en_GB/LC_MESSAGES/libc.mo</Name>
             <Category>System config files</Category>
+            <Extension>mo</Extension>
+            <FileName>libc</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.376047' CloseTime='2018-05-08 10:07:39.376173' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/locale/en_GB/LC_MESSAGES/wget.mo'>
-            <FileName>/usr/share/locale/en_GB/LC_MESSAGES/wget.mo</FileName>
+            <Name>/usr/share/locale/en_GB/LC_MESSAGES/wget.mo</Name>
             <Category>System config files</Category>
+            <Extension>mo</Extension>
+            <FileName>wget</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.277684' CloseTime='2018-05-08 10:07:39.277784' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/locale/locale.alias'>
-            <FileName>/usr/share/locale/locale.alias</FileName>
+            <Name>/usr/share/locale/locale.alias</Name>
             <Category>System config files</Category>
+            <Extension>alias</Extension>
+            <FileName>locale</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.277374' CloseTime='2018-05-08 10:07:39.277553' NumReads='2' BytesRead='2997' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/zoneinfo/Europe/London'>
-            <FileName>/usr/share/zoneinfo/Europe/London</FileName>
+            <Name>/usr/share/zoneinfo/Europe/London</Name>
             <Category>System config files</Category>
+            <Extension>London</Extension>
+            <FileName>London</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.276988' CloseTime='2018-05-08 10:07:39.277220' NumReads='2' BytesRead='6034' />
             </FileAccesses>
@@ -601,15 +736,19 @@
     </FilesCategory>
     <FilesCategory category='System executables'>
         <CIM_DataFile Name='/usr/bin/wget'>
-            <FileName>/usr/bin/wget</FileName>
+            <Name>/usr/bin/wget</Name>
             <Category>System executables</Category>
+            <Extension>wget</Extension>
+            <FileName>wget</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
     </FilesCategory>
     <FilesCategory category='Temporary files'>
         <CIM_DataFile Name='/tmp/hotmail.com/index.html'>
-            <FileName>/tmp/hotmail.com/index.html</FileName>
+            <Name>/tmp/hotmail.com/index.html</Name>
             <Category>Temporary files</Category>
+            <Extension>html</Extension>
+            <FileName>index</FileName>
             <FileAccesses>
                 <Access Process='869' OpenTime='2018-05-08 10:07:39.563158' CloseTime='2018-05-08 10:07:39.570604' NumWrites='3' BytesWritten='4315' />
             </FileAccesses>

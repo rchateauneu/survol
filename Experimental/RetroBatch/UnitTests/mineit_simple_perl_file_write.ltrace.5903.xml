@@ -34,8 +34,10 @@
     </CIM_Process>
     <FilesCategory category='Other libraries'>
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
-            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Name>/usr/lib/locale/locale-archive</Name>
             <Category>Other libraries</Category>
+            <Extension>locale-archive</Extension>
+            <FileName>locale-archive</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.918750' CloseTime='2018-05-08 11:30:21.919923' />
             </FileAccesses>
@@ -43,29 +45,39 @@
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl</Name>
             <Category>Others</Category>
+            <Extension>pl</Extension>
+            <FileName>write_file_in_perl</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.926028' CloseTime='2018-05-08 11:30:21.929721' NumReads='2' BytesRead='114' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='stderr'>
-            <FileName>stderr</FileName>
+            <Name>stderr</Name>
             <Category>Others</Category>
+            <Extension>stderr</Extension>
+            <FileName>stderr</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='stdin'>
-            <FileName>stdin</FileName>
+            <Name>stdin</Name>
             <Category>Others</Category>
+            <Extension>stdin</Extension>
+            <FileName>stdin</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='stdout'>
-            <FileName>stdout</FileName>
+            <Name>stdout</Name>
             <Category>Others</Category>
+            <Extension>stdout</Extension>
+            <FileName>stdout</FileName>
         </CIM_DataFile>
     </FilesCategory>
     <FilesCategory category='Pipes and terminals'>
         <CIM_DataFile Name='/dev/urandom'>
-            <FileName>/dev/urandom</FileName>
+            <Name>/dev/urandom</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>urandom</Extension>
+            <FileName>urandom</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.921057' CloseTime='2018-05-08 11:30:21.921709' NumReads='1' BytesRead='4' />
             </FileAccesses>
@@ -73,71 +85,91 @@
     </FilesCategory>
     <FilesCategory category='Shared libraries'>
         <CIM_DataFile Name='/lib64/libc.so.6'>
-            <FileName>/lib64/libc.so.6</FileName>
+            <Name>/lib64/libc.so.6</Name>
             <Category>Shared libraries</Category>
+            <Extension>6</Extension>
+            <FileName>libc</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.881950' CloseTime='2018-05-08 11:30:21.882269' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libcrypt.so.1'>
-            <FileName>/lib64/libcrypt.so.1</FileName>
+            <Name>/lib64/libcrypt.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libcrypt</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.881091' CloseTime='2018-05-08 11:30:21.881589' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libdl.so.2'>
-            <FileName>/lib64/libdl.so.2</FileName>
+            <Name>/lib64/libdl.so.2</Name>
             <Category>Shared libraries</Category>
+            <Extension>2</Extension>
+            <FileName>libdl</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.877667' CloseTime='2018-05-08 11:30:21.878511' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libfreebl3.so'>
-            <FileName>/lib64/libfreebl3.so</FileName>
+            <Name>/lib64/libfreebl3.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libfreebl3</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.882316' CloseTime='2018-05-08 11:30:21.882575' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libm.so.6'>
-            <FileName>/lib64/libm.so.6</FileName>
+            <Name>/lib64/libm.so.6</Name>
             <Category>Shared libraries</Category>
+            <Extension>6</Extension>
+            <FileName>libm</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.878572' CloseTime='2018-05-08 11:30:21.879141' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libnsl.so.1'>
-            <FileName>/lib64/libnsl.so.1</FileName>
+            <Name>/lib64/libnsl.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libnsl</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.876776' CloseTime='2018-05-08 11:30:21.877591' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libperl.so.5.24'>
-            <FileName>/lib64/libperl.so.5.24</FileName>
+            <Name>/lib64/libperl.so.5.24</Name>
             <Category>Shared libraries</Category>
+            <Extension>24</Extension>
+            <FileName>libperl</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.875212' CloseTime='2018-05-08 11:30:21.875902' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libpthread.so.0'>
-            <FileName>/lib64/libpthread.so.0</FileName>
+            <Name>/lib64/libpthread.so.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libpthread</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.875948' CloseTime='2018-05-08 11:30:21.876364' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libresolv.so.2'>
-            <FileName>/lib64/libresolv.so.2</FileName>
+            <Name>/lib64/libresolv.so.2</Name>
             <Category>Shared libraries</Category>
+            <Extension>2</Extension>
+            <FileName>libresolv</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.876411' CloseTime='2018-05-08 11:30:21.876729' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/lib64/libutil.so.1'>
-            <FileName>/lib64/libutil.so.1</FileName>
+            <Name>/lib64/libutil.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libutil</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.881626' CloseTime='2018-05-08 11:30:21.881914' NumReads='1' BytesRead='832' />
             </FileAccesses>
@@ -145,21 +177,27 @@
     </FilesCategory>
     <FilesCategory category='System config files'>
         <CIM_DataFile Name='/etc/ld.so.cache'>
-            <FileName>/etc/ld.so.cache</FileName>
+            <Name>/etc/ld.so.cache</Name>
             <Category>System config files</Category>
+            <Extension>cache</Extension>
+            <FileName>ld</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.875042' CloseTime='2018-05-08 11:30:21.875181' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.preload'>
-            <FileName>/etc/ld.so.preload</FileName>
+            <Name>/etc/ld.so.preload</Name>
             <Category>System config files</Category>
+            <Extension>preload</Extension>
+            <FileName>ld</FileName>
         </CIM_DataFile>
     </FilesCategory>
     <FilesCategory category='Temporary files'>
         <CIM_DataFile Name='/tmp/survol_test_perl.txt'>
-            <FileName>/tmp/survol_test_perl.txt</FileName>
+            <Name>/tmp/survol_test_perl.txt</Name>
             <Category>Temporary files</Category>
+            <Extension>txt</Extension>
+            <FileName>survol_test_perl</FileName>
             <FileAccesses>
                 <Access Process='5904' OpenTime='2018-05-08 11:30:21.929795' CloseTime='2018-05-08 11:30:21.936607' NumWrites='1' BytesWritten='44' />
             </FileAccesses>

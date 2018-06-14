@@ -227,38 +227,48 @@
     </CIM_Process>
     <FilesCategory category='Kernel file systems'>
         <CIM_DataFile Name='/proc/29838/cmdline'>
-            <FileName>/proc/29838/cmdline</FileName>
+            <Name>/proc/29838/cmdline</Name>
             <Category>Kernel file systems</Category>
+            <Extension>cmdline</Extension>
+            <FileName>cmdline</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.335759' CloseTime='2018-05-08 22:33:30.335877' NumReads='1' BytesRead='38' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/proc/29838/fd'>
-            <FileName>/proc/29838/fd</FileName>
+            <Name>/proc/29838/fd</Name>
             <Category>Kernel file systems</Category>
+            <Extension>fd</Extension>
+            <FileName>fd</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.278146' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/proc/29838/stat'>
-            <FileName>/proc/29838/stat</FileName>
+            <Name>/proc/29838/stat</Name>
             <Category>Kernel file systems</Category>
+            <Extension>stat</Extension>
+            <FileName>stat</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.335137' CloseTime='2018-05-08 22:33:30.335262' NumReads='1' BytesRead='329' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.335331' CloseTime='2018-05-08 22:33:30.335429' NumReads='1' BytesRead='329' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/proc/29838/status'>
-            <FileName>/proc/29838/status</FileName>
+            <Name>/proc/29838/status</Name>
             <Category>Kernel file systems</Category>
+            <Extension>status</Extension>
+            <FileName>status</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.331571' CloseTime='2018-05-08 22:33:30.331793' NumReads='1' BytesRead='1024' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.332652' CloseTime='2018-05-08 22:33:30.332974' NumReads='3' BytesRead='1064' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/proc/meminfo'>
-            <FileName>/proc/meminfo</FileName>
+            <Name>/proc/meminfo</Name>
             <Category>Kernel file systems</Category>
+            <Extension>meminfo</Extension>
+            <FileName>meminfo</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.174377' CloseTime='2018-05-08 22:33:30.174559' NumReads='1' BytesRead='1024' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.330313' CloseTime='2018-05-08 22:33:30.330564' NumReads='2' BytesRead='1251' />
@@ -267,8 +277,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/proc/sys/kernel/shmmax'>
-            <FileName>/proc/sys/kernel/shmmax</FileName>
+            <Name>/proc/sys/kernel/shmmax</Name>
             <Category>Kernel file systems</Category>
+            <Extension>shmmax</Extension>
+            <FileName>shmmax</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.330043' CloseTime='2018-05-08 22:33:30.330234' NumReads='1' BytesRead='11' />
             </FileAccesses>
@@ -276,49 +288,65 @@
     </FilesCategory>
     <FilesCategory category='Other TCP/IP sockets'>
         <CIM_DataFile Name='UDP:[192.168.0.17:51650->194.168.4.100:53]'>
-            <FileName>UDP:[192.168.0.17:51650->194.168.4.100:53]</FileName>
+            <Name>UDP:[192.168.0.17:51650->194.168.4.100:53]</Name>
             <Category>Other TCP/IP sockets</Category>
+            <Extension>100:53]</Extension>
+            <FileName>UDP:[192</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.411074' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[192.168.0.17:54310->194.168.4.100:53]'>
-            <FileName>UDP:[192.168.0.17:54310->194.168.4.100:53]</FileName>
+            <Name>UDP:[192.168.0.17:54310->194.168.4.100:53]</Name>
             <Category>Other TCP/IP sockets</Category>
+            <Extension>100:53]</Extension>
+            <FileName>UDP:[192</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.390593' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[192.168.0.17:60275->194.168.4.100:53]'>
-            <FileName>UDP:[192.168.0.17:60275->194.168.4.100:53]</FileName>
+            <Name>UDP:[192.168.0.17:60275->194.168.4.100:53]</Name>
             <Category>Other TCP/IP sockets</Category>
+            <Extension>100:53]</Extension>
+            <FileName>UDP:[192</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.325742' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[5648141]'>
-            <FileName>UDP:[5648141]</FileName>
+            <Name>UDP:[5648141]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET', 'sin_port=htons(53)', 'sin_addr=inet_addr("194.168.4.100")']</SocketAddress>
+            <Extension>UDP:[5648141]</Extension>
+            <FileName>UDP:[5648141]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[5649216]'>
-            <FileName>UDP:[5649216]</FileName>
+            <Name>UDP:[5649216]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET', 'sin_port=htons(53)', 'sin_addr=inet_addr("194.168.4.100")']</SocketAddress>
+            <Extension>UDP:[5649216]</Extension>
+            <FileName>UDP:[5649216]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDP:[5649220]'>
-            <FileName>UDP:[5649220]</FileName>
+            <Name>UDP:[5649220]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET', 'sin_port=htons(53)', 'sin_addr=inet_addr("194.168.4.100")']</SocketAddress>
+            <Extension>UDP:[5649220]</Extension>
+            <FileName>UDP:[5649220]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDPv6:[5648124]'>
-            <FileName>UDPv6:[5648124]</FileName>
+            <Name>UDPv6:[5648124]</Name>
             <Category>Other TCP/IP sockets</Category>
             <SocketAddress>['sa_family=AF_INET6', 'sin6_port=htons(0)', 'inet_pton(AF_INET6, "::1", &sin6_addr)', 'sin6_flowinfo=0', 'sin6_scope_id=0']</SocketAddress>
+            <Extension>UDPv6:[5648124]</Extension>
+            <FileName>UDPv6:[5648124]</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UDPv6:[::1:32990]'>
-            <FileName>UDPv6:[::1:32990]</FileName>
+            <Name>UDPv6:[::1:32990]</Name>
             <Category>Other TCP/IP sockets</Category>
+            <Extension>UDPv6:[::1:32990]</Extension>
+            <FileName>UDPv6:[::1:32990]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.272227' />
             </FileAccesses>
@@ -326,645 +354,829 @@
     </FilesCategory>
     <FilesCategory category='Other libraries'>
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
-            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Name>/usr/lib/locale/locale-archive</Name>
             <Category>Other libraries</Category>
+            <Extension>locale-archive</Extension>
+            <FileName>locale-archive</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.213516' CloseTime='2018-05-08 22:33:30.213664' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages'>
-            <FileName>/usr/lib/python2.7/site-packages</FileName>
+            <Name>/usr/lib/python2.7/site-packages</Name>
             <Category>Other libraries</Category>
+            <Extension>site-packages</Extension>
+            <FileName>site-packages</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.194302' CloseTime='2018-05-08 22:33:30.194538' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/Paste-1.7.5.1-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/Paste-1.7.5.1-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/Paste-1.7.5.1-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>Paste-1</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.194638' CloseTime='2018-05-08 22:33:30.195125' NumReads='3' BytesRead='304' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/easy-install.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/easy-install.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/easy-install.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>easy-install</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.195201' CloseTime='2018-05-08 22:33:30.195681' NumReads='3' BytesRead='251' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi-0.6.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi-0.6.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi-0.6.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.195755' CloseTime='2018-05-08 22:33:30.196200' NumReads='3' BytesRead='296' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_account-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_account-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_account-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_account-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.196273' CloseTime='2018-05-08 22:33:30.196979' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_hardware-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_hardware-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_hardware-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_hardware-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.197056' CloseTime='2018-05-08 22:33:30.197694' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_journald-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_journald-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_journald-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_journald-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.197767' CloseTime='2018-05-08 22:33:30.198591' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_locale-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_locale-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_locale-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_locale-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.198684' CloseTime='2018-05-08 22:33:30.199485' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_logicalfile-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_logicalfile-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_logicalfile-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_logicalfile-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.199579' CloseTime='2018-05-08 22:33:30.200370' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_networking-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_networking-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_networking-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_networking-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.200462' CloseTime='2018-05-08 22:33:30.201282' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_powermanagement-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_powermanagement-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_powermanagement-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_powermanagement-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.201375' CloseTime='2018-05-08 22:33:30.202178' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_realmd-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_realmd-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_realmd-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_realmd-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.202271' CloseTime='2018-05-08 22:33:30.203061' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_selinux-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_selinux-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_selinux-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_selinux-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.203151' CloseTime='2018-05-08 22:33:30.203990' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_service-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_service-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_service-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_service-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.204084' CloseTime='2018-05-08 22:33:30.204882' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_software-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_software-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_software-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_software-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.204974' CloseTime='2018-05-08 22:33:30.205753' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_sssd-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_sssd-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_sssd-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_sssd-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.205851' CloseTime='2018-05-08 22:33:30.206617' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_storage-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_storage-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_storage-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_storage-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.206706' CloseTime='2018-05-08 22:33:30.207532' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_scripts_system-0.4.0-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_scripts_system-0.4.0-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_scripts_system-0.4.0-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_scripts_system-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.207627' CloseTime='2018-05-08 22:33:30.208429' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_storage-0.8.1-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_storage-0.8.1-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_storage-0.8.1-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_storage-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.208521' CloseTime='2018-05-08 22:33:30.209079' NumReads='3' BytesRead='296' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib/python2.7/site-packages/openlmi_tools-0.10.4-py2.7-nspkg.pth'>
-            <FileName>/usr/lib/python2.7/site-packages/openlmi_tools-0.10.4-py2.7-nspkg.pth</FileName>
+            <Name>/usr/lib/python2.7/site-packages/openlmi_tools-0.10.4-py2.7-nspkg.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>openlmi_tools-0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.209177' CloseTime='2018-05-08 22:33:30.209964' NumReads='3' BytesRead='666' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/UserDict.py'>
-            <FileName>/usr/lib64/python2.7/UserDict.py</FileName>
+            <Name>/usr/lib64/python2.7/UserDict.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>UserDict</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.179085' CloseTime='2018-05-08 22:33:30.183126' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/UserDict.pyc'>
-            <FileName>/usr/lib64/python2.7/UserDict.pyc</FileName>
+            <Name>/usr/lib64/python2.7/UserDict.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>UserDict</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.179162' CloseTime='2018-05-08 22:33:30.179526' NumReads='4' BytesRead='8820' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/__future__.py'>
-            <FileName>/usr/lib64/python2.7/__future__.py</FileName>
+            <Name>/usr/lib64/python2.7/__future__.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>__future__</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.230648' CloseTime='2018-05-08 22:33:30.231274' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/__future__.pyc'>
-            <FileName>/usr/lib64/python2.7/__future__.pyc</FileName>
+            <Name>/usr/lib64/python2.7/__future__.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>__future__</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.230742' CloseTime='2018-05-08 22:33:30.231163' NumReads='3' BytesRead='4228' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_abcoll.py'>
-            <FileName>/usr/lib64/python2.7/_abcoll.py</FileName>
+            <Name>/usr/lib64/python2.7/_abcoll.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>_abcoll</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.179710' CloseTime='2018-05-08 22:33:30.183030' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_abcoll.pyc'>
-            <FileName>/usr/lib64/python2.7/_abcoll.pyc</FileName>
+            <Name>/usr/lib64/python2.7/_abcoll.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>_abcoll</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.179786' CloseTime='2018-05-08 22:33:30.180285' NumReads='4' BytesRead='25550' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_sysconfigdata.py'>
-            <FileName>/usr/lib64/python2.7/_sysconfigdata.py</FileName>
+            <Name>/usr/lib64/python2.7/_sysconfigdata.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>_sysconfigdata</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.190453' CloseTime='2018-05-08 22:33:30.191202' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_sysconfigdata.pyc'>
-            <FileName>/usr/lib64/python2.7/_sysconfigdata.pyc</FileName>
+            <Name>/usr/lib64/python2.7/_sysconfigdata.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>_sysconfigdata</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.190528' CloseTime='2018-05-08 22:33:30.191073' NumReads='4' BytesRead='21465' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_weakrefset.py'>
-            <FileName>/usr/lib64/python2.7/_weakrefset.py</FileName>
+            <Name>/usr/lib64/python2.7/_weakrefset.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>_weakrefset</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.180976' CloseTime='2018-05-08 22:33:30.181680' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/_weakrefset.pyc'>
-            <FileName>/usr/lib64/python2.7/_weakrefset.pyc</FileName>
+            <Name>/usr/lib64/python2.7/_weakrefset.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>_weakrefset</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.181072' CloseTime='2018-05-08 22:33:30.181458' NumReads='4' BytesRead='9678' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/abc.py'>
-            <FileName>/usr/lib64/python2.7/abc.py</FileName>
+            <Name>/usr/lib64/python2.7/abc.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>abc</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.180440' CloseTime='2018-05-08 22:33:30.181769' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/abc.pyc'>
-            <FileName>/usr/lib64/python2.7/abc.pyc</FileName>
+            <Name>/usr/lib64/python2.7/abc.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>abc</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.180513' CloseTime='2018-05-08 22:33:30.180809' NumReads='3' BytesRead='6143' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/codecs.py'>
-            <FileName>/usr/lib64/python2.7/codecs.py</FileName>
+            <Name>/usr/lib64/python2.7/codecs.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>codecs</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.215548' CloseTime='2018-05-08 22:33:30.216595' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/codecs.pyc'>
-            <FileName>/usr/lib64/python2.7/codecs.pyc</FileName>
+            <Name>/usr/lib64/python2.7/codecs.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>codecs</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.215640' CloseTime='2018-05-08 22:33:30.216253' NumReads='4' BytesRead='36709' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/collections.py'>
-            <FileName>/usr/lib64/python2.7/collections.py</FileName>
+            <Name>/usr/lib64/python2.7/collections.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>collections</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.232861' CloseTime='2018-05-08 22:33:30.243429' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/collections.pyc'>
-            <FileName>/usr/lib64/python2.7/collections.pyc</FileName>
+            <Name>/usr/lib64/python2.7/collections.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>collections</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.232963' CloseTime='2018-05-08 22:33:30.233582' NumReads='4' BytesRead='25621' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/copy_reg.py'>
-            <FileName>/usr/lib64/python2.7/copy_reg.py</FileName>
+            <Name>/usr/lib64/python2.7/copy_reg.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>copy_reg</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.183285' CloseTime='2018-05-08 22:33:30.183760' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/copy_reg.pyc'>
-            <FileName>/usr/lib64/python2.7/copy_reg.pyc</FileName>
+            <Name>/usr/lib64/python2.7/copy_reg.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>copy_reg</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.183379' CloseTime='2018-05-08 22:33:30.183673' NumReads='3' BytesRead='5113' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/decimal.py'>
-            <FileName>/usr/lib64/python2.7/decimal.py</FileName>
+            <Name>/usr/lib64/python2.7/decimal.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>decimal</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.225060' CloseTime='2018-05-08 22:33:30.261083' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/decimal.pyc'>
-            <FileName>/usr/lib64/python2.7/decimal.pyc</FileName>
+            <Name>/usr/lib64/python2.7/decimal.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>decimal</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.225154' CloseTime='2018-05-08 22:33:30.226873' NumReads='4' BytesRead='171368' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/__init__.py'>
-            <FileName>/usr/lib64/python2.7/encodings/__init__.py</FileName>
+            <Name>/usr/lib64/python2.7/encodings/__init__.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>__init__</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.214298' CloseTime='2018-05-08 22:33:30.218005' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/__init__.pyc'>
-            <FileName>/usr/lib64/python2.7/encodings/__init__.pyc</FileName>
+            <Name>/usr/lib64/python2.7/encodings/__init__.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>__init__</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.214392' CloseTime='2018-05-08 22:33:30.214745' NumReads='3' BytesRead='4378' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/aliases.py'>
-            <FileName>/usr/lib64/python2.7/encodings/aliases.py</FileName>
+            <Name>/usr/lib64/python2.7/encodings/aliases.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>aliases</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.216962' CloseTime='2018-05-08 22:33:30.217688' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/aliases.pyc'>
-            <FileName>/usr/lib64/python2.7/encodings/aliases.pyc</FileName>
+            <Name>/usr/lib64/python2.7/encodings/aliases.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>aliases</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.217057' CloseTime='2018-05-08 22:33:30.217577' NumReads='4' BytesRead='8770' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/utf_8.py'>
-            <FileName>/usr/lib64/python2.7/encodings/utf_8.py</FileName>
+            <Name>/usr/lib64/python2.7/encodings/utf_8.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>utf_8</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.218179' CloseTime='2018-05-08 22:33:30.218730' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/encodings/utf_8.pyc'>
-            <FileName>/usr/lib64/python2.7/encodings/utf_8.pyc</FileName>
+            <Name>/usr/lib64/python2.7/encodings/utf_8.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>utf_8</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.218272' CloseTime='2018-05-08 22:33:30.218570' NumReads='2' BytesRead='1966' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/functools.py'>
-            <FileName>/usr/lib64/python2.7/functools.py</FileName>
+            <Name>/usr/lib64/python2.7/functools.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>functools</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.257636' CloseTime='2018-05-08 22:33:30.259929' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/functools.pyc'>
-            <FileName>/usr/lib64/python2.7/functools.pyc</FileName>
+            <Name>/usr/lib64/python2.7/functools.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>functools</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.257730' CloseTime='2018-05-08 22:33:30.258250' NumReads='3' BytesRead='6089' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/genericpath.py'>
-            <FileName>/usr/lib64/python2.7/genericpath.py</FileName>
+            <Name>/usr/lib64/python2.7/genericpath.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>genericpath</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.176369' CloseTime='2018-05-08 22:33:30.176758' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/genericpath.pyc'>
-            <FileName>/usr/lib64/python2.7/genericpath.pyc</FileName>
+            <Name>/usr/lib64/python2.7/genericpath.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>genericpath</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.176444' CloseTime='2018-05-08 22:33:30.176683' NumReads='2' BytesRead='3517' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/heapq.py'>
-            <FileName>/usr/lib64/python2.7/heapq.py</FileName>
+            <Name>/usr/lib64/python2.7/heapq.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>heapq</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.239078' CloseTime='2018-05-08 22:33:30.243207' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/heapq.pyc'>
-            <FileName>/usr/lib64/python2.7/heapq.pyc</FileName>
+            <Name>/usr/lib64/python2.7/heapq.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>heapq</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.239175' CloseTime='2018-05-08 22:33:30.239629' NumReads='4' BytesRead='14565' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/keyword.py'>
-            <FileName>/usr/lib64/python2.7/keyword.py</FileName>
+            <Name>/usr/lib64/python2.7/keyword.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>keyword</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.237819' CloseTime='2018-05-08 22:33:30.238317' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/keyword.pyc'>
-            <FileName>/usr/lib64/python2.7/keyword.pyc</FileName>
+            <Name>/usr/lib64/python2.7/keyword.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>keyword</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.237915' CloseTime='2018-05-08 22:33:30.238217' NumReads='2' BytesRead='2105' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/linecache.py'>
-            <FileName>/usr/lib64/python2.7/linecache.py</FileName>
+            <Name>/usr/lib64/python2.7/linecache.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>linecache</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.177490' CloseTime='2018-05-08 22:33:30.177897' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/linecache.pyc'>
-            <FileName>/usr/lib64/python2.7/linecache.pyc</FileName>
+            <Name>/usr/lib64/python2.7/linecache.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>linecache</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.177562' CloseTime='2018-05-08 22:33:30.177794' NumReads='2' BytesRead='3272' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/locale.py'>
-            <FileName>/usr/lib64/python2.7/locale.py</FileName>
+            <Name>/usr/lib64/python2.7/locale.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>locale</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.255701' CloseTime='2018-05-08 22:33:30.260967' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/locale.pyc'>
-            <FileName>/usr/lib64/python2.7/locale.pyc</FileName>
+            <Name>/usr/lib64/python2.7/locale.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>locale</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.255811' CloseTime='2018-05-08 22:33:30.256847' NumReads='4' BytesRead='55084' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/numbers.py'>
-            <FileName>/usr/lib64/python2.7/numbers.py</FileName>
+            <Name>/usr/lib64/python2.7/numbers.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>numbers</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.229282' CloseTime='2018-05-08 22:33:30.232104' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/numbers.pyc'>
-            <FileName>/usr/lib64/python2.7/numbers.pyc</FileName>
+            <Name>/usr/lib64/python2.7/numbers.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>numbers</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.229377' CloseTime='2018-05-08 22:33:30.229880' NumReads='4' BytesRead='14012' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/os.py'>
-            <FileName>/usr/lib64/python2.7/os.py</FileName>
+            <Name>/usr/lib64/python2.7/os.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>os</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.173549' CloseTime='2018-05-08 22:33:30.183815' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/os.pyc'>
-            <FileName>/usr/lib64/python2.7/os.pyc</FileName>
+            <Name>/usr/lib64/python2.7/os.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>os</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.173624' CloseTime='2018-05-08 22:33:30.174082' NumReads='4' BytesRead='25699' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/posixpath.py'>
-            <FileName>/usr/lib64/python2.7/posixpath.py</FileName>
+            <Name>/usr/lib64/python2.7/posixpath.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>posixpath</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.174972' CloseTime='2018-05-08 22:33:30.178844' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/posixpath.pyc'>
-            <FileName>/usr/lib64/python2.7/posixpath.pyc</FileName>
+            <Name>/usr/lib64/python2.7/posixpath.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>posixpath</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.175050' CloseTime='2018-05-08 22:33:30.175444' NumReads='4' BytesRead='11420' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/re.py'>
-            <FileName>/usr/lib64/python2.7/re.py</FileName>
+            <Name>/usr/lib64/python2.7/re.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>re</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.186100' CloseTime='2018-05-08 22:33:30.190323' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/re.pyc'>
-            <FileName>/usr/lib64/python2.7/re.pyc</FileName>
+            <Name>/usr/lib64/python2.7/re.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>re</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.186176' CloseTime='2018-05-08 22:33:30.186540' NumReads='4' BytesRead='13413' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages'>
-            <FileName>/usr/lib64/python2.7/site-packages</FileName>
+            <Name>/usr/lib64/python2.7/site-packages</Name>
             <Category>Other libraries</Category>
+            <Extension>site-packages</Extension>
+            <FileName>site-packages</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.191812' CloseTime='2018-05-08 22:33:30.192035' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages/abrt.pth'>
-            <FileName>/usr/lib64/python2.7/site-packages/abrt.pth</FileName>
+            <Name>/usr/lib64/python2.7/site-packages/abrt.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>abrt</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.192141' CloseTime='2018-05-08 22:33:30.193841' NumReads='3' BytesRead='30' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages/abrt_exception_handler.py'>
-            <FileName>/usr/lib64/python2.7/site-packages/abrt_exception_handler.py</FileName>
+            <Name>/usr/lib64/python2.7/site-packages/abrt_exception_handler.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>abrt_exception_handler</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.193234' CloseTime='2018-05-08 22:33:30.193758' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages/abrt_exception_handler.pyc'>
-            <FileName>/usr/lib64/python2.7/site-packages/abrt_exception_handler.pyc</FileName>
+            <Name>/usr/lib64/python2.7/site-packages/abrt_exception_handler.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>abrt_exception_handler</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.193310' CloseTime='2018-05-08 22:33:30.193646' NumReads='3' BytesRead='7303' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages/pygtk.pth'>
-            <FileName>/usr/lib64/python2.7/site-packages/pygtk.pth</FileName>
+            <Name>/usr/lib64/python2.7/site-packages/pygtk.pth</Name>
             <Category>Other libraries</Category>
+            <Extension>pth</Extension>
+            <FileName>pygtk</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.193913' CloseTime='2018-05-08 22:33:30.194201' NumReads='3' BytesRead='8' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site.py'>
-            <FileName>/usr/lib64/python2.7/site.py</FileName>
+            <Name>/usr/lib64/python2.7/site.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>site</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.172717' CloseTime='2018-05-08 22:33:30.213454' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site.pyc'>
-            <FileName>/usr/lib64/python2.7/site.pyc</FileName>
+            <Name>/usr/lib64/python2.7/site.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>site</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.172796' CloseTime='2018-05-08 22:33:30.173372' NumReads='4' BytesRead='19553' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_compile.py'>
-            <FileName>/usr/lib64/python2.7/sre_compile.py</FileName>
+            <Name>/usr/lib64/python2.7/sre_compile.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>sre_compile</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.186704' CloseTime='2018-05-08 22:33:30.189105' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_compile.pyc'>
-            <FileName>/usr/lib64/python2.7/sre_compile.pyc</FileName>
+            <Name>/usr/lib64/python2.7/sre_compile.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>sre_compile</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.186778' CloseTime='2018-05-08 22:33:30.187271' NumReads='4' BytesRead='12559' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_constants.py'>
-            <FileName>/usr/lib64/python2.7/sre_constants.py</FileName>
+            <Name>/usr/lib64/python2.7/sre_constants.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>sre_constants</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.188157' CloseTime='2018-05-08 22:33:30.188690' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_constants.pyc'>
-            <FileName>/usr/lib64/python2.7/sre_constants.pyc</FileName>
+            <Name>/usr/lib64/python2.7/sre_constants.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>sre_constants</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.188232' CloseTime='2018-05-08 22:33:30.188549' NumReads='3' BytesRead='6195' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_parse.py'>
-            <FileName>/usr/lib64/python2.7/sre_parse.py</FileName>
+            <Name>/usr/lib64/python2.7/sre_parse.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>sre_parse</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.187467' CloseTime='2018-05-08 22:33:30.188817' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sre_parse.pyc'>
-            <FileName>/usr/lib64/python2.7/sre_parse.pyc</FileName>
+            <Name>/usr/lib64/python2.7/sre_parse.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>sre_parse</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.187540' CloseTime='2018-05-08 22:33:30.187993' NumReads='4' BytesRead='20017' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/stat.py'>
-            <FileName>/usr/lib64/python2.7/stat.py</FileName>
+            <Name>/usr/lib64/python2.7/stat.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>stat</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.175609' CloseTime='2018-05-08 22:33:30.176242' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/stat.pyc'>
-            <FileName>/usr/lib64/python2.7/stat.pyc</FileName>
+            <Name>/usr/lib64/python2.7/stat.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>stat</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.175684' CloseTime='2018-05-08 22:33:30.176161' NumReads='2' BytesRead='2751' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sysconfig.py'>
-            <FileName>/usr/lib64/python2.7/sysconfig.py</FileName>
+            <Name>/usr/lib64/python2.7/sysconfig.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>sysconfig</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.184933' CloseTime='2018-05-08 22:33:30.185832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/sysconfig.pyc'>
-            <FileName>/usr/lib64/python2.7/sysconfig.pyc</FileName>
+            <Name>/usr/lib64/python2.7/sysconfig.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>sysconfig</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.185008' CloseTime='2018-05-08 22:33:30.185443' NumReads='4' BytesRead='17715' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/threading.py'>
-            <FileName>/usr/lib64/python2.7/threading.py</FileName>
+            <Name>/usr/lib64/python2.7/threading.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>threading</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.245514' CloseTime='2018-05-08 22:33:30.250524' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/threading.pyc'>
-            <FileName>/usr/lib64/python2.7/threading.pyc</FileName>
+            <Name>/usr/lib64/python2.7/threading.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>threading</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.245610' CloseTime='2018-05-08 22:33:30.246302' NumReads='4' BytesRead='42803' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/traceback.py'>
-            <FileName>/usr/lib64/python2.7/traceback.py</FileName>
+            <Name>/usr/lib64/python2.7/traceback.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>traceback</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.183947' CloseTime='2018-05-08 22:33:30.184469' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/traceback.pyc'>
-            <FileName>/usr/lib64/python2.7/traceback.pyc</FileName>
+            <Name>/usr/lib64/python2.7/traceback.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>traceback</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.184022' CloseTime='2018-05-08 22:33:30.184388' NumReads='4' BytesRead='11679' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/types.py'>
-            <FileName>/usr/lib64/python2.7/types.py</FileName>
+            <Name>/usr/lib64/python2.7/types.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>types</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.178022' CloseTime='2018-05-08 22:33:30.178498' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/types.pyc'>
-            <FileName>/usr/lib64/python2.7/types.pyc</FileName>
+            <Name>/usr/lib64/python2.7/types.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>types</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.178097' CloseTime='2018-05-08 22:33:30.178347' NumReads='2' BytesRead='2725' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/warnings.py'>
-            <FileName>/usr/lib64/python2.7/warnings.py</FileName>
+            <Name>/usr/lib64/python2.7/warnings.py</Name>
             <Category>Other libraries</Category>
+            <Extension>py</Extension>
+            <FileName>warnings</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.176891' CloseTime='2018-05-08 22:33:30.178779' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/warnings.pyc'>
-            <FileName>/usr/lib64/python2.7/warnings.pyc</FileName>
+            <Name>/usr/lib64/python2.7/warnings.pyc</Name>
             <Category>Other libraries</Category>
+            <Extension>pyc</Extension>
+            <FileName>warnings</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.176963' CloseTime='2018-05-08 22:33:30.177336' NumReads='4' BytesRead='13188' />
             </FileAccesses>
@@ -972,15 +1184,19 @@
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/alert/log.xml'>
-            <FileName>/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/alert/log.xml</FileName>
+            <Name>/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/alert/log.xml</Name>
             <Category>Others</Category>
+            <Extension>xml</Extension>
+            <FileName>log</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.327113' CloseTime='2018-05-08 22:33:30.327339' NumWrites='1' BytesWritten='304' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/metadata/ADR_CONTROL.ams'>
-            <FileName>/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/metadata/ADR_CONTROL.ams</FileName>
+            <Name>/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/metadata/ADR_CONTROL.ams</Name>
             <Category>Others</Category>
+            <Extension>ams</Extension>
+            <FileName>ADR_CONTROL</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.280444' CloseTime='2018-05-08 22:33:30.280547' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.280615' CloseTime='2018-05-08 22:33:30.280712' />
@@ -989,157 +1205,201 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/trace/sqlnet.log'>
-            <FileName>/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/trace/sqlnet.log</FileName>
+            <Name>/home/rchateau/oradiag_rchateau/diag/clients/user_rchateau/host_672533892_80/trace/sqlnet.log</Name>
             <Category>Others</Category>
+            <Extension>log</Extension>
+            <FileName>sqlnet</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.327498' CloseTime='2018-05-08 22:33:30.327775' NumWrites='2' BytesWritten='158' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/oracle_db_schemas.py'>
-            <FileName>/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/oracle_db_schemas.py</FileName>
+            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/oracle_db_schemas.py</Name>
             <Category>Others</Category>
+            <Extension>py</Extension>
+            <FileName>oracle_db_schemas</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.219067' CloseTime='2018-05-08 22:33:30.219375' NumReads='2' BytesRead='989' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.219479' CloseTime='2018-05-08 22:33:30.220399' NumReads='3' BytesRead='1978' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.log'>
-            <FileName>/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.log</FileName>
+            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnitTests/mineit_oracle_db_schemas.strace.log</Name>
             <Category>Others</Category>
+            <Extension>log</Extension>
+            <FileName>mineit_oracle_db_schemas</FileName>
             <FileAccesses>
                 <Access Process='12345' NumWrites='14' BytesWritten='316' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so.11.1'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so.11.1</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/lib/libclntsh.so.11.1</Name>
             <Category>Others</Category>
+            <Extension>1</Extension>
+            <FileName>libclntsh</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.262058' CloseTime='2018-05-08 22:33:30.262354' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/lib/libnnz11.so'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/lib/libnnz11.so</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/lib/libnnz11.so</Name>
             <Category>Others</Category>
+            <Extension>so</Extension>
+            <FileName>libnnz11</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.262405' CloseTime='2018-05-08 22:33:30.262786' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/lib/libnque11.so'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/lib/libnque11.so</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/lib/libnque11.so</Name>
             <Category>Others</Category>
+            <Extension>so</Extension>
+            <FileName>libnque11</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.336447' CloseTime='2018-05-08 22:33:30.336849' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx00001.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx00001.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx00001.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx00001</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.326010' CloseTime='2018-05-08 22:33:30.326205' NumReads='2' BytesRead='951' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx00025.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx00025.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx00025.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx00025</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.270934' CloseTime='2018-05-08 22:33:30.271075' NumReads='2' BytesRead='968' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx10001.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx10001.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx10001.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx10001</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.326533' CloseTime='2018-05-08 22:33:30.326716' NumReads='2' BytesRead='1140' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx10002.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx10002.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx10002.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx10002</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.271524' CloseTime='2018-05-08 22:33:30.271677' NumReads='2' BytesRead='851' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx1boot.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx1boot.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx1boot.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx1boot</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.270619' CloseTime='2018-05-08 22:33:30.270837' NumReads='2' BytesRead='13728' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx20001.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx20001.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx20001.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx20001</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.326274' CloseTime='2018-05-08 22:33:30.326466' NumReads='2' BytesRead='6969' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx20369.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx20369.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx20369.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx20369</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.271199' CloseTime='2018-05-08 22:33:30.271474' NumReads='2' BytesRead='145905' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx207d0.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx207d0.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx207d0.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx207d0</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.354835' CloseTime='2018-05-08 22:33:30.355433' NumReads='2' BytesRead='334338' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/nls/data/lx40011.nlb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/nls/data/lx40011.nlb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/nls/data/lx40011.nlb</Name>
             <Category>Others</Category>
+            <Extension>nlb</Extension>
+            <FileName>lx40011</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.271730' CloseTime='2018-05-08 22:33:30.271920' NumReads='2' BytesRead='22113' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo</Name>
             <Category>Others</Category>
+            <Extension>zoneinfo</Extension>
+            <FileName>zoneinfo</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.328459' CloseTime='2018-05-08 22:33:30.329749' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/readme.txt'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/readme.txt</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/readme.txt</Name>
             <Category>Others</Category>
+            <Extension>txt</Extension>
+            <FileName>readme</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.329436' CloseTime='2018-05-08 22:33:30.329618' NumReads='1' BytesRead='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezdif.csv'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezdif.csv</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezdif.csv</Name>
             <Category>Others</Category>
+            <Extension>csv</Extension>
+            <FileName>timezdif</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.328901' CloseTime='2018-05-08 22:33:30.329086' NumReads='1' BytesRead='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezlrg_14.dat</Name>
             <Category>Others</Category>
+            <Extension>dat</Extension>
+            <FileName>timezlrg_14</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.329169' CloseTime='2018-05-08 22:33:30.329353' NumReads='1' BytesRead='4096' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.329795' CloseTime='2018-05-08 22:33:30.329945' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezone_14.dat'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezone_14.dat</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/oracore/zoneinfo/timezone_14.dat</Name>
             <Category>Others</Category>
+            <Extension>dat</Extension>
+            <FileName>timezone_14</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.328593' CloseTime='2018-05-08 22:33:30.328810' NumReads='1' BytesRead='4096' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb</Name>
             <Category>Others</Category>
+            <Extension>msb</Extension>
+            <FileName>ocius</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.334095' CloseTime='2018-05-08 22:33:30.428422' NumReads='3' BytesRead='862' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/oraus.msb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/oraus.msb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/oraus.msb</Name>
             <Category>Others</Category>
+            <Extension>msb</Extension>
+            <FileName>oraus</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.414653' CloseTime='2018-05-08 22:33:30.417461' NumReads='22' BytesRead='11008' />
             </FileAccesses>
@@ -1147,81 +1407,103 @@
     </FilesCategory>
     <FilesCategory category='Pipes and terminals'>
         <CIM_DataFile Name='/dev/pts/2'>
-            <FileName>/dev/pts/2</FileName>
+            <Name>/dev/pts/2</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>2</Extension>
+            <FileName>2</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='/sys/devices/system/cpu'>
-            <FileName>/sys/devices/system/cpu</FileName>
+            <Name>/sys/devices/system/cpu</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>cpu</Extension>
+            <FileName>cpu</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.332465' CloseTime='2018-05-08 22:33:30.332608' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/sys/devices/system/node'>
-            <FileName>/sys/devices/system/node</FileName>
+            <Name>/sys/devices/system/node</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>node</Extension>
+            <FileName>node</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.331887' CloseTime='2018-05-08 22:33:30.332400' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/sys/devices/system/node/node0/meminfo'>
-            <FileName>/sys/devices/system/node/node0/meminfo</FileName>
+            <Name>/sys/devices/system/node/node0/meminfo</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>meminfo</Extension>
+            <FileName>meminfo</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.332014' CloseTime='2018-05-08 22:33:30.332275' NumReads='2' BytesRead='1000' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='NETLINK:[5649206]'>
-            <FileName>NETLINK:[5649206]</FileName>
+            <Name>NETLINK:[5649206]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_NETLINK', 'pid=0', 'groups=00000000']</SocketAddress>
+            <Extension>NETLINK:[5649206]</Extension>
+            <FileName>NETLINK:[5649206]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.294135' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[5648125]'>
-            <FileName>UNIX:[5648125]</FileName>
+            <Name>UNIX:[5648125]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_LOCAL', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <Extension>UNIX:[5648125]</Extension>
+            <FileName>UNIX:[5648125]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.273975' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[5648126]'>
-            <FileName>UNIX:[5648126]</FileName>
+            <Name>UNIX:[5648126]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_LOCAL', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <Extension>UNIX:[5648126]</Extension>
+            <FileName>UNIX:[5648126]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.275410' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[5649207]'>
-            <FileName>UNIX:[5649207]</FileName>
+            <Name>UNIX:[5649207]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_LOCAL', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <Extension>UNIX:[5649207]</Extension>
+            <FileName>UNIX:[5649207]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.293743' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[5649208]'>
-            <FileName>UNIX:[5649208]</FileName>
+            <Name>UNIX:[5649208]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_LOCAL', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <Extension>UNIX:[5649208]</Extension>
+            <FileName>UNIX:[5649208]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.295049' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='pipe:[5648149]'>
-            <FileName>pipe:[5648149]</FileName>
+            <Name>pipe:[5648149]</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>pipe:[5648149]</Extension>
+            <FileName>pipe:[5648149]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.338105' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.427989' NumWrites='12' BytesWritten='2615' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='pipe:[5648150]'>
-            <FileName>pipe:[5648150]</FileName>
+            <Name>pipe:[5648150]</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>pipe:[5648150]</Extension>
+            <FileName>pipe:[5648150]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.338167' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.428059' NumReads='11' BytesRead='3279' />
@@ -1230,171 +1512,217 @@
     </FilesCategory>
     <FilesCategory category='Shared libraries'>
         <CIM_DataFile Name='/usr/lib64/libaio.so.1.0.1'>
-            <FileName>/usr/lib64/libaio.so.1.0.1</FileName>
+            <Name>/usr/lib64/libaio.so.1.0.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libaio</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.263159' CloseTime='2018-05-08 22:33:30.263401' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc-2.21.so'>
-            <FileName>/usr/lib64/libc-2.21.so</FileName>
+            <Name>/usr/lib64/libc-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libc-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.167491' CloseTime='2018-05-08 22:33:30.167990' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libdl-2.21.so'>
-            <FileName>/usr/lib64/libdl-2.21.so</FileName>
+            <Name>/usr/lib64/libdl-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libdl-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.166136' CloseTime='2018-05-08 22:33:30.166515' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libm-2.21.so'>
-            <FileName>/usr/lib64/libm-2.21.so</FileName>
+            <Name>/usr/lib64/libm-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libm-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.167052' CloseTime='2018-05-08 22:33:30.167429' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnsl-2.21.so'>
-            <FileName>/usr/lib64/libnsl-2.21.so</FileName>
+            <Name>/usr/lib64/libnsl-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libnsl-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.262845' CloseTime='2018-05-08 22:33:30.263117' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnss_dns-2.21.so'>
-            <FileName>/usr/lib64/libnss_dns-2.21.so</FileName>
+            <Name>/usr/lib64/libnss_dns-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libnss_dns-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.298135' CloseTime='2018-05-08 22:33:30.298519' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnss_files-2.21.so'>
-            <FileName>/usr/lib64/libnss_files-2.21.so</FileName>
+            <Name>/usr/lib64/libnss_files-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libnss_files-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.276463' CloseTime='2018-05-08 22:33:30.276757' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnss_mdns4_minimal.so.2'>
-            <FileName>/usr/lib64/libnss_mdns4_minimal.so.2</FileName>
+            <Name>/usr/lib64/libnss_mdns4_minimal.so.2</Name>
             <Category>Shared libraries</Category>
+            <Extension>2</Extension>
+            <FileName>libnss_mdns4_minimal</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.297264' CloseTime='2018-05-08 22:33:30.297651' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnuma.so.1.0.0'>
-            <FileName>/usr/lib64/libnuma.so.1.0.0</FileName>
+            <Name>/usr/lib64/libnuma.so.1.0.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libnuma</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.331169' CloseTime='2018-05-08 22:33:30.331469' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpthread-2.21.so'>
-            <FileName>/usr/lib64/libpthread-2.21.so</FileName>
+            <Name>/usr/lib64/libpthread-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libpthread-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.165571' CloseTime='2018-05-08 22:33:30.166020' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpython2.7.so.1.0'>
-            <FileName>/usr/lib64/libpython2.7.so.1.0</FileName>
+            <Name>/usr/lib64/libpython2.7.so.1.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libpython2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.165061' CloseTime='2018-05-08 22:33:30.165503' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libresolv-2.21.so'>
-            <FileName>/usr/lib64/libresolv-2.21.so</FileName>
+            <Name>/usr/lib64/libresolv-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libresolv-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.298585' CloseTime='2018-05-08 22:33:30.299053' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libutil-2.21.so'>
-            <FileName>/usr/lib64/libutil-2.21.so</FileName>
+            <Name>/usr/lib64/libutil-2.21.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libutil-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.166574' CloseTime='2018-05-08 22:33:30.166989' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/_collectionsmodule.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>_collectionsmodule</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.234717' CloseTime='2018-05-08 22:33:30.235110' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.235305' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/_functoolsmodule.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>_functoolsmodule</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.259423' CloseTime='2018-05-08 22:33:30.259754' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.259885' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/_heapq.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/_heapq.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/_heapq.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>_heapq</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.242599' CloseTime='2018-05-08 22:33:30.243006' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.243143' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/_localemodule.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/_localemodule.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/_localemodule.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>_localemodule</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.189673' CloseTime='2018-05-08 22:33:30.190044' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.190211' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/datetime.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/datetime.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/datetime.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>datetime</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.223605' CloseTime='2018-05-08 22:33:30.224027' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.224311' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/itertoolsmodule.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>itertoolsmodule</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.240734' CloseTime='2018-05-08 22:33:30.241122' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.241558' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/math.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/math.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/math.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>math</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.227978' CloseTime='2018-05-08 22:33:30.228374' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.228537' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/operator.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/operator.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/operator.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>operator</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.236375' CloseTime='2018-05-08 22:33:30.236770' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.237066' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/lib-dynload/timemodule.so'>
-            <FileName>/usr/lib64/python2.7/lib-dynload/timemodule.so</FileName>
+            <Name>/usr/lib64/python2.7/lib-dynload/timemodule.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>timemodule</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.247400' CloseTime='2018-05-08 22:33:30.247787' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.248440' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/python2.7/site-packages/cx_Oracle.so'>
-            <FileName>/usr/lib64/python2.7/site-packages/cx_Oracle.so</FileName>
+            <Name>/usr/lib64/python2.7/site-packages/cx_Oracle.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>cx_Oracle</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.221828' CloseTime='2018-05-08 22:33:30.222270' NumReads='1' BytesRead='832' />
                 <Access Process='12345' CloseTime='2018-05-08 22:33:30.261832' />
@@ -1403,15 +1731,19 @@
     </FilesCategory>
     <FilesCategory category='System config files'>
         <CIM_DataFile Name='/etc/host.conf'>
-            <FileName>/etc/host.conf</FileName>
+            <Name>/etc/host.conf</Name>
             <Category>System config files</Category>
+            <Extension>conf</Extension>
+            <FileName>host</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.295683' CloseTime='2018-05-08 22:33:30.296012' NumReads='2' BytesRead='9' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/hosts'>
-            <FileName>/etc/hosts</FileName>
+            <Name>/etc/hosts</Name>
             <Category>System config files</Category>
+            <Extension>hosts</Extension>
+            <FileName>hosts</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.296586' CloseTime='2018-05-08 22:33:30.296903' NumReads='2' BytesRead='158' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.361468' CloseTime='2018-05-08 22:33:30.361717' NumReads='2' BytesRead='158' />
@@ -1419,8 +1751,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.cache'>
-            <FileName>/etc/ld.so.cache</FileName>
+            <Name>/etc/ld.so.cache</Name>
             <Category>System config files</Category>
+            <Extension>cache</Extension>
+            <FileName>ld</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.164758' CloseTime='2018-05-08 22:33:30.164996' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.261892' CloseTime='2018-05-08 22:33:30.262014' />
@@ -1430,15 +1764,19 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/nsswitch.conf'>
-            <FileName>/etc/nsswitch.conf</FileName>
+            <Name>/etc/nsswitch.conf</Name>
             <Category>System config files</Category>
+            <Extension>conf</Extension>
+            <FileName>nsswitch</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.275905' CloseTime='2018-05-08 22:33:30.276175' NumReads='2' BytesRead='1769' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/passwd'>
-            <FileName>/etc/passwd</FileName>
+            <Name>/etc/passwd</Name>
             <Category>System config files</Category>
+            <Extension>passwd</Extension>
+            <FileName>passwd</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.276917' CloseTime='2018-05-08 22:33:30.277113' NumReads='1' BytesRead='3044' />
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.277261' CloseTime='2018-05-08 22:33:30.277449' NumReads='1' BytesRead='3044' />
@@ -1449,15 +1787,19 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/resolv.conf'>
-            <FileName>/etc/resolv.conf</FileName>
+            <Name>/etc/resolv.conf</Name>
             <Category>System config files</Category>
+            <Extension>conf</Extension>
+            <FileName>resolv</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.296153' CloseTime='2018-05-08 22:33:30.296449' NumReads='2' BytesRead='80' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/zoneinfo/Europe/London'>
-            <FileName>/usr/share/zoneinfo/Europe/London</FileName>
+            <Name>/usr/share/zoneinfo/Europe/London</Name>
             <Category>System config files</Category>
+            <Extension>London</Extension>
+            <FileName>London</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 22:33:30.247965' CloseTime='2018-05-08 22:33:30.248286' NumReads='2' BytesRead='6034' />
             </FileAccesses>
@@ -1465,8 +1807,10 @@
     </FilesCategory>
     <FilesCategory category='System executables'>
         <CIM_DataFile Name='/usr/bin/python'>
-            <FileName>/usr/bin/python</FileName>
+            <Name>/usr/bin/python</Name>
             <Category>System executables</Category>
+            <Extension>python</Extension>
+            <FileName>python</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
     </FilesCategory>

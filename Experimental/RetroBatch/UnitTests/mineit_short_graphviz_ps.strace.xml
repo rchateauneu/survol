@@ -23,8 +23,10 @@
     </CIM_Process>
     <FilesCategory category='Kernel file systems'>
         <CIM_DataFile Name='/proc/meminfo'>
-            <FileName>/proc/meminfo</FileName>
+            <Name>/proc/meminfo</Name>
             <Category>Kernel file systems</Category>
+            <Extension>meminfo</Extension>
+            <FileName>meminfo</FileName>
             <FileAccesses>
                 <Access Process='18319' OpenTime='2018-05-08 08:08:42.506043' CloseTime='2018-05-08 08:08:42.506358' NumReads='1' BytesRead='1024' />
             </FileAccesses>
@@ -32,8 +34,10 @@
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log'>
-            <FileName>/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log</FileName>
+            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/mineit_graphviz_ps.log</Name>
             <Category>Others</Category>
+            <Extension>log</Extension>
+            <FileName>mineit_graphviz_ps</FileName>
             <FileAccesses>
                 <Access Process='18319' NumWrites='7' BytesWritten='185' />
             </FileAccesses>
@@ -41,15 +45,19 @@
     </FilesCategory>
     <FilesCategory category='Temporary files'>
         <CIM_DataFile Name='/tmp/Dot2Svg.26787.svg'>
-            <FileName>/tmp/Dot2Svg.26787.svg</FileName>
+            <Name>/tmp/Dot2Svg.26787.svg</Name>
             <Category>Temporary files</Category>
+            <Extension>svg</Extension>
+            <FileName>Dot2Svg</FileName>
             <FileAccesses>
                 <Access Process='18319' OpenTime='2018-05-08 08:08:42.520081' CloseTime='2018-05-08 08:08:42.569377' NumWrites='9' BytesWritten='35616' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/tmp/Grph2Dot.26787.dot'>
-            <FileName>/tmp/Grph2Dot.26787.dot</FileName>
+            <Name>/tmp/Grph2Dot.26787.dot</Name>
             <Category>Temporary files</Category>
+            <Extension>dot</Extension>
+            <FileName>Grph2Dot</FileName>
             <FileAccesses>
                 <Access Process='18319' CloseTime='2018-05-08 08:08:42.569234' NumReads='1' />
             </FileAccesses>

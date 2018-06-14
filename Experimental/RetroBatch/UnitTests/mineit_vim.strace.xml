@@ -124,29 +124,37 @@
     </CIM_Process>
     <FilesCategory category='Other libraries'>
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
-            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Name>/usr/lib/locale/locale-archive</Name>
             <Category>Other libraries</Category>
+            <Extension>locale-archive</Extension>
+            <FileName>locale-archive</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.956712' CloseTime='2018-05-08 08:43:14.956898' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/terminfo/x/xterm'>
-            <FileName>/usr/share/terminfo/x/xterm</FileName>
+            <Name>/usr/share/terminfo/x/xterm</Name>
             <Category>Other libraries</Category>
+            <Extension>xterm</Extension>
+            <FileName>xterm</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.960151' CloseTime='2018-05-08 08:43:14.960392' NumReads='2' BytesRead='3429' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/defaults.vim'>
-            <FileName>/usr/share/vim/vim80/defaults.vim</FileName>
+            <Name>/usr/share/vim/vim80/defaults.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>defaults</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.978430' CloseTime='2018-05-08 08:43:14.982890' NumReads='4' BytesRead='4120' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/filetype.vim'>
-            <FileName>/usr/share/vim/vim80/filetype.vim</FileName>
+            <Name>/usr/share/vim/vim80/filetype.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>filetype</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.965704' CloseTime='2018-05-08 08:43:14.976602' NumReads='16' BytesRead='56142' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.977003' CloseTime='2018-05-08 08:43:14.977166' NumReads='1' BytesRead='4096' />
@@ -154,198 +162,252 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/ftplugin.vim'>
-            <FileName>/usr/share/vim/vim80/ftplugin.vim</FileName>
+            <Name>/usr/share/vim/vim80/ftplugin.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>ftplugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.977374' CloseTime='2018-05-08 08:43:14.977661' NumReads='3' BytesRead='971' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.981893' CloseTime='2018-05-08 08:43:14.982061' NumReads='1' BytesRead='971' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/indent.vim'>
-            <FileName>/usr/share/vim/vim80/indent.vim</FileName>
+            <Name>/usr/share/vim/vim80/indent.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>indent</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.982281' CloseTime='2018-05-08 08:43:14.982558' NumReads='3' BytesRead='767' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/pack'>
-            <FileName>/usr/share/vim/vim80/pack</FileName>
+            <Name>/usr/share/vim/vim80/pack</Name>
             <Category>Other libraries</Category>
+            <Extension>pack</Extension>
+            <FileName>pack</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.982998' CloseTime='2018-05-08 08:43:14.983185' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.993221' CloseTime='2018-05-08 08:43:14.993527' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin'>
-            <FileName>/usr/share/vim/vim80/plugin</FileName>
+            <Name>/usr/share/vim/vim80/plugin</Name>
             <Category>Other libraries</Category>
+            <Extension>plugin</Extension>
+            <FileName>plugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.983581' CloseTime='2018-05-08 08:43:14.984124' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.984159' CloseTime='2018-05-08 08:43:14.985105' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/getscriptPlugin.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/getscriptPlugin.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/getscriptPlugin.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>getscriptPlugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.985250' CloseTime='2018-05-08 08:43:14.985543' NumReads='3' BytesRead='1393' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/gzip.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/gzip.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/gzip.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>gzip</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.985727' CloseTime='2018-05-08 08:43:14.986302' NumReads='3' BytesRead='2499' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/logiPat.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/logiPat.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/logiPat.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>logiPat</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.986444' CloseTime='2018-05-08 08:43:14.987083' NumReads='5' BytesRead='10269' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/manpager.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/manpager.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/manpager.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>manpager</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.987224' CloseTime='2018-05-08 08:43:14.987461' NumReads='3' BytesRead='676' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/matchparen.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/matchparen.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/matchparen.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>matchparen</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.987677' CloseTime='2018-05-08 08:43:14.988265' NumReads='4' BytesRead='6746' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/netrwPlugin.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/netrwPlugin.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/netrwPlugin.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>netrwPlugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.988421' CloseTime='2018-05-08 08:43:14.989634' NumReads='5' BytesRead='10440' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/rrhelper.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/rrhelper.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/rrhelper.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>rrhelper</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.989856' CloseTime='2018-05-08 08:43:14.990043' NumReads='1' BytesRead='1414' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/spellfile.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/spellfile.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/spellfile.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>spellfile</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.990229' CloseTime='2018-05-08 08:43:14.990472' NumReads='3' BytesRead='499' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/tarPlugin.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/tarPlugin.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/tarPlugin.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>tarPlugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.990622' CloseTime='2018-05-08 08:43:14.991087' NumReads='3' BytesRead='2271' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/tohtml.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/tohtml.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/tohtml.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>tohtml</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.991278' CloseTime='2018-05-08 08:43:14.991715' NumReads='5' BytesRead='9924' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/vimballPlugin.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/vimballPlugin.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/vimballPlugin.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>vimballPlugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.991907' CloseTime='2018-05-08 08:43:14.992407' NumReads='3' BytesRead='2898' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/plugin/zipPlugin.vim'>
-            <FileName>/usr/share/vim/vim80/plugin/zipPlugin.vim</FileName>
+            <Name>/usr/share/vim/vim80/plugin/zipPlugin.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>zipPlugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.992602' CloseTime='2018-05-08 08:43:14.993116' NumReads='3' BytesRead='2510' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/rgb.txt'>
-            <FileName>/usr/share/vim/vim80/rgb.txt</FileName>
+            <Name>/usr/share/vim/vim80/rgb.txt</Name>
             <Category>Other libraries</Category>
+            <Extension>txt</Extension>
+            <FileName>rgb</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.963197' CloseTime='2018-05-08 08:43:14.964972' NumReads='12' BytesRead='35560' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/scripts.vim'>
-            <FileName>/usr/share/vim/vim80/scripts.vim</FileName>
+            <Name>/usr/share/vim/vim80/scripts.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>scripts</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:15.003395' CloseTime='2018-05-08 08:43:15.005259' NumReads='5' BytesRead='11244' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/syntax/nosyntax.vim'>
-            <FileName>/usr/share/vim/vim80/syntax/nosyntax.vim</FileName>
+            <Name>/usr/share/vim/vim80/syntax/nosyntax.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>nosyntax</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.979243' CloseTime='2018-05-08 08:43:14.979837' NumReads='3' BytesRead='755' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/syntax/syncolor.vim'>
-            <FileName>/usr/share/vim/vim80/syntax/syncolor.vim</FileName>
+            <Name>/usr/share/vim/vim80/syntax/syncolor.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>syncolor</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.962942' CloseTime='2018-05-08 08:43:14.965216' NumReads='3' BytesRead='4093' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.980417' CloseTime='2018-05-08 08:43:14.980863' NumReads='3' BytesRead='4093' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/syntax/synload.vim'>
-            <FileName>/usr/share/vim/vim80/syntax/synload.vim</FileName>
+            <Name>/usr/share/vim/vim80/syntax/synload.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>synload</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.962528' CloseTime='2018-05-08 08:43:14.965456' NumReads='3' BytesRead='1984' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.980061' CloseTime='2018-05-08 08:43:14.981100' NumReads='3' BytesRead='1984' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vim80/syntax/syntax.vim'>
-            <FileName>/usr/share/vim/vim80/syntax/syntax.vim</FileName>
+            <Name>/usr/share/vim/vim80/syntax/syntax.vim</Name>
             <Category>Other libraries</Category>
+            <Extension>vim</Extension>
+            <FileName>syntax</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.962106' CloseTime='2018-05-08 08:43:14.976775' NumReads='3' BytesRead='1228' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.978923' CloseTime='2018-05-08 08:43:14.981217' NumReads='3' BytesRead='1228' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vimfiles/after/ftdetect'>
-            <FileName>/usr/share/vim/vimfiles/after/ftdetect</FileName>
+            <Name>/usr/share/vim/vimfiles/after/ftdetect</Name>
             <Category>Other libraries</Category>
+            <Extension>ftdetect</Extension>
+            <FileName>ftdetect</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.976266' CloseTime='2018-05-08 08:43:14.976400' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vimfiles/after/plugin'>
-            <FileName>/usr/share/vim/vimfiles/after/plugin</FileName>
+            <Name>/usr/share/vim/vimfiles/after/plugin</Name>
             <Category>Other libraries</Category>
+            <Extension>plugin</Extension>
+            <FileName>plugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.993627' CloseTime='2018-05-08 08:43:14.993728' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.993749' CloseTime='2018-05-08 08:43:14.993888' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vimfiles/ftdetect'>
-            <FileName>/usr/share/vim/vimfiles/ftdetect</FileName>
+            <Name>/usr/share/vim/vimfiles/ftdetect</Name>
             <Category>Other libraries</Category>
+            <Extension>ftdetect</Extension>
+            <FileName>ftdetect</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.976075' CloseTime='2018-05-08 08:43:14.976203' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/vim/vimfiles/plugin'>
-            <FileName>/usr/share/vim/vimfiles/plugin</FileName>
+            <Name>/usr/share/vim/vimfiles/plugin</Name>
             <Category>Other libraries</Category>
+            <Extension>plugin</Extension>
+            <FileName>plugin</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.983331' CloseTime='2018-05-08 08:43:14.983440' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.983460' CloseTime='2018-05-08 08:43:14.983551' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/var/lib/sss/mc/passwd'>
-            <FileName>/var/lib/sss/mc/passwd</FileName>
+            <Name>/var/lib/sss/mc/passwd</Name>
             <Category>Other libraries</Category>
+            <Extension>passwd</Extension>
+            <FileName>passwd</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.996714' />
             </FileAccesses>
@@ -353,8 +415,9 @@
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/.viminfo'>
-            <FileName>/home/rchateau/.viminfo</FileName>
+            <Name>/home/rchateau/.viminfo</Name>
             <Category>Others</Category>
+            <Extension>viminfo</Extension>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.994003' CloseTime='2018-05-08 08:43:14.994531' NumReads='7' BytesRead='20628' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.998100' CloseTime='2018-05-08 08:43:14.998303' NumReads='5' BytesRead='20480' />
@@ -362,15 +425,18 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/.viminfo.tmp'>
-            <FileName>/home/rchateau/.viminfo.tmp</FileName>
+            <Name>/home/rchateau/.viminfo.tmp</Name>
             <Category>Others</Category>
+            <Extension>tmp</Extension>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:43.542986' CloseTime='2018-05-08 08:43:43.545028' NumWrites='6' BytesWritten='20569' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch</Name>
             <Category>Others</Category>
+            <Extension>RetroBatch</Extension>
+            <FileName>RetroBatch</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.961181' CloseTime='2018-05-08 08:43:14.961297' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.961937' CloseTime='2018-05-08 08:43:14.962069' />
@@ -406,38 +472,46 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/.titi.swp'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/.titi.swp</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/.titi.swp</Name>
             <Category>Others</Category>
+            <Extension>swp</Extension>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.997150' CloseTime='2018-05-08 08:43:14.997477' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.997548' CloseTime='2018-05-08 08:43:43.646117' NumWrites='10' BytesWritten='40960' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/.titi.swpx'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/.titi.swpx</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/.titi.swpx</Name>
             <Category>Others</Category>
+            <Extension>swpx</Extension>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.997324' CloseTime='2018-05-08 08:43:14.997436' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/4913'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/4913</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/4913</Name>
             <Category>Others</Category>
+            <Extension>4913</Extension>
+            <FileName>4913</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:43.493133' CloseTime='2018-05-08 08:43:43.493608' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/titi'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/titi</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/titi</Name>
             <Category>Others</Category>
+            <Extension>titi</Extension>
+            <FileName>titi</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:32.756253' CloseTime='2018-05-08 08:43:32.758361' NumWrites='1' BytesWritten='45' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:43.493774' CloseTime='2018-05-08 08:43:43.542281' NumWrites='1' BytesWritten='72' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UnknownFileDescr:-1 ENOTDIR (Not a directory)'>
-            <FileName>UnknownFileDescr:-1 ENOTDIR (Not a directory)</FileName>
+            <Name>UnknownFileDescr:-1 ENOTDIR (Not a directory)</Name>
             <Category>Others</Category>
+            <Extension>UnknownFileDescr:-1 ENOTDIR (Not a directory)</Extension>
+            <FileName>UnknownFileDescr:-1 ENOTDIR (Not a directory)</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.984247' />
             </FileAccesses>
@@ -445,24 +519,30 @@
     </FilesCategory>
     <FilesCategory category='Pipes and terminals'>
         <CIM_DataFile Name='/dev/pts/2'>
-            <FileName>/dev/pts/2</FileName>
+            <Name>/dev/pts/2</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>2</Extension>
+            <FileName>2</FileName>
             <FileAccesses>
                 <Access Process='12345' NumReads='86' BytesRead='101' NumWrites='133' BytesWritten='11568' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[2038143]'>
-            <FileName>UNIX:[2038143]</FileName>
+            <Name>UNIX:[2038143]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_UNIX', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <Extension>UNIX:[2038143]</Extension>
+            <FileName>UNIX:[2038143]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 08:43:14.995512' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UNIX:[2038147]'>
-            <FileName>UNIX:[2038147]</FileName>
+            <Name>UNIX:[2038147]</Name>
             <Category>Pipes and terminals</Category>
             <SocketAddress>['sa_family=AF_UNIX', 'sun_path="/var/run/nscd/socket']</SocketAddress>
+            <Extension>UNIX:[2038147]</Extension>
+            <FileName>UNIX:[2038147]</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 08:43:14.995895' />
             </FileAccesses>
@@ -470,85 +550,109 @@
     </FilesCategory>
     <FilesCategory category='Shared libraries'>
         <CIM_DataFile Name='/usr/lib64/libacl.so.1.1.0'>
-            <FileName>/usr/lib64/libacl.so.1.1.0</FileName>
+            <Name>/usr/lib64/libacl.so.1.1.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libacl</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.948280' CloseTime='2018-05-08 08:43:14.948618' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libattr.so.1.1.0'>
-            <FileName>/usr/lib64/libattr.so.1.1.0</FileName>
+            <Name>/usr/lib64/libattr.so.1.1.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libattr</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.952130' CloseTime='2018-05-08 08:43:14.952453' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc-2.25.so'>
-            <FileName>/usr/lib64/libc-2.25.so</FileName>
+            <Name>/usr/lib64/libc-2.25.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libc-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.951259' CloseTime='2018-05-08 08:43:14.951643' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libdl-2.25.so'>
-            <FileName>/usr/lib64/libdl-2.25.so</FileName>
+            <Name>/usr/lib64/libdl-2.25.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libdl-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.949061' CloseTime='2018-05-08 08:43:14.950801' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libgpm.so.2.1.0'>
-            <FileName>/usr/lib64/libgpm.so.2.1.0</FileName>
+            <Name>/usr/lib64/libgpm.so.2.1.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libgpm</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.948664' CloseTime='2018-05-08 08:43:14.949010' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libm-2.25.so'>
-            <FileName>/usr/lib64/libm-2.25.so</FileName>
+            <Name>/usr/lib64/libm-2.25.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libm-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.946303' CloseTime='2018-05-08 08:43:14.946640' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libncurses.so.6.0'>
-            <FileName>/usr/lib64/libncurses.so.6.0</FileName>
+            <Name>/usr/lib64/libncurses.so.6.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libncurses</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.952505' CloseTime='2018-05-08 08:43:14.952790' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libnss_sss.so.2'>
-            <FileName>/usr/lib64/libnss_sss.so.2</FileName>
+            <Name>/usr/lib64/libnss_sss.so.2</Name>
             <Category>Shared libraries</Category>
+            <Extension>2</Extension>
+            <FileName>libnss_sss</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.996315' CloseTime='2018-05-08 08:43:14.996534' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpcre.so.1.2.8'>
-            <FileName>/usr/lib64/libpcre.so.1.2.8</FileName>
+            <Name>/usr/lib64/libpcre.so.1.2.8</Name>
             <Category>Shared libraries</Category>
+            <Extension>8</Extension>
+            <FileName>libpcre</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.951700' CloseTime='2018-05-08 08:43:14.952073' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpthread-2.25.so'>
-            <FileName>/usr/lib64/libpthread-2.25.so</FileName>
+            <Name>/usr/lib64/libpthread-2.25.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libpthread-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.950868' CloseTime='2018-05-08 08:43:14.951208' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libselinux.so.1'>
-            <FileName>/usr/lib64/libselinux.so.1</FileName>
+            <Name>/usr/lib64/libselinux.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libselinux</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.946690' CloseTime='2018-05-08 08:43:14.947115' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libtinfo.so.6.0'>
-            <FileName>/usr/lib64/libtinfo.so.6.0</FileName>
+            <Name>/usr/lib64/libtinfo.so.6.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libtinfo</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.947170' CloseTime='2018-05-08 08:43:14.948222' NumReads='1' BytesRead='832' />
             </FileAccesses>
@@ -556,30 +660,38 @@
     </FilesCategory>
     <FilesCategory category='System config files'>
         <CIM_DataFile Name='/etc/ld.so.cache'>
-            <FileName>/etc/ld.so.cache</FileName>
+            <Name>/etc/ld.so.cache</Name>
             <Category>System config files</Category>
+            <Extension>cache</Extension>
+            <FileName>ld</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.945384' CloseTime='2018-05-08 08:43:14.946236' />
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.996210' CloseTime='2018-05-08 08:43:14.996289' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/nsswitch.conf'>
-            <FileName>/etc/nsswitch.conf</FileName>
+            <Name>/etc/nsswitch.conf</Name>
             <Category>System config files</Category>
+            <Extension>conf</Extension>
+            <FileName>nsswitch</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.996039' CloseTime='2018-05-08 08:43:14.996173' NumReads='2' BytesRead='1731' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/vimrc'>
-            <FileName>/etc/vimrc</FileName>
+            <Name>/etc/vimrc</Name>
             <Category>System config files</Category>
+            <Extension>vimrc</Extension>
+            <FileName>vimrc</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.961347' CloseTime='2018-05-08 08:43:14.977859' NumReads='3' BytesRead='1982' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/locale/locale.alias'>
-            <FileName>/usr/share/locale/locale.alias</FileName>
+            <Name>/usr/share/locale/locale.alias</Name>
             <Category>System config files</Category>
+            <Extension>alias</Extension>
+            <FileName>locale</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 08:43:14.957695' CloseTime='2018-05-08 08:43:14.958005' NumReads='2' BytesRead='2997' />
             </FileAccesses>
@@ -587,8 +699,10 @@
     </FilesCategory>
     <FilesCategory category='System executables'>
         <CIM_DataFile Name='/usr/bin/vim'>
-            <FileName>/usr/bin/vim</FileName>
+            <Name>/usr/bin/vim</Name>
             <Category>System executables</Category>
+            <Extension>vim</Extension>
+            <FileName>vim</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
     </FilesCategory>

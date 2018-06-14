@@ -58,7 +58,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -i,--input <file name>        trace command input file.")
     print("  -l,--log <filename prefix>    trace command log output file.\n")
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
-    print("  -S,--server <Url>             Survol url for sending CIM objects updates")
+    print("  -S,--server <Url>             Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py")
     print("")
 
 
@@ -410,7 +410,7 @@ class FileAccess:
 
             if G_SameMachine:
                 try:
-                    filStat = os.stat( self.m_objectCIM_DataFile.FileName )
+                    filStat = os.stat( self.m_objectCIM_DataFile.Name )
                     self.OpenSize = filStat.st_size
                 except:
                     pass
@@ -427,7 +427,7 @@ class FileAccess:
 
             if G_SameMachine:
                 try:
-                    filStat = os.stat( self.m_objectCIM_DataFile.FileName )
+                    filStat = os.stat( self.m_objectCIM_DataFile.Name )
                     self.CloseSize = filStat.st_size
                 except:
                     pass
@@ -494,7 +494,7 @@ class FileAccess:
                 strm.write(" Process='%s'" % ( self.m_objectCIM_Process.Handle ) )
         else:
             if self.m_objectCIM_DataFile:
-                strm.write(" File='%s'" % ( self.m_objectCIM_DataFile.FileName ) )
+                strm.write(" File='%s'" % ( self.m_objectCIM_DataFile.Name ) )
 
         if self.OpenTime:
             strm.write(" OpenTime='%s'" % TimeStampToStr( self.OpenTime ) )
@@ -562,7 +562,7 @@ class FileAccess:
 # It must be a plain Web server to be hosted by Apache or IIS.
 G_UpdateServer = None
 
-# This is the base class of all CIM8xxx classes. It does the serialization
+# This is the base class of all CIM_xxx classes. It does the serialization
 # into XML and also sends updates events to the Survol server if there is one.
 class CIM_XmlMarshaller:
     def __init__(self):
@@ -601,47 +601,75 @@ class CIM_XmlMarshaller:
                     # No need to write empty strings.
                     strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
 
+    def SendUpdateToServer(self, attrNam, oldAttrVal, attrVal):
+        # Consider importing lib_event to be sure of the syntax of the urls.
+        # Anyway we are alrady importing lib_sql and more to come.
+        # And so we WILL have the ontology
+        # What is important:
+        # - Simple code.
+        # - No encoding problem.
+		#
+        # sys.path.append("../..")
+        # from survol import lib_event?????
+
+        # Very slow connection if G_UpdateServer="rchateau-hp:8000",
+        # much faster with G_UpdateServer="192.168.0.14:8000"
+        def HttpUpdateRequest(**objJson):
+            req = urllib2.Request(G_UpdateServer)
+            req.add_header('Content-Type', 'application/json')
+
+            # sys.stdout.write("Tm=%f Sending query to %s\n"% ( time.time(), G_UpdateServer) )
+
+            response = urllib2.urlopen(req, json.dumps(objJson))
+
+            # sys.stdout.write("Tm=%f Reading response from %s\n"% ( time.time(), G_UpdateServer) )
+            srvOut = response.read()
+
+            # sys.stdout.write( "Tm=%f Server return:%s\n" % ( time.time(), str(srvOut) ) )
+
+        # TODO: For better performance, consider grouping requests.
+        sys.stdout.write("Update %f %s %s %s\n"%(time.time(), self.__class__.__name__,attrNam,attrVal))
+
+        # These are the properties which uniquely define the object.
+        # There are always sent even if they did not change,
+        # otherwise the object could not be identified.
+        theSubjMoniker = self.GetMonikerSurvol()
+
+        # TODO: If the attribute is part of the ontology, just inform about the object creation.
+
+        # TODO: Some attributes could be the moniker of another object.
+        if oldAttrVal and isinstance( oldAttrVal, CIM_XmlMarshaller):
+            objMonikerOld = oldAttrVal.GetMonikerSurvol()
+            attrNamDelete = attrNam + "?predicate_delete"
+            HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMonikerOld )
+
+
+        # For example a file being opened by a process, or a process started by a user etc...
+        if isinstance( attrVal, CIM_XmlMarshaller):
+            objMoniker = attrVal.GetMonikerSurvol()
+            HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMoniker)
+        else:
+            HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=attrVal)
+
     # Any object change is broadcast to a Survol server.
     def __setattr__(self, attrNam, attrVal):
-        if G_UpdateServer:
-            if IsCIM(attrNam,attrVal):
-                # TOFO: For better performance, consider grouping requests.
-                sys.stdout.write("Update %s %s\n"%(attrNam,attrVal))
-
-                clsNam = self.__class__.__name__
-                payloadHttp = { "class" : clsNam}
-
-                # These are the properties which uniquely define the object.
-                for ontoAttrNam in self.__class__.m_Ontology:
-                    payloadHttp[ontoAttrNam] = getattr(self, ontoAttrNam)
-
-                # The updated attribute.
-                payloadHttp[attrNam] = attrVal
-
-                # G_UpdateServer = 'http://www.python.org/'
-                srvUpd = urllib2.urlopen(G_UpdateServer)
-
-                req = urllib2.Request(G_UpdateServer, payloadHttp)
-                req.add_header('Content-type','application/json')
-                req.add_header("Accept", "application/json")
-                res = urllib2.urlopen(req)
-                output = res.read()
-                print( output )
-                print( res.code )
-
-                #Envoyer toutes les donnees ?
-                #Sinon, il faut connaitre la clef et donc l ontologie.
-                #On peut remplacer CreateMoniker si on a la clef,
-                #et on met un peu d ontologie.
-                #Quitte q terme a reutiliser ces classes.
-
+        # First, change the value, because it might be needed to calculate the moniker.
 
         # Python2
         # super(object, self).__setattr__(name, value)
-        self.__dict__[attrNam] = attrVal
+        try:
+            oldAttrVal = self.__dict__[attrNam]
+        except:
+            oldAttrVal = None
 
+        self.__dict__[attrNam] = attrVal
         # Python3
         # super().__setattr__(name, value)
+
+        if G_UpdateServer:
+            if oldAttrVal != attrVal:
+                if IsCIM(attrNam,attrVal):
+                    self.SendUpdateToServer(attrNam, oldAttrVal, attrVal)
 
     @classmethod
     def DisplaySummary(theClass,fdSummaryFile,cimKeyValuePairs):
@@ -658,11 +686,24 @@ class CIM_XmlMarshaller:
             fdSummaryFile.write("%s</%s>\n" % ( margin, namClass ) )
 
     @classmethod
-    def CreateMoniker(theClass,*args):
-        #sys.stdout.write("CreateMoniker2 %s %s %s\n"%(theClass.__name__,str(theClass.m_Ontology),str(args)))
+    def CreateMonikerKey(theClass,*args):
+        # The input arguments must be in the same order as the ontology.
+        #sys.stdout.write("CreateMonikerKey %s %s %s\n"%(theClass.__name__,str(theClass.m_Ontology),str(args)))
         mnk = theClass.__name__ + "." + ",".join( '%s="%s"' % (k,v) for k,v in zip(theClass.m_Ontology,args) )
-        #sys.stdout.write("CreateMoniker2 mnk=%s\n"%mnk)
+        #sys.stdout.write("CreateMonikerKey mnk=%s\n"%mnk)
         return mnk
+
+    # JSON escapes special characters in strings.
+    def GetMonikerSurvol(self):
+        dictMonik = { "entity_type": self.__class__.__name__}
+        for k in self.m_Ontology:
+            dictMonik[k] = getattr(self,k)
+        return dictMonik
+
+    def __repr__(self):
+        mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.m_Ontology )
+        return "'%s'" % mnk
+
 
 ################################################################################
 
@@ -911,9 +952,8 @@ class CIM_Process (CIM_XmlMarshaller,object):
             # This is the first process.
             pass
 
-
-    def __repr__(self):
-        return "'%s'" % self.CreateMoniker(self.Handle)
+    #def __repr__(self):
+    #    return "'%s'" % self.GetMoniker()
 
     m_Ontology = ['Handle']
 
@@ -1030,7 +1070,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
 
     def SetExecutable(self,objCIM_DataFile) :
         assert( isinstance(objCIM_DataFile, CIM_DataFile) )
-        self.Executable = objCIM_DataFile.FileName
+        self.Executable = objCIM_DataFile.Name
         self.m_ExecutableObject = objCIM_DataFile
 
     def SetCommandLine(self,lstCmdLine) :
@@ -1072,7 +1112,7 @@ class CIM_Process (CIM_XmlMarshaller,object):
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
     def SetProcessCurrentDir(self,currDirObject):
-        self.CurrentDirectory = currDirObject.FileName
+        self.CurrentDirectory = currDirObject.Name
 
     def GetProcessCurrentDir(self):
         try:
@@ -1135,7 +1175,18 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
     def __init__(self,pathName):
         super( CIM_DataFile,self).__init__()
 
-        self.FileName = pathName
+        # https://msdn.microsoft.com/en-us/library/aa387236(v=vs.85).aspx
+        # The Name property is a string representing the inherited name
+        # that serves as a key of a logical file instance within a file system.
+        # Full path names should be provided.
+        self.Name = pathName
+        # File name without the file name extension. Example: "MyDataFile"
+        try:
+            basNa = os.path.basename(pathName)
+            # There might be several dots, or none.
+            self.FileName = basNa.split(".")[0]
+        except:
+            pass
         self.Category = PathCategory(pathName)
 
         self.m_DataFileFileAccesses = []
@@ -1180,9 +1231,8 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
             if mtchSock:
                 self.SetAddrPort( mtchSock.group(1) )
 
-
-    def __repr__(self):
-        return "'%s'" % self.CreateMoniker(self.FileName)
+    #def __repr__(self):
+    #    return "'%s'" % self.GetMoniker()
 
     m_Ontology = ['Name']
 
@@ -1223,11 +1273,11 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
                 objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
-    m_AttrsPriorities = ["FileName","Category","SocketAddress"]
+    m_AttrsPriorities = ["Name","Category","SocketAddress"]
 
     def XMLDisplay(self,strm):
         margin = "        "
-        strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.FileName) )
+        strm.write("%s<CIM_DataFile Name='%s'>\n" % ( margin, self.Name) )
         
         subMargin = margin + "    "
 
@@ -1271,7 +1321,7 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
                 return
         except AttributeError:
             pass
-        strm.write("Path:%s\n" % self.FileName )
+        strm.write("Path:%s\n" % self.Name )
 
         for filAcc in self.m_DataFileFileAccesses:
 
@@ -1335,9 +1385,9 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
     m_nonFilePrefixes = ["UNIX:","TCP:","TCPv6:","NETLINK:","pipe:","UDP:","UDPv6:",]
 
     def IsPlainFile(self):
-        if self.FileName:
+        if self.Name:
             for pfx in CIM_DataFile.m_nonFilePrefixes:
-                if self.FileName.startswith(pfx):
+                if self.Name.startswith(pfx):
                     return False
             return True
         return False
@@ -1364,7 +1414,7 @@ def CreateObjectPath(classModel, *ctorArgs):
         mapObjs = {}
         G_mapCacheObjects[classModel.__name__] = mapObjs
 
-    objPath = classModel.CreateMoniker(*ctorArgs)
+    objPath = classModel.CreateMonikerKey(*ctorArgs)
     try:
         theObj = mapObjs[objPath]
     except KeyError:
@@ -1615,9 +1665,9 @@ def FilesToPythonModules(unpackagedDataFiles):
     unknownDataFiles = []
 
     for oneFilObj in unpackagedDataFiles:
-        lstModules = PathToPythonModuleOneFile(oneFilObj.FileName)
+        lstModules = PathToPythonModuleOneFile(oneFilObj.Name)
         # TODO: Maybe just take one module ?
-        # sys.stdout.write("path=%s mods=%s\n"%(oneFilObj.FileName, str(list(lstModules))))
+        # sys.stdout.write("path=%s mods=%s\n"%(oneFilObj.Name, str(list(lstModules))))
         addedOne = False
         for oneMod in lstModules:
             setPythonModules.add( oneMod )
@@ -1702,7 +1752,7 @@ class FileToPackage:
         return False
 
     def OneFileToPackageLinux(self,oneFilObj):
-        oneFilNam = oneFilObj.FileName
+        oneFilNam = oneFilObj.Name
 
         # Very common case of a file which is only local.
         if FileToPackage.CannotBePackaged(oneFilNam):
@@ -1867,13 +1917,13 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
 
         @staticmethod
         def IsCode(objDataFile):
-            return objDataFile.FileName.endswith(".py") or objDataFile.FileName.endswith(".pyc")
+            return objDataFile.Name.endswith(".py") or objDataFile.Name.endswith(".pyc")
 
         def GenerateDockerDependencies(self,fdDockerFile):
             packagesToInstall = set()
 
             for objDataFile in self.m_accessedCodeFiles:
-                filNam = objDataFile.FileName
+                filNam = objDataFile.Name
                 if filNam.find("packages") >= 0:
                     # Now this trucates the file name to extract the Python package name.
                     # filNam = '/usr/lib64/python2.7/site-packages/MySQLdb/constants/CLIENT.pyc'
@@ -1925,11 +1975,11 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
 
         @staticmethod
         def IsCode(objDataFile):
-            return objDataFile.FileName.endswith(".pl")
+            return objDataFile.Name.endswith(".pl")
 
         def GenerateDockerDependencies(self,fdDockerFile):
             for objDataFile in self.m_accessedCodeFiles:
-                filNam = objDataFile.FileName
+                filNam = objDataFile.Name
                 fdDockerFile.write("RUN cpanm %s\n"%filNam)
             pass
 
@@ -1947,7 +1997,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
 
         @staticmethod
         def IsCode(objDataFile):
-            return objDataFile.FileName.find(".so") > 0
+            return objDataFile.Name.find(".so") > 0
 
         @staticmethod
         # This detects the libraries which are always in the path.
@@ -1976,9 +2026,9 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             fdDockerFile.write("\n")
 
             fdDockerFile.write("# Non-packaged executable files copies:\n")
-            sortAccessedCodeFiles = sorted( unpackagedAccessedCodeFiles, key=lambda x: x.FileName )
+            sortAccessedCodeFiles = sorted( unpackagedAccessedCodeFiles, key=lambda x: x.Name )
             for objDataFile in sortAccessedCodeFiles:
-                filNam = objDataFile.FileName
+                filNam = objDataFile.Name
                 AddToDockerDir(filNam)
 
 
@@ -2064,14 +2114,14 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         fdDockerFile.write("# Data files:\n")
         # Sorted by alphabetical order.
         # It would be better to sort it after filtering.
-        sortedDatFils = sorted(unknownDataFiles, key=lambda x: x.FileName )
+        sortedDatFils = sorted(unknownDataFiles, key=lambda x: x.Name )
         for datFil in sortedDatFils:
             # DO NOT ADD DIRECTORIES.
     
             if datFil.Category in categoriesNotInclude:
                 continue
             
-            filNam = datFil.FileName
+            filNam = datFil.Name
             if filNam.startswith("/usr/include/"):
                 continue
             if filNam.startswith("/usr/bin/"):
@@ -2113,13 +2163,13 @@ def GenerateDockerFile(dockerFilename):
                 commandLine = "????"
             fdDockerFile.write("# %s -> %s : %s %s\n" % ( TimeStampToStr(objProc.CreationDate), TimeStampToStr(objProc.TerminationDate), "    "*depth , commandLine ) )
             
-            for subProc in sorted( objProc.m_subProcesses, key=lambda x: x.CreationDate ):
+            for subProc in sorted( objProc.m_subProcesses, key=lambda x: x.Handle ):
                 WriteOneProcessSubTree(subProc,depth+1)
 
         fdDockerFile.write("# Processes tree\n" )
 
         procsTopLevel = CIM_Process.GetTopProcesses()
-        for oneProc in sorted(procsTopLevel, key=lambda x: x.CreationDate):
+        for oneProc in sorted(procsTopLevel, key=lambda x: x.Handle):
             WriteOneProcessSubTree( oneProc, 1 )
         fdDockerFile.write("\n" )
 
