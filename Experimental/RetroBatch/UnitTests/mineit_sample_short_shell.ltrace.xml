@@ -30,15 +30,19 @@
     </CIM_Process>
     <FilesCategory category='Other libraries'>
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
-            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Name>/usr/lib/locale/locale-archive</Name>
             <Category>Other libraries</Category>
+            <Extension>locale-archive</Extension>
+            <FileName>locale-archive</FileName>
             <FileAccesses>
                 <Access Process='18319' OpenTime='2018-05-08 09:00:22.612789' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/gconv/gconv-modules.cache'>
-            <FileName>/usr/lib64/gconv/gconv-modules.cache</FileName>
+            <Name>/usr/lib64/gconv/gconv-modules.cache</Name>
             <Category>Other libraries</Category>
+            <Extension>cache</Extension>
+            <FileName>gconv-modules</FileName>
             <FileAccesses>
                 <Access Process='18319' OpenTime='2018-05-08 09:00:23.024656' CloseTime='2018-05-08 09:00:23.028724' />
             </FileAccesses>
@@ -46,40 +50,52 @@
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch</Name>
             <Category>Others</Category>
+            <Extension>RetroBatch</Extension>
+            <FileName>RetroBatch</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='UnknownFileDescr:255'>
-            <FileName>UnknownFileDescr:255</FileName>
+            <Name>UnknownFileDescr:255</Name>
             <Category>Others</Category>
+            <Extension>UnknownFileDescr:255</Extension>
+            <FileName>UnknownFileDescr:255</FileName>
             <FileAccesses>
                 <Access Process='18319' CloseTime='2018-05-08 09:00:22.600192' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='UnknownFileDescr:3'>
-            <FileName>UnknownFileDescr:3</FileName>
+            <Name>UnknownFileDescr:3</Name>
             <Category>Others</Category>
+            <Extension>UnknownFileDescr:3</Extension>
+            <FileName>UnknownFileDescr:3</FileName>
             <FileAccesses>
                 <Access Process='18319' CloseTime='2018-05-08 09:00:22.600810' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='stderr'>
-            <FileName>stderr</FileName>
+            <Name>stderr</Name>
             <Category>Others</Category>
+            <Extension>stderr</Extension>
+            <FileName>stderr</FileName>
             <FileAccesses>
                 <Access Process='18319' CloseTime='2018-05-08 09:00:23.631510' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='stdin'>
-            <FileName>stdin</FileName>
+            <Name>stdin</Name>
             <Category>Others</Category>
+            <Extension>stdin</Extension>
+            <FileName>stdin</FileName>
             <FileAccesses>
                 <Access Process='18319' NumReads='7' BytesRead='20757' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='stdout'>
-            <FileName>stdout</FileName>
+            <Name>stdout</Name>
             <Category>Others</Category>
+            <Extension>stdout</Extension>
+            <FileName>stdout</FileName>
             <FileAccesses>
                 <Access Process='18319' CloseTime='2018-05-08 09:00:23.631414' />
             </FileAccesses>
@@ -87,8 +103,10 @@
     </FilesCategory>
     <FilesCategory category='Shared libraries'>
         <CIM_DataFile Name='/lib64/libc.so.6'>
-            <FileName>/lib64/libc.so.6</FileName>
+            <Name>/lib64/libc.so.6</Name>
             <Category>Shared libraries</Category>
+            <Extension>6</Extension>
+            <FileName>libc</FileName>
             <FileAccesses>
                 <Access Process='18319' OpenTime='2018-05-08 09:00:22.607375' CloseTime='2018-05-08 09:00:22.608705' NumReads='1' BytesRead='832' />
                 <Access Process='18319' CloseTime='2018-05-08 09:00:22.614212' />
@@ -97,19 +115,25 @@
     </FilesCategory>
     <FilesCategory category='System config files'>
         <CIM_DataFile Name='/etc/ld.so.cache'>
-            <FileName>/etc/ld.so.cache</FileName>
+            <Name>/etc/ld.so.cache</Name>
             <Category>System config files</Category>
+            <Extension>cache</Extension>
+            <FileName>ld</FileName>
             <FileAccesses>
                 <Access Process='18319' OpenTime='2018-05-08 09:00:22.606343' CloseTime='2018-05-08 09:00:22.606924' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/etc/ld.so.preload'>
-            <FileName>/etc/ld.so.preload</FileName>
+            <Name>/etc/ld.so.preload</Name>
             <Category>System config files</Category>
+            <Extension>preload</Extension>
+            <FileName>ld</FileName>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/share/locale/locale.alias'>
-            <FileName>/usr/share/locale/locale.alias</FileName>
+            <Name>/usr/share/locale/locale.alias</Name>
             <Category>System config files</Category>
+            <Extension>alias</Extension>
+            <FileName>locale</FileName>
             <FileAccesses>
                 <Access Process='18319' OpenTime='2018-05-08 09:00:22.614793' CloseTime='2018-05-08 09:00:22.617677' NumReads='2' BytesRead='2997' />
             </FileAccesses>
@@ -117,8 +141,10 @@
     </FilesCategory>
     <FilesCategory category='System executables'>
         <CIM_DataFile Name='/usr/bin/wc'>
-            <FileName>/usr/bin/wc</FileName>
+            <Name>/usr/bin/wc</Name>
             <Category>System executables</Category>
+            <Extension>wc</Extension>
+            <FileName>wc</FileName>
         </CIM_DataFile>
     </FilesCategory>
 </Dockit>

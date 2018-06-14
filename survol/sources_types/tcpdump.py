@@ -16,6 +16,9 @@ from lib_properties import pc
 
 import lib_webserv
 
+# NOT ANY MORE: It will now create events, and must be in addr
+# ou bien avec les interfaces.
+
 Usable = lib_util.UsableAsynchronousSource
 
 # TODO: Uses classes instead of functions.

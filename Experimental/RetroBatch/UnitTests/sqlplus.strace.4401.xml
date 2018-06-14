@@ -33,29 +33,37 @@
     </CIM_Process>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/rdbms/mesg/ocius.msb</Name>
             <Category>Others</Category>
+            <Extension>msb</Extension>
+            <FileName>ocius</FileName>
             <FileAccesses>
                 <Access Process='4401' CloseTime='2018-05-20 02:08:54.954856' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/cpyus.msb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/cpyus.msb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/cpyus.msb</Name>
             <Category>Others</Category>
+            <Extension>msb</Extension>
+            <FileName>cpyus</FileName>
             <FileAccesses>
                 <Access Process='4401' CloseTime='2018-05-20 02:08:54.954947' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp1us.msb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp1us.msb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp1us.msb</Name>
             <Category>Others</Category>
+            <Extension>msb</Extension>
+            <FileName>sp1us</FileName>
             <FileAccesses>
                 <Access Process='4401' CloseTime='2018-05-20 02:08:54.955001' NumReads='7' BytesRead='3584' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp2us.msb'>
-            <FileName>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp2us.msb</FileName>
+            <Name>/u01/app/oracle/product/11.2.0/xe/sqlplus/mesg/sp2us.msb</Name>
             <Category>Others</Category>
+            <Extension>msb</Extension>
+            <FileName>sp2us</FileName>
             <FileAccesses>
                 <Access Process='4401' CloseTime='2018-05-20 02:08:54.955039' NumReads='3' BytesRead='1536' />
             </FileAccesses>
@@ -63,15 +71,19 @@
     </FilesCategory>
     <FilesCategory category='Pipes and terminals'>
         <CIM_DataFile Name='/dev/pts/2'>
-            <FileName>/dev/pts/2</FileName>
+            <Name>/dev/pts/2</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>2</Extension>
+            <FileName>2</FileName>
             <FileAccesses>
                 <Access Process='4401' NumReads='30' BytesRead='1010' NumWrites='22490' BytesWritten='1168980' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='pipe:[1173642]'>
-            <FileName>pipe:[1173642]</FileName>
+            <Name>pipe:[1173642]</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>pipe:[1173642]</Extension>
+            <FileName>pipe:[1173642]</FileName>
             <FileAccesses>
                 <Access Process='4401' CloseTime='2018-05-20 02:08:54.954567' NumWrites='52' BytesWritten='5379' >
                     <SqlQuery_List direction='Write'>
@@ -84,8 +96,10 @@
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='pipe:[1173643]'>
-            <FileName>pipe:[1173643]</FileName>
+            <Name>pipe:[1173643]</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>pipe:[1173643]</Extension>
+            <FileName>pipe:[1173643]</FileName>
             <FileAccesses>
                 <Access Process='4401' CloseTime='2018-05-20 02:08:54.954608' NumReads='51' BytesRead='27608' />
             </FileAccesses>

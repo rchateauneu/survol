@@ -35,8 +35,10 @@
     </CIM_Process>
     <FilesCategory category='Other libraries'>
         <CIM_DataFile Name='/usr/lib/locale/locale-archive'>
-            <FileName>/usr/lib/locale/locale-archive</FileName>
+            <Name>/usr/lib/locale/locale-archive</Name>
             <Category>Other libraries</Category>
+            <Extension>locale-archive</Extension>
+            <FileName>locale-archive</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.662039' CloseTime='2018-05-08 23:41:19.662159' />
             </FileAccesses>
@@ -44,22 +46,28 @@
     </FilesCategory>
     <FilesCategory category='Others'>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/mineit_copy_bigfile.log'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/mineit_copy_bigfile.log</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/mineit_copy_bigfile.log</Name>
             <Category>Others</Category>
+            <Extension>log</Extension>
+            <FileName>mineit_copy_bigfile</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 23:41:19.666897' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/mineit_find_grep.log</Name>
             <Category>Others</Category>
+            <Extension>log</Extension>
+            <FileName>mineit_find_grep</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.662277' CloseTime='2018-05-08 23:41:19.666682' NumReads='18' BytesRead='2149823' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/home/rchateau/survol/Experimental/RetroBatch/tutu'>
-            <FileName>/home/rchateau/survol/Experimental/RetroBatch/tutu</FileName>
+            <Name>/home/rchateau/survol/Experimental/RetroBatch/tutu</Name>
             <Category>Others</Category>
+            <Extension>tutu</Extension>
+            <FileName>tutu</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.662336' CloseTime='2018-05-08 23:41:19.666287' NumWrites='17' BytesWritten='2149823' />
             </FileAccesses>
@@ -67,8 +75,10 @@
     </FilesCategory>
     <FilesCategory category='Pipes and terminals'>
         <CIM_DataFile Name='/dev/pts/2'>
-            <FileName>/dev/pts/2</FileName>
+            <Name>/dev/pts/2</Name>
             <Category>Pipes and terminals</Category>
+            <Extension>2</Extension>
+            <FileName>2</FileName>
             <FileAccesses>
                 <Access Process='12345' CloseTime='2018-05-08 23:41:19.666815' />
                 <Access Process='12345' CloseTime='2018-05-08 23:41:19.666870' />
@@ -77,50 +87,64 @@
     </FilesCategory>
     <FilesCategory category='Shared libraries'>
         <CIM_DataFile Name='/usr/lib64/libacl.so.1.1.0'>
-            <FileName>/usr/lib64/libacl.so.1.1.0</FileName>
+            <Name>/usr/lib64/libacl.so.1.1.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libacl</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.659560' CloseTime='2018-05-08 23:41:19.659776' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libattr.so.1.1.0'>
-            <FileName>/usr/lib64/libattr.so.1.1.0</FileName>
+            <Name>/usr/lib64/libattr.so.1.1.0</Name>
             <Category>Shared libraries</Category>
+            <Extension>0</Extension>
+            <FileName>libattr</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.659810' CloseTime='2018-05-08 23:41:19.660024' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libc-2.25.so'>
-            <FileName>/usr/lib64/libc-2.25.so</FileName>
+            <Name>/usr/lib64/libc-2.25.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libc-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.660057' CloseTime='2018-05-08 23:41:19.660298' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libdl-2.25.so'>
-            <FileName>/usr/lib64/libdl-2.25.so</FileName>
+            <Name>/usr/lib64/libdl-2.25.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libdl-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.660562' CloseTime='2018-05-08 23:41:19.660789' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpcre.so.1.2.8'>
-            <FileName>/usr/lib64/libpcre.so.1.2.8</FileName>
+            <Name>/usr/lib64/libpcre.so.1.2.8</Name>
             <Category>Shared libraries</Category>
+            <Extension>8</Extension>
+            <FileName>libpcre</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.660331' CloseTime='2018-05-08 23:41:19.660530' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libpthread-2.25.so'>
-            <FileName>/usr/lib64/libpthread-2.25.so</FileName>
+            <Name>/usr/lib64/libpthread-2.25.so</Name>
             <Category>Shared libraries</Category>
+            <Extension>so</Extension>
+            <FileName>libpthread-2</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.660841' CloseTime='2018-05-08 23:41:19.661051' NumReads='1' BytesRead='832' />
             </FileAccesses>
         </CIM_DataFile>
         <CIM_DataFile Name='/usr/lib64/libselinux.so.1'>
-            <FileName>/usr/lib64/libselinux.so.1</FileName>
+            <Name>/usr/lib64/libselinux.so.1</Name>
             <Category>Shared libraries</Category>
+            <Extension>1</Extension>
+            <FileName>libselinux</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.659295' CloseTime='2018-05-08 23:41:19.659510' NumReads='1' BytesRead='832' />
             </FileAccesses>
@@ -128,8 +152,10 @@
     </FilesCategory>
     <FilesCategory category='System config files'>
         <CIM_DataFile Name='/etc/ld.so.cache'>
-            <FileName>/etc/ld.so.cache</FileName>
+            <Name>/etc/ld.so.cache</Name>
             <Category>System config files</Category>
+            <Extension>cache</Extension>
+            <FileName>ld</FileName>
             <FileAccesses>
                 <Access Process='12345' OpenTime='2018-05-08 23:41:19.659105' CloseTime='2018-05-08 23:41:19.659271' />
             </FileAccesses>
@@ -137,8 +163,10 @@
     </FilesCategory>
     <FilesCategory category='System executables'>
         <CIM_DataFile Name='/usr/bin/cp'>
-            <FileName>/usr/bin/cp</FileName>
+            <Name>/usr/bin/cp</Name>
             <Category>System executables</Category>
+            <Extension>cp</Extension>
+            <FileName>cp</FileName>
             <IsExecuted>True</IsExecuted>
         </CIM_DataFile>
     </FilesCategory>
