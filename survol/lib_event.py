@@ -29,7 +29,7 @@ def StringToFileName(orgFilNam):
     #sys.stderr.write("StringToFileName orgFilNam=%s\n"%(orgFilNam))
     filNa = orgFilNam
     # replace spaces
-    for r in ' ':
+    for r in '/\\ ':
         filNa = filNa.replace(r,'_')
 
     # keep only valid ascii chars
@@ -120,6 +120,7 @@ def AddEventToObject(theObject,jsonData):
             eventFd = open(eventFilNam,"a")
             # This must be as fast as possible, so event_get is not blocked..
             json.dump(jsonData, eventFd)
+            eventFd.write("\n")
             eventFd.close()
             #sys.stderr.write("AddEventToObject closing file\n")
 

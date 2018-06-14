@@ -4738,9 +4738,10 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
     return outputSummaryFile
 
 # Function called for unit tests by unittest.py
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, withDockerfile):
-
+def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, withDockerfile,updateServer):
+    global G_UpdateServer
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
+    G_UpdateServer = updateServer
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
