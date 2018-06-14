@@ -112,7 +112,7 @@ def InternalUnitTests_SummaryXML_STrace1():
     tmpFilSTrace.write(tstLogFileSTrace)
     tmpFilSTrace.close()
 
-    outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"strace",19351,None,None,False,dockit.fullMapParamsSummary,"XML",False,False)
+    outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"strace",19351,None,None,False,dockit.fullMapParamsSummary,"XML",False,False,None)
 
     procTree = RebuildProcessTree(outputSummaryFile)
 
@@ -172,7 +172,7 @@ def InternalUnitTests_SummaryXML_STrace2():
     tmpFilSTrace.write(tstLogFileSTrace)
     tmpFilSTrace.close()
 
-    outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"strace",22029,None,None,False,dockit.fullMapParamsSummary,"XML",False,False)
+    outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"strace",22029,None,None,False,dockit.fullMapParamsSummary,"XML",False,False,None)
 
     sys.stdout.write("\nRebuilding tree\n")
     procTree = RebuildProcessTree(outputSummaryFile)
@@ -243,7 +243,7 @@ def InternalUnitTests_SummaryXML_LTrace():
     tmpFilSTrace.write(tstLogFileLTrace)
     tmpFilSTrace.close()
 
-    outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"ltrace",21256,None,None,False,dockit.fullMapParamsSummary,"XML",False,False)
+    outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"ltrace",21256,None,None,False,dockit.fullMapParamsSummary,"XML",False,False,None)
 
     sys.stdout.write("\nRebuilding tree\n")
     procTree = RebuildProcessTree(outputSummaryFile)
@@ -368,7 +368,7 @@ def InternalUnitTests_ParseSTraceObject():
 
 
 
-def DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile):
+def DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile,updateServer):
 
     # This iterates on the input test files and generates the "compressed" output.as
     #  After that we can check if the results are as expected.
@@ -429,7 +429,7 @@ def DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile):
             outputFormat = filOutExt[1:].upper()
 
             # In tests, the summary output format is always XML.
-            dockit.UnitTest(inputLogFile,tracer,-1,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning,withDockerfile)
+            dockit.UnitTest(inputLogFile,tracer,-1,outFilNam,outputFormat,verbose,mapParamsSummary,"XML",withWarning,withDockerfile,updateServer)
             # print("          ",inPath,tracer,outFilNam,outputFormat)
 
 
@@ -445,6 +445,7 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -w,--warning                  Display warnings (Cumulative).")
     print("  -s,--summary <CIM class>      With summary.")
     print("  -D,--dockerfile               Generates a dockerfile for each sample.")
+    print("  -S,--server <Url>             Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py")
     print("")
 
     sys.exit(exitCode)
@@ -453,8 +454,8 @@ def Usage(exitCode = 1, errMsg = None):
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvws:Dd",
-                ["help","verbose","warning","summary","docker","differences"])
+                "hvws:DS:d",
+                ["help","verbose","warning","summary","docker","server","differences"])
     except getopt.GetoptError as err:
         # print help information and exit:
         Usage(2,err) # will print something like "option -a not recognized"
@@ -465,6 +466,7 @@ if __name__ == '__main__':
     mapParamsSummary = dockit.fullMapParamsSummary
 
     withDockerfile = None
+    updateServer = None
     diffFiles = False
 
     for anOpt, aVal in optsCmd:
@@ -476,6 +478,8 @@ if __name__ == '__main__':
             mapParamsSummary = mapParamsSummary + [ aVal ] if aVal else []
         elif anOpt in ("-D", "--dockerfile"):
             withDockerfile = True
+        elif anOpt in ("-S", "--server"):
+            updateServer = aVal
         elif anOpt in ("-h", "--help"):
             Usage(0)
         else:
@@ -486,7 +490,7 @@ if __name__ == '__main__':
     InternalUnitTests_SummaryXML()
     print("Internal tests OK.")
 
-    DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile)
+    DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile,updateServer)
     print("Tests done")
 
 
