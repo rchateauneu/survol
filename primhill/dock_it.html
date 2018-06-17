@@ -2,7 +2,7 @@
 <html><head>
   <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
   <title>Consulting</title></head>
-<body><h2>Docker and dockerizing. </h2>Docker is a tool to creates lighweight, portable and self-sufficient containers for
+<body><h2>Docker, dockerizing. </h2>Docker is a tool to creates lighweight, portable and self-sufficient containers for
 applications, allowing them to run on another infrastructure, such as a cloud.<br><br>Dockerizing an application, or an Information System, means converting it into a docker container image, to run
 within a Docker container.<br><br>A docker container image is a stand-alone package of a software 
 including everything needed to run its application: code, runtime, tools, libraries, 
@@ -15,7 +15,7 @@ Company, it will have a long technical history with many different
 technologies involved, undocumented details and complex features.
 Therefore, estimating the cost of its dockerization is really difficult
 because experts of all domains, with much time, would be needed from
-the start.<br><br><h2>DockIT.</h2><br>DockIT &nbsp;is an open source command line tool to help converting legacy applications into docker container images. <br><br><br>
+the start.<br><h2>DockIT.</h2>DockIT &nbsp;is an open source command line tool to help converting legacy applications into docker container images. <br><br>
 From a running process, its executions logs and traces, DockIT generates a 
 Dockerfile, the configuration file containing all the commands 
 Docker need to build its container image.<br>
@@ -50,9 +50,9 @@ programs written in any language, because it only relies on system
 calls. Proprietary libraries without source codeare not an obstacle. <br><br>-
 DockIt can formalise the behaviour of hidden scripts, than cannot be
 detected with static code inspection. Scripts started dynamically from
-a sub-process are inspected with their resources.<br><br><br>When an user is discovering a legacy application, DockIT gives
+a sub-process are inspected with their resources.<br><br>When an user is discovering a legacy application, DockIT gives
 the significant advantage of understanding the overall scenario of its execution. This makes software archeology much simpler.<br>
-<br><br><h2>Scenarios.</h2>DockIT is a command-line tool, which can be used two scenarios:<br>-&nbsp;&nbsp;&nbsp;
+<br><h2>Scenarios.</h2>DockIT is a command-line tool, which can be used two scenarios:<br>-&nbsp;&nbsp;&nbsp;
 Executing a command: It then inspects each and every call to a system
 function, from the started process and any ofs its sub-processes. It
 stops when the comand naturally ends.<br>-&nbsp;&nbsp;&nbsp; Or ot can
@@ -100,7 +100,10 @@ used by several processes. For examples, log files are detected as such.<br>-&nb
 resources are properly identified, some manual adjustments to another
 infrastructure, such as a grid, are possible. For example:<br>-&nbsp;&nbsp;&nbsp; Because log files are identified as such, the right strategy to 
 handle logs can be applied: Inside / &nbsp;outside the container, centralized
- logging system etc&#8230;.<br>-&nbsp;&nbsp;&nbsp; SQL queries are identified, hinting SQL database connections which have to be redirected<br>-&nbsp;&nbsp;&nbsp; File accesses are displaed to a file server<br><br><h2>No competition.</h2><br>There
+ logging system etc&#8230;.<br>-&nbsp;&nbsp;&nbsp; SQL queries are identified, hinting SQL database connections which have to be redirected<br>-&nbsp;&nbsp;&nbsp;
+File accesses are displaced to a file server. Files statistics
+(Accesses vs volume) help choosing the right storage hardware such as
+SSD.<br>-&nbsp;&nbsp;&nbsp; Parallelism is exposed, helping hardware deployment.<br><h2>No competition.</h2>There
 are several tools whose aim is also automatizing the dockerization of
 applications. They all have their pro and cons, addressing the same
 problem with very different technologies: <br> Static code analysis, focusing on some languages etc...
@@ -125,14 +128,7 @@ objects and resources as described by the CIM industrial standard.
 Survol and&nbsp;DockIT are two orthogonal technologies, based on the
 same concepts, to address, understand and running applications in-situ
 and in-vivo. Survol displays snapshots, whereas DockIT traces a
-temporal behaviour on a time scale. <br><br>DockIT, during its execution, can send the history of detected objects.<br><br>==<br>Indexing and keywords: "Software archeology", "Legacy".<br><br><br>&nbsp;DockIT&nbsp; is a utility to recondition legacy applications in docker containers.<br><br>It is able to generate Docker configuration files from running process, executions logs and traces.<br><br>It
-embraces a complete batch or group of processes and generates a
-Dockerfile draft. This Dockerfile can send be refined, to be able to
-deploy&nbsp; this batch to a cloud infrstructure.<br><br><br><br>&nbsp;<br><br><br>&nbsp;<br><br>Helps treating special situation:<br><br>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-detection of log files, when an application logs to files instead of
-terminal standard output or error. Therefore the right strategy to
-handle logs can be applied: Inside /&nbsp; outside the container,
-centralized logging system etc&#8230;.<br>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><br>&nbsp;<br><br>*&nbsp;TODO: DECRIRE COMMENTUN FICHIER EST ACCEDE PAR UN PROCESS: READ/WRITE/APPEND, POUR DEDUIRE SI FICHIER LOG ETC&#8230;<br>*&nbsp; AUTREMENT DIT, AU LIEU DE STOCKER UN LIST DE FICHIER, ON STOCKE UNE MAP AVEC DES META-DATA D&#8217;ACCES : RD/RD/APP/<br><br>Ajouter des keywords: Software Archeology.<br><br>LOG FILE : Que des writes, aucun read, aucun fseek ou bien a la fin.<br><br>Indiquer S&#8217;il y a beaucoup de fseek et donc si ca vaut la peine d utiliser un ssd.<br><br>
+temporal behaviour on a time scale. <br><br>DockIT, during its execution, can send the history of detected objects.<br><br><br>
 
 
 
