@@ -620,6 +620,10 @@ class CIM_XmlMarshaller:
 
             # sys.stdout.write("Tm=%f Sending query to %s\n"% ( time.time(), G_UpdateServer) )
 
+            # TODO: Send an array. (Only when this version approved or rejected)
+            # threading.Timer et threading.Barrier
+            # On utilise une liste d'events qui est periodiquement videe.
+
             response = urllib2.urlopen(req, json.dumps(objJson))
 
             # sys.stdout.write("Tm=%f Reading response from %s\n"% ( time.time(), G_UpdateServer) )
@@ -726,7 +730,7 @@ class CIM_XmlMarshaller:
 class CIM_ComputerSystem (CIM_XmlMarshaller,object):
     def __init__(self,hostname):
         super( CIM_ComputerSystem,self).__init__()
-        self.Name = hostname
+        self.Name = hostname.lower() # This is a convention.
 
         if not G_ReplayMode and psutil:
             vm = psutil.virtual_memory()
@@ -1600,12 +1604,16 @@ pythonCache = {}
 
 def PathToPythonModuleOneFileMakeCache(path):
     global pythonCache
+
     try:
-        import pip.utils
+        import lib_python
+        pipInstalledDistributions = lib_python.PipGetInstalledDistributions()
+        if pipInstalledDistributions == None:
+            return
     except ImportError:
         return
 
-    for dist in pip.utils.get_installed_distributions():
+    for dist in pipInstalledDistributions:
         # RECORDs should be part of .dist-info metadatas
         if dist.has_metadata('RECORD'):
             lines = dist.get_metadata_lines('RECORD')
@@ -1634,11 +1642,14 @@ def PathToPythonModuleOneFile(path):
 
 def PathToPythonModuleOneFile_OldOldOldOld(path):
     try:
-        import pip.utils
+        import lib_python
+        pipInstalledDistributions = lib_python.PipGetInstalledDistributions()
+        if pipInstalledDistributions == None:
+            return
     except ImportError:
         return
 
-    for dist in pip.utils.get_installed_distributions():
+    for dist in pipInstalledDistributions:
         # RECORDs should be part of .dist-info metadatas
         if dist.has_metadata('RECORD'):
             lines = dist.get_metadata_lines('RECORD')
