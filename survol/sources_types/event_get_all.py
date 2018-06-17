@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Get all events.
+Get all dynamic events
 """
 
 import sys
@@ -15,20 +15,23 @@ import lib_event
 
 def Main():
 
-	# This can process remote hosts because it does not call any script, just shows them.
-	cgiEnv = lib_common.CgiEnv()
-	entity_id = cgiEnv.m_entity_id
-	# entity_host = cgiEnv.GetHost()
+    # This can process remote hosts because it does not call any script, just shows them.
+    cgiEnv = lib_common.CgiEnv()
+    sys.stderr.write("event_get_all.py\n")
+    # entity_id = cgiEnv.m_entity_id
+    # entity_host = cgiEnv.GetHost()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# rootNode = lib_util.RootUri()
+    # rootNode = lib_util.RootUri()
 
-	arrTriples = lib_event.data_retrieve_all()
-	for tripl in arrTriples:
-		grph.add(tripl)
 
-	cgiEnv.OutCgiRdf()
+    sys.stderr.write("event_get_all.py About to get events\n")
+    arrTriples = lib_event.data_retrieve_all()
+    for tripl in arrTriples:
+        grph.add(tripl)
+
+    cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()

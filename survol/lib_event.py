@@ -7,6 +7,7 @@ import unicodedata
 import string
 import lib_common
 import lib_util
+import lib_kbase
 
 # The directory where we store the events related to each object.
 # "C:/Windows/Temp"
@@ -142,6 +143,7 @@ def AddEventToObject(theObject,jsonData):
 # so there is no coding issue.
 # Also: It is not needed yet to load the ontology in the client.
 def data_store(json_data):
+    # TODO: Receive an array.
     # sys.stderr.write("data_store entering.\n")
     # The subject is always there and telles where the data are stored.
     valSubject = json_data["subject"]
@@ -157,7 +159,45 @@ def data_store(json_data):
 
     #sys.stderr.write("data_store leaving.\n")
 
+def UrlJsonToTxt(valJson):
+    entity_type = valJson["entity_type"]
+    #sys.stderr.write("UrlJsonToTxt entity_type=%s\n"%entity_type)
+
+    arrOnto = lib_util.OntologyClassKeys(entity_type)
+
+    #sys.stderr.write("UrlJsonToTxt arrOnto=%s\n"%str(arrOnto))
+    entity_ids_dict = {}
+
+    # Only the properties we need.
+    for ontoAttrNam in arrOnto:
+        attrVal = valJson[ontoAttrNam]
+        entity_ids_dict[ ontoAttrNam ] = attrVal
+
+    uriInst = lib_common.gUriGen.UriMakeFromDict(entity_type, entity_ids_dict)
+    #sys.stderr.write("UrlJsonToTxt uriInst=%s\n"%str(uriInst))
+
+    return uriInst
+
+def TripleJsonToRdf(jsonTriple):
+    valSubject = jsonTriple["subject"]
+    txtSubject = UrlJsonToTxt(valSubject)
+
+    valObject = jsonTriple["object"]
+
+    # The object might be another CIM object or a literal.
+    if isinstance(valObject,dict):
+        txtObject = UrlJsonToTxt(valObject)
+    else:
+        txtObject = lib_kbase.MakeNodeLiteral(valObject)
+        #sys.stderr.write("data_store stored object.\n")
+
+    urlPred = lib_common.MakeProp(jsonTriple["predicate"])
+    rdfTriple = (txtSubject,urlPred,txtObject)
+    return rdfTriple
+
+
 def get_data_from_file(eventFilNam):
+    #sys.stderr.write("get_data_from_file eventFilNam=%s.\n"%eventFilNam)
     # Consider deleting the files if it is empty and not written to
     # for more than X hours, with os.fstat() and the member st_mtime
 
@@ -166,11 +206,16 @@ def get_data_from_file(eventFilNam):
     while maxTry > 0:
         maxTry -= 1
         try:
+            #sys.stderr.write("get_data_from_file about to open eventFilNam=%s.\n"%eventFilNam)
             eventFd = open(eventFilNam,"r+")
+            #sys.stderr.write("get_data_from_file opened eventFilNam=%s.\n"%eventFilNam)
             # This must be as fast as possible, so event_put is not blocked.
             for lineJson in eventFd.readlines():
+                #sys.stderr.write("get_data_from_file lineJson=%s.\n"%lineJson)
                 jsonTriple = json.loads(lineJson)
-                yield jsonTriple
+                # Now build Survol links which can be transformed in to valid RDF triples.
+                rdfTriple = TripleJsonToRdf(jsonTriple)
+                yield rdfTriple
 
             eventFd.seek(0)
             eventFd.truncate()
@@ -181,7 +226,7 @@ def get_data_from_file(eventFilNam):
             time.sleep(100.0)
 
 def data_retrieve(entity_type,entity_ids_arr):
-    sys.stderr.write("data_retrieve entity_type=%s\n"%entity_type)
+    #sys.stderr.write("data_retrieve entity_type=%s\n"%entity_type)
 
     arrOnto = lib_util.OntologyClassKeys(entity_type)
 
@@ -196,14 +241,18 @@ def data_retrieve(entity_type,entity_ids_arr):
 
 # TODO: Events might appear in two objects.
 def data_retrieve_all():
-    sys.stderr.write("data_retrieve_all\n")
+    sys.stderr.write("data_retrieve_all events_directory=%s\n"%events_directory)
 
     for dirpath, dnames, fnames in os.walk(events_directory):
         for filNam in fnames:
+            #sys.stderr.write("data_retrieve_all filNam=%s\n"%filNam)
             if filNam.endswith(events_file_extension):
-                arrTriples = get_data_from_file(filNam)
+                pathNam = dirpath + "/" + filNam
+                #sys.stderr.write("data_retrieve_all pathNam=%s\n"%pathNam)
+                arrTriples = get_data_from_file(pathNam)
                 for oneTripl in arrTriples:
                     yield oneTripl
+    sys.stderr.write("data_retrieve_all leaving\n")
 
 
 
