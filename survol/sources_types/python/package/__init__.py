@@ -9,6 +9,7 @@ import importlib
 import lib_common
 import lib_uris
 import lib_util
+import lib_python
 from lib_properties import pc
 
 try:
@@ -81,7 +82,7 @@ def FillOnePackage(grph,node,good_pckg):
 def AddInfoFromPip(grph,node,packageKey):
 	try:
 		# TODO: What about several Python versions ?
-		installed_packages = pip.get_installed_distributions()
+		installed_packages = lib_python.PipGetInstalledDistributions()
 
 		# TODO: Maybe the version should be part of the key.
 		for pckg in installed_packages:
