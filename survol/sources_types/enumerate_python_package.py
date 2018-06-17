@@ -8,6 +8,7 @@ import sys
 import socket
 import lib_util
 import lib_common
+import lib_python
 from lib_properties import pc
 
 import pip
@@ -41,7 +42,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	# TODO: What about several Python versions ?
-	installed_packages = pip.get_installed_distributions()
+	installed_packages = lib_python.PipGetInstalledDistributions()
 
 	cnt = 0
 
