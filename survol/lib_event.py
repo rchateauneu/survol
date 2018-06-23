@@ -8,6 +8,7 @@ import string
 import lib_common
 import lib_util
 import lib_kbase
+import traceback
 
 # The directory where we store the events related to each object.
 # "C:/Windows/Temp"
@@ -107,7 +108,7 @@ def MonikerToEventFile(jsonMonik):
 
 def AddEventToObject(theObject,jsonData):
     eventFilNam = MonikerToEventFile(theObject)
-    sys.stderr.write("AddEventToObject eventFilNam=%s jsonData=%s\n"%(eventFilNam,str(jsonData)))
+    # sys.stderr.write("AddEventToObject eventFilNam=%s jsonData=%s\n"%(eventFilNam,str(jsonData)))
     # One JSON triple per line.
 
     jsonTriple = { "subject":None, "predicate" : None, "object" : None}
@@ -159,6 +160,17 @@ def data_store(json_data):
 
     #sys.stderr.write("data_store leaving.\n")
 
+def data_store_list(json_data_list):
+    sys.stderr.write("data_store_list entering. Numtriples=%d.\n"%len(json_data_list))
+    for json_data in json_data_list:
+        try:
+            data_store(json_data)
+        except Exception as exc:
+            sys.stderr.write("data_store_list caught:%s. Json=%s\n"%(str(exc),str(json_data)))
+            traceback.print_exc()
+
+    sys.stderr.write("data_store_list leaving.\n")
+
 def UrlJsonToTxt(valJson):
     entity_type = valJson["entity_type"]
     #sys.stderr.write("UrlJsonToTxt entity_type=%s\n"%entity_type)
@@ -197,7 +209,7 @@ def TripleJsonToRdf(jsonTriple):
 
 
 def get_data_from_file(eventFilNam):
-    #sys.stderr.write("get_data_from_file eventFilNam=%s.\n"%eventFilNam)
+    # sys.stderr.write("get_data_from_file eventFilNam=%s.\n"%eventFilNam)
     # Consider deleting the files if it is empty and not written to
     # for more than X hours, with os.fstat() and the member st_mtime
 
@@ -218,6 +230,8 @@ def get_data_from_file(eventFilNam):
                 yield rdfTriple
 
             eventFd.seek(0)
+            # TODO: BEWARE: WHY SHOULD WE DELETE OBJECTS IN THE GENERAL CASE ?
+            # TODO: OR RATHER, THE INTERFACE SHOULD CHOOSE TO KEEP OBJECTS UNTIL THEY ARE EXPLICITLY DELETED ?
             eventFd.truncate()
             eventFd.close()
             break
@@ -225,8 +239,11 @@ def get_data_from_file(eventFilNam):
             # File locked or does not exist.
             time.sleep(100.0)
 
+    if maxTry == 0:
+        sys.stderr.write("get_data_from_file eventFilNam=%s No data.\n"%eventFilNam)
+
 def data_retrieve(entity_type,entity_ids_arr):
-    #sys.stderr.write("data_retrieve entity_type=%s\n"%entity_type)
+    sys.stderr.write("data_retrieve entity_type=%s\n"%entity_type)
 
     arrOnto = lib_util.OntologyClassKeys(entity_type)
 
@@ -235,8 +252,10 @@ def data_retrieve(entity_type,entity_ids_arr):
 
     eventFilNam = EntityTypeIdsToEventFile(entity_type,entity_ids_dict)
 
+    sys.stderr.write("data_retrieve eventFilNam=%s\n"%eventFilNam)
     arrTriples = get_data_from_file(eventFilNam)
 
+    sys.stderr.write("data_retrieve NumTriples=%d\n"%len(arrTriples))
     return arrTriples
 
 # TODO: Events might appear in two objects.

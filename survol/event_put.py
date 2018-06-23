@@ -23,15 +23,17 @@ def Main():
 	# https://stackoverflow.com/questions/49171591/inets-httpd-cgi-script-how-do-you-retrieve-json-data
 	# The script MUST NOT attempt to read more than CONTENT_LENGTH bytes, even if more data is available.
 	tmStart = time.time()
-	# sys.stderr.write("event_put.py tmStart=%f\n" % (tmStart))
+	sys.stderr.write("event_put.py tmStart=%f\n" % (tmStart))
 	try:
 		myjson = json.load(sys.stdin)
 		tmStart = time.time()
-		sys.stderr.write("event_put.py tmStart=%f myjson=%s\n" % (tmStart,str(myjson)))
+		numTriples = len(myjson)
+		sys.stderr.write("event_put.py tmStart=%f myjson=%d triples received\n" % (tmStart,numTriples))
 
-		lib_event.data_store(myjson)
+		lib_event.data_store_list(myjson)
+		sys.stderr.write("event_put.py tmStart=%f myjson=%d triples stored\n" % (tmStart,numTriples))
 
-		result = {'success':'true','message':'Tm=%f. The Command read %s bytes' % ( tmStart, str(myjson) ) }
+		result = {'success':'true','message':'Tm=%f. NumTriples=%d' % ( tmStart, numTriples ) }
 	except Exception as exc:
 		sys.stderr.write("event_put.py Exception=%s\n" % (str(exc)))
 		# sys.stderr.write("event_put.py Envs=%s\n" % (str(os.environ)))
