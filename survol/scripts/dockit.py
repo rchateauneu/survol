@@ -30,6 +30,7 @@ import shutil
 import platform
 import tempfile
 import urllib2
+import threading
 
 try:
     # Optional: To add more information to processes etc...
@@ -553,14 +554,66 @@ class FileAccess:
         for filAcc in vecFilesAccesses:
             filAcc.TagXML(strm,subMargin,displayedFromProcess)
         strm.write("%s</FileAccesses>\n" % ( margin ) )
-        
-        
+
+
 ################################################################################
+
+# This objects groups triples to send to the HTTP server,
+# and periodically wakes up to send them.
+class HttpTriplesClient(object):
+    def __init__(self):
+        self.m_sharedLock = threading.Lock()
+        self.m_listTriples = []
+        aThrd = threading.Thread(target = self.run)
+        # If leaving too early, some data might be lost.
+        aThrd.daemon = True
+        aThrd.start()
+        self.m_valid = True
+
+    def run(self):
+        while True:
+            # TODO: Wait the same delay before leaving the program.
+            time.sleep(2.0)
+            self.m_sharedLock.acquire()
+            numTriples = len(self.m_listTriples)
+            if numTriples:
+                strToSend = json.dumps(self.m_listTriples)
+                self.m_listTriples = []
+            else:
+                strToSend = None
+            # Immediately unlocked so no need to wait for the server.
+            self.m_sharedLock.release()
+
+            if strToSend:
+                try:
+                    req = urllib2.Request(G_UpdateServer)
+                    req.add_header('Content-Type', 'application/json')
+
+                    sys.stdout.write("Tm=%f Sending %d triples to %s\n"% ( time.time(), numTriples, G_UpdateServer) )
+
+                    response = urllib2.urlopen(req, strToSend)
+
+                    sys.stdout.write("Tm=%f Reading response from %s\n"% ( time.time(), G_UpdateServer) )
+                    srvOut = response.read()
+                except:
+                    self.m_valid = False
+                    raise
+
+
+    def AddDataToSend(self,jsonTriple):
+        if self.m_valid and G_UpdateServer:
+            self.m_sharedLock.acquire()
+            self.m_listTriples.append(jsonTriple)
+            self.m_sharedLock.release()
 
 # This is the Survol server which is notified of all updates
 # of CIM objects. These updates can then be displayed in Survol Web clients.
 # It must be a plain Web server to be hosted by Apache or IIS.
 G_UpdateServer = None
+G_httpClient = HttpTriplesClient()
+
+################################################################################
+
 
 # This is the base class of all CIM_xxx classes. It does the serialization
 # into XML and also sends updates events to the Survol server if there is one.
@@ -601,6 +654,9 @@ class CIM_XmlMarshaller:
                     # No need to write empty strings.
                     strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
 
+    def HttpUpdateRequest(self,**objJson):
+        G_httpClient.AddDataToSend(objJson)
+
     def SendUpdateToServer(self, attrNam, oldAttrVal, attrVal):
         # Consider importing lib_event to be sure of the syntax of the urls.
         # Anyway we are alrady importing lib_sql and more to come.
@@ -612,27 +668,7 @@ class CIM_XmlMarshaller:
         # sys.path.append("../..")
         # from survol import lib_event?????
 
-        # Very slow connection if G_UpdateServer="rchateau-hp:8000",
-        # much faster with G_UpdateServer="192.168.0.14:8000"
-        def HttpUpdateRequest(**objJson):
-            req = urllib2.Request(G_UpdateServer)
-            req.add_header('Content-Type', 'application/json')
-
-            # sys.stdout.write("Tm=%f Sending query to %s\n"% ( time.time(), G_UpdateServer) )
-
-            # TODO: Send an array. (Only when this version approved or rejected)
-            # threading.Timer et threading.Barrier
-            # On utilise une liste d'events qui est periodiquement videe.
-
-            response = urllib2.urlopen(req, json.dumps(objJson))
-
-            # sys.stdout.write("Tm=%f Reading response from %s\n"% ( time.time(), G_UpdateServer) )
-            srvOut = response.read()
-
-            # sys.stdout.write( "Tm=%f Server return:%s\n" % ( time.time(), str(srvOut) ) )
-
-        # TODO: For better performance, consider grouping requests.
-        sys.stdout.write("Update %f %s %s %s\n"%(time.time(), self.__class__.__name__,attrNam,attrVal))
+        # sys.stdout.write("Update %f %s %s %s\n"%(time.time(), self.__class__.__name__,attrNam,attrVal))
 
         # These are the properties which uniquely define the object.
         # There are always sent even if they did not change,
@@ -645,15 +681,15 @@ class CIM_XmlMarshaller:
         if oldAttrVal and isinstance( oldAttrVal, CIM_XmlMarshaller):
             objMonikerOld = oldAttrVal.GetMonikerSurvol()
             attrNamDelete = attrNam + "?predicate_delete"
-            HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMonikerOld )
+            self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMonikerOld )
 
 
         # For example a file being opened by a process, or a process started by a user etc...
         if isinstance( attrVal, CIM_XmlMarshaller):
             objMoniker = attrVal.GetMonikerSurvol()
-            HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMoniker)
+            self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMoniker)
         else:
-            HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=attrVal)
+            self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=attrVal)
 
     # Any object change is broadcast to a Survol server.
     def __setattr__(self, attrNam, attrVal):
@@ -670,9 +706,15 @@ class CIM_XmlMarshaller:
         # Python3
         # super().__setattr__(name, value)
 
+        #https://stackoverflow.com/questions/8600161/executing-periodic-actions-in-python
+        #G_UpdateServer va devenir un lib_event.UpdateServer qui va gerer le timer.
+        #On ne le met pas dans lib_event qui ne s occupe que du stockage.
+
         if G_UpdateServer:
             if oldAttrVal != attrVal:
                 if IsCIM(attrNam,attrVal):
+                    # IL FAUT AUSSI ENVOYER LES FileAccess : Les FileAccess doivent etre
+                    # modelises comme des liens Process <-> Fichier.
                     self.SendUpdateToServer(attrNam, oldAttrVal, attrVal)
 
     @classmethod
@@ -823,9 +865,10 @@ class CIM_OperatingSystem (CIM_XmlMarshaller,object):
 class CIM_NetworkAdapter (CIM_XmlMarshaller,object):
     def __init__(self,address):
         super( CIM_NetworkAdapter,self).__init__()
+        self.Name = address
         self.PermanentAddress = address
 
-    m_Ontology = ['PermanentAddress']
+    m_Ontology = ['Name']
 
 #class CIM_Process : CIM_LogicalElement
 #{
