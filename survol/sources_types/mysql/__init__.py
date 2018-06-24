@@ -10,6 +10,16 @@ def Graphic_colorfill():
 
 import lib_common
 
+# Test commands for user creation.
+# http://www.daniloaz.com/en/how-to-create-a-user-in-mysql-mariadb-and-grant-permissions-on-a-specific-database/
+# CREATE DATABASE `mydb`;
+# CREATE USER 'myuser' IDENTIFIED BY 'mypassword';
+# GRANT USAGE ON *.* TO 'myuser'@localhost IDENTIFIED BY 'mypassword';
+# GRANT USAGE ON *.* TO 'myuser'@'%' IDENTIFIED BY 'mypassword';
+# GRANT ALL privileges ON `mydb`.* TO 'myuser'@localhost;
+# FLUSH PRIVILEGES;
+# SHOW GRANTS FOR 'myuser'@localhost;
+
 def InstanceToHostPort(instanceName):
         instanceSplit = instanceName.split(":")
         instanceHost = instanceSplit[0]
