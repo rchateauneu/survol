@@ -177,8 +177,12 @@ def PatternNode(typeFull):
 def WritePatterned( stream, type, subjNamTab, helpText, color, labHRef, numFields, labText, dictLines ):
 	pattArray = PatternNode(type)
 
-	# PROBLEME: Le titre et les elements n ont pas forcement les memes couleurs.
-	# Le cadre est celui du titre.
+	# TODO: The title and the elements might not have the same color.
+
+	# TODO: At least, < and > in labels are correctly displayed, but not really clickable.
+	# The best is to avoid them in entities names and urls.
+	labText = helpText.replace("<","&lt;").replace(">","&gt;")
+	labHRef = labHRef.replace("<","&lt;").replace(">","&gt;")
 
 	try:
 		if labHRef:
@@ -191,6 +195,9 @@ def WritePatterned( stream, type, subjNamTab, helpText, color, labHRef, numField
 
 	for key in lib_util.natural_sorted(dictLines):
 		try:
+			# Brackets have a specific role in "dot" files syntax.
+			# So this escapes them, to be correctly displayed by the browser.
+			dictLines[key] = dictLines[key].replace("[","&#91;").replace("]","&#93;")
 			stream.write( "<tr>%s</tr>" % dictLines[key] )
 		except UnicodeEncodeError:
 			stream.write( "<tr><td>Unicode error encoding=%s</td></tr>" % sys.getdefaultencoding() )
