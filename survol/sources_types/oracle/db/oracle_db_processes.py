@@ -40,7 +40,7 @@ def Main():
 	#TERMINAL	VARCHAR2(30)	Operating system terminal name
 	#PROGRAM	VARCHAR2(48)	Operating system program name
 
-
+	# The Oracle user needs: grant select any dictionary to <user>;
 	sql_query = """
 	SELECT distinct sess.sid, sess.username, sess.schemaname, proc.spid,pid,sess.osuser,sess.machine,sess.process,
 	sess.port,proc.terminal,sess.program,proc.tracefile
