@@ -174,8 +174,8 @@ def PatternNode(typeFull):
 		dictTypeToPatterns[typeFull] = pattArray
 		return pattArray
 
-def WritePatterned( stream, type, subjNamTab, helpText, color, labHRef, numFields, labText, dictLines ):
-	pattArray = PatternNode(type)
+def WritePatterned( stream, aType, subjNamTab, helpText, color, labHRef, numFields, labText, dictLines ):
+	pattArray = PatternNode(aType)
 
 	# PROBLEME: Le titre et les elements n ont pas forcement les memes couleurs.
 	# Le cadre est celui du titre.
