@@ -237,7 +237,7 @@ def get_data_from_file(eventFilNam):
             break
         except:
             # File locked or does not exist.
-            time.sleep(100.0)
+            time.sleep(1.0)
 
     if maxTry == 0:
         sys.stderr.write("get_data_from_file eventFilNam=%s No data.\n"%eventFilNam)
