@@ -211,30 +211,40 @@ def PropToShortPropNam(collapsProp):
 	return shortNam
 
 # Only some scripts are exported to Json.
-def ScriptForJson(url):
-	# TODO: Do something faster and more elegant.
-	if( url.find("survol/entity.py") >= 0):
-		return True
-
-	if( url.find("survol/entity_wmi.py") >= 0):
-		return True
-
-	if( url.find("survol/entity_wbem.py") >= 0):
-		return True
-
-	if( url.find("survol/entity_info_only.py") >= 0):
-		return True
-
-	if( url.find("survol/survolcgi.py?script=/entity.py") >= 0):
-		return True
-
-	if( url.find("survol/survolcgi.py?script=/entity_info_only.py") >= 0):
-		return True
-
+# The most frequent should come first.
+# root=http://rchateau-HP:8000/survol
+# url=http://rchateau-HP:8000/survol/class_type_all.py?xid=com.
+# url=http://rchateau-HP:8000/survol/objtypes.py
+urlsForJson = [
+	"/entity.py",
+	"/entity_wmi.py",
+	"/entity_wbem.py",
+	"/entity_info_only.py",
+	"/objtypes.py",
+	"/class_type_all.py",
+	"/class_wbem.py",
+	"/class_wmi.py",
+	# survol.cgi is the special case of the Web server. This prefix normally applies to all scripts.
+	"/survolcgi.py?script=/entity.py",
+	"/survolcgi.py?script=/entity_info_only.py",
 	# TODO: Maybe pass portal_wbem.py and portal_wmi.py ??
+]
 
-	# Other scripts are forbidden.
-	if( url.find("survol/") >= 0):
+# This avoids creating a node form some URLs used for returning information. For example:
+# http://rchateau-HP:8000/survol/entity_mime.py?xid=CIM_DataFile.Name=C://smh_installer.log&amp;amp;mode=mime:text/plain
+# http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2Fpkg
+def ScriptForJson(url):
+	#sys.stderr.write("ScriptForJson url=%s root=%s\n"%(url,lib_util.uriRoot))
+
+	if url.startswith(lib_util.uriRoot):
+		# Where the script starts from.
+		idxScript = len(lib_util.uriRoot)
+		for pfx in urlsForJson:
+			if url.startswith(pfx,idxScript):
+				#sys.stderr.write("ScriptForJson pfx=%s urlScript=%s OK\n"%(pfx,urlScript))
+				return True
+		# Other scripts are forbidden.
+		# sys.stderr.write("ScriptForJson url=%s BAD\n"%(url))
 		return False
 
 	# Foreign scripts are OK.
@@ -332,7 +342,6 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 			continue
 
 		subjObj = NodeToJsonObj(subj)
-		#subj_id = subjObj.m_index
 		subj_id = subjObj.m_survol_url
 
 		propNam = PropToShortPropNam(pred)
@@ -340,7 +349,6 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# TODO: BUG: If several nodes for the same properties, only the last one is kept.
 		if lib_kbase.IsLink(obj):
 			objObj = NodeToJsonObj(obj)
-			#obj_id = objObj.m_index
 			obj_id = objObj.m_survol_url
 			links.extend([{'source': subj_id, 'target': obj_id, 'survol_link_prop': propNam}])
 
@@ -372,8 +380,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		nodObj = NodeToJsonObj.dictNod2Json[nod]
 		nod_titl = nodObj.m_label
 		nod_id = nodObj.m_index
-		obj_link = nod
-		# sys.stderr.write("nod_titl=%s obj_link=%s\n"%(nod_titl,obj_link))
+
 		# The URL must not contain any HTML entities when in a XML or SVG document,
 		# and therefore must be escaped. Therefore they have to be unescaped when transmitted in JSON.
 		# This is especially needed for RabbitMQ because the parameter defining its connection name
