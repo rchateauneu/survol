@@ -847,7 +847,7 @@ def SubProcPOpen(command):
 	return retPipe
 
 def SubProcCall(command):
-	# For doxygen, we should need shell=True but this is NOT safe.
+	# For doxygen, we should have shell=True but this is NOT safe.
 	ret = subprocess.call(command, stdout=sys.stderr, stderr=sys.stderr, shell=False)
 	return ret
 
@@ -860,6 +860,21 @@ def TryDir(dir):
 
 # The temp directory as specified by the operating system.
 def TmpDir():
+
+	# TODO: For some reason, the user "apache" used by httpd cannot write,
+	# on some Linux distributions, to the directory "/tmp"
+	# https://blog.lysender.com/2015/07/centos-7-selinux-php-apache-cannot-writeaccess-file-no-matter-what/
+	# This is a temporary fix. Maybe related to SELinux.
+	try:
+		if lib_util.isPlatformLinux:
+			# 'SERVER_SOFTWARE': 'Apache/2.4.29 (Fedora)'
+			if os.environ["SERVER_SOFTWARE"].startswith("Apache/"):
+				# 'HTTP_HOST': 'vps516494.ovh.net'
+                                if os.environ["HTTP_HOST"].startswith("vps516494."):
+					return "/home/rchateau/tmp_apache"
+	except:
+		pass
+
 	try:
 		# Maybe these environment variables are undefined for Apache user.
 		return TryDir( os.environ["TEMP"].replace('\\','/') )
@@ -916,7 +931,7 @@ class TmpFile:
 		sys.stderr.write("tmp=%s cwd=%s\n" % ( self.Name, os.getcwd() ) )
 
 	def DbgDelFil(self,filNam):
-		if True:
+		if False:
 			sys.stderr.write("Deleting="+filNam+"\n")
 			os.remove(filNam)
 		else:

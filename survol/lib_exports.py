@@ -680,7 +680,7 @@ def WriteDotLegend( page_title, topUrl, errMsg, isSubServer, parameters, paramet
 
 	# The first line is a title, the rest, more explanations.
 	# The first line also must be wrapped if it is too long.
-	# TODO: Mettre cette logique de separation ailleurs car on en a besoin si Merge.
+	# TODO: This logic should be factorised because it seems to be used when merging ?
 
 	(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(page_title)
 
