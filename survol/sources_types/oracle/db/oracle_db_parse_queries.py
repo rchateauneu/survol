@@ -65,6 +65,7 @@ def Main():
 
 	conn_str = oraUser + "/" + oraPwd + "@" + database
 
+        # The Oracle user needs: grant select any dictionary to <user>;
 	qrySelect = """
 	SELECT sess.status, sess.username, sess.schemaname, sql.sql_text,sql.sql_fulltext,proc.spid
 	  FROM v$session sess,

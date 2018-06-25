@@ -1,6 +1,8 @@
 import lib_common
 from lib_properties import pc
 
+# TODO: This file should go to sources_types/oracle
+
 import sys
 import lib_util
 import lib_credentials
@@ -35,7 +37,7 @@ def GetOraConnect(conn_str):
 # TODO: Check that there is only one query, and exclusively a select,
 # to avoid SQL injections.
 def ExecuteSafeQuery(aCursor,sql_query):
-	if not sql_query.upper().startswith("SELECT "):
+	if not sql_query.strip().upper().startswith("SELECT "):
 		raise Exception("Unsafe query:%s"%sql_query)
 	aCursor.execute(sql_query)
 

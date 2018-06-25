@@ -644,7 +644,12 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# Two columns because it encompasses the key and the value.
 
 		if objEntityGraphClass:
-			helpText = labTextNoAmp + " is a " + objEntityGraphClass
+			# if objEntityGraphClass and objEntityGraphcClass[0] in "AEIOUY":
+			if objEntityGraphClass and objEntityGraphClass[0].upper() in "AEIOUY":
+				str_is_a = " is an "
+			else:
+				str_is_a = " is a "
+			helpText = labTextNoAmp + str_is_a + objEntityGraphClass
 		else:
 			if labTextClean.startswith("http"):
 				helpText = "External URL " + labTextNoAmp
