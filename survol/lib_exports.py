@@ -215,7 +215,8 @@ def PropToShortPropNam(collapsProp):
 # root=http://rchateau-HP:8000/survol
 # url=http://rchateau-HP:8000/survol/class_type_all.py?xid=com.
 # url=http://rchateau-HP:8000/survol/objtypes.py
-urlsForJson = [
+# This must be a tuple because of startswith
+urlsForJson = (
 	"/entity.py",
 	"/entity_wmi.py",
 	"/entity_wbem.py",
@@ -228,7 +229,7 @@ urlsForJson = [
 	"/survolcgi.py?script=/entity.py",
 	"/survolcgi.py?script=/entity_info_only.py",
 	# TODO: Maybe pass portal_wbem.py and portal_wmi.py ??
-]
+)
 
 # This avoids creating a node form some URLs used for returning information. For example:
 # http://rchateau-HP:8000/survol/entity_mime.py?xid=CIM_DataFile.Name=C://smh_installer.log&amp;amp;mode=mime:text/plain
@@ -239,14 +240,8 @@ def ScriptForJson(url):
 	if url.startswith(lib_util.uriRoot):
 		# Where the script starts from.
 		idxScript = len(lib_util.uriRoot)
-		for pfx in urlsForJson:
-			if url.startswith(pfx,idxScript):
-				#sys.stderr.write("ScriptForJson pfx=%s urlScript=%s OK\n"%(pfx,urlScript))
-				return True
 		# Other scripts are forbidden.
-		# sys.stderr.write("ScriptForJson url=%s BAD\n"%(url))
-		return False
-
+		return url.startswith(urlsForJson,idxScript)
 	# Foreign scripts are OK.
 	return True
 
