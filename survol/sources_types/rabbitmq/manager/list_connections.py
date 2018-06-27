@@ -44,22 +44,22 @@ def Main():
 
 
 	try:
-		#
 		listConnections = cl.get_connections()
 	except:
-		#
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Caught:"+str(exc))
 
+        if listConnections:
+		AddConnections(grph,listConnections,configNam)
+
+	cgiEnv.OutCgiRdf()
+
+def AddConnections(grph,listConnections,configNam):
 	for objConnect in listConnections:
 		namConnect = objConnect["name"]
 
 		sys.stderr.write("namConnect=%s\n"%(namConnect))
 
-		#namConnectDisplay = namConnect.replace(">","&gt;")
-
-		# namConnectCgi = namConnect.replace("_","+").replace(">","&gt;")
-		#nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnectDisplay)
 		nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnect)
 
 		try:
@@ -80,7 +80,6 @@ def Main():
 
 		# '127.0.0.1:51532 -> 127.0.0.1:5672'
 		# http://localhost:12345/#/connections/127.0.0.1%3A51532%20-%3E%20127.0.0.1%3A5672
-		# namConnectCgi = namConnectDisplay
 		namConnectCgi = namConnect.replace(">","&gt;")
 		sys.stderr.write("namConnectCgi=%s\n"%(namConnectCgi))
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"connections",namConnectCgi)
@@ -90,7 +89,6 @@ def Main():
 		grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodeConnect ) )
 
 
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()
