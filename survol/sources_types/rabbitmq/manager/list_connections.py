@@ -49,12 +49,12 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Caught:"+str(exc))
 
-        if listConnections:
-		AddConnections(grph,listConnections,configNam)
+	if listConnections:
+		AddConnections(grph,listConnections,configNam,nodeManager)
 
 	cgiEnv.OutCgiRdf()
 
-def AddConnections(grph,listConnections,configNam):
+def AddConnections(grph,listConnections,configNam,nodeManager):
 	for objConnect in listConnections:
 		namConnect = objConnect["name"]
 
