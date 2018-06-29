@@ -28,7 +28,7 @@ def Main():
 	topWindowsHnd = []
 	win32gui.EnumWindows(windowEnumerationHandler, topWindowsHnd)
 
-	prpProcToWindow = lib_common.MakeProp("Top-level window")
+	prpProcToWindow = lib_common.MakeProp("Top_level_window")
 
 	def PidToNode(pid):
 		try:
@@ -55,7 +55,12 @@ def Main():
 		if wnText:
 			# wnText = wnText.encode("ascii" ,errors='replace')
 			# It drops the accent: "Livres, BD, Vidos"
-			wnText = wnText.decode("utf8" ,'ignore')
+			try:
+				# Python 3: "AttributeError: 'str' object has no attribute 'decode' "
+				wnText = wnText.decode("utf8" ,'ignore')
+			except:
+				# If Python 3, nothing to do>
+				pass
 			grph.add( (nodProcess, prpProcToWindow, lib_common.NodeLiteral(wnText) ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT", [prpProcToWindow])
