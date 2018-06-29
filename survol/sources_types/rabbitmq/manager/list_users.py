@@ -48,21 +48,21 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Caught:"+str(exc))
 
- 	for objUser in listUsers:
+	for objUser in listUsers:
 		namUser = objUser["name"]
 		sys.stderr.write("q=%s\n"%(namUser))
 
 		nodeUser = survol_rabbitmq_user.MakeUri(configNam,namUser)
 
-                try:
-		    grph.add( ( nodeUser, lib_common.MakeProp("Tags"), lib_common.NodeLiteral(objUser["tags"]) ) )
-                except KeyError:
-                    pass
+		try:
+			grph.add( ( nodeUser, lib_common.MakeProp("Tags"), lib_common.NodeLiteral(objUser["tags"]) ) )
+		except KeyError:
+			pass
 
-                try:
-		    grph.add( ( nodeUser, lib_common.MakeProp("Hashing algorithm"), lib_common.NodeLiteral(objUser["hashing_algorithm"]) ) )
-                except KeyError:
-                    pass
+		try:
+			grph.add( ( nodeUser, lib_common.MakeProp("Hashing algorithm"), lib_common.NodeLiteral(objUser["hashing_algorithm"]) ) )
+		except KeyError:
+			pass
 
 		# http://127.0.0.1:12345/#/users/guest
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"users",namUser)
