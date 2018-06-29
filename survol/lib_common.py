@@ -931,7 +931,7 @@ class TmpFile:
 		sys.stderr.write("tmp=%s cwd=%s\n" % ( self.Name, os.getcwd() ) )
 
 	def DbgDelFil(self,filNam):
-		if False:
+		if True:
 			sys.stderr.write("Deleting="+filNam+"\n")
 			os.remove(filNam)
 		else:
