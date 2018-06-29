@@ -33,7 +33,7 @@ def MakeProp(prp,**kvargs):
 	# TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
 	# http://primhillcomputers.com/ontologies/swapnote\ futures
 	# If the space is replaced by "%20", everything before it is erased.
-	url = ret.replace(" ","_")
+	url = ret.replace(" ","_").replace("-","_")
 	return lib_kbase.MakeNodeUrl( url )
 
 # TODO: Maybe "pc" could be an object, or redefine a call to a member,
