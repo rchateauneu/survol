@@ -6,16 +6,22 @@ import os
 import sys
 import jpype
 import lib_util
+import lib_common
 from jpype import java
 from jpype import javax
 
 # It is possible to return a similar object, but on a remote machine.
 def JPypeLocalStartJVM():
-	if lib_util.isPlatformLinux:
-		return JPypeLocalStartJVMLinux()
+	try:
+		if lib_util.isPlatformLinux:
+			return JPypeLocalStartJVMLinux()
 
-	if lib_util.isPlatformWindows:
-		return JPypeLocalStartJVMWindows()
+		if lib_util.isPlatformWindows:
+			return JPypeLocalStartJVMWindows()
+
+	except:
+		exc = sys.exc_info()[1]
+		lib_common.ErrorMessageHtml("JavaJmxSystemProperties caught:" + str(exc))
 
 	return None
 
@@ -228,6 +234,7 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
 
 def JavaJmxSystemProperties(pid):
 	jvPckVM = JPypeLocalStartJVM()
+
 	try:
 		virtMach = jvPckVM.attach(str(pid))
 	except:
@@ -307,7 +314,7 @@ def JPypeListVMs(jvPckVM):
 
 # This fails on Linux.
 def QuietShutdown():
-        # Must redirect the Java output
+	# Must redirect the Java output
 	# Shutdown the VM at the end
 	if not lib_util.isPlatformLinux:
 		jpype.shutdownJVM()
