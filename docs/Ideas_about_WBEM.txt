@@ -73,6 +73,8 @@ En revanche peut-etre pourrait-on reprendre les noms des classes WBEM?
 ============================================================================================================
 http://www.dmtf.org/standards/cim
 
+How to install and run Pegasus and WBEM on RHEL. Very detailed.
+https://www.tecmint.com/fix-firewall-cmd-command-not-found-error/
 ============================================================================================================
 Ports standard pour WBEM ?
 From the Windows install guide (page 28 here),
