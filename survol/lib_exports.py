@@ -55,11 +55,18 @@ def TruncateInSpace(labText,maxLenLab):
 
 ################################################################################
 
+# To display long strings in HTML-like labels, when Graphviz creates SVG.
 maxHtmlTitleLenPerCol = 40
+# This is a HTML-like tag for Graphviz only.
 withBrDelim = '<BR ALIGN="LEFT" />'
 
-# Inserts "<BR/>" in a HTML string so it is wrapped in a HTML label.
-def StrWithBr(aStr, colspan = 1):
+# Inserts "<BR/>" in a string so it can be displayed in a HTML label.
+# Beware that it is not really HTML, but only an HTML-like subset.
+# See https://www.graphviz.org/doc/info/shapes.html#html
+def StrWithBr(aRawStr, colspan = 1):
+	# First thing: Cleanup possible HTML tags, otherwise Graphviz stops.
+        aStr = aRawStr.replace("<","&lt;").replace(">","&gt;")
+
 	lenStr = len(aStr)
 	maxHtmlTitleLen = colspan * maxHtmlTitleLenPerCol
 	if lenStr < maxHtmlTitleLen:
@@ -191,7 +198,8 @@ class NodeJson:
 		self.m_index = NodeJsonNumber
 
 		the_survol_url = lib_util.survol_HTMLParser().unescape(rdf_node)
-		# Hack, specific to OVH.
+		# Hack, specific to OVH web host, that we use also for python hosting,
+		# although it is not designed for that..
 		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
 		self.m_survol_url = the_survol_url
 		self.m_survol_universal_alias = NodeToUniversalAlias(rdf_node)
@@ -210,7 +218,7 @@ def PropToShortPropNam(collapsProp):
 		shortNam = shortNam[len(lib_properties.sortPrefix):]
 	return shortNam
 
-# Only some scripts are exported to Json.
+# Only some scripts and urls are exported to Json.
 # The most frequent should come first.
 # root=http://rchateau-HP:8000/survol
 # url=http://rchateau-HP:8000/survol/class_type_all.py?xid=com.
