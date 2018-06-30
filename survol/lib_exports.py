@@ -65,7 +65,7 @@ withBrDelim = '<BR ALIGN="LEFT" />'
 # See https://www.graphviz.org/doc/info/shapes.html#html
 def StrWithBr(aRawStr, colspan = 1):
 	# First thing: Cleanup possible HTML tags, otherwise Graphviz stops.
-        aStr = aRawStr.replace("<","&lt;").replace(">","&gt;")
+	aStr = aRawStr.replace("<","&lt;").replace(">","&gt;")
 
 	lenStr = len(aStr)
 	maxHtmlTitleLen = colspan * maxHtmlTitleLenPerCol
