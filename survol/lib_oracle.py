@@ -41,6 +41,20 @@ def ExecuteSafeQuery(aCursor,sql_query):
 		raise Exception("Unsafe query:%s"%sql_query)
 	aCursor.execute(sql_query)
 
+def OracleConnectionClose(conn):
+	try:
+		conn.close()
+	except cx_Oracle.DatabaseError:
+		# "connection cannot be closed when open statements or LOBs exist"
+		# cx_oracle throws "DPI-1054: connection cannot be closed when open statements or LOBs exist" during django migration
+		exc = sys.exc_info()[1]
+		errMsg = str(exc)
+		if errMsg.find("connection cannot be closed when open statements") >= 0:
+			sys.stderr.write("OracleConnectionClose LOBs exist: exception:%s.\n" % (errMsg))
+			pass
+		else:
+			lib_common.ErrorMessageHtml("OracleConnectionClose caught:%s."% ( errMsg ) )
+
 def ExecuteQueryThrow(conn_str,sql_query):
 	result = []
 	conn = GetOraConnect(conn_str)
@@ -58,7 +72,7 @@ def ExecuteQueryThrow(conn_str,sql_query):
 
 	except cx_Oracle.DatabaseError:
 		pass
-	conn.close()
+	OracleConnectionClose(conn)
 
 	return result
 
@@ -85,7 +99,7 @@ def CallbackQuery(conn_str,sql_query,callback):
 
 	except cx_Oracle.DatabaseError:
 		pass
-	conn.close()
+	OracleConnectionClose(conn)
 
 # BEWARE: There is an implicit dependency on the structure of Oracle schema URI.
 # https://docs.oracle.com/cd/A91202_01/901_doc/server.901/a90125/sql_elements10.htm
