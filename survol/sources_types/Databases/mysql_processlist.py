@@ -1,51 +1,83 @@
 #!/usr/bin/python
 
+
 """
 mysql sessions
 """
 
+# Note: There is no space between the option "-p" and the password.
+# https://stackoverflow.com/questions/12665522/is-there-a-way-to-pass-the-db-user-password-into-the-command-line-tool-mysqladmi
+#
+# C:\Users\rchateau>mysqladmin -u MyUser -pMyPassword processlist
+# mysqladmin: [Warning] Using a password on the command line interface can be insecure.
 # +------+----------------------+---------------------+----+---------+------+-------+------------------+
 # | Id   | User                 | Host                | db | Command | Time | State | Info             |
 # +------+----------------------+---------------------+----+---------+------+-------+------------------+
 # | 1908 | unauthenticated user | 192.168.1.103:46046 |    | Connect |      | login |                  |
 # | 1909 | unauthenticated user | 192.168.1.103:46047 |    | Connect |      | login |                  |
 # | 1910 | unauthenticated user | 192.168.1.103:46048 |    | Connect |      | login |
+#
+# C:\Users\rchateau>mysqladmin -u usrXYZ -ppwdXYZ processlist -hvps516494.ovh.net
+# mysqladmin: [Warning] Using a password on the command line interface can be insecure.
+# +------+--------+---------------------------------------------------------+----+---------+------+-------+------------------+---------+
+# | Id   | User   | Host                                                    | db | Command | Time | State | Info             | Progres |
+# +------+--------+---------------------------------------------------------+----+---------+------+-------+------------------+---------+
+# | 2198 | myuser | cpc85870-haye24-2-0-cust62.17-4.cable.virginm.net:59826 |    | Query   | 0    | init  | show processlist | 0.000  |
+# +------+--------+---------------------------------------------------------+----+---------+------+-------+------------------+---------+
 
-# We should rather use the proper Python API to MySql but I have problems
-# installing it for the moment. You get the idea, it will not change anything.
+# We could also use the Python API to MySql. This solution requires less installation.
 
 # There is no one-to-one equivalence between mysql ids and process ids,
 # however, given the hosts, some association might be possible.
 
 import os
+import subprocess
 import sys
 import lib_util
 import lib_common
 from lib_properties import pc
+import lib_credentials
 
-# ??
+# This does not import genuine mysql packages so this will always work.
+from sources_types.mysql import instance as survol_mysql_instance
 
-def Main():
-	cgiEnv = lib_common.CgiEnv()
+def AddMySqlPort(grph,instanceMySql):
 
-	grph = cgiEnv.GetGraph()
+	# Maybe there is a port number.
+	hostMySql = instanceMySql.split(":")[0]
 
-	mysql_cmd = "mysqladmin processlist"
+	# TODO: Display the connection socket ?
+	nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
 
-	try:
-		mysql_resu = os.popen(mysql_cmd)
-	except FileNotFoundError:
-		lib_common.ErrorMessageHtml("Cannot find mysqladmin")
+	nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
 
-	for lin in mysql_resu:
-		sys.stderr.write("lin="+lin+"\n")
-		words_arr = lin.split('|')
+	aCred = lib_credentials.GetCredentials( "MySql", instanceMySql )
+
+	grph.add( ( nodeInstance, lib_common.MakeProp("Mysql user"), lib_common.NodeLiteral(aCred[0]) ) )
+	grph.add( ( nodeInstance, lib_common.MakeProp("Mysql instance"), nodeHostMySql ) )
+
+	mysql_cmd_lst = ["mysqladmin","-u",aCred[0],"-p%s"%aCred[1],"-h%s"%hostMySql,"processlist"]
+	mysql_cmd = " ".join(mysql_cmd_lst)
+	sys.stderr.write("mysql_cmd=%s\n"%mysql_cmd)
+
+	command = subprocess.Popen(mysql_cmd_lst, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	(cmd_output, cmd_error) = command.communicate()
+	sys.stderr.write("mysql_cmd cmd_error=%s\n"%cmd_error)
+
+	# [Warning] Using a password on the command line interface can be insecure.
+	if cmd_error and cmd_error.find(""):
+		lib_common.ErrorMessageHtml("Error running mysqladmin:"+ cmd_error)
+
+	for linSql in cmd_output.split("\n"):
+		sys.stderr.write("linSql="+linSql+"\n")
+		words_arr = linSql.split('|')
 		if len(words_arr) < 4:
 			continue
 
 		mysql_id = words_arr[1].strip()
 		# This is a MySql user, not Linux or Windows.
 		mysql_user = words_arr[2].strip()
+		# Should be the same as hostMySql ?
 		mysql_host = words_arr[3].strip()
 		mysql_command = words_arr[8].strip()
 		if mysql_host == 'Host':
@@ -53,7 +85,7 @@ def Main():
 		sys.stderr.write("host="+mysql_host+"\n")
 
 		mysql_addr_arr = mysql_host.split(':')
-		mysql_id_node = lib_common.NodeUrl('urn://' + lib_util.currentHostname + '/mysql/' + str(mysql_id) )
+		mysql_id_node = lib_common.NodeUrl('urn://' + mysql_host + '/mysql/' + str(mysql_id) )
 		if len(mysql_addr_arr) == 2:
 			socketNode = lib_common.gUriGen.AddrUri( mysql_addr_arr[0], mysql_addr_arr[1] )
 			# BEWARE: mysql_id_node is not a process. But why not after all.
@@ -62,27 +94,36 @@ def Main():
 			# Otherwise, the merging will not bring anything.
 			sql_task_node = socketNode
 
-		# TODO: Here, we only know that another process from anothere machine is connected here.
-		#else:
-		#	dummy_local_process = lib_common.AnonymousPidNode(lib_util.currentHostname)
-		#	grph.add( ( dummy_local_process, pc.property_mysql_id, mysql_id_node ) )
-		#	sql_task_node = dummy_local_process
+		grph.add( ( sql_task_node, lib_common.MakeProp("Mysql user"), lib_common.NodeLiteral(mysql_user) ) )
 
+		# TODO: Add a specific node for the SQL query.
 		if mysql_command != "":
 			grph.add( ( sql_task_node, pc.property_information, lib_common.NodeLiteral(mysql_command) ) )
 
+		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql session"), sql_task_node ) )
 
-	# Ce lien est en principe toujours valable.
-	# Mais idealement il faudrait le tester.
-	# TODO: CHECK IF THIS IS THE RIGHT PORT NUMBER.
-
-	phpmyadminUrl = "http://" + lib_util.currentHostname + "/phpmyadmin/"
+	# phpmyadminUrl = "http://" + lib_util.currentHostname + "/phpmyadmin/"
+	# TODO: Is this the right port number ?
+	phpmyadminUrl = "http://" + hostMySql + "/phpmyadmin/"
 	phpmyadminNode = lib_common.NodeUrl( phpmyadminUrl )
-	grph.add( ( lib_common.nodeMachine, pc.property_rdf_data_nolist1, phpmyadminNode ) )
+	return phpmyadminNode
+
+
+def Main():
+	cgiEnv = lib_common.CgiEnv()
+
+	grph = cgiEnv.GetGraph()
+
+	credNames = lib_credentials.GetCredentialsNames( "MySql" )
+
+	for instanceMySql in credNames:
+		sys.stderr.write("MySql servers instanceMySql=%s\n"%(instanceMySql))
+
+		phpmyadminNode = AddMySqlPort(grph,instanceMySql)
+		grph.add( ( lib_common.nodeMachine, pc.property_rdf_data_nolist1, phpmyadminNode ) )
+
 
 	cgiEnv.OutCgiRdf()
-
-# Il faudrait renvoyer vers le site http://localhost/phpmyadmin/ quand on examine 
 
 if __name__ == '__main__':
 	Main()
