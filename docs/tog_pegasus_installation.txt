@@ -1,0 +1,77 @@
+tog-pegasus is the name of the RPM package which installs a CIM server on redhat.
+It is the "OpenPegasus CIMOM"
+Pegasus in a simple service qhich can run on Linux and Windows.
+cimconfig is the name of the program for configuring pegasus.
+
+It can use two port numbers:
+5989 with HTTPS
+5989 with HTTP, it is not aenabled by default.
+
+INSTALLING TOG-PEGASUS ON REDHAT
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/sect-openlmi-install
+
+
+* Install the tog-pegasus package. You must be connected as root:
+yum install tog-pegasus
+
+* Install required CIM providers. More providers are available on RedHat:
+yum install openlmi-{storage,networking,service,account,powermanagement}
+
+* Edit the /etc/Pegasus/access.conf configuration file for the users allowed to connect to OpenPegasus. "pegasus" is the default user.
+
+passwd pegasus
+
+* Now you can starts the service and enable it, so that it will always start:
+systemctl start tog-pegasus.service
+systemctl enable tog-pegasus.service
+
+* If needed, setup the firewall for ports 5988 and 5989:
+firewall-cmd --add-port 5989/tcp
+firewall-cmd --permanent --add-port 5989/tcp
+
+* Install OpenLMI on a client machine. this is not required, only helpful for testing:
+yum install openlmi-tools
+
+HOW TO LIST tog-pegasus RUNTIME PARAMETERS:
+
+$ for na in $(cimconfig -l); do echo $na $(cimconfig -g $na); done
+enableAssociationTraversal Current value: true
+maxProviderProcesses Current value: 0
+enableAuditLog Current value: false
+sslClientVerificationMode Current value: disabled
+forceProviderProcesses Current value: true
+idleConnectionTimeout Current value: 0
+mimeTypesFile Current value: www/mimeTypes.txt
+listenAddress Current value: All
+enableSubscriptionsForNonprivilegedUsers Current value: true
+slp Current value: false
+sslBackwardCompatibility Current value: false
+socketWriteTimeout Current value: 20
+hostname Current value: vps516494.localdomain
+messageDir Current value: msg
+shutdownTimeout Current value: 30
+slpProviderStartupTimeout Current value: 300000
+authorizedUserGroups Current value:
+enableRemotePrivilegedUserAccess Current value: true
+enableHttpsConnection Current value: true
+enableIndicationService Current value: true
+sslCipherSuite Current value: DEFAULT
+pullOperationsMaxObjectCount Current value: 10000
+indexFile Current value: index.html
+enableNamespaceAuthorization Current value: false
+sslTrustStoreUserName Current value:
+maxFailedProviderModuleRestarts Current value: 3
+webRoot Current value: www
+enableHttpConnection Current value: false
+fullyQualifiedHostName Current value: vps516494.localdomain
+httpSessionTimeout Current value: 0
+pullOperationsDefaultTimeout Current value: 30
+pullOperationsMaxTimeout Current value: 90
+
+ADJUST tog-pegasus parameters:
+
+[root@vps516494 ~]# cimconfig -s enableHttpConnection=True -p
+Planned value for the property enableHttpConnection is set to "True" in CIMServer.
+
+systemctl restart tog-pegasus.service
