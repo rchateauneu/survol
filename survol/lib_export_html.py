@@ -133,7 +133,7 @@ def WriteOtherUrls(topUrl):
 	WrtAsUtf("""
 	<tr>
 		<td class="other_urls"><a href="%s">RDF format</a></td>
-		<td>Semantic Web, OWL standard / Prot&eacute;g&eacute;&trade;...</td>
+		<td>Semantic Web, OWL standard / Prot&eacute;g&eacute;&trade; / Jena...</td>
 	</tr>
 	""" % lib_exports.ModedUrl("rdf") )
 
