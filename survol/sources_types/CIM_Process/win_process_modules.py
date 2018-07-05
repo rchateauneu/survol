@@ -50,7 +50,8 @@ def Main():
 				# Truncation because "b'C:/xxx/yyy.zzz'", on Python 3
 				filnam = str(tab).replace('\\','/')[2:-1]
 			else:
-				filnam = tab
+				# Windows "\\" must be replaced by "/", so the URLs are the same for all tools.
+				filnam = str(tab).replace('\\','/')
 			# The same filename might appear several times.
 			sys.stderr.write("idx=%d retLen=%d filnam=%s\n"%(idx,retLen,filnam))
 
