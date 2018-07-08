@@ -90,12 +90,12 @@ def GetWmiUserPass(machWithBackSlashes):
 # Before a given version, had to use server="xyz" instead of computer="xyz"
 #c = wmi.WMI(computer="titi",user="titi\\rchateauneu@hotmail.com",password="my_hotmail_pass")
 def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
-	sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
+	# sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
 	# WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
 
 
 	if not machWithBackSlashes or lib_util.IsLocalAddress( machWithBackSlashes ):
-		sys.stderr.write("WmiConnect Local connect\n")
+		# sys.stderr.write("WmiConnect Local connect\n")
 		# return wmi.WMI()
 		return wmi.WMI(find_classes=False)
 
