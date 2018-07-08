@@ -58,6 +58,9 @@ entity.py avec adresse: Ou bien, dans le entity.py, si le port est 80, on doit a
 ============================================================================================================
 le nmap qui interroge les ports ne devrait pas etre limite a 127.0.0.1 mais au contraire le sous-reseau. 
 ============================================================================================================
+From now on, many bugs are reported on:
+https://github.com/rchateauneu/survol/issues
+============================================================================================================
 Ajouter la commande:
 
 nmap -oX - -T5 192.168.1.0/24
@@ -70,10 +73,10 @@ Automatic refresh when displaying the processes tree:
 - Impossible to delete the nodes of this url (When clicking Del in the summary window)
 ============================================================================================================
 
-Check what happens when a file name contains a tilda.
+Check what happens when a filename contains a tilda.
 http://127.0.0.1/PythonStyle/survol/entity.py?xid=file:C%3A%5CDOCUME~1%5CRemi%5CLOCALS~1%5CTemp%5CSkype%5CDbTemp%5Ctemp-968iZH8Qs4gRIszFZIEJETGX
 
-file_directory on a file which is not a directory.
+Running the script file_directory on a file which is not a directory. What happens ?
 http://127.0.0.1/PythonStyle/survol/sources_types/file/file_directory.py?xid=file:C%3A%5CDocuments%20and%20Settings%5CRemi%5CApplication%20Data%5CSkype%5Cshared_dynco%5Cdc.db
 Ca n'affiche rien: Soit on ne propose pas la focntion, soit on  met un message d'information.
 
