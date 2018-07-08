@@ -199,10 +199,12 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 		else:
 			entity_label = entity_suffix
 
-	# Maybe hostname is a CIMOM address.
+	# Maybe hostname is a CIMOM address (For WBEM) or a machine name.
 	if entity_host:
 		if not lib_util.IsLocalAddress( entity_host ):
-			entity_label += " at " + entity_host
+			# If this is a CIMOM, make it shorter: "http://vps516494.ovh.net:5988" or ""https://vps516494.ovh.net:5989"
+			host_only = lib_util.EntHostToIp( entity_host )
+			entity_label += " at " + host_only
 
 	# TODO: Add the host name in the title.
 
