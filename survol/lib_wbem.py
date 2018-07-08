@@ -232,6 +232,8 @@ def GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id ):
 # wbemKlass = conn.GetClass("oracle_package_body", namespace="", LocalOnly=False, IncludeQualifiers=True)
 def WbemConnection(cgiUrl):
 	try:
+		# For the moment, it cannot connect to https:
+		# https://github.com/Napsty/check_esxi_hardware/issues/7
 		creden = lib_credentials.GetCredentials( "WBEM", cgiUrl )
 
 		# ATTENTION: Si probleme de connection, on ne le voit pas ici mais au moment du veritable acces.
