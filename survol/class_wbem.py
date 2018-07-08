@@ -68,7 +68,7 @@ def DisplayAssociatorsAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,m
 			break
 		maxCnt += 1
 
-		# On ne met pas les references dans le Moniker car ca fait une syntaxe inutilisable, pour le moment, du style:
+		# For the moment, references are not added to the Moniker, otherwise the syntax would be too complicated, like:
 		# wbemInstName=root/CIMv2:TUT_ProcessChild.Parent="root/cimv2:TUT_UnixProcess.Handle="1"",Child="root/cimv2:TUT_UnixProcess.Handle="621"",OSCreationClassName="Linux_OperatingSystem",CSName="Unknown-30-b5-c2-02-0c-b5-2.home",CSCreationClassName="Linux_ComputerSystem",CreationClassName="TUT_UnixProcess",OSName="Unknown-30-b5-c2-02-0c-b5-2.home"
 
 		# Do not care about the instance.
@@ -94,7 +94,7 @@ def DisplayAssociatorsAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,m
 
 
 # Display one line per instance of the class as members were literals.
-# This attemps to display the references as links. Does not really work yet,
+# This attempts to display the references as links. It does not really work yet,
 # because "special" properties" have to be used.
 def DisplayAssociatorsAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex):
 	maxCnt = 0
@@ -107,7 +107,7 @@ def DisplayAssociatorsAsList(grph,inst_names,rootNode,nameSpace,entity_host, cla
 			break
 		maxCnt += 1
 
-		# On ne met pas les references dans le Moniker car ca fait une syntaxe inutilisable, pour le moment, du style:
+		# For the moment, references are not added to the Moniker, otherwise the syntax would be too complicated, like:
 		# wbemInstName=root/CIMv2:TUT_ProcessChild.Parent="root/cimv2:TUT_UnixProcess.Handle="1"",Child="root/cimv2:TUT_UnixProcess.Handle="621"",OSCreationClassName="Linux_OperatingSystem",CSName="Unknown-30-b5-c2-02-0c-b5-2.home",CSCreationClassName="Linux_ComputerSystem",CreationClassName="TUT_UnixProcess",OSName="Unknown-30-b5-c2-02-0c-b5-2.home"
 
 		entity_id = ",".join( "%s=%s" % ( k, iname[k] ) for k in iname.keys() )
@@ -179,6 +179,11 @@ def Main():
 	# Hard-coded default namespace.
 	if nameSpace == "":
 		nameSpace = "root/CIMV2"
+
+	# This adds a link to the namespace of this WBEM class: It shows its inheritance graph.
+	urlNamespace = lib_wbem.NamespaceUrl( nameSpace, entity_host, className )
+	nodNamespace = lib_common.NodeUrl( urlNamespace )
+	grph.add( ( rootNode, pc.property_cim_subnamespace , nodNamespace ) )
 
 	try:
 		connWbem = lib_wbem.WbemConnection(entity_host)
