@@ -168,6 +168,9 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	# because it would assume a SVG document.
 	# TODO: See that later.
 
+	# https://stackoverflow.com/questions/5667576/can-i-set-the-html-title-of-a-pdf-file-served-by-my-apache-web-server
+	dictHttpProperties = { "Content-Disposition" : 'inline; filename="Survol_Download"'}
+
 	# For the specific case when it writes into a socket. Strange behaviour:
 	# Without this, it wraps our SVG code in HTML tags, adds its own HTTP header, etc...
 	# The test on stdout comes at the end because it does not work on old Python versions.
@@ -175,7 +178,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 		logfil.write( TimeStamp() + " SVG Header removed\n" )
 	else:
 		logfil.write( TimeStamp() + " Writing SVG header\n" )
-		lib_util.WrtHeader( "image/svg+xml" )
+		lib_util.WrtHeader( "image/svg+xml", dictHttpProperties )
 
 	# Here, we are sure that the output file is closed.
 	CopyToOut(logfil,svg_out_filnam,out_dest)
