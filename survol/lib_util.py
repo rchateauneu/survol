@@ -312,13 +312,13 @@ def IsLocalAddress(anHostNam):
 		return False
 
 	# IsLocalAddress RCHATEAU-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
-	sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(anHostNam,ipOnly,localIP,currentHostname))
+	# sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(anHostNam,ipOnly,localIP,currentHostname))
 	if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
 		# sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
 		return True
 
 	# "RCHATEAU-HP" and "rchateau-HP" ??
-	sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(anHostNam,socket.gethostname()))
+	# sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(anHostNam,socket.gethostname()))
 	if anHostNam.lower() == socket.gethostname().lower():
 		return True
 
@@ -675,6 +675,7 @@ def Scriptize(path, entity_type, entity_id):
 
 xidCgiDelimiter = "?xid="
 
+# This creates the URL of a class, "Survol, "WMI" or "WBEM".
 def EntityClassUrl(entity_type, entity_namespace = "", entity_host = "", category = ""):
 	if entity_type is None:
 		entity_type = ""
@@ -701,6 +702,7 @@ def EntityClassUrl(entity_type, entity_namespace = "", entity_host = "", categor
 	url = uriRoot + "/class_type_all.py" + xidCgiDelimiter + EncodeUri(monikerClass)
 	return url
 
+# This creates the node of a class, "Survol" (Default), "WMI" or "WBEM".
 def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
 	url = EntityClassUrl(entity_type, entity_namespace, entity_host, category)
 
@@ -1304,8 +1306,9 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 	stri = "Content-Type: " + contentType + "; charset=utf-8\n"
 	if extraArgs:
 		# extraArgs in a array of key-value tuples.
-		for key_value in extraArgs:
-			stri += "%s: %s\n" % ( key_value[0], key_value[1] )
+		for args_key in extraArgs:
+			args_value = extraArgs[args_key]
+			stri += "%s: %s\n" % ( args_key, args_value )
 	stri += "\n"
 
 	# Python 3.2
