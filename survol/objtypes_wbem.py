@@ -11,8 +11,8 @@ import lib_common
 from lib_properties import pc
 
 def WbemNamespaceNode( wbemNamespace, cimomUrl, clsNam ):
-	wmiUrl = lib_wbem.NamespaceUrl( wbemNamespace, cimomUrl, clsNam )
-	return lib_common.NodeUrl( wmiUrl )
+	wbemUrl = lib_wbem.NamespaceUrl( wbemNamespace, cimomUrl, clsNam )
+	return lib_common.NodeUrl( wbemUrl )
 
 # http://pywbem.github.io/yawn/index.html
 # "YAWN stands for "Yet Another WBEM Navigator"
@@ -115,7 +115,7 @@ def Main():
 					klaDescrip = "Undefined class %s %s" % ( wbemNamespace, superKlassName )
 				grph.add( ( wbemSuperNode, pc.property_information, lib_common.NodeLiteral(klaDescrip ) ) )
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_cim_subclass])
+	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB",[pc.property_cim_subclass])
 	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
