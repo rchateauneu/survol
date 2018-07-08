@@ -21,3 +21,9 @@ def ToPlural(eltNam,numNodLst):
 
 	return eltNam + "s"
 
+# https://www.theenglishspace.com/grammar/determiners/articles-introduction.html
+def IndefiniteArticle(theWord):
+	if theWord[0].upper() in "AEIOUY":
+		return "an"
+	else:
+		return "a"
