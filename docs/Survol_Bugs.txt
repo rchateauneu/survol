@@ -134,7 +134,45 @@ DataSkypeshared_dyncodc.db pid=4884
 Quand entity=file:xxx, toujours ajouter le directory au-dessus sinon c'est pas commode.
 
 
-
-
 http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib_entry,coclass:C:\WINDOWS\System32\comsnap.dll_(6)
 Ca n'affiche rien.
+
+#
+# A propos de l'installation et setup.py:
+#
+# Quand on lance le script, on doit etre capable de le trouver www pour le copier.
+# Et les positions respectives de "/survol" et "/www" ne sont plus les memes car:
+# - On ne veut pas d'un module qui s'appelle www.
+# - La partie SVG peut vouloir acceder a "www/images"
+# On doit se proposer un numero de port pour les agents. Exploration en javascript,
+# mais quid du cross-scripting.
+#
+# Il y a plusieurs taches:
+# l'installation du module Python.
+# => Eventuellement on y copie /images et /css.
+# L'installation du serveur de cgi Python.
+# => Eventuellement plusieurs installations: Apache, IIS etc...
+#    Comment configurer la ou les installations (Numero de port ?)
+# L'installation (et la copie des fichiers) du serveur de l'interface.
+# => Eventuellement plusieurs installations: Apache, Tomcat etc...
+# => Eventuellement meme installation que le CGI.
+# => L'UI est informee de l'emplacement du CGI.
+# => Pouvoir lancer la page HTML en local pur, et utiliser ActiveX.
+#
+# Quoiqu'il arrive, survol_cgiserver ouvrira toujours une fenetre.
+#
+# Apparemment, c'est pas de la tarte d'installer des donnees avec setup.py.
+# Alors on pourrait tout changer:
+# On a un seul module et des sous-modules:
+# survol/agent : L'agent. Mais on va tout mettre dans survol pour ne pas devoir tout casser.
+# survol/scripts
+# survol/www avec les datas : Mais a condition qu;on puisse avoir des donnees.
+#
+# Comme ca, ca fournit a cgiserver.py d acceder "legalement" aux fichiers HTML au lieu
+# de fourrager dans PYTHON PATH.
+#
+#
+# data_files
+# package_data={'templates':['*'],'static':['*'],'docs':['*'],},
+#
+
