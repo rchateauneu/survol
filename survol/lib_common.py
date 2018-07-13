@@ -169,7 +169,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	# TODO: See that later.
 
 	# https://stackoverflow.com/questions/5667576/can-i-set-the-html-title-of-a-pdf-file-served-by-my-apache-web-server
-	dictHttpProperties = { "Content-Disposition" : 'inline; filename="Survol_Download"'}
+	dictHttpProperties = [ ( "Content-Disposition", 'inline; filename="Survol_Download"') ]
 
 	# For the specific case when it writes into a socket. Strange behaviour:
 	# Without this, it wraps our SVG code in HTML tags, adds its own HTTP header, etc...
