@@ -70,7 +70,6 @@ def CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 		wbemNode = lib_common.NodeUrl(url_server[0])
 		grph.add( ( rootNode, pc.property_wbem_data, wbemNode ) )
 
-		# Le naming est idiot: "rchateau-HP at localhost"
 		wbemHostNode = lib_common.gUriGen.HostnameUri( url_server[1] )
 		grph.add( ( wbemNode, pc.property_host, wbemHostNode ) )
 
@@ -117,6 +116,8 @@ def CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	try:
 		# It simply returns if it cannot connect.
 		connWmi = lib_wmi.WmiConnect(ipOnly,nameSpace,False)
+		if not connWmi:
+			raise Exception("Cannot connect")
 		lib_wmi.WmiAddClassQualifiers( grph, connWmi, wmiNode, className, False )
 
 		# Now displays the base classes, to the top of the inheritance tree.
@@ -126,7 +127,8 @@ def CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 		pairNameNode = None
 		# TODO: If the class is not defined, maybe do not display it.
 		exc = sys.exc_info()[1]
-		grph.add( ( wmiNode, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(str(exc)) ) )
+		errMsg = "WMI connection %s: %s" % (ipOnly,str(exc))
+		grph.add( ( wmiNode, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(errMsg) ) )
 
 	urlNameSpace = lib_wmi.NamespaceUrl(nameSpace,ipOnly,className)
 	# sys.stderr.write("entity_host=%s urlNameSpace=%s\n"%(entity_host,urlNameSpace))
@@ -148,7 +150,7 @@ def AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id):
 
 	pairNameNodeWbem = None
 	if wbemOk:
-		if lib_wbem.ValidClassWbem(entity_host, className):
+		if lib_wbem.ValidClassWbem(className):
 			pairNameNodeWbem = CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
 
 	pairNameNodeWmi = None
@@ -169,7 +171,6 @@ def AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id):
 
 def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 	# This try to find a correct url for an entity type, without an entity id.
-	# TODO: Donner plusieurs types d'enumerations possibles.
 	# At the moment, we just expect a file called "enumerate_<entity>.py"
 	enumerateScript = "enumerate_" + className + ".py"
 	# sys.stderr.write("enumerateScript=%s\n" % enumerateScript)
@@ -222,7 +223,6 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	# TODO: Utiliser la bonne fonction !!!
 	rootNode = lib_util.RootUri()
 
 	objtypeNode = lib_common.NodeUrl( lib_util.uriRoot + '/objtypes.py' )

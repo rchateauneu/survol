@@ -1,3 +1,4 @@
+import sys
 import json
 import cgi
 import re
@@ -63,9 +64,9 @@ def ExternalToTitle(extUrl):
 
 # These properties must have their object displayed not as a separated node,
 # but as a link displayed with a string, a plain HREF.
-FlatPropertertiesList = [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]
+FlatPropertiesList = [ pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]
 def IsFlatProperty(key):
-	return key in FlatPropertertiesList
+	return key in FlatPropertiesList
 
 
 # Used for transforming into SVG format.
@@ -401,18 +402,16 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 			( labText, subjEntityGraphicClass, entity_id) = lib_naming.ParseEntityUri( subjUrl )
 
-			# Probleme avec les champs:
-			# Faire une premiere passe et reperer les fields, detecter les noms des colonnes, leur attribuer ordre et indice.
-			# Seconde passe pour batir les lignes.
-			# Donc on ordonne toutes les colonnes.
-			# Pour chaque field: les prendre dans le sens du header et quand il y a un trou, colonne vide.
-			# Inutile de trier les field, mais il d'abord avoir une liste complete des champs, dans le bon sens.
-			# CA SUPPOSE QUE DANS FIELDSSET LES KEYS SONT UNIQUES.
-			# SI ON NE PEUT PAS, ALORS ON METTRA DES LISTES. MAIS CETTE CONTRAINTE SIMPLIFIE L'AFFICHAGE.
+			# At the moment, two passes are necessary:
+			# * A first pass to create the compte list of fields, because they might be a bit different
+			#   from one record to the other. The column names pf these fields get an unique index number
+			#   and can therefore be sorted.
+			# * A second pass uses these result, to display the lines.
+			#
+			# This could be faster by assuming that the first ten columns have all the fields.
+			# We could then start the second pass, and if an undetected column is found,
+			# then restart from scratch.
 
-			# DOMMAGE QU ON SCANNE LES OBJETS DEUX FOIS UNIQUEMENT POUR AVOIR LES NOMS DES CHAMPS !!!!!!!!!!!!!
-			# TODO: HEURISTIQUE: ON pourrait s'arreter aux dix premiers. Ou bien faire le tri avant ?
-			# On bien prendre les colonnes de la premiere ligne, et recommencer si ca ne marche pas.
 			# Unique columns of the descendant of this subject.
 			rawFieldsKeys = set()
 			for obj in nodLst:
@@ -425,7 +424,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absentes.
 			# S il y a du html ou du RDF, on veut que ca vienne en premier.
 			fieldsKeysOrdered = []
-			for fldPriority in FlatPropertertiesList:
+			for fldPriority in FlatPropertiesList:
 				try:
 					# Must always be appended. BUT IF THERE IS NO html_data, IS IT WORTH ?
 					# TODO: Remove if not HTML and no sub-rdf. CGIPROP
@@ -509,7 +508,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 							else:
 								tmpCell = td_bgcolor + 'align="left">%s</td>' % val.value
 						else:
-							valTitle = lib_naming.ParseEntityUri( val )[0]
+							# This displays objects in a table: The top-level object must be
+							# in the same host, so there is no need to display a long label.
+							valTitle = lib_naming.ParseEntityUriShort( val )[0]
 
 							valTitleUL = lib_exports.DotUL(valTitle)
 							tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitleUL )
@@ -558,8 +559,17 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# Replace the first column by more useful information.
 			numNodLst = len(nodLst)
 
-			# TODO: Compute this once for all.
+			# WBEM and WMI classes have the syntax: "ns1/ns2/ns3:class" and the class it self can have base classes.
+			# Survol classes have the syntax: "dir/dir/dir/class": This considers that namespaces are not really
+			# necessary and can be replaced by classes. Also, there is a one-to-one match between the class inheritance
+			# tree and its directory.
+			# If Survol had to be started from scratch, there would be one Python class per survol class,
+			# and they would be stored in the top dir "root/cimv2" ... it is not too late !
+			#
+			# This strips the upper directories: "mysql/instance" or "oracle/table", if this is a Survol class
 			eltNam = subEntityGraphicClass.split("/")[-1]
+			# This strips the namespace: "root/cimv2:CIM_LogicalElement", if this is a WBEM or WMI class.
+			eltNam = eltNam.split(":")[-1]
 			if not eltNam:
 				# TODO: This is not the right criteria. Must select if we are listing scripts.
 				eltNam = "script"
@@ -587,9 +597,9 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 			# The label might be truncated
 			if subjEntityGraphicClass:
-				helpText = "List of " + subjEntityGraphicClass + " objects in " + labText
+				helpText = "List of " + subjEntityGraphicClass + " in " + labText
 			else:
-				helpText = "List of scripts in " + labText
+				helpText = "Scripts in " + labText
 
 			# TODO: Le title and the content are not necessarily of the same class.
 			# labTextWithBr is the first line of the table containing nodes linked with the
@@ -625,8 +635,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		labHRef = objRdfNode.replace('&','&amp;')
 
 		try:
-			# TODO: Probleme ici: La chaine est deja codee pour HTML ce qui en rend le parsing different
-			# TODO: ... de celui d'un URL deja decode. DOMMAGE: On quote puis unquote !!!
+			# TODO: The chain is already encoded for HTML, so the parsing is different
+			# TODO: ... of an URL already encoded. They are quoted then unquoted.
 			(labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(objRdfNode) )
 		except UnicodeEncodeError:
 			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( objRdfNode ) )
@@ -635,7 +645,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# This function adds <tr> and </tr> on both sides.
 		# This avoids concatenations.
 
-		# Ampersand are intentionnally doubled, because later on they are replaced twice.
+		# Ampersand are intentionally doubled, because later on they are replaced twice.
 		# That is, interpreted twice as HTML entities.
 		# This might be temporary until we replace CGI arguments by genuine WMI Monikers.
 		labTextNoAmp = labText.replace("&amp;amp;"," ")
@@ -644,12 +654,19 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 		# Two columns because it encompasses the key and the value.
 
 		if objEntityGraphClass:
-			# if objEntityGraphClass and objEntityGraphcClass[0] in "AEIOUY":
-			if objEntityGraphClass and objEntityGraphClass[0].upper() in "AEIOUY":
-				str_is_a = " is an "
-			else:
-				str_is_a = " is a "
-			helpText = labTextNoAmp + str_is_a + objEntityGraphClass
+			helpText = labTextNoAmp
+
+			if not helpText:
+				helpText = "Top-level script"
+			# This condition is for WMI and WBEM where the name of the node is also a class or a namespace.
+			# This is a bit convoluted, and just for nicer display.
+			# "root/cimv2 (WBEM subclasses) at http://vps516494.ovh.net:5988 is a root/cimv2:"
+			# "wmi_namespace is a wmi_namespace"
+			elif not labTextNoAmp.startswith( objEntityGraphClass.replace(":", " ") ):
+				if objEntityGraphClass:
+					# "is a" or "is an"
+					theArticle = lib_grammar.IndefiniteArticle(objEntityGraphClass)
+					helpText += " is %s %s" % ( theArticle, objEntityGraphClass )
 		else:
 			if labTextClean.startswith("http"):
 				helpText = "External URL " + labTextNoAmp

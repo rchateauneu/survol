@@ -7,11 +7,6 @@ import lib_util
 import lib_common
 import lib_credentials
 
-#try:
-#	from urllib.parse import urlparse
-#except ImportError:
-#	from urlparse import urlparse
-
 ################################################################################
 
 # TODO: Build a moniker with cimom added at the beginning.
@@ -27,7 +22,6 @@ def BuildWbemNamespaceClass( wbemNamespace, entity_type ):
 		return ( wbemNamespace, entity_type, entity_type )
 
 def BuildWbemMoniker( hostname, namespac = "", classNam = "" ):
-	# Sometimes one is null
 	# Apparently the namespace is not correctly parsed. It should not matter as it is optional.
 	# This also helps when this is a common class between WBEM, WMI and Survol.
 	if namespac:
@@ -35,8 +29,7 @@ def BuildWbemMoniker( hostname, namespac = "", classNam = "" ):
 	else:
 		return "%s/%s." % ( hostname, classNam )
 
-# TODO: Build a moniker with cimom added at the beginning.
-# J ai des doutes sur cette fonction qui est pourtant utilisee deux fois.
+# TODO: Build a moniker with cimom added at the beginning. Must check if really useful.
 def NamespaceUrl(nskey,cimomUrl,classNam=""):
 	wbemMoniker = BuildWbemMoniker( cimomUrl, nskey, classNam )
 	wbemInstanceUrl = lib_util.EntityUrlFromMoniker( wbemMoniker, True, True )
@@ -141,11 +134,23 @@ def WbemServersList():
 	return lstWbemServers
 
 # This returns the WBEM server of a machine.
-# TODO: This should try also the SSL port number 5989,
-# check if credentials are available etc...
+# It checks the credentials to find the best possible Cimom.
+# TODO: This should prefer port 5988 over 5989 which does not work with pywbem anyway.
 def HostnameToWbemServer(hostname):
 	entity_ip_addr = lib_util.EntHostToIpReally(hostname)
 
+	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
+	for urlWbem in credNames:
+		sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
+		# urlWbem = "http://192.168.1.83:5988"
+		parsed_url = lib_util.survol_urlparse( urlWbem )
+		the_host = parsed_url.hostname
+		if the_host == hostname:
+			return urlWbem
+		if the_host == entity_ip_addr:
+			return urlWbem
+
+	# If no credential can be found, just return a default one.
 	return "http://" + entity_ip_addr + ":5988"
 
 ################################################################################
@@ -158,28 +163,20 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 	sys.stderr.write("GetWbemUrls h=%s ns=%s t=%s i=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
 	wbem_urls_list = []
 
-	# entity_ip_addr = lib_util.EntHostToIpReally(entity_host)
-	entity_ip_addr = entity_host
+	# sys.stderr.write("GetWbemUrls entity_host=%s\n" % (entity_host))
 
-	# sys.stderr.write("GetWbemUrls entity_ip_addr=%s\n" % (entity_ip_addr))
-
-	# TODO: Ce ne sont pas les bons parametres,
-	# mais une possibilite est de passer les autres, dans un RemoteEntityId.
-
-	#entity_wbem.py en plus des parametes CIM a besoin de l url du CIMON
-	#Fabriquer un RemoteEntityId ?
-	#Mettre dans RemoteEntityId non seulement l id mais les autres proprietes ?
-	#On ne peut pas mettre de & dans les liens graphviz apparemment a cause d un bug.
-
-	# TODO: Verifier que l entite existe en tant que class WBEM. Sinon on renvoie une liste vide.
-	# TODO: C EST TOUT LE PROBLEME DU MAPPING DES CLASSES ET PROPERTIES.
-
+	# TODO: Should check that the WBEM class exists in the server ?
 	for wbemServer in WbemServersList():
+		# wbemServer=(u'vps516494.ovh.net', u'http://vps516494.ovh.net:5988')
 		sys.stderr.write("GetWbemUrls wbemServer=%s\n"%str(wbemServer))
 		# If no host specified, returns everything.
-		if ( entity_host ) and ( entity_host.lower() != wbemServer[0].lower() ):
-			continue
+		if entity_host:
+			# wbemServer[1].lower()=vps516494.ovh.net entity_host.lower()=http://vps516494.ovh.net:5988
+			if entity_host.lower() != wbemServer[0].lower():
+				sys.stderr.write("GetWbemUrls different wbemServer=%s entity_host=%s\n"%(str(wbemServer[1].lower()),entity_host.lower()))
+				continue
 
+		sys.stderr.write("GetWbemUrls found wbemServer=%s\n"%(str(wbemServer)))
 		theCimom = wbemServer[1]
 
 		# TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
@@ -236,7 +233,8 @@ def WbemConnection(cgiUrl):
 		# https://github.com/Napsty/check_esxi_hardware/issues/7
 		creden = lib_credentials.GetCredentials( "WBEM", cgiUrl )
 
-		# ATTENTION: Si probleme de connection, on ne le voit pas ici mais au moment du veritable acces.
+		sys.stderr.write("WbemConnection creden=%s\n"%str(creden))
+		# Beware: If username/password is wrong, it will only be detected at the first data access.
 		conn = pywbem.WBEMConnection(cgiUrl , creden )
 	except Exception:
 		exc = sys.exc_info()[1]
@@ -271,17 +269,10 @@ def WbemClassDescription(connWbem,entity_type,wbemNamespace):
 		#exc = sys.exc_info()[1]
 		#return "Error: Namespace="+wbemNamespace+" class="+str(entity_type)+". Caught:"+str(exc)
 	return WbemClassDescrFromClass(wbemKlass)
-	#try:
-	#	wbemKlass = connWbem.GetClass(entity_type, namespace=wbemNamespace, LocalOnly=False, IncludeQualifiers=True)
-	#	klaDescrip = wbemKlass.qualifiers['Description'].value
-	#	return klaDescrip
-	#except Exception:
-	#	exc = sys.exc_info()[1]
-	#	return "Namespace="+wbemNamespace+" class="+entity_type+". Caught:"+str(exc)
 
 ################################################################################
 
-# TODO: Il y a de la duplication la-dedans. On fera du menage.
+# TODO: Should remove duplicate code.
 
 def NamespacesEnumeration(conn):
 	"""
@@ -501,10 +492,18 @@ def GetClassesTreeInstrumented(conn,theNamSpace):
 	return outTreeClass
 
 # Tells if this class for our ontology is in a given WBEM server, whatever the namespace is.
-def ValidClassWbem(entity_host, className):
+def ValidClassWbem(className):
 	tpSplit = className.split("_")
 	tpPrefix = tpSplit[0]
+	sys.stderr.write("lib_wbem.ValidClassWbem className=%s tpPrefix=%s\n"%(className,tpPrefix))
 	# "PG" is Open Pegasus: http://www.opengroup.org/subjectareas/management/openpegasus
 	# "LMI" is OpenLmi: http://www.openlmi.org/
 	return tpPrefix in ["CIM","PG","LMI"]
 
+# This must return the label of an url "entity_wmi.py".
+# For example, the name of a process when the PID (Handle) is given.
+# Due to performance problems, consider using a cache.
+# Or a default value for some "expensive" classes.
+def EntityToLabelWbem(namSpac, entity_type_NoNS, entity_id, entity_host):
+	# sys.stderr.write("EntityToLabelWbem\n")
+	return None

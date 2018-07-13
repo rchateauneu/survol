@@ -12,14 +12,10 @@ import lib_common
 import lib_wmi
 from lib_properties import pc
 
-# This displays a specific node for viewing the class as a Survol class.
-# It is also possible to access it dfrom the title of the WMI class,
-# but a specific node makes things clearer.
-def AddSurvolClassNode(grph,className,rootNode):
-	nodeSurvolClass = lib_util.EntityClassNode(className)
-	grph.add( ( rootNode, lib_common.MakeProp("Survol property"), nodeSurvolClass ) )
+# Adds an extra nodes to make things more interesting.
+def AddExtraNodes(grph,rootNode):
 	objtypeNode = lib_common.NodeUrl( lib_util.uriRoot + '/objtypes.py' )
-	grph.add( ( nodeSurvolClass, pc.property_rdf_data_nolist2, objtypeNode ) )
+	grph.add( ( rootNode, pc.property_rdf_data_nolist2, objtypeNode ) )
 
 def Main():
 	paramkeyEnumInstances = "Enumerate instances"
@@ -37,7 +33,7 @@ def Main():
 
 	rootNode = lib_util.EntityClassNode( className, nameSpace, cimomUrl, "WMI" )
 
-	AddSurvolClassNode(grph,className,rootNode)
+	AddExtraNodes(grph,rootNode)
 
 	# Not sure why, but sometimes backslash replaced by slash, depending where we come from ?
 	nameSpace = nameSpace.replace("/","\\")

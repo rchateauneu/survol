@@ -148,6 +148,8 @@ def DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className,
 			break
 		maxCnt += 1
 
+		# This concatenates all the properties, even the ones which are not in the Survol ontology.
+		# This makes sense because we do not know if this class if known by Survol.
 		entity_id = ",".join( "%s=%s" % ( k, iname[k] ) for k in iname.keys() )
 		wbemInstanceUrl = lib_wbem.WbemInstanceUrl( nameSpace, className, entity_id, entity_host )
 
@@ -198,6 +200,7 @@ def Main():
 	# Pour afficher du texte: Remplacer le help statique.
 	# offset va etre un parametre. Helas ne pas se fairew d illusions sur "offset"
 
+	# WBEM and WMI both have the annoying limitation that it is not possible to select only a range of instances.
 	try:
 		inst_names = connWbem.EnumerateInstanceNames(ClassName=className,namespace=nameSpace)
 	except Exception:
