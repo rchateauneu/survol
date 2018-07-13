@@ -429,3 +429,11 @@ def WmiAddBaseClasses(grph,connWmi,wmiNode,entity_host, nameSpace, className):
 		pairsNameNode[baseKlass] = wmiClassNode
 		wmiSubNode = wmiClassNode
 	return pairsNameNode
+
+# This must return the label of an url "entity_wmi.py".
+# For example, the name of a process when the PID (Handle) is given.
+# Due to performance problems, consider using a cache.
+# Or a default value for some "expensive" classes.
+def EntityToLabelWmi(namSpac, entity_type_NoNS, entity_id, entity_host):
+	# sys.stderr.write("EntityToLabelWmi\n")
+	return None

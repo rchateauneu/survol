@@ -28,6 +28,7 @@ from sources_types import CIM_ComputerSystem
 ################################################################################
 
 def AddDefaultNodes(grph,rootNode,entity_host):
+	sys.stderr.write("entity.py AddDefaultNodes entity_host=%s\n"%entity_host)
 	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
 	grph.add( ( currentNodeHostname, pc.property_information, lib_common.NodeLiteral("Current host:"+lib_util.currentHostname) ) )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeHostname ) )
@@ -39,7 +40,7 @@ def AddDefaultNodes(grph,rootNode,entity_host):
 
 # TODO: Maybe the property should be property_script ??
 def AddDefaultScripts(grph,rootNode,entity_host):
-	sys.stderr.write("AddDefaultScripts entity_host=%s\n"%entity_host)
+	sys.stderr.write("entity.py AddDefaultScripts entity_host=%s\n"%entity_host)
 	nodeObjTypes = lib_common.NodeUrl( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodeObjTypes ) )
 

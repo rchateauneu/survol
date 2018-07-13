@@ -79,7 +79,7 @@ def AddWbemServers(entity_host, nameSpace, entity_type, entity_id):
             # TODO: Filter only entity_host
             # sys.stderr.write("url_server=%s\n" % str(url_server))
 
-            if lib_wbem.ValidClassWbem(entity_host, entity_type):
+            if lib_wbem.ValidClassWbem(entity_type):
                 wbemNode = lib_common.NodeUrl(url_server[0])
                 if entity_host:
                     txtLiteral = "WBEM url, host=%s class=%s"%(entity_host,entity_type)

@@ -27,7 +27,7 @@ def UriToTitle(uprs):
 
 ################################################################################
 
-def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
+def EntityArrToLabel(entity_type,entity_ids_arr):
 	funcEntityName = lib_util.HierarchicalFunctionSearch(entity_type,"EntityName")
 
 	if funcEntityName:
@@ -50,7 +50,7 @@ def EntityArrToLabel(entity_type,entity_ids_arr,entity_host):
 # (Apache, IIS, cgiserver.py script running with different accounts and different port numbers),
 # they will calculate the same universal alias for the same objects, even if
 # the URLs are different.
-def EntityArrToAlias(entity_type,entity_ids_arr,entity_host, force_entity_ip_addr ):
+def EntityArrToAlias(entity_type,entity_ids_arr,force_entity_ip_addr ):
 
 	funcUniversalAlias = lib_util.HierarchicalFunctionSearch(entity_type,"UniversalAlias")
 
@@ -61,6 +61,8 @@ def EntityArrToAlias(entity_type,entity_ids_arr,entity_host, force_entity_ip_add
 		# between objects of different classes, on the same machine with the attributes values.
 		ent_ids_joined = ",".join(entity_ids_arr)
 
+		# This adds a hostname to the moniker, with the Survol syntax.
+		# But maybe this object will be described by WBEM or WMI.
 		univAlias = "%s@%s:%s" % (force_entity_ip_addr, entity_type, ent_ids_joined)
 
 	#sys.stderr.write("EntityArrToAlias entity_type=%s entity_ids_arr=%s force_entity_ip_addr=%s univAlias=%s\n"
@@ -70,7 +72,7 @@ def EntityArrToAlias(entity_type,entity_ids_arr,entity_host, force_entity_ip_add
 # For an association, we might have:
 # entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"
 # This is not easy to manage but avoids ambiguities.
-def EntityToLabel(entity_type,entity_ids_concat, entity_host, force_entity_ip_addr):
+def EntityToLabel(entity_type,entity_ids_concat,force_entity_ip_addr):
 	# sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
 
 	# Specific case of objtypes.py
@@ -87,9 +89,9 @@ def EntityToLabel(entity_type,entity_ids_concat, entity_host, force_entity_ip_ad
 	entity_ids_arr = [ splitKV.get( keyOnto, keyOnto + "?" ) for keyOnto in ontoKeys ]
 
 	if force_entity_ip_addr:
-		entity_label = EntityArrToAlias(entity_type,entity_ids_arr,entity_host, force_entity_ip_addr)
+		entity_label = EntityArrToAlias(entity_type,entity_ids_arr,force_entity_ip_addr)
 	else:
-		entity_label = EntityArrToLabel(entity_type,entity_ids_arr,entity_host)
+		entity_label = EntityArrToLabel(entity_type,entity_ids_arr)
 	# sys.stderr.write("EntityToLabel entity_label=%s\n" % entity_label )
 
 	# There might be extra properties which are not in our ontology.
@@ -210,6 +212,48 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 
 	return entity_label
 
+
+def CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,filScript):
+	( namSpac, entity_type_NoNS, _ ) = lib_util.ParseNamespaceType(entity_type)
+
+	if not force_entity_ip_addr and not lib_util.IsLocalAddress(entity_host):
+		entity_label = None
+		if filScript == "entity_wbem.py":
+			import lib_wbem
+			# Because of WBEM, entity_host is a CIMOM url, like "http://vps516494.ovh.net:5988"
+			entity_label = lib_wbem.EntityToLabelWbem(namSpac, entity_type_NoNS, entity_id, entity_host)
+			if not entity_label:
+				# Fallback to Survol label.
+				actual_host = lib_util.EntHostToIp(entity_host)
+
+				entity_label = EntityToLabel(entity_type_NoNS, entity_id, actual_host)
+		elif filScript == "entity_wmi.py":
+			import lib_wmi
+			# For WMI, the hostname is a NETBIOS machine name.
+			entity_label = lib_wmi.EntityToLabelWmi(namSpac, entity_type_NoNS, entity_id, entity_host)
+			if not entity_label:
+				# Fallback to Survol label.
+				actual_host = lib_util.EntHostToIp(entity_host)
+				entity_label = EntityToLabel(entity_type_NoNS, entity_id, actual_host)
+		else:
+			# filScript in [ "class_type_all.py", "entity.py" ], or if no result from WMI or WBEM.
+			entity_label = EntityToLabel(entity_type_NoNS, entity_id, entity_host)
+
+	elif entity_type_NoNS or entity_id:
+		entity_label = EntityToLabel( entity_type_NoNS, entity_id, force_entity_ip_addr )
+	else:
+		# Only possibility to print something meaningful.
+		entity_label = namSpac
+
+	# Some corner cases: "http://127.0.0.1/Survol/survol/entity.py?xid=CIM_ComputerSystem.Name="
+	if not entity_label:
+		entity_label = entity_type
+
+	return entity_label
+
+
+
+
 # Extracts the entity type and id from a URI, coming from a RDF document. This is used
 # notably when transforming RDF into dot documents.
 # The returned entity type is used for choosing graphic attributes and gives more information than the simple entity type.
@@ -232,6 +276,9 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
 	uprs = lib_util.survol_urlparse(uri)
 
 	filScript = os.path.basename(uprs.path)
+	# sys.stderr.write("ParseEntityUri filScript=%s\n"%filScript)
+
+	# Very specific case when a Survol agent runs on OVH websites, not designed for this usage.
 	if filScript == "survolcgi.py":
 		return ParseEntitySurvolUri(uprs,longDisplay, force_entity_ip_addr)
 
@@ -240,23 +287,13 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
 	# objtypes_wbem.py     Just extracts the namespace, as it prefixes the type: xid=namespace/type:id
 
 	if uprs.query.startswith("xid="):
-		# TODO: La chaine contient peut-etre des codages HTML et donc ne peut pas ete parsee !!!!!!
+		# TODO: Maybe the chain contains HTML codes and therefore cannot be parsed.
 		# Ex: "xid=%40%2F%3Aoracle_package." == "xid=@/:oracle_package."
 		( entity_type, entity_id, entity_host ) = lib_util.ParseXid( uprs.query[4:] )
 
 		entity_graphic_class = entity_type
 
-		( namSpac, entity_type_NoNS, _ ) = lib_util.ParseNamespaceType(entity_type)
-
-		if entity_type_NoNS or entity_id:
-			entity_label = EntityToLabel( entity_type_NoNS, entity_id, entity_host, force_entity_ip_addr )
-		else:
-			# Only possibility to print something meaningful.
-			entity_label = namSpac
-
-		# Some corner cases: "http://127.0.0.1/Survol/survol/entity.py?xid=CIM_ComputerSystem.Name="
-		if not entity_label:
-			entity_label = entity_type
+		entity_label = CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,filScript)
 
 		# TODO: Consider ExternalToTitle, similar logic with different results.
 		if longDisplay:
