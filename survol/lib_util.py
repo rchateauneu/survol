@@ -1306,9 +1306,9 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 	stri = "Content-Type: " + contentType + "; charset=utf-8\n"
 	if extraArgs:
 		# extraArgs in a array of key-value tuples.
-		for args_key in extraArgs:
-			args_value = extraArgs[args_key]
-			stri += "%s: %s\n" % ( args_key, args_value )
+		# The order is preserved, and the same property can appear several times.
+		for key_value in extraArgs:
+			stri += "%s: %s\n" % ( key_value[0], key_value[1] )
 	stri += "\n"
 
 	# Python 3.2
