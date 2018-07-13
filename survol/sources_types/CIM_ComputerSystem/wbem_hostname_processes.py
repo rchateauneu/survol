@@ -33,10 +33,10 @@ def Main():
 	# just like a remote machine, which means User Account Control (UAC) disabling,
 	# and maybe setting LocalAccountTokenFilterPolicy=1
 	if lib_util.IsLocalAddress( machineName ):
-		machName_or_None = None
+		#machName_or_None = None
 		serverBox = lib_common.gUriGen
 	else:
-		machName_or_None = machineName
+		#machName_or_None = machineName
 		serverBox = lib_common.RemoteBox(machineName)
 
 	# >>> conn = pywbem.WBEMConnection("http://192.168.1.88:5988" , ('pe***us','t*t*') )
