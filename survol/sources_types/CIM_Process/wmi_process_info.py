@@ -24,10 +24,10 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	if ( machineName == lib_util.currentHostname ) or ( not machineName ):
-		machName_or_None = None
+		#machName_or_None = None
 		serverBox = lib_common.gUriGen
 	else:
-		machName_or_None = machineName
+		#machName_or_None = machineName
 		serverBox = lib_common.RemoteBox(machineName)
 
 	node_process = serverBox.PidUri(pid)
