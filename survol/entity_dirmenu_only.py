@@ -41,7 +41,7 @@ def DirMenuReport(depthCall,strMsg):
 # TODO: Only return json data, and this script will only return json, nothing else.
 def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagShowAll):
 
-	def IsDirectoryUsable(depthCall):
+	def IsDirectoryUsable(relative_dir,parentNode,depthCall):
 		# Maybe there is a usability test in the current module.
 		# The goal is to control all scripts in the subdirectories, from here.
 		try:
@@ -94,7 +94,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 		# If this is a remote host, all scripts are checked because they might have
 		# the flag CanProcessRemote which is defined at the script level, not the directory level.
 		if not entity_host:
-			if not IsDirectoryUsable(depthCall):
+			if not IsDirectoryUsable(relative_dir,parentNode,depthCall):
 				return False
 
 
