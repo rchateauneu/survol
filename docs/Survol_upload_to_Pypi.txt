@@ -17,22 +17,23 @@ index-servers=
 ## repository=https://pypi.python.org/pypi
 repository=https://upload.pypi.org/legacy/
 username=rchateauneu
-password=*********
+password=***************
 
 [pypitest]
 repository=https://test.pypi.org/legacy/
 username=rchateauneu
-password=*********
+password=*****************
 ----------------------------------------------------------------------
 
 # When uploading, the version must be changed in setup.py. pypi does not accept to load twice the same version.
 # Command to upload on Pypi test:
+# cd in the directory where setup.py is:
 python setup.py sdist upload -r pypitest
 
 # Result can be checked at https://testpypi.python.org/pypi/survol/1.0.dev2
 
 
-# Command to upload on Pypi:
+# Command to upload on Pypi (Real version, not test):
 python setup.py sdist upload -r pypi
 
 # Result at:
