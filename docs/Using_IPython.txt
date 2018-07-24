@@ -1,0 +1,55 @@
+import survol
+
+Library to combine URL.
+By default, the default URL uses the scripts in place, without TCP/IP connection.
+
+Example: Combining these three URLs:
+
+http://127.0.0.1/Survol/survol/sources_types/addr/socket_connected_processes.py?xid=addr.Id%3DWDMYCLOUDMIRROR%3Amicrosoft-ds
+http://rchateau-hp:8000/survol/sources_types/SMB/net_share.py?xid=.
+Localhost: survol/sources_types/java/java_processes.py?xid=.
+
+import survol
+
+url1 = survol.source("addr/socket_connected_processes.py?xid=addr.Id%3DWDMYCLOUDMIRROR%3Amicrosoft-ds","http://127.0.0.1/Survol")
+url2 = survol.source("SMB/net_share.py?xid=.","http://rchateau-hp:8000")
+url3 = survol.source("java/java_processes.py?xid=.")
+
+# This aggregates the URL as Survol does.
+url_merge = url1 + url2 + url3
+
+url_merge.url() # This returns the URL as calculated by Survol.
+url_merge.url("html") # This concatenates : "?mode=html"
+url_merge.url("svg")
+
+To display the result:
+
+
+Pour afficher, utiliser les
+url1.display("svg")
+
+from IPython.display import HTML
+HTML(url=url1.url("html"))
+
+from IPython.display import SVG
+SVG(url=url2.url("svg"))
+
+Difficulty: What about running the local scripts in the context of the Python interpreter ?
+* This is extremely fast.
+* This is the most common case.
+* There might be side-effects (But this is an opportunity to test the script and prepare WSGI)
+* The other solution might imply to start a HTTP server
+* Should investigate how IPython loads the content of an URL: Maybe some form of local socket is possible.
+Or maybe it is possible to pass to SVG() or HTML() the keyword and the value:
+
+url2.url_pair("html") => { "url": "http://rchateau-hp:8000/survol/sources_types/SMB/net_share.py?xid=." }
+
+# This would create a temp file on the fly (And delete in some sort of destructor ?)...
+url3.url_pair("svg") => { "file": "/tmp/survol_6547654765476547654.svg" }
+
+# ... Or pass data.
+
+Pass parameter with double-star **kwargs.
+IPython.display.SVG(data=None, url=None, filename=None)
+IPython.display.HTML(data=None, url=None, filename=None)
+
