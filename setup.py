@@ -2,6 +2,8 @@
 
 import os
 import sys
+from itertools import ifilter
+import ast
 
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
 
@@ -101,12 +103,15 @@ def package_files(directory):
 
 extra_files = package_files('survol/www')
 
+with open(os.path.join('survol', '__init__.py')) as f:
+    __version__ = ast.parse(next(ifilter(lambda line: line.startswith('__version__'),f))).body[0].value.s
+
 with open('README.txt') as readme_file:
     README = readme_file.read()
 
 setup(
     name='survol',
-    version='1.0.dev3',
+    version=__version__,
     description='Understanding legacy applications',
 	long_description=README,
     author='Remi Chateauneu',
