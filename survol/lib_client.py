@@ -2,18 +2,12 @@
 
 # Server("127.0.0.1:8000").CIM_Process(Handle=1234) and Server("192.168.0.1:8000").CIM_Datafile(Name='/tmp/toto.txt')
 #
-class Server:
+class Source:
 	# This works with an Url or a local script. Possibly with a static file.
 	def __init__(self,address=None):
 		self.m_address = address
 
 		self.m_is_file = True
-
-	# from IPython.display import HTML
-	# HTML(url="http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.&mode=html")
-
-	# from IPython.display import SVG
-	# SVG(url='http://vps516494.ovh.net/Survol/survol/entity.py?xid=Linux/cgroup.Name=memory')
 
 	def __url_with_mode(self,mode):
 		# TODO: "?" or "&"
@@ -38,10 +32,15 @@ class Server:
 
 		raise Exception("This is unexpected")
 
-	# Output formats HTML, SVG, JSON, RDF. All are processed differently, so there is no need to unify.
+	# from IPython.display import HTML
+	# HTML(url="http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.&mode=html")
+	# Call this with **kwargs operator: HTML( **mySource.pair_html() )
 	def pair_html(self,mode):
 		return self.__pair_display("html")
 
+	# from IPython.display import SVG
+	# SVG(url='http://vps516494.ovh.net/Survol/survol/entity.py?xid=Linux/cgroup.Name=memory')
+	# Call this with **kwargs operator: SVG( **mySource.pair_svg() )
 	def pair_svg(self,mode):
 		return self.__pair_display("svg")
 
@@ -56,6 +55,13 @@ class Server:
 			return the_url
 
 		raise Exception("This is unexpected")
+
+	# This return the merge of the two urls.
+	# Easy of two urls. What of one script and one url ?
+	# TODO: Modify merge_scritps so it can handle urls and scripts.
+	#
+	def __add__(self, other):
+		return None
 
 	# So it can be used with rdflib and its Sparql component.
 	def content_rdf(self):
