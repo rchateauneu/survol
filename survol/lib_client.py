@@ -1,4 +1,4 @@
-# This allows to easily handle Survol URLs in Jupyter.
+# This allows to easily handle Survol URLs in Jupyter or any other client.
 
 # Server("127.0.0.1:8000").CIM_Process(Handle=1234) and Server("192.168.0.1:8000").CIM_Datafile(Name='/tmp/toto.txt')
 #
@@ -57,6 +57,7 @@ class Server:
 
 		raise Exception("This is unexpected")
 
+	# So it can be used with rdflib and its Sparql component.
 	def content_rdf(self):
 		return self.__content("rdf")
 
