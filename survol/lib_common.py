@@ -366,11 +366,6 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	topUrl = lib_util.TopUrl( "", "" )
 
-	#class CgiInterface(object):
-	#	pass
-
-	# pseudoCgi = CgiInterface()
-
 	pseudoCgi = CgiEnv()
 	pseudoCgi.m_graph = globalGraph
 	pseudoCgi.m_page_title = page_title
@@ -384,9 +379,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	pseudoCgi.m_entity_id = ""
 	pseudoCgi.m_entity_host = ""
 
-	# It also needs this method:
-	# def GetParameters(self,paramkey):
-
+	# A single rendering of all RDF nodes and links merged from several scripts.
 	OutCgiMode( pseudoCgi, topUrl, theMode, errorMsg = cumulatedError )
 
 	return
@@ -684,6 +677,7 @@ class CgiEnv():
 		if self.m_page_title is None:
 			self.m_page_title = "PAGE TITLE SHOULD BE SET"
 
+		# See if this can be used in lib_client.py and merge_scritps.py.
 		if globalMergeMode:
 			# At the end, only one call to OutCgiMode() will be made.
 			globalCgiEnvList.append(self)
