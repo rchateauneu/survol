@@ -79,6 +79,7 @@ class SourceCgi (SourceBase):
 	# If it does not have the necessary CGI args,
 	# then loop on the existing objects of this class.
 	def IsCgiComplete(self):
+		print("SourceCgi.IsCgiComplete")
 		return True
 
 
@@ -92,7 +93,15 @@ class SourceUrl (SourceCgi):
 
 	def __url_with_mode(self,mode):
 		# TODO: "?" or "&"
-		return self.m_url + "?mode=" + mode
+		ixAmpersand = self.m_url.find("&")
+		if ixAmpersand < 0:
+			ixQuest = self.m_url.find("?")
+			if ixQuest < 0:
+				return self.m_url + "?mode=" + mode
+			else:
+				return self.m_url + "&mode=" + mode
+		else:
+			return self.m_url + "&mode=" + mode
 
 	# Output formats HTML, SVG, JSON, RDF. All are processed differently, so there is no need to unify.
 	def __pair_display(self,mode):
@@ -104,12 +113,13 @@ class SourceUrl (SourceCgi):
 	def get_content_moded(self,mode):
 		the_url = self.__url_with_mode(mode)
 
+		print("get_content_moded the_url=%s"%the_url)
 		response = urlopen(the_url)
 		data = response.read().decode("utf-8")
 		url_content = json.loads(data)
 		return url_content
 
-class SourceScript (SourceBase):
+class SourceScript (SourceCgi):
 	def __init__(self,aScript):
 		self.m_script = aScript
 		dictParams = { "todo": "todo"}
@@ -138,7 +148,7 @@ class SourceScript (SourceBase):
 
 class SourceMerge (SourceBase):
 	def __init__(self,srcA,srcB):
-		if not srcA.IsComplete():
+		if not srcA.IsCgiComplete():
 			raise Exception("Left-hand-side URL must be complete")
 		self.m_srcA = srcA
 		self.m_srcB = srcB
@@ -146,7 +156,7 @@ class SourceMerge (SourceBase):
 
 	def get_content(self,current_triplestore):
 		triplestoreA = self.m_srcA.get_triplestore()
-		if self.IsComplete():
+		if self.IsCgiComplete():
 			triplestoreB = self.m_src_B.get_triplestore()
 
 			return self.combine_triplestores(triplestoreA,triplestoreB)
@@ -167,7 +177,7 @@ class SourceMerge (SourceBase):
 
 class SourceMergePlus (SourceMerge):
 	def __init__(self,srcA,srcB):
-		super(SourceScript, self).__init__(srcA,srcB)
+		super(SourceMergePlus, self).__init__(srcA,srcB)
 
 	@staticmethod
 	def combine_triplestores(triplestoreA,triplestoreB):
@@ -175,7 +185,7 @@ class SourceMergePlus (SourceMerge):
 
 class SourceMergeMinus (SourceMerge):
 	def __init__(self,srcA,srcB):
-		super(SourceScript, self).__init__(srcA,srcB)
+		super(SourceMergeMinus, self).__init__(srcA,srcB)
 
 	@staticmethod
 	def combine_triplestores(triplestoreA,triplestoreB):
