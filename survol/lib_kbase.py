@@ -1,4 +1,4 @@
-# Reimplement some features of rdflib
+# Encapsulate rdflib features.
 
 import rdflib
 import sys
@@ -19,12 +19,22 @@ def MakeNodeUrl(url):
 	# sys.stderr.write("MakeNodeUrl url=%s uriRef=%s\n"%(url,uriRef))
 	return uriRef
 
-#def MakeUriRef(url):
-#	return rdflib.URIRef(url)
-
 def MakeNamespace(primns):
 	pc = rdflib.Namespace(primns)
 	return pc
 
 def MakeGraph():
 	return rdflib.Graph()
+
+# objsList = lib_kbase.enumerate_objects_from_class(triplestoreA,self.m_src_B.m_class)
+def enumerate_objects_from_class(triplestoreA,aClassName):
+	return None
+	# On va plutot mettre une fonction de match.
+	# Or simply iterate.
+	# qskjdhflqjkhsdfl
+
+# This reasonably assumes that the triplestore library is able to convert from RDF.
+def triplestore_from_rdf_xml(docXmlRdf):
+	return None
+	# qsdkjfmlqjskdfm
+
