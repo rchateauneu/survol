@@ -477,6 +477,18 @@ line-height: 60px;
 .about-survol .technology {
     padding: 20px 0;
 }
+
+.jobs {
+	margin: 60px 0 40px 0;
+}
+
+.events {
+	margin: 60px 0 40px 0;
+}
+
+.dockit {
+	margin: 60px 0 40px 0;
+}
 .about-survol .about-heading span{
 }
 .about-survol .technology img.img-outline{
