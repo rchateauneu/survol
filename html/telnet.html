@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Use Case: TELNET</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
+
+      rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <!--- top bar -->
+    <div class="topbar thetop">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-sm-8 col-xs-12 left-part"> <span class="phone"><i
+
+                class="fa fa-phone"></i> <a href="tel:+447769516770" class="no-deco">+44
+                77 6951 6770</a></span> <span class="email"><i class="fa fa-envelope"></i>
+              <a href="mailto:contact@primhillcomputers.com" class="no-deco">contact@primhillcomputers.com</a></span>
+          </div>
+          <div class="col-md-6 col-sm-4 col-xs-12 right-part">
+            <ul class="hrlist social-icons">
+              <li><a href="javascript:void()"><i class="fa fa-facebook"></i></a><br>
+              </li>
+              <li><a href="javascript:void()"><i class="fa fa-twitter"></i></a><br>
+              </li>
+              <li><a href="javascript:void()"><i class="fa fa-google-plus"></i></a><br>
+              </li>
+              <li><a href="javascript:void()"><i class="fa fa-linkedin"></i></a><br>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End -->
+    <!--- navigation -->
+    <div class="container">
+      <nav class="navbar navbar-default nav-def">
+        <!-- Brand and toggle get grouped for better mobile display --> <a href="index.html"
+
+          class="nav-logo"><img src="images/logo.png" class="img-responsive"></a>
+        <div class="navbar-header"> <button type="button" data-target="#navbarCollapse"
+
+            data-toggle="collapse" class="navbar-toggle"> <span class="sr-only">Toggle
+              navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+            <span class="icon-bar"></span> </button> </div>
+        <!-- Collection of nav links and other content for toggling -->
+        <div id="navbarCollapse" class="collapse navbar-collapse" >
+          <ul class="nav navbar-nav navbar-right pad-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="solutions.html">Solutions</a></li>
+            <li class="dropdown">
+              <a href="#" data-toggle="dropdown" class="dropdown-toggle">Survol <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li> <a href="survol.html">Survol</a> </li>
+                <li class="divider"></li>
+                <li> <a href="faq.html">Survol Faq</a> </li>
+                <li> <a href="architecture.html">Survol Architecture</a> </li>
+                <li> <a href="installation.html">Survol Installation</a> </li>
+                <li> <a href="usecase.html">Survol Use Cases</a> </li>
+              </ul>
+            </li>
+            <li> <a href="dock_it.html">DockIT</a></li>
+            <li> <a href="jobs.html">Jobs</a></li>
+            <li> <a href="events.html">Events</a></li>
+            <li><a href="contact.php">Contact Us</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <!-- End -->
+    <!-- breadcrum section -->
+    <div class="breadcrum-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
+            <h1 class="page-title">TELNET</h1>
+          </div>
+          <div class="col-lg-6 col-md-5 col-sm-6 col-xs-12">
+            <ul class="breadcrumb">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="usecase.html">Survol Usecase</a></li>
+              <li class="active">TELNET</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end -->
+    <!-- about US -->
+    <section class="white-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 col-md-4 col-sm-12 col-xs-12">
+            <div class="we-img1 img-left-res"> <img src="images/telnet.png" class="img-responsive img-outline">
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
+            <h2 class="sec-head text-left"><b>SURVOL USECASE</b> : <span>TELNET</span></h2>
+            <div class="about-img"><img src="images/about-line.png"></div>
+            <div class="par p-t-0">
+              <p class="infotxt big">This use case attempts to demonstrate
+                Survol capability to visualize on the same display, resources
+                from different machines. Two Survol agents are running on the
+                client and the server, and their data need to be displayed on
+                the same window.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="grey-sec">
+      <div class="container">
+        <div class="col-xs-12">
+          <p class="sec-head2">SETUP</p>
+          <p class="infotxt big">We want to focus on processes that Apache might
+            not be able to access, notably because Linux security is quite
+            strict. This is why Survol, on the client side, is started from a
+            script, with the same user as the one running the telnet access.</p>
+          <code class="pre">[rchateau@fedora22 rdfmon-code]$ survol/scripts/cgiserver.py --address 192.168.0.17
+Platform=linux2
+
+Version:sys.version_info(major=2, minor=7, micro=10, releaselevel='final', serial=0)
+
+Server address:81.200.64.50
+Opening 192.168.0.17:8000
+os.environ['PYTHONPATH']=/home/rchateau/rdfmon-code/survol
+Url:http://192.168.0.17:8000/survol/www/index.htm
+server=192.168.0.17</code>
+          <p class="sec-subhead">Similarly, on the server, Survol is started
+            from a script:</p>
+          <code class="pre">C:\Users\rchateau\Development
+&gt;cd C:\Users\rchateau\Development\PythonStyle
+
+C:\Users\rchateau\Development\PythonStyle&gt;python survol\scripts\cgiserver.py
+Platform=win32
+
+Version:sys.version_info(major=2, minor=7, micro=10, releaselevel='final', serial=0)
+
+Server address:192.168.0.14
+Opening rchateau-HP:8000
+os.environ['PYTHONPATH']=survol
+Url:http://rchateau-HP:8000/survol/www/index.htm
+</code>
+          <p class="sec-subhead">The plan, here, is to examine a telnet session
+            between a Linux client telnet, IP address 192.168.0.17 and a Windows
+            telnet server, 192.168.0.14. Let's start the telnet session on the
+            Linux machine:</p>
+          <code class="pre">[rchateau@fedora22 rdfmon-code]$ telnet 192.168.0.14
+Trying 192.168.0.14...
+Connected to 192.168.0.14.
+Escape character is '^]'.
+Welcome to Microsoft Telnet Service
+
+login: rchateau
+password:
+
+*===============================================================
+Microsoft Telnet Server.
+*===============================================================
+C:\Users\rchateau&gt;</code>
+          <p class="infotxt big">This document details each steps of the
+            investigation.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section class="white-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <p class="sec-head2">CLIENT SIDE INVESTIGATION</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 col-md-7">
+            <p class="infotxt big">Let's start this investigation by examining
+              the default output of the Javascript display. This interface gives
+              a global vision of the many processes running on the Linux machine
+              and their mutual dependencies. It is convenient as it gives a full
+              picture of the machine's activity. Also, it allows to right-click
+              any node of this graph to display more specialized information
+              which are combined with the current graph. It is also possible, by
+              right-clicking on the background, to open a contextual menu of
+              various information.</p>
+            <p class="infotxt big">This display type, on a very busy machine,
+              might give too much information. Also, the routing algorithm
+              creates a moving, very dynamic and constantly adapting image which
+              might not suit all needs.</p>
+            <p class="infotxt big">This is not an issue as they are several
+              other display types, that we are going to test with the same data.</p>
+          </div>
+          <div class="col-md-5 col-xs-12">
+            <div class="image-side img-left-res">
+              <img src="images/Linux_processes_in_D3.PNG" class="img-responsive"
+
+                alt="img">
+            </div>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-md-5 col-xs-12">
+            <div class="image-side img-left-res"><img src="images/Linux_processes_in_SVG.PNG"
+
+                class="img-responsive" alt="img">
+            </div>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-xs-12 col-md-6">
+            <p class="infotxt big">Another interface type is a plain HTML output
+              which allows even better searching. This is entirely in text, so
+              when documenting an application, instead of "snipping" screen
+              copies, it is possible to manipulate HTML copy/paste buffers, as
+              in this document. Two other output types are possible: JSON, used
+              by the D3 interface, and RDF.</p>
+          </div>
+          <div class="col-md-6 col-xs-12">
+            <div class="table-responsive my-table">
+              <table class="table table-bordered">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=4483&amp;mode=html"
+
+                        class="a-link">telnet</a></td>
+                    <td rowspan="1" valign="top">pid</td>
+                    <td colspan="1">4483</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="1" valign="top">ppid</td>
+                    <td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=3459&amp;mode=html"
+
+                        class="a-link">bash</a></td>
+                  </tr>
+                  <tr>
+                    <td rowspan="1" valign="top">user</td>
+                    <td colspan="1">rchateau</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-md-12">
+            <p class="sec-subhead">
+              Now, we can actually examine this process: let's click on the
+              client telnet process and see the HTML output:
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <p class="sec-head2">OVERVIEW TELNET</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 col-md-12">
+            <p class="infotxt big">Standard process. Uniquely associated to a
+              CIM_ComputerSystem and a parent CIM_Process.</p>
+            <p class="infotxt big"><a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html"
+
+                class="a-link">CIM_Process</a>Standard process. Uniquely
+              associated to a CIM_ComputerSystem and a parent CIM_Process.</p>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-xs-12 col-md-12">
+            <p class="sec-subhead">Class <a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_ComputerSystem.&amp;mode=html"
+
+                class="a-link">CIM_ComputerSystem</a></p>
+            <p class="infotxt big"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=192.168.0.17&amp;mode=html"
+
+                class="a-link">192.168.0.17</a> Current host:192.168.0.17</p>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-md-12 col-xs-12">
+            <p class="sec-subhead">Class <a href="http://192.168.0.17:8000/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html"
+
+                class="a-link">CIM_Process</a></p>
+          </div>
+          <div class="col-md-12 col-xs-12">
+            <div class="table-responsive my-table">
+              <table class="table table-bordered" style="background-color:#fff;">
+                <tbody>
+                  <tr>
+                    <td rowspan="8" valign="top"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_Process.Handle=4483&amp;mode=html"
+
+                        class="a-link">telnet</a></td>
+                    <td colspan="2"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_ComputerSystem.Name=192.168.0.17&amp;mode=html"
+
+                        class="a-link">192.168.0.17</a></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2"><a href="http://192.168.0.17:8000/survol/entity.py?xid=user.Domain=192.168.0.17,Name=rchateau&amp;mode=html"
+
+                        class="a-link">rchateau</a></td>
+                  </tr>
+                  <tr>
+                    <td rowspan="1" valign="top">Resident_Set_Size</td>
+                    <td colspan="1">2236416 B</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="1" valign="top">Virtual_Memory_Size</td>
+                    <td colspan="1">15446016 B</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="1" valign="top">command</td>
+                    <td colspan="1">telnet 192.168.0.14</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="1" valign="top">pid</td>
+                    <td colspan="1">4483</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="1" valign="top">runs</td>
+                    <td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=CIM_DataFile.Name=/usr/bin/telnet&amp;mode=html"
+
+                        class="a-link">telnet</a></td>
+                  </tr>
+                  <tr>
+                    <td rowspan="1" valign="top">user</td>
+                    <td colspan="1"><a href="http://192.168.0.17:8000/survol/entity.py?xid=user.Domain=192.168.0.17,Name=rchateau&amp;mode=html"
+
+                        class="a-link">rchateau</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-md-8 col-xs-12">
+            <p class="infotxt big">Beyond some general purpose information, it
+              shows several links. But now that we are able to focus on a single
+              process, let us switch back to D3 mode, because it allows some
+              features we will need. Please click on the "D3" URL at the end of
+              the page.
+            </p>
+            <p class="infotxt big">
+              This Javascript (D3-based) output shows the same basic information
+              as the HTML page, but in a more interactive representation. The
+              user can zoom and pan the image, but also right-click on each
+              resource to bring extra information to be merged in the current
+              graph. Right-clicking on the "Telnet" boxes opens a list of
+              script. Each of these scripts runs on the server and returns some
+              specific information about the current node: here is the telnet
+              process. It is absolutely safe to try any script, but for the
+              moment, we are focusing on sockets and communication with the
+              telnet server process, running on the Windows machine
+              192.168.0.14.
+            </p>
+          </div>
+          <div class="col-md-4 col-xs-12">
+            <div class="image-side img-left-res">
+              <img src="images/telnet_client_in_d3.PNG" class="img-responsive" alt="img">
+            </div>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-md-4 col-xs-12">
+            <div class="image-side img-left-res">
+              <img src="images/telnet_client_sockets_D3.PNG" class="img-responsive"
+
+                alt="img">
+            </div>
+          </div>
+          <div class="col-md-8 col-xs-12">
+            <p class="infotxt big">Let's choose "Open sockets" which gets the
+              list of sockets open by this process, and merge the result into
+              the current graph.</p>
+            <p class="sec-subhead">The results of several commands have been
+              combined into a single display:</p>
+            <ul class="datalist big">
+              <li>
+                The telnet client process, which was the starting point.</li>
+              <li>
+                Its open sockets: here is one socket pair which is used by the
+                telnet client process to communicate with the server. The two
+                yellow boxes are the two sockets, of type "addr". As expected,
+                one of them is created on the server Windows machine.
+              </li>
+            </ul>
+            <p class="infotxt big">These two data can be displayed together, or
+              separately. This merge can be done with any kind of
+              script/command. The result is more interesting when several
+              commands share nodes.
+            </p>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-md-7 col-xs-12">
+            <p class="infotxt big">Another window, we did not talk about yet
+              summarizes all commands merged together in a D3 display. It is
+              called "Tools". Let's see what it looks like:</p>
+            <ul class="datalist big">
+              <li>The first links it to the original representation of the
+                telnet server.</li>
+              <li>The second is the list of sockets open by this process.</li>
+              <li>These source of data are combined into a third one.</li>
+            </ul>
+            <p class="infotxt big">As indicated in the header, each information
+              comes with the number of nodes and links, a button to remove it
+              from the display, and a refresh rate to periodically refresh the
+              display by reloading the information. We do use these features in
+              this use case.</p>
+          </div>
+          <div class="col-md-5 col-xs-12">
+            <div class="image-side img-left-res">
+              <img src="images/Summary_on_client.PNG" class="img-responsive" alt="img">
+            </div>
+          </div>
+        </div>
+        <div class="row m-t-10">
+          <div class="col-md-3 col-xs-12">
+            <div class="image-side img-left-res">
+              <img src="images/client_mergestatic_SVG.PNG" class="img-responsive"
+
+                alt="img">
+            </div>
+          </div>
+          <div class="col-md-9 col-xs-12">
+            <p class="infotxt big">The links listed in the Summary window can be
+              clicked on separately: they will display their individual results
+              into a static SVG display (Of course, from there, you can switch
+              to the D3 or text display). You can also see the result of their
+              merge, in static SVG format, which can be quite convenient for
+              printing. It allows to build a specific set of data with all types
+              of interfaces and, when finished, generate a static
+              representation. Of course, it is static in its structure, but is
+              automatically updated each time it is displayed.
+            </p>
+            <p class="infotxt big">Another very important feature of the Summary
+              windows is that each of the links can be drag-and-dropped into
+              another browser window, specifically if this browser is connected
+              on another Survol agent. This allows merging data from several
+              agents and several machines. We will use that later.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="white-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <p class="sec-head2">SERVER SIDE INVESTIGATION</p>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row">
+          <div class="col-md-12 col-xs-12">
+            <p class="infotxt big">Now, we want to see what happens on the
+              server when the telnet client on 192.168.0.17 Linux machine is
+              connected onto it... First problem, we have no idea of the process
+              it is connected to. On Windows, apparently, no "telnet server"
+              process is running. Let's open the D3 interface, and have a look
+              at the open sockets:</p>
+          </div>
+          <div class="col-md-12 col-xs-12">
+            <div class="image-side bglightgrey"> <img src="images/server_global_scripts.PNG"
+
+                alt="" class="img-center img-responsive imgbordergrey"> </div>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row m-t-10">
+          <div class="col-md-4 col-xs-12">
+            <div class="image-side img-left-res">
+              <img src="images/Some_server_sockets.PNG" class="img-responsive" alt="img">
+            </div>
+          </div>
+          <div class="col-md-8 col-xs-12">
+            <p class="infotxt big">Many sockets are displayed, with their
+              connected servers, but we do not know which one is connected to
+              the client. As explained before we will drag-and-drop the second
+              link from the Summary window of the client agent, "Open sockets of
+              the telnet process". This client-side socket pair will be
+              displayed along with the server-side socket pairs. We expect to
+              see, in the same display, the same socket pairs as seen from the
+              telnet client and from the telnet server.
+            </p>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row m-t-10">
+          <div class="col-md-8 col-xs-12">
+            <p class="sec-subhead">This is the result of the merge. Several
+              remarks:</p>
+            <ul class="datalist big">
+              <li><b>Two sockets are linked with a red, thick and dotted line:</b>
+                It links the same socket, represented on two Survol agents: the
+                client and the server. These nodes are not merged because they
+                actually point to different machines, which might return
+                different information.</li>
+              <li><b>Two nodes are framed with different colors:</b> One socket
+                and one telnet process: this is because, again, they are
+                pointing to a different agent than the rest: Here, the client
+                agent. This graph actually displays objects from two different
+                agents, and links the identical objects with a specific link
+                (Red).</li>
+              <li>We can see the server telnet process, here tlntsvr.exe,
+                process id=4740.</li>
+              <li>Its possible to investigate server and client resources by
+                right-clicking (Contextual menu) on each node</li>
+            </ul>
+          </div>
+          <div class="col-md-4 col-xs-12">
+            <div class="image-side img-left-res">
+              <img src="images/merge_client_server_d3.PNG" class="img-responsive"
+
+                alt="img">
+            </div>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row m-t-10">
+          <div class="col-md-4 col-xs-12">
+            <div class="image-side img-left-res">
+              <img src="images/Summary_on_server_after_merge.PNG" class="img-responsive"
+
+                alt="img">
+            </div>
+          </div>
+          <div class="col-md-8 col-xs-12">
+            <p class="infotxt big">Please open the summary window of the server
+              agent by clicking on "Tools". One can see that a new line
+              representing the open sockets of the client telnet process is now
+              added. And, as they are mixed data from an external agent (The
+              server one), Survol associates a specific color for all resources
+              of this agent, address 192.168.0.17, port number 8000.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- end -->
+    <!-- ==== Footer ==== -->
+    <section class="footer">
+      <div class="container">
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="footer-logo"><img src="images/footer-logo.png" class="img-responsive"></div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="useful">Useful links</div>
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="useful-link">
+                <ul>
+                  <li> <a href="index.html"><i class="fa fa-angle-right"></i>
+                      Home</a> </li>
+                  <li> <a href="solutions.html"><i class="fa fa-angle-right"></i>
+                      Solutions</a> </li>
+                  <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
+                      Survol</a> </li>
+                  <li> <a href="faq.html"><i class="fa fa-angle-right"></i>
+                      Survol Faq</a> </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="useful-link">
+                <ul>
+                  <li> <a href="architecture.html"><i class="fa fa-angle-right"></i>
+                      Survol Architecture</a> </li>
+                  <li> <a href="installation.html"><i class="fa fa-angle-right"></i>
+                      Survol Installation</a> </li>
+                  <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
+                      Survol Use Cases</a> </li>
+                  <li> <a href="contact.html"><i class="fa fa-angle-right"></i>
+                      Contact Us</a> </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="contact-us">Contact us</div>
+          <div class="address-map"> <i class="fa fa-map-marker"></i> Primhill
+            Computers: 275, Boston Manor Road, TW8 9LG Brentford, United Kingdom</div>
+          <div class="address-map"> <i class="fa fa-envelope"></i> Email : <a
+
+              href="mailto:contact@primhillcomputers.com" class="a-link">contact@primhillcomputers.com</a></div>
+          <div class="address-map"> <i class="fa fa-phone"></i> Phone Number :
+            <a href="tel:+447769516770" class="a-link">+44 77 6951 6770</a></div>
+        </div>
+      </div>
+    </section>
+    <!-- End -->
+    <div class="bottotop">
+      <div class="scrolltop">
+        <div class="scroll icon"><i class="fa fa-arrow-up"></i></div>
+      </div>
+    </div>
+    <section class="footer-bottom">
+      <div class="copyright">Copyright 2018 All Right Reserved | <b>Primhill
+          Computers</b></div>
+    </section>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+    $(window).scroll(function() {
+    if ($(this).scrollTop() > 50 ) {
+        $('.scrolltop:hidden').stop(true, true).fadeIn();
+    } else {
+        $('.scrolltop').stop(true, true).fadeOut();
+    }
+});
+$(function(){$(".scroll").click(function(){$("html,body").animate({scrollTop:$(".thetop").offset().top},"1000");return false})})
+    </script>
+  </body>
+</html>
