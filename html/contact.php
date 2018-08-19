@@ -49,39 +49,49 @@ session_start();
       </div>
      </div>
      <!-- End -->
-      <!--- navigation -->
-    <div class="container">    
-     <nav class="navbar navbar-default nav-def">
-    		<!-- Brand and toggle get grouped for better mobile display -->
-    
-     <a href="index.html" class="nav-logo"><img src="images/logo.png" class="img-responsive"></a>
-    
- 		   <div class="navbar-header">
-        <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-      
-       
-    </div>    <!-- Collection of nav links and other content for toggling -->
 
-    	<div id="navbarCollapse" class="collapse navbar-collapse">
-       		<ul class="nav navbar-nav navbar-right pad-nav">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="solutions.html">Solutions</a></li>
-        <li><a href="survol.html">Survol</a></li>
-        <li><a href="faq.html">Survol Faq</a></li>
-        <li><a href="architecture.html">Survol Architecture</a></li>
-        <li><a href="installation.html">Survol Installation</a></li>
-        <li><a href="usecase.html">Survol Use Cases</a></li>
-        <li><a href="contact.php">Contact Us</a></li>        
-      </ul>
-    	</div>
-	</nav>
-	</div>
-<!-- End -->
+
+
+    <!--- navigation -->
+    <div class="container">
+      <nav class="navbar navbar-default nav-def">
+        <!-- Brand and toggle get grouped for better mobile display --> <a href="index.html"
+
+          class="nav-logo"><img src="images/logo.png" class="img-responsive"></a>
+        <div class="navbar-header"> <button type="button" data-target="#navbarCollapse"
+
+            data-toggle="collapse" class="navbar-toggle"> <span class="sr-only">Toggle
+              navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+            <span class="icon-bar"></span> </button> </div>
+        <!-- Collection of nav links and other content for toggling -->
+        <div id="navbarCollapse" class="collapse navbar-collapse" >
+          <ul class="nav navbar-nav navbar-right pad-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="solutions.html">Solutions</a></li>
+            <li class="dropdown">
+              <a href="#" data-toggle="dropdown" class="dropdown-toggle">Survol <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li> <a href="survol.html">Survol</a> </li>
+                <li class="divider"></li>
+                <li> <a href="faq.html">Survol Faq</a> </li>
+                <li> <a href="architecture.html">Survol Architecture</a> </li>
+                <li> <a href="installation.html">Survol Installation</a> </li>
+                <li> <a href="usecase.html">Survol Use Cases</a> </li>
+              </ul>
+            </li>
+            <li> <a href="dock_it.html">DockIT</a></li>
+            <li> <a href="jobs.html">Jobs</a></li>
+            <li> <a href="events.html">Events</a></li>
+            <li> <a href="links.html">Links</a></li>
+            <li class="active"><a href="contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <!-- End -->
+
+
+
 <!-- breadcrum section -->
 <div class="breadcrum-sec">
  <div class="container">
