@@ -83,7 +83,7 @@ session_start();
             <li> <a href="jobs.html">Jobs</a></li>
             <li> <a href="events.html">Events</a></li>
             <li> <a href="links.html">Links</a></li>
-            <li class="active"><a href="contact.html">Contact Us</a></li>
+            <li class="active"><a href="contact.php">Contact Us</a></li>
           </ul>
         </div>
       </nav>
@@ -213,7 +213,7 @@ if(isset($_SESSION['success']))
       <a href="survol.html"><i class="fa fa-angle-right"></i> Survol Use Cases</a>
       </li>
       <li>
-      <a href="contact.html"><i class="fa fa-angle-right"></i> Contact Us</a>
+      <a href="contact.php"><i class="fa fa-angle-right"></i> Contact Us</a>
       </li>
       </ul>
       </div>
