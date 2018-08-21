@@ -60,21 +60,20 @@ class SourceBase (object):
 
 		return { "data" : contentModed }
 
-
-
-	@staticmethod
-	def Factory(url = None, script = None):
-		if url:
-			return SourceUrl(url)
-		if script:
-			return SourceScript(script)
-		return None
-
 # If it has a class, then it has CGI arguments.
 class SourceCgi (SourceBase):
-	def __init__(self,dictParams):
-		self.m_dictParams = dictParams
+	def __init__(self,className = None,**kwargs):
+		self.m_className = className
+		self.m_kwargs = kwargs
 		super(SourceCgi, self).__init__()
+
+	def Query(self):
+		suffix = ",".join( [ "%s=%s" % (k,v) for k,v in self.m_kwargs.items() ])
+		if self.m_className:
+			return "?xid=" + self.m_className + "." + suffix
+		else:
+			return "?xid=." + suffix
+
 
 	# If it does not have the necessary CGI args,
 	# then loop on the existing objects of this class.
@@ -86,10 +85,12 @@ class SourceCgi (SourceBase):
 # Server("127.0.0.1:8000").CIM_Process(Handle=1234) and Server("192.168.0.1:8000").CIM_Datafile(Name='/tmp/toto.txt')
 #
 class SourceUrl (SourceCgi):
-	def __init__(self,anUrl):
+	def __init__(self,anUrl,className = None,**kwargs):
 		self.m_url = anUrl
-		dictParams = { "todo": "todo"}
-		super(SourceUrl, self).__init__(dictParams)
+		super(SourceUrl, self).__init__(className,**kwargs)
+
+	def Url(self):
+		return self.m_url + self.Query()
 
 	def __url_with_mode(self,mode):
 		# TODO: "?" or "&"
@@ -120,10 +121,9 @@ class SourceUrl (SourceCgi):
 		return url_content
 
 class SourceScript (SourceCgi):
-	def __init__(self,aScript):
+	def __init__(self,aScript,className = None,**kwargs):
 		self.m_script = aScript
-		dictParams = { "todo": "todo"}
-		super(SourceScript, self).__init__(dictParams)
+		super(SourceScript, self).__init__(className,**kwargs)
 
 	# This executes the script and return the data in the right format.
 	def __execute_script_with_mode(self,mode):
@@ -193,4 +193,7 @@ class SourceMergeMinus (SourceMerge):
 
 
 
+# TODO: Connect to a Jupyter Python kernel which will execute the Python scripts.
+# Jupyter kernel is now a new type of agent, after Survol, WMI, WBEM and local execution in lib_client.
+# Find a way to detect a Jupyter Kernel socket address. Or start it on request.
 
