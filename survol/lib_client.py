@@ -2,6 +2,8 @@
 
 import os
 import json
+import urllib
+
 import lib_kbase
 import lib_util
 
@@ -72,9 +74,11 @@ class SourceCgi (SourceBase):
 	def Query(self):
 		suffix = ",".join( [ "%s=%s" % (k,v) for k,v in self.m_kwargs.items() ])
 		if self.m_className:
-			return "?xid=" + self.m_className + "." + suffix
+			restQry = self.m_className + "." + suffix
 		else:
-			return "?xid=." + suffix
+			restQry = suffix
+		quotedRest = urllib.quote(restQry)
+		return "?xid=" + quotedRest
 
 
 	# If it does not have the necessary CGI args,
@@ -95,12 +99,14 @@ class SourceUrl (SourceCgi):
 		return self.m_url + self.Query()
 
 	def __url_with_mode(self,mode):
-		fullQry = self.m_url
-		fullQry += self.Query()
-		if fullQry.find("&") < 0 and fullQry.find("?") < 0:
-			return fullQry + "?mode=" + mode
+		print("__url_with_mode mode=",mode)
+		qryQuoted = self.Query()
+		if qryQuoted.find("&") < 0 and qryQuoted.find("?") < 0:
+			qryQuoted += "?mode=" + mode
 		else:
-			return fullQry + "&mode=" + mode
+			qryQuoted += "&mode=" + mode
+		fullQry = self.m_url + qryQuoted
+		return fullQry
 
 	# Output formats HTML, SVG, JSON, RDF. All are processed differently, so there is no need to unify.
 	def __pair_display(self,mode):
