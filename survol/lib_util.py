@@ -172,8 +172,9 @@ def UriRootHelper():
 		# sys.stderr.write("SERVER_NAME=%s\n"%os.environ["SERVER_NAME"])
 		os.environ["SERVER_NAME"]
 	except KeyError:
+		# This is acceptable if client library, for example in Jupyter.
+		os.environ["SERVER_NAME"] = "LOCAL_MODE"
 		sys.stderr.write("UriRootHelper SERVER_NAME MUST BE DEFINED\n")
-		sys.exit(1)
 	try:
 		# SCRIPT_NAME=/PythonStyle/survol/internals/print.py
 		# SCRIPT_NAME=/survol/print_environment_variables.py
@@ -192,7 +193,6 @@ def UriRootHelper():
 		# then this environment variable is not set.
 		sys.stderr.write("No SCRIPT_NAME\n")
 		root = "/NotRunningAsCgi"
-		root = "/CannotNotHappen"
 	urh = HttpPrefix() + root
 	sys.stderr.write("UriRootHelper urh=%s\n"%urh)
 	return urh
@@ -673,6 +673,8 @@ def Scriptize(path, entity_type, entity_id):
 
 ################################################################################
 
+# TODO: Consider base64 encoding of all arguments, with "Xid="
+# This would give the same encoding for all parameters whetever their class.
 xidCgiDelimiter = "?xid="
 
 # This creates the URL of a class, "Survol, "WMI" or "WBEM".
