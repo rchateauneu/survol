@@ -1,7 +1,9 @@
 # This allows to easily handle Survol URLs in Jupyter or any other client.
 
+import os
 import json
 import lib_kbase
+import lib_util
 
 try:
 	# For Python 3.0 and later
@@ -93,16 +95,12 @@ class SourceUrl (SourceCgi):
 		return self.m_url + self.Query()
 
 	def __url_with_mode(self,mode):
-		# TODO: "?" or "&"
-		ixAmpersand = self.m_url.find("&")
-		if ixAmpersand < 0:
-			ixQuest = self.m_url.find("?")
-			if ixQuest < 0:
-				return self.m_url + "?mode=" + mode
-			else:
-				return self.m_url + "&mode=" + mode
+		fullQry = self.m_url
+		fullQry += self.Query()
+		if fullQry.find("&") < 0 and fullQry.find("?") < 0:
+			return fullQry + "?mode=" + mode
 		else:
-			return self.m_url + "&mode=" + mode
+			return fullQry + "&mode=" + mode
 
 	# Output formats HTML, SVG, JSON, RDF. All are processed differently, so there is no need to unify.
 	def __pair_display(self,mode):
@@ -129,9 +127,22 @@ class SourceScript (SourceCgi):
 	def __execute_script_with_mode(self,mode):
 		# Sets an envirorment variable then imports the script and execute it.
 		# TODO: "?" or "&"
-		aScript = "local_scripts_prefix/" + self.m_script + "?mode=" + mode
 
-		return self.execute_script(aScript)
+		urlDirNam = os.path.dirname(self.m_script)
+
+		# The directory of the script is used to build a Python module name.
+		moduNam = urlDirNam.replace("/",".")
+
+		urlFilNam = os.path.basename(self.m_script)
+
+		modu = lib_util.GetScriptModule(moduNam, urlFilNam)
+		# aScript = "local_scripts_prefix/" + self.m_script + "?mode=" + mode
+		# print("aScript=",aScript)
+
+		# On change la socket, ca ne va pas ecrire dans stdout mais dans un socket a nous dont
+		print("on prendra le contenu apres Main()")
+
+		modu.Main()
 
 	# Output formats HTML, SVG, JSON, RDF. All are processed differently, so there is no need to unify.
 	def __pair_display(self,mode):
@@ -197,3 +208,5 @@ class SourceMergeMinus (SourceMerge):
 # Jupyter kernel is now a new type of agent, after Survol, WMI, WBEM and local execution in lib_client.
 # Find a way to detect a Jupyter Kernel socket address. Or start it on request.
 
+# TODO: Create the merge URL. What about a local script ?
+# Or: A merged URL needs an agent anyway.
