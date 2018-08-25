@@ -41,7 +41,7 @@ session_start();
                 <li><a href="javascript:void()"><i class="fa fa-facebook"></i></a></li>
                 <li><a href="javascript:void()"><i class="fa fa-twitter"></i></a></li>
                 <li><a href="javascript:void()"><i class="fa fa-google-plus"></i></a></li>
-                <li><a href="javascript:void()"><i class="fa fa-linkedin"></i></a></li>
+                <li><a href="http://www.linkedin.com/company/primhill-computers/"><i class="fa fa-linkedin"></i></a></li>
                 </ul>
             </div>
 
@@ -135,7 +135,7 @@ session_start();
                 <li><a href="javascript:void()" class="fb"><i class="fa fa-facebook"></i></a></li>
                 <li><a href="javascript:void()" class="twiter"><i class="fa fa-twitter"></i></a></li>
                 <li><a href="javascript:void()" class="gplus"><i class="fa fa-google-plus"></i></a></li>
-                <li><a href="javascript:void()" class="linkedin"><i class="fa fa-linkedin"></i></a></li>
+                <li><a href="http://www.linkedin.com/company/primhill-computers/" class="linkedin"><i class="fa fa-linkedin"></i></a></li>
                 </ul>
         </div>
      	
