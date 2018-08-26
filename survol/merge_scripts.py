@@ -18,7 +18,11 @@ import lib_common
 def Main():
 	origReqUri = lib_util.RequestUri()
 
-	# There is only one cgiEnv and "cgiEnv.OutCgiRdf()" does not generate anything.
+	# It initialises an implicit global object similar.
+	# When in the mode of global merging, the method "cgiEnv.OutCgiRdf()" does not generate anything,
+	# but simply stores the new cgiEnv in a global list..
+	# The script loops on the URLs passed as CGI parameters.
+	# The URLs are loaded and their content merged into the container lib_common.globalGraph
 	lib_common.CgiEnvMergeMode()
 
 	arguments = cgi.FieldStorage()
@@ -30,6 +34,7 @@ def Main():
 	# Concatenation of error messages of each script.
 	cumulatedError = ""
 
+	# This logic might be needed in lib_client.py
 	for urlfil in arguments.getlist("url"):
 		# The parameters are coded in base64, although we leave the possibility not to encode them,
 		# for compatibility with test scripts.
@@ -68,6 +73,8 @@ def Main():
 
 		# urlPathShort is the actual script to load.
 		urlDirNam = os.path.dirname(urlPathShort)
+
+		# The directory of the script is used to build a Python module name.
 		moduNam = urlDirNam.replace("/",".")
 
 		urlFilNam = os.path.basename(urlPathShort)
@@ -88,6 +95,7 @@ def Main():
 		try:
 			# The entire URL must be "injected" so the parameters will be properly parsed,
 			# when Main() call lib_util.RequestUri().
+			# The script passed as CGI parameter, believes that it is loaded as a plain URL.
 			urlUnquote = lib_util.urllib_unquote(complete_url)
 			os.environ["REQUEST_URI"] = urlUnquote
 
@@ -96,6 +104,8 @@ def Main():
 			os.environ['QUERY_STRING'] = cgiQueryString
 
 			lib_common.ErrorMessageEnable(False)
+
+			# This executes the script: The new nodes and links are merged in a global RDF container.
 			importedMod.Main()
 		except Exception:
 			errorMsg = sys.exc_info()[1]
@@ -112,8 +122,8 @@ def Main():
 	# OutCgiRdf has been called by each script without writing anything,
 	# but the specific parameters per script are stored inside.
 
-	# TESTER AVEC CA:
-	# http://127.0.0.1:8000/survol/merge_scripts.py?url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9ob3N0LnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBc3No&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fQ29tcHV0ZXJTeXN0ZW0vaG9zdG5hbWVfbm1hcC5weT94aWQ9Q0lNX0NvbXB1dGVyU3lzdGVtLk5hbWUlM0RVbmtub3duLTMwLWI1LWMyLTAyLTBjLWI1LTI&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9ob3N0LnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBc3ZybG9j&url=aHRiaW4vZW50aXR5LnB5P3hpZD1zbWJzaHIuSWQ9Ly8vL1dETXlDbG91ZE1pcnJvci9yY2hhdGVhdQ&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fQ29tcHV0ZXJTeXN0ZW0vY29ubmVjdGVkX3NvY2tldHMucHk_eGlkPUNJTV9Db21wdXRlclN5c3RlbS5OYW1lJTNEVW5rbm93bi0zMC1iNS1jMi0wMi0wYy1iNS0y&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fQ29tcHV0ZXJTeXN0ZW0vaG9zdG5hbWVfbm1hcC5weT94aWQ9Q0lNX0NvbXB1dGVyU3lzdGVtLk5hbWUlM0RVbmtub3duLTMwLWI1LWMyLTAyLTBjLWI1LTI&url=aHRiaW4vc291cmNlc190eXBlcy9ncm91cC9saW51eF91c2VyX2dyb3VwLnB5P3hpZD1ncm91cC5OYW1lJTNEYXBhY2hl&url=aHRiaW4vc291cmNlc190eXBlcy91c2VyL3VzZXJfbGludXhfaWQucHk_eGlkPXVzZXIuRG9tYWluJTNETG9jYWxIb3N0JTJDTmFtZSUzRGFwYWNoZQ&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBdGVsbmV0&url=aHRiaW4vc291cmNlc190eXBlcy91c2VyL3VzZXJfcHJvY2Vzc2VzLnB5P3hpZD11c2VyLkRvbWFpbiUzRExvY2FsSG9zdCUyQ05hbWUlM0RhcGFjaGU&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fUHJvY2Vzcy9wcm9jZXNzX2N3ZC5weT94aWQ9Q0lNX1Byb2Nlc3MuSGFuZGxlJTNEMTQ3MDU&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBc3No&url=aHRiaW4vc291cmNlc190eXBlcy9DSU1fUHJvY2Vzcy9wcm9jZXNzX2N3ZC5weT94aWQ9Q0lNX1Byb2Nlc3MuSGFuZGxlJTNEMTQ3MDU&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBdGVsbmV0&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBdGVsbmV0&url=aHRiaW4vc291cmNlc190eXBlcy9hZGRyL3NvY2tldF9jb25uZWN0ZWRfcHJvY2Vzc2VzLnB5P3hpZD1hZGRyLklkJTNEMTkyLjE2OC4xLjg4JTNBc3No&url=aHR0cDovLzE5Mi4xNjguMS44ODo4MC9TdXJ2b2wvaHRiaW4vZW50aXR5LnB5P3hpZD1DSU1fUHJvY2Vzcy5IYW5kbGU9MjA1MTI
+	# Here, all the RDF nodes and links, loaded from each URL, and then merged in lib_common.globalGraph,
+	# are then transformed into the chosen output format.
 	lib_common.MergeOutCgiRdf(theMode,cumulatedError)
 
 if __name__ == '__main__':
