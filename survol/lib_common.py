@@ -223,7 +223,6 @@ def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterize
 # The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
-# def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
 def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 	theCgi.BindIdenticalNodes()
 
@@ -500,6 +499,8 @@ class CgiEnv():
 	# This might change because I suspect bugs in old versions of Graphviz.
 	def GetXid(self):
 		try:
+			# See variable xidCgiDelimiter.
+			# TODO: Consider base64 encoding all arguments with "Xid="
 			xid = self.m_arguments["xid"].value
 		except KeyError:
 			# See function EditionMode
@@ -665,8 +666,7 @@ class CgiEnv():
 	# the unique generation of graphic data.
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 		global globalCgiEnvList
-		# sys.stderr.write("OutCgiRdf globalMergeMode=%d len(globalCgiEnvList)=%d\n"%(globalMergeMode,len(globalCgiEnvList)))
-		sys.stderr.write("OutCgiRdf m_calling_url=%s m_page_title=%s\n"%(self.m_calling_url,self.m_page_title))
+		sys.stderr.write("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s\n"%(globalMergeMode,self.m_calling_url,self.m_page_title))
 
 		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
