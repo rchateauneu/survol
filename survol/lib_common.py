@@ -185,6 +185,8 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 
 ################################################################################
 
+# This transforms a RDF triplestore into a temporary DOT file, which is
+# transformed by GraphViz into a SVG file sent to the HTTP browser.
 def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_style ):
 	tmpLogFil = TmpFile("Grph2Svg","log")
 	try:
@@ -438,10 +440,8 @@ class CgiEnv():
 			if entDoc:
 				self.m_page_title += "\n" + entDoc
 
-		# If we can talk to a remote host to get the desired values.
-
 		# Global CanProcessRemote has precedence over parameter can_process_remote
-		# whcih should probably be deprecated, although they do not have exactly the same role:
+		# which should probably be deprecated, although they do not have exactly the same role:
 		# * Global CanProcessRemote is used by entity.py to display scripts which have this capability.
 		# * Parameter can_process_remote is used to inform, at execution time, of this capability.
 		# Many scripts are not enumerated by entity.py so a global CanProcessRemote is not necessary.
@@ -500,7 +500,8 @@ class CgiEnv():
 	def GetXid(self):
 		try:
 			# See variable xidCgiDelimiter.
-			# TODO: Consider base64 encoding all arguments with "Xid="
+			# TODO: Consider base64 encoding all arguments with "Xid=".
+			# The benefit would be to have the same encoding for all arguments.
 			xid = self.m_arguments["xid"].value
 		except KeyError:
 			# See function EditionMode
