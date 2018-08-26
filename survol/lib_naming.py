@@ -286,6 +286,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
 	# entity.py            xid=namespace/type:idGetNamespaceType
 	# objtypes_wbem.py     Just extracts the namespace, as it prefixes the type: xid=namespace/type:id
 
+	# See variable lib_util.xidCgiDelimiter="?xid="
 	if uprs.query.startswith("xid="):
 		# TODO: Maybe the chain contains HTML codes and therefore cannot be parsed.
 		# Ex: "xid=%40%2F%3Aoracle_package." == "xid=@/:oracle_package."
