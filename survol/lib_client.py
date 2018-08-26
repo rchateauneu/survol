@@ -1,11 +1,13 @@
 # This allows to easily handle Survol URLs in Jupyter or any other client.
 
 import os
+import sys
 import json
 import urllib
 
 import lib_kbase
 import lib_util
+import lib_common
 
 try:
 	# For Python 3.0 and later
@@ -45,8 +47,11 @@ class SourceBase (object):
 	def content_rdf(self):
 		return self.get_content_moded("rdf")
 
+	# This returns a Json object.
 	def content_json(self):
-		return self.get_content_moded("json")
+		strJson = self.get_content_moded("json")
+		url_content = json.loads(strJson)
+		return url_content
 
 	def get_triplestore(self):
 		docXmlRdf = self.get_content_moded("rdf")
@@ -64,6 +69,14 @@ class SourceBase (object):
 
 		return { "data" : contentModed }
 
+	# If it does not have the necessary CGI args,
+	# then loop on the existing objects of this class.
+	# It is always True for merged sources,
+	# because they do not have CGI arguments.
+	def IsCgiComplete(self):
+		print("SourceCgi.IsCgiComplete")
+		return True
+
 # If it has a class, then it has CGI arguments.
 class SourceCgi (SourceBase):
 	def __init__(self,className = None,**kwargs):
@@ -71,18 +84,21 @@ class SourceCgi (SourceBase):
 		self.m_kwargs = kwargs
 		super(SourceCgi, self).__init__()
 
-	def Query(self):
+	def UrlQuery(self,mode=None):
 		suffix = ",".join( [ "%s=%s" % (k,v) for k,v in self.m_kwargs.items() ])
 		if self.m_className:
 			restQry = self.m_className + "." + suffix
 		else:
 			restQry = suffix
 		quotedRest = urllib.quote(restQry)
-		return "?xid=" + quotedRest
 
+		qryArgs = "xid=" + quotedRest
+		if mode:
+			qryArgs += "&mode=" + mode
 
-	# If it does not have the necessary CGI args,
-	# then loop on the existing objects of this class.
+		return qryArgs
+
+	# TODO: For the moment, this assumes that all CGI arguments are there.
 	def IsCgiComplete(self):
 		print("SourceCgi.IsCgiComplete")
 		return True
@@ -96,16 +112,12 @@ class SourceUrl (SourceCgi):
 		super(SourceUrl, self).__init__(className,**kwargs)
 
 	def Url(self):
-		return self.m_url + self.Query()
+		return self.m_url + "?" + self.UrlQuery()
 
 	def __url_with_mode(self,mode):
 		print("__url_with_mode mode=",mode)
-		qryQuoted = self.Query()
-		if qryQuoted.find("&") < 0 and qryQuoted.find("?") < 0:
-			qryQuoted += "?mode=" + mode
-		else:
-			qryQuoted += "&mode=" + mode
-		fullQry = self.m_url + qryQuoted
+		qryQuoted = self.UrlQuery(mode)
+		fullQry = self.m_url + "?" + qryQuoted
 		return fullQry
 
 	# Output formats HTML, SVG, JSON, RDF. All are processed differently, so there is no need to unify.
@@ -118,11 +130,23 @@ class SourceUrl (SourceCgi):
 	def get_content_moded(self,mode):
 		the_url = self.__url_with_mode(mode)
 
-		print("get_content_moded the_url=%s"%the_url)
+		sys.stderr.write("get_content_moded the_url=%s\n"%the_url)
 		response = urlopen(the_url)
 		data = response.read().decode("utf-8")
-		url_content = json.loads(data)
-		return url_content
+		return data
+
+def CreateStringStream():
+	try:
+		# Python 3
+		from io import StringIO
+	except ImportError:
+		try:
+			from cStringIO import StringIO
+		except ImportError:
+			from StringIO import StringIO
+		return StringIO()
+	#from io import BytesIO
+	#return BytesIO
 
 class SourceScript (SourceCgi):
 	def __init__(self,aScript,className = None,**kwargs):
@@ -142,25 +166,65 @@ class SourceScript (SourceCgi):
 		urlFilNam = os.path.basename(self.m_script)
 
 		modu = lib_util.GetScriptModule(moduNam, urlFilNam)
-		# aScript = "local_scripts_prefix/" + self.m_script + "?mode=" + mode
-		# print("aScript=",aScript)
 
-		# On change la socket, ca ne va pas ecrire dans stdout mais dans un socket a nous dont
-		print("on prendra le contenu apres Main()")
+		# SCRIPT_NAME=/survol/print_environment_variables.py
+		os.environ["SCRIPT_NAME"] = "/" + self.m_script
+		# QUERY_STRING=xid=class.k=v
+		os.environ["QUERY_STRING"] = self.UrlQuery(mode)
 
+		# This technique is also used by WSGI
+		class OutputMachineString:
+			def __init__(self):
+				sys.stderr.write("OutputMachineString init\n")
+				self.m_output = CreateStringStream()
+
+			# Do not write the header.
+			def HeaderWriter(self,mimeType,extraArgs= None):
+				sys.stderr.write("OutputMachineString HeaderWriter:%s\n"%mimeType)
+				pass
+
+			# The output will be available in a string.
+			def OutStream(self):
+				sys.stderr.write("OutputMachineString OutStream\n")
+				return self.m_output
+
+			def GetStringContent(self):
+				strResult = self.m_output.getvalue()
+				self.m_output.close()
+				return strResult
+
+
+		sys.stderr.write("__execute_script_with_mode before render=%s\n"%lib_util.globalOutMach.__class__.__name__)
+		outmachString = OutputMachineString()
+		# originalOutMach = lib_util.SetGlobalOutMach(outmachString)
+		originalOutMach = lib_util.globalOutMach
+		lib_util.globalOutMach = outmachString
 		modu.Main()
+		sys.stderr.write("__execute_script_with_mode before restore=%s\n"%lib_util.globalOutMach.__class__.__name__)
+
+		# Restores the original stream.
+		lib_util.globalOutMach = originalOutMach
+		# lib_util.SetGlobalOutMach(originalOutMach)
+
+		strResult = outmachString.GetStringContent()
+		sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
+		return strResult
 
 	# Output formats HTML, SVG, JSON, RDF. All are processed differently, so there is no need to unify.
 	def __pair_display(self,mode):
 		data_content = self.__execute_script_with_mode("html")
 		return { "data" : data_content }
 
+	# This returns a string.
 	def get_content_moded(self,mode):
 		data_content = self.__execute_script_with_mode(mode)
 		return data_content
 
+	# TODO: It will be MUCH FASTER to return the content as a triplestore.
 	def get_triplestore(self):
-		ExecutethecodelocallyandreturntheRDFobject()
+		docXmlRdf = self.get_content_moded("rdf")
+
+		return lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
 
 
 class SourceMerge (SourceBase):
@@ -171,24 +235,38 @@ class SourceMerge (SourceBase):
 		self.m_srcB = srcB
 		super(SourceMerge, self).__init__()
 
-	def get_content(self,current_triplestore):
+	def get_triplestore(self):
 		triplestoreA = self.m_srcA.get_triplestore()
 		if self.IsCgiComplete():
-			triplestoreB = self.m_src_B.get_triplestore()
+			triplestoreB = self.m_srcB.get_triplestore()
 
 			return self.combine_triplestores(triplestoreA,triplestoreB)
 
 		else:
 			# The class cannot be None because the url is not complete
-			objsList = lib_kbase.enumerate_objects_from_class(triplestoreA,self.m_src_B.m_class)
+
+			def PredicateInstance(instanceUrl):
+				( entity_label, entity_graphic_class, entity_id ) = lib_util.ParseEntityUri(instanceUrl)
+				return entity_label == self.m_srcB.m_class
+
+			objsList = lib_kbase.enumerate_class_instances(triplestoreA,PredicateInstance)
 
 			for anObj in objsList:
-				urlDerived = self.m_src_B.DeriveUrl(anObj)
+				urlDerived = self.m_srcB.DeriveUrl(anObj)
 				triplestoreB = urlDerived.get_triplestore()
 				triplestoreA = self.combine_triplestores(triplestoreA,triplestoreB)
 			return triplestoreA
 
+	def get_content_moded(self,mode):
+		tripstore = self.get_triplestore()
+		if mode == "rdf":
+			strStrm = CreateStringStream()
+			lib_kbase.triplestore_to_stream_xml(tripstore,strStrm)
+			strResult = strStrm.getvalue()
+			strStrm.close()
+			return strResult
 
+		raise Exception("get_content_moded: Cannot yet convert to %s"%mode)
 
 # Function UrlToMergeD3()
 
