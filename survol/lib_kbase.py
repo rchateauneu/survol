@@ -1,4 +1,5 @@
 # Encapsulate rdflib features.
+# This is just in case another triplestore implementation would be more convenient.
 
 import rdflib
 import sys
@@ -58,6 +59,16 @@ def triplestore_to_stream_xml(grph,out_dest):
 def triplestore_from_rdf_xml(docXmlRdf):
 	# This is the inverse operation of: grph.serialize( destination = out_dest, format="xml")
 	grph = rdflib.Graph()
-	result = grph.parse(data=docXmlRdf, format="application/rdf+xml")
+	grph.parse(data=docXmlRdf, format="application/rdf+xml")
 	return grph
+
+# See https://rdflib.readthedocs.io/en/stable/merging.html for how it uses rdflib.
+def triplestore_add(tripleStoreA,tripleStoreB):
+	grphResult = tripleStoreA + tripleStoreB
+	return grphResult
+
+# See https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html which does qll the work.
+def triplestore_sub(tripleStoreA,tripleStoreB):
+	grphResult = tripleStoreA - tripleStoreB
+	return grphResult
 

@@ -511,22 +511,14 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 # Used by all CGI scripts when they have finished adding triples to the current RDF graph.
 # This just writes a RDF document which can be used as-is by browser,
 # or by another scripts which will process this RDF as input, for example when merging RDF data.
-# Consider adding reformatting when the output is a browser ... if this can be detected !!
-# It is probably possible with the CGI environment variable HTTP_USER_AGENT.
-# Also, the display preference could be stored with the Python library cookielib.
-#
-# AUSSI: On pourrait, sous certaines conditions, transformer la sortie en HTML ou en SVG
-# (Et/ou envoyer du Javascript avec des appels rdfquery pour affichage dans le navigateur)
-# Ca pourrait dependre d'une variable CGI: mode=RDF/HTML etc...
-# Ici: On peut prendre la valeur de "mode" en dissequant l'URL du Referer.
-#
 def Grph2Rdf(grph):
 	lib_util.WrtHeader('text/rdf')
 
 	# Format support can be extended with plugins,
 	# but 'xml', 'n3', 'nt', 'trix', 'rdfa' are built in.
 	out_dest = lib_util.DfltOutDest()
-	grph.serialize( destination = out_dest, format="xml")
+	# grph.serialize( destination = out_dest, format="xml")
+	lib_kbase.triplestore_to_stream_xml(grph,out_dest)
 
 
 def FontString():
@@ -568,6 +560,8 @@ def UrlWWW(pageHtml):
 	#sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
 	return scriptD3Url
 
+# This logic should go to lib_client.py
+
 # This returns an URL to the Javascript D3 interface, editing the current data.
 def UrlToMergeD3():
 	callingUrl = ModedUrl("")
@@ -575,6 +569,8 @@ def UrlToMergeD3():
 	htbinIdx = callingUrl.find(htbinPrefixScript)
 	urlWithoutHost = callingUrl[htbinIdx:]
 	#sys.stderr.write("UrlToMergeD3 urlWithoutHost=%s\n"%(urlWithoutHost))
+
+	# Consider lib_client.py
 
 	# Maybe this URL is already a merge of B64-encoded URLs:
 	htbinPrefixMergeScript = "/survol/merge_scripts.py"

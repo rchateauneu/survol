@@ -610,6 +610,9 @@ def ParseXidWBEM(xid ):
 
 	return None
 
+# This receives the xid value for, for example: "xid=@/:oracle_package."
+# It parses this string into three components and returns the class,
+# the concatenation of key=value pairs, and the host.
 def ParseXid(xid ):
 	"""
 		BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
@@ -1079,6 +1082,8 @@ def RequestUriModed(otherMode):
 	script = HttpPrefix() + RequestUri()
 	return AnyUriModed(script, otherMode)
 
+# If an Url, it replaces the value of the argument "mode" by another one,
+# remove this arguments or adds it, depending on the case.
 def AnyUriModed(script, otherMode):
 	mtch_url = re.match("(.*)([\?\&])mode=[^\&]*(.*)", script)
 
@@ -1290,10 +1295,12 @@ def DfltOutDest():
 	return globalOutMach.OutStream()
 
 # Needed also because of sockets.
-def WrtAsUtf(str):
+def WrtAsUtf(aStr):
 	# TODO: try to make this faster. Should be conditional just like HttpHeader.
 	# outputHttp.write( str.encode('utf-8') )
-	globalOutMach.OutStream().write( str.encode('utf-8') )
+	# globalOutMach.OutStream().write( aStr.encode('utf-8') )
+	# Ok: Python 2, with Jupyter and Apache.
+	globalOutMach.OutStream().write( aStr.decode('latin1') )
 
 # For asynchronous display.
 # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
