@@ -124,7 +124,7 @@ def WbemServersList():
 	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
 	sys.stderr.write("WbemServersList\n")
 	for urlWbem in credNames:
-		sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
+		#sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
 		# crdNam = "http://192.168.1.83:5988"
 		parsed_url = lib_util.survol_urlparse( urlWbem )
 		the_host = parsed_url.hostname
@@ -141,7 +141,7 @@ def HostnameToWbemServer(hostname):
 
 	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
 	for urlWbem in credNames:
-		sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
+		#sys.stderr.write("HostnameToWbemServer urlWbem=%s\n"%(urlWbem))
 		# urlWbem = "http://192.168.1.83:5988"
 		parsed_url = lib_util.survol_urlparse( urlWbem )
 		the_host = parsed_url.hostname
@@ -168,12 +168,12 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 	# TODO: Should check that the WBEM class exists in the server ?
 	for wbemServer in WbemServersList():
 		# wbemServer=(u'vps516494.ovh.net', u'http://vps516494.ovh.net:5988')
-		sys.stderr.write("GetWbemUrls wbemServer=%s\n"%str(wbemServer))
+		#sys.stderr.write("GetWbemUrls wbemServer=%s\n"%str(wbemServer))
 		# If no host specified, returns everything.
 		if entity_host:
 			# wbemServer[1].lower()=vps516494.ovh.net entity_host.lower()=http://vps516494.ovh.net:5988
 			if entity_host.lower() != wbemServer[0].lower():
-				sys.stderr.write("GetWbemUrls different wbemServer=%s entity_host=%s\n"%(str(wbemServer[1].lower()),entity_host.lower()))
+				#sys.stderr.write("GetWbemUrls different wbemServer=%s entity_host=%s\n"%(str(wbemServer[1].lower()),entity_host.lower()))
 				continue
 
 		sys.stderr.write("GetWbemUrls found wbemServer=%s\n"%(str(wbemServer)))
@@ -206,7 +206,7 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 # If this is a CIM_ComputerSystem, it tries to connect to its WBEM server.
 # This code is not really mature, but it does not harm.
 def GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id ):
-	sys.stderr.write("GetWbemUrlsTyped entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n"%( entity_host, nameSpace, entity_type, entity_id ))
+	#sys.stderr.write("GetWbemUrlsTyped entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n"%( entity_host, nameSpace, entity_type, entity_id ))
 	# When displaying the WBEM of a computer, this attempts to point to the server of this distant machine.
 	# The coding of another machine looks dodgy but is simply a CIM path.
 	if (entity_type == 'CIM_ComputerSystem'):
@@ -214,6 +214,7 @@ def GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id ):
 		# This return the WBEM servers associated to this machine.
 		if entity_id:
 			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+			# BEWARE: Some arguments should be decoded.
 			xidHost = { sp[0]:sp[1] for sp in [ ss.split("=") for ss in entity_id.split(",") ] }["Name"]
 
 			wbem_urls_list = GetWbemUrls( xidHost, nameSpace, entity_type, entity_id)
