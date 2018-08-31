@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-CA SERT A RIEN
+# This does not seem to be useful.
 
 
 
