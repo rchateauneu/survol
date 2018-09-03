@@ -49,7 +49,7 @@ class SurvolBasicTest(unittest.TestCase):
 		print("rdfFileStatRemote=",str(mySourceFileStatRemote.content_rdf())[:30])
 
 	def test_create_source_script(self):
-		# This should return the same content, but much faster.
+		# This should return the same content as test_create_source_url(), but much faster.
 		mySourceFileStatLocal = lib_client.SourceScript(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
@@ -60,20 +60,22 @@ class SurvolBasicTest(unittest.TestCase):
 
 	def test_remote_triplestore(self):
 		mySourceFileStatRemote = lib_client.SourceUrl(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py",
-			"CIM_DataFile",
-			Name="C:\\Windows\\explorer.exe")
+			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py"
+			"CIM_Directory",
+			Name="C:\\Windows")
 		tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
+		print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
 
 	def test_remote_instances(self):
 		mySourceFileStatRemote = lib_client.SourceUrl(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py",
-			"CIM_DataFile",
-			Name="C:\\Windows\\explorer.exe")
+			"http://rchateau-hp:8000/survol/entity.py",
+			"python/package",
+			Id="rdflib")
 		tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
+		print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
 
 		instancesFileStatRemote = tripleFileStatRemote.GetInstances()
-		print("Len tripleFileStatRemote=",len(instancesFileStatRemote))
+		print("Len instancesFileStatRemote=",len(instancesFileStatRemote))
 
 	def test_local_triplestore(self):
 		mySourceFileStatLocal = lib_client.SourceScript(
@@ -81,22 +83,24 @@ class SurvolBasicTest(unittest.TestCase):
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
 		tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
+		print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
 
 	def test_local_instances(self):
 		mySourceFileStatLocal = lib_client.SourceScript(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
-		tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
 
-		# Comparison
 		import lib_common
 		lib_common.globalErrorMessageEnabled = False
-		print(tripleFileStatLocal.m_triplestore)
+
+		tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
+		print("Len tripleFileStatLocal=",len(tripleFileStatLocal))
+
 		instancesFileStatLocal = tripleFileStatLocal.GetInstances()
 		print("Len tripleFileStatLocal=",len(instancesFileStatLocal))
 
-	def test_merge_add(self):
+	def test_local_json(self):
 		# Test merge of heterogeneous data sources.
 		mySource1 = lib_client.SourceScript(
 			"entity.py",
@@ -106,8 +110,6 @@ class SurvolBasicTest(unittest.TestCase):
 		content1 = mySource1.content_json()
 		print( "content1=",str(content1.keys()))
 
-		mySource2 = lib_client.SourceUrl("http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
-
 	def test_merge_add(self):
 		mySource1 = lib_client.SourceScript(
 			"entity.py",
@@ -115,16 +117,22 @@ class SurvolBasicTest(unittest.TestCase):
 			DeviceID="D:")
 		mySource2 = lib_client.SourceUrl("http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
 
-		mySrcMergePlus = self.mySource1 + self.mySource2
+		mySrcMergePlus = mySource1 + mySource2
 		print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
 		triplePlus = mySrcMergePlus.get_triplestore()
-		#print("triplePlus:",triplePlus.keys()[:30])
+		print("Len triplePlus:",len(triplePlus))
 
 	def test_merge_sub(self):
-		mySrcMergeMinus = self.mySource1 - self.mySource2
+		mySource1 = lib_client.SourceScript(
+			"entity.py",
+			"CIM_LogicalDisk",
+			DeviceID="D:")
+		mySource2 = lib_client.SourceUrl("http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py")
+
+		mySrcMergeMinus = mySource1 - mySource2
 		print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
 		tripleMinus = mySrcMergeMinus.get_triplestore()
-		#print("tripleMinus:",triplePlus.keys()[:30])
+		print("Len tripleMinus:",len(tripleMinus))
 
 
 	def test_merge_duplicate(self):
@@ -133,16 +141,22 @@ class SurvolBasicTest(unittest.TestCase):
 			"Win32_UserAccount",
 			Domain="rchateau-hp",
 			Name="rchateau")
-		tripleDupl = self.mySourceDupl.get_triplestore()
+		tripleDupl = mySourceDupl.get_triplestore()
 		print("Len tripleDupl=",len(tripleDupl.GetInstances()))
 
 		mySrcMergePlus = mySourceDupl + mySourceDupl
 		triplePlus = mySrcMergePlus.get_triplestore()
 		print("Len triplePlus=",len(triplePlus.GetInstances()))
+		# No added node.
+		self.assertEqual(len(triplePlus.GetInstances()), len(tripleDupl.GetInstances()))
 
 		mySrcMergeMinus = mySourceDupl - mySourceDupl
 		tripleMinus = mySrcMergeMinus.get_triplestore()
 		print("Len tripleMinus=",len(tripleMinus.GetInstances()))
+		self.assertEqual(len(tripleMinus.GetInstances()), 0)
+
+	# http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui
+
 
 	def test_exception_bad_source(self):
 		# This tests if errors are properly displayed.

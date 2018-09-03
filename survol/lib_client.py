@@ -60,7 +60,7 @@ class SourceBase (object):
 	# It is always True for merged sources,
 	# because they do not have CGI arguments.
 	def IsCgiComplete(self):
-		print("SourceCgi.IsCgiComplete")
+		#print("SourceCgi.IsCgiComplete")
 		return True
 
 # If it has a class, then it has CGI arguments.
@@ -87,7 +87,7 @@ class SourceCgi (SourceBase):
 
 	# TODO: For the moment, this assumes that all CGI arguments are there.
 	def IsCgiComplete(self):
-		print("SourceCgi.IsCgiComplete")
+		#print("SourceCgi.IsCgiComplete")
 		return True
 
 
@@ -314,6 +314,9 @@ class TripleStore:
 	def __sub__(self, otherTriple):
 		return TripleStore(lib_kbase.triplestore_add(self.m_triplestore,otherTriple.m_triplestore))
 
+	def __len__(self):
+		return len(self.m_triplestore)
+
 	# This executes simple WQL queries, whether this is WBEM or WMI or Survol data,
 	# or all mixed together.
 	def QueryWQL(self,className,**kwargs):
@@ -336,7 +339,7 @@ class TripleStore:
 			( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
 			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
 			# BEWARE: Some arguments should be decoded.
-			sys.stderr.write("GetInstances entity_graphic_class=%s entity_id=%s\n"%(entity_graphic_class,entity_id))
+			# sys.stderr.write("GetInstances entity_graphic_class=%s entity_id=%s\n"%(entity_graphic_class,entity_id))
 
 			xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 
