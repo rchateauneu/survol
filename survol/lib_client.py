@@ -1,4 +1,5 @@
 # This allows to easily handle Survol URLs in Jupyter or any other client.
+import cgitb
 
 import os
 import sys
@@ -8,6 +9,8 @@ import urllib
 import lib_kbase
 import lib_util
 import lib_common
+import lib_naming
+
 
 try:
 	# For Python 3.0 and later
@@ -15,6 +18,8 @@ try:
 except ImportError:
 	# Fall back to Python 2's urllib2
 	from urllib2 import urlopen
+
+cgitb.enable(format="txt")
 
 ################################################################################
 
@@ -104,7 +109,7 @@ class SourceUrl (SourceCgi):
 	def get_content_moded(self,mode):
 		the_url = self.__url_with_mode(mode)
 
-		sys.stderr.write("get_content_moded the_url=%s\n"%the_url)
+		# sys.stderr.write("get_content_moded the_url=%s\n"%the_url)
 		response = urlopen(the_url)
 		data = response.read().decode("utf-8")
 		return data
@@ -150,16 +155,16 @@ class SourceScript (SourceCgi):
 		class OutputMachineString:
 			def __init__(self):
 				self.m_output = CreateStringStream()
-				sys.stderr.write("OutputMachineString init type=%s\n"%type(self.m_output).__name__)
+				#sys.stderr.write("OutputMachineString init type=%s\n"%type(self.m_output).__name__)
 
 			# Do not write the header.
 			def HeaderWriter(self,mimeType,extraArgs= None):
-				sys.stderr.write("OutputMachineString HeaderWriter:%s\n"%mimeType)
+				#sys.stderr.write("OutputMachineString HeaderWriter:%s\n"%mimeType)
 				pass
 
 			# The output will be available in a string.
 			def OutStream(self):
-				sys.stderr.write("OutputMachineString OutStream type=%s\n"%type(self.m_output).__name__)
+				#sys.stderr.write("OutputMachineString OutStream type=%s\n"%type(self.m_output).__name__)
 				return self.m_output
 
 			def GetStringContent(self):
@@ -167,12 +172,11 @@ class SourceScript (SourceCgi):
 				self.m_output.close()
 				return strResult
 
-		sys.stderr.write("__execute_script_with_mode before render=%s\n"%lib_util.globalOutMach.__class__.__name__)
+		#sys.stderr.write("__execute_script_with_mode before update=%s\n"%lib_util.globalOutMach.__class__.__name__)
 		outmachString = OutputMachineString()
 		originalOutMach = lib_util.globalOutMach
 		lib_util.globalOutMach = outmachString
 		modu.Main()
-		sys.stderr.write("__execute_script_with_mode before restore=%s\n"%lib_util.globalOutMach.__class__.__name__)
 
 		# Restores the original stream.
 		lib_util.globalOutMach = originalOutMach
@@ -217,16 +221,14 @@ class SourceMerge (SourceBase):
 		else:
 			# The class cannot be None because the url is not complete
 
-			def PredicateInstance(instanceUrl):
-				( entity_label, entity_graphic_class, entity_id ) = lib_util.ParseEntityUri(instanceUrl)
-				return entity_label == self.m_srcB.m_class
+			objsList = lib_kbase.enumerate_instances(triplestoreA)
 
-			objsList = lib_kbase.enumerate_class_instances(triplestoreA,PredicateInstance)
-
-			for anObj in objsList:
-				urlDerived = self.m_srcB.DeriveUrl(anObj)
-				triplestoreB = urlDerived.get_triplestore()
-				triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
+			for instanceUrl in objsList:
+				( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
+				if entity_label == self.m_srcB.m_class:
+					urlDerived = self.m_srcB.DeriveUrl(instanceUrl)
+					triplestoreB = urlDerived.get_triplestore()
+					triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
 			return TripleStore(triplestoreA)
 
 	def get_content_moded(self,mode):
@@ -244,11 +246,52 @@ class SourceMerge (SourceBase):
 
 class SourceMergePlus (SourceMerge):
 	def __init__(self,srcA,srcB):
-		super(SourceMergePlus, self).__init__(srcA,srcB,TripleStore.__plus__)
+		super(SourceMergePlus, self).__init__(srcA,srcB,TripleStore.__add__)
 
 class SourceMergeMinus (SourceMerge):
 	def __init__(self,srcA,srcB):
-		super(SourceMergeMinus, self).__init__(srcA,srcB,TripleStore.__minus__)
+		super(SourceMergeMinus, self).__init__(srcA,srcB,TripleStore.__sub__)
+
+################################################################################
+
+# A bit simpler because it is not needed to explicitely handle the url.
+def CreateSource(script,className = None,urlRoot = None,**kwargs):
+	if urlRoot:
+		urlFull = urlRoot + "/" + script
+		return SourceUrl(urlRoot,className,**kwargs)
+	else:
+		return SourceScript(script,className,**kwargs)
+################################################################################
+
+# https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
+
+class BaseCIMClass(object):
+	def __init__(self):
+		pass
+
+def CIMClassFactoryNoCache(className):
+	def __init__(self, **kwargs):
+		for key, value in kwargs.items():
+			setattr(self, key, value)
+		BaseCIMClass.__init__(self)
+
+	if sys.version_info < (3,0):
+		# Unicode is not accepted.
+		className = className.encode()
+
+	# sys.stderr.write("className: %s/%s\n"%(str(type(className)),className))
+	newclass = type(className, (BaseCIMClass,),{"__init__": __init__})
+	return newclass
+
+def CreateCIMClass(className,**kwargs):
+	try:
+		newCIMClass = globals()[className]
+	except KeyError:
+		# TODO: If entity_label contains slashes, submodules must be imported.
+		newCIMClass = CIMClassFactoryNoCache(className)
+
+	newInstance = newCIMClass(**kwargs)
+	return newInstance
 
 ################################################################################
 
@@ -281,7 +324,29 @@ class TripleStore:
 
 	# This creates an object for each unique URL, and if needed, its class.
 	def GetInstances(self):
-		return []
+		#lib_common.ErrorMessageEnable(False)
+
+		#import cgitb
+		#cgitb.enable(format="txt")
+
+		objsSet = lib_kbase.enumerate_instances(self.m_triplestore)
+		lstInstances = []
+		for instanceUrl in objsSet:
+			# sys.stderr.write("GetInstances instanceUrl=%s\n"%instanceUrl)
+			( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
+			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+			# BEWARE: Some arguments should be decoded.
+			sys.stderr.write("GetInstances entity_graphic_class=%s entity_id=%s\n"%(entity_graphic_class,entity_id))
+
+			xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+
+			# xidDict = { sp[0]:sp[1] for sp in [ ss.split("=") for ss in entity_id.split(",") ] }
+
+			newInstance = CreateCIMClass(entity_graphic_class, **xidDict)
+			lstInstances.append(newInstance)
+
+		#lib_common.ErrorMessageEnable(True)
+		return lstInstances
 
 
 ################################################################################
@@ -292,3 +357,24 @@ class TripleStore:
 
 # TODO: Create the merge URL. What about a local script ?
 # Or: A merged URL needs an agent anyway.
+
+# TODO: Avoir ce genre d'ecriture:
+#
+#    "sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py",
+#    "Win32_UserAccount", Domain="rchateau-hp", Name="rchateau")
+# Agent().Win32_UserAccount.Win32_NetUserGetGroups(Domain="rchateau-hp",Name="rchateau")
+#
+# "http://rchateau-hp:8000/survol/sources_types/java/java_processes.py"
+# Agent(host="rchateau-hp",port=8000,path="survol/sources_types").java.java_processes
+#
+# http://127.0.0.1/Survol/survol/entity.py
+# Agent(host="127.0.0.1",path="Survol/survol")
+#
+# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
+# Agent("host="rchateau-hp",port=8000,path="survol/sources_types").CIM_DataFile.file_stat(class="CIM_DataFile",Name="C:/Windows/explorer.exe")
+#
+# lib_client.py ajoute "survol/sources_types" car c'est obligatoire pour "sources_types" et "survol"
+# pourrait etre la valeur par defaut.
+#
+# Ca rend le code bien plus concis.
+#

@@ -27,19 +27,16 @@ def MakeNamespace(primns):
 def MakeGraph():
 	return rdflib.Graph()
 
-# objsList = lib_kbase.enumerate_objects_from_class(triplestoreA,self.m_src_B.m_class)
-# The returns the set of subjects or objects which match the predicate function.
-# For example, the predicate tests the class of the url.
-def enumerate_class_instances(grph,predicateFunction):
+# The returns the set of unique subjects or objects.
+def enumerate_instances(grph):
 	instancesSet = set()
 	# Beware that the order might change each time.
 	for kSub,kPred,kObj in grph:
 		if kSub not in instancesSet:
-			if predicateFunction(kSub):
-				instancesSet.add(kSub)
+			instancesSet.add(kSub)
 
-		if kObj not in instancesSet:
-			if predicateFunction(kObj):
+		if not IsLiteral(kObj):
+			if kObj not in instancesSet:
 				instancesSet.add(kObj)
 	return instancesSet
 
