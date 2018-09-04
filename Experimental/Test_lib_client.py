@@ -177,6 +177,18 @@ class SurvolBasicTest(unittest.TestCase):
 		except Exception as exc:
 			print("Error detected:",exc)
 
+	def test_instance_filter(self):
+		pass
+		# Filter from a triple store by creating a mask like:
+		# inst = lib_client.CMI_DataFile
+
+	def test_wql(self):
+		pass
+		# SELECT * FROM meta_class WHERE NOT __class < "win32"="" and="" not="" __this="" isa="">
+		# "Select * from win32_Process where name like '[H-N]otepad.exe'"
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
