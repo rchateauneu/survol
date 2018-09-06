@@ -5,23 +5,9 @@
 #
 # open_bookmarks.py -f <bookmark file> [-d <bookmark directory>] [-b <browser>]
 #
-
-# On charge un fichier bookmark et on en affiche tous les liens.
-# On met le contenu dans du json.
-# On doit merger a chaque niveau intermediaire.
-# Mais aussi demerger et donc FABRIQUER des niveaux intermediaires
-# en leur donnant un nom.
-# On doit tester le chargement des descriptions qui servent a habiller des rapports.
-# C'est pour cette raison qu'il faut pouvoir uploaded un fichier.
-
-# Tester aussi avec un URL.
-
-
-# De out facon il faut soit stocker l emplacement du fichier,
-# soit le charger.
-# Il vaut mieux que la configuration indique l emplacement du fichier
-# Pour aller a l essentiel, on convient que le fichier de bookmark est avec le fichier de credentials.
-# L'upload se fera plus tard si necessaire.
+# This loads a bookmarks file and display its content.
+# This helps for testing: Intersting URLs should be stored
+# in the brower favorites for later use and testing.
 
 import sys
 import lib_bookmark
@@ -63,7 +49,7 @@ def PrettyBkMrks(aDict, indent=0):
 		if keyDict not in ["children","HREF","name"]:
 			valDict = aDict[keyDict]
 
-			# Afficher si merge_scripts.py, si lien normal etc...
+			# TODO: Shoudl display if merge_scripts.py, normal url etc...
 			strVal = Truncate(valDict)
 
 			sys.stdout.write(margin * (indent+1) + keyDict + " : " + strVal)
@@ -78,23 +64,10 @@ def PrettyBkMrks(aDict, indent=0):
 		pass
 
 
-
-
-def Main():
-
-	# Bookmark file for Chrome should be here: "AppData\Local\Google\Chrome\User Data\Default."
-	# "C:\Users\rchateau\AppData\Roaming\Microsoft\Windows\Recent\bookmarks.html.lnk"
-	# "C:\Users\rchateau\AppData\Roaming\Thunderbird\Profiles\xgv4ydxm.default\bookmarks.html"
-
-	filNam = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Docs\bookmarks.html"
-
-	urlNam = "https://www.google.com/bookmarks/bookmarks.html?hl=fr"
-
+def BookmarksHTML(dictBookmarks):
 	sys.stdout.write("""
 		<html><head></head><body>
 	""")
-
-	dictBookmarks = lib_bookmark.ImportBookmarkFile(filNam)
 
 	sys.stdout.write("<br/>\n")
 	sys.stdout.write("<br/>\n")
@@ -104,10 +77,27 @@ def Main():
 
 	PrettyBkMrks(dictBookmarks)
 
-
 	sys.stdout.write("""
 		</body></html>
 	""")
+
+
+def Main():
+
+	# Bookmark file for Chrome can be used: "AppData\Local\Google\Chrome\User Data\Default."
+	# "C:\Users\rchateau\AppData\Roaming\Microsoft\Windows\Recent\bookmarks.html.lnk"
+	# "C:\Users\rchateau\AppData\Roaming\Thunderbird\Profiles\xgv4ydxm.default\bookmarks.html"
+	# Google bookmark is another possible source of bookmarks.
+	# urlNam = "https://www.google.com/bookmarks/bookmarks.html?hl=fr"
+	try:
+		filNam = sys.argv[1]
+	except:
+		# TODO: The directory should not be hard-coded.
+		filNam = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Docs\bookmarks.html"
+
+	dictBookmarks = lib_bookmark.ImportBookmarkFile(filNam)
+	BookmarksHTML(dictBookmarks)
+
 
 if __name__ == '__main__':
 	Main()
