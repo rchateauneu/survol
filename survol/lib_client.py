@@ -109,7 +109,7 @@ class SourceUrl (SourceCgi):
 	def get_content_moded(self,mode):
 		the_url = self.__url_with_mode(mode)
 
-		# sys.stderr.write("get_content_moded the_url=%s\n"%the_url)
+		# sys.stderr.write("SourceUrl.get_content_moded the_url=%s\n"%the_url)
 		response = urlopen(the_url)
 		data = response.read().decode("utf-8")
 		return data
@@ -269,6 +269,18 @@ class BaseCIMClass(object):
 	def __init__(self):
 		pass
 
+	# This returns the list of Sources (URL or local sources) usable for this entity.
+	# This can be a tree ? Or a flat list ?
+	# Each source can return a triplestore.
+	# This allows the discovery of a machine and its neighbours,
+	# discovery with A* algorithm or any exploration heurisitc etc....
+	def Scripts(self):
+		# Not all kw args.
+		mySource = CreateSource("entity.py",self.__class__.__name__,**kwargs)
+
+		# These are not instances. TODO: Make the difference !!
+		return mySource.GetInstances()
+
 def CIMClassFactoryNoCache(className):
 	def __init__(self, **kwargs):
 		for key, value in kwargs.items():
@@ -312,7 +324,7 @@ class TripleStore:
 		return TripleStore(lib_kbase.triplestore_add(self.m_triplestore,otherTriple.m_triplestore))
 
 	def __sub__(self, otherTriple):
-		return TripleStore(lib_kbase.triplestore_add(self.m_triplestore,otherTriple.m_triplestore))
+		return TripleStore(lib_kbase.triplestore_sub(self.m_triplestore,otherTriple.m_triplestore))
 
 	def __len__(self):
 		return len(self.m_triplestore)

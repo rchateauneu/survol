@@ -33,7 +33,7 @@ import lib_client
 
 cgitb.enable(format="txt")
 
-# TODO: Prefix of url samples should be a parameter.
+	# TODO: Prefix of url samples should be a parameter.
 
 class SurvolBasicTest(unittest.TestCase):
 
@@ -60,7 +60,7 @@ class SurvolBasicTest(unittest.TestCase):
 
 	def test_remote_triplestore(self):
 		mySourceFileStatRemote = lib_client.SourceUrl(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py"
+			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py",
 			"CIM_Directory",
 			Name="C:\\Windows")
 		tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
@@ -187,6 +187,9 @@ class SurvolBasicTest(unittest.TestCase):
 		# SELECT * FROM meta_class WHERE NOT __class < "win32"="" and="" not="" __this="" isa="">
 		# "Select * from win32_Process where name like '[H-N]otepad.exe'"
 
+	def scripts_list(self):
+		pass
+		# Load the list of scripts from en entity.
 
 
 
