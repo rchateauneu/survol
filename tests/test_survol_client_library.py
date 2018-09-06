@@ -12,12 +12,6 @@ if sys.path[0] != filRoot:
 	sys.path.insert(0,filRoot)
 	# print(sys.path)
 
-
-#Verifier les fichiers des modules
-#Virer dans sys.path tout ce qui contient "survol"
-#Verifier qu on ne touche pas au sys.path
-#Verifier les id des variables identiques dans plusieurs modules homonymes.
-
 # This deletes the module so we can reload them each time.
 # Problem: survol modules are not detectable.
 # We could as well delete all modules except sys.
@@ -27,10 +21,9 @@ for modu in allModules:
 	# sys.stderr.write("Deleting %s\n"%modu)
 	del sys.modules[modu]
 
-#sys.stderr.write("%s\n"%__file__)
 import lib_client
-#sys.stderr.write("Done %s\n"%__file__)
 
+# Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
 
 	# TODO: Prefix of url samples should be a parameter.
