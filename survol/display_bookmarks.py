@@ -66,7 +66,7 @@ def PrettyBkMrks(aDict, indent=0):
 
 def BookmarksHTML(dictBookmarks):
 	sys.stdout.write("""
-		<html><head></head><body>
+		<html><head><title>Survol bookmarks</title></head><body>
 	""")
 
 	sys.stdout.write("<br/>\n")
