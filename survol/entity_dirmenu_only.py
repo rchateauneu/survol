@@ -5,6 +5,7 @@ Scripts hierarchy
 
 It is used by entity.py as a module, but also as a script with the CGI parameter mode=menu,
 by the D3 interface, to build contextual right-click menu.
+It is also used by the client library lib_client , to return all the scritps accessible from an object.
 """
 
 import os
@@ -41,7 +42,7 @@ def DirMenuReport(depthCall,strMsg):
 # TODO: Only return json data, and this script will only return json, nothing else.
 def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagShowAll):
 
-	def IsDirectoryUsable(relative_dir,parentNode,depthCall):
+	def IsDirectoryUsable(relative_dir,theParentNode,depthCall):
 		# Maybe there is a usability test in the current module.
 		# The goal is to control all scripts in the subdirectories, from here.
 		try:
@@ -57,7 +58,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 					# If set to True, the directory is displayed even if all its scripts
 					# are not usable. Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
 					if False:
-						callbackGrphAdd( ( parentNode, lib_common.MakeProp("Usability"), lib_common.NodeLiteral(errorMsg) ),depthCall )
+						callbackGrphAdd( ( theParentNode, lib_common.MakeProp("Usability"), lib_common.NodeLiteral(errorMsg) ),depthCall )
 
 					return False
 		except IndexError:
@@ -70,7 +71,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 
 	# This lists the scripts and generate RDF nodes.
 	# Returns True if something was added.
-	def DirToMenuAux(parentNode,curr_dir,relative_dir,depthCall = 1):
+	def DirToMenuAux(aParentNode,curr_dir,relative_dir,depthCall = 1):
 		#sys.stderr.write("DirToMenuAux entity_host=%s curr_dir=%s\n"%(entity_host,curr_dir) )
 		#DirMenuReport( depthCall, "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
 		# In case there is nothing.
@@ -94,7 +95,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 		# If this is a remote host, all scripts are checked because they might have
 		# the flag CanProcessRemote which is defined at the script level, not the directory level.
 		if not entity_host:
-			if not IsDirectoryUsable(relative_dir,parentNode,depthCall):
+			if not IsDirectoryUsable(relative_dir,aParentNode,depthCall):
 				return False
 
 
@@ -130,7 +131,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 			# This adds the directory name only if it contains a script.
 			if somethingAdded:
 				# It works both ways, possibly with different properties.
-				callbackGrphAdd( ( parentNode, pc.property_script, currDirNode ), depthCall )
+				callbackGrphAdd( ( aParentNode, pc.property_script, currDirNode ), depthCall )
 			containsSomething = containsSomething | somethingAdded
 
 		for fil in files:
@@ -194,7 +195,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 			# Here, we are sure that the script is added.
 			# TODO: If no script is added, should not add the directory?
 			rdfNode = lib_common.NodeUrl(url_rdf)
-			callbackGrphAdd( ( parentNode, pc.property_script, rdfNode ), depthCall )
+			callbackGrphAdd( ( aParentNode, pc.property_script, rdfNode ), depthCall )
 
 			# Default doc text is file name minus the ".py" extension.
 			nodModu = lib_util.FromModuleToDoc(importedMod,fil[:-3])
