@@ -244,6 +244,8 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 		lib_exports.Grph2Menu( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "rdf":
 		lib_exports.Grph2Rdf( grph)
+	# TODO: Add a special mode where the triplestore grph is simply returned.
+	# TODO: This is much faster when in the client library.
 	else: # Or mode = "svg"
 		# Default value, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
 		Grph2Svg( pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout )
@@ -262,7 +264,7 @@ def GetCallingModuleDoc():
 		It returns the whole content.
 	"""
 
-	sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
+	#sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
 
 	# If it uses an unique CGI script.
 	if lib_util.modeOVH or globalMergeMode:
@@ -283,14 +285,14 @@ def GetCallingModuleDoc():
 			if lib_util.modeOVH:
 				# Then it starts again with "survol."
 				filnamCaller = filnamCaller[ len(modulePrefix): ]
-			sys.stderr.write("GetCallingModuleDoc filnamCaller=%s\n" % filnamCaller)
+			#sys.stderr.write("GetCallingModuleDoc filnamCaller=%s\n" % filnamCaller)
 			try:
 				moduleCaller = sys.modules[filnamCaller]
 			except:
 				return filnamCaller + ":No doc"
 
 			theDoc = moduleCaller.__doc__.strip()
-			sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
+			#sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
 			return theDoc
 		except:
 			exc = sys.exc_info()[1]
@@ -300,7 +302,7 @@ def GetCallingModuleDoc():
 		try:
 			# This does not work when in WSGI mode, nor when merging.
 			mainModu = sys.modules['__main__']
-			sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% mainModu.__name__ )
+			#sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% mainModu.__name__ )
 			page_title = mainModu.__doc__
 			if page_title:
 				page_title = page_title.strip()
@@ -393,7 +395,7 @@ class CgiEnv():
 	"""
 	def __init__(self, parameters = {}, can_process_remote = False ):
 		# TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
-		sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
+		#sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
 
 		# TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
 		# TODO: is removed. Workaround: Any CGI variable added after.
@@ -423,6 +425,7 @@ class CgiEnv():
 		callingUrl = lib_util.RequestUri()
 		self.m_calling_url = callingUrl
 		sys.stderr.write("CgiEnv m_page_title=%s m_calling_url=%s\n"%(self.m_page_title,self.m_calling_url))
+		#sys.stderr.write("CgiEnv lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
 		parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False,force_entity_ip_addr=None)
 		if parsedEntityUri[2]:
 			# If there is an object to display.
@@ -462,7 +465,7 @@ class CgiEnv():
 		self.m_arguments = cgi.FieldStorage()
 
 		(self.m_entity_type,self.m_entity_id,self.m_entity_host) = self.GetXid()
-		sys.stderr.write("CgiEnv m_entity_type=%s m_entity_id=%s m_entity_host=%s\n"%(self.m_entity_type,self.m_entity_id,self.m_entity_host))
+		#sys.stderr.write("CgiEnv m_entity_type=%s m_entity_id=%s m_entity_host=%s\n"%(self.m_entity_type,self.m_entity_id,self.m_entity_host))
 		self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
 
 		# Depending on the caller module, maybe the arguments should be 64decoded. See "sql/query".
@@ -557,7 +560,7 @@ class CgiEnv():
 	# https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
 
 	def GetParameters(self,paramkey):
-		sys.stderr.write("GetParameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
+		#sys.stderr.write("GetParameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
 
 		# Default value if no CGI argument.
 		try:
@@ -574,7 +577,7 @@ class CgiEnv():
 			# BEWARE !!! An empty argument triggers an exception !!!
 			# Same problem if the same argument appears several times: This will be a list.
 			paramVal = self.m_arguments[paramkey].value
-			sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
+			#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
 			sys.stderr.write("GetParameters paramkey='%s' not as CGI\n" % ( paramkey ) )
 			hasArgValue = False
@@ -584,7 +587,7 @@ class CgiEnv():
 			if hasArgValue:
 				paramTyp = type(dfltValue)
 				paramVal = paramTyp( paramVal )
-				sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
+				#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
 			else:
 				# If the parameters were edited but the value did not appear,
 				# it can only be a Boolean with a clear check box.
@@ -603,7 +606,7 @@ class CgiEnv():
 					sys.stderr.write("GetParameters paramkey='%s' set to paramVal='%s'\n" % ( paramkey, paramVal ) )
 		else:
 			if not hasArgValue:
-				sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
+				#sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
 				# lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
 				paramVal = ""
 			else:
@@ -667,6 +670,7 @@ class CgiEnv():
 	# the unique generation of graphic data.
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 		global globalCgiEnvList
+		#sys.stderr.write("OutCgiRdf lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
 		sys.stderr.write("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s\n"%(globalMergeMode,self.m_calling_url,self.m_page_title))
 
 		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
