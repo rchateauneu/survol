@@ -32,7 +32,7 @@ class SurvolBasicTest(unittest.TestCase):
 
 	def test_create_source_url(self):
 		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
-		mySourceFileStatRemote = lib_client.SourceUrl(
+		mySourceFileStatRemote = lib_client.SourceRemote(
 			"http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
@@ -41,9 +41,9 @@ class SurvolBasicTest(unittest.TestCase):
 		print("jsonFileStatRemote=",str(mySourceFileStatRemote.content_json())[:30])
 		print("rdfFileStatRemote=",str(mySourceFileStatRemote.content_rdf())[:30])
 
-	def test_create_source_script(self):
+	def test_create_source_local(self):
 		# This should return the same content as test_create_source_url(), but much faster.
-		mySourceFileStatLocal = lib_client.SourceScript(
+		mySourceFileStatLocal = lib_client.SourceLocal(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
@@ -52,7 +52,7 @@ class SurvolBasicTest(unittest.TestCase):
 		print("rdfFileStatLocal=%s"%str(mySourceFileStatLocal.content_rdf())[:30])
 
 	def test_remote_triplestore(self):
-		mySourceFileStatRemote = lib_client.SourceUrl(
+		mySourceFileStatRemote = lib_client.SourceRemote(
 			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py",
 			"CIM_Directory",
 			Name="C:\\Windows")
@@ -60,7 +60,7 @@ class SurvolBasicTest(unittest.TestCase):
 		print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
 
 	def test_remote_instances(self):
-		mySourceFileStatRemote = lib_client.SourceUrl(
+		mySourceFileStatRemote = lib_client.SourceRemote(
 			"http://rchateau-hp:8000/survol/entity.py",
 			"python/package",
 			Id="rdflib")
@@ -71,7 +71,7 @@ class SurvolBasicTest(unittest.TestCase):
 		print("Len instancesFileStatRemote=",len(instancesFileStatRemote))
 
 	def test_local_triplestore(self):
-		mySourceFileStatLocal = lib_client.SourceScript(
+		mySourceFileStatLocal = lib_client.SourceLocal(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
@@ -79,7 +79,7 @@ class SurvolBasicTest(unittest.TestCase):
 		print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
 
 	def test_local_instances(self):
-		mySourceFileStatLocal = lib_client.SourceScript(
+		mySourceFileStatLocal = lib_client.SourceLocal(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
@@ -95,7 +95,7 @@ class SurvolBasicTest(unittest.TestCase):
 
 	def test_local_json(self):
 		# Test merge of heterogeneous data sources.
-		mySource1 = lib_client.SourceScript(
+		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
 			DeviceID="D:")
@@ -104,11 +104,11 @@ class SurvolBasicTest(unittest.TestCase):
 		print( "content1=",str(content1.keys()))
 
 	def test_merge_add(self):
-		mySource1 = lib_client.SourceScript(
+		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
 			DeviceID="D:")
-		mySource2 = lib_client.SourceUrl("http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
+		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
 
 		mySrcMergePlus = mySource1 + mySource2
 		print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
@@ -116,11 +116,11 @@ class SurvolBasicTest(unittest.TestCase):
 		print("Len triplePlus:",len(triplePlus))
 
 	def test_merge_sub(self):
-		mySource1 = lib_client.SourceScript(
+		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
 			DeviceID="D:")
-		mySource2 = lib_client.SourceUrl("http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py")
+		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py")
 
 		mySrcMergeMinus = mySource1 - mySource2
 		print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
@@ -129,7 +129,7 @@ class SurvolBasicTest(unittest.TestCase):
 
 
 	def test_merge_duplicate(self):
-		mySourceDupl = lib_client.SourceScript(
+		mySourceDupl = lib_client.SourceLocal(
 			"sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py",
 			"Win32_UserAccount",
 			Domain="rchateau-hp",
@@ -153,22 +153,23 @@ class SurvolBasicTest(unittest.TestCase):
 
 	def test_exception_bad_source(self):
 		# This tests if errors are properly displayed.
-		mySourceBad = lib_client.SourceScript(
+		mySourceBad = lib_client.SourceLocal(
 			"xxx/yyy/zzz.py",
-			"uuuuu")
+			"this-will-raise-an-exception")
 		try:
 			tripleBad = mySourceBad.get_triplestore()
 		except Exception as exc:
 			print("Error detected:",exc)
 
-
-		mySourceBad = lib_client.SourceUrl(
+		mySourceBroken = lib_client.SourceRemote(
 			"http://rchateau-hp:8000/xxx/yyy/zzz/ttt.py",
 			"wwwww")
 		try:
-			tripleBad = mySourceBad.get_triplestore()
+			tripleBroken = mySourceBroken.get_triplestore()
+			excRaised = False
 		except Exception as exc:
-			print("Error detected:",exc)
+			excRaised = True
+		self.assertTrue(excRaised)
 
 	def test_instance_filter(self):
 		pass
@@ -180,10 +181,44 @@ class SurvolBasicTest(unittest.TestCase):
 		# SELECT * FROM meta_class WHERE NOT __class < "win32"="" and="" not="" __this="" isa="">
 		# "Select * from win32_Process where name like '[H-N]otepad.exe'"
 
-	def scripts_list(self):
-		pass
-		# Load the list of scripts from en entity.
+	def test_local_scripts_list(self):
+		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
+			Domain="rchateau-hp",
+			Name="rchateau")
 
+		listScripts = myInstancesLocal.GetScripts()
+		sys.stdout.write("Scripts:\n")
+		for oneScr in listScripts:
+			sys.stdout.write("    %s\n"%oneScr)
+
+	def XXX_test_remote_scripts_list_exception(self):
+		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+
+		try:
+			myInstancesRemote = myAgent.CIM_LogicalDisk(WrongProperty="D:")
+			excRaised = False
+			print("No exception is raised")
+		except Exception as exc:
+			print("An exception is raised")
+			excRaised = True
+		self.assertTrue(excRaised)
+
+	def test_remote_scripts_list_CIM_LogicalDisk(self):
+		# myInstancesRemote = lib_client.Agent("http://rchateau-hp:8000").CIM_LogicalDisk(DeviceID="D:")
+		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+
+		myInstancesRemote = myAgent.CIM_LogicalDisk(DeviceID="D:")
+		listScripts = myInstancesRemote.GetScripts()
+
+
+	def test_remote_scripts_list(self):
+		# myInstancesRemote = lib_client.Agent("http://rchateau-hp:8000").CIM_Directory(Name="D:")
+		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+
+		myInstancesRemote = myAgent.CIM_Directory(Name="D:")
+		listScripts = myInstancesRemote.GetScripts()
+		for keyScript in listScripts:
+			sys.stdout.write("    %s\n"%keyScript)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 # This allows to easily handle Survol URLs in Jupyter or any other client.
 import cgitb
+cgitb.enable(format="txt")
 
 import os
 import sys
@@ -10,7 +11,8 @@ import lib_kbase
 import lib_util
 import lib_common
 import lib_naming
-
+from lib_properties import pc
+import entity_dirmenu_only
 
 try:
 	# For Python 3.0 and later
@@ -19,7 +21,6 @@ except ImportError:
 	# Fall back to Python 2's urllib2
 	from urllib2 import urlopen
 
-cgitb.enable(format="txt")
 
 ################################################################################
 
@@ -90,13 +91,22 @@ class SourceCgi (SourceBase):
 		#print("SourceCgi.IsCgiComplete")
 		return True
 
+def LoadModedUrl(urlModed):
+	sys.stderr.write("LoadModedUrl.get_content_moded urlModed=%s\n"%urlModed)
+	response = urlopen(urlModed)
+	data = response.read().decode("utf-8")
+	return data
+
 
 # Server("127.0.0.1:8000").CIM_Process(Handle=1234) and Server("192.168.0.1:8000").CIM_Datafile(Name='/tmp/toto.txt')
 #
-class SourceUrl (SourceCgi):
+class SourceRemote (SourceCgi):
 	def __init__(self,anUrl,className = None,**kwargs):
 		self.m_url = anUrl
-		super(SourceUrl, self).__init__(className,**kwargs)
+		super(SourceRemote, self).__init__(className,**kwargs)
+
+	def __str__(self):
+		return "URL=" + self.Url()
 
 	def Url(self):
 		return self.m_url + "?" + self.UrlQuery()
@@ -108,10 +118,7 @@ class SourceUrl (SourceCgi):
 
 	def get_content_moded(self,mode):
 		the_url = self.__url_with_mode(mode)
-
-		# sys.stderr.write("SourceUrl.get_content_moded the_url=%s\n"%the_url)
-		response = urlopen(the_url)
-		data = response.read().decode("utf-8")
+		data = LoadModedUrl(the_url)
 		return data
 
 def CreateStringStream():
@@ -127,10 +134,13 @@ def CreateStringStream():
 	#from io import BytesIO
 	#return BytesIO
 
-class SourceScript (SourceCgi):
+class SourceLocal (SourceCgi):
 	def __init__(self,aScript,className = None,**kwargs):
 		self.m_script = aScript
-		super(SourceScript, self).__init__(className,**kwargs)
+		super(SourceLocal, self).__init__(className,**kwargs)
+
+	def __str__(self):
+		return "SCRIPT=" + self.m_script + "?" + self.UrlQuery()
 
 	# This executes the script and return the data in the right format.
 	def __execute_script_with_mode(self,mode):
@@ -151,7 +161,7 @@ class SourceScript (SourceCgi):
 		# QUERY_STRING=xid=class.k=v
 		os.environ["QUERY_STRING"] = self.UrlQuery(mode)
 
-		# This technique is also used by WSGI
+		# This technique of replacing the output object is also used by WSGI
 		class OutputMachineString:
 			def __init__(self):
 				self.m_output = CreateStringStream()
@@ -186,6 +196,7 @@ class SourceScript (SourceCgi):
 		return strResult
 
 	# This returns a string.
+	# It runs locally: When using only the local node, no web server is needed.
 	def get_content_moded(self,mode):
 		data_content = self.__execute_script_with_mode(mode)
 		return data_content
@@ -257,35 +268,94 @@ class SourceMergeMinus (SourceMerge):
 # A bit simpler because it is not needed to explicitely handle the url.
 def CreateSource(script,className = None,urlRoot = None,**kwargs):
 	if urlRoot:
-		urlFull = urlRoot + "/" + script
-		return SourceUrl(urlRoot,className,**kwargs)
+		return SourceRemote(urlRoot,className,**kwargs)
 	else:
-		return SourceScript(script,className,**kwargs)
+		return SourceLocal(script,className,**kwargs)
 ################################################################################
 
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
 
 class BaseCIMClass(object):
-	def __init__(self):
-		pass
+	def __init__(self,agentUrl, entity_id):
+		self.m_agentUrl = agentUrl
+		self.m_entity_id = entity_id
 
 	# This returns the list of Sources (URL or local sources) usable for this entity.
 	# This can be a tree ? Or a flat list ?
 	# Each source can return a triplestore.
 	# This allows the discovery of a machine and its neighbours,
-	# discovery with A* algorithm or any exploration heurisitc etc....
-	def Scripts(self):
-		# Not all kw args.
-		mySource = CreateSource("entity.py",self.__class__.__name__,**kwargs)
+	# discovery with A* algorithm or any exploration heuristic etc....
+	def GetScripts(self):
+		if self.m_agentUrl:
+			return self.GetScriptsRemote()
+		else:
+			return self.GetScriptsLocal()
 
-		# These are not instances. TODO: Make the difference !!
-		return mySource.GetInstances()
+	def GetScriptsRemote(self):
+		# We expect a contextual menu in JSON format, not a graph.
+		urlScripts = self.m_agentUrl + "/survol/entity_dirmenu_only.py" + "?xid=" + self.__class__.__name__ + "." + self.m_entity_id + "&mode=menu"
+		# sys.stdout.write("GetScriptsRemote urlScripts=%s\n"%(urlScripts))
+
+		# Typical content:
+		# {
+		# 	"http://rchateau-HP:8000/survol/sources_types/CIM_Directory/dir_stat.py?xid=CIM_Directory.Name%3DD%3A": {
+		# 		"name": "Directory stat information",
+		# 		"url": "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/dir_stat.py?xid=CIM_Directory.Name%3DD%3A"
+		# 	},
+		# 	"http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name%3DD%3A": {
+		# 		"name": "Files in directory",
+		# 		"url": "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name%3DD%3A"
+		# 	}
+		# }
+		dataJsonStr = LoadModedUrl(urlScripts)
+		dataJson = json.loads(dataJsonStr)
+
+		# The scripts urls are the keys of the Json object.
+		listSources = [ ScriptUrlToSource(oneScr) for oneScr in dataJson]
+		return listSources
+
+	# This is much faster than using the URL of a local server.
+	# Also: Such a server is not necessary.
+	def GetScriptsLocal(self):
+		sys.stdout.write("GetScripts: class=%s entity_id=%s\n"%(self.__class__.__name__,self.m_entity_id))
+		# Not all kw args.
+		# mySource = CreateSource("entity.py",self.__class__.__name__,self.m_entity_id)
+
+		listScripts = []
+
+		# This function is called for each script which applies to the given entity.
+		# It receives a triplet: (subject,property,object) and the depth in the tree.
+		# Here, this simply stores the scripts in a list. The depth is not used yet.
+		def CallbackGrphAdd( trpl, depthCall ):
+			# print("CallbackGrphAdd:",trpl,depthCall)
+			subj,prop,obj = trpl
+			if prop == pc.property_script:
+				listScripts.append( obj )
+
+		flagShowAll = False
+
+		# Beware if there are subclasses.
+		entity_type = self.__class__.__name__
+		entity_host = None # To start with
+		rootNode = None # The top-level is script is not necessary.
+
+		#sys.stdout.write("lib_util.gblTopScripts=%s\n"%lib_util.gblTopScripts)
+
+		entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,self.m_entity_id,entity_host,flagShowAll)
+
+		listSources = [ ScriptUrlToSource(oneScr) for oneScr in listScripts]
+		return listSources
 
 def CIMClassFactoryNoCache(className):
-	def __init__(self, **kwargs):
+	def __init__(self, agentUrl, **kwargs):
+		entity_id = ""
+		delim = ""
 		for key, value in kwargs.items():
 			setattr(self, key, value)
-		BaseCIMClass.__init__(self)
+			# TODO: The values should be encoded !!!
+			entity_id += delim + "%s=%s" % (key,value)
+			delim = ","
+		BaseCIMClass.__init__(self,agentUrl, entity_id)
 
 	if sys.version_info < (3,0):
 		# Unicode is not accepted.
@@ -295,17 +365,20 @@ def CIMClassFactoryNoCache(className):
 	newclass = type(className, (BaseCIMClass,),{"__init__": __init__})
 	return newclass
 
-def CreateCIMClass(className,**kwargs):
+def CreateCIMClass(agentUrl,className,**kwargs):
 	try:
 		newCIMClass = globals()[className]
 	except KeyError:
 		# TODO: If entity_label contains slashes, submodules must be imported.
 		newCIMClass = CIMClassFactoryNoCache(className)
 
-	newInstance = newCIMClass(**kwargs)
+	newInstance = newCIMClass(agentUrl, **kwargs)
 	return newInstance
 
 ################################################################################
+def InstanceUrlToAgentUrl(instanceUrl):
+	idxSurvol = instanceUrl.find("/survol")
+	return instanceUrl[:idxSurvol]
 
 # This wraps rdflib triplestore.
 # rdflib objects and subjects can be handled as WMI or WBEM objects.
@@ -355,13 +428,83 @@ class TripleStore:
 
 			xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 
-			# xidDict = { sp[0]:sp[1] for sp in [ ss.split("=") for ss in entity_id.split(",") ] }
+			agentUrl = InstanceUrlToAgentUrl(instanceUrl)
 
-			newInstance = CreateCIMClass(entity_graphic_class, **xidDict)
+			newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
 			lstInstances.append(newInstance)
 
 		#lib_common.ErrorMessageEnable(True)
 		return lstInstances
+
+
+################################################################################
+
+# This receives an URL, parses it and creates a Source object.
+# It is able to detect if the URL is local or not.
+# Input examples:
+# "http://LOCAL_MODE:80/NotRunningAsCgi/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Drchateau-hp%2CName%3Drchateau"
+# "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
+def ScriptUrlToSource(callingUrl):
+
+	try:
+		# Python 2
+		from urlparse import urlparse, parse_qs
+	except ImportError:
+		from urllib.parse import urlparse, parse_qs
+
+	parse_url = urlparse(callingUrl)
+	query = parse_url.query
+
+	params = parse_qs(query)
+
+	xidParam = params['xid'][0]
+	# sys.stdout.write("xidParam=%s\n"%xidParam)
+	(entity_type,entity_id,entity_host) = lib_util.ParseXid( xidParam )
+	# sys.stdout.write("entity_id=%s\n"%entity_id)
+	entity_id_dict = lib_util.SplitMoniker(entity_id)
+	# sys.stdout.write("entity_id_dict=%s\n"%str(entity_id_dict))
+
+	# parse_url.path=/NotRunningAsCgi/sources_types/Win32_UserAccount/Win32_NetUserGetInfo.py
+	# This is a very simple method to differentiate local from remote scripts
+	if parse_url.path.startswith(lib_util.prefixLocalScript):
+		# This also chops the leading slash.
+		pathScript = parse_url.path[len(lib_util.prefixLocalScript)+1:]
+		objSource = SourceLocal(pathScript,entity_type,**entity_id_dict)
+
+		# Note: This should be True: parse_url.netloc.startswith("LOCAL_MODE")
+	else:
+		objSource = SourceRemote(callingUrl,entity_type,**entity_id_dict)
+
+	return objSource
+
+################################################################################
+
+# This models a Survol agent, or the local execution of survol scripts.
+class Agent:
+	def __init__(self,agent_url = None):
+		self.m_agent_url = agent_url
+
+	# This allows the creation of CIM instances.
+	def __getattr__(self, attr):
+
+		class CallDispatcher(object):
+			def __init__(self, caller, agent_url, name):
+				#print("CallDispatcher.__init__ agent=",type(agent_url))
+				self.m_name = name
+				self.m_caller = caller
+				self.m_agent_url = agent_url
+
+			def __call__(self, *argsCall, **kwargsCall):
+				#print("CallDispatcher class=",self.m_name," url=",type(self.m_agent_url))
+				newInstance = CreateCIMClass(self.m_agent_url, self.m_name, **kwargsCall)
+				return newInstance
+
+
+			@classmethod
+			def mock(cls, *a, **ka):
+				return 'Some default value for newly created methods.'
+
+		return CallDispatcher(self, self.m_agent_url, attr)
 
 
 ################################################################################
@@ -373,23 +516,5 @@ class TripleStore:
 # TODO: Create the merge URL. What about a local script ?
 # Or: A merged URL needs an agent anyway.
 
-# TODO: Avoir ce genre d'ecriture:
-#
-#    "sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py",
-#    "Win32_UserAccount", Domain="rchateau-hp", Name="rchateau")
-# Agent().Win32_UserAccount.Win32_NetUserGetGroups(Domain="rchateau-hp",Name="rchateau")
-#
-# "http://rchateau-hp:8000/survol/sources_types/java/java_processes.py"
-# Agent(host="rchateau-hp",port=8000,path="survol/sources_types").java.java_processes
-#
-# http://127.0.0.1/Survol/survol/entity.py
-# Agent(host="127.0.0.1",path="Survol/survol")
-#
-# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
-# Agent("host="rchateau-hp",port=8000,path="survol/sources_types").CIM_DataFile.file_stat(class="CIM_DataFile",Name="C:/Windows/explorer.exe")
-#
-# lib_client.py ajoute "survol/sources_types" car c'est obligatoire pour "sources_types" et "survol"
-# pourrait etre la valeur par defaut.
-#
-# Ca rend le code bien plus concis.
-#
+################################################################################
+
