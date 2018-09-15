@@ -240,10 +240,11 @@ class LocalBox:
 			fullnam = smbshare + smbfile
 		return self.UriMake("smbfile", fullnam )
 
-	# TODO: Services are also a process.
+	# TODO: Services are also a process. Also, put this in its module.
 	def ServiceUri(self,service):
 		return self.UriMake("Win32_Service", service)
 
+	# TODO: Should go in its module.
 	def SmbDomainUri(self,smbdomain):
 		return self.UriMake("smbdomain", smbdomain)
 
