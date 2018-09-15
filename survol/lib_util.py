@@ -166,6 +166,8 @@ def HttpPrefix():
 	# sys.stderr.write("HttpPrefix server_addr=%s prfx=%s\n"%(server_addr,prfx))
 	return prfx
 
+# This is also used in lib_client to differentiate local from remote scripts.
+prefixLocalScript = "/NotRunningAsCgi"
 
 def UriRootHelper():
 	try:
@@ -173,8 +175,8 @@ def UriRootHelper():
 		os.environ["SERVER_NAME"]
 	except KeyError:
 		# This is acceptable if client library, for example in Jupyter.
+		# TODO: ... however, it should test if the caller is lib_client.py.
 		os.environ["SERVER_NAME"] = "LOCAL_MODE"
-		sys.stderr.write("UriRootHelper SERVER_NAME MUST BE DEFINED\n")
 	try:
 		# SCRIPT_NAME=/PythonStyle/survol/internals/print.py
 		# SCRIPT_NAME=/survol/print_environment_variables.py
@@ -191,13 +193,14 @@ def UriRootHelper():
 	except KeyError:
 		# If this runs from the command line and not as a CGI script,
 		# then this environment variable is not set.
-		sys.stderr.write("No SCRIPT_NAME\n")
-		root = "/NotRunningAsCgi"
+		# Just like SERVER_NAME, it should test that the caller is lib_client.py.
+		root = prefixLocalScript
 	urh = HttpPrefix() + root
-	sys.stderr.write("UriRootHelper urh=%s\n"%urh)
+	# sys.stderr.write("UriRootHelper urh=%s\n"%urh)
 	return urh
 
 uriRoot = UriRootHelper()
+# sys.stderr.write("Setting uriRoot. __file__=%s\n"%__file__)
 
 ################################################################################
 
@@ -275,7 +278,7 @@ def HostName():
 currentHostname = HostName()
 
 def GlobalGetHostByName(hostNam):
-	timeStart = time.time()
+	# timeStart = time.time()
 	try:
 		theIP = socket.gethostbyname(hostNam)
 		# sys.stderr.write("GlobalGetHostByName tm=%f OK hostNam=%s theIP=%s\n"%(time.time()-timeStart,hostNam,theIP))
@@ -420,55 +423,25 @@ def RequestUri():
 # SCRIPT_FILENAME=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/survol/internals/print.py
 # REQUEST_URI=/Survol/survol/internals/print.py
 # SCRIPT_NAME=/Survol/survol/internals/print.py
-def TopScriptsFunc():
-	currDir = os.getcwd()
 
-	# TODO: cgiserver.py should have the same base directory as the Apache server.
+# TODO: cgiserver.py should have the same base directory as the Apache server.
+# Fedora 26, cgiserver.py : "/home/rchateau/survol"
+# Fedora 22, cgiserver.py : "/home/rchateau/rdfmon-code"
+#     "    , Apache       : "/home/rchateau/rdfmon-code/survol"
+# Windows 7, cgiserver.py : "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle"
+#     "    , Apache       : "C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\survol"
 
-	# Fedora 26, cgiserver.py : "/home/rchateau/survol"
-	# Fedora 22, cgiserver.py : "/home/rchateau/rdfmon-code"
-	#     "    , Apache       : "/home/rchateau/rdfmon-code/survol"
-	# Windows 7, cgiserver.py : "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle"
-	#     "    , Apache       : "C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\survol"
 
-	# This is misleading because the name of the GIT repository is the same as the top-level directory.
-	urlPrefix = "survol"
-	idx = currDir.find(urlPrefix)
-	sys.stderr.write("TopScriptsFunc currDir=%s idx=%s\n"%(currDir,idx))
 
-	# Maybe not running in Apache but in http.server (Python 3) or SimpleHttpServer (Python 2)
-	if idx == -1:
-		return currDir + "//" + urlPrefix
-	else:
-		# Maybe this is OVH with survolcgi.py: currDir=/home/primhilltc/survol/survol
-		# BEWARE: This is a bit dodgy, not sure what do do.
-		if currDir.endswith("survol/survol"):
-			return currDir
-		elif currDir.endswith("Survol\\survol"):
-			# Win10, Py3:  currDir="C:\\Users\\rchat\\Survol\\survol"
-			return currDir + "\\survol"
-		else:
-			# This is the most normal case when the top directory is also "survol"
-			currDirShort = currDir[ : idx + len(urlPrefix) ]
-			if os.path.isdir( currDirShort + "/sources_types" ):
-				# sys.stderr.write("TopScriptsFunc (1) currDir=%s\n"%currDir)
-				return currDirShort
 
-			currDirShort += "/survol"
-
-			if os.path.isdir( currDirShort + "/sources_types" ):
-				# sys.stderr.write("TopScriptsFunc (2) currDir=%s\n"%currDir)
-				return currDirShort
-
-			raise Exception("TopScriptsFunc: Invalid currDir=%s" % currDir )
-
-gblTopScripts = TopScriptsFunc()
-
+# This assumes that this file is at the top of "survol" package.
+# gblTopScripts=C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol
+gblTopScripts = os.path.dirname(os.path.abspath(__file__))
 # TODO: This is necessary because now we import modules from htbin.
 # TODO: We will also add survol/revlib so it will not be necessary to set PYTHONPATH in Apache httpd.conf.
 sys.path.append(gblTopScripts)
 # sys.stderr.write("sys.path=%s\n"%str(sys.path))
-
+# sys.stderr.write("gblTopScripts=%s\n"%gblTopScripts)
 ################################################################################
 
 # Depending on the category, entity_host can have several forms.
@@ -1025,26 +998,26 @@ def OntologyClassKeys(entity_type):
 	localOntology[ entity_type ] = ([],)
 	return []
 
-# Used for calling ArrayInfo. The order of arguments is strict.
+# Used for calling ArrayInfo. The order of arguments is strictly the ontology's.
+# It extracts the values of the ontology parameters and returns them in a list.
 def EntityIdToArray( entity_type, entity_id ):
 	ontoKeys = OntologyClassKeys(entity_type)
-	sys.stderr.write("EntityIdToArray entity_type=%s entity_id=%s\n"%(entity_type,entity_id))
+	#sys.stderr.write("lib_util.EntityIdToArray entity_type=%s entity_id=%s\n"%(entity_type,entity_id))
 	dictIds = SplitMoniker( entity_id )
 	# sys.stderr.write("EntityIdToArray dictIds=%s\n" % ( str(dictIds) ) )
 	# For the moment, this assumes that all keys are here.
 	# Later, drop this constraint and allow WQL queries.
 	try:
 		def DecodeCgiArg(aKey):
-			sys.stderr.write("DecodeCgiArg aKey=%s type=%s dictIds=%s\n"%(aKey,type(aKey),str(dictIds)))
+			#sys.stderr.write("DecodeCgiArg aKey=%s type=%s dictIds=%s\n"%(aKey,type(aKey),str(dictIds)))
 			aValRaw = dictIds[ aKey ]
 			try:
 				valDecod = aKey.ValueDecode(aValRaw)
-				sys.stderr.write("DecodeCgiArg aKey=%s valDecod=%s\n"%(aKey,valDecod))
+				#sys.stderr.write("DecodeCgiArg aKey=%s valDecod=%s\n"%(aKey,valDecod))
 				return valDecod
 			except AttributeError:
 				return aValRaw
 		return [ DecodeCgiArg( aKey ) for aKey in ontoKeys ]
-		# return [ dictIds[ aKey ] for aKey in ontoKeys ]
 	except KeyError:
 		sys.stderr.write("EntityIdToArray missing key: type=%s id=%s onto=%s\n"
 						 % ( entity_type , entity_id, str(ontoKeys) ) )
