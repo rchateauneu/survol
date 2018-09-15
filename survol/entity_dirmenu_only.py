@@ -23,7 +23,7 @@ def TestUsability(importedMod,entity_type,entity_ids_arr):
 	except :
 		return None
 
-	sys.stderr.write("Module %s : %d\n" %(importedMod.__name__,isUsable	))
+	# sys.stderr.write("Module %s : %d\n" %(importedMod.__name__,isUsable	))
 	if isUsable:
 		return None
 
