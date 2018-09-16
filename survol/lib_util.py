@@ -174,9 +174,13 @@ def UriRootHelper():
 		# sys.stderr.write("SERVER_NAME=%s\n"%os.environ["SERVER_NAME"])
 		os.environ["SERVER_NAME"]
 	except KeyError:
-		# This is acceptable if client library, for example in Jupyter.
-		# TODO: ... however, it should test if the caller is lib_client.py.
-		os.environ["SERVER_NAME"] = "LOCAL_MODE"
+		# This is necessary when returning objects for example from GetInstances()
+		# in the client library lib_client.py. The local objects need a hostname,
+		# and "localhost" fills this role.
+		# However, if used with remote objects, this hostname should be replaced
+		# on-the-fly by the actual host name.
+		# An alternative is to specify the right hostname here.
+		os.environ["SERVER_NAME"] = "LOCALHOST"
 	try:
 		# SCRIPT_NAME=/PythonStyle/survol/internals/print.py
 		# SCRIPT_NAME=/survol/print_environment_variables.py

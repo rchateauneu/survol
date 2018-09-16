@@ -69,6 +69,10 @@ class SurvolBasicTest(unittest.TestCase):
 
 		instancesFileStatRemote = tripleFileStatRemote.GetInstances()
 		print("Len instancesFileStatRemote=",len(instancesFileStatRemote))
+		lenInstances = len(instancesFileStatRemote)
+		print("Len tripleFileStatLocal=",lenInstances)
+		# This Python module must be there because it is needed by Survol.
+		self.assertTrue(lenInstances>=1)
 
 	def test_local_triplestore(self):
 		mySourceFileStatLocal = lib_client.SourceLocal(
@@ -90,8 +94,19 @@ class SurvolBasicTest(unittest.TestCase):
 		tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
 		print("Len tripleFileStatLocal=",len(tripleFileStatLocal))
 
+		# Typical output:
+		# 	Win32_Group.Domain=NT SERVICE,Name=TrustedInstaller
+		# 	CIM_Directory.Name=C:/
+		# 	CIM_Directory.Name=C:/Windows
+		# 	CIM_DataFile.Name=C:/Windows/explorer.exe
 		instancesFileStatLocal = tripleFileStatLocal.GetInstances()
-		print("Len tripleFileStatLocal=",len(instancesFileStatLocal))
+
+		lenInstances = len(instancesFileStatLocal)
+		sys.stdout.write("Len tripleFileStatLocal=%s\n"%lenInstances)
+		for oneInst in instancesFileStatLocal:
+			sys.stdout.write("    %s\n"%str(oneInst))
+		# This file should be there on any Windows machine.
+		self.assertTrue(lenInstances>=1)
 
 	def test_local_json(self):
 		# Test merge of heterogeneous data sources.
@@ -115,6 +130,12 @@ class SurvolBasicTest(unittest.TestCase):
 		triplePlus = mySrcMergePlus.get_triplestore()
 		print("Len triplePlus:",len(triplePlus))
 
+		lenSource1 = len(mySource1.get_triplestore().GetInstances())
+		lenSource2 = len(mySource2.get_triplestore().GetInstances())
+		lenPlus = len(triplePlus.GetInstances())
+		# In the merged link, there cannot be more instances than in the input sources.
+		self.assertTrue(lenPlus <= lenSource1 + lenSource2)
+
 	def test_merge_sub(self):
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
@@ -127,6 +148,10 @@ class SurvolBasicTest(unittest.TestCase):
 		tripleMinus = mySrcMergeMinus.get_triplestore()
 		print("Len tripleMinus:",len(tripleMinus))
 
+		lenSource1 = len(mySource1.get_triplestore().GetInstances())
+		lenMinus = len(tripleMinus.GetInstances())
+		# There cannot be more instances after removal.
+		self.assertTrue(lenMinus	 <= lenSource1 )
 
 	def test_merge_duplicate(self):
 		mySourceDupl = lib_client.SourceLocal(
@@ -181,7 +206,7 @@ class SurvolBasicTest(unittest.TestCase):
 		# SELECT * FROM meta_class WHERE NOT __class < "win32"="" and="" not="" __this="" isa="">
 		# "Select * from win32_Process where name like '[H-N]otepad.exe'"
 
-	def test_local_scripts_list(self):
+	def test_local_scripts_list_Win32_UserAccount(self):
 		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
 			Domain="rchateau-hp",
 			Name="rchateau")
@@ -190,7 +215,10 @@ class SurvolBasicTest(unittest.TestCase):
 		sys.stdout.write("Scripts:\n")
 		for oneScr in listScripts:
 			sys.stdout.write("    %s\n"%oneScr)
+		# There should be at least a couple of scripts.
+		self.assertTrue(len(listScripts) > 0)
 
+	# This does not work yet.
 	def XXX_test_remote_scripts_list_exception(self):
 		myAgent = lib_client.Agent("http://rchateau-hp:8000")
 
@@ -209,9 +237,11 @@ class SurvolBasicTest(unittest.TestCase):
 
 		myInstancesRemote = myAgent.CIM_LogicalDisk(DeviceID="D:")
 		listScripts = myInstancesRemote.GetScripts()
+		# No scripts yet.
+		self.assertTrue(len(listScripts) == 0)
 
 
-	def test_remote_scripts_list(self):
+	def test_remote_scripts_list_CIM_Directory(self):
 		# myInstancesRemote = lib_client.Agent("http://rchateau-hp:8000").CIM_Directory(Name="D:")
 		myAgent = lib_client.Agent("http://rchateau-hp:8000")
 
@@ -219,7 +249,26 @@ class SurvolBasicTest(unittest.TestCase):
 		listScripts = myInstancesRemote.GetScripts()
 		for keyScript in listScripts:
 			sys.stdout.write("    %s\n"%keyScript)
+		# There should be at least a couple of scripts.
+		self.assertTrue(len(listScripts) > 0)
+
+	def test_local_scripts_from_local_source(self):
+		"""This loads the scripts of instances displayed by an initial script"""
+
+		# This is a top-level script.
+		mySourceTopLevelLocal = lib_client.SourceLocal(
+			"sources_types/win32/win32_local_groups.py")
+
+		tripleTopLevelLocal = mySourceTopLevelLocal.get_triplestore()
+		instancesTopLevelLocal = tripleTopLevelLocal.GetInstances()
+
+		for oneInst in instancesTopLevelLocal:
+			sys.stdout.write("    Scripts: %s\n"%str(oneInst))
+			listScripts = oneInst.GetScripts()
+			for oneScr in listScripts:
+				sys.stdout.write("        %s\n"%oneScr)
+
 
 
 if __name__ == '__main__':
-    unittest.main()
+	unittest.main()
