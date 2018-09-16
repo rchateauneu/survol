@@ -218,6 +218,33 @@ class SurvolBasicTest(unittest.TestCase):
 		# There should be at least a couple of scripts.
 		self.assertTrue(len(listScripts) > 0)
 
+	def test_local_scripts_list_Win32_UserAccount(self):
+		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
+			Domain="rchateau-hp",
+			Name="rchateau")
+
+		listScripts = myInstancesLocal.GetScripts()
+		sys.stdout.write("Scripts:\n")
+		for oneScr in listScripts:
+			sys.stdout.write("    %s\n"%oneScr)
+		# There should be at least a couple of scripts.
+		self.assertTrue(len(listScripts) > 0)
+
+	def test_local_scripts_list_odbc_dsn(self):
+		"""The point of this test is to instantiate an instance of a subclass"""
+
+		# The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
+		instanceLocalODBC = lib_client.Agent().odbc.dsn(
+			Dsn="DSN~MS%20Access%20Database")
+
+		listScripts = instanceLocalODBC.GetScripts()
+		sys.stdout.write("Scripts:\n")
+		for oneScr in listScripts:
+			sys.stdout.write("    %s\n"%oneScr)
+		# There should be at least a couple of scripts.
+		self.assertTrue(len(listScripts) > 0)
+
+
 	# This does not work yet.
 	def XXX_test_remote_scripts_list_exception(self):
 		myAgent = lib_client.Agent("http://rchateau-hp:8000")
@@ -267,6 +294,20 @@ class SurvolBasicTest(unittest.TestCase):
 			listScripts = oneInst.GetScripts()
 			for oneScr in listScripts:
 				sys.stdout.write("        %s\n"%oneScr)
+
+	def test_local_instances_from_local_instance(self):
+		"""This loads instances connected to an instance by every known script"""
+
+		# The service "PlugPlay" should be available on all Windows machines.
+		myInstancesLocal = lib_client.Agent().Win32_Service(
+			Name="PlugPlay")
+
+		listScripts = myInstancesLocal.GetScripts()
+		sys.stdout.write("Scripts:\n")
+		for oneScr in listScripts:
+			sys.stdout.write("    %s\n"%oneScr)
+		# There should be at least a couple of scripts.
+		self.assertTrue(len(listScripts) > 0)
 
 
 
