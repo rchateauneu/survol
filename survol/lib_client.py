@@ -508,26 +508,29 @@ class Agent:
 		self.m_agent_url = agent_url
 
 	# This allows the creation of CIM instances.
-	def __getattr__(self, attr):
+	def __getattr__(self, attribute_name):
 
 		class CallDispatcher(object):
 			def __init__(self, caller, agent_url, name):
-				#print("CallDispatcher.__init__ agent=",type(agent_url))
+				sys.stdout.write("CallDispatcher.__init__ agent=%s name=%s\n"%(str(type(agent_url)),name))
+				sys.stdout.flush()
 				self.m_name = name
 				self.m_caller = caller
 				self.m_agent_url = agent_url
 
 			def __call__(self, *argsCall, **kwargsCall):
-				#print("CallDispatcher class=",self.m_name," url=",type(self.m_agent_url))
+				sys.stdout.write("CallDispatcher.__call__ class=%s url=%s\n"%(self.m_name,str(type(self.m_agent_url))))
+				sys.stdout.flush()
 				newInstance = CreateCIMClass(self.m_agent_url, self.m_name, **kwargsCall)
 				return newInstance
 
+			def __getattr__(self, attribute_name):
+				sys.stdout.write("CallDispatcher.__getattr__ attr=%s\n"%(str(attribute_name)))
+				sys.stdout.flush()
+				return CallDispatcher(self, self.m_agent_url, self.m_name + "/" + attribute_name)
 
-			@classmethod
-			def mock(cls, *a, **ka):
-				return 'Some default value for newly created methods.'
-
-		return CallDispatcher(self, self.m_agent_url, attr)
+		sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
+		return CallDispatcher(self, self.m_agent_url, attribute_name)
 
 
 ################################################################################
