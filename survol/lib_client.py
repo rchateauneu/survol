@@ -14,6 +14,8 @@ import lib_naming
 from lib_properties import pc
 import entity_dirmenu_only
 
+################################################################################
+
 try:
 	# For Python 3.0 and later
 	from urllib.request import urlopen
@@ -21,9 +23,19 @@ except ImportError:
 	# Fall back to Python 2's urllib2
 	from urllib2 import urlopen
 
+try:
+	# Python 2
+	from urlparse import urlparse, parse_qs
+except ImportError:
+	from urllib.parse import urlparse, parse_qs
 
 ################################################################################
 
+# A SourceBase is a Survol URL or a script which returns a graph of urls
+# of CIM objects, linked by properties. This graph can be formatted in XML-RDF,
+# in JSON, in SVG, D3 etc...
+# This URL or this script has no arguments, or, it comes with a CIM class name
+# and the key-value pairs describing an unique CIM object.
 class SourceBase (object):
 	def __init__(self):
 		self.m_current_triplestore = None
@@ -92,7 +104,7 @@ class SourceCgi (SourceBase):
 		return True
 
 def LoadModedUrl(urlModed):
-	sys.stderr.write("LoadModedUrl.get_content_moded urlModed=%s\n"%urlModed)
+	# sys.stderr.write("LoadModedUrl.get_content_moded urlModed=%s\n"%urlModed)
 	response = urlopen(urlModed)
 	data = response.read().decode("utf-8")
 	return data
@@ -192,7 +204,7 @@ class SourceLocal (SourceCgi):
 		lib_util.globalOutMach = originalOutMach
 
 		strResult = outmachString.GetStringContent()
-		sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
+		# sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
 		return strResult
 
 	# This returns a string.
@@ -201,10 +213,10 @@ class SourceLocal (SourceCgi):
 		data_content = self.__execute_script_with_mode(mode)
 		return data_content
 
-	# TODO: It will be MUCH FASTER to return the content as a triplestore.
-	# TODO: It will be MUCH FASTER to return the content as a triplestore.
-	# TODO: It will be MUCH FASTER to return the content as a triplestore.
-	# ... because no serialization will be needed.
+	# TODO: At the moment, this serializes an rdflib triplestore into a XML-RDF buffer,
+	# TODO: which is parsed again by rdflib into a triplestore,
+	# TODO: and then this triplestore is looped on, to extract the instances.
+	# TODO: It would be much faster to avoid this useless serialization/deserialization.
 	def get_triplestore(self):
 		docXmlRdf = self.get_content_moded("rdf")
 
@@ -280,6 +292,10 @@ class BaseCIMClass(object):
 		self.m_agentUrl = agentUrl
 		self.m_entity_id = entity_id
 
+	# TODO: This could be __repr__ also.
+	def __str__(self):
+		return self.__class__.__name__ + "." + self.m_entity_id
+
 	# This returns the list of Sources (URL or local sources) usable for this entity.
 	# This can be a tree ? Or a flat list ?
 	# Each source can return a triplestore.
@@ -294,7 +310,7 @@ class BaseCIMClass(object):
 	def GetScriptsRemote(self):
 		# We expect a contextual menu in JSON format, not a graph.
 		urlScripts = self.m_agentUrl + "/survol/entity_dirmenu_only.py" + "?xid=" + self.__class__.__name__ + "." + self.m_entity_id + "&mode=menu"
-		# sys.stdout.write("GetScriptsRemote urlScripts=%s\n"%(urlScripts))
+		#sys.stdout.write("GetScriptsRemote urlScripts=%s\n"%(urlScripts))
 
 		# Typical content:
 		# {
@@ -317,9 +333,7 @@ class BaseCIMClass(object):
 	# This is much faster than using the URL of a local server.
 	# Also: Such a server is not necessary.
 	def GetScriptsLocal(self):
-		sys.stdout.write("GetScripts: class=%s entity_id=%s\n"%(self.__class__.__name__,self.m_entity_id))
-		# Not all kw args.
-		# mySource = CreateSource("entity.py",self.__class__.__name__,self.m_entity_id)
+		#sys.stdout.write("GetScriptsLocal: class=%s entity_id=%s\n"%(self.__class__.__name__,self.m_entity_id))
 
 		listScripts = []
 
@@ -327,10 +341,14 @@ class BaseCIMClass(object):
 		# It receives a triplet: (subject,property,object) and the depth in the tree.
 		# Here, this simply stores the scripts in a list. The depth is not used yet.
 		def CallbackGrphAdd( trpl, depthCall ):
-			# print("CallbackGrphAdd:",trpl,depthCall)
-			subj,prop,obj = trpl
-			if prop == pc.property_script:
-				listScripts.append( obj )
+			#sys.stdout.write("CallbackGrphAdd:%s %d\n"%(str(trpl),depthCall))
+			aSubject,aPredicate,anObject = trpl
+			if aPredicate == pc.property_script:
+				# Directories of scripts are also labelled with the same predicate
+				# although they are literates and not urls.
+				if not lib_kbase.IsLiteral(anObject):
+					listScripts.append( anObject )
+					#sys.stdout.write("CallbackGrphAdd: anObject=%s %s\n"%(str(type(anObject)),str(anObject)))
 
 		flagShowAll = False
 
@@ -376,9 +394,18 @@ def CreateCIMClass(agentUrl,className,**kwargs):
 	return newInstance
 
 ################################################################################
+# instanceUrl="http://LOCAL_MODE:80/NotRunningAsCgi/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
+# instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def InstanceUrlToAgentUrl(instanceUrl):
+	sys.stdout.write("InstanceUrlToAgentUrl instanceUrl=%s\n"%instanceUrl)
+
+	parse_url = urlparse(instanceUrl)
+	if parse_url.path.startswith(lib_util.prefixLocalScript):
+		return None
+
 	idxSurvol = instanceUrl.find("/survol")
-	return instanceUrl[:idxSurvol]
+	agentUrl = instanceUrl[:idxSurvol]
+	return agentUrl
 
 # This wraps rdflib triplestore.
 # rdflib objects and subjects can be handled as WMI or WBEM objects.
@@ -428,6 +455,8 @@ class TripleStore:
 
 			xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 
+			# This parsing that all urls are not scripts but just define an instance
+			# and therefore have the form "http://.../entity.py?xid=...",
 			agentUrl = InstanceUrlToAgentUrl(instanceUrl)
 
 			newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
@@ -446,21 +475,15 @@ class TripleStore:
 # "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
 def ScriptUrlToSource(callingUrl):
 
-	try:
-		# Python 2
-		from urlparse import urlparse, parse_qs
-	except ImportError:
-		from urllib.parse import urlparse, parse_qs
-
 	parse_url = urlparse(callingUrl)
 	query = parse_url.query
 
 	params = parse_qs(query)
 
 	xidParam = params['xid'][0]
-	# sys.stdout.write("xidParam=%s\n"%xidParam)
+	# sys.stdout.write("ScriptUrlToSource xidParam=%s\n"%xidParam)
 	(entity_type,entity_id,entity_host) = lib_util.ParseXid( xidParam )
-	# sys.stdout.write("entity_id=%s\n"%entity_id)
+	# sys.stdout.write("ScriptUrlToSource entity_id=%s\n"%entity_id)
 	entity_id_dict = lib_util.SplitMoniker(entity_id)
 	# sys.stdout.write("entity_id_dict=%s\n"%str(entity_id_dict))
 
