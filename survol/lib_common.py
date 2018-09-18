@@ -579,7 +579,7 @@ class CgiEnv():
 			paramVal = self.m_arguments[paramkey].value
 			#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
-			sys.stderr.write("GetParameters paramkey='%s' not as CGI\n" % ( paramkey ) )
+			lib_util.Logger().warning("GetParameters paramkey='%s' not as CGI", paramkey )
 			hasArgValue = False
 
 		# Now converts it to the type of the default value. Otherwise untouched.
@@ -600,10 +600,10 @@ class CgiEnv():
 					# Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
 					# Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
 					self.m_parameters[paramkey] = paramVal
-					sys.stderr.write("GetParameters paramkey='%s' set to FALSE\n" % ( paramkey ) )
+					lib_util.Logger().warning("GetParameters paramkey='%s' set to FALSE", paramkey )
 				except KeyError:
 					paramVal = dfltValue
-					sys.stderr.write("GetParameters paramkey='%s' set to paramVal='%s'\n" % ( paramkey, paramVal ) )
+					lib_util.Logger().warning("GetParameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
 		else:
 			if not hasArgValue:
 				#sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
