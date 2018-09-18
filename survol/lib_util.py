@@ -16,6 +16,8 @@ import time
 import socket
 import base64
 import importlib
+import logging
+import inspect
 
 import lib_kbase
 
@@ -42,6 +44,26 @@ try:
 	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
 except:
 	modeOVH = True
+
+################################################################################
+
+# This avoids the message "No handlers could be found for logger "rdflib.term""
+# rdflib is used at least by lib_kbase.py
+logging.basicConfig(
+	stream=sys.stderr,
+	format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d: %(message)s',
+	level = logging.DEBUG)
+
+# Avoid this message:
+# 2018-09-18 21:57:54,868  WARNING rdflib.term term.py 207: http://L... does not look like a valid URI, trying to serialize this will break.
+loggerRdflib = logging.getLogger("rdflib.term")
+loggerRdflib.setLevel(logging.ERROR)
+
+# This is the general purpose logger.
+def Logger():
+	frm = inspect.stack()[1]
+	mod = inspect.getmodule(frm[0])
+	return logging.getLogger(mod.__name__)
 
 ################################################################################
 
