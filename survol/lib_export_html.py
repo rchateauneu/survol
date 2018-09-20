@@ -31,25 +31,25 @@ def WriteScriptInformation(theCgi,gblCgiEnvList):
 	"""
 		This displays general information about this script and the object if there is one.
 	"""
-	sys.stderr.write("WriteScriptInformation entity_type=%s\n"%(theCgi.m_entity_type))
+	lib_util.Logger().debug("WriteScriptInformation entity_type=%s",theCgi.m_entity_type)
 
 	# This is already called in lib_common, when creating CgiEnv.
 	# It does not matter because this is very fast.
 	callingUrl = lib_util.RequestUri()
 	( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
-	sys.stderr.write("entity_label=%s entity_graphic_class=%s entity_id=%s\n"%( entity_label, entity_graphic_class, entity_id ))
+	lib_util.Logger().debug("entity_label=%s entity_graphic_class=%s entity_id=%s", entity_label, entity_graphic_class, entity_id )
 
 	# WrtAsUtf('<table class="list_of_merged_scripts">')
 	WrtAsUtf('<table border="0">')
 	if len(gblCgiEnvList):
-		sys.stderr.write("gblCgiEnvList=%s\n"%str(gblCgiEnvList))
+		lib_util.Logger().debug("gblCgiEnvList=%s",str(gblCgiEnvList))
 		# This step is dedicated to the merging of several scripts.
 
 		WrtAsUtf("<tr align=left><td colspan=2 align=left><h2>Fusion of data from %d scripts</h2></td></tr>"%len(gblCgiEnvList))
 		for aCgiEnv in gblCgiEnvList:
-			sys.stderr.write("aCgiEnv=%s\n"%str(aCgiEnv))
-			sys.stderr.write("aCgiEnv.m_page_title=%s\n"%str(aCgiEnv.m_page_title))
-			sys.stderr.write("aCgiEnv.m_calling_url=%s\n"%str(aCgiEnv.m_calling_url))
+			lib_util.Logger().debug("aCgiEnv=%s",str(aCgiEnv))
+			lib_util.Logger().debug("aCgiEnv.m_page_title=%s",str(aCgiEnv.m_page_title))
+			lib_util.Logger().debug("aCgiEnv.m_calling_url=%s",str(aCgiEnv.m_calling_url))
 			(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(aCgiEnv.m_page_title)
 			WrtAsUtf("<tr><td><a href='%s'>%s</td><td><i>%s</i></td></tr>"%(aCgiEnv.m_calling_url,page_title_first,page_title_rest))
 
@@ -151,7 +151,7 @@ def WriteOtherUrls(topUrl):
 	# This callback receives a RDF property (WBEM or WMI) and a map
 	# which represents the CIM links associated to the current object.
 	def WMapToHtml(theMap,propData):
-		sys.stderr.write("WMapToHtml len=%d\n"%len(theMap))
+		lib_util.Logger().debug("WMapToHtml len=%d",len(theMap))
 		for urlSubj in theMap:
 			(subjText, subjEntityGraphClass, subjEntityId) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(urlSubj) )
 			WrtAsUtf("<tr>")
@@ -196,7 +196,7 @@ def WriteScriptsTree(theCgi):
 	"""
 
 	flagVal = theCgi.GetParameters( lib_util.paramkeyShowAll )
-	sys.stderr.write("WriteScriptsTree flagVal=%s\n"%flagVal)
+	lib_util.Logger().debug("WriteScriptsTree flagVal=%s",flagVal)
 	# This happens when merging scripts.
 	if flagVal == "":
 		flagShowAll = 0
@@ -224,10 +224,10 @@ def WriteScriptsTree(theCgi):
 		except KeyError:
 			dictScripts[subj] = { prop : [obj ] }
 
-	sys.stderr.write("WriteScriptsTree entity_type=%s flagShowAll=%d\n"%(theCgi.m_entity_type,flagShowAll))
+	lib_util.Logger().debug("WriteScriptsTree entity_type=%s flagShowAll=%d",theCgi.m_entity_type,flagShowAll)
 	entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,theCgi.m_entity_type,theCgi.m_entity_id,theCgi.m_entity_host,flagShowAll)
 
-	sys.stderr.write("dictScripts %d\n"%len(dictScripts))
+	lib_util.Logger().debug("dictScripts %d",len(dictScripts))
 
 
 	def DisplayLevelTable(subj,depthMenu=1):
@@ -345,7 +345,7 @@ def WriteAllObjects(grph):
 			# u'SDK de comprobaci\xf3n de Visual Studio 2012 - esn'
 			except UnicodeEncodeError:
 				exc = sys.exc_info()[1]
-				sys.stderr.write("Exception %s\n"%str(exc))
+				lib_util.Logger().error("Exception %s",str(exc))
 				continue
 
 		subj_str = str(aSubj)

@@ -207,18 +207,8 @@ class SurvolBasicTest(unittest.TestCase):
 		# "Select * from win32_Process where name like '[H-N]otepad.exe'"
 
 	def test_local_scripts_list_Win32_UserAccount(self):
-		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
-			Domain="rchateau-hp",
-			Name="rchateau")
+		"""This returns all scripts accessible from the user account "rchateau"."""
 
-		listScripts = myInstancesLocal.GetScripts()
-		sys.stdout.write("Scripts:\n")
-		for oneScr in listScripts:
-			sys.stdout.write("    %s\n"%oneScr)
-		# There should be at least a couple of scripts.
-		self.assertTrue(len(listScripts) > 0)
-
-	def test_local_scripts_list_Win32_UserAccount(self):
 		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
 			Domain="rchateau-hp",
 			Name="rchateau")
@@ -299,16 +289,27 @@ class SurvolBasicTest(unittest.TestCase):
 		"""This loads instances connected to an instance by every known script"""
 
 		# The service "PlugPlay" should be available on all Windows machines.
-		myInstancesLocal = lib_client.Agent().Win32_Service(
+		myInstanceLocal = lib_client.Agent().Win32_Service(
 			Name="PlugPlay")
 
-		listScripts = myInstancesLocal.GetScripts()
+		listScripts = myInstanceLocal.GetScripts()
 		sys.stdout.write("Scripts:\n")
 		for oneScr in listScripts:
 			sys.stdout.write("    %s\n"%oneScr)
 		# There should be at least a couple of scripts.
 		self.assertTrue(len(listScripts) > 0)
 
+	def test_search_local_instance(self):
+		"""This loads instances connected to an instance by every known script"""
+
+		# The service "PlugPlay" should be available on all Windows machines.
+		myInstanceOrigin = lib_client.Agent().CIM_Directory(
+			Name="C:\\Windows")
+
+		myInstanceDestination = lib_client.Agent().CIM_DataFile(
+			Name="C:\\Windows\\explorer.exe")
+
+		listSteps = myInstanceOrigin.FindPathToInstance(myInstanceDestination)
 
 
 if __name__ == '__main__':

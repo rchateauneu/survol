@@ -54,7 +54,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 				# if flagShowAll and errorMsg ???
 				if errorMsg:
-					sys.stderr.write("DirToMenuAux errorMsg(1)=%s\n"%errorMsg)
+					lib_util.Logger().error("DirToMenuAux errorMsg(1)=%s",errorMsg)
 					# If set to True, the directory is displayed even if all its scripts
 					# are not usable. Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
 					if False:
@@ -81,7 +81,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 
 		# Maybe this class is not defined in our ontology.
 		if dirs == None:
-			sys.stderr.write("DirToMenuAux No content in %s\n"%curr_dir)
+			lib_util.Logger().warning("DirToMenuAux No content in %s",curr_dir)
 			return False
 
 		# Will still be None if nothing is added.
@@ -161,7 +161,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				# called Usable(): If it is there and returns False, the script is not displayed.
 				errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 				if errorMsg:
-					sys.stderr.write("DirToMenuAux errorMsg(2)=%s\n"%errorMsg)
+					lib_util.Logger().warning("DirToMenuAux errorMsg(2)=%s",errorMsg)
 
 			# If this is a local host
 			if not flagShowAll and errorMsg and not entity_host:

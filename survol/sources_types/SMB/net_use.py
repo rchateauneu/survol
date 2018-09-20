@@ -72,7 +72,7 @@ def Main():
 
 		if currLocal == '':
 			currStatus = lin[:12]
-			currLocal = lin[14:]
+			currLocal = lin[15:]
 			if lin[48] == ' ':
 				currRemote = lin[16:47]
 				currNetwork = lin[49:]
@@ -83,7 +83,14 @@ def Main():
 		else:
 			currNetwork = lin[48:]
 
-		shareNode = lib_common.gUriGen.SmbShareUri( currRemote.strip() )
+		currRemote = currRemote.strip()
+		lib_util.Logger().debug("currRemote=%s",currRemote)
+
+		# "\\192.168.0.15\rchateau   Microsoft Windows Network"
+		currLocal = currLocal.strip().split(" ")[0]
+
+		lib_util.Logger().debug("currLocal=%s",currLocal)
+		shareNode = lib_common.gUriGen.SmbShareUri( currRemote )
 		grph.add( ( lib_common.gUriGen.FileUri( currLocal + ':' ), pc.property_mount, shareNode ) )
 
 		# Reset the line, will read next disk.

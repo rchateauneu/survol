@@ -60,7 +60,6 @@ def Main():
 
 	# Converts to string for Python3.
 	asstr = net_share_last_output.decode("utf-8")
-	sys.stderr.write("asstr=%s\n"%asstr)
 
 	# Share name        ShrProvTuto
 	# Path              C:\Users\rchateau\Developpement\ReverseEngineeringApps\SharedProviderTutorial
@@ -72,7 +71,6 @@ def Main():
 	propMap = dict()
 	shrPath = None
 	for lin in lines:
-		sys.stderr.write("lin=%s\n"%lin)
 		txtContent = lin[18:].strip()
 		if lin.startswith("Path"):
 			shrPath = txtContent
