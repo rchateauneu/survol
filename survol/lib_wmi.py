@@ -116,7 +116,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 	if not lib_util.SameHostOrLocal( wmiMachine, None ):
 		dictParams['computer'] = wmiMachine
 
-	sys.stderr.write("WmiConnect wmiMachine=%s wmiNamspac=%s dictParams=%s\n" % ( wmiMachine, wmiNamspac, str(dictParams) ) )
+	lib_util.Logger().debug("WmiConnect wmiMachine=%s wmiNamspac=%s dictParams=%s", wmiMachine, wmiNamspac, str(dictParams) )
 
 	try:
 		connWMI = wmi.WMI(**dictParams)
@@ -127,7 +127,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 		# Could not connect, maybe the namespace is wrong.
 			lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (str(dictParams),str(sys.exc_info())))
 		else:
-			sys.stderr.write("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s\n" % (str(dictParams),str(sys.exc_info())))
+			lib_util.Logger().error("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dictParams),str(sys.exc_info()))
 			return None
 
 	#sys.stderr.write("WmiConnect returning\n" )
@@ -147,7 +147,7 @@ def WmiGetClassKeys( wmiNameSpace, wmiClass, cimomSrv ):
 		wmiClass = getattr(wmiCnnct,wmiClass)
 	except Exception:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("WmiGetClassKeys %s %s %s: Caught:%s\n" % ( cimomSrv, wmiNameSpace, wmiClass, str(exc) ) )
+		lib_util.Logger().error("WmiGetClassKeys %s %s %s: Caught:%s",cimomSrv, wmiNameSpace, wmiClass, str(exc) )
 		return None
 
 	wmiKeys = wmiClass.keys

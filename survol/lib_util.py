@@ -51,7 +51,8 @@ except:
 # rdflib is used at least by lib_kbase.py
 logging.basicConfig(
 	stream=sys.stderr,
-	format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d: %(message)s',
+	# format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d: %(message)s',
+	format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d %(message)s',
 	level = logging.DEBUG)
 
 # Avoid this message:
@@ -819,10 +820,10 @@ def CopyFile( mime_type, fileName ):
 # This is used as a HTML page but also displayed in Javascript in a DIV block.
 # TODO: Change this for WSGI.
 def InfoMessageHtml(message):
-	sys.stderr.write("InfoMessageHtml:%s\n"%message)
+	Logger().warning("InfoMessageHtml:%s",message)
 	globalOutMach.HeaderWriter("text/html")
 
-	sys.stderr.write("InfoMessageHtml:Sending content\n")
+	Logger().debug("InfoMessageHtml:Sending content")
 	WrtAsUtf(
 		"<html><head><title>Error: Process=%s</title></head>"
 		% str(os.getpid()) )
@@ -855,7 +856,7 @@ def InfoMessageHtml(message):
 	WrtAsUtf("""
 	</body></html>
 	""")
-	sys.stderr.write("InfoMessageHtml:Leaving\n")
+	Logger().debug("InfoMessageHtml:Leaving")
 
 ################################################################################
 
@@ -1045,8 +1046,7 @@ def EntityIdToArray( entity_type, entity_id ):
 				return aValRaw
 		return [ DecodeCgiArg( aKey ) for aKey in ontoKeys ]
 	except KeyError:
-		sys.stderr.write("EntityIdToArray missing key: type=%s id=%s onto=%s\n"
-						 % ( entity_type , entity_id, str(ontoKeys) ) )
+		Logger().error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type , entity_id, str(ontoKeys) )
 		raise
 
 
@@ -1211,7 +1211,7 @@ def SplitMoniker(xid):
 # This allows to search for an object in the CIM repository,
 # whatever the attribute values are, or if it is a Survol object.
 def SplitMonikToWQL(splitMonik,className):
-	sys.stderr.write("SplitMonikToWQL splitMonik=[%s]\n" % str(splitMonik) )
+	Logger().debug("SplitMonikToWQL splitMonik=[%s]", str(splitMonik) )
 	aQry = 'select * from %s ' % className
 	qryDelim = "where"
 	for qryKey in splitMonik:
@@ -1245,7 +1245,7 @@ def Base64Decode(text):
 		return resu
 	except Exception:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(text,str(exc)))
+		Logger().error("CANNOT DECODE: symbol=(%s):%s",text,str(exc))
 		return text + ":" + str(exc)
 
 ################################################################################
@@ -1264,7 +1264,7 @@ class OutputMachineCgi:
 		pass
 
 	def HeaderWriter(self,mimeType,extraArgs= None):
-		sys.stderr.write("OutputMachineCgi.WriteHeadContentType:%s\n"%mimeType)
+		Logger().debug("OutputMachineCgi.WriteHeadContentType:%s",mimeType)
 		HttpHeaderClassic(outputHttp,mimeType,extraArgs)
 
 	def OutStream(self):
@@ -1363,7 +1363,7 @@ def GetEntityModuleNoCache(entity_type):
 		return GetEntityModuleNoCacheNoCatch(entity_type)
 	except ImportError:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("GetEntityModuleNoCache entity_type=%s Caught:%s\n"%(entity_type,str(exc)))
+		Logger().error("GetEntityModuleNoCache entity_type=%s Caught:%s",entity_type,str(exc))
 		return None
 
 # So we try to load only once.
@@ -1476,7 +1476,7 @@ def AppendNotNoneHostname(script,hostname):
 # Point to the WBEM portal for a given machine.
 def UrlPortalWbem(hostname=None):
 	strUrl = AppendNotNoneHostname('/portal_wbem.py',hostname)
-	sys.stderr.write("UrlPortalWbem strUrl=%s\n"%strUrl)
+	Logger().debug("UrlPortalWbem strUrl=%s",strUrl)
 	nodePortal = NodeUrl( strUrl )
 	return nodePortal
 

@@ -128,7 +128,7 @@ def CopyToOut(logfil,svg_out_filnam,out_dest):
 # but anyway it needs to have graphviz already installed.
 # Also, creating an intermediary files helps debugging.
 def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
-	sys.stderr.write("viztype=%s\n"%(viztype) )
+	lib_util.Logger().debug("viztype=%s",viztype)
 	tmpSvgFil = TmpFile("Dot2Svg","svg")
 	svg_out_filnam = tmpSvgFil.Name
 	# dot -Kneato
@@ -153,9 +153,9 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	# This is maybe a bit faster than os.open because no shell and direct write to the output.
 	svg_command = [ dot_path,"-K",viztype,"-Tsvg",dot_filnam_after,"-o",svg_out_filnam, \
 		"-v","-Goverlap=false" ] + dotFonts
-	msg = "svg_command=" + " ".join(svg_command) + "\n"
-	sys.stderr.write(msg)
-	logfil.write(TimeStamp()+" "+msg)
+	msg = "svg_command=" + " ".join(svg_command)
+	lib_util.Logger().debug(msg)
+	logfil.write(TimeStamp()+" "+msg+"\n")
 
 	ret = subprocess.call( svg_command, stdout=logfil, stderr=logfil, shell=False )
 	logfil.write(TimeStamp()+" Process ret=%d\n" % ret)
@@ -622,14 +622,14 @@ class CgiEnv():
 	# the value of an unique key-value pair.
 	# If this class is not in DMTF, we might need some sort of data dictionary.
 	def GetId(self):
-		sys.stderr.write("GetId m_entity_type=%s m_entity_id=%s\n" % ( self.m_entity_type, str( self.m_entity_id ) ) )
+		lib_util.Logger().debug("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str( self.m_entity_id ) )
 		try:
 			# If this is a top-level url, no object type, therefore no id.
 			if self.m_entity_type == "":
 				return ""
 
 			splitKV = lib_util.SplitMoniker(self.m_entity_id)
-			sys.stderr.write("GetId splitKV=%s\n" % ( str( splitKV ) ) )
+			lib_util.Logger().debug("GetId splitKV=%s", str( splitKV ) )
 
 			# If this class is defined in our ontology, then we know the first property.
 			entOnto = lib_util.OntologyClassKeys(self.m_entity_type)
@@ -671,7 +671,7 @@ class CgiEnv():
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 		global globalCgiEnvList
 		#sys.stderr.write("OutCgiRdf lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
-		sys.stderr.write("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s\n"%(globalMergeMode,self.m_calling_url,self.m_page_title))
+		lib_util.Logger().debug("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",globalMergeMode,self.m_calling_url,self.m_page_title)
 
 		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
@@ -810,7 +810,7 @@ def ErrorMessageEnable(flag):
 	globalErrorMessageEnabled = flag
 
 def ErrorMessageHtml(message):
-	sys.stderr.write("ErrorMessageHtml globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+	lib_util.Logger().error("ErrorMessageHtml globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 
 	if globalErrorMessageEnabled:
 		# If we are in Json mode, this returns a special json document with the error message.
@@ -824,13 +824,13 @@ def ErrorMessageHtml(message):
 		except KeyError:
 			pass
 
-		sys.stderr.write("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+		lib_util.Logger().error("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 		lib_util.InfoMessageHtml(message)
-		sys.stderr.write("ErrorMessageHtml about to leave\n")
+		lib_util.Logger().error("ErrorMessageHtml about to leave")
 		sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
-		sys.stderr.write("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+		lib_util.Logger().error("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 		# It might be displayed in a HTML document.
 		messageClean = cgi.escape(message)
 		raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)
@@ -930,14 +930,14 @@ class TmpFile:
 			return
 
 		self.Name = "%s/%s.%d.%s" % ( currDir, prefix, procPid, suffix )
-		sys.stderr.write("tmp=%s cwd=%s\n" % ( self.Name, os.getcwd() ) )
+		lib_util.Logger().debug("tmp=%s", self.Name )
 
 	def DbgDelFil(self,filNam):
 		if True:
-			sys.stderr.write("Deleting="+filNam+"\n")
+			lib_util.Logger().debug("Deleting=%s",filNam)
 			os.remove(filNam)
 		else:
-			sys.stderr.write("NOT Deleting="+filNam+"\n")
+			lib_util.Logger().debug("NOT Deleting=%s",filNam)
 
 	def __del__(self):
 		try:
@@ -945,7 +945,7 @@ class TmpFile:
 				self.DbgDelFil(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
-				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
+				lib_util.Logger().info("About to NOT del %s", self.TmpDirToDel )
 				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
 					for name in files:
 						self.DbgDelFil(os.path.join(root, name))
@@ -955,7 +955,7 @@ class TmpFile:
 
 		except Exception:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("__del__.Caught: %s. TmpDirToDel=%s Name=%s\n" % ( str(exc), str(self.TmpDirToDel), str(self.Name) ) )
+			lib_util.Logger().error("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name) )
 		return
 
 

@@ -76,7 +76,7 @@ def Main():
 	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
 	withYawnUrls = int(cgiEnv.GetParameters( paramkeyYawnUrls ))
 
-	sys.stderr.write("wbemNamespace=%s entity_type=%s entity_namespace_type=%s maxDepth=%d\n" % (wbemNamespace, entity_type,entity_namespace_type,maxDepth))
+	lib_util.Logger().debug("wbemNamespace=%s entity_type=%s entity_namespace_type=%s maxDepth=%d",wbemNamespace, entity_type,entity_namespace_type,maxDepth)
 
 	cimomUrl = cgiEnv.GetHost()
 
@@ -90,13 +90,13 @@ def Main():
 	# entity_type might an empty string.
 	rootNode = WbemNamespaceNode(wbemNamespace, cimomUrl, entity_type)
 
-	sys.stderr.write("objtypes_wmi.py cimomUrl=%s entity_type=%s\n" % (cimomUrl,entity_type) )
+	lib_util.Logger().debug("objtypes_wmi.py cimomUrl=%s entity_type=%s",cimomUrl,entity_type )
 
 	treeClassesFiltered = lib_wbem.GetClassesTreeInstrumented(connWbem,wbemNamespace)
 
 	PrintClassRecu(grph, rootNode, treeClassesFiltered, entity_type, 0, wbemNamespace, cimomUrl, maxDepth, withYawnUrls)
 
-	sys.stderr.write("entity_type=%s\n" % entity_type)
+	lib_util.Logger().debug("entity_type=%s", entity_type)
 
 	# If we are not at the top of the tree:
 	if entity_type != "":

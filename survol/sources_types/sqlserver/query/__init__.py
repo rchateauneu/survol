@@ -19,11 +19,8 @@ import lib_common
 # The result should be ["Query","Dsn"]
 # We do not know if CIM_Process.EntityOntology() is available.
 def EntityOntology():
-
-	sys.stderr.write("EntityOntology sql_query.CgiPropertyQuery()=%s\n"%str(sql_query.CgiPropertyQuery()))
-
-
-	sys.stderr.write("EntityOntology survol_odbc.CgiPropertyDsn()=%s\n"%str(survol_odbc.CgiPropertyDsn()))
+	lib_util.Logger().debug("EntityOntology sql_query.CgiPropertyQuery()=%s",str(sql_query.CgiPropertyQuery()))
+	lib_util.Logger().debug("EntityOntology survol_odbc.CgiPropertyDsn()=%s"%str(survol_odbc.CgiPropertyDsn()))
 	return ( [sql_query.CgiPropertyQuery(),survol_odbc.CgiPropertyDsn()],)
 
 
