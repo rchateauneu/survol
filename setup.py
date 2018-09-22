@@ -109,6 +109,8 @@ with open(os.path.join('survol', '__init__.py')) as f:
 with open('README.txt') as readme_file:
     README = readme_file.read()
 
+# FIXME: survol.__doc__ = '\nSurvol library\n' ...
+
 setup(
     name='survol',
     version=__version__,
