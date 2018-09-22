@@ -85,7 +85,7 @@ def DecorateSocketNode(grph, socketNode, host, port, proto):
 ################################################################################
 
 def JoinThreads(threads):
-	sys.stderr.write("JoinThreads: %d threads to return.\n" % len(threads))
+	DEBUG("JoinThreads: %d threads to return.", len(threads))
 	for thread in threads:
 		# sys.stderr.write('Joining %s\n' % thread.getName())
 		thread.join()

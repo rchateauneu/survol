@@ -104,7 +104,7 @@ def Main():
 	ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 	try:
 		cnxn = pyodbc.connect(ODBC_ConnectString)
-		sys.stderr.write("Connected: %s\n" % dsnNam)
+		DEBUG("Connected: %s", dsnNam)
 
 		grph.add( (nodeSession, lib_common.MakeProp("Session id"), lib_common.NodeLiteral(sessionId) ) )
 		GetInfoConnections(grph,sessionId,nodeSession,cnxn)

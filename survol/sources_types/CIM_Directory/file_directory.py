@@ -83,11 +83,11 @@ def Main():
 	else:
 		isTopDirectory = False
 
-	sys.stderr.write("file_directory.py filNam=%s isTopDirectory=%d\n" % (filNam,isTopDirectory) )
+	DEBUG("file_directory.py filNam=%s isTopDirectory=%d", filNam,isTopDirectory)
 
 	if not isTopDirectory:
 		topdir = os.path.dirname(filNam)
-		sys.stderr.write("topdir=%s\n"%(topdir))
+		DEBUG("topdir=%s",topdir)
 		if topdir:
 			topdirNode = lib_common.gUriGen.DirectoryUri(topdir )
 			grph.add( ( topdirNode, pc.property_directory, filNode ) )

@@ -45,7 +45,7 @@ def Main():
 
 	asstr = netstat_last_output.decode("utf-8")
 
-	sys.stderr.write("assstr:%s\n"%asstr)
+	DEBUG("assstr:%s",asstr)
 
 	# Do not read the header on the first four lines.
 	for lin in asstr.split('\n')[4:]:

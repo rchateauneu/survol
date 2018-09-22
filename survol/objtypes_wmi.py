@@ -104,7 +104,7 @@ def Main():
 
 	( wmiNamespace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
 
-	sys.stderr.write("wmiNamespace=%s entity_type=%s\n" % (wmiNamespace,entity_type))
+	DEBUG("wmiNamespace=%s entity_type=%s", wmiNamespace,entity_type)
 
 	cimomUrl = cgiEnv.GetHost()
 

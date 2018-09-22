@@ -122,7 +122,7 @@ def slp_wbem_services():
 def WbemServersList():
 	lstWbemServers = []
 	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
-	lib_util.Logger().debug("WbemServersList")
+	DEBUG("WbemServersList")
 	for urlWbem in credNames:
 		#sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
 		# crdNam = "http://192.168.1.83:5988"
@@ -160,7 +160,7 @@ def HostnameToWbemServer(hostname):
 # On pourrait aussi bien avoir deux fonctions differentes.
 # Maybe entity_namespace does not have the right separator, slash or backslash.
 def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
-	lib_util.Logger().debug("GetWbemUrls h=%s ns=%s t=%s i=%s",entity_host, entity_namespace, entity_type, entity_id)
+	DEBUG("GetWbemUrls h=%s ns=%s t=%s i=%s",entity_host, entity_namespace, entity_type, entity_id)
 	wbem_urls_list = []
 
 	# sys.stderr.write("GetWbemUrls entity_host=%s\n" % (entity_host))
@@ -176,7 +176,7 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 				#sys.stderr.write("GetWbemUrls different wbemServer=%s entity_host=%s\n"%(str(wbemServer[1].lower()),entity_host.lower()))
 				continue
 
-		lib_util.Logger().debug("GetWbemUrls found wbemServer=%s",str(wbemServer))
+		DEBUG("GetWbemUrls found wbemServer=%s",str(wbemServer))
 		theCimom = wbemServer[1]
 
 		# TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
@@ -234,7 +234,7 @@ def WbemConnection(cgiUrl):
 		# https://github.com/Napsty/check_esxi_hardware/issues/7
 		creden = lib_credentials.GetCredentials( "WBEM", cgiUrl )
 
-		lib_util.Logger().debug("WbemConnection creden=%s",str(creden))
+		DEBUG("WbemConnection creden=%s",str(creden))
 		# Beware: If username/password is wrong, it will only be detected at the first data access.
 		conn = pywbem.WBEMConnection(cgiUrl , creden )
 	except Exception:
@@ -360,7 +360,7 @@ def GetCapabilitiesForInstrumentation(conn,namSpac):
 			break
 		except Exception:
 			exc = sys.exc_info()[1]
-			lib_util.Logger().error("GetCapabilitiesForInstrumentation exc=%s", str(exc))
+			ERROR("GetCapabilitiesForInstrumentation exc=%s", str(exc))
 			arg = exc.args
 			# TODO Python 3
 			if arg[0] != pywbem.CIM_ERR_INVALID_NAMESPACE:
@@ -431,9 +431,9 @@ def GetClassesTree(conn,theNamSpace):
     kwargs['IncludeQualifiers'] = False
     kwargs['IncludeClassOrigin'] = False
 
-    lib_util.Logger().debug("GetClassesTree theNamSpace=%s", theNamSpace)
+    DEBUG("GetClassesTree theNamSpace=%s", theNamSpace)
     klasses = conn.EnumerateClasses(namespace=theNamSpace,**kwargs)
-    lib_util.Logger().debug("GetClassesTree klasses %d elements", len(klasses))
+    DEBUG("GetClassesTree klasses %d elements", len(klasses))
 
     tree_classes = dict()
     for klass in klasses:
@@ -444,7 +444,7 @@ def GetClassesTree(conn,theNamSpace):
         except KeyError:
             tree_classes[klass.superclass] = [klass]
 
-    lib_util.Logger().debug("GetClassesTree tree_classes %d elements", len(tree_classes))
+    DEBUG("GetClassesTree tree_classes %d elements", len(tree_classes))
     return tree_classes
 
 ###################################################
@@ -475,7 +475,7 @@ def MakeInstrumentedRecu(inTreeClass, outTreeClass, topclassNam, theNamSpac, ins
 # This builds a dictionary indexes by class names, and the values are lists of classes objects,
 # which are the subclasses of the key class. The root class name is None.
 def GetClassesTreeInstrumented(conn,theNamSpace):
-	lib_util.Logger().debug("GetClassesTreeInstrumented theNamSpace=%s", theNamSpace)
+	DEBUG("GetClassesTreeInstrumented theNamSpace=%s", theNamSpace)
 
 	try:
 		inTreeClass = GetClassesTree(conn,theNamSpace)
@@ -487,7 +487,7 @@ def GetClassesTreeInstrumented(conn,theNamSpace):
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Instrumented classes: ns="+theNamSpace+" Caught:"+str(exc))
-	lib_util.Logger().debug("After MakeInstrumentedRecu outTreeClass = %d elements", len(outTreeClass))
+	DEBUG("After MakeInstrumentedRecu outTreeClass = %d elements", len(outTreeClass))
 
 	# print("outTreeClass="+str(outTreeClass)+"<br>")
 	return outTreeClass
@@ -496,7 +496,7 @@ def GetClassesTreeInstrumented(conn,theNamSpace):
 def ValidClassWbem(className):
 	tpSplit = className.split("_")
 	tpPrefix = tpSplit[0]
-	lib_util.Logger().debug("lib_wbem.ValidClassWbem className=%s tpPrefix=%s",className,tpPrefix)
+	DEBUG("lib_wbem.ValidClassWbem className=%s tpPrefix=%s",className,tpPrefix)
 	# "PG" is Open Pegasus: http://www.opengroup.org/subjectareas/management/openpegasus
 	# "LMI" is OpenLmi: http://www.openlmi.org/
 	return tpPrefix in ["CIM","PG","LMI"]

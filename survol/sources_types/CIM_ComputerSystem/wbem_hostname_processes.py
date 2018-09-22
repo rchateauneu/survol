@@ -27,7 +27,7 @@ def Main():
 
 	cimomUrl = lib_wbem.HostnameToWbemServer(machineName)
 
-	sys.stderr.write("wbem_hostname_processes.py cimomUrl=%s\n"%cimomUrl)
+	DEBUG("wbem_hostname_processes.py cimomUrl=%s",cimomUrl)
 
 	# If running on the local machine, pass the host as None otherwise authorization is checked
 	# just like a remote machine, which means User Account Control (UAC) disabling,
@@ -66,7 +66,7 @@ def Main():
 	Main.dictWbemPidToNode = {}
 
 	def WbemPidToNode(procId):
-		sys.stderr.write("procId=%s\n"%procId)
+		DEBUG("procId=%s",procId)
 		try:
 			return Main.dictWbemPidToNode[procId]
 		except KeyError:

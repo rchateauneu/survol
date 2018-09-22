@@ -71,7 +71,7 @@ def Main():
 
 	modules_map = {}
 
-	sys.stderr.write("Starting cdb_cmd=%s\n" % cdb_cmd )
+	DEBUG("Starting cdb_cmd=%s", cdb_cmd )
 	try:
 		cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
 	except WindowsError:
@@ -123,7 +123,7 @@ def Main():
 			callDepth += 1
 			continue
 
-		sys.stderr.write("dot_line=%s\n" % dot_line )
+		DEBUG("dot_line=%s", dot_line )
 
 	sys.stderr.write("Parsed cdb result\n")
 

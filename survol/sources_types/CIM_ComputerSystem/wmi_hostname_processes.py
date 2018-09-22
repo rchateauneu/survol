@@ -79,13 +79,10 @@ def Main():
 		serverBox = lib_common.RemoteBox(machineName)
 
 	try:
-		# On a le probleme "access denied" avec tous les acces remote windows.
-		# Meme probleme aussi avec WMI alors que ca marchait avant.
-		# Comme s'il y avait une connection implicite de rchateau, quand ca marchait, et qu'elle ait disparu maintenant.
-		# Toutefois, ceci fonctionne.
+		# This works:
 		# >>> c = wmi.WMI(wmi=wmi.connect_server(server='Titi', namespace="/root/cimv2", user='rchateauneu@hotmail.com', password='xxxx'))
 
-		sys.stderr.write("Explicit WMI connection machineName=%s\n" % ( machNameNotNone ) )
+		DEBUG("Explicit WMI connection machineName=%s", machNameNotNone )
 
 		cnnct = lib_wmi.WmiConnect(machNameNotNone,"/root/cimv2")
 

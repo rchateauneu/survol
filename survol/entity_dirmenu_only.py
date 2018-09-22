@@ -54,7 +54,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 				# if flagShowAll and errorMsg ???
 				if errorMsg:
-					lib_util.Logger().error("DirToMenuAux errorMsg(1)=%s",errorMsg)
+					ERROR("DirToMenuAux errorMsg(1)=%s",errorMsg)
 					# If set to True, the directory is displayed even if all its scripts
 					# are not usable. Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
 					if False:
@@ -81,7 +81,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 
 		# Maybe this class is not defined in our ontology.
 		if dirs == None:
-			lib_util.Logger().warning("DirToMenuAux No content in %s",curr_dir)
+			WARNING("DirToMenuAux No content in %s",curr_dir)
 			return False
 
 		# Will still be None if nothing is added.
@@ -161,7 +161,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				# called Usable(): If it is there and returns False, the script is not displayed.
 				errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 				if errorMsg:
-					lib_util.Logger().warning("DirToMenuAux errorMsg(2)=%s",errorMsg)
+					WARNING("DirToMenuAux errorMsg(2)=%s",errorMsg)
 
 			# If this is a local host
 			if not flagShowAll and errorMsg and not entity_host:
@@ -179,7 +179,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 					can_process_remote = False
 
 				# can_process_remote = True
-				sys.stderr.write("entity_dir_menu.py DirToMenuAux entity_host=%s can_process_remote=%d\n"%(entity_host,can_process_remote))
+				DEBUG("entity_dir_menu.py DirToMenuAux entity_host=%s can_process_remote=%d",entity_host,can_process_remote)
 
 				if not can_process_remote:
 					if not errorMsg:
@@ -209,7 +209,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 		return ( rdfNode is not None ) | containsSomething
 
 	if entity_host:
-		sys.stderr.write("entity_dir_menu.py DirToMenu entity_host=%s\n"%entity_host)
+		DEBUG("entity_dir_menu.py DirToMenu entity_host=%s",entity_host)
 	encodedEntityId=lib_util.EncodeUri(entity_id)
 	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 
@@ -260,7 +260,7 @@ def Main():
 	if lib_util.IsLocalAddress( entity_host ):
 		entity_host = ""
 
-	sys.stderr.write("entity: entity_host=%s entity_type=%s entity_id=%s\n" % ( entity_host, entity_type, entity_id ) )
+	DEBUG("entity: entity_host=%s entity_type=%s entity_id=%s", entity_host, entity_type, entity_id )
 
 	grph = cgiEnv.GetGraph()
 

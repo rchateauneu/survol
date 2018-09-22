@@ -61,7 +61,7 @@ def Main():
 	for dbInfo in cursorMysql:
 		#('information_schema',)
 		#('primhilltcsrvdb1',)
-		sys.stderr.write("dbInfo=%s\n"%str(dbInfo))
+		DEBUG("dbInfo=%s",str(dbInfo))
 		dbNam = dbInfo[0]
 
 		nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)

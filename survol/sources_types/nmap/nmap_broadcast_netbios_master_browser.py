@@ -48,7 +48,7 @@ def Main():
 	for aScript in dom.getElementsByTagName('script'):
 		# output="&#xa;ip server domain&#xa;192.168.0.15  WDMYCLOUDMIRROR  WORKGROUP&#xa;"
 		anOutput = aScript.getAttributeNode('output').value.strip()
-		sys.stderr.write("anOutput=%s\n"%str(anOutput))
+		DEBUG("anOutput=%s",str(anOutput))
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
 		sys.stderr.write("arrSplit=%s\n"%str(arrSplit))
@@ -56,7 +56,7 @@ def Main():
 		theMachFull = arrSplit[1].strip()
 		sys.stderr.write("theMachFull=%s\n"%str(theMachFull))
 		machSplit = re.split( "[\t ]+", theMachFull )
-		sys.stderr.write("machSplit=%s\n"%str(machSplit))
+		DEBUG("machSplit=%s",str(machSplit))
 		machIp = machSplit[0].strip()
 		machNam = machSplit[1].strip()
 		nameDomain = machSplit[2].strip()

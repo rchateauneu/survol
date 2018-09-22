@@ -326,7 +326,7 @@ class MemoryProcessorStructs:
 class MemoryProcessorRegex:
 	# We can have: flags=re.IGNORECASE
 	def __init__(self,is64Bits,aRegex, re_flags):
-		sys.stderr.write("aRegex=%s\n"%aRegex)
+		DEBUG("aRegex=%s",aRegex)
 		self.m_rgxComp = re.compile(aRegex.encode('utf-8'),re_flags)
 		# self.m_matches = set()
 		self.m_matches = dict()
@@ -554,9 +554,9 @@ if sys.platform == "win32":
 
 		# kernel32.OpenProcess.restype = ctypes.wintypes.HANDLE
 
-		sys.stderr.write("MemMachine pidint=%s\n" % str(pidint) )
+		DEBUG("MemMachine pidint=%s", str(pidint) )
 		phandle = kernel32.OpenProcess( ACCESS, False, pidint)
-		sys.stderr.write("MemMachine phandle=%s\n" % str(phandle) )
+		DEBUG("MemMachine phandle=%s", str(phandle) )
 		sys.stderr.write("MemMachine GetLastError=%s\n" % str(ctypes.GetLastError()) )
 
 		# No need to prefix with ctypes on Python 3. Why ?
@@ -564,7 +564,7 @@ if sys.platform == "win32":
 
 
 		is64bits = IsProcess64Bits(phandle)
-		sys.stderr.write("MemMachine is64bits=%d\n" % is64bits)
+		DEBUG("MemMachine is64bits=%d", is64bits)
 		mem_proc_functor = MemoryProcessor(is64bits,lstStructs,re_flags)
 
 		# First address of the first page, and last address to scan.
@@ -578,7 +578,7 @@ if sys.platform == "win32":
 			try:
 				next_page = ScanFromPage(phandle, page_address, mem_proc_functor)
 			except ctypes.ArgumentError:
-				sys.stderr.write("MemMachine Address overflow: %s\n" % str(page_address) )
+				DEBUG("MemMachine Address overflow: %s", str(page_address) )
 				break
 			except Exception:
 				t, e = sys.exc_info()[:2]
@@ -623,7 +623,7 @@ else:
 			# mem_file = open(filnam, 'r+b', 0)
 			mem_file = open(filnam, 'r', 0)
 			lenAddr = addr_end - addr_beg
-			sys.stderr.write("len=%d\n"%lenAddr)
+			DEBUG("len=%d",lenAddr)
 			if False:
 				# Exception:mmap length is greater than file size
 				# Je crois me souvenir qu on peut empecher un controle de taille ??
@@ -636,7 +636,7 @@ else:
 				mem_proc_functor.ParseSegment(addr_beg, chunk )
 
 		except Exception as exc:
-			sys.stderr.write("Exception:%s\n"%str(exc))
+			WARNING("Exception:%s",str(exc))
 			pass
 		ptrace(False, pidint)
 
@@ -654,7 +654,7 @@ else:
 
 	def MemMachine(pidint,lstStructs,re_flags):
 		# TODO: 64 bits by default :):):) ... Fix this !
-		sys.stderr.write("MemMachine pidint=%d\n"%pidint)
+		DEBUG("MemMachine pidint=%d",pidint)
 		mem_proc_functor = MemoryProcessor(True,lstStructs,re_flags)
 		memmaps = GetMemMaps(pidint)
 		# Typical content for map.path
@@ -704,7 +704,7 @@ else:
 				addr_beg, addr_end = ( int( ad, 16 ) for ad in map.addr.split("-") )
 				# sys.stderr.write("MemMachine %d %d %s\n" % (addr_beg, addr_end, map.path) )
 				GetMemoryFromProc(pidint, addr_beg, addr_end, mem_proc_functor )
-		sys.stderr.write("MemMachine pidint=%d leaving\n"%pidint)
+		DEBUG("MemMachine pidint=%d leaving",pidint)
 		return mem_proc_functor
 
 # TODO: Should apply the extra validation before creating the dict.

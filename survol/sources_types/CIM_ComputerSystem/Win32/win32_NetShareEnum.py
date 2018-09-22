@@ -41,7 +41,7 @@ def Main():
 			lib_common.ErrorMessageHtml("Hostname="+hostname+". Exception:"+str(exc))
 
 		for share in sharedata:
-			sys.stderr.write("share=%s\n" % ( str(share) ) )
+			DEBUG("share=%s", str(share) )
 			# share={'remark': 'Remote Admin', 'passwd': None, 'current_uses': 0, 'netname': 'ADMIN$', 'max_uses': 4294967295, 'path': 'C:\\\\Windows', 'type': 2147483648, 'permissions': 0}
 			share_netname = share['netname']
 			try:

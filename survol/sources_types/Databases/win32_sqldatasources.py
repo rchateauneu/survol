@@ -39,7 +39,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 			break
 		# TODO: Prints the description and other data.
 		dsn, driver = source
-		sys.stderr.write("dsn=%s driver=%s type=%s\n" % ( dsn, driver, dsn_type) )
+		DEBUG("dsn=%s driver=%s type=%s", dsn, driver, dsn_type)
 		odbc_iter_code = odbc.SQL_FETCH_NEXT
 
 		# This creates a connection string.
@@ -50,7 +50,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 
 
 def show_odbc_sources(grph):
-	sys.stderr.write("odbc=%s\n" % str(dir(odbc)) )
+	DEBUG("odbc=%s", str(dir(odbc)) )
 
 	DisplayDsns(grph,odbc.SQL_FETCH_FIRST_USER,"User")
 	DisplayDsns(grph,odbc.SQL_FETCH_FIRST_SYSTEM,"System")

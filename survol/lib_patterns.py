@@ -190,7 +190,7 @@ def WritePatterned( stream, aType, subjNamTab, helpText, color, labHRef, numFiel
 		else:
 			stream.write( pattArray[1] % ( subjNamTab, helpText, color, numFields, labText ) )
 	except UnicodeEncodeError:
-		sys.stderr.write("WritePatterned UnicodeEncodeError: Encoding=%s\n" % sys.getdefaultencoding() )
+		DEBUG("WritePatterned UnicodeEncodeError: Encoding=%s", sys.getdefaultencoding() )
 		return
 
 	for key in lib_util.natural_sorted(dictLines):

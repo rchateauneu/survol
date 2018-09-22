@@ -44,7 +44,7 @@ def Main():
 			pass
 		cnt += 1
 
-	sys.stderr.write("Nm: Processed %d lines\n" % cnt)
+	DEBUG("Nm: Processed %d lines", cnt)
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_symbol_undefined] )
 
 if __name__ == '__main__':

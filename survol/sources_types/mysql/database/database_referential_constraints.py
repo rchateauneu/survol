@@ -72,7 +72,7 @@ def Main():
 
 	# There should be only one row, maximum.
 	for constraintInfo in cursorMysql:
-		sys.stderr.write("constraintInfo=%s\n"%str(constraintInfo))
+		DEBUG("constraintInfo=%s",str(constraintInfo))
 		tableNam = constraintInfo[0]
 		tableNamRef = constraintInfo[1]
 		propConstraint = lib_common.MakeProp(constraintInfo[2])

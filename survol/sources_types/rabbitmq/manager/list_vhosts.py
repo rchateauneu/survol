@@ -56,7 +56,7 @@ def Main():
 
 	for objVHost in listVHosts:
 		namVHost = objVHost["name"]
-		sys.stderr.write("q=%s\n"%(namVHost))
+		DEBUG("q=%s",namVHost)
 
 		nodeVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
 

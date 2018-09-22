@@ -42,7 +42,7 @@ def Main():
 
 	dsk = sms.get_disk(diskName)
 
-	sys.stderr.write("dsk=%s\n"% str(dir(dsk)))
+	DEBUG("dsk=%s", str(dir(dsk)))
 
 	diskNode = disk.MakeUri( diskName, subscriptionName )
 	grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), diskNode ) )

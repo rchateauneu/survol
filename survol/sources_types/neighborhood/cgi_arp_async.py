@@ -126,7 +126,7 @@ def Main():
 		if ipAddr in setIps:
 			continue
 		setIps.add(ipAddr)
-		sys.stderr.write("linSplit=%s\n"%str(linSplit))
+		DEBUG("linSplit=%s",str(linSplit))
 		thr = LookupThread( linSplit, grph, grph_lock, map_hostnames_ipcount )
 		thr.start()
 		lookup_threads.append( thr )

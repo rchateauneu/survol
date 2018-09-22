@@ -24,7 +24,7 @@ def display_data_sources(grph):
 	for dsn in sources:
 		driver = sources[dsn]
 
-		sys.stderr.write("dsn=%s driver=%s\n" % ( dsn, driver) )
+		DEBUG("dsn=%s driver=%s", dsn, driver )
 
 		# This creates a connection string.
 		nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )

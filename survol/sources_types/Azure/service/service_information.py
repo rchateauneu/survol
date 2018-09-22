@@ -40,7 +40,7 @@ def Main():
 
 	srv = sms.get_hosted_service_properties(serviceName)
 
-	sys.stderr.write("srv=%s\n"% str(dir(srv)))
+	DEBUG("srv=%s", str(dir(srv)))
 	sys.stderr.write("deployments=%s\n"% str(srv.deployments))
 	sys.stderr.write("srv.hosted_service_properties=%s\n"% str(dir(srv.hosted_service_properties)))
 	sys.stderr.write("srv.hosted_service_properties.extended_properties=%s\n"% str(dir(srv.hosted_service_properties.extended_properties)))

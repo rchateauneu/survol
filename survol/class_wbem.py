@@ -172,7 +172,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-	sys.stderr.write("nameSpace=%s className=%s entity_namespace_type=%s\n" % ( nameSpace, className, entity_namespace_type ) )
+	DEBUG("nameSpace=%s className=%s entity_namespace_type=%s", nameSpace, className, entity_namespace_type )
 
 	entity_host = cgiEnv.GetHost()
 

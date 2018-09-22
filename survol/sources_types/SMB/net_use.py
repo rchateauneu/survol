@@ -84,12 +84,12 @@ def Main():
 			currNetwork = lin[48:]
 
 		currRemote = currRemote.strip()
-		lib_util.Logger().debug("currRemote=%s",currRemote)
+		DEBUG("currRemote=%s",currRemote)
 
 		# "\\192.168.0.15\rchateau   Microsoft Windows Network"
 		currLocal = currLocal.strip().split(" ")[0]
 
-		lib_util.Logger().debug("currLocal=%s",currLocal)
+		DEBUG("currLocal=%s",currLocal)
 		shareNode = lib_common.gUriGen.SmbShareUri( currRemote )
 		grph.add( ( lib_common.gUriGen.FileUri( currLocal + ':' ), pc.property_mount, shareNode ) )
 

@@ -503,7 +503,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 						if lib_kbase.IsLiteral(val):
 							if isinstance( val.value, (list, tuple )):
 								strHtml = FormatElementAux(val.value)
-								sys.stderr.write("val.value=%s\n"%strHtml)
+								DEBUG("val.value=%s",strHtml)
 								tmpCell = td_bgcolor + 'align="left">%s</td>' % strHtml
 							else:
 								tmpCell = td_bgcolor + 'align="left">%s</td>' % val.value

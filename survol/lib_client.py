@@ -7,8 +7,8 @@ import sys
 import json
 import urllib
 
-import lib_kbase
 import lib_util
+import lib_kbase
 import lib_common
 import lib_naming
 from lib_properties import pc
@@ -28,6 +28,9 @@ try:
 	from urlparse import urlparse, parse_qs
 except ImportError:
 	from urllib.parse import urlparse, parse_qs
+
+
+DEBUG("Tests")
 
 ################################################################################
 
@@ -364,6 +367,30 @@ class BaseCIMClass(object):
 		listSources = [ ScriptUrlToSource(oneScr) for oneScr in listScripts]
 		return listSources
 
+	# This is similar to a graph database.
+	# This explores the scripts of each instance, uses the A* algorithm.
+	def FindPathToInstance(self,instanceDestination):
+
+		# Heuristiques tres specifiques: On utilise des regles pour trier la liste.
+		# Utiliser les protections pour savoir si un process peut atteindre un fichier.
+		# Liens symboliques.
+		# Creer une espece de distance entre deux instances. Qui tient compte des hosts.
+		# Mais aussi, il faut pouvoir suggerer un script plutot qu'un autre:
+		# Si process et fichier, suggerer de chercher aussi dqns les noms de fichiers
+		# qui apparaissent dans la memoire du process.
+
+		# chercher de A vers B mais aussi de B vers A ?
+		# Si
+
+		listSteps = []
+		return listSteps
+
+	# QUELLES AUTRES RECHERCHES SERAIENT INTERESSANTES ??
+	#FindString(jjj) avec specialisations par classe.
+
+	# Securite ?
+	# Liste des librairies dont un arbre de processes depend: Donc descente vers les sous-processes seulement.
+
 def CIMClassFactoryNoCache(className):
 	def __init__(self, agentUrl, **kwargs):
 		entity_id = ""
@@ -397,7 +424,7 @@ def CreateCIMClass(agentUrl,className,**kwargs):
 # instanceUrl="http://LOCAL_MODE:80/NotRunningAsCgi/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
 # instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def InstanceUrlToAgentUrl(instanceUrl):
-	sys.stdout.write("InstanceUrlToAgentUrl instanceUrl=%s\n"%instanceUrl)
+	#sys.stdout.write("InstanceUrlToAgentUrl instanceUrl=%s\n"%instanceUrl)
 
 	parse_url = urlparse(instanceUrl)
 	if parse_url.path.startswith(lib_util.prefixLocalScript):
@@ -512,24 +539,24 @@ class Agent:
 
 		class CallDispatcher(object):
 			def __init__(self, caller, agent_url, name):
-				sys.stdout.write("CallDispatcher.__init__ agent=%s name=%s\n"%(str(type(agent_url)),name))
-				sys.stdout.flush()
+				#sys.stdout.write("CallDispatcher.__init__ agent=%s name=%s\n"%(str(type(agent_url)),name))
+				#sys.stdout.flush()
 				self.m_name = name
 				self.m_caller = caller
 				self.m_agent_url = agent_url
 
 			def __call__(self, *argsCall, **kwargsCall):
-				sys.stdout.write("CallDispatcher.__call__ class=%s url=%s\n"%(self.m_name,str(type(self.m_agent_url))))
-				sys.stdout.flush()
+				#sys.stdout.write("CallDispatcher.__call__ class=%s url=%s\n"%(self.m_name,str(type(self.m_agent_url))))
+				#sys.stdout.flush()
 				newInstance = CreateCIMClass(self.m_agent_url, self.m_name, **kwargsCall)
 				return newInstance
 
 			def __getattr__(self, attribute_name):
-				sys.stdout.write("CallDispatcher.__getattr__ attr=%s\n"%(str(attribute_name)))
-				sys.stdout.flush()
+				#sys.stdout.write("CallDispatcher.__getattr__ attr=%s\n"%(str(attribute_name)))
+				#sys.stdout.flush()
 				return CallDispatcher(self, self.m_agent_url, self.m_name + "/" + attribute_name)
 
-		sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
+		#sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
 		return CallDispatcher(self, self.m_agent_url, attribute_name)
 
 

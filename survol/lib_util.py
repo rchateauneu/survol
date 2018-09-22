@@ -52,8 +52,8 @@ except:
 logging.basicConfig(
 	stream=sys.stderr,
 	# format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d: %(message)s',
-	format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d %(message)s',
-	level = logging.DEBUG)
+	format='%(asctime)s %(levelname)8s %(filename)s %(lineno)d %(message)s',
+	level = logging.INFO)
 
 # Avoid this message:
 # 2018-09-18 21:57:54,868  WARNING rdflib.term term.py 207: http://L... does not look like a valid URI, trying to serialize this will break.
@@ -65,6 +65,13 @@ def Logger():
 	frm = inspect.stack()[1]
 	mod = inspect.getmodule(frm[0])
 	return logging.getLogger(mod.__name__)
+
+import __builtin__
+__builtin__.DEBUG = Logger().debug
+__builtin__.WARNING = Logger().warning
+__builtin__.ERROR = Logger().error
+__builtin__.INFO = Logger().info
+__builtin__.CRITICAL = Logger().critical
 
 ################################################################################
 
@@ -733,7 +740,7 @@ def EntityUriDupl(entity_type,*entity_ids,**extra_args):
 	keys = OntologyClassKeys(entity_type)
 
 	if len(keys) != len(entity_ids):
-		sys.stderr.write("EntityUriDupl Different lens:%s and %s\n" % (str(keys),str(entity_ids)))
+		WARNING("EntityUriDupl Different lens:%s and %s",str(keys),str(entity_ids))
 	entity_id = ",".join( "%s=%s" % pairKW for pairKW in zip( keys, entity_ids ) )
 	
 	# Extra arguments, differentiating duplicates.
@@ -864,7 +871,7 @@ def InfoMessageHtml(message):
 def ObjectTypesNoCache():
 	# directory=C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\htbin\\sources_top/sources_types\r:
 	directory = gblTopScripts + "/sources_types"
-	sys.stderr.write("ObjectTypesNoCache directory="+directory+"\n")
+	DEBUG("ObjectTypesNoCache directory=%s",directory)
 
 	ld = len(directory)
 	for path, dirs, files in os.walk(directory):
@@ -1219,7 +1226,7 @@ def SplitMonikToWQL(splitMonik,className):
 		aQry += ' %s %s="%s"' % ( qryDelim, qryKey, qryVal )
 		qryDelim = "and"
 
-	sys.stderr.write("Query=%s\n" % aQry )
+	DEBUG("Query=%s", aQry )
 	return aQry
 
 def Base64Encode(text):
@@ -1406,7 +1413,7 @@ def GetScriptModule(currentModule, fil):
 	# TODO: IT DOES NOT START FROM "/revlib". DIFFICULTY WITH PYTHONPATH.
 	# Sanity check
 	if fil[-3:] != ".py":
-		sys.stderr.write("GetScriptModule module=%s fil=%s not a Python script" % ( currentModule, fil ))
+		WARNING("GetScriptModule module=%s fil=%s not a Python script", currentModule, fil )
 		return None
 	subClass = "." + fil[:-3] # Without the ".py" extension.
 	# sys.stderr.write("currentModule=%s fil=%s\n" % ( currentModule, fil ) )

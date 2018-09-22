@@ -48,7 +48,7 @@ def Main():
 
 	for quList in listQueues:
 		namQueue = quList["name"]
-		sys.stderr.write("q=%s\n"%(namQueue))
+		DEBUG("q=%s",namQueue)
 
 		namVHost = quList["vhost"]
 		nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)

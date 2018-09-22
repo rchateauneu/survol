@@ -34,7 +34,7 @@ def Main():
 	cnt = 0
 
 	for lin in lines:
-		sys.stderr.write("Lin=%s\n"%lin)
+		DEBUG("Lin=%s",lin)
 		#print("se="+str(seenHyphens)+" Lin=("+lin+")")
 
 		# Maybe should check if other interfaces ??

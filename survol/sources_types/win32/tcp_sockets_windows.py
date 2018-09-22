@@ -45,14 +45,14 @@ def Main():
 
 	seenHeader = False
 	for lin in netstat_lines:
-		sys.stderr.write("lin=%s\n"%lin)
+		DEBUG("lin=%s",lin)
 
 		# By default, consecutive spaces are treated as one.
 		linSplit = lin.split()
 		if len(linSplit) == 0:
 			continue
 
-		sys.stderr.write("linSplit=%s\n"%str(linSplit))
+		DEBUG("linSplit=%s",str(linSplit))
 
 		if not seenHeader:
 			if len(linSplit) > 0 and linSplit[0] == "Proto":

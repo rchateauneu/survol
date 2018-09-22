@@ -31,7 +31,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	sys.stderr.write("namConnection=%s\n"%(namConnection))
+	DEBUG("namConnection=%s",namConnection)
 
 	#namConnectionDisplay = namConnection.replace(">","&gt;")
 	#nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnectionDisplay)
@@ -74,7 +74,7 @@ def Main():
 			else:
 				pass
 
-			sys.stderr.write("Literal=%s\n"%(lib_common.NodeLiteral(connectVal)))
+			DEBUG("Literal=%s",lib_common.NodeLiteral(connectVal))
 
 			grph.add( ( nodConnection, lib_common.MakeProp(connectKey), lib_common.NodeLiteral(connectVal) ) )
 

@@ -28,7 +28,7 @@ def Main():
 				keyName = win32api.RegEnumKey(lib_com_type_lib.TypeLibRegistryKey, num)
 			except win32api.error:
 				exc = sys.exc_info()
-				sys.stderr.write("RegEnumKey CAUGHT:%s\n"%str(exc))
+				WARNING("RegEnumKey CAUGHT:%s",str(exc))
 				break
 
 			versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.TypeLibRegistryKey, keyName)

@@ -18,7 +18,7 @@ pyExtensions = {
 # This adds a link to all files in the same directory which has the same name,
 # if the extension is a Python one.
 def AddAssociatedFiles(grph,node,filNam):
-	sys.stderr.write("AddAssociatedFiles %s\n"%(filNam))
+	DEBUG("AddAssociatedFiles %s",filNam)
 	# sys.stderr.write("filNam=%s\n"%filNam)
 	filenameNoExt, file_extension = os.path.splitext(filNam)
 

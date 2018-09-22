@@ -29,7 +29,7 @@ def AddMagic( grph, filNode, filNam ):
 	try:
 		import magic
 	except ImportError:
-		sys.stderr.write("File magic unavailable:%s\n" % (filNam) )
+		DEBUG("File magic unavailable:%s", filNam )
 		return
 
 	try:
@@ -39,7 +39,7 @@ def AddMagic( grph, filNode, filNam ):
 		ms.close()
 		grph.add( ( filNode, pc.property_information, lib_common.NodeLiteral(mtype) ) )
 	except TypeError:
-		sys.stderr.write("Type error:%s\n" % (filNam) )
+		DEBUG("Type error:%s", filNam )
 		return
 
 # Transforms a "stat" date into something which can be printed.
@@ -206,7 +206,7 @@ def AffFileOwner(grph, filNode, filNam):
 		owner_sid = sd.GetSecurityDescriptorOwner ()
 		accountName, domainName, typeCode = win32security.LookupAccountSid (None, owner_sid)
 		typNam = SID_CodeToName(typeCode)
-		sys.stderr.write("Domain=%s Name=%s Type=%s\n" % (domainName, accountName,typNam) )
+		DEBUG("Domain=%s Name=%s Type=%s", domainName, accountName,typNam)
 
 		if typeCode == win32security.SidTypeUser:
 			accountNode = Win32_UserAccount.MakeUri(accountName,domainName)
@@ -294,7 +294,7 @@ def DisplayAsMime(grph,node,entity_ids_arr):
 
 	mime_stuff = lib_mime.FilenameToMime( fileName )
 
-	sys.stderr.write("DisplayAsMime fileName=%s MIME:%s\n" % (fileName, str(mime_stuff) ) )
+	DEBUG("DisplayAsMime fileName=%s MIME:%s", fileName, str(mime_stuff) )
 
 	mime_type = mime_stuff[0]
 

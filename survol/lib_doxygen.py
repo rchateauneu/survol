@@ -104,7 +104,7 @@ def DoTheStuff(outDir):
 						# break
 			except Exception:
 				exc = sys.exc_info()[1]
-				sys.stderr.write("Caught:%s\n" % str(exc))
+				WARNING("Caught:%s", str(exc))
 
 	return objectsByLocation
 
@@ -118,7 +118,7 @@ def CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses
 	sys.stderr.write("\n\n\n\directoryName=%s num=%d\n\n"%( directoryName, len(objectsByLocation)))
 
 	for (locationFile, v1) in lib_util.six_iteritems(objectsByLocation):
-		sys.stderr.write("locationFile=%s\n"%locationFile)
+		DEBUG("locationFile=%s",locationFile)
 
 		# TODO: Eventuellement exploser selon les sous-directorys
 		nodeFile = lib_common.gUriGen.FileUri( locationFile )
@@ -435,7 +435,7 @@ def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
 
 	# TODO: Use lib_common.SubProcPOpen
 	ret = lib_common.SubProcCall(doxygen_command)
-	sys.stderr.write("doxyOUTPUT_DIRECTORY=%s\n" % (doxyOUTPUT_DIRECTORY))
+	DEBUG("doxyOUTPUT_DIRECTORY=%s", doxyOUTPUT_DIRECTORY)
 
 
 def DoxygenMain(paramRecursiveExploration,fileParam):

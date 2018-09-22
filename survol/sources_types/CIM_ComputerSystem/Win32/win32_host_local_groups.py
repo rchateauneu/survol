@@ -57,7 +57,7 @@ def Main():
 			# data, total, resume = win32net.NetLocalGroupEnum(server, 1, resume)
 			data, total, resume = win32net.NetLocalGroupEnum(servName_or_None, 1, resume)
 			for group in data:
-				sys.stderr.write("Group %(name)s:%(comment)s\n" % group)
+				DEBUG("Group %(name)s:%(comment)s", group)
 
 				# TODO: Not sure about the groupname syntax.
 				groupName = group['name']
@@ -67,7 +67,7 @@ def Main():
 
 				grph.add( ( nodeGroup, pc.property_host, serverNode ) )
 				groupComment = group['comment']
-				sys.stderr.write("groupComment=%s\n" % groupComment)
+				DEBUG("groupComment=%s", groupComment)
 				if groupComment != "":
 					groupCommentMaxWidth = max( 80, len(groupName) )
 					if len(groupComment) > groupCommentMaxWidth:

@@ -55,7 +55,7 @@ def GetSLPAttributes(serviceName,slpHost):
 			slpAttrVal = mtchFindAttrs.group(2)
 			dictAttributes[slpAttrKey] = slpAttrVal
 		else:
-			sys.stderr.write("No match for attributes:%s\n"%linResuFindAttrs)
+			DEBUG("No match for attributes:%s",linResuFindAttrs)
 
 	return dictAttributes
 
@@ -80,6 +80,6 @@ def GetSLPServices(serviceName):
 			slpAttrs = GetSLPAttributes(serviceName,slpHost)
 			dictServices[slpHost] = slpAttrs
 		else:
-			sys.stderr.write("No match:%s\n"%linResuSlpTool)
+			DEBUG("No match:%s",linResuSlpTool)
 
 	return dictServices

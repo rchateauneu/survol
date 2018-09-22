@@ -93,7 +93,7 @@ def Main():
 	try:
 		objParser = FilenameParserFunc()
 		rgxFilNam = objParser.Regex(paramMiniDepth,paramWithRelative)
-		sys.stderr.write("rgxFilNam=%s\n"%rgxFilNam)
+		DEBUG("rgxFilNam=%s",rgxFilNam)
 
 		resuFilNams = memory_regex_search.GetRegexMatches(pidint,rgxFilNam)
 
@@ -131,7 +131,7 @@ def Main():
 			resuClean.add( aFilNam )
 
 		for aFilNam in resuClean:
-			sys.stderr.write("aFilNam=%s\n"%aFilNam)
+			DEBUG("aFilNam=%s",aFilNam)
 			nodeFilnam = lib_common.gUriGen.FileUri( aFilNam )
 			grph.add( ( node_process, pc.property_rdf_data_nolist1, nodeFilnam ) )
 
