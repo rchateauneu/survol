@@ -29,7 +29,7 @@ def Main():
 	# For example: dll_file = "C:/Program Files (x86)/IBM/WebSphere MQ/bin/amqmdnet.dll"
 	dumpbin_cmd = [ dumpbin_exe, dll_file, "/exports" ]
 
-	sys.stderr.write("dumpbin_cmd=%s\n"%str(dumpbin_cmd))
+	DEBUG("dumpbin_cmd=%s",str(dumpbin_cmd))
 
 	try:
 		dumpbin_pipe = lib_common.SubProcPOpen(dumpbin_cmd)
@@ -43,7 +43,7 @@ def Main():
 	err_asstr = dumpbin_err.decode("utf-8")
 	err_lines = err_asstr.split('\n')
 
-	sys.stderr.write("err_asstr=%s\n"%str(err_asstr))
+	DEBUG("err_asstr=%s",str(err_asstr))
 	# lib_common.ErrorMessageHtml("Err="+str(err_lines))
 
 	# Converts to string for Python3.

@@ -46,13 +46,13 @@ def AddOdbcNode(grph,machNam,srvName,tcpPort):
 
 	# credKey = "RCHATEAU-HP\\SQLEXPRESS"
 	credKey = "%s\\%s" % ( machNam, srvName )
-	sys.stderr.write("credKey=%s\n"%credKey)
+	DEBUG("credKey=%s",credKey)
 	aCred = lib_credentials.GetCredentials("SqlExpress", credKey )
 
 	if aCred:
 
 		strDsn = 'DRIVER={%s};SERVER=%s;PORT=%s;UID=%s;PWD=%s' % (driverName, machNam, tcpPort, aCred[0], aCred[1] )
-		sys.stderr.write("strDsn=%s\n"%strDsn)
+		DEBUG("strDsn=%s",strDsn)
 
 		### cn = pyodbc.connect(strDsn)
 		# nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + strDsn )
@@ -79,7 +79,7 @@ def Main():
 	# <script id="broadcast-ms-sql-discover" output="&#xa; 192.168.0.14 (RCHATEAU-HP)&#xa; [192.168.0.14\SQLEXPRESS]&#xa; Name: SQLEXPRESS&#xa; Product: Microsoft SQL Server 2012&#xa; TCP port: 1433&#xa; Named pipe: \\192.168.0.14\pipe\MSSQL$SQLEXPRESS\sql\query&#xa;"/>
 	for aScript in dom.getElementsByTagName('script'):
 		anOutput = aScript.getAttributeNode('output').value.strip()
-		sys.stderr.write("anOutput=%s\n"%str(anOutput))
+		DEBUG("anOutput=%s",str(anOutput))
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
 		sys.stderr.write("arrSplit=%s\n"%str(arrSplit))
@@ -111,7 +111,7 @@ def Main():
 		# Sql_server_instance	[192.168.0.14\SQLEXPRESS]
 		# TCP_port	1433
 		for oneWrd in arrSplit[2:]:
-			sys.stderr.write("oneWrd=%s\n"%oneWrd)
+			DEBUG("oneWrd=%s",oneWrd)
 			oneSplit = [ aSplit.strip() for aSplit in oneWrd.split(":") ]
 			oneKey = oneSplit[0]
 

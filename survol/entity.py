@@ -28,7 +28,7 @@ from sources_types import CIM_ComputerSystem
 ################################################################################
 
 def AddDefaultNodes(grph,rootNode,entity_host):
-	lib_util.Logger().debug("entity.py AddDefaultNodes entity_host=%s",entity_host)
+	DEBUG("entity.py AddDefaultNodes entity_host=%s",entity_host)
 	currentNodeHostname = lib_common.gUriGen.HostnameUri( lib_util.currentHostname )
 	grph.add( ( currentNodeHostname, pc.property_information, lib_common.NodeLiteral("Current host:"+lib_util.currentHostname) ) )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, currentNodeHostname ) )
@@ -40,7 +40,7 @@ def AddDefaultNodes(grph,rootNode,entity_host):
 
 # TODO: Maybe the property should be property_script ??
 def AddDefaultScripts(grph,rootNode,entity_host):
-	lib_util.Logger().debug("entity.py AddDefaultScripts entity_host=%s",entity_host)
+	DEBUG("entity.py AddDefaultScripts entity_host=%s",entity_host)
 	nodeObjTypes = lib_common.NodeUrl( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, nodeObjTypes ) )
 
@@ -96,9 +96,9 @@ def Main():
 				entity_module.AddInfo( grph, rootNode, entity_ids_arr )
 			except AttributeError:
 				exc = sys.exc_info()[1]
-				lib_util.Logger().info("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
+				INFO("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
 	else:
-		lib_util.Logger().info("No lib_entities for %s %s", entity_type, entity_id )
+		INFO("No lib_entities for %s %s", entity_type, entity_id )
 
 	# When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
 	if lib_util.GuessDisplayMode() not in ["json","html"]:

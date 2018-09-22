@@ -108,12 +108,12 @@ def Main():
 					sys.stderr.write("Server=%s Caught:%s\n" % ( server, str(exc) ) )
 					continue
 
-				sys.stderr.write("    Member: %s:\n" % (str(member)))
+				DEBUG("    Member: %s:", str(member))
 				sys.stderr.write("    Lookup: %s: %s\n" % (memberName, member['domainandname']))
 				# nodeUser = serverBox.UserUri( userName )
 
 
-				sys.stderr.write("servNameNotNone=%s\n"%servNameNotNone)
+				DEBUG("servNameNotNone=%s",servNameNotNone)
 				memberNode = MemberNameToNode(sidUsage,memberName,servNameNotNone)
 
 				grph.add( (memberNode, pc.property_group, nodeGroup ) )

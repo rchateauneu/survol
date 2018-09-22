@@ -20,7 +20,7 @@ from sources_types import neighborhood as survol_neighborhood
 def AddFromWbemCimom(grph,cimomWbem):
 	parsed_url = lib_util.survol_urlparse( cimomWbem )
 	hostWbem = parsed_url.hostname
-	sys.stderr.write("WbemServersDisplay hostWbem=%s\n"%(hostWbem))
+	DEBUG("WbemServersDisplay hostWbem=%s",hostWbem)
 	if not hostWbem:
 		return None
 
@@ -43,7 +43,7 @@ def WbemServersDisplay(grph):
 	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
 	sys.stderr.write("WbemServersDisplay\n")
 	for cimomWbem in credNames:
-		sys.stderr.write("WbemServersDisplay cimomWbem=%s\n"%(cimomWbem))
+		DEBUG("WbemServersDisplay cimomWbem=%s",cimomWbem)
 
 		# The credentials are not needed until a Survol agent uses HTTPS.
 

@@ -47,7 +47,7 @@ def RunGdbCommand(the_pid,command):
 	# Attaching to process 6513
 	# Reading symbols from /usr/bin/kdeinit...(no debugging symbols found)...done.
 	for lin in gdb_last_output.split('\n'):
-		sys.stderr.write("rungdb:%s\n" % (lin) )
+		DEBUG("rungdb:%s", lin )
 		# Not sure the prompt is displayed when in non-interactive mode.
 		if lin.startswith("(gdb)"): continue
 		if lin.startswith("Reading symbols "): continue
@@ -89,7 +89,7 @@ def PassThreads(the_pid, execName, grph, procNode):
 	lines = RunGdbCommand( the_pid, "thread apply all bt" )
 
 	for lin in lines:
-		sys.stderr.write("Gdb1:%s\n" % (lin) )
+		DEBUG("Gdb1:%s", lin )
 
 		# TODO: On Linux, the light weight process is another process.
 		# Thread 1 (Thread -1237260592 (LWP 6513)):
@@ -114,7 +114,7 @@ def PassNoThreads(the_pid, execName, grph, procNode):
 	lines = RunGdbCommand( the_pid, "bt" )
 
 	for lin in lines:
-		sys.stderr.write("Gdb2:%s\n" % (lin) )
+		DEBUG("Gdb2:%s", lin )
 
 		callNodeNew = CallParse( execName, grph, procNode, callNodePrev, lin )
 

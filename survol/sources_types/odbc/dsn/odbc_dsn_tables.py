@@ -23,7 +23,7 @@ def Main():
 
     dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-    sys.stderr.write("dsn=(%s)\n" % dsnNam )
+    DEBUG("dsn=(%s)", dsnNam )
 
     nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
 
@@ -31,7 +31,7 @@ def Main():
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
-        sys.stderr.write("Connected: %s\n" % dsnNam)
+        DEBUG("Connected: %s", dsnNam)
         cursor = cnxn.cursor()
 
         # http://pyodbc.googlecode.com/git/web/docs.html
@@ -52,7 +52,7 @@ def Main():
                 grph.add( (nodTab, lib_common.NodeLiteral(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
-        sys.stderr.write("tabNam=%s\n" % str(sys.exc_info()))
+        WARNING("tabNam=%s", str(sys.exc_info()))
         exc = sys.exc_info()[0]
         lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info() ) ) )
 

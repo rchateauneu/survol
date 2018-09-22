@@ -10,7 +10,7 @@ def FormEditionParameters(formActionNoMode,theCgi):
 	"""
 
 	formAction = formActionNoMode
-	sys.stderr.write("FormEditionParameters formActionNoMode=%s formAction=%s\n"%(formAction,formActionNoMode))
+	DEBUG("FormEditionParameters formActionNoMode=%s formAction=%s",formAction,formActionNoMode)
 	print('<form name="myform" action="' + formAction + '" method="GET">')
 
 	# argKeys are the names of arguments passed as CGI parameters.
@@ -31,7 +31,7 @@ def FormEditionParameters(formActionNoMode,theCgi):
 			print('<td>' + kvKey + '</td>')
 			ediNam = "edimodargs_" + kvKey
 			lstEdimodArgs.append(ediNam)
-			sys.stderr.write("FormEditionParameters ediNam=%s\n"%ediNam)
+			DEBUG("FormEditionParameters ediNam=%s",ediNam)
 			print('<td><input type="text" name="%s" value="%s"></td>' % (ediNam,kvVal) )
 			print("</tr>")
 
@@ -40,7 +40,7 @@ def FormEditionParameters(formActionNoMode,theCgi):
 	# Now the parameters specific to the script, if they are not passed also as CGI params.
 	# param_key is the display string of the variable, and also a HTML form variable name.
 	for param_key in theCgi.m_parameters:
-		sys.stderr.write("FormEditionParameters param_key=%s\n"%param_key)
+		DEBUG("FormEditionParameters param_key=%s",param_key)
 		print("<tr>")
 		print('<td>' + param_key + '</td>')
 		param_val = theCgi.GetParameters( param_key )
@@ -70,7 +70,7 @@ def FormEditionParameters(formActionNoMode,theCgi):
 		print('<input type="hidden" name="edimodtype" value="' + theCgi.m_entity_type + '">')
 
 	for key in argKeys:
-		sys.stderr.write("FormEditionParameters key=%s\n"%key)
+		DEBUG("FormEditionParameters key=%s",key)
 		# These keys are processed differently.
 		if key in theCgi.m_parameters:
 			continue

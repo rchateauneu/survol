@@ -102,7 +102,7 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	dbEntityType = GetDatabaseEntityTypeFromConnection(cnxn)
 
-	sys.stderr.write("AddInfo dbEntityType=%s\n" % dbEntityType )
+	DEBUG("AddInfo dbEntityType=%s", dbEntityType )
 	if dbEntityType == "oracle":
 		# For example "XE".
 		server_name = cnxn.getinfo(pyodbc.SQL_SERVER_NAME)
@@ -115,7 +115,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		node_sqlserverdb = survol_sqlserver_dsn.MakeUri( dsnNam )
 
 		grph.add( ( node, pc.property_sqlserver_db, node_sqlserverdb ) )
-		sys.stderr.write("AddInfo dbEntityType=%s ADDING NODE\n" % dbEntityType )
+		DEBUG("AddInfo dbEntityType=%s ADDING NODE", dbEntityType )
 
 		#grph.add( ( node, pc.property_pid, lib_common.NodeLiteral(pidProc) ) )
 

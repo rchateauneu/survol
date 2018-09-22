@@ -25,12 +25,12 @@ class OutputMachineWsgi:
 
 	def Content(self):
 		str = self.m_output.getvalue()
-		sys.stderr.write("OutputMachineWsgi.Content %d\n" % len(str))
+		DEBUG("OutputMachineWsgi.Content %d", len(str))
 		return str
 
 	# extraArgs is an array of key-value tuples.
 	def HeaderWriter(self,mimeType,extraArgs= None):
-		sys.stderr.write("OutputMachineWsgi.HeaderWriter: %s\n"%mimeType)
+		DEBUG("OutputMachineWsgi.HeaderWriter: %s",mimeType)
 		status = '200 OK'
 		response_headers = [('Content-type', mimeType)]
 		self.m_start_response(status, response_headers)
@@ -40,7 +40,7 @@ class OutputMachineWsgi:
 
 def app_serve_file(pathInfo, start_response):
 	filNam = pathInfo[1:]
-	sys.stderr.write("Plain file:%s\n"%filNam)
+	DEBUG("Plain file:%s",filNam)
 	# Just serve a plain HTML file.
 	response_headers = [('Content-type', 'text/html')]
 
@@ -51,7 +51,7 @@ def app_serve_file(pathInfo, start_response):
 
 		start_response('200 OK',response_headers)
 
-		sys.stderr.write("Writing %d bytes\n" % len(fContent))
+		DEBUG("Writing %d bytes", len(fContent))
 
 		return [ fContent ]
 	except:
@@ -89,7 +89,7 @@ def application_ok(environ, start_response):
 
 	# If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
 	# then "/survol/sources_top/enumerate_CIM_LogicalDisk.py"
-	sys.stderr.write("pathInfo=%s\n"%pathInfo)
+	DEBUG("pathInfo=%s",pathInfo)
 
 	# Example: pathInfo=/survol/www/index.htm
 	if pathInfo.find("/survol/www/") >= 0:
@@ -128,14 +128,14 @@ def application_ok(environ, start_response):
 		# Tested with Python2 on Windows.
 
 		# TODO: Strange: Here, this load lib_util a second time.
-		sys.stderr.write("LOADING pathInfo=%s\n" % pathInfo)
+		DEBUG("LOADING pathInfo=%s", pathInfo)
 		the_module = importlib.import_module( pathInfo )
 
 		# TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
 		lib_util.globalOutMach = theOutMach
 
 	scriptNam=os.environ['SCRIPT_NAME']
-	sys.stderr.write("scriptNam1=%s\n"%scriptNam)
+	DEBUG("scriptNam1=%s",scriptNam)
 
 	the_module.Main()
 	sys.stderr.write("After Main\n")
@@ -152,7 +152,7 @@ def application(environ, start_response):
 		import lib_util
 
 		exc = sys.exc_info()
-		sys.stderr.write("application CAUGHT:%s\n"%str(exc))
+		WARNING("application CAUGHT:%s",str(exc))
 		return [ lib_util.globalOutMach.Content() ]
 
 port_number_default = 9000
@@ -271,7 +271,7 @@ def RunWsgiServer():
 
 	sys.path.append("survol")
 	# sys.path.append("survol/revlib")
-	sys.stderr.write("path=%s\n"% str(sys.path))
+	DEBUG("path=%s", str(sys.path))
 
 	# This expects that environment variables are propagated to subprocesses.
 	os.environ["SURVOL_SERVER_NAME"] = server_name

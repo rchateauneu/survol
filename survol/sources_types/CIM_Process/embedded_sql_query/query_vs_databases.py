@@ -54,7 +54,7 @@ def Main():
 
 			# Now transforms the list of tables or views into nodes for this database.
 			if not moduleDbType:
-				sys.stderr.write("No module for namDbType=%s\n"%namDbType)
+				DEBUG("No module for namDbType=%s",namDbType)
 				continue
 
 			try:
@@ -65,7 +65,7 @@ def Main():
 			except AttributeError:
 				exc = sys.exc_info()[1]
 				# Maybe the function is not defined in this module or other error.
-				sys.stderr.write("Caught: %s\n"%str())
+				DEBUG("Caught: %s",str(exc))
 				continue
 
 			if not dbTp_envParams:
@@ -76,7 +76,7 @@ def Main():
 			moduleQueryEntity = lib_util.GetEntityModule(queryEntity)
 			if not moduleQueryEntity:
 				# Should not happen, otherwise how can we get the parameters for this ?
-				sys.stderr.write("queryEntity=%s. No module\n"%queryEntity)
+				DEBUG("queryEntity=%s. No module",queryEntity)
 				continue
 
 			listArgs = dbTp_envParams[1]

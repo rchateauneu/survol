@@ -58,7 +58,7 @@ def Main():
 
 	procNode = lib_common.gUriGen.PidUri( the_pid )
 
-	sys.stderr.write("Starting cdb_cmd=%s\n" % cdb_cmd )
+	DEBUG("Starting cdb_cmd=%s", cdb_cmd )
 	try:
 		cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
 	except WindowsError:

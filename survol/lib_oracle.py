@@ -50,7 +50,7 @@ def OracleConnectionClose(conn):
 		exc = sys.exc_info()[1]
 		errMsg = str(exc)
 		if errMsg.find("connection cannot be closed when open statements") >= 0:
-			sys.stderr.write("OracleConnectionClose LOBs exist: exception:%s.\n" % (errMsg))
+			WARNING("OracleConnectionClose LOBs exist: exception:%s.", errMsg)
 			pass
 		else:
 			lib_common.ErrorMessageHtml("OracleConnectionClose caught:%s."% ( errMsg ) )
@@ -60,7 +60,7 @@ def ExecuteQueryThrow(conn_str,sql_query):
 	conn = GetOraConnect(conn_str)
 	aCursor = conn.cursor()
 
-	sys.stderr.write("ExecuteQuery %s\n" % sql_query)
+	DEBUG("ExecuteQuery %s", sql_query)
 
 	ExecuteSafeQuery(aCursor,sql_query)
 	try:

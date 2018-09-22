@@ -65,7 +65,7 @@ def Main():
 	grph.add( ( hostNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
 
 	for sessInfo in cursorMysql:
-		sys.stderr.write("sessInfo=%s\n"%str(sessInfo))
+		DEBUG("sessInfo=%s",str(sessInfo))
 
 		mysqlSessionId = sessInfo[0]
 		mysqlUser = sessInfo[1]

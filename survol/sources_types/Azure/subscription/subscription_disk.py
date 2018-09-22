@@ -56,7 +56,7 @@ def Main():
 		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
 
 	for dsk in lstDisks:
-		sys.stderr.write("dsk=%s\n"%str(dir(dsk)))
+		DEBUG("dsk=%s",str(dir(dsk)))
 		nodeDisk = disk.MakeUri( dsk.name, subscriptionName )
 		grph.add( ( subscriptionNode, propDisk, nodeDisk ) )
 		grph.add( ( nodeDisk, lib_common.MakeProp("Size"), lib_common.NodeLiteral(dsk.logical_disk_size_in_gb )) )
@@ -78,7 +78,7 @@ def Main():
 
 		grph.add( ( nodeDisk, lib_common.NodeLiteral("Label"), lib_common.NodeLiteral(dsk.label)) )
 		# grph.add( ( nodeDisk, lib_common.MakeProp("Affinity group"), lib_common.NodeLiteral("dsk.affinity_group")) )
-		sys.stderr.write("dsk.attached_to=%s\n"%str(dir(dsk.attached_to)))
+		DEBUG("dsk.attached_to=%s",str(dir(dsk.attached_to)))
 
 		nodeLocation = location.MakeUri( dsk.location, subscriptionName )
 		grph.add( ( nodeDisk, propDiskLocation, nodeLocation ) )

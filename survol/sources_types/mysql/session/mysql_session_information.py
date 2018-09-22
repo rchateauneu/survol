@@ -67,7 +67,7 @@ def Main():
 
 	# There should be one row only.
 	for sessInfo in cursorMysql:
-		sys.stderr.write("sessInfo=%s\n"%str(sessInfo))
+		DEBUG("sessInfo=%s",str(sessInfo))
 
 		mysqlSessionId = sessInfo[0]
 		mysqlUser = sessInfo[1]

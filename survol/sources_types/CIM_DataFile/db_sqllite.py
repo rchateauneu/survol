@@ -21,7 +21,7 @@ def Main():
 
 	dbFilNam = cgiEnv.GetId()
 
-	sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
+	DEBUG("dbFilNam=%s",dbFilNam)
 
 	grph = cgiEnv.GetGraph()
 

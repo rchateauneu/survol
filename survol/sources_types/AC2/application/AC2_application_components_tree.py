@@ -60,7 +60,7 @@ def DisplayComponentsTree(grph,configName,ac2App):
 
 		for elt_app in elt_apps.getElementsByTagName('app'):
 			attr_name = elt_app.getAttributeNode('name').value
-			sys.stderr.write("attr_name=%s\n"%attr_name)
+			DEBUG("attr_name=%s",attr_name)
 
 			if attr_name != ac2App:
 				continue
@@ -73,14 +73,14 @@ def DisplayComponentsTree(grph,configName,ac2App):
 				attr_component_name = elt_component.getAttributeNode('name').value
 				nodeComponent = ComponentNameToNode(configName,attr_name,attr_component_name)
 
-				sys.stderr.write("attr_component_name=%s\n"%attr_component_name)
+				DEBUG("attr_component_name=%s",attr_component_name)
 
 				AC2_component.DecorateComponentWithXml(grph,nodeComponent,elt_component)
 
 				fatherFound = False
 				for elt_father in elt_component.getElementsByTagName('father'):
 					attr_father_name = elt_father.firstChild.nodeValue
-					sys.stderr.write("attr_father_name=%s\n"%attr_father_name)
+					DEBUG("attr_father_name=%s",attr_father_name)
 					nodeFather = ComponentNameToNode(configName,attr_name,attr_father_name)
 
 					grph.add( ( nodeFather, AC2.propParent, nodeComponent ) )

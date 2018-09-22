@@ -27,7 +27,7 @@ def Main():
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"
 	sql_query = "select owner,name,type from all_dependencies where REFERENCED_TYPE = 'PACKAGE BODY' AND REFERENCED_NAME = '"\
 				+ oraPackageBody + "' and referenced_owner='" + oraSchema + "'"
-	sys.stderr.write("sql_query=%s\n" % sql_query )
+	DEBUG("sql_query=%s", sql_query )
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	for row in result:
@@ -35,7 +35,7 @@ def Main():
 
 	sql_query_inv = "select referenced_owner,referenced_name,referenced_type from all_dependencies where type='PACKAGE BODY' and NAME = '"\
 					+ oraPackageBody + "' and OWNER='" + oraSchema + "'"
-	sys.stderr.write("sql_query_inv=%s\n" % sql_query_inv )
+	DEBUG("sql_query_inv=%s", sql_query_inv )
 	result_inv = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query_inv)
 
 	for row in result_inv:

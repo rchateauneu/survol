@@ -12,13 +12,13 @@ def CredFilNam():
 	try:
 		return os.environ["HOME"] + "/" + filNamOnly
 	except KeyError:
-		lib_util.Logger().warning("HOME not defined")
+		WARNING("HOME not defined")
 		pass
 
 	try:
 		return os.environ["HOMEPATH"] + "\\" + filNamOnly
 	except KeyError:
-		lib_util.Logger().warning("HOMEPATH not defined")
+		WARNING("HOMEPATH not defined")
 		pass
 
 	dirNam = lib_util.gblTopScripts
@@ -40,7 +40,7 @@ def BuildCredDocument():
 
 		return upperCredentials
 	except Exception:
-		lib_util.Logger().warning("BuildCredDocument no credentials: %s", str(sys.exc_info()))
+		WARNING("BuildCredDocument no credentials: %s", str(sys.exc_info()))
 		return dict()
 
 def CredDocument():
@@ -57,13 +57,13 @@ def GetCredentials( credType, credName ):
 	if credName is None:
 		credName = ""
 	credentials = CredDocument()
-	lib_util.Logger().debug("GetCredentials credType=%s credName=%s credentials=%d elements",credType,credName,len(credentials))
+	DEBUG("GetCredentials credType=%s credName=%s credentials=%d elements",credType,credName,len(credentials))
 	try:
 		if not credentials:
 			return ('','')
 		arrType = credentials[credType]
 	except KeyError:
-		lib_util.Logger().warning("GetCredentials Invalid type credType=%s credName=%s",credType,credName)
+		WARNING("GetCredentials Invalid type credType=%s credName=%s",credType,credName)
 		return None
 
 	# Try first without converting.
@@ -85,7 +85,7 @@ def GetCredentials( credType, credName ):
 		# sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
 		return cred
 	except KeyError:
-		lib_util.Logger().warning("GetCredentials Unknown name credType=%s credName=%s",credType,credName)
+		WARNING("GetCredentials Unknown name credType=%s credName=%s",credType,credName)
 		return ('','')
 
 # For example, if "credType" == "Oracle", it will returned all databases defined in the credentials file.
@@ -96,7 +96,7 @@ def GetCredentialsNames( credType ):
 		arrType = credDict[credType]
 		return arrType.keys()
 	except KeyError:
-		lib_util.Logger().error("GetCredentials Invalid type credType=%s",credType)
+		ERROR("GetCredentials Invalid type credType=%s",credType)
 		return []
 
 def GetCredentialsTypes():
@@ -105,7 +105,7 @@ def GetCredentialsTypes():
 		credDict = CredDocument()
 		return credDict.keys()
 	except KeyError:
-		lib_util.Logger().error("GetCredentials Invalid document")
+		ERROR("GetCredentials Invalid document")
 		return None
 
 def DumpToFile(credDict):

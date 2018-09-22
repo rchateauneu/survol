@@ -26,7 +26,7 @@ def Main():
 	serviceHost = cgiEnv.GetHost()
 	grph = cgiEnv.GetGraph()
 
-	sys.stderr.write("serviceName=%s\n" % ( serviceName ) )
+	DEBUG("serviceName=%s", serviceName )
 
 	# Unfortunately we build the complete network for just one service.
 	dictServiceMap = Win32_Service.BuildSrvNetwork( serviceHost )

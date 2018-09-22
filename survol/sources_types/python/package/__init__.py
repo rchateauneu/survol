@@ -140,7 +140,7 @@ def AddInfoFromImport(grph,packageNode,packageKey):
 
 def AddInfo(grph,node,entity_ids_arr):
 	packageKey = entity_ids_arr[0]
-	sys.stderr.write("AddInfo packageKey=%s\n"%packageKey)
+	DEBUG("AddInfo packageKey=%s",packageKey)
 
 	AddInfoFromPip(grph,node,packageKey)
 
@@ -207,7 +207,7 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 
 			if len(splitNam) == 1:
 				grph.add( ( node, propPythonPackage, moduNod ) )
-				sys.stderr.write("No parent: moduNam=%s\n"%(moduNam))
+				DEBUG("No parent: moduNam=%s",(moduNam))
 			else:
 				parentModuNam = ".".join(splitNam[:-1])
 				parentModuNod = GetModuNode(parentModuNam)

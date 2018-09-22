@@ -128,7 +128,7 @@ def CopyToOut(logfil,svg_out_filnam,out_dest):
 # but anyway it needs to have graphviz already installed.
 # Also, creating an intermediary files helps debugging.
 def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
-	lib_util.Logger().debug("viztype=%s",viztype)
+	DEBUG("viztype=%s",viztype)
 	tmpSvgFil = TmpFile("Dot2Svg","svg")
 	svg_out_filnam = tmpSvgFil.Name
 	# dot -Kneato
@@ -154,7 +154,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	svg_command = [ dot_path,"-K",viztype,"-Tsvg",dot_filnam_after,"-o",svg_out_filnam, \
 		"-v","-Goverlap=false" ] + dotFonts
 	msg = "svg_command=" + " ".join(svg_command)
-	lib_util.Logger().debug(msg)
+	DEBUG(msg)
 	logfil.write(TimeStamp()+" "+msg+"\n")
 
 	ret = subprocess.call( svg_command, stdout=logfil, stderr=logfil, shell=False )
@@ -193,7 +193,7 @@ def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterize
 		logfil = open(tmpLogFil.Name,"w")
 	except:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("Grph2Svg caught %s when opening:%s\n"%(str(exc),tmpLogFil.Name))
+		ERROR("Grph2Svg caught %s when opening:%s",str(exc),tmpLogFil.Name)
 		ErrorMessageHtml("Grph2Svg caught %s when opening:%s\n"%(str(exc),tmpLogFil.Name))
 
 	logfil.write( "Starting logging\n" )
@@ -296,7 +296,7 @@ def GetCallingModuleDoc():
 			return theDoc
 		except:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("GetCallingModuleDoc Caught when getting doc:%s\n"%str(exc))
+			WARNING("GetCallingModuleDoc Caught when getting doc:%s",str(exc))
 			return "Caught when getting doc:"+str(exc)
 	else:
 		try:
@@ -360,7 +360,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 			cgiParamLinks.update(theCgiEnv.m_parameterized_links)
 		except ValueError:
 			errorMsg = sys.exc_info()[1]
-			sys.stderr.write("Error:%s Parameters:%s\n"%(errorMsg,str(theCgiEnv.m_parameters)))
+			WARNING("Error:%s Parameters:%s",errorMsg,str(theCgiEnv.m_parameters))
 
 	# Eliminate duplicates in the list of collapsed properties.
 	myList = layoutParams['collapsed_properties']
@@ -424,7 +424,7 @@ class CgiEnv():
 		# Title page contains __doc__ plus object label.
 		callingUrl = lib_util.RequestUri()
 		self.m_calling_url = callingUrl
-		sys.stderr.write("CgiEnv m_page_title=%s m_calling_url=%s\n"%(self.m_page_title,self.m_calling_url))
+		DEBUG("CgiEnv m_page_title=%s m_calling_url=%s",self.m_page_title,self.m_calling_url)
 		#sys.stderr.write("CgiEnv lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
 		parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False,force_entity_ip_addr=None)
 		if parsedEntityUri[2]:
@@ -538,7 +538,7 @@ class CgiEnv():
 		import lib_edition_parameters
 
 		formAction = os.environ['SCRIPT_NAME']
-		sys.stderr.write("EditionMode formAction=%s\n"%formAction)
+		DEBUG("EditionMode formAction=%s",formAction)
 
 		# It uses the same CSS as in HTML mode.
 		lib_export_html.DisplayHtmlTextHeader(self.m_page_title+" - parameters")
@@ -579,7 +579,7 @@ class CgiEnv():
 			paramVal = self.m_arguments[paramkey].value
 			#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
-			lib_util.Logger().warning("GetParameters paramkey='%s' not as CGI", paramkey )
+			WARNING("GetParameters paramkey='%s' not as CGI", paramkey )
 			hasArgValue = False
 
 		# Now converts it to the type of the default value. Otherwise untouched.
@@ -600,17 +600,17 @@ class CgiEnv():
 					# Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
 					# Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
 					self.m_parameters[paramkey] = paramVal
-					lib_util.Logger().warning("GetParameters paramkey='%s' set to FALSE", paramkey )
+					WARNING("GetParameters paramkey='%s' set to FALSE", paramkey )
 				except KeyError:
 					paramVal = dfltValue
-					lib_util.Logger().warning("GetParameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
+					WARNING("GetParameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
 		else:
 			if not hasArgValue:
 				#sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
 				# lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
 				paramVal = ""
 			else:
-				sys.stderr.write("GetParameters nothing for paramkey='%s'\n" % ( paramkey ))
+				DEBUG("GetParameters nothing for paramkey='%s'", ( paramkey ))
 
 		# TODO: Beware, empty strings are NOT send by the HTML form,
 		# TODO: so an empty string must be equal to the default value.
@@ -622,14 +622,14 @@ class CgiEnv():
 	# the value of an unique key-value pair.
 	# If this class is not in DMTF, we might need some sort of data dictionary.
 	def GetId(self):
-		lib_util.Logger().debug("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str( self.m_entity_id ) )
+		DEBUG("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str( self.m_entity_id ) )
 		try:
 			# If this is a top-level url, no object type, therefore no id.
 			if self.m_entity_type == "":
 				return ""
 
 			splitKV = lib_util.SplitMoniker(self.m_entity_id)
-			lib_util.Logger().debug("GetId splitKV=%s", str( splitKV ) )
+			DEBUG("GetId splitKV=%s", str( splitKV ) )
 
 			# If this class is defined in our ontology, then we know the first property.
 			entOnto = lib_util.OntologyClassKeys(self.m_entity_type)
@@ -671,7 +671,7 @@ class CgiEnv():
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 		global globalCgiEnvList
 		#sys.stderr.write("OutCgiRdf lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
-		lib_util.Logger().debug("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",globalMergeMode,self.m_calling_url,self.m_page_title)
+		DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",globalMergeMode,self.m_calling_url, self.m_page_title.replace("\n","<NL>") )
 
 		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
@@ -715,7 +715,7 @@ class CgiEnv():
 				ErrorMessageHtml("Parameter %s should be defined for a link"%paramKey)
 			prmsCopy[paramKey] = paramsMap[paramKey]
 
-		sys.stderr.write("prmsCopy=%s\n"%str(prmsCopy))
+		DEBUG("prmsCopy=%s",str(prmsCopy))
 
 		# Now create an URL with these updated params.
 		idxCgi = self.m_calling_url.find("?")
@@ -734,7 +734,7 @@ class CgiEnv():
 		kvPairsConcat = "&amp;amp;".join( "%s=%s" % ( paramKey,str(prmsCopy[paramKey]).replace("/","%2F")) for paramKey in prmsCopy )
 		labelledUrl += "?" + kvPairsConcat
 
-		sys.stderr.write("labelledUrl=%s\n"%labelledUrl)
+		DEBUG("labelledUrl=%s",labelledUrl)
 
 
 		self.m_parameterized_links[urlLabel] = labelledUrl
@@ -810,7 +810,7 @@ def ErrorMessageEnable(flag):
 	globalErrorMessageEnabled = flag
 
 def ErrorMessageHtml(message):
-	lib_util.Logger().error("ErrorMessageHtml globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
+	ERROR("ErrorMessageHtml globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 
 	if globalErrorMessageEnabled:
 		# If we are in Json mode, this returns a special json document with the error message.
@@ -824,13 +824,13 @@ def ErrorMessageHtml(message):
 		except KeyError:
 			pass
 
-		lib_util.Logger().error("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
+		ERROR("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 		lib_util.InfoMessageHtml(message)
-		lib_util.Logger().error("ErrorMessageHtml about to leave")
+		ERROR("ErrorMessageHtml about to leave")
 		sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
-		lib_util.Logger().error("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
+		ERROR("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 		# It might be displayed in a HTML document.
 		messageClean = cgi.escape(message)
 		raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)
@@ -930,14 +930,14 @@ class TmpFile:
 			return
 
 		self.Name = "%s/%s.%d.%s" % ( currDir, prefix, procPid, suffix )
-		lib_util.Logger().debug("tmp=%s", self.Name )
+		DEBUG("tmp=%s", self.Name )
 
 	def DbgDelFil(self,filNam):
 		if True:
-			lib_util.Logger().debug("Deleting=%s",filNam)
+			DEBUG("Deleting=%s",filNam)
 			os.remove(filNam)
 		else:
-			lib_util.Logger().debug("NOT Deleting=%s",filNam)
+			DEBUG("NOT Deleting=%s",filNam)
 
 	def __del__(self):
 		try:
@@ -945,7 +945,7 @@ class TmpFile:
 				self.DbgDelFil(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
-				lib_util.Logger().info("About to NOT del %s", self.TmpDirToDel )
+				INFO("About to NOT del %s", self.TmpDirToDel )
 				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
 					for name in files:
 						self.DbgDelFil(os.path.join(root, name))
@@ -955,7 +955,7 @@ class TmpFile:
 
 		except Exception:
 			exc = sys.exc_info()[1]
-			lib_util.Logger().error("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name) )
+			ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name) )
 		return
 
 

@@ -121,7 +121,7 @@ def Main():
 	# Just in case there would be several "script" elements but we expect only one.
 	for aScript in dom.getElementsByTagName('script'):
 		anOutput = aScript.getAttributeNode('output').value.strip()
-		sys.stderr.write("anOutput=%s\n"%str(anOutput))
+		DEBUG("anOutput=%s",str(anOutput))
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
 		sys.stderr.write("arrSplit=%s\n"%str(arrSplit))
@@ -142,7 +142,7 @@ def Main():
 			else:
 				# TODO: Should translate the IP address into the machine name.
 				machIp = oneSplit[0]
-				sys.stderr.write("machIp=%s\n"%machIp)
+				DEBUG("machIp=%s",machIp)
 				try:
 					machName = socket.gethostbyaddr(machIp)[0]
 					nodeHost = lib_common.gUriGen.HostnameUri( machName )

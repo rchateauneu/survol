@@ -41,12 +41,12 @@ def Main():
 
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"
 	sql_query = "select SID,STATUS,USERNAME,SERVER,SCHEMANAME,COMMAND,MACHINE,PORT,OSUSER,PROCESS,SERVICE_NAME,ACTION from V$SESSION where SID='%s'" % oraSession
-	sys.stderr.write("sql_query=%s\n" % sql_query )
+	DEBUG("sql_query=%s", sql_query )
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	# There should be only one.
 	for row in result:
-		sys.stderr.write("SID=%s\n" % row[0] )
+		DEBUG("SID=%s", row[0] )
 
 		grph.add( ( node_oraSession, lib_common.MakeProp("Status"), lib_common.NodeLiteral(row[1]) ) )
 		grph.add( ( node_oraSession, lib_common.MakeProp("Username"), lib_common.NodeLiteral(row[2]) ) )

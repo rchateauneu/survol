@@ -71,7 +71,7 @@ def PyFilNode(proc_obj,filNam,ignoreEnvs):
         # Check if the file exists in the current directory.
         currPwd,errMsg = CIM_Process.PsutilProcCwd(proc_obj)
         if not currPwd:
-            sys.stderr.write("PyFilNode: %s\n"%errMsg)
+            DEBUG("PyFilNode: %s",errMsg)
             return None
 
         allDirsToSearch = [ currPwd ]
@@ -109,12 +109,12 @@ def Main():
     # Now we are parsing the command line.
     cmd_line = CIM_Process.PsutilProcToCmdline(proc_obj)
 
-    sys.stderr.write("cmd_line=%s\n"%str(cmd_line))
+    DEBUG("cmd_line=%s",str(cmd_line))
 
     # Similar to split, but ignores white spaces in double quotes.
     argvArray = re.findall(r'(?:[^\s "]|"(?:\\.|[^"])*")+', cmd_line )
 
-    sys.stderr.write("argvArray=%s\n"%str(argvArray))
+    DEBUG("argvArray=%s",str(argvArray))
 
     argvArgs = " ".join( argvArray[1:] )
 
@@ -133,7 +133,7 @@ def Main():
         if filNode:
             grph.add( ( node_process, pc.property_runs, filNode ) )
 
-        sys.stderr.write("filNam=%s\n"%filNam)
+        DEBUG("filNam=%s",filNam)
 
     cgiEnv.OutCgiRdf()
 

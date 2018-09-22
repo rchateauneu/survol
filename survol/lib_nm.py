@@ -10,7 +10,7 @@ import lib_common
 def GetSymbols(fileSharedLib):
 
 	if os.path.isfile(fileSharedLib):
-		sys.stderr.write("File %s exists\n" % fileSharedLib)
+		DEBUG("File %s exists", fileSharedLib)
 	else:
 		lib_common.ErrorMessageHtml("File %s does not exist" % fileSharedLib)
 

@@ -58,7 +58,7 @@ def GetAggregDsns(pidint,mapRgx):
 		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + mapRgx[key] + " *" for key in mapRgx ])
 		# This works also. Both are very slow.
 		# rgxDSN = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
-		sys.stderr.write("rgxDSN=%s\n"%rgxDSN)
+		DEBUG("rgxDSN=%s",rgxDSN)
 
 
 		# TODO: OPTIONALLY ADD NON-ASCII CHAR AT THE VERY BEGINNING. SLIGHTLY SAFER AND FASTER.
@@ -75,7 +75,7 @@ def GetAggregDsns(pidint,mapRgx):
 		for matchedOffset in resuMatches:
 			matchedStr = resuMatches[matchedOffset]
 			dsnToken = str(matchedOffset) + " = " + matchedStr + " = " + str(matchedOffset + len(matchedStr))
-			sys.stderr.write("dsnODBC=%s\n"%dsnToken)
+			DEBUG("dsnODBC=%s",dsnToken)
 
 		sortedKeys = sorted(resuMatches.keys())
 		aggregDsns = dict()

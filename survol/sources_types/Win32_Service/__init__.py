@@ -54,7 +54,7 @@ def BuildSrvDict( hscm, machineName ):
 		statuses = win32service.EnumServicesStatus(hscm, typeFilter, stateFilter)
 		# li=('wuauserv', 'Windows Update', (32, 4, 453, 0, 0, 0, 0))
 		for svc in statuses:
-			sys.stderr.write("service=%s\n" % str(svc) )
+			DEBUG("service=%s", str(svc) )
 			# TODO: This must match the keys of EnumServicesStatusEx
 			# lst = { "ServiceName":serviceName, "DisplayName":descript, "CurrentState": status}
 			lst = { "ServiceName":svc[0], "DisplayName":svc[1], "CurrentState": svc[2][1]}
@@ -177,7 +177,7 @@ def DictServiceToNode( grph, serviceDict, machineName = None ):
 
 
 def FullServiceNetwork(grph,machineName):
-	sys.stderr.write("FullServiceNetwork machineName=%s enter.\n" % str(machineName))
+	DEBUG("FullServiceNetwork machineName=%s enter.", str(machineName))
 	dictServiceToNode = {}
 	dictServiceMap = BuildSrvNetwork( machineName )
 
@@ -193,14 +193,14 @@ def FullServiceNetwork(grph,machineName):
 		for subServiceName in serviceDict["depends_in"]:
 			nodeSubService = dictServiceToNode[ subServiceName ]
 			grph.add( (nodeService, pc.property_service, nodeSubService ) )
-	sys.stderr.write("FullServiceNetwork machineName=%s leaving.\n" % str(machineName))
+	DEBUG("FullServiceNetwork machineName=%s leaving.", str(machineName))
 
 
 # Ajoute des informations variees autour du node d'un service.
 # N'a pas besoin d'etre extremement rapide.
 def AddInfo(grph,node,entity_ids_arr):
 	serviceNam = entity_ids_arr[0]
-	sys.stderr.write("AddInfo serviceNam=%s\n" % serviceNam )
+	DEBUG("AddInfo serviceNam=%s", serviceNam )
 
 	machName_or_None, imper = lib_win32.MakeImpersonate("")
 	hscm = win32service.OpenSCManager(machName_or_None, None, accessSCM)
@@ -213,7 +213,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	except Exception:
 		exc = sys.exc_info()[1]
 		# Probably "Access is denied"
-		sys.stderr.write("AddInfo Caught:%s\n" % str(exc) )
+		WARNING("AddInfo Caught:%s", str(exc) )
 		lstSrvPairs = dict()
 		try:
 			lstSrvPairs[ "Status" ] = str(exc[2])

@@ -36,7 +36,7 @@ def Main():
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
-        sys.stderr.write("Connected: %s\n" % dsnNam)
+        DEBUG("Connected: %s", dsnNam)
         cursor = cnxn.cursor()
 
         cursor.columns(table=tabNam)

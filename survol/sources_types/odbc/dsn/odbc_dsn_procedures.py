@@ -23,7 +23,7 @@ def Main():
 
     dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-    sys.stderr.write("dsn=(%s)\n" % dsnNam )
+    DEBUG("dsn=(%s)", dsnNam )
 
     nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
 
@@ -31,7 +31,7 @@ def Main():
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
-        sys.stderr.write("Connected: %s\n" % dsnNam)
+        DEBUG("Connected: %s", dsnNam)
         cursor = cnxn.cursor()
 
         # http://pyodbc.googlecode.com/git/web/docs.html
