@@ -47,11 +47,11 @@ class LocalBox:
 		lenEntIds = len(entity_id_arr)
 		if lenKeys < lenEntIds:
 			# Append fake temporary keys
-			sys.stderr.write("BuildEntity entity_type=%s Not enough keys:%s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
+			ERROR("BuildEntity entity_type=%s Not enough keys:%s and %s",entity_type,str(keys),str(entity_id_arr))
 			keys += [ "Key_%d" % idx for idx in range(lenKeys,lenEntIds) ]
 		elif lenKeys > lenEntIds:
 			# Not enough values. This is not a problem because of queries returning several objects.
-			sys.stderr.write("BuildEntity entity_type=%s Not enough values:%s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
+			ERROR("BuildEntity entity_type=%s Not enough values:%s and %s",entity_type,str(keys),str(entity_id_arr))
 			# entity_id_arr += [ "Unknown" ] * ( lenKeys - lenEntIds )
 
 		# Sorted keys
