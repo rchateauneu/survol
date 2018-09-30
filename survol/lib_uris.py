@@ -256,7 +256,7 @@ class LocalBox:
 		# The URL should never contain the chars "<" or ">".
 		symbol_name = lib_util.Base64Encode(symbol_name)
 		# TODO: Alphabetical order !!!!
-		path = path.replace("\\","/")
+		path = path.replace("\\","/") # TODO: Use normpath()
 		return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(path) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
@@ -264,7 +264,7 @@ class LocalBox:
 	def ClassUri(self,class_name, path = ""):
 		# The URL should never contain the chars "<" or ">".
 		class_name = lib_util.Base64Encode(class_name)
-		path = path.replace("\\","/")
+		path = path.replace("\\","/") # TODO: Use normpath()
 		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(path) } )
 
 	# CIM_DeviceFile is common to WMI and WBEM.
@@ -274,7 +274,7 @@ class LocalBox:
 	# XML Parsing Error: not well-formed
 	# Location: http://127.0.0.1/Survol/survol/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
 	def FileUri(self,path):
-		path = path.replace("\\","/")
+		path = path.replace("\\","/") # TODO: Use normpath()
 		return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
 
 		# TODO: Consider this might be even be more powerful.
