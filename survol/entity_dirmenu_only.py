@@ -15,8 +15,12 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+# This returns None if a module of a script is usable, otherwise an errir message which explains
+# why this script cannot be used in this context: Wrong platform, unavailable resources etc...
 # PROBLEM: When an entire directory is not Usable because the file __init__.py
 # has a function Usable which returns False, then it still displays a directory, alone.
+# Unusable scripts are not displayed in the menu of the scripts of an entity,
+# except if a special flag is given, and in this case these error messages are displayed.
 def TestUsability(importedMod,entity_type,entity_ids_arr):
 	try:
 		isUsable = importedMod.Usable(entity_type,entity_ids_arr)
@@ -28,9 +32,13 @@ def TestUsability(importedMod,entity_type,entity_ids_arr):
 		return None
 
 	errorMsg = importedMod.Usable.__doc__
-	if not errorMsg:
-		errorMsg = importedMod.__name__ + " not usable"
-		if not errorMsg:
+	if errorMsg:
+		errorMsg = errorMsg.strip()
+	else:
+		errorMsg = importedMod.__name__
+		if errorMsg:
+			errorMsg += " not usable"
+		else:
 			errorMsg = "No message"
 	return errorMsg
 
