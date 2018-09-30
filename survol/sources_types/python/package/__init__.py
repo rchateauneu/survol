@@ -123,6 +123,7 @@ def AddInfoFromImport(grph,packageNode,packageKey):
 	try:
 		txtDoc = the_module.__doc__
 		if txtDoc:
+			txtDoc = txtDoc.strip()
 			grph.add( ( packageNode, pc.property_information, lib_common.NodeLiteral(txtDoc) ) )
 	except AttributeError:
 		pass
