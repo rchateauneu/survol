@@ -26,23 +26,12 @@ import lib_client
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
 
-	# TODO: Prefix of url samples should be a parameter.
+# TODO: Prefix of url samples should be a parameter.
 
-class SurvolBasicTest(unittest.TestCase):
-
-	def test_create_source_url(self):
-		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
-		mySourceFileStatRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py",
-			"CIM_DataFile",
-			Name="C:\\Windows\\explorer.exe")
-		print("urlFileStatRemote=",mySourceFileStatRemote.Url())
-		print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
-		print("jsonFileStatRemote=",str(mySourceFileStatRemote.content_json())[:30])
-		print("rdfFileStatRemote=",str(mySourceFileStatRemote.content_rdf())[:30])
+class SurvolLocalTest(unittest.TestCase):
+	"""These tests do not need a Survol agent"""
 
 	def test_create_source_local(self):
-		# This should return the same content as test_create_source_url(), but much faster.
 		mySourceFileStatLocal = lib_client.SourceLocal(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
@@ -51,35 +40,12 @@ class SurvolBasicTest(unittest.TestCase):
 		print("jsonFileStatLocal=%s"%str(mySourceFileStatLocal.content_json())[:30])
 		print("rdfFileStatLocal=%s"%str(mySourceFileStatLocal.content_rdf())[:30])
 
-	def test_remote_triplestore(self):
-		mySourceFileStatRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py",
-			"CIM_Directory",
-			Name="C:\\Windows")
-		tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
-		print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
-
-	def test_remote_instances(self):
-		mySourceFileStatRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/entity.py",
-			"python/package",
-			Id="rdflib")
-		tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
-		print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
-
-		instancesFileStatRemote = tripleFileStatRemote.GetInstances()
-		print("Len instancesFileStatRemote=",len(instancesFileStatRemote))
-		lenInstances = len(instancesFileStatRemote)
-		print("Len tripleFileStatLocal=",lenInstances)
-		# This Python module must be there because it is needed by Survol.
-		self.assertTrue(lenInstances>=1)
-
 	def test_local_triplestore(self):
 		mySourceFileStatLocal = lib_client.SourceLocal(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
-		tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
+		tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
 		print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
 
 	def test_local_instances(self):
@@ -91,7 +57,7 @@ class SurvolBasicTest(unittest.TestCase):
 		import lib_common
 		lib_common.globalErrorMessageEnabled = False
 
-		tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
+		tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
 		print("Len tripleFileStatLocal=",len(tripleFileStatLocal))
 
 		# Typical output:
@@ -118,37 +84,39 @@ class SurvolBasicTest(unittest.TestCase):
 		content1 = mySource1.content_json()
 		print( "content1=",str(content1.keys()))
 
-	def test_merge_add(self):
+	def test_merge_add_local(self):
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
 			DeviceID="D:")
-		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
+		mySource2 = lib_client.SourceLocal(
+			"sources_types/win32/enumerate_Win32_Product.py")
 
 		mySrcMergePlus = mySource1 + mySource2
 		print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
-		triplePlus = mySrcMergePlus.get_triplestore()
+		triplePlus = mySrcMergePlus.GetTriplestore()
 		print("Len triplePlus:",len(triplePlus))
 
-		lenSource1 = len(mySource1.get_triplestore().GetInstances())
-		lenSource2 = len(mySource2.get_triplestore().GetInstances())
+		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
+		lenSource2 = len(mySource2.GetTriplestore().GetInstances())
 		lenPlus = len(triplePlus.GetInstances())
 		# In the merged link, there cannot be more instances than in the input sources.
 		self.assertTrue(lenPlus <= lenSource1 + lenSource2)
 
-	def test_merge_sub(self):
+	def test_merge_sub_local(self):
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
 			DeviceID="D:")
-		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py")
+		mySource2 = lib_client.SourceLocal(
+			"sources_types/win32/win32_local_groups.py")
 
 		mySrcMergeMinus = mySource1 - mySource2
 		print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
-		tripleMinus = mySrcMergeMinus.get_triplestore()
+		tripleMinus = mySrcMergeMinus.GetTriplestore()
 		print("Len tripleMinus:",len(tripleMinus))
 
-		lenSource1 = len(mySource1.get_triplestore().GetInstances())
+		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
 		lenMinus = len(tripleMinus.GetInstances())
 		# There cannot be more instances after removal.
 		self.assertTrue(lenMinus	 <= lenSource1 )
@@ -159,17 +127,17 @@ class SurvolBasicTest(unittest.TestCase):
 			"Win32_UserAccount",
 			Domain="rchateau-hp",
 			Name="rchateau")
-		tripleDupl = mySourceDupl.get_triplestore()
+		tripleDupl = mySourceDupl.GetTriplestore()
 		print("Len tripleDupl=",len(tripleDupl.GetInstances()))
 
 		mySrcMergePlus = mySourceDupl + mySourceDupl
-		triplePlus = mySrcMergePlus.get_triplestore()
+		triplePlus = mySrcMergePlus.GetTriplestore()
 		print("Len triplePlus=",len(triplePlus.GetInstances()))
 		# No added node.
 		self.assertEqual(len(triplePlus.GetInstances()), len(tripleDupl.GetInstances()))
 
 		mySrcMergeMinus = mySourceDupl - mySourceDupl
-		tripleMinus = mySrcMergeMinus.get_triplestore()
+		tripleMinus = mySrcMergeMinus.GetTriplestore()
 		print("Len tripleMinus=",len(tripleMinus.GetInstances()))
 		self.assertEqual(len(tripleMinus.GetInstances()), 0)
 
@@ -182,7 +150,7 @@ class SurvolBasicTest(unittest.TestCase):
 			"xxx/yyy/zzz.py",
 			"this-will-raise-an-exception")
 		try:
-			tripleBad = mySourceBad.get_triplestore()
+			tripleBad = mySourceBad.GetTriplestore()
 		except Exception as exc:
 			print("Error detected:",exc)
 
@@ -190,21 +158,38 @@ class SurvolBasicTest(unittest.TestCase):
 			"http://rchateau-hp:8000/xxx/yyy/zzz/ttt.py",
 			"wwwww")
 		try:
-			tripleBroken = mySourceBroken.get_triplestore()
+			tripleBroken = mySourceBroken.GetTriplestore()
 			excRaised = False
 		except Exception as exc:
 			excRaised = True
 		self.assertTrue(excRaised)
 
 	def test_instance_filter(self):
-		pass
 		# Filter from a triple store by creating a mask like:
 		# inst = lib_client.CMI_DataFile
+		print("TODO: Not implemented yet")
+
+
+	def test_sparql(self):
+		# https://en.wikipedia.org/wiki/SPARQL
+		# PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+		# SELECT ?name
+		# 	   ?email
+		# WHERE
+		#   {
+		# 	?person  a          foaf:Person .
+		# 	?person  foaf:name  ?name .
+		# 	?person  foaf:mbox  ?email .
+		#   }
+		#
+		# TODO: Use rdflib implementation:
+		# https://rdflib.readthedocs.io/en/3.4.0/intro_to_sparql.html
+		print("TODO: Not implemented yet")
 
 	def test_wql(self):
-		pass
 		# SELECT * FROM meta_class WHERE NOT __class < "win32"="" and="" not="" __this="" isa="">
 		# "Select * from win32_Process where name like '[H-N]otepad.exe'"
+		print("TODO: Not implemented yet")
 
 	def test_local_scripts_list_Win32_UserAccount(self):
 		"""This returns all scripts accessible from the user account "rchateau"."""
@@ -248,27 +233,6 @@ class SurvolBasicTest(unittest.TestCase):
 			excRaised = True
 		self.assertTrue(excRaised)
 
-	def test_remote_scripts_list_CIM_LogicalDisk(self):
-		# myInstancesRemote = lib_client.Agent("http://rchateau-hp:8000").CIM_LogicalDisk(DeviceID="D:")
-		myAgent = lib_client.Agent("http://rchateau-hp:8000")
-
-		myInstancesRemote = myAgent.CIM_LogicalDisk(DeviceID="D:")
-		listScripts = myInstancesRemote.GetScripts()
-		# No scripts yet.
-		self.assertTrue(len(listScripts) == 0)
-
-
-	def test_remote_scripts_list_CIM_Directory(self):
-		# myInstancesRemote = lib_client.Agent("http://rchateau-hp:8000").CIM_Directory(Name="D:")
-		myAgent = lib_client.Agent("http://rchateau-hp:8000")
-
-		myInstancesRemote = myAgent.CIM_Directory(Name="D:")
-		listScripts = myInstancesRemote.GetScripts()
-		for keyScript in listScripts:
-			sys.stdout.write("    %s\n"%keyScript)
-		# There should be at least a couple of scripts.
-		self.assertTrue(len(listScripts) > 0)
-
 	def test_local_scripts_from_local_source(self):
 		"""This loads the scripts of instances displayed by an initial script"""
 
@@ -276,7 +240,7 @@ class SurvolBasicTest(unittest.TestCase):
 		mySourceTopLevelLocal = lib_client.SourceLocal(
 			"sources_types/win32/win32_local_groups.py")
 
-		tripleTopLevelLocal = mySourceTopLevelLocal.get_triplestore()
+		tripleTopLevelLocal = mySourceTopLevelLocal.GetTriplestore()
 		instancesTopLevelLocal = tripleTopLevelLocal.GetInstances()
 
 		for oneInst in instancesTopLevelLocal:
@@ -299,6 +263,8 @@ class SurvolBasicTest(unittest.TestCase):
 		# There should be at least a couple of scripts.
 		self.assertTrue(len(listScripts) > 0)
 
+	# TODO: This has to find a path in nodes which are not enumerated yet.
+	# The difficulty is to find which scripts might find a link between the two nodes.
 	def test_search_local_instance(self):
 		"""This loads instances connected to an instance by every known script"""
 
@@ -309,7 +275,151 @@ class SurvolBasicTest(unittest.TestCase):
 		myInstanceDestination = lib_client.Agent().CIM_DataFile(
 			Name="C:\\Windows\\explorer.exe")
 
-		listSteps = myInstanceOrigin.FindPathToInstance(myInstanceDestination)
+		listSteps = myInstanceOrigin.FindPathToInstance(myInstanceDestination,maxDepth=2)
+
+	def test_search_local_string(self):
+		"""This loads instances connected to an instance by every known script"""
+
+		# The service "PlugPlay" should be available on all Windows machines.
+		myInstanceOrigin = lib_client.Agent().CIM_Directory(
+			Name="C:/Windows")
+
+		mySearchString = "Hello"
+
+		listSteps = myInstanceOrigin.FindStringFromNeighbour(mySearchString,maxDepth=3)
+
+
+class SurvolRemoteTest(unittest.TestCase):
+	"""Test involving remote Survol agents"""
+
+	def test_create_source_url(self):
+		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
+		mySourceFileStatRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py",
+			"CIM_DataFile",
+			Name="C:\\Windows\\explorer.exe")
+		print("urlFileStatRemote=",mySourceFileStatRemote.Url())
+		print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
+		print("jsonFileStatRemote=",str(mySourceFileStatRemote.content_json())[:30])
+		print("rdfFileStatRemote=",str(mySourceFileStatRemote.content_rdf())[:30])
+
+	def test_remote_triplestore(self):
+		mySourceFileStatRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py",
+			"CIM_Directory",
+			Name="C:\\Windows")
+		tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+		print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+		# This should not be empty.
+		self.assertTrue(len(tripleFileStatRemote)>=1)
+
+	def test_remote_instances_python_package(self):
+		"""This loads a specific Python package"""
+		mySourcePythonPackageRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/entity.py",
+			"python/package",
+			Id="rdflib")
+		triplePythonPackageRemote = mySourcePythonPackageRemote.GetTriplestore()
+		print("Len triplePythonPackageRemote=",len(triplePythonPackageRemote))
+
+		instancesPythonPackageRemote = triplePythonPackageRemote.GetInstances()
+		print("Len instancesPythonPackageRemote=",len(instancesPythonPackageRemote))
+		lenInstances = len(instancesPythonPackageRemote)
+		print("Len triplePythonPackageRemote=",lenInstances)
+		# This Python module must be there because it is needed by Survol.
+		self.assertTrue(lenInstances>=1)
+
+	def test_remote_instances_java(self):
+		"""Loads Java processes. There should be at least Java process,
+		which is the one doing the test"""
+		mySourceJavaRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
+		tripleJavaRemote = mySourceJavaRemote.GetTriplestore()
+		print("Len tripleJavaRemote=",len(tripleJavaRemote))
+
+		instancesJavaRemote = tripleJavaRemote.GetInstances()
+		numJavaProcesses = 0
+		for oneInstance in instancesJavaRemote:
+			if oneInstance.__class__.__name__ == "CIM_Process":
+				print("Found one Java process:",oneInstance)
+				numJavaProcesses += 1
+		print("Remote Java processes=",numJavaProcesses)
+		self.assertTrue(numJavaProcesses>=1)
+
+	def test_remote_instances_arp(self):
+		"""Loads machines visible with ARP. There should be at least one CIM_ComputerSystem instance"""
+		mySourceArpRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/sources_types/neighborhood/cgi_arp_async.py")
+		tripleArpRemote = mySourceArpRemote.GetTriplestore()
+		print("Len tripleArpRemote=",len(tripleArpRemote))
+
+		instancesArpRemote = tripleArpRemote.GetInstances()
+		numComputers = 0
+		for oneInstance in instancesArpRemote:
+			if oneInstance.__class__.__name__ == "CIM_ComputerSystem":
+				print("Found one machine:",oneInstance)
+				numComputers += 1
+		print("Remote hosts number=",numComputers)
+		self.assertTrue(numComputers>=1)
+
+	def test_merge_add_mixed(self):
+		mySource1 = lib_client.SourceLocal(
+			"entity.py",
+			"CIM_LogicalDisk",
+			DeviceID="D:")
+		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/tcp_sockets_windows.py")
+
+		mySrcMergePlus = mySource1 + mySource2
+		print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
+		triplePlus = mySrcMergePlus.GetTriplestore()
+		print("Len triplePlus:",len(triplePlus))
+
+		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
+		lenSource2 = len(mySource2.GetTriplestore().GetInstances())
+		lenPlus = len(triplePlus.GetInstances())
+		# In the merged link, there cannot be more instances than in the input sources.
+		self.assertTrue(lenPlus <= lenSource1 + lenSource2)
+
+	def test_merge_sub_mixed(self):
+		mySource1 = lib_client.SourceLocal(
+			"entity.py",
+			"CIM_LogicalDisk",
+			DeviceID="D:")
+		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py")
+
+		mySrcMergeMinus = mySource1 - mySource2
+		print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
+		tripleMinus = mySrcMergeMinus.GetTriplestore()
+		print("Len tripleMinus:",len(tripleMinus))
+
+		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
+		lenMinus = len(tripleMinus.GetInstances())
+		# There cannot be more instances after removal.
+		self.assertTrue(lenMinus	 <= lenSource1 )
+
+	def test_remote_scripts_list_CIM_LogicalDisk(self):
+		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+
+		myInstancesRemote = myAgent.CIM_LogicalDisk(DeviceID="D:")
+		listScripts = myInstancesRemote.GetScripts()
+		# No scripts yet.
+		self.assertTrue(len(listScripts) == 0)
+
+	def test_remote_scripts_list_CIM_Directory(self):
+		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+
+		myInstancesRemote = myAgent.CIM_Directory(Name="D:")
+		listScripts = myInstancesRemote.GetScripts()
+		for keyScript in listScripts:
+			sys.stdout.write("    %s\n"%keyScript)
+		# There should be at least a couple of scripts.
+		self.assertTrue(len(listScripts) > 0)
+
+	def test_remote_agents(self):
+		"""This gets a list of agents accessible from the remote host,
+		then tries to access them individually"""
+		print("TODO: Not implemented yet")
+
 
 
 if __name__ == '__main__':

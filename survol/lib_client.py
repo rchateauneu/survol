@@ -5,7 +5,9 @@ cgitb.enable(format="txt")
 import os
 import sys
 import json
+import heapq
 import urllib
+import inspect
 
 import lib_util
 import lib_kbase
@@ -65,7 +67,7 @@ class SourceBase (object):
 
 	# In the general case, it gets the content in RDF format and converts it
 	# again to a triplestore. This always works if this is a remote host.
-	def get_triplestore(self):
+	def GetTriplestore(self):
 		docXmlRdf = self.get_content_moded("rdf")
 
 		grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
@@ -107,7 +109,7 @@ class SourceCgi (SourceBase):
 		return True
 
 def LoadModedUrl(urlModed):
-	# sys.stderr.write("LoadModedUrl.get_content_moded urlModed=%s\n"%urlModed)
+	DEBUG("LoadModedUrl.get_content_moded urlModed=%s",urlModed)
 	response = urlopen(urlModed)
 	data = response.read().decode("utf-8")
 	return data
@@ -197,11 +199,14 @@ class SourceLocal (SourceCgi):
 				self.m_output.close()
 				return strResult
 
-		#sys.stderr.write("__execute_script_with_mode before update=%s\n"%lib_util.globalOutMach.__class__.__name__)
+		DEBUG("__execute_script_with_mode before module=%s",modu.__name__)
 		outmachString = OutputMachineString()
 		originalOutMach = lib_util.globalOutMach
 		lib_util.globalOutMach = outmachString
-		modu.Main()
+		try:
+			modu.Main()
+		except Exception as ex:
+			ERROR("__execute_script_with_mode before module=%s: Caught:%s",modu.__name__,ex)
 
 		# Restores the original stream.
 		lib_util.globalOutMach = originalOutMach
@@ -220,7 +225,7 @@ class SourceLocal (SourceCgi):
 	# TODO: which is parsed again by rdflib into a triplestore,
 	# TODO: and then this triplestore is looped on, to extract the instances.
 	# TODO: It would be much faster to avoid this useless serialization/deserialization.
-	def get_triplestore(self):
+	def GetTriplestore(self):
 		docXmlRdf = self.get_content_moded("rdf")
 
 		grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
@@ -237,10 +242,10 @@ class SourceMerge (SourceBase):
 		self.m_operatorTripleStore = operatorTripleStore
 		super(SourceMerge, self).__init__()
 
-	def get_triplestore(self):
-		triplestoreA = self.m_srcA.get_triplestore()
+	def GetTriplestore(self):
+		triplestoreA = self.m_srcA.GetTriplestore()
 		if self.IsCgiComplete():
-			triplestoreB = self.m_srcB.get_triplestore()
+			triplestoreB = self.m_srcB.GetTriplestore()
 
 			return self.m_operatorTripleStore(triplestoreA,triplestoreB)
 
@@ -253,12 +258,12 @@ class SourceMerge (SourceBase):
 				( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
 				if entity_label == self.m_srcB.m_class:
 					urlDerived = self.m_srcB.DeriveUrl(instanceUrl)
-					triplestoreB = urlDerived.get_triplestore()
+					triplestoreB = urlDerived.GetTriplestore()
 					triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
 			return TripleStore(triplestoreA)
 
 	def get_content_moded(self,mode):
-		tripstore = self.get_triplestore()
+		tripstore = self.GetTriplestore()
 		if mode == "rdf":
 			strStrm = CreateStringStream()
 			tripstore.ToStreamXml(strStrm)
@@ -313,7 +318,7 @@ class BaseCIMClass(object):
 	def GetScriptsRemote(self):
 		# We expect a contextual menu in JSON format, not a graph.
 		urlScripts = self.m_agentUrl + "/survol/entity_dirmenu_only.py" + "?xid=" + self.__class__.__name__ + "." + self.m_entity_id + "&mode=menu"
-		#sys.stdout.write("GetScriptsRemote urlScripts=%s\n"%(urlScripts))
+		DEBUG("GetScriptsRemote self.m_agentUrl=%s urlScripts=%s",self.m_agentUrl,urlScripts)
 
 		# Typical content:
 		# {
@@ -367,64 +372,217 @@ class BaseCIMClass(object):
 		listSources = [ ScriptUrlToSource(oneScr) for oneScr in listScripts]
 		return listSources
 
-	# This is similar to a graph database.
+
+	# Survol is a graph database: https://en.wikipedia.org/wiki/Graph_database
+	# On top of this, each instance points to a scripts which can return instances,
+	# and enrich the graph database: This is necesary because the quantity of information
+	# varies at each moment, and is of infinite size.
 	# This explores the scripts of each instance, uses the A* algorithm.
-	def FindPathToInstance(self,instanceDestination):
+	def FindPathToInstance(self,instanceDestination,maxDepth):
+
+		print("TODO: %s Not implemented yet"%inspect.stack()[0][3])
 
 		# Heuristiques tres specifiques: On utilise des regles pour trier la liste.
 		# Utiliser les protections pour savoir si un process peut atteindre un fichier.
 		# Liens symboliques.
 		# Creer une espece de distance entre deux instances. Qui tient compte des hosts.
 		# Mais aussi, il faut pouvoir suggerer un script plutot qu'un autre:
-		# Si process et fichier, suggerer de chercher aussi dqns les noms de fichiers
+		# Si process et fichier, suggerer de chercher aussi dans les noms de fichiers
 		# qui apparaissent dans la memoire du process.
 
 		# chercher de A vers B mais aussi de B vers A ?
-		# Si
+
+
 
 		listSteps = []
 		return listSteps
 
-	# QUELLES AUTRES RECHERCHES SERAIENT INTERESSANTES ??
-	#FindString(jjj) avec specialisations par classe.
 
-	# Securite ?
-	# Liste des librairies dont un arbre de processes depend: Donc descente vers les sous-processes seulement.
+	def InstanceGrepFromContent(self,searchString):
+		"""This returns a list of StringOccurrenceBase derived objects.
+		It could return an iterator, if the research is very slow."""
+
+		# Each instance has a list of objects deriving from this base class,
+		# which model the occurrence of a specific string in a CIM object.
+		# Indexed by instances, possibly several occurrences, with the context.
+		# TODO: Or maybe should return a list of instances ?
+		# TODO: What can we do with a list of detected strings ?
+		# TODO: ... display them as an information snippet ? Survol does not have this concept (yet).
+		class StringOccurrenceBase:
+			def __str__(self):
+				# This is completely specific to the CIM class, for example:
+				# - CIM_DataFile: Line or offset number.
+				# - CIM_Process: Memory segment, or environment variable ?
+				# - Oracle table: Which record, which column.
+				return ""
+
+		# It is not very elegant to give a this method to BaseCIMClass when its legitimate derived classes
+		# must use a "static" function from their module.
+
+
+		entity_type = self.__class__.__name__
+		entity_module = lib_util.GetEntityModule(entity_type)
+		if entity_module:
+			try:
+				# This function searches for a string or a regular expression,
+				# and returns the occurrences as list subclasses of StringOccurrenceBase.
+				# The search mechanism is different, depending on the class: Search from a file, a database etc...
+				entity_module.ModuleGrepFromContent(entity_type, self.m_entity_id, searchString)
+			except AttributeError:
+				exc = sys.exc_info()[1]
+				INFO("No ModuleGrepFromContent for module=%s %s %s: %s", entity_module.__name__, entity_type, self.m_entity_id, str(exc) )
+
+		return []
+
+
+	# This might be a regular expression ?
+	# What to do with RDB and SQL expressions ?
+	def FindStringFromNeighbour(self,searchString,maxDepth):
+		# Heuristics and specialization per class.
+
+		mapInstancesToOccurrences = {}
+
+		priorityQueue = []
+		visitedInstances = set()
+
+		def LessThan(selfInstance, otherInstance):
+			"""This is for the heap priority queue when walking on the triplestores graph.
+			This models the reasonable probabily to find a specific string.
+			Some criterias:
+			- Not many strings in binary files.
+			- Database tables with only numeric tables.
+			- A directory always comes at the end because it does not contain anything.
+			"""
+			# TODO: It is very difficult to sort instances with no idea of the context, the type of string to search etc...
+			# TODO: The sort function would be very different when searching for a path between two instances.
+			print("self=%s"%selfInstance)
+			print("other=%s"%otherInstance)
+			print("TODO: %s Not implemented yet"%inspect.stack()[0][3])
+			exit(0)
+
+			return False
+
+
+		def PushInstance(theInst,theDepth):
+			theInst.m_current_depth = theDepth
+			theInst.__lt__ = LessThan
+			heapq.heappush( priorityQueue, theInst)
+
+		PushInstance( self, 0 )
+
+		# Search in the instance based on a specific function.
+		# If found, add to the list of results.
+
+		while True:
+			try:
+				bestInstance = heapq.heappop(priorityQueue)
+			except IndexError:
+				# Empty priority queue.
+				break
+			visitedInstances.add(bestInstance)
+
+			listOccurrences = bestInstance.InstanceGrepFromContent(searchString)
+			if listOccurrences:
+				# Maybe it found some occurrences.
+				# TODO: It could be very slow, so we could instead store asynchronous iterators,
+				# TODO: which would be calculated while we are iterating on other nodes.
+				# TODO: Consider a map-reduce framework ...
+				# TODO: ... but beware of accessibility.
+				mapInstancesToOccurrences[bestInstance] = listOccurrences
+
+			currDepth = bestInstance.m_current_depth + 1
+
+			if currDepth < maxDepth:
+				lstScripts = bestInstance.GetScripts()
+				INFO("bestInstance=%s",bestInstance)
+				for oneScript in lstScripts:
+					INFO("oneScript=%s",oneScript)
+					lib_common.ErrorMessageEnable(False)
+					try:
+						lstScriptInstances = oneScript.GetTriplestore().GetInstances()
+					except Exception as ex:
+						ERROR("FindStringFromNeighbour: %s",ex)
+					lib_common.ErrorMessageEnable(True)
+					for oneInstance in lstScriptInstances:
+						DEBUG("bestInstance=%s currDepth=%d Script=%s",bestInstance,currDepth,oneInstance)
+						if oneInstance not in visitedInstances:
+							try:
+								# If the node is already seen, and closer as expected.
+								# We might have rejected it before ?
+								if oneInstance.m_current_depth > currDepth:
+									oneInstance.m_current_depth = currDepth
+							except AttributeError:
+								PushInstance( oneInstance, currDepth )
+
+		return mapInstancesToOccurrences
+
+def KWArgsToEntityId(**kwargs):
+	entity_id = ""
+	delim = ""
+	for key, value in kwargs.items():
+		# TODO: The values should be encoded !!!
+		entity_id += delim + "%s=%s" % (key,value)
+		delim = ","
+	return entity_id
 
 def CIMClassFactoryNoCache(className):
 	def __init__(self, agentUrl, **kwargs):
-		entity_id = ""
-		delim = ""
+		"""This function will be used as a constructor for the new class."""
 		for key, value in kwargs.items():
 			setattr(self, key, value)
-			# TODO: The values should be encoded !!!
-			entity_id += delim + "%s=%s" % (key,value)
-			delim = ","
+		entity_id = KWArgsToEntityId(**kwargs)
 		BaseCIMClass.__init__(self,agentUrl, entity_id)
 
 	if sys.version_info < (3,0):
-		# Unicode is not accepted.
+		# Python 2 does not want Unicode class name.
 		className = className.encode()
 
 	# sys.stderr.write("className: %s/%s\n"%(str(type(className)),className))
 	newclass = type(className, (BaseCIMClass,),{"__init__": __init__})
 	return newclass
 
-def CreateCIMClass(agentUrl,className,**kwargs):
-	try:
-		newCIMClass = globals()[className]
-	except KeyError:
-		# TODO: If entity_label contains slashes, submodules must be imported.
-		newCIMClass = CIMClassFactoryNoCache(className)
+cacheCIMClasses = {}
 
+def CreateCIMClass(agentUrl,className,**kwargs):
+	global cacheCIMClasses
+	entity_id = KWArgsToEntityId(**kwargs)
+
+	instanceRepr = className + "." + entity_id
+	if instanceRepr.startswith("CIM_Directory.Name=C:\\"):
+		exit(0)
+	DEBUG("CREATE className%s %s",className,instanceRepr)
+
+	try:
+		newCIMClass = cacheCIMClasses[className]
+		DEBUG("Found class=%s",className)
+
+		try:
+			newInstance = newCIMClass.m_instancesCache[instanceRepr]
+			DEBUG("Found instance class=%s instance=%s",className,instanceRepr)
+			return newInstance
+		except KeyError:
+			INFO("Creating instance=%s",instanceRepr)
+			# This instanceis not yet created.
+			pass
+	except KeyError:
+		# This class is not yet created.
+		# TODO: If entity_label contains slashes, submodules must be imported.
+		INFO("Creating class=%s",className)
+		newCIMClass = CIMClassFactoryNoCache(className)
+		cacheCIMClasses[className] = newCIMClass
+		newCIMClass.m_instancesCache = {}
+
+	# Now, it creates a new instance and stores it in the cache of the CIM class.
 	newInstance = newCIMClass(agentUrl, **kwargs)
+	newCIMClass.m_instancesCache[instanceRepr] = newInstance
 	return newInstance
 
 ################################################################################
 # instanceUrl="http://LOCAL_MODE:80/NotRunningAsCgi/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
+# instanceUrl=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427
 # instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def InstanceUrlToAgentUrl(instanceUrl):
-	#sys.stdout.write("InstanceUrlToAgentUrl instanceUrl=%s\n"%instanceUrl)
+	DEBUG("InstanceUrlToAgentUrl instanceUrl=%s",instanceUrl)
 
 	parse_url = urlparse(instanceUrl)
 	if parse_url.path.startswith(lib_util.prefixLocalScript):
@@ -432,6 +590,10 @@ def InstanceUrlToAgentUrl(instanceUrl):
 
 	idxSurvol = instanceUrl.find("/survol")
 	agentUrl = instanceUrl[:idxSurvol]
+
+	DEBUG("InstanceUrlToAgentUrl agentUrl=%s",agentUrl)
+	if agentUrl and agentUrl.endswith("hos"):
+		exit(0)
 	return agentUrl
 
 # This wraps rdflib triplestore.
@@ -464,13 +626,13 @@ class TripleStore:
 	def QuerySPARQL(self,qrySparql):
 		return None
 
-	# This creates an object for each unique URL, and if needed, its class.
+	# This creates a CIM object for each unique URL, subject or object found in a triplestore.
+	# If needed, the CIM class is created on-the-fly.
 	def GetInstances(self):
-		#lib_common.ErrorMessageEnable(False)
-
 		#import cgitb
 		#cgitb.enable(format="txt")
 
+		INFO("GetInstances")
 		objsSet = lib_kbase.enumerate_instances(self.m_triplestore)
 		lstInstances = []
 		for instanceUrl in objsSet:
@@ -478,7 +640,7 @@ class TripleStore:
 			( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
 			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
 			# BEWARE: Some arguments should be decoded.
-			# sys.stderr.write("GetInstances entity_graphic_class=%s entity_id=%s\n"%(entity_graphic_class,entity_id))
+			DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
 
 			xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 
@@ -488,8 +650,6 @@ class TripleStore:
 
 			newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
 			lstInstances.append(newInstance)
-
-		#lib_common.ErrorMessageEnable(True)
 		return lstInstances
 
 
