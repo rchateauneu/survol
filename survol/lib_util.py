@@ -1438,6 +1438,8 @@ def FromModuleToDoc(importedMod,filDfltText):
 	"""
 	try:
 		docModuAll = importedMod.__doc__
+		if docModuAll:
+			docModuAll = docModuAll.strip()
 		# Take only the first non-empty line.
 		docModuSplit = docModuAll.split("\n")
 		docModu = None
