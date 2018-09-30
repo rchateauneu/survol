@@ -51,6 +51,7 @@ def Main():
 				entDoc = "Error:"+str(exc)
 
 			if entDoc:
+				entDoc = entDoc.strip()
 				grph.add( ( entityNode, pc.property_information, lib_common.NodeLiteral(entDoc) ) )
 
 			# TODO: If this is a CIM class, add WMI or WBEM documentation, or add the link.
