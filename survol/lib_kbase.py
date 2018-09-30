@@ -30,14 +30,24 @@ def MakeGraph():
 # The returns the set of unique subjects or objects.
 def enumerate_instances(grph):
 	instancesSet = set()
+
+	def InsertInstanceUrl(anUrl):
+		# This test eliminates URLs which do not refer to Survol instances.
+		strUrl = str(anUrl)
+		# TODO: Make this test better.
+		if strUrl != "http://localhost":
+			if anUrl.find("/localhost") >= 0:
+				ERROR("InsertInstanceUrl=%s.",strUrl)
+				exit(0)
+			if anUrl not in instancesSet:
+				instancesSet.add(anUrl)
+
 	# Beware that the order might change each time.
 	for kSub,kPred,kObj in grph:
-		if kSub not in instancesSet:
-			instancesSet.add(kSub)
+		InsertInstanceUrl(kSub)
 
 		if not IsLiteral(kObj):
-			if kObj not in instancesSet:
-				instancesSet.add(kObj)
+			InsertInstanceUrl(kObj)
 	return instancesSet
 
 
