@@ -291,7 +291,9 @@ def GetCallingModuleDoc():
 			except:
 				return filnamCaller + ":No doc"
 
-			theDoc = moduleCaller.__doc__.strip()
+			theDoc = moduleCaller.__doc__
+			if theDoc:
+				theDoc = theDoc.strip()
 			#sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
 			return theDoc
 		except:
@@ -441,6 +443,7 @@ class CgiEnv():
 			entDoc = entity_module.__doc__
 			# The convention is the first line treated as a title.
 			if entDoc:
+				entDoc = entDoc.strip()
 				self.m_page_title += "\n" + entDoc
 
 		# Global CanProcessRemote has precedence over parameter can_process_remote
@@ -579,7 +582,7 @@ class CgiEnv():
 			paramVal = self.m_arguments[paramkey].value
 			#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
-			WARNING("GetParameters paramkey='%s' not as CGI", paramkey )
+			DEBUG("GetParameters paramkey='%s' not as CGI", paramkey )
 			hasArgValue = False
 
 		# Now converts it to the type of the default value. Otherwise untouched.
@@ -600,10 +603,10 @@ class CgiEnv():
 					# Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
 					# Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
 					self.m_parameters[paramkey] = paramVal
-					WARNING("GetParameters paramkey='%s' set to FALSE", paramkey )
+					DEBUG("GetParameters paramkey='%s' set to FALSE", paramkey )
 				except KeyError:
 					paramVal = dfltValue
-					WARNING("GetParameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
+					DEBUG("GetParameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
 		else:
 			if not hasArgValue:
 				#sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
@@ -810,7 +813,7 @@ def ErrorMessageEnable(flag):
 	globalErrorMessageEnabled = flag
 
 def ErrorMessageHtml(message):
-	ERROR("ErrorMessageHtml globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
+	ERROR("ErrorMessageHtml %s globalErrorMessageEnabled=%d",message,globalErrorMessageEnabled)
 
 	if globalErrorMessageEnabled:
 		# If we are in Json mode, this returns a special json document with the error message.
@@ -824,13 +827,12 @@ def ErrorMessageHtml(message):
 		except KeyError:
 			pass
 
-		ERROR("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 		lib_util.InfoMessageHtml(message)
-		ERROR("ErrorMessageHtml about to leave")
+		DEBUG("ErrorMessageHtml about to leave")
 		sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
-		ERROR("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
+		DEBUG("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 		# It might be displayed in a HTML document.
 		messageClean = cgi.escape(message)
 		raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)
