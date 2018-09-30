@@ -232,6 +232,7 @@ def Main():
 	entity_module = lib_util.GetEntityModule(className)
 	entDoc = entity_module.__doc__
 	if entDoc:
+		entDoc = entDoc.strip()
 		grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(entDoc) ) )
 
 	CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id)
