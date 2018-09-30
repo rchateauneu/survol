@@ -252,18 +252,20 @@ class LocalBox:
 	# Its use depend on the behaviour of the dynamic linker if it is defined several
 	# times in the same binary. If the file is not defined, this is a system call.
 	# TODO: DOES NOT WORK IF REMOTE SYMBOL.
-	def SymbolUri(self,symbol_name, file = ""):
+	def SymbolUri(self,symbol_name, path = ""):
 		# The URL should never contain the chars "<" or ">".
 		symbol_name = lib_util.Base64Encode(symbol_name)
 		# TODO: Alphabetical order !!!!
-		return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(file) } )
+		path = path.replace("\\","/")
+		return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(path) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
 	# TODO: Move that to class/__init__.py
-	def ClassUri(self,class_name, file = ""):
+	def ClassUri(self,class_name, path = ""):
 		# The URL should never contain the chars "<" or ">".
 		class_name = lib_util.Base64Encode(class_name)
-		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(file) } )
+		path = path.replace("\\","/")
+		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(path) } )
 
 	# CIM_DeviceFile is common to WMI and WBEM.
 
