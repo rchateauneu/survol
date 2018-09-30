@@ -68,7 +68,9 @@ def WriteScriptInformation(theCgi,gblCgiEnvList):
 
 		entity_module = lib_util.GetEntityModule(theCgi.m_entity_type)
 		entDoc = entity_module.__doc__
-		if not entDoc:
+		if entDoc:
+			entDoc = entDoc.strip()
+		else:
 			entDoc = ""
 
 		urlClass = lib_util.EntityClassUrl(theCgi.m_entity_type)
