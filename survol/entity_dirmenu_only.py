@@ -169,7 +169,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				# called Usable(): If it is there and returns False, the script is not displayed.
 				errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 				if errorMsg:
-					WARNING("DirToMenuAux errorMsg(2)=%s",errorMsg)
+					DEBUG("DirToMenuAux errorMsg(2)=%s",errorMsg)
 
 			# If this is a local host
 			if not flagShowAll and errorMsg and not entity_host:
