@@ -131,7 +131,7 @@ def AddEventToObject(theObject,jsonData):
             #sys.stderr.write("AddEventToObject waiting:%s\n"%str(exc))
             time.sleep(0.20)
     if maxTry == 0:
-        sys.stderr.write("AddEventToObject leaving. Failed.\n")
+        WARNING("AddEventToObject leaving. Failed.")
 
 
 # This receives a json which has this structure:
@@ -166,10 +166,10 @@ def data_store_list(json_data_list):
         try:
             data_store(json_data)
         except Exception as exc:
-            sys.stderr.write("data_store_list caught:%s. Json=%s\n"%(str(exc),str(json_data)))
+            WARNING("data_store_list caught:%s. Json=%s",str(exc),str(json_data))
             traceback.print_exc()
 
-    sys.stderr.write("data_store_list leaving.\n")
+    DEBUG("data_store_list leaving.")
 
 def UrlJsonToTxt(valJson):
     entity_type = valJson["entity_type"]
@@ -255,12 +255,12 @@ def data_retrieve(entity_type,entity_ids_arr):
     DEBUG("data_retrieve eventFilNam=%s",eventFilNam)
     arrTriples = get_data_from_file(eventFilNam)
 
-    sys.stderr.write("data_retrieve NumTriples=%d\n"%len(arrTriples))
+    DEBUG("data_retrieve NumTriples=%d",len(arrTriples))
     return arrTriples
 
 # TODO: Events might appear in two objects.
 def data_retrieve_all():
-    sys.stderr.write("data_retrieve_all events_directory=%s\n"%events_directory)
+    DEBUG("data_retrieve_all events_directory=%s",events_directory)
 
     for dirpath, dnames, fnames in os.walk(events_directory):
         for filNam in fnames:
@@ -271,7 +271,7 @@ def data_retrieve_all():
                 arrTriples = get_data_from_file(pathNam)
                 for oneTripl in arrTriples:
                     yield oneTripl
-    sys.stderr.write("data_retrieve_all leaving\n")
+    DEBUG("data_retrieve_all leaving")
 
 
 
