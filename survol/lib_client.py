@@ -157,7 +157,7 @@ class SourceLocal (SourceCgi):
 		super(SourceLocal, self).__init__(className,**kwargs)
 
 	def __str__(self):
-		return "SCRIPT=" + self.m_script + "?" + self.UrlQuery()
+		return self.m_script + "?" + self.UrlQuery()
 
 	# This executes the script and return the data in the right format.
 	def __execute_script_with_mode(self,mode):
@@ -561,7 +561,7 @@ def CreateCIMClass(agentUrl,className,**kwargs):
 			DEBUG("Found instance class=%s instance=%s",className,instanceRepr)
 			return newInstance
 		except KeyError:
-			INFO("Creating instance=%s",instanceRepr)
+			INFO("Creating %s",instanceRepr)
 			# This instanceis not yet created.
 			pass
 	except KeyError:
