@@ -80,10 +80,6 @@ def Main():
 	# };
 	DEBUG("wmiClass=%s",str(wmiClass))
 
-	for k in wmiClass():
-		sys.stderr.write("k\n")
-		break
-
 	# Some examples of WMI queries.
 	# http://timgolden.me.uk/python/wmi/tutorial.html
 	#
@@ -117,7 +113,7 @@ def Main():
 
 
 		numLstObj = len( lstObj )
-		sys.stderr.write("className=%s type(wmiClass)=%s len=%d\n" % ( className, str(type(wmiClass)), numLstObj ) )
+		DEBUG("className=%s type(wmiClass)=%s len=%d", className, str(type(wmiClass)), numLstObj )
 
 		if numLstObj == 0:
 			grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral("No instances in this class") ) )
@@ -138,7 +134,7 @@ def Main():
 			# sys.stderr.write("fullPth=%s\n" % fullPth)
 
 			if fullPth == "":
-				sys.stderr.write("WARNING Empty path wmiObj=%s\n" % str(wmiObj))
+				WARNING("Empty path wmiObj=%s", str(wmiObj))
 				# The class Win32_PnPSignedDriver (Maybe others) generates dozens of these messages.
 				# This is not really an issue as this class should be hidden from applications.
 				# WARNING Empty path wmiObj=

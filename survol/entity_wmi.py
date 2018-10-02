@@ -118,7 +118,7 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,ma
 			doNotDisplay = False
 
 		if doNotDisplay:
-			sys.stderr.write("Cannot display:%s\n"%str(getattr(objWmi,prpName)))
+			WARNING("Cannot display:%s",str(getattr(objWmi,prpName)))
 			value = "Cannot be displayed"
 		else:
 			# BEWARE, it could be None.
@@ -233,7 +233,7 @@ def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
 			try:
 				wmiVal = getattr(objWmi,survKey)
 			except KeyError:
-				sys.stderr.write("AddSurvolObjectFromWmi className=%s no value for key=%s\n"%(className,survKey))
+				INFO("AddSurvolObjectFromWmi className=%s no value for key=%s",className,survKey)
 				wmiVal = ""
 			propValuesArray.append(wmiVal)
 
@@ -278,7 +278,7 @@ def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
 
 # All instances that are associated with a particular source instance.
 def DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker):
-	sys.stderr.write("DisplayObjectAssociators\n")
+	DEBUG("DisplayObjectAssociators\n")
 	# It is possible to restrict the associators to a specific class only.
 	for anAssoc in objWmi.associators():
 		# assocMoniker=\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"
