@@ -281,12 +281,19 @@ class SurvolLocalTest(unittest.TestCase):
 		"""This loads instances connected to an instance by every known script"""
 
 		# The service "PlugPlay" should be available on all Windows machines.
-		myInstanceOrigin = lib_client.Agent().CIM_Directory(
+		instanceOrigin = lib_client.Agent().CIM_Directory(
 			Name="C:/Windows")
 
-		mySearchString = "Hello"
+		instanceAvoid = {
+			lib_client.Agent().CIM_Directory(Name="C:/Windows/winxs"),
+			lib_client.Agent().CIM_Directory(Name="C:/windows/system32"),
+			lib_client.Agent().CIM_DataFile(Name="C:/Windows/epplauncher.mif"),
+			lib_client.Agent().CIM_DataFile(Name="C:/Windows/U2v243.exe"),
+		}
 
-		listSteps = myInstanceOrigin.FindStringFromNeighbour(mySearchString,maxDepth=3)
+		mustFind = "Hello"
+
+		listSteps = instanceOrigin.FindStringFromNeighbour(searchString=mustFind,maxDepth=3,avoidSet=instanceAvoid)
 
 
 class SurvolRemoteTest(unittest.TestCase):
