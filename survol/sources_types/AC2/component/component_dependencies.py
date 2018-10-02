@@ -33,7 +33,7 @@ def DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp):
 
 	# TODO: PROBLEME, ON DEVRAIT ALLER CHERCHER LES SOUS-NODES AU LIEU DE TOUT REPARCOURIR !!!!!!!!!!!
 	for elt_apps in dom.getElementsByTagName('apps'):
-		sys.stderr.write("Founds apps\n")
+		DEBUG("Founds apps\n")
 
 		# TODO: ERROR: SHOULD FOCUS ON ONE APP ONLY.
 
@@ -111,7 +111,7 @@ def Main():
 	ac2App = cgiEnv.m_entity_id_dict["App"]
 	ac2Comp = cgiEnv.m_entity_id_dict["Comp"]
 
-	sys.stderr.write("ac2File=%s ac2App=%s ac2Comp=%s\n"% (ac2File,ac2App,ac2Comp) )
+	DEBUG("ac2File=%s ac2App=%s ac2Comp=%s", ac2File,ac2App,ac2Comp)
 
 	grph = cgiEnv.GetGraph()
 

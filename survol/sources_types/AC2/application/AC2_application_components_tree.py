@@ -56,7 +56,7 @@ def DisplayComponentsTree(grph,configName,ac2App):
 	# TODO: PROBLEME, ON DEVRAIT ALLER CHERCHER LES SOUS-NODES AU LIEU DE TOUT REPARCOURIR !!!!!!!!!!!
 	for elt_apps in dom.getElementsByTagName('apps'):
 		# There should be one only.
-		sys.stderr.write("Founds apps\n")
+		DEBUG("Founds apps")
 
 		for elt_app in elt_apps.getElementsByTagName('app'):
 			attr_name = elt_app.getAttributeNode('name').value
@@ -97,7 +97,7 @@ def Main():
 
 	ac2App = cgiEnv.m_entity_id_dict["App"]
 
-	sys.stderr.write("ac2File=%s ac2App=%s\n"% (ac2File,ac2App) )
+	DEBUG("ac2File=%s ac2App=%s", ac2File,ac2App)
 
 	grph = cgiEnv.GetGraph()
 

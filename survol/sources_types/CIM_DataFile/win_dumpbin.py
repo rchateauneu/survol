@@ -50,7 +50,7 @@ def Main():
 	out_asstr = dumpbin_out.decode("utf-8")
 	out_lines = out_asstr.split('\n')
 
-	sys.stderr.write("out_asstr=%s\n"%str(out_asstr))
+	DEBUG("out_asstr=%s",str(out_asstr))
 
 	grph = cgiEnv.GetGraph()
 

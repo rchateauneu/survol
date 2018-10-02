@@ -51,7 +51,7 @@ def ExtractClass(symbolnam):
 
 	# classNam = symbol[ double_colon + 1 : last_par_open ]
 	classNam = symbolnam[ last_space : double_colon ]
-	sys.stderr.write( "symbol=%s without_signature=%s classNam=%s\n" % ( symbolnam, without_signature, classNam ) )
+	DEBUG( "symbol=%s without_signature=%s classNam=%s", symbolnam, without_signature, classNam )
 	return classNam
 
 

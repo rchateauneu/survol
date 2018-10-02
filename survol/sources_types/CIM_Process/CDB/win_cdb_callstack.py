@@ -78,7 +78,7 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml( "cdb not available: Caught:%s" % str(exc) )
 
-	sys.stderr.write("Started cdb_cmd=%s\n" % cdb_cmd )
+	DEBUG("Started cdb_cmd=%s", cdb_cmd )
 
 	( cdb_output, cdb_err ) = cdb_pipe.communicate()
 
@@ -99,7 +99,7 @@ def Main():
 		if match_lm:
 			moduleName = match_lm.group(1)
 			dllName = match_lm.group(2).strip().replace("\\","/") # .replace(":","COLON")
-			sys.stderr.write("moduleName=%s dllName=%s\n" % ( moduleName, dllName ) )
+			DEBUG("moduleName=%s dllName=%s", moduleName, dllName )
 			modules_map[ moduleName ] = dllName
 			continue
 
@@ -114,7 +114,7 @@ def Main():
 			except KeyError:
 				dllName = moduleName
 			funcName = match_k.group(2).strip()
-			sys.stderr.write("moduleName=%s dllName=%s funcName=%s\n" % ( moduleName, dllName, funcName ) )
+			DEBUG("moduleName=%s dllName=%s funcName=%s", moduleName, dllName, funcName )
 
 			dllName = CDB.TestIfKnownDll(dllName)
 
@@ -125,8 +125,7 @@ def Main():
 
 		DEBUG("dot_line=%s", dot_line )
 
-	sys.stderr.write("Parsed cdb result\n")
-
+	DEBUG("Parsed cdb result")
 
 	callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
 

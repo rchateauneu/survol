@@ -61,7 +61,7 @@ def Main():
 
 				# TODO: Not sure about the groupname syntax.
 				groupName = group['name']
-				sys.stderr.write("groupName=%s\n" % groupName)
+				DEBUG("groupName=%s", groupName)
 				# nodeGroup = serverBox.GroupUri( groupName )
 				nodeGroup = survol_Win32_Group.MakeUri( groupName, servName_or_None )
 
@@ -85,10 +85,10 @@ def Main():
 							userName, domain, type = win32security.LookupAccountSid(server, member['sid'])
 						except Exception:
 							exc = sys.exc_info()[1]
-							sys.stderr.write("Server=%s Caught:%s\n" % ( server, str(exc) ) )
+							WARNING("Server=%s Caught:%s", server, str(exc) )
 							continue
 
-						sys.stderr.write("    Member: %s: %s\n" % (userName, member['domainandname']))
+						DEBUG("Member: %s: %s", userName, member['domainandname'])
 						# nodeUser = serverBox.UserUri( userName )
 						nodeUser = survol_Win32_UserAccount.MakeUri( userName, servName_or_None )
 

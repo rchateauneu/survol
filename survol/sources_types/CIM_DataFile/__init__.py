@@ -258,7 +258,7 @@ def AffFileOwner(grph, filNode, filNam):
 		elif lib_util.isPlatformLinux:
 			AddFileOwnerLinux(grph, filNode, filNam)
 		else:
-			sys.stderr.write("unknown OS")
+			WARNING("unknown OS")
 			pass
 	except:
 		raise
