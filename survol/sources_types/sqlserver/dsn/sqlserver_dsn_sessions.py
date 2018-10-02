@@ -30,7 +30,7 @@ def Main():
 	ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 	try:
 		cnxn = pyodbc.connect(ODBC_ConnectString)
-		sys.stderr.write("Connected: %s\n" % dsnNam)
+		DEBUG("Connected: %s", dsnNam)
 		cursorSessions = cnxn.cursor()
 
 		qrySessions = """

@@ -82,7 +82,7 @@ def Main():
 		DEBUG("anOutput=%s",str(anOutput))
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
-		sys.stderr.write("arrSplit=%s\n"%str(arrSplit))
+		DEBUG("arrSplit=%s",str(arrSplit))
 
 		# "192.168.0.14 (RCHATEAU-HP)"
 		theMachFull = arrSplit[0].strip()

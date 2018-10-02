@@ -25,11 +25,11 @@ def AddAssociatedFiles(grph,node,filNam):
 	for ext in pyExtensions:
 		filAssocNam = filenameNoExt + ext
 
-		sys.stderr.write("filAssocNam=%s filNam=%s\n"%(filAssocNam,filNam))
+		DEBUG("filAssocNam=%s filNam=%s",filAssocNam,filNam)
 		# Do not add a link to itself. Beware: Not reliable on Linux because of case sensitivities.
 		if filAssocNam.lower() != filNam.lower():
 			if os.path.isfile(filAssocNam):
-				sys.stderr.write("Link filAssocNam=%s filNam=%s\n"%(filAssocNam,filNam))
+				DEBUG("Link filAssocNam=%s filNam=%s",filAssocNam,filNam)
 				filAssocNode = lib_uris.gUriGen.FileUri(filAssocNam)
 				grph.add( ( node, lib_common.MakeProp(pyExtensions[ext]), filAssocNode ) )
 

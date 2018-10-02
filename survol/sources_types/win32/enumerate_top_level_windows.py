@@ -51,7 +51,7 @@ def Main():
 		wnText = win32gui.GetWindowText(hwnd)
 		thrId, procId = win32process.GetWindowThreadProcessId(hwnd)
 		nodProcess = PidToNode(procId)
-		sys.stderr.write("procId=%d wnText=%s\n"%(procId,wnText))
+		DEBUG("procId=%d wnText=%s",procId,wnText)
 		if wnText:
 			# wnText = wnText.encode("ascii" ,errors='replace')
 			# It drops the accent: "Livres, BD, Vidos"

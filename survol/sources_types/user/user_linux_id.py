@@ -14,7 +14,7 @@ Usable = lib_util.UsableLinux
 
 # Parses "500(guest)"
 def ParseIdNam(str):
-	sys.stderr.write("ParseIdNam:"+str+"\n")
+	DEBUG("ParseIdNam:"+str)
 	mtch = re.match( "^([0-9]*)\(([^)]*)\)$", str )
 	if mtch:
 		return ( mtch.group(1), mtch.group(2) )
@@ -24,7 +24,7 @@ def ParseIdNam(str):
 # Maybe we could use the keys but they depend on the locale.
 # uid=500(rchateau) gid=500(guest) groupes=500(guest),81(audio)
 def SplitId(str):
-	sys.stderr.write("SplitId:"+str+"\n")
+	DEBUG("SplitId:"+str)
 	arr = str.split(' ')
 	resu = []
 	for substr in arr:
@@ -62,16 +62,12 @@ def Main():
 	( id_last_output, id_err ) = id_pipe.communicate()
 
 	lines = id_last_output.split('\n')
-	sys.stderr.write("id=" + userName + " lines="+str(lines)+"\n")
-
-	sys.stderr.write("Lines=" + str(len(lines) ) + "\n" )
+	DEBUG("id=" + userName + " lines="+str(lines))
 
 	# $ id rchateau
 	# uid=500(rchateau) gid=500(guest) groupes=500(guest),81(audio)
 
 	firstLine = lines[0]
-
-	sys.stderr.write("First="+firstLine+"\n")
 
 	firstSplit = SplitId( firstLine )
 

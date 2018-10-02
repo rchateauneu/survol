@@ -51,10 +51,10 @@ def Main():
 		DEBUG("anOutput=%s",str(anOutput))
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
-		sys.stderr.write("arrSplit=%s\n"%str(arrSplit))
+		DEBUG("arrSplit=%s",str(arrSplit))
 
 		theMachFull = arrSplit[1].strip()
-		sys.stderr.write("theMachFull=%s\n"%str(theMachFull))
+		DEBUG("theMachFull=%s",str(theMachFull))
 		machSplit = re.split( "[\t ]+", theMachFull )
 		DEBUG("machSplit=%s",str(machSplit))
 		machIp = machSplit[0].strip()

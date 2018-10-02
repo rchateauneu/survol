@@ -37,7 +37,7 @@ def ListDbaUsers(cgiEnv,node_oradb,grph):
 
 	for row in result:
 		# row=('ORACLE_OCM', 21, 'EXPIRED & LOCKED')
-		sys.stderr.write("row=" + str(row) + "\n")
+		DEBUG("row=" + str(row))
 		nodeSchema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, str(row[0]) )
 		grph.add( ( node_oradb, pc.property_oracle_schema, nodeSchema ) )
 
@@ -59,7 +59,7 @@ def ListAllUsers(cgiEnv,node_oradb,grph):
 	result = lib_oracle.ExecuteQueryThrow( cgiEnv.ConnectStr(),qryDbaUsers)
 
 	for row in result:
-		sys.stderr.write("row=" + str(row) + "\n")
+		DEBUG("row=" + str(row))
 		nodeSchema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, str(row[0]) )
 		grph.add( ( node_oradb, pc.property_oracle_schema, nodeSchema ) )
 
