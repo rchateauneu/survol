@@ -294,6 +294,8 @@ def GetCallingModuleDoc():
 			theDoc = moduleCaller.__doc__
 			if theDoc:
 				theDoc = theDoc.strip()
+			else:
+				theDoc = ""
 			#sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
 			return theDoc
 		except:
