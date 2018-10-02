@@ -99,7 +99,7 @@ try:
 		one_list.sort(**args)
 
 except ImportError:
-	sys.stderr.write("WritePatterned Module natsorted not available.")
+	WARNING("WritePatterned Module natsorted not available.")
 	natural_sorted = sorted
 
 	def natural_sort_list(one_list,**args):
@@ -178,7 +178,7 @@ def HttpPrefix():
 		#os.environ['REMOTE_HOST']=rchateau-HP
 
 	except KeyError:
-		sys.stderr.write("HttpPrefix SERVER_NAME MUST BE DEFINED\n")
+		ERROR("HttpPrefix SERVER_NAME MUST BE DEFINED")
 		sys.exit(1)
 	
 	try:
@@ -368,10 +368,10 @@ def IsLocalAddress(anHostNam):
 def SameHostOrLocal( srv, entHost ):
 	if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ):
 		# We might add credentials.
-		sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME\n" % ( entHost, localIP, srv ) )
+		DEBUG("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME", entHost, localIP, srv )
 		return True
 	else:
-		sys.stderr.write("SameHostOrLocal entHost=%s localIP=%s srv=%s Different\n" % ( entHost, localIP, srv ) )
+		DEBUG("SameHostOrLocal entHost=%s localIP=%s srv=%s Different", entHost, localIP, srv )
 		return False
 
 ################################################################################

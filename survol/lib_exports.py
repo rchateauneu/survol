@@ -291,7 +291,7 @@ def WriteJsonHeader( bufJson, withContentLength = False ):
 # This is a standard for returning errors.
 # http://labs.omniti.com/labs/jsend
 def WriteJsonError(message):
-	sys.stderr.write("WriteJsonError message="+message)
+	WARNING("WriteJsonError message="+message)
 	jsonErr = {}
 	jsonErr["status"] = "error"
 	jsonErr["message"] = message
@@ -334,7 +334,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# but in hierarchical menus. The node must not appear at all.
 
 		if pred == pc.property_script:
-			sys.stderr.write("continue subj=%s obj=%s\n"%(subj,obj))
+			INFO("continue subj=%s obj=%s",subj,obj)
 			continue
 
 		# Normal data scripts are not accepted. This should apply only to file_directory.py and file_to_mime.py

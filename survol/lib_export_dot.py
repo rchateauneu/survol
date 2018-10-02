@@ -464,7 +464,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 				try:
 					(subObjNam, subEntityGraphicClass, subEntityId) = lib_naming.ParseEntityUriShort( objUri )
 				except UnicodeEncodeError:
-					sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( objUri ) )
+					WARNING( "UnicodeEncodeError error:%s", objUri )
 					(subObjNam, subEntityGraphicClass, subEntityId) = ("Utf problem1","Utf problem2","Utf problem3")
 
 				# sys.stderr.write("subEntityGraphicClass=%s\n"%subEntityGraphicClass)
@@ -639,7 +639,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# TODO: ... of an URL already encoded. They are quoted then unquoted.
 			(labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(objRdfNode) )
 		except UnicodeEncodeError:
-			sys.stderr.write( "UnicodeEncodeError error:%s\n" % ( objRdfNode ) )
+			WARNING( "UnicodeEncodeError error:%s", objRdfNode )
 
 		# WritePatterned receives an list of strings similar to "<td>jhh</td><td>jhh</td><td>jhh</td>"
 		# This function adds <tr> and </tr> on both sides.

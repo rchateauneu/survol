@@ -76,7 +76,7 @@ def WbemGetClassKeys( wbemNameSpace, wbemClass, cimomSrv ):
 				IncludeQualifiers=False)
 	except Exception:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("WbemGetClassKeys %s %s %s: Caught:%s\n" % ( cimomSrv, wbemNameSpace, wbemClass, str(exc) ) )
+		WARNING("WbemGetClassKeys %s %s %s: Caught:%s", cimomSrv, wbemNameSpace, wbemClass, str(exc) )
 		return None
 
 	keys = wbemClass.properties.keys()
