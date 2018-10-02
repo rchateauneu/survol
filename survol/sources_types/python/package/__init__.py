@@ -153,7 +153,7 @@ def AddInfo(grph,node,entity_ids_arr):
 # a node for each package recursively imported by this one.
 # TODO: At the moment, this is NOT RECURSIVE !!!
 def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
-	sys.stderr.write("AddImportedModules filNam=%s dispPackages=%d dispFiles=%d\n"%(filNam,dispPackages,dispFiles))
+	DEBUG("AddImportedModules filNam=%s dispPackages=%d dispFiles=%d",filNam,dispPackages,dispFiles)
 	filename, file_extension = os.path.splitext(filNam)
 	filextlo = file_extension.lower()
 	if filextlo not in [".py",".pyw"]:
@@ -213,7 +213,7 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 				parentModuNam = ".".join(splitNam[:-1])
 				parentModuNod = GetModuNode(parentModuNam)
 				grph.add( ( parentModuNod, propPythonRequires, moduNod ) )
-				sys.stderr.write("parentModuNam=%s moduNam=%s\n"%(parentModuNam,moduNam))
+				DEBUG("parentModuNam=%s moduNam=%s",parentModuNam,moduNam)
 
 		if dispFiles and not dispPackages:
 			if moduFil:

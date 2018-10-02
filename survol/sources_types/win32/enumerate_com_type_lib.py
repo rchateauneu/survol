@@ -48,7 +48,7 @@ def Main():
 			num = num + 1
 	finally:
 		# This avoids:  error(6, 'RegQueryInfoKey', 'The handle is invalid.')
-		sys.stderr.write("DO NOT close handle\n")
+		ERROR("DO NOT close handle")
 		# win32api.RegCloseKey(lib_com_type_lib.TypeLibRegistryKey
 
 	cgiEnv.OutCgiRdf()

@@ -49,9 +49,9 @@ def DatabaseEnvParams(processId):
 	listArgs = []
 	for filObj in fillist:
 		filNam = filObj.path
-		sys.stderr.write("DatabaseEnvParams processId=%s filNam=%s\n"%(str(processId),filNam))
+		DEBUG("DatabaseEnvParams processId=%s filNam=%s",str(processId),filNam)
 		if IsSqliteDatabase(filNam):
-			DEBUG("    DatabaseEnvParams ADDING filNam=%s",filNam)
+			DEBUG("DatabaseEnvParams ADDING filNam=%s",filNam)
 			filNamClean = filNam.replace("\\","/")
 			filDef = { "File" : filNamClean }
 			listArgs.append(filDef)

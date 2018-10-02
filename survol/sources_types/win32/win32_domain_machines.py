@@ -36,16 +36,16 @@ def Main():
 		lib_common.ErrorMessageHtml(str(exc))
 
 	domainName = win32net.NetUserModalsGet (domainController, 2)['domain_name']
-	sys.stderr.write("Domain name:" + domainName + "\n")
-	sys.stderr.write("Domaine Controller:"+domainController + "\n")
-	sys.stderr.write("Info="+str(win32net.NetUserModalsGet (domainController, 2)) + "\n")
+	DEBUG("Domain name:" + domainName)
+	DEBUG("Domaine Controller:"+domainController)
+	DEBUG("Info="+str(win32net.NetUserModalsGet (domainController, 2)))
 
 	nodeDomain = lib_common.gUriGen.SmbDomainUri( domainName )
 	nodeController = lib_common.gUriGen.HostnameUri( domainController )
 
 	grph.add( (nodeDomain, pc.property_controller, nodeController ) )
 
-	sys.stderr.write("About to loop on machine\n")
+	DEBUG("About to loop on machine")
 	cnt = 0
 
 	adsi = win32com.client.Dispatch ("ADsNameSpaces")
@@ -66,7 +66,7 @@ def Main():
 		# TODO: It works fine until 1000 nodes, but after that takes ages to run. What can we do ?????
 		# HARDCODE_LIMIT
 		if cnt > 1000:
-			sys.stderr.write("COULD NOT RUN IT TILL THE END\n")
+			ERROR("COULD NOT RUN IT TILL THE END")
 			break
 
 	cgiEnv.OutCgiRdf()

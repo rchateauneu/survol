@@ -32,7 +32,7 @@ class OraCallbackParseQry:
 		if len(sql_text) == 1000:
 			sql_text = str(row[4])
 
-		sys.stderr.write("self.m_database=%s sql_text=%s\n" % (self.m_database_name,sql_text))
+		DEBUG("self.m_database=%s sql_text=%s", self.m_database_name,sql_text)
 
 		# Mais c est absurde car ici on connait la base de donnees et le schema, et donc
 		# on sait quelle est la nature des dependances. Donc on doit generer

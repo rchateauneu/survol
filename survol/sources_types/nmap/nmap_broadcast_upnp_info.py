@@ -124,10 +124,10 @@ def Main():
 		DEBUG("anOutput=%s",str(anOutput))
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
-		sys.stderr.write("arrSplit=%s\n"%str(arrSplit))
+		DEBUG("arrSplit=%s",str(arrSplit))
 
 		for oneWrd in arrSplit:
-			sys.stderr.write("oneWrd=%s\n"%oneWrd)
+			DEBUG("oneWrd=%s",oneWrd)
 			oneSplit = [ aSplit.strip() for aSplit in oneWrd.split(":") ]
 
 			if len(oneSplit) > 1:

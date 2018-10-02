@@ -64,7 +64,7 @@ def Main():
 			if isinstance(connectVal, lib_util.six_string_types):
 				connectVal = connectVal.replace(">","@") # .replace("{","@").replace("}","@")
 
-				sys.stderr.write("connectKey=%s connectVal=%s\n"%(connectKey,connectVal))
+				DEBUG("connectKey=%s connectVal=%s",connectKey,connectVal)
 			elif isinstance(connectVal, dict):
 				pass
 			elif isinstance(connectVal, tuple):

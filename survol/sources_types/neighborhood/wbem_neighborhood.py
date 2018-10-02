@@ -26,7 +26,7 @@ def AddFromWbemCimom(grph,cimomWbem):
 
 	# http://rchateau-hp:8000/survol/namespaces_wbem.py?xid=http:%2F%2F192.168.0.17:5988/.
 	cimomWbemCgi = cimomWbem.replace("//","%2f%2f")
-	sys.stderr.write("cimomWbem=%s cimomWbemCgi=%s\n"%(cimomWbem,cimomWbemCgi))
+	DEBUG("cimomWbem=%s cimomWbemCgi=%s",cimomWbem,cimomWbemCgi)
 
 	urlWbem = lib_wbem.WbemAllNamespacesUrl(cimomWbemCgi)
 	wbemNode = lib_common.NodeUrl(urlWbem)
@@ -41,7 +41,7 @@ def AddFromWbemCimom(grph,cimomWbem):
 def WbemServersDisplay(grph):
 	lstWbemServers = []
 	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
-	sys.stderr.write("WbemServersDisplay\n")
+	DEBUG("WbemServersDisplay")
 	for cimomWbem in credNames:
 		DEBUG("WbemServersDisplay cimomWbem=%s",cimomWbem)
 
