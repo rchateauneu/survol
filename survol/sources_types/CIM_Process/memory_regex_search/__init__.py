@@ -557,7 +557,7 @@ if sys.platform == "win32":
 		DEBUG("MemMachine pidint=%s", str(pidint) )
 		phandle = kernel32.OpenProcess( ACCESS, False, pidint)
 		DEBUG("MemMachine phandle=%s", str(phandle) )
-		sys.stderr.write("MemMachine GetLastError=%s\n" % str(ctypes.GetLastError()) )
+		DEBUG("MemMachine GetLastError=%s" % str(ctypes.GetLastError()) )
 
 		# No need to prefix with ctypes on Python 3. Why ?
 		assert phandle, "Failed to open process!\n%s" % ctypes.WinError(ctypes.GetLastError())[1]
@@ -582,19 +582,19 @@ if sys.platform == "win32":
 				break
 			except Exception:
 				t, e = sys.exc_info()[:2]
-				sys.stderr.write("MemMachine Other exception:%s\n"%str(e).replace("\n"," "))
+				DEBUG("MemMachine Other exception:%s",str(e).replace("\n"," "))
 				break
 
 			page_address = next_page
 
 			if not is64bits and page_address == 0x7FFF0000:
-				sys.stderr.write("MemMachine End of 32bits process memory on Windows\n")
+				DEBUG("MemMachine End of 32bits process memory on Windows")
 				break
 
 			if len(allFound) >= 1000000:
-				sys.stderr.write("[Warning] Scan ended early because too many addresses were found to hold the target data.\n")
+				WARNING("[Warning] Scan ended early because too many addresses were found to hold the target data.")
 				break
-		sys.stderr.write("MemMachine leaving\n")
+		DEBUG("MemMachine leaving")
 		return mem_proc_functor
 
 else:
@@ -619,7 +619,7 @@ else:
 			# time.sleep(0.1)
 			filnam = "/proc/%d/mem" % pidint
 			statinfo = os.stat(filnam)
-			sys.stderr.write("filnam="+filnam+" stats="+str(statinfo)+"\n")
+			DEBUG("filnam="+filnam+" stats="+str(statinfo))
 			# mem_file = open(filnam, 'r+b', 0)
 			mem_file = open(filnam, 'r', 0)
 			lenAddr = addr_end - addr_beg
@@ -776,7 +776,7 @@ def ProcessMemoryScanNonVerbose(pidint, lstStructs, maxDisplay,re_flags=0):
 	for keyStr in byStruct:
 		structDefinition = byStruct[keyStr]
 		objsSet = structDefinition.m_foundStructs
-		sys.stderr.write("%0.60s : %d occurences before validation\n" % (keyStr, len( objsSet ) ) )
+		DEBUG("%0.60s : %d occurences before validation", keyStr, len( objsSet ) )
 
 		maxCnt = maxDisplay
 
@@ -797,7 +797,7 @@ def ProcessMemoryScanNonVerbose(pidint, lstStructs, maxDisplay,re_flags=0):
 				dictByAddrs[addrObj] = objDict
 		dictByStructs[keyStr] = dictByAddrs
 
-	sys.stderr.write(str(dictByStructs) + "\n")
+	DEBUG(str(dictByStructs))
 
 def ProcessMemoryScanVerbose(pidint, lstStructs, maxDisplay, re_flags = 0):
 	mem_proc_functor = MemMachine( pidint, lstStructs, re_flags )

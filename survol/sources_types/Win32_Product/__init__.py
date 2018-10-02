@@ -133,7 +133,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	try:
 		winProd = populate_product(productIdentifyingNumber)
 
-		sys.stderr.write("winProd=%s\n"%str(winProd))
+		DEBUG("winProd=%s",str(winProd))
 
 		AddInstallSource(grph,node,winProd)
 

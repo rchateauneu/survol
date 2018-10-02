@@ -69,12 +69,12 @@ def JPypeLocalStartJVMWindows():
 
 	dirJre = os.path.basename(baseJreAbs)
 	# dirJre=jre1.8.0_121
-	sys.stderr.write("dirJre=%s\n" % dirJre)
+	DEBUG("dirJre=%s", dirJre)
 
 	strJre = dirJre[:3]
 	if strJre != "jre":
 		# Our assumption on the directory syntax is wrong.
-		sys.stderr.write("Invalid strJre=%s\n" % strJre)
+		DEBUG("Invalid strJre=%s", strJre)
 		return None
 
 	baseJava = os.path.dirname(baseJreAbs)
@@ -117,7 +117,7 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
 
 	dictResult = {}
 
-	sys.stderr.write("Attaching to pid=%s type=%s\n"%(pid,type(pid)))
+	DEBUG("Attaching to pid=%s type=%s",pid,type(pid))
 	# jpype._jexception.AttachNotSupportedExceptionPyRaisable:
 	# com.sun.tools.attach.AttachNotSupportedException:
 	# Unable to attach to 32-bit process running under WOW64
@@ -128,7 +128,7 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
 		WARNING("Exception:%s",str(exc))
 		return dictResult
 
-	sys.stderr.write("Attached to pid=%s\n"%pid)
+	DEBUG("Attached to pid=%s",pid)
 	connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
 
 	if not connectorAddress:
@@ -200,10 +200,10 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
 		oneMBean["info"] = dictMBeanInfoDescr
 
 		for attr in oneMBeanInfo.getAttributes():
-			DEBUG("\t\tattr=%s",str(attr))
-			sys.stderr.write("\t\tattr.getName()=%s\n"%attr.getName())
-			sys.stderr.write("\t\tattr.getType()=%s\n"%attr.getType())
-			sys.stderr.write("\t\tattr.getDescription()=%s\n"%attr.getDescription())
+			DEBUG("attr=%s",str(attr))
+			DEBUG("attr.getName()=%s",attr.getName())
+			DEBUG("attr.getType()=%s",attr.getType())
+			DEBUG("attr.getDescription()=%s",attr.getDescription())
 
 		attrsMBeanInfo = oneMBeanInfo.getAttributes()
 		dictMBeanInfo = {}
@@ -288,14 +288,14 @@ def JPypeListVMs(jvPckVM):
 	# sys.stderr.write("VirtualMachine.list=:\n")
 	for oneVM in listVMs:
 		dicByProps = dict()
-		sys.stderr.write("\n%s\n"%oneVM)
-		sys.stderr.write("\t%s\n"%str(dir(oneVM)))
-		sys.stderr.write("\tid=%s\n"%str(oneVM.id()))
-		sys.stderr.write("\tdisplayName=%s\n"%str(oneVM.displayName()))
-		sys.stderr.write("\tgetClass=%s\n"%str(oneVM.getClass()))
-		sys.stderr.write("\tprovider=%s\n"%str(oneVM.provider()))
-		sys.stderr.write("\tisAttachable=%s\n"%str(oneVM.isAttachable()))
-		sys.stderr.write("\ttoString=%s\n"%str(oneVM.toString()))
+		DEBUG("%s",oneVM)
+		DEBUG("%s",str(dir(oneVM)))
+		DEBUG("id=%s",str(oneVM.id()))
+		DEBUG("displayName=%s",str(oneVM.displayName()))
+		DEBUG("getClass=%s",str(oneVM.getClass()))
+		DEBUG("provider=%s",str(oneVM.provider()))
+		DEBUG("isAttachable=%s",str(oneVM.isAttachable()))
+		DEBUG("toString=%s",str(oneVM.toString()))
 		# JavaJmxPidMBeansAttach(oneVM.id(),jvPckVM)
 
 		dicByProps["class"] = oneVM.getClass()

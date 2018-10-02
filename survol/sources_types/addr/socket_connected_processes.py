@@ -43,7 +43,7 @@ def Main():
 		socketPort = socket.getservbyname(socketPortString)
 
 
-	sys.stderr.write("socketName=%s socketAddr=%s socketPort=%d\n" % ( socketName, socketAddr, socketPort ) )
+	DEBUG("socketName=%s socketAddr=%s socketPort=%d", socketName, socketAddr, socketPort )
 
 	# TBH, I do not understand why a local address is sometimes displayed as "192.168.1.83",
 	# "127.0.0.1", "0.0.0.0" etc...
@@ -88,11 +88,10 @@ def Main():
 			( larray, rarray ) = survol_addr.SocketToPair(cnt)
 
 			try:
-				sys.stderr.write("l[0]=%16s l[1]=%5d r[0]=%16s r[1]=%5d\n"
-								 % ( larray[0], larray[1], rarray[0], rarray[1] ) )
+				DEBUG("l[0]=%16s l[1]=%5d r[0]=%16s r[1]=%5d",
+								 larray[0], larray[1], rarray[0], rarray[1] )
 			except IndexError:
-				sys.stderr.write("l[0]=%16s l[1]=%5d NO END\n"
-								 % ( larray[0], larray[1] ) )
+				DEBUG("l[0]=%16s l[1]=%5d NO END", larray[0], larray[1] )
 
 			isTheSock = IsGoodSocket(larray) or IsGoodSocket(rarray)
 

@@ -23,7 +23,7 @@ def EntityName(entity_ids_arr):
 		return resu
 	except TypeError:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("CANNOT DECODE: class=(%s):%s\n"%(entity_id,str(exc)))
+		ERROR("CANNOT DECODE: class=(%s):%s",entity_id,str(exc))
 		return entity_id
 
 #def MakeUri(dsnName,tableNam, columnNam):

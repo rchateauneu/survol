@@ -69,7 +69,7 @@ def AddMySqlPort(grph,instanceMySql):
 		lib_common.ErrorMessageHtml("Error running mysqladmin:"+ cmd_error)
 
 	for linSql in cmd_output.split("\n"):
-		sys.stderr.write("linSql="+linSql+"\n")
+		DEBUG("linSql="+linSql)
 		words_arr = linSql.split('|')
 		if len(words_arr) < 4:
 			continue
@@ -82,7 +82,7 @@ def AddMySqlPort(grph,instanceMySql):
 		mysql_command = words_arr[8].strip()
 		if mysql_host == 'Host':
 			continue
-		sys.stderr.write("host="+mysql_host+"\n")
+		DEBUG("host="+mysql_host)
 
 		mysql_addr_arr = mysql_host.split(':')
 		mysql_id_node = lib_common.NodeUrl('urn://' + mysql_host + '/mysql/' + str(mysql_id) )

@@ -120,7 +120,7 @@ def Main():
 					oFil = open(aFilNam,"r")
 				except:
 					exc = sys.exc_info()[1]
-					sys.stderr.write("open:%s throw:%s\n"%(aFilNam,str(exc)))
+					WARNING("open:%s throw:%s",aFilNam,str(exc))
 					continue
 				if not oFil:
 					continue

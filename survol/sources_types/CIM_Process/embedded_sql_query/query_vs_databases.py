@@ -36,7 +36,7 @@ def Main():
 	#	...
 	#	("sources_types.CIM_Process.memory_regex_search","search_connection_strings.py") ...
 	for ( namDbType, scriptNam ) in lib_sql.listModulesUsingSqlQueries :
-		sys.stderr.write("\nnamDbType=%s scriptNam=%s\n"%(namDbType,scriptNam))
+		DEBUG("namDbType=%s scriptNam=%s",namDbType,scriptNam)
 		# TODO: We should check if the syntax of the query is conformant to the database.
 		# TODO: We should check if the process is linked with this database.
 
@@ -95,11 +95,11 @@ def Main():
 					listTableNodes = moduleQueryEntity.QueryToNodesList(sqlQuery,connectionKW,list_of_tables)
 				except Exception:
 					exc = sys.exc_info()[0]
-					sys.stderr.write("queryEntity=%s Caught %s\n"%(queryEntity,str(exc)))
+					WARNING("queryEntity=%s Caught %s", queryEntity,str(exc))
 					continue
 
 				if not listTableNodes:
-					sys.stderr.write("No nodes\n")
+					DEBUG("No nodes")
 					continue
 
 				# We know this is a valid query for this connection, so we add a link to it.

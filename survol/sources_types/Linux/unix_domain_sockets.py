@@ -58,7 +58,7 @@ def Main():
 			# sys.stderr.write("sockINode %s\n"%sockINode)
 			sockPath = lin[80:].strip()
 		except :
-			sys.stderr.write("Cannot parse:%s\n"%lin)
+			WARNING("Cannot parse:%s",lin)
 			continue
 
 		if sockPath:

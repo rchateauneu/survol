@@ -53,7 +53,7 @@ def Main():
 				# Windows "\\" must be replaced by "/", so the URLs are the same for all tools.
 				filnam = str(tab).replace('\\','/')
 			# The same filename might appear several times.
-			sys.stderr.write("idx=%d retLen=%d filnam=%s\n"%(idx,retLen,filnam))
+			DEBUG("idx=%d retLen=%d filnam=%s",idx,retLen,filnam)
 
 			if idx > 0:
 				libNode = lib_common.gUriGen.SharedLibUri( filnam )

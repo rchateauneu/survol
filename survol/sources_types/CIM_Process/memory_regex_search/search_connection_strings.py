@@ -84,7 +84,7 @@ def GetAggregDsns(pidint,mapRgx):
 		for theOff in sortedKeys:
 			currMtch = resuMatches[theOff]
 			nextOffset = theOff + len(currMtch)
-			sys.stderr.write("lastOffset=%d nextOffset=%d currMtch=%s\n"%(lastOffset,nextOffset,currMtch))
+			DEBUG("lastOffset=%d nextOffset=%d currMtch=%s",lastOffset,nextOffset,currMtch)
 			#if lastOffset == 0:
 			#	lastOffset = nextOffset
 			#	aggregDsns[lastOffset] = currMtch
@@ -162,7 +162,7 @@ def Main():
 		# Do not take the character before the keyword.
 		aggregDSN = aggregDsns[aggregOffset]
 		dsnFull = str(aggregOffset) + ": " + aggregDSN
-		sys.stderr.write("aggregOffset=%s dsnFull=%s\n"%(aggregOffset,dsnFull))
+		DEBUG("aggregOffset=%s dsnFull=%s",aggregOffset,dsnFull)
 		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(dsnFull) ) )
 
 		### NO! Confusion between DSN and connection string.
