@@ -10,7 +10,7 @@ TypeLibRegistryKey = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib")
 
 def ComKeyAllNameVersion(key, keyName):
 	result = {}
-	sys.stderr.write("ComKeyAllNameVersion key=%s keyName=%s\n" % (key,keyName) )
+	DEBUG("ComKeyAllNameVersion key=%s keyName=%s", key,keyName)
 
 	try:
 		subKey = win32api.RegOpenKey(key, keyName)

@@ -115,7 +115,7 @@ def DisplayDefinition(grph,nodeFile,locationFile,symDef,paramExplodeClasses):
 	return
 
 def CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses):
-	sys.stderr.write("\n\n\n\directoryName=%s num=%d\n\n"%( directoryName, len(objectsByLocation)))
+	DEBUG("directoryName=%s num=%d", directoryName, len(objectsByLocation))
 
 	for (locationFile, v1) in lib_util.six_iteritems(objectsByLocation):
 		DEBUG("locationFile=%s",locationFile)
