@@ -20,7 +20,7 @@ except ImportError:
 # If ExecQuery is not supported like on OpenPegasus, try to build one instance.
 def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
 	aQry = lib_util.SplitMonikToWQL(splitMonik,className)
-	sys.stderr.write("WbemPlainExecQuery nameSpace=%s aQry=%s\n" % (nameSpace,aQry) )
+	DEBUG("WbemPlainExecQuery nameSpace=%s aQry=%s", nameSpace,aQry)
 	# aQry = 'select * from CIM_System'
 	# aQry = 'select * from CIM_ComputerSystem'
 	try:
@@ -32,7 +32,7 @@ def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
 		# Problem on Windows with OpenPegasus.
 		# aQry=select * from CIM_UnitaryComputerSystem where CreationClassName="PG_ComputerSystem"and Name="rchateau-HP". ns=root/cimv2. Caught:(7, u'CIM_ERR_NOT_SUPPORTED')
 		msgExcFirst = str(exc)
-		sys.stderr.write("WbemPlainExecQuery aQry=%s Exc=%s\n" % ( aQry, msgExcFirst ) )
+		WARNING("WbemPlainExecQuery aQry=%s Exc=%s", aQry, msgExcFirst )
 		return None
 
 
@@ -47,7 +47,7 @@ def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 
 		# wbemInstName = pywbem.CIMInstanceName( className, keybindings = keyBnds, host = cimomUrl, namespace = nameSpace )
 		wbemInstName = pywbem.CIMInstanceName( className, keybindings = keyBnds, namespace = "root/CIMv2" )
-		sys.stderr.write("keyBnds=%s wbemInstName=%s\n" %(str(keyBnds),str(wbemInstName)))
+		DEBUG("keyBnds=%s wbemInstName=%s", str(keyBnds),str(wbemInstName))
 
 		wbemInstObj = conn.GetInstance( wbemInstName )
 
@@ -55,7 +55,7 @@ def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 	except:
 		exc = sys.exc_info()[1]
 		# lib_common.ErrorMessageHtml("msgExcFirst="+msgExcFirst+" wbemInstName=" + str(wbemInstName) + ". ns="+nameSpace+". Caught:"+str(exc))
-		sys.stderr.write("WbemNoQueryOneInst className=" + str(className) + ". ns="+nameSpace+".\nCaught:"+str(exc) + "\n")
+		WARNING("WbemNoQueryOneInst className=" + str(className) + ". ns="+nameSpace+".\nCaught:"+str(exc))
 		return None
 
 # If ExecQuery is not supported like on OpenPegasus, read all instances and filters the good ones. VERY SLOW.
@@ -127,7 +127,7 @@ def Main():
 
 	if nameSpace == "":
 		nameSpace = "root/cimv2"
-		sys.stderr.write("Setting namespace to default value\n")
+		INFO("Setting namespace to default value\n")
 
 
 	if className == "":

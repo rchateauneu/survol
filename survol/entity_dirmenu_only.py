@@ -45,7 +45,7 @@ def TestUsability(importedMod,entity_type,entity_ids_arr):
 def DirMenuReport(depthCall,strMsg):
 	"""For debugging purpose only."""
 	txtMargin = ( "    " * depthCall )
-	sys.stderr.write(txtMargin + strMsg)
+	DEBUG(txtMargin + strMsg)
 
 # TODO: Only return json data, and this script will only return json, nothing else.
 def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagShowAll):
