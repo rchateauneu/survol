@@ -59,7 +59,7 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl, nsDepth = 1 ):
 	except wmi.x_wmi:
 		exc = sys.exc_info()[1]
 		# lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
-		sys.stderr.write("WMI: Cannot connect to nskey=%s Caught:%s" % ( nskey , str(exc) ) )
+		WARNING("WMI: Cannot connect to nskey=%s Caught:%s", nskey , str(exc) )
 		return
 
 	# If the mximum level is not controlled, it loops endlessly.
@@ -100,7 +100,7 @@ def Main():
 
 	cimomUrl = entity_host
 
-	sys.stderr.write("namespaces_wmi.py cimomUrl=%s\n" % cimomUrl)
+	DEBUG("namespaces_wmi.py cimomUrl=%s", cimomUrl)
 
 	grph = cgiEnv.GetGraph()
 

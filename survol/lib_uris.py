@@ -132,7 +132,7 @@ class LocalBox:
 			hostName = TruncateHostname(hostAddr)
 		except:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("HostnameUri hostAddr=%s. Caught: %s\n" % (hostAddr, str(exc) ) )
+			DEBUG("HostnameUri hostAddr=%s. Caught: %s", hostAddr, str(exc) )
 			hostName = hostAddr
 
 		# Hostnames are case-insensitive, RFC4343 https://tools.ietf.org/html/rfc4343

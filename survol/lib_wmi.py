@@ -138,7 +138,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 # Returns the list of a keys of a given WBEM class. This is is used if the key is not given
 # for an entity. This could be stored in a cache for better performance.
 def WmiGetClassKeys( wmiNameSpace, wmiClass, cimomSrv ):
-	sys.stderr.write("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s\n" % (wmiNameSpace, wmiClass, cimomSrv ))
+	DEBUG("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s", wmiNameSpace, wmiClass, cimomSrv )
 
 	try:
 		# TODO: Choose the namespace, remove "root\\" at the beginning.

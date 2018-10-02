@@ -15,14 +15,13 @@ class Impersonate:
 	def __init__(self,login,password,domain):
 		# LOGON32_LOGON_NETWORK
 		# win32con.LOGON32_LOGON_INTERACTIVE
-		sys.stderr.write("Impersonate login=%s domain=%s\n" % ( login, domain) )
+		DEBUG("Impersonate login=%s domain=%s", login, domain)
 		self.m_handle=win32security.LogonUser(login,domain,password,win32con.LOGON32_LOGON_NETWORK,win32con.LOGON32_PROVIDER_DEFAULT)
 		DEBUG("After win32security.LogonUser handle=%s ", str(self.m_handle))
 		try:
 			win32security.ImpersonateLoggedOnUser(self.m_handle)
 		except Exception:
-			sys.stderr.write("win32security.ImpersonateLoggedOnUser: handle=%s Caught %s\n" % (str(self.m_handle),str(sys.exc_info())))
-		sys.stderr.write("After win32security.ImpersonateLoggedOnUser\n" )
+			WARNING("win32security.ImpersonateLoggedOnUser: handle=%s Caught %s", str(self.m_handle),str(sys.exc_info()))
 
 		DEBUG("Username=%s", win32api.GetUserName() )
 	def __del__(self):
@@ -36,7 +35,7 @@ class Impersonate:
 # TODO: with another machine etc... we obtain GetUserName() = "Guest" and of course access denied everywjhere.
 def MakeImpersonate(machineName):
 	currentUserName =  win32api.GetUserName()
-	sys.stderr.write("MakeImpersonate: machineName=%s currentUserName=%s\n" % ( machineName,  currentUserName ) )
+	DEBUG("MakeImpersonate: machineName=%s currentUserName=%s", machineName,  currentUserName )
 
 	# "titi" ou "Titi" ? Arp returns "Titi".
 	(usernam,passwd) = lib_credentials.GetCredentials("Login",machineName)
@@ -44,7 +43,7 @@ def MakeImpersonate(machineName):
 
 	if usernam != '':
 		if usernam == currentUserName:
-			sys.stderr.write("MakeImpersonate: Already %s\n" % currentUserName)
+			DEBUG("MakeImpersonate: Already %s", currentUserName)
 			imper = None
 		else:
 			try:
@@ -53,7 +52,7 @@ def MakeImpersonate(machineName):
 				WARNING("MakeImpersonate: Caught %s", str(sys.exc_info()))
 				imper = None
 	else:
-		sys.stderr.write("MakeImpersonate: No impersonate on %s. Returning None.\n" % machineName)
+		DEBUG("MakeImpersonate: No impersonate on %s. Returning None.", machineName)
 		imper = None
 
 	# If running on the local machine, pass the host as None otherwise authorization is checked

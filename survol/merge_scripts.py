@@ -29,7 +29,7 @@ def Main():
 
 	# The display mode is read now, otherwise the CGI arguments are later destroyed, in this script.
 	theMode = lib_util.GuessDisplayMode()
-	sys.stderr.write("merge_scripts.py theMode=%s\n"%(theMode))
+	DEBUG("theMode=%s",theMode)
 
 	# Concatenation of error messages of each script.
 	cumulatedError = ""
@@ -41,7 +41,7 @@ def Main():
 
 		complete_url = lib_util.Base64Decode(urlfil)
 
-		sys.stderr.write("complete_url=%s\n"%complete_url)
+		DEBUG("complete_url=%s",complete_url)
 
 		# Only the URL without the arguments.
 		urlSplit = complete_url.split("?")
@@ -63,7 +63,7 @@ def Main():
 				# TODO: This happens if the URL is a main presentation page of an object,
 				# instead of a script: Something like "survol/entity.py/entity.py?xid=..."
 				# This should be fixed but is not an issue.
-				sys.stderr.write("merge: SHOULD NOT HAPPEN url=%s\n"%complete_url)
+				WARNING("merge: SHOULD NOT HAPPEN url=%s",complete_url)
 				urlPathShort = "INVALID_MERGED_URL"
 			else:
 				# Just starts at the beginning of the script name: "entity.py", "entity_wmi.py", "entity_wbem.py".
@@ -79,13 +79,13 @@ def Main():
 
 		urlFilNam = os.path.basename(urlPathShort)
 
-		sys.stderr.write("urlPathShort=%s urlDirNam=%s moduNam=%s urlFilNam=%s\n"%(urlPathShort,urlDirNam,moduNam,urlFilNam))
+		DEBUG("urlPathShort=%s urlDirNam=%s moduNam=%s urlFilNam=%s",urlPathShort,urlDirNam,moduNam,urlFilNam)
 		try:
 			# argDir="sources_types.win32" urlFileNam="enumerate_top_level_windows.py"
 			importedMod = lib_util.GetScriptModule(moduNam, urlFilNam)
 		except Exception:
 			errorMsg = sys.exc_info()[1]
-			sys.stderr.write("Caught %s when loading moduNam=%s urlFilNam=%s\n"%(errorMsg,moduNam,urlFilNam))
+			WARNING("Caught %s when loading moduNam=%s urlFilNam=%s",errorMsg,moduNam,urlFilNam)
 			continue
 
 		if not importedMod:
@@ -109,7 +109,7 @@ def Main():
 			importedMod.Main()
 		except Exception:
 			errorMsg = sys.exc_info()[1]
-			sys.stderr.write("Caught %s when executing Main in moduNam=%s urlFilNam=%s\n"%(errorMsg,moduNam,urlFilNam))
+			WARNING("Caught %s when executing Main in moduNam=%s urlFilNam=%s",errorMsg,moduNam,urlFilNam)
 			if cumulatedError != "":
 				cumulatedError += " ; "
 			cumulatedError += " url=" + urlNoArgs + " / "+urlFilNam + ":" + str(errorMsg)
