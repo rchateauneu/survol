@@ -40,7 +40,7 @@ def Main():
 	except IndexError:
 		socketTransport = "tcp"
 
-	sys.stderr.write("socketAddr=%s socketPort=%d\n"%(socketAddr,socketPort))
+	DEBUG("socketAddr=%s socketPort=%d",socketAddr,socketPort)
 	# It uses the host name for the machine but an IP address for the socket.
 	nodeHost = lib_common.gUriGen.HostnameUri(socketHost)
 	socketNode = lib_common.gUriGen.AddrUri(socketAddr, socketPort )

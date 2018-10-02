@@ -35,7 +35,7 @@ def Main():
 	# BEWARE: Do not print str(dictServiceMap) because it hangs about ten minutes !!!!!!!!!!!!
 	# BEWARE: Do not print str(dictServiceMap) because it hangs about ten minutes !!!!!!!!!!!!
 
-	sys.stderr.write(TimeStamp()+ "serviceName=%s dictServiceMap=%s\n" % ( serviceName, "str(dictServiceMap)" ) )
+	DEBUG(TimeStamp()+ "serviceName=%s dictServiceMap=%s", serviceName, "str(dictServiceMap)" )
 
 	serviceDict = dictServiceMap[ serviceName ]
 

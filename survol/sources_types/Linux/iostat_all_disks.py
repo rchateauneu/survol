@@ -69,7 +69,7 @@ def IOStatEngine(sharedTupleQueue,entityId):
 	fil.flush()
 	cnt = 0
 	for lin in os.popen(iostat_cmd):
-		sys.stderr.write("cnt=%d:%s\n" % ( cnt, lin ) )
+		DEBUG("cnt=%d:%s", cnt, lin )
 		if lin:
 			# We transfer also the header.
 			spl = re.split(' +',lin)

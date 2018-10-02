@@ -18,7 +18,7 @@ def Main():
 	listVMs = survol_java.ListJavaProcesses()
 
 	#listVMs = jvPckVM.list()
-	sys.stderr.write("VirtualMachine.list=:\n")
+	DEBUG("VirtualMachine.list=:")
 	for thePid in listVMs:
 		node_process = lib_common.gUriGen.PidUri(thePid)
 		theProcObj = listVMs[thePid]
@@ -31,7 +31,7 @@ def Main():
 					strVal = str(theVal)
 				except:
 					strVal = "No value"
-			sys.stderr.write("\t%s = %s\n"%(theKey,strVal))
+			DEBUG("%s = %s",theKey,strVal)
 
 			grph.add( ( node_process, lib_common.MakeProp(theKey), lib_common.NodeLiteral(strVal) ) )
 

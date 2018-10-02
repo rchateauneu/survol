@@ -47,7 +47,7 @@ def Main():
 
 		try:
 			ownrNam = theBus.get_name_owner(connectName)
-			sys.stderr.write("connectName=%s ownr=%s\n" % (connectName,ownrNam))
+			DEBUG("connectName=%s ownr=%s", connectName,ownrNam)
 			if connectName != ownrNam:
 				ownrNode = GetConnectNode( busAddr, ownrNam )
 				DEBUG("TO CONNECT %s", connectName)

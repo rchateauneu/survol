@@ -125,7 +125,7 @@ def GetTnsNamesWindows():
     try:
         import winreg
     except ImportError:
-        sys.stderr.write("winreg not available. Trying _winreg\n")
+        WARNING("winreg not available. Trying _winreg")
         try:
             import _winreg as winreg
         except ImportError:

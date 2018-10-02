@@ -91,7 +91,7 @@ def BuildSrvDict( hscm, machineName ):
 # This is really a hack but ok for prototyping. Why? Performances ?
 # tmplog because a timeout prevents Apache log to display sys.stderr.
 def BuildSrvNetwork( machineName ):
-	sys.stderr.write("BuildSrvNetwork machineName=%s localhost=%s\n" % (machineName,lib_util.currentHostname))
+	DEBUG("BuildSrvNetwork machineName=%s localhost=%s", machineName,lib_util.currentHostname)
 
 	machName_or_None, imper = lib_win32.MakeImpersonate(machineName)
 
@@ -115,7 +115,7 @@ def BuildSrvNetwork( machineName ):
 				try:
 					nodeSubService = dictServiceToNode[ subServiceName ]
 				except KeyError:
-					sys.stderr.write("Main=%s Sub=%s NOT CREATED\n" % ( serviceName, subServiceName ) )
+					WARNING("Main=%s Sub=%s NOT CREATED", serviceName, subServiceName )
 					continue
 
 				dictServiceToNode[ subServiceName ]["depends_in"].append( serviceName )
@@ -131,7 +131,7 @@ def BuildSrvNetwork( machineName ):
 			# BuildSrvNetwork serviceName=RpcEptMapper
 			# BuildSrvNetwork serviceName=DcomLaunch:
 			# BuildSrvNetwork serviceName=pla:
-			sys.stderr.write("BuildSrvNetwork serviceName=%s: Caught: %s\n" % ( serviceName, str(exc) ) )
+			WARNING("BuildSrvNetwork serviceName=%s: Caught: %s", serviceName, str(exc) )
 			# pywintypes.error: (5, 'OpenService', 'Access is denied.')
 
 			pass
@@ -230,7 +230,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	# WaitHint                  0
 	# Win32ExitCode             0
 	for keySrv in lstSrvPairs:
-		sys.stderr.write("AddInfo keySrv:%s\n" % keySrv )
+		DEBUG("AddInfo keySrv:%s", keySrv )
 		valSrv = lstSrvPairs[ keySrv ]
 		if keySrv == "ProcessId":
 			if int(valSrv) != 0:

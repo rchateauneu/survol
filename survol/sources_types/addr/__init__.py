@@ -31,7 +31,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	sockIP = lib_util.GlobalGetHostByName(socketAddr)
 	timeEnd = time.time()
 	timeDelta = timeEnd - timeStart
-	sys.stderr.write("addr.AddInfo tm=%f sockIP=%s\n"%(timeDelta,sockIP))
+	DEBUG("addr.AddInfo tm=%f sockIP=%s",timeDelta,sockIP)
 
 	nodeHost = lib_common.gUriGen.HostnameUri( sockIP )
 	# Should be the otherway round, but it makes the graph ugly.
@@ -105,7 +105,6 @@ def SocketToPair(connect):
 		rarray = connect.raddr
 	except AttributeError:
 		# Old psutil versions.
-		sys.stderr.write("OLD PSUTIL\n")
 		larray = connect.local_address
 		rarray = connect.remote_address
 	return (larray,rarray)

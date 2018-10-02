@@ -51,10 +51,10 @@ def Main():
         callNodePrev = None
 
         for st in remSta:
-            # == fichier=../essai.py line=6 module=<module>
-            # == fichier=<string> line=1 module=<module>
-            # == fichier=/tmp/tmpw14tgJ.py line=9 module=<module>
-            sys.stderr.write("== fichier=%s line=%d module=%s\n" % ( st[0], st[1], st[2] ) )
+            # == File=../essai.py line=6 module=<module>
+            # == File=<string> line=1 module=<module>
+            # == File=/tmp/tmpw14tgJ.py line=9 module=<module>
+            DEBUG("File=%s line=%d module=%s", st[0], st[1], st[2] )
 
             shortFilNam = st[0]
             lineNumber = st[1]
@@ -72,7 +72,7 @@ def Main():
             if not callNodePrev:
                 break
     else:
-        sys.stderr.write("No stack visible\n")
+        WARNING("No stack visible")
 
 
     cgiEnv.OutCgiRdf()

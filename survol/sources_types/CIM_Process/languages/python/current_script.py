@@ -118,7 +118,7 @@ def Main():
 
     argvArgs = " ".join( argvArray[1:] )
 
-    sys.stderr.write("argvArgs=%s\n"%argvArgs)
+    DEBUG("argvArgs=%s",argvArgs)
 
     opts, otherArgs = getopt.getopt(argvArgs,"Bc:dEhim:ORQ:sStuvVW:x3")
 
