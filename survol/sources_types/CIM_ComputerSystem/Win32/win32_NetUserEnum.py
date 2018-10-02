@@ -35,7 +35,7 @@ def Main():
 	else:
 		level = 2 # 1,2
 
-	sys.stderr.write("hostname=%s level=%d\n" % (hostname,level))
+	DEBUG("hostname=%s level=%d", hostname,level)
 
 	resumeHandle = 0
 

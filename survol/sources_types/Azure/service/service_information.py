@@ -41,9 +41,9 @@ def Main():
 	srv = sms.get_hosted_service_properties(serviceName)
 
 	DEBUG("srv=%s", str(dir(srv)))
-	sys.stderr.write("deployments=%s\n"% str(srv.deployments))
-	sys.stderr.write("srv.hosted_service_properties=%s\n"% str(dir(srv.hosted_service_properties)))
-	sys.stderr.write("srv.hosted_service_properties.extended_properties=%s\n"% str(dir(srv.hosted_service_properties.extended_properties)))
+	DEBUG("deployments=%s",str(srv.deployments))
+	DEBUG("srv.hosted_service_properties=%s", str(dir(srv.hosted_service_properties)))
+	DEBUG("srv.hosted_service_properties.extended_properties=%s", str(dir(srv.hosted_service_properties.extended_properties)))
 
 	servNode = service.MakeUri( srv.service_name, subscriptionName )
 	grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), servNode ) )
