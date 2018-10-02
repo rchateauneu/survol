@@ -227,7 +227,9 @@ class SourceLocal (SourceCgi):
 	# TODO: It would be much faster to avoid this useless serialization/deserialization.
 	def GetTriplestore(self):
 		docXmlRdf = self.get_content_moded("rdf")
-
+		if not docXmlRdf:
+			return None
+		# If the string is empty, it throws "<unknown>:1:0:"
 		grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
 		return TripleStore(grphKBase)
 
@@ -437,7 +439,7 @@ class BaseCIMClass(object):
 
 	# This might be a regular expression ?
 	# What to do with RDB and SQL expressions ?
-	def FindStringFromNeighbour(self,searchString,maxDepth):
+	def FindStringFromNeighbour(self,searchString,maxDepth,avoidSet):
 		# Heuristics and specialization per class.
 
 		mapInstancesToOccurrences = {}
@@ -479,6 +481,12 @@ class BaseCIMClass(object):
 			except IndexError:
 				# Empty priority queue.
 				break
+
+			if bestInstance in avoidSet:
+				INFO("Avoiding instance:%s",bestInstance)
+				continue
+			else:
+				INFO("Selecting instance:%s",bestInstance)
 			visitedInstances.add(bestInstance)
 
 			listOccurrences = bestInstance.InstanceGrepFromContent(searchString)
@@ -498,21 +506,32 @@ class BaseCIMClass(object):
 				for oneScript in lstScripts:
 					INFO("oneScript=%s",oneScript)
 					lib_common.ErrorMessageEnable(False)
+					tripleStore = oneScript.GetTriplestore()
+					if tripleStore is None:
+						continue
 					try:
-						lstScriptInstances = oneScript.GetTriplestore().GetInstances()
+						lstScriptInstances = tripleStore.GetInstances()
 					except Exception as ex:
 						ERROR("FindStringFromNeighbour: %s",ex)
+						continue
 					lib_common.ErrorMessageEnable(True)
 					for oneInstance in lstScriptInstances:
-						DEBUG("bestInstance=%s currDepth=%d Script=%s",bestInstance,currDepth,oneInstance)
-						if oneInstance not in visitedInstances:
-							try:
-								# If the node is already seen, and closer as expected.
-								# We might have rejected it before ?
-								if oneInstance.m_current_depth > currDepth:
-									oneInstance.m_current_depth = currDepth
-							except AttributeError:
-								PushInstance( oneInstance, currDepth )
+						if oneInstance in avoidSet:
+							INFO("Avoiding instance:%s",oneInstance)
+							continue
+
+						if oneInstance in visitedInstances:
+							INFO("Already visited instance:%s",oneInstance)
+							continue
+
+						DEBUG("Adding oneInstance=%s currDepth=%d",oneInstance,currDepth)
+						try:
+							# If the node is already seen, and closer as expected.
+							# We might have rejected it before ?
+							if oneInstance.m_current_depth > currDepth:
+								oneInstance.m_current_depth = currDepth
+						except AttributeError:
+							PushInstance( oneInstance, currDepth )
 
 		return mapInstancesToOccurrences
 
@@ -541,27 +560,28 @@ def CIMClassFactoryNoCache(className):
 	newclass = type(className, (BaseCIMClass,),{"__init__": __init__})
 	return newclass
 
+# Classes are keyed with their name.
+# Each class contain a dictionary of its instances, with an adhoc key
+# mostly made of the URL parameters.
 cacheCIMClasses = {}
 
 def CreateCIMClass(agentUrl,className,**kwargs):
 	global cacheCIMClasses
 	entity_id = KWArgsToEntityId(**kwargs)
 
-	instanceRepr = className + "." + entity_id
-	if instanceRepr.startswith("CIM_Directory.Name=C:\\"):
-		exit(0)
-	DEBUG("CREATE className%s %s",className,instanceRepr)
+	# No need to use the class in the key, because the cache is class-specific.
+	DEBUG("CREATE className%s %s",className,entity_id)
 
 	try:
 		newCIMClass = cacheCIMClasses[className]
 		DEBUG("Found class=%s",className)
 
 		try:
-			newInstance = newCIMClass.m_instancesCache[instanceRepr]
-			DEBUG("Found instance class=%s instance=%s",className,instanceRepr)
+			newInstance = newCIMClass.m_instancesCache[entity_id]
+			DEBUG("Found instance class=%s entity_id=%s",className,entity_id)
 			return newInstance
 		except KeyError:
-			INFO("Creating %s",instanceRepr)
+			DEBUG("Creating %s",entity_id)
 			# This instanceis not yet created.
 			pass
 	except KeyError:
@@ -574,7 +594,7 @@ def CreateCIMClass(agentUrl,className,**kwargs):
 
 	# Now, it creates a new instance and stores it in the cache of the CIM class.
 	newInstance = newCIMClass(agentUrl, **kwargs)
-	newCIMClass.m_instancesCache[instanceRepr] = newInstance
+	newCIMClass.m_instancesCache[entity_id] = newInstance
 	return newInstance
 
 ################################################################################
@@ -632,7 +652,7 @@ class TripleStore:
 		#import cgitb
 		#cgitb.enable(format="txt")
 
-		INFO("GetInstances")
+		DEBUG("GetInstances")
 		objsSet = lib_kbase.enumerate_instances(self.m_triplestore)
 		lstInstances = []
 		for instanceUrl in objsSet:
