@@ -949,7 +949,7 @@ class TmpFile:
 				self.DbgDelFil(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
-				INFO("About to NOT del %s", self.TmpDirToDel )
+				DEBUG("About to NOT del %s", self.TmpDirToDel )
 				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
 					for name in files:
 						self.DbgDelFil(os.path.join(root, name))
