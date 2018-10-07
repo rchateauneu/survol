@@ -138,6 +138,7 @@ pc.property_class_instance       = MakeProp("instance")
 pc.property_subclass             = MakeProp("subclass")
 pc.property_cim_subclass         = MakeProp("cim subclass")
 pc.property_alias                = MakeProp("alias")
+pc.property_string_occurrence    = MakeProp("string occurrence")
 
 dictPropertiesGraphAttributes = {
 	pc.property_script: "GREEN",
