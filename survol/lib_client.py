@@ -108,6 +108,10 @@ class SourceCgi (SourceBase):
 		#print("SourceCgi.IsCgiComplete")
 		return True
 
+	def GetScriptBagOfWords(self):
+		raise Exception("GetScriptBag Not implemented yet")
+
+
 def LoadModedUrl(urlModed):
 	DEBUG("LoadModedUrl.get_content_moded urlModed=%s",urlModed)
 	response = urlopen(urlModed)
@@ -159,8 +163,7 @@ class SourceLocal (SourceCgi):
 	def __str__(self):
 		return self.m_script + "?" + self.UrlQuery()
 
-	# This executes the script and return the data in the right format.
-	def __execute_script_with_mode(self,mode):
+	def __get_local_module(self):
 		# Sets an envirorment variable then imports the script and execute it.
 		# TODO: "?" or "&"
 
@@ -171,7 +174,14 @@ class SourceLocal (SourceCgi):
 
 		urlFilNam = os.path.basename(self.m_script)
 
-		modu = lib_util.GetScriptModule(moduNam, urlFilNam)
+		return lib_util.GetScriptModule(moduNam, urlFilNam)
+
+
+	# This executes the script and return the data in the right format.
+	def __execute_script_with_mode(self,mode):
+		# Sets an envirorment variable then imports the script and execute it.
+		# TODO: "?" or "&"
+		modu = self.__get_local_module()
 
 		# SCRIPT_NAME=/survol/print_environment_variables.py
 		os.environ["SCRIPT_NAME"] = "/" + self.m_script
@@ -221,6 +231,21 @@ class SourceLocal (SourceCgi):
 		data_content = self.__execute_script_with_mode(mode)
 		return data_content
 
+	# This returns a bag of words which describe what this script does.
+	# This is much faster than executing this module. Also, it is probably already
+	# imported so the cost is minimal.
+	# TODO: Add the classes and predicates returns by this script when executed.
+	# TODO: Estimate the cost of calling this script.
+	# TODO: Store it in the object.
+	def GetScriptBagOfWords(self):
+		modu = self.__get_local_module()
+		if modu.__doc__:
+			return set( [ wrd.strip() for wrd in modu.__doc__.split() ])
+		else:
+			# There is not much information we can return: Just the module name.
+			return set(modu.__name__)
+
+
 	# TODO: At the moment, this serializes an rdflib triplestore into a XML-RDF buffer,
 	# TODO: which is parsed again by rdflib into a triplestore,
 	# TODO: and then this triplestore is looped on, to extract the instances.
@@ -254,12 +279,14 @@ class SourceMerge (SourceBase):
 		else:
 			# The class cannot be None because the url is not complete
 
-			objsList = lib_kbase.enumerate_instances(triplestoreA)
+			objsList = lib_kbase.enumerate_urls(triplestoreA)
 
+			# TODO: Not optimal because it processes not only instances urls but also scripts urls.
 			for instanceUrl in objsList:
 				( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
 				if entity_label == self.m_srcB.m_class:
-					urlDerived = self.m_srcB.DeriveUrl(instanceUrl)
+					urlDerived = UrlToInstance(instanceUrl)
+					# urlDerived = self.m_srcB.DeriveUrl(instanceUrl)
 					triplestoreB = urlDerived.GetTriplestore()
 					triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
 			return TripleStore(triplestoreA)
@@ -274,8 +301,6 @@ class SourceMerge (SourceBase):
 			return strResult
 
 		raise Exception("get_content_moded: Cannot yet convert to %s"%mode)
-
-# Function UrlToMergeD3()
 
 class SourceMergePlus (SourceMerge):
 	def __init__(self,srcA,srcB):
@@ -299,8 +324,28 @@ def CreateSource(script,className = None,urlRoot = None,**kwargs):
 
 class BaseCIMClass(object):
 	def __init__(self,agentUrl, entity_id):
+		#DEBUG("BaseCIMClass.__init__ %s",entity_id)
 		self.m_agentUrl = agentUrl
 		self.m_entity_id = entity_id
+
+
+	# Maybe this object is already in the cache ?
+	def __new__(cls, agentUrl, **kwargs):
+
+		entity_id = KWArgsToEntityId(**kwargs)
+
+		try:
+			cacheInstance = cls.m_instancesCache[entity_id]
+			#DEBUG("BaseCIMClass.__new__ %s is IN the cache",entity_id)
+			return cacheInstance
+		except KeyError:
+			#DEBUG("BaseCIMClass.__new__ %s is NOT in the cache",entity_id)
+			# newInstance = super(ClassA, cls).__new__(cls, agentUrl, **kwargs)
+			newInstance = super(BaseCIMClass, cls).__new__(cls,  agentUrl, **kwargs)
+
+			cls.m_instancesCache[entity_id] = newInstance
+			return newInstance
+
 
 	# TODO: This could be __repr__ also.
 	def __str__(self):
@@ -320,7 +365,7 @@ class BaseCIMClass(object):
 	def GetScriptsRemote(self):
 		# We expect a contextual menu in JSON format, not a graph.
 		urlScripts = self.m_agentUrl + "/survol/entity_dirmenu_only.py" + "?xid=" + self.__class__.__name__ + "." + self.m_entity_id + "&mode=menu"
-		DEBUG("GetScriptsRemote self.m_agentUrl=%s urlScripts=%s",self.m_agentUrl,urlScripts)
+		#DEBUG("GetScriptsRemote self.m_agentUrl=%s urlScripts=%s",self.m_agentUrl,urlScripts)
 
 		# Typical content:
 		# {
@@ -374,166 +419,176 @@ class BaseCIMClass(object):
 		listSources = [ ScriptUrlToSource(oneScr) for oneScr in listScripts]
 		return listSources
 
+	def GetInstanceBagOfWords(self):
+		# TODO: And the host ?
+		bagOfWords = set(self.__class__.__name__)
 
-	# Survol is a graph database: https://en.wikipedia.org/wiki/Graph_database
-	# On top of this, each instance points to a scripts which can return instances,
-	# and enrich the graph database: This is necesary because the quantity of information
-	# varies at each moment, and is of infinite size.
-	# This explores the scripts of each instance, uses the A* algorithm.
-	def FindPathToInstance(self,instanceDestination,maxDepth):
+		# This is the minimal set of words.
+		dictIds = lib_util.SplitMoniker( self.m_entity_id )
+		for keyId in dictIds:
+			bagOfWords.add(keyId)
+			valId = dictIds[keyId]
+			bagOfWords.add(valId)
 
-		print("TODO: %s Not implemented yet"%inspect.stack()[0][3])
+		# TODO: Call AddInfo()
 
-		# Heuristiques tres specifiques: On utilise des regles pour trier la liste.
-		# Utiliser les protections pour savoir si un process peut atteindre un fichier.
-		# Liens symboliques.
-		# Creer une espece de distance entre deux instances. Qui tient compte des hosts.
-		# Mais aussi, il faut pouvoir suggerer un script plutot qu'un autre:
-		# Si process et fichier, suggerer de chercher aussi dans les noms de fichiers
-		# qui apparaissent dans la memoire du process.
+		return bagOfWords
 
-		# chercher de A vers B mais aussi de B vers A ?
-
-
-
-		listSteps = []
-		return listSteps
-
-
-	def InstanceGrepFromContent(self,searchString):
-		"""This returns a list of StringOccurrenceBase derived objects.
-		It could return an iterator, if the research is very slow."""
-
-		# Each instance has a list of objects deriving from this base class,
-		# which model the occurrence of a specific string in a CIM object.
-		# Indexed by instances, possibly several occurrences, with the context.
-		# TODO: Or maybe should return a list of instances ?
-		# TODO: What can we do with a list of detected strings ?
-		# TODO: ... display them as an information snippet ? Survol does not have this concept (yet).
-		class StringOccurrenceBase:
-			def __str__(self):
-				# This is completely specific to the CIM class, for example:
-				# - CIM_DataFile: Line or offset number.
-				# - CIM_Process: Memory segment, or environment variable ?
-				# - Oracle table: Which record, which column.
-				return ""
-
-		# It is not very elegant to give a this method to BaseCIMClass when its legitimate derived classes
-		# must use a "static" function from their module.
-
-
-		entity_type = self.__class__.__name__
-		entity_module = lib_util.GetEntityModule(entity_type)
-		if entity_module:
-			try:
-				# This function searches for a string or a regular expression,
-				# and returns the occurrences as list subclasses of StringOccurrenceBase.
-				# The search mechanism is different, depending on the class: Search from a file, a database etc...
-				entity_module.ModuleGrepFromContent(entity_type, self.m_entity_id, searchString)
-			except AttributeError:
-				exc = sys.exc_info()[1]
-				INFO("No ModuleGrepFromContent for module=%s %s %s: %s", entity_module.__name__, entity_type, self.m_entity_id, str(exc) )
-
-		return []
-
-
-	# This might be a regular expression ?
-	# What to do with RDB and SQL expressions ?
-	def FindStringFromNeighbour(self,searchString,maxDepth,avoidSet):
+	# This returns an iterator.
+	# TODO: This will be able to return elements being calculated by sub-processes.
+	# TODO: Filter with something similar to SparQL ??
+	# Test cases:
+	# - Look for a specific string to understand where it comes from,
+	#   its path. For example, where does an error message comes from ?
+	#   or a malformed string ?
+	#   Long-term goal: Actively wait after several processes, files, queues,
+	#   looking for the same string, and see it appear from several sources,
+	#	in the order it is processed.
+	# - Does an object X depends on and object Y: If an executable binary depends
+	#   on a configuration file ?
+	#
+	# Searching for an instance is very similar as long as it has a bag of words.
+	#
+	def FindStringFromNeighbour(self,searchString,maxDepth,filterInstances,filterPredicates):
 		# Heuristics and specialization per class.
 
-		mapInstancesToOccurrences = {}
+		# TODO: This is very raw...
+		targetBagOfWords = set(searchString)
+
+		# TODO: Ponderation of words ? With < global dictionary of number of occurrences of each word.
+		# TODO: Maybe minimal bag of words ?
+		def BagOfWordsToEstimatedDistance(wordsBagA, wordsBagB):
+			setDifference = wordsBagA.symmetric_difference(wordsBagB)
+			setUnion = wordsBagA.union(wordsBagB)
+			setDist = len(setDifference)/len(setUnion)
+			return setDist
 
 		priorityQueue = []
 		visitedInstances = set()
 
-		def LessThan(selfInstance, otherInstance):
-			"""This is for the heap priority queue when walking on the triplestores graph.
-			This models the reasonable probabily to find a specific string.
-			Some criterias:
-			- Not many strings in binary files.
-			- Database tables with only numeric tables.
-			- A directory always comes at the end because it does not contain anything.
-			"""
-			# TODO: It is very difficult to sort instances with no idea of the context, the type of string to search etc...
-			# TODO: The sort function would be very different when searching for a path between two instances.
-			print("self=%s"%selfInstance)
-			print("other=%s"%otherInstance)
-			print("TODO: %s Not implemented yet"%inspect.stack()[0][3])
-			exit(0)
+		class AStarEdge:
+			def __init__(self, nodeInstance, urlScript, currDist, currDepth, wordsBag):
+				self.m_node_instance = nodeInstance
+				self.m_url_script = urlScript
+				self.m_current_distance = currDist
+				self.m_current_depth = currDepth
+				self.m_words_bag = wordsBag
+				self.m_estimation_to_target = BagOfWordsToEstimatedDistance(wordsBag,targetBagOfWords)
 
-			return False
+			def __lt__(selfInstance, otherInstance):
+				"""This is for the heap priority queue when walking on the triplestores graph.
+
+				Each node is associated to a bag of words containing keywords related
+				to the instance (AddInfo) and to the script.
+
+				The target also has a bag of words, built the same way.
+
+				We add a node to the priority list of the A* algorithm,
+				the distance between its bag of words and the target's is calculated:
+				This distance is used to sort the priority queue,
+				possibly using Levenshtein distance for similar strings.
+				The next explored node is the closest of the target.
+				"""
+				return selfInstance.m_estimation_to_target < otherInstance.m_estimation_to_target
+
+		if self in filterInstances:
+			INFO("Avoiding instance:%s",self)
+			return
+
+		# It does this by maintaining a tree of paths originating at the start node and extending
+		# those paths one edge at a time until its termination criterion is satisfied.
+		# At each iteration of its main loop, A* needs to determine which of its paths to extend.
+		# It does so based on the cost of the path and an estimate of the cost required
+		# to extend the path all the way to the goal. Specifically, A* selects the path that minimizes
+		#  f(n)=g(n)+h(n)
+		# where n is the next node on the path, g(n) is the cost of the path from the start node to n,
+		# and h(n) is a heuristic function that estimates the cost of the cheapest path from n to the goal.
+		def FillHeapWithInstanceScripts(nodeInstance,currDistance, currDepth):
+			global heapq
+			lstScripts = nodeInstance.GetScripts()
+			instanceBagOfWords = nodeInstance.GetInstanceBagOfWords()
+
+			#DEBUG("nodeInstance=%s type(nodeInstance)=%s",nodeInstance,str(type(nodeInstance)))
+			for oneScript in lstScripts:
+				scriptBagOfWords = oneScript.GetScriptBagOfWords()
+				commonBagOfWords = set.union(instanceBagOfWords, scriptBagOfWords)
+				anEdge = AStarEdge(nodeInstance, oneScript, currDistance, currDepth, commonBagOfWords)
+				heapq.heappush( priorityQueue, anEdge)
 
 
-		def PushInstance(theInst,theDepth):
-			theInst.m_current_depth = theDepth
-			theInst.__lt__ = LessThan
-			heapq.heappush( priorityQueue, theInst)
-
-		PushInstance( self, 0 )
+		FillHeapWithInstanceScripts( self, 0, 0 )
 
 		# Search in the instance based on a specific function.
 		# If found, add to the list of results.
 
 		while True:
 			try:
-				bestInstance = heapq.heappop(priorityQueue)
+				bestEdge = heapq.heappop(priorityQueue)
 			except IndexError:
 				# Empty priority queue.
 				break
 
-			if bestInstance in avoidSet:
-				INFO("Avoiding instance:%s",bestInstance)
-				continue
-			else:
-				INFO("Selecting instance:%s",bestInstance)
-			visitedInstances.add(bestInstance)
+			INFO("Selecting edge:%s",bestEdge)
+			visitedInstances.add(bestEdge)
 
-			listOccurrences = bestInstance.InstanceGrepFromContent(searchString)
-			if listOccurrences:
-				# Maybe it found some occurrences.
-				# TODO: It could be very slow, so we could instead store asynchronous iterators,
-				# TODO: which would be calculated while we are iterating on other nodes.
-				# TODO: Consider a map-reduce framework ...
-				# TODO: ... but beware of accessibility.
-				mapInstancesToOccurrences[bestInstance] = listOccurrences
-
-			currDepth = bestInstance.m_current_depth + 1
+			# The depth is just here for informational purpose.
+			currDepth = bestEdge.m_current_depth + 1
+			# TODO: For the moment, this is equivalent to the depth,
+			# TODO: but it could take into account the number of edges, or, better,
+			# TODO: the cost of scripts.
+			currDistance = bestEdge.m_current_distance + 1
 
 			if currDepth < maxDepth:
-				lstScripts = bestInstance.GetScripts()
-				INFO("bestInstance=%s",bestInstance)
-				for oneScript in lstScripts:
-					INFO("oneScript=%s",oneScript)
-					lib_common.ErrorMessageEnable(False)
-					tripleStore = oneScript.GetTriplestore()
-					if tripleStore is None:
+				INFO("bestEdge.m_url_script=%s bestEdge.m_node_instance=%s",bestEdge.m_url_script,bestEdge.m_node_instance)
+				lib_common.ErrorMessageEnable(False)
+
+				# TODO: Use filterPredicates
+				tripleStore = bestEdge.m_url_script.GetTriplestore()
+
+				if tripleStore is None:
+					continue
+
+				tripleStoreMatch = tripleStore.GetMatchingTripleStore(searchString)
+				for oneTriple in tripleStoreMatch:
+					# NON: Il faut renvoyer des instances, pas des des scripts ???
+					yield oneTriple
+
+				try:
+					# TODO: We can refine the calculation of the distance if this returns
+					# TODO: the number of edges up to each connected node. But it does not really
+					# TODO: matter because the true cost is in calculating a script,
+					# TODO: or maybe in the CPU time taken by the script.
+					# TODO: However a very raw evaluation is enough: Its role is to avoid
+					# TODO: searching in depth first, possibly in an endless suite,
+					# TODO: whereas the solution could be quite close.
+					#
+					# TODO: Give a high cost when a node is on a remote machine.
+					lstInstances = tripleStore.GetConnectedInstances(bestEdge.m_node_instance)
+				except Exception as ex:
+					ERROR("FindStringFromNeighbour: %s",ex)
+					raise
+					continue
+				lib_common.ErrorMessageEnable(True)
+				for oneInstance in lstInstances:
+					if oneInstance in filterInstances:
+						INFO("Avoiding instance:%s",oneInstance)
 						continue
+
+					if oneInstance in visitedInstances:
+						INFO("Already visited instance:%s",oneInstance)
+						continue
+
+					#DEBUG("Adding oneInstance=%s currDepth=%d",oneInstance,currDepth)
 					try:
-						lstScriptInstances = tripleStore.GetInstances()
-					except Exception as ex:
-						ERROR("FindStringFromNeighbour: %s",ex)
-						continue
-					lib_common.ErrorMessageEnable(True)
-					for oneInstance in lstScriptInstances:
-						if oneInstance in avoidSet:
-							INFO("Avoiding instance:%s",oneInstance)
-							continue
+						# If the node is already seen, and closer as expected.
+						# We might have rejected it before ?
+						if oneInstance.m_current_distance > currDistance:
+							oneInstance.m_current_distance = currDistance
+						if oneInstance.m_current_depth > currDepth:
+							oneInstance.m_current_depth = currDepth
+					except AttributeError:
+						FillHeapWithInstanceScripts( oneInstance, currDistance, currDepth )
 
-						if oneInstance in visitedInstances:
-							INFO("Already visited instance:%s",oneInstance)
-							continue
-
-						DEBUG("Adding oneInstance=%s currDepth=%d",oneInstance,currDepth)
-						try:
-							# If the node is already seen, and closer as expected.
-							# We might have rejected it before ?
-							if oneInstance.m_current_depth > currDepth:
-								oneInstance.m_current_depth = currDepth
-						except AttributeError:
-							PushInstance( oneInstance, currDepth )
-
-		return mapInstancesToOccurrences
 
 def KWArgsToEntityId(**kwargs):
 	entity_id = ""
@@ -542,10 +597,13 @@ def KWArgsToEntityId(**kwargs):
 		# TODO: The values should be encoded !!!
 		entity_id += delim + "%s=%s" % (key,value)
 		delim = ","
+	if type(entity_id) == unicode:
+		#WARNING("KWArgsToEntityId Unicode entity_id=%s",entity_id)
+		entity_id = entity_id.encode("utf-8")
 	return entity_id
 
 def CIMClassFactoryNoCache(className):
-	def __init__(self, agentUrl, **kwargs):
+	def Derived__init__(self, agentUrl, **kwargs):
 		"""This function will be used as a constructor for the new class."""
 		for key, value in kwargs.items():
 			setattr(self, key, value)
@@ -557,7 +615,7 @@ def CIMClassFactoryNoCache(className):
 		className = className.encode()
 
 	# sys.stderr.write("className: %s/%s\n"%(str(type(className)),className))
-	newclass = type(className, (BaseCIMClass,),{"__init__": __init__})
+	newclass = type(className, (BaseCIMClass,),{"__init__": Derived__init__})
 	return newclass
 
 # Classes are keyed with their name.
@@ -570,25 +628,28 @@ def CreateCIMClass(agentUrl,className,**kwargs):
 	entity_id = KWArgsToEntityId(**kwargs)
 
 	# No need to use the class in the key, because the cache is class-specific.
-	DEBUG("CREATE className%s %s",className,entity_id)
+	#DEBUG("CreateCIMClass className=%s entity_id=%s",className,entity_id)
 
 	try:
 		newCIMClass = cacheCIMClasses[className]
-		DEBUG("Found class=%s",className)
+		#DEBUG("Found existing className=%s",className)
 
 		try:
 			newInstance = newCIMClass.m_instancesCache[entity_id]
-			DEBUG("Found instance class=%s entity_id=%s",className,entity_id)
+			#DEBUG("Found instance className=%s entity_id=%s",className,entity_id)
 			return newInstance
 		except KeyError:
-			DEBUG("Creating %s",entity_id)
+			#DEBUG("Creating instance entity_id=%s",entity_id)
 			# This instanceis not yet created.
 			pass
 	except KeyError:
 		# This class is not yet created.
 		# TODO: If entity_label contains slashes, submodules must be imported.
-		INFO("Creating class=%s",className)
+		#DEBUG("Creating className=%s",className)
 		newCIMClass = CIMClassFactoryNoCache(className)
+		#DEBUG("Creating newCIMClass.__name__=%s",newCIMClass.__name__)
+		#DEBUG("Creating newCIMClass.__module__=%s",newCIMClass.__module__)
+
 		cacheCIMClasses[className] = newCIMClass
 		newCIMClass.m_instancesCache = {}
 
@@ -598,11 +659,31 @@ def CreateCIMClass(agentUrl,className,**kwargs):
 	return newInstance
 
 ################################################################################
+def UrlToInstance(instanceUrl):
+	if instanceUrl.find("entity.py") < 0:
+		# So maybe this is not an instance after all.
+		return None
+
+	( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
+	# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+	# BEWARE: Some arguments should be decoded.
+	#DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+
+	xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+
+	# This parsing that all urls are not scripts but just define an instance
+	# and therefore have the form "http://.../entity.py?xid=...",
+	agentUrl = InstanceUrlToAgentUrl(instanceUrl)
+
+	newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
+	return newInstance
+
+
 # instanceUrl="http://LOCAL_MODE:80/NotRunningAsCgi/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
 # instanceUrl=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427
 # instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def InstanceUrlToAgentUrl(instanceUrl):
-	DEBUG("InstanceUrlToAgentUrl instanceUrl=%s",instanceUrl)
+	#DEBUG("InstanceUrlToAgentUrl instanceUrl=%s",instanceUrl)
 
 	parse_url = urlparse(instanceUrl)
 	if parse_url.path.startswith(lib_util.prefixLocalScript):
@@ -611,9 +692,7 @@ def InstanceUrlToAgentUrl(instanceUrl):
 	idxSurvol = instanceUrl.find("/survol")
 	agentUrl = instanceUrl[:idxSurvol]
 
-	DEBUG("InstanceUrlToAgentUrl agentUrl=%s",agentUrl)
-	if agentUrl and agentUrl.endswith("hos"):
-		exit(0)
+	#DEBUG("InstanceUrlToAgentUrl agentUrl=%s",agentUrl)
 	return agentUrl
 
 # This wraps rdflib triplestore.
@@ -638,40 +717,92 @@ class TripleStore:
 	def __len__(self):
 		return len(self.m_triplestore)
 
-	# This executes simple WQL queries, whether this is WBEM or WMI or Survol data,
-	# or all mixed together.
-	def QueryWQL(self,className,**kwargs):
-		return None
-
-	def QuerySPARQL(self,qrySparql):
-		return None
-
 	# This creates a CIM object for each unique URL, subject or object found in a triplestore.
 	# If needed, the CIM class is created on-the-fly.
-	def GetInstances(self):
-		#import cgitb
-		#cgitb.enable(format="txt")
+	#def GetInstances(self):
+	#	DEBUG("GetInstances")
+	#	objsSet = lib_kbase.enumerate_instances(self.m_triplestore)
+	#	lstInstances = []
+	#	for instanceUrl in objsSet:
+	#		# sys.stderr.write("GetInstances instanceUrl=%s\n"%instanceUrl)
+	#		( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
+	#		# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+	#		# BEWARE: Some arguments should be decoded.
+	#		DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+	#
+	#		xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+	#
+	#		# This parsing that all urls are not scripts but just define an instance
+	#		# and therefore have the form "http://.../entity.py?xid=...",
+	#		agentUrl = InstanceUrlToAgentUrl(instanceUrl)
+	#
+	#		newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
+	#		lstInstances.append(newInstance)
+	#	return lstInstances
 
-		DEBUG("GetInstances")
-		objsSet = lib_kbase.enumerate_instances(self.m_triplestore)
-		lstInstances = []
-		for instanceUrl in objsSet:
-			# sys.stderr.write("GetInstances instanceUrl=%s\n"%instanceUrl)
-			( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
-			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
-			# BEWARE: Some arguments should be decoded.
-			DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+	# This returns the set of all nodes connected directly or indirectly to the input.
+	def GetConnectedInstances(self,startInstance):
+		urls_adjacency_list = lib_kbase.get_urls_adjacency_list(self.m_triplestore,[pc.property_script,pc.property_rdf_data_nolist2])
 
-			xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+		# Now the adjacency list between scripts must be transformed into an adjacency list between instances only.
+		instances_adjacency_list = dict()
+		for oneUrl in urls_adjacency_list:
+			oneInstance = UrlToInstance(oneUrl)
+			if oneInstance:
+				adj_urls_list = urls_adjacency_list[oneUrl]
+				adj_insts = []
+				for oneAdjUrl in adj_urls_list:
+					oneAdjInstance = UrlToInstance(oneAdjUrl)
+					if oneAdjInstance:
+						adj_insts.append(oneAdjInstance)
+				if adj_insts:
+					instances_adjacency_list[oneInstance] = adj_insts
 
-			# This parsing that all urls are not scripts but just define an instance
-			# and therefore have the form "http://.../entity.py?xid=...",
-			agentUrl = InstanceUrlToAgentUrl(instanceUrl)
+		#DEBUG("instances_adjacency_list keys:%s",str( [ str(oneKey) for oneKey in instances_adjacency_list.keys() ] ))
 
-			newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
-			lstInstances.append(newInstance)
-		return lstInstances
 
+		#DEBUG("cacheCIMClasses['CIM_Directory'].m_instancesCache.keys()=%s", str(cacheCIMClasses['CIM_Directory'].m_instancesCache.keys()))
+		#DEBUG("cacheCIMClasses['CIM_Directory'].m_instancesCache.keys()=%s",
+		#	  str( [ str(oneKey) for oneKey in cacheCIMClasses['CIM_Directory'].m_instancesCache.keys() ] ) )
+		#DEBUG("cacheCIMClasses['CIM_Directory'].m_instancesCache.keys()=%s",
+		#	  str( [ type(oneKey) for oneKey in cacheCIMClasses['CIM_Directory'].m_instancesCache.keys() ] ) )
+
+
+		setConnectedInstances = set()
+
+		# This recursively merges all nodes connected to this one.
+		def MergeConnectedInstancesTo(oneInst):
+			#DEBUG("instances_adjacency_list keys:%s",str( [ str(oneKey) for oneKey in instances_adjacency_list.keys() ] ))
+			#INFO("len(instances_adjacency_list)=%d oneInst=%s type=%s",len(instances_adjacency_list),oneInst,type(oneInst))
+
+			if not oneInst in instances_adjacency_list:
+				#DEBUG("Already deleted oneInst=%s",oneInst)
+				return
+			#DEBUG("instances_adjacency_list values:%s",str( [ str(oneVal) for oneVal in instances_adjacency_list[oneInst] ] ))
+
+			assert oneInst in instances_adjacency_list,"oneInst not there:%s"%oneInst
+			instsConnected = instances_adjacency_list[oneInst]
+			#INFO("len(setResult)=%d oneInst=%s",len(instances_adjacency_list),oneInst)
+			#INFO("Union before len(instsConnected)=%d",len(instsConnected))
+			#INFO("Union before len(setConnectedInstances)=%d",len(setConnectedInstances))
+			setConnectedInstances.update(instsConnected)
+			#INFO("Union after len(setConnectedInstances)=%d",len(setConnectedInstances))
+
+			#INFO("len(instances_adjacency_list)=%d oneInst=%s",len(instances_adjacency_list),oneInst)
+			del instances_adjacency_list[oneInst]
+			#INFO("len(instances_adjacency_list)=%d oneInst=%s",len(instances_adjacency_list),oneInst)
+			for endInst in instsConnected:
+				MergeConnectedInstancesTo(endInst)
+
+		MergeConnectedInstancesTo(startInstance)
+
+		# All the nodes connected to the input one.
+		INFO("startInstance=%s len(setConnectedInstances)=%d",startInstance,len(setConnectedInstances))
+		return setConnectedInstances
+
+
+	def GetMatchingTripleStore(self,searchString):
+		return lib_kbase.matching_triplestore(self.m_triplestore,searchString)
 
 ################################################################################
 
@@ -749,5 +880,27 @@ class Agent:
 # TODO: Create the merge URL. What about a local script ?
 # Or: A merged URL needs an agent anyway.
 
+
 ################################################################################
 
+"""
+Recherche en parallele:
+=======================
+Si le script a une fonction Daemon(), alors on lance un sous-process qui va l'appeler
+et rester constamment en attente des resultats.
+Il n y a pas de multiprocessing.heapq mais uniquement multiprocessing.queue
+Le sous-process qui lance le script ajoute les resultats dans la queue des resultats,
+un par un, et quand ce sera un script, on l'insere dans la heapq des scripts
+mais doit la locker: multiprocessing.Lock.
+Si pas de fonction Daemon(), ou bien si script remote,alors on appelle juste le script.
+On pourrait lancer un sous-process si HTTP permettait de recevoir des infos via la socket,
+sans fin.
+
+OU ALORS:
+La gestion des scripts d evenements est transparente: On relance simplement les scripts
+si leur nom contient "auto", et le bidule est capable de stocker les triples
+crees par une sous-process: A chaque appel, on va lire le contenu de la queue.
+Bien sur, si local, ce serait plus rapide d eviter l encodage/decoage en lisant directement
+la queue ou meme en lancant "Daemon" qui ecrirait directement ses triples dans notre queue.
+"Premature omptimisation etc..."
+"""
