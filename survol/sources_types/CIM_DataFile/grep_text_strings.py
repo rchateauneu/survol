@@ -11,13 +11,12 @@ Search strings in text file.
 # If the regular expression is empty, it might possible return an error message,
 # or the entire content file.
 
-"""
-On a besoin d une expression reguliere rentree a la main pour les tests et l utilisation
-manuelle, sinon le script na pas de sens.
-Toutefois, il faut tenir compte du filtre SparQL: S'il y a un filtre,
-le parametre CGI est forcement absent, et inversement.
-S'il y a un filtre, on peut calculer l'expression reguliere et empecher cgiEnv d'appliquer le filtre car ca ferait doubkle-emploi.
-"""
+# The default regular expression must return reasonable words
+# as it is blindly used by the search engine.
+
+# TODO: Use "grep" which is much faster.
+
+# NOTE: For more generality, specify the regular expression with a SparQL query.
 
 import os
 import os.path
@@ -25,7 +24,6 @@ import re
 import sys
 import lib_util
 import lib_common
-import lib_modules
 from lib_properties import pc
 
 def Main():
@@ -45,13 +43,10 @@ def Main():
 	nodeFile = lib_common.gUriGen.FileUri(filNam)
 
 	try:
-
-		# compiledRgx = re.compile(rgxSQL, re.IGNORECASE)
-		# compiledRgx = re.compile("([a-zA-Z0-9]{5,})")
+		# TODO: Flag "Ignore case": re.compile(rgxSQL, re.IGNORECASE)
 		compiledRgx = re.compile(regExpr)
 
-		# Ou alors renvoyer un sous-niveau par chaine avec le niveau en-dessous qui contiendra les occurrences:
-		# Un peu comme les dir qui ne sont pas clickables.
+		# TODO: Gets the matched expression with parentheses: re.compile("([a-zA-Z0-9]{5,})")
 
 		cntLines = 1
 		opFil = open(filNam, 'r')
@@ -61,17 +56,10 @@ def Main():
 				break
 			matchedStrs = compiledRgx.findall(linFil)
 
-			# TODO: For the moment, we just print the query. How can it be related to a database ?
 			for oneStr in matchedStrs:
-				# grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
-				sys.stderr.write("oneStr=%s\n"%str(oneStr))
-				nodeStr = lib_common.NodeLiteral(oneStr)
 				grph.add( ( nodeFile, pc.property_string_occurrence, lib_common.NodeLiteral(oneStr) ) )
 
-				# Ca marche mais on s en fout
-				# grph.add( ( nodeStr, pc.property_string_occurrence, lib_common.NodeLiteral("kljhkljhlkj") ) )
-
-		# grph.add( ( nodeFile, pc.property_com_entry, lib_common.gUriGen.FileUri("Tralala") ) )
+				# TODO: Add intermediary node, counts the number of occurrences.
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
