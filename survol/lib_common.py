@@ -941,7 +941,7 @@ class TmpFile:
 			DEBUG("Deleting=%s",filNam)
 			os.remove(filNam)
 		else:
-			DEBUG("NOT Deleting=%s",filNam)
+			WARNING("NOT Deleting=%s",filNam)
 
 	def __del__(self):
 		try:
