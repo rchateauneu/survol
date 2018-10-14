@@ -22,6 +22,9 @@ for modu in allModules:
 	del sys.modules[modu]
 
 import lib_client
+import lib_properties
+# from lib_properties import pc
+
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
@@ -263,19 +266,20 @@ class SurvolLocalTest(unittest.TestCase):
 		# There should be at least a couple of scripts.
 		self.assertTrue(len(listScripts) > 0)
 
-	# TODO: This has to find a path in nodes which are not enumerated yet.
-	# The difficulty is to find which scripts might find a link between the two nodes.
-	def test_search_local_instance(self):
-		"""This loads instances connected to an instance by every known script"""
+	def test_instances_cache(self):
+		instanceA = lib_client.Agent().CIM_Directory( Name="C:/Windows")
+		instanceB = lib_client.Agent().CIM_Directory( Name="C:/Windows")
+		instanceC = lib_client.CreateCIMClass(None,"CIM_Directory",Name="C:/Windows")
+		sys.stdout.write("Class=%s\n"%instanceC.__class__.__name__)
+		sys.stdout.write("Module=%s\n"%instanceC.__module__)
+		sys.stdout.write("Dir=%s\n\n"%str(dir(lib_client)))
+		sys.stdout.write("Dir=%s\n"%str(sorted(globals())))
 
-		# The service "PlugPlay" should be available on all Windows machines.
-		myInstanceOrigin = lib_client.Agent().CIM_Directory(
-			Name="C:\\Windows")
+		assert( instanceA is instanceB )
+		assert( instanceA is instanceC )
+		assert( instanceC is instanceB )
 
-		myInstanceDestination = lib_client.Agent().CIM_DataFile(
-			Name="C:\\Windows\\explorer.exe")
 
-		listSteps = myInstanceOrigin.FindPathToInstance(myInstanceDestination,maxDepth=2)
 
 	def test_search_local_string(self):
 		"""This loads instances connected to an instance by every known script"""
@@ -284,16 +288,22 @@ class SurvolLocalTest(unittest.TestCase):
 		instanceOrigin = lib_client.Agent().CIM_Directory(
 			Name="C:/Windows")
 
-		instanceAvoid = {
+		listInstances = {
 			lib_client.Agent().CIM_Directory(Name="C:/Windows/winxs"),
 			lib_client.Agent().CIM_Directory(Name="C:/windows/system32"),
 			lib_client.Agent().CIM_DataFile(Name="C:/Windows/epplauncher.mif"),
 			lib_client.Agent().CIM_DataFile(Name="C:/Windows/U2v243.exe"),
 		}
 
+		listPredicates = {
+			lib_properties.pc.property_directory,
+		}
+
 		mustFind = "Hello"
 
-		listSteps = instanceOrigin.FindStringFromNeighbour(searchString=mustFind,maxDepth=3,avoidSet=instanceAvoid)
+		searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString=mustFind,maxDepth=3,filterInstances=listInstances,filterPredicates=listPredicates)
+		for tpl in searchTripleStore:
+			print(tpl)
 
 
 class SurvolRemoteTest(unittest.TestCase):
