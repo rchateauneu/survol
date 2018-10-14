@@ -101,12 +101,16 @@ new_graphiz = True # sys.version_info >= (3,)
 
 # TODO: This is temporary because old graphviz versions dot not implement that.
 def DotBold(str):
-	return "<b>%s</b>" % str if new_graphiz else str
+	if not str: return ""
+	return "<b>%s</b>" % str if new_graphiz and str else str
 
 def DotUL(str):
-	return "<u>%s</u>" % str if new_graphiz else str
+	if not str: return ""
+	return "<u>%s</u>" % str if new_graphiz and str else str
 
+# Do not italicize empty string otherwise "Error: syntax error in line 1 ... <i></i> ..."
 def DotIt(str):
+	if not str: return ""
 	return "<i>%s</i>" % str if new_graphiz else str
 
 ################################################################################
@@ -333,8 +337,9 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# This applies only to entity.py : In rendering based on Json, scripts are not displayed as nodes,
 		# but in hierarchical menus. The node must not appear at all.
 
+		# TODO: Should probably also eliminate pc.property_rdf_data_nolist2 etc ... See lib_client.
 		if pred == pc.property_script:
-			INFO("continue subj=%s obj=%s",subj,obj)
+			DEBUG("continue subj=%s obj=%s",subj,obj)
 			continue
 
 		# Normal data scripts are not accepted. This should apply only to file_directory.py and file_to_mime.py
