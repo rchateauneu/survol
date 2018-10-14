@@ -11,7 +11,7 @@ import sys
 import lib_sql
 import lib_util
 import lib_common
-import lib_modules
+# import lib_modules
 from lib_properties import pc
 
 # Any type of source file can contain SQL queries.
