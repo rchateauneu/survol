@@ -344,6 +344,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	page_title = "Merge of %d scripts:\n" % len(globalCgiEnvList)
 	delim_title = ""
+	# This is equivalent to: MakeDotLayout( "", [] )
 	layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
 	cgiParams = {}
 	cgiParamLinks = {}
@@ -673,6 +674,7 @@ class CgiEnv():
 
 	# When in merge mode, these parameters must be aggregated, and used only during
 	# the unique generation of graphic data.
+	# TODO: "OutCgiRdf" should be changed to a more appropriate name, such as "DisplayTripleStore"
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 		global globalCgiEnvList
 		#sys.stderr.write("OutCgiRdf lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
