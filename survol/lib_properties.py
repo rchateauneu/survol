@@ -29,7 +29,7 @@ primns_slash = primns + '/'
 def MakeProp(prp,**kvargs):
 	ret = primns_slash + prp
 	if kvargs:
-		ret += "?" + "&".join( "%s=%s" for kw in kvargs )
+		ret += "?" + "&amp;".join( "%s=%s" % (k,kvargs[k]) for k in kvargs )
 	# TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
 	# http://primhillcomputers.com/ontologies/swapnote\ futures
 	# If the space is replaced by "%20", everything before it is erased.
@@ -42,6 +42,8 @@ def MakeProp(prp,**kvargs):
 # Property names with this prefix come first in RDF sorting.
 # This is a convenient way to have "Information" at the top of properties.
 sortPrefix = "----"
+
+# TODO: This should be renamed "predicate" instead of "property".
 
 # All the properties for creating RDF triples.
 # Names must all be different because they are used as keys.
