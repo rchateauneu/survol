@@ -165,7 +165,10 @@ except ImportError:
 			return mapLs
 
 		def cwd(self):
-			return os.readlink(self.m_proc+'/cwd')
+			try:
+				return os.readlink(self.m_proc+'/cwd')
+			except:
+				return ""
 
 
 	# Internal CIM_Process use only.
