@@ -397,7 +397,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			except KeyError:
 				pass
 
-			# Point from the subject to the table containing the objects.
+			# This points from the subject to the table containing the objects.
+			# TODO: This color should be a parameter.
 			stream.write(pattEdgeOrien % (subjNam, subjNamTab, "GREEN", propNam))
 
 			( labText, subjEntityGraphicClass, entity_id) = lib_naming.ParseEntityUri( subjUrl )
@@ -469,7 +470,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
 				# sys.stderr.write("subEntityGraphicClass=%s\n"%subEntityGraphicClass)
 
-				# If this is a script, always displayed on white, even if reletd to a specific entity.
+				# If this is a script, always displayed on white, even if related to a specific entity.
 				# THIS IS REALLY A SHAME BECAUSE WE JUST NEED THE ORIGINAL PROPERTY.
 				if objUri.find("entity.py") < 0:
 					objColor = "#FFFFFF"
@@ -590,16 +591,20 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# MAYBE SHOULD BE DONE TWICE !!!!! SEE ALSO ELSEWHERE !!!!
 			subjUrlClean = subjUrl.replace('&','&amp;')
 
-			# ATTENTION: La forme du record est celle du sujet.
-			# ca veut donc dire qu'on va avoir la meme couleur pour des objets de types
-			# differents s'ils sont dans la meme relation avec un sujet identique ?
+			# BEWARE: The shape and the color of this HTML table is from the subjects,
+			# because the elements can be of different classes, even if the share the same predicate.
+			# TODO: Each row should have its own color according to its class.
 			numFields = len(fieldsKeys)+1
 
+			# The rows of this HTML table could belong to different classes:
+			# What the shared is the predicate. Hence, the predicate, property name is used as a title.
+			helpText = "List of " + propNam + " in " + labText
+
 			# The label might be truncated
-			if subjEntityGraphicClass:
-				helpText = "List of " + subjEntityGraphicClass + " in " + labText
-			else:
-				helpText = "Scripts in " + labText
+			#if subjEntityGraphicClass:
+			#	# helpText = "List of " + subjEntityGraphicClass + " in " + labText
+			#else:
+			#	helpText = "Scripts in " + labText
 
 			# TODO: Le title and the content are not necessarily of the same class.
 			# labTextWithBr is the first line of the table containing nodes linked with the
@@ -614,8 +619,10 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 			# This color is the table's contour.
 			lib_patterns.WritePatterned( stream, subjEntityGraphicClass, subjNamTab, helpText, '"#000000"', subjUrlClean, numFields, labTextWithBr, dictHtmlLines )
 
-			# TODO: Eviter les repetitions de la meme valeur dans une colonne en comparant d une ligne a l autre.
-			# TODO: Si une cellule est identique jusqu a un delimiteur, idem, remplacer par '"'.
+			# TODO: Sometimes, the same value is repeated in contiguous celles of the sames columns.
+			# TODO: This could be avoided with the character '"': One just need to compare the values
+			# TODO: ... consecutive cells of the same column.
+			# TODO: One can even do that if the first N words of a following cell are identical.
 
 	if CollapsedProperties :
 		for collapsedProp in CollapsedProperties:
