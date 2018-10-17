@@ -53,7 +53,7 @@ logging.basicConfig(
 	stream=sys.stderr,
 	# format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d: %(message)s',
 	format='%(asctime)s %(levelname)8s %(filename)s %(lineno)d %(message)s',
-	level = logging.INFO)
+	level = logging.DEBUG)
 
 # Avoid this message:
 # 2018-09-18 21:57:54,868  WARNING rdflib.term term.py 207: http://L... does not look like a valid URI, trying to serialize this will break.
@@ -66,12 +66,20 @@ def Logger():
 	mod = inspect.getmodule(frm[0])
 	return logging.getLogger(mod.__name__)
 
-import __builtin__
-__builtin__.DEBUG = Logger().debug
-__builtin__.WARNING = Logger().warning
-__builtin__.ERROR = Logger().error
-__builtin__.INFO = Logger().info
-__builtin__.CRITICAL = Logger().critical
+if sys.version_info >= (3,):
+	import builtins
+	builtins.DEBUG = Logger().debug
+	builtins.WARNING = Logger().warning
+	builtins.ERROR = Logger().error
+	builtins.INFO = Logger().info
+	builtins.CRITICAL = Logger().critical
+else:
+	import __builtin__
+	__builtin__.DEBUG = Logger().debug
+	__builtin__.WARNING = Logger().warning
+	__builtin__.ERROR = Logger().error
+	__builtin__.INFO = Logger().info
+	__builtin__.CRITICAL = Logger().critical
 
 ################################################################################
 
