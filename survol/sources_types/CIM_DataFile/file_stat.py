@@ -3,7 +3,7 @@
 """
 File stat information
 
-This returns general informaton about a non-directory data file.
+This returns general information about a non-directory data file.
 """
 
 # BEWARE: Do NOT rename it as stat.py otherwise strange errors happen,
