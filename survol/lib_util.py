@@ -1418,22 +1418,22 @@ def GetEntityModule(entity_type):
 # This loads a script as a module. Example:
 # currentModule="sources_types.win32" fil="enumerate_top_level_windows.py"
 def GetScriptModule(currentModule, fil):
-	# TODO: IT DOES NOT START FROM "/revlib". DIFFICULTY WITH PYTHONPATH.
-	# Sanity check
-	if fil[-3:] != ".py":
-		WARNING("GetScriptModule module=%s fil=%s not a Python script", currentModule, fil )
+	if not fil.endswith(".py"):
+		ERROR("GetScriptModule module=%s fil=%s not a Python script", currentModule, fil )
 		return None
-	subClass = "." + fil[:-3] # Without the ".py" extension.
-	# sys.stderr.write("currentModule=%s fil=%s\n" % ( currentModule, fil ) )
+	fileBaseName = fil[:-3] # Without the ".py" extension.
 	if sys.version_info >= (3, ):
 		# Example: importlib.import_module("sources_top.Databases.mysql_processlist")
-		importedMod = importlib.import_module(currentModule + subClass)
+		#DEBUG("currentModule=%s fil=%s subClass=%s",currentModule,fil,subClass)
+		if currentModule:
+			importedMod = importlib.import_module(currentModule + "." + fileBaseName)
+		else:
+			importedMod = importlib.import_module(fileBaseName)
 	else:
 		if currentModule:
-			importedMod = importlib.import_module(subClass, currentModule )
+			importedMod = importlib.import_module("." + fileBaseName, currentModule )
 		else:
-			# Just the file name without the extension ".py"
-			importedMod = importlib.import_module(fil[:-3] )
+			importedMod = importlib.import_module(fileBaseName)
 	return importedMod
 
 
