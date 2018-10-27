@@ -3,6 +3,7 @@ from __future__ import print_function
 import cgitb
 import unittest
 import sys
+import os
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -40,8 +41,8 @@ class SurvolLocalTest(unittest.TestCase):
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
 		print("qryFileStatLocal=%s"%mySourceFileStatLocal.UrlQuery())
-		print("jsonFileStatLocal=%s"%str(mySourceFileStatLocal.content_json())[:30])
-		print("rdfFileStatLocal=%s"%str(mySourceFileStatLocal.content_rdf())[:30])
+		print("jsonFileStatLocal=%s ..."%str(mySourceFileStatLocal.content_json())[:30])
+		print("rdfFileStatLocal=%s ..."%str(mySourceFileStatLocal.content_rdf())[:30])
 
 	def test_local_triplestore(self):
 		mySourceFileStatLocal = lib_client.SourceLocal(
@@ -107,6 +108,12 @@ class SurvolLocalTest(unittest.TestCase):
 		self.assertTrue(lenPlus <= lenSource1 + lenSource2)
 
 	def test_merge_sub_local(self):
+		try:
+			import win32net
+		except ImportError:
+			print("Module win32net is not available so this test is not applicable")
+			return
+
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
@@ -125,6 +132,12 @@ class SurvolLocalTest(unittest.TestCase):
 		self.assertTrue(lenMinus	 <= lenSource1 )
 
 	def test_merge_duplicate(self):
+		try:
+			import win32api
+		except ImportError:
+			print("Module win32api is not available so this test is not applicable")
+			return
+
 		mySourceDupl = lib_client.SourceLocal(
 			"sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py",
 			"Win32_UserAccount",
@@ -170,7 +183,7 @@ class SurvolLocalTest(unittest.TestCase):
 	def test_instance_filter(self):
 		# Filter from a triple store by creating a mask like:
 		# inst = lib_client.CMI_DataFile
-		print("TODO: Not implemented yet")
+		print("TODO: test_instance_filter not implemented yet")
 
 
 	def test_sparql(self):
@@ -187,12 +200,12 @@ class SurvolLocalTest(unittest.TestCase):
 		#
 		# TODO: Use rdflib implementation:
 		# https://rdflib.readthedocs.io/en/3.4.0/intro_to_sparql.html
-		print("TODO: Not implemented yet")
+		print("TODO: test_sparql not implemented yet")
 
 	def test_wql(self):
 		# SELECT * FROM meta_class WHERE NOT __class < "win32"="" and="" not="" __this="" isa="">
 		# "Select * from win32_Process where name like '[H-N]otepad.exe'"
-		print("TODO: Not implemented yet")
+		print("TODO: test_wql not implemented yet")
 
 	def test_local_scripts_list_Win32_UserAccount(self):
 		"""This returns all scripts accessible from the user account "rchateau"."""
@@ -211,6 +224,12 @@ class SurvolLocalTest(unittest.TestCase):
 	def test_local_scripts_list_odbc_dsn(self):
 		"""The point of this test is to instantiate an instance of a subclass"""
 
+		try:
+			import pyodbc
+		except ImportError:
+			print("Module pyodbc is not available so this test is not applicable")
+			return
+
 		# The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
 		instanceLocalODBC = lib_client.Agent().odbc.dsn(
 			Dsn="DSN~MS%20Access%20Database")
@@ -221,6 +240,22 @@ class SurvolLocalTest(unittest.TestCase):
 			sys.stdout.write("    %s\n"%oneScr)
 		# There should be at least a couple of scripts.
 		self.assertTrue(len(listScripts) > 0)
+
+	def test_grep_string(self):
+		sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" ).replace("\\","/")
+
+		mySourceGrep = lib_client.SourceLocal(
+			"sources_types/CIM_DataFile/grep_text_strings.py",
+			"CIM_DataFile",
+			Name=sampleFile)
+
+		tripleGrep = mySourceGrep.GetTriplestore()
+		assert(len(tripleGrep.m_triplestore)==190)
+
+		lstMatches = list(tripleGrep.GetMatchingTripleStore("[Pp]ellentesque"))
+		print("Matches:",lstMatches)
+		assert( len(lstMatches) == 5)
+
 
 
 	# This does not work yet.
@@ -239,6 +274,12 @@ class SurvolLocalTest(unittest.TestCase):
 	def test_local_scripts_from_local_source(self):
 		"""This loads the scripts of instances displayed by an initial script"""
 
+		try:
+			import win32net
+		except ImportError:
+			print("Module win32net is not available so this test is not applicable")
+			return
+
 		# This is a top-level script.
 		mySourceTopLevelLocal = lib_client.SourceLocal(
 			"sources_types/win32/win32_local_groups.py")
@@ -254,6 +295,12 @@ class SurvolLocalTest(unittest.TestCase):
 
 	def test_local_instances_from_local_instance(self):
 		"""This loads instances connected to an instance by every known script"""
+
+		try:
+			import win32service
+		except ImportError:
+			print("Module win32service is not available so this test is not applicable")
+			return
 
 		# The service "PlugPlay" should be available on all Windows machines.
 		myInstanceLocal = lib_client.Agent().Win32_Service(
@@ -278,6 +325,39 @@ class SurvolLocalTest(unittest.TestCase):
 		assert( instanceA is instanceB )
 		assert( instanceA is instanceC )
 		assert( instanceC is instanceB )
+
+	def test_search_local_string_flat(self):
+		"""This searches for a string in one file only. Two occurrences."""
+
+		sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" )
+		instanceOrigin = lib_client.Agent().CIM_DataFile(Name=sampleFile)
+
+		searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString="Maecenas",maxDepth=1,filterInstances=None,filterPredicates=None)
+
+		results = list(searchTripleStore)
+
+		print(results)
+		assert( len(results) == 2)
+		# The line number and occurrence number are concatenated after the string.
+		assert( str(results[0][2]).encode("utf-8").startswith( "Maecenas".encode("utf-8")) )
+		assert( str(results[1][2]).encode("utf-8").startswith( "Maecenas".encode("utf-8")) )
+
+
+	def test_search_local_string_one_level(self):
+		"""This searches for a string in all files of one directory."""
+
+		# There are not many files in this directory
+		sampleDir = os.path.join( os.path.dirname(__file__), "SampleDir" )
+		instanceOrigin = lib_client.Agent().CIM_Directory(Name=sampleDir)
+
+		mustFind = "Drivers"
+
+		searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString="Curabitur",maxDepth=2,filterInstances=None,filterPredicates=None)
+		for tpl in searchTripleStore:
+			# One occurrence is enough for this test.
+			print(tpl)
+			break
+		tpl # To check if a result was found.
 
 
 
@@ -317,8 +397,8 @@ class SurvolRemoteTest(unittest.TestCase):
 			Name="C:\\Windows\\explorer.exe")
 		print("urlFileStatRemote=",mySourceFileStatRemote.Url())
 		print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
-		print("jsonFileStatRemote=",str(mySourceFileStatRemote.content_json())[:30])
-		print("rdfFileStatRemote=",str(mySourceFileStatRemote.content_rdf())[:30])
+		print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
+		print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
 
 	def test_remote_triplestore(self):
 		mySourceFileStatRemote = lib_client.SourceRemote(
@@ -374,7 +454,7 @@ class SurvolRemoteTest(unittest.TestCase):
 		numComputers = 0
 		for oneInstance in instancesArpRemote:
 			if oneInstance.__class__.__name__ == "CIM_ComputerSystem":
-				print("Found one machine:",oneInstance)
+				print("Test remote ARP: Found one machine:",oneInstance)
 				numComputers += 1
 		print("Remote hosts number=",numComputers)
 		self.assertTrue(numComputers>=1)
@@ -435,7 +515,7 @@ class SurvolRemoteTest(unittest.TestCase):
 	def test_remote_agents(self):
 		"""This gets a list of agents accessible from the remote host,
 		then tries to access them individually"""
-		print("TODO: Not implemented yet")
+		print("TODO: test_remote_agents not implemented yet")
 
 
 
