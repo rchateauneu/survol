@@ -69,6 +69,7 @@ def Main():
 				grph.add( ( nodeFile, pc.property_string_occurrence, lib_common.NodeLiteral( oneStr + ";" + str(cntLines) + ";" + str(cntOccur) ) ) )
 
 				# TODO: Add intermediary node, counts the number of occurrences.
+		opFil.close()
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
