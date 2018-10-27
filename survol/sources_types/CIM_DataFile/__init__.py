@@ -167,9 +167,12 @@ def AddFileProperties(grph,currNode,currFilNam):
 def AffFileOwner(grph, filNode, filNam):
 
 	def AddFileOwnerWindows(grph, filNode, filNam):
-		import win32api
-		import win32con
-		import win32security
+		try:
+			import win32api
+			import win32con
+			import win32security
+		except ImportError:
+			return 
 
 		from sources_types import Win32_UserAccount
 		from sources_types import Win32_Group
