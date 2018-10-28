@@ -75,6 +75,7 @@ def Main():
 				for sqlQry in matchedSqls:
 					# grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
 					grph.add( ( nodeFile, rgxProp, lib_common.NodeLiteral(sqlQry) ) )
+			opFil.close()
 
 	except Exception:
 		exc = sys.exc_info()[1]
