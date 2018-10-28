@@ -52,7 +52,7 @@ def enumerate_urls(grph):
 
 # It has to build an intermediary map because we have no simple way to find all edges
 # starting from a node. Otherwise, we could use a classical algorithm (Dijkstra ?)
-def get_urls_adjacency_list(grph,startInstance):
+def get_urls_adjacency_list(grph,startInstance,filterPredicates):
 	INFO("startInstance=%s type=%s",str(startInstance),str(type(startInstance)))
 	# Each node maps to the list of the nodes it is directly connected to.
 	adjacency_list = dict()
@@ -88,6 +88,9 @@ def get_urls_adjacency_list(grph,startInstance):
 	for kSub,kPred,kObj in grph:
 		# TODO: Like in Grph2Json(), we could filter when kPred = pc.property_script = MakeProp("script")
 		# TODO: because this can only be a script.
+		if kPred in filterPredicates:
+			continue
+
 		if (not IsLiteral(kSub)) and (not IsLiteral(kObj)):
 
 			#if str(kSub).find("entity.py") < 0:
@@ -104,17 +107,29 @@ def get_urls_adjacency_list(grph,startInstance):
 
 # This returns a subset of a triplestore whose object matches a given string.
 # TODO: Consider using SparQL.
-def matching_triplestore(grph,searchString):
+def triplestore_matching_strings(grph,searchString):
+	DEBUG("triplestore_matching_strings: searchString=%s"%searchString)
 	# Beware that the order might change each time.
 	compiledRgx = re.compile(searchString)
 	for kSub,kPred,kObj in grph:
 		if IsLiteral(kObj):
 			# Conversion to string in case it would be a number.
 			strObj = str(kObj.value)
-			DEBUG("strObj=%s"%strObj)
 			if compiledRgx.match(strObj):
+				#DEBUG("strObj=%s YES"%strObj)
+				# yield strObj
 				yield (kSub,kPred,kObj)
+			#else:
+			#	DEBUG("strObj=%s NO"%strObj)
 
+def triplestore_all_strings(grph):
+	DEBUG("triplestore_all_strings")
+	# Beware that the order might change each time.
+	for kSub,kPred,kObj in grph:
+		if IsLiteral(kObj):
+			# Conversion to string in case it would be a number.
+			strObj = str(kObj.value)
+			yield (kSub,kPred,kObj)
 
 # This writes a triplestore to a stream which can be a socket or a file.
 def triplestore_to_stream_xml(grph,out_dest):

@@ -31,9 +31,6 @@ try:
 except ImportError:
 	from urllib.parse import urlparse, parse_qs
 
-
-DEBUG("Tests")
-
 ################################################################################
 
 # A SourceBase is a Survol URL or a script which returns a graph of urls
@@ -94,7 +91,7 @@ class SourceCgi (SourceBase):
 			restQry = self.m_className + "." + suffix
 		else:
 			restQry = suffix
-		quotedRest = urllib.quote(restQry)
+		quotedRest = lib_util.urllib_quote(restQry)
 
 		# TODO: See lib_util.xidCgiDelimiter = "?xid="
 		qryArgs = "xid=" + quotedRest
@@ -209,14 +206,14 @@ class SourceLocal (SourceCgi):
 				self.m_output.close()
 				return strResult
 
-		DEBUG("__execute_script_with_mode before module=%s",modu.__name__)
+		DEBUG("__execute_script_with_mode before calling module=%s",modu.__name__)
 		outmachString = OutputMachineString()
 		originalOutMach = lib_util.globalOutMach
 		lib_util.globalOutMach = outmachString
 		try:
 			modu.Main()
 		except Exception as ex:
-			ERROR("__execute_script_with_mode before module=%s: Caught:%s",modu.__name__,ex)
+			ERROR("__execute_script_with_mode with module=%s: Caught:%s",modu.__name__,ex)
 
 		# Restores the original stream.
 		lib_util.globalOutMach = originalOutMach
@@ -341,7 +338,11 @@ class BaseCIMClass(object):
 		except KeyError:
 			#DEBUG("BaseCIMClass.__new__ %s is NOT in the cache",entity_id)
 			# newInstance = super(ClassA, cls).__new__(cls, agentUrl, **kwargs)
-			newInstance = super(BaseCIMClass, cls).__new__(cls,  agentUrl, **kwargs)
+			#DEBUG("cls=%s kwargs=%s",cls.__name__,str(kwargs))
+			if sys.version_info >= (3,):
+				newInstance = super(BaseCIMClass, cls).__new__(cls)
+			else:
+				newInstance = super(BaseCIMClass, cls).__new__(cls,  agentUrl, **kwargs)
 
 			cls.m_instancesCache[entity_id] = newInstance
 			return newInstance
@@ -419,6 +420,7 @@ class BaseCIMClass(object):
 		listSources = [ ScriptUrlToSource(oneScr) for oneScr in listScripts]
 		return listSources
 
+	# This returns the set of words which describes an instance and allows to compare it to other instances.
 	def GetInstanceBagOfWords(self):
 		# TODO: And the host ?
 		bagOfWords = set(self.__class__.__name__)
@@ -491,7 +493,10 @@ class BaseCIMClass(object):
 				"""
 				return selfInstance.m_estimation_to_target < otherInstance.m_estimation_to_target
 
-		if self in filterInstances:
+			def __str__(self):
+				return str(self.m_url_script) + " (Est=%d, depth=%d)" % (self.m_estimation_to_target,self.m_current_depth)
+
+		if filterInstances and self in filterInstances:
 			INFO("Avoiding instance:%s",self)
 			return
 
@@ -528,7 +533,6 @@ class BaseCIMClass(object):
 				# Empty priority queue.
 				break
 
-			INFO("Selecting edge:%s",bestEdge)
 			visitedInstances.add(bestEdge)
 
 			# The depth is just here for informational purpose.
@@ -538,7 +542,9 @@ class BaseCIMClass(object):
 			# TODO: the cost of scripts.
 			currDistance = bestEdge.m_current_distance + 1
 
-			if currDepth < maxDepth:
+			INFO("Selecting edge:%s",bestEdge)
+
+			if currDepth <= maxDepth:
 				INFO("bestEdge.m_url_script=%s bestEdge.m_node_instance=%s",bestEdge.m_url_script,bestEdge.m_node_instance)
 				lib_common.ErrorMessageEnable(False)
 
@@ -548,9 +554,8 @@ class BaseCIMClass(object):
 				if tripleStore is None:
 					continue
 
-				tripleStoreMatch = tripleStore.GetMatchingTripleStore(searchString)
+				tripleStoreMatch = tripleStore.GetMatchingStringsTriples(searchString)
 				for oneTriple in tripleStoreMatch:
-					# NON: Il faut renvoyer des instances, pas des des scripts ???
 					yield oneTriple
 
 				try:
@@ -563,14 +568,14 @@ class BaseCIMClass(object):
 					# TODO: whereas the solution could be quite close.
 					#
 					# TODO: Give a high cost when a node is on a remote machine.
-					lstInstances = tripleStore.GetConnectedInstances(bestEdge.m_node_instance)
+					lstInstances = tripleStore.GetConnectedInstances(bestEdge.m_node_instance,filterPredicates)
 				except Exception as ex:
 					ERROR("FindStringFromNeighbour: %s",ex)
 					raise
 					continue
 				lib_common.ErrorMessageEnable(True)
 				for oneInstance in lstInstances:
-					if oneInstance in filterInstances:
+					if filterInstances and oneInstance in filterInstances:
 						INFO("Avoiding instance:%s",oneInstance)
 						continue
 
@@ -597,9 +602,10 @@ def KWArgsToEntityId(**kwargs):
 		# TODO: The values should be encoded !!!
 		entity_id += delim + "%s=%s" % (key,value)
 		delim = ","
-	if type(entity_id) == unicode:
-		#WARNING("KWArgsToEntityId Unicode entity_id=%s",entity_id)
-		entity_id = entity_id.encode("utf-8")
+	if sys.version_info < (3,):
+		if type(entity_id) == unicode:
+			#WARNING("KWArgsToEntityId Unicode entity_id=%s",entity_id)
+			entity_id = entity_id.encode("utf-8")
 	return entity_id
 
 def CIMClassFactoryNoCache(className):
@@ -701,9 +707,14 @@ class TripleStore:
 	# In this context, this is most likely a rdflib object.
 	def __init__(self,grphKBase = None):
 		self.m_triplestore = grphKBase
+		if grphKBase:
+			DEBUG("TripleStore.__init__ len(grphKBase)=%d",len(grphKBase))
+		else:
+			DEBUG("TripleStore.__init__ empty")
 
 	def ToStreamXml(self,strStrm):
-			lib_kbase.triplestore_to_stream_xml(self.m_triplestore,strStrm)
+		DEBUG("TripleStore.ToStreamXml")
+		lib_kbase.triplestore_to_stream_xml(self.m_triplestore,strStrm)
 
 	# This merges two triplestores. The package rdflib does exactly that,
 	# but it is better to isolate from it, just in case another triplestores
@@ -719,30 +730,36 @@ class TripleStore:
 
 	# This creates a CIM object for each unique URL, subject or object found in a triplestore.
 	# If needed, the CIM class is created on-the-fly.
-	#def GetInstances(self):
-	#	DEBUG("GetInstances")
-	#	objsSet = lib_kbase.enumerate_instances(self.m_triplestore)
-	#	lstInstances = []
-	#	for instanceUrl in objsSet:
-	#		# sys.stderr.write("GetInstances instanceUrl=%s\n"%instanceUrl)
-	#		( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
-	#		# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
-	#		# BEWARE: Some arguments should be decoded.
-	#		DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
-	#
-	#		xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
-	#
-	#		# This parsing that all urls are not scripts but just define an instance
-	#		# and therefore have the form "http://.../entity.py?xid=...",
-	#		agentUrl = InstanceUrlToAgentUrl(instanceUrl)
-	#
-	#		newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
-	#		lstInstances.append(newInstance)
-	#	return lstInstances
+	# TODO: Used only for testing, should be debugged.
+	def GetInstances(self):
+		DEBUG("GetInstances")
+		objsSet = lib_kbase.enumerate_urls(self.m_triplestore)
+		lstInstances = []
+		for instanceUrl in objsSet:
+			# sys.stderr.write("GetInstances instanceUrl=%s\n"%instanceUrl)
+			( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
+			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+			# BEWARE: Some arguments should be decoded.
+			#DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+
+			xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+
+			# This parsing that all urls are not scripts but just define an instance
+			# and therefore have the form "http://.../entity.py?xid=...",
+			agentUrl = InstanceUrlToAgentUrl(instanceUrl)
+
+			newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
+			lstInstances.append(newInstance)
+		return lstInstances
 
 	# This returns the set of all nodes connected directly or indirectly to the input.
-	def GetConnectedInstances(self,startInstance):
-		urls_adjacency_list = lib_kbase.get_urls_adjacency_list(self.m_triplestore,[pc.property_script,pc.property_rdf_data_nolist2])
+	def GetConnectedInstances(self,startInstance,filterPredicates):
+		setFilterPredicates = {pc.property_script,pc.property_rdf_data_nolist2}
+		if filterPredicates:
+			setFilterPredicates.update(filterPredicates)
+
+		urls_adjacency_list = lib_kbase.get_urls_adjacency_list(self.m_triplestore,startInstance,setFilterPredicates)
+
 
 		# Now the adjacency list between scripts must be transformed into an adjacency list between instances only.
 		instances_adjacency_list = dict()
@@ -800,9 +817,11 @@ class TripleStore:
 		INFO("startInstance=%s len(setConnectedInstances)=%d",startInstance,len(setConnectedInstances))
 		return setConnectedInstances
 
+	def GetMatchingStringsTriples(self,searchString):
+		return lib_kbase.triplestore_matching_strings(self.m_triplestore,searchString)
 
-	def GetMatchingTripleStore(self,searchString):
-		return lib_kbase.matching_triplestore(self.m_triplestore,searchString)
+	def GetAllStringsTriples(self):
+		return lib_kbase.triplestore_all_strings(self.m_triplestore)
 
 ################################################################################
 
@@ -870,6 +889,9 @@ class Agent:
 		#sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
 		return CallDispatcher(self, self.m_agent_url, attribute_name)
 
+################################################################################
+def SetDebugMode():
+	lib_util.SetLoggingConfig(True)
 
 ################################################################################
 
