@@ -36,9 +36,13 @@ except ImportError:
 	from urllib.parse import urlparse as survol_urlparse
 
 if sys.version_info >= (3,):
-	from html.parser import HTMLParser as survol_HTMLParser
+	import html.parser
+	def survol_unescape(s):
+		return html.parser.unescape(s)
 else:
-	from HTMLParser import HTMLParser as survol_HTMLParser
+	import HTMLParser
+	def survol_unescape(s):
+		return HTMLParser.HTMLParser().unescape(s)
 
 try:
 	modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
@@ -1314,7 +1318,13 @@ def WrtAsUtf(aStr):
 	# outputHttp.write( str.encode('utf-8') )
 	# globalOutMach.OutStream().write( aStr.encode('utf-8') )
 	# Ok: Python 2, with Jupyter and Apache.
-	globalOutMach.OutStream().write( aStr.decode('latin1') )
+	if sys.version_info >= (3,):
+		if isinstance(aStr,str):
+			globalOutMach.OutStream().write( aStr )
+		else:
+			globalOutMach.OutStream().write( aStr.decode('latin1') )
+	else:
+		globalOutMach.OutStream().write( aStr.decode('latin1') )
 
 # For asynchronous display.
 # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
