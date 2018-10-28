@@ -201,7 +201,7 @@ class NodeJson:
 		self.m_info_dict = dict()
 		self.m_index = NodeJsonNumber
 
-		the_survol_url = lib_util.survol_HTMLParser().unescape(rdf_node)
+		the_survol_url = lib_util.survol_unescape(rdf_node)
 		# Hack, specific to OVH web host, that we use also for python hosting,
 		# although it is not designed for that..
 		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
@@ -395,7 +395,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# has the form: "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
 
 		# HTTP_MIME_URL
-		the_survol_nam = lib_util.survol_HTMLParser().unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
+		the_survol_nam = lib_util.survol_unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
 
 		# TODO: Use the same object for lookup and Json.
 		nodes[nod_id] = {
