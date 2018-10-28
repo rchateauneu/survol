@@ -254,9 +254,7 @@ class SurvolLocalTest(unittest.TestCase):
 
 		lstMatches = list(tripleGrep.GetMatchingTripleStore("[Pp]ellentesque"))
 		print("Matches:",lstMatches)
-		assert( len(lstMatches) == 5)
-
-
+		assert( len(lstMatches) == 5 )
 
 	# This does not work yet.
 	def XXX_test_remote_scripts_list_exception(self):
@@ -293,8 +291,8 @@ class SurvolLocalTest(unittest.TestCase):
 			for oneScr in listScripts:
 				sys.stdout.write("        %s\n"%oneScr)
 
-	def test_local_instances_from_local_instance(self):
-		"""This loads instances connected to an instance by every known script"""
+	def test_scripts_of_local_instance(self):
+		"""This loads scripts of a local instance"""
 
 		try:
 			import win32service
@@ -359,8 +357,6 @@ class SurvolLocalTest(unittest.TestCase):
 			break
 		tpl # To check if a result was found.
 
-
-
 	def test_search_local_string(self):
 		"""This loads instances connected to an instance by every known script"""
 
@@ -385,6 +381,86 @@ class SurvolLocalTest(unittest.TestCase):
 		for tpl in searchTripleStore:
 			print(tpl)
 
+	# This searches the content of a file which contains SQL queries.
+	def test_regex_sql_query_file(self):
+		"""This searches for SQL queries in one file only."""
+
+		try:
+			import sqlparse
+		except ImportError:
+			print("Module sqlparse is not available so this test is not applicable")
+			return
+
+		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+
+		mySourceSqlQueries = lib_client.SourceLocal(
+			"sources_types/CIM_DataFile/grep_sql_queries.py",
+			"CIM_DataFile",
+			Name=sqlPathName)
+
+		tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+		print(len(tripleSqlQueries.m_triplestore))
+		assert( len(tripleSqlQueries.m_triplestore)==3 )
+
+		matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
+
+		lstQueriesOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
+
+		print("lstQueriesOnly:",lstQueriesOnly)
+
+		# TODO: Eliminate the last double-quote.
+		assert( lstQueriesOnly[0] == u'select * from \'AnyTable\'"')
+		assert( lstQueriesOnly[1] == u'select A.x,B.y from AnyTable A, OtherTable B"')
+		assert( lstQueriesOnly[2] == u'select a,b,c from \'AnyTable\'"')
+
+		assert( len(lstQueriesOnly) == 3 )
+
+
+
+	# This searches the content of a process memory which contains a SQL memory.
+	def test_regex_sql_query_process(self):
+		# Starts a process
+		# C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\sources_types\CIM_Process\memory_regex_search\scan_sql_queries.py
+
+		try:
+			if 'win' in sys.platform:
+				import win32con
+		except ImportError:
+			print("Module win32con is not available so this test is not applicable")
+			return
+
+		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+
+		import subprocess
+
+		execList = [ sys.executable, sqlPathName ]
+
+		# Runs this process: It allocates a variable containing a SQL query, then it waits.
+		procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+		print("Started process:",execList," pid=",procOpen.pid)
+
+		(child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
+
+		#print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
+
+		mySourceSqlQueries = lib_client.SourceLocal(
+			"sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
+			"CIM_Process",
+			Handle=procOpen.pid)
+
+		tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+		print(len(tripleSqlQueries))
+		assert(len(tripleSqlQueries.m_triplestore)==190)
+
+		lstMatches = list(tripleSqlQueries.GetInstances("[Pp]ellentesque"))
+		print("Matches:",lstMatches)
+		assert( len(lstMatches) == 5 )
+
+		# Any string will do.
+		child_stdin.write("Stop")
+
+		print(lstMatches)
 
 class SurvolRemoteTest(unittest.TestCase):
 	"""Test involving remote Survol agents"""
@@ -517,7 +593,26 @@ class SurvolRemoteTest(unittest.TestCase):
 		then tries to access them individually"""
 		print("TODO: test_remote_agents not implemented yet")
 
-
+# quand on clique sur n importe quel script, ca doit faire quelque chose.
 
 if __name__ == '__main__':
+	for ix in range(len(sys.argv)):
+		if sys.argv[ix] == "--list":
+			for cls in [SurvolLocalTest,SurvolRemoteTest]:
+				print("%s"%cls.__name__)
+				for fnc in dir(cls):
+					if fnc.startswith("test_"):
+						print("    %s"%fnc)
+			exit(0)
+		if sys.argv[ix] == "--debug":
+			lib_client.SetDebugMode()
+			del sys.argv[ix]
+			continue
+		if sys.argv[ix] == "--help":
+			print("Extra options:")
+			print("    --debug: Set debug mode")
+			continue
+		ix += 1
+
 	unittest.main()
+
