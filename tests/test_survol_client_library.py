@@ -207,7 +207,7 @@ class SurvolLocalTest(unittest.TestCase):
 		# "Select * from win32_Process where name like '[H-N]otepad.exe'"
 		print("TODO: test_wql not implemented yet")
 
-	def test_local_scripts_list_Win32_UserAccount(self):
+	def test_local_scripts_UserAccount(self):
 		"""This returns all scripts accessible from the user account "rchateau"."""
 
 		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
@@ -221,7 +221,7 @@ class SurvolLocalTest(unittest.TestCase):
 		# There should be at least a couple of scripts.
 		self.assertTrue(len(listScripts) > 0)
 
-	def test_local_scripts_list_odbc_dsn(self):
+	def test_local_scripts_odbc_dsn(self):
 		"""The point of this test is to instantiate an instance of a subclass"""
 
 		try:
@@ -257,7 +257,8 @@ class SurvolLocalTest(unittest.TestCase):
 		assert( len(lstMatches) == 5 )
 
 	# This does not work yet.
-	def XXX_test_remote_scripts_list_exception(self):
+	def test_remote_scripts_exception(self):
+		print("test_remote_scripts_exception: Broken")
 		myAgent = lib_client.Agent("http://rchateau-hp:8000")
 
 		try:
@@ -324,6 +325,316 @@ class SurvolLocalTest(unittest.TestCase):
 		assert( instanceA is instanceC )
 		assert( instanceC is instanceB )
 
+	# This searches the content of a file which contains SQL queries.
+	def test_regex_sql_query_file(self):
+		"""This searches for SQL queries in one file only."""
+
+		try:
+			import sqlparse
+		except ImportError:
+			print("Module sqlparse is not available so this test is not applicable")
+			return
+
+		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+
+		mySourceSqlQueries = lib_client.SourceLocal(
+			"sources_types/CIM_DataFile/grep_sql_queries.py",
+			"CIM_DataFile",
+			Name=sqlPathName)
+
+		tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+		print(len(tripleSqlQueries.m_triplestore))
+		assert( len(tripleSqlQueries.m_triplestore)==3 )
+
+		matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
+
+		lstQueriesOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
+
+		print("lstQueriesOnly:",lstQueriesOnly)
+
+		# TODO: Eliminate the last double-quote.
+		assert( lstQueriesOnly[0] == u'select * from \'AnyTable\'"')
+		assert( lstQueriesOnly[1] == u'select A.x,B.y from AnyTable A, OtherTable B"')
+		assert( lstQueriesOnly[2] == u'select a,b,c from \'AnyTable\'"')
+
+		assert( len(lstQueriesOnly) == 3 )
+
+
+# Ajouter la recher d urls etc...
+
+	# This searches the content of a process memory which contains a SQL memory.
+	def test_regex_sql_query_from_batch_process(self):
+		# Starts a process
+		# C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\sources_types\CIM_Process\memory_regex_search\scan_sql_queries.py
+
+		try:
+			if 'win' in sys.platform:
+				import win32con
+		except ImportError:
+			print("Module win32con is not available so this test is not applicable")
+			return
+
+		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat" )
+
+		import subprocess
+
+		execList = [ sqlPathName ]
+
+		# Runs this process: It allocates a variable containing a SQL query, then it waits.
+		procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+		print("Started process:",execList," pid=",procOpen.pid)
+
+		(child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
+
+		#print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
+
+		mySourceSqlQueries = lib_client.SourceLocal(
+			"sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
+			"CIM_Process",
+			Handle=procOpen.pid)
+
+		tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+		print(len(tripleSqlQueries))
+		assert(len(tripleSqlQueries.m_triplestore)==190)
+
+		lstMatches = list(tripleSqlQueries.GetInstances("[Pp]ellentesque"))
+		print("Matches:",lstMatches)
+		assert( len(lstMatches) == 5 )
+
+		# Any string will do.
+		child_stdin.write("Stop")
+
+		print(lstMatches)
+
+	# This searches the content of a process memory which contains a SQL memory.
+	def test_regex_sql_query_from_python_process(self):
+		print("test_regex_sql_query_from_python_process: Broken")
+
+		try:
+			if 'win' in sys.platform:
+				import win32con
+		except ImportError:
+			print("Module win32con is not available so this test is not applicable")
+			return
+
+		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+
+		import subprocess
+
+		execList = [ sys.executable, sqlPathName ]
+
+		# Runs this process: It allocates a variable containing a SQL query, then it waits.
+		procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+		print("Started process:",execList," pid=",procOpen.pid)
+
+		(child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
+
+		#print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
+
+		mySourceSqlQueries = lib_client.SourceLocal(
+			"sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
+			"CIM_Process",
+			Handle=procOpen.pid)
+
+		tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+		print(len(tripleSqlQueries))
+		assert(len(tripleSqlQueries.m_triplestore)==190)
+
+		lstMatches = list(tripleSqlQueries.GetInstances("[Pp]ellentesque"))
+		print("Matches:",lstMatches)
+		assert( len(lstMatches) == 5 )
+
+		# Any string will do.
+		child_stdin.write("Stop")
+
+		print(lstMatches)
+
+	def test_environment_from_batch_process(self):
+		"""Tests that we can read a process'environment variables"""
+
+		try:
+			import psutil
+		except ImportError:
+			print("Module psutil is not available so this test is not applicable")
+			return
+
+
+		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat" )
+
+		import subprocess
+
+		execList = [ sqlPathName ]
+
+		# Runs this process: It allocates a variable containing a SQL query, then it waits.
+		procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+		print("Started process:",execList," pid=",procOpen.pid)
+
+		(child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
+
+		#print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
+
+		mySourceSqlQueries = lib_client.SourceLocal(
+			"sources_types/CIM_Process/environment_variables.py",
+			"CIM_Process",
+			Handle=procOpen.pid)
+
+		tripleEnvVars = mySourceSqlQueries.GetTriplestore()
+		#print(len(tripleEnvVars))
+		#assert(len(tripleEnvVars.m_triplestore)==190)
+
+		matchingTriples = list(tripleEnvVars.GetAllStringsTriples())
+
+		# The environment variables are returned in various ways,
+		# but it is garanteed that some of them are alwasy present.
+		setEnvVars = set( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
+
+		if 'win' in sys.platform:
+			mandatoryEnvVars = ['COMPUTERNAME','OS','PATH']
+		else:
+			mandatoryEnvVars = ['HOSTNAME','PATH']
+
+		for oneVar in mandatoryEnvVars:
+			assert( oneVar in setEnvVars )
+
+		print("lstQueriesOnly:",setEnvVars)
+
+		# Any string will do: This stops the subprocess which is waiting for an input.
+		child_stdin.write("Stop".encode())
+
+class SurvolRemoteTest(unittest.TestCase):
+	"""Test involving remote Survol agents"""
+
+	def test_create_source_url(self):
+		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
+		mySourceFileStatRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py",
+			"CIM_DataFile",
+			Name="C:\\Windows\\explorer.exe")
+		print("urlFileStatRemote=",mySourceFileStatRemote.Url())
+		print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
+		print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
+		print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
+
+	def test_remote_triplestore(self):
+		mySourceFileStatRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py",
+			"CIM_Directory",
+			Name="C:\\Windows")
+		tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+		print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+		# This should not be empty.
+		self.assertTrue(len(tripleFileStatRemote)>=1)
+
+	def test_remote_instances_python_package(self):
+		"""This loads a specific Python package"""
+		mySourcePythonPackageRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/entity.py",
+			"python/package",
+			Id="rdflib")
+		triplePythonPackageRemote = mySourcePythonPackageRemote.GetTriplestore()
+		print("Len triplePythonPackageRemote=",len(triplePythonPackageRemote))
+
+		instancesPythonPackageRemote = triplePythonPackageRemote.GetInstances()
+		print("Len instancesPythonPackageRemote=",len(instancesPythonPackageRemote))
+		lenInstances = len(instancesPythonPackageRemote)
+		print("Len triplePythonPackageRemote=",lenInstances)
+		# This Python module must be there because it is needed by Survol.
+		self.assertTrue(lenInstances>=1)
+
+	def test_remote_instances_java(self):
+		"""Loads Java processes. There is at least one Java process, the one doing the test"""
+		mySourceJavaRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
+		tripleJavaRemote = mySourceJavaRemote.GetTriplestore()
+		print("Len tripleJavaRemote=",len(tripleJavaRemote))
+
+		instancesJavaRemote = tripleJavaRemote.GetInstances()
+		numJavaProcesses = 0
+		for oneInstance in instancesJavaRemote:
+			if oneInstance.__class__.__name__ == "CIM_Process":
+				print("Found one Java process:",oneInstance)
+				numJavaProcesses += 1
+		print("Remote Java processes=",numJavaProcesses)
+		self.assertTrue(numJavaProcesses>=1)
+
+	def test_remote_instances_arp(self):
+		"""Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
+		mySourceArpRemote = lib_client.SourceRemote(
+			"http://rchateau-hp:8000/survol/sources_types/neighborhood/cgi_arp_async.py")
+		tripleArpRemote = mySourceArpRemote.GetTriplestore()
+		print("Len tripleArpRemote=",len(tripleArpRemote))
+
+		instancesArpRemote = tripleArpRemote.GetInstances()
+		numComputers = 0
+		for oneInstance in instancesArpRemote:
+			if oneInstance.__class__.__name__ == "CIM_ComputerSystem":
+				print("Test remote ARP: Found one machine:",oneInstance)
+				numComputers += 1
+		print("Remote hosts number=",numComputers)
+		self.assertTrue(numComputers>=1)
+
+	def test_merge_add_mixed(self):
+		mySource1 = lib_client.SourceLocal(
+			"entity.py",
+			"CIM_LogicalDisk",
+			DeviceID="D:")
+		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/tcp_sockets_windows.py")
+
+		mySrcMergePlus = mySource1 + mySource2
+		print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
+		triplePlus = mySrcMergePlus.GetTriplestore()
+		print("Len triplePlus:",len(triplePlus))
+
+		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
+		lenSource2 = len(mySource2.GetTriplestore().GetInstances())
+		lenPlus = len(triplePlus.GetInstances())
+		# In the merged link, there cannot be more instances than in the input sources.
+		self.assertTrue(lenPlus <= lenSource1 + lenSource2)
+
+	def test_merge_sub_mixed(self):
+		mySource1 = lib_client.SourceLocal(
+			"entity.py",
+			"CIM_LogicalDisk",
+			DeviceID="D:")
+		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py")
+
+		mySrcMergeMinus = mySource1 - mySource2
+		print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
+		tripleMinus = mySrcMergeMinus.GetTriplestore()
+		print("Len tripleMinus:",len(tripleMinus))
+
+		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
+		lenMinus = len(tripleMinus.GetInstances())
+		# There cannot be more instances after removal.
+		self.assertTrue(lenMinus	 <= lenSource1 )
+
+	def test_remote_scripts_CIM_LogicalDisk(self):
+		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+
+		myInstancesRemote = myAgent.CIM_LogicalDisk(DeviceID="D:")
+		listScripts = myInstancesRemote.GetScripts()
+		# No scripts yet.
+		self.assertTrue(len(listScripts) == 0)
+
+	def test_remote_scripts_CIM_Directory(self):
+		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+
+		myInstancesRemote = myAgent.CIM_Directory(Name="D:")
+		listScripts = myInstancesRemote.GetScripts()
+		for keyScript in listScripts:
+			sys.stdout.write("    %s\n"%keyScript)
+		# There should be at least a couple of scripts.
+		self.assertTrue(len(listScripts) > 0)
+
+	def test_remote_agents(self):
+		"""Gets agents accessible from the remote host, then tries to access them individually"""
+		print("TODO: test_remote_agents not implemented yet")
+
+class SurvolSearchTest(unittest.TestCase):
+	"""Testing the search engine"""
 	def test_search_local_string_flat(self):
 		"""This searches for a string in one file only. Two occurrences."""
 
@@ -381,228 +692,22 @@ class SurvolLocalTest(unittest.TestCase):
 		for tpl in searchTripleStore:
 			print(tpl)
 
-	# This searches the content of a file which contains SQL queries.
-	def test_regex_sql_query_file(self):
-		"""This searches for SQL queries in one file only."""
 
-		try:
-			import sqlparse
-		except ImportError:
-			print("Module sqlparse is not available so this test is not applicable")
-			return
-
-		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
-
-		mySourceSqlQueries = lib_client.SourceLocal(
-			"sources_types/CIM_DataFile/grep_sql_queries.py",
-			"CIM_DataFile",
-			Name=sqlPathName)
-
-		tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
-		print(len(tripleSqlQueries.m_triplestore))
-		assert( len(tripleSqlQueries.m_triplestore)==3 )
-
-		matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
-
-		lstQueriesOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
-
-		print("lstQueriesOnly:",lstQueriesOnly)
-
-		# TODO: Eliminate the last double-quote.
-		assert( lstQueriesOnly[0] == u'select * from \'AnyTable\'"')
-		assert( lstQueriesOnly[1] == u'select A.x,B.y from AnyTable A, OtherTable B"')
-		assert( lstQueriesOnly[2] == u'select a,b,c from \'AnyTable\'"')
-
-		assert( len(lstQueriesOnly) == 3 )
-
-
-
-	# This searches the content of a process memory which contains a SQL memory.
-	def test_regex_sql_query_process(self):
-		# Starts a process
-		# C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\sources_types\CIM_Process\memory_regex_search\scan_sql_queries.py
-
-		try:
-			if 'win' in sys.platform:
-				import win32con
-		except ImportError:
-			print("Module win32con is not available so this test is not applicable")
-			return
-
-		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
-
-		import subprocess
-
-		execList = [ sys.executable, sqlPathName ]
-
-		# Runs this process: It allocates a variable containing a SQL query, then it waits.
-		procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-		print("Started process:",execList," pid=",procOpen.pid)
-
-		(child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
-
-		#print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
-
-		mySourceSqlQueries = lib_client.SourceLocal(
-			"sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
-			"CIM_Process",
-			Handle=procOpen.pid)
-
-		tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
-		print(len(tripleSqlQueries))
-		assert(len(tripleSqlQueries.m_triplestore)==190)
-
-		lstMatches = list(tripleSqlQueries.GetInstances("[Pp]ellentesque"))
-		print("Matches:",lstMatches)
-		assert( len(lstMatches) == 5 )
-
-		# Any string will do.
-		child_stdin.write("Stop")
-
-		print(lstMatches)
-
-class SurvolRemoteTest(unittest.TestCase):
-	"""Test involving remote Survol agents"""
-
-	def test_create_source_url(self):
-		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
-		mySourceFileStatRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py",
-			"CIM_DataFile",
-			Name="C:\\Windows\\explorer.exe")
-		print("urlFileStatRemote=",mySourceFileStatRemote.Url())
-		print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
-		print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
-		print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
-
-	def test_remote_triplestore(self):
-		mySourceFileStatRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py",
-			"CIM_Directory",
-			Name="C:\\Windows")
-		tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
-		print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
-		# This should not be empty.
-		self.assertTrue(len(tripleFileStatRemote)>=1)
-
-	def test_remote_instances_python_package(self):
-		"""This loads a specific Python package"""
-		mySourcePythonPackageRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/entity.py",
-			"python/package",
-			Id="rdflib")
-		triplePythonPackageRemote = mySourcePythonPackageRemote.GetTriplestore()
-		print("Len triplePythonPackageRemote=",len(triplePythonPackageRemote))
-
-		instancesPythonPackageRemote = triplePythonPackageRemote.GetInstances()
-		print("Len instancesPythonPackageRemote=",len(instancesPythonPackageRemote))
-		lenInstances = len(instancesPythonPackageRemote)
-		print("Len triplePythonPackageRemote=",lenInstances)
-		# This Python module must be there because it is needed by Survol.
-		self.assertTrue(lenInstances>=1)
-
-	def test_remote_instances_java(self):
-		"""Loads Java processes. There should be at least Java process,
-		which is the one doing the test"""
-		mySourceJavaRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
-		tripleJavaRemote = mySourceJavaRemote.GetTriplestore()
-		print("Len tripleJavaRemote=",len(tripleJavaRemote))
-
-		instancesJavaRemote = tripleJavaRemote.GetInstances()
-		numJavaProcesses = 0
-		for oneInstance in instancesJavaRemote:
-			if oneInstance.__class__.__name__ == "CIM_Process":
-				print("Found one Java process:",oneInstance)
-				numJavaProcesses += 1
-		print("Remote Java processes=",numJavaProcesses)
-		self.assertTrue(numJavaProcesses>=1)
-
-	def test_remote_instances_arp(self):
-		"""Loads machines visible with ARP. There should be at least one CIM_ComputerSystem instance"""
-		mySourceArpRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/neighborhood/cgi_arp_async.py")
-		tripleArpRemote = mySourceArpRemote.GetTriplestore()
-		print("Len tripleArpRemote=",len(tripleArpRemote))
-
-		instancesArpRemote = tripleArpRemote.GetInstances()
-		numComputers = 0
-		for oneInstance in instancesArpRemote:
-			if oneInstance.__class__.__name__ == "CIM_ComputerSystem":
-				print("Test remote ARP: Found one machine:",oneInstance)
-				numComputers += 1
-		print("Remote hosts number=",numComputers)
-		self.assertTrue(numComputers>=1)
-
-	def test_merge_add_mixed(self):
-		mySource1 = lib_client.SourceLocal(
-			"entity.py",
-			"CIM_LogicalDisk",
-			DeviceID="D:")
-		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/tcp_sockets_windows.py")
-
-		mySrcMergePlus = mySource1 + mySource2
-		print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
-		triplePlus = mySrcMergePlus.GetTriplestore()
-		print("Len triplePlus:",len(triplePlus))
-
-		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
-		lenSource2 = len(mySource2.GetTriplestore().GetInstances())
-		lenPlus = len(triplePlus.GetInstances())
-		# In the merged link, there cannot be more instances than in the input sources.
-		self.assertTrue(lenPlus <= lenSource1 + lenSource2)
-
-	def test_merge_sub_mixed(self):
-		mySource1 = lib_client.SourceLocal(
-			"entity.py",
-			"CIM_LogicalDisk",
-			DeviceID="D:")
-		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py")
-
-		mySrcMergeMinus = mySource1 - mySource2
-		print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
-		tripleMinus = mySrcMergeMinus.GetTriplestore()
-		print("Len tripleMinus:",len(tripleMinus))
-
-		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
-		lenMinus = len(tripleMinus.GetInstances())
-		# There cannot be more instances after removal.
-		self.assertTrue(lenMinus	 <= lenSource1 )
-
-	def test_remote_scripts_list_CIM_LogicalDisk(self):
-		myAgent = lib_client.Agent("http://rchateau-hp:8000")
-
-		myInstancesRemote = myAgent.CIM_LogicalDisk(DeviceID="D:")
-		listScripts = myInstancesRemote.GetScripts()
-		# No scripts yet.
-		self.assertTrue(len(listScripts) == 0)
-
-	def test_remote_scripts_list_CIM_Directory(self):
-		myAgent = lib_client.Agent("http://rchateau-hp:8000")
-
-		myInstancesRemote = myAgent.CIM_Directory(Name="D:")
-		listScripts = myInstancesRemote.GetScripts()
-		for keyScript in listScripts:
-			sys.stdout.write("    %s\n"%keyScript)
-		# There should be at least a couple of scripts.
-		self.assertTrue(len(listScripts) > 0)
-
-	def test_remote_agents(self):
-		"""This gets a list of agents accessible from the remote host,
-		then tries to access them individually"""
-		print("TODO: test_remote_agents not implemented yet")
 
 # quand on clique sur n importe quel script, ca doit faire quelque chose.
 
 if __name__ == '__main__':
 	for ix in range(len(sys.argv)):
 		if sys.argv[ix] == "--list":
-			for cls in [SurvolLocalTest,SurvolRemoteTest]:
-				print("%s"%cls.__name__)
+			for cls in [SurvolLocalTest,SurvolRemoteTest,SurvolSearchTest]:
+				print("%-44s: %s" % ( cls.__name__,cls.__doc__ ) )
 				for fnc in dir(cls):
 					if fnc.startswith("test_"):
-						print("    %s"%fnc)
+						tstDoc = getattr(cls,fnc).__doc__
+						if not tstDoc:
+							tstDoc = ""
+						print("    %-40s: %s" % (fnc, tstDoc))
+				print("")
 			exit(0)
 		if sys.argv[ix] == "--debug":
 			lib_client.SetDebugMode()
@@ -611,6 +716,7 @@ if __name__ == '__main__':
 		if sys.argv[ix] == "--help":
 			print("Extra options:")
 			print("    --debug: Set debug mode")
+			print("    --list : List of tests")
 			continue
 		ix += 1
 
