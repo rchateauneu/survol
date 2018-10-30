@@ -53,7 +53,7 @@ def enumerate_urls(grph):
 # It has to build an intermediary map because we have no simple way to find all edges
 # starting from a node. Otherwise, we could use a classical algorithm (Dijkstra ?)
 def get_urls_adjacency_list(grph,startInstance,filterPredicates):
-	INFO("startInstance=%s type=%s",str(startInstance),str(type(startInstance)))
+	DEBUG("startInstance=%s type=%s",str(startInstance),str(type(startInstance)))
 	# Each node maps to the list of the nodes it is directly connected to.
 	adjacency_list = dict()
 
@@ -82,7 +82,7 @@ def get_urls_adjacency_list(grph,startInstance,filterPredicates):
 				#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
 		#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
 
-	INFO("len(grph)=%d",len(grph))
+	DEBUG("len(grph)=%d",len(grph))
 
 	# Connected in both directions.
 	for kSub,kPred,kObj in grph:
