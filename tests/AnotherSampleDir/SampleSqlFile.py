@@ -5,13 +5,17 @@
 
 import sys
 
-print("Subprocess ",__file__)
-
 sqlQuery1 = "select * from 'AnyTable'"
 sqlQuery2 = "select a,b,c from 'AnyTable'"
 sqlQuery3 = "select A.x,B.y from AnyTable A, OtherTable B"
 
-if sys.version_info >= (3,):
-	input("Press return to stop")
-else:
-	raw_input("Press return to stop")
+sqlQuery4 = b"select * from 'AnyTable'"
+
+sys.stdout.write("Starting subprocess %s\n"%__file__)
+sys.stdout.flush()
+
+xx = sys.stdin.read()
+
+print(sqlQuery1,sqlQuery2,sqlQuery3,sqlQuery4)
+
+exit(123)
