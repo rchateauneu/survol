@@ -283,8 +283,14 @@ def AddInfo(grph,node,entity_ids_arr):
 		This creates a couple of nodes about a file.
 	"""
 	filNam = entity_ids_arr[0]
-	if filNam == "":
+
+	if not filNam: # Faster than comparing to an empty string.
 		return
+
+	# Cleanup the filename. This function is called without knowledge of the specific case,
+	# therefore the cleanup can only be done in code related to this entity type.
+	filNam = filNam.replace("\\","/")
+
 	AddMagic( grph,node,filNam)
 	AddStat( grph,node,filNam)
 	AddHtml( grph,node,filNam)
