@@ -576,8 +576,6 @@ class SurvolLocalTest(unittest.TestCase):
 		# Some instances are required.
 		if sys.platform.startswith("win"):
 			for oneStr in [
-					# "CIM_DataFile.Name=C:/Python27/python.exe",
-					"CIM_DataFile.Name=C:/Windows/py.exe",
 					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe",
 					"CIM_Process.Handle=%d"%os.getpid(), # This is the parent process.
 					"CIM_Process.Handle=%d"%procOpen.pid,
@@ -650,8 +648,6 @@ class SurvolLocalTest(unittest.TestCase):
 		assert(child_stdout_content.startswith(b"Starting subprocess"))
 		assert(procOpen.returncode == 123)
 
-
-
 	def test_environment_from_batch_process(self):
 		"""Tests that we can read a process'environment variables"""
 
@@ -673,16 +669,12 @@ class SurvolLocalTest(unittest.TestCase):
 
 		(child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
 
-		#print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
-
-		mySourceSqlQueries = lib_client.SourceLocal(
+		mySourceEnvVars = lib_client.SourceLocal(
 			"sources_types/CIM_Process/environment_variables.py",
 			"CIM_Process",
 			Handle=procOpen.pid)
 
-		tripleEnvVars = mySourceSqlQueries.GetTriplestore()
-		#print(len(tripleEnvVars))
-		#assert(len(tripleEnvVars.m_triplestore)==190)
+		tripleEnvVars = mySourceEnvVars.GetTriplestore()
 
 		matchingTriples = list(tripleEnvVars.GetAllStringsTriples())
 
@@ -702,6 +694,32 @@ class SurvolLocalTest(unittest.TestCase):
 
 		# Any string will do: This stops the subprocess which is waiting for an input.
 		child_stdin.write("Stop".encode())
+
+	def test_python_package_information(self):
+		"""Tests Python package information"""
+
+		mySourcePythonPackage = lib_client.SourceLocal(
+			"entity.py",
+			"python/package",
+			Id="rdflib")
+
+		triplePythonPackage = mySourcePythonPackage.GetTriplestore()
+
+		lstInstances = list(triplePythonPackage.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		# Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+		for oneStr in [
+			'CIM_ComputerSystem.Name=localhost',
+			'python/package.Id=isodate',
+			'python/package.Id=pyparsing',
+			'python/package.Id=rdflib',
+			'Win32_UserAccount.Domain=localhost,Name=rchateau']:
+			assert( oneStr in strInstancesSet)
+
+
+# TODO: Test calls to <Any class>.AddInfo()
+
 
 class SurvolRemoteTest(unittest.TestCase):
 	"""Test involving remote Survol agents"""
