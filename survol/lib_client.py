@@ -161,7 +161,7 @@ class SourceLocal (SourceCgi):
 		return self.m_script + "?" + self.UrlQuery()
 
 	def __get_local_module(self):
-		# Sets an envirorment variable then imports the script and execute it.
+		# Sets an environment variable then imports the script and execute it.
 		# TODO: "?" or "&"
 
 		urlDirNam = os.path.dirname(self.m_script)
