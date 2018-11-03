@@ -322,7 +322,7 @@ def CreateSource(script,className = None,urlRoot = None,**kwargs):
 class BaseCIMClass(object):
 	def __init__(self,agentUrl, entity_id):
 		#DEBUG("BaseCIMClass.__init__ %s",entity_id)
-		self.m_agentUrl = agentUrl
+		self.m_agentUrl = agentUrl # If None, this is a local instance.
 		self.m_entity_id = entity_id
 
 
@@ -712,6 +712,11 @@ class TripleStore:
 		else:
 			DEBUG("TripleStore.__init__ empty")
 
+	# Debugging purpose.
+	def DisplayTripleStore(self):
+		for a,b,c in self.m_triplestore:
+			print("   ",a,b,c)
+
 	def ToStreamXml(self,strStrm):
 		DEBUG("TripleStore.ToStreamXml")
 		lib_kbase.triplestore_to_stream_xml(self.m_triplestore,strStrm)
@@ -730,13 +735,14 @@ class TripleStore:
 
 	# This creates a CIM object for each unique URL, subject or object found in a triplestore.
 	# If needed, the CIM class is created on-the-fly.
-	# TODO: Used only for testing, should be debugged.
 	def GetInstances(self):
 		DEBUG("GetInstances")
 		objsSet = lib_kbase.enumerate_urls(self.m_triplestore)
 		lstInstances = []
 		for instanceUrl in objsSet:
-			# sys.stderr.write("GetInstances instanceUrl=%s\n"%instanceUrl)
+			if instanceUrl.find("entity.py") < 0:
+				continue
+
 			( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
 			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
 			# BEWARE: Some arguments should be decoded.
@@ -775,39 +781,21 @@ class TripleStore:
 				if adj_insts:
 					instances_adjacency_list[oneInstance] = adj_insts
 
-		#DEBUG("instances_adjacency_list keys:%s",str( [ str(oneKey) for oneKey in instances_adjacency_list.keys() ] ))
-
-
-		#DEBUG("cacheCIMClasses['CIM_Directory'].m_instancesCache.keys()=%s", str(cacheCIMClasses['CIM_Directory'].m_instancesCache.keys()))
-		#DEBUG("cacheCIMClasses['CIM_Directory'].m_instancesCache.keys()=%s",
-		#	  str( [ str(oneKey) for oneKey in cacheCIMClasses['CIM_Directory'].m_instancesCache.keys() ] ) )
-		#DEBUG("cacheCIMClasses['CIM_Directory'].m_instancesCache.keys()=%s",
-		#	  str( [ type(oneKey) for oneKey in cacheCIMClasses['CIM_Directory'].m_instancesCache.keys() ] ) )
-
-
 		setConnectedInstances = set()
 
 		# This recursively merges all nodes connected to this one.
 		def MergeConnectedInstancesTo(oneInst):
-			#DEBUG("instances_adjacency_list keys:%s",str( [ str(oneKey) for oneKey in instances_adjacency_list.keys() ] ))
-			#INFO("len(instances_adjacency_list)=%d oneInst=%s type=%s",len(instances_adjacency_list),oneInst,type(oneInst))
 
 			if not oneInst in instances_adjacency_list:
 				#DEBUG("Already deleted oneInst=%s",oneInst)
 				return
-			#DEBUG("instances_adjacency_list values:%s",str( [ str(oneVal) for oneVal in instances_adjacency_list[oneInst] ] ))
 
 			assert oneInst in instances_adjacency_list,"oneInst not there:%s"%oneInst
 			instsConnected = instances_adjacency_list[oneInst]
-			#INFO("len(setResult)=%d oneInst=%s",len(instances_adjacency_list),oneInst)
-			#INFO("Union before len(instsConnected)=%d",len(instsConnected))
-			#INFO("Union before len(setConnectedInstances)=%d",len(setConnectedInstances))
-			setConnectedInstances.update(instsConnected)
-			#INFO("Union after len(setConnectedInstances)=%d",len(setConnectedInstances))
 
-			#INFO("len(instances_adjacency_list)=%d oneInst=%s",len(instances_adjacency_list),oneInst)
+			setConnectedInstances.update(instsConnected)
+
 			del instances_adjacency_list[oneInst]
-			#INFO("len(instances_adjacency_list)=%d oneInst=%s",len(instances_adjacency_list),oneInst)
 			for endInst in instsConnected:
 				MergeConnectedInstancesTo(endInst)
 
