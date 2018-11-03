@@ -511,8 +511,8 @@ class SurvolLocalTest(unittest.TestCase):
 		assert(procOpen.returnCode == 123)
 		#assert(len(tripleSqlQueries.m_triplestore)==190)
 
-	# This searches the content of a process memory which contains a SQL memory.
 	def test_open_files_from_python_process(self):
+		"""Files open by a Python process"""
 		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
 
 		execList = [ sys.executable, sqlPathName ]
@@ -530,7 +530,7 @@ class SurvolLocalTest(unittest.TestCase):
 		lstInstances = list(tripleSqlQueries.GetInstances())
 		strInstances = sorted([str(oneInst) for oneInst in lstInstances ])
 
-		print(strInstances)
+		print("Instances=",strInstances)
 		if sys.platform.startswith("win"):
 			assert( strInstances ==
 				[
@@ -539,6 +539,51 @@ class SurvolLocalTest(unittest.TestCase):
 					"Win32_UserAccount.Domain=localhost,Name=rchateau"
 				])
 		else:
+			print("Linux case: Not implemented yet")
+			assert(False)
+
+		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
+
+		# This ensures that the subprocess is correctly started and finished.
+		assert(child_stdout_content.startswith(b"Starting subprocess"))
+		assert(procOpen.returncode == 123)
+
+	def test_sub_parent_from_python_process(self):
+		"""Sub and parent processes a Python process"""
+		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+
+		execList = [ sys.executable, sqlPathName ]
+
+		procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+
+		print("Started process:",execList," pid=",procOpen.pid)
+
+		mySourceProcesses = lib_client.SourceLocal(
+			"sources_types/CIM_Process/single_pidstree.py",
+			"CIM_Process",
+			Handle=procOpen.pid)
+
+		tripleProcesses = mySourceProcesses.GetTriplestore()
+
+		lstInstances = list(tripleProcesses.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		print("Instances=",strInstancesSet)
+
+		# TODO: Check the presence of sys.executable ?
+
+		# Some instances are required.
+		if sys.platform.startswith("win"):
+			for oneStr in [
+					# "CIM_DataFile.Name=C:/Python27/python.exe",
+					"CIM_DataFile.Name=C:/Windows/py.exe",
+					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe",
+					"CIM_Process.Handle=%d"%os.getpid(), # This is the parent process.
+					"CIM_Process.Handle=%d"%procOpen.pid,
+					"Win32_UserAccount.Domain=localhost,Name=rchateau" ]:
+				assert( oneStr in strInstancesSet)
+		else:
+			print("Linux case: Not implemented yet")
 			assert(False)
 
 		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
