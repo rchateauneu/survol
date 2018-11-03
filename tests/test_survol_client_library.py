@@ -5,6 +5,7 @@ import unittest
 import subprocess
 import sys
 import os
+import time
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -612,17 +613,32 @@ class SurvolLocalTest(unittest.TestCase):
 		lstInstances = list(tripleMemMaps.GetInstances())
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
-		print("Instances=",strInstancesSet)
+		# print("Instances=",strInstancesSet)
+
+		# Give a bit of time so the process is fully init.
+		time.sleep(0.2)
 
 		# Some instances are required.
 		if sys.platform.startswith("win"):
 			for oneStr in [
-					# "CIM_DataFile.Name=C:/Python27/python.exe",
-					"CIM_DataFile.Name=C:/Windows/py.exe",
-					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe",
-					"CIM_Process.Handle=%d"%os.getpid(), # This is the parent process.
-					"CIM_Process.Handle=%d"%procOpen.pid,
-					"Win32_UserAccount.Domain=localhost,Name=rchateau" ]:
+				'CIM_Process.Handle=%s'%procOpen.pid,
+				'memmap.Id=C:/Windows/Globalization/Sorting/SortDefault.nls',
+				'memmap.Id=C:/Windows/System32/apisetschema.dll',
+				'memmap.Id=C:/Windows/System32/apphelp.dll',
+				'memmap.Id=C:/Windows/System32/imm32.dll',
+				'memmap.Id=C:/Windows/System32/kernel32.dll',
+				'memmap.Id=C:/Windows/System32/locale.nls',
+				'memmap.Id=C:/Windows/System32/msctf.dll',
+				'memmap.Id=C:/Windows/System32/ntdll.dll',
+				'memmap.Id=C:/Windows/System32/user32.dll',
+				'memmap.Id=C:/Windows/System32/KernelBase.dll',
+				'memmap.Id=C:/Windows/System32/lpk.dll',
+				'memmap.Id=C:/Windows/System32/winbrand.dll',
+				'memmap.Id=C:/Windows/System32/usp10.dll',
+				'memmap.Id=C:/Windows/System32/msvcrt.dll',
+				'memmap.Id=C:/Windows/System32/cmd.exe',
+				'memmap.Id=C:/Windows/System32/gdi32.dll']:
+				print(oneStr)
 				assert( oneStr in strInstancesSet)
 		else:
 			print("Linux case: Not implemented yet")
