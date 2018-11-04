@@ -10,11 +10,11 @@ import time
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
+# TODO: Remove this hard-code.
 filRoot = "C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\survol"
 if sys.path[0] != filRoot:
 	sys.path.insert(0,filRoot)
 	# print(sys.path)
-
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
@@ -29,8 +29,6 @@ for modu in allModules:
 
 import lib_client
 import lib_properties
-# from lib_properties import pc
-
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
@@ -717,12 +715,39 @@ class SurvolLocalTest(unittest.TestCase):
 			'Win32_UserAccount.Domain=localhost,Name=rchateau']:
 			assert( oneStr in strInstancesSet)
 
+	def test_pyodbc_sqldatasources(self):
+		"""Tests ODBC data sources"""
+
+		mySourceSqlData = lib_client.SourceLocal(
+			"sources_types/Databases/win32_sqldatasources_pyodbc.py")\
+
+		tripleSqlData = mySourceSqlData.GetTriplestore()
+
+		lstInstances = list(tripleSqlData.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		# At least these instances must be present.
+		for oneStr in [
+			'CIM_ComputerSystem.Name=localhost',
+			'odbc/dsn.Dsn=DSN~Excel Files',
+			'odbc/dsn.Dsn=DSN~MS Access Database',
+			'odbc/dsn.Dsn=DSN~MyNativeSqlServerDataSrc',
+			'odbc/dsn.Dsn=DSN~MyOracleDataSource',
+			'odbc/dsn.Dsn=DSN~OraSysDataSrc',
+			'odbc/dsn.Dsn=DSN~SysDataSourceSQLServer',
+			'odbc/dsn.Dsn=DSN~dBASE Files',
+			'odbc/dsn.Dsn=DSN~mySqlServerDataSource',
+			'odbc/dsn.Dsn=DSN~SqlSrvNativeDataSource']:
+			assert( oneStr in strInstancesSet)
+
 
 # TODO: Test calls to <Any class>.AddInfo()
 
 
 class SurvolRemoteTest(unittest.TestCase):
-	"""Test involving remote Survol agents"""
+	"""Test involving remote Survol agents: The scripts executes scripts on remote machines
+	and examines the result. It might merge the output with local scripts or
+	scripts on different machines."""
 
 	def test_create_source_url(self):
 		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
