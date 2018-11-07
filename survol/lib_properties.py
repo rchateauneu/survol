@@ -26,8 +26,8 @@ primns_slash = primns + '/'
 # It tests that the key is in fact an array containing the properties.
 # We could add information in a given order: "information?key=1", "information?key=2",
 # Natural order should be OK. or add a sort unfction in the call to sorted().
-def MakeProp(prp,**kvargs):
-	ret = primns_slash + prp
+def MakeProp(*prps,**kvargs):
+	ret = primns_slash + ":".join(prps)
 	if kvargs:
 		ret += "?" + "&amp;".join( "%s=%s" % (k,kvargs[k]) for k in kvargs )
 	# TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
@@ -119,11 +119,15 @@ pc.property_information          = MakeProp(sortPrefix + "Information")
 pc.property_domain               = MakeProp("domain")
 pc.property_controller           = MakeProp("controller")
 pc.property_service              = MakeProp("service")
-pc.property_odbc_driver          = MakeProp("odbc_driver")
-pc.property_odbc_dsn             = MakeProp("odbc_dsn")
-pc.property_odbc_table           = MakeProp("odbc_table")
-pc.property_odbc_column          = MakeProp("column")
-pc.property_odbc_procedure       = MakeProp("odbc_procedure")
+# The "odbc" prefix is a kind of namespace.
+pc.property_odbc_driver          = MakeProp("odbc","driver")
+pc.property_odbc_dsn             = MakeProp("odbc","dsn")
+pc.property_odbc_table           = MakeProp("odbc","table")
+pc.property_odbc_column          = MakeProp("odbc","column")
+pc.property_odbc_procedure       = MakeProp("odbc","procedure")
+pc.property_odbc_catalog         = MakeProp("odbc","catalog")
+pc.property_odbc_schema          = MakeProp("odbc","schema")
+pc.property_odbc_type            = MakeProp("odbc","type")
 pc.property_sqlserver_db         = MakeProp("sqlserver DB")
 pc.property_last_access          = MakeProp("last_access")
 pc.property_last_change          = MakeProp("last_update")
