@@ -225,27 +225,6 @@ class SurvolLocalTest(unittest.TestCase):
 		# There should be at least a couple of scripts.
 		self.assertTrue(len(listScripts) > 0)
 
-	def test_local_scripts_odbc_dsn(self):
-		"""The point of this test is to instantiate an instance of a subclass"""
-
-		try:
-			import pyodbc
-		except ImportError:
-			print("Module pyodbc is not available so this test is not applicable")
-			return
-
-		# The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
-		instanceLocalODBC = lib_client.Agent().odbc.dsn(
-			Dsn="DSN~MS%20Access%20Database")
-
-		listScripts = instanceLocalODBC.GetScripts()
-		if isVerbose:
-			sys.stdout.write("Scripts:\n")
-			for oneScr in listScripts:
-				sys.stdout.write("    %s\n"%oneScr)
-		# There should be at least a couple of scripts.
-		self.assertTrue(len(listScripts) > 0)
-
 	def test_grep_string(self):
 		sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" ).replace("\\","/")
 
@@ -715,6 +694,35 @@ class SurvolLocalTest(unittest.TestCase):
 			'Win32_UserAccount.Domain=localhost,Name=rchateau']:
 			assert( oneStr in strInstancesSet)
 
+class SurvolPyODBCTest(unittest.TestCase):
+	def __init__(self, *args, **kwargs):
+		super(SurvolPyODBCTest, self).__init__(*args, **kwargs)
+		try:
+			import pyodbc
+		except ImportError:
+			raise Exception("Module pyodbc is not available so these tests are not applicable")
+
+	def test_local_scripts_odbc_dsn(self):
+		"""This instantiates an instance of a subclass"""
+
+		try:
+			import pyodbc
+		except ImportError:
+			print("Module pyodbc is not available so this test is not applicable")
+			return
+
+		# The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
+		instanceLocalODBC = lib_client.Agent().odbc.dsn(
+			Dsn="DSN~MS%20Access%20Database")
+
+		listScripts = instanceLocalODBC.GetScripts()
+		if isVerbose:
+			sys.stdout.write("Scripts:\n")
+			for oneScr in listScripts:
+				sys.stdout.write("    %s\n"%oneScr)
+		# There should be at least a couple of scripts.
+		self.assertTrue(len(listScripts) > 0)
+
 	def test_pyodbc_sqldatasources(self):
 		"""Tests ODBC data sources"""
 
@@ -739,6 +747,42 @@ class SurvolLocalTest(unittest.TestCase):
 			'odbc/dsn.Dsn=DSN~mySqlServerDataSource',
 			'odbc/dsn.Dsn=DSN~SqlSrvNativeDataSource']:
 			assert( oneStr in strInstancesSet)
+
+
+	def test_pyodbc_dsn_tables(self):
+		"""Tests ODBC data sources"""
+
+		mySourceDsnTables = lib_client.SourceLocal(
+			"sources_types/odbc/dsn/odbc_dsn_tables.py",
+			"odbc/dsn",
+			Dsn="DSN~SysDataSourceSQLServer")
+
+		tripleDsnTables = mySourceDsnTables.GetTriplestore()
+		#print("Triples:",tripleDsnTables)
+
+		lstInstances = list(tripleDsnTables.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+		#print("Instances:",strInstancesSet)
+
+		# Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+		for oneStr in [
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=all_columns',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=assembly_files',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=change_tracking_tables',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_broker_queue_monitors',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_hadr_availability_group_states',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_hadr_database_replica_cluster_states',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_hadr_instance_node_map',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=server_audit_specifications',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=server_audits',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=sysusers',
+			]:
+			assert( oneStr in strInstancesSet)
+
+
+
+	# http://rchateau-hp:8000/survol/sources_types/odbc/dsn/odbc_dsn_tables.py?xid=odbc/dsn.Dsn%3DDSN%7ESysDataSourceSQLServer
+
 
 
 # TODO: Test calls to <Any class>.AddInfo()
