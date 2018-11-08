@@ -42,7 +42,6 @@ def Main():
              1: pc.property_odbc_schema,
              # 3: pc.property_odbc_table,
              3: pc.property_odbc_type }
-        # TODO: The column name should be unique.
 
         # This avoids cursor.fetchall()
         for row in cursor.tables():
