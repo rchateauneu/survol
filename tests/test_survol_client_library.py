@@ -780,8 +780,35 @@ class SurvolPyODBCTest(unittest.TestCase):
 			assert( oneStr in strInstancesSet)
 
 
+	def test_pyodbc_dsn_one_table_columns(self):
+		"""Tests ODBC table columns"""
 
-	# http://rchateau-hp:8000/survol/sources_types/odbc/dsn/odbc_dsn_tables.py?xid=odbc/dsn.Dsn%3DDSN%7ESysDataSourceSQLServer
+		mySourceTableColumns = lib_client.SourceLocal(
+			"sources_types/odbc/table/odbc_table_columns.py",
+			"odbc/table",
+			Dsn="DSN~SysDataSourceSQLServer",
+			Table="dm_os_windows_info")
+
+		tripleTableColumns = mySourceTableColumns.GetTriplestore()
+		#print("Triples:",tripleDsnTables)
+
+		lstInstances = list(tripleTableColumns.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+		#print("Instances:",strInstancesSet)
+
+		# Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+		for oneStr in [
+			'odbc/column.Column=windows_sku,Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info',
+			'odbc/column.Column=windows_release,Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info',
+			'odbc/column.Column=windows_service_pack_level,Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info',
+			'odbc/column.Column=os_language_version,Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info']:
+			assert( oneStr in strInstancesSet)
+
+
+	def test_pyodbc_dsn_procedures(self):
+		"""Tests ODBC data sources"""
+		print("No script yet for ODBC procedures. Test not applicable.")
 
 
 
