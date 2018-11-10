@@ -818,12 +818,13 @@ class SurvolSocketsTest(unittest.TestCase):
 	def test_netstat_windows_sockets(self):
 		import socket
 
+		print("")
 		# http://w2.vatican.va/content/vatican/it.html is on port 80=http
 		httpHostName = 'w2.vatican.va'
 
 		sockHost = socket.gethostbyname(httpHostName)
+		print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
 
-		print(sockHost)
 		# This opens a connection to a specific machine, then checks that the socket can be found.
 		if sys.version_info >= (3,):
 			import http.client
@@ -841,12 +842,54 @@ class SurvolSocketsTest(unittest.TestCase):
 
 		print("Peer name of connection socket:",connHttp.sock.getpeername())
 
-		# Py3 ?
-		#print("raw=",resp.raw._original_response.fp.raw._sock.getpeername()[0])
-
-		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
 		mySourceNetstatWindowsSockets = lib_client.SourceLocal(
 			"sources_types/win32/tcp_sockets_windows.py")
+
+		tripleNetstatWindowsSockets = mySourceNetstatWindowsSockets.GetTriplestore()
+
+		lstInstances = list(tripleNetstatWindowsSockets.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		addrExpected = "addr.Id=%s:http" % (peerHost)
+
+		#print("Instances:",strInstancesSet)
+		print("sockHost=",sockHost)
+		for oneInst in sorted(strInstancesSet):
+			#print(oneInst)
+			if oneInst.find(addrExpected)>= 0:
+				print("OK. Found %s"%addrExpected)
+				break
+
+		connHttp.close()
+
+	def test_enumerate_sockets(self):
+		import socket
+
+		httpHostName = 'root-servers.org'
+
+		print("")
+		sockHost = socket.gethostbyname(httpHostName)
+		print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
+
+		# This opens a connection to a specific machine, then checks that the socket can be found.
+		if sys.version_info >= (3,):
+			import http.client
+			connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
+		else:
+			import httplib
+			connHttp = httplib.HTTPConnection(httpHostName, 80, timeout=60)
+		print("Connection to %s OK"%httpHostName)
+		connHttp.request("GET", "")
+		resp = connHttp.getresponse()
+		if resp.status != 200 or resp.reason != "OK":
+			raise Exception("Hostname %s not ok for test. Status=%d, reason=%s."%(httpHostName, resp.status, resp.reason))
+		peerName = connHttp.sock.getpeername()
+		peerHost = peerName[0]
+
+		print("Peer name of connection socket:",connHttp.sock.getpeername())
+
+		mySourceNetstatWindowsSockets = lib_client.SourceLocal(
+			"sources_types/enumerate_socket.py")
 
 		tripleNetstatWindowsSockets = mySourceNetstatWindowsSockets.GetTriplestore()
 		#tripleNetstatWindowsSockets.DisplayTripleStore()
