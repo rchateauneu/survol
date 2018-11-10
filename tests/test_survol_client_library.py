@@ -758,7 +758,6 @@ class SurvolPyODBCTest(unittest.TestCase):
 			Dsn="DSN~SysDataSourceSQLServer")
 
 		tripleDsnTables = mySourceDsnTables.GetTriplestore()
-		#print("Triples:",tripleDsnTables)
 
 		lstInstances = list(tripleDsnTables.GetInstances())
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
@@ -790,7 +789,6 @@ class SurvolPyODBCTest(unittest.TestCase):
 			Table="dm_os_windows_info")
 
 		tripleTableColumns = mySourceTableColumns.GetTriplestore()
-		#print("Triples:",tripleDsnTables)
 
 		lstInstances = list(tripleTableColumns.GetInstances())
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
@@ -812,8 +810,61 @@ class SurvolPyODBCTest(unittest.TestCase):
 
 
 
-# TODO: Test calls to <Any class>.AddInfo()
+class SurvolSocketsTest(unittest.TestCase):
+	"""Test involving remote Survol agents: The scripts executes scripts on remote machines
+	and examines the result. It might merge the output with local scripts or
+	scripts on different machines."""
 
+	def test_netstat_windows_sockets(self):
+		import socket
+
+		# http://w2.vatican.va/content/vatican/it.html is on port 80=http
+		httpHostName = 'w2.vatican.va'
+
+		sockHost = socket.gethostbyname(httpHostName)
+
+		print(sockHost)
+		# This opens a connection to a specific machine, then checks that the socket can be found.
+		if sys.version_info >= (3,):
+			import http.client
+			connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
+		else:
+			import httplib
+			connHttp = httplib.HTTPConnection(httpHostName, 80, timeout=60)
+		print("Connection to %s OK"%httpHostName)
+		connHttp.request("GET", "/content/vatican/it.html")
+		resp = connHttp.getresponse()
+		if resp.status != 200 or resp.reason != "OK":
+			raise Exception("Hostname %s not ok for test. Status=%d, reason=%s."%(httpHostName, resp.status, resp.reason))
+		peerName = connHttp.sock.getpeername()
+		peerHost = peerName[0]
+
+		print("Peer name of connection socket:",connHttp.sock.getpeername())
+
+		# Py3 ?
+		#print("raw=",resp.raw._original_response.fp.raw._sock.getpeername()[0])
+
+		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
+		mySourceNetstatWindowsSockets = lib_client.SourceLocal(
+			"sources_types/win32/tcp_sockets_windows.py")
+
+		tripleNetstatWindowsSockets = mySourceNetstatWindowsSockets.GetTriplestore()
+		#tripleNetstatWindowsSockets.DisplayTripleStore()
+
+		lstInstances = list(tripleNetstatWindowsSockets.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		addrExpected = "addr.Id=%s:http" % (peerHost)
+
+		#print("Instances:",strInstancesSet)
+		print("sockHost=",sockHost)
+		for oneInst in sorted(strInstancesSet):
+			#print(oneInst)
+			if oneInst.find(addrExpected)>= 0:
+				print("OK. Found %s"%addrExpected)
+				break
+
+		connHttp.close()
 
 class SurvolRemoteTest(unittest.TestCase):
 	"""Test involving remote Survol agents: The scripts executes scripts on remote machines
@@ -1022,9 +1073,6 @@ class SurvolSearchTest(unittest.TestCase):
 			print(tpl)
 
 
-
-# quand on clique sur n importe quel script, ca doit faire quelque chose.
-
 if __name__ == '__main__':
 	for ix in range(len(sys.argv)):
 		if sys.argv[ix] == "--list":
@@ -1050,4 +1098,7 @@ if __name__ == '__main__':
 		ix += 1
 
 	unittest.main()
+
+# TODO: Test calls to <Any class>.AddInfo()
+# TODO: When double-clicking any Python script, it should do something visible.
 
