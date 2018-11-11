@@ -7,7 +7,7 @@ import sys
 import json
 import heapq
 import urllib
-import inspect
+import traceback
 
 import lib_util
 import lib_kbase
@@ -213,7 +213,17 @@ class SourceLocal (SourceCgi):
 		try:
 			modu.Main()
 		except Exception as ex:
-			ERROR("__execute_script_with_mode with module=%s: Caught:%s",modu.__name__,ex)
+			# https://www.stefaanlippens.net/python-traceback-in-catch/
+			ERROR("__execute_script_with_mode with module=%s: Caught:%s",modu.__name__,ex, exc_info=True)
+
+			#traceback.print_exc()
+
+			# Get traceback as a string and do something with it
+			#error = traceback.format_exc()
+			#print( error.upper())
+
+			# Log it through logging channel
+			#ERROR('Ooops', exc_info=True)
 
 		# Restores the original stream.
 		lib_util.globalOutMach = originalOutMach
@@ -714,6 +724,7 @@ class TripleStore:
 
 	# Debugging purpose.
 	def DisplayTripleStore(self):
+		DEBUG("TripleStore.DisplayTripleStore")
 		for a,b,c in self.m_triplestore:
 			print("   ",a,b,c)
 
