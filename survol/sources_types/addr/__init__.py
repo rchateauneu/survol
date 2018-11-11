@@ -19,7 +19,15 @@ def EntityOntology():
 # This returns a nice name given the parameter of the object.
 def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
-	return entity_id
+	(hostName,dummy,portNum) = entity_id.rpartition(":")
+
+	try:
+		portNam = socket.getservbyport( int(portNum) )
+	# except socket.error:
+	except:
+		portNam = str(portNum)
+
+	return "%s:%s" % (hostName,portNam)
 
 def AddInfo(grph,node,entity_ids_arr):
 	timeStart = time.time()
@@ -53,6 +61,7 @@ def UniversalAlias(entity_ids_arr,entity_host,entity_class):
 		sockIP = lib_util.GlobalGetHostByName(socket.getfqdn())
 
 	# Just in case this would be a service name, turn into a protocol number.
+	# It should not happen because lib_uris. AddrUri displays the port as an integer.
 	try:
 		socketPortNumber = socket.getservbyname(socketPort)
 	except:
