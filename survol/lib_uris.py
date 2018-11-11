@@ -54,8 +54,8 @@ class LocalBox:
 			ERROR("BuildEntity entity_type=%s Not enough values:%s and %s",entity_type,str(keys),str(entity_id_arr))
 			# entity_id_arr += [ "Unknown" ] * ( lenKeys - lenEntIds )
 
-		# Sorted keys
-		entity_id = ",".join( "%s=%s" % kwItems for kwItems in dict(zip( keys, entity_id_arr ) ).items() )
+		# Sorted keys, same order for Pyt
+		entity_id = ",".join( "%s=%s" % kwItems for kwItems in sorted(dict(zip( keys, entity_id_arr ) ).items()) )
 
 		return entity_id
 
@@ -86,6 +86,7 @@ class LocalBox:
 				# This is a plain str, no value encoding.
 				return (keyIt,valIt)
 
+		print("UriMakeFromDict")
 		entity_id = ",".join( "%s=%s" % UriPairEncode(*kwItems) for kwItems in entity_id_dict.items() )
 		# sys.stderr.write("UriMakeFromDict entity_id=%s\n"%entity_id)
 		return self.MakeTheNode( entity_type, entity_id )
@@ -299,17 +300,20 @@ class LocalBox:
 	#
 	# TODO: PROBLEM: How can it be merged with the same address but described "from the other side" ??
 	# TODO: WE MUST ADD IN ITS PROPERTY, THE ALLEGED NODE "FROM THE OTHER SIDE".
+	# TODO: Move this to sources_types/addr/__init__.py
 	# MAYBE IT IS NOT ENOUGH (BUT SO ELEGANT), IF THIS IS THE REMOTE NODE, TO USE THE REMOTE HOST,
 	# BECAUSE IT WOULD FORBID ANY INVESTIGATION FROM ANOTHER MACHINE ??
 	#
 	# If the port is known, we could wrap the associated service in a Python script.
 	# On the other hand, it forces the usage of a service.
 	# We do not put it in a specific module because it is used everywhere and is unavoidable.
-	def AddrUri(self,addr,port,transport="tcp"):
+	def AddrUri(self,addr,socketPort,transport="tcp"):
+		# The standard id encodes the port as an integer.
+		# But addr.EntityName() displays it with getservbyport
 		try:
-			portNam = socket.getservbyport( int(port) )
-		except socket.error:
-			portNam = str(port)
+			socketPortNumber = socket.getservbyname(socketPort)
+		except:
+			socketPortNumber = int(socketPort)
 
 		# addr could be "LOCALHOST"
 		if lib_util.IsLocalAddress(addr):
@@ -317,7 +321,8 @@ class LocalBox:
 			# TODO: Should use the actual IP address.
 			addr = "127.0.0.1"
 
-		url = addr + ':' + portNam
+		url = "%s:%d" % (addr,socketPortNumber)
+
 		if transport != 'tcp':
 			# This will happen rarely.
 			url += ":" + transport

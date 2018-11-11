@@ -819,6 +819,8 @@ class SurvolSocketsTest(unittest.TestCase):
 		import socket
 
 		print("")
+
+		# Not many web sites in HTTP these days. This one is very stable.
 		# http://w2.vatican.va/content/vatican/it.html is on port 80=http
 		httpHostName = 'w2.vatican.va'
 
@@ -850,19 +852,85 @@ class SurvolSocketsTest(unittest.TestCase):
 		lstInstances = list(tripleNetstatWindowsSockets.GetInstances())
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
-		addrExpected = "addr.Id=%s:http" % (peerHost)
-
 		#print("Instances:",strInstancesSet)
-		print("sockHost=",sockHost)
-		for oneInst in sorted(strInstancesSet):
-			#print(oneInst)
-			if oneInst.find(addrExpected)>= 0:
-				print("OK. Found %s"%addrExpected)
-				break
+		addrExpected = "addr.Id=%s:80" % (peerHost)
+		print("addrExpected=",addrExpected)
+		assert( addrExpected in strInstancesSet )
 
 		connHttp.close()
 
 	def test_enumerate_sockets(self):
+		import socket
+
+		# httpHostName = 'www.root-servers.org'
+		# This site was registered on September the 18th, 1986.
+		httpHostName = 'itcorp.com'
+
+		print("")
+		sockHost = socket.gethostbyname(httpHostName)
+		print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
+
+		# This opens a connection to a specific machine, then checks that the socket can be found.
+		if sys.version_info >= (3,):
+			import http.client
+			connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
+		else:
+			import httplib
+			connHttp = httplib.HTTPConnection(httpHostName, 80, timeout=60)
+		print("Connection to %s OK"%httpHostName)
+
+		#connHttp.request(method="GET", url="/", headers={"Connection" : "Keep-alive"})
+		print("Requesting content")
+		#connHttp.request(method="GET", url="/content/vatican/it.html")
+		connHttp.request(method="GET", url="/")
+		print("Peer name of connection socket:",connHttp.sock.getpeername())
+
+		resp = connHttp.getresponse()
+
+		if resp.status != 200 or resp.reason != "OK":
+			raise Exception("Hostname %s not ok for test. Status=%d, reason=%s."%(httpHostName, resp.status, resp.reason))
+		peerName = connHttp.sock.getpeername()
+		peerHost = peerName[0]
+
+		mySourceEnumerateSockets = lib_client.SourceLocal(
+			"sources_types/enumerate_socket.py")
+
+		tripleEnumerateSockets = mySourceEnumerateSockets.GetTriplestore()
+
+		lstInstances = list(tripleEnumerateSockets.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		addrExpected = "addr.Id=%s:80" % (peerHost)
+
+		#print("Instances:",strInstancesSet)
+		print("sockHost=",sockHost)
+		print("addrExpected=",addrExpected)
+		#assert( addrExpected in strInstancesSet)
+
+		print("test_enumerate_sockets: Does not work yet. Only testing execution.")
+
+		if False:
+			# For debugging purpose only.
+			def DispIp(oneInst):
+				if oneInst.startswith("addr") and oneInst.find("127.0.0.1") < 0:
+					# addr.Id=iwc2-31.catholica.va:http
+					addrOnly = oneInst[ oneInst.find("=") +1: oneInst.find(":") ]
+					try:
+						addrHost = socket.gethostbyname(addrOnly)
+						print(oneInst,addrHost)
+					except:
+						print(oneInst,"===",addrOnly)
+
+			for oneInst in sorted(strInstancesSet):
+				DispIp(oneInst)
+				if oneInst.find(addrExpected)>= 0:
+					print("OK. Found %s in %s "%(addrExpected,oneInst))
+					break
+
+		connHttp.close()
+
+
+	def test_socket_connected_processes(self):
 		import socket
 
 		httpHostName = 'root-servers.org'
@@ -888,26 +956,31 @@ class SurvolSocketsTest(unittest.TestCase):
 
 		print("Peer name of connection socket:",connHttp.sock.getpeername())
 
-		mySourceNetstatWindowsSockets = lib_client.SourceLocal(
-			"sources_types/enumerate_socket.py")
+		mySourceConnectedProcesses = lib_client.SourceLocal(
+			"sources_types/addr/socket_connected_processes.py",
+			"addr",
+			Id="%s:80"%peerHost)
 
-		tripleNetstatWindowsSockets = mySourceNetstatWindowsSockets.GetTriplestore()
-		#tripleNetstatWindowsSockets.DisplayTripleStore()
+		tripleConnectedProcesses = mySourceConnectedProcesses.GetTriplestore()
 
-		lstInstances = list(tripleNetstatWindowsSockets.GetInstances())
+		lstInstances = list(tripleConnectedProcesses.GetInstances())
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
-		addrExpected = "addr.Id=%s:http" % (peerHost)
+		# Because the current process has created this socket,
+		# it must be found in the socket's connected processes.
 
-		#print("Instances:",strInstancesSet)
-		print("sockHost=",sockHost)
-		for oneInst in sorted(strInstancesSet):
-			#print(oneInst)
-			if oneInst.find(addrExpected)>= 0:
-				print("OK. Found %s"%addrExpected)
-				break
+		addrExpected = "addr.Id=%s:80" % peerHost
+		hostExpected =  "CIM_Process.Handle=%d" % os.getpid()
+
+		print("addrExpected=",addrExpected)
+		print("hostExpected=",hostExpected)
+
+		assert( addrExpected in strInstancesSet)
+		assert( hostExpected in hostExpected)
 
 		connHttp.close()
+
+
 
 class SurvolRemoteTest(unittest.TestCase):
 	"""Test involving remote Survol agents: The scripts executes scripts on remote machines
