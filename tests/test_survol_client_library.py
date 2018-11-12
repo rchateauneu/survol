@@ -981,6 +981,28 @@ class SurvolSocketsTest(unittest.TestCase):
 		connHttp.close()
 
 
+	def test_net_use(self):
+		"""Just test that the command NET USE runs"""
+
+		mySourceNetUse = lib_client.SourceLocal(
+			"sources_types/SMB/net_use.py")
+
+		tripleNetUse = mySourceNetUse.GetTriplestore()
+
+		lstInstances = list(tripleNetUse.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+		# Typical content:
+		# 'CIM_DataFile.Name=//192.168.0.15/public:',
+		# 'CIM_DataFile.Name=//192.168.0.15/rchateau:',
+		# 'smbshr.Id=\\\\192.168.0.15\\public',
+		# 'CIM_DataFile.Name=//localhost/IPC$:',
+		# 'smbshr.Id=\\\\192.168.0.15\\rchateau',
+		# 'smbshr.Id=\\\\localhost\\IPC$'
+
+		assert( 'CIM_DataFile.Name=//localhost/IPC$:' in strInstancesSet )
+		assert( 'smbshr.Id=\\\\localhost\\IPC$' in strInstancesSet )
+
+
 
 class SurvolRemoteTest(unittest.TestCase):
 	"""Test involving remote Survol agents: The scripts executes scripts on remote machines
