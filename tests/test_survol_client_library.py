@@ -982,7 +982,8 @@ class SurvolSocketsTest(unittest.TestCase):
 
 
 	def test_net_use(self):
-		"""Just test that the command NET USE runs"""
+		"""Just test that the command NET USE
+		runs"""
 
 		mySourceNetUse = lib_client.SourceLocal(
 			"sources_types/SMB/net_use.py")
@@ -1210,11 +1211,15 @@ class SurvolSearchTest(unittest.TestCase):
 		for tpl in searchTripleStore:
 			print(tpl)
 
-
 if __name__ == '__main__':
 	for ix in range(len(sys.argv)):
 		if sys.argv[ix] == "--list":
-			for cls in [SurvolLocalTest,SurvolRemoteTest,SurvolSearchTest]:
+			globCopy = globals().copy()
+			lstGlobs = [ globCopy[clsNam] for clsNam in sorted(globCopy) ]
+			# SurvolLocalTest,SurvolRemoteTest,SurvolSearchTest etc...
+			lstClasses = [ oneGlob for oneGlob in lstGlobs if isinstance( oneGlob, type )]
+
+			for cls in lstClasses:
 				print("%-44s: %s" % ( cls.__name__,cls.__doc__ ) )
 				for fnc in dir(cls):
 					if fnc.startswith("test_"):
