@@ -982,8 +982,7 @@ class SurvolSocketsTest(unittest.TestCase):
 
 
 	def test_net_use(self):
-		"""Just test that the command NET USE
-		runs"""
+		"""Just test that the command NET USE runs"""
 
 		mySourceNetUse = lib_client.SourceLocal(
 			"sources_types/SMB/net_use.py")
@@ -1000,8 +999,48 @@ class SurvolSocketsTest(unittest.TestCase):
 		# 'smbshr.Id=\\\\192.168.0.15\\rchateau',
 		# 'smbshr.Id=\\\\localhost\\IPC$'
 
+		# TODO: localhost should be replaced by the IP address.
+
 		assert( 'CIM_DataFile.Name=//localhost/IPC$:' in strInstancesSet )
 		assert( 'smbshr.Id=\\\\localhost\\IPC$' in strInstancesSet )
+
+	def test_windows_network_devices(self):
+		"""Loads network devices on a Windows network"""
+
+		mySourceWindowsNetworkDevices = lib_client.SourceLocal(
+			"sources_types/win32/windows_network_devices.py")
+
+		tripleWindowsNetworkDevices = mySourceWindowsNetworkDevices.GetTriplestore()
+
+		lstInstances = list(tripleWindowsNetworkDevices.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+		print(strInstancesSet)
+
+		# Typical content:
+		#   'CIM_ComputerSystem.Name=192.168.0.15',
+		#   'smbshr.Id=//192.168.0.15/rchateau',
+		#   'CIM_DataFile.Name=Y:',
+		#   'CIM_DataFile.Name=Z:',
+		#   'smbshr.Id=//192.168.0.15/public'
+		#
+		# Some sanity checks of the result.
+		set_ip_addresses = set()
+		smbshr_disk = set()
+		for oneInst in strInstancesSet:
+			( the_class,dummy_dot, the_entity_id) = oneInst.partition(".")
+			if the_class == "CIM_ComputerSystem":
+				(pred_Name,dummy_equal,ip_address) = the_entity_id.partition("=")
+				set_ip_addresses.add(ip_address)
+			elif  the_class == "smbshr":
+				(pred_Name,dummy_equal,disk_name) = the_entity_id.partition("=")
+				smbshr_disk.add(disk_name)
+
+		# Check that all machines hosting a disk have their
+		for disk_name in smbshr_disk:
+			# For example, "//192.168.0.15/public"
+			host_name = disk_name.split("/")[2]
+			assert( host_name in set_ip_addresses )
+
 
 
 
