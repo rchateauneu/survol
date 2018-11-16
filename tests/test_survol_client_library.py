@@ -341,7 +341,7 @@ class SurvolLocalTest(unittest.TestCase):
 		assert( len(lstQueriesOnly) == 3 )
 
 
-# Ajouter la recher d urls etc...
+# Ajouter la recherche d urls etc...
 
 	# This searches the content of a process memory which contains a SQL memory.
 	def test_regex_sql_query_from_batch_process(self):
@@ -693,6 +693,28 @@ class SurvolLocalTest(unittest.TestCase):
 			'python/package.Id=rdflib',
 			'Win32_UserAccount.Domain=localhost,Name=rchateau']:
 			assert( oneStr in strInstancesSet)
+
+
+
+class SurvolLocalWindowsTest(unittest.TestCase):
+	"""These tests do not need a Survol agent. They apply to Windows machines only"""
+
+	def test_win32_services(self):
+		"""List of Win32 services"""
+
+		mySourceWin32Services = lib_client.SourceLocal(
+			"sources_types/win32/enumerate_Win32_Service.py")
+
+		tripleWin32Services = mySourceWin32Services.GetTriplestore()
+
+		lstInstances = list(tripleWin32Services.GetInstances())
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		# print(strInstancesSet)
+		# Some services must be on any Windpws machine.
+		assert('Win32_Service.Name=nsi' in strInstancesSet)
+		assert('Win32_Service.Name=LanmanWorkstation' in strInstancesSet)
+
 
 class SurvolPyODBCTest(unittest.TestCase):
 	def __init__(self, *args, **kwargs):
@@ -1133,6 +1155,7 @@ class SurvolRemoteTest(unittest.TestCase):
 		self.assertTrue(numComputers>=1)
 
 	def test_merge_add_mixed(self):
+		"""Merges the triples of local data and of a remote Survol agent"""
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
