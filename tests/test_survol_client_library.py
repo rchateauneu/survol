@@ -1094,15 +1094,16 @@ class SurvolRemoteTest(unittest.TestCase):
 
 	# This does not work yet.
 	def test_remote_scripts_exception(self):
-		print("test_remote_scripts_exception: Broken")
 		myAgent = lib_client.Agent("http://rchateau-hp:8000")
 
 		try:
-			myInstancesRemote = myAgent.CIM_LogicalDisk(WrongProperty="D:")
+			mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty="D:")
+			scriptsInvalid = mySourceInvalid.GetScripts()
 			excRaised = False
-			print("No exception is raised")
+			print("No exception is raised (This is a problem)")
 		except Exception as exc:
-			print("An exception is raised")
+			# Should print: "No JSON object could be decoded"
+			print("An exception is raised (As expected):",exc)
 			excRaised = True
 		self.assertTrue(excRaised)
 
