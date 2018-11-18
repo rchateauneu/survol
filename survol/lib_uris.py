@@ -86,7 +86,6 @@ class LocalBox:
 				# This is a plain str, no value encoding.
 				return (keyIt,valIt)
 
-		print("UriMakeFromDict")
 		entity_id = ",".join( "%s=%s" % UriPairEncode(*kwItems) for kwItems in entity_id_dict.items() )
 		# sys.stderr.write("UriMakeFromDict entity_id=%s\n"%entity_id)
 		return self.MakeTheNode( entity_type, entity_id )
