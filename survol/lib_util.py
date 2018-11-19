@@ -745,11 +745,38 @@ def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", catego
 ################################################################################
 # TODO: What about the namespace ?
 
-def EntityUriFromDict(entity_type,entity_ids_kvp):
-	entity_id = ",".join( "%s=%s" % ( pairKW, entity_ids_kvp[pairKW] ) for pairKW in entity_ids_kvp )
+# This is not a dictionary, but a list of key-value pairs, in ontology order.
+#def EntityUriFromDict(entity_type,entity_ids_kvp):
+#	entity_id = ",".join( "%s=%s" % ( pairKW, entity_ids_kvp[pairKW] ) for pairKW in entity_ids_kvp )
+#
+#	url = Scriptize("/entity.py", entity_type, entity_id )
+#	return NodeUrl( url )
 
-	url = Scriptize("/entity.py", entity_type, entity_id )
-	return NodeUrl( url )
+def KWArgsToEntityId(className, **kwargsOntology):
+	entity_id = ""
+	delim = ""
+	keysOnto = OntologyClassKeys(className)
+
+	# The dictionary is not properly ordered because it depends
+	# on the Python version, and these data are given by a user application.
+
+	for argKey in keysOnto:
+		try:
+			argVal = kwargsOntology[argKey]
+		except KeyError:
+			ERROR("KWArgsToEntityId className=%s. No key %s",className, argVal)
+			raise
+
+		# TODO: The values should be encoded !!!
+		entity_id += delim + "%s=%s" % (argKey,argVal)
+		delim = ","
+	if sys.version_info < (3,):
+		if type(entity_id) == unicode:
+			entity_id = entity_id.encode("utf-8")
+	return entity_id
+
+
+
 
 # This is the most common case. Shame we call the slower function.
 def EntityUri(entity_type,*entity_ids):
@@ -1106,7 +1133,9 @@ def UrlNoAmp(url):
 # an empty string, then it is removed from the URLs.
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
 def RequestUriModed(otherMode):
-	script = HttpPrefix() + RequestUri()
+	DEBUG("RequestUriModed HttpPrefix()=%s RequestUri()=%s",HttpPrefix(),RequestUri())
+	#script = HttpPrefix() + RequestUri()
+	script = uriRoot + RequestUri()
 	return AnyUriModed(script, otherMode)
 
 # If an Url, it replaces the value of the argument "mode" by another one,

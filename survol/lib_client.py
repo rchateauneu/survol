@@ -119,9 +119,9 @@ def LoadModedUrl(urlModed):
 # Server("127.0.0.1:8000").CIM_Process(Handle=1234) and Server("192.168.0.1:8000").CIM_Datafile(Name='/tmp/toto.txt')
 #
 class SourceRemote (SourceCgi):
-	def __init__(self,anUrl,className = None,**kwargs):
+	def __init__(self,anUrl,className = None,**kwargsOntology):
 		self.m_url = anUrl
-		super(SourceRemote, self).__init__(className,**kwargs)
+		super(SourceRemote, self).__init__(className,**kwargsOntology)
 
 	def __str__(self):
 		return "URL=" + self.Url()
@@ -153,9 +153,9 @@ def CreateStringStream():
 	#return BytesIO
 
 class SourceLocal (SourceCgi):
-	def __init__(self,aScript,className = None,**kwargs):
+	def __init__(self,aScript,className = None,**kwargsOntology):
 		self.m_script = aScript
-		super(SourceLocal, self).__init__(className,**kwargs)
+		super(SourceLocal, self).__init__(className,**kwargsOntology)
 
 	def __str__(self):
 		return self.m_script + "?" + self.UrlQuery()
@@ -320,41 +320,55 @@ class SourceMergeMinus (SourceMerge):
 ################################################################################
 
 # A bit simpler because it is not needed to explicitely handle the url.
-def CreateSource(script,className = None,urlRoot = None,**kwargs):
+def CreateSource(script,className = None,urlRoot = None,**kwargsOntology):
 	if urlRoot:
-		return SourceRemote(urlRoot,className,**kwargs)
+		return SourceRemote(urlRoot,className,**kwargsOntology)
 	else:
-		return SourceLocal(script,className,**kwargs)
+		return SourceLocal(script,className,**kwargsOntology)
 ################################################################################
+
+# http://LOCALHOST:80
+# http://rchateau-hp:8000
+def AgentToHost(agentUrl):
+	parsed_url = urlparse(agentUrl)
+	DEBUG("AgentToHost %s => %s",agentUrl,parsed_url.hostname)
+	return parsed_url.hostname
 
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
 
 class BaseCIMClass(object):
 	def __init__(self,agentUrl, entity_id):
-		#DEBUG("BaseCIMClass.__init__ %s",entity_id)
+		DEBUG("BaseCIMClass.__init__ agentUrl=%s %s",agentUrl,entity_id)
 		self.m_agentUrl = agentUrl # If None, this is a local instance.
 		self.m_entity_id = entity_id
 
 
 	# Maybe this object is already in the cache ?
-	def __new__(cls, agentUrl, **kwargs):
+	def __new__(cls, agentUrl, className, **kwargsOntology):
 
-		entity_id = KWArgsToEntityId(**kwargs)
+		entity_id = lib_util.KWArgsToEntityId(className, **kwargsOntology)
+		if agentUrl:
+			hostAgent = AgentToHost(agentUrl)
+			instanceKey = hostAgent + "+++" + entity_id
+		else:
+			instanceKey = "NO_AGENT" + "+++" + entity_id
 
+		# TODO: The key to this class instance must include the host associated to the agent.
 		try:
-			cacheInstance = cls.m_instancesCache[entity_id]
-			#DEBUG("BaseCIMClass.__new__ %s is IN the cache",entity_id)
+			cacheInstance = cls.m_instancesCache[instanceKey]
+			DEBUG("BaseCIMClass.__new__ %s is IN the cache instanceKey=",instanceKey)
 			return cacheInstance
 		except KeyError:
-			#DEBUG("BaseCIMClass.__new__ %s is NOT in the cache",entity_id)
-			# newInstance = super(ClassA, cls).__new__(cls, agentUrl, **kwargs)
+			DEBUG("BaseCIMClass.__new__ %s is NOT in the cache instanceKey=",instanceKey)
+			# newInstance = super(ClassA, cls).__new__(cls, agentUrl, **kwargsOntology)
 			#DEBUG("cls=%s kwargs=%s",cls.__name__,str(kwargs))
 			if sys.version_info >= (3,):
 				newInstance = super(BaseCIMClass, cls).__new__(cls)
 			else:
-				newInstance = super(BaseCIMClass, cls).__new__(cls,  agentUrl, **kwargs)
+				# TODO: Consider reusing eneity_id.
+				newInstance = super(BaseCIMClass, cls).__new__(cls,  agentUrl, className, **kwargsOntology)
 
-			cls.m_instancesCache[entity_id] = newInstance
+			cls.m_instancesCache[instanceKey] = newInstance
 			return newInstance
 
 
@@ -605,25 +619,13 @@ class BaseCIMClass(object):
 						FillHeapWithInstanceScripts( oneInstance, currDistance, currDepth )
 
 
-def KWArgsToEntityId(**kwargs):
-	entity_id = ""
-	delim = ""
-	for key, value in kwargs.items():
-		# TODO: The values should be encoded !!!
-		entity_id += delim + "%s=%s" % (key,value)
-		delim = ","
-	if sys.version_info < (3,):
-		if type(entity_id) == unicode:
-			#WARNING("KWArgsToEntityId Unicode entity_id=%s",entity_id)
-			entity_id = entity_id.encode("utf-8")
-	return entity_id
 
 def CIMClassFactoryNoCache(className):
-	def Derived__init__(self, agentUrl, **kwargs):
+	def Derived__init__(self, agentUrl, className, **kwargsOntology):
 		"""This function will be used as a constructor for the new class."""
-		for key, value in kwargs.items():
+		for key, value in kwargsOntology.items():
 			setattr(self, key, value)
-		entity_id = KWArgsToEntityId(**kwargs)
+		entity_id = lib_util.KWArgsToEntityId(className,**kwargsOntology)
 		BaseCIMClass.__init__(self,agentUrl, entity_id)
 
 	if sys.version_info < (3,0):
@@ -639,12 +641,12 @@ def CIMClassFactoryNoCache(className):
 # mostly made of the URL parameters.
 cacheCIMClasses = {}
 
-def CreateCIMClass(agentUrl,className,**kwargs):
+def CreateCIMClass(agentUrl,className,**kwargsOntology):
 	global cacheCIMClasses
-	entity_id = KWArgsToEntityId(**kwargs)
+	entity_id = lib_util.KWArgsToEntityId(className,**kwargsOntology)
 
 	# No need to use the class in the key, because the cache is class-specific.
-	#DEBUG("CreateCIMClass className=%s entity_id=%s",className,entity_id)
+	DEBUG("CreateCIMClass agentUrl=%s className=%s entity_id=%s",agentUrl,className,entity_id)
 
 	try:
 		newCIMClass = cacheCIMClasses[className]
@@ -670,7 +672,7 @@ def CreateCIMClass(agentUrl,className,**kwargs):
 		newCIMClass.m_instancesCache = {}
 
 	# Now, it creates a new instance and stores it in the cache of the CIM class.
-	newInstance = newCIMClass(agentUrl, **kwargs)
+	newInstance = newCIMClass(agentUrl, className, **kwargsOntology)
 	newCIMClass.m_instancesCache[entity_id] = newInstance
 	return newInstance
 
@@ -699,16 +701,14 @@ def UrlToInstance(instanceUrl):
 # instanceUrl=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427
 # instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def InstanceUrlToAgentUrl(instanceUrl):
-	#DEBUG("InstanceUrlToAgentUrl instanceUrl=%s",instanceUrl)
-
 	parse_url = urlparse(instanceUrl)
 	if parse_url.path.startswith(lib_util.prefixLocalScript):
-		return None
+		agentUrl = None
+	else:
+		idxSurvol = instanceUrl.find("/survol")
+		agentUrl = instanceUrl[:idxSurvol]
 
-	idxSurvol = instanceUrl.find("/survol")
-	agentUrl = instanceUrl[:idxSurvol]
-
-	#DEBUG("InstanceUrlToAgentUrl agentUrl=%s",agentUrl)
+	DEBUG("InstanceUrlToAgentUrl instanceUrl=%s agentUrl=%s",instanceUrl,agentUrl)
 	return agentUrl
 
 # This wraps rdflib triplestore.
