@@ -16,6 +16,8 @@ if sys.path[0] != filRoot:
 	sys.path.insert(0,filRoot)
 	# print(sys.path)
 
+CurrentUsername = os.environ["USERNAME"]
+
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
 # This deletes the module so we can reload them each time.
@@ -145,7 +147,7 @@ class SurvolLocalTest(unittest.TestCase):
 			"sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py",
 			"Win32_UserAccount",
 			Domain="rchateau-hp",
-			Name="rchateau")
+			Name=CurrentUsername)
 		tripleDupl = mySourceDupl.GetTriplestore()
 		print("Len tripleDupl=",len(tripleDupl.GetInstances()))
 
@@ -215,7 +217,7 @@ class SurvolLocalTest(unittest.TestCase):
 
 		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
 			Domain="rchateau-hp",
-			Name="rchateau")
+			Name=CurrentUsername)
 
 		listScripts = myInstancesLocal.GetScripts()
 		if isVerbose:
@@ -514,7 +516,7 @@ class SurvolLocalTest(unittest.TestCase):
 				[
 					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe",
 					"CIM_Process.Handle=%d"%procOpen.pid,
-					"Win32_UserAccount.Domain=localhost,Name=rchateau"
+					"Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername # Py3
 				])
 		else:
 			print("Linux case: Not implemented yet")
@@ -556,7 +558,7 @@ class SurvolLocalTest(unittest.TestCase):
 					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe",
 					"CIM_Process.Handle=%d"%os.getpid(), # This is the parent process.
 					"CIM_Process.Handle=%d"%procOpen.pid,
-					"Win32_UserAccount.Domain=localhost,Name=rchateau" ]:
+					"Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername ]:
 				assert( oneStr in strInstancesSet)
 		else:
 			print("Linux case: Not implemented yet")
@@ -578,6 +580,9 @@ class SurvolLocalTest(unittest.TestCase):
 
 		print("Started process:",execList," pid=",procOpen.pid)
 
+		# Give a bit of time so the process is fully init.
+		time.sleep(1)
+
 		mySourceMemMaps = lib_client.SourceLocal(
 			"sources_types/CIM_Process/process_memmaps.py",
 			"CIM_Process",
@@ -589,9 +594,6 @@ class SurvolLocalTest(unittest.TestCase):
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
 		# print("Instances=",strInstancesSet)
-
-		# Give a bit of time so the process is fully init.
-		time.sleep(0.2)
 
 		# Some instances are required.
 		if sys.platform.startswith("win"):
@@ -613,7 +615,6 @@ class SurvolLocalTest(unittest.TestCase):
 				'memmap.Id=C:/Windows/System32/msvcrt.dll',
 				'memmap.Id=C:/Windows/System32/cmd.exe',
 				'memmap.Id=C:/Windows/System32/gdi32.dll']:
-				print(oneStr)
 				assert( oneStr in strInstancesSet)
 		else:
 			print("Linux case: Not implemented yet")
@@ -691,7 +692,7 @@ class SurvolLocalTest(unittest.TestCase):
 			'python/package.Id=isodate',
 			'python/package.Id=pyparsing',
 			'python/package.Id=rdflib',
-			'Win32_UserAccount.Domain=localhost,Name=rchateau']:
+			'Win32_UserAccount.Name=%s,Domain=localhost' % CurrentUsername]:
 			assert( oneStr in strInstancesSet)
 
 
@@ -818,11 +819,12 @@ class SurvolPyODBCTest(unittest.TestCase):
 
 		# Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
 		for oneStr in [
-			'odbc/column.Column=windows_sku,Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info',
-			'odbc/column.Column=windows_release,Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info',
-			'odbc/column.Column=windows_service_pack_level,Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info',
-			'odbc/column.Column=os_language_version,Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info',
-			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info']:
+			'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_service_pack_level',
+			'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=os_language_version',
+			'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_release',
+			'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_sku',
+			'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info'
+		]:
 			assert( oneStr in strInstancesSet)
 
 
@@ -1071,6 +1073,15 @@ class SurvolRemoteTest(unittest.TestCase):
 	and examines the result. It might merge the output with local scripts or
 	scripts on different machines."""
 
+	# This is executed after each test. No special reason for a delay, except perf measures, possibly.
+	# https://stackoverflow.com/questions/2648329/python-unit-test-how-to-add-some-sleeping-time-between-test-cases
+	def tearDown(self):
+		time.sleep(0.01)  # sleep time in seconds
+
+	def test_InstanceUrlToAgentUrl(selfself):
+		assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427") == None )
+		assert( lib_client.InstanceUrlToAgentUrl("http://rchateau-hp:8000/survol/sources_types/java/java_processes.py") == "http://rchateau-hp:8000" )
+
 	def test_create_source_url(self):
 		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
 		mySourceFileStatRemote = lib_client.SourceRemote(
@@ -1171,8 +1182,13 @@ class SurvolRemoteTest(unittest.TestCase):
 		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
 		lenSource2 = len(mySource2.GetTriplestore().GetInstances())
 		lenPlus = len(triplePlus.GetInstances())
+		print("lenPlus=",lenPlus)
+		print("lenSource1=",lenSource1)
+		print("lenSource2=",lenSource2)
+		# There is a margin because some instances could be created in the mean time.
+		errorMargin = 20
 		# In the merged link, there cannot be more instances than in the input sources.
-		self.assertTrue(lenPlus <= lenSource1 + lenSource2)
+		self.assertTrue(lenPlus <= lenSource1 + lenSource2 + errorMargin)
 
 	def test_merge_sub_mixed(self):
 		mySource1 = lib_client.SourceLocal(
@@ -1189,27 +1205,27 @@ class SurvolRemoteTest(unittest.TestCase):
 		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
 		lenMinus = len(tripleMinus.GetInstances())
 		# There cannot be more instances after removal.
-		self.assertTrue(lenMinus	 <= lenSource1 )
+		self.assertTrue(lenMinus <= lenSource1 )
 
 	def test_remote_scripts_CIM_LogicalDisk(self):
 		myAgent = lib_client.Agent("http://rchateau-hp:8000")
 
-		myInstancesRemote = myAgent.CIM_LogicalDisk(DeviceID="D:")
-		listScripts = myInstancesRemote.GetScripts()
+		myInstancesRemoteDisk = myAgent.CIM_LogicalDisk(DeviceID="D:")
+		listScriptsDisk = myInstancesRemoteDisk.GetScripts()
 		# No scripts yet.
-		self.assertTrue(len(listScripts) == 0)
+		self.assertTrue(len(listScriptsDisk) == 0)
 
 	def test_remote_scripts_CIM_Directory(self):
 		myAgent = lib_client.Agent("http://rchateau-hp:8000")
 
-		myInstancesRemote = myAgent.CIM_Directory(Name="D:")
-		listScripts = myInstancesRemote.GetScripts()
+		myInstancesRemoteDir = myAgent.CIM_Directory(Name="D:")
+		listScriptsDir = myInstancesRemoteDir.GetScripts()
 
 		if isVerbose:
-			for keyScript in listScripts:
+			for keyScript in listScriptsDir:
 				sys.stdout.write("    %s\n"%keyScript)
 		# There should be at least a couple of scripts.
-		self.assertTrue(len(listScripts) > 0)
+		self.assertTrue(len(listScriptsDir) > 0)
 
 	def test_remote_agents(self):
 		"""Gets agents accessible from the remote host, then tries to access them individually"""
@@ -1275,7 +1291,9 @@ class SurvolSearchTest(unittest.TestCase):
 			print(tpl)
 
 if __name__ == '__main__':
-	for ix in range(len(sys.argv)):
+	lenArgv = len(sys.argv)
+	ix = 0
+	while ix < lenArgv:
 		if sys.argv[ix] == "--list":
 			globCopy = globals().copy()
 			lstGlobs = [ globCopy[clsNam] for clsNam in sorted(globCopy) ]
@@ -1295,12 +1313,12 @@ if __name__ == '__main__':
 		if sys.argv[ix] == "--debug":
 			lib_client.SetDebugMode()
 			del sys.argv[ix]
+			lenArgv -= 1
 			continue
 		if sys.argv[ix] == "--help":
 			print("Extra options:")
 			print("    --debug: Set debug mode")
 			print("    --list : List of tests")
-			continue
 		ix += 1
 
 	unittest.main()

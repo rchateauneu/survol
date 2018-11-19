@@ -54,8 +54,8 @@ class LocalBox:
 			ERROR("BuildEntity entity_type=%s Not enough values:%s and %s",entity_type,str(keys),str(entity_id_arr))
 			# entity_id_arr += [ "Unknown" ] * ( lenKeys - lenEntIds )
 
-		# Sorted keys, same order for Pyt
-		entity_id = ",".join( "%s=%s" % kwItems for kwItems in sorted(dict(zip( keys, entity_id_arr ) ).items()) )
+		# Sorted keys, same order for Python 2 et 3.
+		entity_id = ",".join( "%s=%s" % kwItems for kwItems in zip( keys, entity_id_arr ) )
 
 		return entity_id
 
@@ -389,7 +389,11 @@ class LocalBox:
 			userHost = TruncateHostname(lib_util.currentHostname)
 			userOnly = username
 		userHost = userHost.lower() # RFC4343
-		return self.UriMake(userTp,userOnly,userHost)
+		# BEWARE: "Name","Domain"
+		# UriMake must take into account the order of the ontology
+		usrUri = self.UriMake(userTp,userOnly,userHost)
+		DEBUG("UserUri usrUri=%s",str(usrUri))
+		return usrUri
 
 	def GroupUri(self,groupname):
 		# CIM_GroupAccount ?
