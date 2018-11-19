@@ -764,7 +764,7 @@ def KWArgsToEntityId(className, **kwargsOntology):
 		try:
 			argVal = kwargsOntology[argKey]
 		except KeyError:
-			ERROR("KWArgsToEntityId className=%s. No key %s",className, argVal)
+			ERROR("KWArgsToEntityId className=%s. No key %s",className, argKey)
 			raise
 
 		# TODO: The values should be encoded !!!
