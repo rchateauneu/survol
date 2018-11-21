@@ -45,19 +45,22 @@ def Main():
 		modname = c_buffer(256)
 		for idx in range( 0, nbModules ):
 			retLen = psapi.GetModuleFileNameExA(hProcess, hModuleArr[idx], modname, sizeof(modname))
+			if retLen == 0:
+				# Maybe the string is empty.
+				continue
 			tab = modname[:retLen]
 			if sys.version_info >= (3,):
 				# Truncation because "b'C:/xxx/yyy.zzz'", on Python 3
-				filnam = str(tab).replace('\\','/')[2:-1]
+				# Backslashes are duplicated.
+				filnam = str(tab).replace('\\','/')[2:-1].replace("//","/")
 			else:
 				# Windows "\\" must be replaced by "/", so the URLs are the same for all tools.
 				filnam = str(tab).replace('\\','/')
 			# The same filename might appear several times.
 			DEBUG("idx=%d retLen=%d filnam=%s",idx,retLen,filnam)
 
-			if idx > 0:
-				libNode = lib_common.gUriGen.SharedLibUri( filnam )
-				grph.add( ( node_process, pc.property_library_depends, libNode ) )
+			libNode = lib_common.gUriGen.SharedLibUri( filnam )
+			grph.add( ( node_process, pc.property_library_depends, libNode ) )
 
 		kernel.CloseHandle(hProcess)
 
