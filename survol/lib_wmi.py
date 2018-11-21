@@ -18,8 +18,9 @@ try:
 	# Without this, win32com.client.constants is not available.
 	win32com.client.gencache.EnsureModule('{565783C6-CB41-11D1-8B02-00600806D9B6}',0, 1, 1)
 	wmi_imported = True
-except ImportError:
+except ImportError as exc:
 	wmi_imported = False
+	ERROR("Some modules could not be imported:%s",str(exc))
 
 ################################################################################
 # TODO: Just a reminder that WMI can run on Linux, in a certain extent.
