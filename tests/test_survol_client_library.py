@@ -716,6 +716,31 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 		assert('Win32_Service.Name=nsi' in strInstancesSet)
 		assert('Win32_Service.Name=LanmanWorkstation' in strInstancesSet)
 
+	def test_wmi_process_info(self):
+		"""WMI information about current process"""
+
+		try:
+			import wmi
+		except ImportError:
+			print("Module win32net is not available so this test is not applicable")
+			return
+
+		mySourceWMIInfo = lib_client.SourceLocal(
+			"sources_types/CIM_Process/wmi_process_info.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		tripleWMIInfo = mySourceWMIInfo.GetTriplestore()
+
+		lstInstances = tripleWMIInfo.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		# This checks the presence of the current process and its parent.
+		assert('CIM_Process.Handle=%s' % os.getpid() in strInstancesSet)
+		if sys.version_info >= (3,):
+			# Checks the parent's presence also. Not for 2.7.10
+			assert('CIM_Process.Handle=%s' % os.getppid() in strInstancesSet)
+
 
 class SurvolPyODBCTest(unittest.TestCase):
 	def __init__(self, *args, **kwargs):
