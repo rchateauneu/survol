@@ -274,7 +274,11 @@ def PsutilProcToCmdline(proc):
 	except AccessDenied:
 		return "Access denied"
 
-	return ' '.join(cmdArr)
+	cmd_line = ' '.join(cmdArr)
+	# There might be non-printable characters.
+	if sys.version_info < (3,):
+		cmd_line = cmd_line.decode("ascii",errors="ignore")
+	return cmd_line
 
 def PsutilProcConnections(proc,kind='inet'):
 	try:
