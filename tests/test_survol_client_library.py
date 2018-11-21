@@ -238,11 +238,9 @@ class SurvolLocalTest(unittest.TestCase):
 		tripleGrep = mySourceGrep.GetTriplestore()
 		assert(len(tripleGrep.m_triplestore)==190)
 
-		matchingTriples = list(tripleGrep.GetMatchingStringsTriples("[Pp]ellentesque"))
+		matchingTriples = tripleGrep.GetMatchingStringsTriples("[Pp]ellentesque")
 
 		lstStringsOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
-
-		print("lstStringsOnly:",lstStringsOnly)
 
 		assert( lstStringsOnly == [u'Pellentesque;14;94', u'Pellentesque;6;36', u'Pellentesque;8;50', u'pellentesque;10;66', u'pellentesque;14;101'])
 
@@ -328,7 +326,7 @@ class SurvolLocalTest(unittest.TestCase):
 			print("Len tripleSqlQueries=",len(tripleSqlQueries.m_triplestore))
 		assert( len(tripleSqlQueries.m_triplestore)==3 )
 
-		matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
+		matchingTriples = tripleSqlQueries.GetAllStringsTriples()
 
 		lstQueriesOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
 
@@ -507,7 +505,7 @@ class SurvolLocalTest(unittest.TestCase):
 			Handle=procOpen.pid)
 
 		tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
-		lstInstances = list(tripleSqlQueries.GetInstances())
+		lstInstances = tripleSqlQueries.GetInstances()
 		strInstances = sorted([str(oneInst) for oneInst in lstInstances ])
 
 		print("Instances=",strInstances)
@@ -516,7 +514,7 @@ class SurvolLocalTest(unittest.TestCase):
 				[
 					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe",
 					"CIM_Process.Handle=%d"%procOpen.pid,
-					"Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername # Py3
+					"Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername
 				])
 		else:
 			print("Linux case: Not implemented yet")
@@ -545,7 +543,7 @@ class SurvolLocalTest(unittest.TestCase):
 
 		tripleProcesses = mySourceProcesses.GetTriplestore()
 
-		lstInstances = list(tripleProcesses.GetInstances())
+		lstInstances = tripleProcesses.GetInstances()
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
 		print("Instances=",strInstancesSet)
@@ -590,7 +588,7 @@ class SurvolLocalTest(unittest.TestCase):
 
 		tripleMemMaps = mySourceMemMaps.GetTriplestore()
 
-		lstInstances = list(tripleMemMaps.GetInstances())
+		lstInstances = tripleMemMaps.GetInstances()
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
 		# print("Instances=",strInstancesSet)
@@ -654,7 +652,7 @@ class SurvolLocalTest(unittest.TestCase):
 
 		tripleEnvVars = mySourceEnvVars.GetTriplestore()
 
-		matchingTriples = list(tripleEnvVars.GetAllStringsTriples())
+		matchingTriples = tripleEnvVars.GetAllStringsTriples()
 
 		# The environment variables are returned in various ways,
 		# but it is garanteed that some of them are alwasy present.
@@ -683,7 +681,7 @@ class SurvolLocalTest(unittest.TestCase):
 
 		triplePythonPackage = mySourcePythonPackage.GetTriplestore()
 
-		lstInstances = list(triplePythonPackage.GetInstances())
+		lstInstances = triplePythonPackage.GetInstances()
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
 		# Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
@@ -708,7 +706,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
 		tripleWin32Services = mySourceWin32Services.GetTriplestore()
 
-		lstInstances = list(tripleWin32Services.GetInstances())
+		lstInstances = tripleWin32Services.GetInstances()
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
 		# print(strInstancesSet)
@@ -721,8 +719,8 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
 		try:
 			import wmi
-		except ImportError:
-			print("Module win32net is not available so this test is not applicable")
+		except ImportError as exc:
+			print("Test is not applicable:%s",str(exc))
 			return
 
 		mySourceWMIInfo = lib_client.SourceLocal(
@@ -740,6 +738,71 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 		if sys.version_info >= (3,):
 			# Checks the parent's presence also. Not for 2.7.10
 			assert('CIM_Process.Handle=%s' % os.getppid() in strInstancesSet)
+
+	def test_win_process_modules(self):
+		"""Windows process modules"""
+
+		try:
+			import wmi
+		except ImportError:
+			print("Module win32net is not available so this test is not applicable")
+			return
+
+		mySourceProcModules = lib_client.SourceLocal(
+			"sources_types/CIM_Process/win_process_modules.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		tripleProcModules = mySourceProcModules.GetTriplestore()
+
+		lstInstances = tripleProcModules.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		# This checks the presence of the current process and its parent.
+		listRequired = [
+			'CIM_Process.Handle=%s' % os.getpid(),
+			"Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername,
+			'CIM_DataFile.Name=%s' % sys.executable.replace("\\","/"),
+		]
+
+		# Some nodes are in Py2 or Py3.
+		if sys.version_info >= (3,):
+			listOption = [
+			'CIM_DataFile.Name=C:/windows/system32/kernel32.dll',
+			]
+		else:
+			listOption = [
+			'CIM_DataFile.Name=C:/windows/SYSTEM32/ntdll.dll',
+			]
+
+		for oneStr in listRequired + listOption:
+			assert( oneStr in strInstancesSet )
+
+		# Detection if a specific bug is fixed.
+		assert(not 'CIM_DataFile.Name=' in strInstancesSet)
+
+
+'Win32_UserAccount.Name=rchateau,Domain=localhost'
+CurrentUsername
+
+#{'Win32_UserAccount.Name=rchateau,Domain=localhost', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Py
+#thon36_64//DLLs//_elementtree.pyd', 'CIM_DataFile.Name=C://windows//system32//normaliz.DLL', 'CIM_DataFile.Name=C://Program Files (x
+#86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//_bz2.pyd', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Stu
+#dio//Shared//Python36_64//lib//site-packages//pywin32_system32//pythoncom36.dll', 'CIM_DataFile.Name=C://windows//system32//PSAPI.DL
+#L', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//lib//site-packages//win32//_win32syslo
+#ader.pyd', 'CIM_DataFile.Name=', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//lib//site
+#-packages//pywin32_system32//pywintypes36.dll', 'CIM_DataFile.Name=C://windows//SYSTEM32//ntdll.dll', 'CIM_DataFile.Name=C://Program
+# Files (x86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//_decimal.pyd', 'CIM_DataFile.Name=C://windows//system32//USER32.dl
+#l', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//_ctypes.pyd', 'CIM_DataFile.Name
+#=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//_socket.pyd', 'CIM_DataFile.Name=C://Program Files//Bo
+#njour//mdnsNSP.dll', 'CIM_DataFile.Name=C:/Program Files (x86)/Microsoft Visual Studio/Shared/Python36_64/python.exe', 'CIM_DataFile
+#.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//python36.dll', 'CIM_DataFile.Name=C://Program Files (x8
+#6)//Microsoft Visual Studio//Shared//Python36_64//DLLs//select.pyd', 'CIM_DataFile.Name=C://windows//system32//kernel32.dll', 'CIM_D
+#ataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//unicodedata.pyd', 'CIM_DataFile.Name=C://P
+#rogram Files (x86)//Microsoft Visual Studio//Shared//Python36_64//lib//site-packages//win32//win32api.pyd', 'CIM_DataFile.Name=C://P
+#rogram Files (x86)//Microsoft Visual Studio//Shared//Python36_64//python.exe', 'CIM_Process.Handle=17108'}
+
+
 
 
 class SurvolPyODBCTest(unittest.TestCase):
