@@ -266,13 +266,16 @@ def PsutilProcToExe(proc):
 	except AccessDenied:
 		return ( "", "Access denied" )
 
-def PsutilProcToCmdline(proc):
+def PsutilProcToCmdlineArray(proc):
 	try:
-		cmdArr = proc.cmdline()
+		return proc.cmdline()
 	except TypeError:
-		cmdArr = proc.cmdline
+		return proc.cmdline
 	except AccessDenied:
-		return "Access denied"
+		return ["Access denied"]
+
+def PsutilProcToCmdline(proc):
+	cmdArr = PsutilProcToCmdlineArray(proc)
 
 	cmd_line = ' '.join(cmdArr)
 	# There might be non-printable characters.
