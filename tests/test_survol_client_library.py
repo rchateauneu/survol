@@ -17,6 +17,7 @@ if sys.path[0] != filRoot:
 	# print(sys.path)
 
 CurrentUsername = os.environ["USERNAME"]
+RemoteAgent = "http://rchateau-hp:8000"
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
@@ -693,7 +694,78 @@ class SurvolLocalTest(unittest.TestCase):
 			'Win32_UserAccount.Name=%s,Domain=localhost' % CurrentUsername]:
 			assert( oneStr in strInstancesSet)
 
+	def test_python_current_script(self):
+		"""Examines a running Python process"""
 
+		# This creates a process running in Python, because it does not work with the current process.
+		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+
+		execList = [ sys.executable, sqlPathName ]
+
+		# On Windows, psutil.Process.cmdline() is not very reliable, if the process is started with cmd.exe and Shell=True:
+		#Python 2, psutil.__version__=5.2.2
+		# Shell=1 argvArray=['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Python27\\python.exe AnotherSampleDir\\SampleSqlFile.py']
+		# Shell=0 argvArray=['C:\\Python27\\python.exe', 'AnotherSampleDir\\SampleSqlFile.py']
+		#
+		#Python 3, psutil.__version__=5.4.7
+		# Shell=1 argvArray=['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Program', 'Files', '(x86)\\Microsoft', 'Visual', 'Studio\\Shared\\Python36_64\\python.exe AnotherSampleDir\\SampleSqlFile.py']
+		# Shell=0 argvArray=['C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe', 'AnotherSampleDir\\SampleSqlFile.py']
+		#
+		#Python 2, psutil.__version__=5.4.3
+		# argvArray=['python', 'toto space.py']
+		procOpen = subprocess.Popen(execList, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+
+		print("Started process:",execList," pid=",procOpen.pid)
+
+		# Give a bit of time so the process is fully init.
+		time.sleep(1)
+
+		mySourcePyScript = lib_client.SourceLocal(
+			"sources_types/CIM_Process/languages/python/current_script.py",
+			"CIM_Process",
+			Handle=procOpen.pid)
+
+		triplePyScript = mySourcePyScript.GetTriplestore()
+
+		lstInstances = triplePyScript.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+		DEBUG("strInstancesSet=%s",str(strInstancesSet))
+		print("lstInstances=",lstInstances)
+
+		sqlPathNameAbsolute = os.path.abspath(sqlPathName)
+		sqlPathNameClean = sqlPathNameAbsolute.replace("\\","/")
+
+		# This checks the presence of the current process and the Python file being executed.
+		listRequired = [
+			'CIM_Process.Handle=%s' % procOpen.pid,
+			'CIM_DataFile.Name=%s' % sqlPathNameClean,
+		]
+
+		for oneStr in listRequired:
+			print(oneStr)
+			assert( oneStr in strInstancesSet )
+
+		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
+
+		# This ensures that the suprocess is correctly started and finished.
+		assert(child_stdout_content.startswith(b"Starting subprocess"))
+		assert(procOpen.returncode == 123)
+
+	def test_enumerate_users(self):
+		"""List detectable users. Security might hide some of them"""
+
+		# http://rchateau-hp:8000/survol/sources_types/enumerate_user.py?xid=.
+		mySourceUsers = lib_client.SourceLocal(
+			"sources_types/enumerate_user.py")
+
+		tripleUsers = mySourceUsers.GetTriplestore()
+		instancesUsers = tripleUsers.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in instancesUsers ])
+
+		# At least the current user must be found.
+		for oneStr in [
+			'Win32_UserAccount.Name=%s,Domain=localhost' % CurrentUsername]:
+			assert( oneStr in strInstancesSet)
 
 class SurvolLocalWindowsTest(unittest.TestCase):
 	"""These tests do not need a Survol agent. They apply to Windows machines only"""
@@ -780,29 +852,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
 		# Detection if a specific bug is fixed.
 		assert(not 'CIM_DataFile.Name=' in strInstancesSet)
-
-
-'Win32_UserAccount.Name=rchateau,Domain=localhost'
-CurrentUsername
-
-#{'Win32_UserAccount.Name=rchateau,Domain=localhost', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Py
-#thon36_64//DLLs//_elementtree.pyd', 'CIM_DataFile.Name=C://windows//system32//normaliz.DLL', 'CIM_DataFile.Name=C://Program Files (x
-#86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//_bz2.pyd', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Stu
-#dio//Shared//Python36_64//lib//site-packages//pywin32_system32//pythoncom36.dll', 'CIM_DataFile.Name=C://windows//system32//PSAPI.DL
-#L', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//lib//site-packages//win32//_win32syslo
-#ader.pyd', 'CIM_DataFile.Name=', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//lib//site
-#-packages//pywin32_system32//pywintypes36.dll', 'CIM_DataFile.Name=C://windows//SYSTEM32//ntdll.dll', 'CIM_DataFile.Name=C://Program
-# Files (x86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//_decimal.pyd', 'CIM_DataFile.Name=C://windows//system32//USER32.dl
-#l', 'CIM_DataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//_ctypes.pyd', 'CIM_DataFile.Name
-#=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//_socket.pyd', 'CIM_DataFile.Name=C://Program Files//Bo
-#njour//mdnsNSP.dll', 'CIM_DataFile.Name=C:/Program Files (x86)/Microsoft Visual Studio/Shared/Python36_64/python.exe', 'CIM_DataFile
-#.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//python36.dll', 'CIM_DataFile.Name=C://Program Files (x8
-#6)//Microsoft Visual Studio//Shared//Python36_64//DLLs//select.pyd', 'CIM_DataFile.Name=C://windows//system32//kernel32.dll', 'CIM_D
-#ataFile.Name=C://Program Files (x86)//Microsoft Visual Studio//Shared//Python36_64//DLLs//unicodedata.pyd', 'CIM_DataFile.Name=C://P
-#rogram Files (x86)//Microsoft Visual Studio//Shared//Python36_64//lib//site-packages//win32//win32api.pyd', 'CIM_DataFile.Name=C://P
-#rogram Files (x86)//Microsoft Visual Studio//Shared//Python36_64//python.exe', 'CIM_Process.Handle=17108'}
-
-
 
 
 class SurvolPyODBCTest(unittest.TestCase):
