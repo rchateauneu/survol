@@ -12,13 +12,13 @@ def CredFilNam():
 	try:
 		return os.environ["HOME"] + "/" + filNamOnly
 	except KeyError:
-		WARNING("HOME not defined")
+		DEBUG("HOME not defined")
 		pass
 
 	try:
 		return os.environ["HOMEPATH"] + "\\" + filNamOnly
 	except KeyError:
-		WARNING("HOMEPATH not defined")
+		DEBUG("HOMEPATH not defined")
 		pass
 
 	dirNam = lib_util.gblTopScripts
@@ -31,7 +31,9 @@ def BuildCredDocument():
 
 	filNam = CredFilNam()
 	try:
-		jsonCreds = json.load( open(filNam) )
+		opFil = open(filNam)
+		jsonCreds = json.load( opFil )
+		opFil.close()
 
 		upperCredentials = dict()
 		for keyCred in jsonCreds:
