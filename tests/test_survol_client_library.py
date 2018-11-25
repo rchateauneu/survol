@@ -17,7 +17,7 @@ if sys.path[0] != filRoot:
 	# print(sys.path)
 
 CurrentUsername = os.environ["USERNAME"]
-RemoteAgent = "http://rchateau-hp:8000"
+RemoteTestAgent = "http://rchateau-hp:8000"
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
@@ -135,7 +135,7 @@ class SurvolLocalTest(unittest.TestCase):
 		lenSource1 = len(mySource1.GetTriplestore().GetInstances())
 		lenMinus = len(tripleMinus.GetInstances())
 		# There cannot be more instances after removal.
-		self.assertTrue(lenMinus	 <= lenSource1 )
+		self.assertTrue(lenMinus <= lenSource1 )
 
 	def test_merge_duplicate(self):
 		try:
@@ -177,7 +177,7 @@ class SurvolLocalTest(unittest.TestCase):
 			print("Error detected:",exc)
 
 		mySourceBroken = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/xxx/yyy/zzz/ttt.py",
+			RemoteTestAgent + "/xxx/yyy/zzz/ttt.py",
 			"wwwww")
 		try:
 			tripleBroken = mySourceBroken.GetTriplestore()
@@ -229,6 +229,8 @@ class SurvolLocalTest(unittest.TestCase):
 		self.assertTrue(len(listScripts) > 0)
 
 	def test_grep_string(self):
+		"""Searches for printable strings in a file"""
+
 		sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" ).replace("\\","/")
 
 		mySourceGrep = lib_client.SourceLocal(
@@ -411,7 +413,6 @@ class SurvolLocalTest(unittest.TestCase):
 		#execList = '"' + sys.executable + '" "' + sqlPathName + '"'
 
 		# Runs this process: It allocates a variable containing a SQL query, then it waits.
-		# procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 		procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
 		print("Started process:",execList," pid=",procOpen.pid)
@@ -1021,6 +1022,7 @@ class SurvolSocketsTest(unittest.TestCase):
 		connHttp.close()
 
 	def test_enumerate_sockets(self):
+		"""List of sockets opened on the host machine"""
 		import socket
 
 		# httpHostName = 'www.root-servers.org'
@@ -1092,6 +1094,7 @@ class SurvolSocketsTest(unittest.TestCase):
 
 
 	def test_socket_connected_processes(self):
+		"""List of processes connected to a given socket"""
 		import socket
 
 		httpHostName = 'root-servers.org'
@@ -1217,12 +1220,12 @@ class SurvolRemoteTest(unittest.TestCase):
 
 	def test_InstanceUrlToAgentUrl(selfself):
 		assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427") == None )
-		assert( lib_client.InstanceUrlToAgentUrl("http://rchateau-hp:8000/survol/sources_types/java/java_processes.py") == "http://rchateau-hp:8000" )
+		assert( lib_client.InstanceUrlToAgentUrl(RemoteTestAgent + "/survol/sources_types/java/java_processes.py") == RemoteTestAgent )
 
 	def test_create_source_url(self):
 		# http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
 		mySourceFileStatRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py",
+			RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
 			Name="C:\\Windows\\explorer.exe")
 		print("urlFileStatRemote=",mySourceFileStatRemote.Url())
@@ -1232,7 +1235,7 @@ class SurvolRemoteTest(unittest.TestCase):
 
 	def test_remote_triplestore(self):
 		mySourceFileStatRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/CIM_Directory/file_directory.py",
+			RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
 			"CIM_Directory",
 			Name="C:\\Windows")
 		tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
@@ -1242,7 +1245,7 @@ class SurvolRemoteTest(unittest.TestCase):
 
 	# This does not work yet.
 	def test_remote_scripts_exception(self):
-		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+		myAgent = lib_client.Agent(RemoteTestAgent)
 
 		try:
 			mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty="D:")
@@ -1258,7 +1261,7 @@ class SurvolRemoteTest(unittest.TestCase):
 	def test_remote_instances_python_package(self):
 		"""This loads a specific Python package"""
 		mySourcePythonPackageRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/entity.py",
+			RemoteTestAgent + "/survol/entity.py",
 			"python/package",
 			Id="rdflib")
 		triplePythonPackageRemote = mySourcePythonPackageRemote.GetTriplestore()
@@ -1274,7 +1277,7 @@ class SurvolRemoteTest(unittest.TestCase):
 	def test_remote_instances_java(self):
 		"""Loads Java processes. There is at least one Java process, the one doing the test"""
 		mySourceJavaRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/java/java_processes.py")
+			RemoteTestAgent + "/survol/sources_types/java/java_processes.py")
 		tripleJavaRemote = mySourceJavaRemote.GetTriplestore()
 		print("Len tripleJavaRemote=",len(tripleJavaRemote))
 
@@ -1290,7 +1293,7 @@ class SurvolRemoteTest(unittest.TestCase):
 	def test_remote_instances_arp(self):
 		"""Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
 		mySourceArpRemote = lib_client.SourceRemote(
-			"http://rchateau-hp:8000/survol/sources_types/neighborhood/cgi_arp_async.py")
+			RemoteTestAgent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
 		tripleArpRemote = mySourceArpRemote.GetTriplestore()
 		print("Len tripleArpRemote=",len(tripleArpRemote))
 
@@ -1309,7 +1312,7 @@ class SurvolRemoteTest(unittest.TestCase):
 			"entity.py",
 			"CIM_LogicalDisk",
 			DeviceID="D:")
-		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/tcp_sockets_windows.py")
+		mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/tcp_sockets_windows.py")
 
 		mySrcMergePlus = mySource1 + mySource2
 		print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
@@ -1332,7 +1335,7 @@ class SurvolRemoteTest(unittest.TestCase):
 			"entity.py",
 			"CIM_LogicalDisk",
 			DeviceID="D:")
-		mySource2 = lib_client.SourceRemote("http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py")
+		mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/win32_local_groups.py")
 
 		mySrcMergeMinus = mySource1 - mySource2
 		print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
@@ -1345,7 +1348,7 @@ class SurvolRemoteTest(unittest.TestCase):
 		self.assertTrue(lenMinus <= lenSource1 )
 
 	def test_remote_scripts_CIM_LogicalDisk(self):
-		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+		myAgent = lib_client.Agent(RemoteTestAgent)
 
 		myInstancesRemoteDisk = myAgent.CIM_LogicalDisk(DeviceID="D:")
 		listScriptsDisk = myInstancesRemoteDisk.GetScripts()
@@ -1353,7 +1356,7 @@ class SurvolRemoteTest(unittest.TestCase):
 		self.assertTrue(len(listScriptsDisk) == 0)
 
 	def test_remote_scripts_CIM_Directory(self):
-		myAgent = lib_client.Agent("http://rchateau-hp:8000")
+		myAgent = lib_client.Agent(RemoteTestAgent)
 
 		myInstancesRemoteDir = myAgent.CIM_Directory(Name="D:")
 		listScriptsDir = myInstancesRemoteDir.GetScripts()
@@ -1367,6 +1370,76 @@ class SurvolRemoteTest(unittest.TestCase):
 	def test_remote_agents(self):
 		"""Gets agents accessible from the remote host, then tries to access them individually"""
 		print("TODO: test_remote_agents not implemented yet")
+
+class SurvolAzureTest(unittest.TestCase):
+	"""Testing Azure discovery"""
+
+	def decorator_azure_subscription(test_func):
+		def wrapper(self):
+			azureSubscription = self.get_default_azure_subscription()
+			if not azureSubscription:
+				return
+			test_func(self,azureSubscription)
+
+		return wrapper
+
+	def get_default_azure_subscription(self):
+		"""This returns the first available Azure subscription as specified in the Credentials file"""
+
+		try:
+			import azure
+		except ImportError:
+			print("Module azure is not available so this test is not applicable")
+			return None
+
+
+		mySourceAzureSubscriptions = lib_client.SourceLocal(
+			"sources_types/Azure/enumerate_subscription.py")
+
+		tripleAzureSubscriptions = mySourceAzureSubscriptions.GetTriplestore()
+
+		azureSubs = None
+
+		# ['Azure/subscription.Subscription=Visual Studio Professional', 'CIM_ComputerSystem.Name=localhost']
+		instancesAzureSubscriptions = tripleAzureSubscriptions.GetInstances()
+		for oneInst in instancesAzureSubscriptions:
+			if oneInst.__class__.__name__ == "Azure/subscription":
+				azureSubs = oneInst.Subscription
+
+		print("Azure Subscriptions:",azureSubs)
+
+		# TODO: Override the subscirption with a command-line parameter.
+		assert(azureSubs)
+
+		return azureSubs
+
+	@decorator_azure_subscription
+	def test_azure_subscriptions(self,azureSubscription):
+		print("Azure subscription:",azureSubscription)
+
+	@decorator_azure_subscription
+	def test_azure_locations(self,azureSubscription):
+		"""This searches for a string in one file only. Two occurrences."""
+
+		mySourceAzureLocations = lib_client.SourceLocal(
+			"sources_types/Azure/subscription/subscription_locations.py",
+			"Azure/subscription",
+			Subscription=azureSubscription)
+
+		tripleAzureLocations = mySourceAzureLocations.GetTriplestore()
+
+		lstInstances = tripleAzureLocations.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		# Some locations are very common.
+		for oneStr in [
+				'Azure/location.Subscription=%s,Location=UK South' % azureSubscription,
+				'Azure/location.Subscription=%s,Location=West Central US' % azureSubscription,
+				'Azure/location.Subscription=%s,Location=West Europe' % azureSubscription
+		]:
+			assert( oneStr in strInstancesSet)
+
+
 
 class SurvolSearchTest(unittest.TestCase):
 	"""Testing the search engine"""
