@@ -1375,15 +1375,6 @@ class SurvolAzureTest(unittest.TestCase):
 	"""Testing Azure discovery"""
 
 	def decorator_azure_subscription(test_func):
-		def wrapper(self):
-			azureSubscription = self.get_default_azure_subscription()
-			if not azureSubscription:
-				return
-			test_func(self,azureSubscription)
-
-		return wrapper
-
-	def get_default_azure_subscription(self):
 		"""This returns the first available Azure subscription as specified in the Credentials file"""
 
 		try:
@@ -1392,26 +1383,22 @@ class SurvolAzureTest(unittest.TestCase):
 			print("Module azure is not available so this test is not applicable")
 			return None
 
-
 		mySourceAzureSubscriptions = lib_client.SourceLocal(
 			"sources_types/Azure/enumerate_subscription.py")
 
 		tripleAzureSubscriptions = mySourceAzureSubscriptions.GetTriplestore()
 
-		azureSubs = None
-
 		# ['Azure/subscription.Subscription=Visual Studio Professional', 'CIM_ComputerSystem.Name=localhost']
 		instancesAzureSubscriptions = tripleAzureSubscriptions.GetInstances()
 		for oneInst in instancesAzureSubscriptions:
+			# This returns the first subscription found.
 			if oneInst.__class__.__name__ == "Azure/subscription":
-				azureSubs = oneInst.Subscription
+				def wrapper(self):
+					test_func(self,oneInst.Subscription)
+				return wrapper
 
-		print("Azure Subscriptions:",azureSubs)
-
-		# TODO: Override the subscirption with a command-line parameter.
-		assert(azureSubs)
-
-		return azureSubs
+		print("No Azure subscription available")
+		return None
 
 	@decorator_azure_subscription
 	def test_azure_subscriptions(self,azureSubscription):
@@ -1419,7 +1406,7 @@ class SurvolAzureTest(unittest.TestCase):
 
 	@decorator_azure_subscription
 	def test_azure_locations(self,azureSubscription):
-		"""This searches for a string in one file only. Two occurrences."""
+		"""This checks Azure locations."""
 
 		mySourceAzureLocations = lib_client.SourceLocal(
 			"sources_types/Azure/subscription/subscription_locations.py",
@@ -1432,12 +1419,12 @@ class SurvolAzureTest(unittest.TestCase):
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
 		# Some locations are very common.
-		for oneStr in [
-				'Azure/location.Subscription=%s,Location=UK South' % azureSubscription,
-				'Azure/location.Subscription=%s,Location=West Central US' % azureSubscription,
-				'Azure/location.Subscription=%s,Location=West Europe' % azureSubscription
-		]:
-			assert( oneStr in strInstancesSet)
+		for locationName in [
+				'UK South',
+				'West Central US',
+				'West Europe' ]:
+			entitySubscription = 'Azure/location.Subscription=%s,Location=%s' % ( azureSubscription, locationName )
+			assert( entitySubscription in strInstancesSet)
 
 
 
