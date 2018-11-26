@@ -888,6 +888,12 @@ class Agent:
 		#sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
 		return CallDispatcher(self, self.m_agent_url, attribute_name)
 
+	def GetInternalData(self):
+		anUrl = self.m_agent_url + "/survol/print_internal_data_as_json.py"
+		DEBUG("GetInternalData anUrl=%s"%anUrl)
+		urlContent = LoadModedUrl(anUrl)
+		return json.loads(urlContent)
+
 ################################################################################
 def SetDebugMode():
 	lib_util.SetLoggingConfig(True)
