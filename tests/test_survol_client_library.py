@@ -17,7 +17,14 @@ if sys.path[0] != filRoot:
 	# print(sys.path)
 
 CurrentUsername = os.environ["USERNAME"]
+
+# TODO: This should be a parameter.
+# It points to the Survol adhoc CGI server.
 RemoteTestAgent = "http://rchateau-hp:8000"
+
+# TODO: This should be a parameter. This is an Apache server pointing on the current directory.
+# This should behave exactly like the CGI server. It needs the default HTTP port.
+RemoteTestApacheAgent = "http://192.168.0.14:80/Survol"
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
@@ -1426,6 +1433,24 @@ class SurvolAzureTest(unittest.TestCase):
 			entitySubscription = 'Azure/location.Subscription=%s,Location=%s' % ( azureSubscription, locationName )
 			assert( entitySubscription in strInstancesSet)
 
+	@decorator_azure_subscription
+	def _test_azure_subscription_disk(self,azureSubscription):
+		"""This checks Azure disks."""
+
+		mySourceAzureDisks = lib_client.SourceLocal(
+			"sources_types/Azure/subscription/subscription_disk.py",
+			"Azure/subscription",
+			Subscription=azureSubscription)
+
+		tripleAzureDisks = mySourceAzureDisks.GetTriplestore()
+
+		lstInstances = tripleAzureDisks.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		print(strInstancesSet)
+
+		# There should be at least one disk.
+		assert( len(strInstancesSet) > 0)
 
 
 class SurvolSearchTest(unittest.TestCase):
@@ -1487,6 +1512,57 @@ class SurvolSearchTest(unittest.TestCase):
 		for tpl in searchTripleStore:
 			print(tpl)
 
+# Tests an internal URL
+class SurvolInternalTest(unittest.TestCase):
+	def check_internal_values(self,anAgentStr):
+
+		anAgent = lib_client.Agent(anAgentStr)
+		mapInternalData = anAgent.GetInternalData()
+
+		# http://192.168.0.14/Survol/survol/print_internal_data_as_json.py
+		# http://rchateau-hp:8000/survol/print_internal_data_as_json.py
+
+		# RootUri              http://192.168.0.14:80/Survol/survol/print_internal_data_as_json.py
+		# uriRoot              http://192.168.0.14:80/Survol/survol
+		# HttpPrefix           http://192.168.0.14:80
+		# RequestUri           /Survol/survol/print_internal_data_as_json.py
+		#
+		# RootUri              http://rchateau-HP:8000/survol/print_internal_data_as_json.py
+		# uriRoot              http://rchateau-HP:8000/survol
+		# HttpPrefix           http://rchateau-HP:8000
+		# RequestUri           /survol/print_internal_data_as_json.py
+
+		# RootUri              http://192.168.0.14:80/Survol/survol/Survol/survol/print_internal_data_as_json.py
+		# uriRoot              http://192.168.0.14:80/Survol/survol
+		# HttpPrefix           http://192.168.0.14:80
+		# RequestUri           /Survol/survol/print_internal_data_as_json.py
+		#
+		# RootUri              http://rchateau-HP:8000/survol/survol/print_internal_data_as_json.py
+		# uriRoot              http://rchateau-HP:8000/survol
+		# HttpPrefix           http://rchateau-HP:8000
+		# RequestUri           /survol/print_internal_data_as_json.py
+
+		print("")
+		print("anAgentStr=",anAgentStr)
+		print("PLUS:",anAgentStr + "/survol")
+		for key in mapInternalData:
+			print("%-20s %20s"%(key,mapInternalData[key]))
+		assert(mapInternalData["uriRoot"] == anAgentStr + "/survol")
+		assert(mapInternalData["RootUri"] == anAgentStr + "/survol/print_internal_data_as_json.py")
+
+		#lib_client.urlparse
+		#assert(mapInternalData["HttpPrefix"] == anAgentStr)
+		#assert(mapInternalData["RequestUri"] == "dddd")
+
+	def test_internal_remote(self):
+		self.check_internal_values(RemoteTestAgent)
+
+	def test_internal_apache(self):
+		# http://192.168.0.14/Survol/survol/entity.py
+		self.check_internal_values(RemoteTestApacheAgent)
+
+
+
 if __name__ == '__main__':
 	lenArgv = len(sys.argv)
 	ix = 0
@@ -1498,7 +1574,10 @@ if __name__ == '__main__':
 			lstClasses = [ oneGlob for oneGlob in lstGlobs if isinstance( oneGlob, type )]
 
 			for cls in lstClasses:
-				print("%-44s: %s" % ( cls.__name__,cls.__doc__ ) )
+				clsDoc = cls.__doc__
+				if not clsDoc:
+					clsDoc = ""
+				print("%-44s: %s" % ( cls.__name__,clsDoc ) )
 				for fnc in dir(cls):
 					if fnc.startswith("test_"):
 						tstDoc = getattr(cls,fnc).__doc__
