@@ -188,11 +188,17 @@ def AddSIUnit(number, unitSI):
 
 ################################################################################
 
+# This is the protocol, the server address followed by the port:
+# "http://192.168.0.14:80", "http://rchateau-hp:8000"
 def HttpPrefix():
 
 	# Default values for ease of testing, so CGI scripts can be run as is from command line..
 	try:
 		server_addr = os.environ['SERVER_NAME']
+		# This is a special value if the client library is in local mode.
+		if server_addr != "LOCALHOST":
+			# Hostnames always in lowercase.
+			server_addr = server_addr.lower()
 
 		#os.environ['REMOTE_ADDR']=127.0.0.1
 		#os.environ['SERVER_NAME']=rchateau-HP
@@ -205,7 +211,7 @@ def HttpPrefix():
 	try:
 		server_port = os.environ['SERVER_PORT']
 	except KeyError:
-		# Should not happen.
+		# Default HTTP port.
 		server_port = "80"
 
 	# BEWARE: Colons are forbidden in URIs apparently !!!
@@ -1134,8 +1140,7 @@ def UrlNoAmp(url):
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
 def RequestUriModed(otherMode):
 	DEBUG("RequestUriModed HttpPrefix()=%s RequestUri()=%s",HttpPrefix(),RequestUri())
-	#script = HttpPrefix() + RequestUri()
-	script = uriRoot + RequestUri()
+	script = HttpPrefix() + RequestUri()
 	return AnyUriModed(script, otherMode)
 
 # If an Url, it replaces the value of the argument "mode" by another one,
