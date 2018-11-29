@@ -4,6 +4,8 @@
 import json
 import sys
 
+import lib_util
+
 sys.stdout.write(
 """Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept
 Access-Control-Allow-Methods: POST,GET,OPTIONS
@@ -13,6 +15,11 @@ Content-Type: application/json; charset=utf-8
 """
 )
 
-retDict = {"Survol":"Internal data"}
+retDict = {
+	"uriRoot":lib_util.uriRoot,
+	"HttpPrefix" : lib_util.HttpPrefix(),
+	"RootUri" : lib_util.RootUri(),
+	"RequestUri" : lib_util.RequestUri()
+}
 
 sys.stdout.write(json.dumps(retDict))
