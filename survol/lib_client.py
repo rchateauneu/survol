@@ -111,7 +111,11 @@ class SourceCgi (SourceBase):
 
 def LoadModedUrl(urlModed):
 	DEBUG("LoadModedUrl.get_content_moded urlModed=%s",urlModed)
-	response = urlopen(urlModed)
+	try:
+		response = urlopen(urlModed)
+	except:
+		ERROR("LoadModedUrl urlModed=%s",urlModed)
+		raise
 	data = response.read().decode("utf-8")
 	return data
 
@@ -634,11 +638,13 @@ def CIMClassFactoryNoCache(className):
 
 	# sys.stderr.write("className: %s/%s\n"%(str(type(className)),className))
 	newclass = type(className, (BaseCIMClass,),{"__init__": Derived__init__})
+	newclass.m_instancesCache = {}
 	return newclass
 
 # Classes are keyed with their name.
-# Each class contain a dictionary of its instances, with an adhoc key
-# mostly made of the URL parameters.
+# Each class contain a dictionary of its instances, with a key
+# mostly made of the URL parameters plus the agent.
+# Classes are the same for all agents, therefore the agent is not needed in the key.
 cacheCIMClasses = {}
 
 def CreateCIMClass(agentUrl,className,**kwargsOntology):
@@ -651,29 +657,15 @@ def CreateCIMClass(agentUrl,className,**kwargsOntology):
 	try:
 		newCIMClass = cacheCIMClasses[className]
 		#DEBUG("Found existing className=%s",className)
-
-		try:
-			newInstance = newCIMClass.m_instancesCache[entity_id]
-			#DEBUG("Found instance className=%s entity_id=%s",className,entity_id)
-			return newInstance
-		except KeyError:
-			#DEBUG("Creating instance entity_id=%s",entity_id)
-			# This instanceis not yet created.
-			pass
 	except KeyError:
 		# This class is not yet created.
 		# TODO: If entity_label contains slashes, submodules must be imported.
-		#DEBUG("Creating className=%s",className)
 		newCIMClass = CIMClassFactoryNoCache(className)
-		#DEBUG("Creating newCIMClass.__name__=%s",newCIMClass.__name__)
-		#DEBUG("Creating newCIMClass.__module__=%s",newCIMClass.__module__)
 
 		cacheCIMClasses[className] = newCIMClass
-		newCIMClass.m_instancesCache = {}
 
 	# Now, it creates a new instance and stores it in the cache of the CIM class.
 	newInstance = newCIMClass(agentUrl, className, **kwargsOntology)
-	newCIMClass.m_instancesCache[entity_id] = newInstance
 	return newInstance
 
 ################################################################################
@@ -862,6 +854,12 @@ def ScriptUrlToSource(callingUrl):
 class Agent:
 	def __init__(self,agent_url = None):
 		self.m_agent_url = agent_url
+
+	def __str__(self):
+		if self.m_agent_url:
+			return "Agent=%s" % self.m_agent_url
+		else:
+			return "Agent=<NO AGENT>"
 
 	# This allows the creation of CIM instances.
 	def __getattr__(self, attribute_name):
