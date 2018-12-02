@@ -185,7 +185,7 @@ class SourceLocal (SourceCgi):
 		modu = self.__get_local_module()
 
 		# SCRIPT_NAME=/survol/print_environment_variables.py
-		os.environ["SCRIPT_NAME"] = "/" + self.m_script
+		os.environ["SCRIPT_NAME"] = lib_util.prefixLocalScript + "/" + self.m_script
 		# QUERY_STRING=xid=class.k=v
 		os.environ["QUERY_STRING"] = self.UrlQuery(mode)
 
@@ -290,7 +290,7 @@ class SourceMerge (SourceBase):
 		else:
 			# The class cannot be None because the url is not complete
 
-			objsList = lib_kbase.enumerate_urls(triplestoreA)
+			objsList = triplestoreA.EnumerateUrls()
 
 			# TODO: Not optimal because it processes not only instances urls but also scripts urls.
 			for instanceUrl in objsList:
@@ -736,11 +736,34 @@ class TripleStore:
 	def __len__(self):
 		return len(self.m_triplestore)
 
+	# This keeps only Survol instances and scripts urls.
+	# For example, 'http://localhost:12345/#/vhosts/' is a RabbitMQ HTTP url.
+	# TODO: Make this test better.
+	def IsSurvolUrl(self,anUrl):
+		strUrl = str(anUrl)
+		# anUrl=http://LOCALHOST:80/entity.py?xid=python/package.Id%3Drdflib
+		# anUrl=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=python/package.Id=sparqlwrapper
+		if strUrl.startswith("http://LOCALHOST:80/"):
+			# "http://LOCALHOST:80/NotRunningAsCgi"
+			# lib_util.prefixLocalScript = "/NotRunningAsCgi"
+			assert(strUrl.startswith("http://LOCALHOST:80"+lib_util.prefixLocalScript))
+
+		# These local scripts are always from Survol.
+		if strUrl.find(lib_util.prefixLocalScript) >= 0:
+			return True
+		return strUrl.find("/survol") >= 0
+
+	def EnumerateUrls(self):
+		objsSet = lib_kbase.enumerate_urls(self.m_triplestore)
+		for instanceUrl in objsSet:
+			if self.IsSurvolUrl(instanceUrl	):
+				yield instanceUrl
+
 	# This creates a CIM object for each unique URL, subject or object found in a triplestore.
 	# If needed, the CIM class is created on-the-fly.
 	def GetInstances(self):
 		DEBUG("GetInstances")
-		objsSet = lib_kbase.enumerate_urls(self.m_triplestore)
+		objsSet = self.EnumerateUrls()
 		lstInstances = []
 		for instanceUrl in objsSet:
 			if instanceUrl.find("entity.py") < 0:
