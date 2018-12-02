@@ -1491,6 +1491,34 @@ class SurvolRabbitMQTest(unittest.TestCase):
 		print("RabbitMQ:",rabbitmqManager)
 
 	@decorator_rabbitmq_subscription
+	def test_rabbitmq_connections(self,rabbitmqManager):
+		print("RabbitMQ:",rabbitmqManager)
+
+		mySourceRabbitMQConnections = lib_client.SourceLocal(
+			"sources_types/rabbitmq/manager/list_connections.py",
+			"rabbitmq/manager",
+			Url=rabbitmqManager)
+
+		tripleRabbitMQConnections = mySourceRabbitMQConnections.GetTriplestore()
+
+		lstInstances = tripleRabbitMQConnections.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+		print(strInstancesSet)
+
+		# Typical content:
+		# 'rabbitmq/manager.Url=localhost:12345',\
+		# 'rabbitmq/user.Url=localhost:12345,User=guest',\
+		# 'rabbitmq/connection.Url=localhost:12345,Connection=127.0.0.1:51752 -&gt; 127.0.0.1:5672',\
+		# 'rabbitmq/connection.Url=localhost:12345,Connection=127.0.0.1:51641 -&gt; 127.0.0.1:5672'])
+
+		# Typical content
+		for oneStr in [
+			'rabbitmq/manager.Url=%s' % rabbitmqManager,
+			'rabbitmq/user.Url=%s,User=guest' % rabbitmqManager,
+		]:
+			assert( oneStr in strInstancesSet)
+
+	@decorator_rabbitmq_subscription
 	def test_rabbitmq_exchanges(self,rabbitmqManager):
 		print("RabbitMQ:",rabbitmqManager)
 
@@ -1517,9 +1545,45 @@ class SurvolRabbitMQTest(unittest.TestCase):
 			'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.direct' % rabbitmqManager,
 			'rabbitmq/vhost.Url=%s,VHost=/' % rabbitmqManager
 		]:
-			print(oneStr)
 			assert( oneStr in strInstancesSet)
 
+	@decorator_rabbitmq_subscription
+	def test_rabbitmq_queues(self,rabbitmqManager):
+		print("RabbitMQ:",rabbitmqManager)
+
+		mySourceRabbitMQQueues = lib_client.SourceLocal(
+			"sources_types/rabbitmq/manager/list_queues.py",
+			"rabbitmq/manager",
+			Url=rabbitmqManager)
+
+		tripleRabbitMQQueues = mySourceRabbitMQQueues.GetTriplestore()
+
+		lstInstances = tripleRabbitMQQueues.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		# TODO: Which queues should always be present ?
+
+	@decorator_rabbitmq_subscription
+	def test_rabbitmq_users(self,rabbitmqManager):
+		print("RabbitMQ:",rabbitmqManager)
+
+		mySourceRabbitMQUsers = lib_client.SourceLocal(
+			"sources_types/rabbitmq/manager/list_users.py",
+			"rabbitmq/manager",
+			Url=rabbitmqManager)
+
+		tripleRabbitMQUsers = mySourceRabbitMQUsers.GetTriplestore()
+
+		lstInstances = tripleRabbitMQUsers.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+		print(strInstancesSet)
+
+		# Typical content
+		for oneStr in [
+			'rabbitmq/user.Url=%s,User=guest' % rabbitmqManager,
+		]:
+			print(oneStr)
+			assert( oneStr in strInstancesSet)
 
 
 
