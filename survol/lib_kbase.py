@@ -33,21 +33,12 @@ def MakeGraph():
 def enumerate_urls(grph):
 	urlsSet = set()
 
-	def InsertUrl(anUrl):
-		# This keeps only Survol instances and scripts urls.
-		strUrl = str(anUrl)
-		# TODO: Make this test better.
-		if strUrl != "http://localhost":
-			assert( strUrl.find("/localhost") < 0 )
-			if anUrl not in urlsSet:
-				urlsSet.add(anUrl)
-
 	# Beware that the order might change each time.
 	for kSub,kPred,kObj in grph:
-		InsertUrl(kSub)
+		urlsSet.add(kSub)
 
 		if not IsLiteral(kObj):
-			InsertUrl(kObj)
+			urlsSet.add(kObj)
 	return urlsSet
 
 # It has to build an intermediary map because we have no simple way to find all edges
