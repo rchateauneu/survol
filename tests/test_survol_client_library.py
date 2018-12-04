@@ -1451,10 +1451,11 @@ class SurvolAzureTest(unittest.TestCase):
 		assert( len(strInstancesSet) > 0)
 
 
-
 class SurvolRabbitMQTest(unittest.TestCase):
 	"""Testing RabbitMQ discovery"""
 
+	# Beware that it is called anyway for each function it is applied to,
+	# even if the function is not called.
 	def decorator_rabbitmq_subscription(test_func):
 		"""This returns the first available RabbitMQ subscription as specified in the Credentials file"""
 
@@ -1473,10 +1474,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
 		instancesConfigurationsRabbitMQ = tripleConfigurationsRabbitMQ.GetInstances()
 		strInstancesSet = set([str(oneInst) for oneInst in instancesConfigurationsRabbitMQ ])
 
-		print("strInstancesSet=",strInstancesSet)
-
 		for oneInst in instancesConfigurationsRabbitMQ:
-			print(oneInst)
 			# This returns the first subscription found.
 			if oneInst.__class__.__name__ == "rabbitmq/manager":
 				def wrapper(self):
@@ -1583,6 +1581,68 @@ class SurvolRabbitMQTest(unittest.TestCase):
 			'rabbitmq/user.Url=%s,User=guest' % rabbitmqManager,
 		]:
 			print(oneStr)
+			assert( oneStr in strInstancesSet)
+
+
+class SurvolOracleTest(unittest.TestCase):
+	"""Testing Oracle discovery"""
+
+	def decorator_oracle_db(test_func):
+		"""This returns the first available Oracle connection as specified in the Credentials file"""
+
+		try:
+			import cx_Oracle
+		except ImportError as ex:
+			print("Module cx_Oracle is not available so this test is not applicable:",ex	)
+			return None
+
+		mySourceOracleDbs = lib_client.SourceLocal(
+			"sources_types/Databases/oracle_tnsnames.py")
+
+		tripleOracleDbs = mySourceOracleDbs.GetTriplestore()
+
+		# Always the same order.
+		instancesOracleDbs = sorted(tripleOracleDbs.GetInstances())
+
+		# Typical content: 'addr.Id=127.0.0.1:1521', 'oracle/db.Db=XE_WINDOWS',
+		# 'oracle/db.Db=XE', 'oracle/db.Db=XE_OVH', 'addr.Id=vps516494.ovh.net:1521',
+		# 'addr.Id=192.168.0.17:1521', 'oracle/db.Db=XE_FEDORA'}
+
+		for oneInst in instancesOracleDbs:
+			# This returns the first database found in the credentials file.
+			if oneInst.__class__.__name__ == "oracle/db":
+				def wrapper(self):
+					test_func(self,oneInst.Db)
+				return wrapper
+
+		print("No Oracle database available")
+		return None
+
+	@decorator_oracle_db
+	def test_oracle_databases(self,oracleDb):
+		# Check that there is at least one connection, and print the first one.
+		print("Oracle:",oracleDb)
+
+	@decorator_oracle_db
+	def test_oracle_schemas(self,oracleDb):
+		print("Oracle:",oracleDb)
+
+		mySourceOracleSchemas = lib_client.SourceLocal(
+			"sources_types/oracle/db/oracle_db_schemas.py",
+			"oracle/db",
+			Db=oracleDb)
+
+		tripleOracleSchemas = mySourceOracleSchemas.GetTriplestore()
+
+		lstInstances = tripleOracleSchemas.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		# Typical content:
+		for oneStr in [
+			'oracle/schema.Db=%s,Schema=SYSTEM' % oracleDb,
+			'oracle/schema.Db=%s,Schema=ANONYMOUS' % oracleDb,
+			'oracle/schema.Db=%s,Schema=SYS' % oracleDb,
+		]:
 			assert( oneStr in strInstancesSet)
 
 
