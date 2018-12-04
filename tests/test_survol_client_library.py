@@ -17,6 +17,7 @@ if sys.path[0] != filRoot:
 	# print(sys.path)
 
 CurrentUsername = os.environ["USERNAME"]
+CurrentMachine = "rchateau-hp"
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server.
@@ -154,7 +155,7 @@ class SurvolLocalTest(unittest.TestCase):
 		mySourceDupl = lib_client.SourceLocal(
 			"sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py",
 			"Win32_UserAccount",
-			Domain="rchateau-hp",
+			Domain=CurrentMachine,
 			Name=CurrentUsername)
 		tripleDupl = mySourceDupl.GetTriplestore()
 		print("Len tripleDupl=",len(tripleDupl.GetInstances()))
@@ -224,7 +225,7 @@ class SurvolLocalTest(unittest.TestCase):
 		"""This returns all scripts accessible from the user account "rchateau"."""
 
 		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
-			Domain="rchateau-hp",
+			Domain=CurrentMachine,
 			Name=CurrentUsername)
 
 		listScripts = myInstancesLocal.GetScripts()
@@ -1644,6 +1645,53 @@ class SurvolOracleTest(unittest.TestCase):
 			'oracle/schema.Db=%s,Schema=SYS' % oracleDb,
 		]:
 			assert( oneStr in strInstancesSet)
+
+	@decorator_oracle_db
+	def test_oracle_connected_processes(self,oracleDb):
+		print("Oracle:",oracleDb)
+
+		mySourceOracleProcesses = lib_client.SourceLocal(
+			"sources_types/oracle/db/oracle_db_processes.py",
+			"oracle/db",
+			Db=oracleDb)
+
+		tripleOracleProcesses = mySourceOracleProcesses.GetTriplestore()
+
+		lstInstances = tripleOracleProcesses.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		print(strInstancesSet)
+
+		# Typical content:
+		# 'CIM_Process.Handle=11772', 'oracle/db.Db=XE', 'Win32_UserAccount.Name=rchateau,Domain=rchateau-hp',
+		# 'oracle/schema.Db=XE,Schema=SYSTEM', 'oracle/session.Db=XE,Session=102'
+		for oneStr in [
+			'CIM_Process.Handle=%s' % os.getpid(),
+			'oracle/db.Db=%s' % oracleDb,
+			'Win32_UserAccount.Name=%s,Domain=%s' % ( CurrentUsername, CurrentMachine),
+		]:
+			assert( oneStr in strInstancesSet)
+
+	@decorator_oracle_db
+	def test_oracle_running_queries(self,oracleDb):
+		print("Oracle:",oracleDb)
+
+		mySourceOracleProcesses = lib_client.SourceLocal(
+			"sources_types/oracle/db/oracle_db_parse_queries.py",
+			"oracle/db",
+			Db=oracleDb)
+
+		tripleOracleProcesses = mySourceOracleProcesses.GetTriplestore()
+
+		lstInstances = tripleOracleProcesses.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		print(strInstancesSet)
+		print("TODO: Parse the query")
+		# Typical content:
+		# set(['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxFQ1Qgc2Vzcy5zdGF0dXMsIHNlc3MudXNlcm5hbWUsIHNlc3Muc2NoZW1hbmFtZSwgc3FsLnNxbF90ZXh0LHNxbC5zcWxfZnVsbHRleHQscHJvYy5zcGlkICAgIEZST00gdiRzZXNzaW9uIHNlc3MsICAgICAgdiRzcWwgICAgIHNxbCwgICAgICB2JHByb2Nlc3MgcHJvYyAgIFdIRVJFIHNxbC5zcWxfaWQoKykgPSBzZXNzLnNxbF9pZCAgICAgQU5EIHNlc3MudHlwZSAgICAgPSAnVVNFUicgICAgIGFuZCBzZXNzLnBhZGRyID0gcHJvYy5hZGRyICA=,Db=XE_OVH'])		#for oneStr in [
+
+
 
 
 
