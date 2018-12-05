@@ -1691,9 +1691,30 @@ class SurvolOracleTest(unittest.TestCase):
 		# Typical content:
 		# set(['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxFQ1Qgc2Vzcy5zdGF0dXMsIHNlc3MudXNlcm5hbWUsIHNlc3Muc2NoZW1hbmFtZSwgc3FsLnNxbF90ZXh0LHNxbC5zcWxfZnVsbHRleHQscHJvYy5zcGlkICAgIEZST00gdiRzZXNzaW9uIHNlc3MsICAgICAgdiRzcWwgICAgIHNxbCwgICAgICB2JHByb2Nlc3MgcHJvYyAgIFdIRVJFIHNxbC5zcWxfaWQoKykgPSBzZXNzLnNxbF9pZCAgICAgQU5EIHNlc3MudHlwZSAgICAgPSAnVVNFUicgICAgIGFuZCBzZXNzLnBhZGRyID0gcHJvYy5hZGRyICA=,Db=XE_OVH'])		#for oneStr in [
 
+	@decorator_oracle_db
+	def test_oracle_schema_tables(self,oracleDb):
+		print("Oracle:",oracleDb)
 
+		mySourceOracleSchemaTables = lib_client.SourceLocal(
+			"sources_types/oracle/schema/oracle_schema_tables.py",
+			"oracle/db",
+			Db=oracleDb,
+		Schema='SYSTEM')
 
+		tripleOracleSchemaTables = mySourceOracleSchemaTables.GetTriplestore()
 
+		lstInstances = tripleOracleSchemaTables.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		print(strInstancesSet)
+
+		# Various tables which should always be in 'SYSTEM' namespace:
+		for oneStr in [
+			'oracle/table.Db=%s,Schema=SYSTEM,Table=HELP' % oracleDb,
+			#'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracleDb,
+			#'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracleDb,
+		]:
+			assert( oneStr in strInstancesSet)
 
 class SurvolSearchTest(unittest.TestCase):
 	"""Testing the search engine"""
