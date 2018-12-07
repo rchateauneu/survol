@@ -1602,19 +1602,20 @@ class SurvolOracleTest(unittest.TestCase):
 
 		tripleOracleDbs = mySourceOracleDbs.GetTriplestore()
 
-		# Always the same order.
-		instancesOracleDbs = sorted(tripleOracleDbs.GetInstances())
-
 		# Typical content: 'addr.Id=127.0.0.1:1521', 'oracle/db.Db=XE_WINDOWS',
 		# 'oracle/db.Db=XE', 'oracle/db.Db=XE_OVH', 'addr.Id=vps516494.ovh.net:1521',
 		# 'addr.Id=192.168.0.17:1521', 'oracle/db.Db=XE_FEDORA'}
+		instancesOracleDbs = tripleOracleDbs.GetInstances()
 
-		for oneInst in instancesOracleDbs:
-			# This returns the first database found in the credentials file.
-			if oneInst.__class__.__name__ == "oracle/db":
-				def wrapper(self):
-					test_func(self,oneInst.Db)
-				return wrapper
+		# Sorted in alphabetical order.
+		strInstances = sorted([str(oneInst.Db) for oneInst in instancesOracleDbs if oneInst.__class__.__name__ == "oracle/db"])
+
+		if strInstances:
+			# This returns the first database found in the credentials file in alphabetical order.
+			def wrapper(self):
+				test_func(self,strInstances[0])
+			return wrapper
+			return strInstances[0]
 
 		print("No Oracle database available")
 		return None
@@ -1688,6 +1689,8 @@ class SurvolOracleTest(unittest.TestCase):
 
 		print(strInstancesSet)
 		print("TODO: Parse the query")
+
+		#oracle.query.EntityName(qryBase64)
 		# Typical content:
 		# set(['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxFQ1Qgc2Vzcy5zdGF0dXMsIHNlc3MudXNlcm5hbWUsIHNlc3Muc2NoZW1hbmFtZSwgc3FsLnNxbF90ZXh0LHNxbC5zcWxfZnVsbHRleHQscHJvYy5zcGlkICAgIEZST00gdiRzZXNzaW9uIHNlc3MsICAgICAgdiRzcWwgICAgIHNxbCwgICAgICB2JHByb2Nlc3MgcHJvYyAgIFdIRVJFIHNxbC5zcWxfaWQoKykgPSBzZXNzLnNxbF9pZCAgICAgQU5EIHNlc3MudHlwZSAgICAgPSAnVVNFUicgICAgIGFuZCBzZXNzLnBhZGRyID0gcHJvYy5hZGRyICA=,Db=XE_OVH'])		#for oneStr in [
 
@@ -1715,6 +1718,63 @@ class SurvolOracleTest(unittest.TestCase):
 			#'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracleDb,
 		]:
 			assert( oneStr in strInstancesSet)
+
+	@decorator_oracle_db
+	def test_oracle_schema_views(self,oracleDb):
+		print("Oracle:",oracleDb)
+
+		mySourceOracleSchemaViews = lib_client.SourceLocal(
+			"sources_types/oracle/schema/oracle_schema_views.py",
+			"oracle/db",
+			Db=oracleDb,
+			Schema='SYS')
+
+		tripleOracleSchemaViews = mySourceOracleSchemaViews.GetTriplestore()
+
+		lstInstances = tripleOracleSchemaViews.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		print(sorted(strInstancesSet)[:10])
+
+		# Various tables which should always be in 'SYSTEM' namespace:
+		for oneStr in [
+			'oracle/table.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
+			#'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracleDb,
+			#'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracleDb,
+		]:
+			assert( oneStr in strInstancesSet)
+
+	@decorator_oracle_db
+	def test_oracle_view_dependencies(self,oracleDb):
+		"""This displays the dependencies of a very common view"""
+
+		mySourceOracleViewDependencies = lib_client.SourceLocal(
+			"sources_types/oracle/view/oracle_view_dependencies.py",
+			"oracle/db",
+			Db=oracleDb,
+			Schema='SYS',
+			View='ALL_ALL_TABLES')
+
+		tripleOracleViewDependencies = mySourceOracleViewDependencies.GetTriplestore()
+
+		lstInstances = tripleOracleViewDependencies.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+
+		print(sorted(strInstancesSet)[:10])
+
+		# The dependencies of this view should always be the same,as it does not change often.
+		for oneStr in [
+			'oracle/package_body.Db=%s,Schema=SYS,PackageBody=DBMS_EDITIONS_UTILITIES' % oracleDb,
+			'oracle/package_body.Db=%s,Schema=SYS,PackageBody=DMP_SYS' % oracleDb,
+			'oracle/schema.Db=%s,Schema=SYS' % oracleDb,
+			'oracle/synonym.Db=%s,Schema=PUBLIC,Synonym=ALL_ALL_TABLES' % oracleDb,
+			'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
+			'oracle/view.Db=%s,Schema=SYS,View=ALL_OBJECT_TABLES' % oracleDb,
+			'oracle/view.Db=%s,Schema=SYS,View=ALL_TABLES' % oracleDb,
+		]:
+			assert( oneStr in strInstancesSet)
+
+
 
 class SurvolSearchTest(unittest.TestCase):
 	"""Testing the search engine"""
