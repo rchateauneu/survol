@@ -1684,15 +1684,24 @@ class SurvolOracleTest(unittest.TestCase):
 
 		tripleOracleProcesses = mySourceOracleProcesses.GetTriplestore()
 
-		lstInstances = tripleOracleProcesses.GetInstances()
-		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-
-		print(strInstancesSet)
-		print("TODO: Parse the query")
-
-		#oracle.query.EntityName(qryBase64)
 		# Typical content:
-		# set(['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxFQ1Qgc2Vzcy5zdGF0dXMsIHNlc3MudXNlcm5hbWUsIHNlc3Muc2NoZW1hbmFtZSwgc3FsLnNxbF90ZXh0LHNxbC5zcWxfZnVsbHRleHQscHJvYy5zcGlkICAgIEZST00gdiRzZXNzaW9uIHNlc3MsICAgICAgdiRzcWwgICAgIHNxbCwgICAgICB2JHByb2Nlc3MgcHJvYyAgIFdIRVJFIHNxbC5zcWxfaWQoKykgPSBzZXNzLnNxbF9pZCAgICAgQU5EIHNlc3MudHlwZSAgICAgPSAnVVNFUicgICAgIGFuZCBzZXNzLnBhZGRyID0gcHJvYy5hZGRyICA=,Db=XE_OVH'])		#for oneStr in [
+		# ['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxF... base64 ...ZGRyICA=,Db=XE_OVH']
+		lstInstances = tripleOracleProcesses.GetInstances()
+
+		for oneInst in lstInstances:
+			if oneInst.__class__.__name__ == 'oracle/query':
+				import sources_types.oracle.query
+				print("Decoded query:",sources_types.oracle.query.EntityName( [oneInst.Query,oneInst.Db] ))
+
+				# TODO: This is not very consistent: sources_types.oracle.query.EntityName
+				# TODO: produces a nice but truncated message, and the relation between
+				# TODO: oracle.query and sql.query is not obvious.
+				import sources_types.sql.query
+				qryDecodedFull = sources_types.sql.query.EntityName( [oneInst.Query] )
+				print("Decoded query:",qryDecodedFull)
+				# The query must start with a select.
+				assert( qryDecodedFull.strip().upper().startswith("SELECT"))
+
 
 	@decorator_oracle_db
 	def test_oracle_schema_tables(self,oracleDb):
