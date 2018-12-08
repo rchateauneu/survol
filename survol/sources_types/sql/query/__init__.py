@@ -79,8 +79,8 @@ def stripblanks(text):
 	return '"'.join(lst)
 
 # This is dynamically called from the function EntityArrToLabel() in lib_naming.py.
-# It returns a printable string, given the url arguments.
-# Probleme: Ce n est pas compatible avec des arguments variables.
+# It returns a printable string, given the url arguments.T
+# TODO: Problem, this is not compatible with variable arguments.
 def EntityName(entity_ids_arr):
 	resu = lib_util.Base64Decode(entity_ids_arr[0])
 	resu = cgi.escape(resu)
