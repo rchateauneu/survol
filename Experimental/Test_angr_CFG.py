@@ -38,18 +38,37 @@ print("callgraph:",dir(cfg_fast.functions.callgraph))
 print("")
 print("callgraph:",cfg_fast.functions.callgraph.name)
 print("")
-print("number_of_edges:",cfg_fast.functions.callgraph.number_of_edges())
+print("callgraph: number_of_edges:",cfg_fast.functions.callgraph.number_of_edges())
 print("")
-print("number_of_nodes:",cfg_fast.functions.callgraph.number_of_nodes())
+print("callgraph: number_of_edges:",len(cfg_fast.functions.callgraph.edges()))
+print("")
+print("callgraph: number_of_nodes:",cfg_fast.functions.callgraph.number_of_nodes())
+print("")
+print("callgraph: number_of_nodes:",len(cfg_fast.functions.callgraph.nodes()))
+print("")
+
+print("callgraph: Loop on edges")
+for ed in cfg_fast.functions.callgraph.edges():
+	print(ed)
+	print(dir(ed))
+	print(str(ed))
+	break
+print("")
+
+print("callgraph: Loop on nodes")
+for nd in cfg_fast.functions.callgraph.nodes():
+	print(nd)
+	print(dir(nd))
+	print(str(nd))
+	break
 print("")
 
 print("This is the graph:", cfg_fast.graph)
 print("It has %d nodes and %d edges" % (len(cfg_fast.graph.nodes()), len(cfg_fast.graph.edges())))
 
-exit(0)
-
 print("number of functions:",len(cfg_fast.functions.keys()))
 print("")
+
 
 #print("keys:",cfg_fast.functions.keys())
 #print("")
