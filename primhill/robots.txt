@@ -1,2 +1,0 @@
-User-agent: *
-Sitemap: http://primhillcomputers.com/sitemap.txt

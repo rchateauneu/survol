@@ -50,7 +50,7 @@ def Main():
 	for pckg in installed_packages:
 		cnt += 1
 
-		sys.stderr.write("cnt=%d key=%s\n" % (cnt,pckg.key) )
+		DEBUG("cnt=%d key=%s", cnt,pckg.key)
 
 		# With this module, "dot" crashes...
 		# TODO: WHY IS THIS BROKEN ?????

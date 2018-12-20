@@ -34,7 +34,7 @@ def AddFromSmbClient( grph, smbDir, smbShr, passWrd, rootNode ):
 	smbclient_cmd = [ "smbclient", "-c", "ls", "-D", smbDir, smbShr, passWrd ]
 
 	# This print is temporary until we know how to display smb-shared files.
-	sys.stderr.write( "Command=%s\n" % str(smbclient_cmd) )
+	DEBUG( "Command=%s", str(smbclient_cmd) )
 
 	smbclient_pipe = lib_common.SubProcPOpen(smbclient_cmd)
 
@@ -42,7 +42,7 @@ def AddFromSmbClient( grph, smbDir, smbShr, passWrd, rootNode ):
 
 	lines = smbclient_last_output.split('\n')
 	for lin in lines:
-		sys.stderr.write( "l="+lin+"\n" )
+		DEBUG( "l="+lin)
 		# Normally this is only the first line
 		# session setup failed: NT_STATUS_LOGON_FAILURE
 		mtch_net = re.match( "^.*(NT_STATUS_.*)", lin )
@@ -71,7 +71,7 @@ def AddFromSmbClient( grph, smbDir, smbShr, passWrd, rootNode ):
 
 			filNam = SmbCleanupFilNam(filNam,filSz)
 
-			sys.stderr.write("Fi=%s, Sz=%s\n" % ( filNam, filSz ) )
+			DEBUG("Fi=%s, Sz=%s", filNam, filSz )
 
 			filNod = lib_common.gUriGen.SmbFileUri( smbShr, smbDir + "/" + filNam )
 			grph.add( ( rootNode, pc.property_directory, filNod ) )

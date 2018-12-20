@@ -18,8 +18,9 @@ try:
 	# Without this, win32com.client.constants is not available.
 	win32com.client.gencache.EnsureModule('{565783C6-CB41-11D1-8B02-00600806D9B6}',0, 1, 1)
 	wmi_imported = True
-except ImportError:
+except ImportError as exc:
 	wmi_imported = False
+	ERROR("Some modules could not be imported:%s",str(exc))
 
 ################################################################################
 # TODO: Just a reminder that WMI can run on Linux, in a certain extent.
@@ -116,7 +117,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 	if not lib_util.SameHostOrLocal( wmiMachine, None ):
 		dictParams['computer'] = wmiMachine
 
-	sys.stderr.write("WmiConnect wmiMachine=%s wmiNamspac=%s dictParams=%s\n" % ( wmiMachine, wmiNamspac, str(dictParams) ) )
+	DEBUG("WmiConnect wmiMachine=%s wmiNamspac=%s dictParams=%s", wmiMachine, wmiNamspac, str(dictParams) )
 
 	try:
 		connWMI = wmi.WMI(**dictParams)
@@ -127,7 +128,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 		# Could not connect, maybe the namespace is wrong.
 			lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (str(dictParams),str(sys.exc_info())))
 		else:
-			sys.stderr.write("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s\n" % (str(dictParams),str(sys.exc_info())))
+			ERROR("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dictParams),str(sys.exc_info()))
 			return None
 
 	#sys.stderr.write("WmiConnect returning\n" )
@@ -138,7 +139,7 @@ def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
 # Returns the list of a keys of a given WBEM class. This is is used if the key is not given
 # for an entity. This could be stored in a cache for better performance.
 def WmiGetClassKeys( wmiNameSpace, wmiClass, cimomSrv ):
-	sys.stderr.write("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s\n" % (wmiNameSpace, wmiClass, cimomSrv ))
+	DEBUG("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s", wmiNameSpace, wmiClass, cimomSrv )
 
 	try:
 		# TODO: Choose the namespace, remove "root\\" at the beginning.
@@ -147,7 +148,7 @@ def WmiGetClassKeys( wmiNameSpace, wmiClass, cimomSrv ):
 		wmiClass = getattr(wmiCnnct,wmiClass)
 	except Exception:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("WmiGetClassKeys %s %s %s: Caught:%s\n" % ( cimomSrv, wmiNameSpace, wmiClass, str(exc) ) )
+		ERROR("WmiGetClassKeys %s %s %s: Caught:%s",cimomSrv, wmiNameSpace, wmiClass, str(exc) )
 		return None
 
 	wmiKeys = wmiClass.keys

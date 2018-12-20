@@ -23,7 +23,7 @@ def Main():
 
     dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-    sys.stderr.write("dsn=(%s)\n" % dsnNam )
+    DEBUG("dsn=(%s)", dsnNam )
 
     nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
 
@@ -31,11 +31,24 @@ def Main():
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
-        sys.stderr.write("Connected: %s\n" % dsnNam)
+        DEBUG("Connected: %s", dsnNam)
         cursor = cnxn.cursor()
 
         # http://pyodbc.googlecode.com/git/web/docs.html
-        colList = ( "Catalog", "Schema", "Procedure", "Inputs", "Outputs", "Result", "Remarks", "Type")
+        # colList = ( "Catalog", "Schema", "Procedure", "Inputs", "Outputs", "Result", "Remarks", "Type")
+
+        # http://pyodbc.googlecode.com/git/web/docs.html
+        # Type: 'TABLE','VIEW','SYSTEM TABLE','GLOBAL TEMPORARY','LOCAL TEMPORARY','ALIAS','SYNONYM',
+        # or a data source-specific type name.
+        mapIndexToProp = {
+             #0: pc.property_odbc_catalog,
+             #1: pc.property_odbc_schema,
+             #2: pc.property_odbc_procedure,
+             3: pc.property_odbc_inputs,
+             4: pc.property_odbc_outputs,
+             5: pc.property_odbc_result,
+             6: pc.property_odbc_remarks,
+             7: pc.property_odbc_type }
 
         # This avoids cursor.fetchall()
         for row in cursor.procedures():
@@ -46,8 +59,10 @@ def Main():
             nodProc = survol_odbc_procedure.MakeUri( dsnNam, procNam )
             grph.add( (nodeDsn, pc.property_odbc_procedure, nodProc ) )
 
-            for idxCol in (3, 4, 5, 6, 7):
-                grph.add( (nodProc, lib_common.NodeLiteral(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
+            # This prints only some columns.
+            for idxCol in mapIndexToProp:
+                predicateNode = mapIndexToProp[idxCol]
+                grph.add( (nodProc, predicateNode, lib_common.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
         exc = sys.exc_info()[0]

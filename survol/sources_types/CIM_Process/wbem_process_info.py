@@ -28,7 +28,7 @@ def Main():
 	else:
 		serverBox = lib_common.RemoteBox(machineName)
 
-	sys.stderr.write("wbem_process_info.py machineName=%s\n"%machineName)
+	DEBUG("wbem_process_info.py machineName=%s",machineName)
 
 	#node_process = serverBox.PidUri(pid)
 

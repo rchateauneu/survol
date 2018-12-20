@@ -1,0 +1,15 @@
+https://rdflib.github.io/sparqlwrapper/
+
+Connect Sparql to a RDF URL.
+
+
+
+
+Add this in the documentation:
+
+Un triplestore est une base de données qui ne contient que des triplets RDF. En fait, une base de données étant un ensemble de tables, avec des lignes et des colonnes,
+reliées entre elles, on parle plus volontiers de “graphe” pour décrire un triplestore dans lequel toutes les données sont liées entre elles.
+Le RDF (Resource Description Framework) est un modèle de graphe destiné à décrire de façon formelle les ressources Web et leurs métadonnées,
+de façon à permettre le traitement automatique de ces descriptions.
+
+Un triplet est un énoncé descriptif, aussi basique qu’une description peut l’être. Il est composé de trois parties : un sujet, un prédicat (un verbe, une relation) et un objet.

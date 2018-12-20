@@ -36,7 +36,7 @@ def WbemAddBaseClass(grph,connWbem,wbemNode,entity_host, wbemNamespace, entity_t
 
 	# TODO: Which one should we take, http or https ???
 	wbemSuperUrl = wbemSuperUrlsList[0][0]
-	sys.stderr.write("WBEM wbemSuperUrl=%s\n" % wbemSuperUrl)
+	DEBUG("WBEM wbemSuperUrl=%s", wbemSuperUrl)
 
 	wbemSuperNode = lib_common.NodeUrl(wbemSuperUrl)
 
@@ -187,7 +187,7 @@ def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 
 			shortDir = dirpath[ len(lib_util.gblTopScripts) : ]
 			fullScriptNam = os.path.join(shortDir, filename).replace('\\','/')
-			sys.stderr.write("fullScriptNam=%s\n" % fullScriptNam)
+			DEBUG("fullScriptNam=%s", fullScriptNam)
 
 			# TODO: Maybe remove the beginning of the file.
 			localClassUrl = lib_util.ScriptizeCimom( fullScriptNam, className, entity_host )
@@ -219,7 +219,7 @@ def Main():
 	entity_id = cgiEnv.m_entity_id
 
 	# QUERY_STRING=xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2FPG_Internal%3APG_WBEMSLPTemplate
-	sys.stderr.write("class_type_all entity_host=%s entity_id=%s\n" % ( entity_host, entity_id ) )
+	DEBUG("class_type_all entity_host=%s entity_id=%s", entity_host, entity_id )
 
 	grph = cgiEnv.GetGraph()
 
@@ -232,6 +232,7 @@ def Main():
 	entity_module = lib_util.GetEntityModule(className)
 	entDoc = entity_module.__doc__
 	if entDoc:
+		entDoc = entDoc.strip()
 		grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(entDoc) ) )
 
 	CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id)

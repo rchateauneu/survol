@@ -1,0 +1,44 @@
+========================================================================================================================
+CREATION OF A SOURCE DISTRIBUTION, UPLOAD ON PYPI:
+This command creates a sdist which can be later uploaded on pypi.
+python setup.py sdist
+
+See also https://packaging.python.org/guides/migrating-to-pypi-org/#uploading ,
+because there are many recent changes in the way modules are uplodaded,
+basically the default URL is different so we use the legacy API.
+Local file in C:\Users\rchateau: %USERPROFILE%\.pypirc
+----------------------------------------------------------------------
+[distutils]
+index-servers=
+  pypi
+  pypitest
+
+[pypi]
+## repository=https://pypi.python.org/pypi
+repository=https://upload.pypi.org/legacy/
+username=rchateauneu
+password=***************
+
+[pypitest]
+repository=https://test.pypi.org/legacy/
+username=rchateauneu
+password=*****************
+----------------------------------------------------------------------
+
+# When uploading, the version must be changed in setup.py. pypi does not accept to load twice the same version.
+# Command to upload on Pypi test:
+# cd in the directory where setup.py is:
+python setup.py sdist upload -r pypitest
+
+# Result can be checked at https://testpypi.python.org/pypi/survol/1.0.dev2
+
+
+# Command to upload on Pypi (Real version, not test):
+python setup.py sdist upload -r pypi
+
+# Result at:
+https://pypi.python.org/pypi/survol/1.0.dev2
+
+# Install into virtualenv:
+(testarea) ...\testarea>pip uninstall survol
+(testarea) ...\testarea>pip install -i https://testpypi.python.org/pypi survol

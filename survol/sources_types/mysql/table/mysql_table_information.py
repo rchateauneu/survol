@@ -89,7 +89,7 @@ def Main():
 
 	# There should be only one row, maximum.
 	for tabInfo in cursorMysql:
-		sys.stderr.write("tabInfo=%s\n"%str(tabInfo))
+		DEBUG("tabInfo=%s",str(tabInfo))
 		tableNam = tabInfo[2]
 
 		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)

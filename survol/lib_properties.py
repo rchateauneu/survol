@@ -26,10 +26,10 @@ primns_slash = primns + '/'
 # It tests that the key is in fact an array containing the properties.
 # We could add information in a given order: "information?key=1", "information?key=2",
 # Natural order should be OK. or add a sort unfction in the call to sorted().
-def MakeProp(prp,**kvargs):
-	ret = primns_slash + prp
+def MakeProp(*prps,**kvargs):
+	ret = primns_slash + ":".join(prps)
 	if kvargs:
-		ret += "?" + "&".join( "%s=%s" for kw in kvargs )
+		ret += "?" + "&amp;".join( "%s=%s" % (k,kvargs[k]) for k in kvargs )
 	# TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
 	# http://primhillcomputers.com/ontologies/swapnote\ futures
 	# If the space is replaced by "%20", everything before it is erased.
@@ -42,6 +42,8 @@ def MakeProp(prp,**kvargs):
 # Property names with this prefix come first in RDF sorting.
 # This is a convenient way to have "Information" at the top of properties.
 sortPrefix = "----"
+
+# TODO: This should be renamed "predicate" instead of "property".
 
 # All the properties for creating RDF triples.
 # Names must all be different because they are used as keys.
@@ -117,11 +119,19 @@ pc.property_information          = MakeProp(sortPrefix + "Information")
 pc.property_domain               = MakeProp("domain")
 pc.property_controller           = MakeProp("controller")
 pc.property_service              = MakeProp("service")
-pc.property_odbc_driver          = MakeProp("odbc_driver")
-pc.property_odbc_dsn             = MakeProp("odbc_dsn")
-pc.property_odbc_table           = MakeProp("odbc_table")
-pc.property_odbc_column          = MakeProp("column")
-pc.property_odbc_procedure       = MakeProp("odbc_procedure")
+# The "odbc" prefix is a kind of namespace.
+pc.property_odbc_driver          = MakeProp("odbc","driver")
+pc.property_odbc_dsn             = MakeProp("odbc","dsn")
+pc.property_odbc_table           = MakeProp("odbc","table")
+pc.property_odbc_column          = MakeProp("odbc","column")
+pc.property_odbc_procedure       = MakeProp("odbc","procedure")
+pc.property_odbc_catalog         = MakeProp("odbc","catalog")
+pc.property_odbc_schema          = MakeProp("odbc","schema")
+pc.property_odbc_inputs          = MakeProp("odbc","inputs")
+pc.property_odbc_outputs         = MakeProp("odbc","outputs")
+pc.property_odbc_result          = MakeProp("odbc","result")
+pc.property_odbc_remarks         = MakeProp("odbc","remarks")
+pc.property_odbc_type            = MakeProp("odbc","type")
 pc.property_sqlserver_db         = MakeProp("sqlserver DB")
 pc.property_last_access          = MakeProp("last_access")
 pc.property_last_change          = MakeProp("last_update")
@@ -138,6 +148,7 @@ pc.property_class_instance       = MakeProp("instance")
 pc.property_subclass             = MakeProp("subclass")
 pc.property_cim_subclass         = MakeProp("cim subclass")
 pc.property_alias                = MakeProp("alias")
+pc.property_string_occurrence    = MakeProp("string occurrence")
 
 dictPropertiesGraphAttributes = {
 	pc.property_script: "GREEN",

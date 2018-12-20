@@ -58,7 +58,7 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 	for objConnect in listConnections:
 		namConnect = objConnect["name"]
 
-		sys.stderr.write("namConnect=%s\n"%(namConnect))
+		DEBUG("namConnect=%s",namConnect)
 
 		nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnect)
 
@@ -81,7 +81,7 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 		# '127.0.0.1:51532 -> 127.0.0.1:5672'
 		# http://localhost:12345/#/connections/127.0.0.1%3A51532%20-%3E%20127.0.0.1%3A5672
 		namConnectCgi = namConnect.replace(">","&gt;")
-		sys.stderr.write("namConnectCgi=%s\n"%(namConnectCgi))
+		DEBUG("namConnectCgi=%s",namConnectCgi)
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"connections",namConnectCgi)
 
 		grph.add( ( nodeConnect, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )

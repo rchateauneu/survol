@@ -58,7 +58,7 @@ def GetAggregDsns(pidint,mapRgx):
 		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + mapRgx[key] + " *" for key in mapRgx ])
 		# This works also. Both are very slow.
 		# rgxDSN = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
-		sys.stderr.write("rgxDSN=%s\n"%rgxDSN)
+		DEBUG("rgxDSN=%s",rgxDSN)
 
 
 		# TODO: OPTIONALLY ADD NON-ASCII CHAR AT THE VERY BEGINNING. SLIGHTLY SAFER AND FASTER.
@@ -75,7 +75,7 @@ def GetAggregDsns(pidint,mapRgx):
 		for matchedOffset in resuMatches:
 			matchedStr = resuMatches[matchedOffset]
 			dsnToken = str(matchedOffset) + " = " + matchedStr + " = " + str(matchedOffset + len(matchedStr))
-			sys.stderr.write("dsnODBC=%s\n"%dsnToken)
+			DEBUG("dsnODBC=%s",dsnToken)
 
 		sortedKeys = sorted(resuMatches.keys())
 		aggregDsns = dict()
@@ -84,7 +84,7 @@ def GetAggregDsns(pidint,mapRgx):
 		for theOff in sortedKeys:
 			currMtch = resuMatches[theOff]
 			nextOffset = theOff + len(currMtch)
-			sys.stderr.write("lastOffset=%d nextOffset=%d currMtch=%s\n"%(lastOffset,nextOffset,currMtch))
+			DEBUG("lastOffset=%d nextOffset=%d currMtch=%s",lastOffset,nextOffset,currMtch)
 			#if lastOffset == 0:
 			#	lastOffset = nextOffset
 			#	aggregDsns[lastOffset] = currMtch
@@ -162,7 +162,7 @@ def Main():
 		# Do not take the character before the keyword.
 		aggregDSN = aggregDsns[aggregOffset]
 		dsnFull = str(aggregOffset) + ": " + aggregDSN
-		sys.stderr.write("aggregOffset=%s dsnFull=%s\n"%(aggregOffset,dsnFull))
+		DEBUG("aggregOffset=%s dsnFull=%s",aggregOffset,dsnFull)
 		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(dsnFull) ) )
 
 		### NO! Confusion between DSN and connection string.

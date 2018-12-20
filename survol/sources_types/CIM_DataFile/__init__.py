@@ -29,7 +29,7 @@ def AddMagic( grph, filNode, filNam ):
 	try:
 		import magic
 	except ImportError:
-		sys.stderr.write("File magic unavailable:%s\n" % (filNam) )
+		DEBUG("File magic unavailable:%s", filNam )
 		return
 
 	try:
@@ -39,7 +39,7 @@ def AddMagic( grph, filNode, filNam ):
 		ms.close()
 		grph.add( ( filNode, pc.property_information, lib_common.NodeLiteral(mtype) ) )
 	except TypeError:
-		sys.stderr.write("Type error:%s\n" % (filNam) )
+		DEBUG("Type error:%s", filNam )
 		return
 
 # Transforms a "stat" date into something which can be printed.
@@ -167,9 +167,12 @@ def AddFileProperties(grph,currNode,currFilNam):
 def AffFileOwner(grph, filNode, filNam):
 
 	def AddFileOwnerWindows(grph, filNode, filNam):
-		import win32api
-		import win32con
-		import win32security
+		try:
+			import win32api
+			import win32con
+			import win32security
+		except ImportError:
+			return 
 
 		from sources_types import Win32_UserAccount
 		from sources_types import Win32_Group
@@ -206,7 +209,7 @@ def AffFileOwner(grph, filNode, filNam):
 		owner_sid = sd.GetSecurityDescriptorOwner ()
 		accountName, domainName, typeCode = win32security.LookupAccountSid (None, owner_sid)
 		typNam = SID_CodeToName(typeCode)
-		sys.stderr.write("Domain=%s Name=%s Type=%s\n" % (domainName, accountName,typNam) )
+		DEBUG("Domain=%s Name=%s Type=%s", domainName, accountName,typNam)
 
 		if typeCode == win32security.SidTypeUser:
 			accountNode = Win32_UserAccount.MakeUri(accountName,domainName)
@@ -258,7 +261,7 @@ def AffFileOwner(grph, filNode, filNam):
 		elif lib_util.isPlatformLinux:
 			AddFileOwnerLinux(grph, filNode, filNam)
 		else:
-			sys.stderr.write("unknown OS")
+			WARNING("unknown OS")
 			pass
 	except:
 		raise
@@ -280,8 +283,14 @@ def AddInfo(grph,node,entity_ids_arr):
 		This creates a couple of nodes about a file.
 	"""
 	filNam = entity_ids_arr[0]
-	if filNam == "":
+
+	if not filNam: # Faster than comparing to an empty string.
 		return
+
+	# Cleanup the filename. This function is called without knowledge of the specific case,
+	# therefore the cleanup can only be done in code related to this entity type.
+	filNam = filNam.replace("\\","/")
+
 	AddMagic( grph,node,filNam)
 	AddStat( grph,node,filNam)
 	AddHtml( grph,node,filNam)
@@ -294,7 +303,7 @@ def DisplayAsMime(grph,node,entity_ids_arr):
 
 	mime_stuff = lib_mime.FilenameToMime( fileName )
 
-	sys.stderr.write("DisplayAsMime fileName=%s MIME:%s\n" % (fileName, str(mime_stuff) ) )
+	DEBUG("DisplayAsMime fileName=%s MIME:%s", fileName, str(mime_stuff) )
 
 	mime_type = mime_stuff[0]
 

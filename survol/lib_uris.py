@@ -47,15 +47,15 @@ class LocalBox:
 		lenEntIds = len(entity_id_arr)
 		if lenKeys < lenEntIds:
 			# Append fake temporary keys
-			sys.stderr.write("BuildEntity entity_type=%s Not enough keys:%s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
+			ERROR("BuildEntity entity_type=%s Not enough keys:%s and %s",entity_type,str(keys),str(entity_id_arr))
 			keys += [ "Key_%d" % idx for idx in range(lenKeys,lenEntIds) ]
 		elif lenKeys > lenEntIds:
 			# Not enough values. This is not a problem because of queries returning several objects.
-			sys.stderr.write("BuildEntity entity_type=%s Not enough values:%s and %s\n" % (entity_type,str(keys),str(entity_id_arr)))
+			ERROR("BuildEntity entity_type=%s Not enough values:%s and %s",entity_type,str(keys),str(entity_id_arr))
 			# entity_id_arr += [ "Unknown" ] * ( lenKeys - lenEntIds )
 
-		# Sorted keys
-		entity_id = ",".join( "%s=%s" % kwItems for kwItems in dict(zip( keys, entity_id_arr ) ).items() )
+		# Sorted keys, same order for Python 2 et 3.
+		entity_id = ",".join( "%s=%s" % kwItems for kwItems in zip( keys, entity_id_arr ) )
 
 		return entity_id
 
@@ -132,7 +132,7 @@ class LocalBox:
 			hostName = TruncateHostname(hostAddr)
 		except:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("HostnameUri hostAddr=%s. Caught: %s\n" % (hostAddr, str(exc) ) )
+			DEBUG("HostnameUri hostAddr=%s. Caught: %s", hostAddr, str(exc) )
 			hostName = hostAddr
 
 		# Hostnames are case-insensitive, RFC4343 https://tools.ietf.org/html/rfc4343
@@ -240,10 +240,11 @@ class LocalBox:
 			fullnam = smbshare + smbfile
 		return self.UriMake("smbfile", fullnam )
 
-	# TODO: Services are also a process.
+	# TODO: Services are also a process. Also, put this in its module.
 	def ServiceUri(self,service):
 		return self.UriMake("Win32_Service", service)
 
+	# TODO: Should go in its module.
 	def SmbDomainUri(self,smbdomain):
 		return self.UriMake("smbdomain", smbdomain)
 
@@ -251,18 +252,20 @@ class LocalBox:
 	# Its use depend on the behaviour of the dynamic linker if it is defined several
 	# times in the same binary. If the file is not defined, this is a system call.
 	# TODO: DOES NOT WORK IF REMOTE SYMBOL.
-	def SymbolUri(self,symbol_name, file = ""):
+	def SymbolUri(self,symbol_name, path = ""):
 		# The URL should never contain the chars "<" or ">".
 		symbol_name = lib_util.Base64Encode(symbol_name)
 		# TODO: Alphabetical order !!!!
-		return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(file) } )
+		path = path.replace("\\","/") # TODO: Use normpath()
+		return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(path) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
 	# TODO: Move that to class/__init__.py
-	def ClassUri(self,class_name, file = ""):
+	def ClassUri(self,class_name, path = ""):
 		# The URL should never contain the chars "<" or ">".
 		class_name = lib_util.Base64Encode(class_name)
-		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(file) } )
+		path = path.replace("\\","/") # TODO: Use normpath()
+		return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(path) } )
 
 	# CIM_DeviceFile is common to WMI and WBEM.
 
@@ -271,7 +274,7 @@ class LocalBox:
 	# XML Parsing Error: not well-formed
 	# Location: http://127.0.0.1/Survol/survol/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
 	def FileUri(self,path):
-		path = path.replace("\\","/")
+		path = path.replace("\\","/") # TODO: Use normpath()
 		return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
 
 		# TODO: Consider this might be even be more powerful.
@@ -296,17 +299,20 @@ class LocalBox:
 	#
 	# TODO: PROBLEM: How can it be merged with the same address but described "from the other side" ??
 	# TODO: WE MUST ADD IN ITS PROPERTY, THE ALLEGED NODE "FROM THE OTHER SIDE".
+	# TODO: Move this to sources_types/addr/__init__.py
 	# MAYBE IT IS NOT ENOUGH (BUT SO ELEGANT), IF THIS IS THE REMOTE NODE, TO USE THE REMOTE HOST,
 	# BECAUSE IT WOULD FORBID ANY INVESTIGATION FROM ANOTHER MACHINE ??
 	#
 	# If the port is known, we could wrap the associated service in a Python script.
 	# On the other hand, it forces the usage of a service.
 	# We do not put it in a specific module because it is used everywhere and is unavoidable.
-	def AddrUri(self,addr,port,transport="tcp"):
+	def AddrUri(self,addr,socketPort,transport="tcp"):
+		# The standard id encodes the port as an integer.
+		# But addr.EntityName() displays it with getservbyport
 		try:
-			portNam = socket.getservbyport( int(port) )
-		except socket.error:
-			portNam = str(port)
+			socketPortNumber = socket.getservbyname(socketPort)
+		except:
+			socketPortNumber = int(socketPort)
 
 		# addr could be "LOCALHOST"
 		if lib_util.IsLocalAddress(addr):
@@ -314,7 +320,8 @@ class LocalBox:
 			# TODO: Should use the actual IP address.
 			addr = "127.0.0.1"
 
-		url = addr + ':' + portNam
+		url = "%s:%d" % (addr,socketPortNumber)
+
 		if transport != 'tcp':
 			# This will happen rarely.
 			url += ":" + transport
@@ -382,7 +389,11 @@ class LocalBox:
 			userHost = TruncateHostname(lib_util.currentHostname)
 			userOnly = username
 		userHost = userHost.lower() # RFC4343
-		return self.UriMake(userTp,userOnly,userHost)
+		# BEWARE: "Name","Domain"
+		# UriMake must take into account the order of the ontology
+		usrUri = self.UriMake(userTp,userOnly,userHost)
+		DEBUG("UserUri usrUri=%s",str(usrUri))
+		return usrUri
 
 	def GroupUri(self,groupname):
 		# CIM_GroupAccount ?

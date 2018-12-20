@@ -59,12 +59,12 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl, nsDepth = 1 ):
 	except wmi.x_wmi:
 		exc = sys.exc_info()[1]
 		# lib_common.ErrorMessageHtml("EXCEPT WMI nskey=%s Caught:%s" % ( nskey , str(exc) ) )
-		sys.stderr.write("WMI: Cannot connect to nskey=%s Caught:%s" % ( nskey , str(exc) ) )
+		WARNING("WMI: Cannot connect to nskey=%s Caught:%s", nskey , str(exc) )
 		return
 
 	# If the mximum level is not controlled, it loops endlessly.
 	# SubNamespace cimomUrl=rchateau-HP nskey=aspnet\Security\Security\Security\Security\Security\Security\Security\Security\Security\Secu
-	sys.stderr.write("SubNamespace cimomUrl=%s nskey=%s\n" % (cimomUrl,nskey))
+	DEBUG("SubNamespace cimomUrl=%s nskey=%s", cimomUrl,nskey)
 
 	# connWMI = lib_wmi.WmiConnect(cimomUrl,nskey)
 
@@ -75,7 +75,7 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl, nsDepth = 1 ):
 
 	try:
 		lstNamespaces = connWMI.__NAMESPACE()
-		sys.stderr.write("lstNamespaces=%s\n"%lstNamespaces)
+		DEBUG("lstNamespaces=%s",lstNamespaces)
 		# lstNamespaces=[<_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="Security">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPA
 		# CE.Name="power">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="ms_409">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESP
 		# ACE.Name="TerminalServices">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="Applications">]
@@ -95,12 +95,12 @@ def Main():
 	# entity_host = cgiEnv.GetParameters("xid")
 	entity_host = cgiEnv.GetHost()
 
-	sys.stderr.write("entity_host=%s\n" % entity_host)
+	DEBUG("entity_host=%s", entity_host)
 	entity_host = lib_wmi.NormalHostName(entity_host)
 
 	cimomUrl = entity_host
 
-	sys.stderr.write("namespaces_wmi.py cimomUrl=%s\n" % cimomUrl)
+	DEBUG("namespaces_wmi.py cimomUrl=%s", cimomUrl)
 
 	grph = cgiEnv.GetGraph()
 

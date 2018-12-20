@@ -11,7 +11,7 @@ import sys
  
 
 def MakeBusFromAddress( busAddr ):
-	sys.stderr.write("MakeBusFromAddress busAddr=%s\n" % busAddr )
+	DEBUG("MakeBusFromAddress busAddr=%s", busAddr )
 	if busAddr == "system":
 		return dbus.SystemBus()
 	if busAddr == "session":

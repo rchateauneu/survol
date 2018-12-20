@@ -41,10 +41,10 @@ def Main():
 		objNam = jmxMBean["objectName"]
 
 		if objNam != mbeanObjNam:
-			sys.stderr.write("THIS SHOULD NOT HAPPEN: %s != %s\n" % (objNam,mbeanObjNam))
+			ERROR("THIS SHOULD NOT HAPPEN: %s != %s",objNam,mbeanObjNam)
 
 		# "=sun.management.ManagementFactoryHelper$1[java.nio:type=BufferPool,name=mapped]"
-		sys.stderr.write("jmxMBean=%s\n"%jmxMBean)
+		DEBUG("jmxMBean=%s",jmxMBean)
 
 		# Not sure about the file name
 		nodeClass = survol_mbean.MakeUri( pidInt, clsNam)

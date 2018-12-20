@@ -85,7 +85,7 @@ def DisplayMappedProcesses(grph,fileName):
 				sameFil = map.path == fileName
 
 			if sameFil:
-				sys.stderr.write("Pid=%d MapPath=%s cleanMapPath=%s fileName=%s\n" % (pid,map.path,cleanMapPath,fileName))
+				DEBUG("Pid=%d MapPath=%s cleanMapPath=%s fileName=%s", pid,map.path,cleanMapPath,fileName)
 				# Maybe this is the first mapping we have found.
 				if uriMemMap == None:
 					uriMemMap = lib_common.gUriGen.MemMapUri( fileName )

@@ -28,7 +28,7 @@ def Main():
 	symbolNam = lib_util.Base64Decode(symbol_encode)
 	filNam = cgiEnv.m_entity_id_dict["File"]
 
-	sys.stderr.write("symbol=%s filNam=%s\n"% (symbolNam,filNam) )
+	DEBUG("symbol=%s filNam=%s", symbolNam,filNam)
 
 	grph = cgiEnv.GetGraph()
 

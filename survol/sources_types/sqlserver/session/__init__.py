@@ -42,7 +42,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	if pyodbcOk:
 		ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 		cnxn = pyodbc.connect(ODBC_ConnectString)
-		sys.stderr.write("Connected: %s\n" % dsnNam)
+		DEBUG("Connected: %s", dsnNam)
 		cursorConnections = cnxn.cursor()
 
 		qryConnections = """

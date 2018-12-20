@@ -25,7 +25,7 @@ def Main():
 	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 
 	modeDisp = lib_util.GuessDisplayMode()
-	sys.stderr.write("entity_mime.py entity_type=%s modeDisp=%s\n"%(entity_type,modeDisp))
+	DEBUG("entity_mime.py entity_type=%s modeDisp=%s",entity_type,modeDisp)
 
 	if not entity_type:
 		lib_common.ErrorMessageHtml("entity_mime.py needs an object")
@@ -38,7 +38,7 @@ def Main():
 		entity_module.DisplayAsMime( grph, rootNode, entity_ids_arr )
 	except:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("entity_mime.py No DisplayAsMime for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
+		ERROR("entity_mime.py No DisplayAsMime for %s %s: %s", entity_type, entity_id, str(exc) )
 		lib_common.ErrorMessageHtml("entity_mime.py No DisplayAsMime for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
 
 if __name__ == '__main__':

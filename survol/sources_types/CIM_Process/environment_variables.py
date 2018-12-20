@@ -26,7 +26,7 @@ def versiontuple(v):
 def Usable(entity_type,entity_ids_arr):
 	"""Psutil version must be at least 4.0.0"""
 	usab = versiontuple(psutil.__version__) >= versiontuple("4.0.0")
-	sys.stderr.write("psutil.__version__=%s usab=%d\n"%(psutil.__version__,usab))
+	DEBUG("psutil.__version__=%s usab=%d",psutil.__version__,usab)
 	return usab
 
 def Main():
@@ -61,7 +61,7 @@ def Main():
 
 	for envKey in envsDict :
 		envVal = envsDict[envKey]
-		sys.stderr.write("envKey=%s envVal=%s\n"%(envKey,envVal))
+		DEBUG("envKey=%s envVal=%s", envKey,envVal)
 		nodeEnvNam = lib_util.NodeLiteral(envKey)
 
 		# When a file or a directory displayed with a node,

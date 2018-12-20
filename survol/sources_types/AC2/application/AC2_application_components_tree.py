@@ -56,11 +56,11 @@ def DisplayComponentsTree(grph,configName,ac2App):
 	# TODO: PROBLEME, ON DEVRAIT ALLER CHERCHER LES SOUS-NODES AU LIEU DE TOUT REPARCOURIR !!!!!!!!!!!
 	for elt_apps in dom.getElementsByTagName('apps'):
 		# There should be one only.
-		sys.stderr.write("Founds apps\n")
+		DEBUG("Founds apps")
 
 		for elt_app in elt_apps.getElementsByTagName('app'):
 			attr_name = elt_app.getAttributeNode('name').value
-			sys.stderr.write("attr_name=%s\n"%attr_name)
+			DEBUG("attr_name=%s",attr_name)
 
 			if attr_name != ac2App:
 				continue
@@ -73,14 +73,14 @@ def DisplayComponentsTree(grph,configName,ac2App):
 				attr_component_name = elt_component.getAttributeNode('name').value
 				nodeComponent = ComponentNameToNode(configName,attr_name,attr_component_name)
 
-				sys.stderr.write("attr_component_name=%s\n"%attr_component_name)
+				DEBUG("attr_component_name=%s",attr_component_name)
 
 				AC2_component.DecorateComponentWithXml(grph,nodeComponent,elt_component)
 
 				fatherFound = False
 				for elt_father in elt_component.getElementsByTagName('father'):
 					attr_father_name = elt_father.firstChild.nodeValue
-					sys.stderr.write("attr_father_name=%s\n"%attr_father_name)
+					DEBUG("attr_father_name=%s",attr_father_name)
 					nodeFather = ComponentNameToNode(configName,attr_name,attr_father_name)
 
 					grph.add( ( nodeFather, AC2.propParent, nodeComponent ) )
@@ -97,7 +97,7 @@ def Main():
 
 	ac2App = cgiEnv.m_entity_id_dict["App"]
 
-	sys.stderr.write("ac2File=%s ac2App=%s\n"% (ac2File,ac2App) )
+	DEBUG("ac2File=%s ac2App=%s", ac2File,ac2App)
 
 	grph = cgiEnv.GetGraph()
 

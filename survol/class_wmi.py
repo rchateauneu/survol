@@ -27,7 +27,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-	sys.stderr.write("nameSpace=%s className=%s entity_namespace_type=%s\n"%(nameSpace,className,entity_namespace_type))
+	DEBUG("nameSpace=%s className=%s entity_namespace_type=%s", nameSpace,className,entity_namespace_type)
 
 	cimomUrl = cgiEnv.GetHost()
 
@@ -78,11 +78,7 @@ def Main():
 	# class CIM_Directory : CIM_LogicalFile
 	# {
 	# };
-	sys.stderr.write("wmiClass=%s\n"%str(wmiClass))
-
-	for k in wmiClass():
-		sys.stderr.write("k\n")
-		break
+	DEBUG("wmiClass=%s",str(wmiClass))
 
 	# Some examples of WMI queries.
 	# http://timgolden.me.uk/python/wmi/tutorial.html
@@ -117,7 +113,7 @@ def Main():
 
 
 		numLstObj = len( lstObj )
-		sys.stderr.write("className=%s type(wmiClass)=%s len=%d\n" % ( className, str(type(wmiClass)), numLstObj ) )
+		DEBUG("className=%s type(wmiClass)=%s len=%d", className, str(type(wmiClass)), numLstObj )
 
 		if numLstObj == 0:
 			grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral("No instances in this class") ) )
@@ -132,13 +128,13 @@ def Main():
 			except UnicodeEncodeError:
 				# UnicodeEncodeError: 'ascii' codec can't encode characters in position 104-108: ordinal not in range(128)
 				exc = sys.exc_info()[1]
-				sys.stderr.write("Exception %s\n"%str(exc))
+				WARNING("Exception %s",str(exc))
 				continue
 
 			# sys.stderr.write("fullPth=%s\n" % fullPth)
 
 			if fullPth == "":
-				sys.stderr.write("WARNING Empty path wmiObj=%s\n" % str(wmiObj))
+				WARNING("Empty path wmiObj=%s", str(wmiObj))
 				# The class Win32_PnPSignedDriver (Maybe others) generates dozens of these messages.
 				# This is not really an issue as this class should be hidden from applications.
 				# WARNING Empty path wmiObj=
@@ -166,7 +162,7 @@ def Main():
 			# fullPth=\\RCHATEAU-HP\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
 			fullPth = fullPth.replace("&","&amp;")
 			wmiInstanceUrl = lib_util.EntityUrlFromMoniker( fullPth )
-			sys.stderr.write("wmiInstanceUrl=%s\n"%wmiInstanceUrl)
+			DEBUG("wmiInstanceUrl=%s",wmiInstanceUrl)
 
 			wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
 

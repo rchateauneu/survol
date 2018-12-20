@@ -37,7 +37,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	except dbus.exceptions.DBusException:
 		# Helas: "org.freedesktop.DBus.Error.AccessDenied"
 		exc = sys.exc_info()[1]
-		sys.stderr.write("AddInfo Caught=%s\n" % str(exc) )
+		WARNING("AddInfo Caught=%s", str(exc) )
 		# Apparently happens with the first line.
 		return
 	usrnam = pwd.getpwuid( uid ).pw_name

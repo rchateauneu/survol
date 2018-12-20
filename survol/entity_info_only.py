@@ -62,9 +62,9 @@ def AddInformation(grph,rootNode,entity_id, entity_type):
 
 			except AttributeError:
 				exc = sys.exc_info()[1]
-				sys.stderr.write("No AddInfo for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
+				ERROR("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
 	else:
-		sys.stderr.write("No lib_entities for %s %s\n"%( entity_type, entity_id ))
+		WARNING("No lib_entities for %s %s", entity_type, entity_id )
 
 def Main():
 	# This can process remote hosts because it does not call any script, just shows them.

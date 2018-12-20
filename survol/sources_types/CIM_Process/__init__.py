@@ -114,8 +114,9 @@ def AddInfo(grph,node,entity_ids_arr):
 	# except psutil._error.NoSuchProcess:
 	# Cannot use this exception on some psutil versions
 	# AttributeError: 'ModuleWrapper' object has no attribute '_error'
-	except Exception:
+	except Exception as exc:
 		exc = sys.exc_info()[1]
+		ERROR("CIM_Process.AddInfo. Caught:%s",exc)
 		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
 
 	# Needed for other operations.

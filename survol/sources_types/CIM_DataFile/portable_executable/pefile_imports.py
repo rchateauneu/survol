@@ -92,7 +92,7 @@ def Main():
 
 	win_module = cgiEnv.GetId()
 
-	sys.stderr.write("win_module=%s\n"%win_module)
+	DEBUG("win_module=%s",win_module)
 
 	lib_win32.CheckWindowsModule(win_module)
 

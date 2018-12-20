@@ -55,6 +55,7 @@ def QueryToNodesList(sqlQuery,connectionKW,list_of_tables,defaultSchemaName=None
 		nodesList.append( tmpNode )
 	return nodesList
 
+# TODO: This produces a nice message but what is also needed is the decoding of the query.
 def EntityName(entity_ids_arr):
 	sqlQuery = entity_ids_arr[0]
 	dbNam = entity_ids_arr[1]

@@ -129,11 +129,11 @@ def AddInfo(grph,node,entity_ids_arr):
 	productIdentifyingNumber = lib_util.six_u(entity_ids_arr[0])
 
 
-	sys.stderr.write("productIdentifyingNumber=%s\n"%str(productIdentifyingNumber))
+	DEBUG("productIdentifyingNumber=%s",str(productIdentifyingNumber))
 	try:
 		winProd = populate_product(productIdentifyingNumber)
 
-		sys.stderr.write("winProd=%s\n"%str(winProd))
+		DEBUG("winProd=%s",str(winProd))
 
 		AddInstallSource(grph,node,winProd)
 
@@ -244,7 +244,7 @@ def AddInfo_DEPRECATED(grph,node,entity_ids_arr):
 		winProds = wmiCnnct.Win32_Product(Caption=productCaption)
 
 		nbProds = len(winProds)
-		sys.stderr.write("nbProds=%d\n"%nbProds)
+		DEBUG("nbProds=%d",nbProds)
 		if nbProds > 0:
 			winProd = winProds[0]
 			nodeInstallSource = lib_common.gUriGen.FileUri( winProd.InstallSource )

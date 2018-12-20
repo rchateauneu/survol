@@ -46,7 +46,7 @@ def GetSLPAttributes(serviceName,slpHost):
 	splitResuFindAttrs = outStreamFindAttrs.split("\n")
 
 	for linResuFindAttrs in splitResuFindAttrs:
-		sys.stderr.write("GetSLPAttributes slpHost=%s linResuFindAttrs=%s\n"%(slpHost,linResuFindAttrs))
+		DEBUG("GetSLPAttributes slpHost=%s linResuFindAttrs=%s",slpHost,linResuFindAttrs)
 		# service:survol:http://rchateau-hp:8000/survol/entity.py,65535
 		# service:wbem:http://rchateau-hp,65535
 		mtchFindAttrs = re.match( r'\(([^=]*)=([^)]*)\)', linResuFindAttrs )
@@ -55,7 +55,7 @@ def GetSLPAttributes(serviceName,slpHost):
 			slpAttrVal = mtchFindAttrs.group(2)
 			dictAttributes[slpAttrKey] = slpAttrVal
 		else:
-			sys.stderr.write("No match for attributes:%s\n"%linResuFindAttrs)
+			DEBUG("No match for attributes:%s",linResuFindAttrs)
 
 	return dictAttributes
 
@@ -71,7 +71,7 @@ def GetSLPServices(serviceName):
 	splitResuSlpTool = outStreamSlpTool.split("\n")
 
 	for linResuSlpTool in splitResuSlpTool:
-		sys.stderr.write("GetSLPServices serviceName=%s linResuSlpTool=%s\n"%(serviceName,linResuSlpTool))
+		DEBUG("GetSLPServices serviceName=%s linResuSlpTool=%s",serviceName,linResuSlpTool)
 		# service:survol:http://rchateau-hp:8000/survol/entity.py,65535
 		# service:wbem:http://rchateau-hp,65535
 		mtchSplTool = re.match( r'service:[^:]*:([^,]*)(.*)', linResuSlpTool )
@@ -80,6 +80,6 @@ def GetSLPServices(serviceName):
 			slpAttrs = GetSLPAttributes(serviceName,slpHost)
 			dictServices[slpHost] = slpAttrs
 		else:
-			sys.stderr.write("No match:%s\n"%linResuSlpTool)
+			DEBUG("No match:%s",linResuSlpTool)
 
 	return dictServices

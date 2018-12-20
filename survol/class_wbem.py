@@ -172,7 +172,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-	sys.stderr.write("nameSpace=%s className=%s entity_namespace_type=%s\n" % ( nameSpace, className, entity_namespace_type ) )
+	DEBUG("nameSpace=%s className=%s entity_namespace_type=%s", nameSpace, className, entity_namespace_type )
 
 	entity_host = cgiEnv.GetHost()
 
@@ -222,7 +222,7 @@ def Main():
 		DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex)
 
 	numInstances = len(inst_names)
-	sys.stderr.write("numInstances=%d startIndex=%d\n"%(numInstances,startIndex))
+	DEBUG("numInstances=%d startIndex=%d",numInstances,startIndex)
 
 	# This displays one link on the same page, with specific values of these parameters.
 	# The other parameters are not changed.

@@ -41,24 +41,23 @@ def Main():
 			machSplit = None
 		else:
 			machSplit = machineName.split('.')[0]
+		WARNING("machineName:%s machSplit:%s",machineName,machSplit)
 		domainController = win32net.NetGetDCName (machSplit, None)
 	except pywintypes.error:
 		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml(str(exc))
+		lib_common.ErrorMessageHtml("NetGetDCName:machSplit=%s %s"%(machSplit,str(exc)))
 
 	# This returns the domain name, for example "EURO".
 	domainName = win32net.NetUserModalsGet (domainController, 2)['domain_name']
-	sys.stderr.write("Domain name:" + domainName + "\n")
-	sys.stderr.write("Domaine Controller:"+domainController + "\n")
-	sys.stderr.write("Info="+str(win32net.NetUserModalsGet (domainController, 2)) + "\n")
+	DEBUG("Domain name:%s",domainName)
+	DEBUG("Domaine Controller:%s",domainController)
+	DEBUG("Info=%s",str(win32net.NetUserModalsGet (domainController, 2)))
 
 	nodeDomain = lib_common.gUriGen.SmbDomainUri( domainName )
 	nodeController = lib_common.gUriGen.HostnameUri( domainController )
 
 	grph.add( (nodeDomain, pc.property_controller, nodeController ) )
 
-	# NON: C'est quelque chose d'autre !!!
-	sys.stderr.write("About to loop on machines\n")
 	cnt = 0
 
 	# Sounds like these are the machines in the domain...
@@ -72,14 +71,14 @@ def Main():
 		if machine.Name[0] == '$':
 			continue
 
-		sys.stderr.write("machineName="+machine.Name+"\n")
+		DEBUG("machineName=%s",machine.Name)
 		nodeMachine = lib_common.gUriGen.HostnameUri( machine.Name )
 		grph.add( (nodeDomain, pc.property_domain, nodeMachine ) )
 		cnt += 1
 		# TODO: It works fine until 1000 nodes, but after that takes ages to run. What can we do ?????
 		# HARDCODE_LIMIT
 		if cnt > 1000:
-			sys.stderr.write("COULD NOT RUN IT TILL THE END\n")
+			WARNING("COULD NOT RUN IT TILL THE END")
 			break
 
 	cgiEnv.OutCgiRdf()

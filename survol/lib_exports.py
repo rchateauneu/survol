@@ -101,12 +101,16 @@ new_graphiz = True # sys.version_info >= (3,)
 
 # TODO: This is temporary because old graphviz versions dot not implement that.
 def DotBold(str):
-	return "<b>%s</b>" % str if new_graphiz else str
+	if not str: return ""
+	return "<b>%s</b>" % str if new_graphiz and str else str
 
 def DotUL(str):
-	return "<u>%s</u>" % str if new_graphiz else str
+	if not str: return ""
+	return "<u>%s</u>" % str if new_graphiz and str else str
 
+# Do not italicize empty string otherwise "Error: syntax error in line 1 ... <i></i> ..."
 def DotIt(str):
+	if not str: return ""
 	return "<i>%s</i>" % str if new_graphiz else str
 
 ################################################################################
@@ -197,7 +201,7 @@ class NodeJson:
 		self.m_info_dict = dict()
 		self.m_index = NodeJsonNumber
 
-		the_survol_url = lib_util.survol_HTMLParser().unescape(rdf_node)
+		the_survol_url = lib_util.survol_unescape(rdf_node)
 		# Hack, specific to OVH web host, that we use also for python hosting,
 		# although it is not designed for that..
 		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
@@ -291,7 +295,7 @@ def WriteJsonHeader( bufJson, withContentLength = False ):
 # This is a standard for returning errors.
 # http://labs.omniti.com/labs/jsend
 def WriteJsonError(message):
-	sys.stderr.write("WriteJsonError message="+message)
+	WARNING("WriteJsonError message="+message)
 	jsonErr = {}
 	jsonErr["status"] = "error"
 	jsonErr["message"] = message
@@ -333,8 +337,9 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# This applies only to entity.py : In rendering based on Json, scripts are not displayed as nodes,
 		# but in hierarchical menus. The node must not appear at all.
 
+		# TODO: Should probably also eliminate pc.property_rdf_data_nolist2 etc ... See lib_client.
 		if pred == pc.property_script:
-			sys.stderr.write("continue subj=%s obj=%s\n"%(subj,obj))
+			DEBUG("continue subj=%s obj=%s",subj,obj)
 			continue
 
 		# Normal data scripts are not accepted. This should apply only to file_directory.py and file_to_mime.py
@@ -390,7 +395,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 		# has the form: "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
 
 		# HTTP_MIME_URL
-		the_survol_nam = lib_util.survol_HTMLParser().unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
+		the_survol_nam = lib_util.survol_unescape(nod_titl) # MUST UNESCAPE HTML ENTITIES !
 
 		# TODO: Use the same object for lookup and Json.
 		nodes[nod_id] = {
@@ -511,22 +516,14 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 # Used by all CGI scripts when they have finished adding triples to the current RDF graph.
 # This just writes a RDF document which can be used as-is by browser,
 # or by another scripts which will process this RDF as input, for example when merging RDF data.
-# Consider adding reformatting when the output is a browser ... if this can be detected !!
-# It is probably possible with the CGI environment variable HTTP_USER_AGENT.
-# Also, the display preference could be stored with the Python library cookielib.
-#
-# AUSSI: On pourrait, sous certaines conditions, transformer la sortie en HTML ou en SVG
-# (Et/ou envoyer du Javascript avec des appels rdfquery pour affichage dans le navigateur)
-# Ca pourrait dependre d'une variable CGI: mode=RDF/HTML etc...
-# Ici: On peut prendre la valeur de "mode" en dissequant l'URL du Referer.
-#
 def Grph2Rdf(grph):
 	lib_util.WrtHeader('text/rdf')
 
 	# Format support can be extended with plugins,
 	# but 'xml', 'n3', 'nt', 'trix', 'rdfa' are built in.
 	out_dest = lib_util.DfltOutDest()
-	grph.serialize( destination = out_dest, format="xml")
+	# grph.serialize( destination = out_dest, format="xml")
+	lib_kbase.triplestore_to_stream_xml(grph,out_dest)
 
 
 def FontString():
@@ -568,6 +565,8 @@ def UrlWWW(pageHtml):
 	#sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)
 	return scriptD3Url
 
+# This logic should go to lib_client.py
+
 # This returns an URL to the Javascript D3 interface, editing the current data.
 def UrlToMergeD3():
 	callingUrl = ModedUrl("")
@@ -575,6 +574,8 @@ def UrlToMergeD3():
 	htbinIdx = callingUrl.find(htbinPrefixScript)
 	urlWithoutHost = callingUrl[htbinIdx:]
 	#sys.stderr.write("UrlToMergeD3 urlWithoutHost=%s\n"%(urlWithoutHost))
+
+	# Consider lib_client.py
 
 	# Maybe this URL is already a merge of B64-encoded URLs:
 	htbinPrefixMergeScript = "/survol/merge_scripts.py"

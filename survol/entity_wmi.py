@@ -29,7 +29,7 @@ def WmiReadWithMoniker( cgiEnv, cgiMoniker ):
 		return [ objWmi ]
 	except Exception:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("cgiMoniker=%s Caught:%s\n" % ( cgiMoniker, str(exc) ) )
+		DEBUG("cgiMoniker=%s Caught:%s", cgiMoniker, str(exc) )
 		return None
 
 def WmiReadWithQuery( cgiEnv, connWmi, className ):
@@ -118,7 +118,7 @@ def DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,ma
 			doNotDisplay = False
 
 		if doNotDisplay:
-			sys.stderr.write("Cannot display:%s\n"%str(getattr(objWmi,prpName)))
+			WARNING("Cannot display:%s",str(getattr(objWmi,prpName)))
 			value = "Cannot be displayed"
 		else:
 			# BEWARE, it could be None.
@@ -233,7 +233,7 @@ def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
 			try:
 				wmiVal = getattr(objWmi,survKey)
 			except KeyError:
-				sys.stderr.write("AddSurvolObjectFromWmi className=%s no value for key=%s\n"%(className,survKey))
+				INFO("AddSurvolObjectFromWmi className=%s no value for key=%s",className,survKey)
 				wmiVal = ""
 			propValuesArray.append(wmiVal)
 
@@ -278,17 +278,17 @@ def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
 
 # All instances that are associated with a particular source instance.
 def DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker):
-	sys.stderr.write("DisplayObjectAssociators\n")
+	DEBUG("DisplayObjectAssociators\n")
 	# It is possible to restrict the associators to a specific class only.
 	for anAssoc in objWmi.associators():
 		# assocMoniker=\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"
 		assocMoniker = str(anAssoc.path())
-		sys.stderr.write("DisplayObjectAssociators anAssoc Moniker=%s\n"%assocMoniker)
+		DEBUG("DisplayObjectAssociators anAssoc Moniker=%s",assocMoniker)
 
 		# derivation=(u'CIM_UnitaryComputerSystem', u'CIM_ComputerSystem', u'CIM_System', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
 		assocDerivation = anAssoc.derivation()
 
-		sys.stderr.write("DisplayObjectAssociators anAssoc derivation=%s\n"%str(assocDerivation))
+		DEBUG("DisplayObjectAssociators anAssoc derivation=%s",str(assocDerivation))
 		# sys.stderr.write("DisplayObjectAssociators anAssoc=%s\n"%str(dir(anAssoc)))
 
 		# TODO: Consider these methods: associated_classes, associators, derivation,
@@ -381,7 +381,7 @@ def Main():
 	wmiHost = cgiEnv.GetHost()
 
 	# wmiHost=RCHATEAU-HP ns=root\cimv2 cls=Win32_ComputerSystem id=Name="RCHATEAU-HP"
-	sys.stderr.write("entity_wmi.py wmiHost=%s ns=%s cls=%s id=%s\n" % ( wmiHost, nameSpace, className, cgiEnv.m_entity_id) )
+	DEBUG("wmiHost=%s ns=%s cls=%s id=%s", wmiHost, nameSpace, className, cgiEnv.m_entity_id)
 
 	grph = cgiEnv.GetGraph()
 
@@ -394,7 +394,7 @@ def Main():
 	# Try to read the moniker, which is much faster,
 	# but it does not always work if we do not have all the properties.
 	cgiMoniker = cgiEnv.GetParameters("xid")
-	sys.stderr.write("entity_wmi.py cgiMoniker=[%s]\n" % cgiMoniker )
+	DEBUG("entity_wmi.py cgiMoniker=[%s]", cgiMoniker )
 
 	objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )
 	if objList is None:
@@ -414,7 +414,7 @@ def Main():
 
 	# In principle, there should be only one object to display.
 	for objWmi in objList:
-		sys.stderr.write("entity_wmi.py objWmi=[%s]\n" % str(objWmi) )
+		DEBUG("entity_wmi.py objWmi=[%s]", str(objWmi) )
 
 		DispWmiProperties(grph,wmiInstanceNode,objWmi,displayNoneValues,className,mapPropUnits)
 
@@ -426,7 +426,7 @@ def Main():
 				DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker)
 			except:
 				exc = sys.exc_info()[1]
-				sys.stderr.write("entity_wmi.py Exception=%s\n" % str(exc) )
+				WARNING("entity_wmi.py Exception=%s", str(exc) )
 		else:
 			# Prefixc with a dot so it is displayed first.
 			grph.add( ( wmiInstanceNode, lib_common.MakeProp(".REFERENCES"), lib_common.NodeLiteral( "DISABLED" ) ) )

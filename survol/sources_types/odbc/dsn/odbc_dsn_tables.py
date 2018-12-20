@@ -23,7 +23,7 @@ def Main():
 
     dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-    sys.stderr.write("dsn=(%s)\n" % dsnNam )
+    DEBUG("dsn=(%s)", dsnNam )
 
     nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
 
@@ -31,28 +31,33 @@ def Main():
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
-        sys.stderr.write("Connected: %s\n" % dsnNam)
+        DEBUG("Connected: %s", dsnNam)
         cursor = cnxn.cursor()
 
         # http://pyodbc.googlecode.com/git/web/docs.html
         # Type: 'TABLE','VIEW','SYSTEM TABLE','GLOBAL TEMPORARY','LOCAL TEMPORARY','ALIAS','SYNONYM',
         # or a data source-specific type name.
-        colList = ( "Catalog", "Schema", "Table", "Type")
+        mapIndexToProp = {
+             0: pc.property_odbc_catalog,
+             1: pc.property_odbc_schema,
+             # 3: pc.property_odbc_table,
+             3: pc.property_odbc_type }
 
         # This avoids cursor.fetchall()
         for row in cursor.tables():
             # TODO: What are the other properties ??
             tabNam = row.table_name
-            # sys.stderr.write("tabNam=%s\n" % tabNam)
 
             nodTab = survol_odbc_table.MakeUri( dsnNam, tabNam )
             grph.add( (nodeDsn, pc.property_odbc_table, nodTab ) )
 
-            for idxCol in ( 0, 1, 3):
-                grph.add( (nodTab, lib_common.NodeLiteral(colList[idxCol]), lib_common.NodeLiteral(row[idxCol]) ) )
+            # This prints only some columns.
+            for idxCol in mapIndexToProp:
+                predicateNode = mapIndexToProp[idxCol]
+                grph.add( (nodTab, predicateNode, lib_common.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
-        sys.stderr.write("tabNam=%s\n" % str(sys.exc_info()))
+        WARNING("tabNam=%s", str(sys.exc_info()))
         exc = sys.exc_info()[0]
         lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info() ) ) )
 

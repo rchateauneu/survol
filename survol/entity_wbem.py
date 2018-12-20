@@ -20,7 +20,7 @@ except ImportError:
 # If ExecQuery is not supported like on OpenPegasus, try to build one instance.
 def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
 	aQry = lib_util.SplitMonikToWQL(splitMonik,className)
-	sys.stderr.write("WbemPlainExecQuery nameSpace=%s aQry=%s\n" % (nameSpace,aQry) )
+	DEBUG("WbemPlainExecQuery nameSpace=%s aQry=%s", nameSpace,aQry)
 	# aQry = 'select * from CIM_System'
 	# aQry = 'select * from CIM_ComputerSystem'
 	try:
@@ -32,7 +32,7 @@ def WbemPlainExecQuery( conn, className, splitMonik, nameSpace ):
 		# Problem on Windows with OpenPegasus.
 		# aQry=select * from CIM_UnitaryComputerSystem where CreationClassName="PG_ComputerSystem"and Name="rchateau-HP". ns=root/cimv2. Caught:(7, u'CIM_ERR_NOT_SUPPORTED')
 		msgExcFirst = str(exc)
-		sys.stderr.write("WbemPlainExecQuery aQry=%s Exc=%s\n" % ( aQry, msgExcFirst ) )
+		WARNING("WbemPlainExecQuery aQry=%s Exc=%s", aQry, msgExcFirst )
 		return None
 
 
@@ -47,7 +47,7 @@ def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 
 		# wbemInstName = pywbem.CIMInstanceName( className, keybindings = keyBnds, host = cimomUrl, namespace = nameSpace )
 		wbemInstName = pywbem.CIMInstanceName( className, keybindings = keyBnds, namespace = "root/CIMv2" )
-		sys.stderr.write("keyBnds=%s wbemInstName=%s\n" %(str(keyBnds),str(wbemInstName)))
+		DEBUG("keyBnds=%s wbemInstName=%s", str(keyBnds),str(wbemInstName))
 
 		wbemInstObj = conn.GetInstance( wbemInstName )
 
@@ -55,7 +55,7 @@ def WbemNoQueryOneInst( conn, className, splitMonik, nameSpace ):
 	except:
 		exc = sys.exc_info()[1]
 		# lib_common.ErrorMessageHtml("msgExcFirst="+msgExcFirst+" wbemInstName=" + str(wbemInstName) + ". ns="+nameSpace+". Caught:"+str(exc))
-		sys.stderr.write("WbemNoQueryOneInst className=" + str(className) + ". ns="+nameSpace+".\nCaught:"+str(exc) + "\n")
+		WARNING("WbemNoQueryOneInst className=" + str(className) + ". ns="+nameSpace+".\nCaught:"+str(exc))
 		return None
 
 # If ExecQuery is not supported like on OpenPegasus, read all instances and filters the good ones. VERY SLOW.
@@ -114,7 +114,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
 	entity_id = cgiEnv.GetId()
-	sys.stderr.write("entity_id=%s\n" % (entity_id))
+	DEBUG("entity_id=%s", entity_id)
 	if entity_id == "":
 		lib_common.ErrorMessageHtml("No entity_id")
 
@@ -123,11 +123,11 @@ def Main():
 	cimomUrl = cgiEnv.GetHost()
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-	sys.stderr.write("entity_wbem.py cimomUrl=%s nameSpace=%s className=%s\n" % (cimomUrl,nameSpace,className))
+	DEBUG("entity_wbem.py cimomUrl=%s nameSpace=%s className=%s", cimomUrl,nameSpace,className)
 
 	if nameSpace == "":
 		nameSpace = "root/cimv2"
-		sys.stderr.write("Setting namespace to default value\n")
+		INFO("Setting namespace to default value\n")
 
 
 	if className == "":
@@ -145,7 +145,7 @@ def Main():
 
 	splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )
 
-	sys.stderr.write("entity_wbem.py nameSpace=%s className=%s cimomUrl=%s\n" %(nameSpace,className,cimomUrl))
+	DEBUG("entity_wbem.py nameSpace=%s className=%s cimomUrl=%s",nameSpace,className,cimomUrl)
 
 	# This works:
 	# conn = pywbem.WBEMConnection("http://192.168.0.17:5988",("pegasus","toto"))
@@ -156,17 +156,15 @@ def Main():
 
 
 	instLists = WbemPlainExecQuery( conn, className, splitMonik, nameSpace )
-	sys.stderr.write("entity_wbem.py instLists=%s\n"%str(instLists))
+	DEBUG("entity_wbem.py instLists=%s",str(instLists))
 	if instLists is None:
 		instLists = WbemNoQueryOneInst( conn, className, splitMonik, nameSpace )
 		if instLists is None:
 			instLists = WbemNoQueryFilterInstances( conn, className, splitMonik, nameSpace )
 
-	# HELAS, ON A UN PROBLEME D OBJECTS DUPLIQUES:
+	# TODO: Some objects are duplicated.
 	# 'CSCreationClassName'   CIM_UnitaryComputerSystem Linux_ComputerSystem
 	# 'CreationClassName'     PG_UnixProcess            TUT_UnixProcess
-	# TODO: Dans un premier temps on va virer le provider
-	# qui cree des obstacles peut-etre artificiels, en tout cas irrealistes.
 	numInsts = len(instLists)
 
 	# If there are duplicates, adds a property which we hope is different.
@@ -200,7 +198,6 @@ def Main():
 		else:
 			uriInst = lib_common.RemoteBox(hostOnly).UriMakeFromDict(className, dictProps)
 
-		# PEUT-ETRE UTILISER LA VERITABLE CLASSE, MAIS IL FAUT PART LA SUITE ATTEINDRE LA CLASSE DE BASE.
 		grph.add( ( rootNode, lib_common.MakeProp(className), uriInst ) )
 
 		AddNamespaceLink(grph, rootNode, nameSpace, cimomUrl, className)
@@ -215,9 +212,7 @@ def Main():
 			if not inameVal is None:
 				grph.add( ( uriInst, lib_common.MakeProp(inameKey), lib_common.NodeLiteral(inameVal) ) )
 
-
-		# TODO: Appeler la methode Associators(). Idem References().
-
+		# TODO: Should call Associators(). Same for References().
 
 	cgiEnv.OutCgiRdf()
 

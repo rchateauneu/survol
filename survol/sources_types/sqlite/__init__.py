@@ -37,7 +37,7 @@ def DatabaseEnvParams(processId):
 	# This is imported here to avoid circular references.
 	from sources_types import CIM_Process
 
-	sys.stderr.write("\nDatabaseEnvParams processId=%s\n"%(str(processId)))
+	DEBUG("\nDatabaseEnvParams processId=%s",str(processId))
 	# Get the list of files open by the process.
 	try:
 		proc_obj = CIM_Process.PsutilGetProcObj(int(processId))
@@ -49,14 +49,14 @@ def DatabaseEnvParams(processId):
 	listArgs = []
 	for filObj in fillist:
 		filNam = filObj.path
-		sys.stderr.write("DatabaseEnvParams processId=%s filNam=%s\n"%(str(processId),filNam))
+		DEBUG("DatabaseEnvParams processId=%s filNam=%s",str(processId),filNam)
 		if IsSqliteDatabase(filNam):
-			sys.stderr.write("    DatabaseEnvParams ADDING filNam=%s\n"%(filNam))
+			DEBUG("DatabaseEnvParams ADDING filNam=%s",filNam)
 			filNamClean = filNam.replace("\\","/")
 			filDef = { "File" : filNamClean }
 			listArgs.append(filDef)
 
-	sys.stderr.write("DatabaseEnvParams len=%d\n\n"%(len(listArgs) ))
+	DEBUG("DatabaseEnvParams len=%d\n",len(listArgs) )
 
 	return ( "sqlite/query", listArgs )
 
@@ -66,7 +66,7 @@ def AddNodesTablesViews(grph,filNode,dbFilNam):
 	from sources_types.sqlite import table as sqlite_table
 	from sources_types.sqlite import view as sqlite_view
 
-	sys.stderr.write("AddNodesTablesViews dbFilNam=%s\n"%(dbFilNam ))
+	DEBUG("AddNodesTablesViews dbFilNam=%s",dbFilNam )
 	try:
 		con = sqlite3.connect(dbFilNam)
 		cursor = con.cursor()

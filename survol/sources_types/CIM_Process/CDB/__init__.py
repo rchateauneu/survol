@@ -14,7 +14,7 @@ Usable = lib_util.UsableWindows
 # HKLM\System\CCS\Control\KnownDLLs\DllDirectory32, respectively "%SystemRoot%\system32"
 # or "%SystemRoot%\syswow64".
 def TestIfKnownDll(filNam):
-	sys.stderr.write("TestIfKnownDll filNam=%s\n"%filNam)
+	DEBUG("TestIfKnownDll filNam=%s",filNam)
 	if not filNam.upper().endswith(".DLL"):
 		filNam += ".DLL"
 
