@@ -29,7 +29,7 @@ def Main():
 	# TODO: But when joining with ALL_OBJECTS, most rows are gone. So what to do ?
 	sql_query = "select distinct procedure_name from all_procedures where object_type='PACKAGE' " \
 				"and owner='" + oraSchema + "' and object_name='" + oraPackage + "'"
-	sys.stderr.write("sql_query=%s\n" % sql_query )
+	DEBUG("sql_query=%s", sql_query )
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	propProcToPackage = lib_common.MakeProp("Package")

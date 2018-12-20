@@ -47,13 +47,13 @@ def Main():
 	# This has to be in the path. Is it the 32 bits or 64 bits one ?
 	depends_bin = "depends.exe"
 
-	sys.stderr.write("depends_bin=%s\n" % (depends_bin) )
+	DEBUG("depends_bin=%s", depends_bin)
 
 	tmpFilObj = lib_common.TmpFile("depends")
 	tmpOutFil = tmpFilObj.Name
 	args = [ depends_bin, "/c","/OC:", tmpOutFil, win_module]
 
-	sys.stderr.write("Depends command=%s\n"%str(args))
+	DEBUG("Depends command=%s",str(args))
 
 	grph = cgiEnv.GetGraph()
 
@@ -68,7 +68,7 @@ def Main():
 		# Wait for the end, otherwise the file will not be ready.
 
 	try:
-		sys.stderr.write("Depends tmpOutFil=%s\n"%(tmpOutFil))
+		DEBUG("Depends tmpOutFil=%s",tmpOutFil)
 		input_file = open(tmpOutFil, 'r')
 	except Exception:
 		exc = sys.exc_info()[1]

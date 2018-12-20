@@ -25,14 +25,14 @@ def Main():
 
 	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-	sys.stderr.write("dsn=(%s)\n" % dsnNam)
+	DEBUG("dsn=(%s)", dsnNam)
 
 	nodeDsn = survol_sqlserver_dsn.MakeUri(dsnNam)
 
 	ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 	try:
 		cnxn = pyodbc.connect(ODBC_ConnectString)
-		sys.stderr.write("Connected: %s\n" % dsnNam)
+		DEBUG("Connected: %s", dsnNam)
 		cursorQueries = cnxn.cursor()
 
 		qryQueries = """
@@ -52,7 +52,7 @@ def Main():
 		propSqlServerStatus = lib_common.MakeProp("Status")
 
 		for rowQry in cursorQueries.execute(qryQueries):
-			sys.stderr.write("rowQry.session_id=(%s)\n" % rowQry.session_id)
+			DEBUG("rowQry.session_id=(%s)", rowQry.session_id)
 			nodeSession = session.MakeUri(dsnNam, rowQry.session_id)
 
 			# A bit of cleanup.

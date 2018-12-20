@@ -2,7 +2,8 @@ import re
 import sys
 import math
 
-# This prints a partitions of strings list: In our context, this is a map of list of strings.
+# This prints a clusterization of a strings list.
+# In our context, this is a map of list of strings, which must be clusterised.
 # It is possible that instead of a list of strings, this may be a sub-partition.
 # It will be recursively printed.
 # The key is the string (or the regular expression) which "summarizes" the cluster.

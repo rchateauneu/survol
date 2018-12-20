@@ -84,7 +84,7 @@ def GetArpEntriesLinux():
 		if linSplit[1] == "<incomplete>":
 			linSplit[1] = ""
 
-		sys.stderr.write("Split=%s\n"%str(linSplit))
+		DEBUG("Split=%s",str(linSplit))
 
 		yield( linSplit )
 

@@ -50,7 +50,7 @@ def Main():
 
 	for objUser in listUsers:
 		namUser = objUser["name"]
-		sys.stderr.write("q=%s\n"%(namUser))
+		DEBUG("q=%s",namUser)
 
 		nodeUser = survol_rabbitmq_user.MakeUri(configNam,namUser)
 

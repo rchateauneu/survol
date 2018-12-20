@@ -26,7 +26,7 @@ def RunGdbCommand(the_pid,command):
 
 	# TODO: See python/__init__.py which also runs a gdb command.
 	gdb_cmd = [ "gdb", "-q", "-p", str(the_pid), "-x", gdbFilNam ]
-	sys.stderr.write( "gdb command=%s\n" % ( " ".join( gdb_cmd ) ) )
+	DEBUG( "gdb command=%s", " ".join( gdb_cmd ) )
 
 	try:
 		gdb_pipe = lib_common.SubProcPOpen(gdb_cmd)
@@ -47,7 +47,7 @@ def RunGdbCommand(the_pid,command):
 	# Attaching to process 6513
 	# Reading symbols from /usr/bin/kdeinit...(no debugging symbols found)...done.
 	for lin in gdb_last_output.split('\n'):
-		sys.stderr.write("rungdb:%s\n" % (lin) )
+		DEBUG("rungdb:%s", lin )
 		# Not sure the prompt is displayed when in non-interactive mode.
 		if lin.startswith("(gdb)"): continue
 		if lin.startswith("Reading symbols "): continue
@@ -56,7 +56,7 @@ def RunGdbCommand(the_pid,command):
 
 
 	if len(gdb_err) != 0:
-		sys.stderr.write("Err:%s\n" % (gdb_err) )
+		DEBUG("Err:%s", gdb_err)
 		lib_common.ErrorMessageHtml("No gdb output:"+gdb_err)
 
 	return resu
@@ -89,7 +89,7 @@ def PassThreads(the_pid, execName, grph, procNode):
 	lines = RunGdbCommand( the_pid, "thread apply all bt" )
 
 	for lin in lines:
-		sys.stderr.write("Gdb1:%s\n" % (lin) )
+		DEBUG("Gdb1:%s", lin )
 
 		# TODO: On Linux, the light weight process is another process.
 		# Thread 1 (Thread -1237260592 (LWP 6513)):
@@ -114,13 +114,13 @@ def PassNoThreads(the_pid, execName, grph, procNode):
 	lines = RunGdbCommand( the_pid, "bt" )
 
 	for lin in lines:
-		sys.stderr.write("Gdb2:%s\n" % (lin) )
+		DEBUG("Gdb2:%s", lin )
 
 		callNodeNew = CallParse( execName, grph, procNode, callNodePrev, lin )
 
 		# Reached the end of the call stack.
 		if callNodeNew == None and callNodePrev != None:
-			sys.stderr.write("End2\n")
+			DEBUG("End2")
 			break
 		callNodePrev = callNodeNew
 

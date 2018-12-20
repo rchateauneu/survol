@@ -120,7 +120,6 @@ def Main():
 
 	# There should be one process only.
 	for wmiProc in lstProcs:
-		sys.stderr.write("wmiProc=%s\n" % str(wmiProc))
 		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral( wmiProc.Description ) ) )
 
 		for prpProc in lstPropNames:

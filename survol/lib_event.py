@@ -131,7 +131,7 @@ def AddEventToObject(theObject,jsonData):
             #sys.stderr.write("AddEventToObject waiting:%s\n"%str(exc))
             time.sleep(0.20)
     if maxTry == 0:
-        sys.stderr.write("AddEventToObject leaving. Failed.\n")
+        WARNING("AddEventToObject leaving. Failed.")
 
 
 # This receives a json which has this structure:
@@ -161,15 +161,15 @@ def data_store(json_data):
     #sys.stderr.write("data_store leaving.\n")
 
 def data_store_list(json_data_list):
-    sys.stderr.write("data_store_list entering. Numtriples=%d.\n"%len(json_data_list))
+    DEBUG("data_store_list entering. Numtriples=%d.",len(json_data_list))
     for json_data in json_data_list:
         try:
             data_store(json_data)
         except Exception as exc:
-            sys.stderr.write("data_store_list caught:%s. Json=%s\n"%(str(exc),str(json_data)))
+            WARNING("data_store_list caught:%s. Json=%s",str(exc),str(json_data))
             traceback.print_exc()
 
-    sys.stderr.write("data_store_list leaving.\n")
+    DEBUG("data_store_list leaving.")
 
 def UrlJsonToTxt(valJson):
     entity_type = valJson["entity_type"]
@@ -240,10 +240,10 @@ def get_data_from_file(eventFilNam):
             time.sleep(1.0)
 
     if maxTry == 0:
-        sys.stderr.write("get_data_from_file eventFilNam=%s No data.\n"%eventFilNam)
+        DEBUG("get_data_from_file eventFilNam=%s No data.",eventFilNam)
 
 def data_retrieve(entity_type,entity_ids_arr):
-    sys.stderr.write("data_retrieve entity_type=%s\n"%entity_type)
+    DEBUG("data_retrieve entity_type=%s",entity_type)
 
     arrOnto = lib_util.OntologyClassKeys(entity_type)
 
@@ -252,15 +252,15 @@ def data_retrieve(entity_type,entity_ids_arr):
 
     eventFilNam = EntityTypeIdsToEventFile(entity_type,entity_ids_dict)
 
-    sys.stderr.write("data_retrieve eventFilNam=%s\n"%eventFilNam)
+    DEBUG("data_retrieve eventFilNam=%s",eventFilNam)
     arrTriples = get_data_from_file(eventFilNam)
 
-    sys.stderr.write("data_retrieve NumTriples=%d\n"%len(arrTriples))
+    DEBUG("data_retrieve NumTriples=%d",len(arrTriples))
     return arrTriples
 
 # TODO: Events might appear in two objects.
 def data_retrieve_all():
-    sys.stderr.write("data_retrieve_all events_directory=%s\n"%events_directory)
+    DEBUG("data_retrieve_all events_directory=%s",events_directory)
 
     for dirpath, dnames, fnames in os.walk(events_directory):
         for filNam in fnames:
@@ -271,7 +271,7 @@ def data_retrieve_all():
                 arrTriples = get_data_from_file(pathNam)
                 for oneTripl in arrTriples:
                     yield oneTripl
-    sys.stderr.write("data_retrieve_all leaving\n")
+    DEBUG("data_retrieve_all leaving")
 
 
 

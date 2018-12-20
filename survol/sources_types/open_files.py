@@ -105,7 +105,7 @@ def Main():
 		#	pass
 		except:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("Exception:%s\n"% str(exc))
+			WARNING("Exception:%s", str(exc))
 			pass
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")

@@ -15,45 +15,44 @@ class Impersonate:
 	def __init__(self,login,password,domain):
 		# LOGON32_LOGON_NETWORK
 		# win32con.LOGON32_LOGON_INTERACTIVE
-		sys.stderr.write("Impersonate login=%s domain=%s\n" % ( login, domain) )
+		DEBUG("Impersonate login=%s domain=%s", login, domain)
 		self.m_handle=win32security.LogonUser(login,domain,password,win32con.LOGON32_LOGON_NETWORK,win32con.LOGON32_PROVIDER_DEFAULT)
-		sys.stderr.write("After win32security.LogonUser handle=%s \n" % str(self.m_handle))
+		DEBUG("After win32security.LogonUser handle=%s ", str(self.m_handle))
 		try:
 			win32security.ImpersonateLoggedOnUser(self.m_handle)
 		except Exception:
-			sys.stderr.write("win32security.ImpersonateLoggedOnUser: handle=%s Caught %s\n" % (str(self.m_handle),str(sys.exc_info())))
-		sys.stderr.write("After win32security.ImpersonateLoggedOnUser\n" )
+			WARNING("win32security.ImpersonateLoggedOnUser: handle=%s Caught %s", str(self.m_handle),str(sys.exc_info()))
 
-		sys.stderr.write("Username=%s\n" % win32api.GetUserName() )
+		DEBUG("Username=%s", win32api.GetUserName() )
 	def __del__(self):
 		win32security.RevertToSelf()
 		self.m_handle.Close()
 
-# TODO: Ca fonctionne pour OpenSCManager.
-# TODO: Si on ne le fait pas: "(5, 'NetLocalGroupEnum', 'Access is denied.')"
-# TODO: Si on le fait, quelque soit le password: "(127, 'NetLocalGroupEnum', 'The specified procedure could not be found.')"
+# TODO: It does not work OpenSCManager.
+# TODO: If this is not done: "(5, 'NetLocalGroupEnum', 'Access is denied.')"
+# TODO: If this is done, whatever the password: "(127, 'NetLocalGroupEnum', 'The specified procedure could not be found.')"
 # TODO: BEWARE: Apparently it does not work for remote machines before NetShareEnum. When using it,
 # TODO: with another machine etc... we obtain GetUserName() = "Guest" and of course access denied everywjhere.
 def MakeImpersonate(machineName):
 	currentUserName =  win32api.GetUserName()
-	sys.stderr.write("MakeImpersonate: machineName=%s currentUserName=%s\n" % ( machineName,  currentUserName ) )
+	DEBUG("MakeImpersonate: machineName=%s currentUserName=%s", machineName,  currentUserName )
 
-	# "titi" ou "Titi" ? Arp retourne "Titi".
+	# "titi" ou "Titi" ? Arp returns "Titi".
 	(usernam,passwd) = lib_credentials.GetCredentials("Login",machineName)
-	sys.stderr.write("MakeImpersonate: usernam=%s\n" % ( usernam ) )
+	DEBUG("MakeImpersonate: usernam=%s", usernam )
 
 	if usernam != '':
 		if usernam == currentUserName:
-			sys.stderr.write("MakeImpersonate: Already %s\n" % currentUserName)
+			DEBUG("MakeImpersonate: Already %s", currentUserName)
 			imper = None
 		else:
 			try:
 				imper = Impersonate(usernam,passwd, machineName)
 			except Exception:
-				sys.stderr.write("MakeImpersonate: Caught %s\n" % (str(sys.exc_info())))
+				WARNING("MakeImpersonate: Caught %s", str(sys.exc_info()))
 				imper = None
 	else:
-		sys.stderr.write("MakeImpersonate: No impersonate on %s. Returning None.\n" % machineName)
+		DEBUG("MakeImpersonate: No impersonate on %s. Returning None.", machineName)
 		imper = None
 
 	# If running on the local machine, pass the host as None otherwise authorization is checked

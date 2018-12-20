@@ -39,7 +39,7 @@ def UniversalAlias(entity_ids_arr,entity_host,entity_class):
 
 # This adds the WBEM and WMI urls related to the entity.
 def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_id):
-    sys.stderr.write("AddWbemWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
+    DEBUG("AddWbemWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s", entity_host,nameSpace,entity_type,entity_id)
 
     if entity_host:
         host_wbem_wmi = entity_host
@@ -65,7 +65,7 @@ def AddWbemWmiServers(grph,rootNode,entity_host, nameSpace, entity_type, entity_
 
 
 def AddWbemServers(entity_host, nameSpace, entity_type, entity_id):
-    sys.stderr.write("AddWbemServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
+    DEBUG("AddWbemServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s",entity_host,nameSpace,entity_type,entity_id)
 
     mapWbem = dict()
     try:
@@ -100,7 +100,7 @@ def AddWbemServers(entity_host, nameSpace, entity_type, entity_id):
     return mapWbem
 
 def AddWmiServers(entity_host, nameSpace, entity_type, entity_id):
-    sys.stderr.write("AddWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
+    DEBUG("AddWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s",entity_host,nameSpace,entity_type,entity_id)
 
     mapWmi = dict()
     if lib_wmi.ValidClassWmi(entity_type):
@@ -127,7 +127,7 @@ def AddWmiServers(entity_host, nameSpace, entity_type, entity_id):
     return mapWmi
 
 def AddSurvolServers(entity_host, nameSpace, entity_type, entity_id):
-    sys.stderr.write("AddSurvolServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n" % (entity_host,nameSpace,entity_type,entity_id))
+    DEBUG("AddSurvolServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s",entity_host,nameSpace,entity_type,entity_id)
 
     mapSurvol = dict()
 

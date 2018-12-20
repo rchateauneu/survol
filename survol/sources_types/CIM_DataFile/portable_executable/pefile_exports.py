@@ -46,7 +46,7 @@ def pefileDecorate( grph, rootNode, pe ):
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
-	sys.stderr.write("filNam=%s\n" % filNam )
+	DEBUG("filNam=%s", filNam )
 
 	filNode = lib_common.gUriGen.FileUri(filNam )
 

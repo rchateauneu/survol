@@ -47,16 +47,16 @@ def Main():
 
 		try:
 			ownrNam = theBus.get_name_owner(connectName)
-			sys.stderr.write("connectName=%s ownr=%s\n" % (connectName,ownrNam))
+			DEBUG("connectName=%s ownr=%s", connectName,ownrNam)
 			if connectName != ownrNam:
 				ownrNode = GetConnectNode( busAddr, ownrNam )
-				sys.stderr.write("TO CONNECT %s\n" % (connectName))
+				DEBUG("TO CONNECT %s", connectName)
 
 				# TODO: BUG, Display does not work if "Well Known" property.
 				# grph.add( (ownrNode, localPropDbusWellKnown, connectNode ) )
 				grph.add( (ownrNode, localPropDbusConnect, connectNode ) )
 		except ValueError:
-			sys.stderr.write("22 CONNECT %s\n" % (connectName))
+			DEBUG("22 CONNECT %s", connectName)
 			grph.add( (nodeBus, localPropDbusConnect, connectNode ) )
 
 

@@ -76,7 +76,7 @@ def WbemGetClassKeys( wbemNameSpace, wbemClass, cimomSrv ):
 				IncludeQualifiers=False)
 	except Exception:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("WbemGetClassKeys %s %s %s: Caught:%s\n" % ( cimomSrv, wbemNameSpace, wbemClass, str(exc) ) )
+		WARNING("WbemGetClassKeys %s %s %s: Caught:%s", cimomSrv, wbemNameSpace, wbemClass, str(exc) )
 		return None
 
 	keys = wbemClass.properties.keys()
@@ -122,9 +122,9 @@ def slp_wbem_services():
 def WbemServersList():
 	lstWbemServers = []
 	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
-	sys.stderr.write("WbemServersList\n")
+	DEBUG("WbemServersList")
 	for urlWbem in credNames:
-		sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
+		#sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
 		# crdNam = "http://192.168.1.83:5988"
 		parsed_url = lib_util.survol_urlparse( urlWbem )
 		the_host = parsed_url.hostname
@@ -141,7 +141,7 @@ def HostnameToWbemServer(hostname):
 
 	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
 	for urlWbem in credNames:
-		sys.stderr.write("WbemServersList urlWbem=%s\n"%(urlWbem))
+		#sys.stderr.write("HostnameToWbemServer urlWbem=%s\n"%(urlWbem))
 		# urlWbem = "http://192.168.1.83:5988"
 		parsed_url = lib_util.survol_urlparse( urlWbem )
 		the_host = parsed_url.hostname
@@ -160,7 +160,7 @@ def HostnameToWbemServer(hostname):
 # On pourrait aussi bien avoir deux fonctions differentes.
 # Maybe entity_namespace does not have the right separator, slash or backslash.
 def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
-	sys.stderr.write("GetWbemUrls h=%s ns=%s t=%s i=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
+	DEBUG("GetWbemUrls h=%s ns=%s t=%s i=%s",entity_host, entity_namespace, entity_type, entity_id)
 	wbem_urls_list = []
 
 	# sys.stderr.write("GetWbemUrls entity_host=%s\n" % (entity_host))
@@ -168,15 +168,15 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 	# TODO: Should check that the WBEM class exists in the server ?
 	for wbemServer in WbemServersList():
 		# wbemServer=(u'vps516494.ovh.net', u'http://vps516494.ovh.net:5988')
-		sys.stderr.write("GetWbemUrls wbemServer=%s\n"%str(wbemServer))
+		#sys.stderr.write("GetWbemUrls wbemServer=%s\n"%str(wbemServer))
 		# If no host specified, returns everything.
 		if entity_host:
 			# wbemServer[1].lower()=vps516494.ovh.net entity_host.lower()=http://vps516494.ovh.net:5988
 			if entity_host.lower() != wbemServer[0].lower():
-				sys.stderr.write("GetWbemUrls different wbemServer=%s entity_host=%s\n"%(str(wbemServer[1].lower()),entity_host.lower()))
+				#sys.stderr.write("GetWbemUrls different wbemServer=%s entity_host=%s\n"%(str(wbemServer[1].lower()),entity_host.lower()))
 				continue
 
-		sys.stderr.write("GetWbemUrls found wbemServer=%s\n"%(str(wbemServer)))
+		DEBUG("GetWbemUrls found wbemServer=%s",str(wbemServer))
 		theCimom = wbemServer[1]
 
 		# TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
@@ -206,7 +206,7 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
 # If this is a CIM_ComputerSystem, it tries to connect to its WBEM server.
 # This code is not really mature, but it does not harm.
 def GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id ):
-	sys.stderr.write("GetWbemUrlsTyped entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n"%( entity_host, nameSpace, entity_type, entity_id ))
+	#sys.stderr.write("GetWbemUrlsTyped entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n"%( entity_host, nameSpace, entity_type, entity_id ))
 	# When displaying the WBEM of a computer, this attempts to point to the server of this distant machine.
 	# The coding of another machine looks dodgy but is simply a CIM path.
 	if (entity_type == 'CIM_ComputerSystem'):
@@ -214,6 +214,7 @@ def GetWbemUrlsTyped( entity_host, nameSpace, entity_type, entity_id ):
 		# This return the WBEM servers associated to this machine.
 		if entity_id:
 			# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+			# BEWARE: Some arguments should be decoded.
 			xidHost = { sp[0]:sp[1] for sp in [ ss.split("=") for ss in entity_id.split(",") ] }["Name"]
 
 			wbem_urls_list = GetWbemUrls( xidHost, nameSpace, entity_type, entity_id)
@@ -233,7 +234,7 @@ def WbemConnection(cgiUrl):
 		# https://github.com/Napsty/check_esxi_hardware/issues/7
 		creden = lib_credentials.GetCredentials( "WBEM", cgiUrl )
 
-		sys.stderr.write("WbemConnection creden=%s\n"%str(creden))
+		DEBUG("WbemConnection creden=%s",str(creden))
 		# Beware: If username/password is wrong, it will only be detected at the first data access.
 		conn = pywbem.WBEMConnection(cgiUrl , creden )
 	except Exception:
@@ -359,7 +360,7 @@ def GetCapabilitiesForInstrumentation(conn,namSpac):
 			break
 		except Exception:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("GetCapabilitiesForInstrumentation exc=%s\n" % str(exc))
+			ERROR("GetCapabilitiesForInstrumentation exc=%s", str(exc))
 			arg = exc.args
 			# TODO Python 3
 			if arg[0] != pywbem.CIM_ERR_INVALID_NAMESPACE:
@@ -430,9 +431,9 @@ def GetClassesTree(conn,theNamSpace):
     kwargs['IncludeQualifiers'] = False
     kwargs['IncludeClassOrigin'] = False
 
-    sys.stderr.write("GetClassesTree theNamSpace=%s\n" % theNamSpace)
+    DEBUG("GetClassesTree theNamSpace=%s", theNamSpace)
     klasses = conn.EnumerateClasses(namespace=theNamSpace,**kwargs)
-    sys.stderr.write("GetClassesTree klasses %d elements\n" % len(klasses))
+    DEBUG("GetClassesTree klasses %d elements", len(klasses))
 
     tree_classes = dict()
     for klass in klasses:
@@ -443,7 +444,7 @@ def GetClassesTree(conn,theNamSpace):
         except KeyError:
             tree_classes[klass.superclass] = [klass]
 
-    sys.stderr.write("GetClassesTree tree_classes %d elements\n" % len(tree_classes))
+    DEBUG("GetClassesTree tree_classes %d elements", len(tree_classes))
     return tree_classes
 
 ###################################################
@@ -474,7 +475,7 @@ def MakeInstrumentedRecu(inTreeClass, outTreeClass, topclassNam, theNamSpac, ins
 # This builds a dictionary indexes by class names, and the values are lists of classes objects,
 # which are the subclasses of the key class. The root class name is None.
 def GetClassesTreeInstrumented(conn,theNamSpace):
-	sys.stderr.write("GetClassesTreeInstrumented theNamSpace=%s\n" % theNamSpace)
+	DEBUG("GetClassesTreeInstrumented theNamSpace=%s", theNamSpace)
 
 	try:
 		inTreeClass = GetClassesTree(conn,theNamSpace)
@@ -486,7 +487,7 @@ def GetClassesTreeInstrumented(conn,theNamSpace):
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Instrumented classes: ns="+theNamSpace+" Caught:"+str(exc))
-	sys.stderr.write("After MakeInstrumentedRecu outTreeClass = %d elements\n" % len(outTreeClass))
+	DEBUG("After MakeInstrumentedRecu outTreeClass = %d elements", len(outTreeClass))
 
 	# print("outTreeClass="+str(outTreeClass)+"<br>")
 	return outTreeClass
@@ -495,7 +496,7 @@ def GetClassesTreeInstrumented(conn,theNamSpace):
 def ValidClassWbem(className):
 	tpSplit = className.split("_")
 	tpPrefix = tpSplit[0]
-	sys.stderr.write("lib_wbem.ValidClassWbem className=%s tpPrefix=%s\n"%(className,tpPrefix))
+	DEBUG("lib_wbem.ValidClassWbem className=%s tpPrefix=%s",className,tpPrefix)
 	# "PG" is Open Pegasus: http://www.opengroup.org/subjectareas/management/openpegasus
 	# "LMI" is OpenLmi: http://www.openlmi.org/
 	return tpPrefix in ["CIM","PG","LMI"]

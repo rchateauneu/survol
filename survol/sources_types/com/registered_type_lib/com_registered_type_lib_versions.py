@@ -30,7 +30,7 @@ def Main():
 	###################  See Win32_ComClass !!!!
 
 	for versionStr, name in list( versions.items() ):
-		sys.stderr.write("Vers=%s Name=%s\n" % (versionStr,name) )
+		DEBUG("Vers=%s Name=%s", versionStr,name)
 
 		# TODO: The top of the tree does not make sense.
 

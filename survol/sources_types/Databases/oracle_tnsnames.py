@@ -125,7 +125,7 @@ def GetTnsNamesWindows():
     try:
         import winreg
     except ImportError:
-        sys.stderr.write("winreg not available. Trying _winreg\n")
+        WARNING("winreg not available. Trying _winreg")
         try:
             import _winreg as winreg
         except ImportError:
@@ -153,7 +153,7 @@ def GetTnsNamesWindows():
         try:
             regVal=winreg.QueryValueEx(aKey, "ORACLE_HOME")
             oraHome=regVal[0]
-            sys.stderr.write("FindTnsNamesWindows oraHome=%s\n" % str(oraHome) )
+            DEBUG("FindTnsNamesWindows oraHome=%s", str(oraHome) )
             break
         except EnvironmentError:
             break
@@ -209,7 +209,7 @@ def Main():
         # tnsnam=F:\Orac\Config\tnsnames.ora err=[Errno 2]
         # No such file or directory: 'F:\\Orac\\Config\\tnsnames.ora'
         # Beware that Apache might have no access right to it: 'F:\\Orac\\Config\\tnsnames.ora'
-        sys.stderr.write("tnsnam=%s\n" % tnsnam)
+        DEBUG("tnsnam=%s", tnsnam)
         myfile = open(tnsnam,"r")
     except Exception:
         exc = sys.exc_info()[1]

@@ -125,13 +125,10 @@ def Main():
 			cnnct = wmi.WMI (machineName)
 		else:
 			# persistent net connection
-			# On a le probleme "access denied" avec tous les acces remote windows.
-			# Meme probleme ausis avec WMI alors que ca marchait avant.
-			# Comme s'il y avait une connection implicite de rchateau, quand ca marchait, et qu'elle ait disparu maintenant.
-			# Toutefois, ceci fonctionne.
+			# This works:
 			# >>> c = wmi.WMI(wmi=wmi.connect_server(server='Titi', namespace="/root/cimv2", user='rchateauneu@hotmail.com', password='xxxx'))
 
-			sys.stderr.write("Explicit WMI connection machineName=%s\n" % ( machineName ) )
+			DEBUG("Explicit WMI connection machineName=%s", machineName )
 
 			cnnct = lib_wmi.WmiConnect(machineName,"/root/cimv2")
 

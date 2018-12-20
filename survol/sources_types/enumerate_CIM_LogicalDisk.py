@@ -64,8 +64,8 @@ def Main():
 
 	for part in psutil.disk_partitions():
 		# partition(device='D:\\\\', mountpoint='D:\\\\', fstype='NTFS', opts='rw,fixed')
-		sys.stderr.write("device=%s fstype=%s\n" % (part.device,part.fstype) )
-		sys.stderr.write("All=%s\n" % str(part) )
+		DEBUG("device=%s fstype=%s", part.device,part.fstype)
+		DEBUG("All=%s", str(part) )
 		# Replacing backslashes is necessary on Windows.
 		partition_name = part.device.replace('\\','/')
 

@@ -10,14 +10,14 @@ import lib_common
 def GetSymbols(fileSharedLib):
 
 	if os.path.isfile(fileSharedLib):
-		sys.stderr.write("File %s exists\n" % fileSharedLib)
+		DEBUG("File %s exists", fileSharedLib)
 	else:
 		lib_common.ErrorMessageHtml("File %s does not exist" % fileSharedLib)
 
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("NM on Linux platform only")
 	nmCmd = "nm -DC " + fileSharedLib
-	sys.stderr.write("Running %s\n" % nmCmd)
+	INFO("Running %s", nmCmd)
 	stream = os.popen(nmCmd)
 
 	# Just to have a sort of clean switch.

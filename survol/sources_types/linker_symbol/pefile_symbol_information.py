@@ -69,7 +69,7 @@ def Main():
 	symbolNam = lib_util.Base64Decode(symbol_encode)
 	filNam = cgiEnv.m_entity_id_dict["File"]
 
-	sys.stderr.write("symbol=%s filNam=%s\n"% (symbolNam,filNam) )
+	DEBUG("symbol=%s filNam=%s", symbolNam,filNam)
 
 	grph = cgiEnv.GetGraph()
 
@@ -87,7 +87,7 @@ def Main():
 			# docTxt = getattr(sym,"__doc__").replace(r"&#160;","")
 			# Non-breaking space: A0	10100000	 	&#160;	&nbsp;
 			# docTxt = getattr(sym,"__doc__").replace(chr(160),"")
-			# Ca ne marche pas ...
+			# TODO: Test this again ...
 			docTxt = getattr(sym,"__doc__")
 
 			# This string is filled with spaces and CR which are translated into "&#160;".

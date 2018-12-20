@@ -165,7 +165,10 @@ except ImportError:
 			return mapLs
 
 		def cwd(self):
-			return os.readlink(self.m_proc+'/cwd')
+			try:
+				return os.readlink(self.m_proc+'/cwd')
+			except:
+				return ""
 
 
 	# Internal CIM_Process use only.
@@ -263,15 +266,22 @@ def PsutilProcToExe(proc):
 	except AccessDenied:
 		return ( "", "Access denied" )
 
-def PsutilProcToCmdline(proc):
+def PsutilProcToCmdlineArray(proc):
 	try:
-		cmdArr = proc.cmdline()
+		return proc.cmdline()
 	except TypeError:
-		cmdArr = proc.cmdline
+		return proc.cmdline
 	except AccessDenied:
-		return "Access denied"
+		return ["Access denied"]
 
-	return ' '.join(cmdArr)
+def PsutilProcToCmdline(proc):
+	cmdArr = PsutilProcToCmdlineArray(proc)
+
+	cmd_line = ' '.join(cmdArr)
+	# There might be non-printable characters.
+	if sys.version_info < (3,):
+		cmd_line = cmd_line.decode("ascii",errors="ignore")
+	return cmd_line
 
 def PsutilProcConnections(proc,kind='inet'):
 	try:

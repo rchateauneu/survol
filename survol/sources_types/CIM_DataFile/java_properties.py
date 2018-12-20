@@ -30,17 +30,17 @@ def Usable(entity_type,entity_ids_arr):
 	return filExt.lower() in javaExtensions
 
 def AddAssociatedFiles(grph,node,filNam):
-	sys.stderr.write("AddAssociatedFiles %s\n"%(filNam))
+	DEBUG("AddAssociatedFiles %s",filNam)
 	# sys.stderr.write("filNam=%s\n"%filNam)
 	filenameNoExt, file_extension = os.path.splitext(filNam)
 
 	for ext in javaExtensions:
 		filAssocNam = filenameNoExt + ext
 
-		sys.stderr.write("filAssocNam=%s filNam=%s\n"%(filAssocNam,filNam))
+		DEBUG("filAssocNam=%s filNam=%s",filAssocNam,filNam)
 		if filAssocNam.lower() != filNam.lower():
 			if os.path.isfile(filAssocNam):
-				sys.stderr.write("Link filAssocNam=%s filNam=%s\n"%(filAssocNam,filNam))
+				DEBUG("Link filAssocNam=%s filNam=%s",filAssocNam,filNam)
 				filAssocNode = lib_uris.gUriGen.FileUri(filAssocNam)
 				grph.add( ( node, lib_common.MakeProp(javaExtensions[ext]), filAssocNode ) )
 

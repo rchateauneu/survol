@@ -2,6 +2,8 @@
 
 import os
 import sys
+from itertools import ifilter
+import ast
 
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
 
@@ -77,7 +79,7 @@ sys.stdout.write("Packages=%s\n"%find_packages())
 
 #	  data_files=['*.htm','*.js','*.css','Docs/*.txt'],
 
-# Problem because the HTTP server, in the cgiserver.py configuration,
+# FIXME: The HTTP server, in the cgiserver.py configuration,
 # is pointing to directories in the Python packages.
 # => Copy ui/Images into survol/Images and make a Python data directory.
 # ui is also an independant static HTML/Javascript website.
@@ -91,42 +93,6 @@ sys.stdout.write("Packages=%s\n"%find_packages())
 #
 # Docs is not copied anywhere.
 
-# Quand on lance le script, on doit etre capable de le trouver www pour le copier.
-# Et les positions respectives de "/survol" et "/www" ne sont plus les memes car:
-# - On ne veut pas d'un module qui s'appelle www.
-# - La partie SVG peut vouloir acceder a "www/images"
-# On doit se proposer un numero de port pour les agents. Exploration en javascript,
-# mais quid du cross-scripting.
-#
-# Il y a plusieurs taches:
-# l'installation du module Python.
-# => Eventuellement on y copie /images et /css.
-# L'installation du serveur de cgi Python.
-# => Eventuellement plusieurs installations: Apache, IIS etc...
-#    Comment configurer la ou les installations (Numero de port ?)
-# L'installation (et la copie des fichiers) du serveur de l'interface.
-# => Eventuellement plusieurs installations: Apache, Tomcat etc...
-# => Eventuellement meme installation que le CGI.
-# => L'UI est informee de l'emplacement du CGI.
-# => Pouvoir lancer la page HTML en local pur, et utiliser ActiveX.
-#
-# Quoiqu'il arrive, survol_cgiserver ouvrira toujours une fenetre.
-#
-# Apparemment, c'est pas de la tarte d'installer des donnees avec setup.py.
-# Alors on pourrait tout changer:
-# On a un seul module et des sous-modules:
-# survol/agent : L'agent. Mais on va tout mettre dans survol pour ne pas devoir tout casser.
-# survol/scripts
-# survol/www avec les datas : Mais a condition qu;on puisse avoir des donnees.
-#
-# Comme ca, ca fournit a cgiserver.py d acceder "legalement" aux fichiers HTML au lieu
-# de fourrager dans PYTHON PATH.
-#
-#
-# data_files
-# package_data={'templates':['*'],'static':['*'],'docs':['*'],},
-#
-
 # The current directory is where setup.py is.
 def package_files(directory):
     paths = []
@@ -137,16 +103,25 @@ def package_files(directory):
 
 extra_files = package_files('survol/www')
 
+with open(os.path.join('survol', '__init__.py')) as f:
+    __version__ = ast.parse(next(ifilter(lambda line: line.startswith('__version__'),f))).body[0].value.s
+
+with open('README.txt') as readme_file:
+    README = readme_file.read()
+
+# FIXME: survol.__doc__ = '\nSurvol library\n' ...
+
 setup(
     name='survol',
-    version='1.0.dev2',
+    version=__version__,
     description='Understanding legacy applications',
+	long_description=README,
     author='Remi Chateauneu',
     author_email='remi.chateauneu@primhillcomputers.com',
     url='http://www.primhillcomputers.com/survol.html',
     packages=find_packages(),
     package_dir = {"survol": "survol"},
-    # Ca n est pas recursif.
+    # This is apparently not recursive.
     # package_data={'survol':['www_test/*'],},
     package_data={'survol':extra_files,},
     # include_package_data=True,

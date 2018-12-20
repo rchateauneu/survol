@@ -20,7 +20,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'FUNCTION' AND OWNER = '" + oraSchema + "'"
-	sys.stderr.write("sql_query=%s\n" % sql_query )
+	DEBUG("sql_query=%s", sql_query )
 
 	node_oraschema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, oraSchema )
 

@@ -80,7 +80,7 @@ def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
                 # Maybe the key is not defined ...
                 # ... or the generator does not work
                 exc = sys.exc_info()[1]
-                sys.stderr.write("nodeGenerator exception:%s\n"%str(exc))
+                WARNING("nodeGenerator exception:%s",str(exc))
                 credNameUrl = None
 
             if credNameUrl:

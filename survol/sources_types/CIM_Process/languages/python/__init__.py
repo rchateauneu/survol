@@ -94,11 +94,11 @@ def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
 	]
 
     big_args = ' '.join(["-eval-command='call %s'" % cmd for cmd in gdb_cmds_filout])
-    sys.stderr.write("big_args=%s\n\n" % big_args)
+    DEBUG("big_args=%s\n", big_args)
 
 	# TODO: See process_gdbstack.py which similarly runs a gdb command.
     cmdline = 'gdb -p %d -batch %s' % (my_pid, big_args )
-    sys.stderr.write("cmdline=%s\n\n" % cmdline)
+    DEBUG("cmdline=%s\n", cmdline)
 
     # TODO: Must use lib_common.SubProcPOpen
     # TODO is shell=True necessary ?????
@@ -122,7 +122,7 @@ def ExecInPythonDebugger(thePid, vecInstructions):
 
     vecResu = DebuggerPython(thePid,vecInstructions)
     if len(vecResu) != 1:
-        sys.stderr.write("Err:%s\n" % str(vecResu) )
+        DEBUG("Err:%s", str(vecResu) )
         return None
 
     strResu = vecResu[0]

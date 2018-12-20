@@ -128,7 +128,7 @@ def CopyToOut(logfil,svg_out_filnam,out_dest):
 # but anyway it needs to have graphviz already installed.
 # Also, creating an intermediary files helps debugging.
 def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
-	sys.stderr.write("viztype=%s\n"%(viztype) )
+	DEBUG("viztype=%s",viztype)
 	tmpSvgFil = TmpFile("Dot2Svg","svg")
 	svg_out_filnam = tmpSvgFil.Name
 	# dot -Kneato
@@ -153,9 +153,9 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	# This is maybe a bit faster than os.open because no shell and direct write to the output.
 	svg_command = [ dot_path,"-K",viztype,"-Tsvg",dot_filnam_after,"-o",svg_out_filnam, \
 		"-v","-Goverlap=false" ] + dotFonts
-	msg = "svg_command=" + " ".join(svg_command) + "\n"
-	sys.stderr.write(msg)
-	logfil.write(TimeStamp()+" "+msg)
+	msg = "svg_command=" + " ".join(svg_command)
+	DEBUG(msg)
+	logfil.write(TimeStamp()+" "+msg+"\n")
 
 	ret = subprocess.call( svg_command, stdout=logfil, stderr=logfil, shell=False )
 	logfil.write(TimeStamp()+" Process ret=%d\n" % ret)
@@ -185,13 +185,15 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 
 ################################################################################
 
+# This transforms a RDF triplestore into a temporary DOT file, which is
+# transformed by GraphViz into a SVG file sent to the HTTP browser.
 def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_style ):
 	tmpLogFil = TmpFile("Grph2Svg","log")
 	try:
 		logfil = open(tmpLogFil.Name,"w")
 	except:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("Grph2Svg caught %s when opening:%s\n"%(str(exc),tmpLogFil.Name))
+		ERROR("Grph2Svg caught %s when opening:%s",str(exc),tmpLogFil.Name)
 		ErrorMessageHtml("Grph2Svg caught %s when opening:%s\n"%(str(exc),tmpLogFil.Name))
 
 	logfil.write( "Starting logging\n" )
@@ -223,7 +225,6 @@ def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterize
 # The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
-# def OutCgiMode( grph, topUrl, mode, pageTitle, dotLayout, errorMsg = None, isSubServer=False, parameters = dict()):
 def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 	theCgi.BindIdenticalNodes()
 
@@ -243,6 +244,8 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 		lib_exports.Grph2Menu( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "rdf":
 		lib_exports.Grph2Rdf( grph)
+	# TODO: Add a special mode where the triplestore grph is simply returned.
+	# TODO: This is much faster when in the client library.
 	else: # Or mode = "svg"
 		# Default value, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
 		Grph2Svg( pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout )
@@ -261,7 +264,7 @@ def GetCallingModuleDoc():
 		It returns the whole content.
 	"""
 
-	sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
+	#sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
 
 	# If it uses an unique CGI script.
 	if lib_util.modeOVH or globalMergeMode:
@@ -282,24 +285,28 @@ def GetCallingModuleDoc():
 			if lib_util.modeOVH:
 				# Then it starts again with "survol."
 				filnamCaller = filnamCaller[ len(modulePrefix): ]
-			sys.stderr.write("GetCallingModuleDoc filnamCaller=%s\n" % filnamCaller)
+			#sys.stderr.write("GetCallingModuleDoc filnamCaller=%s\n" % filnamCaller)
 			try:
 				moduleCaller = sys.modules[filnamCaller]
 			except:
 				return filnamCaller + ":No doc"
 
-			theDoc = moduleCaller.__doc__.strip()
-			sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
+			theDoc = moduleCaller.__doc__
+			if theDoc:
+				theDoc = theDoc.strip()
+			else:
+				theDoc = ""
+			#sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
 			return theDoc
 		except:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("GetCallingModuleDoc Caught when getting doc:%s\n"%str(exc))
+			WARNING("GetCallingModuleDoc Caught when getting doc:%s",str(exc))
 			return "Caught when getting doc:"+str(exc)
 	else:
 		try:
 			# This does not work when in WSGI mode, nor when merging.
 			mainModu = sys.modules['__main__']
-			sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% mainModu.__name__ )
+			#sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% mainModu.__name__ )
 			page_title = mainModu.__doc__
 			if page_title:
 				page_title = page_title.strip()
@@ -337,6 +344,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	page_title = "Merge of %d scripts:\n" % len(globalCgiEnvList)
 	delim_title = ""
+	# This is equivalent to: MakeDotLayout( "", [] )
 	layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
 	cgiParams = {}
 	cgiParamLinks = {}
@@ -357,7 +365,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 			cgiParamLinks.update(theCgiEnv.m_parameterized_links)
 		except ValueError:
 			errorMsg = sys.exc_info()[1]
-			sys.stderr.write("Error:%s Parameters:%s\n"%(errorMsg,str(theCgiEnv.m_parameters)))
+			WARNING("Error:%s Parameters:%s",errorMsg,str(theCgiEnv.m_parameters))
 
 	# Eliminate duplicates in the list of collapsed properties.
 	myList = layoutParams['collapsed_properties']
@@ -365,11 +373,6 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	layoutParams['collapsed_properties'] = list(mySet)
 
 	topUrl = lib_util.TopUrl( "", "" )
-
-	#class CgiInterface(object):
-	#	pass
-
-	# pseudoCgi = CgiInterface()
 
 	pseudoCgi = CgiEnv()
 	pseudoCgi.m_graph = globalGraph
@@ -384,9 +387,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	pseudoCgi.m_entity_id = ""
 	pseudoCgi.m_entity_host = ""
 
-	# It also needs this method:
-	# def GetParameters(self,paramkey):
-
+	# A single rendering of all RDF nodes and links merged from several scripts.
 	OutCgiMode( pseudoCgi, topUrl, theMode, errorMsg = cumulatedError )
 
 	return
@@ -399,7 +400,7 @@ class CgiEnv():
 	"""
 	def __init__(self, parameters = {}, can_process_remote = False ):
 		# TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
-		sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
+		#sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
 
 		# TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
 		# TODO: is removed. Workaround: Any CGI variable added after.
@@ -428,7 +429,8 @@ class CgiEnv():
 		# Title page contains __doc__ plus object label.
 		callingUrl = lib_util.RequestUri()
 		self.m_calling_url = callingUrl
-		sys.stderr.write("CgiEnv m_page_title=%s m_calling_url=%s\n"%(self.m_page_title,self.m_calling_url))
+		DEBUG("CgiEnv m_page_title=%s m_calling_url=%s",self.m_page_title,self.m_calling_url)
+		#sys.stderr.write("CgiEnv lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
 		parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False,force_entity_ip_addr=None)
 		if parsedEntityUri[2]:
 			# If there is an object to display.
@@ -444,12 +446,11 @@ class CgiEnv():
 			entDoc = entity_module.__doc__
 			# The convention is the first line treated as a title.
 			if entDoc:
+				entDoc = entDoc.strip()
 				self.m_page_title += "\n" + entDoc
 
-		# If we can talk to a remote host to get the desired values.
-
 		# Global CanProcessRemote has precedence over parameter can_process_remote
-		# whcih should probably be deprecated, although they do not have exactly the same role:
+		# which should probably be deprecated, although they do not have exactly the same role:
 		# * Global CanProcessRemote is used by entity.py to display scripts which have this capability.
 		# * Parameter can_process_remote is used to inform, at execution time, of this capability.
 		# Many scripts are not enumerated by entity.py so a global CanProcessRemote is not necessary.
@@ -470,7 +471,7 @@ class CgiEnv():
 		self.m_arguments = cgi.FieldStorage()
 
 		(self.m_entity_type,self.m_entity_id,self.m_entity_host) = self.GetXid()
-		sys.stderr.write("CgiEnv m_entity_type=%s m_entity_id=%s m_entity_host=%s\n"%(self.m_entity_type,self.m_entity_id,self.m_entity_host))
+		#sys.stderr.write("CgiEnv m_entity_type=%s m_entity_id=%s m_entity_host=%s\n"%(self.m_entity_type,self.m_entity_id,self.m_entity_host))
 		self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
 
 		# Depending on the caller module, maybe the arguments should be 64decoded. See "sql/query".
@@ -507,6 +508,9 @@ class CgiEnv():
 	# This might change because I suspect bugs in old versions of Graphviz.
 	def GetXid(self):
 		try:
+			# See variable xidCgiDelimiter.
+			# TODO: Consider base64 encoding all arguments with "Xid=".
+			# The benefit would be to have the same encoding for all arguments.
 			xid = self.m_arguments["xid"].value
 		except KeyError:
 			# See function EditionMode
@@ -540,7 +544,7 @@ class CgiEnv():
 		import lib_edition_parameters
 
 		formAction = os.environ['SCRIPT_NAME']
-		sys.stderr.write("EditionMode formAction=%s\n"%formAction)
+		DEBUG("EditionMode formAction=%s",formAction)
 
 		# It uses the same CSS as in HTML mode.
 		lib_export_html.DisplayHtmlTextHeader(self.m_page_title+" - parameters")
@@ -562,7 +566,7 @@ class CgiEnv():
 	# https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
 
 	def GetParameters(self,paramkey):
-		sys.stderr.write("GetParameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
+		#sys.stderr.write("GetParameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
 
 		# Default value if no CGI argument.
 		try:
@@ -579,9 +583,9 @@ class CgiEnv():
 			# BEWARE !!! An empty argument triggers an exception !!!
 			# Same problem if the same argument appears several times: This will be a list.
 			paramVal = self.m_arguments[paramkey].value
-			sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
+			#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
-			sys.stderr.write("GetParameters paramkey='%s' not as CGI\n" % ( paramkey ) )
+			DEBUG("GetParameters paramkey='%s' not as CGI", paramkey )
 			hasArgValue = False
 
 		# Now converts it to the type of the default value. Otherwise untouched.
@@ -589,7 +593,7 @@ class CgiEnv():
 			if hasArgValue:
 				paramTyp = type(dfltValue)
 				paramVal = paramTyp( paramVal )
-				sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
+				#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
 			else:
 				# If the parameters were edited but the value did not appear,
 				# it can only be a Boolean with a clear check box.
@@ -602,17 +606,17 @@ class CgiEnv():
 					# Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
 					# Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
 					self.m_parameters[paramkey] = paramVal
-					sys.stderr.write("GetParameters paramkey='%s' set to FALSE\n" % ( paramkey ) )
+					DEBUG("GetParameters paramkey='%s' set to FALSE", paramkey )
 				except KeyError:
 					paramVal = dfltValue
-					sys.stderr.write("GetParameters paramkey='%s' set to paramVal='%s'\n" % ( paramkey, paramVal ) )
+					DEBUG("GetParameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
 		else:
 			if not hasArgValue:
-				sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
+				#sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
 				# lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
 				paramVal = ""
 			else:
-				sys.stderr.write("GetParameters nothing for paramkey='%s'\n" % ( paramkey ))
+				DEBUG("GetParameters nothing for paramkey='%s'", ( paramkey ))
 
 		# TODO: Beware, empty strings are NOT send by the HTML form,
 		# TODO: so an empty string must be equal to the default value.
@@ -624,14 +628,14 @@ class CgiEnv():
 	# the value of an unique key-value pair.
 	# If this class is not in DMTF, we might need some sort of data dictionary.
 	def GetId(self):
-		sys.stderr.write("GetId m_entity_type=%s m_entity_id=%s\n" % ( self.m_entity_type, str( self.m_entity_id ) ) )
+		DEBUG("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str( self.m_entity_id ) )
 		try:
 			# If this is a top-level url, no object type, therefore no id.
 			if self.m_entity_type == "":
 				return ""
 
 			splitKV = lib_util.SplitMoniker(self.m_entity_id)
-			sys.stderr.write("GetId splitKV=%s\n" % ( str( splitKV ) ) )
+			DEBUG("GetId splitKV=%s", str( splitKV ) )
 
 			# If this class is defined in our ontology, then we know the first property.
 			entOnto = lib_util.OntologyClassKeys(self.m_entity_type)
@@ -670,10 +674,11 @@ class CgiEnv():
 
 	# When in merge mode, these parameters must be aggregated, and used only during
 	# the unique generation of graphic data.
+	# TODO: "OutCgiRdf" should be changed to a more appropriate name, such as "DisplayTripleStore"
 	def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
 		global globalCgiEnvList
-		# sys.stderr.write("OutCgiRdf globalMergeMode=%d len(globalCgiEnvList)=%d\n"%(globalMergeMode,len(globalCgiEnvList)))
-		sys.stderr.write("OutCgiRdf m_calling_url=%s m_page_title=%s\n"%(self.m_calling_url,self.m_page_title))
+		#sys.stderr.write("OutCgiRdf lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
+		DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",globalMergeMode,self.m_calling_url, self.m_page_title.replace("\n","<NL>") )
 
 		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
 
@@ -684,6 +689,7 @@ class CgiEnv():
 		if self.m_page_title is None:
 			self.m_page_title = "PAGE TITLE SHOULD BE SET"
 
+		# See if this can be used in lib_client.py and merge_scritps.py.
 		if globalMergeMode:
 			# At the end, only one call to OutCgiMode() will be made.
 			globalCgiEnvList.append(self)
@@ -716,7 +722,7 @@ class CgiEnv():
 				ErrorMessageHtml("Parameter %s should be defined for a link"%paramKey)
 			prmsCopy[paramKey] = paramsMap[paramKey]
 
-		sys.stderr.write("prmsCopy=%s\n"%str(prmsCopy))
+		DEBUG("prmsCopy=%s",str(prmsCopy))
 
 		# Now create an URL with these updated params.
 		idxCgi = self.m_calling_url.find("?")
@@ -735,7 +741,7 @@ class CgiEnv():
 		kvPairsConcat = "&amp;amp;".join( "%s=%s" % ( paramKey,str(prmsCopy[paramKey]).replace("/","%2F")) for paramKey in prmsCopy )
 		labelledUrl += "?" + kvPairsConcat
 
-		sys.stderr.write("labelledUrl=%s\n"%labelledUrl)
+		DEBUG("labelledUrl=%s",labelledUrl)
 
 
 		self.m_parameterized_links[urlLabel] = labelledUrl
@@ -811,7 +817,7 @@ def ErrorMessageEnable(flag):
 	globalErrorMessageEnabled = flag
 
 def ErrorMessageHtml(message):
-	sys.stderr.write("ErrorMessageHtml globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+	ERROR("ErrorMessageHtml %s globalErrorMessageEnabled=%d",message,globalErrorMessageEnabled)
 
 	if globalErrorMessageEnabled:
 		# If we are in Json mode, this returns a special json document with the error message.
@@ -825,13 +831,12 @@ def ErrorMessageHtml(message):
 		except KeyError:
 			pass
 
-		sys.stderr.write("ErrorMessageHtml ENABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
 		lib_util.InfoMessageHtml(message)
-		sys.stderr.write("ErrorMessageHtml about to leave\n")
+		DEBUG("ErrorMessageHtml about to leave")
 		sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
-		sys.stderr.write("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d\n"%globalErrorMessageEnabled)
+		DEBUG("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
 		# It might be displayed in a HTML document.
 		messageClean = cgi.escape(message)
 		raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)
@@ -931,14 +936,14 @@ class TmpFile:
 			return
 
 		self.Name = "%s/%s.%d.%s" % ( currDir, prefix, procPid, suffix )
-		sys.stderr.write("tmp=%s cwd=%s\n" % ( self.Name, os.getcwd() ) )
+		DEBUG("tmp=%s", self.Name )
 
 	def DbgDelFil(self,filNam):
 		if True:
-			sys.stderr.write("Deleting="+filNam+"\n")
+			DEBUG("Deleting=%s",filNam)
 			os.remove(filNam)
 		else:
-			sys.stderr.write("NOT Deleting="+filNam+"\n")
+			WARNING("NOT Deleting=%s",filNam)
 
 	def __del__(self):
 		try:
@@ -946,7 +951,7 @@ class TmpFile:
 				self.DbgDelFil(self.Name)
 
 			if self.TmpDirToDel not in [None,"/",""]:
-				sys.stderr.write("About to NOT del %s\n" % self.TmpDirToDel )
+				DEBUG("About to NOT del %s", self.TmpDirToDel )
 				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
 					for name in files:
 						self.DbgDelFil(os.path.join(root, name))
@@ -956,7 +961,7 @@ class TmpFile:
 
 		except Exception:
 			exc = sys.exc_info()[1]
-			sys.stderr.write("__del__.Caught: %s. TmpDirToDel=%s Name=%s\n" % ( str(exc), str(self.TmpDirToDel), str(self.Name) ) )
+			ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name) )
 		return
 
 

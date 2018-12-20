@@ -36,7 +36,7 @@ def Main():
 	#	...
 	#	("sources_types.CIM_Process.memory_regex_search","search_connection_strings.py") ...
 	for ( namDbType, scriptNam ) in lib_sql.listModulesUsingSqlQueries :
-		sys.stderr.write("\nnamDbType=%s scriptNam=%s\n"%(namDbType,scriptNam))
+		DEBUG("namDbType=%s scriptNam=%s",namDbType,scriptNam)
 		# TODO: We should check if the syntax of the query is conformant to the database.
 		# TODO: We should check if the process is linked with this database.
 
@@ -54,7 +54,7 @@ def Main():
 
 			# Now transforms the list of tables or views into nodes for this database.
 			if not moduleDbType:
-				sys.stderr.write("No module for namDbType=%s\n"%namDbType)
+				DEBUG("No module for namDbType=%s",namDbType)
 				continue
 
 			try:
@@ -65,7 +65,7 @@ def Main():
 			except AttributeError:
 				exc = sys.exc_info()[1]
 				# Maybe the function is not defined in this module or other error.
-				sys.stderr.write("Caught: %s\n"%str())
+				DEBUG("Caught: %s",str(exc))
 				continue
 
 			if not dbTp_envParams:
@@ -76,7 +76,7 @@ def Main():
 			moduleQueryEntity = lib_util.GetEntityModule(queryEntity)
 			if not moduleQueryEntity:
 				# Should not happen, otherwise how can we get the parameters for this ?
-				sys.stderr.write("queryEntity=%s. No module\n"%queryEntity)
+				DEBUG("queryEntity=%s. No module",queryEntity)
 				continue
 
 			listArgs = dbTp_envParams[1]
@@ -95,11 +95,11 @@ def Main():
 					listTableNodes = moduleQueryEntity.QueryToNodesList(sqlQuery,connectionKW,list_of_tables)
 				except Exception:
 					exc = sys.exc_info()[0]
-					sys.stderr.write("queryEntity=%s Caught %s\n"%(queryEntity,str(exc)))
+					WARNING("queryEntity=%s Caught %s", queryEntity,str(exc))
 					continue
 
 				if not listTableNodes:
-					sys.stderr.write("No nodes\n")
+					DEBUG("No nodes")
 					continue
 
 				# We know this is a valid query for this connection, so we add a link to it.

@@ -12,13 +12,13 @@ def CredFilNam():
 	try:
 		return os.environ["HOME"] + "/" + filNamOnly
 	except KeyError:
-		sys.stderr.write("HOME not defined\n")
+		DEBUG("HOME not defined")
 		pass
 
 	try:
 		return os.environ["HOMEPATH"] + "\\" + filNamOnly
 	except KeyError:
-		sys.stderr.write("HOMEPATH not defined\n")
+		DEBUG("HOMEPATH not defined")
 		pass
 
 	dirNam = lib_util.gblTopScripts
@@ -31,7 +31,9 @@ def BuildCredDocument():
 
 	filNam = CredFilNam()
 	try:
-		jsonCreds = json.load( open(filNam) )
+		opFil = open(filNam)
+		jsonCreds = json.load( opFil )
+		opFil.close()
 
 		upperCredentials = dict()
 		for keyCred in jsonCreds:
@@ -40,7 +42,7 @@ def BuildCredDocument():
 
 		return upperCredentials
 	except Exception:
-		sys.stderr.write("BuildCredDocument no credentials: %s\n" % str(sys.exc_info()))
+		WARNING("BuildCredDocument no credentials: %s", str(sys.exc_info()))
 		return dict()
 
 def CredDocument():
@@ -57,13 +59,13 @@ def GetCredentials( credType, credName ):
 	if credName is None:
 		credName = ""
 	credentials = CredDocument()
-	sys.stderr.write("GetCredentials credType=%s credName=%s credentials=%d elements\n" % (credType,credName,len(credentials)))
+	DEBUG("GetCredentials credType=%s credName=%s credentials=%d elements",credType,credName,len(credentials))
 	try:
 		if not credentials:
 			return ('','')
 		arrType = credentials[credType]
 	except KeyError:
-		sys.stderr.write("GetCredentials Invalid type credType=%s credName=%s\n" % (credType,credName))
+		WARNING("GetCredentials Invalid type credType=%s credName=%s",credType,credName)
 		return None
 
 	# Try first without converting.
@@ -85,7 +87,7 @@ def GetCredentials( credType, credName ):
 		# sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
 		return cred
 	except KeyError:
-		sys.stderr.write("GetCredentials Unknown name credType=%s credName=%s\n" % (credType,credName))
+		WARNING("GetCredentials Unknown name credType=%s credName=%s",credType,credName)
 		return ('','')
 
 # For example, if "credType" == "Oracle", it will returned all databases defined in the credentials file.
@@ -96,7 +98,7 @@ def GetCredentialsNames( credType ):
 		arrType = credDict[credType]
 		return arrType.keys()
 	except KeyError:
-		sys.stderr.write("GetCredentials Invalid type credType=%s\n" % (credType))
+		ERROR("GetCredentials Invalid type credType=%s",credType)
 		return []
 
 def GetCredentialsTypes():
@@ -105,7 +107,7 @@ def GetCredentialsTypes():
 		credDict = CredDocument()
 		return credDict.keys()
 	except KeyError:
-		sys.stderr.write("GetCredentials Invalid document\n")
+		ERROR("GetCredentials Invalid document")
 		return None
 
 def DumpToFile(credDict):

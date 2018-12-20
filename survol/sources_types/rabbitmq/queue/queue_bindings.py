@@ -54,7 +54,7 @@ def Main():
 			valBindings = sublstBindings[keyBindings]
 			strDisp = str(valBindings).replace("{","").replace("}","")
 			grph.add( ( nodeQueue, lib_common.MakeProp(keyBindings), lib_common.NodeLiteral(strDisp ) ))
-			sys.stderr.write("keyBindings=%s valBindings=%s\n"%(keyBindings,valBindings))
+			DEBUG("keyBindings=%s valBindings=%s",keyBindings,valBindings)
 
 	cgiEnv.OutCgiRdf()
 

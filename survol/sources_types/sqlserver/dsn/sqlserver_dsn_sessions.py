@@ -23,14 +23,14 @@ def Main():
 
 	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-	sys.stderr.write("dsn=(%s)\n" % dsnNam)
+	DEBUG("dsn=(%s)", dsnNam)
 
 	nodeDsn = survol_sqlserver_dsn.MakeUri(dsnNam)
 
 	ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 	try:
 		cnxn = pyodbc.connect(ODBC_ConnectString)
-		sys.stderr.write("Connected: %s\n" % dsnNam)
+		DEBUG("Connected: %s", dsnNam)
 		cursorSessions = cnxn.cursor()
 
 		qrySessions = """
@@ -48,7 +48,7 @@ def Main():
 		propSqlServerNTUserName = lib_common.MakeProp("nt_user_name")
 
 		for rowSess in cursorSessions.execute(qrySessions):
-			sys.stderr.write("rowSess.session_id=(%s)\n" % rowSess.session_id)
+			DEBUG("rowSess.session_id=(%s)", rowSess.session_id)
 			nodeSession = session.MakeUri(dsnNam, rowSess.session_id)
 			grph.add((nodeDsn, propSqlServerSession, nodeSession))
 

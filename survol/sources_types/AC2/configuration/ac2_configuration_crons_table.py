@@ -42,7 +42,7 @@ def DisplayCronsTable(grph,configNode,configName):
 
 	# TODO: PROBLEME, ON DEVRAIT ALLER CHERCHER LES SOUS-NODES AU LIEU DE TOUT REPARCOURIR !!!!!!!!!!!
 	for elt_apps in dom.getElementsByTagName('apps'):
-		sys.stderr.write("Founds apps\n")
+		DEBUG("Founds apps")
 
 		DispCrons(dom,grph,configNode,configName)
 		# AC2_configuration.DispHosts(dom,grph,configNode)
@@ -107,7 +107,7 @@ def Main():
 
 	ac2File = cgiEnv.m_entity_id_dict["File"]
 
-	sys.stderr.write("ac2File=%s\n"% (ac2File) )
+	DEBUG("ac2File=%s", ac2File )
 
 	grph = cgiEnv.GetGraph()
 

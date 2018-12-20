@@ -15,7 +15,7 @@ from lib_properties import pc
 from sources_types import neighborhood as survol_neighborhood
 
 def AddSurvolNode(grph,hostSurvol,urlSurvolClean):
-	sys.stderr.write("AddSurvolNode hostSurvol=%s\n"%(hostSurvol))
+	DEBUG("AddSurvolNode hostSurvol=%s",hostSurvol)
 	survolHostNode = lib_common.gUriGen.HostnameUri( hostSurvol )
 
 	currDispMode = lib_util.GuessDisplayMode()
@@ -66,7 +66,7 @@ def CallbackNodeAdder(grph,urlSurvol):
 def SurvolServersDisplay(grph):
 	lstSurvolServers = []
 	credNames = lib_credentials.GetCredentialsNames( "Survol" )
-	sys.stderr.write("SurvolServersDisplay\n")
+	DEBUG("SurvolServersDisplay")
 	for urlSurvol in credNames:
 		# sys.stderr.write("SurvolServersDisplay urlSurvol=%s\n"%(urlSurvol))
 

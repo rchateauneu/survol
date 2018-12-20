@@ -22,7 +22,7 @@ def Main():
 
 	jmxProps = survol_java.JavaJmxSystemProperties(pidInt)
 
-	sys.stderr.write("jmxProps=%s\n"%str(jmxProps))
+	DEBUG("jmxProps=%s",str(jmxProps))
 
 	try:
 		pathSeparator = jmxProps["path.separator"]

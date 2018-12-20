@@ -23,7 +23,7 @@ def EntityName(entity_ids_arr):
 		return resu
 	except TypeError:
 		exc = sys.exc_info()[1]
-		sys.stderr.write("CANNOT DECODE: symbol=(%s):%s\n"%(entity_id,str(exc)))
+		ERROR("CANNOT DECODE: symbol=(%s):%s",entity_id,str(exc))
 		return entity_id
 
 

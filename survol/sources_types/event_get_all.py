@@ -17,7 +17,7 @@ def Main():
 
     # This can process remote hosts because it does not call any script, just shows them.
     cgiEnv = lib_common.CgiEnv()
-    sys.stderr.write("event_get_all.py\n")
+    DEBUG("event_get_all.py")
     # entity_id = cgiEnv.m_entity_id
     # entity_host = cgiEnv.GetHost()
 
@@ -26,7 +26,7 @@ def Main():
     # rootNode = lib_util.RootUri()
 
 
-    sys.stderr.write("event_get_all.py About to get events\n")
+    DEBUG("event_get_all.py About to get events")
     arrTriples = lib_event.data_retrieve_all()
     for tripl in arrTriples:
         grph.add(tripl)

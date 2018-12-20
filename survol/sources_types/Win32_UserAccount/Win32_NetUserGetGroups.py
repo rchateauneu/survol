@@ -71,7 +71,7 @@ def Main():
 
 	userName = cgiEnv.m_entity_id_dict["Name"]
 
-	sys.stderr.write("hostName=%s userName=%s\n" %(hostName,userName))
+	DEBUG("hostName=%s userName=%s",hostName,userName)
 
 	grph = cgiEnv.GetGraph()
 

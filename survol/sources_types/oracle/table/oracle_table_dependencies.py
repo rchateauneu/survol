@@ -24,7 +24,7 @@ def Main():
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY" etc...
 	sql_query = "select owner,name,type from all_dependencies where REFERENCED_TYPE = 'TABLE' AND REFERENCED_NAME = '" + oraTable + "' and referenced_owner='" + oraSchema + "'"
 
-	sys.stderr.write("sql_query=%s\n" % sql_query )
+	DEBUG("sql_query=%s", sql_query )
 
 	node_oraTable = oracle_table.MakeUri( oraDatabase, oraSchema, oraTable )
 

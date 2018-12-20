@@ -91,7 +91,7 @@ def Main():
 			grph.add( ( nodeSession, pc.property_oracle_schema, nodeSchema ) )
 			grph.add( ( node_oradb, pc.property_oracle_db, nodeSchema ) )
 
-		sys.stderr.write("user_proc_id=%s user_machine=%s\n" % (user_proc_id,user_machine))
+		DEBUG("user_proc_id=%s user_machine=%s", user_proc_id,user_machine)
 		# node_process = lib_common.RemoteBox(user_machine).PidUri( sessPid )
 		node_process = theMachineBox.PidUri( sessPid )
 		grph.add( ( node_process, lib_common.MakeProp("SystemPid"), lib_common.NodeLiteral(user_proc_id) ) )
@@ -100,7 +100,7 @@ def Main():
 		grph.add( ( nodeSession, pc.property_oracle_session, node_process ) )
 
 		if sessOsuser != None:
-			sys.stderr.write("user_machine=%s sessOsuser=%s\n"%(user_machine,sessOsuser))
+			DEBUG("user_machine=%s sessOsuser=%s",user_machine,sessOsuser)
 			nodeOsUser = theMachineBox.UserUri(sessOsuser)
 			grph.add( ( nodeOsUser, lib_common.MakeProp("OsUser"), lib_common.NodeLiteral(sessOsuser) ) )
 			grph.add( ( node_process, pc.property_user, nodeOsUser ) )

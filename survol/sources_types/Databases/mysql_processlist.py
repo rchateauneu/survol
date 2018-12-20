@@ -58,18 +58,18 @@ def AddMySqlPort(grph,instanceMySql):
 
 	mysql_cmd_lst = ["mysqladmin","-u",aCred[0],"-p%s"%aCred[1],"-h%s"%hostMySql,"processlist"]
 	mysql_cmd = " ".join(mysql_cmd_lst)
-	sys.stderr.write("mysql_cmd=%s\n"%mysql_cmd)
+	DEBUG("mysql_cmd=%s",mysql_cmd)
 
 	command = subprocess.Popen(mysql_cmd_lst, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	(cmd_output, cmd_error) = command.communicate()
-	sys.stderr.write("mysql_cmd cmd_error=%s\n"%cmd_error)
+	DEBUG("mysql_cmd cmd_error=%s",cmd_error)
 
 	# [Warning] Using a password on the command line interface can be insecure.
 	if cmd_error and cmd_error.find(""):
 		lib_common.ErrorMessageHtml("Error running mysqladmin:"+ cmd_error)
 
 	for linSql in cmd_output.split("\n"):
-		sys.stderr.write("linSql="+linSql+"\n")
+		DEBUG("linSql="+linSql)
 		words_arr = linSql.split('|')
 		if len(words_arr) < 4:
 			continue
@@ -82,7 +82,7 @@ def AddMySqlPort(grph,instanceMySql):
 		mysql_command = words_arr[8].strip()
 		if mysql_host == 'Host':
 			continue
-		sys.stderr.write("host="+mysql_host+"\n")
+		DEBUG("host="+mysql_host)
 
 		mysql_addr_arr = mysql_host.split(':')
 		mysql_id_node = lib_common.NodeUrl('urn://' + mysql_host + '/mysql/' + str(mysql_id) )
@@ -117,7 +117,7 @@ def Main():
 	credNames = lib_credentials.GetCredentialsNames( "MySql" )
 
 	for instanceMySql in credNames:
-		sys.stderr.write("MySql servers instanceMySql=%s\n"%(instanceMySql))
+		DEBUG("MySql servers instanceMySql=%s",instanceMySql)
 
 		phpmyadminNode = AddMySqlPort(grph,instanceMySql)
 		grph.add( ( lib_common.nodeMachine, pc.property_rdf_data_nolist1, phpmyadminNode ) )

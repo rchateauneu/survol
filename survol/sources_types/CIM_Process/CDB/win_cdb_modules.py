@@ -58,14 +58,14 @@ def Main():
 
 	procNode = lib_common.gUriGen.PidUri( the_pid )
 
-	sys.stderr.write("Starting cdb_cmd=%s\n" % cdb_cmd )
+	DEBUG("Starting cdb_cmd=%s", cdb_cmd )
 	try:
 		cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
 	except WindowsError:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml( "cdb not available: Caught:%s" % str(exc) )
 
-	sys.stderr.write("Started cdb_cmd=%s\n" % cdb_cmd )
+	DEBUG("Started cdb_cmd=%s", cdb_cmd )
 
 	( cdb_output, cdb_err ) = cdb_pipe.communicate()
 
@@ -130,12 +130,9 @@ def Main():
 
 		# sys.stderr.write("dot_line=%s\n" % dot_line )
 
-	sys.stderr.write("Parsed cdb result\n")
-
+	DEBUG("Parsed cdb result")
 
 	CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
-
-
 
 	# cgiEnv.OutCgiRdf()
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[PropLoadedModule])

@@ -63,7 +63,7 @@ def EntityName(entity_ids_arr):
 
 # The group might be a string or an integer and its type must be kept.
 def IconToFile(hlib,group_name):
-    sys.stderr.write("IconToFile group_name=%s\n"%(str(group_name)))
+    DEBUG("IconToFile group_name=%s",str(group_name))
     libc = ctypes.CDLL(ctypes.util.find_library('c'))
     libc.memcpy.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t]
     libc.memcpy.restype = ctypes.c_char_p
@@ -83,7 +83,7 @@ def IconToFile(hlib,group_name):
 
     icon_size = 256
     icon_name = ctypes.windll.user32.LookupIconIdFromDirectoryEx(mem_icon_dir, True, icon_size, icon_size, 0x00000000);
-    sys.stderr.write("icon_name=%s\n"%str(icon_name))
+    DEBUG("icon_name=%s",str(icon_name))
     hResInfo = FindResourceW(hlib, icon_name, win32con.RT_ICON)
     size = ctypes.windll.kernel32.SizeofResource(hlib, hResInfo)
     rec = win32api.LoadResource(hlib, win32con.RT_ICON, icon_name)
@@ -114,7 +114,7 @@ def IconToFile(hlib,group_name):
     objTempFile = lib_common.TmpFile(imgFilNamPrefix,"bmp")
 
     imgFilNam = objTempFile.Name
-    sys.stderr.write("Generating %s\n"%imgFilNam)
+    DEBUG("Generating %s",imgFilNam)
     hbmp.SaveBitmapFile(hcdc, imgFilNam)
     win32gui.DestroyIcon(hIconRet)
     return objTempFile
@@ -145,13 +145,13 @@ def DisplayAsMime(grph,node,entity_ids_arr):
     fileName = entity_ids_arr[0]
     groupName = entity_ids_arr[1]
 
-    sys.stderr.write("fileName=%s groupName=%s\n" % (fileName, groupName ) )
+    DEBUG("fileName=%s groupName=%s", fileName, groupName )
 
     # Using LoadLibrary (rather than CreateFile) is required otherwise
     # LoadResource, FindResource and others will fail
     hlib = win32api.LoadLibraryEx(fileName, 0, 2)
 
-    sys.stderr.write("fileName=%s groupName=%s\n"%(fileName,str(groupName)))
+    DEBUG("fileName=%s groupName=%s",fileName,str(groupName))
     try:
         groupName = int(groupName)
     except:

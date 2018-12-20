@@ -658,26 +658,16 @@ class CIM_XmlMarshaller:
         G_httpClient.AddDataToSend(objJson)
 
     def SendUpdateToServer(self, attrNam, oldAttrVal, attrVal):
-        # Consider importing lib_event to be sure of the syntax of the urls.
-        # Anyway we are alrady importing lib_sql and more to come.
-        # And so we WILL have the ontology
-        # What is important:
-        # - Simple code.
-        # - No encoding problem.
-		#
-        # sys.path.append("../..")
-        # from survol import lib_event?????
-
-        # sys.stdout.write("Update %f %s %s %s\n"%(time.time(), self.__class__.__name__,attrNam,attrVal))
-
         # These are the properties which uniquely define the object.
         # There are always sent even if they did not change,
         # otherwise the object could not be identified.
         theSubjMoniker = self.GetMonikerSurvol()
 
         # TODO: If the attribute is part of the ontology, just inform about the object creation.
-
         # TODO: Some attributes could be the moniker of another object.
+        # TODO: AND THEREFORE, SEND LINKS, NOT ONLY LITERALS !!!
+        # OTHERWISE NO EDGES !!
+
         if oldAttrVal and isinstance( oldAttrVal, CIM_XmlMarshaller):
             objMonikerOld = oldAttrVal.GetMonikerSurvol()
             attrNamDelete = attrNam + "?predicate_delete"
@@ -907,8 +897,10 @@ class CIM_Process (CIM_XmlMarshaller,object):
         # This contains all the files objects accessed by this process.
         # It is used when creating a DockerFile.
         # It is a set, so each file appears only once.
-
         self.m_ProcessFileAccesses = []
+
+        # TODO: ADD AN ARRAY OF CIM_DataFile
+        # AND THE ATTRIBUTES COULD CONTAIN THE DATA OF m_ProcessFileAccesses ???
 
         if not G_ReplayMode:
             # Maybe this cannot be accessed.
@@ -1226,6 +1218,9 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
         # The Name property is a string representing the inherited name
         # that serves as a key of a logical file instance within a file system.
         # Full path names should be provided.
+
+        # TODO: When the name contains "<" or ">" it cannot be properly displayed in SVG.
+        # TODO: Also, names like "UNIX:" or "TCP:" should be processed a special way.
         self.Name = pathName
         # File name without the file name extension. Example: "MyDataFile"
         try:

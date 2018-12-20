@@ -25,7 +25,7 @@ def Main():
     dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
     tabNam = cgiEnv.m_entity_id_dict["Table"]
 
-    sys.stderr.write("dsn=%s tabNam=%s\n" % (dsnNam, tabNam ) )
+    DEBUG("dsn=%s tabNam=%s", dsnNam, tabNam )
 
     nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
     nodTab = survol_odbc_table.MakeUri( dsnNam, tabNam )
@@ -36,11 +36,11 @@ def Main():
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
-        sys.stderr.write("Connected: %s\n" % dsnNam)
+        DEBUG("Connected: %s", dsnNam)
         cursor = cnxn.cursor()
 
         cursor.columns(table=tabNam)
-        sys.stderr.write("Tables OK: %s\n" % dsnNam)
+        DEBUG("Tables OK: %s", dsnNam)
         rows = cursor.fetchall()
 
         # http://pyodbc.googlecode.com/git/web/docs.html

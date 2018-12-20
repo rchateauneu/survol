@@ -42,7 +42,7 @@ def Main():
 
 	packageNode = survol_python_package.MakeUri( packageNam )
 
-	sys.stderr.write("packageNam=%s\n"%packageNam)
+	DEBUG("packageNam=%s",packageNam)
 
 	grph = cgiEnv.GetGraph()
 

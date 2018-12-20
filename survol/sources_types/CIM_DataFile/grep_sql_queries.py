@@ -11,7 +11,7 @@ import sys
 import lib_sql
 import lib_util
 import lib_common
-import lib_modules
+# import lib_modules
 from lib_properties import pc
 
 # Any type of source file can contain SQL queries.
@@ -75,6 +75,7 @@ def Main():
 				for sqlQry in matchedSqls:
 					# grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
 					grph.add( ( nodeFile, rgxProp, lib_common.NodeLiteral(sqlQry) ) )
+			opFil.close()
 
 	except Exception:
 		exc = sys.exc_info()[1]

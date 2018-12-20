@@ -54,7 +54,7 @@ def BuildSrvDict( hscm, machineName ):
 		statuses = win32service.EnumServicesStatus(hscm, typeFilter, stateFilter)
 		# li=('wuauserv', 'Windows Update', (32, 4, 453, 0, 0, 0, 0))
 		for svc in statuses:
-			sys.stderr.write("service=%s\n" % str(svc) )
+			DEBUG("service=%s", str(svc) )
 			# TODO: This must match the keys of EnumServicesStatusEx
 			# lst = { "ServiceName":serviceName, "DisplayName":descript, "CurrentState": status}
 			lst = { "ServiceName":svc[0], "DisplayName":svc[1], "CurrentState": svc[2][1]}
@@ -91,7 +91,7 @@ def BuildSrvDict( hscm, machineName ):
 # This is really a hack but ok for prototyping. Why? Performances ?
 # tmplog because a timeout prevents Apache log to display sys.stderr.
 def BuildSrvNetwork( machineName ):
-	sys.stderr.write("BuildSrvNetwork machineName=%s localhost=%s\n" % (machineName,lib_util.currentHostname))
+	DEBUG("BuildSrvNetwork machineName=%s localhost=%s", machineName,lib_util.currentHostname)
 
 	machName_or_None, imper = lib_win32.MakeImpersonate(machineName)
 
@@ -115,7 +115,7 @@ def BuildSrvNetwork( machineName ):
 				try:
 					nodeSubService = dictServiceToNode[ subServiceName ]
 				except KeyError:
-					sys.stderr.write("Main=%s Sub=%s NOT CREATED\n" % ( serviceName, subServiceName ) )
+					WARNING("Main=%s Sub=%s NOT CREATED", serviceName, subServiceName )
 					continue
 
 				dictServiceToNode[ subServiceName ]["depends_in"].append( serviceName )
@@ -131,7 +131,7 @@ def BuildSrvNetwork( machineName ):
 			# BuildSrvNetwork serviceName=RpcEptMapper
 			# BuildSrvNetwork serviceName=DcomLaunch:
 			# BuildSrvNetwork serviceName=pla:
-			sys.stderr.write("BuildSrvNetwork serviceName=%s: Caught: %s\n" % ( serviceName, str(exc) ) )
+			WARNING("BuildSrvNetwork serviceName=%s: Caught: %s", serviceName, str(exc) )
 			# pywintypes.error: (5, 'OpenService', 'Access is denied.')
 
 			pass
@@ -177,7 +177,7 @@ def DictServiceToNode( grph, serviceDict, machineName = None ):
 
 
 def FullServiceNetwork(grph,machineName):
-	sys.stderr.write("FullServiceNetwork machineName=%s enter.\n" % str(machineName))
+	DEBUG("FullServiceNetwork machineName=%s enter.", str(machineName))
 	dictServiceToNode = {}
 	dictServiceMap = BuildSrvNetwork( machineName )
 
@@ -193,14 +193,14 @@ def FullServiceNetwork(grph,machineName):
 		for subServiceName in serviceDict["depends_in"]:
 			nodeSubService = dictServiceToNode[ subServiceName ]
 			grph.add( (nodeService, pc.property_service, nodeSubService ) )
-	sys.stderr.write("FullServiceNetwork machineName=%s leaving.\n" % str(machineName))
+	DEBUG("FullServiceNetwork machineName=%s leaving.", str(machineName))
 
 
 # Ajoute des informations variees autour du node d'un service.
 # N'a pas besoin d'etre extremement rapide.
 def AddInfo(grph,node,entity_ids_arr):
 	serviceNam = entity_ids_arr[0]
-	sys.stderr.write("AddInfo serviceNam=%s\n" % serviceNam )
+	DEBUG("AddInfo serviceNam=%s", serviceNam )
 
 	machName_or_None, imper = lib_win32.MakeImpersonate("")
 	hscm = win32service.OpenSCManager(machName_or_None, None, accessSCM)
@@ -213,7 +213,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	except Exception:
 		exc = sys.exc_info()[1]
 		# Probably "Access is denied"
-		sys.stderr.write("AddInfo Caught:%s\n" % str(exc) )
+		WARNING("AddInfo Caught:%s", str(exc) )
 		lstSrvPairs = dict()
 		try:
 			lstSrvPairs[ "Status" ] = str(exc[2])
@@ -230,7 +230,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	# WaitHint                  0
 	# Win32ExitCode             0
 	for keySrv in lstSrvPairs:
-		sys.stderr.write("AddInfo keySrv:%s\n" % keySrv )
+		DEBUG("AddInfo keySrv:%s", keySrv )
 		valSrv = lstSrvPairs[ keySrv ]
 		if keySrv == "ProcessId":
 			if int(valSrv) != 0:

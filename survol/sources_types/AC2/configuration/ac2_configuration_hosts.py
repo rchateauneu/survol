@@ -55,7 +55,7 @@ def Main():
 
 	ac2File = cgiEnv.m_entity_id_dict["File"]
 
-	sys.stderr.write("ac2File=%s\n"% (ac2File) )
+	DEBUG("ac2File=%s", ac2File)
 
 	grph = cgiEnv.GetGraph()
 

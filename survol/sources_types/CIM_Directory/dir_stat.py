@@ -24,7 +24,7 @@ def Main():
 	filNam = cgiEnv.GetId()
 	filNam = filNam.replace("\\","/")
 
-	sys.stderr.write("filNam=%s\n" % filNam )
+	DEBUG("filNam=%s", filNam )
 
 	filNode = lib_common.gUriGen.DirectoryUri(filNam )
 
@@ -56,7 +56,7 @@ def Main():
 			break
 		dirNode = lib_common.gUriGen.DirectoryUri( dirPath )
 		grph.add( ( dirNode, pc.property_directory, currNode ) )
-		sys.stderr.write("dirPath=%s\n" % dirPath)
+		DEBUG("dirPath=%s", dirPath)
 		statPath = os.stat(dirPath)
 		CIM_DataFile.AddStatNode( grph, dirNode, statPath )
 
