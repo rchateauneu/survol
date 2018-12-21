@@ -1363,7 +1363,13 @@ def WrtAsUtf(aStr):
 	# Ok: Python 2, with Jupyter and Apache.
 	if sys.version_info >= (3,):
 		if isinstance(aStr,str):
-			globalOutMach.OutStream().write( aStr )
+			try:
+				# Writing to lib_client
+				globalOutMach.OutStream().write( aStr )
+			except TypeError:
+				# string argument expected, got 'bytes'
+				# Writing to cgiServer socket.
+				globalOutMach.OutStream().write( aStr.encode('latin1') )
 		else:
 			globalOutMach.OutStream().write( aStr.decode('latin1') )
 	else:
