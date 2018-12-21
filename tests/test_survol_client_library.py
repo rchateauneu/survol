@@ -1702,6 +1702,8 @@ class SurvolOracleTest(unittest.TestCase):
 				# The query must start with a select.
 				assert( qryDecodedFull.strip().upper().startswith("SELECT"))
 
+				# TODO: Parse the query ? Or extracts its dependencies ?
+
 
 	@decorator_oracle_db
 	def test_oracle_schema_tables(self,oracleDb):
@@ -1747,7 +1749,7 @@ class SurvolOracleTest(unittest.TestCase):
 
 		# Various tables which should always be in 'SYSTEM' namespace:
 		for oneStr in [
-			'oracle/table.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
+			'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
 			#'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracleDb,
 			#'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracleDb,
 		]:
