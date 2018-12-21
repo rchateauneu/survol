@@ -83,7 +83,7 @@ def Main():
 	try:
 		resuList = win32net.NetUserGetLocalGroups(servName_or_None,userName)
 	except:
-		lib_common.ErrorMessageHtml("Error:"+str(sys.exc_info()))
+		lib_common.ErrorMessageHtml("Error:userName="+userName+":servName_or_None="+str(servName_or_None)+":"+str(sys.exc_info()))
 
 	for groupName in resuList:
 		nodeGroup = survol_Win32_Group.MakeUri( groupName, hostName )
