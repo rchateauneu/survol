@@ -7,6 +7,7 @@ import sys
 import os
 import time
 import socket
+import platform
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -846,9 +847,18 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
 		# Some nodes are in Py2 or Py3.
 		if sys.version_info >= (3,):
-			listOption = [
-			'CIM_DataFile.Name=C:/windows/system32/kernel32.dll',
-			]
+			if platform.release() == '7':
+				listOption = [
+				'CIM_DataFile.Name=C:/windows/system32/kernel32.dll',
+				]
+			elif platform.release() == '10':
+				# 'C:\\Users\\rchat\\AppData\\Local\\Programs\\Python\\Python36\\python.exe'
+				# 'C:/Users/rchat/AppData/Local/Programs/Python/Python36/DLLs/_ctypes.pyd'
+				filCTypes = os.path.dirname(sys.executable).replace("\\","/") + '/DLLs/_ctypes.pyd'
+				listOption = [
+					'CIM_DataFile.Name=%s' % sys.executable.replace("\\","/"),
+					'CIM_DataFile.Name=%s' % filCTypes,
+				]
 		else:
 			listOption = [
 			'CIM_DataFile.Name=C:/windows/SYSTEM32/ntdll.dll',
