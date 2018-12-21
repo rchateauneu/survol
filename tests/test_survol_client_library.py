@@ -6,6 +6,7 @@ import subprocess
 import sys
 import os
 import time
+import socket
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -17,11 +18,12 @@ if sys.path[0] != filRoot:
 	# print(sys.path)
 
 CurrentUsername = os.environ["USERNAME"]
-CurrentMachine = "rchateau-hp"
+# "rchateau-hp"
+CurrentMachine = socket.gethostname().lower()
 
 # TODO: This should be a parameter.
-# It points to the Survol adhoc CGI server.
-RemoteTestAgent = "http://rchateau-hp:8000"
+# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
+RemoteTestAgent = "http://" + CurrentMachine + ":8000"
 
 # TODO: This should be a parameter. This is an Apache server pointing on the current directory.
 # This should behave exactly like the CGI server. It needs the default HTTP port.
@@ -605,24 +607,17 @@ class SurvolLocalTest(unittest.TestCase):
 
 		# Some instances are required.
 		if sys.platform.startswith("win"):
+			# This is common to Windows 7 and Windows 8.
 			for oneStr in [
 				'CIM_Process.Handle=%s'%procOpen.pid,
 				'memmap.Id=C:/Windows/Globalization/Sorting/SortDefault.nls',
-				'memmap.Id=C:/Windows/System32/apisetschema.dll',
-				'memmap.Id=C:/Windows/System32/apphelp.dll',
-				'memmap.Id=C:/Windows/System32/imm32.dll',
 				'memmap.Id=C:/Windows/System32/kernel32.dll',
 				'memmap.Id=C:/Windows/System32/locale.nls',
-				'memmap.Id=C:/Windows/System32/msctf.dll',
 				'memmap.Id=C:/Windows/System32/ntdll.dll',
-				'memmap.Id=C:/Windows/System32/user32.dll',
 				'memmap.Id=C:/Windows/System32/KernelBase.dll',
-				'memmap.Id=C:/Windows/System32/lpk.dll',
-				'memmap.Id=C:/Windows/System32/winbrand.dll',
-				'memmap.Id=C:/Windows/System32/usp10.dll',
 				'memmap.Id=C:/Windows/System32/msvcrt.dll',
 				'memmap.Id=C:/Windows/System32/cmd.exe',
-				'memmap.Id=C:/Windows/System32/gdi32.dll']:
+				]:
 				assert( oneStr in strInstancesSet)
 		else:
 			print("Linux case: Not implemented yet")
