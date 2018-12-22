@@ -128,7 +128,23 @@ def triplestore_to_stream_xml(grph,out_dest):
 	# grph.serialize( destination = out_dest, format="xml")
 	# There might be a way to serialize directory to the socket.
 	strXml = grph.serialize( destination = None, format="xml")
-	out_dest.write(strXml.decode('latin1'))
+	if sys.version_info >= (3,):
+		# Really horrible piece of code, because out_dest might expect a str or a bytes,
+		# depending on its type.
+		try:
+			#out_dest.write(strXml.decode('latin1'))
+			# TypeError: string argument expected, got 'bytes'
+			out_dest.write(strXml)
+		except TypeError as exc:
+			DEBUG("triple_store_to_stream_xml. tp=%s exc=%s.",str(type(strXml)),str(exc))
+			try:
+				# TypeError: a bytes-like object is required, not 'str'
+				out_dest.write(strXml.decode('latin1'))
+			except TypeError as exc:
+				ERROR("triple_store_to_stream_xml. tp=%s exc=%s. Cannot write:%s", str(type(strXml)), str(exc), strXml)
+				raise
+	else:
+		out_dest.write(strXml.decode('latin1'))
 
 
 # This reasonably assumes that the triplestore library is able to convert from RDF.

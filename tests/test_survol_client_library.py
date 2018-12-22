@@ -1780,8 +1780,6 @@ class SurvolOracleTest(unittest.TestCase):
 
 		# The dependencies of this view should always be the same,as it does not change often.
 		for oneStr in [
-			'oracle/package_body.Db=%s,Schema=SYS,PackageBody=DBMS_EDITIONS_UTILITIES' % oracleDb,
-			'oracle/package_body.Db=%s,Schema=SYS,PackageBody=DMP_SYS' % oracleDb,
 			'oracle/schema.Db=%s,Schema=SYS' % oracleDb,
 			'oracle/synonym.Db=%s,Schema=PUBLIC,Synonym=ALL_ALL_TABLES' % oracleDb,
 			'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
