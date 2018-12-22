@@ -112,7 +112,7 @@ class SourceCgi (SourceBase):
 def LoadModedUrl(urlModed):
 	DEBUG("LoadModedUrl.get_content_moded urlModed=%s",urlModed)
 	try:
-		response = urlopen(urlModed)
+		response = urlopen(urlModed,timeout=20)
 	except:
 		ERROR("LoadModedUrl urlModed=%s",urlModed)
 		raise
