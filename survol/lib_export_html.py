@@ -548,7 +548,7 @@ def DisplayHtmlTextFooter():
 	<td><a href="%s">Survol home</a></td>
 	<td><a href="%s">Configuration</a></td>
 	<td><a href="%s">Credentials</a></td>
-	<td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017</i></td>
+	<td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017-2019</i></td>
 	</tr></table>
 	"""
 
