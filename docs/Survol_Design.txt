@@ -1182,10 +1182,6 @@ Access-Control-Allow-Origin: *
 
 Voir avec Jeremie F, demonstration SMI-S.
 ========================================================================================================================
-
-Ajuster la trajectoire du placement des nodes de D3.
-Controler le rythme de la trajectoire de facon "musicale"
-========================================================================================================================
 Micropython
 https://forum.pycom.io/
 Wipy
@@ -1497,71 +1493,13 @@ Meme logique d'import que l'affichage donc ca devrait marcher.
 ENCODAGE TRANSPARENT DES ARGUMENTS CGI
 
 On veut qu un parametre CGI soit encode/decode de facon transparente.
-On ajouterait une fonction speciale ? Mais il faudrait la mettre dans tous
+On ajoute une fonction speciale ? Mais il faudrait la mettre dans tous
 Les modules qui utilisent "dsn=" : "odbc/table", "odbc/view", "sqlserver/table" etc...
 
-import sys
+Voir sources_types/sql/query/__init__.py la classe class CgiPropertyQuery(CgiPropertyB64)
 
-import the_module
-
-def ProcessElement(cgiArg):
-        return "DECODED_MAIN "+cgiArg
-
-def ExecuteTest():
-        print("Starting Local test. Module=%s"%sys.modules[__name__].__name__)
-
-        entity_module = sys.modules[__name__]
-        funArrModu = the_module.MyFunnyArray(entity_module)
-
-        funArrModu.append("1")
-        funArrModu.append("2")
-
-        for idx in range( len(funArrModu) ):
-                print("funArrModu[%d]=%s"%(idx,funArrModu[idx]))
-
-        the_module.TestFunnyArray()
-
-
-if __name__ == "__main__":
-    ExecuteTest()
-
-============================================================================================================
-import sys
-import inspect
-import importlib
-
-# It filters any access to the parameters parsed from the URL.
-class MyFunnyArray:
-        def __init__(self,aModule):
-                self._arr = []
-                self.m_calling_module = aModule
-
-        def __len__(self):
-                return len(self._arr)
-
-        def __getitem__(self, ix):
-
-                elt = self._arr[ix]
-
-                try:
-                        return self.m_calling_module.ProcessElement(elt)
-                except AttributeError:
-                        return "RAW:" + elt
-
-        def append(self, obj):
-                return self._arr.append(obj)
-
-
-def TestFunnyArray():
-        entity_module = importlib.import_module( "the_module" )
-
-        funArrLoca = MyFunnyArray(entity_module)
-
-        funArrLoca.append("A")
-        funArrLoca.append("B")
-
-        for idx in range( len(funArrLoca) ):
-                print("funArrLoca[%d]=%s"%(idx,funArrLoca[idx]))
+Mais il serait peut-etre plus simple de convenir d'un prefixe pour le parametre dans la chaine CGI:
+b64 etc... On pourrait dynamiquement tester si le parametre peut etre encode dans du CGI.
 
 
 ============================================================================================================
@@ -1601,7 +1539,10 @@ http://sqlwebadmin.codeplex.com/
 " The SQL Server Web Data Administrator enables you to easily manage your SQL Server data, wherever you are."
 
 ============================================================================================================
-Realite augmentee:
+Augmented reality:
+On top of the desktop, display graphic objects associated to visible software objects.
+
+TODO: Translate this:
 Afficher par dessus le desktop les object de grph qui correspondent aux objects visibles.
 La "realite" est ce qu on voit sur le desktop.
 Donc, on va afficher les process au-dessus des fentres des applications qui ont cree ces process.
@@ -1614,17 +1555,60 @@ Pour forcer l affichage, on peut renforcer la proximite de certains objets en le
 une propriete bidon, dont l arete est transparente.
 
 ============================================================================================================
-Ecarter les infos sans importance:
-Options dans les scripts:
+Information which are not very important should be hidden with a specific flag in scripts. Examples:
 
 Processes:
-Option "Hide system software" ON par defaut ?
-Virer si les executables sont dans /usr/bin ou C:\Windows
+Option "Hide system software" ON by default ?
+=> Do not show executables which are in /usr/bin or C:\Windows
 
 Shared memory :
-"Hide system DLLs"
+=> Option "Hide system DLLs"
 
 ============================================================================================================
 For the documentation, consider:
 http://www.purplepixie.org/freenats/wiki/Introduction
 https://www.mediawiki.org/wiki/MediaWiki
+
+============================================================================================================
+D3 Javascript interface:
+- Mix SVG nodes with graphes and trees. Maybe they could be linked in a matrix ?
+- For colors, use CSS.
+- When a Json document is empty, the interface should display a message.
+
+========================================================================================================================
+D3 Javascript interface:
+Ajuster la trajectoire et le rythme du placement des nodes de D3.
+
+============================================================================================================
+Undo edition: For this, use a specific script deleting the object passed in parameters: entity_deleted.py
+We wish to pass several parameters so that scripts and objects can be added or substracted,
+with pattern matching possibilities.
+Should we pass the arguments as GET or as a JSON document ?
+This could assume the CGI structure:
+"http://127.0.0.1:8000/survol.html?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
+
+xxx.htm?xid=(XID1)&script=(SCRIPT1)&operator=+&xid=(XID2)&script=(SCRIPT2)
+
+============================================================================================================
+Consider restoring merge_rdf_inputs_graphviz_only.htm,
+in fact it can handle all modes, something like merger.py.
+Its role is to produce a document based on several URLs.
+The files *merge*.htm  are no longer necessary
+
+============================================================================================================
+Graphic properties must be transmitted to edges: This simply means having a specific object:
+"COLLAPSED_PROPERTY" property "True"
+... or:
+"PROPERTY_LAYOUT" property "Ortho"
+
+
+
+TODO: We need another operator which applies a script on all object of a given class
+in the current graph. Example:
+url=sources_types/all_processes.py
+&operator=*
+&url=sources_types/ComputerSystem/process_open_files.py
+
+This would display the open files of all processes.
+*/
+
