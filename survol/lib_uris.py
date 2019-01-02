@@ -255,12 +255,13 @@ class LocalBox:
 	def SymbolUri(self,symbol_name, path = ""):
 		# The URL should never contain the chars "<" or ">".
 		symbol_name = lib_util.Base64Encode(symbol_name)
+		# TODO: Move that to linker_symbol/__init__.py and see sources_types.sql.query.MakeUri
 		# TODO: Alphabetical order !!!!
 		path = path.replace("\\","/") # TODO: Use normpath()
 		return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(path) } )
 
 	# Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
-	# TODO: Move that to class/__init__.py
+	# TODO: Move that to class/__init__.py and see sources_types.sql.query.MakeUri
 	def ClassUri(self,class_name, path = ""):
 		# The URL should never contain the chars "<" or ">".
 		class_name = lib_util.Base64Encode(class_name)
