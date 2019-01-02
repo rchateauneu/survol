@@ -1595,12 +1595,18 @@ class SurvolOracleTest(unittest.TestCase):
 
 	def decorator_oracle_db(test_func):
 		"""This returns the first available Oracle connection as specified in the Credentials file"""
-
+		global cx_Oracle_import_ok
 		try:
-			import cx_Oracle
-		except ImportError as ex:
-			print("Module cx_Oracle is not available so this test is not applicable:",ex	)
-			return None
+			# This tests only once if this module can be imported.
+			return cx_Oracle_import_ok
+		except NameError:
+			try:
+				import cx_Oracle
+				cx_Oracle_import_ok = True
+			except ImportError as ex:
+				print("Module cx_Oracle is not available so this test is not applicable:",ex	)
+				cx_Oracle_import_ok = False
+				return None
 
 		mySourceOracleDbs = lib_client.SourceLocal(
 			"sources_types/Databases/oracle_tnsnames.py")
@@ -1788,6 +1794,41 @@ class SurvolOracleTest(unittest.TestCase):
 		]:
 			assert( oneStr in strInstancesSet)
 
+class SurvolPEFileTest(unittest.TestCase):
+	"""Testing pefile features"""
+	def test_pefile_exports(self):
+		"""This tests the exported functions of a DLL."""
+
+		# Very common DLL.
+		dllFileName = r"C:\Windows\System32\gdi32.dll"
+
+		mySourcePEFileExports = lib_client.SourceLocal(
+			"sources_types/CIM_DataFile/portable_executable/pefile_exports.py",
+			"CIM_DataFile",
+			Name=dllFileName)
+
+		triplePEFileExports = mySourcePEFileExports.GetTriplestore()
+
+		lstInstances = triplePEFileExports.GetInstances()
+		import sources_types.linker_symbol
+		namesInstance = set()
+
+		for oneInst in lstInstances:
+			if oneInst.__class__.__name__ == 'linker_symbol':
+				instName = sources_types.linker_symbol.EntityName( [oneInst.Name,oneInst.File] )
+				namesInstance.add(instName)
+
+		# Some exported functiosn which should be there.
+		for oneStr in [
+			"CreateBitmapFromDxSurface",
+			"DeleteDC",
+			"GdiCreateLocalMetaFilePict",
+			"ClearBitmapAttributes",
+			"GetViewportOrgEx",
+			"GdiDescribePixelFormat",
+			"OffsetViewportOrgEx",
+		]:
+			assert( oneStr in namesInstance)
 
 
 class SurvolSearchTest(unittest.TestCase):
