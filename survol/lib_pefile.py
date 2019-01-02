@@ -8,7 +8,7 @@ undname.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint, ctypes.c_ui
 def UndecorateSymbol(strSym):
 	sizBuf = 200
 	while True:
-		ptrBuf = ctypes.create_string_buffer("", sizBuf)
+		ptrBuf = ctypes.create_string_buffer(b"", sizBuf)
 		sizActual = undname(strSym,ptrBuf,sizBuf,0)
 		if sizActual < sizBuf - 2:
 			strRaw = ptrBuf.value
@@ -16,10 +16,10 @@ def UndecorateSymbol(strSym):
 		sizBuf *= 2
 
 	# Now, some cleanup of useless strings. This tries to keep only the semantic information.
-	for subStr in [ "__thiscall ", "__cdecl", "class ","struct "," __ptr64"]:
-		strRaw = strRaw.replace(subStr,"")
+	for subStr in [ b"__thiscall ", b"__cdecl", b"class ",b"struct ",b" __ptr64"]:
+		strRaw = strRaw.replace(subStr,b"")
 
-	for subStr in [ "private: ", "public: ", "protected: "]:
+	for subStr in [ b"private: ", b"public: ", b"protected: "]:
 		if strRaw.startswith(subStr):
 			strRaw = strRaw[ len(subStr): ]
 			break
