@@ -1286,7 +1286,11 @@ def SplitMonikToWQL(splitMonik,className):
 
 def Base64Encode(text):
 	if sys.version_info >= (3,):
-		return base64.urlsafe_b64encode(text.encode('utf-8')).decode('utf-8')
+		if isinstance(text,bytes):
+			txtToB64Encode = text
+		else:
+			txtToB64Encode = text.encode('utf-8')
+		return base64.urlsafe_b64encode(txtToB64Encode).decode('utf-8')
 	else:
 		return base64.urlsafe_b64encode(text)
 
