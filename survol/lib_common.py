@@ -950,13 +950,14 @@ class TmpFile:
 			if self.Name:
 				self.DbgDelFil(self.Name)
 
+			# Extra check, not to remove everything.
 			if self.TmpDirToDel not in [None,"/",""]:
-				DEBUG("About to NOT del %s", self.TmpDirToDel )
+				DEBUG("About to del %s", self.TmpDirToDel )
 				for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
 					for name in files:
 						self.DbgDelFil(os.path.join(root, name))
 					for name in dirs:
-						#os.rmdir(os.path.join(root, name))
+						os.rmdir(os.path.join(root, name))
 						pass
 
 		except Exception:
