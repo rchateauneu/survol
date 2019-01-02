@@ -18,7 +18,8 @@ def EntityName(entity_ids_arr):
 	try:
 		# Trailing padding.
 		resu = lib_util.Base64Decode(entity_id)
-		# TODO: LE FAIRE AUSSI POUR LES AUTRES SYMBOLES.
+		# TODO: Should have a more generic solution: i.e. always b64 encode CGI-incompatible strings.
+		# See lib_uris.SymbolUri which does the encoding.
 		resu = cgi.escape(resu)
 		return resu
 	except TypeError:
