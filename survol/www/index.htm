@@ -94,9 +94,12 @@
         display: inline-block;
         position: relative;
         width: 100%;
-        padding-bottom: 100%; /* aspect ratio */
+        min-height: 100px;
+        /* padding-bottom: 100%; */ /* aspect ratio */
+        margin-bottom: 25px;
+        height: auto; /* aspect ratio */
         vertical-align: top;
-        overflow: hidden;
+        overflow: visible; /* With this option set as hidden, the bottom of the screen is hidden on mobile phones: */
     }
 
     .svg-content-responsive {
@@ -125,71 +128,6 @@
 </style>
 
 <script>
-/*
-TODO:
-- Mix SVG nodes with graphes and trees.
-  Maybe they could be linked in a matrix ?
-- For colors, use CSS.
-- When a Json document is empty, should display a message.
-
-Undo edition: For this, use a specific script deleting the object passed in parameters: entity_deleted.py
-We wish to pass several parameters so that scripts and objects can be added or substracted,
-with pattern matching possibilities.
-Should we pass the arguments as GET or as a JSON document ?
-This could assume the CGI structure:
-"http://127.0.0.1:8000/survol.html?xid=CIM_Directory.Name=E%3A%2FHewlett-Packard%2FSystemDiags"
-
-xxx.htm?xid=(XID1)&script=(SCRIPT1)&operator=+&xid=(XID2)&script=(SCRIPT2)
-
-And also we need to restore merge_rdf_inputs_graphviz_only.htm,
-in fact it can handle all modes, something like merger.py.
-Its role is to produce a document based on several URLs.
-And we will zap the files *merge*.htm .
-Also, we must transmit to graphic properties for edges: This simply means having a specific object:
-"COLLAPSED_PROPERTY" property "True"
-... ou bien:
-"PROPERTY_LAYOUT" property "Ortho"
-
-
-
-TODO: We need another operator which applies a script on all object of a given class
-in the current graph. Example:
-url=sources_types/all_processes.py
-&operator=*
-&url=sources_types/ComputerSystem/process_open_files.py
-
-This would display the open files of all processes.
-*/
-
-/*
-http://127.0.0.1:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29
-http://127.0.0.1:8000/survol/entity.py?xid=rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672
-
-// The URLs list is something like that. It is not needed to split the xid.
-[
-    script="sources_types/CIM_DataFile/file_stat.py",
-    xid:"CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29"
-],
-[
-    script="entity.py"
-    xid="rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
-],
-
-
-or simply:
-[
-    urls:"sources_types/CIM_DataFile/file_stat.py?CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29",
-    url:"entity.py?rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
-],
-
-Or even:
-[
-    urls:"http://127.0.0.1:8000/sources_types/CIM_DataFile/file_stat.py?CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29",
-    url:"http://127.0.0.1:8000/entity.py?rabbitmq/connection.Url=LOCALHOST:12345,Connection=127.0.0.1:51533%20-%3E%20127.0.0.1:5672"
-],
-
-A URL could be used on several agents, returning the same result if the agent is provided in the URL.
-*/
 function GetCgiParams()
 {
     // console.log("resetParams");
@@ -349,12 +287,9 @@ function D3DisplayCreation()
 {
     'use strict';
 
-    var win = window;
-    var doc = document;
-
     // For HTML documents the returned object is the <html> element.
-    var eltDocElt = doc.documentElement;
-    var gebBody = doc.getElementsByTagName('body')[0];
+    var eltDocElt = document.documentElement;
+    var gebBody = document.getElementsByTagName('body')[0];
 
     gebBody.addEventListener('drop', onDrop);
     gebBody.addEventListener('dragover', onDragOver, false);
@@ -401,38 +336,17 @@ function D3DisplayCreation()
 
     function SetSvgRect()
     {
-        /* Typical values:
-               win.innerWidth= 1892        win.innerHeight=  430
-        eltDocElt.clientWidth= 1869 eltDocElt.clientHeight=  430
-          gebBody.clientWidth= 1853  gebBody.clientHeight = 2034
-        */
+        var divHeader = document.getElementById("HeaderDiv");
+        var heightHeader = divHeader.offsetHeight;
 
-
-        /*
-        // win.innerWidth and win.innerHeight are the window's height and width, without toolbars/scrollbars
-        wScreen = Math.max( win.innerWidth , eltDocElt.clientWidth , gebBody.clientWidth  );
-        hScreen = Math.max( win.innerHeight, eltDocElt.clientHeight, gebBody.clientHeight );
-
-        console.log("win.innerWidth="+win.innerWidth);
-        console.log("eltDocElt.clientWidth="+eltDocElt.clientWidth);
-        console.log("gebBody.clientWidth="+gebBody.clientWidth);
-        console.log("wScreen="+wScreen);
-
-        console.log("win.innerHeight="+win.innerHeight);
-        console.log("eltDocElt.clientHeight="+eltDocElt.clientHeight);
-        console.log("gebBody.clientHeight="+gebBody.clientHeight);
-        console.log("hScreen="+hScreen);
-        */
-
-        wScreen = win.innerWidth;
-        hScreen = win.innerHeight;
-
-        wScreen -= 10;
-        hScreen -= 50;
+        wScreen = Math.max( window.innerWidth , eltDocElt.clientWidth , gebBody.clientWidth  );
+        hScreen = Math.max( window.innerHeight, eltDocElt.clientHeight, gebBody.clientHeight );
+        wScreen -= 20;
+        hScreen -= (heightHeader + 30); // TODO: Must take into account the text size.
 
         // If we do not use "viewBox" and "preserveAspectRatio".
         divSvg
-            .attr("width", wScreen-10) // -10 otherwise the right side is not visible.
+            .attr("width", wScreen)
             .attr("height", hScreen)
             ;
     }
@@ -2635,8 +2549,9 @@ Ajouter le lien de merge.
 
 <body>
 
+<div id="HeaderDiv">
 <table border="0" width="100%"><tr>
-    <td><a href="index.htm">Survol</a> <i>Exploring LegacyWare. Based on CIM/WMI/WBEM, with a web ui. &copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017-2019</i></td>
+    <td><a href="index.htm">Survol</a> <i>Exploring LegacyWare. Based on CIM/WMI/WBEM, with a web ui. &copy;&nbsp;<a href="http://www.primhillcomputers.com">Primhill&nbsp;Computers</a>&nbsp;2017-2019</i></td>
     <td align="right"><a href="#" id="IdHrefSummary">Tools</a>&nbsp;
     <a href="#" id="IdPrintLayout">SVG</a>
     <a href="#" id="IdHtmlLayout">HTML</a>
@@ -2644,6 +2559,7 @@ Ajouter le lien de merge.
 <a href="help.htm">Help</a>
     </td>
 </tr></table>
+</div>
 
 <div id="MainDiv"></div>
 
