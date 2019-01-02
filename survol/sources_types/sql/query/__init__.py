@@ -34,7 +34,7 @@ class CgiPropertyB64(str):
 	def ValueDisplay(self,valueClear):
 		return cgi.escape(valueClear)
 
-
+# TODO: This is probably not the proper solution.
 class CgiPropertyQuery(CgiPropertyB64):
 	#def __init__(self):
 	#	#pass
@@ -57,7 +57,7 @@ def EntityOntology():
 # TODO: This is called from other classes like that: sql_query.MakeUri( strQuery, "oracle/query", Db = theDb )
 # On voudrait davantage generaliser.
 def MakeUri(strQuery,derivedEntity = "sql/query", **kwargs):
-	# sys.stderr.write("derivedEntity=%s strQuery=%s kwargs=%s\n"%(derivedEntity,strQuery,str(kwargs)))
+	# TODO: This should rather rely on CgiPropertyB64, or have a fully generic solution for CGI-incompatible strings.
 	strQueryEncoded = lib_util.Base64Encode(strQuery)
 	# The result might be: { "Query" : strQueryEncoded, "Pid" : thePid  }
 
