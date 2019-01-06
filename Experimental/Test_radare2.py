@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import r2pipe
+import six
 import sys
 import os
 import json
@@ -458,10 +459,12 @@ def createSeGraph():
 	refsFunc = 0
 	debugDict['functions'] = len(functionList)
 
-	for item in functionList:
+	six.moves.input("Before loop on %s functions"%len(functionList))
 
+	for item in functionList:
 		graphity.add_node(hex(item['offset']), size=item['size'], calltype=item['calltype'], calls=[], apicallcount=0, strings=[])
 
+	six.moves.input("Before second loop on %s functions"%len(functionList))
 	for item in functionList:
 
 		for xref in item['callrefs']:
@@ -732,12 +735,24 @@ def TestEarth(filNam):
 	R2PY.cmd("e anal.jmptbl = true")
 	R2PY.cmd("e anal.hasnext = true")
 
+
+	six.moves.input("Before aaa")
 	R2PY.cmd("aaa")
+
+	analy_func_recurs = False
+	six.moves.input("Before afr")
 	R2PY.cmd("afr")
+
+	# Too slow. Set anal.depth ?
+
+	six.moves.input("Before afr @@ sym*")
 	R2PY.cmd("afr @@ sym*")
 
 	# GRAPH CREATION
+	six.moves.input("Before createSeGraph")
 	graphity, debug = createSeGraph()
+
+	six.moves.input("After createSeGraph")
 
 	# DLL PROCESSING
 	if 'DLL' in allAtts['filetype']:
@@ -750,10 +765,167 @@ def TestEarth(filNam):
 	tagCallbacks(graphity)
 
 
+def OldTest():
+	os.environ["PATH"] = os.environ["PATH"] + ";C:\\Users\\rchateau\\AppData\\Local\\Programs\\radare2"
 
-os.environ["PATH"] = os.environ["PATH"] + ";C:\\Users\\rchateau\\AppData\\Local\\Programs\\radare2"
+	filNam = r"C:\Program Files (x86)\Google\Google Earth Pro\client\googleearth.exe"
+
+	TestEarth(filNam)
+
+def TestOneDll(myDllNam):
+	myDllNam = myDllNam.replace("\\","/")
+	try:
+		R2PY = r2pipe.open(myDllNam,flags=["-2"])
+	except Exception as exc:
+		print("Exception when opening file=%s. Caught %s"%(myDllNam,str(exc)))
+		raise
+
+	print( '* %s R2 started analysis of %s' % (str(datetime.now()), myDllNam))
+
+	try:
+		R2PY.cmd("aaa")
+	except IOError as exc:
+		#print("File=%s. Caught %s"%(myDllNam,str(exc)))
+		return
 
 
-filNam = r"C:\Program Files (x86)\Google\Google Earth Pro\client\googleearth.exe"
+	#[0x180005218]> iE
+	#[Exports]
+	#Num Paddr      Vaddr      Bind     Type Size Name
+	#000 0x00002100 0x180002d00 GLOBAL   FUNC    0 pyshellext.dll_DllCanUnloadNow
+	# [0x180005218]> afd 0x180002d00
+	# sym.pyshellext.dll_DllCanUnloadNow
+	# [0x180005218]> afd 0x180002d01
+	# sym.pyshellext.dll_DllCanUnloadNow + 1
 
-TestEarth(filNam)
+	# ('Name=', u'GDI32.dll_SetBrushOrgEx')
+
+	# [0x180005218]> is
+	# [Symbols]
+	# Num Paddr      Vaddr      Bind     Type Size Name
+	# 000 0x00002100 0x180002d00 GLOBAL   FUNC    0 pyshellext.dll_DllCanUnloadNow
+	# 001 0x00005778 0x180007178   NONE   FUNC    0 imp.SHLWAPI.dll_PathRemoveFileSpecW
+
+	if False:
+		iEj = R2PY.cmdj("iEj")
+		# print(iEj)
+		for one_iEj in iEj:
+			# print(one_iEj)
+			if one_iEj['bind'] == 'GLOBAL':
+				if one_iEj['type'] == 'FUNC':
+					funcName = one_iEj['name']
+					print("Name=",funcName)
+
+	# {u'type': u'CODE', u'refname': u'sym.imp.LPK.dll_LpkInitialize+78', u'from': 2108424888, u'name': u'sym.imp.LPK.dll_LpkInitialize+120', u'addr': 2108424846}
+	# {u'type': u'CODE', u'refname': u'sym.imp.LPK.dll_LpkInitialize+282', u'from': 2108425004, u'name': u'sym.imp.LPK.dll_LpkInitialize+236', u'addr': 2108425050}
+
+	atLeastOne = False
+
+	axj = R2PY.cmdj("axj")
+	for one_axj in axj:
+		funcFromRaw = one_axj['refname']
+		funcToRaw = one_axj['name']
+
+		if funcFromRaw.find("+") >= 0:
+			continue
+
+		if funcToRaw.find("+") >= 0:
+			continue
+
+		funcFrom = funcFromRaw.partition("+")[0]
+		funcTo = funcToRaw.partition("+")[0]
+
+		# QUELLE EST LA DIFFERENCE ENTRE "fcn.*" et "sub.*" ???
+		# https://reverseengineering.stackexchange.com/questions/14207/what-means-sym-prefix-before-functions-name-in-radare2/20276#20276
+
+		#{u'type': u'CALL', u'refname': u'sym.GDI32.dll_ColorCorrectPalette', u'from': 2108699267, u'name': u'sym.GDI32.dll_GdiEntry16+1320', u'addr': 2108615456}
+		#{u'type': u'CALL', u'refname': u'sym.GDI32.dll_CreatePenIndirect', u'from': 2108699331, u'name': u'sym.GDI32.dll_GdiEntry16+1384', u'addr': 2108485987}
+
+		#if funcFrom.startswith("sym.") and funcTo.startswith("sym.") and one_axj['type'] == 'CALL':
+			# Ils contiennent tous un "+"
+		#	print(one_axj)
+		#	continue
+
+		if funcFrom.startswith("section."):
+			continue
+		if funcFrom.startswith("str."):
+			continue
+		if not funcFrom.startswith("sym.") or not funcTo.startswith("sym."):
+			continue
+		if funcFrom.startswith("fcn.") or funcTo.startswith("fcn."): # Anonymous function. TODO: Find what points to it.
+			continue
+		if not one_axj['type'] == 'CALL':
+			continue
+
+		if funcFrom == funcTo:
+			continue
+
+		if not atLeastOne:
+			print( 'File: %s' % (myDllNam))
+			atLeastOne = True
+
+		print(one_axj)
+		#print(funcFrom,funcTo)
+
+		# (u'sym.imp.KERNEL32.dll_GetCurrentProcessId', u'sub.KERNEL32.dll_GetCurrentProcessId_54a')
+		# (u'sym.GDI32.dll_GdiSetLastError', u'sub.KERNEL32.dll_GetCurrentProcessId_54a')
+
+		# Supposons que sub.KERNEL32.dll_GetCurrentProcessId_54a soit dans sym.imp.KERNEL32.dll_GetCurrentProcessId.
+		# Comment est-ce possible car nous n'avons pas cette fonction, elle est importee.
+		# Ou alors ce serait des fonctions non documentees ?
+		# Donc "sub.*" pointe dans une autre librairie alors que "fcn.*" est local ?
+
+		# Et ceci ?
+		# (u'sym.imp.KERNEL32.dll_GetCurrentProcessId', u'sub.KERNEL32.dll_GetCurrentProcessId_672')
+		# (u'sym.imp.KERNEL32.dll_GetCurrentProcessId', u'sub.KERNEL32.dll_GetCurrentProcessId_718')
+		# (u'sym.imp.KERNEL32.dll_GetCurrentProcessId', u'sub.KERNEL32.dll_GetCurrentProcessId_7be')
+		# (u'sym.imp.KERNEL32.dll_GetCurrentProcessId', u'sub.KERNEL32.dll_GetCurrentProcessId_864')
+		# (u'sym.imp.KERNEL32.dll_GetCurrentProcessId', u'sub.KERNEL32.dll_GetCurrentProcessId_90a')
+
+		# On ne vas considerer que les "sym.imp.*" mais il faudrait fusionner les autres.
+		# On laisse tomber les "fcn.*" du moins dans un premier temps.
+
+		#if one_iEj['bind'] == 'GLOBAL':
+		#	if one_iEj['type'] == 'FUNC':
+		#		funcName = one_iEj['name']
+		#		print("Name=",funcName)
+
+# myDllNam = r"C:\Windows\pyshellext.amd64.dll"
+# myDllNam = r"C:\Windows\system32\gdi32.dll"
+
+def FullTest(myRoot):
+	cnt = 0
+	for root, dirs, files in os.walk(myRoot):
+		for file in files:
+			if file.endswith(".dll"):
+				pathName = os.path.join(root, file)
+				cnt += 1
+				if cnt == 1000:
+					return
+				TestOneDll(pathName)
+
+# https://reverseengineering.stackexchange.com/questions/16112/how-to-make-radare2-work-for-a-large-binary
+# anal.afterjmp
+# anal.depth
+# anal.eobjmp
+# anal.esil
+# anal.hasnext
+# anal.nopskip
+# anal.from
+# anal.to
+if False:
+	myRoot = r"C:\Windows\system32"
+	myRoot = r"C:\Program Files"
+	FullTest(myRoot)
+
+nodeExeOrDll = "c:/windows/system32/advapi32.dll"
+R2PY = r2pipe.open(nodeExeOrDll,flags=["-2"])
+
+sys.stderr.write("aaaaaaaaaa\n")
+R2PY.cmd("aaa")
+sys.stderr.write("bbbbb\n")
+aflj = R2PY.cmdj("aflj")
+sys.stderr.write("len aflj=%d\n"%(len(aflj)))
+# axff @@ sym.* : It crashes.
+
+# ON peut imprimer la liste des fonctiosn "aflj" et on verra.
