@@ -116,6 +116,9 @@ def Main():
 				# sub.CRYPTSP.dll_CryptCreateHash_6_e71	Call_type	cdecl
 				# sub.CRYPTSP.dll_CryptCreateHash_edb
 
+
+				# anal.autoname=true/false ??
+
 				funcNameSplit = funcName.split(".")
 
 				# This could be "sub.0123456789abcdef_efc"
