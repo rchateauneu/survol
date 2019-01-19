@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-List of global export symbols as detected by Radare2
+Global export symbols as detected by Radare2
 """
 
 import os
@@ -11,8 +11,6 @@ import lib_util
 import lib_common
 from lib_properties import pc
 import subprocess
-
-Usable = lib_util.UsableWindowsBinary or lib_util.UsableLinuxBinary
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -48,20 +46,26 @@ def Main():
 	# ...
 
 	fileWithExt = os.path.basename(fileExeOrDll)
-	fileBasename, fileExtension = os.path.splitext(fileWithExt)
 
 	iEjList = json.loads(r2Output)
 	if iEjList:
 		for iEjOne in iEjList:
 			# "SqlServerSpatial140.dll_?m_Points1@SampleDescriptor@@2QBNB"
-			iE_funcName = iEjOne["name"]
+			iE_funcNameRaw = iEjOne["name"]
+			_, _, iE_funcName = iE_funcNameRaw.partition(".")
+			if iE_funcName.startswith("dll_"):
+				iE_funcName = iE_funcName[4:]
 			iE_vaddr = iEjOne["vaddr"]
 			iE_paddr = iEjOne["paddr"]
+			iE_type = iEjOne["type"]
+			iE_bind = iEjOne["bind"]
 
 			symNod = lib_common.gUriGen.SymbolUri( iE_funcName, fileExeOrDll )
 
 			grph.add( ( symNod, lib_common.MakeProp("vaddr"), lib_common.NodeLiteral(iE_vaddr) ) )
 			grph.add( ( symNod, lib_common.MakeProp("paddr"), lib_common.NodeLiteral(iE_paddr) ) )
+			grph.add( ( symNod, lib_common.MakeProp("type"), lib_common.NodeLiteral(iE_type) ) )
+			grph.add( ( symNod, lib_common.MakeProp("bind"), lib_common.NodeLiteral(iE_bind) ) )
 			grph.add( ( nodeExeOrDll, pc.property_symbol_defined, symNod ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined ] )
