@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-List of functions extracted by Radare2
+Functions extracted by Radare2
 """
 
 import os
@@ -11,8 +11,6 @@ import lib_util
 import lib_common
 from lib_properties import pc
 import subprocess
-
-Usable = lib_util.UsableWindowsBinary or lib_util.UsableLinuxBinary
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
