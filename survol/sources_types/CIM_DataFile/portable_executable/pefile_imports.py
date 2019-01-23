@@ -4,20 +4,17 @@
 PEFile imported entries and modules
 """
 
-import os
-import os.path
-import re
+	
 import sys
-import time
 import lib_uris
-import lib_util
 import lib_win32
 import lib_common
+import lib_shared_lib_path
 from lib_properties import pc
 
 import pefile
 
-import win32api
+#import win32api
 
 #Usable = lib_util.UsableWindowsBinary
 
@@ -28,18 +25,6 @@ class EnvPeFile:
 
 	def __init__(self,grph):
 		self.grph = grph
-		self.path = win32api.GetEnvironmentVariable('PATH')
-
-		# try paths as described in MSDN
-		self.dirs = [os.getcwd(), win32api.GetSystemDirectory(), win32api.GetWindowsDirectory()] + self.path.split(';')
-
-		self.dirs_norm = []
-		dirs_l = []
-		for aDir in self.dirs:
-			aDirLower = aDir.lower()
-			if aDirLower not in dirs_l:
-				dirs_l.append(aDirLower)
-				self.dirs_norm.append(aDir)
 
 	def RecursiveDepends(self,filNam,maxLevel):
 		# sys.stderr.write( "filNam=%s maxLevel=%d\n"%(filNam,maxLevel))
@@ -62,17 +47,16 @@ class EnvPeFile:
 				# sys.stderr.write( "entry.dll=%s\n"%entry_dll)
 
 				# sys.stderr.write("entry=%s\n"%str(entry.struct))
-				for aDir in self.dirs_norm:
-					dllPath = os.path.join(aDir, entry_dll)
-					if os.path.exists(dllPath):
-						subNode = self.RecursiveDepends( dllPath, maxLevel - 1)
-						self.grph.add( ( rootNode, pc.property_library_depends, subNode ) )
+				dllPath = lib_shared_lib_path.FindPathFromSharedLibraryName(entry_dll)
+				if dllPath:
+					subNode = self.RecursiveDepends( dllPath, maxLevel - 1)
+					self.grph.add( ( rootNode, pc.property_library_depends, subNode ) )
 
-						for imp in entry.imports:
-							# sys.stderr.write("\t%s %s\n"% (hex(imp.address), imp.name) )
-							if imp.name is not None:
-								symNode = lib_uris.gUriGen.SymbolUri( imp.name, dllPath )
-								self.grph.add( ( subNode, pc.property_symbol_declared, symNode ) )
+					for imp in entry.imports:
+						# sys.stderr.write("\t%s %s\n"% (hex(imp.address), imp.name) )
+						if imp.name is not None:
+							symNode = lib_uris.gUriGen.SymbolUri( imp.name, dllPath )
+							self.grph.add( ( subNode, pc.property_symbol_declared, symNode ) )
 
 						break
 		except AttributeError:

@@ -5,12 +5,11 @@ Functions extracted by Radare2
 """
 
 import os
-import sys
 import json
-import lib_util
-import lib_common
-from lib_properties import pc
 import subprocess
+import lib_common
+import lib_shared_lib_path
+from lib_properties import pc
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -82,9 +81,13 @@ def Main():
 		else:
 			# Otherwise we have to find the library.
 			dllName = dllBaseName + ".dll"
-			# TODO: This is not the correct directory
-			return "c:/windows/system32/"+dllName
 
+			dllPath = lib_shared_lib_path.FindPathFromSharedLibraryName(dllName)
+			if dllPath:
+				return dllPath
+			else:
+				# Maybe the directory of the shared library could not be found.
+				return dllName
 
 	afljList = json.loads(r2Output)
 	if afljList:
