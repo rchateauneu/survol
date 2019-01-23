@@ -1,16 +1,14 @@
 #!/usr/bin/python
 
 """
-Global export symbols as detected by Radare2
+Global export symbols (Radare2)
 """
 
 import os
-import sys
 import json
-import lib_util
+import subprocess
 import lib_common
 from lib_properties import pc
-import subprocess
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
