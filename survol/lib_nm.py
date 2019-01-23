@@ -1,3 +1,5 @@
+# The linux command nm displays symbols from object files
+
 import os
 import os.path
 import sys
