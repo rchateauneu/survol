@@ -4,5 +4,7 @@ Radare2
 
 import lib_util
 
-Usable = lib_util.UsableWindowsBinary or lib_util.UsableLinuxBinary
+def Usable(entity_type,entity_ids_arr):
+	"""Not an executable or library file"""
+	return lib_util.UsableWindowsBinary(entity_type,entity_ids_arr) or lib_util.UsableLinuxBinary(entity_type,entity_ids_arr)
 
