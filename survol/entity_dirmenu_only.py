@@ -50,7 +50,7 @@ def DirMenuReport(depthCall,strMsg):
 # TODO: Only return json data, and this script will only return json, nothing else.
 def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagShowAll):
 
-	def IsDirectoryUsable(relative_dir,theParentNode,depthCall):
+	def DirectoryUsabilityErrorNode(relative_dir,depthCall):
 		# Maybe there is a usability test in the current module.
 		# The goal is to control all scripts in the subdirectories, from here.
 		try:
@@ -62,25 +62,21 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 				# if flagShowAll and errorMsg ???
 				if errorMsg:
-					ERROR("DirToMenuAux errorMsg(1)=%s",errorMsg)
+					ERROR("IsDirectoryUsable errorMsg(1)=%s",errorMsg)
 					# If set to True, the directory is displayed even if all its scripts
 					# are not usable. Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
-					if False:
-						callbackGrphAdd( ( theParentNode, lib_common.MakeProp("Usability"), lib_common.NodeLiteral(errorMsg) ),depthCall )
-
-					return False
+					return lib_common.NodeLiteral(errorMsg)
 		except IndexError:
 			# If we are at the top-level, no interest for the module.
 			pass
 
-		return True
+		return None
 
 
 
 	# This lists the scripts and generate RDF nodes.
 	# Returns True if something was added.
-	def DirToMenuAux(aParentNode,curr_dir,relative_dir,depthCall = 1):
-		#sys.stderr.write("DirToMenuAux entity_host=%s curr_dir=%s\n"%(entity_host,curr_dir) )
+	def DirToMenuAux(aParentNode,grandParentNode,curr_dir,relative_dir,depthCall = 1):
 		#DirMenuReport( depthCall, "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
 		# In case there is nothing.
 		dirs = None
@@ -89,7 +85,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 
 		# Maybe this class is not defined in our ontology.
 		if dirs == None:
-			WARNING("DirToMenuAux No content in %s",curr_dir)
+			WARNING("DirToMenuAux(2) No content in %s",curr_dir)
 			return False
 
 		# Will still be None if nothing is added.
@@ -103,7 +99,14 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 		# If this is a remote host, all scripts are checked because they might have
 		# the flag CanProcessRemote which is defined at the script level, not the directory level.
 		if not entity_host:
-			if not IsDirectoryUsable(relative_dir,aParentNode,depthCall):
+			errDirNode = DirectoryUsabilityErrorNode(relative_dir,depthCall)
+			if errDirNode:
+				argDirSplit = argDir.split(".")
+				currDirNode = lib_util.DirDocNode(".".join(argDirSplit[:-1]),argDirSplit[-1])
+				if not currDirNode:
+					currDirNode = lib_util.NodeLiteral("Cannot parse relative dir:%s"%argDir)
+				callbackGrphAdd( ( grandParentNode, pc.property_script, currDirNode ),depthCall )
+				callbackGrphAdd( ( currDirNode, lib_common.MakeProp("Error"), errDirNode ),depthCall )
 				return False
 
 
@@ -135,7 +138,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				# BEWARE: NO MORE DEFAULT ONTOLOGY ["Id"]
 				continue
 
-			somethingAdded = DirToMenuAux(currDirNode, full_sub_dir,sub_relative_dir,depthCall + 1)
+			somethingAdded = DirToMenuAux(currDirNode, aParentNode, full_sub_dir,sub_relative_dir,depthCall + 1)
 			# This adds the directory name only if it contains a script.
 			if somethingAdded:
 				# It works both ways, possibly with different properties.
@@ -169,7 +172,8 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				# called Usable(): If it is there and returns False, the script is not displayed.
 				errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 				if errorMsg:
-					DEBUG("DirToMenuAux errorMsg(2)=%s",errorMsg)
+					pass
+					#DEBUG("DirToMenuAux errorMsg(2)=%s",errorMsg)
 
 			# If this is a local host
 			if not flagShowAll and errorMsg and not entity_host:
@@ -234,7 +238,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 	else:
 		genObj = lib_common.gUriGen
 
-	DirToMenuAux(parentNode,directory,relative_dir,depthCall = 1)
+	DirToMenuAux(parentNode,None,directory,relative_dir,depthCall = 1)
 
 ################################################################################
 

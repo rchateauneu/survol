@@ -4,13 +4,11 @@
 Import symbols detected by Radare2
 """
 
-import os
-import sys
 import json
-import lib_util
-import lib_common
-from lib_properties import pc
 import subprocess
+import lib_common
+import lib_shared_lib_path
+from lib_properties import pc
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -47,27 +45,33 @@ def Main():
 	if iijList:
 		dictDllToNode = {}
 
-		for iEjOne in iijList:
+		for iijOne in iijList:
 			# "SqlServerSpatial140.dll_?m_Points1@SampleDescriptor@@2QBNB"
-			iE_funcNameRaw = iEjOne["name"]
-			ieOtherShortDllName, _, iE_funcName = iE_funcNameRaw.partition(".")
-			iE_plt = iEjOne["plt"]
-			iE_type = iEjOne["type"]
-			iE_bind = iEjOne["bind"]
+			ii_funcNameRaw = iijOne["name"]
+			ii_OtherShortDllName, _, ii_funcName = ii_funcNameRaw.partition(".")
+			if ii_funcName.startswith("dll_"):
+				ii_funcName = ii_funcName[4:]
+			ii_plt = iijOne["plt"]
+			ii_type = iijOne["type"]
+			ii_bind = iijOne["bind"]
 
-			ieOtherDllName = ieOtherShortDllName
 
 			try:
-				nodeExeOrDll = dictDllToNode[ieOtherDllName]
+				nodeExeOrDll = dictDllToNode[ii_OtherShortDllName]
 			except KeyError:
-				nodeExeOrDll = lib_common.gUriGen.FileUri( ieOtherDllName )
-				dictDllToNode[ieOtherDllName] = nodeExeOrDll
+				ii_OtherDllName = ii_OtherShortDllName + ".dll"
+				ieOtherDllPath = lib_shared_lib_path.FindPathFromSharedLibraryName(ii_OtherDllName)
+				if ieOtherDllPath is None:
+					WARNING("Cannot find library for ii_OtherShortDllName=%s",ii_OtherDllName)
+					ieOtherDllPath = ii_OtherDllName
+				nodeExeOrDll = lib_common.gUriGen.FileUri( ieOtherDllPath )
+				dictDllToNode[ii_OtherShortDllName] = nodeExeOrDll
 
-			symNod = lib_common.gUriGen.SymbolUri( iE_funcName, ieOtherDllName )
+			symNod = lib_common.gUriGen.SymbolUri( ii_funcName, ieOtherDllPath )
 
-			grph.add( ( symNod, lib_common.MakeProp("plt"), lib_common.NodeLiteral(iE_plt) ) )
-			grph.add( ( symNod, lib_common.MakeProp("type"), lib_common.NodeLiteral(iE_type) ) )
-			grph.add( ( symNod, lib_common.MakeProp("bind"), lib_common.NodeLiteral(iE_bind) ) )
+			grph.add( ( symNod, lib_common.MakeProp("plt"), lib_common.NodeLiteral(ii_plt) ) )
+			grph.add( ( symNod, lib_common.MakeProp("type"), lib_common.NodeLiteral(ii_type) ) )
+			grph.add( ( symNod, lib_common.MakeProp("bind"), lib_common.NodeLiteral(ii_bind) ) )
 			grph.add( ( nodeExeOrDll, pc.property_symbol_defined, symNod ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined ] )
