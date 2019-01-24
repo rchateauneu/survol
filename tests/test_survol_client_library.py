@@ -18,7 +18,12 @@ if sys.path[0] != filRoot:
 	sys.path.insert(0,filRoot)
 	# print(sys.path)
 
-CurrentUsername = os.environ["USERNAME"]
+try:
+    CurrentUsername = os.environ["USERNAME"]
+except KeyError:
+    # This is for Linux.
+    CurrentUsername = os.environ["USER"]
+
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
 
