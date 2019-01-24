@@ -230,7 +230,7 @@ class SurvolLocalTest(unittest.TestCase):
 		print("TODO: test_wql not implemented yet")
 
 	def test_local_scripts_UserAccount(self):
-		"""This returns all scripts accessible from the user account "rchateau"."""
+		"""Returns all scripts accessible from current user account."""
 
 		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
 			Domain=CurrentMachine,
@@ -265,7 +265,7 @@ class SurvolLocalTest(unittest.TestCase):
 
 
 	def test_local_scripts_from_local_source(self):
-		"""This loads the scripts of instances displayed by an initial script"""
+		"""Loads the scripts of instances displayed by an initial script"""
 
 		try:
 			import win32net
@@ -325,7 +325,7 @@ class SurvolLocalTest(unittest.TestCase):
 
 	# This searches the content of a file which contains SQL queries.
 	def test_regex_sql_query_file(self):
-		"""This searches for SQL queries in one file only."""
+		"""Searches for SQL queries in one file only."""
 
 		try:
 			import sqlparse
@@ -358,9 +358,6 @@ class SurvolLocalTest(unittest.TestCase):
 		assert( lstQueriesOnly[2] == u'select a,b,c from \'AnyTable\'"')
 
 		assert( len(lstQueriesOnly) == 3 )
-
-
-# Ajouter la recherche d urls etc...
 
 	# This searches the content of a process memory which contains a SQL memory.
 	def test_regex_sql_query_from_batch_process(self):
@@ -1326,7 +1323,7 @@ class SurvolRemoteTest(unittest.TestCase):
 		self.assertTrue(numComputers>=1)
 
 	def test_merge_add_mixed(self):
-		"""Merges the triples of local data and of a remote Survol agent"""
+		"""Merges local data triples and remote Survol agent's"""
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
@@ -1384,14 +1381,14 @@ class SurvolRemoteTest(unittest.TestCase):
 		self.assertTrue(len(listScriptsDir) > 0)
 
 	def test_remote_agents(self):
-		"""Gets agents accessible from the remote host, then tries to access them individually"""
+		"""Gets agents accessible of remote host, then accesses them one by one"""
 		print("TODO: test_remote_agents not implemented yet")
 
 class SurvolAzureTest(unittest.TestCase):
 	"""Testing Azure discovery"""
 
 	def decorator_azure_subscription(test_func):
-		"""This returns the first available Azure subscription as specified in the Credentials file"""
+		"""Returns first available Azure subscription from Credentials file"""
 
 		try:
 			import azure
@@ -1468,7 +1465,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
 	# Beware that it is called anyway for each function it is applied to,
 	# even if the function is not called.
 	def decorator_rabbitmq_subscription(test_func):
-		"""This returns the first available RabbitMQ subscription as specified in the Credentials file"""
+		"""Returns first RabbitMQ subscription from Credentials file"""
 
 		try:
 			import pyrabbit
@@ -1599,7 +1596,7 @@ class SurvolOracleTest(unittest.TestCase):
 	"""Testing Oracle discovery"""
 
 	def decorator_oracle_db(test_func):
-		"""This returns the first available Oracle connection as specified in the Credentials file"""
+		"""Returns first Oracle connection from Credentials file"""
 		global cx_Oracle_import_ok
 		try:
 			# This tests only once if this module can be imported.
@@ -1630,15 +1627,16 @@ class SurvolOracleTest(unittest.TestCase):
 			# This returns the first database found in the credentials file in alphabetical order.
 			def wrapper(self):
 				test_func(self,strInstances[0])
+			wrapper.__doc__ = test_func.__doc__
 			return wrapper
-			return strInstances[0]
+			# return strInstances[0]
 
 		print("No Oracle database available")
 		return None
 
 	@decorator_oracle_db
 	def test_oracle_databases(self,oracleDb):
-		# Check that there is at least one connection, and print the first one.
+		"""Check there is at least one connection."""
 		print("Oracle:",oracleDb)
 
 	@decorator_oracle_db
@@ -1773,7 +1771,7 @@ class SurvolOracleTest(unittest.TestCase):
 
 	@decorator_oracle_db
 	def test_oracle_view_dependencies(self,oracleDb):
-		"""This displays the dependencies of a very common view"""
+		"""Dsplays dependencies of a very common view"""
 
 		mySourceOracleViewDependencies = lib_client.SourceLocal(
 			"sources_types/oracle/view/oracle_view_dependencies.py",
@@ -1802,7 +1800,7 @@ class SurvolOracleTest(unittest.TestCase):
 class SurvolPEFileTest(unittest.TestCase):
 	"""Testing pefile features"""
 	def test_pefile_exports(self):
-		"""This tests the exported functions of a DLL."""
+		"""Tests exported functions of a DLL."""
 
 		# Very common DLL.
 		dllFileName = r"C:\Windows\System32\gdi32.dll"
@@ -1839,7 +1837,7 @@ class SurvolPEFileTest(unittest.TestCase):
 class SurvolSearchTest(unittest.TestCase):
 	"""Testing the search engine"""
 	def test_search_local_string_flat(self):
-		"""This searches for a string in one file only. Two occurrences."""
+		"""Searches for a string in one file only. Two occurrences."""
 
 		sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" )
 		instanceOrigin = lib_client.Agent().CIM_DataFile(Name=sampleFile)
@@ -1856,7 +1854,7 @@ class SurvolSearchTest(unittest.TestCase):
 
 
 	def test_search_local_string_one_level(self):
-		"""This searches for a string in all files of one directory."""
+		"""Searches for a string in all files of one directory."""
 
 		# There are not many files in this directory
 		sampleDir = os.path.join( os.path.dirname(__file__), "SampleDir" )
@@ -1872,7 +1870,7 @@ class SurvolSearchTest(unittest.TestCase):
 		tpl # To check if a result was found.
 
 	def test_search_local_string(self):
-		"""This loads instances connected to an instance by every known script"""
+		"""Loads instances connected to an instance by every known script"""
 
 		# The service "PlugPlay" should be available on all Windows machines.
 		instanceOrigin = lib_client.Agent().CIM_Directory(
@@ -1950,7 +1948,7 @@ if __name__ == '__main__':
 	lenArgv = len(sys.argv)
 	ix = 0
 	while ix < lenArgv:
-		if sys.argv[ix] == "--list":
+		if sys.argv[ix] in ["-l","--list"]:
 			globCopy = globals().copy()
 			lstGlobs = [ globCopy[clsNam] for clsNam in sorted(globCopy) ]
 			# SurvolLocalTest,SurvolRemoteTest,SurvolSearchTest etc...
@@ -1963,21 +1961,26 @@ if __name__ == '__main__':
 				print("%-44s: %s" % ( cls.__name__,clsDoc ) )
 				for fnc in dir(cls):
 					if fnc.startswith("test_"):
-						tstDoc = getattr(cls,fnc).__doc__
+						fnc_code = getattr(cls,fnc)
+						if isinstance(fnc_code,bool):
+							tstDoc = "Cannot run"
+						else:
+							tstDoc = fnc_code.__doc__
+						#tstDoc = str(fnc_code)
 						if not tstDoc:
 							tstDoc = ""
 						print("    %-40s: %s" % (fnc, tstDoc))
 				print("")
 			exit(0)
-		if sys.argv[ix] == "--debug":
+		if sys.argv[ix] in ["-l","--debug"]:
 			lib_client.SetDebugMode()
 			del sys.argv[ix]
 			lenArgv -= 1
 			continue
-		if sys.argv[ix] == "--help":
+		if sys.argv[ix] in ["-h","--help"]:
 			print("Extra options:")
-			print("    --debug: Set debug mode")
-			print("    --list : List of tests")
+			print("  -d, --debug: Set debug mode")
+			print("  -l, --list : List of tests")
 		ix += 1
 
 	unittest.main()
