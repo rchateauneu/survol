@@ -42,11 +42,18 @@ def tree_subprocesses(grph, proc_obj):
 		tree_subprocesses(grph, child)
 
 # Recursively add links for the parent processes.
-def tree_parent_process(grph, proc_obj):
+def tree_parent_process(grph, proc_obj, pids_seen_set):
 	try:
 		the_pid = proc_obj.pid
 		if the_pid == 0 or the_pid == 1:
 			return
+
+		# A circular processes hierarchy can happen on Windows.
+		if the_pid in pids_seen_set:
+			WARNING("Circular pids tree:%d",the_pid)
+			return
+		pids_seen_set.add(the_pid)
+
 		# Strange, but apparently it can happen.
 		the_ppid = CIM_Process.PsutilProcToPPid(proc_obj)
 		if the_ppid == 0:
@@ -63,7 +70,7 @@ def tree_parent_process(grph, proc_obj):
 		AddExtraInformationtoProcess(grph,node_process,proc_obj)
 
 		parent_proc_obj = CIM_Process.PsutilGetProcObjNoThrow(int(the_ppid))
-		tree_parent_process( grph, parent_proc_obj )
+		tree_parent_process( grph, parent_proc_obj, pids_seen_set )
 	# This exception depends on the version of psutil.
 	except CIM_Process.NoSuchProcess:
 		# Maybe a process has suddenly disappeared. It does not matter.
@@ -85,7 +92,7 @@ def Main():
 
 	# Now display the parent processes.
 	# It could be done in a loop instead of recursive calls.
-	tree_parent_process( grph, proc_obj )
+	tree_parent_process( grph, proc_obj, set() )
 
 	# This layout style, because the nodes are quite big.
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT")
