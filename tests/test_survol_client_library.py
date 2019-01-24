@@ -19,10 +19,14 @@ if sys.path[0] != filRoot:
 	# print(sys.path)
 
 try:
-    CurrentUsername = os.environ["USERNAME"]
+	CurrentUsername = os.environ["USERNAME"]
+	# The class of users is different on Linux and Windows.
+	CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername
 except KeyError:
-    # This is for Linux.
-    CurrentUsername = os.environ["USER"]
+	# This is for Linux.
+	CurrentUsername = os.environ["USER"]
+	CurrentUserPath = "user.Name=%s,Domain=localhost" % CurrentUsername
+
 
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
@@ -54,6 +58,12 @@ cgitb.enable(format="txt")
 
 # TODO: Prefix of url samples should be a parameter.
 
+# This defines a file which is present on all platforms.
+if sys.platform.startswith("linux"):
+    FileAlwaysThere = "/etc/hosts"
+else:
+    FileAlwaysThere = "C:\\Windows\\explorer.exe"
+
 class SurvolLocalTest(unittest.TestCase):
 	"""These tests do not need a Survol agent"""
 
@@ -61,7 +71,7 @@ class SurvolLocalTest(unittest.TestCase):
 		mySourceFileStatLocal = lib_client.SourceLocal(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
-			Name="C:\\Windows\\explorer.exe")
+			Name=FileAlwaysThere)
 		print("qryFileStatLocal=%s"%mySourceFileStatLocal.UrlQuery())
 		print("jsonFileStatLocal=%s ..."%str(mySourceFileStatLocal.content_json())[:30])
 		print("rdfFileStatLocal=%s ..."%str(mySourceFileStatLocal.content_rdf())[:30])
@@ -70,7 +80,7 @@ class SurvolLocalTest(unittest.TestCase):
 		mySourceFileStatLocal = lib_client.SourceLocal(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
-			Name="C:\\Windows\\explorer.exe")
+			Name=FileAlwaysThere)
 		tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
 		print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
 
@@ -78,7 +88,7 @@ class SurvolLocalTest(unittest.TestCase):
 		mySourceFileStatLocal = lib_client.SourceLocal(
 			"sources_types/CIM_DataFile/file_stat.py",
 			"CIM_DataFile",
-			Name="C:\\Windows\\explorer.exe")
+			Name=FileAlwaysThere)
 
 		import lib_common
 		lib_common.globalErrorMessageEnabled = False
@@ -700,7 +710,7 @@ class SurvolLocalTest(unittest.TestCase):
 			'python/package.Id=isodate',
 			'python/package.Id=pyparsing',
 			'python/package.Id=rdflib',
-			'Win32_UserAccount.Name=%s,Domain=localhost' % CurrentUsername]:
+			CurrentUserPath ]:
 			DEBUG("oneStr=%s",oneStr)
 			assert( oneStr in strInstancesSet)
 
@@ -773,8 +783,7 @@ class SurvolLocalTest(unittest.TestCase):
 		strInstancesSet = set([str(oneInst) for oneInst in instancesUsers ])
 
 		# At least the current user must be found.
-		for oneStr in [
-			'Win32_UserAccount.Name=%s,Domain=localhost' % CurrentUsername]:
+                for oneStr in [ CurrentUserPath ]:
 			assert( oneStr in strInstancesSet)
 
 class SurvolLocalWindowsTest(unittest.TestCase):
