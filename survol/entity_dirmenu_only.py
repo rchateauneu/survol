@@ -100,7 +100,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 		# the flag CanProcessRemote which is defined at the script level, not the directory level.
 		if not entity_host:
 			errDirNode = DirectoryUsabilityErrorNode(relative_dir,depthCall)
-			if errDirNode:
+			if errDirNode and flagShowAll:
 				argDirSplit = argDir.split(".")
 				currDirNode = lib_util.DirDocNode(".".join(argDirSplit[:-1]),argDirSplit[-1])
 				if not currDirNode:
