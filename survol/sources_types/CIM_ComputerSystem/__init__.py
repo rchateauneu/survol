@@ -6,7 +6,6 @@ Execution of Survol agent, WMI or WBEM requests etc...
 
 import sys
 import socket
-import lib_wmi
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -101,6 +100,9 @@ def AddWbemServers(entity_host, nameSpace, entity_type, entity_id):
 
 def AddWmiServers(entity_host, nameSpace, entity_type, entity_id):
     DEBUG("AddWmiServers entity_host=%s nameSpace=%s entity_type=%s entity_id=%s",entity_host,nameSpace,entity_type,entity_id)
+
+    # This will not work on Linux.
+    import lib_wmi
 
     mapWmi = dict()
     if lib_wmi.ValidClassWmi(entity_type):
