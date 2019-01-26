@@ -571,21 +571,22 @@ class SurvolLocalTest(unittest.TestCase):
 		lstInstances = tripleProcesses.GetInstances()
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
-		print("Instances=",strInstancesSet)
-
-		# TODO: Check the presence of sys.executable ?
-
 		# Some instances are required.
+		lstMandatoryInstances = [
+			"CIM_Process.Handle=%d"%os.getpid(), # This is the parent process.
+			"CIM_Process.Handle=%d"%procOpen.pid,
+			CurrentUserPath ]
 		if sys.platform.startswith("win"):
-			for oneStr in [
-					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe",
-					"CIM_Process.Handle=%d"%os.getpid(), # This is the parent process.
-					"CIM_Process.Handle=%d"%procOpen.pid,
-					"Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername ]:
-				assert( oneStr in strInstancesSet)
+			lstMandatoryInstances += [
+					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
 		else:
-			print("Linux case: Not implemented yet")
-			assert(False)
+			# Typical situation of symbolic links:
+			# /usr/bin/python => python2 => python 2.7
+			execPath = os.path.realpath( sys.executable )
+			lstMandatoryInstances += [
+					"CIM_DataFile.Name=%s" % execPath]
+		for oneStr in lstMandatoryInstances:
+			assert( oneStr in strInstancesSet)
 
 		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
 
