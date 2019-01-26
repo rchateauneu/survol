@@ -56,6 +56,17 @@ import lib_properties
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
 
+# Many tests start a subprocess: Its termination must be checked.
+def CheckSubprocessEnd(procOpen):
+	( child_stdout_content, child_stderr_content ) = procOpen.communicate()
+
+	# This ensures that the suprocess is correctly started.
+	assert(child_stdout_content.startswith(b"Starting subprocess"))
+
+	print("procOpen.returncode=",procOpen.returncode)
+	assert(procOpen.returncode == 123)
+
+
 # TODO: Prefix of url samples should be a parameter.
 
 # This defines a file which is present on all platforms.
@@ -454,19 +465,7 @@ class SurvolLocalTest(unittest.TestCase):
 		matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
 		print("mmm=",matchingTriples)
 
-		# (child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
-		child_stdin = procOpen.stdin
-		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
-
-		print("Read:",child_stdout_content)
-		sys.stdout.flush()
-
-		# This ensures that the suprocess is correctly started.
-		assert(child_stdout_content.startswith(b"Starting subprocess"))
-
-		print("procOpen.returncode=",procOpen.returncode)
-		assert(procOpen.returncode == 123)
-		#assert(len(tripleSqlQueries.m_triplestore)==190)
+		CheckSubprocessEnd(procOpen)
 
 	# This searches the content of a process memory which contains a SQL memory.
 	def test_regex_sql_query_from_perl_process(self):
@@ -500,19 +499,7 @@ class SurvolLocalTest(unittest.TestCase):
 		matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
 		print("mmm=",matchingTriples)
 
-		# (child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
-		child_stdin = procOpen.stdin
-		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
-
-		print("Read:",child_stdout_content)
-		sys.stdout.flush()
-
-		# This ensures that the suprocess is correctly started.
-		assert(child_stdout_content.startswith(b"Starting subprocess"))
-
-		print("procOpen.returncode=",procOpen.returncode)
-		assert(procOpen.returnCode == 123)
-		#assert(len(tripleSqlQueries.m_triplestore)==190)
+		CheckSubprocessEnd(procOpen)
 
 	def test_open_files_from_python_process(self):
 		"""Files open by a Python process"""
@@ -533,23 +520,23 @@ class SurvolLocalTest(unittest.TestCase):
 		lstInstances = tripleSqlQueries.GetInstances()
 		strInstances = sorted([str(oneInst) for oneInst in lstInstances ])
 
-		print("Instances=",strInstances)
+		# Some instances are required.
+		lstMandatoryInstances = [
+			"CIM_Process.Handle=%d"%procOpen.pid,
+			CurrentUserPath ]
 		if sys.platform.startswith("win"):
-			assert( strInstances ==
-				[
-					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe",
-					"CIM_Process.Handle=%d"%procOpen.pid,
-					"Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername
-				])
+			lstMandatoryInstances += [
+					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
 		else:
-			print("Linux case: Not implemented yet")
-			assert(False)
+			# Typical situation of symbolic links:
+			# /usr/bin/python => python2 => python 2.7
+			execPath = os.path.realpath( sys.executable )
+			lstMandatoryInstances += [
+					"CIM_DataFile.Name=%s" % execPath]
+		for oneStr in lstMandatoryInstances:
+			assert( oneStr in strInstances)
 
-		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
-
-		# This ensures that the subprocess is correctly started and finished.
-		assert(child_stdout_content.startswith(b"Starting subprocess"))
-		assert(procOpen.returncode == 123)
+		CheckSubprocessEnd(procOpen)
 
 	def test_sub_parent_from_python_process(self):
 		"""Sub and parent processes a Python process"""
@@ -588,11 +575,7 @@ class SurvolLocalTest(unittest.TestCase):
 		for oneStr in lstMandatoryInstances:
 			assert( oneStr in strInstancesSet)
 
-		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
-
-		# This ensures that the suprocess is correctly started and finished.
-		assert(child_stdout_content.startswith(b"Starting subprocess"))
-		assert(procOpen.returncode == 123)
+		CheckSubprocessEnd(procOpen)
 
 	def test_memory_maps_from_python_process(self):
 		"""Sub and parent processes a Python process"""
@@ -637,11 +620,7 @@ class SurvolLocalTest(unittest.TestCase):
 			print("Linux case: Not implemented yet")
 			assert(False)
 
-		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
-
-		# This ensures that the suprocess is correctly started and finished.
-		assert(child_stdout_content.startswith(b"Starting subprocess"))
-		assert(procOpen.returncode == 123)
+		CheckSubprocessEnd(procOpen)
 
 	def test_environment_from_batch_process(self):
 		"""Tests that we can read a process'environment variables"""
@@ -766,11 +745,7 @@ class SurvolLocalTest(unittest.TestCase):
 			print(oneStr)
 			assert( oneStr in strInstancesSet )
 
-		( child_stdout_content, child_stderr_content ) = procOpen.communicate()
-
-		# This ensures that the suprocess is correctly started and finished.
-		assert(child_stdout_content.startswith(b"Starting subprocess"))
-		assert(procOpen.returncode == 123)
+		CheckSubprocessEnd(procOpen)
 
 	def test_enumerate_users(self):
 		"""List detectable users. Security might hide some of them"""
@@ -784,7 +759,7 @@ class SurvolLocalTest(unittest.TestCase):
 		strInstancesSet = set([str(oneInst) for oneInst in instancesUsers ])
 
 		# At least the current user must be found.
-                for oneStr in [ CurrentUserPath ]:
+		for oneStr in [ CurrentUserPath ]:
 			assert( oneStr in strInstancesSet)
 
 class SurvolLocalWindowsTest(unittest.TestCase):
@@ -853,7 +828,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 		# This checks the presence of the current process and its parent.
 		listRequired = [
 			'CIM_Process.Handle=%s' % os.getpid(),
-			"Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername,
+			CurrentUserPath,
 			'CIM_DataFile.Name=%s' % sys.executable.replace("\\","/"),
 		]
 
