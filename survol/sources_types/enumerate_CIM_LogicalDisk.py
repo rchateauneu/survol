@@ -66,11 +66,10 @@ def Main():
 		# partition(device='D:\\\\', mountpoint='D:\\\\', fstype='NTFS', opts='rw,fixed')
 		DEBUG("device=%s fstype=%s", part.device,part.fstype)
 		DEBUG("All=%s", str(part) )
-		# Replacing backslashes is necessary on Windows.
-		partition_name = part.device.replace('\\','/')
 
 		# BEWARE: This is not very clear.
 		if lib_util.isPlatformWindows:
+			# sdiskpart(device='C:\\', mountpoint='C:\\', fstype='NTFS', opts='rw,fixed')
 			# DeviceID     : X:
 			# DriveType    : 4
 			# ProviderName : \\192.168.1.81\rchateau
@@ -79,12 +78,25 @@ def Main():
 			# VolumeName   : rchateau
 			#
 			# WMI does not want a backslash at the end: "C:".
-			partition_name = partition_name.replace("/","")
+			# Replacing backslashes is necessary on Windows.
+			partition_name = part.device.replace('\\','')
+
 			# We could as well take "Win32_LogicalDisk" because it inherits from "CIM_LogicalDisk"
 			nodePartition = lib_common.gUriGen.UriMake("CIM_LogicalDisk",partition_name)
 		else:
+			# The class CIM_LogicalDisk represents a contiguous range of logical blocks
+			# that is identifiable by a FileSystem via the Disk's DeviceId (key) field.
+			# Each storage extent with the capability of or already hosting a file system
+			# is represented as a sub-class of CIM_LogicalDisk.
+			# The class CIM_LogicalDisk is the connector between File Systems and Storage Extents
+
+			# [sdiskpart(device='/dev/vda1', mountpoint='/var/lib/docker/containers', fstype='ext4', opts='rw,seclabel,relatime,data=ordered'),]
+
+
 			# This does not really work on Windows because WMI expects
 			# something like 'Win32_DiskPartition.DeviceID="Disk #0.Partition #0"'
+			partition_name = part.device
+
 			nodePartition = lib_common.gUriGen.DiskPartitionUri( partition_name )
 
 		mount_point = part.mountpoint.replace('\\','/')
@@ -97,7 +109,7 @@ def Main():
 			grph.add( ( nodeMount, pc.property_mount, nodePartition ) )
 
 		if part.opts != "":
-			grph.add( ( nodePartition, pc.property_mount_options,  lib_common.NodeLiteral(part.opts) ) )
+			grph.add( ( nodeMount, pc.property_mount_options,  lib_common.NodeLiteral(part.opts) ) )
 
 	cgiEnv.OutCgiRdf()
 
