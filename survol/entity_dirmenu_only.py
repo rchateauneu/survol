@@ -100,13 +100,15 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 		# the flag CanProcessRemote which is defined at the script level, not the directory level.
 		if not entity_host:
 			errDirNode = DirectoryUsabilityErrorNode(relative_dir,depthCall)
-			if errDirNode and flagShowAll:
-				argDirSplit = argDir.split(".")
-				currDirNode = lib_util.DirDocNode(".".join(argDirSplit[:-1]),argDirSplit[-1])
-				if not currDirNode:
-					currDirNode = lib_util.NodeLiteral("Cannot parse relative dir:%s"%argDir)
-				callbackGrphAdd( ( grandParentNode, pc.property_script, currDirNode ),depthCall )
-				callbackGrphAdd( ( currDirNode, lib_common.MakeProp("Error"), errDirNode ),depthCall )
+			if errDirNode:
+				if flagShowAll:
+					argDirSplit = argDir.split(".")
+					currDirNode = lib_util.DirDocNode(".".join(argDirSplit[:-1]),argDirSplit[-1])
+					if not currDirNode:
+						currDirNode = lib_util.NodeLiteral("Cannot parse relative dir:%s"%argDir)
+					callbackGrphAdd( ( grandParentNode, pc.property_script, currDirNode ),depthCall )
+					callbackGrphAdd( ( currDirNode, lib_common.MakeProp("Error"), errDirNode ),depthCall )
+				# The directory is not usable, so leave immediately.
 				return False
 
 
