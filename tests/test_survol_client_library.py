@@ -71,9 +71,11 @@ def CheckSubprocessEnd(procOpen):
 
 # This defines a file which is present on all platforms.
 if sys.platform.startswith("linux"):
-    FileAlwaysThere = "/etc/hosts"
+	FileAlwaysThere = "/etc/hosts"
+	AnyLogicalDisk = ""
 else:
-    FileAlwaysThere = "C:\\Windows\\explorer.exe"
+	FileAlwaysThere = "C:\\Windows\\explorer.exe"
+	AnyLogicalDisk = "D:"
 
 class SurvolLocalTest(unittest.TestCase):
 	"""These tests do not need a Survol agent"""
@@ -126,7 +128,7 @@ class SurvolLocalTest(unittest.TestCase):
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
-			DeviceID="D:")
+			DeviceID=AnyLogicalDisk)
 
 		content1 = mySource1.content_json()
 		print( "content1=",str(content1.keys()))
@@ -134,13 +136,15 @@ class SurvolLocalTest(unittest.TestCase):
 	def test_merge_add_local(self):
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
-			"CIM_LogicalDisk",
-			DeviceID="D:")
+			"CIM_DataFile",
+			Name=FileAlwaysThere)
+		# The current process is always available.
 		mySource2 = lib_client.SourceLocal(
-			"sources_types/win32/enumerate_Win32_Product.py")
+			"entity.py",
+			"CIM_Process",
+			Handle=os.getpid())
 
 		mySrcMergePlus = mySource1 + mySource2
-		print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
 		triplePlus = mySrcMergePlus.GetTriplestore()
 		print("Len triplePlus:",len(triplePlus))
 
@@ -160,7 +164,7 @@ class SurvolLocalTest(unittest.TestCase):
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
-			DeviceID="D:")
+			DeviceID=AnyLogicalDisk)
 		mySource2 = lib_client.SourceLocal(
 			"sources_types/win32/win32_local_groups.py")
 
@@ -857,6 +861,15 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 		# Detection if a specific bug is fixed.
 		assert(not 'CIM_DataFile.Name=' in strInstancesSet)
 
+	def test_win32_products(self):
+		mySourceProducts = lib_client.SourceLocal(
+			"sources_types/win32/enumerate_Win32_Product.py")
+
+		tripleProducts = mySourceProducts.GetTriplestore()
+
+		lstInstances = tripleProducts.GetInstances()
+		strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
+		print("lstInstances=",strInstancesLst[:3])
 
 class SurvolPyODBCTest(unittest.TestCase):
 	def __init__(self, *args, **kwargs):
@@ -1252,7 +1265,7 @@ class SurvolRemoteTest(unittest.TestCase):
 		myAgent = lib_client.Agent(RemoteTestAgent)
 
 		try:
-			mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty="D:")
+			mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
 			scriptsInvalid = mySourceInvalid.GetScripts()
 			excRaised = False
 			print("No exception is raised (This is a problem)")
@@ -1312,7 +1325,7 @@ class SurvolRemoteTest(unittest.TestCase):
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
-			DeviceID="D:")
+			DeviceID=AnyLogicalDisk)
 		mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/tcp_sockets_windows.py")
 
 		mySrcMergePlus = mySource1 + mySource2
@@ -1332,7 +1345,7 @@ class SurvolRemoteTest(unittest.TestCase):
 		mySource1 = lib_client.SourceLocal(
 			"entity.py",
 			"CIM_LogicalDisk",
-			DeviceID="D:")
+			DeviceID=AnyLogicalDisk)
 		mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/win32_local_groups.py")
 
 		mySrcMergeMinus = mySource1 - mySource2
@@ -1348,7 +1361,7 @@ class SurvolRemoteTest(unittest.TestCase):
 	def test_remote_scripts_CIM_LogicalDisk(self):
 		myAgent = lib_client.Agent(RemoteTestAgent)
 
-		myInstancesRemoteDisk = myAgent.CIM_LogicalDisk(DeviceID="D:")
+		myInstancesRemoteDisk = myAgent.CIM_LogicalDisk(DeviceID=AnyLogicalDisk)
 		listScriptsDisk = myInstancesRemoteDisk.GetScripts()
 		# No scripts yet.
 		self.assertTrue(len(listScriptsDisk) == 0)
@@ -1356,7 +1369,7 @@ class SurvolRemoteTest(unittest.TestCase):
 	def test_remote_scripts_CIM_Directory(self):
 		myAgent = lib_client.Agent(RemoteTestAgent)
 
-		myInstancesRemoteDir = myAgent.CIM_Directory(Name="D:")
+		myInstancesRemoteDir = myAgent.CIM_Directory(Name=AnyLogicalDisk)
 		listScriptsDir = myInstancesRemoteDir.GetScripts()
 
 		if isVerbose:
