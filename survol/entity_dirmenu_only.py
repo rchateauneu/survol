@@ -62,7 +62,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
 				errorMsg = TestUsability(importedMod,entity_type,entity_ids_arr)
 				# if flagShowAll and errorMsg ???
 				if errorMsg:
-					ERROR("IsDirectoryUsable errorMsg(1)=%s",errorMsg)
+					DEBUG("IsDirectoryUsable errorMsg(1)=%s",errorMsg)
 					# If set to True, the directory is displayed even if all its scripts
 					# are not usable. Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
 					return lib_common.NodeLiteral(errorMsg)
