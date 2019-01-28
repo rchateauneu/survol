@@ -60,11 +60,12 @@ cgitb.enable(format="txt")
 def CheckSubprocessEnd(procOpen):
 	( child_stdout_content, child_stderr_content ) = procOpen.communicate()
 
-	# This ensures that the suprocess is correctly started.
-	assert(child_stdout_content.startswith(b"Starting subprocess"))
+	if sys.platform.startswith("win"):
+		# This ensures that the suprocess is correctly started.
+		assert(child_stdout_content.startswith(b"Starting subprocess"))
 
-	print("procOpen.returncode=",procOpen.returncode)
-	assert(procOpen.returncode == 123)
+		print("procOpen.returncode=",procOpen.returncode)
+		assert(procOpen.returncode == 123)
 
 
 # TODO: Prefix of url samples should be a parameter.
@@ -252,6 +253,10 @@ class SurvolLocalTest(unittest.TestCase):
 
 	def test_local_scripts_UserAccount(self):
 		"""Returns all scripts accessible from current user account."""
+
+		if sys.platform.startswith("linux"):
+			print("Windows only")
+			return True
 
 		myInstancesLocal = lib_client.Agent().Win32_UserAccount(
 			Domain=CurrentMachine,
@@ -529,11 +534,12 @@ class SurvolLocalTest(unittest.TestCase):
 					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
 		else:
 			# Typical situation of symbolic links:
-			# /usr/bin/python => python2 => python 2.7
+			# /usr/bin/python => python2 => python2.7
 			execPath = os.path.realpath( sys.executable )
 			lstMandatoryInstances += [
 					"CIM_DataFile.Name=%s" % execPath]
 		for oneStr in lstMandatoryInstances:
+			print( "oneStr=",oneStr )
 			assert( oneStr in strInstances)
 
 		CheckSubprocessEnd(procOpen)
@@ -568,7 +574,7 @@ class SurvolLocalTest(unittest.TestCase):
 					"CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
 		else:
 			# Typical situation of symbolic links:
-			# /usr/bin/python => python2 => python 2.7
+			# /usr/bin/python => python2 => python2.7
 			execPath = os.path.realpath( sys.executable )
 			lstMandatoryInstances += [
 					"CIM_DataFile.Name=%s" % execPath]
@@ -600,13 +606,14 @@ class SurvolLocalTest(unittest.TestCase):
 		lstInstances = tripleMemMaps.GetInstances()
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
-		# print("Instances=",strInstancesSet)
+		print("Instances=",strInstancesSet)
 
 		# Some instances are required.
+		lstMandatoryInstances = [
+			'CIM_Process.Handle=%s'%procOpen.pid ]
 		if sys.platform.startswith("win"):
 			# This is common to Windows 7 and Windows 8.
-			for oneStr in [
-				'CIM_Process.Handle=%s'%procOpen.pid,
+			lstMandatoryInstances += [
 				'memmap.Id=C:/Windows/Globalization/Sorting/SortDefault.nls',
 				'memmap.Id=C:/Windows/System32/kernel32.dll',
 				'memmap.Id=C:/Windows/System32/locale.nls',
@@ -614,11 +621,32 @@ class SurvolLocalTest(unittest.TestCase):
 				'memmap.Id=C:/Windows/System32/KernelBase.dll',
 				'memmap.Id=C:/Windows/System32/msvcrt.dll',
 				'memmap.Id=C:/Windows/System32/cmd.exe',
-				]:
-				assert( oneStr in strInstancesSet)
+				]
 		else:
-			print("Linux case: Not implemented yet")
-			assert(False)
+			# Typical situation of symbolic links:
+			# /usr/bin/python => /usr/bin/python2 => /usr/bin/python2.7
+			execPath = os.path.realpath( sys.executable )
+			lstMandatoryInstances += [
+                		'memmap.Id=[heap]',
+                		'memmap.Id=[vdso]',
+                		'memmap.Id=[vsyscall]',
+                		'memmap.Id=[anon]',
+                		'memmap.Id=[vvar]',
+                		'memmap.Id=[stack]',
+                		'memmap.Id=/usr/lib64/libpython2.7.so.1.0',
+                		'memmap.Id=/usr/lib64/libpthread-2.25.so',
+                		'memmap.Id=%s' % execPath,
+                		'memmap.Id=/usr/lib/locale/locale-archive',
+                		'memmap.Id=/usr/lib64/ld-2.25.so',
+                		'memmap.Id=/usr/lib64/libutil-2.25.so',
+                		'memmap.Id=/usr/lib64/libdl-2.25.so',
+                		'memmap.Id=/usr/lib64/libc-2.25.so',
+                		'memmap.Id=/usr/lib64/python2.7/lib-dynload/_localemodule.so',
+                		'memmap.Id=/usr/lib64/libm-2.25.so'
+				]
+                for oneStr in lstMandatoryInstances:
+			print( oneStr )
+			assert( oneStr in strInstancesSet)
 
 		CheckSubprocessEnd(procOpen)
 
