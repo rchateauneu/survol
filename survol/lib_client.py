@@ -214,12 +214,18 @@ class SourceLocal (SourceCgi):
 		outmachString = OutputMachineString()
 		originalOutMach = lib_util.globalOutMach
 		lib_util.globalOutMach = outmachString
+
+		# If there is an error, it will not exit but send a nice exception/
+		lib_common.ErrorMessageEnable(False)
 		try:
 			modu.Main()
 		except Exception as ex:
 			# https://www.stefaanlippens.net/python-traceback-in-catch/
 			ERROR("__execute_script_with_mode with module=%s: Caught:%s",modu.__name__,ex, exc_info=True)
+			lib_common.ErrorMessageEnable(True)
+			raise
 
+		lib_common.ErrorMessageEnable(True)
 			#traceback.print_exc()
 
 			# Get traceback as a string and do something with it
@@ -577,7 +583,11 @@ class BaseCIMClass(object):
 				lib_common.ErrorMessageEnable(False)
 
 				# TODO: Use filterPredicates
-				tripleStore = bestEdge.m_url_script.GetTriplestore()
+				try:
+					tripleStore = bestEdge.m_url_script.GetTriplestore()
+				except Exception as exc:
+					WARNING("FindStringFromNeighbour:%s",str(exc))
+					continue
 
 				if tripleStore is None:
 					continue
