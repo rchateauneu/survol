@@ -43,7 +43,7 @@ def DoTheRest( grph, beginning, physical, file_split ):
 			full_path = beginning + "/" + lnk_path
 		# print("link=" + lnk_path + "=>" + full_path)
 		DoTheRest( grph, full_path, physical + ext, file_split[ 1 : ] )
-	except OSError:
+	except:
 		# print("Not a symlink:"+beginning)
 		return
 
