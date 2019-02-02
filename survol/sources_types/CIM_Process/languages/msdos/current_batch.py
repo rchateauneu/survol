@@ -51,14 +51,11 @@ def Main():
     node_process = lib_common.gUriGen.PidUri(pidProc)
     proc_obj = CIM_Process.PsutilGetProcObj(pidProc)
 
-    # Now we are parsing the command line.
-    cmd_line = CIM_Process.PsutilProcToCmdline(proc_obj)
-
-    DEBUG("cmd_line=%s",str(cmd_line))
-
-    # Similar to split, but ignores white spaces in double quotes.
-    argvArray = re.findall(r'(?:[^\s "]|"(?:\\.|[^"])*")+', cmd_line )
-
+    # Python 2
+    # cmd_arr=['C:\\Python27\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
+    # Python 3
+    # cmd_arr=['C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
+    argvArray = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
     DEBUG("argvArray=%s",str(argvArray))
 
     # This extracts the command file name and creates a node for it.
@@ -81,6 +78,7 @@ def Main():
         # Now tries all possible dirs, starting with current directory.
         for aDir in allDirsToSearch:
             fullScriptPath = os.path.join(aDir,theArg)
+            DEBUG("fullScriptPath=%s",fullScriptPath)
             if os.path.isfile(fullScriptPath):
                 DEBUG("fullScriptPath=%s",fullScriptPath)
                 scriptNode = lib_common.gUriGen.FileUri( fullScriptPath )
