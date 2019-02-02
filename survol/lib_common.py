@@ -817,9 +817,8 @@ def ErrorMessageEnable(flag):
 	globalErrorMessageEnabled = flag
 
 def ErrorMessageHtml(message):
-	ERROR("ErrorMessageHtml %s globalErrorMessageEnabled=%d",message,globalErrorMessageEnabled)
-
 	if globalErrorMessageEnabled:
+		ERROR("ErrorMessageHtml %s. Exiting.",message)
 		# If we are in Json mode, this returns a special json document with the error message.
 		try:
 			qry = os.environ["QUERY_STRING"]
@@ -836,7 +835,7 @@ def ErrorMessageHtml(message):
 		sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
-		DEBUG("ErrorMessageHtml DISABLED globalErrorMessageEnabled=%d",globalErrorMessageEnabled)
+		DEBUG("ErrorMessageHtml DISABLED")
 		# It might be displayed in a HTML document.
 		messageClean = cgi.escape(message)
 		raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)

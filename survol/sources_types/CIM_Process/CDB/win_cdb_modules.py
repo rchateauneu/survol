@@ -45,6 +45,10 @@ def Main():
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("This works only on Windows platforms")
 
+	# If cannot be the current pid, otherwise it will block.
+	if the_pid == os.getpid():
+		lib_common.ErrorMessageHtml("Cannot debug current process")
+
 	grph = cgiEnv.GetGraph()
 
 	# Starts a second session
