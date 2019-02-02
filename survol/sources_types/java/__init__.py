@@ -10,20 +10,28 @@ import lib_common
 from jpype import java
 from jpype import javax
 
+globJavaJVM = None
+
 # It is possible to return a similar object, but on a remote machine.
 def JPypeLocalStartJVM():
+	global globJavaJVM
+	if globJavaJVM:
+		return globJavaJVM
+
 	try:
 		if lib_util.isPlatformLinux:
-			return JPypeLocalStartJVMLinux()
+			globJavaJVM = JPypeLocalStartJVMLinux()
 
-		if lib_util.isPlatformWindows:
-			return JPypeLocalStartJVMWindows()
+		elif lib_util.isPlatformWindows:
+			globJavaJVM = JPypeLocalStartJVMWindows()
+		else:
+			lib_common.ErrorMessageHtml("Uknown operating system")
 
 	except:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("JavaJmxSystemProperties caught:" + str(exc))
 
-	return None
+	return globJavaJVM
 
 def JPypeLocalStartJVMLinux():
 	# Example: '/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib/amd64/server/libjvm.so'
@@ -313,12 +321,14 @@ def JPypeListVMs(jvPckVM):
 	return resuProcs
 
 # This fails on Linux.
+# Better not stopping it because there might be several calls.
+# On Windows, better reusing the same JVM.
 def QuietShutdown():
+	return
 	# Must redirect the Java output
 	# Shutdown the VM at the end
 	if not lib_util.isPlatformLinux:
 		jpype.shutdownJVM()
-	return
 
 
 # TODO: This could work on a remote machine if we have the Java RMI port number and user/pass.
