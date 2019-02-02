@@ -446,9 +446,6 @@ class SurvolLocalTest(unittest.TestCase):
 		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
 
 		execList = [ sys.executable, sqlPathName ]
-		#execList = [ '"' + sys.executable + '"', sqlPathName ]
-		# execList = [ '"python.exe"', sqlPathName ]
-		#execList = '"' + sys.executable + '" "' + sqlPathName + '"'
 
 		# Runs this process: It allocates a variable containing a SQL query, then it waits.
 		procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
@@ -479,9 +476,6 @@ class SurvolLocalTest(unittest.TestCase):
 		sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePerlScript.pl" )
 
 		execList = [ "perl", sqlPathName ]
-		#execList = [ '"' + sys.executable + '"', sqlPathName ]
-		# execList = [ '"python.exe"', sqlPathName ]
-		#execList = '"' + sys.executable + '" "' + sqlPathName + '"'
 
 		# Runs this process: It allocates a variable containing a SQL query, then it waits.
 		# procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -734,7 +728,6 @@ class SurvolLocalTest(unittest.TestCase):
 		lstInstances = triplePyScript.GetInstances()
 		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 		DEBUG("strInstancesSet=%s",str(strInstancesSet))
-		print("lstInstances=",lstInstances)
 
 		sqlPathNameAbsolute = os.path.abspath(sqlPathName)
 		sqlPathNameClean = sqlPathNameAbsolute.replace("\\","/")
@@ -746,7 +739,6 @@ class SurvolLocalTest(unittest.TestCase):
 		]
 
 		for oneStr in listRequired:
-			print(oneStr)
 			assert( oneStr in strInstancesSet )
 
 		CheckSubprocessEnd(procOpen)
@@ -765,6 +757,380 @@ class SurvolLocalTest(unittest.TestCase):
 		# At least the current user must be found.
 		for oneStr in [ CurrentUserPath ]:
 			assert( oneStr in strInstancesSet)
+
+
+	def test_oracle_process_dbs(self):
+		"""oracle_process_dbs Information about current process"""
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/oracle_process_dbs.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+
+		# The result is empty but the script worked.
+		print(strInstancesSet)
+		assert(strInstancesSet == set())
+
+	def test_process_connections(self):
+		"""process_connections Information about current process"""
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/process_connections.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+
+		# The result is empty but the script worked.
+		print("Conenctions=",strInstancesSet)
+		# assert(strInstancesSet == set())
+
+	def test_process_cwd(self):
+		"""process_cwd Information about current process"""
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/process_cwd.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+
+		for oneStr in [
+			'CIM_DataFile.Name=%s' % os.getcwd().replace("\\","/"),
+			'CIM_DataFile.Name=%s' % sys.executable.replace("\\","/"),
+			'CIM_Process.Handle=%s' % os.getpid(),
+			CurrentUserPath,
+		]:
+			DEBUG("oneStr=%s",oneStr)
+			assert( oneStr in strInstancesSet)
+
+	def test_wbem_process_info(self):
+		"""wbem_process_info Information about current process"""
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/wbem_process_info.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		# We want to catch the error exception instead of exiting from the program.
+		try:
+			mySource.GetTriplestore()
+		except Exception as exc:
+			print("Success: Exception received, because no WBEM server is running")
+			return
+
+		assert(False)
+
+	def test_win_cdb_callstack(self):
+		"""win_cdb_callstack Information about current process"""
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/CDB/win_cdb_callstack.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		try:
+			# Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
+			mySource.GetTriplestore()
+		except Exception as exc:
+			print("Success: Exception received, because cannot debug current process")
+			return
+
+		assert(False)
+
+
+	def test_win_cdb_modules(self):
+		"""win_cdb_modules about current process"""
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/CDB/win_cdb_modules.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		try:
+			# Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
+			mySource.GetTriplestore()
+		except Exception as exc:
+			print("Success: Exception received, because cannot debug current process")
+			return
+
+		assert(False)
+
+	def test_java_mbeans(self):
+		"""Java MBeans"""
+
+		try:
+			import jpype
+		except ImportError:
+			print("Module jpype is not available so this test is not applicable")
+			return
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/languages/java/java_mbeans.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		listRequired = [
+			'CIM_Process.Handle=%s' % os.getpid()
+		]
+
+		instPrefix = 'java/mbean.Handle=%d,Name=' % os.getpid()
+
+		for instJavaName in [
+			'java.lang:type-Memory',
+			'java.lang:type-MemoryManager*name-CodeCacheManager',
+			'java.lang:type-MemoryManager*name-Metaspace Manager',
+			'java.lang:type-MemoryPool*name-Metaspace',
+			'java.lang:type-Runtime',
+			'java.lang:type-MemoryPool*name-PS Survivor Space',
+			'java.lang:type-GarbageCollector*name-PS Scavenge',
+			'java.lang:type-MemoryPool*name-PS Old Gen',
+			'java.lang:type-Compilation',
+			'java.lang:type-MemoryPool*name-Code Cache',
+			'java.lang:type-Threading',
+			'JMImplementation:type-MBeanServerDelegate',
+			'java.lang:type-ClassLoading',
+			'com.sun.management:type-HotSpotDiagnostic',
+			'java.lang:type-MemoryPool*name-PS Eden Space',
+			'java.lang:type-OperatingSystem',
+			'java.nio:type-BufferPool*name-mapped',
+			'com.sun.management:type-DiagnosticCommand',
+			'java.lang:type-GarbageCollector*name-PS MarkSweep',
+			'java.lang:type-MemoryPool*name-Compressed Class Space',
+			'java.nio:type-BufferPool*name-direct',
+			'java.util.logging:type-Logging'
+		]:
+			listRequired.append( instPrefix + instJavaName )
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+
+		for oneStr in listRequired:
+			assert( oneStr in strInstancesSet )
+
+	def test_java_system_properties(self):
+		"""Java system properties"""
+
+		try:
+			import jpype
+		except ImportError:
+			print("Module jpype is not available so this test is not applicable")
+			return
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/languages/java/java_system_properties.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		listRequired = [
+			'CIM_Directory.Name=C:/Program Files (x86)/Graphviz2.38/bin', 'CIM_Directory.Name=C:/Program_Extra/SysinternalsSuite',
+			'CIM_Directory.Name=C:/windows/system32', 'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/charsets.jar',
+			'CIM_Directory.Name=C:/Python27/lib/site-packages/numpy/.libs', 'CIM_Directory.Name=C:/Program Files/nodejs',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121', 'CIM_Directory.Name=C:/Program Files (x86)/Intel/iCLS Client',
+			'CIM_Directory.Name=c:/Program Files (x86)/Microsoft SQL Server/110/DTS/Binn',
+			'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/130/Tools/Binn',
+			'CIM_Directory.Name=C:/Perl64/bin', 'CIM_Directory.Name=C:/windows',
+			'CIM_Directory.Name=C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/bin',
+			'CIM_Directory.Name=C:/Program Files/Intel/Intel(R) Management Engine Components/DAL',
+			'CIM_Directory.Name=C:/Program Files/Intel/Intel(R) Management Engine Components/IPT',
+			'CIM_Directory.Name=C:/ProgramData/Oracle/Java/javapath',
+			'CIM_Directory.Name=C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/IPT',
+			'CIM_Directory.Name=C:/Program Files (x86)/Windows Kits/10/Debuggers/x64',
+			'CIM_Directory.Name=C:/Program Files/TortoiseGit/bin',
+			'CIM_Directory.Name=c:/Program Files (x86)/Microsoft SQL Server/110/Tools/Binn',
+			'CIM_Directory.Name=C:/Program_Extra/swigwin-3.0.4',
+			'CIM_Directory.Name=C:/Program Files/Git/cmd',
+			'CIM_Directory.Name=C:/Program Files (x86)/Nmap', 'Win32_UserAccount.Name=rchateau,Domain=localhost',
+			'CIM_Directory.Name=C:/Program Files (x86)/OpenSLP', 'CIM_Directory.Name=C:/windows/Sun/Java/lib/ext',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/classes',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jsse.jar',
+			'CIM_Directory.Name=C:/Users/rchateau/AppData/Local/Temp',
+			'CIM_Directory.Name=C:/Program Files/doxygen/bin',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/resources.jar',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jce.jar',
+			'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar',
+			'CIM_Directory.Name=C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/DAL',
+			'CIM_Directory.Name=.', 'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/sunrsasign.jar',
+			'CIM_Directory.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/tests',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/endorsed',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/bin',
+			'CIM_Directory.Name=C:/OpenSSL-Win64/bin', 'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/ext',
+			'CIM_Directory.Name=C:/windows/System32/WindowsPowerShell/v1.0', 'CIM_Directory.Name=C:/Program Files (x86)/CVSNT',
+			'CIM_Directory.Name=C:/Program Files (x86)/The Open Group/WMI Mapper/bin',
+			'CIM_Directory.Name=C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit',
+			'CIM_Directory.Name=C:/Users/rchateau/AppData/Roaming/npm', 'CIM_Directory.Name=C:/Python27/Scripts',
+			'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/jre/bin',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/rt.jar',
+			'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/bin', 'CIM_Directory.Name=C:/Program Files (x86)/Microsoft SDKs/TypeScript/1.0',
+			'CIM_Directory.Name=C:/Program Files/MySQL/MySQL Utilities 1.6', 'CIM_Directory.Name=C:/Program Files/Intel/iCLS Client',
+			'CIM_Directory.Name=C:/windows/System32/Wbem', 'CIM_Directory.Name=C:/Program Files/dotnet',
+			'CIM_Directory.Name=C:/Users/rchateau/AppData/Local/Programs/radare2', 'CIM_Directory.Name=C:/Users/rchateau',
+			'CIM_Directory.Name=C:/Program_Extra', 'CIM_Directory.Name=c:/Apache24/bin', 'CIM_Directory.Name=C:/windows/Sun/Java/bin',
+			'CIM_Directory.Name=C:/Program Files (x86)/OpenSSH/bin', 'CIM_Directory.Name=C:/MinGW/bin', 'CIM_Directory.Name=C:/Program_Extra/z3/bin',
+			'CIM_Directory.Name=C:/Program Files/MySQL/MySQL Server 5.7/bin',
+			'CIM_Directory.Name=C:/Program Files (x86)/Windows Kits/8.1/Windows Performance Toolkit',
+			'CIM_Directory.Name=C:/Program Files/TortoiseSVN/bin', 'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/120/Tools/Binn',
+			'CIM_Directory.Name=C:/Program_Extra/Depends64', 'CIM_Directory.Name=C:/Python27',
+			'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/110/Tools/Binn',
+			'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/110/DTS/Binn',
+			'CIM_Directory.Name=C:/Perl64/site/bin', 'CIM_Directory.Name=C:/Program Files (x86)/Microsoft SQL Server/110/Tools/Binn/ManagementStudio',
+			'CIM_Directory.Name=C:/Program Files/CMake/bin', 'CIM_Directory.Name=C:/Program Extra/SysinternalsSuite',
+			'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jfr.jar', 'CIM_Directory.Name=C:/oraclexe/app/oracle/product/11.2.0/server/bin',
+			'CIM_Directory.Name=C:/Program Files (x86)/Skype/Phone', 'CIM_Directory.Name=C:/Python27/lib/site-packages/pywin32_system32'
+		]
+
+		listRequired.append( 'CIM_Process.Handle=%d' % os.getpid() )
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+
+		for oneStr in listRequired:
+			if oneStr not in strInstancesSet:
+				print(oneStr)
+			assert( oneStr in strInstancesSet )
+
+	def test_java_jdk_jstack(self):
+		"""Information about JDK stack"""
+
+		try:
+			import jpype
+		except ImportError:
+			print("Module jpype is not available so this test is not applicable")
+			return
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/languages/java/jdk_jstack.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		# Start a Java process.
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+
+		assert(strInstancesSet == set())
+
+	def test_msdos_current_batch(self):
+		"""Displays information a MSDOS current batch"""
+
+		# This cannot display specific information about the current MSDOS batch because there is none,
+		# as it is a Python process. Still, this tests checks that the script runs properly.
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/languages/msdos/current_batch.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+		print("strInstancesSet",strInstancesSet)
+
+		currentScript = os.path.join(os.getcwd(), __file__).replace("\\","/")
+
+		listRequired =  [
+			'CIM_Process.Handle=%d' % os.getpid(),
+			'CIM_DataFile.Name=%s' % currentScript
+		]
+
+		for oneStr in listRequired:
+			print(oneStr)
+			assert( oneStr in strInstancesSet )
+
+
+class SurvolLocalLinuxTest(unittest.TestCase):
+	"""These tests do not need a Survol agent. They apply to Linux machines only"""
+
+	def decorator_linux_platform(test_func):
+		"""Returns first available Azure subscription from Credentials file"""
+
+		if sys.platform.startswith("linux"):
+			return test_func
+		else:
+			return None
+
+	@decorator_linux_platform
+	def test_strace(self):
+		"""strace Information about current process"""
+
+		# This cannot work properly because a process cannot debug itself,
+		# but it must treat the problem gracefully.
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/linux_strace.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+		print(strInstancesSet)
+
+		assert(False)
+
+	@decorator_linux_platform
+	def test_process_gdbstack(self):
+		"""process_gdbstack Information about current process"""
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/process_gdbstack.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+		print(strInstancesSet)
+
+		assert(False)
+
+	@decorator_linux_platform
+	def test_process_cgroups(self):
+		"""CGroups about current process"""
+
+		mySource = lib_client.SourceLocal(
+			"sources_types/CIM_Process/Linux/process_cgroups.py",
+			"CIM_Process",
+			Handle=os.getpid())
+
+		strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+		print(strInstancesSet)
+
+		assert(False)
+
+	@decorator_linux_platform
+	def test_display_python_stack(self):
+		"""Displays the stack of a Python process"""
+
+		# This creates a process running in Python, because it does not work with the current process.
+		pyPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+
+		execList = [ sys.executable, pyPathName ]
+
+		procOpen = subprocess.Popen(execList, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+
+		print("Started process:",execList," pid=",procOpen.pid)
+
+		# Give a bit of time so the process is fully init.
+		time.sleep(1)
+
+		mySourcePyStack = lib_client.SourceLocal(
+			"sources_types/CIM_Process/languages/python/display_python_stack.py",
+			"CIM_Process",
+			Handle=procOpen.pid)
+
+		triplePyStack = mySourcePyStack.GetTriplestore()
+
+		lstInstances = triplePyStack.GetInstances()
+		strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+		print("lstInstances=",lstInstances)
+
+		pyPathNameAbsolute = os.path.abspath(pyPathName)
+		pyPathNameClean = pyPathNameAbsolute.replace("\\","/")
+
+		# This checks the presence of the current process and the Python file being executed.
+		listRequired = [
+			'CIM_Process.Handle=%s' % procOpen.pid,
+			'CIM_DataFile.Name=%s' % pyPathNameClean,
+		]
+
+		for oneStr in listRequired:
+			print(oneStr)
+			assert( oneStr in strInstancesSet )
+
+		CheckSubprocessEnd(procOpen)
+
 
 class SurvolLocalWindowsTest(unittest.TestCase):
 	"""These tests do not need a Survol agent. They apply to Windows machines only"""
@@ -1868,12 +2234,12 @@ class SurvolSearchTest(unittest.TestCase):
 		tpl # To check if a result was found.
 
 	def test_search_local_string(self):
-		"""Loads instances connected to an instance by every known script"""
+		"""Loads instances connected to an instance by every available script"""
 
-		# The service "PlugPlay" should be available on all Windows machines.
 		instanceOrigin = lib_client.Agent().CIM_Directory(
 			Name="C:/Windows")
 
+		# The service "PlugPlay" should be available on all Windows machines.
 		listInstances = {
 			lib_client.Agent().CIM_Directory(Name="C:/Windows/winxs"),
 			lib_client.Agent().CIM_Directory(Name="C:/windows/system32"),
