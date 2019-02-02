@@ -5,6 +5,7 @@ Windows process call stack
 """
 
 import re
+import os
 import sys
 import lib_util
 import lib_common
@@ -49,6 +50,10 @@ def Main():
 		the_pid = int(cgiEnv.GetId())
 	except Exception:
 		lib_common.ErrorMessageHtml("Must provide a pid")
+
+	# If cannot be the current pid, otherwise it will block.
+	if the_pid == os.getpid():
+		lib_common.ErrorMessageHtml("Cannot debug current process")
 
 	if not lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("This works only on Windows platforms")
