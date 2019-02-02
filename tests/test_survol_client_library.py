@@ -1024,7 +1024,9 @@ class SurvolSocketsTest(unittest.TestCase):
 	def test_netstat_windows_sockets(self):
 		import socket
 
-		print("")
+		if sys.platform.startswith("linux"):
+			print("Windows socket test not applicable")
+			return
 
 		# Not many web sites in HTTP these days. This one is very stable.
 		# http://w2.vatican.va/content/vatican/it.html is on port 80=http
