@@ -91,7 +91,10 @@ def Main():
 				DEBUG("l[0]=%16s l[1]=%5d r[0]=%16s r[1]=%5d",
 								 larray[0], larray[1], rarray[0], rarray[1] )
 			except IndexError:
-				DEBUG("l[0]=%16s l[1]=%5d NO END", larray[0], larray[1] )
+				try:
+					DEBUG("l[0]=%16s l[1]=%5d NO END", larray[0], larray[1] )
+				except IndexError:
+					DEBUG("No socket")
 
 			isTheSock = IsGoodSocket(larray) or IsGoodSocket(rarray)
 
