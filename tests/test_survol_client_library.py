@@ -29,6 +29,14 @@ except KeyError:
 
 CurrentProcessPath = 'CIM_Process.Handle=%d' % os.getpid()
 
+# For example /usr/bin/python2.7
+# Typical situation of symbolic links:
+# /usr/bin/python => python2 => python2.7
+execPath = os.path.realpath( sys.executable )
+if sys.platform.startswith("win"):
+    execPath = execPath.replace("\\","/"),
+CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
+
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
 
@@ -530,11 +538,8 @@ class SurvolLocalTest(unittest.TestCase):
             lstMandatoryInstances += [
                     "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
         else:
-            # Typical situation of symbolic links:
-            # /usr/bin/python => python2 => python2.7
-            execPath = os.path.realpath( sys.executable )
             lstMandatoryInstances += [
-                    "CIM_DataFile.Name=%s" % execPath]
+                    CurrentExecutablePath ]
         for oneStr in lstMandatoryInstances:
             assert( oneStr in lstMandatoryInstances)
 
@@ -569,11 +574,8 @@ class SurvolLocalTest(unittest.TestCase):
             lstMandatoryInstances += [
                     "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
         else:
-            # Typical situation of symbolic links:
-            # /usr/bin/python => python2 => python2.7
-            execPath = os.path.realpath( sys.executable )
             lstMandatoryInstances += [
-                    "CIM_DataFile.Name=%s" % execPath]
+                    CurrentExecutablePath ]
         for oneStr in lstMandatoryInstances:
             assert( oneStr in strInstancesSet)
 
@@ -829,12 +831,9 @@ class SurvolLocalTest(unittest.TestCase):
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
         print(strInstancesSet)
 
-        # Typical situation of symbolic links:
-        # /usr/bin/python => python2 => python2.7
-        execPath = os.path.realpath( sys.executable )
         for oneStr in [
             'CIM_DataFile.Name=%s' % os.getcwd().replace("\\","/"),
-            'CIM_DataFile.Name=%s' % execPath.replace("\\","/"),
+            CurrentExecutablePath,
             CurrentProcessPath,
             CurrentUserPath,
         ]:
@@ -1128,10 +1127,9 @@ class SurvolLocalLinuxTest(unittest.TestCase):
             "sources_types/CIM_Process/Linux/process_cgroups.py",
             "CIM_Process",
             Handle=os.getpid())
-        execPath = os.path.realpath( sys.executable )
 
         listRequired = [
-	    execPath,
+	    CurrentExecutablePath,
 	    CurrentProcessPath,
 	    CurrentUserPath,
 	    'CIM_Directory.Name=/user.slice/user-1001.slice/session-371.scope',
@@ -1147,7 +1145,6 @@ class SurvolLocalLinuxTest(unittest.TestCase):
 	    'Linux/cgroup.Name=perf_event',
 	    'Linux/cgroup.Name=freezer',
 	    'Linux/cgroup.Name=cpu',
-	    'Linux/cgroup.Name=',
 	    'Linux/cgroup.Name=pids',
 	    'Linux/cgroup.Name=memory',
 	    'Linux/cgroup.Name=cpuset',
@@ -1155,7 +1152,6 @@ class SurvolLocalLinuxTest(unittest.TestCase):
 
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
-        print(strInstancesSet)
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
