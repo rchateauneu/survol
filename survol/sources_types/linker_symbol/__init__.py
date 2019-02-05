@@ -46,6 +46,7 @@ def AddInfo(grph,node,entity_ids_arr):
 # This is used with plain code and with Python.
 # This should include a line number or an address.
 def AddFunctionCall( grph, callNodePrev, procNode, callName, fileName, codeLocation = None ):
+	DEBUG("AddFunctionCall fileName=%s",fileName)
 	if callName != None:
 		callNodeNew = lib_common.gUriGen.SymbolUri( callName, fileName )
 		if not callNodePrev is None:
