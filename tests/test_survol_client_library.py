@@ -643,8 +643,8 @@ class SurvolLocalTest(unittest.TestCase):
                         'memmap.Id=/usr/lib64/libm-2.25.so'
                 ]
             for oneStr in lstMandatoryInstances:
-		print( oneStr )
-		assert( oneStr in strInstancesSet)
+                print( oneStr )
+                assert( oneStr in strInstancesSet)
 
         CheckSubprocessEnd(procOpen)
 
@@ -693,8 +693,8 @@ class SurvolLocalTest(unittest.TestCase):
         print("lstQueriesOnly:",setEnvVars)
 
         if sys.platform.startswith("win"):
-	    # Any string will do: This stops the subprocess which is waiting for an input.
-	    child_stdin.write("Stop".encode())
+            # Any string will do: This stops the subprocess which is waiting for an input.
+            child_stdin.write("Stop".encode())
 
     def test_python_package_information(self):
         """Tests Python package information"""
@@ -1090,13 +1090,13 @@ class SurvolLocalLinuxTest(unittest.TestCase):
 
 
         listRequired = [
-	    'linker_symbol.Name=X19wb2xsX25vY2FuY2Vs,File=/lib64/libc.so.6',
-	    'CIM_DataFile.Name=/usr/bin/python2.7',
-	    'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python2.7',
-	    'CIM_DataFile.Name=/lib64/libc.so.6',
-	    CurrentUserPath,
-	    CurrentProcessPath
-	]
+        'linker_symbol.Name=X19wb2xsX25vY2FuY2Vs,File=/lib64/libc.so.6',
+        'CIM_DataFile.Name=/usr/bin/python2.7',
+        'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python2.7',
+        'CIM_DataFile.Name=/lib64/libc.so.6',
+        CurrentUserPath,
+        CurrentProcessPath
+    ]
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
 
@@ -1113,26 +1113,26 @@ class SurvolLocalLinuxTest(unittest.TestCase):
             Handle=os.getpid())
 
         listRequired = [
-	    CurrentExecutablePath,
-	    CurrentProcessPath,
-	    CurrentUserPath,
-	    # 'CIM_Directory.Name=/user.slice/user-1001.slice/session-371.scope',
-	    # 'CIM_Directory.Name=/user.slice/user-1001.slice',
-	    'CIM_Directory.Name=/',
-	    'Linux/cgroup.Name=name=systemd',
-	    'Linux/cgroup.Name=cpuacct',
-	    'Linux/cgroup.Name=net_cls',
-	    'Linux/cgroup.Name=hugetlb',
-	    'Linux/cgroup.Name=blkio',
-	    'Linux/cgroup.Name=net_prio',
-	    'Linux/cgroup.Name=devices',
-	    'Linux/cgroup.Name=perf_event',
-	    'Linux/cgroup.Name=freezer',
-	    'Linux/cgroup.Name=cpu',
-	    'Linux/cgroup.Name=pids',
-	    'Linux/cgroup.Name=memory',
-	    'Linux/cgroup.Name=cpuset',
-	]
+            CurrentExecutablePath,
+            CurrentProcessPath,
+            CurrentUserPath,
+            # 'CIM_Directory.Name=/user.slice/user-1001.slice/session-371.scope',
+            # 'CIM_Directory.Name=/user.slice/user-1001.slice',
+            'CIM_Directory.Name=/',
+            'Linux/cgroup.Name=name=systemd',
+            'Linux/cgroup.Name=cpuacct',
+            'Linux/cgroup.Name=net_cls',
+            'Linux/cgroup.Name=hugetlb',
+            'Linux/cgroup.Name=blkio',
+            'Linux/cgroup.Name=net_prio',
+            'Linux/cgroup.Name=devices',
+            'Linux/cgroup.Name=perf_event',
+            'Linux/cgroup.Name=freezer',
+            'Linux/cgroup.Name=cpu',
+            'Linux/cgroup.Name=pids',
+            'Linux/cgroup.Name=memory',
+            'Linux/cgroup.Name=cpuset',
+        ]
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
 
@@ -1604,9 +1604,9 @@ class SurvolSocketsTest(unittest.TestCase):
     def test_net_use(self):
         """Just test that the command NET USE runs"""
 
-	if not sys.platform.startswith("win"):
-	    print("Windows test only")
-	    return None
+        if not sys.platform.startswith("win"):
+            print("Windows test only")
+            return None
 
         # This does not really test the content, because nothing is sure.
         # However, at least it tests that the script can be called.
@@ -1635,9 +1635,9 @@ class SurvolSocketsTest(unittest.TestCase):
     def test_windows_network_devices(self):
         """Loads network devices on a Windows network"""
 
-	if not sys.platform.startswith("win"):
-	    print("Windows test only")
-	    return None
+        if not sys.platform.startswith("win"):
+            print("Windows test only")
+            return None
 
         mySourceWindowsNetworkDevices = lib_client.SourceLocal(
             "sources_types/win32/windows_network_devices.py")
