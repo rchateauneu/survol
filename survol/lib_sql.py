@@ -241,13 +241,13 @@ import sqlparse
 ################################################################################
 
 syno_rgx = "[A-Za-z_][A-Za-z0-9_-]*"
-table_with_schemas_rgx = "[A-Za-z_][A-Za-z0-9_$\.-]*"
+table_with_schemas_rgx = r"[A-Za-z_][A-Za-z0-9_$\.-]*"
 
 # This match a table name or a an alias definition.
 regex_tab_nam = [
-	'^(' + table_with_schemas_rgx + ')\s+AS\s+' + syno_rgx + '\s*$',
-	'^(' + table_with_schemas_rgx + ')\s+' + syno_rgx + '\s*$',
-	'^(' + table_with_schemas_rgx + ')\s*$',
+	'^(' + table_with_schemas_rgx + r')\s+AS\s+' + syno_rgx + r'\s*$',
+	'^(' + table_with_schemas_rgx + r')\s+' + syno_rgx + r'\s*$',
+	'^(' + table_with_schemas_rgx + r')\s*$',
  ]
 
 # The input token contains a table name or an alias definition.
@@ -346,12 +346,15 @@ def ProcessUpdateTokens(sqlObj,depth=0):
 	return ["Nothing"]
 
 def ProcessDeleteTokens(sqlObj,depth=0):
+	# TODO: This is not finished.
 	return ProcessSelectTokens(sqlObj,depth + 1)
 
 def ProcessInsertTokens(sqlObj,depth=0):
+	# TODO: This is not finished.
 	return ProcessSelectTokens(sqlObj,depth + 1)
 
 def ProcessCreateTokens(sqlObj,depth=0):
+	# TODO: This is not finished.
 	return ProcessSelectTokens(sqlObj,depth + 1)
 
 statementToFunc = {
@@ -440,16 +443,21 @@ def SqlQueryWalkNodes(sqlQuery,Func):
 
 ################################################################################
 
+# TODO: Eliminate the last double-quote if the query is taken from
+# a source file and is enclosed by quotes. Example:
+# sqlQuery1 = "select * from AnyTable"
+# Here, the terminating quote is added to returned query.
+
 # These regular expressions are used to detect SQL queries in plain text,
 # which can be a text file, or the heap memory of a running process.
 # They must be used with re.IGNORECASE
 # TODO: Maybe have one regular expression only,
 # TODO: so we would scan the memory or file content, once only.
-printables = "[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
+printables = r"[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
 theRegExs = {
-	"SELECT": "select\s+" + printables + "\s+from\s+" + printables,
-	"INSERT": "insert\s+" + printables + "\s+into\s+" + printables,
-	"UPDATE": "update\s+" + printables + "\s+set\s+" + printables,
+	r"SELECT": "select\s+" + printables + r"\s+from\s+" + printables,
+	r"INSERT": "insert\s+" + printables + r"\s+into\s+" + printables,
+	r"UPDATE": "update\s+" + printables + r"\s+set\s+" + printables,
 }
 #
 def SqlRegularExpressions():
