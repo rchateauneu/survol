@@ -855,7 +855,9 @@ def SubProcPOpen(command):
 
 def SubProcCall(command):
 	# For doxygen, we should have shell=True but this is NOT safe.
-	ret = subprocess.call(command, stdout=sys.stderr, stderr=sys.stderr, shell=False)
+        # Shell is however needed for unit tests.
+	DEBUG("command=%s",command)
+	ret = subprocess.call(command, stdout=sys.stderr, stderr=sys.stderr, shell=True)
 	return ret
 
 ################################################################################
