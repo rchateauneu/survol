@@ -54,14 +54,16 @@ def Main():
 				# TODO: MAYBE CREATES ALL THE PROCESSES AND RUN THE THREADS ON THE COMPLETE LIST ???
 				survol_addr.PsutilAddSocketToGraphAsync(node_process,all_connect,grph,flagShowUnconnected)
 
-		except psutil.AccessDenied:
-			pass
-		except psutil.NoSuchProcess:
-			pass
-		except:
-			exc = sys.exc_info()[1]
-			lib_common.ErrorMessageHtml("Caught:" + str(exc) )
-			raise
+		#except psutil.AccessDenied:
+		#	pass
+		#except psutil.NoSuchProcess:
+		#	pass
+		except Exception as exc:
+			# This is for psutil.AccessDenied and psutil.NoSuchProcess but we do not want to import the module
+			exc_str = str(exc)
+			if (exc_str.find("AccessDenied") < 0) and (exc_str.find("NoSuchProcess") < 0):
+				lib_common.ErrorMessageHtml("Caught:" + exc_str )
+				raise
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
