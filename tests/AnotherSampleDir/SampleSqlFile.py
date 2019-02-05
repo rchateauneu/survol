@@ -14,7 +14,7 @@ sqlQuery4 = b"select * from 'AnyTable'"
 sys.stdout.write("Starting subprocess %s\n"%__file__)
 sys.stdout.flush()
 
-xx = sys.stdin.read()
+xx = sys.stdin.read(1)
 
 print(sqlQuery1,sqlQuery2,sqlQuery3,sqlQuery4)
 
