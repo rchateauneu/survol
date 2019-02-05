@@ -6,6 +6,7 @@ import os
 import sys
 import json
 import lib_util
+import lib_common
 import tempfile
 from sources_types import CIM_Process
 
@@ -63,6 +64,7 @@ def ExecInPythonDebuggerWindows(my_pid,vecInstructions):
 def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
     filnaPair = tempfile.mkstemp(suffix=".py",text=True)
     filna = filnaPair[1]
+    DEBUG("ExecInPythonDebuggerLinux filna=%s", filna)
 
     # This file will contain the result of the execution.
     outFilNaPair = tempfile.mkstemp(suffix=".dat",text=True)
@@ -98,12 +100,12 @@ def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
 
 	# TODO: See process_gdbstack.py which similarly runs a gdb command.
     cmdline = 'gdb -p %d -batch %s' % (my_pid, big_args )
-    DEBUG("cmdline=%s\n", cmdline)
+    DEBUG("cmdline=%s outFilNa=%s\n", cmdline, outFilNa)
 
     # TODO: Must use lib_common.SubProcPOpen
     # TODO is shell=True necessary ?????
     # subprocess.call(cmdline, shell=True)
-    SubProcCall(cmdline)
+    lib_common.SubProcCall(cmdline)
 
     filOutDat = open(outFilNa,"r")
     vecResult = filOutDat.readlines();
