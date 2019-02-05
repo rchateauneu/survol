@@ -35,6 +35,7 @@ def GetRemoteStack(thePid):
         'retobj = traceback.extract_stack()'
     ]
     objResu = survol_python.ExecInPythonDebugger(thePid,vecInstructions)
+
     return objResu
 
 def Main():
@@ -50,6 +51,12 @@ def Main():
     if remSta:
         callNodePrev = None
 
+        # Typical result:
+        # [
+        #     ["/home/rchateau/survol/tests/AnotherSampleDir/SampleSqlFile.py", 17, "<module>", "xx = sys.stdin.read(1)"],
+        #     ["<string>", 1, "<module>", null],
+        #     ["/tmp/tmpIcWP2j.py", 9, "<module>", "retobj = traceback.extract_stack()"]
+        # ]
         for st in remSta:
             # == File=../essai.py line=6 module=<module>
             # == File=<string> line=1 module=<module>
@@ -57,12 +64,24 @@ def Main():
             DEBUG("File=%s line=%d module=%s", st[0], st[1], st[2] )
 
             shortFilNam = st[0]
+            if shortFilNam == "<string>":
+                shortFilNam = None
             lineNumber = st[1]
             moduleNam = st[2]
+            if moduleNam == "<module>":
+                moduleNam = None
 
             # TODO: What is the full path name ?
             fileName = shortFilNam
             funcName = moduleNam
+
+            if funcName is None:
+                # Maybe an intermediate call
+                if fileName is None:
+                    DEBUG("Intermediate call")
+                    continue
+                # Maybe the main program ?
+                funcName = "__main__"
 
             # TODO: At each stage, should add the variables defined in each function call.
 
