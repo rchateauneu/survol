@@ -5,6 +5,8 @@ cnn = wmi.WMI()
 
 cnt = 0
 
+outfil = open(r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\OWL\onto.owl","w")
+
 map_attributes = {}
 
 for class_name in cnn.classes:
@@ -15,10 +17,10 @@ for class_name in cnn.classes:
     drv_list = cls_obj.derivation()
     if drv_list:
         base_class_name = drv_list[0]
-        print("""
+        outfil.write("""
         <OWL:Class rdf:ID="%s">
         <rdfs:subClassOf rdf:resource="#%s"/>
-        </OWL:Class>""" % (class_name, base_class_name))
+        </OWL:Class>\n""" % (class_name, base_class_name))
 
     for p in cls_obj.properties:
         prop_obj = cls_obj.wmi_property(p)
@@ -40,10 +42,12 @@ for prop_name in map_attributes:
         owl_type = map_types_CIM_to_OWL[prop_type]
     except:
         owl_type = "xsd:" + prop_type
-    print("""
+    outfil.write("""
     <OWL:DataTypeProperty rdf:ID="%s">
     <rdfs:domain rdf:resources="OWL:Thing"/>
     <rdfs:range rdf:resource="%s"/>
-    </OWL:DataTypeProperty>""" % (prop_name, owl_type))
+    </OWL:DataTypeProperty>\n""" % (prop_name, owl_type))
+
+outfil.close()
 
 print("OK")
