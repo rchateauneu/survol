@@ -13,6 +13,9 @@ sys.path.append("survol")
 import lib_util
 import lib_uris
 
+# This is used only in the very specific case of the installation on a dedicated
+# WEB server such as OVH, and should be deprecated.
+
 # The intent of this script is to be run as a CGI script, calling the various scripts of survol,
 # as modules. It is necessary for some HTTP server setups where it is not possible
 # to call a Python program as CGI script.
