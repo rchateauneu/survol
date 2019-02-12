@@ -1,7 +1,5 @@
-# ASDasd
-# cA INDIQUE QUE LES OBJECTS EN QUESTONS SONT DELETES
-# L ordre des url, dans merge, ne doit pas avoir d importance.
-# Donc on  applique la deletion a la fin de la fusion.
-
-# On prend les parametres comme entity et on selection dans le graphe ce qui matche.
+# TODO: Not implemented yet.
+# The intent is to mirror the deletion of an object on the client side.
+# If a Javascript client deletes an object or an edge in its client representation,
+# it might update this deletion by a call to this URL.
 
