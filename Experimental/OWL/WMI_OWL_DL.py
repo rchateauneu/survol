@@ -1,14 +1,20 @@
+# This creates a OWL-DL ontology out of the WMI classes of a Windows machine.
+
+# It does not depend on a Survol installation.
+# However, its classes and properties will overlap Survol's if it is installed.
+
 # https://stackoverflow.com/questions/24017320/using-owlclass-prefix-with-rdflib-and-xml-serialization
 
 from __future__ import print_function
 from rdflib.namespace import OWL, RDF, RDFS, XSD
 from rdflib import Graph, Literal, Namespace, URIRef
 
+import os
 import wmi
 import win32com
 import pywintypes
+import sys
 
-# Generate from a URL.
 
 def AddClassToOntology(graph,className,baseClassName, text_descr):
 
@@ -129,7 +135,8 @@ for class_name in cnn.classes:
         text_descr = ""
         if theCls:
             try:
-                text_descr = str(theCls.Qualifiers_("Description"))
+                textDsc = theCls.Qualifiers_("Description")
+                text_descr = unicode(textDsc)
                 # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
             except pywintypes.com_error:
                 pass
@@ -162,12 +169,7 @@ for class_name in cnn.classes:
             try:
                 # UnicodeEncodeError: 'ascii' codec can't encode character u'\xa0' in position 178: ordinal not in range(128)
                 propDsc = propObj.Qualifiers_("Description")
-                try:
-                    propTxt = str(propDsc)
-                except UnicodeEncodeError as exc:
-                    #print(dir(propDsc))
-                    propTxt = unicode(propDsc)
-                    #raise
+                propTxt = unicode(propDsc)
                 map_attributes.get(propObj.Name,{})["description"] = propTxt
             except pywintypes.com_error:
                 # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
@@ -196,10 +198,11 @@ graph.bind("ldt", LDT)
 #    Object properties link individuals to individuals.
 #    Datatype properties link individuals to data values.
 
-outfil = open(r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\OWL\onto.owl","w")
+onto_filnam = os.path.join(os.path.dirname(__file__), "WMI_OWL_DL.owl")
+
+outfil = open(onto_filnam,"w")
 # print( graph.serialize(format='xml') )
 outfil.write( graph.serialize(format='pretty-xml') )
 outfil.close()
 
-
-print("OK")
+sys.stderr.write("OK\n")
