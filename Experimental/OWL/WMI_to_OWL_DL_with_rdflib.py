@@ -115,7 +115,7 @@ cnt = 0
 map_attributes = {}
 
 for class_name in cnn.classes:
-    if cnt > 500: break
+    if cnt > 50000: break
     cnt += 1
 
     cls_obj = getattr(cnn, class_name)
@@ -126,13 +126,13 @@ for class_name in cnn.classes:
     if drv_list:
         base_class_name = drv_list[0]
         theCls = GetWmiClassFlagUseAmendedQualifiersn(cnn, class_name)
+        text_descr = ""
         if theCls:
             try:
                 text_descr = str(theCls.Qualifiers_("Description"))
                 # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
             except pywintypes.com_error:
-                text_descr = ""
-        text_descr = ""
+                pass
 
         AddClassToOntology(graph,class_name, base_class_name, text_descr)
 
