@@ -1,3 +1,5 @@
+# NOTE: THIS IS DEPRECATED BECAUSE REPLACED BY THE CONCEPT OF EVENTS.
+
 import sys
 import re
 import os
