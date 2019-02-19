@@ -1,6 +1,6 @@
 import lib_kbase
 
-primns = "http://primhillcomputers.com/ontologies"
+primns = "http://primhillcomputers.com/survol"
 
 #import rdflib
 #pc = rdflib.Namespace(primns)
