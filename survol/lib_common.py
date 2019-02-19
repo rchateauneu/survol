@@ -235,7 +235,7 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 	parameterized_links = theCgi.m_parameterized_links
 
 	if mode == "html":
-		# Used rarely and performance not very important.
+		# Used rarely and performance not very important. This returns a HTML page.
 		import lib_export_html
 		lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer, globalCgiEnvList)
 	elif mode == "json":
@@ -244,11 +244,28 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 		lib_exports.Grph2Menu( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "rdf":
 		lib_exports.Grph2Rdf( grph)
-	# TODO: Add a special mode where the triplestore grph is simply returned.
-	# TODO: This is much faster when in the client library.
-	else: # Or mode = "svg"
-		# Default value, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
+	elif mode in ["svg",""]:
+		# Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
 		Grph2Svg( pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout )
+	else:
+		ERROR("OutCgiMode invalid mode=%s",mode)
+		ErrorMessageHtml("OutCgiMode invalid mode=%s"%mode)
+
+	# TODO: Add a special mode where the triplestore grph is simply returned, without serialization.
+	# TODO: This is much faster when in the client library because no marshalling is needed.
+	# TODO: Implementation: Store grph in a global variable. This can work with one client only.
+	# TODO: Maybe a thread-specific variable.
+	# TODO: The caller must destroy the grph triplestore after using it.
+
+	# TODO: Other modes stored in a configuration file:
+	# These mode define a reporting mechanism to send the triplestore
+	# to an external repository:
+	# - Graph database such as Neo4J
+	# - Log file.
+	# The client, when reporting, must make a specific call to this script.
+	# An acknowledgment and status HTML message is sent back to the caller.
+
+
 
 ################################################################################
 
