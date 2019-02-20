@@ -1032,6 +1032,11 @@ class SurvolLocalTest(unittest.TestCase):
 
         assert(strInstancesSet == set())
 
+class SurvolLocalOntologiesTest(unittest.TestCase):
+    """This tests the creation of RDFS or OWL-DL ontologies"""
+
+    # This simply loads the ontology from the URL and tries to parse it with rdflib.
+    # TODO: Should check that CIM_DataFile is present.
     def _ontology_test(self,urlScript):
         import rdflib
         mySource = lib_client.SourceLocal(urlScript)
@@ -1044,19 +1049,22 @@ class SurvolLocalTest(unittest.TestCase):
 
 
     def test_ontology_survol(self):
-        self._ontology_test("owl/Survol_OWL_DL.py")
+        self._ontology_test("ontologies/Survol_OWL_DL.py")
+        self._ontology_test("ontologies/Survol_RDFS.py")
 
     def test_ontology_wmi(self):
         if not sys.platform.startswith("win"):
             print("Windows test only")
             return None
-        self._ontology_test("owl/WMI_OWL_DL.py")
+        self._ontology_test("ontologies/WMI_OWL_DL.py")
+        self._ontology_test("ontologies/WMI_RDFS.py")
 
     def test_ontology_wbem(self):
         if not sys.platform.startswith("linux"):
             print("Linux test only")
             return None
-        self._ontology_test("owl/WBEM_OWL_DL.py")
+        self._ontology_test("ontologies/WBEM_OWL_DL.py")
+        self._ontology_test("ontologies/WBEM_RDFS.py")
 
 
 
