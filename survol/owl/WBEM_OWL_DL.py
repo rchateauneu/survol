@@ -1,6 +1,9 @@
-# This creates a OWL-DL ontology out of the Survol classes.
-# It is part of a survol installation.
-# However, its classes and properties overlaps the ones created by WMI.
+# This explores the classes of the WBEM server running on this machine
+# and generates an OWL-DL ontology.
+
+# It does not depend on a Survol installation.
+# However, its classes and properties will overlap Survol's if it is installed.
+# Also, because they use rdflib and wbem, it is simpler to share the same code.
 
 # https://stackoverflow.com/questions/24017320/using-owlclass-prefix-with-rdflib-and-xml-serialization
 
@@ -18,7 +21,7 @@ LDT = Namespace("http://www.primhillcomputers.com/survol#")
 # Create the graph
 graph = Graph()
 
-onto_filnam = os.path.join(os.path.dirname(__file__), "Survol_OWL_DL.owl")
+onto_filnam = os.path.join(os.path.dirname(__file__), "WBEM_OWL_DL.owl")
 
 outfil = open(onto_filnam,"w")
 outfil.write( graph.serialize(format='pretty-xml') )

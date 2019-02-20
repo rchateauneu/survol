@@ -858,41 +858,6 @@ class SurvolLocalTest(unittest.TestCase):
 
         assert(False)
 
-    def test_win_cdb_callstack(self):
-        """win_cdb_callstack Information about current process"""
-
-        mySource = lib_client.SourceLocal(
-            "sources_types/CIM_Process/CDB/win_cdb_callstack.py",
-            "CIM_Process",
-            Handle=os.getpid())
-
-        try:
-            # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
-            mySource.GetTriplestore()
-        except Exception as exc:
-            print("Success: Exception received, because cannot debug current process")
-            return
-
-        assert(False)
-
-
-    def test_win_cdb_modules(self):
-        """win_cdb_modules about current process"""
-
-        mySource = lib_client.SourceLocal(
-            "sources_types/CIM_Process/CDB/win_cdb_modules.py",
-            "CIM_Process",
-            Handle=os.getpid())
-
-        try:
-            # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
-            mySource.GetTriplestore()
-        except Exception as exc:
-            print("Success: Exception received, because cannot debug current process")
-            return
-
-        assert(False)
-
     def test_java_mbeans(self):
         """Java MBeans"""
 
@@ -959,13 +924,19 @@ class SurvolLocalTest(unittest.TestCase):
             Handle=os.getpid())
 
         listRequired = [
-            'CIM_Directory.Name=C:/Program Files (x86)/Graphviz2.38/bin', 'CIM_Directory.Name=C:/Program_Extra/SysinternalsSuite',
-            'CIM_Directory.Name=C:/windows/system32', 'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/charsets.jar',
-            'CIM_Directory.Name=C:/Python27/lib/site-packages/numpy/.libs', 'CIM_Directory.Name=C:/Program Files/nodejs',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121', 'CIM_Directory.Name=C:/Program Files (x86)/Intel/iCLS Client',
+            CurrentUserPath,
+            'CIM_Directory.Name=C:/Program Files (x86)/Graphviz2.38/bin',
+            'CIM_Directory.Name=C:/Program_Extra/SysinternalsSuite',
+            'CIM_Directory.Name=C:/windows/system32',
+            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/charsets.jar',
+            'CIM_Directory.Name=C:/Python27/lib/site-packages/numpy/.libs',
+            'CIM_Directory.Name=C:/Program Files/nodejs',
+            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121',
+            'CIM_Directory.Name=C:/Program Files (x86)/Intel/iCLS Client',
             'CIM_Directory.Name=c:/Program Files (x86)/Microsoft SQL Server/110/DTS/Binn',
             'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/130/Tools/Binn',
-            'CIM_Directory.Name=C:/Perl64/bin', 'CIM_Directory.Name=C:/windows',
+            'CIM_Directory.Name=C:/Perl64/bin',
+            'CIM_Directory.Name=C:/windows',
             'CIM_Directory.Name=C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/bin',
             'CIM_Directory.Name=C:/Program Files/Intel/Intel(R) Management Engine Components/DAL',
             'CIM_Directory.Name=C:/Program Files/Intel/Intel(R) Management Engine Components/IPT',
@@ -976,8 +947,9 @@ class SurvolLocalTest(unittest.TestCase):
             'CIM_Directory.Name=c:/Program Files (x86)/Microsoft SQL Server/110/Tools/Binn',
             'CIM_Directory.Name=C:/Program_Extra/swigwin-3.0.4',
             'CIM_Directory.Name=C:/Program Files/Git/cmd',
-            'CIM_Directory.Name=C:/Program Files (x86)/Nmap', 'Win32_UserAccount.Name=rchateau,Domain=localhost',
-            'CIM_Directory.Name=C:/Program Files (x86)/OpenSLP', 'CIM_Directory.Name=C:/windows/Sun/Java/lib/ext',
+            'CIM_Directory.Name=C:/Program Files (x86)/Nmap',
+            'CIM_Directory.Name=C:/Program Files (x86)/OpenSLP',
+            'CIM_Directory.Name=C:/windows/Sun/Java/lib/ext',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/classes',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jsse.jar',
             'CIM_Directory.Name=C:/Users/rchateau/AppData/Local/Temp',
@@ -986,42 +958,58 @@ class SurvolLocalTest(unittest.TestCase):
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jce.jar',
             'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar',
             'CIM_Directory.Name=C:/Program Files (x86)/Intel/Intel(R) Management Engine Components/DAL',
-            'CIM_Directory.Name=.', 'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/sunrsasign.jar',
-            'CIM_Directory.Name=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/tests',
+            'CIM_Directory.Name=.',
+            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/sunrsasign.jar',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/endorsed',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/bin',
-            'CIM_Directory.Name=C:/OpenSSL-Win64/bin', 'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/ext',
-            'CIM_Directory.Name=C:/windows/System32/WindowsPowerShell/v1.0', 'CIM_Directory.Name=C:/Program Files (x86)/CVSNT',
+            'CIM_Directory.Name=C:/OpenSSL-Win64/bin',
+            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/ext',
+            'CIM_Directory.Name=C:/windows/System32/WindowsPowerShell/v1.0',
+            'CIM_Directory.Name=C:/Program Files (x86)/CVSNT',
             'CIM_Directory.Name=C:/Program Files (x86)/The Open Group/WMI Mapper/bin',
             'CIM_Directory.Name=C:/Program Files (x86)/Windows Kits/10/Windows Performance Toolkit',
-            'CIM_Directory.Name=C:/Users/rchateau/AppData/Roaming/npm', 'CIM_Directory.Name=C:/Python27/Scripts',
+            'CIM_Directory.Name=C:/Users/rchateau/AppData/Roaming/npm',
+            'CIM_Directory.Name=C:/Python27/Scripts',
             'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/jre/bin',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/rt.jar',
-            'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/bin', 'CIM_Directory.Name=C:/Program Files (x86)/Microsoft SDKs/TypeScript/1.0',
-            'CIM_Directory.Name=C:/Program Files/MySQL/MySQL Utilities 1.6', 'CIM_Directory.Name=C:/Program Files/Intel/iCLS Client',
-            'CIM_Directory.Name=C:/windows/System32/Wbem', 'CIM_Directory.Name=C:/Program Files/dotnet',
-            'CIM_Directory.Name=C:/Users/rchateau/AppData/Local/Programs/radare2', 'CIM_Directory.Name=C:/Users/rchateau',
-            'CIM_Directory.Name=C:/Program_Extra', 'CIM_Directory.Name=c:/Apache24/bin', 'CIM_Directory.Name=C:/windows/Sun/Java/bin',
-            'CIM_Directory.Name=C:/Program Files (x86)/OpenSSH/bin', 'CIM_Directory.Name=C:/MinGW/bin', 'CIM_Directory.Name=C:/Program_Extra/z3/bin',
+            'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/bin',
+            'CIM_Directory.Name=C:/Program Files (x86)/Microsoft SDKs/TypeScript/1.0',
+            'CIM_Directory.Name=C:/Program Files/MySQL/MySQL Utilities 1.6',
+            'CIM_Directory.Name=C:/Program Files/Intel/iCLS Client',
+            'CIM_Directory.Name=C:/windows/System32/Wbem',
+            'CIM_Directory.Name=C:/Program Files/dotnet',
+            'CIM_Directory.Name=C:/Users/rchateau/AppData/Local/Programs/radare2',
+            'CIM_Directory.Name=C:/Users/rchateau',
+            'CIM_Directory.Name=C:/Program_Extra', 'CIM_Directory.Name=c:/Apache24/bin',
+            'CIM_Directory.Name=C:/windows/Sun/Java/bin',
+            'CIM_Directory.Name=C:/Program Files (x86)/OpenSSH/bin', 'CIM_Directory.Name=C:/MinGW/bin',
+            'CIM_Directory.Name=C:/Program_Extra/z3/bin',
             'CIM_Directory.Name=C:/Program Files/MySQL/MySQL Server 5.7/bin',
             'CIM_Directory.Name=C:/Program Files (x86)/Windows Kits/8.1/Windows Performance Toolkit',
-            'CIM_Directory.Name=C:/Program Files/TortoiseSVN/bin', 'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/120/Tools/Binn',
-            'CIM_Directory.Name=C:/Program_Extra/Depends64', 'CIM_Directory.Name=C:/Python27',
+            'CIM_Directory.Name=C:/Program Files/TortoiseSVN/bin',
+            'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/120/Tools/Binn',
+            'CIM_Directory.Name=C:/Program_Extra/Depends64',
+            'CIM_Directory.Name=C:/Python27',
             'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/110/Tools/Binn',
             'CIM_Directory.Name=C:/Program Files/Microsoft SQL Server/110/DTS/Binn',
-            'CIM_Directory.Name=C:/Perl64/site/bin', 'CIM_Directory.Name=C:/Program Files (x86)/Microsoft SQL Server/110/Tools/Binn/ManagementStudio',
-            'CIM_Directory.Name=C:/Program Files/CMake/bin', 'CIM_Directory.Name=C:/Program Extra/SysinternalsSuite',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jfr.jar', 'CIM_Directory.Name=C:/oraclexe/app/oracle/product/11.2.0/server/bin',
-            'CIM_Directory.Name=C:/Program Files (x86)/Skype/Phone', 'CIM_Directory.Name=C:/Python27/lib/site-packages/pywin32_system32'
+            'CIM_Directory.Name=C:/Perl64/site/bin',
+            'CIM_Directory.Name=C:/Program Files (x86)/Microsoft SQL Server/110/Tools/Binn/ManagementStudio',
+            'CIM_Directory.Name=C:/Program Files/CMake/bin',
+            'CIM_Directory.Name=C:/Program Extra/SysinternalsSuite',
+            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jfr.jar',
+            'CIM_Directory.Name=C:/oraclexe/app/oracle/product/11.2.0/server/bin',
+            'CIM_Directory.Name=C:/Program Files (x86)/Skype/Phone',
+            'CIM_Directory.Name=C:/Python27/lib/site-packages/pywin32_system32'
         ]
 
         listRequired.append( CurrentProcessPath )
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
 
+        print("listRequired=",listRequired)
         for oneStr in listRequired:
             if oneStr not in strInstancesSet:
-                print(oneStr)
+                print("Not there:",oneStr)
             assert( oneStr in strInstancesSet )
 
     def test_java_jdk_jstack(self):
@@ -1044,28 +1032,32 @@ class SurvolLocalTest(unittest.TestCase):
 
         assert(strInstancesSet == set())
 
-    def test_msdos_current_batch(self):
-        """Displays information a MSDOS current batch"""
+    def _ontology_test(self,urlScript):
+        import rdflib
+        mySource = lib_client.SourceLocal(urlScript)
+        ontologySurvol = mySource.get_content_moded(None)
+        print("Ontology=",ontologySurvol[:20])
+        grph = rdflib.Graph()
+        ontoTrunc = "".join( ontologySurvol.split("\n")[2:] )
+        result = grph.parse(data=ontoTrunc, format="application/rdf+xml")
+        print("Load OK:l=%d",len(grph))
 
-        # This cannot display specific information about the current MSDOS batch because there is none,
-        # as it is a Python process. Still, this tests checks that the script runs properly.
-        mySource = lib_client.SourceLocal(
-            "sources_types/CIM_Process/languages/msdos/current_batch.py",
-            "CIM_Process",
-            Handle=os.getpid())
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
-        print("strInstancesSet",strInstancesSet)
+    def test_ontology_survol(self):
+        self._ontology_test("owl/Survol_OWL_DL.py")
 
-        currentScript = os.path.join(os.getcwd(), __file__).replace("\\","/")
+    def test_ontology_wmi(self):
+        if not sys.platform.startswith("win"):
+            print("Windows test only")
+            return None
+        self._ontology_test("owl/WMI_OWL_DL.py")
 
-        listRequired =  [
-            CurrentProcessPath,
-            'CIM_DataFile.Name=%s' % currentScript
-        ]
+    def test_ontology_wbem(self):
+        if not sys.platform.startswith("linux"):
+            print("Linux test only")
+            return None
+        self._ontology_test("owl/WBEM_OWL_DL.py")
 
-        for oneStr in listRequired:
-            assert( oneStr in strInstancesSet )
 
 
 class SurvolLocalLinuxTest(unittest.TestCase):
@@ -1308,6 +1300,66 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         lstInstances = tripleProducts.GetInstances()
         strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
         print("lstInstances=",strInstancesLst[:3])
+
+    @decorator_windows_platform
+    def test_win_cdb_callstack(self):
+        """win_cdb_callstack Information about current process"""
+
+        mySource = lib_client.SourceLocal(
+            "sources_types/CIM_Process/CDB/win_cdb_callstack.py",
+            "CIM_Process",
+            Handle=os.getpid())
+
+        try:
+            # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
+            mySource.GetTriplestore()
+        except Exception as exc:
+            print("Success: Exception received, because cannot debug current process")
+            return
+
+        assert(False)
+
+    @decorator_windows_platform
+    def test_win_cdb_modules(self):
+        """win_cdb_modules about current process"""
+
+        mySource = lib_client.SourceLocal(
+            "sources_types/CIM_Process/CDB/win_cdb_modules.py",
+            "CIM_Process",
+            Handle=os.getpid())
+
+        try:
+            # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
+            mySource.GetTriplestore()
+        except Exception as exc:
+            print("Success: Exception received, because cannot debug current process")
+            return
+
+        assert(False)
+
+    @decorator_windows_platform
+    def test_msdos_current_batch(self):
+        """Displays information a MSDOS current batch"""
+
+        # This cannot display specific information about the current MSDOS batch because there is none,
+        # as it is a Python process. Still, this tests checks that the script runs properly.
+        mySource = lib_client.SourceLocal(
+            "sources_types/CIM_Process/languages/msdos/current_batch.py",
+            "CIM_Process",
+            Handle=os.getpid())
+
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        print("strInstancesSet",strInstancesSet)
+
+        currentScript = os.path.join(os.getcwd(), __file__).replace("\\","/")
+
+        listRequired =  [
+            CurrentProcessPath,
+            'CIM_DataFile.Name=%s' % currentScript
+        ]
+
+        for oneStr in listRequired:
+            assert( oneStr in strInstancesSet )
 
 class SurvolPyODBCTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
@@ -2336,6 +2388,7 @@ class SurvolSearchTest(unittest.TestCase):
         mustFind = "Drivers"
 
         searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString="Curabitur",maxDepth=2,filterInstances=None,filterPredicates=None)
+        print("s=",list(searchTripleStore))
         for tpl in searchTripleStore:
             # One occurrence is enough for this test.
             print(tpl)

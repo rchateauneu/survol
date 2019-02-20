@@ -1586,3 +1586,51 @@ def SplitTextTitleRest(title):
 def TimeStamp():
 	return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
+def DumpSurvolOntology():
+    map_classes = {}
+    map_attributes = {}
+
+    # This receives a class name from Survol and translates it into a CIM class name.
+    # If this is a top-level class, then it is the same string.
+    # If this is hierarchical, there might be duplicates.
+    # To make thing simpler, slashes are translated into a dot.
+    # NOTE: A difference between Survol and CIM, is that survols carries
+    # the hierarchiy of classes in their names, just like files.
+    def SurvolClassToCIM(nameSurvolClass):
+        return nameSurvolClass.replace("/",".")
+
+    for entity_type in ObjectTypes():
+
+        idx = 0
+        baseClass = ""
+        # Iteration on the bases classes starting from the top.
+        while idx >= 0:
+            nextSlash = entity_type.find( "/", idx + 1 )
+            if nextSlash == -1:
+                intermedType = entity_type
+            else:
+                intermedType = entity_type[ : nextSlash ]
+
+            baseClassNameCIM = SurvolClassToCIM(baseClass)
+            classNameCIM = SurvolClassToCIM(intermedType)
+
+            try:
+                # This reloads all classes without cache because if it does not load
+                # we want to see the error message.
+                entity_module = GetEntityModuleNoCatch(entity_type)
+                entDoc = entity_module.__doc__.strip()
+            except:
+                exc = sys.exc_info()[1]
+                entDoc = "Error:"+str(exc)
+
+            map_classes[classNameCIM] = { "base_class": baseClassNameCIM, "description": entDoc}
+
+            ontoList = OntologyClassKeys(entity_type)
+            # We do not have any other information about ontology keys.
+            for ontoKey in ontoList:
+                map_attributes[ontoKey] = { "type": "string", "description": "Property %s" % ontoKey}
+
+            idx = nextSlash
+
+    return map_classes, map_attributes
+
