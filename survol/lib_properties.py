@@ -2,8 +2,6 @@ import lib_kbase
 
 primns = "http://primhillcomputers.com/survol"
 
-#import rdflib
-#pc = rdflib.Namespace(primns)
 pc = lib_kbase.MakeNamespace(primns)
 
 primns_slash = primns + '/'
@@ -27,14 +25,14 @@ primns_slash = primns + '/'
 # We could add information in a given order: "information?key=1", "information?key=2",
 # Natural order should be OK. or add a sort unfction in the call to sorted().
 def MakeProp(*prps,**kvargs):
-	ret = primns_slash + ":".join(prps)
-	if kvargs:
-		ret += "?" + "&amp;".join( "%s=%s" % (k,kvargs[k]) for k in kvargs )
-	# TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
-	# http://primhillcomputers.com/ontologies/swapnote\ futures
-	# If the space is replaced by "%20", everything before it is erased.
-	url = ret.replace(" ","_").replace("-","_")
-	return lib_kbase.MakeNodeUrl( url )
+    ret = primns_slash + ":".join(prps)
+    if kvargs:
+        ret += "?" + "&amp;".join( "%s=%s" % (k,kvargs[k]) for k in kvargs )
+    # TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
+    # http://primhillcomputers.com/ontologies/swapnote\ futures
+    # If the space is replaced by "%20", everything before it is erased.
+    url = ret.replace(" ","_").replace("-","_")
+    return lib_kbase.MakeNodeUrl( url )
 
 # TODO: Maybe "pc" could be an object, or redefine a call to a member,
 # which would allow to dynamically create properties.
@@ -151,17 +149,17 @@ pc.property_alias                = MakeProp("alias")
 pc.property_string_occurrence    = MakeProp("string occurrence")
 
 dictPropertiesGraphAttributes = {
-	pc.property_script: "GREEN",
-	pc.property_rdf_data_nolist1: "BLUE",
-	pc.property_socket_end: "ORANGE",
-	pc.property_alias: "RED"
+    pc.property_script: "GREEN",
+    pc.property_rdf_data_nolist1: "BLUE",
+    pc.property_socket_end: "ORANGE",
+    pc.property_alias: "RED"
 }
 
 # TODO: It should be used for tables columns colors.
 # TODO: Change the color based on arguments.
 def prop_color(prop):
-	try:
-		return dictPropertiesGraphAttributes[prop]
-	except KeyError:
-		return "PURPLE"
+    try:
+        return dictPropertiesGraphAttributes[prop]
+    except KeyError:
+        return "PURPLE"
 
