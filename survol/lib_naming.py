@@ -14,6 +14,7 @@ def UriToTitle(uprs):
     # We could also load the URL and gets its title if it is in HTML.
     # urlparse('http://www.cwi.nl:80/%7Eguido/Python.html')
     # ParseResult(scheme='http', netloc='www.cwi.nl:80', path='/%7Eguido/Python.html', params='', query='', fragment='')
+    basna = lib_util.EncodeUri( os.path.basename( uprs.path ) )
     if uprs.netloc != "":
         return uprs.netloc + "/" + basna
     else:
