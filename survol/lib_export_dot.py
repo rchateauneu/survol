@@ -302,8 +302,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
         # Or the property is not collapsed.
         if prop is None:
             # In Python3, keys() is an iterable. No need to create a list.
-            #propNam = list(dictOfProps.keys())[0]
-            #propNam = dictOfProps.keys()[0]
             for propNam in dictOfProps.keys():
                 break
             # First property available.
