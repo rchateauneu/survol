@@ -738,7 +738,7 @@ class TripleStore:
 
     def ToStreamXml(self,strStrm):
         DEBUG("TripleStore.ToStreamXml")
-        lib_kbase.triplestore_to_stream_xml(self.m_triplestore,strStrm)
+        lib_kbase.triplestore_to_stream_xml(self.m_triplestore,strStrm,'xml')
 
     # This merges two triplestores. The package rdflib does exactly that,
     # but it is better to isolate from it, just in case another triplestores

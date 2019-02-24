@@ -17,6 +17,7 @@ import json
 import socket
 
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
+# TODO: See also PropToShortPropNam()
 def AntiPredicateUri(uri):
 	return uri[ len(lib_properties.primns_slash) : ]
 
@@ -96,22 +97,18 @@ def StrWithBr(aRawStr, colspan = 1):
 
 ################################################################################
 
-# TODO: Set the right criteria for an old Graphviz version.
-new_graphiz = True # sys.version_info >= (3,)
+def DotBold(a_str):
+	if not a_str: return ""
+	return "<b>%s</b>" % a_str
 
-# TODO: This is temporary because old graphviz versions dot not implement that.
-def DotBold(str):
-	if not str: return ""
-	return "<b>%s</b>" % str if new_graphiz and str else str
-
-def DotUL(str):
-	if not str: return ""
-	return "<u>%s</u>" % str if new_graphiz and str else str
+def DotUL(a_str):
+	if not a_str: return ""
+	return "<u>%s</u>" % a_str
 
 # Do not italicize empty string otherwise "Error: syntax error in line 1 ... <i></i> ..."
-def DotIt(str):
-	if not str: return ""
-	return "<i>%s</i>" % str if new_graphiz else str
+def DotIt(a_str):
+	if not a_str: return ""
+	return "<i>%s</i>" % a_str
 
 ################################################################################
 
@@ -211,13 +208,16 @@ class NodeJson:
 		NodeJsonNumber += 1 # One more node.
 
 # Transforms a RDF property name into a pure alphanum string usable as a DOT label.
-def PropToShortPropNam(collapsProp):
-	shortNam = collapsProp.split("/")[-1]
+# It is also used as a label string.
+# TODO: See also AntiPredicateUri
+def PropToShortPropNam(nodePredicate):
+	shortNam = nodePredicate.split("/")[-1]
 	# "sun.boot.class.path"
 	# Graphviz just want letters.
 	shortNam = shortNam.replace(".","_")
 	shortNam = shortNam.replace(" ","_")
 
+	# Some properties are sorted differently by adding a special not-displayed prefix.
 	if shortNam.startswith(lib_properties.sortPrefix):
 		shortNam = shortNam[len(lib_properties.sortPrefix):]
 	return shortNam
@@ -512,19 +512,6 @@ def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
 	# print(json.dumps(oneMenuVal, sort_keys = True, indent=2))
 
 ################################################################################
-
-# Used by all CGI scripts when they have finished adding triples to the current RDF graph.
-# This just writes a RDF document which can be used as-is by browser,
-# or by another scripts which will process this RDF as input, for example when merging RDF data.
-def Grph2Rdf(grph):
-	lib_util.WrtHeader('text/rdf')
-
-	# Format support can be extended with plugins,
-	# but 'xml', 'n3', 'nt', 'trix', 'rdfa' are built in.
-	out_dest = lib_util.DfltOutDest()
-	# grph.serialize( destination = out_dest, format="xml")
-	lib_kbase.triplestore_to_stream_xml(grph,out_dest)
-
 
 def FontString():
 

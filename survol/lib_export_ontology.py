@@ -1,197 +1,88 @@
-from rdflib.namespace import OWL, RDF, RDFS, XSD
-import rdflib
-
 import os
 import sys
-
-
-################################################################################
-
-# "ref:CIM_LogicalElement"
-# "ref:CIM_CollectionOfMSEs"
-# "ref:__EventConsumer"
-# "ref:CIM_Setting"
-# "ref:CIM_LogicalElement"
-# "ref:CIM_ManagedSystemElement"
-# "object:__ACE"
-# "object:__Namespace"
-# "object:__Trustee"
-# "object"
-# "Object"
-map_types_CIM_to_XSD = {
-    "boolean": XSD.boolean,
-    "Boolean": XSD.boolean,
-    "string": XSD.string,
-    "String": XSD.string,
-    "uint8": XSD.integer,
-    "uint16": XSD.integer,
-    "sint32": XSD.integer,
-    "uint32": XSD.integer,
-    "Uint32": XSD.integer,
-    "uint64": XSD.long,
-    "Uint64": XSD.long,
-    "datetime":XSD.dateTime,
-    #"1":XSD.date,
-    #"2":XSD.float,
-    #"3":XSD.double,
-    #"4":XSD.decimal,
-    #"5":XSD.time,
-    #"7":XSD.duration,
-}
-
-# owl_type: "xsd::string" etc... TODO: Transform this into XSD.string etc...
-def PropNameToXsdType(prop_type):
-    try:
-        xsd_type = map_types_CIM_to_XSD[prop_type]
-    except:
-        INFO("PropNameToXsdType tp=%s",prop_type)
-        xsd_type = XSD.string
-    return xsd_type
-
-################################################################################
-
-# Construct the linked data tools namespace
-# See lib_properties.py: primns = "http://primhillcomputers.com/survol"
-LDT = rdflib.Namespace("http://www.primhillcomputers.com/survol#")
-
-# Add the OWL class to the graph
-# <OWL:Class rdf:ID="Service">
-#     <rdfs:subClassOf rdf:resource="#System"/>
-# </OWL:Class>
-def AddClassToOwlDlOntology(graph, className, baseClassName, text_descr):
-
-    # Create the node to add to the Graph
-    MyClassNode = rdflib.URIRef(LDT[className])
-
-    graph.add((MyClassNode, RDF.type, OWL.Class))
-    if baseClassName:
-        # Empty string if top-level class.
-        MyBaseClassNode = rdflib.URIRef(LDT[baseClassName])
-        graph.add((MyClassNode, RDFS.subClassOf, MyBaseClassNode))
-    graph.add((MyClassNode, RDFS.label, rdflib.Literal(className)))
-    if text_descr:
-        graph.add((MyClassNode, RDFS.comment, rdflib.Literal(text_descr)))
-
-# <OWL:DataTypeProperty rdf:ID="Name">
-#     <rdfs:domain rdf:resource="OWL:Thing"/>
-#     <rdfs:range rdf:resource="xsd:string"/>
-# </OWL:DataTypeProperty>
-def AddPropertyToOwlDlOntology(graph, propertyName, prop_type, prop_desc):
-    MyDatatypePropertyNode = rdflib.URIRef(LDT[propertyName])
-    graph.add((MyDatatypePropertyNode, RDF.type, OWL.DatatypeProperty))
-    graph.add((MyDatatypePropertyNode, RDFS.domain, OWL.Thing))
-    if prop_desc:
-        graph.add((MyDatatypePropertyNode, RDFS.comment, rdflib.Literal(prop_desc)))
-    if prop_type:
-        xsd_type = PropNameToXsdType(prop_type)
-        graph.add((MyDatatypePropertyNode, RDFS.range, xsd_type))
-
-
-def CreateOwlDlOntology(map_classes, map_attributes):
-    graph = rdflib.Graph()
-
-    for class_name in map_classes:
-        prop_dict = map_classes[class_name]
-        base_class_name = prop_dict.get("base_class", "")
-        text_descr = prop_dict.get("description", "")
-
-        AddClassToOwlDlOntology(graph,class_name, base_class_name, text_descr)
-
-    for prop_name in map_attributes:
-        prop_dict = map_attributes[prop_name]
-        prop_type = prop_dict.get("type", "")
-        prop_desc = prop_dict.get("description", "")
-
-        AddPropertyToOwlDlOntology(graph, prop_name, prop_type, prop_desc)
-
-    # Bind the OWL and LDT name spaces
-    graph.bind("owl", OWL)
-
-    graph.bind("ldt", LDT)
-
-    return graph
-
-################################################################################
-
-# Add the RDFS class to the graph
-def AddClassToRdfsOntology(graph, className, baseClassName, text_descr):
-
-    # Create the node to add to the Graph
-    MyClassNode = rdflib.URIRef(LDT[className])
-
-    graph.add((MyClassNode, RDF.type, RDFS.Class))
-    if baseClassName:
-        # Empty string if top-level class.
-        MyBaseClassNode = rdflib.URIRef(LDT[baseClassName])
-        graph.add((MyClassNode, RDFS.subClassOf, MyBaseClassNode))
-    graph.add((MyClassNode, RDFS.label, rdflib.Literal(className)))
-    if text_descr:
-        graph.add((MyClassNode, RDFS.comment, rdflib.Literal(text_descr)))
-
-def AddPropertyToRdfsOntology(graph, propertyName, prop_type, prop_desc):
-    MyDatatypePropertyNode = rdflib.URIRef(LDT[propertyName])
-    graph.add((MyDatatypePropertyNode, RDF.type, RDF.Property))
-    if prop_desc:
-        graph.add((MyDatatypePropertyNode, RDFS.comment, rdflib.Literal(prop_desc)))
-    if prop_type:
-        xsd_type = PropNameToXsdType(prop_type)
-        graph.add((MyDatatypePropertyNode, RDFS.range, xsd_type))
-
-
-def CreateRdfsOntology(map_classes, map_attributes):
-    graph = rdflib.Graph()
-
-    for class_name in map_classes:
-        prop_dict = map_classes[class_name]
-        base_class_name = prop_dict.get("base_class","")
-        text_descr = prop_dict.get("description","")
-
-        AddClassToRdfsOntology(graph,class_name, base_class_name, text_descr)
-
-    for prop_name in map_attributes:
-        prop_dict = map_attributes[prop_name]
-        prop_type = prop_dict.get("type", "")
-        prop_desc = prop_dict.get("description", "")
-
-        AddPropertyToRdfsOntology(graph, prop_name, prop_type, prop_desc)
-
-    # Bind the OWL and LDT name spaces
-    graph.bind("owl", OWL)
-
-    graph.bind("ldt", LDT)
-
-    return graph
+import lib_util
+import lib_kbase
+import lib_naming
+import lib_exports
 
 ################################################################################
 
 # This dumps the ontology to a HTTP socket.
 # This can also save the results to a file, for later use.
-def DumpOntology(graph, onto_filnam, out_dest):
+def DumpOntology(grph, onto_filnam):
     INFO("DumpOntology l=%s sys.argv=%s",len(sys.argv),str(sys.argv))
-
-    def SaveToStream(the_stream):
-        # It expects UTF8 with Python2 and Windows.
-        # See lib_util.WrtAsUtf() which does the same.
-        # TODO: Factorize code.
-        # 'ascii' codec can't encode character u'\u2019' in position 604829: ordinal not in range(128)
-        srlStr = graph.serialize(format='pretty-xml')
-        try:
-            # If it writes to a socket.
-            the_stream.write( srlStr )
-        except TypeError:
-            the_stream.write( srlStr.decode('utf8') )
 
     try:
         os.environ["QUERY_STRING"]
         INFO("DumpOntology to stream")
         # lib_util.WrtAsUtf("Content-type: text/html\n\n")
-        out_dest.write(u"Content-type: text/html\n\n")
+        lib_util.WrtHeader('text/html')
 
-        SaveToStream(out_dest)
+        out_dest = lib_util.DfltOutDest()
+        # out_dest.write(u"Content-type: text/html\n\n")
+        lib_kbase.triplestore_to_stream_xml(grph,out_dest,'pretty-xml')
+
+        #SaveToStream(out_dest)
     except KeyError:
         INFO("DumpOntology onto_filnam=%s",onto_filnam)
         outfil = open(onto_filnam,"w")
-        SaveToStream(outfil)
+        #SaveToStream(outfil)
+        lib_kbase.triplestore_to_stream_xml(grph,outfil,'pretty-xml')
         outfil.close()
 
 ################################################################################
+
+# This receives a triplestore containing only the information from scripts.
+# This adds the classes and the properties information,
+# in order to send it to an external database or system.
+def AddOntology(grph):
+    DEBUG("AddOntology")
+    map_classes = {}
+    map_attributes = {}
+
+    def AddOneClass(urlNode):
+        (entity_label, class_name, entity_id) = lib_naming.ParseEntityUri( urlNode )
+        if not class_name in map_classes:
+            DEBUG("AddOneClass %s",class_name)
+            # This function might also filter a duplicate and redundant insertion.
+            lib_util.AppendClassSurvolOntology(class_name, map_classes, map_attributes)
+        # TODO: DO THAT ONCE ONLY PER NODE
+        # TODO: DO THAT ONCE ONLY PER NODE
+        # TODO: DO THAT ONCE ONLY PER NODE
+        lib_kbase.AddNodeToRdfsClass(grph, urlNode, class_name, entity_label)
+
+    for nodeSubject, nodePredicate, nodeObject in grph:
+        AddOneClass( nodeSubject )
+        if not lib_kbase.IsLiteral( nodeObject ):
+            AddOneClass( nodeObject )
+
+        namePredicate = lib_exports.PropToShortPropNam(nodePredicate)
+        if not namePredicate in map_attributes:
+            # This function might also filter a duplicate and redundant insertion.
+            lib_util.AppendPropertySurvolOntology(namePredicate, map_attributes)
+
+    DEBUG("AddOntology map_classes=%d map_attributes=%d",len(map_classes),len(map_attributes))
+    DEBUG("AddOntology len(grph)=%d",len(grph))
+    lib_kbase.CreateRdfsOntology(map_classes, map_attributes, grph)
+    DEBUG("AddOntology len(grph)=%d",len(grph))
+
+################################################################################
+# Used by all CGI scripts when they have finished adding triples to the current RDF graph.
+# This just writes a RDF document which can be used as-is by browser,
+# or by another scripts which will process this RDF as input, for example when merging RDF data.
+def Grph2Rdf(grph):
+    DEBUG("Grph2Rdf")
+
+    # TODO: Should we add the OWL-DL or the RDFS ontology ?
+    AddOntology(grph)
+
+    lib_util.WrtHeader('text/rdf')
+
+    # Format support can be extended with plugins,
+    # but 'xml', 'n3', 'nt', 'trix', 'rdfa' are built in.
+    out_dest = lib_util.DfltOutDest()
+    # grph.serialize( destination = out_dest, format="xml")
+    lib_kbase.triplestore_to_stream_xml(grph,out_dest,'xml')
+
+################################################################################
+

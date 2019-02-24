@@ -1043,7 +1043,8 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
         ontologySurvol = mySource.get_content_moded(None)
         print("Ontology=",ontologySurvol[:20])
         grph = rdflib.Graph()
-        ontoTrunc = "".join( ontologySurvol.split("\n")[2:] )
+        #ontoTrunc = "".join( ontologySurvol.split("\n")[2:] )
+        ontoTrunc = "".join( ontologySurvol.split("\n") )
         result = grph.parse(data=ontoTrunc, format="application/rdf+xml")
         print("Load OK:l=%d",len(grph))
 

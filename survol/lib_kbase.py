@@ -1,168 +1,344 @@
 # Encapsulate rdflib features.
 # This is just in case another triplestore implementation would be more convenient.
 
+from rdflib.namespace import OWL, RDF, RDFS, XSD
 import rdflib
 import sys
 import re
 
 def IsLiteral(objRdf):
-	return isinstance(objRdf, (rdflib.term.Literal))
+    return isinstance(objRdf, (rdflib.term.Literal))
 
 def IsLink(obj):
-	return isinstance( obj , (rdflib.URIRef, rdflib.BNode))
+    return isinstance( obj , (rdflib.URIRef, rdflib.BNode))
 
 def MakeNodeLiteral(value):
-	return rdflib.Literal(value)
+    return rdflib.Literal(value)
 
 # This returns an object which, whose string conversion is identical to the input string.
 # Beware that it is sometimes called recursively.
 def MakeNodeUrl(url):
-	uriRef = rdflib.term.URIRef(url)
-	# sys.stderr.write("MakeNodeUrl url=%s uriRef=%s\n"%(url,uriRef))
-	return uriRef
+    uriRef = rdflib.term.URIRef(url)
+    # sys.stderr.write("MakeNodeUrl url=%s uriRef=%s\n"%(url,uriRef))
+    return uriRef
 
 def MakeNamespace(primns):
-	pc = rdflib.Namespace(primns)
-	return pc
+    pc = rdflib.Namespace(primns)
+    return pc
 
 def MakeGraph():
-	return rdflib.Graph()
+    return rdflib.Graph()
 
 # The returns the set of unique subjects or objects,
 # instances and scripts, but no literals.
 def enumerate_urls(grph):
-	urlsSet = set()
+    urlsSet = set()
 
-	# Beware that the order might change each time.
-	for kSub,kPred,kObj in grph:
-		urlsSet.add(kSub)
+    # Beware that the order might change each time.
+    for kSub,kPred,kObj in grph:
+        urlsSet.add(kSub)
 
-		if not IsLiteral(kObj):
-			urlsSet.add(kObj)
-	return urlsSet
+        if not IsLiteral(kObj):
+            urlsSet.add(kObj)
+    return urlsSet
 
 # It has to build an intermediary map because we have no simple way to find all edges
 # starting from a node. Otherwise, we could use a classical algorithm (Dijkstra ?)
 def get_urls_adjacency_list(grph,startInstance,filterPredicates):
-	DEBUG("startInstance=%s type=%s",str(startInstance),str(type(startInstance)))
-	# Each node maps to the list of the nodes it is directly connected to.
-	adjacency_list = dict()
+    DEBUG("startInstance=%s type=%s",str(startInstance),str(type(startInstance)))
+    # Each node maps to the list of the nodes it is directly connected to.
+    adjacency_list = dict()
 
-	# This takes an edge and updates the map.
-	def InsertEdge(urlStart,urlEnd):
-		#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-		# This keeps only Survol instances urls.
-		strStart = str(urlStart)
-		strEnd = str(urlEnd)
-		# TODO: Make this test better.
+    # This takes an edge and updates the map.
+    def InsertEdge(urlStart,urlEnd):
+        #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+        # This keeps only Survol instances urls.
+        strStart = str(urlStart)
+        strEnd = str(urlEnd)
+        # TODO: Make this test better.
 
-		#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+        #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
 
-		if (strStart != "http://localhost") and (strEnd != "http://localhost"):
-			#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-			assert strStart.find("/localhost") < 0, "start local host"
-			assert strEnd.find("/localhost") < 0, "end local host"
-			#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-			try:
-				#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-				adjacency_list[urlStart].add(urlEnd)
-				#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-			except KeyError:
-				#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-				adjacency_list[urlStart] = set([urlEnd])
-				#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-		#INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+        if (strStart != "http://localhost") and (strEnd != "http://localhost"):
+            #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+            assert strStart.find("/localhost") < 0, "start local host"
+            assert strEnd.find("/localhost") < 0, "end local host"
+            #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+            try:
+                #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+                adjacency_list[urlStart].add(urlEnd)
+                #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+            except KeyError:
+                #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+                adjacency_list[urlStart] = set([urlEnd])
+                #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
+        #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
 
-	DEBUG("len(grph)=%d",len(grph))
+    DEBUG("len(grph)=%d",len(grph))
 
-	# Connected in both directions.
-	for kSub,kPred,kObj in grph:
-		# TODO: Like in Grph2Json(), we could filter when kPred = pc.property_script = MakeProp("script")
-		# TODO: because this can only be a script.
-		if kPred in filterPredicates:
-			continue
+    # Connected in both directions.
+    for kSub,kPred,kObj in grph:
+        # TODO: Like in Grph2Json(), we could filter when kPred = pc.property_script = MakeProp("script")
+        # TODO: because this can only be a script.
+        if kPred in filterPredicates:
+            continue
 
-		if (not IsLiteral(kSub)) and (not IsLiteral(kObj)):
+        if (not IsLiteral(kSub)) and (not IsLiteral(kObj)):
 
-			#if str(kSub).find("entity.py") < 0:
-			#	raise Exception("Broken1 %s %s %s"%(kSub,kPred,kObj))
-			#if str(kObj).find("entity.py") < 0:
-			#	raise Exception("Broken2 %s %s %s"%(kSub,kPred,kObj))
+            #if str(kSub).find("entity.py") < 0:
+            #    raise Exception("Broken1 %s %s %s"%(kSub,kPred,kObj))
+            #if str(kObj).find("entity.py") < 0:
+            #    raise Exception("Broken2 %s %s %s"%(kSub,kPred,kObj))
 
-			InsertEdge(kSub,kObj)
-			InsertEdge(kObj,kSub)
-	#DEBUG("str(adjacency_list)=%s",str(adjacency_list))
+            InsertEdge(kSub,kObj)
+            InsertEdge(kObj,kSub)
+    #DEBUG("str(adjacency_list)=%s",str(adjacency_list))
 
-	return adjacency_list
+    return adjacency_list
 
 
 # This returns a subset of a triplestore whose object matches a given string.
 # TODO: Consider using SparQL.
 def triplestore_matching_strings(grph,searchString):
-	DEBUG("triplestore_matching_strings: searchString=%s"%searchString)
-	# Beware that the order might change each time.
-	compiledRgx = re.compile(searchString)
-	for kSub,kPred,kObj in grph:
-		if IsLiteral(kObj):
-			# Conversion to string in case it would be a number.
-			strObj = str(kObj.value)
-			if compiledRgx.match(strObj):
-				#DEBUG("strObj=%s YES"%strObj)
-				# yield strObj
-				yield (kSub,kPred,kObj)
-			#else:
-			#	DEBUG("strObj=%s NO"%strObj)
+    DEBUG("triplestore_matching_strings: searchString=%s"%searchString)
+    # Beware that the order might change each time.
+    compiledRgx = re.compile(searchString)
+    for kSub,kPred,kObj in grph:
+        if IsLiteral(kObj):
+            # Conversion to string in case it would be a number.
+            strObj = str(kObj.value)
+            if compiledRgx.match(strObj):
+                #DEBUG("strObj=%s YES"%strObj)
+                # yield strObj
+                yield (kSub,kPred,kObj)
+            #else:
+            #    DEBUG("strObj=%s NO"%strObj)
 
 def triplestore_all_strings(grph):
-	DEBUG("triplestore_all_strings")
-	# Beware that the order might change each time.
-	for kSub,kPred,kObj in grph:
-		if IsLiteral(kObj):
-			# Conversion to string in case it would be a number.
-			strObj = str(kObj.value)
-			yield (kSub,kPred,kObj)
+    DEBUG("triplestore_all_strings")
+    # Beware that the order might change each time.
+    for kSub,kPred,kObj in grph:
+        if IsLiteral(kObj):
+            # Conversion to string in case it would be a number.
+            strObj = str(kObj.value)
+            yield (kSub,kPred,kObj)
 
 # This writes a triplestore to a stream which can be a socket or a file.
-def triplestore_to_stream_xml(grph,out_dest):
-	# With Py2 and StringIO or BytesIO, it raises "TypeError: unicode argument expected, got 'str'"
-	# grph.serialize( destination = out_dest, format="xml")
-	# There might be a way to serialize directory to the socket.
-	strXml = grph.serialize( destination = None, format="xml")
-	if sys.version_info >= (3,):
-		# Really horrible piece of code, because out_dest might expect a str or a bytes,
-		# depending on its type.
-		try:
-			#out_dest.write(strXml.decode('latin1'))
-			# TypeError: string argument expected, got 'bytes'
-			out_dest.write(strXml)
-		except TypeError as exc:
-			DEBUG("triple_store_to_stream_xml. tp=%s exc=%s.",str(type(strXml)),str(exc))
-			try:
-				# TypeError: a bytes-like object is required, not 'str'
-				out_dest.write(strXml.decode('latin1'))
-			except TypeError as exc:
-				ERROR("triple_store_to_stream_xml. tp=%s exc=%s. Cannot write:%s", str(type(strXml)), str(exc), strXml)
-				raise
-	else:
-		out_dest.write(strXml.decode('latin1'))
+def triplestore_to_stream_xml(grph,out_dest, a_format):
+
+    # a_format='pretty-xml', 'xml'
+
+    # With Py2 and StringIO or BytesIO, it raises "TypeError: unicode argument expected, got 'str'"
+    # grph.serialize( destination = out_dest, format="xml")
+    # There might be a way to serialize directory to the socket.
+    strXml = grph.serialize( destination = None, format=a_format)
+    if sys.version_info >= (3,):
+        # Really horrible piece of code, because out_dest might expect a str or a bytes,
+        # depending on its type.
+        try:
+            #out_dest.write(strXml.decode('latin1'))
+            # TypeError: string argument expected, got 'bytes'
+            out_dest.write(strXml)
+        except TypeError as exc:
+            DEBUG("triple_store_to_stream_xml. tp=%s exc=%s.",str(type(strXml)),str(exc))
+            try:
+                # TypeError: a bytes-like object is required, not 'str'
+                out_dest.write(strXml.decode('latin1'))
+            except TypeError as exc:
+                ERROR("triple_store_to_stream_xml. tp=%s exc=%s. Cannot write:%s", str(type(strXml)), str(exc), strXml)
+                raise
+    else:
+        # out_dest.write(strXml.decode('latin1'))
+        try:
+            out_dest.write(strXml)
+        except:
+            out_dest.write(strXml.decode('utf8'))
 
 
 # This reasonably assumes that the triplestore library is able to convert from RDF.
 # This transforms a serialize XML document into RDF.
 # See: https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html
 def triplestore_from_rdf_xml(docXmlRdf):
-	# This is the inverse operation of: grph.serialize( destination = out_dest, format="xml")
-	grph = rdflib.Graph()
-	grph.parse(data=docXmlRdf, format="application/rdf+xml")
-	return grph
+    # This is the inverse operation of: grph.serialize( destination = out_dest, format="xml")
+    grph = rdflib.Graph()
+    grph.parse(data=docXmlRdf, format="application/rdf+xml")
+    return grph
 
 # See https://rdflib.readthedocs.io/en/stable/merging.html for how it uses rdflib.
 def triplestore_add(tripleStoreA,tripleStoreB):
-	grphResult = tripleStoreA + tripleStoreB
-	return grphResult
+    grphResult = tripleStoreA + tripleStoreB
+    return grphResult
 
 # See https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html which does qll the work.
 def triplestore_sub(tripleStoreA,tripleStoreB):
-	grphResult = tripleStoreA - tripleStoreB
-	return grphResult
+    grphResult = tripleStoreA - tripleStoreB
+    return grphResult
 
+
+################################################################################
+
+# "ref:CIM_LogicalElement"
+# "ref:CIM_CollectionOfMSEs"
+# "ref:__EventConsumer"
+# "ref:CIM_Setting"
+# "ref:CIM_LogicalElement"
+# "ref:CIM_ManagedSystemElement"
+# "object:__ACE"
+# "object:__Namespace"
+# "object:__Trustee"
+# "object"
+# "Object"
+map_types_CIM_to_XSD = {
+    "boolean": XSD.boolean,
+    "Boolean": XSD.boolean,
+    "string": XSD.string,
+    "String": XSD.string,
+    "uint8": XSD.integer,
+    "uint16": XSD.integer,
+    "sint32": XSD.integer,
+    "uint32": XSD.integer,
+    "Uint32": XSD.integer,
+    "uint64": XSD.long,
+    "Uint64": XSD.long,
+    "datetime":XSD.dateTime,
+    #"1":XSD.date,
+    #"2":XSD.float,
+    #"3":XSD.double,
+    #"4":XSD.decimal,
+    #"5":XSD.time,
+    #"7":XSD.duration,
+}
+
+# owl_type: "xsd::string" etc... TODO: Transform this into XSD.string etc...
+def PropNameToXsdType(prop_type):
+    try:
+        xsd_type = map_types_CIM_to_XSD[prop_type]
+    except:
+        INFO("PropNameToXsdType tp=%s",prop_type)
+        xsd_type = XSD.string
+    return xsd_type
+
+################################################################################
+
+# Construct the linked data tools namespace
+# See lib_properties.py: primns = "http://primhillcomputers.com/survol"
+LDT = rdflib.Namespace("http://www.primhillcomputers.com/survol#")
+
+
+def CreateOwlDlOntology(map_classes, map_attributes, graph=None):
+    # Add the OWL class to the graph
+    # <OWL:Class rdf:ID="Service">
+    #     <rdfs:subClassOf rdf:resource="#System"/>
+    # </OWL:Class>
+    def AddClassToOwlDlOntology(graph, className, baseClassName, text_descr):
+    
+        # Create the node to add to the Graph
+        MyClassNode = rdflib.URIRef(LDT[className])
+    
+        graph.add((MyClassNode, RDF.type, OWL.Class))
+        if baseClassName:
+            # Empty string if top-level class.
+            MyBaseClassNode = rdflib.URIRef(LDT[baseClassName])
+            graph.add((MyClassNode, RDFS.subClassOf, MyBaseClassNode))
+        graph.add((MyClassNode, RDFS.label, rdflib.Literal(className)))
+        if text_descr:
+            graph.add((MyClassNode, RDFS.comment, rdflib.Literal(text_descr)))
+    
+    # <OWL:DataTypeProperty rdf:ID="Name">
+    #     <rdfs:domain rdf:resource="OWL:Thing"/>
+    #     <rdfs:range rdf:resource="xsd:string"/>
+    # </OWL:DataTypeProperty>
+    def AddPropertyToOwlDlOntology(graph, propertyName, prop_type, prop_desc):
+        MyDatatypePropertyNode = rdflib.URIRef(LDT[propertyName])
+        graph.add((MyDatatypePropertyNode, RDF.type, OWL.DatatypeProperty))
+        graph.add((MyDatatypePropertyNode, RDFS.domain, OWL.Thing))
+        if prop_desc:
+            graph.add((MyDatatypePropertyNode, RDFS.comment, rdflib.Literal(prop_desc)))
+        if prop_type:
+            xsd_type = PropNameToXsdType(prop_type)
+            graph.add((MyDatatypePropertyNode, RDFS.range, xsd_type))
+
+    if not graph:
+        graph = rdflib.Graph()
+
+    for class_name in map_classes:
+        prop_dict = map_classes[class_name]
+        base_class_name = prop_dict.get("base_class", "")
+        text_descr = prop_dict.get("class_description", "")
+
+        AddClassToOwlDlOntology(graph,class_name, base_class_name, text_descr)
+
+    for prop_name in map_attributes:
+        prop_dict = map_attributes[prop_name]
+        prop_type = prop_dict.get("predicate_type", "")
+        prop_desc = prop_dict.get("predicate_description", "")
+
+        AddPropertyToOwlDlOntology(graph, prop_name, prop_type, prop_desc)
+
+    # Bind the OWL and LDT name spaces
+    graph.bind("owl", OWL)
+
+    graph.bind("ldt", LDT)
+
+    return graph
+
+################################################################################
+
+# Create the node to add to the Graph
+def RdfsClassNode(className):
+    return rdflib.URIRef(LDT[className])
+
+def AddNodeToRdfsClass(grph, nodeObject, className, entity_label):
+    nodeClass = RdfsClassNode(className)
+    grph.add((nodeObject, RDF.type, nodeClass))
+    grph.add((nodeObject, RDFS.comment, rdflib.Literal(entity_label)))
+
+def CreateRdfsOntology(map_classes, map_attributes, graph=None):
+    # Add the RDFS class to the graph
+    def AddClassToRdfsOntology(graph, className, baseClassName, text_descr):
+
+        MyClassNode = RdfsClassNode(className)
+
+        graph.add((MyClassNode, RDF.type, RDFS.Class))
+        if baseClassName:
+            # Empty string if top-level class.
+            MyBaseClassNode = RdfsClassNode(baseClassName)
+            graph.add((MyClassNode, RDFS.subClassOf, MyBaseClassNode))
+        graph.add((MyClassNode, RDFS.label, rdflib.Literal(className)))
+        if text_descr:
+            graph.add((MyClassNode, RDFS.comment, rdflib.Literal(text_descr)))
+
+    def AddPropertyToRdfsOntology(graph, propertyName, prop_type, prop_desc):
+        MyDatatypePropertyNode = rdflib.URIRef(LDT[propertyName])
+        graph.add((MyDatatypePropertyNode, RDF.type, RDF.Property))
+        if prop_desc:
+            graph.add((MyDatatypePropertyNode, RDFS.comment, rdflib.Literal(prop_desc)))
+        if prop_type:
+            xsd_type = PropNameToXsdType(prop_type)
+            graph.add((MyDatatypePropertyNode, RDFS.range, xsd_type))
+
+    if not graph:
+        graph = rdflib.Graph()
+
+    for class_name in map_classes:
+        prop_dict = map_classes[class_name]
+        base_class_name = prop_dict.get("base_class","")
+        text_descr = prop_dict.get("description","")
+
+        AddClassToRdfsOntology(graph,class_name, base_class_name, text_descr)
+
+    for prop_name in map_attributes:
+        prop_dict = map_attributes[prop_name]
+        prop_type = prop_dict.get("type", "")
+        prop_desc = prop_dict.get("description", "")
+
+        AddPropertyToRdfsOntology(graph, prop_name, prop_type, prop_desc)
+
+    # Bind the OWL and LDT name spaces
+    graph.bind("owl", OWL)
+
+    graph.bind("ldt", LDT)
+
+    return graph
+
+################################################################################

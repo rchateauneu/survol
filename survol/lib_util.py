@@ -647,14 +647,11 @@ def ParseXidWBEM(xid ):
 # This receives the xid value for, for example: "xid=@/:oracle_package."
 # It parses this string into three components and returns the class,
 # the concatenation of key=value pairs, and the host.
+# BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
+# TODO: Should also parse the namespace.
+# ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
+# ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
 def ParseXid(xid ):
-	"""
-		BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
-		TODO: Should also parse the namespace.
-		TODO: Faudrait savoir, avec ou sans le prop=val ???
-		ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
-		ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
-	"""
 	# sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
 
 	# First, we try to match our terminology.
@@ -1359,25 +1356,24 @@ paramkeyShowAll = "Show all scripts"
 def DfltOutDest():
 	return globalOutMach.OutStream()
 
-# Needed also because of sockets.
+# Depending if the stream is a socket, a file or standard output,
+# if Python 2 or 3, Windows or Linux, some complicated tests or conversions
+# are needed.
 def WrtAsUtf(aStr):
-	# TODO: try to make this faster. Should be conditional just like HttpHeader.
-	# outputHttp.write( str.encode('utf-8') )
-	# globalOutMach.OutStream().write( aStr.encode('utf-8') )
-	# Ok: Python 2, with Jupyter and Apache.
+	gblOutStrm = DfltOutDest()
 	if sys.version_info >= (3,):
 		if isinstance(aStr,str):
 			try:
 				# Writing to lib_client
-				globalOutMach.OutStream().write( aStr )
+				gblOutStrm.write( aStr )
 			except TypeError:
 				# string argument expected, got 'bytes'
 				# Writing to cgiServer socket.
-				globalOutMach.OutStream().write( aStr.encode('latin1') )
+				gblOutStrm.write( aStr.encode('latin1') )
 		else:
-			globalOutMach.OutStream().write( aStr.decode('latin1') )
+			gblOutStrm.write( aStr.decode('latin1') )
 	else:
-		globalOutMach.OutStream().write( aStr.decode('latin1') )
+		gblOutStrm.write( aStr.decode('latin1') )
 
 # For asynchronous display.
 # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
@@ -1586,9 +1582,14 @@ def SplitTextTitleRest(title):
 def TimeStamp():
 	return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
-def DumpSurvolOntology():
-    map_classes = {}
-    map_attributes = {}
+# TODO: This should fetch more information from WMI or WBEM ?
+# TODO: Check for double insertion.
+def AppendPropertySurvolOntology(namePredicate, map_attributes):
+    map_attributes[namePredicate] = { "predicate_type": "string", "predicate_description": "Property %s" % namePredicate}
+
+
+# TODO: Should we get classes and properties descriptions from WMI and WBEM ?
+def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
 
     # This receives a class name from Survol and translates it into a CIM class name.
     # If this is a top-level class, then it is the same string.
@@ -1599,38 +1600,45 @@ def DumpSurvolOntology():
     def SurvolClassToCIM(nameSurvolClass):
         return nameSurvolClass.replace("/",".")
 
+    idx = 0
+    baseClass = ""
+    # Iteration on the bases classes starting from the top.
+    while idx >= 0:
+        nextSlash = entity_type.find( "/", idx + 1 )
+        if nextSlash == -1:
+            intermedType = entity_type
+        else:
+            intermedType = entity_type[ : nextSlash ]
+
+        baseClassNameCIM = SurvolClassToCIM(baseClass)
+        classNameCIM = SurvolClassToCIM(intermedType)
+
+        try:
+            # This reloads all classes without cache because if it does not load
+            # we want to see the error message.
+            entity_module = GetEntityModuleNoCatch(entity_type)
+            entDoc = entity_module.__doc__.strip()
+        except:
+            exc = sys.exc_info()[1]
+            entDoc = "Error:"+str(exc)
+
+        map_classes[classNameCIM] = { "base_class": baseClassNameCIM, "class_description": entDoc}
+
+        ontoList = OntologyClassKeys(entity_type)
+        # We do not have any other information about ontology keys.
+        for ontoKey in ontoList:
+            AppendPropertySurvolOntology(ontoKey, map_attributes)
+
+        idx = nextSlash
+
+
+
+def DumpSurvolOntology():
+    map_classes = {}
+    map_attributes = {}
+
     for entity_type in ObjectTypes():
-
-        idx = 0
-        baseClass = ""
-        # Iteration on the bases classes starting from the top.
-        while idx >= 0:
-            nextSlash = entity_type.find( "/", idx + 1 )
-            if nextSlash == -1:
-                intermedType = entity_type
-            else:
-                intermedType = entity_type[ : nextSlash ]
-
-            baseClassNameCIM = SurvolClassToCIM(baseClass)
-            classNameCIM = SurvolClassToCIM(intermedType)
-
-            try:
-                # This reloads all classes without cache because if it does not load
-                # we want to see the error message.
-                entity_module = GetEntityModuleNoCatch(entity_type)
-                entDoc = entity_module.__doc__.strip()
-            except:
-                exc = sys.exc_info()[1]
-                entDoc = "Error:"+str(exc)
-
-            map_classes[classNameCIM] = { "base_class": baseClassNameCIM, "description": entDoc}
-
-            ontoList = OntologyClassKeys(entity_type)
-            # We do not have any other information about ontology keys.
-            for ontoKey in ontoList:
-                map_attributes[ontoKey] = { "type": "string", "description": "Property %s" % ontoKey}
-
-            idx = nextSlash
+        AppendClassSurvolOntology(entity_type, map_classes,map_attributes)
 
     return map_classes, map_attributes
 

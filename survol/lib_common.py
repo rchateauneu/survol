@@ -23,8 +23,9 @@ import lib_naming
 import lib_properties
 from lib_properties import MakeProp
 import lib_exports
-import lib_grammar
+import lib_export_ontology
 import lib_export_dot
+import lib_grammar
 
 from lib_util import NodeLiteral
 from lib_util import NodeUrl
@@ -243,7 +244,7 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 	elif mode == "menu":
 		lib_exports.Grph2Menu( pageTitle, errorMsg, isSubServer, parameters, grph)
 	elif mode == "rdf":
-		lib_exports.Grph2Rdf( grph)
+		lib_export_ontology.Grph2Rdf(grph)
 	elif mode in ["svg",""]:
 		# Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
 		Grph2Svg( pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout )
