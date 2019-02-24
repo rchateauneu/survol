@@ -480,13 +480,13 @@ def ExtractWmiOntology():
             except pywintypes.com_error:
                 pass
 
-        map_classes[class_name] = { "base_class":base_class_name, "description":text_descr}
+        map_classes[class_name] = { "base_class": base_class_name, "class_description": text_descr}
 
 
         for p in cls_obj.properties:
             prop_obj = cls_obj.wmi_property(p)
             try:
-                map_attributes[prop_obj.name]["type"]
+                map_attributes[prop_obj.name]["predicate_type"]
                 continue
             except KeyError:
                 pass
@@ -496,13 +496,13 @@ def ExtractWmiOntology():
             except:
                 only_read = False
             if not only_read:
-                map_attributes[prop_obj.name] = { "type": prop_obj.type }
+                map_attributes[prop_obj.name] = { "predicate_type": prop_obj.type }
 
         # Second enumeration of properties, different style.
         if theCls:
             for propObj in theCls.Properties_:
                 try:
-                    map_attributes[propObj.Name]["description"]
+                    map_attributes[propObj.Name]["property_description"]
                     continue
                 except KeyError:
                     pass
@@ -510,7 +510,7 @@ def ExtractWmiOntology():
                     # UnicodeEncodeError: 'ascii' codec can't encode character u'\xa0' in position 178: ordinal not in range(128)
                     propDsc = propObj.Qualifiers_("Description")
                     propTxt = lib_util.six_text_type(propDsc)
-                    map_attributes.get(propObj.Name,{})["description"] = propTxt
+                    map_attributes.get(propObj.Name,{})["predicate_description"] = propTxt
                 except pywintypes.com_error:
                     # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
                     pass

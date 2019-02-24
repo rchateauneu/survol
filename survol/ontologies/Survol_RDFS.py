@@ -6,16 +6,16 @@
 
 import os
 import lib_export_ontology
+import lib_kbase
 import lib_util
 
 def Main():
     map_classes, map_attributes = lib_util.DumpSurvolOntology()
-    graph = lib_export_ontology.CreateRdfsOntology(map_classes, map_attributes)
+    graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
     # "Survol_OWL_DL.owl"
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
-    out_dest = lib_util.DfltOutDest()
-    lib_export_ontology.DumpOntology(graph,onto_filnam,out_dest)
+    lib_export_ontology.DumpOntology(graph,onto_filnam)
 
 if __name__ == '__main__':
     Main()
