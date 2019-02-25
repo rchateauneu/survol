@@ -15,7 +15,7 @@ import lib_wbem
 
 def Main():
     map_classes, map_attributes = lib_wbem.ExtractWbemOntology()
-    graph = lib_kbase.CreateOwlDlOntology(map_classes, map_attributes)
+    graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
     onto_filnam = os.path.splitext(__file__)[0] + ".owl"
     lib_export_ontology.DumpOntology(graph,onto_filnam)
