@@ -4,6 +4,8 @@ import lib_util
 import lib_kbase
 import lib_naming
 import lib_exports
+import lib_properties
+from lib_properties import pc
 
 ################################################################################
 
@@ -40,36 +42,68 @@ def AddOntology(grph):
     map_classes = {}
     map_attributes = {}
 
-    def AddOneClass(urlNode):
+    # This takes the class from an Url and defines it in the RDF ontology.
+    # This returns the class name as a string.
+    def AddObjectToClass(urlNode):
         (entity_label, class_name, entity_id) = lib_naming.ParseEntityUri( urlNode )
+
+        # This could be the triplet: ("http://rchateau-hp", "http://primhillcomputers.com/survol/____Information", "HTTP url")
+        if not class_name:
+            return None
+
         if not class_name in map_classes:
-            DEBUG("AddOneClass %s",class_name)
-            # This function might also filter a duplicate and redundant insertion.
+            if class_name == "":
+                raise Exception("No class name for url=%s type=%s"%(str(urlNode),str(type(urlNode))))
+
+            # Maybe this CIM class is not defined as an RDFS class.
+            # This function might also filter duplicate and redundant insertions.
             lib_util.AppendClassSurvolOntology(class_name, map_classes, map_attributes)
-        # TODO: DO THAT ONCE ONLY PER NODE
-        # TODO: DO THAT ONCE ONLY PER NODE
-        # TODO: DO THAT ONCE ONLY PER NODE
+
+        # The entity_id is a concatenation of CIM properties and define an unique object.
+        # They are different of the triples, but might overlap.
+        entity_id_dict = lib_util.SplitMoniker(entity_id)
+        for keyPred in entity_id_dict:
+            if not keyPred in map_attributes:
+                # This function might also filter a duplicate and redundant insertion.
+                lib_util.AppendPropertySurvolOntology(keyPred, class_name, None, map_attributes)
+
+            # This value is explicitely added to the node.
+            valPred = entity_id_dict[keyPred]
+            grph.add((urlNode, lib_properties.MakeProp(keyPred), lib_kbase.MakeNodeLiteral(valPred)))
+
+
+        # This adds a triple specifying that this node belongs to this RDFS class.
         lib_kbase.AddNodeToRdfsClass(grph, urlNode, class_name, entity_label)
 
+        return class_name
+
     for nodeSubject, nodePredicate, nodeObject in grph:
-        AddOneClass( nodeSubject )
+        # Quick hack if nodeObject="http://rchateau-hp" or any other URL not from Survol.
+        classSubject = AddObjectToClass( nodeSubject )
         if not lib_kbase.IsLiteral( nodeObject ):
-            AddOneClass( nodeObject )
+            classObject = AddObjectToClass( nodeObject )
+        else:
+            classObject = None
+
+        #if nodePredicate == pc.property_information:
+        # rdfs.comment
 
         namePredicate = lib_exports.PropToShortPropNam(nodePredicate)
-        if not namePredicate in map_attributes:
+        if classSubject and ( not namePredicate in map_attributes ):
             # This function might also filter a duplicate and redundant insertion.
-            lib_util.AppendPropertySurvolOntology(namePredicate, map_attributes)
+            lib_util.AppendPropertySurvolOntology(namePredicate, classSubject, classObject, map_attributes)
 
-    DEBUG("AddOntology map_classes=%d map_attributes=%d",len(map_classes),len(map_attributes))
-    DEBUG("AddOntology len(grph)=%d",len(grph))
+
+            # TODO: Add the type of the property. Experimental because we know the class of the object, or if this is a literal.
+            # The comments should be defined in lib_properties.
+
+    DEBUG("AddOntology len(grph)=%d map_classes=%d map_attributes=%d",len(grph),len(map_classes),len(map_attributes))
     lib_kbase.CreateRdfsOntology(map_classes, map_attributes, grph)
     DEBUG("AddOntology len(grph)=%d",len(grph))
 
 ################################################################################
 # Used by all CGI scripts when they have finished adding triples to the current RDF graph.
-# This just writes a RDF document which can be used as-is by browser,
-# or by another scripts which will process this RDF as input, for example when merging RDF data.
+# The RDF comment is specifically processed to be used by ontology editors such as Protege.
 def Grph2Rdf(grph):
     DEBUG("Grph2Rdf")
 
@@ -81,7 +115,11 @@ def Grph2Rdf(grph):
     # Format support can be extended with plugins,
     # but 'xml', 'n3', 'nt', 'trix', 'rdfa' are built in.
     out_dest = lib_util.DfltOutDest()
-    # grph.serialize( destination = out_dest, format="xml")
+
+    # RDFS uses a special predicate for comments.
+    # TODO: We could use the original RDFS predicate instead of replacing.
+    #lib_kbase.triplestore_set_comment(grph, pc.property_information)
+
     lib_kbase.triplestore_to_stream_xml(grph,out_dest,'xml')
 
 ################################################################################

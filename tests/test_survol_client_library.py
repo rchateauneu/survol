@@ -1050,21 +1050,18 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
 
 
     def test_ontology_survol(self):
-        self._ontology_test("ontologies/Survol_OWL_DL.py")
         self._ontology_test("ontologies/Survol_RDFS.py")
 
     def test_ontology_wmi(self):
         if not sys.platform.startswith("win"):
             print("Windows test only")
             return None
-        self._ontology_test("ontologies/WMI_OWL_DL.py")
         self._ontology_test("ontologies/WMI_RDFS.py")
 
     def test_ontology_wbem(self):
         if not sys.platform.startswith("linux"):
             print("Linux test only")
             return None
-        self._ontology_test("ontologies/WBEM_OWL_DL.py")
         self._ontology_test("ontologies/WBEM_RDFS.py")
 
 
