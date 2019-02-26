@@ -496,13 +496,15 @@ def ExtractWmiOntology():
             except:
                 only_read = False
             if not only_read:
-                map_attributes[prop_obj.name] = { "predicate_type": prop_obj.type }
+                map_attributes[prop_obj.name] = {
+                    "predicate_type": prop_obj.type,
+                    "predicate_domain": class_name }
 
         # Second enumeration of properties, different style.
         if theCls:
             for propObj in theCls.Properties_:
                 try:
-                    map_attributes[propObj.Name]["property_description"]
+                    map_attributes[propObj.Name]["predicate_description"]
                     continue
                 except KeyError:
                     pass

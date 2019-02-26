@@ -1,5 +1,6 @@
 import lib_kbase
 
+# This is an RDF prefix.
 primns = "http://primhillcomputers.com/survol"
 
 pc = lib_kbase.MakeNamespace(primns)
@@ -42,6 +43,8 @@ def MakeProp(*prps,**kvargs):
 sortPrefix = "----"
 
 # TODO: This should be renamed "predicate" instead of "property".
+
+# TODO: Add description in each property.
 
 # All the properties for creating RDF triples.
 # Names must all be different because they are used as keys.

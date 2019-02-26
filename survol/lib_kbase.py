@@ -224,56 +224,67 @@ def PropNameToXsdType(prop_type):
 # See lib_properties.py: primns = "http://primhillcomputers.com/survol"
 LDT = rdflib.Namespace("http://www.primhillcomputers.com/survol#")
 
+# Create the node to add to the Graph
+def RdfsClassNode(className):
+    return rdflib.URIRef(LDT[className])
 
-def CreateOwlDlOntology(map_classes, map_attributes, graph=None):
-    # Add the OWL class to the graph
-    # <OWL:Class rdf:ID="Service">
-    #     <rdfs:subClassOf rdf:resource="#System"/>
-    # </OWL:Class>
-    def AddClassToOwlDlOntology(graph, className, baseClassName, text_descr):
-    
-        # Create the node to add to the Graph
-        MyClassNode = rdflib.URIRef(LDT[className])
-    
-        graph.add((MyClassNode, RDF.type, OWL.Class))
+def AddNodeToRdfsClass(grph, nodeObject, className, entity_label):
+    nodeClass = RdfsClassNode(className)
+    grph.add((nodeObject, RDF.type, nodeClass))
+    grph.add((nodeObject, RDFS.label, rdflib.Literal(entity_label)))
+
+def CreateRdfsOntology(map_classes, map_attributes, graph=None):
+    # Add the RDFS class to the graph
+    def AddClassToRdfsOntology(graph, className, baseClassName, text_descr):
+        className = className.strip()
+        if not className:
+            className = "EMPTY_CLASS_NAME"
+            raise Exception("Empty class name")
+
+        nodeClass = RdfsClassNode(className)
+
+        graph.add((nodeClass, RDF.type, RDFS.Class))
         if baseClassName:
             # Empty string if top-level class.
-            MyBaseClassNode = rdflib.URIRef(LDT[baseClassName])
-            graph.add((MyClassNode, RDFS.subClassOf, MyBaseClassNode))
-        graph.add((MyClassNode, RDFS.label, rdflib.Literal(className)))
+            MyBaseClassNode = RdfsClassNode(baseClassName)
+            graph.add((nodeClass, RDFS.subClassOf, MyBaseClassNode))
+        graph.add((nodeClass, RDFS.label, rdflib.Literal(className)))
         if text_descr:
-            graph.add((MyClassNode, RDFS.comment, rdflib.Literal(text_descr)))
-    
-    # <OWL:DataTypeProperty rdf:ID="Name">
-    #     <rdfs:domain rdf:resource="OWL:Thing"/>
-    #     <rdfs:range rdf:resource="xsd:string"/>
-    # </OWL:DataTypeProperty>
-    def AddPropertyToOwlDlOntology(graph, propertyName, prop_type, prop_desc):
-        MyDatatypePropertyNode = rdflib.URIRef(LDT[propertyName])
-        graph.add((MyDatatypePropertyNode, RDF.type, OWL.DatatypeProperty))
-        graph.add((MyDatatypePropertyNode, RDFS.domain, OWL.Thing))
+            graph.add((nodeClass, RDFS.comment, rdflib.Literal(text_descr)))
+
+    def AddPropertyToRdfsOntology(graph, prop_name, prop_type, prop_domain, prop_range, prop_desc):
+        nodeDatatypeProperty = rdflib.URIRef(LDT[prop_name])
+        graph.add((nodeDatatypeProperty, RDF.type, RDF.Property))
         if prop_desc:
-            graph.add((MyDatatypePropertyNode, RDFS.comment, rdflib.Literal(prop_desc)))
+            graph.add((nodeDatatypeProperty, RDFS.comment, rdflib.Literal(prop_desc)))
         if prop_type:
             xsd_type = PropNameToXsdType(prop_type)
-            graph.add((MyDatatypePropertyNode, RDFS.range, xsd_type))
+            graph.add((nodeDatatypeProperty, RDFS.range, xsd_type))
+        if prop_domain:
+            nodeDomainClass = rdflib.URIRef(LDT[prop_domain])
+            graph.add((nodeDatatypeProperty, RDFS.domain, nodeDomainClass))
+        if prop_range:
+            nodeRangeClass = rdflib.URIRef(LDT[prop_range])
+            graph.add((nodeDatatypeProperty, RDFS.range, nodeRangeClass))
 
     if not graph:
         graph = rdflib.Graph()
 
     for class_name in map_classes:
         prop_dict = map_classes[class_name]
-        base_class_name = prop_dict.get("base_class", "")
-        text_descr = prop_dict.get("class_description", "")
+        base_class_name = prop_dict.get("base_class","")
+        text_descr = prop_dict.get("class_description","")
 
-        AddClassToOwlDlOntology(graph,class_name, base_class_name, text_descr)
+        AddClassToRdfsOntology(graph,class_name, base_class_name, text_descr)
 
     for prop_name in map_attributes:
         prop_dict = map_attributes[prop_name]
         prop_type = prop_dict.get("predicate_type", "")
+        prop_domain = prop_dict.get("predicate_domain", "")
+        prop_range = prop_dict.get("predicate_range", "")
         prop_desc = prop_dict.get("predicate_description", "")
 
-        AddPropertyToOwlDlOntology(graph, prop_name, prop_type, prop_desc)
+        AddPropertyToRdfsOntology(graph, prop_name, prop_type, prop_domain, prop_range, prop_desc)
 
     # Bind the OWL and LDT name spaces
     graph.bind("owl", OWL)
@@ -284,61 +295,11 @@ def CreateOwlDlOntology(map_classes, map_attributes, graph=None):
 
 ################################################################################
 
-# Create the node to add to the Graph
-def RdfsClassNode(className):
-    return rdflib.URIRef(LDT[className])
-
-def AddNodeToRdfsClass(grph, nodeObject, className, entity_label):
-    nodeClass = RdfsClassNode(className)
-    grph.add((nodeObject, RDF.type, nodeClass))
-    grph.add((nodeObject, RDFS.comment, rdflib.Literal(entity_label)))
-
-def CreateRdfsOntology(map_classes, map_attributes, graph=None):
-    # Add the RDFS class to the graph
-    def AddClassToRdfsOntology(graph, className, baseClassName, text_descr):
-
-        MyClassNode = RdfsClassNode(className)
-
-        graph.add((MyClassNode, RDF.type, RDFS.Class))
-        if baseClassName:
-            # Empty string if top-level class.
-            MyBaseClassNode = RdfsClassNode(baseClassName)
-            graph.add((MyClassNode, RDFS.subClassOf, MyBaseClassNode))
-        graph.add((MyClassNode, RDFS.label, rdflib.Literal(className)))
-        if text_descr:
-            graph.add((MyClassNode, RDFS.comment, rdflib.Literal(text_descr)))
-
-    def AddPropertyToRdfsOntology(graph, propertyName, prop_type, prop_desc):
-        MyDatatypePropertyNode = rdflib.URIRef(LDT[propertyName])
-        graph.add((MyDatatypePropertyNode, RDF.type, RDF.Property))
-        if prop_desc:
-            graph.add((MyDatatypePropertyNode, RDFS.comment, rdflib.Literal(prop_desc)))
-        if prop_type:
-            xsd_type = PropNameToXsdType(prop_type)
-            graph.add((MyDatatypePropertyNode, RDFS.range, xsd_type))
-
-    if not graph:
-        graph = rdflib.Graph()
-
-    for class_name in map_classes:
-        prop_dict = map_classes[class_name]
-        base_class_name = prop_dict.get("base_class","")
-        text_descr = prop_dict.get("description","")
-
-        AddClassToRdfsOntology(graph,class_name, base_class_name, text_descr)
-
-    for prop_name in map_attributes:
-        prop_dict = map_attributes[prop_name]
-        prop_type = prop_dict.get("type", "")
-        prop_desc = prop_dict.get("description", "")
-
-        AddPropertyToRdfsOntology(graph, prop_name, prop_type, prop_desc)
-
-    # Bind the OWL and LDT name spaces
-    graph.bind("owl", OWL)
-
-    graph.bind("ldt", LDT)
-
-    return graph
-
+# TODO: We could use the original RDFS predicate instead of replacing.
+def triplestore_set_comment(grph, predicate_for_comment):
+    # predicate_RDFS_comment = RDFS.comment
+    for kSub,kPred,kObj in grph.triples((None, predicate_for_comment, None)):
+        grph.add((kSub, RDFS.comment, kObj))
+        grph.remove((kSub, kPred, kObj))
+        pass
 ################################################################################
