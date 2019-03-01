@@ -125,7 +125,6 @@ def Main():
         # TODO: If this is a script, checks if this is executale ?
         for file in files:
             fullFilePath = filNam_slash+file
-            INFO("fullFilePath=%s",fullFilePath)
             # OK WinXP: On remplace d'abord le ampersand, et on encode ensuite, car le remplacement ne marche pas dans l'autre sens.
             subfilNode = lib_common.gUriGen.FileUri( fullFilePath.replace("&","&amp;" ) )
 
