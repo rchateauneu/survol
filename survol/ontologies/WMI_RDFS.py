@@ -1,4 +1,4 @@
-# This creates a OWL-DL ontology out of the WMI classes of a Windows machine.
+# This creates an RDFS ontology out of the WMI classes of a Windows machine.
 
 # It does not depend on a Survol installation.
 # However, its classes and properties will overlap Survol's if it is installed.
