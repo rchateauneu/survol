@@ -1,7 +1,7 @@
 # Encapsulate rdflib features.
 # This is just in case another triplestore implementation would be more convenient.
 
-from rdflib.namespace import OWL, RDF, RDFS, XSD
+from rdflib.namespace import RDF, RDFS, XSD
 import rdflib
 import sys
 import re
@@ -286,9 +286,7 @@ def CreateRdfsOntology(map_classes, map_attributes, graph=None):
 
         AddPropertyToRdfsOntology(graph, prop_name, prop_type, prop_domain, prop_range, prop_desc)
 
-    # Bind the OWL and LDT name spaces
-    graph.bind("owl", OWL)
-
+    # Bind the LDT name spaces
     graph.bind("ldt", LDT)
 
     return graph
