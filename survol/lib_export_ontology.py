@@ -107,7 +107,6 @@ def AddOntology(grph):
 def Grph2Rdf(grph):
     DEBUG("Grph2Rdf")
 
-    # TODO: Should we add the OWL-DL or the RDFS ontology ?
     AddOntology(grph)
 
     lib_util.WrtHeader('text/rdf')
