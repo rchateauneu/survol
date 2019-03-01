@@ -71,6 +71,7 @@
                 <li> <a href="architecture.html">Survol Architecture</a> </li>
                 <li> <a href="installation.html">Survol Installation</a> </li>
                 <li> <a href="usecase.html">Survol Use Cases</a> </li>
+                <li> <a href="rdf_ontology.html">Object model, RDFS ontology</a> </li>
               </ul>
             </li>
             <li> <a href="dock_it.html">DockIT</a></li>
@@ -140,12 +141,12 @@
                 height="4" width="71"></div>
             <p class="sec-subhead">Survol is designed for two classes of users:</p>
             <ul class="datalist">
-              <li>Managers in charge of software projects, who must&nbsp; follow
+              <li>Managers and Team Leaders, in charge of software projects, who must&nbsp; follow
                 development tasks, infrastructure evolutions, by looking
                 directly into what's being developed. They need a non-technical
                 tool, to extract information from a running application at a
                 synthetic level. </li>
-              <li>Consultants, newly-comers on legacy software, who must grasp
+              <li>Developers and Consultants, newly-comers on legacy software, who must grasp
                 quickly an existing information system, using many, too many
                 technologies.</li>
             </ul>
@@ -304,7 +305,7 @@
                     investigating, browsing and drilling into applications
                     internals. It uses <a href="https://d3js.org/" class="a-link">D3</a>,
                     a practical JavaScript library for manipulating graphs. </li>
-                  <li>A print mode, where the rendered view cannot be modified
+                  <li>A print mode, based on SVG, where the rendered view cannot be modified
                     but is designed to be nicely printed for reporting or
                     presentations. The appearance is similar to the interactive
                     one, but the layout does not depend on User interaction. It
@@ -312,6 +313,9 @@
                     an open source graph visualization software.</li>
                   <li>The plain HTML mode, convenient to generate reports in
                     plain text, reports which can be saved, and compared.</li>
+                  <li>Finally, Survol can reports all its internal data into RDF-Schema format,
+                    so that any ontology editor such as <a href="https://protege.stanford.edu/">Protégé</a>
+                    or <a href="https://jena.apache.org/">Apache Jena</a> can apply their knowledge-based features.</li>
                 </ul>
               </div>
             </div>
@@ -409,7 +413,7 @@
                       Survol Architecture</a> </li>
                   <li> <a href="installation.html"><i class="fa fa-angle-right"></i>
                       Survol Installation</a> </li>
-                  <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
+                  <li> <a href="usecase.html"><i class="fa fa-angle-right"></i>
                       Survol Use Cases</a> </li>
                   <li> <a href="contact.php"><i class="fa fa-angle-right"></i>
                       Contact Us</a> </li>
