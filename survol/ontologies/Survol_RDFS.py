@@ -1,4 +1,4 @@
-# This creates a OWL-DL ontology out of the Survol classes.
+# This creates a RDFSontology out of the Survol classes.
 # It is part of a survol installation.
 # However, its classes and properties overlaps the ones created by WMI or WBEM.
 
@@ -13,7 +13,7 @@ def Main():
     map_classes, map_attributes = lib_util.DumpSurvolOntology()
     graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
-    # "Survol_OWL_DL.owl"
+    # "Survol_RDFS_DL.rdfs"
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
     lib_export_ontology.DumpOntology(graph,onto_filnam)
 
