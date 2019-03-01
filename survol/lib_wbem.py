@@ -509,7 +509,7 @@ def EntityToLabelWbem(namSpac, entity_type_NoNS, entity_id, entity_host):
     # sys.stderr.write("EntityToLabelWbem\n")
     return None
 
-# This returns an abstract ontology, which is later transformed into OWL-DL or RDFS.
+# This returns an abstract ontology, which is later transformed into RDFS.
 def ExtractWbemOntology():
     map_classes = {}
     map_attributes = {}
