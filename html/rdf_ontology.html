@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Object model and RDF ontology</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
+      rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>    <![endif]-->
+    <meta name="description" content="Software architecture of Survol">
+    <meta name="keywords" content="Legacy Reverse Engineering WBEM WMI RDF">
+  </head>
+  <body class="arcitecture">
+    <!-- ===== header start == -->
+    <!--- top bar -->
+    <div class="topbar thetop">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-sm-8 col-xs-12 left-part"> <span class="phone"><i
+                class="fa fa-phone"></i> <a href="tel:+447769516770" class="no-deco">+44
+                77 6951 6770</a></span> <span class="email"><i class="fa fa-envelope"></i>
+              <a href="mailto:contact@primhillcomputers.com" class="no-deco">contact@primhillcomputers.com</a></span>
+          </div>
+          <div class="col-md-6 col-sm-4 col-xs-12 right-part">
+            <ul class="hrlist social-icons">
+              <li><a href="javascript:void()"><i class="fa fa-facebook"></i></a><br>
+              </li>
+              <li><a href="javascript:void()"><i class="fa fa-twitter"></i></a><br>
+              </li>
+              <li><a href="javascript:void()"><i class="fa fa-google-plus"></i></a><br>
+              </li>
+              <li><a href="http://www.linkedin.com/company/primhill-computers/"><i
+                    class="fa fa-linkedin"></i></a><br>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End -->
+    <!--- navigation -->
+    <div class="container">
+      <nav class="navbar navbar-default nav-def">
+        <!-- Brand and toggle get grouped for better mobile display --> <a href="index.html"
+          class="nav-logo"><img src="images/logo.png" class="img-responsive"></a>
+        <div class="navbar-header"> <button type="button" data-target="#navbarCollapse"
+            data-toggle="collapse" class="navbar-toggle"> <span class="sr-only">Toggle
+              navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+            <span class="icon-bar"></span> </button> </div>
+        <!-- Collection of nav links and other content for toggling -->
+        <div id="navbarCollapse" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right pad-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="solutions.html">Solutions</a></li>
+            <li class="dropdown active"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Survol
+                <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li> <a href="survol.html">Survol</a> </li>
+                <li class="divider"><br>
+                </li>
+                <li> <a href="faq.html">Survol Faq</a> </li>
+                <li> <a href="architecture.html">Survol Architecture</a> </li>
+                <li> <a href="installation.html">Survol Installation</a> </li>
+                <li> <a href="usecase.html">Survol Use Cases</a> </li>
+                <li class="active"> <a href="rdf_ontology.html">Object model,
+                    RDFS ontology</a> </li>
+              </ul>
+            </li>
+            <li> <a href="dock_it.html">DockIT</a></li>
+            <li> <a href="jobs.html">Jobs</a></li>
+            <li> <a href="events.html">Events</a></li>
+            <li> <a href="links.html">Links</a></li>
+            <li><a href="contact.php">Contact Us</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <!-- End -->
+    <!-- breadcrum section -->
+    <div class="breadcrum-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
+            <h1 class="page-title">Object model and RDF ontology</h1>
+          </div>
+          <div class="col-lg-6 col-md-4 col-sm-12 col-xs-12">
+            <ul class="breadcrumb">
+              <li><a href="index.html">Home</a></li>
+              <li class="active">Survol Architecture</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p>
+      <!-- ===== header-end ==== -->
+      <!-- === sections start == --> </p>
+    <p><br>
+    </p>
+    <p>This document describes int the detail, Survol internal data model, how
+      it can be mapped to RDF, and how these data can be imported and used in
+      other tools.</p>
+    <br>
+    <p>The <b>Common Information Model</b> (<b>CIM</b>) is an <a href="https://en.wikipedia.org/wiki/Open_standard"
+        title="Open standard">open standard</a> that defines how managed
+      elements in an <a href="https://en.wikipedia.org/wiki/Information_technology"
+        title="Information technology">IT environment</a> are represented as a
+      common set of <a href="https://en.wikipedia.org/wiki/Object_%28computer_science%29"
+        title="Object (computer science)">objects</a> and relationships between
+      them. </p>
+    <p>It is implemented by WMI on Windows operating system, and by WBEM on all
+      platforms.</p>
+    <p>Survol proposes its own very lightweight implementation:</p>
+    <p>- Written in Pure Python. Much lighter,</p>
+    <p>- Providers are much easier to write, just Python script. Our ontology
+      has a subset 100% compatible with CIM. It adds many classes, based on
+      software objects, proprietary and open-source (example !!!!) </p>
+    <p>- It is very restricted because it does not have to be exposed.<br>
+    </p>
+    <p><br>
+    </p>
+    <p>The <b>Resource Description Framework</b> (<b>RDF</b>) is a&nbsp; <a href="https://en.wikipedia.org/wiki/World_Wide_Web_Consortium"
+        title="World Wide Web Consortium">World Wide Web Consortium</a> (W3C) <a
+        href="https://en.wikipedia.org/wiki/Specification" class="mw-redirect" title="Specification">specification</a>
+      designed as a <a href="https://en.wikipedia.org/wiki/Metadata" title="Metadata">metadata</a>
+      <a href="https://en.wikipedia.org/wiki/Data_model" title="Data model">data
+        model</a>. It is based on the concept <a href="https://en.wikipedia.org/wiki/Statement_%28programming%29"
+        class="mw-redirect" title="Statement (programming)">statements</a> about
+      <a href="https://en.wikipedia.org/wiki/Resource_%28computer_science%29" class="mw-redirect"
+        title="Resource (computer science)">resources</a>&nbsp; in expressions
+      of the form <var>subject</var>–<var>predicate</var>–<var>object</var>,
+      known as <i><a href="https://en.wikipedia.org/wiki/Semantic_triple" title="Semantic triple">triples</a></i>.
+      <span class="ILfuVd"><b>RDF</b> is primarily <b>used</b> to provide
+        information or metadata for data of any type, present on multiple
+        machines. </span>An RDF ontology describes the concepts and
+      relationships representing an area of concern.
+    </p>
+    <span class="ILfuVd">RDF is the reference language to export Semantic Web
+      data to software such as Protégé or Apache Jena, or graph databases like
+      Neo4J, GraphDB, Tigergraph etc...</span>
+    <p><br>
+    </p>
+    <p><strong>Mapping CIM model</strong></p>
+    Because it can describe any type of information in a minimally structured
+    way, it is perfectly suited to represent Survol internal data, which exposes
+    information from multiple sources, about object of multiple types, hosted by
+    different machines. Therefore, a RDF ontology is needed to describe CIM
+    classes and properties and export these data to external tools.<br>
+    <p><br>
+    </p>
+    <p>Because CIM and RDF are well-established standards, there have been
+      several projects to create this mapping, some more ambitious than others.
+    </p>
+    <p><br>
+    </p>
+    <p>* "Toward a Formal Common Information Model Ontology", <a data-test="ConfSeriesLink"
+        href="https://link.springer.com/conference/wise" data-track="click" data-track-action="Conference series"
+        data-track-label=""><span data-test="ConfSeriesName">International
+          Conference on Web Information Systems Engineering</span></a>, 2004 </p>
+    <p>https://link.springer.com/chapter/10.1007/978-3-540-30481-4_2</p>
+    <p>* "Translation of Common Information Model to Web Ontology Language" , <span
+        data-selenium-selector="venue-metadata"><span class=""><span>International
+            Conference on Computational Science</span></span></span> <span data-selenium-selector="paper-year"><span
+          class=""><span>2007</span></span></span></p>
+    <p>https://www.semanticscholar.org/paper/Translation-of-Common-Information-Model-to-Web-Majewska-Kryza/5396e0c90b06d2d7643a7cd22c254796c55b0bae</p>
+    <p>* "DMTF-CIM to OWL: A case study in ontology conversion", University of
+      Colorado</p>
+    <p>https://www.researchgate.net/publication/228742137_DMTF-CIM_to_OWL_A_case_study_in_ontology_conversion</p>
+    <p>* "Future Internet Ontologies:<span style="font-family: sans-serif;"> </span>The
+      NOVI Experience", University of Amsterdam</p>
+    <p>http://www.semantic-web-journal.net/system/files/swj580.pdf</p>
+    <p>* "Benefits of Using Ontologies in the Management of High Speed
+      Networks", Universidad Politécnica de Madrid"</p>
+    <p>https://web.dit.upm.es/~jlopez/publicaciones/hsnmc04.pdf</p>
+    <p>* "Semantic Modeling of Management Information:<span style="font-family: serif;">
+      </span>Enabling Automatic Reasoning on DMTF-CIM"</p>
+    <p>https://waset.org/publications/5774/semantic-modeling-of-management-information-enabling-automatic-reasoning-on-dmtf-cim</p>
+    <p>They all succeed to unambiguously define a one-to-one mapping between CIM
+      and RDF properties and objects, which is all than Survol needs. Although
+      several ontology languages exist, RDF-Schema (RDFS) is the simplest and
+      most common one, and more appropriate than OWL because Survol does not
+      constraint data created by its very diverse data providers. Survol data
+      providers are simple Python scripts which can create a very rich graph of
+      data on all sorts of objects classes and relationships. These Python
+      scripts, which are typically a customization for a specific purpose, are
+      a-priori trusted.</p>
+    <p><br>
+    </p>
+    <p>CIM presents a view of logical and physical objects, using an
+      object-oriented construct called a class. A CIM class can include
+      properties to describe data and methods to describe behavior. Each
+      instance of this class is uniquely identified by a subset of these
+      properties, but they can optionally have more properties. CIM also defines
+      associations of objects.</p>
+    <p>Examples:</p>
+    <p>* A CIM_DataFile instance is practically defined by its name (Or the
+      inode on Unix-like operating systems), and its has other attributes such
+      as the size, the protection mask etc...</p>
+    <p>* A CIM_Process instance is uniquely defined by its process identifier,
+      but also has a user, a priority etc...</p>
+    <p><br>
+    </p>
+    <p>The RDF ontology and data model is created on-the-fly by examining
+      attributes of CIM objects and associations and creating the RDFS triples
+      where properties and associations definitions are mapped to predicates,
+      which ensures that no information is ever lost without enforcing any
+      structural constraint on the data providers.</p>
+    <p><br>
+    </p>
+    <p><strong>Importing into Protégé</strong></p>
+    <p><br>
+    </p>
+    <p><br>
+    </p>
+    <p><br>
+      <!--  ARCHITECTURE --> </p>
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="sec-head2 text-left clearfix">DISPLAY MODES AND INTERNAL
+              DATA REPRESENTATION</h2>
+            <div class="txtwithimg">
+              <div class="img-box-inline"> <img src="images/rdf.png" alt="image"
+                  class="img-outline img-responsive"> </div>
+              <div class="text-box">
+                <p class="infotxt">The internal data model built by Survol, is
+                  based on <a href="https://en.wikipedia.org/wiki/Resource_Description_Framework"
+                    class="a-link">RDF</a>, a standard model for data
+                  interchange in the Web. The data representation of Survol is a
+                  RDF graph: a set of triples: subject, relation and object. It
+                  is also the core data type found in the <a href="https://en.wikipedia.org/wiki/Semantic_Web"
+                    class="a-link">Semantic web</a>. It is successfully used in
+                  Artificial Intelligence applications. This abstract
+                  representation is independent of the display mode. The same
+                  set of data, extracted from an information system, is shown
+                  several ways:</p>
+              </div>
+            </div>
+            <ul class="datalist">
+              <li>Interactive mode, fully interactive, designed for
+                investigating, browsing and drilling into applications
+                internals. It uses <a href="https://d3js.org/" class="a-link">D3</a>,
+                a practical JavaScript library for manipulating graphs.</li>
+              <li>The print mode: the rendered view cannot be modified but is
+                designed to be printed for reports or presentations. The
+                appearance is very close to the interactive one, but the layout
+                is always identical, and the users cannot change it. It uses
+                Graphviz, an open source graph visualization software. <a href="http://www.graphviz.org/"
+                  class="a-link">Graphviz</a> is not an absolute requirement.</li>
+              <li>The plain HTML mode, convenient to generate reports in plain
+                text, reports which can be saved&nbsp; and compared.</li>
+            </ul>
+            <p class="sec-subhead">There are also two output modes, used
+              internally:</p>
+            <ul class="datalist">
+              <li>A JSON mode of use JavaScript-based display. At the moment,
+                the client-side graphic library is D3, with projects to use also
+                <a href="http://www.cytoscape.org/" class="a-link"> Cytoscape</a>,
+                another software platform for visualizing complex network.
+                Survol is extremely modular, and adding a new front-end is a
+                totally independent task.</li>
+              <li>A native RDF mode which can be used as an input&nbsp; such as
+                <a href="https://protege.stanford.edu/" class="a-link">Protégé</a>.
+                Protégé is an ontology editor and framework. Its purpose is to
+                build intelligent systems and knowledge-based solutions.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!--DISPLAY MODES AND INTERNAL DATA REPRESENTATION-->
+    <section class="architecture white-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="sec-head2 text-left clearfix">WMI, WBEM, CIM</h2>
+            <p class="infotxt">To start with, some acronyms. WBEM™ stands for <a
+                href="https://en.wikipedia.org/wiki/Web-Based_Enterprise_Management"
+                class="a-link">Web-Based Enterprise Management</a>, an industry
+              initiative to develop a standard technology for accessing
+              management information in an enterprise environment. This standard
+              is governed by DMTF, <a href="https://en.wikipedia.org/wiki/Distributed_Management_Task_Force"
+                class="a-link">Distributed Management Task Force</a>. WMI is the
+              Microsoft implementation of WBEM. In the Linux world, a common
+              implementation of WBEM is <a href="http://www.openlmi.org/" class="a-link">OpenLMI</a>.
+              It is based on an open-source implementation named <a href="https://collaboration.opengroup.org/pegasus/"
+                class="a-link">OpenPegasus</a>™. WBEM standard information is
+              delivered with CIM (<a href="https://en.wikipedia.org/wiki/Common_Information_Model_%28computing%29"
+                class="a-link">Common Information Model</a>). The CIM schema is
+              the model for delivering this standard information. </p>
+            <p class="sec-subhead">To summarize, WBEM defines classes of
+              computer-related objects: processes, files, network cards etc...
+              have a valid and detailed definition in CIM. Here are some
+              examples: </p>
+            <div class="table-responsive my-table">
+              <table class="table table-bordered table-striped">
+                <tbody>
+                  <tr>
+                    <td>CIM_Process</td>
+                    <td>This is the base class of a process, which is derived
+                      into Win32_Process</td>
+                  </tr>
+                  <tr>
+                    <td>CIM_Datafile</td>
+                    <td>A normal file: the concept and its implementation are
+                      similar in Windows and Linux. </td>
+                  </tr>
+                  <tr>
+                    <td>CIM_Directory</td>
+                    <td>File directories</td>
+                  </tr>
+                  <tr>
+                    <td>Win32_UserAccount</td>
+                    <td>A Windows user account. Linux has a specific definition,
+                      unrelated to this one.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- WMI, WBEM, CIM -->
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="sec-head2 text-left clearfix">SURVOL DATA MODEL</h2>
+            <p class="infotxt">One of the core aspects of Survol is its data
+              model which attempts to take the best of the worlds it is working
+              in. A first approach is WBEM. However, the data description
+              offered by WBEM suffers from several drawbacks:</p>
+            <ul class="datalist">
+              <li>It does not define all the objects we need, because CIM is
+                very neutral, not oriented to applications management. For
+                example, database tables, or sockets, or Python packages or
+                Samba™ servers have no definition. It is indeed possible to add
+                new classes into WIM or WMI, but not in a portable way, and it
+                requires C++ code compilation etc... this is quite a heavy
+                process.</li>
+              <li>Also: WQL, the CIM query language, has some limitations: It
+                does not allow joins between several classes, and a query can
+                return objects of a single class only. Whereas some information
+                snapshot would require of all sorts of objects to completely
+                describe a situation: Some examples which cannot be described by
+                WQL queries could be: All network files accessed by a process,
+                plus their sockets. Or linkable symbols from a DLL file. Or SQL
+                queries detected in a process memory, plus their tables. These
+                are quite common situations when investigating an application.
+                However, it can be represented with WBEM.</li>
+              <li>On top of that, WMI and WBEM suffer from several specific
+                performance problems which are difficult to overcome. These
+                problems come from the indistinct processing of objects,
+                whatever their behaviour. For example, selecting all
+                CMI_Datafile objects will return all files on a given machine:
+                This is obviously very difficult to handle.</li>
+            </ul>
+            <p class="sec-subhead">Despite this, building a software on an
+              industrial standard is invaluably convenient. Therefore, Survol
+              attempts to combine the best of both worlds:</p>
+            <ul class="datalist">
+              <li>Existing WBEM classes are always reused. When the classes are
+                different in Linux and Windows, but a common base class exist,
+                this base class is chosen. Survol uses only a subset of WBEM
+                ontologies: That is, it uses only the minimal number of WBEM
+                class properties which are necessary to uniquely define an
+                object. However, all detected properties are displayed, when
+                available.</li>
+              <li>Survol comes with a lightweight ontology and data definition
+                where a class is only defined by a directory in a Python source
+                code tree.</li>
+              <li>When an object is defined by Survol, its equivalent link into
+                WBEM or WMI is calculated and accessible. WBEM, WMI and Survol
+                use the same moniker strings (Object path).</li>
+              <li>It is possible to display any WMI or WBEM object and navigate
+                into their repository. Survol is -also- a complete read-only
+                WBEM objects browser. Notably, Survol can "talk" with WBEM or
+                WMI running on distant machines.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!--SURVOL DATA MODEL-->
+    <section class="architecture white-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="sec-head2 text-left clearfix">SURVOL CLASSES AND DOMAINS.
+              ADDING NEW CLASSES.</h2>
+            <p class="infotxt">Survol library is made of packages and
+              subpackages which represents its classes model. A class is a
+              module where the function <code class="inline-code">EntityOntology()</code>
+              is present, whether it is defined by the module or one of its
+              parents modules. The return value of <code class="inline-code">EntityOntology()</code>
+              is a list of string, each representing an attribute of the class.
+              If a module nor none of its parent modules define the function <code
+                class="inline-code">EntityOntology()</code>, it is a domain.</p>
+            <p class="infotxt">A class or a domain can define other functions in
+              its <code class="inline-code">__init__.py</code> file. All of
+              them are optional:</p>
+            <div class="table-responsive my-table">
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th class="b-r-white">Function </th>
+                    <th>What it does</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>EntityOntology<br>
+                    </td>
+                    <td>This returns an array of strings which are the name of
+                      the attributes of an object of this class. This does not
+                      apply to domains.<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Graphic_colorbg<br>
+                    </td>
+                    <td>This returns a RBG colour coded as a hexadecimal string.
+                      This colour is used by any UI mode, for this class/domain,
+                      unless it is superseded by a subclass or subdomain.<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>EntityName<span style="color: rgb(128, 128, 128);"></span></td>
+                    <td>This returns a display name for this object, given its
+                      attributes passed as an array, in the order specified by
+                      the ontology. The hostname is also passed as an argument.
+                      The resulting name does have to be unique, but must be
+                      printable. This applies to classes only.<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>AddInfo</td>
+                    <td>When displaying an object, adds some extra information
+                      related to it.<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Usable<br>
+                    </td>
+                    <td>This tells if the module or the script, is usable in
+                      this context, given the platform, available packages
+                      etc... It can be defined for any module or any script.<br>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- SURVOL CLASSES AND DOMAINS. ADDING NEW CLASSES. -->
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="sec-head2 text-left clearfix">SCRIPTS REDUNDANCY</h2>
+            <p class="infotxt">Survol is designed to run in a harsh environment,
+              uncertain platforms, broken libraries, incompatible interfaces,
+              and return as much information as possible about unknown
+              applications. It has to be robust and adapt to any situation.
+              Therefore, it is built, at all stages, on the concept of
+              redundancy. </p>
+            <p class="sec-subhead">Redundancy of data display:</p>
+            <p class="sec-subhead2">Survol can display its results in:</p>
+            <ul class="datalist">
+              <li>Plain HTML text: Results of the same scripts are guaranteed to
+                be return in the same order, allowing automatic comparison. It
+                can be displayed on a very simple browser.</li>
+              <li>Static SVG generated by Graphviz, on the server side. It does
+                not need a powerful client machine.</li>
+              <li>Client-side D3 display: It is not demanding on the server
+                side, but needs a more powerful client.</li>
+              <li>RDF output, for Semantic Web engine.</li>
+              <li>JSON output: this is used by D3, its API is stable and can be
+                used by client software too.</li>
+            </ul>
+            <p class="sec-subhead">Redundancy of information sources:</p>
+            <p class="infotxt">The core information might come from any source:
+              win32 Python library, any Linux package, WMI and WBEM select
+              statements.</p>
+            <p class="sec-subhead">Redundancy of Web hosting:</p>
+            <p class="infotxt">Scripts can be hosted by Apache, IIS™, the
+              dedicated ad hoc CGI server. Any reasonable HTTP server with CGI
+              or WSGI capabilities should suffice.</p>
+            <p class="sec-subhead">Redundancy of Python interpreter and
+              libraries:</p>
+            <ul class="datalist">
+              <li>It can use Python2 and Python3, over many releases. Survol is
+                not very demanding in terms of Python features.</li>
+              <li>Packages: Python requires a very small set of modules. If a
+                script needs an optional Python module which is not installed,
+                the script is simply disabled, doing no harm.</li>
+              <li>Scripts might return information with a significant overlap,
+                from different libraries or mechanisms. This is helpful if one
+                script does not work, as a work-around might exist. And, because
+                objects in Survol, always have the same URL, this does not yield
+                duplicate, when combining, merging the results of several
+                scripts into one: duplicate information is automatically removed
+                when at this stage. Even objects created by ActiveX™ are
+                smoothly paired with the ones created by Python agents. This is
+                the reason why objects URLs do not accept any CGI parameter
+                except the display mode.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- SCRIPTS REDUNDANCY -->
+    <section class="architecture white-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="sec-head2 text-left clearfix">CREDENTIALS FILES</h2>
+            <p class="infotxt">Survol scripts access many software resources,
+              some of them being protected with credentials, typically a
+              username and a password. These credentials are made available to
+              Survol with a JSON file, SurvolCredentials.json, residing in the
+              users' home directory. Depending on the user running the HTTP
+              server (Apache, IIS etc...), this home directory may vary. This
+              file can be edited with the "Credentials" page link.</p>
+            <p class="infotxt">It contains several types of credentials,
+              depending on the type of access: Database software, middleware
+              library etc... For each of this access type, it is possible to
+              add, delete, update any credentials. On the other hand, it is not
+              possible, without extra development, to add new types of
+              credentials as these need specific software to use them.</p>
+            <p class="sec-subhead">A typical content of this file might be:</p>
+            <div class="table-responsive my-table">
+              <table class="table table-bordered credentials">
+                <thead>
+                  <tr>
+                    <th class="b-r-white">Resource</th>
+                    <th class="b-r-white">Account</th>
+                    <th>Password</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="table-subhead">
+                    <td colspan="3">Azure</td>
+                  </tr>
+                  <tr>
+                    <td>Visual Studio Professional</td>
+                    <td>8532-42f4-a66a-c5da7acd</td>
+                    <td><input name="Azure_Visual Studio Professional_8eae3913-8532-42f4-a66a-c5da7acdedd7_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">Login</td>
+                  </tr>
+                  <tr>
+                    <td>DESKTOP-NI99V8E</td>
+                    <td>johnwin</td>
+                    <td><input name="Login_DESKTOP-NI99V8E_rchateauneu@hotmail.com_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                  <tr>
+                    <td>fedora22</td>
+                    <td>mary</td>
+                    <td><input name="Login_fedora22_rchateau_UPDATE_PASSWORD" value="****"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">MySql</td>
+                  </tr>
+                  <tr>
+                    <td>sqlusertcsrvdb1.mysql.db</td>
+                    <td>sqlusertcsrvdb1</td>
+                    <td><input name="MySql_primhilltcsrvdb1.mysql.db_primhilltcsrvdb1_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">ODBC</td>
+                  </tr>
+                  <tr>
+                    <td>MyOracleDataSource</td>
+                    <td>system</td>
+                    <td><input name="ODBC_MyOracleDataSource_system_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">Oracle</td>
+                  </tr>
+                  <tr>
+                    <td>XE</td>
+                    <td>scott</td>
+                    <td><input name="Oracle_XE_system_UPDATE_PASSWORD" value="tiger"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">RabbitMQ</td>
+                  </tr>
+                  <tr>
+                    <td>localhost:12345</td>
+                    <td>guest</td>
+                    <td><input name="RabbitMQ_localhost:12345_guest_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">SqlExpress</td>
+                  </tr>
+                  <tr>
+                    <td>192.168.0.14\SQLEXPRESS</td>
+                    <td>jamessql</td>
+                    <td><input name="SqlExpress_192.168.0.14\SQLEXPRESS_essaisql_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">Survol</td>
+                  </tr>
+                  <tr>
+                    <td>http://desktop-ni99v8e/Survol/survol/entity.py</td>
+                    <td><br>
+                    </td>
+                    <td><input name="Survol_http://desktop-ni99v8e/Survol/survol/entity.py__UPDATE_PASSWORD"></td>
+                  </tr>
+                  <tr>
+                    <td>http://win7-hp:8000/survol/entity.py</td>
+                    <td><br>
+                    </td>
+                    <td><input name="Survol_http://rchateau-hp:8000/survol/entity.py__UPDATE_PASSWORD"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">WBEM</td>
+                  </tr>
+                  <tr>
+                    <td>http://192.168.0.17:5988</td>
+                    <td>pegasus</td>
+                    <td><input name="WBEM_http://192.168.0.17:5988_pegasus_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                  <tr>
+                    <td>http://WIN7-HP:5988</td>
+                    <td>william</td>
+                    <td><input name="WBEM_http://rchateau-HP:5988_rchateau_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                  <tr class="table-subhead">
+                    <td colspan="3">WMI</td>
+                  </tr>
+                  <tr>
+                    <td>LAPTOP-B2HEHHF6</td>
+                    <td>user</td>
+                    <td><input name="WMI_LAPTOP-B2HEHHF6_emmanuel_UPDATE_PASSWORD"
+                        value="****"></td>
+                  </tr>
+                </tbody>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+            <p class="infotxt">It is absolutely mandatory to ensure that this
+              file is protected, for security reasons.</p>
+            <p class="sec-subhead">Some subcategories of the credentials file
+              are used for static services discovery:</p>
+            <ul class="datalist">
+              <li>The list of WBEM servers allows to fetch CIM information from
+                thees machines.</li>
+              <li>The listed Survol agents are fully accessible: Their
+                information can be fully browsed and merged with the information
+                of the agent your are running on.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- CREDENTIALS FILES -->
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="sec-head2 text-left clearfix">SERVICES DISCOVERY</h2>
+            <p class="infotxt">A Survol setup can run on several machines, each
+              agent providing a facet of the overall multi-hosted application
+              being investigated. To get an overall vision of this application,
+              it is necessary to discover all the Survol agents available, in
+              order to merge their outputs into a single result, whether this
+              result is a SVG document, a HTML page etc...</p>
+            <p class="infotxt">There are several mechanisms allowing to discover
+              other Survol agents available in the same network.</p>
+            <ul class="datalist">
+              <li>Static definition of remote agents in the credentials file,
+                SurvolCredentials.json.</li>
+              <li><a href="https://en.wikipedia.org/wiki/Service_Location_Protocol"
+                  class="a-link">Service Location Protocol</a>&nbsp;(SLP), used
+                for Survol agents discovery, but also for WBEM servers.</li>
+              <li>The assumption that any Windows machine can run remote WMI
+                requests.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!--SERVICES DISCOVERY-->
+    <!-- ==== section end ==== -->
+    <!-- ==== Footer ==== -->
+    <section class="footer">
+      <div class="container">
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="footer-logo"><img src="images/footer-logo.png" class="img-responsive"></div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="useful">Useful links</div>
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="useful-link">
+                <ul>
+                  <li> <a href="index.html"><i class="fa fa-angle-right"></i>
+                      Home</a> </li>
+                  <li> <a href="solutions.html"><i class="fa fa-angle-right"></i>
+                      Solutions</a> </li>
+                  <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
+                      Survol</a> </li>
+                  <li> <a href="faq.html"><i class="fa fa-angle-right"></i>
+                      Survol Faq</a> </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="useful-link">
+                <ul>
+                  <li> <a href="architecture.html"><i class="fa fa-angle-right"></i>
+                      Survol Architecture</a> </li>
+                  <li> <a href="installation.html"><i class="fa fa-angle-right"></i>
+                      Survol Installation</a> </li>
+                  <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
+                      Survol Use Cases</a> </li>
+                  <li> <a href="contact.php"><i class="fa fa-angle-right"></i>
+                      Contact Us</a> </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="contact-us">Contact us</div>
+          <div class="address-map"> <i class="fa fa-map-marker"></i> Primhill
+            Computers: 275, Boston Manor Road, TW8 9LG Brentford, United Kingdom</div>
+          <div class="address-map"> <i class="fa fa-envelope"></i> Email : <a
+              href="mailto:contact@primhillcomputers.com" class="a-link">contact@primhillcomputers.com</a></div>
+          <div class="address-map"> <i class="fa fa-phone"></i> Phone Number :
+            <a href="tel:+447769516770" class="a-link">+44 77 6951 6770</a></div>
+        </div>
+      </div>
+    </section>
+    <!-- End -->
+    <!-- End -->
+    <div class="bottotop">
+      <div class="scrolltop">
+        <div class="scroll icon"><i class="fa fa-arrow-up"></i></div>
+      </div>
+    </div>
+    <section class="footer-bottom">
+      <div class="copyright">Copyright 2018-2019 All rights reserved | <b>Primhill
+          Computers</b></div>
+    </section>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+    $(window).scroll(function() {
+    if ($(this).scrollTop() > 50 ) {
+        $('.scrolltop:hidden').stop(true, true).fadeIn();
+    } else {
+        $('.scrolltop').stop(true, true).fadeOut();
+    }
+});
+$(function(){$(".scroll").click(function(){$("html,body").animate({scrollTop:$(".thetop").offset().top},"1000");return false})})
+    </script>
+  </body>
+</html>
