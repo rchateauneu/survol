@@ -75,6 +75,7 @@
                     Architecture</a> </li>
                 <li> <a href="installation.html">Survol Installation</a> </li>
                 <li> <a href="usecase.html">Survol Use Cases</a> </li>
+                <li> <a href="rdf_ontology.html">Object model, RDFS ontology</a> </li>
               </ul>
             </li>
             <li> <a href="dock_it.html">DockIT</a></li>
@@ -184,17 +185,22 @@
                 investigating, browsing and drilling into applications
                 internals. It uses <a href="https://d3js.org/" class="a-link">D3</a>,
                 a practical JavaScript library for manipulating graphs.</li>
-              <li>The print mode: the rendered view cannot be modified but is
+              <li>The print mode based on SVG: the rendered view cannot be modified but is
                 designed to be printed for reports or presentations. The
                 appearance is very close to the interactive one, but the layout
                 is always identical, and the users cannot change it. It uses
-                Graphviz, an open source graph visualization software. <a href="http://www.graphviz.org/"
-
-                  class="a-link">Graphviz</a> is not an absolute requirement.</li>
+                <a href="http://www.graphviz.org/" class="a-link">Graphviz</a>,
+                an open source graph visualization software. However, using Graphviz is optional.</li>
               <li>The plain HTML mode, convenient to generate reports in plain
-                text, reports which can be saved&nbsp; and compared.</li>
+                text. This reports can be saved&nbsp;and compared between several runs.</li>
+              <li>A <a href="rdf_ontology.html">RDF mode</a> which can be used as an input&nbsp;such as
+                <a href="https://protege.stanford.edu/" class="a-link">Protégé</a>
+                or <a href="https://jena.apache.org/">Apache Jena</a>.
+                Protégé is an ontology editor and framework. Its purpose is to
+                build intelligent systems and knowledge-based solutions. When importing Survol data,
+              it can apply its deduction capabilities on top of Survol investigation.</li>
             </ul>
-            <p class="sec-subhead">There are also two output modes, used
+            <p class="sec-subhead">There are also another mode, used
               internally:</p>
             <ul class="datalist">
               <li>A JSON mode of use JavaScript-based display. At the moment,
@@ -203,10 +209,6 @@
                 another software platform for visualizing complex network.
                 Survol is extremely modular, and adding a new front-end is a
                 totally independent task.</li>
-              <li>A native RDF mode which can be used as an input&nbsp; such as
-                <a href="https://protege.stanford.edu/" class="a-link">Protégé</a>.
-                Protégé is an ontology editor and framework. Its purpose is to
-                build intelligent systems and knowledge-based solutions.</li>
             </ul>
           </div>
         </div>
