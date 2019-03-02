@@ -207,20 +207,41 @@ class NodeJson:
 
 		NodeJsonNumber += 1 # One more node.
 
-# Transforms a RDF property name into a pure alphanum string usable as a DOT label.
-# It is also used as a label string.
+# Transforms a RDF property URIRef into a plain alphanumeric string,
+# which can be used as a DOT label or RDF property, or a label string.
+# It also returns a dictionary of the key value pairs if any.
+# Examples:
+# nodePredicate=http://primhillcomputers.com/survol/script?property_description=Data_source
+# nodePredicate=http://primhillcomputers.com/survol/user
+#
 # TODO: See also AntiPredicateUri
-def PropToShortPropNam(nodePredicate):
-	shortNam = nodePredicate.split("/")[-1]
+def PropToShortPropNamAndDict(nodePredicate):
+	strPredicate = str(nodePredicate)
+	idxQuestion = strPredicate.rfind("?")
+	if idxQuestion == -1:
+		dictProperties = None
+		idxLastSlash = strPredicate.rfind("/")
+		shortNam = strPredicate[idxLastSlash+1:]
+	else:
+		strProperties = strPredicate[idxQuestion+1:]
+		vecProperties = strProperties.split("&")
+		dictProperties = dict(one_s.split('=',1) for one_s in vecProperties)
+		idxLastSlash = strPredicate.rfind("/",0,idxQuestion)
+		shortNam = strPredicate[idxLastSlash+1:idxQuestion]
+
 	# "sun.boot.class.path"
 	# Graphviz just want letters.
 	shortNam = shortNam.replace(".","_")
 	shortNam = shortNam.replace(" ","_")
 
-	# Some properties are sorted differently by adding a special not-displayed prefix.
+	# Some properties, such as "information", are sorted differently by adding a special not-displayed prefix.
 	if shortNam.startswith(lib_properties.sortPrefix):
 		shortNam = shortNam[len(lib_properties.sortPrefix):]
-	return shortNam
+	assert( shortNam != "" )
+	return shortNam, dictProperties
+
+def PropToShortPropNam(nodePredicate):
+	return PropToShortPropNamAndDict(nodePredicate)[0]
 
 # Only some scripts and urls are exported to Json.
 # The most frequent should come first.
