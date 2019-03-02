@@ -591,7 +591,8 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
             # The rows of this HTML table could belong to different classes:
             # What the shared is the predicate. Hence, the predicate, property name is used as a title.
-            helpText = "List of " + propNam + "s in " + labText
+            propNamPlural = lib_grammar.ToPlural(propNam,None)
+            helpText = "List of " + propNamPlural + " in " + labText
 
             # TODO: Le title and the content are not necessarily of the same class.
             # labTextWithBr is the first line of the table containing nodes linked with the
