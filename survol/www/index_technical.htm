@@ -5,50 +5,64 @@
 
 <body>
 
+This page gathers various interbal or external urls for technical purpose, tests, documentaiton, information etc...
+
 <table border="1">
-<tr><td><a href="build_merge.htm">Builds a URL for merging RDF sources on the server</a></td>
-    <td>Builds in Javascript the url which merges several RDF urls, in Python. Probably deprecated</td></tr>
+<tr><td><a href="index.htm">Javascript display</a></td>
+    <td>Javascript entry point based on D3 library. It starts by displaying the tree of running processes on the server</td></tr>
+<tr><td><a href="/survol/entity.py">Entry point</a></td>
+    <td>Survol entry point: It displays in SVG mode the top-level scripts, each of them generates a specific set of data</td></tr>
+<tr><td><a href="/survol/entity.py?mode=html">Entry point in HTML</a></td>
+    <td>Entry point of dynamic objects description pages, in HTML mode</td></tr>
+<tr><td><a href="/survol/entity_wmi.py">Entry point in WMI object model</a></td>
+    <td>This is the description page for a WMI object. An entity id must be given, so this link is just given as an information.
+        Also, it can only work on a Windows platform because WMI is needed</td></tr>
+<tr><td><a href="/survol/entity_wbem.py">Entry point in WBEM object model</a></td>
+    <td>This is the description page for a WBEM object on the current WBEM server.
+        An entity id must be given, so this link is just given as an information</td></tr>
+<tr><td><a href="/survol/namespaces_wmi.py">Namespaces in WMI object model</a></td>
+    <td>This is information only, as Survol only uses root/cimV2 namespace</td></tr>
+<tr><td><a href="/survol/namespaces_wbem.py">Namespaces in WBEM object model</a></td>
+    <td>This is information only, as Survol only uses root/cimV2 namespace</td></tr>
+<tr><td><a href="/survol/portal_wmi.py">WMI portal</a></td>
+    <td>Entry point to the current WMI server, if there is one (N/A on non-Windows machine if WMI is not present)</td></tr>
+<tr><td><a href="/survol/portal_wbem.py">WBEM portal</a></td>
+    <td>Entry point to the current WBEM server, if there is one (Linux only)</td></tr>
+<tr><td><a href="/survol/class_type_all.py">Survol classes hierarchy</a></td>
+    <td>Display the complete hierarchy of classes on this Survol server</td></tr>
+<tr><td><a href="/survol/class_wmi.py">WMI classes hierarchy</a></td>
+    <td>A top-level class must be given. This applies to Windows only</td></tr>
+<tr><td><a href="/survol/class_wbem.py">WBEM classes hierarchy</a></td>
+    <td>A top-level class must be given. A WBEM server must be setup</td></tr>
+<tr><td><a href="/survol/objtypes.py">Object classes</a></td>
+    <td>Available types of objects available on this host: This is equivalent to the Survol ontology</td></tr>
+<tr><td><a href="/survol/objtypes_wmi.py">WMI object types</a></td>
+    <td>Complete hierarchy of WMI classes in the default namespace (root/CIMV2). Windows only.</td></tr>
+<tr><td><a href="/survol/objtypes_wbem.py">WBEM object types</a></td>
+    <td>Complete hierarchy of WBEM classes in the default namespace (root/CIMV2). A default WBEM server must be available.</td></tr>
 <tr><td><a href="rdfquery_text.htm">RDF to Javascript text display</a></td>
     <td>This loads a RDF URL with RDFQuery and displays it with Javascript only</td></tr>
-<tr><td><a href="index.htm">Javascript display</a></td>
-    <td>This loads a RDF URL with JSON and displays it with D3 Javascript library</td></tr>
-<tr><td><a href="load_urls_with_rdfquery.htm">load_urls_with_rdfquery.htm</a></td>
-    <td>Tries to load URLs with rdfquery. Uses also SLP, but it would be better to embed the small WBEM server
-    written in Python, and convert our RDF data into WBEM. Or do everything in WBEM,
-        but it does not have an internal representation</td></tr>
-<tr><td><a href="merge_rdf_inputs.htm">merge_rdf_inputs.htm</a></td>
-    <td>Allows to merge several RDRF urls exposed with SLP</td></tr>
-<tr><td><a href="merge_rdf_inputs_graphviz_only.htm">merge_rdf_inputs_graphviz_only.htm</a></td>
-    <td>Allows to merge several RDRF urls exposed with SLP. Probably deprecated</td></tr>
-<tr><td><a href="../cgi-bin/survol/entity.py">Entry point</a></td>
-    <td>Entry point of dynamic objects description pages</td></tr>
-<tr><td><a href="../cgi-bin/survol/entity.py?mode=html">Entry point in HTML</a></td>
-    <td>Entry point of dynamic objects description pages, in HTML mode</td></tr>
-<tr><td><a href="../survol/objtypes.py">Object classes</a></td>
-    <td>Available types of objects available on this host</td></tr>
-<tr><td><a href="../survol/task_control.py">Subtasks control</a></td>
-    <td>Subtasks control. Not very convenient because of Apache time-out, so we should use WSGI for this kind of things,</td></tr>
-
-    <!--
-http://primhillcomputers.ddns.net/Survol/survol/print_environment_variables.py
-http://rchateau-hp:8000/survol/print_environment_variables.py
-http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/print_environment_variables.py
-    -->
-    <tr><td><a href="../survol/print_environment_variables.py">CGI variables</a></td>
+    <tr><td><a href="/survol/print_environment_variables.py">CGI variables</a></td>
     <td>Print CGI variables and various internal data. Development only</td></tr>
+
+<tr><td><a href="/survol/display_bookmarks.py">Bookmarks</a></td>
+    <td></td></tr>
+<tr><td><a href="/survol/edit_configuration.py">Edit server configuration</a></td>
+    <td>Display and edit the configuration of the current Survol server. Authorization needed.</td></tr>
+
 </table>
 <br />
 
-    <p>More tests</p>
+    <p>Ontologies</p>
 
 <table border="1">
-<tr><td><a href="Tests/tests_wbem/Login.py">PYWBEM</a></td><td>WBEM login</td></tr>
-<tr><td><a href="Tests/tests_wbem/EnumNamespaces.py?url=http://127.0.0.1">PYWBEM (Local)</a></td><td>Enumerate WBEM namespaces</td></tr>
-<tr><td><a href="Tests/tests_wbem/EnumNamespaces.py?url=http://192.168.1.88">PYWBEM (Fedora)</a></td><td>Enumerate WBEM namespaces</td></tr>
-<tr><td><a href="Tests/tests_wbem/slp_discovery.py">SLP discovery</a></td><td>Browse WBEM servers</td></tr>
+<tr><td><a href="/survol/ontologies/WMI_RDFS.py">WMI RDFS</a></td><td>RDFS ontology extracted from Windows Management Instrumentation model. It contains hundreds of classes and thousands of properties</td></tr>
+<tr><td><a href="/survol/ontologies/WBEM_RDFS.py">WBEM RDFS</a></td><td>RDFS ontology extracted from the current WBEM server</td></tr>
+<tr><td><a href="/survol/ontologies/Survol_RDFS.py">Survol RDFS</a></td><td>Survol ontology, very light, focuses only on what is needed. It is compatible with WMI and WBEM ontologies, and just need to be merged to have more detailed information</td></tr>
 </table>
 
 <br>
+    <p>Various icons and related images</p>
 
 <img src="images/logo-wbem.png"  />
 <img src="images/opengroupLogo.png"  />
