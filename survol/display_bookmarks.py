@@ -9,7 +9,9 @@
 # This helps for testing: Intersting URLs should be stored
 # in the brower favorites for later use and testing.
 
+import os
 import sys
+import lib_util
 import lib_bookmark
 
 def PrettyBkMrks(aDict, indent=0):
@@ -28,6 +30,7 @@ def PrettyBkMrks(aDict, indent=0):
 		theName = aDict["name"]
 	except KeyError:
 		theName = "No name"
+		INFO("theName=%s",theName)
 
 	try:
 		urlHRef = str(aDict["HREF"])
@@ -92,9 +95,13 @@ def Main():
 	try:
 		filNam = sys.argv[1]
 	except:
-		# TODO: The directory should not be hard-coded.
-		filNam = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Docs\bookmarks.html"
+		filNam = ""
 
+	if not filNam:
+		currDir = os.path.dirname(__file__)
+		filNam = os.path.join( currDir, "..", "Docs", "bookmarks.html")
+
+	INFO("filNam=%s",filNam)
 	dictBookmarks = lib_bookmark.ImportBookmarkFile(filNam)
 	BookmarksHTML(dictBookmarks)
 
