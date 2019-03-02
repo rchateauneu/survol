@@ -136,13 +136,6 @@ def CreateWmiNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 
 	return pairNameNode
 
-#On rajoute aussi les subclasses wbem: objtypes_wbem.
-#Et aussi la classe de base de wmi et wbem, et encore mieux: les deux class_type_all de ces classes de base.
-#Bien entendu ca va fusionner si ce sont les memes.
-#On peut meme afficher sur plusieurs niveaux: Meme boucle que dans les objets:
-#Comme ca on aura le chainage.
-#On met la profindeur en parametre
-
 # entity_type = "CIM_Process", "Win32_Service" etc...
 # This might happen at an intermediary level, with inheritance (To be implemented).
 def AddCIMClasses(grph,rootNode,entity_host, nameSpace, className, entity_id):
@@ -177,10 +170,7 @@ def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 
 	baseDir = lib_util.gblTopScripts + "/sources_types"
 
-	# TODO: Parser en fonction des "/"
-
-	# TODO: C est idiot: Pourquoi boucler alors qu on connait le nom du fichier ??
-
+	# TODO: This is absurd !!! Why looping, because the filename is already known !?!?
 	for dirpath, dirnames, filenames in os.walk( baseDir ):
 		# sys.stderr.write("dirpath=%s\n" % dirpath)
 		for filename in [f for f in filenames if f == enumerateScript ]:
@@ -196,20 +186,14 @@ def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 			grph.add( ( rootNode, pc.property_directory, localClassNode ) )
 
 def Main():
-	# This can process remote hosts because it calls scripts which can access remote data. I hope.
+	# This should be able to process remote hosts because it calls scripts which can access remote data.
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
-	# entity_type = cgiEnv.m_entity_type
 	( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()
 
-
-	# UNE SEQUENCE QUI NE MARCHE PAS VRAIMENT
-	# http://rchateau-hp:8000/survol/class_type_all.py?xid=CIM_ComputerSystem. OK bien que plein de "Undefined class CIM_ComputerSystem"
-	# http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A%252F%252F192.168.0.17%3A5988%2FCIM_ComputerSystem.
-	# http://rchateau-hp:8000/survol/class_type_all.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2F%3ACIM_ComputerSystem.
-
-	# CA NON PLUS:
-	# http://192.168.0.17/Survol/survol/class_type_all.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2Froot%2Fcimv2%3ACIM_Process.
+	# If nameSpace is not provided, it is set to "root/CIMV2" by default.
+	if not className:
+		lib_common.ErrorMessageHtml("Class name should not be empty")
 
 	# Just in case ...
 	if nameSpace == "/":
