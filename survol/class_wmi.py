@@ -27,7 +27,11 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
-	DEBUG("nameSpace=%s className=%s entity_namespace_type=%s", nameSpace,className,entity_namespace_type)
+	INFO("nameSpace=%s className=%s entity_namespace_type=%s", nameSpace,className,entity_namespace_type)
+
+	# If nameSpace is not provided, it is set to "root/CIMV2" by default.
+	if not className:
+		lib_common.ErrorMessageHtml("Class name should not be empty")
 
 	cimomUrl = cgiEnv.GetHost()
 
