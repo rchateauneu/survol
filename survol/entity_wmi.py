@@ -377,6 +377,9 @@ def Main():
 	displayAssociators = bool(cgiEnv.GetParameters( paramkeyDisplayAssociators ))
 
 	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
+	# If nameSpace is not provided, it is set to "root/CIMV2" by default.
+	if not className:
+		lib_common.ErrorMessageHtml("Class name should not be empty")
 
 	wmiHost = cgiEnv.GetHost()
 
