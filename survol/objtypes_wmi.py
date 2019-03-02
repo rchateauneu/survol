@@ -6,6 +6,7 @@ WMI object types
 
 import sys
 import lib_util
+import lib_kbase
 import lib_common
 from lib_properties import pc
 
@@ -44,6 +45,7 @@ def DrawFromThisBase(rootNode, wmiNamespace, cimomUrl,clsNam,grph,clsDeriv):
 
 	nodeGeneralisedClass = lib_util.EntityClassNode(clsNam,wmiNamespace,cimomUrl,"WMI")
 	grph.add( ( wmiNode, pc.property_rdf_data_nolist2, nodeGeneralisedClass) )
+	grph.add( ( wmiNode, pc.property_information, lib_kbase.MakeNodeLiteral(clsNam) ) )
 
 	doneNode.add( clsNam )
 
@@ -59,6 +61,7 @@ def DrawFromThisBase(rootNode, wmiNamespace, cimomUrl,clsNam,grph,clsDeriv):
 			wmiBaseNode = ClassToNode(wmiNamespace, cimomUrl, baseClassNam)
 
 			grph.add( ( wmiBaseNode, pc.property_cim_subclass, previousNode ) )
+			grph.add( ( wmiBaseNode, pc.property_information, lib_kbase.MakeNodeLiteral(baseClassNam) ) )
 			previousNode = wmiBaseNode
 			if baseClassNam in doneNode:
 				break
@@ -108,8 +111,7 @@ def Main():
 
 	cimomUrl = cgiEnv.GetHost()
 
-	if str(wmiNamespace) == "":
-		lib_common.ErrorMessageHtml("WMI namespace should not be empty. entity_namespace_type="+entity_namespace_type)
+	# If wmiNamespace, this is not an issue, it is set to "root/CIMV2" by default.
 
 	grph = cgiEnv.GetGraph()
 
@@ -129,30 +131,11 @@ def Main():
 	rootGeneralisedClass = lib_util.EntityClassNode(entity_type,wmiNamespace,cimomUrl,"WMI")
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, rootGeneralisedClass ) )
 
-	# CA MARCHE PAS QUAND ON VIENT D ICI:
-	# http://127.0.0.1/Survol/survol/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_LogicalDevice.
-	#
-	# KO:
-	# http://127.0.0.1/Survol/survol/class_type_all.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_LogicalDevice.
-	# OK:
-	# http://127.0.0.1/Survol/survol/class_type_all.py?xid=http%3A%2F%2F192.168.1.83%3A5988%2Froot%2Fcimv2%3ACIM_LogicalDevice.
-
-
-	# CA AUSSI NE MARCHE PAS !!!!!!!!!!!!!!!
-	# http://127.0.0.1:8000/survol/class_type_all.py?xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2Fcimv2%3A.
-
-	# FAIRE LA MEME CHOSE DANS objtypes_wbem
-	# AUSSI, il faut que wbem_classes aient des liens en plus.
-	# Et CGIPROP doit au moins contenir le nom du script.
-	# Et eviter les repetiions dans les tables.[
-
-	# TODO: Commencer a afficher a partir de entity_type si il est la.
-	# TODO: Pour la classe d'en haut, ajouter un lien pour remonter d'une position.
+	# TODO: Should add a link to the upper class.
 	if entity_type == "":
 		for clsNam in connWmi.classes:
 			clsDeriv = GetDerivation(connWmi, clsNam)
 
-			# Pour limiter la profondeur, on part de la classe X et on n'en descend pas a plus de N niveaux.
 			if len(clsDeriv) < maxDepth:
 				DrawFromThisBase(rootNode, wmiNamespace, cimomUrl, clsNam,grph, clsDeriv)
 	else:
@@ -174,7 +157,7 @@ def Main():
 			idxClass = clsDeriv.index(entity_type)
 			invertIdx = len(clsDeriv)-idxClass
 			# sys.stderr.write("clsNam=%s idxClass=%d invertIdx=%d clsDeriv=%s\n" % (clsNam, idxClass, invertIdx, str(clsDeriv)))
-			# Pour limiter la profondeur, on part de la classe X et on en descend pas a plus de N niveaux.
+			# This tree can be very deep so there is a maximum depth.
 			if len(clsDeriv) < maxDepth + invertIdx:
 				# derivation starts by the lowest level to the top.
 				DrawFromThisBase(rootNode, wmiNamespace, cimomUrl, clsNam,grph, clsDeriv[:idxClass])
