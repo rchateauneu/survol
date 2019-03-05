@@ -24,7 +24,7 @@ primns_slash = primns + '/'
 # So we could keep everything identical excel equality tests 2html" and "rdf":
 # It tests that the key is in fact an array containing the properties.
 # We could add information in a given order: "information?key=1", "information?key=2",
-# Natural order should be OK. or add a sort unfction in the call to sorted().
+# Natural order should be OK. or add a sort function in the call to sorted().
 def MakeProp(*prps,**kvargs):
     ret = primns_slash + ":".join(prps)
     if kvargs:
@@ -108,7 +108,7 @@ pc.property_group                = MakeProp("group")
 pc.property_groupid              = MakeProp("groupid")
 pc.property_file_size            = MakeProp("file_size")
 pc.property_file_device          = MakeProp("file_device")
-pc.property_script               = MakeProp("script") # Used only in entity.py and the likes, to attach scripts to a node.
+pc.property_script               = MakeProp("script",property_description="Data source") # Used only in entity.py and the likes, to attach scripts to a node.
 pc.property_rdf_data_nolist1     = MakeProp("Data1") # These three have a special role.
 pc.property_rdf_data_nolist2     = MakeProp("Data2") # Names must all be different
 pc.property_rdf_data_nolist3     = MakeProp("Data3") # Names must all be different

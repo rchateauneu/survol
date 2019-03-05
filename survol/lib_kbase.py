@@ -6,6 +6,9 @@ import rdflib
 import sys
 import re
 
+PredicateSeeAlso = RDFS.seeAlso
+PredicateComment = RDFS.comment
+
 def IsLiteral(objRdf):
     return isinstance(objRdf, (rdflib.term.Literal))
 
