@@ -310,7 +310,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
             # This indicates that a specific script can list all objects of a given entity type.
             entity_label = entity_graphic_class + " enumeration"
         else:
-            entity_graphic_class = lib_util.ComposeTypes("CIM_DataFile","script") # TODO: DOUTEUX...
+            entity_graphic_class = "provider_script"
             entity_id = ""
 
             entity_label = KnownScriptToTitle(filScript,uriMode)

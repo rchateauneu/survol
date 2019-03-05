@@ -65,7 +65,7 @@ def Main():
 
 			typNam = HLITypeKinds[infoTyp]
 
-			sub_entity_type = lib_util.ComposeTypes("com/type_lib_entry", typNam.lower() )
+			sub_entity_type = lib_util.ComposeTypes("com", "type_lib_entry", typNam.lower() )
 
 			nameComEntryUri = "%s_(%d)" % ( fname, idx )
 

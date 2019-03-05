@@ -76,6 +76,7 @@ def Main():
 					parameters = { lib_util.paramkeyShowAll : False })
 	entity_id = cgiEnv.m_entity_id
 	entity_host = cgiEnv.GetHost()
+	DEBUG("entity_host=%s",entity_host)
 	flagShowAll = int(cgiEnv.GetParameters( lib_util.paramkeyShowAll ))
 
 	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
@@ -83,6 +84,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	rootNode = lib_util.RootUri()
+	DEBUG("rootNode=%s",rootNode)
 
 	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
 	# entity_info_only.AddInformation(grph,rootNode,entity_id, entity_type)

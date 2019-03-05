@@ -74,25 +74,24 @@ loggerRdflib = logging.getLogger("rdflib.term")
 loggerRdflib.setLevel(logging.ERROR)
 
 # This is the general purpose logger.
-def Logger():
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    return logging.getLogger(mod.__name__)
+frm = inspect.stack()[1]
+mod = inspect.getmodule(frm[0])
+gblLogger = logging.getLogger(mod.__name__)
 
 if sys.version_info >= (3,):
     import builtins
-    builtins.DEBUG = Logger().debug
-    builtins.WARNING = Logger().warning
-    builtins.ERROR = Logger().error
-    builtins.INFO = Logger().info
-    builtins.CRITICAL = Logger().critical
+    builtins.DEBUG = gblLogger.debug
+    builtins.WARNING = gblLogger.warning
+    builtins.ERROR = gblLogger.error
+    builtins.INFO = gblLogger.info
+    builtins.CRITICAL = gblLogger.critical
 else:
     import __builtin__
-    __builtin__.DEBUG = Logger().debug
-    __builtin__.WARNING = Logger().warning
-    __builtin__.ERROR = Logger().error
-    __builtin__.INFO = Logger().info
-    __builtin__.CRITICAL = Logger().critical
+    __builtin__.DEBUG = gblLogger.debug
+    __builtin__.WARNING = gblLogger.warning
+    __builtin__.ERROR = gblLogger.error
+    __builtin__.INFO = gblLogger.info
+    __builtin__.CRITICAL = gblLogger.critical
 
 ################################################################################
 
@@ -837,14 +836,10 @@ def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_host
 
 ################################################################################
 
-# This creates a "derived type", on  the fly.
-# This could fill the various caches: Ontology etc...
-CharTypesComposer = "/"
-
 # TODO: Find another solution more compatible with WBEM and WMI logic.
 # Used to define subtypes.
-def ComposeTypes(t1,t2):
-    return t1 + CharTypesComposer + t2
+def ComposeTypes(*hierarchical_entity_types):
+    return ".".join(hierarchical_entity_types)
 
 ################################################################################
 
@@ -873,10 +868,10 @@ def CopyFile( mime_type, fileName ):
 # This is used as a HTML page but also displayed in Javascript in a DIV block.
 # TODO: Change this for WSGI.
 def InfoMessageHtml(message):
-    Logger().warning("InfoMessageHtml:%s",message)
+    gblLogger.warning("InfoMessageHtml:%s",message)
     globalOutMach.HeaderWriter("text/html")
 
-    Logger().debug("InfoMessageHtml:Sending content")
+    gblLogger.debug("InfoMessageHtml:Sending content")
     WrtAsUtf(
         "<html><head><title>Error: Process=%s</title></head>"
         % str(os.getpid()) )
@@ -909,7 +904,7 @@ def InfoMessageHtml(message):
     WrtAsUtf("""
     </body></html>
     """)
-    Logger().debug("InfoMessageHtml:Leaving")
+    gblLogger.debug("InfoMessageHtml:Leaving")
 
 ################################################################################
 
@@ -1105,7 +1100,7 @@ def EntityIdToArray( entity_type, entity_id ):
                 return aValRaw
         return [ DecodeCgiArg( aKey ) for aKey in ontoKeys ]
     except KeyError:
-        Logger().error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type , entity_id, str(ontoKeys) )
+        gblLogger.error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type , entity_id, str(ontoKeys) )
         raise
 
 
@@ -1137,8 +1132,16 @@ def UrlNoAmp(url):
 # an empty string, then it is removed from the URLs.
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
 def RequestUriModed(otherMode):
-    DEBUG("RequestUriModed HttpPrefix()=%s RequestUri()=%s",HttpPrefix(),RequestUri())
-    script = HttpPrefix() + RequestUri()
+    # When in merge_scripts.py for merging several scripts,
+    # the request uri is prefixed by a host:
+    # HttpPrefix()=http://rchateau-hp:8000
+    # RequestUri()=http://rchateau-hp:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1900
+    strRequestUri = RequestUri()
+    if not strRequestUri.startswith("http"):
+        script = HttpPrefix() + RequestUri()
+    else:
+        script = strRequestUri
+    DEBUG("RequestUriModed HttpPrefix()=%s RequestUri()=%s script=%s",HttpPrefix(),RequestUri(),script)
     return AnyUriModed(script, otherMode)
 
 # If an Url, it replaces the value of the argument "mode" by another one,
@@ -1174,6 +1177,7 @@ def AnyUriModed(script, otherMode):
 def RootUri():
     callingUrl = RequestUriModed("")
     callingUrl = callingUrl.replace("&","&amp;")
+    DEBUG("RootUri callingUrl=%s",callingUrl)
     return NodeUrl(callingUrl)
 
 ################################################################################
@@ -1273,7 +1277,7 @@ def SplitMoniker(xid):
 # This allows to search for an object in the CIM repository,
 # whatever the attribute values are, or if it is a Survol object.
 def SplitMonikToWQL(splitMonik,className):
-    Logger().debug("SplitMonikToWQL splitMonik=[%s]", str(splitMonik) )
+    gblLogger.debug("SplitMonikToWQL splitMonik=[%s]", str(splitMonik) )
     aQry = 'select * from %s ' % className
     qryDelim = "where"
     for qryKey in splitMonik:
@@ -1311,7 +1315,7 @@ def Base64Decode(text):
         return resu
     except Exception:
         exc = sys.exc_info()[1]
-        Logger().error("CANNOT DECODE: symbol=(%s):%s",text,str(exc))
+        gblLogger.error("CANNOT DECODE: symbol=(%s):%s",text,str(exc))
         return text + ":" + str(exc)
 
 ################################################################################
@@ -1330,7 +1334,7 @@ class OutputMachineCgi:
         pass
 
     def HeaderWriter(self,mimeType,extraArgs= None):
-        Logger().debug("OutputMachineCgi.WriteHeadContentType:%s",mimeType)
+        gblLogger.debug("OutputMachineCgi.WriteHeadContentType:%s",mimeType)
         HttpHeaderClassic(outputHttp,mimeType,extraArgs)
 
     def OutStream(self):
@@ -1440,7 +1444,7 @@ def GetEntityModuleNoCache(entity_type):
         return GetEntityModuleNoCacheNoCatch(entity_type)
     except ImportError:
         exc = sys.exc_info()[1]
-        Logger().error("GetEntityModuleNoCache entity_type=%s Caught:%s",entity_type,str(exc))
+        gblLogger.error("GetEntityModuleNoCache entity_type=%s Caught:%s",entity_type,str(exc))
         return None
 
 # So we try to load only once.
@@ -1555,7 +1559,7 @@ def AppendNotNoneHostname(script,hostname):
 # Point to the WBEM portal for a given machine.
 def UrlPortalWbem(hostname=None):
     strUrl = AppendNotNoneHostname('/portal_wbem.py',hostname)
-    Logger().debug("UrlPortalWbem strUrl=%s",strUrl)
+    gblLogger.debug("UrlPortalWbem strUrl=%s",strUrl)
     nodePortal = NodeUrl( strUrl )
     return nodePortal
 
@@ -1589,14 +1593,16 @@ def TimeStamp():
 # TODO: Check for double insertion.
 # domainPredicate and rangePredicate are class names.
 # TODO: The data type is not correct.
-def AppendPropertySurvolOntology(namePredicate, domainPredicate, rangePredicate, map_attributes):
+def AppendPropertySurvolOntology(namePredicate, descriptionPredicate, domainPredicate, rangePredicate, map_attributes):
     if rangePredicate:
         dataType = None
     else:
         dataType = "string"
+    if not descriptionPredicate:
+        descriptionPredicate = "Predicate %s" % namePredicate
     map_attributes[namePredicate] = {
         "predicate_type": dataType,
-        "predicate_description": "Property %s" % namePredicate,
+        "predicate_description": descriptionPredicate,
         "predicate_domain" : domainPredicate,
         "predicate_range" : rangePredicate }
 
@@ -1630,7 +1636,11 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
             # This reloads all classes without cache because if it does not load
             # we want to see the error message.
             entity_module = GetEntityModuleNoCatch(entity_type)
-            entDoc = entity_module.__doc__.strip()
+            entDoc = entity_module.__doc__
+            if entDoc:
+                entDoc = entDoc.strip()
+            else:
+                entDoc = "No %s module documentation" % entity_type
         except:
             exc = sys.exc_info()[1]
             entDoc = "Error:"+str(exc)
@@ -1642,7 +1652,7 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
         ontoList = OntologyClassKeys(entity_type)
         # We do not have any other information about ontology keys.
         for ontoKey in ontoList:
-            AppendPropertySurvolOntology(ontoKey, classNameCIM, None, map_attributes)
+            AppendPropertySurvolOntology(ontoKey, "Ontology predicate %s"%ontoKey, classNameCIM, None, map_attributes)
 
         idx = nextSlash
 
