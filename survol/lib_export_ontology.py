@@ -88,6 +88,8 @@ def AddOntology(old_grph):
         strUrl = str(nodeUrl)
         strUrl = strUrl.replace(" ","%20")
         strUrl = strUrl.replace("\\","%5C")
+        strUrl = strUrl.replace("[","%91")
+        strUrl = strUrl.replace("]","%93")
         if lib_kbase.IsLiteral(nodeUrl):
             nodeUrl = lib_kbase.MakeNodeLiteral(strUrl)
         else:
