@@ -29,11 +29,15 @@ def Main():
 	# Read access might be forbidden.
 	filNamCGroup = "/sys/fs/cgroup/%s/cgroup.procs" % cgroupName
 
-	for lin_cg in open(filNamCGroup):
-		procId = int(lin_cg)
-		procNode = lib_common.gUriGen.PidUri(procId)
+	try:
+		for lin_cg in open(filNamCGroup):
+			procId = int(lin_cg)
+			procNode = lib_common.gUriGen.PidUri(procId)
 
-		grph.add( ( cgroupNode, propCGroup, procNode ) )
+			grph.add( ( cgroupNode, propCGroup, procNode ) )
+	except:
+		ERROR("Invalid cgroup:%s",cgroupName)
+		lib_common.ErrorMessageHtml("Invalid cgroup:%s"%cgroupName)
 
 	# This lists processes in a table instead of scattered nodes.
 	# This is because there might be a lot of processes.
