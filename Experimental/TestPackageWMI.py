@@ -1,3 +1,4 @@
+# This tests the Windows WMI package, not the execution of a query.
 import wmi
 import sys
 import time
