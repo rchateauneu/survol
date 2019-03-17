@@ -1,31 +1,17 @@
-
 # Many SPARQL examples.
 # http://api.talis.com/stores/space/items/tutorial/spared.html?query=SELECT+%3Fp+%3Fo%0D%0A{+%0D%0A++%3Chttp%3A%2F%2Fnasa.dataincubator.org%2Fspacecraft%2F1968-089A%3E+%3Fp+%3Fo%0D%0A}
 #
 # This is equivalent to:
-#
 # Special characters encoded in hexadecimal.
+#
+# The goal is to extract triples, for two different purposes:
+# (1) Transform a Sparql query into WQL: This might work in very simple cases;, for WMI and WBEM.
+# (2) Or identify which scripts should be run to feed a local triplestore and get useful data.
+# Both purposes need the triples and the classes.
 
 from __future__ import print_function
 import sys
 import rdflib.plugins.sparql.parser
-
-def print_recursive_OLD(data,level = 0):
-    if isinstance(data,(list,tuple)):
-        for elt in data:
-            print_recursive_OLD(elt,level+1)
-    elif isinstance(data,dict):
-        for key in data:
-            val = data[key]
-            sys.stdout.write("    "*level)
-            sys.stdout.write(key)
-            print_recursive_OLD(val,level+1)
-    else:
-        sys.stdout.write("    "*level)
-        sys.stdout.write(str(type(data)))
-        sys.stdout.write(str(dir(data)))
-        sys.stdout.write(data)
-        sys.stdout.write("\n")
 
 def print_recursive(data,level = 0):
     if isinstance(data,(list,tuple)):
@@ -120,12 +106,14 @@ def aggregate_triples(raw_trpl):
 
     if cnt_trip:
         resu.append(curr_trip)
-
-    print("+++++++++++++++++++++++++++++")
     return resu
 
 
 arr=[
+"SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] . ?s2 ?p ?o .} ",
+"SELECT * WHERE { ?x  ?o1  ?name ; ?o2  ?mbox . } ",
+#"SELECT * WHERE { ?x ?o1 ?name ; ?o2  ?a1 , ?a2 . }",
+"SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] .} ",
 "SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 . ?s2 ?p ?o .} ",
 """PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
 SELECT ?name WHERE { ?person foaf:name ?name . }""",
@@ -147,13 +135,6 @@ PREFIX  dcore:  <http://purl.org/dc/elements/1.1/>
 SELECT  ?title
 WHERE   { <book1> dcore:title ?title }
 """,
-# """
-# @prefix foaf:    <http://xmlns.com/foaf/0.1/> .
-# _:a  foaf:name   "Johnny Lee Outlaw" .
-# _:a  foaf:mbox   <mailto:outlaw@example.com> .
-# _:b  foaf:name   "A. N. Other" .
-# _:b  foaf:mbox   <mailto:other@example.com> .
-# """,
 """
 PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
 SELECT ?mbox
@@ -161,13 +142,6 @@ WHERE
   { ?x foaf:name "Johnny Lee Outlaw" .
     ?x foaf:mbox ?mbox }
 """,
-# """
-# @prefix foaf:  <http://xmlns.com/foaf/0.1/> .
-# _:a  foaf:name   "Johnny Lee Outlaw" .
-# _:a  foaf:mbox   <mailto:jlow@example.com> .
-# _:b  foaf:name   "Peter Goodguy" .
-# _:b  foaf:mbox   <mailto:peter@example.org> .
-# """,
 """
 PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
 SELECT ?name ?mbox
@@ -175,11 +149,33 @@ WHERE
   { ?x foaf:name ?name .
     ?x foaf:mbox ?mbox }
 """,
-# """
-# @prefix foaf:  <http://xmlns.com/foaf/0.1/> .
-# _:a  foaf:name   "Alice" .
-# _:b  foaf:name   "Bob" .
-# """,
+"""
+SELECT ?p ?o
+{
+  <http://nasa.dataincubator.org/spacecraft/1968-089A> ?p ?o
+}
+""",
+# https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples
+# https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Prefixes_used
+
+# List of computer files formats
+"""
+SELECT ?item ?itemLabel (SAMPLE(?coord) AS ?coord)
+WHERE {
+	?item wdt:P2848 wd:Q1543615 ;  # wi-fi gratis
+	      wdt:P625 ?coord .
+	SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
+} GROUP BY ?item ?itemLabel
+""",
+"""
+SELECT DISTINCT ?city ?cityLabel ?coor WHERE {
+    VALUES ?type { wd:Q3957 wd:Q515 wd:Q532 wd:Q486972 } .
+    ?city wdt:P31 wd:Q3957 ;
+          wdt:P625 ?coor .
+    FILTER NOT EXISTS {?article schema:about ?city } .
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } .
+}
+""",
 """
 PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dc:   <http://purl.org/dc/elements/1.1/>
@@ -192,48 +188,6 @@ WHERE
   ?t :saidBy        "Bob" .
 }
 """,
-"""
-SELECT ?p ?o
-{
-  <http://nasa.dataincubator.org/spacecraft/1968-089A> ?p ?o
-}
-""",
-"SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] . ?s2 ?p ?o .} ",
-
-# { x o1 name. x o2 mbox }
-"SELECT * WHERE { ?x  ?o1  ?name ; ?o2  ?mbox . } ",
-
-# { x o1 name. x o2 a1. x o2 a2 }
-"SELECT * WHERE { ?x ?o1 ?name ; ?o2  ?a1 , ?a2 . }",
-
-# s p o. s p o2. o p3 p3.
-"SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p3 ?o3 .} ",
-
-# s p o. s p o2. o p3 p3. o p4 o4
-"SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p3 ?o3 ; ?p4 ?o4 .} ",
-
-# x p1 o1. x p2 o2. x p3 o3.
-"SELECT * WHERE { ?x  ?p1  ?o1 ; ?p2  ?o2 ; ?p3 ?o3 . } ",
-
-# s p3 XXX. XXX p o.
-"SELECT * WHERE { ?s ?p3 [ ?p ?o ]. }",
-
-# ?s ?p ?o ; p3 XXX. XXX p4 o4.
-# s p o. s p3 XXX. XXX p4 o4.
-"SELECT * WHERE { ?s ?p ?o; ?p3 [ ?p4 ?o4 ] .} ",
-
-# s p o. s p o2. o p3 XXX. XXX p4 o4.
-"SELECT * WHERE { ?s ?p ?o, ?o2; ?p3 [ ?p4 ?o4 ] .} ",
-
-# s p o. s p o2. s p o3. s p4 o4
-"SELECT * WHERE { ?s ?p ?o, ?o2, ?o3 ; ?p4 ?o4 .} ",
-
-# s p o. s p o2; ?p2 ?o3 ; ?p3 [ ?p ?o ] .
-# s p o. s p o2. s ?p2 ?o3 ; ?p3 [ ?p ?o ] .
-# s p o. s p o2. s ?p2 ?o3 ; ?p3 XX. XX  ?p ?o .
-# s p o. s p o2. s ?p2 ?o3. s ?p3 XX. XX  ?p ?o .
-# s p o. s p o2. s p2 o3. s p3 XX. XX p o.
-"SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] .} ",
 ]
 
 
@@ -249,7 +203,6 @@ def ProcessQuery(qry):
     raw_trpl = get_triples(parsed)
     #print_simple(raw_trpl)
     trpl_lst = aggregate_triples(raw_trpl)
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     for trpl in trpl_lst:
         print(trpl)
 
@@ -258,3 +211,5 @@ for qry in arr:
     ProcessQuery(qry)
 
 print("===================================================")
+
+

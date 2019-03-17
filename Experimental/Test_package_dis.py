@@ -113,7 +113,6 @@ def ModulesFrom(currentModule):
     print(currentModule,"dir(importedMod):",dir(importedMod))
     print(dis.dis(importedMod))
 
-
     # 49     >>  314 LOAD_GLOBAL              0 (lib_common)
     #            317 LOAD_ATTR               10 (gUriGen)
     #            320 LOAD_ATTR               21 (FileUri)
@@ -124,16 +123,13 @@ def ModulesFrom(currentModule):
     # 33         149 LOAD_GLOBAL              8 (CIM_Process)
     #            152 LOAD_ATTR               12 (AddInfo)
 
-    # ('lib_common', 'CgiEnv', 'False', 'int', 'GetId', 'bool', 'GetParameters', 'GetGraph', 'CIM_Process', 'PsutilGetProcObj', 'gUriGen', 'PidUri', 'AddInfo', 'str', 'PsutilProcOpenFiles', 'Exception', 'sys', 'exc_info', 'ErrorMessageHtml', 'MeaninglessFile', 'path', 'FileUri', 'add', 'pc', 'property_open_file', 'OutCgiRdf')
-    # print(importedMod.Main.__code__.co_names)
-
 # Very simplistic import of a script.
 dir_code_base = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol"
 sys.path.append(dir_code_base)
 
-
-# ['CIM_Process', 'Exception', 'False', 'bool', 'int', 'lib_common', 'pc', 'str', 'sys']
+# ['sources_types.CIM_Process.PsutilGetProcObj', 'sources_types.CIM_Process.PsutilProcConnections', 'sources_types.addr.PsutilAddSocketToGraph']
 AnalyseScript("sources_types.CIM_Process","process_connections.py")
+# ['http://primhillcomputers.com/survol#property_open_file', 'sources_types.CIM_Process.AddInfo', 'sources_types.CIM_Process.PsutilGetProcObj', 'sources_types.CIM_Process.PsutilProcOpenFiles']
 AnalyseScript("sources_types.CIM_Process","process_open_files.py")
 
 
