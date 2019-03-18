@@ -70,8 +70,6 @@ def PrettyBkMrks(aDict, indent=0):
 
 
 def BookmarksHTML(dictBookmarks):
-	sys.stdout.write("Content-Type: text/html; charset=utf-8\n\n")
-
 	sys.stdout.write("""
 		<html><head><title>Survol bookmarks</title></head><body>
 	""")
@@ -103,9 +101,13 @@ def Main():
 
 	if not filNam:
 		currDir = os.path.dirname(__file__)
-		filNam = os.path.join( currDir, "..", "Docs", "bookmarks.html")
+		filNam = os.path.join( currDir, "..", "docs", "bookmarks.html")
 
 	INFO("filNam=%s",filNam)
+
+        # Send the HTTP header before any output,
+        # otherwise error messages are superseded by other errors.
+	sys.stdout.write("Content-Type: text/html; charset=utf-8\n\n")
 	dictBookmarks = lib_bookmark.ImportBookmarkFile(filNam)
 	BookmarksHTML(dictBookmarks)
 
