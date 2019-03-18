@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # This creates a RDFSontology out of the Survol classes.
 # It is part of a survol installation.
 # However, its classes and properties overlaps the ones created by WMI or WBEM.
