@@ -10,44 +10,44 @@ This page gathers various interbal or external urls for technical purpose, tests
 <table border="1">
 <tr><td><a href="index.htm">Javascript display</a></td>
     <td>Javascript entry point based on D3 library. It starts by displaying the tree of running processes on the server</td></tr>
-<tr><td><a href="/survol/entity.py">Entry point</a></td>
+<tr><td><a href="../entity.py">Entry point</a></td>
     <td>Survol entry point: It displays in SVG mode the top-level scripts, each of them generates a specific set of data</td></tr>
-<tr><td><a href="/survol/entity.py?mode=html">Entry point in HTML</a></td>
+<tr><td><a href="../entity.py?mode=html">Entry point in HTML</a></td>
     <td>Entry point of dynamic objects description pages, in HTML mode</td></tr>
-<tr><td><a href="/survol/entity_wmi.py">Entry point in WMI object model</a></td>
+<tr><td><a href="../entity_wmi.py">Entry point in WMI object model</a></td>
     <td>This is the description page for a WMI object. An entity id must be given, so this link is just given as an information.
         Also, it can only work on a Windows platform because WMI is needed</td></tr>
-<tr><td><a href="/survol/entity_wbem.py">Entry point in WBEM object model</a></td>
+<tr><td><a href="../entity_wbem.py">Entry point in WBEM object model</a></td>
     <td>This is the description page for a WBEM object on the current WBEM server.
         An entity id must be given, so this link is just given as an information</td></tr>
-<tr><td><a href="/survol/namespaces_wmi.py">Namespaces in WMI object model</a></td>
+<tr><td><a href="../namespaces_wmi.py">Namespaces in WMI object model</a></td>
     <td>This is information only, as Survol only uses root/cimV2 namespace</td></tr>
-<tr><td><a href="/survol/namespaces_wbem.py">Namespaces in WBEM object model</a></td>
+<tr><td><a href="../namespaces_wbem.py">Namespaces in WBEM object model</a></td>
     <td>This is information only, as Survol only uses root/cimV2 namespace</td></tr>
-<tr><td><a href="/survol/portal_wmi.py">WMI portal</a></td>
+<tr><td><a href="../portal_wmi.py">WMI portal</a></td>
     <td>Entry point to the current WMI server, if there is one (N/A on non-Windows machine if WMI is not present)</td></tr>
-<tr><td><a href="/survol/portal_wbem.py">WBEM portal</a></td>
+<tr><td><a href="../portal_wbem.py">WBEM portal</a></td>
     <td>Entry point to the current WBEM server, if there is one (Linux only)</td></tr>
-<tr><td><a href="/survol/class_type_all.py">Survol classes hierarchy</a></td>
+<tr><td><a href="../class_type_all.py">Survol classes hierarchy</a></td>
     <td>Display the complete hierarchy of classes on this Survol server</td></tr>
-<tr><td><a href="/survol/class_wmi.py">WMI classes hierarchy</a></td>
+<tr><td><a href="../class_wmi.py">WMI classes hierarchy</a></td>
     <td>A top-level class must be given. This applies to Windows only</td></tr>
-<tr><td><a href="/survol/class_wbem.py">WBEM classes hierarchy</a></td>
+<tr><td><a href="../class_wbem.py">WBEM classes hierarchy</a></td>
     <td>A top-level class must be given. A WBEM server must be setup</td></tr>
-<tr><td><a href="/survol/objtypes.py">Object classes</a></td>
+<tr><td><a href="../objtypes.py">Object classes</a></td>
     <td>Available types of objects available on this host: This is equivalent to the Survol ontology</td></tr>
-<tr><td><a href="/survol/objtypes_wmi.py">WMI object types</a></td>
+<tr><td><a href="../objtypes_wmi.py">WMI object types</a></td>
     <td>Complete hierarchy of WMI classes in the default namespace (root/CIMV2). Windows only.</td></tr>
-<tr><td><a href="/survol/objtypes_wbem.py">WBEM object types</a></td>
+<tr><td><a href="../objtypes_wbem.py">WBEM object types</a></td>
     <td>Complete hierarchy of WBEM classes in the default namespace (root/CIMV2). A default WBEM server must be available.</td></tr>
 <tr><td><a href="rdfquery_text.htm">RDF to Javascript text display</a></td>
     <td>This loads a RDF URL with RDFQuery and displays it with Javascript only</td></tr>
-    <tr><td><a href="/survol/print_environment_variables.py">CGI variables</a></td>
+    <tr><td><a href="../print_environment_variables.py">CGI variables</a></td>
     <td>Print CGI variables and various internal data. Development only</td></tr>
 
-<tr><td><a href="/survol/display_bookmarks.py">Bookmarks</a></td>
+<tr><td><a href="../display_bookmarks.py">Bookmarks</a></td>
     <td></td></tr>
-<tr><td><a href="/survol/edit_configuration.py">Edit server configuration</a></td>
+<tr><td><a href="../edit_configuration.py">Edit server configuration</a></td>
     <td>Display and edit the configuration of the current Survol server. Authorization needed.</td></tr>
 
 </table>
@@ -56,9 +56,9 @@ This page gathers various interbal or external urls for technical purpose, tests
     <p>Ontologies</p>
 
 <table border="1">
-<tr><td><a href="/survol/ontologies/WMI_RDFS.py">WMI RDFS</a></td><td>RDFS ontology extracted from Windows Management Instrumentation model. It contains hundreds of classes and thousands of properties</td></tr>
-<tr><td><a href="/survol/ontologies/WBEM_RDFS.py">WBEM RDFS</a></td><td>RDFS ontology extracted from the current WBEM server</td></tr>
-<tr><td><a href="/survol/ontologies/Survol_RDFS.py">Survol RDFS</a></td><td>Survol ontology, very light, focuses only on what is needed. It is compatible with WMI and WBEM ontologies, and just need to be merged to have more detailed information</td></tr>
+<tr><td><a href="../../survol/ontologies/WMI_RDFS.py">WMI RDFS</a></td><td>RDFS ontology extracted from Windows Management Instrumentation model. It contains hundreds of classes and thousands of properties</td></tr>
+<tr><td><a href="../../survol/ontologies/WBEM_RDFS.py">WBEM RDFS</a></td><td>RDFS ontology extracted from the current WBEM server</td></tr>
+<tr><td><a href="../../survol/ontologies/Survol_RDFS.py">Survol RDFS</a></td><td>Survol ontology, very light, focuses only on what is needed. It is compatible with WMI and WBEM ontologies, and just need to be merged to have more detailed information</td></tr>
 </table>
 
 <br>
