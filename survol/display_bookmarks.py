@@ -70,6 +70,8 @@ def PrettyBkMrks(aDict, indent=0):
 
 
 def BookmarksHTML(dictBookmarks):
+	sys.stdout.write("Content-Type: text/html; charset=utf-8\n\n")
+
 	sys.stdout.write("""
 		<html><head><title>Survol bookmarks</title></head><body>
 	""")
