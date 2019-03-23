@@ -5,13 +5,16 @@ Edits Survol configuration parameters.
 Also, it servers JSON queries from the HTML pages doing the same features, but in JSON
 """
 
+import os
 import sys
 import lib_export_html
 import lib_exports
 
 from lib_util import WrtAsUtf
 
-def Main():
+
+
+def MainNoJinja():
     lib_export_html.DisplayHtmlTextHeader("Configuration")
 
     WrtAsUtf("""
@@ -47,6 +50,33 @@ def Main():
     WrtAsUtf("</body></html>")
 
     # TODO: Upload bookmarks file.
+
+def MainJinja():
+    THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+    template_file_name = "edit_configuration.template.htm"
+
+    # Create the jinja2 environment.
+    # Notice the use of trim_blocks, which greatly helps control whitespace.
+    jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(THIS_DIR), trim_blocks=True)
+    jinja_template = jinja_env.get_template(template_file_name)
+
+    jinja_render = jinja_template.render(   )
+    print("Content-type: text/html\n\n")
+    WrtAsUtf( jinja_render )
+
+
+try:
+    # This is a HTML template engine.
+    import jinja2
+except ImportError:
+    jinja2 = None
+
+def Main():
+    if jinja2:
+        MainJinja()
+    else:
+        MainNoJinja()
+
 
 if __name__ == '__main__':
 	Main()
