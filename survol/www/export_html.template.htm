@@ -1,0 +1,194 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width">
+<title>{{page_title}}</title>
+<base href="{{base_href}}"/>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <section id="header">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div id="logo"> <img src="images/logo.png" width="80" height="80" alt="logo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</header>
+<section id="overv-par">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>{{script_information | safe}}</h2><br>
+        <h2>{{object_information | safe}}</h2>
+        <h2>CLASS <a href="http://vps516494.ovh.net/Survol/survol/class_type_all.py?xid=CIM_Process.&amp;mode=html">CIM_Process</a></h2>
+        <div class="line-left"><img src="images/line-left.png" alt="line"></div>
+
+        {{errors_table_html}}
+
+        <div style="overflow-x:auto;">
+          <table class="surv-cr" width="100%" border="1">
+            <tbody>
+              <tr>
+                <th colspan="3"><a href="http://vps516494.ovh.net/Survol/survol/class_type_all.py?xid=CIM_ComputerSystem.&amp;mode=html">CIM_ComputerSystem</a></th>
+              </tr>
+              <tr>
+                <td rowspan="3" valign="top"><a href="http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=7695&amp;mode=html">erl_child_setup</a></td>
+                <td rowspan="1" valign="top">pid</td>
+                <td colspan="1">7695</td>
+              </tr>
+              <tr>
+                <td rowspan="1" valign="top">ppid</td>
+                <td colspan="1"><a href="http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=7504&amp;mode=html">beam</a></td>
+              </tr>
+              <tr>
+                <td rowspan="1" valign="top">user</td>
+                <td colspan="1">rabbitmq</td>
+              </tr>
+              <tr>
+                <td rowspan="3" valign="top"><a href="http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=27&amp;mode=html">md</a></td>
+                <td rowspan="1" valign="top">pid</td>
+                <td colspan="1">27</td>
+              </tr>
+              <tr>
+                <td rowspan="1" valign="top">ppid</td>
+                <td colspan="1"><a href="http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=2&amp;mode=html">kthreadd</a></td>
+              </tr>
+              <tr>
+                <td rowspan="1" valign="top">user</td>
+                <td colspan="1">root</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {{all_objects_html}}
+
+
+      </div>
+    </div>
+
+
+    {% if parameters_edition_html %}
+      <h2>Script parameters</h2>
+      <div class="line-left"><img src="images/line-left.png" alt="line"></div>
+      {{parameters_edition_html}}
+    {% endif %}
+
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Related data scripts </h2>
+        <div class="line-left"><img src="images/line-left.png" alt="line"></div>
+        <form name="myform" action="/Survol/survol/entity.py" method="GET">
+          <div style="overflow-x:auto;">
+            <table class="surv-cr table_scripts_titles" width="100%" border="1">
+              <tbody>
+                <tr>
+                  <th>Scripts using nmap</th>
+                  <th>All Linux top-level scripts</th>
+                  <th>Browse neighborhood services and agents</th>
+                  <th>RabbitMQ concepts</th>
+                  <th>Top-level scripts for databases detectio...</th>
+                </tr>
+                <tr>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/nmap/nmap_broadcast_ms_sql_discover.py?xid=.&amp;mode=html">Nmap MS-SQL discovery</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Linux/etc_mtab.py?xid=.&amp;mode=html">Mounted disks on Linux machines</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/neighborhood/cgi_arp_async.py?xid=.&amp;mode=html">ARP address resolution protocol</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/rabbitmq/list_configurations.py?xid=.&amp;mode=html">List available RabbitMQ configurations</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Databases/mysql_processlist.py?xid=.&amp;mode=html">mysql sessions</a></td>
+                </tr>
+                <tr>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/nmap/nmap_run.py?xid=.&amp;mode=html">Nmap network exploration results</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Linux/cgi_arp_linux.py?xid=.&amp;mode=html">ARP command for Linux</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/neighborhood/wbem_neighborhood.py?xid=.&amp;mode=html">Neighboring WBEM agents.</a></td>
+                  <td></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Databases/oracle_tnsnames.py?xid=.&amp;mode=html">TNSNAMES file</a></td>
+                </tr>
+                <tr>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/nmap/nmap_broadcast_netbios_master_browser.py?xid=.&amp;mode=html">Nmap master browsers discovery</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Linux/etc_passwd.py?xid=.&amp;mode=html">/etc/passwd users</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/neighborhood/survol_neighborhood.py?xid=.&amp;mode=html">Neighboring Survol agents.</a></td>
+                  <td></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Databases/mysql_instances.py?xid=.&amp;mode=html">mysql instances</a></td>
+                </tr>
+                <tr>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/nmap/nmap_broadcast_upnp_info.py?xid=.&amp;mode=html">Nmap broadcast UPNP information</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Linux/tcp_sockets.py?xid=.&amp;mode=html">TCP Linux sockets with netstat</a></td>
+                  <td></td>
+                  <td></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_python_package.py?xid=.&amp;mode=html">Installed Python packages</a></td>
+                </tr>
+                <tr>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/nmap/nmap_ping_scan.py?xid=.&amp;mode=html">Nmap ping scan</a></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Linux/unix_domain_sockets.py?xid=.&amp;mode=html">Unix domain sockets</a></td>
+                  <td></td>
+                  <td></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_cgroup.py?xid=.&amp;mode=html">List of Linux cgroups</a></td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/Linux/enumerate_user.py?xid=.&amp;mode=html">Linux users (psutil)</a></td>
+                  <td></td>
+                  <td></td>
+                  <td><a href="http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.&amp;mode=html">Processes tree</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>Other related urls</h2>
+        <div class="line-left"><img src="images/line-left.png" alt="line"></div>
+        <div style="overflow-x:auto;">
+          <table class="surv-cr" width="100%" border="1">
+            <tbody>
+              <tr>
+                {% for url_triple in list_other_urls %}
+                <th><a href="{{url_triple[0]}}">{{url_triple[1]}}</a></th>
+                {% endfor %}
+              </tr>
+              <tr>
+                {% for url_triple in list_other_urls %}
+                <td>{{url_triple[2]}}</td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+          <table class="surv-cr" width="100%" border="1">
+            <tbody>
+              {{ html_cim_urls | safe }}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <section id="footer-bottom">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="footer-menu">
+            <ul>
+              <li> <a href="http://rchateau-hp:8000/survol/www/index.htm">Survol home</a> <a href="http://rchateau-hp:8000/survol/edit_configuration.py">Configuration</a> <a href="http://rchateau-hp:8000/survol/edit_credentials.py">Credentials</a> </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="copyright">&copy; <a href="http://www.primhillcomputers.com/">Primhill Computers</a> 2017-2019</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</footer>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</html>
