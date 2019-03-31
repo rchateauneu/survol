@@ -9,6 +9,7 @@ import os
 import sys
 import lib_export_html
 import lib_exports
+import lib_util
 
 from lib_util import WrtAsUtf
 
@@ -33,6 +34,10 @@ def MainNoJinja():
     <td><input name="bookmark_url" value="bookmarks.htm"></td>
     </tr>
     <tr>
+    <td>HTML Jinja2 templates:</td>
+    <td><input type="checkbox" name="html_jinja2"></td>
+    </tr>
+    <tr>
     <td colspan="2"><input value="Submit configuration" name="Hello" type="submit"></td>
     </tr>
     </table>
@@ -53,7 +58,7 @@ def MainNoJinja():
 
 def MainJinja():
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-    template_file_name = "edit_configuration.template.htm"
+    template_file_name = "www/edit_configuration.template.htm"
 
     # Create the jinja2 environment.
     # Notice the use of trim_blocks, which greatly helps control whitespace.
@@ -61,7 +66,7 @@ def MainJinja():
     jinja_template = jinja_env.get_template(template_file_name)
 
     jinja_render = jinja_template.render(   )
-    print("Content-type: text/html\n\n")
+    lib_util.WrtHeader('text/html')
     WrtAsUtf( jinja_render )
 
 
@@ -79,4 +84,4 @@ def Main():
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

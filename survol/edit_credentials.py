@@ -13,7 +13,6 @@ import lib_common
 import lib_util
 import lib_credentials
 import lib_export_html
-import lib_exports
 from lib_util import WrtAsUtf
 
 
@@ -175,12 +174,10 @@ def UpdatedCredMap(cgiArguments):
         cgiArguments["SubmitCredUpdName"]
 
         for credType in sorted(credMap):
-            # WrtAsUtf("credType=%s<br>"%credType)
             credMapOut[credType] = dict()
             credNams = credMap[credType]
             for credName in sorted(credNams):
                 cred = credNams[credName]
-                # WrtAsUtf("cred=%s<br>"%str(cred))
 
                 try:
                     # If the "_del" variable is ticked, do not copy the credentials.
@@ -203,10 +200,8 @@ def UpdatedCredMap(cgiArguments):
                     pass
 
                 credMapOut[credType][credName] = cred
-                # WrtAsUtf("Added cred=%s<br>"%str(cred))
 
     except KeyError:
-        # WrtAsUtf("No upd nor del<br>")
         credMapOut = credMap
         pass
 
@@ -379,7 +374,7 @@ def MainNoJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formActio
 
 def MainJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList):
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-    template_file_name = "edit_credentials.template.htm"
+    template_file_name = "www/edit_credentials.template.htm"
 
     # Create the jinja2 environment.
     # Notice the use of trim_blocks, which greatly helps control whitespace.
@@ -402,8 +397,8 @@ def MainJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,
         addrRemote=addrRemote,
         credMap=orderedMap,
         credTypeList=credTypeList )
-    print("Content-type: text/html\n\n")
-    print( jinja_render )
+    lib_util.WrtHeader('text/html')
+    WrtAsUtf( jinja_render )
 
 
 if __name__ == '__main__':
