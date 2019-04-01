@@ -74,9 +74,13 @@ loggerRdflib = logging.getLogger("rdflib.term")
 loggerRdflib.setLevel(logging.ERROR)
 
 # This is the general purpose logger.
-frm = inspect.stack()[1]
-mod = inspect.getmodule(frm[0])
-gblLogger = logging.getLogger(mod.__name__)
+if sys.version_info >= (3,):
+    logger_name = "inspect"
+else:
+    frm = inspect.stack()[1]
+    mod = inspect.getmodule(frm[0])
+    logger_name = mod.__name__
+gblLogger = logging.getLogger(logger_name)
 
 if sys.version_info >= (3,):
     import builtins
@@ -92,6 +96,16 @@ else:
     __builtin__.ERROR = gblLogger.error
     __builtin__.INFO = gblLogger.info
     __builtin__.CRITICAL = gblLogger.critical
+
+################################################################################
+
+# Returns None even if jinja2 is available but configuration does not use it.
+def GetJinja2():
+    try:
+        import jinja2
+        return jinja2
+    except:
+        return None
 
 ################################################################################
 
