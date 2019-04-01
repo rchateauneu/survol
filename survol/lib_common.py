@@ -368,7 +368,8 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	cgiParamLinks = {}
 	for theCgiEnv in globalCgiEnvList:
 		# theCgiEnv.m_page_title contains just the first line.
-		(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgiEnv.m_page_title)
+		# (page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgiEnv.m_page_title)
+		(page_title_first,page_title_rest) = (theCgiEnv.m_page_title,theCgiEnv.m_page_subtitle)
 		page_title += delim_title + page_title_first
 		if page_title_rest:
 			page_title += " (" + page_title_rest + ")"
@@ -395,6 +396,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 	pseudoCgi = CgiEnv()
 	pseudoCgi.m_graph = globalGraph
 	pseudoCgi.m_page_title = page_title
+	pseudoCgi.m_page_subtitle = ""
 	pseudoCgi.m_layoutParams = layoutParams
 	# Not sure this is the best value, but this is usually done.
 	# TODO: We should have a plain map for all m_arguments occurences.
@@ -441,8 +443,7 @@ class CgiEnv():
 		docModuAll = GetCallingModuleDoc()
 
 		# Take only the first non-empty line. See lib_util.FromModuleToDoc()
-		docModuSplit = docModuAll.split("\n")
-		self.m_page_title = docModuSplit[0]
+		self.m_page_title, self.m_page_subtitle = lib_util.SplitTextTitleRest(docModuAll)
 
 		# Title page contains __doc__ plus object label.
 		callingUrl = lib_util.RequestUri()
@@ -460,6 +461,7 @@ class CgiEnv():
 			entity_class = parsedEntityUri[1]
 
 			# Similar code in objtypes.py
+			# TODO: Maybe replace this by GetCallingModuleDoc.
 			entity_module = lib_util.GetEntityModule(entity_class)
 			entDoc = entity_module.__doc__
 			# The convention is the first line treated as a title.
@@ -571,7 +573,8 @@ class CgiEnv():
 
 		print("<h3>%s</h3><br>"%self.m_page_title)
 
-		lib_edition_parameters.FormEditionParameters(formAction,self)
+		htmlForm = "".join( lib_edition_parameters.FormEditionParameters(formAction,self) )
+		print(htmlForm)
 
 		print("</body>")
 		print("</html>")
@@ -706,6 +709,7 @@ class CgiEnv():
 
 		if self.m_page_title is None:
 			self.m_page_title = "PAGE TITLE SHOULD BE SET"
+			self.m_page_subtitle = "PAGE SUBTITLE SHOULD BE SET"
 
 		# See if this can be used in lib_client.py and merge_scritps.py.
 		if globalMergeMode:
