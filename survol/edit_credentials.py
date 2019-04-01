@@ -311,12 +311,6 @@ def CredTypeNameToUrl(credType,credName):
         credNameUrl = None
     return credNameUrl
 
-try:
-    # This is a HTML template engine.
-    import jinja2
-except ImportError:
-    jinja2 = None
-
 def Main():
     formAction = os.environ['SCRIPT_NAME']
 
@@ -341,7 +335,7 @@ def Main():
     credTypesWellKnown = CredDefinitions()
     credTypeList=sorted(credTypesWellKnown.keys())
 
-    if jinja2:
+    if lib_util.GetJinja2():
         MainJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList)
     else:
         MainNoJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList)
@@ -378,6 +372,7 @@ def MainJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,
 
     # Create the jinja2 environment.
     # Notice the use of trim_blocks, which greatly helps control whitespace.
+    jinja2 = lib_util.GetJinja2()
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(THIS_DIR), trim_blocks=True)
     jinja_template = jinja_env.get_template(template_file_name)
 
