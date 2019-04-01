@@ -27,11 +27,11 @@ def MainNoJinja():
     <table border="0">
     <tr>
     <td>CGI server port number:</td>
-    <td><input name="server_port" value="8000"></td>
+    <td>&nbsp;<input name="server_port" value="8000"></td>
     </tr>
     <tr>
     <td>Bookmarks file or URL:</td>
-    <td><input name="bookmark_url" value="bookmarks.htm"></td>
+    <td>&nbsp;<input name="bookmark_url" value="bookmarks.htm"></td>
     </tr>
     <tr>
     <td>HTML Jinja2 templates:</td>
@@ -60,6 +60,8 @@ def MainJinja():
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     template_file_name = "www/edit_configuration.template.htm"
 
+    jinja2 = lib_util.GetJinja2()
+
     # Create the jinja2 environment.
     # Notice the use of trim_blocks, which greatly helps control whitespace.
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(THIS_DIR), trim_blocks=True)
@@ -69,15 +71,8 @@ def MainJinja():
     lib_util.WrtHeader('text/html')
     WrtAsUtf( jinja_render )
 
-
-try:
-    # This is a HTML template engine.
-    import jinja2
-except ImportError:
-    jinja2 = None
-
 def Main():
-    if jinja2:
+    if lib_util.GetJinja2():
         MainJinja()
     else:
         MainNoJinja()
