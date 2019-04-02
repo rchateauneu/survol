@@ -214,9 +214,6 @@ def ScriptsTreeHtmlIterator(theCgi):
     DEBUG("WriteScriptsTree entity_type=%s flagShowAll=%d",theCgi.m_entity_type,flagShowAll)
     entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,theCgi.m_entity_type,theCgi.m_entity_id,theCgi.m_entity_host,flagShowAll)
 
-    DEBUG("dictScripts %d",len(dictScripts))
-
-
     def DisplayLevelTable(subj,depthMenu=1):
         """
             Top-level should always be none.
@@ -248,7 +245,7 @@ def ScriptsTreeHtmlIterator(theCgi):
 
                 return str(retStr)
 
-        yield('<tr class="scripts_tree_class">')
+        yield('<tr>')
         depthMenu += 1
 
         subj_uniq_title = ExtractTitleFromMapProps(mapProps)
@@ -272,11 +269,11 @@ def ScriptsTreeHtmlIterator(theCgi):
                 lstObjs = mapProps[oneProp]
 
                 yield('<td class="scripts_tree_class">')
-                yield('<table class="scripts_tree_class">')
+                yield('<table>')
                 for oneObj in lstObjs:
                     if oneObj is None:
                         continue
-                    yield('<tr class="scripts_tree_class">')
+                    yield('<tr>')
                     yield('<td class="scripts_tree_class">')
                     try:
                         for linHtml in DisplayLevelTable(oneObj,depthMenu):
