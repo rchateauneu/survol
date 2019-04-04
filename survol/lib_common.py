@@ -285,7 +285,7 @@ def GetCallingModuleDoc():
 	#sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
 
 	# If it uses an unique CGI script.
-	if lib_util.modeOVH or globalMergeMode:
+	if globalMergeMode:
 		try:
 			# This is a bit of a hack.
 			import inspect
@@ -299,11 +299,6 @@ def GetCallingModuleDoc():
 			htbinIdx = filnamCaller.find(modulePrefix)
 			filnamCaller = filnamCaller[htbinIdx + len(modulePrefix):]
 
-			# Even more hacky, just for OVH hosting.
-			if lib_util.modeOVH:
-				# Then it starts again with "survol."
-				filnamCaller = filnamCaller[ len(modulePrefix): ]
-			#sys.stderr.write("GetCallingModuleDoc filnamCaller=%s\n" % filnamCaller)
 			try:
 				moduleCaller = sys.modules[filnamCaller]
 			except:
