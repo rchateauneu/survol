@@ -192,13 +192,8 @@ def PsutilGetProcObj(pid):
 
 # If psutil is not available, consider "getpass.getuser()"
 def GetCurrentUser():
-	try:
-		# This is for OVH
-		import getpass
-		return getpass.getuser()
-	except ImportError:
-		currProc = PsutilGetProcObj(os.getpid())
-		return PsutilProcToUser(currProc)
+	currProc = PsutilGetProcObj(os.getpid())
+	return PsutilProcToUser(currProc)
 	
 
 # https://pythonhosted.org/psutil/
