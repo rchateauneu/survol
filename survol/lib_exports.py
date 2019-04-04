@@ -199,9 +199,6 @@ class NodeJson:
 		self.m_index = NodeJsonNumber
 
 		the_survol_url = lib_util.survol_unescape(rdf_node)
-		# Hack, specific to OVH web host, that we use also for python hosting,
-		# although it is not designed for that..
-		the_survol_url = the_survol_url.replace("primhillcomputers.com:80/survol/survolcgi","primhillcomputers.com:80/cgi-bin/survol/survolcgi");
 		self.m_survol_url = the_survol_url
 		self.m_survol_universal_alias = NodeToUniversalAlias(rdf_node)
 
@@ -563,11 +560,7 @@ def UrlWWW(pageHtml):
 	urlHost = callingUrl[:htbinIdx]
 	#sys.stderr.write("UrlToMergeD3 urlHost=%s\n"%(urlHost))
 
-	# Special case for OVH mutualised hosting.
-	if urlHost.find("primhillcomputers.com") >= 0:
-		d3UrlDir = "/../ui"
-	else:
-		d3UrlDir = "/survol/www"
+	d3UrlDir = "/survol/www"
 
 	scriptD3Url = urlHost + d3UrlDir + "/" + pageHtml
 	#sys.stderr.write("UrlToMergeD3 scriptD3Url=%s\n"%scriptD3Url)

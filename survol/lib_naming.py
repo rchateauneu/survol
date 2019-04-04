@@ -273,10 +273,6 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
     filScript = os.path.basename(uprs.path)
     # sys.stderr.write("ParseEntityUri filScript=%s\n"%filScript)
 
-    # Very specific case when a Survol agent runs on OVH websites, not designed for this usage.
-    if filScript == "survolcgi.py":
-        return ParseEntitySurvolUri(uprs,longDisplay, force_entity_ip_addr)
-
     # This works for the scripts:
     # entity.py            xid=namespace/type:idGetNamespaceType
     # objtypes_wbem.py     Just extracts the namespace, as it prefixes the type: xid=namespace/type:id
