@@ -1,0 +1,23 @@
+# TODO: See https://www.w3.org/TR/r2rml/
+# This document describes R2RML, a language for expressing customized mappings from relational databases to RDF datasets.
+# Such mappings provide the ability to view existing relational data in the RDF data model,
+# expressed in a structure and target vocabulary of the mapping author's choice.
+# R2RML mappings are themselves RDF graphs and written down in Turtle syntax.
+# R2RML enables different types of mapping implementations.
+# Processors could, for example, offer a virtual SPARQL endpoint over the mapped relational data,
+# or generate RDF dumps, or offer a Linked Data interface.
+
+# http://d2rq.org/
+# Accessing Relational Databases as Virtual RDF Graphs
+
+# These projects seem inactive (2019)
+# Both need a mapping language: It is better to build an ontology
+# just out of the database, with no extra information.
+
+# TODO: Create an ontology out of a database:
+# Each table is an object type.
+# Each row is an object.
+# One needs an unique id for each row: Oracle offers this,
+# or an unique index.
+# Each cell defines a triple.
+# A foreign index defines an object of a triple, instead of a literal value.
