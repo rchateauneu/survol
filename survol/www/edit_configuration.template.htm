@@ -1,0 +1,89 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width">
+<title>Configuration</title>
+<base href="www/"/>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <section id="header">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div id="logo"> <img src="images/logo.png" width="80" height="80" alt="logo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</header>
+
+
+<section id="survol-configuration">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3 col-sm-3 col-xs-12"></div>
+      <div class="col-md-6 col-sm-6 col-xs-12">
+      <div id="serv-conf" class="clearfix">
+        <div class="serv-hed">
+          <h2>Edit Survol configuration</h2>
+          <div class="line-center"><img src="images/line-center.png" width="71" height="4" alt="line"></div>
+        </div>
+        <div class="serv-form clearfix">
+          <form method="post" action="edit_configuration.py" name="ServerConfiguration">
+            <table border="0">
+              <tbody>
+                <tr>
+                  <td><label>CGI server port number:</label>
+                    <input name="server_port" value="8000"></td>
+                </tr>
+                <tr>
+                  <td><label>Bookmarks file or URL:</label>
+                    <input name="bookmark_url" value="bookmarks.htm"></td>
+                </tr>
+                <tr>
+                  <td><label>HTML Jinja2 templates:</label>
+                    <input name="html_jinja2" type="checkbox"></td>
+                </tr>
+                <tr>
+                  <td colspan="2"><input value="Submit configuration" name="Hello" type="submit" class="submit"></td>
+                </tr>
+              </tbody>
+            </table>
+          </form>
+        </div></div>
+      </div>
+      <div class="col-md-3 col-sm-3 col-xs-12"></div>
+    </div>
+  </div>
+</section>
+
+
+<footer>
+  <section id="footer-bottom">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="footer-menu">
+            <ul>
+              <li>
+                <a href="index.htm">Survol home</a>
+                <a href="../edit_configuration.py">Configuration</a>
+                <a href="../edit_credentials.py">Credentials</a>
+                <a href="help.htm">Help</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="copyright">&copy;<a href="http://www.primhillcomputers.com/">Primhill Computers</a> 2017-2019</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</footer>	
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</html>

@@ -13,11 +13,10 @@ import lib_common
 import lib_util
 import lib_credentials
 import lib_export_html
-import lib_exports
 from lib_util import WrtAsUtf
 
 
-# This list the content of credentials and assoictes a variable name to each element.
+# This lists the content of credentials and associates a variable name to each element.
 # This variable name which must be unique, is later used to build a HTML form.
 def CreateCredentialsMap():
     credTypeList = lib_credentials.GetCredentialsTypes()
@@ -39,12 +38,14 @@ def CreateCredentialsMap():
             credInputPassword = credInputPrefix + "_UPDATE_PASSWORD"
             credInputNameDel = credInputPrefix + "_DELETE_CREDENTIAL"
 
-            credTypesDict[credType][credName] = [cred[0],cred[1],credInputPassword,credInputNameDel]
+            credNameUrl = CredTypeNameToUrl(credType, credName)
+
+            credTypesDict[credType][credName] = [cred[0],cred[1],credInputPassword,credInputNameDel,credNameUrl]
 
     return credTypesDict
 
-
-def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
+# This applies only if the jinja2 module is not there.
+def FormUpdateCredentialsNoJinja(formAction,credMap):
     WrtAsUtf("""
     <form method="post" action="%s" name="ServerCredentials">
     """%(formAction))
@@ -70,18 +71,7 @@ def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
             # Read-only access rights are enough.
             cred = credNams[credName]
 
-            try:
-                # Maybe we can create a URL for a credName of a given credType.
-                # For example a machine name if 'Login', a database if 'Oracle',
-                # an access to a WBEM server if 'WBEM' etc...
-                nodeGenerator = credTypesWellKnown[credType]
-                credNameUrl = nodeGenerator(credName)
-            except:
-                # Maybe the key is not defined ...
-                # ... or the generator does not work
-                exc = sys.exc_info()[1]
-                WARNING("nodeGenerator exception:%s",str(exc))
-                credNameUrl = None
+            credNameUrl = cred[4]
 
             if credNameUrl:
                 WrtAsUtf("""<tr>
@@ -106,12 +96,14 @@ def FormUpdateCredentials(formAction,credMap,credTypesWellKnown):
     WrtAsUtf("""<td colspan=4>""")
     WrtAsUtf("""
     <input value="Update / delete credential" name="SubmitCredUpdName" type="submit"><br>
-    </form>
     """)
     WrtAsUtf("""</td>""")
     WrtAsUtf("""</tr>""")
+    WrtAsUtf("""
+    </form>
+    """)
 
-def FormInsertCredentials(formAction,credTypeList):
+def FormInsertCredentialsNoJinja(formAction,credTypeList):
     WrtAsUtf("""
     <form method="post" action="edit_credentials.py" name="ServerCredentials">
     """)
@@ -146,10 +138,12 @@ def FormInsertCredentials(formAction,credTypeList):
     WrtAsUtf("""
     <input type="hidden" value="HiddenValue" name="HiddenName">
     <input value="Insert new credential" name="SubmitCredAddName" type="submit">
-    </form>
     """)
     WrtAsUtf("""</td>""")
     WrtAsUtf("""</tr>""")
+    WrtAsUtf("""
+    </form>
+    """)
 
 def InsertedCredMap(cgiArguments):
     # This is called if the form tries to insert a new credential
@@ -160,16 +154,9 @@ def InsertedCredMap(cgiArguments):
         credUsr = cgiArguments["credentials_add_usr"].value
         credPwd = cgiArguments["credentials_add_pwd"].value
 
-        #WrtAsUtf("credentials_add_type=%s<br>"%credType)
-        #WrtAsUtf("credentials_add_name=%s<br>"%cgiArguments["credentials_add_name"].value)
-        #WrtAsUtf("credentials_add_usr=%s<br>"%cgiArguments["credentials_add_usr"].value)
-        #WrtAsUtf("credentials_add_pwd=%s<br>"%cgiArguments["credentials_add_pwd"].value)
-        #WrtAsUtf("Finished<br>")
-
         lib_credentials.AddCredential(credType,credName,credUsr,credPwd)
 
     except KeyError:
-        # WrtAsUtf("No add<br>")
         pass
 
 def UpdatedCredMap(cgiArguments):
@@ -187,12 +174,10 @@ def UpdatedCredMap(cgiArguments):
         cgiArguments["SubmitCredUpdName"]
 
         for credType in sorted(credMap):
-            # WrtAsUtf("credType=%s<br>"%credType)
             credMapOut[credType] = dict()
             credNams = credMap[credType]
             for credName in sorted(credNams):
                 cred = credNams[credName]
-                # WrtAsUtf("cred=%s<br>"%str(cred))
 
                 try:
                     # If the "_del" variable is ticked, do not copy the credentials.
@@ -215,10 +200,8 @@ def UpdatedCredMap(cgiArguments):
                     pass
 
                 credMapOut[credType][credName] = cred
-                # WrtAsUtf("Added cred=%s<br>"%str(cred))
 
     except KeyError:
-        # WrtAsUtf("No upd nor del<br>")
         credMapOut = credMap
         pass
 
@@ -313,7 +296,20 @@ def CredDefinitions():
 
     return credTypesWellKnown
 
-
+def CredTypeNameToUrl(credType,credName):
+    try:
+        # Maybe we can create a URL for a credName of a given credType.
+        # For example a machine name if 'Login', a database if 'Oracle',
+        # an access to a WBEM server if 'WBEM' etc...
+        nodeGenerator = CredDefinitions()[credType]
+        credNameUrl = nodeGenerator(credName)
+    except:
+        # Maybe the key is not defined ...
+        # ... or the generator does not work
+        exc = sys.exc_info()[1]
+        WARNING("nodeGenerator exception:%s",str(exc))
+        credNameUrl = None
+    return credNameUrl
 
 def Main():
     formAction = os.environ['SCRIPT_NAME']
@@ -323,13 +319,6 @@ def Main():
     credFilename = os.path.normpath(lib_credentials.CredFilNam())
     page_title = "Edit Survol credentials in %s" % credFilename
 
-    lib_export_html.DisplayHtmlTextHeader(page_title)
-
-    WrtAsUtf("""
-    <body><h2>Edit Survol credentials in %s</h2>
-    """ % credFilename)
-
-
     # Hostname=Unknown-30-b5-c2-02-0c-b5-2.home
     # Host address=192.168.0.17
     # Remote client=82.45.12.63
@@ -338,6 +327,27 @@ def Main():
     currHostAddr = lib_util.GlobalGetHostByName(currHostNam)
     addrRemote = os.environ['REMOTE_ADDR']
 
+    if addrRemote not in ["82.45.12.63","192.168.0.14","127.0.0.1"]:
+        lib_common.ErrorMessageHtml("Access forbidden from %s"% addrRemote )
+
+    InsertedCredMap(cgiArguments)
+    credMap = UpdatedCredMap(cgiArguments)
+    credTypesWellKnown = CredDefinitions()
+    credTypeList=sorted(credTypesWellKnown.keys())
+
+    if lib_util.GetJinja2():
+        MainJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList)
+    else:
+        MainNoJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList)
+
+# Simple HTML page if jinja2 is not installed.
+def MainNoJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList):
+    lib_export_html.DisplayHtmlTextHeader(page_title)
+
+    WrtAsUtf("""
+    <body><h2>%s</h2>
+    """ % page_title)
+
     WrtAsUtf("""
     <table border="1" width='100%%'>
     <tr><td><b>Host name</b></td><td>%s</td></tr>
@@ -345,30 +355,46 @@ def Main():
     <tr><td><b>Remote address</b></td><td>%s</td></tr>
     """ %(currHostNam,currHostAddr,addrRemote))
 
-    if addrRemote in ["82.45.12.63","192.168.0.14","127.0.0.1"]:
-        InsertedCredMap(cgiArguments)
+    WrtAsUtf("""<table border="1" width='100%%'>""")
+    if credMap:
+        FormUpdateCredentialsNoJinja(formAction,credMap)
 
-        credMap = UpdatedCredMap(cgiArguments)
-
-        credTypesWellKnown = CredDefinitions()
-
-        WrtAsUtf("""<table border="1" width='100%%'>""")
-        if credMap:
-            FormUpdateCredentials(formAction,credMap,credTypesWellKnown)
-
-        FormInsertCredentials(formAction, sorted(credTypesWellKnown.keys()))
-        WrtAsUtf("""</table>""")
-    else:
-        WrtAsUtf("<b>ACCESS FORBIDDEN</b><br>")
+    FormInsertCredentialsNoJinja(formAction, credTypeList)
+    WrtAsUtf("""</table>""")
 
     lib_export_html.DisplayHtmlTextFooter()
 
-    #WrtAsUtf('<br><a href="edit_configuration.py">Configuration</a>')
-
-    #urlIndex = lib_exports.UrlWWW("index.htm")
-    #WrtAsUtf('<br><a href="' + urlIndex + '">Return to Survol</a>')
-
     WrtAsUtf("</body></html>")
+
+def MainJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList):
+    THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+    template_file_name = "www/edit_credentials.template.htm"
+
+    # Create the jinja2 environment.
+    # Notice the use of trim_blocks, which greatly helps control whitespace.
+    jinja2 = lib_util.GetJinja2()
+    jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(THIS_DIR), trim_blocks=True)
+    jinja_template = jinja_env.get_template(template_file_name)
+
+    import collections
+
+    orderedMap = collections.OrderedDict()
+    for credType in sorted(credMap):
+        subOrderedMap = collections.OrderedDict()
+        for credNam in sorted(credMap[credType]):
+            subOrderedMap[credNam] = credMap[credType][credNam]
+        orderedMap[credType] = subOrderedMap
+
+    jinja_render = jinja_template.render(
+        page_title=page_title,
+        currHostNam=currHostNam,
+        currHostAddr=currHostAddr,
+        addrRemote=addrRemote,
+        credMap=orderedMap,
+        credTypeList=credTypeList )
+    lib_util.WrtHeader('text/html')
+    WrtAsUtf( jinja_render )
+
 
 if __name__ == '__main__':
     Main()

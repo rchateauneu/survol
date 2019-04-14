@@ -1,4 +1,4 @@
-Communication between dockit and sirvol.
+Communication between dockit and survol.
 
 All insertion into the object cach will go with an insertion in the shared queue.
 

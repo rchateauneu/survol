@@ -1,82 +1,134 @@
 <html>
-<head><title>Survol technical page</title>
-<link rel='stylesheet' type='text/css' href=css/html_exports.css>
+<head>
+<meta name="viewport" content="width=device-width">
+<title>Survol technical page</title>
+<link rel="stylesheet" type="text/css" href="Survol%20technical%20page_files/html_exports.css">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
+<header>
+  <section id="header">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div id="logo"> <img src="images/logo.png" width="80" height="80" alt="logo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</header>
 
-This page gathers various interbal or external urls for technical purpose, tests, documentaiton, information etc...
-
-<table border="1">
-<tr><td><a href="index.htm">Javascript display</a></td>
+<section id="overv-par" class="ovr">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>Management and test links</h2>
+        <div class="lt1"><img src="images/line-left.png" alt="line"></div>
+        <table border="1">
+          <tbody>
+<tr><th><a href="index.htm">Javascript display</a></th>
     <td>Javascript entry point based on D3 library. It starts by displaying the tree of running processes on the server</td></tr>
-<tr><td><a href="../entity.py">Entry point</a></td>
+<tr><th><a href="../entity.py">Entry point</a></th>
     <td>Survol entry point: It displays in SVG mode the top-level scripts, each of them generates a specific set of data</td></tr>
-<tr><td><a href="../entity.py?mode=html">Entry point in HTML</a></td>
+<tr><th><a href="../entity.py?mode=html">Entry point in HTML</a></th>
     <td>Entry point of dynamic objects description pages, in HTML mode</td></tr>
-<tr><td><a href="../entity_wmi.py">Entry point in WMI object model</a></td>
+<tr><th><a href="../entity_wmi.py">Entry point in WMI object model</a></th>
     <td>This is the description page for a WMI object. An entity id must be given, so this link is just given as an information.
         Also, it can only work on a Windows platform because WMI is needed</td></tr>
-<tr><td><a href="../entity_wbem.py">Entry point in WBEM object model</a></td>
+<tr><th><a href="../entity_wbem.py">Entry point in WBEM object model</a></th>
     <td>This is the description page for a WBEM object on the current WBEM server.
         An entity id must be given, so this link is just given as an information</td></tr>
-<tr><td><a href="../namespaces_wmi.py">Namespaces in WMI object model</a></td>
+<tr><th><a href="../namespaces_wmi.py">Namespaces in WMI object model</a></th>
     <td>This is information only, as Survol only uses root/cimV2 namespace</td></tr>
-<tr><td><a href="../namespaces_wbem.py">Namespaces in WBEM object model</a></td>
+<tr><th><a href="../namespaces_wbem.py">Namespaces in WBEM object model</a></th>
     <td>This is information only, as Survol only uses root/cimV2 namespace</td></tr>
-<tr><td><a href="../portal_wmi.py">WMI portal</a></td>
+<tr><th><a href="../portal_wmi.py">WMI portal</a></th>
     <td>Entry point to the current WMI server, if there is one (N/A on non-Windows machine if WMI is not present)</td></tr>
-<tr><td><a href="../portal_wbem.py">WBEM portal</a></td>
+<tr><th><a href="../portal_wbem.py">WBEM portal</a></th>
     <td>Entry point to the current WBEM server, if there is one (Linux only)</td></tr>
-<tr><td><a href="../class_type_all.py">Survol classes hierarchy</a></td>
+<tr><th><a href="../class_type_all.py">Survol classes hierarchy</a></th>
     <td>Display the complete hierarchy of classes on this Survol server</td></tr>
-<tr><td><a href="../class_wmi.py">WMI classes hierarchy</a></td>
+<tr><th><a href="../class_wmi.py">WMI classes hierarchy</a></th>
     <td>A top-level class must be given. This applies to Windows only</td></tr>
-<tr><td><a href="../class_wbem.py">WBEM classes hierarchy</a></td>
+<tr><th><a href="../class_wbem.py">WBEM classes hierarchy</a></th>
     <td>A top-level class must be given. A WBEM server must be setup</td></tr>
-<tr><td><a href="../objtypes.py">Object classes</a></td>
+<tr><th><a href="../objtypes.py">Object classes</a></th>
     <td>Available types of objects available on this host: This is equivalent to the Survol ontology</td></tr>
-<tr><td><a href="../objtypes_wmi.py">WMI object types</a></td>
+<tr><th><a href="../objtypes_wmi.py">WMI object types</a></th>
     <td>Complete hierarchy of WMI classes in the default namespace (root/CIMV2). Windows only.</td></tr>
-<tr><td><a href="../objtypes_wbem.py">WBEM object types</a></td>
+<tr><th><a href="../objtypes_wbem.py">WBEM object types</a></th>
     <td>Complete hierarchy of WBEM classes in the default namespace (root/CIMV2). A default WBEM server must be available.</td></tr>
-<tr><td><a href="rdfquery_text.htm">RDF to Javascript text display</a></td>
+<tr><th><a href="rdfquery_text.htm">RDF to Javascript text display</a></th>
     <td>This loads a RDF URL with RDFQuery and displays it with Javascript only</td></tr>
-    <tr><td><a href="../print_environment_variables.py">CGI variables</a></td>
+    <tr><th><a href="../print_environment_variables.py">CGI variables</a></th>
     <td>Print CGI variables and various internal data. Development only</td></tr>
 
-<tr><td><a href="../display_bookmarks.py">Bookmarks</a></td>
+<tr><th><a href="../display_bookmarks.py">Bookmarks</a></th>
     <td></td></tr>
-<tr><td><a href="../edit_configuration.py">Edit server configuration</a></td>
+<tr><th><a href="../edit_configuration.py">Edit server configuration</a></th>
     <td>Display and edit the configuration of the current Survol server. Authorization needed.</td></tr>
+<tr><th><a href="sparql_ui.htm">SPARQL User interface</a></th>
+    <td>Enter a SPARQL query.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-</table>
-<br />
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>Ontology links</h2>
+        <div class="lt1"><img src="images/line-left.png" alt="line"></div>
+        <table border="1">
+          <tbody>
+<tr><th><a href="../../survol/ontologies/WMI_RDFS.py">WMI RDFS</a></th><td>RDFS ontology extracted from Windows Management Instrumentation model. It contains hundreds of classes and thousands of properties</td></tr>
+<tr><th><a href="../../survol/ontologies/WBEM_RDFS.py">WBEM RDFS</a></th><td>RDFS ontology extracted from the current WBEM server</td></tr>
+<tr><th><a href="../../survol/ontologies/Survol_RDFS.py">Survol RDFS</a></th><td>Survol ontology, very light, focuses only on what is needed. It is compatible with WMI and WBEM ontologies, and just need to be merged to have more detailed information</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    <p>Ontologies</p>
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>Logos</h2>
+        <div class="lt1"><img src="images/line-left.png" alt="line"></div>
+<div class="col-md-3 col-sm-3 col-xs-6"><img src="images/opengroupLogo.png" class="img-responsive" /></div>
+<div class="col-md-3 col-sm-3 col-xs-6"><img src="images/OpenLMI Logo with slogan_2.png" class="img-responsive" /></div>
+<div class="col-md-3 col-sm-3 col-xs-6"><img src="images/openlmi-logo_full-color_light-bg.png" class="img-responsive" /></div></div>
+<div class="row log2">
+<div class="col-md-2 col-sm-2 col-xs-6"><img src="images/openwbem.png" class="img-responsive" /></div>
+<div class="col-md-2 col-sm-2 col-xs-6"><img src="images/pegicon2.gif" class="img-responsive" /></div>
+    </div>
+    </div>
 
-<table border="1">
-<tr><td><a href="../../survol/ontologies/WMI_RDFS.py">WMI RDFS</a></td><td>RDFS ontology extracted from Windows Management Instrumentation model. It contains hundreds of classes and thousands of properties</td></tr>
-<tr><td><a href="../../survol/ontologies/WBEM_RDFS.py">WBEM RDFS</a></td><td>RDFS ontology extracted from the current WBEM server</td></tr>
-<tr><td><a href="../../survol/ontologies/Survol_RDFS.py">Survol RDFS</a></td><td>Survol ontology, very light, focuses only on what is needed. It is compatible with WMI and WBEM ontologies, and just need to be merged to have more detailed information</td></tr>
-</table>
 
-<br>
-    <p>Various icons and related images</p>
+  </div>
+</section>
 
-<img src="images/logo-wbem.png"  />
-<img src="images/opengroupLogo.png"  />
-<img src="images/OpenLMI Logo with slogan_2.png"  />
-<img src="images/openlmi-logo_full-color_light-bg.png"  />
-<img src="images/openwbem.png"  />
-<img src="images/pegicon2.gif"  />
-<img src="images/prod-JSERVER-sm.png"  />
-<img src="images/prod-SDK-sm.png"  />
-<img src="images/prod-WAVE-sm.png"  />
-<img src="images/prod-WW-sm.png"  />
-<img src="images/LogoColorNoText.jpeg"  />
-<img src="images/LogoColorTextBelow.jpeg"  />
-<img src="images/LogoColorTextRight.jpeg"  />
 
+
+
+<footer>
+  <section id="footer-bottom">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="footer-menu">
+            <ul>
+              <li> <a href="http://rchateau-hp:8000/survol/www/index.htm">Survol home</a> <a href="http://rchateau-hp:8000/survol/edit_configuration.py">Configuration</a> <a href="http://rchateau-hp:8000/survol/edit_credentials.py">Credentials</a> </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="copyright">© <a href="http://www.primhillcomputers.com/">Primhill Computers</a> 2017-2019</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</footer>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 </html>

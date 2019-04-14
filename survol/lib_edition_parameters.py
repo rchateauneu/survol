@@ -11,29 +11,29 @@ def FormEditionParameters(formActionNoMode,theCgi):
 
 	formAction = formActionNoMode
 	DEBUG("FormEditionParameters formActionNoMode=%s formAction=%s",formAction,formActionNoMode)
-	print('<form name="myform" action="' + formAction + '" method="GET">')
+	yield('<form name="myform" action="' + formAction + '" method="GET">')
 
 	# argKeys are the names of arguments passed as CGI parameters.
 	argKeys = theCgi.m_arguments.keys()
 
-	print('<table class="table_script_parameters">')
+	yield('<table class="table_script_parameters">')
 
 	# This is the list of parameters displayed and edited, which should not be
 	# input as hidden arguments.
 	lstEdimodArgs = []
 
 	if theCgi.m_entity_type != "":
-		print('<tr><td colspan=2>' + theCgi.m_entity_type + '</td>')
+		yield('<tr><td colspan=2>' + theCgi.m_entity_type + '</td>')
 		for kvKey in theCgi.m_entity_id_dict:
 			# TODO: Encode the value.
 			kvVal = theCgi.m_entity_id_dict[kvKey]
-			print("<tr>")
-			print('<td>' + kvKey + '</td>')
+			yield("<tr>")
+			yield('<td>' + kvKey + '</td>')
 			ediNam = "edimodargs_" + kvKey
 			lstEdimodArgs.append(ediNam)
 			DEBUG("FormEditionParameters ediNam=%s",ediNam)
-			print('<td><input type="text" name="%s" value="%s"></td>' % (ediNam,kvVal) )
-			print("</tr>")
+			yield('<td><input type="text" name="%s" value="%s"></td>' % (ediNam,kvVal) )
+			yield("</tr>")
 
 	check_boxes_parameters = []
 
@@ -41,8 +41,8 @@ def FormEditionParameters(formActionNoMode,theCgi):
 	# param_key is the display string of the variable, and also a HTML form variable name.
 	for param_key in theCgi.m_parameters:
 		DEBUG("FormEditionParameters param_key=%s",param_key)
-		print("<tr>")
-		print('<td>' + param_key + '</td>')
+		yield("<tr>")
+		yield('<td>' + param_key + '</td>')
 		param_val = theCgi.GetParameters( param_key )
 		# TODO: Encode the value.
 		if isinstance( param_val, bool ):
@@ -51,23 +51,23 @@ def FormEditionParameters(formActionNoMode,theCgi):
 			check_boxes_parameters.append( param_key )
 			if param_val:
 				# Will be converted to boolean True.
-				print('<td><input type="checkbox" name="' + param_key + '" value="True" checked></td>')
+				yield('<td><input type="checkbox" name="' + param_key + '" value="True" checked></td>')
 			else:
 				# Python converts empty string to False, everything else to True.
-				print('<td><input type="checkbox" name="' + param_key + '" value="True"></td>')
+				yield('<td><input type="checkbox" name="' + param_key + '" value="True"></td>')
 		# TODO: Check validity if int, float etc...
 		else:
-			print('<td><input type="text" name="' + param_key + '" value="' + str(param_val) + '"></td>')
-		print("</tr>")
+			yield('<td><input type="text" name="' + param_key + '" value="' + str(param_val) + '"></td>')
+		yield("</tr>")
 
-	print("<tr><td colspan=2>")
+	yield("<tr><td colspan=2>")
 	# Beware that unchecked checkboxes are not posted, so it says that we come from edition mode.
 	# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
 
 	# Now the hidden arguments. Although entity_type can be deduced from the CGI script location.
 	# TODO: MAYBE THIS IS NEVER NECESSARY ... ?
 	if not "edimodtype" in argKeys:
-		print('<input type="hidden" name="edimodtype" value="' + theCgi.m_entity_type + '">')
+		yield('<input type="hidden" name="edimodtype" value="' + theCgi.m_entity_type + '">')
 
 	for key in argKeys:
 		DEBUG("FormEditionParameters key=%s",key)
@@ -94,16 +94,16 @@ def FormEditionParameters(formActionNoMode,theCgi):
 		# BEWARE ... if the values contains simgle quotes !
 		# Or remove enclosing quotes.
 		if len(argList) == 1:
-			print('<input type="hidden" name="' + key + '" value=\''+argList[0] + '\'>')
+			yield('<input type="hidden" name="' + key + '" value=\''+argList[0] + '\'>')
 		else:
 			for val in argList:
 				# Note the "[]" to pass several values.
-				print('<input type="hidden" name="' + key + '[]" value=\''+val + '\'>')
+				yield('<input type="hidden" name="' + key + '[]" value=\''+val + '\'>')
 
-	print('<input type="submit" value="Submit">')
-	print("</form>")
+	yield('<input type="submit" value="Submit">')
+	yield("</form>")
 
-	print("</td></tr>")
-	print("</table>")
+	yield("</td></tr>")
+	yield("</table>")
 
 	return

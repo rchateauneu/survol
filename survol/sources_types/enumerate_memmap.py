@@ -2,6 +2,8 @@
 
 """
 Shared memory segments.
+
+System-wide shared memory segments, plus properties. DLLs and fonts are excluded.
 """
 
 import os

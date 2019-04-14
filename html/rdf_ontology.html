@@ -67,10 +67,11 @@
                 <li> <a href="survol.html">Survol</a> </li>
                 <li class="divider"><br>
                 </li>
-                <li> <a href="faq.html">Survol Faq</a> </li>
-                <li> <a href="architecture.html">Survol Architecture</a> </li>
-                <li> <a href="installation.html">Survol Installation</a> </li>
-                <li> <a href="usecase.html">Survol Use Cases</a> </li>
+                <li> <a href="faq.html">Frequently asked questions</a> </li>
+                <li> <a href="architecture.html">Architecture</a> </li>
+                <li> <a href="intended_audience.html">Intended audience</a> </li>
+                <li> <a href="installation.html">Installation</a> </li>
+                <li> <a href="usecase.html">Use Cases</a> </li>
                 <li class="active"> <a href="rdf_ontology.html">Object model,
                     RDFS ontology</a> </li>
               </ul>
@@ -117,8 +118,8 @@
     <section class="architecture grey-sec">
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
-            <h2 class="sec-head2 text-left clearfix">COMMON INFORMATION MODEL</h2>
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>COMMON INFORMATION MODEL</b></h2>
             <p><b>Common Information Model</b> (<b>CIM</b>) is an <a href="https://en.wikipedia.org/wiki/Open_standard"
                 title="Open standard">open standard</a> that defines how managed
               elements in an <a href="https://en.wikipedia.org/wiki/Information_technology"
@@ -126,8 +127,9 @@
               represented as a common set of <a href="https://en.wikipedia.org/wiki/Object_%28computer_science%29"
                 title="Object (computer science)">objects</a> and relationships
               between them. </p>
-            <p>It is implemented by WMI on Windows operating system, and by WBEM
-              on all platforms.</p>
+            <p>It is implemented by <a href="https://docs.microsoft.com/en-us/windows/desktop/wmisdk/wmi-start-page"
+                title="WMI">WMI</a> on Windows operating system, and by <a href="https://www.itprotoday.com/compute-engines/what-wbem"
+                title="WBEM">WBEM</a> on all platforms.</p>
             <p>Survol proposes its own very lightweight implementation:</p>
             <p><br>
             </p>
@@ -135,8 +137,7 @@
               <li>Written in Pure Python, very light and portable.</li>
               <li>Providers are much easier to write, just Python script. Our
                 ontology has a subset 100% compatible with CIM. It adds many
-                classes, based on software objects, proprietary and open-source
-                (<strong>TODO: Add an example</strong>)</li>
+                classes, based on software objects, proprietary and open-source.</li>
               <li>It is very restricted because it does not have to be exposed.
               </li>
             </ul>
@@ -147,9 +148,9 @@
     <section class="architecture grey-sec">
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
-            <h2 class="sec-head2 text-left clearfix">RDF: Resource Description
-              Framework</h2>
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>RDF: Resource Description
+                Framework</b></h2>
             <p> </p>
             <p><b>Resource Description Framework</b> (<b>RDF</b>) is a&nbsp; <a
                 href="https://en.wikipedia.org/wiki/World_Wide_Web_Consortium" title="World Wide Web Consortium">World
@@ -170,16 +171,18 @@
               area of concern. </p>
             <span class="ILfuVd">RDF is the reference language to export
               Semantic Web data to software such as Protégé or Apache Jena, or
-              graph databases like Neo4J, GraphDB, Tigergraph etc...</span> </div>
+              graph databases like <a href="https://neo4j.com/" title="Neo4J">Neo4J</a>,
+              <a href="http://graphdb.ontotext.com/" title="GraphDB">GraphDB</a>,
+              <a href="https://www.tigergraph.com/" title="TigerGraph">Tigergraph</a>
+              etc...</span> </div>
         </div>
       </div>
     </section>
     <section class="architecture grey-sec">
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
-            <h2 class="sec-head2 text-left clearfix">Mapping CIM model into an
-              ontology </h2>
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>Mapping CIM model into an ontology</b></h2>
             <p>Because RDF can describe any type of information in a minimally
               structured way, it is perfectly suited to represent Survol
               internal data, which exposes information from multiple sources,
@@ -201,8 +204,8 @@
               <li><a href="https://www.semanticscholar.org/paper/Translation-of-Common-Information-Model-to-Web-Majewska-Kryza/5396e0c90b06d2d7643a7cd22c254796c55b0bae">Translation
                   of Common Information Model to Web Ontology Language</a> , <span
                   data-selenium-selector="venue-metadata"><span class=""><span>International
-                      Conference on Computational Science</span></span></span> <span
-                  data-selenium-selector="paper-year"><span class=""><span>2007</span></span></span></li>
+                      Conference on Computational Science</span></span></span>,
+                <span data-selenium-selector="paper-year"><span class=""><span>2007</span></span></span></li>
               <li><a href="https://www.researchgate.net/publication/228742137_DMTF-CIM_to_OWL_A_case_study_in_ontology_conversion">DMTF-CIM
                   to OWL: A case study in ontology conversion</a>, University of
                 Colorado </li>
@@ -211,7 +214,7 @@
                   NOVI Experience</a>, University of Amsterdam </li>
               <li><a href="https://web.dit.upm.es/%7Ejlopez/publicaciones/hsnmc04.pdf">Benefits
                   of Using Ontologies in the Management of High Speed Networks</a>,
-                Universidad Politécnica de Madrid" </li>
+                Universidad Politécnica de Madrid</li>
               <li><a href="https://waset.org/publications/5774/semantic-modeling-of-management-information-enabling-automatic-reasoning-on-dmtf-cim">Semantic
                   Modeling of Management Information:<span style="font-family: serif;">
                   </span>Enabling Automatic Reasoning on DMTF-CIM</a>&nbsp; </li>
@@ -250,9 +253,6 @@
               mapped to predicates, which ensures that no information is ever
               lost without enforcing any structural constraint on the data
               providers.</p>
-            <p><br>
-            </p>
-            <p>TODO: Resources URL structures (XID etc...)</p>
           </div>
         </div>
       </div>
@@ -260,12 +260,11 @@
     <section class="architecture grey-sec">
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
-            <h2 class="sec-head2 text-left clearfix">IMPORTING RDF DATA INTO
-              PROTEGE</h2>
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>IMPORTING RDF DATA INTO PROTEGE</b></h2>
             <div class="txtwithimg">
               <div class="text-box">
-                <p class="infotxt"><img src="file:///C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/html/images/Prot%C3%A9g%C3%A9_Logo.gif"
+                <p class="infotxt"><img src="images/Prot%C3%A9g%C3%A9_Logo.gif"
                     alt="Protégé logo" title="Protégé logo"> Protégé is a free,
                   open source ontology editor and a knowledge management system.
                   Protégé provides a graphic user interface to define
@@ -276,8 +275,8 @@
                   RDF endpoint. </p>
                 <p class="infotxt"><br>
                 </p>
-                <p class="infotxt"><img src="file:///C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/html/images/Protege_Open_from_URL.JPG"
-                    alt="Protégé: Enter URL" title="Protégé: Enter URL" align="left">The
+                <p class="infotxt"><img src="images/Protege_Open_from_URL.JPG" alt="Protégé: Enter URL"
+                    title="Protégé: Enter URL" style="float: left; padding-right: 5px;">The
                   first step is to open the Protégé "File" menu for opening or
                   saving ontologies. One of these options, "Open from URL"
                   expects a HTTP link. Survol uses the RDFS ontology, as it is
@@ -297,8 +296,8 @@
                   this URL is loaded, its content might be different.</p>
                 <p class="infotxt"><br>
                 </p>
-                <p class="infotxt"><img src="file:///C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/html/images/Protege_enter_or_select_URI.png"
-                    alt="Entering a RDF URL" title="Entering a RDF URL" align="left">The
+                <p class="infotxt"><img src="images/Protege_enter_or_select_URI.png"
+                    alt="Entering a RDF URL" title="Entering a RDF URL" style="float: left; padding-right: 5px;">The
                   HTTP link to enter is an ontology URL defined by Survol. Any
                   Survol URL can provide RDF triples: RDF is one of the many
                   output files Survol can automatically convert its data too. A
@@ -323,45 +322,40 @@
                   niche software or not-yet-widely-known application. Survol is
                   therefore well suited to describe an application or an IT
                   system based on very heterogeneous software objects.</p>
-                <p class="infotxt"><br>
-                </p>
-                <p class="infotxt"><br>
-                </p>
-                <p class="infotxt"><img src="file:///C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/html/images/Protege_Ontology_metrics.png"
-                    alt="Ontology metrics" title="Ontology metrics" align="left">
+                <br>
+                <br>
+                <p class="infotxt"><img src="images/Protege_Ontology_metrics.png"
+                    alt="Ontology metrics" title="Ontology metrics" style="float: left; padding-right: 5px;">
                   One the data are loaded; they are visible in the "<a href="http://protegeproject.github.io/protege/views/ontology-metrics/"
                     title="Ontology metrics">Ontology metrics</a>" view which
                   displays various for the axioms in the active ontology and its
                   imports closure. These counts can be for example the combined
                   logical and non-logical axiom count, the number of logical
-                  axioms, the number of classes,
-                  object properties, data properties and individuals in the
-                  signature of the
-                  imports closure of the active ontology. </p>
+                  axioms, the number of classes, object properties, data
+                  properties and individuals in the signature of the imports
+                  closure of the active ontology. </p>
                 <p class="infotxt">Several scripts can be merged, possibly from
                   different Survol agents. Their classes instances and
                   properties will be transparently merged as if coming from a
                   single URL.</p>
-                <p class="infotxt">The resources rdfs:seeAlso and
-                  rdfs:isDefinedBy can be plain HTTP URLS, but most of times,
-                  they will be RDF Survol URLs providing more RDF data. For
-                  example, if an object is present in the RDF triplestore, it
-                  will come with different resources pointing to provider
-                  scripts, each of them returning a triplestore related to the
-                  object.</p>
+                <p class="infotxt">The resources <span style="font-family: Courier New,Courier,monospace;">rdfs:seeAlso</span>
+                  and <span style="font-family: Courier New,Courier,monospace;">rdfs:isDefinedBy</span>
+                  can be plain HTTP URLS, but most of times, they will be RDF
+                  Survol URLs providing more RDF data. For example, if an object
+                  is present in the RDF triplestore, it will come with different
+                  resources pointing to provider scripts, each of them returning
+                  a triplestore related to the object.</p>
                 <br>
-                <p class="infotxt"><br>
-                </p>
+                <br>
                 <p class="infotxt">After loading, all objects created by Survol
                   are now visible in Protégé with their properties: The
                   mandatory properties which are part of its URL, and any
                   predicate generated by the Survol script. All classes and
                   properties are defined in RDFS ontology.&nbsp; <br>
                 </p>
-                <p class="infotxt"><img src="file:///C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/html/images/Protege_Annotations.png"
-                    alt="Annotations" title="Annotations"></p>
-                <p class="infotxt"><br>
-                </p>
+                <p class="infotxt"><img src="images/Protege_Annotations.png" alt="Annotations"
+                    title="Annotations"></p>
+                <br>
               </div>
             </div>
           </div>
@@ -371,9 +365,8 @@
     <section class="architecture grey-sec">
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
-            <h2 class="sec-head2 text-left clearfix">IMPORTING RDF DATA INTO
-              GRAPHDB</h2>
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>IMPORTING RDF DATA INTO GRAPHDB</b></h2>
             <div class="txtwithimg">
               <div class="text-box">
                 <p class="infotxt"><a href="http://graphdb.ontotext.com/">GraphDB</a>
@@ -391,49 +384,20 @@
                 <p class="infotxt">The "Import" view loads triplestores from RDF
                   URLs. <br>
                 </p>
-                <img src="file:///C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/html/images/GraphDB_Import.png"
-                  alt="GraphDB: Importing RDF" title="GraphDB: Importing RDF">
-                <p class="infotxt"><br>
-                </p>
+                <img src="images/GraphDB_Import.png" alt="GraphDB: Importing RDF"
+                  title="GraphDB: Importing RDF" style="width: 942px; height: 380px;">
+                <br>
                 <p class="infotxt">This view displays the classes of the
                   instances loaded from the RDF URL.<br>
                 </p>
-                <img src="file:///C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/html/images/GraphDB_Class_Hierarchy.png"
-                  alt="GraphDB class hierarchy" title="GraphDB class hierarchy">
-                <p class="infotxt"><br>
-                </p>
-                <p class="infotxt"><br>
-                </p>
+                <img src="images/GraphDB_Class_Hierarchy.png" alt="GraphDB class hierarchy"
+                  title="GraphDB class hierarchy" style="width: 920px; height: 490px;">
+                <br>
+                <br>
                 <p class="infotxt">Each individual resource can be displayed
                   with its predicates and objects.</p>
-                <img src="file:///C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/html/images/GraphDB_cgroup_cpuacct.png"
-                  alt="Description of Linux cgroup cpuacct" title="Description of Linux cgroup cpuacct">
-                <p class="infotxt"><br>
-                </p>
-                <p class="infotxt"><br>
-                </p>
-                <br>
-                <p class="infotxt"><br>
-                </p>
-                <p class="infotxt"><br>
-                </p>
-                <br>
-                <h2 class="sec-head2 text-left clearfix">SPARQLEndpoint</h2>
-                <div class="txtwithimg">
-                  <div class="text-box">
-                    <p class="infotxt">What is a SparQL Endpoint ?.</p>
-                    <p class="sec-subhead">There are also two output modes, used
-                      internally:</p>
-                    <ul class="datalist">
-                      <li>A native RDF mode which can be used as an input&nbsp;
-                        such as <a href="https://protege.stanford.edu/" class="a-link">Protégé</a>.
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <p></p>
-                <ul class="datalist">
-                </ul>
+                <img src="images/GraphDB_cgroup_cpuacct.png" alt="Description of Linux cgroup cpuacct"
+                  title="Description of Linux cgroup cpuacct" style="width: 986px; height: 525px;">
               </div>
             </div>
           </div>
@@ -460,8 +424,8 @@
                       Solutions</a> </li>
                   <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
                       Survol</a> </li>
-                  <li> <a href="faq.html"><i class="fa fa-angle-right"></i>
-                      Survol Faq</a> </li>
+                  <li> <a href="faq.html"><i class="fa fa-angle-right"></i> FAQ</a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -469,11 +433,11 @@
               <div class="useful-link">
                 <ul>
                   <li> <a href="architecture.html"><i class="fa fa-angle-right"></i>
-                      Survol Architecture</a> </li>
-                  <li> <a href="installation.html"><i class="fa fa-angle-right"></i>
-                      Survol Installation</a> </li>
+                      Architecture</a> </li>
+                  <li> <a href="intended_audience.html"><i class="fa fa-angle-right"></i>
+                      Audience</a> </li>
                   <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
-                      Survol Use Cases</a> </li>
+                      Use cases</a> </li>
                   <li> <a href="contact.php"><i class="fa fa-angle-right"></i>
                       Contact Us</a> </li>
                 </ul>

@@ -1,6 +1,3 @@
-# https://bugs.python.org/issue8704
-# If there is a Python problem on OVH mutualised hosting, it returns:
-# Response header name '<!--' contains invalid characters, aborting request,
 # If the CGI script crashes before finishing the headers, cgitb will emit invalid HTTP headers before showing the error message.
 # The workaround is to put: HttpProtocolOptions Unsafe line into the apache .conf
 
@@ -44,11 +41,6 @@ else:
     def survol_unescape(s):
         return HTMLParser.HTMLParser().unescape(s)
 
-try:
-    modeOVH = os.environ['SCRIPT_NAME'].endswith("/survolcgi.py")
-except:
-    modeOVH = True
-
 ################################################################################
 
 def SetLoggingConfig(isDebug):
@@ -74,9 +66,13 @@ loggerRdflib = logging.getLogger("rdflib.term")
 loggerRdflib.setLevel(logging.ERROR)
 
 # This is the general purpose logger.
-frm = inspect.stack()[1]
-mod = inspect.getmodule(frm[0])
-gblLogger = logging.getLogger(mod.__name__)
+if sys.version_info >= (3,):
+    logger_name = "inspect"
+else:
+    frm = inspect.stack()[1]
+    mod = inspect.getmodule(frm[0])
+    logger_name = mod.__name__
+gblLogger = logging.getLogger(logger_name)
 
 if sys.version_info >= (3,):
     import builtins
@@ -92,6 +88,16 @@ else:
     __builtin__.ERROR = gblLogger.error
     __builtin__.INFO = gblLogger.info
     __builtin__.CRITICAL = gblLogger.critical
+
+################################################################################
+
+# Returns None even if jinja2 is available but configuration does not use it.
+def GetJinja2():
+    try:
+        import jinja2
+        return jinja2
+    except:
+        return None
 
 ################################################################################
 
@@ -319,14 +325,6 @@ uriRoot = UriRootHelper()
 # SERVER_ADDR=192.168.0.17
 # HTTP_HOST=82.45.12.63
 #
-# This is another machine hosted by OVH:
-#
-# http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/print_environment_variables.py
-# SERVER_SOFTWARE=Apache
-# SERVER_NAME=www.primhillcomputers.com
-# SERVER_ADDR=5.135.131.70
-# HTTP_HOST=www.primhillcomputers.com
-#
 # It is better to rely on a distributed naming system: DNS or plain IP address.
 def HostName():
     # SERVER_NAME is set by the HTTP server and might be wrong, but gives some consistency.
@@ -445,11 +443,6 @@ def EncodeUri(anStr):
         return urllib_quote(strTABLE,'ascii')
 
 ################################################################################
-
-# OVH
-# REQUEST_URI=/cgi-bin/survol/print_environment_variables.py
-# SCRIPT_FILENAME=/home/primhilltc/cgi-bin/survol/print_environment_variables.py
-# REQUEST_URI=/cgi-bin/survol/print_environment_variables.py
 
 def RequestUri():
     try:

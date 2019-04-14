@@ -1,12 +1,8 @@
-RESOLUS:
+This is an old list of bugs, kept just for information.
 
-oracle_view_dependencies.py et oracle_table_dependencies.py avec serveur Python sont affiches en texte.
-C'est quand 0on utilise le serveur en Python qui liste les scripts au lancement.
+They are now reported in Github issues:
+https://github.com/rchateauneu/survol/issues
 
-============================================================================================================
-http://127.0.0.1/PythonStyle/survol/sources/BY_hostname/win32_NetShareEnum.py?xid=hostname:192.168.1.67
-
-uncode les noms des fichiers et folders sinon tres moche (Mais ça marche)
 ============================================================================================================
 Events update:
 curr_dir=C:\\Documents and Settings\\Remi\\My Documents\\Reverse\\PythonStyle\\survol/sources_types/file
@@ -33,33 +29,11 @@ http://192.168.1.68/~rchateau/RevPython/survol/entity.py?mode=rdf&_=142271454762
 ... et ensuite ca deconne car on s'attend a ce que cgi.args["mode"] renvoie un seul element.
 
 ============================================================================================================
-
-Quand on a un timeout (Pour les subserver), apres ca ne repond plus du tout.
-[Thu Feb 12 16:27:00 2015] [error] [client 127.0.0.1] (70007)The timeout specified has expired: ap_content_length_filter: apr_bucket_read() failed, referer: http://127.0.0.1/PythonStyle/survol/entity.py
-
-Verifier si on peut relancer le feeder ?
-Ce serait bien si on pouvait rediriger automatiquement ?
-Ou bien forcer au rechargement ?
-SVG n'a pas de meta refresh.
-
-Toutefois: Au lieu de rediriger, on pourrait envoyer un page HTML qui contient un DIV avec comme URL,
-le lien vers du SVG (Avec le port special) et le meta-refresh qui va recharger toutes les X minutes,
-comme ca on est jamais en timeout.
-
-Et on met un peu de sauce sur la page HTML pour voir ou on en est.
-Attention car ce ne sera plus une page SVG, donc on ne peut pas la refiler autre part.
-Et donc la redirection ne doit etre utilisee que pour les navigateurs.
-Est-ce que le lien d'origine fonctionne et est capable de redemarrer le feeder ?
-
-============================================================================================================
 Quand nmap renvoie le port http, on doit pouvoir cliquer dessus et ne pas arriver sur 
 entity.py avec adresse: Ou bien, dans le entity.py, si le port est 80, on doit avoir le lien html_data.
 
 ============================================================================================================
 le nmap qui interroge les ports ne devrait pas etre limite a 127.0.0.1 mais au contraire le sous-reseau. 
-============================================================================================================
-From now on, many bugs are reported on:
-https://github.com/rchateauneu/survol/issues
 ============================================================================================================
 Ajouter la commande:
 
