@@ -1,0 +1,549 @@
+
+
+.lt1
+{
+	margin-bottom:20px;
+}
+.ovr {
+    margin: 44px 0px 30px 0px !important; 
+}
+.log2
+{
+    margin-top: 40px;
+    margin-bottom: 70px;	
+}
+.cl th
+{
+background: #f5f5f5;	
+}
+td, th
+{
+	font-size:14px;
+}
+.r-wt
+{
+	margin-top:35px;
+}
+table.cl
+{
+	width:100%;
+}
+.s-script form
+{
+    display: inline-block;
+    padding-left: 15px;
+    background: #f5f5f5;
+    width: 100%;
+    padding: 16px;
+}
+.s-script input.submmt
+{
+display: block;
+    width: 105px;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #008183;
+    border: 1px solid #008183;
+    font-weight: 400;
+    font-family: 'Open Sans';
+    background: transparent;
+    padding: 5px 0px;
+    margin-top: 10px;
+}
+.s-script input.submmt:hover
+{
+background:#008183;
+color:#fff;	
+}
+.scr
+{
+	margin-bottom:20px !important;
+}
+.tabll
+{
+margin-top: 10px;
+}
+.overv-par a
+{
+	color:#fff;
+}
+#overv-par input.submm:hover
+{
+	background:#008183;
+	color:#fff;
+}
+#overv-par input.submm
+{
+    background: transparent;
+    border: 1px solid #008183;
+    padding: 6px 15px;
+    color: #008183;	
+}
+#overv-par
+{
+	margin:44px 0px 65px 0px;
+}
+#overv-par .line-center img
+{
+	margin-top:5px;
+}
+#overv-par .surv-cr
+{
+	margin-top:10px;
+}
+#overv-par h2
+{
+font-family: 'Open Sans';
+    font-weight: 700;
+    text-align: left;
+    font-size: 25px;
+    line-height: 30px;
+    text-transform: uppercase;
+    color: #000;
+    margin-top: 15px;
+    border-bottom: 0px;
+	word-break: break-word;
+}
+
+#overv-par button, input, select, textarea
+{
+    padding: 0px 5px;	
+}
+#overv-par td a
+{
+	color:#000;
+}
+#overv-par td a:hover
+{
+color:#008183;
+}
+#overv-par td, th
+{
+padding: 6px 10px;
+    border: 1px solid #ddd;
+}
+#overv-par td
+{
+	background:#f5f5f5;
+}
+
+
+.surv-cr a
+{
+	color:#fff;
+}
+#SurvolCredentials input.submm:hover
+{
+	background:#008183;
+	color:#fff;
+}
+#SurvolCredentials input.submm
+{
+    background: transparent;
+    border: 1px solid #008183;
+    padding: 6px 15px;
+    color: #008183;	
+}
+#SurvolCredentials
+{
+	margin:60px 0px 65px 0px;
+}
+#SurvolCredentials .line-center img
+{
+	margin-top:5px;
+}
+#SurvolCredentials .surv-cr
+{
+	margin-top:25px;
+}
+#SurvolCredentials h2
+{
+font-family: 'Open Sans';
+    font-weight: 700;
+    text-align: center;
+    font-size: 25px;
+    line-height: 30px;
+    text-transform: uppercase;
+    color: #000;
+    margin-top: 0px;
+    border-bottom: 0px;
+	word-break: break-word;
+}
+
+#SurvolCredentials button, input, select, textarea
+{
+    padding: 0px 5px;	
+}
+#SurvolCredentials td a
+{
+	color:#000;
+}
+#SurvolCredentials td a:hover
+{
+color:#008183;
+}
+#SurvolCredentials td, th
+{
+padding: 6px 10px;
+    border: 1px solid #ddd;
+	font-weight:400;
+}
+#SurvolCredentials td
+{
+	background:#f5f5f5;
+}
+
+.s-res
+{
+	margin-top:40px;
+}
+.s-res th
+{
+    background:#f15922;
+    color: #fff;
+    font-weight: 400 !important;
+    font-family: 'Open Sans';
+}
+.surv-cr th
+{
+    background:#f15922;
+    color: #fff;
+    font-weight: 400 !important;
+    font-family: 'Open Sans';
+}
+#over-ent form
+{
+	margin-top:10px;
+}
+
+#over-ent form input.subm:hover
+{
+background:#008183;
+border:1px solid #008183;	
+color:#fff;
+}
+#over-ent table.table_script_parameters 
+{
+border:0px solid #ddd;
+    text-align: center;
+    margin: 8px auto;
+}
+#over-ent form input.subm
+{
+width: 120px;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #008183;
+    border: 1px solid #008183;
+    font-weight: 400;
+    font-family: 'Open Sans';
+    background: transparent;
+    padding: 8px 15px;
+	margin-top: 5px;
+}	
+#over-ent .line-center img
+{
+    margin-bottom: 20px;
+}
+#over-ent
+{
+	text-align:center;
+	    background: #f5f5f5;
+		    box-shadow: 5px 5px #ccc;
+			padding: 30px 0px 22px 0px;
+
+}
+#over-ent label
+{
+padding-right: 8px;
+}
+.line-center
+{
+	text-align:center;
+}
+.ov-hed h2
+{
+    font-family: 'Open Sans';
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 30px;
+    text-transform: uppercase;
+    color: #000;
+    margin-top: 0px;
+    border-bottom: 0px;
+	text-align:center;	
+	word-break: break-word;
+}
+#survol
+{
+	padding:60px 0px 50px 0px;
+}
+.inter 
+{
+	width:100%;
+	float:left;
+}
+.inter ul
+{
+	margin:0;
+	padding:0;
+}
+.inter ul li
+{
+	list-style:none;
+	float:left;
+	width:100%;
+	float:left;
+	background:url(../images/arrow.png);
+	background-repeat:no-repeat;
+	padding-left:12px;	
+}
+
+.line-left
+{
+	margin-bottom:10px;
+}
+.serv-par p
+{
+	text-align:justify;
+}
+.serv-par i
+{
+	padding-top:5px;
+}
+.survv-hed h2
+{
+font-family: 'Open Sans';
+    font-weight: 700;
+    font-size: 30px;
+	line-height:35px;
+    text-transform: uppercase;
+	color:#000;
+	margin-top:0px;
+	border-bottom: 0px;
+}	
+
+/*SURVOL CONFIGURATION*/
+
+
+
+#serv-conf {
+    background: #f5f5f5;
+    padding: 38px 30px 31px 30px;
+    box-shadow: 5px 5px #ccc;
+}
+.copyright a
+{
+	color:#fff;
+	text-decoration:none;
+	font-family: 'Open Sans';
+	font-size:14px;
+font-weight: 400;
+}
+.copyright a:hover
+{
+color:#008183;	
+}
+.copyright
+{
+    color: #fff;
+    text-align: right;
+}	
+}
+.footer-menu
+{
+	width:100%;
+	float:left;
+}
+.footer-menu ul
+{
+	margin:0;
+	padding:0;
+}
+.footer-menu ul li
+{
+	list-style:none;
+	float:left;
+	list-style:none;
+}
+.footer-menu ul li a
+{
+text-decoration:none;
+padding:0 10px;
+font-size:14px;
+color:#fff;	
+font-weight: 400;
+    font-family: 'Open Sans';
+}
+.footer-menu ul li a:hover
+{
+color:#008183;
+}
+
+#footer-bottom
+{
+background: #f15922;
+    padding: 15px 0px;	
+}
+
+
+.serv-form form table tr td input.submit
+{
+width: 220px;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #008183;
+    border: 1px solid #008183;
+    font-weight: 400;
+    font-family: 'Open Sans';
+	}
+.serv-form form table tr td input.submit:hover
+{
+	background:#008183;
+	color:#fff;
+}
+
+.serv-form form table tr td 
+{
+    padding-top: 15px;
+}
+.serv-form form table tr td label
+{
+	font-weight:400;
+	font-family: 'Open Sans';
+	padding-bottom: 2px;
+}
+.serv-form form table tr td input:focus
+{
+	outline:0px solid #ddd;
+}
+.serv-form form table tr td input
+{
+	width:100%;
+	    background: #fff;
+    padding: 12px;	
+	border: 1px solid #ddd;
+}
+.serv-form form table 
+{
+	width:100%;
+}
+.serv-form
+{
+	padding-top:30px;
+}
+.serv-hed
+{
+	text-align:center;
+}
+
+.serv-hed h2
+{
+font-family: 'Open Sans';
+    font-weight: 700;
+    text-align: center;
+    font-size: 25px;
+	line-height:30px;
+    text-transform: uppercase;
+	color:#000;
+	margin-top:0px;
+	border-bottom: 0px;
+}	
+#survol-configuration
+{
+	margin:65px 0px 68px 0px; 
+}
+#logo
+{
+    text-align: center;
+    padding-top: 10px;	
+}
+header
+{
+	    width: 100%;
+    height: 100px;
+    border-bottom: 1px solid #ddd;
+}
+p a
+{
+color: #008183;
+text-decoration:none !important;	
+}
+a
+{
+color: #008183;
+text-decoration:none !important;	
+}
+
+
+
+@media only screen and (max-width: 767px) {
+	#overv-par h2
+	{
+		font-size:16px;
+		line-height:24px;
+	}
+#SurvolCredentials h2
+{
+		font-size:14px;
+	line-height:24px;
+}
+.serv-hed h2
+{
+	font-size:17px;
+	line-height:35px;
+}
+.copyright
+{
+	text-align:center !important;
+}
+
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/OpenSans-Semibold.woff2') format('woff2'),
+        url('../fonts/OpenSans-Semibold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/OpenSans-Bold.woff2') format('woff2'),
+        url('../fonts/OpenSans-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/OpenSans-Light.woff2') format('woff2'),
+        url('../fonts/OpenSans-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/OpenSans-Italic.woff2') format('woff2'),
+        url('../fonts/OpenSans-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/OpenSans-Extrabold.woff2') format('woff2'),
+        url('../fonts/OpenSans-Extrabold.woff') format('woff');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/OpenSans.woff2') format('woff2'),
+        url('../fonts/OpenSans.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+

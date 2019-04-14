@@ -1,16 +1,10 @@
-
-csv
-
 COMMENT MANIPULER DES DONNEES TEMPORELLES ?
 Par exemple: TOP: On ne sait pas quoi en faire pour le moment.
+L idee est que top envoie du RDF qu'on stocke dans un fichier,
+exactement comme dockit.
 
-Utiliser Octave pour creer des plots 3D ? Ou plutot d3.js,
-on essaye d'en faire le plus possible dans le browser.
-Autre aspect (C'est du bla-bla marketing mais facile a expliquer et
-permet d'y mettre de jolies choses):
-- RDF pour la logique
-- Et puis le plan numerique: Notamment periodicite.
-
+------------------------------------------------------------------------------------------------------------
+Notes en vrac:
 http://d3-generator.com/
 
 On pourrait associer un predicat RDF a un nom de colonne CSV.
@@ -75,15 +69,6 @@ Pourrait-on avoir comme argument d'URL, pour les properties Literal:
 entity_type+entity_id+property ?
 
 RDF n est pas capable de representer des vecteurs de chiffres.
-------------------------------------------------------------------------------------------------------------
-On stocke dans l'equivalent de fichier CSV.
-De l'exterieur, on associe un URL qui renvoie pour chaque type+id+property,
-une suite de doublons timestamp+valeur, au format MIME text/csv.
-Au moins, ca permet d'afficher de facon standard, dans Excel.
-Mais on a aussi des scripts qui prennent un ou plusieurs URL csv et fotn des statistiques (correlations)
-des graphes etc...
-C'est a dire a nouveau le concept de fusion, mais pour données CSV.
-
 ============================================================================================================
 Details sur les CSV et les mime-type:
 http://stackoverflow.com/questions/398237/how-to-use-the-csv-mime-type

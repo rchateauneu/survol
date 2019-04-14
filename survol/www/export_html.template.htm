@@ -1,0 +1,126 @@
+<html>
+<head>
+
+<style>
+#overv-par .scripts_tree_class {
+    margin: 1px 1px;
+    border:1px;
+    color:red;
+    border-spacing: 1px 1px;
+    padding:1px;
+}
+</style>
+
+<meta name="viewport" content="width=device-width">
+<title>{{page_title}}</title>
+<base href="{{base_href}}"/>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <section id="header">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div id="logo"> <img src="images/logo.png" width="80" height="80" alt="logo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</header>
+<section id="overv-par">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>{{script_information | safe}}</h2><br>
+        <h2>{{object_information | safe}}</h2>
+
+        {{errors_table_html | safe}}
+
+        <h2>Objects</h2>
+        <div class="line-left"><img src="images/line-left.png" alt="line"></div>
+
+        {% for one_class_objects in all_objects_list %}
+            <div style="overflow-x:auto;">
+          <table class="surv-cr" width="100%" border="1">
+            <tbody>
+              <tr>
+                <th colspan="3" style="background-color:{{one_class_objects[2]}}"><a href="{{ one_class_objects[0] }}">{{ one_class_objects[1] }}</a></th>
+              </tr>
+              {{ one_class_objects[3] | safe }}
+            </tbody>
+          </table>
+        </div>
+        {% endfor %}
+
+      </div>
+    </div>
+
+
+    {% if parameters_edition_html %}
+      <h2>Script parameters</h2>
+      <div class="line-left"><img src="images/line-left.png" alt="line"></div>
+      {{parameters_edition_html | safe}}
+    {% endif %}
+
+
+
+    <div class="row">
+      <div class="col-md-12" style="table {border-collapse: separate; border-spacing:0; }" xxstyle="table {border-collapse: separate; border-spacing:0; }">
+        <h2>Related data scripts </h2>
+        <div class="line-left"><img src="images/line-left.png" alt="line"></div>
+        {{scripts_tree_html | safe}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>Other related urls</h2>
+        <div class="line-left"><img src="images/line-left.png" alt="line"></div>
+        <div style="overflow-x:auto;">
+          <table class="surv-cr" width="100%" border="1">
+            <tbody>
+              <tr>
+                {% for url_triple in list_other_urls %}
+                <th><a href="{{url_triple[0]}}">{{url_triple[1]}}</a></th>
+                {% endfor %}
+              </tr>
+              <tr>
+                {% for url_triple in list_other_urls %}
+                <td>{{url_triple[2]}}</td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+          <table class="surv-cr" width="100%" border="1">
+            <tbody>
+              {{ html_cim_urls | safe }}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <section id="footer-bottom">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="footer-menu">
+            <ul>
+              <li> <a href="http://rchateau-hp:8000/survol/www/index.htm">Survol home</a> <a href="http://rchateau-hp:8000/survol/edit_configuration.py">Configuration</a> <a href="http://rchateau-hp:8000/survol/edit_credentials.py">Credentials</a> </li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="copyright">&copy; <a href="http://www.primhillcomputers.com/">Primhill Computers</a> 2017-2019</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</footer>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</html>
