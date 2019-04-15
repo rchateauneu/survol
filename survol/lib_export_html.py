@@ -503,8 +503,8 @@ def DisplayHtmlTextFooter():
     # This needs a directory which depends on the HTTP hosting, such as on OVH.
     # TODO: Probably useless.
     urlIndex = lib_exports.UrlWWW("index.htm")
-    urlEdtConfiguration = lib_util.uriRoot + "/www/edit_configuration.py"
-    urlEdtCredentials = lib_util.uriRoot + "/www/edit_credentials.py"
+    urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
+    urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
 
     wrtFmt = """
     <br>
