@@ -363,7 +363,8 @@ def MainNoJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formActio
     FormInsertCredentialsNoJinja(formAction, credTypeList)
     WrtAsUtf("""</table>""")
 
-    lib_export_html.DisplayHtmlTextFooter()
+    htmlFooter = "".join( lib_export_html.DisplayHtmlTextFooter() )
+    WrtAsUtf(htmlFooter)
 
     WrtAsUtf("</body></html>")
 
