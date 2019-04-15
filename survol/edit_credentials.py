@@ -342,6 +342,7 @@ def Main():
 
 # Simple HTML page if jinja2 is not installed.
 def MainNoJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList):
+    lib_util.WrtHeader('text/html')
     lib_export_html.DisplayHtmlTextHeader(page_title)
 
     WrtAsUtf("""
