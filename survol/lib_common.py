@@ -561,6 +561,8 @@ class CgiEnv():
 		formAction = os.environ['SCRIPT_NAME']
 		DEBUG("EditionMode formAction=%s",formAction)
 
+		lib_util.WrtHeader('text/html')
+
 		# It uses the same CSS as in HTML mode.
 		lib_export_html.DisplayHtmlTextHeader(self.m_page_title+" - parameters")
 

@@ -16,6 +16,7 @@ from lib_util import WrtAsUtf
 
 
 def MainNoJinja():
+    lib_util.WrtHeader('text/html')
     lib_export_html.DisplayHtmlTextHeader("Configuration")
 
     WrtAsUtf("""
