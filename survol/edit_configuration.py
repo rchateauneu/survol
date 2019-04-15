@@ -45,13 +45,8 @@ def MainNoJinja():
     </form>
     """)
 
-    lib_export_html.DisplayHtmlTextFooter()
-
-    #WrtAsUtf('<br><a href="edit_credentials.py">Credentials</a>')
-    #WrtAsUtf('<br><a href="edit_configuration.py">Configuration</a>')
-
-    #urlIndex = lib_exports.UrlWWW("index.htm")
-    #WrtAsUtf('<br><a href="' + urlIndex + '">Return to Survol</a>')
+    htmlFooter = "".join( lib_export_html.DisplayHtmlTextFooter() )
+    WrtAsUtf(htmlFooter)
 
     WrtAsUtf("</body></html>")
 
