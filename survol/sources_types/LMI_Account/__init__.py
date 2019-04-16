@@ -6,7 +6,8 @@ import sys
 import lib_common
 from lib_properties import pc
 
-# TODO: Maybe choose other names for Unix ?
+# TODO: There is an OpenLMI provider which defined the class LMI_Account.
+# https://rrakus.fedorapeople.org/openlmi-account/doc/usage.html
 def EntityOntology():
     return ( ["Name","Domain"], )
 
