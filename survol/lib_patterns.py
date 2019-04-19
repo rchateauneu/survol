@@ -12,7 +12,7 @@ dictGraphParams = {
 	"CIM_Process"                            : ( "component", "#99FF88", "#99FF88", 0, False ),
 	"CIM_Directory"                          : ( "folder",    "#8899FF", "#8899FF", 0, False ),
 	"CIM_DataFile"                           : ( "note",      "#88BBFF", "#88BBFF", 0, False ),
-	"group"                                  : ( "plain",     "#88BBFF", "#88BBFF", 0, False ),
+	"LMI_Group"                              : ( "plain",     "#88BBFF", "#88BBFF", 0, False ),
 	"CIM_ComputerSystem"                     : ( "signature", "#CCFFCC", "#CCFFCC", 0, False ),
 	"memmap"                                 : ( "tab",       "#CCFFCC", "#CCFFCC", 0, False ),
 	"CIM_LogicalDisk"                        : ( "box3d",     "#FFCCFF", "#FFCC66", 0, False ),
@@ -20,7 +20,7 @@ dictGraphParams = {
 	"smbserver"                              : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
 	"smbshr"                                 : ( "tab",       "#99CCFF", "#FFCC66", 0, True ),
 	"linker_symbol"                          : ( "none",      "#99FFCC", "#FFCC66", 0, False ),
-	"user"                                   : ( "octagon",   "#EEAAAA", "#FFCC66", 0, False ),
+	"LMI_Account"                            : ( "octagon",   "#EEAAAA", "#FFCC66", 0, False ),
 	"Win32_Service"                          : ( "component", "#EEAAAA", "#FFCC66", 0, False ),
 	"Win32_UserAccount"                      : ( "octagon",   "#EEAAAA", "#FFCC66", 0, True ),
 }
