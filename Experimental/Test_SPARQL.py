@@ -73,7 +73,12 @@ def print_simple(arg_elt,level=1):
         print("    "*level,arg_elt.__class__.__name__)
         print("    "*level,"??? ",arg_elt.__class__.__name__,dir(arg_elt))
 
-
+# This returns a list of lists of tokens.
+# These second-level lists of tokens are a SPARQL list of patterns,
+# that is, patterns separated by a semi-colon,
+# because they share the same subject, or commans if they share the subject and the predicate,
+# ended by a dot. When returned, the list of patterns have a length multiple of three,
+# because it is made of concatenated RDF triples.
 def get_triples(arg_elt):
     if arg_elt.__class__.__name__ == "CompValue":
         for key2 in arg_elt:
@@ -90,17 +95,20 @@ def get_triples(arg_elt):
                 return res
     return None
 
-
+# This groups tokens by sequence of three, to create triples.
+# All SPARQL constraints are mixed together
 def aggregate_triples(raw_trpl):
     print("----------------------------")
     resu = []
     curr_trip = []
     cnt_trip = 0
+    print("Len raw_trpl=",len(raw_trpl))
     for block in raw_trpl:
         for elt in block:
             #print(elt,type(elt))
             cnt_trip += 1
-            curr_trip.append(str(elt))
+            # curr_trip.append(str(elt))
+            curr_trip.append(elt)
             if cnt_trip == 3:
                 resu.append(curr_trip)
                 cnt_trip = 0
@@ -108,6 +116,7 @@ def aggregate_triples(raw_trpl):
 
     if cnt_trip:
         resu.append(curr_trip)
+    print("Len resu=",len(resu))
     return resu
 
 
@@ -190,8 +199,128 @@ WHERE
   ?t :saidBy        "Bob" .
 }
 """,
+# The SPARQL keyword a is a shortcut for the common predicate rdf:type, giving the class of a resource.
+"""
+PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?the_pid
+WHERE
+{ ?t survol:pid    ?the_pid  .
+  ?t survol:ppid  123 .
+  ?t rdf:type "CIM_Process" .
+}
+""",
 ]
 
+def pname_to_string(pname):
+    # pname_pname_{'localname': u'pid', 'prefix': u'survol'}
+    value_localname = pname['localname']
+    try:
+        value_prefix = pname['prefix']
+    except KeyError:
+        value_prefix = ""
+    value_name = value_prefix + ":" + value_localname
+    return value_name
+
+def process_subject(subj):
+    # PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'pid', 'prefix': u'survol'}}]}]}
+    # if isinstance(subj,rdflib.plugins.sparql.parserutils.CompValue):
+    if isinstance(subj,rdflib.term.Variable):
+        return("VARIABLE=",str(subj))
+        return
+    if isinstance(subj,rdflib.term.Literal):
+        # rdflib.term.Literal(u'123', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer')
+        return("Literal=",str(subj))
+    if isinstance(subj,rdflib.term.BNode):
+        # rdflib.term.BNode('N9b69940d021342f7b9dd341a53ea947b')
+        return("NODE=",str(subj))
+    if isinstance(subj,rdflib.term.URIRef):
+        # rdflib.term.URIRef(u'http://nasa.dataincubator.org/spacecraft/1968-089A')
+        return("URIRef=",str(subj))
+    if isinstance(subj,rdflib.plugins.sparql.parserutils.CompValue):
+        if 'string' in subj:
+            # literal_literal_{'string': rdflib.term.Literal(u'CIM_Process')}
+            litt_string = subj['string']
+            # rdflib.term.Literal(u'CIM_Process')
+            return("litt_string",str(litt_string))
+        if 'localname' in subj:
+            return("value_name",pname_to_string(subj))
+    print("ERRSUBJsubj=",subj)
+    print("ERRSUBJsubj=",type(subj))
+    raise Exception("Cannot parse")
+
+def process_predicate(pred):
+    # PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'pid', 'prefix': u'survol'}}]}]}
+    if isinstance(pred,rdflib.plugins.sparql.parserutils.CompValue):
+        try:
+            one_part = pred['part']
+        except KeyError:
+            print("pred=",pred)
+            raise
+        #print("$$$ ",type(one_part))
+        #print("$$$ ",dir(one_part))
+        #print("$$$ ",one_part)
+        if isinstance(one_part,rdflib.plugins.sparql.parserutils.plist):
+            assert(len(one_part)==1)
+            one_part_first = one_part[0]
+            if isinstance(one_part_first,rdflib.plugins.sparql.parserutils.CompValue):
+                #print("###",one_part_first)
+                #print("###",dir(one_part_first))
+                #print("###",type(one_part_first))
+                one_part_part = one_part_first['part']
+                #print("@@@",one_part_part)
+                #print("@@@",type(one_part_part))
+                #print("@@@",dir(one_part_part))
+                if isinstance(one_part_part,rdflib.plugins.sparql.parserutils.plist):
+                    assert(len(one_part_part)==1)
+                    one_part_part_first = one_part_part[0]
+                    #print("%%%",one_part_part_first)
+                    #print("%%%",type(one_part_part_first))
+                    #print("%%%",dir(one_part_part_first))
+                    if isinstance(one_part_part_first,rdflib.plugins.sparql.parserutils.CompValue):
+                        one_part_part_first_part = one_part_part_first['part']
+                        resu = pname_to_string(one_part_part_first_part)
+
+                        return("Predicate",resu)
+
+    elif isinstance(pred,rdflib.term.Variable):
+        # rdflib.term.Variable(u'p')
+        return("VARIABLE",str(pred))
+    elif isinstance(pred,rdflib.term.BNode):
+        return("NODE",pred)
+    else:
+        print("ERREUR")
+
+        print("***:",type(pred))
+        print("***:",dir(pred))
+        raise Exception("Cannot parse")
+
+# Examples of input:
+# ['s', 'p3', 'N739bb0cc49f94657a365f080994a0e8f']
+# [
+#   'person',
+#   "PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'name', 'prefix': u'foaf'}}]}]}",
+#   'name']
+# [
+#   'x',
+#   "PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'name', 'prefix': u'foaf'}}]}]}",
+#   "literal_literal_{'string': rdflib.term.Literal(u'Johnny Lee Outlaw')}"]
+# [
+#   'item',
+#   "PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'P2848', 'prefix': u'wdt'}}]}]}",
+#   "pname_pname_{'localname': u'Q1543615', 'prefix': u'wd'}"]
+def prepare_triple(one_trpl):
+    print("--------------------")
+    s0 = process_subject(one_trpl[0])
+    s1 = process_predicate(one_trpl[1])
+    s2 = process_subject(one_trpl[2])
+    print("Subj:",s0)
+    print("Pred:",s1)
+    print("Obj:",s2)
+
+    #print(one_trpl[1],type(one_trpl[1]))
+    clean_trpl = one_trpl
+    return clean_trpl
 
 def ProcessQuery(qry):
     print("===================================================")
@@ -205,8 +334,9 @@ def ProcessQuery(qry):
     raw_trpl = get_triples(parsed)
     #print_simple(raw_trpl)
     trpl_lst = aggregate_triples(raw_trpl)
-    for trpl in trpl_lst:
-        print(trpl)
+    for one_trpl in trpl_lst:
+        clean_trpl = prepare_triple(one_trpl)
+        #print("~",clean_trpl)
 
 
 for qry in arr:
@@ -214,4 +344,12 @@ for qry in arr:
 
 print("===================================================")
 
-
+# Quand on a un triplet de cette forme, trouver toutes les proprietes
+# litterales relatives au sujet.
+# Subj: ('VARIABLE=', 't')
+# Pred: ('Predicate', u'rdf:type')
+# Obj: ('litt_string', 'CIM_Process')# On peut alors en faire des requetes WMI ou WBEM, eventuellement.
+#
+# En theorie, c'est toujours possible mais probablement tres lent.
+#
+# Si on a les bons attributs, on peut executer le script principal dans survol.
