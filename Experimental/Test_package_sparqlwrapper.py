@@ -2,6 +2,7 @@ import SPARQLWrapper
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 # The goal is to understand the SPARQL HTTP protocol.
+# It connects to Survol SPARQL server.
 
 # query =
 #     PREFIX rdfs: <http:/www.w3.org/2000/01/rdf-schema#>
@@ -20,7 +21,9 @@ sparql.setQuery("""
     WHERE { <http://dbpedia.org/resource/Asturias> rdfs:label ?label }
 """)
 sparql.setReturnFormat(JSON)
-results = sparql.query().convert()
-
+sparql_qry = sparql.query()
+print(sparql_qry)
+results = sparql_qry.convert()
+print(results)
 for result in results["results"]["bindings"]:
     print('%s: %s' % (result["label"]["xml:lang"], result["label"]["value"]))
