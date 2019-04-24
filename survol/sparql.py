@@ -4,52 +4,119 @@
 This SPARQL server translates SPARQL queries into Survol data model.
 """
 
-# For the moment, it just displays the content of the input the standard error,
+# For the moment, it just displays the content of the input to standard error,
 # so the SparQL protocol can be analysed.
+
+# See Experimental/Test_package_sparqlwrapper.py
 
 import os
 import sys
 import cgi
 import html
-
+import lib_util
+import lib_kbase
+import rdflib
 
 # HTTP_HOST and SERVER_NAME and SERVER_PORT
 
 # QUERY_STRING="query=%0A++++PREFIX+rdfs%3A+%3Chttp%3A/www.w3.org/2000/01/rdf-schema%23%3E%0A++++SELECT+%3Flabel%0A++++WHERE+%7B+%3Chttp%3A/dbpedia.org/resource/Asturias%3E+rdfs%3Alabel+%3Flabel+%7D%0A&output=json&results=json&format=json"
 
+#https://docs.aws.amazon.com/neptune/latest/userguide/sparql-api-reference-mime.html
+#
+# You can choose the MIME type of a SPARQL response by sending an "Accept: type" header with the request.
+# For example, curl -H "Accept: application/nquads ...".
+# The available content types depend on the SPARQL query type.
+#
+# SELECT
+#    application/sparql-results+json Default
+#    application/sparql-results+xml
+#    application/x-binary-rdf-results-table
+#    text/tab-separated-values
+#    text/csv
+# ASK
+#    application/sparql-results+json Default
+#    application/sparql-results+xml
+#    text/boolean
+# CONSTRUCT
+#    application/n-quads Default
+#    application/rdf+xml
+#    application/ld+json
+#    application/n-triples
+#    text/turtle
+#    text/n3
+#    application/trix
+#    application/trig
+#    application/sparql-results+json
+# DESCRIBE
+#    application/n-quads Default
+#    application/rdf+xml
+#    application/ld+json
+#    application/n-triples
+#    text/turtle
+#    text/n3
+#    application/trix
+#    application/trig
+#    application/sparql-results+json
+
 
 def Main():
-    sys.stdout.write("Content-type: text/html\n\n")
-
-    sys.stdout.write("""
-    <head>
-     <title>SPARQL endpoint</title>
-    </head>""")
-
-    sys.stdout.write("""
-    <body>
-    """)
-
     arguments = cgi.FieldStorage()
-    sys.stdout.write("<table>" )
+    sys.stderr.write("\n")
     for i in arguments.keys():
-        sys.stderr.write("<tr><td>%s</td><td>%s</td></tr>\n"%(i,arguments[i].value))
-    sys.stdout.write("</table>" )
+        sys.stderr.write("%s => %s\n"%(i,arguments[i].value))
+    sys.stderr.write("\n")
+
+    # It seems that the package SPARQLWrapper uses CGI variables to specify
+    # the expected output type.
+    # FieldStorage(
+    #   None,
+    #   None,
+    #   [
+    #       MiniFieldStorage(
+    #          'query',
+    #           '\n    PREFIX rdfs: <http:/www.w3.org/2000/01/rdf-schema#>\n    SELECT ?label\n    WHERE { <http:/dbpedia.org/resource/Asturias> rdfs:label ?label }\n'),
+    #       MiniFieldStorage('output', 'json'),
+    #       MiniFieldStorage('results', 'json'),
+    #       MiniFieldStorage('format', 'json')])
+
+    output_type = arguments["output"].value
+
+    sys.stderr.write("output_type=%s\n"%output_type)
+    if output_type == "json":
+        mime_format = 'application/json'
+        rdflib_format='json-ld'
+    else:
+        raise Exception("Invalid output type:"+output_type)
+
+    grph = lib_kbase.MakeGraph()
+    nodeSubject = lib_kbase.MakeNodeLiteral("Subject")
+    nodeObject = lib_kbase.MakeNodeLiteral("Object")
+
+    primns = "http://primhillcomputers.com/survol"
+    url = primns + "/" + "Hello"
+    nodePred = lib_kbase.MakeNodeUrl( url )
+
+    grph.add( ( nodeSubject, nodePred, nodeObject ) )
+
+    lib_util.WrtHeader(mime_format)
+    strJson = grph.serialize( destination = None, format = rdflib_format)
+    lib_util.WrtAsUtf(strJson)
 
     qrySparql = arguments["query"].value
-    sys.stdout.write("<br>qrySparql=%s\n"%html.escape(qrySparql))
+    sys.stderr.write("qrySparql=%s\n"%html.escape(qrySparql))
 
+    # This is the correct and expected output.
 
-    sys.stdout.write("""
-    </body></html>
-    """)
+    #PREFIX rdfs: <http:/www.w3.org/2000/01/rdf-schema#>
+    #SELECT ?label
+    #WHERE { <http:/dbpedia.org/resource/Asturias> rdfs:label ?label }
 
     # Extracts the predicates and the classes.
 
     # For each predicate, get the list of scripts returning data for this predicate.
     # This -possibly- implies classes (But this is not sure).
     # Maybe this is only true for the function __init__.AddInfo().
-    # But this is a hint to idntify the class of each variable.
+    # But this is a hint to identify the class of each variable.
 
     # Also, rdf:type may be given for some variables.
 
@@ -69,9 +136,6 @@ def Main():
 
     # Joins will be done by SPARQL: The goal is only to feed the triplestore
     # with enough fresh data from scripts.
-
-
-
 
 if __name__ == '__main__':
     Main()
