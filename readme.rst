@@ -1,7 +1,7 @@
 Survol
 ======
 
-.. image:: html/images/LogoColorNoText.jpeg
+.. image:: html/images/logo.png
    :scale: 50 %
    :alt: Primhill Computers
    :align: right
@@ -26,6 +26,6 @@ Instead, Survol assists an investigation, by letting a user choose the data that
 
 Survol has several views on the same data: HTML, SVG, D3 JavaScript library and RDF.
 
-More information is available at `Primhill Computer
+More information is available at `Primhill Computers
 <http://primhillcomputers.com/survol.html>`_
 
