@@ -1,6 +1,3 @@
-Survol
-======
-
 .. image:: html/images/logo.png
    :scale: 50 %
    :alt: Primhill Computers
