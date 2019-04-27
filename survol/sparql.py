@@ -12,7 +12,7 @@ This SPARQL server translates SPARQL queries into Survol data model.
 import os
 import sys
 import cgi
-import html
+#import html
 import lib_util
 import lib_kbase
 import rdflib
@@ -82,28 +82,55 @@ def Main():
     output_type = arguments["output"].value
 
     sys.stderr.write("output_type=%s\n"%output_type)
+
+    # Only "xml" works OK.
     if output_type == "json":
         mime_format = 'application/json'
+        rdflib_format='json'
+    elif output_type == "json-ld":
+        mime_format = 'application/json'
         rdflib_format='json-ld'
+    elif output_type == "xml":
+        mime_format = 'application/xml'
+        rdflib_format='xml'
     else:
+        sys.stderr.write("Invalid output type:%s\n"%output_type)
         raise Exception("Invalid output type:"+output_type)
+    sys.stderr.write("mime_format=%s\n"%mime_format)
+    sys.stderr.write("rdflib_format=%s\n"%rdflib_format)
 
     grph = lib_kbase.MakeGraph()
+
     nodeSubject = lib_kbase.MakeNodeLiteral("Subject")
     nodeObject = lib_kbase.MakeNodeLiteral("Object")
-
+    nodeUrl = lib_kbase.MakeNodeUrl("http:/dbpedia.org/resource/Asturias")
+    nodeUrl2 = lib_kbase.MakeNodeUrl("http://cmst.eu/articles/extracting-use-case-scenarios-and-domain-models-from-legacy-software/")
     primns = "http://primhillcomputers.com/survol"
-    url = primns + "/" + "Hello"
-    nodePred = lib_kbase.MakeNodeUrl( url )
+    nodePred = lib_kbase.MakeNodeUrl( primns + "/" + "Hello" )
+    nodePred2 = lib_kbase.MakeNodeUrl( primns + "/" + "Hello2" )
+    grph.add( ( nodeUrl2, nodePred, nodeObject ) )
+    grph.add( ( nodeUrl, nodePred, nodeSubject ) )
+    grph.add( ( nodeUrl2, nodePred2, nodeSubject ) )
 
-    grph.add( ( nodeSubject, nodePred, nodeObject ) )
-
+    sys.stderr.write("len grph=%d\n"%len(grph))
     lib_util.WrtHeader(mime_format)
-    strJson = grph.serialize( destination = None, format = rdflib_format)
+    sys.stderr.write("mime_format=%s\n"%mime_format)
+    try:
+        # pip install rdflib-jsonld
+        # No plugin registered for (json-ld, <class 'rdflib.serializer.Serializer'>)
+        # rdflib_format = "pretty-xml"
+        # strJson = grph.serialize( destination = None, format = rdflib_format)
+        sys.stderr.write("len grph=%d\n"%len(grph))
+        strJson = grph.serialize(format=rdflib_format)
+        # strJson = grph.serialize(format='json-ld', indent=4)
+    except Exception as exc:
+        sys.stderr.write("Caught:%s\n"%exc)
+        return
+    sys.stderr.write("strJson=%s\n"%strJson)
     lib_util.WrtAsUtf(strJson)
 
-    qrySparql = arguments["query"].value
-    sys.stderr.write("qrySparql=%s\n"%html.escape(qrySparql))
+    #qrySparql = arguments["query"].value
+    #sys.stderr.write("qrySparql=%s\n"%html.escape(qrySparql))
 
     # This is the correct and expected output.
 
