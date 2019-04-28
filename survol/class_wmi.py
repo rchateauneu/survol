@@ -17,6 +17,9 @@ def AddExtraNodes(grph,rootNode):
 	objtypeNode = lib_common.NodeUrl( lib_util.uriRoot + '/objtypes.py' )
 	grph.add( ( rootNode, pc.property_rdf_data_nolist2, objtypeNode ) )
 
+# TODO: Add link to https://docs.microsoft.com/en-us/windows/desktop/cimwin32prov/win32-service
+
+
 def Main():
 	paramkeyEnumInstances = "Enumerate instances"
 
