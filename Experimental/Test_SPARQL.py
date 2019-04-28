@@ -109,22 +109,45 @@ WHERE
   ?t rdf:type "CIM_Process" .
 }
 """,
+"""
+PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?the_pid
+WHERE
+{ ?t survol:name "C:/Users/Public"  .
+  ?t rdf:type "CIM_Directory" .
+}
+""",
+"""
+PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?the_pid
+WHERE
+{ ?t survol:name "C:/Program Files (x86)/Internet Explorer/iexplore.exe"  .
+  ?t rdf:type "CIM_FileName" .
+}
+""",
 ]
 
 for qry in arr:
     print("===================================================")
     # parse_qry(elt)
     print(qry)
-    lib_sparql.ProcessQuery(qry)
+    lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
+    if False:
+        for clean_trpl in lstTriples:
+            print("--------------------")
+            print("Subj:",clean_trpl[0])
+            print("Pred:",clean_trpl[1])
+            print("Obj:",clean_trpl[2])
+        print("---------------------------------------------------")
+
+    lstEntities = lib_sparql.ExtractEntities(lstTriples)
+    print(lstEntities)
+    wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
+    print(wmi_qry)
+
+
 
 print("===================================================")
 
-# Quand on a un triplet de cette forme, trouver toutes les proprietes
-# litterales relatives au sujet.
-# Subj: ('VARIABLE=', 't')
-# Pred: ('Predicate', u'rdf:type')
-# Obj: ('litt_string', 'CIM_Process')# On peut alors en faire des requetes WMI ou WBEM, eventuellement.
-#
-# En theorie, c'est toujours possible mais probablement tres lent.
-#
-# Si on a les bons attributs, on peut executer le script principal dans survol.
