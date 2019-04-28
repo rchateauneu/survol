@@ -14,31 +14,8 @@ from lib_properties import pc
 
 import pywbem # Might be pywbem or python3-pywbem.
 
-
-#EnumerateInstanceNames: nameSpace=root/cimv2 className=TUT_ProcessChild. Caught:(1, u'CIM_ERR_FAILED: cmpi:Traceback (most recent call last):
-#File "/usr/lib64/python2.7/site-packages/cmpi_pywbem_bindings.py", line 82, in __call__
-#return self.meth(*args, **kwds)
-#File "/usr/lib64/python2.7/site-packages/cmpi_pywbem_bindings.py", line 483, in enum_instance_names
-#for i in self.proxy.MI_enumInstanceNames(env, op):
-#File "/usr/lib/python2.7/site-packages/pywbem/cim_provider2.py", line 499, in MI_enumInstanceNames
-#for inst in gen:
-#File "/home/rchateau/TestProviderOpenLMI/tutorial_final/TUT_ProcessChild.py", line 152, in enum_instances
-#(name, ppid, exe, args) = ps.get_process_info(pid)
-#File "/home/rchateau/TestProviderOpenLMI/tutorial_final/ps.py", line 15, in get_process_info
-#lines = open(statuspath).readlines()
-#IOError: [Errno 2] No such file or directory: \'/proc/15480/status\'')
-#Cwd	C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin
-#OS	win32
-#Version	2.7.10 (default, May 23 2015, 09:44:00) [MSC v.1500 64 bit (AMD64)]
-#Check environment variables.
-#Return home.
-
-# ATTENTION: Si les lignes de titres sont trop longues, graphviz supprime des lignes de la table HTML !!!!!!!
-# ET CA NE TIEN TPAS LA CHARGE !!!!!!!!!!!!!!!
-# maxCnt = 70,72,75,80,81
-# 82,85,90,100 : Tres long.
-# HARDCODE_LIMIT
-
+# TODO: Add link to http://schemas.dmtf.org/wbem/cim-html/2.49.0/CIM_Directory.html
+# Also consider https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.cfzu100/ibmzos_computersystem.htm
 
 def AssocReferenceToNode(nameSpace,entity_host,assocInst):
 	assocClass = assocInst.classname
