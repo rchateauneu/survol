@@ -1048,6 +1048,35 @@ localOntology = {
 # The key must match the DMTF standard. It might contain a namespace.
 # TODO: Replace this by a single lookup in a single dict
 # TODO: ... made of localOntology added to the directory of types.
+#
+# NOTE: WMI flags the keys attributes, which are part of the path.
+# https://docs.microsoft.com/en-us/windows/desktop/WmiSdk/key-qualifier
+# The Key qualifier indicates whether the property is part of the namespace handle.
+# If more than one property has the Key qualifier,
+# then all such properties collectively form the key (a compound key).
+# When taken together, the key properties must supply a unique reference for each class instance.
+#
+# OpenLMI stores the definition of files in XML format:
+# /var/lib/Pegasus/repository/root#cimv2/classes/CIM_Process.CIM_EnabledLogicalElement
+#
+# <PROPERTY NAME="Handle"  CLASSORIGIN="CIM_Process" TYPE="string">
+#   <QUALIFIER NAME="Key" TYPE="boolean" OVERRIDABLE="false">
+#     <VALUE>TRUE</VALUE>
+#   </QUALIFIER>
+# </PROPERTY>
+#
+# OpenPegasus does not do the same. See the file: CIM_Process.mof : All attributes are keys
+#      [Key, Description ( "..."),
+#       MappingStrings { "MIF.DMTF|Process Information|001.1" }]
+#   string Handle;
+#
+# Conclusions:
+# - There is no unique representation of the CIM classes.
+# - They do not represent keys the same way.
+# => Conclusion: It makes sense that Survol has its own representation.
+#
+
+
 def OntologyClassKeys(entity_type):
     # sys.stderr.write("OntologyClassKeys entity_type=%s Caller=%s\n"%(entity_type, sys._getframe(1).f_code.co_name))
 
@@ -1244,6 +1273,7 @@ def BuildMonikerPath(dictKeyVal):
 # 'Id="NT =\\"AUTHORITY\SYSTEM"'   => ['Id=NT AUTHORITY\\SYSTEM']
 # The input string is an entity_id: "key1=val1&key2=val2&key3=val3",
 # i.e. what comes after "xid=" in an object URL.
+# This returns a dictionary of key-values.
 def SplitMoniker(xid):
     # sys.stderr.write("SplitMoniker xid=%s\n" % xid )
 
