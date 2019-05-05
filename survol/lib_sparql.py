@@ -6,6 +6,111 @@ import rdflib.plugins.sparql.parser
 
 import lib_util
 
+# QUERY_STRING="query=%0A++++PREFIX+rdfs%3A+%3Chttp%3A/www.w3.org/2000/01/rdf-schema%23%3E%0A++++SELECT+%3Flabel%0A++++WHERE+%7B+%3Chttp%3A/dbpedia.org/resource/Asturias%3E+rdfs%3Alabel+%3Flabel+%7D%0A&output=json&results=json&format=json"
+
+#https://docs.aws.amazon.com/neptune/latest/userguide/sparql-api-reference-mime.html
+#
+# You can choose the MIME type of a SPARQL response by sending an "Accept: type" header with the request.
+# For example, curl -H "Accept: application/nquads ...".
+# The available content types depend on the SPARQL query type.
+#
+# SELECT
+#    application/sparql-results+json Default
+#    application/sparql-results+xml
+#    application/x-binary-rdf-results-table
+#    text/tab-separated-values
+#    text/csv
+# ASK
+#    application/sparql-results+json Default
+#    application/sparql-results+xml
+#    text/boolean
+# CONSTRUCT
+#    application/n-quads Default
+#    application/rdf+xml
+#    application/ld+json
+#    application/n-triples
+#    text/turtle
+#    text/n3
+#    application/trix
+#    application/trig
+#    application/sparql-results+json
+# DESCRIBE
+#    application/n-quads Default
+#    application/rdf+xml
+#    application/ld+json
+#    application/n-triples
+#    text/turtle
+#    text/n3
+#    application/trix
+#    application/trig
+#    application/sparql-results+json
+
+################################################################################
+
+# This is used in a Sparql endpoint. It extracts the SPARQL query
+# from the CGI environment.
+class SparqlEnvironment:
+    # SPARQLWrapper uses CGI variables to specify the expected output type.
+    # FieldStorage(
+    #   None,
+    #   None,
+    #   [
+    #       MiniFieldStorage(
+    #          'query',
+    #           '\n    PREFIX rdfs: <http:/www.w3.org/2000/01/rdf-schema#>\n    SELECT ?label\n    WHERE { <http:/dbpedia.org/resource/Asturias> rdfs:label ?label }\n'),
+    #       MiniFieldStorage('output', 'json'),
+    #       MiniFieldStorage('results', 'json'),
+    #       MiniFieldStorage('format', 'json')])
+    def __init__(self):
+        import cgi
+        self.m_arguments = cgi.FieldStorage()
+        sys.stderr.write("\n")
+        for i in self.m_arguments.keys():
+            sys.stderr.write("%s => %s\n"%(i,self.m_arguments[i].value))
+        sys.stderr.write("\n")
+
+        self.m_query = self.m_arguments["query"].value
+        output_type = self.m_arguments["output"].value
+
+        sys.stderr.write("output_type=%s\n"%output_type)
+
+        # Only "xml" works OK.
+        if output_type == "json":
+            self.m_mime_format = 'application/json'
+            self.m_rdflib_format='json'
+        elif output_type == "json-ld":
+            self.m_mime_format = 'application/json'
+            self.m_rdflib_format='json-ld'
+        elif output_type == "xml":
+            self.m_mime_format = 'application/xml'
+            self.m_rdflib_format='xml'
+        else:
+            sys.stderr.write("Invalid output type:%s\n"%output_type)
+            raise Exception("Invalid output type:"+output_type)
+        sys.stderr.write("mime_format=%s\n"%self.m_mime_format)
+        sys.stderr.write("rdflib_format=%s\n"%self.m_rdflib_format)
+
+    def Query(self):
+        return self.m_query
+
+    def WriteTripleStoreAsString(self,grph):
+        lib_util.WrtHeader(self.m_mime_format)
+        try:
+            # pip install rdflib-jsonld
+            # No plugin registered for (json-ld, <class 'rdflib.serializer.Serializer'>)
+            # rdflib_format = "pretty-xml"
+            # strJson = grph.serialize( destination = None, format = rdflib_format)
+            sys.stderr.write("len grph=%d\n"%len(grph))
+            strJson = grph.serialize(format=self.m_rdflib_format)
+            # strJson = grph.serialize(format='json-ld', indent=4)
+        except Exception as exc:
+            sys.stderr.write("Caught:%s\n"%exc)
+            return
+        sys.stderr.write("strJson=%s\n"%strJson)
+        lib_util.WrtAsUtf(strJson)
+
+################################################################################
+
 # This works, but we are only interested by triples.
 def print_simple(arg_elt,level=1):
     if arg_elt.__class__.__name__ == "list":
@@ -44,7 +149,7 @@ def print_simple(arg_elt,level=1):
 # This returns a list of lists of tokens.
 # These second-level lists of tokens are a SPARQL list of patterns,
 # that is, patterns separated by a semi-colon,
-# because they share the same subject, or commans if they share the subject and the predicate,
+# because they share the same subject, or commas if they share the subject and the predicate,
 # ended by a dot. When returned, the list of patterns have a length multiple of three,
 # because it is made of concatenated RDF triples.
 def get_triples(arg_elt):
@@ -216,32 +321,6 @@ def ExtractEntities(lst_triples):
 
     return dictVariables
 
-def ClauseToQuery(one_clause):
-    return one_clause[0]
-
-def OneEntityToQuery(variable_name,key_vals):
-    # If the class is not defined, cannot query.
-    # TODO: Consider base classes ??
-    try:
-        class_name = key_vals['rdf:type']
-    except KeyError:
-        return ""
-
-    tests = ""
-    delim = " WHERE "
-    for key,val in key_vals.items():
-        if key == 'rdf:type':
-            continue
-        clause = '%s = "%s"' % ( key, val )
-        tests += delim + clause
-        delim = " AND "
-
-    return "select * from " + class_name + tests
-
-def EntitiesToQuery(lstEntities):
-    return ";".join( OneEntityToQuery(variable_name,key_vals) for variable_name, key_vals in lstEntities.items() )
-
-# http://timgolden.me.uk/python/downloads/wmi-0.6b.py
 
 # Quand on a un triplet de cette forme, trouver toutes les proprietes
 # litterales relatives au sujet.
@@ -252,3 +331,89 @@ def EntitiesToQuery(lstEntities):
 # En theorie, c'est toujours possible mais probablement tres lent.
 #
 # Si on a les bons attributs, on peut executer le script principal dans survol.
+
+##################################################################################
+
+# Interface: UpdateTripleStoreSnapshotWithSparqlQuery:
+# - On recoit une requete, qu'on parse en une liste de triplets RDF.
+# - Ensuite, on enrichit le graphe resultant.
+
+##################################################################################
+
+# Algorithme possible si on ne peut pas separer les entites a cause de variables.
+# On prend les triplets.
+# On les trie en se basant sur les variables.
+# Si les entites sont bien separees, les triplets qui y font references
+# doivent se retrouver groupees.
+# A la fin, il doit suffire de rassembler les triplets par groupes:
+# - Des entites.
+# - Des associators.
+# Quand une variable se retrouve dans le groupe suivant,
+# ca implique une loop sur des queries WMI.
+#
+# Pour rassembler les elements d'une entite:
+# Pour un subject donne, on fait venir en premier le triplet qui mentionne la classe.
+#  => "select * from <classe>"
+# Puis tous les triplets qui mentionnent un attribut litteral
+#  => + " where <key> = <value>"
+#
+# Si les triplets suivants dependent du premier, renvoyer des expressions SPARQL avec des variables a remplacer.
+# Donc, renvoyer une liste de tuples:
+# [
+#   [ ("var1","var2"), "select var3,var4 from xxx where k1=?var1 and k2=?var3",  ["var3","var4"] ],
+# ]
+# Est-ce que ca marche avec les ASSOCIATORS et REFERENCES ?
+# Comment ordonner les boucles ?
+#
+# Si un groupe de triplet a une variable en commun, essayer "associator".
+# Dans le cas general, se contenter de boucles.
+
+# La methode est utilisable aussi pour WBEM et peut-etre aussi si enumerate_*.py
+
+# For each predicate, get the list of scripts returning data for this predicate.
+# See Test_package_dis.py
+# This -possibly- implies classes (But this is not sure).
+# Maybe this is only true for the function __init__.AddInfo().
+# But this is a hint to identify the class of each variable.
+
+# La relation "predicat" => [scripts] peut etre batie avec Test_package_dis.py
+# en analysant le script, mais on peut aussi analyser le contenu des anciens triplestores
+# resultat de l'execution des scripts au prealable, construire un historique
+# et meme l'exploiter avec du pattern matching en recherchant des triplets similaires.
+
+# For each variable whose class is identified, or suggested.
+# For each variable of a given class, see if there are values for each attribute
+# of its ontology.
+
+# If yes, it means that the object can be identified.
+# Then take the list of scripts for this class, returning these predicates.
+# Possibly all scripts: Not many data should be returned.
+
+# If no, we cannot identify the variable, then use the function Search() for this class,
+# with the few key-value pairs if the object is a literal.
+# There could be a default Search() function based on WMI or WBEM,
+# but this is optional, because possibly very slow.
+# There must be an upper limit on the number of objects returned by Search().
+
+# The results can be mixed with WMI data by merging the results of both executions.
+# Unfortunately, on the other hand, it prevents any join.
+
+# Meme si on separe bien les entites,
+# on ne peut pas, dans le cas general, lister les items en focntions des attributs,
+# car rien n'indique qu'on aura tous ces attributs.
+# Il faut donc avoir pour chaque classe une fonction d'enumeration prenant
+# des triplets "key" "operator" "value"
+# ou bien des paires "key" "operator/value" qui rendront tous les objects qui matchent.
+# Evidemment, on va rendre des generateurs pour ne pas faire la meme erreur que WBEM.
+# Libre a la fonction de faire ce qu'elle veut.
+# Si un seul object ou bien si les attributs sont la clef, on renvoie l'URL de l'objet.
+# D'ailleurs on ne renvoie que des URLS d'objet, avec les bonnes clefs.
+
+# Tri des entites:
+# Actuellement, on les rassemble avec le sujet. Notons que sujet et object peuvent etre inverses.
+# Le predicat et la valeur doivent etre connus.
+# Maintenant, on va trier en utilisant les variables:
+# Pour simplifier, le predicat doit etre connu.
+# tripletA(v1) > tripletB(v1,v2)
+# tripletA(v1) == tripletB(v1)
+

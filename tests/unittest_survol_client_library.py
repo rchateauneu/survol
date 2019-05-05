@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from __future__ import print_function
 
 import cgitb
@@ -2366,6 +2368,13 @@ class SurvolPEFileTest(unittest.TestCase):
 
 
 class SurvolSearchTest(unittest.TestCase):
+
+    # TODO: This is broken.
+    # TODO: Make a simpler test with a fake class and a single script.
+
+    # TODO: Consider using ldspider which is a much better long-term approach.
+    # TODO: Should test the individual scripts, but replace the search algorithm.
+
     """Testing the search engine"""
     def test_search_local_string_flat(self):
         """Searches for a string in one file only. Two occurrences."""
@@ -2401,6 +2410,8 @@ class SurvolSearchTest(unittest.TestCase):
             break
         tpl # To check if a result was found.
 
+    # TODO: Remove search and instead use a Linked Data crawler such as https://github.com/ldspider/ldspider
+    # TODO: ... or simply SparQL.
     def test_search_local_string(self):
         """Loads instances connected to an instance by every available script"""
 
