@@ -932,7 +932,7 @@ class Agent:
             urlContent = LoadModedUrl(anUrl)
             return urlContent
         else:
-            tralala
+            raise Exception("ExecHttpScript: Feature not implemenetd yet")
 
     def GetInternalData(self):
         urlContent = self.ExecHttpScript("/survol/print_internal_data_as_json.py")
