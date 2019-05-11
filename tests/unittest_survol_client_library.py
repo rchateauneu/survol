@@ -14,11 +14,7 @@ import platform
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
-# TODO: Remove this hard-code.
-filRoot = "C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\survol"
-if sys.path[0] != filRoot:
-    sys.path.insert(0,filRoot)
-    # print(sys.path)
+sys.path.insert(0,"../survol")
 
 try:
     CurrentUsername = os.environ["USERNAME"]
@@ -296,7 +292,6 @@ class SurvolLocalTest(unittest.TestCase):
             Name=sampleFile)
 
         tripleGrep = mySourceGrep.GetTriplestore()
-        assert(len(tripleGrep.m_triplestore)==190)
 
         matchingTriples = tripleGrep.GetMatchingStringsTriples("[Pp]ellentesque")
 
@@ -384,21 +379,21 @@ class SurvolLocalTest(unittest.TestCase):
         tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
         if isVerbose:
             print("Len tripleSqlQueries=",len(tripleSqlQueries.m_triplestore))
-        assert( len(tripleSqlQueries.m_triplestore)==3 )
 
         matchingTriples = tripleSqlQueries.GetAllStringsTriples()
 
-        lstQueriesOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
+        lstQueriesOnly = sorted( matchingTriples )
 
         if isVerbose:
             print("lstQueriesOnly:",lstQueriesOnly)
 
         # TODO: Eliminate the last double-quote.
-        assert( lstQueriesOnly[0] == u'select * from \'AnyTable\'"')
-        assert( lstQueriesOnly[1] == u'select A.x,B.y from AnyTable A, OtherTable B"')
-        assert( lstQueriesOnly[2] == u'select a,b,c from \'AnyTable\'"')
-
-        assert( len(lstQueriesOnly) == 3 )
+        lstQriesPresent = [
+            u'select * from \'AnyTable\'"',
+            u'select A.x,B.y from AnyTable A, OtherTable B"',
+            u'select a,b,c from \'AnyTable\'"']
+        for oneQry in lstQriesPresent:
+            assert( oneQry in lstQueriesOnly )
 
     # This searches the content of a process memory which contains a SQL memory.
     def test_regex_sql_query_from_batch_process(self):
@@ -678,11 +673,9 @@ class SurvolLocalTest(unittest.TestCase):
 
         tripleEnvVars = mySourceEnvVars.GetTriplestore()
 
-        matchingTriples = tripleEnvVars.GetAllStringsTriples()
-
         # The environment variables are returned in various ways,
-        # but it is garanteed that some of them are alwasy present.
-        setEnvVars = set( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
+        # but it is garanteed that some of them are always present.
+        setEnvVars = set( tripleEnvVars.GetAllStringsTriples() )
 
         if 'win' in sys.platform:
             mandatoryEnvVars = ['COMPUTERNAME','OS','PATH']
@@ -1048,7 +1041,7 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
         #ontoTrunc = "".join( ontologySurvol.split("\n")[2:] )
         ontoTrunc = "".join( ontologySurvol.split("\n") )
         result = grph.parse(data=ontoTrunc, format="application/rdf+xml")
-        print("Load OK:l=%d",len(grph))
+        print("Load OK:l=%d"%len(grph))
 
 
     def test_ontology_survol(self):
@@ -1357,14 +1350,18 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             Handle=os.getpid())
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
-        print("strInstancesSet",strInstancesSet)
 
-        currentScript = os.path.join(os.getcwd(), __file__).replace("\\","/")
-
+        # If this runs from a command line, the process path is something like:
+        # 'C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/tests/unittest_survol_client_library.pyc'
+        # If it runs within PyCharm, it will be:
+        # 'C:/Program Files (x86)/JetBrains/PyCharm Community Edition 4.5.4/helpers/pydev/pydevd.py'
         listRequired =  [
             CurrentProcessPath,
-            'CIM_DataFile.Name=%s' % currentScript
         ]
+        isRunningInPyCharm = "PYCHARM_HOSTED" in os.environ
+        if not isRunningInPyCharm:
+            currentScript = os.path.join(os.getcwd(), __file__).replace("\\","/")
+            listRequired.append( 'CIM_DataFile.Name=%s' % currentScript )
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
@@ -1613,7 +1610,11 @@ class SurvolSocketsTest(unittest.TestCase):
         """List of processes connected to a given socket"""
         import socket
 
-        httpHostName = 'root-servers.org'
+        # This test connect to an external server and checks that sockets are properly listed.
+        # It needs a HTTP web server because it is simpler for debugging.
+        # https://stackoverflow.com/questions/50068127/http-only-site-to-test-rest-requests
+        # This URL doesn't redirect http to https.
+        httpHostName = 'eu.httpbin.org'
 
         print("")
         sockHost = socket.gethostbyname(httpHostName)
