@@ -2,168 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="217fdf30-e1c5-4541-a80a-6b2caf048c88" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/AC2/application/AC2_application_components_tree.py" afterPath="$PROJECT_DIR$/survol/sources_types/AC2/application/AC2_application_components_tree.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py" afterPath="$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/AC2/configuration/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/AC2/configuration/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/CDB/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/CDB/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/python/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/python/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/PythonStyle.iml" afterPath="$PROJECT_DIR$/.idea/PythonStyle.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Experimental/Test_package_dis.py" afterPath="$PROJECT_DIR$/Experimental/Test_package_dis.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Win32_Product/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/Win32_Product/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Win32_Service/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/Win32_Service/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/addr/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/addr/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/dbus/connection/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/dbus/connection/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/java/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/java/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/memmap/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/memmap/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/neighborhood/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/neighborhood/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/odbc/dsn/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/odbc/dsn/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/python/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/python/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/python/package/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/python/package/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/sqlite/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/sqlite/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/sqlserver/query/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/sqlserver/query/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/sqlserver/session/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/sqlserver/session/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/win32/resource/__init__.py" afterPath="$PROJECT_DIR$/survol/sources_types/win32/resource/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/AC2/configuration/ac2_configuration_apps.py" afterPath="$PROJECT_DIR$/survol/sources_types/AC2/configuration/ac2_configuration_apps.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/AC2/configuration/ac2_configuration_crons_table.py" afterPath="$PROJECT_DIR$/survol/sources_types/AC2/configuration/ac2_configuration_crons_table.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/AC2/configuration/ac2_configuration_hosts.py" afterPath="$PROJECT_DIR$/survol/sources_types/AC2/configuration/ac2_configuration_hosts.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/neighborhood/cgi_arp_async.py" afterPath="$PROJECT_DIR$/survol/sources_types/neighborhood/cgi_arp_async.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Linux/cgi_arp_linux.py" afterPath="$PROJECT_DIR$/survol/sources_types/Linux/cgi_arp_linux.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/class_type_all.py" afterPath="$PROJECT_DIR$/survol/class_type_all.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/class_wbem.py" afterPath="$PROJECT_DIR$/survol/class_wbem.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/class_wmi.py" afterPath="$PROJECT_DIR$/survol/class_wmi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/AC2/component/component_dependencies.py" afterPath="$PROJECT_DIR$/survol/sources_types/AC2/component/component_dependencies.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/AC2/component/component_state.py" afterPath="$PROJECT_DIR$/survol/sources_types/AC2/component/component_state.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/connection/connection_properties.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/connection/connection_properties.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/msdos/current_batch.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/msdos/current_batch.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/python/current_script.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/python/current_script.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/mysql/database/database_referential_constraints.py" afterPath="$PROJECT_DIR$/survol/sources_types/mysql/database/database_referential_constraints.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/mysql/database/database_tables.py" afterPath="$PROJECT_DIR$/survol/sources_types/mysql/database/database_tables.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/db_sqllite.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/db_sqllite.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/dbus/bus/dbus_bus_connections.py" afterPath="$PROJECT_DIR$/survol/sources_types/dbus/bus/dbus_bus_connections.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/dbus/connection/dbus_bus_objects.py" afterPath="$PROJECT_DIR$/survol/sources_types/dbus/connection/dbus_bus_objects.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Directory/dir_stat.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Directory/dir_stat.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Azure/disk/disk_information.py" afterPath="$PROJECT_DIR$/survol/sources_types/Azure/disk/disk_information.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/edit_credentials.py" afterPath="$PROJECT_DIR$/survol/edit_credentials.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/entity.py" afterPath="$PROJECT_DIR$/survol/entity.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/entity_dirmenu_only.py" afterPath="$PROJECT_DIR$/survol/entity_dirmenu_only.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/entity_mime.py" afterPath="$PROJECT_DIR$/survol/entity_mime.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/entity_wbem.py" afterPath="$PROJECT_DIR$/survol/entity_wbem.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/entity_wmi.py" afterPath="$PROJECT_DIR$/survol/entity_wmi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_CIM_LogicalDisk.py" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_CIM_LogicalDisk.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/win32/enumerate_com_type_lib.py" afterPath="$PROJECT_DIR$/survol/sources_types/win32/enumerate_com_type_lib.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_memmap.py" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_memmap.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/environment_variables.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/environment_variables.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/event_put.py" afterPath="$PROJECT_DIR$/survol/event_put.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Directory/file_directory.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Directory/file_directory.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/file_stat.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/file_stat.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/mysql/instance/instance_databases.py" afterPath="$PROJECT_DIR$/survol/sources_types/mysql/instance/instance_databases.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/mysql/instance/instance_sessions.py" afterPath="$PROJECT_DIR$/survol/sources_types/mysql/instance/instance_sessions.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/java/mbean/java_mbean_information.py" afterPath="$PROJECT_DIR$/survol/sources_types/java/mbean/java_mbean_information.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/java/java_mbeans.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/java/java_mbeans.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/java_properties.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/java_properties.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/java/java_system_properties.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/languages/java/java_system_properties.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_arp.py" afterPath="$PROJECT_DIR$/survol/lib_arp.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_client.py" afterPath="$PROJECT_DIR$/survol/lib_client.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_common.py" afterPath="$PROJECT_DIR$/survol/lib_common.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_credentials.py" afterPath="$PROJECT_DIR$/survol/lib_credentials.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_dbus.py" afterPath="$PROJECT_DIR$/survol/lib_dbus.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_doxygen.py" afterPath="$PROJECT_DIR$/survol/lib_doxygen.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_edition_parameters.py" afterPath="$PROJECT_DIR$/survol/lib_edition_parameters.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_event.py" afterPath="$PROJECT_DIR$/survol/lib_event.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_export_dot.py" afterPath="$PROJECT_DIR$/survol/lib_export_dot.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_export_html.py" afterPath="$PROJECT_DIR$/survol/lib_export_html.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_nm.py" afterPath="$PROJECT_DIR$/survol/lib_nm.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_oracle.py" afterPath="$PROJECT_DIR$/survol/lib_oracle.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_patterns.py" afterPath="$PROJECT_DIR$/survol/lib_patterns.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_util.py" afterPath="$PROJECT_DIR$/survol/lib_util.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_wbem.py" afterPath="$PROJECT_DIR$/survol/lib_wbem.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_win32.py" afterPath="$PROJECT_DIR$/survol/lib_win32.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_kbase.py" afterPath="$PROJECT_DIR$/survol/lib_kbase.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_properties.py" afterPath="$PROJECT_DIR$/survol/lib_properties.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_psutil.py" afterPath="$PROJECT_DIR$/survol/lib_psutil.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_sparql.py" afterPath="$PROJECT_DIR$/survol/lib_sparql.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/lib_wmi.py" afterPath="$PROJECT_DIR$/survol/lib_wmi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/linux_nm.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/linux_nm.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/linux_nm_classes.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/linux_nm_classes.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/list_configurations.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/list_configurations.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_connections.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_connections.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_exchanges.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_exchanges.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_queues.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_queues.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_users.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_users.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/vhost/list_vhost_exchanges.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/vhost/list_vhost_exchanges.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/vhost/list_vhost_queues.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/vhost/list_vhost_queues.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_vhosts.py" afterPath="$PROJECT_DIR$/survol/sources_types/rabbitmq/manager/list_vhosts.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/merge_scripts.py" afterPath="$PROJECT_DIR$/survol/merge_scripts.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Databases/mysql_instances.py" afterPath="$PROJECT_DIR$/survol/sources_types/Databases/mysql_instances.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Databases/mysql_processlist.py" afterPath="$PROJECT_DIR$/survol/sources_types/Databases/mysql_processlist.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/mysql/session/mysql_session_information.py" afterPath="$PROJECT_DIR$/survol/sources_types/mysql/session/mysql_session_information.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/mysql/table/mysql_table_information.py" afterPath="$PROJECT_DIR$/survol/sources_types/mysql/table/mysql_table_information.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/mysql/table/mysql_table_referential_constraints.py" afterPath="$PROJECT_DIR$/survol/sources_types/mysql/table/mysql_table_referential_constraints.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/namespaces_wmi.py" afterPath="$PROJECT_DIR$/survol/namespaces_wmi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/SMB/net_use.py" afterPath="$PROJECT_DIR$/survol/sources_types/SMB/net_use.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/nmap/nmap_broadcast_ms_sql_discover.py" afterPath="$PROJECT_DIR$/survol/sources_types/nmap/nmap_broadcast_ms_sql_discover.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/nmap/nmap_broadcast_netbios_master_browser.py" afterPath="$PROJECT_DIR$/survol/sources_types/nmap/nmap_broadcast_netbios_master_browser.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/nmap/nmap_broadcast_upnp_info.py" afterPath="$PROJECT_DIR$/survol/sources_types/nmap/nmap_broadcast_upnp_info.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/objtypes_wbem.py" afterPath="$PROJECT_DIR$/survol/objtypes_wbem.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/objtypes_wmi.py" afterPath="$PROJECT_DIR$/survol/objtypes_wmi.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_informations.py" afterPath="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_informations.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_procedures.py" afterPath="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_procedures.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_tables.py" afterPath="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_tables.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/odbc/table/odbc_table_columns.py" afterPath="$PROJECT_DIR$/survol/sources_types/odbc/table/odbc_table_columns.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/open_files.py" afterPath="$PROJECT_DIR$/survol/sources_types/open_files.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/db/oracle_db_processes.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/db/oracle_db_processes.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/session/oracle_db_session.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/session/oracle_db_session.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/package_body/oracle_package_body_dependencies.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/package_body/oracle_package_body_dependencies.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/package/oracle_package_dependencies.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/package/oracle_package_dependencies.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/package/oracle_packages_procedures.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/package/oracle_packages_procedures.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_functions.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_functions.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_libraries.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_libraries.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_package_bodies.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_package_bodies.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_packages.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_packages.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_procedures.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_procedures.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_sequences.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_sequences.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_synonyms.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_synonyms.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_tables.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_tables.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_triggers.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_triggers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_types.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_types.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_views.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/schema/oracle_schema_views.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/table/oracle_table_dependencies.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/table/oracle_table_dependencies.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Databases/oracle_tnsnames.py" afterPath="$PROJECT_DIR$/survol/sources_types/Databases/oracle_tnsnames.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/oracle/view/oracle_view_dependencies.py" afterPath="$PROJECT_DIR$/survol/sources_types/oracle/view/oracle_view_dependencies.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_depends.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_depends.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_exports.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_exports.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_imports.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_imports.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_information.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_information.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/portal_wbem.py" afterPath="$PROJECT_DIR$/survol/portal_wbem.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/process_gdbstack.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/process_gdbstack.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/python/package/python_package_dis.py" afterPath="$PROJECT_DIR$/survol/sources_types/python/package/python_package_dis.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/embedded_sql_query/query_vs_databases.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/embedded_sql_query/query_vs_databases.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/search_connection_strings.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/search_connection_strings.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/search_filenames.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/search_filenames.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Win32_Service/service_dependencies.py" afterPath="$PROJECT_DIR$/survol/sources_types/Win32_Service/service_dependencies.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Azure/service/service_information.py" afterPath="$PROJECT_DIR$/survol/sources_types/Azure/service/service_information.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_processes.py" afterPath="$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_processes.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_queries.py" afterPath="$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_queries.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_sessions.py" afterPath="$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_sessions.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/sqlserver/session/sqlserver_session_informations.py" afterPath="$PROJECT_DIR$/survol/sources_types/sqlserver/session/sqlserver_session_informations.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Azure/subscription/subscription_disk.py" afterPath="$PROJECT_DIR$/survol/sources_types/Azure/subscription/subscription_disk.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/neighborhood/survol_neighborhood.py" afterPath="$PROJECT_DIR$/survol/sources_types/neighborhood/survol_neighborhood.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/win32/tcp_sockets_windows.py" afterPath="$PROJECT_DIR$/survol/sources_types/win32/tcp_sockets_windows.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Linux/unix_domain_sockets.py" afterPath="$PROJECT_DIR$/survol/sources_types/Linux/unix_domain_sockets.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/neighborhood/wbem_neighborhood.py" afterPath="$PROJECT_DIR$/survol/sources_types/neighborhood/wbem_neighborhood.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/wbem_process_info.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/wbem_process_info.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Win32_Group/win32_NetLocalGroupGetMembers.py" afterPath="$PROJECT_DIR$/survol/sources_types/Win32_Group/win32_NetLocalGroupGetMembers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/Win32/win32_NetShareEnum.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/Win32/win32_NetShareEnum.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/Win32/win32_host_local_groups.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/Win32/win32_host_local_groups.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Databases/win32_sqldatasources.py" afterPath="$PROJECT_DIR$/survol/sources_types/Databases/win32_sqldatasources.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/Databases/win32_sqldatasources_pyodbc.py" afterPath="$PROJECT_DIR$/survol/sources_types/Databases/win32_sqldatasources_pyodbc.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/CDB/win_cdb_callstack.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/CDB/win_cdb_callstack.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/CDB/win_cdb_modules.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/CDB/win_cdb_modules.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/win_depends.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/win_depends.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/win_dumpbin.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/win_dumpbin.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/wmi_hostname_partitions.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/wmi_hostname_partitions.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/wmi_hostname_processes.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/wmi_hostname_processes.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/wmi_process_info.py" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/wmi_process_info.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/sparql.py" afterPath="$PROJECT_DIR$/survol/sparql.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/unittest_survol_client_library.py" afterPath="$PROJECT_DIR$/tests/unittest_survol_client_library.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/unittest_survol_sparql_parse.py" afterPath="$PROJECT_DIR$/tests/unittest_survol_sparql_parse.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/survol/scripts/wsgiserver.py" afterPath="$PROJECT_DIR$/survol/scripts/wsgiserver.py" />
     </list>
     <ignored path="PythonStyle.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -184,105 +37,88 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
+      <file leaf-file-name="unittest_survol_client_library.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/tests/unittest_survol_client_library.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.3314121">
+              <caret line="39" column="21" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="21" />
+              <folding>
+                <element signature="e#19#56#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="case.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/Python27/Lib/unittest/case.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="392" column="0" selection-start-line="392" selection-start-column="0" selection-end-line="392" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="suite.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/Python27/Lib/unittest/suite.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="69" column="0" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="lib_util.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/survol/lib_util.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-7.0">
+              <caret line="936" column="17" selection-start-line="936" selection-start-column="0" selection-end-line="936" selection-end-column="17" />
+              <folding>
+                <marker date="1557570740238" expanded="true" signature="11660:11905" placeholder="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="lib_client.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/survol/lib_client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-7.814815">
-              <caret line="426" column="5" selection-start-line="426" selection-start-column="5" selection-end-line="426" selection-end-column="5" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="objtypes_wmi.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/objtypes_wmi.py">
-          <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="106" column="44" selection-start-line="106" selection-start-column="44" selection-end-line="106" selection-end-column="44" />
+              <caret line="850" column="0" selection-start-line="850" selection-start-column="0" selection-end-line="850" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="portal_wbem.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/portal_wbem.py">
+      <file leaf-file-name="entity.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/survol/entity.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="32" column="58" selection-start-line="32" selection-start-column="58" selection-end-line="32" selection-end-column="58" />
+            <state vertical-scroll-proportion="-4.84">
+              <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lib_util.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/survol/lib_util.py">
+      <file leaf-file-name="lib_psutil.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/survol/lib_psutil.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7816092">
-              <caret line="55" column="24" selection-start-line="55" selection-start-column="24" selection-end-line="55" selection-end-column="24" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="task_control.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/task_control.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="211" column="0" selection-start-line="211" selection-start-column="0" selection-end-line="211" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="lib_common.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/lib_common.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-16.62963">
-              <caret line="690" column="0" selection-start-line="690" selection-start-column="0" selection-end-line="690" selection-end-column="0" />
+            <state vertical-scroll-proportion="-6.076923">
+              <caret line="204" column="0" selection-start-line="204" selection-start-column="0" selection-end-line="204" selection-end-column="0" />
               <folding>
-                <element signature="e#1#14#0" expanded="true" />
+                <element signature="e#98#107#0" expanded="true" />
+                <marker date="1557572553544" expanded="true" signature="5430:5841" placeholder="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Win32_NetUserGetGroups.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py">
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/survol/sources_types/python/package/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="73" column="36" selection-start-line="73" selection-start-column="36" selection-end-line="73" selection-end-column="36" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="class_type_all.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/class_type_all.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="109" column="17" selection-start-line="109" selection-start-column="17" selection-end-line="109" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="test_survol_client_library.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_survol_client_library.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="32" column="30" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="30" />
-              <folding>
-                <element signature="e#0#37#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="entity_wbem.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/survol/entity_wbem.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="167" column="0" selection-start-line="167" selection-start-column="0" selection-end-line="167" selection-end-column="0" />
+              <caret line="82" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -296,57 +132,57 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/survol/lib_patterns.py" />
-        <option value="$PROJECT_DIR$/survol/merge_scripts.py" />
-        <option value="$PROJECT_DIR$/survol/entity.py" />
-        <option value="$PROJECT_DIR$/Experimental/Divers/com_type_lib_versions.py" />
-        <option value="$PROJECT_DIR$/survol/edit_credentials.py" />
-        <option value="$PROJECT_DIR$/survol/event_put.py" />
-        <option value="$PROJECT_DIR$/survol/lib_doxygen.py" />
-        <option value="$PROJECT_DIR$/survol/lib_win32.py" />
-        <option value="$PROJECT_DIR$/survol/scripts/wsgiserver.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/open_files.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/dbus/connection/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/java/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/win32/enumerate_com_type_lib.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/Win32_Service/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/lib_oracle.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/java_properties.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/enumerate_memmap.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/neighborhood/survol_neighborhood.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/CIM_Directory/file_directory.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/enumerate_CIM_LogicalDisk.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/memmap/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/entity_mime.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_informations.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_procedures.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_tables.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_processes.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_queries.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/sqlserver/session/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/win32/resource/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/Databases/win32_sqldatasources.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/Databases/win32_sqldatasources_pyodbc.py" />
-        <option value="$PROJECT_DIR$/survol/class_type_all.py" />
+        <option value="$PROJECT_DIR$/html/jobs.html" />
+        <option value="$PROJECT_DIR$/html/jupyter_notebook_and_survol.html" />
+        <option value="$PROJECT_DIR$/html/links.html" />
+        <option value="$PROJECT_DIR$/html/rdf_ontology.html" />
+        <option value="$PROJECT_DIR$/html/Reverse-engineering_analysis_of_existing app.html" />
+        <option value="$PROJECT_DIR$/html/software_modernization_and_reengineering.html" />
+        <option value="$PROJECT_DIR$/html/solutions.html" />
+        <option value="$PROJECT_DIR$/html/system_renovations.html" />
+        <option value="$PROJECT_DIR$/html/usecase.html" />
+        <option value="$PROJECT_DIR$/html/window-explorer.html" />
+        <option value="$PROJECT_DIR$/html/intended_audience.html" />
         <option value="$PROJECT_DIR$/survol/objtypes_wmi.py" />
-        <option value="$PROJECT_DIR$/testarea/Lib/site-packages/survol/namespaces_wmi.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/oracle/db/oracle_db_processes.py" />
-        <option value="$PROJECT_DIR$/survol/lib_edition_parameters.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/sqlserver/query/__init__.py" />
-        <option value="$PROJECT_DIR$/survol/entity_wmi.py" />
-        <option value="$PROJECT_DIR$/survol/namespaces_wmi.py" />
-        <option value="$PROJECT_DIR$/survol/class_wbem.py" />
         <option value="$PROJECT_DIR$/survol/class_wmi.py" />
-        <option value="$PROJECT_DIR$/survol/entity_dirmenu_only.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/CIM_Process/environment_variables.py" />
-        <option value="$PROJECT_DIR$/survol/portal_wbem.py" />
-        <option value="$PROJECT_DIR$/survol/lib_client.py" />
-        <option value="$PROJECT_DIR$/survol/entity_wbem.py" />
+        <option value="$PROJECT_DIR$/survol/class_wbem.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/user/__init__.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/group/__init__.py" />
+        <option value="$PROJECT_DIR$/docs/bookmarks_tests_survol_17_07_2018.html" />
+        <option value="$PROJECT_DIR$/html/telnet.html" />
+        <option value="$PROJECT_DIR$/html/WebsiteVersion1/use_cases/use_case_telnet/use_case telnet.html" />
+        <option value="$PROJECT_DIR$/survol/lib_uris.py" />
+        <option value="$PROJECT_DIR$/survol/lib_patterns.py" />
+        <option value="$PROJECT_DIR$/survol/lib_properties.py" />
+        <option value="$PROJECT_DIR$/testarea/Lib/site-packages/survol/lib_uris.py" />
         <option value="$PROJECT_DIR$/survol/lib_common.py" />
-        <option value="$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py" />
+        <option value="$PROJECT_DIR$/survol/edit_credentials.py" />
+        <option value="$PROJECT_DIR$/survol/edit_configuration.py" />
+        <option value="$PROJECT_DIR$/survol/lib_export_html.py" />
+        <option value="$PROJECT_DIR$/Experimental/Test_package_dis.py" />
+        <option value="$PROJECT_DIR$/Experimental/Test_turtle.py" />
+        <option value="$PROJECT_DIR$/readme.rst" />
+        <option value="$PROJECT_DIR$/Experimental/Test_rdflib_json_ld.py" />
+        <option value="$PROJECT_DIR$/Experimental/Test_package_sparqlwrapper.py" />
+        <option value="$PROJECT_DIR$/Experimental/Test_SPARQL.py" />
+        <option value="$PROJECT_DIR$/survol/sparql_wbem.py" />
+        <option value="$PROJECT_DIR$/survol/entity_wmi.py" />
+        <option value="$PROJECT_DIR$/survol/sparql_wmi.py" />
+        <option value="$PROJECT_DIR$/survol/analysis_import_file.py" />
+        <option value="$PROJECT_DIR$/survol/sparql.py" />
+        <option value="$PROJECT_DIR$/survol/lib_sparql.py" />
+        <option value="$PROJECT_DIR$/tests/unittest_survol_sparql_parse.py" />
+        <option value="$PROJECT_DIR$/survol/ontologies/WMI_RDFS.py" />
+        <option value="$PROJECT_DIR$/survol/lib_wmi.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/com/type_lib_entry/module/__init__.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/com/type_lib_entry/dispatch/__init__.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/com/type_lib_entry/enumeration/__init__.py" />
+        <option value="$PROJECT_DIR$/survol/sources_types/com/type_lib_entry/coclass/__init__.py" />
         <option value="$PROJECT_DIR$/survol/lib_util.py" />
+        <option value="$PROJECT_DIR$/survol/entity.py" />
+        <option value="$PROJECT_DIR$/survol/lib_psutil.py" />
+        <option value="$PROJECT_DIR$/survol/lib_client.py" />
+        <option value="$PROJECT_DIR$/tests/unittest_survol_client_library.py" />
       </list>
     </option>
   </component>
@@ -354,10 +190,10 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="71" />
-    <option name="y" value="25" />
-    <option name="width" value="1551" />
-    <option name="height" value="898" />
+    <option name="x" value="137" />
+    <option name="y" value="50" />
+    <option name="width" value="1426" />
+    <option name="height" value="897" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -382,8 +218,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -430,6 +264,119 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="survol" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sources_types" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="survol" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sources_types" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="rpm" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="survol" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sources_types" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="survol" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sources_types" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="CIM_Process" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PythonStyle" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Experimental" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scratches" />
+      <pane id="Scope">
+        <subPane subId="Default">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="PythonStyle">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
     </panes>
@@ -454,57 +401,132 @@
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="903" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
+    <property name="restartRequiresConfirmation" value="true" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Python.Test_lib_client">
-    <configuration default="false" name="PrincipalPeriodTest" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings module-name="PythonStyle" is-module-sdk="true">
+        <option name="myUseModuleSdk" value="true" />
+        <option name="myModuleName" value="PythonStyle" />
+      </console-settings>
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\OWL" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python tests.Unittests in unittest_survol_client_library">
+    <configuration default="false" name="Unittests in unittest_survol_client_library" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental/RetroBatch" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="C:\Python27\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonStyle" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/RetroBatch/PrincipalPeriodTest.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/unittest_survol_client_library.py" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="scikit_svm_opencv" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="Unittest SurvolLocalTest.test_python_package_information" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental/OCR" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="C:\Python27\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonStyle" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/OCR/scikit_svm_opencv.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/unittest_survol_client_library.py" />
+      <option name="CLASS_NAME" value="SurvolLocalTest" />
+      <option name="METHOD_NAME" value="test_python_package_information" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="Test_lib_client" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="Unittest SurvolSocketsTest.test_socket_connected_processes" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental" />
+      <envs />
+      <option name="SDK_HOME" value="C:\Python27\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PythonStyle" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/Test_lib_client.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/unittest_survol_client_library.py" />
+      <option name="CLASS_NAME" value="SurvolSocketsTest" />
+      <option name="METHOD_NAME" value="test_socket_connected_processes" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Unittest SurvolLocalTest.test_enumerate_users" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="C:\Python27\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonStyle" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/unittest_survol_client_library.py" />
+      <option name="CLASS_NAME" value="SurvolLocalTest" />
+      <option name="METHOD_NAME" value="test_enumerate_users" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Unittest SurvolLocalTest.test_regex_sql_query_file" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="C:\Python27\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PythonStyle" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/unittest_survol_client_library.py" />
+      <option name="CLASS_NAME" value="SurvolLocalTest" />
+      <option name="METHOD_NAME" value="test_regex_sql_query_file" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
@@ -629,61 +651,46 @@
       <option name="USE_KEYWORD" value="false" />
       <method />
     </configuration>
-    <list size="3">
-      <item index="0" class="java.lang.String" itemvalue="Python.PrincipalPeriodTest" />
-      <item index="1" class="java.lang.String" itemvalue="Python.scikit_svm_opencv" />
-      <item index="2" class="java.lang.String" itemvalue="Python.Test_lib_client" />
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in unittest_survol_client_library" />
+      <item index="1" class="java.lang.String" itemvalue="Python tests.Unittest SurvolLocalTest.test_python_package_information" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.Unittest SurvolSocketsTest.test_socket_connected_processes" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.Unittest SurvolLocalTest.test_enumerate_users" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.Unittest SurvolLocalTest.test_regex_sql_query_file" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python.Test_lib_client" />
-        <item index="1" class="java.lang.String" itemvalue="Python.scikit_svm_opencv" />
-        <item index="2" class="java.lang.String" itemvalue="Python.PrincipalPeriodTest" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in unittest_survol_client_library" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittest SurvolLocalTest.test_regex_sql_query_file" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittest SurvolLocalTest.test_python_package_information" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittest SurvolLocalTest.test_enumerate_users" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittest SurvolSocketsTest.test_socket_connected_processes" />
       </list>
     </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="ToolWindowManager">
-    <frame x="71" y="25" width="1551" height="898" extended-state="0" />
+    <frame x="137" y="50" width="1426" height="897" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19961114" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19605078" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20921545" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3042394" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.43096775" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2777086" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.50124687" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39975095" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39775562" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39949748" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
-    <layout-to-restore>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32902467" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25178573" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32902467" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -700,109 +707,190 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="python-line">
-          <url>file://$PROJECT_DIR$/survol/lib_export_dot.py</url>
-          <line>599</line>
-          <option name="timeStamp" value="1" />
+          <url>file://$PROJECT_DIR$/survol/sources_types/CIM_DataFile/grep_text_strings.py</url>
+          <line>34</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/survol/sources_types/Azure/service/__init__.py</url>
+          <line>4</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/survol/event_put.py</url>
+          <line>6</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/survol/sparql.py</url>
+          <line>8</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/unittest_survol_client_library.py</url>
+          <line>729</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/unittest_survol_client_library.py</url>
+          <line>801</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/unittest_survol_client_library.py</url>
+          <line>721</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/unittest_survol_client_library.py</url>
+          <line>372</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/unittest_survol_client_library.py</url>
+          <line>403</line>
+          <option name="timeStamp" value="20" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="3" />
+      <option name="time" value="21" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/memmap/__init__.py">
+    <entry file="file://$PROJECT_DIR$/Experimental/Test_sqlparse.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="87" column="106" selection-start-line="87" selection-start-column="106" selection-end-line="87" selection-end-column="106" />
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/Doxyfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/ontologies/WBEM_RDFS.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.55852157">
+          <caret line="20" column="36" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/ontologies/Survol_RDFS.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.41889116">
+          <caret line="15" column="40" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/Test_turtle.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7112526">
+          <caret line="28" column="28" selection-start-line="28" selection-start-column="28" selection-end-line="28" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/edit_configuration.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5658153">
+          <caret line="519" column="0" selection-start-line="518" selection-start-column="0" selection-end-line="519" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/survol/entity_mime.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="37" column="22" selection-start-line="37" selection-start-column="22" selection-end-line="37" selection-end-column="22" />
-          <folding />
+        <state vertical-scroll-proportion="-0.47574627">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_tables.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="30" selection-start-line="33" selection-start-column="30" selection-end-line="33" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_processes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/sqlserver/dsn/sqlserver_dsn_queries.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/sqlserver/session/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/sqlserver/session/sqlserver_session_informations.py">
+    <entry file="file://$PROJECT_DIR$/survol/lib_dbus.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/docs/bookmarks_tests_survol_17_07_2018.html">
+    <entry file="file://$PROJECT_DIR$/survol/lib_bookmark.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.8076925">
-          <caret line="306" column="130" selection-start-line="306" selection-start-column="130" selection-end-line="306" selection-end-column="130" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/win_resource_to_mime.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="30" column="21" selection-start-line="30" selection-start-column="21" selection-end-line="30" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/win32/resource/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="153" column="10" selection-start-line="153" selection-start-column="10" selection-end-line="153" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_doxygen.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="106" column="16" selection-start-line="106" selection-start-column="16" selection-end-line="106" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_wbem.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="-2.2350745">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_naming.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-9.688433">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#15#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_oracle.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-4.8041043">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/entity_dirmenu_only.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.46561885">
+          <caret line="108" column="0" selection-start-line="107" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_properties.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.13163064">
+          <caret line="4" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/readme.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.061594203">
+          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/Test_rdflib_json_ld.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="4" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_kbase.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33114755">
+          <caret line="130" column="29" selection-start-line="130" selection-start-column="4" selection-end-line="130" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_export_ontology.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.239344">
+          <caret line="45" column="36" selection-start-line="45" selection-start-column="36" selection-end-line="45" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/Test_package_sparqlwrapper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="40" selection-start-line="22" selection-start-column="40" selection-end-line="22" selection-end-column="40" />
         </state>
       </provider>
     </entry>
@@ -810,317 +898,268 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/merge_scripts.py">
+    <entry file="file://$PROJECT_DIR$/survol/sparql_wbem.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/enumerate_socket.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/sockets_promiscuous_mode.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_DataFile/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="296" column="74" selection-start-line="296" selection-start-column="74" selection-end-line="296" selection-end-column="74" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_DataFile/elftools_parse_classes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_DataFile/elftools_parse_symbols.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_DataFile/win_depends.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/Linux/etc_mtab.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/Linux/modules_dependencies.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/rabbitmq/connection/connection_properties.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="45" column="36" selection-start-line="45" selection-start-column="36" selection-end-line="45" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/Databases/win32_sqldatasources.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="41" column="64" selection-start-line="41" selection-start-column="64" selection-end-line="41" selection-end-column="64" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/Databases/win32_sqldatasources_pyodbc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="26" column="13" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_informations.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="30" selection-start-line="33" selection-start-column="30" selection-end-line="33" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/odbc/dsn/odbc_dsn_procedures.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="30" selection-start-line="33" selection-start-column="30" selection-end-line="33" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/testarea/Lib/site-packages/survol/namespaces_wmi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="61" column="77" selection-start-line="61" selection-start-column="77" selection-end-line="61" selection-end-column="77" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/oracle/db/oracle_db_processes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="102" column="48" selection-start-line="102" selection-start-column="48" selection-end-line="102" selection-end-column="48" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_naming.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="160" column="4" selection-start-line="160" selection-start-column="4" selection-end-line="160" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_edition_parameters.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="33" column="19" selection-start-line="33" selection-start-column="19" selection-end-line="33" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/sqlserver/query/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="57" column="15" selection-start-line="57" selection-start-column="15" selection-end-line="57" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/namespaces_wmi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="66" column="62" selection-start-line="66" selection-start-column="62" selection-end-line="66" selection-end-column="62" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/class_wbem.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="174" column="63" selection-start-line="174" selection-start-column="63" selection-end-line="174" selection-end-column="63" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/class_wmi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="29" column="106" selection-start-line="29" selection-start-column="106" selection-end-line="29" selection-end-column="106" />
-          <folding />
+          <caret line="1" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/survol/entity_wmi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="31" column="63" selection-start-line="31" selection-start-column="63" selection-end-line="31" selection-end-column="63" />
+          <caret line="309" column="0" selection-start-line="309" selection-start-column="0" selection-end-line="309" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_Process/environment_variables.py">
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_Process/wmi_process_info.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="28" column="40" selection-start-line="28" selection-start-column="40" selection-end-line="28" selection-end-column="40" />
-          <folding />
+        <state vertical-scroll-proportion="0.6869245">
+          <caret line="118" column="27" selection-start-line="118" selection-start-column="27" selection-end-line="118" selection-end-column="27" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/entity.py">
+    <entry file="file://$PROJECT_DIR$/survol/analysis_import_file.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+        <state vertical-scroll-proportion="0.28176796">
+          <caret line="9" column="39" selection-start-line="9" selection-start-column="39" selection-end-line="9" selection-end-column="39" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/entity_dirmenu_only.py">
+    <entry file="file://$PROJECT_DIR$/survol/sparql_wmi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="192" column="47" selection-start-line="192" selection-start-column="47" selection-end-line="192" selection-end-column="47" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_export_dot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="601" column="28" selection-start-line="601" selection-start-column="28" selection-end-line="601" selection-end-column="28" />
+          <caret line="83" column="0" selection-start-line="83" selection-start-column="0" selection-end-line="83" selection-end-column="0" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#309#318#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_export_html.py">
+    <entry file="file://$PROJECT_DIR$/survol/sparql.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/task_control.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="211" column="0" selection-start-line="211" selection-start-column="0" selection-end-line="211" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/class_type_all.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="109" column="17" selection-start-line="109" selection-start-column="17" selection-end-line="109" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/objtypes_wmi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="106" column="44" selection-start-line="106" selection-start-column="44" selection-end-line="106" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/portal_wbem.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="32" column="58" selection-start-line="32" selection-start-column="58" selection-end-line="32" selection-end-column="58" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/survol/entity_wbem.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="167" column="0" selection-start-line="167" selection-start-column="0" selection-end-line="167" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_survol_client_library.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="32" column="30" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="30" />
+          <caret line="22" column="27" selection-start-line="22" selection-start-column="27" selection-end-line="22" selection-end-column="27" />
           <folding>
-            <element signature="e#0#37#0" expanded="true" />
+            <element signature="e#147#156#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_common.py">
+    <entry file="file://$PROJECT_DIR$/survol/lib_sparql.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-16.62963">
-          <caret line="690" column="0" selection-start-line="690" selection-start-column="0" selection-end-line="690" selection-end-column="0" />
+        <state vertical-scroll-proportion="-13.222222">
+          <caret line="333" column="54" selection-start-line="333" selection-start-column="54" selection-end-line="333" selection-end-column="54" />
           <folding>
-            <element signature="e#1#14#0" expanded="true" />
+            <element signature="e#89#99#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py">
+    <entry file="file://$PROJECT_DIR$/Experimental/Test_package_dis.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="73" column="36" selection-start-line="73" selection-start-column="36" selection-end-line="73" selection-end-column="36" />
+          <caret line="2" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/survol/lib_client.py">
+    <entry file="file://$PROJECT_DIR$/survol/ontologies/WMI_RDFS.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.814815">
-          <caret line="426" column="5" selection-start-line="426" selection-start-column="5" selection-end-line="426" selection-end-column="5" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_wmi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.6296296">
+          <caret line="483" column="1" selection-start-line="483" selection-start-column="1" selection-end-line="483" selection-end-column="1" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/unittest_survol_sparql_parse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="135" column="57" selection-start-line="135" selection-start-column="57" selection-end-line="135" selection-end-column="57" />
+          <folding>
+            <element signature="e#608#645#0" expanded="false" />
+            <marker date="1557380551119" expanded="true" signature="-1:-1" placeholder="..." />
+            <marker date="1557380551119" expanded="true" signature="-1:-1" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/com/type_lib_entry/module/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.043701798">
+          <caret line="1" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/com/type_lib_entry/dispatch/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.043701798">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/com/type_lib_entry/enumeration/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.043701798">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/com/type_lib_entry/coclass/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.043701798">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Experimental/GraphDB/cgroups_isdefinedby.rdf">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33333334">
+          <caret line="61" column="68" selection-start-line="61" selection-start-column="68" selection-end-line="61" selection-end-column="68" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testarea/Lib/site-packages/survol/lib_uris.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7569061">
+          <caret line="451" column="64" selection-start-line="451" selection-start-column="49" selection-end-line="451" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/enumerate_user.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="34" column="45" selection-start-line="34" selection-start-column="38" selection-end-line="34" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testarea/Lib/site-packages/survol/lib_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3020258">
+          <caret line="92" column="20" selection-start-line="92" selection-start-column="20" selection-end-line="92" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/ntpath.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="214" column="0" selection-start-line="214" selection-start-column="0" selection-end-line="214" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/CIM_Process/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.14534883">
+          <caret line="12" column="72" selection-start-line="12" selection-start-column="72" selection-end-line="12" selection-end-column="72" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/sources_types/python/package/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="82" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/survol/lib_util.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7816092">
-          <caret line="55" column="24" selection-start-line="55" selection-start-column="24" selection-end-line="55" selection-end-column="24" />
+        <state vertical-scroll-proportion="-7.0">
+          <caret line="936" column="17" selection-start-line="936" selection-start-column="0" selection-end-line="936" selection-end-column="17" />
+          <folding>
+            <marker date="1557570740238" expanded="true" signature="11660:11905" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_psutil.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-6.076923">
+          <caret line="204" column="0" selection-start-line="204" selection-start-column="0" selection-end-line="204" selection-end-column="0" />
+          <folding>
+            <element signature="e#98#107#0" expanded="true" />
+            <marker date="1557572553544" expanded="true" signature="5430:5841" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/entity.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-4.84">
+          <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/unittest/case.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="392" column="0" selection-start-line="392" selection-start-column="0" selection-end-line="392" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pycharm/utrunner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.9037433">
+          <caret line="154" column="0" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pycharm/tcunittest.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8128342">
+          <caret line="248" column="0" selection-start-line="248" selection-start-column="0" selection-end-line="248" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/unittest/suite.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="69" column="0" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="850" column="0" selection-start-line="850" selection-start-column="0" selection-end-line="850" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/unittest_survol_client_library.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3314121">
+          <caret line="39" column="21" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="21" />
+          <folding>
+            <element signature="e#19#56#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
