@@ -191,10 +191,17 @@ def PsutilGetProcObj(pid):
 		lib_common.ErrorMessageHtml("No such process:"+str(pid))
 
 # If psutil is not available, consider "getpass.getuser()"
+# This returns the username, not prefixed by the hostname.
 def GetCurrentUser():
 	currProc = PsutilGetProcObj(os.getpid())
-	return PsutilProcToUser(currProc)
-	
+	# u'rchateau-HP\\rchateau' on Windows and 'rchateau' on Linux.
+	psUser = PsutilProcToUser(currProc)
+	# This truncates the hostname if there is one.
+	# We do not want the hostname but instead the SERVER_NAME,
+	# which is "LCOALHOST" when running locally this library in lib_client.py
+	if lib_util.isPlatformWindows:
+		psUser = psUser.rpartition("\\")[2]
+	return psUser
 
 # https://pythonhosted.org/psutil/
 # rss: this is the non-swapped physical memory a process has used.
