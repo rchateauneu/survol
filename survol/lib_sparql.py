@@ -170,24 +170,21 @@ def get_triples(arg_elt):
 
 # This groups tokens by sequence of three, to create triples.
 # All SPARQL constraints are mixed together
-def aggregate_triples(raw_trpl):
-    resu = []
+def aggregate_into_triples(raw_trpl):
     curr_trip = []
     cnt_trip = 0
-    DEBUG("Len raw_trpl=%s",len(raw_trpl))
     for block in raw_trpl:
         for elt in block:
             cnt_trip += 1
             curr_trip.append(elt)
             if cnt_trip == 3:
-                resu.append(curr_trip)
+                yield curr_trip
                 cnt_trip = 0
                 curr_trip = []
-
-    if cnt_trip:
-        resu.append(curr_trip)
-    DEBUG("Len resu=%s",len(resu))
-    return resu
+    if cnt_trip == 3:
+        yield curr_trip
+    else:
+        assert cnt_trip == 0
 
 
 def pname_to_string(pname):
@@ -244,9 +241,11 @@ def decode_parsed_predicate(pred):
                     one_part_part_first = one_part_part[0]
                     if isinstance(one_part_part_first,rdflib.plugins.sparql.parserutils.CompValue):
                         one_part_part_first_part = one_part_part_first['part']
-                        resu = pname_to_string(one_part_part_first_part)
-
-                        return("TRPL_PREDICATE",resu)
+                        if isinstance(one_part_part_first_part,rdflib.plugins.sparql.parserutils.CompValue):
+                            resu = pname_to_string(one_part_part_first_part)
+                            return("TRPL_PREDICATE",resu)
+                        else:
+                            return("TRPL_URIREF",str(one_part_part_first_part))
 
     elif isinstance(pred,rdflib.term.Variable):
         # rdflib.term.Variable(u'p')
@@ -254,7 +253,7 @@ def decode_parsed_predicate(pred):
     elif isinstance(pred,rdflib.term.BNode):
         return("TRPL_NODE",pred)
     else:
-        print("ERREUR")
+        print("ERROR")
 
         print("***:",type(pred))
         print("***:",dir(pred))
@@ -286,10 +285,22 @@ def GenerateTriplesList(qry):
     parsed = rdflib.plugins.sparql.parser.parseQuery(qry)
 
     raw_trpl = get_triples(parsed)
-    trpl_lst = aggregate_triples(raw_trpl)
+    trpl_lst = aggregate_into_triples(raw_trpl)
     for one_trpl in trpl_lst:
         clean_trpl = decode_parsed_triple(one_trpl)
         yield clean_trpl
+
+# This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
+def ExtractClass(key_vals):
+    # If the class is not defined, cannot query.
+    # TODO: Consider base classes ??
+    try:
+        class_name = key_vals['rdf:type']
+        del key_vals['rdf:type']
+    except KeyError:
+        return (None,None)
+
+    return class_name, key_vals
 
 # This receives the list of triples of a SPARQL query.
 # It returns a dictionary of variables with constant attributes.
@@ -297,7 +308,7 @@ def GenerateTriplesList(qry):
 # over WMI or WBEM.
 # This is very restricted, because it does not work if there are joins.
 # Also, the CIM class of the object must be known.
-def ExtractEntities(lst_triples):
+def ExtractEntitiesWithConstantAttributes(lst_triples):
     dictVariables = {}
 
     # Gathers attributes of objects.
@@ -321,6 +332,113 @@ def ExtractEntities(lst_triples):
 
     return dictVariables
 
+class EntityQuery:
+    def __init__(self,variable_name):
+        self.m_variable_name = variable_name
+        self.m_input_variables = set()
+        self.m_attributes = {}
+
+    def __repr__(self):
+        resu = str(self.m_attributes)
+        resu += " <= " + str(list(self.m_input_variables))
+        return resu
+
+class QueryVariable:
+    def __init__(self,variable_name):
+        self.m_variable_name = variable_name
+
+    def __repr__(self):
+        return "??" + self.m_variable_name + "??"
+
+def ExtractEntitiesWithVariableAttributes(lst_triples):
+    dictEntitiesByVariable = {}
+
+    # Gathers attributes of objects.
+    for one_triple in lst_triples:
+        if one_triple[0][0] != "TRPL_VARIABLE":
+            continue
+        # The predicate type could be "TRPL_VARIABLE"
+        if one_triple[1][0] != "TRPL_PREDICATE":
+            continue
+        if one_triple[2][0] == "TRPL_LITERAL":
+            attribute_value = one_triple[2][1]
+        elif one_triple[2][0]  == "TRPL_VARIABLE":
+            attribute_value = QueryVariable( one_triple[2][1] )
+        else:
+            continue
+
+        variable_name = one_triple[0][1]
+        try:
+            class_dict = dictEntitiesByVariable[variable_name]
+        except KeyError:
+            class_dict = {}
+            dictEntitiesByVariable[variable_name] = class_dict
+        class_dict[one_triple[1][1]] = attribute_value
+
+    return dictEntitiesByVariable
+
+# This returns an iterator on objects.
+def ExecuteQueryEntities(class_name, key_values):
+    qry = lib_util.SplitMonikToWQL(key_values,class_name)
+    print(qry)
+    # Returns one element, for testing.
+    if class_name == "CIM_Process":
+        return [
+            { "survol:pid":123,"survol:ppid":456,"survol:user":"rchateau"},
+            { "survol:pid":456,"survol:ppid":789,"survol:user":"rchateau"},
+        ]
+    if class_name == "CIM_DataFile":
+        return [
+            { "survol:user":"rchateau","survol:runs":"firefox.exe"},
+            { "survol:user":"rchateau","survol:runs":"explorer.exe"},
+        ]
+    return None
+
+
+class Loop:
+    def __init__(self,class_name,key_values):
+        self.m_class_name = class_name
+        self.m_key_values = key_values
+
+def Evaluate( lst_loops, index, known_variables, tuple_results):
+    if index == len(lst_loops):
+        yield tuple_results
+        return
+    curr_loop = lst_loops[0]
+
+    key_values = {}
+    lst_variables = {}
+    for key_attribute in curr_loop.m_key_values:
+        value_attribute = curr_loop.m_key_values[key_attribute]
+        if isinstance(value_attribute,QueryVariable):
+            variable_name = value_attribute.m_variable_name
+            if variable_name in known_variables:
+                key_values[key_attribute] = known_variables[variable_name]
+            else:
+                # Variable is not known yet
+                lst_variables[variable_name] = key_attribute
+        else:
+            key_values[key_attribute] = value_attribute
+
+    print("lst_variables=",lst_variables)
+    for oneEntity in ExecuteQueryEntities(curr_loop.m_class_name, key_values):
+        print("oneEntity=",oneEntity)
+        for variable_name in lst_variables:
+            known_variables[variable_name] = oneEntity[lst_variables[variable_name]]
+        tmp_results = tuple_results + (oneEntity,)
+        tuple_results = Evaluate( lst_loops, index + 1, known_variables, tmp_results)
+        yield tuple_results
+
+def PrintAsLoops(dictEntitiesByVariable):
+    lst_loops = []
+
+    for variable_name in dictEntitiesByVariable:
+        class_name, key_values = ExtractClass( dictEntitiesByVariable[variable_name] )
+        lst_loops.append( Loop(class_name, key_values) )
+
+    itr_tuple_results = Evaluate(lst_loops,0,{},())
+    for tuple_results in itr_tuple_results:
+        print(tuple_results)
 
 # Quand on a un triplet de cette forme, trouver toutes les proprietes
 # litterales relatives au sujet.

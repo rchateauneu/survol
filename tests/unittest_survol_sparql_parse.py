@@ -14,15 +14,42 @@
 from __future__ import print_function
 
 import cgitb
+import sys
 import unittest
+
+# This loads the module from the source, so no need to install it, and no need of virtualenv.
+sys.path.insert(0,"../survol")
 
 # This is what we want to test.
 import lib_sparql
 
+
+def preceding_attribute(offset, attribute_name):
+    return None
+
 class SurvolSparqlTest(unittest.TestCase):
 
-    def test_sparql_one(self):
+    def queries_test(self, arr):
+        for qry in arr:
+            print("===================================================")
+            # parse_qry(elt)
+            print(qry)
+            lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
+            if False:
+                for clean_trpl in lstTriples:
+                    print("--------------------")
+                    print("Subj:",clean_trpl[0])
+                    print("Pred:",clean_trpl[1])
+                    print("Obj:",clean_trpl[2])
+                print("---------------------------------------------------")
 
+            lstEntities = lib_sparql.ExtractEntitiesWithConstantAttributes(lstTriples)
+            print(lstEntities)
+            #wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
+            #print(wmi_qry)
+
+    # Generic parse capabilities
+    def test_sparql_simple(self):
         arr=[
             "SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] . ?s2 ?p ?o .} ",
             "SELECT * WHERE { ?x  ?o1  ?name ; ?o2  ?mbox . } ",
@@ -102,6 +129,27 @@ class SurvolSparqlTest(unittest.TestCase):
               ?t :saidBy        "Bob" .
             }
             """,
+        ]
+        self.queries_test(arr)
+
+    # More complex queries. Only the where clause is relevant
+    def test_sparql_general(self):
+        arr=[
+            """
+            select distinct ?Concept where {[] a ?Concept} LIMIT 100
+            """,
+        ]
+        self.queries_test(arr)
+
+
+    # This transforms a sparql query into a several nested loops fetching data from CIM classes.
+    # The attributes are taken from the Sparql query without modification.
+    # It is up to the execution, to check if these attributes are available.
+    # TODO: There should be a way to specify the associators or references explicitely,
+    # TODO: in the SparQL query.
+    def test_sparql_specific(self):
+        arr_qries=[
+            [
             # The SPARQL keyword a is a shortcut for the common predicate rdf:type, giving the class of a resource.
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -113,6 +161,12 @@ class SurvolSparqlTest(unittest.TestCase):
               ?t rdf:type "CIM_Process" .
             }
             """,
+               [
+                   ( "CIM_Process", { "survol:ppid" : 123} )
+               ]
+            ],
+
+            [
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -122,6 +176,12 @@ class SurvolSparqlTest(unittest.TestCase):
               ?t rdf:type "CIM_Directory" .
             }
             """,
+               [
+                   ( "CIM_Directory", { "survol:name" : "C:/Users/Public"} )
+               ]
+            ],
+
+            [
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -131,11 +191,79 @@ class SurvolSparqlTest(unittest.TestCase):
               ?t rdf:type "CIM_FileName" .
             }
             """,
+               [
+                   ( "CIM_FileName", { "survol:name" : "C:/Program Files (x86)/Internet Explorer/iexplore.exe"} )
+               ]
+            ],
+
+            [
+            """
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?p1 survol:runs  "firefox.exe" .
+              ?p1 rdf:type "CIM_Process" .
+              ?p1 survol:pid    ?the_pid  .
+              ?p2 survol:ppid    ?the_pid  .
+              ?p2 rdf:type "CIM_Process" .
+            }
+            """,
+               [
+                   ( "CIM_Process", { "survol:runs" : "firefox.exe" } ),
+                   ( "CIM_Process", { "survol:runs" : "firefox.exe", "survol:ppid" : preceding_attribute(0,"survol:pid")} )
+               ]
+            ],
+
+            # TODO: The associators and references model is not very natural.
+            # TODO: It is technically more complicated than a plain relational model,
+            # TODO: plus one or two extra types, which are not portable between WMI and WBEM.
+            # TODO: And it does not have any capability of SQL.
+            # TODO: And it is very slow.
+
+            [
+            """
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?p1 survol:Name "firefox.exe" .
+              ?p1 rdf:type "CIM_Process" .
+              ?p1 survol:user    ?the_username  .
+              ?p2 survol:name    ?the_username  .
+              ?p2 rdf:type "Win32_UserAccount" .
+            }
+            """,
+               [
+                   ( "CIM_Process", { "survol:Name" : "firefox.exe" } ),
+                   ( "Win32_UserAccount", { "survol:name" : preceding_attribute(0,"survol:user")} )
+               ]
+            ],
+
+            [
+            """
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_fil rdf:type "CIM_DataFile" .
+              ?url_fil survol:owns ?the_username  .
+              ?url_proc survol:runs "firefox.exe" .
+              ?url_proc rdf:type "CIM_Process" .
+              ?url_proc survol:user ?the_username  .
+            }
+            """,
+               [
+                   ( "CIM_Process", { "survol:runs" : "firefox.exe" } ),
+                   ( "CIM_DataFile", { "survol:owns" : preceding_attribute(0,"survol:user")} )
+               ]
+            ],
         ]
 
-        for qry in arr:
+        for qry_data in arr_qries:
             print("===================================================")
             # parse_qry(elt)
+            qry = qry_data[0]
             print(qry)
             lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
             if False:
@@ -146,12 +274,11 @@ class SurvolSparqlTest(unittest.TestCase):
                     print("Obj:",clean_trpl[2])
                 print("---------------------------------------------------")
 
-            lstEntities = lib_sparql.ExtractEntities(lstTriples)
-            print(lstEntities)
-            wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
-            print(wmi_qry)
-
-            
+            dictEntitiesByVariable = lib_sparql.ExtractEntitiesWithVariableAttributes(lstTriples)
+            print(dictEntitiesByVariable)
+            lib_sparql.PrintAsLoops(dictEntitiesByVariable)
+            #wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
+            #print(wmi_qry)
 
 
 

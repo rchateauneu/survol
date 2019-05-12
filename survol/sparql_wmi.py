@@ -14,21 +14,10 @@ This SPARQL server translates SPARQL queries into Survol data model.
 import os
 import sys
 import lib_util
+import lib_common
 import lib_kbase
 import lib_sparql
 import lib_wmi
-
-# This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
-def ExtractClass(key_vals):
-    # If the class is not defined, cannot query.
-    # TODO: Consider base classes ??
-    try:
-        class_name = key_vals['rdf:type']
-        key_vals.delete('rdf:type')
-    except KeyError:
-        return (None,None)
-
-    return class_name, key_vals
 
 # http://timgolden.me.uk/python/downloads/wmi-0.6b.py
 
@@ -41,7 +30,7 @@ def Main():
     qry = envSparql.Query()
 
     lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
-    lstEntities = lib_sparql.ExtractEntities(lstTriples)
+    dictEntities = lib_sparql.ExtractEntitiesWithConstantAttributes(lstTriples)
 
     # This returns an array of WMI queries which must be executed independently,
     # and their results mixed in one triple-store.
@@ -52,8 +41,8 @@ def Main():
 
     connWmi = lib_wmi.WmiConnect(wmiHost,nameSpace)
 
-    for one_entity in lstEntities:
-        class_name, key_values = ExtractClass( lstEntities[one_entity] )
+    for variable_name in dictEntities:
+        class_name, key_values = lib_sparql.ExtractClass( dictEntities[variable_name] )
         aQry = lib_util.SplitMonikToWQL(key_values,class_name)
 
         objList = connWmi.query(aQry)
