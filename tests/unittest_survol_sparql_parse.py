@@ -156,9 +156,9 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
-            { ?t survol:pid    ?the_pid  .
-              ?t survol:ppid  123 .
-              ?t rdf:type "CIM_Process" .
+            { ?url_proc survol:pid    ?the_pid  .
+              ?url_proc survol:ppid  123 .
+              ?url_proc rdf:type "CIM_Process" .
             }
             """,
                [
@@ -170,10 +170,11 @@ class SurvolSparqlTest(unittest.TestCase):
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?the_pid
+            SELECT ?the_owner
             WHERE
-            { ?t survol:name "C:/Users/Public"  .
-              ?t rdf:type "CIM_Directory" .
+            { ?url_dir survol:Name "C:/Users/Public"  .
+              ?url_dir rdf:type "CIM_Directory" .
+              ?url_dir survol:owns ?the_owner .
             }
             """,
                [
@@ -185,14 +186,15 @@ class SurvolSparqlTest(unittest.TestCase):
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?the_pid
+            SELECT ?the_owner
             WHERE
-            { ?t survol:name "C:/Program Files (x86)/Internet Explorer/iexplore.exe"  .
-              ?t rdf:type "CIM_FileName" .
+            { ?url_file survol:Name "C:/Program Files (x86)/Internet Explorer/iexplore.exe"  .
+              ?url_file rdf:type "CIM_DataFile" .
+              ?url_file survol:owns ?the_owner .
             }
             """,
                [
-                   ( "CIM_FileName", { "survol:name" : "C:/Program Files (x86)/Internet Explorer/iexplore.exe"} )
+                   ( "CIM_DataFile", { "survol:name" : "C:/Program Files (x86)/Internet Explorer/iexplore.exe"} )
                ]
             ],
 
@@ -202,11 +204,11 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?p1 survol:runs  "firefox.exe" .
-              ?p1 rdf:type "CIM_Process" .
-              ?p1 survol:pid    ?the_pid  .
-              ?p2 survol:ppid    ?the_pid  .
-              ?p2 rdf:type "CIM_Process" .
+            { ?url_proc1 survol:runs  "firefox.exe" .
+              ?url_proc1 rdf:type "CIM_Process" .
+              ?url_proc1 survol:pid    ?the_pid  .
+              ?url_proc2 survol:ppid    ?the_pid  .
+              ?url_proc2 rdf:type "CIM_Process" .
             }
             """,
                [
@@ -227,11 +229,11 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?p1 survol:Name "firefox.exe" .
-              ?p1 rdf:type "CIM_Process" .
-              ?p1 survol:user    ?the_username  .
-              ?p2 survol:name    ?the_username  .
-              ?p2 rdf:type "Win32_UserAccount" .
+            { ?url_proc survol:Name "firefox.exe" .
+              ?url_proc rdf:type "CIM_Process" .
+              ?url_proc survol:user    ?the_username  .
+              ?url_acct survol:Name    ?the_username  .
+              ?url_acct rdf:type "Win32_UserAccount" .
             }
             """,
                [
@@ -276,7 +278,9 @@ class SurvolSparqlTest(unittest.TestCase):
 
             dictEntitiesByVariable = lib_sparql.ExtractEntitiesWithVariableAttributes(lstTriples)
             print(dictEntitiesByVariable)
+            print("***************************************************")
             lib_sparql.PrintAsLoops(dictEntitiesByVariable)
+            print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
             #wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
             #print(wmi_qry)
 
