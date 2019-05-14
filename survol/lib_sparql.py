@@ -1,5 +1,6 @@
 # This transforms a SPARQL query into a WMI/WBEM query.
 # This is extremely restricted.
+from __future__ import print_function
 
 import sys
 import rdflib.plugins.sparql.parser
@@ -377,21 +378,32 @@ def ExtractEntitiesWithVariableAttributes(lst_triples):
 
     return dictEntitiesByVariable
 
-# This returns an iterator on objects.
+# This returns an iterator on objects. Testing purpose only.
 def ExecuteQueryEntities(class_name, key_values):
     qry = lib_util.SplitMonikToWQL(key_values,class_name)
     print(qry)
     # Returns one element, for testing.
     if class_name == "CIM_Process":
         return [
-            { "survol:pid":123,"survol:ppid":456,"survol:user":"rchateau"},
-            { "survol:pid":456,"survol:ppid":789,"survol:user":"rchateau"},
+            { "survol:pid":123,"survol:ppid":456,"survol:user":"rchateau","survol:runs":"firefox.exe"},
+            { "survol:pid":456,"survol:ppid":789,"survol:user":"rchateau","survol:runs":"explorer.exe"},
         ]
     if class_name == "CIM_DataFile":
         return [
-            { "survol:user":"rchateau","survol:runs":"firefox.exe"},
-            { "survol:user":"rchateau","survol:runs":"explorer.exe"},
+            { "survol:owns":"rchateau","survol:Name":r"C:\Program Files (x86)\Internet Explorer\iexplore.exe"},
+            { "survol:owns":"rchateau","survol:Name":"explorer.exe"},
         ]
+    if class_name == "CIM_Directory":
+        return [
+            { "survol:owns":"rchateau","survol:Name":r"C:\Program Files"},
+            { "survol:owns":"rchateau","survol:Name":r"C:\Program Files (x86)"},
+        ]
+    if class_name == "Win32_UserAccount":
+        return [
+            { "survol:uid":111,"survol:Name":"rchateau"},
+            { "survol:uid":222,"survol:Name":"untel"},
+        ]
+    print("class_name=",class_name)
     return None
 
 
@@ -400,11 +412,11 @@ class Loop:
         self.m_class_name = class_name
         self.m_key_values = key_values
 
-def Evaluate( lst_loops, index, known_variables, tuple_results):
+def Evaluate( lst_loops, index, known_variables, tuple_result_input):
     if index == len(lst_loops):
-        yield tuple_results
+        yield tuple_result_input
         return
-    curr_loop = lst_loops[0]
+    curr_loop = lst_loops[index]
 
     key_values = {}
     lst_variables = {}
@@ -420,14 +432,15 @@ def Evaluate( lst_loops, index, known_variables, tuple_results):
         else:
             key_values[key_attribute] = value_attribute
 
-    print("lst_variables=",lst_variables)
+    print("    "*index + "lst_variables=",lst_variables)
     for oneEntity in ExecuteQueryEntities(curr_loop.m_class_name, key_values):
-        print("oneEntity=",oneEntity)
+        print("    "*index + "oneEntity=",oneEntity)
         for variable_name in lst_variables:
             known_variables[variable_name] = oneEntity[lst_variables[variable_name]]
-        tmp_results = tuple_results + (oneEntity,)
-        tuple_results = Evaluate( lst_loops, index + 1, known_variables, tmp_results)
-        yield tuple_results
+        tuple_result_extended = tuple(list(tuple_result_input)) + (oneEntity,)
+        output_results = Evaluate( lst_loops, index + 1, known_variables, tuple_result_extended)
+        for one_resu in output_results:
+            yield one_resu
 
 def PrintAsLoops(dictEntitiesByVariable):
     lst_loops = []
@@ -436,9 +449,9 @@ def PrintAsLoops(dictEntitiesByVariable):
         class_name, key_values = ExtractClass( dictEntitiesByVariable[variable_name] )
         lst_loops.append( Loop(class_name, key_values) )
 
-    itr_tuple_results = Evaluate(lst_loops,0,{},())
+    itr_tuple_results = Evaluate(lst_loops,0,{},tuple())
     for tuple_results in itr_tuple_results:
-        print(tuple_results)
+        print("Evaluate=",tuple_results)
 
 # Quand on a un triplet de cette forme, trouver toutes les proprietes
 # litterales relatives au sujet.
