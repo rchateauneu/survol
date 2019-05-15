@@ -24,6 +24,52 @@ sys.path.insert(0,"../survol")
 import lib_sparql
 
 
+# Note: Cannot have backslashes in rdflib ??
+# Returns one element, for testing.
+dict_test_data = {
+    "CIM_Process": [
+        { "survol:pid":123,"survol:ppid":456,"survol:user":"herself","survol:runs":"firefox.exe"},
+        { "survol:pid":456,"survol:ppid":789,"survol:user":"himself","survol:runs":"explorer.exe"},
+    ],
+    "CIM_DataFile": [
+        { "survol:owns":"herself","survol:Name":"C:/Program Files (x86)/Internet Explorer/iexplore.exe"},
+        { "survol:owns":"someone","survol:Name":"explorer.exe"},
+    ],
+    "CIM_Directory": [
+        { "survol:owns":"himself","survol:Name":"C:/Program Files"},
+        { "survol:owns":"herself","survol:Name":"C:/Program Files (x86)"},
+    ],
+    "Win32_UserAccount": [
+        { "survol:uid":111,"survol:Name":"himself"},
+        { "survol:uid":222,"survol:Name":"someone"},
+    ],
+}
+
+
+# This returns an iterator on hard-coded objects. Testing purpose only.
+def UnitTestExecuteQueryEntities(class_name, where_key_values):
+    print("UnitTestExecuteQueryEntities class_name=",class_name," where_key_values=",where_key_values)
+
+    test_data = dict_test_data[class_name]
+
+    def CheckKeyValIncluded(one_data):
+        try:
+            for one_key in where_key_values:
+                one_val = where_key_values[one_key]
+                # Comparison in string.
+                if str(one_val) != str(one_data[one_key]):
+                    return False
+            return True
+        except KeyError:
+            return False
+
+    for one_data in test_data:
+        if CheckKeyValIncluded(one_data):
+            yield one_data
+
+
+lib_sparql.ExecuteQueryEntities = UnitTestExecuteQueryEntities
+
 def preceding_attribute(offset, attribute_name):
     return None
 
@@ -157,12 +203,14 @@ class SurvolSparqlTest(unittest.TestCase):
             SELECT ?the_pid
             WHERE
             { ?url_proc survol:pid    ?the_pid  .
-              ?url_proc survol:ppid  123 .
+              ?url_proc survol:ppid  456 .
               ?url_proc rdf:type "CIM_Process" .
             }
             """,
                [
-                   ( "CIM_Process", { "survol:ppid" : 123} )
+                   (
+                       {'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'},
+                   ),
                ]
             ],
 
@@ -172,13 +220,13 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_owner
             WHERE
-            { ?url_dir survol:Name "C:/Users/Public"  .
+            { ?url_dir survol:Name "C:/Program Files" .
               ?url_dir rdf:type "CIM_Directory" .
               ?url_dir survol:owns ?the_owner .
             }
             """,
                [
-                   ( "CIM_Directory", { "survol:name" : "C:/Users/Public"} )
+                   ({'survol:owns': 'himself', 'survol:Name': 'C:/Program Files'},)
                ]
             ],
 
@@ -194,7 +242,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ( "CIM_DataFile", { "survol:name" : "C:/Program Files (x86)/Internet Explorer/iexplore.exe"} )
+                   ({'survol:owns': 'herself', 'survol:Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe'},)
                ]
             ],
 
@@ -266,6 +314,7 @@ class SurvolSparqlTest(unittest.TestCase):
             print("===================================================")
             # parse_qry(elt)
             qry = qry_data[0]
+            expected_results = qry_data[1]
             print(qry)
             lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
             if False:
@@ -279,7 +328,14 @@ class SurvolSparqlTest(unittest.TestCase):
             dictEntitiesByVariable = lib_sparql.ExtractEntitiesWithVariableAttributes(lstTriples)
             print(dictEntitiesByVariable)
             print("***************************************************")
-            lib_sparql.PrintAsLoops(dictEntitiesByVariable)
+            itr_tuple_results = lib_sparql.PrintAsLoops(dictEntitiesByVariable)
+            list_results = list(itr_tuple_results)
+            print("###################################################")
+            print("list_results=",list_results)
+            print("expected_results=",expected_results)
+            assert( list_results == expected_results)
+
+
             print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
             #wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
             #print(wmi_qry)
