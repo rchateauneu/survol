@@ -401,6 +401,9 @@ def Evaluate( lst_input_entities, index, known_variables, tuple_result_input):
 
     print("    "*index + "lst_variables=",lst_variables)
     for oneEntity in ExecuteQueryEntities(curr_input_entity.m_class_name, key_values):
+        # The class name is reinjected after having carefully separated objects by classes.
+        oneEntity['rdf:type'] = curr_input_entity.m_class_name
+
         print("    "*index + "oneEntity=",oneEntity)
         for variable_name in lst_variables:
             known_variables[variable_name] = oneEntity[lst_variables[variable_name]]

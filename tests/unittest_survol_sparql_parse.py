@@ -29,7 +29,7 @@ import lib_sparql
 dict_test_data = {
     "CIM_Process": [
         { "survol:pid":123,"survol:ppid":456,"survol:user":"herself","survol:runs":"firefox.exe"},
-        { "survol:pid":456,"survol:ppid":789,"survol:user":"himself","survol:runs":"explorer.exe"},
+        { "survol:pid":789,"survol:ppid":123,"survol:user":"himself","survol:runs":"explorer.exe"},
     ],
     "CIM_DataFile": [
         { "survol:owns":"herself","survol:Name":"C:/Program Files (x86)/Internet Explorer/iexplore.exe"},
@@ -41,7 +41,7 @@ dict_test_data = {
     ],
     "Win32_UserAccount": [
         { "survol:uid":111,"survol:Name":"himself"},
-        { "survol:uid":222,"survol:Name":"someone"},
+        { "survol:uid":222,"survol:Name":"herself"},
     ],
 }
 
@@ -209,7 +209,7 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    (
-                       {'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'},
+                       {'rdf:type': 'CIM_Process', 'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'},
                    ),
                ]
             ],
@@ -226,7 +226,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ({'survol:owns': 'himself', 'survol:Name': 'C:/Program Files'},)
+                   ({'rdf:type': 'CIM_Directory', 'survol:owns': 'himself', 'survol:Name': 'C:/Program Files'},)
                ]
             ],
 
@@ -242,7 +242,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ({'survol:owns': 'herself', 'survol:Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe'},)
+                   ({'rdf:type': 'CIM_DataFile', 'survol:owns': 'herself', 'survol:Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe'},)
                ]
             ],
 
@@ -260,8 +260,10 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ( "CIM_Process", { "survol:runs" : "firefox.exe" } ),
-                   ( "CIM_Process", { "survol:runs" : "firefox.exe", "survol:ppid" : preceding_attribute(0,"survol:pid")} )
+                   (
+                       {'rdf:type': 'CIM_Process', 'survol:runs': 'explorer.exe', 'survol:pid': 789, 'survol:ppid': 123, 'survol:user': 'himself'},
+                       {'rdf:type': 'CIM_Process', 'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'}
+                   )
                ]
             ],
 
@@ -277,7 +279,7 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_proc survol:Name "firefox.exe" .
+            { ?url_proc survol:runs "firefox.exe" .
               ?url_proc rdf:type "CIM_Process" .
               ?url_proc survol:user    ?the_username  .
               ?url_acct survol:Name    ?the_username  .
@@ -285,8 +287,10 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ( "CIM_Process", { "survol:Name" : "firefox.exe" } ),
-                   ( "Win32_UserAccount", { "survol:name" : preceding_attribute(0,"survol:user")} )
+                   (
+                       {'rdf:type': 'CIM_Process', 'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'},
+                       {'rdf:type': 'Win32_UserAccount', 'survol:uid': 222, 'survol:Name': 'herself'}
+                   )
                ]
             ],
 
@@ -304,8 +308,10 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ( "CIM_Process", { "survol:runs" : "firefox.exe" } ),
-                   ( "CIM_DataFile", { "survol:owns" : preceding_attribute(0,"survol:user")} )
+                   (
+                       {'rdf:type': 'CIM_Process', 'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'},
+                       {'rdf:type': 'CIM_DataFile', 'survol:owns': 'herself', 'survol:Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe'}
+                   )
                ]
             ],
         ]
@@ -333,7 +339,7 @@ class SurvolSparqlTest(unittest.TestCase):
             print("###################################################")
             print("list_results=",list_results)
             print("expected_results=",expected_results)
-            assert( list_results == expected_results)
+            assert(list_results == expected_results)
 
 
             print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
