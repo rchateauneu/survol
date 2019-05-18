@@ -8,18 +8,6 @@ import psutil
 import socket
 import errno
 
-# http://python3porting.com/noconv.html
-import urllib
-try:
-	from urllib.request import urlopen
-except ImportError:
-	from urllib import urlopen
-
-#try:
-#	from urllib.parse import urlparse
-#except ImportError:
-#	from urlparse import urlparse
-	
 import time
 import datetime
 import lib_util
