@@ -25,7 +25,6 @@ def GetContent(urlHRef,time_out):
 		from urllib2 import urlopen
 		try:
 			f = urlopen(urlHRef,timeout=time_out)
-		# except socket.timeout as e:
 		except:
 			return None
 
