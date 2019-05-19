@@ -41,6 +41,14 @@ else:
     def survol_unescape(s):
         return HTMLParser.HTMLParser().unescape(s)
 
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen as survol_urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen as survol_urlopen
+
+
 ################################################################################
 
 def SetLoggingConfig(isDebug):
