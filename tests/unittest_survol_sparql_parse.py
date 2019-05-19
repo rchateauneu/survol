@@ -14,15 +14,25 @@
 from __future__ import print_function
 
 import cgitb
+import cgi
 import sys
 import unittest
+import socket
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
 
 # This is what we want to test.
 import lib_sparql
+import lib_client
+import lib_util
 
+# "rchateau-hp"
+CurrentMachine = socket.gethostname().lower()
+
+# TODO: This should be a parameter.
+# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
+RemoteTestAgent = "http://" + CurrentMachine + ":8000"
 
 # Note: Cannot have backslashes in rdflib ??
 # Returns one element, for testing.
@@ -45,12 +55,13 @@ dict_test_data = {
     ],
 }
 
+# This returns an iterator on hard-coded objects, of a given class,
+# which must match the input key-value pairs.
+# Each object is modelled by a key-value dictionary.
+def UnitTestExecuteQueryCallback(class_name, where_key_values):
+    print("UnitTestExecuteQueryCallback class_name=",class_name," where_key_values=",where_key_values)
 
-# This returns an iterator on hard-coded objects. Testing purpose only.
-def UnitTestExecuteQueryEntities(class_name, where_key_values):
-    print("UnitTestExecuteQueryEntities class_name=",class_name," where_key_values=",where_key_values)
-
-    test_data = dict_test_data[class_name]
+    test_key_value_pairs_list = dict_test_data[class_name]
 
     def CheckKeyValIncluded(one_data):
         try:
@@ -63,34 +74,25 @@ def UnitTestExecuteQueryEntities(class_name, where_key_values):
         except KeyError:
             return False
 
-    for one_data in test_data:
-        if CheckKeyValIncluded(one_data):
-            yield one_data
+    for one_key_value_pair_dict in test_key_value_pairs_list:
+        if CheckKeyValIncluded(one_key_value_pair_dict):
+            yield one_key_value_pair_dict
 
 
-lib_sparql.ExecuteQueryEntities = UnitTestExecuteQueryEntities
+lib_sparql.ExecuteQueryCallback = UnitTestExecuteQueryCallback
 
-def preceding_attribute(offset, attribute_name):
-    return None
 
 class SurvolSparqlTest(unittest.TestCase):
 
+    # Test parsing.
     def queries_test(self, arr):
         for qry in arr:
             print("===================================================")
             # parse_qry(elt)
             print(qry)
-            lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
-            if False:
-                for clean_trpl in lstTriples:
-                    print("--------------------")
-                    print("Subj:",clean_trpl[0])
-                    print("Pred:",clean_trpl[1])
-                    print("Obj:",clean_trpl[2])
-                print("---------------------------------------------------")
 
-            lstEntities = lib_sparql.ExtractEntitiesWithConstantAttributes(lstTriples)
-            print(lstEntities)
+            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
+            print(dictEntitiesByVariable)
             #wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
             #print(wmi_qry)
 
@@ -191,12 +193,16 @@ class SurvolSparqlTest(unittest.TestCase):
     # This transforms a sparql query into a several nested loops fetching data from CIM classes.
     # The attributes are taken from the Sparql query without modification.
     # It is up to the execution, to check if these attributes are available.
+    # This does not return the same results as a Spqrql query: It simply returns the set of objects
+    # which match the query.
+    # Another step is necessary to transform thesedata into the format of a Sparql output.
     # TODO: There should be a way to specify the associators or references explicitely,
     # TODO: in the SparQL query.
-    def test_sparql_specific(self):
-        arr_qries=[
+    def test_sparql_query_objects_hardcoded(self):
+
+        dict_query_to_output_hardcoded =[
             [
-            # The SPARQL keyword a is a shortcut for the common predicate rdf:type, giving the class of a resource.
+            # The SPARQL keyword "a" is a shortcut for the common predicate rdf:type, giving the class of a resource.
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -208,9 +214,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   (
-                       {'rdf:type': 'CIM_Process', 'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'},
-                   ),
+                   ('CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',),
                ]
             ],
 
@@ -226,7 +230,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ({'rdf:type': 'CIM_Directory', 'survol:owns': 'himself', 'survol:Name': 'C:/Program Files'},)
+                   ('CIM_Directory?survol:owns=himself&survol:Name=C:/Program Files',)
                ]
             ],
 
@@ -242,7 +246,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ({'rdf:type': 'CIM_DataFile', 'survol:owns': 'herself', 'survol:Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe'},)
+                   ('CIM_DataFile?survol:owns=herself&survol:Name=C:/Program Files (x86)/Internet Explorer/iexplore.exe',)
                ]
             ],
 
@@ -261,8 +265,8 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    (
-                       {'rdf:type': 'CIM_Process', 'survol:runs': 'explorer.exe', 'survol:pid': 789, 'survol:ppid': 123, 'survol:user': 'himself'},
-                       {'rdf:type': 'CIM_Process', 'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'}
+                       'CIM_Process?survol:runs=explorer.exe&survol:pid=789&survol:ppid=123&survol:user=himself',
+                       'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
                    )
                ]
             ],
@@ -288,8 +292,8 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    (
-                       {'rdf:type': 'CIM_Process', 'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'},
-                       {'rdf:type': 'Win32_UserAccount', 'survol:uid': 222, 'survol:Name': 'herself'}
+                       'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
+                       'Win32_UserAccount?survol:uid=222&survol:Name=herself',
                    )
                ]
             ],
@@ -309,42 +313,130 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    (
-                       {'rdf:type': 'CIM_Process', 'survol:runs': 'firefox.exe', 'survol:pid': 123, 'survol:ppid': 456, 'survol:user': 'herself'},
-                       {'rdf:type': 'CIM_DataFile', 'survol:owns': 'herself', 'survol:Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe'}
+                       'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
+                       'CIM_DataFile?survol:owns=herself&survol:Name=C:/Program Files (x86)/Internet Explorer/iexplore.exe',
                    )
                ]
             ],
         ]
 
-        for qry_data in arr_qries:
+        for qry_data in dict_query_to_output_hardcoded:
             print("===================================================")
             # parse_qry(elt)
             qry = qry_data[0]
             expected_results = qry_data[1]
             print(qry)
-            lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
-            if False:
-                for clean_trpl in lstTriples:
-                    print("--------------------")
-                    print("Subj:",clean_trpl[0])
-                    print("Pred:",clean_trpl[1])
-                    print("Obj:",clean_trpl[2])
-                print("---------------------------------------------------")
 
-            dictEntitiesByVariable = lib_sparql.ExtractEntitiesWithVariableAttributes(lstTriples)
+            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
+
             print(dictEntitiesByVariable)
             print("***************************************************")
-            itr_tuple_results = lib_sparql.PrintAsLoops(dictEntitiesByVariable)
-            list_results = list(itr_tuple_results)
+            itr_tuple_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, UnitTestExecuteQueryCallback)
+
+            # This moniker exists just for testing. However, the result is similar to a RDF Url.
+            def ObjectsToSparqlResults(list_objects):
+                for curr_input_entity in list_objects:
+                    entity_moniker = curr_input_entity.m_class_name + "?" + "&".join( [ "%s=%s" % kv for kv in curr_input_entity.m_key_values.items() ] )
+                    yield entity_moniker
+
+            list_tuple_objects = list(itr_tuple_objects)
+            list_results = []
+            for one_objects_tuple in list_tuple_objects:
+                list_results.append( tuple(ObjectsToSparqlResults(one_objects_tuple)) )
+
             print("###################################################")
             print("list_results=",list_results)
             print("expected_results=",expected_results)
             assert(list_results == expected_results)
 
+            print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+    def test_sparql_query_objects_survol(self):
+
+        dict_query_to_output_survol =[
+            [
+            # The SPARQL keyword "a" is a shortcut for the common predicate rdf:type, giving the class of a resource.
+            """
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?the_pid
+            WHERE
+            { ?url_proc survol:pid    ?the_pid  .
+              ?url_proc survol:ppid  456 .
+              ?url_proc rdf:type "CIM_Process" .
+            }
+            """,
+               [
+                   ('CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',),
+               ]
+            ],
+        ]
+
+        for qry_data in dict_query_to_output_survol:
+            print("===================================================")
+            # parse_qry(elt)
+            qry = qry_data[0]
+            expected_results = qry_data[1]
+            print(qry)
+
+            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
+
+            print(dictEntitiesByVariable)
+            print("***************************************************")
+            itr_tuple_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback)
+
+            # This moniker exists just for testing. However, the result is similar to a RDF Url.
+            def ObjectsToSparqlResults(list_objects):
+                for curr_input_entity in list_objects:
+                    entity_moniker = curr_input_entity.m_class_name + "?" + "&".join( [ "%s=%s" % kv for kv in curr_input_entity.m_key_values.items() ] )
+                    yield entity_moniker
+
+            list_tuple_objects = list(itr_tuple_objects)
+            list_results = []
+            for one_objects_tuple in list_tuple_objects:
+                list_results.append( tuple(ObjectsToSparqlResults(one_objects_tuple)) )
+
+            print("###################################################")
+            print("list_results=",list_results)
+            print("expected_results=",expected_results)
+            assert(list_results == expected_results)
 
             print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
-            #wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
-            #print(wmi_qry)
+
+    def test_sparql_server_survol(self):
+        """Test the Sparql server which works on Surol data"""
+        arr_survol_queries=[
+            [
+            # The SPARQL keyword "a" is a shortcut for the common predicate rdf:type, giving the class of a resource.
+            """
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?the_pid
+            WHERE
+            { ?url_proc survol:pid    ?the_pid  .
+              ?url_proc survol:ppid  456 .
+              ?url_proc rdf:type "CIM_Process" .
+            }
+            """,
+                "xxx"
+            ],
+        ]
+
+
+        for qry_data in arr_survol_queries:
+            print("===================================================")
+            # parse_qry(elt)
+            qry_sparql = qry_data[0]
+            expected_results = qry_data[1]
+            print("qry_sparql=",qry_sparql)
+
+            url_sparql = RemoteTestAgent + "/survol/sparql.py?query=" + lib_util.urllib_quote(qry_sparql)
+            print("url_sparql=",url_sparql)
+
+            response = lib_util.survol_urlopen(url_sparql)
+            data = response.read().decode("utf-8")
+            print("data=",data)
 
 
 

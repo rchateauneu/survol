@@ -14,7 +14,6 @@ import lib_sparql
 
 # HTTP_HOST and SERVER_NAME and SERVER_PORT
 
-
 def Main():
     envSparql = lib_sparql.SparqlEnvironment()
 
@@ -22,14 +21,17 @@ def Main():
 
     qry = envSparql.Query()
 
-    lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
-    lstEntities = lib_sparql.ExtractEntities(lstTriples)
+    dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
 
+    print(dictEntitiesByVariable)
+    print("***************************************************")
+    itr_tuple_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback)
 
-    #
-    for one_entity in lstEntities:
-        pass
+    grph = lib_kbase.MakeGraph()
 
+    list_tuple_objects = list(itr_tuple_objects)
+    for one_objects_tuple in list_tuple_objects:
+        lib_sparql.ObjectsToGrph(grph,one_objects_tuple)
 
     envSparql.WriteTripleStoreAsString(grph)
 
