@@ -6,6 +6,10 @@ import sys
 import rdflib.plugins.sparql.parser
 
 import lib_util
+import lib_properties
+import lib_kbase
+import lib_common
+
 
 # QUERY_STRING="query=%0A++++PREFIX+rdfs%3A+%3Chttp%3A/www.w3.org/2000/01/rdf-schema%23%3E%0A++++SELECT+%3Flabel%0A++++WHERE+%7B+%3Chttp%3A/dbpedia.org/resource/Asturias%3E+rdfs%3Alabel+%3Flabel+%7D%0A&output=json&results=json&format=json"
 
@@ -71,7 +75,11 @@ class SparqlEnvironment:
         sys.stderr.write("\n")
 
         self.m_query = self.m_arguments["query"].value
-        output_type = self.m_arguments["output"].value
+        try:
+            output_type = self.m_arguments["output"].value
+        except KeyError:
+            # This is the only output type which works at the moment.
+            output_type = "xml"
 
         sys.stderr.write("output_type=%s\n"%output_type)
 
@@ -291,36 +299,6 @@ def GenerateTriplesList(qry):
         clean_trpl = decode_parsed_triple(one_trpl)
         yield clean_trpl
 
-# This receives the list of triples of a SPARQL query.
-# It returns a dictionary of variables with constant attributes.
-# The plan is to implement a minimalistic SPARQL engine,
-# over WMI or WBEM.
-# This is very restricted, because it does not work if there are joins.
-# Also, the CIM class of the object must be known.
-def ExtractEntitiesWithConstantAttributes(lst_triples):
-    dictVariables = {}
-
-    # Gathers attributes of objects.
-    for one_triple in lst_triples:
-        if one_triple[0][0] != "TRPL_VARIABLE":
-            continue
-        # The predicate type could be "TRPL_VARIABLE"
-        if one_triple[1][0] != "TRPL_PREDICATE":
-            continue
-        # The object type could be "TRPL_VARIABLE"
-        if one_triple[2][0] != "TRPL_LITERAL":
-            continue
-
-        variable_name = one_triple[0][1]
-        try:
-            variable_dict = dictVariables[variable_name]
-        except KeyError:
-            variable_dict = {}
-            dictVariables[variable_name] = variable_dict
-        variable_dict[one_triple[1][1]] = one_triple[2][1]
-
-    return dictVariables
-
 class EntityQuery:
     def __init__(self,variable_name):
         self.m_variable_name = variable_name
@@ -338,6 +316,8 @@ class QueryVariable:
 
     def __repr__(self):
         return "??" + self.m_variable_name + "??"
+
+# TODO: When the subject is NOT a variable but an URL.
 
 def ExtractEntitiesWithVariableAttributes(lst_triples):
     dictEntitiesByVariable = {}
@@ -366,55 +346,47 @@ def ExtractEntitiesWithVariableAttributes(lst_triples):
 
     return dictEntitiesByVariable
 
-
-#def ExecuteQueryEntities(class_name, key_values):
-#    qry = lib_util.SplitMonikToWQL(key_values,class_name)
-#    print(qry)
-# This returns an iterator on objects of a given class.
-ExecuteQueryEntities = None
-
-
-class InputEntity:
+class SparqlObject:
     def __init__(self,class_name,key_values):
         self.m_class_name = class_name
         self.m_key_values = key_values
 
-def Evaluate( lst_input_entities, index, known_variables, tuple_result_input):
-    if index == len(lst_input_entities):
-        yield tuple_result_input
-        return
-    curr_input_entity = lst_input_entities[index]
 
-    key_values = {}
-    lst_variables = {}
-    for key_attribute in curr_input_entity.m_key_values:
-        value_attribute = curr_input_entity.m_key_values[key_attribute]
-        if isinstance(value_attribute,QueryVariable):
-            variable_name = value_attribute.m_variable_name
-            if variable_name in known_variables:
-                key_values[key_attribute] = known_variables[variable_name]
-            else:
-                # Variable is not known yet
-                lst_variables[variable_name] = key_attribute
-        else:
-            key_values[key_attribute] = value_attribute
-
-    print("    "*index + "lst_variables=",lst_variables)
-    for oneEntity in ExecuteQueryEntities(curr_input_entity.m_class_name, key_values):
-        # The class name is reinjected after having carefully separated objects by classes.
-        oneEntity['rdf:type'] = curr_input_entity.m_class_name
-
-        print("    "*index + "oneEntity=",oneEntity)
-        for variable_name in lst_variables:
-            known_variables[variable_name] = oneEntity[lst_variables[variable_name]]
-        tuple_result_extended = tuple(list(tuple_result_input)) + (oneEntity,)
-        output_results = Evaluate( lst_input_entities, index + 1, known_variables, tuple_result_extended)
-        for one_resu in output_results:
-            print("    "*index + "yield=",one_resu)
-            yield one_resu
-
-def PrintAsLoops(dictEntitiesByVariable):
+def QueryEntities(dictEntitiesByVariable, execute_query_callback):
     lst_input_entities = []
+
+    def Evaluate( index, known_variables, tuple_result_input):
+        if index == len(lst_input_entities):
+            yield tuple_result_input
+            return
+        curr_input_entity = lst_input_entities[index]
+
+        key_values = {}
+        lst_variables = {}
+        for key_attribute in curr_input_entity.m_key_values:
+            value_attribute = curr_input_entity.m_key_values[key_attribute]
+            if isinstance(value_attribute,QueryVariable):
+                variable_name = value_attribute.m_variable_name
+                if variable_name in known_variables:
+                    key_values[key_attribute] = known_variables[variable_name]
+                else:
+                    # Variable is not known yet
+                    lst_variables[variable_name] = key_attribute
+            else:
+                key_values[key_attribute] = value_attribute
+
+        print("    "*index + "lst_variables=",lst_variables)
+        for oneEntity in execute_query_callback(curr_input_entity.m_class_name, key_values):
+            # The result is made of URL to CIM objects.
+            output_entity = SparqlObject(curr_input_entity.m_class_name, oneEntity )
+
+            for variable_name in lst_variables:
+                known_variables[variable_name] = oneEntity[lst_variables[variable_name]]
+            tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
+            output_results = Evaluate( index + 1, known_variables, tuple_result_extended)
+            for one_resu in output_results:
+                print("    "*index + "yield=",one_resu)
+                yield one_resu
 
     # This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
     def ExtractClass(key_vals):
@@ -426,16 +398,57 @@ def PrintAsLoops(dictEntitiesByVariable):
         except KeyError:
             return (None,None)
 
-        return InputEntity( class_name, key_vals )
+        return SparqlObject( class_name, key_vals )
 
     for variable_name in dictEntitiesByVariable:
         one_input_entity = ExtractClass( dictEntitiesByVariable[variable_name] )
         lst_input_entities.append( one_input_entity )
 
-    itr_tuple_results = Evaluate(lst_input_entities,0,{},tuple())
+    itr_tuple_results = Evaluate(0,known_variables={},tuple_result_input=tuple())
     for tuple_results in itr_tuple_results:
-        print("yield2:",tuple_results)
         yield tuple_results
+
+def ParseQueryToEntities(qry):
+    lstTriples = list( GenerateTriplesList(qry) )
+    if False:
+        for clean_trpl in lstTriples:
+            print("--------------------")
+            print("Subj:",clean_trpl[0])
+            print("Pred:",clean_trpl[1])
+            print("Obj:",clean_trpl[2])
+        print("---------------------------------------------------")
+
+    dictEntitiesByVariable = ExtractEntitiesWithVariableAttributes(lstTriples)
+    return dictEntitiesByVariable
+
+def ObjectsToGrph(grph,list_objects):
+    for curr_input_entity in list_objects:
+        nodeObject = lib_common.gUriGen.UriMakeFromDict(curr_input_entity.m_class_name, curr_input_entity.m_key_values)
+
+        for attrKey, attrVal in curr_input_entity.m_key_values.items():
+            grph.add(( nodeObject, lib_properties.MakeProp(attrKey), lib_kbase.MakeNodeLiteral(attrVal) ) )
+
+# This returns an iterator of a given class,
+# which must match the input key-value pairs.
+# Each object is modelled by a key-value dictionary.
+# No need to return the class name because it is an input parameter.
+def SurvolExecuteQueryCallback(class_name, where_key_values):
+    print("SurvolExecuteQueryCallback class_name=", class_name, " where_key_values=", where_key_values)
+
+    entity_module = lib_util.GetEntityModule(class_name)
+    if entity_module:
+        try:
+            enumerate_function = entity_module.SelectFromWhere
+        except AttributeError:
+            exc = sys.exc_info()[1]
+            INFO("No Enumerate for %s", class_name, str(exc) )
+            return
+
+    iter_enumeration = enumerate_function( where_key_values )
+
+    for one_key_value_dict in iter_enumeration:
+        yield one_key_value_dict
+
 
 # Quand on a un triplet de cette forme, trouver toutes les proprietes
 # litterales relatives au sujet.
@@ -455,28 +468,6 @@ def PrintAsLoops(dictEntitiesByVariable):
 
 ##################################################################################
 
-# Algorithme possible si on ne peut pas separer les entites a cause de variables.
-# On prend les triplets.
-# On les trie en se basant sur les variables.
-# Si les entites sont bien separees, les triplets qui y font references
-# doivent se retrouver groupees.
-# A la fin, il doit suffire de rassembler les triplets par groupes:
-# - Des entites.
-# - Des associators.
-# Quand une variable se retrouve dans le groupe suivant,
-# ca implique une loop sur des queries WMI.
-#
-# Pour rassembler les elements d'une entite:
-# Pour un subject donne, on fait venir en premier le triplet qui mentionne la classe.
-#  => "select * from <classe>"
-# Puis tous les triplets qui mentionnent un attribut litteral
-#  => + " where <key> = <value>"
-#
-# Si les triplets suivants dependent du premier, renvoyer des expressions SPARQL avec des variables a remplacer.
-# Donc, renvoyer une liste de tuples:
-# [
-#   [ ("var1","var2"), "select var3,var4 from xxx where k1=?var1 and k2=?var3",  ["var3","var4"] ],
-# ]
 # Est-ce que ca marche avec les ASSOCIATORS et REFERENCES ?
 # Comment ordonner les boucles ?
 #
@@ -519,16 +510,9 @@ def PrintAsLoops(dictEntitiesByVariable):
 # Il faut donc avoir pour chaque classe une fonction d'enumeration prenant
 # des triplets "key" "operator" "value"
 # ou bien des paires "key" "operator/value" qui rendront tous les objects qui matchent.
+# Les scripts "enumerate_XXX.py" seront reecrits pour utiliser ces fonctions.
 # Evidemment, on va rendre des generateurs pour ne pas faire la meme erreur que WBEM.
 # Libre a la fonction de faire ce qu'elle veut.
 # Si un seul object ou bien si les attributs sont la clef, on renvoie l'URL de l'objet.
 # D'ailleurs on ne renvoie que des URLS d'objet, avec les bonnes clefs.
-
-# Tri des entites:
-# Actuellement, on les rassemble avec le sujet. Notons que sujet et object peuvent etre inverses.
-# Le predicat et la valeur doivent etre connus.
-# Maintenant, on va trier en utilisant les variables:
-# Pour simplifier, le predicat doit etre connu.
-# tripletA(v1) > tripletB(v1,v2)
-# tripletA(v1) == tripletB(v1)
 

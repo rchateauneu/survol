@@ -21,6 +21,8 @@ import lib_wmi
 
 # http://timgolden.me.uk/python/downloads/wmi-0.6b.py
 
+
+
 # This is a SPARSL server which executes the query with WMI data.
 def Main():
     envSparql = lib_sparql.SparqlEnvironment()
@@ -41,11 +43,18 @@ def Main():
 
     connWmi = lib_wmi.WmiConnect(wmiHost,nameSpace)
 
-    for variable_name in dictEntities:
-        class_name, key_values = lib_sparql.ExtractClass( dictEntities[variable_name] )
-        aQry = lib_util.SplitMonikToWQL(key_values,class_name)
 
-        objList = connWmi.query(aQry)
+
+    # This returns an iterator of a given class,
+    # which must match the input key-value pairs.
+    # Each object is modelled by a key-value dictionary.
+    # No need to return the class name because it is an input parameter.
+    def WMIExecuteQueryCallback(class_name, where_key_values):
+        print("WMIExecuteQueryCallback class_name=",class_name," where_key_values=",where_key_values)
+
+        qryWmi = lib_util.SplitMonikToWQL(where_key_values,class_name)
+
+        objList = connWmi.query(qryWmi)
 
         mapPropUnits = lib_wmi.WmiDictPropertiesUnit(connWmi, class_name)
 
@@ -68,6 +77,21 @@ def Main():
 
             # TODO: For the associators and the references, see entity_wmi.py
 
+    for variable_name in dictEntities:
+        class_name, key_values = lib_sparql.ExtractClass( dictEntities[variable_name] )
+        aQry = lib_util.SplitMonikToWQL(key_values,class_name)
+
+    ca va remplir un grph sur lequel on va ensuite executer la query Sparql
+
+
+
+
+
+
+
+
+
+    # apres execution du sparql dans le nouveau grph
     envSparql.WriteTripleStoreAsString(grph)
 
 if __name__ == '__main__':
