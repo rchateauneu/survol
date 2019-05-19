@@ -19,17 +19,10 @@ import entity_dirmenu_only
 ################################################################################
 
 try:
-    # For Python 3.0 and later
-    from urllib.request import urlopen
-except ImportError:
-    # Fall back to Python 2's urllib2
-    from urllib2 import urlopen
-
-try:
     # Python 2
-    from urlparse import urlparse, parse_qs
+    from urlparse import parse_qs
 except ImportError:
-    from urllib.parse import urlparse, parse_qs
+    from urllib.parse import parse_qs
 
 ################################################################################
 
@@ -120,7 +113,7 @@ class SourceCgi (SourceBase):
 def LoadModedUrl(urlModed):
     DEBUG("LoadModedUrl.get_content_moded urlModed=%s",urlModed)
     try:
-        response = urlopen(urlModed,timeout=20)
+        response = lib_util.survol_urlopen(urlModed,timeout=20)
     except:
         ERROR("LoadModedUrl urlModed=%s",urlModed)
         raise
@@ -346,7 +339,7 @@ class SourceMergeMinus (SourceMerge):
 # http://LOCALHOST:80
 # http://rchateau-hp:8000
 def AgentToHost(agentUrl):
-    parsed_url = urlparse(agentUrl)
+    parsed_url = lib_util.survol_urlparse(agentUrl)
     DEBUG("AgentToHost %s => %s",agentUrl,parsed_url.hostname)
     return parsed_url.hostname
 
@@ -709,7 +702,7 @@ def UrlToInstance(instanceUrl):
 # instanceUrl=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427
 # instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def InstanceUrlToAgentUrl(instanceUrl):
-    parse_url = urlparse(instanceUrl)
+    parse_url = lib_util.survol_urlparse(instanceUrl)
     if parse_url.path.startswith(lib_util.prefixLocalScript):
         agentUrl = None
     else:
@@ -851,7 +844,8 @@ class TripleStore:
         return lib_kbase.triplestore_matching_strings(self.m_triplestore,searchString)
 
     def GetAllStringsTriples(self):
-        return lib_kbase.triplestore_all_strings(self.m_triplestore)
+        for trpSubj,trpPred,trpObj in lib_kbase.triplestore_all_strings(self.m_triplestore):
+            yield lib_util.urllib_unquote(trpObj.value )
 
 ################################################################################
 
@@ -862,7 +856,7 @@ class TripleStore:
 # "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
 def ScriptUrlToSource(callingUrl):
 
-    parse_url = urlparse(callingUrl)
+    parse_url = lib_util.survol_urlparse(callingUrl)
     query = parse_url.query
 
     params = parse_qs(query)
