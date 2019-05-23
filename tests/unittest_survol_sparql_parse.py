@@ -15,9 +15,11 @@ from __future__ import print_function
 
 import cgitb
 import cgi
+import os
 import sys
 import unittest
 import socket
+import psutil
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
@@ -29,6 +31,11 @@ import lib_util
 
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
+try:
+    CurrentUsername = os.environ["USERNAME"]
+except KeyError:
+    # This is for Linux.
+    CurrentUsername = os.environ["USER"]
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
@@ -353,22 +360,29 @@ class SurvolSparqlTest(unittest.TestCase):
 
 
     def test_sparql_query_objects_survol(self):
+        """
+        Test the Sparql server which works on Survol data.
+        The attributes in the SparQL query must match the ontology of the query callback function.
+        """
+
+        curr_pid = os.getpid()
+        curr_parent_pid = psutil.Process().ppid()
 
         dict_query_to_output_survol =[
             [
-            # The SPARQL keyword "a" is a shortcut for the common predicate rdf:type, giving the class of a resource.
+            # This should select the parent process id
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
-            { ?url_proc survol:pid    ?the_pid  .
-              ?url_proc survol:ppid  456 .
+            { ?url_proc survol:Handle %d .
+              ?url_proc survol:ppid ?the_pid .
               ?url_proc rdf:type "CIM_Process" .
             }
-            """,
+            """ % curr_pid,
                [
-                   ('CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',),
+                   ('CIM_Process?survol:ppid=%d&survol:Handle=%d&survol:user=%s' % (curr_parent_pid,curr_pid,CurrentUsername),),
                ]
             ],
         ]
@@ -384,6 +398,7 @@ class SurvolSparqlTest(unittest.TestCase):
 
             print(dictEntitiesByVariable)
             print("***************************************************")
+            # TODO: Pass several callbacks, processed in a specific order ?
             itr_tuple_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback)
 
             # This moniker exists just for testing. However, the result is similar to a RDF Url.
@@ -405,20 +420,22 @@ class SurvolSparqlTest(unittest.TestCase):
             print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
 
     def test_sparql_server_survol(self):
-        """Test the Sparql server which works on Surol data"""
+        """
+        Test the Sparql server which works on Survol data.
+        The attributes in the SparQL query must match the ontology of the query callback function.
+        """
         arr_survol_queries=[
             [
-            # The SPARQL keyword "a" is a shortcut for the common predicate rdf:type, giving the class of a resource.
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
-            { ?url_proc survol:pid    ?the_pid  .
-              ?url_proc survol:ppid  456 .
+            { ?url_proc survol:Handle    ?the_ppid  .
+              ?url_proc survol:ppid  %d .
               ?url_proc rdf:type "CIM_Process" .
             }
-            """,
+            """ % os.getpid(),
                 "xxx"
             ],
         ]
