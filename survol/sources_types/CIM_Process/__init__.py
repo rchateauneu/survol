@@ -142,8 +142,21 @@ def Usable(entity_type,entity_ids_arr):
 # There is no constraints on the other.
 # TODO: Add "select_attributes"
 def SelectFromWhere( where_key_values ):
-    for proc in ProcessIter():
-        procName = PsutilProcToName(proc)
-        usrNam = PsutilProcToUser(proc,None)
-        parent_pid = PsutilProcToPPid(proc)
-        yield {"Handle":proc.pid, "user":usrNam, "ppid":parent_pid, "Caption": procName}
+    print("CIM_Process SelectFromWhere where_key_values=",where_key_values)
+    for proc_obj in ProcessIter():
+        user_name = PsutilProcToUser(proc_obj,None)
+        if user_name:
+            user_name_host = lib_common.FormatUser(user_name)
+        else:
+            user_name_host = user_name
+
+        parent_pid = PsutilProcToPPid(proc_obj)
+
+        if "Handle" in where_key_values and where_key_values["Handle"] != str(proc_obj.pid):
+            continue
+        if "user" in where_key_values and where_key_values["user"] != user_name_host:
+            continue
+        if "ppid" in where_key_values and where_key_values["ppid"] != parent_pid:
+            continue
+
+        yield {"Handle":proc_obj.pid, "user":user_name_host, "ppid":parent_pid}
