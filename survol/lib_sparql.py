@@ -195,7 +195,8 @@ def aggregate_into_triples(raw_trpl):
     else:
         assert cnt_trip == 0
 
-
+# This receives a predicate object, which is a directory containing the predicate local name
+# and the prefix. It returns a concatenation of the two.
 def pname_to_string(pname):
     # pname_pname_{'localname': u'pid', 'prefix': u'survol'}
     value_localname = pname['localname']
@@ -227,6 +228,7 @@ def decode_parsed_subject(subj):
             # rdflib.term.Literal(u'CIM_Process')
             return("TRPL_LITERAL",str(litt_string))
         if 'localname' in subj:
+            # For a node defined in a specific namespace with a prefix.
             return("TRPL_VALUE_NAME",pname_to_string(subj))
     print("ERRSUBJsubj",subj)
     print("ERRSUBJsubj",type(subj))
@@ -350,8 +352,11 @@ class SparqlObject:
     def __init__(self,class_name,key_values):
         self.m_class_name = class_name
         self.m_key_values = key_values
+    def __repr__(self):
+        return "SparqlObject:" + self.m_class_name + ":" + ",".join( [ "%s=%s" % kv for kv in self.m_key_values.items() ] )
 
-
+# TODO: Several callbacks. Maybe with a key ??
+# TODO: Maybe execute callbacks in a sub-process ?
 def QueryEntities(dictEntitiesByVariable, execute_query_callback):
     lst_input_entities = []
 
@@ -385,7 +390,7 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback):
             tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
             output_results = Evaluate( index + 1, known_variables, tuple_result_extended)
             for one_resu in output_results:
-                print("    "*index + "yield=",one_resu)
+                print("    "*index + "yield===",str(one_resu))
                 yield one_resu
 
     # This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
@@ -444,10 +449,25 @@ def SurvolExecuteQueryCallback(class_name, where_key_values):
             INFO("No Enumerate for %s", class_name, str(exc) )
             return
 
-    iter_enumeration = enumerate_function( where_key_values )
 
+    # The attributes will contain a RDF namespace
+    sparql_namespace = "survol:"
+    filtered_where_key_values = {}
+    for sparql_key, sparql_value in where_key_values.items():
+        assert( sparql_key.startswith(sparql_namespace) )
+        short_key = sparql_key[len(sparql_namespace):]
+        # The local predicate names have to be unique.
+        assert(short_key not in filtered_where_key_values)
+        filtered_where_key_values[short_key] = sparql_value
+
+    print("filtered_where_key_values=",filtered_where_key_values)
+
+    iter_enumeration = enumerate_function( filtered_where_key_values )
+
+    # This re-adds the prefix.
     for one_key_value_dict in iter_enumeration:
-        yield one_key_value_dict
+        prefixed_key_value_dict = { sparql_namespace + key : value for key,value in one_key_value_dict.items() }
+        yield prefixed_key_value_dict
 
 
 # Quand on a un triplet de cette forme, trouver toutes les proprietes
