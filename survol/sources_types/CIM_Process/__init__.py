@@ -152,11 +152,12 @@ def SelectFromWhere( where_key_values ):
 
         parent_pid = PsutilProcToPPid(proc_obj)
 
-        if "Handle" in where_key_values and where_key_values["Handle"] != str(proc_obj.pid):
+        if "Handle" in where_key_values and str(where_key_values["Handle"]) != str(proc_obj.pid):
             continue
         if "user" in where_key_values and where_key_values["user"] != user_name_host:
             continue
-        if "ppid" in where_key_values and where_key_values["ppid"] != parent_pid:
+        if "ppid" in where_key_values and str(where_key_values["ppid"]) != str(parent_pid):
             continue
 
-        yield {"Handle":proc_obj.pid, "user":user_name_host, "ppid":parent_pid}
+        ret_value = {"Handle":proc_obj.pid, "user":user_name_host, "ppid":parent_pid}
+        yield ret_value

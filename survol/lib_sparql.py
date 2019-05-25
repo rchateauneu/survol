@@ -319,6 +319,10 @@ class QueryVariable:
     def __repr__(self):
         return "??" + self.m_variable_name + "??"
 
+    def __eq__(self, other):
+        return self.m_variable_name == other.m_variable_name
+
+
 # TODO: When the subject is NOT a variable but an URL.
 
 def ExtractEntitiesWithVariableAttributes(lst_triples):
@@ -357,11 +361,11 @@ class SparqlObject:
 
 # TODO: Several callbacks. Maybe with a key ??
 # TODO: Maybe execute callbacks in a sub-process ?
-def QueryEntities(dictEntitiesByVariable, execute_query_callback):
-    lst_input_entities = []
+def QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_prefix):
 
     def Evaluate( index, known_variables, tuple_result_input):
         if index == len(lst_input_entities):
+            # Deepest level, last entity is reached.
             yield tuple_result_input
             return
         curr_input_entity = lst_input_entities[index]
@@ -381,7 +385,8 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback):
                 key_values[key_attribute] = value_attribute
 
         print("    "*index + "lst_variables=",lst_variables)
-        for oneEntity in execute_query_callback(curr_input_entity.m_class_name, key_values):
+        for oneEntity in CallbackFilter(execute_query_callback, predicate_prefix, curr_input_entity.m_class_name, key_values):
+        # for oneEntity in execute_query_callback(curr_input_entity.m_class_name, key_values):
             # The result is made of URL to CIM objects.
             output_entity = SparqlObject(curr_input_entity.m_class_name, oneEntity )
 
@@ -393,6 +398,11 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback):
                 print("    "*index + "yield===",str(one_resu))
                 yield one_resu
 
+    itr_tuple_results = Evaluate(0,known_variables={},tuple_result_input=tuple())
+    for tuple_results in itr_tuple_results:
+        yield tuple_results
+
+def QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_prefix):
     # This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
     def ExtractClass(key_vals):
         # If the class is not defined, cannot query.
@@ -405,13 +415,17 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback):
 
         return SparqlObject( class_name, key_vals )
 
+    # The order of nested loops is very important for performances.
+    # Input entites might be reordered here.
+    lst_input_entities = []
     for variable_name in dictEntitiesByVariable:
         one_input_entity = ExtractClass( dictEntitiesByVariable[variable_name] )
         lst_input_entities.append( one_input_entity )
 
-    itr_tuple_results = Evaluate(0,known_variables={},tuple_result_input=tuple())
-    for tuple_results in itr_tuple_results:
-        yield tuple_results
+    input_keys = dictEntitiesByVariable.keys()
+    for tuple_results in QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_prefix):
+        yield dict(zip(input_keys,tuple_results))
+
 
 def ParseQueryToEntities(qry):
     lstTriples = list( GenerateTriplesList(qry) )
@@ -433,12 +447,33 @@ def ObjectsToGrph(grph,list_objects):
         for attrKey, attrVal in curr_input_entity.m_key_values.items():
             grph.add(( nodeObject, lib_properties.MakeProp(attrKey), lib_kbase.MakeNodeLiteral(attrVal) ) )
 
+
+def CallbackFilter(execute_query_callback, predicate_prefix, class_name, where_key_values):
+    # The attributes will contain a RDF namespace
+    predicate_prefix_colon = predicate_prefix + ":"
+
+    filtered_where_key_values = {}
+    for sparql_key, sparql_value in where_key_values.items():
+        assert( sparql_key.startswith(predicate_prefix_colon) )
+        short_key = sparql_key[len(predicate_prefix_colon):]
+        # The local predicate names have to be unique.
+        assert(short_key not in filtered_where_key_values)
+        filtered_where_key_values[short_key] = sparql_value
+
+    iter_enumeration = execute_query_callback( class_name, filtered_where_key_values )
+
+    # This re-adds the prefix.
+    for one_key_value_dict in iter_enumeration:
+        prefixed_key_value_dict = { predicate_prefix_colon + key : value for key,value in one_key_value_dict.items() }
+        yield prefixed_key_value_dict
+
+
 # This returns an iterator of a given class,
 # which must match the input key-value pairs.
 # Each object is modelled by a key-value dictionary.
 # No need to return the class name because it is an input parameter.
-def SurvolExecuteQueryCallback(class_name, where_key_values):
-    print("SurvolExecuteQueryCallback class_name=", class_name, " where_key_values=", where_key_values)
+def SurvolExecuteQueryCallback(class_name, filtered_where_key_values):
+    print("SurvolExecuteQueryCallback class_name=", class_name, " where_key_values=", filtered_where_key_values)
 
     entity_module = lib_util.GetEntityModule(class_name)
     if entity_module:
@@ -449,25 +484,11 @@ def SurvolExecuteQueryCallback(class_name, where_key_values):
             INFO("No Enumerate for %s", class_name, str(exc) )
             return
 
-
-    # The attributes will contain a RDF namespace
-    sparql_namespace = "survol:"
-    filtered_where_key_values = {}
-    for sparql_key, sparql_value in where_key_values.items():
-        assert( sparql_key.startswith(sparql_namespace) )
-        short_key = sparql_key[len(sparql_namespace):]
-        # The local predicate names have to be unique.
-        assert(short_key not in filtered_where_key_values)
-        filtered_where_key_values[short_key] = sparql_value
-
-    print("filtered_where_key_values=",filtered_where_key_values)
-
     iter_enumeration = enumerate_function( filtered_where_key_values )
 
     # This re-adds the prefix.
     for one_key_value_dict in iter_enumeration:
-        prefixed_key_value_dict = { sparql_namespace + key : value for key,value in one_key_value_dict.items() }
-        yield prefixed_key_value_dict
+        yield one_key_value_dict
 
 
 # Quand on a un triplet de cette forme, trouver toutes les proprietes

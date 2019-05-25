@@ -45,22 +45,37 @@ RemoteTestAgent = "http://" + CurrentMachine + ":8000"
 # Returns one element, for testing.
 dict_test_data = {
     "CIM_Process": [
-        { "survol:pid":123,"survol:ppid":456,"survol:user":"herself","survol:runs":"firefox.exe"},
-        { "survol:pid":789,"survol:ppid":123,"survol:user":"himself","survol:runs":"explorer.exe"},
+        { "pid":123,"ppid":456,"user":"herself","runs":"firefox.exe"},
+        { "pid":789,"ppid":123,"user":"himself","runs":"explorer.exe"},
     ],
     "CIM_DataFile": [
-        { "survol:owns":"herself","survol:Name":"C:/Program Files (x86)/Internet Explorer/iexplore.exe"},
-        { "survol:owns":"someone","survol:Name":"explorer.exe"},
+        { "owns":"herself","Name":"C:/Program Files (x86)/Internet Explorer/iexplore.exe"},
+        { "owns":"someone","Name":"explorer.exe"},
     ],
     "CIM_Directory": [
-        { "survol:owns":"himself","survol:Name":"C:/Program Files"},
-        { "survol:owns":"herself","survol:Name":"C:/Program Files (x86)"},
+        { "owns":"himself","Name":"C:/Program Files"},
+        { "owns":"herself","Name":"C:/Program Files (x86)"},
     ],
     "Win32_UserAccount": [
-        { "survol:uid":111,"survol:Name":"himself"},
-        { "survol:uid":222,"survol:Name":"herself"},
+        { "uid":111,"Name":"himself"},
+        { "uid":222,"Name":"herself"},
     ],
 }
+
+# This moniker exists just for testing. However, the result is similar to a RDF Url.
+def ObjectsToSparqlResults(dict_objects):
+    for curr_variable, curr_input_entity in dict_objects.items():
+        entity_moniker = curr_input_entity.m_class_name + "?" + "&".join( [ "%s=%s" % kv for kv in curr_input_entity.m_key_values.items() ] )
+        yield ( curr_variable, entity_moniker )
+
+# This transforms the result of a query into something easy to compare.
+def ObjectsIteratorToSparqlResults(itr_dict_objects):
+    #list_tuple_objects = list(itr_dict_objects)
+    list_results = []
+    for one_objects_dict in itr_dict_objects:
+        list_results.append( dict(ObjectsToSparqlResults(one_objects_dict)) )
+    return list_results
+
 
 # This returns an iterator on hard-coded objects, of a given class,
 # which must match the input key-value pairs.
@@ -72,8 +87,7 @@ def UnitTestExecuteQueryCallback(class_name, where_key_values):
 
     def CheckKeyValIncluded(one_data):
         try:
-            for one_key in where_key_values:
-                one_val = where_key_values[one_key]
+            for one_key,one_val in where_key_values.items():
                 # Comparison in string.
                 if str(one_val) != str(one_data[one_key]):
                     return False
@@ -86,113 +100,137 @@ def UnitTestExecuteQueryCallback(class_name, where_key_values):
             yield one_key_value_pair_dict
 
 
-lib_sparql.ExecuteQueryCallback = UnitTestExecuteQueryCallback
+#lib_sparql.ExecuteQueryCallback = UnitTestExecuteQueryCallback
 
 
 class SurvolSparqlTest(unittest.TestCase):
 
     # Test parsing.
     def queries_test(self, arr):
-        for qry in arr:
-            print("===================================================")
+        for qry,tst in arr:
             # parse_qry(elt)
             print(qry)
 
             dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
-            print(dictEntitiesByVariable)
-            #wmi_qry = lib_sparql.EntitiesToQuery(lstEntities)
-            #print(wmi_qry)
+            print(tst)
+            assert(dictEntitiesByVariable==tst)
 
     # Generic parse capabilities
     def test_sparql_simple(self):
         arr=[
-            "SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] . ?s2 ?p ?o .} ",
-            "SELECT * WHERE { ?x  ?o1  ?name ; ?o2  ?mbox . } ",
-            #"SELECT * WHERE { ?x ?o1 ?name ; ?o2  ?a1 , ?a2 . }",
-            "SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] .} ",
-            "SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 . ?s2 ?p ?o .} ",
-            """PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
-            SELECT ?name WHERE { ?person foaf:name ?name . }""",
-            """
-            PREFIX  dc: <http://purl.org/dc/elements/1.1/>
-            PREFIX  : <http://example.org/book/>
-            SELECT  $title
-            WHERE   { :book1  dc:title  $title }
+            ("SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] . ?s2 ?p ?o .} ",{}),
+            ("SELECT * WHERE { ?x  ?o1  ?name ; ?o2  ?mbox . } ",{}),
+            #"SELECT * WHERE { ?x ?o1 ?name ; ?o2  ?a1 , ?a2 . }",{}),
+            ("SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] .} ",{}),
+            ("SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 . ?s2 ?p ?o .} ",{}),
+            (
+                """PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
+                SELECT ?name WHERE { ?person foaf:name ?name . }""",{'person': {u'foaf:name': lib_sparql.QueryVariable("name")}}
+            ),
+            ("""
+                PREFIX  dc: <http://purl.org/dc/elements/1.1/>
+                PREFIX  : <http://example.org/book/>
+                SELECT  $title
+                WHERE   { :book1  dc:title  $title }
+                """,
+            {}),
+            ("""
+                BASE    <http://example.org/book/>
+                PREFIX  dc: <http://purl.org/dc/elements/1.1/>
+                SELECT  $title
+                WHERE   { <book1>  dc:title  ?title }
             """,
+            {}),
+            (
             """
-            BASE    <http://example.org/book/>
-            PREFIX  dc: <http://purl.org/dc/elements/1.1/>
-            SELECT  $title
-            WHERE   { <book1>  dc:title  ?title }
+                BASE    <http://example.org/book/>
+                PREFIX  dcore:  <http://purl.org/dc/elements/1.1/>
+                SELECT  ?title
+                WHERE   { <book1> dcore:title ?title }
             """,
+             {}),
+            (
             """
-            BASE    <http://example.org/book/>
-            PREFIX  dcore:  <http://purl.org/dc/elements/1.1/>
-            SELECT  ?title
-            WHERE   { <book1> dcore:title ?title }
+                PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
+                SELECT ?mbox
+                WHERE
+                  { ?x foaf:name "Johnny Lee Outlaw" .
+                    ?x foaf:mbox ?mbox }
             """,
+             {'x': {u'foaf:name': 'Johnny Lee Outlaw', u'foaf:mbox': lib_sparql.QueryVariable("mbox")}}),
+            (
             """
-            PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
-            SELECT ?mbox
-            WHERE
-              { ?x foaf:name "Johnny Lee Outlaw" .
-                ?x foaf:mbox ?mbox }
+                PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
+                SELECT ?name ?mbox
+                WHERE
+                  { ?x foaf:name ?name .
+                    ?x foaf:mbox ?mbox }
             """,
-            """
-            PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
-            SELECT ?name ?mbox
-            WHERE
-              { ?x foaf:name ?name .
-                ?x foaf:mbox ?mbox }
+            {'x': {u'foaf:name': lib_sparql.QueryVariable("name"), u'foaf:mbox': lib_sparql.QueryVariable("mbox")}}),
+            ("""
+                SELECT ?p ?o
+                {
+                  <http://nasa.dataincubator.org/spacecraft/1968-089A> ?p ?o
+                }
             """,
-            """
-            SELECT ?p ?o
-            {
-              <http://nasa.dataincubator.org/spacecraft/1968-089A> ?p ?o
-            }
-            """,
-            # https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples
-            # https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Prefixes_used
+            {}),
+            (
+                # https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples
+                # https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Prefixes_used
 
-            # List of computer files formats
-            """
-            SELECT ?item ?itemLabel (SAMPLE(?coord) AS ?coord)
-            WHERE {
-                ?item wdt:P2848 wd:Q1543615 ;  # wi-fi gratis
-                      wdt:P625 ?coord .
-                SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
-            } GROUP BY ?item ?itemLabel
-            """,
-            """
-            SELECT DISTINCT ?city ?cityLabel ?coor WHERE {
-                VALUES ?type { wd:Q3957 wd:Q515 wd:Q532 wd:Q486972 } .
-                ?city wdt:P31 wd:Q3957 ;
-                      wdt:P625 ?coor .
-                FILTER NOT EXISTS {?article schema:about ?city } .
-                SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } .
-            }
-            """,
-            """
-            PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX dc:   <http://purl.org/dc/elements/1.1/>
-            PREFIX :     <http://example/ns#>
-            SELECT ?book ?title
-            WHERE
-            { ?t rdf:subject    ?book  .
-              ?t rdf:predicate  dc:title .
-              ?t rdf:object     ?title .
-              ?t :saidBy        "Bob" .
-            }
-            """,
-        ]
-        self.queries_test(arr)
-
-    # More complex queries. Only the where clause is relevant
-    def test_sparql_general(self):
-        arr=[
-            """
-            select distinct ?Concept where {[] a ?Concept} LIMIT 100
-            """,
+                # List of computer files formats
+                """
+                SELECT ?item ?itemLabel (SAMPLE(?coord) AS ?coord)
+                WHERE {
+                    ?item wdt:P2848 wd:Q1543615 ;  # wi-fi gratis
+                          wdt:P625 ?coord .
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
+                } GROUP BY ?item ?itemLabel
+                """,
+                {'item': {u'wdt:P625': lib_sparql.QueryVariable("coord")}}),
+            (
+                """
+                SELECT DISTINCT ?city ?cityLabel ?coor WHERE {
+                    VALUES ?type { wd:Q3957 wd:Q515 wd:Q532 wd:Q486972 } .
+                    ?city wdt:P31 wd:Q3957 ;
+                          wdt:P625 ?coor .
+                    FILTER NOT EXISTS {?article schema:about ?city } .
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } .
+                }
+                """,
+                {'city': {u'wdt:P625': lib_sparql.QueryVariable("coor")}}),
+            (
+                """
+                PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX dc:   <http://purl.org/dc/elements/1.1/>
+                PREFIX :     <http://example/ns#>
+                SELECT ?book ?title
+                WHERE
+                { ?t rdf:subject    ?book  .
+                  ?t rdf:predicate  dc:title .
+                  ?t rdf:object     ?title .
+                  ?t :saidBy        "Bob" .
+                }
+                """,
+                {'t': {u':saidBy': 'Bob', u'rdf:subject': lib_sparql.QueryVariable("book"), u'rdf:object': lib_sparql.QueryVariable("title")}}),
+            (
+                """
+                select distinct ?Concept where {[] a ?Concept} LIMIT 100
+                """,
+                {}),
+            (
+                """
+                PREFIX go: <http://purl.org/obo/owl/GO#>
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX obo: <http://www.obofoundry.org/ro/ro.owl#>
+                SELECT DISTINCT ?label ?process
+                WHERE {
+                  { ?process obo:part_of go:GO_0007165 } # integral to
+                      UNION
+                  { ?process rdfs:subClassOf go:GO_0007165 } # refinement of
+                  ?process rdfs:label ?label
+                }""",
+                {}),
         ]
         self.queries_test(arr)
 
@@ -205,7 +243,7 @@ class SurvolSparqlTest(unittest.TestCase):
     # Another step is necessary to transform thesedata into the format of a Sparql output.
     # TODO: There should be a way to specify the associators or references explicitely,
     # TODO: in the SparQL query.
-    def test_sparql_query_objects_hardcoded(self):
+    def test_sparql_hardcoded(self):
 
         dict_query_to_output_hardcoded =[
             [
@@ -221,7 +259,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ('CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',),
+                   {"url_proc":'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',},
                ]
             ],
 
@@ -237,7 +275,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ('CIM_Directory?survol:owns=himself&survol:Name=C:/Program Files',)
+                   {"url_dir":'CIM_Directory?survol:owns=himself&survol:Name=C:/Program Files',}
                ]
             ],
 
@@ -253,7 +291,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   ('CIM_DataFile?survol:owns=herself&survol:Name=C:/Program Files (x86)/Internet Explorer/iexplore.exe',)
+                   {"url_file":'CIM_DataFile?survol:owns=herself&survol:Name=C:/Program Files (x86)/Internet Explorer/iexplore.exe',}
                ]
             ],
 
@@ -271,10 +309,10 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   (
-                       'CIM_Process?survol:runs=explorer.exe&survol:pid=789&survol:ppid=123&survol:user=himself',
-                       'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
-                   )
+                   {
+                       "url_proc2":'CIM_Process?survol:runs=explorer.exe&survol:pid=789&survol:ppid=123&survol:user=himself',
+                       "url_proc1":'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
+                   }
                ]
             ],
 
@@ -298,10 +336,10 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   (
-                       'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
-                       'Win32_UserAccount?survol:uid=222&survol:Name=herself',
-                   )
+                   {
+                       "url_proc":'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
+                       "url_acct":'Win32_UserAccount?survol:uid=222&survol:Name=herself',
+                    }
                ]
             ],
 
@@ -319,10 +357,10 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   (
-                       'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
-                       'CIM_DataFile?survol:owns=herself&survol:Name=C:/Program Files (x86)/Internet Explorer/iexplore.exe',
-                   )
+                   {
+                       "url_proc":'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
+                       "url_fil":'CIM_DataFile?survol:owns=herself&survol:Name=C:/Program Files (x86)/Internet Explorer/iexplore.exe',
+                   }
                ]
             ],
         ]
@@ -338,28 +376,16 @@ class SurvolSparqlTest(unittest.TestCase):
 
             print(dictEntitiesByVariable)
             print("***************************************************")
-            itr_tuple_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, UnitTestExecuteQueryCallback)
+            itr_dict_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, UnitTestExecuteQueryCallback, "survol")
 
-            # This moniker exists just for testing. However, the result is similar to a RDF Url.
-            def ObjectsToSparqlResults(list_objects):
-                for curr_input_entity in list_objects:
-                    entity_moniker = curr_input_entity.m_class_name + "?" + "&".join( [ "%s=%s" % kv for kv in curr_input_entity.m_key_values.items() ] )
-                    yield entity_moniker
-
-            list_tuple_objects = list(itr_tuple_objects)
-            list_results = []
-            for one_objects_tuple in list_tuple_objects:
-                list_results.append( tuple(ObjectsToSparqlResults(one_objects_tuple)) )
-
-            print("###################################################")
+            list_results = ObjectsIteratorToSparqlResults(itr_dict_objects)
             print("list_results=",list_results)
             print("expected_results=",expected_results)
             assert(list_results == expected_results)
 
             print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
 
-
-    def test_sparql_query_objects_survol(self):
+    def test_sparql_survol_static(self):
         """
         Test the Sparql server which works on Survol data.
         The attributes in the SparQL query must match the ontology of the query callback function.
@@ -373,16 +399,15 @@ class SurvolSparqlTest(unittest.TestCase):
             # This should select the parent process id
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?the_pid
+            SELECT ?the_ppid
             WHERE
             { ?url_proc survol:Handle %d .
-              ?url_proc survol:ppid ?the_pid .
+              ?url_proc survol:ppid ?the_ppid .
               ?url_proc rdf:type "CIM_Process" .
             }
             """ % curr_pid,
                [
-                   ('CIM_Process?survol:ppid=%d&survol:Handle=%d&survol:user=%s' % (curr_parent_pid,curr_pid,CurrentUsername),),
+                   { "url_proc":'CIM_Process?survol:ppid=%d&survol:Handle=%d&survol:user=%s' % (curr_parent_pid,curr_pid,CurrentUsername),},
                ]
             ],
         ]
@@ -399,61 +424,63 @@ class SurvolSparqlTest(unittest.TestCase):
             print(dictEntitiesByVariable)
             print("***************************************************")
             # TODO: Pass several callbacks, processed in a specific order ?
-            itr_tuple_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback)
+            itr_dict_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
 
-            # This moniker exists just for testing. However, the result is similar to a RDF Url.
-            def ObjectsToSparqlResults(list_objects):
-                for curr_input_entity in list_objects:
-                    entity_moniker = curr_input_entity.m_class_name + "?" + "&".join( [ "%s=%s" % kv for kv in curr_input_entity.m_key_values.items() ] )
-                    yield entity_moniker
+            list_results = ObjectsIteratorToSparqlResults(itr_dict_objects)
 
-            list_tuple_objects = list(itr_tuple_objects)
-            list_results = []
-            for one_objects_tuple in list_tuple_objects:
-                list_results.append( tuple(ObjectsToSparqlResults(one_objects_tuple)) )
-
-            print("###################################################")
-            print("list_results=",list_results)
             print("expected_results=",expected_results)
             assert(list_results == expected_results)
 
             print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
 
-    def test_sparql_server_survol(self):
+    def test_sparql_survol_nested(self):
         """
         Test the Sparql server which works on Survol data.
         The attributes in the SparQL query must match the ontology of the query callback function.
         """
-        arr_survol_queries=[
-            [
-            """
+
+        curr_pid = os.getpid()
+
+        # It should return sibling processes (Same parent id) of the current process.
+        nested_qry ="""
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?the_pid
+            SELECT ?the_ppid
             WHERE
-            { ?url_proc survol:Handle    ?the_ppid  .
-              ?url_proc survol:ppid  %d .
-              ?url_proc rdf:type "CIM_Process" .
+            {
+              ?url_procA survol:Handle %d .
+              ?url_procA survol:ppid ?the_ppid .
+              ?url_procA rdf:type "CIM_Process" .
+              ?url_procB survol:Handle ?the_ppid .
+              ?url_procB rdf:type "CIM_Process" .
+              ?url_procC survol:Handle %d .
+              ?url_procC survol:ppid ?the_ppid .
+              ?url_procC rdf:type "CIM_Process" .
             }
-            """ % os.getpid(),
-                "xxx"
-            ],
-        ]
+            """ % (curr_pid,curr_pid)
 
+        dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(nested_qry)
 
-        for qry_data in arr_survol_queries:
-            print("===================================================")
-            # parse_qry(elt)
-            qry_sparql = qry_data[0]
-            expected_results = qry_data[1]
-            print("qry_sparql=",qry_sparql)
+        print(dictEntitiesByVariable)
+        print("***************************************************")
+        # TODO: Pass several callbacks, processed in a specific order ?
+        itr_dict_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
+        list_results = ObjectsIteratorToSparqlResults(itr_dict_objects)
 
-            url_sparql = RemoteTestAgent + "/survol/sparql.py?query=" + lib_util.urllib_quote(qry_sparql)
-            print("url_sparql=",url_sparql)
+        found = False
+        for one_dict in list_results:
+            # Something like:
+            # {
+            #     'url_procC': SparqlObject:CIM_Process:survol:ppid=49376,survol:Handle=79060,survol:user=rchateau,
+            #     'url_procB': SparqlObject:CIM_Process:survol:ppid=2148,survol:Handle=49376,survol:user=rchateau,
+            #     'url_procA': SparqlObject:CIM_Process:survol:ppid=49376,survol:Handle=79060,survol:user=rchateau}
+            # }
+            procA = one_dict["url_procA"]
+            procC = one_dict["url_procC"]
+            if procA == procC:
+                found = True
+                break
+        assert(found)
 
-            response = lib_util.survol_urlopen(url_sparql)
-            data = response.read().decode("utf-8")
-            print("data=",data)
 
 
 
