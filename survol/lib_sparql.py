@@ -230,9 +230,7 @@ def decode_parsed_subject(subj):
         if 'localname' in subj:
             # For a node defined in a specific namespace with a prefix.
             return("TRPL_VALUE_NAME",pname_to_string(subj))
-    print("ERRSUBJsubj",subj)
-    print("ERRSUBJsubj",type(subj))
-    raise Exception("Cannot parse")
+    raise Exception("Cannot parse ERRSUBJsubj=",str(subj))
 
 def decode_parsed_predicate(pred):
     # PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'pid', 'prefix': u'survol'}}]}]}
@@ -335,11 +333,17 @@ def ExtractEntitiesWithVariableAttributes(lst_triples):
         # The predicate type could be "TRPL_VARIABLE"
         if one_triple[1][0] != "TRPL_PREDICATE":
             continue
-        if one_triple[2][0] == "TRPL_LITERAL":
+        object_parsed_type = one_triple[2][0]
+        if object_parsed_type == "TRPL_LITERAL":
             attribute_value = one_triple[2][1]
-        elif one_triple[2][0]  == "TRPL_VARIABLE":
+        elif object_parsed_type  == "TRPL_VARIABLE":
             attribute_value = QueryVariable( one_triple[2][1] )
+        elif object_parsed_type  == "TRPL_VALUE_NAME":
+            # A node defined in a namespace: type:LandlockedCountries, prop:populationEstimate
+            # TODO: Treated like a literal.
+            attribute_value = one_triple[2][1]
         else:
+            print("AAAAA object_parsed_type=",object_parsed_type)
             continue
 
         variable_name = one_triple[0][1]
@@ -426,18 +430,28 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_pref
     for tuple_results in QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_prefix):
         yield dict(zip(input_keys,tuple_results))
 
+# Special pass to replace "a" by "rdf:type
+def PredicateSubstitution(lstTriples):
+    for clean_trpl in lstTriples:
+        print("--------------------")
+        print("Subj:",clean_trpl[0])
+        print("Pred:",clean_trpl[1])
+        print("Obj:",clean_trpl[2])
+
+        print("p=",clean_trpl[1])
+        print("p=",type(clean_trpl[1]))
+        if clean_trpl[1][1] == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type':
+            print("OK")
+            yield clean_trpl[0], ('TRPL_PREDICATE',"rdf:type"), clean_trpl[2]
+        else:
+            yield clean_trpl
+
 
 def ParseQueryToEntities(qry):
-    lstTriples = list( GenerateTriplesList(qry) )
-    if False:
-        for clean_trpl in lstTriples:
-            print("--------------------")
-            print("Subj:",clean_trpl[0])
-            print("Pred:",clean_trpl[1])
-            print("Obj:",clean_trpl[2])
-        print("---------------------------------------------------")
+    lstTriples = GenerateTriplesList(qry)
+    lstTriplesReplaced = PredicateSubstitution(lstTriples)
 
-    dictEntitiesByVariable = ExtractEntitiesWithVariableAttributes(lstTriples)
+    dictEntitiesByVariable = ExtractEntitiesWithVariableAttributes(lstTriplesReplaced)
     return dictEntitiesByVariable
 
 def ObjectsToGrph(grph,list_objects):
