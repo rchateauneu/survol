@@ -106,18 +106,20 @@ def UnitTestExecuteQueryCallback(class_name, where_key_values):
 class SurvolSparqlTest(unittest.TestCase):
 
     # Test parsing.
-    def queries_test(self, arr):
-        for qry,tst in arr:
-            # parse_qry(elt)
-            print(qry)
+    @staticmethod
+    def queries_test(test_pairs_array):
+        for sparql_qry,expected_result in test_pairs_array:
+            print(sparql_qry)
 
-            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
-            print(tst)
-            assert(dictEntitiesByVariable==tst)
+            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_qry)
+            print(expected_result)
+            if(expected_result != dictEntitiesByVariable):
+                print(dictEntitiesByVariable)
+            assert(dictEntitiesByVariable==expected_result)
 
     # Generic parse capabilities
-    def test_sparql_simple(self):
-        arr=[
+    def test_sparql_parse(self):
+        query_result_pairs=[
             ("SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] . ?s2 ?p ?o .} ",{}),
             ("SELECT * WHERE { ?x  ?o1  ?name ; ?o2  ?mbox . } ",{}),
             #"SELECT * WHERE { ?x ?o1 ?name ; ?o2  ?a1 , ?a2 . }",{}),
@@ -187,7 +189,7 @@ class SurvolSparqlTest(unittest.TestCase):
                     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
                 } GROUP BY ?item ?itemLabel
                 """,
-                {'item': {u'wdt:P625': lib_sparql.QueryVariable("coord")}}),
+                {'item': {u'wdt:P2848': u'wd:Q1543615', u'wdt:P625': lib_sparql.QueryVariable("coord")}}),
             (
                 """
                 SELECT DISTINCT ?city ?cityLabel ?coor WHERE {
@@ -198,7 +200,7 @@ class SurvolSparqlTest(unittest.TestCase):
                     SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } .
                 }
                 """,
-                {'city': {u'wdt:P625': lib_sparql.QueryVariable("coor")}}),
+                {'city': {u'wdt:P31': u'wd:Q3957',u'wdt:P625': lib_sparql.QueryVariable("coor")}}),
             (
                 """
                 PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -212,7 +214,7 @@ class SurvolSparqlTest(unittest.TestCase):
                   ?t :saidBy        "Bob" .
                 }
                 """,
-                {'t': {u':saidBy': 'Bob', u'rdf:subject': lib_sparql.QueryVariable("book"), u'rdf:object': lib_sparql.QueryVariable("title")}}),
+                {'t': {u':saidBy': 'Bob', u'rdf:predicate': u'dc:title', u'rdf:subject': lib_sparql.QueryVariable("book"), u'rdf:object': lib_sparql.QueryVariable("title")}}),
             (
                 """
                 select distinct ?Concept where {[] a ?Concept} LIMIT 100
@@ -230,9 +232,22 @@ class SurvolSparqlTest(unittest.TestCase):
                   { ?process rdfs:subClassOf go:GO_0007165 } # refinement of
                   ?process rdfs:label ?label
                 }""",
-                {}),
+                {'process': {u'obo:part_of': u'go:GO_0007165'}}
+            ),
+            ("""
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX type: <http://dbpedia.org/class/yago/>
+            PREFIX prop: <http://dbpedia.org/property/>
+            SELECT ?country_name ?population
+            WHERE {
+                ?country a type:LandlockedCountries ;
+                         rdfs:label ?country_name ;
+                         prop:populationEstimate ?population.
+                FILTER (?population > 15000000) .
+            }""",
+            {'country': {'rdf:type': u'type:LandlockedCountries', u'rdfs:label': lib_sparql.QueryVariable("country_name"), u'prop:populationEstimate': lib_sparql.QueryVariable("population")}})
         ]
-        self.queries_test(arr)
+        self.queries_test(query_result_pairs)
 
 
     # This transforms a sparql query into a several nested loops fetching data from CIM classes.
