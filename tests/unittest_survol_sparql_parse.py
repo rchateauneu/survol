@@ -28,6 +28,7 @@ sys.path.insert(0,"../survol")
 import lib_sparql
 import lib_client
 import lib_util
+import lib_properties
 
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
@@ -42,7 +43,6 @@ except KeyError:
 RemoteTestAgent = "http://" + CurrentMachine + ":8000"
 
 # Note: Cannot have backslashes in rdflib ??
-# Returns one element, for testing.
 dict_test_data = {
     "CIM_Process": [
         { "pid":123,"ppid":456,"user":"herself","runs":"firefox.exe"},
@@ -61,12 +61,6 @@ dict_test_data = {
         { "uid":222,"Name":"herself"},
     ],
 }
-
-# This moniker exists just for testing. However, the result is similar to a RDF Url.
-def ObjectsToSparqlResults(dict_objects):
-    for curr_variable, curr_input_entity in dict_objects.items():
-        entity_moniker = curr_input_entity.m_class_name + "?" + "&".join( [ "%s=%s" % kv for kv in curr_input_entity.m_key_values.items() ] )
-        yield ( curr_variable, entity_moniker )
 
 # This transforms the result of a query into something easy to compare.
 def ObjectsIteratorToSparqlResults(itr_dict_objects):
@@ -95,12 +89,35 @@ def UnitTestExecuteQueryCallback(class_name, where_key_values):
         except KeyError:
             return False
 
+    def KeyValuesToRdf(key_value_pair_dict):
+        return {
+            lib_properties.MakeProp(key):lib_util.NodeLiteral(value)
+            for key,value in key_value_pair_dict.items()
+        }
+
     for one_key_value_pair_dict in test_key_value_pairs_list:
         if CheckKeyValIncluded(one_key_value_pair_dict):
-            yield one_key_value_pair_dict
+            yield KeyValuesToRdf( one_key_value_pair_dict )
+
+# The query function returns RDF nodes.
+# Therefore, for tests, this is a helper function which returns dict of strings.
+def QueryKeyValuePairs(dictEntitiesByVariable, execute_query_callback, predicate_prefix):
+    iter_entities_dicts = lib_sparql.QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_prefix)
+    for one_entities_dict in iter_entities_dicts:
+
+        one_entities_dict_qname = {}
+        for variable_name, one_entity in one_entities_dict.items():
+            print("one_entity=",one_entity)
 
 
-#lib_sparql.ExecuteQueryCallback = UnitTestExecuteQueryCallback
+            dict_qname_value = {}
+            for key_node,val_node in one_entity.m_key_values.items():
+                qname_key = lib_properties.PropToQName(key_node)
+                str_val = str(val_node)
+                dict_qname_value[qname_key] = str_val
+            one_entities_dict_qname[variable_name] = dict_qname_value
+        yield one_entities_dict_qname
+
 
 
 class SurvolSparqlTest(unittest.TestCase):
@@ -245,7 +262,82 @@ class SurvolSparqlTest(unittest.TestCase):
                          prop:populationEstimate ?population.
                 FILTER (?population > 15000000) .
             }""",
-            {'country': {'rdf:type': u'type:LandlockedCountries', u'rdfs:label': lib_sparql.QueryVariable("country_name"), u'prop:populationEstimate': lib_sparql.QueryVariable("population")}})
+            {'country': {'rdf:type': u'type:LandlockedCountries', u'rdfs:label': lib_sparql.QueryVariable("country_name"), u'prop:populationEstimate': lib_sparql.QueryVariable("population")}}
+            ),
+            ("""
+            PREFIX type: <http://dbpedia.org/class/yago/>
+            PREFIX prop: <http://dbpedia.org/property/>
+            SELECT ?country_name ?population
+            WHERE {
+                ?country a type:LandlockedCountries ;
+                         rdfs:label ?country_name ;
+                         prop:populationEstimate ?population .
+                FILTER (?population > 15000000 && langMatches(lang(?country_name), "EN")) .
+            } ORDER BY DESC(?population)
+            """,
+            {'country': {u'rdfs:label': lib_sparql.QueryVariable("country_name"),
+                         'rdf:type': u'type:LandlockedCountries', u'prop:populationEstimate': lib_sparql.QueryVariable("population")}}
+            ),
+            ("""
+            PREFIX mo: <http://purl.org/ontology/mo/>
+            PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
+            SELECT ?name ?img ?hp ?loc
+            WHERE {
+              ?a a mo:MusicArtist ;
+                 foaf:name ?name .
+              OPTIONAL { ?a foaf:img ?img }
+              OPTIONAL { ?a foaf:homepage ?hp }
+              OPTIONAL { ?a foaf:based_near ?loc }
+            }
+            """,
+            {'a': {'rdf:type': u'mo:MusicArtist', u'foaf:name': lib_sparql.QueryVariable("name")}}
+            ),
+            ("""
+            PREFIX go: <http://purl.org/obo/owl/GO#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX obo: <http://www.obofoundry.org/ro/ro.owl#>
+            SELECT DISTINCT ?label ?process
+            WHERE {
+              { ?process obo:part_of go:GO_0007165 } # integral to
+                  UNION
+              { ?process rdfs:subClassOf go:GO_0007165 } # refinement of
+              ?process rdfs:label ?label
+            }
+            """,
+            {'process': {u'obo:part_of': u'go:GO_0007165'}}
+            ),
+            ("""
+            PREFIX vCard: <http://www.w3.org/2001/vcard-rdf/3.0#>
+            PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+            CONSTRUCT {
+              ?X vCard:FN ?name .
+              ?X vCard:URL ?url .
+              ?X vCard:TITLE ?title .
+            }FROM <http://www.w3.org/People/Berners-Lee/card>
+            WHERE {
+              OPTIONAL { ?X foaf:name ?name . FILTER isLiteral(?name) . }
+              OPTIONAL { ?X foaf:homepage ?url . FILTER isURI(?url) . }
+              OPTIONAL { ?X foaf:title ?title . FILTER isLiteral(?title) . }
+            }
+            """,
+            {'X': {u'foaf:name': lib_sparql.QueryVariable("name")}}
+            ),
+            ("""
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX type: <http://dbpedia.org/class/yago/>
+            PREFIX prop: <http://dbpedia.org/property/>
+            SELECT ?lbl ?est
+            WHERE {
+              ?country rdfs:label ?lbl .
+              FILTER(bif:contains(?lbl, "Republic")) .
+              ?country a type:Country108544813 ;
+                  prop:establishedDate ?est .
+              FILTER(?est < "1920-01-01"^^xsd:date) .
+            }
+            """,
+            {'country': {u'rdfs:label': lib_sparql.QueryVariable("lbl")}}
+            ),
         ]
         self.queries_test(query_result_pairs)
 
@@ -260,8 +352,8 @@ class SurvolSparqlTest(unittest.TestCase):
     # TODO: in the SparQL query.
     def test_sparql_hardcoded(self):
 
-        dict_query_to_output_hardcoded =[
-            [
+        list_query_to_output_hardcoded =[
+            (
             # The SPARQL keyword "a" is a shortcut for the common predicate rdf:type, giving the class of a resource.
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -274,11 +366,11 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   {"url_proc":'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',},
+                   {"url_proc":{'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},},
                ]
-            ],
+            ),
 
-            [
+            (
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -290,11 +382,11 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   {"url_dir":'CIM_Directory?survol:owns=himself&survol:Name=C:/Program Files',}
+                   {'url_dir': {'Name': 'C:/Program Files', 'owns': 'himself'},}
                ]
-            ],
+            ),
 
-            [
+            (
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -306,11 +398,11 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   {"url_file":'CIM_DataFile?survol:owns=herself&survol:Name=C:/Program Files (x86)/Internet Explorer/iexplore.exe',}
+                   {"url_file": {'Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe', 'owns': 'herself'},}
                ]
-            ],
+            ),
 
-            [
+            (
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -325,11 +417,11 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    {
-                       "url_proc2":'CIM_Process?survol:runs=explorer.exe&survol:pid=789&survol:ppid=123&survol:user=himself',
-                       "url_proc1":'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
+                       "url_proc2":{'runs': 'explorer.exe', 'ppid': '123', 'pid': '789', 'user': 'himself'},
+                       "url_proc1":{'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
                    }
                ]
-            ],
+            ),
 
             # TODO: The associators and references model is not very natural.
             # TODO: It is technically more complicated than a plain relational model,
@@ -337,7 +429,7 @@ class SurvolSparqlTest(unittest.TestCase):
             # TODO: And it does not have any capability of SQL.
             # TODO: And it is very slow.
 
-            [
+            (
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -352,13 +444,13 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    {
-                       "url_proc":'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
-                       "url_acct":'Win32_UserAccount?survol:uid=222&survol:Name=herself',
+                       "url_proc":{'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
+                       "url_acct":{'Name': 'herself', 'uid': '222'},
                     }
                ]
-            ],
+            ),
 
-            [
+            (
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -373,32 +465,27 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    {
-                       "url_proc":'CIM_Process?survol:runs=firefox.exe&survol:pid=123&survol:ppid=456&survol:user=herself',
-                       "url_fil":'CIM_DataFile?survol:owns=herself&survol:Name=C:/Program Files (x86)/Internet Explorer/iexplore.exe',
+                       "url_proc":{'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
+                       "url_fil":{'Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe', 'owns': 'herself'},
                    }
                ]
-            ],
+            ),
         ]
 
-        for qry_data in dict_query_to_output_hardcoded:
+        for sparql_query,expected_results in list_query_to_output_hardcoded:
             print("===================================================")
             # parse_qry(elt)
-            qry = qry_data[0]
-            expected_results = qry_data[1]
-            print(qry)
+            print(sparql_query)
 
-            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
+            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
 
             print(dictEntitiesByVariable)
-            print("***************************************************")
-            itr_dict_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, UnitTestExecuteQueryCallback, "survol")
+            itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, UnitTestExecuteQueryCallback, "survol")
+            list_dict_objects = list(itr_dict_objects)
+            print("list_dict_objects=",list_dict_objects)
 
-            list_results = ObjectsIteratorToSparqlResults(itr_dict_objects)
-            print("list_results=",list_results)
             print("expected_results=",expected_results)
-            assert(list_results == expected_results)
-
-            print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
+            assert(list_dict_objects == expected_results)
 
     def test_sparql_survol_static(self):
         """
@@ -422,31 +509,25 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """ % curr_pid,
                [
-                   { "url_proc":'CIM_Process?survol:ppid=%d&survol:Handle=%d&survol:user=%s' % (curr_parent_pid,curr_pid,CurrentUsername),},
+                   { "url_proc":{'ppid': str(curr_parent_pid), 'Handle': str(curr_pid), 'user': CurrentUsername} ,},
                ]
             ],
         ]
 
-        for qry_data in dict_query_to_output_survol:
+        for sparql_query, expected_results in dict_query_to_output_survol:
             print("===================================================")
-            # parse_qry(elt)
-            qry = qry_data[0]
-            expected_results = qry_data[1]
-            print(qry)
+            print(sparql_query)
 
-            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
+            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
 
             print(dictEntitiesByVariable)
-            print("***************************************************")
             # TODO: Pass several callbacks, processed in a specific order ?
-            itr_dict_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
+            itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
+            list_dict_objects = list(itr_dict_objects)
 
-            list_results = ObjectsIteratorToSparqlResults(itr_dict_objects)
-
-            print("expected_results=",expected_results)
-            assert(list_results == expected_results)
-
-            print("+++++++++++++++++++++++++++++++++++++++++++++++++++")
+            print("list_dict_objects=",list_dict_objects)
+            #print("expected_results=",expected_results)
+            assert(list_dict_objects == expected_results)
 
     def test_sparql_survol_nested(self):
         """
@@ -478,23 +559,85 @@ class SurvolSparqlTest(unittest.TestCase):
         print(dictEntitiesByVariable)
         print("***************************************************")
         # TODO: Pass several callbacks, processed in a specific order ?
-        itr_dict_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
-        list_results = ObjectsIteratorToSparqlResults(itr_dict_objects)
+        itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
+        list_dict_objects = list(itr_dict_objects)
 
+        print("list_dict_objects=",list_dict_objects)
         found = False
-        for one_dict in list_results:
-            # Something like:
-            # {
-            #     'url_procC': SparqlObject:CIM_Process:survol:ppid=49376,survol:Handle=79060,survol:user=rchateau,
-            #     'url_procB': SparqlObject:CIM_Process:survol:ppid=2148,survol:Handle=49376,survol:user=rchateau,
-            #     'url_procA': SparqlObject:CIM_Process:survol:ppid=49376,survol:Handle=79060,survol:user=rchateau}
-            # }
+        for one_dict in list_dict_objects:
             procA = one_dict["url_procA"]
             procC = one_dict["url_procC"]
             if procA == procC:
                 found = True
                 break
         assert(found)
+
+    def test_sparql_wmi(self):
+
+        curr_pid = os.getpid()
+        dict_query_to_output_wmi =[
+            ("""
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?the_pid
+            WHERE
+            { ?url_proc wmi:Handle %d  .
+              ?url_proc rdf:type   "CIM_Process" .
+            }
+            """ % curr_pid,
+               [
+                   {"url_proc": {"Description": "python.exe", "Handle": str(curr_pid)}},
+               ]
+            ),
+            ("""
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?the_pid
+            WHERE
+            { ?url_dir wmi:Name "C:"  .
+              ?url_dir rdf:type "CIM_Directory" .
+            }
+            """,
+               [
+                   {"url_dir": {"Name": "c:", 'CreationClassName': 'CIM_LogicalFile', 'CSName': CurrentMachine.upper()}},
+               ]
+            ),
+        ]
+
+        # TODO: How to have backslahes in SparQL queries ???
+        # "C:&#92;Users" 0x5C "C:%5CUsers"
+
+        import lib_wmi
+
+        for sparql_query, expected_results in dict_query_to_output_wmi:
+            print("===================================================")
+            print(sparql_query)
+
+            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
+
+            # TODO: Pass several callbacks, processed in a specific order ?
+            itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, lib_wmi.WmiExecuteQueryCallback, "wmi")
+
+            list_dict_objects = list(itr_dict_objects)
+
+            # There should not be too many data so a nested loop is OK.
+            for one_expected_result in expected_results:
+                for variable_name, expected_dict_variable in one_expected_result.items():
+                    found_data = False
+                    for one_actual_result in list_dict_objects:
+
+                        actual_dict_variable = one_actual_result[variable_name]
+                        print("actual_dict_variable=",actual_dict_variable)
+                        found_data = dict(actual_dict_variable, **expected_dict_variable) == actual_dict_variable
+                        if found_data:
+                            print("Found")
+                            break
+                    if not found_data:
+                        print("expected_dict_variable=",expected_dict_variable)
+                    assert(found_data)
+
+
+            # assert( list_dict_objects[0]["url_proc"]["Handle"] == str(curr_pid))
 
 
 

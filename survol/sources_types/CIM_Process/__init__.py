@@ -7,6 +7,7 @@ import sys
 import lib_common
 import lib_util
 from lib_properties import pc
+import lib_properties
 
 from lib_psutil import *
 
@@ -159,5 +160,9 @@ def SelectFromWhere( where_key_values ):
         if "ppid" in where_key_values and str(where_key_values["ppid"]) != str(parent_pid):
             continue
 
-        ret_value = {"Handle":proc_obj.pid, "user":user_name_host, "ppid":parent_pid}
+        # TODO: Should reuse the existing properties.
+        ret_value = {
+            lib_properties.MakeProp("Handle"):lib_util.NodeLiteral(proc_obj.pid),
+            lib_properties.MakeProp("user"):lib_util.NodeLiteral(user_name_host),
+            lib_properties.MakeProp("ppid"):lib_util.NodeLiteral(parent_pid)}
         yield ret_value
