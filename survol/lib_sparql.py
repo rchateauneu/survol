@@ -323,8 +323,8 @@ class QueryVariable:
 
 # TODO: When the subject is NOT a variable but an URL.
 
-def ExtractEntitiesWithVariableAttributes(lst_triples):
-    dictEntitiesByVariable = {}
+def ExtractKeyValuePairsFromTriples(lst_triples):
+    dict_key_value_pairs_by_subject = {}
 
     # Gathers attributes of objects.
     for one_triple in lst_triples:
@@ -348,13 +348,13 @@ def ExtractEntitiesWithVariableAttributes(lst_triples):
 
         variable_name = one_triple[0][1]
         try:
-            class_dict = dictEntitiesByVariable[variable_name]
+            class_dict = dict_key_value_pairs_by_subject[variable_name]
         except KeyError:
             class_dict = {}
-            dictEntitiesByVariable[variable_name] = class_dict
+            dict_key_value_pairs_by_subject[variable_name] = class_dict
         class_dict[one_triple[1][1]] = attribute_value
 
-    return dictEntitiesByVariable
+    return dict_key_value_pairs_by_subject
 
 class SparqlObject:
     def __init__(self,class_name,key_values):
@@ -374,32 +374,44 @@ def QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_
             return
         curr_input_entity = lst_input_entities[index]
 
-        key_values = {}
-        lst_variables = {}
-        for key_attribute in curr_input_entity.m_key_values:
-            value_attribute = curr_input_entity.m_key_values[key_attribute]
+        where_key_values = {}
+        dict_variable_to_attribute = {}
+        for key_as_str in curr_input_entity.m_key_values:
+            value_attribute = curr_input_entity.m_key_values[key_as_str]
             if isinstance(value_attribute,QueryVariable):
                 variable_name = value_attribute.m_variable_name
                 if variable_name in known_variables:
-                    key_values[key_attribute] = known_variables[variable_name]
+                    where_key_values[key_as_str] = known_variables[variable_name]
                 else:
                     # Variable is not known yet
-                    lst_variables[variable_name] = key_attribute
+                    # key_as_node = lib_properties.PropToQName( key_as_str )
+                    dict_variable_to_attribute[variable_name] = key_as_str
             else:
-                key_values[key_attribute] = value_attribute
+                where_key_values[key_as_str] = value_attribute
 
-        print("    "*index + "lst_variables=",lst_variables)
-        for oneEntity in CallbackFilter(execute_query_callback, predicate_prefix, curr_input_entity.m_class_name, key_values):
-        # for oneEntity in execute_query_callback(curr_input_entity.m_class_name, key_values):
+        # TODO: Difficulty mapping property names to nodes.
+        def PropNameToNode(attribute_key):
+            if attribute_key.startswith(predicate_prefix+":"):
+                attribute_key_without_prefix = attribute_key[len(predicate_prefix)+1:]
+            else:
+                attribute_key_without_prefix = attribute_key
+            # This calculates the qname and should use the graph. Is it what we want ?
+            attribute_key_node = lib_properties.MakeProp(attribute_key_without_prefix)
+            return attribute_key_node
+
+        print("    "*index + "dict_variable_to_attribute=",dict_variable_to_attribute)
+        for oneEntity in CallbackFilter(execute_query_callback, predicate_prefix, curr_input_entity.m_class_name, where_key_values):
             # The result is made of URL to CIM objects.
             output_entity = SparqlObject(curr_input_entity.m_class_name, oneEntity )
 
-            for variable_name in lst_variables:
-                known_variables[variable_name] = oneEntity[lst_variables[variable_name]]
+            for variable_name in dict_variable_to_attribute:
+                attribute_key = dict_variable_to_attribute[variable_name]
+                attribute_key_node = PropNameToNode(attribute_key)
+                known_variables[variable_name] = oneEntity[attribute_key_node]
+
             tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
             output_results = Evaluate( index + 1, known_variables, tuple_result_extended)
             for one_resu in output_results:
-                print("    "*index + "yield===",str(one_resu))
                 yield one_resu
 
     itr_tuple_results = Evaluate(0,known_variables={},tuple_result_input=tuple())
@@ -433,13 +445,13 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_pref
 # Special pass to replace "a" by "rdf:type
 def PredicateSubstitution(lstTriples):
     for clean_trpl in lstTriples:
-        print("--------------------")
-        print("Subj:",clean_trpl[0])
-        print("Pred:",clean_trpl[1])
-        print("Obj:",clean_trpl[2])
+        #print("--------------------")
+        #print("Subj:",clean_trpl[0])
+        #print("Pred:",clean_trpl[1])
+        #print("Obj:",clean_trpl[2])
 
-        print("p=",clean_trpl[1])
-        print("p=",type(clean_trpl[1]))
+        #print("p=",clean_trpl[1])
+        #print("p=",type(clean_trpl[1]))
         if clean_trpl[1][1] == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type':
             print("OK")
             yield clean_trpl[0], ('TRPL_PREDICATE',"rdf:type"), clean_trpl[2]
@@ -447,11 +459,11 @@ def PredicateSubstitution(lstTriples):
             yield clean_trpl
 
 
-def ParseQueryToEntities(qry):
-    lstTriples = GenerateTriplesList(qry)
+def ParseQueryToEntities(sparql_query):
+    lstTriples = GenerateTriplesList(sparql_query)
     lstTriplesReplaced = PredicateSubstitution(lstTriples)
 
-    dictEntitiesByVariable = ExtractEntitiesWithVariableAttributes(lstTriplesReplaced)
+    dictEntitiesByVariable = ExtractKeyValuePairsFromTriples(lstTriplesReplaced)
     return dictEntitiesByVariable
 
 def ObjectsToGrph(grph,list_objects):
@@ -476,10 +488,13 @@ def CallbackFilter(execute_query_callback, predicate_prefix, class_name, where_k
 
     iter_enumeration = execute_query_callback( class_name, filtered_where_key_values )
 
+    return iter_enumeration
+
     # This re-adds the prefix.
-    for one_key_value_dict in iter_enumeration:
-        prefixed_key_value_dict = { predicate_prefix_colon + key : value for key,value in one_key_value_dict.items() }
-        yield prefixed_key_value_dict
+#    for one_key_value_list in iter_enumeration:
+#        #print("one_key_value_list=",one_key_value_list)
+#        prefixed_key_value_dict = { predicate_prefix_colon + key : value for key,value in one_key_value_list }
+#        yield prefixed_key_value_dict
 
 
 # This returns an iterator of a given class,
@@ -490,17 +505,17 @@ def SurvolExecuteQueryCallback(class_name, filtered_where_key_values):
     print("SurvolExecuteQueryCallback class_name=", class_name, " where_key_values=", filtered_where_key_values)
 
     entity_module = lib_util.GetEntityModule(class_name)
-    if entity_module:
-        try:
-            enumerate_function = entity_module.SelectFromWhere
-        except AttributeError:
-            exc = sys.exc_info()[1]
-            INFO("No Enumerate for %s", class_name, str(exc) )
-            return
+    if not entity_module:
+        raise Exception("SurvolExecuteQueryCallback: No module for class:%s"%class_name)
+
+    try:
+        enumerate_function = entity_module.SelectFromWhere
+    except AttributeError:
+        exc = sys.exc_info()[1]
+        INFO("No Enumerate for %s", class_name, str(exc) )
+        return
 
     iter_enumeration = enumerate_function( filtered_where_key_values )
-
-    # This re-adds the prefix.
     for one_key_value_dict in iter_enumeration:
         yield one_key_value_dict
 

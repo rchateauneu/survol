@@ -35,12 +35,19 @@ def MakeProp(*prps,**kvargs):
     url = ret.replace(" ","_").replace("-","_")
     return lib_kbase.MakeNodeUrl( url )
 
+def PropToQName(property_node):
+    # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
+    # TODO: Should call compute_qname ?
+    strProp = str(property_node).rpartition("/")[2]
+    return strProp
+
 # TODO: Maybe "pc" could be an object, or redefine a call to a member,
 # which would allow to dynamically create properties.
 
 # Property names with this prefix come first in RDF sorting.
 # This is a convenient way to have "Information" at the top of properties.
-sortPrefix = "----"
+# Use underscores, because hyphen are transformed.
+sortPrefix = "____"
 
 # TODO: This should be renamed "predicate" instead of "property".
 
@@ -49,7 +56,7 @@ sortPrefix = "----"
 # All the properties for creating RDF triples.
 # Names must all be different because they are used as keys.
 pc.property_pid                  = MakeProp("pid")
-pc.property_ppid                 = MakeProp("ppid") # This is rather the parent process.
+pc.property_ppid                 = MakeProp("ppid") # TODO: Rename "parent" or "parent_process"
 pc.property_command              = MakeProp("command")
 pc.property_host                 = MakeProp("host")
 pc.property_hostname             = MakeProp("hostname")
@@ -101,10 +108,10 @@ pc.property_runs                 = MakeProp("runs")
 pc.property_calls                = MakeProp("calls")
 pc.property_defines              = MakeProp("defines")
 pc.property_directory            = MakeProp("directory")
-pc.property_user                 = MakeProp("user")
+pc.property_user                 = MakeProp("LMI_Account")
 pc.property_userid               = MakeProp("userid")
 pc.property_owner                = MakeProp("owner")
-pc.property_group                = MakeProp("group")
+pc.property_group                = MakeProp("LMI_Group")
 pc.property_groupid              = MakeProp("groupid")
 pc.property_file_size            = MakeProp("file_size")
 pc.property_file_device          = MakeProp("file_device")

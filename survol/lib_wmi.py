@@ -303,7 +303,7 @@ def GetWmiClassFlagUseAmendedQualifiersAux(connWmi, classNam, baseClass):
 # "PageFileUsage" : Page
 # "PeakPageFileUsage" : Page
 #
-def WmiDictPropertiesUnit(connWmi, className):
+def WmiDictPropertiesUnitNoCache(connWmi, className):
     theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
 
     mapPropUnits = {}
@@ -326,6 +326,19 @@ def WmiDictPropertiesUnit(connWmi, className):
             #sys.stderr.write("WmiDictPropertiesUnit propNam=%s caught:%s \n"%(propNam,str(exc)))
 
     return mapPropUnits
+
+# So, this is calculated only once per class, because it does not change,
+# and does not depend on the connection, because it is a WMI data.
+cacheWmiDictPropertiesUnit = {}
+
+def WmiDictPropertiesUnit(connWmi, className):
+    try:
+        mapPropUnits = cacheWmiDictPropertiesUnit[className]
+    except KeyError:
+        mapPropUnits = WmiDictPropertiesUnitNoCache(connWmi, className)
+        cacheWmiDictPropertiesUnit[className] = mapPropUnits
+    return mapPropUnits
+
 
 def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
     """This adds information to a WMI class."""
@@ -452,6 +465,25 @@ def EntityToLabelWmi(namSpac, entity_type_NoNS, entity_id, entity_host):
     # sys.stderr.write("EntityToLabelWmi\n")
     return None
 
+# Survol contains three different ontologies: The ontology of classes defined by Survol,
+# and the ontology of WMI and WBEM classes respectively. These three ontologies
+# share many different classes and, most importantly, do not contradict.
+# For example: The same class defined in two different ontologies might have partly
+# different attributes, but the common ones have the same meaning and usage.
+# The reason for having three ontologies are:
+# - WMI on Windows and OpenLMI (OpenPegasus) on Linux, follow the WBEM standard,
+#   and define very useful classes.
+# - But WBEM standard has limitations:
+#   = WQL queries can be very very slow, and tend to return only objects of the same type.
+#   = It is not possible define new classes (by creating providers) in a portable manner.
+#   = WQL has limitations.
+#
+# On the other hand:
+# - Creating a new class takes a couple of Python lines.
+# - A script can returnon any combinations of objects types.
+#
+# In the three cases, Survol, WMI and WBEM, ontologies are implemented with a dictionary.
+# TODO: How to display the information of associators and references ?
 def ExtractWmiOntology():
     cnn = wmi.WMI()
 
@@ -518,4 +550,170 @@ def ExtractWmiOntology():
                     pass
 
     return map_classes, map_attributes
+
+################################################################################
+
+# Add all usual Python types.
+scalarDataTypes = lib_util.six_string_types + ( lib_util.six_text_type, lib_util.six_binary_type ) + lib_util.six_integer_types
+
+# This is a hard-coded list of properties which cannot be displayed.
+# They should be stored in the class directory.
+prpCannotBeDisplayed = {
+    # TODO: Convert this into an image. Find similar properties.
+    # At list display the type when it happens.
+    "CIM_ComputerSystem" : ["OEMLogoBitmap"]
+}
+
+# There are unit conversions which are specific to WMI.
+# Example when displaying a Win32_Process:
+# http://rchateau-hp:8000/survol/entity_wmi.py?xid=%5C%5CRCHATEAU-HP%5Croot%5Ccimv2%3A3AWin32_Process.Handle%3D%221988%22
+#
+# CSCreationClassName Win32_ComputerSystem
+# KernelModeTime      407006609 100 nanoseconds
+# OtherTransferCount  13745472 bytes
+# PageFileUsage       56264 kilobytes
+# PeakPageFileUsage   133264 kilobytes
+# PeakVirtualSize     315052032 bytes
+# PeakWorkingSetSize  116432 kilobytes
+# ReadTransferCount   639502009 bytes
+# UserModeTime        798881121 100 nanoseconds
+# VirtualSize         235409408 bytes
+# WorkingSetSize      15052800 bytes
+# WriteTransferCount  13204197 bytes
+def UnitConversion(aFltValue, valUnit):
+    try:
+        unitNotation = {
+            "bytes" : "B",
+            "kilobytes" : "kB"
+        }[valUnit]
+        return lib_util.AddSIUnit( aFltValue, unitNotation )
+    except KeyError:
+        pass
+
+    # Special case needing a conversion. Jeefie.
+    if valUnit == "100 nanoseconds":
+        return lib_util.AddSIUnit( float(aFltValue) / 10, "ms" )
+
+    # Unknown unit.
+    return lib_util.AddSIUnit( aFltValue, valUnit )
+
+
+def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
+    """
+        Returns the properties and values of a WMI object (Not a class).
+    """
+
+    # This returns the map of units for all properties of a class.
+    # Consider using the value of the property "OSCreationClassName",
+    # because units properties of base classes are not always documented.
+    mapPropUnits = WmiDictPropertiesUnit(connWmi, className)
+
+    for prpName in objWmi.properties:
+
+        # Some common properties are not displayed because the value is cumbersome
+        # and the occurrence repetitive.
+        if prpName in ["OSName"]:
+            continue
+
+        prpProp = lib_common.MakeProp(prpName)
+
+        try:
+            valUnit = mapPropUnits[prpName]
+        except KeyError:
+            valUnit = ""
+
+        # className="CIM_ComputerSystem" for example.
+        try:
+            doNotDisplay = prpName in prpCannotBeDisplayed[className]
+        except KeyError:
+            doNotDisplay = False
+
+        if doNotDisplay:
+            WARNING("Cannot display:%s",str(getattr(objWmi,prpName)))
+            value = "Cannot be displayed"
+        else:
+            # BEWARE, it could be None.
+            value = getattr(objWmi,prpName)
+
+        # Date format: "20189987698769876.97987+000", Universal Time Coordinate (UTC)
+        # yyyymmddHHMMSS.xxxxxx +- UUU
+        # yyyy represents the year.
+        # mm represents the month.
+        # dd represents the day.
+        # HH represents the hour (in 24-hour format).
+        # MM represents the minutes.
+        # SS represents the seconds.
+        # xxxxxx represents the milliseconds.
+        # UUU represents the difference, in minutes, between the local time zone and Greenwich Mean Time (GMT).
+        if prpName in ["CreationDate"]:
+            try:
+                dtYear = value[0:4]
+                dtMonth = value[4:6]
+                dtDay = value[6:8]
+                dtHour = value[8:10]
+                dtMinute = value[10:12]
+                dtSecond = value[12:14]
+
+                value = "%s-%s-%s %s:%s:%s" % (dtYear,dtMonth,dtDay,dtHour,dtMinute,dtSecond)
+            except:
+                pass
+
+        # The "GUID" property is very specific in WMI.
+        if prpName == "GUID":
+            # Example: "{CF185B35-1F88-46CF-A6CE-BDECFBB59B4F}"
+            nodeGUID = lib_common.gUriGen.ComTypeLibUri( value )
+            yield( prpProp, nodeGUID )
+            continue
+
+        if isinstance( value, scalarDataTypes ):
+            # Special backslash replacement otherwise:
+            # "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
+            # TODO: Why not CGI escaping ?
+            valueReplaced = str(value).replace('\\','\\\\')
+
+            if valUnit:
+                valueReplaced = UnitConversion( valueReplaced, valUnit )
+            yield ( prpProp, lib_common.NodeLiteral( valueReplaced ) )
+        elif isinstance( value, ( tuple) ):
+            # Special backslash replacement otherwise:
+            # "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
+            # TODO: Why not CGI escaping ?
+            tupleReplaced = [ str(oneVal).replace('\\','\\\\') for oneVal in value ]
+
+            # tuples are displayed as tokens separated by ";". Examples:
+            #
+            # CIM_ComputerSystem.OEMStringArray
+            #" ABS 70/71 60 61 62 63; ;FBYTE#2U3E3X47676J6S6b727H7M7Q7T7W7m8D949RaBagapaqb3bmced3.fH;; BUILDID#13WWHCHW602#SABU#DABU;"
+            #
+            # CIM_ComputerSystem.Roles
+            # "LM_Workstation ; LM_Server ; SQLServer ; NT ; Potential_Browser ; Master_Browser"
+            cleanTuple = " ; ".join( tupleReplaced )
+            yield( prpProp, lib_common.NodeLiteral( cleanTuple ) )
+        elif value is None:
+            if displayNoneValues:
+                yield( prpProp, lib_common.NodeLiteral( "None" ) )
+        else:
+            try:
+                refMoniker = str( value.path() )
+                refInstanceUrl = lib_util.EntityUrlFromMoniker( refMoniker )
+                refInstanceNode = lib_common.NodeUrl(refInstanceUrl)
+                yield( prpProp, refInstanceNode )
+            except AttributeError:
+                exc = sys.exc_info()[1]
+                yield( prpProp, lib_common.NodeLiteral( str(exc) ) )
+
+def WmiExecuteQueryCallback(class_name, filtered_where_key_values):
+    print("WmiExecuteQueryCallback class_name=", class_name, " where_key_values=", filtered_where_key_values)
+
+    wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values,class_name)
+    # Current host and default namespace.
+    wmi_connection = WmiConnect("","")
+
+    wmi_objects = wmi_connection.query(wmi_query)
+
+    for one_wmi_object in wmi_objects:
+        list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, class_name )
+        dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
+        print("dict_key_values=",dict_key_values)
+        yield dict_key_values
 
