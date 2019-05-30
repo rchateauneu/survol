@@ -472,7 +472,7 @@ def EntityToLabelWmi(namSpac, entity_type_NoNS, entity_id, entity_host):
 # different attributes, but the common ones have the same meaning and usage.
 # The reason for having three ontologies are:
 # - WMI on Windows and OpenLMI (OpenPegasus) on Linux, follow the WBEM standard,
-#   and define very useful classes.
+#   and define the most import classes in a computer system.
 # - But WBEM standard has limitations:
 #   = WQL queries can be very very slow, and tend to return only objects of the same type.
 #   = It is not possible define new classes (by creating providers) in a portable manner.
@@ -480,7 +480,7 @@ def EntityToLabelWmi(namSpac, entity_type_NoNS, entity_id, entity_host):
 #
 # On the other hand:
 # - Creating a new class takes a couple of Python lines.
-# - A script can returnon any combinations of objects types.
+# - A script can return any combinations of objects types.
 #
 # In the three cases, Survol, WMI and WBEM, ontologies are implemented with a dictionary.
 # TODO: How to display the information of associators and references ?
@@ -492,7 +492,6 @@ def ExtractWmiOntology():
 
     for class_name in cnn.classes:
         cls_obj = getattr(cnn, class_name)
-        theCls = None
 
         drv_list = cls_obj.derivation()
         # If this is a top-level class, the derivation list is empty.
@@ -512,8 +511,7 @@ def ExtractWmiOntology():
             except pywintypes.com_error:
                 pass
 
-        map_classes[class_name] = { "base_class": base_class_name, "class_description": text_descr}
-
+        map_classes[class_name] = {"base_class": base_class_name, "class_description": text_descr}
 
         for p in cls_obj.properties:
             prop_obj = cls_obj.wmi_property(p)
@@ -557,10 +555,11 @@ def ExtractWmiOntology():
 scalarDataTypes = lib_util.six_string_types + ( lib_util.six_text_type, lib_util.six_binary_type ) + lib_util.six_integer_types
 
 # This is a hard-coded list of properties which cannot be displayed.
-# They should be stored in the class directory.
+# They should be stored in the class directory. This is a temporary hack
+# until we find a general rule, or find similar properties.
+# TODO: Convert this into an image. Find similar properties.
+# At least display the type when it happens.
 prpCannotBeDisplayed = {
-    # TODO: Convert this into an image. Find similar properties.
-    # At list display the type when it happens.
     "CIM_ComputerSystem" : ["OEMLogoBitmap"]
 }
 
@@ -610,8 +609,8 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
 
     for prpName in objWmi.properties:
 
-        # Some common properties are not displayed because the value is cumbersome
-        # and the occurrence repetitive.
+        # Some common properties are not displayed because the value is cumbersome,
+        # and do not bring useful information.
         if prpName in ["OSName"]:
             continue
 
@@ -703,7 +702,7 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
                 yield( prpProp, lib_common.NodeLiteral( str(exc) ) )
 
 def WmiExecuteQueryCallback(class_name, filtered_where_key_values):
-    print("WmiExecuteQueryCallback class_name=", class_name, " where_key_values=", filtered_where_key_values)
+    ERROR("WmiExecuteQueryCallback class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
 
     wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values,class_name)
     # Current host and default namespace.
@@ -712,8 +711,12 @@ def WmiExecuteQueryCallback(class_name, filtered_where_key_values):
     wmi_objects = wmi_connection.query(wmi_query)
 
     for one_wmi_object in wmi_objects:
+        # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+        object_path = str(one_wmi_object.path())
+        ERROR("one_wmi_object.path=%s",object_path)
         list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, class_name )
         dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
-        print("dict_key_values=",dict_key_values)
-        yield dict_key_values
+        ERROR("dict_key_values=%s",dict_key_values)
+        object_path_node = lib_util.NodeUrl(object_path)
+        yield ( object_path_node, dict_key_values )
 
