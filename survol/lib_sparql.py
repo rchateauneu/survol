@@ -356,12 +356,20 @@ def ExtractKeyValuePairsFromTriples(lst_triples):
 
     return dict_key_value_pairs_by_subject
 
-class SparqlObject:
+class ObjectKeyValues:
     def __init__(self,class_name,key_values):
         self.m_class_name = class_name
         self.m_key_values = key_values
     def __repr__(self):
-        return "SparqlObject:" + self.m_class_name + ":" + ",".join( [ "%s=%s" % kv for kv in self.m_key_values.items() ] )
+        return "ObjectKeyValues:" + self.m_class_name + ":" + ",".join( [ "%s=%s" % kv for kv in self.m_key_values.items() ] )
+
+
+class PathPredicateObject:
+    def __init__(self,subject_path,predicate_object_dict):
+        self.m_subject_path = subject_path
+        self.m_predicate_object_dict = predicate_object_dict
+    def __repr__(self):
+        return "PathPredicateObject:" + self.m_subject_path
 
 # TODO: Several callbacks. Maybe with a key ??
 # TODO: Maybe execute callbacks in a sub-process ?
@@ -384,7 +392,6 @@ def QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_
                     where_key_values[key_as_str] = known_variables[variable_name]
                 else:
                     # Variable is not known yet
-                    # key_as_node = lib_properties.PropToQName( key_as_str )
                     dict_variable_to_attribute[variable_name] = key_as_str
             else:
                 where_key_values[key_as_str] = value_attribute
@@ -402,12 +409,12 @@ def QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_
         print("    "*index + "dict_variable_to_attribute=",dict_variable_to_attribute)
         for oneEntity in CallbackFilter(execute_query_callback, predicate_prefix, curr_input_entity.m_class_name, where_key_values):
             # The result is made of URL to CIM objects.
-            output_entity = SparqlObject(curr_input_entity.m_class_name, oneEntity )
+            output_entity = PathPredicateObject(oneEntity[0], oneEntity[1] )
 
             for variable_name in dict_variable_to_attribute:
                 attribute_key = dict_variable_to_attribute[variable_name]
                 attribute_key_node = PropNameToNode(attribute_key)
-                known_variables[variable_name] = oneEntity[attribute_key_node]
+                known_variables[variable_name] = output_entity.m_predicate_object_dict[attribute_key_node]
 
             tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
             output_results = Evaluate( index + 1, known_variables, tuple_result_extended)
@@ -429,7 +436,7 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_pref
         except KeyError:
             return (None,None)
 
-        return SparqlObject( class_name, key_vals )
+        return ObjectKeyValues( class_name, key_vals )
 
     # The order of nested loops is very important for performances.
     # Input entites might be reordered here.
@@ -490,13 +497,6 @@ def CallbackFilter(execute_query_callback, predicate_prefix, class_name, where_k
 
     return iter_enumeration
 
-    # This re-adds the prefix.
-#    for one_key_value_list in iter_enumeration:
-#        #print("one_key_value_list=",one_key_value_list)
-#        prefixed_key_value_dict = { predicate_prefix_colon + key : value for key,value in one_key_value_list }
-#        yield prefixed_key_value_dict
-
-
 # This returns an iterator of a given class,
 # which must match the input key-value pairs.
 # Each object is modelled by a key-value dictionary.
@@ -517,7 +517,7 @@ def SurvolExecuteQueryCallback(class_name, filtered_where_key_values):
 
     iter_enumeration = enumerate_function( filtered_where_key_values )
     for one_key_value_dict in iter_enumeration:
-        yield one_key_value_dict
+        yield ( lib_util.NodeUrl("survol_object_path"), one_key_value_dict )
 
 
 # Quand on a un triplet de cette forme, trouver toutes les proprietes

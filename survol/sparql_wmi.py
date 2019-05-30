@@ -29,67 +29,17 @@ def Main():
 
     grph = lib_kbase.MakeGraph()
 
-    qry = envSparql.Query()
+    sparql_query = envSparql.Query()
 
-    lstTriples = list( lib_sparql.GenerateTriplesList(qry) )
-    dictEntities = lib_sparql.ExtractEntitiesWithConstantAttributes(lstTriples)
+    dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
+    sys.stderr.write("dictEntitiesByVariable=%s\n"%dictEntitiesByVariable)
 
-    # This returns an array of WMI queries which must be executed independently,
-    # and their results mixed in one triple-store.
-    # TODO: Joins might be possible.
+    iter_entities_dicts = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_wmi.WmiExecuteQueryCallback, "wmi")
 
-    wmiHost = None
-    nameSpace = "root\\CIMV2" # Default namespace.
+    sys.stderr.write("iter_entities_dicts=%s\n"%dir(iter_entities_dicts))
 
-    connWmi = lib_wmi.WmiConnect(wmiHost,nameSpace)
-
-
-
-    # This returns an iterator of a given class,
-    # which must match the input key-value pairs.
-    # Each object is modelled by a key-value dictionary.
-    # No need to return the class name because it is an input parameter.
-    def WMIExecuteQueryCallback(class_name, where_key_values):
-        print("WMIExecuteQueryCallback class_name=",class_name," where_key_values=",where_key_values)
-
-        qryWmi = lib_util.SplitMonikToWQL(where_key_values,class_name)
-
-        objList = connWmi.query(qryWmi)
-
-        mapPropUnits = lib_wmi.WmiDictPropertiesUnit(connWmi, class_name)
-
-        # In the general case, there will be several objects.
-        # The instance node must be created following Survol's ontology ?
-        displayNoneValues = False
-        for objWmi in objList:
-
-            wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
-
-            # Possible problem because this associates a single URL with possibly several objects ??
-            wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
-
-            DEBUG("entity_wmi.py objWmi=[%s]", str(objWmi) )
-
-            # See DispWmiProperties in entity_wmi.py
-            lstKeyValues = lib_wmi.WmiKeyValues(connWmi, objWmi, displayNoneValues, class_name)
-            for prpProp, prpValue in lstKeyValues:
-                grph.add( ( wmiInstanceNode, prpProp, prpValue ) )
-
-            # TODO: For the associators and the references, see entity_wmi.py
-
-    for variable_name in dictEntities:
-        class_name, key_values = lib_sparql.ExtractClass( dictEntities[variable_name] )
-        aQry = lib_util.SplitMonikToWQL(key_values,class_name)
-
-    ca va remplir un grph sur lequel on va ensuite executer la query Sparql
-
-
-
-
-
-
-
-
+    for one_dict_entity in iter_entities_dicts:
+        pass
 
     # apres execution du sparql dans le nouveau grph
     envSparql.WriteTripleStoreAsString(grph)

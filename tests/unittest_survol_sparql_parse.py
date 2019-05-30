@@ -29,6 +29,7 @@ import lib_sparql
 import lib_client
 import lib_util
 import lib_properties
+import lib_kbase
 
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
@@ -37,6 +38,9 @@ try:
 except KeyError:
     # This is for Linux.
     CurrentUsername = os.environ["USER"]
+
+CurrentPid = os.getpid()
+CurrentParentPid = psutil.Process().ppid()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
@@ -61,15 +65,6 @@ dict_test_data = {
         { "uid":222,"Name":"herself"},
     ],
 }
-
-# This transforms the result of a query into something easy to compare.
-def ObjectsIteratorToSparqlResults(itr_dict_objects):
-    #list_tuple_objects = list(itr_dict_objects)
-    list_results = []
-    for one_objects_dict in itr_dict_objects:
-        list_results.append( dict(ObjectsToSparqlResults(one_objects_dict)) )
-    return list_results
-
 
 # This returns an iterator on hard-coded objects, of a given class,
 # which must match the input key-value pairs.
@@ -97,12 +92,15 @@ def UnitTestExecuteQueryCallback(class_name, where_key_values):
 
     for one_key_value_pair_dict in test_key_value_pairs_list:
         if CheckKeyValIncluded(one_key_value_pair_dict):
-            yield KeyValuesToRdf( one_key_value_pair_dict )
+            yield ( lib_util.NodeUrl("hard_coded_path"), KeyValuesToRdf( one_key_value_pair_dict ) )
 
 # The query function returns RDF nodes.
 # Therefore, for tests, this is a helper function which returns dict of strings.
 def QueryKeyValuePairs(dictEntitiesByVariable, execute_query_callback, predicate_prefix):
     iter_entities_dicts = lib_sparql.QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_prefix)
+    return QueriesEntitiesToValuePairs(iter_entities_dicts)
+
+def QueriesEntitiesToValuePairs(iter_entities_dicts):
     for one_entities_dict in iter_entities_dicts:
 
         one_entities_dict_qname = {}
@@ -111,7 +109,7 @@ def QueryKeyValuePairs(dictEntitiesByVariable, execute_query_callback, predicate
 
 
             dict_qname_value = {}
-            for key_node,val_node in one_entity.m_key_values.items():
+            for key_node,val_node in one_entity.m_predicate_object_dict.items():
                 qname_key = lib_properties.PropToQName(key_node)
                 str_val = str(val_node)
                 dict_qname_value[qname_key] = str_val
@@ -473,8 +471,6 @@ class SurvolSparqlTest(unittest.TestCase):
         ]
 
         for sparql_query,expected_results in list_query_to_output_hardcoded:
-            print("===================================================")
-            # parse_qry(elt)
             print(sparql_query)
 
             dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
@@ -482,6 +478,7 @@ class SurvolSparqlTest(unittest.TestCase):
             print(dictEntitiesByVariable)
             itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, UnitTestExecuteQueryCallback, "survol")
             list_dict_objects = list(itr_dict_objects)
+            #list_dict_objects = list(itr_dict_objects.m_predicate_object_dict)
             print("list_dict_objects=",list_dict_objects)
 
             print("expected_results=",expected_results)
@@ -492,9 +489,6 @@ class SurvolSparqlTest(unittest.TestCase):
         Test the Sparql server which works on Survol data.
         The attributes in the SparQL query must match the ontology of the query callback function.
         """
-
-        curr_pid = os.getpid()
-        curr_parent_pid = psutil.Process().ppid()
 
         dict_query_to_output_survol =[
             [
@@ -507,9 +501,9 @@ class SurvolSparqlTest(unittest.TestCase):
               ?url_proc survol:ppid ?the_ppid .
               ?url_proc rdf:type "CIM_Process" .
             }
-            """ % curr_pid,
+            """ % CurrentPid,
                [
-                   { "url_proc":{'ppid': str(curr_parent_pid), 'Handle': str(curr_pid), 'user': CurrentUsername} ,},
+                   { "url_proc":{'ppid': str(CurrentParentPid), 'Handle': str(CurrentPid), 'user': CurrentUsername} ,},
                ]
             ],
         ]
@@ -535,8 +529,6 @@ class SurvolSparqlTest(unittest.TestCase):
         The attributes in the SparQL query must match the ontology of the query callback function.
         """
 
-        curr_pid = os.getpid()
-
         # It should return sibling processes (Same parent id) of the current process.
         nested_qry ="""
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -552,12 +544,11 @@ class SurvolSparqlTest(unittest.TestCase):
               ?url_procC survol:ppid ?the_ppid .
               ?url_procC rdf:type "CIM_Process" .
             }
-            """ % (curr_pid,curr_pid)
+            """ % (CurrentPid,CurrentPid)
 
         dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(nested_qry)
 
         print(dictEntitiesByVariable)
-        print("***************************************************")
         # TODO: Pass several callbacks, processed in a specific order ?
         itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
         list_dict_objects = list(itr_dict_objects)
@@ -574,7 +565,6 @@ class SurvolSparqlTest(unittest.TestCase):
 
     def test_sparql_wmi(self):
 
-        curr_pid = os.getpid()
         dict_query_to_output_wmi =[
             ("""
             PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
@@ -584,9 +574,9 @@ class SurvolSparqlTest(unittest.TestCase):
             { ?url_proc wmi:Handle %d  .
               ?url_proc rdf:type   "CIM_Process" .
             }
-            """ % curr_pid,
+            """ % CurrentPid,
                [
-                   {"url_proc": {"Description": "python.exe", "Handle": str(curr_pid)}},
+                   {"url_proc": {"Description": "python.exe", "Handle": str(CurrentPid)}},
                ]
             ),
             ("""
@@ -602,9 +592,21 @@ class SurvolSparqlTest(unittest.TestCase):
                    {"url_dir": {"Name": "c:", 'CreationClassName': 'CIM_LogicalFile', 'CSName': CurrentMachine.upper()}},
                ]
             ),
+            ("""
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_dir rdf:type "Win32_UserAccount" .
+            }
+            """,
+               [
+                   {"url_dir": {"Name": CurrentUsername}},
+               ]
+            ),
         ]
 
-        # TODO: How to have backslahes in SparQL queries ???
+        # TODO: How to have backslashes in SparQL queries ???
         # "C:&#92;Users" 0x5C "C:%5CUsers"
 
         import lib_wmi
@@ -637,8 +639,107 @@ class SurvolSparqlTest(unittest.TestCase):
                     assert(found_data)
 
 
-            # assert( list_dict_objects[0]["url_proc"]["Handle"] == str(curr_pid))
+    def test_sparql_wmi_to_rdf(self):
+        """This inserts the evaluation into a RDF triplestore. """
 
+        sparql_query = """
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_dir rdf:type "CIM_DiskDrive" .
+            }
+            """
+
+        import lib_wmi
+
+        print(sparql_query)
+
+        dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
+
+        # TODO: Pass several callbacks, processed in a specific order ?
+        itr_dict_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_wmi.WmiExecuteQueryCallback, "wmi")
+
+        list_dict_objects = list(itr_dict_objects)
+
+        grph = lib_kbase.MakeGraph()
+
+        for one_dict_objects in list_dict_objects:
+            for variable_name, key_value_nodes in one_dict_objects.items():
+                # Only the properties of the ontology are used in the moniker
+                # The moniker is built with a subset of properties, in a certain order.
+                # In Survol's ontology, these properties are defined by each class'function EntityOntology()
+                # These properties must be the same for all ontologies: WMI, WBEM and Survol,
+                # otherwise objects could not be shared.
+                wmiInstanceNode = key_value_nodes.m_subject_path
+
+                for key_node,value_node in key_value_nodes.m_predicate_object_dict.items():
+                    grph.add((wmiInstanceNode,key_node,value_node))
+
+
+
+    def test_sparql_server_survol(self):
+        """
+        Test the Sparql server which works on Survol data.
+        The attributes in the SparQL query must match the ontology of the query callback function.
+        """
+        array_survol_queries=[
+            [
+            """
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?the_pid
+            WHERE
+            { ?url_proc survol:Handle    ?the_ppid  .
+              ?url_proc survol:ppid  %d .
+              ?url_proc rdf:type "CIM_Process" .
+            }
+            """ % os.getpid(),
+                "xxx"
+            ],
+        ]
+
+        for sparql_query, expected_results in array_survol_queries:
+            print("===================================================")
+            print("sparql_query=",sparql_query)
+
+            url_sparql = RemoteTestAgent + "/survol/sparql.py?query=" + lib_util.urllib_quote(sparql_query)
+            print("url_sparql=",url_sparql)
+
+            response = lib_util.survol_urlopen(url_sparql)
+            data = response.read().decode("utf-8")
+            print("data=",data)
+
+
+    def test_sparql_server_wmi(self):
+        """
+        Test the Sparql server which works on Survol data.
+        The attributes in the SparQL query must match the ontology of the query callback function.
+        """
+        array_wmi_queries=[
+            [
+            """
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_dir rdf:type "Win32_UserAccount" .
+            }
+            """,
+                "xxx"
+            ],
+        ]
+
+        for sparql_query, expected_results in array_wmi_queries:
+            print("===================================================")
+            print("sparql_query=",sparql_query)
+
+            url_sparql = RemoteTestAgent + "/survol/sparql_wmi.py?query=" + lib_util.urllib_quote(sparql_query)
+            print("url_sparql=",url_sparql)
+
+            response = lib_util.survol_urlopen(url_sparql)
+            data = response.read().decode("utf-8")
+            print("data=",data)
 
 
 
