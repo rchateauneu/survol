@@ -111,7 +111,7 @@ class SourceCgi (SourceBase):
 
 
 def LoadModedUrl(urlModed):
-    DEBUG("LoadModedUrl.get_content_moded urlModed=%s",urlModed)
+    DEBUG("LoadModedUrl urlModed=%s",urlModed)
     try:
         response = lib_util.survol_urlopen(urlModed,timeout=20)
     except:
