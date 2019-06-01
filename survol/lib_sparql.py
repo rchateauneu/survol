@@ -108,15 +108,13 @@ class SparqlEnvironment:
             # pip install rdflib-jsonld
             # No plugin registered for (json-ld, <class 'rdflib.serializer.Serializer'>)
             # rdflib_format = "pretty-xml"
-            # strJson = grph.serialize( destination = None, format = rdflib_format)
             sys.stderr.write("len grph=%d\n"%len(grph))
-            strJson = grph.serialize(format=self.m_rdflib_format)
-            # strJson = grph.serialize(format='json-ld', indent=4)
+            strRdf = grph.serialize(format=self.m_rdflib_format)
         except Exception as exc:
             sys.stderr.write("Caught:%s\n"%exc)
             return
-        sys.stderr.write("strJson=%s\n"%strJson)
-        lib_util.WrtAsUtf(strJson)
+        sys.stderr.write("strRdf=%s\n"%strRdf)
+        lib_util.WrtAsUtf(strRdf)
 
 ################################################################################
 
@@ -155,49 +153,9 @@ def print_simple(arg_elt,level=1):
         print("    "*level,arg_elt.__class__.__name__)
         print("    "*level,"??? ",arg_elt.__class__.__name__,dir(arg_elt))
 
-# This returns a list of lists of tokens.
-# These second-level lists of tokens are a SPARQL list of patterns,
-# that is, patterns separated by a semi-colon,
-# because they share the same subject, or commas if they share the subject and the predicate,
-# ended by a dot. When returned, the list of patterns have a length multiple of three,
-# because it is made of concatenated RDF triples.
-def get_triples(arg_elt):
-    if arg_elt.__class__.__name__ == "CompValue":
-        for key2 in arg_elt:
-            val2 = arg_elt[key2]
-            if key2 == "triples":
-                return val2
-            res = get_triples(val2)
-            if res:
-                return res
-    elif arg_elt.__class__.__name__ in ["ParseResults","plist"]:
-        for elt2 in arg_elt:
-            res = get_triples(elt2)
-            if res:
-                return res
-    return None
-
-# This groups tokens by sequence of three, to create triples.
-# All SPARQL constraints are mixed together
-def aggregate_into_triples(raw_trpl):
-    curr_trip = []
-    cnt_trip = 0
-    for block in raw_trpl:
-        for elt in block:
-            cnt_trip += 1
-            curr_trip.append(elt)
-            if cnt_trip == 3:
-                yield curr_trip
-                cnt_trip = 0
-                curr_trip = []
-    if cnt_trip == 3:
-        yield curr_trip
-    else:
-        assert cnt_trip == 0
-
 # This receives a predicate object, which is a directory containing the predicate local name
 # and the prefix. It returns a concatenation of the two.
-def pname_to_string(pname):
+def __pname_to_string(pname):
     # pname_pname_{'localname': u'pid', 'prefix': u'survol'}
     value_localname = pname['localname']
     try:
@@ -207,7 +165,8 @@ def pname_to_string(pname):
     value_name = value_prefix + ":" + value_localname
     return value_name
 
-def decode_parsed_subject(subj):
+
+def __decode_parsed_subject(subj):
     # PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'pid', 'prefix': u'survol'}}]}]}
     if isinstance(subj,rdflib.term.Variable):
         return("TRPL_VARIABLE",str(subj))
@@ -229,10 +188,11 @@ def decode_parsed_subject(subj):
             return("TRPL_LITERAL",str(litt_string))
         if 'localname' in subj:
             # For a node defined in a specific namespace with a prefix.
-            return("TRPL_VALUE_NAME",pname_to_string(subj))
+            return("TRPL_VALUE_NAME",__pname_to_string(subj))
     raise Exception("Cannot parse ERRSUBJsubj=",str(subj))
 
-def decode_parsed_predicate(pred):
+
+def __decode_parsed_predicate(pred):
     # PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'pid', 'prefix': u'survol'}}]}]}
     if isinstance(pred,rdflib.plugins.sparql.parserutils.CompValue):
         try:
@@ -251,7 +211,7 @@ def decode_parsed_predicate(pred):
                     if isinstance(one_part_part_first,rdflib.plugins.sparql.parserutils.CompValue):
                         one_part_part_first_part = one_part_part_first['part']
                         if isinstance(one_part_part_first_part,rdflib.plugins.sparql.parserutils.CompValue):
-                            resu = pname_to_string(one_part_part_first_part)
+                            resu = __pname_to_string(one_part_part_first_part)
                             return("TRPL_PREDICATE",resu)
                         else:
                             return("TRPL_URIREF",str(one_part_part_first_part))
@@ -268,6 +228,48 @@ def decode_parsed_predicate(pred):
         print("***:",dir(pred))
         raise Exception("Cannot parse")
 
+
+# This returns a list of lists of tokens.
+# These second-level lists of tokens are a SPARQL list of patterns,
+# that is, patterns separated by a semi-colon,
+# because they share the same subject, or commas if they share the subject and the predicate,
+# ended by a dot. When returned, the list of patterns have a length multiple of three,
+# because it is made of concatenated RDF triples.
+def __get_triples(arg_elt):
+    if arg_elt.__class__.__name__ == "CompValue":
+        for key2 in arg_elt:
+            val2 = arg_elt[key2]
+            if key2 == "triples":
+                return val2
+            res = __get_triples(val2)
+            if res:
+                return res
+    elif arg_elt.__class__.__name__ in ["ParseResults","plist"]:
+        for elt2 in arg_elt:
+            res = __get_triples(elt2)
+            if res:
+                return res
+    return None
+
+
+# This groups tokens by sequence of three, to create triples.
+# All SPARQL constraints are mixed together
+def __aggregate_into_triples(raw_trpl):
+    curr_trip = []
+    cnt_trip = 0
+    for block in raw_trpl:
+        for elt in block:
+            cnt_trip += 1
+            curr_trip.append(elt)
+            if cnt_trip == 3:
+                yield curr_trip
+                cnt_trip = 0
+                curr_trip = []
+    if cnt_trip == 3:
+        yield curr_trip
+    else:
+        assert cnt_trip == 0
+
 # Examples of input:
 # ['s', 'p3', 'N739bb0cc49f94657a365f080994a0e8f']
 # [
@@ -282,48 +284,49 @@ def decode_parsed_predicate(pred):
 #   'item',
 #   "PathAlternative_PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': pname_{'localname': u'P2848', 'prefix': u'wdt'}}]}]}",
 #   "pname_pname_{'localname': u'Q1543615', 'prefix': u'wd'}"]
-def decode_parsed_triple(one_trpl):
-    s0 = decode_parsed_subject(one_trpl[0])
-    s1 = decode_parsed_predicate(one_trpl[1])
-    s2 = decode_parsed_subject(one_trpl[2])
+def __decode_parsed_triple(one_trpl):
+    s0 = __decode_parsed_subject(one_trpl[0])
+    s1 = __decode_parsed_predicate(one_trpl[1])
+    s2 = __decode_parsed_subject(one_trpl[2])
 
     clean_trpl = [s0,s1,s2]
     return clean_trpl
 
-def GenerateTriplesList(qry):
+
+# This extracts the triples from the WHERE clause of a Sparql query,
+# after it is parsed by rdflib.
+def __generate_triples_list(qry):
     parsed = rdflib.plugins.sparql.parser.parseQuery(qry)
 
-    raw_trpl = get_triples(parsed)
-    trpl_lst = aggregate_into_triples(raw_trpl)
+
+    # This returns a long sequence of nodes, length multiple of three.
+    raw_trpl = __get_triples(parsed)
+
+    # The logn sequence of nodes is split into triples: subject, predicate, object.
+    trpl_lst = __aggregate_into_triples(raw_trpl)
     for one_trpl in trpl_lst:
-        clean_trpl = decode_parsed_triple(one_trpl)
+        clean_trpl = __decode_parsed_triple(one_trpl)
         yield clean_trpl
 
-class EntityQuery:
-    def __init__(self,variable_name):
-        self.m_variable_name = variable_name
-        self.m_input_variables = set()
-        self.m_attributes = {}
 
-    def __repr__(self):
-        resu = str(self.m_attributes)
-        resu += " <= " + str(list(self.m_input_variables))
-        return resu
+# Special pass to replace "a" by "rdf:type
+def __predicate_substitution(lstTriples):
+    for clean_trpl in lstTriples:
+        #print("--------------------")
+        #print("Subj:",clean_trpl[0])
+        #print("Pred:",clean_trpl[1])
+        #print("Obj:",clean_trpl[2])
 
-class QueryVariable:
-    def __init__(self,variable_name):
-        self.m_variable_name = variable_name
-
-    def __repr__(self):
-        return "??" + self.m_variable_name + "??"
-
-    def __eq__(self, other):
-        return self.m_variable_name == other.m_variable_name
-
+        #print("p=",clean_trpl[1])
+        #print("p=",type(clean_trpl[1]))
+        if clean_trpl[1][1] == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type':
+            yield clean_trpl[0], ('TRPL_PREDICATE',"rdf:type"), clean_trpl[2]
+        else:
+            yield clean_trpl
 
 # TODO: When the subject is NOT a variable but an URL.
 
-def ExtractKeyValuePairsFromTriples(lst_triples):
+def __extract_key_value_pairs_from_triples(lst_triples):
     dict_key_value_pairs_by_subject = {}
 
     # Gathers attributes of objects.
@@ -343,7 +346,7 @@ def ExtractKeyValuePairsFromTriples(lst_triples):
             # TODO: Treated like a literal.
             attribute_value = one_triple[2][1]
         else:
-            print("AAAAA object_parsed_type=",object_parsed_type)
+            print("ExtractKeyValuePairsFromTriples object_parsed_type=",object_parsed_type)
             continue
 
         variable_name = one_triple[0][1]
@@ -356,6 +359,35 @@ def ExtractKeyValuePairsFromTriples(lst_triples):
 
     return dict_key_value_pairs_by_subject
 
+
+
+#Maintenant, on va extraire a part les proprietes speciales rdf:type etc...
+#relatives a l ontologie.
+#et aussi quand l object est manifestement un node.
+#et quand les proprietes appartiennent a des namespaces differents.
+
+def ParseQueryToEntities(sparql_query):
+    lstTriples = __generate_triples_list(sparql_query)
+    lstTriplesReplaced = __predicate_substitution(lstTriples)
+
+    dictEntitiesByVariable = __extract_key_value_pairs_from_triples(lstTriplesReplaced)
+    return dictEntitiesByVariable
+
+################################################################################
+
+# This models a variable in a Sparql query.
+class QueryVariable:
+    def __init__(self,variable_name):
+        self.m_variable_name = variable_name
+
+    def __repr__(self):
+        return "??" + self.m_variable_name + "??"
+
+    def __eq__(self, other):
+        return self.m_variable_name == other.m_variable_name
+
+
+# This models an object as extracted from a Sparql query.
 class ObjectKeyValues:
     def __init__(self,class_name,key_values):
         self.m_class_name = class_name
@@ -363,7 +395,7 @@ class ObjectKeyValues:
     def __repr__(self):
         return "ObjectKeyValues:" + self.m_class_name + ":" + ",".join( [ "%s=%s" % kv for kv in self.m_key_values.items() ] )
 
-
+# This models a result returned from the execution of the join of a Sparql query.
 class PathPredicateObject:
     def __init__(self,subject_path,predicate_object_dict):
         self.m_subject_path = subject_path
@@ -439,7 +471,7 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_pref
         return ObjectKeyValues( class_name, key_vals )
 
     # The order of nested loops is very important for performances.
-    # Input entites might be reordered here.
+    # Input entities might be reordered here.
     lst_input_entities = []
     for variable_name in dictEntitiesByVariable:
         one_input_entity = ExtractClass( dictEntitiesByVariable[variable_name] )
@@ -448,30 +480,6 @@ def QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_pref
     input_keys = dictEntitiesByVariable.keys()
     for tuple_results in QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_prefix):
         yield dict(zip(input_keys,tuple_results))
-
-# Special pass to replace "a" by "rdf:type
-def PredicateSubstitution(lstTriples):
-    for clean_trpl in lstTriples:
-        #print("--------------------")
-        #print("Subj:",clean_trpl[0])
-        #print("Pred:",clean_trpl[1])
-        #print("Obj:",clean_trpl[2])
-
-        #print("p=",clean_trpl[1])
-        #print("p=",type(clean_trpl[1]))
-        if clean_trpl[1][1] == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type':
-            print("OK")
-            yield clean_trpl[0], ('TRPL_PREDICATE',"rdf:type"), clean_trpl[2]
-        else:
-            yield clean_trpl
-
-
-def ParseQueryToEntities(sparql_query):
-    lstTriples = GenerateTriplesList(sparql_query)
-    lstTriplesReplaced = PredicateSubstitution(lstTriples)
-
-    dictEntitiesByVariable = ExtractKeyValuePairsFromTriples(lstTriplesReplaced)
-    return dictEntitiesByVariable
 
 def ObjectsToGrph(grph,list_objects):
     for curr_input_entity in list_objects:

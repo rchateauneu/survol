@@ -720,3 +720,9 @@ def WmiExecuteQueryCallback(class_name, filtered_where_key_values):
         object_path_node = lib_util.NodeUrl(object_path)
         yield ( object_path_node, dict_key_values )
 
+#Pour les associateurs,
+#extraire de la requete sparql les paires ou l object est aussi une variable instance de classe/
+#Ces pairs sont des associateurs
+#Soit on les retire a part de l instance, soit on indique que c est une variable non-literale.
+
+#Extraire aussi quand le predicat est rdf:type ou rdf:attribute.
