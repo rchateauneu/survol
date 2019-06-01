@@ -26,7 +26,6 @@ sys.path.insert(0,"../survol")
 
 # This is what we want to test.
 import lib_sparql
-import lib_client
 import lib_util
 import lib_properties
 import lib_kbase
@@ -97,30 +96,28 @@ def UnitTestExecuteQueryCallback(class_name, where_key_values):
 # The query function returns RDF nodes.
 # Therefore, for tests, this is a helper function which returns dict of strings.
 def QueryKeyValuePairs(dictEntitiesByVariable, execute_query_callback, predicate_prefix):
+    def QueriesEntitiesToValuePairs(iter_entities_dicts):
+        for one_entities_dict in iter_entities_dicts:
+
+            one_entities_dict_qname = {}
+            for variable_name, one_entity in one_entities_dict.items():
+                print("one_entity=",one_entity)
+
+
+                dict_qname_value = {}
+                for key_node,val_node in one_entity.m_predicate_object_dict.items():
+                    qname_key = lib_properties.PropToQName(key_node)
+                    str_val = str(val_node)
+                    dict_qname_value[qname_key] = str_val
+                one_entities_dict_qname[variable_name] = dict_qname_value
+            yield one_entities_dict_qname
+
     iter_entities_dicts = lib_sparql.QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_prefix)
     return QueriesEntitiesToValuePairs(iter_entities_dicts)
-
-def QueriesEntitiesToValuePairs(iter_entities_dicts):
-    for one_entities_dict in iter_entities_dicts:
-
-        one_entities_dict_qname = {}
-        for variable_name, one_entity in one_entities_dict.items():
-            print("one_entity=",one_entity)
-
-
-            dict_qname_value = {}
-            for key_node,val_node in one_entity.m_predicate_object_dict.items():
-                qname_key = lib_properties.PropToQName(key_node)
-                str_val = str(val_node)
-                dict_qname_value[qname_key] = str_val
-            one_entities_dict_qname[variable_name] = dict_qname_value
-        yield one_entities_dict_qname
-
 
 
 class SurvolSparqlTest(unittest.TestCase):
 
-    # Test parsing.
     @staticmethod
     def queries_test(test_pairs_array):
         for sparql_qry,expected_result in test_pairs_array:
@@ -700,48 +697,107 @@ class SurvolSparqlTest(unittest.TestCase):
         ]
 
         for sparql_query, expected_results in array_survol_queries:
-            print("===================================================")
             print("sparql_query=",sparql_query)
 
             url_sparql = RemoteTestAgent + "/survol/sparql.py?query=" + lib_util.urllib_quote(sparql_query)
-            print("url_sparql=",url_sparql)
 
             response = lib_util.survol_urlopen(url_sparql)
             data = response.read().decode("utf-8")
-            print("data=",data)
 
+class SparqlServerWMITest(unittest.TestCase):
+    """
+    Test the Sparql server which works on Survol data.
+    The attributes in the SparQL query must match the ontology of the query callback function.
+    """
 
-    def test_sparql_server_wmi(self):
-        """
-        Test the Sparql server which works on Survol data.
-        The attributes in the SparQL query must match the ontology of the query callback function.
-        """
-        array_wmi_queries=[
-            [
-            """
+    @staticmethod
+    def __load_wmi_query(sparql_query):
+        print("sparql_query=",sparql_query)
+
+        url_sparql = RemoteTestAgent + "/survol/sparql_wmi.py?query=" + lib_util.urllib_quote(sparql_query)
+
+        response = lib_util.survol_urlopen(url_sparql)
+        docXmlRdf = response.read().decode("utf-8")
+
+        # Strip the header: "Content-Type: application/xml; charset=utf-8"
+        # TODO: Why not stripping it in lib_client.
+        splitXml = "".join(docXmlRdf.split("\n")[2:])
+
+        # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
+        # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
+        grphKBase = lib_kbase.triplestore_from_rdf_xml(splitXml)
+        return grphKBase
+
+    def test_Win32_UserAccount(self):
+        sparql_query="""
             PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_dir rdf:type "Win32_UserAccount" .
+            { ?url_user rdf:type "Win32_UserAccount" .
             }
-            """,
-                "xxx"
-            ],
-        ]
+            """
 
-        for sparql_query, expected_results in array_wmi_queries:
-            print("===================================================")
-            print("sparql_query=",sparql_query)
+        grphKBase = self.__load_wmi_query(sparql_query)
 
-            url_sparql = RemoteTestAgent + "/survol/sparql_wmi.py?query=" + lib_util.urllib_quote(sparql_query)
-            print("url_sparql=",url_sparql)
+        # We should find at least the current user.
+        # TODO: Uppercase problem: Hostnames by convention should be in lowercase.
+        # RFC-4343: DNS should be case insensitive.
+        # Lower case has been the standard usage ever since there has been domain name servers.
+        # expectedPath= '\\rchateau-hp\root\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="rchateau"'
+        # rdfSubject= '\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+        expectedPath = '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="%s"' % ( CurrentMachine, CurrentMachine, CurrentUsername )
+        foundPath = False
+        print("expectedPath=",expectedPath)
+        for rdfSubject, rdfPredicate, rdfObject in grphKBase:
+            if rdfSubject.upper() == expectedPath.upper():
+                foundPath = True
+                break
+            print("rdfSubject=",rdfSubject)
+        assert(foundPath)
 
-            response = lib_util.survol_urlopen(url_sparql)
-            data = response.read().decode("utf-8")
-            print("data=",data)
+    def test_Win32_LogicalDisk(self):
+        sparql_query="""
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_disk rdf:type "Win32_LogicalDisk" .
+              ?url_disk wmi:DeviceID "C:" .
+            }
+            """
+
+        grphKBase = self.__load_wmi_query(sparql_query)
+
+        # "\\RCHATEAU-HP\root\cimv2:Win32_LogicalDisk.DeviceID="C:" http://primhillcomputers.com/survol/Name C:"
+        expectedPath = '\\\\%s\\root\\cimv2:Win32_LogicalDisk.DeviceID="C:"' % ( CurrentMachine )
+        #foundPath = False
+        #print("expectedPath=",expectedPath)
+        for rdfSubject, rdfPredicate, rdfObject in grphKBase:
+            print(rdfSubject, rdfPredicate, rdfObject)
+
+    def test_CIM_Process(self):
+        sparql_query="""
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_proc rdf:type "CIM_Process" .
+              ?url_proc wmi:Name "python.exe" .
+            }
+            """
+
+        grphKBase = self.__load_wmi_query(sparql_query)
+
+        for rdfSubject, rdfPredicate, rdfObject in grphKBase:
+            print(rdfSubject, rdfPredicate, rdfObject)
 
 
+# This works: gwmi -Query 'xxxxx'
+# ASSOCIATORS OF {Win32_Process.Handle=1520}
+# ASSOCIATORS OF {CIM_Process.Handle=1520}
+# ASSOCIATORS OF {CIM_Process.Handle=1520} where classdefsonly
+# ASSOCIATORS OF {CIM_Process.Handle=1520} where resultclass=CIM_DataFile
 
 if __name__ == '__main__':
     unittest.main()

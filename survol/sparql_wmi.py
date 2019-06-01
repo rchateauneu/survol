@@ -39,7 +39,11 @@ def Main():
     sys.stderr.write("iter_entities_dicts=%s\n"%dir(iter_entities_dicts))
 
     for one_dict_entity in iter_entities_dicts:
-        pass
+        sys.stderr.write("one_dict_entity=%s\n"%one_dict_entity)
+        for variable_name, sparql_object in one_dict_entity.items():
+            # Dictionary of variable names to PathPredicateObject
+            for key,val in sparql_object.m_predicate_object_dict.items():
+                grph.add((sparql_object.m_subject_path,key,val))
 
     # apres execution du sparql dans le nouveau grph
     envSparql.WriteTripleStoreAsString(grph)
