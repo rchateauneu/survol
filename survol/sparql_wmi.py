@@ -31,10 +31,7 @@ def Main():
 
     sparql_query = envSparql.Query()
 
-    dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
-    sys.stderr.write("dictEntitiesByVariable=%s\n"%dictEntitiesByVariable)
-
-    iter_entities_dicts = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_wmi.WmiExecuteQueryCallback, "wmi")
+    iter_entities_dicts = lib_sparql.QueryEntities(sparql_query, lib_wmi.WmiExecuteQueryCallback)
 
     sys.stderr.write("iter_entities_dicts=%s\n"%dir(iter_entities_dicts))
 
