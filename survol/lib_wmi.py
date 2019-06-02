@@ -701,7 +701,8 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
                 exc = sys.exc_info()[1]
                 yield( prpProp, lib_common.NodeLiteral( str(exc) ) )
 
-def WmiExecuteQueryCallback(class_name, filtered_where_key_values):
+
+def WmiExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key_values):
     ERROR("WmiExecuteQueryCallback class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
 
     wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values,class_name)

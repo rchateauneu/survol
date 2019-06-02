@@ -65,15 +65,14 @@ dict_test_data = {
     ],
 }
 
+
 # This returns an iterator on hard-coded objects, of a given class,
 # which must match the input key-value pairs.
 # Each object is modelled by a key-value dictionary.
-def UnitTestExecuteQueryCallback(class_name, where_key_values):
+def UnitTestExecuteQueryCallback(class_name, predicate_prefix, where_key_values):
     print("UnitTestExecuteQueryCallback class_name=",class_name," where_key_values=",where_key_values)
 
-    test_key_value_pairs_list = dict_test_data[class_name]
-
-    def CheckKeyValIncluded(one_data):
+    def _check_key_val_included(one_data):
         try:
             for one_key,one_val in where_key_values.items():
                 # Comparison in string.
@@ -83,19 +82,55 @@ def UnitTestExecuteQueryCallback(class_name, where_key_values):
         except KeyError:
             return False
 
-    def KeyValuesToRdf(key_value_pair_dict):
+    def _key_values_to_rdf(key_value_pair_dict):
         return {
             lib_properties.MakeProp(key):lib_util.NodeLiteral(value)
             for key,value in key_value_pair_dict.items()
         }
 
+    # Conventional behaviour to return the ontology
+    if class_name == None and predicate_prefix == "rdf":
+        for where_key, where_val in where_key_values.items():
+            if where_key == 'range':
+                if isinstance( where_val, lib_sparql.QueryVariable ):
+                    for class_name, sample_values in dict_test_data.items():
+                        for data_key in sample_values[0]:
+                            yield ( lib_util.NodeUrl("hard_coded_class_path_"+data_key), _key_values_to_rdf( { "__class__" : class_name, "__property__": data_key} ) )
+                    return
+                else:
+                    sample_values = dict_test_data[where_val]
+                    for data_key in sample_values[0]:
+                        yield ( lib_util.NodeUrl("hard_coded_class_path_"+data_key), _key_values_to_rdf( { "__class__" : class_name, "__property__": data_key} ) )
+                    return
+            elif where_key == 'domain':
+                raise Exception("Not implemented yet %s"%where_key)
+            elif where_key == 'Property':
+                raise Exception("Not implemented yet %s"%where_key)
+            elif where_key == 'Class':
+                raise Exception("Not implemented yet %s"%where_key)
+            elif where_key == 'subClassOf':
+                raise Exception("Not implemented yet %s"%where_key)
+            else:
+                raise Exception("Undefined predicate %s"%where_key)
+
+        # rdfs:range rdf:Property rdfs:domain rdfs:Class rdfs:subClassOf
+
+
+    # ( ?subj rdf:type rdf:type )
+    if class_name == 'rdf:type':
+        for class_name in dict_test_data:
+            yield ( lib_util.NodeUrl("hard_coded_class_path_"+class_name), _key_values_to_rdf( { "__class__" : class_name} ) )
+        return
+
+    test_key_value_pairs_list = dict_test_data[class_name]
+
     for one_key_value_pair_dict in test_key_value_pairs_list:
-        if CheckKeyValIncluded(one_key_value_pair_dict):
-            yield ( lib_util.NodeUrl("hard_coded_path"), KeyValuesToRdf( one_key_value_pair_dict ) )
+        if _check_key_val_included(one_key_value_pair_dict):
+            yield ( lib_util.NodeUrl("hard_coded_path"), _key_values_to_rdf( one_key_value_pair_dict ) )
 
 # The query function returns RDF nodes.
 # Therefore, for tests, this is a helper function which returns dict of strings.
-def QueryKeyValuePairs(dictEntitiesByVariable, execute_query_callback, predicate_prefix):
+def QueryKeyValuePairs(sparql_query, execute_query_callback):
     def QueriesEntitiesToValuePairs(iter_entities_dicts):
         for one_entities_dict in iter_entities_dicts:
 
@@ -103,8 +138,8 @@ def QueryKeyValuePairs(dictEntitiesByVariable, execute_query_callback, predicate
             for variable_name, one_entity in one_entities_dict.items():
                 print("one_entity=",one_entity)
 
-
-                dict_qname_value = {}
+                # Special attribute for debugging.
+                dict_qname_value = { "__class__" : one_entity.m_entity_class_name }
                 for key_node,val_node in one_entity.m_predicate_object_dict.items():
                     qname_key = lib_properties.PropToQName(key_node)
                     str_val = str(val_node)
@@ -112,7 +147,7 @@ def QueryKeyValuePairs(dictEntitiesByVariable, execute_query_callback, predicate
                 one_entities_dict_qname[variable_name] = dict_qname_value
             yield one_entities_dict_qname
 
-    iter_entities_dicts = lib_sparql.QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_prefix)
+    iter_entities_dicts = lib_sparql.QueryEntities(sparql_query, execute_query_callback)
     return QueriesEntitiesToValuePairs(iter_entities_dicts)
 
 
@@ -123,7 +158,7 @@ class SurvolSparqlTest(unittest.TestCase):
         for sparql_qry,expected_result in test_pairs_array:
             print(sparql_qry)
 
-            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_qry)
+            dictEntitiesByVariable = lib_sparql._parse_query_to_key_value_pairs_dict(sparql_qry)
             print(expected_result)
             if(expected_result != dictEntitiesByVariable):
                 print(dictEntitiesByVariable)
@@ -226,12 +261,14 @@ class SurvolSparqlTest(unittest.TestCase):
                   ?t :saidBy        "Bob" .
                 }
                 """,
-                {'t': {u':saidBy': 'Bob', u'rdf:predicate': u'dc:title', u'rdf:subject': lib_sparql.QueryVariable("book"), u'rdf:object': lib_sparql.QueryVariable("title")}}),
+                {'t': {u':saidBy': 'Bob', u'rdf:predicate': u'dc:title', u'rdf:subject': lib_sparql.QueryVariable("book"), u'rdf:object': lib_sparql.QueryVariable("title")}}
+            ),
             (
                 """
                 select distinct ?Concept where {[] a ?Concept} LIMIT 100
                 """,
-                {}),
+                {}
+            ),
             (
                 """
                 PREFIX go: <http://purl.org/obo/owl/GO#>
@@ -333,6 +370,15 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
             {'country': {u'rdfs:label': lib_sparql.QueryVariable("lbl")}}
             ),
+            (
+            """
+            SELECT DISTINCT ?concept
+            WHERE {
+                ?a_subject rdf:type ?a_concept .
+            }
+            """,
+            {'a_subject': {u'rdf:type': lib_sparql.QueryVariable("a_concept")}}
+            ),
         ]
         self.queries_test(query_result_pairs)
 
@@ -361,7 +407,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   {"url_proc":{'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},},
+                   {"url_proc":{'__class__': 'CIM_Process', 'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},},
                ]
             ),
 
@@ -377,7 +423,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   {'url_dir': {'Name': 'C:/Program Files', 'owns': 'himself'},}
+                   {'url_dir': {'__class__': 'CIM_Directory', 'Name': 'C:/Program Files', 'owns': 'himself'},}
                ]
             ),
 
@@ -393,7 +439,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """,
                [
-                   {"url_file": {'Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe', 'owns': 'herself'},}
+                   {"url_file": {'__class__': 'CIM_DataFile', 'Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe', 'owns': 'herself'},}
                ]
             ),
 
@@ -412,8 +458,8 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    {
-                       "url_proc2":{'runs': 'explorer.exe', 'ppid': '123', 'pid': '789', 'user': 'himself'},
-                       "url_proc1":{'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
+                       "url_proc2":{'__class__': 'CIM_Process', 'runs': 'explorer.exe', 'ppid': '123', 'pid': '789', 'user': 'himself'},
+                       "url_proc1":{'__class__': 'CIM_Process', 'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
                    }
                ]
             ),
@@ -439,9 +485,9 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    {
-                       "url_proc":{'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
-                       "url_acct":{'Name': 'herself', 'uid': '222'},
-                    }
+                       "url_proc":{'__class__': 'CIM_Process', 'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
+                       "url_acct":{'__class__': 'Win32_UserAccount', 'Name': 'herself', 'uid': '222'},
+                   }
                ]
             ),
 
@@ -460,20 +506,57 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
                [
                    {
-                       "url_proc":{'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
-                       "url_fil":{'Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe', 'owns': 'herself'},
+                       "url_proc":{'__class__': 'CIM_Process', 'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},
+                       "url_fil":{'__class__': 'CIM_DataFile', 'Name': 'C:/Program Files (x86)/Internet Explorer/iexplore.exe', 'owns': 'herself'},
                    }
                ]
             ),
+            (
+            """
+            SELECT DISTINCT ?a_type
+            WHERE {
+                ?a_type rdf:type rdf:type .
+            }
+            """,
+                [
+                    {"a_type":{'__class__': 'CIM_Directory', },},
+                    {"a_type":{'__class__': 'Win32_UserAccount', },},
+                    {"a_type":{'__class__': 'CIM_Process', },},
+                    {"a_type":{'__class__': 'CIM_DataFile', },},
+                ]
+            ),
+            (
+            """
+            SELECT DISTINCT ?a_property ?a_type
+            WHERE {
+                ?a_property rdf:range 'CIM_Directory' .
+            }
+            """,
+                [
+                    {'a_property': {'__class__': 'None', '__property__': 'Name'}},
+                    {'a_property': {'__class__': 'None', '__property__': 'owns'}},
+                ]
+            ),
+#            (
+#            """
+#            SELECT DISTINCT ?a_property ?a_type
+#            WHERE {
+#                ?a_property rdf:range ?a_type .
+#            }
+#            """,
+#                [
+#                    {
+#                        "a_type":{'__class__': 'CIM_Directory', },
+#                        "a_property":{'__class__': 'CIM_Directory', },
+#                    },
+#                ]
+#            ),
         ]
 
         for sparql_query,expected_results in list_query_to_output_hardcoded:
             print(sparql_query)
 
-            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
-
-            print(dictEntitiesByVariable)
-            itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, UnitTestExecuteQueryCallback, "survol")
+            itr_dict_objects = QueryKeyValuePairs(sparql_query, UnitTestExecuteQueryCallback)
             list_dict_objects = list(itr_dict_objects)
             #list_dict_objects = list(itr_dict_objects.m_predicate_object_dict)
             print("list_dict_objects=",list_dict_objects)
@@ -500,7 +583,7 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """ % CurrentPid,
                [
-                   { "url_proc":{'ppid': str(CurrentParentPid), 'Handle': str(CurrentPid), 'user': CurrentUsername} ,},
+                   { "url_proc":{'ppid': str(CurrentParentPid), 'Handle': str(CurrentPid), 'user': CurrentUsername, '__class__': 'CIM_Process'}},
                ]
             ],
         ]
@@ -509,15 +592,12 @@ class SurvolSparqlTest(unittest.TestCase):
             print("===================================================")
             print(sparql_query)
 
-            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
-
-            print(dictEntitiesByVariable)
             # TODO: Pass several callbacks, processed in a specific order ?
-            itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
+            itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_sparql.SurvolExecuteQueryCallback)
             list_dict_objects = list(itr_dict_objects)
 
             print("list_dict_objects=",list_dict_objects)
-            #print("expected_results=",expected_results)
+            print("expected_results=",expected_results)
             assert(list_dict_objects == expected_results)
 
     def test_sparql_survol_nested(self):
@@ -543,11 +623,8 @@ class SurvolSparqlTest(unittest.TestCase):
             }
             """ % (CurrentPid,CurrentPid)
 
-        dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(nested_qry)
-
-        print(dictEntitiesByVariable)
         # TODO: Pass several callbacks, processed in a specific order ?
-        itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback, "survol")
+        itr_dict_objects = QueryKeyValuePairs(nested_qry, lib_sparql.SurvolExecuteQueryCallback)
         list_dict_objects = list(itr_dict_objects)
 
         print("list_dict_objects=",list_dict_objects)
@@ -612,10 +689,8 @@ class SurvolSparqlTest(unittest.TestCase):
             print("===================================================")
             print(sparql_query)
 
-            dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
-
             # TODO: Pass several callbacks, processed in a specific order ?
-            itr_dict_objects = QueryKeyValuePairs(dictEntitiesByVariable, lib_wmi.WmiExecuteQueryCallback, "wmi")
+            itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiExecuteQueryCallback)
 
             list_dict_objects = list(itr_dict_objects)
 
@@ -652,10 +727,8 @@ class SurvolSparqlTest(unittest.TestCase):
 
         print(sparql_query)
 
-        dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(sparql_query)
-
         # TODO: Pass several callbacks, processed in a specific order ?
-        itr_dict_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_wmi.WmiExecuteQueryCallback, "wmi")
+        itr_dict_objects = lib_sparql.QueryEntities(sparql_query, lib_wmi.WmiExecuteQueryCallback)
 
         list_dict_objects = list(itr_dict_objects)
 
@@ -722,6 +795,9 @@ class SparqlServerWMITest(unittest.TestCase):
         # Strip the header: "Content-Type: application/xml; charset=utf-8"
         # TODO: Why not stripping it in lib_client.
         splitXml = "".join(docXmlRdf.split("\n")[2:])
+
+        print("docXmlRdf=",docXmlRdf)
+        print("splitXml=",splitXml)
 
         # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
         # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.

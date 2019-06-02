@@ -366,7 +366,8 @@ def __extract_key_value_pairs_from_triples(lst_triples):
 #et aussi quand l object est manifestement un node.
 #et quand les proprietes appartiennent a des namespaces differents.
 
-def ParseQueryToEntities(sparql_query):
+
+def _parse_query_to_key_value_pairs_dict(sparql_query):
     lstTriples = __generate_triples_list(sparql_query)
     lstTriplesReplaced = __predicate_substitution(lstTriples)
 
@@ -389,33 +390,50 @@ class QueryVariable:
 
 # This models an object as extracted from a Sparql query.
 class ObjectKeyValues:
-    def __init__(self,class_name,key_values):
+    def __init__(self,class_name, key_values):
         self.m_class_name = class_name
         self.m_key_values = key_values
+        self.m_predicate_prefix = "Undefined prefix"
+        # Get the prefix: They must all be the same.
+        for ent_key, ent_val in self.m_key_values.items():
+            self.m_predicate_prefix, colon, predicate_suffix = ent_key.rpartition(":")
+            print("prefix:",self.m_predicate_prefix,predicate_suffix, ent_val)
+            break
+
     def __repr__(self):
-        return "ObjectKeyValues:" + self.m_class_name + ":" + ",".join( [ "%s=%s" % kv for kv in self.m_key_values.items() ] )
+        title = "ObjectKeyValues:"
+        if self.m_class_name:
+            title += self.m_class_name
+        else:
+            title += "NoClass"
+        title += ":" + ",".join(["%s=%s" % kv for kv in self.m_key_values.items()])
+        return title
 
 # This models a result returned from the execution of the join of a Sparql query.
 class PathPredicateObject:
-    def __init__(self,subject_path,predicate_object_dict):
+    def __init__(self,subject_path, entity_class_name, predicate_object_dict):
         self.m_subject_path = subject_path
+        self.m_entity_class_name = entity_class_name
         self.m_predicate_object_dict = predicate_object_dict
     def __repr__(self):
         return "PathPredicateObject:" + self.m_subject_path
 
+
 # TODO: Several callbacks. Maybe with a key ??
 # TODO: Maybe execute callbacks in a sub-process ?
-def QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_prefix):
+def _run_callback_on_entities(lst_input_object_key_values, execute_query_callback):
 
-    def Evaluate( index, known_variables, tuple_result_input):
-        if index == len(lst_input_entities):
+    def _evaluate_current_entity( index, known_variables, tuple_result_input):
+        if index == len(lst_input_object_key_values):
             # Deepest level, last entity is reached.
             yield tuple_result_input
             return
-        curr_input_entity = lst_input_entities[index]
+        curr_input_entity = lst_input_object_key_values[index]
+        predicate_prefix = curr_input_entity.m_predicate_prefix
 
         where_key_values = {}
         dict_variable_to_attribute = {}
+        print("curr_input_entity=",curr_input_entity)
         for key_as_str in curr_input_entity.m_key_values:
             value_attribute = curr_input_entity.m_key_values[key_as_str]
             if isinstance(value_attribute,QueryVariable):
@@ -439,9 +457,9 @@ def QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_
             return attribute_key_node
 
         print("    "*index + "dict_variable_to_attribute=",dict_variable_to_attribute)
-        for oneEntity in CallbackFilter(execute_query_callback, predicate_prefix, curr_input_entity.m_class_name, where_key_values):
+        for oneEntity in _callback_filter(execute_query_callback, curr_input_entity.m_class_name, predicate_prefix, where_key_values):
             # The result is made of URL to CIM objects.
-            output_entity = PathPredicateObject(oneEntity[0], oneEntity[1] )
+            output_entity = PathPredicateObject(oneEntity[0], curr_input_entity.m_class_name, oneEntity[1] )
 
             for variable_name in dict_variable_to_attribute:
                 attribute_key = dict_variable_to_attribute[variable_name]
@@ -449,37 +467,38 @@ def QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_
                 known_variables[variable_name] = output_entity.m_predicate_object_dict[attribute_key_node]
 
             tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
-            output_results = Evaluate( index + 1, known_variables, tuple_result_extended)
+            output_results = _evaluate_current_entity(index + 1, known_variables, tuple_result_extended)
             for one_resu in output_results:
                 yield one_resu
 
-    itr_tuple_results = Evaluate(0,known_variables={},tuple_result_input=tuple())
+    itr_tuple_results = _evaluate_current_entity(0, known_variables={}, tuple_result_input=tuple())
     for tuple_results in itr_tuple_results:
         yield tuple_results
 
-def QueryEntities(dictEntitiesByVariable, execute_query_callback, predicate_prefix):
-    # This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
-    def ExtractClass(key_vals):
-        # If the class is not defined, cannot query.
-        # TODO: Consider base classes ??
+
+def QueryEntities(sparql_query, execute_query_callback):
+
+    dictEntitiesByVariable = _parse_query_to_key_value_pairs_dict(sparql_query)
+
+    # The order of nested loops is very important for performances.
+    # Input entities might be reordered here.
+    lst_input_object_key_values = []
+    for variable_name in dictEntitiesByVariable:
+        # This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
+        key_vals = dictEntitiesByVariable[variable_name]
         try:
             class_name = key_vals['rdf:type']
             del key_vals['rdf:type']
         except KeyError:
-            return (None,None)
-
-        return ObjectKeyValues( class_name, key_vals )
-
-    # The order of nested loops is very important for performances.
-    # Input entities might be reordered here.
-    lst_input_entities = []
-    for variable_name in dictEntitiesByVariable:
-        one_input_entity = ExtractClass( dictEntitiesByVariable[variable_name] )
-        lst_input_entities.append( one_input_entity )
+            class_name = None
+        one_input_entity = ObjectKeyValues(class_name, key_vals )
+        lst_input_object_key_values.append( one_input_entity )
+    print("lst_input_object_key_values=", lst_input_object_key_values)
 
     input_keys = dictEntitiesByVariable.keys()
-    for tuple_results in QueryEntitiesFromList(lst_input_entities, execute_query_callback, predicate_prefix):
+    for tuple_results in _run_callback_on_entities(lst_input_object_key_values, execute_query_callback ):
         yield dict(zip(input_keys,tuple_results))
+
 
 def ObjectsToGrph(grph,list_objects):
     for curr_input_entity in list_objects:
@@ -489,27 +508,30 @@ def ObjectsToGrph(grph,list_objects):
             grph.add(( nodeObject, lib_properties.MakeProp(attrKey), lib_kbase.MakeNodeLiteral(attrVal) ) )
 
 
-def CallbackFilter(execute_query_callback, predicate_prefix, class_name, where_key_values):
+def _callback_filter(execute_query_callback, class_name, predicate_prefix, where_key_values):
+    #print("predicate_prefix=",predicate_prefix)
     # The attributes will contain a RDF namespace
     predicate_prefix_colon = predicate_prefix + ":"
 
     filtered_where_key_values = {}
     for sparql_key, sparql_value in where_key_values.items():
+        #print("sparql_key=",sparql_key)
         assert( sparql_key.startswith(predicate_prefix_colon) )
         short_key = sparql_key[len(predicate_prefix_colon):]
         # The local predicate names have to be unique.
         assert(short_key not in filtered_where_key_values)
         filtered_where_key_values[short_key] = sparql_value
 
-    iter_enumeration = execute_query_callback( class_name, filtered_where_key_values )
+    iter_enumeration = execute_query_callback( class_name, predicate_prefix, filtered_where_key_values )
 
     return iter_enumeration
+
 
 # This returns an iterator of a given class,
 # which must match the input key-value pairs.
 # Each object is modelled by a key-value dictionary.
 # No need to return the class name because it is an input parameter.
-def SurvolExecuteQueryCallback(class_name, filtered_where_key_values):
+def SurvolExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key_values):
     print("SurvolExecuteQueryCallback class_name=", class_name, " where_key_values=", filtered_where_key_values)
 
     entity_module = lib_util.GetEntityModule(class_name)

@@ -19,13 +19,9 @@ def Main():
 
     grph = lib_kbase.MakeGraph()
 
-    qry = envSparql.Query()
+    sparql_query = envSparql.Query()
 
-    dictEntitiesByVariable = lib_sparql.ParseQueryToEntities(qry)
-
-    print(dictEntitiesByVariable)
-    print("***************************************************")
-    itr_tuple_objects = lib_sparql.QueryEntities(dictEntitiesByVariable, lib_sparql.SurvolExecuteQueryCallback)
+    itr_tuple_objects = lib_sparql.QueryEntities(sparql_query, lib_sparql.SurvolExecuteQueryCallback)
 
     grph = lib_kbase.MakeGraph()
 
