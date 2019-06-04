@@ -88,20 +88,18 @@ def UnitTestExecuteQueryCallback(class_name, predicate_prefix, where_key_values)
             for key,value in key_value_pair_dict.items()
         }
 
+    # FIXME: CA NE RENTRE PAS DANS LE MODELE D'UNE FONCTION QUI RENVOIE DES OBJETS.
+    # FIXME: AUTRE PROBLEME: ON NE SAIT PAS MODELISER LES ASSOCIATIONS.
+    # FIXME: MAIS C EST INDISPENSABLE POUR LES JOINTURES.
+
     # Conventional behaviour to return the ontology
     if class_name == None and predicate_prefix == "rdf":
         for where_key, where_val in where_key_values.items():
-            if where_key == 'range':
-                if isinstance( where_val, lib_sparql.QueryVariable ):
-                    for class_name, sample_values in dict_test_data.items():
-                        for data_key in sample_values[0]:
-                            yield ( lib_util.NodeUrl("hard_coded_class_path_"+data_key), _key_values_to_rdf( { "__class__" : class_name, "__property__": data_key} ) )
-                    return
-                else:
-                    sample_values = dict_test_data[where_val]
-                    for data_key in sample_values[0]:
-                        yield ( lib_util.NodeUrl("hard_coded_class_path_"+data_key), _key_values_to_rdf( { "__class__" : class_name, "__property__": data_key} ) )
-                    return
+            if where_key == 'domain':
+                sample_values = dict_test_data[where_val]
+                for data_key in sample_values[0]:
+                    yield ( lib_util.NodeUrl("hard_coded_class_path_"+data_key), _key_values_to_rdf( { "__class__" : class_name, "__property__": data_key} ) )
+                return
             elif where_key == 'domain':
                 raise Exception("Not implemented yet %s"%where_key)
             elif where_key == 'Property':
@@ -113,7 +111,18 @@ def UnitTestExecuteQueryCallback(class_name, predicate_prefix, where_key_values)
             else:
                 raise Exception("Undefined predicate %s"%where_key)
 
-        # rdfs:range rdf:Property rdfs:domain rdfs:Class rdfs:subClassOf
+        assert( not where_key_values )
+
+        # It means: "?a_property rdf:domain ?a_type". Return list of classes and properties.
+        # FIXME: This is completely broken.
+        for class_name, sample_values in dict_test_data.items():
+            for data_key in sample_values[0]:
+                print("class_name=", class_name, " data_key=", data_key)
+                # It returns the value "domain" because this variable is instantiated as a class name.
+                yield (
+                    lib_util.NodeUrl("hard_coded_class_path_"+class_name+"_"+data_key),
+                    _key_values_to_rdf( { "__class__" : class_name, "__property__": data_key, "domain": class_name} ) )
+        return
 
 
     # ( ?subj rdf:type rdf:type )
@@ -529,7 +538,7 @@ class SurvolSparqlTest(unittest.TestCase):
             """
             SELECT DISTINCT ?a_property ?a_type
             WHERE {
-                ?a_property rdf:range 'CIM_Directory' .
+                ?a_property rdf:domain 'CIM_Directory' .
             }
             """,
                 [
@@ -537,20 +546,26 @@ class SurvolSparqlTest(unittest.TestCase):
                     {'a_property': {'__class__': 'None', '__property__': 'owns'}},
                 ]
             ),
-#            (
-#            """
-#            SELECT DISTINCT ?a_property ?a_type
-#            WHERE {
-#                ?a_property rdf:range ?a_type .
-#            }
-#            """,
-#                [
-#                    {
-#                        "a_type":{'__class__': 'CIM_Directory', },
-#                        "a_property":{'__class__': 'CIM_Directory', },
-#                    },
-#                ]
-#            ),
+            (
+            """
+            SELECT DISTINCT ?a_property ?a_type
+            WHERE {
+                ?a_property rdf:domain ?a_type .
+            }
+            """,
+                [
+                    {'a_property': {'domain': 'CIM_Directory', '__class__': 'CIM_Directory', '__property__': 'Name'}},
+                    {'a_property': {'domain': 'CIM_Directory', '__class__': 'CIM_Directory', '__property__': 'owns'}},
+                    {'a_property': {'domain': 'Win32_UserAccount', '__class__': 'Win32_UserAccount', '__property__': 'uid'}},
+                    {'a_property': {'domain': 'Win32_UserAccount', '__class__': 'Win32_UserAccount', '__property__': 'Name'}},
+                    {'a_property': {'domain': 'CIM_Process', '__class__': 'CIM_Process', '__property__': 'runs'}},
+                    {'a_property': {'domain': 'CIM_Process', '__class__': 'CIM_Process', '__property__': 'ppid'}},
+                    {'a_property': {'domain': 'CIM_Process', '__class__': 'CIM_Process', '__property__': 'pid'}},
+                    {'a_property': {'domain': 'CIM_Process', '__class__': 'CIM_Process', '__property__': 'user'}},
+                    {'a_property': {'domain': 'CIM_DataFile', '__class__': 'CIM_DataFile', '__property__': 'Name'}},
+                    {'a_property': {'domain': 'CIM_DataFile', '__class__': 'CIM_DataFile', '__property__': 'owns'}}
+                ]
+            ),
         ]
 
         for sparql_query,expected_results in list_query_to_output_hardcoded:

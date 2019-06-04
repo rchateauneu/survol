@@ -1,38 +1,16 @@
 #!/usr/bin/python
 
 """
-This SPARQL server translates SPARQL queries into Survol data model.
+Mandatory SPARQL end-point
+
+It extracts data from Survol, WMI or WBEM, then runs a Sparql query on the current RDF triplestore.
+This triplestore can also be updated by events.
 """
 
-# See Experimental/Test_package_sparqlwrapper.py
+# Ca n est pas la meme chose que les trois scripts specifiques qui prechargent le triplestore
+# et renvoient sont contenu.
+# Ici, on precharge le triplestore, mais on renvoie le  result de la requete Sparql.
 
-import os
-import sys
-import lib_util
-import lib_kbase
-import lib_sparql
-
-# HTTP_HOST and SERVER_NAME and SERVER_PORT
-
-def Main():
-    envSparql = lib_sparql.SparqlEnvironment()
-
-    grph = lib_kbase.MakeGraph()
-
-    sparql_query = envSparql.Query()
-
-    itr_tuple_objects = lib_sparql.QueryEntities(sparql_query, lib_sparql.SurvolExecuteQueryCallback)
-
-    grph = lib_kbase.MakeGraph()
-
-    list_tuple_objects = list(itr_tuple_objects)
-    for one_objects_tuple in list_tuple_objects:
-        lib_sparql.ObjectsToGrph(grph,one_objects_tuple)
-
-    envSparql.WriteTripleStoreAsString(grph)
-
-
-
-if __name__ == '__main__':
-    Main()
-
+# Ca doit remplacer aussi la recherche: Strings etc..., recherche sur des paths
+# Il faudrait renvoyer des resultats au fur et a mesure,
+# ou passer des parametres de recherche dans la query sparql.
