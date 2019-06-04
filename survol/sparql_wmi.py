@@ -31,18 +31,8 @@ def Main():
 
     sparql_query = envSparql.Query()
 
-    iter_entities_dicts = lib_sparql.QueryEntities(sparql_query, lib_wmi.WmiExecuteQueryCallback)
+    lib_sparql.QueryToGraph(grph,sparql_query, lib_wmi.WmiExecuteQueryCallback)
 
-    sys.stderr.write("iter_entities_dicts=%s\n"%dir(iter_entities_dicts))
-
-    for one_dict_entity in iter_entities_dicts:
-        sys.stderr.write("one_dict_entity=%s\n"%one_dict_entity)
-        for variable_name, sparql_object in one_dict_entity.items():
-            # Dictionary of variable names to PathPredicateObject
-            for key,val in sparql_object.m_predicate_object_dict.items():
-                grph.add((sparql_object.m_subject_path,key,val))
-
-    # apres execution du sparql dans le nouveau grph
     envSparql.WriteTripleStoreAsString(grph)
 
 if __name__ == '__main__':

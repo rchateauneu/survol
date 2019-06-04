@@ -415,58 +415,91 @@ class PathPredicateObject:
         self.m_subject_path = subject_path
         self.m_entity_class_name = entity_class_name
         self.m_predicate_object_dict = predicate_object_dict
+
     def __repr__(self):
-        return "PathPredicateObject:" + self.m_subject_path
+        return "PathPredicateObject:" + self.m_subject_path + ";class="+str(self.m_entity_class_name) + ";dict="+str(self.m_predicate_object_dict)
+
+
+def _callback_filter(execute_query_callback, class_name, predicate_prefix, where_key_values):
+    # Si cette combinaison de key-values a deja ete executee, reutiliser le resultat ?
+
+    # print("predicate_prefix=",predicate_prefix)
+    # The attributes will contain a RDF namespace
+    predicate_prefix_colon = predicate_prefix + ":"
+
+    filtered_where_key_values = {}
+    for sparql_key, sparql_value in where_key_values.items():
+        # print("sparql_key=",sparql_key)
+        assert( sparql_key.startswith(predicate_prefix_colon) )
+        short_key = sparql_key[len(predicate_prefix_colon):]
+        # The local predicate names have to be unique.
+        assert(short_key not in filtered_where_key_values)
+        filtered_where_key_values[short_key] = sparql_value
+
+    iter_enumeration = execute_query_callback( class_name, predicate_prefix, filtered_where_key_values )
+
+    return iter_enumeration
 
 
 # TODO: Several callbacks. Maybe with a key ??
 # TODO: Maybe execute callbacks in a sub-process ?
+# TODO: Maybe not recursive run because it is too slow.
+# TODO: Rather run them once each.
 def _run_callback_on_entities(lst_input_object_key_values, execute_query_callback):
 
     def _evaluate_current_entity( index, known_variables, tuple_result_input):
         if index == len(lst_input_object_key_values):
-            # Deepest level, last entity is reached.
+            # Deepest level, last entity is reached, so return a result set.
             yield tuple_result_input
             return
         curr_input_entity = lst_input_object_key_values[index]
         predicate_prefix = curr_input_entity.m_predicate_prefix
 
-        where_key_values = {}
+        where_key_values_replaced = {}
         dict_variable_to_attribute = {}
-        print("curr_input_entity=",curr_input_entity)
-        for key_as_str in curr_input_entity.m_key_values:
-            value_attribute = curr_input_entity.m_key_values[key_as_str]
-            if isinstance(value_attribute,QueryVariable):
+        #print("curr_input_entity=", curr_input_entity)
+        for key_as_str, value_attribute in curr_input_entity.m_key_values.items():
+            if isinstance(value_attribute, QueryVariable):
                 variable_name = value_attribute.m_variable_name
                 if variable_name in known_variables:
-                    where_key_values[key_as_str] = known_variables[variable_name]
+                    where_key_values_replaced[key_as_str] = known_variables[variable_name]
                 else:
                     # Variable is not known yet
                     dict_variable_to_attribute[variable_name] = key_as_str
             else:
-                where_key_values[key_as_str] = value_attribute
+                where_key_values_replaced[key_as_str] = value_attribute
+        # SI PAS DE SUBSTITUTION, STOCKER LE RESULTAT UNE BONNE FOIS POUR TOUTES DANS LE TABLEAU lst_input_object_key_values[index]
 
         # TODO: Difficulty mapping property names to nodes.
-        def PropNameToNode(attribute_key):
+        def _property_name_to_node(attribute_key):
             if attribute_key.startswith(predicate_prefix+":"):
                 attribute_key_without_prefix = attribute_key[len(predicate_prefix)+1:]
             else:
                 attribute_key_without_prefix = attribute_key
             # This calculates the qname and should use the graph. Is it what we want ?
-            attribute_key_node = lib_properties.MakeProp(attribute_key_without_prefix)
-            return attribute_key_node
+            return lib_properties.MakeProp(attribute_key_without_prefix)
 
-        print("    "*index + "dict_variable_to_attribute=",dict_variable_to_attribute)
-        for oneEntity in _callback_filter(execute_query_callback, curr_input_entity.m_class_name, predicate_prefix, where_key_values):
+        print("    "*index + "dict_variable_to_attribute=", dict_variable_to_attribute)
+
+
+        # Ne pas appeler plusieurs fois si ce sont les memes valeurs mais reutiliser le resultat.
+
+        iter_recursive_results = _callback_filter(execute_query_callback, curr_input_entity.m_class_name, predicate_prefix, where_key_values_replaced)
+        for object_path_node, dict_key_values in iter_recursive_results:
             # The result is made of URL to CIM objects.
-            output_entity = PathPredicateObject(oneEntity[0], curr_input_entity.m_class_name, oneEntity[1] )
+            output_entity = PathPredicateObject(object_path_node, curr_input_entity.m_class_name, dict_key_values)
+            #print("From callback: output_entity=",output_entity)
 
-            for variable_name in dict_variable_to_attribute:
-                attribute_key = dict_variable_to_attribute[variable_name]
-                attribute_key_node = PropNameToNode(attribute_key)
+            for variable_name, attribute_key in dict_variable_to_attribute.items():
+                #print("variable_name=",variable_name," attribute_key=",attribute_key)
+                attribute_key_node = _property_name_to_node(attribute_key)
+                #print("output_entity.m_predicate_object_dict=",output_entity.m_predicate_object_dict)
                 known_variables[variable_name] = output_entity.m_predicate_object_dict[attribute_key_node]
 
             tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
+
+            # NON: Executer seulement pour chaque combinaison de variables reellement utilisees.
+            # Sinon reutiliser le resultat.
             output_results = _evaluate_current_entity(index + 1, known_variables, tuple_result_extended)
             for one_resu in output_results:
                 yield one_resu
@@ -483,9 +516,10 @@ def QueryEntities(sparql_query, execute_query_callback):
     # The order of nested loops is very important for performances.
     # Input entities might be reordered here.
     lst_input_object_key_values = []
-    for variable_name in dictEntitiesByVariable:
+    for variable_name, key_vals in dictEntitiesByVariable.items():
+        # Some properties prove that the subject cannot be a class instance.
+
         # This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
-        key_vals = dictEntitiesByVariable[variable_name]
         try:
             class_name = key_vals['rdf:type']
             del key_vals['rdf:type']
@@ -495,37 +529,51 @@ def QueryEntities(sparql_query, execute_query_callback):
         lst_input_object_key_values.append( one_input_entity )
     print("lst_input_object_key_values=", lst_input_object_key_values)
 
+
+
+    # ON CHANGE LA LOGIQUE D EXECUTION:
+    # (1) Essayer de trier les objets
+    # (2) A chaque niveau, au lieu d'executer recursivement dans des boucles imbriquees,
+    #     peut-etre n executer qu'une seule fois: ON aura des donnees en trop mais on s'en fiche.
+
+    # En fait, on pourrait decider de splitter lq liste d'objects en deux s'il en realite il n'y as pas
+    # de partage de variable c'est a dire de produit cartesien. Ou bien, on supprime cette variable,
+    # ce qui renvoie davantage de donnees mais au lieu de faire N*M queries on en fait N+M.
+    # Toutefois la taille du resultat ne change pas.
+    # Cependant si on joue habilement des iterateurs, les besoins en memoire ne grandiront pas.
+
+    # ET EN PLUS C EST IDIOT !!
+    # Actuellement si on a deux objets, on va querir l object 2 pour chaque result de l'object 1
+    # meme s'il n'y a aucune variable en commun.
+
+    # Peut-etre supprimer des "where" clause pour reutiliser le resultat venant d'un cache.
+
+    # Donc faut reordonner la liste et eventuellement splitter en plusieurs.
+    # Puis reassembler les resultats en faisant cette fois-c- un produit cartesien.
+    # Mais c'est dommage de traiter deux fois ce produit cartesien bien que de facon diffeernte.
+
     input_keys = dictEntitiesByVariable.keys()
     for tuple_results in _run_callback_on_entities(lst_input_object_key_values, execute_query_callback ):
         yield dict(zip(input_keys,tuple_results))
 
 
-def ObjectsToGrph(grph,list_objects):
-    for curr_input_entity in list_objects:
-        nodeObject = lib_common.gUriGen.UriMakeFromDict(curr_input_entity.m_class_name, curr_input_entity.m_key_values)
+##################################################################################
 
-        for attrKey, attrVal in curr_input_entity.m_key_values.items():
-            grph.add(( nodeObject, lib_properties.MakeProp(attrKey), lib_kbase.MakeNodeLiteral(attrVal) ) )
+def QueryToGraph(grph,sparql_query, execute_query_callback):
+
+    iter_entities_dicts = QueryEntities(sparql_query, execute_query_callback)
+
+    sys.stderr.write("iter_entities_dicts=%s\n"%dir(iter_entities_dicts))
+
+    for one_dict_entity in iter_entities_dicts:
+        sys.stderr.write("one_dict_entity=%s\n"%one_dict_entity)
+        for variable_name, sparql_object in one_dict_entity.items():
+            # Dictionary of variable names to PathPredicateObject
+            for key,val in sparql_object.m_predicate_object_dict.items():
+                grph.add((sparql_object.m_subject_path,key,val))
 
 
-def _callback_filter(execute_query_callback, class_name, predicate_prefix, where_key_values):
-    #print("predicate_prefix=",predicate_prefix)
-    # The attributes will contain a RDF namespace
-    predicate_prefix_colon = predicate_prefix + ":"
-
-    filtered_where_key_values = {}
-    for sparql_key, sparql_value in where_key_values.items():
-        #print("sparql_key=",sparql_key)
-        assert( sparql_key.startswith(predicate_prefix_colon) )
-        short_key = sparql_key[len(predicate_prefix_colon):]
-        # The local predicate names have to be unique.
-        assert(short_key not in filtered_where_key_values)
-        filtered_where_key_values[short_key] = sparql_value
-
-    iter_enumeration = execute_query_callback( class_name, predicate_prefix, filtered_where_key_values )
-
-    return iter_enumeration
-
+##################################################################################
 
 # This returns an iterator of a given class,
 # which must match the input key-value pairs.
