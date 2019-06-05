@@ -1646,7 +1646,7 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
     # If this is hierarchical, there might be duplicates.
     # To make thing simpler, slashes are translated into a dot.
     # NOTE: A difference between Survol and CIM, is that survols carries
-    # the hierarchiy of classes in their names, just like files.
+    # the hierarchy of classes in their names, just like files.
     def SurvolClassToCIM(nameSurvolClass):
         return nameSurvolClass.replace("/",".")
 
