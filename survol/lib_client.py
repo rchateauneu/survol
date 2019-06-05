@@ -932,6 +932,13 @@ class Agent:
         urlContent = self.ExecHttpScript("/survol/print_internal_data_as_json.py")
         return json.loads(urlContent)
 
+
+################################################################################
+def GetOntologyScript(ontology_key):
+    return {
+        "survol":"ontologies/Survol_RDFS.py",
+        "wmi":"ontologies/WMI_RDFS.py",
+        "wbem":"ontologies/WBEM_RDFS.py"}[ontology_key]
 ################################################################################
 def SetDebugMode():
     lib_util.SetLoggingConfig(True)
