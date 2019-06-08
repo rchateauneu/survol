@@ -941,7 +941,8 @@ def GetOntologyScript(ontology_key):
         "wbem":"ontologies/WBEM_RDFS.py"}[ontology_key]
 ################################################################################
 def SetDebugMode():
-    lib_util.SetLoggingConfig(True)
+    import logging
+    lib_util.SetLoggingConfig(logging.DEBUG)
 
 ################################################################################
 
