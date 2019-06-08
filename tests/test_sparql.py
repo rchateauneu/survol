@@ -386,7 +386,7 @@ class SurvolSparqlTest(unittest.TestCase):
             WHERE
             { ?url_proc survol:pid    ?the_pid  .
               ?url_proc survol:ppid  456 .
-              ?url_proc rdf:type "CIM_Process" .
+              ?url_proc rdf:type survol:CIM_Process .
             }
             """,
                [
@@ -400,7 +400,7 @@ class SurvolSparqlTest(unittest.TestCase):
             SELECT ?the_owner
             WHERE
             { ?url_dir survol:Name "C:/Program Files" .
-              ?url_dir rdf:type "CIM_Directory" .
+              ?url_dir rdf:type survol:CIM_Directory .
               ?url_dir survol:owns ?the_owner .
             }
             """,
@@ -416,7 +416,7 @@ class SurvolSparqlTest(unittest.TestCase):
             SELECT ?the_owner
             WHERE
             { ?url_file survol:Name "C:/Program Files (x86)/Internet Explorer/iexplore.exe"  .
-              ?url_file rdf:type "CIM_DataFile" .
+              ?url_file rdf:type survol:CIM_DataFile .
               ?url_file survol:owns ?the_owner .
             }
             """,
@@ -432,10 +432,10 @@ class SurvolSparqlTest(unittest.TestCase):
             SELECT *
             WHERE
             { ?url_proc1 survol:runs  "firefox.exe" .
-              ?url_proc1 rdf:type "CIM_Process" .
+              ?url_proc1 rdf:type survol:CIM_Process .
               ?url_proc1 survol:pid    ?the_pid  .
               ?url_proc2 survol:ppid    ?the_pid  .
-              ?url_proc2 rdf:type "CIM_Process" .
+              ?url_proc2 rdf:type survol:CIM_Process .
             }
             """,
                [
@@ -459,10 +459,10 @@ class SurvolSparqlTest(unittest.TestCase):
             SELECT *
             WHERE
             { ?url_proc survol:runs "firefox.exe" .
-              ?url_proc rdf:type "CIM_Process" .
+              ?url_proc rdf:type survol:CIM_Process .
               ?url_proc survol:user    ?the_username  .
               ?url_acct survol:Name    ?the_username  .
-              ?url_acct rdf:type "Win32_UserAccount" .
+              ?url_acct rdf:type survol:Win32_UserAccount .
             }
             """,
                [
@@ -479,10 +479,10 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_fil rdf:type "CIM_DataFile" .
+            { ?url_fil rdf:type survol:CIM_DataFile .
               ?url_fil survol:owns ?the_username  .
               ?url_proc survol:runs "firefox.exe" .
-              ?url_proc rdf:type "CIM_Process" .
+              ?url_proc rdf:type survol:CIM_Process .
               ?url_proc survol:user ?the_username  .
             }
             """,
@@ -493,20 +493,20 @@ class SurvolSparqlTest(unittest.TestCase):
                    }
                ]
             ),
-            (
-            """
-            SELECT DISTINCT ?a_type
-            WHERE {
-                ?a_type rdf:type rdf:type .
-            }
-            """,
-                [
-                    {"a_type":{'__class__': 'CIM_Directory', },},
-                    {"a_type":{'__class__': 'Win32_UserAccount', },},
-                    {"a_type":{'__class__': 'CIM_Process', },},
-                    {"a_type":{'__class__': 'CIM_DataFile', },},
-                ]
-            ),
+            # (
+            # """
+            # SELECT DISTINCT ?a_type
+            # WHERE {
+            #     ?a_type rdf:type rdf:type .
+            # }
+            # """,
+            #     [
+            #         {"a_type":{'__class__': 'CIM_Directory', },},
+            #         {"a_type":{'__class__': 'Win32_UserAccount', },},
+            #         {"a_type":{'__class__': 'CIM_Process', },},
+            #         {"a_type":{'__class__': 'CIM_DataFile', },},
+            #     ]
+            # ),
         ]
 
         for sparql_query,expected_results in list_query_to_output_hardcoded:
@@ -535,7 +535,7 @@ class SurvolSparqlTest(unittest.TestCase):
             WHERE
             { ?url_proc survol:Handle %d .
               ?url_proc survol:ppid ?the_ppid .
-              ?url_proc rdf:type "CIM_Process" .
+              ?url_proc rdf:type survol:CIM_Process .
             }
             """ % CurrentPid,
                [
@@ -570,12 +570,12 @@ class SurvolSparqlTest(unittest.TestCase):
             {
               ?url_procA survol:Handle %d .
               ?url_procA survol:ppid ?the_ppid .
-              ?url_procA rdf:type "CIM_Process" .
+              ?url_procA rdf:type survol:CIM_Process .
               ?url_procB survol:Handle ?the_ppid .
-              ?url_procB rdf:type "CIM_Process" .
+              ?url_procB rdf:type survol:CIM_Process .
               ?url_procC survol:Handle %d .
               ?url_procC survol:ppid ?the_ppid .
-              ?url_procC rdf:type "CIM_Process" .
+              ?url_procC rdf:type survol:CIM_Process .
             }
             """ % (CurrentPid,CurrentPid)
 
@@ -601,8 +601,8 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
-            { ?url_proc wmi:Handle %d  .
-              ?url_proc rdf:type   "CIM_Process" .
+            { ?url_proc survol:Handle %d  .
+              ?url_proc rdf:type   survol:CIM_Process .
             }
             """ % CurrentPid,
                [
@@ -614,8 +614,8 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
-            { ?url_dir wmi:Name "C:"  .
-              ?url_dir rdf:type "CIM_Directory" .
+            { ?url_dir survol:Name "C:"  .
+              ?url_dir rdf:type survol:CIM_Directory .
             }
             """,
                [
@@ -627,7 +627,7 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_dir rdf:type "Win32_UserAccount" .
+            { ?url_dir rdf:type survol:Win32_UserAccount .
             }
             """,
                [
@@ -675,7 +675,7 @@ class SurvolSparqlTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_dir rdf:type "CIM_DiskDrive" .
+            { ?url_dir rdf:type survol:CIM_DiskDrive .
             }
             """
 
@@ -718,7 +718,7 @@ class SurvolSparqlTest(unittest.TestCase):
             WHERE
             { ?url_proc survol:Handle    ?the_ppid  .
               ?url_proc survol:ppid  %d .
-              ?url_proc rdf:type "CIM_Process" .
+              ?url_proc rdf:type survol:CIM_Process .
             }
             """ % os.getpid(),
                 "xxx"
@@ -766,7 +766,7 @@ class SparqlServerWMITest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_user rdf:type "Win32_UserAccount" .
+            { ?url_user rdf:type survol:Win32_UserAccount .
             }
             """
 
@@ -794,8 +794,8 @@ class SparqlServerWMITest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_disk rdf:type "Win32_LogicalDisk" .
-              ?url_disk wmi:DeviceID "C:" .
+            { ?url_disk rdf:type survol:Win32_LogicalDisk .
+              ?url_disk survol:DeviceID "C:" .
             }
             """
 
@@ -814,8 +814,8 @@ class SparqlServerWMITest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_proc rdf:type "CIM_Process" .
-              ?url_proc wmi:Name "python.exe" .
+            { ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:Name "python.exe" .
             }
             """
 

@@ -389,16 +389,21 @@ class QueryVariable:
 
 
 # This models an object as extracted from a Sparql query.
+# The class name and the predicates still contain the prefix.
 class ObjectKeyValues:
     def __init__(self,class_name, key_values):
-        self.m_class_name = class_name
+        assert(isinstance(class_name,str))
+        self.m_source_prefix, colon, self.m_class_name =  class_name.rpartition(":")
+        print("prefix:", self.m_source_prefix)
+
+        assert(isinstance(key_values,dict))
         self.m_key_values = key_values
-        self.m_predicate_prefix = "Undefined prefix"
         # Get the prefix: They must all be the same.
-        for ent_key, ent_val in self.m_key_values.items():
-            self.m_predicate_prefix, colon, predicate_suffix = ent_key.rpartition(":")
-            print("prefix:",self.m_predicate_prefix,predicate_suffix, ent_val)
-            break
+        #for ent_key, ent_val in self.m_key_values.items():
+        #    predicate_prefix, colon, predicate_suffix = ent_key.rpartition(":")
+        #    # assert( self.m_source_prefix == predicate_prefix )
+        #    print("prefix:",self.m_source_prefix, predicate_suffix, ent_val)
+        #    break
 
     def __repr__(self):
         title = "ObjectKeyValues:"
@@ -429,7 +434,7 @@ def _callback_filter(execute_query_callback, class_name, predicate_prefix, where
 
     filtered_where_key_values = {}
     for sparql_key, sparql_value in where_key_values.items():
-        # print("sparql_key=",sparql_key)
+        print("predicate_prefix_colon=",predicate_prefix_colon," sparql_key=",sparql_key)
         assert( sparql_key.startswith(predicate_prefix_colon) )
         short_key = sparql_key[len(predicate_prefix_colon):]
         # The local predicate names have to be unique.
@@ -453,7 +458,7 @@ def _run_callback_on_entities(lst_input_object_key_values, execute_query_callbac
             yield tuple_result_input
             return
         curr_input_entity = lst_input_object_key_values[index]
-        predicate_prefix = curr_input_entity.m_predicate_prefix
+        predicate_prefix = curr_input_entity.m_source_prefix
 
         where_key_values_replaced = {}
         dict_variable_to_attribute = {}
@@ -521,12 +526,15 @@ def QueryEntities(sparql_query, execute_query_callback):
 
         # This receives the key-value pairs taken from an identity extracted from the triples of a SPARQL query.
         try:
-            class_name = key_vals['rdf:type']
+            class_node = key_vals['rdf:type']
+            # class_name= "survol:CIM_Process" for example.
+            class_name = str(class_node)
+            # print("class_name=",class_name)
             del key_vals['rdf:type']
         except KeyError:
             class_name = None
-        one_input_entity = ObjectKeyValues(class_name, key_vals )
-        lst_input_object_key_values.append( one_input_entity )
+        one_input_entity = ObjectKeyValues(class_name, key_vals)
+        lst_input_object_key_values.append(one_input_entity)
     print("lst_input_object_key_values=", lst_input_object_key_values)
 
 
@@ -559,7 +567,9 @@ def QueryEntities(sparql_query, execute_query_callback):
 
 ##################################################################################
 
-def QueryToGraph(grph,sparql_query, execute_query_callback):
+# This executes a Sparql callback and transforms the returned objects
+# into RDF triples.
+def QueryToGraph(grph, sparql_query, execute_query_callback):
 
     iter_entities_dicts = QueryEntities(sparql_query, execute_query_callback)
 
@@ -570,7 +580,9 @@ def QueryToGraph(grph,sparql_query, execute_query_callback):
         for variable_name, sparql_object in one_dict_entity.items():
             # Dictionary of variable names to PathPredicateObject
             for key,val in sparql_object.m_predicate_object_dict.items():
-                grph.add((sparql_object.m_subject_path,key,val))
+                grph.add((sparql_object.m_subject_path, key,val))
+
+    ### AddOntology(grph)
 
 
 ##################################################################################
@@ -616,6 +628,7 @@ def SurvolExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key_
 
 ##################################################################################
 
+"""
 # Est-ce que ca marche avec les ASSOCIATORS et REFERENCES ?
 # Comment ordonner les boucles ?
 #
@@ -663,4 +676,61 @@ def SurvolExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key_
 # Libre a la fonction de faire ce qu'elle veut.
 # Si un seul object ou bien si les attributs sont la clef, on renvoie l'URL de l'objet.
 # D'ailleurs on ne renvoie que des URLS d'objet, avec les bonnes clefs.
+"""
+
+####################################################
+"""
+On separe en objets.
+On repere les rdfs:seeAlso
+On ne garde que les objets ou il y a un rdfs:seeAlso.
+Le seeAlso donne le script qui va permettre de charger des objets.
+Il peut y avoir plusieurs seeAlso par objet donc c est une liste d paire, pas un dict.
+On met le resultat dans definedBy
+
+?subj rdf:type CIM_Process
+?subj rdfs:seeAlso "WMI"
+=> "select * from CIM_Process"
+
+?subj rdf:type CIM_DataFile
+?subj rdfs:seeAlso "Survol"
+=> sources_types/CIM_Process.Enumerate()
+
+?subj rdf:type CIM_DataFile
+?subj rdfs:seeAlso "sources_types/toto.py"
+=> Execute le script et ne garde que les elements de cette classe.
+
+?subj rdf:type CIM_DataFile
+?subj rdfs:seeAlso "sources_types/CIM_Process/toto.py"
+Si c'est un script d'une classe qu'on n'a pas les parametres, alors echec.
+Echec aussi sil nous manque des arguments.
+
+Les scripts sauf WMI vont renvoyer des scripts donc du seeAlso.
+=> Implicitement, peut etre que WMI devrait aussi avoir des seeAlso ?
+Combien de fois va-t-on iterer ? 
+
+Ou alors:
+On execute le premier seeAlso, on filtre avec le RDF et on voit s'il reste des seeAlso,
+et si oui on les execute a nouveau ?
+=> Il va peuyt-etre forcement en rester ? Ou les triples seeAlso vont eput-etre
+forcement etre elimines ?
+Quoiqu'il en soit il faudrait un mecanisme plus robuste ?
+Peut-on utiliser le resultat des definedBy ?
+Il faudrait pouvoir limiter la profondeur, explicitement.
+
+Dans un premier temps, on peut peut-etre se limiter a un cycle.
+
+Si execution d un script normal:
+- Que faire si les arguments sont donnes ?
+- Que faire si les arguments du script sont des variables ?
+- Comment coordonner le produit cartesien entre les scripts ?
+- Peut-on filtrer la sortie du script en fonction de la classe ?
+=> Peut etre simplement se reposer sur Sparql.
+- Est-ce qu on ne devrait pas, au lieu d un script, donner un module ?
+Ca revient au meme mais c est plus propre
+
+"""
+
+#
+
+
 
