@@ -89,47 +89,30 @@ def UnitTestExecuteQueryCallback(class_name, predicate_prefix, where_key_values)
         }
 
     # FIXME: CA NE RENTRE PAS DANS LE MODELE D'UNE FONCTION QUI RENVOIE DES OBJETS.
+    # FIXME: Il faudrait une autre fonction pour traiter les ontologies.
+
+    # Est ce qu i lpeut y avoir un melange entre les triples qui definissent des objets compatibles avec WMI,
+    # et des triples "ontologiques" ?
+    # Si WMI, on a besoin de la classe et des attributs, donc ca ne peut pas etre des variables:
+    # Ce sont des traitements completement differents.
+    # On pourrait separer les deux et interdire d avoir des variables communes.
+    #
+    # Ou alors, approche differente:
+    # Il y a des callbacks qui recoivent des key-values et renvoient des objects.
+    # On transforme immediatement ces objects en triples des la sortie de la callback.
+    #
+    # Des qu on appelle une callback, on transforme immediatement en triplets.
+    # Et d ailleurs, les callbacks renvoient des triples et pas des objets.
+    #
+    #
+    # En gros, on retire au fur et a mesure des triplets de la query et on remplace
+    # par un triplestore qui grandit au fir et a mesure.
+
+
     # FIXME: AUTRE PROBLEME: ON NE SAIT PAS MODELISER LES ASSOCIATIONS.
     # FIXME: MAIS C EST INDISPENSABLE POUR LES JOINTURES.
-
-    # Conventional behaviour to return the ontology
-    if class_name == None and predicate_prefix == "rdf":
-        for where_key, where_val in where_key_values.items():
-            if where_key == 'domain':
-                sample_values = dict_test_data[where_val]
-                for data_key in sample_values[0]:
-                    yield ( lib_util.NodeUrl("hard_coded_class_path_"+data_key), _key_values_to_rdf( { "__class__" : class_name, "__property__": data_key} ) )
-                return
-            elif where_key == 'domain':
-                raise Exception("Not implemented yet %s"%where_key)
-            elif where_key == 'Property':
-                raise Exception("Not implemented yet %s"%where_key)
-            elif where_key == 'Class':
-                raise Exception("Not implemented yet %s"%where_key)
-            elif where_key == 'subClassOf':
-                raise Exception("Not implemented yet %s"%where_key)
-            else:
-                raise Exception("Undefined predicate %s"%where_key)
-
-        assert( not where_key_values )
-
-        # It means: "?a_property rdf:domain ?a_type". Return list of classes and properties.
-        # FIXME: This is completely broken.
-        for class_name, sample_values in dict_test_data.items():
-            for data_key in sample_values[0]:
-                print("class_name=", class_name, " data_key=", data_key)
-                # It returns the value "domain" because this variable is instantiated as a class name.
-                yield (
-                    lib_util.NodeUrl("hard_coded_class_path_"+class_name+"_"+data_key),
-                    _key_values_to_rdf( { "__class__" : class_name, "__property__": data_key, "domain": class_name} ) )
-        return
-
-
-    # ( ?subj rdf:type rdf:type )
-    if class_name == 'rdf:type':
-        for class_name in dict_test_data:
-            yield ( lib_util.NodeUrl("hard_coded_class_path_"+class_name), _key_values_to_rdf( { "__class__" : class_name} ) )
-        return
+    #SujetUrl association ObjectUrl
+    #Avec WMI, si l object est un URL c est forcement un associator.
 
     test_key_value_pairs_list = dict_test_data[class_name]
 
@@ -379,15 +362,6 @@ class SurvolSparqlTest(unittest.TestCase):
             """,
             {'country': {u'rdfs:label': lib_sparql.QueryVariable("lbl")}}
             ),
-            (
-            """
-            SELECT DISTINCT ?concept
-            WHERE {
-                ?a_subject rdf:type ?a_concept .
-            }
-            """,
-            {'a_subject': {u'rdf:type': lib_sparql.QueryVariable("a_concept")}}
-            ),
         ]
         self.queries_test(query_result_pairs)
 
@@ -419,7 +393,6 @@ class SurvolSparqlTest(unittest.TestCase):
                    {"url_proc":{'__class__': 'CIM_Process', 'runs': 'firefox.exe', 'ppid': '456', 'pid': '123', 'user': 'herself'},},
                ]
             ),
-
             (
             """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -532,38 +505,6 @@ class SurvolSparqlTest(unittest.TestCase):
                     {"a_type":{'__class__': 'Win32_UserAccount', },},
                     {"a_type":{'__class__': 'CIM_Process', },},
                     {"a_type":{'__class__': 'CIM_DataFile', },},
-                ]
-            ),
-            (
-            """
-            SELECT DISTINCT ?a_property ?a_type
-            WHERE {
-                ?a_property rdf:domain 'CIM_Directory' .
-            }
-            """,
-                [
-                    {'a_property': {'__class__': 'None', '__property__': 'Name'}},
-                    {'a_property': {'__class__': 'None', '__property__': 'owns'}},
-                ]
-            ),
-            (
-            """
-            SELECT DISTINCT ?a_property ?a_type
-            WHERE {
-                ?a_property rdf:domain ?a_type .
-            }
-            """,
-                [
-                    {'a_property': {'domain': 'CIM_Directory', '__class__': 'CIM_Directory', '__property__': 'Name'}},
-                    {'a_property': {'domain': 'CIM_Directory', '__class__': 'CIM_Directory', '__property__': 'owns'}},
-                    {'a_property': {'domain': 'Win32_UserAccount', '__class__': 'Win32_UserAccount', '__property__': 'uid'}},
-                    {'a_property': {'domain': 'Win32_UserAccount', '__class__': 'Win32_UserAccount', '__property__': 'Name'}},
-                    {'a_property': {'domain': 'CIM_Process', '__class__': 'CIM_Process', '__property__': 'runs'}},
-                    {'a_property': {'domain': 'CIM_Process', '__class__': 'CIM_Process', '__property__': 'ppid'}},
-                    {'a_property': {'domain': 'CIM_Process', '__class__': 'CIM_Process', '__property__': 'pid'}},
-                    {'a_property': {'domain': 'CIM_Process', '__class__': 'CIM_Process', '__property__': 'user'}},
-                    {'a_property': {'domain': 'CIM_DataFile', '__class__': 'CIM_DataFile', '__property__': 'Name'}},
-                    {'a_property': {'domain': 'CIM_DataFile', '__class__': 'CIM_DataFile', '__property__': 'owns'}}
                 ]
             ),
         ]
@@ -889,6 +830,8 @@ class SparqlServerWMITest(unittest.TestCase):
 # ASSOCIATORS OF {CIM_Process.Handle=1520}
 # ASSOCIATORS OF {CIM_Process.Handle=1520} where classdefsonly
 # ASSOCIATORS OF {CIM_Process.Handle=1520} where resultclass=CIM_DataFile
+
+# Pour les associators, on a besoin des clefs qui designent exactement l'objet: Bref, son URL.
 
 if __name__ == '__main__':
     unittest.main()
