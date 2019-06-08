@@ -19,7 +19,7 @@ def Main():
     graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
-    lib_export_ontology.DumpOntology(graph,onto_filnam)
+    lib_export_ontology.FlushOrSaveRdfGraph(graph,onto_filnam)
 
 if __name__ == '__main__':
     Main()

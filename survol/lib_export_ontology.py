@@ -9,26 +9,23 @@ from lib_properties import pc
 
 ################################################################################
 
-# This dumps the ontology to a HTTP socket.
-# This can also save the results to a file, for later use.
-def DumpOntology(grph, onto_filnam):
-    INFO("DumpOntology l=%s sys.argv=%s",len(sys.argv),str(sys.argv))
+# This dumps the triplestore graph to the current output socket if called
+# in a HTTP server.
+# Otherwise it saves the result to a text file, for testing or debugging.
+def FlushOrSaveRdfGraph(grph, output_rdf_filename):
+    INFO("FlushOrSaveRdfGraph l=%s sys.argv=%s",len(sys.argv),str(sys.argv))
 
     try:
         os.environ["QUERY_STRING"]
-        INFO("DumpOntology to stream")
-        # lib_util.WrtAsUtf("Content-type: text/html\n\n")
+        INFO("FlushOrSaveRdfGraph to stream")
         lib_util.WrtHeader('text/html')
 
         out_dest = lib_util.DfltOutDest()
-        # out_dest.write(u"Content-type: text/html\n\n")
         lib_kbase.triplestore_to_stream_xml(grph,out_dest,'pretty-xml')
 
-        #SaveToStream(out_dest)
     except KeyError:
-        INFO("DumpOntology onto_filnam=%s",onto_filnam)
-        outfil = open(onto_filnam,"w")
-        #SaveToStream(outfil)
+        INFO("FlushOrSaveRdfGraph onto_filnam=%s",output_rdf_filename)
+        outfil = open(output_rdf_filename, "w")
         lib_kbase.triplestore_to_stream_xml(grph,outfil,'pretty-xml')
         outfil.close()
 
@@ -38,6 +35,8 @@ def DumpOntology(grph, onto_filnam):
 # This adds the classes and the properties information,
 # in order to send it to an external database or system.
 # This returns a new graph.
+# FIXME: WHY CREATING A NEW GRAPH ?? Maybe because we could not remove some information ?? Which one ??
+# FIXME: Maybe to remove the scripts ?
 def AddOntology(old_grph):
     DEBUG("AddOntology")
     map_classes = {}
@@ -54,7 +53,23 @@ def AddOntology(old_grph):
         if not class_name:
             return None
 
+        # TODO: Define base classes with rdfs:subClassOf / RDFS.subClassOf
+        # "base_class" and "class_description' ???
+
+        # Pour les ontologi'ed, a-t-on les memes proprietes pour WMI, Survol et WBEM ?
+        # Et sinon, on les fait deriver les unes-des-autres ?
+        # "wmi:Handle" et "survol:Handle" sont la meme chose pour RDF ?
+        # "wmi:CIM_Process" et "survol:CIM_Process" ?
+        # Le fait que RDF puisse exprimer que "Win32_CIM_Process" derive de "CIM_Process" ... L'utiliser.
+        # Comment exprimer dans RDF qu'on veut aller chercher des infos dans le namespace (et donc le serveur)
+        # wmi ou survol, mais que ca renvoie des objects de la meme ontologie ??
+
+
+
         # A class name with the WMI namespace might be produced with this kind of URL:
+
+
+
         # "http://www.primhillcomputers.com/survol#root\CIMV2:CIM_Process"
         class_name = class_name.replace("\\","%5C")
 
@@ -83,7 +98,7 @@ def AddOntology(old_grph):
 
         return class_name
 
-    # This is needed from GraphDB which does not accept spaces and backslashes in URL.
+    # This is needed for GraphDB which does not accept spaces and backslashes in URL.
     def CleanupUrl(nodeUrl):
         strUrl = str(nodeUrl)
         strUrl = strUrl.replace(" ","%20")
@@ -131,7 +146,7 @@ def AddOntology(old_grph):
                 lib_util.AppendPropertySurvolOntology(namePredicate, descriptionPredicate, classSubject, classObject, map_attributes)
 
                 # TODO: Add the property type. Experimental because we know the class of the object, or if this is a literal.
-            new_grph.add( (nodeSubject, nodePredicate, nodeObject))
+            new_grph.add((nodeSubject, nodePredicate, nodeObject))
 
     lib_kbase.CreateRdfsOntology(map_classes, map_attributes, new_grph)
     DEBUG("AddOntology len(grph)=%d map_classes=%d map_attributes=%d len(new_grph)=%d",
@@ -157,7 +172,6 @@ def Grph2Rdf(grph):
     out_dest = lib_util.DfltOutDest()
 
     lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
-    #lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'trix')
     DEBUG("Grph2Rdf leaving")
 
 ################################################################################
