@@ -51,9 +51,7 @@ except ImportError:
 
 ################################################################################
 
-def SetLoggingConfig(isDebug):
-    logLevel = logging.DEBUG if isDebug else logging.INFO
-
+def SetLoggingConfig(logLevel):
     # Reinit: https://stackoverflow.com/questions/12158048/changing-loggings-basicconfig-which-is-already-set
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
@@ -66,7 +64,7 @@ def SetLoggingConfig(isDebug):
         format='%(asctime)s %(levelname)8s %(filename)s %(lineno)d %(message)s',
         level = logLevel)
 
-SetLoggingConfig(False)
+SetLoggingConfig(logging.WARNING)
 
 # Avoid this message:
 # 2018-09-18 21:57:54,868  WARNING rdflib.term term.py 207: http://L... does not look like a valid URI, trying to serialize this will break.
