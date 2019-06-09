@@ -7,6 +7,7 @@ import sys
 import re
 
 PredicateSeeAlso = RDFS.seeAlso
+#PredicateSeeAlso = RDFS.isDefinedBy # ???
 PredicateComment = RDFS.comment
 
 def IsLiteral(objRdf):
@@ -236,12 +237,16 @@ def AddNodeToRdfsClass(grph, nodeObject, className, entity_label):
     grph.add((nodeObject, RDF.type, nodeClass))
     grph.add((nodeObject, RDFS.label, rdflib.Literal(entity_label)))
 
+# This receives an ontology described in a neutral way,
+# and adds to the graph the RDFS nodes describing it.
 def CreateRdfsOntology(map_classes, map_attributes, graph=None):
+    # TODO: Create a cache, because WMI is very slow.
+
+
     # Add the RDFS class to the graph
     def AddClassToRdfsOntology(graph, className, baseClassName, text_descr):
         className = className.strip()
         if not className:
-            className = "EMPTY_CLASS_NAME"
             raise Exception("Empty class name")
 
         nodeClass = RdfsClassNode(className)

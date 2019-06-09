@@ -143,7 +143,7 @@ def QueryKeyValuePairs(sparql_query, execute_query_callback):
     return QueriesEntitiesToValuePairs(iter_entities_dicts)
 
 
-class SurvolSparqlTest(unittest.TestCase):
+class SparqlCallTest(unittest.TestCase):
 
     @staticmethod
     def queries_test(test_pairs_array):
@@ -157,7 +157,7 @@ class SurvolSparqlTest(unittest.TestCase):
             assert(dictEntitiesByVariable==expected_result)
 
     # Generic parse capabilities
-    def test_sparql_parse(self):
+    def test_parse(self):
         query_result_pairs=[
             ("SELECT * WHERE { ?s ?p ?o, ?o2 ; ?p2 ?o3 ; ?p3 [ ?p ?o ] . ?s2 ?p ?o .} ",{}),
             ("SELECT * WHERE { ?x  ?o1  ?name ; ?o2  ?mbox . } ",{}),
@@ -374,7 +374,7 @@ class SurvolSparqlTest(unittest.TestCase):
     # Another step is necessary to transform thesedata into the format of a Sparql output.
     # TODO: There should be a way to specify the associators or references explicitely,
     # TODO: in the SparQL query.
-    def test_sparql_hardcoded(self):
+    def test_hardcoded(self):
 
         list_query_to_output_hardcoded =[
             (
@@ -520,7 +520,7 @@ class SurvolSparqlTest(unittest.TestCase):
             print("expected_results=",expected_results)
             assert(list_dict_objects == expected_results)
 
-    def test_sparql_survol_static(self):
+    def test_survol_static(self):
         """
         Test the Sparql server which works on Survol data.
         The attributes in the SparQL query must match the ontology of the query callback function.
@@ -556,7 +556,7 @@ class SurvolSparqlTest(unittest.TestCase):
             print("expected_results=",expected_results)
             assert(list_dict_objects == expected_results)
 
-    def test_sparql_survol_nested(self):
+    def test_survol_nested(self):
         """
         Test the Sparql server which works on Survol data.
         The attributes in the SparQL query must match the ontology of the query callback function.
@@ -593,7 +593,9 @@ class SurvolSparqlTest(unittest.TestCase):
                 break
         assert(found)
 
-    def test_sparql_wmi(self):
+class SparqlCallWmiTest(unittest.TestCase):
+
+    def test_wmi_query(self):
 
         dict_query_to_output_wmi =[
             ("""
@@ -667,7 +669,7 @@ class SurvolSparqlTest(unittest.TestCase):
                     assert(found_data)
 
 
-    def test_sparql_wmi_to_rdf(self):
+    def test_wmi_to_rdf(self):
         """This inserts the evaluation into a RDF triplestore. """
 
         sparql_query = """
@@ -703,35 +705,91 @@ class SurvolSparqlTest(unittest.TestCase):
                     grph.add((wmiInstanceNode,key_node,value_node))
 
 
+    def test_wmi_associators(self):
+        # "Associators of {CIM_Process.Handle=1780} where ClassDefsOnly"
+        # => Win32_LogonSession Win32_ComputerSystem CIM_DataFile
 
-    def test_sparql_server_survol(self):
-        """
-        Test the Sparql server which works on Survol data.
-        The attributes in the SparQL query must match the ontology of the query callback function.
-        """
-        array_survol_queries=[
-            [
-            """
-            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+        # "associators of {CIM_Process.Handle=1780} where resultclass=CIM_DataFile"
+        # ...
+        # Name: c:\program files\mozilla firefox\firefox.exe
+
+        # "References of {CIM_Process.Handle=1780} where ClassDefsOnly"
+        # => Win32_SessionProcess Win32_SystemProcesses CIM_ProcessExecutable
+
+        # "references of {CIM_Process.Handle=1780} where resultclass=CIM_ProcessExecutable"
+        # ...
+        # Antecedent: \\RCHATEAU - HP\root\cimv2:CIM_DataFile.Name = "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+        # Dependent: \\RCHATEAU - HP\root\cimv2:Win32_Process.Handle = "1780"
+
+
+        # "select * from CIM_DataFile where Name='c:\\program files\\mozilla firefox\\firefox.exe'"
+        # ...
+        # Name: c:\program files\mozilla firefox\firefox.exe
+        # ...
+
+        # "references of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where classdefsonly"
+        # => CIM_DirectoryContainsFile
+
+        # "references of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where resultclass = CIM_DirectoryContainsFile"
+        # ...
+        # GroupComponent: \\RCHATEAU - HP\root\cimv2:Win32_Directory.Name = "c:\\\\program files\\\\mozilla firefox\\"
+        # PartComponent: \\RCHATEAU - HP\root\cimv2:CIM_DataFile.Name = "c:\\\\program files\\\\mozilla firefox\\\\firefox.exe"
+
+        # "associators of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'}"
+        # ... Seems very slow.
+
+        # "associators of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where ClassDefsOnly"
+        # => Win32_Directory
+
+        # "associators of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where assocclass = CIM_DirectoryContainsFile"
+        # => RIEN !?!?!?
+
+        # "associators of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where resultclass=Win32_Directory"
+        # => RIEN !?!?!?
+
+
+
+
+        dict_associators_queries =[
+            ("""
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
-            { ?url_proc survol:Handle    ?the_ppid  .
-              ?url_proc survol:ppid  %d .
+            {
+              ?url_proc survol:Handle %d  .
               ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:CIM_ProcessExecutable ?url_sess .
+              ?url_sess survol:Name "c:/program files/mozilla firefox/firefox.exe" .
+              ?url_sess rdf:type survol:CIM_DataFile .
             }
-            """ % os.getpid(),
-                "xxx"
-            ],
+            """ % CurrentPid,
+               [
+                   {"url_proc": {"Description": "python.exe", "Handle": str(CurrentPid)}},
+               ]
+            ),
         ]
 
-        for sparql_query, expected_results in array_survol_queries:
-            print("sparql_query=",sparql_query)
+        # TODO: How to have backslashes in SparQL queries ???
+        # "C:&#92;Users" 0x5C "C:%5CUsers"
 
-            url_sparql = RemoteTestAgent + "/survol/sparql.py?query=" + lib_util.urllib_quote(sparql_query)
+        import lib_wmi
 
-            response = lib_util.survol_urlopen(url_sparql)
-            data = response.read().decode("utf-8")
+        for sparql_query, expected_results in dict_associators_queries:
+            print("===================================================")
+            print(sparql_query)
+
+            # TODO: Pass several callbacks, processed in a specific order ?
+            itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiExecuteQueryCallback)
+
+            list_dict_objects = list(itr_dict_objects)
+
+
+
+
+
+
 
 class SparqlServerWMITest(unittest.TestCase):
     """
@@ -750,14 +808,14 @@ class SparqlServerWMITest(unittest.TestCase):
 
         # Strip the header: "Content-Type: application/xml; charset=utf-8"
         # TODO: Why not stripping it in lib_client.
-        splitXml = "".join(docXmlRdf.split("\n")[2:])
+        # splitXml = "".join(docXmlRdf.split("\n")[2:])
 
         print("docXmlRdf=",docXmlRdf)
-        print("splitXml=",splitXml)
+        # print("splitXml=",splitXml)
 
         # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
         # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
-        grphKBase = lib_kbase.triplestore_from_rdf_xml(splitXml)
+        grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
         return grphKBase
 
     def test_Win32_UserAccount(self):
@@ -766,7 +824,8 @@ class SparqlServerWMITest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_user rdf:type survol:Win32_UserAccount .
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
             }
             """
 
@@ -823,6 +882,176 @@ class SparqlServerWMITest(unittest.TestCase):
 
         for rdfSubject, rdfPredicate, rdfObject in grphKBase:
             print(rdfSubject, rdfPredicate, rdfObject)
+
+class SparqlServerSurvolTest(unittest.TestCase):
+    """
+    Test the Sparql server which works on Survol data.
+    """
+
+    def test_server_survol(self):
+        array_survol_queries=[
+            [
+            """
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?the_pid
+            WHERE
+            { ?url_proc survol:Handle ?the_ppid  .
+              ?url_proc survol:ppid %d .
+              ?url_proc rdf:type survol:CIM_Process .
+            }
+            """ % os.getpid(),
+                "xxx"
+            ],
+        ]
+
+        for sparql_query, expected_results in array_survol_queries:
+            print("sparql_query=",sparql_query)
+
+            url_sparql = RemoteTestAgent + "/survol/sparql_survol.py?query=" + lib_util.urllib_quote(sparql_query)
+
+            response = lib_util.survol_urlopen(url_sparql)
+            data = response.read().decode("utf-8")
+
+
+class SparqlSeeAlsoTest(unittest.TestCase):
+    def test_see_also(self):
+        array_survol_queries=[
+            ["""
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Handle %d  .
+                  ?url_proc rdf:type survol:CIM_Process .
+                  ?url_proc rdfs:seeAlso <http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=29&mode=rdf> .
+                }
+                """ % os.getpid(),
+                "xxx",
+            ],
+
+            [
+                """
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
+                  ?url_proc rdf:type survol:CIM_DataFile .
+                  ?url_proc rdfs:seeAlso <http://vps516494.ovh.net/Survol/survol/sources_types/CIM_DataFile/mapping_processes.py?xid=CIM_DataFile.Name%3D%2Fusr%2Flib%2Fsystemd%2Fsystemd-journald&mode=rdf> .
+                }
+                """,
+                "xxx",
+            ],
+
+            ["""
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
+                  ?url_proc rdf:type survol:CIM_DataFile .
+                  ?url_proc rdfs:seeAlso "survol/CIM_DataFile/mapping_processes" .
+                }
+                """,
+                "xxx",
+            ],
+
+            # TODO: We must a triple with the predicate "definedBy" to each object.
+            ["""
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
+                  ?url_proc rdf:type survol:CIM_DataFile .
+                  ?url_proc rdfs:seeAlso "survol/CIM_DataFile/*" .
+                }
+                """,
+                "xxx",
+            ],
+
+            # TODO: This could generate all allowed scripts.
+            ["""
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc rdf:type survol:CIM_DataFile .
+                  ?url_proc rdfs:seeAlso ?script .
+                }
+                """,
+                "xxx",
+            ],
+
+            ["""
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Handle %d  .
+                  ?url_proc rdf:type survol:CIM_Process .
+                  ?url_proc rdfs:seeAlso "survol/CIM_Process/*" .
+                }
+                """ % os.getpid(),
+                "xxx",
+            ],
+            ["""
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Handle %d  .
+                ?url_proc rdf:type survol:CIM_Process .
+                ?url_proc rdfs:seeAlso "survol/CIM_Process" .
+                }
+                """ % os.getpid(),
+                "xxx",
+            ],
+
+            # This runs a WQL select query.
+            [
+                """
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Handle %d  .
+                  ?url_proc rdf:type survol:CIM_Process .
+                  ?url_proc rdfs:seeAlso "WMI" .
+                }
+                """ % os.getpid(),
+                "xxx",
+            ],
+
+            # This runs a WQL select query.
+            [
+                """
+                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Handle %d  .
+                  ?url_proc survol:ExecutableFileName ?filename  .
+                  ?url_proc rdf:type survol:CIM_Process .
+                  ?url_proc rdfs:seeAlso "WMI" .
+                  ?url_file survol:Name ?filename  .
+                  ?url_file rdf:type survol:CIM_DataFile .
+                  ?url_file rdfs:seeAlso "survol/CIM_DataFile/*" .
+                }
+                """ % os.getpid(),
+                "xxx",
+            ],
+        ]
+
+        for sparql_query, expected_result in array_survol_queries:
+            print("sparql_query=",sparql_query)
+
+            url_sparql = RemoteTestAgent + "/survol/sparql_survol.py?query=" + lib_util.urllib_quote(sparql_query)
+
+            response = lib_util.survol_urlopen(url_sparql)
+            data = response.read().decode("utf-8")
+
 
 
 # This works: gwmi -Query 'xxxxx'
