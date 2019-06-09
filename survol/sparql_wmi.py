@@ -1,29 +1,17 @@
-# This uses exclusively data from WMI.
-
 #!/usr/bin/python
 
+# This uses exclusively data from WMI.
+
 """
-This SPARQL server translates SPARQL queries into Survol data model.
+This SPARQL server translates SPARQL queries into WMI data model.
 """
 
-# For the moment, it just displays the content of the input to standard error,
-# so the SparQL protocol can be analysed.
-
-# See Experimental/Test_package_sparqlwrapper.py
-
-import os
-import sys
-import lib_util
-import lib_common
 import lib_kbase
 import lib_sparql
 import lib_wmi
 
-# http://timgolden.me.uk/python/downloads/wmi-0.6b.py
-
-
-
-# This is a SPARSL server which executes the query with WMI data.
+# This is a SPARQL server which executes the query with WMI data.
+# It loads data from WMI inconditionnaly.
 def Main():
     envSparql = lib_sparql.SparqlEnvironment()
 
