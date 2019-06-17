@@ -29,6 +29,7 @@ import lib_sparql
 import lib_util
 import lib_properties
 import lib_kbase
+import lib_wmi
 
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
@@ -48,20 +49,20 @@ RemoteTestAgent = "http://" + CurrentMachine + ":8000"
 # Note: Cannot have backslashes in rdflib ??
 dict_test_data = {
     "CIM_Process": [
-        { "pid":123,"ppid":456,"user":"herself","runs":"firefox.exe"},
-        { "pid":789,"ppid":123,"user":"himself","runs":"explorer.exe"},
+        {"pid": 123, "ppid": 456, "user": "herself", "runs": "firefox.exe"},
+        {"pid": 789, "ppid": 123, "user": "himself", "runs": "explorer.exe"},
     ],
     "CIM_DataFile": [
-        { "owns":"herself","Name":"C:/Program Files (x86)/Internet Explorer/iexplore.exe"},
-        { "owns":"someone","Name":"explorer.exe"},
+        {"owns": "herself", "Name": "C:/Program Files (x86)/Internet Explorer/iexplore.exe"},
+        {"owns": "someone", "Name": "explorer.exe"},
     ],
     "CIM_Directory": [
-        { "owns":"himself","Name":"C:/Program Files"},
-        { "owns":"herself","Name":"C:/Program Files (x86)"},
+        {"owns": "himself", "Name": "C:/Program Files"},
+        {"owns": "herself", "Name": "C:/Program Files (x86)"},
     ],
     "Win32_UserAccount": [
-        { "uid":111,"Name":"himself"},
-        { "uid":222,"Name":"herself"},
+        {"uid": 111, "Name": "himself"},
+        {"uid": 222, "Name": "herself"},
     ],
 }
 
@@ -70,7 +71,10 @@ dict_test_data = {
 # which must match the input key-value pairs.
 # Each object is modelled by a key-value dictionary.
 def UnitTestExecuteQueryCallback(class_name, predicate_prefix, where_key_values):
-    print("UnitTestExecuteQueryCallback class_name=",class_name," where_key_values=",where_key_values)
+    print("UnitTestExecuteQueryCallback",
+          " class_name=", class_name,
+          " predicate_prefix=", predicate_prefix,
+          " where_key_values=", where_key_values)
 
     def _check_key_val_included(one_data):
         try:
@@ -106,7 +110,7 @@ def UnitTestExecuteQueryCallback(class_name, predicate_prefix, where_key_values)
     #
     #
     # En gros, on retire au fur et a mesure des triplets de la query et on remplace
-    # par un triplestore qui grandit au fir et a mesure.
+    # par un triplestore qui grandit au fur et a mesure.
 
 
     # FIXME: AUTRE PROBLEME: ON NE SAIT PAS MODELISER LES ASSOCIATIONS.
@@ -120,26 +124,34 @@ def UnitTestExecuteQueryCallback(class_name, predicate_prefix, where_key_values)
         if _check_key_val_included(one_key_value_pair_dict):
             yield ( lib_util.NodeUrl("hard_coded_path"), _key_values_to_rdf( one_key_value_pair_dict ) )
 
-# The query function returns RDF nodes.
-# Therefore, for tests, this is a helper function which returns dict of strings.
-def QueryKeyValuePairs(sparql_query, execute_query_callback):
-    def QueriesEntitiesToValuePairs(iter_entities_dicts):
-        for one_entities_dict in iter_entities_dicts:
+# The query function from lib_sparql module, returns RDF nodes.
+# This is not very convenient to test.
+# Therefore, for tests, this is a helper function which returns dict of strings,
+# which are easier to compare.
+def QueriesEntitiesToValuePairs(iter_entities_dicts):
+    for one_entities_dict in iter_entities_dicts:
 
-            one_entities_dict_qname = {}
-            for variable_name, one_entity in one_entities_dict.items():
-                print("one_entity=",one_entity)
+        one_entities_dict_qname = {}
+        for variable_name, one_entity in one_entities_dict.items():
+            #print("one_entity=", one_entity)
 
-                # Special attribute for debugging.
-                dict_qname_value = { "__class__" : one_entity.m_entity_class_name }
-                for key_node,val_node in one_entity.m_predicate_object_dict.items():
-                    qname_key = lib_properties.PropToQName(key_node)
-                    str_val = str(val_node)
-                    dict_qname_value[qname_key] = str_val
-                one_entities_dict_qname[variable_name] = dict_qname_value
-            yield one_entities_dict_qname
+            # Special attribute for debugging.
+            dict_qname_value = {"__class__": one_entity.m_entity_class_name}
+            for key_node, val_node in one_entity.m_predicate_object_dict.items():
+                qname_key = lib_properties.PropToQName(key_node)
+                str_val = str(val_node)
+                dict_qname_value[qname_key] = str_val
+            one_entities_dict_qname[variable_name] = dict_qname_value
+        yield one_entities_dict_qname
 
-    iter_entities_dicts = lib_sparql.QueryEntities(sparql_query, execute_query_callback)
+
+def QueryKeyValuePairs(sparql_query, sparql_callback_select, sparql_callback_associator = None):
+    iter_entities_dicts = lib_sparql.QueryEntities(sparql_query, sparql_callback_select, sparql_callback_associator)
+    return QueriesEntitiesToValuePairs(iter_entities_dicts)
+
+
+def QuerySeeAlsoKeyValuePairs(sparql_query, sparql_callback_select, sparql_callback_associator = None):
+    iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(sparql_query, sparql_callback_select, sparql_callback_associator)
     return QueriesEntitiesToValuePairs(iter_entities_dicts)
 
 
@@ -147,14 +159,21 @@ class SparqlCallTest(unittest.TestCase):
 
     @staticmethod
     def queries_test(test_pairs_array):
-        for sparql_qry,expected_result in test_pairs_array:
-            print(sparql_qry)
+        for sparql_query, expected_result in test_pairs_array:
+            print("sparql_query=",sparql_query)
 
-            dictEntitiesByVariable = lib_sparql._parse_query_to_key_value_pairs_dict(sparql_qry)
-            print(expected_result)
-            if(expected_result != dictEntitiesByVariable):
-                print(dictEntitiesByVariable)
-            assert(dictEntitiesByVariable==expected_result)
+            list_object_key_values = lib_sparql._parse_query_to_key_value_pairs_list(sparql_query)
+
+            dictEntitiesDictsByVariable = {}
+            # Transformed into dictionary to match the expected results.
+            for one_object_key_value in list_object_key_values:
+                key_value_pairs_dict = dict({key: value for key, value in one_object_key_value.m_raw_key_value_pairs})
+                dictEntitiesDictsByVariable[one_object_key_value.m_object_variable_name] = key_value_pairs_dict
+
+            print("expected_result=", expected_result)
+            if expected_result != dictEntitiesDictsByVariable:
+                print("dictEntitiesDictsByVariable=",dictEntitiesDictsByVariable)
+            assert(dictEntitiesDictsByVariable==expected_result)
 
     # Generic parse capabilities
     def test_parse(self):
@@ -512,12 +531,11 @@ class SparqlCallTest(unittest.TestCase):
         for sparql_query,expected_results in list_query_to_output_hardcoded:
             print(sparql_query)
 
+            print("expected_results=",expected_results)
             itr_dict_objects = QueryKeyValuePairs(sparql_query, UnitTestExecuteQueryCallback)
             list_dict_objects = list(itr_dict_objects)
-            #list_dict_objects = list(itr_dict_objects.m_predicate_object_dict)
             print("list_dict_objects=",list_dict_objects)
 
-            print("expected_results=",expected_results)
             assert(list_dict_objects == expected_results)
 
     def test_survol_static(self):
@@ -534,12 +552,17 @@ class SparqlCallTest(unittest.TestCase):
             SELECT ?the_ppid
             WHERE
             { ?url_proc survol:Handle %d .
-              ?url_proc survol:ppid ?the_ppid .
+              ?url_proc survol:parent_pid ?the_ppid .
               ?url_proc rdf:type survol:CIM_Process .
             }
             """ % CurrentPid,
                [
-                   { "url_proc":{'ppid': str(CurrentParentPid), 'Handle': str(CurrentPid), 'user': CurrentUsername, '__class__': 'CIM_Process'}},
+                   { "url_proc":{
+                       'parent_pid': str(CurrentParentPid),
+                       'rdfs:definedBy': 'CIM_Process:SelectFromWhere',
+                       'Handle': str(CurrentPid),
+                       'username': CurrentUsername,
+                       '__class__': 'CIM_Process'}},
                ]
             ],
         ]
@@ -559,22 +582,23 @@ class SparqlCallTest(unittest.TestCase):
     def test_survol_nested(self):
         """
         Test the Sparql server which works on Survol data.
+        The loop is done zith the optional method SelectFromWhere, specific to each class.
         The attributes in the SparQL query must match the ontology of the query callback function.
         """
 
-        # It should return sibling processes (Same parent id) of the current process.
+        # This returns the sibling processes (Same parent id) of the current process.
         nested_qry ="""
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             SELECT ?the_ppid
             WHERE
             {
               ?url_procA survol:Handle %d .
-              ?url_procA survol:ppid ?the_ppid .
+              ?url_procA survol:parent_pid ?the_ppid .
               ?url_procA rdf:type survol:CIM_Process .
               ?url_procB survol:Handle ?the_ppid .
               ?url_procB rdf:type survol:CIM_Process .
               ?url_procC survol:Handle %d .
-              ?url_procC survol:ppid ?the_ppid .
+              ?url_procC survol:parent_pid ?the_ppid .
               ?url_procC rdf:type survol:CIM_Process .
             }
             """ % (CurrentPid,CurrentPid)
@@ -593,7 +617,21 @@ class SparqlCallTest(unittest.TestCase):
                 break
         assert(found)
 
+
+    def test_survol_associators(self):
+        """This runs a query which associates two objects.
+        """
+        assert(False)
+
+
 class SparqlCallWmiTest(unittest.TestCase):
+
+    @staticmethod
+    def __run_wmi_query(sparql_query):
+        itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+        list_dict_objects = list(itr_dict_objects)
+        print("list_dict_objects len=",len(list_dict_objects))
+        return list_dict_objects
 
     def test_wmi_query(self):
 
@@ -641,16 +679,12 @@ class SparqlCallWmiTest(unittest.TestCase):
         # TODO: How to have backslashes in SparQL queries ???
         # "C:&#92;Users" 0x5C "C:%5CUsers"
 
-        import lib_wmi
-
         for sparql_query, expected_results in dict_query_to_output_wmi:
             print("===================================================")
             print(sparql_query)
 
             # TODO: Pass several callbacks, processed in a specific order ?
-            itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiExecuteQueryCallback)
-
-            list_dict_objects = list(itr_dict_objects)
+            list_dict_objects = SparqlCallWmiTest.__run_wmi_query(sparql_query)
 
             # There should not be too many data so a nested loop is OK.
             for one_expected_result in expected_results:
@@ -681,112 +715,220 @@ class SparqlCallWmiTest(unittest.TestCase):
             }
             """
 
-        import lib_wmi
-
         print(sparql_query)
 
         # TODO: Pass several callbacks, processed in a specific order ?
-        itr_dict_objects = lib_sparql.QueryEntities(sparql_query, lib_wmi.WmiExecuteQueryCallback)
-
-        list_dict_objects = list(itr_dict_objects)
+        itr_dict_objects = lib_sparql.QueryEntities(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
 
         grph = lib_kbase.MakeGraph()
 
-        for one_dict_objects in list_dict_objects:
+        for one_dict_objects in itr_dict_objects:
             for variable_name, key_value_nodes in one_dict_objects.items():
                 # Only the properties of the ontology are used in the moniker
                 # The moniker is built with a subset of properties, in a certain order.
                 # In Survol's ontology, these properties are defined by each class'function EntityOntology()
                 # These properties must be the same for all ontologies: WMI, WBEM and Survol,
                 # otherwise objects could not be shared.
+                print("variable_name=",variable_name)
+                print("key_value_nodes=",key_value_nodes)
                 wmiInstanceNode = key_value_nodes.m_subject_path
 
                 for key_node,value_node in key_value_nodes.m_predicate_object_dict.items():
                     grph.add((wmiInstanceNode,key_node,value_node))
 
+    # "Associators of {CIM_Process.Handle=1780} where ClassDefsOnly"
+    # => Win32_LogonSession Win32_ComputerSystem CIM_DataFile
 
-    def test_wmi_associators(self):
-        # "Associators of {CIM_Process.Handle=1780} where ClassDefsOnly"
-        # => Win32_LogonSession Win32_ComputerSystem CIM_DataFile
+    # "associators of {CIM_Process.Handle=1780} where resultclass=CIM_DataFile"
+    # ...
+    # Name: c:\program files\mozilla firefox\firefox.exe
 
-        # "associators of {CIM_Process.Handle=1780} where resultclass=CIM_DataFile"
-        # ...
-        # Name: c:\program files\mozilla firefox\firefox.exe
+    # "References of {CIM_Process.Handle=1780} where ClassDefsOnly"
+    # => Win32_SessionProcess Win32_SystemProcesses CIM_ProcessExecutable
 
-        # "References of {CIM_Process.Handle=1780} where ClassDefsOnly"
-        # => Win32_SessionProcess Win32_SystemProcesses CIM_ProcessExecutable
+    # "references of {CIM_Process.Handle=1780} where resultclass=CIM_ProcessExecutable"
+    # ...
+    # Antecedent: \\RCHATEAU - HP\root\cimv2:CIM_DataFile.Name = "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
+    # Dependent: \\RCHATEAU - HP\root\cimv2:Win32_Process.Handle = "1780"
 
-        # "references of {CIM_Process.Handle=1780} where resultclass=CIM_ProcessExecutable"
-        # ...
-        # Antecedent: \\RCHATEAU - HP\root\cimv2:CIM_DataFile.Name = "C:\\Program Files\\Mozilla Firefox\\firefox.exe"
-        # Dependent: \\RCHATEAU - HP\root\cimv2:Win32_Process.Handle = "1780"
+    # ESCAPE BACKSLASH
+    # "select * from CIM_DataFile where Name='c:\\program files\\mozilla firefox\\firefox.exe'"
+    # ...
+    # Name: c:\program files\mozilla firefox\firefox.exe
+    # ...
 
+    # "references of {CIM_DataFile='c:\program files\mozilla firefox\firefox.exe'} Where classdefsonly"
+    # => CIM_DirectoryContainsFile Win32_SecuritySettingOfLogicalFile CIM_ProcessExecutable
 
-        # "select * from CIM_DataFile where Name='c:\\program files\\mozilla firefox\\firefox.exe'"
-        # ...
-        # Name: c:\program files\mozilla firefox\firefox.exe
-        # ...
+    # "references of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where resultclass = CIM_DirectoryContainsFile"
+    # ...
+    # GroupComponent: \\RCHATEAU - HP\root\cimv2:Win32_Directory.Name = "c:\\\\program files\\\\mozilla firefox\\"
+    # PartComponent: \\RCHATEAU - HP\root\cimv2:CIM_DataFile.Name = "c:\\\\program files\\\\mozilla firefox\\\\firefox.exe"
 
-        # "references of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where classdefsonly"
-        # => CIM_DirectoryContainsFile
+    # BEWARE: With PowerShell, simple back-slash, DO NOT ESPACE back-slash !!!! Otherwise it only SEEMS to work.
 
-        # "references of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where resultclass = CIM_DirectoryContainsFile"
-        # ...
-        # GroupComponent: \\RCHATEAU - HP\root\cimv2:Win32_Directory.Name = "c:\\\\program files\\\\mozilla firefox\\"
-        # PartComponent: \\RCHATEAU - HP\root\cimv2:CIM_DataFile.Name = "c:\\\\program files\\\\mozilla firefox\\\\firefox.exe"
+    # "associators of {CIM_DataFile='c:\program files\mozilla firefox\firefox.exe'}"
+    # => OK
 
-        # "associators of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'}"
-        # ... Seems very slow.
+    # "associators of {CIM_DataFile='c:\program files\mozilla firefox\firefox.exe'} Where classdefsonly"
+    # Win32_Directory Win32_LogicalFileSecuritySetting Win32_Process
 
-        # "associators of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where ClassDefsOnly"
-        # => Win32_Directory
+    # "associators of {CIM_DataFile='c:\program files\mozilla firefox\firefox.exe'} Where assocclass = CIM_DirectoryContainsFile"
+    # EightDotThreeFileName: c:\program files\mozill~1
+    # Name: c:\program files\mozilla firefox
 
-        # "associators of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where assocclass = CIM_DirectoryContainsFile"
-        # => RIEN !?!?!?
+    # "associators of {CIM_DataFile='c:\program files\mozilla firefox\firefox.exe'} where resultclass=Win32_Process"
+    # CommandLine: "C:\Program Files\Mozilla Firefox\firefox.exe"
+    # Handle: 1780
 
-        # "associators of {CIM_DataFile='c:\\program files\\mozilla firefox\\firefox.exe'} Where resultclass=Win32_Directory"
-        # => RIEN !?!?!?
+    # "associators of {CIM_DataFile='c:\program files\mozilla firefox\firefox.exe'} where resultclass=CIM_Process"
+    # CommandLine: "C:\Program Files\Mozilla Firefox\firefox.exe"
+    # Handle: 1780, idem.
 
+    # THIS ONE IS OK:
+    # "associators of {CIM_DataFile='c:\program files\mozilla firefox\firefox.exe'} where assocclass=CIM_ProcessExecutable
 
+    # Le nom de l'associator sert de nom d'attribut. Indirectement, ca pourrait donner le nom de l'objet
 
+    # INVERSEMENT:
+    # gwmi -Query "associators of {CIM_Process.Handle=1780} where assocclass=CIM_ProcessExecutable"
+    # ... renvoie aussi les DLLs.
+    # Donc CIM_ProcessExecutable sert d'attribut pour les classes CIM_Process et CIM_DataFile.
 
-        dict_associators_queries =[
-            ("""
+    # {
+    #   ?url_proc survol:Handle 12345  .
+    #   ?url_proc rdf:type survol:CIM_Process .
+    #   ?url_proc survol:CIM_ProcessExecutable ?url_sess .
+    # }
+
+    #        lib_sparq n est pas en mesure de traiter
+    #Il faut le transformer ...
+    #url_sess devient une sortie.
+    #Si on n'a pas les toute sles variables...
+    #Est-ce que lecallback peut etre recursif ?
+    #
+    #Normallement:
+    #        yield url_proc=( object_path_node, dict_key_values )
+    #
+    #for object_path_node, dict_key_values in _callback_filter_all_sources(execute_query_callback, curr_input_entity, where_key_values_replaced):
+
+    #Mais en fait:
+    #       yield url_proc=( object_path_node, dict_key_values ) , url_sess=( object_path_node, dict_key_values )
+
+    #Docn faudrait splitter deux fois en connaissant le contexte.
+    #Dans quelle mesure ca s applique aussi a nos scripts ???
+    def test_wmi_associators_pid_to_files(self):
+        sparql_query = """
             PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?the_pid
+            SELECT *
+            WHERE
+            {
+              ?url_proc survol:Handle %d .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_file rdf:type survol:CIM_DataFile .
+            }
+            """ % CurrentPid
+
+        list_dict_objects = SparqlCallWmiTest.__run_wmi_query(sparql_query)
+        print("Elements:",len(list_dict_objects))
+
+        # All dictionaries must have the same keys.
+        for one_dict in list_dict_objects:
+            assert sorted(one_dict.keys()) == ['url_file', 'url_proc']
+
+        # This returns the current process and the executable and dlls it runs.
+        pids_set = set([one_dict['url_proc']['Handle'] for one_dict in list_dict_objects])
+        one_pid_only = int(pids_set.pop())
+        assert one_pid_only == CurrentPid
+
+        all_classes = set([one_dict['url_proc']['CreationClassName'] for one_dict in list_dict_objects])
+        one_class_only = all_classes.pop()
+        assert one_class_only == 'Win32_Process'
+
+        one_machine_only = set( [ one_dict['url_file']['CSName'] for one_dict in list_dict_objects] )
+        assert one_machine_only.pop().upper() == CurrentMachine.upper()
+
+        all_extensions = set( [ one_dict['url_file']['Extension'] for one_dict in list_dict_objects] )
+        print(all_extensions)
+        assert all_extensions == set( ['dll', 'exe', 'pyd' ] )
+
+        # Unique dlls and exe names.
+        all_dlls = set( [ one_dict['url_file']['Name'] for one_dict in list_dict_objects] )
+        assert len(all_dlls) == len(list_dict_objects)
+
+
+    def test_wmi_associators_executable_to_files(self):
+        sparql_query = """
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            {
+              ?url_proc survol:Caption "firefox.exe"  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_file rdf:type survol:CIM_DataFile .
+            }"""
+
+        list_dict_objects = SparqlCallWmiTest.__run_wmi_query(sparql_query)
+
+        for one_dict in list_dict_objects:
+            assert sorted(one_dict.keys()) == ['url_file', 'url_proc']
+
+        print(list_dict_objects[0])
+
+
+
+    # Must be transformed into:
+    # ASSOCIATORS OF {CIM_Process.Handle=xx} WHERE RESULTCLASS=CIM_DataFile ASSOCCLASS=CIM_ProcessExecutable
+    # SELECT FROM CIM_DataFile WHERE Name="c:/program files/mozilla firefox/firefox.exe"
+    #
+    # Ou bien ???
+    # ASSOCIATORS OF {CIM_DataFile.Name="c:/program files/mozilla firefox/firefox.exe"} WHERE RESULTCLASS=CIM_Process ASSOCCLASS=CIM_ProcessExecutable
+    # SELECT FROM CIM_Process WHERE Handle=xyz
+    def test_wmi_associators_pid_to_exe(self):
+        sparql_query = """
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
             WHERE
             {
               ?url_proc survol:Handle %d  .
               ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc survol:CIM_ProcessExecutable ?url_sess .
-              ?url_sess survol:Name "c:/program files/mozilla firefox/firefox.exe" .
-              ?url_sess rdf:type survol:CIM_DataFile .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_file survol:Name "c:/program files/mozilla firefox/firefox.exe" .
+              ?url_file rdf:type survol:CIM_DataFile .
             }
-            """ % CurrentPid,
-               [
-                   {"url_proc": {"Description": "python.exe", "Handle": str(CurrentPid)}},
-               ]
-            ),
-        ]
+            """ % CurrentPid
+
+        itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+        assert False
+
+
+    def test_wmi_associators_all_procs_to_firefox(self):
+        sparql_query = """
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            {
+              ?url_proc survol:Handle ?proc_id  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_file survol:CIM_ProcessExecutable ?url_proc .
+              ?url_file survol:Name "c:/program files/mozilla firefox/firefox.exe" .
+              ?url_file rdf:type survol:CIM_DataFile .
+            }
+            """
+
+        itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+        list_dict_objects = list(itr_dict_objects)
+        print(len(list_dict_objects))
+        assert False
 
         # TODO: How to have backslashes in SparQL queries ???
         # "C:&#92;Users" 0x5C "C:%5CUsers"
-
-        import lib_wmi
-
-        for sparql_query, expected_results in dict_associators_queries:
-            print("===================================================")
-            print(sparql_query)
-
-            # TODO: Pass several callbacks, processed in a specific order ?
-            itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiExecuteQueryCallback)
-
-            list_dict_objects = list(itr_dict_objects)
-
-
-
 
 
 
@@ -862,10 +1004,29 @@ class SparqlServerWMITest(unittest.TestCase):
 
         # "\\RCHATEAU-HP\root\cimv2:Win32_LogicalDisk.DeviceID="C:" http://primhillcomputers.com/survol/Name C:"
         expectedPath = '\\\\%s\\root\\cimv2:Win32_LogicalDisk.DeviceID="C:"' % ( CurrentMachine )
-        #foundPath = False
-        #print("expectedPath=",expectedPath)
+        print("expectedPath=",expectedPath)
         for rdfSubject, rdfPredicate, rdfObject in grphKBase:
             print(rdfSubject, rdfPredicate, rdfObject)
+            # TODO: Should compare
+
+    def test_CIM_DataFile(self):
+        sparql_query="""
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            {
+              ?url_file survol:Name "c:/program files/mozilla firefox/firefox.exe" .
+              ?url_file rdf:type survol:CIM_DataFile .
+            }
+        """
+
+        grphKBase = self.__load_wmi_query(sparql_query)
+
+        for rdfSubject, rdfPredicate, rdfObject in grphKBase:
+            print(rdfSubject, rdfPredicate, rdfObject)
+            # TODO: Should compare
+
 
     def test_CIM_Process(self):
         sparql_query="""
@@ -882,6 +1043,8 @@ class SparqlServerWMITest(unittest.TestCase):
 
         for rdfSubject, rdfPredicate, rdfObject in grphKBase:
             print(rdfSubject, rdfPredicate, rdfObject)
+            # TODO: Should compare
+
 
 class SparqlServerSurvolTest(unittest.TestCase):
     """
@@ -912,6 +1075,19 @@ class SparqlServerSurvolTest(unittest.TestCase):
 
             response = lib_util.survol_urlopen(url_sparql)
             data = response.read().decode("utf-8")
+
+# This meta-callback dispatches the query to the right data source.
+def UnitTestSeeAlsoExecuteQueryCallback(class_name, predicate_prefix, where_key_values):
+    import lib_wmi
+    if predicate_prefix == "HardCoded":
+        return UnitTestExecuteQueryCallback(class_name, predicate_prefix, where_key_values)
+    if predicate_prefix == "WMI":
+        return lib_wmi.WmiCallbackSelect(class_name, predicate_prefix, where_key_values)
+    if predicate_prefix == "survol":
+        # This calls the option class-specific method SelectFromWhere
+        return lib_sparql.SurvolExecuteQueryCallback(class_name, predicate_prefix, where_key_values)
+    # Otherwise it must be a script name.
+    assert(False)
 
 
 class SparqlSeeAlsoTest(unittest.TestCase):
@@ -1046,6 +1222,8 @@ class SparqlSeeAlsoTest(unittest.TestCase):
 
         for sparql_query, expected_result in array_survol_queries:
             print("sparql_query=",sparql_query)
+
+            itr_dict_objects = QuerySeeAlsoKeyValuePairs(sparql_query, UnitTestSeeAlsoExecuteQueryCallback)
 
             url_sparql = RemoteTestAgent + "/survol/sparql_survol.py?query=" + lib_util.urllib_quote(sparql_query)
 

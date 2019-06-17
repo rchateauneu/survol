@@ -702,10 +702,17 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
                 yield( prpProp, lib_common.NodeLiteral( str(exc) ) )
 
 
-def WmiExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key_values):
-    ERROR("WmiExecuteQueryCallback class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+def WmiCallbackSelect(class_name, predicate_prefix, filtered_where_key_values):
+    WARNING("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+
+    # Temporary hard-code !!
+    if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
+        filnam = filtered_where_key_values["Name"]
+        filtered_where_key_values["Name"] = filnam.replace("/","\\")
+        WARNING("WmiCallbackSelect REPLACED where_key_values=%s", filtered_where_key_values)
 
     wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values,class_name)
+    WARNING("WmiCallbackSelect wmi_query=%s", wmi_query)
     # Current host and default namespace.
     wmi_connection = WmiConnect("","")
 
@@ -714,16 +721,46 @@ def WmiExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key_val
     for one_wmi_object in wmi_objects:
         # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
         object_path = str(one_wmi_object.path())
-        ERROR("one_wmi_object.path=%s",object_path)
+        WARNING("one_wmi_object.path=%s",object_path)
         list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, class_name )
         dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
-        ERROR("dict_key_values=%s",dict_key_values)
+        dict_key_values[ lib_common.NodeUrl("rdfs:definedBy") ] = lib_common.NodeLiteral("WMI")
+
+        WARNING("dict_key_values=%s",dict_key_values)
         object_path_node = lib_util.NodeUrl(object_path)
         yield ( object_path_node, dict_key_values )
 
-#Pour les associateurs,
-#extraire de la requete sparql les paires ou l object est aussi une variable instance de classe/
-#Ces pairs sont des associateurs
-#Soit on les retire a part de l instance, soit on indique que c est une variable non-literale.
+def WmiCallbackAssociator(
+        result_class_name,
+        predicate_prefix,
+        associator_key_name,
+        subject_path_node):
+    # subject_path_node as previously returned by WmiCallbackSelect
+    DEBUG("WmiCallbackAssociator result_class_name=%s associator_key_name=%s", result_class_name, associator_key_name)
 
-#Extraire aussi quand le predicat est rdf:type ou rdf:attribute.
+    # wmi_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
+    wmi_path_full = str(subject_path_node)
+    dummy, colon, wmi_path = wmi_path_full.partition(":")
+    DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
+
+    # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
+    wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % ( wmi_path, associator_key_name, result_class_name)
+    WARNING("WmiCallbackAssociator wmi_query=%s", wmi_query)
+    # Current host and default namespace.
+    wmi_connection = WmiConnect("","")
+    DEBUG("WmiCallbackAssociator after connect wmi_query=%s", wmi_query)
+
+    wmi_objects = wmi_connection.query(wmi_query)
+
+    for one_wmi_object in wmi_objects:
+        # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+        object_path = str(one_wmi_object.path())
+        DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
+        list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, result_class_name )
+        dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
+        dict_key_values[ lib_common.NodeUrl("rdfs:definedBy") ] = lib_common.NodeLiteral("WMI")
+
+        DEBUG("WmiCallbackAssociator dict_key_values=%s",dict_key_values)
+        object_path_node = lib_util.NodeUrl(object_path)
+        yield ( object_path_node, dict_key_values )
+

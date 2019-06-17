@@ -19,7 +19,7 @@ def Main():
 
     sparql_query = envSparql.Query()
 
-    lib_sparql.QueryToGraph(grph,sparql_query, lib_wmi.WmiExecuteQueryCallback)
+    lib_sparql.QueryToGraph(grph,sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
 
     envSparql.WriteTripleStoreAsString(grph)
 
