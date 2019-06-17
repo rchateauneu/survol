@@ -157,12 +157,12 @@ def SelectFromWhere( where_key_values ):
             continue
         if "user" in where_key_values and where_key_values["user"] != user_name_host:
             continue
-        if "ppid" in where_key_values and str(where_key_values["ppid"]) != str(parent_pid):
+        if "parent_pid" in where_key_values and str(where_key_values["parent_pid"]) != str(parent_pid):
             continue
 
         # TODO: Should reuse the existing properties.
         ret_value = {
             lib_properties.MakeProp("Handle"):lib_util.NodeLiteral(proc_obj.pid),
-            lib_properties.MakeProp("user"):lib_util.NodeLiteral(user_name_host),
-            lib_properties.MakeProp("ppid"):lib_util.NodeLiteral(parent_pid)}
+            lib_properties.MakeProp("username"):lib_util.NodeLiteral(user_name_host),
+            lib_properties.MakeProp("parent_pid"):lib_util.NodeLiteral(parent_pid)}
         yield ret_value
