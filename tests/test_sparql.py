@@ -898,13 +898,45 @@ class SparqlCallWmiTest(unittest.TestCase):
               ?url_proc survol:Handle %d  .
               ?url_proc rdf:type survol:CIM_Process .
               ?url_proc survol:CIM_ProcessExecutable ?url_file .
-              ?url_file survol:Name "c:/program files/mozilla firefox/firefox.exe" .
+              ?url_file survol:Name 'c:/program files/mozilla firefox/firefox.exe' .
               ?url_file rdf:type survol:CIM_DataFile .
             }
             """ % CurrentPid
 
         itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
-        assert False
+        list_dict_objects = list(itr_dict_objects)
+
+        # The extra filter on CIM_DataFile.Name is not checked.
+
+        print("Elements:",len(list_dict_objects))
+
+        # All dictionaries must have the same keys.
+        for one_dict in list_dict_objects:
+            assert sorted(one_dict.keys()) == ['url_file', 'url_proc']
+
+        # This returns the current process and the executable and dlls it runs.
+        pids_set = set([one_dict['url_proc']['Handle'] for one_dict in list_dict_objects])
+        one_pid_only = int(pids_set.pop())
+        assert one_pid_only == CurrentPid
+
+        all_classes_proc = set([one_dict['url_proc']['CreationClassName'] for one_dict in list_dict_objects])
+        one_class_only = all_classes_proc.pop()
+        assert one_class_only == 'Win32_Process'
+
+        all_classes_file = set([one_dict['url_file']['CreationClassName'] for one_dict in list_dict_objects])
+        one_class_only = all_classes_file.pop()
+        assert one_class_only == 'CIM_LogicalFile'
+
+        one_machine_only = set( [ one_dict['url_file']['CSName'] for one_dict in list_dict_objects] )
+        assert one_machine_only.pop().upper() == CurrentMachine.upper()
+
+        all_extensions = set( [ one_dict['url_file']['Extension'] for one_dict in list_dict_objects] )
+        print(all_extensions)
+        assert all_extensions == set( ['dll', 'exe', 'pyd' ] )
+
+        # Unique dlls and exe names.
+        all_dlls = set( [ one_dict['url_file']['Name'] for one_dict in list_dict_objects] )
+        assert len(all_dlls) == len(list_dict_objects)
 
 
     def test_wmi_associators_all_procs_to_firefox(self):
