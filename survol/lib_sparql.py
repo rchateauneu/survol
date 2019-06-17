@@ -325,7 +325,8 @@ def __predicate_substitution(lstTriples):
 
 # TODO: When the subject is NOT a variable but an URL.
 def __triples_to_input_entities(lst_triples):
-    WARNING("lst_triples=%s", str(lst_triples))
+    # This is list is visited twice. It is not very big anyway.
+    assert isinstance(lst_triples,list)
     dict_key_value_pairs_by_subject = {}
 
     # First pass to create the output objects.
@@ -417,9 +418,7 @@ def _parse_query_to_key_value_pairs_list(sparql_query):
     lstTriples = __generate_triples_list(sparql_query)
     lstTriplesReplaced = __predicate_substitution(lstTriples)
 
-    # TEMP TEMP
-    #lstTriplesReplaced = list(lstTriplesReplaced)
-    #WARNING("lstTriplesReplaced=%s",lstTriplesReplaced)
+    lstTriplesReplaced = list(lstTriplesReplaced)
     listEntitiesByVariable = __triples_to_input_entities(lstTriplesReplaced)
     return listEntitiesByVariable
 
@@ -474,6 +473,7 @@ class ObjectKeyValues:
             else:
                 self.m_key_values[lst_key] = lst_val
 
+        assert class_name
         DEBUG("class_name=%s",class_name)
         if class_name:
             self.m_source_prefix, colon, self.m_class_name =  class_name.rpartition(":")
@@ -542,6 +542,7 @@ def _run_callback_on_entities(
             yield tuple_result_input
             return
         curr_input_entity = lst_input_object_key_values[index]
+        assert curr_input_entity.m_class_name
         predicate_prefix = curr_input_entity.m_source_prefix
 
         where_key_values_replaced = {}
