@@ -942,7 +942,7 @@ def GetOntologyScript(ontology_key):
 ################################################################################
 def SetDebugMode():
     import logging
-    lib_util.SetLoggingConfig(logging.DEBUG)
+    lib_util.SetLoggingConfig(logging.WARNING)
 
 ################################################################################
 
