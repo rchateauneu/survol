@@ -1038,6 +1038,8 @@ class SparqlCallWmiTest(unittest.TestCase):
 
 
     def test_wmi_associators_all_procs_to_firefox(self):
+        # TODO: How to have backslashes in SparQL queries ???
+        # "C:&#92;Users" 0x5C "C:%5CUsers"
         sparql_query = """
             PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -1047,19 +1049,19 @@ class SparqlCallWmiTest(unittest.TestCase):
               ?url_proc survol:Handle ?proc_id  .
               ?url_proc rdf:type survol:CIM_Process .
               ?url_file survol:CIM_ProcessExecutable ?url_proc .
-              ?url_file survol:Name "c:/program files/mozilla firefox/firefox.exe" .
+              ?url_file survol:Name '%s' .
               ?url_file rdf:type survol:CIM_DataFile .
             }
-            """
+            """ % r"c:\\program files\\mozilla firefox\\firefox.exe"
 
         itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
         list_dict_objects = list(itr_dict_objects)
-        print(len(list_dict_objects))
-        assert False
 
-        # TODO: How to have backslashes in SparQL queries ???
-        # "C:&#92;Users" 0x5C "C:%5CUsers"
-
+        for one_dict in list_dict_objects:
+            assert sorted(one_dict.keys()) == ['url_file', 'url_proc']
+            assert one_dict['url_file']['Name'] == "c:\\\\program files\\\\mozilla firefox\\\\firefox.exe"
+            assert one_dict['url_proc']['ExecutablePath'] == "C:\\\\Program Files\\\\Mozilla Firefox\\\\firefox.exe"
+            assert one_dict['url_proc']['CreationClassName'] == "Win32_Process"
 
 
 
@@ -1074,16 +1076,15 @@ class SparqlServerWMITest(unittest.TestCase):
         print("sparql_query=",sparql_query)
 
         url_sparql = RemoteTestAgent + "/survol/sparql_wmi.py?query=" + lib_util.urllib_quote(sparql_query)
+        print("url_sparql=",url_sparql)
 
         response = lib_util.survol_urlopen(url_sparql)
         docXmlRdf = response.read().decode("utf-8")
 
-        # Strip the header: "Content-Type: application/xml; charset=utf-8"
-        # TODO: Why not stripping it in lib_client.
-        # splitXml = "".join(docXmlRdf.split("\n")[2:])
+        print("docXmlRdf=\n","".join(docXmlRdf.split("\n")[:2]))
+
 
         print("docXmlRdf=",docXmlRdf)
-        # print("splitXml=",splitXml)
 
         # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
         # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
