@@ -275,6 +275,14 @@ class SourceLocal (SourceCgi):
         return TripleStore(grphKBase)
 
 
+    @staticmethod
+    def GetObjectInstancesFromScript(script_name,class_name = None,**kwargs_ontology):
+        my_source = SourceLocal(script_name, class_name, **kwargs_ontology)
+        my_triplestore = my_source.GetTriplestore()
+        list_instances = my_triplestore.GetInstances()
+        return list_instances
+
+
 class SourceMerge (SourceBase):
     def __init__(self,srcA,srcB,operatorTripleStore):
         if not srcA.IsCgiComplete():
