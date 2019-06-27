@@ -25,7 +25,8 @@ except KeyError:
     CurrentUsername = os.environ["USER"]
     CurrentUserPath = "user.Name=%s,Domain=localhost" % CurrentUsername
 
-CurrentProcessPath = 'CIM_Process.Handle=%d' % os.getpid()
+CurrentPid = os.getpid()
+CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
 
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
@@ -59,6 +60,8 @@ for modu in allModules:
 
 import lib_client
 import lib_properties
+
+ClientObjectInstancesFromScript = lib_client.SourceLocal.GetObjectInstancesFromScript
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
@@ -871,7 +874,7 @@ class SurvolLocalTest(unittest.TestCase):
             CurrentProcessPath
         ]
 
-        instPrefix = 'java/mbean.Handle=%d,Name=' % os.getpid()
+        instPrefix = 'java/mbean.Handle=%d,Name=' % CurrentPid
 
         for instJavaName in [
             'java.lang:type-Memory',
@@ -1201,12 +1204,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
     def test_win32_services(self):
         """List of Win32 services"""
 
-        mySourceWin32Services = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/win32/enumerate_Win32_Service.py")
 
-        tripleWin32Services = mySourceWin32Services.GetTriplestore()
-
-        lstInstances = tripleWin32Services.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # print(strInstancesSet)
@@ -1224,18 +1224,15 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             print("Test is not applicable:%s",str(exc))
             return
 
-        mySourceWMIInfo = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/wmi_process_info.py",
             "CIM_Process",
             Handle=os.getpid())
 
-        tripleWMIInfo = mySourceWMIInfo.GetTriplestore()
-
-        lstInstances = tripleWMIInfo.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # This checks the presence of the current process and its parent.
-        assert('CIM_Process.Handle=%s' % os.getpid() in strInstancesSet)
+        assert('CIM_Process.Handle=%s' % CurrentPid in strInstancesSet)
         if sys.version_info >= (3,):
             # Checks the parent's presence also. Not for 2.7.10
             assert(CurrentProcessPath in strInstancesSet)
@@ -1250,14 +1247,11 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             print("Module win32net is not available so this test is not applicable")
             return
 
-        mySourceProcModules = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/win_process_modules.py",
             "CIM_Process",
             Handle=os.getpid())
 
-        tripleProcModules = mySourceProcModules.GetTriplestore()
-
-        lstInstances = tripleProcModules.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # This checks the presence of the current process and its parent.
@@ -1294,12 +1288,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
     @decorator_windows_platform
     def test_win32_products(self):
-        mySourceProducts = lib_client.SourceLocal(
+        lstInstances = lib_client.lstInstances(
             "sources_types/win32/enumerate_Win32_Product.py")
 
-        tripleProducts = mySourceProducts.GetTriplestore()
-
-        lstInstances = tripleProducts.GetInstances()
         strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
         print("lstInstances=",strInstancesLst[:3])
 
@@ -1345,12 +1336,12 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         # This cannot display specific information about the current MSDOS batch because there is none,
         # as it is a Python process. Still, this tests checks that the script runs properly.
-        mySource = lib_client.SourceLocal(
+        list_instances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/languages/msdos/current_batch.py",
             "CIM_Process",
             Handle=os.getpid())
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in list_instances ])
 
         # If this runs from a command line, the process path is something like:
         # 'C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/tests/unittest_survol_client_library.pyc'
@@ -1399,12 +1390,9 @@ class SurvolPyODBCTest(unittest.TestCase):
     def test_pyodbc_sqldatasources(self):
         """Tests ODBC data sources"""
 
-        mySourceSqlData = lib_client.SourceLocal(
-            "sources_types/Databases/win32_sqldatasources_pyodbc.py")\
+        lstInstances = ClientObjectInstancesFromScript(
+            "sources_types/Databases/win32_sqldatasources_pyodbc.py")
 
-        tripleSqlData = mySourceSqlData.GetTriplestore()
-
-        lstInstances = list(tripleSqlData.GetInstances())
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # At least these instances must be present.
@@ -1425,14 +1413,11 @@ class SurvolPyODBCTest(unittest.TestCase):
     def test_pyodbc_dsn_tables(self):
         """Tests ODBC data sources"""
 
-        mySourceDsnTables = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/odbc/dsn/odbc_dsn_tables.py",
             "odbc/dsn",
             Dsn="DSN~SysDataSourceSQLServer")
 
-        tripleDsnTables = mySourceDsnTables.GetTriplestore()
-
-        lstInstances = list(tripleDsnTables.GetInstances())
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         #print("Instances:",strInstancesSet)
 
@@ -1455,15 +1440,12 @@ class SurvolPyODBCTest(unittest.TestCase):
     def test_pyodbc_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
 
-        mySourceTableColumns = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/odbc/table/odbc_table_columns.py",
             "odbc/table",
             Dsn="DSN~SysDataSourceSQLServer",
             Table="dm_os_windows_info")
 
-        tripleTableColumns = mySourceTableColumns.GetTriplestore()
-
-        lstInstances = list(tripleTableColumns.GetInstances())
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         #print("Instances:",strInstancesSet)
 
@@ -1520,15 +1502,11 @@ class SurvolSocketsTest(unittest.TestCase):
 
         print("Peer name of connection socket:",connHttp.sock.getpeername())
 
-        mySourceNetstatWindowsSockets = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/win32/tcp_sockets_windows.py")
 
-        tripleNetstatWindowsSockets = mySourceNetstatWindowsSockets.GetTriplestore()
-
-        lstInstances = list(tripleNetstatWindowsSockets.GetInstances())
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
-        #print("Instances:",strInstancesSet)
         addrExpected = "addr.Id=%s:80" % (peerHost)
         print("addrExpected=",addrExpected)
         assert( addrExpected in strInstancesSet )
@@ -1569,12 +1547,9 @@ class SurvolSocketsTest(unittest.TestCase):
         peerName = connHttp.sock.getpeername()
         peerHost = peerName[0]
 
-        mySourceEnumerateSockets = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/enumerate_socket.py")
 
-        tripleEnumerateSockets = mySourceEnumerateSockets.GetTriplestore()
-
-        lstInstances = list(tripleEnumerateSockets.GetInstances())
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         addrExpected = "addr.Id=%s:80" % (peerHost)
@@ -1638,14 +1613,11 @@ class SurvolSocketsTest(unittest.TestCase):
 
         print("Peer name of connection socket:",connHttp.sock.getpeername())
 
-        mySourceConnectedProcesses = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/addr/socket_connected_processes.py",
             "addr",
             Id="%s:80"%peerHost)
 
-        tripleConnectedProcesses = mySourceConnectedProcesses.GetTriplestore()
-
-        lstInstances = list(tripleConnectedProcesses.GetInstances())
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # Because the current process has created this socket,
@@ -1672,12 +1644,9 @@ class SurvolSocketsTest(unittest.TestCase):
 
         # This does not really test the content, because nothing is sure.
         # However, at least it tests that the script can be called.
-        mySourceNetUse = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/SMB/net_use.py")
 
-        tripleNetUse = mySourceNetUse.GetTriplestore()
-
-        lstInstances = list(tripleNetUse.GetInstances())
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print(strInstancesSet)
         # Typical content:
@@ -1701,12 +1670,9 @@ class SurvolSocketsTest(unittest.TestCase):
             print("Windows test only")
             return None
 
-        mySourceWindowsNetworkDevices = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/win32/windows_network_devices.py")
 
-        tripleWindowsNetworkDevices = mySourceWindowsNetworkDevices.GetTriplestore()
-
-        lstInstances = list(tripleWindowsNetworkDevices.GetInstances())
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print(strInstancesSet)
 
@@ -1925,13 +1891,10 @@ class SurvolAzureTest(unittest.TestCase):
             print("Module azure is not available so this test is not applicable")
             return None
 
-        mySourceAzureSubscriptions = lib_client.SourceLocal(
+        instancesAzureSubscriptions = ClientObjectInstancesFromScript(
             "sources_types/Azure/enumerate_subscription.py")
 
-        tripleAzureSubscriptions = mySourceAzureSubscriptions.GetTriplestore()
-
         # ['Azure/subscription.Subscription=Visual Studio Professional', 'CIM_ComputerSystem.Name=localhost']
-        instancesAzureSubscriptions = tripleAzureSubscriptions.GetInstances()
         for oneInst in instancesAzureSubscriptions:
             # This returns the first subscription found.
             if oneInst.__class__.__name__ == "Azure/subscription":
@@ -1950,14 +1913,11 @@ class SurvolAzureTest(unittest.TestCase):
     def test_azure_locations(self,azureSubscription):
         """This checks Azure locations."""
 
-        mySourceAzureLocations = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/Azure/subscription/subscription_locations.py",
             "Azure/subscription",
             Subscription=azureSubscription)
 
-        tripleAzureLocations = mySourceAzureLocations.GetTriplestore()
-
-        lstInstances = tripleAzureLocations.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # Some locations are very common.
@@ -1972,14 +1932,11 @@ class SurvolAzureTest(unittest.TestCase):
     def _test_azure_subscription_disk(self,azureSubscription):
         """This checks Azure disks."""
 
-        mySourceAzureDisks = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/Azure/subscription/subscription_disk.py",
             "Azure/subscription",
             Subscription=azureSubscription)
 
-        tripleAzureDisks = mySourceAzureDisks.GetTriplestore()
-
-        lstInstances = tripleAzureDisks.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         print(strInstancesSet)
@@ -2002,15 +1959,10 @@ class SurvolRabbitMQTest(unittest.TestCase):
             print("Module pyrabbit is not available so this test is not applicable")
             return None
 
-        mySourceConfigurationsRabbitMQ = lib_client.SourceLocal(
+        instancesConfigurationsRabbitMQ = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/list_configurations.py")
 
-        tripleConfigurationsRabbitMQ = mySourceConfigurationsRabbitMQ.GetTriplestore()
-
         # ['Azure/subscription.Subscription=Visual Studio Professional', 'CIM_ComputerSystem.Name=localhost']
-        instancesConfigurationsRabbitMQ = tripleConfigurationsRabbitMQ.GetInstances()
-        strInstancesSet = set([str(oneInst) for oneInst in instancesConfigurationsRabbitMQ ])
-
         for oneInst in instancesConfigurationsRabbitMQ:
             # This returns the first subscription found.
             if oneInst.__class__.__name__ == "rabbitmq/manager":
@@ -2029,14 +1981,11 @@ class SurvolRabbitMQTest(unittest.TestCase):
     def test_rabbitmq_connections(self,rabbitmqManager):
         print("RabbitMQ:",rabbitmqManager)
 
-        mySourceRabbitMQConnections = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_connections.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        tripleRabbitMQConnections = mySourceRabbitMQConnections.GetTriplestore()
-
-        lstInstances = tripleRabbitMQConnections.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print(strInstancesSet)
 
@@ -2057,14 +2006,11 @@ class SurvolRabbitMQTest(unittest.TestCase):
     def test_rabbitmq_exchanges(self,rabbitmqManager):
         print("RabbitMQ:",rabbitmqManager)
 
-        mySourceRabbitMQExchanges = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_exchanges.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        tripleRabbitMQExchanges = mySourceRabbitMQExchanges.GetTriplestore()
-
-        lstInstances = tripleRabbitMQExchanges.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print(strInstancesSet)
 
@@ -2086,30 +2032,24 @@ class SurvolRabbitMQTest(unittest.TestCase):
     def test_rabbitmq_queues(self,rabbitmqManager):
         print("RabbitMQ:",rabbitmqManager)
 
-        mySourceRabbitMQQueues = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_queues.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        tripleRabbitMQQueues = mySourceRabbitMQQueues.GetTriplestore()
-
-        lstInstances = tripleRabbitMQQueues.GetInstances()
+        # TODO: Which queues should always be present ?
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
-        # TODO: Which queues should always be present ?
 
     @decorator_rabbitmq_subscription
     def test_rabbitmq_users(self,rabbitmqManager):
         print("RabbitMQ:",rabbitmqManager)
 
-        mySourceRabbitMQUsers = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_users.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        tripleRabbitMQUsers = mySourceRabbitMQUsers.GetTriplestore()
-
-        lstInstances = tripleRabbitMQUsers.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print(strInstancesSet)
 
@@ -2118,7 +2058,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
             'rabbitmq/user.Url=%s,User=guest' % rabbitmqManager,
         ]:
             print(oneStr)
-            assert( oneStr in strInstancesSet)
+            assert(oneStr in strInstancesSet)
 
 
 class SurvolOracleTest(unittest.TestCase):
@@ -2139,15 +2079,12 @@ class SurvolOracleTest(unittest.TestCase):
                 cx_Oracle_import_ok = False
                 return None
 
-        mySourceOracleDbs = lib_client.SourceLocal(
+        instancesOracleDbs = ClientObjectInstancesFromScript(
             "sources_types/Databases/oracle_tnsnames.py")
-
-        tripleOracleDbs = mySourceOracleDbs.GetTriplestore()
 
         # Typical content: 'addr.Id=127.0.0.1:1521', 'oracle/db.Db=XE_WINDOWS',
         # 'oracle/db.Db=XE', 'oracle/db.Db=XE_OVH', 'addr.Id=vps516494.ovh.net:1521',
         # 'addr.Id=192.168.0.17:1521', 'oracle/db.Db=XE_FEDORA'}
-        instancesOracleDbs = tripleOracleDbs.GetInstances()
 
         # Sorted in alphabetical order.
         strInstances = sorted([str(oneInst.Db) for oneInst in instancesOracleDbs if oneInst.__class__.__name__ == "oracle/db"])
@@ -2172,14 +2109,11 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_schemas(self,oracleDb):
         print("Oracle:",oracleDb)
 
-        mySourceOracleSchemas = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_schemas.py",
             "oracle/db",
             Db=oracleDb)
 
-        tripleOracleSchemas = mySourceOracleSchemas.GetTriplestore()
-
-        lstInstances = tripleOracleSchemas.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # Typical content:
@@ -2194,14 +2128,11 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_connected_processes(self,oracleDb):
         print("Oracle:",oracleDb)
 
-        mySourceOracleProcesses = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_processes.py",
             "oracle/db",
             Db=oracleDb)
 
-        tripleOracleProcesses = mySourceOracleProcesses.GetTriplestore()
-
-        lstInstances = tripleOracleProcesses.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         print(strInstancesSet)
@@ -2220,16 +2151,13 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_running_queries(self,oracleDb):
         print("Oracle:",oracleDb)
 
-        mySourceOracleProcesses = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_parse_queries.py",
             "oracle/db",
             Db=oracleDb)
 
-        tripleOracleProcesses = mySourceOracleProcesses.GetTriplestore()
-
         # Typical content:
         # ['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxF... base64 ...ZGRyICA=,Db=XE_OVH']
-        lstInstances = tripleOracleProcesses.GetInstances()
 
         for oneInst in lstInstances:
             if oneInst.__class__.__name__ == 'oracle/query':
@@ -2252,15 +2180,12 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_schema_tables(self,oracleDb):
         print("Oracle:",oracleDb)
 
-        mySourceOracleSchemaTables = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/oracle/schema/oracle_schema_tables.py",
             "oracle/db",
             Db=oracleDb,
         Schema='SYSTEM')
 
-        tripleOracleSchemaTables = mySourceOracleSchemaTables.GetTriplestore()
-
-        lstInstances = tripleOracleSchemaTables.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         print(strInstancesSet)
@@ -2277,15 +2202,12 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_schema_views(self,oracleDb):
         print("Oracle:",oracleDb)
 
-        mySourceOracleSchemaViews = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/oracle/schema/oracle_schema_views.py",
             "oracle/db",
             Db=oracleDb,
             Schema='SYS')
 
-        tripleOracleSchemaViews = mySourceOracleSchemaViews.GetTriplestore()
-
-        lstInstances = tripleOracleSchemaViews.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         print(sorted(strInstancesSet)[:10])
@@ -2302,16 +2224,13 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_view_dependencies(self,oracleDb):
         """Dsplays dependencies of a very common view"""
 
-        mySourceOracleViewDependencies = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/oracle/view/oracle_view_dependencies.py",
             "oracle/db",
             Db=oracleDb,
             Schema='SYS',
             View='ALL_ALL_TABLES')
 
-        tripleOracleViewDependencies = mySourceOracleViewDependencies.GetTriplestore()
-
-        lstInstances = tripleOracleViewDependencies.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         print(sorted(strInstancesSet)[:10])
@@ -2340,14 +2259,11 @@ class SurvolPEFileTest(unittest.TestCase):
         # Very common DLL.
         dllFileName = r"C:\Windows\System32\gdi32.dll"
 
-        mySourcePEFileExports = lib_client.SourceLocal(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/CIM_DataFile/portable_executable/pefile_exports.py",
             "CIM_DataFile",
             Name=dllFileName)
 
-        triplePEFileExports = mySourcePEFileExports.GetTriplestore()
-
-        lstInstances = triplePEFileExports.GetInstances()
         import sources_types.linker_symbol
         namesInstance = set()
 
