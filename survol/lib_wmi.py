@@ -303,7 +303,7 @@ def GetWmiClassFlagUseAmendedQualifiersAux(connWmi, classNam, baseClass):
 # "PageFileUsage" : Page
 # "PeakPageFileUsage" : Page
 #
-def WmiDictPropertiesUnitNoCache(connWmi, className):
+def __WmiDictPropertiesUnitNoCache(connWmi, className):
     theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
 
     mapPropUnits = {}
@@ -335,7 +335,7 @@ def WmiDictPropertiesUnit(connWmi, className):
     try:
         mapPropUnits = cacheWmiDictPropertiesUnit[className]
     except KeyError:
-        mapPropUnits = WmiDictPropertiesUnitNoCache(connWmi, className)
+        mapPropUnits = __WmiDictPropertiesUnitNoCache(connWmi, className)
         cacheWmiDictPropertiesUnit[className] = mapPropUnits
     return mapPropUnits
 
@@ -704,8 +704,9 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
 
 def WmiCallbackSelect(class_name, predicate_prefix, filtered_where_key_values):
     WARNING("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+    assert class_name
 
-    # Temporary hard-code !!
+    # HACK: Temporary hard-code !!
     if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
         filnam = filtered_where_key_values["Name"]
         filtered_where_key_values["Name"] = filnam.replace("/","\\")
@@ -730,37 +731,47 @@ def WmiCallbackSelect(class_name, predicate_prefix, filtered_where_key_values):
         object_path_node = lib_util.NodeUrl(object_path)
         yield ( object_path_node, dict_key_values )
 
+
+# This returns a data structure similar to WmiCallbackSelect
 def WmiCallbackAssociator(
         result_class_name,
         predicate_prefix,
         associator_key_name,
         subject_path_node):
     # subject_path_node as previously returned by WmiCallbackSelect
-    DEBUG("WmiCallbackAssociator result_class_name=%s associator_key_name=%s", result_class_name, associator_key_name)
+    WARNING("WmiCallbackAssociator result_class_name=%s associator_key_name=%s", result_class_name, associator_key_name)
 
     # wmi_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
     wmi_path_full = str(subject_path_node)
     dummy, colon, wmi_path = wmi_path_full.partition(":")
-    DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
+    WARNING("WmiCallbackAssociator wmi_path=%s", wmi_path)
+
+    # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
+    # TODO: We must quadruple backslashes in Sparql queries.
+    if "CIM_DataFile.Name" in wmi_path:
+        wmi_path = wmi_path.replace("\\\\","\\")
+        WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+
 
     # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
+    # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
     wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % ( wmi_path, associator_key_name, result_class_name)
-    WARNING("WmiCallbackAssociator wmi_query=%s", wmi_query)
+
     # Current host and default namespace.
     wmi_connection = WmiConnect("","")
-    DEBUG("WmiCallbackAssociator after connect wmi_query=%s", wmi_query)
+    WARNING("WmiCallbackAssociator after connect wmi_query=%s", wmi_query)
 
     wmi_objects = wmi_connection.query(wmi_query)
 
     for one_wmi_object in wmi_objects:
         # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
         object_path = str(one_wmi_object.path())
-        DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
+        WARNING("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
         list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, result_class_name )
         dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
         dict_key_values[ lib_common.NodeUrl("rdfs:definedBy") ] = lib_common.NodeLiteral("WMI")
 
-        DEBUG("WmiCallbackAssociator dict_key_values=%s",dict_key_values)
+        WARNING("WmiCallbackAssociator dict_key_values=%s",dict_key_values)
         object_path_node = lib_util.NodeUrl(object_path)
         yield ( object_path_node, dict_key_values )
 
