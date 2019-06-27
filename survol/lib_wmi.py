@@ -329,14 +329,14 @@ def __WmiDictPropertiesUnitNoCache(connWmi, className):
 
 # So, this is calculated only once per class, because it does not change,
 # and does not depend on the connection, because it is a WMI data.
-cacheWmiDictPropertiesUnit = {}
+__cacheWmiDictPropertiesUnit = {}
 
 def WmiDictPropertiesUnit(connWmi, className):
     try:
-        mapPropUnits = cacheWmiDictPropertiesUnit[className]
+        mapPropUnits = __cacheWmiDictPropertiesUnit[className]
     except KeyError:
         mapPropUnits = __WmiDictPropertiesUnitNoCache(connWmi, className)
-        cacheWmiDictPropertiesUnit[className] = mapPropUnits
+        __cacheWmiDictPropertiesUnit[className] = mapPropUnits
     return mapPropUnits
 
 
