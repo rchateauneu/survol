@@ -7,6 +7,7 @@ import sys
 import re
 
 PredicateSeeAlso = RDFS.seeAlso
+PredicateIsDefinedBy = RDFS.isDefinedBy
 #PredicateSeeAlso = RDFS.isDefinedBy # ???
 PredicateComment = RDFS.comment
 
