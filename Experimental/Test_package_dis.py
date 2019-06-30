@@ -1,7 +1,16 @@
+#!/usr/bin/python
+
+# The goal of this test is to detect global variables from a Python script.
+# Specifically, we want to extract predicates used to create RDF triple.
+# If we have this information, we know which kind of predicates a script
+# might generate, without running it.
+# When running a SPARQL server on a Survol agent, it helps to deduce which scripts should be run,
+# to create a triplestore as appropriate as possible for a given SPARQL query..
+
 # https://stackoverflow.com/questions/33160744/detect-all-global-variables-within-a-python-function
 
 # This is for creating a SPARQL server.
-# There are two diffeernt types of SPARQL server that Survol runs:
+# There are two different types of SPARQL server that Survol runs:
 # (1) A SPARQL server which translates queries into WQL queries running on top
 # of a WMI server or a WBEM server:
 # - WQL cannot join tables.
@@ -23,71 +32,83 @@ import importlib
 
 import rdflib.namespace
 
+GLOBAL_OPS = dis.opmap["LOAD_GLOBAL"], dis.opmap["STORE_GLOBAL"]
+EXTENDED_ARG = dis.opmap["EXTENDED_ARG"]
+LOAD_ATTR = dis.opmap["LOAD_ATTR"]
 
-def GetGlobalVariables(func):
-    GLOBAL_OPS = dis.opmap["LOAD_GLOBAL"], dis.opmap["STORE_GLOBAL"]
-    EXTENDED_ARG = dis.opmap["EXTENDED_ARG"]
-    LOAD_ATTR = dis.opmap["LOAD_ATTR"]
+# TODO: Get functions call made within Survol and analyses them recursively,
+# TODO: but only if they are in source_types.
+def GetGlobalVariables(func,verbose):
+    """This returns the global variables used in a function"""
+
+    if verbose:
+        print(dis.dis(func))
 
     func = getattr(func, "im_func", func)
     code = func.func_code
     names = code.co_names
 
     op_codes = (ord(c) for c in code.co_code)
-    globs = set()
+    glob_classes = set()
+    glob_namespaces = set()
+    glob_destination = None
     extarg = 0
 
     glbl_nam = None
-    for c in op_codes:
-        if c in GLOBAL_OPS:
+    glbl_obj = None
+    for cod in op_codes:
+        if cod in GLOBAL_OPS:
             idx = next(op_codes) + next(op_codes) * 256 + extarg
             glbl_nam = names[idx]
 
             try:
                 glbl_obj = func.func_globals[glbl_nam]
                 #print("g=",glbl_obj,"tp=",type(glbl_obj))
+
                 if isinstance( glbl_obj, rdflib.namespace.Namespace ):
                     # primns = "http://primhillcomputers.com/survol"
                     # pc = lib_kbase.MakeNamespace(primns)
                     # ('g=', Namespace(u'http://primhillcomputers.com/survol'), 'tp=', <class 'rdflib.namespace.Namespace'>)
                     # 'pc.property_open_file'
                     glbl_nam = str(glbl_obj)
+                    glob_destination = glob_namespaces
                     modu_delim = "#"
                 elif isinstance( glbl_obj, types.ModuleType ):
+                    # We are only interested by CIM class types as defined in directory sources_types.
+                    # TODO: Possibly check if WMI class ?
                     glbl_nam = glbl_obj.__package__
+                    glob_destination = glob_classes
                     modu_delim = "."
                 else:
                     glbl_nam = None
+                    glob_destination = None
             except:
                 glbl_nam = None
-                pass
-        elif c == EXTENDED_ARG:
+                glbl_obj = None
+        elif cod == EXTENDED_ARG:
             extarg = (next(op_codes) + next(op_codes) * 256) * 65536
             continue
-        elif c == LOAD_ATTR:
+        elif cod == LOAD_ATTR:
             idx = next(op_codes) + next(op_codes) * 256 + extarg
             attr = names[idx]
             if glbl_nam:
                 glbl_nam += modu_delim + attr
                 modu_delim = "."
-        elif c >= dis.HAVE_ARGUMENT:
-            if glbl_nam:
-                globs.add(glbl_nam)
-                glbl_nam = None
-            next(op_codes)
-            next(op_codes)
         else:
             if glbl_nam:
-                globs.add(glbl_nam)
+                glob_destination.add(glbl_nam)
                 glbl_nam = None
+                glob_destination = None
+            if cod >= dis.HAVE_ARGUMENT:
+                next(op_codes)
+                next(op_codes)
 
         extarg = 0
 
-    return sorted(globs)
+    return list(glob_classes), list(glob_namespaces)
 
 # See lib_util.GetScriptModule(currentModule, fil)
-def AnalyseScript(currentModule, fil):
-
+def GetScriptModule(currentModule, fil):
     fileBaseName = fil[:-3] # Without the ".py" extension.
 
     if sys.version_info >= (3, ):
@@ -100,37 +121,50 @@ def AnalyseScript(currentModule, fil):
             importedMod = importlib.import_module("." + fileBaseName, currentModule )
         else:
             importedMod = importlib.import_module(fileBaseName)
+    return importedMod
+
+def AnalyseScript(currentModule, fil):
+    print(currentModule,fil)
+    """This receives a script and its directory, imports it and returns the global variables"""
+    importedMod = GetScriptModule(currentModule, fil)
 
     #print(dis.dis(importedMod.Main))
-    print( GetGlobalVariables(importedMod.Main) )
-    #print(dir(importedMod))
-    #print(dir(importedMod.__package__))
-    # ModulesFrom(currentModule)
+    print( GetGlobalVariables(importedMod.Main,True) )
 
-def ModulesFrom(currentModule):
-
-    importedMod = importlib.import_module(currentModule)
-    print(currentModule,"dir(importedMod):",dir(importedMod))
-    print(dis.dis(importedMod))
-
-    # 49     >>  314 LOAD_GLOBAL              0 (lib_common)
-    #            317 LOAD_ATTR               10 (gUriGen)
-    #            320 LOAD_ATTR               21 (FileUri)
-    #
-    #            344 LOAD_GLOBAL             23 (pc)
-    #            347 LOAD_ATTR               24 (property_open_file)
-    #
-    # 33         149 LOAD_GLOBAL              8 (CIM_Process)
-    #            152 LOAD_ATTR               12 (AddInfo)
+# 49     >>  314 LOAD_GLOBAL              0 (lib_common)
+#            317 LOAD_ATTR               10 (gUriGen)
+#            320 LOAD_ATTR               21 (FileUri)
+#
+#            344 LOAD_GLOBAL             23 (pc)
+#            347 LOAD_ATTR               24 (property_open_file)
+#
+# 33         149 LOAD_GLOBAL              8 (CIM_Process)
+#            152 LOAD_ATTR               12 (AddInfo)
 
 # Very simplistic import of a script.
 dir_code_base = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol"
 sys.path.append(dir_code_base)
 
-# ['sources_types.CIM_Process.PsutilGetProcObj', 'sources_types.CIM_Process.PsutilProcConnections', 'sources_types.addr.PsutilAddSocketToGraph']
-AnalyseScript("sources_types.CIM_Process","process_connections.py")
-# ['http://primhillcomputers.com/survol#property_open_file', 'sources_types.CIM_Process.AddInfo', 'sources_types.CIM_Process.PsutilGetProcObj', 'sources_types.CIM_Process.PsutilProcOpenFiles']
-AnalyseScript("sources_types.CIM_Process","process_open_files.py")
+lstScripts = [
+    # ['sources_types.CIM_Process.PsutilGetProcObj', 'sources_types.CIM_Process.PsutilProcConnections', 'sources_types.addr.PsutilAddSocketToGraph']
+    ("sources_types.CIM_Process","process_connections.py"),
+    # ['http://primhillcomputers.com/survol#property_open_file', 'sources_types.CIM_Process.AddInfo', 'sources_types.CIM_Process.PsutilGetProcObj', 'sources_types.CIM_Process.PsutilProcOpenFiles']
+    ("sources_types.CIM_Process","process_open_files.py"),
+    ("sources_types.CIM_DataFile","elftools_parse_symbols.py"),
+    ("sources_types.Databases","oracle_tnsnames.py"),
+    ("sources_types.CIM_DiskPartition","partition_diskusage.py"),
+    ("sources_types.CIM_DataFile.portable_executable","pefile_information.py"),
+]
+
+for oneScript in lstScripts:
+    try:
+        AnalyseScript(oneScript[0],oneScript[1])
+    except Exception as exc:
+        print(exc)
+
+
+# AnalyseScript("sources_types.CIM_Process","process_connections.py")
+
 
 
 # ['importlib', '__builtin__', 'sys', 'types', 'dis']

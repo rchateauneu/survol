@@ -86,21 +86,6 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             dictRdf2Dot[x] = nodelabel
             return nodelabel
 
-    # The QName is an abbreviation of URI reference with the namespace function for XML.
-    # Edge label.
-    # Transforms "http://primhillcomputers.com/ontologies/ppid" into "ppid"
-    # TODO: Beware, a CGI parameter might be there. CGIPROP
-    def qname(x, grph):
-        try:
-            q = grph.compute_qname(x)
-            # q[0] is the shortened namespace "ns"
-            # Could return q[0] + ":" + q[2]
-            return q[2]
-        except:
-            return x
-        # Nothing really interesting at the moment, just hardcodes.
-        return lib_properties.prop_color(prop)
-
     # The input is any Python object.
     # This returns a simple object which can be transformed into a string.
     # If the input is a container, it returns a HTML table.
@@ -199,7 +184,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                 # The text of the link must be underlined.
                 currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, lib_exports.DotUL(splitTxt) )
             else:
-                key_qname = qname( key, grph )
+                key_qname = lib_kbase.qname( key, grph )
                 # This assumes: type(val) == 'rdflib.term.Literal'
                 # sys.stderr.write("FORMAT ELEMENT: %s\n" %(dir(val)))
                 if lib_kbase.IsLiteral(val):
@@ -333,10 +318,10 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                 objNam = RdfNodeToDotLabelExtended(obj,prop)
                 if ( obj, prop, subj ) in grph :
                     if subjNam < objNam:
-                        stream.write(pattEdgeBiDir % (subjNam, objNam, prp_col, qname(prop, grph)))
+                        stream.write(pattEdgeBiDir % (subjNam, objNam, prp_col, lib_kbase.qname(prop, grph)))
                 else:
                     # One connection only: We cannot see the other.
-                    stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
+                    stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, lib_kbase.qname(prop, grph)))
             elif prop in [ pc.property_rdf_data_nolist1 , pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]:
                 # TODO: Il suffit de tester si obj est un url de la forme "entity.py" ???
                 # HTML and images urls can be "flattened" because the nodes have no descendants.
@@ -357,7 +342,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                     # sys.stderr.write("PASS subjNam=%s objNam=%s\n"%(subjNam,objNam))
                     pass
 
-                stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, qname(prop, grph)))
+                stream.write(pattEdgeOrien % (subjNam, objNam, prp_col, lib_kbase.qname(prop, grph)))
         elif obj == None:
             # No element created in nodes[]
             fieldsSet[subj].append((prop, "Null" ))
@@ -575,7 +560,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             # TODO: Replace each column name with a link which sorts the line based on this column.
             # The order of columns could be specified with an extra cgi argument with the columns names.
             for key in fieldsKeys:
-                columnTitle = qname(key,grph)
+                columnTitle = lib_kbase.qname(key,grph)
                 columnTitle = columnTitle.replace("_"," ").capitalize()
                 header += "<td border='1'>" + lib_exports.DotBold( columnTitle ) + "</td>"
             # With an empty key, it comes first when sorting.

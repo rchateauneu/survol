@@ -35,6 +35,8 @@ def MakeProp(*prps,**kvargs):
     url = ret.replace(" ","_").replace("-","_")
     return lib_kbase.MakeNodeUrl( url )
 
+
+# See lib_kbase.qname
 def PropToQName(property_node):
     # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
     # TODO: Should call compute_qname ?

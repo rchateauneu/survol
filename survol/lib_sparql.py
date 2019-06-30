@@ -8,9 +8,6 @@ import rdflib.plugins.sparql.parser
 
 import lib_util
 import lib_properties
-import lib_kbase
-import lib_common
-
 
 # QUERY_STRING="query=%0A++++PREFIX+rdfs%3A+%3Chttp%3A/www.w3.org/2000/01/rdf-schema%23%3E%0A++++SELECT+%3Flabel%0A++++WHERE+%7B+%3Chttp%3A/dbpedia.org/resource/Asturias%3E+rdfs%3Alabel+%3Flabel+%7D%0A&output=json&results=json&format=json"
 
@@ -294,14 +291,13 @@ def __decode_parsed_triple(one_trpl):
 
 # This extracts the triples from the WHERE clause of a Sparql query,
 # after it is parsed by rdflib.
-def __generate_triples_list(qry):
-    parsed = rdflib.plugins.sparql.parser.parseQuery(qry)
-
+def __generate_triples_list(sparql_query):
+    parsed = rdflib.plugins.sparql.parser.parseQuery(sparql_query)
 
     # This returns a long sequence of nodes, length multiple of three.
     raw_trpl = __get_triples(parsed)
 
-    # The logn sequence of nodes is split into triples: subject, predicate, object.
+    # The long sequence of nodes is split into triples: subject, predicate, object.
     trpl_lst = __aggregate_into_triples(raw_trpl)
     for one_trpl in trpl_lst:
         clean_trpl = __decode_parsed_triple(one_trpl)
@@ -473,7 +469,6 @@ class ObjectKeyValues:
             else:
                 self.m_key_values[lst_key] = lst_val
 
-        assert class_name
         DEBUG("class_name=%s",class_name)
         if class_name:
             self.m_source_prefix, colon, self.m_class_name =  class_name.rpartition(":")
@@ -484,6 +479,7 @@ class ObjectKeyValues:
 
     def all_sources(self):
         all_sources_set = set(self.m_lst_seeAlso)
+        # The prefix of the attributes is also used as source of data.
         all_sources_set.add(self.m_source_prefix)
         return all_sources_set
 
@@ -493,7 +489,13 @@ class ObjectKeyValues:
             title += self.m_class_name
         else:
             title += "NoClass"
-        title += ":" + ",".join(["%s=%s" % kv for kv in self.m_key_values.items()])
+        title += "*"
+        if self.m_associator_key_name:
+            title += self.m_associator_key_name
+        else:
+            title += "NoAssoc"
+
+        title += "@" + ",".join(["%s=%s" % kv for kv in self.m_key_values.items()])
         return title
 
 # This models a result returned from the execution of the join of a Sparql query.
@@ -507,18 +509,18 @@ class PathPredicateObject:
         return "PathPredicateObject:" + self.m_subject_path + ";class="+str(self.m_entity_class_name) + ";dict="+str(self.m_predicate_object_dict)
 
 
-def chop_namespace(predicate_prefix, attribute_name):
+def chop_namespace(attribute_name):
     prefix, colon, short_key = attribute_name.partition(":")
-    assert( prefix == predicate_prefix )
     return short_key
 
 
+# predicate_prefix could be "WMI" or a seeAlso script.
 def __filter_key_values(predicate_prefix, where_key_values):
 
     filtered_where_key_values = {}
     for sparql_key, sparql_value in where_key_values.items():
-        DEBUG("__filter_key_values sparql_key=%s", sparql_key)
-        short_key = chop_namespace(predicate_prefix, sparql_key)
+        DEBUG("__filter_key_values predicate_prefix=%s sparql_key=%s", predicate_prefix, sparql_key)
+        short_key = chop_namespace(sparql_key)
         # The local predicate names have to be unique.
         assert(short_key not in filtered_where_key_values)
         filtered_where_key_values[short_key] = sparql_value
@@ -526,17 +528,37 @@ def __filter_key_values(predicate_prefix, where_key_values):
     return filtered_where_key_values
 
 
+"""
+En fait, les callbacks ne devraient pas renvoyer des objets !
+On a besoin de RDF qu'on va injecter dans le triplestore courant,
+sur lequel on va executer la query Sparql.
+De plus, il faut que les valeurs de certains attributs des instances puissent aussi etre des objets.
+WMI renvoie naturellement des objets, mais les scripts Survol renvoient naturellement du RDF en vrac.
+Il faut donc que les callbacks puissent faire les deux:
+- Une liste d'objets pour les tests et les jointures, ainsi que le path pour les associators.
+- Du RDF "en vrac" injecte dans le triplestore.
+
+REMPLACER LE NODE DU PATH PAR LE PATH D ORIGINE QUI EST NECESSAIRE UNIQUEMENT
+POUR LES ASSOCIATORS DE WMI. C EST UNE SIMPLE CHAINE, PAS UNE INSTANCE.
+POUR WMI (ET SURVOL "Select" FUNCTION), ON VA SYNTHETISER DU RDF.
+
+MAIS EST-CE QU'IL NE VAUDRAIT PAS MIEUX RECREER DU RDF UNIQUEMENT A LA FIN POUR ALLEGER ?
+
+Lors de la jointure, on accumule le RDF.
+"""
+
 
 # TODO: Several callbacks. Maybe with a key ??
 # TODO: Maybe execute callbacks in a sub-process ?
 # TODO: Maybe not recursive run because it is too slow.
 # TODO: Rather run them once each.
 def _run_callback_on_entities(
+        grph,
         lst_input_object_key_values,
         execute_query_callback_select,
         execute_query_callback_associators):
 
-    def _evaluate_current_entity( index, known_variables, tuple_result_input):
+    def _evaluate_current_entity(index, known_variables, tuple_result_input):
         if index == len(lst_input_object_key_values):
             # Deepest level, last entity is reached, so return a result set.
             yield tuple_result_input
@@ -578,18 +600,23 @@ def _run_callback_on_entities(
         if curr_input_entity.m_associator_subject:
             def _callback_filter_all_sources_associators():
                 for one_see_also in curr_input_entity.m_associator_subject.all_sources():
-                    WARNING("_callback_filter_all_sources_associators one_see_also=%s", one_see_also)
+                    WARNING("_callback_filter_all_sources_associators one_see_also=%s assoc_key=%s path=%s",
+                            one_see_also,
+                            curr_input_entity.m_associator_key_name,
+                            curr_input_entity.m_associator_subject.m_object_path)
 
-                    short_associator_class_name = chop_namespace(one_see_also, curr_input_entity.m_associator_key_name)
+                    short_associator_class_name = chop_namespace(curr_input_entity.m_associator_key_name)
 
-                    iter_recursive_results = execute_query_callback_associators(
-                        curr_input_entity.m_class_name,  # Le resultClass
+                    iter_assoc_results = execute_query_callback_associators(
+                        grph,
+                        curr_input_entity.m_class_name,
                         one_see_also,
                         short_associator_class_name,
-                        curr_input_entity.m_associator_subject.m_object_path_node
+                        curr_input_entity.m_associator_subject.m_object_path
                     )
 
-                    for one_node_dict_pair in iter_recursive_results:
+                    # The objects should be merged based o
+                    for one_node_dict_pair in iter_assoc_results:
                         yield one_node_dict_pair
 
             iter_recursive_results = _callback_filter_all_sources_associators()
@@ -597,26 +624,34 @@ def _run_callback_on_entities(
         else:
             def _callback_filter_all_sources_select():
                 for one_see_also in curr_input_entity.all_sources():
-                    WARNING("_callback_filter_all_sources_select one_see_also=%s", one_see_also)
+                    WARNING("_callback_filter_all_sources_select one_see_also=%s m_class_name=%s", one_see_also, curr_input_entity.m_class_name)
 
-                    filtered_where_key_values = __filter_key_values(one_see_also, where_key_values_replaced)
-                    iter_recursive_results = execute_query_callback_select(
+                    # one_see_also can be "WMI" or a script like "survol:CIM_DataFile/...".
+                    predicate_prefix, colon, dummy = one_see_also.partition(":")
+
+                    filtered_where_key_values = __filter_key_values(predicate_prefix, where_key_values_replaced)
+                    iter_assoc_results = execute_query_callback_select(
+                        grph,
                         curr_input_entity.m_class_name,
                         one_see_also,
                         filtered_where_key_values)
 
-                    for one_node_dict_pair in iter_recursive_results:
+                    for one_node_dict_pair in iter_assoc_results:
                         yield one_node_dict_pair
 
             iter_recursive_results = _callback_filter_all_sources_select()
 
-        # TEMP TEMP
-        ### iter_recursive_results = list(iter_recursive_results)
+        # If there are several associators, they might have returned duplicate objects.
+        unique_recursive_results = {}
+        for object_path, dict_key_values in iter_recursive_results:
+            if object_path in unique_recursive_results:
+                unique_recursive_results[object_path].update(dict_key_values)
+            else:
+                unique_recursive_results[object_path] = dict_key_values
 
-
-        for object_path_node, dict_key_values in iter_recursive_results:
+        for object_path, dict_key_values in unique_recursive_results.items():
             # The result is made of URL to CIM objects.
-            output_entity = PathPredicateObject(object_path_node, curr_input_entity.m_class_name, dict_key_values)
+            output_entity = PathPredicateObject(object_path, curr_input_entity.m_class_name, dict_key_values)
             #print("From callback: output_entity=",output_entity)
 
             for variable_name, attribute_key in dict_variable_to_attribute.items():
@@ -627,12 +662,9 @@ def _run_callback_on_entities(
 
             tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
 
-            # Rendre object_path_node accessible si Associators.
-            # Ca nous donne le moniker. C est dommage de devoir le recalculer.
-            # object_path_node = lib_util.NodeUrl(object_path)
+            # object_path = lib_util.NodeUrl(object_path)
             # one_wmi_object.path =\\RCHATEAU - HP\root\cimv2:Win32_Process.Handle = "26720"
-
-            curr_input_entity.m_object_path_node = object_path_node
+            curr_input_entity.m_object_path = object_path
 
             # NON: Executer seulement pour chaque combinaison de variables reellement utilisees.
             # Sinon reutiliser le resultat.
@@ -645,36 +677,15 @@ def _run_callback_on_entities(
         yield tuple_results
 
 
-def QueryEntities(sparql_query, query_callback_select, query_callback_associator):
+def QueryEntities(grph, sparql_query, query_callback_select, query_callback_associator):
 
     list_entities_by_variable = _parse_query_to_key_value_pairs_list(sparql_query)
 
     WARNING("list_entities_by_variable=%s", str(list_entities_by_variable))
 
     input_keys = [ one_entity_by_variable.m_object_variable_name for one_entity_by_variable in list_entities_by_variable ]
-    for tuple_results in _run_callback_on_entities(list_entities_by_variable, query_callback_select, query_callback_associator):
+    for tuple_results in _run_callback_on_entities(grph, list_entities_by_variable, query_callback_select, query_callback_associator):
         yield dict(zip(input_keys,tuple_results))
-
-    # ON CHANGE LA LOGIQUE D EXECUTION:
-    # (1) Essayer de trier les objets
-    # (2) A chaque niveau, au lieu d'executer recursivement dans des boucles imbriquees,
-    #     peut-etre n executer qu'une seule fois: ON aura des donnees en trop mais on s'en fiche.
-
-    # En fait, on pourrait decider de splitter lq liste d'objects en deux s'il en realite il n'y as pas
-    # de partage de variable c'est a dire de produit cartesien. Ou bien, on supprime cette variable,
-    # ce qui renvoie davantage de donnees mais au lieu de faire N*M queries on en fait N+M.
-    # Toutefois la taille du resultat ne change pas.
-    # Cependant si on joue habilement des iterateurs, les besoins en memoire ne grandiront pas.
-
-    # ET EN PLUS C EST IDIOT !!
-    # Actuellement si on a deux objets, on va querir l object 2 pour chaque result de l'object 1
-    # meme s'il n'y a aucune variable en commun.
-
-    # Peut-etre supprimer des "where" clause pour reutiliser le resultat venant d'un cache.
-
-    # Donc faut reordonner la liste et eventuellement splitter en plusieurs.
-    # Puis reassembler les resultats en faisant cette fois-c- un produit cartesien.
-    # Mais c'est dommage de traiter deux fois ce produit cartesien bien que de facon differente.
 
 
 ##################################################################################
@@ -693,16 +704,15 @@ def QueryEntities(sparql_query, query_callback_select, query_callback_associator
 #   "associators of {CIM_Process.Handle=1780} where assocclass=CIM_ProcessExecutable"
 
 
-
-def QuerySeeAlsoEntities(sparql_query, query_callback_select, query_callback_associator):
-    return QueryEntities(sparql_query, query_callback_select, query_callback_associator)
+def QuerySeeAlsoEntities(grph, sparql_query, query_callback_select, query_callback_associator):
+    return QueryEntities(grph, sparql_query, query_callback_select, query_callback_associator)
 
 ##################################################################################
 
 # This runs a Sparql callback and transforms the returned objects into RDF triples.
 def QueryToGraph(grph, sparql_query, query_callback_select, query_callback_associator):
 
-    iter_entities_dicts = QueryEntities(sparql_query, query_callback_select, query_callback_associator)
+    iter_entities_dicts = QueryEntities(grph, sparql_query, query_callback_select, query_callback_associator)
 
     sys.stderr.write("iter_entities_dicts=%s\n"%dir(iter_entities_dicts))
 
@@ -710,48 +720,14 @@ def QueryToGraph(grph, sparql_query, query_callback_select, query_callback_assoc
         sys.stderr.write("one_dict_entity=%s\n"%one_dict_entity)
         for variable_name, sparql_object in one_dict_entity.items():
             # Dictionary of variable names to PathPredicateObject
-            for key,val in sparql_object.m_predicate_object_dict.items():
-                grph.add((sparql_object.m_subject_path, key,val))
+            sys.stderr.write("sparql_object.m_predicate_object_dict=%s\n" % sparql_object.m_predicate_object_dict)
+            print("sparql_object.m_predicate_object_dict=", sparql_object.m_predicate_object_dict)
+            for key, val in sparql_object.m_predicate_object_dict.items():
+                subject_path_node = lib_util.NodeUrl(sparql_object.m_subject_path)
+                grph.add((subject_path_node, key, val))
 
-    ### AddOntology(grph)
+    # TODO: Adds the ontology: Classes and predicates. AddOntology(grph)
 
-
-##################################################################################
-
-# This returns an iterator on objects of the input class.
-# These objects must match the input key-value pairs,
-# returned by calling the optional class-specific SelectFromWhere() method.
-# Each object is modelled by a key-value dictionary.
-# No need to return the class name because it is an input parameter.
-def SurvolExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key_values):
-    DEBUG("SurvolExecuteQueryCallback class_name=%s where_key_values=%s", class_name, str(filtered_where_key_values))
-
-    entity_module = lib_util.GetEntityModule(class_name)
-    if not entity_module:
-        raise Exception("SurvolExecuteQueryCallback: No module for class:%s"%class_name)
-
-    try:
-        enumerate_function = entity_module.SelectFromWhere
-    except AttributeError:
-        exc = sys.exc_info()[1]
-        INFO("No Enumerate for %s", class_name, str(exc) )
-        return
-
-    iter_enumeration = enumerate_function( filtered_where_key_values )
-    for one_key_value_dict in iter_enumeration:
-        one_key_value_dict["rdfs:definedBy"] = class_name + ":" + "SelectFromWhere"
-        yield ( lib_util.NodeUrl("survol_object_path"), one_key_value_dict )
-
-
-# Quand on a un triplet de cette forme, trouver toutes les proprietes
-# litterales relatives au sujet.
-# Subj: ('VARIABLE=', 't')
-# Pred: ('Predicate', u'rdf:type')
-# Obj: ('litt_string', 'CIM_Process')# On peut alors en faire des requetes WMI ou WBEM, eventuellement.
-#
-# En theorie, c'est toujours possible mais probablement tres lent.
-#
-# Si on a les bons attributs, on peut executer le script principal dans survol.
 
 ##################################################################################
 
@@ -862,8 +838,3 @@ Si execution d un script normal:
 Ca revient au meme mais c est plus propre
 
 """
-
-#
-
-
-
