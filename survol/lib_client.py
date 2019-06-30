@@ -354,11 +354,16 @@ def AgentToHost(agentUrl):
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
 
 class BaseCIMClass(object):
-    def __init__(self,agentUrl, entity_id):
+    def __init__(self,agentUrl, entity_id, kwargsOntology):
         DEBUG("BaseCIMClass.__init__ agentUrl=%s %s",agentUrl,entity_id)
-        self.m_agentUrl = agentUrl # If None, this is a local instance.
+        self.m_agent_url = agentUrl # If None, this is a local instance.
         self.m_entity_id = entity_id
-
+        # The values are stored in three ways:
+        # - In the URL.
+        # - As attributes of the class instance.
+        # - As a dictionary of key-value pairs as a reference.
+        # This is costly but avoids extra conversions.
+        self.m_key_value_pairs = kwargsOntology
 
     # Maybe this object is already in the cache ?
     def __new__(cls, agentUrl, className, **kwargsOntology):
@@ -372,7 +377,7 @@ class BaseCIMClass(object):
 
         # TODO: The key to this class instance must include the host associated to the agent.
         try:
-            cacheInstance = cls.m_instancesCache[instanceKey]
+            cacheInstance = cls.m_instances_cache[instanceKey]
             DEBUG("BaseCIMClass.__new__ %s is IN the cache instanceKey=",instanceKey)
             return cacheInstance
         except KeyError:
@@ -382,10 +387,10 @@ class BaseCIMClass(object):
             if sys.version_info >= (3,):
                 newInstance = super(BaseCIMClass, cls).__new__(cls)
             else:
-                # TODO: Consider reusing eneity_id.
+                # TODO: Consider reusing entity_id.
                 newInstance = super(BaseCIMClass, cls).__new__(cls,  agentUrl, className, **kwargsOntology)
 
-            cls.m_instancesCache[instanceKey] = newInstance
+            cls.m_instances_cache[instanceKey] = newInstance
             return newInstance
 
 
@@ -399,15 +404,15 @@ class BaseCIMClass(object):
     # This allows the discovery of a machine and its neighbours,
     # discovery with A* algorithm or any exploration heuristic etc....
     def GetScripts(self):
-        if self.m_agentUrl:
+        if self.m_agent_url:
             return self.GetScriptsRemote()
         else:
             return self.GetScriptsLocal()
 
     def GetScriptsRemote(self):
         # We expect a contextual menu in JSON format, not a graph.
-        urlScripts = self.m_agentUrl + "/survol/entity_dirmenu_only.py" + "?xid=" + self.__class__.__name__ + "." + self.m_entity_id + "&mode=menu"
-        #DEBUG("GetScriptsRemote self.m_agentUrl=%s urlScripts=%s",self.m_agentUrl,urlScripts)
+        urlScripts = self.m_agent_url + "/survol/entity_dirmenu_only.py" + "?xid=" + self.__class__.__name__ + "." + self.m_entity_id + "&mode=menu"
+        #DEBUG("GetScriptsRemote self.m_agent_url=%s urlScripts=%s",self.m_agent_url,urlScripts)
 
         # Typical content:
         # {
@@ -646,8 +651,8 @@ def CIMClassFactoryNoCache(className):
         """This function will be used as a constructor for the new class."""
         for key, value in kwargsOntology.items():
             setattr(self, key, value)
-        entity_id = lib_util.KWArgsToEntityId(className,**kwargsOntology)
-        BaseCIMClass.__init__(self,agentUrl, entity_id)
+        entity_id = lib_util.KWArgsToEntityId(className, **kwargsOntology)
+        BaseCIMClass.__init__(self,agentUrl, entity_id, kwargsOntology)
 
     if sys.version_info < (3,0):
         # Python 2 does not want Unicode class name.
@@ -655,7 +660,7 @@ def CIMClassFactoryNoCache(className):
 
     # sys.stderr.write("className: %s/%s\n"%(str(type(className)),className))
     newclass = type(className, (BaseCIMClass,),{"__init__": Derived__init__})
-    newclass.m_instancesCache = {}
+    newclass.m_instances_cache = {}
     return newclass
 
 # Classes are keyed with their name.
@@ -778,6 +783,8 @@ class TripleStore:
 
     # This creates a CIM object for each unique URL, subject or object found in a triplestore.
     # If needed, the CIM class is created on-the-fly.
+    # TODO: Is is really useful to build objects, given that the edges are lost ??
+    # TODO: And what about connected objects ? Can a value be an object ?
     def GetInstances(self):
         DEBUG("GetInstances")
         objsSet = self.EnumerateUrls()

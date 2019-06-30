@@ -30,14 +30,6 @@ import lib_export_ontology
 #On ajoute l ontologie.
 
 
-# This uses exclusively data from WMI.
-
-#!/usr/bin/python
-
-"""
-This SPARQL server translates SPARQL queries into Survol data model.
-"""
-
 # For the moment, it just displays the content of the input to standard error,
 # so the SparQL protocol can be analysed.
 
@@ -53,7 +45,7 @@ def GenericExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key
 
     funcCallback = {
         "wmi" : lib_wmi.WmiCallbackSelect,
-        "survol" : lib_sparql.SurvolExecuteQueryCallback }[predicate_prefix]
+        "survol" : lib_sparql.SurvolCallbackSelect }[predicate_prefix]
 
     return funcCallback(class_name, predicate_prefix, filtered_where_key_values)
 

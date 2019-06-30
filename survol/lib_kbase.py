@@ -8,7 +8,6 @@ import re
 
 PredicateSeeAlso = RDFS.seeAlso
 PredicateIsDefinedBy = RDFS.isDefinedBy
-#PredicateSeeAlso = RDFS.isDefinedBy # ???
 PredicateComment = RDFS.comment
 
 def IsLiteral(objRdf):
@@ -310,3 +309,20 @@ def triplestore_set_comment(grph, predicate_for_comment):
         grph.remove((kSub, kPred, kObj))
         pass
 ################################################################################
+
+
+# The QName is an abbreviation of URI reference with the namespace function for XML, for an edge.
+# Transforms "http://primhillcomputers.com/ontologies/ppid" into "ppid"
+# A CGI parameter might be there (CGIPROP)
+# See lib_properties.PropToQName
+def qname(x, grph):
+    try:
+        q = grph.compute_qname(x)
+        # q[0] is the shortened namespace "ns"
+        # Could return q[0] + ":" + q[2]
+        return q[2]
+    except:
+        return x
+    # Nothing really interesting at the moment, just hardcodes.
+    #return lib_properties.prop_color(prop)
+

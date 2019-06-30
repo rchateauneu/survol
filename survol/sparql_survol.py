@@ -11,6 +11,7 @@ import sys
 import lib_util
 import lib_kbase
 import lib_sparql
+import lib_sparql_callback_survol
 
 # HTTP_HOST and SERVER_NAME and SERVER_PORT
 
@@ -21,7 +22,11 @@ def Main():
 
     grph = lib_kbase.MakeGraph()
 
-    lib_sparql.QueryToGraph(grph,sparql_query, lib_sparql.SurvolExecuteQueryCallback)
+    lib_sparql.QueryToGraph(
+        grph,
+        sparql_query,
+        lib_sparql_callback_survol.SurvolCallbackSelect,
+        lib_sparql_callback_survol.SurvolCallbackAssociator)
 
     envSparql.WriteTripleStoreAsString(grph)
 

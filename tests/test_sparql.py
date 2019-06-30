@@ -31,6 +31,7 @@ import lib_util
 import lib_properties
 import lib_kbase
 import lib_wmi
+import lib_sparql_callback_survol
 
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
@@ -71,7 +72,7 @@ hard_coded_data_select = {
 # This returns an iterator on hard-coded objects, of a given class,
 # which must match the input key-value pairs.
 # Each object is modelled by a key-value dictionary.
-def HardcodeCallbackSelect(class_name, predicate_prefix, where_key_values):
+def HardcodeCallbackSelect(grph, class_name, predicate_prefix, where_key_values):
     # Note: Cannot have backslashes in rdflib ??
     WARNING("HardcodeCallbackSelect class_name=%s predicate_prefix=%s where_key_values=%s",
             class_name, predicate_prefix, where_key_values)
@@ -108,22 +109,23 @@ def HardcodeCallbackSelect(class_name, predicate_prefix, where_key_values):
             hardcoded_path_dict["__class_name__"] = class_name
             hardcoded_path_str = json.dumps(hardcoded_path_dict)
 
-            yield ( lib_util.NodeUrl(hardcoded_path_str), _key_values_to_rdf( one_key_value_pair_dict ) )
+            yield ( hardcoded_path_str, _key_values_to_rdf( one_key_value_pair_dict ) )
 
 
 # Return type similar to HardcodeCallbackSelect.
 # This simulates WQL associators.
 def HardcodeCallbackAssociator(
+    grph,
     result_class_name,
     predicate_prefix,
     associator_key_name,
-    subject_path_node):
+    subject_path):
 
     # result_class_name = CIM_DataFile
     # associator_key_name = ppid
     # subject_path_node = {u'pid': 123, u'runs': u'firefox.exe', u'ppid': 456, u'__class_name__': u'CIM_Process', u'user': u'herself'}
 
-    hardcoded_path_dict = json.loads(subject_path_node)
+    hardcoded_path_dict = json.loads(subject_path)
     WARNING("HardcodeCallbackAssociator result_class_name=%s associator_key_name=%s subject_path_node=%s",
           result_class_name,
           associator_key_name,
@@ -158,7 +160,7 @@ def HardcodeCallbackAssociator(
     for one_object in objects_per_result_class:
         hardcoded_path_str = json.dumps(hardcoded_path_dict)
 
-        yield (hardcoded_path_str,one_object)
+        yield (hardcoded_path_str, one_object)
 
     # The query function from lib_sparql module, returns RDF nodes.
 # This is not very convenient to test.
@@ -181,15 +183,20 @@ def QueriesEntitiesToValuePairs(iter_entities_dicts):
         yield one_entities_dict_qname
 
 
-def QueryKeyValuePairs(sparql_query, sparql_callback_select, sparql_callback_associator = None):
-    iter_entities_dicts = lib_sparql.QueryEntities(sparql_query, sparql_callback_select, sparql_callback_associator)
+def QueryKeyValuePairs(sparql_query, sparql_callback_select, sparql_callback_associator):
+    iter_entities_dicts = lib_sparql.QueryEntities(None, sparql_query, sparql_callback_select, sparql_callback_associator)
     list_entities_dicts = list(iter_entities_dicts)
-    return QueriesEntitiesToValuePairs(list_entities_dicts)
+    iter_dict_objects = QueriesEntitiesToValuePairs(list_entities_dicts)
+    list_dict_objects = list(iter_dict_objects)
+    return list_dict_objects
 
 
-def QuerySeeAlsoKeyValuePairs(sparql_query, sparql_callback_select, sparql_callback_associator = None):
-    iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(sparql_query, sparql_callback_select, sparql_callback_associator)
-    return QueriesEntitiesToValuePairs(iter_entities_dicts)
+def QuerySeeAlsoKeyValuePairs(grph, sparql_query, sparql_callback_select, sparql_callback_associator):
+    WARNING("QuerySeeAlsoKeyValuePairs")
+    iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query, sparql_callback_select, sparql_callback_associator)
+    iter_dict_objects = QueriesEntitiesToValuePairs(iter_entities_dicts)
+    list_dict_objects = list(iter_dict_objects)
+    return list_dict_objects
 
 
 class SparqlCallTest(unittest.TestCase):
@@ -555,8 +562,7 @@ class SparqlCallTest(unittest.TestCase):
             print(sparql_query)
 
             print("expected_results=",expected_results)
-            itr_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeCallbackSelect)
-            list_dict_objects = list(itr_dict_objects)
+            list_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeCallbackSelect, HardcodeCallbackAssociator)
             print("list_dict_objects=",list_dict_objects)
 
             assert(list_dict_objects == expected_results)
@@ -632,8 +638,7 @@ class SparqlCallTest(unittest.TestCase):
             print(sparql_query)
 
             print("expected_results=",expected_results)
-            itr_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeCallbackSelect, HardcodeCallbackAssociator)
-            list_dict_objects = list(itr_dict_objects)
+            list_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeCallbackSelect, HardcodeCallbackAssociator)
             print("list_dict_objects=",list_dict_objects)
 
             assert(list_dict_objects == expected_results)
@@ -659,7 +664,7 @@ class SparqlCallTest(unittest.TestCase):
                [
                    { "url_proc":{
                        'parent_pid': str(CurrentParentPid),
-                       'rdfs:definedBy': 'CIM_Process:SelectFromWhere',
+                       #'rdf-schema#isDefinedBy': 'CIM_Process:SelectFromWhere',
                        'Handle': str(CurrentPid),
                        'username': CurrentUsername,
                        '__class__': 'CIM_Process'}},
@@ -672,8 +677,10 @@ class SparqlCallTest(unittest.TestCase):
             print(sparql_query)
 
             # TODO: Pass several callbacks, processed in a specific order ?
-            itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_sparql.SurvolExecuteQueryCallback)
-            list_dict_objects = list(itr_dict_objects)
+            list_dict_objects = QueryKeyValuePairs(
+                sparql_query,
+                lib_sparql_callback_survol.SurvolCallbackSelect,
+                lib_sparql_callback_survol.SurvolCallbackAssociator)
 
             print("list_dict_objects=",list_dict_objects)
             print("expected_results=",expected_results)
@@ -682,7 +689,7 @@ class SparqlCallTest(unittest.TestCase):
     def test_survol_nested(self):
         """
         Test the Sparql server which works on Survol data.
-        The loop is done zith the optional method SelectFromWhere, specific to each class.
+        The loop is done with the optional method SelectFromWhere, specific to each class.
         The attributes in the SparQL query must match the ontology of the query callback function.
         """
 
@@ -704,8 +711,10 @@ class SparqlCallTest(unittest.TestCase):
             """ % (CurrentPid,CurrentPid)
 
         # TODO: Pass several callbacks, processed in a specific order ?
-        itr_dict_objects = QueryKeyValuePairs(nested_qry, lib_sparql.SurvolExecuteQueryCallback)
-        list_dict_objects = list(itr_dict_objects)
+        list_dict_objects = QueryKeyValuePairs(
+            nested_qry,
+            lib_sparql_callback_survol.SurvolCallbackSelect,
+            lib_sparql_callback_survol.SurvolCallbackAssociator)
 
         print("list_dict_objects=",list_dict_objects)
         found = False
@@ -718,16 +727,30 @@ class SparqlCallTest(unittest.TestCase):
         assert(found)
 
     def test_survol_associators(self):
-        """This runs a query which associates two objects.
+        """This returns the parent process using a specific script.
         """
+
+        sparql_query = """
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_proc1 survol:Handle %d  .
+              ?url_proc1 rdf:type survol:CIM_Process .
+              ?url_proc1 rdfs:seeAlso "survol:CIM_Process/single_pidstree.py" .
+              ?url_proc1 survol:ppid ?url_proc2  .
+              ?url_proc2 survol:Name ?filename  .
+              ?url_proc2 rdf:type survol:CIM_Process .
+            }
+            """ % CurrentPid
+
         assert(False)
 
 class SparqlCallWmiTest(unittest.TestCase):
 
     @staticmethod
     def __run_wmi_query(sparql_query):
-        itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
-        list_dict_objects = list(itr_dict_objects)
+        list_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
         print("list_dict_objects len=",len(list_dict_objects))
         return list_dict_objects
 
@@ -816,7 +839,7 @@ class SparqlCallWmiTest(unittest.TestCase):
         print(sparql_query)
 
         # TODO: Pass several callbacks, processed in a specific order ?
-        itr_dict_objects = lib_sparql.QueryEntities(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+        itr_dict_objects = lib_sparql.QueryEntities(None, sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
 
         grph = lib_kbase.MakeGraph()
 
@@ -829,7 +852,7 @@ class SparqlCallWmiTest(unittest.TestCase):
                 # otherwise objects could not be shared.
                 print("variable_name=",variable_name)
                 print("key_value_nodes=",key_value_nodes)
-                wmiInstanceNode = key_value_nodes.m_subject_path
+                wmiInstanceNode = lib_util.NodeUrl(key_value_nodes.m_subject_path)
 
                 for key_node,value_node in key_value_nodes.m_predicate_object_dict.items():
                     grph.add((wmiInstanceNode,key_node,value_node))
@@ -1001,8 +1024,7 @@ class SparqlCallWmiTest(unittest.TestCase):
             }
             """ % CurrentPid
 
-        itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
-        list_dict_objects = list(itr_dict_objects)
+        list_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
 
         # The extra filter on CIM_DataFile.Name is not checked.
 
@@ -1054,8 +1076,7 @@ class SparqlCallWmiTest(unittest.TestCase):
             }
             """ % r"c:\\program files\\mozilla firefox\\firefox.exe"
 
-        itr_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
-        list_dict_objects = list(itr_dict_objects)
+        list_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
 
         for one_dict in list_dict_objects:
             assert sorted(one_dict.keys()) == ['url_file', 'url_proc']
@@ -1194,7 +1215,7 @@ class SparqlServerSurvolTest(unittest.TestCase):
               ?url_proc survol:ppid %d .
               ?url_proc rdf:type survol:CIM_Process .
             }
-            """ % os.getpid(),
+            """ % CurrentPid,
                 "xxx"
             ],
         ]
@@ -1203,81 +1224,266 @@ class SparqlServerSurvolTest(unittest.TestCase):
             print("sparql_query=",sparql_query)
 
             url_sparql = RemoteTestAgent + "/survol/sparql_survol.py?query=" + lib_util.urllib_quote(sparql_query)
+            print("url_sparql=",url_sparql)
 
             response = lib_util.survol_urlopen(url_sparql)
             data = response.read().decode("utf-8")
+            print(data)
+            assert(False)
 
 # This meta-callback dispatches the query to the right data source.
-def UnitTestSeeAlsoExecuteQueryCallback(class_name, predicate_prefix, where_key_values):
+def UnitTestSeeCallbackSelect(grph, class_name, see_also, where_key_values):
+    predicate_prefix, colon, see_also_script = see_also.partition(":")
+    WARNING("UnitTestSeeCallbackSelect predicate_prefix=%s",predicate_prefix)
+
     import lib_wmi
     if predicate_prefix == "HardCoded":
-        return HardcodeCallbackSelect(class_name, predicate_prefix, where_key_values)
+        return HardcodeCallbackSelect(grph, class_name, predicate_prefix, where_key_values)
     if predicate_prefix == "WMI":
-        return lib_wmi.WmiCallbackSelect(class_name, predicate_prefix, where_key_values)
+        return lib_wmi.WmiCallbackSelect(grph, class_name, predicate_prefix, where_key_values)
     if predicate_prefix == "survol":
         # This calls the option class-specific method SelectFromWhere
-        return lib_sparql.SurvolExecuteQueryCallback(class_name, predicate_prefix, where_key_values)
+        return lib_sparql_callback_survol.SurvolCallbackSelect(grph, class_name, see_also, where_key_values)
     # Otherwise it must be a script name.
+    ERROR("UnitTestSeeCallbackSelect predicate_prefix=%s",predicate_prefix)
+    assert(False)
+
+# This meta-callback dispatches the query to the right data source.
+def UnitTestSeeCallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path):
+    predicate_prefix, colon, see_also_script = see_also.partition(":")
+    WARNING("UnitTestSeeCallbackAssociator predicate_prefix=%s",predicate_prefix)
+
+    import lib_wmi
+    if predicate_prefix == "HardCoded":
+        return HardcodeCallbackAssociator(grph, result_class_name, predicate_prefix, associator_key_name, subject_path)
+    if predicate_prefix == "WMI":
+        return lib_wmi.WmiCallbackAssociator(grph, result_class_name, predicate_prefix, associator_key_name, subject_path)
+    if predicate_prefix == "survol":
+        return lib_sparql_callback_survol.SurvolCallbackAssociator(grph, result_class_name, predicate_prefix, associator_key_name, subject_path)
+    # Otherwise it must be a script name.
+    ERROR("UnitTestSeeCallbackAssociator predicate_prefix=%s",predicate_prefix)
     assert(False)
 
 
 class SparqlSeeAlsoTest(unittest.TestCase):
+    @staticmethod
+    def compare_list_queries(array_survol_queries):
+        for sparql_query, one_expected_dict in array_survol_queries:
+            print("sparql_query=",sparql_query)
+
+            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, UnitTestSeeCallbackSelect, UnitTestSeeCallbackAssociator)
+
+            # The expected object must be a subset of one of the returned objects.
+            print("list_dict_objects=",list_dict_objects)
+            print("GOLD=",one_expected_dict)
+
+            expected_keys = one_expected_dict.keys()
+            found = False
+            for one_dict_objects in list_dict_objects:
+                actual_keys = one_dict_objects.keys()
+                assert actual_keys == expected_keys
+                print("TEST=",one_dict_objects)
+
+                # This returns the first pair of different elements.
+                def diff_dictionary(sub_dict, main_dict):
+                    for sub_key in sub_dict:
+                        sub_val = sub_dict[sub_key]
+                        try:
+                            main_val = main_dict[sub_key]
+                        except KeyError:
+                            return (sub_key, sub_val, None)
+                        if sub_val != main_val:
+                            return (sub_key, sub_val, main_val)
+                    return (None, None, None)
+
+                # Maybe each of the select objects are only sub_dicts of the actual result.
+                all_diff = {
+                    var_key: diff_dictionary(one_expected_dict[var_key], one_dict_objects[var_key])
+                    for var_key in expected_keys }
+
+                if all_diff == {var_key:(None, None, None) for var_key in expected_keys} :
+                    found = True
+                    break
+
+            print("all_diff=",all_diff)
+            assert found
+
     def test_see_also(self):
+        CurrentFile = __file__.replace("\\","/")
         array_survol_queries=[
+            [
+                """
+                SELECT *
+                WHERE
+                { ?url_proc survol:Handle %d  .
+                  ?url_proc rdf:type survol:CIM_Process .
+                  ?url_proc rdfs:seeAlso "WMI" .
+                }
+                """ % CurrentPid,
+                {'url_proc': {'CSName': 'RCHATEAU-HP', 'Name': 'python.exe',
+                              'ProcessId': str(CurrentPid), 'Handle': str(CurrentPid),
+                              'OSCreationClassName': 'Win32_OperatingSystem',
+                              '__class__': 'CIM_Process', 'rdf-schema#isDefinedBy': 'WMI', 'ParentProcessId': str(CurrentParentPid),
+                              'Caption': 'python.exe', 'CSCreationClassName': 'Win32_ComputerSystem', 'Description': 'python.exe',
+                              'ExecutablePath': 'C:\\\\Python27\\\\python.exe', 'CreationClassName': 'Win32_Process', }},
+            ],
+
+               ["""
+                SELECT *
+                WHERE
+                { ?url_proc survol:Name "%s" .
+                  ?url_proc rdf:type survol:CIM_DataFile .
+                  ?url_proc rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
+                }
+                """ % CurrentFile,
+                {'url_proc': {'__class__': 'CIM_DataFile', 'Name': CurrentFile} }
+            ],
+
             ["""
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
+                  ?url_proc rdf:type survol:CIM_DataFile .
+                  ?url_proc rdfs:seeAlso "survol:CIM_DataFile/mapping_processes" .
+                }
+                """,
+                {'url_proc': {'__class__': 'CIM_DataFile', 'Name': '/usr/lib/systemd/systemd-journald'}},
+            ],
+            ["""
                 SELECT *
                 WHERE
                 { ?url_proc survol:Handle %d  .
                   ?url_proc rdf:type survol:CIM_Process .
                   ?url_proc rdfs:seeAlso <http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=29&mode=rdf> .
                 }
-                """ % os.getpid(),
-                "xxx",
-            ],
-
-            [
-                """
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT *
-                WHERE
-                { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
-                  ?url_proc rdf:type survol:CIM_DataFile .
-                  ?url_proc rdfs:seeAlso <http://vps516494.ovh.net/Survol/survol/sources_types/CIM_DataFile/mapping_processes.py?xid=CIM_DataFile.Name%3D%2Fusr%2Flib%2Fsystemd%2Fsystemd-journald&mode=rdf> .
-                }
-                """,
-                "xxx",
+                """ % CurrentPid,
+                {'url_proc': {'username': 'rchateau',
+                              'Handle': str(CurrentPid),
+                              # 'rdf-schema#isDefinedBy': 'CIM_Process:SelectFromWhere',
+                              'parent_pid': str(CurrentParentPid),
+                              '__class__': 'CIM_Process'}}
             ],
 
             ["""
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
                 SELECT *
                 WHERE
-                { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
-                  ?url_proc rdf:type survol:CIM_DataFile .
-                  ?url_proc rdfs:seeAlso "survol/CIM_DataFile/mapping_processes" .
+                { ?url_proc survol:Handle %d  .
+                  ?url_proc rdf:type survol:CIM_Process .
+                  ?url_proc rdfs:seeAlso "survol:CIM_Process/process_open_files" .
+                  ?url_proc rdfs:seeAlso "survol:CIM_Process/single_pidstree" .
+                  ?url_proc rdfs:seeAlso "survol:CIM_Process/languages/python/current_script" .
                 }
-                """,
-                "xxx",
+                """ % CurrentPid,
+                {'url_proc': {'Handle': str(CurrentPid), '__class__': 'CIM_Process'}},
             ],
 
-            # TODO: We must a triple with the predicate "definedBy" to each object.
+        ]
+
+        self.compare_list_queries(array_survol_queries)
+
+
+    def test_see_also_associator(self):
+        #CurrentPid=8000
+        # This checks that the current process runs the Python executable.
+        array_survol_queries_associator=[
             ["""
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT *
-                WHERE
-                { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
-                  ?url_proc rdf:type survol:CIM_DataFile .
-                  ?url_proc rdfs:seeAlso "survol/CIM_DataFile/*" .
-                }
-                """,
-                "xxx",
+            SELECT *
+            WHERE
+            { ?url_proc survol:Handle %d  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_file rdfs:seeAlso "WMI" .
+              ?url_file rdf:type survol:CIM_DataFile .
+              ?url_file rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
+              ?url_file survol:CIM_ProcessExecutable ?url_proc  .
+            }
+            """ % CurrentPid,
+            ['url_proc', 'url_file'],
             ],
 
+            ["""
+            SELECT *
+            WHERE
+            { ?url_proc survol:Handle %d  .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc rdfs:seeAlso "WMI" .
+              ?url_file rdf:type survol:CIM_DataFile .
+              ?url_file rdfs:seeAlso "survol:CIM_DataFile/file_stat" .
+            }
+            """ % CurrentPid,
+             {'url_proc': {'CSName': 'RCHATEAU-HP', 'Name': 'python.exe', 'ProcessId': str(CurrentPid),
+                           'Handle': str(CurrentPid),
+                           'OSCreationClassName': 'Win32_OperatingSystem',
+                           '__class__': 'CIM_Process', 'rdf-schema#isDefinedBy': 'WMI',
+                           'ParentProcessId': str(CurrentParentPid), 'Caption': 'python.exe',
+                           'CSCreationClassName': 'Win32_ComputerSystem',
+                           'Description': 'python.exe',
+                           'ExecutablePath': 'C:\\\\Python27\\\\python.exe',
+                           'CreationClassName': 'Win32_Process'},
+              'url_file': {'CSName': 'RCHATEAU-HP',
+                           'FSCreationClassName': 'Win32_FileSystem',
+                           '__class__': 'CIM_DataFile',
+                           'rdf-schema#isDefinedBy': 'WMI',
+                           'CSCreationClassName': 'Win32_ComputerSystem',
+                           'CreationClassName': 'CIM_LogicalFile'}},
+             ],
+
+             ["""
+                SELECT *
+                WHERE
+                { ?url_proc survol:Handle %d  .
+                  ?url_proc rdf:type survol:CIM_Process .
+                  ?url_file rdfs:seeAlso "WMI" .
+                  ?url_file rdf:type survol:CIM_DataFile .
+                  ?url_file survol:Name "%s" .
+                  ?url_file survol:CIM_ProcessExecutable ?url_proc  .
+                }
+                """ % ( CurrentPid, sys.executable.replace("\\","/") ),
+                {'url_proc': {'CSName': 'RCHATEAU-HP', 'Name': 'python.exe', 'ProcessId': str(CurrentPid),
+                              'Handle': str(CurrentPid),
+                              'OSCreationClassName': 'Win32_OperatingSystem',
+                              '__class__': 'CIM_Process',
+                              'rdf-schema#isDefinedBy': 'WMI',
+                              'ParentProcessId': str(CurrentParentPid),
+                              'Caption': 'python.exe',
+                              'CSCreationClassName': 'Win32_ComputerSystem', 'Description': 'python.exe',
+                              'ExecutablePath': 'C:\\\\Python27\\\\python.exe',
+                              'CreationClassName': 'Win32_Process', },
+                 'url_file': {'CSName': 'RCHATEAU-HP',
+                              'FSCreationClassName': 'Win32_FileSystem',
+                              'Description': 'c:\\\\python27\\\\python.exe', '__class__': 'CIM_DataFile',
+                              'rdf-schema#isDefinedBy': 'WMI',
+                              'Name': 'c:\\\\python27\\\\python.exe',
+                              'FileType': 'Application', 'Drive': 'c:', 'Extension': 'exe',
+                              'Caption': 'c:\\\\python27\\\\python.exe',
+                              'CSCreationClassName': 'Win32_ComputerSystem', 'FileName': 'python',
+                              'CreationClassName': 'CIM_LogicalFile'}},
+                ],
+
+
+                       # TODO: Normallement faudrait pas appeler SelectFromWhere si ona tous les kay/val
+            [   """
+                SELECT *
+                WHERE
+                { ?url_proc survol:Handle %d  .
+                  ?url_proc survol:CIM_ProcessExecutable ?url_file  .
+                  ?url_proc rdf:type survol:CIM_Process .
+                  ?url_proc rdfs:seeAlso "WMI" .
+                  ?url_file rdf:type survol:CIM_DataFile .
+                }
+                """ % CurrentPid,
+                {'url_proc': {'username': 'rchateau', 'Handle': str(CurrentPid), 'parent_pid': str(CurrentParentPid), '__class__': 'CIM_Process'},
+                 'url_file': {'CSName': 'RCHATEAU-HP', '__class__': 'CIM_DataFile', 'CreationClassName': 'CIM_LogicalFile' }},
+            ],
+
+        ]
+
+        self.compare_list_queries(array_survol_queries_associator)
+
+    def test_see_also_special(self):
+        """Special Survol seeAlso pathes"""
+        CurrentFile = __file__.replace("\\","/")
+        array_survol_queries=[
             # TODO: This could generate all allowed scripts.
             ["""
                 PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -1288,79 +1494,60 @@ class SparqlSeeAlsoTest(unittest.TestCase):
                   ?url_proc rdfs:seeAlso ?script .
                 }
                 """,
-                "xxx",
+                ['url_proc'],
             ],
 
             ["""
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT *
-                WHERE
-                { ?url_proc survol:Handle %d  .
-                  ?url_proc rdf:type survol:CIM_Process .
-                  ?url_proc rdfs:seeAlso "survol/CIM_Process/*" .
-                }
-                """ % os.getpid(),
-                "xxx",
-            ],
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_proc survol:Handle %d  .
+            ?url_proc rdf:type survol:CIM_Process .
+            ?url_proc rdfs:seeAlso "survol:CIM_Process" .
+            }
+            """ % CurrentPid,
+             ['url_proc'],
+             ],
+
             ["""
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT *
-                WHERE
-                { ?url_proc survol:Handle %d  .
-                ?url_proc rdf:type survol:CIM_Process .
-                ?url_proc rdfs:seeAlso "survol/CIM_Process" .
-                }
-                """ % os.getpid(),
-                "xxx",
-            ],
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_proc survol:Handle %d  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc rdfs:seeAlso "survol:CIM_Process/*" .
+            }
+            """ % CurrentPid,
+             {'url_proc': {'Handle': str(CurrentPid), '__class__': 'CIM_Process'}},
+             ],
 
-            # This runs a WQL select query.
-            [
-                """
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT *
-                WHERE
-                { ?url_proc survol:Handle %d  .
-                  ?url_proc rdf:type survol:CIM_Process .
-                  ?url_proc rdfs:seeAlso "WMI" .
-                }
-                """ % os.getpid(),
-                "xxx",
-            ],
-
-            # This runs a WQL select query.
-            [
-                """
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT *
-                WHERE
-                { ?url_proc survol:Handle %d  .
-                  ?url_proc survol:ExecutableFileName ?filename  .
-                  ?url_proc rdf:type survol:CIM_Process .
-                  ?url_proc rdfs:seeAlso "WMI" .
-                  ?url_file survol:Name ?filename  .
-                  ?url_file rdf:type survol:CIM_DataFile .
-                  ?url_file rdfs:seeAlso "survol/CIM_DataFile/*" .
-                }
-                """ % os.getpid(),
-                "xxx",
+            ["""
+            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
+              ?url_proc rdf:type survol:CIM_DataFile .
+              ?url_proc rdfs:seeAlso <http://vps516494.ovh.net/Survol/survol/sources_types/CIM_DataFile/mapping_processes.py?xid=CIM_DataFile.Name%3D%2Fusr%2Flib%2Fsystemd%2Fsystemd-journald&mode=rdf> .
+            }
+            """,
+            None,
             ],
         ]
 
-        for sparql_query, expected_result in array_survol_queries:
+        for sparql_query, one_expected_dict in array_survol_queries:
             print("sparql_query=",sparql_query)
 
-            itr_dict_objects = QuerySeeAlsoKeyValuePairs(sparql_query, UnitTestSeeAlsoExecuteQueryCallback)
+            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, UnitTestSeeCallbackSelect, UnitTestSeeCallbackAssociator)
 
-            url_sparql = RemoteTestAgent + "/survol/sparql_survol.py?query=" + lib_util.urllib_quote(sparql_query)
-
-            response = lib_util.survol_urlopen(url_sparql)
-            data = response.read().decode("utf-8")
-
+            # Syntaxic test only, or wrong platform.
+            if one_expected_dict == None:
+                continue
+            print("list_dict_objects=",list_dict_objects)
+            print("GOLD=",one_expected_dict)
+            assert(False)
 
 
 # This works: gwmi -Query 'xxxxx'
