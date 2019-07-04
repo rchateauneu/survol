@@ -735,16 +735,29 @@ class SparqlCallTest(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
-            { ?url_proc1 survol:Handle %d  .
-              ?url_proc1 rdf:type survol:CIM_Process .
-              ?url_proc1 rdfs:seeAlso "survol:CIM_Process/single_pidstree.py" .
-              ?url_proc1 survol:ppid ?url_proc2  .
-              ?url_proc2 survol:Name ?filename  .
-              ?url_proc2 rdf:type survol:CIM_Process .
+            { ?url_procA survol:Handle %d  .
+              ?url_procA rdf:type survol:CIM_Process .
+              ?url_procA rdfs:seeAlso "survol:CIM_Process/single_pidstree" .
+              ?url_procA survol:ppid ?url_procB  .
+              ?url_procB survol:Name ?filename  .
+              ?url_procB rdf:type survol:CIM_Process .
             }
             """ % CurrentPid
 
-        assert(False)
+        list_dict_objects = QueryKeyValuePairs(
+            sparql_query,
+            lib_sparql_callback_survol.SurvolCallbackSelect,
+            lib_sparql_callback_survol.SurvolCallbackAssociator)
+
+        print("list_dict_objects=",list_dict_objects)
+        found = False
+        for one_dict in list_dict_objects:
+            procA = one_dict["url_procA"]
+            procC = one_dict["url_procB"]
+            if procA == procC:
+                found = True
+                break
+        assert(found)
 
 class SparqlCallWmiTest(unittest.TestCase):
 
@@ -1113,6 +1126,7 @@ class SparqlServerWMITest(unittest.TestCase):
         return grphKBase
 
     def test_Win32_UserAccount(self):
+        """Looks for current user"""
         sparql_query="""
             PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -1196,6 +1210,15 @@ class SparqlServerWMITest(unittest.TestCase):
         for rdfSubject, rdfPredicate, rdfObject in grphKBase:
             print(rdfSubject, rdfPredicate, rdfObject)
             # TODO: Should compare
+
+
+class SparqlServerTest(unittest.TestCase):
+    """
+    Test the Sparql server on all sources of data.
+    """
+
+    def test_server(self):
+        return False
 
 
 class SparqlServerSurvolTest(unittest.TestCase):
@@ -1405,13 +1428,23 @@ class SparqlSeeAlsoTest(unittest.TestCase):
             WHERE
             { ?url_proc survol:Handle %d  .
               ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc rdfs:seeAlso "WMI" .
               ?url_proc survol:CIM_ProcessExecutable ?url_file  .
               ?url_file rdfs:seeAlso "WMI" .
               ?url_file rdf:type survol:CIM_DataFile .
               ?url_file rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
             }
             """ % CurrentPid,
-            ['url_proc', 'url_file'],
+            {
+                'url_proc': {'Handle': str(CurrentPid), '__class__': 'CIM_Process'},
+                'url_file': {'CSName': 'RCHATEAU-HP',
+                          '__class__': 'CIM_DataFile', 'rdf-schema#isDefinedBy': 'WMI',
+                          'Name': 'c:\\\\windows\\\\system32\\\\clbcatq.dll',
+                          'CSCreationClassName': 'Win32_ComputerSystem', 'CreationClassName': 'CIM_LogicalFile'}
+            },
+
+            # The CIM_Process objects are returned by Survol and by WMI. Their triples are merged by RDF.
+            # 'url_proc': { 'Name': 'python.exe', 'ProcessId': '13292', 'OSCreationClassName': 'Win32_OperatingSystem', '__class__': 'CIM_Process',}
             ],
 
             ["""
