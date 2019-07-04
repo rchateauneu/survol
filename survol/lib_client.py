@@ -739,8 +739,8 @@ class TripleStore:
     # Debugging purpose.
     def DisplayTripleStore(self):
         DEBUG("TripleStore.DisplayTripleStore")
-        for a,b,c in self.m_triplestore:
-            print("   ",a,b,c)
+        for subject, predicate, object in self.m_triplestore:
+            print("   ", subject, predicate, object)
 
     def ToStreamXml(self,strStrm):
         DEBUG("TripleStore.ToStreamXml")
