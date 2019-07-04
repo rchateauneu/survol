@@ -711,7 +711,11 @@ def WmiCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_val
     if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
         filnam = filtered_where_key_values["Name"]
         filtered_where_key_values["Name"] = filnam.replace("/","\\")
-        WARNING("WmiCallbackSelect REPLACED where_key_values=%s", filtered_where_key_values)
+        WARNING("WmiCallbackSelect REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
+    elif class_name == "CIM_Directory" and "Name" in filtered_where_key_values:
+        filnam = filtered_where_key_values["Name"]
+        filtered_where_key_values["Name"] = filnam.replace("/","\\")
+        WARNING("WmiCallbackSelect REPLACED CIM_Directory where_key_values=%s", filtered_where_key_values)
 
     wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values,class_name)
     WARNING("WmiCallbackSelect wmi_query=%s", wmi_query)
@@ -757,6 +761,12 @@ def WmiCallbackAssociator(
     # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
     # TODO: We must quadruple backslashes in Sparql queries.
     if "CIM_DataFile.Name" in wmi_path:
+        wmi_path = wmi_path.replace("\\\\","\\")
+        WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+    elif "CIM_Directory.Name" in wmi_path:
+        wmi_path = wmi_path.replace("\\\\", "\\")
+        WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+    elif "Win32_Directory.Name" in wmi_path:
         wmi_path = wmi_path.replace("\\\\","\\")
         WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
     assert wmi_path

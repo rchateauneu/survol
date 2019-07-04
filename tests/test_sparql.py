@@ -1234,7 +1234,7 @@ class SparqlServerSurvolTest(unittest.TestCase):
 # This meta-callback dispatches the query to the right data source.
 def UnitTestSeeCallbackSelect(grph, class_name, see_also, where_key_values):
     predicate_prefix, colon, see_also_script = see_also.partition(":")
-    WARNING("UnitTestSeeCallbackSelect predicate_prefix=%s",predicate_prefix)
+    WARNING("UnitTestSeeCallbackSelect predicate_prefix=%s where_key_values=%s", predicate_prefix, where_key_values)
 
     import lib_wmi
     if predicate_prefix == "HardCoded":
@@ -1404,6 +1404,20 @@ class SparqlSeeAlsoTest(unittest.TestCase):
             SELECT *
             WHERE
             { ?url_proc survol:Handle %d  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file  .
+              ?url_file rdfs:seeAlso "WMI" .
+              ?url_file rdf:type survol:CIM_DataFile .
+              ?url_file rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
+            }
+            """ % CurrentPid,
+            ['url_proc', 'url_file'],
+            ],
+
+            ["""
+            SELECT *
+            WHERE
+            { ?url_proc survol:Handle %d  .
               ?url_proc survol:CIM_ProcessExecutable ?url_file  .
               ?url_proc rdf:type survol:CIM_Process .
               ?url_proc rdfs:seeAlso "WMI" .
@@ -1460,9 +1474,7 @@ class SparqlSeeAlsoTest(unittest.TestCase):
                               'CreationClassName': 'CIM_LogicalFile'}},
                 ],
 
-
-                       # TODO: Normallement faudrait pas appeler SelectFromWhere si ona tous les kay/val
-            [   """
+            ["""
                 SELECT *
                 WHERE
                 { ?url_proc survol:Handle %d  .
@@ -1480,14 +1492,201 @@ class SparqlSeeAlsoTest(unittest.TestCase):
 
         self.compare_list_queries(array_survol_queries_associator)
 
+    def test_see_also_directories(self):
+        """Combinations of directories and files"""
+        array_survol_directories_queries=[
+
+        ["""
+            SELECT *
+            WHERE
+            { ?url_fileA rdf:type survol:CIM_Directory .
+              ?url_fileA rdfs:seeAlso "WMI" .
+              ?url_fileA survol:Name "C:/Windows"  .
+              ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
+              ?url_fileB survol:Name "C:/Windows/regedit.exe"  .
+              ?url_fileB rdfs:seeAlso "WMI" .
+              ?url_fileB rdf:type survol:CIM_DataFile .
+            }""",
+            {
+                'url_fileA': {
+                    'FSCreationClassName': 'Win32_FileSystem',
+                    '__class__': 'CIM_Directory', 'rdf-schema#isDefinedBy': 'WMI',
+                    'Name': 'c:\\\\windows',
+                    'FileType': 'File Folder', 'Drive': 'c:', 'Extension': '',
+                    'CSCreationClassName': 'Win32_ComputerSystem', 'FileName': 'windows',
+                    'CreationClassName': 'CIM_LogicalFile'},
+               'url_fileB': {
+                    'CSName': 'RCHATEAU-HP', 'FSCreationClassName': 'Win32_FileSystem',
+                    '__class__': 'CIM_DataFile', 'rdf-schema#isDefinedBy': 'WMI',
+                    'Name': 'c:\\\\windows\\\\regedit.exe',
+                    'CreationClassName': 'CIM_LogicalFile'}
+            }
+        ],
+
+        ["""
+            SELECT *
+            WHERE
+            { ?url_fileA rdf:type survol:CIM_Directory .
+              ?url_fileA rdfs:seeAlso "WMI" .
+              ?url_fileB survol:Win32_SubDirectory ?url_fileA  .
+              ?url_fileB rdf:type survol:CIM_Directory .
+              ?url_fileB rdfs:seeAlso "WMI" .
+              ?url_fileC survol:CIM_DirectoryContainsFile ?url_fileB  .
+              ?url_fileC survol:Name "C:/Windows/System32/cmd.exe"  .
+              ?url_fileC rdfs:seeAlso "WMI" .
+              ?url_fileC rdf:type survol:CIM_DataFile .
+            }""",
+            {
+                'url_fileA': { 'FSCreationClassName': 'Win32_FileSystem',
+                     'rdf-schema#isDefinedBy': 'WMI',
+                     'Name': 'c:\\\\windows\\\\system32\\\\appmgmt',
+                     'CSCreationClassName': 'Win32_ComputerSystem',
+                     'FileName': 'appmgmt', 'CreationClassName': 'CIM_LogicalFile'},
+                'url_fileC': {'FSCreationClassName': 'Win32_FileSystem',
+                     '__class__': 'CIM_DataFile',
+                     'Path': '\\\\windows\\\\system32\\\\',
+                     'rdf-schema#isDefinedBy': 'WMI',
+                     'Name': 'c:\\\\windows\\\\system32\\\\cmd.exe',
+                     'FileType': 'Application', 'Drive': 'c:', 'Extension': 'exe',
+                     'CSCreationClassName': 'Win32_ComputerSystem',
+                     'CreationClassName': 'CIM_LogicalFile'},
+                'url_fileB': {'CSName': 'RCHATEAU-HP',
+                     'Description': 'c:\\\\windows\\\\system32',
+                     'rdf-schema#isDefinedBy': 'WMI',
+                     'Name': 'c:\\\\windows\\\\system32', 'FileType': 'File Folder',
+                     'Drive': 'c:', 'Extension': '',
+                     'CSCreationClassName': 'Win32_ComputerSystem',
+                     'CreationClassName': 'CIM_LogicalFile'}}
+            ],
+
+        ["""
+            SELECT *
+            WHERE
+            { ?url_fileA rdf:type survol:CIM_Directory .
+              ?url_fileA rdfs:seeAlso "WMI" .
+              ?url_fileB survol:CIM_DirectoryContainsFile ?url_fileA  .
+              ?url_fileB survol:Name "C:/Windows/System32/cmd.exe"  .
+              ?url_fileB rdfs:seeAlso "WMI" .
+              ?url_fileB rdf:type survol:CIM_DataFile .
+            }""",
+
+         {'url_fileA': { 'FSCreationClassName': 'Win32_FileSystem',
+                         'Description': 'c:\\\\windows\\\\system32',
+                         'EightDotThreeFileName': 'c:\\\\windows\\\\system32',
+                         'rdf-schema#isDefinedBy': 'WMI',
+                         'Name': 'c:\\\\windows\\\\system32',
+                         'CSCreationClassName': 'Win32_ComputerSystem', 'FileName': 'system32',
+                         'CreationClassName': 'CIM_LogicalFile'},
+           'url_fileB': {'FSCreationClassName': 'Win32_FileSystem',
+                         'Description': 'c:\\\\windows\\\\system32\\\\cmd.exe',
+                         '__class__': 'CIM_DataFile',
+                         'Path': '\\\\windows\\\\system32\\\\',
+                         'rdf-schema#isDefinedBy': 'WMI',
+                         'Name': 'c:\\\\windows\\\\system32\\\\cmd.exe',
+                         'FileType': 'Application',
+                         'Drive': 'c:', 'Extension': 'exe',
+                         'CSCreationClassName': 'Win32_ComputerSystem'}
+          }
+        ],
+
+# AJOUTER LIKE SI '%'
+
+        ["""
+            SELECT *
+            WHERE
+            { ?url_fileA rdf:type survol:CIM_Directory .
+              ?url_fileA rdfs:seeAlso "WMI" .
+              ?url_fileB survol:Win32_SubDirectory ?url_fileA  .
+              ?url_fileB survol:Name "C:/Windows/System32"  .
+              ?url_fileB rdfs:seeAlso "WMI" .
+              ?url_fileB rdf:type survol:CIM_Directory .
+            }""",
+
+        {
+            'url_fileA':{'FSCreationClassName': 'Win32_FileSystem', 'AccessMask': '1179817',
+                         '__class__': 'CIM_Directory',
+                         'LastModified': '20160304001306.619093+000',
+                         'Path': '\\\\windows\\\\system32\\\\',
+                         'rdf-schema#isDefinedBy': 'WMI',
+                         'Name': 'c:\\\\windows\\\\system32\\\\appmgmt', 'FileType': 'File Folder',
+                         'Drive': 'c:', 'Extension': '',
+                         'CSCreationClassName': 'Win32_ComputerSystem',
+                         'FileName': 'appmgmt', 'CreationClassName': 'CIM_LogicalFile'},
+           'url_fileB': {'FSCreationClassName': 'Win32_FileSystem',
+                         '__class__': 'CIM_Directory',
+                         'rdf-schema#isDefinedBy': 'WMI',
+                         'Name': 'c:\\\\windows\\\\system32',
+                         'FileType': 'File Folder',
+                         'Drive': 'c:', 'Extension': '', 'Caption': 'c:\\\\windows\\\\system32',
+                         'CSCreationClassName': 'Win32_ComputerSystem', 'FileName': 'system32',
+                         'CreationClassName': 'CIM_LogicalFile'},
+        }
+
+        ],
+
+        # BEWARE: This also returns the top-directory.
+        ["""
+            SELECT *
+            WHERE
+            { ?url_dirA survol:Name "C:/Windows"  .
+              ?url_dirA rdf:type survol:CIM_Directory .
+              ?url_dirA rdfs:seeAlso "WMI" .
+              ?url_dirA survol:Win32_SubDirectory ?url_dirB  .
+              ?url_dirB rdfs:seeAlso "WMI" .
+              ?url_dirB rdf:type survol:CIM_Directory .
+            }""",
+         {'url_dirA': {'CSName': 'RCHATEAU-HP',
+                     'FSCreationClassName': 'Win32_FileSystem',
+                     '__class__': 'CIM_Directory', 'rdf-schema#isDefinedBy': 'WMI',
+                     'Name': 'c:\\\\windows',
+                     'FileType': 'File Folder', 'Drive': 'c:', 'Extension': '',
+                     'CSCreationClassName': 'Win32_ComputerSystem', 'FileName': 'windows',
+                     'CreationClassName': 'CIM_LogicalFile'},
+          'url_dirB': {'CSName': 'RCHATEAU-HP',
+                     'FSCreationClassName': 'Win32_FileSystem',
+                     '__class__': 'CIM_Directory', 'rdf-schema#isDefinedBy': 'WMI',
+                     'Name': 'c:\\\\windows\\\\drivers', 'FileType': 'File Folder',
+                     'Drive': 'c:', 'Extension': '','CreationClassName': 'CIM_LogicalFile'}
+          },
+        ],
+
+        ["""
+            SELECT *
+            WHERE
+            { ?url_fileA survol:Name "C:/Windows"  .
+              ?url_fileA rdf:type survol:CIM_Directory .
+              ?url_fileA rdfs:seeAlso "WMI" .
+              ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
+              ?url_fileB rdfs:seeAlso "WMI" .
+              ?url_fileB rdf:type survol:CIM_DataFile .
+            }""",
+             {'url_fileA': {'CSName': 'RCHATEAU-HP',
+                             'FSCreationClassName': 'Win32_FileSystem',
+                             '__class__': 'CIM_Directory', 'rdf-schema#isDefinedBy': 'WMI',
+                             'Name': 'c:\\\\windows',
+                             'FileType': 'File Folder', 'Drive': 'c:', 'Extension': '',
+                             'CSCreationClassName': 'Win32_ComputerSystem', 'FileName': 'windows',
+                             'CreationClassName': 'CIM_LogicalFile'},
+               'url_fileB': {'CSName': 'RCHATEAU-HP',
+                             'FSCreationClassName': 'Win32_FileSystem',
+                             '__class__': 'CIM_DataFile',
+                             'rdf-schema#isDefinedBy': 'WMI', 'Name': 'c:\\\\windows\\\\notepad.exe',
+                             'FileType': 'Application',
+                             'Drive': 'c:', 'Extension': 'exe',
+                             'CSCreationClassName': 'Win32_ComputerSystem',
+                             'CreationClassName': 'CIM_LogicalFile'}},
+         ],
+
+        ]
+
+        self.compare_list_queries(array_survol_directories_queries)
+
     def test_see_also_special(self):
         """Special Survol seeAlso pathes"""
         CurrentFile = __file__.replace("\\","/")
         array_survol_queries=[
             # TODO: This could generate all allowed scripts.
             ["""
-                PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
                 SELECT *
                 WHERE
                 { ?url_proc rdf:type survol:CIM_DataFile .
@@ -1535,6 +1734,21 @@ class SparqlSeeAlsoTest(unittest.TestCase):
             """,
             None,
             ],
+
+        # If WMI is not used and not SelectFromWhere method for this class,
+        # this just uses the key-value pair.
+        ["""
+            SELECT *
+            WHERE
+            { ?url_fileA survol:Name "C:/Windows"  .
+              ?url_fileA rdf:type survol:CIM_Directory .
+              ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
+              ?url_fileB rdfs:seeAlso "WMI" .
+              ?url_fileB rdf:type survol:CIM_DataFile .
+            }""", ['xxx']
+            ],
+
+
         ]
 
         for sparql_query, one_expected_dict in array_survol_queries:
