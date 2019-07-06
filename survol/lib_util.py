@@ -1407,7 +1407,8 @@ def WrtAsUtf(aStr):
                 # Writing to cgiServer socket.
                 gblOutStrm.write( aStr.encode('latin1') )
         else:
-            gblOutStrm.write( aStr.decode('latin1') )
+            #gblOutStrm.write(   aStr.decode('latin1') )
+            gblOutStrm.write(aStr)
     else:
         gblOutStrm.write( aStr.decode('latin1') )
 
@@ -1526,6 +1527,7 @@ def GetScriptModule(currentModule, fil):
             importedMod = importlib.import_module(fileBaseName)
     else:
         if currentModule:
+            WARNING("GetScriptModule fileBaseName=%s currentModule=%s", fileBaseName, currentModule)
             importedMod = importlib.import_module("." + fileBaseName, currentModule )
         else:
             importedMod = importlib.import_module(fileBaseName)
@@ -1699,3 +1701,19 @@ def DumpSurvolOntology():
 
     return map_classes, map_attributes
 
+##################################################################################
+
+# FIXME: Survol scripts are not able to return objects,
+# FIXME: but they natively create triples which can be fed into the graph:
+# FIXME: Survol scripts just return the minimum set of data allowing to join with other clauses.
+#
+# FIXME: On the other hand, WMI returns objects but cannot natively create RDF triples.
+# FIXME: Therefore, it makes sense to create triples from the objects.
+def PathAndKeyValuePairsToRdf(grph, subject_path, dict_key_values):
+    # Maybe this is a test mode.
+    if not grph:
+        return
+    subject_path_node = NodeUrl(subject_path)
+
+    for key, val in dict_key_values.items():
+        grph.add((subject_path_node, key, val))

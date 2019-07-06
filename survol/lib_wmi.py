@@ -735,6 +735,7 @@ def WmiCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_val
 
         WARNING("dict_key_values=%s",dict_key_values)
         #object_path_node = lib_util.NodeUrl(object_path)
+        lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
         yield ( object_path, dict_key_values )
 
 
@@ -789,7 +790,8 @@ def WmiCallbackAssociator(
         dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
         dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
 
-        WARNING("WmiCallbackAssociator dict_key_values=%s",dict_key_values)
+        DEBUG("WmiCallbackAssociator dict_key_values=%s",dict_key_values)
         #object_path_node = lib_util.NodeUrl(object_path)
+        lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
         yield ( object_path, dict_key_values )
 

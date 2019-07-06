@@ -22,15 +22,26 @@ def SurvolCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_
 
     if script_nickname:
         # For example: script_nickname="CIM_DataFile/mapping_processes"
-        script_name = "sources_types/" + script_nickname + ".py"
-        WARNING("SurvolCallbackSelect script_name=%s",script_name)
-
         # Wildcards or directories are not accepted yet.
-        list_instances = lib_client.SourceLocal.GetObjectInstancesFromScript(script_name, class_name, **filtered_where_key_values)
+        script_name = "sources_types/" + script_nickname + ".py"
+        WARNING("SurvolCallbackSelect script_name=%s filtered_where_key_values=%s",
+                script_name,
+                str(filtered_where_key_values))
+
+        # TODO: Check that there are enough parameters for this script ?
+
+        my_source = lib_client.SourceLocal(script_name, class_name, **filtered_where_key_values)
+        WARNING("SurvolCallbackSelect my_source=%s", my_source)
+        my_triplestore = my_source.GetTriplestore()
+
+        my_triplestore.CopyToGraph(grph)
+
+        list_instances = my_triplestore.GetInstances()
+
         # TODO: We filter only the objects of the right type,
         # TODO: ... but we lose all the other objects which could be stored in the output triplestore !!...
 
-        WARNING("SurvolCallbackSelect list_instances=%s",str(list_instances))
+        WARNING("SurvolCallbackSelect list_instances=%s", str(list_instances))
         for one_instance in list_instances:
             if one_instance.__class__.__name__ == class_name:
                 # 'CIM_DataFile.Name=/usr/lib/systemd/systemd-journald'

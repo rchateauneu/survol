@@ -109,7 +109,9 @@ def HardcodeCallbackSelect(grph, class_name, predicate_prefix, where_key_values)
             hardcoded_path_dict["__class_name__"] = class_name
             hardcoded_path_str = json.dumps(hardcoded_path_dict)
 
-            yield ( hardcoded_path_str, _key_values_to_rdf( one_key_value_pair_dict ) )
+            rdf_key_values = _key_values_to_rdf( one_key_value_pair_dict )
+            lib_util.PathAndKeyValuePairsToRdf(grph, hardcoded_path_str, rdf_key_values)
+            yield ( hardcoded_path_str, rdf_key_values )
 
 
 # Return type similar to HardcodeCallbackSelect.
@@ -154,12 +156,13 @@ def HardcodeCallbackAssociator(
     key_tuple = tuple( [hardcoded_path_dict[object_key] for object_key in ontology_keys ]) # (123) which is the pid.
     all_associators = hard_coded_data_associator[class_name]
     all_associators_per_assoc_class = all_associators[key_tuple]
-    objects_per_associatior_class = all_associators_per_assoc_class[associator_key_name]
-    objects_per_result_class = objects_per_associatior_class[result_class_name]
+    objects_per_associator_class = all_associators_per_assoc_class[associator_key_name]
+    objects_per_result_class = objects_per_associator_class[result_class_name]
 
     for one_object in objects_per_result_class:
         hardcoded_path_str = json.dumps(hardcoded_path_dict)
 
+        lib_util.PathAndKeyValuePairsToRdf(grph, hardcoded_path_str, one_object)
         yield (hardcoded_path_str, one_object)
 
     # The query function from lib_sparql module, returns RDF nodes.
@@ -1098,7 +1101,6 @@ class SparqlCallWmiTest(unittest.TestCase):
             assert one_dict['url_proc']['CreationClassName'] == "Win32_Process"
 
 
-
 class SparqlServerWMITest(unittest.TestCase):
     """
     Test the Sparql server which works on Survol data.
@@ -1110,20 +1112,9 @@ class SparqlServerWMITest(unittest.TestCase):
         print("sparql_query=",sparql_query)
 
         url_sparql = RemoteTestAgent + "/survol/sparql_wmi.py?query=" + lib_util.urllib_quote(sparql_query)
-        print("url_sparql=",url_sparql)
 
-        response = lib_util.survol_urlopen(url_sparql)
-        docXmlRdf = response.read().decode("utf-8")
-
-        print("docXmlRdf=\n","".join(docXmlRdf.split("\n")[:2]))
-
-
-        print("docXmlRdf=",docXmlRdf)
-
-        # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
-        # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
-        grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
-        return grphKBase
+        rdf_data = UrlToRdf(url_sparql)
+        return rdf_data
 
     def test_Win32_UserAccount(self):
         """Looks for current user"""
@@ -1220,72 +1211,107 @@ class SparqlServerTest(unittest.TestCase):
     def test_server(self):
         return False
 
+def UrlToRdf(url_rdf):
+    print("url_rdf=",url_rdf)
+
+    response = lib_util.survol_urlopen(url_rdf)
+    doc_xml_rdf = response.read().decode("utf-8")
+
+    print("doc_xml_rdf=",doc_xml_rdf)
+
+    # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
+    # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
+    grphKBase = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
+    return grphKBase
+
 
 class SparqlServerSurvolTest(unittest.TestCase):
     """
     Test the Sparql server which works on Survol data.
     """
 
+    @staticmethod
+    def run_compare_survol(sparql_query, expected_triples):
+        import lib_client
+
+        print("sparql_query=", sparql_query)
+
+        url_sparql = RemoteTestAgent + "/survol/sparql.py?query=" + lib_util.urllib_quote(sparql_query)
+
+        rdf_data = UrlToRdf(url_sparql)
+
+        # All the triples must be in the result set where each element is transformed to a strng
+        # print(rdf_data)
+
+        str_actual_data = set()
+        print("len(rdf_data)=", len(rdf_data))
+        for subject, predicate, object in rdf_data:
+            str_subject = str(subject)
+            str_predicate = str(predicate)
+            str_object = str(object)
+            str_actual_data.add((str_subject, str_predicate, str_object))
+        print("len(str_actual_data)=", len(str_actual_data))
+
+        print("expected_triples=", expected_triples)
+        print("str_actual_data=", str_actual_data)
+        for one_triple in expected_triples:
+            assert(one_triple in str_actual_data)
+
+
     def test_server_survol(self):
         array_survol_queries=[
             [
             """
-            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?the_pid
+            SELECT *
             WHERE
-            { ?url_proc survol:Handle ?the_ppid  .
-              ?url_proc survol:ppid %d .
-              ?url_proc rdf:type survol:CIM_Process .
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user rdfs:seeAlso "WMI" .
             }
-            """ % CurrentPid,
-                "xxx"
+            """,
+                [
+                    (
+                        '\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"',
+                        'http://primhillcomputers.com/survol/Domain',
+                        'rchateau-HP'
+                    ),
+                    (
+                        '\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"',
+                        'http://primhillcomputers.com/survol/Name',
+                        'Guest'
+                    ),
+                ]
             ],
         ]
 
-        for sparql_query, expected_results in array_survol_queries:
-            print("sparql_query=",sparql_query)
 
-            url_sparql = RemoteTestAgent + "/survol/sparql_survol.py?query=" + lib_util.urllib_quote(sparql_query)
-            print("url_sparql=",url_sparql)
+        for sparql_query, expected_triples in array_survol_queries:
+            self.run_compare_survol(sparql_query, expected_triples)
 
-            response = lib_util.survol_urlopen(url_sparql)
-            data = response.read().decode("utf-8")
-            print(data)
-            assert(False)
 
-# This meta-callback dispatches the query to the right data source.
-def UnitTestSeeCallbackSelect(grph, class_name, see_also, where_key_values):
-    predicate_prefix, colon, see_also_script = see_also.partition(":")
-    WARNING("UnitTestSeeCallbackSelect predicate_prefix=%s where_key_values=%s", predicate_prefix, where_key_values)
-
-    import lib_wmi
-    if predicate_prefix == "HardCoded":
-        return HardcodeCallbackSelect(grph, class_name, predicate_prefix, where_key_values)
-    if predicate_prefix == "WMI":
-        return lib_wmi.WmiCallbackSelect(grph, class_name, predicate_prefix, where_key_values)
-    if predicate_prefix == "survol":
-        # This calls the option class-specific method SelectFromWhere
-        return lib_sparql_callback_survol.SurvolCallbackSelect(grph, class_name, see_also, where_key_values)
-    # Otherwise it must be a script name.
-    ERROR("UnitTestSeeCallbackSelect predicate_prefix=%s",predicate_prefix)
-    assert(False)
+__prefix_to_callbacks = {
+    "HardCoded": (HardcodeCallbackSelect, HardcodeCallbackAssociator),
+    "WMI": (lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator),
+    "survol": (lib_sparql_callback_survol.SurvolCallbackSelect, lib_sparql_callback_survol.SurvolCallbackAssociator),
+}
 
 # This meta-callback dispatches the query to the right data source.
-def UnitTestSeeCallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path):
+def UnitTestCallbackSelect(grph, class_name, see_also, where_key_values):
     predicate_prefix, colon, see_also_script = see_also.partition(":")
-    WARNING("UnitTestSeeCallbackAssociator predicate_prefix=%s",predicate_prefix)
+    WARNING("UnitTestCallbackSelect predicate_prefix=%s where_key_values=%s", predicate_prefix, where_key_values)
 
-    import lib_wmi
-    if predicate_prefix == "HardCoded":
-        return HardcodeCallbackAssociator(grph, result_class_name, predicate_prefix, associator_key_name, subject_path)
-    if predicate_prefix == "WMI":
-        return lib_wmi.WmiCallbackAssociator(grph, result_class_name, predicate_prefix, associator_key_name, subject_path)
-    if predicate_prefix == "survol":
-        return lib_sparql_callback_survol.SurvolCallbackAssociator(grph, result_class_name, predicate_prefix, associator_key_name, subject_path)
-    # Otherwise it must be a script name.
-    ERROR("UnitTestSeeCallbackAssociator predicate_prefix=%s",predicate_prefix)
-    assert(False)
+    callback_select = __prefix_to_callbacks[predicate_prefix][0]
+    return callback_select(grph, class_name, see_also, where_key_values)
+
+# This meta-callback dispatches the query to the right data source.
+def UnitTestCallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path):
+    predicate_prefix, colon, see_also_script = see_also.partition(":")
+    WARNING("UnitTestCallbackAssociator predicate_prefix=%s",predicate_prefix)
+
+    callback_select = __prefix_to_callbacks[predicate_prefix][1]
+    return callback_select(grph, result_class_name, see_also, associator_key_name, subject_path)
 
 
 class SparqlSeeAlsoTest(unittest.TestCase):
@@ -1294,7 +1320,8 @@ class SparqlSeeAlsoTest(unittest.TestCase):
         for sparql_query, one_expected_dict in array_survol_queries:
             print("sparql_query=",sparql_query)
 
-            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, UnitTestSeeCallbackSelect, UnitTestSeeCallbackAssociator)
+            list_dict_objects = QuerySeeAlsoKeyValuePairs(
+                None, sparql_query, UnitTestCallbackSelect, UnitTestCallbackAssociator)
 
             # The expected object must be a subset of one of the returned objects.
             print("list_dict_objects=",list_dict_objects)
@@ -1409,19 +1436,6 @@ class SparqlSeeAlsoTest(unittest.TestCase):
         #CurrentPid=8000
         # This checks that the current process runs the Python executable.
         array_survol_queries_associator=[
-            ["""
-            SELECT *
-            WHERE
-            { ?url_proc survol:Handle %d  .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_file rdfs:seeAlso "WMI" .
-              ?url_file rdf:type survol:CIM_DataFile .
-              ?url_file rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
-              ?url_file survol:CIM_ProcessExecutable ?url_proc  .
-            }
-            """ % CurrentPid,
-            ['url_proc', 'url_file'],
-            ],
 
             ["""
             SELECT *
@@ -1718,12 +1732,46 @@ class SparqlSeeAlsoTest(unittest.TestCase):
         """Special Survol seeAlso pathes"""
         CurrentFile = __file__.replace("\\","/")
         array_survol_queries=[
-            # TODO: This could generate all allowed scripts.
+            # Just load the content of one script
+            ["""
+                SELECT *
+                WHERE
+                { ?url_dummy rdfs:seeAlso survol:enumerate_python_package" .
+                }
+                """,
+                ['url_proc'],
+            ],
+
+            # TODO: This generates all allowed scripts.
             ["""
                 SELECT *
                 WHERE
                 { ?url_proc rdf:type survol:CIM_DataFile .
                   ?url_proc rdfs:seeAlso ?script .
+                }
+                """,
+                ['url_proc'],
+            ],
+
+            # TODO: This returns all WMI classes.
+            ["""
+                SELECT *
+                WHERE
+                { ?url_proc rdf:type rdf:type .
+                  ?url_proc rdfs:seeAlso "WMI" .
+                }
+                """,
+                ['url_proc'],
+            ],
+
+            # TODO: This returns the attributes of the class CIM_Process.
+            ["""
+                SELECT *
+                WHERE
+                { ?url_proc rdf:type survol:CIM_Process .
+                  ?url_proc rdfs:seeAlso "WMI" .
+                  ?url_proc ?attribute ?value .
+                  ?attribute rdf:type rdf:Property .
                 }
                 """,
                 ['url_proc'],
@@ -1781,13 +1829,38 @@ class SparqlSeeAlsoTest(unittest.TestCase):
             }""", ['xxx']
             ],
 
+            # TODO: This is broken because arguments are mssing. It should display the error.
+            ["""
+            SELECT *
+            WHERE
+            { ?url_proc survol:Handle %d  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_file rdfs:seeAlso "WMI" .
+              ?url_file rdf:type survol:CIM_DataFile .
+              ?url_file rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
+              ?url_file survol:CIM_ProcessExecutable ?url_proc  .
+            }
+            """ % CurrentPid,
+             ['url_proc', 'url_file'],
+             ],
+
+            ["""
+        SELECT *
+        WHERE
+          ?url_file rdf:type survol:CIM_DataFile .
+          ?url_file rdfs:seeAlso "survol:does_not_exist" .
+        }
+        """ % CurrentPid,
+             ['url_proc', 'url_file'],
+             ],
 
         ]
 
         for sparql_query, one_expected_dict in array_survol_queries:
             print("sparql_query=",sparql_query)
 
-            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, UnitTestSeeCallbackSelect, UnitTestSeeCallbackAssociator)
+            list_dict_objects = QuerySeeAlsoKeyValuePairs(
+                None, sparql_query, UnitTestCallbackSelect, UnitTestCallbackAssociator)
 
             # Syntaxic test only, or wrong platform.
             if one_expected_dict == None:
