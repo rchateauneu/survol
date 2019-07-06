@@ -217,6 +217,7 @@ class SourceLocal (SourceCgi):
         # If there is an error, it will not exit but send a nice exception/
         lib_common.ErrorMessageEnable(False)
         try:
+            # TODO: If some arguments are missing, it might display an HTML form.
             modu.Main()
         except Exception as ex:
             # https://www.stefaanlippens.net/python-traceback-in-catch/
@@ -728,8 +729,8 @@ def InstanceUrlToAgentUrl(instanceUrl):
 # This wraps rdflib triplestore.
 # rdflib objects and subjects can be handled as WMI or WBEM objects.
 class TripleStore:
-    # In this context, this is most likely a rdflib object.
-    def __init__(self,grphKBase = None):
+    # In this context, this is a rdflib graph.
+    def __init__(self, grphKBase = None):
         self.m_triplestore = grphKBase
         if grphKBase:
             DEBUG("TripleStore.__init__ len(grphKBase)=%d",len(grphKBase))
@@ -861,6 +862,20 @@ class TripleStore:
     def GetAllStringsTriples(self):
         for trpSubj,trpPred,trpObj in lib_kbase.triplestore_all_strings(self.m_triplestore):
             yield lib_util.urllib_unquote(trpObj.value )
+
+    def CopyToGraph(self, grph):
+        """This adds the triples to another triplestore."""
+        # TODO: This could be faster.
+
+        # Maybe this is a test mode.
+        if not grph:
+            WARNING("CopyToGraph Graph is None. Leaving")
+            return
+
+        DEBUG("CopyToGraph Adding %d triples", len(self.m_triplestore))
+        for subject, predicate, object in self.m_triplestore:
+            grph.add((subject, predicate, object))
+
 
 ################################################################################
 

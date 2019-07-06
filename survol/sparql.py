@@ -15,6 +15,7 @@ import lib_common
 import lib_kbase
 import lib_sparql
 import lib_wmi
+import lib_sparql_callback_survol
 import lib_export_ontology
 
 # Ca n est pas la meme chose que les trois scripts specifiques qui prechargent le triplestore
@@ -40,33 +41,43 @@ import lib_export_ontology
 lib_util.SetLoggingConfig(logging.DEBUG)
 
 
-def GenericExecuteQueryCallback(class_name, predicate_prefix, filtered_where_key_values):
-    INFO("GenericExecuteQueryCallback class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+__prefix_to_callbacks = {
+    "WMI": (lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator),
+    "survol": (lib_sparql_callback_survol.SurvolCallbackSelect, lib_sparql_callback_survol.SurvolCallbackAssociator),
+}
 
-    funcCallback = {
-        "wmi" : lib_wmi.WmiCallbackSelect,
-        "survol" : lib_sparql.SurvolCallbackSelect }[predicate_prefix]
+# This meta-callback dispatches the query to the right data source.
+def CallbackSelect(grph, class_name, see_also, where_key_values):
+    predicate_prefix, colon, see_also_script = see_also.partition(":")
+    DEBUG("UnitTestSeeCallbackSelect predicate_prefix=%s where_key_values=%s", predicate_prefix, where_key_values)
 
-    return funcCallback(class_name, predicate_prefix, filtered_where_key_values)
+    callback_select = __prefix_to_callbacks[predicate_prefix][0]
+    return callback_select(grph, class_name, see_also, where_key_values)
 
+# This meta-callback dispatches the query to the right data source.
+def CallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path):
+    predicate_prefix, colon, see_also_script = see_also.partition(":")
+    DEBUG("UnitTestSeeCallbackAssociator predicate_prefix=%s",predicate_prefix)
+
+    callback_select = __prefix_to_callbacks[predicate_prefix][1]
+    return callback_select(grph, result_class_name, see_also, associator_key_name, subject_path)
 
 
 # This is a SPARQL server which executes the query with WMI data.
 def Main():
+    lib_util.SetLoggingConfig(logging.ERROR)
     envSparql = lib_sparql.SparqlEnvironment()
 
     grph = lib_kbase.MakeGraph()
 
     sparql_query = envSparql.Query()
 
-    lib_sparql.QueryToGraph(grph, sparql_query, GenericExecuteQueryCallback)
+    lib_sparql.QueryToGraph(grph, sparql_query, CallbackSelect, CallbackAssociator)
 
     # See lib_common.py : This added to any RDF document.
-    lib_export_ontology.Grph2Rdf(grph)
+    ###########lib_export_ontology.Grph2Rdf(grph)
 
-    #envSparql.WriteTripleStoreAsString(grph)
-    #def lib_export_ontology.AddOntology(old_grph):
-
+    envSparql.WriteTripleStoreAsString(grph)
 
 
 if __name__ == '__main__':
