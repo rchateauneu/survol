@@ -47,8 +47,6 @@ def SurvolCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_
                 # 'CIM_DataFile.Name=/usr/lib/systemd/systemd-journald'
                 instance_url = one_instance.__class__.__name__ + "." + one_instance.m_entity_id
 
-                #object_path_node = lib_util.NodeUrl(instance_url)
-
                 # TODO: Add the property "definedBy" to each object.
                 yield (instance_url, one_instance.m_key_value_pairs)
 
@@ -67,19 +65,6 @@ def SurvolCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_
         iter_enumeration = enumerate_function( filtered_where_key_values )
         # for one_key_value_dict in iter_enumeration:
         for one_key_value_dict_nodes in iter_enumeration:
-            # one_key_value_dict["rdfs:definedBy"] = class_name + ":" + "SelectFromWhere"
-            #yield ( lib_util.NodeUrl("survol_object_path"), one_key_value_dict )
-
-            #lib_util.NodeUrl(val)
-            #lib_util.NodeLiteral(val)
-            #one_key_value_dict_nodes = {}
-            #for key, val in one_key_value_dict.items():
-            #    one_key_value_dict_nodes[lib_util.NodeUrl(key)] = lib_util.NodeLiteral(val)
-            #one_key_value_dict_nodes[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral(class_name + ":" + "SelectFromWhere")
-
-            # The path must be compatible with WMI associators, e.g. '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
-            # WARNING("SurvolCallbackSelect one_key_value_dict=%s",one_key_value_dict)
-
             class_ontology = lib_util.OntologyClassKeys(class_name)
             ontology_key_values = {}
             for key_node, value_node in one_key_value_dict_nodes.items():
@@ -87,7 +72,7 @@ def SurvolCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_
                 if key_str in class_ontology:
                     ontology_key_values[key_str] = str(value_node)
 
-            # This reorders the attributes of needed.
+            # This reorders the attributes if needed.
             key_value_path = lib_util.KWArgsToEntityId(class_name, **ontology_key_values)
 
             # key_value_path = ".".join( '%s="%s"' % ( lib_properties.PropToQName(key), str(value) ) for key, value in one_key_value_dict_nodes.items() )
@@ -95,16 +80,6 @@ def SurvolCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_
 
             yield ( object_path, one_key_value_dict_nodes )
 
-
-# Quand on a un triplet de cette forme, trouver toutes les proprietes
-# litterales relatives au sujet.
-# Subj: ('VARIABLE=', 't')
-# Pred: ('Predicate', u'rdf:type')
-# Obj: ('litt_string', 'CIM_Process')# On peut alors en faire des requetes WMI ou WBEM, eventuellement.
-#
-# En theorie, c'est toujours possible mais probablement tres lent.
-#
-# Si on a les bons attributs, on peut executer le script principal dans survol.
 
 def SurvolCallbackAssociator(
     grph,
