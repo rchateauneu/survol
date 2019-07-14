@@ -5,6 +5,7 @@ import socket
 import lib_util
 import lib_common
 import lib_credentials
+import lib_properties
 from lib_properties import pc
 import lib_kbase
 
@@ -730,8 +731,13 @@ def WmiCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_val
         WARNING("one_wmi_object.path=%s",object_path)
         list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, class_name )
         dict_key_values = { node_key: node_value for node_key, node_value in list_key_values}
-        # dict_key_values[ lib_common.NodeUrl("rdfs:definedBy") ] = lib_common.NodeLiteral("WMI")
-        dict_key_values[ lib_kbase.PredicateIsDefinedBy ] = lib_common.NodeLiteral("WMI")
+
+        dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
+        # Add it again, so the original Sparql query will work.
+        dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
+
+        # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
+        dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
         WARNING("dict_key_values=%s",dict_key_values)
         #object_path_node = lib_util.NodeUrl(object_path)
@@ -788,7 +794,15 @@ def WmiCallbackAssociator(
         WARNING("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
         list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, result_class_name )
         dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
+
         dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
+        # Add it again, so the original Sparql query will work.
+        dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
+
+        # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
+        # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+        # o=http://primhillcomputers.com/survol/Win32_UserAccount
+        dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
 
         DEBUG("WmiCallbackAssociator dict_key_values=%s",dict_key_values)
         #object_path_node = lib_util.NodeUrl(object_path)
