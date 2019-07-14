@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 # This uses exclusively data from WMI.
+# This is used only for tests.
 
 """
-This SPARQL server translates SPARQL queries into WMI data model.
+This RDF server translates SPARQL queries into WMI data model.
 """
 import cgitb
 cgitb.enable(format="txt")
@@ -15,7 +16,8 @@ import lib_util
 import logging
 
 # This is a SPARQL server which executes the query with WMI data.
-# It loads data from WMI inconditionnaly.
+# It loads data from WMI unconditionally.
+# This returns RDF data, which is different of what a Sparql endpoint returns
 def Main():
     lib_util.SetLoggingConfig(logging.ERROR)
     envSparql = lib_sparql.SparqlEnvironment()
@@ -24,7 +26,7 @@ def Main():
 
     sparql_query = envSparql.Query()
 
-    lib_sparql.QueryToGraph(grph,sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+    lib_sparql.QueryToGraph(grph, sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
 
     envSparql.WriteTripleStoreAsString(grph)
 

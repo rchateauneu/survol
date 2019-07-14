@@ -165,7 +165,7 @@ def HardcodeCallbackAssociator(
         lib_util.PathAndKeyValuePairsToRdf(grph, hardcoded_path_str, one_object)
         yield (hardcoded_path_str, one_object)
 
-    # The query function from lib_sparql module, returns RDF nodes.
+# The query function from lib_sparql module, returns RDF nodes.
 # This is not very convenient to test.
 # Therefore, for tests, this is a helper function which returns dict of strings,
 # which are easier to compare.
@@ -201,6 +201,21 @@ def QuerySeeAlsoKeyValuePairs(grph, sparql_query, sparql_callback_select, sparql
     list_dict_objects = list(iter_dict_objects)
     return list_dict_objects
 
+
+def UrlToRdf(url_rdf):
+    print("url_rdf=",url_rdf)
+
+    response = lib_util.survol_urlopen(url_rdf)
+    doc_xml_rdf = response.read().decode("utf-8")
+
+    print("doc_xml_rdf=",doc_xml_rdf)
+
+    # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
+    # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
+    grphKBase = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
+    return grphKBase
+
+################################################################################
 
 class SparqlCallTest(unittest.TestCase):
 
@@ -431,6 +446,35 @@ class SparqlCallTest(unittest.TestCase):
         ]
         self.queries_test(query_result_pairs)
 
+    # CONSTRUCT is an alternative SPARQL result clause to SELECT. Instead of returning a table of result values, CONSTRUCT returns an RDF graph.
+
+    # DESCRIBE query result clause allows the server to return whatever RDF it wants that describes the given resource(s).
+
+    def test_sparql_binding(self):
+        """This lists the colums in the SELECT clause"""
+
+        sparql_queries_binding = [
+            ("select ?a ?b where { ?a a ?b . }", ['a', 'b']),
+            ("""
+            PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+            SELECT ?craft ?homepage
+            {
+              ?craft foaf:name "Apollo 7" .
+              ?craft foaf:homepage ?homepage
+            }""",['craft', 'homepage']),
+            ("""
+            SELECT DISTINCT ?concept
+            WHERE {
+                ?s a ?concept .
+            } LIMIT 50
+            """,['concept']),
+        ]
+
+        for sparql_query, expected_results in sparql_queries_binding:
+            print("sparql_query=",sparql_query)
+            row_header = lib_sparql.QueryHeader(sparql_query)
+            print("row_header=",row_header)
+            assert(row_header == expected_results)
 
     # This transforms a sparql query into a several nested loops fetching data from CIM classes.
     # The attributes are taken from the Sparql query without modification.
@@ -1101,7 +1145,7 @@ class SparqlCallWmiTest(unittest.TestCase):
             assert one_dict['url_proc']['CreationClassName'] == "Win32_Process"
 
 
-class SparqlServerWMITest(unittest.TestCase):
+class SparqlPreloadServerWMITest(unittest.TestCase):
     """
     Test the Sparql server which works on Survol data.
     The attributes in the SparQL query must match the ontology of the query callback function.
@@ -1111,7 +1155,7 @@ class SparqlServerWMITest(unittest.TestCase):
     def __load_wmi_query(sparql_query):
         print("sparql_query=",sparql_query)
 
-        url_sparql = RemoteTestAgent + "/survol/sparql_wmi.py?query=" + lib_util.urllib_quote(sparql_query)
+        url_sparql = RemoteTestAgent + "/survol/sparql_preload_wmi.py?query=" + lib_util.urllib_quote(sparql_query)
 
         rdf_data = UrlToRdf(url_sparql)
         return rdf_data
@@ -1203,7 +1247,7 @@ class SparqlServerWMITest(unittest.TestCase):
             # TODO: Should compare
 
 
-class SparqlServerTest(unittest.TestCase):
+class SparqlPreloadServerTest(unittest.TestCase):
     """
     Test the Sparql server on all sources of data.
     """
@@ -1211,32 +1255,17 @@ class SparqlServerTest(unittest.TestCase):
     def test_server(self):
         return False
 
-def UrlToRdf(url_rdf):
-    print("url_rdf=",url_rdf)
 
-    response = lib_util.survol_urlopen(url_rdf)
-    doc_xml_rdf = response.read().decode("utf-8")
-
-    print("doc_xml_rdf=",doc_xml_rdf)
-
-    # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
-    # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
-    grphKBase = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
-    return grphKBase
-
-
-class SparqlServerSurvolTest(unittest.TestCase):
+class SparqlPreloadServerSurvolTest(unittest.TestCase):
     """
     Test the Sparql server which works on Survol data.
     """
 
     @staticmethod
     def run_compare_survol(sparql_query, expected_triples):
-        import lib_client
-
         print("sparql_query=", sparql_query)
 
-        url_sparql = RemoteTestAgent + "/survol/sparql.py?query=" + lib_util.urllib_quote(sparql_query)
+        url_sparql = RemoteTestAgent + "/survol/sparql_preload_all.py?query=" + lib_util.urllib_quote(sparql_query)
 
         rdf_data = UrlToRdf(url_sparql)
 
@@ -1258,27 +1287,27 @@ class SparqlServerSurvolTest(unittest.TestCase):
             assert(one_triple in str_actual_data)
 
 
-    def test_server_survol(self):
+    def test_preload_server_survol(self):
         array_survol_queries=[
             [
-            """
-            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT *
-            WHERE
-            {
-                ?url_user rdf:type survol:Win32_UserAccount .
-                ?url_user rdfs:seeAlso "WMI" .
-            }
-            """,
+                """
+                PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT *
+                WHERE
+                {
+                    ?url_user rdf:type survol:Win32_UserAccount .
+                    ?url_user rdfs:seeAlso "WMI" .
+                }
+                """,
                 [
                     (
-                        '\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"',
+                        '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="Guest"' % (CurrentMachine,CurrentMachine),
                         'http://primhillcomputers.com/survol/Domain',
-                        'rchateau-HP'
+                        CurrentMachine
                     ),
                     (
-                        '\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"',
+                        '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="Guest"' % (CurrentMachine,CurrentMachine),
                         'http://primhillcomputers.com/survol/Name',
                         'Guest'
                     ),
@@ -1636,7 +1665,7 @@ class SparqlSeeAlsoTest(unittest.TestCase):
           }
         ],
 
-# AJOUTER LIKE SI '%'
+        # TODO: MAYBE USE WQL LIKE IF SPARQL STRING CONTAINS '%'
 
         ["""
             SELECT *
