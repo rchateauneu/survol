@@ -1,7 +1,8 @@
 import sys
 import lib_util
-import lib_client
+import lib_common
 import lib_kbase
+import lib_client
 import lib_properties
 
 ##################################################################################
@@ -47,7 +48,9 @@ def SurvolCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_
                 # 'CIM_DataFile.Name=/usr/lib/systemd/systemd-journald'
                 instance_url = one_instance.__class__.__name__ + "." + one_instance.m_entity_id
 
-                # TODO: Add the property "definedBy" to each object.
+                one_instance.m_key_value_pairs[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral(predicate_prefix)
+                # Add it again, so the original Sparql query will work.
+                one_instance.m_key_value_pairs[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral(predicate_prefix)
                 yield (instance_url, one_instance.m_key_value_pairs)
 
     else:
@@ -77,6 +80,10 @@ def SurvolCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_
 
             # key_value_path = ".".join( '%s="%s"' % ( lib_properties.PropToQName(key), str(value) ) for key, value in one_key_value_dict_nodes.items() )
             object_path = "SurvolLocalHost:" + class_name + "." + key_value_path
+
+            one_key_value_dict_nodes[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral(predicate_prefix)
+            # Add it again, so the original Sparql query will work.
+            one_key_value_dict_nodes[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral(predicate_prefix)
 
             yield ( object_path, one_key_value_dict_nodes )
 
