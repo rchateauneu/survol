@@ -221,8 +221,12 @@ class LocalBox:
     def DiskUri(self,disk_name):
         return self.UriMake("CIM_DiskDrive",disk_name)
 
-    # smbshare has the form "//HOST/SHARE" ... but there is a bug in the HTTP server
-    # we are using, as it collapses duplicated slashes "//" into one.
+    # smbshare has the form "//HOST/SHARE" ... but there is a bug in the test HTTP server
+    # we are using, as it collapses duplicated slashes "//" into one,
+    # because URLs are supposed to be filenames, and therefore normalised.
+    # The work-around is to encode slashes.
+    # See modules CGIHTTPServer, BaseHTTPServer, CGIHTTPRequestHandler and
+    # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/2.7.10'
     def SmbShareUri(self,smbshare):
         if smbshare[0:2] == "//":
             # Maybe we should cgiescape the whole string.
