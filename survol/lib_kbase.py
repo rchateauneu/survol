@@ -9,9 +9,13 @@ import re
 PredicateSeeAlso = RDFS.seeAlso
 PredicateIsDefinedBy = RDFS.isDefinedBy
 PredicateComment = RDFS.comment
+PredicateType = RDF.type
 
 def IsLiteral(objRdf):
     return isinstance(objRdf, (rdflib.term.Literal))
+
+def IsURIRef(objRdf):
+    return isinstance(objRdf, (rdflib.term.URIRef))
 
 def IsLink(obj):
     return isinstance( obj , (rdflib.URIRef, rdflib.BNode))
