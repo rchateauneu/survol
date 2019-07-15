@@ -143,7 +143,7 @@ def Usable(entity_type,entity_ids_arr):
 # There is no constraints on the other.
 # TODO: Add "select_attributes"
 def SelectFromWhere( where_key_values ):
-    print("CIM_Process SelectFromWhere where_key_values=",where_key_values)
+    DEBUG("CIM_Process SelectFromWhere where_key_values=%s",str(where_key_values))
     for proc_obj in ProcessIter():
         user_name = PsutilProcToUser(proc_obj,None)
         if user_name:
