@@ -1288,7 +1288,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
     @decorator_windows_platform
     def test_win32_products(self):
-        lstInstances = lib_client.lstInstances(
+        lstInstances = ClientObjectInstancesFromScript(
             "sources_types/win32/enumerate_Win32_Product.py")
 
         strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
