@@ -62,9 +62,9 @@ def SparqlResultsXMLToJSON(results_xml):
     results_array = []
     node_sparql = results_xml.getElementsByTagName("sparql")[0]
     for node_head in node_sparql.getElementsByTagName("head"):
-        node_variable = node_head.getElementsByTagName("variable")[0]
-        head_name = node_variable.getAttribute('name')
-        head_array.append(head_name)
+        for node_variable in node_head.getElementsByTagName("variable"):
+            head_name = node_variable.getAttribute('name')
+            head_array.append(head_name)
     node_results = node_sparql.getElementsByTagName("results")[0]
     for node_result in node_results.getElementsByTagName("result"):
         result_dict = {}
@@ -162,20 +162,22 @@ class SparqlServerSurvolTest(unittest.TestCase):
         #       {u'caption': {u'type': u'literal', u'value': u'S-1-5-21-3348735596-448992173-972389567-1001'}},
         #       {u'caption': {u'type': u'url', u'value': u'http://primhillcomputers.com/survol/Win32_UserAccount'}},
         print("run_compare_survol sparql_result ... =", sparql_result)
+        print("run_compare_survol expected_header ... =", expected_header)
         assert sparql_result['head']['vars'] == expected_header
 
         # This builds a set of tuples from the actual results.
-        str_actual_data = set()
+        # Conversion in lower case.
+        str_actual_data_lower = set()
         for one_dict in sparql_result['results']['bindings']:
-            values_tuple = tuple( ( one_variable, one_dict[one_variable][u'value'] ) for one_variable in expected_header)
-            str_actual_data.add(values_tuple)
-        print("run_compare_survol len(str_actual_data)=", len(str_actual_data))
+            values_tuple = tuple( ( one_variable, one_dict[one_variable][u'value'].lower() ) for one_variable in expected_header)
+            str_actual_data_lower.add(values_tuple)
+        print("run_compare_survol len(str_actual_data)=", len(str_actual_data_lower))
 
         print("run_compare_survol expected_dicts=", expected_dicts)
-        print("run_compare_survol str_actual_data=", str_actual_data)
+        print("run_compare_survol str_actual_data=", str_actual_data_lower)
         for one_dict in expected_dicts:
             print("run_compare_survol one_dict=",one_dict)
-            assert(one_dict in str_actual_data)
+            assert(one_dict in str_actual_data_lower)
 
 
     def test_server_survol(self):
@@ -205,8 +207,27 @@ class SparqlServerSurvolTest(unittest.TestCase):
                 """ % CurrentUsername,
                 [u'caption'],
                 [
-#                    (( u'caption', u'rchateau'),),
-                    ((u'caption', u'rchateau-HP\\\\rchateau'),),
+                    ((u'caption', u'%s\\\\%s' % (CurrentMachine, CurrentUsername)),),
+                ]
+            ],
+            [
+                """
+                PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+                PREFIX survol:  <http://primhillcomputers.com/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT ?domain ?caption
+                WHERE
+                {
+                    ?url_user rdf:type survol:Win32_UserAccount .
+                    ?url_user survol:Name '%s' .
+                    ?url_user survol:Caption ?caption .
+                    ?url_user survol:Domain ?domain .
+                    ?url_user rdfs:seeAlso "WMI" .
+                }
+                """ % CurrentUsername,
+                [u'domain', u'caption'],
+                [
+                    ((u'domain', CurrentMachine),(u'caption', u'%s\\\\%s' % (CurrentMachine, CurrentUsername)),),
                 ]
             ],
         ]
