@@ -174,7 +174,7 @@ def QueriesEntitiesToValuePairs(iter_entities_dicts):
 
         one_entities_dict_qname = {}
         for variable_name, one_entity in one_entities_dict.items():
-            #print("one_entity=", one_entity)
+            print("QueriesEntitiesToValuePairs one_entity=", one_entity)
 
             # Special attribute for debugging.
             dict_qname_value = {"__class__": one_entity.m_entity_class_name}
@@ -710,11 +710,13 @@ class SparqlCallTest(unittest.TestCase):
             """ % CurrentPid,
                [
                    { "url_proc":{
-                       'parent_pid': str(CurrentParentPid),
-                       #'rdf-schema#isDefinedBy': 'CIM_Process:SelectFromWhere',
-                       'Handle': str(CurrentPid),
-                       'username': CurrentUsername,
-                       '__class__': 'CIM_Process'}},
+                        'parent_pid': str(CurrentParentPid),
+                        #'rdf-schema#isDefinedBy': 'CIM_Process:SelectFromWhere',
+                        'Handle': str(CurrentPid),
+                        'username': CurrentUsername,
+                        'rdf-schema#isDefinedBy': 'survol',
+                        'rdf-schema#seeAlso': 'survol',
+                        '__class__': 'CIM_Process'}},
                ]
             ],
         ]
@@ -775,6 +777,7 @@ class SparqlCallTest(unittest.TestCase):
 
     def test_survol_associators(self):
         """This returns the parent process using a specific script.
+        It might not work if the parent-parent process has died.
         """
 
         sparql_query = """
@@ -800,8 +803,10 @@ class SparqlCallTest(unittest.TestCase):
         found = False
         for one_dict in list_dict_objects:
             procA = one_dict["url_procA"]
-            procC = one_dict["url_procB"]
-            if procA == procC:
+            procB = one_dict["url_procB"]
+            WARNING("procA=%s",procA)
+            WARNING("procB=%s",procB)
+            if procA == procB:
                 found = True
                 break
         assert(found)
@@ -1262,62 +1267,77 @@ class SparqlPreloadServerSurvolTest(unittest.TestCase):
     """
 
     @staticmethod
-    def run_compare_survol(sparql_query, expected_triples):
+    def run_query_survol(sparql_query):
         print("sparql_query=", sparql_query)
 
         url_sparql = RemoteTestAgent + "/survol/sparql_preload_all.py?query=" + lib_util.urllib_quote(sparql_query)
 
         rdf_data = UrlToRdf(url_sparql)
 
-        # All the triples must be in the result set where each element is transformed to a strng
+        # All the triples must be in the result set where each element is transformed to a string
         # print(rdf_data)
 
         str_actual_data = set()
-        print("len(rdf_data)=", len(rdf_data))
         for subject, predicate, object in rdf_data:
             str_subject = str(subject)
             str_predicate = str(predicate)
             str_object = str(object)
             str_actual_data.add((str_subject, str_predicate, str_object))
-        print("len(str_actual_data)=", len(str_actual_data))
+        return str_actual_data
 
-        print("expected_triples=", expected_triples)
-        print("str_actual_data=", str_actual_data)
-        for one_triple in expected_triples:
-            assert(one_triple in str_actual_data)
+    # PROBLEM: WMI writes domain names as "RCHATEAU-HP" or "rchateau-HP".
+    # expected_triples = [('\\\\rchateau-hp\\root\\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="Guest"',
+    #                      'http://primhillcomputers.com/survol#Domain', 'rchateau-hp'), (
+    #                     '\\\\rchateau-hp\\root\\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="Guest"',
+    #                     'http://primhillcomputers.com/survol#Name', 'Guest')]
+    # str_actual_data = set([('\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"',
+    #                         'http://primhillcomputers.com/survol#Caption', 'rchateau-HP\\\\Guest'), ])
 
+    array_survol_queries = [
+        [
+            """
+            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user rdfs:seeAlso "WMI" .
+            }
+            """,
+            [
+                (
+                    '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="Guest"' % (CurrentMachine, CurrentMachine),
+                    'http://primhillcomputers.com/survol#Domain',
+                    CurrentMachine
+                ),
+                (
+                    '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="Guest"' % (CurrentMachine, CurrentMachine),
+                    'http://primhillcomputers.com/survol#Name',
+                    'Guest'
+                ),
+            ]
+        ],
+    ]
 
     def test_preload_server_survol(self):
-        array_survol_queries=[
-            [
-                """
-                PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT *
-                WHERE
-                {
-                    ?url_user rdf:type survol:Win32_UserAccount .
-                    ?url_user rdfs:seeAlso "WMI" .
-                }
-                """,
-                [
-                    (
-                        '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="Guest"' % (CurrentMachine,CurrentMachine),
-                        'http://primhillcomputers.com/survol/Domain',
-                        CurrentMachine
-                    ),
-                    (
-                        '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="Guest"' % (CurrentMachine,CurrentMachine),
-                        'http://primhillcomputers.com/survol/Name',
-                        'Guest'
-                    ),
-                ]
-            ],
-        ]
+        for sparql_query, expected_triples in self.array_survol_queries:
+            str_actual_data = self.run_query_survol(sparql_query)
 
+            print("expected_triples=", expected_triples)
+            print("str_actual_data=", str_actual_data)
+            for one_triple in expected_triples:
+                assert (one_triple in str_actual_data)
 
-        for sparql_query, expected_triples in array_survol_queries:
-            self.run_compare_survol(sparql_query, expected_triples)
+    def test_preload_server_survol_case_insensitive(self):
+        for sparql_query, expected_triples in self.array_survol_queries:
+            str_actual_data = self.run_query_survol(sparql_query)
+            str_actual_data_upper = [ (s.upper(), p.upper(), o.upper()) for s, p, o in str_actual_data]
+
+            print("expected_triples=", expected_triples)
+            print("str_actual_data=", str_actual_data)
+            for s, p, o in expected_triples:
+                assert ((s.upper(), p.upper(), o.upper()) in str_actual_data_upper)
 
 
 __prefix_to_callbacks = {
@@ -1879,7 +1899,7 @@ class SparqlSeeAlsoTest(unittest.TestCase):
           ?url_file rdf:type survol:CIM_DataFile .
           ?url_file rdfs:seeAlso "survol:does_not_exist" .
         }
-        """ % CurrentPid,
+        """,
              ['url_proc', 'url_file'],
              ],
 
