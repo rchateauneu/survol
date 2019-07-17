@@ -196,6 +196,25 @@ class SparqlServerSurvolTest(unittest.TestCase):
                 PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
                 PREFIX survol:  <http://primhillcomputers.com/survol#>
                 PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT ?pid
+                WHERE
+                {
+                    ?url_proc rdf:type survol:CIM_Process .
+                    ?url_proc survol:Description 'python.exe' .
+                    ?url_proc survol:Handle ?pid .
+                    ?url_proc rdfs:seeAlso "WMI" .
+                }
+                """,
+                [ u'pid'],
+                [
+                    ((u'pid', str(CurrentPid) ),),
+                ]
+            ],
+            [
+                """
+                PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
+                PREFIX survol:  <http://primhillcomputers.com/survol#>
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
                 SELECT ?caption
                 WHERE
                 {
