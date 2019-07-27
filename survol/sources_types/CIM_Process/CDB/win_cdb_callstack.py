@@ -12,6 +12,7 @@ import lib_common
 from sources_types import CIM_Process
 from sources_types import linker_symbol as survol_symbol
 from sources_types.CIM_Process import CDB
+import lib_properties
 
 Usable = lib_util.UsableWindows
 
@@ -124,7 +125,7 @@ def Main():
 			dllName = CDB.TestIfKnownDll(dllName)
 
 			callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
-			grph.add( ( callNodePrev, lib_common.NodeLiteral("Depth"), lib_common.NodeLiteral(callDepth) ) )
+			grph.add( ( callNodePrev, lib_properties.MakeProp("Call_depth"), lib_common.NodeLiteral(callDepth) ) )
 			callDepth += 1
 			continue
 
