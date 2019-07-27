@@ -139,7 +139,11 @@ def triplestore_to_stream_xml(grph,out_dest, a_format):
     # With Py2 and StringIO or BytesIO, it raises "TypeError: unicode argument expected, got 'str'"
     # grph.serialize( destination = out_dest, format="xml")
     # There might be a way to serialize directory to the socket.
-    strXml = grph.serialize( destination = None, format=a_format)
+    try:
+        strXml = grph.serialize( destination = None, format=a_format)
+    except Exception as ex:
+        ERROR("triplestore_to_stream_xml Exception:%s",ex)
+        raise
     if sys.version_info >= (3,):
         # Really horrible piece of code, because out_dest might expect a str or a bytes,
         # depending on its type.
