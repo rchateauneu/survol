@@ -6,6 +6,7 @@ import sys
 import functools
 import rdflib.plugins.sparql.parser
 
+import lib_kbase
 import lib_util
 import lib_properties
 
@@ -73,6 +74,10 @@ class SparqlEnvironment:
         sys.stderr.write("\n")
 
         self.m_query = self.m_arguments["query"].value
+
+        # https://hhs.github.io/meshrdf/sparql-and-uri-requests
+        # format=HTML*, XML, CSV, TSV or JSON. Default= HTML*
+        #
         try:
             output_type = self.m_arguments["output"].value
         except KeyError:
@@ -94,8 +99,6 @@ class SparqlEnvironment:
         else:
             sys.stderr.write("Invalid output type:%s\n"%output_type)
             raise Exception("Invalid output type:"+output_type)
-        sys.stderr.write("mime_format=%s\n"%self.m_mime_format)
-        sys.stderr.write("rdflib_format=%s\n"%self.m_rdflib_format)
 
     def Query(self):
         return self.m_query
@@ -106,12 +109,12 @@ class SparqlEnvironment:
             # pip install rdflib-jsonld
             # No plugin registered for (json-ld, <class 'rdflib.serializer.Serializer'>)
             # rdflib_format = "pretty-xml"
-            sys.stderr.write("len grph=%d\n"%len(grph))
+            # sys.stderr.write("len grph=%d\n"%len(grph))
             strRdf = grph.serialize(format=self.m_rdflib_format)
         except Exception as exc:
             sys.stderr.write("Caught:%s\n"%exc)
             return
-        sys.stderr.write("strRdf=%s\n"%strRdf)
+        # sys.stderr.write("strRdf=%s\n"%strRdf)
         lib_util.WrtAsUtf(strRdf)
 
 ################################################################################
@@ -307,21 +310,16 @@ def __generate_triples_list(sparql_query):
 # Special pass to replace "a" by "rdf:type
 def __predicate_substitution(lstTriples):
     for clean_trpl in lstTriples:
-        #print("--------------------")
-        #print("Subj:",clean_trpl[0])
-        #print("Pred:",clean_trpl[1])
-        #print("Obj:",clean_trpl[2])
-
-        #print("p=",clean_trpl[1])
-        #print("p=",type(clean_trpl[1]))
         if clean_trpl[1][1] == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type':
             yield clean_trpl[0], ('TRPL_PREDICATE',"rdf:type"), clean_trpl[2]
         else:
             yield clean_trpl
 
 # TODO: When the subject is NOT a variable but an URL.
+# This receives the list of triples of the WHERE statement of a Spqrql query.
+# It returns a list of ObjectKeyValues.
 def __triples_to_input_entities(lst_triples):
-    # This is list is visited twice. It is not very big anyway.
+    # This list is visited twice. It is not very big anyway.
     assert isinstance(lst_triples,list)
     dict_key_value_pairs_by_subject = {}
 
@@ -330,7 +328,7 @@ def __triples_to_input_entities(lst_triples):
     # Objects for associators must also appear as triple subjects.
     variable_counter = 0
     for one_triple in lst_triples:
-        WARNING("one_triple=%s", str(one_triple))
+        #WARNING("one_triple=%s", str(one_triple))
         variable_name = one_triple[0][1]
         if variable_name in dict_key_value_pairs_by_subject:
             continue
@@ -342,11 +340,11 @@ def __triples_to_input_entities(lst_triples):
 
         dict_key_value_pairs_by_subject[variable_name] = ObjectKeyValues(variable_name, variable_counter)
         variable_counter += 1
-    WARNING("dict_key_value_pairs_by_subject=%s", str(dict_key_value_pairs_by_subject.keys()))
+    #WARNING("dict_key_value_pairs_by_subject=%s", str(dict_key_value_pairs_by_subject.keys()))
 
     # Gathers attributes of objects.
     for one_triple in lst_triples:
-        WARNING("one_triple=%s", str(one_triple))
+        #WARNING("one_triple=%s", str(one_triple))
         variable_name = one_triple[0][1]
         try:
             input_subject = dict_key_value_pairs_by_subject[variable_name]
@@ -371,7 +369,11 @@ def __triples_to_input_entities(lst_triples):
         else:
             WARNING("__triples_to_input_entities object_parsed_type=%s", object_parsed_type)
 
-
+    # This is a list of ObjectKeyValues. Some of them have their class defined with rdf:type,
+    # and can be transformed into a WQL query, or the execution of a Survol script.
+    # Some others have no class and will be processed differently.
+    # They must be sorted together because variables might be shared between
+    # these two kinds of ObjectKeyValues.
     list_entities_by_variable = dict_key_value_pairs_by_subject.values()
 
     for one_entity_by_variable in list_entities_by_variable:
@@ -396,27 +398,54 @@ def __triples_to_input_entities(lst_triples):
                 # and use the counter only of equality.
                 return okv1.m_variable_counter < okv2.m_variable_counter
 
-    # The order of nested loops is very important for performances.
+    # The order of nested loops is very important:
+    # - It allows to get the value of object variables and assign them to nested queries:
+    #   The value of a Sparql variable must be found to set to other key-value paris of other
+    #   objects which can at their turn be fetched from WQL or Survol scripts.
+    # - Performance impact: This is a secondary criteria.
     sort_entities_by_variable = sorted(list_entities_by_variable, key=functools.cmp_to_key(compare_ObjectKeyValues))
 
     WARNING("After sort=%s", str([one_ent.m_object_variable_name for one_ent in sort_entities_by_variable]))
     return sort_entities_by_variable
 
-
-
-#Maintenant, on va extraire a part les proprietes speciales rdf:type etc...
-#relatives a l ontologie.
-#et aussi quand l object est manifestement un node.
-#et quand les proprietes appartiennent a des namespaces differents.
-
-
+# This receives a Sparql query and returns a list of objects defined
+# by their class and a dictionary of key-value pairs.
+# The values can be literal or variables.
+#
+# The class of each object is given by rdf:type.
+# The key-value pairs are given by the clause in the Sparql query.
+# These objects are used to preload RDF triples from Survol scripts
+# or WMI/WBEM queries in WQL language:
+# - For WQL, each object is transformed into a "select where" WQL query,
+#   with the correct type.
+# - For Survol scripts, the key-value pairs are transformed into an URL,
+#   and the scripts names are given by "seeAlso".
+#
+# The list of objects is sorted, so their data can be fetched in nested loops,
+# each loop returning values assigned to the variables.
+# This returns a list of ObjectKeyValues
 def _parse_query_to_key_value_pairs_list(sparql_query):
-    lstTriples = __generate_triples_list(sparql_query)
-    lstTriplesReplaced = __predicate_substitution(lstTriples)
+    lst_triples = __generate_triples_list(sparql_query)
+    # This is a list of clauses of the WHERE statement in the Sparql query.
+    lst_triples_replaced = __predicate_substitution(lst_triples)
 
-    lstTriplesReplaced = list(lstTriplesReplaced)
-    listEntitiesByVariable = __triples_to_input_entities(lstTriplesReplaced)
-    return listEntitiesByVariable
+    # It must be a list because it is walked twice. It is not very big anyway.
+    lst_triples_replaced = list(lst_triples_replaced)
+    list_entities_by_variable = __triples_to_input_entities(lst_triples_replaced)
+    return list_entities_by_variable
+
+################################################################################
+def QueryHeader(sparql_query):
+    parsed = rdflib.plugins.sparql.parser.parseQuery(sparql_query)
+
+    # parsed = rdflib.plugins.sparql.parser.parseQuery("select ?a ?b where { ?a a ?b . }")
+    # parsed = ([([], {}),
+    #     SelectQuery_{'where': GroupGraphPatternSub_{'part': [TriplesBlock_{'triples': [([rdflib.term.Variable(u'a'), PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')}]}]},
+    # rdflib.term.Variable(u'b')], {})]}]}, 'projection': [vars_{'var': rdflib.term.Variable(u'a')}, vars_{'var': rdflib.term.Variable(u'b')}]}], {})
+
+    list_vars = parsed[1]['projection']
+    list_names = [str(one_var['var']) for one_var in list_vars]
+    return list_names
 
 ################################################################################
 
@@ -464,7 +493,8 @@ class ObjectKeyValues:
             if lst_key == "rdfs:seeAlso":
                 self.m_lst_seeAlso.append(lst_val)
             elif lst_key == "rdf:type":
-                # class_name= "survol:CIM_Process" for example.
+                # If the object is a class:
+                WARNING("lst_val=%s / %s / %s / %d", lst_val, str(type(lst_val)), lib_kbase.PredicateType, lib_kbase.PredicateType == lst_val)
                 class_name = str(lst_val)
             else:
                 self.m_key_values[lst_key] = lst_val
@@ -477,14 +507,8 @@ class ObjectKeyValues:
 
         DEBUG("prefix:%s", self.m_source_prefix)
 
-    def all_sources(self):
-        all_sources_set = set(self.m_lst_seeAlso)
-        # The prefix of the attributes is also used as source of data.
-        all_sources_set.add(self.m_source_prefix)
-        return all_sources_set
-
     def __repr__(self):
-        title = "ObjectKeyValues:"
+        title = "ObjectKeyValues:" + self.m_object_variable_name + ":"
         if self.m_class_name:
             title += self.m_class_name
         else:
@@ -513,13 +537,11 @@ def chop_namespace(attribute_name):
     prefix, colon, short_key = attribute_name.partition(":")
     return short_key
 
-
-# predicate_prefix could be "WMI" or a seeAlso script.
-def __filter_key_values(predicate_prefix, where_key_values):
-
+# This receives a dictionary of key-value pairs for calling the "Select" callback
+# of the Sparql Api objet. The namespace of each key is chopped.
+def __filter_key_values(where_key_values):
     filtered_where_key_values = {}
     for sparql_key, sparql_value in where_key_values.items():
-        DEBUG("__filter_key_values predicate_prefix=%s sparql_key=%s", predicate_prefix, sparql_key)
         short_key = chop_namespace(sparql_key)
         # The local predicate names have to be unique.
         assert(short_key not in filtered_where_key_values)
@@ -555,8 +577,7 @@ Lors de la jointure, on accumule le RDF.
 def _run_callback_on_entities(
         grph,
         lst_input_object_key_values,
-        execute_query_callback_select,
-        execute_query_callback_associators):
+        query_callback_object):
 
     def _evaluate_current_entity(index, known_variables, tuple_result_input):
         if index == len(lst_input_object_key_values):
@@ -564,127 +585,177 @@ def _run_callback_on_entities(
             yield tuple_result_input
             return
         curr_input_entity = lst_input_object_key_values[index]
-        assert curr_input_entity.m_class_name
-        predicate_prefix = curr_input_entity.m_source_prefix
 
-        where_key_values_replaced = {}
-        dict_variable_to_attribute = {}
-        #print("curr_input_entity=", curr_input_entity)
-        for key_as_str, value_attribute in curr_input_entity.m_key_values.items():
-            WARNING("key_as_str=%s value_attribute=%s", key_as_str,value_attribute)
-            if isinstance(value_attribute, QueryVariable):
-                variable_name = value_attribute.m_query_variable_name
-                if variable_name in known_variables:
-                    where_key_values_replaced[key_as_str] = known_variables[variable_name]
+        # This set contains all "seeAlso" values, which are sources of data.
+        # This could be the string "WMI", or Survol scripts filenames, or variables,
+        # which are evaluated here.
+        def evaluate_see_also_sources(object_key_values):
+            assert isinstance( object_key_values, ObjectKeyValues )
+
+            set_all_sources = set()
+
+            for one_see_also in object_key_values.m_lst_seeAlso:
+                if isinstance(one_see_also, QueryVariable):
+                    source_name = one_see_also.m_query_variable_name
+                    see_also_name = known_variables[source_name]
+                    set_all_sources.add(see_also_name)
                 else:
-                    # Variable is not known yet. CA NE DEVRAIT PAS ARRIVER ???
-                    WARNING("NOT KNOWN YET key_as_str=%s value_attribute=%s", key_as_str, value_attribute)
-                    dict_variable_to_attribute[variable_name] = key_as_str
-            else:
-                where_key_values_replaced[key_as_str] = value_attribute
-        # SI PAS DE SUBSTITUTION, STOCKER LE RESULTAT UNE BONNE FOIS POUR TOUTES DANS LE TABLEAU lst_input_object_key_values[index]
+                    set_all_sources.add(one_see_also)
 
-        # TODO: Difficulty mapping property names to nodes.
-        def _property_name_to_node(attribute_key):
-            if attribute_key.startswith(predicate_prefix+":"):
-                attribute_key_without_prefix = attribute_key[len(predicate_prefix)+1:]
-            else:
-                attribute_key_without_prefix = attribute_key
-            # This calculates the qname and should use the graph. Is it what we want ?
-            return lib_properties.MakeProp(attribute_key_without_prefix)
+            # The prefix of the attributes is also used as source of data,
+            # but not if "rdf" because it is not a proper source.
+            if object_key_values.m_source_prefix != "rdf":
+                set_all_sources.add(object_key_values.m_source_prefix)
 
-        DEBUG("dict_variable_to_attribute=%s", str(dict_variable_to_attribute))
+            return set_all_sources
 
-        # Ne pas appeler plusieurs fois si ce sont les memes valeurs mais reutiliser le resultat.
+        assert isinstance( curr_input_entity, ObjectKeyValues )
+        if curr_input_entity.m_class_name:
+            predicate_prefix = curr_input_entity.m_source_prefix
 
-        if curr_input_entity.m_associator_subject:
-            def _callback_filter_all_sources_associators():
-                for one_see_also in curr_input_entity.m_associator_subject.all_sources():
-                    WARNING("_callback_filter_all_sources_associators one_see_also=%s assoc_key=%s path=%s",
+            where_key_values_replaced = {}
+            dict_variable_to_attribute = {}
+            #print("curr_input_entity=", curr_input_entity)
+            for key_as_str, value_attribute in curr_input_entity.m_key_values.items():
+                WARNING("key_as_str=%s value_attribute=%s", key_as_str,value_attribute)
+                if isinstance(value_attribute, QueryVariable):
+                    variable_name = value_attribute.m_query_variable_name
+                    if variable_name in known_variables:
+                        where_key_values_replaced[key_as_str] = known_variables[variable_name]
+                    else:
+                        # Variable is not known yet. CA NE DEVRAIT PAS ARRIVER ???
+                        WARNING("NOT KNOWN YET key_as_str=%s value_attribute=%s", key_as_str, value_attribute)
+                        dict_variable_to_attribute[variable_name] = key_as_str
+                else:
+                    where_key_values_replaced[key_as_str] = value_attribute
+            # SI PAS DE SUBSTITUTION, STOCKER LE RESULTAT UNE BONNE FOIS POUR TOUTES DANS LE TABLEAU lst_input_object_key_values[index]
+
+            # TODO: Difficulty mapping property names to nodes.
+            def _property_name_to_node(attribute_key):
+                if attribute_key.startswith(predicate_prefix+":"):
+                    attribute_key_without_prefix = attribute_key[len(predicate_prefix)+1:]
+                else:
+                    attribute_key_without_prefix = attribute_key
+                # This calculates the qname and should use the graph. Is it what we want ?
+                return lib_properties.MakeProp(attribute_key_without_prefix)
+
+            DEBUG("dict_variable_to_attribute=%s", str(dict_variable_to_attribute))
+
+            # Ne pas appeler plusieurs fois si ce sont les memes valeurs mais reutiliser le resultat.
+
+            if curr_input_entity.m_associator_subject:
+                def _callback_filter_all_sources_associators():
+                    for one_see_also in evaluate_see_also_sources(curr_input_entity.m_associator_subject):
+                        WARNING("_callback_filter_all_sources_associators one_see_also=%s assoc_key=%s path=%s",
+                                one_see_also,
+                                curr_input_entity.m_associator_key_name,
+                                curr_input_entity.m_associator_subject.m_object_path)
+
+                        short_associator_class_name = chop_namespace(curr_input_entity.m_associator_key_name)
+
+                        iter_assoc_results = query_callback_object.CallbackAssociator(
+                            grph,
+                            curr_input_entity.m_class_name,
                             one_see_also,
-                            curr_input_entity.m_associator_key_name,
-                            curr_input_entity.m_associator_subject.m_object_path)
+                            short_associator_class_name,
+                            curr_input_entity.m_associator_subject.m_object_path
+                        )
 
-                    short_associator_class_name = chop_namespace(curr_input_entity.m_associator_key_name)
+                        # The objects should be merged based o
+                        for one_node_dict_pair in iter_assoc_results:
+                            yield one_node_dict_pair
 
-                    iter_assoc_results = execute_query_callback_associators(
-                        grph,
-                        curr_input_entity.m_class_name,
-                        one_see_also,
-                        short_associator_class_name,
-                        curr_input_entity.m_associator_subject.m_object_path
-                    )
+                iter_recursive_results = _callback_filter_all_sources_associators()
 
-                    # The objects should be merged based o
-                    for one_node_dict_pair in iter_assoc_results:
-                        yield one_node_dict_pair
-
-            iter_recursive_results = _callback_filter_all_sources_associators()
-
-        else:
-            def _callback_filter_all_sources_select():
-                for one_see_also in curr_input_entity.all_sources():
-                    WARNING("_callback_filter_all_sources_select one_see_also=%s m_class_name=%s", one_see_also, curr_input_entity.m_class_name)
-
-                    # one_see_also can be "WMI" or a script like "survol:CIM_DataFile/...".
-                    predicate_prefix, colon, dummy = one_see_also.partition(":")
-
-                    filtered_where_key_values = __filter_key_values(predicate_prefix, where_key_values_replaced)
-                    iter_assoc_results = execute_query_callback_select(
-                        grph,
-                        curr_input_entity.m_class_name,
-                        one_see_also,
-                        filtered_where_key_values)
-
-                    for one_node_dict_pair in iter_assoc_results:
-                        yield one_node_dict_pair
-
-            iter_recursive_results = _callback_filter_all_sources_select()
-
-        # If there are several associators, they might have returned duplicate objects.
-        unique_recursive_results = {}
-        for object_path, dict_key_values in iter_recursive_results:
-            if object_path in unique_recursive_results:
-                unique_recursive_results[object_path].update(dict_key_values)
             else:
-                unique_recursive_results[object_path] = dict_key_values
+                def _callback_types_list():
+                    for one_see_also in evaluate_see_also_sources(curr_input_entity):
+                        iter_types_results = query_callback_object.CallbackTypes(grph, one_see_also)
 
-        for object_path, dict_key_values in unique_recursive_results.items():
-            # The result is made of URL to CIM objects.
-            output_entity = PathPredicateObject(object_path, curr_input_entity.m_class_name, dict_key_values)
-            #print("From callback: output_entity=",output_entity)
+                        for one_node_dict_pair in iter_types_results:
+                            yield one_node_dict_pair
 
-            for variable_name, attribute_key in dict_variable_to_attribute.items():
-                #WARNING("index=%d variable_name=%s attribute_key=%s", index, variable_name, attribute_key)
-                attribute_key_node = _property_name_to_node(attribute_key)
-                #WARNING("output_entity.m_predicate_object_dict=%s",str(output_entity.m_predicate_object_dict))
-                known_variables[variable_name] = output_entity.m_predicate_object_dict[attribute_key_node]
+                def _callback_filter_all_sources_select():
+                    for one_see_also in evaluate_see_also_sources(curr_input_entity):
+                        WARNING("_callback_filter_all_sources_select one_see_also=%s", one_see_also)
 
-            tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
+                        # one_see_also can be "WMI" or a script like "survol:CIM_DataFile/...".
+                        # predicate_prefix, colon, dummy = one_see_also.partition(":")
 
-            # object_path = lib_util.NodeUrl(object_path)
-            # one_wmi_object.path =\\RCHATEAU - HP\root\cimv2:Win32_Process.Handle = "26720"
-            curr_input_entity.m_object_path = object_path
+                        filtered_where_key_values = __filter_key_values(where_key_values_replaced)
+                        iter_select_results = query_callback_object.CallbackSelect(
+                            grph,
+                            curr_input_entity.m_class_name,
+                            one_see_also,
+                            filtered_where_key_values)
 
-            # NON: Executer seulement pour chaque combinaison de variables reellement utilisees.
-            # Sinon reutiliser le resultat.
-            output_results = _evaluate_current_entity(index + 1, known_variables, tuple_result_extended)
-            for one_resu in output_results:
-                yield one_resu
+                        for one_node_dict_pair in iter_select_results:
+                            yield one_node_dict_pair
+
+                WARNING("_callback_filter_all_sources_select m_source_prefix=%s m_class_name=%s",
+                        curr_input_entity.m_source_prefix, curr_input_entity.m_class_name)
+                if curr_input_entity.m_source_prefix == "rdf" and curr_input_entity.m_class_name == "type":
+                    iter_recursive_results = _callback_types_list()
+                else:
+                    iter_recursive_results = _callback_filter_all_sources_select()
+
+            # If there are several associators, they might have returned duplicate objects.
+            unique_recursive_results = {}
+            for object_path, dict_key_values in iter_recursive_results:
+                if object_path in unique_recursive_results:
+                    unique_recursive_results[object_path].update(dict_key_values)
+                else:
+                    unique_recursive_results[object_path] = dict_key_values
+
+            for object_path, dict_key_values in unique_recursive_results.items():
+                # The result is made of URL to CIM objects.
+                output_entity = PathPredicateObject(object_path, curr_input_entity.m_class_name, dict_key_values)
+                #print("From callback: output_entity=",output_entity)
+
+                for variable_name, attribute_key in dict_variable_to_attribute.items():
+                    #WARNING("index=%d variable_name=%s attribute_key=%s", index, variable_name, attribute_key)
+                    attribute_key_node = _property_name_to_node(attribute_key)
+                    WARNING("output_entity.m_predicate_object_dict=%s",str(output_entity.m_predicate_object_dict))
+                    known_variables[variable_name] = output_entity.m_predicate_object_dict[attribute_key_node]
+
+                tuple_result_extended = tuple(list(tuple_result_input)) + (output_entity,)
+
+                # object_path = lib_util.NodeUrl(object_path)
+                # one_wmi_object.path =\\RCHATEAU - HP\root\cimv2:Win32_Process.Handle = "26720"
+                curr_input_entity.m_object_path = object_path
+
+                # NON: Executer seulement pour chaque combinaison de variables reellement utilisees.
+                # Sinon reutiliser le resultat.
+                output_results = _evaluate_current_entity(index + 1, known_variables, tuple_result_extended)
+                for one_resu in output_results:
+                    yield one_resu
+        else:
+            # Non-typed object.
+            # ObjectKeyValues:url_dummy:NoClass*NoAssoc@
+            raise Exception("Not implemented yet:",
+                            curr_input_entity.m_raw_key_value_pairs,
+                            dir(curr_input_entity),
+                            curr_input_entity)
+
+            # (u'rdfs:seeAlso', 'survol:enumerate_python_package')
 
     itr_tuple_results = _evaluate_current_entity(0, known_variables={}, tuple_result_input=tuple())
     for tuple_results in itr_tuple_results:
         yield tuple_results
 
+# This returns rows of fetched results, of similar structures.
+# Each result is a dictionary: The keys are some selected variables
+# of the Sparql query, only subject variables (possibly also used as objects).
+# The values are dictionary of key-value pairs which define the variable.
+def QueryEntities(grph, sparql_query, query_callback_object):
+    # This returns a list of ObjectKeyValues
+    object_key_values = _parse_query_to_key_value_pairs_list(sparql_query)
 
-def QueryEntities(grph, sparql_query, query_callback_select, query_callback_associator):
+    WARNING("object_key_values=%s", str(object_key_values))
 
-    list_entities_by_variable = _parse_query_to_key_value_pairs_list(sparql_query)
-
-    WARNING("list_entities_by_variable=%s", str(list_entities_by_variable))
-
-    input_keys = [ one_entity_by_variable.m_object_variable_name for one_entity_by_variable in list_entities_by_variable ]
-    for tuple_results in _run_callback_on_entities(grph, list_entities_by_variable, query_callback_select, query_callback_associator):
+    # This is a list of variables representing URLs of objects with key-values, fetched from WQL or Survol scripts.
+    input_keys = [ entity_by_variable.m_object_variable_name for entity_by_variable in object_key_values ]
+    for tuple_results in _run_callback_on_entities(grph, object_key_values, query_callback_object):
         yield dict(zip(input_keys,tuple_results))
 
 
@@ -704,29 +775,62 @@ def QueryEntities(grph, sparql_query, query_callback_select, query_callback_asso
 #   "associators of {CIM_Process.Handle=1780} where assocclass=CIM_ProcessExecutable"
 
 
-def QuerySeeAlsoEntities(grph, sparql_query, query_callback_select, query_callback_associator):
-    return QueryEntities(grph, sparql_query, query_callback_select, query_callback_associator)
+def QuerySeeAlsoEntities(grph, sparql_query, query_callback_object):
+    return QueryEntities(grph, sparql_query, query_callback_object)
 
 ##################################################################################
 
 # This runs a Sparql callback and transforms the returned objects into RDF triples.
-def QueryToGraph(grph, sparql_query, query_callback_select, query_callback_associator):
+def QueryToGraph(grph, sparql_query, query_callback_object):
 
-    iter_entities_dicts = QueryEntities(grph, sparql_query, query_callback_select, query_callback_associator)
+    iter_entities_dicts = QueryEntities(grph, sparql_query, query_callback_object)
 
-    sys.stderr.write("iter_entities_dicts=%s\n"%dir(iter_entities_dicts))
+    # FIXME: Survol scripts are not able to return objects,
+    # FIXME: but they natively create triples which can be fed into the graph:
+    # FIXME: Survol scripts just return the minimum set of data allowing to join with other clauses.
+    #
+    # FIXME: On the other hand, WMI returns objects but cannot natively create RDF triples.
+    # FIXME: Therefore, it makes sense to create triples from the objects.
+
+    # sys.stderr.write("QueryToGraph len(iter_entities_dicts)=%s\n" % len(iter_entities_dicts))
 
     for one_dict_entity in iter_entities_dicts:
-        sys.stderr.write("one_dict_entity=%s\n"%one_dict_entity)
+        #sys.stderr.write("QueryToGraph one_dict_entity=%s\n"%one_dict_entity)
         for variable_name, sparql_object in one_dict_entity.items():
             # Dictionary of variable names to PathPredicateObject
-            sys.stderr.write("sparql_object.m_predicate_object_dict=%s\n" % sparql_object.m_predicate_object_dict)
-            print("sparql_object.m_predicate_object_dict=", sparql_object.m_predicate_object_dict)
+            subject_path_node = lib_util.NodeUrl(sparql_object.m_subject_path)
             for key, val in sparql_object.m_predicate_object_dict.items():
-                subject_path_node = lib_util.NodeUrl(sparql_object.m_subject_path)
                 grph.add((subject_path_node, key, val))
 
     # TODO: Adds the ontology: Classes and predicates. AddOntology(grph)
+
+##################################################################################
+
+# This meta-callback dispatches the query to the right data source.
+class SwitchCallbackApi:
+    def __init__(self, prefix_to_callbacks):
+        self.m_prefix_to_callbacks = prefix_to_callbacks
+        # prefix_to_callbacks = {
+        #    "HardCoded": HardcodeSparqlCallbackApi(),
+        #    "WMI": objectWmiSparqlCallbackApi,
+        #    "survol": lib_sparql_callback_survol.SurvolSparqlCallbackApi(),
+        #}
+
+    def CallbackSelect(self, grph, class_name, see_also, where_key_values):
+        predicate_prefix, colon, see_also_script = see_also.partition(":")
+        callback_object = self.m_prefix_to_callbacks[predicate_prefix]
+        return callback_object.CallbackSelect(grph, class_name, see_also, where_key_values)
+
+    def CallbackAssociator(self, grph, result_class_name, see_also, associator_key_name, subject_path):
+        predicate_prefix, colon, see_also_script = see_also.partition(":")
+        callback_object = self.m_prefix_to_callbacks[predicate_prefix]
+        return callback_object.CallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path)
+
+    def CallbackTypes(self, grph, see_also):
+        WARNING("SwitchCallbackApi.CallbackTypes see_also=%s", see_also)
+        predicate_prefix, colon, see_also_script = see_also.partition(":")
+        callback_object = self.m_prefix_to_callbacks[predicate_prefix]
+        return callback_object.CallbackTypes(grph, see_also)
 
 
 ##################################################################################

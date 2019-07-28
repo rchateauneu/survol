@@ -13,6 +13,7 @@ import lib_util
 import lib_kbase
 import lib_common
 import lib_naming
+import lib_properties
 from lib_properties import pc
 import entity_dirmenu_only
 
@@ -63,6 +64,11 @@ class SourceBase (object):
         grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
         return TripleStore(grphKBase)
 
+    # This is a hack when mapping Sparql to Survol.
+    # This helps avoiding scripts which are very slow and not usable in a loop.
+    def IsVerySlow(self):
+        return False
+
     # If it does not have the necessary CGI args,
     # then loop on the existing objects of this class.
     # It is always True for merged sources,
@@ -80,12 +86,15 @@ class SourceCgi (SourceBase):
         super(SourceCgi, self).__init__()
 
     def UrlQuery(self,mode=None):
-        suffix = ",".join( [ "%s=%s" % (k,v) for k,v in self.m_kwargs.items() ])
+        # suffix = ",".join( [ "%s=%s" % (k,v) for k,v in self.m_kwargs.items() ])
+        # v might be an integer, a double, a string.
+        suffix = ",".join( [ "%s=%s" % (k,lib_util.urllib_quote(str(v))) for k,v in self.m_kwargs.items() ])
         if self.m_className:
             restQry = self.m_className + "." + suffix
         else:
             restQry = suffix
-        quotedRest = lib_util.urllib_quote(restQry)
+        quotedRest = restQry
+        #quotedRest = lib_util.urllib_quote(restQry)
 
         # TODO: See lib_util.xidCgiDelimiter = "?xid="
         qryArgs = "xid=" + quotedRest
@@ -244,6 +253,7 @@ class SourceLocal (SourceCgi):
 
     # This returns a string.
     # It runs locally: When using only the local node, no web server is needed.
+    # TODO: Replace __execute_script_with_mode
     def get_content_moded(self,mode):
         data_content = self.__execute_script_with_mode(mode)
         return data_content
@@ -283,6 +293,13 @@ class SourceLocal (SourceCgi):
         list_instances = my_triplestore.GetInstances()
         return list_instances
 
+    def IsVerySlow(self):
+        modu = self.__get_local_module()
+        try:
+            return modu.SlowScript
+        except AttributeError:
+            return False
+
 
 class SourceMerge (SourceBase):
     def __init__(self,srcA,srcB,operatorTripleStore):
@@ -302,6 +319,7 @@ class SourceMerge (SourceBase):
             return self.m_operatorTripleStore(triplestoreA,triplestoreB)
 
         else:
+            # TODO: Was it ever used ?
             # The class cannot be None because the url is not complete
 
             objsList = triplestoreA.EnumerateUrls()
@@ -692,24 +710,31 @@ def CreateCIMClass(agentUrl,className,**kwargsOntology):
     return newInstance
 
 ################################################################################
+
+# Example: xid="CIM_Process.Handle=2092"
+def EntityIdToInstance(agentUrl, class_name, entity_id):
+    xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+
+    newInstance = CreateCIMClass(agentUrl, class_name, **xidDict)
+    return newInstance
+
+# This creates an object from an URI.
+# Example input: instanceUrl="http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=2092"
 def UrlToInstance(instanceUrl):
     if instanceUrl.find("entity.py") < 0:
         # So maybe this is not an instance after all.
         return None
+
+    # This parsing that all urls are not scripts but just define an instance
+    # and therefore have the form "http://.../entity.py?xid=...",
+    agentUrl = InstanceUrlToAgentUrl(instanceUrl)
 
     ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
     # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
     # BEWARE: Some arguments should be decoded.
     #DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
 
-    xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
-
-    # This parsing that all urls are not scripts but just define an instance
-    # and therefore have the form "http://.../entity.py?xid=...",
-    agentUrl = InstanceUrlToAgentUrl(instanceUrl)
-
-    newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
-    return newInstance
+    return EntityIdToInstance(agentUrl, entity_graphic_class, entity_id)
 
 
 # instanceUrl="http://LOCAL_MODE:80/NotRunningAsCgi/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
@@ -863,6 +888,57 @@ class TripleStore:
         for trpSubj,trpPred,trpObj in lib_kbase.triplestore_all_strings(self.m_triplestore):
             yield lib_util.urllib_unquote(trpObj.value )
 
+    # This returns only the objects of a given class and for a given predicate.
+    def FilterObjectsWithPredicateClass(self, associator_key_name, result_class_name):
+        WARNING("TripleStore.ObjectFromPredicate associator_key_name=%s, result_class_name=%s",
+                associator_key_name, result_class_name)
+
+        dict_objects = {}
+
+        # First pass to filter the objects nodes of a given class labelled with the predicate..
+        for source_subject, source_predicate, source_object in self.m_triplestore:
+            #WARNING("TripleStore.ObjectFromPredicate s=%s, p=%s, o=%s",
+            #        source_subject, source_predicate, source_object)
+
+            # This transforms for example "http://primhillcomputers.com/survol#Domain" into "Domain"
+            predicate_name = lib_properties.PropToQName(source_predicate)
+
+            # WARNING("FilterObjectsWithPredicateClass predicate_name=%s",predicate_name)
+            # s=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=2544
+            # p=http://primhillcomputers.com/survol#ppid
+            # o=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=2092
+
+            if predicate_name == associator_key_name:
+                # class_object = source_object
+                object_instance = UrlToInstance(source_object)
+                if predicate_name.find("ppid") >= 0:
+                    WARNING("FilterObjectsWithPredicateClass OKOKOKOK s=%s p=%s o=%s", str(source_subject), str(source_predicate), str(source_object))
+                    WARNING("FilterObjectsWithPredicateClass object_instance=%s", dir(object_instance) )
+                    WARNING("FilterObjectsWithPredicateClass object_instance.__class__.__name__=%s", object_instance.__class__.__name__)
+                if object_instance.__class__.__name__ == result_class_name:
+                    dict_objects[source_object] = object_instance
+
+        # Now, it gathers extra properties for the selected objects.
+        # This does not fit exactly in the object model,
+        # because the extra properties are added in the internal dictonal,
+        # but are not members of the object.
+        for source_subject, source_predicate, source_object in self.m_triplestore:
+            if source_subject in dict_objects:
+                predicate_name = lib_properties.PropToQName(source_predicate)
+                object_value = str(source_object)
+                WARNING("TripleStore.ObjectFromPredicate predicate_name=%s object_value=%s",
+                        predicate_name, object_value)
+                dict_objects[source_subject].m_key_value_pairs[predicate_name] = object_value
+
+        for dict_objects, object_instance in dict_objects.items():
+            node_path = str(dict_objects)
+            WARNING("TripleStore.ObjectFromPredicate node_path=%s", node_path)
+            # The keys of the key-value dictionary must be nodes, not string,
+            # for example: rdflib.term.URIRef(u'http://primhillcomputers.com/survol#runs')
+            dict_nodes_keys_values = {
+                lib_properties.MakeProp(dict_key): dict_value for dict_key, dict_value in object_instance.m_key_value_pairs.items() }
+            yield (node_path, dict_nodes_keys_values)
+
     def CopyToGraph(self, grph):
         """This adds the triples to another triplestore."""
         # TODO: This could be faster.
@@ -872,7 +948,7 @@ class TripleStore:
             WARNING("CopyToGraph Graph is None. Leaving")
             return
 
-        DEBUG("CopyToGraph Adding %d triples", len(self.m_triplestore))
+        WARNING("CopyToGraph Adding %d triples", len(self.m_triplestore))
         for subject, predicate, object in self.m_triplestore:
             grph.add((subject, predicate, object))
 
@@ -893,7 +969,7 @@ def ScriptUrlToSource(callingUrl):
 
     xidParam = params['xid'][0]
     # sys.stdout.write("ScriptUrlToSource xidParam=%s\n"%xidParam)
-    (entity_type,entity_id,entity_host) = lib_util.ParseXid( xidParam )
+    (entity_type,entity_id,entity_host) = lib_util.ParseXid(xidParam)
     # sys.stdout.write("ScriptUrlToSource entity_id=%s\n"%entity_id)
     entity_id_dict = lib_util.SplitMoniker(entity_id)
     # sys.stdout.write("entity_id_dict=%s\n"%str(entity_id_dict))

@@ -703,109 +703,120 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
                 exc = sys.exc_info()[1]
                 yield( prpProp, lib_common.NodeLiteral( str(exc) ) )
 
+class WmiSparqlCallbackApi:
+    def __init__(self):
+        # Current host and default namespace.
+        self.m_wmi_connection = WmiConnect("","")
 
-def WmiCallbackSelect(grph, class_name, predicate_prefix, filtered_where_key_values):
-    WARNING("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
-    assert class_name
+    def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
+        WARNING("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+        assert class_name
 
-    # HACK: Temporary hard-code !!
-    if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
-        filnam = filtered_where_key_values["Name"]
-        filtered_where_key_values["Name"] = filnam.replace("/","\\")
-        WARNING("WmiCallbackSelect REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
-    elif class_name == "CIM_Directory" and "Name" in filtered_where_key_values:
-        filnam = filtered_where_key_values["Name"]
-        filtered_where_key_values["Name"] = filnam.replace("/","\\")
-        WARNING("WmiCallbackSelect REPLACED CIM_Directory where_key_values=%s", filtered_where_key_values)
+        # This comes from such a Sparql triple: " ?variable rdf:type rdf:type"
+        if class_name == "type":
+            return
 
-    wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values,class_name)
-    WARNING("WmiCallbackSelect wmi_query=%s", wmi_query)
-    # Current host and default namespace.
-    wmi_connection = WmiConnect("","")
+        # HACK: Temporary hard-code !!
+        if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
+            filnam = filtered_where_key_values["Name"]
+            filtered_where_key_values["Name"] = filnam.replace("/","\\")
+            WARNING("WmiCallbackSelect REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
+        elif class_name == "CIM_Directory" and "Name" in filtered_where_key_values:
+            filnam = filtered_where_key_values["Name"]
+            filtered_where_key_values["Name"] = filnam.replace("/","\\")
+            WARNING("WmiCallbackSelect REPLACED CIM_Directory where_key_values=%s", filtered_where_key_values)
 
-    wmi_objects = wmi_connection.query(wmi_query)
+        wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values,class_name)
+        WARNING("WmiCallbackSelect wmi_query=%s", wmi_query)
 
-    for one_wmi_object in wmi_objects:
-        # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
-        object_path = str(one_wmi_object.path())
-        WARNING("one_wmi_object.path=%s",object_path)
-        list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, class_name )
-        dict_key_values = { node_key: node_value for node_key, node_value in list_key_values}
+        wmi_objects = self.m_wmi_connection.query(wmi_query)
 
-        dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
-        # Add it again, so the original Sparql query will work.
-        dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
+        for one_wmi_object in wmi_objects:
+            # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            object_path = str(one_wmi_object.path())
+            WARNING("one_wmi_object.path=%s",object_path)
+            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name )
+            dict_key_values = { node_key: node_value for node_key, node_value in list_key_values}
 
-        # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
-        dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
+            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
+            # Add it again, so the original Sparql query will work.
+            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
 
-        WARNING("dict_key_values=%s",dict_key_values)
-        #object_path_node = lib_util.NodeUrl(object_path)
-        lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
-        yield ( object_path, dict_key_values )
+            # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
+            dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
+
+            WARNING("dict_key_values=%s",dict_key_values)
+            #object_path_node = lib_util.NodeUrl(object_path)
+            lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
+            yield ( object_path, dict_key_values )
 
 
-# This returns a data structure similar to WmiCallbackSelect
-def WmiCallbackAssociator(
-    grph,
-    result_class_name,
-    predicate_prefix,
-    associator_key_name,
-    wmi_path_full):
-    # subject_path_node as previously returned by WmiCallbackSelect
-    WARNING("WmiCallbackAssociator wmi_path_full=%s result_class_name=%s associator_key_name=%s",
-            wmi_path_full,
-            result_class_name,
-            associator_key_name)
-    assert wmi_path_full
+    # This returns a data structure similar to WmiCallbackSelect
+    def CallbackAssociator(
+        self,
+        grph,
+        result_class_name,
+        predicate_prefix,
+        associator_key_name,
+        wmi_path_full):
+        # subject_path_node as previously returned by WmiCallbackSelect
+        WARNING("WmiCallbackAssociator wmi_path_full=%s result_class_name=%s associator_key_name=%s",
+                wmi_path_full,
+                result_class_name,
+                associator_key_name)
+        assert wmi_path_full
 
-    # wmi_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
-    # wmi_path_full = str(subject_path_node)
-    # wmi_path_full = subject_path
-    dummy, colon, wmi_path = wmi_path_full.partition(":")
-    WARNING("WmiCallbackAssociator wmi_path=%s", wmi_path)
+        # wmi_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
+        # wmi_path_full = str(subject_path_node)
+        # wmi_path_full = subject_path
+        dummy, colon, wmi_path = wmi_path_full.partition(":")
+        WARNING("WmiCallbackAssociator wmi_path=%s", wmi_path)
 
-    # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
-    # TODO: We must quadruple backslashes in Sparql queries.
-    if "CIM_DataFile.Name" in wmi_path:
-        wmi_path = wmi_path.replace("\\\\","\\")
-        WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
-    elif "CIM_Directory.Name" in wmi_path:
-        wmi_path = wmi_path.replace("\\\\", "\\")
-        WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
-    elif "Win32_Directory.Name" in wmi_path:
-        wmi_path = wmi_path.replace("\\\\","\\")
-        WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
-    assert wmi_path
+        # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
+        # TODO: We must quadruple backslashes in Sparql queries.
+        if "CIM_DataFile.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\","\\")
+            WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+        elif "CIM_Directory.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\", "\\")
+            WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+        elif "Win32_Directory.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\","\\")
+            WARNING("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+        assert wmi_path
 
-    # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
-    # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
-    wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % ( wmi_path, associator_key_name, result_class_name)
+        # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
+        # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
+        wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % (wmi_path, associator_key_name, result_class_name)
 
-    # Current host and default namespace.
-    wmi_connection = WmiConnect("","")
-    WARNING("WmiCallbackAssociator wmi_query=%s", wmi_query)
+        WARNING("WmiCallbackAssociator wmi_query=%s", wmi_query)
 
-    wmi_objects = wmi_connection.query(wmi_query)
+        wmi_objects = self.m_wmi_connection.query(wmi_query)
 
-    for one_wmi_object in wmi_objects:
-        # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
-        object_path = str(one_wmi_object.path())
-        WARNING("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
-        list_key_values = WmiKeyValues(wmi_connection, one_wmi_object, False, result_class_name )
-        dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
+        for one_wmi_object in wmi_objects:
+            # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            object_path = str(one_wmi_object.path())
+            DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
+            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name )
+            dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
 
-        dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
-        # Add it again, so the original Sparql query will work.
-        dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
+            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
+            # Add it again, so the original Sparql query will work.
+            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
 
-        # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
-        # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
-        # o=http://primhillcomputers.com/survol/Win32_UserAccount
-        dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
+            # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
+            # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+            # o=http://primhillcomputers.com/survol/Win32_UserAccount
+            dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
 
-        DEBUG("WmiCallbackAssociator dict_key_values=%s",dict_key_values)
-        #object_path_node = lib_util.NodeUrl(object_path)
-        lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
-        yield ( object_path, dict_key_values )
+            DEBUG("WmiCallbackAssociator dict_key_values=%s",dict_key_values)
+            #object_path_node = lib_util.NodeUrl(object_path)
+            lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
+            yield ( object_path, dict_key_values )
+
+    # This returns the available types
+    def CallbackTypes(self, grph, see_also):
+        WARNING("CallbackTypes")
+        for one_class_name in self.m_wmi_connection.classes:
+            yield "WmiClass:" + one_class_name, { "Name":one_class_name}
 

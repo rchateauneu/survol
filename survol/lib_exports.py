@@ -217,13 +217,15 @@ def PropToShortPropNamAndDict(nodePredicate):
 	idxQuestion = strPredicate.rfind("?")
 	if idxQuestion == -1:
 		dictProperties = None
-		idxLastSlash = strPredicate.rfind("/")
+		# idxLastSlash = strPredicate.rfind("/")
+		idxLastSlash = strPredicate.rfind(lib_properties.prefix_terminator)
 		shortNam = strPredicate[idxLastSlash+1:]
 	else:
 		strProperties = strPredicate[idxQuestion+1:]
 		vecProperties = strProperties.split("&")
 		dictProperties = dict(one_s.split('=',1) for one_s in vecProperties)
-		idxLastSlash = strPredicate.rfind("/",0,idxQuestion)
+		#idxLastSlash = strPredicate.rfind("/",0,idxQuestion)
+		idxLastSlash = strPredicate.rfind(lib_properties.prefix_terminator,0,idxQuestion)
 		shortNam = strPredicate[idxLastSlash+1:idxQuestion]
 
 	# "sun.boot.class.path"

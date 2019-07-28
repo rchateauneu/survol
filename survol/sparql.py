@@ -31,29 +31,6 @@ import lib_export_ontology
 
 lib_util.SetLoggingConfig(logging.DEBUG)
 
-
-__prefix_to_callbacks = {
-    "WMI": (lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator),
-    "survol": (lib_sparql_callback_survol.SurvolCallbackSelect, lib_sparql_callback_survol.SurvolCallbackAssociator),
-}
-
-# This meta-callback dispatches the query to the right data source.
-def CallbackSelect(grph, class_name, see_also, where_key_values):
-    predicate_prefix, colon, see_also_script = see_also.partition(":")
-    DEBUG("UnitTestSeeCallbackSelect predicate_prefix=%s where_key_values=%s", predicate_prefix, where_key_values)
-
-    callback_select = __prefix_to_callbacks[predicate_prefix][0]
-    return callback_select(grph, class_name, see_also, where_key_values)
-
-# This meta-callback dispatches the query to the right data source.
-def CallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path):
-    predicate_prefix, colon, see_also_script = see_also.partition(":")
-    DEBUG("UnitTestSeeCallbackAssociator predicate_prefix=%s",predicate_prefix)
-
-    callback_select = __prefix_to_callbacks[predicate_prefix][1]
-    return callback_select(grph, result_class_name, see_also, associator_key_name, subject_path)
-
-
 # This is a SPARQL server which executes the query with WMI data.
 def Main():
     lib_util.SetLoggingConfig(logging.ERROR)
@@ -138,7 +115,14 @@ def Main():
 
     grph = lib_kbase.MakeGraph()
 
-    lib_sparql.QueryToGraph(grph, sparql_query, CallbackSelect, CallbackAssociator)
+    prefix_to_callbacks = {
+        "WMI": lib_wmi.WmiSparqlCallbackApi(),
+        "survol": lib_sparql_callback_survol.SurvolSparqlCallbackApi(),
+    }
+
+    objectUnitTestCallbackApi = lib_sparql.SwitchCallbackApi(prefix_to_callbacks)
+
+    lib_sparql.QueryToGraph(grph, sparql_query, objectUnitTestCallbackApi )
 
     # See lib_common.py : This added to any RDF document.
     ###########lib_export_ontology.Grph2Rdf(grph)
