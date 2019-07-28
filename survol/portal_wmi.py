@@ -28,7 +28,7 @@ def Main():
 		hostNode = lib_common.gUriGen.HostnameUri( entity_host )
 		grph.add( ( hostNode, pc.property_information, wmiNode ) )
 	else:
-	   lib_common.ErrorMessageHtml("WMI module not installed\n" )
+		lib_common.ErrorMessageHtml("WMI module not installed\n" )
 
 	cgiEnv.OutCgiRdf()
 
