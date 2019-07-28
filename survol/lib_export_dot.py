@@ -222,6 +222,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
     # New intermediary node created.
     def CollapsedLabel(collapsPropNam,subjNam):
+        assert collapsPropNam.find("#") < 0
         return "R_" + collapsPropNam + "_" + subjNam
 
     # Called mainly from entity.py. If S points vers O, transforms "O" => "R_S:O"
