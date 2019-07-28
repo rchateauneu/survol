@@ -105,10 +105,16 @@ def UrlToSparqlResult(url_rdf, sparql_query, format_str):
     results_conversion = sparql_qry_result.convert()
 
     if format_str == "XML":
+        if isinstance(results_conversion, str):
+            # This is because an error occurred somewhere.
+            ERROR("UrlToSparqlResult results_conversion=%s", results_conversion)
+            return None
         # Specific conversion of XML Sparql results to JSON, so we can use the same results data.
-        print("dir(results_conversion)=",dir(results_conversion))
+        # print("dir(results_conversion)=",dir(results_conversion))
+        print("results_conversion=",results_conversion)
+        assert isinstance( format_str, str )
         print("results_conversion.toxml()=",results_conversion.toxml())
-        results_conversion = SparqlResultsXMLToJSON( results_conversion )
+        results_conversion = SparqlResultsXMLToJSON(results_conversion)
 
     return results_conversion
 

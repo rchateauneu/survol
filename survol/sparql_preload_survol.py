@@ -30,9 +30,7 @@ def Main():
 
     sparql_query = envSparql.Query()
 
-    lib_sparql.QueryToGraph(grph, sparql_query,
-                            lib_sparql_callback_survol.SurvolCallbackSelect,
-                            lib_sparql_callback_survol.SurvolCallbackAssociator)
+    lib_sparql.QueryToGraph(grph, sparql_query, lib_sparql_callback_survol.SurvolCallbackAp())
 
     # See lib_common.py : This added to any RDF document.
     ###########lib_export_ontology.Grph2Rdf(grph)

@@ -68,102 +68,103 @@ hard_coded_data_select = {
     ],
 }
 
+class HardcodeSparqlCallbackApi:
+    # This returns an iterator on hard-coded objects, of a given class,
+    # which must match the input key-value pairs.
+    # Each object is modelled by a key-value dictionary.
+    def CallbackSelect(self, grph, class_name, predicate_prefix, where_key_values):
+        # Note: Cannot have backslashes in rdflib ??
+        WARNING("HardcodeCallbackSelect class_name=%s predicate_prefix=%s where_key_values=%s",
+                class_name, predicate_prefix, where_key_values)
 
-# This returns an iterator on hard-coded objects, of a given class,
-# which must match the input key-value pairs.
-# Each object is modelled by a key-value dictionary.
-def HardcodeCallbackSelect(grph, class_name, predicate_prefix, where_key_values):
-    # Note: Cannot have backslashes in rdflib ??
-    WARNING("HardcodeCallbackSelect class_name=%s predicate_prefix=%s where_key_values=%s",
-            class_name, predicate_prefix, where_key_values)
+        def _check_key_val_included(one_data):
+            try:
+                for one_key,one_val in where_key_values.items():
+                    # Comparison in string.
+                    if str(one_val) != str(one_data[one_key]):
+                        return False
+                return True
+            except KeyError:
+                return False
 
-    def _check_key_val_included(one_data):
-        try:
-            for one_key,one_val in where_key_values.items():
-                # Comparison in string.
-                if str(one_val) != str(one_data[one_key]):
-                    return False
-            return True
-        except KeyError:
-            return False
+        def _key_values_to_rdf(key_value_pair_dict):
+            return {
+                lib_properties.MakeProp(key):lib_util.NodeLiteral(value)
+                for key,value in key_value_pair_dict.items()
+            }
 
-    def _key_values_to_rdf(key_value_pair_dict):
-        return {
-            lib_properties.MakeProp(key):lib_util.NodeLiteral(value)
-            for key,value in key_value_pair_dict.items()
+        # FIXME: CA NE RENTRE PAS DANS LE MODELE D'UNE FONCTION QUI RENVOIE DES OBJETS.
+        # FIXME: Il faudrait une autre fonction pour traiter les ontologies.
+        # Est ce qu i lpeut y avoir un melange entre les triples qui definissent des objets compatibles avec WMI,
+        # et des triples "ontologiques" ?
+        # Si WMI, on a besoin de la classe et des attributs, donc ca ne peut pas etre des variables:
+        # Ce sont des traitements completement differents.
+        # On pourrait separer les deux et interdire d avoir des variables communes.
+        #
+        test_key_value_pairs_list = hard_coded_data_select[class_name]
+
+        for one_key_value_pair_dict in test_key_value_pairs_list:
+            if _check_key_val_included(one_key_value_pair_dict):
+                hardcoded_path_dict = one_key_value_pair_dict.copy()
+                hardcoded_path_dict["__class_name__"] = class_name
+                hardcoded_path_str = json.dumps(hardcoded_path_dict)
+
+                rdf_key_values = _key_values_to_rdf( one_key_value_pair_dict )
+                lib_util.PathAndKeyValuePairsToRdf(grph, hardcoded_path_str, rdf_key_values)
+                yield ( hardcoded_path_str, rdf_key_values )
+
+
+    # Return type similar to HardcodeCallbackSelect.
+    # This simulates WQL associators.
+    def CallbackAssociator(
+        self,
+        grph,
+        result_class_name,
+        predicate_prefix,
+        associator_key_name,
+        subject_path):
+
+        # result_class_name = CIM_DataFile
+        # associator_key_name = ppid
+        # subject_path_node = {u'pid': 123, u'runs': u'firefox.exe', u'ppid': 456, u'__class_name__': u'CIM_Process', u'user': u'herself'}
+
+        hardcoded_path_dict = json.loads(subject_path)
+        WARNING("HardcodeCallbackAssociator result_class_name=%s associator_key_name=%s subject_path_node=%s",
+              result_class_name,
+              associator_key_name,
+              hardcoded_path_dict)
+
+        hard_coded_data_associator_keys = {
+            'CIM_Process': ('pid',),
+            'CIM_DataFile': ('Name',),
+            'CIM_Directory': ('Name',),
         }
 
-    # FIXME: CA NE RENTRE PAS DANS LE MODELE D'UNE FONCTION QUI RENVOIE DES OBJETS.
-    # FIXME: Il faudrait une autre fonction pour traiter les ontologies.
-    # Est ce qu i lpeut y avoir un melange entre les triples qui definissent des objets compatibles avec WMI,
-    # et des triples "ontologiques" ?
-    # Si WMI, on a besoin de la classe et des attributs, donc ca ne peut pas etre des variables:
-    # Ce sont des traitements completement differents.
-    # On pourrait separer les deux et interdire d avoir des variables communes.
-    #
-    test_key_value_pairs_list = hard_coded_data_select[class_name]
+        hard_coded_data_associator = {
+            'CIM_Process' : {
+                (123,) : { 'ParentProcess' : { 'CIM_DataFile' : [{ "Name":"firefox.exe"}]} }
+            },
+            'CIM_Directory': {
+                ("C:/Program Files (x86)",): {'ParentDirectory': {'CIM_Directory': [{"Name": "C:"}]},},
+                ("C:/Program Files (x86)/Internet Explorer",): {'ParentDirectory': {'CIM_Directory': [{"Name": "C:/Program Files (x86)"}]}, },
+                ("C:/Program Files",): {'ParentDirectory': {'CIM_Directory': [{"Name": "C:"}]}, },
+            },
+        }
 
-    for one_key_value_pair_dict in test_key_value_pairs_list:
-        if _check_key_val_included(one_key_value_pair_dict):
-            hardcoded_path_dict = one_key_value_pair_dict.copy()
-            hardcoded_path_dict["__class_name__"] = class_name
+        print("hardcoded_path_dict=",hardcoded_path_dict)
+        class_name = hardcoded_path_dict['__class_name__']
+        ontology_keys = hard_coded_data_associator_keys[class_name] # For example ("pid")
+        key_tuple = tuple( [hardcoded_path_dict[object_key] for object_key in ontology_keys ]) # (123) which is the pid.
+        all_associators = hard_coded_data_associator[class_name]
+        all_associators_per_assoc_class = all_associators[key_tuple]
+        objects_per_associator_class = all_associators_per_assoc_class[associator_key_name]
+        objects_per_result_class = objects_per_associator_class[result_class_name]
+
+        for one_object in objects_per_result_class:
             hardcoded_path_str = json.dumps(hardcoded_path_dict)
 
-            rdf_key_values = _key_values_to_rdf( one_key_value_pair_dict )
-            lib_util.PathAndKeyValuePairsToRdf(grph, hardcoded_path_str, rdf_key_values)
-            yield ( hardcoded_path_str, rdf_key_values )
-
-
-# Return type similar to HardcodeCallbackSelect.
-# This simulates WQL associators.
-def HardcodeCallbackAssociator(
-    grph,
-    result_class_name,
-    predicate_prefix,
-    associator_key_name,
-    subject_path):
-
-    # result_class_name = CIM_DataFile
-    # associator_key_name = ppid
-    # subject_path_node = {u'pid': 123, u'runs': u'firefox.exe', u'ppid': 456, u'__class_name__': u'CIM_Process', u'user': u'herself'}
-
-    hardcoded_path_dict = json.loads(subject_path)
-    WARNING("HardcodeCallbackAssociator result_class_name=%s associator_key_name=%s subject_path_node=%s",
-          result_class_name,
-          associator_key_name,
-          hardcoded_path_dict)
-
-    hard_coded_data_associator_keys = {
-        'CIM_Process': ('pid',),
-        'CIM_DataFile': ('Name',),
-        'CIM_Directory': ('Name',),
-    }
-
-    hard_coded_data_associator = {
-        'CIM_Process' : {
-            (123,) : { 'ParentProcess' : { 'CIM_DataFile' : [{ "Name":"firefox.exe"}]} }
-        },
-        'CIM_Directory': {
-            ("C:/Program Files (x86)",): {'ParentDirectory': {'CIM_Directory': [{"Name": "C:"}]},},
-            ("C:/Program Files (x86)/Internet Explorer",): {'ParentDirectory': {'CIM_Directory': [{"Name": "C:/Program Files (x86)"}]}, },
-            ("C:/Program Files",): {'ParentDirectory': {'CIM_Directory': [{"Name": "C:"}]}, },
-        },
-    }
-
-    print("hardcoded_path_dict=",hardcoded_path_dict)
-    class_name = hardcoded_path_dict['__class_name__']
-    ontology_keys = hard_coded_data_associator_keys[class_name] # For example ("pid")
-    key_tuple = tuple( [hardcoded_path_dict[object_key] for object_key in ontology_keys ]) # (123) which is the pid.
-    all_associators = hard_coded_data_associator[class_name]
-    all_associators_per_assoc_class = all_associators[key_tuple]
-    objects_per_associator_class = all_associators_per_assoc_class[associator_key_name]
-    objects_per_result_class = objects_per_associator_class[result_class_name]
-
-    for one_object in objects_per_result_class:
-        hardcoded_path_str = json.dumps(hardcoded_path_dict)
-
-        lib_util.PathAndKeyValuePairsToRdf(grph, hardcoded_path_str, one_object)
-        yield (hardcoded_path_str, one_object)
+            lib_util.PathAndKeyValuePairsToRdf(grph, hardcoded_path_str, one_object)
+            yield (hardcoded_path_str, one_object)
 
 # The query function from lib_sparql module, returns RDF nodes.
 # This is not very convenient to test.
@@ -185,18 +186,17 @@ def QueriesEntitiesToValuePairs(iter_entities_dicts):
             one_entities_dict_qname[variable_name] = dict_qname_value
         yield one_entities_dict_qname
 
-
-def QueryKeyValuePairs(sparql_query, sparql_callback_select, sparql_callback_associator):
-    iter_entities_dicts = lib_sparql.QueryEntities(None, sparql_query, sparql_callback_select, sparql_callback_associator)
+def QueryKeyValuePairs(sparql_query, sparql_callback):
+    iter_entities_dicts = lib_sparql.QueryEntities(None, sparql_query, sparql_callback)
     list_entities_dicts = list(iter_entities_dicts)
     iter_dict_objects = QueriesEntitiesToValuePairs(list_entities_dicts)
     list_dict_objects = list(iter_dict_objects)
     return list_dict_objects
 
 
-def QuerySeeAlsoKeyValuePairs(grph, sparql_query, sparql_callback_select, sparql_callback_associator):
+def QuerySeeAlsoKeyValuePairs(grph, sparql_query, sparql_callback):
     WARNING("QuerySeeAlsoKeyValuePairs")
-    iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query, sparql_callback_select, sparql_callback_associator)
+    iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query, sparql_callback)
     iter_dict_objects = QueriesEntitiesToValuePairs(iter_entities_dicts)
     list_dict_objects = list(iter_dict_objects)
     return list_dict_objects
@@ -609,7 +609,7 @@ class SparqlCallTest(unittest.TestCase):
             print(sparql_query)
 
             print("expected_results=",expected_results)
-            list_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeCallbackSelect, HardcodeCallbackAssociator)
+            list_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeSparqlCallbackApi() )
             print("list_dict_objects=",list_dict_objects)
 
             assert(list_dict_objects == expected_results)
@@ -685,7 +685,7 @@ class SparqlCallTest(unittest.TestCase):
             print(sparql_query)
 
             print("expected_results=",expected_results)
-            list_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeCallbackSelect, HardcodeCallbackAssociator)
+            list_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeSparqlCallbackApi())
             print("list_dict_objects=",list_dict_objects)
 
             assert(list_dict_objects == expected_results)
@@ -728,8 +728,7 @@ class SparqlCallTest(unittest.TestCase):
             # TODO: Pass several callbacks, processed in a specific order ?
             list_dict_objects = QueryKeyValuePairs(
                 sparql_query,
-                lib_sparql_callback_survol.SurvolCallbackSelect,
-                lib_sparql_callback_survol.SurvolCallbackAssociator)
+                lib_sparql_callback_survol.SurvolSparqlCallbackApi())
 
             print("list_dict_objects=",list_dict_objects)
             print("expected_results=",expected_results)
@@ -762,8 +761,7 @@ class SparqlCallTest(unittest.TestCase):
         # TODO: Pass several callbacks, processed in a specific order ?
         list_dict_objects = QueryKeyValuePairs(
             nested_qry,
-            lib_sparql_callback_survol.SurvolCallbackSelect,
-            lib_sparql_callback_survol.SurvolCallbackAssociator)
+            lib_sparql_callback_survol.SurvolSparqlCallbackApi())
 
         print("list_dict_objects=",list_dict_objects)
         found = False
@@ -777,9 +775,17 @@ class SparqlCallTest(unittest.TestCase):
 
     def test_survol_associators(self):
         """This returns the parent process using a specific script.
-        It might not work if the parent-parent process has died.
         """
 
+        # output_entity.m_predicate_object_dict={
+        # 'runs': 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_DataFile.Name=C%3A%2FProgram%20Files%2FJetBrains%2FPyCharm%20Community%20Edition%202019.1.3%2Fbin%2Ffsnotifier64.exe',
+        # 'rdf-schema#label': 'fsnotifier64',
+        # u'Handle': '7976',
+        # 'Virtual_Memory_Size': '507904%20B',
+        # 'pid': '7976',
+        # '22-rdf-syntax-ns#type': 'http://www.primhillcomputers.com/survol#CIM_Process',
+        # 'LMI_Account': 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=Win32_UserAccount.Name=rchateau,Domain=localhost',
+        # 'command': 'C:%5CProgram%20Files%5CJetBrains%5CPyCharm%20Community%20Edition%202019.1.3%5Cbin%5Cfsnotifier64.exe'}
         sparql_query = """
             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -789,16 +795,30 @@ class SparqlCallTest(unittest.TestCase):
               ?url_procA rdf:type survol:CIM_Process .
               ?url_procA rdfs:seeAlso "survol:CIM_Process/single_pidstree" .
               ?url_procA survol:ppid ?url_procB  .
-              ?url_procB survol:Name ?filename  .
+              ?url_procB survol:runs ?filename  .
               ?url_procB rdf:type survol:CIM_Process .
             }
             """ % CurrentPid
 
         list_dict_objects = QueryKeyValuePairs(
             sparql_query,
-            lib_sparql_callback_survol.SurvolCallbackSelect,
-            lib_sparql_callback_survol.SurvolCallbackAssociator)
+            lib_sparql_callback_survol.SurvolSparqlCallbackApi())
 
+        # list_dict_objects= [
+        # {'url_procB': {
+        #   'runs': 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_DataFile.Name=C%3A%2FProgram%20Files%2FJetBrains%2FPyCharm%20Community%20Edition%202019.1.3%2Fbin%2Fpycharm64.exe',
+        #   'Handle': '2544',
+        #   'pid': '2544',
+        #   '__class__': 'CIM_Process',
+        #   'LMI_Account': 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=Win32_UserAccount.Name=rchateau,Domain=localhost',
+        #   'command': 'C:%5CProgram%20Files%5CJetBrains%5CPyCharm%20Community%20Edition%202019.1.3%5Cbin%5Cpycharm64.exe',
+        #   'ppid': 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=13168',
+        #   '22_rdf_syntax_ns#type': 'http://www.primhillcomputers.com/survol#CIM_Process'},
+        # 'url_procA': {
+        #   'rdf-schema#seeAlso': 'survol:CIM_Process/single_pidstree',
+        #   'rdf-schema#isDefinedBy': 'survol:CIM_Process/single_pidstree',
+        #   'Handle': '13168', '__class__': 'CIM_Process'}
+        # }, ...
         print("list_dict_objects=",list_dict_objects)
         found = False
         for one_dict in list_dict_objects:
@@ -806,7 +826,19 @@ class SparqlCallTest(unittest.TestCase):
             procB = one_dict["url_procB"]
             WARNING("procA=%s",procA)
             WARNING("procB=%s",procB)
-            if procA == procB:
+
+            procA_class = procA['__class__']
+            procA_pid = procA['Handle']
+            procA_url_str = 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=%s.Handle=%s' % (procA_class, procA_pid)
+
+            try:
+                parentB_url = procB['ppid'] # 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=13168'
+            except KeyError:
+                continue
+
+            WARNING("procA_url_str=%s",procA_url_str)
+            WARNING("parentB_url=%s",parentB_url)
+            if procA_url_str == parentB_url:
                 found = True
                 break
         assert(found)
@@ -815,7 +847,7 @@ class SparqlCallWmiTest(unittest.TestCase):
 
     @staticmethod
     def __run_wmi_query(sparql_query):
-        list_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+        list_dict_objects = QueryKeyValuePairs(sparql_query, objectWmiSparqlCallbackApi )
         print("list_dict_objects len=",len(list_dict_objects))
         return list_dict_objects
 
@@ -904,7 +936,7 @@ class SparqlCallWmiTest(unittest.TestCase):
         print(sparql_query)
 
         # TODO: Pass several callbacks, processed in a specific order ?
-        itr_dict_objects = lib_sparql.QueryEntities(None, sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+        itr_dict_objects = lib_sparql.QueryEntities(None, sparql_query, objectWmiSparqlCallbackApi )
 
         grph = lib_kbase.MakeGraph()
 
@@ -1089,7 +1121,7 @@ class SparqlCallWmiTest(unittest.TestCase):
             }
             """ % CurrentPid
 
-        list_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+        list_dict_objects = QueryKeyValuePairs(sparql_query, objectWmiSparqlCallbackApi )
 
         # The extra filter on CIM_DataFile.Name is not checked.
 
@@ -1141,7 +1173,7 @@ class SparqlCallWmiTest(unittest.TestCase):
             }
             """ % r"c:\\program files\\mozilla firefox\\firefox.exe"
 
-        list_dict_objects = QueryKeyValuePairs(sparql_query, lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator)
+        list_dict_objects = QueryKeyValuePairs(sparql_query, objectWmiSparqlCallbackApi )
 
         for one_dict in list_dict_objects:
             assert sorted(one_dict.keys()) == ['url_file', 'url_proc']
@@ -1320,6 +1352,8 @@ class SparqlPreloadServerSurvolTest(unittest.TestCase):
         ],
     ]
 
+    # PROBLEM: WMI writes domain names as "RCHATEAU-HP" or "rchateau-HP".
+    # Therefore the same test is done with a case conversion.
     def test_preload_server_survol(self):
         for sparql_query, expected_triples in self.array_survol_queries:
             str_actual_data = self.run_query_survol(sparql_query)
@@ -1339,29 +1373,15 @@ class SparqlPreloadServerSurvolTest(unittest.TestCase):
             for s, p, o in expected_triples:
                 assert ((s.upper(), p.upper(), o.upper()) in str_actual_data_upper)
 
+objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
 
-__prefix_to_callbacks = {
-    "HardCoded": (HardcodeCallbackSelect, HardcodeCallbackAssociator),
-    "WMI": (lib_wmi.WmiCallbackSelect, lib_wmi.WmiCallbackAssociator),
-    "survol": (lib_sparql_callback_survol.SurvolCallbackSelect, lib_sparql_callback_survol.SurvolCallbackAssociator),
+prefix_to_callbacks = {
+    "HardCoded": HardcodeSparqlCallbackApi(),
+    "WMI": objectWmiSparqlCallbackApi,
+    "survol": lib_sparql_callback_survol.SurvolSparqlCallbackApi(),
 }
 
-# This meta-callback dispatches the query to the right data source.
-def UnitTestCallbackSelect(grph, class_name, see_also, where_key_values):
-    predicate_prefix, colon, see_also_script = see_also.partition(":")
-    WARNING("UnitTestCallbackSelect predicate_prefix=%s where_key_values=%s", predicate_prefix, where_key_values)
-
-    callback_select = __prefix_to_callbacks[predicate_prefix][0]
-    return callback_select(grph, class_name, see_also, where_key_values)
-
-# This meta-callback dispatches the query to the right data source.
-def UnitTestCallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path):
-    predicate_prefix, colon, see_also_script = see_also.partition(":")
-    WARNING("UnitTestCallbackAssociator predicate_prefix=%s",predicate_prefix)
-
-    callback_select = __prefix_to_callbacks[predicate_prefix][1]
-    return callback_select(grph, result_class_name, see_also, associator_key_name, subject_path)
-
+unittestCallback = lib_sparql.SwitchCallbackApi(prefix_to_callbacks)
 
 class SparqlSeeAlsoTest(unittest.TestCase):
     @staticmethod
@@ -1369,8 +1389,7 @@ class SparqlSeeAlsoTest(unittest.TestCase):
         for sparql_query, one_expected_dict in array_survol_queries:
             print("sparql_query=",sparql_query)
 
-            list_dict_objects = QuerySeeAlsoKeyValuePairs(
-                None, sparql_query, UnitTestCallbackSelect, UnitTestCallbackAssociator)
+            list_dict_objects = QuerySeeAlsoKeyValuePairs( None, sparql_query, unittestCallback)
 
             # The expected object must be a subset of one of the returned objects.
             print("list_dict_objects=",list_dict_objects)
@@ -1781,14 +1800,15 @@ class SparqlSeeAlsoTest(unittest.TestCase):
         """Special Survol seeAlso pathes"""
         CurrentFile = __file__.replace("\\","/")
         array_survol_queries=[
-            # Just load the content of one script
+            # TODO: This returns all WMI classes but only in RDF.
             ["""
                 SELECT *
                 WHERE
-                { ?url_dummy rdfs:seeAlso survol:enumerate_python_package" .
+                { ?url_class rdf:type rdf:type .
+                  ?url_class rdfs:seeAlso "WMI" .
                 }
                 """,
-                ['url_proc'],
+                {'url_class': {'__class__': 'type', 'Name': 'CIM_MemoryCapacity'}},
             ],
 
             # TODO: This generates all allowed scripts.
@@ -1802,15 +1822,14 @@ class SparqlSeeAlsoTest(unittest.TestCase):
                 ['url_proc'],
             ],
 
-            # TODO: This returns all WMI classes.
+            # This just loads the content of one script.
             ["""
-                SELECT *
+                SELECT ?url_dummy
                 WHERE
-                { ?url_proc rdf:type rdf:type .
-                  ?url_proc rdfs:seeAlso "WMI" .
+                { ?url_dummy rdfs:seeAlso "survol:enumerate_python_package" .
                 }
                 """,
-                ['url_proc'],
+                ['url_dummy'],
             ],
 
             # TODO: This returns the attributes of the class CIM_Process.
@@ -1908,15 +1927,12 @@ class SparqlSeeAlsoTest(unittest.TestCase):
         for sparql_query, one_expected_dict in array_survol_queries:
             print("sparql_query=",sparql_query)
 
-            list_dict_objects = QuerySeeAlsoKeyValuePairs(
-                None, sparql_query, UnitTestCallbackSelect, UnitTestCallbackAssociator)
+            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, unittestCallback)
 
-            # Syntaxic test only, or wrong platform.
-            if one_expected_dict == None:
-                continue
             print("list_dict_objects=",list_dict_objects)
             print("GOLD=",one_expected_dict)
-            assert(False)
+            assert(one_expected_dict in list_dict_objects)
+
 
 
 # This works: gwmi -Query 'xxxxx'

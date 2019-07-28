@@ -5,7 +5,10 @@ primns = "http://primhillcomputers.com/survol"
 
 pc = lib_kbase.MakeNamespace(primns)
 
-primns_slash = primns + '/'
+prefix_terminator = "#"
+primns_slash = primns + prefix_terminator
+# primns_slash = primns + '#'
+# primns_slash = primns + '/'
 
 # If prp contains a space, it is not properly parsed.
 # TODO: The extra parameter is not used yet.
@@ -35,9 +38,19 @@ def MakeProp(*prps,**kvargs):
     url = ret.replace(" ","_").replace("-","_")
     return lib_kbase.MakeNodeUrl( url )
 
+MakeNodeForSparql = MakeProp
 
 # See lib_kbase.qname
 def PropToQName(property_node):
+    # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
+    # TODO: Should call compute_qname ?
+    strProp = str(property_node).rpartition("/")[2]
+    # If "survol#Handle" for example.
+    if strProp.startswith("survol#"):
+        strProp = strProp[7:]
+    return strProp
+
+def MakeNodeForSparql(property_node):
     # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
     # TODO: Should call compute_qname ?
     strProp = str(property_node).rpartition("/")[2]
