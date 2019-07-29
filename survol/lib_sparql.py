@@ -806,6 +806,9 @@ def QueryToGraph(grph, sparql_query, query_callback_object):
 
 ##################################################################################
 
+# All methods of the callback api interface must returns results
+# of the same structure.
+
 # This meta-callback dispatches the query to the right data source.
 class SwitchCallbackApi:
     def __init__(self, prefix_to_callbacks):
