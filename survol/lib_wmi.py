@@ -707,6 +707,7 @@ class WmiSparqlCallbackApi:
     def __init__(self):
         # Current host and default namespace.
         self.m_wmi_connection = WmiConnect("","")
+        self.m_classes = None
 
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
         WARNING("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
@@ -817,6 +818,25 @@ class WmiSparqlCallbackApi:
     # This returns the available types
     def CallbackTypes(self, grph, see_also):
         WARNING("CallbackTypes")
-        for one_class_name in self.m_wmi_connection.classes:
-            yield "WmiClass:" + one_class_name, { "Name":one_class_name}
+
+        # Data stored in a cache for later use.
+        if self.m_classes == None:
+            self.m_classes = self.m_wmi_connection.classes
+
+        for one_class_name in self.m_classes:
+            class_path = "WmiClass:" + one_class_name
+
+            dict_key_values = {}
+            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
+            # Add it again, so the original Sparql query will work.
+            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
+            dict_key_values[lib_kbase.PredicateType] = lib_kbase.PredicateType
+            dict_key_values[lib_common.NodeLiteral("Name")] = lib_common.NodeLiteral(one_class_name)
+
+            yield class_path, dict_key_values
+
+            class_node = lib_util.NodeUrl(class_path)
+
+            if grph:
+                grph.add((class_node, lib_kbase.PredicateType, lib_kbase.PredicateType))
 
