@@ -185,17 +185,13 @@ class SparqlServerSurvolTest(unittest.TestCase):
             print("run_compare_survol one_dict=",one_dict)
             assert(one_dict in str_actual_data_lower)
 
+    def run_complete_survol_test(self,array_queries):
+        for sparql_query, expected_header, expected_dicts in array_queries:
+            for fmt in ["XML","JSON"]:
+                self.run_compare_survol(sparql_query, expected_header, expected_dicts, fmt)
+
 
     def test_server_survol(self):
-        # PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-        """
-        ?url_user rdf:type survol:Win32_UserAccount .
-        ?url_user survol:Name '%s' .
-        ?url_user survol:Caption ?caption .
-        ?url_user rdfs:seeAlso "WMI" .
-        """
-
-
         array_survol_queries=[
             [
                 """
@@ -257,10 +253,30 @@ class SparqlServerSurvolTest(unittest.TestCase):
             ],
         ]
 
+        self.run_complete_survol_test(array_survol_queries)
 
-        for sparql_query, expected_header, expected_dicts in array_survol_queries:
-            for fmt in ["XML","JSON"]:
-                self.run_compare_survol(sparql_query, expected_header, expected_dicts, fmt)
+    # This tests the ability to extract the WMI classes and their attributes.
+    # Results are converted to lowercase. This is not really an issue.
+    def test_server_survol_wmi_meta(self):
+        array_survol_queries=[
+            [
+                """
+                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+                SELECT ?url_class
+                WHERE
+                { ?url_class rdf:type rdf:type .
+                  ?url_class rdfs:seeAlso "WMI" .
+                }
+                """,
+                [ u'url_class'],
+                [
+                    ((u'url_class', u'wmiclass:cim_directorycontainsfile'),),
+                    ((u'url_class', u'wmiclass:cim_remotefilesystem'),),
+                ]
+            ],
+        ]
+
+        self.run_complete_survol_test(array_survol_queries)
 
 
 if __name__ == '__main__':
