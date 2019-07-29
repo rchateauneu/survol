@@ -1796,7 +1796,7 @@ class SparqlSeeAlsoTest(unittest.TestCase):
 
         self.compare_list_queries(array_survol_directories_queries)
 
-    def test_see_also_special(self):
+    def test_meta_information(self):
         """Special Survol seeAlso pathes"""
         CurrentFile = __file__.replace("\\","/")
         array_survol_queries=[
@@ -1808,9 +1808,29 @@ class SparqlSeeAlsoTest(unittest.TestCase):
                   ?url_class rdfs:seeAlso "WMI" .
                 }
                 """,
-                {'url_class': {'__class__': 'type', 'Name': 'CIM_MemoryCapacity'}},
+                {'url_class': {
+                    '22-rdf-syntax-ns#type': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+                    'rdf-schema#seeAlso': 'WMI',
+                    '__class__': 'type',
+                    'rdf-schema#isDefinedBy': 'WMI',
+                    'Name': 'Win32_UserProfile'}},
             ],
+        ]
 
+        for sparql_query, one_expected_dict in array_survol_queries:
+            print("sparql_query=",sparql_query)
+
+            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, unittestCallback)
+
+            print("list_dict_objects=",list_dict_objects)
+            print("GOLD=",one_expected_dict)
+            assert(one_expected_dict in list_dict_objects)
+
+
+    def test_see_also_special(self):
+        """Special Survol seeAlso pathes"""
+        CurrentFile = __file__.replace("\\","/")
+        array_survol_queries=[
             # TODO: This generates all allowed scripts.
             ["""
                 SELECT *
