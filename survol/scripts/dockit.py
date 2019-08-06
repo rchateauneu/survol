@@ -4750,7 +4750,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
             btchFlow.SendBatch( oneBatch )
     for aPid in sorted(list(mapFlows.keys()),reverse=True):
         btchTree = mapFlows[aPid]
-        if verbose > 0: sys.stdout.write("\n================== PID=%d\n"%aPid)
+        if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n"%aPid)
         btchTree.FactorizeOneFlow(verbose,withWarning,outputFormat)
         
 
@@ -4767,7 +4767,7 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
     if summaryFormat:
         if outFile:
             baseOutName, filOutExt = os.path.splitext(outFile)
-            outputSummaryFile = baseOutName + "." + summaryFormat.lower()
+            outputSummaryFile = baseOutName + ".summary." + summaryFormat.lower()
         else:
             # Default name for the summary file.
             outputSummaryFile = "summary." + summaryFormat.lower()
@@ -4781,11 +4781,14 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
     if outFile:
         sys.stdout.write("Creating flow file:%s\n"%outFile)
         outFd = open(outFile, "w")
+        outFd.write("Flow file %s\n" % outFile)
 
         for aPid in sorted(list(mapFlows.keys()),reverse=True):
             btchTree = mapFlows[aPid]
             outFd.write("\n================== PID=%d\n"%aPid)
             btchTree.DumpFlow(outFd,outputFormat)
+        outFd.write("Flow file end %s\n" % outFile)
+        outFd.close()
 
         if verbose: sys.stdout.write("\n")
 
