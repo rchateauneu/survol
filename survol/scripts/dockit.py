@@ -2,7 +2,8 @@
 
 """Monitors living processes and generates a dockerfile And much more."""
 
-# NOTE: For convenience purpose, this script must be standalone.
+# NOTE: For convenience purpose, this script is standalone, and therefore quite big.
+# Requires Python 2.7 and later.
 
 __author__      = "Remi Chateauneu"
 __copyright__   = "Primhill Computers, 2018"
@@ -29,7 +30,10 @@ import datetime
 import shutil
 import platform
 import tempfile
-import urllib2
+try:
+    import urllib2
+except ImportError:
+    import urllib.request as urllib2
 import threading
 
 try:
@@ -61,7 +65,10 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("  -S,--server <Url>             Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py")
     print("")
-
+    print("strace command: "+BuildSTraceCommand("<command>",None))
+    print("                "+BuildSTraceCommand(None,"<pid>"))
+    print("ltrace command: "+BuildLTraceCommand("<command>",None))
+    print("                "+BuildLTraceCommand(None,"<pid>"))
 
 # Example to create a new unit test:
 # ./dockit.py -D -l UnitTests/mineit_firefox  -t  ltrace bash firefox
@@ -1381,10 +1388,14 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
                 strm.write("  Close:%s\n" % strClose )
 
         # Only if this is a socket.
+        # The original socket parameters might have been passed as a dict like:
+        # "connect(6<UNIX:[587259]>, {sa_family=AF_LOCAL, sun_path="/var/run/nscd/socket"}, 110)"
+        # But it might have been truncated like:
+        # "['st_mode=S_IFREG|0644', 'st_size=121043', '...']"
+        # So we are only sure that it is an array.
         try:
-            for saKey in self.SocketAddress:
-                saVal = self.SocketAddress[saKey]
-                strm.write("    %s:%s\n" % (saKey,saVal) )
+            for saKeyValue in self.SocketAddress:
+                strm.write("    %s\n" % saKeyValue )
         except AttributeError:
             pass
 
@@ -2388,6 +2399,7 @@ class BatchLetCore:
         # With ltrace, systems calls are suffix with the string "@SYS".
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
+            assert not funcFull.endswith("@SYS")
             self.m_funcNam = funcFull + "@SYS"
         elif self.m_tracer == "ltrace":
 
@@ -2405,7 +2417,13 @@ class BatchLetCore:
             if self.m_status == BatchStatus.resumed:
                 self.m_funcNam = funcFull + "@SYS"
             else:
-                self.m_funcNam = funcFull
+                # On RHEL4, the function is prefixed by "SYS_"
+                if funcFull.startswith("SYS_"):
+                    assert not funcFull.endswith("@SYS")
+                    self.m_funcNam = funcFull[4:] + "@SYS"
+                else:
+                    assert funcFull.endswith("@SYS")
+                    self.m_funcNam = funcFull
 
             # It does not work with this:
             #[pid 4784] 16:42:10.781324 Py_Main(2, 0x7ffed52a8038, 0x7ffed52a8050, 0 <unfinished ...>
@@ -4214,8 +4232,11 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
     sys.stdout.write("Starting trace command:%s\n" % " ".join(aCmd) )
 
     # If shell=True, the command must be passed as a single line.
-    pipPOpen = subprocess.Popen(aCmd, bufsize=100000, shell=False,
-        stdin=sys.stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    kwargs = {"bufsize":100000, "shell":False,
+        "stdin":sys.stdin, "stdout":subprocess.PIPE, "stderr":subprocess.PIPE}
+    if sys.version_info > (3,):
+        kwargs["encoding"] = "utf-8"
+    pipPOpen = subprocess.Popen(aCmd, **kwargs)
 
     # If shell argument is True, this is the process ID of the spawned shell.
     if aPid > 0:
@@ -4413,20 +4434,22 @@ def BuildLTraceCommand(extCommand,aPid):
 
     if extCommand:
         aCmd += extCommand
-        LogSource("Command "+" ".join(extCommand) )
     else:
         aCmd += [ "-p", aPid ]
-        LogSource("Process %s\n"%aPid)
 
     return aCmd
 
 def LogLTraceFileStream(extCommand,aPid):
     aCmd = BuildLTraceCommand( extCommand, aPid )
+    if extCommand:
+        LogSource("Command "+" ".join(extCommand) )
+    else:
+        LogSource("Process %s\n"%aPid)
     return GenerateLinuxStreamFromCommand(aCmd, aPid)
 
 
 # The output log format of ltrace is very similar to strace's, except that:
-# - The system calls are suffixed with "@SYS"
+# - The system calls are suffixed with "@SYS" or prefixed with "SYS_"
 # - Entering and leaving a shared library is surrounded by the lines:
 # ...  Py_Main(...  <unfinished ...>
 # ...  <... Py_Main resumed> ) 
@@ -4461,21 +4484,20 @@ def CreateFlowsFromLtraceLog(verbose,logStream):
 # and therefore parsing it is specific to these options.
 def BuildSTraceCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
-    aCmd = ["strace",
-        "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize, "-y", "-yy",
-        "-e", "trace=desc,ipc,process,network,memory",
-        ]
+    aCmd = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
+
+    if platform.linux_distribution()[2] == 'Santiago':
+        aCmd += [ "-e", "trace=desc,ipc,process,network"]
+    else:
+        aCmd += [ "-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
 
     if extCommand:
         # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
         # effect of strace by keeping the tracee a direct child of the calling process.
         aCmd += [ "-D" ]
         aCmd += extCommand
-        LogSource("Command "+" ".join(extCommand) )
     else:
         aCmd += [ "-p", aPid ]
-        LogSource("Process %s\n"%aPid)
-
     return aCmd
 
 #
@@ -4490,6 +4512,10 @@ def BuildSTraceCommand(extCommand,aPid):
 
 def LogSTraceFileStream(extCommand,aPid):
     aCmd = BuildSTraceCommand( extCommand, aPid )
+    if extCommand:
+        LogSource("Command "+" ".join(extCommand) )
+    else:
+        LogSource("Process %s\n"%aPid)
     return GenerateLinuxStreamFromCommand(aCmd, aPid)
 
 def CreateFlowsFromLinuxSTraceLog(verbose,logStream):
@@ -4850,8 +4876,6 @@ if __name__ == '__main__':
             raise Exception("Sliding window not implemented yet")
         elif anOpt in ("-i", "--input"):
             inputLogFile = aVal
-        elif anOpt in ("-o", "--output"):
-            outputSummaryFile = aVal
         elif anOpt in ("-l", "--log"):
             outputLogFilePrefix = aVal
         elif anOpt in ("-t", "--tracer"):
@@ -4870,7 +4894,7 @@ if __name__ == '__main__':
     if outputLogFilePrefix:
         fullPrefixNoExt = "%s.%s.%s." % ( outputLogFilePrefix, tracer, G_topProcessId )
 
-        # tee: This jusy need to reimplement "readline()"
+        # tee: This just needs to reimplement "readline()"
         class TeeStream:
             def __init__(self,logStrm):
                 self.m_logStrm = logStrm
