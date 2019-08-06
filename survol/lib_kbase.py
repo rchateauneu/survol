@@ -10,6 +10,7 @@ PredicateSeeAlso = RDFS.seeAlso
 PredicateIsDefinedBy = RDFS.isDefinedBy
 PredicateComment = RDFS.comment
 PredicateType = RDF.type
+PredicateClass = RDFS.Class
 
 def IsLiteral(objRdf):
     return isinstance(objRdf, (rdflib.term.Literal))
