@@ -1373,7 +1373,11 @@ class SparqlPreloadServerSurvolTest(unittest.TestCase):
             for s, p, o in expected_triples:
                 assert ((s.upper(), p.upper(), o.upper()) in str_actual_data_upper)
 
-objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
+# TODO: Parts of this test can run on Linux too.
+objectWmiSparqlCallbackApi = None
+def setUp():
+    global objectWmiSparqlCallbackApi
+    objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
 
 prefix_to_callbacks = {
     "HardCoded": HardcodeSparqlCallbackApi(),
@@ -1796,25 +1800,63 @@ class SparqlSeeAlsoTest(unittest.TestCase):
 
         self.compare_list_queries(array_survol_directories_queries)
 
+    # Some query examples taken from https://codyburleson.com/sparql-examples-list-classes/
     def test_meta_information(self):
         """Special Survol seeAlso pathes"""
         CurrentFile = __file__.replace("\\","/")
         array_survol_queries=[
-            # TODO: This returns all WMI classes but only in RDF.
+            # This returns all WMI classes.
             ["""
                 SELECT *
                 WHERE
-                { ?url_class rdf:type rdf:type .
+                { ?url_class rdf:type rdfs:Class .
                   ?url_class rdfs:seeAlso "WMI" .
                 }
                 """,
                 {'url_class': {
                     '22-rdf-syntax-ns#type': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
                     'rdf-schema#seeAlso': 'WMI',
-                    '__class__': 'type',
+                    '__class__': 'Class',
                     'rdf-schema#isDefinedBy': 'WMI',
                     'Name': 'Win32_UserProfile'}},
             ],
+
+            # All possible properties
+            ["""
+                SELECT *
+                WHERE
+                { ?url_attribute rdf:type rdf:Property .
+                  ?url_attribute rdfs:seeAlso "WMI" .
+                }
+                """,
+                {'url_attribute': {}},
+            ],
+
+            # List subclasses.
+            ["""
+                SELECT *
+                WHERE
+                { ?url_subclass rdfs:subClassOf ?url_class .
+                  ?url_class rdfs:seeAlso "WMI" .
+                  ?url_subclass rdfs:seeAlso "WMI" .
+                }
+                """,
+                {'url_class': {},'url_subclass': {}},
+            ],
+
+            # All properties of CIM_Process
+            ["""
+                SELECT *
+                WHERE
+                { ?url_property rdf:type rdf:Property .
+                  ?url_property rdfs:domain survol:CIM_Process .
+                  ?url_property rdfs:seeAlso "WMI" .
+                }
+                """,
+                {'url_property': {}},
+            ],
+
+            # TODO: Test rdfs:range
         ]
 
         for sparql_query, one_expected_dict in array_survol_queries:
@@ -1850,19 +1892,6 @@ class SparqlSeeAlsoTest(unittest.TestCase):
                 }
                 """,
                 ['url_dummy'],
-            ],
-
-            # TODO: This returns the attributes of the class CIM_Process.
-            ["""
-                SELECT *
-                WHERE
-                { ?url_proc rdf:type survol:CIM_Process .
-                  ?url_proc rdfs:seeAlso "WMI" .
-                  ?url_proc ?attribute ?value .
-                  ?attribute rdf:type rdf:Property .
-                }
-                """,
-                ['url_proc'],
             ],
 
             ["""

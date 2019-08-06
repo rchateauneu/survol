@@ -604,7 +604,7 @@ def _run_callback_on_entities(
 
             # The prefix of the attributes is also used as source of data,
             # but not if "rdf" because it is not a proper source.
-            if object_key_values.m_source_prefix != "rdf":
+            if object_key_values.m_source_prefix not in ["rdf","rdfs"]:
                 set_all_sources.add(object_key_values.m_source_prefix)
 
             return set_all_sources
@@ -694,7 +694,7 @@ def _run_callback_on_entities(
 
                 WARNING("_callback_filter_all_sources_select m_source_prefix=%s m_class_name=%s",
                         curr_input_entity.m_source_prefix, curr_input_entity.m_class_name)
-                if curr_input_entity.m_source_prefix == "rdf" and curr_input_entity.m_class_name == "type":
+                if curr_input_entity.m_source_prefix == "rdfs" and curr_input_entity.m_class_name == "Class":
                     iter_recursive_results = _callback_types_list()
                 else:
                     iter_recursive_results = _callback_filter_all_sources_select()

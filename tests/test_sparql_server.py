@@ -10,9 +10,10 @@ import json
 import unittest
 import socket
 import psutil
-
-import SPARQLWrapper
 import rdflib
+
+def setUp():
+    import SPARQLWrapper
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
@@ -264,7 +265,7 @@ class SparqlServerSurvolTest(unittest.TestCase):
                 PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
                 SELECT ?url_class
                 WHERE
-                { ?url_class rdf:type rdf:type .
+                { ?url_class rdf:type rdfs:Class .
                   ?url_class rdfs:seeAlso "WMI" .
                 }
                 """,
