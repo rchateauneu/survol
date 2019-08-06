@@ -1527,7 +1527,7 @@ def GetScriptModule(currentModule, fil):
             importedMod = importlib.import_module(fileBaseName)
     else:
         if currentModule:
-            WARNING("GetScriptModule fileBaseName=%s currentModule=%s", fileBaseName, currentModule)
+            DEBUG("GetScriptModule fileBaseName=%s currentModule=%s", fileBaseName, currentModule)
             importedMod = importlib.import_module("." + fileBaseName, currentModule )
         else:
             importedMod = importlib.import_module(fileBaseName)

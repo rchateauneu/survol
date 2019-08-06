@@ -23,7 +23,7 @@ try:
 except KeyError:
     # This is for Linux.
     CurrentUsername = os.environ["USER"]
-    CurrentUserPath = "user.Name=%s,Domain=localhost" % CurrentUsername
+    CurrentUserPath = "LMI_Account.Name=%s,Domain=localhost" % CurrentUsername
 
 CurrentPid = os.getpid()
 CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
@@ -643,7 +643,8 @@ class SurvolLocalTest(unittest.TestCase):
                         'memmap.Id=/usr/lib64/libm-2.25.so'
                 ]
             for oneStr in lstMandatoryInstances:
-                print( oneStr )
+                if oneStr not in lstMandatoryInstances:
+                    WARNING("oneStr=%s lstMandatoryInstances=%s", oneStr, str(lstMandatoryInstances))
                 assert( oneStr in strInstancesSet)
 
         CheckSubprocessEnd(procOpen)
@@ -835,9 +836,9 @@ class SurvolLocalTest(unittest.TestCase):
             CurrentProcessPath,
             CurrentUserPath,
         ]:
-            DEBUG("oneStr=%s",oneStr)
-            print(oneStr)
-            assert( oneStr in strInstancesSet)
+            if oneStr not in strInstancesSet:
+                WARNING("oneStr=%s strInstancesSet=%s", oneStr, str(strInstancesSet) )
+            assert(oneStr in strInstancesSet)
 
     def test_wbem_process_info(self):
         """wbem_process_info Information about current process"""

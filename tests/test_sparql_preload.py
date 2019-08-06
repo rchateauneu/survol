@@ -1374,10 +1374,10 @@ class SparqlPreloadServerSurvolTest(unittest.TestCase):
                 assert ((s.upper(), p.upper(), o.upper()) in str_actual_data_upper)
 
 # TODO: Parts of this test can run on Linux too.
-objectWmiSparqlCallbackApi = None
+objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
+
 def setUp():
-    global objectWmiSparqlCallbackApi
-    objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
+    import wmi
 
 prefix_to_callbacks = {
     "HardCoded": HardcodeSparqlCallbackApi(),
