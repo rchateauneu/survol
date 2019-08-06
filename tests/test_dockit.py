@@ -29,18 +29,19 @@ class DockitTest(unittest.TestCase):
     def test_file_strace(self):
         import dockit
 
-        dockit.UnitTest(
-            inputLogFile = "sample_shell.strace.log",
-            tracer = "strace",
-            topPid = 0,
-            outFile = "result_strace.txt",
-            outputFormat = "JSON",
-            verbose = True,
-            mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat = "TXT",
-            withWarning = False,
-            withDockerfile = True,
-            updateServer = None)
+        for out_format in ["JSON", "CSV", "TXT"]:
+            dockit.UnitTest(
+                inputLogFile = "sample_shell.strace.log",
+                tracer = "strace",
+                topPid = 0,
+                baseOutName = "result_strace",
+                outputFormat = out_format,
+                verbose = True,
+                mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
+                summaryFormat = "TXT",
+                withWarning = False,
+                withDockerfile = True,
+                updateServer = None)
 
 
     def test_file_ltrace(self):
@@ -50,7 +51,7 @@ class DockitTest(unittest.TestCase):
             inputLogFile="sample_shell.ltrace.log",
             tracer="ltrace",
             topPid=0,
-            outFile="result_ltrace.txt",
+            baseOutName="result_ltrace",
             outputFormat="JSON",
             verbose=True,
             mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
