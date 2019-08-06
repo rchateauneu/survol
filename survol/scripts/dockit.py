@@ -745,7 +745,7 @@ class CIM_XmlMarshaller:
 
     def __repr__(self):
         mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.m_Ontology )
-        return "'%s'" % mnk
+        return "%s" % mnk
 
 
 ################################################################################
@@ -997,9 +997,6 @@ class CIM_Process (CIM_XmlMarshaller,object):
         except KeyError:
             # This is the first process.
             pass
-
-    #def __repr__(self):
-    #    return "'%s'" % self.GetMoniker()
 
     m_Ontology = ['Handle']
 
@@ -1279,9 +1276,6 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
             mtchSock = re.match( "TCPv6:\[.*->(.*)\]", pathName)
             if mtchSock:
                 self.SetAddrPort( mtchSock.group(1) )
-
-    #def __repr__(self):
-    #    return "'%s'" % self.GetMoniker()
 
     m_Ontology = ['Name']
 
@@ -2744,7 +2738,13 @@ def FmtTim(aTim):
     return aTim
 
 class BatchDumperBase:
-    def Header(self):
+    def DocumentStart(self):
+        return
+
+    def DocumentEnd(self):
+        return
+
+    def Header(self, extra_header):
         return
 
     def Footer(self):
@@ -2770,7 +2770,9 @@ class BatchDumperCSV(BatchDumperBase):
     def __init__(self,strm):
         self.m_strm = strm
 
-    def Header(self):
+    def Header(self, extra_header):
+        if extra_header:
+            self.m_strm.write("%s\n" % extra_header)
         self.m_strm.write("Pid,Occurrences,Style,Function,Arguments,Return,Start,End\n")
 
     def DumpBatch(self,batchLet):
@@ -2789,44 +2791,44 @@ class BatchDumperJSON(BatchDumperBase):
     def __init__(self,strm):
         self.m_strm = strm
 
-    def Header(self):
+    def DocumentStart(self):
         self.m_strm.write( '[\n' )
+        self.m_top_delimiter = ""
+
+    def DocumentEnd(self):
+        self.m_strm.write( ']\n' )
+
+    def Header(self, extra_header):
+        self.m_strm.write( self.m_top_delimiter + '[\n' )
+        self.m_delimiter = ""
+        self.m_top_delimiter = ","
 
     def DumpBatch(self,batchLet):
         self.m_strm.write(
-            '{\n'
-            '   "pid" : %d\n'
-            '   "occurrences" : %d\n'
-            '   "style" : %s\n'
-            '   "status" : %d\n'
-            '   "function" : "%s"\n'
-            '   "arguments" : %s\n'
-            '   "return_value" : "%s"\n'
-            '   "time_start" : "%s"\n'
+            self.m_delimiter + '{\n'
+            '   "pid" : %d,\n'
+            '   "occurrences" : %d,\n'
+            '   "style" : "%s",\n'
+            '   "status" : %d,\n'
+            '   "function" : "%s",\n'
+            '   "arguments" : %s,\n'
+            '   "return_value" : "%s",\n'
+            '   "time_start" : "%s",\n'
             '   "time_end" : "%s"\n'
-            '},\n' %(
+            '}\n' %(
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
             batchLet.m_style,
             batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
-            batchLet.SignificantArgs(),
+            json.dumps( [ str(arg) for arg in batchLet.SignificantArgs()]),
             batchLet.m_core.m_retValue,
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
+        self.m_delimiter = ","
 
     def Footer(self):
         self.m_strm.write( ']\n' )
-
-# The file of aggregated system calls can be output in several formats.
-def BatchDumperFactory(strm, outputFormat):
-    BatchDumpersDictionary = {
-        "TXT"  : BatchDumperTXT,
-        "CSV"  : BatchDumperCSV,
-        "JSON" : BatchDumperJSON
-    }
-
-    return BatchDumpersDictionary[ outputFormat ](strm)
 
 ################################################################################
 
@@ -3984,7 +3986,14 @@ class BatchLetSequence(BatchLetBase,object):
 def SignatureForRepetitions(batchRange):
     return "+".join( [ aBtch.GetSignatureWithArgs() for aBtch in batchRange ] )
 
-            
+
+BatchDumpersDictionary = {
+    "TXT": BatchDumperTXT,
+    "CSV": BatchDumperCSV,
+    "JSON": BatchDumperJSON
+}
+
+
 # This is an execution flow, associated to a process. And a thread ?
 class BatchFlow:
     def __init__(self):
@@ -4169,21 +4178,23 @@ class BatchFlow:
             idxBatch = idxLast + 1
         return numSubst
 
-
-    def DumpFlow(self,strm,outputFormat):
-
-        batchDump = BatchDumperFactory(strm, outputFormat)
-
-        batchDump.Header()
-
+    def DumpFlowInternal(self, batchDump, extra_header = None):
+        batchDump.Header(extra_header)
         for aBtch in self.m_listBatchLets:
             batchDump.DumpBatch(aBtch)
-
         batchDump.Footer()
+
+    def DumpFlowSimple(self, strm, outputFormat):
+        batchConstructor = BatchDumpersDictionary[outputFormat]
+        batchDump = batchConstructor(strm)
+        self.DumpFlowInternal(batchDump)
+
+    def DumpFlowConstructor(self, batchDump, extra_header = None):
+        self.DumpFlowInternal(batchDump)
 
     def FactorizeOneFlow(self,verbose,withWarning,outputFormat):
 
-        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+        if verbose > 1: self.DumpFlowSimple(sys.stdout,outputFormat)
 
         if verbose > 0:
             sys.stdout.write("\n")
@@ -4195,7 +4206,7 @@ class BatchFlow:
         idxLoops = 0
         while True:
             if verbose > 1:
-                self.DumpFlow(sys.stdout,outputFormat)
+                self.DumpFlowSimple(sys.stdout,outputFormat)
 
             if verbose > 0:
                 sys.stdout.write("\n")
@@ -4207,7 +4218,7 @@ class BatchFlow:
                 break
             idxLoops += 1
 
-        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+        if verbose > 1: self.DumpFlowSimple(sys.stdout,outputFormat)
 
         if verbose > 0:
             sys.stdout.write("\n")
@@ -4216,7 +4227,7 @@ class BatchFlow:
         if verbose > 0:
             sys.stdout.write("ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n"%(numSubst, len(self.m_listBatchLets) ) )
 
-        if verbose > 1: self.DumpFlow(sys.stdout,outputFormat)
+        if verbose > 1: self.DumpFlowSimple(sys.stdout,outputFormat)
 
 
 # Logging execution information.
@@ -4762,15 +4773,11 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 # to generate a docker file. So, summaries are calculated if Dockerfile is asked.
 fullMapParamsSummary = ["CIM_ComputerSystem","CIM_OperatingSystem","CIM_NetworkAdapter","CIM_Process","CIM_DataFile"]
 
-def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary,summaryFormat, withDockerfile):
-
+def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, baseOutName, mapParamsSummary,summaryFormat, withDockerfile):
+    if not baseOutName:
+        baseOutName = "results"
     if summaryFormat:
-        if outFile:
-            baseOutName, filOutExt = os.path.splitext(outFile)
-            outputSummaryFile = baseOutName + ".summary." + summaryFormat.lower()
-        else:
-            # Default name for the summary file.
-            outputSummaryFile = "summary." + summaryFormat.lower()
+        outputSummaryFile = baseOutName + ".summary." + summaryFormat.lower()
     else:
         outputSummaryFile = None
 
@@ -4778,16 +4785,17 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
 
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
 
-    if outFile:
-        sys.stdout.write("Creating flow file:%s\n"%outFile)
+    if baseOutName:
+        outFile = baseOutName + "." + outputFormat.lower()
+        sys.stdout.write("Creating flow file:%s\n" % outFile)
         outFd = open(outFile, "w")
-        outFd.write("Flow file %s\n" % outFile)
-
+        batchConstructor = BatchDumpersDictionary[outputFormat]
+        batchDump = batchConstructor(outFd)
+        batchDump.DocumentStart()
         for aPid in sorted(list(mapFlows.keys()),reverse=True):
             btchTree = mapFlows[aPid]
-            outFd.write("\n================== PID=%d\n"%aPid)
-            btchTree.DumpFlow(outFd,outputFormat)
-        outFd.write("Flow file end %s\n" % outFile)
+            btchTree.DumpFlowConstructor(batchDump, "================== PID=%d"%aPid)
+        batchDump.DocumentEnd()
         outFd.close()
 
         if verbose: sys.stdout.write("\n")
@@ -4816,7 +4824,9 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFi
     return outputSummaryFile
 
 # Function called for unit tests by unittest.py
-def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParamsSummary, summaryFormat, withWarning, withDockerfile,updateServer):
+def UnitTest(
+        inputLogFile, tracer, topPid, baseOutName, outputFormat, verbose, mapParamsSummary,
+        summaryFormat, withWarning, withDockerfile, updateServer):
     global G_UpdateServer
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
     G_UpdateServer = updateServer
@@ -4824,7 +4834,9 @@ def UnitTest(inputLogFile,tracer,topPid,outFile,outputFormat, verbose, mapParams
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    outputSummaryFile = FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFile, mapParamsSummary, summaryFormat, withDockerfile)
+    outputSummaryFile = FromStreamToFlow(
+        verbose, withWarning, logStream, tracer,outputFormat, baseOutName,
+        mapParamsSummary, summaryFormat, withDockerfile)
     return outputSummaryFile
 
 if __name__ == '__main__':
@@ -4914,8 +4926,8 @@ if __name__ == '__main__':
 
         logStream = TeeStream(logStream)
 
-        outFilExt = outputFormat.lower() # "txt", "xml" etc...
-        outFilNam = fullPrefixNoExt + outFilExt
+        #outFilExt = outputFormat.lower() # "txt", "xml" etc...
+        #outFilNam = fullPrefixNoExt + outFilExt
 
         # If not replaying, saves all parameters in an ini file.
         if not G_ReplayMode:
@@ -4933,8 +4945,8 @@ if __name__ == '__main__':
             iniFd.write('CurrentHostname=%s\n' % socket.gethostname())
             iniFd.write('CurrentOSType=%s\n' % sys.platform)
             iniFd.close()
-    else:
-        outFilNam = None
+    #else:
+    #    outFilNam = None
 
     def signal_handler(signal, frame):
         print('You pressed Ctrl+C!')
@@ -4947,7 +4959,7 @@ if __name__ == '__main__':
         print('Press Ctrl+C to exit cleanly')
 
     # In normal usage, the summary output format is the same as the output format for calls.
-    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, outFilNam, mapParamsSummary, summaryFormat, withDockerfile )
+    FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, fullPrefixNoExt, mapParamsSummary, summaryFormat, withDockerfile )
 
 ################################################################################
 # The End.
