@@ -33,7 +33,7 @@ class DockitTest(unittest.TestCase):
             inputLogFile = "sample_shell.strace.log",
             tracer = "strace",
             topPid = 0,
-            outFile = "result_strace",
+            outFile = "result_strace.txt",
             outputFormat = "JSON",
             verbose = True,
             mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -41,6 +41,24 @@ class DockitTest(unittest.TestCase):
             withWarning = False,
             withDockerfile = True,
             updateServer = None)
+
+
+    def test_file_ltrace(self):
+        import dockit
+
+        dockit.UnitTest(
+            inputLogFile="sample_shell.ltrace.log",
+            tracer="ltrace",
+            topPid=0,
+            outFile="result_ltrace.txt",
+            outputFormat="JSON",
+            verbose=True,
+            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="TXT",
+            withWarning=False,
+            withDockerfile=True,
+            updateServer=None)
+
 
 if __name__ == '__main__':
     unittest.main()
