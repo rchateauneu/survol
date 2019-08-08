@@ -7,6 +7,7 @@ import unittest
 import subprocess
 import sys
 import os
+import re
 import time
 import socket
 import platform
@@ -609,6 +610,8 @@ class SurvolLocalTest(unittest.TestCase):
         # Some instances are required.
         lstMandatoryInstances = [
             'CIM_Process.Handle=%s'%procOpen.pid ]
+        lstMandatoryRegex = []
+
         if sys.platform.startswith("win"):
             # This is common to Windows 7 and Windows 8.
             lstMandatoryInstances += [
@@ -631,21 +634,31 @@ class SurvolLocalTest(unittest.TestCase):
                         'memmap.Id=[anon]',
                         'memmap.Id=[vvar]',
                         'memmap.Id=[stack]',
-                        'memmap.Id=/usr/lib64/libpython2.7.so.1.0',
-                        'memmap.Id=/usr/lib64/libpthread-2.25.so',
                         'memmap.Id=%s' % execPath,
                         'memmap.Id=/usr/lib/locale/locale-archive',
-                        'memmap.Id=/usr/lib64/ld-2.25.so',
-                        'memmap.Id=/usr/lib64/libutil-2.25.so',
-                        'memmap.Id=/usr/lib64/libdl-2.25.so',
-                        'memmap.Id=/usr/lib64/libc-2.25.so',
-                        'memmap.Id=/usr/lib64/python2.7/lib-dynload/_localemodule.so',
-                        'memmap.Id=/usr/lib64/libm-2.25.so'
                 ]
+
+            lstMandatoryRegex += [
+                'memmap.Id=/usr/lib64/libpython*.',
+                'memmap.Id=/usr/lib64/ld-*.',
+                'memmap.Id=/usr/lib64/libc-*.',
+                'memmap.Id=/usr/lib64/python*./lib-dynload/_localemodule.so'
+            ]
+
             for oneStr in lstMandatoryInstances:
-                if oneStr not in lstMandatoryInstances:
-                    WARNING("oneStr=%s lstMandatoryInstances=%s", oneStr, str(lstMandatoryInstances))
+                if oneStr not in strInstancesSet:
+                    WARNING("Cannot find %s in %s", oneStr, str(strInstancesSet))
                 assert( oneStr in strInstancesSet)
+
+            # This is much slower, beware.
+            for oneRegex in lstMandatoryInstances:
+                re_prog = re.compile(oneRegex)
+                for oneStr in strInstancesSet:
+                    if re_prog.match(oneStr):
+                        break
+                if not result:
+                    WARNING("Cannot find regex %s in %s", oneRegex, str(strInstancesSet))
+                assert (oneStr in strInstancesSet)
 
         CheckSubprocessEnd(procOpen)
 
@@ -2322,8 +2335,9 @@ class SurvolSearchTest(unittest.TestCase):
         mustFind = "Drivers"
 
         searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString="Curabitur",maxDepth=2,filterInstances=None,filterPredicates=None)
-        print("s=",list(searchTripleStore))
-        for tpl in searchTripleStore:
+        list_triple = list(searchTripleStore)
+        print("stl_list=",list_triple)
+        for tpl in list_triple:
             # One occurrence is enough for this test.
             print(tpl)
             break

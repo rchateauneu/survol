@@ -13,6 +13,8 @@ import unittest
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol/scripts")
 
+import dockit
+
 # "rchateau-hp"
 CurrentMachine = socket.gethostname().lower()
 
@@ -27,8 +29,6 @@ class DockitTest(unittest.TestCase):
     """
 
     def test_file_strace_txt(self):
-        import dockit
-
         dockit.UnitTest(
             inputLogFile = "sample_shell.strace.log",
             tracer = "strace",
@@ -49,8 +49,6 @@ class DockitTest(unittest.TestCase):
         fil_summary.close()
 
     def test_file_strace_csv(self):
-        import dockit
-
         dockit.UnitTest(
             inputLogFile = "sample_shell.strace.log",
             tracer = "strace",
@@ -98,8 +96,6 @@ class DockitTest(unittest.TestCase):
 
 
     def test_file_ltrace(self):
-        import dockit
-
         dockit.UnitTest(
             inputLogFile="sample_shell.ltrace.log",
             tracer="ltrace",

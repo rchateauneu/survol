@@ -12,8 +12,7 @@ import socket
 import psutil
 import rdflib
 
-def setUp():
-    import SPARQLWrapper
+import SPARQLWrapper
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
