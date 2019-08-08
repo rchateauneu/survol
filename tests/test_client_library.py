@@ -654,11 +654,12 @@ class SurvolLocalTest(unittest.TestCase):
             for oneRegex in lstMandatoryInstances:
                 re_prog = re.compile(oneRegex)
                 for oneStr in strInstancesSet:
-                    if re_prog.match(oneStr):
+                    result = re_prog.match(oneStr)
+                    if not result:
                         break
                 if not result:
                     WARNING("Cannot find regex %s in %s", oneRegex, str(strInstancesSet))
-                assert (oneStr in strInstancesSet)
+                assert result
 
         CheckSubprocessEnd(procOpen)
 
