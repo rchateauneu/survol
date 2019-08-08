@@ -1599,7 +1599,7 @@ def ParseFilterCIM(rgxObjectPath):
     return ( objClassName, mapKeyValues )
 
 # TODO: Probably not needed because noone wants this output format..
-def GenerateSummaryTXT(mapParamsSummary,fdSummaryFile):
+def GenerateSummaryTXT(mapParamsSummary, fdSummaryFile):
     for rgxObjectPath in mapParamsSummary:
         ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
         classObj = globals()[ cimClassName ]
@@ -2787,6 +2787,7 @@ class BatchDumperCSV(BatchDumperBase):
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
 
+# TODO: Must use json package.
 class BatchDumperJSON(BatchDumperBase):
     def __init__(self,strm):
         self.m_strm = strm
@@ -2812,7 +2813,7 @@ class BatchDumperJSON(BatchDumperBase):
             '   "status" : %d,\n'
             '   "function" : "%s",\n'
             '   "arguments" : %s,\n'
-            '   "return_value" : "%s",\n'
+            '   "return_value" : %s,\n'
             '   "time_start" : "%s",\n'
             '   "time_end" : "%s"\n'
             '}\n' %(
@@ -2822,7 +2823,7 @@ class BatchDumperJSON(BatchDumperBase):
             batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
             json.dumps( [ str(arg) for arg in batchLet.SignificantArgs()]),
-            batchLet.m_core.m_retValue,
+            json.dumps( batchLet.m_core.m_retValue ), # It may contain double-quotes
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
         self.m_delimiter = ","
@@ -4804,7 +4805,7 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, baseO
     if withDockerfile:
         mapParamsSummary = fullMapParamsSummary
 
-    GenerateSummary(mapParamsSummary,summaryFormat, outputSummaryFile)
+    GenerateSummary(mapParamsSummary, summaryFormat, outputSummaryFile)
     
     if withDockerfile:
         if outFile:
