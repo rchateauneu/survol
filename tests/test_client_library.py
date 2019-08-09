@@ -1413,24 +1413,24 @@ except ImportError as exc:
 
 # https://stackoverflow.com/questions/23741133/if-condition-in-setup-ignore-test
 # This decorator at the class level does not work on Travis.
-@unittest.skipIf( not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
+# @unittest.skipIf( not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
 class SurvolPyODBCTest(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(SurvolPyODBCTest, self).__init__(*args, **kwargs)
-        try:
-            import pyodbc
-        except ImportError:
-            raise Exception("Module pyodbc is not available so these tests are not applicable")
+    #def __init__(self, *args, **kwargs):
+    #    super(SurvolPyODBCTest, self).__init__(*args, **kwargs)
+    #    try:
+    #    except ImportError:
+    #        raise Exception("Module pyodbc is not available so these tests are not applicable")
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_local_scripts_odbc_dsn(self):
         """This instantiates an instance of a subclass"""
 
-        try:
-            import pyodbc
-        except ImportError:
-            print("Module pyodbc is not available so this test is not applicable")
-            return
+        #import pyodbc
+        #try:
+        #    import pyodbc
+        #except ImportError:
+        #    print("Module pyodbc is not available so this test is not applicable")
+        #    return
 
         # The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
         instanceLocalODBC = lib_client.Agent().odbc.dsn(
@@ -1520,11 +1520,6 @@ class SurvolPyODBCTest(unittest.TestCase):
         ]:
             assert( oneStr in strInstancesSet)
 
-
-    @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
-    def test_pyodbc_dsn_procedures(self):
-        """Tests ODBC data sources"""
-        print("No script yet for ODBC procedures. Test not applicable.")
 
 
 
