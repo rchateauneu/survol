@@ -673,36 +673,17 @@ class SurvolLocalTest(unittest.TestCase):
 
         CheckSubprocessEnd(procOpen)
 
-    def test_environment_from_batch_process(self):
-        """Tests that we can read a process'environment variables"""
-
-        try:
-            import psutil
-        except ImportError:
-            print("Module psutil is not available so this test is not applicable")
-            return
-
-
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat" )
-
-        execList = [ sqlPathName ]
-
-        # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-        print("Started process:",execList," pid=",procOpen.pid)
-
-        (child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
-
+    @staticmethod
+    def check_environment_variables(process_id):
         mySourceEnvVars = lib_client.SourceLocal(
             "sources_types/CIM_Process/environment_variables.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=process_id)
 
         tripleEnvVars = mySourceEnvVars.GetTriplestore()
 
         # The environment variables are returned in various ways,
-        # but it is garanteed that some of them are always present.
+        # but it is guaranteed that some of them are always present.
         setEnvVars = set( tripleEnvVars.GetAllStringsTriples() )
 
         if 'win' in sys.platform:
@@ -713,11 +694,51 @@ class SurvolLocalTest(unittest.TestCase):
         for oneVar in mandatoryEnvVars:
             assert( oneVar in setEnvVars )
 
-        print("lstQueriesOnly:",setEnvVars)
+        print("setEnvVars:",setEnvVars)
+
+
+    def test_environment_from_batch_process(self):
+        """Tests that we can read a process'environment variables"""
+
+        try:
+            import psutil
+        except ImportError:
+            print("Module psutil is not available so this test is not applicable")
+            return
+
+        if sys.platform.startswith("win"):
+            command_example = "CommandExample.bat"
+        else:
+            command_example = "CommandExample.sh"
+        script_path_name = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", command_example )
+
+        execList = [ script_path_name ]
+
+        # Runs this process: It allocates a variable containing a SQL query, then it waits.
+        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        print("Started process:",execList," pid=",procOpen.pid)
+
+        (child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
+
+        self.check_environment_variables(procOpen.pid)
 
         if sys.platform.startswith("win"):
             # Any string will do: This stops the subprocess which is waiting for an input.
             child_stdin.write("Stop".encode())
+
+
+    def test_environment_from_current_process(self):
+        """Tests that we can read current process'environment variables"""
+
+        try:
+            import psutil
+        except ImportError:
+            print("Module psutil is not available so this test is not applicable")
+            return
+
+        self.check_environment_variables(CurrentPid)
+
 
     def test_python_package_information(self):
         """Tests Python package information"""
@@ -1391,6 +1412,7 @@ except ImportError as exc:
     print("Detected ImportError:",exc)
 
 # https://stackoverflow.com/questions/23741133/if-condition-in-setup-ignore-test
+# This decorator at the class level does not work on Travis.
 @unittest.skipIf( not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
 class SurvolPyODBCTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
@@ -1422,6 +1444,8 @@ class SurvolPyODBCTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScripts) > 0)
 
+
+    @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_sqldatasources(self):
         """Tests ODBC data sources"""
 
@@ -1445,6 +1469,7 @@ class SurvolPyODBCTest(unittest.TestCase):
             assert( oneStr in strInstancesSet)
 
 
+    @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_dsn_tables(self):
         """Tests ODBC data sources"""
 
@@ -1472,6 +1497,7 @@ class SurvolPyODBCTest(unittest.TestCase):
             assert( oneStr in strInstancesSet)
 
 
+    @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
 
@@ -1495,6 +1521,7 @@ class SurvolPyODBCTest(unittest.TestCase):
             assert( oneStr in strInstancesSet)
 
 
+    @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_dsn_procedures(self):
         """Tests ODBC data sources"""
         print("No script yet for ODBC procedures. Test not applicable.")
