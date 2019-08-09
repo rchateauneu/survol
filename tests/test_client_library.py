@@ -1373,6 +1373,15 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
+
+try:
+    import pyodbc
+except ImportError as exc:
+    pyodbc = None
+    print("Detected ImportError:",exc)
+
+# https://stackoverflow.com/questions/23741133/if-condition-in-setup-ignore-test
+@unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
 class SurvolPyODBCTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(SurvolPyODBCTest, self).__init__(*args, **kwargs)
