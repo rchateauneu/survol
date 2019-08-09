@@ -15,8 +15,8 @@ import rdflib
 try:
     import SPARQLWrapper
 except ImportError as exc:
+    SPARQLWrapper = None
     print("Error importing:",exc)
-    exit(0)
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
@@ -284,7 +284,5 @@ class SparqlServerSurvolTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    assert SPARQLWrapper
     unittest.main()
-
-
-
