@@ -12,6 +12,8 @@ import unittest
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol/scripts")
+print("path=",sys.path)
+print("getcwd=",os.path.getcwd())
 
 import dockit
 
