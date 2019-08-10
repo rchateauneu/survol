@@ -38,6 +38,9 @@ CurrentMachine = socket.gethostname().lower()
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
 RemoteTestAgent = "http://" + CurrentMachine + ":8000"
 
+# Travis and PyCharm do not start this unit tests script from the same directory.
+# The test files are alongside the script.
+input_test_files_dir = os.path.dirname(__file__)
 
 class DockitTest(unittest.TestCase):
     """
@@ -46,7 +49,7 @@ class DockitTest(unittest.TestCase):
 
     def test_file_strace_txt(self):
         dockit.UnitTest(
-            inputLogFile = "sample_shell.strace.log",
+            inputLogFile = os.path.join(input_test_files_dir, "sample_shell.strace.log"),
             tracer = "strace",
             topPid = 0,
             baseOutName = "result_strace",
@@ -66,7 +69,7 @@ class DockitTest(unittest.TestCase):
 
     def test_file_strace_csv(self):
         dockit.UnitTest(
-            inputLogFile = "sample_shell.strace.log",
+            inputLogFile = os.path.join(input_test_files_dir, "sample_shell.strace.log"),
             tracer = "strace",
             topPid = 0,
             baseOutName = "result_strace",
@@ -91,7 +94,7 @@ class DockitTest(unittest.TestCase):
         import dockit
 
         dockit.UnitTest(
-            inputLogFile = "sample_shell.strace.log",
+            inputLogFile = os.path.join(input_test_files_dir, "sample_shell.strace.log"),
             tracer = "strace",
             topPid = 0,
             baseOutName = "result_strace",
@@ -113,7 +116,7 @@ class DockitTest(unittest.TestCase):
 
     def test_file_ltrace(self):
         dockit.UnitTest(
-            inputLogFile="sample_shell.ltrace.log",
+            inputLogFile = os.path.join(input_test_files_dir, "sample_shell.ltrace.log"),
             tracer="ltrace",
             topPid=0,
             baseOutName="result_ltrace",
