@@ -11,6 +11,7 @@ import re
 import time
 import socket
 import platform
+import importlib
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -661,7 +662,7 @@ class SurvolLocalTest(unittest.TestCase):
                 assert( oneStr in strInstancesSet)
 
             # This is much slower, beware.
-            for oneRegex in lstMandatoryInstances:
+            for oneRegex in lstMandatoryRegex:
                 re_prog = re.compile(oneRegex)
                 for oneStr in strInstancesSet:
                     result = re_prog.match(oneStr)
@@ -682,19 +683,23 @@ class SurvolLocalTest(unittest.TestCase):
 
         tripleEnvVars = mySourceEnvVars.GetTriplestore()
 
+        print("tripleEnvVars:",tripleEnvVars)
+
         # The environment variables are returned in various ways,
         # but it is guaranteed that some of them are always present.
         setEnvVars = set( tripleEnvVars.GetAllStringsTriples() )
+
+        print("setEnvVars:",setEnvVars)
 
         if 'win' in sys.platform:
             mandatoryEnvVars = ['COMPUTERNAME','OS','PATH']
         else:
             mandatoryEnvVars = ['HOSTNAME','PATH']
 
+        print("setEnvVars:",setEnvVars)
+
         for oneVar in mandatoryEnvVars:
             assert( oneVar in setEnvVars )
-
-        print("setEnvVars:",setEnvVars)
 
 
     def test_environment_from_batch_process(self):
@@ -832,6 +837,7 @@ class SurvolLocalTest(unittest.TestCase):
             assert( oneStr in strInstancesSet)
 
 
+    @unittest.skipIf(not importlib.find_loader('cx_Oracle'), "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_oracle_process_dbs(self):
         """oracle_process_dbs Information about current process"""
 
