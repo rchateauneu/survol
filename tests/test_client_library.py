@@ -643,7 +643,7 @@ class SurvolLocalTest(unittest.TestCase):
             # Depending on the machine, the root can be "/usr/lib64" or "/lib/x86_64-linux-gnu"
             lstMandatoryRegex += [
                 # 'memmap.Id=/usr/lib64/libpython*.',
-                'memmap.Id=.*/ld-*\.so.*',
+                'memmap.Id=.*/ld-.*\.so.*',
                 'memmap.Id=.*/libc-.*\.so.*',
                 # 'memmap.Id=/usr/lib64/python*./lib-dynload/_localemodule.so'
             ]
@@ -694,7 +694,7 @@ class SurvolLocalTest(unittest.TestCase):
         if 'win' in sys.platform:
             mandatoryEnvVars = ['COMPUTERNAME','OS','PATH']
         else:
-            mandatoryEnvVars = ['HOSTNAME','PATH']
+            mandatoryEnvVars = ['HOME','PATH']
 
         print("setEnvVars:",setEnvVars)
 
@@ -1109,6 +1109,7 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
             return None
         self._ontology_test("wmi")
 
+    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_ontology_wbem not executed.")
     def test_ontology_wbem(self):
         if not sys.platform.startswith("linux"):
             print("Linux test only")

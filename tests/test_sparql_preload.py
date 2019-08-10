@@ -20,6 +20,7 @@ import sys
 import json
 import unittest
 import socket
+import pkgutil
 import psutil
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
@@ -1156,6 +1157,7 @@ class SparqlCallWmiTest(unittest.TestCase):
         assert len(all_dlls) == len(list_dict_objects)
 
 
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_wmi_associators_all_procs_to_firefox not executed.")
     def test_wmi_associators_all_procs_to_firefox(self):
         # TODO: How to have backslashes in SparQL queries ???
         # "C:&#92;Users" 0x5C "C:%5CUsers"
