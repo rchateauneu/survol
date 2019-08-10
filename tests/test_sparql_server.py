@@ -9,6 +9,7 @@ import sys
 import json
 import unittest
 import socket
+import pkgutil
 import psutil
 import rdflib
 
@@ -261,6 +262,7 @@ class SparqlServerSurvolTest(unittest.TestCase):
 
     # This tests the ability to extract the WMI classes and their attributes.
     # Results are converted to lowercase. This is not really an issue.
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be test_server_survol_wmi_meta. test_wmi_to_rdf not executed.")
     def test_server_survol_wmi_meta(self):
         array_survol_queries=[
             [

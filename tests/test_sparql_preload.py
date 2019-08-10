@@ -852,6 +852,7 @@ class SparqlCallWmiTest(unittest.TestCase):
         print("list_dict_objects len=",len(list_dict_objects))
         return list_dict_objects
 
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_wmi_query not executed.")
     def test_wmi_query(self):
 
         dict_query_to_output_wmi =[
@@ -922,6 +923,7 @@ class SparqlCallWmiTest(unittest.TestCase):
                     assert(found_data)
 
 
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_wmi_to_rdf not executed.")
     def test_wmi_to_rdf(self):
         """This inserts the evaluation into a RDF triplestore. """
 
@@ -1036,6 +1038,7 @@ class SparqlCallWmiTest(unittest.TestCase):
 
     #Docn faudrait splitter deux fois en connaissant le contexte.
     #Dans quelle mesure ca s applique aussi a nos scripts ???
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_wmi_associators_pid_to_files not executed.")
     def test_wmi_associators_pid_to_files(self):
         sparql_query = """
             PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
@@ -1078,6 +1081,7 @@ class SparqlCallWmiTest(unittest.TestCase):
         assert len(all_dlls) == len(list_dict_objects)
 
 
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_wmi_associators_executable_to_files not executed.")
     def test_wmi_associators_executable_to_files(self):
         sparql_query = """
             PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
@@ -1107,6 +1111,7 @@ class SparqlCallWmiTest(unittest.TestCase):
     # Ou bien ???
     # ASSOCIATORS OF {CIM_DataFile.Name="c:/program files/mozilla firefox/firefox.exe"} WHERE RESULTCLASS=CIM_Process ASSOCCLASS=CIM_ProcessExecutable
     # SELECT FROM CIM_Process WHERE Handle=xyz
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_wmi_associators_pid_to_exe not executed.")
     def test_wmi_associators_pid_to_exe(self):
         sparql_query = """
             PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
