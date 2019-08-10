@@ -11,7 +11,7 @@ import re
 import time
 import socket
 import platform
-import importlib
+import pkgutil
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -837,7 +837,7 @@ class SurvolLocalTest(unittest.TestCase):
             assert( oneStr in strInstancesSet)
 
 
-    @unittest.skipIf(not importlib.find_loader('cx_Oracle'), "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
+    @unittest.skipIf(not pkgutil.find_loader('cx_Oracle'), "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_oracle_process_dbs(self):
         """oracle_process_dbs Information about current process"""
 
