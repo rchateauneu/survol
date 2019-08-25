@@ -5,9 +5,12 @@ from __future__ import print_function
 import cgitb
 import cgi
 import os
+import re
 import sys
+from xml.dom import minidom
 import json
 import socket
+import tempfile
 import unittest
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
@@ -42,7 +45,359 @@ RemoteTestAgent = "http://" + CurrentMachine + ":8000"
 # The test files are alongside the script.
 input_test_files_dir = os.path.dirname(__file__)
 
-class DockitTest(unittest.TestCase):
+
+class DockitUnitTest(unittest.TestCase):
+
+    # This is a set of arguments of system function calls as displayed by strace or ltrace.
+    # This checks if they are correctly parsed.
+    def test_trace_line_parse(self):
+        dataTst = [
+            ( 'xyz',
+              ["xyz"],3 ),
+            ( '"Abcd"',
+              ["Abcd"],6 ),
+            ( '"Ab","cd"',
+              ["Ab","cd"],9 ),
+            ( 'Ab,"cd"',
+              ["Ab","cd"],7 ),
+            ( '"Ab","cd","ef"',
+              ["Ab","cd","ef"],14 ),
+            ( '"Ab","cd","ef",gh',
+              ["Ab","cd","ef","gh"],17 ),
+            ( '"/usr/bin/grep", ["grep", "toto"]',
+              ["/usr/bin/grep", ["grep", "toto"] ],33 ),
+            ( '"/usr/bin/grep", ["grep", "toto", "tutu"]',
+              ["/usr/bin/grep", ["grep", "toto", "tutu"] ],41 ),
+            ( '"/usr/bin/grep", ["grep", "toto", "tutu"], "tata"',
+              ["/usr/bin/grep", ["grep", "toto", "tutu"], "tata" ],49 ),
+            ( '"","cd"',
+              ["","cd"],7 ),
+            ( '3 <unfinished ...>',
+              ["3"],2 ),
+            ( '<... close resumed>',
+              ['<... close resumed>'],19 ),
+            ( '"12345",""',
+              ["12345",""],10 ),
+            ( '8, "/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in"..., 4096',
+              ['8', '/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in...', '4096'],214 ),
+            ( '3</usr/lib64/libpcre.so.1.2.8>',
+              ['3</usr/lib64/libpcre.so.1.2.8>'], 30),
+            ( 'NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0',
+              ['NULL', '4000096', 'PROT_READ|PROT_EXEC', 'MAP_PRIVATE|MAP_DENYWRITE', '3</usr/lib64/libc-2.25.so>', '0'], 92),
+            ( '"/usr/bin/grep", ["grep", "Hello", "../Divers/com_type_l"...], 0x7ffd8a76efa8 /* 17 vars */',
+              ['/usr/bin/grep', ['grep', 'Hello', '../Divers/com_type_l...'], '0x7ffd8a76efa8 /* 17 vars */'], 91),
+            ( '3</usr/lib64/libpthread-2.21.so>, "xyz", 832',
+              ['3</usr/lib64/libpthread-2.21.so>', 'xyz', '832'],44),
+            ( '1<pipe:[7124131]>, TCGETS, 0x7ffe58d35d60',
+              ['1<pipe:[7124131]>', 'TCGETS', '0x7ffe58d35d60'],41 ),
+            ( '3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>, SOL_IP, IP_TOS, [8], 4',
+              ['3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>', 'SOL_IP', 'IP_TOS', ['8'], '4'],64 ),
+            ( '"/usr/bin/python", ["python", "TestProgs/big_mysql_"...], [/* 37 vars */]',
+              ['/usr/bin/python', ['python', 'TestProgs/big_mysql_...'], ['/* 37 vars */']],73 ),
+
+            ( '3</usr/lib64/libc-2.21.so>, "\177ELF\2\1\1\3\>\0"..., 832',
+              ['3</usr/lib64/libc-2.21.so>', '\x7fELF\x02\x01\x01\x03\\>\x00...', '832'],49 ),
+
+            ( '29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>, "SQLite format 3\0\200\0\2\2\0@  \0\0\0\4\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\t\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0.\30\310", 100',
+              ['29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>', 'SQLite format 3\x00\x80\x00\x02\x02\x00@  \x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\t\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00.\x18\xc8', '100'], 176),
+
+            ( '5</etc/pki/nssdb/key4.db>, "\r\0\0\0\1\0G\0\0G\3\313\0\0\0\0\0\0\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssP\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a"..., 1024, 3072',
+              ['5</etc/pki/nssdb/key4.db>', '\r\x00\x00\x00\x01\x00G\x00\x00G\x03\xcb\x00\x00\x00\x00\x00\x00\x876\x01\x07\x17!!\x01\x8e7tablenssPrivatenssPrivate\x02CREATE TABLE nssP\x876\x01\x07\x17!!\x01\x8e7tablenssPrivatenssPrivate\x02CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a...', '1024', '3072'], 244),
+
+            ( '4</etc/pki/nssdb/cert9.db>, F_SETLK, {l_type=F_RDLCK, l_whence=SEEK_SET, l_start=1073741824, l_len=1}',
+                ['4</etc/pki/nssdb/cert9.db>', 'F_SETLK', ['l_type=F_RDLCK', 'l_whence=SEEK_SET', 'l_start=1073741824', 'l_len=1']], 101),
+
+            ( '4</etc/pki/nssdb/cert9.db>, "\0\0\0\2\0\0\0\t\0\0\0\0\0\0\0\0", 16, 24',
+              ['4</etc/pki/nssdb/cert9.db>', '\x00\x00\x00\x02\x00\x00\x00\t\x00\x00\x00\x00\x00\x00\x00\x00', '16', '24'], 54),
+
+            ( '0</dev/pts/2>, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2)}',
+              ['0</dev/pts/2>', ['st_mode=S_IFCHR|0620', 'st_rdev=makedev(136, 2)']],62 ),
+
+            ( '6, [4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>], NULL, NULL, {tv_sec=0, tv_usec=500}',
+              ['6', ['4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>'], 'NULL', 'NULL', ['tv_sec=0', 'tv_usec=500']], 87),
+
+            ( '13<UNIX:[10579575->10579582]>, SOL_SOCKET, SO_PEERSEC, "system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\0", [64->48]',
+              ['13<UNIX:[10579575->10579582]>', 'SOL_SOCKET', 'SO_PEERSEC', 'system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\x00', ['64->48']], 115),
+
+            ( '17<TCP:[54.36.162.150:32855]>, {sa_family=AF_INET, sin_port=htons(63705), sin_addr=inet_addr("82.45.12.63")}, [16]',
+              ['17<TCP:[54.36.162.150:32855]>', ['sa_family=AF_INET', 'sin_port=htons(63705)', 'sin_addr=inet_addr("82.45.12.63")'], ['16']], 114),
+
+            ( '"/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>',
+              ['/usr/bin/gcc', ['gcc', '-O3', 'ProgsAndScriptsForUnitTests/HelloWorld.c'], '0x7ffd8b44aab8 /* 30 vars */'],106 ),
+
+            # TODO: ltrace does not escape double-quotes:
+            #  "\001$\001$\001\026\001"\0015\001\n\001\r\001\r\001\f\001(\020",
+            # "read@SYS(3, "" + str(row) + "\\n")\n\n", 4096)"
+            # This string is broken due to the repeated double-quote.
+            # ( '4, "\001\024\001$\001$\001\026\001"\0015\001\n\001\r\001\004\002\r\001\f\001(\020", 4096) = 282 <0.000051>',
+            #   ['4', '\x01\x14\x01$\x01$\x01\x16\x01"\x015\x01\n\x01\r\x01\x04\x02\r\x01\x0c\x01(\x10', '4096'], 987979 ),
+
+        ]
+
+        for tupl in dataTst:
+            # The input string theoretically starts and ends with parenthesis,
+            # but the closing one might not be there.
+            # Therefore it should be tested with and without the closing parenthesis.
+            resu,idx = dockit.ParseCallArguments(tupl[0])
+            if resu != tupl[1]:
+                raise Exception("\n     Fail:%s\nSHOULD BE:%s" % ( str(resu),str(tupl[1])  ) )
+
+            # This must be the position of the end of the arguments.
+            if idx != tupl[2]:
+                raise Exception("Fail idx: %d SHOULD BE:%d" % ( idx, tupl[2] ) )
+
+            if idx != len(tupl[0]):
+                if not tupl[0][idx:].startswith("<unfinished ...>"):
+                    if tupl[0][idx-2] != ')':
+                        raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % ( len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
+
+
+
+class DockitSummaryXMLTest(unittest.TestCase):
+    @staticmethod
+    def RebuildProcessTreeAux(currNode,margin=""):
+        def PrintOneNode(currNode,margin):
+            try:
+                procId = currNode.attributes['Handle'].value
+            except KeyError:
+                procId = 123456789
+
+            execNam = "???"
+            for subNod in currNode.childNodes:
+                if subNod.nodeType == subNod.TEXT_NODE:
+                    continue
+
+                if subNod.localName == 'Executable':
+                    try:
+                        strXml = subNod.toxml()
+                        execNam = re.sub("<.*?>", "", strXml)
+                    except AttributeError:
+                        pass
+                    break
+
+            #sys.stdout.write("%s   %s %s\n"%(margin,procId,execNam))
+
+        procTree = {}
+
+        submargin = margin + "   "
+        for subNod in currNode.childNodes:
+            if subNod.localName == 'CIM_Process':
+                subObj = DockitSummaryXMLTest.RebuildProcessTreeAux(subNod,submargin)
+                procId = int(subNod.attributes['Handle'].value)
+                PrintOneNode(subNod,submargin)
+                procTree[procId] = subObj
+
+        return procTree
+
+    @staticmethod
+    def RebuildProcessTree(outputSummaryFile):
+        mydoc = minidom.parse(outputSummaryFile)
+        currNode = mydoc.getElementsByTagName('Dockit')
+
+        return DockitSummaryXMLTest.RebuildProcessTreeAux(currNode[0])
+
+
+    # This loads a log file generated by strace and rebuilds the processes tree.
+    def test_summary_XML_strace1(self):
+        # For testing the creation of summary XML file from a strace log.
+        tstLogFileSTrace = """
+12:43:54.334660 execve("/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>
+12:43:54.351205 vfork( <unfinished ...>
+[pid 19353] 12:43:54.353230 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", ["/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", "-quiet", "ProgsAndScriptsForUnitTests/HelloWorld.c", "-quiet", "-dumpbase", "HelloWorld.c", "-mtune=generic", "-march=x86-64", "-auxbase", "HelloWorld", "-O3", "-o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */ <unfinished ...>
+[pid 19351] 12:43:54.353461 <... vfork resumed> ) = 19353 <0.002239>
+[pid 19351] 12:43:54.353502 wait4(19353,  <unfinished ...>
+[pid 19353] 12:43:54.353866 <... execve resumed> ) = 0 <0.000557>
+[pid 19353] 12:43:54.468360 exit_group(0) = ?
+12:43:54.469190 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 19353 <0.115666>
+12:43:54.469217 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19353, si_uid=1001, si_status=0, si_utime=2, si_stime=1} ---
+12:43:54.469708 vfork( <unfinished ...>
+[pid 19354] 12:43:54.470903 execve("/u01/app/oracle/product/11.2.0/xe/bin/as", ["as", "--64", "-o", "/tmp/ccajVp6K.o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */) = -1 ENOENT (No such file or directory) <0.000132>
+[pid 19354] 12:43:54.471761 execve("/usr/local/bin/as", ["as", "--64", "-o", "/tmp/ccajVp6K.o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */) = -1 ENOENT (No such file or directory) <0.000037>
+[pid 19354] 12:43:54.471997 execve("/usr/bin/as", ["as", "--64", "-o", "/tmp/ccajVp6K.o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */ <unfinished ...>
+[pid 19351] 12:43:54.472143 <... vfork resumed> ) = 19354 <0.002423>
+[pid 19351] 12:43:54.472159 wait4(19354,  <unfinished ...>
+[pid 19354] 12:43:54.472530 <... execve resumed> ) = 0 <0.000492>
+[pid 19354] 12:43:54.492949 exit_group(0) = ?
+12:43:54.493438 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 19354 <0.021274>
+12:43:54.493460 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19354, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+12:43:54.494581 vfork( <unfinished ...>
+[pid 19355] 12:43:54.499593 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/collect2", ["/usr/libexec/gcc/x86_64-redhat-linux/7/collect2", "-plugin", "/usr/libexec/gcc/x86_64-redhat-linux/7/liblto_plugin.so", "-plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/7/lto-wrapper", "-plugin-opt=-fresolution=/tmp/cc3Y2UNm.res", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "--build-id", "--no-add-needed", "--eh-frame-hdr", "--hash-style=gnu", "-m", "elf_x86_64", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crt1.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crti.o", "/usr/lib/gcc/x86_64-redhat-linux/7/crtbegin.o", "-L/usr/lib/gcc/x86_64-redhat-linux/7", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64", "-L/lib/../lib64", "-L/usr/lib/../lib64", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../..", "/tmp/ccajVp6K.o", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "-lc", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "/usr/lib/gcc/x86_64-redhat-linux/7/crtend.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crtn.o"], 0x175eac0 /* 37 vars */ <unfinished ...>
+[pid 19351] 12:43:54.499796 <... vfork resumed> ) = 19355 <0.005197>
+[pid 19351] 12:43:54.499813 wait4(19355,  <unfinished ...>
+[pid 19355] 12:43:54.499922 <... execve resumed> ) = 0 <0.000233>
+[pid 19355] 12:43:54.504213 vfork( <unfinished ...>
+[pid 19356] 12:43:54.506472 execve("/usr/bin/ld", ["/usr/bin/ld", "-plugin", "/usr/libexec/gcc/x86_64-redhat-linux/7/liblto_plugin.so", "-plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/7/lto-wrapper", "-plugin-opt=-fresolution=/tmp/cc3Y2UNm.res", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "--build-id", "--no-add-needed", "--eh-frame-hdr", "--hash-style=gnu", "-m", "elf_x86_64", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crt1.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crti.o", "/usr/lib/gcc/x86_64-redhat-linux/7/crtbegin.o", "-L/usr/lib/gcc/x86_64-redhat-linux/7", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64", "-L/lib/../lib64", "-L/usr/lib/../lib64", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../..", "/tmp/ccajVp6K.o", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "-lc", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "/usr/lib/gcc/x86_64-redhat-linux/7/crtend.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crtn.o"], 0x7ffc023b8fd0 /* 37 vars */ <unfinished ...>
+[pid 19355] 12:43:54.506621 <... vfork resumed> ) = 19356 <0.002398>
+[pid 19355] 12:43:54.506674 wait4(19356,  <unfinished ...>
+[pid 19356] 12:43:54.506760 <... execve resumed> ) = 0 <0.000216>
+[pid 19356] 12:43:54.606281 exit_group(0) = ?
+[pid 19355] 12:43:54.606691 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 19356 <0.100010>
+[pid 19355] 12:43:54.606712 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19356, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+[pid 19355] 12:43:54.608051 exit_group(0) = ?
+12:43:54.608189 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 19355 <0.108370>
+12:43:54.608213 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19355, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+12:43:54.608378 exit_group(0)           = ?
+"""
+
+        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tmpFilSTrace.write(tstLogFileSTrace)
+        tmpFilSTrace.close()
+
+        outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"strace",19351,None,None,False,dockit.fullMapParamsSummary,"XML",False,False,None)
+
+        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+
+        print(procTree)
+
+        procTree[19351]
+        procTree[19351][19353]
+        procTree[19351][19354]
+        procTree[19351][19355]
+        procTree[19351][19355][19356]
+
+
+
+    # This loads a log file generated by strace and rebuilds the processes tree.
+    def test_summary_XML_strace2(self):
+        # For testing the creation of summary XML file from a strace log.
+        tstLogFileSTrace = """
+19:37:50.321491 execve("/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffdf59908e8 /* 30 vars */) = 0 <0.000170>
+19:37:50.331960 vfork( <unfinished ...>
+[pid 22034] 19:37:50.334013 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", ["/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", "-quiet", "ProgsAndScriptsForUnitTests/HelloWorld.c", "-quiet", "-dumpbase", "HelloWorld.c", "-mtune=generic", "-march=x86-64", "-auxbase", "HelloWorld", "-O3", "-o", "/tmp/cceK71h9.s"], 0x2514140 /* 35 vars */ <unfinished ...>
+[pid 22033] 19:37:50.334164 <... vfork resumed> ) = 22034 <0.002192>
+[pid 22033] 19:37:50.334185 wait4(22034,  <unfinished ...>
+[pid 22034] 19:37:50.336857 <... execve resumed> ) = 0 <0.002784>
+[pid 22034] 19:37:50.415238 exit_group(0) = ?
+19:37:50.420925 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 22034 <0.086697>
+19:37:50.420957 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=22034, si_uid=1001, si_status=0, si_utime=2, si_stime=1} ---
+19:37:50.421368 vfork( <unfinished ...>
+[pid 22035] 19:37:50.421446 execve("/u01/app/oracle/product/11.2.0/xe/bin/as", ["as", "--64", "-o", "/tmp/ccFp4gIJ.o", "/tmp/cceK71h9.s"], 0x2514140 /* 35 vars */) = -1 ENOENT (No such file or directory) <0.000016>
+[pid 22035] 19:37:50.421509 execve("/usr/local/bin/as", ["as", "--64", "-o", "/tmp/ccFp4gIJ.o", "/tmp/cceK71h9.s"], 0x2514140 /* 35 vars */) = -1 ENOENT (No such file or directory) <0.000009>
+[pid 22035] 19:37:50.421554 execve("/usr/bin/as", ["as", "--64", "-o", "/tmp/ccFp4gIJ.o", "/tmp/cceK71h9.s"], 0x2514140 /* 35 vars */ <unfinished ...>
+[pid 22033] 19:37:50.421664 <... vfork resumed> ) = 22035 <0.000284>
+[pid 22033] 19:37:50.421679 wait4(22035,  <unfinished ...>
+[pid 22035] 19:37:50.421772 <... execve resumed> ) = 0 <0.000186>
+[pid 22035] 19:37:50.443500 exit_group(0) = ?
+19:37:50.444220 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 22035 <0.022534>
+19:37:50.444258 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=22035, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+19:37:50.445324 vfork( <unfinished ...>
+[pid 22036] 19:37:50.445387 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/collect2", ["/usr/libexec/gcc/x86_64-redhat-linux/7/collect2", "-plugin", "/usr/libexec/gcc/x86_64-redhat-linux/7/liblto_plugin.so", "-plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/7/lto-wrapper", "-plugin-opt=-fresolution=/tmp/cczFnlck.res", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "--build-id", "--no-add-needed", "--eh-frame-hdr", "--hash-style=gnu", "-m", "elf_x86_64", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crt1.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crti.o", "/usr/lib/gcc/x86_64-redhat-linux/7/crtbegin.o", "-L/usr/lib/gcc/x86_64-redhat-linux/7", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64", "-L/lib/../lib64", "-L/usr/lib/../lib64", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../..", "/tmp/ccFp4gIJ.o", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "-lc", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "/usr/lib/gcc/x86_64-redhat-linux/7/crtend.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crtn.o"], 0x2513ac0 /* 37 vars */ <unfinished ...>
+[pid 22033] 19:37:50.445549 <... vfork resumed> ) = 22036 <0.000211>
+[pid 22033] 19:37:50.445565 wait4(22036,  <unfinished ...>
+[pid 22036] 19:37:50.445654 <... execve resumed> ) = 0 <0.000191>
+[pid 22036] 19:37:50.451652 vfork( <unfinished ...>
+[pid 22037] 19:37:50.454001 execve("/usr/bin/ld", ["/usr/bin/ld", "-plugin", "/usr/libexec/gcc/x86_64-redhat-linux/7/liblto_plugin.so", "-plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/7/lto-wrapper", "-plugin-opt=-fresolution=/tmp/cczFnlck.res", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_s", "--build-id", "--no-add-needed", "--eh-frame-hdr", "--hash-style=gnu", "-m", "elf_x86_64", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crt1.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crti.o", "/usr/lib/gcc/x86_64-redhat-linux/7/crtbegin.o", "-L/usr/lib/gcc/x86_64-redhat-linux/7", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64", "-L/lib/../lib64", "-L/usr/lib/../lib64", "-L/usr/lib/gcc/x86_64-redhat-linux/7/../../..", "/tmp/ccFp4gIJ.o", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "-lc", "-lgcc", "--as-needed", "-lgcc_s", "--no-as-needed", "/usr/lib/gcc/x86_64-redhat-linux/7/crtend.o", "/usr/lib/gcc/x86_64-redhat-linux/7/../../../../lib64/crtn.o"], 0x7fff24a533b0 /* 37 vars */ <unfinished ...>
+[pid 22036] 19:37:50.454193 <... vfork resumed> ) = 22037 <0.002531>
+[pid 22036] 19:37:50.454255 wait4(22037,  <unfinished ...>
+[pid 22037] 19:37:50.454345 <... execve resumed> ) = 0 <0.000239>
+[pid 22037] 19:37:50.580046 exit_group(0) = ?
+[pid 22036] 19:37:50.580616 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 22037 <0.126352>
+[pid 22036] 19:37:50.580653 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=22037, si_uid=1001, si_status=0, si_utime=1, si_stime=0} ---
+[pid 22036] 19:37:50.582078 exit_group(0) = ?
+19:37:50.582232 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 22036 <0.136662>
+19:37:50.582254 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=22036, si_uid=1001, si_status=0, si_utime=0, si_stime=0} ---
+19:37:50.582490 exit_group(0)           = ?
+"""
+
+        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tmpFilSTrace.write(tstLogFileSTrace)
+        tmpFilSTrace.close()
+
+        outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"strace",22029,None,None,False,dockit.fullMapParamsSummary,"XML",False,False,None)
+
+        sys.stdout.write("\nRebuilding tree\n")
+        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+
+        print(procTree)
+
+        procTree[22033]
+        procTree[22033][22034]
+        procTree[22033][22035]
+        procTree[22033][22036]
+        procTree[22033][22036][22037]
+
+
+
+
+    # This loads a log file generated by ltrace and rebuilds the processes tree.
+    def test_summary_XML_ltrace(self):
+        # For testing the creation of summary XML file from a ltrace log.
+        tstLogFileLTrace = """
+[pid 21256] 14:45:29.412869 vfork@SYS(0x463a43, 0, 0, 4 <unfinished ...>
+[pid 21257] 14:45:29.414920 execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", 0x164ffb8, 0x1650140 <no return ...>
+[pid 21257] 14:45:29.415223 --- Called exec() ---
+[pid 21256] 14:45:29.420448 <... vfork resumed> ) = 0x5309 <0.007575>
+[pid 21256] 14:45:29.420514 wait4@SYS(0x5309, 0x1650290, 0, 0 <unfinished ...>
+[pid 21257] 14:45:29.672105 exit_group@SYS(0 <no return ...>
+[pid 21257] 14:45:29.673172 +++ exited (status 0) +++
+[pid 21256] 14:45:29.673366 <... wait4 resumed> ) = 0x5309 <0.252849>
+[pid 21256] 14:45:29.673408 --- SIGCHLD (Child exited) ---
+[pid 21256] 14:45:29.675913 vfork@SYS(0x463a43, 2, 0, 0x164b350 <unfinished ...>
+[pid 21258] 14:45:29.676501 execve@SYS("/u01/app/oracle/product/11.2.0/xe/bin/as", 0x164ffb8, 0x1650140) = -2 <0.000290>
+[pid 21258] 14:45:29.677529 execve@SYS("/usr/local/bin/as", 0x164ffb8, 0x1650140) = -2 <0.000103>
+[pid 21258] 14:45:29.677941 execve@SYS("/usr/bin/as", 0x164ffb8, 0x1650140 <no return ...>
+[pid 21258] 14:45:29.678193 --- Called exec() ---
+[pid 21256] 14:45:29.678663 <... vfork resumed> ) = 0x530a <0.002748>
+[pid 21256] 14:45:29.678700 wait4@SYS(0x530a, 0x164fa30, 0, 0 <unfinished ...>
+[pid 21258] 14:45:29.715636 exit_group@SYS(0 <no return ...>
+[pid 21258] 14:45:29.716361 +++ exited (status 0) +++
+[pid 21256] 14:45:29.716387 <... wait4 resumed> ) = 0x530a <0.037686>
+[pid 21256] 14:45:29.716414 --- SIGCHLD (Child exited) ---
+[pid 21256] 14:45:29.728543 vfork@SYS(0x463a43, 0, 0, 0x164fc00 <unfinished ...>
+[pid 21259] 14:45:29.733906 execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/7/collect2", 0x1654988, 0x164fac0 <no return ...>
+[pid 21259] 14:45:29.734250 --- Called exec() ---
+[pid 21256] 14:45:29.735035 <... vfork resumed> ) = 0x530b <0.006486>
+[pid 21256] 14:45:29.735067 wait4@SYS(0x530b, 0x1650250, 0, 0 <unfinished ...>
+[pid 21259] 14:45:29.756841 vfork@SYS(0x449d93, 2, 0, 4 <unfinished ...>
+[pid 21260] 14:45:29.758993 execve@SYS("/usr/bin/ld", 0xe3ca80, 0x7ffedb332d50 <no return ...>
+[pid 21260] 14:45:29.759195 --- Called exec() ---
+[pid 21259] 14:45:29.759395 <... vfork resumed> ) = 0x530c <0.002551>
+[pid 21259] 14:45:29.759503 wait4@SYS(0x530c, 0xe3d670, 0, 0 <unfinished ...>
+[pid 21260] 14:45:29.858749 exit_group@SYS(0 <no return ...>
+[pid 21260] 14:45:29.859295 +++ exited (status 0) +++
+    [pid 21259] 14:45:29.859311 <... wait4 resumed> ) = 0x530c <0.099809>
+[pid 21259] 14:45:29.859329 --- SIGCHLD (Child exited) ---
+[pid 21259] 14:45:29.861786 exit_group@SYS(0 <no return ...>
+[pid 21259] 14:45:29.862872 +++ exited (status 0) +++
+[pid 21256] 14:45:29.862889 <... wait4 resumed> ) = 0x530b <0.127822>
+[pid 21256] 14:45:29.862907 --- SIGCHLD (Child exited) ---
+[pid 21256] 14:45:29.863331 exit_group@SYS(0 <no return ...>
+[pid 21256] 14:45:29.863535 +++ exited (status 0) +++
+"""
+
+        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tmpFilSTrace.write(tstLogFileLTrace)
+        tmpFilSTrace.close()
+
+        outputSummaryFile = dockit.UnitTest(
+            inputLogFile = tmpFilSTrace.name,
+            tracer = "ltrace",
+            topPid = 21256,
+            baseOutName = None,
+            outputFormat = None,
+            verbose = False,
+            mapParamsSummary = dockit.fullMapParamsSummary,
+            summaryFormat = "XML",
+            withWarning = False,
+            withDockerfile = False,
+            updateServer = None)
+
+
+        sys.stdout.write("\nRebuilding tree\n")
+        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+
+        print(procTree)
+
+        procTree[21256]
+        procTree[21256][21257]
+        procTree[21256][21258]
+        procTree[21256][21259]
+        procTree[21256][21259][21260]
+
+
+
+
+class DockitFilesTest(unittest.TestCase):
     """
     Test the execution of the Dockit script.
     """
@@ -91,7 +446,6 @@ class DockitTest(unittest.TestCase):
         fil_docker.close()
 
     def test_file_strace_json(self):
-        import dockit
 
         dockit.UnitTest(
             inputLogFile = os.path.join(input_test_files_dir, "sample_shell.strace.log"),

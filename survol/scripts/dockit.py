@@ -4774,7 +4774,9 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
 # to generate a docker file. So, summaries are calculated if Dockerfile is asked.
 fullMapParamsSummary = ["CIM_ComputerSystem","CIM_OperatingSystem","CIM_NetworkAdapter","CIM_Process","CIM_DataFile"]
 
-def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, baseOutName, mapParamsSummary,summaryFormat, withDockerfile):
+def FromStreamToFlow(
+        verbose, withWarning, logStream, tracer, outputFormat,
+        baseOutName, mapParamsSummary, summaryFormat, withDockerfile):
     if not baseOutName:
         baseOutName = "results"
     if summaryFormat:
@@ -4782,11 +4784,11 @@ def FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, baseO
     else:
         outputSummaryFile = None
 
-    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat)
+    mapFlows = CreateMapFlowFromStream( verbose, withWarning, logStream, tracer, outputFormat)
 
     G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
 
-    if baseOutName:
+    if baseOutName and outputFormat:
         outFile = baseOutName + "." + outputFormat.lower()
         sys.stdout.write("Creating flow file:%s\n" % outFile)
         outFd = open(outFile, "w")
@@ -4836,7 +4838,7 @@ def UnitTest(
     # necessary to reproduce the test in the same conditions.
 
     outputSummaryFile = FromStreamToFlow(
-        verbose, withWarning, logStream, tracer,outputFormat, baseOutName,
+        verbose, withWarning, logStream, tracer, outputFormat, baseOutName,
         mapParamsSummary, summaryFormat, withDockerfile)
     return outputSummaryFile
 
