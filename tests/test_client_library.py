@@ -46,6 +46,8 @@ CurrentMachine = socket.gethostname().lower()
 RemoteTestPort = 8000
 RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
 
+RemoteAgentProcess = None
+
 def SetSurvolServer():
     try:
         # For Python 3.0 and later
@@ -61,8 +63,9 @@ def SetSurvolServer():
         import subprocess
         server_cwd = os.path.join( os.path.dirname(__file__), "..")
         script_path = os.path.join("survol", "scripts", "cgiserver.py")
-        subprocess.Popen( ['python', script_path, "-p", str(RemoteTestPort) ] , cwd=server_cwd, shell=True)
         print("Starting test survol agent")
+        RemoteAgentProcess = subprocess.Popen( ['python', script_path, "-p", str(RemoteTestPort) ] , cwd=server_cwd, shell=True)
+        print("Agant process:",RemoteAgentProcess.communicate())
         time.sleep(2.0)
         response = portable_urlopen(RemoteTestAgent + "/survol/entity.py", timeout=5)
 
