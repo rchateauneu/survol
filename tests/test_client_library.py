@@ -63,11 +63,12 @@ def SetSurvolServer():
         print("Using existing Survol agent")
     except:
         import multiprocessing
-        print("Starting test survol agent")
+        print("Starting test survol agent: RemoteTestAgent=", RemoteTestAgent)
 
         import scripts.cgiserver
         # cwd = "PythonStyle/tests", must be "PythonStyle".
-        RemoteAgentProcess = multiprocessing.Process(target=scripts.cgiserver.StartParameters, args=(True, "rchateau-HP",RemoteTestPort,".."))
+        RemoteAgentProcess = multiprocessing.Process(target=scripts.cgiserver.StartParameters,
+                                                     args=(True, CurrentMachine, RemoteTestPort,".."))
         RemoteAgentProcess.start()
         # RemoteAgentProcess.join()
         response = portable_urlopen("http://%s:%s/survol/entity.py" % (CurrentMachine, RemoteTestPort) , timeout=5)
