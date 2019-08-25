@@ -222,6 +222,13 @@ def RunCgiServerInternal():
     # SERVER_ADDR=fe80::3c7a:339:64f0:2161
     # HTTP_HOST=rchateau-hp
 
+    StartParameters(verbose, server_name, port_number)
+
+# The current directory can be set, this is used when this is called from multiprocessing.
+def StartParameters(verbose, server_name, port_number, current_dir = ""):
+    import time
+    if current_dir:
+        os.chdir(current_dir)
     if sys.version_info[0] < 3:
         import CGIHTTPServer
         import BaseHTTPServer
