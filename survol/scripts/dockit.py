@@ -2861,34 +2861,9 @@ def ToAbsPath( dirPath, filNam ):
     if filNam in ["stdout","stdin","stderr"]:
         return filNam
 
-    if filNam[0] == "/":
-        fullPath = filNam
-    else:
-        if dirPath in [".",""]:
-            fullPath = filNam
-        else:
-            fullPath = dirPath + "/" + filNam
-
-    # FIXME: Broken if Linux test run on Windows machine and vice-versa.
-    # Therefore, the file manipulation is done.
-    # This assumes that original tests are done on Linux, for the moment.
-    splitSlash = fullPath.split("/")
-    lenSplt = len(splitSlash)
-    ix = 1
-    while ix < lenSplt:
-        if splitSlash[ix] == '..':
-            del splitSlash[ix-1:ix+1]
-            ix -= 1
-            lenSplt -= 2
-        elif splitSlash[ix] in ['.','']:
-            del splitSlash[ix:ix+1]
-            lenSplt -= 1
-        else:
-            ix += 1
-
-    absPth = "/".join(splitSlash)
-
-    return absPth
+    join_path = os.path.join( dirPath, filNam )
+    norm_path = os.path.realpath(join_path)
+    return norm_path
 
 ################################################################################
 

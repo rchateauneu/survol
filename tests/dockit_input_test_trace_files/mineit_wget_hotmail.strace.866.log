@@ -1,0 +1,771 @@
+10:07:39.258934 execve("TestProgs/test_wget_hotmail.sh", ["TestProgs/test_wget_"...], [/* 37 vars */]) = 0 <0.000160>
+10:07:39.259229 brk(NULL)               = 0x55c8c01f6000 <0.000007>
+10:07:39.259281 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f3b18283000 <0.000010>
+10:07:39.259340 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000011>
+10:07:39.259403 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=124494, ...}) = 0 <0.000008>
+10:07:39.259440 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7f3b18264000 <0.000010>
+10:07:39.259472 close(3</etc/ld.so.cache>) = 0 <0.000008>
+10:07:39.259510 open("/lib64/libtinfo.so.5", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libtinfo.so.5.9> <0.000013>
+10:07:39.259546 read(3</usr/lib64/libtinfo.so.5.9>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+10:07:39.259579 fstat(3</usr/lib64/libtinfo.so.5.9>, {st_mode=S_IFREG|0755, st_size=173080, ...}) = 0 <0.000008>
+10:07:39.259611 mmap(NULL, 2268928, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libtinfo.so.5.9>, 0) = 0x7f3b17e3a000 <0.000010>
+10:07:39.259642 mprotect(0x7f3b17e60000, 2093056, PROT_NONE) = 0 <0.000013>
+10:07:39.259672 mmap(0x7f3b1805f000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libtinfo.so.5.9>, 0x25000) = 0x7f3b1805f000 <0.000014>
+10:07:39.259722 close(3</usr/lib64/libtinfo.so.5.9>) = 0 <0.000008>
+10:07:39.259762 open("/lib64/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libdl-2.21.so> <0.000013>
+10:07:39.259798 read(3</usr/lib64/libdl-2.21.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+10:07:39.259852 fstat(3</usr/lib64/libdl-2.21.so>, {st_mode=S_IFREG|0755, st_size=19776, ...}) = 0 <0.000007>
+10:07:39.259883 mmap(NULL, 2109712, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libdl-2.21.so>, 0) = 0x7f3b17c36000 <0.000012>
+10:07:39.259916 mprotect(0x7f3b17c39000, 2093056, PROT_NONE) = 0 <0.000013>
+10:07:39.259945 mmap(0x7f3b17e38000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libdl-2.21.so>, 0x2000) = 0x7f3b17e38000 <0.000014>
+10:07:39.259998 close(3</usr/lib64/libdl-2.21.so>) = 0 <0.000008>
+10:07:39.260034 open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.21.so> <0.000012>
+10:07:39.260070 read(3</usr/lib64/libc-2.21.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+10:07:39.260101 fstat(3</usr/lib64/libc-2.21.so>, {st_mode=S_IFREG|0755, st_size=2100800, ...}) = 0 <0.000008>
+10:07:39.260132 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f3b18263000 <0.000009>
+10:07:39.260163 mmap(NULL, 3934752, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.21.so>, 0) = 0x7f3b17875000 <0.000011>
+10:07:39.260195 mprotect(0x7f3b17a2c000, 2097152, PROT_NONE) = 0 <0.000036>
+10:07:39.260247 mmap(0x7f3b17c2c000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libc-2.21.so>, 0x1b7000) = 0x7f3b17c2c000 <0.000014>
+10:07:39.260290 mmap(0x7f3b17c32000, 14880, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f3b17c32000 <0.000011>
+10:07:39.260327 close(3</usr/lib64/libc-2.21.so>) = 0 <0.000008>
+10:07:39.260373 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f3b18262000 <0.000009>
+10:07:39.260404 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f3b18261000 <0.000009>
+10:07:39.260433 arch_prctl(ARCH_SET_FS, 0x7f3b18262700) = 0 <0.000007>
+10:07:39.260556 mprotect(0x7f3b17c2c000, 16384, PROT_READ) = 0 <0.000012>
+10:07:39.260590 mprotect(0x7f3b17e38000, 4096, PROT_READ) = 0 <0.000012>
+10:07:39.260675 mprotect(0x7f3b1805f000, 16384, PROT_READ) = 0 <0.000013>
+10:07:39.261083 mprotect(0x55c8bfa6b000, 16384, PROT_READ) = 0 <0.000013>
+10:07:39.261123 mprotect(0x7f3b18284000, 4096, PROT_READ) = 0 <0.000017>
+10:07:39.261156 munmap(0x7f3b18264000, 124494) = 0 <0.000029>
+10:07:39.261272 open("/dev/tty", O_RDWR|O_NONBLOCK) = 3</dev/tty> <0.000030>
+10:07:39.261349 close(3</dev/tty>)      = 0 <0.000012>
+10:07:39.261449 brk(NULL)               = 0x55c8c01f6000 <0.000008>
+10:07:39.261473 brk(0x55c8c0217000)     = 0x55c8c0217000 <0.000011>
+10:07:39.261500 brk(NULL)               = 0x55c8c0217000 <0.000007>
+10:07:39.261535 open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3</usr/lib/locale/locale-archive> <0.000013>
+10:07:39.261581 fstat(3</usr/lib/locale/locale-archive>, {st_mode=S_IFREG|0644, st_size=109229520, ...}) = 0 <0.000008>
+10:07:39.261613 mmap(NULL, 109229520, PROT_READ, MAP_PRIVATE, 3</usr/lib/locale/locale-archive>, 0) = 0x7f3b11049000 <0.000014>
+10:07:39.261657 close(3</usr/lib/locale/locale-archive>) = 0 <0.000007>
+10:07:39.261827 brk(NULL)               = 0x55c8c0217000 <0.000007>
+10:07:39.261889 open("/proc/meminfo", O_RDONLY|O_CLOEXEC) = 3</proc/meminfo> <0.000025>
+10:07:39.261943 fstat(3</proc/meminfo>, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0 <0.000008>
+10:07:39.261974 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f3b18282000 <0.000010>
+10:07:39.262001 read(3</proc/meminfo>, "MemTotal:        404"..., 1024) = 1024 <0.000037>
+10:07:39.262083 close(3</proc/meminfo>) = 0 <0.000016>
+10:07:39.262119 munmap(0x7f3b18282000, 4096) = 0 <0.000014>
+10:07:39.262341 open("/usr/lib64/gconv/gconv-modules.cache", O_RDONLY) = 3</usr/lib64/gconv/gconv-modules.cache> <0.000013>
+10:07:39.262384 fstat(3</usr/lib64/gconv/gconv-modules.cache>, {st_mode=S_IFREG|0644, st_size=26254, ...}) = 0 <0.000008>
+10:07:39.262415 mmap(NULL, 26254, PROT_READ, MAP_SHARED, 3</usr/lib64/gconv/gconv-modules.cache>, 0) = 0x7f3b1827c000 <0.000011>
+10:07:39.262447 close(3</usr/lib64/gconv/gconv-modules.cache>) = 0 <0.000007>
+10:07:39.262819 open("TestProgs/test_wget_hotmail.sh", O_RDONLY) = 3</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh> <0.000043>
+10:07:39.262899 ioctl(3</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, TCGETS, 0x7ffe08110b70) = -1 ENOTTY (Inappropriate ioctl for device) <0.000008>
+10:07:39.262939 lseek(3</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, 0, SEEK_CUR) = 0 <0.000008>
+10:07:39.262967 read(3</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, "#!/usr/bin/bash\n\nwge"..., 80) = 45 <0.000009>
+10:07:39.262998 lseek(3</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, 0, SEEK_SET) = 0 <0.000008>
+10:07:39.263037 fcntl(255, F_GETFD)     = -1 EBADF (Bad file descriptor) <0.000008>
+10:07:39.263068 dup2(3</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, 255) = 255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh> <0.000012>
+10:07:39.263114 close(3</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>) = 0 <0.000007>
+10:07:39.263141 fcntl(255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, F_SETFD, FD_CLOEXEC) = 0 <0.000007>
+10:07:39.263169 fcntl(255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, F_GETFL) = 0x8000 (flags O_RDONLY|O_LARGEFILE) <0.000008>
+10:07:39.263198 fstat(255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, {st_mode=S_IFREG|0775, st_size=45, ...}) = 0 <0.000007>
+10:07:39.263229 lseek(255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, 0, SEEK_CUR) = 0 <0.000008>
+10:07:39.263262 read(255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, "#!/usr/bin/bash\n\nwge"..., 45) = 45 <0.000009>
+10:07:39.263696 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f3b182629d0) = 869 <0.000173>
+10:07:39.264024 wait4(-1,  <unfinished ...>
+[pid   869] 10:07:39.264110 close(255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>) = 0 <0.000008>
+[pid   869] 10:07:39.264263 execve("/usr/bin/wget", ["wget", "-P", "/tmp", "-r", "hotmail.com"], [/* 36 vars */]) = 0 <0.000191>
+[pid   869] 10:07:39.264526 brk(NULL)   = 0x2074000 <0.000007>
+[pid   869] 10:07:39.264569 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c72000 <0.000010>
+[pid   869] 10:07:39.264625 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000012>
+[pid   869] 10:07:39.264668 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=124494, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.264701 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7f2e32c53000 <0.000010>
+[pid   869] 10:07:39.264732 close(3</etc/ld.so.cache>) = 0 <0.000007>
+[pid   869] 10:07:39.264771 open("/lib64/libpcre.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libpcre.so.1.2.7> <0.000012>
+[pid   869] 10:07:39.264837 read(3</usr/lib64/libpcre.so.1.2.7>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.264871 fstat(3</usr/lib64/libpcre.so.1.2.7>, {st_mode=S_IFREG|0755, st_size=467832, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.264907 mmap(NULL, 2560488, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libpcre.so.1.2.7>, 0) = 0x7f2e327e1000 <0.000012>
+[pid   869] 10:07:39.264940 mprotect(0x7f2e32852000, 2093056, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.264971 mmap(0x7f2e32a51000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libpcre.so.1.2.7>, 0x70000) = 0x7f2e32a51000 <0.000015>
+[pid   869] 10:07:39.265019 close(3</usr/lib64/libpcre.so.1.2.7>) = 0 <0.000007>
+[pid   869] 10:07:39.265057 open("/lib64/libuuid.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libuuid.so.1.3.0> <0.000013>
+[pid   869] 10:07:39.265094 read(3</usr/lib64/libuuid.so.1.3.0>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.265125 fstat(3</usr/lib64/libuuid.so.1.3.0>, {st_mode=S_IFREG|0755, st_size=20000, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.265156 mmap(NULL, 2113944, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libuuid.so.1.3.0>, 0) = 0x7f2e325dc000 <0.000011>
+[pid   869] 10:07:39.265189 mprotect(0x7f2e325e0000, 2093056, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.265220 mmap(0x7f2e327df000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libuuid.so.1.3.0>, 0x3000) = 0x7f2e327df000 <0.000013>
+[pid   869] 10:07:39.265269 close(3</usr/lib64/libuuid.so.1.3.0>) = 0 <0.000007>
+[pid   869] 10:07:39.265304 open("/lib64/libmetalink.so.3", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libmetalink.so.3.0.0> <0.000012>
+[pid   869] 10:07:39.265340 read(3</usr/lib64/libmetalink.so.3.0.0>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.265371 fstat(3</usr/lib64/libmetalink.so.3.0.0>, {st_mode=S_IFREG|0755, st_size=66040, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.265402 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c52000 <0.000009>
+[pid   869] 10:07:39.265433 mmap(NULL, 2160216, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libmetalink.so.3.0.0>, 0) = 0x7f2e323cc000 <0.000010>
+[pid   869] 10:07:39.265465 mprotect(0x7f2e323da000, 2097152, PROT_NONE) = 0 <0.000012>
+[pid   869] 10:07:39.265493 mmap(0x7f2e325da000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libmetalink.so.3.0.0>, 0xe000) = 0x7f2e325da000 <0.000012>
+[pid   869] 10:07:39.265537 close(3</usr/lib64/libmetalink.so.3.0.0>) = 0 <0.000007>
+[pid   869] 10:07:39.265575 open("/lib64/libssl.so.10", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libssl.so.1.0.1k> <0.000013>
+[pid   869] 10:07:39.265612 read(3</usr/lib64/libssl.so.1.0.1k>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000010>
+[pid   869] 10:07:39.265643 fstat(3</usr/lib64/libssl.so.1.0.1k>, {st_mode=S_IFREG|0755, st_size=455576, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.265675 mmap(NULL, 2549008, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libssl.so.1.0.1k>, 0) = 0x7f2e3215d000 <0.000011>
+[pid   869] 10:07:39.265708 mprotect(0x7f2e321c1000, 2097152, PROT_NONE) = 0 <0.000017>
+[pid   869] 10:07:39.265741 mmap(0x7f2e323c1000, 45056, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libssl.so.1.0.1k>, 0x64000) = 0x7f2e323c1000 <0.000013>
+[pid   869] 10:07:39.265788 close(3</usr/lib64/libssl.so.1.0.1k>) = 0 <0.000013>
+[pid   869] 10:07:39.265834 open("/lib64/libcrypto.so.10", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libcrypto.so.1.0.1k> <0.000012>
+[pid   869] 10:07:39.265872 read(3</usr/lib64/libcrypto.so.1.0.1k>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.265903 fstat(3</usr/lib64/libcrypto.so.1.0.1k>, {st_mode=S_IFREG|0755, st_size=1998888, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.265935 mmap(NULL, 4099416, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libcrypto.so.1.0.1k>, 0) = 0x7f2e31d74000 <0.000012>
+[pid   869] 10:07:39.265968 mprotect(0x7f2e31f33000, 2097152, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.265998 mmap(0x7f2e32133000, 155648, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libcrypto.so.1.0.1k>, 0x1bf000) = 0x7f2e32133000 <0.000014>
+[pid   869] 10:07:39.266040 mmap(0x7f2e32159000, 15704, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2e32159000 <0.000011>
+[pid   869] 10:07:39.266080 close(3</usr/lib64/libcrypto.so.1.0.1k>) = 0 <0.000007>
+[pid   869] 10:07:39.266121 open("/lib64/libz.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libz.so.1.2.8> <0.000012>
+[pid   869] 10:07:39.266158 read(3</usr/lib64/libz.so.1.2.8>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.266189 fstat(3</usr/lib64/libz.so.1.2.8>, {st_mode=S_IFREG|0755, st_size=89992, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.266220 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c51000 <0.000010>
+[pid   869] 10:07:39.266251 mmap(NULL, 2183688, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libz.so.1.2.8>, 0) = 0x7f2e31b5e000 <0.000011>
+[pid   869] 10:07:39.266284 mprotect(0x7f2e31b73000, 2093056, PROT_NONE) = 0 <0.000014>
+[pid   869] 10:07:39.266315 mmap(0x7f2e31d72000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libz.so.1.2.8>, 0x14000) = 0x7f2e31d72000 <0.000013>
+[pid   869] 10:07:39.266363 close(3</usr/lib64/libz.so.1.2.8>) = 0 <0.000008>
+[pid   869] 10:07:39.266400 open("/lib64/libpsl.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libpsl.so.0.2.4> <0.000012>
+[pid   869] 10:07:39.266437 read(3</usr/lib64/libpsl.so.0.2.4>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.266468 fstat(3</usr/lib64/libpsl.so.0.2.4>, {st_mode=S_IFREG|0755, st_size=516104, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.266500 mmap(NULL, 2610272, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libpsl.so.0.2.4>, 0) = 0x7f2e318e0000 <0.000010>
+[pid   869] 10:07:39.266531 mprotect(0x7f2e318e3000, 2093056, PROT_NONE) = 0 <0.000010>
+[pid   869] 10:07:39.266557 mmap(0x7f2e31ae2000, 507904, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libpsl.so.0.2.4>, 0x2000) = 0x7f2e31ae2000 <0.000012>
+[pid   869] 10:07:39.266607 close(3</usr/lib64/libpsl.so.0.2.4>) = 0 <0.000007>
+[pid   869] 10:07:39.266643 open("/lib64/libidn.so.11", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libidn.so.11.6.15> <0.000012>
+[pid   869] 10:07:39.266679 read(3</usr/lib64/libidn.so.11.6.15>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.266711 fstat(3</usr/lib64/libidn.so.11.6.15>, {st_mode=S_IFREG|0755, st_size=212720, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.266742 mmap(NULL, 2306512, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libidn.so.11.6.15>, 0) = 0x7f2e316ac000 <0.000011>
+[pid   869] 10:07:39.266775 mprotect(0x7f2e316de000, 2097152, PROT_NONE) = 0 <0.000014>
+[pid   869] 10:07:39.266828 mmap(0x7f2e318de000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libidn.so.11.6.15>, 0x32000) = 0x7f2e318de000 <0.000012>
+[pid   869] 10:07:39.266876 close(3</usr/lib64/libidn.so.11.6.15>) = 0 <0.000008>
+[pid   869] 10:07:39.266915 open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.21.so> <0.000012>
+[pid   869] 10:07:39.266952 read(3</usr/lib64/libc-2.21.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000008>
+[pid   869] 10:07:39.266983 fstat(3</usr/lib64/libc-2.21.so>, {st_mode=S_IFREG|0755, st_size=2100800, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.267014 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c50000 <0.000009>
+[pid   869] 10:07:39.267046 mmap(NULL, 3934752, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.21.so>, 0) = 0x7f2e312eb000 <0.000012>
+[pid   869] 10:07:39.267080 mprotect(0x7f2e314a2000, 2097152, PROT_NONE) = 0 <0.000017>
+[pid   869] 10:07:39.267112 mmap(0x7f2e316a2000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libc-2.21.so>, 0x1b7000) = 0x7f2e316a2000 <0.000015>
+[pid   869] 10:07:39.267155 mmap(0x7f2e316a8000, 14880, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2e316a8000 <0.000012>
+[pid   869] 10:07:39.267193 close(3</usr/lib64/libc-2.21.so>) = 0 <0.000008>
+[pid   869] 10:07:39.267236 open("/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libpthread-2.21.so> <0.000013>
+[pid   869] 10:07:39.267273 read(3</usr/lib64/libpthread-2.21.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.267305 fstat(3</usr/lib64/libpthread-2.21.so>, {st_mode=S_IFREG|0755, st_size=145656, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.267336 mmap(NULL, 2213040, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libpthread-2.21.so>, 0) = 0x7f2e310ce000 <0.000011>
+[pid   869] 10:07:39.267369 mprotect(0x7f2e310e5000, 2093056, PROT_NONE) = 0 <0.000016>
+[pid   869] 10:07:39.267401 mmap(0x7f2e312e4000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libpthread-2.21.so>, 0x16000) = 0x7f2e312e4000 <0.000015>
+[pid   869] 10:07:39.267446 mmap(0x7f2e312e7000, 13488, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2e312e7000 <0.000011>
+[pid   869] 10:07:39.267484 close(3</usr/lib64/libpthread-2.21.so>) = 0 <0.000007>
+[pid   869] 10:07:39.267532 open("/lib64/libexpat.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libexpat.so.1.6.0> <0.000013>
+[pid   869] 10:07:39.267570 read(3</usr/lib64/libexpat.so.1.6.0>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.267602 fstat(3</usr/lib64/libexpat.so.1.6.0>, {st_mode=S_IFREG|0755, st_size=173128, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.267634 mmap(NULL, 2265304, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libexpat.so.1.6.0>, 0) = 0x7f2e30ea4000 <0.000011>
+[pid   869] 10:07:39.267666 mprotect(0x7f2e30ecb000, 2097152, PROT_NONE) = 0 <0.000014>
+[pid   869] 10:07:39.267696 mmap(0x7f2e310cb000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libexpat.so.1.6.0>, 0x27000) = 0x7f2e310cb000 <0.000012>
+[pid   869] 10:07:39.267744 close(3</usr/lib64/libexpat.so.1.6.0>) = 0 <0.000008>
+[pid   869] 10:07:39.267785 open("/lib64/libgssapi_krb5.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libgssapi_krb5.so.2.2> <0.000039>
+[pid   869] 10:07:39.267850 read(3</usr/lib64/libgssapi_krb5.so.2.2>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000008>
+[pid   869] 10:07:39.267881 fstat(3</usr/lib64/libgssapi_krb5.so.2.2>, {st_mode=S_IFREG|0755, st_size=323568, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.267913 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c4f000 <0.000010>
+[pid   869] 10:07:39.267945 mmap(NULL, 2413920, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libgssapi_krb5.so.2.2>, 0) = 0x7f2e30c56000 <0.000011>
+[pid   869] 10:07:39.267978 mprotect(0x7f2e30ca1000, 2093056, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.268009 mmap(0x7f2e30ea0000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libgssapi_krb5.so.2.2>, 0x4a000) = 0x7f2e30ea0000 <0.000013>
+[pid   869] 10:07:39.268057 close(3</usr/lib64/libgssapi_krb5.so.2.2>) = 0 <0.000007>
+[pid   869] 10:07:39.268097 open("/lib64/libkrb5.so.3", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libkrb5.so.3.3> <0.000012>
+[pid   869] 10:07:39.268135 read(3</usr/lib64/libkrb5.so.3.3>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.268166 fstat(3</usr/lib64/libkrb5.so.3.3>, {st_mode=S_IFREG|0755, st_size=948272, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.268197 mmap(NULL, 3033184, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libkrb5.so.3.3>, 0) = 0x7f2e30971000 <0.000011>
+[pid   869] 10:07:39.268230 mprotect(0x7f2e30a46000, 2097152, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.268261 mmap(0x7f2e30c46000, 65536, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libkrb5.so.3.3>, 0xd5000) = 0x7f2e30c46000 <0.000012>
+[pid   869] 10:07:39.268308 close(3</usr/lib64/libkrb5.so.3.3>) = 0 <0.000007>
+[pid   869] 10:07:39.268347 open("/lib64/libcom_err.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libcom_err.so.2.1> <0.000013>
+[pid   869] 10:07:39.268384 read(3</usr/lib64/libcom_err.so.2.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000008>
+[pid   869] 10:07:39.268415 fstat(3</usr/lib64/libcom_err.so.2.1>, {st_mode=S_IFREG|0755, st_size=15664, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.268447 mmap(NULL, 2109928, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libcom_err.so.2.1>, 0) = 0x7f2e3076d000 <0.000011>
+[pid   869] 10:07:39.268479 mprotect(0x7f2e30770000, 2093056, PROT_NONE) = 0 <0.000014>
+[pid   869] 10:07:39.268509 mmap(0x7f2e3096f000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libcom_err.so.2.1>, 0x2000) = 0x7f2e3096f000 <0.000013>
+[pid   869] 10:07:39.268558 close(3</usr/lib64/libcom_err.so.2.1>) = 0 <0.000007>
+[pid   869] 10:07:39.268593 open("/lib64/libk5crypto.so.3", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libk5crypto.so.3.1> <0.000012>
+[pid   869] 10:07:39.268629 read(3</usr/lib64/libk5crypto.so.3.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.268660 fstat(3</usr/lib64/libk5crypto.so.3.1>, {st_mode=S_IFREG|0755, st_size=206376, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.268692 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c4e000 <0.000010>
+[pid   869] 10:07:39.268723 mmap(NULL, 2302456, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libk5crypto.so.3.1>, 0) = 0x7f2e3053a000 <0.000011>
+[pid   869] 10:07:39.268755 mprotect(0x7f2e30569000, 2097152, PROT_NONE) = 0 <0.000016>
+[pid   869] 10:07:39.268787 mmap(0x7f2e30769000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libk5crypto.so.3.1>, 0x2f000) = 0x7f2e30769000 <0.000023>
+[pid   869] 10:07:39.268840 mmap(0x7f2e3076c000, 504, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2e3076c000 <0.000011>
+[pid   869] 10:07:39.268877 close(3</usr/lib64/libk5crypto.so.3.1>) = 0 <0.000008>
+[pid   869] 10:07:39.268915 open("/lib64/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libdl-2.21.so> <0.000012>
+[pid   869] 10:07:39.268952 read(3</usr/lib64/libdl-2.21.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000008>
+[pid   869] 10:07:39.268983 fstat(3</usr/lib64/libdl-2.21.so>, {st_mode=S_IFREG|0755, st_size=19776, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.269015 mmap(NULL, 2109712, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libdl-2.21.so>, 0) = 0x7f2e30336000 <0.000011>
+[pid   869] 10:07:39.269048 mprotect(0x7f2e30339000, 2093056, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.269080 mmap(0x7f2e30538000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libdl-2.21.so>, 0x2000) = 0x7f2e30538000 <0.000014>
+[pid   869] 10:07:39.269127 close(3</usr/lib64/libdl-2.21.so>) = 0 <0.000008>
+[pid   869] 10:07:39.269167 open("/lib64/libicuuc.so.54", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libicuuc.so.54.1> <0.000013>
+[pid   869] 10:07:39.269204 read(3</usr/lib64/libicuuc.so.54.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.269235 fstat(3</usr/lib64/libicuuc.so.54.1>, {st_mode=S_IFREG|0755, st_size=1629712, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.269266 mmap(NULL, 3734912, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libicuuc.so.54.1>, 0) = 0x7f2e2ffa6000 <0.000010>
+[pid   869] 10:07:39.269299 mprotect(0x7f2e30122000, 2093056, PROT_NONE) = 0 <0.000014>
+[pid   869] 10:07:39.269330 mmap(0x7f2e30321000, 69632, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libicuuc.so.54.1>, 0x17b000) = 0x7f2e30321000 <0.000013>
+[pid   869] 10:07:39.269373 mmap(0x7f2e30332000, 15744, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2e30332000 <0.000010>
+[pid   869] 10:07:39.269410 close(3</usr/lib64/libicuuc.so.54.1>) = 0 <0.000008>
+[pid   869] 10:07:39.269453 open("/lib64/libicudata.so.54", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libicudata.so.54.1> <0.000013>
+[pid   869] 10:07:39.269490 read(3</usr/lib64/libicudata.so.54.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.269521 fstat(3</usr/lib64/libicudata.so.54.1>, {st_mode=S_IFREG|0755, st_size=25340568, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.269552 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c4d000 <0.000009>
+[pid   869] 10:07:39.269583 mmap(NULL, 27435056, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libicudata.so.54.1>, 0) = 0x7f2e2e57b000 <0.000011>
+[pid   869] 10:07:39.269616 mprotect(0x7f2e2fda5000, 2093056, PROT_NONE) = 0 <0.000013>
+[pid   869] 10:07:39.269645 mmap(0x7f2e2ffa4000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libicudata.so.54.1>, 0x1829000) = 0x7f2e2ffa4000 <0.000012>
+[pid   869] 10:07:39.269692 close(3</usr/lib64/libicudata.so.54.1>) = 0 <0.000008>
+[pid   869] 10:07:39.269734 open("/lib64/libkrb5support.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libkrb5support.so.0.1> <0.000013>
+[pid   869] 10:07:39.269771 read(3</usr/lib64/libkrb5support.so.0.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.269808 fstat(3</usr/lib64/libkrb5support.so.0.1>, {st_mode=S_IFREG|0755, st_size=62304, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.269840 mmap(NULL, 2156136, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libkrb5support.so.0.1>, 0) = 0x7f2e2e36c000 <0.000011>
+[pid   869] 10:07:39.269872 mprotect(0x7f2e2e379000, 2097152, PROT_NONE) = 0 <0.000016>
+[pid   869] 10:07:39.269904 mmap(0x7f2e2e579000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libkrb5support.so.0.1>, 0xd000) = 0x7f2e2e579000 <0.000013>
+[pid   869] 10:07:39.269951 close(3</usr/lib64/libkrb5support.so.0.1>) = 0 <0.000008>
+[pid   869] 10:07:39.269991 open("/lib64/libkeyutils.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libkeyutils.so.1.5> <0.000012>
+[pid   869] 10:07:39.270027 read(3</usr/lib64/libkeyutils.so.1.5>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.270057 fstat(3</usr/lib64/libkeyutils.so.1.5>, {st_mode=S_IFREG|0755, st_size=15456, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.270089 mmap(NULL, 2109712, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libkeyutils.so.1.5>, 0) = 0x7f2e2e168000 <0.000011>
+[pid   869] 10:07:39.270122 mprotect(0x7f2e2e16b000, 2093056, PROT_NONE) = 0 <0.000014>
+[pid   869] 10:07:39.270152 mmap(0x7f2e2e36a000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libkeyutils.so.1.5>, 0x2000) = 0x7f2e2e36a000 <0.000013>
+[pid   869] 10:07:39.270198 close(3</usr/lib64/libkeyutils.so.1.5>) = 0 <0.000007>
+[pid   869] 10:07:39.270235 open("/lib64/libresolv.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libresolv-2.21.so> <0.000012>
+[pid   869] 10:07:39.270272 read(3</usr/lib64/libresolv-2.21.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.270322 fstat(3</usr/lib64/libresolv-2.21.so>, {st_mode=S_IFREG|0755, st_size=114984, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.270353 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c4c000 <0.000009>
+[pid   869] 10:07:39.270385 mmap(NULL, 2206280, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libresolv-2.21.so>, 0) = 0x7f2e2df4d000 <0.000011>
+[pid   869] 10:07:39.270418 mprotect(0x7f2e2df64000, 2097152, PROT_NONE) = 0 <0.000017>
+[pid   869] 10:07:39.270451 mmap(0x7f2e2e164000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libresolv-2.21.so>, 0x17000) = 0x7f2e2e164000 <0.000014>
+[pid   869] 10:07:39.270493 mmap(0x7f2e2e166000, 6728, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2e2e166000 <0.000011>
+[pid   869] 10:07:39.270530 close(3</usr/lib64/libresolv-2.21.so>) = 0 <0.000007>
+[pid   869] 10:07:39.270584 open("/lib64/libstdc++.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libstdc++.so.6.0.21> <0.000012>
+[pid   869] 10:07:39.270621 read(3</usr/lib64/libstdc++.so.6.0.21>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.270653 fstat(3</usr/lib64/libstdc++.so.6.0.21>, {st_mode=S_IFREG|0755, st_size=1566576, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.270685 mmap(NULL, 3675328, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libstdc++.so.6.0.21>, 0) = 0x7f2e2dbcb000 <0.000011>
+[pid   869] 10:07:39.270718 mprotect(0x7f2e2dd3e000, 2093056, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.270748 mmap(0x7f2e2df3d000, 49152, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libstdc++.so.6.0.21>, 0x172000) = 0x7f2e2df3d000 <0.000014>
+[pid   869] 10:07:39.270791 mmap(0x7f2e2df49000, 13504, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2e2df49000 <0.000011>
+[pid   869] 10:07:39.270834 close(3</usr/lib64/libstdc++.so.6.0.21>) = 0 <0.000007>
+[pid   869] 10:07:39.270881 open("/lib64/libm.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libm-2.21.so> <0.000012>
+[pid   869] 10:07:39.270917 read(3</usr/lib64/libm-2.21.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.270949 fstat(3</usr/lib64/libm-2.21.so>, {st_mode=S_IFREG|0755, st_size=1165504, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.270981 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c4b000 <0.000009>
+[pid   869] 10:07:39.271012 mmap(NULL, 3174680, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libm-2.21.so>, 0) = 0x7f2e2d8c3000 <0.000012>
+[pid   869] 10:07:39.271045 mprotect(0x7f2e2d9ca000, 2093056, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.271076 mmap(0x7f2e2dbc9000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libm-2.21.so>, 0x106000) = 0x7f2e2dbc9000 <0.000013>
+[pid   869] 10:07:39.271127 close(3</usr/lib64/libm-2.21.so>) = 0 <0.000008>
+[pid   869] 10:07:39.271167 open("/lib64/libgcc_s.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libgcc_s-5.3.1-20160406.so.1> <0.000013>
+[pid   869] 10:07:39.271204 read(3</usr/lib64/libgcc_s-5.3.1-20160406.so.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.271236 fstat(3</usr/lib64/libgcc_s-5.3.1-20160406.so.1>, {st_mode=S_IFREG|0755, st_size=92816, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.271267 mmap(NULL, 2188320, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libgcc_s-5.3.1-20160406.so.1>, 0) = 0x7f2e2d6ac000 <0.000011>
+[pid   869] 10:07:39.271300 mprotect(0x7f2e2d6c2000, 2093056, PROT_NONE) = 0 <0.000013>
+[pid   869] 10:07:39.271330 mmap(0x7f2e2d8c1000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libgcc_s-5.3.1-20160406.so.1>, 0x15000) = 0x7f2e2d8c1000 <0.000014>
+[pid   869] 10:07:39.271379 close(3</usr/lib64/libgcc_s-5.3.1-20160406.so.1>) = 0 <0.000007>
+[pid   869] 10:07:39.271423 open("/lib64/libselinux.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libselinux.so.1> <0.000012>
+[pid   869] 10:07:39.271459 read(3</usr/lib64/libselinux.so.1>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.271490 fstat(3</usr/lib64/libselinux.so.1>, {st_mode=S_IFREG|0755, st_size=142112, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.271522 mmap(NULL, 2242688, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libselinux.so.1>, 0) = 0x7f2e2d488000 <0.000011>
+[pid   869] 10:07:39.271555 mprotect(0x7f2e2d4a9000, 2093056, PROT_NONE) = 0 <0.000013>
+[pid   869] 10:07:39.271584 mmap(0x7f2e2d6a8000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libselinux.so.1>, 0x20000) = 0x7f2e2d6a8000 <0.000015>
+[pid   869] 10:07:39.271630 mmap(0x7f2e2d6aa000, 6272, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f2e2d6aa000 <0.000011>
+[pid   869] 10:07:39.271666 close(3</usr/lib64/libselinux.so.1>) = 0 <0.000008>
+[pid   869] 10:07:39.271710 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c4a000 <0.000010>
+[pid   869] 10:07:39.271767 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c49000 <0.000009>
+[pid   869] 10:07:39.271821 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c48000 <0.000009>
+[pid   869] 10:07:39.271856 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c46000 <0.000009>
+[pid   869] 10:07:39.271888 arch_prctl(ARCH_SET_FS, 0x7f2e32c46880) = 0 <0.000008>
+[pid   869] 10:07:39.272019 mprotect(0x7f2e316a2000, 16384, PROT_READ) = 0 <0.000014>
+[pid   869] 10:07:39.272070 mprotect(0x7f2e312e4000, 8192, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.272106 mprotect(0x7f2e32a51000, 4096, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.272144 mprotect(0x7f2e30538000, 4096, PROT_READ) = 0 <0.000012>
+[pid   869] 10:07:39.272186 mprotect(0x7f2e2d6a8000, 4096, PROT_READ) = 0 <0.000012>
+[pid   869] 10:07:39.272221 mprotect(0x7f2e2d8c1000, 4096, PROT_READ) = 0 <0.000012>
+[pid   869] 10:07:39.272272 mprotect(0x7f2e2dbc9000, 4096, PROT_READ) = 0 <0.000011>
+[pid   869] 10:07:39.273362 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c45000 <0.000011>
+[pid   869] 10:07:39.273515 mprotect(0x7f2e2df3d000, 40960, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.273555 mprotect(0x7f2e2e164000, 4096, PROT_READ) = 0 <0.000012>
+[pid   869] 10:07:39.273588 mprotect(0x7f2e2e36a000, 4096, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.273631 mprotect(0x7f2e2e579000, 4096, PROT_READ) = 0 <0.000012>
+[pid   869] 10:07:39.273664 mprotect(0x7f2e2ffa4000, 4096, PROT_READ) = 0 <0.000011>
+[pid   869] 10:07:39.273837 mprotect(0x7f2e30321000, 65536, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.273887 mprotect(0x7f2e30769000, 8192, PROT_READ) = 0 <0.000012>
+[pid   869] 10:07:39.273922 mprotect(0x7f2e3096f000, 4096, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.274083 mprotect(0x7f2e30c46000, 53248, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.274178 mprotect(0x7f2e30ea0000, 8192, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.274226 mprotect(0x7f2e310cb000, 8192, PROT_READ) = 0 <0.000012>
+[pid   869] 10:07:39.274268 mprotect(0x7f2e318de000, 4096, PROT_READ) = 0 <0.000012>
+[pid   869] 10:07:39.274308 mprotect(0x7f2e31ae2000, 4096, PROT_READ) = 0 <0.000011>
+[pid   869] 10:07:39.274340 mprotect(0x7f2e31d72000, 4096, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.274618 mprotect(0x7f2e32133000, 106496, PROT_READ) = 0 <0.000016>
+[pid   869] 10:07:39.274727 mprotect(0x7f2e323c1000, 16384, PROT_READ) = 0 <0.000011>
+[pid   869] 10:07:39.274777 mprotect(0x7f2e325da000, 4096, PROT_READ) = 0 <0.000010>
+[pid   869] 10:07:39.274816 mprotect(0x7f2e327df000, 4096, PROT_READ) = 0 <0.000013>
+[pid   869] 10:07:39.274861 mprotect(0x66f000, 4096, PROT_READ) = 0 <0.000010>
+[pid   869] 10:07:39.274894 mprotect(0x7f2e32c73000, 4096, PROT_READ) = 0 <0.000015>
+[pid   869] 10:07:39.274926 munmap(0x7f2e32c53000, 124494) = 0 <0.000038>
+[pid   869] 10:07:39.275206 brk(NULL)   = 0x2074000 <0.000007>
+[pid   869] 10:07:39.275230 brk(0x2095000) = 0x2095000 <0.000010>
+[pid   869] 10:07:39.275265 open("/proc/filesystems", O_RDONLY) = 3</proc/filesystems> <0.000025>
+[pid   869] 10:07:39.275329 fstat(3</proc/filesystems>, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.275362 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c71000 <0.000011>
+[pid   869] 10:07:39.275391 read(3</proc/filesystems>, "nodev\tsysfs\nnodev\tro"..., 1024) = 374 <0.000027>
+[pid   869] 10:07:39.275449 read(3</proc/filesystems>, "", 1024) = 0 <0.000008>
+[pid   869] 10:07:39.275481 close(3</proc/filesystems>) = 0 <0.000012>
+[pid   869] 10:07:39.275513 munmap(0x7f2e32c71000, 4096) = 0 <0.000013>
+[pid   869] 10:07:39.275712 open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3</usr/lib/locale/locale-archive> <0.000012>
+[pid   869] 10:07:39.275752 fstat(3</usr/lib/locale/locale-archive>, {st_mode=S_IFREG|0644, st_size=109229520, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.275783 mmap(NULL, 109229520, PROT_READ, MAP_PRIVATE, 3</usr/lib/locale/locale-archive>, 0) = 0x7f2e26c5c000 <0.000019>
+[pid   869] 10:07:39.275833 close(3</usr/lib/locale/locale-archive>) = 0 <0.000007>
+[pid   869] 10:07:39.275950 open("/etc/wgetrc", O_RDONLY) = 3</etc/wgetrc> <0.000010>
+[pid   869] 10:07:39.275990 fstat(3</etc/wgetrc>, {st_mode=S_IFREG|0644, st_size=4925, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.276022 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c71000 <0.000009>
+[pid   869] 10:07:39.276050 read(3</etc/wgetrc>, "###\n### Sample Wget "..., 4096) = 4096 <0.000014>
+[pid   869] 10:07:39.276101 read(3</etc/wgetrc>, " can turn on recursi"..., 4096) = 829 <0.000009>
+[pid   869] 10:07:39.276136 read(3</etc/wgetrc>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.276167 close(3</etc/wgetrc>) = 0 <0.000009>
+[pid   869] 10:07:39.276195 munmap(0x7f2e32c71000, 4096) = 0 <0.000013>
+[pid   869] 10:07:39.276275 ioctl(2<pipe:[7274781]>, TCGETS, 0x7ffd61d81730) = -1 ENOTTY (Inappropriate ioctl for device) <0.000008>
+[pid   869] 10:07:39.276320 ioctl(2<pipe:[7274781]>, TCGETS, 0x7ffd61d81710) = -1 ENOTTY (Inappropriate ioctl for device) <0.000007>
+[pid   869] 10:07:39.276450 open("/home/rchateau/.wget-hsts", O_RDONLY) = 3</home/rchateau/.wget-hsts> <0.000011>
+[pid   869] 10:07:39.276488 fstat(3</home/rchateau/.wget-hsts>, {st_mode=S_IFREG|0664, st_size=250, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.276519 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c71000 <0.000009>
+[pid   869] 10:07:39.276546 read(3</home/rchateau/.wget-hsts>, "# HSTS 1.0 Known Hos"..., 4096) = 250 <0.000013>
+[pid   869] 10:07:39.276601 read(3</home/rchateau/.wget-hsts>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.276633 fstat(3</home/rchateau/.wget-hsts>, {st_mode=S_IFREG|0664, st_size=250, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.276664 close(3</home/rchateau/.wget-hsts>) = 0 <0.000009>
+[pid   869] 10:07:39.276692 munmap(0x7f2e32c71000, 4096) = 0 <0.000012>
+[pid   869] 10:07:39.276762 open("/usr/lib64/gconv/gconv-modules.cache", O_RDONLY) = 3</usr/lib64/gconv/gconv-modules.cache> <0.000013>
+[pid   869] 10:07:39.276805 fstat(3</usr/lib64/gconv/gconv-modules.cache>, {st_mode=S_IFREG|0644, st_size=26254, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.276852 mmap(NULL, 26254, PROT_READ, MAP_SHARED, 3</usr/lib64/gconv/gconv-modules.cache>, 0) = 0x7f2e32c6b000 <0.000010>
+[pid   869] 10:07:39.276885 close(3</usr/lib64/gconv/gconv-modules.cache>) = 0 <0.000008>
+[pid   869] 10:07:39.276988 open("/etc/localtime", O_RDONLY|O_CLOEXEC) = 3</usr/share/zoneinfo/Europe/London> <0.000011>
+[pid   869] 10:07:39.277025 fstat(3</usr/share/zoneinfo/Europe/London>, {st_mode=S_IFREG|0644, st_size=3687, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.277056 fstat(3</usr/share/zoneinfo/Europe/London>, {st_mode=S_IFREG|0644, st_size=3687, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.277086 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c6a000 <0.000010>
+[pid   869] 10:07:39.277113 read(3</usr/share/zoneinfo/Europe/London>, "TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096) = 3687 <0.000017>
+[pid   869] 10:07:39.277154 lseek(3</usr/share/zoneinfo/Europe/London>, -2347, SEEK_CUR) = 1340 <0.000008>
+[pid   869] 10:07:39.277183 read(3</usr/share/zoneinfo/Europe/London>, "TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096) = 2347 <0.000009>
+[pid   869] 10:07:39.277220 close(3</usr/share/zoneinfo/Europe/London>) = 0 <0.000008>
+[pid   869] 10:07:39.277248 munmap(0x7f2e32c6a000, 4096) = 0 <0.000010>
+[pid   869] 10:07:39.277287 write(2<pipe:[7274781]>, "--2018-03-27 10:07:3"..., 45--2018-03-27 10:07:39--  http://hotmail.com/
+) = 45 <0.000008>
+[pid   869] 10:07:39.277374 open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = 3</usr/share/locale/locale.alias> <0.000011>
+[pid   869] 10:07:39.277413 fstat(3</usr/share/locale/locale.alias>, {st_mode=S_IFREG|0644, st_size=2997, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.277443 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c6a000 <0.000009>
+[pid   869] 10:07:39.277470 read(3</usr/share/locale/locale.alias>, "# Locale name alias "..., 4096) = 2997 <0.000013>
+[pid   869] 10:07:39.277523 read(3</usr/share/locale/locale.alias>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.277553 close(3</usr/share/locale/locale.alias>) = 0 <0.000009>
+[pid   869] 10:07:39.277580 munmap(0x7f2e32c6a000, 4096) = 0 <0.000011>
+[pid   869] 10:07:39.277625 open("/usr/share/locale/en_GB.UTF-8/LC_MESSAGES/wget.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000010>
+[pid   869] 10:07:39.277656 open("/usr/share/locale/en_GB.utf8/LC_MESSAGES/wget.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000010>
+[pid   869] 10:07:39.277684 open("/usr/share/locale/en_GB/LC_MESSAGES/wget.mo", O_RDONLY) = 3</usr/share/locale/en_GB/LC_MESSAGES/wget.mo> <0.000012>
+[pid   869] 10:07:39.277721 fstat(3</usr/share/locale/en_GB/LC_MESSAGES/wget.mo>, {st_mode=S_IFREG|0644, st_size=8460, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.277752 mmap(NULL, 8460, PROT_READ, MAP_PRIVATE, 3</usr/share/locale/en_GB/LC_MESSAGES/wget.mo>, 0) = 0x7f2e32c68000 <0.000010>
+[pid   869] 10:07:39.277784 close(3</usr/share/locale/en_GB/LC_MESSAGES/wget.mo>) = 0 <0.000026>
+[pid   869] 10:07:39.277845 write(2<pipe:[7274781]>, "Resolving hotmail.co"..., 39Resolving hotmail.com (hotmail.com)... ) = 39 <0.000009>
+[pid   869] 10:07:39.277889 socket(PF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 3<UNIX:[7275785]> <0.000018>
+[pid   869] 10:07:39.278710 connect(3<UNIX:[7275785]>, {sa_family=AF_LOCAL, sun_path="/var/run/nscd/socket"}, 110) = -1 ENOENT (No such file or directory) <0.000023>
+[pid   869] 10:07:39.279165 close(3<UNIX:[7275785]>) = 0 <0.000013>
+[pid   869] 10:07:39.279560 socket(PF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 3<UNIX:[7275789]> <0.000010>
+[pid   869] 10:07:39.279974 connect(3<UNIX:[7275789]>, {sa_family=AF_LOCAL, sun_path="/var/run/nscd/socket"}, 110) = -1 ENOENT (No such file or directory) <0.000032>
+[pid   869] 10:07:39.280381 close(3<UNIX:[7275789]>) = 0 <0.000012>
+[pid   869] 10:07:39.280779 open("/etc/nsswitch.conf", O_RDONLY|O_CLOEXEC) = 3</etc/nsswitch.conf> <0.000017>
+[pid   869] 10:07:39.280825 fstat(3</etc/nsswitch.conf>, {st_mode=S_IFREG|0644, st_size=1769, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.280857 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c67000 <0.000012>
+[pid   869] 10:07:39.280887 read(3</etc/nsswitch.conf>, "#\n# /etc/nsswitch.co"..., 4096) = 1769 <0.000014>
+[pid   869] 10:07:39.280940 read(3</etc/nsswitch.conf>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.280969 close(3</etc/nsswitch.conf>) = 0 <0.000008>
+[pid   869] 10:07:39.280996 munmap(0x7f2e32c67000, 4096) = 0 <0.000014>
+[pid   869] 10:07:39.281030 open("/etc/host.conf", O_RDONLY|O_CLOEXEC) = 3</etc/host.conf> <0.000010>
+[pid   869] 10:07:39.281066 fstat(3</etc/host.conf>, {st_mode=S_IFREG|0644, st_size=9, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.281096 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c67000 <0.000009>
+[pid   869] 10:07:39.281123 read(3</etc/host.conf>, "multi on\n", 4096) = 9 <0.000012>
+[pid   869] 10:07:39.281158 read(3</etc/host.conf>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.281187 close(3</etc/host.conf>) = 0 <0.000009>
+[pid   869] 10:07:39.281214 munmap(0x7f2e32c67000, 4096) = 0 <0.000011>
+[pid   869] 10:07:39.281257 open("/etc/resolv.conf", O_RDONLY|O_CLOEXEC) = 3</etc/resolv.conf> <0.000011>
+[pid   869] 10:07:39.281293 fstat(3</etc/resolv.conf>, {st_mode=S_IFREG|0644, st_size=80, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.281323 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c67000 <0.000009>
+[pid   869] 10:07:39.281349 read(3</etc/resolv.conf>, "# Generated by Netwo"..., 4096) = 80 <0.000012>
+[pid   869] 10:07:39.281386 read(3</etc/resolv.conf>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.281414 close(3</etc/resolv.conf>) = 0 <0.000008>
+[pid   869] 10:07:39.281441 munmap(0x7f2e32c67000, 4096) = 0 <0.000010>
+[pid   869] 10:07:39.281500 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000011>
+[pid   869] 10:07:39.281538 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=124494, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.281568 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7f2e32c26000 <0.000010>
+[pid   869] 10:07:39.281599 close(3</etc/ld.so.cache>) = 0 <0.000008>
+[pid   869] 10:07:39.281637 open("/lib64/libnss_files.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libnss_files-2.21.so> <0.000013>
+[pid   869] 10:07:39.281675 read(3</usr/lib64/libnss_files-2.21.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.281707 fstat(3</usr/lib64/libnss_files-2.21.so>, {st_mode=S_IFREG|0755, st_size=62344, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.281741 mmap(NULL, 2148456, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libnss_files-2.21.so>, 0) = 0x7f2e26a4f000 <0.000012>
+[pid   869] 10:07:39.281776 mprotect(0x7f2e26a5b000, 2093056, PROT_NONE) = 0 <0.000015>
+[pid   869] 10:07:39.281828 mmap(0x7f2e26c5a000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libnss_files-2.21.so>, 0xb000) = 0x7f2e26c5a000 <0.000014>
+[pid   869] 10:07:39.281879 close(3</usr/lib64/libnss_files-2.21.so>) = 0 <0.000008>
+[pid   869] 10:07:39.281945 mprotect(0x7f2e26c5a000, 4096, PROT_READ) = 0 <0.000011>
+[pid   869] 10:07:39.281974 munmap(0x7f2e32c26000, 124494) = 0 <0.000018>
+[pid   869] 10:07:39.282014 open("/etc/hosts", O_RDONLY|O_CLOEXEC) = 3</etc/hosts> <0.000011>
+[pid   869] 10:07:39.282054 fstat(3</etc/hosts>, {st_mode=S_IFREG|0644, st_size=158, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.282086 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c67000 <0.000009>
+[pid   869] 10:07:39.282112 read(3</etc/hosts>, "127.0.0.1   localhos"..., 4096) = 158 <0.000012>
+[pid   869] 10:07:39.282155 read(3</etc/hosts>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.282186 close(3</etc/hosts>) = 0 <0.000009>
+[pid   869] 10:07:39.282213 munmap(0x7f2e32c67000, 4096) = 0 <0.000011>
+[pid   869] 10:07:39.282248 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000010>
+[pid   869] 10:07:39.282283 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=124494, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.282313 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7f2e32c26000 <0.000009>
+[pid   869] 10:07:39.282343 close(3</etc/ld.so.cache>) = 0 <0.000007>
+[pid   869] 10:07:39.282377 open("/lib64/libnss_mdns4_minimal.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libnss_mdns4_minimal.so.2> <0.000012>
+[pid   869] 10:07:39.282413 read(3</usr/lib64/libnss_mdns4_minimal.so.2>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000009>
+[pid   869] 10:07:39.282445 fstat(3</usr/lib64/libnss_mdns4_minimal.so.2>, {st_mode=S_IFREG|0755, st_size=11408, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.282478 mmap(NULL, 2105560, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libnss_mdns4_minimal.so.2>, 0) = 0x7f2e2684c000 <0.000011>
+[pid   869] 10:07:39.282510 mprotect(0x7f2e2684e000, 2093056, PROT_NONE) = 0 <0.000012>
+[pid   869] 10:07:39.282538 mmap(0x7f2e26a4d000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libnss_mdns4_minimal.so.2>, 0x1000) = 0x7f2e26a4d000 <0.000012>
+[pid   869] 10:07:39.282583 close(3</usr/lib64/libnss_mdns4_minimal.so.2>) = 0 <0.000007>
+[pid   869] 10:07:39.282625 mprotect(0x7f2e26a4d000, 4096, PROT_READ) = 0 <0.000011>
+[pid   869] 10:07:39.282652 munmap(0x7f2e32c26000, 124494) = 0 <0.000018>
+[pid   869] 10:07:39.282698 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000010>
+[pid   869] 10:07:39.282734 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=124494, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.282764 mmap(NULL, 124494, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7f2e32c26000 <0.000009>
+[pid   869] 10:07:39.282794 close(3</etc/ld.so.cache>) = 0 <0.000008>
+[pid   869] 10:07:39.282833 open("/lib64/libnss_dns.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libnss_dns-2.21.so> <0.000013>
+[pid   869] 10:07:39.282871 read(3</usr/lib64/libnss_dns-2.21.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0"..., 832) = 832 <0.000008>
+[pid   869] 10:07:39.282903 fstat(3</usr/lib64/libnss_dns-2.21.so>, {st_mode=S_IFREG|0755, st_size=31872, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.282942 mmap(NULL, 2121984, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libnss_dns-2.21.so>, 0) = 0x7f2e26645000 <0.000011>
+[pid   869] 10:07:39.282974 mprotect(0x7f2e2664a000, 2097152, PROT_NONE) = 0 <0.000012>
+[pid   869] 10:07:39.283002 mmap(0x7f2e2684a000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libnss_dns-2.21.so>, 0x5000) = 0x7f2e2684a000 <0.000013>
+[pid   869] 10:07:39.283049 close(3</usr/lib64/libnss_dns-2.21.so>) = 0 <0.000007>
+[pid   869] 10:07:39.283101 mprotect(0x7f2e2684a000, 4096, PROT_READ) = 0 <0.000011>
+[pid   869] 10:07:39.283128 munmap(0x7f2e32c26000, 124494) = 0 <0.000017>
+[pid   869] 10:07:39.283177 socket(PF_INET, SOCK_DGRAM|SOCK_NONBLOCK, IPPROTO_IP) = 3<UDP:[7275793]> <0.000014>
+[pid   869] 10:07:39.283271 connect(3<UDP:[7275793]>, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("194.168.4.100")}, 16) = 0 <0.000020>
+[pid   869] 10:07:39.283361 poll([{fd=3<UDP:[192.168.0.17:54913->194.168.4.100:53]>, events=POLLOUT}], 1, 0) = 1 ([{fd=3, revents=POLLOUT}]) <0.000010>
+[pid   869] 10:07:39.283431 sendmmsg(3<UDP:[192.168.0.17:54913->194.168.4.100:53]>, {{{msg_name(0)=NULL, msg_iov(1)=[{";n\1\0\0\1\0\0\0\0\0\0\7hotmail"..., 29}], msg_controllen=0, msg_flags=0}, 29}, {{msg_name(0)=NULL, msg_iov(1)=[{"\343\350\1\0\0\1\0\0\0\0\0\0\7hotmail"..., 29}], msg_controllen=0, msg_flags=0}, 29}}, 2, MSG_NOSIGNAL) = 2 <0.000069>
+[pid   869] 10:07:39.283563 poll([{fd=3<UDP:[192.168.0.17:54913->194.168.4.100:53]>, events=POLLIN}], 1, 5000) = 1 ([{fd=3, revents=POLLIN}]) <0.022610>
+[pid   869] 10:07:39.306253 ioctl(3<UDP:[192.168.0.17:54913->194.168.4.100:53]>, FIONREAD, [45]) = 0 <0.000012>
+[pid   869] 10:07:39.306378 recvfrom(3<UDP:[192.168.0.17:54913->194.168.4.100:53]>, ";n\201\200\0\1\0\1\0\0\0\0\7hotmail"..., 2048, 0, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("194.168.4.100")}, [16]) = 45 <0.000014>
+[pid   869] 10:07:39.306480 poll([{fd=3<UDP:[192.168.0.17:54913->194.168.4.100:53]>, events=POLLIN}], 1, 4976) = 1 ([{fd=3, revents=POLLIN}]) <0.005131>
+[pid   869] 10:07:39.311689 ioctl(3<UDP:[192.168.0.17:54913->194.168.4.100:53]>, FIONREAD, [94]) = 0 <0.000015>
+[pid   869] 10:07:39.311797 brk(NULL)   = 0x2095000 <0.000013>
+[pid   869] 10:07:39.311871 brk(0x20bc000) = 0x20bc000 <0.000017>
+[pid   869] 10:07:39.311921 recvfrom(3<UDP:[192.168.0.17:54913->194.168.4.100:53]>, "\343\350\201\200\0\1\0\0\0\1\0\0\7hotmail"..., 65536, 0, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("194.168.4.100")}, [16]) = 94 <0.000017>
+[pid   869] 10:07:39.312040 close(3<UDP:[192.168.0.17:54913->194.168.4.100:53]>) = 0 <0.000020>
+[pid   869] 10:07:39.312165 brk(NULL)   = 0x20bc000 <0.000012>
+[pid   869] 10:07:39.312204 brk(NULL)   = 0x20bc000 <0.000011>
+[pid   869] 10:07:39.312240 brk(0x20ac000) = 0x20ac000 <0.000020>
+[pid   869] 10:07:39.312286 brk(NULL)   = 0x20ac000 <0.000012>
+[pid   869] 10:07:39.312348 write(2<pipe:[7274781]>, "204.79.197.212", 14204.79.197.212) = 14 <0.000014>
+[pid   869] 10:07:39.312404 write(2<pipe:[7274781]>, "\n", 1
+) = 1 <0.000014>
+[pid   869] 10:07:39.312483 open("/usr/share/locale/en.UTF-8/LC_MESSAGES/wget.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000018>
+[pid   869] 10:07:39.312538 open("/usr/share/locale/en/LC_MESSAGES/wget.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000018>
+[pid   869] 10:07:39.312593 write(2<pipe:[7274781]>, "Connecting to hotmai"..., 62Connecting to hotmail.com (hotmail.com)|204.79.197.212|:80... ) = 62 <0.000013>
+[pid   869] 10:07:39.312648 socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 3<TCP:[7275805]> <0.000020>
+[pid   869] 10:07:39.312989 connect(3<TCP:[7275805]>, {sa_family=AF_INET, sin_port=htons(80), sin_addr=inet_addr("204.79.197.212")}, 16) = 0 <0.027792>
+[pid   869] 10:07:39.341024 write(2<pipe:[7274781]>, "connected.\n", 11connected.
+) = 11 <0.000014>
+[pid   869] 10:07:39.341101 select(4, NULL, [3<TCP:[192.168.0.17:48318->204.79.197.212:80]>], NULL, {900, 0}) = 1 (out [3], left {899, 999996}) <0.000019>
+[pid   869] 10:07:39.341430 write(3<TCP:[192.168.0.17:48318->204.79.197.212:80]>, "GET / HTTP/1.1\r\nUser"..., 136) = 136 <0.000040>
+[pid   869] 10:07:39.341702 write(2<pipe:[7274781]>, "HTTP request sent, a"..., 40HTTP request sent, awaiting response... ) = 40 <0.000014>
+[pid   869] 10:07:39.341761 select(4, [3<TCP:[192.168.0.17:48318->204.79.197.212:80]>], NULL, NULL, {900, 0}) = 1 (in [3], left {899, 968740}) <0.031286>
+[pid   869] 10:07:39.373335 recvfrom(3<TCP:[192.168.0.17:48318->204.79.197.212:80]>, "HTTP/1.1 301 Moved P"..., 511, MSG_PEEK, NULL, NULL) = 263 <0.000019>
+[pid   869] 10:07:39.373657 read(3<TCP:[192.168.0.17:48318->204.79.197.212:80]>, "HTTP/1.1 301 Moved P"..., 263) = 263 <0.000018>
+[pid   869] 10:07:39.373964 write(2<pipe:[7274781]>, "301 Moved Permanentl"..., 22301 Moved Permanently
+) = 22 <0.000011>
+[pid   869] 10:07:39.374056 write(2<pipe:[7274781]>, "Location: https://ou"..., 52Location: https://outlook.live.com/owa/ [following]
+) = 52 <0.000010>
+[pid   869] 10:07:39.374249 write(2<pipe:[7274781]>, "--2018-03-27 10:07:3"..., 55--2018-03-27 10:07:39--  https://outlook.live.com/owa/
+) = 55 <0.000011>
+[pid   869] 10:07:39.374362 open("/etc/pki/tls/openssl.cnf", O_RDONLY) = 4</etc/pki/tls/openssl.cnf> <0.000018>
+[pid   869] 10:07:39.374430 fstat(4</etc/pki/tls/openssl.cnf>, {st_mode=S_IFREG|0644, st_size=10923, ...}) = 0 <0.000010>
+[pid   869] 10:07:39.374472 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c67000 <0.000016>
+[pid   869] 10:07:39.374511 read(4</etc/pki/tls/openssl.cnf>, "#\n# OpenSSL example "..., 4096) = 4096 <0.000018>
+[pid   869] 10:07:39.374641 read(4</etc/pki/tls/openssl.cnf>, "ancient versions of "..., 4096) = 4096 <0.000012>
+[pid   869] 10:07:39.374747 read(4</etc/pki/tls/openssl.cnf>, "gainst PKIX guidelin"..., 4096) = 2731 <0.000011>
+[pid   869] 10:07:39.374839 read(4</etc/pki/tls/openssl.cnf>, "", 4096) = 0 <0.000010>
+[pid   869] 10:07:39.374884 close(4</etc/pki/tls/openssl.cnf>) = 0 <0.000011>
+[pid   869] 10:07:39.374919 munmap(0x7f2e32c67000, 4096) = 0 <0.000016>
+[pid   869] 10:07:39.375000 open("/dev/urandom", O_RDONLY|O_NOCTTY|O_NONBLOCK) = 4</dev/urandom> <0.000017>
+[pid   869] 10:07:39.375051 fstat(4</dev/urandom>, {st_mode=S_IFCHR|0666, st_rdev=makedev(1, 9), ...}) = 0 <0.000010>
+[pid   869] 10:07:39.375093 poll([{fd=4</dev/urandom>, events=POLLIN}], 1, 10) = 1 ([{fd=4, revents=POLLIN}]) <0.000011>
+[pid   869] 10:07:39.375138 read(4</dev/urandom>, "L\206\25\350\274\232w\302\207\370\226\271r\33b\0+\262\273~"..., 48) = 48 <0.000017>
+[pid   869] 10:07:39.375185 close(4</dev/urandom>) = 0 <0.000010>
+[pid   869] 10:07:39.375276 open("/etc/pki/tls/openssl.cnf", O_RDONLY) = 4</etc/pki/tls/openssl.cnf> <0.000013>
+[pid   869] 10:07:39.375326 fstat(4</etc/pki/tls/openssl.cnf>, {st_mode=S_IFREG|0644, st_size=10923, ...}) = 0 <0.000010>
+[pid   869] 10:07:39.375365 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c67000 <0.000012>
+[pid   869] 10:07:39.375400 read(4</etc/pki/tls/openssl.cnf>, "#\n# OpenSSL example "..., 4096) = 4096 <0.000016>
+[pid   869] 10:07:39.375510 read(4</etc/pki/tls/openssl.cnf>, "ancient versions of "..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.375610 read(4</etc/pki/tls/openssl.cnf>, "gainst PKIX guidelin"..., 4096) = 2731 <0.000010>
+[pid   869] 10:07:39.375687 read(4</etc/pki/tls/openssl.cnf>, "", 4096) = 0 <0.000010>
+[pid   869] 10:07:39.375727 close(4</etc/pki/tls/openssl.cnf>) = 0 <0.000011>
+[pid   869] 10:07:39.375762 munmap(0x7f2e32c67000, 4096) = 0 <0.000014>
+[pid   869] 10:07:39.375968 open("/usr/share/locale/en_GB.UTF-8/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000014>
+[pid   869] 10:07:39.376010 open("/usr/share/locale/en_GB.utf8/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000012>
+[pid   869] 10:07:39.376047 open("/usr/share/locale/en_GB/LC_MESSAGES/libc.mo", O_RDONLY) = 4</usr/share/locale/en_GB/LC_MESSAGES/libc.mo> <0.000015>
+[pid   869] 10:07:39.376093 fstat(4</usr/share/locale/en_GB/LC_MESSAGES/libc.mo>, {st_mode=S_IFREG|0644, st_size=1474, ...}) = 0 <0.000010>
+[pid   869] 10:07:39.376132 mmap(NULL, 1474, PROT_READ, MAP_PRIVATE, 4</usr/share/locale/en_GB/LC_MESSAGES/libc.mo>, 0) = 0x7f2e32c67000 <0.000014>
+[pid   869] 10:07:39.376173 close(4</usr/share/locale/en_GB/LC_MESSAGES/libc.mo>) = 0 <0.000009>
+[pid   869] 10:07:39.376214 open("/usr/share/locale/en.UTF-8/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000013>
+[pid   869] 10:07:39.376251 open("/usr/share/locale/en.utf8/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000013>
+[pid   869] 10:07:39.376288 open("/usr/share/locale/en/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory) <0.000015>
+[pid   869] 10:07:39.378141 brk(NULL)   = 0x20ac000 <0.000008>
+[pid   869] 10:07:39.378168 brk(0x20cd000) = 0x20cd000 <0.000011>
+[pid   869] 10:07:39.378282 open("/etc/crypto-policies/back-ends/openssl.config", O_RDONLY) = 4</etc/crypto-policies/back-ends/openssl.config> <0.000014>
+[pid   869] 10:07:39.378330 fstat(4</etc/crypto-policies/back-ends/openssl.config>, {st_mode=S_IFREG|0644, st_size=115, ...}) = 0 <0.000007>
+[pid   869] 10:07:39.378362 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c66000 <0.000010>
+[pid   869] 10:07:39.378391 read(4</etc/crypto-policies/back-ends/openssl.config>, "!SSLv2:kEECDH:kRSA:k"..., 4096) = 115 <0.000014>
+[pid   869] 10:07:39.378432 close(4</etc/crypto-policies/back-ends/openssl.config>) = 0 <0.000009>
+[pid   869] 10:07:39.378461 munmap(0x7f2e32c66000, 4096) = 0 <0.000011>
+[pid   869] 10:07:39.378640 open("/etc/pki/tls/cert.pem", O_RDONLY) = 4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem> <0.000015>
+[pid   869] 10:07:39.378685 fstat(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, {st_mode=S_IFREG|0444, st_size=254799, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.378717 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c66000 <0.000009>
+[pid   869] 10:07:39.378745 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "-----BEGIN CERTIFICA"..., 4096) = 4096 <0.000014>
+[pid   869] 10:07:39.378971 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "F1aWZheCBTZWN1cmUgSW"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.379211 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "S5jb20wHhcNOTYwODAx\n"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.379456 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "WjCBmzELMAkGA1UE\nBhM"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.379624 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "oXDTI4MDQxMzE2MjQyMl"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.379777 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "eHRlcm5hbCBDQSBSb290"..., 4096) = 4096 <0.000009>
+[pid   869] 10:07:39.379933 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "rcVZLJR2bYGozH7ZxOmu"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.380096 brk(NULL)   = 0x20cd000 <0.000008>
+[pid   869] 10:07:39.380121 brk(0x20ee000) = 0x20ee000 <0.000010>
+[pid   869] 10:07:39.380214 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "TE-----\nMIIFRjCCAy6g"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.380382 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "QQG\nEwJERTAeFw0xMTA3"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.380518 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "EB/wQIMAYBAf8CAQMwDg"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.380696 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "+JzeOIuOoTyrvYLs9\ntz"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.380847 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "sPzwfPrLgVv2RvPN3YEy"..., 4096) = 4096 <0.000009>
+[pid   869] 10:07:39.381027 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "AyMQswCQYDVQQGEwJDTj"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.381215 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "PmNHrZFGvnnLOFoIJ6dq"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.381377 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "uLm9yZy9jaGFtYmVyc2l"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.381566 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "AR5vpTESOH2VwnHu\n7XS"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.381629 brk(NULL)   = 0x20ee000 <0.000008>
+[pid   869] 10:07:39.381653 brk(0x210f000) = 0x210f000 <0.000010>
+[pid   869] 10:07:39.381771 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "UdHwQwMC4wLKAqoCiGJm"..., 4096) = 4096 <0.000009>
+[pid   869] 10:07:39.381976 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "CBvkIApPjW/jAux9JG9u"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.382147 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "SIRLIOTJCBumD1Z9S7eV"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.382346 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "taXRlZDElMCMGA1UEAww"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.382484 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "zbNi5stPvZR1FDUWSi9g"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.382667 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "JmwN0jP41ZL9c8PDHIyh"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.382849 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "9W3jfMw3+qBCe703e4Yt"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.383077 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "tUPO\nZ9wj/wMco+I+o0I"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.383157 brk(NULL)   = 0x210f000 <0.000007>
+[pid   869] 10:07:39.383181 brk(0x2130000) = 0x2130000 <0.000010>
+[pid   869] 10:07:39.383327 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "CaWxpxZ9pbSBUZWtub2x"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.383489 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "UkpMSgwJgYDVQQLEx9TZ"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.383657 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "p+XtIpGmG4zU/\nHoZden"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.383878 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "co2gvCoe9amsOXmXzHHf"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.384064 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "DggEBAFpwfyzdtzRP9YZ"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.384251 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "5lGiku8SfPeE0zTBGi1Q"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.384427 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "--\n-----BEGIN CERTIF"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.384637 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "Zpcm1hIFMuQS4xJzAlBg"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.384678 brk(NULL)   = 0x2130000 <0.000007>
+[pid   869] 10:07:39.384702 brk(0x2151000) = 0x2151000 <0.000010>
+[pid   869] 10:07:39.384853 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "AlVTMRAwDgYDVQQIEwdB"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.385040 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "TBVBhcmlzMRAwDgYDVQQ"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.385200 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "BsB5wIDAQABo0IwQDAOB"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.385340 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "AG0AaQBz\nAGUAawBzMCE"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.385507 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "4okxFnMUBBjjqqpGrCEG"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.385707 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "dsb2JhbCBSb290IEdBIE"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.385872 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "UmFpeiBkZWwgRXN0YWRv"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.386062 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "0DmVIB0jWe\nrNrwU8lmP"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.386198 brk(NULL)   = 0x2151000 <0.000008>
+[pid   869] 10:07:39.386222 brk(0x2172000) = 0x2172000 <0.000009>
+[pid   869] 10:07:39.386260 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "cW34Sas+\nO7q414AB+6X"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.386405 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "cqs7rN2nXrpixurazHb+"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.386537 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "gAGwAYQAgAHAAcgBlAHM"..., 4096) = 4096 <0.000009>
+[pid   869] 10:07:39.386722 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "nDi+BeuK1cobvomuL8A/"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.386927 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "wS08Ft1ENCcadfsCAwEA"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.387096 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "wUAA4ICAQDPdyxuVr5Os"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.387241 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "UXQ4DO1t3ApyEtg2YXzT"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.387433 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "CggEBANUMOsQq+U7i9b4"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.387600 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "A4ICDwAwggIKAoICAQDB"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.387713 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "D CERTIFICATE-----\n-"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.387794 brk(NULL)   = 0x2172000 <0.000008>
+[pid   869] 10:07:39.387834 brk(0x2193000) = 0x2193000 <0.000010>
+[pid   869] 10:07:39.387929 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "CERTIFICATE-----\n---"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.388081 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "e0ZESEOnN3col49XtmS+"..., 4096) = 4096 <0.000009>
+[pid   869] 10:07:39.388279 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "genasfb3ZJNW4t/zN\n8E"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.388435 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "G3njxPPyBJUgriOCxLM6"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.388620 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "TPHSiXk+TT2YqGHe\nOh7"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.388753 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "IDRM5n\noN+J1q2MdqMTw"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.389026 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "F3jCCA8agAwIBAgIQAf1"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.389198 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "VMxFzAVBgNVBAoTDlZlc"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.389347 brk(NULL)   = 0x2193000 <0.000007>
+[pid   869] 10:07:39.389371 brk(0x21b4000) = 0x21b4000 <0.000009>
+[pid   869] 10:07:39.389421 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "2pSXpXDrrB2+\nBxHw1dv"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.389627 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "0nMKaqGBi6SBiDCBhTEL"..., 4096) = 4096 <0.000010>
+[pid   869] 10:07:39.389780 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "/81XwVRHmyjdanPUIPTf"..., 4096) = 4096 <0.000015>
+[pid   869] 10:07:39.389969 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "yy/vv9haLdnG7t4TY3OZ"..., 4096) = 4096 <0.000011>
+[pid   869] 10:07:39.390163 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "r8nLPvb2FvdeHsbnndm\n"..., 4096) = 847 <0.000010>
+[pid   869] 10:07:39.390265 read(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.390303 close(4</etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem>) = 0 <0.000012>
+[pid   869] 10:07:39.390336 munmap(0x7f2e32c66000, 4096) = 0 <0.000015>
+[pid   869] 10:07:39.391083 open("/proc/meminfo", O_RDONLY|O_CLOEXEC) = 4</proc/meminfo> <0.000033>
+[pid   869] 10:07:39.391155 fstat(4</proc/meminfo>, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.391192 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c66000 <0.000017>
+[pid   869] 10:07:39.391229 read(4</proc/meminfo>, "MemTotal:        404"..., 1024) = 1024 <0.000042>
+[pid   869] 10:07:39.391305 close(4</proc/meminfo>) = 0 <0.000016>
+[pid   869] 10:07:39.391341 munmap(0x7f2e32c66000, 4096) = 0 <0.000013>
+[pid   869] 10:07:39.391905 write(2<pipe:[7274781]>, "Resolving outlook.li"..., 49Resolving outlook.live.com (outlook.live.com)... ) = 49 <0.000009>
+[pid   869] 10:07:39.391953 open("/etc/hosts", O_RDONLY|O_CLOEXEC) = 4</etc/hosts> <0.000012>
+[pid   869] 10:07:39.391994 fstat(4</etc/hosts>, {st_mode=S_IFREG|0644, st_size=158, ...}) = 0 <0.000008>
+[pid   869] 10:07:39.392025 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c66000 <0.000010>
+[pid   869] 10:07:39.392053 read(4</etc/hosts>, "127.0.0.1   localhos"..., 4096) = 158 <0.000014>
+[pid   869] 10:07:39.392094 read(4</etc/hosts>, "", 4096) = 0 <0.000008>
+[pid   869] 10:07:39.392123 close(4</etc/hosts>) = 0 <0.000008>
+[pid   869] 10:07:39.392151 munmap(0x7f2e32c66000, 4096) = 0 <0.000011>
+[pid   869] 10:07:39.392193 socket(PF_INET, SOCK_DGRAM|SOCK_NONBLOCK, IPPROTO_IP) = 4<UDP:[7274786]> <0.000015>
+[pid   869] 10:07:39.392301 connect(4<UDP:[7274786]>, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("194.168.4.100")}, 16) = 0 <0.000021>
+[pid   869] 10:07:39.392374 poll([{fd=4<UDP:[192.168.0.17:43224->194.168.4.100:53]>, events=POLLOUT}], 1, 0) = 1 ([{fd=4, revents=POLLOUT}]) <0.000009>
+[pid   869] 10:07:39.392441 sendmmsg(4<UDP:[192.168.0.17:43224->194.168.4.100:53]>, {{{msg_name(0)=NULL, msg_iov(1)=[{"1&\1\0\0\1\0\0\0\0\0\0\7outlook"..., 34}], msg_controllen=0, msg_flags=0}, 34}, {{msg_name(0)=NULL, msg_iov(1)=[{"\333z\1\0\0\1\0\0\0\0\0\0\7outlook"..., 34}], msg_controllen=0, msg_flags=0}, 34}}, 2, MSG_NOSIGNAL) = 2 <0.000069>
+[pid   869] 10:07:39.392572 poll([{fd=4<UDP:[192.168.0.17:43224->194.168.4.100:53]>, events=POLLIN}], 1, 5000) = 1 ([{fd=4, revents=POLLIN}]) <0.016337>
+[pid   869] 10:07:39.408991 ioctl(4<UDP:[192.168.0.17:43224->194.168.4.100:53]>, FIONREAD, [200]) = 0 <0.000012>
+[pid   869] 10:07:39.409102 recvfrom(4<UDP:[192.168.0.17:43224->194.168.4.100:53]>, "1&\201\200\0\1\0\5\0\0\0\0\7outlook"..., 2048, 0, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("194.168.4.100")}, [16]) = 200 <0.000014>
+[pid   869] 10:07:39.409192 poll([{fd=4<UDP:[192.168.0.17:43224->194.168.4.100:53]>, events=POLLIN}], 1, 4983) = 1 ([{fd=4, revents=POLLIN}]) <0.006949>
+[pid   869] 10:07:39.416223 ioctl(4<UDP:[192.168.0.17:43224->194.168.4.100:53]>, FIONREAD, [212]) = 0 <0.000016>
+[pid   869] 10:07:39.416361 brk(NULL)   = 0x21b4000 <0.000012>
+[pid   869] 10:07:39.416400 brk(0x21d7000) = 0x21d7000 <0.000016>
+[pid   869] 10:07:39.416449 recvfrom(4<UDP:[192.168.0.17:43224->194.168.4.100:53]>, "\333z\201\200\0\1\0\5\0\0\0\0\7outlook"..., 65536, 0, {sa_family=AF_INET, sin_port=htons(53), sin_addr=inet_addr("194.168.4.100")}, [16]) = 212 <0.000016>
+[pid   869] 10:07:39.416561 close(4<UDP:[192.168.0.17:43224->194.168.4.100:53]>) = 0 <0.000020>
+[pid   869] 10:07:39.416697 brk(NULL)   = 0x21d7000 <0.000012>
+[pid   869] 10:07:39.416737 brk(NULL)   = 0x21d7000 <0.000011>
+[pid   869] 10:07:39.416773 brk(0x21c7000) = 0x21c7000 <0.000027>
+[pid   869] 10:07:39.416827 brk(NULL)   = 0x21c7000 <0.000011>
+[pid   869] 10:07:39.416870 open("/etc/gai.conf", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory) <0.000016>
+[pid   869] 10:07:39.416946 socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE) = 4<NETLINK:[7274795]> <0.000017>
+[pid   869] 10:07:39.417016 bind(4<NETLINK:[7274795]>, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0 <0.000015>
+[pid   869] 10:07:39.417084 getsockname(4<NETLINK:[7274795]>, {sa_family=AF_NETLINK, pid=869, groups=00000000}, [12]) = 0 <0.000013>
+[pid   869] 10:07:39.417151 sendto(4<NETLINK:[7274795]>, "\24\0\0\0\26\0\1\3\333\t\272Z\0\0\0\0\0\0\0\0", 20, 0, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 20 <0.000028>
+[pid   869] 10:07:39.417233 recvmsg(4<NETLINK:[7274795]>, {msg_name(12)={sa_family=AF_NETLINK, pid=0, groups=00000000}, msg_iov(1)=[{"L\0\0\0\24\0\2\0\333\t\272Ze\3\0\0\2\10\200\376"..., 4096}], msg_controllen=0, msg_flags=0}, 0) = 252 <0.000024>
+[pid   869] 10:07:39.417320 recvmsg(4<NETLINK:[7274795]>, {msg_name(12)={sa_family=AF_NETLINK, pid=0, groups=00000000}, msg_iov(1)=[{"H\0\0\0\24\0\2\0\333\t\272Ze\3\0\0\n\200\200\376"..., 4096}], msg_controllen=0, msg_flags=0}, 0) = 144 <0.000018>
+[pid   869] 10:07:39.417399 recvmsg(4<NETLINK:[7274795]>, {msg_name(12)={sa_family=AF_NETLINK, pid=0, groups=00000000}, msg_iov(1)=[{"\24\0\0\0\3\0\2\0\333\t\272Ze\3\0\0\0\0\0\0", 4096}], msg_controllen=0, msg_flags=0}, 0) = 20 <0.000016>
+[pid   869] 10:07:39.417473 close(4<NETLINK:[7274795]>) = 0 <0.000017>
+[pid   869] 10:07:39.417539 socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 4<UDP:[7274804]> <0.000016>
+[pid   869] 10:07:39.417638 connect(4<UDP:[7274804]>, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("13.107.42.11")}, 16) = 0 <0.000023>
+[pid   869] 10:07:39.417744 getsockname(4<UDP:[192.168.0.17:36066->13.107.42.11:0]>, {sa_family=AF_INET, sin_port=htons(36066), sin_addr=inet_addr("192.168.0.17")}, [16]) = 0 <0.000015>
+[pid   869] 10:07:39.417881 close(4<UDP:[192.168.0.17:36066->13.107.42.11:0]>) = 0 <0.000019>
+[pid   869] 10:07:39.417977 socket(PF_INET6, SOCK_DGRAM, IPPROTO_IP) = 4<UDPv6:[7275814]> <0.000015>
+[pid   869] 10:07:39.418055 connect(4<UDPv6:[7275814]>, {sa_family=AF_INET6, sin6_port=htons(0), inet_pton(AF_INET6, "2620:1ec:21::11", &sin6_addr), sin6_flowinfo=0, sin6_scope_id=0}, 28) = -1 ENETUNREACH (Network is unreachable) <0.000025>
+[pid   869] 10:07:39.418143 close(4<UDPv6:[:::33727->2620:1ec:21::11:0]>) = 0 <0.000015>
+[pid   869] 10:07:39.418221 write(2<pipe:[7274781]>, "13.107.42.11", 1213.107.42.11) = 12 <0.000011>
+[pid   869] 10:07:39.418265 write(2<pipe:[7274781]>, ", ", 2, ) = 2 <0.000011>
+[pid   869] 10:07:39.418306 write(2<pipe:[7274781]>, "2620:1ec:21::11", 152620:1ec:21::11) = 15 <0.000010>
+[pid   869] 10:07:39.418345 write(2<pipe:[7274781]>, "\n", 1
+) = 1 <0.000010>
+[pid   869] 10:07:39.418402 write(2<pipe:[7274781]>, "Connecting to outloo"..., 71Connecting to outlook.live.com (outlook.live.com)|13.107.42.11|:443... ) = 71 <0.000011>
+[pid   869] 10:07:39.418442 socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 4<TCP:[7275815]> <0.000015>
+[pid   869] 10:07:39.418789 connect(4<TCP:[7275815]>, {sa_family=AF_INET, sin_port=htons(443), sin_addr=inet_addr("13.107.42.11")}, 16) = 0 <0.027108>
+[pid   869] 10:07:39.446498 write(2<pipe:[7274781]>, "connected.\n", 11connected.
+) = 11 <0.000016>
+[pid   869] 10:07:39.446765 write(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\26\3\1\0\343\1\0\0\337\3\3\327\367\236\27\367j\321\346&"..., 232) = 232 <0.000041>
+[pid   869] 10:07:39.447392 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\26\3\3\16\317\2\0", 7) = 7 <0.035832>
+[pid   869] 10:07:39.483767 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\0M\3\3Z\272\t\333\366\276l\317q\340\332\232\276\262\257\312"..., 3789) = 3789 <0.000031>
+[pid   869] 10:07:39.489561 write(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\26\3\3\0F\20\0\0BA\4\320f!\245\322f\212W&"..., 126) = 126 <0.000040>
+[pid   869] 10:07:39.489784 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\24\3\3\0\1", 5) = 5 <0.025352>
+[pid   869] 10:07:39.515304 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\1", 1) = 1 <0.000011>
+[pid   869] 10:07:39.515556 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\26\3\3\0(", 5) = 5 <0.000014>
+[pid   869] 10:07:39.515921 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\0\0\0\0\0\0\0\0#\331a]l\7\332Z\342E\370\334"..., 40) = 40 <0.000013>
+[pid   869] 10:07:39.516406 select(5, NULL, [4<TCP:[192.168.0.17:53788->13.107.42.11:443]>], NULL, {900, 0}) = 1 (out [4], left {899, 999997}) <0.000014>
+[pid   869] 10:07:39.516819 write(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\27\3\3\0\2511\271\263y\3019\321A\320~\362\337\371\351\361"..., 174) = 174 <0.000035>
+[pid   869] 10:07:39.517190 write(2<pipe:[7274781]>, "HTTP request sent, a"..., 40HTTP request sent, awaiting response... ) = 40 <0.000014>
+[pid   869] 10:07:39.517419 select(5, [4<TCP:[192.168.0.17:53788->13.107.42.11:443]>], NULL, NULL, {900, 0}) = 1 (in [4], left {899, 959149}) <0.040866>
+[pid   869] 10:07:39.558847 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\27\3\3\n`", 5) = 5 <0.000021>
+[pid   869] 10:07:39.559448 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\0\0\0\0\0\0\0\1?\233\f\306\271\25\260\311\364\337*\376"..., 2656) = 2656 <0.000023>
+[pid   869] 10:07:39.560611 write(2<pipe:[7274781]>, "200 OK\n", 7200 OK
+) = 7 <0.000050>
+[pid   869] 10:07:39.561178 close(3<TCP:[192.168.0.17:48318->204.79.197.212:80]>) = 0 <0.000044>
+[pid   869] 10:07:39.561769 write(2<pipe:[7274781]>, "Length: ", 8Length: ) = 8 <0.000050>
+[pid   869] 10:07:39.562115 write(2<pipe:[7274781]>, "4315", 44315) = 4 <0.000022>
+[pid   869] 10:07:39.562436 write(2<pipe:[7274781]>, " (4.2K)", 7 (4.2K)) = 7 <0.000022>
+[pid   869] 10:07:39.562755 write(2<pipe:[7274781]>, " [text/html]\n", 13 [text/html]
+) = 13 <0.000056>
+[pid   869] 10:07:39.563158 open("/tmp/hotmail.com/index.html", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3</tmp/hotmail.com/index.html> <0.000036>
+[pid   869] 10:07:39.563529 open("/usr/lib64/charset.alias", O_RDONLY|O_NOFOLLOW) = -1 ENOENT (No such file or directory) <0.000019>
+[pid   869] 10:07:39.563821 write(2<pipe:[7274781]>, "Saving to: \342\200\230/tmp/h"..., 45Saving to: ‘/tmp/hotmail.com/index.html’
+) = 45 <0.000047>
+[pid   869] 10:07:39.564335 fstat(3</tmp/hotmail.com/index.html>, {st_mode=S_IFREG|0664, st_size=0, ...}) = 0 <0.000014>
+[pid   869] 10:07:39.564714 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f2e32c66000 <0.000020>
+[pid   869] 10:07:39.565083 write(3</tmp/hotmail.com/index.html>, "\r\n<!DOCTYPE html>\r\n<"..., 170) = 170 <0.000027>
+[pid   869] 10:07:39.565429 select(5, [4<TCP:[192.168.0.17:53788->13.107.42.11:443]>], NULL, NULL, {900, 0}) = 1 (in [4], left {899, 999996}) <0.000022>
+[pid   869] 10:07:39.566146 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\27\3\3\20I", 5) = 5 <0.000018>
+[pid   869] 10:07:39.566654 read(4<TCP:[192.168.0.17:53788->13.107.42.11:443]>, "\0\0\0\0\0\0\0\2M\2062\363\207\275c\377\260^\336U"..., 4169) = 4169 <0.000020>
+[pid   869] 10:07:39.567554 write(3</tmp/hotmail.com/index.html>, "   <meta http-equiv="..., 4096) = 4096 <0.000026>
+[pid   869] 10:07:39.567849 write(3</tmp/hotmail.com/index.html>, "ibility:hidden;displ"..., 49) = 49 <0.000066>
+[pid   869] 10:07:39.568127 write(2<pipe:[7274781]>, "\n     0K", 8
+     0K) = 8 <0.000029>
+[pid   869] 10:07:39.568331 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000013>
+[pid   869] 10:07:39.568508 write(2<pipe:[7274781]>, ".", 1.) = 1 <0.000012>
+[pid   869] 10:07:39.568685 write(2<pipe:[7274781]>, ".", 1.) = 1 <0.000010>
+[pid   869] 10:07:39.568722 write(2<pipe:[7274781]>, ".", 1.) = 1 <0.000010>
+[pid   869] 10:07:39.568755 write(2<pipe:[7274781]>, ".", 1.) = 1 <0.000010>
+[pid   869] 10:07:39.568788 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.568833 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.568867 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.568898 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.568930 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.568963 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.568996 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569028 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569061 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569095 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569128 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569159 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569191 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569224 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569256 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569289 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569321 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000011>
+[pid   869] 10:07:39.569356 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569387 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000008>
+[pid   869] 10:07:39.569419 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569451 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569484 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569516 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569549 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569581 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569613 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569645 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569676 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569717 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569750 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569783 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000028>
+[pid   869] 10:07:39.569835 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.569869 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569900 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569932 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569965 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.569998 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000011>
+[pid   869] 10:07:39.570033 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570066 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570098 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570130 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570162 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570194 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.570226 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570258 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570290 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570323 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.570355 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570389 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000010>
+[pid   869] 10:07:39.570429 write(2<pipe:[7274781]>, " ", 1 ) = 1 <0.000009>
+[pid   869] 10:07:39.570462 write(2<pipe:[7274781]>, "100%", 4100%) = 4 <0.000009>
+[pid   869] 10:07:39.570500 write(2<pipe:[7274781]>, " 1.24M", 6 1.24M) = 6 <0.000009>
+[pid   869] 10:07:39.570536 write(2<pipe:[7274781]>, "=0.003s", 7=0.003s) = 7 <0.000010>
+[pid   869] 10:07:39.570570 write(2<pipe:[7274781]>, "\n\n", 2
+
+) = 2 <0.000010>
+[pid   869] 10:07:39.570604 close(3</tmp/hotmail.com/index.html>) = 0 <0.000013>
+[pid   869] 10:07:39.570638 munmap(0x7f2e32c66000, 4096) = 0 <0.000017>
+[pid   869] 10:07:39.570711 write(2<pipe:[7274781]>, "2018-03-27 10:07:39 "..., 872018-03-27 10:07:39 (1.24 MB/s) - ‘/tmp/hotmail.com/index.html’ saved [4315/4315]
+
+) = 87 <0.000009>
+[pid   869] 10:07:39.570788 write(2<pipe:[7274781]>, "FINISHED --2018-03-2"..., 109FINISHED --2018-03-27 10:07:39--
+Total wall clock time: 0.3s
+Downloaded: 1 files, 4.2K in 0.003s (1.24 MB/s)
+) = 109 <0.000009>
+[pid   869] 10:07:39.570963 exit_group(0) = ?
+10:07:39.571703 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 869 <0.307670>
+10:07:39.571784 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=869, si_uid=1000, si_status=0, si_utime=2, si_stime=0} ---
+10:07:39.571845 wait4(-1, 0x7ffe08110490, WNOHANG, NULL) = -1 ECHILD (No child processes) <0.000007>
+10:07:39.571896 read(255</home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/test_wget_hotmail.sh>, "", 45) = 0 <0.000008>
+10:07:39.571984 exit_group(0)           = ?
