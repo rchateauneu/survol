@@ -46,9 +46,11 @@ CurrentMachine = socket.gethostname().lower()
 RemoteTestPort = 8000
 RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
 
+# If the Survol agent does not exist, this script starts a local one.
 RemoteAgentProcess = None
 
 def SetSurvolServer():
+    global RemoteAgentProcess
     try:
         # For Python 3.0 and later
         from urllib.request import urlopen as portable_urlopen
@@ -60,14 +62,15 @@ def SetSurvolServer():
         response = portable_urlopen(RemoteTestAgent + "/survol/entity.py", timeout=5)
         print("Using existing Survol agent")
     except:
-        import subprocess
-        server_cwd = os.path.join( os.path.dirname(__file__), "..")
-        script_path = os.path.join("survol", "scripts", "cgiserver.py")
+        import multiprocessing
         print("Starting test survol agent")
-        RemoteAgentProcess = subprocess.Popen( ['python', script_path, "-p", str(RemoteTestPort) ] , cwd=server_cwd, shell=True)
-        print("Agant process:",RemoteAgentProcess.communicate())
-        time.sleep(2.0)
-        response = portable_urlopen(RemoteTestAgent + "/survol/entity.py", timeout=5)
+
+        import scripts.cgiserver
+        # cwd = "PythonStyle/tests", must be "PythonStyle".
+        RemoteAgentProcess = multiprocessing.Process(target=scripts.cgiserver.StartParameters, args=(True, "rchateau-HP",RemoteTestPort,".."))
+        RemoteAgentProcess.start()
+        # RemoteAgentProcess.join()
+        response = portable_urlopen("http://%s:%s/survol/entity.py" % (CurrentMachine, RemoteTestPort) , timeout=5)
 
     data = response.read().decode("utf-8")
     print("Survol agent OK")
@@ -2543,3 +2546,5 @@ if __name__ == '__main__':
 # TODO: Test calls to <Any class>.AddInfo()
 # TODO: When double-clicking any Python script, it should do something visible.
 
+#if __name__ == '__main__':
+#    freeze_support()
