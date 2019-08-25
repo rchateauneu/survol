@@ -190,8 +190,8 @@ def RunCgiServerInternal():
     
 
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
-    print("Platform=%s\n"%sys.platform)
-    print("Version:%s\n"% str(sys.version_info))
+    print("Platform=%s"%sys.platform)
+    print("Version:%s"% str(sys.version_info))
     print("Server address:%s" % server_addr)
     print("Opening %s:%d" % (server_name,port_number))
     # print("sys.path=%s"% str(sys.path))
