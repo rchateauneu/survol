@@ -43,7 +43,33 @@ CurrentMachine = socket.gethostname().lower()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
-RemoteTestAgent = "http://" + CurrentMachine + ":8000"
+RemoteTestPort = 8000
+RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
+
+def SetSurvolServer():
+    try:
+        # For Python 3.0 and later
+        from urllib.request import urlopen as portable_urlopen
+    except ImportError:
+        # Fall back to Python 2's urllib2
+        from urllib2 import urlopen as portable_urlopen
+
+    try:
+        response = portable_urlopen(RemoteTestAgent + "/survol/entity.py", timeout=5)
+        print("Using existing Survol agent")
+    except:
+        import subprocess
+        server_cwd = os.path.join( os.path.dirname(__file__), "..")
+        script_path = os.path.join("survol", "scripts", "cgiserver.py")
+        subprocess.Popen( ['python', script_path, "-p", str(RemoteTestPort) ] , cwd=server_cwd, shell=True)
+        print("Starting test survol agent")
+        time.sleep(2.0)
+        response = portable_urlopen(RemoteTestAgent + "/survol/entity.py", timeout=5)
+
+    data = response.read().decode("utf-8")
+    print("Survol agent OK")
+
+SetSurvolServer()
 
 # TODO: This should be a parameter. This is an Apache server pointing on the current directory.
 # This should behave exactly like the CGI server. It needs the default HTTP port.
