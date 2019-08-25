@@ -1,0 +1,132 @@
+11:30:21.736893 execve("/usr/bin/perl", ["perl", "TestProgs/write_file_in_perl.pl"], 0x7fff003d14d0 /* 20 vars */) = 0 <0.000208>
+11:30:21.740886 brk(NULL)               = 0x233c000 <0.000007>
+11:30:21.740953 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fc6e6823000 <0.000009>
+11:30:21.741040 open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache> <0.000010>
+11:30:21.741110 fstat(3</etc/ld.so.cache>, {st_mode=S_IFREG|0644, st_size=31317, ...}) = 0 <0.000006>
+11:30:21.741195 mmap(NULL, 31317, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0x7fc6e681b000 <0.000017>
+11:30:21.741248 close(3</etc/ld.so.cache>) = 0 <0.000008>
+11:30:21.741295 open("/lib64/libperl.so.5.24", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libperl.so.5.24.3> <0.000012>
+11:30:21.741329 read(3</usr/lib64/libperl.so.5.24.3>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\3008\3\0\0\0\0\0@\0\0\0\0\0\0\0\260\242\37\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\37\0\36\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\354\275\36\0\0\0\0\0\354\275\36\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0H\310\36\0\0\0\0\0H\310>\0\0\0\0\0H\310>\0\0\0\0\0\260\214\0\0\0\0\0\0\340\216\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\200\t\37\0\0\0\0\0\200\t?\0\0\0\0\0"..., 832) = 832 <0.000018>
+11:30:21.741373 fstat(3</usr/lib64/libperl.so.5.24.3>, {st_mode=S_IFREG|0755, st_size=2075248, ...}) = 0 <0.000005>
+11:30:21.741401 mmap(NULL, 4151080, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libperl.so.5.24.3>, 0) = 0x7fc6e6209000 <0.000008>
+11:30:21.741426 mprotect(0x7fc6e63f5000, 2097152, PROT_NONE) = 0 <0.000016>
+11:30:21.741465 mmap(0x7fc6e65f5000, 40960, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libperl.so.5.24.3>, 0x1ec000) = 0x7fc6e65f5000 <0.000016>
+11:30:21.741552 close(3</usr/lib64/libperl.so.5.24.3>) = 0 <0.000006>
+11:30:21.741612 open("/lib64/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libpthread-2.25.so> <0.000021>
+11:30:21.741658 read(3</usr/lib64/libpthread-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340^\0\0\0\0\0\0@\0\0\0\0\0\0\0\350N\2\0\0\0\0\0\0\0\0\0@\0008\0\t\0@\0)\0(\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0\370\1\0\0\0\0\0\0\370\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0000G\1\0\0\0\0\0000G\1\0\0\0\0\0000G\1\0\0\0\0\0\34\0\0\0\0\0\0\0\34\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 832) = 832 <0.000007>
+11:30:21.741685 fstat(3</usr/lib64/libpthread-2.25.so>, {st_mode=S_IFREG|0755, st_size=153896, ...}) = 0 <0.000005>
+11:30:21.741709 mmap(NULL, 2220552, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libpthread-2.25.so>, 0) = 0x7fc6e5fea000 <0.000011>
+11:30:21.741736 mprotect(0x7fc6e6003000, 2097152, PROT_NONE) = 0 <0.000012>
+11:30:21.741760 mmap(0x7fc6e6203000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libpthread-2.25.so>, 0x19000) = 0x7fc6e6203000 <0.000012>
+11:30:21.741802 mmap(0x7fc6e6205000, 12808, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fc6e6205000 <0.000028>
+11:30:21.741868 close(3</usr/lib64/libpthread-2.25.so>) = 0 <0.000006>
+11:30:21.741914 open("/lib64/libresolv.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libresolv-2.25.so> <0.000010>
+11:30:21.741949 read(3</usr/lib64/libresolv-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\00005\0\0\0\0\0\0@\0\0\0\0\0\0\0\250\244\1\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0!\0 \0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\24U\1\0\0\0\0\0\24U\1\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0pd\1\0\0\0\0\0pd!\0\0\0\0\0pd!\0\0\0\0\0P\f\0\0\0\0\0\0P4\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0(l\1\0\0\0\0\0(l!\0\0\0\0\0"..., 832) = 832 <0.000013>
+11:30:21.741981 fstat(3</usr/lib64/libresolv-2.25.so>, {st_mode=S_IFREG|0755, st_size=109800, ...}) = 0 <0.000005>
+11:30:21.742006 mmap(NULL, 2201792, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libresolv-2.25.so>, 0) = 0x7fc6e5dd0000 <0.000017>
+11:30:21.742041 mprotect(0x7fc6e5de6000, 2097152, PROT_NONE) = 0 <0.000012>
+11:30:21.742065 mmap(0x7fc6e5fe6000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libresolv-2.25.so>, 0x16000) = 0x7fc6e5fe6000 <0.000011>
+11:30:21.742109 mmap(0x7fc6e5fe8000, 6336, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fc6e5fe8000 <0.000009>
+11:30:21.742154 close(3</usr/lib64/libresolv-2.25.so>) = 0 <0.000006>
+11:30:21.742206 open("/lib64/libnsl.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libnsl-2.25.so> <0.000638>
+11:30:21.742897 read(3</usr/lib64/libnsl-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0 =\0\0\0\0\0\0@\0\0\0\0\0\0\0\20\273\1\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0 \0\37\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\270_\1\0\0\0\0\0\270_\1\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0hj\1\0\0\0\0\0hj!\0\0\0\0\0hj!\0\0\0\0\0\260\5\0\0\0\0\0\0\320,\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\200j\1\0\0\0\0\0\200j!\0\0\0\0\0"..., 832) = 832 <0.000021>
+11:30:21.742957 fstat(3</usr/lib64/libnsl-2.25.so>, {st_mode=S_IFREG|0755, st_size=115472, ...}) = 0 <0.000006>
+11:30:21.742988 mmap(NULL, 2201400, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libnsl-2.25.so>, 0) = 0x7fc6e5bb6000 <0.000022>
+11:30:21.743029 mprotect(0x7fc6e5bcc000, 2097152, PROT_NONE) = 0 <0.000029>
+11:30:21.743073 mmap(0x7fc6e5dcc000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libnsl-2.25.so>, 0x16000) = 0x7fc6e5dcc000 <0.000020>
+11:30:21.743128 mmap(0x7fc6e5dce000, 5944, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fc6e5dce000 <0.000009>
+11:30:21.743173 close(3</usr/lib64/libnsl-2.25.so>) = 0 <0.000006>
+11:30:21.743224 open("/lib64/libdl.so.2", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libdl-2.25.so> <0.000012>
+11:30:21.743259 read(3</usr/lib64/libdl-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340\r\0\0\0\0\0\0@\0\0\0\0\0\0\0(D\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0 \0\37\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\234!\0\0\0\0\0\0\234!\0\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\20-\0\0\0\0\0\0\20- \0\0\0\0\0\20- \0\0\0\0\0\10\3\0\0\0\0\0\0\200\3\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0008-\0\0\0\0\0\0008- \0\0\0\0\0"..., 832) = 832 <0.000007>
+11:30:21.743285 fstat(3</usr/lib64/libdl-2.25.so>, {st_mode=S_IFREG|0755, st_size=19496, ...}) = 0 <0.000005>
+11:30:21.743320 mmap(NULL, 2109584, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libdl-2.25.so>, 0) = 0x7fc6e59b2000 <0.000011>
+11:30:21.743361 mprotect(0x7fc6e59b5000, 2093056, PROT_NONE) = 0 <0.000021>
+11:30:21.743394 mmap(0x7fc6e5bb4000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libdl-2.25.so>, 0x2000) = 0x7fc6e5bb4000 <0.000011>
+11:30:21.743454 close(3</usr/lib64/libdl-2.25.so>) = 0 <0.000005>
+11:30:21.743489 open("/lib64/libm.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libm-2.25.so> <0.000010>
+11:30:21.743520 read(3</usr/lib64/libm-2.25.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\0_\0\0\0\0\0\0@\0\0\0\0\0\0\0\200\255\22\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0$\0#\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\374A\21\0\0\0\0\0\374A\21\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\10M\21\0\0\0\0\0\10M1\0\0\0\0\0\10M1\0\0\0\0\0\204\3\0\0\0\0\0\0\220\3\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0 M\21\0\0\0\0\0 M1\0\0\0\0\0"..., 832) = 832 <0.000007>
+11:30:21.743545 fstat(3</usr/lib64/libm-2.25.so>, {st_mode=S_IFREG|0755, st_size=1226368, ...}) = 0 <0.000005>
+11:30:21.743569 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fc6e6819000 <0.000007>
+11:30:21.743601 mmap(NULL, 3231896, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libm-2.25.so>, 0) = 0x7fc6e569c000 <0.000010>
+11:30:21.743630 mprotect(0x7fc6e57b1000, 2093056, PROT_NONE) = 0 <0.000017>
+11:30:21.743659 mmap(0x7fc6e59b0000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libm-2.25.so>, 0x114000) = 0x7fc6e59b0000 <0.000011>
+11:30:21.743712 close(3</usr/lib64/libm-2.25.so>) = 0 <0.000005>
+11:30:21.743748 open("/lib64/libcrypt.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libcrypt-nss-2.25.so> <0.000049>
+11:30:21.743837 read(3</usr/lib64/libcrypt-nss-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\320\r\0\0\0\0\0\0@\0\0\0\0\0\0\0\10\210\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0 \0\37\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200i\0\0\0\0\0\0\200i\0\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\360l\0\0\0\0\0\0\360l \0\0\0\0\0\360l \0\0\0\0\0(\3\0\0\0\0\0\0p\344\2\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\10m\0\0\0\0\0\0\10m \0\0\0\0\0"..., 832) = 832 <0.000024>
+11:30:21.743900 fstat(3</usr/lib64/libcrypt-nss-2.25.so>, {st_mode=S_IFREG|0755, st_size=36872, ...}) = 0 <0.000009>
+11:30:21.743943 mmap(NULL, 2314592, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libcrypt-nss-2.25.so>, 0) = 0x7fc6e5466000 <0.000023>
+11:30:21.743995 mprotect(0x7fc6e546d000, 2093056, PROT_NONE) = 0 <0.000018>
+11:30:21.744032 mmap(0x7fc6e566c000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libcrypt-nss-2.25.so>, 0x6000) = 0x7fc6e566c000 <0.000021>
+11:30:21.744087 mmap(0x7fc6e566e000, 184672, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fc6e566e000 <0.000008>
+11:30:21.744130 close(3</usr/lib64/libcrypt-nss-2.25.so>) = 0 <0.000006>
+11:30:21.744175 open("/lib64/libutil.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libutil-2.25.so> <0.000010>
+11:30:21.744208 read(3</usr/lib64/libutil-2.25.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\200\r\0\0\0\0\0\0@\0\0\0\0\0\0\0p0\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0 \0\37\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0<\33\0\0\0\0\0\0<\33\0\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\350\34\0\0\0\0\0\0\350\34 \0\0\0\0\0\350\34 \0\0\0\0\0000\3\0\0\0\0\0\0008\3\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\0\35\0\0\0\0\0\0\0\35 \0\0\0\0\0"..., 832) = 832 <0.000007>
+11:30:21.744233 fstat(3</usr/lib64/libutil-2.25.so>, {st_mode=S_IFREG|0755, st_size=14448, ...}) = 0 <0.000005>
+11:30:21.744257 mmap(NULL, 2105376, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libutil-2.25.so>, 0) = 0x7fc6e5263000 <0.000009>
+11:30:21.744282 mprotect(0x7fc6e5265000, 2093056, PROT_NONE) = 0 <0.000009>
+11:30:21.744302 mmap(0x7fc6e5464000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libutil-2.25.so>, 0x1000) = 0x7fc6e5464000 <0.000010>
+11:30:21.744352 close(3</usr/lib64/libutil-2.25.so>) = 0 <0.000006>
+11:30:21.744386 open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so> <0.000010>
+11:30:21.744417 read(3</usr/lib64/libc-2.25.so>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\360\5\2\0\0\0\0\0@\0\0\0\0\0\0\0 \356 \0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0N\0M\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0 \345\31\0\0\0\0\0 \345\31\0\0\0\0\0 \345\31\0\0\0\0\0\34\0\0\0\0\0\0\0\34\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 832) = 832 <0.000006>
+11:30:21.744565 fstat(3</usr/lib64/libc-2.25.so>, {st_mode=S_IFREG|0755, st_size=2163104, ...}) = 0 <0.000007>
+11:30:21.744619 mmap(NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0) = 0x7fc6e4e92000 <0.000011>
+11:30:21.744650 mprotect(0x7fc6e5059000, 2097152, PROT_NONE) = 0 <0.000012>
+11:30:21.744675 mmap(0x7fc6e5259000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0x1c7000) = 0x7fc6e5259000 <0.000012>
+11:30:21.744716 mmap(0x7fc6e525f000, 14688, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fc6e525f000 <0.000009>
+11:30:21.744758 close(3</usr/lib64/libc-2.25.so>) = 0 <0.000005>
+11:30:21.744811 open("/lib64/libfreebl3.so", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libfreebl3.so> <0.001283>
+11:30:21.746147 read(3</usr/lib64/libfreebl3.so>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\260\n\0\0\0\0\0\0@\0\0\0\0\0\0\0p%\0\0\0\0\0\0\0\0\0\0@\0008\0\7\0@\0\34\0\33\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\264\24\0\0\0\0\0\0\264\24\0\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\270\35\0\0\0\0\0\0\270\35 \0\0\0\0\0\270\35 \0\0\0\0\0\310\2\0\0\0\0\0\0\350\2\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\320\35\0\0\0\0\0\0\320\35 \0\0\0\0\0"..., 832) = 832 <0.000018>
+11:30:21.746195 fstat(3</usr/lib64/libfreebl3.so>, {st_mode=S_IFREG|0755, st_size=11376, ...}) = 0 <0.000005>
+11:30:21.746224 mmap(NULL, 2105504, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libfreebl3.so>, 0) = 0x7fc6e4c8f000 <0.000025>
+11:30:21.746269 mprotect(0x7fc6e4c91000, 2093056, PROT_NONE) = 0 <0.000023>
+11:30:21.746307 mmap(0x7fc6e4e90000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib64/libfreebl3.so>, 0x1000) = 0x7fc6e4e90000 <0.000019>
+11:30:21.746375 close(3</usr/lib64/libfreebl3.so>) = 0 <0.000006>
+11:30:21.746431 mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fc6e6817000 <0.000009>
+11:30:21.746480 arch_prctl(ARCH_SET_FS, 0x7fc6e6818500) = 0 <0.000006>
+11:30:21.746603 mprotect(0x7fc6e5259000, 16384, PROT_READ) = 0 <0.000013>
+11:30:21.746649 mprotect(0x7fc6e5bb4000, 4096, PROT_READ) = 0 <0.000012>
+11:30:21.746680 mprotect(0x7fc6e4e90000, 4096, PROT_READ) = 0 <0.000011>
+11:30:21.746722 mprotect(0x7fc6e5464000, 4096, PROT_READ) = 0 <0.000012>
+11:30:21.746763 mprotect(0x7fc6e566c000, 4096, PROT_READ) = 0 <0.000012>
+11:30:21.746844 mprotect(0x7fc6e59b0000, 4096, PROT_READ) = 0 <0.000015>
+11:30:21.746939 mprotect(0x7fc6e5dcc000, 4096, PROT_READ) = 0 <0.000013>
+11:30:21.747002 mprotect(0x7fc6e5fe6000, 4096, PROT_READ) = 0 <0.000012>
+11:30:21.747068 mprotect(0x7fc6e6203000, 4096, PROT_READ) = 0 <0.000013>
+11:30:21.747424 mprotect(0x7fc6e65f5000, 20480, PROT_READ) = 0 <0.000011>
+11:30:21.747460 mprotect(0x601000, 4096, PROT_READ) = 0 <0.000010>
+11:30:21.747490 mprotect(0x7fc6e6825000, 4096, PROT_READ) = 0 <0.000014>
+11:30:21.747518 munmap(0x7fc6e681b000, 31317) = 0 <0.000022>
+11:30:21.747725 brk(NULL)               = 0x233c000 <0.000005>
+11:30:21.747748 brk(0x235d000)          = 0x235d000 <0.000008>
+11:30:21.747766 brk(NULL)               = 0x235d000 <0.000004>
+11:30:21.748221 open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = 3</usr/lib/locale/locale-archive> <0.000012>
+11:30:21.748280 fstat(3</usr/lib/locale/locale-archive>, {st_mode=S_IFREG|0644, st_size=2291760, ...}) = 0 <0.000006>
+11:30:21.748306 mmap(NULL, 2291760, PROT_READ, MAP_PRIVATE, 3</usr/lib/locale/locale-archive>, 0) = 0x7fc6e4a5f000 <0.000010>
+11:30:21.748339 close(3</usr/lib/locale/locale-archive>) = 0 <0.000005>
+11:30:21.748532 open("/dev/urandom", O_RDONLY) = 3</dev/urandom> <0.000358>
+11:30:21.748929 read(3</dev/urandom>, "\10H\f\\", 4) = 4 <0.000007>
+11:30:21.748961 close(3</dev/urandom>)  = 0 <0.000006>
+11:30:21.749952 ioctl(0</dev/pts/2>, TCGETS, {B38400 opost isig icanon echo ...}) = 0 <0.000012>
+11:30:21.750026 lseek(0</dev/pts/2>, 0, SEEK_CUR) = -1 ESPIPE (Illegal seek) <0.000006>
+11:30:21.750060 ioctl(1<pipe:[9608716]>, TCGETS, 0x7ffe2057ba70) = -1 ENOTTY (Inappropriate ioctl for device) <0.000007>
+11:30:21.750102 lseek(1<pipe:[9608716]>, 0, SEEK_CUR) = -1 ESPIPE (Illegal seek) <0.000005>
+11:30:21.750127 ioctl(2<pipe:[9608717]>, TCGETS, 0x7ffe2057ba80) = -1 ENOTTY (Inappropriate ioctl for device) <0.000007>
+11:30:21.750161 lseek(2<pipe:[9608717]>, 0, SEEK_CUR) = -1 ESPIPE (Illegal seek) <0.000005>
+11:30:21.750185 open("TestProgs/write_file_in_perl.pl", O_RDONLY) = 3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl> <0.000020>
+11:30:21.750231 ioctl(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, TCGETS, 0x7ffe2057bb80) = -1 ENOTTY (Inappropriate ioctl for device) <0.000006>
+11:30:21.750256 lseek(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, 0, SEEK_CUR) = 0 <0.000005>
+11:30:21.750278 fcntl(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, F_SETFD, FD_CLOEXEC) = 0 <0.000007>
+11:30:21.750311 fstat(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, {st_mode=S_IFREG|0775, st_size=114, ...}) = 0 <0.000005>
+11:30:21.750495 brk(NULL)               = 0x235d000 <0.000005>
+11:30:21.750517 brk(0x237e000)          = 0x237e000 <0.000007>
+11:30:21.754268 read(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, "#!/usr/bin/perl\n\nopen FH,\">/tmp/survol_test_perl.txt\";\nprint FH \"Perl - Practical Extraction Report Language\\n\";\n\n", 8192) = 114 <0.000015>
+11:30:21.754392 read(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>, "", 8192) = 0 <0.000007>
+11:30:21.754430 close(3</home/rchateau/survol/Experimental/RetroBatch/TestProgs/write_file_in_perl.pl>) = 0 <0.000013>
+11:30:21.754502 open("/tmp/survol_test_perl.txt", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3</tmp/survol_test_perl.txt> <0.000075>
+11:30:21.754614 ioctl(3</tmp/survol_test_perl.txt>, TCGETS, 0x7ffe2057bc50) = -1 ENOTTY (Inappropriate ioctl for device) <0.000006>
+11:30:21.754641 lseek(3</tmp/survol_test_perl.txt>, 0, SEEK_CUR) = 0 <0.000005>
+11:30:21.754663 fstat(3</tmp/survol_test_perl.txt>, {st_mode=S_IFREG|0664, st_size=0, ...}) = 0 <0.000005>
+11:30:21.754688 fcntl(3</tmp/survol_test_perl.txt>, F_SETFD, FD_CLOEXEC) = 0 <0.000005>
+11:30:21.755280 write(3</tmp/survol_test_perl.txt>, "Perl - Practical Extraction Report Language\n", 44) = 44 <0.000032>
+11:30:21.755388 close(3</tmp/survol_test_perl.txt>) = 0 <0.000079>
+11:30:21.755546 exit_group(0)           = ?
