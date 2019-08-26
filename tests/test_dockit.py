@@ -17,15 +17,23 @@ import unittest
 # This is needed when running from PyCharm.
 sys.path.insert(0,"../survol/scripts")
 
+dockit_output_files_path = os.path.join( os.path.dirname(__file__), "dockit_output_files" )
+
+# Creates the destination file for result if not there.
+if not os.path.exists(dockit_output_files_path):
+    os.makedirs(dockit_output_files_path)
+
 def path_prefix_output_result(*file_path):
-    return os.path.join( os.path.dirname(__file__), "dockit_output_files", *file_path )
+    return os.path.join( dockit_output_files_path, *file_path )
+
+dock_input_files_path = os.path.join( os.path.dirname(__file__), "dockit_input_test_trace_files" )
 
 def path_prefix_input_file(*file_path):
     # Travis and PyCharm do not start this unit tests script from the same directory.
     # The test files are alongside the script.
     # input_test_files_dir = os.path.dirname(__file__)
 
-    return os.path.join( os.path.dirname(__file__), "dockit_input_test_trace_files", *file_path )
+    return os.path.join( dock_input_files_path, *file_path )
 
 
 # On Travis, getcwd= /home/travis/build/rchateauneu/survol
