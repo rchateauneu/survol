@@ -70,7 +70,8 @@ def setUpModule():
         # cwd = "PythonStyle/tests", must be "PythonStyle".
         AgentHost = "127.0.0.1"
         RemoteAgentProcess = multiprocessing.Process(target=scripts.cgiserver.StartParameters,
-                                                     args=(True, AgentHost, RemoteTestPort,".."))
+                                                     args=(True, AgentHost, RemoteTestPort,""))
+                                                     # args=(True, AgentHost, RemoteTestPort,".."))
         RemoteAgentProcess.start()
         time.sleep(2.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
