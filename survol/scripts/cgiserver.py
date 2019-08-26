@@ -227,8 +227,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     # print("sys.path=%s"% str(sys.path))
     try:
-        print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
-        dbg_stderr.write("os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+        print("StartParameters os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+        dbg_stderr.write("StartParameters os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
         dbg_stderr.flush()
     except KeyError:
         print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
@@ -246,8 +246,10 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
-                    print("is_cgi collapsed_path=%s"%collapsed_path)
-                    dbg_stderr.write("is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
+                    print("StartParameters is_cgi collapsed_path=%s"%collapsed_path)
+                    print("StartParameters is_cgi getcwd=%s" % os.getcwd())
+                    dbg_stderr.write("StartParameters is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
+                    dbg_stderr.flush()
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
@@ -282,7 +284,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # This is not necessary for Windows (Which apparently copies its env vars).
             # This must be tested on Python 3.
             server.server_name = server_name
-            print("server=%s"%(server.server_name))
+            print("StartParameters server=%s"%(server.server_name))
+            print("StartParameters getcwd=%s"%(os.getcwd()))
 
         ServerForever(server)
 
