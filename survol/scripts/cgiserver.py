@@ -115,28 +115,6 @@ def StartsBrowser(browser_name,theUrl):
 # It is also possible to call the script from command line.
 def RunCgiServerInternal():
 
-    envPYTHONPATH = "PYTHONPATH"
-    if 'win' in sys.platform:
-        # This is necessary for lib_util which is otherwise not found.
-        extraPath = "survol"
-        try:
-            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + ";" + extraPath
-        except KeyError:
-            os.environ[envPYTHONPATH] =extraPath
-        os.environ.copy()
-
-    # This also works on Windows and Python 3.
-    elif 'linux' in sys.platform:
-        # It seems that the cgi script is executed in another process
-        # therefore changing sys.argv does not do anything.
-        try:
-            os.environ["PYTHONPATH"]
-        except KeyError:
-            os.environ["PYTHONPATH"] = "/home/rchateau/rdfmon-code/survol"
-
-    else:
-        print("Unsupported platform:%s"%sys.platform)
-
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
     except getopt.GetoptError as err:
@@ -189,17 +167,6 @@ def RunCgiServerInternal():
         sys.exit()
     
 
-    # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
-    print("Platform=%s"%sys.platform)
-    print("Version:%s"% str(sys.version_info))
-    print("Server address:%s" % server_addr)
-    print("Opening %s:%d" % (server_name,port_number))
-    # print("sys.path=%s"% str(sys.path))
-    try:
-        print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
-    except KeyError:
-        print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
-
     theUrl = "http://" + server_name
     if port_number:
         if port_number != 80:
@@ -222,11 +189,40 @@ def RunCgiServerInternal():
     # SERVER_ADDR=fe80::3c7a:339:64f0:2161
     # HTTP_HOST=rchateau-hp
 
+    # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
+    print("Platform=%s"%sys.platform)
+    print("Version:%s"% str(sys.version_info))
+    print("Server address:%s" % server_addr)
+    print("Opening %s:%d" % (server_name,port_number))
+
     StartParameters(verbose, server_name, port_number)
 
 # The current directory can be set, this is used when this is called from multiprocessing.
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
-    import time
+
+    envPYTHONPATH = "PYTHONPATH"
+    if 'win' in sys.platform:
+        # This is necessary for lib_util which is otherwise not found.
+        extraPath = "survol"
+        try:
+            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + ";" + extraPath
+        except KeyError:
+            os.environ[envPYTHONPATH] = extraPath
+        os.environ.copy()
+
+    # This also works on Windows and Python 3.
+    elif 'linux' in sys.platform:
+        # Just checks that PYTHONPATH is defined.
+        os.environ["PYTHONPATH"]
+    else:
+        print("Unsupported platform:%s"%sys.platform)
+
+    # print("sys.path=%s"% str(sys.path))
+    try:
+        print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+    except KeyError:
+        print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
+
     if current_dir:
         os.chdir(current_dir)
     if sys.version_info[0] < 3:
