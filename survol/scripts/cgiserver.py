@@ -203,6 +203,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     dbg_stderr = open("cgiserver.stderr.log", "w")
     dbg_stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
+    dbg_stderr.write("StartParameters getcwd=%s\n" % os.getcwd() )
     dbg_stderr.flush()
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
@@ -227,6 +228,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
     # print("sys.path=%s"% str(sys.path))
     try:
         print("os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+        dbg_stderr.write("os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+        dbg_stderr.flush()
     except KeyError:
         print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
 
@@ -243,6 +246,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
                     print("is_cgi collapsed_path=%s"%collapsed_path)
+                    dbg_stderr.write("is_cgi collapsed_path=%s\n" % collapsed_path)
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
