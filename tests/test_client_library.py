@@ -49,8 +49,9 @@ RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
 # If the Survol agent does not exist, this script starts a local one.
 RemoteAgentProcess = None
 
-def SetSurvolServer():
+def setUpModule():
     global RemoteAgentProcess
+    print("setUpModule")
     try:
         # For Python 3.0 and later
         from urllib.request import urlopen as portable_urlopen
@@ -67,16 +68,24 @@ def SetSurvolServer():
 
         import scripts.cgiserver
         # cwd = "PythonStyle/tests", must be "PythonStyle".
+        AgentHost = "127.0.0.1"
         RemoteAgentProcess = multiprocessing.Process(target=scripts.cgiserver.StartParameters,
-                                                     args=(True, CurrentMachine, RemoteTestPort,".."))
+                                                     args=(True, AgentHost, RemoteTestPort,".."))
         RemoteAgentProcess.start()
-        # RemoteAgentProcess.join()
-        response = portable_urlopen("http://%s:%s/survol/entity.py" % (CurrentMachine, RemoteTestPort) , timeout=5)
+        time.sleep(2.0)
+        local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
+        response = portable_urlopen( local_agent_url, timeout=5)
 
     data = response.read().decode("utf-8")
     print("Survol agent OK")
 
-SetSurvolServer()
+def tearDownModule():
+    global RemoteAgentProcess
+    print("tearDownModule")
+    if RemoteAgentProcess:
+        RemoteAgentProcess.terminate()
+        RemoteAgentProcess.join()
+        
 
 # TODO: This should be a parameter. This is an Apache server pointing on the current directory.
 # This should behave exactly like the CGI server. It needs the default HTTP port.
