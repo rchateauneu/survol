@@ -123,8 +123,8 @@ def LoadModedUrl(urlModed):
     DEBUG("LoadModedUrl urlModed=%s",urlModed)
     try:
         response = lib_util.survol_urlopen(urlModed,timeout=20)
-    except:
-        ERROR("LoadModedUrl urlModed=%s",urlModed)
+    except Exception as exc:
+        ERROR("LoadModedUrl urlModed=%s. Caught:%s", urlModed, str(exc))
         raise
     data = response.read().decode("utf-8")
     return data
@@ -407,6 +407,7 @@ class BaseCIMClass(object):
                 newInstance = super(BaseCIMClass, cls).__new__(cls)
             else:
                 # TODO: Consider reusing entity_id.
+                # DeprecationWarning: object() takes no parameters ??
                 newInstance = super(BaseCIMClass, cls).__new__(cls,  agentUrl, className, **kwargsOntology)
 
             cls.m_instances_cache[instanceKey] = newInstance
