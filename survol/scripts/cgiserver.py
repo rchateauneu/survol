@@ -213,7 +213,10 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
     # This also works on Windows and Python 3.
     elif 'linux' in sys.platform:
         # Just checks that PYTHONPATH is defined.
-        os.environ["PYTHONPATH"]
+        try:
+            os.environ["PYTHONPATH"]
+        except KeyError:
+            os.environ["PYTHONPATH"] = "LINUX_PYTHONPATH"
     else:
         print("Unsupported platform:%s"%sys.platform)
 
