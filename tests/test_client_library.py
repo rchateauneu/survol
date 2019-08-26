@@ -75,9 +75,19 @@ def setUpModule():
         time.sleep(2.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
         response = portable_urlopen( local_agent_url, timeout=5)
+        PrintAgentLog()
 
     data = response.read().decode("utf-8")
     print("Survol agent OK")
+
+def PrintAgentLog():
+    global RemoteAgentProcess
+    if RemoteAgentProcess:
+        print("Agent stderr")
+        agent_stderr = open("cgiserver.stderr.log")
+        for line_stderr in agent_stderr:
+            print(line_stderr)
+        print("Agent stderr end")
 
 def tearDownModule():
     global RemoteAgentProcess
@@ -85,11 +95,7 @@ def tearDownModule():
     if RemoteAgentProcess:
         RemoteAgentProcess.terminate()
         RemoteAgentProcess.join()
-        print("Agent stderr")
-        agent_stderr = open("cgiserver.stderr.log")
-        for line_stderr in agent_stderr:
-            print(line_stderr)
-        print("Agent stderr end")
+        PrintAgentLog()
         
 
 # TODO: This should be a parameter. This is an Apache server pointing on the current directory.
