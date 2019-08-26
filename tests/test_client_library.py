@@ -143,9 +143,11 @@ def CheckSubprocessEnd(procOpen):
 # This defines a file which is present on all platforms.
 if sys.platform.startswith("linux"):
     FileAlwaysThere = "/etc/hosts"
+    DirAlwaysThere = "/etc"
     AnyLogicalDisk = ""
 else:
     FileAlwaysThere = "C:\\Windows\\explorer.exe"
+    DirAlwaysThere = "C:\\Windows"
     AnyLogicalDisk = "D:"
 
 class SurvolLocalTest(unittest.TestCase):
@@ -1831,8 +1833,8 @@ class SurvolRemoteTest(unittest.TestCase):
     def decorator_remote_tests(test_func):
         """This host might not be able to connect to other machines"""
 
-        if socket.gethostname() == "vps516494.localdomain":
-            return None
+        #if socket.gethostname() == "vps516494.localdomain":
+        #    return None
         return test_func
 
 
@@ -1864,7 +1866,7 @@ class SurvolRemoteTest(unittest.TestCase):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
-            Name="C:\\Windows")
+            Name=DirAlwaysThere)
         tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
