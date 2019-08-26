@@ -203,7 +203,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     dbg_stderr = open("cgiserver.stderr.log", "w")
     dbg_stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
-    dbg_stderr.write("StartParameters getcwd=%s\n" % os.getcwd() )
+    dbg_stderr.write("StartParameters getcwd=%s current_dir=%s\n" % (os.getcwd(), current_dir) )
     dbg_stderr.flush()
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
@@ -235,6 +235,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     if current_dir:
         os.chdir(current_dir)
+        dbg_stderr.write("StartParameters getcwd=%s\n" % os.getcwd() )
     if sys.version_info[0] < 3:
         import CGIHTTPServer
         import BaseHTTPServer
@@ -246,7 +247,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
                     print("is_cgi collapsed_path=%s"%collapsed_path)
-                    dbg_stderr.write("is_cgi collapsed_path=%s\n" % collapsed_path)
+                    dbg_stderr.write("is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
