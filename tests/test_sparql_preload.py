@@ -1386,6 +1386,7 @@ try:
 except:
     objectWmiSparqlCallbackApi = None
 
+# FIXME: Is it really called ?? Consider setupModule and tearDownModule
 def setUp():
     assert objectWmiSparqlCallbackApi != None
 
