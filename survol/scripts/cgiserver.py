@@ -201,8 +201,9 @@ def RunCgiServerInternal():
 # The current directory can be set, this is used when this is called from multiprocessing.
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
-    sys.stderr = open("cgiserver.stderr.log", "w")
-    sys.stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
+    dbg_stderr = open("cgiserver.stderr.log", "w")
+    dbg_stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
+    dbg_stderr.flush()
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
         # This is necessary for lib_util which is otherwise not found.

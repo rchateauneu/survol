@@ -85,6 +85,11 @@ def tearDownModule():
     if RemoteAgentProcess:
         RemoteAgentProcess.terminate()
         RemoteAgentProcess.join()
+        print("Agent stderr")
+        agent_stderr = open("cgiserver.stderr.log")
+        for line_stderr in agent_stderr:
+            print(line_stderr)
+        print("Agent stderr end")
         
 
 # TODO: This should be a parameter. This is an Apache server pointing on the current directory.
