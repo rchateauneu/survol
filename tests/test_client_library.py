@@ -74,8 +74,12 @@ def setUpModule():
         RemoteAgentProcess.start()
         time.sleep(2.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
-        response = portable_urlopen( local_agent_url, timeout=5)
-        PrintAgentLog()
+        try:
+            response = portable_urlopen( local_agent_url, timeout=5)
+        except Exception as exc:
+            print("Caught:", exc)
+            PrintAgentLog()
+            raise
 
     data = response.read().decode("utf-8")
     print("Survol agent OK")
