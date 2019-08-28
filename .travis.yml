@@ -7,7 +7,6 @@ os:
 install:
   - pip install psutil
   - pip install rdflib
-  - pip install rdflib.namespace
 script:
   - pwd
   - pytest tests
