@@ -210,22 +210,16 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
         # This is necessary for lib_util which is otherwise not found.
         extraPath = "survol"
         try:
-            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + ";" + extraPath
+            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + os.pathsep + extraPath
         except KeyError:
             os.environ[envPYTHONPATH] = extraPath
         os.environ.copy()
 
     # This also works on Windows and Python 3.
     elif 'linux' in sys.platform:
-        # Just checks that PYTHONPATH is defined.
-        #try:
-        #    os.environ["PYTHONPATH"]
-        #except KeyError:
-            # TODO: Not sure, but it cannot harm.
-        #    os.environ["PYTHONPATH"] = "survol"
         extraPath = "survol"
         try:
-            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + ";" + extraPath
+            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + os.pathsep + extraPath
         except KeyError:
             os.environ[envPYTHONPATH] = extraPath
     else:
