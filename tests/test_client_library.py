@@ -64,16 +64,25 @@ def setUpModule():
         print("Using existing Survol agent")
     except:
         import multiprocessing
-        print("Starting test survol agent: RemoteTestAgent=", RemoteTestAgent)
+        print("Starting test survol agent: RemoteTestAgent=", RemoteTestAgent, " hostname=", socket.gethostname())
 
         import scripts.cgiserver
         # cwd = "PythonStyle/tests", must be "PythonStyle".
-        AgentHost = "127.0.0.1"
+        # AgentHost = "127.0.0.1"
+        AgentHost = socket.gethostname()
+        try:
+            # Running the tests scripts from PyCharm is from the current directory.
+            os.environ["PYCHARM_HELPERS_DIR"]
+            current_dir = ".."
+        except KeyError:
+            current_dir = ""
+        print("current_dir=",current_dir)
         RemoteAgentProcess = multiprocessing.Process(target=scripts.cgiserver.StartParameters,
-                                                     args=(True, AgentHost, RemoteTestPort,""))
+                                                     args=(True, AgentHost, RemoteTestPort,current_dir))
                                                      # args=(True, AgentHost, RemoteTestPort,".."))
         RemoteAgentProcess.start()
-        time.sleep(2.0)
+        print("Waiting")
+        time.sleep(5.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
         try:
             response = portable_urlopen( local_agent_url, timeout=5)
