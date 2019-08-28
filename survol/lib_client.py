@@ -53,10 +53,7 @@ class SourceBase (object):
     # This returns a Json object.
     def content_json(self):
         strJson = self.get_content_moded("json")
-        try:
-            url_content = json.loads(strJson)
-        except Exception as exc:
-            raise Exception("content_json caucght:"+str(exc)+":"+strJson)
+        url_content = json.loads(strJson)
         return url_content
 
     # In the general case, it gets the content in RDF format and converts it
