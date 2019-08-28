@@ -52,13 +52,6 @@ def Main():
 
 	node_process = lib_common.gUriGen.PidUri(procid)
 
-	if lib_util.isPlatformLinux:
-		separatorPath = ":"
-	elif lib_util.isPlatformWindows:
-		separatorPath = ";"
-	else:
-		separatorPath = "#'#'#'"
-
 	for envKey in envsDict :
 		envVal = envsDict[envKey]
 		DEBUG("envKey=%s envVal=%s", envKey,envVal)
@@ -70,7 +63,7 @@ def Main():
 
 		# Some are probably for Windows only.
 		if envKey in ["PATH","PSMODULEPATH","PYPATH"]:
-			valSplit = envVal.split(separatorPath)
+			valSplit = envVal.split(os.pathsep)
 			nodFilArr = [lib_common.gUriGen.DirectoryUri(filNam) for filNam in valSplit]
 			nodFilArrNod = lib_util.NodeLiteral(nodFilArr)
 			#for filNam in valSplit:
