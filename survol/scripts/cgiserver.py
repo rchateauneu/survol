@@ -227,7 +227,6 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     # print("sys.path=%s"% str(sys.path))
     try:
-        print("StartParameters os.environ['%s']=%s"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
         dbg_stderr.write("StartParameters os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
         dbg_stderr.flush()
     except KeyError:
@@ -246,28 +245,21 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
-                    print("StartParameters is_cgi collapsed_path=%s"%collapsed_path)
-                    print("StartParameters is_cgi getcwd=%s" % os.getcwd())
                     dbg_stderr.write("StartParameters is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
                     dbg_stderr.flush()
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
-                # print("is_cgi pathOnly=%s"%pathOnly)
 
                 fileName, fileExtension = os.path.splitext(pathOnly)
-
-                # print("is_cgi pathOnly=%s fileExtension=%s"%(pathOnly,fileExtension))
 
                 urlPrefix = "/survol/"
                 if fileExtension == ".py" and pathOnly.startswith(urlPrefix):
                     dir_sep_index = len(urlPrefix)-1
                     head, tail = collapsed_path[:dir_sep_index], collapsed_path[dir_sep_index + 1:]
-                    # print("is_cgi YES head=%s tail=%s"%(head, tail))
                     self.cgi_info = head, tail
                     return True
                 else:
-                    # print("is_cgi NOT")
                     return False
 
         server = BaseHTTPServer.HTTPServer
@@ -294,20 +286,15 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
         class MyCGIHTTPServer(CGIHTTPRequestHandler):
             def is_cgi(self):
                 if verbose:
-                    sys.stdout.write("is_cgi self.path=%s\n" % self.path)
-
-                # By defaut, self.cgi_directories=['/cgi-bin', '/htbin']
-                sys.stdout.write("self.cgi_directories=%s\n" % self.cgi_directories)
+                    dbg_stderr.write("is_cgi self.path=%s\n" % self.path)
 
                 # https://stackoverflow.com/questions/17618084/python-cgihttpserver-default-directories
                 self.cgi_info = '', self.path[1:]
-                # So it always work.
+                # So it always works.
                 uprs = urlparse(self.path)
                 pathOnly = uprs.path
-                # print("is_cgi pathOnly=%s"%pathOnly)
 
                 # This interprets cr-nl.
-
                 logging.info('\n')
 
                 fileName, fileExtension = os.path.splitext(pathOnly)
