@@ -1864,7 +1864,7 @@ class SurvolRemoteTest(unittest.TestCase):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name="C:\\Windows\\explorer.exe")
+            Name=FileAlwaysThere)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
         print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
