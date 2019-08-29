@@ -116,10 +116,15 @@ def AddDevice(grph,filNode,info):
 	deviceName = "Device:"+str(info.st_dev)
 	if lib_util.isPlatformLinux:
 		# TODO: How to get the device name on Windows ???
-		for line in file('/proc/mounts'):
+		file_mounts = open('/proc/mounts')
+		for line in file_mounts:
 			# lines are device, mountpoint, filesystem, <rest>
 			# later entries override earlier ones
-			line = [s.decode('string_escape') for s in line.split()[:3]]
+			line_split_end = line.split()[:3]
+			if lib_util.isPlatformLinux:
+				line = [s for s in line_split_end]
+			else:
+				line = [s.decode('string_escape') for s in line_split_end]
 			try:
 				if os.lstat(line[1]).st_dev == info.st_dev:
 					deviceName = line[1]
@@ -131,6 +136,7 @@ def AddDevice(grph,filNode,info):
 				exc = sys.exc_info()[1]
 				deviceName=str(exc)
 				break
+		file_mounts.close()
 
 		deviceNode = lib_common.gUriGen.DiskPartitionUri(deviceName)
 		grph.add( ( filNode, pc.property_file_device, deviceNode ) )
