@@ -1604,12 +1604,8 @@ class SurvolSocketsTest(unittest.TestCase):
     and examines the result. It might merge the output with local scripts or
     scripts on different machines."""
 
-    def test_netstat_windows_sockets(self):
+    def test_netstat_sockets(self):
         import socket
-
-        if sys.platform.startswith("linux"):
-            print("Windows socket test not applicable")
-            return
 
         # Not many web sites in HTTP these days. This one is very stable.
         # http://w2.vatican.va/content/vatican/it.html is on port 80=http
@@ -1635,8 +1631,10 @@ class SurvolSocketsTest(unittest.TestCase):
 
         print("Peer name of connection socket:",connHttp.sock.getpeername())
 
-        lstInstances = ClientObjectInstancesFromScript(
-            "sources_types/win32/tcp_sockets_windows.py")
+        if sys.platform.startswith("win"):
+            lstInstances = ClientObjectInstancesFromScript("sources_types/win32/tcp_sockets_windows.py")
+        else:
+            lstInstances = ClientObjectInstancesFromScript("sources_types/Linux/tcp_sockets.py")
 
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
@@ -1952,7 +1950,10 @@ class SurvolRemoteTest(unittest.TestCase):
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
-        mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/tcp_sockets_windows.py")
+        if sys.platform.startswith("win"):
+            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/tcp_sockets_windows.py")
+        else:
+            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/Linux/tcp_sockets.py")
 
         mySrcMergePlus = mySource1 + mySource2
         print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
