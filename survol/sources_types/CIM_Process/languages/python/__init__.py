@@ -57,7 +57,7 @@ def Usable(entity_type,entity_ids_arr):
 #"I don't have enough information available to make that function call."
 #
 def ExecInPythonDebuggerWindows(my_pid,vecInstructions):
-	return []
+    return []
 
 # This creates a Python file executing some commands.
 # The result must be displayed on the debugger's window.
@@ -90,15 +90,15 @@ def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
     fi.close()
 
     gdb_cmds_filout = [
-	'PyGILState_Ensure()',
-	'PyRun_SimpleString("execfile(\\"%s\\")")' % filna,
-	'PyGILState_Release($1)',
-	]
+        'PyGILState_Ensure()',
+        'PyRun_SimpleString("execfile(\\"%s\\")")' % filna,
+        'PyGILState_Release($1)',
+    ]
 
     big_args = ' '.join(["-eval-command='call %s'" % cmd for cmd in gdb_cmds_filout])
     DEBUG("big_args=%s\n", big_args)
 
-	# TODO: See process_gdbstack.py which similarly runs a gdb command.
+    # TODO: See process_gdbstack.py which similarly runs a gdb command.
     cmdline = 'gdb -p %d -batch %s' % (my_pid, big_args )
     DEBUG("cmdline=%s outFilNa=%s\n", cmdline, outFilNa)
 
@@ -117,14 +117,14 @@ def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
 def ExecInPythonDebugger(thePid, vecInstructions):
     vecInstructions.append( 'print(json.dumps(retobj))' )
 
-    if sys.platform.startswith("win"):
+    if lib_util.isPlatformWindows:
         DebuggerPython = ExecInPythonDebuggerWindows
     else:
         DebuggerPython = ExecInPythonDebuggerLinux
 
-    vecResu = DebuggerPython(thePid,vecInstructions)
+    vecResu = DebuggerPython(thePid, vecInstructions)
     if len(vecResu) != 1:
-        DEBUG("Err:%s", str(vecResu) )
+        WARNING("ExecInPythonDebugger: Err:%s", str(vecResu) )
         return None
 
     strResu = vecResu[0]
