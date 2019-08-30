@@ -1186,41 +1186,14 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
         self._ontology_test("wbem")
 
 
-
 class SurvolLocalLinuxTest(unittest.TestCase):
-    """These tests do not need a Survol agent. They apply to Linux machines only"""
+    """These tests do not need a Survol agent and apply to Linux machines only"""
 
     def decorator_linux_platform(test_func):
-        """Returns first available Azure subscription from Credentials file"""
-
         if sys.platform.startswith("linux"):
             return test_func
         else:
             return None
-
-    @decorator_linux_platform
-    def test_process_gdbstack(self):
-        """process_gdbstack Information about current process"""
-
-        mySource = lib_client.SourceLocal(
-            "sources_types/CIM_Process/process_gdbstack.py",
-            "CIM_Process",
-            Handle=os.getpid())
-
-
-        listRequired = [
-        'linker_symbol.Name=X19wb2xsX25vY2FuY2Vs,File=/lib64/libc.so.6',
-        'CIM_DataFile.Name=/usr/bin/python2.7',
-        'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python2.7',
-        'CIM_DataFile.Name=/lib64/libc.so.6',
-        CurrentUserPath,
-        CurrentProcessPath
-    ]
-
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
-
-        for oneStr in listRequired:
-            assert( oneStr in strInstancesSet )
 
     @decorator_linux_platform
     def test_process_cgroups(self):
@@ -1258,7 +1231,47 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
-    @decorator_linux_platform
+# This test if an executable is present.
+def _linux_check_program_exists(program_name):
+    import subprocess
+    p = subprocess.Popen(['/usr/bin/which', program_name], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    p.communicate()
+    return p.returncode == 0
+
+
+class SurvolLocalGdbTest(unittest.TestCase):
+    """These tests do not need a Survol agent, and run on Linux with GDB debugger"""
+
+    def decorator_gdb_platform(test_func):
+        if sys.platform.startswith("linux") and _linux_check_program_exists("gdb"):
+            return test_func
+        else:
+            return None
+
+    @decorator_gdb_platform
+    def test_process_gdbstack(self):
+        """process_gdbstack Information about current process"""
+
+        mySource = lib_client.SourceLocal(
+            "sources_types/CIM_Process/process_gdbstack.py",
+            "CIM_Process",
+            Handle=os.getpid())
+
+        listRequired = [
+            'linker_symbol.Name=X19wb2xsX25vY2FuY2Vs,File=/lib64/libc.so.6',
+            'CIM_DataFile.Name=/usr/bin/python2.7',
+            'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python2.7',
+            'CIM_DataFile.Name=/lib64/libc.so.6',
+            CurrentUserPath,
+            CurrentProcessPath
+        ]
+
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+
+        for oneStr in listRequired:
+            assert( oneStr in strInstancesSet )
+
+    @decorator_gdb_platform
     def test_display_python_stack(self):
         """Displays the stack of a Python process"""
 
@@ -1286,15 +1299,12 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print("strInstancesSet=",strInstancesSet)
 
-
-        # [
+        # Typical output: [
         #     'linker_symbol.Name=X19tYWluX18=,File=/tmp/tmpfxxzh0.py',
         #     'CIM_DataFile.Name=/tmp/tmpfxxzh0.py',
         #     'linker_symbol.Name=X19tYWluX18=,File=/home/rchateau/survol/tests/AnotherSampleDir/SampleSqlFile.py',
         #     'CIM_DataFile.Name=/home/rchateau/survol/tests/AnotherSampleDir/SampleSqlFile.py'
         # ]
-
-
 
         pyPathNameAbsolute = os.path.abspath(pyPathName)
         pyPathNameClean = pyPathNameAbsolute.replace("\\","/")
