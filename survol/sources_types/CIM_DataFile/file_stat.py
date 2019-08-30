@@ -12,20 +12,19 @@ This returns general information about a non-directory data file.
 
 import os
 import sys
-import time
 from sources_types import CIM_DataFile
 import lib_util
 import lib_common
-import lib_properties
 from lib_properties import pc
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
-	#filNam = filNam.replace("\\","/")
-	DEBUG("filNam=%s", filNam )
 
-	filNode = lib_common.gUriGen.FileUri(filNam )
+	WARNING("file_stat.py filNam=%s", filNam)
+
+	filNode = lib_common.gUriGen.FileUri(filNam)
 
 	grph = cgiEnv.GetGraph()
 
@@ -35,7 +34,7 @@ def Main():
 	# st_ino: inode number.
 
 	# st_dev: device.
-	CIM_DataFile.AddDevice(grph,filNode,info)
+	CIM_DataFile.AddDevice(grph, filNode, info)
 
 	CIM_DataFile.AddStatNode( grph, filNode, info )
 	CIM_DataFile.AddMagic( grph, filNode, filNam )
@@ -48,22 +47,21 @@ def Main():
 	currFilNam = filNam
 	currNode = filNode
 	while True:
-		dirPath = os.path.dirname( currFilNam )
+		dirPath = os.path.dirname(currFilNam)
 		if dirPath == currFilNam:
 			break
 		if dirPath == "":
 			break
-		dirNode = lib_common.gUriGen.DirectoryUri( dirPath )
-		grph.add( ( dirNode, pc.property_directory, currNode ) )
-		DEBUG("dirPath=%s", dirPath)
+		dirNode = lib_common.gUriGen.DirectoryUri(dirPath)
+		grph.add( ( dirNode, pc.property_directory, currNode) )
+		WARNING("file_stat.py dirPath=%s", dirPath)
 		statPath = os.stat(dirPath)
-		CIM_DataFile.AddStatNode( grph, dirNode, statPath )
+		CIM_DataFile.AddStatNode( grph, dirNode, statPath)
 
-		CIM_DataFile.AddFileProperties(grph,currNode,currFilNam)
+		CIM_DataFile.AddFileProperties(grph, currNode, currFilNam)
 
 		currFilNam = dirPath
 		currNode = dirNode
-
 
 	# If windows, print more information: DLL version etc...
 	# http://stackoverflow.com/questions/580924/python-windows-file-version-attribute
@@ -71,6 +69,7 @@ def Main():
 	# cgiEnv.OutCgiRdf()
 	# cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
 	cgiEnv.OutCgiRdf("LAYOUT_RECT_RL")
+
 
 if __name__ == '__main__':
 	Main()
