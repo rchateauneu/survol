@@ -18,6 +18,11 @@ import pkgutil
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
 
+# https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
+print("sys.executable=%s"%sys.executable)
+print("sys.exec_prefix=%s"%sys.exec_prefix)
+
+
 try:
     CurrentUsername = os.environ["USERNAME"]
     # The class of users is different on Linux and Windows.
