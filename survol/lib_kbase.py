@@ -1,8 +1,11 @@
 # Encapsulate rdflib features.
 # This is just in case another triplestore implementation would be more convenient.
 
-from rdflib.namespace import RDF, RDFS, XSD
 import rdflib
+# Several combinaisons for Travis.
+import rdflib.namespace
+from rdflib.namespace import RDF, RDFS, XSD
+
 import sys
 import re
 
