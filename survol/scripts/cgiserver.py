@@ -1,4 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
+#### Attempt to fix TravisCI tests.
+#### #!/usr/bin/python
 
 # This is a minimal HTTP server intended to replace Apache or IIS.
 # First reason is that, on a small machine, no HTTP server might be available.
@@ -202,8 +205,8 @@ def RunCgiServerInternal():
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     dbg_stderr = open("cgiserver.stderr.log", "w")
-    dbg_stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
-    dbg_stderr.write("StartParameters getcwd=%s current_dir=%s\n" % (os.getcwd(), current_dir) )
+    dbg_stderr.write("StartParameters server_name=%s port_number=%d" % (server_name, port_number) )
+    dbg_stderr.write("StartParameters getcwd=%s current_dir=%s" % (os.getcwd(), current_dir) )
     dbg_stderr.flush()
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
@@ -245,6 +248,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
+                    dbg_stderr.write("StartParameters sys.path=%s\n" % str(sys.path))
                     dbg_stderr.write("StartParameters is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
                     dbg_stderr.flush()
 
