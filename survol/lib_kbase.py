@@ -4,6 +4,10 @@
 import sys
 sys.stderr.write("BEFORE import\n")
 sys.stderr.write("sys.path=%s\n"%str(sys.path))
+# https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
+sys.stderr.write("sys.executable=%s\n"%sys.executable)
+sys.stderr.write("sys.exec_prefix=%s\n"%sys.exec_prefix)
+
 
 import rdflib
 # Several combinaisons for Travis.
