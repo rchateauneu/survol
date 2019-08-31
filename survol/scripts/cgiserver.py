@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-
-#### Attempt to fix TravisCI tests.
-#### #!/usr/bin/python
+#!/usr/bin/python
 
 # This is a minimal HTTP server intended to replace Apache or IIS.
 # First reason is that, on a small machine, no HTTP server might be available.
