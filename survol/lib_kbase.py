@@ -3,7 +3,6 @@
 
 import rdflib
 # Several combinaisons for Travis.
-import rdflib.namespace
 from rdflib.namespace import RDF, RDFS, XSD
 
 import sys
