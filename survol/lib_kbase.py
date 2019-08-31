@@ -1,9 +1,9 @@
 # Encapsulate rdflib features.
 # This is just in case another triplestore implementation would be more convenient.
 
-WARNING("BEFORE import")
 import sys
-WARNING("sys.path=%s",str(sys.path))
+sys.stderr.write("BEFORE import\n")
+sys.stderr.write("sys.path=%s\n"%str(sys.path))
 
 import rdflib
 # Several combinaisons for Travis.
