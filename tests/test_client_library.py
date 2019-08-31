@@ -13,6 +13,12 @@ import socket
 import platform
 import pkgutil
 
+try:
+    import rdflib
+    print("TRAVIS: rdflib is there")
+except ImportError:
+    print("TRAVIS: rdflib is NOT there")
+
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
