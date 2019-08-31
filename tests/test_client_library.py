@@ -83,6 +83,7 @@ def setUpModule():
         except KeyError:
             current_dir = ""
         print("current_dir=",current_dir)
+        print("sys.path=",sys.path)
         RemoteAgentProcess = multiprocessing.Process(target=scripts.cgiserver.StartParameters,
                                                      args=(True, AgentHost, RemoteTestPort,current_dir))
                                                      # args=(True, AgentHost, RemoteTestPort,".."))
