@@ -246,8 +246,14 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
-                    dbg_stderr.write("StartParameters sys.path=%s\n" % str(sys.path))
-                    dbg_stderr.write("StartParameters is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
+                    dbg_stderr.write("StartParameters.is_cgi getpid=%d\n" % os.getpid())
+                    dbg_stderr.write("StartParameters.is_cgi sys.path=%s\n" % str(sys.path))
+                    dbg_stderr.write("StartParameters.is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
+                    dbg_stderr.write("StartParameters.is_cgi import test\n")
+                    # THIS IS JUST FOR TESTING.
+                    import psutil
+                    import rdflib
+                    dbg_stderr.write("StartParameters import test OK\n")
                     dbg_stderr.flush()
 
                 uprs = urlparse(collapsed_path)
@@ -264,7 +270,13 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 else:
                     return False
 
-        server = BaseHTTPServer.HTTPServer
+            def run_cgi(self):
+                dbg_stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
+                dbg_stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
+                ### super(MyCGIHTTPServer, self).run_cgi()
+                CGIHTTPServer.CGIHTTPRequestHandler.run_cgi(self)
+
+        ### server = BaseHTTPServer.HTTPServer
         handler = MyCGIHTTPServer
 
         server = HTTPServer((server_name, port_number), handler)
@@ -301,6 +313,11 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
                 fileName, fileExtension = os.path.splitext(pathOnly)
                 return fileExtension == ".py"
+
+            def run_cgi(self):
+                dbg_stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
+                dbg_stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
+                super(MyCGIHTTPServer, self).run_cgi()
 
         # Purpose is to understand why it does not interpret cr-nl.
         import logging
