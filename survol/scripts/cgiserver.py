@@ -203,7 +203,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     dbg_stderr = open("cgiserver.stderr.log", "w")
     dbg_stderr.write("StartParameters server_name=%s port_number=%d" % (server_name, port_number) )
-    dbg_stderr.write("StartParameters getcwd=%s current_dir=%s" % (os.getcwd(), current_dir) )
+    dbg_stderr.write("StartParameters sys.executable=%s\n" % sys.executable)
+    dbg_stderr.write("StartParameters sys.exec_prefix=%s\n" % sys.exec_prefix)
     dbg_stderr.flush()
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
