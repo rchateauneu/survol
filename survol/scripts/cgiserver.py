@@ -202,9 +202,10 @@ def RunCgiServerInternal():
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     dbg_stderr = open("cgiserver.stderr.log", "w")
-    dbg_stderr.write("StartParameters server_name=%s port_number=%d" % (server_name, port_number) )
+    dbg_stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
     dbg_stderr.write("StartParameters sys.executable=%s\n" % sys.executable)
     dbg_stderr.write("StartParameters sys.exec_prefix=%s\n" % sys.exec_prefix)
+    dbg_stderr.write("StartParameters getpid=%d\n" % os.getpid())
     dbg_stderr.flush()
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
@@ -290,8 +291,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # This is not necessary for Windows (Which apparently copies its env vars).
             # This must be tested on Python 3.
             server.server_name = server_name
-            print("StartParameters server=%s"%(server.server_name))
-            print("StartParameters getcwd=%s"%(os.getcwd()))
+            print("StartParameters linux server=%s"%(server.server_name))
+            print("StartParameters linux getcwd=%s"%(os.getcwd()))
 
         ServerForever(server)
 
@@ -317,6 +318,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             def run_cgi(self):
                 dbg_stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
                 dbg_stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
+                # This starts a subprocess which does not have the same enrionment variables.
+                # Notable, it does not run in virtualenv.
                 super(MyCGIHTTPServer, self).run_cgi()
 
         # Purpose is to understand why it does not interpret cr-nl.
