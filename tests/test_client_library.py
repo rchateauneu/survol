@@ -19,8 +19,8 @@ import pkgutil
 sys.path.insert(0,"../survol")
 
 # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-print("sys.executable=%s"%sys.executable)
-print("sys.exec_prefix=%s"%sys.exec_prefix)
+print(__file__+" sys.executable=%s"%sys.executable)
+print(__file__+" sys.exec_prefix=%s"%sys.exec_prefix)
 
 
 try:
