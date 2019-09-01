@@ -277,8 +277,11 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 try:
                     os.environ["PYTHONPATH"]
                     dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
+                    os.environ["PYTHONPATH"] = os.environ["PYTHONPATH"] + os.pathsep + "tralala"
                 except KeyError:
                     dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
+                    os.environ["PYTHONPATH"] = "tralala"
+
                 ### super(MyCGIHTTPServer, self).run_cgi()
                 CGIHTTPServer.CGIHTTPRequestHandler.run_cgi(self)
 
