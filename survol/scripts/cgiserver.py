@@ -274,6 +274,11 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             def run_cgi(self):
                 dbg_stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
                 dbg_stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
+                try:
+                    os.environ["PYTHONPATH"]
+                    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
+                except KeyError:
+                    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
                 ### super(MyCGIHTTPServer, self).run_cgi()
                 CGIHTTPServer.CGIHTTPRequestHandler.run_cgi(self)
 
@@ -318,6 +323,11 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             def run_cgi(self):
                 dbg_stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
                 dbg_stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
+                try:
+                    os.environ["PYTHONPATH"]
+                    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
+                except KeyError:
+                    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
                 # This starts a subprocess which does not have the same enrionment variables.
                 # Notable, it does not run in virtualenv.
                 super(MyCGIHTTPServer, self).run_cgi()
