@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This opens a browser session with the bookmarks in the bookmark file passed as parameter.
 # This is intended for testing.

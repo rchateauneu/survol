@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 WBEM class portal: Display all instances of a given WBEM class

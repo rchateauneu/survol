@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Phllip Calvin's python-traceroute.py, from http://gist.github.com/502451

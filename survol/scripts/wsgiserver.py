@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # http://www.bortzmeyer.org/wsgi.html
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # http://www.lokazionel.fr/fr/ressources/tutoriels/243-script-python-cgi-sur-hebergement-ovh.html
 import cgi

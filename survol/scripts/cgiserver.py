@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This is a minimal HTTP server intended to replace Apache or IIS.
 # First reason is that, on a small machine, no HTTP server might be available.
@@ -282,6 +282,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 #    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
                 #    os.environ["PYTHONPATH"] = "tralala"
 
+
+                # MAYBE NOT NECESSARY AFTER ALL.
                 envSysPath = os.pathsep.join(sys.path)
                 if envSysPath.find("virtualenv"):
                     dbg_stderr.write("StartParameters.run_cgi VIRTUALENV\n")
@@ -294,7 +296,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
                     dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
                 else:
-                    dbg_stderr.write("StartParameters.run_cgi Not VIRUTALENV\n")
+                    dbg_stderr.write("StartParameters.run_cgi Not VIRTUALENV\n")
 
                 ### super(MyCGIHTTPServer, self).run_cgi()
                 CGIHTTPServer.CGIHTTPRequestHandler.run_cgi(self)

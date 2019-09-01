@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import os, sys
 from cgi import escape
@@ -20,7 +20,7 @@ def TestCgi():
 # This is normally not used this way, but rather imported
 # from cgi-bin/test.py which is not in GIT and does a plain import:
 
-# #!/usr/bin/python
+# #!/usr/bin/env python
 # from survol import scripts
 # from survol.scripts import testcgi
 #

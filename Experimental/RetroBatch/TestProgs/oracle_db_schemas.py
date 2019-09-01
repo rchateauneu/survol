@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # When run with this strace command:
 # strace -q -qq -f -tt -T -s 20 -y -yy -e trace=desc,ipc,process,network,memory python TestProgs/oracle_db_schemas.py

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This creates an RDFS ontology out of the WMI classes of a Windows machine.
 
