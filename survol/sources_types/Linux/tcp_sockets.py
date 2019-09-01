@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-###### #!/usr/bin/python
-
 """
 TCP Linux sockets with netstat
 """
