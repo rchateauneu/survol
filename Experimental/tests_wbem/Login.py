@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Original Yawn URL example:
 # http://192.168.1.88/yawn/EnumInstanceNames/LMI_ServiceAffectsIdentity?url=https%3A%2F%2FUnknown-30-b5-c2-02-0c-b5-2.home&verify=1&ns=root%2Fcimv2

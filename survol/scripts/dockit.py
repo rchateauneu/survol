@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """Monitors living processes and generates a dockerfile And much more."""
 

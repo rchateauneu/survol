@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This displays in a JSON variable, the list of RDF URLs exposed by the SLP protocol.
 # Because these queries are slow, there is a caching mechanism which can be controlled

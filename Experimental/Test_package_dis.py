@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # The goal of this test is to detect global variables from a Python script.
 # Specifically, we want to extract predicates used to create RDF triple.

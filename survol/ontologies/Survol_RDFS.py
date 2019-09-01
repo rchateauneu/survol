@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This creates a RDFSontology out of the Survol classes.
 # It is part of a survol installation.

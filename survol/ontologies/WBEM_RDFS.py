@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This explores the classes of the WBEM server running on this machine
 # and generates an RDFS ontology.
