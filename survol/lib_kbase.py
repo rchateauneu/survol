@@ -3,12 +3,71 @@
 
 import sys
 sys.stderr.write("BEFORE import\n")
+
+# COURT
+sys__path=[
+    '/home/travis/build/rchateauneu/survol/survol',
+    '/home/travis/build/rchateauneu/survol/survol',
+    '/usr/lib/python2.7',
+    '/usr/lib/python2.7/plat-x86_64-linux-gnu',
+    '/usr/lib/python2.7/lib-tk',
+    '/usr/lib/python2.7/lib-old',
+    '/usr/lib/python2.7/lib-dynload',
+    '/usr/local/lib/python2.7/dist-packages',
+    '/usr/lib/python2.7/dist-packages']
+# LONG
+sys__path=[
+    '/home/travis/build/rchateauneu/survol/survol/sources_types/CIM_Directory',
+    '/home/travis/build/rchateauneu/survol/survol',
+    '/usr/lib/python2.7',
+    '/usr/lib/python2.7/plat-x86_64-linux-gnu',
+    '/usr/lib/python2.7/lib-tk',
+    '/usr/lib/python2.7/lib-old',
+    '/usr/lib/python2.7/lib-dynload',
+    '/usr/local/lib/python2.7/dist-packages',
+    '/usr/lib/python2.7/dist-packages']
+
+# GOOD
+StartParameters_sys__path=[
+    '/home/travis/build/rchateauneu/survol',
+    '../survol',
+    '/home/travis/build/rchateauneu/survol',
+    '../survol',
+    '/home/travis/build/rchateauneu/survol',
+    'survol/scripts',
+    '../survol/scripts',
+    '/home/travis/build/rchateauneu/survol',
+    '../survol',
+    '/home/travis/build/rchateauneu/survol',
+    '/home/travis/virtualenv/python2.7.15/bin',
+    '/home/travis/virtualenv/python2.7.15/lib/python27.zip',
+    '/home/travis/virtualenv/python2.7.15/lib/python2.7',
+    '/home/travis/virtualenv/python2.7.15/lib/python2.7/plat-linux2',
+    '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-tk',
+    '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-old',
+    '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-dynload',
+    '/opt/python/2.7.15/lib/python2.7',
+    '/opt/python/2.7.15/lib/python2.7/plat-linux2',
+    '/opt/python/2.7.15/lib/python2.7/lib-tk',
+    '/home/travis/virtualenv/python2.7.15/lib/python2.7/site-packages',
+    'survol', '/home/travis/build/rchateauneu/survol/survol', '../..']
+
+
+
+# sys.path=['/home/travis/build/rchateauneu/survol/survol/sources_types/CIM_DataFile', '/home/travis/build/rchateauneu/survol/survol', '/usr/lib/python2.7', '/usr/lib/python2.7/plat-x86_64-linux-gnu', '/usr/lib/python2.7/lib-tk', '/usr/lib/python2.7/lib-old', '/usr/lib/python2.7/lib-dynload', '/usr/local/lib/python2.7/dist-packages', '/usr/lib/python2.7/dist-packages']
 sys.stderr.write("sys.path=%s\n"%str(sys.path))
+
+import os
+sys.stderr.write(__file__+" getpid=%d\n" % os.getpid())
+sys.stderr.write(__file__+" getppid=%d\n" % os.getppid())
 # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
 sys.stderr.write(__file__+" sys.executable=%s\n"%sys.executable)
 sys.stderr.write(__file__+" sys.exec_prefix=%s\n"%sys.exec_prefix)
 
 ## Not needed, just for testing with TravisCI.
+# Meme probleme: Un process demarre avec multiprocessing.Process ne beneficie pas des memes
+# imports que le process principal.
+# Version de Linux ou bien PYTHONPATH ?
 import psutil
 
 import rdflib
