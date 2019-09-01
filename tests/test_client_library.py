@@ -1884,6 +1884,11 @@ class SurvolRemoteTest(unittest.TestCase):
         print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
         print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
 
+        # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
+        print(__file__ + " sys.path=%s" % str(sys.path))
+        print(__file__ + " sys.executable=%s" % sys.executable)
+        print(__file__ + " sys.exec_prefix=%s" % sys.exec_prefix)
+
     @decorator_remote_tests
     def test_remote_triplestore(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
