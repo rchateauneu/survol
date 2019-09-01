@@ -274,13 +274,27 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             def run_cgi(self):
                 dbg_stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
                 dbg_stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
-                try:
-                    os.environ["PYTHONPATH"]
+                #try:
+                #    os.environ["PYTHONPATH"]
+                #    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
+                #    os.environ["PYTHONPATH"] = os.environ["PYTHONPATH"] + os.pathsep + "tralala"
+                #except KeyError:
+                #    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
+                #    os.environ["PYTHONPATH"] = "tralala"
+
+                envSysPath = os.pathsep.join(sys.path)
+                if envSysPath.find("virtualenv"):
+                    dbg_stderr.write("StartParameters.run_cgi VIRTUALENV\n")
+
+                    try:
+                        envPYTHONPATH = os.environ["PYTHONPATH"]
+                        os.environ["PYTHONPATH"] = envPYTHONPATH + os.pathsep + envSysPath
+                    except KeyError:
+                        os.environ["PYTHONPATH"] = envSysPath
+
                     dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
-                    os.environ["PYTHONPATH"] = os.environ["PYTHONPATH"] + os.pathsep + "tralala"
-                except KeyError:
-                    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
-                    os.environ["PYTHONPATH"] = "tralala"
+                else:
+                    dbg_stderr.write("StartParameters.run_cgi Not VIRUTALENV\n")
 
                 ### super(MyCGIHTTPServer, self).run_cgi()
                 CGIHTTPServer.CGIHTTPRequestHandler.run_cgi(self)
