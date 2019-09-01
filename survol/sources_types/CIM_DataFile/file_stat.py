@@ -1,4 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
+###### #!/usr/bin/python
 
 """
 File stat information
