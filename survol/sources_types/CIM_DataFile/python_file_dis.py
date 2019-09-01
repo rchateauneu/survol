@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # INTERMEDIARY RELEASE. TO BE FINISHED.
 

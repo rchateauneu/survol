@@ -1,4 +1,4 @@
-# #!/usr/bin/python
+# #!/usr/bin/env python
 #
 # """Display MIME content of a Windows resource"""
 #

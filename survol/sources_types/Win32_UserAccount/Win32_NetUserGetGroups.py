@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # [(groupName, attribute), ...] = NetUserGetGroups(serverName, userName )
 # Returns a list of groups,attributes for all groups for the user.
