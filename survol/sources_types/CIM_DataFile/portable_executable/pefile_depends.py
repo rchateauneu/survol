@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Windows pefile dependencies (exe, dll, ocx, sys...)

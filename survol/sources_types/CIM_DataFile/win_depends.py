@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Windows module dependencies (exe, dll, ocx, sys...) with Dependency Walker
