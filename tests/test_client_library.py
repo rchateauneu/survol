@@ -1995,7 +1995,10 @@ class SurvolRemoteTest(unittest.TestCase):
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
-        mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/win32_local_groups.py")
+        if sys.platform.startswith("win"):
+            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/win32_local_groups.py")
+        else:
+            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/Linux/etc_group.py")
 
         mySrcMergeMinus = mySource1 - mySource2
         print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
