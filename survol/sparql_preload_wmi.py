@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This uses exclusively data from WMI.
 # This is used only for tests.
