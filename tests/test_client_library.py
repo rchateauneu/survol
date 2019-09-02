@@ -100,14 +100,19 @@ def setUpModule():
     data = response.read().decode("utf-8")
     print("Survol agent OK")
 
+
 def PrintAgentLog():
     global RemoteAgentProcess
     if RemoteAgentProcess:
         print("Agent stderr")
-        agent_stderr = open("cgiserver.stderr.log")
-        for line_stderr in agent_stderr:
-            print(line_stderr)
-        print("Agent stderr end")
+        try:
+            agent_stderr = open("cgiserver.stderr.log")
+            for line_stderr in agent_stderr:
+                print(line_stderr)
+            print("Agent stderr end")
+        except Exception as exc:
+            print("No agent log file:", exc)
+
 
 def tearDownModule():
     global RemoteAgentProcess
@@ -116,7 +121,8 @@ def tearDownModule():
         RemoteAgentProcess.terminate()
         RemoteAgentProcess.join()
         PrintAgentLog()
-        
+
+
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
 # This deletes the module so we can reload them each time.
