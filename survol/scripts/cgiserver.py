@@ -200,13 +200,11 @@ def RunCgiServerInternal():
 
 # The current directory can be set, this is used when this is called from multiprocessing.
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
-
-    dbg_stderr = open("cgiserver.stderr.log", "w")
-    dbg_stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
-    dbg_stderr.write("StartParameters sys.executable=%s\n" % sys.executable)
-    dbg_stderr.write("StartParameters sys.exec_prefix=%s\n" % sys.exec_prefix)
-    dbg_stderr.write("StartParameters getpid=%d\n" % os.getpid())
-    dbg_stderr.flush()
+    if verbose:
+        sys.stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
+        sys.stderr.write("StartParameters sys.executable=%s\n" % sys.executable)
+        sys.stderr.write("StartParameters sys.exec_prefix=%s\n" % sys.exec_prefix)
+        sys.stderr.write("StartParameters getpid=%d\n" % os.getpid())
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
         # This is necessary for lib_util which is otherwise not found.
@@ -229,14 +227,13 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     # print("sys.path=%s"% str(sys.path))
     try:
-        dbg_stderr.write("StartParameters os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
-        dbg_stderr.flush()
+        sys.stderr.write("StartParameters os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
     except KeyError:
         print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
 
     if current_dir:
         os.chdir(current_dir)
-        dbg_stderr.write("StartParameters getcwd=%s\n" % os.getcwd() )
+        sys.stderr.write("StartParameters getcwd=%s\n" % os.getcwd() )
     if sys.version_info[0] < 3:
         import CGIHTTPServer
         import BaseHTTPServer
@@ -247,15 +244,9 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
-                    dbg_stderr.write("StartParameters.is_cgi getpid=%d\n" % os.getpid())
-                    dbg_stderr.write("StartParameters.is_cgi sys.path=%s\n" % str(sys.path))
-                    dbg_stderr.write("StartParameters.is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
-                    dbg_stderr.write("StartParameters.is_cgi import test\n")
-                    # THIS IS JUST FOR TESTING.
-                    import psutil
-                    import rdflib
-                    dbg_stderr.write("StartParameters import test OK\n")
-                    dbg_stderr.flush()
+                    sys.stderr.write("StartParameters.is_cgi getpid=%d\n" % os.getpid())
+                    sys.stderr.write("StartParameters.is_cgi sys.path=%s\n" % str(sys.path))
+                    sys.stderr.write("StartParameters.is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
@@ -272,8 +263,9 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                     return False
 
             def run_cgi(self):
-                dbg_stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
-                dbg_stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
+                #if verbose:
+                #    sys.stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
+                #    sys.stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
                 #try:
                 #    os.environ["PYTHONPATH"]
                 #    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
@@ -284,21 +276,23 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
 
                 # MAYBE NOT NECESSARY AFTER ALL.
-                envSysPath = os.pathsep.join(sys.path)
-                if envSysPath.find("virtualenv"):
-                    dbg_stderr.write("StartParameters.run_cgi VIRTUALENV\n")
+                #envSysPath = os.pathsep.join(sys.path)
+                #if envSysPath.find("virtualenv"):
+                #    sys.stderr.write("StartParameters.run_cgi VIRTUALENV\n")
 
-                    try:
-                        envPYTHONPATH = os.environ["PYTHONPATH"]
-                        os.environ["PYTHONPATH"] = envPYTHONPATH + os.pathsep + envSysPath
-                    except KeyError:
-                        os.environ["PYTHONPATH"] = envSysPath
+                #    try:
+                #        envPYTHONPATH = os.environ["PYTHONPATH"]
+                #        os.environ["PYTHONPATH"] = envPYTHONPATH + os.pathsep + envSysPath
+                #    except KeyError:
+                #        os.environ["PYTHONPATH"] = envSysPath
 
-                    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
-                else:
-                    dbg_stderr.write("StartParameters.run_cgi Not VIRTUALENV\n")
+                #    sys.stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
+                #else:
+                #    sys.stderr.write("StartParameters.run_cgi Not VIRTUALENV\n")
 
                 ### super(MyCGIHTTPServer, self).run_cgi()
+
+                # This starts a Python subprocess.
                 CGIHTTPServer.CGIHTTPRequestHandler.run_cgi(self)
 
         ### server = BaseHTTPServer.HTTPServer
@@ -315,8 +309,6 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # This is not necessary for Windows (Which apparently copies its env vars).
             # This must be tested on Python 3.
             server.server_name = server_name
-            print("StartParameters linux server=%s"%(server.server_name))
-            print("StartParameters linux getcwd=%s"%(os.getcwd()))
 
         ServerForever(server)
 
@@ -325,7 +317,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
         class MyCGIHTTPServer(CGIHTTPRequestHandler):
             def is_cgi(self):
                 if verbose:
-                    dbg_stderr.write("is_cgi self.path=%s\n" % self.path)
+                    sys.stderr.write("is_cgi self.path=%s\n" % self.path)
 
                 # https://stackoverflow.com/questions/17618084/python-cgihttpserver-default-directories
                 self.cgi_info = '', self.path[1:]
@@ -340,13 +332,13 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 return fileExtension == ".py"
 
             def run_cgi(self):
-                dbg_stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
-                dbg_stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
-                try:
-                    os.environ["PYTHONPATH"]
-                    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
-                except KeyError:
-                    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
+                #sys.stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
+                #sys.stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
+                #try:
+                #    os.environ["PYTHONPATH"]
+                #    sys.stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
+                #except KeyError:
+                #    sys.stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
                 # This starts a subprocess which does not have the same enrionment variables.
                 # Notable, it does not run in virtualenv.
                 super(MyCGIHTTPServer, self).run_cgi()
