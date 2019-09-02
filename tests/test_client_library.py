@@ -117,11 +117,6 @@ def tearDownModule():
         RemoteAgentProcess.join()
         PrintAgentLog()
         
-
-# TODO: This should be a parameter. This is an Apache server pointing on the current directory.
-# This should behave exactly like the CGI server. It needs the default HTTP port.
-RemoteTestApacheAgent = "http://192.168.0.14:80/Survol"
-
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
 # This deletes the module so we can reload them each time.
@@ -2560,8 +2555,17 @@ class SurvolInternalTest(unittest.TestCase):
 
     def test_internal_apache(self):
         # http://192.168.0.14/Survol/survol/entity.py
-        self.check_internal_values(RemoteTestApacheAgent)
 
+        # TODO: This should be a parameter. This is an Apache server pointing on the current directory.
+        # This should behave exactly like the CGI server. It needs the default HTTP port.
+        try:
+            RemoteTestApacheAgent = {
+                "rchateau-hp": "http://192.168.0.14:80/Survol",
+                "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
+            self.check_internal_values(RemoteTestApacheAgent)
+        except KeyError:
+            print("test_internal_apache cannot be run on machine:",CurrentMachine)
+            return True
 
 
 if __name__ == '__main__':
