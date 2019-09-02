@@ -1,82 +1,10 @@
-# Encapsulate rdflib features.
-# This is just in case another triplestore implementation would be more convenient.
-
-import sys
-sys.stderr.write("BEFORE import\n")
-
-# COURT
-sys__path=[
-    '/home/travis/build/rchateauneu/survol/survol',
-    '/home/travis/build/rchateauneu/survol/survol',
-    '/usr/lib/python2.7',
-    '/usr/lib/python2.7/plat-x86_64-linux-gnu',
-    '/usr/lib/python2.7/lib-tk',
-    '/usr/lib/python2.7/lib-old',
-    '/usr/lib/python2.7/lib-dynload',
-    '/usr/local/lib/python2.7/dist-packages',
-    '/usr/lib/python2.7/dist-packages']
-# LONG
-sys__path=[
-    '/home/travis/build/rchateauneu/survol/survol/sources_types/CIM_Directory',
-    '/home/travis/build/rchateauneu/survol/survol',
-    '/usr/lib/python2.7',
-    '/usr/lib/python2.7/plat-x86_64-linux-gnu',
-    '/usr/lib/python2.7/lib-tk',
-    '/usr/lib/python2.7/lib-old',
-    '/usr/lib/python2.7/lib-dynload',
-    '/usr/local/lib/python2.7/dist-packages',
-    '/usr/lib/python2.7/dist-packages']
-
-# GOOD
-StartParameters_sys__path=[
-    '/home/travis/build/rchateauneu/survol',
-    '../survol',
-    '/home/travis/build/rchateauneu/survol',
-    '../survol',
-    '/home/travis/build/rchateauneu/survol',
-    'survol/scripts',
-    '../survol/scripts',
-    '/home/travis/build/rchateauneu/survol',
-    '../survol',
-    '/home/travis/build/rchateauneu/survol',
-    '/home/travis/virtualenv/python2.7.15/bin',
-    '/home/travis/virtualenv/python2.7.15/lib/python27.zip',
-    '/home/travis/virtualenv/python2.7.15/lib/python2.7',
-    '/home/travis/virtualenv/python2.7.15/lib/python2.7/plat-linux2',
-    '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-tk',
-    '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-old',
-    '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-dynload',
-    '/opt/python/2.7.15/lib/python2.7',
-    '/opt/python/2.7.15/lib/python2.7/plat-linux2',
-    '/opt/python/2.7.15/lib/python2.7/lib-tk',
-    '/home/travis/virtualenv/python2.7.15/lib/python2.7/site-packages',
-    'survol', '/home/travis/build/rchateauneu/survol/survol', '../..']
-
-
-
-# sys.path=['/home/travis/build/rchateauneu/survol/survol/sources_types/CIM_DataFile', '/home/travis/build/rchateauneu/survol/survol', '/usr/lib/python2.7', '/usr/lib/python2.7/plat-x86_64-linux-gnu', '/usr/lib/python2.7/lib-tk', '/usr/lib/python2.7/lib-old', '/usr/lib/python2.7/lib-dynload', '/usr/local/lib/python2.7/dist-packages', '/usr/lib/python2.7/dist-packages']
-sys.stderr.write("sys.path=%s\n"%str(sys.path))
-
-import os
-sys.stderr.write(__file__+" getpid=%d\n" % os.getpid())
-sys.stderr.write(__file__+" getppid=%d\n" % os.getppid())
-# https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-sys.stderr.write(__file__+" sys.executable=%s\n"%sys.executable)
-sys.stderr.write(__file__+" sys.exec_prefix=%s\n"%sys.exec_prefix)
-
-## Not needed, just for testing with TravisCI.
-# Meme probleme: Un process demarre avec multiprocessing.Process ne beneficie pas des memes
-# imports que le process principal.
-# Version de Linux ou bien PYTHONPATH ?
-import psutil
-
-import rdflib
-
-# Several combinaisons for Travis.
-from rdflib.namespace import RDF, RDFS, XSD
+# This encapsulates rdflib features, and may help to implement differently triplestore features.
 
 import sys
 import re
+
+import rdflib
+from rdflib.namespace import RDF, RDFS, XSD
 
 PredicateSeeAlso = RDFS.seeAlso
 PredicateIsDefinedBy = RDFS.isDefinedBy
@@ -165,12 +93,6 @@ def get_urls_adjacency_list(grph,startInstance,filterPredicates):
             continue
 
         if (not IsLiteral(kSub)) and (not IsLiteral(kObj)):
-
-            #if str(kSub).find("entity.py") < 0:
-            #    raise Exception("Broken1 %s %s %s"%(kSub,kPred,kObj))
-            #if str(kObj).find("entity.py") < 0:
-            #    raise Exception("Broken2 %s %s %s"%(kSub,kPred,kObj))
-
             InsertEdge(kSub,kObj)
             InsertEdge(kObj,kSub)
     #DEBUG("str(adjacency_list)=%s",str(adjacency_list))
@@ -189,20 +111,15 @@ def triplestore_matching_strings(grph,searchString):
             # Conversion to string in case it would be a number.
             strObj = str(kObj.value)
             if compiledRgx.match(strObj):
-                #DEBUG("strObj=%s YES"%strObj)
-                # yield strObj
                 yield (kSub,kPred,kObj)
-            #else:
-            #    DEBUG("strObj=%s NO"%strObj)
 
 def triplestore_all_strings(grph):
     DEBUG("triplestore_all_strings")
     # Beware that the order might change each time.
-    for kSub,kPred,kObj in grph:
+    for kSub, kPred, kObj in grph:
         if IsLiteral(kObj):
             # Conversion to string in case it would be a number.
-            strObj = str(kObj.value)
-            yield (kSub,kPred,kObj)
+            yield (kSub, kPred, kObj)
 
 # This writes a triplestore to a stream which can be a socket or a file.
 def triplestore_to_stream_xml(grph,out_dest, a_format):
@@ -221,8 +138,6 @@ def triplestore_to_stream_xml(grph,out_dest, a_format):
         # Really horrible piece of code, because out_dest might expect a str or a bytes,
         # depending on its type.
         try:
-            #out_dest.write(strXml.decode('latin1'))
-            # TypeError: string argument expected, got 'bytes'
             out_dest.write(strXml)
         except TypeError as exc:
             DEBUG("triple_store_to_stream_xml. tp=%s exc=%s.",str(type(strXml)),str(exc))
@@ -233,7 +148,6 @@ def triplestore_to_stream_xml(grph,out_dest, a_format):
                 ERROR("triple_store_to_stream_xml. tp=%s exc=%s. Cannot write:%s", str(type(strXml)), str(exc), strXml)
                 raise
     else:
-        # out_dest.write(strXml.decode('latin1'))
         try:
             out_dest.write(strXml)
         except:
