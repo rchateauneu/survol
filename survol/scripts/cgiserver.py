@@ -262,40 +262,11 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 else:
                     return False
 
+            # Not strictly necessary, but useful hook for debugging.
             def run_cgi(self):
-                #if verbose:
-                #    sys.stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
-                #    sys.stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
-                #try:
-                #    os.environ["PYTHONPATH"]
-                #    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
-                #    os.environ["PYTHONPATH"] = os.environ["PYTHONPATH"] + os.pathsep + "tralala"
-                #except KeyError:
-                #    dbg_stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
-                #    os.environ["PYTHONPATH"] = "tralala"
-
-
-                # MAYBE NOT NECESSARY AFTER ALL.
-                #envSysPath = os.pathsep.join(sys.path)
-                #if envSysPath.find("virtualenv"):
-                #    sys.stderr.write("StartParameters.run_cgi VIRTUALENV\n")
-
-                #    try:
-                #        envPYTHONPATH = os.environ["PYTHONPATH"]
-                #        os.environ["PYTHONPATH"] = envPYTHONPATH + os.pathsep + envSysPath
-                #    except KeyError:
-                #        os.environ["PYTHONPATH"] = envSysPath
-
-                #    sys.stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
-                #else:
-                #    sys.stderr.write("StartParameters.run_cgi Not VIRTUALENV\n")
-
-                ### super(MyCGIHTTPServer, self).run_cgi()
-
                 # This starts a Python subprocess.
                 CGIHTTPServer.CGIHTTPRequestHandler.run_cgi(self)
 
-        ### server = BaseHTTPServer.HTTPServer
         handler = MyCGIHTTPServer
 
         server = HTTPServer((server_name, port_number), handler)
@@ -331,16 +302,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 fileName, fileExtension = os.path.splitext(pathOnly)
                 return fileExtension == ".py"
 
+            # Not strictly necessary, but useful hook for debugging.
             def run_cgi(self):
-                #sys.stderr.write("StartParameters.run_cgi getpid=%d\n" % os.getpid())
-                #sys.stderr.write("StartParameters.run_cgi sys.path=%s\n" % str(sys.path))
-                #try:
-                #    os.environ["PYTHONPATH"]
-                #    sys.stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % os.environ["PYTHONPATH"])
-                #except KeyError:
-                #    sys.stderr.write("StartParameters.run_cgi PYTHONPATH=%s\n" % "UNDEFINED")
-                # This starts a subprocess which does not have the same enrionment variables.
-                # Notable, it does not run in virtualenv.
                 super(MyCGIHTTPServer, self).run_cgi()
 
         # Purpose is to understand why it does not interpret cr-nl.
