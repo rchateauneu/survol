@@ -425,7 +425,9 @@ class SurvolLocalTest(unittest.TestCase):
                 sys.stdout.write("    %s\n"%oneScr)
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScripts) > 0)
+        # TODO: Maybe this script will not come first in the future.
         assert(listScripts[0].UrlQuery() == "xid=Win32_Service.Name=PlugPlay")
+        assert(listScripts[0].m_script == "sources_types/Win32_Service/service_dependencies.py")
 
     def test_instances_cache(self):
         instanceA = lib_client.Agent().CIM_Directory( Name="C:/Windows")
