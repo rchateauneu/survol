@@ -113,11 +113,20 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 ################################################################################
 
 # Copies a file to standard output.
-def CopyToOut(logfil,svg_out_filnam,out_dest):
+# TODO: On Linux, consider splice.
+# See lib_kbase.triplestore_to_stream_xml for a similar situation.
+def CopyToOut(logfil, svg_out_filnam, out_dest):
 	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
 	infil = open(svg_out_filnam,'rb')
 	strInRead = infil.read()
-	nbOut = out_dest.write( strInRead )
+	try:
+		nbOut = out_dest.write(strInRead)
+	except TypeError as exc:
+		# This happens when:
+		# Python 2 and wsgiref.simple_server: unicode argument expected, got 'str'
+		# Python 3 and wsgiref.simple_server: string argument expected, got 'bytes'
+		nbOut = out_dest.write(strInRead.decode('latin1'))
+
 	logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
 	infil.close()
 
@@ -172,14 +181,8 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	# https://stackoverflow.com/questions/5667576/can-i-set-the-html-title-of-a-pdf-file-served-by-my-apache-web-server
 	dictHttpProperties = [ ( "Content-Disposition", 'inline; filename="Survol_Download"') ]
 
-	# For the specific case when it writes into a socket. Strange behaviour:
-	# Without this, it wraps our SVG code in HTML tags, adds its own HTTP header, etc...
-	# The test on stdout comes at the end because it does not work on old Python versions.
-	if lib_util.isPlatformWindows and sys.version_info >= (3,4,) and out_dest != sys.stdout.buffer :
-		logfil.write( TimeStamp() + " SVG Header removed\n" )
-	else:
-		logfil.write( TimeStamp() + " Writing SVG header\n" )
-		lib_util.WrtHeader( "image/svg+xml", dictHttpProperties )
+	logfil.write( TimeStamp() + " Writing SVG header\n" )
+	lib_util.WrtHeader( "image/svg+xml", dictHttpProperties )
 
 	# Here, we are sure that the output file is closed.
 	CopyToOut(logfil,svg_out_filnam,out_dest)

@@ -1864,12 +1864,10 @@ class SurvolRemoteTest(unittest.TestCase):
         #    return None
         return test_func
 
-
-
     # This is executed after each test. No special reason for a delay, except perf measures, possibly.
     # https://stackoverflow.com/questions/2648329/python-unit-test-how-to-add-some-sleeping-time-between-test-cases
-    def tearDown(self):
-        time.sleep(0.01)  # sleep time in seconds
+    #def tearDown(self):
+    #    time.sleep(0.01)  # sleep time in seconds
 
     @decorator_remote_tests
     def test_InstanceUrlToAgentUrl(selfself):
