@@ -8,281 +8,321 @@ import getopt
 import socket
 import importlib
 import wsgiref.simple_server as server
-import cStringIO
+
+# See lib_client.py with similar code which cannot be imported here.
+def CreateStringStream():
+    if True:
+        try:
+        # Python 3
+            from io import StringIO
+        except ImportError:
+            try:
+                from cStringIO import StringIO
+            except ImportError:
+                from StringIO import StringIO
+        return StringIO()
+    else:
+        from io import BytesIO
+        return BytesIO
 
 # See the class lib_util.OutputMachineCgi
 class OutputMachineWsgi:
+    def __init__(self, start_response):
+        # FIXME: This is not efficient because Survol creates a string stored in the stream,
+        # FIXME: then converted to a string, then written to the socket.
+        # FIXME: Ideally, this should be written in one go from for example lib_common.CopyToOut,
+        # FIXME: to the output socket.
+        self.m_output = CreateStringStream()
+        self.m_start_response = start_response
 
-	def __init__(self,start_response):
-		sys.stderr.write("OutputMachineWsgi creation\n")
-		self.m_output = cStringIO.StringIO()
-		self.m_start_response = start_response
+    def __del__(self):
+        # Close object and discard memory buffer --
+        # .getvalue() will now raise an exception.
+        self.m_output.close()
 
-	def __del__(self):
-		# Close object and discard memory buffer --
-		# .getvalue() will now raise an exception.
-		self.m_output.close()
+    def Content(self):
+        str_value = self.m_output.getvalue()
+        if sys.version_info >= (3,):
+            if type(str_value) == str:
+                str_value = str_value.encode()
+        else:
+            if type(str_value) == unicode:
+                str_value = str_value.encode()
 
-	def Content(self):
-		str = self.m_output.getvalue()
-		DEBUG("OutputMachineWsgi.Content %d", len(str))
-		return str
+        return str_value
 
-	# extraArgs is an array of key-value tuples.
-	def HeaderWriter(self,mimeType,extraArgs= None):
-		DEBUG("OutputMachineWsgi.HeaderWriter: %s",mimeType)
-		status = '200 OK'
-		response_headers = [('Content-type', mimeType)]
-		self.m_start_response(status, response_headers)
+    # extraArgs is an array of key-value tuples.
+    def HeaderWriter(self,mimeType,extraArgs= None):
+        status = '200 OK'
+        response_headers = [('Content-type', mimeType)]
+        self.m_start_response(status, response_headers)
 
-	def OutStream(self):
-		return self.m_output
+    def OutStream(self):
+        return self.m_output
 
 def app_serve_file(pathInfo, start_response):
-	filNam = pathInfo[1:]
-	DEBUG("Plain file:%s",filNam)
-	# Just serve a plain HTML file.
-	response_headers = [('Content-type', 'text/html')]
+    filNam = pathInfo[1:]
+    sys.stderr.write("Plain file:%s\n" % filNam)
+    # Just serve a plain HTML file.
+    response_headers = [('Content-type', 'text/html')]
 
-	try:
-		of = open(filNam)
-		fContent = of.read()
-		of.close()
+    try:
+        of = open(filNam)
+        fContent = of.read()
+        of.close()
 
-		start_response('200 OK',response_headers)
+        start_response('200 OK', response_headers)
 
-		DEBUG("Writing %d bytes", len(fContent))
+        sys.stderr.write("Writing %d bytes\n" % len(fContent))
 
-		return [ fContent ]
-	except:
-		start_response('200 OK',response_headers)
-		return [ "<html><head></head><body>Broken</body></html>" ]
+        return [ fContent ]
+    except:
+        start_response('200 OK', response_headers)
+        return [ "<html><head></head><body>Broken</body></html>" ]
 
+verbose_debug_mode = False
+
+# environ[SERVER_SOFTWARE]=WSGIServer/0.1 Python/2.7.10
+# Maybe some non-string and undocumented values:
+# environ[wsgi.errors         ]=<open file '<stderr>', mode 'w' at 0x0000000001CEA150>
+# environ[wsgi.file_wrapper   ]=wsgiref.util.FileWrapper
+# environ[wsgi.input          ]=<socket._fileobject object at 0x0000000002990A98>
+# environ[wsgi.multiprocess   ]=False
+# environ[wsgi.multithread    ]=True
+# environ[wsgi.run_once       ]=False
+# environ[wsgi.url_scheme     ]=http
+# environ[wsgi.version        ]=(1, 0)
 def application_ok(environ, start_response):
-	#for key in sorted(environ.keys()):
-	#	sys.stderr.write("application_ok:environ[%-20s]=%-20s\n"%(key,environ[key]))
+    if verbose_debug_mode:
+        sys.stderr.write("application_ok: environ\n")
+        for key in sorted(environ.keys()):
+            sys.stderr.write("application_ok:environ[%-20s]=%-20s\n"%(key,environ[key]))
 
-	#for key in sorted(os.environ.keys()):
-	#	sys.stderr.write("application_ok:os.environ[%-20s]=%-20s\n"%(key,os.environ[key]))
+        sys.stderr.write("application_ok: os.environ\n")
+        for key in sorted(os.environ.keys()):
+            sys.stderr.write("application_ok:os.environ[%-20s]=%-20s\n"%(key,os.environ[key]))
 
-	# Must be done BEFORE IMPORTING, so the modules can have the good environment at init time.
-	for key in ["QUERY_STRING","SERVER_PORT"]:
-		os.environ[key] = environ[key]
+    # Must be done BEFORE IMPORTING, so the modules can have the good environment at init time.
+    for key in ["QUERY_STRING","SERVER_PORT"]:
+        os.environ[key] = environ[key]
 
-	# The wsgi Python module sets a value for SERVER_NAME that we do not want.
-	os.environ["SERVER_NAME"] = os.environ["SURVOL_SERVER_NAME"]
+    # The wsgi Python module sets a value for SERVER_NAME that we do not want.
+    os.environ["SERVER_NAME"] = os.environ["SURVOL_SERVER_NAME"]
 
-	### sys.stderr.write("os.environ['SCRIPT_NAME']=%s\n"%os.environ['SCRIPT_NAME'])
-	os.environ["PYTHONPATH"] = "survol" # Not needed if installed ??
+    ### sys.stderr.write("os.environ['SCRIPT_NAME']=%s\n"%os.environ['SCRIPT_NAME'])
+    os.environ["PYTHONPATH"] = "survol" # Not needed if installed ??
 
-	# Not sure this is needed on all platforms.
-	os.environ.copy()
+    # Not sure this is needed on all platforms.
+    os.environ.copy()
 
-	pathInfo = environ['PATH_INFO']
+    # Example: "/survol/entity_dirmenu_only.py"
+    pathInfo = environ['PATH_INFO']
 
-	# This environment variable is parsed in UriRootHelper
-	# os.environ["SCRIPT_NAME"] = "/survol/see_wsgiserver"
-	# SCRIPT_NAME=/survol/print_environment_variables.py
-	# REQUEST_URI=/survol/print_environment_variables.py?d=s
-	# QUERY_STRING=d=s
-	os.environ["SCRIPT_NAME"] = pathInfo
+    # This environment variable is parsed in UriRootHelper
+    # os.environ["SCRIPT_NAME"] = "/survol/see_wsgiserver"
+    # SCRIPT_NAME=/survol/print_environment_variables.py
+    # REQUEST_URI=/survol/print_environment_variables.py?d=s
+    # QUERY_STRING=d=s
+    os.environ["SCRIPT_NAME"] = pathInfo
 
-	# If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
-	# then "/survol/sources_top/enumerate_CIM_LogicalDisk.py"
-	DEBUG("pathInfo=%s",pathInfo)
+    # If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
+    # then "/survol/sources_top/enumerate_CIM_LogicalDisk.py"
+    sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
 
-	# Example: pathInfo=/survol/www/index.htm
-	if pathInfo.find("/survol/www/") >= 0:
-		return app_serve_file(pathInfo, start_response)
-		
+    # Example: pathInfo=/survol/www/index.htm
+    if pathInfo.find("/survol/www/") >= 0:
+        return app_serve_file(pathInfo, start_response)
 
-	pathInfo = pathInfo.replace("/",".")
 
-	modulePrefix = "survol."
-	htbinIndex = pathInfo.find(modulePrefix)
+    pathInfo = pathInfo.replace("/",".")
 
-	pathInfo = pathInfo[htbinIndex + len(modulePrefix):-3] # "Strips ".py" at the end.
+    modulePrefix = "survol."
+    htbinIndex = pathInfo.find(modulePrefix)
 
-	# ["sources_types","enumerate_CIM_LogicalDisk"]
-	splitPathInfo = pathInfo.split(".")
+    pathInfo = pathInfo[htbinIndex + len(modulePrefix):-3] # "Strips ".py" at the end.
 
-	import lib_util
+    # ["sources_types","enumerate_CIM_LogicalDisk"]
+    splitPathInfo = pathInfo.split(".")
 
-	# This is the needed interface so all our Python machinery can write to the WSGI server.
-	theOutMach = OutputMachineWsgi(start_response)
+    import lib_util
 
-	if len(splitPathInfo) > 1:
-		modulesPrefix = ".".join( splitPathInfo[:-1] )
+    # This is the needed interface so all our Python machinery can write to the WSGI server.
+    theOutMach = OutputMachineWsgi(start_response)
 
-		# Tested with Python2 on Windows.
-		# Example: entity_type = "Azure.location"
-		# entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
-		moduleName = "." + splitPathInfo[-1]
-		sys.stderr.write("LOADING moduleName=%s modulesPrefix=%s\n" % (moduleName,modulesPrefix))
-		the_module = importlib.import_module( moduleName, modulesPrefix )
+    if len(splitPathInfo) > 1:
+        modulesPrefix = ".".join( splitPathInfo[:-1] )
 
-		# TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
-		lib_util.globalOutMach = theOutMach
+        # Tested with Python2 on Windows.
+        # Example: entity_type = "Azure.location"
+        # entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
+        moduleName = "." + splitPathInfo[-1]
+        sys.stderr.write("application_ok: moduleName=%s modulesPrefix=%s\n" % (moduleName,modulesPrefix))
+        the_module = importlib.import_module( moduleName, modulesPrefix )
 
-	else:
-		# Tested with Python2 on Windows.
+        # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
+        lib_util.globalOutMach = theOutMach
 
-		# TODO: Strange: Here, this load lib_util a second time.
-		DEBUG("LOADING pathInfo=%s", pathInfo)
-		the_module = importlib.import_module( pathInfo )
+    else:
+        # Tested with Python2 on Windows.
 
-		# TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
-		lib_util.globalOutMach = theOutMach
+        # TODO: Strange: Here, this load lib_util a second time.
+        sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
+        the_module = importlib.import_module( pathInfo )
 
-	scriptNam=os.environ['SCRIPT_NAME']
-	DEBUG("scriptNam1=%s",scriptNam)
+        # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
+        lib_util.globalOutMach = theOutMach
 
-	the_module.Main()
-	sys.stderr.write("After Main\n")
-	return [ lib_util.globalOutMach.Content() ]
+    scriptNam=os.environ['SCRIPT_NAME']
+    sys.stderr.write("scriptNam=%s\n" % scriptNam)
+
+    the_module.Main()
+    return [ lib_util.globalOutMach.Content() ]
 
 def application(environ, start_response):
-	try:
-		return application_ok(environ, start_response)
-	except:
-		# Uncomment this for easier debugging.
-		# raise
-		sys.stderr.write("application CAUGHT:\n")
+    try:
+        return application_ok(environ, start_response)
+    except:
+        # Uncomment this for easier debugging.
+        # raise
+        sys.stderr.write("application CAUGHT:\n")
 
-		import lib_util
+        import lib_util
 
-		exc = sys.exc_info()
-		WARNING("application CAUGHT:%s",str(exc))
-		return [ lib_util.globalOutMach.Content() ]
+        exc = sys.exc_info()
+        WARNING("application CAUGHT:%s",str(exc))
+        return [ lib_util.globalOutMach.Content() ]
 
 port_number_default = 9000
 
 def Usage():
-	progNam = sys.argv[0]
-	print("Survol WSGI server: %s"%progNam)
-	print("	-a,--address=<IP address> TCP/IP address")
-	print("	-p,--port=<number>		TCP/IP port number. Default is %d." %(port_number_default) )
-	# Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
-	print("	-b,--browser=<program>	Starts a browser")
-	print("	-v,--verbose			  Verbose mode")
-	print("")
-	print("Script must be started with command: survol/scripts/cgiserver.py")
+    progNam = sys.argv[0]
+    print("Survol WSGI server: %s"%progNam)
+    print("    -a,--address=<IP address> TCP/IP address")
+    print("    -p,--port=<number>        TCP/IP port number. Default is %d." %(port_number_default) )
+    # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+    print("    -b,--browser=<program>    Starts a browser")
+    print("    -v,--verbose              Verbose mode")
+    print("")
+    print("Script must be started with command: survol/scripts/cgiserver.py")
 
 # https://docs.python.org/2/library/webbrowser.html
 def StartsWebrowser(browser_name,theUrl):
-	"""This starts a browser with the specific module to do it"""
+    """This starts a browser with the specific module to do it"""
 
-	import webbrowser
+    import webbrowser
 
-	# TODO: Parses the argument from the parameter
-	webbrowser.open(theUrl, new=0, autoraise=True)
+    # TODO: Parses the argument from the parameter
+    webbrowser.open(theUrl, new=0, autoraise=True)
 
 def StartsBrowser(browser_name,theUrl):
-	"""This starts a browser whose executable is given on the command line"""
-	# Import only if needed.
-	import threading
-	import time
-	import subprocess
+    """This starts a browser whose executable is given on the command line"""
+    # Import only if needed.
+    import threading
+    import time
+    import subprocess
 
-	def StartBrowserProcess():
+    def StartBrowserProcess():
 
-		print("About to start browser: %s %s"%(browser_name,theUrl))
+        print("About to start browser: %s %s"%(browser_name,theUrl))
 
-		# Leaves a bit of time so the HTTP server can start.
-		time.sleep(5)
+        # Leaves a bit of time so the HTTP server can start.
+        time.sleep(5)
 
-		subprocess.check_call([browser_name, theUrl])
+        subprocess.check_call([browser_name, theUrl])
 
-	threading.Thread(target=StartBrowserProcess).start()
-	print("Browser thread started")
+    threading.Thread(target=StartBrowserProcess).start()
+    print("Browser thread started")
 
 def RunWsgiServer():
 
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
-	except getopt.GetoptError as err:
-		# print help information and exit:
-		print(err)  # will print something like "option -a not recognized"
-		Usage()
-		sys.exit(2)
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(err)  # will print something like "option -a not recognized"
+        Usage()
+        sys.exit(2)
 
-	# It must be the same address whether it is local or guessed from another machine.
-	# Equivalent to os.environ['SERVER_NAME']
-	# server_name = "rchateau-HP"
-	# server_name = "DESKTOP-NI99V8E"
-	# It is possible to force this address to "localhost" or "127.0.0.1" for example.
-	# Consider also: socket.gethostbyname(socket.getfqdn())
+    # It must be the same address whether it is local or guessed from another machine.
+    # Equivalent to os.environ['SERVER_NAME']
+    # server_name = "rchateau-HP"
+    # server_name = "DESKTOP-NI99V8E"
+    # It is possible to force this address to "localhost" or "127.0.0.1" for example.
+    # Consider also: socket.gethostbyname(socket.getfqdn())
 
-	server_name = socket.gethostname()
+    server_name = socket.gethostname()
 
-	server_addr = socket.gethostbyname(server_name)
+    verbose = False
+    port_number = port_number_default
+    browser_name = None
 
-	verbose = False
-	port_number = port_number_default
-	browser_name = None
+    for anOpt, aVal in opts:
+        if anOpt in ("-v", "--verbose"):
+            verbose = True
+        elif anOpt in ("-a", "--address"):
+            server_name = aVal
+        elif anOpt in ("-p", "--port"):
+            port_number = int(aVal)
+        elif anOpt in ("-b", "--browser"):
+            browser_name = aVal
+        elif anOpt in ("-h", "--help"):
+            Usage()
+            sys.exit()
+        else:
+            assert False, "Unhandled option"
 
-	for anOpt, aVal in opts:
-		if anOpt in ("-v", "--verbose"):
-			verbose = True
-		elif anOpt in ("-a", "--address"):
-			server_name = aVal
-		elif anOpt in ("-p", "--port"):
-			port_number = int(aVal)
-		elif anOpt in ("-b", "--browser"):
-			browser_name = aVal
-		elif anOpt in ("-h", "--help"):
-			Usage()
-			sys.exit()
-		else:
-			assert False, "Unhandled option"
+    currDir = os.getcwd()
+    if verbose:
+        print("cwd=%s path=%s"% (currDir, str(sys.path)))
 
-	currDir = os.getcwd()
-	if verbose:
-		print("cwd=%s path=%s"% (currDir, str(sys.path)))
+    theUrl = "http://" + server_name
+    if port_number:
+        if port_number != 80:
+            theUrl += ":%d" % port_number
+    theUrl += "/survol/www/index.htm"
+    print("Url:"+theUrl)
 
+    # Starts a thread which will starts the browser.
+    if browser_name:
 
-	# The script must be started from a specific directory to ensure the URL.
-	filMyself = open("survol/scripts/wsgiserver.py")
-	if not filMyself:
-		print("Script started from wrong directory")
-		Usage()
-		sys.exit()
+        if browser_name.startswith("webbrowser"):
+            StartsWebrowser(browser_name,theUrl)
+        else:
+            StartsBrowser(browser_name,theUrl)
+        print("Browser thread started to:"+theUrl)
 
-	print("Platform=%s\n"%sys.platform)
-	print("Version:%s\n"% str(sys.version_info))
-	print("Server address:%s" % server_addr)
-	print("Opening %s:%d" % (server_name,port_number))
+    StartWsgiServer(server_name, port_number, current_dir="")
 
-	theUrl = "http://" + server_name
-	if port_number:
-		if port_number != 80:
-			theUrl += ":%d" % port_number
-	theUrl += "/survol/www/index.htm"
-	print("Url:"+theUrl)
+def StartWsgiServer(server_name, port_number, current_dir=""):
 
-	# Starts a thread which will starts the browser.
-	if browser_name:
+    server_addr = socket.gethostbyname(server_name)
 
-		if browser_name.startswith("webbrowser"):
-			StartsWebrowser(browser_name,theUrl)
-		else:
-			StartsBrowser(browser_name,theUrl)
-		print("Browser thread started to:"+theUrl)
+    # The script must be started from a specific directory to ensure the URL.
+    filMyself = open("survol/scripts/wsgiserver.py")
+    if not filMyself:
+        print("Script started from wrong directory")
+        Usage()
+        sys.exit()
 
-	sys.path.append("survol")
-	# sys.path.append("survol/revlib")
-	DEBUG("path=%s", str(sys.path))
+    print("Platform=%s\n"%sys.platform)
+    print("Version:%s\n"% str(sys.version_info))
+    print("Server address:%s" % server_addr)
+    print("Opening %s:%d" % (server_name,port_number))
 
-	# This expects that environment variables are propagated to subprocesses.
-	os.environ["SURVOL_SERVER_NAME"] = server_name
-	sys.stderr.write("server_name=%s\n"% server_name)
+    sys.path.append("survol")
+    # sys.path.append("survol/revlib")
+    sys.stderr.write("path=%s\n" % str(sys.path))
 
-	httpd = server.make_server('', port_number, application)
-	print "WSGI server running on port %i..." % port_number
-	# Respond to requests until process is killed
-	httpd.serve_forever()
+    # This expects that environment variables are propagated to subprocesses.
+    os.environ["SURVOL_SERVER_NAME"] = server_name
+    sys.stderr.write("server_name=%s\n"% server_name)
+
+    httpd = server.make_server('', port_number, application)
+    print("WSGI server running on port %i..." % port_number)
+    # Respond to requests until process is killed
+    httpd.serve_forever()
 
 if __name__ == '__main__':
-	# If this is called from the command line, we are in test mode and must use the local Python code,
-	# and not use the installed packages.
-	RunWsgiServer()
+    # If this is called from the command line, we are in test mode and must use the local Python code,
+    # and not use the installed packages.
+    RunWsgiServer()
