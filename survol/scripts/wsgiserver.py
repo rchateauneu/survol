@@ -10,20 +10,18 @@ import importlib
 import wsgiref.simple_server as server
 
 # See lib_client.py with similar code which cannot be imported here.
+# TODO: FIXME: Should be replaced by a binary stream otherwise
+# TODO: FIXME: this cannot display images.
 def CreateStringStream():
-    if True:
+    try:
+    # Python 3
+        from io import StringIO
+    except ImportError:
         try:
-        # Python 3
-            from io import StringIO
+            from cStringIO import StringIO
         except ImportError:
-            try:
-                from cStringIO import StringIO
-            except ImportError:
-                from StringIO import StringIO
-        return StringIO()
-    else:
-        from io import BytesIO
-        return BytesIO
+            from StringIO import StringIO
+    return StringIO()
 
 # See the class lib_util.OutputMachineCgi
 class OutputMachineWsgi:
@@ -34,6 +32,7 @@ class OutputMachineWsgi:
         # FIXME: to the output socket.
         self.m_output = CreateStringStream()
         self.m_start_response = start_response
+        self.m_header_called = False
 
     def __del__(self):
         # Close object and discard memory buffer --
@@ -41,6 +40,9 @@ class OutputMachineWsgi:
         self.m_output.close()
 
     def Content(self):
+        if not self.m_header_called:
+            sys.stderr.write("OutputMachineWsgi.Content HeaderWriter not called.\n")
+        self.m_header_called = False
         str_value = self.m_output.getvalue()
         if sys.version_info >= (3,):
             if type(str_value) == str:
@@ -48,11 +50,13 @@ class OutputMachineWsgi:
         else:
             if type(str_value) == unicode:
                 str_value = str_value.encode()
-
         return str_value
 
     # extraArgs is an array of key-value tuples.
-    def HeaderWriter(self,mimeType,extraArgs= None):
+    def HeaderWriter(self, mimeType, extraArgs= None):
+        if self.m_header_called:
+            sys.stderr.write("OutputMachineWsgi.HeaderWriter already called: mimeType=%s.\n"%mimeType)
+        self.m_header_called = True
         status = '200 OK'
         response_headers = [('Content-type', mimeType)]
         self.m_start_response(status, response_headers)
@@ -80,7 +84,9 @@ def app_serve_file(pathInfo, start_response):
         start_response('200 OK', response_headers)
         return [ "<html><head></head><body>Broken</body></html>" ]
 
+
 verbose_debug_mode = False
+
 
 # environ[SERVER_SOFTWARE]=WSGIServer/0.1 Python/2.7.10
 # Maybe some non-string and undocumented values:
@@ -105,6 +111,15 @@ def application_ok(environ, start_response):
     # Must be done BEFORE IMPORTING, so the modules can have the good environment at init time.
     for key in ["QUERY_STRING","SERVER_PORT"]:
         os.environ[key] = environ[key]
+
+    # This is necessary for security reasons.
+    os.environ["REMOTE_ADDR"] = environ["REMOTE_ADDR"]
+
+    # This is necessary for error processing, if the header must be sent once only,
+    # and before the content.
+    # environ["SERVER_PROTOCOL"] = "HTTP/1.1"
+    # environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
+    os.environ["SERVER_SOFTWARE"] = environ["SERVER_SOFTWARE"]
 
     # The wsgi Python module sets a value for SERVER_NAME that we do not want.
     os.environ["SERVER_NAME"] = os.environ["SURVOL_SERVER_NAME"]
@@ -133,12 +148,12 @@ def application_ok(environ, start_response):
     if pathInfo.find("/survol/www/") >= 0:
         return app_serve_file(pathInfo, start_response)
 
-
     pathInfo = pathInfo.replace("/",".")
 
     modulePrefix = "survol."
     htbinIndex = pathInfo.find(modulePrefix)
 
+    assert pathInfo.endswith(".py")
     pathInfo = pathInfo[htbinIndex + len(modulePrefix):-3] # "Strips ".py" at the end.
 
     # ["sources_types","enumerate_CIM_LogicalDisk"]
@@ -167,30 +182,38 @@ def application_ok(environ, start_response):
 
         # TODO: Strange: Here, this load lib_util a second time.
         sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
-        the_module = importlib.import_module( pathInfo )
+        the_module = importlib.import_module(pathInfo)
 
         # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
         lib_util.globalOutMach = theOutMach
 
-    scriptNam=os.environ['SCRIPT_NAME']
-    sys.stderr.write("scriptNam=%s\n" % scriptNam)
+    script_name = os.environ['SCRIPT_NAME']
+    sys.stderr.write("application_ok: scriptNam=%s\n" % script_name)
 
     the_module.Main()
-    return [ lib_util.globalOutMach.Content() ]
+
+    try:
+        # TODO: Use yield for better performance.
+        module_content = lib_util.globalOutMach.Content()
+    except Exception as exc:
+        sys.stderr.write("application_ok: caught from Content():%s\n" % exc)
+        # The HTTP header is not written because of the exception. This calls start_response.
+        lib_util.globalOutMach.HeaderWriter('text/html')
+        module_content = "Message: application_ok caught:%s\n" % exc
+
+    return [ module_content ]
 
 def application(environ, start_response):
     try:
         return application_ok(environ, start_response)
-    except:
-        # Uncomment this for easier debugging.
-        # raise
-        sys.stderr.write("application CAUGHT:\n")
+    except Exception as exc:
 
         import lib_util
 
-        exc = sys.exc_info()
-        WARNING("application CAUGHT:%s",str(exc))
-        return [ lib_util.globalOutMach.Content() ]
+        lib_util.globalOutMach.HeaderWriter('text/html')
+        module_content = "Message: application caught:%s\n" % exc
+        return ["<html><head></head><body>Error:%s</body></html>" % module_content]
+
 
 port_number_default = 9000
 
