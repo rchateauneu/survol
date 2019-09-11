@@ -842,19 +842,33 @@ def ComposeTypes(*hierarchical_entity_types):
 
 ################################################################################
 
-def CopyFile( mime_type, fileName ):
-
-    # read and write by chunks, so that it does not use all memory.
-    filDes = open(fileName, 'rb')
+# Read and write by chunks, so that it does not use all memory.
+def CopyFile( mime_type, file_name):
+    filDes = open(file_name, "rb")
 
     globalOutMach.HeaderWriter( mime_type )
 
     outFd = globalOutMach.OutStream()
+    # This is a bit tricky for WSGI if an error occurs:
+    # The header must always be sent before the content, and ocne only.
+    # os.environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
+    write_as_str = os.environ["SERVER_SOFTWARE"].startswith("WSGIServer")
     while True:
         chunk = filDes.read(1000000)
         if not chunk:
             break
-        outFd.write( chunk )
+        if write_as_str:
+            #outFd.write(chunk.decode('latin1'))
+            #outFd.write(chunk.decode('string_escape'))
+            #outFd.write(u"chunk.encode()")
+            try:
+                outFd.write(chunk.decode())
+            except:
+                # 'ascii' codec can't decode byte 0xf3 in position 1: ordinal not in range(128).
+                outFd.write(u"Cannot display:%s" % file_name)
+        else:
+            outFd.write(chunk)
+
     outFd.flush()
     filDes.close()
 
@@ -867,10 +881,10 @@ def CopyFile( mime_type, fileName ):
 # This is used as a HTML page but also displayed in Javascript in a DIV block.
 # TODO: Change this for WSGI.
 def InfoMessageHtml(message):
-    gblLogger.warning("InfoMessageHtml:%s",message)
+    #gblLogger.warning("InfoMessageHtml:%s",message)
     globalOutMach.HeaderWriter("text/html")
 
-    gblLogger.debug("InfoMessageHtml:Sending content")
+    #gblLogger.debug("InfoMessageHtml:Sending content")
     WrtAsUtf(
         "<html><head><title>Error: Process=%s</title></head>"
         % str(os.getpid()) )
