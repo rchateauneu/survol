@@ -325,7 +325,12 @@ def Main():
 
     currHostNam = socket.gethostname()
     currHostAddr = lib_util.GlobalGetHostByName(currHostNam)
-    addrRemote = os.environ['REMOTE_ADDR']
+    try:
+        addrRemote = os.environ['REMOTE_ADDR']
+    except KeyError:
+        #ERROR("edit_credentials.py: Cannot get REMOTE_ADDR")
+        sys.stderr.write("edit_credentials.py: Cannot get REMOTE_ADDR\n")
+        raise
 
     if addrRemote not in ["82.45.12.63","192.168.0.14","127.0.0.1"]:
         lib_common.ErrorMessageHtml("Access forbidden from %s"% addrRemote )
