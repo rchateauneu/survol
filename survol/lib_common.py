@@ -54,8 +54,11 @@ def UselessProc(proc):
 ################################################################################
 
 def WriteDotHeader( page_title, layout_style, stream, grph ):
+	# Some cleanup.
+	page_title_clean = page_title.strip()
+	page_title_clean = page_title_clean.replace("\n", " ")
 	# Title embedded in the page.
-	stream.write('digraph "' + page_title + '" { \n')
+	stream.write('digraph "' + page_title_clean + '" { \n')
 
 	# CSS style-sheet should be in the top-level directory ?
 	# Not implemented in 2010: http://graphviz.org/bugs/b1874.html
