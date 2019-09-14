@@ -197,10 +197,14 @@ def WritePatterned( stream, aType, subjNamTab, helpText, color, labHRef, numFiel
 		try:
 			# Brackets have a specific role in "dot" files syntax.
 			# So this escapes them, to be correctly displayed by the browser.
-			dictLines[key] = dictLines[key].replace("[","&#91;").replace("]","&#93;")
-			stream.write( "<tr>%s</tr>" % dictLines[key] )
-		except UnicodeEncodeError:
-			stream.write( "<tr><td>Unicode error encoding=%s</td></tr>" % sys.getdefaultencoding() )
+			dict_lines_key = dictLines[key]
+			dict_lines_key = dict_lines_key.replace("[","&#91;").replace("]","&#93;")
+			dictLines[key] = dict_lines_key
+		except Exception as exc:
+			dict_lines_key = "<td>WritePatterned: exc=%s</td>" % str(exc)
+
+		assert isinstance(dict_lines_key, lib_util.six_text_type)
+		stream.write("<tr>%s</tr>" % dict_lines_key)
 
 	stream.write( "</table> > ] \n" )
 
