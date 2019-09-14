@@ -491,6 +491,13 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                             # This displays objects in a table: The top-level object must be
                             # in the same host, so there is no need to display a long label.
                             valTitle = lib_naming.ParseEntityUriShort( val )[0]
+                            assert isinstance(valTitle, lib_util.six_text_type)
+
+                            # There might be non-ascii characters such as accents etc...
+                            try:
+                                valTitle.encode('ascii')
+                            except UnicodeEncodeError:
+                                valTitle = "Not ascii"
 
                             valTitleUL = lib_exports.DotUL(valTitle)
                             tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitleUL )
