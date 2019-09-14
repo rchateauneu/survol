@@ -12,6 +12,7 @@ import wsgiref.simple_server as server
 # See lib_client.py with similar code which cannot be imported here.
 # TODO: FIXME: Should be replaced by a binary stream otherwise
 # TODO: FIXME: this cannot display images.
+# MIME binary documents are not transmitted ??
 def CreateStringStream():
     try:
     # Python 3
@@ -320,17 +321,21 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
 
     server_addr = socket.gethostbyname(server_name)
 
-    # The script must be started from a specific directory to ensure the URL.
-    filMyself = open("survol/scripts/wsgiserver.py")
-    if not filMyself:
-        print("Script started from wrong directory")
-        Usage()
-        sys.exit()
-
     print("Platform=%s\n"%sys.platform)
     print("Version:%s\n"% str(sys.version_info))
     print("Server address:%s" % server_addr)
     print("Opening %s:%d" % (server_name,port_number))
+
+    # The script must be started from a specific directory because of the URLs.
+    if current_dir:
+        os.chdir(current_dir)
+        sys.stderr.write("StartWsgiServer getcwd=%s\n" % os.getcwd() )
+    try:
+        filMyself = open("survol/scripts/wsgiserver.py")
+    except Exception as exc:
+        print("Script started from wrong directory %s: exc=%s" % (os.getcwd(), exc))
+        Usage()
+        sys.exit()
 
     sys.path.append("survol")
     # sys.path.append("survol/revlib")
