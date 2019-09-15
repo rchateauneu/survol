@@ -852,12 +852,12 @@ def CopyFile( mime_type, file_name):
     # This is a bit tricky for WSGI if an error occurs:
     # The header must always be sent before the content, and ocne only.
     # os.environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
-    write_as_str = os.environ["SERVER_SOFTWARE"].startswith("WSGIServer")
+    is_wsgi_server = os.environ["SERVER_SOFTWARE"].startswith("WSGIServer")
     while True:
         chunk = filDes.read(1000000)
         if not chunk:
             break
-        if write_as_str:
+        if is_wsgi_server:
             #outFd.write(chunk.decode('latin1'))
             #outFd.write(chunk.decode('string_escape'))
             #outFd.write(u"chunk.encode()")
