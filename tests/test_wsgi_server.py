@@ -196,15 +196,18 @@ class WsgiRemoteTest(unittest.TestCase):
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
         json_content = mySourceFileStatRemote.content_json()
 
-        dirFileAlwaysThere = os.path.dirname(FileAlwaysThere).lower()
-        baseFileAlwaysThere = os.path.basename(FileAlwaysThere).lower()
+        dirFileAlwaysThere = os.path.basename(os.path.dirname(FileAlwaysThere)) + "/"
+        baseFileAlwaysThere = os.path.basename(FileAlwaysThere)
 
-        json_nodes = json_content['nodes']
-        print("jsonFileStatRemote=%s  ..." % str(json_content))
+        # No doc explorer.exe
+        json_title = json_content['page_title']
+        print("json_title=",json_title)
+
         found_file = False
         found_dir = False
+        json_nodes = json_content['nodes']
         for one_node in json_nodes:
-            print("one_node=",one_node)
+            print("test_wsgi_file_stat_json one_node=",one_node)
             if not found_file:
                 # {u'entity_class': u'CIM_DataFile', u'name': u'explorer.exe' }
                 found_file = one_node['entity_class'] == 'CIM_DataFile' and one_node['name'] == baseFileAlwaysThere
@@ -212,12 +215,12 @@ class WsgiRemoteTest(unittest.TestCase):
                 # {u'entity_class': u'CIM_Directory', u'name': u'Windows/'}
                 found_dir = one_node['entity_class'] == 'CIM_Directory' and one_node['name'] == dirFileAlwaysThere
 
-        if not found_file:
-            print("Could not find file:", FileAlwaysThere)
-            return False
-        if not found_dir:
-            print("Could not find directory:", dirFileAlwaysThere)
-            return False
+        self.assertTrue(found_file, "Could not find file:" + FileAlwaysThere)
+        self.assertTrue(found_dir, "Could not find directory:" + dirFileAlwaysThere)
+
+        json_links = json_content['links']
+        print("json_links=",json_links)
+
 
     @decorator_remote_tests
     def test_wsgi_file_stat_rdf(self):
@@ -230,6 +233,16 @@ class WsgiRemoteTest(unittest.TestCase):
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
         rdf_content = mySourceFileStatRemote.content_rdf()
         print("rdfFileStatRemote=%s ..." % str(rdf_content))
+
+        found_file = False
+        found_dir = False
+        for rdf_subject, rdf_predicate, rdf_object in rdf_content:
+            print("test_wsgi_file_stat_rdf rdf_subject=", rdf_subject)
+            if not found_file:
+                pass
+            if not found_dir:
+                pass
+
 
     @decorator_remote_tests
     def test_wsgi_file_directory(self):
