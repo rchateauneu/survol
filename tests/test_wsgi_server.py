@@ -196,12 +196,15 @@ class WsgiRemoteTest(unittest.TestCase):
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
         json_content = mySourceFileStatRemote.content_json()
 
-        dirFileAlwaysThere = os.path.basename(os.path.dirname(FileAlwaysThere)) + "/"
+        dirFileAlwaysThere = os.path.basename(os.path.dirname(FileAlwaysThere))
         baseFileAlwaysThere = os.path.basename(FileAlwaysThere)
 
-        # No doc explorer.exe
+        # "No doc explorer.exe"
+        # "File stat information..."
         json_title = json_content['page_title']
         print("json_title=",json_title)
+
+        self.assertTrue( json_title.startswith("File stat information"), "Incorrect title:"+json_title)
 
         found_file = False
         found_dir = False
@@ -213,13 +216,26 @@ class WsgiRemoteTest(unittest.TestCase):
                 found_file = one_node['entity_class'] == 'CIM_DataFile' and one_node['name'] == baseFileAlwaysThere
             if not found_dir:
                 # {u'entity_class': u'CIM_Directory', u'name': u'Windows/'}
-                found_dir = one_node['entity_class'] == 'CIM_Directory' and one_node['name'] == dirFileAlwaysThere
+                found_dir = one_node['entity_class'] == 'CIM_Directory' and one_node['name'] == dirFileAlwaysThere + "/"
 
         self.assertTrue(found_file, "Could not find file:" + FileAlwaysThere)
         self.assertTrue(found_dir, "Could not find directory:" + dirFileAlwaysThere)
 
+
+        # json_links= [
+        # {
+        # u'survol_link_prop': u'directory',
+        # u'source': u'http://rchateau-hp:9000/survol/entity.py?xid=CIM_Directory.Name=C%3A%2FWindows',
+        # u'target': u'http://rchateau-hp:9000/survol/entity.py?xid=CIM_DataFile.Name=C%3A%2FWindows%2Fexplorer.exe'},
         json_links = json_content['links']
-        print("json_links=",json_links)
+        link_found = False
+        for one_link in json_links:
+            if one_link['survol_link_prop'] == 'directory' \
+                    and one_link['source'].endswith(dirFileAlwaysThere) \
+                    and one_link['target'].endswith(baseFileAlwaysThere):
+                link_found = True
+                break
+        self.assertTrue(link_found, "Could not find edge between fiel and directory")
 
 
     @decorator_remote_tests
