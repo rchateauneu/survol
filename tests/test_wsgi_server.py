@@ -4,14 +4,12 @@ from __future__ import print_function
 
 import cgitb
 import unittest
-import subprocess
 import sys
 import os
 import re
 import time
 import socket
-import platform
-import pkgutil
+import json
 
 # This starts a local WSGI server and runs several queries and tests that the results are the same.
 
@@ -188,12 +186,7 @@ class WsgiRemoteTest(unittest.TestCase):
         return test_func
 
     @decorator_remote_tests
-    def test_InstanceUrlToAgentUrl(selfself):
-        assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427") == None )
-        assert( lib_client.InstanceUrlToAgentUrl(RemoteTestAgent + "/survol/sources_types/java/java_processes.py") == RemoteTestAgent )
-
-    @decorator_remote_tests
-    def test_create_source_url(self):
+    def test_wsgi_file_stat_json(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
@@ -201,16 +194,45 @@ class WsgiRemoteTest(unittest.TestCase):
             Name=FileAlwaysThere)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
-        print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
-        print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
+        json_content = mySourceFileStatRemote.content_json()
 
-        # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-        print(__file__ + " sys.path=%s" % str(sys.path))
-        print(__file__ + " sys.executable=%s" % sys.executable)
-        print(__file__ + " sys.exec_prefix=%s" % sys.exec_prefix)
+        dirFileAlwaysThere = os.path.dirname(FileAlwaysThere).lower()
+        baseFileAlwaysThere = os.path.basename(FileAlwaysThere).lower()
+
+        json_nodes = json_content['nodes']
+        print("jsonFileStatRemote=%s  ..." % str(json_content))
+        found_file = False
+        found_dir = False
+        for one_node in json_nodes:
+            print("one_node=",one_node)
+            if not found_file:
+                # {u'entity_class': u'CIM_DataFile', u'name': u'explorer.exe' }
+                found_file = one_node['entity_class'] == 'CIM_DataFile' and one_node['name'] == baseFileAlwaysThere
+            if not found_dir:
+                # {u'entity_class': u'CIM_Directory', u'name': u'Windows/'}
+                found_dir = one_node['entity_class'] == 'CIM_Directory' and one_node['name'] == dirFileAlwaysThere
+
+        if not found_file:
+            print("Could not find file:", FileAlwaysThere)
+            return False
+        if not found_dir:
+            print("Could not find directory:", dirFileAlwaysThere)
+            return False
 
     @decorator_remote_tests
-    def test_remote_triplestore(self):
+    def test_wsgi_file_stat_rdf(self):
+        # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
+        mySourceFileStatRemote = lib_client.SourceRemote(
+            RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
+            "CIM_DataFile",
+            Name=FileAlwaysThere)
+        print("urlFileStatRemote=",mySourceFileStatRemote.Url())
+        print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
+        rdf_content = mySourceFileStatRemote.content_rdf()
+        print("rdfFileStatRemote=%s ..." % str(rdf_content))
+
+    @decorator_remote_tests
+    def test_wsgi_file_directory(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
