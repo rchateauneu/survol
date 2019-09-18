@@ -152,17 +152,8 @@ class SourceRemote (SourceCgi):
         return data
 
 def CreateStringStream():
-    try:
-        # Python 3
-        from io import StringIO
-    except ImportError:
-        try:
-            from cStringIO import StringIO
-        except ImportError:
-            from StringIO import StringIO
-    return StringIO()
-    #from io import BytesIO
-    #return BytesIO
+    from io import BytesIO
+    return BytesIO()
 
 class SourceLocal (SourceCgi):
     def __init__(self,aScript,className = None,**kwargsOntology):
