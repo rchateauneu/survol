@@ -21,34 +21,25 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 	server = cgiEnv.GetId()
 
-	if lib_util.IsLocalAddress( server ):
-		server = None
-
 	grph = cgiEnv.GetGraph()
+
+	if lib_util.IsLocalAddress(server):
+		servName_or_None = server
+		serverNode = lib_common.gUriGen.HostnameUri(server)
+	else:
+		servName_or_None = None
+		serverNode = lib_common.nodeMachine
 
 	# http://www.math.uiuc.edu/~gfrancis/illimath/windows/aszgard_mini/movpy-2.0.0-py2.4.4/movpy/lib/win32/Demos/win32netdemo.py
 	# servName_or_None, imper = lib_win32.MakeImpersonate(server)
 
 	# hostname = "Titi" for example
 	try:
-		lib_win32.WNetAddConnect(server)
+		lib_win32.WNetAddConnect(servName_or_None)
 	except:
 		# Maybe the machine is not online.
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml(str(exc))
-
-	# It might be an empty string.
-	if server:
-		servName_or_None = server
-	else:
-		servName_or_None = None
-
-	if servName_or_None:
-		serverNode = lib_common.gUriGen.HostnameUri(server)
-		serverBox = lib_common.RemoteBox(server)
-	else:
-		serverNode = lib_common.nodeMachine
-		serverBox = lib_common.gUriGen
 
 	resume = 0
 	numMembers = 0
@@ -63,7 +54,7 @@ def Main():
 				groupName = group['name']
 				DEBUG("groupName=%s", groupName)
 				# nodeGroup = serverBox.GroupUri( groupName )
-				nodeGroup = survol_Win32_Group.MakeUri( groupName, servName_or_None )
+				nodeGroup = survol_Win32_Group.MakeUri(groupName, server)
 
 				grph.add( ( nodeGroup, pc.property_host, serverNode ) )
 				groupComment = group['comment']
@@ -77,7 +68,7 @@ def Main():
 				memberresume = 0
 				while True:
 					# memberData, total, memberResume = win32net.NetLocalGroupGetMembers(server, group['name'], 2, resume)
-					memberData, total, memberResume = win32net.NetLocalGroupGetMembers(servName_or_None, group['name'], 2, memberresume)
+					memberData, total, memberResume = win32net.NetLocalGroupGetMembers(servName_or_None, groupName, 2, memberresume)
 					for member in memberData:
 						# Converts Sid to username
 						numMembers = numMembers + 1
@@ -88,9 +79,9 @@ def Main():
 							WARNING("Server=%s Caught:%s", server, str(exc) )
 							continue
 
-						DEBUG("Member: %s: %s", userName, member['domainandname'])
+						DEBUG("Member: %s: %s server=%s", userName, member['domainandname'], server)
 						# nodeUser = serverBox.UserUri( userName )
-						nodeUser = survol_Win32_UserAccount.MakeUri( userName, servName_or_None )
+						nodeUser = survol_Win32_UserAccount.MakeUri(userName, server)
 
 						# TODO: Not sure about the property.
 						# TODO: Not sure about the username syntax.
