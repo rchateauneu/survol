@@ -200,6 +200,8 @@ def RunCgiServerInternal():
 
 # The current directory can be set, this is used when this is called from multiprocessing.
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
+    os.environ["SERVER_SOFTWARE"] = "CGIServerPython"
+
     if verbose:
         sys.stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
         sys.stderr.write("StartParameters sys.executable=%s\n" % sys.executable)
