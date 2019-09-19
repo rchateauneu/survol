@@ -235,7 +235,7 @@ class WsgiRemoteTest(unittest.TestCase):
                     and one_link['target'].endswith(baseFileAlwaysThere):
                 link_found = True
                 break
-        self.assertTrue(link_found, "Could not find edge between fiel and directory")
+        self.assertTrue(link_found, "Could not find edge between file and directory")
 
 
     @decorator_remote_tests
@@ -245,20 +245,31 @@ class WsgiRemoteTest(unittest.TestCase):
             RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=FileAlwaysThere)
+
+        cleanFileAlwaysThere = FileAlwaysThere.replace("\\","/")
+        dirFileAlwaysThere = os.path.dirname(FileAlwaysThere).replace("\\","/")
+
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
-        rdf_content = mySourceFileStatRemote.content_rdf()
-        print("rdfFileStatRemote=%s ..." % str(rdf_content))
+        data_triplestore = mySourceFileStatRemote.GetTriplestore()
+
+        # CIM_Directory.Name=C:/Windows
+        # CIM_DataFile.Name=C:/Windows/explorer.exe
+        # Win32_Group.Name=TrustedInstaller,Domain=NT SERVICE
+        # CIM_Directory.Name=C:/
+        list_instances = data_triplestore.GetInstances()
 
         found_file = False
         found_dir = False
-        for rdf_subject, rdf_predicate, rdf_object in rdf_content:
-            print("test_wsgi_file_stat_rdf rdf_subject=", rdf_subject)
-            if not found_file:
-                pass
+        for one_instance in list_instances:
+            print("test_wsgi_file_stat_rdf one_instance=", one_instance)
             if not found_dir:
-                pass
+                found_dir = str(one_instance) == "CIM_Directory.Name=" + dirFileAlwaysThere
+            if not found_file:
+                found_file = str(one_instance) == "CIM_DataFile.Name=" + cleanFileAlwaysThere
 
+        self.assertTrue(found_dir, "Cannot find directory:" + dirFileAlwaysThere)
+        self.assertTrue(found_file, "Cannot find file:" + FileAlwaysThere)
 
     @decorator_remote_tests
     def test_wsgi_file_directory(self):
