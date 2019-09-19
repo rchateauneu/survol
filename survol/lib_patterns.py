@@ -203,7 +203,6 @@ def WritePatterned( stream, aType, subjNamTab, helpText, color, labHRef, numFiel
 		except Exception as exc:
 			dict_lines_key = "<td>WritePatterned: exc=%s</td>" % str(exc)
 
-		assert isinstance(dict_lines_key, lib_util.six_text_type)
 		stream.write("<tr>%s</tr>" % dict_lines_key)
 
 	stream.write( "</table> > ] \n" )
