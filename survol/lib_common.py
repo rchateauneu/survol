@@ -290,11 +290,9 @@ def GetCallingModuleDoc():
 
 	#sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
 
-	# environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
-	is_wsgi_server = os.environ["SERVER_SOFTWARE"].startswith("WSGIServer")
 
 	# If it uses an unique CGI script.
-	if globalMergeMode or is_wsgi_server:
+	if globalMergeMode or lib_util.is_wsgi_server():
 		try:
 			# This is a bit of a hack.
 			import inspect
