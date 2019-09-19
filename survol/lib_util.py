@@ -850,19 +850,20 @@ def CopyFile( mime_type, file_name):
 
     outFd = globalOutMach.OutStream()
     # This is a bit tricky for WSGI if an error occurs:
-    # The header must always be sent before the content, and ocne only.
+    # The header must always be sent before the content, and once only.
     # os.environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
-    is_wsgi_server = os.environ["SERVER_SOFTWARE"].startswith("WSGIServer")
     while True:
         chunk = filDes.read(1000000)
         if not chunk:
             break
-        if is_wsgi_server:
+        #  or os.environ["SERVER_SOFTWARE"].startswith("Apache/")
+        if is_wsgi_server():
             #outFd.write(chunk.decode('latin1'))
             #outFd.write(chunk.decode('string_escape'))
             #outFd.write(u"chunk.encode()")
             try:
-                outFd.write(chunk.decode())
+                outFd.write(chunk)
+                #outFd.write(chunk.decode())
             except:
                 # 'ascii' codec can't decode byte 0xf3 in position 1: ordinal not in range(128).
                 outFd.write(u"Cannot display:%s" % file_name)
@@ -1406,25 +1407,40 @@ paramkeyShowAll = "Show all scripts"
 def DfltOutDest():
     return globalOutMach.OutStream()
 
+
+# environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
+# This must be calculated each time because the WSGI server sets this environment
+# variable when an URL is loaded, after module init.
+is_wsgi_server_data = None
+def is_wsgi_server():
+    global is_wsgi_server_data
+    if not is_wsgi_server_data:
+        try:
+            is_wsgi_server_data = os.environ["SERVER_SOFTWARE"].startswith("WSGIServer")
+        except KeyError:
+            sys.stderr.write("is_wsgi_server SERVER_SOFTWARE not defined\n")
+            is_wsgi_server_data = "DefaultServerSoftware"
+    return is_wsgi_server_data
+
+# or os.environ["SERVER_SOFTWARE"].startswith("Apache/")
+
 # Depending if the stream is a socket, a file or standard output,
-# if Python 2 or 3, Windows or Linux, some complicated tests or conversions
-# are needed.
+# if Python 2 or 3, Windows or Linux, some complicated tests or conversions are needed.
+# This writes to:
+# - Apache socket.
+# - WSGI stream.
+# - lib_client stream.
+# - CGI output.
+# FIXME: Should always send bytes (Py3) or str (Py2)
 def WrtAsUtf(aStr):
     gblOutStrm = DfltOutDest()
-    if sys.version_info >= (3,):
-        if isinstance(aStr,str):
-            try:
-                # Writing to lib_client
-                gblOutStrm.write( aStr )
-            except TypeError:
-                # string argument expected, got 'bytes'
-                # Writing to cgiServer socket.
-                gblOutStrm.write( aStr.encode('latin1') )
-        else:
-            #gblOutStrm.write(   aStr.decode('latin1') )
-            gblOutStrm.write(aStr)
-    else:
-        gblOutStrm.write( aStr.decode('latin1') )
+    try:
+        gblOutStrm.write(aStr)
+    except:
+        try:
+            gblOutStrm.write(aStr.encode('latin1'))
+        except Exception as exc:
+            sys.stderr.write("WrtAsUtf type=%s gblOutStrm=%s caught %s\n" % (type(aStr), type(gblOutStrm), exc))
 
 # For asynchronous display.
 # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
