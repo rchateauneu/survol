@@ -124,9 +124,21 @@ def Main():
 
         # TODO: If this is a script, checks if this is executale ?
         for file in files:
-            fullFilePath = filNam_slash+file
-            # OK WinXP: On remplace d'abord le ampersand, et on encode ensuite, car le remplacement ne marche pas dans l'autre sens.
-            subfilNode = lib_common.gUriGen.FileUri( fullFilePath.replace("&","&amp;" ) )
+            fullFilePath = filNam_slash + file
+            # First replace the ampersand, then encode.
+
+            fullFilePath = lib_util.urllib_quote(fullFilePath, safe='/:! ')
+
+            file_path_replace_encoded = fullFilePath.replace("&", "&amp;" )
+
+            # There might be non-ascii chars, accents etc...
+            # filNam='C://Users/Yana\xeblle \xe0 la plage.jpg'
+            # filNam='C://Users/Yanaelle a la plage.jpg'
+            # Typical Graphviz error:
+            # Error: not well-formed (invalid token) in line 1
+            # ... <u>Yana (e trema) lle et Constantin (a grave accent) Boulogne-sur-Mer.IMG-20190806-WA0000.jpg ...
+
+            subfilNode = lib_common.gUriGen.FileUri(file_path_replace_encoded)
 
             grph.add( ( filNode, pc.property_directory, subfilNode ) )
 

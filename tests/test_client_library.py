@@ -1161,6 +1161,47 @@ class SurvolLocalTest(unittest.TestCase):
 
         assert(strInstancesSet == set())
 
+    # Traiter ce nom de fichier: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    def test_accented_filename(self):
+        # Create directory and file name with accents, depending on the platform: Windows/Linux.
+
+        # Access the directory: file_directory.py
+
+        # Check that the returned file matches the original one.
+
+        # Properties: CIM_DataFile.file_stat.py
+        pass
+
+    # Traiter ce nom de fichier: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    def test_accented_dirname(self):
+        pass
+        # Create directory and file name with accents, depending on the platform: Windows/Linux.
+
+        # Properties: CIM_DataFile.dir_stat.py
+        # Properties: CIM_Directory.file_directory
+
+    # On Linux create symbolic link
+    def test_accents_filenames(self):
+        pass # CIM_DataFile.file_symlinks.py
+
+
+    # On Linux create symbolic link
+    def test_python_properties(self):
+        pass # CIM_DataFile.python_properties.py
+
+        # Properties: CIM_DataFile.file_stat.py
+        raise Exception("Not done yet")
+
+    # Access the directory: file_directory.py
+    def test_file_directory(self):
+        pass # CIM_Directory.file_directory
+
+    # On Linux create symbolic link
+    def test_dir_stats(self):
+        pass  #  CIM_DataFile.python_properties.py
+
+        # Properties: CIM_DataFile.file_stat.py
+
 
 class SurvolLocalOntologiesTest(unittest.TestCase):
     """This tests the creation of RDFS or OWL-DL ontologies"""
@@ -1499,6 +1540,24 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
+
+
+    @decorator_windows_platform
+    def test_win32_host_local_groups(self):
+        sys.stderr.write("CurrentMachine=%s\n" % CurrentMachine)
+        mySourceHostLocalGroups = lib_client.SourceLocal(
+            "sources_types/CIM_ComputerSystem/Win32/win32_host_local_groups.py",
+            "CIM_ComputerSystem",
+            Name = CurrentMachine)
+
+        sys.stderr.write("CurrentMachine=%s before GetTriplestore\n" % CurrentMachine)
+        tripleHostLocalGroups = mySourceHostLocalGroups.GetTriplestore()
+        sys.stderr.write("CurrentMachine=%s before GetInstances\n" % CurrentMachine)
+        instancesHostLocalGroups = tripleHostLocalGroups.GetInstances()
+
+        print("Host local groups=", instancesHostLocalGroups)
+        for one_instance in instancesHostLocalGroups:
+            print("one_instance=", one_instance)
 
 
 try:
@@ -2551,6 +2610,9 @@ class SurvolInternalTest(unittest.TestCase):
         for key in mapInternalData:
             print("%-20s %20s"%(key,mapInternalData[key]))
         assert(mapInternalData["uriRoot"] == anAgentStr + "/survol")
+        print("RootUri=",mapInternalData["RootUri"])
+        print("anAgentStr=",anAgentStr)
+        # http://rchateau-hp:8000/survol/print_internal_data_as_json.py?xid=
         assert(mapInternalData["RootUri"] == anAgentStr + "/survol/print_internal_data_as_json.py")
 
         #lib_client.urlparse
