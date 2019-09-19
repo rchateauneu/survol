@@ -10,20 +10,12 @@ import importlib
 import wsgiref.simple_server as server
 
 # See lib_client.py with similar code which cannot be imported here.
-# TODO: FIXME: Should be replaced by a binary stream otherwise
-# TODO: FIXME: this cannot display images.
-# MIME binary documents are not transmitted ??
+# This expects bytes (Py3) or str (Py2).
 def CreateStringStream():
-    try:
-    # Python 3
-        from io import StringIO
-    except ImportError:
-        try:
-            from cStringIO import StringIO
-        except ImportError:
-            from StringIO import StringIO
-    return StringIO()
+    from io import BytesIO
+    return BytesIO()
 
+# This models the output of the header and the content.
 # See the class lib_util.OutputMachineCgi
 class OutputMachineWsgi:
     def __init__(self, start_response):
@@ -56,7 +48,8 @@ class OutputMachineWsgi:
     # extraArgs is an array of key-value tuples.
     def HeaderWriter(self, mimeType, extraArgs= None):
         if self.m_header_called:
-            sys.stderr.write("OutputMachineWsgi.HeaderWriter already called: mimeType=%s.\n"%mimeType)
+            sys.stderr.write("OutputMachineWsgi.HeaderWriter already called: mimeType=%s. RETURNING.\n"%mimeType)
+            return
         self.m_header_called = True
         status = '200 OK'
         response_headers = [('Content-type', mimeType)]
@@ -65,26 +58,30 @@ class OutputMachineWsgi:
     def OutStream(self):
         return self.m_output
 
-def app_serve_file(pathInfo, start_response):
-    filNam = pathInfo[1:]
-    sys.stderr.write("Plain file:%s\n" % filNam)
-    # Just serve a plain HTML file.
+def app_serve_file(path_info, start_response):
+    file_name = path_info[1:]
+    sys.stderr.write("app_serve_file file_name:%s cwd=%s\n" % (file_name, os.getcwd()))
+    # Just serve a plain HTML or CSS file.
     response_headers = [('Content-type', 'text/html')]
 
     try:
-        of = open(filNam)
-        fContent = of.read()
+        of = open(file_name, "rb")
+        file_content = of.read()
         of.close()
+        sys.stderr.write("app_serve_file file read OK\n")
+        sys.stderr.write("Writing type=%s\n" % type(file_content))
 
         start_response('200 OK', response_headers)
 
-        sys.stderr.write("Writing %d bytes\n" % len(fContent))
+        sys.stderr.write("Writing %d bytes\n" % len(file_content))
 
-        return [ fContent ]
-    except:
+        return [ file_content ]
+    except Exception as exc:
         start_response('200 OK', response_headers)
-        return [ "<html><head></head><body>Broken</body></html>" ]
+        sys.stderr.write("app_serve_file caught %s\n" % str(exc))
+        return [ "<html><head></head><body>app_serve_file file_name=%s: Caught:%s</body></html>" % (file_name, exc)]
 
+global_module = None
 
 verbose_debug_mode = False
 
@@ -100,6 +97,8 @@ verbose_debug_mode = False
 # environ[wsgi.url_scheme     ]=http
 # environ[wsgi.version        ]=(1, 0)
 def application_ok(environ, start_response):
+    global global_module
+
     if verbose_debug_mode:
         sys.stderr.write("application_ok: environ\n")
         for key in sorted(environ.keys()):
@@ -141,12 +140,20 @@ def application_ok(environ, start_response):
     # QUERY_STRING=d=s
     os.environ["SCRIPT_NAME"] = pathInfo
 
+    # All modules must be explicitly loaded, because importing is not recursive:
+    # The path is imported but if it tries to import another module, the initialisation code
+    # of this module will be run only when leaving the first imported module; which is too late.
+    # This must be done only when environment variables are properly set.
+    if not global_module:
+        global_module = importlib.import_module("entity")
+        sys.stderr.write("application_ok: Loaded global module")
+
     # If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
     # then "/survol/sources_top/enumerate_CIM_LogicalDisk.py"
     sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
 
     # Example: pathInfo=/survol/www/index.htm
-    if pathInfo.find("/survol/www/") >= 0:
+    if pathInfo.find("/survol/www/") >= 0 or pathInfo.find("/ui/css") >= 0 :
         return app_serve_file(pathInfo, start_response)
 
     pathInfo = pathInfo.replace("/",".")
@@ -191,7 +198,11 @@ def application_ok(environ, start_response):
     script_name = os.environ['SCRIPT_NAME']
     sys.stderr.write("application_ok: scriptNam=%s\n" % script_name)
 
-    the_module.Main()
+    try:
+        the_module.Main()
+    except Exception as exc:
+        sys.stderr.write("application_ok caught %s in Main()\n" % exc)
+        raise
 
     try:
         # TODO: Use yield for better performance.
