@@ -6,3 +6,6 @@ import sys
 sys.path.append("survol")
 
 print("Tests path=",sys.path)
+
+print("NEVER CALLED")
+exit(0)
