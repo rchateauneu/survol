@@ -22,18 +22,6 @@ print(__file__+" sys.exec_prefix=%s"%sys.exec_prefix)
 
 from init import *
 
-# try:
-#     CurrentUsername = os.environ["USERNAME"]
-#     # The class of users is different on Linux and Windows.
-#     CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername
-# except KeyError:
-#     # This is for Linux.
-#     CurrentUsername = os.environ["USER"]
-#     CurrentUserPath = "LMI_Account.Name=%s,Domain=localhost" % CurrentUsername
-#
-# CurrentPid = os.getpid()
-# CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
-
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
@@ -41,9 +29,6 @@ execPath = os.path.realpath( sys.executable )
 if sys.platform.startswith("win"):
     execPath = execPath.replace("\\","/"),
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
-
-# "rchateau-hp"
-#CurrentMachine = socket.gethostname().lower()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc WSGI server: "http://rchateau-hp:9000"
