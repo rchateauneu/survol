@@ -2,16 +2,13 @@
 
 from __future__ import print_function
 
-import cgitb
-import cgi
 import os
 import sys
-import json
 import unittest
-import socket
+#import socket
 import pkgutil
-import psutil
-import rdflib
+#import psutil
+#import rdflib
 
 try:
     import SPARQLWrapper
@@ -24,16 +21,8 @@ sys.path.insert(0,"../survol")
 
 import lib_util
 
-# "rchateau-hp"
-CurrentMachine = socket.gethostname().lower()
-try:
-    CurrentUsername = os.environ["USERNAME"]
-except KeyError:
-    # This is for Linux.
-    CurrentUsername = os.environ["USER"]
+from init import *
 
-CurrentPid = os.getpid()
-CurrentParentPid = psutil.Process().ppid()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
