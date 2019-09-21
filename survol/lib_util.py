@@ -844,6 +844,8 @@ def ComposeTypes(*hierarchical_entity_types):
 
 # Read and write by chunks, so that it does not use all memory.
 def CopyFile( mime_type, file_name):
+    sys.stderr.write("CopyFile type globalOutMach=%s\n" % type(globalOutMach))
+
     filDes = open(file_name, "rb")
 
     globalOutMach.HeaderWriter( mime_type )
@@ -1404,7 +1406,13 @@ paramkeyShowAll = "Show all scripts"
 ################################################################################
 
 # Default destination for the RDF, HTML or SVG output.
+gblcnt = 10
 def DfltOutDest():
+    global gblcnt
+    if gblcnt:
+        sys.stderr.write("DfltOutDest type globalOutMach=%s\n" % type(globalOutMach))
+        sys.stderr.write("DfltOutDest type globalOutMach=%s\n" % type(globalOutMach.OutStream()))
+        gblcnt = gblcnt - 1
     return globalOutMach.OutStream()
 
 
