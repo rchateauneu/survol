@@ -17,6 +17,19 @@ import unittest
 # This is needed when running from PyCharm.
 sys.path.insert(0,"../survol/scripts")
 
+
+# On Travis, getcwd= /home/travis/build/rchateauneu/survol
+# path= ['../survol/scripts', '/home/travis/build/rchateauneu/survol',
+# '../survol', '/home/travis/build/rchateauneu/survol', '/home/travis/virtualenv/python2.7.15/bin',
+# '/home/travis/virtualenv/python2.7.15/lib/python27.zip', '/home/travis/virtualenv/python2.7.15/lib/python2.7',
+# '/home/travis/virtualenv/python2.7.15/lib/python2.7/plat-linux2',
+# '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-tk',
+# '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-old', '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-dynload',
+# '/opt/python/2.7.15/lib/python2.7', '/opt/python/2.7.15/lib/python2.7/plat-linux2',
+# '/opt/python/2.7.15/lib/python2.7/lib-tk', '/home/travis/virtualenv/python2.7.15/lib/python2.7/site-packages',
+# 'survol', '/home/travis/build/rchateauneu/survol/survol']
+sys.path.insert(0,"survol/scripts")
+
 dockit_output_files_path = os.path.join( os.path.dirname(__file__), "dockit_output_files" )
 
 # Creates the destination file for result if not there.
@@ -34,18 +47,6 @@ def path_prefix_input_file(*file_path):
     # input_test_files_dir = os.path.dirname(__file__)
 
     return os.path.join( dock_input_files_path, *file_path )
-
-
-# On Travis, getcwd= /home/travis/build/rchateauneu/survol
-# path= ['../survol/scripts', '/home/travis/build/rchateauneu/survol',
-# '../survol', '/home/travis/build/rchateauneu/survol', '/home/travis/virtualenv/python2.7.15/bin',
-# '/home/travis/virtualenv/python2.7.15/lib/python27.zip', '/home/travis/virtualenv/python2.7.15/lib/python2.7',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/plat-linux2',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-tk',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-old', '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-dynload',
-# '/opt/python/2.7.15/lib/python2.7', '/opt/python/2.7.15/lib/python2.7/plat-linux2',
-# '/opt/python/2.7.15/lib/python2.7/lib-tk', '/home/travis/virtualenv/python2.7.15/lib/python2.7/site-packages',
-# 'survol', '/home/travis/build/rchateauneu/survol/survol']
 
 print("path=",sys.path)
 print("getcwd=",os.getcwd())
