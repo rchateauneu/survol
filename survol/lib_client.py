@@ -192,19 +192,20 @@ class SourceLocal (SourceCgi):
         class OutputMachineString:
             def __init__(self):
                 self.m_output = CreateStringStream()
-                #sys.stderr.write("OutputMachineString init type=%s\n"%type(self.m_output).__name__)
+                sys.stderr.write("OutputMachineString __init__ type=%s\n"%type(self.m_output).__name__)
 
             # Do not write the header.
             def HeaderWriter(self,mimeType,extraArgs= None):
-                #sys.stderr.write("OutputMachineString HeaderWriter:%s\n"%mimeType)
+                sys.stderr.write("OutputMachineString HeaderWriter:%s\n"%mimeType)
                 pass
 
             # The output will be available in a string.
             def OutStream(self):
-                #sys.stderr.write("OutputMachineString OutStream type=%s\n"%type(self.m_output).__name__)
+                sys.stderr.write("OutputMachineString OutStream type=%s\n"%type(self.m_output).__name__)
                 return self.m_output
 
             def GetStringContent(self):
+                sys.stderr.write("OutputMachineString GetStringContent\n")
                 strResult = self.m_output.getvalue()
                 self.m_output.close()
                 return strResult
