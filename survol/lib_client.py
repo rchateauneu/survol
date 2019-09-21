@@ -216,10 +216,10 @@ class SourceLocal (SourceCgi):
         sys.stderr.write("lib_client.py __execute_script_with_mode lib_util.globalOutMach.__class__=%s\n" % lib_util.globalOutMach.__class__)
         originalOutMach = lib_util.globalOutMach
         lib_util.globalOutMach = outmachString
-        sys.stderr.write("lib_client.py __execute_script_with_mode outmachString.__class__=%s\n" % outmachString.__class__)
-        sys.stderr.write("lib_client.py __execute_script_with_mode lib_util.DfltOutMach().__class__=%s\n" % lib_util.DfltOutMach().__class__)
-        sys.stderr.write("lib_client.py __execute_script_with_mode id(lib_util.globalOutMach)=%s\n" % id(lib_util.globalOutMach))
-        sys.stderr.write("lib_client.py __execute_script_with_mode lib_util.DfltOutDestId()=%s\n" % lib_util.DfltOutDestId())
+        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE outmachString.__class__=%s\n" % outmachString.__class__)
+        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE lib_util.DfltOutMach().__class__=%s\n" % lib_util.DfltOutMach().__class__)
+        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE id(lib_util.globalOutMach)=%s\n" % id(lib_util.globalOutMach))
+        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE lib_util.DfltOutDestId()=%s\n" % lib_util.DfltOutDestId())
 
         # If there is an error, it will not exit but send a nice exception/
         lib_common.ErrorMessageEnable(False)
@@ -244,11 +244,13 @@ class SourceLocal (SourceCgi):
 
         # Restores the original stream.
         lib_util.globalOutMach = originalOutMach
-        sys.stderr.write("__execute_script_with_mode originalOutMach=%s\n" % type(originalOutMach))
+        sys.stderr.write("lib_client.py __execute_script_with_mode AFTER outmachString.__class__=%s\n" % outmachString.__class__)
+        sys.stderr.write("lib_client.py __execute_script_with_mode AFTER lib_util.DfltOutMach().__class__=%s\n" % lib_util.DfltOutMach().__class__)
+        sys.stderr.write("lib_client.py __execute_script_with_mode AFTER id(lib_util.globalOutMach)=%s\n" % id(lib_util.globalOutMach))
+        sys.stderr.write("lib_client.py __execute_script_with_mode AFTER lib_util.DfltOutDestId()=%s\n" % lib_util.DfltOutDestId())
 
         strResult = outmachString.GetStringContent()
         sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
-        # sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
         return strResult
 
     # This returns a string.
