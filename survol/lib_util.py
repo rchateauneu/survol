@@ -1389,6 +1389,7 @@ class OutputMachineCgi:
 # WSGI changes this to another object with same interface.
 # Overriden in wsgiserver.py.
 globalOutMach = OutputMachineCgi()
+sys.stderr.write("lib_util.py globalOutMach=%s\n" % type(globalOutMach))
 
 ################################################################################
 
