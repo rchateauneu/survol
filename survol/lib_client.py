@@ -240,6 +240,7 @@ class SourceLocal (SourceCgi):
         lib_util.globalOutMach = originalOutMach
 
         strResult = outmachString.GetStringContent()
+        sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
         # sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
         return strResult
 
