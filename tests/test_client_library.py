@@ -1175,27 +1175,23 @@ class SurvolLocalTest(unittest.TestCase):
         # Properties: CIM_DataFile.dir_stat.py
         # Properties: CIM_Directory.file_directory
 
-    # On Linux create symbolic link
+    # Test a filename with accents.
     def test_accents_filenames(self):
-        pass # CIM_DataFile.file_symlinks.py
+        pass
 
-
-    # On Linux create symbolic link
+    # Get Python properties of a script.
     def test_python_properties(self):
         pass # CIM_DataFile.python_properties.py
-
-        # Properties: CIM_DataFile.file_stat.py
-        raise Exception("Not done yet")
 
     # Access the directory: file_directory.py
     def test_file_directory(self):
         pass # CIM_Directory.file_directory
 
-    # On Linux create symbolic link
+    # Properties: CIM_DataFile.file_stat.py
     def test_dir_stats(self):
-        pass  #  CIM_DataFile.python_properties.py
+        pass
 
-        # Properties: CIM_DataFile.file_stat.py
+
 
 
 class SurvolLocalOntologiesTest(unittest.TestCase):
