@@ -16,10 +16,6 @@ import json
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
 
-# https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-print(__file__+" sys.executable=%s"%sys.executable)
-print(__file__+" sys.exec_prefix=%s"%sys.exec_prefix)
-
 from init import *
 
 # TODO: This should be a parameter.
