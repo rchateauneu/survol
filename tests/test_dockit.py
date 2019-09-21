@@ -46,7 +46,6 @@ def path_prefix_input_file(*file_path):
 # '/opt/python/2.7.15/lib/python2.7', '/opt/python/2.7.15/lib/python2.7/plat-linux2',
 # '/opt/python/2.7.15/lib/python2.7/lib-tk', '/home/travis/virtualenv/python2.7.15/lib/python2.7/site-packages',
 # 'survol', '/home/travis/build/rchateauneu/survol/survol']
-sys.path.insert(0,"survol/scripts")
 
 print("path=",sys.path)
 print("getcwd=",os.getcwd())
@@ -54,7 +53,7 @@ print("getcwd=",os.getcwd())
 import dockit
 
 # "rchateau-hp"
-CurrentMachine = socket.gethostname().lower()
+from init import *
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
