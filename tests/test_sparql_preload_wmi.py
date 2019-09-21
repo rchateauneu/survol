@@ -30,21 +30,8 @@ import lib_kbase
 import lib_wmi
 import lib_sparql_callback_survol
 
-# Test for Travis-CI only
-sys.path.insert(0,".")
-import init
 from init import *
 
-# "rchateau-hp"
-#CurrentMachine = socket.gethostname().lower()
-#try:
-#    CurrentUsername = os.environ["USERNAME"]
-#except KeyError:
-#    # This is for Linux.
-#    CurrentUsername = os.environ["USER"]
-#
-#CurrentPid = os.getpid()
-#CurrentParentPid = psutil.Process().ppid()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
