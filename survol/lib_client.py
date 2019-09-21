@@ -216,7 +216,8 @@ class SourceLocal (SourceCgi):
         sys.stderr.write("__execute_script_with_mode lib_util.globalOutMach=%s\n" % type(lib_util.globalOutMach))
         originalOutMach = lib_util.globalOutMach
         lib_util.globalOutMach = outmachString
-        sys.stderr.write("__execute_script_with_mode outmachString=%s\n" % type(outmachString))
+        sys.stderr.write("__execute_script_with_mode type(outmachString)=%s\n" % type(outmachString))
+        sys.stderr.write("__execute_script_with_mode outmachString.__class__=%s\n" % outmachString.__class__)
 
         # If there is an error, it will not exit but send a nice exception/
         lib_common.ErrorMessageEnable(False)
