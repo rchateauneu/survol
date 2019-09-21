@@ -1425,6 +1425,13 @@ def DfltOutMach():
 def DfltOutDestId():
     return id(globalOutMach)
 
+def SetGlobalOutMach(outmachSomething):
+    global globalOutMach
+    globalOutMach = outmachSomething
+    sys.stderr.write("SetGlobalOutMach id(globalOutMach)=%s\n" % id(globalOutMach))
+    sys.stderr.write("SetGlobalOutMach globalOutMach.__class__=%s\n" % globalOutMach.__class__)
+    sys.stderr.write("SetGlobalOutMach globalOutMach.OutStream().__class__=%s\n" % type(globalOutMach.OutStream().__class__))
+
 # environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
 # This must be calculated each time because the WSGI server sets this environment
 # variable when an URL is loaded, after module init.
