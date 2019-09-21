@@ -194,7 +194,7 @@ class SourceLocal (SourceCgi):
                 self.m_output = CreateStringStream()
                 sys.stderr.write("OutputMachineString __init__ type=%s\n"%type(self.m_output).__name__)
 
-            # Do not write the header.
+            # Do not write the header: This just wants the content.
             def HeaderWriter(self,mimeType,extraArgs= None):
                 sys.stderr.write("OutputMachineString HeaderWriter:%s\n"%mimeType)
                 pass
@@ -212,8 +212,11 @@ class SourceLocal (SourceCgi):
 
         DEBUG("__execute_script_with_mode before calling module=%s",modu.__name__)
         outmachString = OutputMachineString()
+
+        sys.stderr.write("__execute_script_with_mode lib_util.globalOutMach=%s\n" % type(lib_util.globalOutMach))
         originalOutMach = lib_util.globalOutMach
         lib_util.globalOutMach = outmachString
+        sys.stderr.write("__execute_script_with_mode outmachString=%s\n" % type(outmachString))
 
         # If there is an error, it will not exit but send a nice exception/
         lib_common.ErrorMessageEnable(False)
@@ -238,6 +241,7 @@ class SourceLocal (SourceCgi):
 
         # Restores the original stream.
         lib_util.globalOutMach = originalOutMach
+        sys.stderr.write("__execute_script_with_mode originalOutMach=%s\n" % type(originalOutMach))
 
         strResult = outmachString.GetStringContent()
         sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
