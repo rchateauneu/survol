@@ -33,11 +33,6 @@ import lib_properties
 import lib_kbase
 import lib_sparql_callback_survol
 
-# "rchateau-hp"
-# Test for Travis-CI only
-#sys.path.insert(0,".")
-sys.path.insert(0,"tests")
-#import init
 from init import *
 
 # TODO: This should be a parameter.
