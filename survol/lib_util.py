@@ -1418,6 +1418,11 @@ def DfltOutDest():
         gblcnt = gblcnt - 1
     return globalOutMach.OutStream()
 
+def DfltOutMach():
+    return globalOutMach
+
+def DfltOutDestId():
+    return id(globalOutMach)
 
 # environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
 # This must be calculated each time because the WSGI server sets this environment
