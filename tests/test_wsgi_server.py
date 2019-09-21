@@ -22,14 +22,6 @@ print(__file__+" sys.exec_prefix=%s"%sys.exec_prefix)
 
 from init import *
 
-# For example /usr/bin/python2.7
-# Typical situation of symbolic links:
-# /usr/bin/python => python2 => python2.7
-execPath = os.path.realpath( sys.executable )
-if sys.platform.startswith("win"):
-    execPath = execPath.replace("\\","/"),
-CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
-
 # TODO: This should be a parameter.
 # It points to the Survol adhoc WSGI server: "http://rchateau-hp:9000"
 RemoteTestPort = 9000
