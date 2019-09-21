@@ -30,7 +30,8 @@ import lib_kbase
 import lib_wmi
 import lib_sparql_callback_survol
 
-# Test
+# Test for Travis-CI only
+sys.path.insert(0,".")
 import init
 from init import *
 
