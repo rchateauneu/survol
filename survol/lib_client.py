@@ -217,7 +217,9 @@ class SourceLocal (SourceCgi):
         originalOutMach = lib_util.globalOutMach
         lib_util.globalOutMach = outmachString
         sys.stderr.write("lib_client.py __execute_script_with_mode outmachString.__class__=%s\n" % outmachString.__class__)
-        sys.stderr.write("DfltOutDest id(lib_util.globalOutMach)=%s\n" % id(lib_util.globalOutMach))
+        sys.stderr.write("lib_client.py __execute_script_with_mode lib_util.DfltOutMach().__class__=%s\n" % lib_util.DfltOutMach().__class__)
+        sys.stderr.write("lib_client.py __execute_script_with_mode id(lib_util.globalOutMach)=%s\n" % id(lib_util.globalOutMach))
+        sys.stderr.write("lib_client.py __execute_script_with_mode lib_util.DfltOutDestId()=%s\n" % lib_util.DfltOutDestId())
 
         # If there is an error, it will not exit but send a nice exception/
         lib_common.ErrorMessageEnable(False)
