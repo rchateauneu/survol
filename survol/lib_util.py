@@ -1412,8 +1412,9 @@ gblcnt = 10
 def DfltOutDest():
     global gblcnt
     if gblcnt:
-        sys.stderr.write("DfltOutDest type globalOutMach=%s\n" % type(globalOutMach))
-        sys.stderr.write("DfltOutDest type globalOutMach=%s\n" % type(globalOutMach.OutStream()))
+        sys.stderr.write("DfltOutDest id(globalOutMach)=%s\n" % id(globalOutMach))
+        sys.stderr.write("DfltOutDest globalOutMach.__class__=%s\n" % globalOutMach.__class__)
+        sys.stderr.write("DfltOutDest globalOutMach.OutStream().__class__=%s\n" % type(globalOutMach.OutStream().__class__))
         gblcnt = gblcnt - 1
     return globalOutMach.OutStream()
 

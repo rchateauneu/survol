@@ -213,11 +213,11 @@ class SourceLocal (SourceCgi):
         DEBUG("__execute_script_with_mode before calling module=%s",modu.__name__)
         outmachString = OutputMachineString()
 
-        sys.stderr.write("__execute_script_with_mode lib_util.globalOutMach=%s\n" % type(lib_util.globalOutMach))
+        sys.stderr.write("lib_client.py __execute_script_with_mode lib_util.globalOutMach.__class__=%s\n" % lib_util.globalOutMach.__class__)
         originalOutMach = lib_util.globalOutMach
         lib_util.globalOutMach = outmachString
-        sys.stderr.write("__execute_script_with_mode type(outmachString)=%s\n" % type(outmachString))
-        sys.stderr.write("__execute_script_with_mode outmachString.__class__=%s\n" % outmachString.__class__)
+        sys.stderr.write("lib_client.py __execute_script_with_mode outmachString.__class__=%s\n" % outmachString.__class__)
+        sys.stderr.write("DfltOutDest id(lib_util.globalOutMach)=%s\n" % id(lib_util.globalOutMach))
 
         # If there is an error, it will not exit but send a nice exception/
         lib_common.ErrorMessageEnable(False)
