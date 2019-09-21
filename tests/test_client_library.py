@@ -22,18 +22,7 @@ sys.path.insert(0,"../survol")
 print(__file__+" sys.executable=%s"%sys.executable)
 print(__file__+" sys.exec_prefix=%s"%sys.exec_prefix)
 
-
-try:
-    CurrentUsername = os.environ["USERNAME"]
-    # The class of users is different on Linux and Windows.
-    CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername
-except KeyError:
-    # This is for Linux.
-    CurrentUsername = os.environ["USER"]
-    CurrentUserPath = "LMI_Account.Name=%s,Domain=localhost" % CurrentUsername
-
-CurrentPid = os.getpid()
-CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
+from init import *
 
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
@@ -42,9 +31,6 @@ execPath = os.path.realpath( sys.executable )
 if sys.platform.startswith("win"):
     execPath = execPath.replace("\\","/"),
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
-
-# "rchateau-hp"
-CurrentMachine = socket.gethostname().lower()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
@@ -87,7 +73,7 @@ def setUpModule():
             target=scripts.cgiserver.StartParameters,
             args=(True, AgentHost, RemoteTestPort, current_dir))
         RemoteAgentProcess.start()
-        print("Waiting")
+        print("Waiting for agent to start")
         time.sleep(5.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
         try:
@@ -169,14 +155,23 @@ else:
 class SurvolLocalTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
 
-    def test_create_source_local(self):
+    def test_create_source_local_json(self):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=FileAlwaysThere)
-        print("qryFileStatLocal=%s"%mySourceFileStatLocal.UrlQuery())
-        print("jsonFileStatLocal=%s ..."%str(mySourceFileStatLocal.content_json())[:30])
-        print("rdfFileStatLocal=%s ..."%str(mySourceFileStatLocal.content_rdf())[:30])
+        print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.UrlQuery())
+        the_content_json = mySourceFileStatLocal.content_json()
+        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:30])
+
+    def test_create_source_local_rdf(self):
+        mySourceFileStatLocal = lib_client.SourceLocal(
+            "sources_types/CIM_DataFile/file_stat.py",
+            "CIM_DataFile",
+            Name=FileAlwaysThere)
+        print("test_create_source_local_rdf: query=%s" % mySourceFileStatLocal.UrlQuery())
+        the_content_rdf = mySourceFileStatLocal.content_rdf()
+        print("test_create_source_local_rdf: RDF content=%s ..."%str(the_content_rdf)[:30])
 
     def test_local_triplestore(self):
         mySourceFileStatLocal = lib_client.SourceLocal(
