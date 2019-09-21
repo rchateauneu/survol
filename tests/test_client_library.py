@@ -18,19 +18,7 @@ import pkgutil
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
 
-# https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-print(__file__+" sys.executable=%s"%sys.executable)
-print(__file__+" sys.exec_prefix=%s"%sys.exec_prefix)
-
 from init import *
-
-# For example /usr/bin/python2.7
-# Typical situation of symbolic links:
-# /usr/bin/python => python2 => python2.7
-execPath = os.path.realpath( sys.executable )
-if sys.platform.startswith("win"):
-    execPath = execPath.replace("\\","/"),
-CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
@@ -717,8 +705,8 @@ class SurvolLocalTest(unittest.TestCase):
             # Depending on the machine, the root can be "/usr/lib64" or "/lib/x86_64-linux-gnu"
             lstMandatoryRegex += [
                 # 'memmap.Id=/usr/lib64/libpython*.',
-                'memmap.Id=.*/ld-.*\.so.*',
-                'memmap.Id=.*/libc-.*\.so.*',
+                r'memmap.Id=.*/ld-.*\.so.*',
+                r'memmap.Id=.*/libc-.*\.so.*',
                 # 'memmap.Id=/usr/lib64/python*./lib-dynload/_localemodule.so'
             ]
 
