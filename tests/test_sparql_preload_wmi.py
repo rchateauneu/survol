@@ -13,15 +13,11 @@
 
 from __future__ import print_function
 
-#import cgitb
-#import cgi
 import os
 import sys
 import json
 import unittest
-#import socket
 import pkgutil
-#import psutil
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
@@ -34,6 +30,8 @@ import lib_kbase
 import lib_wmi
 import lib_sparql_callback_survol
 
+# Test
+import init
 from init import *
 
 # "rchateau-hp"
