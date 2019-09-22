@@ -564,7 +564,10 @@ class SparqlPreloadServerWMITest(unittest.TestCase):
             # TODO: Should compare
 
 
-objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
+try:
+    objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
+except:
+    objectWmiSparqlCallbackApi = None
 
 # FIXME: Is it really called ?? Consider setupModule and tearDownModule
 def setUp():
