@@ -28,10 +28,6 @@ except ImportError:
 
 # Apache setup:
 # In Apache httpd.conf, we have the directive:
-# SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\htbin\revlib
-# It is also possible to set it globally in the .profile
-# if not we get the error, for example:  import lib_pefile.
-# sys.path.append('survol/revlib')
 
 def ServerForever(server):
     sys.stderr.write("ServerForever\n")
