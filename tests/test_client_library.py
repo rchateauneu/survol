@@ -104,6 +104,7 @@ isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 # We could as well delete all modules except sys.
 allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
 
+#### FIXME: IS IT NECESSARY ?
 for modu in allModules:
     # sys.stderr.write("Deleting %s\n"%modu)
     del sys.modules[modu]
@@ -1848,6 +1849,10 @@ class SurvolRemoteTest(unittest.TestCase):
     #def tearDown(self):
     #    time.sleep(0.01)  # sleep time in seconds
 
+    def is_travis_machine(self):
+        # Some tests cannot be run on a Travis machine if some tools are not there.
+        return os.getcwd().find("travis") >= 0
+
     @decorator_remote_tests
     def test_InstanceUrlToAgentUrl(selfself):
         assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427") == None )
@@ -1931,6 +1936,12 @@ class SurvolRemoteTest(unittest.TestCase):
     @decorator_remote_tests
     def test_remote_instances_arp(self):
         """Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
+
+        # Cannot run /sbin/arp -an
+        if self.is_travis_machine():
+            print("Cannot run this test on TravisCI because arp is not available")
+            return
+
         mySourceArpRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
         tripleArpRemote = mySourceArpRemote.GetTriplestore()
