@@ -1916,6 +1916,7 @@ class SurvolRemoteTest(unittest.TestCase):
         # This Python module must be there because it is needed by Survol.
         self.assertTrue(lenInstances>=1)
 
+    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_remote_instances_java not executed.")
     @decorator_remote_tests
     def test_remote_instances_java(self):
         """Loads Java processes. There is at least one Java process, the one doing the test"""
