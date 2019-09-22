@@ -1427,11 +1427,6 @@ def is_wsgi_server():
         try:
             is_wsgi_server_data = os.environ["SERVER_SOFTWARE"].startswith("WSGIServer")
         except KeyError:
-            sys.stderr.write("lib_util.py is_wsgi_server SERVER_SOFTWARE not defined\n")
-            sys.stderr.write("lib_util.py type(globalOutMach)=%s\n" % type(globalOutMach))
-            sys.stderr.write("lib_util.py id(globalOutMach)=%s\n" % id(globalOutMach))
-            sys.stderr.write("lib_util.py globalOutMach.__class__=%s\n" % globalOutMach.__class__)
-
             is_wsgi_server_data = "DefaultServerSoftware"
     return is_wsgi_server_data
 
