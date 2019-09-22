@@ -349,7 +349,6 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
         sys.exit()
 
     sys.path.append("survol")
-    # sys.path.append("survol/revlib")
     sys.stderr.write("path=%s\n" % str(sys.path))
 
     # This expects that environment variables are propagated to subprocesses.
