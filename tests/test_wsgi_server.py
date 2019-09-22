@@ -97,14 +97,14 @@ def tearDownModule():
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
-# This deletes the module so we can reload them each time.
-# Problem: survol modules are not detectable.
-# We could as well delete all modules except sys.
-allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
-
-for modu in allModules:
-    # sys.stderr.write("Deleting %s\n"%modu)
-    del sys.modules[modu]
+#####XXXXX # This deletes the module so we can reload them each time.
+#####XXXXX # Problem: survol modules are not detectable.
+#####XXXXX # We could as well delete all modules except sys.
+#####XXXXX allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
+#####XXXXX 
+#####XXXXX for modu in allModules:
+#####XXXXX     # sys.stderr.write("Deleting %s\n"%modu)
+#####XXXXX     del sys.modules[modu]
 
 import lib_client
 import lib_properties
