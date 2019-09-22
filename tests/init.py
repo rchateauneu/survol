@@ -28,9 +28,33 @@ CurrentParentPid = psutil.Process().ppid()
 # Several Python scripts return this executable as a node.
 execPath = os.path.realpath( sys.executable )
 if sys.platform.startswith("win"):
+    # When running in PyCharm with virtualenv, the path is correct:
+    # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
+    # When running from pytest, it is converted to lowercase.
+    # "c:/python27/python.exe" instead of "C:/Python27/python.exe"
+    #
+    # But it is not possible at this stage, to detect if we run in pytest,
+    # because the environment variable 'PYTEST_CURRENT_TEST' is not set yet;
+    # 'PYTEST_CURRENT_TEST': 'tests/test_client_library.py::SurvolLocalTest::test_process_cwd (call)'
+
+    try:
+        import win32api
+        print("execPath BEFORE=", execPath)
+        execPath = win32api.GetLongPathName(win32api.GetShortPathName(execPath))
+
+        # The drive must be in uppercase too:
+        execPath = execPath[0].upper() + execPath[1:]
+        print("execPath AFTER=", execPath)
+    except ImportError:
+        # Here we cannot do anything.
+        pass
+
+
     execPath = execPath.replace("\\","/"),
+
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
 
 # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-print(__file__+" sys.executable=%s"%sys.executable)
-print(__file__+" sys.exec_prefix=%s"%sys.exec_prefix)
+print(__file__+" sys.execPath=%s" % execPath)
+print(__file__+" sys.executable=%s" % sys.executable)
+print(__file__+" sys.exec_prefix=%s" % sys.exec_prefix)
