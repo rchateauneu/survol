@@ -184,7 +184,7 @@ class SparqlServerSurvolTest(unittest.TestCase):
             for fmt in ["XML","JSON"]:
                 self.run_compare_survol(sparql_query, expected_header, expected_dicts, fmt)
 
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be test_server_survol_wmi_meta. test_wmi_to_rdf not executed.")
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_server_survol not executed.")
     def test_server_survol(self):
         array_survol_queries=[
             [
@@ -251,7 +251,7 @@ class SparqlServerSurvolTest(unittest.TestCase):
 
     # This tests the ability to extract the WMI classes and their attributes.
     # Results are converted to lowercase. This is not really an issue.
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be test_server_survol_wmi_meta. test_wmi_to_rdf not executed.")
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_server_survol_wmi_meta not executed.")
     def test_server_survol_wmi_meta(self):
         array_survol_queries=[
             [
