@@ -32,6 +32,12 @@ import lib_sparql_callback_survol
 
 from init import *
 
+# This can run only on Windows.
+def setUpModule():
+    try:
+        import wmi
+    except ImportError as err:
+        raise unittest.SkipTest(str(err))
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
@@ -67,7 +73,7 @@ def QueriesEntitiesToValuePairs(iter_entities_dicts):
 
         one_entities_dict_qname = {}
         for variable_name, one_entity in one_entities_dict.items():
-            print("QueriesEntitiesToValuePairs one_entity=", one_entity)
+            #print("QueriesEntitiesToValuePairs one_entity=", one_entity)
 
             # Special attribute for debugging.
             dict_qname_value = {"__class__": one_entity.m_entity_class_name}
@@ -446,6 +452,7 @@ class SparqlCallWmiTest(unittest.TestCase):
             }
             """ % r"c:\\program files\\mozilla firefox\\firefox.exe"
 
+        assert objectWmiSparqlCallbackApi != None
         list_dict_objects = QueryKeyValuePairs(sparql_query, objectWmiSparqlCallbackApi )
 
         for one_dict in list_dict_objects:
@@ -557,11 +564,7 @@ class SparqlPreloadServerWMITest(unittest.TestCase):
             # TODO: Should compare
 
 
-# TODO: Parts of this test can run on Linux too.
-try:
-    objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
-except:
-    objectWmiSparqlCallbackApi = None
+objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
 
 # FIXME: Is it really called ?? Consider setupModule and tearDownModule
 def setUp():
