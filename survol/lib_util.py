@@ -1408,26 +1408,14 @@ paramkeyShowAll = "Show all scripts"
 # Default destination for the RDF, HTML or SVG output.
 gblcnt = 10
 def DfltOutDest():
-    global gblcnt
-    if gblcnt:
-        sys.stderr.write("DfltOutDest id(globalOutMach)=%s\n" % id(globalOutMach))
-        sys.stderr.write("DfltOutDest globalOutMach.__class__=%s\n" % globalOutMach.__class__)
-        sys.stderr.write("DfltOutDest globalOutMach.OutStream().__class__=%s\n" % type(globalOutMach.OutStream().__class__))
-        gblcnt = gblcnt - 1
     return globalOutMach.OutStream()
 
 def DfltOutMach():
     return globalOutMach
 
-def DfltOutDestId():
-    return id(globalOutMach)
-
 def SetGlobalOutMach(outmachSomething):
     global globalOutMach
     globalOutMach = outmachSomething
-    sys.stderr.write("SetGlobalOutMach id(globalOutMach)=%s\n" % id(globalOutMach))
-    sys.stderr.write("SetGlobalOutMach globalOutMach.__class__=%s\n" % globalOutMach.__class__)
-    sys.stderr.write("SetGlobalOutMach globalOutMach.OutStream().__class__=%s\n" % type(globalOutMach.OutStream().__class__))
 
 # environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
 # This must be calculated each time because the WSGI server sets this environment
