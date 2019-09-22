@@ -192,35 +192,23 @@ class SourceLocal (SourceCgi):
         class OutputMachineString:
             def __init__(self):
                 self.m_output = CreateStringStream()
-                sys.stderr.write("OutputMachineString __init__ type=%s\n"%type(self.m_output).__name__)
 
             # Do not write the header: This just wants the content.
             def HeaderWriter(self,mimeType,extraArgs= None):
-                sys.stderr.write("OutputMachineString HeaderWriter:%s\n"%mimeType)
                 pass
 
             # The output will be available in a string.
             def OutStream(self):
-                sys.stderr.write("OutputMachineString OutStream type=%s\n"%type(self.m_output).__name__)
                 return self.m_output
 
             def GetStringContent(self):
-                sys.stderr.write("OutputMachineString GetStringContent\n")
                 strResult = self.m_output.getvalue()
                 self.m_output.close()
                 return strResult
 
         DEBUG("__execute_script_with_mode before calling module=%s",modu.__name__)
         outmachString = OutputMachineString()
-
-        sys.stderr.write("lib_client.py __execute_script_with_mode lib_util.globalOutMach.__class__=%s\n" % lib_util.globalOutMach.__class__)
         originalOutMach = lib_util.globalOutMach
-        lib_util.globalOutMach = outmachString
-        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE outmachString.__class__=%s\n" % outmachString.__class__)
-        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE lib_util.DfltOutMach().__class__=%s\n" % lib_util.DfltOutMach().__class__)
-        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE lib_util.globalOutMach.__class__=%s\n" % lib_util.globalOutMach.__class__)
-        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE id(lib_util.globalOutMach)=%s\n" % id(lib_util.globalOutMach))
-        sys.stderr.write("lib_client.py __execute_script_with_mode BEFORE lib_util.DfltOutDestId()=%s\n" % lib_util.DfltOutDestId())
 
         lib_util.SetGlobalOutMach(outmachString)
 
@@ -233,27 +221,17 @@ class SourceLocal (SourceCgi):
             # https://www.stefaanlippens.net/python-traceback-in-catch/
             ERROR("__execute_script_with_mode with module=%s: Caught:%s",modu.__name__,ex, exc_info=True)
             lib_common.ErrorMessageEnable(True)
+
+            # Restores the original stream.
+            lib_util.globalOutMach = originalOutMach
             raise
 
         lib_common.ErrorMessageEnable(True)
-            #traceback.print_exc()
-
-            # Get traceback as a string and do something with it
-            #error = traceback.format_exc()
-            #print( error.upper())
-
-            # Log it through logging channel
-            #ERROR('Ooops', exc_info=True)
 
         # Restores the original stream.
         lib_util.globalOutMach = originalOutMach
-        sys.stderr.write("lib_client.py __execute_script_with_mode AFTER outmachString.__class__=%s\n" % outmachString.__class__)
-        sys.stderr.write("lib_client.py __execute_script_with_mode AFTER lib_util.DfltOutMach().__class__=%s\n" % lib_util.DfltOutMach().__class__)
-        sys.stderr.write("lib_client.py __execute_script_with_mode AFTER id(lib_util.globalOutMach)=%s\n" % id(lib_util.globalOutMach))
-        sys.stderr.write("lib_client.py __execute_script_with_mode AFTER lib_util.DfltOutDestId()=%s\n" % lib_util.DfltOutDestId())
 
         strResult = outmachString.GetStringContent()
-        sys.stderr.write("__execute_script_with_mode strResult=%s\n"%strResult[:30])
         return strResult
 
     # This returns a string.
