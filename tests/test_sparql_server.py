@@ -184,7 +184,7 @@ class SparqlServerSurvolTest(unittest.TestCase):
             for fmt in ["XML","JSON"]:
                 self.run_compare_survol(sparql_query, expected_header, expected_dicts, fmt)
 
-
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be test_server_survol_wmi_meta. test_wmi_to_rdf not executed.")
     def test_server_survol(self):
         array_survol_queries=[
             [
