@@ -904,6 +904,13 @@ class SparqlPreloadServerSurvolPortableTest(unittest.TestCase):
 
     # PROBLEM: WMI writes domain names as "RCHATEAU-HP" or "rchateau-HP".
     # Therefore the same test is done with a case conversion.
+    # expected_triples= [
+    #     ('\\\\rchateau-hp\\root\\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="Guest"','http://primhillcomputers.com/survol#Domain', 'rchateau-hp'),
+    #     ('\\\\rchateau-hp\\root\\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="Guest"', 'http://primhillcomputers.com/survol#Name', 'Guest')]
+    # str_actual_data= {
+    #     ('\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"', 'http://primhillcomputers.com/survol#Domain', 'rchateau-HP'),
+    #     ('\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"', 'http://primhillcomputers.com/survol#Name', 'Guest'),
+    @unittest.skipIf( True, "WMI hostname converted to uppercase.")
     def test_preload_server_survol(self):
         for sparql_query, expected_triples in self.array_survol_queries:
             str_actual_data = self.run_query_survol(sparql_query)
@@ -912,7 +919,6 @@ class SparqlPreloadServerSurvolPortableTest(unittest.TestCase):
             print("str_actual_data=", str_actual_data)
             for one_triple in expected_triples:
                 self.assertTrue(one_triple in str_actual_data)
-                # assert (one_triple in str_actual_data)
 
     def test_preload_server_survol_case_insensitive(self):
         for sparql_query, expected_triples in self.array_survol_queries:
@@ -924,7 +930,6 @@ class SparqlPreloadServerSurvolPortableTest(unittest.TestCase):
             for s, p, o in expected_triples:
                 test_result = ((s.upper(), p.upper(), o.upper()) in str_actual_data_upper)
                 self.assertTrue(test_result, "Result")
-                # assert ((s.upper(), p.upper(), o.upper()) in str_actual_data_upper)
 
 prefix_to_callbacks = {
     "HardCoded": HardcodeSparqlCallbackApi(),
