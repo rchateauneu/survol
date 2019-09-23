@@ -564,6 +564,92 @@ class SparqlPreloadServerWMITest(unittest.TestCase):
             # TODO: Should compare
 
 
+    @staticmethod
+    def run_query_survol(sparql_query):
+        print("sparql_query=", sparql_query)
+
+        url_sparql = RemoteTestAgent + "/survol/sparql_preload_all.py?query=" + lib_util.urllib_quote(sparql_query)
+
+        rdf_data = UrlToRdf(url_sparql)
+
+        # All the triples must be in the result set where each element is transformed to a string
+        # print(rdf_data)
+
+        str_actual_data = set()
+        for subject, predicate, object in rdf_data:
+            str_subject = str(subject)
+            str_predicate = str(predicate)
+            str_object = str(object)
+            str_actual_data.add((str_subject, str_predicate, str_object))
+        return str_actual_data
+
+    # PROBLEM: WMI writes domain names as "RCHATEAU-HP" or "rchateau-HP".
+    # expected_triples = [('\\\\rchateau-hp\\root\\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="Guest"',
+    #                      'http://primhillcomputers.com/survol#Domain', 'rchateau-hp'), (
+    #                     '\\\\rchateau-hp\\root\\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="Guest"',
+    #                     'http://primhillcomputers.com/survol#Name', 'Guest')]
+    # str_actual_data = set([('\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"',
+    #                         'http://primhillcomputers.com/survol#Caption', 'rchateau-HP\\\\Guest'), ])
+
+    array_survol_queries = [
+        [
+            """
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT *
+            WHERE
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user rdfs:seeAlso "WMI" .
+            }
+            """,
+            [
+                (
+                    '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="Guest"' % (CurrentMachine, CurrentMachine),
+                    'http://primhillcomputers.com/survol#Domain',
+                    CurrentMachine
+                ),
+                (
+                    '\\\\%s\\root\\cimv2:Win32_UserAccount.Domain="%s",Name="Guest"' % (CurrentMachine, CurrentMachine),
+                    'http://primhillcomputers.com/survol#Name',
+                    'Guest'
+                ),
+            ]
+        ],
+    ]
+
+    # PROBLEM: WMI writes domain names as "RCHATEAU-HP" or "rchateau-HP".
+    # Therefore the same test is done with a case conversion.
+    # expected_triples= [
+    #     ('\\\\rchateau-hp\\root\\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="Guest"','http://primhillcomputers.com/survol#Domain', 'rchateau-hp'),
+    #     ('\\\\rchateau-hp\\root\\cimv2:Win32_UserAccount.Domain="rchateau-hp",Name="Guest"', 'http://primhillcomputers.com/survol#Name', 'Guest')]
+    # str_actual_data= {
+    #     ('\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"', 'http://primhillcomputers.com/survol#Domain', 'rchateau-HP'),
+    #     ('\\\\RCHATEAU-HP\\root\\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Guest"', 'http://primhillcomputers.com/survol#Name', 'Guest'),
+    @unittest.skipIf( True, "WMI hostname converted to uppercase.")
+    def test_preload_server_survol(self):
+        for sparql_query, expected_triples in self.array_survol_queries:
+            str_actual_data = self.run_query_survol(sparql_query)
+
+            print("expected_triples=", expected_triples)
+            print("str_actual_data=", str_actual_data)
+            for one_triple in expected_triples:
+                self.assertTrue(one_triple in str_actual_data)
+
+    def test_preload_server_survol_case_insensitive(self):
+        for sparql_query, expected_triples in self.array_survol_queries:
+            str_actual_data = self.run_query_survol(sparql_query)
+            str_actual_data_upper = [ (s.upper(), p.upper(), o.upper()) for s, p, o in str_actual_data]
+
+            print("expected_triples=", expected_triples)
+            print("str_actual_data=", str_actual_data)
+            for s, p, o in expected_triples:
+                test_result = ((s.upper(), p.upper(), o.upper()) in str_actual_data_upper)
+                self.assertTrue(test_result, "Result")
+
+
+
+
+
 try:
     objectWmiSparqlCallbackApi = lib_wmi.WmiSparqlCallbackApi()
 except:
