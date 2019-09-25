@@ -464,7 +464,7 @@ class DockitTraceFilesTest(unittest.TestCase):
         fil_csv = open( path_prefix_output_result( "result_strace.csv") )
         fil_csv.close()
 
-        fil_summary = open( path_prefix_output_result( "result_strace.summary.txt") )
+        fil_summary = open( path_prefix_output_result( "result_strace.summary.xml") )
         fil_summary.close()
 
         fil_docker = open( path_prefix_output_result( "result_strace.docker", "Dockerfile") )
