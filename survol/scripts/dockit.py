@@ -1638,6 +1638,7 @@ def GenerateSummary(mapParamsSummary, summaryFormat, outputSummaryFile):
     summaryGenerator(mapParamsSummary,fdSummaryFile)
 
     if outputSummaryFile:
+        sys.stdout.write("Closing summary file:%s\n"%outputSummaryFile)
         fdSummaryFile.close()
 
 ################################################################################
