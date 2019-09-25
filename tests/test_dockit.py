@@ -438,7 +438,7 @@ class DockitTraceFilesTest(unittest.TestCase):
             mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
             summaryFormat = "TXT",
             withWarning = False,
-            withDockerfile = True,
+            withDockerfile = False,
             updateServer = None)
 
         fil_txt = open( path_prefix_output_result( "result_strace.txt") )
@@ -447,7 +447,7 @@ class DockitTraceFilesTest(unittest.TestCase):
         fil_summary = open( path_prefix_output_result( "result_strace.summary.txt") )
         fil_summary.close()
 
-    def test_file_strace_csv(self):
+    def test_file_strace_csv_docker(self):
         dockit.UnitTest(
             inputLogFile = path_prefix_input_file( "sample_shell.strace.log"),
             tracer = "strace",
@@ -458,7 +458,7 @@ class DockitTraceFilesTest(unittest.TestCase):
             mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
             summaryFormat = "XML",
             withWarning = False,
-            withDockerfile = False,
+            withDockerfile = True,
             updateServer = None)
 
         fil_csv = open( path_prefix_output_result( "result_strace.csv") )
@@ -493,7 +493,7 @@ class DockitTraceFilesTest(unittest.TestCase):
         fil_summary.close()
 
 
-    def test_file_ltrace(self):
+    def test_file_ltrace_docker(self):
         dockit.UnitTest(
             inputLogFile = path_prefix_input_file( "sample_shell.ltrace.log"),
             tracer="ltrace",
