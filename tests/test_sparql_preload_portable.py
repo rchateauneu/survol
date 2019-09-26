@@ -898,6 +898,7 @@ class SparqlSeeAlsoPortableTest(unittest.TestCase):
             assert found
 
 
+    @unittest.skipIf( True, "SPARQL special cases not implemented.")
     def test_see_also_special(self):
         """Special Survol seeAlso pathes"""
         CurrentFile = __file__.replace("\\","/")
@@ -936,35 +937,35 @@ class SparqlSeeAlsoPortableTest(unittest.TestCase):
              ['url_proc'],
              ],
 
-            ["""
-            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT *
-            WHERE
-            { ?url_proc survol:Handle %d  .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc rdfs:seeAlso "survol:CIM_Process/*" .
-            }
-            """ % CurrentPid,
+             ["""
+             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+             SELECT *
+             WHERE
+             { ?url_proc survol:Handle %d  .
+               ?url_proc rdf:type survol:CIM_Process .
+               ?url_proc rdfs:seeAlso "survol:CIM_Process/*" .
+             }
+             """ % CurrentPid,
              {'url_proc': {'Handle': str(CurrentPid), '__class__': 'CIM_Process'}},
              ],
 
-            ["""
-            PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT *
-            WHERE
-            { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
-              ?url_proc rdf:type survol:CIM_DataFile .
-              ?url_proc rdfs:seeAlso <http://vps516494.ovh.net/Survol/survol/sources_types/CIM_DataFile/mapping_processes.py?xid=CIM_DataFile.Name%3D%2Fusr%2Flib%2Fsystemd%2Fsystemd-journald&mode=rdf> .
-            }
-            """,
-            None,
-            ],
+             ["""
+             PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+             SELECT *
+             WHERE
+             { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
+               ?url_proc rdf:type survol:CIM_DataFile .
+               ?url_proc rdfs:seeAlso <http://vps516494.ovh.net/Survol/survol/sources_types/CIM_DataFile/mapping_processes.py?xid=CIM_DataFile.Name%3D%2Fusr%2Flib%2Fsystemd%2Fsystemd-journald&mode=rdf> .
+             }
+             """,
+             None,
+             ],
 
-        # If WMI is not used and not SelectFromWhere method for this class,
-        # this just uses the key-value pair.
-        ["""
+            # If WMI is not used and not SelectFromWhere method for this class,
+            # this just uses the key-value pair.
+            ["""
             SELECT *
             WHERE
             { ?url_fileA survol:Name "C:/Windows"  .
@@ -987,19 +988,18 @@ class SparqlSeeAlsoPortableTest(unittest.TestCase):
               ?url_file survol:CIM_ProcessExecutable ?url_proc  .
             }
             """ % CurrentPid,
-             ['url_proc', 'url_file'],
-             ],
+            ['url_proc', 'url_file'],
+            ],
 
             ["""
-        SELECT *
-        WHERE
-          ?url_file rdf:type survol:CIM_DataFile .
-          ?url_file rdfs:seeAlso "survol:does_not_exist" .
-        }
-        """,
+            SELECT *
+            WHERE
+              ?url_file rdf:type survol:CIM_DataFile .
+              ?url_file rdfs:seeAlso "survol:does_not_exist" .
+            }
+            """,
              ['url_proc', 'url_file'],
              ],
-
         ]
 
         for sparql_query, one_expected_dict in array_survol_queries:
