@@ -1140,9 +1140,9 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
         url_script = lib_client.GetOntologyScript(ontology_key)
         mySource = lib_client.SourceLocal(url_script)
         ontologySurvol = mySource.get_content_moded(None)
-        print("Ontology=", ontologySurvol[:20])
+        print("Ontology=", type(ontologySurvol), ontologySurvol[:20])
         grph = rdflib.Graph()
-        ontoTrunc = "".join( ontologySurvol.split("\n") )
+        ontoTrunc = b"".join( ontologySurvol.split(b"\n") )
         result = grph.parse(data=ontoTrunc, format="application/rdf+xml")
         print("Load OK:l=%d"%len(grph))
 
@@ -1298,6 +1298,12 @@ class SurvolLocalGdbTest(unittest.TestCase):
 
         CheckSubprocessEnd(procOpen)
 
+def is_pytest():
+    print("argv=",sys.argv)
+    for one_arg in sys.argv:
+        if one_arg.find("pytest") >= 0:
+            return True
+    return False
 
 class SurvolLocalWindowsTest(unittest.TestCase):
     """These tests do not need a Survol agent. They apply to Windows machines only"""
@@ -1440,6 +1446,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         assert(False)
 
     @decorator_windows_platform
+    @unittest.skipIf(is_pytest(), "This msdos test cannot run in pytest.")
     def test_msdos_current_batch(self):
         """Displays information a MSDOS current batch"""
 
