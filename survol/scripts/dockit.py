@@ -1268,12 +1268,12 @@ class CIM_DataFile (CIM_XmlMarshaller,object):
 
         # If this is a connected socket:
         # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
-        mtchSock = re.match( "TCP:\[.*->(.*)\]", pathName)
+        mtchSock = re.match(r"TCP:\[.*->(.*)\]", pathName)
         if mtchSock:
             self.SetAddrPort( mtchSock.group(1) )
         else:
             # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
-            mtchSock = re.match( "TCPv6:\[.*->(.*)\]", pathName)
+            mtchSock = re.match(r"TCPv6:\[.*->(.*)\]", pathName)
             if mtchSock:
                 self.SetAddrPort( mtchSock.group(1) )
 
@@ -1496,11 +1496,11 @@ def ToObjectPath_CIM_DataFile(pathName,aPid = None):
 # Shared libraries, source files, scripts, Linux pipes etc...
 G_lstFilters = [
     ( "Shared libraries" , [
-        "^/usr/lib[^/]*/.*\.so",
-        "^/usr/lib[^/]*/.*\.so\..*",
-        "^/var/lib[^/]*/.*\.so",
-        "^/lib/.*\.so",
-        "^/lib64/.*\.so",
+        r"^/usr/lib[^/]*/.*\.so",
+        r"^/usr/lib[^/]*/.*\.so\..*",
+        r"^/var/lib[^/]*/.*\.so",
+        r"^/lib/.*\.so",
+        r"^/lib64/.*\.so",
     ] ),
     ( "System config files" , [
         "^/etc/",
@@ -1538,8 +1538,8 @@ G_lstFilters = [
     ] ),
     # TCP:[54.36.162.150:41039->82.45.12.63:63711]
     ( "Connected TCP sockets" , [
-        "^TCP:\[.*->.*\]",
-        "^TCPv6:\[.*->.*\]",
+        r"^TCP:\[.*->.*\]",
+        r"^TCPv6:\[.*->.*\]",
     ] ),
     ( "Other TCP/IP sockets" , [
         "^TCP:",
@@ -2490,7 +2490,7 @@ class BatchLetCore:
         # [pid 11762] 10:56:39.125896 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
         # [pid 11761] 10:56:39.125939 <... close resumed> ) = 0 <0.000116>
         # [pid 11762] 10:56:39.125955 <... mmap resumed> ) = 0x7f75198d5000 <0.000063>
-        matchResume = re.match( "<\.\.\. ([^ ]*) resumed> (.*)", theCall )
+        matchResume = re.match(r"<\.\.\. ([^ ]*) resumed> (.*)", theCall)
         if matchResume:
             self.m_status = BatchStatus.resumed
             # TODO: Should check if this is the correct function name.
@@ -4546,13 +4546,13 @@ def DefaultTracer(inputLogFile,tracer=None):
     if not tracer:
         if inputLogFile:
             # Maybe the pid is embedded in the log file.
-            matchTrace = re.match(".*\.([^\.]*)\.[0-9]+\.log", inputLogFile )
+            matchTrace = re.match(r".*\.([^\.]*)\.[0-9]+\.log", inputLogFile )
             if matchTrace:
                 tracer = matchTrace.group(1)
             else:
                 # The file format might be "xyzxyz.strace.log", "abcabc.ltrace.log", "123123.cdb.log"
                 # depending on the tool which generated the log.
-                matchTrace = re.match(".*\.([^\.]*)\.log", inputLogFile )
+                matchTrace = re.match(r".*\.([^\.]*)\.log", inputLogFile )
                 if not matchTrace:
                     raise Exception("Cannot read tracer from log file name:%s"%inputLogFile)
                 tracer = matchTrace.group(1)
