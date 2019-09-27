@@ -28,6 +28,24 @@ RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
 # If the Survol agent does not exist, this script starts a local one.
 RemoteAgentProcess = None
 
+def is_pytest():
+    print("argv=",sys.argv)
+    for one_arg in sys.argv:
+        if one_arg.find("pytest") >= 0:
+            return True
+    return False
+
+# This tests if an executable is present.
+def linux_check_program_exists(program_name):
+    import subprocess
+    p = subprocess.Popen(['/usr/bin/which', program_name], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    p.communicate()
+    return p.returncode == 0
+
+def is_travis_machine():
+    # Some tests cannot be run on a Travis machine if some tools are not there.
+    return os.getcwd().find("travis") >= 0
+
 def setUpModule():
     global RemoteAgentProcess
     print("setUpModule")
@@ -1208,19 +1226,11 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
-# This test if an executable is present.
-def _linux_check_program_exists(program_name):
-    import subprocess
-    p = subprocess.Popen(['/usr/bin/which', program_name], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    p.communicate()
-    return p.returncode == 0
-
-
 class SurvolLocalGdbTest(unittest.TestCase):
     """These tests do not need a Survol agent, and run on Linux with GDB debugger"""
 
     def decorator_gdb_platform(test_func):
-        if sys.platform.startswith("linux") and _linux_check_program_exists("gdb"):
+        if sys.platform.startswith("linux") and linux_check_program_exists("gdb"):
             return test_func
         else:
             return None
@@ -1297,13 +1307,6 @@ class SurvolLocalGdbTest(unittest.TestCase):
             assert( oneStr in strInstancesSet )
 
         CheckSubprocessEnd(procOpen)
-
-def is_pytest():
-    print("argv=",sys.argv)
-    for one_arg in sys.argv:
-        if one_arg.find("pytest") >= 0:
-            return True
-    return False
 
 class SurvolLocalWindowsTest(unittest.TestCase):
     """These tests do not need a Survol agent. They apply to Windows machines only"""
@@ -1856,10 +1859,6 @@ class SurvolRemoteTest(unittest.TestCase):
     #def tearDown(self):
     #    time.sleep(0.01)  # sleep time in seconds
 
-    def is_travis_machine(self):
-        # Some tests cannot be run on a Travis machine if some tools are not there.
-        return os.getcwd().find("travis") >= 0
-
     @decorator_remote_tests
     def test_InstanceUrlToAgentUrl(selfself):
         assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427") == None )
@@ -1941,14 +1940,11 @@ class SurvolRemoteTest(unittest.TestCase):
         print("Remote Java processes=",numJavaProcesses)
         self.assertTrue(numJavaProcesses>=1)
 
+    # Cannot run /sbin/arp -an
+    @unittest.skipIf(is_travis_machine(), "Cannot run this test on TravisCI because arp is not available.")
     @decorator_remote_tests
     def test_remote_instances_arp(self):
         """Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
-
-        # Cannot run /sbin/arp -an
-        if self.is_travis_machine():
-            print("Cannot run this test on TravisCI because arp is not available")
-            return
 
         mySourceArpRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
