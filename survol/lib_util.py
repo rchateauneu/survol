@@ -537,16 +537,13 @@ def EntHostToIpReally(entity_host):
 ################################################################################
 
 def ParseXidLocal(xid ):
-    """
-        A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
-        "WORKGROUP\RCHATEAU-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
-        "WORKGROUP\RCHATEAU-HP@oracle/table.Name=MY_TABLE"
-        BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
-        that is "http://192.168.1.83:5988/."
-        mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-z0-9A-Z_/]*:?[a-z0-9A-Z_/]*)\.(.*)", xid )
-        A class name starts with a letter. There are no consecutives slashes "/".
-        TODO: Filter when consecutives slashes.
-    """
+    # A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
+    # "WORKGROUP\RCHATEAU-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
+    # "WORKGROUP\RCHATEAU-HP@oracle/table.Name=MY_TABLE"
+    # BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
+    # that is "http://192.168.1.83:5988/."
+    # A class name starts with a letter. There are no consecutives slashes "/".
+    # TODO: Filter when consecutives slashes.
     mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-zA-Z_][a-z0-9A-Z_/]*)\.(.*)", xid )
 
     if mtch_entity:
@@ -566,16 +563,14 @@ def ParseXidLocal(xid ):
     return None
 
 def ParseXidWMI(xid ):
-    """
-        WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
-        Beware ! On Windows, namespaces are separated by backslashes.
-        WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
-        http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2\Applications%3A.
-        http://127.0.0.1:8000/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
-        http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
-        TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
-        TODO: otherwise graphviz replace "\L" par "<TABLE">
-    """
+    # WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+    # Beware ! On Windows, namespaces are separated by backslashes.
+    # WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+    # http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2\Applications%3A.
+    # http://127.0.0.1:8000/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
+    # http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
+    # TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
+    # TODO: otherwise graphviz replace "\L" par "<TABLE">
 
     # This matches for example 'root\cimv2:Win32_Process.Handle="0"'
     wmi_regex_local_part = r"([a-zA-Z0-9_]+)\\([^.]*)(\..*)"
@@ -618,13 +613,11 @@ def ParseXidWMI(xid ):
     return None
 
 def ParseXidWBEM(xid ):
-    """
-        https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
-        http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate
-        "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
-        "xid=http://192.168.1.88:5988/."
-    """
-    mtch_ent_wbem = re.match( "(https?://[^/]*)/([^.]*)(\..*)?", xid )
+    # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
+    # http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate
+    # "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
+    # "xid=http://192.168.1.88:5988/."
+    mtch_ent_wbem = re.match( r"(https?://[^/]*)/([^.]*)(\..*)?", xid )
     if mtch_ent_wbem:
         #sys.stderr.write("mtch_ent_wbem\n")
         grp = mtch_ent_wbem.groups()
@@ -1182,17 +1175,19 @@ def RequestUriModed(otherMode):
     # HttpPrefix()=http://rchateau-hp:8000
     # RequestUri()=http://rchateau-hp:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1900
     strRequestUri = RequestUri()
-    if not strRequestUri.startswith("http"):
-        script = HttpPrefix() + RequestUri()
-    else:
+
+    # strRequestUri=/survol/print_internal_data_as_json.py
+    if strRequestUri.startswith("http"):
         script = strRequestUri
-    DEBUG("RequestUriModed HttpPrefix()=%s RequestUri()=%s script=%s",HttpPrefix(),RequestUri(),script)
+    else:
+        script = HttpPrefix() + strRequestUri
+    # DEBUG("RequestUriModed HttpPrefix()=%s RequestUri()=%s script=%s",HttpPrefix(),strRequestUri,script)
     return AnyUriModed(script, otherMode)
 
 # If an Url, it replaces the value of the argument "mode" by another one,
 # remove this arguments or adds it, depending on the case.
 def AnyUriModed(script, otherMode):
-    mtch_url = re.match("(.*)([\?\&])mode=[^\&]*(.*)", script)
+    mtch_url = re.match(r"(.*)([\?\&])mode=[^\&]*(.*)", script)
 
     if otherMode:
         if mtch_url:
@@ -1234,7 +1229,7 @@ def GetModeFromUrl(url):
     # Maybe it contains a MIME type: application/java-archive,
     # application/vnd.ms-powerpoint, audio/3gpp2, application/epub+zip
 
-    mtch_url = re.match(".*[\?\&]mode=([^\&]*).*", url)
+    mtch_url = re.match(r".*[\?\&]mode=([^\&]*).*", url)
     if mtch_url:
         return mtch_url.group(1)
     return ""
