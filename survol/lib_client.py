@@ -386,13 +386,8 @@ class BaseCIMClass(object):
             DEBUG("BaseCIMClass.__new__ %s is NOT in the cache instanceKey=",instanceKey)
             # newInstance = super(ClassA, cls).__new__(cls, agentUrl, **kwargsOntology)
             #DEBUG("cls=%s kwargs=%s",cls.__name__,str(kwargs))
-            if sys.version_info >= (3,):
-                newInstance = super(BaseCIMClass, cls).__new__(cls)
-            else:
-                # TODO: Consider reusing entity_id.
-                # DeprecationWarning: object() takes no parameters ??
-                newInstance = super(BaseCIMClass, cls).__new__(cls,  agentUrl, className, **kwargsOntology)
 
+            newInstance = super(BaseCIMClass, cls).__new__(cls)
             cls.m_instances_cache[instanceKey] = newInstance
             return newInstance
 
@@ -1019,7 +1014,9 @@ class Agent:
             raise Exception("ExecHttpScript: Feature not implemenetd yet")
 
     def GetInternalData(self):
-        urlContent = self.ExecHttpScript("/survol/print_internal_data_as_json.py")
+        # This adds "?xid=" at the end, otherwise it is parsed differently,
+        # depending on the path.
+        urlContent = self.ExecHttpScript("/survol/print_internal_data_as_json.py" + lib_util.xidCgiDelimiter)
         return json.loads(urlContent)
 
 
