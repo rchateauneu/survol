@@ -39,12 +39,10 @@ if sys.platform.startswith("win"):
 
     try:
         import win32api
-        print("execPath BEFORE=", execPath)
         execPath = win32api.GetLongPathName(win32api.GetShortPathName(execPath))
 
         # The drive must be in uppercase too:
         execPath = execPath[0].upper() + execPath[1:]
-        print("execPath AFTER=", execPath)
     except ImportError:
         # Here we cannot do anything.
         pass
