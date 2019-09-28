@@ -20,8 +20,8 @@ from init import *
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc WSGI server: "http://rchateau-hp:9000"
-RemoteTestPort = 9000
-RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
+RemoteWsgiTestPort = 9000
+RemoteWsgiTestAgent = "http://%s:%d" % (CurrentMachine, RemoteWsgiTestPort)
 
 # If the Survol agent does not exist, this script starts a local one.
 RemoteAgentProcess = None
@@ -37,11 +37,11 @@ def setUpModule():
         from urllib2 import urlopen as portable_urlopen
 
     try:
-        response = portable_urlopen(RemoteTestAgent + "/survol/entity.py", timeout=5)
+        response = portable_urlopen(RemoteWsgiTestAgent + "/survol/entity.py", timeout=5)
         print("Using existing Survol agent")
     except:
         import multiprocessing
-        print("Starting test survol agent: RemoteTestAgent=", RemoteTestAgent, " hostname=", socket.gethostname())
+        print("Starting test survol agent: RemoteWsgiTestAgent=", RemoteWsgiTestAgent, " hostname=", socket.gethostname())
 
         import scripts.wsgiserver
         # cwd = "PythonStyle/tests", must be "PythonStyle".
@@ -57,11 +57,11 @@ def setUpModule():
         print("sys.path=",sys.path)
         RemoteAgentProcess = multiprocessing.Process(
             target=scripts.wsgiserver.StartWsgiServer,
-            args=(AgentHost, RemoteTestPort, current_dir))
+            args=(AgentHost, RemoteWsgiTestPort, current_dir))
         RemoteAgentProcess.start()
         print("Waiting until the WSGI server is ready")
         time.sleep(8.0)
-        local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
+        local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteWsgiTestPort)
         try:
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
@@ -163,7 +163,7 @@ class WsgiRemoteTest(unittest.TestCase):
     def test_wsgi_file_stat_json(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
+            RemoteWsgiTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=FileAlwaysThere)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
@@ -216,7 +216,7 @@ class WsgiRemoteTest(unittest.TestCase):
     def test_wsgi_file_stat_rdf(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
+            RemoteWsgiTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=FileAlwaysThere)
 
@@ -248,7 +248,7 @@ class WsgiRemoteTest(unittest.TestCase):
     @decorator_remote_tests
     def test_wsgi_file_directory(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
+            RemoteWsgiTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
             Name=DirAlwaysThere)
         tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
