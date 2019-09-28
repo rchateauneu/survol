@@ -74,7 +74,7 @@ def setUpModule():
         except KeyError:
             current_dir = ""
         print("current_dir=",current_dir)
-        print("sys.path=",sys.path)
+        #print("sys.path=",sys.path)
         RemoteAgentProcess = multiprocessing.Process(
             target=scripts.cgiserver.StartParameters,
             args=(True, AgentHost, RemoteTestPort, current_dir))
@@ -1877,7 +1877,7 @@ class SurvolRemoteTest(unittest.TestCase):
         print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
 
         # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-        print(__file__ + " sys.path=%s" % str(sys.path))
+        # print(__file__ + " sys.path=%s" % str(sys.path))
         print(__file__ + " sys.executable=%s" % sys.executable)
         print(__file__ + " sys.exec_prefix=%s" % sys.exec_prefix)
 
@@ -2550,15 +2550,28 @@ class SurvolInternalTest(unittest.TestCase):
         # RequestUri           /survol/print_internal_data_as_json.py
 
         print("")
-        print("anAgentStr=",anAgentStr)
-        print("PLUS:",anAgentStr + "/survol")
+        print("CurrentMachine=", CurrentMachine)
+        print("anAgentStr=", anAgentStr)
         for key in mapInternalData:
-            print("%-20s %20s"%(key,mapInternalData[key]))
-        assert(mapInternalData["uriRoot"] == anAgentStr + "/survol")
+            print("%-20s %20s"%(key, mapInternalData[key]))
+
+        #"uriRoot": lib_util.uriRoot,
+        #"HttpPrefix": lib_util.HttpPrefix(),
+        #"RootUri": lib_util.RootUri(),
+        #"RequestUri": lib_util.RequestUri()
+
+        # This breaks on Linux Python 3:
+        # "http://localhost:8000/survol"
+        # "http://travis-job-051017ff-a582-4258-a817-d9cd836533a6:8000/survol"
+        self.assertTrue(mapInternalData["uriRoot"] == anAgentStr + "/survol")
+
         print("RootUri=",mapInternalData["RootUri"])
         print("anAgentStr=",anAgentStr)
+
+        # When the agent is started automatically, "?xid=" is added at the end of the URL.
         # http://rchateau-hp:8000/survol/print_internal_data_as_json.py?xid=
-        assert(mapInternalData["RootUri"] == anAgentStr + "/survol/print_internal_data_as_json.py")
+        # This adds lib_util.xidCgiDelimiter at the end.
+        assert(mapInternalData["RootUri"] == anAgentStr + "/survol/print_internal_data_as_json.py" + "?xid=")
 
         #lib_client.urlparse
         #assert(mapInternalData["HttpPrefix"] == anAgentStr)
@@ -2567,6 +2580,7 @@ class SurvolInternalTest(unittest.TestCase):
     def test_internal_remote(self):
         self.check_internal_values(RemoteTestAgent)
 
+    @unittest.skipIf(is_travis_machine(), "Cannot run Apache test on TravisCI.")
     def test_internal_apache(self):
         # http://192.168.0.14/Survol/survol/entity.py
 
