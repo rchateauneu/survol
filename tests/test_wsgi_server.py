@@ -10,6 +10,7 @@ import re
 import time
 import socket
 import json
+import atexit
 
 # This starts a local WSGI server and runs several queries and tests that the results are the same.
 
@@ -55,6 +56,9 @@ def setUpModule():
             current_dir = ""
         print("current_dir=",current_dir)
         print("sys.path=",sys.path)
+
+        atexit.register(ServerDumpContent,scripts.wsgiserver.WsgiServerLogFileName )
+
         RemoteAgentProcess = multiprocessing.Process(
             target=scripts.wsgiserver.StartWsgiServer,
             args=(AgentHost, RemoteWsgiTestPort, current_dir))
@@ -66,24 +70,11 @@ def setUpModule():
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
             print("Caught:", exc)
-            PrintAgentLog()
+            ServerDumpContent( scripts.wsgiserver.WsgiServerLogFileName )
             raise
 
     data = response.read().decode("utf-8")
     print("Survol agent OK")
-
-
-def PrintAgentLog():
-    global RemoteAgentProcess
-    if RemoteAgentProcess:
-        print("Agent stderr")
-        try:
-            agent_stderr = open("cgiserver.stderr.log")
-            for line_stderr in agent_stderr:
-                print(line_stderr)
-            print("Agent stderr end")
-        except Exception as exc:
-            print("No agent log file:", exc)
 
 
 def tearDownModule():
@@ -92,19 +83,9 @@ def tearDownModule():
     if RemoteAgentProcess:
         RemoteAgentProcess.terminate()
         RemoteAgentProcess.join()
-        PrintAgentLog()
 
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
-
-#####XXXXX # This deletes the module so we can reload them each time.
-#####XXXXX # Problem: survol modules are not detectable.
-#####XXXXX # We could as well delete all modules except sys.
-#####XXXXX allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
-#####XXXXX 
-#####XXXXX for modu in allModules:
-#####XXXXX     # sys.stderr.write("Deleting %s\n"%modu)
-#####XXXXX     del sys.modules[modu]
 
 import lib_client
 import lib_properties
@@ -152,14 +133,6 @@ class WsgiRemoteTest(unittest.TestCase):
     and examines the result. It might merge the output with local scripts or
     scripts on different machines."""
 
-    def decorator_remote_tests(test_func):
-        """This host might not be able to connect to other machines"""
-
-        #if socket.gethostname() == "vps516494.localdomain":
-        #    return None
-        return test_func
-
-    @decorator_remote_tests
     def test_wsgi_file_stat_json(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
@@ -212,7 +185,6 @@ class WsgiRemoteTest(unittest.TestCase):
         self.assertTrue(link_found, "Could not find edge between file and directory")
 
 
-    @decorator_remote_tests
     def test_wsgi_file_stat_rdf(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
@@ -245,7 +217,6 @@ class WsgiRemoteTest(unittest.TestCase):
         self.assertTrue(found_dir, "Cannot find directory:" + dirFileAlwaysThere)
         self.assertTrue(found_file, "Cannot find file:" + FileAlwaysThere)
 
-    @decorator_remote_tests
     def test_wsgi_file_directory(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
