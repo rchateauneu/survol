@@ -34,15 +34,17 @@ class OutputMachineWsgi:
 
     def Content(self):
         if not self.m_header_called:
-            sys.stderr.write("OutputMachineWsgi.Content HeaderWriter not called.\n")
+            sys.stderr.write("Content: Warning OutputMachineWsgi.Content HeaderWriter not called.\n")
         self.m_header_called = False
         str_value = self.m_output.getvalue()
+        sys.stderr.write("Content A: type(str_value)=%s len(str_value)=%d.\n" % ( str(type(str_value)), len(str_value)))
         if sys.version_info >= (3,):
             if type(str_value) == str:
                 str_value = str_value.encode()
         else:
             if type(str_value) == unicode:
                 str_value = str_value.encode()
+        sys.stderr.write("Content B: type(str_value)=%s len(str_value)=%d.\n" % ( str(type(str_value)), len(str_value)))
         return str_value
 
     # extraArgs is an array of key-value tuples.
