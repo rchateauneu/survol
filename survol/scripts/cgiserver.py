@@ -22,9 +22,9 @@ import os
 import socket
 
 try:
-	from urlparse import urlparse
+    from urlparse import urlparse
 except ImportError:
-	from urllib.parse import urlparse
+    from urllib.parse import urlparse
 
 # Apache setup:
 # In Apache httpd.conf, we have the directive:
@@ -194,8 +194,14 @@ def RunCgiServerInternal():
 
     StartParameters(verbose, server_name, port_number)
 
+CgiServerLogFileName = "cgiserver.execution.log"
+
 # The current directory can be set, this is used when this is called from multiprocessing.
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
+    logfil = open(CgiServerLogFileName, "w")
+    logfil.write(__file__ + " startup\n")
+    logfil.close()
+
     os.environ["SERVER_SOFTWARE"] = "CGIServerPython"
 
     if verbose:
@@ -243,7 +249,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
                     sys.stderr.write("StartParameters.is_cgi getpid=%d\n" % os.getpid())
-                    sys.stderr.write("StartParameters.is_cgi sys.path=%s\n" % str(sys.path))
+                    # sys.stderr.write("StartParameters.is_cgi sys.path=%s\n" % str(sys.path))
                     sys.stderr.write("StartParameters.is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
 
                 uprs = urlparse(collapsed_path)
@@ -324,10 +330,9 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # This is not necessary for Windows (Which apparently copies its env vars).
             # This must be tested on Python 3.
             server.server_name = server_name
-            print("server=%s"%(server.server_name))
-            # os.environ["SERVER_NAME"] = server_name
+            print("StartParameters server.server_name=%s" % (server.server_name))
 
-
+        # FIXME: Win3 and carriage return, in Pycharm..
         if 'win' in sys.platform:
             import msvcrt
             # msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
