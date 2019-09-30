@@ -13,10 +13,12 @@ try:
     CurrentUsername = os.environ["USERNAME"]
     # The class of users is different on Linux and Windows.
     CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername
+    #CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=%s" % (CurrentUsername, CurrentMachine)
 except KeyError:
     # This is for Linux.
     CurrentUsername = os.environ["USER"]
     CurrentUserPath = "LMI_Account.Name=%s,Domain=localhost" % CurrentUsername
+    #CurrentUserPath = "LMI_Account.Name=%s,Domain=%s" % (CurrentUsername, CurrentMachine)
 
 CurrentPid = os.getpid()
 CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
@@ -56,3 +58,15 @@ CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
 print(__file__+" sys.execPath=%s" % execPath)
 print(__file__+" sys.executable=%s" % sys.executable)
 print(__file__+" sys.exec_prefix=%s" % sys.exec_prefix)
+
+def ServerDumpContent(log_filename):
+    sys.stdout.write("Agent log file: %s\n" % log_filename)
+    try:
+        agent_stream = open(log_filename)
+        for line_stream in agent_stream:
+            sys.stdout.write(">>> %s" % line_stream)
+        agent_stream.close()
+        sys.stdout.write("Agent log file end\n")
+    except Exception as exc:
+        sys.stdout.write("No agent log file:%s\n" % exc)
+
