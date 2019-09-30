@@ -328,14 +328,22 @@ def RunWsgiServer():
 
     StartWsgiServer(server_name, port_number, current_dir="")
 
+WsgiServerLogFileName = "wsgiserver.execution.log"
+
 def StartWsgiServer(server_name, port_number, current_dir=""):
+    logfil = open(WsgiServerLogFileName, "w")
+    logfil.write(__file__ + " startup\n")
+    logfil.flush()
 
     server_addr = socket.gethostbyname(server_name)
 
-    print("Platform=%s\n"%sys.platform)
-    print("Version:%s\n"% str(sys.version_info))
-    print("Server address:%s" % server_addr)
-    print("Opening %s:%d" % (server_name,port_number))
+    def log_information(stream):
+        stream.write("Platform=%s\n" % sys.platform)
+        stream.write("Version:%s\n" % str(sys.version_info))
+        stream.write("Server address:%s\n" % server_addr)
+        stream.write("sys.path:%s\n" % str(sys.path))
+        stream.write("Opening %s:%d\n" % (server_name, port_number))
+        stream.flush()
 
     # The script must be started from a specific directory because of the URLs.
     if current_dir:
@@ -354,6 +362,10 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
     # This expects that environment variables are propagated to subprocesses.
     os.environ["SURVOL_SERVER_NAME"] = server_name
     sys.stderr.write("server_name=%s\n"% server_name)
+
+    log_information(sys.stdout)
+    log_information(logfil)
+    logfil.close()
 
     httpd = server.make_server('', port_number, application)
     print("WSGI server running on port %i..." % port_number)
