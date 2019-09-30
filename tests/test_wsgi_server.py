@@ -38,7 +38,7 @@ def setUpModule():
         from urllib2 import urlopen as portable_urlopen
 
     try:
-        response = portable_urlopen(RemoteWsgiTestAgent + "/survol/entity.py", timeout=5)
+        response = portable_urlopen(RemoteWsgiTestAgent + "/survol/print_environment_variables.py", timeout=5)
         print("Using existing Survol agent")
     except:
         import multiprocessing
