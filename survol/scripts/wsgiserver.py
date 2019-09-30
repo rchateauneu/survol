@@ -201,14 +201,14 @@ def application_ok(environ, start_response):
     try:
         the_module.Main()
     except Exception as exc:
-        sys.stderr.write("application_ok caught %s in Main()\n" % exc)
+        sys.stderr.write(__file__ + ": application_ok caught %s in Main()\n" % exc)
         raise
 
     try:
         # TODO: Use yield for better performance.
         module_content = lib_util.globalOutMach.Content()
     except Exception as exc:
-        sys.stderr.write("application_ok: caught from Content():%s\n" % exc)
+        sys.stderr.write(__file__  + ":application_ok: caught from Content():%s\n" % exc)
         # The HTTP header is not written because of the exception. This calls start_response.
         lib_util.globalOutMach.HeaderWriter('text/html')
         module_content = "Message: application_ok caught:%s\n" % exc
