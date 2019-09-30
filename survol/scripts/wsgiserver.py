@@ -335,6 +335,11 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
     logfil.write(__file__ + " startup\n")
     logfil.flush()
 
+    sys.stderr = logfil
+    sys.stderr.write(__file__ + " redirection stderr\n")
+    logfil.write(__file__ + " redirection stderr\n")
+    logfil.flush()
+
     server_addr = socket.gethostbyname(server_name)
 
     def log_information(stream):
@@ -365,12 +370,16 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
 
     log_information(sys.stdout)
     log_information(logfil)
-    logfil.close()
+    logfil.flush()
 
     httpd = server.make_server('', port_number, application)
     print("WSGI server running on port %i..." % port_number)
     # Respond to requests until process is killed
     httpd.serve_forever()
+
+    logfil.write(__file__ + " leaving\n")
+    logfil.close()
+
 
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
