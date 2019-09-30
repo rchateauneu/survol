@@ -101,7 +101,7 @@ def QuerySeeAlsoKeyValuePairs(grph, sparql_query, sparql_callback):
 
 
 def UrlToRdf(url_rdf):
-    print("url_rdf=",url_rdf)
+    print("UrlToRdf url_rdf=",url_rdf)
 
     response = lib_util.survol_urlopen(url_rdf)
     doc_xml_rdf = response.read().decode("utf-8")
@@ -684,7 +684,7 @@ class SparqlSeeAlsoTest(unittest.TestCase):
             for one_dict_objects in list_dict_objects:
                 actual_keys = one_dict_objects.keys()
                 assert actual_keys == expected_keys
-                print("TEST=",one_dict_objects)
+                # print("TEST=",one_dict_objects)
 
                 # This returns the first pair of different elements.
                 def diff_dictionary(sub_dict, main_dict):
