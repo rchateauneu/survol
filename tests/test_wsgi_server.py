@@ -38,6 +38,7 @@ def setUpModule():
         from urllib2 import urlopen as portable_urlopen
 
     try:
+        # No SVG because Travis might not have dot/Graphviz.
         response = portable_urlopen(RemoteWsgiTestAgent + "/survol/print_environment_variables.py", timeout=5)
         print("Using existing Survol agent")
     except:
@@ -65,7 +66,8 @@ def setUpModule():
         RemoteAgentProcess.start()
         print("Waiting until the WSGI server is ready")
         time.sleep(8.0)
-        local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteWsgiTestPort)
+        # Check again if the server is started.
+        local_agent_url = "http://%s:%s/survol/print_environment_variables.py" % (AgentHost, RemoteWsgiTestPort)
         try:
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
