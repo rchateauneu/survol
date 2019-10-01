@@ -455,9 +455,9 @@ def SqlQueryWalkNodes(sqlQuery,Func):
 # TODO: so we would scan the memory or file content, once only.
 printables = r"[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
 theRegExs = {
-	r"SELECT": "select\s+" + printables + r"\s+from\s+" + printables,
-	r"INSERT": "insert\s+" + printables + r"\s+into\s+" + printables,
-	r"UPDATE": "update\s+" + printables + r"\s+set\s+" + printables,
+	r"SELECT": r"select\s+" + printables + r"\s+from\s+" + printables,
+	r"INSERT": r"insert\s+" + printables + r"\s+into\s+" + printables,
+	r"UPDATE": r"update\s+" + printables + r"\s+set\s+" + printables,
 }
 #
 def SqlRegularExpressions():
