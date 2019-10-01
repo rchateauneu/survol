@@ -6,35 +6,40 @@
 import os
 import re
 import cgi
+import sys
 
 # HTTP_HOST and SERVER_NAME and SERVER_PORT
+# BEWARE: This does not work with WSGI.
 
 def Main():
 	arguments = cgi.FieldStorage()
 
-	print("""Content-type: text/html
+	def OutStr(a_str):
+		try:
+			sys.stdout.write(a_str.decode())
+		except Exception as exc:
+			sys.stderr.write(__file__ + " Caught" + str(exc))
 
-	<head>
-	 <title>Environment variables</title>
-	</head>
-	<body>
-	<table border="1">""")
+	OutStr("Content-type: text/html\n\n")
+	OutStr("<head><title>Environment variables</title></head>\n")
+	OutStr("<body>\n")
+	OutStr("<table border=\"1\">")
+
+	def add_line(key, value):
+		OutStr("<tr><td>%s</td><td>%s</td></tr>\n" % (key, value))
 
 	start = '..'
 	sources = '/sources'
 	rootdir = start + sources
-	print("getcwd=" + os.getcwd() + "<br>")
-	print("Dir=" + rootdir + "<br>")
+	add_line("getcwd", os.getcwd())
+	add_line("rootdir", rootdir)
 
-	print("Cgi vars<br>")
 	for key, value in os.environ.items():
-		print( key + "=" + value + "<br>")
-	print("Cgi vars end<br><br>")
+		add_line(key, value)
 
-	print("""
-	</body></html>
-	""")
-
+	OutStr("</table>\n")
+	OutStr("</body>\n")
+	OutStr("</html>\n")
 
 if __name__ == '__main__':
 	Main()
