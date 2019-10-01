@@ -323,6 +323,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
         server = HTTPServer((server_name, port_number), handler)
 
         # Testing Win10 and Python 3
+        logfil.write(__file__ + " sys.platform=%s\n" % sys.platform)
         if 'win' in sys.platform:
             # Normally, this value receives socket.gethostname(),
             # which later gives its value to os.environ["SERVER_NAME"].
@@ -331,7 +332,11 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
             # This is not necessary for Windows (Which apparently copies its env vars).
             # This must be tested on Python 3.
-            logfil.write(__file__ + " server_name=%s\n" % server_name)
+            logfil.write(__file__ + " windows server_name=%s\n" % server_name)
+            logfil.flush()
+            server.server_name = server_name
+        else:
+            logfil.write(__file__ + " linux server_name=%s\n" % server_name)
             logfil.flush()
             server.server_name = server_name
 
