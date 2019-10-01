@@ -51,7 +51,7 @@ def Main():
 	#        /lib/ld-linux.so.2 (0x80000000)
 	# Do not know what to do with the lines without an arrow.
 	# Do not know what happens if a library name contains a space.
-	rgx = re.compile('^.*=> *([^ ]+) \(')
+	rgx = re.compile(r'^.*=> *([^ ]+) \(')
 
 	for line in stream:
 		matchObj = re.match( rgx, line )
