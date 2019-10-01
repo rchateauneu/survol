@@ -194,13 +194,14 @@ def RunCgiServerInternal():
 
     StartParameters(verbose, server_name, port_number)
 
+# This is used when testing on Travis, when output cannot be read.
 CgiServerLogFileName = "cgiserver.execution.log"
 
 # The current directory can be set, this is used when this is called from multiprocessing.
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
     logfil = open(CgiServerLogFileName, "w")
     logfil.write(__file__ + " startup server_name=%s port_number=%d\n" % (server_name, port_number))
-    logfil.close()
+    logfil.flush()
 
     os.environ["SERVER_SOFTWARE"] = "CGIServerPython"
 
@@ -282,8 +283,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # as the server address, because it is used to build URLs.
             # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
             # This is not necessary for Windows (Which apparently copies its env vars).
-            # This must be tested on Python 3.
-            sys.stderr.write(__file__ + " server_name=%s\n" % server_name)
+            logfil.write(__file__ + " server_name=%s\n" % server_name)
+            logfil.flush()
             server.server_name = server_name
 
         ServerForever(server)
@@ -330,8 +331,9 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
             # This is not necessary for Windows (Which apparently copies its env vars).
             # This must be tested on Python 3.
+            logfil.write(__file__ + " server_name=%s\n" % server_name)
+            logfil.flush()
             server.server_name = server_name
-            print("StartParameters server.server_name=%s" % (server.server_name))
 
         # FIXME: Win3 and carriage return, in Pycharm..
         if 'win' in sys.platform:
@@ -345,6 +347,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # sys.stderr = sys.stdout
 
         server.serve_forever()
+    logfil.close()
 
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
