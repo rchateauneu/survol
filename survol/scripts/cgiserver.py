@@ -199,7 +199,7 @@ CgiServerLogFileName = "cgiserver.execution.log"
 # The current directory can be set, this is used when this is called from multiprocessing.
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
     logfil = open(CgiServerLogFileName, "w")
-    logfil.write(__file__ + " startup\n")
+    logfil.write(__file__ + " startup server_name=%s port_number=%d\n" % (server_name, port_number))
     logfil.close()
 
     os.environ["SERVER_SOFTWARE"] = "CGIServerPython"
@@ -283,6 +283,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
             # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
             # This is not necessary for Windows (Which apparently copies its env vars).
             # This must be tested on Python 3.
+            sys.stderr.write(__file__ + " server_name=%s\n" % server_name)
             server.server_name = server_name
 
         ServerForever(server)
