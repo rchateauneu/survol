@@ -239,8 +239,8 @@ prefixLocalScript = "/NotRunningAsCgi"
 
 def UriRootHelper():
     try:
-        # sys.stderr.write("SERVER_NAME=%s\n"%os.environ["SERVER_NAME"])
         os.environ["SERVER_NAME"]
+        sys.stderr.write("SERVER_NAME=%s\n"%os.environ["SERVER_NAME"])
     except KeyError:
         # This is necessary when returning objects for example from GetInstances()
         # in the client library lib_client.py. The local objects need a hostname,
@@ -248,7 +248,9 @@ def UriRootHelper():
         # However, if used with remote objects, this hostname should be replaced
         # on-the-fly by the actual host name.
         # An alternative is to specify the right hostname here.
-        os.environ["SERVER_NAME"] = "LOCALHOST"
+        #os.environ["SERVER_NAME"] = "LOCALHOST"
+        os.environ["SERVER_NAME"] = socket.gethostname().lower()
+        sys.stderr.write("SERVER_NAME=%s FIXED\n" % os.environ["SERVER_NAME"])
     try:
         # SCRIPT_NAME=/PythonStyle/survol/internals/print.py
         # SCRIPT_NAME=/survol/print_environment_variables.py

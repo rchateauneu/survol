@@ -12,13 +12,13 @@ CurrentMachine = socket.gethostname().lower()
 try:
     CurrentUsername = os.environ["USERNAME"]
     # The class of users is different on Linux and Windows.
-    CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername
-    #CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=%s" % (CurrentUsername, CurrentMachine)
+    #CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=localhost" % CurrentUsername
+    CurrentUserPath = "Win32_UserAccount.Name=%s,Domain=%s" % (CurrentUsername, CurrentMachine)
 except KeyError:
     # This is for Linux.
     CurrentUsername = os.environ["USER"]
-    CurrentUserPath = "LMI_Account.Name=%s,Domain=localhost" % CurrentUsername
-    #CurrentUserPath = "LMI_Account.Name=%s,Domain=%s" % (CurrentUsername, CurrentMachine)
+    #CurrentUserPath = "LMI_Account.Name=%s,Domain=localhost" % CurrentUsername
+    CurrentUserPath = "LMI_Account.Name=%s,Domain=%s" % (CurrentUsername, CurrentMachine)
 
 CurrentPid = os.getpid()
 CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid

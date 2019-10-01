@@ -816,16 +816,22 @@ class SparqlCallPortableTest(unittest.TestCase):
 
             procA_class = procA['__class__']
             procA_pid = procA['Handle']
-            procA_url_str = 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=%s.Handle=%s' % (procA_class, procA_pid)
+            #procA_url_str = 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=%s.Handle=%s' % (procA_class, procA_pid)
+            # "http://rchateau-hp:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=85652"
+            procA_url_str = 'http://%s:80/NotRunningAsCgi/entity.py?xid=%s.Handle=%s' % (CurrentMachine, procA_class, procA_pid)
 
+
+            # http://rchateau-hp:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=85652
             try:
                 parentB_url = procB['ppid'] # 'http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=13168'
             except KeyError:
                 continue
 
-            WARNING("procA_url_str=%s",procA_url_str)
+            #WARNING("procA_url_str=%s",procA_url_str)
             WARNING("parentB_url=%s",parentB_url)
+            print("parentB_url=%s"%parentB_url)
             if procA_url_str == parentB_url:
+                print("parentB_url=",parentB_url)
                 found = True
                 break
         assert(found)
