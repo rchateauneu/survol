@@ -5,10 +5,7 @@ from __future__ import print_function
 import os
 import sys
 import unittest
-#import socket
 import pkgutil
-#import psutil
-#import rdflib
 
 try:
     import SPARQLWrapper
