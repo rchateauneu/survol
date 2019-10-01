@@ -3,6 +3,8 @@
 # This is a technical script used only for testing.
 # It depends only on low-level libraries and returns their internal results
 # which cannot not normally be printed clearly.
+# BEWARE: This does not work with WSGI.
+
 import json
 import sys
 
