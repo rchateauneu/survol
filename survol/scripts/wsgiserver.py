@@ -17,6 +17,9 @@ def CreateStringStream():
 
 # This models the output of the header and the content.
 # See the class lib_util.OutputMachineCgi
+# TODO: We could have a much simpler implementation by changing the value of sys.stdout.
+# TODO: We would detect the end of the header on the fly.
+# TODO: The advantage is that it would work with plain CGI scripts.
 class OutputMachineWsgi:
     def __init__(self, start_response):
         # FIXME: This is not efficient because Survol creates a string stored in the stream,
@@ -368,7 +371,7 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
 
     # This expects that environment variables are propagated to subprocesses.
     os.environ["SURVOL_SERVER_NAME"] = server_name
-    sys.stderr.write("server_name=%s\n"% server_name)
+    sys.stderr.write(__file__ + " server_name=%s\n"% server_name)
 
     log_information(sys.stdout)
     log_information(logfil)
