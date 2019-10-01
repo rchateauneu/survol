@@ -15,7 +15,7 @@ Usable = lib_util.UsableLinux
 # Parses "500(guest)"
 def ParseIdNam(str):
 	DEBUG("ParseIdNam:"+str)
-	mtch = re.match( "^([0-9]*)\(([^)]*)\)$", str )
+	mtch = re.match( r"^([0-9]*)\(([^)]*)\)$", str )
 	if mtch:
 		return ( mtch.group(1), mtch.group(2) )
 	return ( -1, "" )
