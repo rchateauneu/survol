@@ -12,6 +12,7 @@ import time
 import socket
 import platform
 import pkgutil
+import atexit
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -78,6 +79,9 @@ def setUpModule():
         RemoteAgentProcess = multiprocessing.Process(
             target=scripts.cgiserver.StartParameters,
             args=(True, AgentHost, RemoteTestPort, current_dir))
+
+        atexit.register(ServerDumpContent, scripts.cgiserver.CgiServerLogFileName )
+
         RemoteAgentProcess.start()
         print("Waiting for agent to start")
         time.sleep(5.0)
@@ -86,24 +90,11 @@ def setUpModule():
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
             print("Caught:", exc)
-            PrintAgentLog()
+            ServerDumpContent(scripts.cgiserver.CgiServerLogFileName)
             raise
 
     data = response.read().decode("utf-8")
     print("Survol agent OK")
-
-
-def PrintAgentLog():
-    global RemoteAgentProcess
-    if RemoteAgentProcess:
-        print("Agent stderr")
-        try:
-            agent_stderr = open("cgiserver.stderr.log")
-            for line_stderr in agent_stderr:
-                print(line_stderr)
-            print("Agent stderr end")
-        except Exception as exc:
-            print("No agent log file:", exc)
 
 
 def tearDownModule():
@@ -112,7 +103,6 @@ def tearDownModule():
     if RemoteAgentProcess:
         RemoteAgentProcess.terminate()
         RemoteAgentProcess.join()
-        PrintAgentLog()
 
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
@@ -843,7 +833,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for oneStr in [
-            'CIM_ComputerSystem.Name=localhost',
+            'CIM_ComputerSystem.Name=%s' % CurrentMachine,
             'python/package.Id=isodate',
             'python/package.Id=pyparsing',
             'python/package.Id=rdflib',
@@ -1542,7 +1532,7 @@ class SurvolPyODBCTest(unittest.TestCase):
 
         # At least these instances must be present.
         for oneStr in [
-            'CIM_ComputerSystem.Name=localhost',
+            'CIM_ComputerSystem.Name=%s' % CurrentMachine,
             'odbc/dsn.Dsn=DSN~Excel Files',
             'odbc/dsn.Dsn=DSN~MS Access Database',
             'odbc/dsn.Dsn=DSN~MyNativeSqlServerDataSrc',
