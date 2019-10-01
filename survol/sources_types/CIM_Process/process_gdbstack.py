@@ -68,13 +68,13 @@ def CallParse( execName, grph, procNode, callNodePrev, lin ):
 	fileName = None
 
 	# #5  0xb6f8007c in QApplication::exec () from /usr/lib/qt3/lib/libqt-mt.so.3
-	mtch_call_lib = re.match( "^#[0-9]+ +0x[0-9a-f]+ in ([^ ]+) \([^)]*\) from (.*)$", lin )
+	mtch_call_lib = re.match( r"^#[0-9]+ +0x[0-9a-f]+ in ([^ ]+) \([^)]*\) from (.*)$", lin )
 	if mtch_call_lib:
 		funcName = mtch_call_lib.group(1)
 		fileName = mtch_call_lib.group(2)
 	else:
 		# #8  0x0804ebe9 in QGList::~QGList$delete ()
-		mtch_call_lib = re.match( "^#[0-9]+ +0x[0-9a-f]+ in ([^ ]+) \([^)]*\)$", lin )
+		mtch_call_lib = re.match( r"^#[0-9]+ +0x[0-9a-f]+ in ([^ ]+) \([^)]*\)$", lin )
 		if mtch_call_lib:
 			funcName = mtch_call_lib.group(1)
 			fileName = execName
