@@ -6,7 +6,7 @@ import lib_util
 # TODO: Several accesses per machine or database ?
 # TODO: What if an access for "192.168.1.78" and "titi" ?
 
-
+# This returns the file name containing the credentials.
 def CredFilNam():
 	filNamOnly = "SurvolCredentials.json"
 	try:
@@ -27,6 +27,7 @@ def CredFilNam():
 
 	return filNam
 
+# This returns a map containing all credentials.
 def BuildCredDocument():
 
 	filNam = CredFilNam()
@@ -42,7 +43,7 @@ def BuildCredDocument():
 
 		return upperCredentials
 	except Exception:
-		WARNING("BuildCredDocument no credentials: %s", str(sys.exc_info()))
+		WARNING("BuildCredDocument no credentials %s: %s", filNam, str(sys.exc_info()))
 		return dict()
 
 def CredDocument():
