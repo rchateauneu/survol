@@ -932,6 +932,10 @@ class SurvolLocalTest(unittest.TestCase):
                 # assert 'CIM_DataFile.Name=c:/python27/python.exe' in set(['CIM_DataFile.Name=C:/Python27/python.exe'
                 assert(oneStr in strInstancesSet)
 
+class SurvolLocalWbemTest(unittest.TestCase):
+    """These tests do not need a Survol agent"""
+
+    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_wbem_process_info not executed.")
     def test_wbem_process_info(self):
         """wbem_process_info Information about current process"""
 
@@ -940,14 +944,20 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=os.getpid())
 
-        # We want to catch the error exception instead of exiting from the program.
-        try:
-            mySource.GetTriplestore()
-        except Exception as exc:
-            print("Success: Exception received, because no WBEM server is running")
-            return
+        mySource.GetTriplestore()
 
-        assert(False)
+    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes not executed.")
+    def test_wbem_hostname_processes(self):
+        """Get processes on current machine"""
+
+        mySource = lib_client.SourceLocal(
+            "sources_types/CIM_ComputerSystem/wbem_hostname_processes.py",
+            "CIM_ComputerSystem",
+            Name=CurrentMachine)
+
+        mySource.GetTriplestore()
+
+class SurvolLocalJavaTest(unittest.TestCase):
 
     def test_java_mbeans(self):
         """Java MBeans"""
@@ -1070,6 +1080,8 @@ class SurvolLocalTest(unittest.TestCase):
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
 
         assert(strInstancesSet == set())
+
+class SurvolLocalUtf8Test(unittest.TestCase):
 
     # Traiter ce nom de fichier: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
     def test_accented_filename(self):
