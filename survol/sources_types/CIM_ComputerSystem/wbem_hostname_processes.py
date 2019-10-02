@@ -12,6 +12,8 @@ from lib_properties import pc
 
 CanProcessRemote = True
 
+# NOTE: This can be used on a Windows machine as long as the remote host runs Linux.
+# Usable = lib_util.UsableLinux
 
 def Main():
 
@@ -27,16 +29,14 @@ def Main():
 
 	cimomUrl = lib_wbem.HostnameToWbemServer(machineName)
 
-	DEBUG("wbem_hostname_processes.py cimomUrl=%s",cimomUrl)
+	DEBUG("wbem_hostname_processes.py machineName=%s cimomUrl=%s", machineName, cimomUrl)
 
 	# If running on the local machine, pass the host as None otherwise authorization is checked
 	# just like a remote machine, which means User Account Control (UAC) disabling,
 	# and maybe setting LocalAccountTokenFilterPolicy=1
 	if lib_util.IsLocalAddress( machineName ):
-		#machName_or_None = None
 		serverBox = lib_common.gUriGen
 	else:
-		#machName_or_None = machineName
 		serverBox = lib_common.RemoteBox(machineName)
 
 	# >>> conn = pywbem.WBEMConnection("http://192.168.1.88:5988" , ('pe***us','t*t*') )
@@ -62,7 +62,7 @@ def Main():
 	# ion', u'Handle', u'Description', u'RealUserID', u'CSCreationClassName', u'ProcessTTY', u'OSName', u'ProcessSessionID', u'CreationCla
 	# ssName', u'WorkingSetSize', u'Name', u'CSName', u'ParentProcessID', u'KernelModeTime', u'Caption', u'ProcessNiceValue']
 
-	# With a dictionary so node are created once only.
+	# With a dictionary, so the nodes are created once only.
 	Main.dictWbemPidToNode = {}
 
 	def WbemPidToNode(procId):
