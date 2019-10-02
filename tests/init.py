@@ -7,6 +7,7 @@ import os
 import sys
 import socket
 import psutil
+import pkgutil
 
 CurrentMachine = socket.gethostname().lower()
 try:
@@ -87,6 +88,10 @@ def linux_check_program_exists(program_name):
 def is_travis_machine():
     # Some tests cannot be run on a Travis machine if some tools are not there.
     return os.getcwd().find("travis") >= 0
+
+def is_linux_wbem():
+    return sys.platform.startswith("linux") and pkgutil.find_loader('pywbem')
+
 
 # This defines a file which is present on all platforms.
 if sys.platform.startswith("linux"):
