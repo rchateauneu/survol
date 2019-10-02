@@ -90,7 +90,8 @@ def is_travis_machine():
     return os.getcwd().find("travis") >= 0
 
 def is_linux_wbem():
-    return sys.platform.startswith("linux") and pkgutil.find_loader('pywbem')
+    # WBEM is not available on TravisCI.
+    return sys.platform.startswith("linux") and pkgutil.find_loader('pywbem') and not is_travis_machine()
 
 
 # This defines a file which is present on all platforms.
