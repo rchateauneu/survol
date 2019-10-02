@@ -11,7 +11,7 @@ import lib_wbem
 # from sources_types import CIM_Process
 from lib_properties import pc
 
-Usable = lib_util.UsableWindows
+Usable = lib_util.UsableLinux
 
 CanProcessRemote = True
 
@@ -28,13 +28,10 @@ def Main():
 	else:
 		serverBox = lib_common.RemoteBox(machineName)
 
-	DEBUG("wbem_process_info.py machineName=%s",machineName)
-
-	#node_process = serverBox.PidUri(pid)
-
 	cimomUrl = lib_wbem.HostnameToWbemServer(machineName)
 
-	# sys.stderr.write("wbem_process_info.py cimomUrl=%s\n"%cimomUrl)
+	DEBUG("wbem_process_info.py currentHostname=%s pid=%d machineName=%s cimomUrl=%s",
+            lib_util.currentHostname, pid, machineName, cimomUrl)
 
 	connWbem = lib_wbem.WbemConnection(cimomUrl)
 
