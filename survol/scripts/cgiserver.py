@@ -315,7 +315,7 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
         # Purpose is to understand why it does not interpret cr-nl.
         import logging
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
-        logging.info(__file__ ' test logging.')
+        logging.info(__file__ + ' test logging.')
         logging.info('\n')
         # logging.warning('new hello')
 
