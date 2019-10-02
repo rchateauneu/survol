@@ -959,14 +959,9 @@ class SurvolLocalWbemTest(unittest.TestCase):
 
 class SurvolLocalJavaTest(unittest.TestCase):
 
+    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_java_mbeans not executed.")
     def test_java_mbeans(self):
         """Java MBeans"""
-
-        try:
-            import jpype
-        except ImportError:
-            print("Module jpype is not available so this test is not applicable")
-            return
 
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/java_mbeans.py",
@@ -1010,14 +1005,9 @@ class SurvolLocalJavaTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
+    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_java_system_properties not executed.")
     def test_java_system_properties(self):
         """Java system properties"""
-
-        try:
-            import jpype
-        except ImportError:
-            print("Module jpype is not available so this test is not applicable")
-            return
 
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/java_system_properties.py",
@@ -1061,14 +1051,9 @@ class SurvolLocalJavaTest(unittest.TestCase):
             self.assertTrue(oneStr in strInstancesSet, "test_java_system_properties: Not there:%s" % str(oneStr))
             # assert( oneStr in strInstancesSet )
 
+    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_java_jdk_jstack not executed.")
     def test_java_jdk_jstack(self):
         """Information about JDK stack"""
-
-        try:
-            import jpype
-        except ImportError:
-            print("Module jpype is not available so this test is not applicable")
-            return
 
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/jdk_jstack.py",
