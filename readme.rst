@@ -26,3 +26,5 @@ Survol has several views on the same data: HTML, SVG, D3 JavaScript library and 
 More information is available at `Primhill Computers
 <http://primhillcomputers.com/survol.html>`_
 
+Continuous integration is here: `Survol on Travis CI
+<https://travis-ci.org/rchateauneu/survol>`_
