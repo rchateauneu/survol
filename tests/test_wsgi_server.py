@@ -111,25 +111,6 @@ def CheckSubprocessEnd(procOpen):
 
 # TODO: Prefix of url samples should be a parameter.
 
-# This defines a file which is present on all platforms.
-if sys.platform.startswith("linux"):
-    FileAlwaysThere = "/etc/hosts"
-    DirAlwaysThere = "/etc"
-    AnyLogicalDisk = ""
-else:
-    FileAlwaysThere = "C:\\Windows\\explorer.exe"
-    DirAlwaysThere = "C:\\Windows"
-    AnyLogicalDisk = "D:"
-
-
-# This test if an executable is present.
-def _linux_check_program_exists(program_name):
-    import subprocess
-    p = subprocess.Popen(['/usr/bin/which', program_name], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    p.communicate()
-    return p.returncode == 0
-
-
 class WsgiRemoteTest(unittest.TestCase):
     """Test involving remote Survol agents: The scripts executes scripts on remote machines
     and examines the result. It might merge the output with local scripts or
