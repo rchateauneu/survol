@@ -35,8 +35,8 @@ def BuildCredDocument():
 	if os.getcwd().find("travis") >= 0:
 		WARNING("BuildCredDocument Travis mode")
 
-		# travis_credentials_env = { "WBEM": { "http://vps516494.ovh.net:5988": [ "xxx", "yyy" ] } }
-		travis_credentials_env = os.environ("SURVOL_CREDENTIALS")
+		# travis_credentials_env = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\}\}
+		travis_credentials_env = os.environ["SURVOL_CREDENTIALS"]
 		DEBUG("BuildCredDocument travis_credentials=%s", travis_credentials_env)
 		travis_credentials = json.loads(travis_credentials_env)
 		return travis_credentials
