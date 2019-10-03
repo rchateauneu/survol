@@ -1,10 +1,13 @@
-Unittest directory based on the Python package unittest( https://docs.python.org/2/library/unittest.html )
+Unittest directory based on unittest( https://docs.python.org/2/library/unittest.html )
 
-Typical commands:
-python test_survol_client_library.py
-py -3 test_survol_client_library.py SurvolLocalTest
-py -2 test_survol_client_library.py SurvolLocalTest.test_memory_maps_from_python_process
+Usage:
+python tests/test_survol_client_library.py
+py -3 tests/test_survol_client_library.py SurvolLocalTest
+py -2 tests/test_survol_client_library.py SurvolLocalTest.test_memory_maps_from_python_process
 
 More help available:
-python test_survol_client_library.py --help
-python test_survol_client_library.py --list
+python tests/test_survol_client_library.py --help
+python tests/test_survol_client_library.py --list
+
+Or simply:
+pytest tests
