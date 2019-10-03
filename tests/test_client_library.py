@@ -2566,48 +2566,8 @@ class SurvolInternalTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    lenArgv = len(sys.argv)
-    ix = 0
-    while ix < lenArgv:
-        if sys.argv[ix] in ["-l","--list"]:
-            globCopy = globals().copy()
-            lstGlobs = [ globCopy[clsNam] for clsNam in sorted(globCopy) ]
-            # SurvolLocalTest,SurvolRemoteTest,SurvolSearchTest etc...
-            lstClasses = [ oneGlob for oneGlob in lstGlobs if isinstance( oneGlob, type )]
-
-            for cls in lstClasses:
-                clsDoc = cls.__doc__
-                if not clsDoc:
-                    clsDoc = ""
-                print("%-44s: %s" % ( cls.__name__,clsDoc ) )
-                for fnc in dir(cls):
-                    if fnc.startswith("test_"):
-                        fnc_code = getattr(cls,fnc)
-                        if isinstance(fnc_code,bool):
-                            tstDoc = "Cannot run"
-                        else:
-                            tstDoc = fnc_code.__doc__
-                        #tstDoc = str(fnc_code)
-                        if not tstDoc:
-                            tstDoc = ""
-                        print("    %-40s: %s" % (fnc, tstDoc))
-                print("")
-            exit(0)
-        if sys.argv[ix] in ["-l","--debug"]:
-            lib_client.SetDebugMode()
-            del sys.argv[ix]
-            lenArgv -= 1
-            continue
-        if sys.argv[ix] in ["-h","--help"]:
-            print("Extra options:")
-            print("  -d, --debug: Set debug mode")
-            print("  -l, --list : List of tests")
-        ix += 1
-
     unittest.main()
 
 # TODO: Test calls to <Any class>.AddInfo()
 # TODO: When double-clicking any Python script, it should do something visible.
 
-#if __name__ == '__main__':
-#    freeze_support()
