@@ -29,6 +29,17 @@ def CredFilNam():
 
 # This returns a map containing all credentials.
 def BuildCredDocument():
+	# /home/travis/build/rchateauneu/survol : See "tests/init.py" for the same test.
+	# So the passwords are encruypted in environment variables:
+	# https://stackoverflow.com/questions/9338428/using-secret-api-keys-on-travis-ci/12778315#12778315
+	if os.getcwd().find("travis") >= 0:
+		WARNING("BuildCredDocument Travis mode")
+
+		# travis_credentials_env = { "WBEM": { "http://vps516494.ovh.net:5988": [ "xxx", "yyy" ] } }
+		travis_credentials_env = os.environ("SURVOL_CREDENTIALS")
+		DEBUG("BuildCredDocument travis_credentials=%s", travis_credentials_env)
+		travis_credentials = json.loads(travis_credentials_env)
+		return travis_credentials
 
 	filNam = CredFilNam()
 	try:
