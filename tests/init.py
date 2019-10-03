@@ -86,6 +86,7 @@ def linux_check_program_exists(program_name):
     return p.returncode == 0
 
 def is_travis_machine():
+    # /home/travis/build/rchateauneu/survol : See "lib_credentials.py" for the same test.
     # Some tests cannot be run on a Travis machine if some tools are not there.
     return os.getcwd().find("travis") >= 0
 
