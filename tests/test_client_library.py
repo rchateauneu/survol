@@ -935,7 +935,7 @@ class SurvolLocalTest(unittest.TestCase):
 class SurvolLocalWbemTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
 
-    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_wbem_process_info not executed.")
+    @unittest.skipIf(not is_linux_wbem(), "WBEM not available. test_wbem_process_info not executed.")
     def test_wbem_process_info(self):
         """wbem_process_info Information about current process"""
 
@@ -946,8 +946,8 @@ class SurvolLocalWbemTest(unittest.TestCase):
 
         mySource.GetTriplestore()
 
-    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes not executed.")
-    def test_wbem_hostname_processes(self):
+    @unittest.skipIf(not is_linux_wbem(), "WBEM not available. test_wbem_hostname_processes_local not executed.")
+    def test_wbem_hostname_processes_local(self):
         """Get processes on current machine"""
 
         mySource = lib_client.SourceLocal(
@@ -956,6 +956,18 @@ class SurvolLocalWbemTest(unittest.TestCase):
             Name=CurrentMachine)
 
         mySource.GetTriplestore()
+
+    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
+    def test_wbem_hostname_processes_remote(self):
+        """Get processes on remote machine"""
+
+        mySource = lib_client.SourceLocal(
+            "sources_types/CIM_ComputerSystem/wbem_hostname_processes.py",
+            "CIM_ComputerSystem",
+            Name="vps516494.ovh.net")
+
+        mySource.GetTriplestore()
+
 
 class SurvolLocalJavaTest(unittest.TestCase):
 
@@ -1126,13 +1138,11 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
     def test_ontology_survol(self):
         self._ontology_test("survol")
 
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_ontology_wmi not executed.")
     def test_ontology_wmi(self):
-        if not sys.platform.startswith("win"):
-            print("Windows test only")
-            return None
         self._ontology_test("wmi")
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_ontology_wbem not executed.")
+    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_ontology_wbem not executed.")
     def test_ontology_wbem(self):
         if not sys.platform.startswith("linux"):
             print("Linux test only")
