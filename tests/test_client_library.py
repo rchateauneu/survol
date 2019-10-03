@@ -12,7 +12,6 @@ import time
 import socket
 import platform
 import pkgutil
-import atexit
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -31,61 +30,11 @@ RemoteAgentProcess = None
 
 def setUpModule():
     global RemoteAgentProcess
-    print("setUpModule")
-    try:
-        # For Python 3.0 and later
-        from urllib.request import urlopen as portable_urlopen
-    except ImportError:
-        # Fall back to Python 2's urllib2
-        from urllib2 import urlopen as portable_urlopen
-
-    try:
-        response = portable_urlopen(RemoteTestAgent + "/survol/entity.py", timeout=5)
-        print("Using existing Survol agent")
-    except:
-        import multiprocessing
-        print("Starting test survol agent: RemoteTestAgent=", RemoteTestAgent, " hostname=", socket.gethostname())
-
-        import scripts.cgiserver
-        # cwd = "PythonStyle/tests", must be "PythonStyle".
-        # AgentHost = "127.0.0.1"
-        AgentHost = socket.gethostname()
-        try:
-            # Running the tests scripts from PyCharm is from the current directory.
-            os.environ["PYCHARM_HELPERS_DIR"]
-            current_dir = ".."
-        except KeyError:
-            current_dir = ""
-        print("current_dir=",current_dir)
-        #print("sys.path=",sys.path)
-        RemoteAgentProcess = multiprocessing.Process(
-            target=scripts.cgiserver.StartParameters,
-            args=(True, AgentHost, RemoteTestPort, current_dir))
-
-        atexit.register(ServerDumpContent, scripts.cgiserver.CgiServerLogFileName )
-
-        RemoteAgentProcess.start()
-        print("Waiting for agent to start")
-        time.sleep(5.0)
-        local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
-        try:
-            response = portable_urlopen( local_agent_url, timeout=5)
-        except Exception as exc:
-            print("Caught:", exc)
-            ServerDumpContent(scripts.cgiserver.CgiServerLogFileName)
-            raise
-
-    data = response.read().decode("utf-8")
-    print("Survol agent OK")
-
+    RemoteAgentProcess = CgiAgentStart(RemoteTestAgent, RemoteTestPort)
 
 def tearDownModule():
     global RemoteAgentProcess
-    print("tearDownModule")
-    if RemoteAgentProcess:
-        RemoteAgentProcess.terminate()
-        RemoteAgentProcess.join()
-
+    CgiAgentStop(RemoteAgentProcess)
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
