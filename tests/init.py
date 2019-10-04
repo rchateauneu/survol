@@ -165,3 +165,6 @@ def CgiAgentStop(agent_process):
         agent_process.terminate()
         agent_process.join()
 
+# This loads the module from the source, so no need to install it, and no need of virtualenv.
+def update_test_path():
+    sys.path.insert(0,"../survol")
