@@ -298,7 +298,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
         # the type of the entity but its id is undefined. Instead of displaying nothing,
         # this attempts to display all available entities of this given type.
         # source_top/enumerate_process.py etc... Not "." because this has a special role in Python.
-        mtch_enumerate = re.match( "^.*/enumerate_([a-z0-9A-Z_]*)\.py$", uri )
+        mtch_enumerate = re.match(r"^.*/enumerate_([a-z0-9A-Z_]*)\.py$", uri )
         if mtch_enumerate :
             entity_graphic_class = mtch_enumerate.group(1)
             entity_id = ""
