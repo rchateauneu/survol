@@ -180,12 +180,16 @@ def application_ok(environ, start_response):
     if len(splitPathInfo) > 1:
         modulesPrefix = ".".join( splitPathInfo[:-1] )
 
-        # Tested with Python2 on Windows.
+        # Tested with Python2 on Windows and Linux.
         # Example: entity_type = "Azure.location"
         # entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
         moduleName = "." + splitPathInfo[-1]
         sys.stderr.write("application_ok: moduleName=%s modulesPrefix=%s\n" % (moduleName,modulesPrefix))
-        the_module = importlib.import_module( moduleName, modulesPrefix )
+        try:
+            the_module = importlib.import_module(moduleName, modulesPrefix)
+        except Exception as exc:
+            sys.stderr.write("application_ok: caught=%s\n" % (str(exc)))
+            raise
 
         # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
         lib_util.globalOutMach = theOutMach
