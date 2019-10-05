@@ -95,13 +95,21 @@ def is_travis_machine():
     # Some tests cannot be run on a Travis machine if some tools are not there.
     return os.getcwd().find("travis") >= 0
 
+is_platform_windows = sys.platform.startswith("win")
+is_platform_linux = sys.platform.startswith("linux")
+
+
 def is_linux_wbem():
     # WBEM is not available on TravisCI.
-    return sys.platform.startswith("linux") and pkgutil.find_loader('pywbem') and not is_travis_machine()
+    return is_platform_linux and pkgutil.find_loader('pywbem') and not is_travis_machine()
 
+
+# This loads the module from the source, so no need to install it, and no need of virtualenv.
+def update_test_path():
+    sys.path.insert(0,"../survol")
 
 # This defines a file which is present on all platforms.
-if sys.platform.startswith("linux"):
+if is_platform_linux:
     FileAlwaysThere = "/etc/hosts"
     DirAlwaysThere = "/etc"
     AnyLogicalDisk = ""
@@ -123,9 +131,9 @@ def CgiAgentStart(agent_url, agent_port):
         from urllib2 import urlopen as portable_urlopen
 
     try:
-        response = portable_urlopen(agent_url + "/survol/entity.py", timeout=5)
         agent_process = None
-        INFO("CgiAgentStart: Using existing Survol agent")
+        response = portable_urlopen(agent_url + "/survol/entity.py", timeout=5)
+        INFO("CgiAgentStart: Using existing CGI Survol agent")
     except:
         import multiprocessing
         INFO("CgiAgentStart: agent_url=%s agent_port=%d hostname=%s", agent_url, agent_port, socket.gethostname())
@@ -140,7 +148,7 @@ def CgiAgentStart(agent_url, agent_port):
             current_dir = ".."
         except KeyError:
             current_dir = ""
-        print("current_dir=",current_dir)
+        INFO("CgiAgentStart: current_dir=%s", current_dir)
         #print("sys.path=",sys.path)
         agent_process = multiprocessing.Process(
             target=scripts.cgiserver.StartParameters,
@@ -149,18 +157,18 @@ def CgiAgentStart(agent_url, agent_port):
         atexit.register(ServerDumpContent, scripts.cgiserver.CgiServerLogFileName )
 
         agent_process.start()
-        print("Waiting for agent to start")
+        INFO("CgiAgentStart: Waiting for CGI agent to start")
         time.sleep(5.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, agent_port)
         try:
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
-            print("Caught:", exc)
+            ERROR("Caught:%s", exc)
             ServerDumpContent(scripts.cgiserver.CgiServerLogFileName)
             raise
 
     data = response.read().decode("utf-8")
-    print("Survol agent OK")
+    INFO("CGI Survol agent OK")
     return agent_process
 
 
@@ -170,6 +178,61 @@ def CgiAgentStop(agent_process):
         agent_process.terminate()
         agent_process.join()
 
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-def update_test_path():
-    sys.path.insert(0,"../survol")
+def WsgiAgentStart(agent_url, agent_port):
+    print("setUpModule")
+    try:
+        # For Python 3.0 and later
+        from urllib.request import urlopen as portable_urlopen
+    except ImportError:
+        # Fall back to Python 2's urllib2
+        from urllib2 import urlopen as portable_urlopen
+
+    try:
+        # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
+        agent_process = None
+        response = portable_urlopen(agent_url + "/survol/entity.py?mode=json", timeout=5)
+        INFO("WsgiAgentStart: Using existing WSGI Survol agent")
+    except:
+        import multiprocessing
+        INFO("Starting test survol agent_url=%s hostnqme=%s", agent_url, socket.gethostname())
+
+        import scripts.wsgiserver
+        # cwd = "PythonStyle/tests", must be "PythonStyle".
+        # AgentHost = "127.0.0.1"
+        AgentHost = socket.gethostname()
+        try:
+            # Running the tests scripts from PyCharm is from the current directory.
+            os.environ["PYCHARM_HELPERS_DIR"]
+            current_dir = ".."
+        except KeyError:
+            current_dir = ""
+        INFO("current_dir=%s",current_dir)
+        INFO("sys.path=%s",str(sys.path))
+
+        atexit.register(ServerDumpContent,scripts.wsgiserver.WsgiServerLogFileName )
+
+        agent_process = multiprocessing.Process(
+            target=scripts.wsgiserver.StartWsgiServer,
+            args=(AgentHost, agent_port, current_dir))
+        agent_process.start()
+        INFO("Waiting for WSGI agent ready")
+        time.sleep(8.0)
+        # Check again if the server is started. This can be done only with scripts compatible with WSGI.
+        local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (AgentHost, agent_port)
+        try:
+            response = portable_urlopen( local_agent_url, timeout=5)
+        except Exception as exc:
+            ERROR("Caught:", exc)
+            ServerDumpContent( scripts.wsgiserver.WsgiServerLogFileName )
+            raise
+
+    data = response.read().decode("utf-8")
+    print("WSGI Survol agent OK")
+    return agent_process
+
+def WsgiAgentStop(agent_process):
+    print("tearDownModule")
+    if agent_process:
+        agent_process.terminate()
+        agent_process.join()
+
