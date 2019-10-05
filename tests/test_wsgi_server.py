@@ -157,10 +157,48 @@ class WsgiRemoteTest(unittest.TestCase):
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
 
+class WsgiLinuxRemoteTest(unittest.TestCase):
+
     @unittest.skipIf(not is_platform_linux, "test_wsgi_etc_group for Linux only.")
     def test_wsgi_etc_group(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_group.py")
+        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+        # This should not be empty.
+        self.assertTrue(len(tripleFileStatRemote)>=1)
+
+    @unittest.skipIf(not is_platform_linux, "test_wsgi_enumerate_user for Linux only.")
+    def test_wsgi_enumerate_user(self):
+        mySourceFileStatRemote = lib_client.SourceRemote(
+            RemoteWsgiTestAgent + "/survol/sources_types/Linux/enumerate_user.py")
+        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+        # This should not be empty.
+        self.assertTrue(len(tripleFileStatRemote)>=1)
+
+    @unittest.skipIf(not is_platform_linux, "test_wsgi_etc_mtab for Linux only.")
+    def test_wsgi_etc_mtab(self):
+        mySourceFileStatRemote = lib_client.SourceRemote(
+            RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_mtab.py")
+        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+        # This should not be empty.
+        self.assertTrue(len(tripleFileStatRemote)>=1)
+
+    @unittest.skipIf(not is_platform_linux, "test_wsgi_etc_passwd for Linux only.")
+    def test_wsgi_etc_passwd(self):
+        mySourceFileStatRemote = lib_client.SourceRemote(
+            RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_passwd.py")
+        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+        # This should not be empty.
+        self.assertTrue(len(tripleFileStatRemote)>=1)
+
+    @unittest.skipIf(not ( is_platform_linux and pkgutil.find_loader('rpm')) , "test_installed_rpm_packages for Linux only.")
+    def test_installed_rpm_packages(self):
+        mySourceFileStatRemote = lib_client.SourceRemote(
+            RemoteWsgiTestAgent + "/survol/sources_types/Linux/installed_rpm_packages.py")
         tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
