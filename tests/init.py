@@ -86,6 +86,7 @@ def linux_check_program_exists(program_name):
     return p.returncode == 0
 
 def is_travis_machine():
+    # /home/travis/build/rchateauneu/survol : See "lib_credentials.py" for the same test.
     # Some tests cannot be run on a Travis machine if some tools are not there.
     return os.getcwd().find("travis") >= 0
 
@@ -103,3 +104,67 @@ else:
     FileAlwaysThere = "C:\\Windows\\explorer.exe"
     DirAlwaysThere = "C:\\Windows"
     AnyLogicalDisk = "D:"
+
+import atexit
+import time
+
+def CgiAgentStart(agent_url, agent_port):
+    INFO("CgiAgentStart agent_url=%s agent_port=%d", agent_url, agent_port)
+    try:
+        # For Python 3.0 and later
+        from urllib.request import urlopen as portable_urlopen
+    except ImportError:
+        # Fall back to Python 2's urllib2
+        from urllib2 import urlopen as portable_urlopen
+
+    try:
+        response = portable_urlopen(agent_url + "/survol/entity.py", timeout=5)
+        agent_process = None
+        INFO("CgiAgentStart: Using existing Survol agent")
+    except:
+        import multiprocessing
+        INFO("CgiAgentStart: agent_url=%s agent_port=%d hostname=%s", agent_url, agent_port, socket.gethostname())
+
+        import scripts.cgiserver
+        # cwd = "PythonStyle/tests", must be "PythonStyle".
+        # AgentHost = "127.0.0.1"
+        AgentHost = socket.gethostname()
+        try:
+            # Running the tests scripts from PyCharm is from the current directory.
+            os.environ["PYCHARM_HELPERS_DIR"]
+            current_dir = ".."
+        except KeyError:
+            current_dir = ""
+        print("current_dir=",current_dir)
+        #print("sys.path=",sys.path)
+        agent_process = multiprocessing.Process(
+            target=scripts.cgiserver.StartParameters,
+            args=(True, AgentHost, agent_port, current_dir))
+
+        atexit.register(ServerDumpContent, scripts.cgiserver.CgiServerLogFileName )
+
+        agent_process.start()
+        print("Waiting for agent to start")
+        time.sleep(5.0)
+        local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, agent_port)
+        try:
+            response = portable_urlopen( local_agent_url, timeout=5)
+        except Exception as exc:
+            print("Caught:", exc)
+            ServerDumpContent(scripts.cgiserver.CgiServerLogFileName)
+            raise
+
+    data = response.read().decode("utf-8")
+    print("Survol agent OK")
+    return agent_process
+
+
+def CgiAgentStop(agent_process):
+    print("tearDownModule")
+    if agent_process:
+        agent_process.terminate()
+        agent_process.join()
+
+# This loads the module from the source, so no need to install it, and no need of virtualenv.
+def update_test_path():
+    sys.path.insert(0,"../survol")

@@ -12,7 +12,6 @@ import time
 import socket
 import platform
 import pkgutil
-import atexit
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
@@ -31,61 +30,11 @@ RemoteAgentProcess = None
 
 def setUpModule():
     global RemoteAgentProcess
-    print("setUpModule")
-    try:
-        # For Python 3.0 and later
-        from urllib.request import urlopen as portable_urlopen
-    except ImportError:
-        # Fall back to Python 2's urllib2
-        from urllib2 import urlopen as portable_urlopen
-
-    try:
-        response = portable_urlopen(RemoteTestAgent + "/survol/entity.py", timeout=5)
-        print("Using existing Survol agent")
-    except:
-        import multiprocessing
-        print("Starting test survol agent: RemoteTestAgent=", RemoteTestAgent, " hostname=", socket.gethostname())
-
-        import scripts.cgiserver
-        # cwd = "PythonStyle/tests", must be "PythonStyle".
-        # AgentHost = "127.0.0.1"
-        AgentHost = socket.gethostname()
-        try:
-            # Running the tests scripts from PyCharm is from the current directory.
-            os.environ["PYCHARM_HELPERS_DIR"]
-            current_dir = ".."
-        except KeyError:
-            current_dir = ""
-        print("current_dir=",current_dir)
-        #print("sys.path=",sys.path)
-        RemoteAgentProcess = multiprocessing.Process(
-            target=scripts.cgiserver.StartParameters,
-            args=(True, AgentHost, RemoteTestPort, current_dir))
-
-        atexit.register(ServerDumpContent, scripts.cgiserver.CgiServerLogFileName )
-
-        RemoteAgentProcess.start()
-        print("Waiting for agent to start")
-        time.sleep(5.0)
-        local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, RemoteTestPort)
-        try:
-            response = portable_urlopen( local_agent_url, timeout=5)
-        except Exception as exc:
-            print("Caught:", exc)
-            ServerDumpContent(scripts.cgiserver.CgiServerLogFileName)
-            raise
-
-    data = response.read().decode("utf-8")
-    print("Survol agent OK")
-
+    RemoteAgentProcess = CgiAgentStart(RemoteTestAgent, RemoteTestPort)
 
 def tearDownModule():
     global RemoteAgentProcess
-    print("tearDownModule")
-    if RemoteAgentProcess:
-        RemoteAgentProcess.terminate()
-        RemoteAgentProcess.join()
-
+    CgiAgentStop(RemoteAgentProcess)
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
@@ -935,7 +884,7 @@ class SurvolLocalTest(unittest.TestCase):
 class SurvolLocalWbemTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
 
-    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_wbem_process_info not executed.")
+    @unittest.skipIf(not is_linux_wbem(), "WBEM not available. test_wbem_process_info not executed.")
     def test_wbem_process_info(self):
         """wbem_process_info Information about current process"""
 
@@ -946,8 +895,8 @@ class SurvolLocalWbemTest(unittest.TestCase):
 
         mySource.GetTriplestore()
 
-    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes not executed.")
-    def test_wbem_hostname_processes(self):
+    @unittest.skipIf(not is_linux_wbem(), "WBEM not available. test_wbem_hostname_processes_local not executed.")
+    def test_wbem_hostname_processes_local(self):
         """Get processes on current machine"""
 
         mySource = lib_client.SourceLocal(
@@ -956,6 +905,18 @@ class SurvolLocalWbemTest(unittest.TestCase):
             Name=CurrentMachine)
 
         mySource.GetTriplestore()
+
+    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
+    def test_wbem_hostname_processes_remote(self):
+        """Get processes on remote machine"""
+
+        mySource = lib_client.SourceLocal(
+            "sources_types/CIM_ComputerSystem/wbem_hostname_processes.py",
+            "CIM_ComputerSystem",
+            Name="vps516494.ovh.net")
+
+        mySource.GetTriplestore()
+
 
 class SurvolLocalJavaTest(unittest.TestCase):
 
@@ -1126,13 +1087,11 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
     def test_ontology_survol(self):
         self._ontology_test("survol")
 
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_ontology_wmi not executed.")
     def test_ontology_wmi(self):
-        if not sys.platform.startswith("win"):
-            print("Windows test only")
-            return None
         self._ontology_test("wmi")
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_ontology_wbem not executed.")
+    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_ontology_wbem not executed.")
     def test_ontology_wbem(self):
         if not sys.platform.startswith("linux"):
             print("Linux test only")
@@ -2556,48 +2515,8 @@ class SurvolInternalTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    lenArgv = len(sys.argv)
-    ix = 0
-    while ix < lenArgv:
-        if sys.argv[ix] in ["-l","--list"]:
-            globCopy = globals().copy()
-            lstGlobs = [ globCopy[clsNam] for clsNam in sorted(globCopy) ]
-            # SurvolLocalTest,SurvolRemoteTest,SurvolSearchTest etc...
-            lstClasses = [ oneGlob for oneGlob in lstGlobs if isinstance( oneGlob, type )]
-
-            for cls in lstClasses:
-                clsDoc = cls.__doc__
-                if not clsDoc:
-                    clsDoc = ""
-                print("%-44s: %s" % ( cls.__name__,clsDoc ) )
-                for fnc in dir(cls):
-                    if fnc.startswith("test_"):
-                        fnc_code = getattr(cls,fnc)
-                        if isinstance(fnc_code,bool):
-                            tstDoc = "Cannot run"
-                        else:
-                            tstDoc = fnc_code.__doc__
-                        #tstDoc = str(fnc_code)
-                        if not tstDoc:
-                            tstDoc = ""
-                        print("    %-40s: %s" % (fnc, tstDoc))
-                print("")
-            exit(0)
-        if sys.argv[ix] in ["-l","--debug"]:
-            lib_client.SetDebugMode()
-            del sys.argv[ix]
-            lenArgv -= 1
-            continue
-        if sys.argv[ix] in ["-h","--help"]:
-            print("Extra options:")
-            print("  -d, --debug: Set debug mode")
-            print("  -l, --list : List of tests")
-        ix += 1
-
     unittest.main()
 
 # TODO: Test calls to <Any class>.AddInfo()
 # TODO: When double-clicking any Python script, it should do something visible.
 
-#if __name__ == '__main__':
-#    freeze_support()
