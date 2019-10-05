@@ -14,10 +14,9 @@ import atexit
 
 # This starts a local WSGI server and runs several queries and tests that the results are the same.
 
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-sys.path.insert(0,"../survol")
-
 from init import *
+
+update_test_path()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc WSGI server: "http://rchateau-hp:9000"
