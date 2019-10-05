@@ -8,7 +8,7 @@ import sys
 import lib_common
 import lib_util
 from lib_properties import pc
-from sources_types import user as survol_user
+from sources_types import LMI_Account as survol_user
 
 # TODO: https://docs.python.org/2/library/pwd.html might be simpler.
 def Main():
