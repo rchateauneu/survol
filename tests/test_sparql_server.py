@@ -13,13 +13,9 @@ except ImportError as exc:
     SPARQLWrapper = None
     print("Error importing:",exc)
 
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-sys.path.insert(0,"../survol")
-
-import lib_util
-
 from init import *
 
+update_test_path()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
