@@ -24,72 +24,21 @@ RemoteWsgiTestPort = 9000
 RemoteWsgiTestAgent = "http://%s:%d" % (CurrentMachine, RemoteWsgiTestPort)
 
 # If the Survol agent does not exist, this script starts a local one.
-RemoteAgentProcess = None
+RemoteWsgiAgentProcess = None
 
 def setUpModule():
-    global RemoteAgentProcess
-    print("setUpModule")
-    try:
-        # For Python 3.0 and later
-        from urllib.request import urlopen as portable_urlopen
-    except ImportError:
-        # Fall back to Python 2's urllib2
-        from urllib2 import urlopen as portable_urlopen
-
-    try:
-        # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
-        response = portable_urlopen(RemoteWsgiTestAgent + "/survol/entity.py?mode=json", timeout=5)
-        print("Using existing Survol agent")
-    except:
-        import multiprocessing
-        print("Starting test survol agent: RemoteWsgiTestAgent=", RemoteWsgiTestAgent, " hostname=", socket.gethostname())
-
-        import scripts.wsgiserver
-        # cwd = "PythonStyle/tests", must be "PythonStyle".
-        # AgentHost = "127.0.0.1"
-        AgentHost = socket.gethostname()
-        try:
-            # Running the tests scripts from PyCharm is from the current directory.
-            os.environ["PYCHARM_HELPERS_DIR"]
-            current_dir = ".."
-        except KeyError:
-            current_dir = ""
-        print("current_dir=",current_dir)
-        print("sys.path=",sys.path)
-
-        atexit.register(ServerDumpContent,scripts.wsgiserver.WsgiServerLogFileName )
-
-        RemoteAgentProcess = multiprocessing.Process(
-            target=scripts.wsgiserver.StartWsgiServer,
-            args=(AgentHost, RemoteWsgiTestPort, current_dir))
-        RemoteAgentProcess.start()
-        print("Waiting until the WSGI server is ready")
-        time.sleep(8.0)
-        # Check again if the server is started. This can be done only with scripts compatible with WSGI.
-        local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (AgentHost, RemoteWsgiTestPort)
-        try:
-            response = portable_urlopen( local_agent_url, timeout=5)
-        except Exception as exc:
-            print("Caught:", exc)
-            ServerDumpContent( scripts.wsgiserver.WsgiServerLogFileName )
-            raise
-
-    data = response.read().decode("utf-8")
-    print("Survol agent OK")
+    global RemoteWsgiAgentProcess
+    RemoteWsgiAgentProcess = WsgiAgentStart(RemoteWsgiTestAgent, RemoteWsgiTestPort)
 
 
 def tearDownModule():
-    global RemoteAgentProcess
-    print("tearDownModule")
-    if RemoteAgentProcess:
-        RemoteAgentProcess.terminate()
-        RemoteAgentProcess.join()
+    global RemoteWsgiAgentProcess
+    WsgiAgentStop(RemoteWsgiAgentProcess)
 
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
 import lib_client
-import lib_properties
 
 ClientObjectInstancesFromScript = lib_client.SourceLocal.GetObjectInstancesFromScript
 
@@ -166,7 +115,6 @@ class WsgiRemoteTest(unittest.TestCase):
                 break
         self.assertTrue(link_found, "Could not find edge between file and directory")
 
-
     def test_wsgi_file_stat_rdf(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
@@ -209,50 +157,18 @@ class WsgiRemoteTest(unittest.TestCase):
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
 
+    @unittest.skipIf(not is_platform_linux, "test_wsgi_etc_group for Linux only.")
+    def test_wsgi_etc_group(self):
+        mySourceFileStatRemote = lib_client.SourceRemote(
+            RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_group.py")
+        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+        # This should not be empty.
+        self.assertTrue(len(tripleFileStatRemote)>=1)
+
 
 if __name__ == '__main__':
-    lenArgv = len(sys.argv)
-    ix = 0
-    while ix < lenArgv:
-        if sys.argv[ix] in ["-l","--list"]:
-            globCopy = globals().copy()
-            lstGlobs = [ globCopy[clsNam] for clsNam in sorted(globCopy) ]
-            # SurvolLocalTest,SurvolRemoteTest,SurvolSearchTest etc...
-            lstClasses = [ oneGlob for oneGlob in lstGlobs if isinstance( oneGlob, type )]
-
-            for cls in lstClasses:
-                clsDoc = cls.__doc__
-                if not clsDoc:
-                    clsDoc = ""
-                print("%-44s: %s" % ( cls.__name__,clsDoc ) )
-                for fnc in dir(cls):
-                    if fnc.startswith("test_"):
-                        fnc_code = getattr(cls,fnc)
-                        if isinstance(fnc_code,bool):
-                            tstDoc = "Cannot run"
-                        else:
-                            tstDoc = fnc_code.__doc__
-                        #tstDoc = str(fnc_code)
-                        if not tstDoc:
-                            tstDoc = ""
-                        print("    %-40s: %s" % (fnc, tstDoc))
-                print("")
-            exit(0)
-        if sys.argv[ix] in ["-l","--debug"]:
-            lib_client.SetDebugMode()
-            del sys.argv[ix]
-            lenArgv -= 1
-            continue
-        if sys.argv[ix] in ["-h","--help"]:
-            print("Extra options:")
-            print("  -d, --debug: Set debug mode")
-            print("  -l, --list : List of tests")
-        ix += 1
-
     unittest.main()
 
 # TODO: Test calls to <Any class>.AddInfo()
 # TODO: When double-clicking any Python script, it should do something visible.
-
-#if __name__ == '__main__':
-#    freeze_support()
