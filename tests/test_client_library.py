@@ -15,10 +15,10 @@ import pkgutil
 
 # This does basically the same tests as a Jupyter notebook test_client_library.ipynb
 
+from init import *
+
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 sys.path.insert(0,"../survol")
-
-from init import *
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
@@ -144,7 +144,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySource2 = lib_client.SourceLocal(
             "entity.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         mySrcMergePlus = mySource1 + mySource2
         triplePlus = mySrcMergePlus.GetTriplestore()
@@ -836,7 +836,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/oracle_process_dbs.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
 
@@ -850,7 +850,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_connections.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
 
@@ -864,7 +864,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_cwd.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         strInstancesSet = set( [str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
         print("test_process_cwd: strInstancesSet:", strInstancesSet)
@@ -891,9 +891,12 @@ class SurvolLocalWbemTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/wbem_process_info.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
-        mySource.GetTriplestore()
+        triple_store = mySource.GetTriplestore()
+        instances_list = triple_store.GetInstances()
+        strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
+        print("test_wbem_process_info: strInstancesSet:", strInstancesSet)
 
     @unittest.skipIf(not is_linux_wbem(), "WBEM not available. test_wbem_hostname_processes_local not executed.")
     def test_wbem_hostname_processes_local(self):
@@ -904,7 +907,11 @@ class SurvolLocalWbemTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name=CurrentMachine)
 
-        mySource.GetTriplestore()
+        triple_store = mySource.GetTriplestore()
+        instances_list = triple_store.GetInstances()
+        strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
+        print("test_wbem_hostname_processes_local: strInstancesSet:", strInstancesSet)
+
 
     @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
     def test_wbem_hostname_processes_remote(self):
@@ -913,9 +920,61 @@ class SurvolLocalWbemTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_ComputerSystem/wbem_hostname_processes.py",
             "CIM_ComputerSystem",
-            Name="vps516494.ovh.net")
+            Name=SurvolServerHostname)
 
         mySource.GetTriplestore()
+
+
+    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
+    def test_wbem_info_processes_remote(self):
+        """Display information about one process on a remote machine"""
+
+        computer_source = lib_client.SourceLocal(
+            "sources_types/CIM_ComputerSystem/wbem_hostname_processes.py",
+            "CIM_ComputerSystem",
+            Name=SurvolServerHostname)
+
+        computer_triple_store = computer_source.GetTriplestore()
+        instances_list = computer_triple_store.GetInstances()
+        strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
+
+        # ['CIM_Process.Handle=10', 'CIM_Process.Handle=816', 'CIM_Process.Handle=12' etc...
+        print("test_wbem_hostname_processes_remote: strInstancesSet:", strInstancesSet)
+        for one_str in strInstancesSet:
+            self.assertTrue( one_str.startswith('CIM_Process.Handle=') )
+
+        pids_list = [oneInst.Handle for oneInst in instances_list ]
+        print("test_wbem_hostname_processes_remote: pids_list:", pids_list)
+
+        remote_url = SurvolServerAgent + "/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py"
+        print("remote_url=", remote_url)
+
+        found_process = False
+        for remote_pid in pids_list:
+            print("remote_pid=", remote_pid)
+            process_source = lib_client.SourceRemote(
+                SurvolServerAgent + "/sources_types/CIM_Process/wbem_process_info.py",
+                "CIM_Process",
+                Handle=remote_pid)
+            try:
+                process_triple_store = process_source.GetTriplestore()
+            except Exception as exc:
+                print("pid=", remote_pid, " exc=", exc)
+                continue
+
+            instances_list = process_triple_store.GetInstances()
+            instances_str = [str(oneInst) for oneInst in instances_list ]
+            print("instances_str=", instances_str)
+            self.assertTrue(instances_str[0] == 'CIM_Process.Handle=%s' % remote_pid)
+            found_process = True
+            break
+        self.assertTrue(found_process)
+
+        # Aller afficher un process a distance.
+        #sourceRemote tout d abord un agent Survol
+        #Et aussi entity_wbem.py
+        #mais surtout directement avec le cimom WBEM: Mais alors on devrait se connecter directement ??
+        #Toutefois ce sera surtout un test pywbem.
 
 
 class SurvolLocalJavaTest(unittest.TestCase):
@@ -927,7 +986,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/java_mbeans.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         listRequired = [
             CurrentProcessPath
@@ -962,6 +1021,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
             listRequired.append( instPrefix + instJavaName )
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        print("test_java_mbeans strInstancesSet=", strInstancesSet)
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
@@ -973,7 +1033,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/java_system_properties.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         listRequired = [
             CurrentUserPath,
@@ -1004,6 +1064,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         listRequired.append( CurrentProcessPath )
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        print("test_java_system_properties strInstancesSet=", strInstancesSet)
 
         print("listRequired=",listRequired)
         for oneStr in listRequired:
@@ -1019,7 +1080,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/jdk_jstack.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         # Start a Java process.
 
@@ -1115,7 +1176,7 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/Linux/process_cgroups.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         listRequired = [
             CurrentExecutablePath,
@@ -1160,7 +1221,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_gdbstack.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         listRequired = [
             'linker_symbol.Name=X19wb2xsX25vY2FuY2Vs,File=/lib64/libc.so.6',
@@ -1263,7 +1324,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/wmi_process_info.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
@@ -1286,7 +1347,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/win_process_modules.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
@@ -1337,7 +1398,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/CDB/win_cdb_callstack.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         try:
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
@@ -1355,7 +1416,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/CDB/win_cdb_modules.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         try:
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
@@ -1376,7 +1437,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         list_instances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/languages/msdos/current_batch.py",
             "CIM_Process",
-            Handle=os.getpid())
+            Handle=CurrentPid)
 
         # If running in pytest:
         # ['CIM_DataFile.Name=C:/Python27/Scripts/pytest.exe', 'CIM_Process.Handle=74620']
@@ -1765,24 +1826,15 @@ class SurvolRemoteTest(unittest.TestCase):
     and examines the result. It might merge the output with local scripts or
     scripts on different machines."""
 
-    def decorator_remote_tests(test_func):
-        """This host might not be able to connect to other machines"""
-
-        #if socket.gethostname() == "vps516494.localdomain":
-        #    return None
-        return test_func
-
     # This is executed after each test. No special reason for a delay, except perf measures, possibly.
     # https://stackoverflow.com/questions/2648329/python-unit-test-how-to-add-some-sleeping-time-between-test-cases
     #def tearDown(self):
     #    time.sleep(0.01)  # sleep time in seconds
 
-    @decorator_remote_tests
     def test_InstanceUrlToAgentUrl(selfself):
         assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427") == None )
         assert( lib_client.InstanceUrlToAgentUrl(RemoteTestAgent + "/survol/sources_types/java/java_processes.py") == RemoteTestAgent )
 
-    @decorator_remote_tests
     def test_create_source_url(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
@@ -1799,7 +1851,6 @@ class SurvolRemoteTest(unittest.TestCase):
         print(__file__ + " sys.executable=%s" % sys.executable)
         print(__file__ + " sys.exec_prefix=%s" % sys.exec_prefix)
 
-    @decorator_remote_tests
     def test_remote_triplestore(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
@@ -1811,7 +1862,6 @@ class SurvolRemoteTest(unittest.TestCase):
         self.assertTrue(len(tripleFileStatRemote)>=1)
 
     # This does not work yet.
-    @decorator_remote_tests
     def test_remote_scripts_exception(self):
         myAgent = lib_client.Agent(RemoteTestAgent)
 
@@ -1826,7 +1876,6 @@ class SurvolRemoteTest(unittest.TestCase):
             excRaised = True
         self.assertTrue(excRaised)
 
-    @decorator_remote_tests
     def test_remote_instances_python_package(self):
         """This loads a specific Python package"""
         mySourcePythonPackageRemote = lib_client.SourceRemote(
@@ -1841,7 +1890,6 @@ class SurvolRemoteTest(unittest.TestCase):
         self.assertTrue(lenInstances>=1)
 
     @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_remote_instances_java not executed.")
-    @decorator_remote_tests
     def test_remote_instances_java(self):
         """Loads Java processes. There is at least one Java process, the one doing the test"""
         mySourceJavaRemote = lib_client.SourceRemote(
@@ -1860,7 +1908,6 @@ class SurvolRemoteTest(unittest.TestCase):
 
     # Cannot run /sbin/arp -an
     @unittest.skipIf(is_travis_machine(), "Cannot run this test on TravisCI because arp is not available.")
-    @decorator_remote_tests
     def test_remote_instances_arp(self):
         """Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
 
@@ -1878,7 +1925,6 @@ class SurvolRemoteTest(unittest.TestCase):
         print("Remote hosts number=",numComputers)
         self.assertTrue(numComputers>=1)
 
-    @decorator_remote_tests
     def test_merge_add_mixed(self):
         """Merges local data triples and remote Survol agent's"""
         mySource1 = lib_client.SourceLocal(
@@ -1903,7 +1949,6 @@ class SurvolRemoteTest(unittest.TestCase):
         # In the merged link, there cannot be more instances than in the input sources.
         self.assertTrue(lenPlus <= lenSource1 + lenSource2 + errorMargin)
 
-    @decorator_remote_tests
     def test_merge_sub_mixed(self):
         mySource1 = lib_client.SourceLocal(
             "entity.py",
@@ -1924,7 +1969,6 @@ class SurvolRemoteTest(unittest.TestCase):
         # There cannot be more instances after removal.
         self.assertTrue(lenMinus <= lenSource1 )
 
-    @decorator_remote_tests
     def test_remote_scripts_CIM_LogicalDisk(self):
         myAgent = lib_client.Agent(RemoteTestAgent)
 
@@ -1933,7 +1977,6 @@ class SurvolRemoteTest(unittest.TestCase):
         # No scripts yet.
         self.assertTrue(len(listScriptsDisk) == 0)
 
-    @decorator_remote_tests
     def test_remote_scripts_CIM_Directory(self):
         myAgent = lib_client.Agent(RemoteTestAgent)
 
@@ -1946,7 +1989,6 @@ class SurvolRemoteTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScriptsDir) > 0)
 
-    @decorator_remote_tests
     def test_remote_agents(self):
         """Gets agents accessible of remote host, then accesses them one by one"""
         print("TODO: test_remote_agents not implemented yet")
@@ -2504,10 +2546,11 @@ class SurvolInternalTest(unittest.TestCase):
 
         # TODO: This should be a parameter. This is an Apache server pointing on the current directory.
         # This should behave exactly like the CGI server. It needs the default HTTP port.
+        # The key is the return value of socket.gethostname().lower()
         try:
             RemoteTestApacheAgent = {
                 "rchateau-hp": "http://192.168.0.14:80/Survol",
-                "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
+                "vps516494.localdomain": SurvolServerAgent }[CurrentMachine]
             self.check_internal_values(RemoteTestApacheAgent)
         except KeyError:
             print("test_internal_apache cannot be run on machine:",CurrentMachine)
