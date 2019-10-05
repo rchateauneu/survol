@@ -6,6 +6,7 @@ import os
 import sys
 import getopt
 import socket
+import traceback
 import importlib
 import wsgiref.simple_server as server
 
@@ -211,6 +212,9 @@ def application_ok(environ, start_response):
         the_module.Main()
     except Exception as exc:
         sys.stderr.write(__file__ + ": application_ok caught %s in Main()\n" % exc)
+
+        sys.stderr.write(__file__ + ": application_ok exception=%s\n" % traceback.format_exc() )
+
         raise
 
     try:
