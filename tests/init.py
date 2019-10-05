@@ -25,6 +25,11 @@ CurrentPid = os.getpid()
 CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
 CurrentParentPid = psutil.Process().ppid()
 
+# "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
+# Name = "vps516494.ovh.net")
+SurvolServerHostname = "vps516494.ovh.net"
+SurvolServerAgent = "http://vps516494.ovh.net/Survol/survol"
+
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
