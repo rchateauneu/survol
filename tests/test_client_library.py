@@ -43,11 +43,6 @@ isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 # We could as well delete all modules except sys.
 allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
 
-#### FIXME: IS IT NECESSARY ?
-for modu in allModules:
-    # sys.stderr.write("Deleting %s\n"%modu)
-    del sys.modules[modu]
-
 import lib_client
 import lib_properties
 
@@ -60,7 +55,7 @@ cgitb.enable(format="txt")
 def CheckSubprocessEnd(procOpen):
     ( child_stdout_content, child_stderr_content ) = procOpen.communicate()
 
-    if sys.platform.startswith("win"):
+    if is_platform_windows:
         # This ensures that the suprocess is correctly started.
         assert(child_stdout_content.startswith(b"Starting subprocess"))
 
@@ -156,13 +151,8 @@ class SurvolLocalTest(unittest.TestCase):
         # In the merged link, there cannot be more instances than in the input sources.
         self.assertTrue(lenPlus <= lenSource1 + lenSource2)
 
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "Cannot import win32net. test_merge_sub_local not run.")
     def test_merge_sub_local(self):
-        try:
-            import win32net
-        except ImportError:
-            print("Module win32net is not available so this test is not applicable")
-            return
-
         mySource1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_LogicalDisk",
@@ -180,13 +170,8 @@ class SurvolLocalTest(unittest.TestCase):
         # There cannot be more instances after removal.
         self.assertTrue(lenMinus <= lenSource1 )
 
+    @unittest.skipIf(not pkgutil.find_loader('win32api'), "Cannot import win32api. test_merge_duplicate not run.")
     def test_merge_duplicate(self):
-        try:
-            import win32api
-        except ImportError:
-            print("Module win32api is not available so this test is not applicable")
-            return
-
         mySourceDupl = lib_client.SourceLocal(
             "sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py",
             "Win32_UserAccount",
@@ -256,12 +241,9 @@ class SurvolLocalTest(unittest.TestCase):
         # "Select * from win32_Process where name like '[H-N]otepad.exe'"
         print("TODO: test_wql not implemented yet")
 
+    @unittest.skipIf(not is_platform_windows, "test_local_scripts_UserAccount for Windows only.")
     def test_local_scripts_UserAccount(self):
         """Returns all scripts accessible from current user account."""
-
-        if sys.platform.startswith("linux"):
-            print("Windows only")
-            return True
 
         myInstancesLocal = lib_client.Agent().Win32_UserAccount(
             Domain=CurrentMachine,
@@ -293,15 +275,9 @@ class SurvolLocalTest(unittest.TestCase):
 
         assert( lstStringsOnly == [u'Pellentesque;14;94', u'Pellentesque;6;36', u'Pellentesque;8;50', u'pellentesque;10;66', u'pellentesque;14;101'])
 
-
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "Cannot import win32net. test_local_scripts_from_local_source not run.")
     def test_local_scripts_from_local_source(self):
         """Loads the scripts of instances displayed by an initial script"""
-
-        try:
-            import win32net
-        except ImportError:
-            print("Module win32net is not available so this test is not applicable")
-            return
 
         # This is a top-level script.
         mySourceTopLevelLocal = lib_client.SourceLocal(
@@ -317,14 +293,9 @@ class SurvolLocalTest(unittest.TestCase):
                 for oneScr in listScripts:
                     sys.stdout.write("        %s\n"%oneScr)
 
+    @unittest.skipIf(not pkgutil.find_loader('win32service'), "Cannot import win32service. test_scripts_of_local_instance not run.")
     def test_scripts_of_local_instance(self):
         """This loads scripts of a local instance"""
-
-        try:
-            import win32service
-        except ImportError:
-            print("Module win32service is not available so this test is not applicable")
-            return
 
         # The service "PlugPlay" should be available on all Windows machines.
         myInstanceLocal = lib_client.Agent().Win32_Service(
@@ -357,14 +328,9 @@ class SurvolLocalTest(unittest.TestCase):
         assert( instanceC is instanceB )
 
     # This searches the content of a file which contains SQL queries.
+    @unittest.skipIf(not pkgutil.find_loader('sqlparse'), "Cannot import sqlparse. test_regex_sql_query_file not run.")
     def test_regex_sql_query_file(self):
         """Searches for SQL queries in one file only."""
-
-        try:
-            import sqlparse
-        except ImportError:
-            print("Module sqlparse is not available so this test is not applicable")
-            return
 
         sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
 
@@ -395,6 +361,7 @@ class SurvolLocalTest(unittest.TestCase):
     # This searches the content of a process memory which contains a SQL memory.
     def test_regex_sql_query_from_batch_process(self):
         print("test_regex_sql_query_from_batch_process: Broken")
+
         return
 
         try:
@@ -486,7 +453,6 @@ class SurvolLocalTest(unittest.TestCase):
         execList = [ "perl", sqlPathName ]
 
         # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        # procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
         print("Started process:",execList," pid=",procOpen.pid)
@@ -528,7 +494,7 @@ class SurvolLocalTest(unittest.TestCase):
         lstMandatoryInstances = [
             "CIM_Process.Handle=%d"%procOpen.pid,
             CurrentUserPath ]
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             lstMandatoryInstances += [
                     "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
         else:
@@ -564,7 +530,7 @@ class SurvolLocalTest(unittest.TestCase):
             CurrentProcessPath, # This is the parent process.
             "CIM_Process.Handle=%d"%procOpen.pid,
             CurrentUserPath ]
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             lstMandatoryInstances += [
                     "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
         else:
@@ -605,7 +571,7 @@ class SurvolLocalTest(unittest.TestCase):
             'CIM_Process.Handle=%s'%procOpen.pid ]
         lstMandatoryRegex = []
 
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             # This is common to Windows 7 and Windows 8.
             lstMandatoryInstances += [
                 'memmap.Id=C:/Windows/Globalization/Sorting/SortDefault.nls',
@@ -693,17 +659,11 @@ class SurvolLocalTest(unittest.TestCase):
         for oneVar in mandatoryEnvVars:
             assert( oneVar in setEnvVars )
 
-
+    @unittest.skipIf(not pkgutil.find_loader('psutil'), "Cannot import psutil. test_environment_from_batch_process not run.")
     def test_environment_from_batch_process(self):
         """Tests that we can read a process'environment variables"""
 
-        try:
-            import psutil
-        except ImportError:
-            print("Module psutil is not available so this test is not applicable")
-            return
-
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             command_example = "CommandExample.bat"
         else:
             command_example = "CommandExample.sh"
@@ -720,19 +680,13 @@ class SurvolLocalTest(unittest.TestCase):
 
         self.check_environment_variables(procOpen.pid)
 
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             # Any string will do: This stops the subprocess which is waiting for an input.
             child_stdin.write("Stop".encode())
 
-
+    @unittest.skipIf(not pkgutil.find_loader('psutil'), "Cannot import psutil. test_environment_from_current_process not run.")
     def test_environment_from_current_process(self):
         """Tests that we can read current process'environment variables"""
-
-        try:
-            import psutil
-        except ImportError:
-            print("Module psutil is not available so this test is not applicable")
-            return
 
         self.check_environment_variables(CurrentPid)
 
@@ -827,7 +781,6 @@ class SurvolLocalTest(unittest.TestCase):
         # At least the current user must be found.
         for oneStr in [ CurrentUserPath ]:
             assert( oneStr in strInstancesSet)
-
 
     @unittest.skipIf(not pkgutil.find_loader('cx_Oracle'), "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_oracle_process_dbs(self):
@@ -1154,9 +1107,6 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
 
     @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_ontology_wbem not executed.")
     def test_ontology_wbem(self):
-        if not sys.platform.startswith("linux"):
-            print("Linux test only")
-            return None
         self._ontology_test("wbem")
 
 
@@ -1164,7 +1114,7 @@ class SurvolLocalLinuxTest(unittest.TestCase):
     """These tests do not need a Survol agent and apply to Linux machines only"""
 
     def decorator_linux_platform(test_func):
-        if sys.platform.startswith("linux"):
+        if is_platform_linux:
             return test_func
         else:
             return None
@@ -1209,7 +1159,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
     """These tests do not need a Survol agent, and run on Linux with GDB debugger"""
 
     def decorator_gdb_platform(test_func):
-        if sys.platform.startswith("linux") and linux_check_program_exists("gdb"):
+        if is_platform_linux and linux_check_program_exists("gdb"):
             return test_func
         else:
             return None
@@ -1292,7 +1242,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
     def decorator_windows_platform(test_func):
 
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             return test_func
         else:
             return None
@@ -1312,14 +1262,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         assert('Win32_Service.Name=LanmanWorkstation' in strInstancesSet)
 
     @decorator_windows_platform
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "Cannot import wmi. test_wmi_process_info not run.")
     def test_wmi_process_info(self):
         """WMI information about current process"""
-
-        try:
-            import wmi
-        except ImportError as exc:
-            print("Test is not applicable:%s",str(exc))
-            return
 
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/wmi_process_info.py",
@@ -1335,14 +1280,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             assert(CurrentProcessPath in strInstancesSet)
 
     @decorator_windows_platform
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "Cannot import wmi. test_win_process_modules not run.")
     def test_win_process_modules(self):
         """Windows process modules"""
-
-        try:
-            import wmi
-        except ImportError:
-            print("Module win32net is not available so this test is not applicable")
-            return
 
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/win_process_modules.py",
@@ -1480,22 +1420,10 @@ except ImportError as exc:
 # This decorator at the class level does not work on Travis.
 # @unittest.skipIf( not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
 class SurvolPyODBCTest(unittest.TestCase):
-    #def __init__(self, *args, **kwargs):
-    #    super(SurvolPyODBCTest, self).__init__(*args, **kwargs)
-    #    try:
-    #    except ImportError:
-    #        raise Exception("Module pyodbc is not available so these tests are not applicable")
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_local_scripts_odbc_dsn(self):
         """This instantiates an instance of a subclass"""
-
-        #import pyodbc
-        #try:
-        #    import pyodbc
-        #except ImportError:
-        #    print("Module pyodbc is not available so this test is not applicable")
-        #    return
 
         # The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
         instanceLocalODBC = lib_client.Agent().odbc.dsn(
@@ -1508,7 +1436,6 @@ class SurvolPyODBCTest(unittest.TestCase):
                 sys.stdout.write("    %s\n"%oneScr)
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScripts) > 0)
-
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_sqldatasources(self):
@@ -1594,7 +1521,6 @@ class SurvolSocketsTest(unittest.TestCase):
     scripts on different machines."""
 
     def test_netstat_sockets(self):
-        import socket
 
         # Not many web sites in HTTP these days. This one is very stable.
         # http://w2.vatican.va/content/vatican/it.html is on port 80=http
@@ -1620,7 +1546,7 @@ class SurvolSocketsTest(unittest.TestCase):
 
         print("Peer name of connection socket:",connHttp.sock.getpeername())
 
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             lstInstances = ClientObjectInstancesFromScript("sources_types/win32/tcp_sockets_windows.py")
         else:
             lstInstances = ClientObjectInstancesFromScript("sources_types/Linux/tcp_sockets.py")
@@ -1635,7 +1561,6 @@ class SurvolSocketsTest(unittest.TestCase):
 
     def test_enumerate_sockets(self):
         """List of sockets opened on the host machine"""
-        import socket
 
         # httpHostName = 'www.root-servers.org'
         # This site was registered on September the 18th, 1986.
@@ -1704,7 +1629,6 @@ class SurvolSocketsTest(unittest.TestCase):
 
     def test_socket_connected_processes(self):
         """List of processes connected to a given socket"""
-        import socket
 
         # This test connect to an external server and checks that sockets are properly listed.
         # It needs a HTTP web server because it is simpler for debugging.
@@ -1754,13 +1678,9 @@ class SurvolSocketsTest(unittest.TestCase):
 
         connHttp.close()
 
-
+    @unittest.skipIf(not is_platform_windows, "test_net_use for Windows only.")
     def test_net_use(self):
         """Just test that the command NET USE runs"""
-
-        if not sys.platform.startswith("win"):
-            print("Windows test only")
-            return None
 
         # This does not really test the content, because nothing is sure.
         # However, at least it tests that the script can be called.
@@ -1783,12 +1703,9 @@ class SurvolSocketsTest(unittest.TestCase):
         #assert( 'CIM_DataFile.Name=//localhost/IPC$:' in strInstancesSet )
         #assert( 'smbshr.Id=\\\\localhost\\IPC$' in strInstancesSet )
 
+    @unittest.skipIf(not is_platform_windows, "test_windows_network_devices for Windows only.")
     def test_windows_network_devices(self):
         """Loads network devices on a Windows network"""
-
-        if not sys.platform.startswith("win"):
-            print("Windows test only")
-            return None
 
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/win32/windows_network_devices.py")
@@ -1931,7 +1848,7 @@ class SurvolRemoteTest(unittest.TestCase):
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/tcp_sockets_windows.py")
         else:
             mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/Linux/tcp_sockets.py")
@@ -1954,7 +1871,7 @@ class SurvolRemoteTest(unittest.TestCase):
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
-        if sys.platform.startswith("win"):
+        if is_platform_windows:
             mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/win32_local_groups.py")
         else:
             mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/Linux/etc_group.py")
@@ -2367,14 +2284,10 @@ class SurvolOracleTest(unittest.TestCase):
 
 class SurvolPEFileTest(unittest.TestCase):
     """Testing pefile features"""
+
+    @unittest.skipIf(not pkgutil.find_loader('pefile'), "pefile cannot be imported. test_pefile_exports not run.")
     def test_pefile_exports(self):
         """Tests exported functions of a DLL."""
-
-        try:
-            import pefile
-        except ImportError:
-            print("Module pefile is not available so this test is not applicable")
-            return None
 
         # Very common DLL.
         dllFileName = r"C:\Windows\System32\gdi32.dll"
