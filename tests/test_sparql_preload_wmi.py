@@ -19,8 +19,9 @@ import json
 import unittest
 import pkgutil
 
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-sys.path.insert(0,"../survol")
+from init import *
+
+update_test_path()
 
 # This is what we want to test.
 import lib_sparql
@@ -29,8 +30,6 @@ import lib_properties
 import lib_kbase
 import lib_wmi
 import lib_sparql_callback_survol
-
-from init import *
 
 # This can run only on Windows.
 def setUpModule():
