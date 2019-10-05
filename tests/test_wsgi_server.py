@@ -222,6 +222,24 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
 
+    @unittest.skipIf(not is_platform_linux, "test_tcp_sockets for Linux only.")
+    def test_tcp_sockets(self):
+        mySourceFileStatRemote = lib_client.SourceRemote(
+            RemoteWsgiTestAgent + "/survol/sources_types/Linux/tcp_sockets.py")
+        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+        # This should not be empty.
+        self.assertTrue(len(tripleFileStatRemote)>=1)
+
+    @unittest.skipIf(not is_platform_linux, "test_unix_domain_sockets for Linux only.")
+    def test_unix_domain_sockets(self):
+        mySourceFileStatRemote = lib_client.SourceRemote(
+            RemoteWsgiTestAgent + "/survol/sources_types/Linux/unix_domain_sockets.py")
+        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+        # This should not be empty.
+        self.assertTrue(len(tripleFileStatRemote)>=1)
+
 
 if __name__ == '__main__':
     unittest.main()
