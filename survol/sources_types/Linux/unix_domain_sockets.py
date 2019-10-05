@@ -72,7 +72,9 @@ def Main():
 			sockPidProgSplit = sockPidProg.split("/")
 			sockPid = sockPidProgSplit[0]
 			# sys.stderr.write("sockPid %s\n"%sockPid)
-			sockProgNam = sockPidProgSplit[1]
+
+			# Not used, and index error on Python 3.
+			# sockProgNam = sockPidProgSplit[1]
 
 			nodeProc = lib_common.gUriGen.PidUri(sockPid)
 			if sockPath:
