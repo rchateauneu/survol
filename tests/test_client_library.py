@@ -927,13 +927,6 @@ class SurvolLocalWbemTest(unittest.TestCase):
         # Rule of thumb: Not too many processes should have left in such a short time.
         self.assertTrue(num_exit_processes < 10)
 
-        # Aller afficher un process a distance.
-        #sourceRemote tout d abord un agent Survol
-        #Et aussi entity_wbem.py
-        #mais surtout directement avec le cimom WBEM: Mais alors on devrait se connecter directement ??
-        #Toutefois ce sera surtout un test pywbem.
-
-
 class SurvolLocalJavaTest(unittest.TestCase):
 
     @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_java_mbeans not executed.")
