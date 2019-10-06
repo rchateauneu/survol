@@ -890,10 +890,10 @@ class TripleStore:
             if predicate_name == associator_key_name:
                 # class_object = source_object
                 object_instance = UrlToInstance(source_object)
-                if predicate_name.find("ppid") >= 0:
-                    WARNING("FilterObjectsWithPredicateClass OKOKOKOK s=%s p=%s o=%s", str(source_subject), str(source_predicate), str(source_object))
-                    WARNING("FilterObjectsWithPredicateClass object_instance=%s", dir(object_instance) )
-                    WARNING("FilterObjectsWithPredicateClass object_instance.__class__.__name__=%s", object_instance.__class__.__name__)
+                #if predicate_name.find("ppid") >= 0:
+                #    WARNING("FilterObjectsWithPredicateClass OKOKOKOK s=%s p=%s o=%s", str(source_subject), str(source_predicate), str(source_object))
+                #    WARNING("FilterObjectsWithPredicateClass object_instance=%s", dir(object_instance) )
+                #    WARNING("FilterObjectsWithPredicateClass object_instance.__class__.__name__=%s", object_instance.__class__.__name__)
                 if object_instance.__class__.__name__ == result_class_name:
                     dict_objects[source_object] = object_instance
 
@@ -905,13 +905,12 @@ class TripleStore:
             if source_subject in dict_objects:
                 predicate_name = lib_properties.PropToQName(source_predicate)
                 object_value = str(source_object)
-                WARNING("TripleStore.ObjectFromPredicate predicate_name=%s object_value=%s",
-                        predicate_name, object_value)
+                #WARNING("TripleStore.ObjectFromPredicate predicate_name=%s object_value=%s", predicate_name, object_value)
                 dict_objects[source_subject].m_key_value_pairs[predicate_name] = object_value
 
         for dict_objects, object_instance in dict_objects.items():
             node_path = str(dict_objects)
-            WARNING("TripleStore.ObjectFromPredicate node_path=%s", node_path)
+            #WARNING("TripleStore.ObjectFromPredicate node_path=%s", node_path)
             # The keys of the key-value dictionary must be nodes, not string,
             # for example: rdflib.term.URIRef(u'http://primhillcomputers.com/survol#runs')
             dict_nodes_keys_values = {
@@ -1026,6 +1025,29 @@ def GetOntologyScript(ontology_key):
         "survol":"ontologies/Survol_RDFS.py",
         "wmi":"ontologies/WMI_RDFS.py",
         "wbem":"ontologies/WBEM_RDFS.py"}[ontology_key]
+
+
+# This simply loads the ontology from the URL, tries to parse it with rdflib.
+def LoadOntology(ontology_key):
+    import rdflib
+
+    url_script = GetOntologyScript(ontology_key)
+    mySource = SourceLocal(url_script)
+    ontologySurvol = mySource.get_content_moded(None)
+    print("Ontology=", type(ontologySurvol), ontologySurvol[:20])
+    grph = rdflib.Graph()
+    ontoTrunc = b"".join( ontologySurvol.split(b"\n") )
+    result = grph.parse(data=ontoTrunc, format="application/rdf+xml")
+    print("Load OK:l=%d"%len(grph))
+    return result
+
+# This checks that a full ontology contains a minimal subset of classes and attributes.
+# This is for testing purpose only.
+def CheckOntologyGraph(ontology_key):
+    ontology_graph = LoadOntology(ontology_key)
+    return lib_kbase.CheckMinimalRdsfOntology(ontology_graph)
+
+
 ################################################################################
 def SetDebugMode():
     import logging

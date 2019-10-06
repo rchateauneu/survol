@@ -160,7 +160,11 @@ def triplestore_to_stream_xml(grph,out_dest, a_format):
 def triplestore_from_rdf_xml(docXmlRdf):
     # This is the inverse operation of: grph.serialize( destination = out_dest, format="xml")
     grph = rdflib.Graph()
-    grph.parse(data=docXmlRdf, format="application/rdf+xml")
+    try:
+        grph.parse(data=docXmlRdf, format="application/rdf+xml")
+    except Exception as exc:
+        ERROR("triplestore_from_rdf_xml exc=", exc, " docXmlRdf...=", docXmlRdf[:20] )
+        raise
     return grph
 
 # See https://rdflib.readthedocs.io/en/stable/merging.html for how it uses rdflib.
@@ -224,6 +228,7 @@ def PropNameToXsdType(prop_type):
 LDT = rdflib.Namespace("http://www.primhillcomputers.com/survol#")
 
 # Create the node to add to the Graph
+# Example: "http://www.primhillcomputers.com/survol#CIM_DataFile"
 def RdfsClassNode(className):
     return rdflib.URIRef(LDT[className])
 
@@ -235,9 +240,6 @@ def AddNodeToRdfsClass(grph, nodeObject, className, entity_label):
 # This receives an ontology described in a neutral way,
 # and adds to the graph the RDFS nodes describing it.
 def CreateRdfsOntology(map_classes, map_attributes, graph=None):
-    # TODO: Create a cache, because WMI is very slow.
-
-
     # Add the RDFS class to the graph
     def AddClassToRdfsOntology(graph, className, baseClassName, text_descr):
         className = className.strip()
@@ -293,6 +295,99 @@ def CreateRdfsOntology(map_classes, map_attributes, graph=None):
     graph.bind("ldt", LDT)
 
     return graph
+
+################################################################################
+
+# This is only for testing purpose.
+# It checks that a minimal subset of classes and predicates are defined.
+def CheckMinimalRdsfOntology(ontology_graph):
+    # print("ontology_graph=",ontology_graph)
+
+    # Quick logging for debugging.
+    cnt = 0
+    for ontology_subject, ontology_predicate, ontology_object in ontology_graph:
+        # "http://www.primhillcomputers.com/survol#CIM_DataFile"
+        print("ontology_subject=", ontology_subject)
+        print("ontology_predicate=", ontology_predicate)
+        print("ontology_object=", ontology_object)
+        cnt += 1
+        if cnt == 3:
+            break
+
+    """
+    *** Survol:
+    ontology_subject= http://www.primhillcomputers.com/survol#CIM_Process
+    ontology_predicate= http://www.w3.org/2000/01/rdf-schema#label
+    ontology_object= CIM_Process        
+
+    ontology_subject= http://www.primhillcomputers.com/survol#CIM_Process
+    ontology_predicate= http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+    ontology_object= http://www.w3.org/2000/01/rdf-schema#Class
+
+    ontology_subject= http://www.primhillcomputers.com/survol#Handle
+    ontology_predicate= http://www.w3.org/2000/01/rdf-schema#domain
+    ontology_object= http://www.primhillcomputers.com/survol#CIM_Process
+
+    ontology_subject= http://www.primhillcomputers.com/survol#Handle
+    ontology_predicate= http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+    ontology_object= http://www.w3.org/1999/02/22-rdf-syntax-ns#Property
+
+    ontology_subject= http://www.primhillcomputers.com/survol#Name
+    ontology_predicate= http://www.w3.org/2000/01/rdf-schema#domain
+    ontology_object= http://www.primhillcomputers.com/survol#CIM_DataFile
+
+    ontology_subject= http://www.primhillcomputers.com/survol#Name
+    ontology_predicate= http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+    ontology_object= http://www.w3.org/1999/02/22-rdf-syntax-ns#Property
+
+    ontology_subject= http://www.primhillcomputers.com/survol#CIM_Directory
+    ontology_predicate= http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+    ontology_object= http://www.w3.org/2000/01/rdf-schema#Class
+
+    *** WMI:
+    ontology_subject= http://www.primhillcomputers.com/survol#CIM_Process
+    ontology_predicate= http://www.w3.org/2000/01/rdf-schema#label
+    ontology_object= CIM_Process
+
+    ontology_subject= http://www.primhillcomputers.com/survol#CIM_DataFile
+    ontology_predicate= http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+    ontology_object= http://www.w3.org/2000/01/rdf-schema#Class
+
+    ontology_subject= http://www.primhillcomputers.com/survol#CIM_DataFile
+    ontology_predicate= http://www.w3.org/2000/01/rdf-schema#label
+    ontology_object= CIM_DataFile
+
+    ontology_subject= http://www.primhillcomputers.com/survol#CIM_Directory
+    ontology_predicate= http://www.w3.org/2000/01/rdf-schema#label
+    ontology_object= CIM_Directory
+
+    # We do not have CIM_Process and CIM_Directory #Class node ?
+    # Where are the predicates ?
+    """
+
+    # Some classes must be shared by all ontologies: This allows to merge triples
+    # extracted by WMI, WBEM or Survol providers.
+    shared_classes = [
+        ("CIM_Process", None, None),
+        ("CIM_DataFile", None, None),
+        ("CIM_Directory", None, None),
+        ("CIM_Process", RDF.type, RDFS.Class),
+        ("CIM_DataFile", RDF.type, RDFS.Class),
+        ("CIM_Directory", RDF.type, RDFS.Class),
+    ]
+
+    missing_triples = []
+    for subject_name, predicate_name, object_name in shared_classes:
+        subject_node = RdfsClassNode(subject_name) if subject_name else None
+        predicate_node = RdfsClassNode(predicate_name) if predicate_name else None
+        object_node = RdfsClassNode(object_name) if object_name else None
+
+        triple_find = (subject_node, predicate_node, object_node)
+        if not triple_find in ontology_graph:
+            triple_name = (subject_name, predicate_name, object_name)
+            ERROR("CheckMinimalRdsfOntology missing triple:%s %s %s", * triple_name )
+            missing_triples.append(triple_name)
+        return missing_triples
 
 ################################################################################
 
