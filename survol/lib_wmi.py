@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import socket
+import datetime
 import lib_util
 import lib_common
 import lib_credentials
@@ -486,7 +487,7 @@ def EntityToLabelWmi(namSpac, entity_type_NoNS, entity_id, entity_host):
 #
 # In the three cases, Survol, WMI and WBEM, ontologies are implemented with a dictionary.
 # TODO: How to display the information of associators and references ?
-def ExtractWmiOntology():
+def ExtractWmiOntologyNoCache():
     cnn = wmi.WMI()
 
     map_classes = {}
@@ -550,6 +551,46 @@ def ExtractWmiOntology():
                     pass
 
     return map_classes, map_attributes
+
+# This caches data in files for performance.
+# Extracting the entire ontology takes time.
+def ExtractWmiOntology():
+
+    tmp_dir = lib_common.TmpDir()
+
+    # A cache can hold an entire month.
+    today_date = datetime.date.today()
+    date_string = today_date.strftime("%Y%m")
+
+    path_classes = "%s/ontology_classes.%s.json" % (tmp_dir, date_string)
+    path_attributes = "%s/ontology_attributes.%s.json" % (tmp_dir, date_string)
+
+    try:
+        INFO("ExtractWmiOntology: Loading cached ontology from %s and %s", path_classes, path_attributes)
+        fd_classes = open(path_classes)
+        map_classes = json.load(fd_classes)
+        fd_classes.close()
+
+        fd_attributes = open(path_attributes)
+        map_attributes = json.load(fd_attributes)
+        fd_attributes.close()
+
+        INFO("ExtractWmiOntology: Loaded cached ontology from %s and %s", path_classes, path_attributes)
+    except Exception as exc:
+        WARNING("ExtractWmiOntology: Caught: %s", exc)
+        map_classes, map_attributes = ExtractWmiOntologyNoCache()
+        WARNING("ExtractWmiOntology: Saving ontology to %s and %s", path_classes, path_attributes)
+
+        fd_classes = open(path_classes, "w")
+        json.dump(map_classes, fd_classes)
+        fd_classes.close()
+
+        fd_attributes = open(path_attributes, "w")
+        json.dump(map_attributes, fd_attributes)
+        fd_attributes.close()
+
+    return map_classes, map_attributes
+
 
 ################################################################################
 
@@ -746,7 +787,7 @@ class WmiSparqlCallbackApi:
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
-            WARNING("dict_key_values=%s",dict_key_values)
+            DEBUG("dict_key_values=%s",dict_key_values)
             #object_path_node = lib_util.NodeUrl(object_path)
             lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
             yield ( object_path, dict_key_values )
@@ -833,10 +874,9 @@ class WmiSparqlCallbackApi:
             dict_key_values[lib_kbase.PredicateType] = lib_kbase.PredicateType
             dict_key_values[lib_common.NodeLiteral("Name")] = lib_common.NodeLiteral(one_class_name)
 
-            yield class_path, dict_key_values
-
             class_node = lib_util.NodeUrl(class_path)
 
             if grph:
                 grph.add((class_node, lib_kbase.PredicateType, lib_kbase.PredicateType))
 
+            yield class_path, dict_key_values
