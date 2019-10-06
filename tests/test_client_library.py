@@ -902,7 +902,7 @@ class SurvolLocalWbemTest(unittest.TestCase):
         remote_url = SurvolServerAgent + "/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py"
         print("remote_url=", remote_url)
 
-        found_process = False
+        num_exit_processes = 0
         for remote_pid in pids_list:
             print("remote_pid=", remote_pid)
             process_source = lib_client.SourceRemote(
@@ -915,13 +915,17 @@ class SurvolLocalWbemTest(unittest.TestCase):
                 print("pid=", remote_pid, " exc=", exc)
                 continue
 
+            # FIXME: If the process has left, this list is empty, and the test fails.
             instances_list = process_triple_store.GetInstances()
+            if instances_list == []:
+                WARNING("test_wbem_info_processes_remote: Process %s exit." % remote_pid)
+                num_exit_processes += 1
+                continue
             instances_str = [str(oneInst) for oneInst in instances_list ]
             print("instances_str=", instances_str)
             self.assertTrue(instances_str[0] == 'CIM_Process.Handle=%s' % remote_pid)
-            found_process = True
-            break
-        self.assertTrue(found_process)
+        # Rule of thumb: Not too many processes should have left in such a short time.
+        self.assertTrue(num_exit_processes < 10)
 
         # Aller afficher un process a distance.
         #sourceRemote tout d abord un agent Survol
