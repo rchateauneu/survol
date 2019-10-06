@@ -1728,7 +1728,7 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
 # This iterates on all the classes defined by Survol files tree,
 # and returns two dictionaries which define classes and predicates,
 # compatible with insertion into RDF triplestore.
-def DumpSurvolOntology():
+def ExtractSurvolOntology():
     map_classes = {}
     map_attributes = {}
 
