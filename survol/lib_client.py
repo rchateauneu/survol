@@ -1020,6 +1020,8 @@ class Agent:
 
 
 ################################################################################
+
+# This is only for tests.
 def GetOntologyScript(ontology_key):
     return {
         "survol":"ontologies/Survol_RDFS.py",
