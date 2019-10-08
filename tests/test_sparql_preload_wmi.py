@@ -38,27 +38,6 @@ def setUpModule():
     except ImportError as err:
         raise unittest.SkipTest(str(err))
 
-hard_coded_data_select = {
-    "CIM_Process": [
-        {"pid": 123, "ppid": 456, "user": "herself", "runs": "firefox.exe"},
-        {"pid": 789, "ppid": 123, "user": "himself", "runs": "explorer.exe"},
-    ],
-    "CIM_DataFile": [
-        {"owns": "herself", "Name": "C:/Program Files (x86)/Internet Explorer/iexplore.exe"},
-        {"owns": "someone", "Name": "explorer.exe"},
-    ],
-    "CIM_Directory": [
-        {"owns": "himself", "Name": "C:/Program Files"},
-        {"owns": "herself", "Name": "C:/Program Files (x86)"},
-        {"owns": "herself", "Name": "C:/Program Files (x86)/Internet Explorer"},
-    ],
-    "Win32_UserAccount": [
-        {"uid": 111, "Name": "himself"},
-        {"uid": 222, "Name": "herself"},
-    ],
-}
-
-
 # The query function from lib_sparql module, returns RDF nodes.
 # This is not very convenient to test.
 # Therefore, for tests, this is a helper function which returns dict of strings,
