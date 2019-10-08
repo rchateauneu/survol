@@ -38,10 +38,6 @@ def setUpModule():
     except ImportError as err:
         raise unittest.SkipTest(str(err))
 
-# TODO: This should be a parameter.
-# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
-RemoteTestAgent = "http://" + CurrentMachine + ":8000"
-
 hard_coded_data_select = {
     "CIM_Process": [
         {"pid": 123, "ppid": 456, "user": "herself", "runs": "firefox.exe"},

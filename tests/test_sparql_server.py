@@ -17,10 +17,6 @@ from init import *
 
 update_test_path()
 
-# TODO: This should be a parameter.
-# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
-RemoteTestAgent = "http://" + CurrentMachine + ":8000"
-
 # <?xml version="1.0" ?>
 # <sparql><head><variable name="caption"/></head>
 #   <results>

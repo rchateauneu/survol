@@ -56,10 +56,6 @@ import dockit
 # "rchateau-hp"
 from init import *
 
-# TODO: This should be a parameter.
-# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
-RemoteTestAgent = "http://" + CurrentMachine + ":8000"
-
 class DockitParserTest(unittest.TestCase):
 
     # This is a set of arguments of system function calls as displayed by strace or ltrace.
