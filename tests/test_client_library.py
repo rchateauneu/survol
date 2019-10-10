@@ -865,6 +865,8 @@ class SurvolLocalWbemTest(unittest.TestCase):
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
         print("test_wbem_hostname_processes_local: strInstancesSet:", strInstancesSet)
 
+class SurvolRemoteWbemTest(unittest.TestCase):
+    """These tests do not need a Survol agent"""
 
     @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
     def test_wbem_hostname_processes_remote(self):
@@ -902,8 +904,16 @@ class SurvolLocalWbemTest(unittest.TestCase):
         remote_url = SurvolServerAgent + "/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py"
         print("remote_url=", remote_url)
 
+        # Do not check all processes, it would be too slow.
+        max_num_processes = 20
+
+        # Some processes might have left, this is a rule-of-thumb.
         num_exit_processes = 0
         for remote_pid in pids_list:
+            if max_num_processes == 0:
+                break
+            max_num_processes -= 1
+
             print("remote_pid=", remote_pid)
             process_source = lib_client.SourceRemote(
                 SurvolServerAgent + "/sources_types/CIM_Process/wbem_process_info.py",
@@ -926,6 +936,12 @@ class SurvolLocalWbemTest(unittest.TestCase):
             self.assertTrue(instances_str[0] == 'CIM_Process.Handle=%s' % remote_pid)
         # Rule of thumb: Not too many processes should have left in such a short time.
         self.assertTrue(num_exit_processes < 10)
+
+    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
+    def test_remote_ontology_wbem(self):
+        missing_triples = lib_client.CheckOntologyGraph("wbem", SurvolServerAgent)
+        self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
+
 
 class SurvolLocalJavaTest(unittest.TestCase):
 
@@ -1095,6 +1111,7 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
         missing_triples = lib_client.CheckOntologyGraph("wbem")
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
+# TODO: Test namespaces etc... etc classes wmi etc...
 
 class SurvolLocalLinuxTest(unittest.TestCase):
     """These tests do not need a Survol agent and apply to Linux machines only"""
