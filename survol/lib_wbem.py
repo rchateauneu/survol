@@ -1,6 +1,7 @@
 import re
 import os
 import sys
+import socket
 import pywbem # Might be pywbem or python3-pywbem.
 import lib_util
 import lib_common
@@ -503,14 +504,20 @@ def EntityToLabelWbem(namSpac, entity_type_NoNS, entity_id, entity_host):
 
 # This returns an abstract ontology, which is later transformed into RDFS.
 # cimomUrl="http://192.168.1.83:5988" or "http://rchateau-HP:5988"
-def ExtractWbemOntology(machine_name):
+def ExtractWbemOntology(machine_name = None):
     map_classes = {}
     map_attributes = {}
+
+    # By default, current machine. However, WBEM does not give the possibility
+    # to connect to the local server with the host set to None.
+    if machine_name is None:
+        machine_name = socket.gethostname()
 
     cimom_url = HostnameToWbemServer(machine_name)
 
     wbem_connection = WbemConnection(cimom_url)
 
+    # Note: Survol assumes this namespace everywhere.
     wbem_name_space = 'root/cimv2'
 
     class_tree = GetClassesTree(wbem_connection, theNamSpace = wbem_name_space)
