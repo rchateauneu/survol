@@ -1028,25 +1028,25 @@ def GetOntologyScript(ontology_key):
         "wmi":"ontologies/WMI_RDFS.py",
         "wbem":"ontologies/WBEM_RDFS.py"}[ontology_key]
 
-
-# This simply loads the ontology from the URL, tries to parse it with rdflib.
-def LoadOntology(ontology_key):
+# This checks that a full ontology contains a minimal subset of classes and attributes.
+# This is for testing purpose only.
+def CheckOntologyGraph(ontology_key, survol_agent = None):
     import rdflib
 
     url_script = GetOntologyScript(ontology_key)
-    mySource = SourceLocal(url_script)
+    if survol_agent:
+        # TODO: The url syntax differences between SourceLocal and SourceRemote are not convenient.
+        # TODO: Remove this leading "/" slash.
+        mySource = SourceRemote(survol_agent + "/" + url_script)
+    else:
+        mySource = SourceLocal(url_script)
     ontologySurvol = mySource.get_content_moded(None)
     print("Ontology=", type(ontologySurvol), ontologySurvol[:20])
-    grph = rdflib.Graph()
+    ontology_graph = rdflib.Graph()
     ontoTrunc = b"".join( ontologySurvol.split(b"\n") )
-    result = grph.parse(data=ontoTrunc, format="application/rdf+xml")
-    print("Load OK:l=%d"%len(grph))
-    return result
+    result = ontology_graph.parse(data=ontoTrunc, format="application/rdf+xml")
+    print("CheckOntologyGraph Load OK:l=%d"%len(ontology_graph))
 
-# This checks that a full ontology contains a minimal subset of classes and attributes.
-# This is for testing purpose only.
-def CheckOntologyGraph(ontology_key):
-    ontology_graph = LoadOntology(ontology_key)
     return lib_kbase.CheckMinimalRdsfOntology(ontology_graph)
 
 
