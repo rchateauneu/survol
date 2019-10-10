@@ -522,13 +522,20 @@ def ExtractWbemOntology(machine_name = None):
 
     class_tree = GetClassesTree(wbem_connection, theNamSpace = wbem_name_space)
 
-    def explore_class_tree(class_tree, top_class_name, current_concat):
-        for cl in class_tree[top_class_name]:
+    def explore_class_tree(class_tree, top_class, current_concat):
+        try:
+            sub_classes = class_tree[top_class]
+        except KeyError:
+            return
+        for cl in sub_classes:
             class_name = cl.classname
+            sys.stderr.write("class_name=%s\n" % class_name)
             if current_concat:
                 concat_class_name = current_concat + "." + class_name
             else:
                 concat_class_name = class_name
+
+            top_class_name = top_class.classname if top_class else ""
             map_classes[concat_class_name] = {
                 "base_class": top_class_name,
                 "class_description": "Class WBEM %s" % concat_class_name}
@@ -542,7 +549,7 @@ def ExtractWbemOntology(machine_name = None):
                     "predicate_description": "Attribute WBEM %s" % key_name,
                     "predicate_domain": concat_class_name}
 
-            explore_class_tree(class_tree, class_name, concat_class_name)
+            explore_class_tree(class_tree, cl, concat_class_name)
 
     explore_class_tree(class_tree, None, "")
 
