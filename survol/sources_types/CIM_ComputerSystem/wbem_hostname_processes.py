@@ -21,7 +21,6 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(
 					can_process_remote = True)
 
-	# cimomUrl = cgiEnv.GetHost()
 	# http://192.168.1.88
 	machineName = cgiEnv.GetId()
 
@@ -93,9 +92,7 @@ def Main():
 				except KeyError:
 					pass
 
-
 	cgiEnv.OutCgiRdf()
-	# cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
 	Main()
