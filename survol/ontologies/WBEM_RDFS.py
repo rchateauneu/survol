@@ -9,12 +9,17 @@
 
 import os
 
+import lib_ontology_tools
 import lib_export_ontology
 import lib_kbase
 import lib_wbem
 
 def Main():
-    map_classes, map_attributes = lib_wbem.ExtractWbemOntology()
+    # Il y a deux facons de le faire: Soit on se connecte sur la machine par notre agent
+    # et on utilise WBEM en local,
+    # ou bien on reste sur nre machine et on utilise le server WBEM.
+    # map_classes, map_attributes = lib_wbem.ExtractWbemOntologyLocal()
+    map_classes, map_attributes = lib_ontology_tools.ManageLocalOntologyCache( "wbem", lib_wbem.ExtractWbemOntology)
     graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
