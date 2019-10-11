@@ -30,10 +30,6 @@ import lib_properties
 import lib_kbase
 import lib_sparql_callback_survol
 
-# TODO: This should be a parameter.
-# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
-RemoteTestAgent = "http://" + CurrentMachine + ":8000"
-
 hard_coded_data_select = {
     "CIM_Process": [
         {"pid": 123, "ppid": 456, "user": "herself", "runs": "firefox.exe"},
@@ -596,7 +592,7 @@ class SparqlCallPortableTest(unittest.TestCase):
 
             print("expected_results=",expected_results)
             list_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeSparqlCallbackApi() )
-            print("list_dict_objects=",list_dict_objects)
+            #print("list_dict_objects=",list_dict_objects)
 
             assert(list_dict_objects == expected_results)
 
@@ -672,7 +668,7 @@ class SparqlCallPortableTest(unittest.TestCase):
 
             print("expected_results=",expected_results)
             list_dict_objects = QueryKeyValuePairs(sparql_query, HardcodeSparqlCallbackApi())
-            print("list_dict_objects=",list_dict_objects)
+            #print("list_dict_objects=",list_dict_objects)
 
             assert(list_dict_objects == expected_results)
 
@@ -716,8 +712,8 @@ class SparqlCallPortableTest(unittest.TestCase):
                 sparql_query,
                 lib_sparql_callback_survol.SurvolSparqlCallbackApi())
 
-            print("list_dict_objects=",list_dict_objects)
-            print("expected_results=",expected_results)
+            #print("list_dict_objects=",list_dict_objects)
+            #print("expected_results=",expected_results)
             assert(list_dict_objects == expected_results)
 
     def test_survol_nested(self):
@@ -749,7 +745,7 @@ class SparqlCallPortableTest(unittest.TestCase):
             nested_qry,
             lib_sparql_callback_survol.SurvolSparqlCallbackApi())
 
-        print("list_dict_objects=",list_dict_objects)
+        #print("list_dict_objects=",list_dict_objects)
         found = False
         for one_dict in list_dict_objects:
             procA = one_dict["url_procA"]
@@ -805,7 +801,7 @@ class SparqlCallPortableTest(unittest.TestCase):
         #   'rdf-schema#isDefinedBy': 'survol:CIM_Process/single_pidstree',
         #   'Handle': '13168', '__class__': 'CIM_Process'}
         # }, ...
-        print("list_dict_objects=",list_dict_objects)
+        #print("list_dict_objects=",list_dict_objects)
         found = False
         for one_dict in list_dict_objects:
             procA = one_dict["url_procA"]
@@ -868,8 +864,8 @@ class SparqlSeeAlsoPortableTest(unittest.TestCase):
             list_dict_objects = QuerySeeAlsoKeyValuePairs( None, sparql_query, unittestCallback)
 
             # The expected object must be a subset of one of the returned objects.
-            print("list_dict_objects=",list_dict_objects)
-            print("GOLD=",one_expected_dict)
+            #print("list_dict_objects=",list_dict_objects)
+            #print("GOLD=",one_expected_dict)
 
             expected_keys = one_expected_dict.keys()
             found = False
@@ -1012,8 +1008,8 @@ class SparqlSeeAlsoPortableTest(unittest.TestCase):
 
             list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, unittestCallback)
 
-            print("list_dict_objects=",list_dict_objects)
-            print("GOLD=",one_expected_dict)
+            #print("list_dict_objects=",list_dict_objects)
+            #print("GOLD=",one_expected_dict)
             assert(one_expected_dict in list_dict_objects)
 
 if __name__ == '__main__':

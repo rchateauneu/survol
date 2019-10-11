@@ -25,6 +25,9 @@ CurrentPid = os.getpid()
 CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
 CurrentParentPid = psutil.Process().ppid()
 
+# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
+RemoteTestAgent = "http://" + CurrentMachine + ":8000"
+
 # "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
 # Name = "vps516494.ovh.net")
 SurvolServerHostname = "vps516494.ovh.net"
