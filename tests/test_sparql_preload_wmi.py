@@ -650,8 +650,8 @@ class SparqlSeeAlsoTest(unittest.TestCase):
             list_dict_objects = QuerySeeAlsoKeyValuePairs( None, sparql_query, unittestCallback)
 
             # The expected object must be a subset of one of the returned objects.
-            print("list_dict_objects=",list_dict_objects)
-            print("GOLD=",one_expected_dict)
+            #print("list_dict_objects=",list_dict_objects)
+            #print("GOLD=",one_expected_dict)
 
             expected_keys = one_expected_dict.keys()
             found = False
@@ -1118,8 +1118,8 @@ class SparqlSeeAlsoTest(unittest.TestCase):
 
             list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, unittestCallback)
 
-            print("list_dict_objects=",list_dict_objects)
-            print("GOLD=",one_expected_dict)
+            #print("list_dict_objects=",list_dict_objects)
+            #print("GOLD=",one_expected_dict)
             assert(one_expected_dict in list_dict_objects)
 
 

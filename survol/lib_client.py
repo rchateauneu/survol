@@ -126,8 +126,6 @@ def LoadModedUrl(urlModed):
     except Exception as exc:
         ERROR("LoadModedUrl urlModed=%s. Caught:%s", urlModed, str(exc))
         raise
-    # This returns a  string ? No, we want bytes.
-    # data = response.read().decode("utf-8")
     data = response.read()
     assert isinstance(data, lib_util.six_binary_type)
     return data
@@ -1050,13 +1048,7 @@ def CheckOntologyGraph(ontology_key, survol_agent = None):
     assert isinstance(ontologySurvol, lib_util.six_binary_type)
     INFO("Ontology=", type(ontologySurvol), ontologySurvol[:20])
     ontology_graph = rdflib.Graph()
-
-    # test_remote_ontology_wbem OK
-    #ontoTrunc = "".join(ontologySurvol.split("\n"))
-
-    # test_ontology_survol OK
     ontoTrunc = b"".join(ontologySurvol.split(b"\n"))
-
     result = ontology_graph.parse(data=ontoTrunc, format="application/rdf+xml")
     INFO("CheckOntologyGraph Load OK:l=%d"%len(ontology_graph))
 
