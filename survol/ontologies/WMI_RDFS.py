@@ -10,12 +10,17 @@
 
 import os
 
+import lib_ontology_tools
 import lib_export_ontology
 import lib_kbase
 import lib_wmi
 
 def Main():
-    map_classes, map_attributes = lib_wmi.ExtractWmiOntology()
+    # Il y a deux facons de le faire: Soit on se connecte sur la machine par notre agent
+    # et on utilise WBEM en local,
+    # ou bien on reste sur nre machine et on utilise le server WBEM.
+    # map_classes, map_attributes = lib_wmi.ExtractWmiOntologyLocal()
+    map_classes, map_attributes = lib_ontology_tools.ManageLocalOntologyCache( "wmi", lib_wmi.ExtractWmiOntologyLocal)
     graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"

@@ -18,7 +18,7 @@ try:
     # http://sawbuck.googlecode.com/svn/trunk/sawbuck/py/etw/generate_descriptor.py
     # Generate symbols for the WbemScripting module so that we can have symbols
     # for debugging and use constants throughout the file.
-    # Without this, win32com.client.constants is not available.
+    # Without this, win32com.client.constants are not available.
     win32com.client.gencache.EnsureModule('{565783C6-CB41-11D1-8B02-00600806D9B6}',0, 1, 1)
     wmi_imported = True
 except ImportError as exc:
@@ -487,7 +487,7 @@ def EntityToLabelWmi(namSpac, entity_type_NoNS, entity_id, entity_host):
 #
 # In the three cases, Survol, WMI and WBEM, ontologies are implemented with a dictionary.
 # TODO: How to display the information of associators and references ?
-def ExtractWmiOntologyNoCache():
+def ExtractWmiOntologyLocal():
     cnn = wmi.WMI()
 
     map_classes = {}
@@ -551,46 +551,6 @@ def ExtractWmiOntologyNoCache():
                     pass
 
     return map_classes, map_attributes
-
-# This caches data in files for performance.
-# Extracting the entire ontology takes time.
-def ExtractWmiOntology():
-
-    tmp_dir = lib_common.TmpDir()
-
-    # A cache can hold an entire month.
-    today_date = datetime.date.today()
-    date_string = today_date.strftime("%Y%m")
-
-    path_classes = "%s/ontology_classes.%s.json" % (tmp_dir, date_string)
-    path_attributes = "%s/ontology_attributes.%s.json" % (tmp_dir, date_string)
-
-    try:
-        INFO("ExtractWmiOntology: Loading cached ontology from %s and %s", path_classes, path_attributes)
-        fd_classes = open(path_classes)
-        map_classes = json.load(fd_classes)
-        fd_classes.close()
-
-        fd_attributes = open(path_attributes)
-        map_attributes = json.load(fd_attributes)
-        fd_attributes.close()
-
-        INFO("ExtractWmiOntology: Loaded cached ontology from %s and %s", path_classes, path_attributes)
-    except Exception as exc:
-        WARNING("ExtractWmiOntology: Caught: %s", exc)
-        map_classes, map_attributes = ExtractWmiOntologyNoCache()
-        WARNING("ExtractWmiOntology: Saving ontology to %s and %s", path_classes, path_attributes)
-
-        fd_classes = open(path_classes, "w")
-        json.dump(map_classes, fd_classes)
-        fd_classes.close()
-
-        fd_attributes = open(path_attributes, "w")
-        json.dump(map_attributes, fd_attributes)
-        fd_attributes.close()
-
-    return map_classes, map_attributes
-
 
 ################################################################################
 
