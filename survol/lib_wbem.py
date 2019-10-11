@@ -432,6 +432,7 @@ def GetClassesTree(conn,theNamSpace):
     for klass in klasses:
         # This does not work. WHY ?
         # tree_classes.get( klass.superclass, [] ).append( klass )
+        sys.stderr.write("klass=%s super=%s\n" % ( klass.classname, klass.superclass ) )
         try:
             tree_classes[klass.superclass].append(klass)
         except KeyError:
@@ -521,35 +522,34 @@ def ExtractWbemOntology():
 
     class_tree = GetClassesTree(wbem_connection, theNamSpace = wbem_name_space)
 
-    def explore_class_tree(class_tree, top_class, current_concat):
-        try:
-            sub_classes = class_tree[top_class]
-        except KeyError:
-            return
-        for cl in sub_classes:
-            class_name = cl.classname
+    for super_class_name in class_tree:
+        class_array = class_tree[super_class_name]
+        for class_object in class_array:
+            class_name = class_object.classname
+
             sys.stderr.write("class_name=%s\n" % class_name)
-            if current_concat:
-                concat_class_name = current_concat + "." + class_name
+            if super_class_name:
+                top_class_name = super_class_name
+                concat_class_name = super_class_name + "." + class_name
             else:
+                top_class_name = ""
                 concat_class_name = class_name
 
-            top_class_name = top_class.classname if top_class else ""
-            map_classes[concat_class_name] = {
+            # map_classes[concat_class_name] = {
+            map_classes[class_name] = {
                 "base_class": top_class_name,
                 "class_description": "Class WBEM %s" % concat_class_name}
 
+            # TODO: Do not return all keys !!!
             class_keys = WbemGetClassKeysFromConnection(wbem_name_space, class_name, wbem_connection)
             for key_name in class_keys:
                 # TODO: If there are duplicate attribute names, there could be a filtering
                 # based on the class, or the domain could be replaced by a list ?
                 map_attributes[key_name] = {
-                    "predicate_type": "uint32",
+                    "predicate_type": "string",
                     "predicate_description": "Attribute WBEM %s" % key_name,
                     "predicate_domain": concat_class_name}
+                sys.stderr.write("concat_class_name=%s key_name=%s\n" % (concat_class_name, key_name))
 
-            explore_class_tree(class_tree, cl, concat_class_name)
-
-    explore_class_tree(class_tree, None, "")
 
     return map_classes, map_attributes
