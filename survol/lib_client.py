@@ -122,7 +122,7 @@ class SourceCgi (SourceBase):
 def LoadModedUrl(urlModed):
     DEBUG("LoadModedUrl urlModed=%s",urlModed)
     try:
-        response = lib_util.survol_urlopen(urlModed, timeout=30)
+        response = lib_util.survol_urlopen(urlModed, timeout=60)
     except Exception as exc:
         ERROR("LoadModedUrl urlModed=%s. Caught:%s", urlModed, str(exc))
         raise
@@ -1041,11 +1041,11 @@ def CheckOntologyGraph(ontology_key, survol_agent = None):
     else:
         mySource = SourceLocal(url_script)
     ontologySurvol = mySource.get_content_moded(None)
-    print("Ontology=", type(ontologySurvol), ontologySurvol[:20])
+    INFO("Ontology=", type(ontologySurvol), ontologySurvol[:20])
     ontology_graph = rdflib.Graph()
-    ontoTrunc = b"".join( ontologySurvol.split(b"\n") )
+    ontoTrunc = "".join(ontologySurvol.split("\n"))
     result = ontology_graph.parse(data=ontoTrunc, format="application/rdf+xml")
-    print("CheckOntologyGraph Load OK:l=%d"%len(ontology_graph))
+    INFO("CheckOntologyGraph Load OK:l=%d"%len(ontology_graph))
 
     return lib_kbase.CheckMinimalRdsfOntology(ontology_graph)
 
