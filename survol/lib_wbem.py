@@ -504,14 +504,13 @@ def EntityToLabelWbem(namSpac, entity_type_NoNS, entity_id, entity_host):
 
 # This returns an abstract ontology, which is later transformed into RDFS.
 # cimomUrl="http://192.168.1.83:5988" or "http://rchateau-HP:5988"
-def ExtractWbemOntology(machine_name = None):
+def ExtractWbemOntology():
     map_classes = {}
     map_attributes = {}
 
     # By default, current machine. However, WBEM does not give the possibility
     # to connect to the local server with the host set to None.
-    if machine_name is None:
-        machine_name = socket.gethostname()
+    machine_name = socket.gethostname()
 
     cimom_url = HostnameToWbemServer(machine_name)
 
