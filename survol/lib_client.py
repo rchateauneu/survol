@@ -126,7 +126,10 @@ def LoadModedUrl(urlModed):
     except Exception as exc:
         ERROR("LoadModedUrl urlModed=%s. Caught:%s", urlModed, str(exc))
         raise
-    data = response.read().decode("utf-8")
+    # This returns a  string ? No, we want bytes.
+    # data = response.read().decode("utf-8")
+    data = response.read()
+    assert isinstance(data, lib_util.six_binary_type)
     return data
 
 
@@ -149,6 +152,7 @@ class SourceRemote (SourceCgi):
     def get_content_moded(self,mode):
         the_url = self.__url_with_mode(mode)
         data = LoadModedUrl(the_url)
+        assert isinstance(data, lib_util.six_binary_type)
         return data
 
 def CreateStringStream():
@@ -239,6 +243,7 @@ class SourceLocal (SourceCgi):
     # TODO: Replace __execute_script_with_mode
     def get_content_moded(self,mode):
         data_content = self.__execute_script_with_mode(mode)
+        assert isinstance(data_content, lib_util.six_binary_type)
         return data_content
 
     # This returns a bag of words which describe what this script does.
@@ -324,6 +329,7 @@ class SourceMerge (SourceBase):
             tripstore.ToStreamXml(strStrm)
             strResult = strStrm.getvalue()
             strStrm.close()
+            assert isinstance(strResult, lib_util.six_binary_type)
             return strResult
 
         raise Exception("get_content_moded: Cannot yet convert to %s"%mode)
@@ -1041,9 +1047,16 @@ def CheckOntologyGraph(ontology_key, survol_agent = None):
     else:
         mySource = SourceLocal(url_script)
     ontologySurvol = mySource.get_content_moded(None)
+    assert isinstance(ontologySurvol, lib_util.six_binary_type)
     INFO("Ontology=", type(ontologySurvol), ontologySurvol[:20])
     ontology_graph = rdflib.Graph()
-    ontoTrunc = "".join(ontologySurvol.split("\n"))
+
+    # test_remote_ontology_wbem OK
+    #ontoTrunc = "".join(ontologySurvol.split("\n"))
+
+    # test_ontology_survol OK
+    ontoTrunc = b"".join(ontologySurvol.split(b"\n"))
+
     result = ontology_graph.parse(data=ontoTrunc, format="application/rdf+xml")
     INFO("CheckOntologyGraph Load OK:l=%d"%len(ontology_graph))
 
