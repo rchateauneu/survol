@@ -8,6 +8,8 @@ import sys
 import socket
 import psutil
 import pkgutil
+import atexit
+import time
 
 CurrentMachine = socket.gethostname().lower()
 try:
@@ -25,20 +27,26 @@ CurrentPid = os.getpid()
 CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
 CurrentParentPid = psutil.Process().ppid()
 
+# TODO: This should be a parameter.
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
-RemoteTestAgent = "http://" + CurrentMachine + ":8000"
+RemoteTestPort = 8000
+RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
 
 # "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
 # Name = "vps516494.ovh.net")
 SurvolServerHostname = "vps516494.ovh.net"
 SurvolServerAgent = "http://vps516494.ovh.net/Survol/survol"
+SurvolWbemCimom = "http://vps516494.ovh.net:5988"
+
+is_platform_windows = sys.platform.startswith("win")
+is_platform_linux = sys.platform.startswith("linux")
 
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
 # Several Python scripts return this executable as a node.
 execPath = os.path.realpath( sys.executable )
-if sys.platform.startswith("win"):
+if is_platform_windows:
     # When running in PyCharm with virtualenv, the path is correct:
     # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
     # When running from pytest, it is converted to lowercase.
@@ -98,10 +106,6 @@ def is_travis_machine():
     # Some tests cannot be run on a Travis machine if some tools are not there.
     return os.getcwd().find("travis") >= 0
 
-is_platform_windows = sys.platform.startswith("win")
-is_platform_linux = sys.platform.startswith("linux")
-
-
 def is_linux_wbem():
     # WBEM is not available on TravisCI.
     return is_platform_linux and pkgutil.find_loader('pywbem') and not is_travis_machine()
@@ -120,9 +124,6 @@ else:
     FileAlwaysThere = "C:\\Windows\\explorer.exe"
     DirAlwaysThere = "C:\\Windows"
     AnyLogicalDisk = "D:"
-
-import atexit
-import time
 
 def CgiAgentStart(agent_url, agent_port):
     INFO("CgiAgentStart agent_url=%s agent_port=%d", agent_url, agent_port)

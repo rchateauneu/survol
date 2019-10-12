@@ -13,17 +13,14 @@ import socket
 import platform
 import pkgutil
 
-# This does basically the same tests as a Jupyter notebook test_client_library.ipynb
-
 from init import *
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
-sys.path.insert(0,"../survol")
+update_test_path()
 
-# TODO: This should be a parameter.
-# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
-RemoteTestPort = 8000
-RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
+import lib_client
+import lib_common
+import lib_properties
 
 # If the Survol agent does not exist, this script starts a local one.
 RemoteAgentProcess = None
@@ -42,9 +39,6 @@ isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 # Problem: survol modules are not detectable.
 # We could as well delete all modules except sys.
 allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
-
-import lib_client
-import lib_properties
 
 ClientObjectInstancesFromScript = lib_client.SourceLocal.GetObjectInstancesFromScript
 
@@ -100,7 +94,6 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_DataFile",
             Name=FileAlwaysThere)
 
-        import lib_common
         lib_common.globalErrorMessageEnabled = False
 
         tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
