@@ -251,7 +251,7 @@ def Usage():
     print("    -b,--browser=<program>    Starts a browser")
     print("    -v,--verbose              Verbose mode")
     print("")
-    print("Script must be started with command: survol/scripts/cgiserver.py")
+    print("Script must be started with command: survol/scripts/wsgiserver.py")
 
 # https://docs.python.org/2/library/webbrowser.html
 def StartsWebrowser(browser_name,theUrl):
