@@ -31,6 +31,7 @@ class LibWbemTest(unittest.TestCase):
         self.assertTrue("Name" in map_attributes)
         self.assertTrue("Caption" in map_attributes)
 
+    @unittest.skipIf(is_travis_machine(), "Test is too slow for Travis")
     @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_remote_ontology not executed.")
     def test_remote_ontology(self):
         """Very slow test: It displays the entire list of classes and their properties."""
