@@ -26,23 +26,26 @@ class LibWmiTest(unittest.TestCase):
         print("map_classes=", map_classes)
         # print("map_attributes=", map_attributes)
         self.assertTrue("CIM_Process" in map_classes)
+        self.assertTrue("CIM_DataFile" in map_classes)
+        self.assertTrue("CIM_Directory" in map_classes)
         print(sorted(map_attributes.keys()))
         self.assertTrue("Handle" in map_attributes)
+        self.assertTrue("Name" in map_attributes)
+        self.assertTrue("Caption" in map_attributes)
 
 
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported.")
     def test_sparql_callback_select(self):
+        # TODO: Beware, this can be incredibly very slow depending on the properties.
         callback_object = lib_wmi.WmiSparqlCallbackApi()
         filtered_where_key_values = {
-            "Description": FileAlwaysThere
+            "Handle": CurrentPid
         }
         grph = lib_kbase.MakeGraph()
 
-        iterator_objects = callback_object.CallbackSelect(grph, "CIM_DataFile", "WMI", filtered_where_key_values)
+        iterator_objects = callback_object.CallbackSelect(grph, "CIM_Process", "WMI", filtered_where_key_values)
         for object_path, dict_key_values in iterator_objects:
             pass
-
-
 
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported.")
     def test_sparql_callback_associator(self):
@@ -53,7 +56,7 @@ class LibWmiTest(unittest.TestCase):
                 "result_class_name",
                 "WBEM",
                 "associator_key_name",
-                "wbem_path_full")
+                r'\\%s\root\cimv2:Win32_Process.Handle="%s"' % (CurrentMachine, CurrentPid) )
         for object_path, dict_key_values in iterator_objects:
             pass
 
