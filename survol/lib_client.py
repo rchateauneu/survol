@@ -1025,19 +1025,16 @@ class Agent:
 
 ################################################################################
 
-# This is only for tests.
-def GetOntologyScript(ontology_key):
-    return {
-        "survol":"ontologies/Survol_RDFS.py",
-        "wmi":"ontologies/WMI_RDFS.py",
-        "wbem":"ontologies/WBEM_RDFS.py"}[ontology_key]
-
 # This checks that a full ontology contains a minimal subset of classes and attributes.
 # This is for testing purpose only.
 def CheckOntologyGraph(ontology_key, survol_agent = None):
     import rdflib
 
-    url_script = GetOntologyScript(ontology_key)
+    url_script = {
+            "survol": "ontologies/Survol_RDFS.py",
+            "wmi": "ontologies/WMI_RDFS.py",
+            "wbem": "ontologies/WBEM_RDFS.py"}[ontology_key]
+
     if survol_agent:
         # TODO: The url syntax differences between SourceLocal and SourceRemote are not convenient.
         # TODO: Remove this leading "/" slash.
@@ -1072,24 +1069,3 @@ def SetDebugMode():
 
 ################################################################################
 
-"""
-Recherche en parallele:
-=======================
-Si le script a une fonction Daemon(), alors on lance un sous-process qui va l'appeler
-et rester constamment en attente des resultats.
-Il n y a pas de multiprocessing.heapq mais uniquement multiprocessing.queue
-Le sous-process qui lance le script ajoute les resultats dans la queue des resultats,
-un par un, et quand ce sera un script, on l'insere dans la heapq des scripts
-mais doit la locker: multiprocessing.Lock.
-Si pas de fonction Daemon(), ou bien si script remote,alors on appelle juste le script.
-On pourrait lancer un sous-process si HTTP permettait de recevoir des infos via la socket,
-sans fin.
-
-OU ALORS:
-La gestion des scripts d evenements est transparente: On relance simplement les scripts
-si leur nom contient "auto", et le bidule est capable de stocker les triples
-crees par une sous-process: A chaque appel, on va lire le contenu de la queue.
-Bien sur, si local, ce serait plus rapide d eviter l encodage/decoage en lisant directement
-la queue ou meme en lancant "Daemon" qui ecrirait directement ses triples dans notre queue.
-"Premature omptimisation etc..."
-"""
