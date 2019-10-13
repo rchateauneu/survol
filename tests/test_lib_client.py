@@ -1068,23 +1068,6 @@ class SurvolLocalUtf8Test(unittest.TestCase):
         # Properties: CIM_DataFile.dir_stat.py
         # Properties: CIM_Directory.file_directory
 
-    # Test a filename with accents.
-    def test_accents_filenames(self):
-        pass
-
-    # Get Python properties of a script.
-    def test_python_properties(self):
-        pass # CIM_DataFile.python_properties.py
-
-    # Access the directory: file_directory.py
-    def test_file_directory(self):
-        pass # CIM_Directory.file_directory
-
-    # Properties: CIM_DataFile.file_stat.py
-    def test_dir_stats(self):
-        pass
-
-
 
 
 class SurvolLocalOntologiesTest(unittest.TestCase):
