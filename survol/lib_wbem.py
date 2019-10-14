@@ -4,6 +4,8 @@ import sys
 import socket
 import pywbem # Might be pywbem or python3-pywbem.
 import lib_util
+import lib_kbase
+import lib_properties
 import lib_common
 import lib_credentials
 
@@ -572,35 +574,45 @@ class WbemSparqlCallbackApi:
 
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
         INFO("WbemSparqlCallbackApi.CallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
-        # assert class_name
+        assert class_name
+       
+        # This comes from such a Sparql triple: " ?variable rdf:type rdf:type"
+        if class_name == "type":
+            return
+       
+        wbem_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
+        DEBUG("WbemSparqlCallbackApi.CallbackSelect wbem_query=%s", wbem_query)
+
+        wbem_objects = self.m_wbem_connection.ExecQuery("WQL", wbem_query, "root/cimv2")
+
+        # This returns a list of CIMInstance.
+        for one_wbem_object in wbem_objects:
+            # dir(one_wbem_object)
+            # ['_CIMComparisonMixin__ordering_deprecated', '__class__', '__contains__', '__delattr__', '__delitem__', '__dict__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_classname', '_cmp', '_path', '_properties', '_property_list', '_qualifiers', 'classname', 'copy', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'path', 'properties', 'property_list', 'qualifiers', 'tocimxml', 'tocimxmlstr', 'tomof', 'update', 'update_existing', 'values']
+
+            # one_wbem_object is a CIMInstanceName
+            # dir(one_wbem_object.path)
+            # ['_CIMComparisonMixin__ordering_deprecated', '__class__', '__contains__', '__delattr__', '__delitem__', '__dict__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__slotnames__', '__str__', '__subclasshook__', '__weakref__', '_classname', '_cmp', '_host', '_kbstr_to_cimval', '_keybindings', '_namespace', 'classname', 'copy', 'from_instance', 'from_wbem_uri', 'get', 'has_key', 'host', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keybindings', 'keys', 'namespace', 'to_wbem_uri', 'tocimxml', 'tocimxmlstr', 'update', 'values']
+
+            object_path = one_wbem_object.path.to_wbem_uri()
+            # u'//vps516494.ovh.net/root/cimv2:PG_UnixProcess.CSName="vps516494.localdomain",Handle="1",OSCreationClassName="CIM_OperatingSystem",CreationClassName="PG_UnixProcess",CSCreationClassName="CIM_UnitaryComputerSystem",OSName="Fedora"'
+
+
+            DEBUG ("object.path=%s", object_path)
+            dict_key_values = {}
+            for wbem_key, wbem_value in one_wbem_object.iteritems():
+                dict_key_values[wbem_key] = wbem_value
         #
-        # # This comes from such a Sparql triple: " ?variable rdf:type rdf:type"
-        # if class_name == "type":
-        #     return
-        #
-        # wbem_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
-        # WARNING("WbemSparqlCallbackApi.CallbackSelect wbem_query=%s", wbem_query)
-        #
-        # wmi_objects = self.m_wbem_connection.query(wbem_query)
-        #
-        # for one_wmi_object in wmi_objects:
-        #     # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
-        #     object_path = str(one_wmi_object.path())
-        #     DEBUG ("object.path=%s", object_path)
-        #     list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
-        #     dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
-        #
-        #     dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
-        #     # Add it again, so the original Sparql query will work.
-        #     dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
-        #
+            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WBEM")
+            # Add it again, so the original Sparql query will work.
+            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WBEM")
+
         #     # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
-        #     dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
-        #
-        #     DEBUG("dict_key_values=%s", dict_key_values)
-        #     # object_path_node = lib_util.NodeUrl(object_path)
-        #     lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
-        #     yield (object_path, dict_key_values)
+            dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
+
+            DEBUG("dict_key_values=%s", dict_key_values)
+            lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
+            yield (object_path, dict_key_values)
 
     def CallbackAssociator(
             self,
