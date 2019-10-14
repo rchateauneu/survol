@@ -434,7 +434,7 @@ def GetClassesTree(conn,theNamSpace):
     for klass in klasses:
         # This does not work. WHY ?
         # tree_classes.get( klass.superclass, [] ).append( klass )
-        sys.stderr.write("klass=%s super=%s\n" % ( klass.classname, klass.superclass ) )
+        DEBUG("klass=%s super=%s", klass.classname, klass.superclass)
         try:
             tree_classes[klass.superclass].append(klass)
         except KeyError:
@@ -537,7 +537,7 @@ def ExtractRemoteWbemOntology(wbem_connection):
         for class_object in class_array:
             class_name = class_object.classname
 
-            sys.stderr.write("class_name=%s\n" % class_name)
+            DEBUG("class_name=%s", class_name)
             if super_class_name:
                 top_class_name = super_class_name
                 concat_class_name = super_class_name + "." + class_name
@@ -559,7 +559,6 @@ def ExtractRemoteWbemOntology(wbem_connection):
                     "predicate_type": "string",
                     "predicate_description": "Attribute WBEM %s" % key_name,
                     "predicate_domain": concat_class_name}
-                # sys.stderr.write("concat_class_name=%s key_name=%s\n" % (concat_class_name, key_name))
 
     return map_classes, map_attributes
 
