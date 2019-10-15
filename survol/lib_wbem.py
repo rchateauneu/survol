@@ -6,7 +6,7 @@ import pywbem # Might be pywbem or python3-pywbem.
 import lib_util
 import lib_kbase
 import lib_properties
-# import lib_common
+import lib_common
 import lib_credentials
 
 ################################################################################
