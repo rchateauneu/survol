@@ -102,8 +102,8 @@ class SparqlCallWmiTest(unittest.TestCase):
     def test_wmi_query(self):
 
         dict_query_to_output_wmi =[
+            # FIXME: This first query is absurd because the_pid is not defined.
             ("""
-            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
@@ -116,7 +116,6 @@ class SparqlCallWmiTest(unittest.TestCase):
                ]
             ),
             ("""
-            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
@@ -129,7 +128,6 @@ class SparqlCallWmiTest(unittest.TestCase):
                ]
             ),
             ("""
-            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
@@ -174,7 +172,6 @@ class SparqlCallWmiTest(unittest.TestCase):
         """This inserts the evaluation into a RDF triplestore. """
 
         sparql_query = """
-            PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT *
             WHERE
