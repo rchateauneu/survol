@@ -168,6 +168,9 @@ else:
     six_text_type = unicode
     six_binary_type = str
 
+# Add all usual Python types.
+scalar_data_types = six_string_types + ( six_text_type, six_binary_type ) + six_integer_types
+
 ################################################################################
 
 def NodeLiteral(value):
