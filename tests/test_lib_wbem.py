@@ -15,6 +15,7 @@ update_test_path()
 # This is what we want to test.
 import lib_wbem
 import lib_kbase
+import lib_properties
 
 ################################################################################
 
@@ -64,16 +65,41 @@ class LibWbemTest(unittest.TestCase):
 
 
         # object.path=//vps516494.ovh.net/root/cimv2:PG_UnixProcess.CSName="vps516494.localdomain",Handle="23446",OSCreationClassName="CIM_OperatingSystem",CreationClassName="PG_UnixProcess",CSCreationClassName="CIM_UnitaryComputerSystem",OSName="Fedora"
-        # dict_key_values={u'Parameters': [u'/usr/bin/python2'], rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): rdflib.term.URIRef(u'http://primhillcomputers.com/survol#CIM_Process'), u'CSName': u'vps516494.localdomain', u'RealUserID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 1001), u'OSName': u'Fedora', u'Priority': Uint32(cimtype='uint32', minvalue=0, maxvalue=4294967295, 20), u'OtherExecutionDescription': None, u'ProcessNiceValue': Uint32(cimtype='uint32', minvalue=0, maxvalue=4294967295, 0), u'Handle': u'23446', u'Description': u'/usr/bin/python2', u'OSCreationClassName': u'CIM_OperatingSystem', u'WorkingSetSize': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 0), u'Name': u'pytest', u'ProcessGroupID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 1001), u'ProcessTTY': u'34818', u'Caption': u'pytest', u'ProcessSessionID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 30088), rdflib.term.URIRef(u'http://www.w3.org/2000/01/rdf-schema#seeAlso'): rdflib.term.Literal(u'WBEM'), u'KernelModeTime': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 15000), u'ParentProcessID': u'30088', u'ExecutionState': Uint16(cimtype='uint16', minvalue=0, maxvalue=65535, 6), u'CSCreationClassName': u'CIM_UnitaryComputerSystem', u'UserModeTime': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 79000), rdflib.term.URIRef(u'http://www.w3.org/2000/01/rdf-schema#isDefinedBy'): rdflib.term.Literal(u'WBEM'), u'CreationClassName': u'PG_UnixProcess'}
+        # dict_key_values={
+        # u'Parameters': [u'/usr/bin/python2'],
+        # rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): rdflib.term.URIRef(u'http://primhillcomputers.com/survol#CIM_Process'),
+        # u'CSName': u'vps516494.localdomain', u'RealUserID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 1001),
+        # u'OSName': u'Fedora', u'Priority': Uint32(cimtype='uint32', minvalue=0, maxvalue=4294967295, 20),
+        # u'OtherExecutionDescription': None,
+        # u'ProcessNiceValue': Uint32(cimtype='uint32', minvalue=0, maxvalue=4294967295, 0),
+        # u'Handle': u'23446', u'Description': u'/usr/bin/python2',
+        # u'OSCreationClassName': u'CIM_OperatingSystem',
+        # u'WorkingSetSize': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 0),
+        # u'Name': u'pytest',
+        # u'ProcessGroupID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 1001), u'ProcessTTY': u'34818',
+        # u'Caption': u'pytest',
+        # u'ProcessSessionID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 30088),
+        # rdflib.term.URIRef(u'http://www.w3.org/2000/01/rdf-schema#seeAlso'): rdflib.term.Literal(u'WBEM'),
+        # u'KernelModeTime': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 15000),
+        # u'ParentProcessID': u'30088', u'ExecutionState': Uint16(cimtype='uint16', minvalue=0, maxvalue=65535, 6),
+        # u'CSCreationClassName': u'CIM_UnitaryComputerSystem',
+        # u'UserModeTime': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 79000),
+        # rdflib.term.URIRef(u'http://www.w3.org/2000/01/rdf-schema#isDefinedBy'): rdflib.term.Literal(u'WBEM'),
+        # u'CreationClassName': u'PG_UnixProcess'}
 
-        for object_path, dict_key_values in list_objects:
-            DEBUG(object_path)
-            DEBUG(dict_key_values)
-        self.assertTrue(len(list_objects) == 1)
-        one_path, one_dict = list_objects[0]
-        self.assertTrue(one_dict['Handle'] == str(CurrentPid))
-        self.assertTrue(one_dict['ParentProcessID'] == str(CurrentParentPid))
-        self.assertTrue(one_dict['CSCreationClassName'] == 'CIM_UnitaryComputerSystem')
+        # Similar function in test_lib_wmi.py
+        def GetElementAsString(property_name):
+            property_node = lib_properties.MakeProp(property_name)
+            value_node = list_objects[property_node]
+            value_literal = str(value_node)
+            return value_literal
+
+        self.assertTrue(GetElementAsString('Handle') == str(CurrentPid))
+        self.assertTrue(GetElementAsString('ProcessId') == str(CurrentPid))
+        # Spelled "ParentProcessId" in WMI.
+        self.assertTrue(GetElementAsString('ParentProcessID') == str(CurrentParentPid))
+        self.assertTrue(GetElementAsString('CSCreationClassName') == 'CIM_UnitaryComputerSystem')
+
 
     @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported.")
     def test_sparql_callback_associator(self):
