@@ -6,7 +6,7 @@ import pywbem # Might be pywbem or python3-pywbem.
 import lib_util
 import lib_kbase
 import lib_properties
-import lib_common
+# import lib_common
 import lib_credentials
 
 ################################################################################
@@ -564,6 +564,32 @@ def ExtractRemoteWbemOntology(wbem_connection):
 
     return map_classes, map_attributes
 
+# This is conceptually similar to WmiKeyValues
+def WbemKeyValues(key_value_items, display_none_values = False):
+    dict_key_values = {}
+    for wbem_key_name, wbem_value_literal in key_value_items:
+        wbem_property = lib_properties.MakeProp(wbem_key_name)
+        if isinstance(wbem_value_literal, lib_util.scalar_data_types):
+            wbem_value_node = lib_common.NodeLiteral(wbem_value_literal)
+        elif isinstance( wbem_value_literal, (tuple)):
+            tuple_joined = " ; ".join(wbem_value_literal)
+            wbem_value_node = lib_common.NodeLiteral(tuple_joined)
+        elif wbem_value_literal is None:
+            if display_none_values:
+                wbem_value_node = lib_common.NodeLiteral("None")
+        else:
+            wbem_value_node = lib_common.NodeLiteral("type="+str(type(wbem_value_literal)) + ":" + str(wbem_value_literal))
+            #try:
+            #    refMoniker = str(wbem_value_literal.path())
+            #    instance_url = lib_util.EntityUrlFromMoniker(refMoniker)
+            #    wbem_value_node = lib_common.NodeUrl(instance_url)
+            #except AttributeError as exc:
+            #    wbem_value_node = lib_common.NodeLiteral(str(exc))
+
+        dict_key_values[wbem_property] = wbem_value_node
+    return dict_key_values
+
+
 # This is used to execute a Sparql query on WBEM objects.
 class WbemSparqlCallbackApi:
     def __init__(self):
@@ -597,12 +623,9 @@ class WbemSparqlCallbackApi:
             object_path = one_wbem_object.path.to_wbem_uri()
             # u'//vps516494.ovh.net/root/cimv2:PG_UnixProcess.CSName="vps516494.localdomain",Handle="1",OSCreationClassName="CIM_OperatingSystem",CreationClassName="PG_UnixProcess",CSCreationClassName="CIM_UnitaryComputerSystem",OSName="Fedora"'
 
-
             DEBUG ("object.path=%s", object_path)
-            dict_key_values = {}
-            for wbem_key, wbem_value in one_wbem_object.iteritems():
-                dict_key_values[wbem_key] = wbem_value
-        #
+            dict_key_values = WbemKeyValues(one_wbem_object.iteritems())
+
             dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WBEM")
             # Add it again, so the original Sparql query will work.
             dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WBEM")

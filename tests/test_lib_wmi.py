@@ -15,7 +15,7 @@ update_test_path()
 # This is what we want to test.
 import lib_wmi
 import lib_kbase
-import lib_common
+import lib_properties
 
 ################################################################################
 
@@ -100,7 +100,7 @@ class LibWmiTest(unittest.TestCase):
         one_path, one_dict = list_objects[0]
 
         def GetElementAsString(property_name):
-            property_node = lib_common.MakeProp(property_name)
+            property_node = lib_properties.MakeProp(property_name)
             value_node = one_dict[property_node]
             value_literal = str(value_node)
             return value_literal
