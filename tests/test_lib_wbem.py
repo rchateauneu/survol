@@ -63,6 +63,12 @@ class LibWbemTest(unittest.TestCase):
         iterator_objects = callback_object.CallbackSelect(grph, "CIM_Process", "WBEM", filtered_where_key_values)
         list_objects = list(iterator_objects)
 
+        for object_path, dict_key_values in list_objects:
+            DEBUG(object_path)
+            DEBUG(dict_key_values)
+            print(object_path)
+            print(dict_key_values)
+        self.assertTrue(len(list_objects) == 1)
 
         # object.path=//vps516494.ovh.net/root/cimv2:PG_UnixProcess.CSName="vps516494.localdomain",Handle="23446",OSCreationClassName="CIM_OperatingSystem",CreationClassName="PG_UnixProcess",CSCreationClassName="CIM_UnitaryComputerSystem",OSName="Fedora"
         # dict_key_values={
@@ -90,12 +96,11 @@ class LibWbemTest(unittest.TestCase):
         # Similar function in test_lib_wmi.py
         def GetElementAsString(property_name):
             property_node = lib_properties.MakeProp(property_name)
-            value_node = list_objects[property_node]
+            value_node = dict_key_values[property_node]
             value_literal = str(value_node)
             return value_literal
 
         self.assertTrue(GetElementAsString('Handle') == str(CurrentPid))
-        self.assertTrue(GetElementAsString('ProcessId') == str(CurrentPid))
         # Spelled "ParentProcessId" in WMI.
         self.assertTrue(GetElementAsString('ParentProcessID') == str(CurrentParentPid))
         self.assertTrue(GetElementAsString('CSCreationClassName') == 'CIM_UnitaryComputerSystem')
