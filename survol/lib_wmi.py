@@ -528,7 +528,8 @@ def ExtractWmiOntologyLocal():
                 only_read = prop_obj.qualifiers['read']
             except:
                 only_read = False
-            if not only_read:
+            # if not only_read:
+            if only_read:
                 map_attributes[prop_obj.name] = {
                     "predicate_type": prop_obj.type,
                     "predicate_domain": class_name }
@@ -553,9 +554,6 @@ def ExtractWmiOntologyLocal():
     return map_classes, map_attributes
 
 ################################################################################
-
-# Add all usual Python types.
-scalarDataTypes = lib_util.six_string_types + ( lib_util.six_text_type, lib_util.six_binary_type ) + lib_util.six_integer_types
 
 # This is a hard-coded list of properties which cannot be displayed.
 # They should be stored in the class directory. This is a temporary hack
@@ -667,7 +665,7 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
             yield( prpProp, nodeGUID )
             continue
 
-        if isinstance( value, scalarDataTypes ):
+        if isinstance( value, lib_util.scalar_data_types):
             # Special backslash replacement otherwise:
             # "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
             # TODO: Why not CGI escaping ?
@@ -768,9 +766,7 @@ class WmiSparqlCallbackApi:
                 associator_key_name)
         assert wmi_path_full
 
-        # wmi_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
-        # wmi_path_full = str(subject_path_node)
-        # wmi_path_full = subject_path
+        # wmi_path_full = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
         dummy, colon, wmi_path = wmi_path_full.partition(":")
         WARNING("WmiCallbackAssociator wmi_path=%s", wmi_path)
 
@@ -818,7 +814,7 @@ class WmiSparqlCallbackApi:
 
     # This returns the available types
     def CallbackTypes(self, grph, see_also):
-        WARNING("CallbackTypes")
+        DEBUG("CallbackTypes")
 
         # Data stored in a cache for later use.
         if self.m_classes == None:
