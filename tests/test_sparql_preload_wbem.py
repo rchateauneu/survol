@@ -28,19 +28,45 @@ import lib_sparql
 import lib_util
 import lib_properties
 import lib_kbase
-import lib_wmi
+import lib_wbem
 import lib_sparql_callback_survol
 
 
 
 ################################################################################
 
+try:
+    objectWbemSparqlCallbackApi = lib_wbem.WbemSparqlCallbackApi()
+except:
+    objectWbemSparqlCallbackApi = None
 
 class SparqlCallWbemTest(unittest.TestCase):
+    @staticmethod
+    def __run_wbem_query(sparql_query):
+        list_dict_objects = QueryKeyValuePairs(sparql_query, objectWbemSparqlCallbackApi )
+        print("list_dict_objects len=",len(list_dict_objects))
+        return list_dict_objects
 
-    @unittest.skipIf(not pkgutil.find_loader('wbem'), "wbem cannot be imported. test_wbem_query not executed.")
-    def test_wbem_query(self):
-        pass
+    # @unittest.skipIf(not pkgutil.find_loader('wbem'), "wbem cannot be imported. test_wbem_query not executed.")
+
+    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_ontology_wbem not executed.")
+    def test_wbem_all_processes(self):
+
+        sparql_query ="""
+            PREFIX wbem:  <http://www.primhillcomputers.com/ontology/wbem#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?the_pid
+            WHERE
+            { ?url_proc survol:Handle ?the_pid .
+              ?url_proc rdf:type survol:CIM_Process .
+            }
+            """
+
+        print(sparql_query)
+
+        # TODO: Pass several callbacks, processed in a specific order ?
+        list_dict_objects = SparqlCallWbemTest.__run_wbem_query(sparql_query)
+
 
 
 if __name__ == '__main__':
