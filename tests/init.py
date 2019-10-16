@@ -243,6 +243,7 @@ def WsgiAgentStop(agent_process):
 
 update_test_path()
 
+import lib_util
 import lib_kbase
 import lib_sparql
 import lib_properties
