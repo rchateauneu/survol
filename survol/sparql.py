@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Mandatory SPARQL end-point
@@ -19,8 +19,8 @@ import lib_common
 import lib_kbase
 import lib_sparql
 import lib_wmi
+import lib_wbem
 import lib_sparql_callback_survol
-import lib_export_ontology
 
 # For the moment, it just displays the content of the input to standard error,
 # so the SparQL protocol can be analysed.
@@ -101,8 +101,12 @@ def Main():
     sparql_query = arguments["query"].value
 
     # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/2.7.10'
+    # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/3.6.3'
+    sys.stderr.write("SERVER=%s\n" % os.environ['SERVER_SOFTWARE'])
     if os.environ['SERVER_SOFTWARE'].startswith("SimpleHTTP"):
-        sparql_query = re.sub("([^a-z]*)http:/([^a-z]*)", r"\1http://\2", sparql_query)
+        # Beware, only with Python2.
+        if sys.version_info < (3,):
+            sparql_query = re.sub("([^a-z]*)http:/([^a-z]*)", r"\1http://\2", sparql_query)
 
     sys.stderr.write("sparql_server sparql_query=%s\n" % sparql_query.replace(" ","="))
 
@@ -117,30 +121,13 @@ def Main():
 
     prefix_to_callbacks = {
         "WMI": lib_wmi.WmiSparqlCallbackApi(),
+        "WBEM": lib_wbem.WbemSparqlCallbackApi(),
         "survol": lib_sparql_callback_survol.SurvolSparqlCallbackApi(),
     }
 
     objectUnitTestCallbackApi = lib_sparql.SwitchCallbackApi(prefix_to_callbacks)
 
     lib_sparql.QueryToGraph(grph, sparql_query, objectUnitTestCallbackApi )
-
-    # See lib_common.py : This added to any RDF document.
-    ###########lib_export_ontology.Grph2Rdf(grph)
-
-    # At this stage, we must run the Sparql query on the generated RDF triplestore.
-
-    # envSparql.WriteTripleStoreAsString(grph)
-
-    # qres = g.query(
-    #     """SELECT DISTINCT ?aname ?bname
-    #        WHERE {
-    #           ?a foaf:knows ?b .
-    #           ?a foaf:name ?aname .
-    #           ?b foaf:name ?bname .
-    #        }""")
-    #
-    # for row in qres:
-    #     print("%s knows %s" % row)
 
     sys.stderr.write("Before query len(grph)=%d\n" % len(grph))
     for s,p,o in grph:
@@ -150,8 +137,6 @@ def Main():
     query_result = grph.query(sparql_query)
     sys.stderr.write("sparql_server After query len(query_result)=%d\n" % len(query_result))
     sys.stderr.write("sparql_server After query query_result=%s\n" % str(query_result))
-
-    #exit(0)
 
     # TODO: This does not work "select *", so maybe should read the first row.
     row_header = lib_sparql.QueryHeader(sparql_query)
