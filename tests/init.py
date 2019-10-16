@@ -111,7 +111,8 @@ def is_linux_wbem():
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 def update_test_path():
-    sys.path.insert(0,"../survol")
+    if sys.path[0] != "../survol":
+        sys.path.insert(0,"../survol")
 
 # This defines a file which is present on all platforms.
 if is_platform_linux:
@@ -238,3 +239,61 @@ def WsgiAgentStop(agent_process):
         agent_process.terminate()
         agent_process.join()
 
+################################################################################
+
+update_test_path()
+
+import lib_kbase
+import lib_sparql
+import lib_properties
+
+# The query function from lib_sparql module, returns RDF nodes.
+# This is not very convenient to test.
+# Therefore, for tests, this is a helper function which returns dict of strings,
+# which are easier to compare.
+def QueriesEntitiesToValuePairs(iter_entities_dicts):
+    for one_entities_dict in iter_entities_dicts:
+
+        one_entities_dict_qname = {}
+        for variable_name, one_entity in one_entities_dict.items():
+            #print("QueriesEntitiesToValuePairs one_entity=", one_entity)
+
+            # Special attribute for debugging.
+            dict_qname_value = {"__class__": one_entity.m_entity_class_name}
+            for key_node, val_node in one_entity.m_predicate_object_dict.items():
+                qname_key = lib_properties.PropToQName(key_node)
+                str_val = str(val_node)
+                dict_qname_value[qname_key] = str_val
+            one_entities_dict_qname[variable_name] = dict_qname_value
+        yield one_entities_dict_qname
+
+def QueryKeyValuePairs(sparql_query, sparql_callback):
+    iter_entities_dicts = lib_sparql.QueryEntities(None, sparql_query, sparql_callback)
+    list_entities_dicts = list(iter_entities_dicts)
+    iter_dict_objects = QueriesEntitiesToValuePairs(list_entities_dicts)
+    list_dict_objects = list(iter_dict_objects)
+    return list_dict_objects
+
+
+def QuerySeeAlsoKeyValuePairs(grph, sparql_query, sparql_callback):
+    WARNING("QuerySeeAlsoKeyValuePairs")
+    iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query, sparql_callback)
+    iter_dict_objects = QueriesEntitiesToValuePairs(iter_entities_dicts)
+    list_dict_objects = list(iter_dict_objects)
+    return list_dict_objects
+
+
+def UrlToRdf(url_rdf):
+    print("url_rdf=",url_rdf)
+
+    response = lib_util.survol_urlopen(url_rdf)
+    doc_xml_rdf = response.read().decode("utf-8")
+
+    print("doc_xml_rdf=",doc_xml_rdf)
+
+    # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
+    # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
+    grphKBase = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
+    return grphKBase
+
+################################################################################
