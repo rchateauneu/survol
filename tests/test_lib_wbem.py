@@ -83,16 +83,11 @@ class LibWbemTest(unittest.TestCase):
         # u'Parameters': [u'/usr/bin/python2'],
         # rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): rdflib.term.URIRef(u'http://primhillcomputers.com/survol#CIM_Process'),
         # u'CSName': u'vps516494.localdomain', u'RealUserID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 1001),
-        # u'OSName': u'Fedora', u'Priority': Uint32(cimtype='uint32', minvalue=0, maxvalue=4294967295, 20),
-        # u'OtherExecutionDescription': None,
         # u'ProcessNiceValue': Uint32(cimtype='uint32', minvalue=0, maxvalue=4294967295, 0),
         # u'Handle': u'23446', u'Description': u'/usr/bin/python2',
         # u'OSCreationClassName': u'CIM_OperatingSystem',
-        # u'WorkingSetSize': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 0),
         # u'Name': u'pytest',
-        # u'ProcessGroupID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 1001), u'ProcessTTY': u'34818',
         # u'Caption': u'pytest',
-        # u'ProcessSessionID': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 30088),
         # rdflib.term.URIRef(u'http://www.w3.org/2000/01/rdf-schema#seeAlso'): rdflib.term.Literal(u'WBEM'),
         # u'KernelModeTime': Uint64(cimtype='uint64', minvalue=0, maxvalue=18446744073709551615, 15000),
         # u'ParentProcessID': u'30088', u'ExecutionState': Uint16(cimtype='uint16', minvalue=0, maxvalue=65535, 6),
@@ -118,16 +113,12 @@ class LibWbemTest(unittest.TestCase):
         # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#OperationalStatus'): rdflib.term.Literal(u"type=<type 'list'>:[Uint16(cimtype='uint16', minvalue=0, maxvalue=65535, 2)]"), 
         # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#ElementName'): rdflib.term.Literal(u'Computer System'), 
         # rdflib.term.URIRef(u'http://www.w3.org/2000/01/rdf-schema#isDefinedBy'): rdflib.term.Literal(u'WBEM'), 
-        # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#CreationClassName'): rdflib.term.Literal(u'PG_ComputerSystem'), rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): rdflib.term.URIRef(u'http://primhillcomputers.com/survol#CIM_ComputerSystem'), 
-        # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#PowerState'): rdflib.term.Literal(u'1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer')), 
+        # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#CreationClassName'): rdflib.term.Literal(u'PG_ComputerSystem'),
+        # rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): rdflib.term.URIRef(u'http://primhillcomputers.com/survol#CIM_ComputerSystem'), 
         # rdflib.term.URIRef(u'http://www.w3.org/2000/01/rdf-schema#seeAlso'): rdflib.term.Literal(u'WBEM'), 
-        # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#PowerManagementCapabilities'): rdflib.term.Literal(u"type=<type 'list'>:[Uint16(cimtype='uint16', minvalue=0, maxvalue=65535, 1)]"), 
         # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#Caption'): rdflib.term.Literal(u'Computer System'), 
-        # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#PowerManagementSupported'): rdflib.term.Literal(u'false', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#boolean')), 
         # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#NameFormat'): rdflib.term.Literal(u'Other'), 
         # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#Name'): rdflib.term.Literal(u'vps516494.ovh.net'), 
-        # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#Description'): rdflib.term.Literal(u'Linux version 4.11.8-300.fc26.x86_64 (mockbuild@bkernel02.phx2.fedoraproject.org) (gcc version 7.1.1 20170622 (Red Hat 7.1.1-3) (GCC) ) #1 SMP Thu Jun 29 20:09:48 UTC 2017')}
-
 
         iterator_objects = callback_object.CallbackSelect(grph, "CIM_ComputerSystem", "WBEM", filtered_where_key_values)
         list_objects = list(iterator_objects)
@@ -147,7 +138,6 @@ class LibWbemTest(unittest.TestCase):
             wbemIP = socket.gethostbyname(wbemHostname)
             self.assertTrue(wbemIP == currentIP)
 
-
     # Note: The class CIM_DataFile with the property Name triggers the exception message:
     # "CIMError: 7: CIM_ERR_NOT_SUPPORTED: No provider or repository defined for class"
 
@@ -157,12 +147,13 @@ class LibWbemTest(unittest.TestCase):
         grph = lib_kbase.MakeGraph()
         iterator_objects = callback_object.CallbackAssociator(
                 grph,
-                "result_class_name",
-                "WBEM",
-                "associator_key_name",
-                r'//%s/root/cimv2:Win32_Process.Handle="%s"' % (CurrentMachine, CurrentPid))
+                result_class_name="CIM_Process",
+                predicate_prefix="WBEM",
+                associator_key_name="CIM_ComputerSystem",
+                subject_path=r'//%s/root/cimv2:CIM_ComputerSystem.Name="%s"' % (CurrentMachine, CurrentMachine))
         for object_path, dict_key_values in iterator_objects:
-            pass
+            DEBUG("object_path=%s", object_path)
+            DEBUG("dict_key_values=%s", istr(dict_key_values))
 
     @unittest.skipIf(not is_linux_wbem(), "WBEM not usable here")
     def test_sparql_callback_types(self):

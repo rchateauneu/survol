@@ -598,6 +598,8 @@ class WbemSparqlCallbackApi:
 
         self.m_classes = None
 
+    # Note: The class CIM_DataFile with the property Name triggers the exception message:
+    # "CIMError: 7: CIM_ERR_NOT_SUPPORTED: No provider or repository defined for class"
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
         INFO("WbemSparqlCallbackApi.CallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
         assert class_name
@@ -643,48 +645,28 @@ class WbemSparqlCallbackApi:
             result_class_name,
             predicate_prefix,
             associator_key_name,
-            wbem_path_full):
-        INFO("WbemSparqlCallbackApi.CallbackAssociator wbem_path_full=%s result_class_name=%s associator_key_name=%s",
-                wbem_path_full,
+            subject_path):
+        INFO("WbemSparqlCallbackApi.CallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
+                subject_path,
                 result_class_name,
                 associator_key_name)
-        assert wbem_path_full
+        assert subject_path
 
-        # # wmi_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
-        # # wmi_path_full = str(subject_path_node)
-        # # wmi_path_full = subject_path
-        # dummy, colon, wbem_path = wbem_path_full.partition(":")
-        # WARNING("CallbackAssociator wmi_path=%s", wmi_path)
-        #
-        # # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
-        # # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
-        # wbem_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % (
-        # wmi_path, associator_key_name, result_class_name)
-        #
-        # WARNING("CallbackAssociator wmi_query=%s", wmi_query)
-        #
-        # wbem_objects = self.m_wmi_connection.query(wmi_query)
-        #
-        # for one_wbem_object in wbem_objects:
-        #     # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
-        #     object_path = str(one_wmi_object.path())
-        #     DEBUG("WmiCallbackAssociator one_wmi_object.path=%s", object_path)
-        #     list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
-        #     dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
-        #
-        #     dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
-        #     # Add it again, so the original Sparql query will work.
-        #     dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
-        #
-        #     # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
-        #     # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
-        #     # o=http://primhillcomputers.com/survol/Win32_UserAccount
-        #     dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
-        #
-        #     DEBUG("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
-        #     # object_path_node = lib_util.NodeUrl(object_path)
-        #     lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
-        #     yield (object_path, dict_key_values)
+        # https://pywbem.readthedocs.io/en/latest/client/operations.html#pywbem.WBEMConnection.Associators
+        instances_associators = self.m_wbem_connection.Associators(
+            ObjectName=subject_path,
+            AssocClass=associator_key_name,
+            ResultClass=None, # ResultClass=result_class_name,
+            Role=None,
+            ResultRole=None,
+            IncludeQualifiers=None,
+            IncludeClassOrigin=None,
+            PropertyList=None)
+
+        for one_instance in instances_associators:
+            print("Instance=", one_instance)
+            yield one_instance
+
 
     # This returns the available types
     def CallbackTypes(self, grph, see_also):
