@@ -758,16 +758,16 @@ class WmiSparqlCallbackApi:
         result_class_name,
         predicate_prefix,
         associator_key_name,
-        wmi_path_full):
+        subject_path):
         # subject_path_node as previously returned by WmiCallbackSelect
-        WARNING("WmiCallbackAssociator wmi_path_full=%s result_class_name=%s associator_key_name=%s",
-                wmi_path_full,
+        WARNING("WmiCallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
+                subject_path,
                 result_class_name,
                 associator_key_name)
-        assert wmi_path_full
+        assert subject_path
 
-        # wmi_path_full = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
-        dummy, colon, wmi_path = wmi_path_full.partition(":")
+        # subject_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
+        dummy, colon, wmi_path = subject_path.partition(":")
         WARNING("WmiCallbackAssociator wmi_path=%s", wmi_path)
 
         # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
