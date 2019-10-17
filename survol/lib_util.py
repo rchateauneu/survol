@@ -849,6 +849,14 @@ def CopyFile( mime_type, file_name):
     globalOutMach.HeaderWriter( mime_type )
 
     outFd = globalOutMach.OutStream()
+
+    # https://stackoverflow.com/questions/2374427/python-2-x-write-binary-output-to-stdout
+    if is_apache_server():
+        if isPlatformWindows:
+            if sys.version_info < (3,):
+                import os, msvcrt
+                msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+
     # This is a bit tricky for WSGI if an error occurs:
     # The header must always be sent before the content, and once only.
     # os.environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
@@ -1427,8 +1435,13 @@ def is_wsgi_server():
         try:
             is_wsgi_server_data = os.environ["SERVER_SOFTWARE"].startswith("WSGIServer")
         except KeyError:
+            # FIXME: This is wrong, because it assumes that default server is WSGI.
             is_wsgi_server_data = "DefaultServerSoftware"
     return is_wsgi_server_data
+
+def is_apache_server():
+    return os.environ["SERVER_SOFTWARE"].startswith("Apache/")
+
 
 # or os.environ["SERVER_SOFTWARE"].startswith("Apache/")
 
@@ -1470,11 +1483,12 @@ def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
 
     # Python 3.2
     try:
+        # WSGI server and Py3, Apache and Py2.
         out_dest.write( stri )
         return
     except TypeError:
         pass
-
+    # This is needed for the CGI server and Python 3.
     out_dest.write( stri.encode() )
 
 def WrtHeader(mimeType,extraArgs = None):
