@@ -99,7 +99,7 @@ class LibWmiTest(unittest.TestCase):
                 result_class_name = "CIM_DataFile",
                 predicate_prefix = "WBEM",
                 associator_key_name = "CIM_ProcessExecutable",
-                wmi_path_full = r'\\%s\root\cimv2:CIM_Process.Handle=%s' % (CurrentMachine, CurrentPid))
+                subject_path = r'\\%s\root\cimv2:CIM_Process.Handle=%s' % (CurrentMachine, CurrentPid))
 
         # Example: Only some properties are displayed.
         # {
@@ -144,7 +144,7 @@ class LibWmiTest(unittest.TestCase):
                 result_class_name = "Win32_ComputerSystem",
                 predicate_prefix = "WBEM",
                 associator_key_name = "Win32_SystemDevices",
-                wmi_path_full = r'\\%s\root\cimv2:Win32_LogicalDisk.DeviceID="C:"' % CurrentMachine)
+                subject_path = r'\\%s\root\cimv2:Win32_LogicalDisk.DeviceID="C:"' % CurrentMachine)
 
         list_objects = list(iterator_objects)
         self.assertTrue(len(list_objects) == 1)
