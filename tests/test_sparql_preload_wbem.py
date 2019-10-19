@@ -44,17 +44,14 @@ class SparqlCallWbemTest(unittest.TestCase):
     @staticmethod
     def __run_wbem_query(sparql_query):
         list_dict_objects = QueryKeyValuePairs(sparql_query, objectWbemSparqlCallbackApi )
-        print("list_dict_objects len=",len(list_dict_objects))
+        assert isinstance(list_dict_objects, list)
+        INFO("list_dict_objects len=%d", len(list_dict_objects))
         return list_dict_objects
 
-    # @unittest.skipIf(not pkgutil.find_loader('wbem'), "wbem cannot be imported. test_wbem_query not executed.")
-
-    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_ontology_wbem not executed.")
+    @unittest.skipIf(not is_linux_wbem(), "WBEM not on this machine. Test skipped.")
     def test_wbem_all_processes(self):
 
         sparql_query ="""
-            PREFIX wbem:  <http://www.primhillcomputers.com/ontology/wbem#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?the_pid
             WHERE
             { ?url_proc survol:Handle ?the_pid .
@@ -62,10 +59,44 @@ class SparqlCallWbemTest(unittest.TestCase):
             }
             """
 
-        print(sparql_query)
+        INFO("query=%s", sparql_query)
 
-        # TODO: Pass several callbacks, processed in a specific order ?
+        # This returns a list of dict(input_key => tuple_result)
         list_dict_objects = SparqlCallWbemTest.__run_wbem_query(sparql_query)
+        for dict_object in list_dict_objects:
+            # dict_object={'url_proc': {'ParentProcessID': '1', 'OSName': 'Fedora', 'CreationClassName': 'PG_UnixProcess'}}
+
+            DEBUG("dict_object=%s", str(dict_object))
+            self.assertTrue('url_proc' in dict_object)
+            proc_object = dict_object['url_proc']
+            self.assertTrue(proc_object['CreationClassName'] == 'PG_UnixProcess')
+            self.assertTrue(proc_object['__class__'] == 'CIM_Process')
+
+
+    @unittest.skipIf(not is_linux_wbem(), "WBEM not on this machine. Test skipped.")
+    @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_ontology_wbem not executed.")
+    def test_wbem_all_computers(self):
+
+        sparql_query ="""
+            SELECT ?computer_name
+            WHERE
+            { ?url_computer survol:Name ?computer_name .
+              ?url_computer rdf:type survol:CIM_ComputerSystem .
+            }
+            """
+
+        INFO("query=%s", sparql_query)
+
+        # This returns a list of dict(input_key => tuple_result)
+        list_dict_objects = SparqlCallWbemTest.__run_wbem_query(sparql_query)
+        self.assertTrue(len(list_dict_objects) == 1)
+        for dict_object in list_dict_objects:
+
+            DEBUG("dict_object=%s", str(dict_object))
+            self.assertTrue('url_computer' in dict_object)
+            computer_object = dict_object['url_computer']
+            self.assertTrue(computer_object['__class__'] == 'CIM_ComputerSystem')
+
 
 
 
