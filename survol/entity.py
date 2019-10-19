@@ -96,9 +96,10 @@ def Main():
 		if entity_module:
 			try:
 				entity_module.AddInfo( grph, rootNode, entity_ids_arr )
-			except AttributeError:
-				exc = sys.exc_info()[1]
-				INFO("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
+			except AttributeError as exc:
+				INFO("entity.py No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
+			except Exception as exc:
+				INFO("entity.py Unexpected exception for %s %s: %s", entity_type, entity_id, str(exc) )
 	else:
 		INFO("No lib_entities for %s %s", entity_type, entity_id )
 
