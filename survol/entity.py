@@ -111,9 +111,16 @@ def Main():
         # Here, this simply stores the scripts in a graph. The depth is not used yet,
         # but can help debugging.
         def CallbackGrphAdd( tripl, depthCall ):
-            grph.add(tripl)
+            try:
+                grph.add(tripl)
+            except Exception as exc:
+                ERROR("CallbackGrphAdd: tripl=%s exception=%s" % (str(tripl), str(exc)))
+                raise
 
-        entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,entity_id,entity_host,flagShowAll)
+        try:
+            entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,entity_id,entity_host,flagShowAll)
+        except Exception as exc:
+            ERROR("entity.py caught in ForToMenu:%s", exc)
 
         # This adds WBEM and WMI urls related to the current object.
         if entity_type != "":
