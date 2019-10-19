@@ -48,9 +48,6 @@ def EntityOntology():
 def EntityName(entity_ids_arr):
     entity_id = entity_ids_arr[0]
 
-    #if entity_host and entity_host != lib_util.currentHostname:
-    #    return "process id " + entity_id # + "@" + entity_host
-
     # If the process is not there, this is not a problem.
     try:
         # sys.stderr.write("psutil.Process entity_id=%s\n" % ( entity_id ) )
@@ -61,7 +58,6 @@ def EntityName(entity_ids_arr):
         return "Non-existent process:"+entity_id
     except ValueError:
         return "Invalid pid:("+entity_id+")"
-    # sys.stderr.write("entity_label=%s\n" % ( entity_label ) )
 
 def AddLinuxCGroup(node,grph):
     if not lib_util.isPlatformLinux:
@@ -74,7 +70,6 @@ def AddLinuxCGroup(node,grph):
 def AddInfo(grph,node,entity_ids_arr):
     pidProc = entity_ids_arr[0]
     exec_node = None
-    # sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
     grph.add( ( node, pc.property_pid, lib_common.NodeLiteral(pidProc) ) )
     try:
         proc_obj = PsutilGetProcObjNoThrow(int(pidProc))
@@ -116,7 +111,6 @@ def AddInfo(grph,node,entity_ids_arr):
     # Cannot use this exception on some psutil versions
     # AttributeError: 'ModuleWrapper' object has no attribute '_error'
     except Exception as exc:
-        exc = sys.exc_info()[1]
         ERROR("CIM_Process.AddInfo. Caught:%s",exc)
         grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
 
@@ -133,10 +127,8 @@ def Usable(entity_type,entity_ids_arr):
     try:
         # Any error, no display.
         proc_obj = PsutilGetProcObjNoThrow(int(pidProc))
-        # sys.stderr.write("============================ Process HERE\n")
         return True
     except:
-        # sys.stderr.write("============================ Process NOT HERE\n")
         return False
 
 # This must return at least the properties defined in the ontology.
