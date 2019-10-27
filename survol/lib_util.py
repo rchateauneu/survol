@@ -253,7 +253,7 @@ def UriRootHelper():
         # An alternative is to specify the right hostname here.
         #os.environ["SERVER_NAME"] = "LOCALHOST"
         os.environ["SERVER_NAME"] = socket.gethostname().lower()
-        sys.stderr.write("SERVER_NAME=%s FIXED\n" % os.environ["SERVER_NAME"])
+        # sys.stderr.write("SERVER_NAME=%s FIXED\n" % os.environ["SERVER_NAME"])
     try:
         # SCRIPT_NAME=/PythonStyle/survol/internals/print.py
         # SCRIPT_NAME=/survol/print_environment_variables.py
