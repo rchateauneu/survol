@@ -60,6 +60,9 @@ from init import *
 
 
 class DockitParserTest(unittest.TestCase):
+    """
+    Test parsing of strace output.
+    """
 
     # This is a set of arguments of system function calls as displayed by strace or ltrace.
     # This checks if they are correctly parsed.
@@ -418,7 +421,7 @@ class DockitSummaryXMLTest(unittest.TestCase):
 
 class DockitTraceFilesTest(unittest.TestCase):
     """
-    Test the execution of the Dockit script.
+    Test the execution of the Dockit script of trace files.
     """
 
     def test_file_strace_txt(self):
