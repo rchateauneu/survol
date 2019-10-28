@@ -669,8 +669,8 @@ class WbemSparqlCallbackApi:
 
 
     # This returns the available types
-    def CallbackTypes(self, grph, see_also):
-        INFO("CallbackTypes")
+    def CallbackTypes(self, grph, see_also, where_key_values):
+        raise NotImplementedError("CallbackTypes: Not implemented yet")
 
         # # Data stored in a cache for later use.
         # if self.m_classes == None:
@@ -692,3 +692,7 @@ class WbemSparqlCallbackApi:
         #         grph.add((class_node, lib_kbase.PredicateType, lib_kbase.PredicateType))
         #
         #     yield class_path, dict_key_values
+
+    def CallbackTypeTree(self, grph, see_also, associator_subject):
+        raise NotImplementedError("CallbackTypeTree: Not implemented yet")
+
