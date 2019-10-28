@@ -561,6 +561,50 @@ class DockitTraceFilesTest(unittest.TestCase):
                         updateServer = None)
 
 
+class DockitProcessesTest(unittest.TestCase):
+    """
+    Test the execution of the Dockit script from real processes.
+    """
+
+    @unittest.skipIf(not is_platform_linux, "This is not a Linux machine. Test skipped.")
+    def test_strace_ls(self):
+        import subprocess
+        # stdout=FNULL, stderr=subprocess.STDOUT, subprocess.PIPE
+        FNULL = open(os.devnull, 'r')
+        sub_proc = subprocess.Popen(['bash', '-c', 'sleep 10;ls /tmp'],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        INFO("Started process is:%d", sub_proc.pid)
+
+        time.sleep(2.0)
+
+        # Avoids exception: "UnsupportedOperation: redirected stdin is pseudofile, has no fileno()"
+        sys.stdin = open(os.devnull)
+        dockit.UnitTest(
+            inputLogFile = None,
+            tracer="strace",
+            topPid=str(sub_proc.pid),
+            baseOutName=path_prefix_output_result("result_ls_strace"),
+            outputFormat="TXT",
+            verbose=True,
+            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="TXT",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer=None)
+
+        sub_proc.communicate()
+        self.assertTrue(sub_proc.returncode == 0)
+
+        fil_txt = open(path_prefix_output_result("result_ls_strace.txt"))
+        fil_txt.close()
+
+        fil_summary = open(path_prefix_output_result("result_ls_strace.summary.txt"))
+        fil_summary.close()
+
+
+
 if __name__ == '__main__':
     unittest.main()
 
