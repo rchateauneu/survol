@@ -4,9 +4,13 @@ import lib_common
 import lib_kbase
 import lib_client
 import lib_properties
-import entity_dirmenu_only
 
 ##################################################################################
+# This is the implementation of the callback object for the Survol ontology.
+# This callback interface
+# It is less generic than WBEM and WMI because it cannot implement
+# select queries and associators in the general case.
+# However, it is much faster.
 
 class SurvolSparqlCallbackApi:
 
@@ -16,25 +20,25 @@ class SurvolSparqlCallbackApi:
     # Each object is modelled by a key-value dictionary.
     # No need to return the class name because it is an input parameter.
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
-        WARNING("SurvolCallbackSelect class_name=%s predicate_prefix=%s where_key_values=%s",
+        DEBUG("SurvolCallbackSelect class_name=%s predicate_prefix=%s where_key_values=%s",
                 class_name, predicate_prefix, str(filtered_where_key_values))
 
         # Maybe there is a script: predicate_prefix="survol:CIM_DataFile/mapping_processes"
         prefix, colon, script_nickname = predicate_prefix.partition(":")
-        WARNING("SurvolCallbackSelect script_nickname=%s", script_nickname)
+        DEBUG("SurvolCallbackSelect script_nickname=%s", script_nickname)
 
         if script_nickname:
             # For example: script_nickname="CIM_DataFile/mapping_processes"
             # Wildcards or directories are not accepted yet.
             script_name = "sources_types/" + script_nickname + ".py"
-            WARNING("SurvolCallbackSelect script_name=%s filtered_where_key_values=%s",
+            DEBUG("SurvolCallbackSelect script_name=%s filtered_where_key_values=%s",
                     script_name,
                     str(filtered_where_key_values))
 
             # TODO: Check that there are enough parameters for this script ?
 
             my_source = lib_client.SourceLocal(script_name, class_name, **filtered_where_key_values)
-            WARNING("SurvolCallbackSelect my_source=%s", my_source)
+            DEBUG("SurvolCallbackSelect my_source=%s", my_source)
             my_triplestore = my_source.GetTriplestore()
 
             # This is returned anyway, as a triplestore that rdflib Sparql can work on.
@@ -45,8 +49,8 @@ class SurvolSparqlCallbackApi:
             # TODO: We filter only the objects of the right type,
             # TODO: ... but we lose all the other objects which could be stored in the output triplestore !!...
 
-            WARNING("SurvolCallbackSelect tp=%s class_name=%s", type(list_instances), class_name)
-            WARNING("SurvolCallbackSelect list_instances=%s", str(list_instances))
+            DEBUG("SurvolCallbackSelect tp=%s class_name=%s", type(list_instances), class_name)
+            DEBUG("SurvolCallbackSelect list_instances=%s", str(list_instances))
             for one_instance in list_instances:
                 WARNING("SurvolCallbackSelect one_instance.__class__.__name__=%s", one_instance.__class__.__name__)
                 if one_instance.__class__.__name__ == class_name:
@@ -56,7 +60,7 @@ class SurvolSparqlCallbackApi:
                     one_instance.m_key_value_pairs[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral(predicate_prefix)
                     # Add it again, so the original Sparql query will work.
                     one_instance.m_key_value_pairs[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral(predicate_prefix)
-                    WARNING("SurvolCallbackSelect instance_url=%s", instance_url)
+                    DEBUG("SurvolCallbackSelect instance_url=%s", instance_url)
                     yield (instance_url, one_instance.m_key_value_pairs)
 
         else:
@@ -110,7 +114,7 @@ class SurvolSparqlCallbackApi:
         associator_key_name,
         subject_path):
 
-        WARNING("SurvolCallbackAssociator result_class_name=%s "
+        DEBUG("SurvolCallbackAssociator result_class_name=%s "
             + "predicate_prefix=%s associator_key_name=%s subject_path=%s.",
               result_class_name,
               predicate_prefix,
@@ -138,7 +142,7 @@ class SurvolSparqlCallbackApi:
             except Exception as ex:
                 # We have no idea about the script, because we run every possible script,
                 # so it is not an issue it it fails.
-                ERROR("Script:%s Exception:%s",str(my_source),ex)
+                WARNING("Script:%s Exception:%s",str(my_source),ex)
                 continue
 
             # mysource="Script:sources_types/CIM_Process/xyz.py?xid=CIM_Process.Handle=7652"
@@ -150,11 +154,14 @@ class SurvolSparqlCallbackApi:
             iter_objects = my_triplestore.FilterObjectsWithPredicateClass(associator_key_name, result_class_name)
 
             for object_path, one_key_value_dict_nodes in iter_objects:
-                WARNING("SurvolCallbackAssociator object_path=%s one_key_value_dict_nodes=%s",
+                DEBUG("SurvolCallbackAssociator object_path=%s one_key_value_dict_nodes=%s",
                         object_path,
                         one_key_value_dict_nodes)
                 yield (object_path, one_key_value_dict_nodes)
 
-    def CallbackTypes(self, grph, see_also):
-        raise Exception("CallbackTypes: Not implemented yet")
+    def CallbackTypes(self, grph, see_also, where_key_values):
+        raise NotImplementedError("CallbackTypes: Not implemented yet")
+
+    def CallbackTypeTree(self, grph, see_also, associator_subject):
+        raise NotImplementedError("CallbackTypeTree: Not implemented yet")
 
