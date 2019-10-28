@@ -569,12 +569,12 @@ class DockitProcessesTest(unittest.TestCase):
     Test the execution of the Dockit script from real processes.
     """
 
-    @unittest.skipIf(not is_platform_linux, "This is not a Linux machine. Test skipped.")
+    @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
     def test_strace_ls(self):
         import subprocess
         # stdout=FNULL, stderr=subprocess.STDOUT, subprocess.PIPE
         FNULL = open(os.devnull, 'r')
-        sub_proc = subprocess.Popen(['bash', '-c', 'sleep 10;ls /tmp'],
+        sub_proc = subprocess.Popen(['bash', '-c', 'sleep 5;ls /tmp'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
