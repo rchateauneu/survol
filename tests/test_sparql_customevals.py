@@ -14,7 +14,6 @@ update_test_path()
 
 class RdflibCustomEvalsTest(unittest.TestCase):
 
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_wmi_query not executed.")
     def test_sparql_query(self):
 
         survol_url = "http://primhillcomputer.com/ontologies/"
