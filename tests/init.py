@@ -124,14 +124,17 @@ else:
     DirAlwaysThere = "C:\\Windows"
     AnyLogicalDisk = "D:"
 
+# See lib_util.survol_urlopen
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen as portable_urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen as portable_urlopen
+
+
 def CgiAgentStart(agent_url, agent_port):
     INFO("CgiAgentStart agent_url=%s agent_port=%d", agent_url, agent_port)
-    try:
-        # For Python 3.0 and later
-        from urllib.request import urlopen as portable_urlopen
-    except ImportError:
-        # Fall back to Python 2's urllib2
-        from urllib2 import urlopen as portable_urlopen
 
     try:
         agent_process = None
@@ -153,6 +156,10 @@ def CgiAgentStart(agent_url, agent_port):
             current_dir = ""
         INFO("CgiAgentStart: current_dir=%s", current_dir)
         #print("sys.path=",sys.path)
+
+        # This delay to allow the reuse of the socket.
+        # TODO: A better solution would be to override server_bind()
+        time.sleep(2.0)
         agent_process = multiprocessing.Process(
             target=scripts.cgiserver.StartParameters,
             args=(True, AgentHost, agent_port, current_dir))
@@ -161,7 +168,7 @@ def CgiAgentStart(agent_url, agent_port):
 
         agent_process.start()
         INFO("CgiAgentStart: Waiting for CGI agent to start")
-        time.sleep(5.0)
+        time.sleep(3.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, agent_port)
         try:
             response = portable_urlopen( local_agent_url, timeout=5)
@@ -183,13 +190,6 @@ def CgiAgentStop(agent_process):
 
 def WsgiAgentStart(agent_url, agent_port):
     print("setUpModule")
-    try:
-        # For Python 3.0 and later
-        from urllib.request import urlopen as portable_urlopen
-    except ImportError:
-        # Fall back to Python 2's urllib2
-        from urllib2 import urlopen as portable_urlopen
-
     try:
         # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
         agent_process = None
