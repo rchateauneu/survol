@@ -7,6 +7,7 @@ import sys
 import json
 import rdflib
 import unittest
+import psutil
 
 from init import *
 
@@ -20,13 +21,15 @@ predicate_Handle = rdflib.term.URIRef(survol_url + "Handle")
 predicate_Name = rdflib.term.URIRef(survol_url + "Name")
 
 
-def add_process_to_graph(graph, pid):
+def add_process_to_graph(graph, pid, process_name = None):
     print("Graph id=", id(graph))
     my_process = rdflib.term.URIRef(survol_url + "objects/CIM_Process?Handle=%d" % pid)
 
     graph.add((my_process, rdflib.namespace.RDF.type, class_CIM_Process))
     graph.add((my_process, predicate_Handle, rdflib.Literal(pid)))
-    graph.add((my_process, rdflib.namespace.RDFS.label, rdflib.Literal("Process=%d" % pid)))
+    if not process_name:
+        process_name = "Process=%d" % pid
+    graph.add((my_process, rdflib.namespace.RDFS.label, rdflib.Literal(process_name)))
 
 
 def add_directory_to_graph(graph, directory_path):
@@ -37,49 +40,50 @@ def add_directory_to_graph(graph, directory_path):
     graph.add((my_dir, predicate_Name, rdflib.Literal(directory_path)))
 
 
-# Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
-def customEval(ctx, part):
-    # part.name = "SelectQuery", "Project", "BGP"
-    # print("customEval part.name=", part.name)
-    if part.name == 'BGP':
 
-        print("Part Triples:")
-        for t in part.triples:
-            print("    ", t)
+class RdflibCustomEvalsBasicTest(unittest.TestCase):
 
-        add_process_to_graph(ctx.graph, 456)
+    # Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
+    @staticmethod
+    def custom_eval_basic(ctx, part):
+        # part.name = "SelectQuery", "Project", "BGP"
+        # print("customEval part.name=", part.name)
+        if part.name == 'BGP':
 
-        # rewrite triples
-        # triples = []
-        # for t in part.triples:
-        #     if t[1] == rdflib.RDF.type:
-        #         bnode = rdflib.BNode()
-        #         triples.append((t[0], t[1], bnode))
-        #     else:
-        #         triples.append(t)
+            print("Part Triples:")
+            for t in part.triples:
+                print("    ", t)
 
-        bnode = rdflib.BNode()
+            add_process_to_graph(ctx.graph, 456)
 
-        # <type 'generator'>
-        ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
-        if False:
-            return ret_BGP
-        else:
-            list_BGP = list(ret_BGP)
-            return iter(list_BGP)
+            # rewrite triples
+            # triples = []
+            # for t in part.triples:
+            #     if t[1] == rdflib.RDF.type:
+            #         bnode = rdflib.BNode()
+            #         triples.append((t[0], t[1], bnode))
+            #     else:
+            #         triples.append(t)
 
-    raise NotImplementedError()
+            bnode = rdflib.BNode()
 
+            # <type 'generator'>
+            ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+            if False:
+                return ret_BGP
+            else:
+                list_BGP = list(ret_BGP)
+                return iter(list_BGP)
 
-class RdflibCustomEvalsTest(unittest.TestCase):
+        raise NotImplementedError()
 
     def setUp(self):
         # add function directly, normally we would use setuptools and entry_points
-        rdflib.plugins.sparql.CUSTOM_EVALS['exampleEval'] = customEval
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_basic'] = RdflibCustomEvalsBasicTest.custom_eval_basic
 
     def tearDown(self):
-        if 'exampleEval' in rdflib.plugins.sparql.CUSTOM_EVALS:
-            del rdflib.plugins.sparql.CUSTOM_EVALS['exampleEval']
+        if 'custom_eval_basic' in rdflib.plugins.sparql.CUSTOM_EVALS:
+            del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_basic']
 
     def test_query_process(self):
         rdflib_graph = rdflib.Graph()
@@ -137,6 +141,75 @@ class RdflibCustomEvalsTest(unittest.TestCase):
         print("Pathes only=", pathes_only)
         self.assertTrue( pathes_only == ['/dev','/opt','/proc','/tmp'])
 
+
+
+class RdflibCustomEvalsProcessesTest(unittest.TestCase):
+
+    # Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
+    @staticmethod
+    def custom_eval_processes(ctx, part):
+        # part.name = "SelectQuery", "Project", "BGP"
+        # print("customEval part.name=", part.name)
+        if part.name == 'BGP':
+
+            # Iterate over all running process
+            for proc in psutil.process_iter():
+                try:
+                    add_process_to_graph(ctx.graph, proc.pid, proc.name())
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    pass
+
+
+            print("Part Triples:")
+            for t in part.triples:
+                print("    ", t)
+
+            add_process_to_graph(ctx.graph, 456)
+
+            # rewrite triples
+            # triples = []
+            # for t in part.triples:
+            #     if t[1] == rdflib.RDF.type:
+            #         bnode = rdflib.BNode()
+            #         triples.append((t[0], t[1], bnode))
+            #     else:
+            #         triples.append(t)
+
+            bnode = rdflib.BNode()
+
+            # <type 'generator'>
+            ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+            if False:
+                return ret_BGP
+            else:
+                list_BGP = list(ret_BGP)
+                return iter(list_BGP)
+
+        raise NotImplementedError()
+
+    def setUp(self):
+        # add function directly, normally we would use setuptools and entry_points
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_processes'] = RdflibCustomEvalsProcessesTest.custom_eval_processes
+
+    def tearDown(self):
+        if 'custom_eval_processes' in rdflib.plugins.sparql.CUSTOM_EVALS:
+            del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_processes']
+
+    def test_query_process(self):
+        rdflib_graph = rdflib.Graph()
+
+        query_pids = """
+            PREFIX survol: <%s>
+            SELECT ?process_pid WHERE {
+                ?url_process a survol:CIM_Process .
+                ?url_process survol:Handle ?process_pid .
+            }
+        """ % (survol_namespace)
+
+        query_result = list(rdflib_graph.query(query_pids))
+        pids_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Pids only=", pids_only)
+        self.assertTrue( str(os.getpid()) in pids_only )
 
 
 
