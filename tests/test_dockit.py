@@ -9,10 +9,10 @@ import re
 import sys
 from xml.dom import minidom
 import json
-import socket
 import tempfile
 import unittest
 import shutil
+import rdflib
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 # This is needed when running from PyCharm.
@@ -601,11 +601,59 @@ class DockitProcessesTest(unittest.TestCase):
         self.assertTrue(sub_proc.returncode == 0)
 
         fil_txt = open(path_prefix_output_result("result_ls_strace.txt"))
+        # Check content
         fil_txt.close()
 
         fil_summary = open(path_prefix_output_result("result_ls_strace.summary.txt"))
         fil_summary.close()
 
+class DockitEventsTest(unittest.TestCase):
+    """
+    Send events.
+    """
+
+    def setUp(self):
+        # If the Survol agent does not exist, this script starts a local one.
+        self.RemoteAgentProcess = CgiAgentStart(RemoteTestAgent, RemoteTestPort)
+
+    def tearDown(self):
+        CgiAgentStop(self.RemoteAgentProcess)
+
+    def test_file_ltrace_events(self):
+        dockit.UnitTest(
+            inputLogFile = path_prefix_input_file("sample_shell.ltrace.log"),
+            tracer="ltrace",
+            topPid=0,
+            baseOutName= path_prefix_output_result("result_ltrace_events"),
+            outputFormat="JSON",
+            verbose=False,
+            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="TXT",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer=RemoteTestAgent + "/survol/event_put.py")
+
+        fil_json = open( path_prefix_output_result( "result_ltrace_events.json") )
+        data = json.load(fil_json)
+        fil_json.close()
+
+        fil_summary = open( path_prefix_output_result( "result_ltrace_events.summary.txt") )
+        fil_summary.close()
+
+        # Now read the events.
+        # This is for a specific entity.
+        # RemoteTestAgent + "/survol/event_get.py"
+        url_events = RemoteTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
+        events_response = portable_urlopen(url_events, timeout=60)
+        events_content = events_response.read().decode("utf-8")
+
+        events_graph = rdflib.Graph()
+        events_content_trunc = b"".join(events_content.split(b"\n"))
+        result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
+        for event_subject, event_predicate, event_object in events_graph:
+            print(event_subject, event_predicate, event_object)
+
+        # TODO: Check the content.
 
 
 if __name__ == '__main__':
