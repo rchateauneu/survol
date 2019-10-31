@@ -1591,7 +1591,7 @@ def ParseFilterCIM(rgxObjectPath):
 
     # OK with Python 3
     exec(tmpFunc)
-    tmpInsp = inspect.getargspec( locals()["aTempFunc"] )
+    tmpInsp = inspect.getfullargspec( locals()["aTempFunc"] )
     arrArgs = tmpInsp.args
     arrVals = tmpInsp.defaults
     mapKeyValues = dict( zip(arrArgs, arrVals) )
