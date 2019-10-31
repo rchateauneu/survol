@@ -1591,11 +1591,11 @@ def ParseFilterCIM(rgxObjectPath):
 
     # OK with Python 3
     exec(tmpFunc)
-    aTempFunc = locals()["aTempFunc"]
+    local_temp_func = locals()["aTempFunc"]
     if sys.version_info >= (3,):
-        tmpInsp = inspect.getfullargspec(aTempFunc)
+        tmpInsp = inspect.getfullargspec(local_temp_func)
     else:
-        tmpInsp = inspect.getargspec(aTempFunc)
+        tmpInsp = inspect.getargspec(local_temp_func)
     arrArgs = tmpInsp.args
     arrVals = tmpInsp.defaults
     mapKeyValues = dict( zip(arrArgs, arrVals) )
