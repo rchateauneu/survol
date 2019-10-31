@@ -111,8 +111,8 @@ class DockitParserTest(unittest.TestCase):
             ( '"/usr/bin/python", ["python", "TestProgs/big_mysql_"...], [/* 37 vars */]',
               ['/usr/bin/python', ['python', 'TestProgs/big_mysql_...'], ['/* 37 vars */']],73 ),
 
-            ( '3</usr/lib64/libc-2.21.so>, "\177ELF\2\1\1\3\>\0"..., 832',
-              ['3</usr/lib64/libc-2.21.so>', '\x7fELF\x02\x01\x01\x03\\>\x00...', '832'],49 ),
+            ( '3</usr/lib64/libc-2.21.so>, "\x7fELF\x02\x01\x01\x03\\>\x00"..., 832',
+                ['3</usr/lib64/libc-2.21.so>', '\x7fELF\x02\x01\x01\x03\\>\x00...', '832'],49 ),
 
             ( '29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>, "SQLite format 3\0\200\0\2\2\0@  \0\0\0\4\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\t\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0.\30\310", 100',
               ['29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>', 'SQLite format 3\x00\x80\x00\x02\x02\x00@  \x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\t\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00.\x18\xc8', '100'], 176),
@@ -640,6 +640,9 @@ class DockitEventsTest(unittest.TestCase):
         fil_summary = open( path_prefix_output_result( "result_ltrace_events.summary.txt") )
         fil_summary.close()
 
+        # Give a bit of setup time to the server.
+        time.sleep(10.0)
+
         # Now read the events.
         # This is for a specific entity.
         # RemoteTestAgent + "/survol/event_get.py"
@@ -652,18 +655,27 @@ class DockitEventsTest(unittest.TestCase):
         events_content_trunc = b"".join(split_content)
 
         result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
-        classes_dict = dict()
+        print("len results=", len(events_graph))
+        types_dict = dict()
         for event_subject, event_predicate, event_object in events_graph:
-            print(event_subject, event_predicate, event_object)
             # Given the input filename, this expects some specific data.
             if event_predicate == rdflib.namespace.RDF.type:
-                class_name = str(event_object)
-                classes_dict[class_name] += 1
+                # 'http://www.primhillcomputers.com/survol#CIM_Process'
+                header, hash_char, class_name = str(event_object).rpartition("#")
+                try:
+                    types_dict[class_name] += 1
+                except KeyError:
+                    types_dict[class_name] = 1
 
-        #self.assertTrue(classes_dict["CIM_Process"] == 1)
-        #self.assertTrue(classes_dict["CIM_DataFile"] == 2)
-
-        # TODO: Check the content.
+        print(types_dict)
+        expected_types_list = {
+            'CIM_Process': 5,
+            'CIM_NetworkAdapter': 1,
+            'CIM_DataFile': 1066,
+            'CIM_ComputerSystem': 1,
+            'Property': 23,
+            'Class': 4 }
+        self.assertTrue(expected_types_list == types_dict)
 
 
 if __name__ == '__main__':
