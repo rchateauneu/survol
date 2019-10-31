@@ -295,7 +295,7 @@ def DecodeOctalEscapeSequence(aBuffer):
     # https://en.wikipedia.org/wiki/Escape_sequences_in_C
 
     # https://stackoverflow.com/questions/4020539/process-escape-sequences-in-a-string-in-python
-    if (sys.version_info > (3, 0)):
+    if (sys.version_info >= (3,)):
         decBuf = bytes(aBuffer, "utf-8").decode("unicode_escape")
     else:
         decBuf = aBuffer.decode('string_escape')
@@ -1591,7 +1591,11 @@ def ParseFilterCIM(rgxObjectPath):
 
     # OK with Python 3
     exec(tmpFunc)
-    tmpInsp = inspect.getfullargspec( locals()["aTempFunc"] )
+    aTempFunc = locals()["aTempFunc"]
+    if sys.version_info >= (3,):
+        tmpInsp = inspect.getfullargspec(aTempFunc)
+    else:
+        tmpInsp = inspect.getargspec(aTempFunc)
     arrArgs = tmpInsp.args
     arrVals = tmpInsp.defaults
     mapKeyValues = dict( zip(arrArgs, arrVals) )
@@ -4222,7 +4226,7 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
     # If shell=True, the command must be passed as a single line.
     kwargs = {"bufsize":100000, "shell":False,
         "stdin":sys.stdin, "stdout":subprocess.PIPE, "stderr":subprocess.PIPE}
-    if sys.version_info > (3,):
+    if sys.version_info >= (3,):
         kwargs["encoding"] = "utf-8"
     pipPOpen = subprocess.Popen(aCmd, **kwargs)
 
