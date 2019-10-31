@@ -645,13 +645,23 @@ class DockitEventsTest(unittest.TestCase):
         # RemoteTestAgent + "/survol/event_get.py"
         url_events = RemoteTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
         events_response = portable_urlopen(url_events, timeout=60)
-        events_content = events_response.read().decode("utf-8")
+        events_content = events_response.read() # Py3:bytes, Py2:str
 
         events_graph = rdflib.Graph()
-        events_content_trunc = b"".join(events_content.split(b"\n"))
+        split_content = events_content.split(b"\n")
+        events_content_trunc = b"".join(split_content)
+
         result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
+        classes_dict = dict()
         for event_subject, event_predicate, event_object in events_graph:
             print(event_subject, event_predicate, event_object)
+            # Given the input filename, this expects some specific data.
+            if event_predicate == rdflib.namespace.RDF.type:
+                class_name = str(event_object)
+                classes_dict[class_name] += 1
+
+        #self.assertTrue(classes_dict["CIM_Process"] == 1)
+        #self.assertTrue(classes_dict["CIM_DataFile"] == 2)
 
         # TODO: Check the content.
 
