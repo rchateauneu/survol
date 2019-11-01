@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Extract SQL queries from process heap memory
@@ -21,6 +21,8 @@ import lib_common
 from sources_types.CIM_Process import memory_regex_search
 # from sources_types.sql import query as sql_query
 from sources_types.CIM_Process import embedded_sql_query
+
+SlowScript = True
 
 # We get strange strings separated by "ZZZZ"
 # "SELECT id FROM moz_favicons WHERE url = ZZZZZZZZSELECT id FROM moz_historyvisits vZZZZZZZZZZZZZZSELECT id FROM moz_historyvisits vZZZZZZZZZZ"

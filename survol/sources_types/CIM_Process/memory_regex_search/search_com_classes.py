@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Scan process for COM classes
@@ -15,6 +15,8 @@ import lib_com_type_lib
 from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
 
+SlowScript = True
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	pidint = int( cgiEnv.GetId() )
@@ -24,7 +26,7 @@ def Main():
 	node_process = lib_common.gUriGen.PidUri(pidint)
 
 	try:
-		rgxHttp = "\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}"
+		rgxHttp = r"\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}"
 
 		resuComClasses = memory_regex_search.GetRegexMatches(pidint,rgxHttp)
 

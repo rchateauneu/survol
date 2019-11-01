@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Scan process for HTTP urls.
@@ -14,6 +14,8 @@ from lib_properties import pc
 from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
 
+SlowScript = True
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	pidint = int( cgiEnv.GetId() )
@@ -25,7 +27,7 @@ def Main():
 	try:
 		# http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 		# rgxHttp = "http://[a-zA-Z_0-9\.]*"
-		rgxHttp = "http://[a-z_0-9\.]*"
+		rgxHttp = r"http://[a-z_0-9\.]*"
 
 		resuUrls = memory_regex_search.GetRegexMatches(pidint,rgxHttp)
 
