@@ -648,15 +648,15 @@ class DockitEventsTest(unittest.TestCase):
         events_response = portable_urlopen(url_events, timeout=120)
         events_content = events_response.read() # Py3:bytes, Py2:str
 
+        events_graph = rdflib.Graph()
+        split_content = events_content.split(b"\n")
+        events_content_trunc = b"".join(split_content)
+
 
         # TEMPORARY for Linux.
         return
 
 
-
-        events_graph = rdflib.Graph()
-        split_content = events_content.split(b"\n")
-        events_content_trunc = b"".join(split_content)
 
         result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
         print("len results=", len(events_graph))
