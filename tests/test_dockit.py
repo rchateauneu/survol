@@ -641,18 +641,18 @@ class DockitEventsTest(unittest.TestCase):
         fil_summary = open( path_prefix_output_result( "result_ltrace_events.summary.txt") )
         fil_summary.close()
 
+        # Now read the events.
+        # This is for a specific entity.
+        # RemoteTestAgent + "/survol/event_get.py"
+        url_events = RemoteEventsTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
+        events_response = portable_urlopen(url_events, timeout=60)
+        events_content = events_response.read() # Py3:bytes, Py2:str
+
 
         # TEMPORARY for Linux.
         return
 
 
-
-        # Now read the events.
-        # This is for a specific entity.
-        # RemoteTestAgent + "/survol/event_get.py"
-        url_events = RemoteTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
-        events_response = portable_urlopen(url_events, timeout=60)
-        events_content = events_response.read() # Py3:bytes, Py2:str
 
         events_graph = rdflib.Graph()
         split_content = events_content.split(b"\n")
