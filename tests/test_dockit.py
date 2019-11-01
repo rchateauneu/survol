@@ -645,7 +645,7 @@ class DockitEventsTest(unittest.TestCase):
         # This is for a specific entity.
         # RemoteTestAgent + "/survol/event_get.py"
         url_events = RemoteEventsTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
-        events_response = portable_urlopen(url_events, timeout=60)
+        events_response = portable_urlopen(url_events, timeout=120)
         events_content = events_response.read() # Py3:bytes, Py2:str
 
 
