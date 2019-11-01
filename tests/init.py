@@ -29,6 +29,8 @@ CurrentParentPid = psutil.Process().ppid()
 # It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
 RemoteTestPort = 8000
 RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
+RemoteEventsTestPort = 8001
+RemoteEventsTestAgent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestPort)
 
 # "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
 # Name = "vps516494.ovh.net")
