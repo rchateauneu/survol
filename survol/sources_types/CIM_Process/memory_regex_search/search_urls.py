@@ -25,7 +25,7 @@ def Main():
 	try:
 		# http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 		# rgxHttp = "http://[a-zA-Z_0-9\.]*"
-		rgxHttp = "http://[a-z_0-9\.]*"
+		rgxHttp = r"http://[a-z_0-9\.]*"
 
 		resuUrls = memory_regex_search.GetRegexMatches(pidint,rgxHttp)
 
