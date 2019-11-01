@@ -613,11 +613,13 @@ class DockitEventsTest(unittest.TestCase):
     """
 
     def setUp(self):
+        pass
         # If the Survol agent does not exist, this script starts a local one.
         #### TEMP FIX LINUX
         #### self.RemoteAgentProcess = CgiAgentStart(RemoteTestAgent, RemoteTestPort)
 
     def tearDown(self):
+        pass
         #### TEMP FIX LINUX
         ##### CgiAgentStop(self.RemoteAgentProcess)
 
