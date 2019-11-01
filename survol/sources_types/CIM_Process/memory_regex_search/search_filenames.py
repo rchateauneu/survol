@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 File names in process memory.
@@ -14,6 +14,8 @@ from lib_properties import pc
 from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
 
+SlowScript = True
+
 class FilenameParserLinux:
 	# https://stackoverflow.com/questions/1976007/what-characters-are-forbidden-in-windows-and-linux-directory-names
 	# This is a most plausible regular expressions.
@@ -23,7 +25,7 @@ class FilenameParserLinux:
 		rgxFilNam = ""
 		# rgxFilNam += "/[^/]+" * miniDepth
 		# rgxFilNam += "/[a-zA-Z0-9]+" * miniDepth
-		rgxFilNam += "/[-a-zA-Z0-9\._\+]{3,50}" * miniDepth
+		rgxFilNam += r"/[-a-zA-Z0-9\._\+]{3,50}" * miniDepth
 		#rgxFilNam = "kademlia"
 		return rgxFilNam
 
@@ -38,9 +40,9 @@ class FilenameParserWindows:
 
 		# In Windows, the last character should not be a space or a dot.
 		# There must be at least one character.
-		oneRegexNormal = '[^\\/<>:"\|\*\?]+[^. ]'
+		oneRegexNormal = r'[^\\/<>:"\|\*\?]+[^. ]'
 		# Dot is allowed for current or parent directory
-		oneRegexNoSlash = "(" + oneRegexNormal + "|\.\.|\.)"
+		oneRegexNoSlash = "(" + oneRegexNormal + r"|\.\.|\.)"
 		oneRegex = r"[/\\]" + oneRegexNoSlash
 
 		rgxFilNam += oneRegex * miniDepth
