@@ -930,7 +930,8 @@ class SurvolRemoteWbemTest(unittest.TestCase):
         # Rule of thumb: Not too many processes should have left in such a short time.
         self.assertTrue(num_exit_processes < 10)
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
+    # This test is very slow and should not fail Travis.
+    @unittest.skipIf(not pkgutil.find_loader('pywbem') or is_travis_machine(), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
     def test_remote_ontology_wbem(self):
         missing_triples = lib_client.CheckOntologyGraph("wbem", SurvolServerAgent)
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
