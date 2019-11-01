@@ -23,7 +23,7 @@ class FilenameParserLinux:
 		rgxFilNam = ""
 		# rgxFilNam += "/[^/]+" * miniDepth
 		# rgxFilNam += "/[a-zA-Z0-9]+" * miniDepth
-		rgxFilNam += "/[-a-zA-Z0-9\._\+]{3,50}" * miniDepth
+		rgxFilNam += r"/[-a-zA-Z0-9\._\+]{3,50}" * miniDepth
 		#rgxFilNam = "kademlia"
 		return rgxFilNam
 
@@ -38,9 +38,9 @@ class FilenameParserWindows:
 
 		# In Windows, the last character should not be a space or a dot.
 		# There must be at least one character.
-		oneRegexNormal = '[^\\/<>:"\|\*\?]+[^. ]'
+		oneRegexNormal = r'[^\\/<>:"\|\*\?]+[^. ]'
 		# Dot is allowed for current or parent directory
-		oneRegexNoSlash = "(" + oneRegexNormal + "|\.\.|\.)"
+		oneRegexNoSlash = "(" + oneRegexNormal + r"|\.\.|\.)"
 		oneRegex = r"[/\\]" + oneRegexNoSlash
 
 		rgxFilNam += oneRegex * miniDepth
