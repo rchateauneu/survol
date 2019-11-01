@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """
 Regex matching in heap
 """
@@ -636,7 +636,7 @@ else:
 				mem_proc_functor.ParseSegment(addr_beg, chunk )
 
 		except Exception as exc:
-			WARNING("Exception:%s",str(exc))
+			WARNING("GetMemoryFromProc Exception:%s",str(exc))
 			pass
 		ptrace(False, pidint)
 
