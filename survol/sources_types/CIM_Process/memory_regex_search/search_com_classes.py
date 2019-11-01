@@ -24,7 +24,7 @@ def Main():
 	node_process = lib_common.gUriGen.PidUri(pidint)
 
 	try:
-		rgxHttp = "\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}"
+		rgxHttp = r"\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}"
 
 		resuComClasses = memory_regex_search.GetRegexMatches(pidint,rgxHttp)
 
