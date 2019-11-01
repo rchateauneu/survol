@@ -516,9 +516,6 @@ class DockitTraceFilesTest(unittest.TestCase):
 
 
     def test_all_trace_files(self):
-        mapParamsSummary = dockit.fullMapParamsSummary
-        updateServer = None
-
         # This iterates on the input test files and generates the "compressed" output.as
         # After that we can check if the results are as expected.
 
@@ -620,12 +617,12 @@ class DockitEventsTest(unittest.TestCase):
     def tearDown(self):
         CgiAgentStop(self.RemoteEventsTestAgent)
 
-    def test_file_ltrace_events(self):
+    def test_file_events(self):
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file("sample_shell.ltrace.log"),
-            tracer="ltrace",
+            inputLogFile = path_prefix_input_file("mineit_ps_ef.strace.log"),
+            tracer="strace",
             topPid=0,
-            baseOutName= path_prefix_output_result("result_ltrace_events"),
+            baseOutName= path_prefix_output_result("mineit_ps_ef.strace"),
             outputFormat="JSON",
             verbose=False,
             mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -634,11 +631,11 @@ class DockitEventsTest(unittest.TestCase):
             withDockerfile=False,
             updateServer=RemoteEventsTestAgent + "/survol/event_put.py")
 
-        fil_json = open( path_prefix_output_result( "result_ltrace_events.json") )
+        fil_json = open( path_prefix_output_result( "mineit_ps_ef.strace.json") )
         data = json.load(fil_json)
         fil_json.close()
 
-        fil_summary = open( path_prefix_output_result( "result_ltrace_events.summary.txt") )
+        fil_summary = open( path_prefix_output_result( "mineit_ps_ef.strace.summary.txt") )
         fil_summary.close()
 
         # Now read the events.
