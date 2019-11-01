@@ -615,13 +615,10 @@ class DockitEventsTest(unittest.TestCase):
     def setUp(self):
         pass
         # If the Survol agent does not exist, this script starts a local one.
-        #### TEMP FIX LINUX
-        #### self.RemoteAgentProcess = CgiAgentStart(RemoteTestAgent, RemoteTestPort)
+        self.RemoteEventsTestAgent = CgiAgentStart(RemoteEventsTestAgent, RemoteEventsTestPort)
 
     def tearDown(self):
-        pass
-        #### TEMP FIX LINUX
-        ##### CgiAgentStop(self.RemoteAgentProcess)
+        CgiAgentStop(self.RemoteEventsTestAgent)
 
     def test_file_ltrace_events(self):
         dockit.UnitTest(
@@ -635,8 +632,7 @@ class DockitEventsTest(unittest.TestCase):
             summaryFormat="TXT",
             withWarning=False,
             withDockerfile=False,
-            #####updateServer=RemoteTestAgent + "/survol/event_put.py")
-            updateServer = None)
+            updateServer=RemoteEventsTestAgent + "/survol/event_put.py")
 
         fil_json = open( path_prefix_output_result( "result_ltrace_events.json") )
         data = json.load(fil_json)
