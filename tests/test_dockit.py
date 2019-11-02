@@ -638,6 +638,8 @@ class DockitEventsTest(unittest.TestCase):
         fil_summary = open( path_prefix_output_result( "mineit_ps_ef.strace.summary.txt") )
         fil_summary.close()
 
+        time.sleep(5.0)
+
         # Now read the events.
         # This is for a specific entity.
         # RemoteTestAgent + "/survol/event_get.py"
@@ -648,11 +650,6 @@ class DockitEventsTest(unittest.TestCase):
         events_graph = rdflib.Graph()
         split_content = events_content.split(b"\n")
         events_content_trunc = b"".join(split_content)
-
-
-        # TEMPORARY for Linux.
-        return
-
 
 
         result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
@@ -670,11 +667,11 @@ class DockitEventsTest(unittest.TestCase):
 
         print(types_dict)
         expected_types_list = {
-            'CIM_Process': 5,
+            'CIM_Process': 1,
             'CIM_NetworkAdapter': 1,
-            'CIM_DataFile': 1066,
+            'CIM_DataFile': 292,
             'CIM_ComputerSystem': 1,
-            'Property': 23,
+            'Property': 14,
             'Class': 4 }
         self.assertTrue(expected_types_list == types_dict)
 
