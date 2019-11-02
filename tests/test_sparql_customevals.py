@@ -26,7 +26,6 @@ predicate_Name = rdflib.term.URIRef(survol_url + "Name")
 associator_CIM_DirectoryContainsFile = rdflib.term.URIRef(survol_url + "CIM_DirectoryContainsFile")
 
 def add_process_to_graph(graph, pid, process_name = None):
-    print("Graph id=", id(graph))
     my_process = rdflib.term.URIRef(survol_url + "objects/CIM_Process?Handle=%d" % pid)
 
     graph.add((my_process, rdflib.namespace.RDF.type, class_CIM_Process))
@@ -38,7 +37,7 @@ def add_process_to_graph(graph, pid, process_name = None):
 
 
 def add_directory_to_graph(graph, directory_path):
-    print("Graph id=", id(graph))
+    #print("add_directory_to_graph adding:", directory_path)
     my_dir = rdflib.term.URIRef(survol_url + "objects/CIM_Directory?Name=%s" % directory_path)
 
     graph.add((my_dir, rdflib.namespace.RDF.type, class_CIM_Directory))
@@ -47,7 +46,7 @@ def add_directory_to_graph(graph, directory_path):
 
 
 def add_datafile_to_graph(graph, file_path):
-    print("Graph id=", id(graph))
+    #print("add_datafile_to_graph adding:", file_path)
     my_file = rdflib.term.URIRef(survol_url + "objects/CIM_DataFile?Name=%s" % file_path)
 
     graph.add((my_file, rdflib.namespace.RDF.type, class_CIM_DataFile))
@@ -165,7 +164,7 @@ class Instance:
         self.m_unknown_attributes = {}
 
 
-def Feeder_CIM_Process(graph, instance_node, instance):
+def Feeder_CIM_Process(graph, instance):
     # Iterate over all running process
     for proc in psutil.process_iter():
         try:
@@ -173,24 +172,29 @@ def Feeder_CIM_Process(graph, instance_node, instance):
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
-def Feeder_CIM_Directory(graph, instance_node, instance):
+def Feeder_CIM_Directory(graph, instance):
+    print("Feeder_CIM_Directory instance=", instance)
     try:
-        directory_name = instance.m_known_attributes[predicate_Name]
+        top_directory_name = instance.m_known_attributes[predicate_Name]
         variable_contained = instance.m_associators[associator_CIM_DirectoryContainsFile]
+        top_directory_node = add_directory_to_graph(graph, top_directory_name)
 
-        for subdir, dirs, files in os.walk(directory_name):
+        print("Feeder_CIM_Directory directory_name=", top_directory_name)
+        for subdir, dirs, files in os.walk(top_directory_name):
+            print("Feeder_CIM_Directory directory_name=", top_directory_name)
             for file in files:
                 filepath = os.path.join(subdir, file)
-                file_node = add_datafile_to_graph(graph, filepath, instance_node)
-                graph.add((instance_node, associator_CIM_DirectoryContainsFile, file_node))
+                file_node = add_datafile_to_graph(graph, filepath)
+                graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, file_node))
 
             for dir in dirs:
                 dirpath = os.path.join(subdir, dir)
-                directory_node = add_directory_to_graph(graph, dirpath, instance_node)
-                graph.add((instance_node, associator_CIM_DirectoryContainsFile, directory_node))
+                directory_node = add_directory_to_graph(graph, dirpath)
+                graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, directory_node))
 
             break
     except KeyError:
+        print("Feeder_CIM_Directory failed")
         pass
 
 feeders_dict = {
@@ -237,7 +241,8 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
 
             for part_subject, current_instance in instances_dict.items():
                 subject_class = current_instance.m_class_name
-                feeders_dict[subject_class](ctx.graph, part_subject, current_instance)
+                print("Feeding:", part_subject)
+                feeders_dict[subject_class](ctx.graph, current_instance)
 
 
             # <type 'generator'>
@@ -304,7 +309,7 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
             PREFIX survol: <%s>
             SELECT ?url_directory WHERE {
                 ?url_directory a survol:CIM_Directory .
-                ?url_directory survol:Name "C:/temp" .
+                ?url_directory survol:Name "C:/Windows/temp" .
             }
         """ % (survol_namespace)
 
@@ -319,7 +324,7 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
                 ?url_directory_1 a survol:CIM_Directory .
                 ?url_directory_2 a survol:CIM_Directory .
                 ?url_directory_1 survol:CIM_DirectoryContainsFile ?url_directory_2 .
-                ?url_directory_1 survol:Name "C:/temp" .
+                ?url_directory_1 survol:Name "C:/Windows/temp" .
                 ?url_directory_2 survol:Name ?directory_name_2 .
             }
         """ % (survol_namespace)
@@ -327,6 +332,9 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         query_result = list(rdflib_graph.query(query_pids))
         names_only = sorted([ str(one_result[0]) for one_result in query_result])
         print("Names only=", names_only)
+
+        #for s, p, o in rdflib_graph:
+        #    print(s, p, o)
 
 
 
