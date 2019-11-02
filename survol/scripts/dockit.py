@@ -4223,7 +4223,9 @@ def LogSource(msgSource):
 # This executes a Linux command and returns the stderr pipe.
 # It is used to get the return content of strace or ltrace,
 # so it can be parsed.
-def GenerateLinuxStreamFromCommand(aCmd, aPid):
+def GenerateLinuxStreamFromCommand(raw_command, aPid):
+    aCmd = [str(elt) for elt in raw_command]
+    assert isinstance(aPid, int)
     sys.stdout.write("Starting trace command:%s\n" % " ".join(aCmd) )
 
     # If shell=True, the command must be passed as a single line.
@@ -4236,7 +4238,7 @@ def GenerateLinuxStreamFromCommand(aCmd, aPid):
     # If shell argument is True, this is the process ID of the spawned shell.
     if aPid > 0:
         # The process already exists and strace/ltrace attaches to it.
-        thePid = int(aPid)
+        thePid = aPid
     else:
         # We want the pid of the process created by strace/ltrace.
         # ltrace always prefixes each line with the pid, so no ambiguity.
