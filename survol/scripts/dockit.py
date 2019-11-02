@@ -4814,6 +4814,7 @@ def UnitTest(
         inputLogFile, tracer, topPid, baseOutName, outputFormat, verbose, mapParamsSummary,
         summaryFormat, withWarning, withDockerfile, updateServer):
     global G_UpdateServer
+    assert isinstance(topPid, int)
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
     G_UpdateServer = updateServer
 
