@@ -25,6 +25,12 @@ predicate_Name = rdflib.term.URIRef(survol_url + "Name")
 
 associator_CIM_DirectoryContainsFile = rdflib.term.URIRef(survol_url + "CIM_DirectoryContainsFile")
 
+
+if sys.platform.startswith("linux"):
+    TempDirPath = "/tmp"
+else:
+    TempDirPath = "C:/Windows/temp"
+
 def add_process_to_graph(graph, pid, process_name = None):
     my_process = rdflib.term.URIRef(survol_url + "objects/CIM_Process?Handle=%d" % pid)
 
@@ -324,15 +330,15 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
             PREFIX survol: <%s>
             SELECT ?url_directory WHERE {
                 ?url_directory a survol:CIM_Directory .
-                ?url_directory survol:Name "C:/Windows/temp" .
+                ?url_directory survol:Name "%s" .
             }
-        """ % (survol_namespace)
+        """ % (survol_namespace, TempDirPath)
 
         query_result = list(rdflib_graph.query(query_pids))
         print(query_result)
         names_only = sorted([ str(one_result[0]) for one_result in query_result])
         print("Names only=", names_only)
-        self.assertTrue(names_only == [survol_url+'objects/CIM_Directory?Name=C:/Windows/temp'])
+        self.assertTrue(names_only == [survol_url+'objects/CIM_Directory?Name='+TempDirPath])
 
     def test_query_sub_directories(self):
         rdflib_graph = rdflib.Graph()
@@ -343,16 +349,16 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
                 ?url_directory_1 a survol:CIM_Directory .
                 ?url_directory_2 a survol:CIM_Directory .
                 ?url_directory_1 survol:CIM_DirectoryContainsFile ?url_directory_2 .
-                ?url_directory_1 survol:Name "C:/Windows/temp" .
+                ?url_directory_1 survol:Name "%s" .
                 ?url_directory_2 survol:Name ?directory_name_2 .
             }
-        """ % (survol_namespace)
+        """ % (survol_namespace, TempDirPath)
 
         query_result = list(rdflib_graph.query(query_pids))
         names_only = sorted([ str(one_result[0]) for one_result in query_result])
         print("Names only=", names_only)
         for one_name in names_only:
-            self.assertTrue(one_name.startswith("C:/Windows/temp"))
+            self.assertTrue(one_name.startswith(TempDirPath))
 
         #for s, p, o in rdflib_graph:
         #    print(s, p, o)
