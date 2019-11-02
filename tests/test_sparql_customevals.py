@@ -116,7 +116,7 @@ class RdflibCustomEvalsBasicTest(unittest.TestCase):
         query_result = list(rdflib_graph.query(query_processes_urls))
         self.assertTrue(len(query_result) == 2)
         for one_tuple in query_result:
-            self.assertTrue( str(one_tuple[0]).startswith(survol_url+'/objects/CIM_Process?Handle='))
+            self.assertTrue( str(one_tuple[0]).startswith(survol_url+'objects/CIM_Process?Handle='))
 
         add_process_to_graph(rdflib_graph, 789)
         query_result = list(rdflib_graph.query(query_processes_urls))
