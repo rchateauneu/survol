@@ -159,7 +159,7 @@ class LibWbemTest(unittest.TestCase):
     def test_sparql_callback_types(self):
         callback_object = lib_wbem.WbemSparqlCallbackApi()
         grph = lib_kbase.MakeGraph()
-        iterator_types = callback_object.CallbackTypes(grph, "see_also")
+        iterator_types = callback_object.CallbackTypes(grph, "see_also", {})
         for object_path, dict_key_values in iterator_types:
             pass
 
