@@ -585,6 +585,12 @@ class HttpTriplesClient(object):
             numTriples = len(self.m_listTriples)
             if numTriples:
                 strToSend = json.dumps(self.m_listTriples)
+                if sys.version_info >= (3,):
+                    assert isinstance(strToSend, str)
+                    strToSend = strToSend.encode('utf-8')
+                    assert isinstance(strToSend, bytes)
+                else:
+                    assert isinstance(strToSend, str)
                 self.m_listTriples = []
             else:
                 strToSend = None
@@ -593,14 +599,19 @@ class HttpTriplesClient(object):
 
             if strToSend:
                 try:
+                    sys.stdout.write("About to write to:%s %d bytes\n" % (G_UpdateServer, len(strToSend)))
+                    sys.stdout.flush()
                     req = urllib2.Request(G_UpdateServer)
                     req.add_header('Content-Type', 'application/json')
 
-                    sys.stdout.write("Tm=%f Sending %d triples to %s\n"% ( time.time(), numTriples, G_UpdateServer) )
+                    sys.stdout.write("Tm=%f Sending %d triples to %s\n" % (time.time(), numTriples, G_UpdateServer))
+                    sys.stdout.flush()
 
-                    response = urllib2.urlopen(req, strToSend)
+                    # POST data should be bytes, an iterable of bytes, or a file object. It cannot be of type str
+                    response = urllib2.urlopen(req, data=strToSend, timeout=5.0)
 
-                    sys.stdout.write("Tm=%f Reading response from %s\n"% ( time.time(), G_UpdateServer) )
+                    sys.stdout.write("Tm=%f Reading response from %s\n"% ( time.time(), G_UpdateServer))
+                    sys.stdout.flush()
                     srvOut = response.read()
                 except:
                     self.m_valid = False
@@ -692,26 +703,18 @@ class CIM_XmlMarshaller:
     def __setattr__(self, attrNam, attrVal):
         # First, change the value, because it might be needed to calculate the moniker.
 
-        # Python2
-        # super(object, self).__setattr__(name, value)
         try:
             oldAttrVal = self.__dict__[attrNam]
         except:
             oldAttrVal = None
 
         self.__dict__[attrNam] = attrVal
-        # Python3
-        # super().__setattr__(name, value)
 
         #https://stackoverflow.com/questions/8600161/executing-periodic-actions-in-python
-        #G_UpdateServer va devenir un lib_event.UpdateServer qui va gerer le timer.
-        #On ne le met pas dans lib_event qui ne s occupe que du stockage.
 
         if G_UpdateServer:
             if oldAttrVal != attrVal:
                 if IsCIM(attrNam,attrVal):
-                    # IL FAUT AUSSI ENVOYER LES FileAccess : Les FileAccess doivent etre
-                    # modelises comme des liens Process <-> Fichier.
                     self.SendUpdateToServer(attrNam, oldAttrVal, attrVal)
 
     @classmethod
