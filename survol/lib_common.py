@@ -11,7 +11,6 @@ except ImportError:
 import signal
 import sys
 import cgi
-import html
 import os
 import re
 import time
@@ -31,6 +30,13 @@ import lib_grammar
 from lib_util import NodeLiteral
 from lib_util import NodeUrl
 from lib_util import TimeStamp
+
+if sys.version_info >= (3,):
+    import html
+    portable_escape = html.escape
+else:
+    portable_escape = cgi.escape
+
 
 # Functions for creating uris are imported in the global namespace.
 from lib_uris import *
@@ -864,7 +870,7 @@ def ErrorMessageHtml(message):
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
 		DEBUG("ErrorMessageHtml DISABLED")
 		# It might be displayed in a HTML document.
-		messageClean = html.escape(message)
+		messageClean = portable_escape(message)
 		raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)
 
 ################################################################################
