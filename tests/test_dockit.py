@@ -638,36 +638,15 @@ class DockitEventsTest(unittest.TestCase):
         fil_summary = open( path_prefix_output_result( "mineit_ps_ef.strace.summary.txt") )
         fil_summary.close()
 
-        # This must be absolutely sure that everything is written,
-        # because we cannot know in advance how many elements are written.
-        time.sleep(20.0)
-
         # Now read the events.
         # This is for a specific entity.
         # RemoteTestAgent + "/survol/event_get.py"
         url_events = RemoteEventsTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
-        events_response = portable_urlopen(url_events, timeout=180)
-        events_content = events_response.read() # Py3:bytes, Py2:str
-
-        events_graph = rdflib.Graph()
-        split_content = events_content.split(b"\n")
-        events_content_trunc = b"".join(split_content)
 
 
-        result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
-        print("len results=", len(events_graph))
-        types_dict = dict()
-        for event_subject, event_predicate, event_object in events_graph:
-            # Given the input filename, this expects some specific data.
-            if event_predicate == rdflib.namespace.RDF.type:
-                # 'http://www.primhillcomputers.com/survol#CIM_Process'
-                header, hash_char, class_name = str(event_object).rpartition("#")
-                try:
-                    types_dict[class_name] += 1
-                except KeyError:
-                    types_dict[class_name] = 1
+        num_loops = 10
+        actual_types_dict = dict()
 
-        print(types_dict)
         properties_number = 25 if sys.platform.startswith("linux") else 14
         expected_types_list = {
             'CIM_Process': 1,
@@ -676,7 +655,33 @@ class DockitEventsTest(unittest.TestCase):
             'CIM_ComputerSystem': 1,
             'Property': properties_number,
             'Class': 4 }
-        self.assertTrue(expected_types_list == types_dict)
+
+        while(num_loops > 0):
+            events_response = portable_urlopen(url_events, timeout=20)
+            events_content = events_response.read()  # Py3:bytes, Py2:str
+            split_content = events_content.split(b"\n")
+            events_content_trunc = b"".join(split_content)
+
+            events_graph = rdflib.Graph()
+            result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
+            print("len results=", len(events_graph))
+            for event_subject, event_predicate, event_object in events_graph:
+                # Given the input filename, this expects some specific data.
+                if event_predicate == rdflib.namespace.RDF.type:
+                    # 'http://www.primhillcomputers.com/survol#CIM_Process'
+                    header, hash_char, class_name = str(event_object).rpartition("#")
+                    try:
+                        actual_types_dict[class_name] += 1
+                    except KeyError:
+                        actual_types_dict[class_name] = 1
+
+            print("num_loops=", num_loops,"types_dict=", actual_types_dict)
+            if expected_types_list == actual_types_dict:
+                break
+            time.sleep(2.0)
+            num_loops -= 1
+
+        self.assertTrue(expected_types_list == actual_types_dict)
 
 
 if __name__ == '__main__':
