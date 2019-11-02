@@ -11,6 +11,7 @@ except ImportError:
 import signal
 import sys
 import cgi
+import html
 import os
 import re
 import time
@@ -863,7 +864,7 @@ def ErrorMessageHtml(message):
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
 		DEBUG("ErrorMessageHtml DISABLED")
 		# It might be displayed in a HTML document.
-		messageClean = cgi.escape(message)
+		messageClean = html.escape(message)
 		raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)
 
 ################################################################################
