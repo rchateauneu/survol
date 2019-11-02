@@ -584,7 +584,7 @@ class DockitProcessesTest(unittest.TestCase):
         dockit.UnitTest(
             inputLogFile = None,
             tracer="strace",
-            topPid=str(sub_proc.pid),
+            topPid=sub_proc.pid,
             baseOutName=path_prefix_output_result("result_ls_strace"),
             outputFormat="TXT",
             verbose=True,
