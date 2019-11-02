@@ -638,7 +638,9 @@ class DockitEventsTest(unittest.TestCase):
         fil_summary = open( path_prefix_output_result( "mineit_ps_ef.strace.summary.txt") )
         fil_summary.close()
 
-        time.sleep(5.0)
+        # This must be absolutely sure that everything is written,
+        # because we cannot know in advance how many elements are written.
+        time.sleep(10.0)
 
         # Now read the events.
         # This is for a specific entity.
@@ -671,7 +673,7 @@ class DockitEventsTest(unittest.TestCase):
             'CIM_NetworkAdapter': 1,
             'CIM_DataFile': 292,
             'CIM_ComputerSystem': 1,
-            'Property': 14,
+            'Property': 25,
             'Class': 4 }
         self.assertTrue(expected_types_list == types_dict)
 
