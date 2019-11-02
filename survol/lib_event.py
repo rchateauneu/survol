@@ -111,8 +111,6 @@ def AddEventToObject(theObject,jsonData):
     # sys.stderr.write("AddEventToObject eventFilNam=%s jsonData=%s\n"%(eventFilNam,str(jsonData)))
     # One JSON triple per line.
 
-    jsonTriple = { "subject":None, "predicate" : None, "object" : None}
-
     # Try several times in case the script event_get.py would read at the same time.
     maxTry = 3
     sleep_delay = 0.1
@@ -173,26 +171,17 @@ def data_store_list(json_data_list):
 
     DEBUG("data_store_list leaving.")
 
-def UrlJsonToTxt(valJson):
-    entity_type = valJson["entity_type"]
-    #sys.stderr.write("UrlJsonToTxt entity_type=%s\n"%entity_type)
-
-    arrOnto = lib_util.OntologyClassKeys(entity_type)
-
-    #sys.stderr.write("UrlJsonToTxt arrOnto=%s\n"%str(arrOnto))
-    entity_ids_dict = {}
-
-    # Only the properties we need.
-    for ontoAttrNam in arrOnto:
-        attrVal = valJson[ontoAttrNam]
-        entity_ids_dict[ ontoAttrNam ] = attrVal
-
-    uriInst = lib_common.gUriGen.UriMakeFromDict(entity_type, entity_ids_dict)
-    #sys.stderr.write("UrlJsonToTxt uriInst=%s\n"%str(uriInst))
-
-    return uriInst
-
 def TripleJsonToRdf(jsonTriple):
+    def UrlJsonToTxt(valJson):
+        entity_type = valJson["entity_type"]
+
+        arrOnto = lib_util.OntologyClassKeys(entity_type)
+
+        # Only the properties we need.
+        entity_ids_dict = {ontoAttrNam: valJson[ontoAttrNam] for ontoAttrNam in arrOnto}
+
+        return lib_common.gUriGen.UriMakeFromDict(entity_type, entity_ids_dict)
+
     valSubject = jsonTriple["subject"]
     txtSubject = UrlJsonToTxt(valSubject)
 
