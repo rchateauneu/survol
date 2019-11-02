@@ -115,6 +115,7 @@ def AddEventToObject(theObject,jsonData):
 
     # Try several times in case the script event_get.py would read at the same time.
     maxTry = 3
+    sleep_delay = 0.1
     while maxTry > 0:
         maxTry -= 1
         try:
@@ -129,7 +130,8 @@ def AddEventToObject(theObject,jsonData):
             break
         except Exception as exc:
             #sys.stderr.write("AddEventToObject waiting:%s\n"%str(exc))
-            time.sleep(0.20)
+            time.sleep(sleep_delay)
+            sleep_delay *= 2
     if maxTry == 0:
         WARNING("AddEventToObject leaving. Failed.")
 
@@ -215,6 +217,7 @@ def get_data_from_file(eventFilNam):
 
     # Try several times in case the script event_get.py would read at the same time.
     maxTry = 3
+    sleep_delay = 0.1
     while maxTry > 0:
         maxTry -= 1
         try:
@@ -237,7 +240,8 @@ def get_data_from_file(eventFilNam):
             break
         except:
             # File locked or does not exist.
-            time.sleep(1.0)
+            time.sleep(sleep_delay)
+            sleep_delay *= 2
 
     if maxTry == 0:
         DEBUG("get_data_from_file eventFilNam=%s No data.",eventFilNam)
