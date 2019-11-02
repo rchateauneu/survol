@@ -116,7 +116,7 @@ class RdflibCustomEvalsBasicTest(unittest.TestCase):
         query_result = list(rdflib_graph.query(query_processes_urls))
         self.assertTrue(len(query_result) == 2)
         for one_tuple in query_result:
-            self.assertTrue( str(one_tuple[0]).startswith('http://primhillcomputer.com/ontologies/objects/CIM_Process?Handle='))
+            self.assertTrue( str(one_tuple[0]).startswith(survol_url+'/objects/CIM_Process?Handle='))
 
         add_process_to_graph(rdflib_graph, 789)
         query_result = list(rdflib_graph.query(query_processes_urls))
@@ -176,26 +176,39 @@ def Feeder_CIM_Directory(graph, instance):
     print("Feeder_CIM_Directory instance=", instance)
     try:
         top_directory_name = instance.m_known_attributes[predicate_Name]
-        variable_contained = instance.m_associators[associator_CIM_DirectoryContainsFile]
         top_directory_node = add_directory_to_graph(graph, top_directory_name)
+        if associator_CIM_DirectoryContainsFile in instance.m_associators:
 
-        print("Feeder_CIM_Directory directory_name=", top_directory_name)
-        for subdir, dirs, files in os.walk(top_directory_name):
             print("Feeder_CIM_Directory directory_name=", top_directory_name)
-            for file in files:
-                filepath = os.path.join(subdir, file)
-                file_node = add_datafile_to_graph(graph, filepath)
-                graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, file_node))
+            for subdir, dirs, files in os.walk(top_directory_name):
+                print("Feeder_CIM_Directory directory_name=", top_directory_name)
+                for file in files:
+                    filepath = os.path.join(subdir, file)
+                    file_node = add_datafile_to_graph(graph, filepath)
+                    graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, file_node))
 
-            for dir in dirs:
-                dirpath = os.path.join(subdir, dir)
-                directory_node = add_directory_to_graph(graph, dirpath)
-                graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, directory_node))
-
-            break
-    except KeyError:
-        print("Feeder_CIM_Directory failed")
+                for dir in dirs:
+                    dirpath = os.path.join(subdir, dir)
+                    directory_node = add_directory_to_graph(graph, dirpath)
+                    graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, directory_node))
+                break
+    except KeyError as exc:
+        print("Feeder_CIM_Directory failed:", exc)
         pass
+
+def add_ontology(graph):
+    graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+    graph.add((class_CIM_Directory, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+    graph.add((class_CIM_DataFile, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+
+    graph.add((predicate_Handle, rdflib.namespace.RDFS.domain, class_CIM_Process))
+    graph.add((predicate_Handle, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.integer))
+    graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_Directory))
+    graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_DataFile))
+    graph.add((predicate_Name, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
+    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.range, class_CIM_Process))
+    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
+
 
 feeders_dict = {
     "CIM_Process":Feeder_CIM_Process,
@@ -210,6 +223,8 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         # part.name = "SelectQuery", "Project", "BGP"
         # print("customEval part.name=", part.name)
         if part.name == 'BGP':
+            add_ontology(ctx.graph)
+
             instances_dict = collections.defaultdict(dict)
             for part_subject, part_predicate, part_object in part.triples:
                 if part_predicate == rdflib.namespace.RDF.type:
@@ -314,6 +329,10 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         """ % (survol_namespace)
 
         query_result = list(rdflib_graph.query(query_pids))
+        print(query_result)
+        names_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == [survol_url+'objects/CIM_Directory?Name=C:/Windows/temp'])
 
     def test_query_sub_directories(self):
         rdflib_graph = rdflib.Graph()
@@ -332,9 +351,39 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         query_result = list(rdflib_graph.query(query_pids))
         names_only = sorted([ str(one_result[0]) for one_result in query_result])
         print("Names only=", names_only)
+        for one_name in names_only:
+            self.assertTrue(one_name.startswith("C:/Windows/temp"))
 
         #for s, p, o in rdflib_graph:
         #    print(s, p, o)
+
+    def test_query_classes(self):
+        rdflib_graph = rdflib.Graph()
+
+        query_pids = """
+            PREFIX survol: <%s>
+            SELECT DISTINCT ?url_class WHERE {
+                ?url_object a ?url_class .
+            }
+        """ % (survol_namespace)
+
+        query_result = list(rdflib_graph.query(query_pids))
+        print(query_result)
+
+    def test_query_predicates(self):
+        rdflib_graph = rdflib.Graph()
+
+        query_predicates = """
+            PREFIX survol: <%s>
+            SELECT DISTINCT ?url_predicate WHERE {
+                ?url_object ?url_predicate survol:CIM_Directory .
+            }
+        """ % (survol_namespace)
+
+        query_result = list(rdflib_graph.query(query_predicates))
+        print(query_result)
+        for s, p, o in rdflib_graph:
+            print(s, p, o)
 
 
 
