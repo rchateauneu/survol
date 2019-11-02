@@ -640,7 +640,7 @@ class DockitEventsTest(unittest.TestCase):
 
         # This must be absolutely sure that everything is written,
         # because we cannot know in advance how many elements are written.
-        time.sleep(10.0)
+        time.sleep(20.0)
 
         # Now read the events.
         # This is for a specific entity.
@@ -668,12 +668,13 @@ class DockitEventsTest(unittest.TestCase):
                     types_dict[class_name] = 1
 
         print(types_dict)
+        properties_number = 25 if sys.platform.startswith("linux") else 14
         expected_types_list = {
             'CIM_Process': 1,
             'CIM_NetworkAdapter': 1,
             'CIM_DataFile': 292,
             'CIM_ComputerSystem': 1,
-            'Property': 25,
+            'Property': properties_number,
             'Class': 4 }
         self.assertTrue(expected_types_list == types_dict)
 
