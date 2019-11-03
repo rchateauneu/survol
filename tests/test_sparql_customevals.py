@@ -297,8 +297,6 @@ class RdflibCombinedCustomEvalsTest(unittest.TestCase):
         print("Pids only=", pids_only)
         self.assertTrue( pids_only == ['111', '222'])
 
-
-
         del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_one']
         del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_two']
 
@@ -310,6 +308,89 @@ class Instance:
         self.m_associators = {}
         self.m_known_attributes = {}
         self.m_unknown_attributes = {}
+        self.m_see_also = []
+
+    def Feed(self, graph):
+        subject_class = self.m_class_name
+        survol_feeders_dict[subject_class](graph, self)
+
+        if "WMI" in self.m_see_also:
+            wmi_feeder(graph, self)
+
+        if "WBEM" in self.m_see_also:
+            wbem_feeder(graph, self)
+
+    def __str__(self):
+        return "Instance:" + self.m_class_name
+
+
+
+def part_triples_to_instances_dict(part):
+    instances_dict = dict()
+    for part_subject, part_predicate, part_object in part.triples:
+        if part_predicate == rdflib.namespace.RDF.type:
+            if isinstance(part_subject, rdflib.term.Variable):
+                class_as_str = part_object.toPython()
+                if class_as_str.startswith(survol_url):
+                    instances_dict[part_subject] = Instance(class_as_str)
+
+    for part_subject, part_predicate, part_object in part.triples:
+        try:
+            current_instance = instances_dict[part_subject]
+        except KeyError:
+            continue
+
+        if part_predicate == rdflib.namespace.RDF.type:
+            continue
+
+        if part_predicate == rdflib.namespace.RDFS.seeAlso:
+            current_instance.m_see_also.append(part_object)
+
+        if isinstance(part_object, rdflib.term.Variable):
+            try:
+                part_object_instance = instances_dict[part_object]
+                # Maybe we should store the variable name in the instance.
+                current_instance.m_associators[part_predicate] = part_object_instance
+            except KeyError:
+                current_instance.m_unknown_attributes[part_predicate] = part_object
+        elif isinstance(part_object, rdflib.term.URIRef):
+            pass
+        elif isinstance(part_object, rdflib.term.Literal):
+            current_instance.m_known_attributes[part_predicate] = part_object
+        else:
+            pass
+
+
+
+    return instances_dict
+
+# Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
+def custom_eval_feed(ctx, part):
+    # part.name = "SelectQuery", "Project", "BGP"
+    # print("customEval part.name=", part.name)
+    if part.name == 'BGP':
+        add_ontology(ctx.graph)
+
+        instances_dict = part_triples_to_instances_dict(part)
+
+        for part_subject, current_instance in instances_dict.items():
+            current_instance.Feed(ctx.graph)
+
+
+        # <type 'generator'>
+        ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+        return ret_BGP
+
+    raise NotImplementedError()
+
+################################################################################
+
+def wmi_feeder(graph, instance):
+    pass
+
+def wbem_feeder(graph, instance):
+    pass
+################################################################################
 
 
 def Feeder_CIM_Process(graph, instance):
@@ -321,29 +402,49 @@ def Feeder_CIM_Process(graph, instance):
             pass
 
 def Feeder_CIM_Directory(graph, instance):
-    print("Feeder_CIM_Directory instance=", instance)
     try:
         top_directory_name = instance.m_known_attributes[predicate_Name]
         top_directory_node = add_directory_to_graph(graph, top_directory_name)
-        if associator_CIM_DirectoryContainsFile in instance.m_associators:
 
+        associator_instance = instance.m_associators[associator_CIM_DirectoryContainsFile]
+        # TODO: Check that the object is a variable.
+        # Checks that its class is CIM_DataFile or CIM_Directory and do not take all objects.
+        # if associator_CIM_DirectoryContainsFile in instance.m_associators:
+        # This is associated to a rdflib.term.Variable
+        assert isinstance(associator_instance, Instance)
+
+        print("Feeder_CIM_Directory directory_name=", top_directory_name)
+        for subdir, dirs, files in os.walk(top_directory_name):
             print("Feeder_CIM_Directory directory_name=", top_directory_name)
-            for subdir, dirs, files in os.walk(top_directory_name):
-                print("Feeder_CIM_Directory directory_name=", top_directory_name)
+
+            if associator_instance.m_class_name == "CIM_DataFile":
                 for file in files:
                     filepath = os.path.join(subdir, file)
                     file_node = add_datafile_to_graph(graph, filepath)
                     graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, file_node))
-
+            elif associator_instance.m_class_name == "CIM_Directory":
                 for dir in dirs:
                     dirpath = os.path.join(subdir, dir)
                     directory_node = add_directory_to_graph(graph, dirpath)
                     graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, directory_node))
-                break
+            else:
+                raise Exception("Invalid class in associator:%s" %  associator_instance.m_class_name)
+            break
     except KeyError as exc:
         print("Feeder_CIM_Directory failed:", exc)
         pass
 
+def Feeder_CIM_DataFile(graph, instance):
+    print("Feeder_CIM_DataFile ", instance)
+
+
+survol_feeders_dict = {
+    "CIM_Process":Feeder_CIM_Process,
+    "CIM_Directory":Feeder_CIM_Directory,
+    "CIM_DataFile": Feeder_CIM_DataFile
+}
+
+################################################################################
 def add_ontology(graph):
     graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
     graph.add((class_CIM_Process, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Process")))
@@ -369,64 +470,13 @@ def add_ontology(graph):
     graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_DirectoryContainsFile")))
 
 
-feeders_dict = {
-    "CIM_Process":Feeder_CIM_Process,
-    "CIM_Directory":Feeder_CIM_Directory
-}
+################################################################################
 
 class RdflibCustomEvalsFeedTest(unittest.TestCase):
 
-    # Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
-    @staticmethod
-    def custom_eval_feed(ctx, part):
-        # part.name = "SelectQuery", "Project", "BGP"
-        # print("customEval part.name=", part.name)
-        if part.name == 'BGP':
-            add_ontology(ctx.graph)
-
-            instances_dict = dict()
-            for part_subject, part_predicate, part_object in part.triples:
-                if part_predicate == rdflib.namespace.RDF.type:
-                    if isinstance(part_subject, rdflib.term.Variable):
-                        class_as_str = part_object.toPython()
-                        if class_as_str.startswith(survol_url):
-                            instances_dict[part_subject] = Instance(class_as_str)
-
-            for part_subject, part_predicate, part_object in part.triples:
-                try:
-                    current_instance = instances_dict[part_subject]
-                except KeyError:
-                    continue
-
-                if part_predicate == rdflib.namespace.RDF.type:
-                    continue
-
-                if isinstance(part_object, rdflib.term.Variable):
-                    if part_object in instances_dict:
-                        current_instance.m_associators[part_predicate] = part_object
-                    else:
-                        current_instance.m_unknown_attributes[part_predicate] = part_object
-                elif isinstance(part_object, rdflib.term.URIRef):
-                    pass
-                elif isinstance(part_object, rdflib.term.Literal):
-                    current_instance.m_known_attributes[part_predicate] = part_object
-                else:
-                    pass
-
-            for part_subject, current_instance in instances_dict.items():
-                subject_class = current_instance.m_class_name
-                feeders_dict[subject_class](ctx.graph, current_instance)
-
-
-            # <type 'generator'>
-            ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
-            return ret_BGP
-
-        raise NotImplementedError()
-
     def setUp(self):
         # add function directly, normally we would use setuptools and entry_points
-        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_feed'] = RdflibCustomEvalsFeedTest.custom_eval_feed
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_feed'] = custom_eval_feed
 
     def tearDown(self):
         if 'custom_eval_feed' in rdflib.plugins.sparql.CUSTOM_EVALS:
@@ -494,9 +544,10 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         self.assertTrue(names_only == [survol_url+'objects/CIM_Directory?Name='+TempDirPath])
 
     def test_query_sub_directories(self):
+        """Subdirectories of temp"""
         rdflib_graph = rdflib.Graph()
 
-        query_pids = """
+        query_subdirs = """
             PREFIX survol: <%s>
             SELECT ?directory_name_2 WHERE {
                 ?url_directory_1 a survol:CIM_Directory .
@@ -507,14 +558,79 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
             }
         """ % (survol_namespace, TempDirPath)
 
-        query_result = list(rdflib_graph.query(query_pids))
+        query_result = list(rdflib_graph.query(query_subdirs))
         names_only = sorted([ str(one_result[0]) for one_result in query_result])
         print("Names only=", names_only)
         for one_name in names_only:
             self.assertTrue(one_name.startswith(TempDirPath))
+            self.assertTrue(os.path.isdir(one_name))
 
-        #for s, p, o in rdflib_graph:
-        #    print(s, p, o)
+    def test_query_sub_files(self):
+        """Subfiles of temp"""
+        rdflib_graph = rdflib.Graph()
+
+        query_subdirs = """
+            PREFIX survol: <%s>
+            SELECT ?file_name WHERE {
+                ?url_directory a survol:CIM_Directory .
+                ?url_datafile a survol:CIM_DataFile .
+                ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+                ?url_directory survol:Name "%s" .
+                ?url_datafile survol:Name ?file_name .
+            }
+        """ % (survol_namespace, TempDirPath)
+
+        # C:/Windows/temp\\survol_temp_file_12532.tmp'
+        tmp_filename = "survol_temp_file_%d.tmp" % os.getpid()
+        tmp_pathname = os.path.join(TempDirPath, tmp_filename)
+        print("tmp_pathname=", tmp_pathname)
+        tmpfil = open(tmp_pathname, "w")
+        tmpfil.close()
+
+        query_result = list(rdflib_graph.query(query_subdirs))
+        names_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Names only=", names_only)
+        for one_name in names_only:
+            self.assertTrue(one_name.startswith(TempDirPath))
+            self.assertFalse(os.path.isdir(one_name))
+        self.assertTrue(tmp_pathname in names_only)
+
+    def test_query_sub_directories_and_files(self):
+        """Subdirectories and subfiles of temp"""
+        rdflib_graph = rdflib.Graph()
+
+        query_subs = """
+            PREFIX survol: <%s>
+            SELECT ?result_name
+            WHERE {
+            {
+                ?url_directory_1 a survol:CIM_Directory .
+                ?url_directory_2 a survol:CIM_Directory .
+                ?url_directory_1 survol:CIM_DirectoryContainsFile ?url_directory_2 .
+                ?url_directory_1 survol:Name "%s" .
+                ?url_directory_2 survol:Name ?result_name .
+            }
+            UNION {
+                ?url_directory_1 a survol:CIM_Directory .
+                ?url_datafile a survol:CIM_DataFile .
+                ?url_directory_1 survol:CIM_DirectoryContainsFile ?url_datafile .
+                ?url_directory_1 survol:Name "%s" .
+                ?url_datafile survol:Name ?result_name .
+            }
+            }
+        """ % (survol_namespace, TempDirPath, TempDirPath)
+
+        tmp_filename = "survol_temp_file_%d.tmp" % os.getpid()
+        tmp_pathname = os.path.join(TempDirPath, tmp_filename)
+        tmpfil = open(tmp_pathname, "w")
+        tmpfil.close()
+
+        query_result = list(rdflib_graph.query(query_subs))
+        names_only = sorted([str(one_result[0]) for one_result in query_result])
+        print("Names only=", names_only)
+        for one_name in names_only:
+            self.assertTrue(one_name.startswith(TempDirPath))
+        self.assertTrue(tmp_pathname in names_only)
 
     def test_query_all_classes(self):
         rdflib_graph = rdflib.Graph()
@@ -583,6 +699,130 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         names_only = sorted([ str(one_result[0])[len(survol_url):] for one_result in query_result])
         print("Names only=", names_only)
         self.assertTrue(names_only == ['CIM_DirectoryContainsFile', 'Handle', 'Name'])
+
+
+################################################################################
+
+class RdflibCustomEvalsSeeAlsoTest(unittest.TestCase):
+
+    def setUp(self):
+        # add function directly, normally we would use setuptools and entry_points
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_feed'] = custom_eval_feed
+
+    def tearDown(self):
+        if 'custom_eval_feed' in rdflib.plugins.sparql.CUSTOM_EVALS:
+            del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_feed']
+
+    @unittest.skip("NOT YET")
+    def test_query_all_processes(self):
+        rdflib_graph = rdflib.Graph()
+
+        query_pids = """
+            PREFIX survol: <%s>
+            SELECT ?process_pid WHERE {
+                ?url_process a survol:CIM_Process .
+                ?url_process survol:Handle ?process_pid .
+                ?url_process rdfs:seeAlso "WMI" .
+            }
+        """ % (survol_namespace)
+
+        query_result = list(rdflib_graph.query(query_pids))
+        pids_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Pids only=", pids_only)
+        self.assertTrue( str(os.getpid()) in pids_only )
+
+################################################################################
+
+# Queries to test
+
+# This returns the sibling processes (Same parent id) of the current process.
+"""
+PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+SELECT ?the_ppid
+WHERE
+{
+  ?url_procA survol:Handle %d .
+  ?url_procA survol:parent_pid ?the_ppid .
+  ?url_procA rdf:type survol:CIM_Process .
+  ?url_procB survol:Handle ?the_ppid .
+  ?url_procB rdf:type survol:CIM_Process .
+  ?url_procC survol:Handle %d .
+  ?url_procC survol:parent_pid ?the_ppid .
+  ?url_procC rdf:type survol:CIM_Process .
+}
+""" % (CurrentPid,CurrentPid)
+
+
+# This should select the parent process id
+"""
+PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+SELECT ?the_ppid
+WHERE
+{ ?url_proc survol:Handle %d .
+  ?url_proc survol:parent_pid ?the_ppid .
+  ?url_proc rdf:type survol:CIM_Process .
+}
+"""
+
+"""
+SELECT *
+WHERE
+{
+  ?url_dirA rdf:type survol:CIM_Directory .
+  ?url_dirB survol:Name "C:/Program Files (x86)/Internet Explorer" .
+  ?url_dirB survol:ParentDirectory ?url_dirA .
+  ?url_dirB rdf:type survol:CIM_Directory .
+}
+"""
+
+"""
+SELECT *
+WHERE
+{
+  ?url_dirA survol:Name "C:/Program Files (x86)" .
+  ?url_dirA rdf:type survol:CIM_Directory .
+  ?url_dirB survol:ParentDirectory ?url_dirA .
+  ?url_dirB rdf:type survol:CIM_Directory .
+}
+"""
+
+# This returns the parent process using a specific script.
+"""
+PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+SELECT *
+WHERE
+{ ?url_procA survol:Handle %d  .
+  ?url_procA rdf:type survol:CIM_Process .
+  ?url_procA rdfs:seeAlso "survol:CIM_Process/single_pidstree" .
+  ?url_procA survol:ppid ?url_procB  .
+  ?url_procB survol:runs ?filename  .
+  ?url_procB rdf:type survol:CIM_Process .
+}
+"""
+
+"""
+SELECT *
+WHERE
+{ ?url_fileA survol:Name "C:/Windows"  .
+  ?url_fileA rdf:type survol:CIM_Directory .
+  ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
+  ?url_fileB rdfs:seeAlso "WMI" .
+  ?url_fileB rdf:type survol:CIM_DataFile .
+}
+"""
+
+"""
+SELECT *
+WHERE
+{ ?url_proc survol:Handle %d  .
+  ?url_proc rdf:type survol:CIM_Process .
+  ?url_file rdfs:seeAlso "WMI" .
+  ?url_file rdf:type survol:CIM_DataFile .
+  ?url_file rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
+  ?url_file survol:CIM_ProcessExecutable ?url_proc  .
+}
+"""
 
 
 if __name__ == '__main__':
