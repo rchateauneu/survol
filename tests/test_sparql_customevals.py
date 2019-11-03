@@ -231,7 +231,7 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         if part.name == 'BGP':
             add_ontology(ctx.graph)
 
-            instances_dict = collections.defaultdict(dict)
+            instances_dict = dict()
             for part_subject, part_predicate, part_object in part.triples:
                 if part_predicate == rdflib.namespace.RDF.type:
                     if isinstance(part_subject, rdflib.term.Variable):
@@ -262,7 +262,6 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
 
             for part_subject, current_instance in instances_dict.items():
                 subject_class = current_instance.m_class_name
-                print("Feeding:", part_subject)
                 feeders_dict[subject_class](ctx.graph, current_instance)
 
 
