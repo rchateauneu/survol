@@ -63,106 +63,12 @@ def add_datafile_to_graph(graph, file_path):
 
 ################################################################################
 
-class RdflibCustomEvalsExperimentalTest(unittest.TestCase):
-
-    must_raise_one = False
-    must_raise_two = False
-    was_called_one = False
-    was_called_two = False
-
-    @staticmethod
-    def custom_eval_one(ctx, part):
-        if part.name == 'BGP':
-            print("Calling custom_eval_one:")
-            if RdflibCustomEvalsExperimentalTest.must_raise_one:
-                raise NotImplementedError()
-
-            RdflibCustomEvalsExperimentalTest.was_called_one = True
-            print("Inside custom_eval_one:")
-            return rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
-
-        raise NotImplementedError()
-
-    @staticmethod
-    def custom_eval_two(ctx, part):
-        if part.name == 'BGP':
-            print("Calling custom_eval_two:")
-            if RdflibCustomEvalsExperimentalTest.must_raise_two:
-                raise NotImplementedError()
-
-            RdflibCustomEvalsExperimentalTest.was_called_two = True
-            print("Inside custom_eval_two:")
-            return rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
-
-        raise NotImplementedError()
-
-    def test_query_several_custom_evals(self):
-        """
-        This tests the logic of several custom eval functions.
-        """
-        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_one'] = RdflibCustomEvalsExperimentalTest.custom_eval_one
-        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_two'] = RdflibCustomEvalsExperimentalTest.custom_eval_two
-
-        rdflib_graph = rdflib.Graph()
-
-        add_process_to_graph(rdflib_graph, 123)
-        add_directory_to_graph(rdflib_graph, "/tmp")
-
-        query_processes_urls = """
-            PREFIX survol: <%s>
-            SELECT ?url_process WHERE {
-                ?url_process a survol:CIM_Process .
-            }
-        """ % (survol_namespace)
-
-        RdflibCustomEvalsExperimentalTest.must_raise_one = False
-        RdflibCustomEvalsExperimentalTest.must_raise_two = False
-        RdflibCustomEvalsExperimentalTest.was_called_one = False
-        RdflibCustomEvalsExperimentalTest.was_called_two = False
-
-        query_result = list(rdflib_graph.query(query_processes_urls))
-        self.assertTrue(RdflibCustomEvalsExperimentalTest.was_called_one)
-        self.assertFalse(RdflibCustomEvalsExperimentalTest.was_called_two)
-
-        RdflibCustomEvalsExperimentalTest.must_raise_one = True
-        RdflibCustomEvalsExperimentalTest.must_raise_two = False
-        RdflibCustomEvalsExperimentalTest.was_called_one = False
-        RdflibCustomEvalsExperimentalTest.was_called_two = False
-
-        query_result = list(rdflib_graph.query(query_processes_urls))
-        self.assertFalse(RdflibCustomEvalsExperimentalTest.was_called_one)
-        self.assertTrue(RdflibCustomEvalsExperimentalTest.was_called_two)
-
-        RdflibCustomEvalsExperimentalTest.must_raise_one = False
-        RdflibCustomEvalsExperimentalTest.must_raise_two = True
-        RdflibCustomEvalsExperimentalTest.was_called_one = False
-        RdflibCustomEvalsExperimentalTest.was_called_two = False
-
-        query_result = list(rdflib_graph.query(query_processes_urls))
-        self.assertTrue(RdflibCustomEvalsExperimentalTest.was_called_one)
-        self.assertFalse(RdflibCustomEvalsExperimentalTest.was_called_two)
-
-        RdflibCustomEvalsExperimentalTest.must_raise_one = True
-        RdflibCustomEvalsExperimentalTest.must_raise_two = True
-        RdflibCustomEvalsExperimentalTest.was_called_one = False
-        RdflibCustomEvalsExperimentalTest.was_called_two = False
-
-        query_result = list(rdflib_graph.query(query_processes_urls))
-        self.assertFalse(RdflibCustomEvalsExperimentalTest.was_called_one)
-        self.assertFalse(RdflibCustomEvalsExperimentalTest.was_called_two)
-
-        del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_one']
-        del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_two']
-
-
-
 class RdflibCustomEvalsBasicTest(unittest.TestCase):
+    "Simple test of a custom evals functions."
 
     # Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
     @staticmethod
     def custom_eval_basic(ctx, part):
-        # part.name = "SelectQuery", "Project", "BGP"
-        # print("customEval part.name=", part.name)
         if part.name == 'BGP':
 
             print("Part Triples:")
@@ -256,6 +162,147 @@ class RdflibCustomEvalsBasicTest(unittest.TestCase):
         print("Pathes only=", pathes_only)
         self.assertTrue( pathes_only == ['/dev','/opt','/proc','/tmp'])
 
+################################################################################
+
+
+class RdflibIndividualCustomEvalsTest(unittest.TestCase):
+    """Several custom eval funtions, called if failing."""
+
+    must_raise_one = False
+    must_raise_two = False
+    was_called_one = False
+    was_called_two = False
+
+    @staticmethod
+    def reset_flags(one, two):
+        RdflibIndividualCustomEvalsTest.must_raise_one = one
+        RdflibIndividualCustomEvalsTest.must_raise_two = two
+        RdflibIndividualCustomEvalsTest.was_called_one = False
+        RdflibIndividualCustomEvalsTest.was_called_two = False
+
+    @staticmethod
+    def custom_eval_one(ctx, part):
+        if part.name == 'BGP':
+            print("Calling custom_eval_one:")
+            if RdflibIndividualCustomEvalsTest.must_raise_one:
+                raise NotImplementedError()
+
+            RdflibIndividualCustomEvalsTest.was_called_one = True
+            print("Inside custom_eval_one:")
+            return rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+
+        raise NotImplementedError()
+
+    @staticmethod
+    def custom_eval_two(ctx, part):
+        if part.name == 'BGP':
+            print("Calling custom_eval_two:")
+            if RdflibIndividualCustomEvalsTest.must_raise_two:
+                raise NotImplementedError()
+
+            RdflibIndividualCustomEvalsTest.was_called_two = True
+            print("Inside custom_eval_two:")
+            return rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+
+        raise NotImplementedError()
+
+    def test_query_several_custom_evals(self):
+        """
+        This tests the logic of several custom eval functions.
+        """
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_one'] = RdflibIndividualCustomEvalsTest.custom_eval_one
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_two'] = RdflibIndividualCustomEvalsTest.custom_eval_two
+
+        rdflib_graph = rdflib.Graph()
+
+        add_process_to_graph(rdflib_graph, 123)
+        add_directory_to_graph(rdflib_graph, "/tmp")
+
+        query_processes_urls = """
+            PREFIX survol: <%s>
+            SELECT ?url_process WHERE {
+                ?url_process a survol:CIM_Process .
+            }
+        """ % (survol_namespace)
+
+        RdflibIndividualCustomEvalsTest.reset_flags(False, False)
+        rdflib_graph.query(query_processes_urls)
+        self.assertTrue(RdflibIndividualCustomEvalsTest.was_called_one)
+        self.assertFalse(RdflibIndividualCustomEvalsTest.was_called_two)
+
+        RdflibIndividualCustomEvalsTest.reset_flags(True, False)
+        rdflib_graph.query(query_processes_urls)
+        self.assertFalse(RdflibIndividualCustomEvalsTest.was_called_one)
+        self.assertTrue(RdflibIndividualCustomEvalsTest.was_called_two)
+
+        RdflibIndividualCustomEvalsTest.reset_flags(False, True)
+        rdflib_graph.query(query_processes_urls)
+        self.assertTrue(RdflibIndividualCustomEvalsTest.was_called_one)
+        self.assertFalse(RdflibIndividualCustomEvalsTest.was_called_two)
+
+        RdflibIndividualCustomEvalsTest.reset_flags(True, True)
+        rdflib_graph.query(query_processes_urls)
+        self.assertFalse(RdflibIndividualCustomEvalsTest.was_called_one)
+        self.assertFalse(RdflibIndividualCustomEvalsTest.was_called_two)
+
+        del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_one']
+        del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_two']
+
+################################################################################
+
+
+class RdflibCombinedCustomEvalsTest(unittest.TestCase):
+    """
+    Several custom eval funtions, called if failing.
+    Each of them can still add data.
+    """
+
+
+    def test_query_several_custom_evals(self):
+        "This tests the logic of several custom eval functions."
+
+        def custom_eval_one(ctx, part):
+            if part.name == 'BGP':
+                print("Calling custom_eval_one:")
+                add_process_to_graph(ctx.graph, 111)
+                raise NotImplementedError()
+
+            raise NotImplementedError()
+
+        def custom_eval_two(ctx, part):
+            if part.name == 'BGP':
+                print("Calling custom_eval_two:")
+                add_process_to_graph(ctx.graph, 222)
+                return rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+
+            raise NotImplementedError()
+
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_one'] = custom_eval_one
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_two'] = custom_eval_two
+
+        rdflib_graph = rdflib.Graph()
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?handle_process WHERE {
+                ?url_process a survol:CIM_Process .
+                ?url_process survol:Handle ?handle_process .
+            }
+        """ % (survol_namespace)
+
+
+        iter_result = rdflib_graph.query(sparql_query)
+        query_result = list(iter_result)
+        pids_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Pids only=", pids_only)
+        self.assertTrue( pids_only == ['111', '222'])
+
+
+
+        del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_one']
+        del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_two']
+
+################################################################################
 
 class Instance:
     def __init__(self, class_name):
