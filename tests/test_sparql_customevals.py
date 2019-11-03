@@ -204,16 +204,27 @@ def Feeder_CIM_Directory(graph, instance):
 
 def add_ontology(graph):
     graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+    graph.add((class_CIM_Process, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Process")))
     graph.add((class_CIM_Directory, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+    graph.add((class_CIM_Directory, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Directory")))
     graph.add((class_CIM_DataFile, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+    graph.add((class_CIM_DataFile, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_DataFile")))
 
+    graph.add((predicate_Handle, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
     graph.add((predicate_Handle, rdflib.namespace.RDFS.domain, class_CIM_Process))
     graph.add((predicate_Handle, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.integer))
+    graph.add((predicate_Handle, rdflib.namespace.RDFS.label, rdflib.Literal("Handle")))
+
+    graph.add((predicate_Name, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
     graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_Directory))
     graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_DataFile))
     graph.add((predicate_Name, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
+    graph.add((predicate_Name, rdflib.namespace.RDFS.label, rdflib.Literal("Name")))
+
+    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
     graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.range, class_CIM_Process))
     graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
+    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_DirectoryContainsFile")))
 
 
 feeders_dict = {
@@ -309,6 +320,7 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         query_result = list(rdflib_graph.query(query_pids))
         self.assertTrue( len(query_result) == 1 )
 
+    @unittest.skip("This cannot work because we cannot return all directories.")
     def test_query_directory_unknown(self):
         rdflib_graph = rdflib.Graph()
 
@@ -362,35 +374,90 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         #for s, p, o in rdflib_graph:
         #    print(s, p, o)
 
-    def test_query_classes(self):
+    def test_query_all_classes(self):
         rdflib_graph = rdflib.Graph()
 
         query_pids = """
             PREFIX survol: <%s>
-            SELECT DISTINCT ?url_class WHERE {
+            SELECT DISTINCT ?url_object WHERE {
                 ?url_object a ?url_class .
             }
         """ % (survol_namespace)
 
         query_result = list(rdflib_graph.query(query_pids))
         print(query_result)
+        names_only = sorted([ str(one_result[0])[len(survol_url):] for one_result in query_result])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == ['CIM_DataFile', 'CIM_Directory', 'CIM_Process'])
 
-    def test_query_predicates(self):
+    def test_query_rdfs_classes(self):
         rdflib_graph = rdflib.Graph()
 
-        query_predicates = """
+        query_pids = """
             PREFIX survol: <%s>
             SELECT DISTINCT ?url_object WHERE {
-                ?url_object ?url_predicate survol:CIM_Directory .
+                ?url_object a rdfs:Class .
             }
         """ % (survol_namespace)
 
-        query_result = list(rdflib_graph.query(query_predicates))
+        query_result = list(rdflib_graph.query(query_pids))
+        print(query_result)
+        names_only = sorted([ str(one_result[0])[len(survol_url):] for one_result in query_result])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == ['CIM_DataFile', 'CIM_Directory', 'CIM_Process'])
+
+    def test_query_all_predicates_cim_directory(self):
+        rdflib_graph = rdflib.Graph()
+
+        query_properties = """
+            PREFIX survol: <%s>
+            SELECT DISTINCT ?url_object WHERE {
+                ?url_object ?url_property survol:CIM_Directory .
+            }
+        """ % (survol_namespace)
+
+        query_result = list(rdflib_graph.query(query_properties))
         print(query_result)
         names_only = sorted([ str(one_result[0]) for one_result in query_result])
         print("Names only=", names_only)
         self.assertTrue(names_only == [survol_url+'Name'])
 
+    def test_query_rdfs_predicates_cim_directory(self):
+        rdflib_graph = rdflib.Graph()
+
+        query_properties = """
+            PREFIX survol: <%s>
+            SELECT DISTINCT ?url_object WHERE {
+                ?url_object rdf:Property survol:CIM_Directory .
+            }
+        """ % (survol_namespace)
+
+        query_result = list(rdflib_graph.query(query_properties))
+        print(query_result)
+        names_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == [survol_url+'Name'])
+
+
+    def test_property_meta_information(self):
+        """
+        Taken from http://sparql-playground.sib.swiss/faq with no change.
+        """
+        rdflib_graph = rdflib.Graph()
+        query_meta_information = """
+            SELECT DISTINCT ?property
+            WHERE { 
+              ?property a rdf:Property. 
+              optional {?property rdfs:comment ?comment}
+              optional {?property rdfs:range ?range}
+              optional {?property rdfs:domain ?domain}
+              optional {?property rdfs:label ?label}
+            }"""
+        query_result = list(rdflib_graph.query(query_meta_information))
+        print(query_result)
+        names_only = sorted([ str(one_result[0])[len(survol_url):] for one_result in query_result])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == ['CIM_DirectoryContainsFile', 'Handle', 'Name'])
 
 
 if __name__ == '__main__':
