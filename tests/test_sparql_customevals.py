@@ -388,7 +388,7 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         print(query_result)
         names_only = sorted([ str(one_result[0])[len(survol_url):] for one_result in query_result])
         print("Names only=", names_only)
-        self.assertTrue(names_only == ['CIM_DataFile', 'CIM_Directory', 'CIM_Process'])
+        self.assertTrue(names_only == ['CIM_DataFile', 'CIM_Directory', 'CIM_DirectoryContainsFile', 'CIM_Process', 'Handle', 'Name'])
 
     def test_query_rdfs_classes(self):
         rdflib_graph = rdflib.Graph()
@@ -421,23 +421,6 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         names_only = sorted([ str(one_result[0]) for one_result in query_result])
         print("Names only=", names_only)
         self.assertTrue(names_only == [survol_url+'Name'])
-
-    def test_query_rdfs_predicates_cim_directory(self):
-        rdflib_graph = rdflib.Graph()
-
-        query_properties = """
-            PREFIX survol: <%s>
-            SELECT DISTINCT ?url_object WHERE {
-                ?url_object rdf:Property survol:CIM_Directory .
-            }
-        """ % (survol_namespace)
-
-        query_result = list(rdflib_graph.query(query_properties))
-        print(query_result)
-        names_only = sorted([ str(one_result[0]) for one_result in query_result])
-        print("Names only=", names_only)
-        self.assertTrue(names_only == [survol_url+'Name'])
-
 
     def test_property_meta_information(self):
         """
