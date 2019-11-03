@@ -380,15 +380,16 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
 
         query_predicates = """
             PREFIX survol: <%s>
-            SELECT DISTINCT ?url_predicate WHERE {
+            SELECT DISTINCT ?url_object WHERE {
                 ?url_object ?url_predicate survol:CIM_Directory .
             }
         """ % (survol_namespace)
 
         query_result = list(rdflib_graph.query(query_predicates))
         print(query_result)
-        for s, p, o in rdflib_graph:
-            print(s, p, o)
+        names_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == [survol_url+'Name'])
 
 
 
