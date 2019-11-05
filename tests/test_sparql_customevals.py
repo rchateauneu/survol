@@ -362,6 +362,10 @@ def instances_sort(instance_list):
     # https://www.geeksforgeeks.org/python-program-for-topological-sorting/
     from collections import defaultdict
 
+    # If this is an iterator.
+    if not isinstance(instance_list, list):
+        instance_list = list(instance_list)
+
     # Class to represent a graph
     class Graph:
         def __init__(self, vertices):
@@ -552,7 +556,7 @@ def Feeder_CIM_Directory(graph, instance):
                 raise Exception("Invalid class in associator:%s" %  associator_instance.m_class_name)
             break
     else:
-        print("Feeder_CIM_Directory associator but no name:", exc)
+        print("Feeder_CIM_Directory associator but no name:")
         try:
             file_path = associator_instance.m_known_attributes[predicate_Name]
             if associator_instance.m_class_name == "CIM_DataFile":
