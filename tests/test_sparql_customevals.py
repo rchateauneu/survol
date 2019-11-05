@@ -6,6 +6,7 @@ import os
 import sys
 import json
 import collections
+import tempfile
 import rdflib
 import unittest
 import psutil
@@ -13,6 +14,19 @@ import psutil
 from init import *
 
 update_test_path()
+
+################################################################################
+
+# Sparql does not like backslashes.
+TempDirPath = tempfile.gettempdir().replace("\\","/")
+
+def create_temp_file():
+    tmp_filename = "survol_temp_file_%d.tmp" % os.getpid()
+    tmp_pathname = os.path.join(TempDirPath, tmp_filename)
+    tmpfil = open(tmp_pathname, "w")
+    tmpfil.close()
+    return tmp_pathname
+
 
 ################################################################################
 
@@ -27,11 +41,6 @@ predicate_Name = rdflib.term.URIRef(survol_url + "Name")
 
 associator_CIM_DirectoryContainsFile = rdflib.term.URIRef(survol_url + "CIM_DirectoryContainsFile")
 
-
-if sys.platform.startswith("linux"):
-    TempDirPath = "/tmp"
-else:
-    TempDirPath = "C:/Windows/temp"
 
 def add_process_to_graph(graph, pid, process_name = None):
     my_process = rdflib.term.URIRef(survol_url + "objects/CIM_Process?Handle=%d" % pid)
@@ -302,41 +311,115 @@ class RdflibCombinedCustomEvalsTest(unittest.TestCase):
 
 ################################################################################
 
-class Instance:
-    def __init__(self, class_name):
+
+class ObjectInstance:
+    def __init__(self, class_name, key_variable):
+        self.m_variable = key_variable
         self.m_class_name = class_name[len(survol_url):]
         self.m_associators = {}
         self.m_known_attributes = {}
         self.m_unknown_attributes = {}
         self.m_see_also = []
+        self.m_input_variables = []
 
-    def Feed(self, graph):
+    def Feed(self, graph, variables_context):
         subject_class = self.m_class_name
-        survol_feeders_dict[subject_class](graph, self)
+        # TODO: Return a function instead of looping twice.
+        it = survol_feeders_dict[subject_class](graph, self)
+        for elt in it:
+            yield elt
 
         if "WMI" in self.m_see_also:
+            raise NotImplementedError("Not implemented yet")
             wmi_feeder(graph, self)
 
         if "WBEM" in self.m_see_also:
+            raise NotImplementedError("Not implemented yet")
             wbem_feeder(graph, self)
 
     def __str__(self):
-        return "Instance:" + self.m_class_name
+        def kw_to_str(property, value):
+            property_str = str(property)[len(survol_url):]
+            value_str = str(value)
+            return "%s=%s" % (property_str, value_str)
 
+        # print("ka=", self.m_known_attributes.items())
+        kw = ".".join([ kw_to_str(property, value) for property, value in self.m_known_attributes.items()])
+        vars_str = ",".join( str(var) for var in self.m_input_variables)
+        return "ObjectInstance:" + self.m_class_name + ":" + self.m_variable + ":" + kw + ":" + vars_str
 
+# BEWARE: The built-in sort method requires that cmp imposes a total ordering,
+# BEWARE: ... which is not the case here.
+def compare_instances(instance_a, instance_b):
+    a_from_b = instance_a.m_variable in instance_b.m_input_variables
+    b_from_a = instance_b.m_variable in instance_a.m_input_variables
+    if a_from_b:
+        return 0 if b_from_a else 1
+    else:
+        return -1 if b_from_a else 0
+
+def instances_sort(instance_list):
+    # https://www.geeksforgeeks.org/python-program-for-topological-sorting/
+    from collections import defaultdict
+
+    # Class to represent a graph
+    class Graph:
+        def __init__(self, vertices):
+            self.graph = defaultdict(list)  # dictionary containing adjacency List
+            self.V = vertices  # No. of vertices
+
+        # function to add an edge to graph
+        def addEdge(self, u, v):
+            self.graph[u].append(v)
+
+        def topologicalSortUtil(self, v, visited, stack):
+            visited[v] = True
+            for i in self.graph[v]:
+                if visited[i] == False:
+                    self.topologicalSortUtil(i, visited, stack)
+            stack.insert(0, v)
+
+        def topologicalSort(self):
+            visited = [False] * self.V
+            stack = []
+            for i in range(self.V):
+                if visited[i] == False:
+                    self.topologicalSortUtil(i, visited, stack)
+            return stack
+
+    len_instances = len(instance_list)
+    g = Graph(len_instances)
+    for one_index in range(len_instances):
+        one_instance = instance_list[one_index]
+        for another_index in range(len_instances):
+            if one_index != another_index:
+                another_instance = instance_list[another_index]
+                cmp_result = compare_instances(one_instance, another_instance)
+                if cmp_result > 0:
+                    g.addEdge(one_index, another_index)
+                elif cmp_result < 0:
+                    g.addEdge(another_index, one_index)
+    result_indices = g.topologicalSort()
+    result_instances = []
+    for one_index in result_indices:
+        result_instances.append(instance_list[one_index])
+    return result_instances
 
 def part_triples_to_instances_dict(part):
     instances_dict = dict()
+    print("Triples")
     for part_subject, part_predicate, part_object in part.triples:
+        print("    ", part_subject, part_predicate, part_object)
         if part_predicate == rdflib.namespace.RDF.type:
             if isinstance(part_subject, rdflib.term.Variable):
                 class_as_str = part_object.toPython()
                 if class_as_str.startswith(survol_url):
-                    instances_dict[part_subject] = Instance(class_as_str)
+                    instances_dict[part_subject] = ObjectInstance(class_as_str, part_subject)
 
     for part_subject, part_predicate, part_object in part.triples:
         try:
             current_instance = instances_dict[part_subject]
+            assert isinstance(current_instance, ObjectInstance)
         except KeyError:
             continue
 
@@ -349,9 +432,12 @@ def part_triples_to_instances_dict(part):
         if isinstance(part_object, rdflib.term.Variable):
             try:
                 part_object_instance = instances_dict[part_object]
+                #current_instance.m_input_variables.append(part_object)
+                part_object_instance.m_input_variables.append(part_subject)
                 # Maybe we should store the variable name in the instance.
                 current_instance.m_associators[part_predicate] = part_object_instance
             except KeyError:
+                current_instance.m_input_variables.append(part_object)
                 current_instance.m_unknown_attributes[part_predicate] = part_object
         elif isinstance(part_object, rdflib.term.URIRef):
             pass
@@ -359,8 +445,6 @@ def part_triples_to_instances_dict(part):
             current_instance.m_known_attributes[part_predicate] = part_object
         else:
             pass
-
-
 
     return instances_dict
 
@@ -373,9 +457,31 @@ def custom_eval_feed(ctx, part):
 
         instances_dict = part_triples_to_instances_dict(part)
 
-        for part_subject, current_instance in instances_dict.items():
-            current_instance.Feed(ctx.graph)
+        sorted_instances = instances_sort(instances_dict.values())
 
+        #sorted_instances = sorted(instances_dict.values(), key=functools.cmp_to_key(compare_instances))
+
+        print("Ordered instances")
+        for current_instance in sorted_instances:
+            print("    ", current_instance.m_variable, current_instance)
+
+        variables_context = dict()
+
+        print("Num instances:", len(sorted_instances))
+        def call_one_level(instance_index):
+            if instance_index == len(sorted_instances):
+                return
+
+            current_instance = sorted_instances[instance_index]
+            print("instance_index=", instance_index, current_instance)
+
+            iter_nodes = current_instance.Feed(ctx.graph, variables_context)
+
+            for one_node in iter_nodes:
+                variables_context[current_instance.m_variable] = one_node
+                call_one_level(instance_index+1)
+
+        call_one_level(instance_index = 0)
 
         # <type 'generator'>
         ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
@@ -397,46 +503,80 @@ def Feeder_CIM_Process(graph, instance):
     # Iterate over all running process
     for proc in psutil.process_iter():
         try:
-            add_process_to_graph(graph, proc.pid, proc.name())
+            yield add_process_to_graph(graph, proc.pid, proc.name())
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
 def Feeder_CIM_Directory(graph, instance):
+    print("Feeder_CIM_Directory ", instance)
+
+    # This creates the triple of the directory if its name is known.
     try:
         top_directory_name = instance.m_known_attributes[predicate_Name]
         top_directory_node = add_directory_to_graph(graph, top_directory_name)
+        yield top_directory_node
+    except KeyError as exc:
+        print("Feeder_CIM_Directory No name", exc)
+        top_directory_node = None
 
+    try:
         associator_instance = instance.m_associators[associator_CIM_DirectoryContainsFile]
+    except KeyError as exc:
+        print("Feeder_CIM_Directory No associator", exc)
+        return
+
+    if top_directory_node:
         # TODO: Check that the object is a variable.
         # Checks that its class is CIM_DataFile or CIM_Directory and do not take all objects.
         # if associator_CIM_DirectoryContainsFile in instance.m_associators:
         # This is associated to a rdflib.term.Variable
-        assert isinstance(associator_instance, Instance)
+        assert isinstance(associator_instance, ObjectInstance)
 
         print("Feeder_CIM_Directory directory_name=", top_directory_name)
-        for subdir, dirs, files in os.walk(top_directory_name):
+        for current_subdir, dirs, files in os.walk(top_directory_name):
             print("Feeder_CIM_Directory directory_name=", top_directory_name)
 
             if associator_instance.m_class_name == "CIM_DataFile":
-                for file in files:
-                    filepath = os.path.join(subdir, file)
-                    file_node = add_datafile_to_graph(graph, filepath)
+                for sub_file in files:
+                    sub_file_path = os.path.join(current_subdir, sub_file)
+                    file_node = add_datafile_to_graph(graph, sub_file_path)
                     graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, file_node))
+                    yield file_node
             elif associator_instance.m_class_name == "CIM_Directory":
-                for dir in dirs:
-                    dirpath = os.path.join(subdir, dir)
-                    directory_node = add_directory_to_graph(graph, dirpath)
+                for sub_dir in dirs:
+                    sub_dir_path = os.path.join(current_subdir, sub_dir)
+                    directory_node = add_directory_to_graph(graph, sub_dir_path)
                     graph.add((top_directory_node, associator_CIM_DirectoryContainsFile, directory_node))
+                    yield directory_node
             else:
                 raise Exception("Invalid class in associator:%s" %  associator_instance.m_class_name)
             break
-    except KeyError as exc:
-        print("Feeder_CIM_Directory failed:", exc)
-        pass
+    else:
+        print("Feeder_CIM_Directory associator but no name:", exc)
+        try:
+            file_path = associator_instance.m_known_attributes[predicate_Name]
+            if associator_instance.m_class_name == "CIM_DataFile":
+                file_node = add_datafile_to_graph(graph, file_path)
+            elif associator_instance.m_class_name == "CIM_DataFile":
+                file_node = add_directory_to_graph(graph, file_path)
+            else:
+                raise Exception("Invalid class in associator (2):%s" % associator_instance.m_class_name)
+            parent_path = os.path.dirname(file_path)
+            directory_node = add_directory_to_graph(graph, parent_path)
+            graph.add((directory_node, associator_CIM_DirectoryContainsFile, file_node))
+            yield directory_node
+
+        except KeyError as exc:
+            print("Feeder_CIM_Directory failed:", exc, " associated instance not defined:", instance)
+
 
 def Feeder_CIM_DataFile(graph, instance):
     print("Feeder_CIM_DataFile ", instance)
-
+    try:
+        file_path = instance.m_known_attributes[predicate_Name]
+        yield add_datafile_to_graph(graph, file_path)
+    except KeyError as exc:
+        print("Feeder_CIM_DataFile failed:", exc, instance)
 
 survol_feeders_dict = {
     "CIM_Process":Feeder_CIM_Process,
@@ -581,11 +721,7 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         """ % (survol_namespace, TempDirPath)
 
         # C:/Windows/temp\\survol_temp_file_12532.tmp'
-        tmp_filename = "survol_temp_file_%d.tmp" % os.getpid()
-        tmp_pathname = os.path.join(TempDirPath, tmp_filename)
-        print("tmp_pathname=", tmp_pathname)
-        tmpfil = open(tmp_pathname, "w")
-        tmpfil.close()
+        tmp_pathname = create_temp_file()
 
         query_result = list(rdflib_graph.query(query_subdirs))
         names_only = sorted([ str(one_result[0]) for one_result in query_result])
@@ -620,10 +756,8 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
             }
         """ % (survol_namespace, TempDirPath, TempDirPath)
 
-        tmp_filename = "survol_temp_file_%d.tmp" % os.getpid()
-        tmp_pathname = os.path.join(TempDirPath, tmp_filename)
-        tmpfil = open(tmp_pathname, "w")
-        tmpfil.close()
+        # C:/Windows/temp\\survol_temp_file_12532.tmp'
+        tmp_pathname = create_temp_file()
 
         query_result = list(rdflib_graph.query(query_subs))
         names_only = sorted([str(one_result[0]) for one_result in query_result])
@@ -631,6 +765,62 @@ class RdflibCustomEvalsFeedTest(unittest.TestCase):
         for one_name in names_only:
             self.assertTrue(one_name.startswith(TempDirPath))
         self.assertTrue(tmp_pathname in names_only)
+
+    def test_query_parent_directory(self):
+        """Subdirectories of temp"""
+        rdflib_graph = rdflib.Graph()
+
+        # C:/Windows/temp\\survol_temp_file_12532.tmp'
+        tmp_pathname = create_temp_file()
+
+        # Sparql does not accept backslashes.
+        tmp_pathname = tmp_pathname.replace("\\", "/")
+
+        query_subdirs = """
+            PREFIX survol: <%s>
+            SELECT ?directory_name WHERE {
+                ?url_directory a survol:CIM_Directory .
+                ?url_datafile a survol:CIM_DataFile .
+                ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+                ?url_directory survol:Name ?directory_name .
+                ?url_datafile survol:Name "%s" .
+            }
+        """ % (survol_namespace, tmp_pathname)
+
+        query_result = list(rdflib_graph.query(query_subdirs))
+        names_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == [TempDirPath])
+
+    @unittest.skip("Not yet OK")
+    def test_query_grandparent_directory(self):
+        """Subdirectories of temp"""
+        rdflib_graph = rdflib.Graph()
+
+        # C:/Windows/temp\\survol_temp_file_12532.tmp'
+        tmp_pathname = create_temp_file()
+
+        # Sparql does not accept backslashes.
+        tmp_pathname = tmp_pathname.replace("\\", "/")
+
+        query_subdirs = """
+            PREFIX survol: <%s>
+            SELECT ?grandparent_name WHERE {
+                ?url_grandparent a survol:CIM_Directory .
+                ?url_directory a survol:CIM_Directory .
+                ?url_datafile a survol:CIM_DataFile .
+                ?url_grandparent survol:CIM_DirectoryContainsFile ?url_datafile .
+                ?url_directory survol:CIM_DirectoryContainsFile ?url_directory .
+                ?url_grandparent survol:Name ?grandparent_name .
+                ?url_directory survol:Name ?directory_name .
+                ?url_datafile survol:Name "%s" .
+            }
+        """ % (survol_namespace, tmp_pathname)
+
+        query_result = list(rdflib_graph.query(query_subdirs))
+        names_only = sorted([ str(one_result[0]) for one_result in query_result])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == [os.path.dirname(TempDirPath)])
 
     def test_query_all_classes(self):
         rdflib_graph = rdflib.Graph()
@@ -730,6 +920,60 @@ class RdflibCustomEvalsSeeAlsoTest(unittest.TestCase):
         pids_only = sorted([ str(one_result[0]) for one_result in query_result])
         print("Pids only=", pids_only)
         self.assertTrue( str(os.getpid()) in pids_only )
+
+
+################################################################################
+
+class RdflibCustomEvalsUnitTest(unittest.TestCase):
+
+    def test_instances_comparison(self):
+        all_instances = []
+        instance_a = ObjectInstance("A","var_a")
+        instance_a.m_input_variables = ["var_d"]
+        all_instances.append(instance_a)
+
+        instance_b = ObjectInstance("B","var_b")
+        instance_b.m_input_variables = ["var_a", "var_c"]
+        all_instances.append(instance_b)
+
+        instance_c = ObjectInstance("C","var_c")
+        instance_c.m_input_variables = ["var_a"]
+        all_instances.append(instance_c)
+
+        instance_d = ObjectInstance("D","var_d")
+        instance_d.m_input_variables = []
+        all_instances.append(instance_d)
+
+        self.assertTrue( compare_instances(instance_a, instance_a) == 0 )
+        self.assertTrue( compare_instances(instance_a, instance_b) == 1 )
+        self.assertTrue( compare_instances(instance_a, instance_c) == 1 )
+        self.assertTrue( compare_instances(instance_a, instance_d) == -1 )
+
+        self.assertTrue( compare_instances(instance_b, instance_a) == -1 )
+        self.assertTrue( compare_instances(instance_b, instance_b) == 0 )
+        self.assertTrue( compare_instances(instance_b, instance_c) == -1 )
+        self.assertTrue( compare_instances(instance_b, instance_d) == 0 )
+
+        self.assertTrue( compare_instances(instance_c, instance_a) == -1 )
+        self.assertTrue( compare_instances(instance_c, instance_b) == 1 )
+        self.assertTrue( compare_instances(instance_c, instance_c) == 0 )
+        self.assertTrue( compare_instances(instance_c, instance_d) == 0 )
+
+        self.assertTrue( compare_instances(instance_d, instance_a) == 1 )
+        self.assertTrue( compare_instances(instance_d, instance_b) == 0 )
+        self.assertTrue( compare_instances(instance_d, instance_c) == 0 )
+        self.assertTrue( compare_instances(instance_d, instance_d) == 0 )
+
+        sorted_instances = instances_sort(all_instances)
+
+        print("")
+        print("sorted_instances=",sorted_instances)
+        variables_list = [ one_instance.m_variable for one_instance in sorted_instances ]
+        print("variables_list=", variables_list)
+        self.assertTrue(variables_list == ["var_d","var_a","var_c","var_b"])
+
+
+
 
 ################################################################################
 
