@@ -35,14 +35,14 @@ class SurvolStore(rdflib.plugins.memory.IOMemory):
     def __init__(self, configuration=None, identifier=None):
         super(SurvolStore, self).__init__(configuration)
 
-    def triples(self, subject, predicate, object, context=None):
-        print("triples=",subject, predicate, object)
+    def triples(self, t_triple, context=None):
+        (t_subject, t_predicate, t_object) = t_triple
+        print("triples=",t_subject, t_predicate, t_object)
         if context:
             print("context=",context)
-        return super(SurvolStore, self).triples((subject, predicate, object), context)
+        return super(SurvolStore, self).triples((t_subject, t_predicate, t_object), context)
 
 def CreateGraph():
-    return rdflib.Graph()
     survol_store = SurvolStore()
     rdflib_graph = rdflib.Graph(survol_store)
 
