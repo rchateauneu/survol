@@ -35,7 +35,7 @@ class SurvolStore(rdflib.plugins.memory.IOMemory):
     def __init__(self, configuration=None, identifier=None):
         super(SurvolStore, self).__init__(configuration)
 
-    def triples(self, (subject, predicate, object), context=None):
+    def triples(self, subject, predicate, object, context=None):
         print("triples=",subject, predicate, object)
         if context:
             print("context=",context)
@@ -1022,7 +1022,7 @@ class EvalBGP:
         self.m_ctx = ctx
         self.m_part = part
 
-    def create_instances_from_part_triples(selfself, part):
+    def create_instances_from_part_triples(self, part):
         instances_dict = dict()
         print("Triples")
         for part_subject, part_predicate, part_object in part.triples:
