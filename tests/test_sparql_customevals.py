@@ -42,6 +42,7 @@ class SurvolStore(rdflib.plugins.memory.IOMemory):
         return super(SurvolStore, self).triples((subject, predicate, object), context)
 
 def CreateGraph():
+    return rdflib.Graph()
     survol_store = SurvolStore()
     rdflib_graph = rdflib.Graph(survol_store)
 
