@@ -31,6 +31,7 @@ def create_temp_file():
 
 ################################################################################
 
+# Not really used for the moment, but kept as a documentation.
 class SurvolStore(rdflib.plugins.memory.IOMemory):
     def __init__(self, configuration=None, identifier=None):
         super(SurvolStore, self).__init__(configuration)
@@ -999,8 +1000,21 @@ class RdflibCustomEvalsUnitTest(unittest.TestCase):
         self.assertTrue(variables_list == ["var_d","var_a","var_c","var_b"])
 
 
-
-
+# MAUVAIS TRI !!
+"""
+     url_directory http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://primhillcomputer.com/ontologies/CIM_Directory
+     url_directory http://primhillcomputer.com/ontologies/CIM_DirectoryContainsFile url_directory
+     url_grandparent http://primhillcomputer.com/ontologies/CIM_DirectoryContainsFile url_datafile
+     url_datafile http://primhillcomputer.com/ontologies/Name c:/users/rchateau/appdata/local/temp/survol_temp_file_15696.tmp
+     url_datafile http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://primhillcomputer.com/ontologies/CIM_DataFile
+     url_grandparent http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://primhillcomputer.com/ontologies/CIM_Directory
+     url_directory http://primhillcomputer.com/ontologies/Name directory_name
+     url_grandparent http://primhillcomputer.com/ontologies/Name grandparent_name
+Ordered instances
+     url_directory ObjectInstance:CIM_Directory:url_directory::url_directory,directory_name
+     url_grandparent ObjectInstance:CIM_Directory:url_grandparent::grandparent_name
+     url_datafile ObjectInstance:CIM_DataFile:url_datafile:Name=c:/users/rchateau/appdata/local/temp/survol_temp_file_15696.tmp:url_grandparent
+"""
 
 
 
@@ -1019,252 +1033,70 @@ class EvalBGP:
         def Feed(self):
             pass
 
-    def __init__(self, ctx, part):
-        self.m_ctx = ctx
-        self.m_part = part
+    def __init__(self):
+        #self.m_part = part
+        pass
 
-    def create_instances_from_part_triples(self, part):
-        instances_dict = dict()
-        print("Triples")
-        for part_subject, part_predicate, part_object in part.triples:
-            print("    ", part_subject, part_predicate, part_object)
-            if part_predicate == rdflib.namespace.RDF.type:
-                if isinstance(part_subject, rdflib.term.Variable):
-                    class_as_str = part_object.toPython()
-                    if class_as_str.startswith(survol_url):
-                        instances_dict[part_subject] = ObjectInstance(class_as_str, part_subject)
-
-        for part_subject, part_predicate, part_object in part.triples:
-            try:
-                current_instance = instances_dict[part_subject]
-                assert isinstance(current_instance, ObjectInstance)
-            except KeyError:
-                continue
-
-            if part_predicate == rdflib.namespace.RDF.type:
-                continue
-
-            if part_predicate == rdflib.namespace.RDFS.seeAlso:
-                current_instance.m_see_also.append(part_object)
-
-            if isinstance(part_object, rdflib.term.Variable):
-                try:
-                    part_object_instance = instances_dict[part_object]
-                    # current_instance.m_input_variables.append(part_object)
-
-                    # Dans quel sens est la dependance ???? Peut tre qu il ny en a pas si Survol.
-
-                    part_object_instance.m_input_variables.append(part_subject)
-                    # Maybe we should store the variable name in the instance.
-                    current_instance.m_associators[part_predicate] = part_object_instance
-                except KeyError:
-                    current_instance.m_input_variables.append(part_object)
-                    current_instance.m_unknown_attributes[part_predicate] = part_object
-            elif isinstance(part_object, rdflib.term.URIRef):
-                pass
-            elif isinstance(part_object, rdflib.term.Literal):
-                current_instance.m_known_attributes[part_predicate] = part_object
-            else:
-                pass
-
-        return instances_dict
-
-    def feed_instance_from_context(self, node, context):
-        properties_known = dict()
-        properties_unknown = dict()
-        # When the node is a subject of an associator.
-        right_associators = list()
-        # When the node is an object of an associator.
-
-        # Does the variables replacement.
-        bound_triples = list()
-        for unbound_subject, unbound_property, unbound_subject in self.m_part.triples:
-            def bind_from_context(node):
-                if isinstance(node, rdflib.term.Variable):
-                    try:
-                        return context[node]
-                    except:
-                        return node
-                return node
-
-            part_subject = bind_from_context(unbound_subject)
-            part_property = bind_from_context(unbound_property)
-            part_object = bind_from_context(unbound_subject)
-            bound_triples.append((part_subject, part_property, part_object))
-
-        # If nodes are not a known class, cannot do anything.
-        nodes_to_class = dict()
-        for part_subject, part_property, part_object in bound_triples:
-            # An instance might belong to several classes, so take the last one.
-            if part_property == rdflib.namespace.RDF.type:
-                nodes_to_class[part_subject] = part_property
-
-        if node not in nodes_to_class:
-            return
-
-        left_associators = dict()
-        for part_subject, part_property, part_object in self.m_part.triples:
-            if part_subject == node:
-                if part_property == rdflib.namespace.RDF.type:
-                    continue
-                if isinstance(part_property, rdflib.term.Variable):
-                    continue
-
-                if isinstance(part_object, rdflib.term.Variable):
-                    # The same property might occur several times but we do not care.
-                    # It might be an associator
-                    properties_unknown[part_property] = part_object
-                elif isinstance(part_object, rdflib.term.Literal):
-                    # The same property might occur several times but we do not care.
-                    properties_known[part_property] = part_object
-                elif isinstance(part_object, rdflib.term.RefURL):
-                    right_associators[part_property] = part_object
-
-                    properties_known[part_property] = part_object
-                else:
-                    print("Unknown type for property and object:", part_object)
-            elif part_object == node:
-                if part_subject in nodes_to_class:
-                    left_associators[part_property] = part_subject
-
-
-        if isinstance(node, rdflib.term.Variable):
-            pass
-        else:
-            fill_remaining_properties(node, node_class, properties_known, properties_unknown)
-
-        for part_subject, part_predicate, part_object in part.triples:
-            try:
-                current_instance = instances_dict[part_subject]
-                assert isinstance(current_instance, ObjectInstance)
-            except KeyError:
-                continue
-
-            if part_predicate == rdflib.namespace.RDF.type:
-                continue
-
-            if part_predicate == rdflib.namespace.RDFS.seeAlso:
-                current_instance.m_see_also.append(part_object)
-
-            if isinstance(part_object, rdflib.term.Variable):
-                try:
-                    part_object_instance = instances_dict[part_object]
-                    # current_instance.m_input_variables.append(part_object)
-
-                    # Dans quel sens est la dependance ???? Peut tre qu il ny en a pas si Survol.
-
-                    part_object_instance.m_input_variables.append(part_subject)
-                    # Maybe we should store the variable name in the instance.
-                    current_instance.m_associators[part_predicate] = part_object_instance
-                except KeyError:
-                    current_instance.m_input_variables.append(part_object)
-                    current_instance.m_unknown_attributes[part_predicate] = part_object
-            elif isinstance(part_object, rdflib.term.URIRef):
-                pass
-            elif isinstance(part_object, rdflib.term.Literal):
-                current_instance.m_known_attributes[part_predicate] = part_object
-            else:
-                pass
-
-        return instances_dict
-
+    # Attention, ca depend de la version de rdflib:
+    # Les differentes versions de cette fonction ne peuvent pas etre remplacees.
+    # De toute facon, l'ordre est inutilisable car ca trie les triples en fonction
+    # de leur nombre de variables, sans distinguer la classe.
+    # Il faut renvoyer des triples des le premier niveau.
+    # Et donc aller en chercher dans le custom evals.
     def evalBGP_replacement(self, ctx, bgp):
         if not bgp:
-            return [ctx.solution()]
+            yield ctx.solution()
+            return
 
-        res = []
         s, p, o = bgp[0]
-
-        try:
-            current_instance = self.feed_instance_from_context(s, ctx)
-
-            # If s in ctx[], alors calculer toutes les valeurs de current_instance,
-            # et aussi les associators.
-
-            # If s in not in ctx, alors on ne connait pas la valeur:
-            # Faire une requete avec les valeurs connues.
-            # Idem les associators a gauche et a droite.
-
-
-        except KeyError:
-            pass
-
+        print("s,p,o=",s,p,o)
 
         _s = ctx[s]
         _p = ctx[p]
         _o = ctx[o]
+        print("_s,_p,_o=",_s,_p,_o)
 
         for ss, sp, so in ctx.graph.triples((_s, _p, _o)):
+            if None in (_s, _p, _o):
+                c = ctx.push()
+            else:
+                c = ctx
+
+            if _s is None:
+                c[s] = ss
+
             try:
-                if None in (_s, _p, _o):
-                    ctx.push()
+                if _p is None:
+                    c[p] = sp
+            except rdflib.plugins.sparql.AlreadyBound:
+                continue
 
-                if _s is None:
-                    ctx[s] = ss
+            try:
+                if _o is None:
+                    c[o] = so
+            except rdflib.plugins.sparql.AlreadyBound:
+                continue
 
-                try:
-                    if _p is None:
-                        ctx[p] = sp
-                except rdflib.plugins.sparql.AlreadyBound:
-                    continue
+            for x in self.evalBGP_replacement(c, bgp[1:]):
+                yield x
 
-                try:
-                    if _o is None:
-                        ctx[o] = so
-                except rdflib.plugins.sparql.AlreadyBound:
-                    continue
-
-                res += self.evalBGP_replacement(ctx, bgp[1:])
-
-            finally:
-                if None in (_s, _p, _o):
-                    ctx.pop()
+    # rdflib.plugins.sparql.AlreadyBound:
 
     # Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
     def internal_eval_bgp(self, ctx, part):
         add_ontology(ctx.graph)
-
-        """
-        instances_dict = part_triples_to_instances_dict(part)
-
-        sorted_instances = instances_sort(instances_dict.values())
-
-        # sorted_instances = sorted(instances_dict.values(), key=functools.cmp_to_key(compare_instances))
-
-        print("Ordered instances")
-        for current_instance in sorted_instances:
-            print("    ", current_instance.m_variable, current_instance)
-
-        variables_context = dict()
-
-        print("Num instances:", len(sorted_instances))
-
-        def call_one_level(instance_index):
-            if instance_index == len(sorted_instances):
-                return
-
-            current_instance = sorted_instances[instance_index]
-            print("instance_index=", instance_index, current_instance)
-
-            iter_nodes = current_instance.Feed(ctx.graph, variables_context)
-
-            for one_node in iter_nodes:
-                variables_context[current_instance.m_variable] = one_node
-                call_one_level(instance_index + 1)
-
-        call_one_level(instance_index=0)
-        """
-        ret_BGP = self.evalBGP_replacement(ctx, part.triples)
-        return ret_BGP
+        #return rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+        return self.evalBGP_replacement(ctx, part.triples)
 
 
 # Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
-def custom_eval_bgp(self, ctx, part):
+def custom_eval_bgp(ctx, part):
     # part.name = "SelectQuery", "Project", "BGP"
     # print("customEval part.name=", part.name)
     if part.name == 'BGP':
-        evaluator = EvalBGP(ctx, part)
-        return evaluator.internal_eval_bgp()
+        evaluator = EvalBGP()
+        return evaluator.internal_eval_bgp(ctx, part)
+        #return rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
 
     raise NotImplementedError()
 
@@ -1273,16 +1105,199 @@ class RdflibCustomEvalsReplaceEvalBgpTest(unittest.TestCase):
 
     def setUp(self):
         # add function directly, normally we would use setuptools and entry_points
+        pass
         rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_bgp'] = custom_eval_bgp
 
     def tearDown(self):
         if 'custom_eval_bgp' in rdflib.plugins.sparql.CUSTOM_EVALS:
             del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_bgp']
 
+
     @unittest.skip("NOT YET")
-    def test_replace_eval_bgp(self):
+    def test_replace_eval_bgp_grandparent(self):
+        """Subdirectories of temp"""
+        rdflib_graph = CreateGraph()
+
+        # C:/Windows/temp\\survol_temp_file_12532.tmp'
+        tmp_pathname = create_temp_file()
+
+        # Sparql does not accept backslashes.
+        tmp_pathname = tmp_pathname.replace("\\", "/")
+
+        query_subdirs = """
+            PREFIX survol: <%s>
+            SELECT ?grandparent_name WHERE {
+                ?url_grandparent a survol:CIM_Directory .
+                ?url_directory a survol:CIM_Directory .
+                ?url_datafile a survol:CIM_DataFile .
+                ?url_grandparent survol:CIM_DirectoryContainsFile ?url_datafile .
+                ?url_directory survol:CIM_DirectoryContainsFile ?url_directory .
+                ?url_grandparent survol:Name ?grandparent_name .
+                ?url_directory survol:Name ?directory_name .
+                ?url_datafile survol:Name "%s" .
+            }
+        """ % (survol_namespace, tmp_pathname)
+
+        query_result = rdflib_graph.query(query_subdirs)
+        print("query_result=",query_result)
+        query_result_list = list(query_result)
+        names_only = sorted([ str(one_result[0]) for one_result in query_result_list])
+        print("Names only=", names_only)
+        self.assertTrue(names_only == [os.path.dirname(TempDirPath)])
+
+"""
+Rassembler les instances et aller chercher ce qu'on peut.
+On suppose que les instances sont bien triees.
+Pour le CIM_DataFile d'en bas, on peut ajouter son parent grace a l associator.
+
+evalBGP va chercher le dir_intermediaire:
+None, type CIM_Directory.
+Il y en a un seul.
+
+
+=== Dans l autre sens:
+Le grand-parent genere des sous-directories grace a l associator parcouru dans l autre sens.
+Il faut aussi avoir le type de l associator, CIM_Directory, sinon on genere aussi des CIM_DataFile
+
+Au deuxieme appel recursif, ca va peut etre donner le CIM_DataFile, mais c'est trop tot.
+"""
+"""
+Ou alors:
+Dans le custom_evals, on trie les instances: On fetche ce qu'on peut,
+quand ca positionne une variable, on fait une evaluation recursive,
+on reproduit la logique du contexte: Un dictionnaire variables=>valeurs.
+
+Mais il faut tenir compte de variables qui "viennent de l'exterieur"
+et evaluees par evalBGP.
+Aussi, il faudra reproduire la meme logique en cours de evalBGP.
+Pas pour le moment: On se limite au cas ou oute l information vient de Survol.
+
+Pour les accesseurs, on ne peut pas les faire rentrer a priori dans le tri ...
+Le probleme est que toute etre entree ou sortie.
+
+C'est a chaque classe de faire la liste de ses entrees et sorties en fonction
+des literaux qu'elle recoit.
+Ce qui resoud le probleme des associators monodirectionnels de WMI.
+Si on a en literal toutes les valeurs de l'ontologie,
+on peut trouver l'objet et tout le reste est sortie (super !)
+Pour les ex-aequo, on peut ajouter un poids, focntion du temps de calcul.
+"""
+
+class ObjectInstanceAbstract:
+    def __init__(self, class_name, node):
         pass
 
+class CIM_DataFile(ObjectInstanceAbstract):
+    def __init__(self, class_name, node):
+        super(CIM_DataFile, self).__init__(class_name, node)
+
+class CIM_Directory(ObjectInstanceAbstract):
+    def __init__(self, class_name, node):
+        super(CIM_DataFile, self).__init__(class_name, node)
+
+class CIM_Process(ObjectInstanceAbstract):
+    def __init__(self, class_name, node):
+        super(CIM_DataFile, self).__init__(class_name, node)
+
+def ObjectInstanceRecursive(class_name, the_subject):
+    class_name_to_class = {
+        "CIM_DataFile":CIM_DataFile,
+        "CIM_Directory": CIM_Directory,
+        "CIM_Process": CIM_Process,
+    }
+
+    the_class = class_name_to_class[class_name]
+    the_instance = the_class(class_name, the_subject)
+    return the_instance
+
+
+def part_triples_to_instances_dict_recursive(part):
+    instances_dict = dict()
+    print("Triples")
+    for part_subject, part_predicate, part_object in part.triples:
+        print("    ", part_subject, part_predicate, part_object)
+        if part_predicate == rdflib.namespace.RDF.type:
+            if isinstance(part_subject, rdflib.term.Variable):
+                class_as_str = part_object.toPython()
+                if class_as_str.startswith(survol_url):
+                    instances_dict[part_subject] = ObjectInstanceRecursive(class_as_str, part_subject)
+
+    for part_subject, part_predicate, part_object in part.triples:
+        if isinstance(part_predicate, rdflib.term.Variable):
+            continue
+        if part_predicate == rdflib.namespace.RDF.type:
+            continue
+        if part_predicate == rdflib.namespace.RDFS.seeAlso:
+            raise Exception("No SeeAlso yet")
+
+        try:
+            current_instance = instances_dict[part_subject]
+            assert isinstance(current_instance, ObjectInstanceAbstract)
+        except KeyError:
+            continue
+
+        if isinstance(part_object, rdflib.term.RefURL):
+            current_instance.AddAssociated(part_predicate, part_object)
+            try:
+                associator_instance = instances_dict[part_object]
+            except Exception as exc:
+                raise Exception("Associator without class:", exc)
+            associator_instance.AddAssociator(part_predicate, part_subject)
+        elif isinstance(part_object, rdflib.term.Literal):
+            current_instance.AddKnownProperty(part_predicate, part_object)
+        elif isinstance(part_object, rdflib.term.Variable):
+            current_instance.AddUnknownProperty(part_predicate, part_object)
+        else:
+            raise Exception("What ?")
+
+    return instances_dict
+
+
+
+# Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
+def custom_eval_recursive(ctx, part):
+    # part.name = "SelectQuery", "Project", "BGP"
+    # print("customEval part.name=", part.name)
+    if part.name == 'BGP':
+        add_ontology(ctx.graph)
+
+        instances_dict = part_triples_to_instances_dict_recursive(part)
+
+        # ATTENTION CA MARCHE PAS AVEC grandparent
+        sorted_instances = instances_sort(instances_dict.values())
+
+        print("Ordered instances")
+        for current_instance in sorted_instances:
+            print("    ", current_instance.m_variable, current_instance)
+
+        variables_context = dict()
+
+        print("Num instances:", len(sorted_instances))
+        def call_one_level(instance_index):
+            if instance_index == len(sorted_instances):
+                return
+
+            current_instance = sorted_instances[instance_index]
+            print("instance_index=", instance_index, current_instance)
+
+            new_variables = current_instance.GetVariablesSets()
+
+            # On remplace les variables par le contexte passe en parametre.
+            # On va chercher tout ce qu'on peut en stockant les variables dans un contexte recursif:
+            # On renvoie une liste par variable, ou alors des groupes de variables,
+            # ou une liste de dictionnaires de variables etc...
+            for one_variable_dict in new_variables:
+                UpdateVariablesContext(variables_context, one_variable_dict)
+                call_one_level(instance_index+1)
+                ### variables_context[current_instance.m_variable] = one_node
+
+        call_one_level(instance_index = 0)
+
+        # <type 'generator'>
+        ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+        return ret_BGP
+
+    raise NotImplementedError()
 
 
 ################################################################################
