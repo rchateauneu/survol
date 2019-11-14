@@ -220,35 +220,33 @@ class Bubble_CIM_DataFile(BubbleInstance):
     def __init__(self, class_name, node):
         super(Bubble_CIM_DataFile, self).__init__(class_name, node)
 
-    def FetchAllVariables(self, graph, variables_context):
-        one_variables_set = {}
 
+
+
+    def FetchFromProperties(self, variables_context):
+        print("Bubble_CIM_DataFile.FetchFromProperties")
         if predicate_Name not in self.m_properties:
-            return {}
+            print("QUIT: No Name")
+            return None, None
         predicate_variable = self.m_properties[predicate_Name]
         if isinstance(predicate_variable, rdflib.term.Literal):
             node_file_path = predicate_variable
             file_path = str(predicate_variable)
         elif isinstance(predicate_variable, rdflib.term.Variable):
             if predicate_variable not in variables_context:
-                return {}
+                print("QUIT:", predicate_variable, "not in", variables_context.keys())
+                return None, None
             node_file_path = variables_context[predicate_variable]
             assert isinstance(node_file_path, rdflib.term.Literal)
             file_path = str(node_file_path)
         else:
-            return {}
+            print("QUIT:invalid type", type(predicate_variable))
+            return None, None
+        return node_file_path, file_path
 
-        url_as_str = "Machine:CIM_DataFile?Name=" + file_path
-        node_uri_ref = rdflib.term.URIRef(url_as_str)
 
-        one_variables_set[self.m_variable] = [node_uri_ref]
-        graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_DataFile))
-
-        one_variables_set[predicate_variable] = [node_file_path]
-        graph.add((node_uri_ref, predicate_Name, node_file_path))
-
-        assert associator_CIM_DirectoryContainsFile not in self.m_associators
-
+    def FetchFromDirectory(self, variables_context, file_path, graph, one_variables_set, node_uri_ref):
+        print("Bubble_CIM_DataFile.FetchFromDirectory file_path=", file_path)
         if associator_CIM_DirectoryContainsFile in self.m_associated:
             associator_instance = self.m_associated[associator_CIM_DirectoryContainsFile]
             assert isinstance(associator_instance, Bubble_CIM_Directory)
@@ -256,6 +254,7 @@ class Bubble_CIM_DataFile(BubbleInstance):
 
             if associator_instance.m_variable in variables_context:
                 print("ALREADY DEFINED ??")
+                return
             else:
                 dir_file_path = os.path.dirname(file_path)
                 dir_file_path_node = rdflib.term.Literal(dir_file_path)
@@ -263,70 +262,68 @@ class Bubble_CIM_DataFile(BubbleInstance):
                 dir_node_str = "Machine:CIM_Directory?Name=" + dir_file_path
                 associator_instance_url = rdflib.term.URIRef(dir_node_str)
                 graph.add((associator_instance_url, rdflib.namespace.RDF.type, class_CIM_Directory))
-                one_variables_set[associator_instance.m_variable] = associator_instance_url
+                one_variables_set[associator_instance.m_variable] = [associator_instance_url]
                 graph.add((associator_instance_url, associator_CIM_DirectoryContainsFile, node_uri_ref))
 
                 if predicate_Name in associator_instance.m_properties:
                     dir_path_variable = associator_instance.m_properties[predicate_Name]
                     assert isinstance(dir_path_variable, rdflib.term.Variable)
-                    one_variables_set[dir_path_variable] = [dir_file_path_node]
+                else:
+                    # This ptroperty must be created, to make the directory usable.
+                    # No need to store this variable, it would not be used.
+                    variable_name = str(associator_instance.m_variable) + "_dummy_name"
+                    dir_path_variable = rdflib.term.Variable(variable_name)
+                    associator_instance.m_properties[predicate_Name] = dir_path_variable
+                one_variables_set[dir_path_variable] = [dir_file_path_node]
+                graph.add((associator_instance_url, predicate_Name, dir_file_path_node))
+
+    def FetchAllVariables(self, graph, variables_context):
+        node_file_path, file_path = self.FetchFromProperties(variables_context)
+        if not node_file_path and not file_path:
+            return {}
+        one_variables_set = {}
+
+        url_as_str = "Machine:CIM_DataFile?Name=" + file_path
+        node_uri_ref = rdflib.term.URIRef(url_as_str)
+
+        one_variables_set[self.m_variable] = [node_uri_ref]
+        graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_DataFile))
+
+        # No need to add node_file_path in the results because,
+        # if it is a Variable, it is already in the context.
+        assert isinstance(self.m_variable, rdflib.term.Variable)
+        assert node_file_path
+        graph.add((node_uri_ref, predicate_Name, node_file_path))
+
+        assert associator_CIM_DirectoryContainsFile not in self.m_associators
+
+        self.FetchFromDirectory(variables_context, file_path, graph, one_variables_set, node_uri_ref)
 
         return one_variables_set
 
-class Bubble_CIM_Directory(BubbleInstance):
+class Bubble_CIM_Directory(Bubble_CIM_DataFile):
     def __init__(self, class_name, node):
         super(Bubble_CIM_Directory, self).__init__(class_name, node)
 
     def FetchAllVariables(self, graph, variables_context):
+        node_file_path, file_path = self.FetchFromProperties(variables_context)
+        if not node_file_path and not file_path:
+            return {}
         one_variables_set = {}
-
-        if predicate_Name not in self.m_properties:
-            return {}
-        predicate_variable = self.m_properties[predicate_Name]
-        if isinstance(predicate_variable, rdflib.term.Literal):
-            node_file_path = predicate_variable
-            file_path = str(predicate_variable)
-        elif isinstance(predicate_variable, rdflib.term.Variable):
-            if predicate_variable not in variables_context:
-                return {}
-            node_file_path = variables_context[predicate_variable]
-            assert isinstance(node_file_path, rdflib.term.Literal)
-            file_path = str(node_file_path)
-        else:
-            return {}
 
         url_as_str = "Machine:CIM_Directory?Name=" + file_path
         node_uri_ref = rdflib.term.URIRef(url_as_str)
 
+        assert isinstance(self.m_variable, rdflib.term.Variable)
         one_variables_set[self.m_variable] = [node_uri_ref]
         graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_Directory))
 
-        if node_file_path:
-            one_variables_set[predicate_variable] = [node_file_path]
-            graph.add((node_uri_ref, predicate_Name, node_file_path))
+        # No need to add node_file_path in the results=:
+        # This Variable is already in the context.
+        assert node_file_path
+        graph.add((node_uri_ref, predicate_Name, node_file_path))
 
-
-        if associator_CIM_DirectoryContainsFile in self.m_associated:
-            associator_instance = self.m_associated[associator_CIM_DirectoryContainsFile]
-            assert isinstance(associator_instance, Bubble_CIM_Directory)
-            assert isinstance(associator_instance.m_variable, rdflib.term.Variable)
-
-            if associator_instance.m_variable in variables_context:
-                print("ALREADY DEFINED")
-            else:
-                dir_file_path = os.path.dirname(file_path)
-                dir_file_path_node = rdflib.term.Literal(dir_file_path)
-
-                dir_node_str = "Machine:CIM_Directiry?Name=" + dir_file_path
-                associator_instance_url = rdflib.term.URIRef(dir_node_str)
-                graph.add((associator_instance_url, rdflib.namespace.RDF.type, class_CIM_Directory))
-                one_variables_set[associator_instance.m_variable] = associator_instance_url
-                graph.add((associator_instance_url, associator_CIM_DirectoryContainsFile, node_uri_ref))
-
-                if predicate_Name in associator_instance.m_properties:
-                    dir_path_variable = associator_instance.m_properties[predicate_Name]
-                    assert isinstance(dir_path_variable, rdflib.term.Variable)
-                    one_variables_set[dir_path_variable] = [dir_file_path_node]
+        self.FetchFromDirectory(variables_context, file_path, graph, one_variables_set, node_uri_ref)
 
         if associator_CIM_DirectoryContainsFile in self.m_associators:
             associated_instance = self.m_associators[associator_CIM_DirectoryContainsFile]
@@ -335,30 +332,45 @@ class Bubble_CIM_Directory(BubbleInstance):
 
             sub_uri_ref_list = []
 
-            for root_dir, dir_lists, files_list in os.walk(file_path):
-                for one_file_name in files_list:
-                    sub_path_name = os.path.join(root_dir, one_file_name)
-                    sub_path_name_url = rdflib.term.Literal(sub_path_name)
+            def add_sub_node(sub_node_str, cim_class, sub_path_name):
+                assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
+                sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
+                graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
+                sub_uri_ref_list.append(sub_node_uri_ref)
+                sub_path_name_url = rdflib.term.Literal(sub_path_name)
+                graph.add((sub_node_uri_ref, predicate_Name, sub_path_name_url))
+                graph.add((node_uri_ref, associator_CIM_DirectoryContainsFile, sub_node_uri_ref))
 
-                    def add_sub_node(sub_node_str, cim_class):
-                        assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
-                        sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
-                        graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
-                        sub_uri_ref_list.append(sub_node_uri_ref)
-                        graph.add((sub_node_uri_ref, predicate_Name, sub_path_name_url))
-                        graph.add((node_uri_ref, associator_CIM_DirectoryContainsFile, sub_node_uri_ref))
-
-                    if associated_instance.m_class_name == "CIM_Directory":
-                        if os.path.isdir(sub_path_name):
-                            sub_node_str = "Machine:CIM_Directory?Name=" + sub_path_name
-                            add_sub_node(sub_node_str, class_CIM_Directory)
-                    elif associated_instance.m_class_name == "CIM_DataFile":
-                        if os.path.isfile(sub_path_name):
-                            sub_node_str = "Machine:CIM_DataFile?Name=" + sub_path_name
-                            add_sub_node(sub_node_str, class_CIM_DataFile)
+                if predicate_Name in associated_instance.m_properties:
+                    dir_path_variable = associated_instance.m_properties[predicate_Name]
+                    print("hh")
+                    print("hh")
+                    if isinstance(dir_path_variable, rdflib.term.Variable):
+                        one_variables_set[dir_path_variable] = [sub_path_name_url]
                     else:
-                        raise Exception("Invalid class name:"+associated_instance.m_class_name)
-                break # Top-level only.
+                        #
+                        #
+                        variable_name = str(associated_instance.m_variable) + "_dummy_name"
+                        dir_path_variable = rdflib.term.Variable(variable_name)
+                        associated_instance.m_properties[predicate_Name] = dir_path_variable
+
+
+            for root_dir, dir_lists, files_list in os.walk(file_path):
+                if associated_instance.m_class_name == "CIM_Directory":
+                    for one_file_name in dir_lists:
+                        sub_path_name = os.path.join(root_dir, one_file_name)
+                        assert os.path.isdir(sub_path_name)
+                        sub_node_str = "Machine:CIM_Directory?Name=" + sub_path_name
+                        add_sub_node(sub_node_str, class_CIM_Directory, sub_path_name)
+                elif associated_instance.m_class_name == "CIM_DataFile":
+                    for one_file_name in files_list:
+                        sub_path_name = os.path.join(root_dir, one_file_name)
+                        print("hh")
+                        assert os.path.isfile(sub_path_name)
+                        sub_node_str = "Machine:CIM_DataFile?Name=" + sub_path_name
+                        add_sub_node(sub_node_str, class_CIM_DataFile, sub_path_name)
+                else:
+                    raise Exception("Cannot happen")
 
             one_variables_set[associated_instance.m_variable] = sub_uri_ref_list
 
@@ -545,11 +557,18 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
         """ % (survol_namespace, tmp_pathname)
 
         query_result = list(rdflib_graph.query(sparql_query))
+        self.assertTrue( str(query_result[0][0]) == TempDirPath)
         print("Result=", query_result)
 
     #@unittest.skip("Not DONE")
     def test_query_bubble_children(self):
         rdflib_graph = CreateGraph()
+
+        # C:/Windows/temp\\survol_temp_file_12532.tmp'
+        tmp_pathname = create_temp_file()
+
+        # Sparql does not accept backslashes.
+        tmp_pathname = tmp_pathname.replace("\\", "/")
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -564,7 +583,7 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-
+        self.assertTrue( tmp_pathname in [str(node[0]).replace("\\", "/") for node in query_result])
 
     def test_query_bubble_grandparent(self):
         rdflib_graph = CreateGraph()
@@ -590,6 +609,7 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
+        self.assertTrue( str(query_result[0][0]) == os.path.dirname(TempDirPath))
 
     def test_query_bubble_grandchildren(self):
         rdflib_graph = CreateGraph()
