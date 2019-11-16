@@ -39,7 +39,7 @@ class SurvolStore(rdflib.plugins.memory.IOMemory):
     def triples(self, t_triple, context=None):
         (t_subject, t_predicate, t_object) = t_triple
         print("triples vals=",t_subject, t_predicate, t_object)
-        print("triples typs=",type(t_subject), type(t_predicate), type(t_object))
+        # print("triples typs=",type(t_subject), type(t_predicate), type(t_object))
 
         """
         triples vals= None http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://primhillcomputer.com/ontologies/CIM_Directory
@@ -107,12 +107,12 @@ SELECT ?the_ppid
 WHERE
 {
   ?url_procA survol:Handle %d .
-  ?url_procA survol:parent_pid ?the_ppid .
+  ?url_procA survol:ParentProcessId ?the_ppid .
   ?url_procA rdf:type survol:CIM_Process .
   ?url_procB survol:Handle ?the_ppid .
   ?url_procB rdf:type survol:CIM_Process .
   ?url_procC survol:Handle %d .
-  ?url_procC survol:parent_pid ?the_ppid .
+  ?url_procC survol:ParentProcessId ?the_ppid .
   ?url_procC rdf:type survol:CIM_Process .
 }
 """ % (CurrentPid,CurrentPid)
@@ -124,10 +124,26 @@ PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
 SELECT ?the_ppid
 WHERE
 { ?url_proc survol:Handle %d .
-  ?url_proc survol:parent_pid ?the_ppid .
+  ?url_proc survol:ParentProcessId ?the_ppid .
   ?url_proc rdf:type survol:CIM_Process .
 }
 """
+
+"""
+PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
+SELECT ?pid_sibling
+WHERE
+{
+  ?url_proc_parent rdf:type survol:CIM_Process .
+  ?url_proc_mine rdf:type survol:CIM_Process .
+  ?url_proc_sibling rdf:type survol:CIM_Process .
+  ?url_proc_mine survol:ParentProcessId ?ppid .
+  ?url_proc_sibling survol:ParentProcessId ?ppid .
+  ?url_proc_mine survol:Handle %d .
+  ?url_proc_parent survol:Handle ?ppid .
+  ?url_proc_sibling survol:Handle ?pid_sibling .
+}
+""" % (os.getpid())
 
 """
 SELECT *
@@ -135,7 +151,7 @@ WHERE
 {
   ?url_dirA rdf:type survol:CIM_Directory .
   ?url_dirB survol:Name "C:/Program Files (x86)/Internet Explorer" .
-  ?url_dirB survol:ParentDirectory ?url_dirA .
+  ?url_dirB survol:CIM_DirectoryContainsFile ?url_dirA .
   ?url_dirB rdf:type survol:CIM_Directory .
 }
 """
@@ -146,7 +162,7 @@ WHERE
 {
   ?url_dirA survol:Name "C:/Program Files (x86)" .
   ?url_dirA rdf:type survol:CIM_Directory .
-  ?url_dirB survol:ParentDirectory ?url_dirA .
+  ?url_dirB survol:CIM_DirectoryContainsFile ?url_dirA .
   ?url_dirB rdf:type survol:CIM_Directory .
 }
 """
@@ -155,14 +171,15 @@ WHERE
 """
 PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
 PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-SELECT *
+SELECT ?filename
 WHERE
-{ ?url_procA survol:Handle %d  .
-  ?url_procA rdf:type survol:CIM_Process .
-  ?url_procA rdfs:seeAlso "survol:CIM_Process/single_pidstree" .
-  ?url_procA survol:ppid ?url_procB  .
-  ?url_procB survol:runs ?filename  .
-  ?url_procB rdf:type survol:CIM_Process .
+{
+  ?url_proc_parent survol:Handle ?pid_proc_parent  .
+  ?url_process survol:Handle %d  .
+  ?url_process rdf:type survol:CIM_Process .
+  ?url_process survol:ParentProcessId ?pid_proc_parent  .
+  ?url_proc_parent survol:CIM_ProcessExecutable ?filename  .
+  ?url_proc_parent rdf:type survol:CIM_Process .
 }
 """
 
@@ -172,22 +189,41 @@ WHERE
 { ?url_fileA survol:Name "C:/Windows"  .
   ?url_fileA rdf:type survol:CIM_Directory .
   ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
-  ?url_fileB rdfs:seeAlso "WMI" .
   ?url_fileB rdf:type survol:CIM_DataFile .
 }
 """
 
 """
-SELECT *
+SELECT ?directory_name
 WHERE
-{ ?url_proc survol:Handle %d  .
   ?url_proc rdf:type survol:CIM_Process .
-  ?url_file rdfs:seeAlso "WMI" .
   ?url_file rdf:type survol:CIM_DataFile .
-  ?url_file rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
-  ?url_file survol:CIM_ProcessExecutable ?url_proc  .
+  ?url_directory rdf:type survol:CIM_Directory .
+  ?url_directory survol:Handle ?directory_name .
+{ ?url_proc survol:Handle %d  .
+  ?url_proc survol:CIM_ProcessExecutable ?url_file  .
+  ?url_directory survol:CIM_DirectoryContainsFile ?url_file  .
 }
 """
+
+# Comment va-t-on passer du procid vers le process ?
+
+# Directory of the executable run by the parent of the current process.
+"""
+SELECT ?directory_name
+WHERE
+  ?url_directory rdf:type survol:CIM_Directory .
+  ?url_proc rdf:type survol:CIM_Process .
+  ?url_parent_proc rdf:type survol:CIM_Process .
+  ?url_file rdf:type survol:CIM_DataFile .
+  ?url_proc survol:Handle %d .
+  ?url_parent_proc survol:Handle ?parent_proc_id .
+  ?url_proc survol:ParentProcessId ?parent_proc_id  .
+  ?url_directory survol:Name ?directory_name .
+  ?url_parent_proc survol:CIM_ProcessExecutable ?url_file  .
+  ?url_directory survol:CIM_DirectoryContainsFile ?url_file  .
+}
+""" % (os.getpid())
 
 ################################################################################
 
@@ -237,15 +273,16 @@ class Bubble_CIM_DataFile(BubbleInstance):
                 print("QUIT:", predicate_variable, "not in", variables_context.keys())
                 return None, None
             node_file_path = variables_context[predicate_variable]
+            print("predicate_variable=", predicate_variable)
+            print("node_file_path=", node_file_path)
             assert isinstance(node_file_path, rdflib.term.Literal)
             file_path = str(node_file_path)
         else:
-            print("QUIT:invalid type", type(predicate_variable))
-            return None, None
+            raise Exception("QUIT:invalid type", type(predicate_variable))
         return node_file_path, file_path
 
 
-    def FetchFromDirectory(self, variables_context, file_path, graph, one_variables_set, node_uri_ref):
+    def FetchFromDirectory(self, variables_context, file_path, graph, returned_variables, node_uri_ref):
         print("Bubble_CIM_DataFile.FetchFromDirectory file_path=", file_path)
         if associator_CIM_DirectoryContainsFile in self.m_associated:
             associator_instance = self.m_associated[associator_CIM_DirectoryContainsFile]
@@ -253,40 +290,45 @@ class Bubble_CIM_DataFile(BubbleInstance):
             assert isinstance(associator_instance.m_variable, rdflib.term.Variable)
 
             if associator_instance.m_variable in variables_context:
-                print("ALREADY DEFINED ??")
+                print("ALREADY DEFINED ??", associator_instance.m_variable)
                 return
+
+            dir_file_path = os.path.dirname(file_path)
+            dir_file_path_node = rdflib.term.Literal(dir_file_path)
+
+            dir_node_str = "Machine:CIM_Directory?Name=" + dir_file_path
+            associator_instance_url = rdflib.term.URIRef(dir_node_str)
+            graph.add((associator_instance_url, rdflib.namespace.RDF.type, class_CIM_Directory))
+            # returned_variables[associator_instance.m_variable] = [associator_instance_url]
+            graph.add((associator_instance_url, associator_CIM_DirectoryContainsFile, node_uri_ref))
+
+            if predicate_Name in associator_instance.m_properties:
+                dir_path_variable = associator_instance.m_properties[predicate_Name]
+                assert isinstance(dir_path_variable, rdflib.term.Variable)
             else:
-                dir_file_path = os.path.dirname(file_path)
-                dir_file_path_node = rdflib.term.Literal(dir_file_path)
+                # This property must be created, to make the directory usable,
+                # for example to get its other properties.
+                # Generally speaking, this must be done for all properties of the ontology.
+                variable_name = str(associator_instance.m_variable) + "_dummy_name"
+                dir_path_variable = rdflib.term.Variable(variable_name)
+                associator_instance.m_properties[predicate_Name] = dir_path_variable
 
-                dir_node_str = "Machine:CIM_Directory?Name=" + dir_file_path
-                associator_instance_url = rdflib.term.URIRef(dir_node_str)
-                graph.add((associator_instance_url, rdflib.namespace.RDF.type, class_CIM_Directory))
-                one_variables_set[associator_instance.m_variable] = [associator_instance_url]
-                graph.add((associator_instance_url, associator_CIM_DirectoryContainsFile, node_uri_ref))
-
-                if predicate_Name in associator_instance.m_properties:
-                    dir_path_variable = associator_instance.m_properties[predicate_Name]
-                    assert isinstance(dir_path_variable, rdflib.term.Variable)
-                else:
-                    # This ptroperty must be created, to make the directory usable.
-                    # No need to store this variable, it would not be used.
-                    variable_name = str(associator_instance.m_variable) + "_dummy_name"
-                    dir_path_variable = rdflib.term.Variable(variable_name)
-                    associator_instance.m_properties[predicate_Name] = dir_path_variable
-                one_variables_set[dir_path_variable] = [dir_file_path_node]
-                graph.add((associator_instance_url, predicate_Name, dir_file_path_node))
+            if isinstance(dir_path_variable, rdflib.term.Variable):
+                returned_variables[(associator_instance,dir_path_variable)] = [(associator_instance_url, dir_file_path_node)]
+            else:
+                returned_variables[associator_instance.m_variable] = [associator_instance_url]
+            graph.add((associator_instance_url, predicate_Name, dir_file_path_node))
 
     def FetchAllVariables(self, graph, variables_context):
         node_file_path, file_path = self.FetchFromProperties(variables_context)
         if not node_file_path and not file_path:
             return {}
-        one_variables_set = {}
+        returned_variables = {}
 
         url_as_str = "Machine:CIM_DataFile?Name=" + file_path
         node_uri_ref = rdflib.term.URIRef(url_as_str)
 
-        one_variables_set[self.m_variable] = [node_uri_ref]
+        returned_variables[self.m_variable] = [node_uri_ref]
         graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_DataFile))
 
         # No need to add node_file_path in the results because,
@@ -297,9 +339,9 @@ class Bubble_CIM_DataFile(BubbleInstance):
 
         assert associator_CIM_DirectoryContainsFile not in self.m_associators
 
-        self.FetchFromDirectory(variables_context, file_path, graph, one_variables_set, node_uri_ref)
+        self.FetchFromDirectory(variables_context, file_path, graph, returned_variables, node_uri_ref)
 
-        return one_variables_set
+        return returned_variables
 
 class Bubble_CIM_Directory(Bubble_CIM_DataFile):
     def __init__(self, class_name, node):
@@ -309,13 +351,13 @@ class Bubble_CIM_Directory(Bubble_CIM_DataFile):
         node_file_path, file_path = self.FetchFromProperties(variables_context)
         if not node_file_path and not file_path:
             return {}
-        one_variables_set = {}
+        returned_variables = {}
 
         url_as_str = "Machine:CIM_Directory?Name=" + file_path
         node_uri_ref = rdflib.term.URIRef(url_as_str)
 
         assert isinstance(self.m_variable, rdflib.term.Variable)
-        one_variables_set[self.m_variable] = [node_uri_ref]
+        returned_variables[self.m_variable] = [node_uri_ref]
         graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_Directory))
 
         # No need to add node_file_path in the results=:
@@ -323,38 +365,49 @@ class Bubble_CIM_Directory(Bubble_CIM_DataFile):
         assert node_file_path
         graph.add((node_uri_ref, predicate_Name, node_file_path))
 
-        self.FetchFromDirectory(variables_context, file_path, graph, one_variables_set, node_uri_ref)
+        self.FetchFromDirectory(variables_context, file_path, graph, returned_variables, node_uri_ref)
 
         if associator_CIM_DirectoryContainsFile in self.m_associators:
             associated_instance = self.m_associators[associator_CIM_DirectoryContainsFile]
             assert isinstance(associated_instance, (Bubble_CIM_DataFile, Bubble_CIM_Directory))
             assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
 
-            sub_uri_ref_list = []
+            return_values_list = []
+
+            if predicate_Name in associated_instance.m_properties:
+                dir_path_variable = associated_instance.m_properties[predicate_Name]
+                print("dir_path_variable=", dir_path_variable, type(dir_path_variable))
+                print("Bubble_CIM_Directory.FetchAllVariables dir_path_variable=", dir_path_variable)
+            else:
+                # This creates a temporary variable to store the name because
+                # it might be necessary to identify this associated instance.
+                # This is needed for all properties of the ontology.
+                variable_name = str(associated_instance.m_variable) + "_dummy_subname"
+                dir_path_variable = rdflib.term.Variable(variable_name)
+                associated_instance.m_properties[predicate_Name] = dir_path_variable
+                print("Bubble_CIM_Directory.FetchAllVariables Created dummy variable:", variable_name)
 
             def add_sub_node(sub_node_str, cim_class, sub_path_name):
+                print("Bubble_CIM_Directory.FetchAllVariables add_sub_node sub_path_name=", sub_path_name)
                 assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
                 sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
                 graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
-                sub_uri_ref_list.append(sub_node_uri_ref)
+                #sub_uri_ref_list.append(sub_node_uri_ref)
                 sub_path_name_url = rdflib.term.Literal(sub_path_name)
                 graph.add((sub_node_uri_ref, predicate_Name, sub_path_name_url))
                 graph.add((node_uri_ref, associator_CIM_DirectoryContainsFile, sub_node_uri_ref))
 
-                if predicate_Name in associated_instance.m_properties:
-                    dir_path_variable = associated_instance.m_properties[predicate_Name]
-                    print("hh")
-                    print("hh")
-                    if isinstance(dir_path_variable, rdflib.term.Variable):
-                        one_variables_set[dir_path_variable] = [sub_path_name_url]
-                    else:
-                        #
-                        #
-                        variable_name = str(associated_instance.m_variable) + "_dummy_name"
-                        dir_path_variable = rdflib.term.Variable(variable_name)
-                        associated_instance.m_properties[predicate_Name] = dir_path_variable
+                if isinstance(dir_path_variable, rdflib.term.Variable):
+                    #sub_path_name_url_list.append(sub_path_name_url)
+                    return_values_list.append((sub_node_uri_ref, sub_path_name_url))
+                    # returned_variables[dir_path_variable] = [sub_path_name_url]
+                else:
+                    return_values_list.append(sub_node_uri_ref)
+                    assert isinstance(dir_path_variable, rdflib.term.Literal)
+                    print("Associated object Name is literal:", dir_path_variable)
 
-
+            file_path = file_path.replace("\\", "/")
+            print("Bubble_CIM_Directory.FetchAllVariables file_path=", file_path)
             for root_dir, dir_lists, files_list in os.walk(file_path):
                 if associated_instance.m_class_name == "CIM_Directory":
                     for one_file_name in dir_lists:
@@ -365,16 +418,27 @@ class Bubble_CIM_Directory(Bubble_CIM_DataFile):
                 elif associated_instance.m_class_name == "CIM_DataFile":
                     for one_file_name in files_list:
                         sub_path_name = os.path.join(root_dir, one_file_name)
-                        print("hh")
+                        print("sub_path_name=", sub_path_name)
                         assert os.path.isfile(sub_path_name)
                         sub_node_str = "Machine:CIM_DataFile?Name=" + sub_path_name
                         add_sub_node(sub_node_str, class_CIM_DataFile, sub_path_name)
                 else:
                     raise Exception("Cannot happen")
+                # Loop on first level only.
+                break
 
-            one_variables_set[associated_instance.m_variable] = sub_uri_ref_list
+            print("Bubble_CIM_Directory.FetchAllreturn_values_list", return_values_list)
+            if isinstance(dir_path_variable, rdflib.term.Variable):
+                print("Bubble_CIM_Directory.FetchAllVariables Returning variables pair:", associated_instance.m_variable, dir_path_variable)
+                returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list #[(sub_uri_ref_list, sub_path_name_url_list)]
+            else:
+                print("Bubble_CIM_Directory.FetchAllVariables Returning variable:", associated_instance.m_variable)
+                returned_variables[associated_instance.m_variable] = return_values_list # [sub_uri_ref_list]
 
-        return one_variables_set
+            # returned_variables[associated_instance.m_variable] = sub_uri_ref_list
+            print("Bubble_CIM_Directory.FetchAllVariables FetchAllVariables returned_variables=", returned_variables)
+
+        return returned_variables
 
 
 
@@ -395,6 +459,12 @@ def CreateBubbleInstance(class_name, the_subject):
 
 class_names_to_node = dict()
 
+
+# This takes the list of triples extracted from the Sparql query,
+# and returns a list of instances of CIM classes, each of them
+# containing the triples using its instances. The association is
+# done based on the variable representing the instance.
+# There might be several instances of the same class.
 def part_triples_to_instances_dict_bubble(part):
     instances_dict = dict()
     print("Triples Bubble")
@@ -411,23 +481,20 @@ def part_triples_to_instances_dict_bubble(part):
     print("Created instances:", instances_dict.keys())
 
     for part_subject, part_predicate, part_object in part.triples:
-
-        print("part_subject=", part_subject)
         current_instance = instances_dict.get(part_subject, None)
-        print("current_instance=", current_instance)
         if not current_instance: continue
         assert isinstance(current_instance, BubbleInstance)
         if part_predicate == rdflib.namespace.RDF.type: continue
 
         if part_predicate == rdflib.namespace.RDFS.seeAlso: continue
 
-        print("part_object=", part_object)
         associator_instance = instances_dict.get(part_object, None)
         if associator_instance:
             assert isinstance(associator_instance, BubbleInstance)
             current_instance.m_associators[part_predicate] = associator_instance
             associator_instance.m_associated[part_predicate] = current_instance
         else:
+            assert isinstance(part_object, (rdflib.term.Literal, rdflib.term.Variable))
             current_instance.m_properties[part_predicate] = part_object
 
     return instances_dict
@@ -435,6 +502,8 @@ def part_triples_to_instances_dict_bubble(part):
 def find_known_instance(graph, instances_dict, variables_context):
     print("find_known_instance from:", instances_dict.keys())
     for key_instance, one_instance in instances_dict.items():
+        print("")
+        print("find_known_instance one_instance=", one_instance)
         returned_variables = one_instance.FetchAllVariables(graph, variables_context)
         if returned_variables:
             return key_instance, returned_variables
@@ -448,10 +517,18 @@ def product_variables_lists(returned_variables, iter_keys = None):
         if not iter_keys:
             iter_keys = iter(returned_variables.items())
         key, values_list = next(iter_keys)
+        assert isinstance(values_list, list)
+
         for one_dict in product_variables_lists(returned_variables, iter_keys):
             for one_value in values_list:
                 new_dict = one_dict.copy()
-                new_dict[key] = one_value
+                if isinstance(key, tuple):
+                    # Maybe, several correlated variables.
+                    assert isinstance(one_value, tuple) and len(key) == len(one_value)
+                    sub_dict = dict(zip(key, one_value))
+                    new_dict.update(sub_dict)
+                else:
+                    new_dict[key] = one_value
                 yield new_dict
     except StopIteration:
         yield {}
@@ -481,29 +558,35 @@ def custom_eval_bubble(ctx, part):
         # This is a dictionary of variables.
         variables_context = {}
 
-        def recursive_instantiation():
+        def recursive_instantiation(level):
+            margin = " " + str(level) + "    " * level
             print("recursive_instantiation:", instances_dict.keys())
 
             # This returns the first instance which is completely kown, i.e. its parameters
             # are iterals, or variables whose values are known in the current context.
             key_best_instance, returned_variables = find_known_instance(ctx.graph, instances_dict, variables_context)
-            print("key_best_instance=", key_best_instance)
-            print("returned_variables=", returned_variables)
+            print(margin + "key_best_instance=", key_best_instance)
+            print(margin + "returned_variables=", returned_variables)
 
             if not key_best_instance:
+                print(margin + "Leaving")
                 return
 
             best_instance = instances_dict[key_best_instance]
+            print(margin + "AAA")
             del instances_dict[key_best_instance]
+            print(margin + "BBB")
             explored_instances.append(key_best_instance)
+            print(margin + "CCC")
             for one_subset in product_variables_lists(returned_variables):
-                print("one_subset=", one_subset)
+                print(margin + " == one_subset=", {str(the_variable): str(the_value)  for the_variable, the_value in one_subset.items()})
                 variables_context.update(one_subset)
-                print("variables_context=", variables_context)
-                print("part.graph=", ctx.graph)
-                recursive_instantiation()
+                print(margin + " == variables_context=", {str(the_variable): str(the_value)  for the_variable, the_value in variables_context.items()})
+                #print("part.graph=", ctx.graph)
+                recursive_instantiation(level+1)
+            print(margin + "DDD")
 
-        recursive_instantiation()
+        recursive_instantiation(1)
 
         # <type 'generator'>
         ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
@@ -531,6 +614,7 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
         for one_resu in results:
             print("one_resu=", one_resu)
 
+    @unittest.skip("Should use variables")
     def test_prod_variables(self):
         RdflibCustomEvalsBubbleTest.one_return_tst({ 'a':['a1'],'b':['b1'],'c':['c1'], })
         RdflibCustomEvalsBubbleTest.one_return_tst({ 'a':['a1'],'b':['b1','b2'],'c':['c1'], })
@@ -634,7 +718,13 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
         """ % (survol_namespace, TempDirPath)
 
         query_result = list(rdflib_graph.query(sparql_query))
+
+        print("Graph content:")
+        for s,p,o in rdflib_graph:
+            print("    ", s, p, o)
+
         print("Result=", query_result)
+
 
 
 
