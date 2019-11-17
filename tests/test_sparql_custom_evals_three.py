@@ -38,7 +38,7 @@ class SurvolStore(rdflib.plugins.memory.IOMemory):
 
     def triples(self, t_triple, context=None):
         (t_subject, t_predicate, t_object) = t_triple
-        print("triples vals=",t_subject, t_predicate, t_object)
+        # print("triples vals=",t_subject, t_predicate, t_object)
         # print("triples typs=",type(t_subject), type(t_predicate), type(t_object))
 
         """
@@ -253,19 +253,19 @@ class BubbleInstance(object):
 
     def CalculateVariablesNumber(self):
         self.m_number_variables = 0
+        self.m_number_literals = 0
         for one_dict in [self.m_associators, self.m_associated, self.m_properties]:
             for key, value in one_dict.items():
                 if isinstance(value, rdflib.term.Variable):
                     self.m_number_variables += 1
+                elif isinstance(value, rdflib.term.Literal):
+                    self.m_number_literals += 1
 
 
 
 class Bubble_CIM_DataFile(BubbleInstance):
     def __init__(self, class_name, node):
         super(Bubble_CIM_DataFile, self).__init__(class_name, node)
-
-
-
 
     def FetchFromProperties(self, variables_context):
         print("Bubble_CIM_DataFile.FetchFromProperties")
@@ -307,7 +307,6 @@ class Bubble_CIM_DataFile(BubbleInstance):
             dir_node_str = "Machine:CIM_Directory?Name=" + dir_file_path
             associator_instance_url = rdflib.term.URIRef(dir_node_str)
             graph.add((associator_instance_url, rdflib.namespace.RDF.type, class_CIM_Directory))
-            # returned_variables[associator_instance.m_variable] = [associator_instance_url]
             graph.add((associator_instance_url, associator_CIM_DirectoryContainsFile, node_uri_ref))
 
             if predicate_Name in associator_instance.m_properties:
@@ -475,9 +474,9 @@ class_names_to_node = dict()
 # There might be several instances of the same class.
 def part_triples_to_instances_dict_bubble(part):
     instances_dict = dict()
-    print("Triples Bubble")
+    #print("Triples Bubble")
     for part_subject, part_predicate, part_object in part.triples:
-        print("    ", part_subject, part_predicate, part_object)
+        #print("    ", part_subject, part_predicate, part_object)
         if part_predicate == rdflib.namespace.RDF.type:
             if isinstance(part_subject, rdflib.term.Variable):
                 class_as_str = part_object.toPython()
@@ -486,7 +485,7 @@ def part_triples_to_instances_dict_bubble(part):
                     class_names_to_node[class_short] = part_object
                     instances_dict[part_subject] = CreateBubbleInstance(class_short, part_subject)
 
-    print("Created instances:", instances_dict.keys())
+    #print("Created instances:", instances_dict.keys())
 
     for part_subject, part_predicate, part_object in part.triples:
         current_instance = instances_dict.get(part_subject, None)
@@ -530,61 +529,87 @@ def product_variables_lists(returned_variables, iter_keys = None):
     except StopIteration:
         yield {}
 
+# An instance which is completely known and can be usd as a starting point.
+def findable_instance_key(instances_dict):
+    for instance_key, one_instance in instances_dict.items():
+        print("    Key=", instance_key, "Instance=", one_instance)
+        one_instance.CalculateVariablesNumber()
+        # Maybe we could return the instance with the greatest number of
+        # literals ? Or the one whose implied instances are the fastest
+        # to find.
+        if one_instance.m_number_variables == 0 and one_instance.m_number_literals > 0:
+            return instance_key
+
+
+def visit_all_nodes(instances_dict):
+    start_instance_key = findable_instance_key(instances_dict)
+    start_instance = instances_dict[start_instance_key]
+
+    for instance_key, one_instance in instances_dict.items():
+        one_instance.m_visited = False
+
+    visited_instances = []
+
+    def instance_recursive_visit(one_instance):
+        assert isinstance(one_instance, BubbleInstance)
+        one_instance.m_visited = True
+        visited_instances.append(one_instance)
+        for sub_instance in one_instance.m_associators.values():
+            if not sub_instance.m_visited:
+                instance_recursive_visit(sub_instance)
+        for sub_instance in one_instance.m_associated.values():
+            if not sub_instance.m_visited:
+                instance_recursive_visit(sub_instance)
+
+    instance_recursive_visit(start_instance)
+    return visited_instances
+
+
 # Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
 def custom_eval_bubble(ctx, part):
     # part.name = "SelectQuery", "Project", "BGP"
     if part.name == 'BGP':
-        print("ctx:", ctx)
-        print("dir(ctx):", dir(ctx))
-        print("part:", dir(part))
-        print("Triples:")
-        for one_triple in part.triples:
-            print("   *** ", one_triple)
-            ss,pp,oo = one_triple
-            print("   $$$ ", ss,pp,oo)
-
         add_ontology(ctx.graph)
 
         print("Instances:")
         instances_dict = part_triples_to_instances_dict_bubble(part)
         print("Instance before sort")
         for instance_key, one_instance in instances_dict.items():
-            print("    Key=", instance_key)
-            print("    Instance=", one_instance)
+            print("    Key=", instance_key, "Instance=", one_instance)
             one_instance.CalculateVariablesNumber()
 
-        sorted_instances = sorted( instances_dict.values(), key = lambda inst: inst.m_number_variables  )
-
-        print("Instance after sort")
-        for one_instance in sorted_instances:
+        visited_nodes = visit_all_nodes(instances_dict)
+        print("GRAPH VISIT")
+        for one_instance in visited_nodes:
             print("    Instance=", one_instance)
+
 
         # This is a dictionary of variables.
         variables_context = {}
 
         def recursive_instantiation(instance_index):
-            if instance_index == len(sorted_instances):
-                print("recursive_instantiation End of recursive loop")
+            if instance_index == len(visited_nodes):
+                #print("recursive_instantiation End of recursive loop")
                 return
             margin = " " + str(instance_index) + "    " * (instance_index + 1)
-            print("recursive_instantiation:", instances_dict.keys())
+            #print("recursive_instantiation:", instances_dict.keys())
 
             # This returns the first instance which is completely kown, i.e. its parameters
             # are iterals, or variables whose values are known in the current context.
-            one_instance = sorted_instances[instance_index]
-            print(margin + "one_instance=", one_instance)
+            one_instance = visited_nodes[instance_index]
+            #print(margin + "one_instance=", one_instance)
             returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
 
-            print(margin + "returned_variables=", returned_variables)
+            #print(margin + "returned_variables=", returned_variables)
 
-            print(margin + "AAA")
+            #print(margin + "AAA")
             for one_subset in product_variables_lists(returned_variables):
-                print(margin + " == one_subset=", {str(the_variable): str(the_value)  for the_variable, the_value in one_subset.items()})
+                #print(margin + " == one_subset=", {str(the_variable): str(the_value)  for the_variable, the_value in one_subset.items()})
                 variables_context.update(one_subset)
-                print(margin + " == variables_context=", {str(the_variable): str(the_value)  for the_variable, the_value in variables_context.items()})
+                #print(margin + " == variables_context=", {str(the_variable): str(the_value)  for the_variable, the_value in variables_context.items()})
                 #print("part.graph=", ctx.graph)
                 recursive_instantiation(instance_index+1)
-            print(margin + "DDD")
+            #print(margin + "DDD")
 
         recursive_instantiation(0)
 
@@ -695,10 +720,9 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
         print("Result=", query_result)
         self.assertTrue( str(query_result[0][0]) == os.path.dirname(TempDirPath))
 
-    def test_query_bubble_grandchildren(self):
+    def test_query_bubble_grandchildren_files(self):
         rdflib_graph = CreateGraph()
 
-        # C:/Windows/temp\\survol_temp_file_12532.tmp'
         tmp_pathname = create_temp_file()
 
         # Sparql does not accept backslashes.
@@ -730,6 +754,194 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
         print("actual_files=", actual_files)
         print("expected_files=", expected_files)
         self.assertTrue(actual_files == expected_files)
+
+    def test_query_bubble_grandchildren_directories(self):
+        rdflib_graph = CreateGraph()
+
+        tmp_pathname = create_temp_file()
+
+        # Sparql does not accept backslashes.
+        tmp_pathname = tmp_pathname.replace("\\", "/")
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?subdirectory_name WHERE {
+                ?url_grandparent a survol:CIM_Directory .
+                ?url_directory a survol:CIM_Directory .
+                ?url_subdirectory a survol:CIM_Directory .
+                ?url_grandparent survol:CIM_DirectoryContainsFile ?url_directory .
+                ?url_directory survol:CIM_DirectoryContainsFile ?url_subdirectory .
+                ?url_grandparent survol:Name "%s" .
+                ?url_subdirectory survol:Name ?subdirectory_name .
+            }
+        """ % (survol_namespace, TempDirPath)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+
+        expected_dirs = set()
+        for root_dir, dir_lists, files_list in os.walk(TempDirPath):
+            if os.path.dirname(root_dir) == TempDirPath:
+                for one_file_name in dir_lists:
+                    sub_path_name = os.path.join(root_dir, one_file_name)
+                    expected_dirs.add(sub_path_name.replace("\\","/"))
+
+        actual_dirs = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        print("actual_dirs=", actual_dirs)
+        print("expected_dirs=", expected_dirs)
+        self.assertTrue(actual_dirs == expected_dirs)
+
+    def test_query_bubble_subdirectory_2(self):
+        """Tests that a second-level directory is detected. """
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        dir_path = os.path.join(TempDirPath,
+            "survol_temp_dir%d_1" % current_pid,
+            "survol_temp_dir%d_2" % current_pid)
+        os.makedirs(dir_path)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?subdirectory_name WHERE {
+                ?url_directory_0 a survol:CIM_Directory .
+                ?url_directory_1 a survol:CIM_Directory .
+                ?url_directory_2 a survol:CIM_Directory .
+                ?url_directory_0 survol:CIM_DirectoryContainsFile ?url_directory_1 .
+                ?url_directory_1 survol:CIM_DirectoryContainsFile ?url_directory_2 .
+                ?url_directory_0 survol:Name "%s" .
+                ?url_directory_2 survol:Name ?subdirectory_name .
+            }
+        """ % (survol_namespace, TempDirPath)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+
+        dir_path = dir_path.replace("\\","/")
+        print("dir_path=", dir_path)
+
+        actual_files = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        print("actual_files=", actual_files)
+        self.assertTrue(dir_path in actual_files)
+
+    actual_files = set(
+        ['c:/users/rchateau/appdata/local/temp/_MEI37602/resources', 'c:/users/rchateau/appdata/local/temp/HP/AtStatus',
+         'c:/users/rchateau/appdata/local/temp/survol_temp_dir10600_1/survol_temp_dir10600_2',
+         'c:/users/rchateau/appdata/local/temp/LogMeInLogs/GoToMeeting',
+         'c:/users/rchateau/appdata/local/temp/survol_temp_dir12240_1/survol_temp_dir12240_2',
+         'c:/users/rchateau/appdata/local/temp/VSTelem/NgenPdb',
+         'c:/users/rchateau/appdata/local/temp/survol_temp_dir10156_1/survol_temp_dir10156_2'])
+
+    def test_query_bubble_subdirectory_3(self):
+        """Tests that a third-level directory is detected. """
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        dir_path = os.path.join(TempDirPath,
+            "survol_temp_dir%d_1" % current_pid,
+            "survol_temp_dir%d_2" % current_pid,
+            "survol_temp_dir%d_3" % current_pid)
+        os.makedirs(dir_path)
+
+        print("dir_path=", dir_path)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?subdirectory_name WHERE {
+                ?url_directory_0 a survol:CIM_Directory .
+                ?url_directory_1 a survol:CIM_Directory .
+                ?url_directory_2 a survol:CIM_Directory .
+                ?url_directory_3 a survol:CIM_Directory .
+                ?url_directory_0 survol:CIM_DirectoryContainsFile ?url_directory_1 .
+                ?url_directory_1 survol:CIM_DirectoryContainsFile ?url_directory_2 .
+                ?url_directory_2 survol:CIM_DirectoryContainsFile ?url_directory_3 .
+                ?url_directory_0 survol:Name "%s" .
+                ?url_directory_3 survol:Name ?subdirectory_name .
+            }
+        """ % (survol_namespace, TempDirPath)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+
+        dir_path = dir_path.replace("\\","/")
+        print("dir_path=", dir_path)
+
+        actual_files = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        print("actual_files=", actual_files)
+        self.assertTrue(dir_path in actual_files)
+
+    def test_query_bubble_subdirectory_4(self):
+        """Tests that a third-level directory is detected. """
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        dir_path = os.path.join(TempDirPath,
+            "survol_temp_dir%d_1" % current_pid,
+            "survol_temp_dir%d_2" % current_pid,
+            "survol_temp_dir%d_3" % current_pid,
+            "survol_temp_dir%d_4" % current_pid)
+        os.makedirs(dir_path)
+
+        print("dir_path=", dir_path)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?subdirectory_name WHERE {
+                ?url_directory_0 a survol:CIM_Directory .
+                ?url_directory_1 a survol:CIM_Directory .
+                ?url_directory_2 a survol:CIM_Directory .
+                ?url_directory_3 a survol:CIM_Directory .
+                ?url_directory_4 a survol:CIM_Directory .
+                ?url_directory_0 survol:CIM_DirectoryContainsFile ?url_directory_1 .
+                ?url_directory_1 survol:CIM_DirectoryContainsFile ?url_directory_2 .
+                ?url_directory_2 survol:CIM_DirectoryContainsFile ?url_directory_3 .
+                ?url_directory_3 survol:CIM_DirectoryContainsFile ?url_directory_4 .
+                ?url_directory_0 survol:Name "%s" .
+                ?url_directory_4 survol:Name ?subdirectory_name .
+            }
+        """ % (survol_namespace, TempDirPath)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+
+        dir_path = dir_path.replace("\\","/")
+        print("dir_path=", dir_path)
+
+        actual_files = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        print("actual_files=", actual_files)
+        self.assertTrue(dir_path in actual_files)
+
+    def test_query_bubble_subdirectory_down_up_4(self):
+        rdflib_graph = CreateGraph()
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?directory_name WHERE {
+                ?url_directory_0a a survol:CIM_Directory .
+                ?url_directory_1a a survol:CIM_Directory .
+                ?url_directory_2a a survol:CIM_Directory .
+                ?url_directory_3a a survol:CIM_Directory .
+                ?url_directory_4X a survol:CIM_Directory .
+                ?url_directory_3b a survol:CIM_Directory .
+                ?url_directory_2b a survol:CIM_Directory .
+                ?url_directory_1b a survol:CIM_Directory .
+                ?url_directory_0b a survol:CIM_Directory .
+                ?url_directory_0a survol:CIM_DirectoryContainsFile ?url_directory_1a .
+                ?url_directory_1a survol:CIM_DirectoryContainsFile ?url_directory_2a .
+                ?url_directory_2a survol:CIM_DirectoryContainsFile ?url_directory_3a .
+                ?url_directory_3a survol:CIM_DirectoryContainsFile ?url_directory_4X .
+                ?url_directory_3b survol:CIM_DirectoryContainsFile ?url_directory_4X .
+                ?url_directory_2b survol:CIM_DirectoryContainsFile ?url_directory_3b .
+                ?url_directory_1b survol:CIM_DirectoryContainsFile ?url_directory_2b .
+                ?url_directory_0b survol:CIM_DirectoryContainsFile ?url_directory_1b .
+                ?url_directory_0a survol:Name "%s" .
+                ?url_directory_0b survol:Name ?directory_name .
+            }
+        """ % (survol_namespace, TempDirPath)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+
+        actual_files = [str(one_path_url[0]).replace("\\","/") for one_path_url in query_result]
+        print("actual_files=", actual_files)
+        assert(actual_files[0] == TempDirPath)
+        #self.assertTrue(dir_path in actual_files)
+
 
 
 
