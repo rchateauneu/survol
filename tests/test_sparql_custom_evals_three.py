@@ -109,10 +109,6 @@ def add_ontology(graph):
     graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDFS.range, class_CIM_DataFile))
     graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_ProcessExecutable")))
 
-
-################################################################################
-
-
 ################################################################################
 
 # Queries to test
@@ -243,7 +239,7 @@ class Sparql_CIM_Object(object):
         elif isinstance(predicate_variable, rdflib.term.Variable):
             if predicate_variable not in variables_context:
                 print("QUIT:", predicate_variable, "not in", variables_context.keys())
-                return None, None
+                return None
             node_value = variables_context[predicate_variable]
             print("predicate_variable=", predicate_variable, "node_value=", node_value)
             assert isinstance(node_value, rdflib.term.Literal)
@@ -433,18 +429,60 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
     def __init__(self, class_name, node):
         super(Sparql_CIM_Process, self).__init__(class_name, node)
 
-    # Si ParentProcessId, on va renvoyer une liste de pid.
-    def FetchFromProperties(self, variables_context):
-        print("Sparql_CIM_Process.FetchFromProperties")
-        if predicate_Handle in self.m_properties:
-            node_handle = self.GetNodeValue(predicate_Handle, variables_context)
-            return node_handle
-        elif predicate_ParentProcessId in self.m_properties:
-            node_parent_pid = self.GetNodeValue(predicate_ParentProcessId, variables_context)
-            return node_parent_pid
-        else:
-            print("QUIT: No ParentProcessId")
-            return None
+    # Several properties can be used to return one or several objects.
+    # TODO: We could use several properties at one: It is difficult to generalise.
+    class PropertyDefinition:
+        class property_definition_Handle:
+            s_property_node = predicate_Handle
+
+            def IfLiteralOrDefinedVariable(self, node_value):
+                process_id = int(str(node_value))
+                parent_process_pid =  psutil.Process(process_id).ppid()
+                dict_process = {predicate_Handle: node_value,
+                                predicate_ParentProcessId: rdflib.term.Literal(parent_process_pid)}
+                return [dict_process]
+
+        class property_definition_ParentProcessId:
+            s_property_node = predicate_ParentProcessId
+
+            def IfLiteralOrDefinedVariable(self, node_value):
+                result_list=[]
+                ppid = int(str(node_value))
+                for child_process in psutil.Process(ppid).children(recursive=False):
+                    dict_process={predicate_Handle:rdflib.term.Literal(child_process.pid),
+                                   predicate_ParentProcessId:node_value}
+                    result_list.append(dict_process)
+                return result_list
+
+        g_properties = [
+            property_definition_Handle(),
+            property_definition_ParentProcessId()
+        ]
+
+    # If no property is usable, this returns all objects.
+    # This can work only for some classes, if there are not too many objects.
+    def GetAllObjects(self):
+        print("GetAllObjects")
+        result_list = []
+        for proc in psutil.process_iter():
+            dict_process = {predicate_Handle: rdflib.term.Literal(proc.pid),
+                            predicate_ParentProcessId: rdflib.term.Literal(proc.ppid())}
+            result_list.append(dict_process)
+        return result_list
+
+    def GetListOfOntologyProperties(self, variables_context):
+        print("GetListOfOntologyProperties")
+        for one_property in self.PropertyDefinition.g_properties:
+            print("    GetListOfOntologyProperties one_property=", one_property.s_property_node)
+            if one_property.s_property_node in self.m_properties:
+                node_value = self.GetNodeValue(one_property.s_property_node, variables_context)
+                if node_value:
+                    url_nodes_list = one_property.IfLiteralOrDefinedVariable(node_value)
+                    return url_nodes_list
+        print("GetListOfOntologyProperties leaving")
+        return self.GetAllObjects()
+
+
 
     def CreateURIRef(self, graph, class_name, class_node, dict_predicates_to_values):
         url_as_str = "Machine:" + class_name
@@ -454,38 +492,35 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             str_value = str(node_value)
             url_as_str += delimiter + "%s=%s" % (predicate_name, str_value)
             delimiter = "."
+        print("CreateURIRef url_as_str=", url_as_str)
         node_uri_ref = rdflib.term.URIRef(url_as_str)
         graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_node))
 
         for node_predicate, node_value in dict_predicates_to_values.items():
             graph.add((node_uri_ref, node_predicate, node_value))
+        return node_uri_ref
 
 
 
     def FetchAllVariables(self, graph, variables_context):
-        node_file_path = self.FetchFromProperties(variables_context)
-        if not node_file_path:
+        url_nodes_list = self.GetListOfOntologyProperties(variables_context)
+        if not url_nodes_list:
             return {}
+
         returned_variables = {}
 
-        node_uri_ref = self.CreateURIRef(graph, "CIM_Process", class_CIM_Directory, {predicate_Handle: node_file_path})
+        node_uri_refs_list = []
+        for properties_dict in url_nodes_list:
+            print("Before CreateURIRef properties_dict=", properties_dict)
+            node_uri_ref = self.CreateURIRef(graph, "CIM_Process", class_CIM_Process, properties_dict)
+            node_uri_refs_list.append(node_uri_ref)
         assert isinstance(self.m_variable, rdflib.term.Variable)
-
-        returned_variables[self.m_variable] = [node_uri_ref]
-
-        assert associator_CIM_ProcessExecutable not in self.m_associators
-
-        self.FetchFromDirectory(variables_context, file_path, graph, returned_variables, node_uri_ref)
-
+        returned_variables[self.m_variable] = node_uri_refs_list
 
         # TODO: If there are no properties, no parent process and no sub-processes,
         # TODO: it should return ALL PROCESSES RUNNING ON THIS MACHINE.
 
         return returned_variables
-
-
-
-
 
 def CreateSparql_CIM_Object(class_name, the_subject):
     class_name_to_class = {
@@ -499,10 +534,6 @@ def CreateSparql_CIM_Object(class_name, the_subject):
     return the_instance
 
 ################################################################################
-
-
-class_names_to_node = dict()
-
 
 # This takes the list of triples extracted from the Sparql query,
 # and returns a list of instances of CIM classes, each of them
@@ -519,7 +550,6 @@ def part_triples_to_instances_dict_bubble(part):
                 class_as_str = part_object.toPython()
                 class_short = class_as_str[len(survol_url):]
                 if class_as_str.startswith(survol_url):
-                    class_names_to_node[class_short] = part_object
                     instances_dict[part_subject] = CreateSparql_CIM_Object(class_short, part_subject)
 
     print("Created instances:", instances_dict.keys())
@@ -568,6 +598,7 @@ def product_variables_lists(returned_variables, iter_keys = None):
 
 # An instance which is completely known and can be used as a starting point.
 def findable_instance_key(instances_dict):
+    print("findable_instance_key")
     for instance_key, one_instance in instances_dict.items():
         one_instance.CalculateVariablesNumber()
         print("    Key=", instance_key, "Instance=", one_instance)
@@ -583,8 +614,14 @@ def findable_instance_key(instances_dict):
         if one_instance.m_number_literals > 0:
             return instance_key
 
+    # Could not find an instance with enough information.
+    # The only possibility is to list all object. So, return the first instance.
+    for instance_key, one_instance in instances_dict.items():
+        return instance_key
+
 # Exploration of the graph, starting by the ones which can be calculated without inference.
 def visit_all_nodes(instances_dict):
+    # Find a string point to walk the entire graph.
     start_instance_key = findable_instance_key(instances_dict)
     start_instance = instances_dict[start_instance_key]
 
@@ -654,6 +691,10 @@ def custom_eval_bubble(ctx, part):
             #print(margin + "DDD")
 
         recursive_instantiation(0)
+
+        print("Graph after recursive_instantiation")
+        for s,p,o in ctx.graph:
+            print("   ", s, p, o)
 
         # <type 'generator'>
         ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
@@ -981,13 +1022,12 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
 
         actual_files = [str(one_path_url[0]).replace("\\","/") for one_path_url in query_result]
         print("actual_files=", actual_files)
-        assert(actual_files[0] == TempDirPath)
-        #self.assertTrue(dir_path in actual_files)
+        self.assertTrue(actual_files[0] == TempDirPath)
 
-    @unittest.skip("In progress")
     def test_sparql_parent_process(self):
         rdflib_graph = CreateGraph()
 
+        current_pid = os.getpid()
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?the_ppid
@@ -996,29 +1036,63 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
               ?url_proc survol:ParentProcessId ?the_ppid .
               ?url_proc rdf:type survol:CIM_Process .
             }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+
+        print("current_pid=", current_pid)
+        parent_pid = psutil.Process(current_pid).ppid()
+        print("parent_pid=", parent_pid)
+        actual_pid = [str(one_pid[0]) for one_pid in query_result]
+        print("actual_pid=", actual_pid)
+        self.assertTrue(int(actual_pid[0]) == parent_pid)
+
+    def test_sparql_sub_processes(self):
+        rdflib_graph = CreateGraph()
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?process_id
+            WHERE
+            { ?url_proc survol:Handle ?process_id .
+              ?url_proc survol:ParentProcessId %d .
+              ?url_proc rdf:type survol:CIM_Process .
+            }
         """ % (survol_namespace, os.getpid())
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        actual_pid = [str(one_pid[0]) for one_pid in query_result]
-        print("actual_pid=", actual_pid)
-        assert(actual_pid[0] == os.getppid())
-        #self.assertTrue(dir_path in actual_files)
+        actual_pids = [str(one_pid[0]) for one_pid in query_result]
+        print("actual_pids=", actual_pids)
+        expected_pids = [proc.pid for proc in psutil.Process(os.getpid()).children(recursive=False)]
+        self.assertTrue(actual_pids == expected_pids)
 
+    def test_sparql_all_processes(self):
+        rdflib_graph = CreateGraph()
 
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?process_id
+            WHERE
+            { ?url_proc survol:Handle ?process_id .
+              ?url_proc rdf:type survol:CIM_Process .
+            }
+        """ % (survol_namespace)
 
-# This should select the parent process id
-"""
-PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-SELECT ?the_ppid
-WHERE
-{ ?url_proc survol:Handle %d .
-  ?url_proc survol:ParentProcessId ?the_ppid .
-  ?url_proc rdf:type survol:CIM_Process .
-}
-"""
+        query_result = list(rdflib_graph.query(sparql_query))
 
-
+        actual_pids = set([int(str(one_pid[0])) for one_pid in query_result])
+        print("actual_pids=", actual_pids)
+        expected_pids = set([proc.pid for proc in psutil.process_iter()])
+        print("expected_pids=", expected_pids)
+        sets_difference =  [one_pid for one_pid in actual_pids if one_pid not in expected_pids]
+        sets_difference += [one_pid for one_pid in expected_pids if one_pid not in actual_pids]
+        print("sets_difference=", sets_difference)
+        # Not too many processes were destroyed or deleted.
+        self.assertTrue(len(sets_difference) < 10)
+        current_pid = os.getpid()
+        self.assertTrue(current_pid in actual_pids)
+        self.assertTrue(current_pid in expected_pids)
 
 if __name__ == '__main__':
     unittest.main()
