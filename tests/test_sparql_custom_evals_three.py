@@ -1062,9 +1062,11 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        actual_pids = [str(one_pid[0]) for one_pid in query_result]
+        actual_pids = set([str(one_pid[0]) for one_pid in query_result])
         print("actual_pids=", actual_pids)
-        expected_pids = [proc.pid for proc in psutil.Process(os.getpid()).children(recursive=False)]
+        # Comparaison with the list of sub-processes of the current one.
+        expected_pids = set([proc.pid for proc in psutil.Process(os.getpid()).children(recursive=False)])
+        print("expected_pids=", expected_pids)
         self.assertTrue(actual_pids == expected_pids)
 
     def test_sparql_all_processes(self):
@@ -1083,6 +1085,8 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
 
         actual_pids = set([int(str(one_pid[0])) for one_pid in query_result])
         print("actual_pids=", actual_pids)
+
+        # Comparison with the list of all processes.
         expected_pids = set([proc.pid for proc in psutil.process_iter()])
         print("expected_pids=", expected_pids)
         sets_difference =  [one_pid for one_pid in actual_pids if one_pid not in expected_pids]
@@ -1093,6 +1097,40 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
         current_pid = os.getpid()
         self.assertTrue(current_pid in actual_pids)
         self.assertTrue(current_pid in expected_pids)
+
+    @unittest.skip("Not yet")
+    def test_sparql_grandparent_process(self):
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        print("current_pid=", current_pid)
+        parent_pid = psutil.Process(current_pid).ppid()
+        print("parent_pid=", parent_pid)
+        grandparent_pid = psutil.Process(parent_pid).ppid()
+        print("grandparent_pid=", grandparent_pid)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?pid_2
+            WHERE
+            {
+              ?url_proc_0 survol:Handle %d .
+              ?url_proc_0 survol:ParentProcessId ?pid_1 .
+              ?url_proc_0 rdf:type survol:CIM_Process .
+              ?url_proc_1 survol:Handle ?pid_1 .
+              ?url_proc_1 survol:ParentProcessId ?pid_2 .
+              ?url_proc_1 rdf:type survol:CIM_Process .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+
+        actual_pids = [str(one_pid[0]) for one_pid in query_result]
+        print("actual_pids=", actual_pids)
+        self.assertTrue(actual_pids[0] == grandparent_pid)
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
