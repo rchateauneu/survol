@@ -1062,7 +1062,7 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        actual_pids = set([str(one_pid[0]) for one_pid in query_result])
+        actual_pids = set([int(str(one_pid[0])) for one_pid in query_result])
         print("actual_pids=", actual_pids)
         # Comparaison with the list of sub-processes of the current one.
         expected_pids = set([proc.pid for proc in psutil.Process(os.getpid()).children(recursive=False)])
