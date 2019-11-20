@@ -122,7 +122,8 @@ class SourceCgi (SourceBase):
 def LoadModedUrl(urlModed):
     DEBUG("LoadModedUrl urlModed=%s",urlModed)
     try:
-        response = lib_util.survol_urlopen(urlModed, timeout=60)
+        # Very long timeout to read WBEM ontology.
+        response = lib_util.survol_urlopen(urlModed, timeout=120)
     except Exception as exc:
         ERROR("LoadModedUrl urlModed=%s. Caught:%s", urlModed, str(exc))
         raise
