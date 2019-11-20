@@ -501,6 +501,47 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         return node_uri_ref
 
 
+    def FetchFromProcessExecutable(self, variables_context, process_id, graph, returned_variables, node_uri_ref):
+        print("Sparql_CIM_Process.FetchFromProcessExecutable process_id=", process_id)
+        if associator_CIM_ProcessExecutable in self.m_associators:
+            associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
+            assert isinstance(associated_instance, Sparql_CIM_DataFile)
+            assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
+            assert isinstance(process_id, int)
+
+            if associated_instance.m_variable in variables_context:
+                print("ALREADY DEFINED ??", associated_instance.m_variable)
+                return
+
+            # TODO: This could also explore DLLs, not only the main executable.
+            executable_path = psutil.Process(process_id).exe()
+            executable_path_node = rdflib.term.Literal(executable_path)
+
+            executable_node_str = "Machine:CIM_DataFile?Name=" + executable_path_node
+            associated_instance_url = rdflib.term.URIRef(executable_node_str)
+            graph.add((associated_instance_url, rdflib.namespace.RDF.type, class_CIM_DataFile))
+            graph.add((node_uri_ref, associator_CIM_ProcessExecutable, associated_instance_url))
+
+            if predicate_Name in associated_instance.m_properties:
+                dir_path_variable = associated_instance.m_properties[predicate_Name]
+                assert isinstance(dir_path_variable, rdflib.term.Variable)
+            else:
+                # This property must be created, to make the directory usable,
+                # for example to get its other properties.
+                # Generally speaking, this must be done for all properties of the ontology.
+                variable_name = str(associated_instance.m_variable) + "_dummy_name"
+                dir_path_variable = rdflib.term.Variable(variable_name)
+                associated_instance.m_properties[predicate_Name] = dir_path_variable
+
+            if isinstance(dir_path_variable, rdflib.term.Variable):
+                assert (associated_instance, dir_path_variable) not in returned_variables
+                returned_variables[(associated_instance, dir_path_variable)] = [
+                    (associated_instance_url, executable_path_node)]
+            else:
+                assert associated_instance.m_variable not in returned_variables
+                returned_variables[associated_instance.m_variable] = [associated_instance_url]
+            graph.add((associated_instance_url, predicate_Name, executable_path_node))
+
 
     def FetchAllVariables(self, graph, variables_context):
         url_nodes_list = self.GetListOfOntologyProperties(variables_context)
@@ -514,11 +555,13 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             print("Before CreateURIRef properties_dict=", properties_dict)
             node_uri_ref = self.CreateURIRef(graph, "CIM_Process", class_CIM_Process, properties_dict)
             node_uri_refs_list.append(node_uri_ref)
-        assert isinstance(self.m_variable, rdflib.term.Variable)
-        returned_variables[self.m_variable] = node_uri_refs_list
 
-        # TODO: If there are no properties, no parent process and no sub-processes,
-        # TODO: it should return ALL PROCESSES RUNNING ON THIS MACHINE.
+            process_id = int(properties_dict[predicate_Handle])
+            self.FetchFromProcessExecutable(variables_context, process_id, graph, returned_variables, node_uri_ref)
+
+        assert isinstance(self.m_variable, rdflib.term.Variable)
+        assert self.m_variable not in returned_variables
+        returned_variables[self.m_variable] = node_uri_refs_list
 
         return returned_variables
 
@@ -540,7 +583,7 @@ def CreateSparql_CIM_Object(class_name, the_subject):
 # containing the triples using its instances. The association is
 # done based on the variable representing the instance.
 # There might be several instances of the same class.
-def part_triples_to_instances_dict_bubble(part):
+def part_triples_to_instances_dict_function(part):
     instances_dict = dict()
     #print("Triples Bubble")
     for part_subject, part_predicate, part_object in part.triples:
@@ -641,23 +684,38 @@ def visit_all_nodes(instances_dict):
             if not sub_instance.m_visited:
                 instance_recursive_visit(sub_instance)
 
+        # The input instance is known if and only if it is possible
+        # to give a value to all the variables it may contain.
+        # If not all of them are known, too many values might be produced,
+        # the extreme case being to return all possible instances of a class.
+        # TODO: The right thing is to walk the graph is incrementally aggregate
+        # TODO: the list of known variables, choosing as next node, the ones
+        # TODO: using these variables and no other, preferably.
+        # FIXME: If some nodes are not viisted, just append them.
+
     instance_recursive_visit(start_instance)
+
+    for instance_key, one_instance in instances_dict.items():
+        if not one_instance.m_visited:
+            visited_instances.append(one_instance)
+
     return visited_instances
 
 
 # Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
-def custom_eval_bubble(ctx, part):
+def custom_eval_function(ctx, part):
     # part.name = "SelectQuery", "Project", "BGP"
     if part.name == 'BGP':
         add_ontology(ctx.graph)
 
         print("Instances:")
-        instances_dict = part_triples_to_instances_dict_bubble(part)
+        instances_dict = part_triples_to_instances_dict_function(part)
         print("Instance before sort", len(instances_dict))
         for instance_key, one_instance in instances_dict.items():
             print("    Key=", instance_key, "Instance=", one_instance)
 
         visited_nodes = visit_all_nodes(instances_dict)
+        assert len(instances_dict) == len(visited_nodes)
         print("GRAPH VISIT:", len(visited_nodes))
         for one_instance in visited_nodes:
             print("    Instance=", one_instance)
@@ -671,7 +729,8 @@ def custom_eval_bubble(ctx, part):
                 print("recursive_instantiation End of recursive loop")
                 return
             margin = " " + str(instance_index) + "    " * (instance_index + 1)
-            print("recursive_instantiation:", instances_dict.keys())
+            print("recursive_instantiation: ix=", instance_index,
+                  "visited nodes=", [nod.m_variable for nod in visited_nodes])
 
             # This returns the first instance which is completely kown, i.e. its parameters
             # are iterals, or variables whose values are known in the current context.
@@ -703,15 +762,15 @@ def custom_eval_bubble(ctx, part):
     raise NotImplementedError()
 
 
-class RdflibCustomEvalsBubbleTest(unittest.TestCase):
+class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def setUp(self):
         # add function directly, normally we would use setuptools and entry_points
-        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_bubble'] = custom_eval_bubble
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function'] = custom_eval_function
 
     def tearDown(self):
-        if 'custom_eval_bubble' in rdflib.plugins.sparql.CUSTOM_EVALS:
-            del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_bubble']
+        if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
+            del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
 
     @staticmethod
     def one_return_tst(return_variables):
@@ -724,8 +783,8 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
 
     @unittest.skip("Should use variables")
     def test_prod_variables(self):
-        RdflibCustomEvalsBubbleTest.one_return_tst({ 'a':['a1'],'b':['b1'],'c':['c1'], })
-        RdflibCustomEvalsBubbleTest.one_return_tst({ 'a':['a1'],'b':['b1','b2'],'c':['c1'], })
+        Rdflib_CUSTOM_EVALS_Test.one_return_tst({ 'a':['a1'],'b':['b1'],'c':['c1'], })
+        Rdflib_CUSTOM_EVALS_Test.one_return_tst({ 'a':['a1'],'b':['b1','b2'],'c':['c1'], })
 
     #@unittest.skip("Not DONE")
     def test_sparql_parent(self):
@@ -1081,13 +1140,14 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
             }
         """ % (survol_namespace)
 
+        # Comparison with the list of all processes.. This list must be built as close as possible
+        # to the query execution, so the list do not change too much.
+        expected_pids = set([proc.pid for proc in psutil.process_iter()])
         query_result = list(rdflib_graph.query(sparql_query))
 
         actual_pids = set([int(str(one_pid[0])) for one_pid in query_result])
         print("actual_pids=", actual_pids)
 
-        # Comparison with the list of all processes.
-        expected_pids = set([proc.pid for proc in psutil.process_iter()])
         print("expected_pids=", expected_pids)
         sets_difference =  [one_pid for one_pid in actual_pids if one_pid not in expected_pids]
         sets_difference += [one_pid for one_pid in expected_pids if one_pid not in actual_pids]
@@ -1098,7 +1158,7 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
         self.assertTrue(current_pid in actual_pids)
         self.assertTrue(current_pid in expected_pids)
 
-    @unittest.skip("Not yet")
+    #@unittest.skip("Not yet")
     def test_sparql_grandparent_process(self):
         rdflib_graph = CreateGraph()
 
@@ -1125,10 +1185,36 @@ class RdflibCustomEvalsBubbleTest(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        actual_pids = [str(one_pid[0]) for one_pid in query_result]
+        actual_pids = [int(str(one_pid[0])) for one_pid in query_result]
         print("actual_pids=", actual_pids)
         self.assertTrue(actual_pids[0] == grandparent_pid)
 
+    def test_sparql_executable_process(self):
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        print("current_pid=", current_pid)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?datafile_name
+            WHERE
+            {
+              ?url_proc survol:Handle %d .
+              ?url_proc survol:CIM_ProcessExecutable ?url_datafile .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_datafile survol:Name ?datafile_name .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+
+        datafile_name = [str(one_value[0]) for one_value in query_result][0]
+        print("datafile_name=", datafile_name)
+        print("sys.executable=", sys.executable)
+        self.assertTrue(datafile_name == sys.executable)
 
 
 
