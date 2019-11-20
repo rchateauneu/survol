@@ -72,9 +72,9 @@ if is_platform_windows:
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
 
 # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-print(__file__+" sys.execPath=%s" % execPath)
-print(__file__+" sys.executable=%s" % sys.executable)
-print(__file__+" sys.exec_prefix=%s" % sys.exec_prefix)
+#print(__file__+" sys.execPath=%s" % execPath)
+#print(__file__+" sys.executable=%s" % sys.executable)
+#print(__file__+" sys.exec_prefix=%s" % sys.exec_prefix)
 
 def ServerDumpContent(log_filename):
     sys.stdout.write("Agent log file: %s\n" % log_filename)
