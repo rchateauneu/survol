@@ -238,7 +238,7 @@ class Sparql_CIM_Object(object):
             node_value = predicate_variable
         elif isinstance(predicate_variable, rdflib.term.Variable):
             if predicate_variable not in variables_context:
-                print("QUIT:", predicate_variable, "not in", variables_context.keys())
+                print("GetNodeValue QUIT:", predicate_variable, "not in", variables_context.keys())
                 return None
             node_value = variables_context[predicate_variable]
             print("predicate_variable=", predicate_variable, "node_value=", node_value)
@@ -255,7 +255,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
         if predicate_Name in self.m_properties:
             return self.GetNodeValue(predicate_Name, variables_context)
         else:
-            print("QUIT: No Name")
+            print("Sparql_CIM_DataFile QUIT: No Name")
             return None
 
 
@@ -304,9 +304,9 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
 
         url_as_str = "Machine:CIM_DataFile?Name=" + file_path
         node_uri_ref = rdflib.term.URIRef(url_as_str)
+        graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_DataFile))
 
         returned_variables[self.m_variable] = [node_uri_ref]
-        graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_DataFile))
 
         # No need to add node_file_path in the results because,
         # if it is a Variable, it is already in the context.
@@ -477,12 +477,11 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             if one_property.s_property_node in self.m_properties:
                 node_value = self.GetNodeValue(one_property.s_property_node, variables_context)
                 if node_value:
+                    assert isinstance(node_value, rdflib.term.Literal)
                     url_nodes_list = one_property.IfLiteralOrDefinedVariable(node_value)
                     return url_nodes_list
-        print("GetListOfOntologyProperties leaving")
-        return self.GetAllObjects()
-
-
+        print("GetListOfOntologyProperties leaving: Cannot find anything.")
+        return None
 
     def CreateURIRef(self, graph, class_name, class_node, dict_predicates_to_values):
         url_as_str = "Machine:" + class_name
@@ -497,29 +496,29 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_node))
 
         for node_predicate, node_value in dict_predicates_to_values.items():
+            assert isinstance(node_value, rdflib.term.Literal)
             graph.add((node_uri_ref, node_predicate, node_value))
         return node_uri_ref
 
-
-    def FetchFromProcessExecutable(self, variables_context, process_id, graph, returned_variables, node_uri_ref):
-        print("Sparql_CIM_Process.FetchFromProcessExecutable process_id=", process_id)
+    # Given the process id, it creates the file representing the executable being run.
+    def DefineExecutableFromProcess(self, variables_context, process_id, graph, returned_variables, node_uri_ref):
+        print("Sparql_CIM_Process.DefineExecutableFromProcess process_id=", process_id)
         if associator_CIM_ProcessExecutable in self.m_associators:
             associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
             assert isinstance(associated_instance, Sparql_CIM_DataFile)
             assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
             assert isinstance(process_id, int)
 
-            if associated_instance.m_variable in variables_context:
-                print("ALREADY DEFINED ??", associated_instance.m_variable)
-                return
+            # This calculates the variable which defines the executable node.
+            assert associated_instance.m_variable not in variables_context
 
             # TODO: This could also explore DLLs, not only the main executable.
             executable_path = psutil.Process(process_id).exe()
             executable_path_node = rdflib.term.Literal(executable_path)
 
-            executable_node_str = "Machine:CIM_DataFile?Name=" + executable_path_node
-            associated_instance_url = rdflib.term.URIRef(executable_node_str)
-            graph.add((associated_instance_url, rdflib.namespace.RDF.type, class_CIM_DataFile))
+            associated_instance_url = self.CreateURIRef(graph, "CIM_DataFile", class_CIM_DataFile,
+                         {predicate_Name: executable_path_node})
+
             graph.add((node_uri_ref, associator_CIM_ProcessExecutable, associated_instance_url))
 
             if predicate_Name in associated_instance.m_properties:
@@ -542,27 +541,78 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 returned_variables[associated_instance.m_variable] = [associated_instance_url]
             graph.add((associated_instance_url, predicate_Name, executable_path_node))
 
+    # Given a file name, it returns all processes executing it.
+    def GetProcessesFromExecutable(self, graph, variables_context):
+        print("Sparql_CIM_Process.GetProcessesFromExecutable")
+        associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
+        assert isinstance(associated_instance, Sparql_CIM_DataFile)
+        assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
+        assert associated_instance.m_variable in variables_context
+
+        print("Sparql_CIM_Process.GetProcessesFromExecutable variables_context=", variables_context)
+        print("associated_instance.m_variable=", associated_instance.m_variable)
+        executable_node = associated_instance.GetNodeValue(predicate_Name, variables_context)
+        assert isinstance(executable_node, rdflib.term.Literal)
+        executable_path = str(executable_node)
+        # Because of backslashes transformed into slashes, which is necessary because of Sparql.
+        executable_path = os.path.normpath(executable_path)
+        print("executable_path=", executable_path)
+
+        process_urls_list = []
+        for one_process in psutil.process_iter():
+            try:
+                process_executable = one_process.exe()
+            except psutil.AccessDenied as exc:
+                print("GetProcessesFromExecutable Caught:", exc)
+                continue
+            # print("process_executable=", process_executable, "executable_path=", executable_path)
+            if executable_path == process_executable:
+                process_url = self.CreateURIRef(
+                    graph, "CIM_Process", class_CIM_Process,
+                    {predicate_Handle: rdflib.term.Literal(one_process.pid)})
+                print("Adding process ", process_url)
+                graph.add((process_url, associator_CIM_ProcessExecutable, executable_node))
+                process_urls_list.append(process_url)
+        return process_urls_list
+        print("GetProcessesFromExecutable process_urls_list=", process_urls_list)
 
     def FetchAllVariables(self, graph, variables_context):
+        print("Sparql_CIM_Process.FetchAllVariables variables_context=", variables_context)
         url_nodes_list = self.GetListOfOntologyProperties(variables_context)
-        if not url_nodes_list:
-            return {}
 
         returned_variables = {}
 
+        if isinstance(url_nodes_list, list) and len(url_nodes_list) == 0:
+            print("FetchAllVariables No such process with self.m_properties:", self.m_properties)
+            # No such process.
+            return returned_variables
+
+        if associator_CIM_ProcessExecutable in self.m_associators:
+            associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
+            if associated_instance.m_variable in variables_context:
+                if url_nodes_list is not None:
+                    raise Exception("BUG: Contradiction with non-empty processe list")
+                node_uri_refs_list = self.GetProcessesFromExecutable(graph, variables_context)
+                returned_variables[self.m_variable] = node_uri_refs_list
+                return returned_variables
+
+        if not url_nodes_list:
+            # Get all objects by default.
+            url_nodes_list = self.GetAllObjects()
+
         node_uri_refs_list = []
+
         for properties_dict in url_nodes_list:
             print("Before CreateURIRef properties_dict=", properties_dict)
             node_uri_ref = self.CreateURIRef(graph, "CIM_Process", class_CIM_Process, properties_dict)
             node_uri_refs_list.append(node_uri_ref)
 
             process_id = int(properties_dict[predicate_Handle])
-            self.FetchFromProcessExecutable(variables_context, process_id, graph, returned_variables, node_uri_ref)
+            self.DefineExecutableFromProcess(variables_context, process_id, graph, returned_variables, node_uri_ref)
 
         assert isinstance(self.m_variable, rdflib.term.Variable)
         assert self.m_variable not in returned_variables
         returned_variables[self.m_variable] = node_uri_refs_list
-
         return returned_variables
 
 def CreateSparql_CIM_Object(class_name, the_subject):
@@ -740,14 +790,9 @@ def custom_eval_function(ctx, part):
 
             print(margin + "returned_variables=", returned_variables)
 
-            #print(margin + "AAA")
             for one_subset in product_variables_lists(returned_variables):
-                #print(margin + " == one_subset=", {str(the_variable): str(the_value)  for the_variable, the_value in one_subset.items()})
                 variables_context.update(one_subset)
-                #print(margin + " == variables_context=", {str(the_variable): str(the_value)  for the_variable, the_value in variables_context.items()})
-                #print("part.graph=", ctx.graph)
                 recursive_instantiation(instance_index+1)
-            #print(margin + "DDD")
 
         recursive_instantiation(0)
 
@@ -811,8 +856,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue( str(query_result[0][0]) == TempDirPath)
         print("Result=", query_result)
 
-    #@unittest.skip("Not DONE")
-    def test_sparql_children(self):
+    def test_sparql_children_files(self):
         rdflib_graph = CreateGraph()
 
         # C:/Windows/temp\\survol_temp_file_12532.tmp'
@@ -1215,6 +1259,39 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("datafile_name=", datafile_name)
         print("sys.executable=", sys.executable)
         self.assertTrue(datafile_name == sys.executable)
+
+    @unittest.skip("not yet")
+    def test_sparql_processes_executing_python(self):
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        print("current_pid=", current_pid)
+        print("sys.executable=", sys.executable)
+
+        # The Python variable sys.executable contains the currently running executable.
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?process_pid
+            WHERE
+            {
+              ?url_proc survol:Handle ?process_pid .
+              ?url_proc survol:CIM_ProcessExecutable ?url_datafile .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_datafile survol:Name '%s' .
+            }
+        """ % (survol_namespace, sys.executable.replace("\\", "/"))
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+        for s,p,o in query_result:
+            print("    ", s, p, o)
+        print("sparql_query=", sparql_query)
+
+        # This must contain at least the current process.
+        process_pids = [str(one_value[0]) for one_value in query_result]
+        print("process_pids=", process_pids)
+        self.assertTrue(current_pid in process_pids)
 
 
 
