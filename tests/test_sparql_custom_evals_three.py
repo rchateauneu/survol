@@ -329,6 +329,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
     def FetchAllVariables(self, graph, variables_context):
         node_file_path = self.FetchFromProperties(variables_context)
         if not node_file_path:
+            print("Sparql_CIM_Directory.FetchAllVariables LEAVING DOING NOTHING !!!!!")
             return {}
         file_path = str(node_file_path)
         returned_variables = {}
@@ -386,12 +387,14 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                     assert isinstance(dir_path_variable, rdflib.term.Literal)
                     print("Associated object Name is literal:", dir_path_variable)
 
+            # TODO: Is it really needed ??
             file_path = file_path.replace("\\", "/")
             print("Sparql_CIM_Directory.FetchAllVariables file_path=", file_path)
             for root_dir, dir_lists, files_list in os.walk(file_path):
                 if associated_instance.m_class_name == "CIM_Directory":
                     for one_file_name in dir_lists:
                         sub_path_name = os.path.join(root_dir, one_file_name)
+                        # This must be a directory, possibly unreadable due to access rights.
                         assert os.path.isdir(sub_path_name)
                         sub_node_str = "Machine:CIM_Directory?Name=" + sub_path_name
                         add_sub_node(sub_node_str, class_CIM_Directory, sub_path_name)
@@ -399,6 +402,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                     for one_file_name in files_list:
                         sub_path_name = os.path.join(root_dir, one_file_name)
                         print("sub_path_name=", sub_path_name)
+                        # This must be a file, possibly unreadable due to access rights.
                         assert os.path.isfile(sub_path_name)
                         sub_node_str = "Machine:CIM_DataFile?Name=" + sub_path_name
                         add_sub_node(sub_node_str, class_CIM_DataFile, sub_path_name)
@@ -548,6 +552,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         assert isinstance(associated_instance, Sparql_CIM_DataFile)
         assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
         assert associated_instance.m_variable in variables_context
+        associated_executable_node = variables_context[associated_instance.m_variable]
+        assert isinstance(associated_executable_node, rdflib.term.URIRef)
 
         print("Sparql_CIM_Process.GetProcessesFromExecutable variables_context=", variables_context)
         print("associated_instance.m_variable=", associated_instance.m_variable)
@@ -571,7 +577,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                     graph, "CIM_Process", class_CIM_Process,
                     {predicate_Handle: rdflib.term.Literal(one_process.pid)})
                 print("Adding process ", process_url)
-                graph.add((process_url, associator_CIM_ProcessExecutable, executable_node))
+                graph.add((process_url, associator_CIM_ProcessExecutable, associated_executable_node))
                 process_urls_list.append(process_url)
         return process_urls_list
         print("GetProcessesFromExecutable process_urls_list=", process_urls_list)
@@ -1260,7 +1266,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("sys.executable=", sys.executable)
         self.assertTrue(datafile_name == sys.executable)
 
-    @unittest.skip("not yet")
     def test_sparql_processes_executing_python(self):
         rdflib_graph = CreateGraph()
 
@@ -1284,15 +1289,44 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result)
-        for s,p,o in query_result:
+        for s,p,o in rdflib_graph:
             print("    ", s, p, o)
         print("sparql_query=", sparql_query)
 
         # This must contain at least the current process.
-        process_pids = [str(one_value[0]) for one_value in query_result]
+        process_pids = [int(str(one_value[0])) for one_value in query_result]
         print("process_pids=", process_pids)
         self.assertTrue(current_pid in process_pids)
 
+    def test_sparql_executable_process_dir(self):
+        """Display the directory of the current process'executable."""
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        print("current_pid=", current_pid)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?directory_name
+            WHERE
+            {
+              ?url_proc survol:Handle %d .
+              ?url_proc survol:CIM_ProcessExecutable ?url_datafile .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+              ?url_directory survol:Name ?directory_name .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+
+        directory_name = [str(one_value[0]) for one_value in query_result][0]
+        print("directory_name=", directory_name)
+        print("sys.executable=", sys.executable)
+        self.assertTrue(directory_name == os.path.dirname(sys.executable))
 
 
 if __name__ == '__main__':
