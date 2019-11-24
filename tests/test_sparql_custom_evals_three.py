@@ -835,7 +835,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         Rdflib_CUSTOM_EVALS_Test.one_return_tst({ 'a':['a1'],'b':['b1'],'c':['c1'], })
         Rdflib_CUSTOM_EVALS_Test.one_return_tst({ 'a':['a1'],'b':['b1','b2'],'c':['c1'], })
 
-    #@unittest.skip("Not DONE")
     def test_sparql_parent(self):
         rdflib_graph = CreateGraph()
 
@@ -912,9 +911,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         tmp_pathname = create_temp_file()
 
-        # Sparql does not accept backslashes.
-        tmp_pathname = tmp_pathname.replace("\\", "/")
-
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?datafile_name WHERE {
@@ -946,9 +942,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         rdflib_graph = CreateGraph()
 
         tmp_pathname = create_temp_file()
-
-        # Sparql does not accept backslashes.
-        tmp_pathname = tmp_pathname.replace("\\", "/")
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -1008,14 +1001,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("actual_files=", actual_files)
         self.assertTrue(dir_path in actual_files)
 
-    actual_files = set(
-        ['c:/users/rchateau/appdata/local/temp/_MEI37602/resources', 'c:/users/rchateau/appdata/local/temp/HP/AtStatus',
-         'c:/users/rchateau/appdata/local/temp/survol_temp_dir10600_1/survol_temp_dir10600_2',
-         'c:/users/rchateau/appdata/local/temp/LogMeInLogs/GoToMeeting',
-         'c:/users/rchateau/appdata/local/temp/survol_temp_dir12240_1/survol_temp_dir12240_2',
-         'c:/users/rchateau/appdata/local/temp/VSTelem/NgenPdb',
-         'c:/users/rchateau/appdata/local/temp/survol_temp_dir10156_1/survol_temp_dir10156_2'])
-
     def test_sparql_subdirectory_3(self):
         """Tests that a third-level directory is detected. """
         rdflib_graph = CreateGraph()
@@ -1048,7 +1033,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        #dir_path = dir_path.replace("\\","/")
         print("dir_path=", dir_path)
 
         actual_files = set([str(one_path_url[0]) for one_path_url in query_result])
