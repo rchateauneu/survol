@@ -1113,6 +1113,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(actual_files[0] == TempDirPath)
 
     def test_sparql_parent_process(self):
+        """Display the parent process of the current one."""
         rdflib_graph = CreateGraph()
 
         current_pid = os.getpid()
@@ -1136,6 +1137,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(int(actual_pid[0]) == parent_pid)
 
     def test_sparql_sub_processes(self):
+        """All subprocesses of the current one."""
         rdflib_graph = CreateGraph()
 
         sparql_query = """
@@ -1158,6 +1160,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(actual_pids == expected_pids)
 
     def test_sparql_all_processes(self):
+        """All running processes on this machine."""
         rdflib_graph = CreateGraph()
 
         sparql_query = """
@@ -1187,8 +1190,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(current_pid in actual_pids)
         self.assertTrue(current_pid in expected_pids)
 
-    #@unittest.skip("Not yet")
     def test_sparql_grandparent_process(self):
+        """Grand-parent process of the current one."""
         rdflib_graph = CreateGraph()
 
         current_pid = os.getpid()
@@ -1219,6 +1222,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(actual_pids[0] == grandparent_pid)
 
     def test_sparql_executable_process(self):
+        """Executable run by the current process."""
         rdflib_graph = CreateGraph()
 
         current_pid = os.getpid()
@@ -1246,6 +1250,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(datafile_name == sys.executable)
 
     def test_sparql_processes_executing_python(self):
+        """All processes running the current executable, i.e. Python"""
         rdflib_graph = CreateGraph()
 
         current_pid = os.getpid()
@@ -1349,6 +1354,39 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         path_names_set = sorted(path_names_set)
         print("Expected list of files:",path_names_set)
         self.assertTrue(path_names_set == files_names_result)
+
+    def test_sparql_executable_process_grand_dir(self):
+        """Display the directory of the directory of the current process'executable."""
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        print("current_pid=", current_pid)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?grand_dir_name
+            WHERE
+            {
+              ?url_proc survol:Handle %d .
+              ?url_proc survol:CIM_ProcessExecutable ?url_datafile .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+              ?url_grand_dir rdf:type survol:CIM_Directory .
+              ?url_grand_dir survol:CIM_DirectoryContainsFile ?url_directory .
+              ?url_grand_dir survol:Name ?grand_dir_name .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+
+        directory_name = [str(one_value[0]) for one_value in query_result][0]
+        print("directory_name=", directory_name)
+        print("sys.executable=", sys.executable)
+        self.assertTrue(directory_name == os.path.dirname((os.path.dirname(sys.executable))))
+
 
 if __name__ == '__main__':
     unittest.main()
