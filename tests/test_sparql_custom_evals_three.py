@@ -387,8 +387,6 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                     assert isinstance(dir_path_variable, rdflib.term.Literal)
                     print("Associated object Name is literal:", dir_path_variable)
 
-            # TODO: Is it really needed ??
-            file_path = file_path.replace("\\", "/")
             print("Sparql_CIM_Directory.FetchAllVariables file_path=", file_path)
             for root_dir, dir_lists, files_list in os.walk(file_path):
                 if associated_instance.m_class_name == "CIM_Directory":
@@ -868,9 +866,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         # C:/Windows/temp\\survol_temp_file_12532.tmp'
         tmp_pathname = create_temp_file()
 
-        # Sparql does not accept backslashes.
-        tmp_pathname = tmp_pathname.replace("\\", "/")
-
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?datafile_name WHERE {
@@ -884,7 +879,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        self.assertTrue( tmp_pathname in [str(node[0]).replace("\\", "/") for node in query_result])
+        self.assertTrue( tmp_pathname in [str(node[0]) for node in query_result])
 
     def test_sparql_grandparent(self):
         rdflib_graph = CreateGraph()
@@ -940,9 +935,9 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             if os.path.dirname(root_dir) == TempDirPath:
                 for one_file_name in files_list:
                     sub_path_name = os.path.join(root_dir, one_file_name)
-                    expected_files.add(sub_path_name.replace("\\","/"))
+                    expected_files.add(sub_path_name)
 
-        actual_files = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        actual_files = set([str(one_path_url[0]) for one_path_url in query_result])
         print("actual_files=", actual_files)
         print("expected_files=", expected_files)
         self.assertTrue(actual_files == expected_files)
@@ -975,9 +970,9 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             if os.path.dirname(root_dir) == TempDirPath:
                 for one_file_name in dir_lists:
                     sub_path_name = os.path.join(root_dir, one_file_name)
-                    expected_dirs.add(sub_path_name.replace("\\","/"))
+                    expected_dirs.add(sub_path_name)
 
-        actual_dirs = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        actual_dirs = set([str(one_path_url[0]) for one_path_url in query_result])
         print("actual_dirs=", actual_dirs)
         print("expected_dirs=", expected_dirs)
         self.assertTrue(actual_dirs == expected_dirs)
@@ -1007,10 +1002,9 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        dir_path = dir_path.replace("\\","/")
         print("dir_path=", dir_path)
 
-        actual_files = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        actual_files = set([str(one_path_url[0]) for one_path_url in query_result])
         print("actual_files=", actual_files)
         self.assertTrue(dir_path in actual_files)
 
@@ -1026,11 +1020,13 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Tests that a third-level directory is detected. """
         rdflib_graph = CreateGraph()
 
+        # This generates an unique directory name.
         current_pid = os.getpid()
+        unique_string = "%d_%f" %(current_pid, time.time())
         dir_path = os.path.join(TempDirPath,
-            "survol_temp_dir%d_1" % current_pid,
-            "survol_temp_dir%d_2" % current_pid,
-            "survol_temp_dir%d_3" % current_pid)
+            "survol_temp_dir%s_1" % unique_string,
+            "survol_temp_dir%s_2" % unique_string,
+            "survol_temp_dir%s_3" % unique_string)
         os.makedirs(dir_path)
 
         print("dir_path=", dir_path)
@@ -1052,15 +1048,15 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        dir_path = dir_path.replace("\\","/")
+        #dir_path = dir_path.replace("\\","/")
         print("dir_path=", dir_path)
 
-        actual_files = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        actual_files = set([str(one_path_url[0]) for one_path_url in query_result])
         print("actual_files=", actual_files)
         self.assertTrue(dir_path in actual_files)
 
     def test_sparql_subdirectory_4(self):
-        """Tests that a third-level directory is detected. """
+        """Tests that a fourth-level directory is detected. """
         rdflib_graph = CreateGraph()
 
         current_pid = os.getpid()
@@ -1092,10 +1088,9 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        dir_path = dir_path.replace("\\","/")
         print("dir_path=", dir_path)
 
-        actual_files = set([str(one_path_url[0]).replace("\\","/") for one_path_url in query_result])
+        actual_files = set([str(one_path_url[0]) for one_path_url in query_result])
         print("actual_files=", actual_files)
         self.assertTrue(dir_path in actual_files)
 
@@ -1328,6 +1323,48 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("sys.executable=", sys.executable)
         self.assertTrue(directory_name == os.path.dirname(sys.executable))
 
+    def test_sparql_files_in_executable_process_dir(self):
+        """Display the files in the directory of the current process'executable."""
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        print("current_pid=", current_pid)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?datafile_name
+            WHERE
+            {
+              ?url_proc survol:Handle %d .
+              ?url_proc survol:CIM_ProcessExecutable ?url_executable_datafile .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_executable_datafile rdf:type survol:CIM_DataFile .
+              ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+              ?url_directory survol:CIM_DirectoryContainsFile ?url_executable_datafile .
+              ?url_datafile survol:Name ?datafile_name .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+
+        files_names_result = [str(one_value[0]) for one_value in query_result]
+        files_names_result = sorted(files_names_result)
+        print("files_names_result=", files_names_result)
+        print("sys.executable=", sys.executable)
+        self.assertTrue(sys.executable in files_names_result)
+
+        # Compare with the list of the files the directory of the executable.
+        path_names_set = []
+        for root_dir, dir_lists, files_list in os.walk(os.path.dirname(sys.executable)):
+            for one_file_name in files_list:
+                sub_path_name = os.path.join(root_dir, one_file_name)
+                path_names_set.append(sub_path_name)
+            break
+        path_names_set = sorted(path_names_set)
+        print("Expected list of files:",path_names_set)
+        self.assertTrue(path_names_set == files_names_result)
 
 if __name__ == '__main__':
     unittest.main()
