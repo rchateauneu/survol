@@ -1437,6 +1437,36 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("expected_executable_name=", expected_executable_name)
         self.assertTrue(expected_executable_name == actual_executable_name)
 
+    def test_sparql_sibling_processes(self):
+        """Processes with the same partent process as the current one."""
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        print("current_pid=", current_pid)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?sibling_process_id
+            WHERE
+            {
+              ?url_proc survol:Handle %d .
+              ?url_proc survol:ParentProcessId ?parent_process_id .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_parent_proc survol:Handle ?parent_process_id .
+              ?url_parent_proc rdf:type survol:CIM_Process .
+              ?url_sibling_proc survol:ParentProcessId ?parent_process_id .
+              ?url_sibling_proc survol:Handle ?sibling_process_id .
+              ?url_sibling_proc rdf:type survol:CIM_Process .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+
+        sibling_pids = [int(one_value[0]) for one_value in query_result]
+        print("sibling_pids=", sibling_pids)
+        self.assertTrue(current_pid in sibling_pids)
+
 
 if __name__ == '__main__':
     unittest.main()
