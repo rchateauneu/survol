@@ -11,4 +11,4 @@ install:
   - pip install pywbem
 script:
   - pwd
-  - pytest --durations=10 tests
+  - pytest --durations=30 tests
