@@ -28,6 +28,8 @@ def create_temp_file():
     tmpfil.close()
     return tmp_pathname
 
+# This generates an unique directory name.
+unique_string = "%d_%f" % (os.getpid(), time.time())
 
 ################################################################################
 
@@ -379,9 +381,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 graph.add((node_uri_ref, associator_CIM_DirectoryContainsFile, sub_node_uri_ref))
 
                 if isinstance(dir_path_variable, rdflib.term.Variable):
-                    #sub_path_name_url_list.append(sub_path_name_url)
                     return_values_list.append((sub_node_uri_ref, sub_path_name_url))
-                    # returned_variables[dir_path_variable] = [sub_path_name_url]
                 else:
                     return_values_list.append(sub_node_uri_ref)
                     assert isinstance(dir_path_variable, rdflib.term.Literal)
@@ -412,12 +412,11 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
             print("Sparql_CIM_Directory.FetchAllreturn_values_list", return_values_list)
             if isinstance(dir_path_variable, rdflib.term.Variable):
                 print("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:", associated_instance.m_variable, dir_path_variable)
-                returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list #[(sub_uri_ref_list, sub_path_name_url_list)]
+                returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list
             else:
                 print("Sparql_CIM_Directory.FetchAllVariables Returning variable:", associated_instance.m_variable)
-                returned_variables[associated_instance.m_variable] = return_values_list # [sub_uri_ref_list]
+                returned_variables[associated_instance.m_variable] = return_values_list
 
-            # returned_variables[associated_instance.m_variable] = sub_uri_ref_list
             print("Sparql_CIM_Directory.FetchAllVariables FetchAllVariables returned_variables=", returned_variables)
 
         # TODO: If there are no properties and no directory and no sub-files or sub-directories,
@@ -440,9 +439,9 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             def IfLiteralOrDefinedVariable(self, node_value):
                 process_id = int(str(node_value))
                 parent_process_pid =  psutil.Process(process_id).ppid()
-                dict_process = {predicate_Handle: node_value,
-                                predicate_ParentProcessId: rdflib.term.Literal(parent_process_pid)}
-                return [dict_process]
+                parent_process_pid_node = rdflib.term.Literal(parent_process_pid)
+
+                return (predicate_Handle, predicate_ParentProcessId), [(node_value, rdflib.term.Literal(parent_process_pid))]
 
         class property_definition_ParentProcessId:
             s_property_node = predicate_ParentProcessId
@@ -450,11 +449,10 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             def IfLiteralOrDefinedVariable(self, node_value):
                 result_list=[]
                 ppid = int(str(node_value))
-                for child_process in psutil.Process(ppid).children(recursive=False):
-                    dict_process={predicate_Handle:rdflib.term.Literal(child_process.pid),
-                                   predicate_ParentProcessId:node_value}
-                    result_list.append(dict_process)
-                return result_list
+                list_values = [
+                    (rdflib.term.Literal(child_process.pid), node_value)
+                    for child_process in psutil.Process(ppid).children(recursive=False)]
+                return (predicate_Handle, predicate_ParentProcessId), list_values
 
         g_properties = [
             property_definition_Handle(),
@@ -464,14 +462,17 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
     # If no property is usable, this returns all objects.
     # This can work only for some classes, if there are not too many objects.
     def GetAllObjects(self):
-        print("GetAllObjects")
+        print("Sparql_CIM_Process.GetAllObjects: Getting all processes")
         result_list = []
-        for proc in psutil.process_iter():
-            dict_process = {predicate_Handle: rdflib.term.Literal(proc.pid),
-                            predicate_ParentProcessId: rdflib.term.Literal(proc.ppid())}
-            result_list.append(dict_process)
-        return result_list
 
+        list_values = [
+            (rdflib.term.Literal(proc.pid), rdflib.term.Literal(proc.ppid()))
+            for proc in psutil.process_iter()]
+        return (predicate_Handle, predicate_ParentProcessId), list_values
+
+    # This returns key-value pairs defining objects.
+	# It returns all properties defined in the instance,
+	# not only the properties of the ontology.
     def GetListOfOntologyProperties(self, variables_context):
         print("GetListOfOntologyProperties")
         for one_property in self.PropertyDefinition.g_properties:
@@ -483,7 +484,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                     url_nodes_list = one_property.IfLiteralOrDefinedVariable(node_value)
                     return url_nodes_list
         print("GetListOfOntologyProperties leaving: Cannot find anything.")
-        return None
+        return None, None
 
     def CreateURIRef(self, graph, class_name, class_node, dict_predicates_to_values):
         url_as_str = "Machine:" + class_name
@@ -582,7 +583,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 
     def FetchAllVariables(self, graph, variables_context):
         print("Sparql_CIM_Process.FetchAllVariables variables_context=", variables_context)
-        url_nodes_list = self.GetListOfOntologyProperties(variables_context)
+        properties_tuple, url_nodes_list = self.GetListOfOntologyProperties(variables_context)
 
         returned_variables = {}
 
@@ -591,6 +592,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             # No such process.
             return returned_variables
 
+        # If no process was found with the properties, try with the associator.
         if associator_CIM_ProcessExecutable in self.m_associators:
             associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
             if associated_instance.m_variable in variables_context:
@@ -602,11 +604,30 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 
         if not url_nodes_list:
             # Get all objects by default.
-            url_nodes_list = self.GetAllObjects()
+            properties_tuple, url_nodes_list = self.GetAllObjects()
+
+        # The object creation has evaluated properties of these objects.
+        # Some of these properties might be mapped to variables which are not in used yet.
+        # Their values must be returned, so they will be part of the next variables contexts.
+        assert isinstance(url_nodes_list, list)
+        properties_indices = []
+        for index_property, one_property in enumerate(properties_tuple):
+            # Maybe this property is defined in the generated objects but not in the instance.
+            if one_property in self.m_properties:
+                prop_value = self.m_properties[one_property]
+                if isinstance(prop_value, rdflib.term.Variable) and prop_value not in variables_context:
+                    properties_indices.append(index_property)
+        new_properties_tuple = tuple(self.m_properties[properties_tuple[index_property]] for index_property in properties_indices)
+        new_values_list = [tuple(value_tuple[index_property] for index_property in properties_indices) for value_tuple in url_nodes_list]
+        if properties_indices:
+            returned_variables[new_properties_tuple] = new_values_list
+
 
         node_uri_refs_list = []
 
-        for properties_dict in url_nodes_list:
+        for values_tuple in url_nodes_list:
+            assert len(values_tuple) == len(properties_tuple)
+            properties_dict = dict(zip(properties_tuple, values_tuple))
             print("Before CreateURIRef properties_dict=", properties_dict)
             node_uri_ref = self.CreateURIRef(graph, "CIM_Process", class_CIM_Process, properties_dict)
             node_uri_refs_list.append(node_uri_ref)
@@ -780,7 +801,6 @@ def custom_eval_function(ctx, part):
 
         def recursive_instantiation(instance_index):
             if instance_index == len(visited_nodes):
-                print("recursive_instantiation End of recursive loop")
                 return
             margin = " " + str(instance_index) + "    " * (instance_index + 1)
             print("recursive_instantiation: ix=", instance_index,
@@ -976,8 +996,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         current_pid = os.getpid()
         dir_path = os.path.join(TempDirPath,
-            "survol_temp_dir%d_1" % current_pid,
-            "survol_temp_dir%d_2" % current_pid)
+            "survol_temp_dir%s_1" % unique_string,
+            "survol_temp_dir%s_2" % unique_string)
         os.makedirs(dir_path)
 
         sparql_query = """
@@ -1005,9 +1025,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Tests that a third-level directory is detected. """
         rdflib_graph = CreateGraph()
 
-        # This generates an unique directory name.
-        current_pid = os.getpid()
-        unique_string = "%d_%f" %(current_pid, time.time())
         dir_path = os.path.join(TempDirPath,
             "survol_temp_dir%s_1" % unique_string,
             "survol_temp_dir%s_2" % unique_string,
@@ -1043,12 +1060,11 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Tests that a fourth-level directory is detected. """
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
         dir_path = os.path.join(TempDirPath,
-            "survol_temp_dir%d_1" % current_pid,
-            "survol_temp_dir%d_2" % current_pid,
-            "survol_temp_dir%d_3" % current_pid,
-            "survol_temp_dir%d_4" % current_pid)
+            "survol_temp_dir%s_1" % unique_string,
+            "survol_temp_dir%s_2" % unique_string,
+            "survol_temp_dir%s_3" % unique_string,
+            "survol_temp_dir%s_4" % unique_string)
         os.makedirs(dir_path)
 
         print("dir_path=", dir_path)
@@ -1386,6 +1402,40 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("directory_name=", directory_name)
         print("sys.executable=", sys.executable)
         self.assertTrue(directory_name == os.path.dirname((os.path.dirname(sys.executable))))
+
+    def test_sparql_executable_parent_process(self):
+        """Executable of the parent process."""
+        rdflib_graph = CreateGraph()
+
+        current_pid = os.getpid()
+        print("current_pid=", current_pid)
+        parent_process_id = psutil.Process().parent().pid
+        print("parent_process_id=", parent_process_id)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?executable_name
+            WHERE
+            {
+              ?url_proc survol:Handle %d .
+              ?url_proc survol:ParentProcessId ?parent_process_id .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_parent_proc survol:Handle ?parent_process_id .
+              ?url_parent_proc survol:CIM_ProcessExecutable ?url_executable_file .
+              ?url_parent_proc rdf:type survol:CIM_Process .
+              ?url_executable_file rdf:type survol:CIM_DataFile .
+              ?url_executable_file survol:Name ?executable_name .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+
+        actual_executable_name = [str(one_value[0]) for one_value in query_result][0]
+        print("actual_executable_name=", actual_executable_name)
+        expected_executable_name = psutil.Process().parent().exe()
+        print("expected_executable_name=", expected_executable_name)
+        self.assertTrue(expected_executable_name == actual_executable_name)
 
 
 if __name__ == '__main__':
