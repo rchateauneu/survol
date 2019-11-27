@@ -515,6 +515,11 @@ class DockitTraceFilesTest(unittest.TestCase):
         fil_docker.close()
 
 
+        # TODO: Test file content.
+
+
+
+
     def test_all_trace_files(self):
         # This iterates on the input test files and generates the "compressed" output.as
         # After that we can check if the results are as expected.
@@ -559,6 +564,18 @@ class DockitTraceFilesTest(unittest.TestCase):
                         withWarning = False,
                         withDockerfile = True,
                         updateServer = None)
+
+
+
+class DockitMarkovTest(unittest.TestCase):
+    """
+    Test the building blocks of Markov processing.
+    """
+
+    @unittest.skip("Markov not implemented yet.")
+    def test_extract_calls(self):
+        """This extracts, for each thread, the calls."""
+pass
 
 
 class DockitProcessesTest(unittest.TestCase):
@@ -682,7 +699,6 @@ class DockitEventsTest(unittest.TestCase):
             num_loops -= 1
 
         self.assertTrue(expected_types_list == actual_types_dict)
-
 
 if __name__ == '__main__':
     unittest.main()
