@@ -113,92 +113,6 @@ def add_ontology(graph):
 
 ################################################################################
 
-# Queries to test
-
-# This returns the sibling processes (Same parent id) of the current process.
-"""
-PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-SELECT ?the_ppid
-WHERE
-{
-  ?url_procA survol:Handle %d .
-  ?url_procA survol:ParentProcessId ?the_ppid .
-  ?url_procA rdf:type survol:CIM_Process .
-  ?url_procB survol:Handle ?the_ppid .
-  ?url_procB rdf:type survol:CIM_Process .
-  ?url_procC survol:Handle %d .
-  ?url_procC survol:ParentProcessId ?the_ppid .
-  ?url_procC rdf:type survol:CIM_Process .
-}
-""" % (CurrentPid,CurrentPid)
-
-
-"""
-PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-SELECT ?pid_sibling
-WHERE
-{
-  ?url_proc_parent rdf:type survol:CIM_Process .
-  ?url_proc_mine rdf:type survol:CIM_Process .
-  ?url_proc_sibling rdf:type survol:CIM_Process .
-  ?url_proc_mine survol:ParentProcessId ?ppid .
-  ?url_proc_sibling survol:ParentProcessId ?ppid .
-  ?url_proc_mine survol:Handle %d .
-  ?url_proc_parent survol:Handle ?ppid .
-  ?url_proc_sibling survol:Handle ?pid_sibling .
-}
-""" % (os.getpid())
-
-# This returns the parent process using a specific script.
-"""
-PREFIX survol:  <http://www.primhillcomputers.com/ontology/survol#>
-PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?filename
-WHERE
-{
-  ?url_proc_parent survol:Handle ?pid_proc_parent  .
-  ?url_process survol:Handle %d  .
-  ?url_process rdf:type survol:CIM_Process .
-  ?url_process survol:ParentProcessId ?pid_proc_parent  .
-  ?url_proc_parent survol:CIM_ProcessExecutable ?filename  .
-  ?url_proc_parent rdf:type survol:CIM_Process .
-}
-"""
-
-"""
-SELECT ?directory_name
-WHERE
-  ?url_proc rdf:type survol:CIM_Process .
-  ?url_file rdf:type survol:CIM_DataFile .
-  ?url_directory rdf:type survol:CIM_Directory .
-  ?url_directory survol:Handle ?directory_name .
-{ ?url_proc survol:Handle %d  .
-  ?url_proc survol:CIM_ProcessExecutable ?url_file  .
-  ?url_directory survol:CIM_DirectoryContainsFile ?url_file  .
-}
-"""
-
-# Comment va-t-on passer du procid vers le process ?
-
-# Directory of the executable run by the parent of the current process.
-"""
-SELECT ?directory_name
-WHERE
-  ?url_directory rdf:type survol:CIM_Directory .
-  ?url_proc rdf:type survol:CIM_Process .
-  ?url_parent_proc rdf:type survol:CIM_Process .
-  ?url_file rdf:type survol:CIM_DataFile .
-  ?url_proc survol:Handle %d .
-  ?url_parent_proc survol:Handle ?parent_proc_id .
-  ?url_proc survol:ParentProcessId ?parent_proc_id  .
-  ?url_directory survol:Name ?directory_name .
-  ?url_parent_proc survol:CIM_ProcessExecutable ?url_file  .
-  ?url_directory survol:CIM_DirectoryContainsFile ?url_file  .
-}
-""" % (os.getpid())
-
-################################################################################
-
 def current_function():
     return sys._getframe(1).f_code.co_name
 
@@ -227,6 +141,7 @@ class Sparql_CIM_Object(object):
     def CalculateVariablesNumber(self):
         self.m_number_variables = 0
         self.m_number_literals = 0
+        # FIXME: No need to list the associators which contains only instances. Logic should be different.
         for one_dict in [self.m_associators, self.m_associated, self.m_properties]:
             for key, value in one_dict.items():
                 if isinstance(value, rdflib.term.Variable):
@@ -447,7 +362,6 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             s_property_node = predicate_ParentProcessId
 
             def IfLiteralOrDefinedVariable(self, node_value):
-                result_list=[]
                 ppid = int(str(node_value))
                 list_values = [
                     (rdflib.term.Literal(child_process.pid), node_value)
@@ -945,6 +859,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """ % (survol_namespace, TempDirPath)
 
         query_result = list(rdflib_graph.query(sparql_query))
+
+        # TODO: Creer une arborscece figee car sinon des fichiers temporaires sont creers par d 'autres process.
 
         expected_files = set()
         for root_dir, dir_lists, files_list in os.walk(TempDirPath):
@@ -1467,43 +1383,65 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("sibling_pids=", sibling_pids)
         self.assertTrue(current_pid in sibling_pids)
 
-    @unittest.skip("In progress")
-    def test_sparql_sub_sub_processes(self):
-        """Processes with the same parent process as the current one."""
-
-
+    def create_process_tree_aux(self, depth, pids_queue):
         import multiprocessing
 
-        # TODO
+        print("depth=", depth, os.getpid(), "parent=", psutil.Process().parent().pid)
+        if depth > 0:
+            one_subprocess = multiprocessing.Process(target = self.create_process_tree_aux, args=(depth-1, pids_queue))
+            one_subprocess.start()
+            pids_queue.put((depth, one_subprocess.pid))
+            return one_subprocess
+        else:
+            time.sleep(5)
+
+    def create_process_tree(self, depth):
+        """This returns a list of processes, subprocess etc..."""
+        import multiprocessing
+
+        pids_queue = multiprocessing.Queue()
+        one_subprocess = self.create_process_tree_aux(depth, pids_queue)
+        pids_dict = dict([pids_queue.get() for index in range(depth)])
+        print("pids_dict=", pids_dict)
+        pids_list = [pids_dict[one_depth] for one_depth in sorted(pids_dict.keys(), reverse = True)]
+        print("pids_list=", pids_list)
+        for pid_index, pid in enumerate(pids_list):
+            if pid_index > 0:
+                assert psutil.Process(pid).parent().pid == pids_list[pid_index-1]
+        return pids_list
+
+    #@unittest.skip("In progress")
+    def test_sparql_sub_sub_processes(self):
+        """Processes with the same parent process as the current one."""
 
         rdflib_graph = CreateGraph()
 
         current_pid = os.getpid()
         print("current_pid=", current_pid)
 
+        pids_list = self.create_process_tree(2)
+
         sparql_query = """
             PREFIX survol: <%s>
-            SELECT ?sibling_process_id
+            SELECT ?pid_1 ?pid_2
             WHERE
             {
-              ?url_proc survol:Handle %d .
-              ?url_proc survol:ParentProcessId ?parent_process_id .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_parent_proc survol:Handle ?parent_process_id .
-              ?url_parent_proc rdf:type survol:CIM_Process .
-              ?url_sibling_proc survol:ParentProcessId ?parent_process_id .
-              ?url_sibling_proc survol:Handle ?sibling_process_id .
-              ?url_sibling_proc rdf:type survol:CIM_Process .
+              ?url_proc_1 survol:Handle ?pid_1 .
+              ?url_proc_1 survol:ParentProcessId %d .
+              ?url_proc_1 a survol:CIM_Process .
+              ?url_proc_2 survol:Handle ?pid_2 .
+              ?url_proc_2 survol:ParentProcessId ?pid_1  .
+              ?url_proc_2 a survol:CIM_Process .
             }
         """ % (survol_namespace, current_pid)
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result)
 
-        sibling_pids = [int(one_value[0]) for one_value in query_result]
-        print("sibling_pids=", sibling_pids)
-        self.assertTrue(current_pid in sibling_pids)
-
+        actual_pids_list = [int(one_value[0]) for one_value in query_result]
+        print("pids_list=", pids_list)
+        print("actual_pids_list=", actual_pids_list)
+        self.assertTrue(pids_list[:-1] == actual_pids_list)
 
 
 if __name__ == '__main__':
