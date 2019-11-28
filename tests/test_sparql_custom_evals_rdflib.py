@@ -17,7 +17,100 @@ from init import *
 
 update_test_path()
 
+
 ################################################################################
+# TODO: If the class is not statically defined, use WMI or WBEM,
+# without using SeeAlso.
+# If a property or an associator is not defined is a custom property,
+# use WMI or WBEM.
+#
+# Use rdfs:seeAlso for scripts: It just loads the content.
+# Comme seeAlso est un attribute, on passe les parametres.
+#               ?url_file rdf:type survol:CIM_DataFile .
+#               ?url_file rdfs:seeAlso "survol:CIM_DataFile/python_properties" .
+#               ?url_file survol:CIM_ProcessExecutable ?url_proc  .
+#
+# Finalement,
+# ?url_property rdfs:seeAlso "WMI" .
+# ... c'est une bonne chose pour charger conditionnellement l'ontologie.
+
+# Other query examples.
+
+"""
+            SELECT *
+            WHERE
+            {
+              ?url_proc survol:Caption "firefox.exe"  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_file rdf:type survol:CIM_DataFile .
+            }"""
+
+"""
+            SELECT *
+            WHERE
+            {
+              ?url_proc survol:Handle %d  .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_file survol:Name 'c:/program files/mozilla firefox/firefox.exe' .
+              ?url_file rdf:type survol:CIM_DataFile .
+            }
+            """
+
+
+"""
+            SELECT *
+            WHERE
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+            }
+            """
+
+"""
+            SELECT *
+            WHERE
+            { ?url_disk rdf:type survol:Win32_LogicalDisk .
+              ?url_disk survol:DeviceID "C:" .
+            }
+            """
+
+# {'url_proc': {'CSName': 'RCHATEAU-HP', 'Name': 'python.exe', 'ProcessId': str(CurrentPid),
+#               'Handle': str(CurrentPid),
+#               'OSCreationClassName': 'Win32_OperatingSystem',
+#               '__class__': 'CIM_Process',
+#               'rdf-schema#isDefinedBy': 'WMI',
+#               'ParentProcessId': str(CurrentParentPid),
+#               'Caption': 'python.exe',
+#               'CSCreationClassName': 'Win32_ComputerSystem', 'Description': 'python.exe',
+#               'ExecutablePath': 'C:\\\\Python27\\\\python.exe',
+#               'CreationClassName': 'Win32_Process', },
+#  'url_file': {'CSName': 'RCHATEAU-HP',
+#               'FSCreationClassName': 'Win32_FileSystem',
+#               'Description': 'c:\\\\python27\\\\python.exe', '__class__': 'CIM_DataFile',
+#               'rdf-schema#isDefinedBy': 'WMI',
+#               'Name': 'c:\\\\python27\\\\python.exe',
+#               'FileType': 'Application', 'Drive': 'c:', 'Extension': 'exe',
+#               'Caption': 'c:\\\\python27\\\\python.exe',
+#               'CSCreationClassName': 'Win32_ComputerSystem', 'FileName': 'python',
+#               'CreationClassName': 'CIM_LogicalFile'}},
+# ],
+
+"""
+                SELECT *
+                WHERE
+                { ?url_subclass rdfs:subClassOf ?url_class .
+                  ?url_class rdf:type rdfs:Class .
+                  ?url_subclass rdf:type rdfs:Class .
+                  ?url_class rdfs:seeAlso "WMI" .
+                  ?url_subclass rdfs:seeAlso "WMI" .
+                }
+                """
+
+
+
+################################################################################
+# Utilities functions.
 
 # Sparql does not like backslashes.
 TempDirPath = tempfile.gettempdir().replace("\\","/")
@@ -31,6 +124,16 @@ def create_temp_file():
 
 # This generates an unique directory name.
 unique_string = "%d_%f" % (os.getpid(), time.time())
+
+def print_subprocesses(proc_id, depth = 0):
+    for one_proc in psutil.Process(proc_id).children(recursive=False):
+        print("    " * depth, one_proc.pid)
+        print_subprocesses(one_proc.pid, depth+1)
+
+current_pid = os.getpid()
+print("current_pid=", current_pid)
+
+parent_process_id = psutil.Process().parent().pid
 
 ################################################################################
 
@@ -948,7 +1051,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Tests that a second-level directory is detected. """
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
         dir_path = os.path.join(TempDirPath,
             "survol_temp_dir%s_1" % unique_string,
             "survol_temp_dir%s_2" % unique_string)
@@ -1086,7 +1188,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Display the parent process of the current one."""
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?the_ppid
@@ -1099,7 +1200,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        print("current_pid=", current_pid)
         parent_pid = psutil.Process(current_pid).ppid()
         print("parent_pid=", parent_pid)
         actual_pid = [str(one_pid[0]) for one_pid in query_result]
@@ -1156,7 +1256,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("sets_difference=", sets_difference)
         # Not too many processes were destroyed or deleted.
         self.assertTrue(len(sets_difference) < 10)
-        current_pid = os.getpid()
         self.assertTrue(current_pid in actual_pids)
         self.assertTrue(current_pid in expected_pids)
 
@@ -1164,8 +1263,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Grand-parent process of the current one."""
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
         parent_pid = psutil.Process(current_pid).ppid()
         print("parent_pid=", parent_pid)
         grandparent_pid = psutil.Process(parent_pid).ppid()
@@ -1195,9 +1292,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Executable run by the current process."""
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
-
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?datafile_name
@@ -1223,8 +1317,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """All processes running the current executable, i.e. Python"""
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
         print("sys.executable=", sys.executable)
 
         # The Python variable sys.executable contains the currently running executable.
@@ -1256,9 +1348,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Display the directory of the current process'executable."""
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
-
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?directory_name
@@ -1285,9 +1374,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
     def test_sparql_files_in_executable_process_dir(self):
         """Display the files in the directory of the current process'executable."""
         rdflib_graph = CreateGraph()
-
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -1329,9 +1415,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Display the directory of the directory of the current process'executable."""
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
-
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?grand_dir_name
@@ -1361,9 +1444,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Executable of the parent process."""
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
-        parent_process_id = psutil.Process().parent().pid
         print("parent_process_id=", parent_process_id)
 
         sparql_query = """
@@ -1395,9 +1475,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """Processes with the same parent process as the current one."""
         rdflib_graph = CreateGraph()
 
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
-
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?sibling_process_id
@@ -1422,18 +1499,17 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(current_pid in sibling_pids)
 
     def create_process_tree_aux(self, depth, pids_queue, must_wait = False):
-
-        print("depth=", depth, os.getpid(), "parent=", psutil.Process().parent().pid)
         if depth > 0:
             one_subprocess = multiprocessing.Process(target = self.create_process_tree_aux, args=(depth-1, pids_queue, True))
             one_subprocess.start()
             print("create_process_tree_aux: Created intermediary pid:", one_subprocess.pid)
             pids_queue.put((depth, one_subprocess.pid))
             if must_wait:
-                time.sleep(5)
+                # It must wait long enough so the Sparql query can be executed
+                time.sleep(10)
         else:
             print("create_process_tree_aux: Created leaf pid:", os.getpid())
-            time.sleep(5)
+            time.sleep(10)
 
     def create_process_tree(self, depth):
         """This returns a list of processes, subprocess etc..."""
@@ -1451,9 +1527,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
     @unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_processes(self):
         rdflib_graph = CreateGraph()
-
-        current_pid = os.getpid()
-        print("current_pid=", current_pid)
 
         pids_list = self.create_process_tree(2)
 
@@ -1474,19 +1547,87 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result)
 
-        def print_subprocesses(proc_id, depth = 0):
-            for one_proc in psutil.Process(proc_id).children(recursive=False):
-                print("    " * depth, one_proc.pid)
-                print_subprocesses(one_proc.pid, depth+1)
+        print("Subprocesses start")
+        print_subprocesses(current_pid)
+        print("Subprocesses end")
+
+        actual_pids_list = [[int(one_pid[0]), int(one_pid[1])] for one_pid in query_result]
+        print("pids_list=", pids_list)
+        print("actual_pids_list=", actual_pids_list)
+        self.assertTrue(pids_list in actual_pids_list)
+
+    @unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
+    def test_sparql_sub_sub_sub_processes(self):
+        rdflib_graph = CreateGraph()
+
+        pids_list = self.create_process_tree(3)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?pid_1 ?pid_2 ?pid_3
+            WHERE
+            {
+              ?url_proc_1 survol:Handle ?pid_1 .
+              ?url_proc_1 survol:ParentProcessId %d .
+              ?url_proc_1 a survol:CIM_Process .
+              ?url_proc_2 survol:Handle ?pid_2 .
+              ?url_proc_2 survol:ParentProcessId ?pid_1  .
+              ?url_proc_2 a survol:CIM_Process .
+              ?url_proc_3 survol:Handle ?pid_3 .
+              ?url_proc_3 survol:ParentProcessId ?pid_2  .
+              ?url_proc_3 a survol:CIM_Process .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
 
         print("Subprocesses start")
         print_subprocesses(current_pid)
         print("Subprocesses end")
 
-        actual_pids_list = [int(one_value[0]) for one_value in query_result]
+        actual_pids_list = [[int(one_pid[0]), int(one_pid[1]), int(one_pid[2])] for one_pid in query_result]
         print("pids_list=", pids_list)
         print("actual_pids_list=", actual_pids_list)
-        self.assertTrue(pids_list[:-1] == actual_pids_list)
+        self.assertTrue(pids_list in actual_pids_list)
+
+    @unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
+    def test_sparql_sub_sub_sub_sub_processes(self):
+        rdflib_graph = CreateGraph()
+
+        pids_list = self.create_process_tree(4)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?pid_1 ?pid_2 ?pid_3 ?pid_4
+            WHERE
+            {
+              ?url_proc_1 survol:Handle ?pid_1 .
+              ?url_proc_1 survol:ParentProcessId %d .
+              ?url_proc_1 a survol:CIM_Process .
+              ?url_proc_2 survol:Handle ?pid_2 .
+              ?url_proc_2 survol:ParentProcessId ?pid_1  .
+              ?url_proc_2 a survol:CIM_Process .
+              ?url_proc_3 survol:Handle ?pid_3 .
+              ?url_proc_3 survol:ParentProcessId ?pid_2  .
+              ?url_proc_3 a survol:CIM_Process .
+              ?url_proc_4 survol:Handle ?pid_4 .
+              ?url_proc_4 survol:ParentProcessId ?pid_3  .
+              ?url_proc_4 a survol:CIM_Process .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+
+        print("Subprocesses start")
+        print_subprocesses(current_pid)
+        print("Subprocesses end")
+
+        actual_pids_list = [[int(one_pid[0]), int(one_pid[1]), int(one_pid[2]), int(one_pid[3])] for one_pid in query_result]
+        print("pids_list=", pids_list)
+        print("actual_pids_list=", actual_pids_list)
+        self.assertTrue(pids_list in actual_pids_list)
 
 
 if __name__ == '__main__':
