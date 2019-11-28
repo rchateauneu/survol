@@ -6,6 +6,7 @@ import os
 import sys
 import json
 import collections
+import multiprocessing
 import tempfile
 import rdflib
 import rdflib.plugins.memory
@@ -840,38 +841,75 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("Result=", query_result)
         self.assertTrue( str(query_result[0][0]) == os.path.dirname(TempDirPath))
 
+    def create_files_tree(self, prefix, files_tree):
+        def create_files_tree_aux(root_dir, files_tree):
+            os.makedirs(root_dir)
+            for key, value in files_tree.items():
+                one_path = os.path.join(root_dir, key)
+                if value:
+                    assert isinstance(value, dict)
+                    create_files_tree_aux(one_path, value)
+                else:
+                    open(one_path, "w").close()
+
+        root_dir = os.path.join(TempDirPath, "survol_temp_%s_%s" % (prefix, unique_string) )
+
+        create_files_tree_aux(root_dir, files_tree)
+        return root_dir
+
     def test_sparql_grandchildren_files(self):
         rdflib_graph = CreateGraph()
 
-        tmp_pathname = create_temp_file()
+        files_tree = {
+            "dir_1" : { "dir_1_1" : { "file_1_1_1.txt": None}},
+            "dir_2": {"dir_2_1": {"file_2_1_1.txt": None, "file_2_1_2.txt": None, "file_2_1_3.txt": None}},
+            "file_3.txt": None,
+            "dir_4": {"dir_4_1": {"file_4_1_1.txt": None, "dir_4_1_1_1": {"file_4_1_1_1_1.txt": None, }, "file_4_2.txt":None}},
+            "dir_5": {"file_5_1.txt": None},
+        }
+
+        test_root_dir = self.create_files_tree("tst_grand_children", files_tree)
+        test_root_dir = test_root_dir.replace("\\", "/")
 
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?datafile_name WHERE {
-                ?url_grandparent a survol:CIM_Directory .
-                ?url_directory a survol:CIM_Directory .
+                ?url_directory_0 a survol:CIM_Directory .
+                ?url_directory_0 survol:Name "%s" .
+                ?url_directory_0 survol:CIM_DirectoryContainsFile ?url_directory_1 .
+                ?url_directory_1 a survol:CIM_Directory .
+                ?url_directory_1 survol:Name ?directory_name_1 .
+                ?url_directory_1 survol:CIM_DirectoryContainsFile ?url_directory_2 .
+                ?url_directory_2 a survol:CIM_Directory .
+                ?url_directory_2 survol:Name ?directory_name_2 .
+                ?url_directory_2 survol:CIM_DirectoryContainsFile ?url_datafile .
                 ?url_datafile a survol:CIM_DataFile .
-                ?url_grandparent survol:CIM_DirectoryContainsFile ?url_directory .
-                ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
-                ?url_grandparent survol:Name "%s" .
                 ?url_datafile survol:Name ?datafile_name .
             }
-        """ % (survol_namespace, TempDirPath)
+        """ % (survol_namespace, test_root_dir)
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        # TODO: Creer une arborscece figee car sinon des fichiers temporaires sont creers par d 'autres process.
+        def dir_depth(dir_path):
+            return len(os.path.normpath(dir_path).split(os.path.sep))
 
-        expected_files = set()
-        for root_dir, dir_lists, files_list in os.walk(TempDirPath):
-            if os.path.dirname(root_dir) == TempDirPath:
-                for one_file_name in files_list:
-                    sub_path_name = os.path.join(root_dir, one_file_name)
-                    expected_files.add(sub_path_name)
+        expected_files = []
+        for root_dir, dir_lists, files_list in os.walk(test_root_dir):
+            print("root=", root_dir, dir_depth(root_dir), dir_depth(test_root_dir))
+            if dir_depth(root_dir) != dir_depth(test_root_dir) + 2:
+                continue
+            print("OKOK=", root_dir, dir_depth(root_dir))
+            for one_file_name in files_list:
+                sub_path_name = os.path.join(root_dir, one_file_name)
+                expected_files.append(sub_path_name)
+        expected_files = sorted(expected_files)
 
-        actual_files = set([str(one_path_url[0]) for one_path_url in query_result])
-        print("actual_files=", actual_files)
+        actual_files = sorted([str(one_path_url[0]) for one_path_url in query_result])
+        print("actual_files  =", actual_files)
         print("expected_files=", expected_files)
+        for x in zip(actual_files, expected_files):
+            print(x)
+        print("")
         self.assertTrue(actual_files == expected_files)
 
     def test_sparql_grandchildren_directories(self):
@@ -1383,24 +1421,24 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("sibling_pids=", sibling_pids)
         self.assertTrue(current_pid in sibling_pids)
 
-    def create_process_tree_aux(self, depth, pids_queue):
-        import multiprocessing
+    def create_process_tree_aux(self, depth, pids_queue, must_wait = False):
 
         print("depth=", depth, os.getpid(), "parent=", psutil.Process().parent().pid)
         if depth > 0:
-            one_subprocess = multiprocessing.Process(target = self.create_process_tree_aux, args=(depth-1, pids_queue))
+            one_subprocess = multiprocessing.Process(target = self.create_process_tree_aux, args=(depth-1, pids_queue, True))
             one_subprocess.start()
+            print("create_process_tree_aux: Created intermediary pid:", one_subprocess.pid)
             pids_queue.put((depth, one_subprocess.pid))
-            return one_subprocess
+            if must_wait:
+                time.sleep(5)
         else:
+            print("create_process_tree_aux: Created leaf pid:", os.getpid())
             time.sleep(5)
 
     def create_process_tree(self, depth):
         """This returns a list of processes, subprocess etc..."""
-        import multiprocessing
-
         pids_queue = multiprocessing.Queue()
-        one_subprocess = self.create_process_tree_aux(depth, pids_queue)
+        self.create_process_tree_aux(depth, pids_queue, False)
         pids_dict = dict([pids_queue.get() for index in range(depth)])
         print("pids_dict=", pids_dict)
         pids_list = [pids_dict[one_depth] for one_depth in sorted(pids_dict.keys(), reverse = True)]
@@ -1410,7 +1448,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 assert psutil.Process(pid).parent().pid == pids_list[pid_index-1]
         return pids_list
 
-    #@unittest.skip("In progress")
     def test_sparql_sub_sub_processes(self):
         """Processes with the same parent process as the current one."""
 
