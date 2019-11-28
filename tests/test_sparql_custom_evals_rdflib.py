@@ -1448,9 +1448,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 assert psutil.Process(pid).parent().pid == pids_list[pid_index-1]
         return pids_list
 
+    @unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_processes(self):
-        """Processes with the same parent process as the current one."""
-
         rdflib_graph = CreateGraph()
 
         current_pid = os.getpid()
