@@ -1475,6 +1475,15 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result)
 
+        def print_subprocesses(proc_id, depth = 0):
+            for one_proc in psutil.Process(proc_id).children(recursive=False):
+                print("    " * depth, one_proc.pid)
+                print_subprocesses(one_proc.pid, depth+1)
+
+        print("Subprocesses start")
+        print_subprocesses(current_pid)
+        print("Subprocesses end")
+
         actual_pids_list = [int(one_value[0]) for one_value in query_result]
         print("pids_list=", pids_list)
         print("actual_pids_list=", actual_pids_list)
