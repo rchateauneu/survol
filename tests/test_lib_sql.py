@@ -1,9 +1,19 @@
-import sys
-import re
-sys.path.insert(1,r'C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\revlib')
+#!/usr/bin/env python
 
-import sqlparse
+from __future__ import print_function
+
+# sys.path.insert(1,r'C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\revlib')
+
+import unittest
+
+from init import *
+
+update_test_path()
+
 import lib_sql
+
+################################################################################
+
 
 examples = dict()
 
@@ -1238,52 +1248,60 @@ INSERT OR REPLACE INTO daily_counters VALUES ()
 
 ################################################################################
 
-def DispSqlNode(parentNode,sqlNode,depth):
-	if depth == 0:
-		print( ("\t" * depth) + "DISPN=" + sqlNode)
-	else:
-		print( ("\t" * depth) + "PARNT="+parentNode.replace("\n"," ").replace("  "," ").replace("  "," "))
-		print( ("\t" * depth) + "DISPN=" + sqlNode.replace("\n"," ").replace("  "," ").replace("  "," "))
-
-def DisplayTablesAny(theDictNam,theDict):
-	errnum = 0
-
-	for sqlQry in theDict:
-		print("_"*40)
-		expectedTables = theDict[sqlQry]
-		sqlQry = sqlQry.replace("\n"," ").replace("  "," ").replace("  "," ")
-
-		print("\nQUERY="+sqlQry+"\n")
-		lib_sql.SqlQueryWalkNodes(sqlQry,DispSqlNode)
-		print("")
-
-		resVec = lib_sql.TableDependencies(sqlQry)
-		resVec = [ s.upper() for s in resVec]
-		vecUp = resVec
-		vecUp.sort()
-		if expectedTables != vecUp:
-			errnum += 1
-			print("\nQUERY="+sqlQry+"\n")
-			print("Should be="+str(expectedTables))
-			# print("Actual is="+str(resVec))
-			print("Result is="+str(vecUp))
-			print("")
-			print("")
-			#exit(1)
-
-	lenTot = len(theDict)
-	print("Finished "+theDictNam+" with "+str(errnum)+" errors out of "+str(lenTot))
-
 ################################################################################
 
-if len(sys.argv) == 1:
-	for key in examples:
-		print(key)
-		DisplayTablesAny(key,examples[key])
-else:
-	for a in sys.argv[1:]:
-		print(a)
-		DisplayTablesAny(a,examples[a])
+# if len(sys.argv) == 1:
+# 	for key in examples:
+# 		print(key)
+# 		DisplayTablesAny(key,examples[key])
+# else:
+# 	for a in sys.argv[1:]:
+# 		print(a)
+# 		DisplayTablesAny(a,examples[a])
+#
+# print("Fini")
 
-print("Fini")
+class SqlParse_Test(unittest.TestCase):
+    @staticmethod
+    def DispSqlNode(parentNode, sqlNode, depth):
+        if depth == 0:
+            print(("\t" * depth) + "DISPN=" + sqlNode)
+        else:
+            print(("\t" * depth) + "PARNT=" + parentNode.replace("\n", " ").replace("  ", " ").replace("  ", " "))
+            print(("\t" * depth) + "DISPN=" + sqlNode.replace("\n", " ").replace("  ", " ").replace("  ", " "))
+
+    def DisplayTablesAny(self, theDictNam, theDict):
+        errnum = 0
+
+        for sqlQry in theDict:
+            print("_" * 40)
+            expectedTables = theDict[sqlQry]
+            sqlQry = sqlQry.replace("\n", " ").replace("  ", " ").replace("  ", " ")
+
+            print("\nQUERY=" + sqlQry + "\n")
+            lib_sql.SqlQueryWalkNodes(sqlQry, SqlParse_Test.DispSqlNode)
+            print("")
+
+            resVec = lib_sql.TableDependencies(sqlQry)
+            resVec = [s.upper() for s in resVec]
+            vecUp = resVec
+            vecUp.sort()
+            if expectedTables != vecUp:
+                errnum += 1
+                print("\nQUERY=" + sqlQry + "\n")
+                print("Should be=" + str(expectedTables))
+                # print("Actual is="+str(resVec))
+                print("Result is=" + str(vecUp))
+                print("")
+                print("")
+                self.assertTrue(expectedTables == vecUp)
+
+        lenTot = len(theDict)
+        print("Finished " + theDictNam + " with " + str(errnum) + " errors out of " + str(lenTot))
+
+    @unittest.skip("Not finished yet")
+    def test_sql_parse(self):
+        for key in examples:
+            print(key)
+            self.DisplayTablesAny(key, examples[key])
 
