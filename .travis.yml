@@ -9,6 +9,7 @@ install:
   - pip install rdflib
   - pip install SPARQLWrapper
   - pip install pywbem
+  - pip install sqlparse
 script:
   - pwd
   - pytest --durations=30 tests
