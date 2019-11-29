@@ -15,9 +15,9 @@ import lib_sql
 ################################################################################
 
 
-examples = dict()
+query_examples = dict()
 
-examples["NoSelect"] = {
+query_examples["NoSelect"] = {
 "INSERT INTO table (nom_colonne_1, nom_colonne_2) VALUES ('valeur 1', 'valeur 2')" : ["TABLE"],
 """
 DELETE FROM student WHERE name = 'alan'
@@ -47,7 +47,7 @@ AND Txn_Date = 'Jan-08-1999'
 }
 
 
-examples["Good"] = {
+query_examples["Good"] = {
 "select aa from bb": ["BB"],
 "select b from a": ["A"],
 "select b*(b+1) from a": ["A"],
@@ -1098,7 +1098,7 @@ AND Contacts.GivenName = Customers.GivenName
 }
 
 
-examples["Bad"] = {
+query_examples["Bad"] = {
 """
 SELECT MIN(a.idno) AS min_id, a.CustomerID
   INTO tmp_Min_Idno
@@ -1209,7 +1209,7 @@ where sess.session_id = req.session_id
 
 ################################################################################
 
-examples["Focus"] = {
+query_examples["Focus"] = {
 """
 SELECT *
 FROM (SELECT * FROM T1 UNION ALL (SELECT * FROM T2 ORDER BY 1) ) AS UTABLE
@@ -1299,9 +1299,22 @@ class SqlParse_Test(unittest.TestCase):
         lenTot = len(theDict)
         print("Finished " + theDictNam + " with " + str(errnum) + " errors out of " + str(lenTot))
 
-    @unittest.skip("Not finished yet")
-    def test_sql_parse(self):
-        for key in examples:
-            print(key)
-            self.DisplayTablesAny(key, examples[key])
+    def sql_parse_test_keyword(self, keyword):
+        self.DisplayTablesAny(keyword, query_examples[keyword])
+
+    def test_sql_parse_good(self):
+        self.assertTrue(sorted(query_examples.keys()) == ["Bad", "Focus", "Good", "NoSelect"])
+        self.sql_parse_test_keyword("Good")
+
+    @unittest.skip("FIXME: Not finished yet")
+    def test_sql_parse_focus(self):
+        self.sql_parse_test_keyword("Focus")
+
+    @unittest.skip("FIXME: Not finished yet")
+    def test_sql_parse_bad(self):
+        self.sql_parse_test_keyword("Bad")
+
+    @unittest.skip("FIXME: Not finished yet")
+    def test_sql_parse_noselect(self):
+        self.sql_parse_test_keyword("NoSelect")
 
