@@ -1,5 +1,5 @@
-# Dockerfile generated TODAY_YYYY_MM_DD 07:46:22:437000
-# Directory C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests\dockit_output_files\result_strace.docker
+# Dockerfile generated 2019-11-30 10:56:12:294000
+# Directory C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests\dockit_output_files\sample_shell_ltrace_tst_docker.docker
 
 FROM docker.io/fedora
 
@@ -13,34 +13,35 @@ MAINTAINER contact@primhillcomputers.com
 
 # Non-packaged executable files copies:
 # Origin file does not exist:C:\etc\ld.so.cache
-# Origin file does not exist:C:\usr\lib64\libacl.so.1.1.0
-# Origin file does not exist:C:\usr\lib64\libattr.so.1.1.0
-# Origin file does not exist:C:\usr\lib64\libbz2.so.1.0.6
-# Origin file does not exist:C:\usr\lib64\libc-2.21.so
-# Origin file does not exist:C:\usr\lib64\libcap.so.2.24
-# Origin file does not exist:C:\usr\lib64\libdl-2.21.so
-# Origin file does not exist:C:\usr\lib64\libdw-0.166.so
-# Origin file does not exist:C:\usr\lib64\libelf-0.166.so
-# Origin file does not exist:C:\usr\lib64\libgcc_s-5.3.1-20160406.so.1
-# Origin file does not exist:C:\usr\lib64\libgcrypt.so.20.0.3
-# Origin file does not exist:C:\usr\lib64\libgpg-error.so.0.17.0
-# Origin file does not exist:C:\usr\lib64\liblzma.so.5.2.0
-# Origin file does not exist:C:\usr\lib64\libm-2.21.so
-# Origin file does not exist:C:\usr\lib64\libnss_files-2.21.so
-# Origin file does not exist:C:\usr\lib64\libpcre.so.1.2.7
-# Origin file does not exist:C:\usr\lib64\libprocps.so.4.0.0
-# Origin file does not exist:C:\usr\lib64\libpthread-2.21.so
-# Origin file does not exist:C:\usr\lib64\libresolv-2.21.so
-# Origin file does not exist:C:\usr\lib64\librt-2.21.so
-# Origin file does not exist:C:\usr\lib64\libselinux.so.1
-# Origin file does not exist:C:\usr\lib64\libsystemd.so.0.6.0
-# Origin file does not exist:C:\usr\lib64\libtinfo.so.5.9
-# Origin file does not exist:C:\usr\lib64\libz.so.1.2.8
+# Origin file does not exist:C:\lib64\libacl.so.1
+# Origin file does not exist:C:\lib64\libattr.so.1
+# Origin file does not exist:C:\lib64\libbz2.so.1
+# Origin file does not exist:C:\lib64\libc.so.6
+# Origin file does not exist:C:\lib64\libcap.so.2
+# Origin file does not exist:C:\lib64\libdl.so.2
+# Origin file does not exist:C:\lib64\libdw.so.1
+# Origin file does not exist:C:\lib64\libelf.so.1
+# Origin file does not exist:C:\lib64\libgcc_s.so.1
+# Origin file does not exist:C:\lib64\libgcrypt.so.20
+# Origin file does not exist:C:\lib64\libgpg-error.so.0
+# Origin file does not exist:C:\lib64\liblzma.so.5
+# Origin file does not exist:C:\lib64\libm.so.6
+# Origin file does not exist:C:\lib64\libnss_files.so.2
+# Origin file does not exist:C:\lib64\libpcre.so.1
+# Origin file does not exist:C:\lib64\libprocps.so.4
+# Origin file does not exist:C:\lib64\libpthread.so.0
+# Origin file does not exist:C:\lib64\libresolv.so.2
+# Origin file does not exist:C:\lib64\librt.so.1
+# Origin file does not exist:C:\lib64\libselinux.so.1
+# Origin file does not exist:C:\lib64\libsystemd.so.0
+# Origin file does not exist:C:\lib64\libtinfo.so.5
+# Origin file does not exist:C:\lib64\libz.so.1
 
 # Data packages:
 
 # Data files:
 # Origin file does not exist:C:\dev\tty
+# Origin file does not exist:C:\etc\localtime
 # Origin file does not exist:C:\etc\nsswitch.conf
 # Origin file does not exist:C:\etc\passwd
 # Origin file does not exist:C:\home\rchateau\rdfmon-code\Experimental\RetroBatch
@@ -49,9 +50,6 @@ MAINTAINER contact@primhillcomputers.com
 # Origin file does not exist:C:\proc\100\cmdline
 # Origin file does not exist:C:\proc\100\stat
 # Origin file does not exist:C:\proc\100\status
-# Origin file does not exist:C:\proc\10386\cmdline
-# Origin file does not exist:C:\proc\10386\stat
-# Origin file does not exist:C:\proc\10386\status
 # Origin file does not exist:C:\proc\10\cmdline
 # Origin file does not exist:C:\proc\10\stat
 # Origin file does not exist:C:\proc\10\status
@@ -220,54 +218,57 @@ MAINTAINER contact@primhillcomputers.com
 # Origin file does not exist:C:\proc\18057\cmdline
 # Origin file does not exist:C:\proc\18057\stat
 # Origin file does not exist:C:\proc\18057\status
-# Origin file does not exist:C:\proc\18107\cmdline
-# Origin file does not exist:C:\proc\18107\stat
-# Origin file does not exist:C:\proc\18107\status
 # Origin file does not exist:C:\proc\1810\cmdline
 # Origin file does not exist:C:\proc\1810\stat
 # Origin file does not exist:C:\proc\1810\status
-# Origin file does not exist:C:\proc\18111\cmdline
-# Origin file does not exist:C:\proc\18111\stat
-# Origin file does not exist:C:\proc\18111\status
 # Origin file does not exist:C:\proc\18115\cmdline
 # Origin file does not exist:C:\proc\18115\stat
 # Origin file does not exist:C:\proc\18115\status
 # Origin file does not exist:C:\proc\1813\cmdline
 # Origin file does not exist:C:\proc\1813\stat
 # Origin file does not exist:C:\proc\1813\status
-# Origin file does not exist:C:\proc\18146\cmdline
-# Origin file does not exist:C:\proc\18146\stat
-# Origin file does not exist:C:\proc\18146\status
-# Origin file does not exist:C:\proc\18151\cmdline
-# Origin file does not exist:C:\proc\18151\stat
-# Origin file does not exist:C:\proc\18151\status
 # Origin file does not exist:C:\proc\1818\cmdline
 # Origin file does not exist:C:\proc\1818\stat
 # Origin file does not exist:C:\proc\1818\status
-# Origin file does not exist:C:\proc\18190\cmdline
-# Origin file does not exist:C:\proc\18190\stat
-# Origin file does not exist:C:\proc\18190\status
-# Origin file does not exist:C:\proc\18191\cmdline
-# Origin file does not exist:C:\proc\18191\stat
-# Origin file does not exist:C:\proc\18191\status
-# Origin file does not exist:C:\proc\18193\cmdline
-# Origin file does not exist:C:\proc\18193\stat
-# Origin file does not exist:C:\proc\18193\status
-# Origin file does not exist:C:\proc\18195\cmdline
-# Origin file does not exist:C:\proc\18195\stat
-# Origin file does not exist:C:\proc\18195\status
-# Origin file does not exist:C:\proc\18196\cmdline
-# Origin file does not exist:C:\proc\18196\stat
-# Origin file does not exist:C:\proc\18196\status
 # Origin file does not exist:C:\proc\18197\cmdline
 # Origin file does not exist:C:\proc\18197\stat
 # Origin file does not exist:C:\proc\18197\status
 # Origin file does not exist:C:\proc\1822\cmdline
 # Origin file does not exist:C:\proc\1822\stat
 # Origin file does not exist:C:\proc\1822\status
+# Origin file does not exist:C:\proc\18256\cmdline
+# Origin file does not exist:C:\proc\18256\stat
+# Origin file does not exist:C:\proc\18256\status
+# Origin file does not exist:C:\proc\18261\cmdline
+# Origin file does not exist:C:\proc\18261\stat
+# Origin file does not exist:C:\proc\18261\status
+# Origin file does not exist:C:\proc\18266\cmdline
+# Origin file does not exist:C:\proc\18266\stat
+# Origin file does not exist:C:\proc\18266\status
+# Origin file does not exist:C:\proc\18267\cmdline
+# Origin file does not exist:C:\proc\18267\stat
+# Origin file does not exist:C:\proc\18267\status
+# Origin file does not exist:C:\proc\18269\cmdline
+# Origin file does not exist:C:\proc\18269\stat
+# Origin file does not exist:C:\proc\18269\status
 # Origin file does not exist:C:\proc\1830\cmdline
 # Origin file does not exist:C:\proc\1830\stat
 # Origin file does not exist:C:\proc\1830\status
+# Origin file does not exist:C:\proc\18314\cmdline
+# Origin file does not exist:C:\proc\18314\stat
+# Origin file does not exist:C:\proc\18314\status
+# Origin file does not exist:C:\proc\18315\cmdline
+# Origin file does not exist:C:\proc\18315\stat
+# Origin file does not exist:C:\proc\18315\status
+# Origin file does not exist:C:\proc\18316\cmdline
+# Origin file does not exist:C:\proc\18316\stat
+# Origin file does not exist:C:\proc\18316\status
+# Origin file does not exist:C:\proc\18318\cmdline
+# Origin file does not exist:C:\proc\18318\stat
+# Origin file does not exist:C:\proc\18318\status
+# Origin file does not exist:C:\proc\18319\cmdline
+# Origin file does not exist:C:\proc\18319\stat
+# Origin file does not exist:C:\proc\18319\status
 # Origin file does not exist:C:\proc\1870\cmdline
 # Origin file does not exist:C:\proc\1870\stat
 # Origin file does not exist:C:\proc\1870\status
@@ -798,6 +799,7 @@ MAINTAINER contact@primhillcomputers.com
 # Origin file does not exist:C:\proc\9\status
 # Origin file does not exist:C:\proc\filesystems
 # Origin file does not exist:C:\proc\meminfo
+# Origin file does not exist:C:\proc\self\stat
 # Origin file does not exist:C:\proc\stat
 # Origin file does not exist:C:\proc\sys\kernel\pid_max
 # Origin file does not exist:C:\proc\tty\drivers
@@ -806,18 +808,14 @@ MAINTAINER contact@primhillcomputers.com
 # Origin file does not exist:C:\usr\lib64\gconv\gconv-modules.cache
 # Origin file does not exist:C:\usr\lib\locale\locale-archive
 # Origin file does not exist:C:\usr\share\locale\locale.alias
-# Origin file does not exist:C:\usr\share\zoneinfo\Europe\London
 
-WORKDIR C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests
-CMD [ "bash","TestProgs/sample_she..." ]
-WORKDIR C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests
+WORKDIR /home/rchateau/rdfmon-code/Experimental/RetroBatch
 
 
 # Processes tree
-# TODAY_YYYY_MM_DD 08:26:47.177594 -> TODAY_YYYY_MM_DD 08:26:47.553096 :      bash TestProgs/sample_she...
-# TODAY_YYYY_MM_DD 08:26:47.185552 -> TODAY_YYYY_MM_DD 08:26:47.553096 :          ls
-# TODAY_YYYY_MM_DD 08:26:47.198399 -> TODAY_YYYY_MM_DD 08:26:47.553096 :          ps -ef
-# TODAY_YYYY_MM_DD 08:26:47.545561 -> TODAY_YYYY_MM_DD 08:26:47.553096 :          cat TestProgs/sample_she...
-# TODAY_YYYY_MM_DD 08:26:47.185933 -> TODAY_YYYY_MM_DD 08:26:47.553096 :      ????
-# TODAY_YYYY_MM_DD 08:26:47.199213 -> TODAY_YYYY_MM_DD 08:26:47.543412 :          wc
+# 2018-05-20 09:00:22.529684 -> 2018-05-20 09:00:23.657686 :      ????
+# 2018-05-20 09:00:22.557771 -> 2018-05-20 09:00:23.657686 :          C:\usr\bin\ls
+# 2018-05-20 09:00:22.598022 -> 2018-05-20 09:00:23.657686 :          ????
+# 2018-05-20 09:00:22.599853 -> 2018-05-20 09:00:23.631763 :          ????
+# 2018-05-20 09:00:23.641969 -> 2018-05-20 09:00:23.657686 :          C:\usr\bin\cat
 
