@@ -13,6 +13,7 @@ import tempfile
 import unittest
 import shutil
 import rdflib
+import datetime
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 # This is needed when running from PyCharm.
@@ -32,6 +33,7 @@ sys.path.insert(0,"../survol/scripts")
 sys.path.insert(0,"survol/scripts")
 
 dockit_output_files_path = os.path.join( os.path.dirname(__file__), "dockit_output_files" )
+dockit_output_files_path_expected = os.path.join( os.path.dirname(__file__), "dockit_output_files_expected" )
 
 # Creates the destination file for result if not there, otherwise cleanup.
 # This is needed otherwise pytest would run the Python files in this dir.
@@ -40,7 +42,45 @@ if os.path.exists(dockit_output_files_path):
 os.makedirs(dockit_output_files_path)
 
 def path_prefix_output_result(*file_path):
-    return os.path.join( dockit_output_files_path, *file_path )
+    return os.path.join(dockit_output_files_path, *file_path)
+
+# Check content of the generated files.
+def check_file_content(*file_path):
+    full_file_path = path_prefix_output_result(*file_path)
+    fil_descr = open(full_file_path)
+    filename, file_extension = os.path.splitext(full_file_path)
+    if file_extension == ".json":
+        # Checks that this json file can be loaded.
+        json.load(fil_descr)
+    elif file_extension == ".xml":
+        # Checks that this xml file can be parsed.
+        minidom.parse(full_file_path)
+    fil_descr.close()
+
+    # Now compare this file with the expected one, if it is here.
+    expected_file_path = os.path.join(dockit_output_files_path_expected, *file_path)
+    print("expected_file_path=", expected_file_path)
+    try:
+        expected_fil_descr = open(expected_file_path)
+        expected_content = expected_fil_descr.readlines()
+        print("Checking content of:", expected_file_path)
+
+        fil_descr = open(full_file_path)
+        actual_content = expected_fil_descr.readlines()
+
+        # In the expected files, the date is replaced by the keyword TODAY_YYYY_MM_DD,
+        # which is replaced on the fly by today.
+        today_YYYY_MM_DD = datetime.datetime.now().strftime('%Y-%m-%d')
+        for expected_line, actual_line in zip(expected_content, actual_content):
+            expected_line_today = expected_line.replace("TODAY_YYYY_MM_DD", today_YYYY_MM_DD)
+            assert expected_line_today == actual_line
+        print("Comparison OK with ", full_file_path)
+        expected_fil_descr.close()
+        fil_descr.close()
+
+    except IOError:
+        pass
+
 
 dock_input_files_path = os.path.join( os.path.dirname(__file__), "dockit_input_test_trace_files" )
 
@@ -438,11 +478,9 @@ class DockitTraceFilesTest(unittest.TestCase):
             withDockerfile = False,
             updateServer = None)
 
-        fil_txt = open( path_prefix_output_result( "result_strace.txt") )
-        fil_txt.close()
+        check_file_content("result_strace.txt")
 
-        fil_summary = open( path_prefix_output_result( "result_strace.summary.txt") )
-        fil_summary.close()
+        check_file_content("result_strace.summary.txt")
 
     def test_file_strace_csv_docker(self):
         dockit.UnitTest(
@@ -458,14 +496,11 @@ class DockitTraceFilesTest(unittest.TestCase):
             withDockerfile = True,
             updateServer = None)
 
-        fil_csv = open( path_prefix_output_result( "result_strace.csv") )
-        fil_csv.close()
+        check_file_content("result_strace.csv")
 
-        fil_summary = open( path_prefix_output_result( "result_strace.summary.xml") )
-        fil_summary.close()
+        check_file_content("result_strace.summary.xml")
 
-        fil_docker = open( path_prefix_output_result( "result_strace.docker", "Dockerfile") )
-        fil_docker.close()
+        check_file_content("result_strace.docker", "Dockerfile")
 
     def test_file_strace_json(self):
 
@@ -482,12 +517,9 @@ class DockitTraceFilesTest(unittest.TestCase):
             withDockerfile = False,
             updateServer = None)
 
-        fil_json = open( path_prefix_output_result( "result_strace.json") )
-        data = json.load(fil_json)
-        fil_json.close()
+        check_file_content("result_strace.json")
 
-        fil_summary = open( path_prefix_output_result( "result_strace.summary.txt") )
-        fil_summary.close()
+        check_file_content("result_strace.summary.txt")
 
 
     def test_file_ltrace_docker(self):
@@ -504,20 +536,11 @@ class DockitTraceFilesTest(unittest.TestCase):
             withDockerfile=True,
             updateServer=None)
 
-        fil_json = open( path_prefix_output_result( "result_ltrace.json") )
-        data = json.load(fil_json)
-        fil_json.close()
+        check_file_content("result_ltrace.json")
 
-        fil_summary = open( path_prefix_output_result( "result_ltrace.summary.txt") )
-        fil_summary.close()
+        check_file_content("result_ltrace.summary.txt")
 
-        fil_docker = open( path_prefix_output_result( "result_ltrace.docker", "Dockerfile") )
-        fil_docker.close()
-
-
-        # TODO: Test file content.
-
-
+        check_file_content("result_ltrace.docker", "Dockerfile")
 
 
     def test_all_trace_files(self):
@@ -614,12 +637,9 @@ class DockitProcessesTest(unittest.TestCase):
         sub_proc.communicate()
         self.assertTrue(sub_proc.returncode == 0)
 
-        fil_txt = open(path_prefix_output_result("result_ls_strace.txt"))
-        # Check content
-        fil_txt.close()
+        check_file_content("result_ls_strace.txt")
 
-        fil_summary = open(path_prefix_output_result("result_ls_strace.summary.txt"))
-        fil_summary.close()
+        check_file_content("result_ls_strace.summary.txt")
 
 class DockitEventsTest(unittest.TestCase):
     """
@@ -636,10 +656,10 @@ class DockitEventsTest(unittest.TestCase):
 
     def test_file_events(self):
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file("mineit_ps_ef.strace.log"),
+            inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
             tracer="strace",
             topPid=0,
-            baseOutName= path_prefix_output_result("mineit_ps_ef.strace"),
+            baseOutName= path_prefix_output_result("dockit_ps_ef.strace"),
             outputFormat="JSON",
             verbose=False,
             mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -648,12 +668,9 @@ class DockitEventsTest(unittest.TestCase):
             withDockerfile=False,
             updateServer=RemoteEventsTestAgent + "/survol/event_put.py")
 
-        fil_json = open( path_prefix_output_result( "mineit_ps_ef.strace.json") )
-        data = json.load(fil_json)
-        fil_json.close()
+        check_file_content("dockit_ps_ef.strace.json")
 
-        fil_summary = open( path_prefix_output_result( "mineit_ps_ef.strace.summary.txt") )
-        fil_summary.close()
+        check_file_content("dockit_ps_ef.strace.summary.txt")
 
         # Now read the events.
         # This is for a specific entity.
