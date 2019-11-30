@@ -693,6 +693,6 @@ class WbemSparqlCallbackApi:
         #
         #     yield class_path, dict_key_values
 
-    def CallbackTypeTree(self, grph, see_also, associator_subject):
+    def CallbackTypeTree(self, grph, see_also, class_name, associator_subject):
         raise NotImplementedError("CallbackTypeTree: Not implemented yet")
 
