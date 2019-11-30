@@ -70,16 +70,20 @@ def check_file_content(*file_path):
 
         # In the expected files, the date is replaced by the keyword TODAY_YYYY_MM_DD,
         # which is replaced on the fly by today.
-        today_YYYY_MM_DD = datetime.datetime.now().strftime('%Y-%m-%d')
+        ########### today_YYYY_MM_DD = datetime.datetime.now().strftime('%Y-%m-%d')
+
+        # Each test has an ini file used by the script dockit.ini, to force a given date.
+        # So there is not need to replace the date by the current one.
         for expected_line, actual_line in zip(expected_content, actual_content):
-            expected_line_today = expected_line.replace("TODAY_YYYY_MM_DD", today_YYYY_MM_DD)
-            assert expected_line_today == actual_line
+            #expected_line_today = expected_line.replace("TODAY_YYYY_MM_DD", today_YYYY_MM_DD)
+            #assert expected_line_today == actual_line
+            assert expected_line == actual_line
         print("Comparison OK with ", full_file_path)
         expected_fil_descr.close()
         fil_descr.close()
 
     except IOError:
-        pass
+        print("Cannot find:", expected_file_path)
 
 
 dock_input_files_path = os.path.join( os.path.dirname(__file__), "dockit_input_test_trace_files" )
@@ -466,10 +470,10 @@ class DockitTraceFilesTest(unittest.TestCase):
 
     def test_file_strace_txt(self):
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file( "sample_shell.strace.log"),
+            inputLogFile = path_prefix_input_file("sample_shell.strace.log"),
             tracer = "strace",
             topPid = 0,
-            baseOutName = path_prefix_output_result( "result_strace"),
+            baseOutName = path_prefix_output_result("sample_shell_strace_tst_txt"),
             outputFormat = "TXT",
             verbose = True,
             mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -478,16 +482,16 @@ class DockitTraceFilesTest(unittest.TestCase):
             withDockerfile = False,
             updateServer = None)
 
-        check_file_content("result_strace.txt")
+        check_file_content("sample_shell_strace_tst_txt.txt")
 
-        check_file_content("result_strace.summary.txt")
+        check_file_content("sample_shell_strace_tst_txt.summary.txt")
 
     def test_file_strace_csv_docker(self):
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file( "sample_shell.strace.log"),
+            inputLogFile = path_prefix_input_file("sample_shell.strace.log"),
             tracer = "strace",
             topPid = 0,
-            baseOutName = path_prefix_output_result( "result_strace" ),
+            baseOutName = path_prefix_output_result("sample_shell_strace_tst_csv" ),
             outputFormat = "CSV",
             verbose = True,
             mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -496,19 +500,19 @@ class DockitTraceFilesTest(unittest.TestCase):
             withDockerfile = True,
             updateServer = None)
 
-        check_file_content("result_strace.csv")
+        check_file_content("sample_shell_strace_tst_csv.csv")
 
-        check_file_content("result_strace.summary.xml")
+        check_file_content("sample_shell_strace_tst_csv.summary.xml")
 
-        check_file_content("result_strace.docker", "Dockerfile")
+        check_file_content("sample_shell_strace_tst_csv.docker", "Dockerfile")
 
     def test_file_strace_json(self):
 
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file( "sample_shell.strace.log"),
+            inputLogFile = path_prefix_input_file("sample_shell.strace.log"),
             tracer = "strace",
             topPid = 0,
-            baseOutName = path_prefix_output_result( "result_strace" ),
+            baseOutName = path_prefix_output_result("sample_shell_strace_tst_json"),
             outputFormat = "JSON",
             verbose = True,
             mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -517,17 +521,17 @@ class DockitTraceFilesTest(unittest.TestCase):
             withDockerfile = False,
             updateServer = None)
 
-        check_file_content("result_strace.json")
+        check_file_content("sample_shell_strace_tst_json.json")
 
-        check_file_content("result_strace.summary.txt")
+        check_file_content("sample_shell_strace_tst_json.summary.txt")
 
 
     def test_file_ltrace_docker(self):
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file( "sample_shell.ltrace.log"),
+            inputLogFile = path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
             topPid=0,
-            baseOutName= path_prefix_output_result( "result_ltrace" ),
+            baseOutName= path_prefix_output_result("sample_shell_ltrace_tst_docker"),
             outputFormat="JSON",
             verbose=True,
             mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -536,11 +540,11 @@ class DockitTraceFilesTest(unittest.TestCase):
             withDockerfile=True,
             updateServer=None)
 
-        check_file_content("result_ltrace.json")
+        check_file_content("sample_shell_ltrace_tst_docker.json")
 
-        check_file_content("result_ltrace.summary.txt")
+        check_file_content("sample_shell_ltrace_tst_docker.summary.txt")
 
-        check_file_content("result_ltrace.docker", "Dockerfile")
+        check_file_content("sample_shell_ltrace_tst_docker.docker", "Dockerfile")
 
 
     def test_all_trace_files(self):
@@ -654,6 +658,7 @@ class DockitEventsTest(unittest.TestCase):
     def tearDown(self):
         CgiAgentStop(self.RemoteEventsTestAgent)
 
+    @unittes.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
     def test_file_events(self):
         dockit.UnitTest(
             inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
