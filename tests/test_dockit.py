@@ -658,7 +658,7 @@ class DockitEventsTest(unittest.TestCase):
     def tearDown(self):
         CgiAgentStop(self.RemoteEventsTestAgent)
 
-    @unittes.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
+    @unittest.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
     def test_file_events(self):
         dockit.UnitTest(
             inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
