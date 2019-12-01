@@ -1580,6 +1580,43 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 assert psutil.Process(pid).parent().pid == pids_list[pid_index-1]
         return pids_list
 
+    def create_process_tree_popen(self, depth):
+        import subprocess
+
+        dir_path = os.path.dirname(__file__)
+        sys.path.append(dir_path)
+
+        # Modified Python path so it can find the special module to create a chain of subprocesses.
+        my_env = os.environ.copy()
+        my_env["PYTHONPATH"] = dir_path
+        proc = subprocess.Popen([sys.executable, '-m', 'create_process_chain',
+                                 str(depth)], env=my_env,
+                                stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+        print("create_process_tree_popen ", proc.pid)
+        sys.stdout.flush()
+        return_dict = {}
+        for ix in range(depth+1):
+            one_line = proc.stdout.readline()
+            print("one_line=", one_line)
+            sys.stdout.flush()
+            one_depth, one_pid = map(int, one_line.split(" "))
+            return_dict[one_depth] = one_pid
+
+        return proc, return_dict
+
+    def test_processes_chain_creation(self):
+        depth_processes = 5
+        proc, return_dict = self.create_process_tree_popen(depth_processes)
+        print("test_processes_chain_creation ", return_dict)
+        print("proc.pid=", proc.pid)
+        self.assertTrue(psutil.Process(return_dict[depth_processes]).ppid() == proc.pid)
+        for ix in range(depth_processes):
+            self.assertTrue(psutil.Process(return_dict[ix]).ppid() == return_dict[ix+1])
+        time.sleep(1)
+        proc.terminate()
+
+
     @unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_processes(self):
         rdflib_graph = CreateGraph()
